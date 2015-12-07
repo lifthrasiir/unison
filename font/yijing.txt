@@ -477,68 +477,18 @@ glyph hexagram-6-yin = yin-sm@X
 ................
 
 // I seriously hate the King Wen order.
-glyph ䷀ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷪ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷍ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷡ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷈ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷄ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷙ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷊ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yang
-glyph ䷉ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷹ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷥ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷵ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷼ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷻ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷨ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷒ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yang
-glyph ䷌ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷰ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷝ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷶ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷤ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷾ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷕ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷣ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yang
-glyph ䷘ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷐ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷔ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷲ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷩ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷂ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷚ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷗ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yang
-glyph ䷫ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷛ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷱ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷟ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷸ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷯ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷑ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷭ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yang hexagram-6-yin
-glyph ䷅ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷮ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷿ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷧ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷺ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷜ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷃ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷆ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yang hexagram-6-yin
-glyph ䷠ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷞ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷷ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷽ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷴ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷦ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷳ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷎ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yang hexagram-5-yin  hexagram-6-yin
-glyph ䷋ = hexagram-1-yang hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
-glyph ䷬ = hexagram-1-yin  hexagram-2-yang hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
-glyph ䷢ = hexagram-1-yang hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
-glyph ䷏ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yang hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
-glyph ䷓ = hexagram-1-yang hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
-glyph ䷇ = hexagram-1-yin  hexagram-2-yang hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
-glyph ䷖ = hexagram-1-yang hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
-glyph ䷁ = hexagram-1-yin  hexagram-2-yin  hexagram-3-yin  hexagram-4-yin  hexagram-5-yin  hexagram-6-yin
+glyph ䷀|䷪|䷍|䷡|䷈|䷄|䷙|䷊|䷉|䷹|䷥|䷵|䷼|䷻|䷨|䷒|䷌|䷰|䷝|䷶|䷤|䷾|䷕|䷣|䷘|䷐|䷔|䷲|䷩|䷂|䷚|䷗ = ..
+	hexagram-1-yang|hexagram-1-yin ..
+	hexagram-2-yang*2|hexagram-2-yin*2 ..
+	hexagram-3-yang*4|hexagram-3-yin*4 ..
+	hexagram-4-yang*8|hexagram-4-yin*8 ..
+	hexagram-5-yang*16|hexagram-5-yin*16 ..
+	hexagram-6-yang
+glyph ䷫|䷛|䷱|䷟|䷸|䷯|䷑|䷭|䷅|䷮|䷿|䷧|䷺|䷜|䷃|䷆|䷠|䷞|䷷|䷽|䷴|䷦|䷳|䷎|䷋|䷬|䷢|䷏|䷓|䷇|䷖|䷁ = ..
+	hexagram-1-yang|hexagram-1-yin ..
+	hexagram-2-yang*2|hexagram-2-yin*2 ..
+	hexagram-3-yang*4|hexagram-3-yin*4 ..
+	hexagram-4-yang*8|hexagram-4-yin*8 ..
+	hexagram-5-yang*16|hexagram-5-yin*16 ..
+	hexagram-6-yin
 

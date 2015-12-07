@@ -328,16 +328,36 @@ class Font(object):
         if fp: self.read(fp)
 
     def read(self, fp):
+        # glyph name = "u+<code>" | "u+<start>..<end>" | "<single ch>" |
+        #              "<name>" | "<name>|<name>*<repeat>|<name>"
         def parse_glyph_name(s):
             slower = s.lower()
             if slower.startswith('u+'):
-                return int(s[2:], 16)
+                lbound, _, ubound = s[2:].partition('..')
+                lbound = int(lbound, 16)
+                if ubound:
+                    ubound = int(ubound, 16)
+                    if lbound > ubound: raise ParseError(u'invalid glyph name range %r' % s)
+                    return xrange(lbound, ubound+1)
+                else:
+                    return lbound
             elif len(s) == 1:
                 return ord(s)
-            elif s and all('0'<=i<='9' or 'a'<=i<='z' or i in '-_.' for i in slower):
-                return slower
             else:
-                raise ParseError(u'invalid glyph name/index %r' % s)
+                ss = []
+                for n in slower.split('|'):
+                    n, _, rep = n.partition('*')
+                    if len(n) == 1:
+                        n = ord(n)
+                    elif not (n and all('0'<=i<='9' or 'a'<=i<='z' or i in '-_.' for i in n)):
+                        raise ParseError(u'invalid glyph name/index %r' % s)
+                    if rep and not rep.isdigit():
+                        raise ParseError(u'invalid glyph name/index %r' % s)
+                    ss.extend([n] * int(rep or 1))
+                if '|' not in slower and '*' not in slower:
+                    return ss[0]
+                else:
+                    return ss
 
         def parse_subglyph_spec(s):
             if len(s) >= 3:
@@ -487,6 +507,7 @@ class Font(object):
                                       preferred_top=roff, preferred_left=coff, subglyphs=subglyphs)
 
         current_glyph = None # or (code, lines, list of (subglyphs, placeholder ch or None))
+        prev_args = []
         for line in fp:
             line = line.decode('utf-8')
             line, _, comment = (u' ' + u' '.join(line.split())).partition(u' //')
@@ -494,23 +515,49 @@ class Font(object):
             if not line: continue
             if len(line) == 1: line = u'glyph U+%x' % ord(line)
             args = line.split()
+            if args[-1] == '..': # continuation token
+                prev_args.extend(args[:-1])
+                continue
+            else:
+                args = prev_args + args
+                prev_args = []
             if args[0] == 'glyph':
                 if current_glyph:
                     flush_glyph(*current_glyph)
                     current_glyph = None
                 name = parse_glyph_name(args[1])
-                if name in self.glyphs:
-                    raise ParseError(u'duplicate glyph %s' % glyph_name(name))
-                if len(args) > 3 and args[2] == '=': # combined glyph
-                    current_glyph = name, [], map(parse_subglyph_spec, args[3:])
-                    placeholder_chars = [ch for _, ch, _, _ in current_glyph[2] if ch]
-                    if len(placeholder_chars) != len(set(placeholder_chars)):
-                        raise ParseError(u'duplicate placeholder characters for glyph %s' %
-                                         glyph_name(name))
-                elif len(args) == 2:
-                    current_glyph = name, [], []
+                if isinstance(name, (int, basestring)):
+                    # single glyph definition
+                    if name in self.glyphs:
+                        raise ParseError(u'duplicate glyph %s' % glyph_name(name))
+                    if len(args) > 3 and args[2] == '=': # combined glyph
+                        current_glyph = name, [], map(parse_subglyph_spec, args[3:])
+                        placeholder_chars = [ch for _, ch, _, _ in current_glyph[2] if ch]
+                        if len(placeholder_chars) != len(set(placeholder_chars)):
+                            raise ParseError(u'duplicate placeholder characters for glyph %s' %
+                                             glyph_name(name))
+                    elif len(args) == 2:
+                        current_glyph = name, [], []
+                    else:
+                        raise ParseError(u'unexpected arguments to `glyph`')
                 else:
-                    raise ParseError(u'unexpected arguments to `glyph`')
+                    # multiple glyph definition (combined glyph only)
+                    names = name
+                    for name in names:
+                        if name in self.glyphs:
+                            raise ParseError(u'duplicate glyph %s' % glyph_name(name))
+                    if len(args) > 3 and args[2] == '=':
+                        subglyph_spec = map(parse_subglyph_spec, args[3:])
+                        placeholder_chars = [ch for _, ch, _, _ in subglyph_spec if ch]
+                        if len(placeholder_chars) != len(set(placeholder_chars)):
+                            raise ParseError(u'duplicate placeholder characters for glyph %s' %
+                                             args[1])
+                        for i, name in enumerate(names):
+                            spec = [(n if isinstance(n, (int, basestring)) else n[i%len(n)],
+                                     pch, roff, coff) for n, pch, roff, coff in subglyph_spec]
+                            flush_glyph(name, [], spec)
+                    else:
+                        raise ParseError(u'unexpected arguments to `glyph`')
             else:
                 if not current_glyph:
                     raise ParseError(u'no glyph currently active')
