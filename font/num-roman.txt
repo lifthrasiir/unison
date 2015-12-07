@@ -1,0 +1,71 @@
+////////////////////////////////////////
+// roman numerals
+
+glyph roman-1-upper = i-upper
+glyph roman-2-upper = i-upper i-upper@>>>>>>>>
+glyph roman-3-upper = i-upper i-upper@>>>>>>>> i-upper@>>>>>>>>>>>>>>>>
+glyph roman-4-upper = i-upper v-upper@>>>>>>>>
+glyph roman-5-upper = v-upper
+glyph roman-6-upper = v-upper roman-1-upper@>>>>>>>>
+glyph roman-7-upper = v-upper roman-2-upper@>>>>>>>>
+glyph roman-8-upper = v-upper roman-3-upper@>>>>>>>>
+glyph roman-9-upper = i-upper x-upper@>>>>>>>>
+glyph roman-10-upper = x-upper
+glyph roman-11-upper = x-upper roman-1-upper@>>>>>>>>
+glyph roman-12-upper = x-upper roman-2-upper@>>>>>>>>
+glyph roman-50-upper = l-upper
+glyph roman-100-upper = c-upper
+glyph roman-500-upper = d-upper
+glyph roman-1000-upper = m-upper
+
+glyph roman-1-lower = i-lower
+glyph roman-2-lower = i-lower i-lower@>>>>>>>>
+glyph roman-3-lower = i-lower i-lower@>>>>>>>> i-lower@>>>>>>>>>>>>>>>>
+glyph roman-4-lower = i-lower v-lower@>>>>>>>>
+glyph roman-5-lower = v-lower
+glyph roman-6-lower = v-lower roman-1-lower@>>>>>>>>
+glyph roman-7-lower = v-lower roman-2-lower@>>>>>>>>
+glyph roman-8-lower = v-lower roman-3-lower@>>>>>>>>
+glyph roman-9-lower = i-lower x-lower@>>>>>>>>
+glyph roman-10-lower = x-lower
+glyph roman-11-lower = x-lower roman-1-lower@>>>>>>>>
+glyph roman-12-lower = x-lower roman-2-lower@>>>>>>>>
+glyph roman-50-lower = l-lower
+glyph roman-100-lower = c-lower
+glyph roman-500-lower = d-lower
+glyph roman-1000-lower = m-lower
+
+glyph Ⅰ = roman-1-upper
+glyph Ⅱ = roman-2-upper
+glyph Ⅲ = roman-3-upper
+glyph Ⅳ = roman-4-upper
+glyph Ⅴ = roman-5-upper
+glyph Ⅵ = roman-6-upper
+glyph Ⅶ = roman-7-upper
+glyph Ⅷ = roman-8-upper
+glyph Ⅸ = roman-9-upper
+glyph Ⅹ = roman-10-upper
+glyph Ⅺ = roman-11-upper
+glyph Ⅻ = roman-12-upper
+glyph Ⅼ = roman-50-upper
+glyph Ⅽ = roman-100-upper
+glyph Ⅾ = roman-500-upper
+glyph Ⅿ = roman-1000-upper
+
+glyph ⅰ = roman-1-lower
+glyph ⅱ = roman-2-lower
+glyph ⅲ = roman-3-lower
+glyph ⅳ = roman-4-lower
+glyph ⅴ = roman-5-lower
+glyph ⅵ = roman-6-lower
+glyph ⅶ = roman-7-lower
+glyph ⅷ = roman-8-lower
+glyph ⅸ = roman-9-lower
+glyph ⅹ = roman-10-lower
+glyph ⅺ = roman-11-lower
+glyph ⅻ = roman-12-lower
+glyph ⅼ = roman-50-lower
+glyph ⅽ = roman-100-lower
+glyph ⅾ = roman-500-lower
+glyph ⅿ = roman-1000-lower
+

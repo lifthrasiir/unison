@@ -1,0 +1,45 @@
+////////////////////////////////////////
+// hangul syllables
+
+// https://github.com/Snack-X/korean-johap
+//
+// hangul syllables are largely compositional, we need 16 sets of glyphs.
+//
+// - initial jamo has 8 sets (A1..A8) for:
+//   A1: no final, medial is one of ㅏㅐㅑㅒㅓㅔㅕㅖㅣ
+//   A2: no final, medial is one of ㅗㅛㅡ
+//   A3: no final, medial is one of ㅜㅠ
+//   A4: no final, medial is one of ㅘㅙㅚㅢ
+//   A5: no final, medial is one of ㅝㅞㅟ
+//   A6: has final, medial is one of ㅏㅐㅑㅒㅓㅔㅕㅖㅣ
+//   A7: has final, medial is one of ㅗㅛㅡ or ㅜㅠ
+//   A8: has final, medial is one of ㅘㅙㅚㅢ or ㅝㅞㅟ
+// - medial jamo has 4 sets (B1a..B2b) for:
+//   B1a/B1b: no final, initial was one of ㄱㅋ/others
+//   B2a/B2b: has final, initial was one of ㄱㅋ/others
+//   (ㄱㅋ make the shape of medials asymmetric, hence separate sets)
+// - final jamo has 4 sets (C1..C4) for:
+//   C1: medial was one of ㅏㅑ or ㅘ
+//   C2: medial was one of ㅓㅕ or ㅚㅝㅟㅢㅣ
+//   C3: medial was one of ㅐㅒㅔㅖ or ㅙㅞ
+//   C4: medial was one of ㅗㅛㅜㅠㅡ
+//
+// consequently we have the following shapes:
+// (some medials may have a room for an additional stroke inside initials)
+//
+// +------+--+ +---------+ +---------+ +------+--+ +------+--+
+// |      |  | |         | |         | |      |  | |      |  |
+// |     ++  | |    A2   | |    A3   | |  A4  |  | |  A5  |  |
+// |  A1 | B1| |   +-+   | +---------+ | +--+ |  | +------+  |
+// |     ++  | +---+ +---+ |         | +-+  +-+  | |         |
+// |      |  | |    B1   | |    B1   | |    B1   | |    B1   |
+// +------+--+ +---------+ +---------+ +---------+ +---------+
+//
+// +------+--+ +---------+ +------+--+
+// |     ++  | |A7 +-+   | |     ++  |
+// |  A6 | B2| +---+ +---+ |  A8 ++B2|
+// |     ++  | |    B2   | +------+  |
+// +------+--+ +---------+ +---------+
+// | C1 C2 C3| |    C4   | | C1 C2 C3|
+// +---------+ +---------+ +---------+
+

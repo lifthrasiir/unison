@@ -1,0 +1,2350 @@
+////////////////////////////////////////
+// latin and derivatives
+
+glyph a-upper
+........
+........
+........
+...d@b..
+..d@^@b.
+.d@/.\@b
+.@@...@@
+.@@...@@
+.@@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph a-e-upper
+........
+........
+........
+...d@@@@
+..d@@@..
+.d@/@@..
+.@@.@@..
+.@@.@@..
+.@@@@@@@
+.@@.@@..
+.@@.@@..
+.@@.@@..
+.@@.@@@@
+........
+........
+........
+
+glyph b-upper
+........
+........
+........
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@<
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@/
+........
+........
+........
+
+glyph c-upper
+........
+........
+........
+../@@@@\
+./@P..@@
+.@@...@@
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@...@@
+.\@b..@@
+..\@@@@/
+........
+........
+........
+
+glyph d-upper
+........
+........
+........
+.@@@@@\.
+.@@..9@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@..d@/
+.@@@@@/.
+........
+........
+........
+
+glyph d-z-upper = d-upper@X z-upper@Y
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+
+glyph d-z-title = d-upper@X z-lower@Y
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+
+glyph eth-upper = d-upper
+........
+........
+........
+.!!!!!..
+.!!..!!.
+.!!...!!
+.!!...!!
+@@@@@.!!
+.!!...!!
+.!!...!!
+.!!...!!
+.!!..!!.
+.!!!!!..
+........
+........
+........
+
+glyph e-upper
+........
+........
+........
+.@@@@@@@
+.@@.....
+.@@.....
+.@@.....
+.@@@@@..
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@@@@@@
+........
+........
+........
+
+glyph f-upper
+........
+........
+........
+.@@@@@@@
+.@@.....
+.@@.....
+.@@.....
+.@@@@@..
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+........
+........
+........
+
+glyph g-upper
+........
+........
+........
+../@@@@\
+./@P..@@
+.@@...@@
+.@@.....
+.@@.....
+.@@..@@@
+.@@...@@
+.@@...@@
+.\@b..@@
+..\@@@@/
+........
+........
+........
+
+glyph h-upper
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph i-upper
+........
+........
+........
+.@@@@@@.
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+.@@@@@@.
+........
+........
+........
+
+glyph i-j-upper
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+......@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph j-upper
+........
+........
+........
+....@@@@
+......@@
+......@@
+......@@
+......@@
+......@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph k-upper
+........
+........
+........
+.@@../@@
+.@@./@@/
+.@@/@@/.
+.@@@@/..
+.@@@/...
+.@@@\...
+.@@@@\..
+.@@\@@\.
+.@@.\@@\
+.@@..\@@
+........
+........
+........
+
+glyph l-upper
+........
+........
+........
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@@@@@@
+........
+........
+........
+
+glyph m-upper
+........
+........
+........
+.@@\./@@
+.@@@v@@@
+.@@@@@@@
+.@@@@@@@
+.@@.@.@@
+.@@.@.@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph n-upper
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@\..@@
+.@@@\.@@
+.@@@@\@@
+.@@\@@@@
+.@@.\@@@
+.@@..\@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph o-upper
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph o-horn-upper
+........
+........
+.......d
+./@@@@\@
+.@@..@@P
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.\@@@@/.
+........
+........
+........
+
+glyph o-e-upper
+........
+........
+........
+./@@@@@@
+.@@.@@..
+.@@.@@..
+.@@.@@..
+.@@.@@@@
+.@@.@@..
+.@@.@@..
+.@@.@@..
+.@@.@@..
+.\@@@@@@
+........
+........
+........
+
+glyph oe-upper
+........
+........
+........
+../@@@\d
+./@P.9@@
+.@@../@@
+.@@./@@@
+.@@/@@@@
+.@@@@/@@
+.@@@/.@@
+.@@/..@@
+.@@b.d@/
+.P\@@@/.
+........
+........
+........
+
+glyph p-upper
+........
+........
+........
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@/
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+........
+........
+........
+
+glyph q-upper
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@.@\@@
+.@@.@@@@
+.\@@@@@<
+.....\@@
+......\@
+........
+........
+
+glyph r-upper
+........
+........
+........
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@<
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph s-upper
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@.....
+.\@@@@@\
+......@@
+......@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph reversed-s-upper
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+......@@
+./@@@@@/
+.@@.....
+.@@.....
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph sz-upper
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@..d@/
+.@@.d@/.
+.@@.@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@.b.@@
+d@@.@@@/
+........
+........
+........
+
+glyph t-upper
+........
+........
+........
+.@@@@@@.
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+........
+........
+........
+
+glyph thorn-upper
+........
+........
+........
+.@@.....
+.@@.....
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@/
+.@@.....
+.@@.....
+........
+........
+........
+
+glyph u-upper
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph u-horn-upper
+........
+........
+.......d
+.@@..@\@
+.@@..@@P
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.\@@@@/.
+........
+........
+........
+
+glyph v-upper
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@b.d@/
+..\@u@/.
+...\@/..
+........
+........
+........
+
+glyph w-upper
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@.@.@@
+.@@.@.@@
+.@@.@.@@
+.@@u@u@@
+.\@@^@@/
+..9P.9P.
+........
+........
+........
+
+glyph x-upper
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@\./@@
+.\@@v@@/
+..\@@@/.
+../@@@\.
+./@@^@@\
+.@@/.\@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph y-upper
+........
+........
+........
+@\..../@
+@@\../@@
+\@@\/@@/
+.\@@@@/.
+..\@@/..
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+........
+........
+........
+
+glyph z-upper
+........
+........
+........
+.@@@@@@@
+......@@
+...../@@
+..../@@/
+.../@@/.
+../@@/..
+./@@/...
+.@@/....
+.@@.....
+.@@@@@@@
+........
+........
+........
+
+glyph a-lower
+........
+........
+........
+........
+........
+..@@@@@\
+......@@
+......@@
+./@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@@
+........
+........
+........
+
+glyph a-e-lower
+........
+........
+........
+........
+........
+..@@v@@\
+....@@.@
+....@@.@
+./@@@@.@
+.@@.@@@/
+.@@.@@..
+.@@.@@..
+.\@@^@@@
+........
+........
+........
+
+glyph b-lower
+........
+........
+........
+.@@.....
+.@@.....
+.@@.....
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@/
+........
+........
+........
+
+glyph c-lower
+........
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@.....
+.@@.....
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph d-lower
+........
+........
+........
+......@@
+......@@
+......@@
+./@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@@
+........
+........
+........
+
+glyph d-z-lower = d-lower@X z-lower@Y
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+XXXXXXXXYYYYYYYY
+
+glyph eth-lower
+........
+........
+........
+..@@@\..
+....9@@@
+..@@@@@\
+......@@
+..d@@@@@
+.d@/..@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph e-lower
+........
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@@
+.@@.....
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph f-lower-stem
+........
+........
+........
+.../@@@\
+...@@^@@
+...@@.@@
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+........
+........
+........
+
+glyph f-lower = f-lower-stem
+........
+........
+........
+....!!!.
+...!!.!!
+...!!.!!
+...!!...
+.@@@@@@.
+...!!...
+...!!...
+...!!...
+...!!...
+...!!...
+........
+........
+........
+
+glyph g-lower
+........
+........
+........
+........
+........
+./@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@@
+......@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+
+glyph h-lower
+........
+........
+........
+.@@.....
+.@@.....
+.@@.....
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph h-lower-sm
+........
+........
+........
+........
+.@@.....
+.@@.....
+.@@.....
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph dotless-i-lower
+........
+........
+........
+........
+........
+........
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@@..
+........
+........
+........
+
+glyph i-lower = dotless-i-lower
+........
+........
+........
+...@@...
+...@@...
+........
+...!!...
+...!!...
+...!!...
+...!!...
+...!!...
+...!!...
+...!!!..
+........
+........
+........
+
+glyph i-j-lower = j-lower
+........
+........
+........
+.@@...!!
+.@@...!!
+........
+.@@..!!!
+.@@...!!
+.@@...!!
+.@@...!!
+......!!
+.!!...!!
+.!!...!!
+.!!...!!
+..!!!!!.
+........
+
+glyph dotless-j-lower
+........
+........
+........
+........
+........
+........
+.....@@@
+......@@
+......@@
+......@@
+......@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+
+glyph j-lower = dotless-j-lower
+........
+........
+........
+......@@
+......@@
+........
+......!!
+......!!
+......!!
+......!!
+......!!
+.!!...!!
+.!!...!!
+.!!...!!
+..!!!!!.
+........
+
+glyph k-lower
+........
+........
+........
+.@@.....
+.@@.....
+.@@../@@
+.@@./@@/
+.@@/@@/.
+.@@@@/..
+.@@@@\..
+.@@\@@\.
+.@@.\@@\
+.@@..\@@
+........
+........
+........
+
+glyph l-lower
+........
+........
+........
+...@@@..
+...\@@..
+....@@..
+....@@..
+....@@..
+....@@..
+....@@..
+....@@..
+....@@..
+....@@@.
+........
+........
+........
+
+glyph m-lower
+........
+........
+........
+........
+........
+.@@@v@@\
+.@@@@@@@
+.@@.@.@@
+.@@.@.@@
+.@@.@.@@
+.@@.@.@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph n-lower
+........
+........
+........
+........
+........
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
+glyph o-lower
+........
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph o-horn-lower
+........
+........
+........
+........
+.......d
+./@@@@\@
+.@@..@@P
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.\@@@@/.
+........
+........
+........
+
+glyph o-e-lower
+........
+........
+........
+........
+........
+./@@v@@\
+.@@.@@.@
+.@@.@@.@
+.@@.@@.@
+.@@.@@@/
+.@@.@@..
+.@@.@@..
+.\@@^@@@
+........
+........
+........
+
+glyph oe-lower
+........
+........
+........
+........
+........
+./@@@b/@
+.@@.\@@@
+.@@./@@<
+.@@/@@@@
+.@@@@/@@
+.>@@/.@@
+.@@@\.@@
+.@/9@@@/
+........
+........
+........
+
+glyph p-lower
+........
+........
+........
+........
+........
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@/
+.@@.....
+.@@.....
+.@@.....
+
+glyph q-lower
+........
+........
+........
+........
+........
+./@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@@
+......@@
+......@@
+......@@
+
+glyph r-lower
+........
+........
+........
+........
+........
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+.@@.....
+........
+........
+........
+
+glyph s-lower
+........
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@.....
+.\@@@@@\
+......@@
+......@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph reversed-s-lower
+........
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+......@@
+./@@@@@/
+.@@.....
+.@@.....
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph long-s-lower = f-lower-stem
+........
+........
+........
+....!!!.
+...!!.!!
+...!!.!!
+...!!...
+.@@@@...
+...!!...
+...!!...
+...!!...
+...!!...
+...!!...
+........
+........
+........
+
+glyph sz-lower
+........
+........
+........
+./@@@@\.
+.@@..@@.
+.@@..@@.
+.@@.d@/.
+.@@.9@\.
+.@@..9@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@/@@@@/
+........
+........
+........
+
+glyph t-lower
+........
+........
+........
+...@@...
+...@@...
+.@@@@@@.
+...@@...
+...@@...
+...@@...
+...@@.@@
+...@@.@@
+...@@.@@
+...\@@@/
+........
+........
+........
+
+glyph thorn-lower
+........
+........
+........
+.@@.....
+.@@.....
+.@@.....
+.@@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@/
+.@@.....
+.@@.....
+.@@.....
+
+glyph u-lower
+........
+........
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph u-horn-lower
+........
+........
+........
+........
+.......d
+.@@..@\@
+.@@..@@P
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.@@..@@.
+.\@@@@/.
+........
+........
+........
+
+glyph v-lower
+........
+........
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@\./@@
+.\@@v@@/
+..\@@@/.
+...\@/..
+........
+........
+........
+
+glyph w-lower
+........
+........
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@.@.@@
+.@@.@.@@
+.@@.@.@@
+.@@@@@@@
+.\@@^@@/
+........
+........
+........
+
+glyph x-lower
+........
+........
+........
+........
+........
+.@\.../@
+.@@\./@@
+.\@@v@@/
+..\@@@/.
+../@@@\.
+./@@^@@\
+.@@/.\@@
+.@/...\@
+........
+........
+........
+
+glyph y-lower
+........
+........
+........
+........
+........
+.@@...@@
+.@@...@@
+.@@...@@
+.@@\..@@
+.\@@\/@@
+..\@@@@/
+...>@@/.
+../@@/..
+./@@/...
+.@@/....
+........
+
+glyph z-lower
+........
+........
+........
+........
+........
+.@@@@@@@
+...../@@
+..../@@/
+.../@@/.
+../@@/..
+./@@/...
+.@@/....
+.@@@@@@@
+........
+........
+........
+
+glyph A = a-upper
+glyph Æ = a-e-upper
+glyph B = b-upper
+glyph C = c-upper
+glyph D = d-upper
+glyph Ǳ = d-z-upper
+glyph ǲ = d-z-title
+glyph Ð = eth-upper
+glyph E = e-upper
+glyph F = f-upper
+glyph G = g-upper
+glyph H = h-upper
+glyph I = i-upper
+glyph Ĳ = i-j-upper
+glyph J = j-upper
+glyph K = k-upper
+glyph L = l-upper
+glyph M = m-upper
+glyph N = n-upper
+glyph O = o-upper
+glyph Ơ = o-horn-upper
+glyph Œ = o-e-upper
+glyph Ø = oe-upper
+glyph P = p-upper
+glyph Q = q-upper
+glyph R = r-upper
+glyph S = s-upper
+glyph Ƨ = reversed-s-upper
+glyph ẞ = sz-upper
+glyph T = t-upper
+glyph Þ = thorn-upper
+glyph U = u-upper
+glyph Ư = u-horn-upper
+glyph V = v-upper
+glyph W = w-upper
+glyph X = x-upper
+glyph Y = y-upper
+glyph Z = z-upper
+
+glyph a = a-lower
+glyph æ = a-e-lower
+glyph b = b-lower
+glyph c = c-lower
+glyph d = d-lower
+glyph ǳ = d-z-lower
+glyph ð = eth-lower
+glyph e = e-lower
+glyph f = f-lower
+glyph g = g-lower
+glyph h = h-lower
+glyph i = i-lower
+glyph ı = dotless-i-lower
+glyph ĳ = i-j-lower
+glyph j = j-lower
+glyph ȷ = dotless-j-lower
+glyph k = k-lower
+glyph l = l-lower
+glyph m = m-lower
+glyph n = n-lower
+glyph o = o-lower
+glyph ơ = o-horn-lower
+glyph œ = o-e-lower
+glyph ø = oe-lower
+glyph p = p-lower
+glyph q = q-lower
+glyph r = r-lower
+glyph s = s-lower
+glyph ƨ = reversed-s-lower
+glyph ſ = long-s-lower
+glyph ß = sz-lower
+glyph t = t-lower
+glyph þ = thorn-lower
+glyph u = u-lower
+glyph ư = u-horn-lower
+glyph v = v-lower
+glyph w = w-lower
+glyph x = x-lower
+glyph y = y-lower
+glyph z = z-lower
+
+//--------------------------------------
+// with diaeresis
+
+glyph Ä = a-upper dia-upper
+glyph Ë = e-upper dia-upper
+glyph Ḧ = h-upper dia-upper
+glyph Ï = i-upper dia-upper-bg
+glyph Ö = o-upper dia-upper
+glyph Ü = u-upper dia-upper
+glyph Ṳ = u-upper dia-bottom
+glyph Ẅ = w-upper dia-upper
+glyph Ẍ = x-upper dia-upper
+glyph Ÿ = y-upper dia-upper
+
+glyph ä = a-lower dia-lower
+glyph ë = e-lower dia-lower
+glyph ḧ = h-lower-sm dia-lower@^
+glyph ï = dotless-i-lower dia-lower-bg@v
+glyph ö = o-lower dia-lower
+glyph ẗ = t-lower dia-upper
+glyph ü = u-lower dia-lower
+glyph ṳ = u-lower dia-bottom
+glyph ẅ = w-lower dia-lower
+glyph ẍ = x-lower dia-lower
+glyph ÿ = y-lower dia-lower
+
+//--------------------------------------
+// with acute accents
+
+glyph Á = a-upper acute-upper
+glyph Ǽ = a-e-upper acute-upper
+glyph Ć = c-upper acute-upper
+glyph É = e-upper acute-upper
+glyph Ǵ = g-upper acute-upper
+glyph Í = i-upper acute-upper
+glyph Ḱ = k-upper acute-upper
+glyph Ĺ = l-upper acute-upper
+glyph Ḿ = m-upper acute-upper
+glyph Ń = n-upper acute-upper
+glyph Ó = o-upper acute-upper
+glyph Ớ = o-horn-upper acute-upper@<
+glyph Ǿ = oe-upper acute-upper
+glyph Ṕ = p-upper acute-upper
+glyph Ŕ = r-upper acute-upper
+glyph Ś = s-upper acute-upper
+glyph Ú = u-upper acute-upper
+glyph Ứ = u-horn-upper acute-upper@<
+glyph Ẃ = w-upper acute-upper
+glyph Ý = y-upper acute-upper
+glyph Ź = z-upper acute-upper
+
+glyph á = a-lower acute-lower
+glyph ǽ = a-e-lower acute-lower
+glyph ć = c-lower acute-lower
+glyph é = e-lower acute-lower
+glyph ǵ = g-lower acute-lower
+glyph í = dotless-i-lower acute-lower-shift@<v
+glyph ḱ = k-lower acute-lower-shift
+glyph ĺ = l-lower acute-upper
+glyph ḿ = m-lower acute-lower
+glyph ń = n-lower acute-lower
+glyph ó = o-lower acute-lower
+glyph ớ = o-horn-lower acute-lower@<
+glyph ǿ = oe-lower acute-lower
+glyph ṕ = p-lower acute-lower
+glyph ŕ = r-lower acute-lower
+glyph ś = s-lower acute-lower
+glyph ú = u-lower acute-lower
+glyph ứ = u-horn-lower acute-lower@<
+glyph ẃ = w-lower acute-lower
+glyph ý = y-lower acute-lower
+glyph ź = z-lower acute-lower
+
+//--------------------------------------
+// with double acute accents
+
+glyph Ő = o-upper dacute-upper
+glyph Ű = u-upper dacute-upper
+
+glyph ő = o-lower dacute-lower
+glyph ű = u-lower dacute-lower
+
+//--------------------------------------
+// with grave accents
+
+glyph À = a-upper grave-upper
+glyph È = e-upper grave-upper
+glyph Ì = i-upper grave-upper
+glyph Ǹ = n-upper grave-upper
+glyph Ò = o-upper grave-upper
+glyph Ờ = o-horn-upper grave-upper@<
+glyph Ù = u-upper grave-upper
+glyph Ừ = u-horn-upper grave-upper@<
+glyph Ẁ = w-upper grave-upper
+glyph Ỳ = y-upper grave-upper
+
+glyph à = a-lower grave-lower
+glyph è = e-lower grave-lower
+glyph ì = dotless-i-lower grave-lower@v
+glyph ò = o-lower grave-lower
+glyph ờ = o-horn-lower grave-lower@<
+glyph ù = u-lower grave-lower
+glyph ừ = u-horn-lower grave-lower@<
+glyph ǹ = n-lower grave-lower
+glyph ẁ = w-lower grave-lower
+glyph ỳ = y-lower grave-lower
+
+//--------------------------------------
+// with double grave accents
+
+glyph Ȁ = a-upper dgrave-upper
+glyph Ȅ = e-upper dgrave-upper
+glyph Ȉ = i-upper dgrave-upper
+glyph Ȍ = o-upper dgrave-upper
+glyph Ȑ = r-upper dgrave-upper
+glyph Ȕ = u-upper dgrave-upper
+
+glyph ȁ = a-lower dgrave-lower
+glyph ȅ = e-lower dgrave-lower
+glyph ȉ = dotless-i-lower dgrave-lower@v
+glyph ȍ = o-lower dgrave-lower
+glyph ȑ = r-lower dgrave-lower
+glyph ȕ = u-lower dgrave-lower
+
+//--------------------------------------
+// with macron
+
+glyph Ā = a-upper mac-upper
+glyph Ǣ = a-e-upper mac-upper
+glyph Ḇ = b-upper mac-bottom
+glyph Ḏ = d-upper mac-bottom
+glyph Ē = e-upper mac-upper
+glyph Ḡ = g-upper mac-upper
+glyph Ī = i-upper mac-upper-sm
+glyph Ḵ = k-upper mac-bottom
+glyph Ḻ = l-upper mac-bottom
+glyph Ṉ = n-upper mac-bottom
+glyph Ō = o-upper mac-upper
+glyph Ṟ = r-upper mac-bottom
+glyph Ṯ = t-upper mac-bottom-sm
+glyph Ū = u-upper mac-upper
+glyph Ȳ = y-upper mac-upper-sm
+glyph Ẕ = z-upper mac-bottom
+
+glyph ā = a-lower mac-lower
+glyph ǣ = a-e-lower mac-lower
+glyph ḇ = b-lower mac-bottom
+glyph ḏ = d-lower mac-bottom
+glyph ē = e-lower mac-lower
+glyph ḡ = g-lower mac-lower
+glyph ẖ = h-lower mac-bottom
+glyph ī = dotless-i-lower mac-lower-sm@v
+glyph ḵ = k-lower mac-bottom
+glyph ḻ = l-lower mac-bottom-sm@>
+glyph ṉ = n-lower mac-bottom
+glyph ō = o-lower mac-lower
+glyph ṟ = r-lower mac-bottom
+glyph ṯ = t-lower mac-bottom
+glyph ū = u-lower mac-lower
+glyph ȳ = y-lower mac-lower
+glyph ẕ = z-lower mac-bottom
+
+//--------------------------------------
+// with cedilla
+
+// XXX some requires comma instead cedilla
+
+glyph Ç = c-upper ced
+glyph Ḉ = c-upper ced acute-upper
+glyph Ḑ = d-upper ced
+glyph Ȩ = e-upper ced
+glyph Ḝ = e-upper ced breve-upper
+glyph Ģ = g-upper ced
+glyph Ḩ = h-upper ced
+glyph Ķ = k-upper ced
+glyph Ļ = l-upper ced
+glyph Ņ = n-upper ced
+glyph Ŗ = r-upper ced
+glyph Ş = s-upper ced
+glyph Ţ = t-upper ced@<
+
+glyph ç = c-lower ced
+glyph ḉ = c-lower ced acute-lower
+glyph ḑ = d-lower ced
+glyph ȩ = e-lower ced
+glyph ḝ = e-lower ced breve-lower
+glyph ḩ = h-lower ced
+glyph ķ = k-lower ced
+glyph ļ = l-lower ced
+glyph ņ = n-lower ced
+glyph ŗ = r-lower ced
+glyph ş = s-lower ced
+glyph ţ = t-lower ced
+
+//--------------------------------------
+// with ogonek
+
+glyph Ą = a-upper ogonek@>>
+glyph Ę = e-upper ogonek
+glyph Į = i-upper ogonek@<
+glyph Ǫ = o-upper ogonek
+glyph Ǭ = o-upper ogonek mac-upper
+glyph Ų = u-upper ogonek
+
+glyph ą = a-lower ogonek@>>
+glyph ę = e-lower ogonek
+glyph į = i-lower ogonek
+glyph ǫ = o-lower ogonek
+glyph ǭ = o-lower ogonek mac-lower
+glyph ų = u-lower ogonek
+
+//--------------------------------------
+// with caron (hacek)
+
+// L, d, t, l requires stroke instead
+
+glyph Ǎ = a-upper caron-upper
+glyph Č = c-upper caron-upper
+glyph Ď = d-upper caron-upper
+glyph Ǆ = d-z-upper caron-upper@>>>>>>>>
+glyph ǅ = d-z-title caron-lower@>>>>>>>>
+glyph Ě = e-upper caron-upper
+glyph Ǧ = g-upper caron-upper
+glyph Ȟ = h-upper caron-upper
+glyph Ǐ = i-upper caron-upper
+glyph Ǩ = k-upper caron-upper
+//glyph Ľ =
+glyph Ň = n-upper caron-upper
+glyph Ǒ = o-upper caron-upper
+glyph Ř = r-upper caron-upper
+glyph Š = s-upper caron-upper
+glyph Ť = t-upper caron-upper
+glyph Ǔ = u-upper caron-upper
+glyph Ž = z-upper caron-upper
+//glyph Ǯ =
+
+glyph ǎ = a-lower caron-lower
+glyph č = c-lower caron-lower
+//glyph ď =
+glyph ǆ = d-z-lower caron-lower@>>>>>>>>
+glyph ě = e-lower caron-lower
+glyph ǧ = g-lower caron-lower
+glyph ȟ = h-lower-sm caron-lower@^
+glyph ǐ = dotless-i-lower caron-lower@v
+glyph ǰ = dotless-j-lower caron-lower@v
+glyph ǩ = k-lower caron-lower
+//glyph ľ =
+glyph ň = n-lower caron-lower
+glyph ǒ = o-lower caron-lower
+glyph ř = r-lower caron-lower
+glyph š = s-lower caron-lower
+//glyph ť =
+glyph ǔ = u-lower caron-lower
+glyph ž = z-lower caron-lower
+//glyph ǯ =
+
+//--------------------------------------
+// with circumflex
+
+glyph Â = a-upper circ-upper
+glyph Ĉ = c-upper circ-upper
+glyph Ḓ = d-upper circ-bottom
+glyph Ê = e-upper circ-upper
+glyph Ḙ = e-upper circ-bottom
+glyph Ĝ = g-upper circ-upper
+glyph Ĥ = h-upper circ-upper
+glyph Î = i-upper circ-upper
+glyph Ĵ = j-upper circ-upper
+glyph Ḽ = l-upper circ-bottom
+glyph Ṋ = n-upper circ-bottom
+glyph Ô = o-upper circ-upper
+glyph Ŝ = s-upper circ-upper
+glyph Ṱ = t-upper circ-bottom
+glyph Û = u-upper circ-upper
+glyph Ṷ = u-upper circ-bottom
+glyph Ŵ = w-upper circ-upper
+glyph Ŷ = y-upper circ-upper
+glyph Ẑ = z-upper circ-upper
+
+glyph â = a-lower circ-lower
+glyph ĉ = c-lower circ-lower
+glyph ḓ = d-lower circ-bottom
+glyph ê = e-lower circ-lower
+glyph ḙ = e-lower circ-bottom
+glyph ĝ = g-lower circ-lower
+glyph ĥ = h-lower-sm circ-lower@^
+glyph î = dotless-i-lower circ-lower@v
+glyph ĵ = dotless-j-lower circ-lower@v
+glyph ḽ = l-lower circ-bottom
+glyph ṋ = n-lower circ-bottom
+glyph ô = o-lower circ-lower
+glyph ŝ = s-lower circ-lower
+glyph ṱ = t-lower circ-bottom
+glyph û = u-lower circ-lower
+glyph ṷ = u-lower circ-bottom
+glyph ŵ = w-lower circ-lower
+glyph ŷ = y-lower circ-lower
+glyph ẑ = z-lower circ-lower
+
+//--------------------------------------
+// with breve
+
+glyph Ă = a-upper breve-upper
+glyph Ĕ = e-upper breve-upper
+glyph Ğ = g-upper breve-upper
+glyph Ḫ = h-upper breve-bottom
+glyph Ĭ = i-upper breve-upper
+glyph Ŏ = o-upper breve-upper
+glyph Ŭ = u-upper breve-upper
+
+glyph ă = a-lower breve-lower
+glyph ĕ = e-lower breve-lower
+glyph ğ = g-lower breve-lower
+glyph ḫ = h-lower breve-bottom
+glyph ĭ = dotless-i-lower breve-lower@v
+glyph ŏ = o-lower breve-lower
+glyph ŭ = u-lower breve-lower
+
+//--------------------------------------
+// with inverted breve (arch)
+
+glyph Ȃ = a-upper arch-upper
+glyph Ȇ = e-upper arch-upper
+glyph Ȋ = i-upper arch-upper
+glyph Ȏ = o-upper arch-upper
+glyph Ȓ = r-upper arch-upper
+glyph Ȗ = u-upper arch-upper
+
+glyph ȃ = a-lower arch-lower
+glyph ȇ = e-lower arch-lower
+glyph ȋ = dotless-i-lower arch-lower@v
+glyph ȏ = o-lower arch-lower
+glyph ȓ = r-lower arch-lower
+glyph ȗ = u-lower arch-lower
+
+//--------------------------------------
+// with ring
+
+glyph Å = a-upper ring-upper
+glyph Ḁ = a-upper ring-bottom
+glyph Ů = u-upper ring-upper
+
+glyph å = a-lower ring-lower
+glyph ḁ = a-lower ring-bottom
+glyph ů = u-lower ring-lower
+glyph ẘ = w-lower ring-lower
+glyph ẙ = y-lower ring-lower
+
+//--------------------------------------
+// with tilde
+
+glyph Ã = a-upper tilde-upper
+glyph Ẽ = e-upper tilde-upper
+glyph Ḛ = e-upper tilde-bottom
+glyph Ĩ = i-upper tilde-upper
+glyph Ḭ = i-upper tilde-bottom@<
+glyph Ñ = n-upper tilde-upper
+glyph Õ = o-upper tilde-upper
+glyph Ỡ = o-horn-upper tilde-upper@<
+glyph Ũ = u-upper tilde-upper
+glyph Ữ = u-horn-upper tilde-upper@<
+glyph Ṵ = u-upper tilde-bottom
+glyph Ṽ = v-upper tilde-upper
+glyph Ỹ = y-upper tilde-upper
+
+glyph ã = a-lower tilde-lower
+glyph ẽ = e-lower tilde-lower
+glyph ḛ = e-lower tilde-bottom
+glyph ĩ = dotless-i-lower tilde-lower@v
+glyph ḭ = i-lower tilde-bottom@<
+glyph ñ = n-lower tilde-lower
+glyph õ = o-lower tilde-lower
+glyph ỡ = o-horn-lower tilde-lower@<
+glyph ũ = u-lower tilde-lower
+glyph ữ = u-horn-lower tilde-lower@<
+glyph ṵ = u-lower tilde-bottom
+glyph ṽ = v-lower tilde-lower
+glyph ỹ = y-lower tilde-lower
+
+//--------------------------------------
+// with dot
+
+glyph Ȧ = a-upper dot-upper
+glyph Ạ = a-upper dot-bottom
+glyph Ậ = a-upper dot-bottom circ-upper
+glyph Ặ = a-upper dot-bottom breve-upper
+glyph Ḃ = b-upper dot-upper
+glyph Ḅ = b-upper dot-bottom
+glyph Ċ = c-upper dot-upper
+glyph Ḋ = d-upper dot-upper@<
+glyph Ḍ = d-upper dot-bottom
+glyph Ė = e-upper dot-upper
+glyph Ẹ = e-upper dot-bottom
+glyph Ệ = e-upper dot-bottom circ-upper
+glyph Ḟ = f-upper dot-upper
+glyph Ġ = g-upper dot-upper
+glyph Ḣ = h-upper dot-upper
+glyph Ḥ = h-upper dot-bottom
+glyph İ = i-upper dot-upper@<
+glyph Ị = i-upper dot-bottom@<
+glyph Ḳ = k-upper dot-bottom
+glyph Ḷ = l-upper dot-bottom
+glyph Ḹ = l-upper dot-bottom mac-upper
+glyph Ṁ = m-upper dot-upper
+glyph Ṃ = m-upper dot-bottom
+glyph Ṅ = n-upper dot-upper
+glyph Ṇ = n-upper dot-bottom
+glyph Ȯ = o-upper dot-upper
+glyph Ọ = o-upper dot-bottom
+glyph Ộ = o-upper dot-bottom circ-upper
+glyph Ợ = o-horn-upper dot-bottom@<
+glyph Ṗ = p-upper dot-upper
+glyph Ṙ = r-upper dot-upper
+glyph Ṛ = r-upper dot-bottom
+glyph Ṝ = r-upper dot-bottom mac-upper
+glyph Ṡ = s-upper dot-upper
+glyph Ṣ = s-upper dot-bottom
+glyph Ṩ = s-upper dot-bottom dot-upper
+glyph Ṫ = t-upper dot-upper@<
+glyph Ṭ = t-upper dot-bottom@<
+glyph Ụ = u-upper dot-bottom
+glyph Ự = u-horn-upper dot-bottom@<
+glyph Ṿ = v-upper dot-bottom
+glyph Ẇ = w-upper dot-upper
+glyph Ẉ = w-upper dot-bottom
+glyph Ẋ = x-upper dot-upper
+glyph Ẏ = y-upper dot-upper@<v
+glyph Ỵ = y-upper dot-bottom@<
+glyph Ż = z-upper dot-upper
+glyph Ẓ = z-upper dot-bottom
+
+glyph ȧ = a-lower dot-lower
+glyph ạ = a-lower dot-bottom
+glyph ậ = a-lower dot-bottom circ-lower
+glyph ặ = a-lower dot-bottom breve-lower
+glyph ḃ = b-lower dot-lower
+glyph ḅ = b-lower dot-bottom
+glyph ċ = c-lower dot-lower
+glyph ḋ = d-lower dot-lower@<
+glyph ḍ = d-lower dot-bottom
+glyph ė = e-lower dot-lower
+glyph ẹ = e-lower dot-bottom
+glyph ệ = e-lower dot-bottom circ-lower
+glyph ḟ = f-lower dot-upper
+glyph ġ = g-lower dot-lower
+glyph ḣ = h-lower dot-lower
+glyph ḥ = h-lower dot-bottom
+glyph ị = i-lower dot-bottom@<
+glyph ḳ = k-lower dot-bottom
+glyph ḷ = l-lower dot-bottom
+glyph ḹ = l-lower dot-bottom mac-upper
+glyph ṁ = m-lower dot-lower
+glyph ṃ = m-lower dot-bottom
+glyph ṅ = n-lower dot-lower
+glyph ṇ = n-lower dot-bottom
+glyph ȯ = o-lower dot-lower
+glyph ọ = o-lower dot-bottom
+glyph ộ = o-lower dot-bottom circ-lower
+glyph ợ = o-horn-lower dot-bottom@<
+glyph ṗ = p-lower dot-lower
+glyph ṙ = r-lower dot-lower
+glyph ṛ = r-lower dot-bottom
+glyph ṝ = r-lower dot-bottom mac-lower
+glyph ṡ = s-lower dot-lower
+glyph ṣ = s-lower dot-bottom
+glyph ṩ = s-lower dot-bottom dot-lower
+glyph ẛ = long-s-lower dot-upper
+glyph ṫ = t-lower dot-upper@<
+glyph ṭ = t-lower dot-bottom
+glyph ụ = u-lower dot-bottom
+glyph ự = u-horn-lower dot-bottom@<
+glyph ṿ = v-lower dot-bottom
+glyph ẇ = w-lower dot-lower
+glyph ẉ = w-lower dot-bottom
+glyph ẋ = x-lower dot-lower
+glyph ẏ = y-lower dot-lower@<
+glyph ỵ = y-lower dot-bottom
+glyph ż = z-lower dot-lower
+glyph ẓ = z-lower dot-bottom
+
+//--------------------------------------
+// small letters
+
+// sm-*-{upper,lower} are designed to fit in 3x5 (I), 4x5 (normal) or 5x5 (MTVWXYZ)
+
+glyph sm-a-upper
+/@@\
+@..@
+@@@@
+@..@
+@..@
+
+glyph sm-b-upper
+@@@\
+@..@
+@@@/
+@..@
+@@@/
+
+glyph sm-c-upper
+/@@\
+@..@
+@...
+@..@
+\@@/
+
+glyph sm-d-upper
+@@@\
+@..@
+@..@
+@..@
+@@@/
+
+glyph sm-e-upper
+@@@@
+@...
+@@@.
+@...
+@@@@
+
+glyph sm-f-upper
+@@@@
+@...
+@@@.
+@...
+@...
+
+glyph sm-g-upper
+/@@@
+@...
+@.@@
+@..@
+\@@/
+
+glyph sm-h-upper
+@..@
+@..@
+@@@@
+@..@
+@..@
+
+glyph sm-i-upper
+@@@
+.@.
+.@.
+.@.
+@@@
+
+glyph sm-j-upper
+.@@@
+...@
+...@
+@..@
+\@@/
+
+glyph sm-k-upper
+@./P
+@/P.
+@(..
+@\b.
+@.\b
+
+glyph sm-l-upper
+@...
+@...
+@...
+@...
+@@@@
+
+glyph sm-m-upper
+@\./@
+@@v@@
+@\@/@
+@.v.@
+@...@
+
+glyph sm-n-upper
+@\.@
+@b.@
+@9b@
+@.9@
+@.\@
+
+glyph sm-o-upper
+/@@\
+@..@
+@..@
+@..@
+\@@/
+
+glyph sm-p-upper
+@@@\
+@..@
+@@@/
+@...
+@...
+
+glyph sm-q-upper
+/@@\
+@..@
+@..@
+@.b@
+\@@b
+
+glyph sm-r-upper
+@@@\
+@..@
+@@@/
+@.9\
+@..9
+
+glyph sm-s-upper
+/@@@
+@...
+\@@\
+...@
+@@@/
+
+glyph sm-t-upper
+@@@@@
+..@..
+..@..
+..@..
+..@..
+
+glyph sm-u-upper
+@..@
+@..@
+@..@
+@..@
+\@@/
+
+glyph sm-v-upper
+@...@
+@...@
+@\./@
+\@v@/
+.\@/.
+
+glyph sm-w-upper
+@...@
+@...@
+@v@v@
+9@@@P
+.u.u.
+
+glyph sm-x-upper
+9\./P
+.9vP.
+..@..
+.d^b.
+d/.\b
+
+glyph sm-y-upper
+9\./P
+.9vP.
+..@..
+..@..
+..@..
+
+glyph sm-z-upper
+@@@@@
+...d/
+./@/.
+/P...
+@@@@@
+
+// sm-*-4x6 are designed to fit (and fill) 4x6
+// they are generic in that there is little room left for
+// miniscule-majuscule distinction
+
+glyph sm-a-4x6
+/d@@b\
+@@..@@
+@@@@@@
+@@..@@
+
+glyph sm-b-4x6
+@@....
+@@@@@\
+@@..@@
+@@@@@/
+
+glyph sm-c-4x6
+/@@@@b
+@@....
+@@....
+\@@@@P
+
+glyph sm-d-4x6
+@@@@@\
+@@..@@
+@@..@@
+@@@@@/
+
+glyph sm-e-4x6
+/@@@@\
+@@./dP
+@@@P/.
+\@@@@@
+
+glyph sm-f-4x6
+@@@@@@
+@@....
+@@@@@.
+@@....
+
+glyph sm-g-4x6
+/@@@@b
+@@....
+@@..9@
+\@@@@/
+
+glyph sm-h-4x6
+@@....
+@@@@@\
+@@..@@
+@@..@@
+
+glyph sm-i-4x6
+@@@@@@
+..@@..
+..@@..
+@@@@@@
+
+glyph sm-j-4x6
+..@@@@
+....@@
+@@..@@
+\@@@@/
+
+glyph sm-k-4x6
+@@.d@P
+@@d@P.
+@@9@b.
+@@.9@b
+
+glyph sm-l-4x6
+@@....
+@@....
+@@....
+@@@@@@
+
+glyph sm-m-4x6
+@@\/@@
+@@@@@@
+@@9P@@
+@@..@@
+
+glyph sm-n-4x6
+@@\.@@
+@@9\@@
+@@.9@@
+@@..@@
+
+glyph sm-o-4x6
+/@@@@\
+@@..@@
+@@..@@
+\@@@@/
+
+glyph sm-p-4x6
+@@@@@\
+@@..@@
+@@@@@/
+@@....
+
+glyph sm-q-4x6
+/@@@@@
+@@..@@
+\@@@@@
+....@@
+
+glyph sm-r-4x6
+@@@@@\
+@@..@@
+@@@@@/
+@@.\@b
+
+glyph sm-s-4x6
+<@@@@@
+.9b\..
+..\9b.
+@@@@@>
+
+glyph sm-t-4x6
+@@@@@@
+..@@..
+..@@..
+..@@..
+
+glyph sm-u-4x6
+@@..@@
+@@..@@
+@@..@@
+\@@@@/
+
+glyph sm-v-4x6
+@@..@@
+@@..@@
+\@bd@/
+.\@@/.
+
+glyph sm-w-4x6
+@@..@@
+@@..@@
+@@db@@
+@^@@^@
+
+glyph sm-x-4x6
+9@\/@P
+.9@@P.
+.d@@b.
+d@/\@b
+
+glyph sm-y-4x6
+9@\/@P
+.9@@P.
+..@@..
+..@@..
+
+glyph sm-z-4x6
+@@@@@@
+../dP/
+/dP/..
+@@@@@@
+

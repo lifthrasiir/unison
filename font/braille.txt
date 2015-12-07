@@ -1,0 +1,782 @@
+////////////////////////////////////////
+// braille
+
+glyph braille-off
+...
+.@.
+...
+
+glyph braille-on
+/@\
+@@@
+\@/
+
+//--------------------------------------
+// 6-dot brailles
+
+glyph braille-sm1-off = braille-off@X
+........
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm1-on = braille-on@X
+........
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm2-off = braille-off@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm2-on = braille-on@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm3-off = braille-off@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+........
+........
+
+glyph braille-sm3-on = braille-on@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+........
+........
+
+glyph braille-sm4-off = braille-off@X
+........
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm4-on = braille-on@X
+........
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm5-off = braille-off@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm5-on = braille-on@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+........
+........
+
+glyph braille-sm6-off = braille-off@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+........
+........
+
+glyph braille-sm6-on = braille-on@X
+........
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+........
+........
+
+//--------------------------------------
+// 8-dot brailles
+
+glyph braille-1-off = braille-off@X
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-1-on = braille-on@X
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-2-off = braille-off@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-2-on = braille-on@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-3-off = braille-off@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-3-on = braille-on@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-4-off = braille-off@X
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-4-on = braille-on@X
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-5-off = braille-off@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-5-on = braille-on@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-6-off = braille-off@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-6-on = braille-on@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+
+glyph braille-7-off = braille-off@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+
+glyph braille-7-on = braille-on@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.XXX.!!!
+.XXX.!!!
+.XXX.!!!
+........
+
+glyph braille-8-off = braille-off@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+
+glyph braille-8-on = braille-on@X
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.!!!
+.!!!.!!!
+.!!!.!!!
+........
+.!!!.XXX
+.!!!.XXX
+.!!!.XXX
+........
+
+//--------------------------------------
+
+glyph U+2800 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2801 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2802 = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2803 = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2804 = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2805 = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2806 = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2807 = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-off
+glyph U+2808 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+2809 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+280A = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+280B = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+280C = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+280D = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+280E = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+280F = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-off
+glyph U+2810 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2811 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2812 = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2813 = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2814 = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2815 = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2816 = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2817 = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-off
+glyph U+2818 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+2819 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+281A = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+281B = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+281C = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+281D = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+281E = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+281F = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-off
+glyph U+2820 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2821 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2822 = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2823 = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2824 = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2825 = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2826 = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2827 = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-off braille-sm6-on
+glyph U+2828 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+2829 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+282A = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+282B = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+282C = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+282D = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+282E = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+282F = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-off braille-sm6-on
+glyph U+2830 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2831 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2832 = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2833 = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2834 = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2835 = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2836 = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2837 = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-off braille-sm5-on  braille-sm6-on
+glyph U+2838 = braille-sm1-off braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+2839 = braille-sm1-on  braille-sm2-off braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+283A = braille-sm1-off braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+283B = braille-sm1-on  braille-sm2-on  braille-sm3-off braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+283C = braille-sm1-off braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+283D = braille-sm1-on  braille-sm2-off braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+283E = braille-sm1-off braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+283F = braille-sm1-on  braille-sm2-on  braille-sm3-on  braille-sm4-on  braille-sm5-on  braille-sm6-on
+glyph U+2840 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2841 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2842 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2843 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2844 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2845 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2846 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2847 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2848 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2849 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+284A = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+284B = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+284C = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+284D = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+284E = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+284F = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-off
+glyph U+2850 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2851 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2852 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2853 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2854 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2855 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2856 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2857 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2858 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2859 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+285A = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+285B = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+285C = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+285D = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+285E = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+285F = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-off
+glyph U+2860 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2861 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2862 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2863 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2864 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2865 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2866 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2867 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2868 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2869 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+286A = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+286B = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+286C = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+286D = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+286E = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+286F = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-off
+glyph U+2870 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2871 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2872 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2873 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2874 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2875 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2876 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2877 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2878 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2879 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+287A = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+287B = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+287C = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+287D = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+287E = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+287F = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-off
+glyph U+2880 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2881 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2882 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2883 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2884 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2885 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2886 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2887 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2888 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2889 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+288A = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+288B = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+288C = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+288D = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+288E = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+288F = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-off braille-8-on
+glyph U+2890 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2891 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2892 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2893 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2894 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2895 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2896 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2897 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2898 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+2899 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+289A = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+289B = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+289C = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+289D = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+289E = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+289F = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-off braille-8-on
+glyph U+28A0 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A1 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A2 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A3 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A4 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A5 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A6 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A7 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A8 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28A9 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28AA = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28AB = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28AC = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28AD = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28AE = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28AF = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-off braille-8-on
+glyph U+28B0 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B1 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B2 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B3 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B4 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B5 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B6 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B7 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B8 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28B9 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28BA = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28BB = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28BC = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28BD = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28BE = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28BF = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-off braille-8-on
+glyph U+28C0 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C1 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C2 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C3 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C4 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C5 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C6 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C7 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C8 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28C9 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28CA = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28CB = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28CC = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28CD = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28CE = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28CF = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-off braille-7-on  braille-8-on
+glyph U+28D0 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D1 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D2 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D3 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D4 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D5 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D6 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D7 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D8 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28D9 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28DA = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28DB = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28DC = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28DD = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28DE = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28DF = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-off braille-7-on  braille-8-on
+glyph U+28E0 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E1 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E2 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E3 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E4 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E5 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E6 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E7 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E8 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28E9 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28EA = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28EB = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28EC = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28ED = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28EE = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28EF = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-off braille-6-on  braille-7-on  braille-8-on
+glyph U+28F0 = braille-1-off braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F1 = braille-1-on  braille-2-off braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F2 = braille-1-off braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F3 = braille-1-on  braille-2-on  braille-3-off braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F4 = braille-1-off braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F5 = braille-1-on  braille-2-off braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F6 = braille-1-off braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F7 = braille-1-on  braille-2-on  braille-3-on  braille-4-off braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F8 = braille-1-off braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28F9 = braille-1-on  braille-2-off braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28FA = braille-1-off braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28FB = braille-1-on  braille-2-on  braille-3-off braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28FC = braille-1-off braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28FD = braille-1-on  braille-2-off braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28FE = braille-1-off braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+glyph U+28FF = braille-1-on  braille-2-on  braille-3-on  braille-4-on  braille-5-on  braille-6-on  braille-7-on  braille-8-on
+
