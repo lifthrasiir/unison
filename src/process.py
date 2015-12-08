@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import re
+from fractions import gcd
+import itertools
 import unicodedata
 from collections import namedtuple
 
@@ -332,14 +334,19 @@ class Font(object):
         GLYPH_NAME_PATTERN = re.compile(ur'''^(?:
             # unicode range
             u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)? |
+            # single name
+            (?P<name>[0-9a-z\-_.]+) |
             # name list or character list
             (?P<names>(?:.|[0-9a-z\-_.]+)(?:\*\d+)?(?:\|(?:.|[0-9a-z\-_.]+)(?:\*\d+)?)*) |
-            # name list with prefix and suffix
-            (?P<prefix>[0-9a-z\-_.]*)\(
-                (?P<nameparts>[0-9a-z\-_.]+(?:\*\d+)?(?:\|[0-9a-z\-_.]+(?:\*\d+)?)*)
-            \)(?P<suffix>[0-9a-z\-_.]*)
+            # name list with one or more parts
+            (?P<parts>[0-9a-z\-_.]*
+                      (?:\([0-9a-z\-_.]+(?:\*\d+)?(?:\|[0-9a-z\-_.]+(?:\*\d+)?)*\)
+                         [0-9a-z\-_.]*)+)
         )$''', re.I | re.X)
         def parse_glyph_name(s):
+            if len(s) == 1: # cover edge cases like (, ), | or *
+                return ord(s)
+
             m = GLYPH_NAME_PATTERN.match(s)
             if not m: raise ParseError(u'invalid glyph name/index %r' % s)
 
@@ -353,22 +360,32 @@ class Font(object):
                     assert step == 1
                     return start
 
-            prefix = m.group('prefix') or u''
-            suffix = m.group('suffix') or u''
-            parts = m.group('names') or m.group('nameparts')
+            if m.group('name'):
+                return m.group('name').lower()
+
+            # multiple names
+            if m.group('names'): s = u'(%s)' % s # implicit parentheses
+            parts = s.replace('(', ')').split(')')
+            for i in xrange(1, len(parts), 2):
+                part = []
+                for alt in parts[i].split('|'):
+                    n, _, rep = alt.partition('*')
+                    part.extend([n] * int(rep or 1))
+                parts[i] = part
+
+            count = 1
+            for i in xrange(1, len(parts), 2):
+                partcount = len(parts[i])
+                count = count / gcd(count, partcount) * partcount
+
             ss = []
-            for part in parts.split('|'):
-                n, _, rep = part.partition('*') if part != u'*' else (u'*', None, None)
-                n = prefix + n + suffix
+            for k in xrange(count):
+                n = u''.join(x if i%2==0 else x[k%len(x)] for i, x in enumerate(parts))
                 if len(n) == 1:
-                    n = ord(n)
+                    ss.append(ord(n))
                 else:
-                    n = n.lower()
-                ss.extend([n] * int(rep or 1))
-            if any(c in u'*|()' for c in s):
-                return ss
-            else:
-                return ss[0]
+                    ss.append(n.lower())
+            return ss
 
         def parse_subglyph_spec(s):
             if len(s) >= 3:
@@ -542,7 +559,12 @@ class Font(object):
                     if name in self.glyphs:
                         raise ParseError(u'duplicate glyph %s' % glyph_name(name))
                     if len(args) > 3 and args[2] == '=': # combined glyph
-                        current_glyph = name, [], map(parse_subglyph_spec, args[3:])
+                        subglyph_spec = map(parse_subglyph_spec, args[3:])
+                        for subnames, _, _, _ in subglyph_spec:
+                            if not isinstance(subnames, (int, basestring)):
+                                raise ParseError(u'invalid use of multiple subglyphs in %s' %
+                                                 glyph_name(name))
+                        current_glyph = name, [], subglyph_spec
                         placeholder_chars = [ch for _, ch, _, _ in current_glyph[2] if ch]
                         if len(placeholder_chars) != len(set(placeholder_chars)):
                             raise ParseError(u'duplicate placeholder characters for glyph %s' %
@@ -563,9 +585,15 @@ class Font(object):
                         if len(placeholder_chars) != len(set(placeholder_chars)):
                             raise ParseError(u'duplicate placeholder characters for glyph %s' %
                                              args[1])
+                        for j, (subnames, placeholder, roff, coff) in enumerate(subglyph_spec):
+                            if isinstance(subnames, (int, basestring)):
+                                subnames = itertools.repeat(subnames)
+                            else:
+                                subnames = itertools.cycle(subnames)
+                            subglyph_spec[j] = (subnames, placeholder, roff, coff)
                         for i, name in enumerate(names):
-                            spec = [(n if isinstance(n, (int, basestring)) else n[i%len(n)],
-                                     pch, roff, coff) for n, pch, roff, coff in subglyph_spec]
+                            spec = [(n.next(), pch, roff, coff)
+                                    for n, pch, roff, coff in subglyph_spec]
                             flush_glyph(name, [], spec)
                     else:
                         raise ParseError(u'unexpected arguments to `glyph`')
