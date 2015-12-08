@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import re
 import unicodedata
 from collections import namedtuple
 
@@ -328,36 +329,46 @@ class Font(object):
         if fp: self.read(fp)
 
     def read(self, fp):
-        # glyph name = "u+<code>" | "u+<start>..<end>" | "<single ch>" |
-        #              "<name>" | "<name>|<name>*<repeat>|<name>"
+        GLYPH_NAME_PATTERN = re.compile(ur'''^(?:
+            # unicode range
+            u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)? |
+            # name list or character list
+            (?P<names>(?:.|[0-9a-z\-_.]+)(?:\*\d+)?(?:\|(?:.|[0-9a-z\-_.]+)(?:\*\d+)?)*) |
+            # name list with prefix and suffix
+            (?P<prefix>[0-9a-z\-_.]*)\(
+                (?P<nameparts>[0-9a-z\-_.]+(?:\*\d+)?(?:\|[0-9a-z\-_.]+(?:\*\d+)?)*)
+            \)(?P<suffix>[0-9a-z\-_.]*)
+        )$''', re.I | re.X)
         def parse_glyph_name(s):
-            slower = s.lower()
-            if slower.startswith('u+'):
-                lbound, _, ubound = s[2:].partition('..')
-                lbound = int(lbound, 16)
-                if ubound:
-                    ubound = int(ubound, 16)
-                    if lbound > ubound: raise ParseError(u'invalid glyph name range %r' % s)
-                    return xrange(lbound, ubound+1)
+            m = GLYPH_NAME_PATTERN.match(s)
+            if not m: raise ParseError(u'invalid glyph name/index %r' % s)
+
+            if m.group('start'):
+                start = int(m.group('start'), 16)
+                end = m.group('end'); end = int(end, 16) if end is not None else None
+                step = m.group('step'); step = int(step, 16) if step is not None else 1
+                if end is not None:
+                    return xrange(start, end + 1, step)
                 else:
-                    return lbound
-            elif len(s) == 1:
-                return ord(s)
+                    assert step == 1
+                    return start
+
+            prefix = m.group('prefix') or u''
+            suffix = m.group('suffix') or u''
+            parts = m.group('names') or m.group('nameparts')
+            ss = []
+            for part in parts.split('|'):
+                n, _, rep = part.partition('*') if part != u'*' else (u'*', None, None)
+                n = prefix + n + suffix
+                if len(n) == 1:
+                    n = ord(n)
+                else:
+                    n = n.lower()
+                ss.extend([n] * int(rep or 1))
+            if any(c in u'*|()' for c in s):
+                return ss
             else:
-                ss = []
-                for n in slower.split('|'):
-                    n, _, rep = n.partition('*')
-                    if len(n) == 1:
-                        n = ord(n)
-                    elif not (n and all('0'<=i<='9' or 'a'<=i<='z' or i in '-_.' for i in n)):
-                        raise ParseError(u'invalid glyph name/index %r' % s)
-                    if rep and not rep.isdigit():
-                        raise ParseError(u'invalid glyph name/index %r' % s)
-                    ss.extend([n] * int(rep or 1))
-                if '|' not in slower and '*' not in slower:
-                    return ss[0]
-                else:
-                    return ss
+                return ss[0]
 
         def parse_subglyph_spec(s):
             if len(s) >= 3:
@@ -513,7 +524,7 @@ class Font(object):
             line, _, comment = (u' ' + u' '.join(line.split())).partition(u' //')
             line = line.strip()
             if not line: continue
-            if len(line) == 1: line = u'glyph U+%x' % ord(line)
+            if len(line) == 1: line = u'glyph U+%04x' % ord(line)
             args = line.split()
             if args[-1] == '..': # continuation token
                 prev_args.extend(args[:-1])

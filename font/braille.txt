@@ -524,19 +524,19 @@ glyph braille-8-on = braille-on@X
 //--------------------------------------
 
 glyph U+2800..283F = ..
-	braille-sm1-off|braille-sm1-on ..
-	braille-sm2-off*2|braille-sm2-on*2 ..
-	braille-sm3-off*4|braille-sm3-on*4 ..
-	braille-sm4-off*8|braille-sm4-on*8 ..
-	braille-sm5-off*16|braille-sm5-on*16 ..
-	braille-sm6-off*32|braille-sm6-on*32
+	braille-sm1-(off|on) ..
+	braille-sm2-(off*2|on*2) ..
+	braille-sm3-(off*4|on*4) ..
+	braille-sm4-(off*8|on*8) ..
+	braille-sm5-(off*16|on*16) ..
+	braille-sm6-(off*32|on*32)
 glyph U+2840..28FF = ..
-	braille-1-off|braille-1-on ..
-	braille-2-off*2|braille-2-on*2 ..
-	braille-3-off*4|braille-3-on*4 ..
-	braille-4-off*8|braille-4-on*8 ..
-	braille-5-off*16|braille-5-on*16 ..
-	braille-6-off*32|braille-6-on*32 ..
-	braille-7-on*64|braille-7-off*64|braille-7-on*64 .. // exclude 6-dots
-	braille-8-off*64|braille-8-on*128 // ditto
+	braille-1-(off|on) ..
+	braille-2-(off*2|on*2) ..
+	braille-3-(off*4|on*4) ..
+	braille-4-(off*8|on*8) ..
+	braille-5-(off*16|on*16) ..
+	braille-6-(off*32|on*32) ..
+	braille-7-(on*64|off*64|on*64) .. // exclude 6-dots
+	braille-8-(off*64|on*128) // ditto
 
