@@ -327,6 +327,7 @@ class Font(object):
         self.descent = 0 # XXX probably needs the downward translation in the glyph itself
 
         self.glyphs = {} # name: Glyph
+        self.exclude_from_sample = set()
 
         if fp: self.read(fp)
 
@@ -597,6 +598,10 @@ class Font(object):
                             flush_glyph(name, [], spec)
                     else:
                         raise ParseError(u'unexpected arguments to `glyph`')
+            elif args[0] == 'exclude-from-sample':
+                for arg in args[1:]:
+                    for name in parse_glyph_name(arg):
+                        self.exclude_from_sample.add(name)
             else:
                 if not current_glyph:
                     raise ParseError(u'no glyph currently active')
@@ -736,29 +741,39 @@ class Font(object):
 
         print >>fp, '<!doctype html>'
         print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: graphic sample</title><style>'
-        print >>fp, 'body{background:black;color:white}div{color:gray}#sampleglyphs{display:none}body.sample #sampleglyphs{display:block}body.sample #glyphs{display:none}'
+        print >>fp, 'body{background:black;color:white;line-height:1}div{color:gray}#sampleglyphs{display:none}body.sample #sampleglyphs{display:block}body.sample #glyphs{display:none}.scaled{font-size:500%}'
         print >>fp, 'svg{background:#111;fill:white;vertical-align:top}:target svg{background:#333}svg:hover path,body.sample svg path{fill:white!important}a svg path{fill:gray!important}'
         print >>fp, '</style></head><body>'
         print >>fp, '<input id="sample" placeholder="Input sample text here" size="40"> <input type="reset" id="reset" value="Reset"> | %d characters, %d intermediate glyphs so far | <a href="sample.png">PNG</a> | <a href="live.html">live</a>' % (num_pub_glyphs, num_glyphs - num_pub_glyphs)
         print >>fp, '<hr /><div id="sampleglyphs"></div><div id="glyphs">'
+        excluded = False
         for name in sorted(k for k in all_glyphs if isinstance(k, int)):
-            fp.write('<a href="#u%x"><span id="sm-u%x" title="%s">' % (name, name, escape(glyph_name(name))))
-            print_svg(name, 1, True)
-            fp.write('</span></a>')
-        print >>fp, '<hr />'
+            if name in self.exclude_from_sample:
+                if not excluded: fp.write('…'); excluded = True
+            else:
+                excluded = False
+                fp.write('<a href="#u%x"><span id="sm-u%x" title="%s">' % (name, name, escape(glyph_name(name))))
+                print_svg(name, 1, True)
+                fp.write('</span></a>')
+        print >>fp, '<hr /><span class="scaled">'
+        excluded = False
         for _, name in sorted((unicodedata.normalize('NFD', unichr(k)), k) for k in all_glyphs if isinstance(k, int)):
-            fp.write('<span id="u%x" title="%s">' % (name, escape(glyph_name(name))))
-            print_svg(name, 5, False)
-            fp.write('</span>')
+            if name in self.exclude_from_sample:
+                if not excluded: fp.write('…'); excluded = True
+            else:
+                excluded = False
+                fp.write('<span id="u%x" title="%s">' % (name, escape(glyph_name(name))))
+                print_svg(name, 5, False)
+                fp.write('</span>')
         if False:
             print >>fp, '<hr />'
             for name in sorted(k for k in all_glyphs if not isinstance(k, int)):
                 fp.write('<span id="glyph-%s" title="%s">' % (name, name))
                 print_svg(name, 5, False)
                 fp.write('</span>')
-        print >>fp, '</div><script>'
+        print >>fp, '</span></div><script>'
         print >>fp, 'function $(x){return document.getElementById(x)}'
-        print >>fp, 'function f(t){if(t.normalize)t=t.normalize();document.body.className=t?"sample":"";var sm="",bg="";for(var i=0;i<t.length;++i){var c=t.charCodeAt(i).toString(16);sm+=($("sm-u"+c)||{}).innerHTML||t[i];bg+=($("u"+c)||{}).innerHTML||t[i]}$("sampleglyphs").innerHTML=sm+"<hr /><span style=font-size:500%>"+bg+"</span>"}'
+        print >>fp, 'function f(t){if(t.normalize)t=t.normalize();document.body.className=t?"sample":"";var sm="",bg="";for(var i=0;i<t.length;++i){var c=t.charCodeAt(i).toString(16);sm+=($("sm-u"+c)||{}).innerHTML||t[i];bg+=($("u"+c)||{}).innerHTML||t[i]}$("sampleglyphs").innerHTML=sm+"<hr /><span class=scaled>"+bg+"</span>"}'
         print >>fp, '$("sample").onchange=$("sample").onkeyup=function(e){f(this.value)}'
         print >>fp, '$("reset").onclick=function(){$("sample").value="";f("")}'
         print >>fp, '</script></body></html>'
