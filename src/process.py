@@ -1062,7 +1062,7 @@ class Font(object):
         # cmap
         print >>fp, '<cmap>'
         print >>fp, '<tableVersion version="0"/>'
-        for platid, platenc in ((0, 3), (1, 0)):
+        for platid, platenc in ((0, 3), (1, 0), (3, 1)):
             print >>fp, '<cmap_format_4 platformID="{platid}" platEncID="{platenc}" ' \
                          'language="0">'.format(platid=platid, platenc=platenc)
             for name in sorted(k for k in self.glyphs.keys() if isinstance(k, int)):
@@ -1168,10 +1168,13 @@ class Font(object):
             (5, 'version', u'Version 0.1'),
             (6, 'psname', u'Unison'),
         ]
-        for nameid, _, nameval in names:
-            print >>fp, '<naming nameId="{id}" platformID="0" platEncID="0" langID="0x0" ' \
-                         'unicode="True">{val}</naming>'.format(id=nameid,
-                                                                val=nameval.encode('utf-8'))
+        for platid, platenc, langid in ((1, 0, 0), (3, 1, 0x409)):
+            for nameid, _, nameval in names:
+                print >>fp, '<namerecord nameID="{id}" platformID="{platid}" ' \
+                             'platEncID="{platenc}" langID="{langid}" ' \
+                             'unicode="True">{val}</namerecord>'.format(
+                                     id=nameid, platid=platid, platenc=platenc, langid=langid,
+                                     val=nameval.encode('utf-8'))
         print >>fp, '</name>'
 
         # post
