@@ -698,16 +698,18 @@ class Font(object):
                     if any(g.data): subglyphs.append(g)
             gg.subglyphs[:] = subglyphs
 
-            if not gg.subglyphs:
+            if not subglyphs:
                 if not (gg.flags & G_STICKY): empty.add(name)
                 return
-            elif len(gg.subglyphs) != 1:
+            elif len(subglyphs) != 1:
                 return
 
             # mark as redirected if this glyph consists of a single component
-            g = gg.subglyphs[0]
+            g = subglyphs[0]
             if not isinstance(g.data, (int, basestring)): return
             subname, roff, coff = redirect_to[g.data] or (g.data, 0, 0)
+            roff += g.top
+            coff += g.left
             if gg.flags & G_STICKY:
                 # A (sticky) --[off1]--> a-upper --[off2]--> a-upper-aux
                 #              swapped             inlined
@@ -719,16 +721,17 @@ class Font(object):
                 # we still need to avoid swapping if a-upper is replaced by, say, cyrillic А
                 gg2 = self.glyphs[subname]
                 if gg2.flags & G_STICKY: return
-                gg.subglyphs[:] = [g._replace(top=g.top-roff, left=g.left-coff)
-                                   for g in gg2.subglyphs]
+                gg.subglyphs[:] = [g2._replace(top=g2.top+roff, left=g2.left+coff)
+                                   for g2 in gg2.subglyphs]
                 for iname in redirect_from.get(subname, ()): # re-inlining
                     isubname, iroff, icoff = redirect_to[iname]
+                    assert subname == isubname
                     redirect_to[iname] = name, iroff - roff, icoff - coff
                 redirect_to[subname] = name, -roff, -coff
                 redirect_from.setdefault(name, set()).update(redirect_from.pop(subname, ()))
                 del self.glyphs[subname]
             else:
-                redirect_to[name] = subname, roff + g.top, coff + g.left
+                redirect_to[name] = subname, roff, coff
                 redirect_from.setdefault(subname, set()).add(name)
                 del self.glyphs[name]
 
@@ -1206,13 +1209,14 @@ class Font(object):
 
         # glyf
         print >>fp, '<glyf>'
-        def flush_contour(fp, g):
+        def flush_contour(fp, g, dx, dy):
             assert isinstance(g.data, list)
             for contour in track_contour(g.height, g.width, g.stride, g.data, PX_SUBPIXEL):
                 print >>fp, '<contour>'
                 for x, y in contour:
-                    y = g.height - y
-                    print >>fp, '<pt x="{x}" y="{y}" on="1"/>'.format(x=int(x*SCALE), y=int(y*SCALE))
+                    x = int(SCALE * (dx + x))
+                    y = int(SCALE * (dy + (g.height - y)))
+                    print >>fp, '<pt x="{x}" y="{y}" on="1"/>'.format(x=x, y=y)
                 print >>fp, '</contour>'
         for name, gg in sorted(self.glyphs.items()):
             name = get_subname(name)
@@ -1224,30 +1228,26 @@ class Font(object):
                     if not isinstance(g.data, list): continue
                     subname = '%s#%d' % (name, i)
                     print >>fp, '<TTGlyph name="{subname}">'.format(subname=subname)
-                    flush_contour(fp, g)
+                    flush_contour(fp, g, 0, 0)
                     print >>fp, '<instructions><bytecode></bytecode></instructions>'
                     print >>fp, '</TTGlyph>'
 
             print >>fp, '<TTGlyph name="{name}">'.format(name=name)
             for i, g in enumerate(gg.subglyphs):
-                x = g.left
-                y = g.top
                 if isinstance(g.data, list):
-                    if not hybrid:
-                        flush_contour(fp, g)
-                        continue
                     subname = '%s#%d' % (name, i)
                     subheight = g.height
                 else:
                     subname = get_subname(g.data)
-                    subheight = g.height
-                    if y is None: y = self.glyphs[g.data].preferred_top
-                    if x is None: x = self.glyphs[g.data].preferred_left
-                x = (x or 0)
-                y = gg.height - ((y or 0) + subheight)
-                print >>fp, '<component glyphName="{subname}" x="{x}" y="{y}" ' \
-                             'flags="0x1004"/>'.format(subname=subname,
-                                                       x=int(x*SCALE), y=int(y*SCALE))
+                    subheight = self.glyphs[g.data].height # NOT g.height, which can be wrong
+                x = g.left
+                y = gg.height - (g.top + subheight)
+                if not hybrid and isinstance(g.data, list):
+                    flush_contour(fp, g, x, y)
+                else:
+                    print >>fp, '<component glyphName="{subname}" x="{x}" y="{y}" ' \
+                                 'flags="0x1004"/>'.format(subname=subname,
+                                                           x=int(x*SCALE), y=int(y*SCALE))
             print >>fp, '<instructions><bytecode></bytecode></instructions>'
             print >>fp, '</TTGlyph>'
         print >>fp, '</glyf>'
