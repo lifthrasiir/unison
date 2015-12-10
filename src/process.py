@@ -43,6 +43,9 @@ PX_HALFSLANT3V  = 14^M #   : /| = PX_HALF4    ._/| = PX_HALFSLANT4V
 PX_HALFSLANT4V  = 13^M #   :/_|               |__|
 PX_DOT          = 15   # *
 
+# glyph flags
+G_STICKY = 1
+
 ADJACENCY_MAP = {
     #    a   b
     #   +--+--+
@@ -90,7 +93,7 @@ Subglyph = namedtuple('Subglyph', 'top left height width stride data')
 
 # height/width should be the intrinsic height/width, and may be filled by resolve_glyphs.
 # preferred_top/left becomes the actual offset when the glyph is used at the top level.
-Glyph = namedtuple('Glyph', 'height width preferred_top preferred_left subglyphs')
+Glyph = namedtuple('Glyph', 'flags height width preferred_top preferred_left subglyphs')
 
 class ParseError(ValueError): pass
 
@@ -532,7 +535,8 @@ class Font(object):
                                               left=None if subcoff is None else Delta(subcoff),
                                               width=None, height=None, stride=None, data=subname))
 
-            self.glyphs[name] = Glyph(height=None, width=None,
+            flags = G_STICKY if isinstance(name, int) or name == u'.notdef' else 0
+            self.glyphs[name] = Glyph(flags=flags, height=None, width=None,
                                       preferred_top=roff, preferred_left=coff, subglyphs=subglyphs)
 
         current_glyph = None # or (code, lines, list of (subglyphs, placeholder ch or None))
@@ -672,6 +676,51 @@ class Font(object):
                     width=maxright if gg.width is None else gg.width)
 
         for name in self.glyphs.keys(): resolve(name)
+
+    def inline_glyphs(self):
+        # invariant: redirect_to[a][0] == b <=> a in redirect_from[b]
+        redirect_to = {} # name: None or (subname, roff, coff)
+        redirect_from = {} # subname: set of names
+        def check(name):
+            if name in redirect_to: return
+            redirect_to[name] = None
+            gg = self.glyphs[name]
+            if len(gg.subglyphs) != 1: return
+            g = gg.subglyphs[0]
+            if not isinstance(g.data, (int, basestring)): return
+            check(g.data)
+            subname, roff, coff = redirect_to[g.data] or (g.data, 0, 0)
+            if gg.flags & G_STICKY:
+                # A (sticky) --[off1]--> a-upper --[off2]--> a-upper-aux
+                #              swapped             inlined
+                #
+                # A (sticky) <-----------[-off1-off2]------------+ inlined
+                #                                  inlined       |
+                #                        a-upper --[off2]--> a-upper-aux
+                #
+                # we still need to avoid swapping if a-upper is replaced by, say, cyrillic А
+                gg2 = self.glyphs[subname]
+                if gg2.flags & G_STICKY: return
+                gg.subglyphs[:] = [g._replace(top=g.top-roff, left=g.left-coff)
+                                   for g in gg2.subglyphs]
+                for iname in redirect_from.get(subname, ()): # re-inlining
+                    isubname, iroff, icoff = redirect_to[iname]
+                    redirect_to[iname] = name, iroff - roff, icoff - coff
+                redirect_to[subname] = name, -roff, -coff
+                redirect_from.setdefault(name, set()).update(redirect_from.pop(subname, ()))
+                del self.glyphs[subname]
+            else:
+                redirect_to[name] = subname, roff + g.top, coff + g.left
+                redirect_from.setdefault(subname, set()).add(name)
+                del self.glyphs[name]
+        for name in self.glyphs.keys(): check(name)
+
+        for name, gg in self.glyphs.items():
+            for k, g in enumerate(gg.subglyphs):
+                if not isinstance(g.data, (int, basestring)): continue
+                if redirect_to[g.data]:
+                    subname, roff, coff = redirect_to[g.data]
+                    gg.subglyphs[k] = g._replace(top=g.top+roff, left=g.left+coff, data=subname)
 
     def get_subglyphs(self, name):
         def collect(g, roff, coff, acc):
@@ -924,10 +973,13 @@ class Font(object):
         for name, gg in sorted(self.glyphs.items()):
             if name == '.notdef': hasnotdef = True
             subname = get_subname(name)
-            for i, g in enumerate(gg.subglyphs):
-                if not isinstance(g.data, list): continue
-                subnames.append(('%s-%d' % (subname, i), g.width,
-                                 get_lsb_from_pixels(g.height, g.width, g.stride, g.data)))
+            compositecount = sum(isinstance(g.data, (int, basestring)) for g in gg.subglyphs)
+            if 0 < compositecount < len(gg.subglyphs):
+                # add intermediate subglyphs when required
+                for i, g in enumerate(gg.subglyphs):
+                    if not isinstance(g.data, list): continue
+                    subnames.append(('%s#%d' % (subname, i), g.width,
+                                     get_lsb_from_pixels(g.height, g.width, g.stride, g.data)))
             subnames.append((subname, gg.width, get_lsb(name)))
         assert hasnotdef, '.notdef glyph is undefined, will cause a bad effect including ' \
                           'a missing glyph for the first character (generally U+0020)'
@@ -1134,29 +1186,37 @@ class Font(object):
 
         # glyf
         print >>fp, '<glyf>'
+        def flush_contour(fp, g):
+            assert isinstance(g.data, list)
+            for contour in track_contour(g.height, g.width, g.stride, g.data, PX_SUBPIXEL):
+                print >>fp, '<contour>'
+                for x, y in contour:
+                    y = g.height - y
+                    print >>fp, '<pt x="{x}" y="{y}" on="1"/>'.format(x=int(x*SCALE), y=int(y*SCALE))
+                print >>fp, '</contour>'
         for name, gg in sorted(self.glyphs.items()):
             name = get_subname(name)
 
-            # flush simple glyphs first
-            for i, g in enumerate(gg.subglyphs):
-                if not isinstance(g.data, list): continue
-                subname = '%s-%d' % (name, i)
-                print >>fp, '<TTGlyph name="{subname}">'.format(subname=subname)
-                for contour in track_contour(g.height, g.width, g.stride, g.data, PX_SUBPIXEL):
-                    print >>fp, '<contour>'
-                    for x, y in contour:
-                        y = g.height - y
-                        print >>fp, '<pt x="{x}" y="{y}" on="1"/>'.format(x=int(x*SCALE), y=int(y*SCALE))
-                    print >>fp, '</contour>'
-                print >>fp, '<instructions><bytecode></bytecode></instructions>'
-                print >>fp, '</TTGlyph>'
+            compositecount = sum(isinstance(g.data, (int, basestring)) for g in gg.subglyphs)
+            hybrid = (0 < compositecount < len(gg.subglyphs))
+            if hybrid:
+                for i, g in enumerate(gg.subglyphs):
+                    if not isinstance(g.data, list): continue
+                    subname = '%s#%d' % (name, i)
+                    print >>fp, '<TTGlyph name="{subname}">'.format(subname=subname)
+                    flush_contour(fp, g)
+                    print >>fp, '<instructions><bytecode></bytecode></instructions>'
+                    print >>fp, '</TTGlyph>'
 
             print >>fp, '<TTGlyph name="{name}">'.format(name=name)
             for i, g in enumerate(gg.subglyphs):
                 x = g.left
                 y = g.top
                 if isinstance(g.data, list):
-                    subname = '%s-%d' % (name, i)
+                    if not hybrid:
+                        flush_contour(fp, g)
+                        continue
+                    subname = '%s#%d' % (name, i)
                     subheight = g.height
                 else:
                     subname = get_subname(g.data)
@@ -1219,6 +1279,7 @@ if __name__ == '__main__':
             with open(path) as f:
                 font.read(f)
         font.resolve_glyphs()
+        font.inline_glyphs()
     except ParseError as e:
         print >>sys.stderr, unicode(e).encode('utf-8')
         raise SystemExit(1)
