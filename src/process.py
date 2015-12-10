@@ -679,16 +679,34 @@ class Font(object):
 
     def inline_glyphs(self):
         # invariant: redirect_to[a][0] == b <=> a in redirect_from[b]
+        empty = set()
         redirect_to = {} # name: None or (subname, roff, coff)
         redirect_from = {} # subname: set of names
         def check(name):
             if name in redirect_to: return
             redirect_to[name] = None
+
             gg = self.glyphs[name]
-            if len(gg.subglyphs) != 1: return
+
+            # eliminate empty subglyphs (while recursively checking others)
+            subglyphs = []
+            for g in gg.subglyphs:
+                if isinstance(g.data, (int, basestring)):
+                    check(g.data)
+                    if g.data not in empty: subglyphs.append(g)
+                else:
+                    if any(g.data): subglyphs.append(g)
+            gg.subglyphs[:] = subglyphs
+
+            if not gg.subglyphs:
+                if not (gg.flags & G_STICKY): empty.add(name)
+                return
+            elif len(gg.subglyphs) != 1:
+                return
+
+            # mark as redirected if this glyph consists of a single component
             g = gg.subglyphs[0]
             if not isinstance(g.data, (int, basestring)): return
-            check(g.data)
             subname, roff, coff = redirect_to[g.data] or (g.data, 0, 0)
             if gg.flags & G_STICKY:
                 # A (sticky) --[off1]--> a-upper --[off2]--> a-upper-aux
@@ -713,14 +731,18 @@ class Font(object):
                 redirect_to[name] = subname, roff + g.top, coff + g.left
                 redirect_from.setdefault(subname, set()).add(name)
                 del self.glyphs[name]
+
         for name in self.glyphs.keys(): check(name)
 
         for name, gg in self.glyphs.items():
-            for k, g in enumerate(gg.subglyphs):
-                if not isinstance(g.data, (int, basestring)): continue
-                if redirect_to[g.data]:
-                    subname, roff, coff = redirect_to[g.data]
-                    gg.subglyphs[k] = g._replace(top=g.top+roff, left=g.left+coff, data=subname)
+            if name in empty:
+                del self.glyphs[name]
+            else:
+                for k, g in enumerate(gg.subglyphs):
+                    if not isinstance(g.data, (int, basestring)): continue
+                    if redirect_to[g.data]:
+                        subname, roff, coff = redirect_to[g.data]
+                        gg.subglyphs[k] = g._replace(top=g.top+roff, left=g.left+coff, data=subname)
 
     def get_subglyphs(self, name):
         def collect(g, roff, coff, acc):
@@ -835,16 +857,14 @@ class Font(object):
         # determine the width of glyphs (and check the height)
         glyphs = {} # (width, height, list of resolved subglyphs)
         unavailable_widths = set() # (# glyphs per line, start character)
-        for name in self.glyphs.keys():
+        for name, gg in self.glyphs.items():
             if not isinstance(name, int): continue
-            gg = self.get_subglyphs(name)
-            width = max(g.left + g.width for g in gg)
-            height = max(g.top + g.height for g in gg)
-            assert height <= MAX_HEIGHT, 'glyph %s is too tall' % glyph_name(name)
-            assert width <= LINE_WIDTH, 'glyph %s is too wide' % glyph_name(name)
-            glyphs[name] = width, height, gg
+            subglyphs = self.get_subglyphs(name)
+            assert gg.height <= MAX_HEIGHT, 'glyph %s is too tall' % glyph_name(name)
+            assert gg.width <= LINE_WIDTH, 'glyph %s is too wide' % glyph_name(name)
+            glyphs[name] = gg.width, gg.height, subglyphs
             for w in NUM_GLYPHS_PER_LINE:
-                if width > LINE_WIDTH // w:
+                if gg.width > LINE_WIDTH // w:
                     unavailable_widths.add((w, name & -w))
 
         # determine the position of each glyph
