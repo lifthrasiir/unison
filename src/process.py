@@ -214,19 +214,19 @@ def track_contour(height, width, stride0, data0, mask):
                     y, x = divmod(i, stride)
 
                     linesegs = pixel & disconnected
-                    if linesegs & 0b11000000: segs.append((x, y, x + 1, y))
+                    if (linesegs & 0b11000000) == 0b11000000: segs.append((x, y, x + 1, y))
                     else:
                         if linesegs & 0b10000000: segs.append((x, y, x + 0.5, y))
                         if linesegs & 0b01000000: segs.append((x + 0.5, y, x + 1, y))
-                    if linesegs & 0b00110000: segs.append((x + 1, y, x + 1, y + 1))
+                    if (linesegs & 0b00110000) == 0b00110000: segs.append((x + 1, y, x + 1, y + 1))
                     else:
                         if linesegs & 0b00100000: segs.append((x + 1, y, x + 1, y + 0.5))
                         if linesegs & 0b00010000: segs.append((x + 1, y + 0.5, x + 1, y + 1))
-                    if linesegs & 0b00001100: segs.append((x + 1, y + 1, x, y + 1))
+                    if (linesegs & 0b00001100) == 0b00001100: segs.append((x + 1, y + 1, x, y + 1))
                     else:
                         if linesegs & 0b00001000: segs.append((x + 1, y + 1, x + 0.5, y + 1))
                         if linesegs & 0b00000100: segs.append((x + 0.5, y + 1, x, y + 1))
-                    if linesegs & 0b00000011: segs.append((x, y + 1, x, y))
+                    if (linesegs & 0b00000011) == 0b00000011: segs.append((x, y + 1, x, y))
                     else:
                         if linesegs & 0b00000010: segs.append((x, y + 1, x, y + 0.5))
                         if linesegs & 0b00000001: segs.append((x, y + 0.5, x, y))
@@ -424,17 +424,35 @@ class Font(object):
                     elif px in '.!+':
                         v = PX_EMPTY
                     elif px == 'b':
-                        v = ((None           if r=='\\' else PX_HALFSLANT1H) if t=='\\' else
-                             (PX_HALFSLANT1V if r=='\\' else PX_HALF1))
+                        # @@.@@
+                        # @/d@@ <- avoid parsing this as connected
+                        rcont = (r == '\\' and not (lines[rr][cc+2] in FILLED and
+                                                    lines[rr-1][cc+1] in FILLED))
+                        tcont = (t == '\\' and not (lines[rr-2][cc] in FILLED and
+                                                    lines[rr-1][cc+1] in FILLED))
+                        v = ((None           if rcont else PX_HALFSLANT1H) if tcont else
+                             (PX_HALFSLANT1V if rcont else PX_HALF1))
                     elif px == '9':
-                        v = ((None           if l=='\\' else PX_HALFSLANT2H) if b=='\\' else
-                             (PX_HALFSLANT2V if l=='\\' else PX_HALF2))
+                        lcont = (l == '\\' and not (lines[rr][cc-2] in FILLED and
+                                                    lines[rr+1][cc-1] in FILLED))
+                        bcont = (b == '\\' and not (lines[rr+2][cc] in FILLED and
+                                                    lines[rr+1][cc-1] in FILLED))
+                        v = ((None           if lcont else PX_HALFSLANT2H) if bcont else
+                             (PX_HALFSLANT2V if lcont else PX_HALF2))
                     elif px == 'P':
-                        v = ((None           if r=='/' else PX_HALFSLANT3H) if b=='/' else
-                             (PX_HALFSLANT3V if r=='/' else PX_HALF3))
+                        rcont = (r == '/' and not (lines[rr][cc+2] in FILLED and
+                                                   lines[rr+1][cc+1] in FILLED))
+                        bcont = (b == '/' and not (lines[rr+2][cc] in FILLED and
+                                                   lines[rr+1][cc+1] in FILLED))
+                        v = ((None           if rcont else PX_HALFSLANT3H) if bcont else
+                             (PX_HALFSLANT3V if rcont else PX_HALF3))
                     elif px == 'd':
-                        v = ((None           if l=='/' else PX_HALFSLANT4H) if t=='/' else
-                             (PX_HALFSLANT4V if l=='/' else PX_HALF4))
+                        lcont = (l == '/' and not (lines[rr][cc-2] in FILLED and
+                                                   lines[rr-1][cc-1] in FILLED))
+                        tcont = (t == '/' and not (lines[rr-2][cc] in FILLED and
+                                                   lines[rr-1][cc-1] in FILLED))
+                        v = ((None           if lcont else PX_HALFSLANT4H) if tcont else
+                             (PX_HALFSLANT4V if lcont else PX_HALF4))
                     else:
                         tfull = (t in FILLED)
                         bfull = (b in FILLED)

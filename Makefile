@@ -7,7 +7,7 @@ SRC = \
 	latin greek cyrillic armenian \
 	num num-roman \
 	comb punct arrow box currency ctrl \
-	hangul-syllable han \
+	hangul hangul-syllable han \
 	halfwidth fullwidth \
 	yijing braille
 

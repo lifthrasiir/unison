@@ -1,48 +1,6 @@
 ////////////////////////////////////////
 // hangul syllables
 
-// https://github.com/Snack-X/korean-johap
-//
-// hangul syllables are largely compositional, we need 16 sets of glyphs.
-//
-// - initial jamo has 8 sets (A1..A8) for:
-//   A1: no final, medial is one of ㅏㅐㅑㅒㅓㅔㅕㅖㅣ
-//   A2: no final, medial is one of ㅗㅛㅡ
-//   A3: no final, medial is one of ㅜㅠ
-//   A4: no final, medial is one of ㅘㅙㅚㅢ
-//   A5: no final, medial is one of ㅝㅞㅟ
-//   A6: has final, medial is one of ㅏㅐㅑㅒㅓㅔㅕㅖㅣ
-//   A7: has final, medial is one of ㅗㅛㅡ or ㅜㅠ
-//   A8: has final, medial is one of ㅘㅙㅚㅢ or ㅝㅞㅟ
-// - medial jamo has 4 sets (B1a..B2b) for:
-//   B1a/B1b: no final, initial was one of ㄱㅋ/others
-//   B2a/B2b: has final, initial was one of ㄱㅋ/others
-//   (ㄱㅋ make the shape of medials asymmetric, hence separate sets)
-// - final jamo has 4 sets (C1..C4) for:
-//   C1: medial was one of ㅏㅑ or ㅘ
-//   C2: medial was one of ㅓㅕ or ㅚㅝㅟㅢㅣ
-//   C3: medial was one of ㅐㅒㅔㅖ or ㅙㅞ
-//   C4: medial was one of ㅗㅛㅜㅠㅡ
-//
-// consequently we have the following shapes:
-// (some medials may have a room for an additional stroke inside initials)
-//
-// +------+--+ +---------+ +---------+ +------+--+ +------+--+
-// |      |  | |         | |         | |      |  | |      |  |
-// |     ++  | |    A2   | |    A3   | |  A4  |  | |  A5  |  |
-// |  A1 | B1| |   +-+   | +---------+ | +--+ |  | +------+  |
-// |     ++  | +---+ +---+ |         | +-+  +-+  | |         |
-// |      |  | |    B1   | |    B1   | |    B1   | |    B1   |
-// +------+--+ +---------+ +---------+ +---------+ +---------+
-//
-// +------+--+ +---------+ +------+--+
-// |     ++  | |A7 +-+   | |     ++  |
-// |  A6 | B2| +---+ +---+ |  A8 ++B2|
-// |     ++  | |    B2   | +------+  |
-// +------+--+ +---------+ +---------+
-// | C1 C2 C3| |    C4   | | C1 C2 C3|
-// +---------+ +---------+ +---------+
-
 glyph hangul-init-g-l-nof
 ...........!!!!!
 ...........!!!!!
@@ -3596,6 +3554,7 @@ glyph hangul-fin-h-w
 glyph hangul-fin-(0|g|gg|gs|n|nj|nh|d|l|lg|lm|lb|ls|lt|lp|lh|m|b|bs|s|ss|ng|j|ch|k|t|p|h)-r = ..
 	hangul-fin-(0|g|gg|gs|n|nj|nh|d|l|lg|lm|lb|ls|lt|lp|lh|m|b|bs|s|ss|ng|j|ch|k|t|p|h)-l@>
 
+// here we go!
 glyph U+AC00..D7A3 = ..
 	hangul-init-(g*588|gg*588|n*588|d*588|dd*588|r*588|m*588|b*588|bb*588|s*588|ss*588|0*588|j*588|jj*588|ch*588|k*588|t*588|p*588|h*588)-(l*28|l*28|l*28|l*28|l*28|l*28|l*28|l*28|t*28|tl*28|tl*28|tl*28|t*28|t*28|tl*28|tl*28|tl*28|t*28|t*28|tl*28|l*28)-(nof|f*27) ..
 	hangul-med-(a*28|ae*28|ya*28|yae*28|eo*28|e*28|yeo*28|ye*28|o*28|wa*28|wae*28|oi*28|yo*28|u*28|weo*28|we*28|wi*28|yu*28|eu*28|eui*28|i*28)-(nof|f*27) ..
