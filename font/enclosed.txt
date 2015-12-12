@@ -1,0 +1,93 @@
+////////////////////////////////////////
+// enclosed letters
+
+//--------------------------------------
+// circled letters
+
+// slight ellipsis to make an enclosed number balanced
+glyph enclosing-circle
+................
+...../d@@@b\....
+....dP/...\9b...
+...d/.......\b..
+../P.........9\.
+..d/.........\b.
+..@...........@.
+..@...........@.
+..@...........@.
+..@...........@.
+..9\........./P.
+..\b.........d/.
+...9\......./P..
+....9b\.../dP...
+.....\9@@@P/....
+................
+
+glyph ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ..
+	enclosing-circle (0|1|2|3|4|5|6|7|8|9)@>>>>
+glyph ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = ..
+	enclosing-circle 1-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
+glyph ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = ..
+	enclosing-circle 2-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
+glyph ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = ..
+	enclosing-circle 3-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
+glyph ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = ..
+	enclosing-circle 4-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
+glyph ㊿ = ..
+	enclosing-circle 5-4x10@>>>>vvv 0-4x10@>>>>>>>>>vvv
+
+glyph Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ..
+	enclosing-circle (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)-upper@>>>>
+
+// they need an individual control
+glyph ⓐ = enclosing-circle a-lower@>>>>^
+glyph ⓑ = enclosing-circle b-lower@>>>>
+glyph ⓒ = enclosing-circle c-lower@>>>>^
+glyph ⓓ = enclosing-circle d-lower@>>>>
+glyph ⓔ = enclosing-circle e-lower@>>>>^
+glyph ⓕ = enclosing-circle f-lower@>>>>
+glyph ⓖ = enclosing-circle g-lower@>>>>^
+glyph ⓗ = enclosing-circle h-lower@>>>>
+glyph ⓘ = enclosing-circle i-lower@>>>>
+glyph ⓙ = enclosing-circle j-lower-compressed@>>>>
+glyph ⓚ = enclosing-circle k-lower@>>>>
+glyph ⓛ = enclosing-circle l-lower@>>>>
+glyph ⓜ = enclosing-circle m-lower@>>>>^
+glyph ⓝ = enclosing-circle n-lower@>>>>^
+glyph ⓞ = enclosing-circle o-lower@>>>>^
+glyph ⓟ = enclosing-circle p-lower-compressed@>>>>^
+glyph ⓠ = enclosing-circle q-lower-compressed@>>>>^
+glyph ⓡ = enclosing-circle r-lower@>>>>^
+glyph ⓢ = enclosing-circle s-lower@>>>>^
+glyph ⓣ = enclosing-circle t-lower@>>>>
+glyph ⓤ = enclosing-circle u-lower@>>>>^
+glyph ⓥ = enclosing-circle v-lower@>>>>^
+glyph ⓦ = enclosing-circle w-lower@>>>>^
+glyph ⓧ = enclosing-circle x-lower@>>>>^
+glyph ⓨ = enclosing-circle y-lower@>>>>^
+glyph ⓩ = enclosing-circle z-lower@>>>>^
+
+//--------------------------------------
+// circled letters in a black square
+
+glyph enclosing-circle-in-black-square
+................
+..@@@@@@@@@@@@@.
+..@@P/.....\9@@.
+..@P.........9@.
+..@/.........\@.
+..@...........@.
+..@...........@.
+..@...........@.
+..@...........@.
+..@...........@.
+..@...........@.
+..@\........./@.
+..@b.........d@.
+..@@b\...../d@@.
+..@@@@@@@@@@@@@.
+................
+
+glyph ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ..
+	enclosing-circle-in-black-square (1|2|3|4|5|6|7|8)-4x10@>>>>vvv 0-4x10@>>>>>>>>>vvv
+

@@ -6,7 +6,7 @@ SRC = \
 	Unison \
 	latin greek cyrillic armenian \
 	num num-roman \
-	comb punct arrow box currency ctrl \
+	comb punct arrow box currency ctrl enclosed \
 	hangul hangul-syllable \
 	han han-radical \
 	halfwidth fullwidth \

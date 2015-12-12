@@ -182,6 +182,129 @@
 ........
 
 //--------------------------------------
+// narrower numbers
+
+glyph 0-4x10
+/@@\
+@.@@
+@.@@
+@.@@
+@.@@
+@.@@
+@.@@
+@.@@
+@.@@
+\@@/
+
+glyph 1-4x10
+/@@.
+@@@.
+P@@.
+.@@.
+.@@.
+.@@.
+.@@.
+.@@.
+.@@.
+@@@@
+
+glyph 2-4x10
+/@@\
+@.@@
+@.@@
+@.@@
+..@@
+./@P
+.d@/
+/@P.
+d@/.
+@@@@
+
+glyph 3-4x10
+/@@\
+@.@@
+@.@@
+..@@
+.@@<
+..@@
+..@@
+@.@@
+@.@@
+\@@/
+
+glyph 4-4x10
+./@@
+/@@@
+@P@@
+@.@@
+@.@@
+@.@@
+@.@@
+@@@@
+..@@
+..@@
+
+glyph 5-4x10
+@@@@
+@@..
+@@..
+@@..
+@@@\
+..@@
+..@@
+@.@@
+@.@@
+\@@/
+
+glyph 6-4x10
+/@@\
+@@.@
+@@.@
+@@..
+@@@\
+@@.@
+@@.@
+@@.@
+@@.@
+\@@/
+
+glyph 7-4x10
+@@@@
+..@@
+..@@
+..@@
+./@P
+.@@.
+.@@.
+.@@.
+.@@.
+.@@.
+
+glyph 8-4x10
+/@@\
+@.@@
+@.@@
+9v@P
+.@@.
+d^@b
+@.@@
+@.@@
+@.@@
+\@@/
+
+glyph 9-4x10
+/@@\
+@.@@
+@.@@
+@.@@
+@.@@
+\@@@
+..@@
+@.@@
+@.@@
+\@@/
+
+//--------------------------------------
 // small numbers
 
 // sm-* are designed to fit in 3x5 (normal) or 4x5 (4)
@@ -679,64 +802,4 @@ glyph ⅒ = fraction-slash@X
 ........
 ........
 ........
-
-//--------------------------------------
-// enclosed numbers
-
-// slight ellipsis to make an enclosed number balanced
-glyph enclosing-circle
-................
-...../d@@@b\....
-....dP/...\9b...
-...d/.......\b..
-../P.........9\.
-..d/.........\b.
-..@...........@.
-..@...........@.
-..@...........@.
-..@...........@.
-..9\........./P.
-..\b.........d/.
-...9\......./P..
-....9b\.../dP...
-.....\9@@@P/....
-................
-
-glyph ① = enclosing-circle 1@>>>>
-glyph ② = enclosing-circle 2@>>>>
-glyph ③ = enclosing-circle 3@>>>>
-glyph ④ = enclosing-circle 4@>>>>
-glyph ⑤ = enclosing-circle 5@>>>>
-glyph ⑥ = enclosing-circle 6@>>>>
-glyph ⑦ = enclosing-circle 7@>>>>
-glyph ⑧ = enclosing-circle 8@>>>>
-glyph ⑨ = enclosing-circle 9@>>>>
-
-// XXX move this to font-latin.txt
-glyph Ⓐ = enclosing-circle a-upper@>>>>
-glyph Ⓑ = enclosing-circle b-upper@>>>>
-glyph Ⓒ = enclosing-circle c-upper@>>>>
-glyph Ⓓ = enclosing-circle d-upper@>>>>
-glyph Ⓔ = enclosing-circle e-upper@>>>>
-glyph Ⓕ = enclosing-circle f-upper@>>>>
-glyph Ⓖ = enclosing-circle g-upper@>>>>
-glyph Ⓗ = enclosing-circle h-upper@>>>>
-glyph Ⓘ = enclosing-circle i-upper@>>>>
-glyph Ⓙ = enclosing-circle j-upper@>>>>
-glyph Ⓚ = enclosing-circle k-upper@>>>>
-glyph Ⓛ = enclosing-circle l-upper@>>>>
-glyph Ⓜ = enclosing-circle m-upper@>>>>
-glyph Ⓝ = enclosing-circle n-upper@>>>>
-glyph Ⓞ = enclosing-circle o-upper@>>>>
-glyph Ⓟ = enclosing-circle p-upper@>>>>
-glyph Ⓠ = enclosing-circle q-upper@>>>>
-glyph Ⓡ = enclosing-circle r-upper@>>>>
-glyph Ⓢ = enclosing-circle s-upper@>>>>
-glyph Ⓣ = enclosing-circle t-upper@>>>>
-glyph Ⓤ = enclosing-circle u-upper@>>>>
-glyph Ⓥ = enclosing-circle v-upper@>>>>
-glyph Ⓦ = enclosing-circle w-upper@>>>>
-glyph Ⓧ = enclosing-circle x-upper@>>>>
-glyph Ⓨ = enclosing-circle y-upper@>>>>
-glyph Ⓩ = enclosing-circle z-upper@>>>>
 
