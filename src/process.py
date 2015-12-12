@@ -151,6 +151,11 @@ def signed_area(path):
 def ccw(x1, y1, x2, y2, x3, y3):
     return (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)
 
+def inside(x1, y1, x, y, x2, y2):
+    # i.e. colinear and (x,y) is inside a rectangle formed by (x1,y1) and (x2,y2)
+    return ccw(x1, y1, x, y, x2, y2) == 0 and (x1 <= x <= x2 or x1 >= x >= x2) \
+                                          and (y1 <= y <= y2 or y1 >= y >= y2)
+
 # http://geomalgorithms.com/a03-_inclusion.html
 def winding_number(x, y, path):
     xx0, yy0 = path[-1]
@@ -300,9 +305,23 @@ def track_contour(height, width, stride0, data0, mask):
         wn = 0
         for p in paths:
             if p is path: continue # "any" point would always coincide
-            for x, y in path:
-                if (x, y) not in p: break
-            else: assert False
+            for k in xrange(len(path)):
+                # it is possible that every point in `path` overlaps with `p`
+                # while they don't share any common points themselves.
+                # thus we cheat here and try to pick a point that is not in `path`
+                # while it *does* overlap with `path` and is very unlikely to overlap with `p`.
+                # this is ensured by using, eh, a very small amount of interpolation.
+                # of course, we can do better, but who cares?
+                x1, y1 = path[k-1]
+                x2, y2 = path[k]
+                x = (x1 + x2 * 1023) / 1024.
+                y = (y1 + y2 * 1023) / 1024.
+
+                # even if (x, y) is not in the path itself, it may coincide with some segment
+                if all(not inside(p[i-1][0], p[i-1][1], x, y, p[i][0], p[i][1])
+                       for i in xrange(len(p))): break
+            else:
+                assert False
             wn += winding_number(x, y, p)
 
         # if a sign of the signed area mismatches with the winding number, reverse.
