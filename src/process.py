@@ -341,10 +341,10 @@ class Font(object):
             # single name
             (?P<name>[0-9a-z\-_.]+) |
             # name list or character list
-            (?P<names>(?:.|[0-9a-z\-_.]+)(?:\*\d+)?(?:\|(?:.|[0-9a-z\-_.]+)(?:\*\d+)?)*) |
+            (?P<names>(?:.|[0-9a-z\-_.]*)(?:\*\d+)?(?:\|(?:.|[0-9a-z\-_.]*)(?:\*\d+)?)*) |
             # name list with one or more parts
             (?P<parts>[0-9a-z\-_.]*
-                      (?:\([0-9a-z\-_.]+(?:\*\d+)?(?:\|[0-9a-z\-_.]+(?:\*\d+)?)*\)
+                      (?:\([0-9a-z\-_.]*(?:\*\d+)?(?:\|[0-9a-z\-_.]*(?:\*\d+)?)*\)
                          [0-9a-z\-_.]*)+)
         )$''', re.I | re.X)
         def parse_glyph_name(s):
