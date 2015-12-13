@@ -91,3 +91,57 @@ glyph enclosing-circle-in-black-square
 glyph ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ..
 	enclosing-circle-in-black-square (1|2|3|4|5|6|7|8)-4x10@>>>>vvv 0-4x10@>>>>>>>>>vvv
 
+//--------------------------------------
+// parenthesed letters
+
+glyph enclosing-parens
+................
+................
+../@P.......9@\.
+./@P.........9@\
+.d@/.........\@b
+.@@...........@@
+.@@...........@@
+.@@...........@@
+.@@...........@@
+.@@...........@@
+.@@...........@@
+.9@\........./@P
+.\@b.........d@/
+..\@b.......d@/.
+................
+................
+
+glyph ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ..
+	enclosing-parens (1|2|3|4|5|6|7|8|9)@>>>>
+glyph ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = ..
+	enclosing-parens 1-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
+glyph ⒇ = ..
+	enclosing-parens 2-4x10@>>>>vvv 0-4x10@>>>>>>>>>vvv
+
+glyph ⒜ = enclosing-parens a-lower@>>>>^
+glyph ⒝ = enclosing-parens b-lower@>>>>
+glyph ⒞ = enclosing-parens c-lower@>>>>^
+glyph ⒟ = enclosing-parens d-lower@>>>>
+glyph ⒠ = enclosing-parens e-lower@>>>>^
+glyph ⒡ = enclosing-parens f-lower@>>>>
+glyph ⒢ = enclosing-parens g-lower@>>>>^
+glyph ⒣ = enclosing-parens h-lower@>>>>
+glyph ⒤ = enclosing-parens i-lower@>>>>
+glyph ⒥ = enclosing-parens j-lower-compressed@>>>>
+glyph ⒦ = enclosing-parens k-lower@>>>>
+glyph ⒧ = enclosing-parens l-lower@>>>>
+glyph ⒨ = enclosing-parens m-lower@>>>>^
+glyph ⒩ = enclosing-parens n-lower@>>>>^
+glyph ⒪ = enclosing-parens o-lower@>>>>^
+glyph ⒫ = enclosing-parens p-lower-compressed@>>>>^
+glyph ⒬ = enclosing-parens q-lower-compressed@>>>>^
+glyph ⒭ = enclosing-parens r-lower@>>>>^
+glyph ⒮ = enclosing-parens s-lower@>>>>^
+glyph ⒯ = enclosing-parens t-lower@>>>>
+glyph ⒰ = enclosing-parens u-lower@>>>>^
+glyph ⒱ = enclosing-parens v-lower@>>>>^
+glyph ⒲ = enclosing-parens w-lower@>>>>^
+glyph ⒳ = enclosing-parens x-lower@>>>>^
+glyph ⒴ = enclosing-parens y-lower@>>>>^
+glyph ⒵ = enclosing-parens z-lower@>>>>^
