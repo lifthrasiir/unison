@@ -177,7 +177,6 @@ glyph — = dash-double   // em-dash
 glyph ― = hline-double  // horiz. line
 glyph ‾ = oline         // overline
 glyph ⁃ = hyphen        // hyphen bullet
-glyph − = dash          // minus sign
 glyph ⎯ = hline-double  // horiz. line extension
 glyph ‗ = uuline        // double low line
 

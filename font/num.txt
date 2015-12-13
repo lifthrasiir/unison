@@ -545,16 +545,30 @@ d@@@b
 //--------------------------------------
 // superscript/subscript
 
-glyph ⁰ = sp sm-0@>>v
-glyph ¹ = sp sm-1@>>v
-glyph ² = sp sm-2@>>v
-glyph ³ = sp sm-3@>>v
-glyph ⁴ = sp sm-4@>>v
-glyph ⁵ = sp sm-5@>>v
-glyph ⁶ = sp sm-6@>>v
-glyph ⁷ = sp sm-7@>>v
-glyph ⁸ = sp sm-8@>>v
-glyph ⁹ = sp sm-9@>>v
+glyph sup-(0|1|2|3|4|5|6|7|8|9) = sp sm-(0|1|2|3|4|5|6|7|8|9)@>>v
+glyph sub-(0|1|2|3|4|5|6|7|8|9) = sp sm-(0|1|2|3|4|5|6|7|8|9)@>>vvvvvvvvvv
+
+glyph ⁰ = sup-0
+glyph ¹ = sup-1
+glyph ² = sup-2
+glyph ³ = sup-3
+glyph ⁴ = sup-4
+glyph ⁵ = sup-5
+glyph ⁶ = sup-6
+glyph ⁷ = sup-7
+glyph ⁸ = sup-8
+glyph ⁹ = sup-9
+
+glyph ₀ = sub-0
+glyph ₁ = sub-1
+glyph ₂ = sub-2
+glyph ₃ = sub-3
+glyph ₄ = sub-4
+glyph ₅ = sub-5
+glyph ₆ = sub-6
+glyph ₇ = sub-7
+glyph ₈ = sub-8
+glyph ₉ = sub-9
 
 //--------------------------------------
 // vulgar fractions

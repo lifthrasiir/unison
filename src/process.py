@@ -322,6 +322,7 @@ def track_contour(height, width, stride0, data0, mask):
                        for i in xrange(len(p))): break
             else:
                 assert False
+
             wn += winding_number(x, y, p)
 
         # if a sign of the signed area mismatches with the winding number, reverse.
@@ -680,10 +681,12 @@ class Font(object):
                         gg2 = self.glyphs[data]
 
                         # if gg2 doesn't have enough info to resolve g's fields, try to resolve
+                        # (for gg2.height and gg2.height, we don't strictly need that to resolve,
+                        # but we use them for sanity checking so request them this early)
                         if not ((isinstance(top, int) or gg2.preferred_top is not None) and
                                 (isinstance(left, int) or gg2.preferred_left is not None) and
-                                (isinstance(height, int) or gg2.height is not None) and
-                                (isinstance(width, int) or gg2.width is not None)):
+                                (isinstance(height, int) and gg2.height is not None) and
+                                (isinstance(width, int) and gg2.width is not None)):
                             resolve(data)
                             gg2 = self.glyphs[data] # since gg2 is, eh, an immutable tuple
 
@@ -693,7 +696,7 @@ class Font(object):
                                 (isinstance(height, int) or gg2.height is not None) and
                                 (isinstance(width, int) or gg2.width is not None)):
                             raise ParseError(u'glyph %s has a cyclic dependency' %
-                                             glyph_name(data))
+                                             glyph_name(name))
 
                         if top is None: top = gg2.preferred_top
                         elif isinstance(top, Delta): top = gg2.preferred_top + top.value
@@ -701,6 +704,13 @@ class Font(object):
                         elif isinstance(left, Delta): left = gg2.preferred_left + left.value
                         if height is None: height = gg2.height
                         if width is None: width = gg2.width
+
+                        if (width, height) != (gg2.width, gg2.height):
+                            raise ParseError(u'glyph %s has a scaled subglyph for %s '
+                                             u'that is unsupported: requested %sx%s, actual %sx%s' %
+                                             (glyph_name(name), glyph_name(data),
+                                              width, height, gg2.width, gg2.height))
+
                         gg.subglyphs[k] = Subglyph(top=top, left=left,
                                                    height=height, width=width,
                                                    stride=stride, data=data)
