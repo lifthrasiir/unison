@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import time
 import re
 from fractions import gcd
 import itertools
@@ -98,7 +99,8 @@ Glyph = namedtuple('Glyph', 'flags height width preferred_top preferred_left sub
 class ParseError(ValueError): pass
 
 def escape(s):
-    return s.encode('utf-8').replace('&','&amp;').replace('"', '&quot;')
+    return s.encode('utf-8').replace('&', '&amp;').replace('"', '&quot;') \
+                            .replace('<', '&lt;').replace('>', '&gt;')
 
 def glyph_name(i):
     if isinstance(i, int):
@@ -1040,7 +1042,19 @@ class Font(object):
         # since some glyphs are hybrid, we need to remap them.
         subnames = []
         hasnotdef = False
-        for name, gg in sorted(self.glyphs.items()):
+        def custom_sort_key((name, _)):
+            # what, the, real, fuck.
+            # it seems that Uniscribe has some bug with Hangul and possibly more scripts:
+            # some characters, when they are located in specific glyph indices, are correctly
+            # mapped via ScriptGetCMap but considered to be missing via ScriptShape.
+            # combined with SSA_FALLBACK it causes the wrong *and* inconsistent fallback behavior.
+            # given that the range of those indices abruptly end with 2^n boundaries,
+            # I strongly suspect that this is something to do with the internal lookup mechanism.
+            # for now, reorder problematic scripts to (empirically) avoid the problem... *sigh*
+            if not isinstance(name, int): return (2, name)
+            return (0 if 0x1100 <= name <= 0x11ff or 0x3130 <= name <= 0x318f or
+                         0xa960 <= name <= 0xa97f or 0xac00 <= name <= 0xd7ff else 1, name)
+        for name, gg in sorted(self.glyphs.items(), key=custom_sort_key):
             if name == '.notdef': hasnotdef = True
             subname = get_subname(name)
             compositecount = sum(isinstance(g.data, (int, basestring)) for g in gg.subglyphs)
@@ -1081,9 +1095,6 @@ class Font(object):
         print >>fp, '<ascent value="{ascent}"/>'.format(ascent=ascent)
         print >>fp, '<descent value="{descent}"/>'.format(descent=-descent)
         print >>fp, '<lineGap value="{linegap}"/>'.format(linegap=linegap)
-        print >>fp, '<minLeftSideBearing value="-1"/>'
-        print >>fp, '<minRightSideBearing value="-50"/>'
-        print >>fp, '<xMaxExtent value="1641"/>'
         print >>fp, '<caretSlopeRise value="1"/>'
         print >>fp, '<caretSlopeRun value="0"/>'
         print >>fp, '<caretOffset value="0"/>'
@@ -1094,25 +1105,29 @@ class Font(object):
         print >>fp, '<metricDataFormat value="0"/>'
         print >>fp, '<!-- automatically updated: -->'
         print >>fp, '<advanceWidthMax value="0"/>'
+        print >>fp, '<minLeftSideBearing value="0"/>'
+        print >>fp, '<minRightSideBearing value="0"/>'
+        print >>fp, '<xMaxExtent value="0"/>'
         print >>fp, '</hhea>'
 
         # head
+        timestamp = time.ctime() # XXX
         print >>fp, '<head>'
         print >>fp, '<magicNumber value="0x5f0f3cf5"/>'
         print >>fp, '<fontRevision value="1.0"/>'
         print >>fp, '<unitsPerEm value="{emsize}"/>'.format(emsize=emsize)
+        print >>fp, '<created value="{created}"/>'.format(created=timestamp)
+        print >>fp, '<lowestRecPPEM value="8"/>'
         print >>fp, '<!-- automatically updated: -->'
         print >>fp, '<tableVersion value="1.0"/>'
         print >>fp, '<checkSumAdjustment value="0"/>'
         print >>fp, '<flags value="00000000 00001011"/>'
-        print >>fp, '<created value="Sun Sep 16 23:28:06 2007"/>'
-        print >>fp, '<modified value="Sun Sep 16 23:28:06 2007"/>'
+        print >>fp, '<modified value="{modified}"/>'.format(modified=timestamp)
         print >>fp, '<xMin value="0"/>'
         print >>fp, '<yMin value="0"/>'
         print >>fp, '<xMax value="0"/>'
         print >>fp, '<yMax value="0"/>'
         print >>fp, '<macStyle value="00000000 00000000"/>'
-        print >>fp, '<lowestRecPPEM value="8"/>'
         print >>fp, '<fontDirectionHint value="2"/>'
         print >>fp, '<indexToLocFormat value="1"/>'
         print >>fp, '<glyphDataFormat value="0"/>'
@@ -1144,7 +1159,7 @@ class Font(object):
         print >>fp, '<xAvgCharWidth value="{width}"/>'.format(width=int(8*SCALE))
         print >>fp, '<usWeightClass value="400"/>'
         print >>fp, '<usWidthClass value="5"/>'
-        print >>fp, '<fsType value="00000000 00001000"/>'
+        print >>fp, '<fsType value="00000000 00000000"/>' # no further embedding restrictions
         print >>fp, '<ySubscriptXSize value="390"/>'
         print >>fp, '<ySubscriptYSize value="419"/>'
         print >>fp, '<ySubscriptXOffset value="0"/>'
@@ -1157,11 +1172,12 @@ class Font(object):
         print >>fp, '<yStrikeoutPosition value="155"/>'
         print >>fp, '<sFamilyClass value="0"/>'
         print >>fp, '<panose>'
-        print >>fp, '  <bFamilyType value="3"/>'
-        print >>fp, '  <bSerifStyle value="11"/>'
-        print >>fp, '  <bWeight value="6"/>'
-        print >>fp, '  <bProportion value="0"/>'
-        print >>fp, '  <bContrast value="0"/>'
+        # http://forum.high-logic.com/postedfiles/Panose.pdf
+        print >>fp, '  <bFamilyType value="2"/>' # latin text
+        print >>fp, '  <bSerifStyle value="11"/>' # normal sans
+        print >>fp, '  <bWeight value="6"/>' # medium
+        print >>fp, '  <bProportion value="9"/>' # monospaced (important!)
+        print >>fp, '  <bContrast value="1"/>' # well, frankly I don't care others
         print >>fp, '  <bStrokeVariation value="1"/>'
         print >>fp, '  <bArmStyle value="1"/>'
         print >>fp, '  <bLetterForm value="1"/>'
@@ -1325,7 +1341,7 @@ class Font(object):
         print >>fp, '<italicAngle value="0.0"/>'
         print >>fp, '<underlinePosition value="{ulinepos}"/>'.format(ulinepos=descent)
         print >>fp, '<underlineThickness value="{ulinesize}"/>'.format(ulinesize=int(SCALE))
-        print >>fp, '<isFixedPitch value="0"/>'
+        print >>fp, '<isFixedPitch value="1"/>' # monospaced
         print >>fp, '<!-- automatically updated: -->'
         print >>fp, '<minMemType42 value="0"/>'
         print >>fp, '<maxMemType42 value="0"/>'
@@ -1338,13 +1354,14 @@ class Font(object):
         print >>fp, '</ttFont>'
 
 if __name__ == '__main__':
-    import sys, time
+    import sys, glob
     font = Font()
     t1 = time.time()
     try:
-        for path in sys.argv[1:]:
-            with open(path) as f:
-                font.read(f)
+        for pat in sys.argv[1:]:
+            for path in glob.glob(pat):
+                with open(path) as f:
+                    font.read(f)
         font.resolve_glyphs()
         font.inline_glyphs()
     except ParseError as e:
