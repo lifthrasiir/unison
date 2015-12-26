@@ -938,3 +938,5 @@ glyph χ = gr-chi-lower
 glyph ψ = gr-psi-lower
 glyph ω = gr-omega-lower
 
+glyph ό = gr-omicron-lower acute-lower
+

@@ -398,8 +398,11 @@ glyph mac-bottom-sm = mac-lower-sm@X
 ++++++++
 
 //--------------------------------------
-// cedilla
+// cedilla/comma
 
+// intended to look like a comma as well
+// (the choice between cedilla and comma is ultimately a locale matter
+// that is hard to resolve within a single font anyway)
 glyph ced
 ++++++++
 ++++++++
@@ -417,6 +420,24 @@ glyph ced
 ++++@@++
 ++++\@++
 ++++@/++
+
+glyph ced-inverted-lower
+++++++++
+++++++++
+++++/@++
+++++@\++
+++++@@++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
 
 //--------------------------------------
 // ogonek
@@ -467,6 +488,25 @@ glyph caron-upper = caron-lower@X
 ++++++++
 ++++++++
 ++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+
+// looks like a comma, used for czech and slovak
+glyph caron-alt
+++++++++
+++++++++
+++++++@@
+++++++\@
+++++++@/
 ++++++++
 ++++++++
 ++++++++
@@ -802,4 +842,22 @@ glyph dot-bottom = dot-lower@X
 ++++++++
 ++++XX++
 ++++XX++
+
+glyph dot-middle = dot-lower@X
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
++++++XX+
++++++XX+
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
+++++++++
 
