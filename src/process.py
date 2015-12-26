@@ -859,8 +859,10 @@ class Font(object):
             fp.write('</svg>')
 
         all_glyphs = self.glyphs.keys()
+        all_pub_glyphs = sorted([k for k in all_glyphs if isinstance(k, int)],
+                                key=lambda k: (unicodedata.normalize('NFD', unichr(k)), k))
         num_glyphs = len(all_glyphs)
-        num_pub_glyphs = len([k for k in all_glyphs if isinstance(k, int)])
+        num_pub_glyphs = len(all_pub_glyphs)
 
         print >>fp, '<!doctype html>'
         print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: graphic sample</title><style>'
@@ -870,7 +872,7 @@ class Font(object):
         print >>fp, '<input id="sample" placeholder="Input sample text here" size="40"> <input type="reset" id="reset" value="Reset"> | %d characters, %d intermediate glyphs so far | <a href="sample.png">PNG</a> | <a href="live.html">live</a>' % (num_pub_glyphs, num_glyphs - num_pub_glyphs)
         print >>fp, '<hr /><div id="sampleglyphs"></div><div id="glyphs">'
         excluded = False
-        for name in sorted(k for k in all_glyphs if isinstance(k, int)):
+        for name in all_pub_glyphs:
             if name in self.exclude_from_sample:
                 if not excluded: fp.write('…'); excluded = True
             else:
@@ -880,7 +882,7 @@ class Font(object):
                 fp.write('</span></a>')
         print >>fp, '<hr /><span class="scaled">'
         excluded = False
-        for _, name in sorted((unicodedata.normalize('NFD', unichr(k)), k) for k in all_glyphs if isinstance(k, int)):
+        for name in all_pub_glyphs:
             if name in self.exclude_from_sample:
                 if not excluded: fp.write('…'); excluded = True
             else:

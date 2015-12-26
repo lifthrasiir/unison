@@ -19,6 +19,24 @@ glyph a-upper
 ........
 ........
 
+glyph a-upper-compressed
+........
+........
+........
+........
+...d@b..
+..d@^@b.
+.d@/.\@b
+.@@...@@
+.@@...@@
+.@@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+........
+........
+........
+
 glyph a-e-upper
 ........
 ........
@@ -217,6 +235,24 @@ glyph e-upper
 ........
 ........
 
+glyph e-upper-compressed
+........
+........
+........
+........
+.@@@@@@@
+.@@.....
+.@@.....
+.@@.....
+.@@@@@..
+.@@.....
+.@@.....
+.@@.....
+.@@@@@@@
+........
+........
+........
+
 glyph schwa-upper
 ........
 ........
@@ -313,6 +349,24 @@ glyph i-upper
 ........
 .@@@@@@.
 ...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+...@@...
+.@@@@@@.
+........
+........
+........
+
+glyph i-upper-compressed
+........
+........
+........
+........
+.@@@@@@.
 ...@@...
 ...@@...
 ...@@...
@@ -487,6 +541,24 @@ glyph o-upper
 ........
 ........
 
+glyph o-upper-compressed
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
 glyph o-horn-upper
 ........
 ........
@@ -613,6 +685,24 @@ glyph s-upper
 ........
 ........
 
+glyph s-upper-compressed
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@.....
+.\@@@@@\
+......@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
 glyph reversed-s-upper
 ........
 ........
@@ -690,6 +780,24 @@ glyph u-upper
 ........
 ........
 .@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph u-upper-compressed
+........
+........
+........
+........
 .@@...@@
 .@@...@@
 .@@...@@
@@ -819,6 +927,24 @@ glyph a-lower
 ........
 ..@@@@@\
 ......@@
+......@@
+./@@@@@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@@
+........
+........
+........
+
+glyph a-lower-compressed
+........
+........
+........
+........
+........
+........
+..@@@@@\
 ......@@
 ./@@@@@@
 .@@...@@
@@ -1017,6 +1143,24 @@ glyph e-lower
 ........
 ./@@@@@\
 .@@...@@
+.@@...@@
+.@@...@@
+.@@@@@@@
+.@@.....
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph e-lower-compressed
+........
+........
+........
+........
+........
+........
+./@@@@@\
 .@@...@@
 .@@...@@
 .@@@@@@@
@@ -1425,6 +1569,24 @@ glyph o-lower
 ........
 ........
 
+glyph o-lower-compressed
+........
+........
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
 glyph o-horn-lower
 ........
 ........
@@ -1587,6 +1749,24 @@ glyph s-lower
 ........
 ........
 
+glyph s-lower-compressed
+........
+........
+........
+........
+........
+........
+./@@@@@\
+.@@...@@
+.@@.....
+.\@@@@@\
+......@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
 glyph reversed-s-lower
 ........
 ........
@@ -1684,6 +1864,24 @@ glyph u-lower
 ........
 ........
 .@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.@@...@@
+.\@@@@@/
+........
+........
+........
+
+glyph u-lower-compressed
+........
+........
+........
+........
+........
+........
 .@@...@@
 .@@...@@
 .@@...@@
@@ -1902,23 +2100,37 @@ glyph z = z-lower
 // with diaeresis
 
 glyph Ä = a-upper dia-upper
+glyph Ǟ = a-upper-compressed dia-upper@vv mac-upper@^
 glyph Ë = e-upper dia-upper
 glyph Ḧ = h-upper dia-upper
 glyph Ï = i-upper dia-upper-bg
+glyph Ḯ = i-upper-compressed dia-upper-bg@vv acute-upper
 glyph Ö = o-upper dia-upper
+glyph Ȫ = o-upper-compressed dia-upper@vv mac-upper@^
 glyph Ü = u-upper dia-upper
+glyph Ǖ = u-upper-compressed dia-upper@vv mac-upper@^
+glyph Ǘ = u-upper-compressed dia-upper@vv acute-upper
+glyph Ǚ = u-upper-compressed dia-upper@vv caron-upper
+glyph Ǜ = u-upper-compressed dia-upper@vv grave-upper
 glyph Ṳ = u-upper dia-bottom
 glyph Ẅ = w-upper dia-upper
 glyph Ẍ = x-upper dia-upper
 glyph Ÿ = y-upper dia-upper
 
 glyph ä = a-lower dia-lower
+glyph ǟ = a-lower-compressed dia-lower@vv mac-lower@^
 glyph ë = e-lower dia-lower
 glyph ḧ = h-lower-sm dia-lower@^
 glyph ï = dotless-i-lower dia-lower-bg@v
+glyph ḯ = dotless-i-lower dia-lower-bg@vv acute-lower
 glyph ö = o-lower dia-lower
+glyph ȫ = o-lower-compressed dia-lower@vv mac-lower@^
 glyph ẗ = t-lower dia-upper
 glyph ü = u-lower dia-lower
+glyph ǖ = u-lower-compressed dia-lower@vv mac-lower@^
+glyph ǘ = u-lower-compressed dia-lower@vv acute-lower
+glyph ǚ = u-lower-compressed dia-lower@vv caron-lower
+glyph ǜ = u-lower-compressed dia-lower@vv grave-lower
 glyph ṳ = u-lower dia-bottom
 glyph ẅ = w-lower dia-lower
 glyph ẍ = x-lower dia-lower
@@ -1943,6 +2155,7 @@ glyph Ǿ = oe-upper acute-upper
 glyph Ṕ = p-upper acute-upper
 glyph Ŕ = r-upper acute-upper
 glyph Ś = s-upper acute-upper
+glyph Ṥ = s-upper-compressed acute-upper@vv dot-upper@<
 glyph Ú = u-upper acute-upper
 glyph Ứ = u-horn-upper acute-upper@<
 glyph Ẃ = w-upper acute-upper
@@ -1965,6 +2178,7 @@ glyph ǿ = oe-lower acute-lower
 glyph ṕ = p-lower acute-lower
 glyph ŕ = r-lower acute-lower
 glyph ś = s-lower acute-lower
+glyph ṥ = s-lower-compressed acute-lower@vv dot-lower@<
 glyph ú = u-lower acute-lower
 glyph ứ = u-horn-lower acute-lower@<
 glyph ẃ = w-lower acute-lower
@@ -2030,15 +2244,20 @@ glyph Ǣ = a-e-upper mac-upper
 glyph Ḇ = b-upper mac-bottom
 glyph Ḏ = d-upper mac-bottom
 glyph Ē = e-upper mac-upper
+glyph Ḕ = e-upper-compressed mac-upper@v grave-upper
+glyph Ḗ = e-upper-compressed mac-upper@v acute-upper
 glyph Ḡ = g-upper mac-upper
 glyph Ī = i-upper mac-upper-sm
 glyph Ḵ = k-upper mac-bottom
 glyph Ḻ = l-upper mac-bottom
 glyph Ṉ = n-upper mac-bottom
 glyph Ō = o-upper mac-upper
+glyph Ṑ = o-upper-compressed mac-upper@v grave-upper
+glyph Ṓ = o-upper-compressed mac-upper@v acute-upper
 glyph Ṟ = r-upper mac-bottom
 glyph Ṯ = t-upper mac-bottom-sm
 glyph Ū = u-upper mac-upper
+glyph Ṻ = u-upper-compressed mac-upper@v dia-upper
 glyph Ȳ = y-upper mac-upper-sm
 glyph Ẕ = z-upper mac-bottom
 
@@ -2047,6 +2266,8 @@ glyph ǣ = a-e-lower mac-lower
 glyph ḇ = b-lower mac-bottom
 glyph ḏ = d-lower mac-bottom
 glyph ē = e-lower mac-lower
+glyph ḕ = e-lower-compressed mac-lower@v grave-lower
+glyph ḗ = e-lower-compressed mac-lower@v acute-lower
 glyph ḡ = g-lower mac-lower
 glyph ẖ = h-lower mac-bottom
 glyph ī = dotless-i-lower mac-lower-sm@v
@@ -2054,9 +2275,12 @@ glyph ḵ = k-lower mac-bottom
 glyph ḻ = l-lower mac-bottom-sm@>
 glyph ṉ = n-lower mac-bottom
 glyph ō = o-lower mac-lower
+glyph ṑ = o-lower-compressed mac-lower@v grave-lower
+glyph ṓ = o-lower-compressed mac-lower@v acute-lower
 glyph ṟ = r-lower mac-bottom
 glyph ṯ = t-lower mac-bottom
 glyph ū = u-lower mac-lower
+glyph ṻ = u-lower-compressed mac-lower@v dia-lower
 glyph ȳ = y-lower mac-lower
 glyph ẕ = z-lower mac-bottom
 
@@ -2126,6 +2350,7 @@ glyph Ň = n-upper caron-upper
 glyph Ǒ = o-upper caron-upper
 glyph Ř = r-upper caron-upper
 glyph Š = s-upper caron-upper
+glyph Ṧ = s-upper-compressed caron-upper@vv dot-upper@<
 glyph Ť = t-upper caron-upper
 glyph Ǔ = u-upper caron-upper
 glyph Ž = z-upper caron-upper
@@ -2146,6 +2371,7 @@ glyph ň = n-lower caron-lower
 glyph ǒ = o-lower caron-lower
 glyph ř = r-lower caron-lower
 glyph š = s-lower caron-lower
+glyph ṧ = s-lower-compressed caron-lower@vv dot-lower@<
 glyph ť = t-lower caron-alt
 glyph ǔ = u-lower caron-lower
 glyph ž = z-lower caron-lower
@@ -2155,9 +2381,17 @@ glyph ž = z-lower caron-lower
 // with circumflex
 
 glyph Â = a-upper circ-upper
+glyph Ầ = a-upper-compressed circ-upper@vv grave-upper@<
+glyph Ẩ = a-upper-compressed circ-upper@vv hook-upper@>
+glyph Ẫ = a-upper-compressed circ-upper@vv tilde-upper
+glyph Ấ = a-upper-compressed circ-upper@vv acute-upper@>
 glyph Ĉ = c-upper circ-upper
 glyph Ḓ = d-upper circ-bottom
 glyph Ê = e-upper circ-upper
+glyph Ề = e-upper-compressed circ-upper@vv grave-upper@<
+glyph Ể = e-upper-compressed circ-upper@vv hook-upper@>
+glyph Ễ = e-upper-compressed circ-upper@vv tilde-upper
+glyph Ế = e-upper-compressed circ-upper@vv acute-upper@>
 glyph Ḙ = e-upper circ-bottom
 glyph Ĝ = g-upper circ-upper
 glyph Ĥ = h-upper circ-upper
@@ -2166,6 +2400,10 @@ glyph Ĵ = j-upper circ-upper
 glyph Ḽ = l-upper circ-bottom
 glyph Ṋ = n-upper circ-bottom
 glyph Ô = o-upper circ-upper
+glyph Ồ = o-upper-compressed circ-upper@vv grave-upper@<
+glyph Ổ = o-upper-compressed circ-upper@vv hook-upper@>
+glyph Ỗ = o-upper-compressed circ-upper@vv tilde-upper
+glyph Ố = o-upper-compressed circ-upper@vv acute-upper@>
 glyph Ŝ = s-upper circ-upper
 glyph Ṱ = t-upper circ-bottom
 glyph Û = u-upper circ-upper
@@ -2175,9 +2413,17 @@ glyph Ŷ = y-upper circ-upper
 glyph Ẑ = z-upper circ-upper
 
 glyph â = a-lower circ-lower
+glyph ầ = a-lower-compressed circ-lower@vv grave-lower@<
+glyph ẩ = a-lower-compressed circ-lower@vv hook-lower@>
+glyph ẫ = a-lower-compressed circ-lower@vv tilde-lower
+glyph ấ = a-lower-compressed circ-lower@vv acute-lower@>
 glyph ĉ = c-lower circ-lower
 glyph ḓ = d-lower circ-bottom
 glyph ê = e-lower circ-lower
+glyph ề = e-lower-compressed circ-lower@vv grave-lower@<
+glyph ể = e-lower-compressed circ-lower@vv hook-lower@>
+glyph ễ = e-lower-compressed circ-lower@vv tilde-lower
+glyph ế = e-lower-compressed circ-lower@vv acute-lower@>
 glyph ḙ = e-lower circ-bottom
 glyph ĝ = g-lower circ-lower
 glyph ĥ = h-lower-sm circ-lower@^
@@ -2186,6 +2432,10 @@ glyph ĵ = dotless-j-lower circ-lower@v
 glyph ḽ = l-lower circ-bottom
 glyph ṋ = n-lower circ-bottom
 glyph ô = o-lower circ-lower
+glyph ồ = o-lower-compressed circ-lower@vv grave-lower@<
+glyph ổ = o-lower-compressed circ-lower@vv hook-lower@>
+glyph ỗ = o-lower-compressed circ-lower@vv tilde-lower
+glyph ố = o-lower-compressed circ-lower@vv acute-lower@>
 glyph ŝ = s-lower circ-lower
 glyph ṱ = t-lower circ-bottom
 glyph û = u-lower circ-lower
@@ -2198,6 +2448,10 @@ glyph ẑ = z-lower circ-lower
 // with breve
 
 glyph Ă = a-upper breve-upper
+glyph Ằ = a-upper-compressed breve-upper@vv grave-upper@<
+glyph Ẳ = a-upper-compressed breve-upper@vv hook-upper@>
+glyph Ẵ = a-upper-compressed breve-upper@vv tilde-upper
+glyph Ắ = a-upper-compressed breve-upper@vv acute-upper@>
 glyph Ĕ = e-upper breve-upper
 glyph Ğ = g-upper breve-upper
 glyph Ḫ = h-upper breve-bottom
@@ -2206,6 +2460,10 @@ glyph Ŏ = o-upper breve-upper
 glyph Ŭ = u-upper breve-upper
 
 glyph ă = a-lower breve-lower
+glyph ằ = a-lower-compressed breve-lower@vv grave-lower@<
+glyph ẳ = a-lower-compressed breve-lower@vv hook-lower@>
+glyph ẵ = a-lower-compressed breve-lower@vv tilde-lower
+glyph ắ = a-lower-compressed breve-lower@vv acute-lower@>
 glyph ĕ = e-lower breve-lower
 glyph ğ = g-lower breve-lower
 glyph ḫ = h-lower breve-bottom
@@ -2234,10 +2492,12 @@ glyph ȗ = u-lower arch-lower
 // with ring
 
 glyph Å = a-upper ring-upper
+glyph Ǻ = a-upper-compressed ring-upper@vv acute-upper
 glyph Ḁ = a-upper ring-bottom
 glyph Ů = u-upper ring-upper
 
 glyph å = a-lower ring-lower
+glyph ǻ = a-lower-compressed ring-lower@vv acute-lower
 glyph ḁ = a-lower ring-bottom
 glyph ů = u-lower ring-lower
 glyph ẘ = w-lower ring-lower
@@ -2253,8 +2513,12 @@ glyph Ĩ = i-upper tilde-upper
 glyph Ḭ = i-upper tilde-bottom@<
 glyph Ñ = n-upper tilde-upper
 glyph Õ = o-upper tilde-upper
+glyph Ȭ = o-upper-compressed tilde-upper@vv mac-upper@^
+glyph Ṍ = o-upper-compressed tilde-upper@vv acute-upper
+glyph Ṏ = o-upper-compressed tilde-upper@vv dia-upper
 glyph Ỡ = o-horn-upper tilde-upper@<
 glyph Ũ = u-upper tilde-upper
+glyph Ṹ = u-upper-compressed tilde-upper@vv acute-upper
 glyph Ữ = u-horn-upper tilde-upper@<
 glyph Ṵ = u-upper tilde-bottom
 glyph Ṽ = v-upper tilde-upper
@@ -2267,8 +2531,12 @@ glyph ĩ = dotless-i-lower tilde-lower@v
 glyph ḭ = i-lower tilde-bottom@<
 glyph ñ = n-lower tilde-lower
 glyph õ = o-lower tilde-lower
+glyph ȭ = o-lower-compressed tilde-lower@vv mac-lower@^
+glyph ṍ = o-lower-compressed tilde-lower@vv acute-lower
+glyph ṏ = o-lower-compressed tilde-lower@vv dia-lower
 glyph ỡ = o-horn-lower tilde-lower@<
 glyph ũ = u-lower tilde-lower
+glyph ṹ = u-lower-compressed tilde-lower@vv acute-lower
 glyph ữ = u-horn-lower tilde-lower@<
 glyph ṵ = u-lower tilde-bottom
 glyph ṽ = v-lower tilde-lower
@@ -2278,6 +2546,7 @@ glyph ỹ = y-lower tilde-lower
 // with dot
 
 glyph Ȧ = a-upper dot-upper
+glyph Ǡ = a-upper-compressed dot-upper@vv mac-upper@^
 glyph Ạ = a-upper dot-bottom
 glyph Ậ = a-upper dot-bottom circ-upper
 glyph Ặ = a-upper dot-bottom breve-upper
@@ -2304,6 +2573,7 @@ glyph Ṃ = m-upper dot-bottom
 glyph Ṅ = n-upper dot-upper
 glyph Ṇ = n-upper dot-bottom
 glyph Ȯ = o-upper dot-upper
+glyph Ȱ = o-upper-compressed dot-upper@vv mac-upper@^
 glyph Ọ = o-upper dot-bottom
 glyph Ộ = o-upper dot-bottom circ-upper
 glyph Ợ = o-horn-upper dot-bottom@<
@@ -2328,6 +2598,7 @@ glyph Ż = z-upper dot-upper
 glyph Ẓ = z-upper dot-bottom
 
 glyph ȧ = a-lower dot-lower
+glyph ǡ = a-lower-compressed dot-lower@vv mac-lower@^
 glyph ạ = a-lower dot-bottom
 glyph ậ = a-lower dot-bottom circ-lower
 glyph ặ = a-lower dot-bottom breve-lower
@@ -2353,6 +2624,7 @@ glyph ṃ = m-lower dot-bottom
 glyph ṅ = n-lower dot-lower
 glyph ṇ = n-lower dot-bottom
 glyph ȯ = o-lower dot-lower
+glyph ȱ = o-lower-compressed dot-lower@vv mac-lower@^
 glyph ọ = o-lower dot-bottom
 glyph ộ = o-lower dot-bottom circ-lower
 glyph ợ = o-horn-lower dot-bottom@<
@@ -2376,6 +2648,27 @@ glyph ẏ = y-lower dot-lower@<
 glyph ỵ = y-lower dot-bottom
 glyph ż = z-lower dot-lower
 glyph ẓ = z-lower dot-bottom
+
+//--------------------------------------
+// with hook above
+
+glyph Ả = a-upper hook-upper
+glyph Ẻ = e-upper hook-upper
+glyph Ỉ = i-upper hook-upper
+glyph Ỏ = o-upper hook-upper
+glyph Ở = o-horn-upper hook-upper@<
+glyph Ủ = u-upper hook-upper
+glyph Ử = u-horn-upper hook-upper@<
+glyph Ỷ = y-upper hook-upper
+
+glyph ả = a-lower hook-lower
+glyph ẻ = e-lower hook-lower
+glyph ỉ = dotless-i-lower hook-lower
+glyph ỏ = o-lower hook-lower
+glyph ở = o-horn-lower hook-lower@<
+glyph ủ = u-lower hook-lower
+glyph ử = u-horn-lower hook-lower@<
+glyph ỷ = y-lower hook-lower
 
 //--------------------------------------
 // small letters
