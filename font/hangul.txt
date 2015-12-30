@@ -1130,10 +1130,12 @@ glyph ㆎ = hangul-.i
 // narrow jamos have serif unlike their wide counterparts
 
 glyph hangul-top-serif-half
+inline
 9@\
 .@@
 
 glyph hangul-bottom-serif-half
+inline
 @@.
 \@b
 

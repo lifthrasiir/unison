@@ -46,6 +46,7 @@ PX_DOT          = 15   # *
 
 # glyph flags
 G_STICKY = 1
+G_INLINE = 2
 
 ADJACENCY_MAP = {
     #    a   b
@@ -90,7 +91,8 @@ Delta = namedtuple('Delta', 'value')
 
 # data = None | list of pixel codes | subglyph name string
 # top/left can be a Delta value instead of the actual value; will be resolved later.
-Subglyph = namedtuple('Subglyph', 'top left height width stride data')
+# negated is 1 if the subglyph should be negated; >=2 matters for complex nesting.
+Subglyph = namedtuple('Subglyph', 'top left height width stride data negated')
 
 # height/width should be the intrinsic height/width, and may be filled by resolve_glyphs.
 # preferred_top/left becomes the actual offset when the glyph is used at the top level.
@@ -128,14 +130,20 @@ def merge_subglyphs_sans_subpixel(height, width, subglyphs):
     stride = width + 1
     data = [PX_EMPTY] * ((height + 1) * stride)
     for g in subglyphs:
-        gtop, gleft, gheight, gwidth, gstride, gdata = g
+        gtop, gleft, gheight, gwidth, gstride, gdata, gnegated = g
         assert gleft is not None and not isinstance(gleft, Delta)
         assert gtop is not None and not isinstance(gtop, Delta)
         assert len(gdata) == gwidth * gheight
-        for r in xrange(gheight):
-            for c in xrange(gwidth):
-                data[(gtop+r)*stride+(gleft+c)] |= gdata[r*gstride+c]
-    return Subglyph(top=0, left=0, height=height, width=width, stride=stride, data=data)
+        if gnegated & 1:
+            for r in xrange(gheight):
+                for c in xrange(gwidth):
+                    data[(gtop+r)*stride+(gleft+c)] &= ~gdata[r*gstride+c]
+        else:
+            for r in xrange(gheight):
+                for c in xrange(gwidth):
+                    data[(gtop+r)*stride+(gleft+c)] |= gdata[r*gstride+c]
+    return Subglyph(top=0, left=0, height=height, width=width,
+                    stride=stride, data=data, negated=0)
 
 def signed_area(path):
     x0, y0 = path[-1]
@@ -357,6 +365,9 @@ class Font(object):
         if fp: self.read(fp)
 
     def read(self, fp):
+        SubglyphArgs = namedtuple('SubglyphArgs', 'name placeholder roff coff filters')
+        GlyphArgs = namedtuple('GlyphArgs', 'name flags lines parts')
+
         GLYPH_NAME_PATTERN = re.compile(ur'''^(?:
             # unicode range
             u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)? |
@@ -414,17 +425,27 @@ class Font(object):
             return ss
 
         def parse_subglyph_spec(s):
+            filters = []
             if len(s) >= 3:
+                s, _, filters = s.partition('!')
                 name, _, placeholder = s.partition('@')
+                filters = map(unicode.lower, filter(None, filters.split('!')))
+                for f in filters:
+                    if f not in ('negate',):
+                        raise ParseError(u'unrecognized filter name %r in '
+                                         u'subglyph spec %r' % (f, s))
                 if name:
                     if placeholder and all(c in '^v<>' for c in placeholder):
                         # displacement spec. e.g. ced@vv moves a cedilla one pixel down
                         roff = placeholder.count('v') - placeholder.count('^')
                         coff = placeholder.count('>') - placeholder.count('<')
-                        return parse_glyph_name(name), None, roff, coff
+                        return SubglyphArgs(name=parse_glyph_name(name), placeholder=None,
+                                            roff=roff, coff=coff, filters=filters)
                     elif len(placeholder) == 1:
-                        return parse_glyph_name(name), placeholder, None, None
-            return parse_glyph_name(s), None, None, None
+                        return SubglyphArgs(name=parse_glyph_name(name), placeholder=placeholder,
+                                            roff=None, coff=None, filters=filters)
+            return SubglyphArgs(name=parse_glyph_name(s), placeholder=None,
+                                roff=None, coff=None, filters=filters)
 
         def parse_pixels(lines, bbox):
             width = len(lines[0])
@@ -515,7 +536,7 @@ class Font(object):
                     pixels.append(v)
             return pixels
 
-        def flush_glyph(name, lines, parts):
+        def flush_glyph(name, flags, lines, parts):
             if not lines and not parts:
                 raise ParseError(u'data for glyph %s is missing' % glyph_name(name))
 
@@ -529,7 +550,7 @@ class Font(object):
             subglyphs = []
             if lines:
                 # strip placeholders and out-of-bbox markers (+)
-                placeholders = set(ch for _, ch, _, _ in parts if ch)
+                placeholders = set(p.placeholder for p in parts if p.placeholder)
                 newlines = []
                 for r, line in enumerate(lines):
                     newline = []
@@ -556,30 +577,32 @@ class Font(object):
                 height = bottom - top + 1
                 width = right - left + 1
                 subglyphs.append(Subglyph(top=0, left=0, height=height, width=width,
-                                          stride=width, data=pixels))
+                                          stride=width, data=pixels, negated=0))
 
             # we now have proper relocation infos for subglyphs if any
             roff = bbox[0] if bbox else 0
             coff = bbox[1] if bbox else 0
-            for subname, placeholder, subroff, subcoff in parts:
-                if placeholder in placeholder_bboxes:
-                    subtop, subleft, subbottom, subright = placeholder_bboxes[placeholder]
+            for p in parts:
+                negated = 1 if 'negate' in p.filters else 0
+                if p.placeholder in placeholder_bboxes:
+                    subtop, subleft, subbottom, subright = placeholder_bboxes[p.placeholder]
                     subheight = subbottom - subtop + 1
                     subwidth = subright - subleft + 1
-                    subglyphs.append(Subglyph(top=subtop-roff+(subroff or 0),
-                                              left=subleft-coff+(subcoff or 0),
+                    subglyphs.append(Subglyph(top=subtop-roff+(p.roff or 0),
+                                              left=subleft-coff+(p.coff or 0),
                                               width=subwidth, height=subheight,
-                                              stride=None, data=subname))
+                                              stride=None, data=p.name, negated=negated))
                 else:
-                    subglyphs.append(Subglyph(top=None if subroff is None else Delta(subroff),
-                                              left=None if subcoff is None else Delta(subcoff),
-                                              width=None, height=None, stride=None, data=subname))
+                    subglyphs.append(Subglyph(top=None if p.roff is None else Delta(p.roff),
+                                              left=None if p.coff is None else Delta(p.coff),
+                                              width=None, height=None,
+                                              stride=None, data=p.name, negated=negated))
 
-            flags = G_STICKY if isinstance(name, int) or name == u'.notdef' else 0
+            if isinstance(name, int) or name == u'.notdef': flags |= G_STICKY
             self.glyphs[name] = Glyph(flags=flags, height=None, width=None,
                                       preferred_top=roff, preferred_left=coff, subglyphs=subglyphs)
 
-        current_glyph = None # or (code, lines, list of (subglyphs, placeholder ch or None))
+        current_glyph = None # or GlyphArgs
         prev_args = []
         for line in fp:
             line = line.decode('utf-8')
@@ -605,17 +628,17 @@ class Font(object):
                         raise ParseError(u'duplicate glyph %s' % glyph_name(name))
                     if len(args) > 3 and args[2] == '=': # combined glyph
                         subglyph_spec = map(parse_subglyph_spec, args[3:])
-                        for subnames, _, _, _ in subglyph_spec:
-                            if not isinstance(subnames, (int, basestring)):
+                        for p in subglyph_spec:
+                            if not isinstance(p.name, (int, basestring)):
                                 raise ParseError(u'invalid use of multiple subglyphs in %s' %
                                                  glyph_name(name))
-                        current_glyph = name, [], subglyph_spec
-                        placeholder_chars = [ch for _, ch, _, _ in current_glyph[2] if ch]
+                        current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec)
+                        placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
                         if len(placeholder_chars) != len(set(placeholder_chars)):
                             raise ParseError(u'duplicate placeholder characters for glyph %s' %
                                              glyph_name(name))
                     elif len(args) == 2:
-                        current_glyph = name, [], []
+                        current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[])
                     else:
                         raise ParseError(u'unexpected arguments to `glyph`')
                 else:
@@ -626,20 +649,19 @@ class Font(object):
                             raise ParseError(u'duplicate glyph %s' % glyph_name(name))
                     if len(args) > 3 and args[2] == '=':
                         subglyph_spec = map(parse_subglyph_spec, args[3:])
-                        placeholder_chars = [ch for _, ch, _, _ in subglyph_spec if ch]
+                        placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
                         if len(placeholder_chars) != len(set(placeholder_chars)):
                             raise ParseError(u'duplicate placeholder characters for glyph %s' %
                                              args[1])
-                        for j, (subnames, placeholder, roff, coff) in enumerate(subglyph_spec):
-                            if isinstance(subnames, (int, basestring)):
-                                subnames = itertools.repeat(subnames)
+                        for j, p in enumerate(subglyph_spec):
+                            if isinstance(p.name, (int, basestring)):
+                                subnames = itertools.repeat(p.name)
                             else:
-                                subnames = itertools.cycle(subnames)
-                            subglyph_spec[j] = (subnames, placeholder, roff, coff)
+                                subnames = itertools.cycle(p.name)
+                            subglyph_spec[j] = p._replace(name=subnames)
                         for i, name in enumerate(names):
-                            spec = [(n.next(), pch, roff, coff)
-                                    for n, pch, roff, coff in subglyph_spec]
-                            flush_glyph(name, [], spec)
+                            spec = [p._replace(name=p.name.next()) for p in subglyph_spec]
+                            flush_glyph(name, 0, [], spec)
                     else:
                         raise ParseError(u'unexpected arguments to `glyph`')
             elif args[0] == 'exclude-from-sample':
@@ -649,11 +671,13 @@ class Font(object):
             else:
                 if not current_glyph:
                     raise ParseError(u'no glyph currently active')
-                if len(args) == 1:
-                    if current_glyph[1] and len(current_glyph[1][0]) != len(args[0]):
+                if args[0] == 'inline':
+                    current_glyph = current_glyph._replace(flags=current_glyph.flags | G_INLINE)
+                elif len(args) == 1:
+                    if current_glyph.lines and len(current_glyph.lines[0]) != len(args[0]):
                         raise ParseError(u'inconsistent glyph width for %s' %
-                                         glyph_name(current_glyph[0]))
-                    current_glyph[1].append(args[0])
+                                         glyph_name(current_glyph.name))
+                    current_glyph.lines.append(args[0])
         if current_glyph: flush_glyph(*current_glyph)
 
     def resolve_glyphs(self):
@@ -671,7 +695,7 @@ class Font(object):
                 maxright = 0
 
                 for k, g in enumerate(gg.subglyphs):
-                    top, left, height, width, stride, data = g
+                    top, left, height, width, stride, data, negated = g
                     if isinstance(data, list):
                         # every other field should be final
                         assert isinstance(top, int)
@@ -715,7 +739,7 @@ class Font(object):
 
                         gg.subglyphs[k] = Subglyph(top=top, left=left,
                                                    height=height, width=width,
-                                                   stride=stride, data=data)
+                                                   stride=stride, data=data, negated=negated)
 
                     maxbottom = max(maxbottom, top + height)
                     maxright = max(maxright, left + width)
@@ -756,6 +780,7 @@ class Font(object):
             # mark as redirected if this glyph consists of a single component
             g = subglyphs[0]
             if not isinstance(g.data, (int, basestring)): return
+            if g.negated != 0: return # XXX
             subname, roff, coff = redirect_to[g.data] or (g.data, 0, 0)
             roff += g.top
             coff += g.left
@@ -790,23 +815,44 @@ class Font(object):
             if name in empty:
                 del self.glyphs[name]
             else:
-                for k, g in enumerate(gg.subglyphs):
-                    if not isinstance(g.data, (int, basestring)): continue
-                    if redirect_to[g.data]:
-                        subname, roff, coff = redirect_to[g.data]
-                        gg.subglyphs[k] = g._replace(top=g.top+roff, left=g.left+coff, data=subname)
+                subglyphs = gg.subglyphs
+                subglyphs.reverse() # so that we can pop the next subglyph easily
+                newsubglyphs = []
+                while subglyphs:
+                    g = subglyphs.pop()
+                    if isinstance(g.data, (int, basestring)):
+                        if redirect_to[g.data]:
+                            subname, roff, coff = redirect_to[g.data]
+                            newsubglyphs.append(g._replace(top=g.top+roff, left=g.left+coff,
+                                                           data=subname))
+                            continue
+                        gg2 = self.glyphs[g.data]
+                        if gg2.flags & G_INLINE:
+                            for g2 in reversed(gg2.subglyphs):
+                                subglyphs.append(g2._replace(top=g2.top+g.top,
+                                                             left=g2.left+g.left,
+                                                             negated=g2.negated+g.negated))
+                            continue
+                    newsubglyphs.append(g)
+                subglyphs[:] = newsubglyphs
+
+        # inlined glyphs no longer require to be included
+        for name, gg in self.glyphs.items():
+            if gg.flags & G_INLINE: del self.glyphs[name]
 
     def get_subglyphs(self, name):
-        def collect(g, roff, coff, acc):
+        def collect(g, roff, coff, acc, negated):
             if isinstance(g.data, list):
-                acc.append(g._replace(top=g.top+roff, left=g.left+coff))
+                acc.append(g._replace(top=g.top+roff, left=g.left+coff,
+                                      negated=g.negated+negated))
             else:
                 gg = self.glyphs[g.data]
-                for g2 in gg.subglyphs: collect(g2, g.top+roff, g.left+coff, acc)
+                for g2 in gg.subglyphs:
+                    collect(g2, g.top+roff, g.left+coff, acc, g.negated+negated)
 
         acc = []
         gg = self.glyphs[name]
-        for g in gg.subglyphs: collect(g, gg.preferred_top, gg.preferred_left, acc)
+        for g in gg.subglyphs: collect(g, gg.preferred_top, gg.preferred_left, acc, 0)
         return acc
 
     def write_html(self, fp):
@@ -835,9 +881,12 @@ class Font(object):
                         x0 = x; y0 = y
                     pathstr.append('z')
                 path = ''.join(pathstr)
-                print >>fp, '<path d="{path}" fill="#{color:06x}" />'.format(
-                    path = path, color = (hash(path) & 0x7f7f7f) + 0x808080,
-                )
+                if g.negated & 1:
+                    print >>fp, '<g><path d="{path}" fill="#000" /></g>'.format(path = path)
+                else:
+                    print >>fp, '<path d="{path}" fill="#{color:06x}" />'.format(
+                        path = path, color = (hash(path) & 0x7f7f7f) + 0x808080,
+                    )
 
         def print_svg(name, scale, ignore_subpixel):
             gg = self.glyphs[name]
@@ -867,7 +916,7 @@ class Font(object):
         print >>fp, '<!doctype html>'
         print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: graphic sample</title><style>'
         print >>fp, 'body{background:black;color:white;line-height:1}div{color:gray}#sampleglyphs{display:none}body.sample #sampleglyphs{display:block}body.sample #glyphs{display:none}.scaled{font-size:500%}'
-        print >>fp, 'svg{background:#111;fill:white;vertical-align:top}:target svg{background:#333}svg:hover path,body.sample svg path{fill:white!important}a svg path{fill:gray!important}'
+        print >>fp, 'svg{background:#111;fill:white;vertical-align:top}:target svg{background:#333}svg:hover>path,body.sample svg>path{fill:white!important}a svg>path{fill:gray!important}'
         print >>fp, '</style></head><body>'
         print >>fp, '<input id="sample" placeholder="Input sample text here" size="40"> <input type="reset" id="reset" value="Reset"> | %d characters, %d intermediate glyphs so far | <a href="sample.png">PNG</a> | <a href="live.html">live</a>' % (num_pub_glyphs, num_glyphs - num_pub_glyphs)
         print >>fp, '<hr /><div id="sampleglyphs"></div><div id="glyphs">'
@@ -957,10 +1006,11 @@ class Font(object):
                 for c in xrange(left, left + width):
                     current[r][c] = 255
             for g in glyphs:
+                icolor = 255 if g.negated & 1 else color
                 for r in xrange(g.height):
                     for c in xrange(g.width):
                         if g.data[r*g.stride+c] & PX_FULL:
-                            current[g.top+r][g.left+left+c] = color
+                            current[g.top+r][g.left+left+c] = icolor
 
         fp.write('P5 %d %d 255\n' % (imwidth, imheight))
         fp.write(imline)

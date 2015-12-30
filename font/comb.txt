@@ -900,3 +900,11 @@ glyph hook-upper = hook-lower@X
 ++++++++
 ++++++++
 
+//--------------------------------------
+// spacing forms of combining marks
+
+glyph ¨ = sp dia-lower
+glyph ¯ = sp mac-lower
+glyph ´ = sp acute-lower
+glyph ¸ = sp ced
+

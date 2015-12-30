@@ -18,6 +18,9 @@ SRCFILES = $(SRC:%=font/%.txt)
 .PHONY: all
 all: sample.html live.html sample.png unison.ttf
 
+.PHONY: sample
+sample: sample.html live.html sample.png
+
 .PHONY: clean
 clean:
 	-$(RM) -f sample.html live.html sample.png sample.pgm unison.ttf unison.ttx
