@@ -1,5 +1,7 @@
-// Unison font
-// 2015-12 Kang Seonghoon
+// Unison font.
+// also see LICENSE.txt and README.md in the parent directory.
+
+// these are the bare minimum glyphs required for an OpenType font.
 
 glyph placeholder
 *.*.*.*.
@@ -81,7 +83,7 @@ d@@@@@@P./@@@@@b
 
 map U+FFFD = replacement
 
-glyph .notdef
+glyph .notdef // implicitly sticky
 ........
 .@@@@@@@
 .@.....@
