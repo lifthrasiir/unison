@@ -364,37 +364,7 @@ glyph lineseg-ld
 ...!!...
 ...!!...
 
-glyph ╴ = lineseg-light-l
-glyph ╸ = lineseg-heavy-l
-
-glyph ╵ = lineseg-light-u
-glyph ╹ = lineseg-heavy-u
-
-glyph ╶ = lineseg-light-r
-glyph ╺ = lineseg-heavy-r
-
-glyph ╷ = lineseg-light-d
-glyph ╻ = lineseg-heavy-d
-
-glyph ─ = lineseg-light-l  lineseg-light-r
-glyph ╼ = lineseg-light-l  lineseg-heavy-r
-glyph ╾ = lineseg-heavy-l  lineseg-light-r
-glyph ━ = lineseg-heavy-l  lineseg-heavy-r
-glyph ═ = lineseg-double-l lineseg-double-r
-
-glyph │ = lineseg-light-u  lineseg-light-d
-glyph ╽ = lineseg-light-u  lineseg-heavy-d
-glyph ╿ = lineseg-heavy-u  lineseg-light-d
-glyph ┃ = lineseg-heavy-u  lineseg-heavy-d
-glyph ║ = lineseg-double-u lineseg-double-d
-
-glyph ┌ = lineseg-light-r   lineseg-light-d
-glyph ┍ = lineseg-heavy-r   lineseg-light-d
-glyph ┎ = lineseg-light-r   lineseg-heavy-d  lineseg-lu
-glyph ┏ = lineseg-heavy-r   lineseg-heavy-d  lineseg-lu
-glyph ╒ = lineseg-double-r  lineseg-light-d  lineseg-ru
-glyph ╓ = lineseg-light-r   lineseg-double-d lineseg-lu
-glyph ╔ = lineseg-double-rr lineseg-double-d
+glyph lineseg-corner-rrdd
 ........
 ........
 ........
@@ -412,11 +382,7 @@ glyph ╔ = lineseg-double-rr lineseg-double-d
 ...!.!..
 ...!.!..
 
-glyph ┐ = lineseg-light-l  lineseg-light-d  lineseg-ru
-glyph ┑ = lineseg-heavy-l  lineseg-light-d  lineseg-ru
-glyph ┒ = lineseg-light-l  lineseg-heavy-d  lineseg-ru
-glyph ┓ = lineseg-heavy-l  lineseg-heavy-d  lineseg-ru
-glyph ╕ = lineseg-double-l lineseg-light-d
+glyph lineseg-corner-lld
 ........
 ........
 ........
@@ -433,7 +399,8 @@ glyph ╕ = lineseg-double-l lineseg-light-d
 ....!...
 ....!...
 ....!...
-glyph ╖ = lineseg-light-l  lineseg-double-d
+
+glyph lineseg-corner-ldd
 ........
 ........
 ........
@@ -450,7 +417,8 @@ glyph ╖ = lineseg-light-l  lineseg-double-d
 ...!.!..
 ...!.!..
 ...!.!..
-glyph ╗ = lineseg-double-l lineseg-double-d
+
+glyph lineseg-corner-lldd
 ........
 ........
 ........
@@ -468,13 +436,7 @@ glyph ╗ = lineseg-double-l lineseg-double-d
 ...!.!..
 ...!.!..
 
-glyph └ = lineseg-light-r   lineseg-light-u
-glyph ┕ = lineseg-heavy-r   lineseg-light-u
-glyph ┖ = lineseg-light-r   lineseg-heavy-u
-glyph ┗ = lineseg-heavy-r   lineseg-heavy-u  lineseg-ld
-glyph ╘ = lineseg-double-r  lineseg-light-u
-glyph ╙ = lineseg-light-r   lineseg-double-u
-glyph ╚ = lineseg-double-rr lineseg-double-uu
+glyph lineseg-corner-rruu
 ...!.!..
 ...!.!..
 ...!.!..
@@ -492,13 +454,7 @@ glyph ╚ = lineseg-double-rr lineseg-double-uu
 ........
 ........
 
-glyph ┘ = lineseg-light-l  lineseg-light-u
-glyph ┙ = lineseg-heavy-l  lineseg-light-u  lineseg-rd
-glyph ┚ = lineseg-light-l  lineseg-heavy-u
-glyph ┛ = lineseg-heavy-l  lineseg-heavy-u  lineseg-rd
-glyph ╛ = lineseg-double-l lineseg-light-u  lineseg-rd
-glyph ╜ = lineseg-light-l  lineseg-double-u lineseg-ru
-glyph ╝ = lineseg-double-l
+glyph lineseg-double-u-corner
 ...@.@..
 ...@.@..
 ...@.@..
@@ -516,29 +472,7 @@ glyph ╝ = lineseg-double-l
 ........
 ........
 
-glyph ├ = lineseg-light-r   lineseg-light-u   lineseg-light-d
-glyph ┝ = lineseg-heavy-r   lineseg-light-u   lineseg-light-d
-glyph ┞ = lineseg-light-r   lineseg-heavy-u   lineseg-light-d
-glyph ┟ = lineseg-light-r   lineseg-light-u   lineseg-heavy-d  lineseg-lu
-glyph ┠ = lineseg-light-r   lineseg-heavy-u   lineseg-heavy-d
-glyph ┡ = lineseg-heavy-r   lineseg-heavy-u   lineseg-light-d  lineseg-ld
-glyph ┢ = lineseg-heavy-r   lineseg-light-u   lineseg-heavy-d  lineseg-lu
-glyph ┣ = lineseg-heavy-r   lineseg-heavy-u   lineseg-heavy-d
-glyph ╞ = lineseg-double-rr lineseg-light-u   lineseg-light-d
-glyph ╟ = lineseg-light-rr  lineseg-double-u  lineseg-double-d
-glyph ╠ = lineseg-double-rr lineseg-double-uu lineseg-double-d lineseg-lu
-
-glyph ┤ = lineseg-light-l  lineseg-light-u   lineseg-light-d
-glyph ┥ = lineseg-heavy-l  lineseg-light-u   lineseg-light-d
-glyph ┦ = lineseg-light-l  lineseg-heavy-u   lineseg-light-d
-glyph ┧ = lineseg-light-l  lineseg-light-u   lineseg-heavy-d
-glyph ┨ = lineseg-light-l  lineseg-heavy-u   lineseg-heavy-d
-glyph ┩ = lineseg-heavy-l  lineseg-heavy-u   lineseg-light-d
-glyph ┪ = lineseg-heavy-l  lineseg-light-u   lineseg-heavy-d
-glyph ┫ = lineseg-heavy-l  lineseg-heavy-u   lineseg-heavy-d
-glyph ╡ = lineseg-double-l lineseg-light-u   lineseg-light-d
-glyph ╢ = lineseg-light-l  lineseg-double-u  lineseg-double-d
-glyph ╣ = lineseg-double-l lineseg-double-uu lineseg-double-d
+glyph lineseg-corner-lluudd
 ...!.!..
 ...!.!..
 ...!.!..
@@ -556,17 +490,7 @@ glyph ╣ = lineseg-double-l lineseg-double-uu lineseg-double-d
 ...!.!..
 ...!.!..
 
-glyph ┬ = lineseg-light-l  lineseg-light-r   lineseg-light-d
-glyph ┭ = lineseg-heavy-l  lineseg-light-r   lineseg-light-d
-glyph ┮ = lineseg-light-l  lineseg-heavy-r   lineseg-light-d
-glyph ┯ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-d
-glyph ┰ = lineseg-light-l  lineseg-light-r   lineseg-heavy-d
-glyph ┱ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-d
-glyph ┲ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-d
-glyph ┳ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-d
-glyph ╤ = lineseg-double-l lineseg-double-r  lineseg-light-d
-glyph ╥ = lineseg-light-l  lineseg-light-r   lineseg-double-d
-glyph ╦ = lineseg-double-l lineseg-double-rr lineseg-double-d
+glyph lineseg-corner-llrrdd
 ........
 ........
 ........
@@ -584,134 +508,134 @@ glyph ╦ = lineseg-double-l lineseg-double-rr lineseg-double-d
 ...!.!..
 ...!.!..
 
-glyph ┴ = lineseg-light-l  lineseg-light-r   lineseg-light-u
-glyph ┵ = lineseg-heavy-l  lineseg-light-r   lineseg-light-u   lineseg-rd
-glyph ┶ = lineseg-light-l  lineseg-heavy-r   lineseg-light-u
-glyph ┷ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-u
-glyph ┸ = lineseg-light-l  lineseg-light-r   lineseg-heavy-u
-glyph ┹ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-u   lineseg-rd
-glyph ┺ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-ld
-glyph ┻ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-u
-glyph ╧ = lineseg-double-l lineseg-double-r  lineseg-light-uu
-glyph ╨ = lineseg-light-l  lineseg-light-r   lineseg-double-uu
-glyph ╩ = lineseg-double-l lineseg-double-rr lineseg-double-uu lineseg-rd
+map ╴ = lineseg-light-l
+map ╸ = lineseg-heavy-l
 
-glyph ┼ = lineseg-light-l  lineseg-light-r   lineseg-light-u   lineseg-light-d
-glyph ┽ = lineseg-heavy-l  lineseg-light-r   lineseg-light-u   lineseg-light-d
-glyph ┾ = lineseg-light-l  lineseg-heavy-r   lineseg-light-u   lineseg-light-d
-glyph ┿ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-u   lineseg-light-d
-glyph ╀ = lineseg-light-l  lineseg-light-r   lineseg-heavy-u   lineseg-light-d
-glyph ╁ = lineseg-light-l  lineseg-light-r   lineseg-light-u   lineseg-heavy-d
-glyph ╂ = lineseg-light-l  lineseg-light-r   lineseg-heavy-u   lineseg-heavy-d
-glyph ╃ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-u   lineseg-light-d
-glyph ╄ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-light-d
-glyph ╅ = lineseg-heavy-l  lineseg-light-r   lineseg-light-u   lineseg-heavy-d
-glyph ╆ = lineseg-light-l  lineseg-heavy-r   lineseg-light-u   lineseg-heavy-d
-glyph ╇ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-light-d
-glyph ╈ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-u   lineseg-heavy-d
-glyph ╉ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-u   lineseg-heavy-d
-glyph ╊ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-heavy-d
-glyph ╋ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-heavy-d
-glyph ╪ = lineseg-double-l lineseg-double-r  lineseg-light-u   lineseg-light-d
-glyph ╫ = lineseg-light-l  lineseg-light-r   lineseg-double-u  lineseg-double-d
-glyph ╬ = lineseg-double-l lineseg-double-rr lineseg-double-uu lineseg-double-d
+map ╵ = lineseg-light-u
+map ╹ = lineseg-heavy-u
+
+map ╶ = lineseg-light-r
+map ╺ = lineseg-heavy-r
+
+map ╷ = lineseg-light-d
+map ╻ = lineseg-heavy-d
+
+map ─ = lineseg-light-l  lineseg-light-r
+map ╼ = lineseg-light-l  lineseg-heavy-r
+map ╾ = lineseg-heavy-l  lineseg-light-r
+map ━ = lineseg-heavy-l  lineseg-heavy-r
+map ═ = lineseg-double-l lineseg-double-r
+
+map │ = lineseg-light-u  lineseg-light-d
+map ╽ = lineseg-light-u  lineseg-heavy-d
+map ╿ = lineseg-heavy-u  lineseg-light-d
+map ┃ = lineseg-heavy-u  lineseg-heavy-d
+map ║ = lineseg-double-u lineseg-double-d
+
+map ┌ = lineseg-light-r   lineseg-light-d
+map ┍ = lineseg-heavy-r   lineseg-light-d
+map ┎ = lineseg-light-r   lineseg-heavy-d  lineseg-lu
+map ┏ = lineseg-heavy-r   lineseg-heavy-d  lineseg-lu
+map ╒ = lineseg-double-r  lineseg-light-d  lineseg-ru
+map ╓ = lineseg-light-r   lineseg-double-d lineseg-lu
+map ╔ = lineseg-double-rr lineseg-double-d lineseg-corner-rrdd
+
+map ┐ = lineseg-light-l  lineseg-light-d  lineseg-ru
+map ┑ = lineseg-heavy-l  lineseg-light-d  lineseg-ru
+map ┒ = lineseg-light-l  lineseg-heavy-d  lineseg-ru
+map ┓ = lineseg-heavy-l  lineseg-heavy-d  lineseg-ru
+map ╕ = lineseg-double-l lineseg-light-d  lineseg-corner-lld
+map ╖ = lineseg-light-l  lineseg-double-d lineseg-corner-ldd
+map ╗ = lineseg-double-l lineseg-double-d lineseg-corner-lldd
+
+map └ = lineseg-light-r   lineseg-light-u
+map ┕ = lineseg-heavy-r   lineseg-light-u
+map ┖ = lineseg-light-r   lineseg-heavy-u
+map ┗ = lineseg-heavy-r   lineseg-heavy-u   lineseg-ld
+map ╘ = lineseg-double-r  lineseg-light-u
+map ╙ = lineseg-light-r   lineseg-double-u
+map ╚ = lineseg-double-rr lineseg-double-uu lineseg-corner-rruu
+
+map ┘ = lineseg-light-l  lineseg-light-u
+map ┙ = lineseg-heavy-l  lineseg-light-u  lineseg-rd
+map ┚ = lineseg-light-l  lineseg-heavy-u
+map ┛ = lineseg-heavy-l  lineseg-heavy-u  lineseg-rd
+map ╛ = lineseg-double-l lineseg-light-u  lineseg-rd
+map ╜ = lineseg-light-l  lineseg-double-u lineseg-ru
+map ╝ = lineseg-double-l lineseg-double-u-corner
+
+map ├ = lineseg-light-r   lineseg-light-u   lineseg-light-d
+map ┝ = lineseg-heavy-r   lineseg-light-u   lineseg-light-d
+map ┞ = lineseg-light-r   lineseg-heavy-u   lineseg-light-d
+map ┟ = lineseg-light-r   lineseg-light-u   lineseg-heavy-d  lineseg-lu
+map ┠ = lineseg-light-r   lineseg-heavy-u   lineseg-heavy-d
+map ┡ = lineseg-heavy-r   lineseg-heavy-u   lineseg-light-d  lineseg-ld
+map ┢ = lineseg-heavy-r   lineseg-light-u   lineseg-heavy-d  lineseg-lu
+map ┣ = lineseg-heavy-r   lineseg-heavy-u   lineseg-heavy-d
+map ╞ = lineseg-double-rr lineseg-light-u   lineseg-light-d
+map ╟ = lineseg-light-rr  lineseg-double-u  lineseg-double-d
+map ╠ = lineseg-double-rr lineseg-double-uu lineseg-double-d lineseg-lu
+
+map ┤ = lineseg-light-l  lineseg-light-u   lineseg-light-d
+map ┥ = lineseg-heavy-l  lineseg-light-u   lineseg-light-d
+map ┦ = lineseg-light-l  lineseg-heavy-u   lineseg-light-d
+map ┧ = lineseg-light-l  lineseg-light-u   lineseg-heavy-d
+map ┨ = lineseg-light-l  lineseg-heavy-u   lineseg-heavy-d
+map ┩ = lineseg-heavy-l  lineseg-heavy-u   lineseg-light-d
+map ┪ = lineseg-heavy-l  lineseg-light-u   lineseg-heavy-d
+map ┫ = lineseg-heavy-l  lineseg-heavy-u   lineseg-heavy-d
+map ╡ = lineseg-double-l lineseg-light-u   lineseg-light-d
+map ╢ = lineseg-light-l  lineseg-double-u  lineseg-double-d
+map ╣ = lineseg-double-l lineseg-double-uu lineseg-double-d  lineseg-corner-lluudd
+
+map ┬ = lineseg-light-l  lineseg-light-r   lineseg-light-d
+map ┭ = lineseg-heavy-l  lineseg-light-r   lineseg-light-d
+map ┮ = lineseg-light-l  lineseg-heavy-r   lineseg-light-d
+map ┯ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-d
+map ┰ = lineseg-light-l  lineseg-light-r   lineseg-heavy-d
+map ┱ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-d
+map ┲ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-d
+map ┳ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-d
+map ╤ = lineseg-double-l lineseg-double-r  lineseg-light-d
+map ╥ = lineseg-light-l  lineseg-light-r   lineseg-double-d
+map ╦ = lineseg-double-l lineseg-double-rr lineseg-double-d  lineseg-corner-llrrdd
+
+map ┴ = lineseg-light-l  lineseg-light-r   lineseg-light-u
+map ┵ = lineseg-heavy-l  lineseg-light-r   lineseg-light-u   lineseg-rd
+map ┶ = lineseg-light-l  lineseg-heavy-r   lineseg-light-u
+map ┷ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-u
+map ┸ = lineseg-light-l  lineseg-light-r   lineseg-heavy-u
+map ┹ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-u   lineseg-rd
+map ┺ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-ld
+map ┻ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-u
+map ╧ = lineseg-double-l lineseg-double-r  lineseg-light-uu
+map ╨ = lineseg-light-l  lineseg-light-r   lineseg-double-uu
+map ╩ = lineseg-double-l lineseg-double-rr lineseg-double-uu lineseg-rd
+
+map ┼ = lineseg-light-l  lineseg-light-r   lineseg-light-u   lineseg-light-d
+map ┽ = lineseg-heavy-l  lineseg-light-r   lineseg-light-u   lineseg-light-d
+map ┾ = lineseg-light-l  lineseg-heavy-r   lineseg-light-u   lineseg-light-d
+map ┿ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-u   lineseg-light-d
+map ╀ = lineseg-light-l  lineseg-light-r   lineseg-heavy-u   lineseg-light-d
+map ╁ = lineseg-light-l  lineseg-light-r   lineseg-light-u   lineseg-heavy-d
+map ╂ = lineseg-light-l  lineseg-light-r   lineseg-heavy-u   lineseg-heavy-d
+map ╃ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-u   lineseg-light-d
+map ╄ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-light-d
+map ╅ = lineseg-heavy-l  lineseg-light-r   lineseg-light-u   lineseg-heavy-d
+map ╆ = lineseg-light-l  lineseg-heavy-r   lineseg-light-u   lineseg-heavy-d
+map ╇ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-light-d
+map ╈ = lineseg-heavy-l  lineseg-heavy-r   lineseg-light-u   lineseg-heavy-d
+map ╉ = lineseg-heavy-l  lineseg-light-r   lineseg-heavy-u   lineseg-heavy-d
+map ╊ = lineseg-light-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-heavy-d
+map ╋ = lineseg-heavy-l  lineseg-heavy-r   lineseg-heavy-u   lineseg-heavy-d
+map ╪ = lineseg-double-l lineseg-double-r  lineseg-light-u   lineseg-light-d
+map ╫ = lineseg-light-l  lineseg-light-r   lineseg-double-u  lineseg-double-d
+map ╬ = lineseg-double-l lineseg-double-rr lineseg-double-uu lineseg-double-d
 
 //--------------------------------------
 // block elements
 
-glyph ▀
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-........
-........
-........
-........
-........
-........
-........
-........
-
-glyph eighth-horiz
-@@@@@@@@
-@@@@@@@@
-
-glyph ▁ = sp eighth-horiz@vvvvvvvvvvvvvv
-glyph ▂ = ▁  eighth-horiz@vvvvvvvvvvvv
-glyph ▃ = ▂  eighth-horiz@vvvvvvvvvv
-glyph ▄ = ▃  eighth-horiz@vvvvvvvv
-glyph ▅ = ▄  eighth-horiz@vvvvvv
-glyph ▆ = ▅  eighth-horiz@vvvv
-glyph ▇ = ▆  eighth-horiz@vv
-
-glyph █
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-
-glyph eighth-vert // except for the last column (for the technical issue)
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-@.
-
-glyph ▉ = ▊  eighth-vert@>>>>>>
-glyph ▊ = ▋  eighth-vert@>>>>>
-glyph ▋ = ▌  eighth-vert@>>>>
-glyph ▌ = ▍  eighth-vert@>>>
-glyph ▍ = ▎  eighth-vert@>>
-glyph ▎ = ▏  eighth-vert@>
-glyph ▏ = sp eighth-vert
-
-glyph ▐
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-....@@@@
-
-glyph ░
+glyph full-25
 .@.@.@.@
 ........
 @.@.@.@.
@@ -729,7 +653,7 @@ glyph ░
 @.@.@.@.
 ........
 
-glyph ▒
+glyph full-50
 .@.@.@.@
 @.@.@.@.
 .@.@.@.@
@@ -747,7 +671,7 @@ glyph ▒
 .@.@.@.@
 @.@.@.@.
 
-glyph ▓
+glyph full-75
 .@.@.@.@
 @@@@@@@@
 @.@.@.@.
@@ -765,7 +689,43 @@ glyph ▓
 @.@.@.@.
 @@@@@@@@
 
-glyph ▔
+glyph full
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph upper-half
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+........
+........
+........
+........
+........
+........
+........
+........
+
+glyph upper-eighth
 @@@@@@@@
 @@@@@@@@
 ........
@@ -783,7 +743,259 @@ glyph ▔
 ........
 ........
 
-glyph ▕
+glyph lower-1-over-8
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+@@@@@@@@
+@@@@@@@@
+
+glyph lower-2-over-8
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph lower-3-over-8
+........
+........
+........
+........
+........
+........
+........
+........
+........
+........
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph lower-4-over-8
+........
+........
+........
+........
+........
+........
+........
+........
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph lower-5-over-8
+........
+........
+........
+........
+........
+........
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph lower-6-over-8
+........
+........
+........
+........
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph lower-7-over-8
+........
+........
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph left-7-over-8
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+@@@@@@@.
+
+glyph left-6-over-8
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+
+glyph left-5-over-8
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+@@@@@...
+
+glyph left-4-over-8
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+
+glyph left-3-over-8
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+@@@.....
+
+glyph left-2-over-8
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+@@......
+
+glyph left-1-over-8
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+@.......
+
+glyph right-eighth
 .......@
 .......@
 .......@
@@ -800,6 +1012,24 @@ glyph ▕
 .......@
 .......@
 .......@
+
+glyph right-half
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+....@@@@
 
 glyph quad-lu
 @@@@
@@ -815,14 +1045,27 @@ glyph quad-ru = quad-lu@>>>>
 glyph quad-ld = quad-lu@vvvvvvvv
 glyph quad-rd = quad-ru@vvvvvvvv
 
-glyph ▘ = sp quad-lu
-glyph ▝ = sp         quad-ru
-glyph ▖ = sp                 quad-ld
-glyph ▗ = sp                         quad-rd
-glyph ▚ = sp quad-lu                 quad-rd
-glyph ▞ = sp         quad-ru quad-ld
-glyph ▟ = sp         quad-ru quad-ld quad-rd
-glyph ▙ = sp quad-lu         quad-ld quad-rd
-glyph ▜ = sp quad-lu quad-ru         quad-rd
-glyph ▛ = sp quad-lu quad-ru quad-ld
+map ░ = full-25
+map ▒ = full-50
+map ▓ = full-75
+map █ = full
+
+map ▀ = upper-half
+map ▔ = upper-eighth
+map ▁|▂|▃|▄|▅|▆|▇ = lower-(1|2|3|4|5|6|7)-over-8
+
+map ▉|▊|▋|▌|▍|▎|▏ = left-(7|6|5|4|3|2|1)-over-8
+map ▕ = right-eighth
+map ▐ = right-half
+
+map ▘ = sp quad-lu
+map ▝ = sp         quad-ru
+map ▖ = sp                 quad-ld
+map ▗ = sp                         quad-rd
+map ▚ = sp quad-lu                 quad-rd
+map ▞ = sp         quad-ru quad-ld
+map ▟ = sp         quad-ru quad-ld quad-rd
+map ▙ = sp quad-lu         quad-ld quad-rd
+map ▜ = sp quad-lu quad-ru         quad-rd
+map ▛ = sp quad-lu quad-ru quad-ld
 

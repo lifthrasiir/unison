@@ -54,8 +54,8 @@ glyph monogram-1-yin = yin@X
 ................
 ................
 
-glyph ⚊ = monogram-1-yang
-glyph ⚋ = monogram-1-yin
+map ⚊ = monogram-1-yang
+map ⚋ = monogram-1-yin
 
 //--------------------------------------
 // digrams
@@ -132,10 +132,10 @@ glyph digram-2-yin = yin@X
 ................
 ................
 
-glyph ⚌ = digram-1-yang digram-2-yang
-glyph ⚍ = digram-1-yin  digram-2-yang
-glyph ⚎ = digram-1-yang digram-2-yin
-glyph ⚏ = digram-1-yin  digram-2-yin
+map ⚌ = digram-1-yang digram-2-yang
+map ⚍ = digram-1-yin  digram-2-yang
+map ⚎ = digram-1-yang digram-2-yin
+map ⚏ = digram-1-yin  digram-2-yin
 
 //--------------------------------------
 // trigrams
@@ -248,14 +248,14 @@ glyph trigram-3-yin = yin@X
 ................
 ................
 
-glyph ☰ = trigram-1-yang trigram-2-yang trigram-3-yang
-glyph ☱ = trigram-1-yin  trigram-2-yang trigram-3-yang
-glyph ☲ = trigram-1-yang trigram-2-yin  trigram-3-yang
-glyph ☳ = trigram-1-yin  trigram-2-yin  trigram-3-yang
-glyph ☴ = trigram-1-yang trigram-2-yang trigram-3-yin
-glyph ☵ = trigram-1-yin  trigram-2-yang trigram-3-yin
-glyph ☶ = trigram-1-yang trigram-2-yin  trigram-3-yin
-glyph ☷ = trigram-1-yin  trigram-2-yin  trigram-3-yin
+map ☰ = trigram-1-yang trigram-2-yang trigram-3-yang
+map ☱ = trigram-1-yin  trigram-2-yang trigram-3-yang
+map ☲ = trigram-1-yang trigram-2-yin  trigram-3-yang
+map ☳ = trigram-1-yin  trigram-2-yin  trigram-3-yang
+map ☴ = trigram-1-yang trigram-2-yang trigram-3-yin
+map ☵ = trigram-1-yin  trigram-2-yang trigram-3-yin
+map ☶ = trigram-1-yang trigram-2-yin  trigram-3-yin
+map ☷ = trigram-1-yin  trigram-2-yin  trigram-3-yin
 
 //--------------------------------------
 // hexagrams
@@ -477,14 +477,14 @@ glyph hexagram-6-yin = yin-sm@X
 ................
 
 // I seriously hate the King Wen order.
-glyph ䷀|䷪|䷍|䷡|䷈|䷄|䷙|䷊|䷉|䷹|䷥|䷵|䷼|䷻|䷨|䷒|䷌|䷰|䷝|䷶|䷤|䷾|䷕|䷣|䷘|䷐|䷔|䷲|䷩|䷂|䷚|䷗ = ..
+map ䷀|䷪|䷍|䷡|䷈|䷄|䷙|䷊|䷉|䷹|䷥|䷵|䷼|䷻|䷨|䷒|䷌|䷰|䷝|䷶|䷤|䷾|䷕|䷣|䷘|䷐|䷔|䷲|䷩|䷂|䷚|䷗ = ..
 	hexagram-1-(yang|yin) ..
 	hexagram-2-(yang*2|yin*2) ..
 	hexagram-3-(yang*4|yin*4) ..
 	hexagram-4-(yang*8|yin*8) ..
 	hexagram-5-(yang*16|yin*16) ..
 	hexagram-6-yang
-glyph ䷫|䷛|䷱|䷟|䷸|䷯|䷑|䷭|䷅|䷮|䷿|䷧|䷺|䷜|䷃|䷆|䷠|䷞|䷷|䷽|䷴|䷦|䷳|䷎|䷋|䷬|䷢|䷏|䷓|䷇|䷖|䷁ = ..
+map ䷫|䷛|䷱|䷟|䷸|䷯|䷑|䷭|䷅|䷮|䷿|䷧|䷺|䷜|䷃|䷆|䷠|䷞|䷷|䷽|䷴|䷦|䷳|䷎|䷋|䷬|䷢|䷏|䷓|䷇|䷖|䷁ = ..
 	hexagram-1-(yang|yin) ..
 	hexagram-2-(yang*2|yin*2) ..
 	hexagram-3-(yang*4|yin*4) ..

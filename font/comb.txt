@@ -903,8 +903,8 @@ glyph hook-upper = hook-lower@X
 //--------------------------------------
 // spacing forms of combining marks
 
-glyph ¨ = sp dia-lower
-glyph ¯ = sp mac-lower
-glyph ´ = sp acute-lower
-glyph ¸ = sp ced
+map ¨ = sp dia-lower
+map ¯ = sp mac-lower
+map ´ = sp acute-lower
+map ¸ = sp ced
 

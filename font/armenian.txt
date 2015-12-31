@@ -1387,84 +1387,84 @@ glyph hy-ech-yiwn-lower
 ........
 ........
 
-glyph Ա = hy-ayb-upper
-glyph Բ = hy-ben-upper
-glyph Գ = hy-gim-upper
-glyph Դ = hy-da-upper
-glyph Ե = hy-ech-upper
-glyph Զ = hy-za-upper
-glyph Է = hy-eh-upper
-glyph Ը = hy-et-upper
-glyph Թ = hy-to-upper
-glyph Ժ = hy-zhe-upper
-glyph Ի = hy-ini-upper
-glyph Լ = hy-liwn-upper
-glyph Խ = hy-xeh-upper
-glyph Ծ = hy-ca-upper
-glyph Կ = hy-ken-upper
-glyph Հ = hy-ho-upper
-glyph Ձ = hy-ja-upper
-glyph Ղ = hy-ghad-upper
-glyph Ճ = hy-cheh-upper
-glyph Մ = hy-men-upper
-glyph Յ = hy-yi-upper
-glyph Ն = hy-now-upper
-glyph Շ = hy-sha-upper
-glyph Ո = hy-vo-upper
-glyph Չ = hy-cha-upper
-glyph Պ = hy-peh-upper
-glyph Ջ = hy-jheh-upper
-glyph Ռ = hy-ra-upper
-glyph Ս = hy-seh-upper
-glyph Վ = hy-vew-upper
-glyph Տ = hy-tiwn-upper
-glyph Ր = hy-reh-upper
-glyph Ց = hy-co-upper
-glyph Ւ = hy-yiwn-upper
-glyph Փ = hy-piwr-upper
-glyph Ք = hy-keh-upper
-glyph Օ = hy-oh-upper
-glyph Ֆ = hy-feh-upper
+map Ա = hy-ayb-upper
+map Բ = hy-ben-upper
+map Գ = hy-gim-upper
+map Դ = hy-da-upper
+map Ե = hy-ech-upper
+map Զ = hy-za-upper
+map Է = hy-eh-upper
+map Ը = hy-et-upper
+map Թ = hy-to-upper
+map Ժ = hy-zhe-upper
+map Ի = hy-ini-upper
+map Լ = hy-liwn-upper
+map Խ = hy-xeh-upper
+map Ծ = hy-ca-upper
+map Կ = hy-ken-upper
+map Հ = hy-ho-upper
+map Ձ = hy-ja-upper
+map Ղ = hy-ghad-upper
+map Ճ = hy-cheh-upper
+map Մ = hy-men-upper
+map Յ = hy-yi-upper
+map Ն = hy-now-upper
+map Շ = hy-sha-upper
+map Ո = hy-vo-upper
+map Չ = hy-cha-upper
+map Պ = hy-peh-upper
+map Ջ = hy-jheh-upper
+map Ռ = hy-ra-upper
+map Ս = hy-seh-upper
+map Վ = hy-vew-upper
+map Տ = hy-tiwn-upper
+map Ր = hy-reh-upper
+map Ց = hy-co-upper
+map Ւ = hy-yiwn-upper
+map Փ = hy-piwr-upper
+map Ք = hy-keh-upper
+map Օ = hy-oh-upper
+map Ֆ = hy-feh-upper
 
-glyph ա = hy-ayb-lower
-glyph բ = hy-ben-lower
-glyph գ = hy-gim-lower
-glyph դ = hy-da-lower
-glyph ե = hy-ech-lower
-glyph զ = hy-za-lower
-glyph է = hy-eh-lower
-glyph ը = hy-et-lower
-glyph թ = hy-to-lower
-glyph ժ = hy-zhe-lower
-glyph ի = hy-ini-lower
-glyph լ = hy-liwn-lower
-glyph խ = hy-xeh-lower
-glyph ծ = hy-ca-lower
-glyph կ = hy-ken-lower
-glyph հ = hy-ho-lower
-glyph ձ = hy-ja-lower
-glyph ղ = hy-ghad-lower
-glyph ճ = hy-cheh-lower
-glyph մ = hy-men-lower
-glyph յ = hy-yi-lower
-glyph ն = hy-now-lower
-glyph շ = hy-sha-lower
-glyph ո = hy-vo-lower
-glyph չ = hy-cha-lower
-glyph պ = hy-peh-lower
-glyph ջ = hy-jheh-lower
-glyph ռ = hy-ra-lower
-glyph ս = hy-seh-lower
-glyph վ = hy-vew-lower
-glyph տ = hy-tiwn-lower
-glyph ր = hy-reh-lower
-glyph ց = hy-co-lower
-glyph ւ = hy-yiwn-lower
-glyph փ = hy-piwr-lower
-glyph ք = hy-keh-lower
-glyph օ = hy-oh-lower
-glyph ֆ = hy-feh-lower
-glyph և = hy-ech-yiwn-lower
+map ա = hy-ayb-lower
+map բ = hy-ben-lower
+map գ = hy-gim-lower
+map դ = hy-da-lower
+map ե = hy-ech-lower
+map զ = hy-za-lower
+map է = hy-eh-lower
+map ը = hy-et-lower
+map թ = hy-to-lower
+map ժ = hy-zhe-lower
+map ի = hy-ini-lower
+map լ = hy-liwn-lower
+map խ = hy-xeh-lower
+map ծ = hy-ca-lower
+map կ = hy-ken-lower
+map հ = hy-ho-lower
+map ձ = hy-ja-lower
+map ղ = hy-ghad-lower
+map ճ = hy-cheh-lower
+map մ = hy-men-lower
+map յ = hy-yi-lower
+map ն = hy-now-lower
+map շ = hy-sha-lower
+map ո = hy-vo-lower
+map չ = hy-cha-lower
+map պ = hy-peh-lower
+map ջ = hy-jheh-lower
+map ռ = hy-ra-lower
+map ս = hy-seh-lower
+map վ = hy-vew-lower
+map տ = hy-tiwn-lower
+map ր = hy-reh-lower
+map ց = hy-co-lower
+map ւ = hy-yiwn-lower
+map փ = hy-piwr-lower
+map ք = hy-keh-lower
+map օ = hy-oh-lower
+map ֆ = hy-feh-lower
+map և = hy-ech-yiwn-lower
 
 //--------------------------------------
 // ligatures
@@ -1559,11 +1559,11 @@ glyph hy-men-xeh-lower
 ........@@......
 ................
 
-glyph ﬓ = hy-men-now-lower
-glyph ﬔ = hy-men-ech-lower
-glyph ﬕ = hy-men-ini-lower
-glyph ﬖ = hy-vew-now-lower
-glyph ﬗ = hy-men-xeh-lower
+map ﬓ = hy-men-now-lower
+map ﬔ = hy-men-ech-lower
+map ﬕ = hy-men-ini-lower
+map ﬖ = hy-vew-now-lower
+map ﬗ = hy-men-xeh-lower
 
 //--------------------------------------
 // punctuations
@@ -1606,8 +1606,8 @@ glyph hy-hyphen
 
 // XXX combining puncutations
 
-glyph ։ = hy-full-stop
-glyph ֊ = hy-hyphen
+map ։ = hy-full-stop
+map ֊ = hy-hyphen
 
 //--------------------------------------
 // symbols
@@ -1666,7 +1666,7 @@ glyph hy-dram
 ........
 ........
 
-glyph ֍ = hy-eternity-cw
-glyph ֎ = hy-eternity-ccw
-glyph ֏ = hy-dram
+map ֍ = hy-eternity-cw
+map ֎ = hy-eternity-ccw
+map ֏ = hy-dram
 

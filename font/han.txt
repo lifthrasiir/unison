@@ -328,20 +328,20 @@ glyph kanbun-man
 .@/...\@
 ........
 
-glyph ㆐ = kanbun-link
-glyph ㆑ = kanbun-reverse
-glyph ㆒ = kanbun-one
-glyph ㆓ = kanbun-two
-glyph ㆔ = kanbun-three
-glyph ㆕ = kanbun-four
-glyph ㆖ = kanbun-top
-glyph ㆗ = kanbun-middle
-glyph ㆘ = kanbun-bottom
-glyph ㆙ = kanbun-first
-glyph ㆚ = kanbun-second
-glyph ㆛ = kanbun-third
-glyph ㆜ = kanbun-fourth
-glyph ㆝ = kanbun-heaven
-glyph ㆞ = kanbun-earth
-glyph ㆟ = kanbun-man
+map ㆐ = kanbun-link
+map ㆑ = kanbun-reverse
+map ㆒ = kanbun-one
+map ㆓ = kanbun-two
+map ㆔ = kanbun-three
+map ㆕ = kanbun-four
+map ㆖ = kanbun-top
+map ㆗ = kanbun-middle
+map ㆘ = kanbun-bottom
+map ㆙ = kanbun-first
+map ㆚ = kanbun-second
+map ㆛ = kanbun-third
+map ㆜ = kanbun-fourth
+map ㆝ = kanbun-heaven
+map ㆞ = kanbun-earth
+map ㆟ = kanbun-man
 

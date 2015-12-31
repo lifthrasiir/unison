@@ -634,41 +634,41 @@ glyph ctrl-nl = sm-n-4x6@X sm-l-4x6@Y
 ........
 ........
 
-glyph ␀ = ctrl-nul
-glyph ␁ = ctrl-soh
-glyph ␂ = ctrl-stx
-glyph ␃ = ctrl-etx
-glyph ␄ = ctrl-eot
-glyph ␅ = ctrl-enq
-glyph ␆ = ctrl-ack
-glyph ␇ = ctrl-bel
-glyph ␈ = ctrl-bs
-glyph ␉ = ctrl-ht
-glyph ␊ = ctrl-lf
-glyph ␋ = ctrl-vt
-glyph ␌ = ctrl-ff
-glyph ␍ = ctrl-cr
-glyph ␎ = ctrl-so
-glyph ␏ = ctrl-si
-glyph ␐ = ctrl-dle
-glyph ␑ = ctrl-dc1
-glyph ␒ = ctrl-dc2
-glyph ␓ = ctrl-dc3
-glyph ␔ = ctrl-dc4
-glyph ␕ = ctrl-nak
-glyph ␖ = ctrl-syn
-glyph ␗ = ctrl-etb
-glyph ␘ = ctrl-can
-glyph ␙ = ctrl-em
-glyph ␚ = ctrl-sub
-glyph ␛ = ctrl-esc
-glyph ␜ = ctrl-fs
-glyph ␝ = ctrl-gs
-glyph ␞ = ctrl-rs
-glyph ␟ = ctrl-us
-glyph ␠ = ctrl-sp
-glyph ␡ = ctrl-del
-glyph ␤ = ctrl-nl
+map ␀ = ctrl-nul
+map ␁ = ctrl-soh
+map ␂ = ctrl-stx
+map ␃ = ctrl-etx
+map ␄ = ctrl-eot
+map ␅ = ctrl-enq
+map ␆ = ctrl-ack
+map ␇ = ctrl-bel
+map ␈ = ctrl-bs
+map ␉ = ctrl-ht
+map ␊ = ctrl-lf
+map ␋ = ctrl-vt
+map ␌ = ctrl-ff
+map ␍ = ctrl-cr
+map ␎ = ctrl-so
+map ␏ = ctrl-si
+map ␐ = ctrl-dle
+map ␑ = ctrl-dc1
+map ␒ = ctrl-dc2
+map ␓ = ctrl-dc3
+map ␔ = ctrl-dc4
+map ␕ = ctrl-nak
+map ␖ = ctrl-syn
+map ␗ = ctrl-etb
+map ␘ = ctrl-can
+map ␙ = ctrl-em
+map ␚ = ctrl-sub
+map ␛ = ctrl-esc
+map ␜ = ctrl-fs
+map ␝ = ctrl-gs
+map ␞ = ctrl-rs
+map ␟ = ctrl-us
+map ␠ = ctrl-sp
+map ␡ = ctrl-del
+map ␤ = ctrl-nl
 
 //--------------------------------------
 // OCR symbols
@@ -881,18 +881,18 @@ glyph micr-dash
 ........
 ........
 
-glyph ⑀ = ocr-hook
-glyph ⑁ = ocr-chair
-glyph ⑂ = ocr-fork
-glyph ⑃ = ocr-fork-inverted
-glyph ⑄ = ocr-belt-buckle
-glyph ⑅ = ocr-bow-tie
-glyph ⑊ = ocr-double-backslash
+map ⑀ = ocr-hook
+map ⑁ = ocr-chair
+map ⑂ = ocr-fork
+map ⑃ = ocr-fork-inverted
+map ⑄ = ocr-belt-buckle
+map ⑅ = ocr-bow-tie
+map ⑊ = ocr-double-backslash
 
-glyph ⑆ = micr-transit
-glyph ⑇ = micr-amount
-glyph ⑈ = micr-on-us
-glyph ⑉ = micr-dash
+map ⑆ = micr-transit
+map ⑇ = micr-amount
+map ⑈ = micr-on-us
+map ⑉ = micr-dash
 
 //--------------------------------------
 // other symbols
@@ -987,8 +987,8 @@ glyph subst-form-2 // intentionally quirky.
 ........
 ........
 
-glyph ␢ = blank-symbol
-glyph ␣ = open-box
-glyph ␥ = delete-form-2
-glyph ␦ = subst-form-2
+map ␢ = blank-symbol
+map ␣ = open-box
+map ␥ = delete-form-2
+map ␦ = subst-form-2
 

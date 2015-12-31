@@ -104,13 +104,10 @@ def escape(s):
     return s.encode('utf-8').replace('&', '&amp;').replace('"', '&quot;') \
                             .replace('<', '&lt;').replace('>', '&gt;')
 
-def glyph_name(i):
-    if isinstance(i, int):
-        try: name = u' ' + unicodedata.name(unichr(i))
-        except ValueError: name = u''
-        return u'U+%04X%s (%c)' % (i, name, i)
-    else:
-        return repr(i.encode())
+def char_name(i):
+    try: name = u' ' + unicodedata.name(unichr(i))
+    except ValueError: name = u''
+    return u'U+%04X%s (%c)' % (i, name, i)
 
 def ensure_sentinels(g, always_copy=False):
     if not isinstance(g.data, list): return g
@@ -360,6 +357,7 @@ class Font(object):
         self.descent = 0 # XXX probably needs the downward translation in the glyph itself
 
         self.glyphs = {} # name: Glyph
+        self.cmap = {} # index: glyph name
         self.exclude_from_sample = set()
 
         if fp: self.read(fp)
@@ -368,34 +366,44 @@ class Font(object):
         SubglyphArgs = namedtuple('SubglyphArgs', 'name placeholder roff coff filters')
         GlyphArgs = namedtuple('GlyphArgs', 'name flags lines parts')
 
+        CHAR_ITEM_PATTERN = re.compile(ur'''^(?:
+            u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)?
+        )$''', re.I | re.X)
+        def parse_char_name(s):
+            if len(s) == 1: return [ord(s)]
+
+            ret = []
+            for i in s.split('|'):
+                if len(i) == 1:
+                    ret.append(ord(i))
+                else:
+                    m = CHAR_ITEM_PATTERN.match(i)
+                    if not m: raise ParseError(u'invalid character name/index %r' % s)
+
+                    start = int(m.group('start'), 16)
+                    end = m.group('end'); end = int(end, 16) if end is not None else None
+                    step = m.group('step'); step = int(step, 16) if step is not None else 1
+                    if end is not None:
+                        ret += xrange(start, end + 1, step)
+                    else:
+                        assert step == 1
+                        ret.append(start)
+
+            return ret
+
         GLYPH_NAME_PATTERN = re.compile(ur'''^(?:
-            # unicode range
-            u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)? |
             # single name
             (?P<name>[0-9a-z\-_.]+) |
-            # name list or character list
-            (?P<names>(?:.|[0-9a-z\-_.]*)(?:\*\d+)?(?:\|(?:.|[0-9a-z\-_.]*)(?:\*\d+)?)*) |
+            # name list
+            (?P<names>[0-9a-z\-_.]*(?:\*\d+)?(?:\|[0-9a-z\-_.]*(?:\*\d+)?)*) |
             # name list with one or more parts
             (?P<parts>[0-9a-z\-_.]*
                       (?:\([0-9a-z\-_.]*(?:\*\d+)?(?:\|[0-9a-z\-_.]*(?:\*\d+)?)*\)
                          [0-9a-z\-_.]*)+)
         )$''', re.I | re.X)
         def parse_glyph_name(s):
-            if len(s) == 1: # cover edge cases like (, ), | or *
-                return ord(s)
-
             m = GLYPH_NAME_PATTERN.match(s)
-            if not m: raise ParseError(u'invalid glyph name/index %r' % s)
-
-            if m.group('start'):
-                start = int(m.group('start'), 16)
-                end = m.group('end'); end = int(end, 16) if end is not None else None
-                step = m.group('step'); step = int(step, 16) if step is not None else 1
-                if end is not None:
-                    return xrange(start, end + 1, step)
-                else:
-                    assert step == 1
-                    return start
+            if not m: raise ParseError(u'invalid glyph name %r' % s)
 
             if m.group('name'):
                 return m.group('name').lower()
@@ -418,10 +426,7 @@ class Font(object):
             ss = []
             for k in xrange(count):
                 n = u''.join(x if i%2==0 else x[k%len(x)] for i, x in enumerate(parts))
-                if len(n) == 1:
-                    ss.append(ord(n))
-                else:
-                    ss.append(n.lower())
+                ss.append(n.lower())
             return ss
 
         def parse_subglyph_spec(s):
@@ -538,7 +543,7 @@ class Font(object):
 
         def flush_glyph(name, flags, lines, parts):
             if not lines and not parts:
-                raise ParseError(u'data for glyph %s is missing' % glyph_name(name))
+                raise ParseError(u'data for glyph %s is missing' % name)
 
             placeholder_bboxes = {}
             bbox = None
@@ -566,11 +571,11 @@ class Font(object):
                 lines = newlines
 
                 if not bbox:
-                    raise ParseError(u'glyph for %s is empty' % glyph_name(name))
+                    raise ParseError(u'glyph for %s is empty' % name)
                 try:
                     pixels = parse_pixels(lines, bbox)
                 except ParseError as e:
-                    raise ParseError(u'parsing glyph for %s failed: %s' % (glyph_name(name), e))
+                    raise ParseError(u'parsing glyph for %s failed: %s' % (name, e))
 
                 # this may be empty if entire glyph consists of subglyphs.
                 top, left, bottom, right = bbox
@@ -598,9 +603,45 @@ class Font(object):
                                               width=None, height=None,
                                               stride=None, data=p.name, negated=negated))
 
-            if isinstance(name, int) or name == u'.notdef': flags |= G_STICKY
+            if name == u'.notdef': flags |= G_STICKY
             self.glyphs[name] = Glyph(flags=flags, height=None, width=None,
                                       preferred_top=roff, preferred_left=coff, subglyphs=subglyphs)
+
+        def define_glyph(name, specs):
+            if isinstance(name, basestring):
+                name = parse_glyph_name(name)
+            if isinstance(name, basestring):
+                # single glyph definition
+                if name in self.glyphs:
+                    raise ParseError(u'duplicate glyph %s' % name)
+                subglyph_spec = map(parse_subglyph_spec, specs)
+                for p in subglyph_spec:
+                    if not isinstance(p.name, basestring):
+                        raise ParseError(u'invalid use of multiple subglyphs in %s' % name)
+                placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
+                if len(placeholder_chars) != len(set(placeholder_chars)):
+                    raise ParseError(u'duplicate placeholder characters for glyph %s' % name)
+                return GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec)
+            else:
+                # multiple glyph definition (combined glyph only)
+                names = name
+                for name in names:
+                    if name in self.glyphs:
+                        raise ParseError(u'duplicate glyph %s' % name)
+                subglyph_spec = map(parse_subglyph_spec, specs)
+                placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
+                if len(placeholder_chars) != len(set(placeholder_chars)):
+                    raise ParseError(u'duplicate placeholder characters for glyph %s' % args[1])
+                for j, p in enumerate(subglyph_spec):
+                    if isinstance(p.name, basestring):
+                        subnames = itertools.repeat(p.name)
+                    else:
+                        subnames = itertools.cycle(p.name)
+                    subglyph_spec[j] = p._replace(name=subnames)
+                for i, name in enumerate(names):
+                    spec = [p._replace(name=p.name.next()) for p in subglyph_spec]
+                    flush_glyph(name, 0, [], spec)
+                return None
 
         current_glyph = None # or GlyphArgs
         prev_args = []
@@ -609,7 +650,6 @@ class Font(object):
             line, _, comment = (u' ' + u' '.join(line.split())).partition(u' //')
             line = line.strip()
             if not line: continue
-            if len(line) == 1: line = u'glyph U+%04x' % ord(line)
             args = line.split()
             if args[-1] == '..': # continuation token
                 prev_args.extend(args[:-1])
@@ -617,66 +657,68 @@ class Font(object):
             else:
                 args = prev_args + args
                 prev_args = []
+
             if args[0] == 'glyph':
+                # glyph <glyph>
+                # glyph <glyph> = <subglyph> ... <subglyph>
                 if current_glyph:
                     flush_glyph(*current_glyph)
                     current_glyph = None
-                name = parse_glyph_name(args[1])
-                if isinstance(name, (int, basestring)):
-                    # single glyph definition
-                    if name in self.glyphs:
-                        raise ParseError(u'duplicate glyph %s' % glyph_name(name))
-                    if len(args) > 3 and args[2] == '=': # combined glyph
-                        subglyph_spec = map(parse_subglyph_spec, args[3:])
-                        for p in subglyph_spec:
-                            if not isinstance(p.name, (int, basestring)):
-                                raise ParseError(u'invalid use of multiple subglyphs in %s' %
-                                                 glyph_name(name))
-                        current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec)
-                        placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
-                        if len(placeholder_chars) != len(set(placeholder_chars)):
-                            raise ParseError(u'duplicate placeholder characters for glyph %s' %
-                                             glyph_name(name))
-                    elif len(args) == 2:
-                        current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[])
-                    else:
+                if len(args) > 3 and args[2] == '=': # combined glyph
+                    current_glyph = define_glyph(args[1], args[3:])
+                elif len(args) == 2:
+                    name = parse_glyph_name(args[1])
+                    if not isinstance(name, basestring):
                         raise ParseError(u'unexpected arguments to `glyph`')
+                    current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[])
                 else:
-                    # multiple glyph definition (combined glyph only)
-                    names = name
-                    for name in names:
-                        if name in self.glyphs:
-                            raise ParseError(u'duplicate glyph %s' % glyph_name(name))
-                    if len(args) > 3 and args[2] == '=':
-                        subglyph_spec = map(parse_subglyph_spec, args[3:])
-                        placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
-                        if len(placeholder_chars) != len(set(placeholder_chars)):
-                            raise ParseError(u'duplicate placeholder characters for glyph %s' %
-                                             args[1])
-                        for j, p in enumerate(subglyph_spec):
-                            if isinstance(p.name, (int, basestring)):
-                                subnames = itertools.repeat(p.name)
-                            else:
-                                subnames = itertools.cycle(p.name)
-                            subglyph_spec[j] = p._replace(name=subnames)
-                        for i, name in enumerate(names):
-                            spec = [p._replace(name=p.name.next()) for p in subglyph_spec]
-                            flush_glyph(name, 0, [], spec)
-                    else:
-                        raise ParseError(u'unexpected arguments to `glyph`')
+                    raise ParseError(u'unexpected arguments to `glyph`')
+
+            elif args[0] == 'map':
+                # map <char> = <glyph>
+                # map <char> = <subglyph> ... <subglyph>
+                if len(args) <= 3 or args[2] != '=':
+                    raise ParseError(u'unexpected arguments to `map`')
+
+                if current_glyph:
+                    flush_glyph(*current_glyph)
+                    current_glyph = None
+                chars = parse_char_name(args[1])
+                glyphs = None
+                if len(args) == 4:
+                    try: glyphs = parse_glyph_name(args[3])
+                    except Exception: pass
+                if glyphs is None:
+                    # implicit glyph definition precedes
+                    glyphs = ['uni%04X' % ch for ch in chars]
+                    glyph_spec = define_glyph(glyphs, args[3:])
+                    if glyph_spec: flush_glyph(*glyph_spec) # possible when len(chars) == 1
+                elif isinstance(glyphs, basestring):
+                    glyphs = [glyphs]
+                for ch, glyph in zip(chars, itertools.cycle(glyphs)):
+                    if ch in self.cmap:
+                        raise ParseError(u'duplicate character %s' % char_name(ch))
+                    self.cmap[ch] = glyph
+
             elif args[0] == 'exclude-from-sample':
+                # exclude-from-sample <char>
                 for arg in args[1:]:
-                    for name in parse_glyph_name(arg):
+                    for name in parse_char_name(arg):
                         self.exclude_from_sample.add(name)
+
             else:
                 if not current_glyph:
                     raise ParseError(u'no glyph currently active')
+
                 if args[0] == 'inline':
                     current_glyph = current_glyph._replace(flags=current_glyph.flags | G_INLINE)
+
+                elif args[0] == 'sticky':
+                    current_glyph = current_glyph._replace(flags=current_glyph.flags | G_STICKY)
+
                 elif len(args) == 1:
                     if current_glyph.lines and len(current_glyph.lines[0]) != len(args[0]):
-                        raise ParseError(u'inconsistent glyph width for %s' %
-                                         glyph_name(current_glyph.name))
+                        raise ParseError(u'inconsistent glyph width for %s' % current_glyph.name)
                     current_glyph.lines.append(args[0])
         if current_glyph: flush_glyph(*current_glyph)
 
@@ -721,8 +763,7 @@ class Font(object):
                                 (isinstance(left, int) or gg2.preferred_left is not None) and
                                 (isinstance(height, int) or gg2.height is not None) and
                                 (isinstance(width, int) or gg2.width is not None)):
-                            raise ParseError(u'glyph %s has a cyclic dependency' %
-                                             glyph_name(name))
+                            raise ParseError(u'glyph %s has a cyclic dependency' % name)
 
                         if top is None: top = gg2.preferred_top
                         elif isinstance(top, Delta): top = gg2.preferred_top + top.value
@@ -734,8 +775,7 @@ class Font(object):
                         if (width, height) != (gg2.width, gg2.height):
                             raise ParseError(u'glyph %s has a scaled subglyph for %s '
                                              u'that is unsupported: requested %sx%s, actual %sx%s' %
-                                             (glyph_name(name), glyph_name(data),
-                                              width, height, gg2.width, gg2.height))
+                                             (name, data, width, height, gg2.width, gg2.height))
 
                         gg.subglyphs[k] = Subglyph(top=top, left=left,
                                                    height=height, width=width,
@@ -749,6 +789,14 @@ class Font(object):
                     width=maxright if gg.width is None else gg.width)
 
         for name in self.glyphs.keys(): resolve(name)
+
+        for ch, name in self.cmap.items():
+            try:
+                gg = self.glyphs[name]
+                self.glyphs[name] = gg._replace(flags=gg.flags | G_STICKY)
+            except KeyError:
+                raise ParseError(u'character %s is mapped to non-existant glyph %s' %
+                                 (char_name(ch), name))
 
     def inline_glyphs(self):
         # invariant: redirect_to[a][0] == b <=> a in redirect_from[b]
@@ -764,7 +812,7 @@ class Font(object):
             # eliminate empty subglyphs (while recursively checking others)
             subglyphs = []
             for g in gg.subglyphs:
-                if isinstance(g.data, (int, basestring)):
+                if isinstance(g.data, basestring):
                     check(g.data)
                     if g.data not in empty: subglyphs.append(g)
                 else:
@@ -779,7 +827,7 @@ class Font(object):
 
             # mark as redirected if this glyph consists of a single component
             g = subglyphs[0]
-            if not isinstance(g.data, (int, basestring)): return
+            if not isinstance(g.data, basestring): return
             if g.negated != 0: return # XXX
             subname, roff, coff = redirect_to[g.data] or (g.data, 0, 0)
             roff += g.top
@@ -820,7 +868,7 @@ class Font(object):
                 newsubglyphs = []
                 while subglyphs:
                     g = subglyphs.pop()
-                    if isinstance(g.data, (int, basestring)):
+                    if isinstance(g.data, basestring):
                         if redirect_to[g.data]:
                             subname, roff, coff = redirect_to[g.data]
                             newsubglyphs.append(g._replace(top=g.top+roff, left=g.left+coff,
@@ -907,43 +955,36 @@ class Font(object):
                 for g in glyphs: print_pixels(g, mask)
             fp.write('</svg>')
 
-        all_glyphs = self.glyphs.keys()
-        all_pub_glyphs = sorted([k for k in all_glyphs if isinstance(k, int)],
-                                key=lambda k: (unicodedata.normalize('NFD', unichr(k)), k))
-        num_glyphs = len(all_glyphs)
-        num_pub_glyphs = len(all_pub_glyphs)
+        all_chars = sorted(self.cmap.keys(),
+                           key=lambda k: (unicodedata.normalize('NFD', unichr(k)), k))
+        num_glyphs = len(self.glyphs)
+        num_chars = len(self.cmap)
 
         print >>fp, '<!doctype html>'
         print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: graphic sample</title><style>'
         print >>fp, 'body{background:black;color:white;line-height:1}div{color:gray}#sampleglyphs{display:none}body.sample #sampleglyphs{display:block}body.sample #glyphs{display:none}.scaled{font-size:500%}'
         print >>fp, 'svg{background:#111;fill:white;vertical-align:top}:target svg{background:#333}svg:hover>path,body.sample svg>path{fill:white!important}a svg>path{fill:gray!important}'
         print >>fp, '</style></head><body>'
-        print >>fp, '<input id="sample" placeholder="Input sample text here" size="40"> <input type="reset" id="reset" value="Reset"> | %d characters, %d intermediate glyphs so far | <a href="sample.png">PNG</a> | <a href="live.html">live</a>' % (num_pub_glyphs, num_glyphs - num_pub_glyphs)
+        print >>fp, '<input id="sample" placeholder="Input sample text here" size="40"> <input type="reset" id="reset" value="Reset"> | %d characters, %d intermediate glyphs so far | <a href="sample.png">PNG</a> | <a href="live.html">live</a>' % (num_chars, num_glyphs)
         print >>fp, '<hr /><div id="sampleglyphs"></div><div id="glyphs">'
         excluded = False
-        for name in all_pub_glyphs:
-            if name in self.exclude_from_sample:
+        for ch in all_chars:
+            if ch in self.exclude_from_sample:
                 if not excluded: fp.write('…'); excluded = True
             else:
                 excluded = False
-                fp.write('<a href="#u%x"><span id="sm-u%x" title="%s">' % (name, name, escape(glyph_name(name))))
-                print_svg(name, 1, True)
+                fp.write('<a href="#u%x"><span id="sm-u%x" title="%s">' % (ch, ch, escape(char_name(ch))))
+                print_svg(self.cmap[ch], 1, True)
                 fp.write('</span></a>')
         print >>fp, '<hr /><span class="scaled">'
         excluded = False
-        for name in all_pub_glyphs:
-            if name in self.exclude_from_sample:
+        for ch in all_chars:
+            if ch in self.exclude_from_sample:
                 if not excluded: fp.write('…'); excluded = True
             else:
                 excluded = False
-                fp.write('<span id="u%x" title="%s">' % (name, escape(glyph_name(name))))
-                print_svg(name, 5, False)
-                fp.write('</span>')
-        if False:
-            print >>fp, '<hr />'
-            for name in sorted(k for k in all_glyphs if not isinstance(k, int)):
-                fp.write('<span id="glyph-%s" title="%s">' % (name, name))
-                print_svg(name, 5, False)
+                fp.write('<span id="u%x" title="%s">' % (ch, escape(char_name(ch))))
+                print_svg(self.cmap[ch], 5, False)
                 fp.write('</span>')
         print >>fp, '</span></div><script>'
         print >>fp, 'function $(x){return document.getElementById(x)}'
@@ -960,15 +1001,15 @@ class Font(object):
         # determine the width of glyphs (and check the height)
         glyphs = {} # (width, height, list of resolved subglyphs)
         unavailable_widths = set() # (# glyphs per line, start character)
-        for name, gg in self.glyphs.items():
-            if not isinstance(name, int): continue
+        for ch, name in self.cmap.items():
+            gg = self.glyphs[name]
             subglyphs = self.get_subglyphs(name)
-            assert gg.height <= MAX_HEIGHT, 'glyph %s is too tall' % glyph_name(name)
-            assert gg.width <= LINE_WIDTH, 'glyph %s is too wide' % glyph_name(name)
+            assert gg.height <= MAX_HEIGHT, 'glyph %s is too tall' % name
+            assert gg.width <= LINE_WIDTH, 'glyph %s is too wide' % name
             glyphs[name] = gg.width, gg.height, subglyphs
             for w in NUM_GLYPHS_PER_LINE:
                 if gg.width > LINE_WIDTH // w:
-                    unavailable_widths.add((w, name & -w))
+                    unavailable_widths.add((w, ch & -w))
 
         # determine the position of each glyph
         last = None
@@ -977,19 +1018,18 @@ class Font(object):
         positions = {} # (row, column)
         row_starts = []
         row_offset = [] # i.e. accumulated `gap`
-        all_names = sorted(k for k in self.glyphs.keys() if isinstance(k, int))
-        for name in all_names:
+        for ch, name in sorted(self.cmap.items()):
             for w in NUM_GLYPHS_PER_LINE:
-                if (w, name & -w) not in unavailable_widths: break
+                if (w, ch & -w) not in unavailable_widths: break
             else: assert False
-            current = w, name & -w
+            current = w, ch & -w
             if last != current:
                 if current[1] - (last or (0, 0))[1] > 32: gap += 8
                 row += 1
-                row_starts.append(name & -w)
+                row_starts.append(ch & -w)
                 row_offset.append(gap)
                 last = current
-            positions[name] = row, (name & (w-1)) * (LINE_WIDTH // w)
+            positions[ch] = row, (ch & (w-1)) * (LINE_WIDTH // w)
         nrows = row + 1
 
         #          +---------------------+ ^
@@ -1017,8 +1057,8 @@ class Font(object):
         row = -1
         current = None
         lastlabel = None
-        for name in all_names:
-            r, left = positions[name]
+        for ch, name in sorted(self.cmap.items()):
+            r, left = positions[ch]
             if r != row:
                 assert r - row == 1
                 row = r
@@ -1032,9 +1072,9 @@ class Font(object):
                     lastlabel = (row_starts[row] & -32)
                     color = 0
                 label = '%8s' % ('U+%04X' % row_starts[row])
-                for i, ch in enumerate(label):
-                    if ch == ' ': continue
-                    render_glyphs(current, i * 8, glyphs[ord(ch)], color)
+                for i, cch in enumerate(label):
+                    if cch == ' ': continue
+                    render_glyphs(current, i * 8, glyphs[self.cmap[ord(cch)]], color)
             render_glyphs(current, 8*8 + 1 + 1 + left, glyphs[name], 0)
         if current:
             for line in current: fp.write(line)
@@ -1054,11 +1094,11 @@ class Font(object):
         print >>fp, '└────────────────────┘'
         print >>fp
         chars = []
-        for name in sorted(k for k in self.glyphs.keys() if isinstance(k, int)):
-            if chars and (chars[0] >> 4) != (name >> 4):
+        for ch in sorted(self.cmap.keys()):
+            if chars and (chars[0] >> 4) != (ch >> 4):
                 print >>fp, escape(u''.join(map(unichr, chars)))
                 chars = []
-            chars.append(name)
+            chars.append(ch)
         if chars: print >>fp, escape(u''.join(map(unichr, chars)))
         print >>fp, '</pre></body></html>'
 
@@ -1108,15 +1148,14 @@ class Font(object):
                          0xa960 <= name <= 0xa97f or 0xac00 <= name <= 0xd7ff else 1, name)
         for name, gg in sorted(self.glyphs.items(), key=custom_sort_key):
             if name == '.notdef': hasnotdef = True
-            subname = get_subname(name)
-            compositecount = sum(isinstance(g.data, (int, basestring)) for g in gg.subglyphs)
+            compositecount = sum(isinstance(g.data, basestring) for g in gg.subglyphs)
             if 0 < compositecount < len(gg.subglyphs):
                 # add intermediate subglyphs when required
                 for i, g in enumerate(gg.subglyphs):
                     if not isinstance(g.data, list): continue
-                    subnames.append(('%s#%d' % (subname, i), g.width,
+                    subnames.append(('%s#%d' % (name, i), g.width,
                                      get_lsb_from_pixels(g.height, g.width, g.stride, g.data)))
-            subnames.append((subname, gg.width, get_lsb(name)))
+            subnames.append((name, gg.width, get_lsb(name)))
         assert hasnotdef, '.notdef glyph is undefined, will cause a bad effect including ' \
                           'a missing glyph for the first character (generally U+0020)'
 
@@ -1270,8 +1309,8 @@ class Font(object):
         for platid, platenc in ((0, 3), (1, 0), (3, 1)):
             print >>fp, '<cmap_format_4 platformID="{platid}" platEncID="{platenc}" ' \
                          'language="0">'.format(platid=platid, platenc=platenc)
-            for name in sorted(k for k in self.glyphs.keys() if isinstance(k, int)):
-                print >>fp, '<map code="{name:#x}" name="uni{name:04X}"/>'.format(name=name)
+            for ch, name in sorted(self.cmap.items()):
+                print >>fp, '<map code="{ch:#x}" name="{name}"/>'.format(ch=ch, name=escape(name))
             print >>fp, '</cmap_format_4>'
         print >>fp, '</cmap>'
 
@@ -1336,7 +1375,7 @@ class Font(object):
         for name, gg in sorted(self.glyphs.items()):
             name = get_subname(name)
 
-            compositecount = sum(isinstance(g.data, (int, basestring)) for g in gg.subglyphs)
+            compositecount = sum(isinstance(g.data, basestring) for g in gg.subglyphs)
             hybrid = (0 < compositecount < len(gg.subglyphs))
             if hybrid:
                 for i, g in enumerate(gg.subglyphs):
@@ -1410,13 +1449,17 @@ if __name__ == '__main__':
     font = Font()
     t1 = time.time()
     try:
+        current_path = None
         for pat in sys.argv[1:]:
             for path in glob.glob(pat):
+                current_path = path
                 with open(path) as f:
                     font.read(f)
+        current_path = None
         font.resolve_glyphs()
         font.inline_glyphs()
     except ParseError as e:
+        if current_path: print >>sys.stderr, current_path + ':',
         print >>sys.stderr, unicode(e).encode('utf-8')
         raise SystemExit(1)
     t2 = time.time()

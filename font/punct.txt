@@ -184,21 +184,21 @@ d@@@b./@
 ........
 ........
 
-glyph - = hyphen        // hyphen-minus
-glyph _ = uline         // low line
-glyph ­ = hyphen-short  // soft hyphen (should be distinct from normal hyphens)
-glyph ‐ = hyphen        // hyphen
-glyph ‑ = hyphen        // non-breaking hyphen
-glyph ‒ = hyphen-short  // figure dash
-glyph – = dash          // en-dash
-glyph — = dash-double   // em-dash
-glyph ― = hline-double  // horiz. line
-glyph ‾ = oline         // overline
-glyph ⁃ = hyphen        // hyphen bullet
-glyph ⎯ = hline-double  // horiz. line extension
-glyph ‗ = uuline        // double low line
+map - = hyphen        // hyphen-minus
+map _ = uline         // low line
+map ­ = hyphen-short  // soft hyphen (should be distinct from normal hyphens)
+map ‐ = hyphen        // hyphen
+map ‑ = hyphen        // non-breaking hyphen
+map ‒ = hyphen-short  // figure dash
+map – = dash          // en-dash
+map — = dash-double   // em-dash
+map ― = hline-double  // horiz. line
+map ‾ = oline         // overline
+map ⁃ = hyphen        // hyphen bullet
+map ⎯ = hline-double  // horiz. line extension
+map ‗ = uuline        // double low line
 
-glyph ~ = tilde
+map ~ = tilde
 
 //--------------------------------------
 // quotes
@@ -477,24 +477,24 @@ glyph quote-dangle-right
 ........
 ........
 
-glyph ` = bquot
-glyph ' = apos
-glyph " = quot
+map ` = bquot
+map ' = apos
+map " = quot
 
-glyph ‘ = quote-6
-glyph ’ = quote-9
-glyph ‚ = quote-9-bottom
-glyph ‛ = quote-9-reversed
+map ‘ = quote-6
+map ’ = quote-9
+map ‚ = quote-9-bottom
+map ‛ = quote-9-reversed
 
-glyph “ = quote-66
-glyph ” = quote-99
-glyph „ = quote-99-bottom
-glyph ‟ = quote-99-reversed
+map “ = quote-66
+map ” = quote-99
+map „ = quote-99-bottom
+map ‟ = quote-99-reversed
 
-glyph ‹ = quote-angle-left
-glyph › = quote-angle-right
-glyph « = quote-dangle-left
-glyph » = quote-dangle-right
+map ‹ = quote-angle-left
+map › = quote-angle-right
+map « = quote-dangle-left
+map » = quote-dangle-right
 
 //--------------------------------------
 // dots
@@ -769,25 +769,25 @@ glyph bullet-triangle
 ........
 ........
 
-glyph . = period
-glyph · = dot
-glyph ‧ = hyphenation
+map . = period
+map · = dot
+map ‧ = hyphenation
 
-glyph ⁚ = two-dot
-glyph ⁖ = three-dot
-glyph ⁘ = four-dot
-glyph ⁙ = five-dot
+map ⁚ = two-dot
+map ⁖ = three-dot
+map ⁘ = four-dot
+map ⁙ = five-dot
 
-glyph : = colon
-glyph ⁝ = tricolon
-glyph ⁞ = quadcolon
+map : = colon
+map ⁝ = tricolon
+map ⁞ = quadcolon
 
-glyph , = comma
-glyph ; = semicolon
-glyph ⁏ = reversed-semicolon
+map , = comma
+map ; = semicolon
+map ⁏ = reversed-semicolon
 
-glyph • = bullet
-glyph ‣ = bullet-triangle
+map • = bullet
+map ‣ = bullet-triangle
 
 //--------------------------------------
 // star-like marks
@@ -810,7 +810,7 @@ glyph star
 ........
 ........
 
-glyph * = star
+map * = star
 
 //--------------------------------------
 // exclamation and question marks
@@ -887,10 +887,10 @@ glyph ques-inverted
 ........
 ........
 
-glyph ! = excl
-glyph ¡ = excl-inverted
-glyph ? = ques
-glyph ¿ = ques-inverted
+map ! = excl
+map ¡ = excl-inverted
+map ? = ques
+map ¿ = ques-inverted
 
 //--------------------------------------
 // parentheses/brackets
@@ -1003,12 +1003,12 @@ glyph rbracket
 ........
 ........
 
-glyph ( = lparen
-glyph ) = rparen
-glyph { = lbrace
-glyph } = rbrace
-glyph [ = lbracket
-glyph ] = rbracket
+map ( = lparen
+map ) = rparen
+map { = lbrace
+map } = rbrace
+map [ = lbracket
+map ] = rbracket
 
 //--------------------------------------
 // pipes
@@ -1049,8 +1049,8 @@ glyph broken-pipe
 ...@@...
 ...@@...
 
-glyph | = pipe
-glyph ¦ = broken-pipe
+map | = pipe
+map ¦ = broken-pipe
 
 //--------------------------------------
 // slashes
@@ -1091,8 +1091,8 @@ glyph backslash
 ........
 ........
 
-glyph / = slash
-glyph \ = backslash
+map / = slash
+map \ = backslash
 
 //--------------------------------------
 // percents
@@ -1115,7 +1115,7 @@ glyph percent
 ........
 ........
 
-glyph % = percent
+map % = percent
 
 //--------------------------------------
 // general symbols
@@ -1246,14 +1246,14 @@ glyph para
 ........
 ........
 
-glyph ^ = caret
-glyph º = deg
+map ^ = caret
+map º = deg
 
-glyph # = hash
-glyph & = amp
-glyph @ = at
-glyph § = section
-glyph ¶ = para
+map # = hash
+map & = amp
+map @ = at
+map § = section
+map ¶ = para
 
 //--------------------------------------
 // IPA
@@ -1294,6 +1294,6 @@ glyph secondary-stress
 ....@...
 ........
 
-glyph ˈ = primary-stress
-glyph ˌ = secondary-stress
+map ˈ = primary-stress
+map ˌ = secondary-stress
 

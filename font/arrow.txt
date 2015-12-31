@@ -619,132 +619,132 @@ glyph arrow-vert-base = arrow-head-d2u@X arrow-head-u2d@Y
 ................
 ................
 
-glyph ← = arrow-r2l
-glyph ↑ = arrow-d2u
-glyph → = arrow-l2r
-glyph ↓ = arrow-u2d
-glyph ↔ = arrow-horiz
-glyph ↕ = arrow-vert
-glyph ↖ = arrow-rd2lu
-glyph ↗ = arrow-ld2ru
-glyph ↘ = arrow-lu2rd
-glyph ↙ = arrow-ru2ld
+map ← = arrow-r2l
+map ↑ = arrow-d2u
+map → = arrow-l2r
+map ↓ = arrow-u2d
+map ↔ = arrow-horiz
+map ↕ = arrow-vert
+map ↖ = arrow-rd2lu
+map ↗ = arrow-ld2ru
+map ↘ = arrow-lu2rd
+map ↙ = arrow-ru2ld
 
-glyph ↚ = arrow-r2l arrow-horiz-stroke@>>
-glyph ↛ = arrow-l2r arrow-horiz-stroke@<<
-glyph ↮ = arrow-horiz arrow-horiz-stroke
+map ↚ = arrow-r2l arrow-horiz-stroke@>>
+map ↛ = arrow-l2r arrow-horiz-stroke@<<
+map ↮ = arrow-horiz arrow-horiz-stroke
 
-//glyph ↜
-//glyph ↝
+//map ↜
+//map ↝
 
-glyph ↞ = arrow-r2l arrow-head-r2l@>>>
-glyph ↟ = arrow-d2u arrow-head-d2u@vvv
-glyph ↠ = arrow-l2r arrow-head-l2r@<<<
-glyph ↡ = arrow-u2d arrow-head-u2d@^^^
+map ↞ = arrow-r2l arrow-head-r2l@>>>
+map ↟ = arrow-d2u arrow-head-d2u@vvv
+map ↠ = arrow-l2r arrow-head-l2r@<<<
+map ↡ = arrow-u2d arrow-head-u2d@^^^
 
-glyph ↢ = arrow-r2l-tail
-glyph ↣ = arrow-l2r-tail
+map ↢ = arrow-r2l-tail
+map ↣ = arrow-l2r-tail
 
-glyph ↤ = arrow-r2l-from-bar
-glyph ↥ = arrow-d2u-from-bar
-glyph ↦ = arrow-l2r-from-bar
-glyph ↧ = arrow-u2d-from-bar
+map ↤ = arrow-r2l-from-bar
+map ↥ = arrow-d2u-from-bar
+map ↦ = arrow-l2r-from-bar
+map ↧ = arrow-u2d-from-bar
 
-glyph ↨ = arrow-vert-base
+map ↨ = arrow-vert-base
 
-//glyph ↩ = 
-//glyph ↪ = 
+//map ↩ = 
+//map ↪ = 
 //
-//glyph ↫ = 
-//glyph ↬ = 
+//map ↫ = 
+//map ↬ = 
 //
-//glyph ↭ = 
-//glyph ↯ = 
+//map ↭ = 
+//map ↯ = 
 //
-//glyph ↰ = 
-//glyph ↱ = 
-//glyph ↲ = 
-//glyph ↳ = 
-//glyph ↴ = 
-//glyph ↵ = 
-//glyph ↶ = 
-//glyph ↷ = 
-//glyph ↸ = 
-//glyph ↹ = 
-//glyph ↺ = 
-//glyph ↻ = 
-//glyph ↼ = 
-//glyph ↽ = 
-//glyph ↾ = 
-//glyph ↿ = 
+//map ↰ = 
+//map ↱ = 
+//map ↲ = 
+//map ↳ = 
+//map ↴ = 
+//map ↵ = 
+//map ↶ = 
+//map ↷ = 
+//map ↸ = 
+//map ↹ = 
+//map ↺ = 
+//map ↻ = 
+//map ↼ = 
+//map ↽ = 
+//map ↾ = 
+//map ↿ = 
 //
-//glyph ⇀ = 
-//glyph ⇁ = 
-//glyph ⇂ = 
-//glyph ⇃ = 
-//glyph ⇄ = 
-//glyph ⇅ = 
-//glyph ⇆ = 
-//glyph ⇇ = 
-//glyph ⇈ = 
-//glyph ⇉ = 
-//glyph ⇊ = 
-//glyph ⇋ = 
-//glyph ⇌ = 
+//map ⇀ = 
+//map ⇁ = 
+//map ⇂ = 
+//map ⇃ = 
+//map ⇄ = 
+//map ⇅ = 
+//map ⇆ = 
+//map ⇇ = 
+//map ⇈ = 
+//map ⇉ = 
+//map ⇊ = 
+//map ⇋ = 
+//map ⇌ = 
 
-glyph ⇐ = arrow-r2l-double
-glyph ⇑ = arrow-d2u-double
-glyph ⇒ = arrow-l2r-double
-glyph ⇓ = arrow-u2d-double
-glyph ⇔ = arrow-horiz-double
-glyph ⇕ = arrow-vert-double
-glyph ⇖ = arrow-rd2lu-double
-glyph ⇗ = arrow-ld2ru-double
-glyph ⇘ = arrow-lu2rd-double
-glyph ⇙ = arrow-ru2ld-double
+map ⇐ = arrow-r2l-double
+map ⇑ = arrow-d2u-double
+map ⇒ = arrow-l2r-double
+map ⇓ = arrow-u2d-double
+map ⇔ = arrow-horiz-double
+map ⇕ = arrow-vert-double
+map ⇖ = arrow-rd2lu-double
+map ⇗ = arrow-ld2ru-double
+map ⇘ = arrow-lu2rd-double
+map ⇙ = arrow-ru2ld-double
 
-//glyph ⇍ = arrow-r2l-double arrow-horiz-stroke@>>
-//glyph ⇏ = arrow-l2r-double arrow-horiz-stroke@<<
-//glyph ⇎ = arrow-horiz-double arrow-horiz-stroke
+//map ⇍ = arrow-r2l-double arrow-horiz-stroke@>>
+//map ⇏ = arrow-l2r-double arrow-horiz-stroke@<<
+//map ⇎ = arrow-horiz-double arrow-horiz-stroke
 
-//glyph ⇚ = 
-//glyph ⇛ = 
-//glyph ⇜ = 
-//glyph ⇝ = 
-//glyph ⇞ = 
-//glyph ⇟ = 
+//map ⇚ = 
+//map ⇛ = 
+//map ⇜ = 
+//map ⇝ = 
+//map ⇞ = 
+//map ⇟ = 
 //
-//glyph ⇠ = 
-//glyph ⇡ = 
-//glyph ⇢ = 
-//glyph ⇣ = 
-//glyph ⇤ = 
-//glyph ⇥ = 
-//glyph ⇦ = 
-//glyph ⇧ = 
-//glyph ⇨ = 
-//glyph ⇩ = 
-//glyph ⇪ = 
-//glyph ⇫ = 
-//glyph ⇬ = 
-//glyph ⇭ = 
-//glyph ⇮ = 
-//glyph ⇯ = 
+//map ⇠ = 
+//map ⇡ = 
+//map ⇢ = 
+//map ⇣ = 
+//map ⇤ = 
+//map ⇥ = 
+//map ⇦ = 
+//map ⇧ = 
+//map ⇨ = 
+//map ⇩ = 
+//map ⇪ = 
+//map ⇫ = 
+//map ⇬ = 
+//map ⇭ = 
+//map ⇮ = 
+//map ⇯ = 
 //
-//glyph ⇰ = 
-//glyph ⇱ = 
-//glyph ⇲ = 
-//glyph ⇳ = 
-//glyph ⇴ = 
-//glyph ⇵ = 
-//glyph ⇶ = 
-//glyph ⇷ = 
-//glyph ⇸ = 
-//glyph ⇹ = 
-//glyph ⇺ = 
-//glyph ⇻ = 
-//glyph ⇼ = 
-//glyph ⇽ = 
-//glyph ⇾ = 
-//glyph ⇿ = 
+//map ⇰ = 
+//map ⇱ = 
+//map ⇲ = 
+//map ⇳ = 
+//map ⇴ = 
+//map ⇵ = 
+//map ⇶ = 
+//map ⇷ = 
+//map ⇸ = 
+//map ⇹ = 
+//map ⇺ = 
+//map ⇻ = 
+//map ⇼ = 
+//map ⇽ = 
+//map ⇾ = 
+//map ⇿ = 
 

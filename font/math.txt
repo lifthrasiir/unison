@@ -132,12 +132,12 @@ glyph div = hyphen
 ........
 ........
 
-glyph + = plus
-glyph − = minus
-glyph ± = plusminus
-glyph ∓ = minusplus
-glyph × = times
-glyph ÷ = div
+map + = plus
+map − = minus
+map ± = plusminus
+map ∓ = minusplus
+map × = times
+map ÷ = div
 
 //--------------------------------------
 // logical operators
@@ -306,17 +306,17 @@ glyph exists
 ........
 ........
 
-glyph ¬ = not
-glyph ∧ = sp and@vvvv
-glyph ∨ = sp or@vvvv
-glyph ⊼ = nand
-glyph ⊽ = nor
-glyph ⊻ = xor
-glyph ∴ = therefore
-glyph ∵ = because
-glyph ∀ = forall
-glyph ∃ = exists
-glyph ∄ = exists overlapping-not-h12
+map ¬ = not
+map ∧ = sp and@vvvv
+map ∨ = sp or@vvvv
+map ⊼ = nand
+map ⊽ = nor
+map ⊻ = xor
+map ∴ = therefore
+map ∵ = because
+map ∀ = forall
+map ∃ = exists
+map ∄ = exists overlapping-not-h12
 
 //--------------------------------------
 // relational operators
@@ -483,15 +483,15 @@ glyph geq
 ........
 ........
 
-glyph = = eq
-glyph ≠ = eq overlapping-not-h10
-glyph ≡ = eq3
-glyph ≢ = eq3 overlapping-not-h10
-glyph ≣ = eq4
-glyph < = lt
-glyph > = gt
-glyph ≤ = le
-glyph ≥ = ge
-glyph ≦ = leq
-glyph ≧ = geq
+map = = eq
+map ≠ = eq overlapping-not-h10
+map ≡ = eq3
+map ≢ = eq3 overlapping-not-h10
+map ≣ = eq4
+map < = lt
+map > = gt
+map ≤ = le
+map ≥ = ge
+map ≦ = leq
+map ≧ = geq
 

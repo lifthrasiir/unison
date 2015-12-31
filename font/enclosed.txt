@@ -60,51 +60,51 @@ glyph enclosing-small-circle
 ................
 ................
 
-glyph ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ..
+map ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ..
 	enclosing-circle (0|1|2|3|4|5|6|7|8|9)@>>>>
-glyph ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = ..
+map ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = ..
 	enclosing-circle-bg 1-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
-glyph ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = ..
+map ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = ..
 	enclosing-circle-bg 2-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
-glyph ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = ..
+map ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = ..
 	enclosing-circle-bg 3-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
-glyph ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = ..
+map ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = ..
 	enclosing-circle-bg 4-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
-glyph ㊿ = ..
+map ㊿ = ..
 	enclosing-circle-bg 5-4x10@>>>>vvv 0-4x10@>>>>>>>>>vvv
 
-glyph Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ..
+map Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ..
 	enclosing-circle (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)-upper@>>>>
 
 // they need an individual control
-glyph ⓐ = enclosing-circle a-lower@>>>>^
-glyph ⓑ = enclosing-circle b-lower@>>>>
-glyph ⓒ = enclosing-circle c-lower@>>>>^
-glyph ⓓ = enclosing-circle d-lower@>>>>
-glyph ⓔ = enclosing-circle e-lower@>>>>^
-glyph ⓕ = enclosing-circle f-lower@>>>>
-glyph ⓖ = enclosing-circle g-lower@>>>>^
-glyph ⓗ = enclosing-circle h-lower@>>>>
-glyph ⓘ = enclosing-circle i-lower@>>>>
-glyph ⓙ = enclosing-circle j-lower-compressed@>>>>
-glyph ⓚ = enclosing-circle k-lower@>>>>
-glyph ⓛ = enclosing-circle l-lower@>>>>
-glyph ⓜ = enclosing-circle m-lower@>>>>^
-glyph ⓝ = enclosing-circle n-lower@>>>>^
-glyph ⓞ = enclosing-circle o-lower@>>>>^
-glyph ⓟ = enclosing-circle p-lower-compressed@>>>>^
-glyph ⓠ = enclosing-circle q-lower-compressed@>>>>^
-glyph ⓡ = enclosing-circle r-lower@>>>>^
-glyph ⓢ = enclosing-circle s-lower@>>>>^
-glyph ⓣ = enclosing-circle t-lower@>>>>
-glyph ⓤ = enclosing-circle u-lower@>>>>^
-glyph ⓥ = enclosing-circle v-lower@>>>>^
-glyph ⓦ = enclosing-circle w-lower@>>>>^
-glyph ⓧ = enclosing-circle x-lower@>>>>^
-glyph ⓨ = enclosing-circle y-lower@>>>>^
-glyph ⓩ = enclosing-circle z-lower@>>>>^
+map ⓐ = enclosing-circle a-lower@>>>>^
+map ⓑ = enclosing-circle b-lower@>>>>
+map ⓒ = enclosing-circle c-lower@>>>>^
+map ⓓ = enclosing-circle d-lower@>>>>
+map ⓔ = enclosing-circle e-lower@>>>>^
+map ⓕ = enclosing-circle f-lower@>>>>
+map ⓖ = enclosing-circle g-lower@>>>>^
+map ⓗ = enclosing-circle h-lower@>>>>
+map ⓘ = enclosing-circle i-lower@>>>>
+map ⓙ = enclosing-circle j-lower-compressed@>>>>
+map ⓚ = enclosing-circle k-lower@>>>>
+map ⓛ = enclosing-circle l-lower@>>>>
+map ⓜ = enclosing-circle m-lower@>>>>^
+map ⓝ = enclosing-circle n-lower@>>>>^
+map ⓞ = enclosing-circle o-lower@>>>>^
+map ⓟ = enclosing-circle p-lower-compressed@>>>>^
+map ⓠ = enclosing-circle q-lower-compressed@>>>>^
+map ⓡ = enclosing-circle r-lower@>>>>^
+map ⓢ = enclosing-circle s-lower@>>>>^
+map ⓣ = enclosing-circle t-lower@>>>>
+map ⓤ = enclosing-circle u-lower@>>>>^
+map ⓥ = enclosing-circle v-lower@>>>>^
+map ⓦ = enclosing-circle w-lower@>>>>^
+map ⓧ = enclosing-circle x-lower@>>>>^
+map ⓨ = enclosing-circle y-lower@>>>>^
+map ⓩ = enclosing-circle z-lower@>>>>^
 
-glyph ➀|➁|➂|➃|➄|➅|➆|➇|➈|➉ = ..
+map ➀|➁|➂|➃|➄|➅|➆|➇|➈|➉ = ..
 	enclosing-small-circle (1|2|3|4|5|6|7|8|9|10)-5x6@>>>>>>vvvvv
 
 //--------------------------------------
@@ -165,16 +165,16 @@ glyph enclosing-small-black-circle
 ................
 ................
 
-glyph ⓿|❶|❷|❸|❹|❺|❻|❼|❽|❾ = ..
+map ⓿|❶|❷|❸|❹|❺|❻|❼|❽|❾ = ..
 	enclosing-black-circle (0|1|2|3|4|5|6|7|8|9)@>>>>!negate
-glyph ❿|⓫|⓬|⓭|⓮|⓯|⓰|⓱|⓲|⓳ = ..
+map ❿|⓫|⓬|⓭|⓮|⓯|⓰|⓱|⓲|⓳ = ..
 	enclosing-black-circle-bg ..
 	1-4x10@>>>>vvv!negate (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv!negate
-glyph ⓴ = ..
+map ⓴ = ..
 	enclosing-black-circle-bg ..
 	2-4x10@>>>>vvv!negate 0-4x10@>>>>>>>>>vvv!negate
 
-glyph ➊|➋|➌|➍|➎|➏|➐|➑|➒|➓ = ..
+map ➊|➋|➌|➍|➎|➏|➐|➑|➒|➓ = ..
 	enclosing-small-black-circle (1|2|3|4|5|6|7|8|9|10)-5x6@>>>>>>vvvvv!negate
 
 //--------------------------------------
@@ -198,7 +198,7 @@ glyph enclosing-circle-in-black-square
 ..@@@@@@@@@@@@@.
 ................
 
-glyph ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ..
+map ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ..
 	enclosing-circle-in-black-square (1|2|3|4|5|6|7|8)-4x10@>>>>vvv 0-4x10@>>>>>>>>>vvv
 
 //--------------------------------------
@@ -206,7 +206,7 @@ glyph ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ..
 
 glyph enclosing-dcircle = enclosing-circle enclosing-small-circle
 
-glyph ⓵|⓶|⓷|⓸|⓹|⓺|⓻|⓼|⓽|⓾ = ..
+map ⓵|⓶|⓷|⓸|⓹|⓺|⓻|⓼|⓽|⓾ = ..
 	enclosing-dcircle (1|2|3|4|5|6|7|8|9|10)-5x6@>>>>>>vvvvv
 
 //--------------------------------------
@@ -248,39 +248,39 @@ glyph enclosing-parens-bg
 ................
 ................
 
-glyph ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ..
+map ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ..
 	enclosing-parens (1|2|3|4|5|6|7|8|9)@>>>>
-glyph ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = ..
+map ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = ..
 	enclosing-parens-bg 1-4x10@>>>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>>>vvv
-glyph ⒇ = ..
+map ⒇ = ..
 	enclosing-parens-bg 2-4x10@>>>>vvv 0-4x10@>>>>>>>>>vvv
 
-glyph ⒜ = enclosing-parens a-lower@>>>>^
-glyph ⒝ = enclosing-parens b-lower@>>>>
-glyph ⒞ = enclosing-parens c-lower@>>>>^
-glyph ⒟ = enclosing-parens d-lower@>>>>
-glyph ⒠ = enclosing-parens e-lower@>>>>^
-glyph ⒡ = enclosing-parens f-lower@>>>>
-glyph ⒢ = enclosing-parens g-lower@>>>>^
-glyph ⒣ = enclosing-parens h-lower@>>>>
-glyph ⒤ = enclosing-parens i-lower@>>>>
-glyph ⒥ = enclosing-parens j-lower-compressed@>>>>
-glyph ⒦ = enclosing-parens k-lower@>>>>
-glyph ⒧ = enclosing-parens l-lower@>>>>
-glyph ⒨ = enclosing-parens m-lower@>>>>^
-glyph ⒩ = enclosing-parens n-lower@>>>>^
-glyph ⒪ = enclosing-parens o-lower@>>>>^
-glyph ⒫ = enclosing-parens p-lower-compressed@>>>>^
-glyph ⒬ = enclosing-parens q-lower-compressed@>>>>^
-glyph ⒭ = enclosing-parens r-lower@>>>>^
-glyph ⒮ = enclosing-parens s-lower@>>>>^
-glyph ⒯ = enclosing-parens t-lower@>>>>
-glyph ⒰ = enclosing-parens u-lower@>>>>^
-glyph ⒱ = enclosing-parens v-lower@>>>>^
-glyph ⒲ = enclosing-parens w-lower@>>>>^
-glyph ⒳ = enclosing-parens x-lower@>>>>^
-glyph ⒴ = enclosing-parens y-lower@>>>>^
-glyph ⒵ = enclosing-parens z-lower@>>>>^
+map ⒜ = enclosing-parens a-lower@>>>>^
+map ⒝ = enclosing-parens b-lower@>>>>
+map ⒞ = enclosing-parens c-lower@>>>>^
+map ⒟ = enclosing-parens d-lower@>>>>
+map ⒠ = enclosing-parens e-lower@>>>>^
+map ⒡ = enclosing-parens f-lower@>>>>
+map ⒢ = enclosing-parens g-lower@>>>>^
+map ⒣ = enclosing-parens h-lower@>>>>
+map ⒤ = enclosing-parens i-lower@>>>>
+map ⒥ = enclosing-parens j-lower-compressed@>>>>
+map ⒦ = enclosing-parens k-lower@>>>>
+map ⒧ = enclosing-parens l-lower@>>>>
+map ⒨ = enclosing-parens m-lower@>>>>^
+map ⒩ = enclosing-parens n-lower@>>>>^
+map ⒪ = enclosing-parens o-lower@>>>>^
+map ⒫ = enclosing-parens p-lower-compressed@>>>>^
+map ⒬ = enclosing-parens q-lower-compressed@>>>>^
+map ⒭ = enclosing-parens r-lower@>>>>^
+map ⒮ = enclosing-parens s-lower@>>>>^
+map ⒯ = enclosing-parens t-lower@>>>>
+map ⒰ = enclosing-parens u-lower@>>>>^
+map ⒱ = enclosing-parens v-lower@>>>>^
+map ⒲ = enclosing-parens w-lower@>>>>^
+map ⒳ = enclosing-parens x-lower@>>>>^
+map ⒴ = enclosing-parens y-lower@>>>>^
+map ⒵ = enclosing-parens z-lower@>>>>^
 
 //--------------------------------------
 // with full stop
@@ -321,10 +321,10 @@ glyph enclosing-full-stop-bg
 ................
 ................
 
-glyph ⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = ..
+map ⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = ..
 	enclosing-full-stop (1|2|3|4|5|6|7|8|9)@>>
-glyph ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = ..
+map ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = ..
 	enclosing-full-stop-bg 1-4x10@>>vvv (0|1|2|3|4|5|6|7|8|9)-4x10@>>>>>>>vvv
-glyph ⒛ = ..
+map ⒛ = ..
 	enclosing-full-stop-bg 2-4x10@>>vvv 0-4x10@>>>>>>>vvv
 

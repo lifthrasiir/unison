@@ -1518,165 +1518,165 @@ glyph cy-ya-lower
 ........
 ........
 
-glyph А = cy-a-upper
-glyph Б = cy-be-upper
-glyph В = cy-ve-upper
-glyph Г = cy-ghe-upper
-glyph Д = cy-de-upper
-glyph Ђ = cy-dje-upper
-glyph Е = cy-ye-upper
-glyph Є = cy-yest-upper
-glyph Ж = cy-zhe-upper
-glyph З = cy-ze-upper
-glyph Ԑ = cy-ze-reversed-upper
-glyph Ѕ = cy-dze-upper
-glyph Ꙅ = cy-dze-reversed-upper
-glyph И = cy-i-upper
-glyph І = cy-dotted-i-upper
-glyph Ј = cy-je-upper
-glyph К = cy-ka-upper
-glyph Л = cy-el-upper
-glyph Љ = cy-lje-upper
-glyph М = cy-em-upper
-glyph Н = cy-en-upper
-glyph Њ = cy-nje-upper
-glyph О = cy-o-upper
-glyph П = cy-pe-upper
-glyph Р = cy-er-upper
-glyph С = cy-es-upper
-glyph Т = cy-te-upper
-glyph Ћ = cy-tje-upper
-glyph У = cy-u-upper
-glyph Ф = cy-ef-upper
-glyph Х = cy-ha-upper
-glyph Ц = cy-tse-upper
-glyph Ч = cy-che-upper
-glyph Џ = cy-dzhe-upper
-glyph Ш = cy-sha-upper
-glyph Щ = cy-shcha-upper
-glyph Ъ = cy-yer-upper
-glyph Ы = cy-yery-upper
-glyph Ь = cy-yeri-upper
-glyph Э = cy-e-upper
-glyph Ю = cy-yu-upper
-glyph Я = cy-ya-upper
+map А = cy-a-upper
+map Б = cy-be-upper
+map В = cy-ve-upper
+map Г = cy-ghe-upper
+map Д = cy-de-upper
+map Ђ = cy-dje-upper
+map Е = cy-ye-upper
+map Є = cy-yest-upper
+map Ж = cy-zhe-upper
+map З = cy-ze-upper
+map Ԑ = cy-ze-reversed-upper
+map Ѕ = cy-dze-upper
+map Ꙅ = cy-dze-reversed-upper
+map И = cy-i-upper
+map І = cy-dotted-i-upper
+map Ј = cy-je-upper
+map К = cy-ka-upper
+map Л = cy-el-upper
+map Љ = cy-lje-upper
+map М = cy-em-upper
+map Н = cy-en-upper
+map Њ = cy-nje-upper
+map О = cy-o-upper
+map П = cy-pe-upper
+map Р = cy-er-upper
+map С = cy-es-upper
+map Т = cy-te-upper
+map Ћ = cy-tje-upper
+map У = cy-u-upper
+map Ф = cy-ef-upper
+map Х = cy-ha-upper
+map Ц = cy-tse-upper
+map Ч = cy-che-upper
+map Џ = cy-dzhe-upper
+map Ш = cy-sha-upper
+map Щ = cy-shcha-upper
+map Ъ = cy-yer-upper
+map Ы = cy-yery-upper
+map Ь = cy-yeri-upper
+map Э = cy-e-upper
+map Ю = cy-yu-upper
+map Я = cy-ya-upper
 
-glyph а = cy-a-lower
-glyph б = cy-be-lower
-glyph в = cy-ve-lower
-glyph г = cy-ghe-lower
-glyph д = cy-de-lower
-glyph ђ = cy-dje-lower
-glyph е = cy-ye-lower
-glyph є = cy-yest-lower
-glyph ж = cy-zhe-lower
-glyph з = cy-ze-lower
-glyph ԑ = cy-ze-reversed-lower
-glyph ѕ = cy-dze-lower
-glyph ꙅ = cy-dze-reversed-lower
-glyph и = cy-i-lower
-glyph і = cy-dotted-i-lower
-glyph ј = cy-je-lower
-glyph к = cy-ka-lower
-glyph л = cy-el-lower
-glyph љ = cy-lje-lower
-glyph м = cy-em-lower
-glyph н = cy-en-lower
-glyph њ = cy-nje-lower
-glyph о = cy-o-lower
-glyph п = cy-pe-lower
-glyph р = cy-er-lower
-glyph с = cy-es-lower
-glyph т = cy-te-lower
-glyph ћ = cy-tje-lower
-glyph у = cy-u-lower
-glyph ф = cy-ef-lower
-glyph х = cy-ha-lower
-glyph ц = cy-tse-lower
-glyph ч = cy-che-lower
-glyph џ = cy-dzhe-lower
-glyph ш = cy-sha-lower
-glyph щ = cy-shcha-lower
-glyph ъ = cy-yer-lower
-glyph ы = cy-yery-lower
-glyph ь = cy-yeri-lower
-glyph э = cy-e-lower
-glyph ю = cy-yu-lower
-glyph я = cy-ya-lower
+map а = cy-a-lower
+map б = cy-be-lower
+map в = cy-ve-lower
+map г = cy-ghe-lower
+map д = cy-de-lower
+map ђ = cy-dje-lower
+map е = cy-ye-lower
+map є = cy-yest-lower
+map ж = cy-zhe-lower
+map з = cy-ze-lower
+map ԑ = cy-ze-reversed-lower
+map ѕ = cy-dze-lower
+map ꙅ = cy-dze-reversed-lower
+map и = cy-i-lower
+map і = cy-dotted-i-lower
+map ј = cy-je-lower
+map к = cy-ka-lower
+map л = cy-el-lower
+map љ = cy-lje-lower
+map м = cy-em-lower
+map н = cy-en-lower
+map њ = cy-nje-lower
+map о = cy-o-lower
+map п = cy-pe-lower
+map р = cy-er-lower
+map с = cy-es-lower
+map т = cy-te-lower
+map ћ = cy-tje-lower
+map у = cy-u-lower
+map ф = cy-ef-lower
+map х = cy-ha-lower
+map ц = cy-tse-lower
+map ч = cy-che-lower
+map џ = cy-dzhe-lower
+map ш = cy-sha-lower
+map щ = cy-shcha-lower
+map ъ = cy-yer-lower
+map ы = cy-yery-lower
+map ь = cy-yeri-lower
+map э = cy-e-lower
+map ю = cy-yu-lower
+map я = cy-ya-lower
 
 //--------------------------------------
 // with diaeresis
 
-glyph Ӓ = cy-a-upper dia-upper
-glyph Ё = cy-ye-upper dia-upper
-glyph Ӝ = cy-zhe-upper dia-upper
-glyph Ӟ = cy-ze-upper dia-upper
-glyph Ӥ = cy-i-upper dia-upper
-glyph Ї = cy-dotted-i-upper dia-upper-bg
-glyph Ӧ = cy-o-upper dia-upper
-glyph Ӱ = cy-u-upper dia-upper
-glyph Ӵ = cy-che-upper dia-upper
-glyph Ӭ = cy-e-upper dia-upper
-glyph Ӹ = cy-yery-upper dia-upper
+map Ӓ = cy-a-upper dia-upper
+map Ё = cy-ye-upper dia-upper
+map Ӝ = cy-zhe-upper dia-upper
+map Ӟ = cy-ze-upper dia-upper
+map Ӥ = cy-i-upper dia-upper
+map Ї = cy-dotted-i-upper dia-upper-bg
+map Ӧ = cy-o-upper dia-upper
+map Ӱ = cy-u-upper dia-upper
+map Ӵ = cy-che-upper dia-upper
+map Ӭ = cy-e-upper dia-upper
+map Ӹ = cy-yery-upper dia-upper
 
-glyph ӓ = cy-a-lower dia-lower
-glyph ё = cy-ye-lower dia-lower
-glyph ӝ = cy-zhe-lower dia-lower
-glyph ӟ = cy-ze-lower dia-lower
-glyph ӥ = cy-i-lower dia-lower
-glyph ї = cy-dotless-dotted-i-lower dia-lower-bg@v
-glyph ӧ = cy-o-lower dia-lower
-glyph ӱ = cy-u-lower dia-lower
-glyph ӵ = cy-che-lower dia-lower
-glyph ӭ = cy-e-lower dia-lower
-glyph ӹ = cy-yery-lower dia-lower
+map ӓ = cy-a-lower dia-lower
+map ё = cy-ye-lower dia-lower
+map ӝ = cy-zhe-lower dia-lower
+map ӟ = cy-ze-lower dia-lower
+map ӥ = cy-i-lower dia-lower
+map ї = cy-dotless-dotted-i-lower dia-lower-bg@v
+map ӧ = cy-o-lower dia-lower
+map ӱ = cy-u-lower dia-lower
+map ӵ = cy-che-lower dia-lower
+map ӭ = cy-e-lower dia-lower
+map ӹ = cy-yery-lower dia-lower
 
 //--------------------------------------
 // with acute accents
 
-glyph Ѓ = cy-ghe-upper acute-upper
-glyph Ќ = cy-ka-upper acute-upper
+map Ѓ = cy-ghe-upper acute-upper
+map Ќ = cy-ka-upper acute-upper
 
-glyph ѓ = cy-ghe-lower acute-lower
-glyph ќ = cy-ka-lower acute-lower
+map ѓ = cy-ghe-lower acute-lower
+map ќ = cy-ka-lower acute-lower
 
 //--------------------------------------
 // with double acute accents
 
-glyph Ӳ = cy-u-upper dacute-upper
+map Ӳ = cy-u-upper dacute-upper
 
-glyph ӳ = cy-u-lower dacute-lower
+map ӳ = cy-u-lower dacute-lower
 
 //--------------------------------------
 // with grave accents
 
-glyph Ѐ = cy-ye-upper grave-upper
-glyph Ѝ = cy-i-upper grave-upper
+map Ѐ = cy-ye-upper grave-upper
+map Ѝ = cy-i-upper grave-upper
 
-glyph ѐ = cy-ye-lower grave-lower
-glyph ѝ = cy-i-lower grave-lower
+map ѐ = cy-ye-lower grave-lower
+map ѝ = cy-i-lower grave-lower
 
 //--------------------------------------
 // with macron
 
-glyph Ӣ = cy-i-upper mac-upper
-glyph Ӯ = cy-u-upper mac-upper
+map Ӣ = cy-i-upper mac-upper
+map Ӯ = cy-u-upper mac-upper
 
-glyph ӣ = cy-i-lower mac-lower
-glyph ӯ = cy-u-lower mac-lower
+map ӣ = cy-i-lower mac-lower
+map ӯ = cy-u-lower mac-lower
 
 //--------------------------------------
 // with breve
 
-glyph Ӑ = cy-a-upper breve-upper
-glyph Ӗ = cy-ye-upper breve-upper
-glyph Й = cy-i-upper breve-upper
-glyph Ў = cy-u-upper breve-upper
+map Ӑ = cy-a-upper breve-upper
+map Ӗ = cy-ye-upper breve-upper
+map Й = cy-i-upper breve-upper
+map Ў = cy-u-upper breve-upper
 
-glyph ӑ = cy-a-lower breve-lower
-glyph ӗ = cy-ye-lower breve-lower
-glyph й = cy-i-lower breve-lower
-glyph ў = cy-u-lower breve-lower
+map ӑ = cy-a-lower breve-lower
+map ӗ = cy-ye-lower breve-lower
+map й = cy-i-lower breve-lower
+map ў = cy-u-lower breve-lower
 
 //--------------------------------------
 // archaic cyrillic
@@ -1881,17 +1881,17 @@ glyph cy-multiocular-o
 
 // everyone seems to like these obscure glyphs.
 
-glyph Ꙩ = cy-monocular-o-upper
-glyph Ꙫ = cy-binocular-o-upper
-glyph Ꙭ = cy-double-monocular-o-upper
-glyph Ꚙ = cy-double-o-upper
-glyph Ꚛ = cy-crossed-o-upper
+map Ꙩ = cy-monocular-o-upper
+map Ꙫ = cy-binocular-o-upper
+map Ꙭ = cy-double-monocular-o-upper
+map Ꚙ = cy-double-o-upper
+map Ꚛ = cy-crossed-o-upper
 
-glyph ꙩ = cy-monocular-o-lower
-glyph ꙫ = cy-binocular-o-lower
-glyph ꙭ = cy-double-monocular-o-lower
-glyph ꚙ = cy-double-o-lower
-glyph ꚛ = cy-crossed-o-lower
+map ꙩ = cy-monocular-o-lower
+map ꙫ = cy-binocular-o-lower
+map ꙭ = cy-double-monocular-o-lower
+map ꚙ = cy-double-o-lower
+map ꚛ = cy-crossed-o-lower
 
-glyph ꙮ = cy-multiocular-o
+map ꙮ = cy-multiocular-o
 

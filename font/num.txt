@@ -1,7 +1,7 @@
 ////////////////////////////////////////
 // numerals
 
-0
+glyph 0
 ........
 ........
 ........
@@ -19,7 +19,7 @@
 ........
 ........
 
-1
+glyph 1
 ........
 ........
 ........
@@ -37,7 +37,7 @@
 ........
 ........
 
-2
+glyph 2
 ........
 ........
 ........
@@ -55,7 +55,7 @@
 ........
 ........
 
-3
+glyph 3
 ........
 ........
 ........
@@ -73,7 +73,7 @@
 ........
 ........
 
-4
+glyph 4
 ........
 ........
 ........
@@ -91,7 +91,7 @@
 ........
 ........
 
-5
+glyph 5
 ........
 ........
 ........
@@ -109,7 +109,7 @@
 ........
 ........
 
-6
+glyph 6
 ........
 ........
 ........
@@ -127,7 +127,7 @@
 ........
 ........
 
-7
+glyph 7
 ........
 ........
 ........
@@ -145,7 +145,7 @@
 ........
 ........
 
-8
+glyph 8
 ........
 ........
 ........
@@ -163,7 +163,7 @@
 ........
 ........
 
-9
+glyph 9
 ........
 ........
 ........
@@ -180,6 +180,17 @@
 ........
 ........
 ........
+
+map 0 = 0
+map 1 = 1
+map 2 = 2
+map 3 = 3
+map 4 = 4
+map 5 = 5
+map 6 = 6
+map 7 = 7
+map 8 = 8
+map 9 = 9
 
 //--------------------------------------
 // narrower numbers
@@ -548,27 +559,27 @@ d@@@b
 glyph sup-(0|1|2|3|4|5|6|7|8|9) = sp sm-(0|1|2|3|4|5|6|7|8|9)@>>v
 glyph sub-(0|1|2|3|4|5|6|7|8|9) = sp sm-(0|1|2|3|4|5|6|7|8|9)@>>vvvvvvvvvv
 
-glyph ⁰ = sup-0
-glyph ¹ = sup-1
-glyph ² = sup-2
-glyph ³ = sup-3
-glyph ⁴ = sup-4
-glyph ⁵ = sup-5
-glyph ⁶ = sup-6
-glyph ⁷ = sup-7
-glyph ⁸ = sup-8
-glyph ⁹ = sup-9
+map ⁰ = sup-0
+map ¹ = sup-1
+map ² = sup-2
+map ³ = sup-3
+map ⁴ = sup-4
+map ⁵ = sup-5
+map ⁶ = sup-6
+map ⁷ = sup-7
+map ⁸ = sup-8
+map ⁹ = sup-9
 
-glyph ₀ = sub-0
-glyph ₁ = sub-1
-glyph ₂ = sub-2
-glyph ₃ = sub-3
-glyph ₄ = sub-4
-glyph ₅ = sub-5
-glyph ₆ = sub-6
-glyph ₇ = sub-7
-glyph ₈ = sub-8
-glyph ₉ = sub-9
+map ₀ = sub-0
+map ₁ = sub-1
+map ₂ = sub-2
+map ₃ = sub-3
+map ₄ = sub-4
+map ₅ = sub-5
+map ₆ = sub-6
+map ₇ = sub-7
+map ₈ = sub-8
+map ₉ = sub-9
 
 //--------------------------------------
 // vulgar fractions
@@ -861,36 +872,36 @@ glyph num-7 = sm-7@X
 ........
 ........
 
-glyph ⅟ = num-1 fraction-slash
+map ⅟ = num-1 fraction-slash
 
-glyph ½ = num-1 fraction-slash denom-2
+map ½ = num-1 fraction-slash denom-2
 
-glyph ↉ = num-0 fraction-slash denom-3
-glyph ⅓ = num-1 fraction-slash denom-3
-glyph ⅔ = num-2 fraction-slash denom-3
+map ↉ = num-0 fraction-slash denom-3
+map ⅓ = num-1 fraction-slash denom-3
+map ⅔ = num-2 fraction-slash denom-3
 
-glyph ¼ = num-1 fraction-slash denom-4
-glyph ¾ = num-3 fraction-slash denom-4
+map ¼ = num-1 fraction-slash denom-4
+map ¾ = num-3 fraction-slash denom-4
 
-glyph ⅕ = num-1 fraction-slash denom-5
-glyph ⅖ = num-2 fraction-slash denom-5
-glyph ⅗ = num-3 fraction-slash denom-5
-glyph ⅘ = num-4 fraction-slash denom-5
+map ⅕ = num-1 fraction-slash denom-5
+map ⅖ = num-2 fraction-slash denom-5
+map ⅗ = num-3 fraction-slash denom-5
+map ⅘ = num-4 fraction-slash denom-5
 
-glyph ⅙ = num-1 fraction-slash denom-6
-glyph ⅚ = num-5 fraction-slash denom-6
+map ⅙ = num-1 fraction-slash denom-6
+map ⅚ = num-5 fraction-slash denom-6
 
-glyph ⅐ = num-1 fraction-slash denom-7
+map ⅐ = num-1 fraction-slash denom-7
 
-glyph ⅛ = num-1 fraction-slash denom-8
-glyph ⅜ = num-3 fraction-slash denom-8
-glyph ⅝ = num-5 fraction-slash denom-8
-glyph ⅞ = num-7 fraction-slash denom-8
+map ⅛ = num-1 fraction-slash denom-8
+map ⅜ = num-3 fraction-slash denom-8
+map ⅝ = num-5 fraction-slash denom-8
+map ⅞ = num-7 fraction-slash denom-8
 
-glyph ⅑ = num-1 fraction-slash denom-9
+map ⅑ = num-1 fraction-slash denom-9
 
 // we are out of space now.
-glyph ⅒ = fraction-slash@X
+glyph 1-over-10 = fraction-slash@X
 ........
 ........
 ........
@@ -907,4 +918,6 @@ glyph ⅒ = fraction-slash@X
 ........
 ........
 ........
+
+map ⅒ = 1-over-10
 
