@@ -108,15 +108,18 @@ LEFTMOST[PX_QUAD3] = LEFTMOST[PX_SLANT2H] = LEFTMOST[PX_SLANT4H] = 0.5
 
 
 Delta = namedtuple('Delta', 'value')
+Adjoin = namedtuple('Adjoin', 'value')
 
-# data = None | list of pixel codes | subglyph name string
+# data = None | list of pixel codes | subglyph name | Adjoin(subglyph name)
 # top/left can be a Delta value instead of the actual value; will be resolved later.
 # negated is 1 if the subglyph should be negated; >=2 matters for complex nesting.
 Subglyph = namedtuple('Subglyph', 'top left height width stride data negated')
 
 # height/width should be the intrinsic height/width, and may be filled by resolve_glyphs.
 # preferred_top/left becomes the actual offset when the glyph is used at the top level.
-Glyph = namedtuple('Glyph', 'flags height width preferred_top preferred_left subglyphs')
+# points are named points (most importantly, `-name`/`+name` for adjoining target/source points).
+# note that all internal coordinates exclude preferred_top/left.
+Glyph = namedtuple('Glyph', 'flags height width preferred_top preferred_left subglyphs points')
 
 class ParseError(ValueError): pass
 
@@ -383,8 +386,8 @@ class Font(object):
         if fp: self.read(fp)
 
     def read(self, fp):
-        SubglyphArgs = namedtuple('SubglyphArgs', 'name placeholder roff coff filters')
-        GlyphArgs = namedtuple('GlyphArgs', 'name flags lines parts')
+        SubglyphArgs = namedtuple('SubglyphArgs', 'name placeholder roff coff filters adjoin')
+        GlyphArgs = namedtuple('GlyphArgs', 'name flags lines parts pos2marks')
 
         CHAR_ITEM_PATTERN = re.compile(ur'''^(?:
             u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)?
@@ -451,26 +454,32 @@ class Font(object):
 
         def parse_subglyph_spec(s):
             filters = []
+            adjoin = True
             if len(s) >= 3:
-                s, _, filters = s.partition('!')
-                name, _, placeholder = s.partition('@')
+                s, _, filters = s.partition('!') # so that `filters` are always kept
                 filters = map(unicode.lower, filter(None, filters.split('!')))
                 for f in filters:
                     if f not in ('negate',):
                         raise ParseError(u'unrecognized filter name %r in '
                                          u'subglyph spec %r' % (f, s))
+
+                name, _, placeholder = s.partition('@')
                 if name:
+                    if name.startswith('-'):
+                        adjoin = False
+                        name = name[1:]
                     if placeholder and all(c in '^v<>' for c in placeholder):
                         # displacement spec. e.g. ced@vv moves a cedilla one pixel down
                         roff = placeholder.count('v') - placeholder.count('^')
                         coff = placeholder.count('>') - placeholder.count('<')
                         return SubglyphArgs(name=parse_glyph_name(name), placeholder=None,
-                                            roff=roff, coff=coff, filters=filters)
+                                            roff=roff, coff=coff, filters=filters, adjoin=adjoin)
                     elif len(placeholder) == 1:
                         return SubglyphArgs(name=parse_glyph_name(name), placeholder=placeholder,
-                                            roff=None, coff=None, filters=filters)
+                                            roff=None, coff=None, filters=filters, adjoin=adjoin)
+
             return SubglyphArgs(name=parse_glyph_name(s), placeholder=None,
-                                roff=None, coff=None, filters=filters)
+                                roff=None, coff=None, filters=filters, adjoin=adjoin)
 
         def parse_pixels(lines, bbox):
             width = len(lines[0])
@@ -561,7 +570,7 @@ class Font(object):
                     pixels.append(v)
             return pixels
 
-        def flush_glyph(name, flags, lines, parts):
+        def flush_glyph(name, flags, lines, parts, pos2marks):
             if not lines and not parts:
                 raise ParseError(u'data for glyph %s is missing' % name)
 
@@ -573,20 +582,40 @@ class Font(object):
                 return min(prev[0],r), min(prev[1],c), max(prev[2],r), max(prev[3],c)
 
             subglyphs = []
+            points = {}
             if lines:
                 # strip placeholders and out-of-bbox markers (+)
                 placeholders = set(p.placeholder for p in parts if p.placeholder)
                 newlines = []
-                for r, line in enumerate(lines):
-                    newline = []
-                    for c, px in enumerate(line):
-                        if px in placeholders:
-                            placeholder_bboxes[px] = update_bbox(placeholder_bboxes.get(px), r, c)
-                            px = '!'
-                        if px != '+':
-                            bbox = update_bbox(bbox, r, c)
-                        newline.append(px)
-                    newlines.append(''.join(newline) + '.')
+                rowmarks = {}
+                colmarks = {}
+                r = 0 # should skip lines with mark =
+                for line, rowmark in lines:
+                    # a row with mark = is used to define column marks
+                    if rowmark == '=':
+                        for c, colmark in enumerate(line):
+                            if colmark != '=':
+                                if colmark in colmarks:
+                                    raise ParseError(u'duplicate column mark %r in glyph %s' %
+                                                     (colmark, name))
+                                colmarks[colmark] = c
+                    else:
+                        if rowmark:
+                            if rowmark in rowmarks:
+                                raise ParseError(u'duplicate row mark %r in glyph %s' %
+                                                 (rowmark, name))
+                            rowmarks[rowmark] = r
+                        newline = []
+                        for c, px in enumerate(line):
+                            if px in placeholders:
+                                placeholder_bboxes[px] = \
+                                        update_bbox(placeholder_bboxes.get(px), r, c)
+                                px = '!'
+                            if px != '+':
+                                bbox = update_bbox(bbox, r, c)
+                            newline.append(px)
+                        newlines.append(''.join(newline) + '.')
+                        r += 1
                 newlines.append('.' * len(newlines[0]))
                 lines = newlines
 
@@ -596,6 +625,27 @@ class Font(object):
                     pixels = parse_pixels(lines, bbox)
                 except ParseError as e:
                     raise ParseError(u'parsing glyph for %s failed: %s' % (name, e))
+
+                # resolve named positions
+                for posname, mark in pos2marks.items():
+                    assert 1 <= len(mark) <= 2
+                    try:
+                        pos1 = rowmarks[mark[0]], colmarks[mark[1:] or mark]
+                    except KeyError:
+                        pos1 = None
+                    try:
+                        pos2 = rowmarks[mark[1:] or mark], colmarks[mark[0]]
+                    except KeyError:
+                        pos2 = None
+                    if pos1 and pos2 and len(mark) == 2:
+                        raise ParseError(u'ambiguous mark %r for position name %r in glyph %s' %
+                                         (mark, posname, name))
+                    elif pos1 or pos2:
+                        r, c = pos1 or pos2
+                        points[posname] = r - bbox[0], c - bbox[1]
+                    else:
+                        raise ParseError(u'missing mark %r for position name %r in glyph %s' %
+                                         (mark, posname, name))
 
                 # this may be empty if entire glyph consists of subglyphs.
                 top, left, bottom, right = bbox
@@ -609,6 +659,7 @@ class Font(object):
             coff = bbox[1] if bbox else 0
             for p in parts:
                 negated = 1 if 'negate' in p.filters else 0
+                subname = Adjoin(value=p.name) if p.adjoin else p.name
                 if p.placeholder in placeholder_bboxes:
                     subtop, subleft, subbottom, subright = placeholder_bboxes[p.placeholder]
                     subheight = subbottom - subtop + 1
@@ -616,16 +667,17 @@ class Font(object):
                     subglyphs.append(Subglyph(top=subtop-roff+(p.roff or 0),
                                               left=subleft-coff+(p.coff or 0),
                                               width=subwidth, height=subheight,
-                                              stride=None, data=p.name, negated=negated))
+                                              stride=None, data=subname, negated=negated))
                 else:
                     subglyphs.append(Subglyph(top=None if p.roff is None else Delta(p.roff),
                                               left=None if p.coff is None else Delta(p.coff),
                                               width=None, height=None,
-                                              stride=None, data=p.name, negated=negated))
+                                              stride=None, data=subname, negated=negated))
 
             if name == u'.notdef': flags |= G_STICKY
             self.glyphs[name] = Glyph(flags=flags, height=None, width=None,
-                                      preferred_top=roff, preferred_left=coff, subglyphs=subglyphs)
+                                      preferred_top=roff, preferred_left=coff,
+                                      subglyphs=subglyphs, points=points)
 
         def define_glyph(name, specs):
             if isinstance(name, basestring):
@@ -641,7 +693,7 @@ class Font(object):
                 placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
                 if len(placeholder_chars) != len(set(placeholder_chars)):
                     raise ParseError(u'duplicate placeholder characters for glyph %s' % name)
-                return GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec)
+                return GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec, pos2marks={})
             else:
                 # multiple glyph definition (combined glyph only)
                 names = name
@@ -660,7 +712,7 @@ class Font(object):
                     subglyph_spec[j] = p._replace(name=subnames)
                 for i, name in enumerate(names):
                     spec = [p._replace(name=p.name.next()) for p in subglyph_spec]
-                    flush_glyph(name, 0, [], spec)
+                    flush_glyph(name, 0, [], spec, {})
                 return None
 
         current_glyph = None # or GlyphArgs
@@ -690,7 +742,7 @@ class Font(object):
                     name = parse_glyph_name(args[1])
                     if not isinstance(name, basestring):
                         raise ParseError(u'unexpected arguments to `glyph`')
-                    current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[])
+                    current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[], pos2marks={})
                 else:
                     raise ParseError(u'unexpected arguments to `glyph`')
 
@@ -730,16 +782,49 @@ class Font(object):
                 if not current_glyph:
                     raise ParseError(u'no glyph currently active')
 
-                if args[0] == 'inline':
-                    current_glyph = current_glyph._replace(flags=current_glyph.flags | G_INLINE)
+                # glyph definition and command may go in the same line
+                retrying = False
+                while args:
+                    first = args.pop(0)
 
-                elif args[0] == 'sticky':
-                    current_glyph = current_glyph._replace(flags=current_glyph.flags | G_STICKY)
+                    if first == 'inline':
+                        current_glyph = current_glyph._replace(flags=current_glyph.flags | G_INLINE)
+                        break
 
-                elif len(args) == 1:
-                    if current_glyph.lines and len(current_glyph.lines[0]) != len(args[0]):
-                        raise ParseError(u'inconsistent glyph width for %s' % current_glyph.name)
-                    current_glyph.lines.append(args[0])
+                    elif first == 'sticky':
+                        current_glyph = current_glyph._replace(flags=current_glyph.flags | G_STICKY)
+                        break
+
+                    elif first == 'point':
+                        # point <point>@<mark> ...
+                        for pointspec in args:
+                            posname, _, mark = pointspec.partition('@')
+                            posname = posname.lower()
+                            if not (posname and 1 <= len(mark) <= 2):
+                                raise ParseError(u'invalid point specification %r in glyph %s' %
+                                                 (pointspec, current_glyph.name))
+                            if posname in current_glyph.pos2marks:
+                                raise ParseError(u'duplicate position name %r in glyph %s' %
+                                                 (posname, current_glyph.name))
+                            current_glyph.pos2marks[posname] = mark
+                        break
+
+                    elif retrying:
+                        raise ParseError(u'unrecogized command %r after definition in glyph %s' %
+                                         (first, current_glyph.name))
+
+                    else:
+                        if current_glyph.lines and len(current_glyph.lines[0][0]) != len(first):
+                            raise ParseError(u'inconsistent glyph width for %s' %
+                                             current_glyph.name)
+
+                        if args and len(args[0]) == 1:
+                            rowmark = args.pop(0)
+                        else:
+                            rowmark = None
+                        current_glyph.lines.append((first, rowmark))
+                        retrying = True
+
         if current_glyph: flush_glyph(*current_glyph)
 
     def resolve_glyphs(self):
@@ -752,61 +837,92 @@ class Font(object):
             assert isinstance(gg.preferred_top, int)
             assert isinstance(gg.preferred_left, int)
 
-            if gg.height is None or gg.width is None:
-                maxbottom = 0
-                maxright = 0
+            maxbottom = 0
+            maxright = 0
+            for k, g in enumerate(gg.subglyphs):
+                top, left, height, width, stride, data, negated = g
+                if isinstance(data, list):
+                    # every other field should be final
+                    assert isinstance(top, int)
+                    assert isinstance(left, int)
+                    assert isinstance(height, int)
+                    assert isinstance(width, int)
+                    assert isinstance(stride, int)
+                else:
+                    adjoin = False
+                    if isinstance(data, Adjoin):
+                        adjoin = True
+                        data = data.value
 
-                for k, g in enumerate(gg.subglyphs):
-                    top, left, height, width, stride, data, negated = g
-                    if isinstance(data, list):
-                        # every other field should be final
-                        assert isinstance(top, int)
-                        assert isinstance(left, int)
-                        assert isinstance(height, int)
-                        assert isinstance(width, int)
-                        assert isinstance(stride, int)
-                    else:
-                        gg2 = self.glyphs[data]
+                    gg2 = self.glyphs[data]
 
-                        # if gg2 doesn't have enough info to resolve g's fields, try to resolve
-                        # (for gg2.height and gg2.height, we don't strictly need that to resolve,
-                        # but we use them for sanity checking so request them this early)
-                        if not ((isinstance(top, int) or gg2.preferred_top is not None) and
-                                (isinstance(left, int) or gg2.preferred_left is not None) and
-                                (isinstance(height, int) and gg2.height is not None) and
-                                (isinstance(width, int) and gg2.width is not None)):
-                            resolve(data)
-                            gg2 = self.glyphs[data] # since gg2 is, eh, an immutable tuple
+                    # if gg2 doesn't have enough info to resolve g's fields, try to resolve
+                    # (for gg2.height and gg2.height, we don't strictly need that to resolve,
+                    # but we use them for sanity checking so request them this early)
+                    if not ((isinstance(top, int) or gg2.preferred_top is not None) and
+                            (isinstance(left, int) or gg2.preferred_left is not None) and
+                            (isinstance(height, int) and gg2.height is not None) and
+                            (isinstance(width, int) and gg2.width is not None)):
+                        resolve(data)
+                        gg2 = self.glyphs[data] # since gg2 is, eh, an immutable tuple
 
-                        # if the resolution has failed, it has a cyclic dependency
-                        if not ((isinstance(top, int) or gg2.preferred_top is not None) and
-                                (isinstance(left, int) or gg2.preferred_left is not None) and
-                                (isinstance(height, int) or gg2.height is not None) and
-                                (isinstance(width, int) or gg2.width is not None)):
-                            raise ParseError(u'glyph %s has a cyclic dependency' % name)
+                    # if the resolution has failed, it has a cyclic dependency
+                    if not ((isinstance(top, int) or gg2.preferred_top is not None) and
+                            (isinstance(left, int) or gg2.preferred_left is not None) and
+                            (isinstance(height, int) or gg2.height is not None) and
+                            (isinstance(width, int) or gg2.width is not None)):
+                        raise ParseError(u'glyph %s has a cyclic dependency' % name)
 
-                        if top is None: top = gg2.preferred_top
-                        elif isinstance(top, Delta): top = gg2.preferred_top + top.value
-                        if left is None: left = gg2.preferred_left
-                        elif isinstance(left, Delta): left = gg2.preferred_left + left.value
-                        if height is None: height = gg2.height
-                        if width is None: width = gg2.width
+                    # resolve the default joining position if available
+                    joining_delta = None
+                    newpoints = set()
+                    if adjoin:
+                        for posname, (pr, pc) in gg2.points.items():
+                            if posname.startswith('-'):
+                                posname2 = '+' + posname[1:]
+                                if posname2 in gg.points: # adjoin
+                                    qr, qc = gg.points.pop(posname2)
+                                    delta = qr - pr, qc - pc
+                                    if joining_delta and joining_delta != delta:
+                                        raise ParseError(u'glyph %s has multiple adjoining points '
+                                                         u'inconsistent to each other' % name)
+                                    joining_delta = delta
+                                else:
+                                    newpoints.add(posname)
+                            elif posname.startswith('+'):
+                                # the parent glyph may override the same point
+                                if posname not in gg.points:
+                                    newpoints.add(posname)
+                    preferred_top, preferred_left = \
+                            joining_delta or (gg2.preferred_top, gg2.preferred_left)
 
-                        if (width, height) != (gg2.width, gg2.height):
-                            raise ParseError(u'glyph %s has a scaled subglyph for %s '
-                                             u'that is unsupported: requested %sx%s, actual %sx%s' %
-                                             (name, data, width, height, gg2.width, gg2.height))
+                    if top is None: top = preferred_top
+                    elif isinstance(top, Delta): top = preferred_top + top.value
+                    if left is None: left = preferred_left
+                    elif isinstance(left, Delta): left = preferred_left + left.value
+                    if height is None: height = gg2.height
+                    if width is None: width = gg2.width
 
-                        gg.subglyphs[k] = Subglyph(top=top, left=left,
-                                                   height=height, width=width,
-                                                   stride=stride, data=data, negated=negated)
+                    if (width, height) != (gg2.width, gg2.height):
+                        raise ParseError(u'glyph %s has a scaled subglyph for %s '
+                                         u'that is unsupported: requested %sx%s, actual %sx%s' %
+                                         (name, data, width, height, gg2.width, gg2.height))
 
-                    maxbottom = max(maxbottom, top + height)
-                    maxright = max(maxright, left + width)
+                    for posname in newpoints:
+                        r, c = gg2.points[posname]
+                        gg.points[posname] = (r - gg2.preferred_top + preferred_top,
+                                              c - gg2.preferred_left + preferred_left)
 
-                self.glyphs[name] = gg._replace(
-                    height=maxbottom if gg.height is None else gg.height,
-                    width=maxright if gg.width is None else gg.width)
+                    gg.subglyphs[k] = Subglyph(top=top, left=left,
+                                               height=height, width=width,
+                                               stride=stride, data=data, negated=negated)
+
+                maxbottom = max(maxbottom, top + height)
+                maxright = max(maxright, left + width)
+
+            self.glyphs[name] = gg._replace(
+                height=maxbottom if gg.height is None else gg.height,
+                width=maxright if gg.width is None else gg.width)
 
         for name in self.glyphs.keys(): resolve(name)
 

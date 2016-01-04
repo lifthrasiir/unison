@@ -5,10 +5,11 @@
 // diaeresis
 
 glyph dia-lower
+====A=== =
 ++++++++
 ++++++++
 ++/b.d\+
-++\P.9/+
+++\P.9/+ A	point -above@A
 ++++++++
 ++++++++
 ++++++++
@@ -23,6 +24,7 @@ glyph dia-lower
 ++++++++
 
 glyph dia-lower-bg
+======== =
 ++++++++
 ++++++++
 +/b..d\+
@@ -76,7 +78,7 @@ glyph dia-upper-bg = dia-lower-bg@X
 ++++++++
 ++++++++
 
-glyph dia-bottom = dia-lower@X
+glyph dia-bottom = -dia-lower@X
 ++++++++
 ++++++++
 ++++++++
