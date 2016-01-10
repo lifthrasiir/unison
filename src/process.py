@@ -1279,9 +1279,11 @@ class Font(object):
             # given that the range of those indices abruptly end with 2^n boundaries,
             # I strongly suspect that this is something to do with the internal lookup mechanism.
             # for now, reorder problematic scripts to (empirically) avoid the problem... *sigh*
-            if not isinstance(name, int): return (2, name)
-            return (0 if 0x1100 <= name <= 0x11ff or 0x3130 <= name <= 0x318f or
-                         0xa960 <= name <= 0xa97f or 0xac00 <= name <= 0xd7ff else 1, name)
+            if not name.startswith('uni'): return (2, name)
+            try: c = int(name[3:], 16)
+            except ValueError: return (2, name)
+            return (0 if 0x1100 <= c <= 0x11ff or 0x3130 <= c <= 0x318f or
+                         0xa960 <= c <= 0xa97f or 0xac00 <= c <= 0xd7ff else 1, c)
         for name, gg in sorted(self.glyphs.items(), key=custom_sort_key):
             if name == '.notdef': hasnotdef = True
             compositecount = sum(isinstance(g.data, basestring) for g in gg.subglyphs)
