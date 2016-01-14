@@ -23,6 +23,24 @@ glyph enclosing-circle
 .....\9@@@P/....
 ................
 
+glyph enclosing-circle-sbg
+................
+..../d@@@@b\....
+...dP/....\9b...
+..d/........\b..
+./P..........9\.
+.d/..........\b.
+.@............@.
+.@............@.
+.@............@.
+.@............@.
+.9\........../P.
+.\b..........d/.
+..9\......../P..
+...9b\..../dP...
+....\9@@@@P/....
+................
+
 glyph enclosing-circle-bg
 ................
 ..../d@@@@@b\...
@@ -106,6 +124,13 @@ map ⓩ = enclosing-circle z-lower@>>>>^
 
 map ➀|➁|➂|➃|➄|➅|➆|➇|➈|➉ = ..
 	enclosing-small-circle (1|2|3|4|5|6|7|8|9|10)-5x6@>>>>>>vvvvv
+
+map ㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|㉨|㉩|㉪|㉫|㉬|㉭ = ..
+	enclosing-circle-sbg hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half@>>>>
+
+map ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = ..
+	enclosing-circle-bg hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half@>>> ..
+	hangul-a-half-narrow@>>>>>>>>
 
 //--------------------------------------
 // negated circled letters
@@ -230,6 +255,24 @@ glyph enclosing-parens
 ................
 ................
 
+glyph enclosing-parens-sbg
+................
+................
+../P........9\..
+./P..........9\.
+.d/..........\b.
+.@............@.
+.@............@.
+.@............@.
+.@............@.
+.@............@.
+.@............@.
+.9\........../P.
+.\b..........d/.
+..\b........d/..
+................
+................
+
 glyph enclosing-parens-bg
 ................
 ................
@@ -281,6 +324,13 @@ map ⒲ = enclosing-parens w-lower@>>>>^
 map ⒳ = enclosing-parens x-lower@>>>>^
 map ⒴ = enclosing-parens y-lower@>>>>^
 map ⒵ = enclosing-parens z-lower@>>>>^
+
+map ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = ..
+	enclosing-parens-sbg hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half@>>>>
+
+map ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = ..
+	enclosing-parens-bg hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half@>>> ..
+	hangul-a-half-narrow@>>>>>>>>
 
 //--------------------------------------
 // with full stop
