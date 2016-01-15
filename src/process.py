@@ -1131,8 +1131,9 @@ class Font(object):
 
     def write_pgm(self, fp):
         MAX_HEIGHT = 16
-        LINE_WIDTH = 256
-        NUM_GLYPHS_PER_LINE = (32, 16, 8, 4, 2, 1)
+        LINE_WIDTH = 512
+        NUM_GLYPHS_PER_LINE = (64, 32, 16, 8, 4, 2, 1)
+        MAX_GLYPHS_PER_LINE = NUM_GLYPHS_PER_LINE[0]
 
         # determine the width of glyphs (and check the height)
         glyphs = {} # (width, height, list of resolved subglyphs)
@@ -1160,7 +1161,7 @@ class Font(object):
             else: assert False
             current = w, ch & -w
             if last != current:
-                if current[1] - (last or (0, 0))[1] > 32: gap += 8
+                if current[1] - (last or (0, 0))[1] > MAX_GLYPHS_PER_LINE: gap += 8
                 row += 1
                 row_starts.append(ch & -w)
                 row_offset.append(gap)
@@ -1172,7 +1173,7 @@ class Font(object):
         # __U+xxxx | a b c d e f g h ... | | 17px each + last one
         # <------> +---------------------+ v
         #  8*8px+1 ^ <-----------------> ^
-        #         1px      8*32px       1px
+        #         1px      8*64px       1px
         imwidth = 8*8 + 1 + 1 + LINE_WIDTH + 1
         imheight = (MAX_HEIGHT + 1) * nrows + 1 + gap
         imline = bytearray('\xff') * (8*8 + 1) + bytearray('\x80') * (1 + LINE_WIDTH + 1)
@@ -1204,8 +1205,8 @@ class Font(object):
                     fp.write(imline)
                 current = [imline[:] for i in xrange(MAX_HEIGHT + 1)]
                 color = 128
-                if lastlabel != (row_starts[row] & -32):
-                    lastlabel = (row_starts[row] & -32)
+                if lastlabel != (row_starts[row] & -MAX_GLYPHS_PER_LINE):
+                    lastlabel = (row_starts[row] & -MAX_GLYPHS_PER_LINE)
                     color = 0
                 label = '%8s' % ('U+%04X' % row_starts[row])
                 for i, cch in enumerate(label):
