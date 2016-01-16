@@ -21,10 +21,17 @@
 # DEALINGS IN THE SOFTWARE.
 
 import time
+import sys
+import os
+import os.path
 import re
+import glob
 from fractions import gcd
 import itertools
-import unicodedata
+import urllib
+import cPickle as pickle
+import zipfile
+from xml.etree import cElementTree as ET
 from collections import namedtuple
 
 # pixels
@@ -123,13 +130,155 @@ Glyph = namedtuple('Glyph', 'flags height width preferred_top preferred_left sub
 
 class ParseError(ValueError): pass
 
+UCD = namedtuple('UCD', 'name decomp')
+
+class ExternalData(object):
+    def __init__(self, cachepath, universion):
+        self.cachepath = cachepath
+        self.universion = universion
+        self.unicodedata = None # UnicodeData.txt
+
+    def download_if_not_exists(self, path, cached_path):
+        try:
+            cached_dir = os.path.dirname(cached_path)
+            if cached_dir: os.makedirs(cached_dir)
+        except Exception:
+            pass
+        if not os.path.exists(cached_path):
+            print >>sys.stderr, 'downloading %s...' % path,
+            try:
+                urllib.urlretrieve(path, cached_path)
+                print >>sys.stderr, 'done.'
+            except:
+                print >>sys.stderr, 'failed.'
+                try: os.unlink(cached_path)
+                except OSError: pass
+                raise
+
+    def try_fetch_cache(self, filename, get):
+        path = os.path.join(self.cachepath, filename)
+        try:
+            with open(path, 'rb') as f:
+                return pickle.load(f)
+        except Exception:
+            data = get()
+            with open(path, 'wb') as f:
+                pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+            return data
+
+    def make_udhr_samples(self):
+        # returns a list of (script id, first article, set of used code points)
+
+        udhrpath = os.path.join(self.cachepath, 'udhr_xml.zip')
+        self.download_if_not_exists('http://www.unicode.org/udhr/assemblies/udhr_xml.zip', udhrpath)
+
+        # prioritize some languages to optimize the number of unique languages
+        reorder = ['eng', 'rus', 'kor']
+        samples = []
+        with zipfile.ZipFile(udhrpath, 'r') as z:
+            infos = z.infolist()
+            infos.sort(key=lambda info: (info.filename[5:-4] not in reorder, info.filename))
+            for info in infos:
+                if info.filename.startswith('udhr_') and info.filename.endswith('.xml'):
+                    code = info.filename[5:-4].encode()
+                    root = ET.fromstring(z.read(info, 'r'))
+                    first = root.find('{http://www.unhchr.ch/udhr}article[@number="1"]/'
+                                      '{http://www.unhchr.ch/udhr}para')
+                    if first is None: continue # well, some XML file seems to be wrong atm
+                    sample = first.text.replace(u'\t', u' ').replace(u'\n', u' ')
+                    chars = set(map(ord, u''.join(root.itertext())))
+                    chars.discard(ord(u'\t'))
+                    chars.discard(ord(u'\n'))
+                    samples.append((code, sample, chars))
+        return samples
+
+    def get_udhr_samples(self):
+        return self.try_fetch_cache('udhr_samples.dat', self.make_udhr_samples)
+
+    def parse_unicodedata(self):
+        ucdpath = os.path.join(self.cachepath, 'UnicodeData.txt')
+        self.download_if_not_exists('http://www.unicode.org/Public/' + self.universion +
+                                    '/ucd/UnicodeData.txt', ucdpath)
+        data = {}
+        with open(ucdpath) as f:
+            for line in f:
+                code, name, category, ccc, bidi, decomp, decimal, digit, numeric, \
+                mirrored, u1name, isocomment, upperch, lowerch, titlech = \
+                    line.rstrip('\r\n').split(';')
+                code = int(code, 16)
+                if not name.startswith('<'):
+                    decompty, _, decompmap = decomp.rpartition('> ')
+                    decompty = decompty[1:]
+                    decompmap = [int(c, 16) for c in decompmap.split()]
+                    if not decompty: decompty = None
+                    if not decompmap: decompmap = None
+                    data[code] = UCD(name=name, decomp=(decompty, decompmap))
+        return data
+
+    def get_unicodedata(self):
+        if not self.unicodedata:
+            self.unicodedata = self.try_fetch_cache('unicodedata.dat', self.parse_unicodedata)
+            assert self.unicodedata
+        return self.unicodedata
+
+    def get_char_name(self, code):
+        # algorithmic mappings
+        if 0x3400 <= code <= 0x4db5 or 0x4e00 <= code <= 0x9fd5 or 0x20000 <= code <= 0x2a6d6 or \
+           0x2a700 <= code <= 0x2b734 or 0x2b740 <= code <= 0x2b81d or 0x2b820 <= code <= 0x2cea1:
+            return 'CJK UNIFIED IDEOGRAPH-%X' % code
+        if 0xac00 <= code <= 0xd7a3:
+            a, bc = divmod(code - 0xac00, 588)
+            b, c = divmod(bc, 28)
+            return 'HANGUL SYLLABLE %s%s%s' % (
+                ('G','GG','N','D','DD','R','M','B','BB','S','SS','','J','JJ','C','K',
+                 'T','P','H')[a],
+                ('A','AE','YA','YAE','EO','E','YEO','YE','O','WA','WAE','OE','YO','U','WEO','WE',
+                 'WI','YU','EU','YI','I')[b],
+                ('','G','GG','GS','N','NJ','NH','D','L','LG','LM','LB','LS','LT','LP','LH',
+                 'M','B','BS','S','SS','NG','J','C','K','T','P','H')[c],
+            )
+
+        entry = self.get_unicodedata().get(code, None)
+        if not entry: return None
+        return entry.name
+
+    def get_char_decomp(self, code):
+        # algorithmic mappings
+        if 0xac00 <= code <= 0xd7a3:
+            a, bc = divmod(code - 0xac00, 588)
+            b, c = divmod(bc, 28)
+            codes = [0x1100 + a, 0x1161 + b]
+            if c: codes.append(0x11a7 + c)
+            return (None, codes)
+
+        entry = self.get_unicodedata().get(code, None)
+        if not entry: return None
+        return entry.decomp
+
+    def normalize_char(self, code, canonical=True):
+        decompty, decompmap = self.get_char_decomp(code) or (None, None)
+        if canonical and decompty: decompmap = None # skip compatibility mappings
+        if not decompmap: return [code]
+
+        # recursion
+        chars = []
+        for c in decompmap:
+            cc = self.normalize_char(c, canonical=canonical)
+            if cc: chars += cc
+            else: chars.append(c)
+        return chars
+
+ExternalData = ExternalData(
+    cachepath=os.path.join(os.path.dirname(__file__), '..', 'cache'),
+    universion='8.0.0')
+
 def escape(s):
     return s.encode('utf-8').replace('&', '&amp;').replace('"', '&quot;') \
                             .replace('<', '&lt;').replace('>', '&gt;')
 
 def char_name(i):
-    try: name = u' ' + unicodedata.name(unichr(i))
-    except ValueError: name = u''
+    name = ExternalData.get_char_name(i) or u''
+    if name: name = u' ' + name
     return u'U+%04X%s (%c)' % (i, name, i)
 
 def ensure_sentinels(g, always_copy=False):
@@ -1091,8 +1240,7 @@ class Font(object):
                 for g in glyphs: print_pixels(g, mask)
             fp.write('</svg>')
 
-        all_chars = sorted(self.cmap.keys(),
-                           key=lambda k: (unicodedata.normalize('NFD', unichr(k)), k))
+        all_chars = sorted(self.cmap.keys(), key=lambda k: (ExternalData.normalize_char(k), k))
         num_glyphs = len(self.glyphs)
         num_chars = len(self.cmap)
 
@@ -1226,13 +1374,31 @@ class Font(object):
         print >>fp, 'You can play with it right here or download it <a href="unison.ttf">here</a>.'
         print >>fp, 'Please note that this is in development and subject to change.'
         print >>fp
+        print >>fp, '┌──────────────────────────────────────────────────┐'
+        print >>fp, '│Article 1 of Universal Declaration of Human Rights│'
+        print >>fp, '└──────────────────────────────────────────────────┘'
+        print >>fp
+        avail = set(self.cmap.keys())
+        appeared = set()
+        for scriptcode, sample, required in ExternalData.get_udhr_samples():
+            prevlen = len(appeared)
+            appeared.update(required)
+            if len(appeared) > prevlen: # has new code points, try to print
+                if required.issubset(avail):
+                    print >>fp, '• %s: %s' % (scriptcode, escape(sample))
+                else:
+                    assert '--' not in sample
+                    missing = sorted(map(unichr, required - avail))
+                    fp.write('<!--\n%s: [%s] %s -->' % (scriptcode, escape(u''.join(missing)),
+                                                        escape(sample)))
+        print >>fp
         print >>fp, '┌────────────────────┐'
         print >>fp, '│All Supported Glyphs│'
         print >>fp, '└────────────────────┘'
         print >>fp
         chars = []
         for ch in sorted(self.cmap.keys()):
-            if chars and (chars[0] >> 4) != (ch >> 4):
+            if chars and (chars[0] >> 5) != (ch >> 5):
                 print >>fp, escape(u''.join(map(unichr, chars)))
                 chars = []
             chars.append(ch)
@@ -1585,7 +1751,6 @@ class Font(object):
         print >>fp, '</ttFont>'
 
 if __name__ == '__main__':
-    import sys, glob
     font = Font()
     t1 = time.time()
     try:
