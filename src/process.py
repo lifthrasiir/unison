@@ -268,6 +268,24 @@ class ExternalData(object):
             else: chars.append(c)
         return chars
 
+    def parse_confusables(self):
+        confuspath = os.path.join(self.cachepath, 'confusables.txt')
+        self.download_if_not_exists('http://www.unicode.org/Public/security/' + self.universion +
+                                    '/confusables.txt', confuspath)
+        data = {}
+        with open(confuspath) as f:
+            for line in f:
+                line, _, _ = line.rstrip('\r\n').decode('u8').lstrip(u'\ufeff').partition('#')
+                if not line.strip(): continue
+                before, after, category = line.split(';')
+                before = tuple(int(c, 16) for c in before.split())
+                after = tuple(int(c, 16) for c in after.split())
+                data.setdefault(after, []).append(before)
+        return data
+
+    def get_confusables(self):
+        return self.try_fetch_cache('confusables.dat', self.parse_confusables)
+
 ExternalData = ExternalData(
     cachepath=os.path.join(os.path.dirname(__file__), '..', 'cache'),
     universion='8.0.0')
@@ -1367,13 +1385,16 @@ class Font(object):
     def write_live_html(self, fp):
         print >>fp, '<!doctype html>'
         print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: live sample</title><style>'
-        print >>fp, '@font-face{font-family:Unison;src:url(unison.ttf)}pre{font-family:Unison,monospace;font-size:200%;line-height:1;margin:0;white-space:pre-wrap}'
-        print >>fp, '</style><script>window.onload=function(){document.designMode="on"}</script>'
+        print >>fp, '@font-face{font-family:Unison;src:url(unison.ttf)}pre{font-family:Unison,monospace;font-size:200%;line-height:1;margin:0;white-space:pre-wrap}pre span{background:#eee}.hide{display:none}'
+        print >>fp, '</style><script>window.onload=function(){var e=document.getElementById("edit");e.contentEditable="true";for(var x=document.querySelectorAll("a[href^=\'#\']"),i=0;x[i];++i)x[i].onclick=function(){e.innerHTML=document.getElementById(this.getAttribute("href").substring(1)).innerHTML;return false}}</script>'
         print >>fp, '</head><body><pre>'
         print >>fp, 'Hello? This is the <u>Unison</u> font.'
         print >>fp, 'You can play with it right here or download it <a href="unison.ttf">here</a>.'
         print >>fp, 'Please note that this is in development and subject to change.'
         print >>fp
+        print >>fp, 'Load: <a href="#udhr">UDHR</a>, <a href="#confus">Confusables</a>, <a href="#all">All Glyphs</a>'
+        print >>fp, '────────────────────────────────────────────────────────────'
+        print >>fp, '</pre><pre id="edit"></pre><pre id="udhr" class="hide">'
         print >>fp, '┌──────────────────────────────────────────────────┐'
         print >>fp, '│Article 1 of Universal Declaration of Human Rights│'
         print >>fp, '└──────────────────────────────────────────────────┘'
@@ -1385,13 +1406,26 @@ class Font(object):
             appeared.update(required)
             if len(appeared) > prevlen: # has new code points, try to print
                 if required.issubset(avail):
-                    print >>fp, '• %s: %s' % (scriptcode, escape(sample))
+                    print >>fp, '• %s: <span>%s</span>' % (scriptcode, escape(sample))
                 else:
                     assert '--' not in sample
                     missing = sorted(map(unichr, required - avail))
                     fp.write('<!--\n%s: [%s] %s -->' % (scriptcode, escape(u''.join(missing)),
                                                         escape(sample)))
         print >>fp
+        print >>fp, '</pre><pre id="confus" class="hide">'
+        print >>fp, '┌───────────┐'
+        print >>fp, '│Confusables│'
+        print >>fp, '└───────────┘'
+        print >>fp
+        for k, v in sorted(ExternalData.get_confusables().items()):
+            v = sorted(i for i in [k] + v if all(c in avail for c in i))
+            if len(v) > 1:
+                print >>fp, ' '.join(
+                    '<span title="%s">%s</span>' % (escape(u'\n'.join(char_name(c) for c in i)),
+                                                    escape(u''.join(map(unichr, i))))
+                    for i in v)
+        print >>fp, '</pre><pre id="all" class="hide">'
         print >>fp, '┌────────────────────┐'
         print >>fp, '│All Supported Glyphs│'
         print >>fp, '└────────────────────┘'
@@ -1399,10 +1433,10 @@ class Font(object):
         chars = []
         for ch in sorted(self.cmap.keys()):
             if chars and (chars[0] >> 5) != (ch >> 5):
-                print >>fp, escape(u''.join(map(unichr, chars)))
+                print >>fp, '<span>%s</span>' % escape(u''.join(map(unichr, chars)))
                 chars = []
             chars.append(ch)
-        if chars: print >>fp, escape(u''.join(map(unichr, chars)))
+        if chars: print >>fp, '<span>%s</span>' % escape(u''.join(map(unichr, chars)))
         print >>fp, '</pre></body></html>'
 
     def write_ttx(self, fp):
