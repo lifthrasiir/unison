@@ -5,7 +5,7 @@ TTX = ttx
 SRC = \
 	Unison \
 	latin greek cyrillic armenian \
-	num num-roman \
+	num num-roman runic \
 	comb punct arrow box currency ctrl \
 	math letterlike enclosed \
 	hangul hangul-syllable \

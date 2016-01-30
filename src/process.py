@@ -71,6 +71,40 @@ PX_HALFSLANT3V  = 14^M #   : /| = PX_HALF4    ._/| = PX_HALFSLANT4V
 PX_HALFSLANT4V  = 13^M #   :/_|               |__|
 PX_DOT          = 15   # *
 
+PIXELNAMES = {
+    ".":    PX_EMPTY,       ",":   PX_FULL | PX_EMPTY,
+    "O":    PX_ALMOSTFULL,  "@":   PX_FULL | PX_ALMOSTFULL,
+    "|\\":  PX_HALF1,       "|b":  PX_FULL | PX_HALF1,
+    "\\|":  PX_HALF2,       "9|":  PX_FULL | PX_HALF2,
+    "|/":   PX_HALF3,       "|P":  PX_FULL | PX_HALF3,
+    "/|":   PX_HALF4,       "d|":  PX_FULL | PX_HALF4,
+    "|>":   PX_QUAD1,       "|)":  PX_FULL | PX_QUAD1,
+    "'v'":  PX_QUAD2,       "'u'": PX_FULL | PX_QUAD2,
+    "<|":   PX_QUAD3,       "(|":  PX_FULL | PX_QUAD3,
+    ".^.":  PX_QUAD4,       ".n.": PX_FULL | PX_QUAD4,
+    ">|":   PX_INVQUAD1,    ")|":  PX_FULL | PX_INVQUAD1,
+    "|v|":  PX_INVQUAD2,    "|u|": PX_FULL | PX_INVQUAD2,
+    "|<":   PX_INVQUAD3,    "|(":  PX_FULL | PX_INVQUAD3,
+    "|^|":  PX_INVQUAD4,    "|n|": PX_FULL | PX_INVQUAD4,
+    "|\\.": PX_SLANT1H,     "|b.": PX_FULL | PX_SLANT1H,
+    "'\\|": PX_SLANT2H,     "'9|": PX_FULL | PX_SLANT2H,
+    "|/'":  PX_SLANT3H,     "|P'": PX_FULL | PX_SLANT3H,
+    "./|":  PX_SLANT4H,     ".d|": PX_FULL | PX_SLANT4H,
+    "i\\.": PX_SLANT1V,     "ib.": PX_FULL | PX_SLANT1V,
+    "'\\!": PX_SLANT2V,     "'9!": PX_FULL | PX_SLANT2V,
+    "!/'":  PX_SLANT3V,     "!P'": PX_FULL | PX_SLANT3V,
+    "./i":  PX_SLANT4V,     ".di": PX_FULL | PX_SLANT4V,
+    "|_\\": PX_HALFSLANT1H, "|_b": PX_FULL | PX_HALFSLANT1H,
+    "\\_|": PX_HALFSLANT2H, "9_|": PX_FULL | PX_HALFSLANT2H,
+    "|_/":  PX_HALFSLANT3H, "|_P": PX_FULL | PX_HALFSLANT3H,
+    "/_|":  PX_HALFSLANT4H, "d_|": PX_FULL | PX_HALFSLANT4H,
+    "|\\i": PX_HALFSLANT1V, "|bi": PX_FULL | PX_HALFSLANT1V,
+    "!\\|": PX_HALFSLANT2V, "!9|": PX_FULL | PX_HALFSLANT2V,
+    "|/!":  PX_HALFSLANT3V, "|P!": PX_FULL | PX_HALFSLANT3V,
+    "i/|":  PX_HALFSLANT4V, "id|": PX_FULL | PX_HALFSLANT4V,
+    "+":    PX_DOT,         "*":   PX_FULL | PX_DOT,
+}
+
 # glyph flags
 G_STICKY = 1
 G_INLINE = 2
@@ -293,6 +327,14 @@ ExternalData = ExternalData(
 def escape(s):
     return s.encode('utf-8').replace('&', '&amp;').replace('"', '&quot;') \
                             .replace('<', '&lt;').replace('>', '&gt;')
+
+if sys.maxunicode < 0x10ffff:
+    def unichar(c):
+        if c < 0x10000: return unichr(c)
+        c -= 0x10000
+        return unichr(0xd800 + (c >> 10)) + unichr(0xdc00 + (c & 0x3ff))
+else:
+    unichar = unichr
 
 def char_name(i):
     name = ExternalData.get_char_name(i) or u''
@@ -554,7 +596,7 @@ class Font(object):
 
     def read(self, fp):
         SubglyphArgs = namedtuple('SubglyphArgs', 'name placeholder roff coff filters adjoin')
-        GlyphArgs = namedtuple('GlyphArgs', 'name flags lines parts pos2marks')
+        GlyphArgs = namedtuple('GlyphArgs', 'name flags lines parts pos2marks morepixels')
 
         CHAR_ITEM_PATTERN = re.compile(ur'''^(?:
             u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)?
@@ -648,16 +690,19 @@ class Font(object):
             return SubglyphArgs(name=parse_glyph_name(s), placeholder=None,
                                 roff=None, coff=None, filters=filters, adjoin=adjoin)
 
+        FILLED = frozenset(list('@b9Pd(u)n') + range(PX_FULL, (PX_FULL | PX_ALMOSTFULL) + 1))
         def parse_pixels(lines, bbox):
             width = len(lines[0])
             height = len(lines)
             pixels = []
-            FILLED = '@b9Pd(u)n'
             for rr, line in enumerate(lines):
                 assert len(line) == width
                 if not (bbox[0] <= rr <= bbox[2]): continue
                 for cc, px in enumerate(line):
                     if not (bbox[1] <= cc <= bbox[3]): continue
+                    if isinstance(px, int): # explicit pixel
+                        pixels.append(px)
+                        continue
                     v = None
                     t = lines[rr-1][cc]; b = lines[rr+1][cc]
                     l = lines[rr][cc-1]; r = lines[rr][cc+1]
@@ -737,12 +782,13 @@ class Font(object):
                     pixels.append(v)
             return pixels
 
-        def flush_glyph(name, flags, lines, parts, pos2marks):
+        def flush_glyph(name, flags, lines, parts, pos2marks, morepixels):
             if not lines and not parts:
                 raise ParseError(u'data for glyph %s is missing' % name)
 
             placeholder_bboxes = {}
             bbox = None
+            morepixels.reverse() # so that .pop() works
 
             def update_bbox(prev, r, c):
                 if not prev: return r, c, r, c
@@ -774,17 +820,26 @@ class Font(object):
                             rowmarks[rowmark] = r
                         newline = []
                         for c, px in enumerate(line):
-                            if px in placeholders:
+                            if px == '?':
+                                try:
+                                    px = morepixels.pop()
+                                except IndexError:
+                                    raise ParseError(u'not enough explicit pixels for glyph %s' %
+                                                     name)
+                            elif px in placeholders:
                                 placeholder_bboxes[px] = \
                                         update_bbox(placeholder_bboxes.get(px), r, c)
                                 px = '!'
                             if px != '+':
                                 bbox = update_bbox(bbox, r, c)
                             newline.append(px)
-                        newlines.append(''.join(newline) + '.')
+                        newline.append('.')
+                        newlines.append(newline)
                         r += 1
-                newlines.append('.' * len(newlines[0]))
+                newlines.append(['.'] * len(newlines[0]))
                 lines = newlines
+                if morepixels:
+                    raise ParseError(u'too many explicit pixels for glyph %s' % name)
 
                 if not bbox:
                     raise ParseError(u'glyph for %s is empty' % name)
@@ -860,7 +915,8 @@ class Font(object):
                 placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
                 if len(placeholder_chars) != len(set(placeholder_chars)):
                     raise ParseError(u'duplicate placeholder characters for glyph %s' % name)
-                return GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec, pos2marks={})
+                return GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec,
+                                 pos2marks={}, morepixels=[])
             else:
                 # multiple glyph definition (combined glyph only)
                 names = name
@@ -879,7 +935,7 @@ class Font(object):
                     subglyph_spec[j] = p._replace(name=subnames)
                 for i, name in enumerate(names):
                     spec = [p._replace(name=p.name.next()) for p in subglyph_spec]
-                    flush_glyph(name, 0, [], spec, {})
+                    flush_glyph(name, 0, [], spec, {}, [])
                 return None
 
         current_glyph = None # or GlyphArgs
@@ -909,7 +965,8 @@ class Font(object):
                     name = parse_glyph_name(args[1])
                     if not isinstance(name, basestring):
                         raise ParseError(u'unexpected arguments to `glyph`')
-                    current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[], pos2marks={})
+                    current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[],
+                                              pos2marks={}, morepixels=[])
                 else:
                     raise ParseError(u'unexpected arguments to `glyph`')
 
@@ -974,6 +1031,16 @@ class Font(object):
                                 raise ParseError(u'duplicate position name %r in glyph %s' %
                                                  (posname, current_glyph.name))
                             current_glyph.pos2marks[posname] = mark
+                        break
+
+                    elif first == 'pixel':
+                        # pixel <pixelspec> ...
+                        for pixelspec in args:
+                            try:
+                                current_glyph.morepixels.append(PIXELNAMES[pixelspec])
+                            except KeyError:
+                                raise ParseError(u'invalid explicit pixel specification %r '
+                                                 u'in glyph %s' % (pixelspec, current_glyph.name))
                         break
 
                     elif retrying:
@@ -1394,7 +1461,16 @@ class Font(object):
         print >>fp
         print >>fp, 'Load: <a href="#udhr">UDHR</a>, <a href="#confus">Confusables</a>, <a href="#all">All Glyphs</a>'
         print >>fp, '────────────────────────────────────────────────────────────'
-        print >>fp, '</pre><pre id="edit"></pre><pre id="udhr" class="hide">'
+        print >>fp, '</pre><pre id="edit">'
+        print >>fp, '''888     888          d8b'''
+        print >>fp, '''888     888          Y8P'''
+        print >>fp, '''888     888'''
+        print >>fp, '''888     888 88888b.  888 .d8888b   .d88b.  88888b.'''
+        print >>fp, '''888     888 888 "88b 888 88K      d88""88b 888 "88b'''
+        print >>fp, '''888     888 888  888 888 "Y8888b. 888  888 888  888'''
+        print >>fp, '''Y88b. .d88P 888  888 888      X88 Y88..88P 888  888'''
+        print >>fp, ''' "Y88888P"  888  888 888  88888P'  "Y88P"  888  888'''
+        print >>fp, '</pre><pre id="udhr" class="hide">'
         print >>fp, '┌──────────────────────────────────────────────────┐'
         print >>fp, '│Article 1 of Universal Declaration of Human Rights│'
         print >>fp, '└──────────────────────────────────────────────────┘'
@@ -1409,7 +1485,7 @@ class Font(object):
                     print >>fp, '• %s: <span>%s</span>' % (scriptcode, escape(sample))
                 else:
                     assert '--' not in sample
-                    missing = sorted(map(unichr, required - avail))
+                    missing = sorted(map(unichar, required - avail))
                     fp.write('<!--\n%s: [%s] %s -->' % (scriptcode, escape(u''.join(missing)),
                                                         escape(sample)))
         print >>fp
@@ -1423,7 +1499,7 @@ class Font(object):
             if len(v) > 1:
                 print >>fp, ' '.join(
                     '<span title="%s">%s</span>' % (escape(u'\n'.join(char_name(c) for c in i)),
-                                                    escape(u''.join(map(unichr, i))))
+                                                    escape(u''.join(map(unichar, i))))
                     for i in v)
         print >>fp, '</pre><pre id="all" class="hide">'
         print >>fp, '┌────────────────────┐'
@@ -1433,10 +1509,10 @@ class Font(object):
         chars = []
         for ch in sorted(self.cmap.keys()):
             if chars and (chars[0] >> 5) != (ch >> 5):
-                print >>fp, '<span>%s</span>' % escape(u''.join(map(unichr, chars)))
+                print >>fp, '<span>%s</span>' % escape(u''.join(map(unichar, chars)))
                 chars = []
             chars.append(ch)
-        if chars: print >>fp, '<span>%s</span>' % escape(u''.join(map(unichr, chars)))
+        if chars: print >>fp, '<span>%s</span>' % escape(u''.join(map(unichar, chars)))
         print >>fp, '</pre></body></html>'
 
     def write_ttx(self, fp):
