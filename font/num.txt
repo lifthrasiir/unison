@@ -481,7 +481,8 @@ d@b
 ..@
 9@/
 
-// sm-*-bold are designed to fit in 4x5 (normal) or 5x5 (04689)
+// sm-*-bold are designed to fit and fill in 5x5
+// harmonizes with latin sm-*-bold
 
 glyph sm-0-bold
 /@@@\
@@ -491,25 +492,25 @@ glyph sm-0-bold
 \@@@/
 
 glyph sm-1-bold
-/@@.
-P@@.
-.@@.
-.@@.
-@@@@
+.d@@.
+dP@@.
+..@@.
+..@@.
+@@@@@
 
 glyph sm-2-bold
-@@@\
-..@@
-/@@/
-@@..
-@@@@
+@@@@\
+...@@
+/@@@/
+@@...
+@@@@@
 
 glyph sm-3-bold
-@@@\
-..@@
-.@@<
-..@@
-@@@/
+@@@@\
+...@@
+.@@@<
+...@@
+@@@@/
 
 glyph sm-4-bold
 ./@@.
@@ -519,11 +520,11 @@ glyph sm-4-bold
 ..@@.
 
 glyph sm-5-bold
-@@@@
-@@..
-@@@\
-..@@
-@@@/
+@@@@@
+@@...
+@@@@\
+...@@
+@@@@/
 
 glyph sm-6-bold
 /@@@b
@@ -533,11 +534,11 @@ glyph sm-6-bold
 9@@@P
 
 glyph sm-7-bold
-@@@@
-..@@
-./@/
-.@@.
-.@@.
+@@@@@
+@@.@@
+../@/
+..@@.
+..@@.
 
 glyph sm-8-bold
 d@@@b

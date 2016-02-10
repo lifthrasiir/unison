@@ -11,7 +11,7 @@ SRC = \
 	hangul hangul-syllable \
 	han han-radical \
 	halfwidth fullwidth \
-	yijing braille
+	yijing braille playing-card
 
 SRCFILES = $(SRC:%=font/%.txt)
 

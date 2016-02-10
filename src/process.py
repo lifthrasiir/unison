@@ -335,17 +335,27 @@ def escape(s):
                             .replace('<', '&lt;').replace('>', '&gt;')
 
 if sys.maxunicode < 0x10ffff:
+    def try_ord(s):
+        if len(s) == 1: return ord(s)
+        if len(s) == 2 and u'\ud800' <= s[0] <= u'\udbff' and u'\udc00' <= s[1] <= u'\udfff':
+            return 0x10000 + ((ord(s[0]) & 0x3ff) << 10) + (ord(s[1]) & 0x3ff)
+        return None
+
     def unichar(c):
         if c < 0x10000: return unichr(c)
         c -= 0x10000
         return unichr(0xd800 + (c >> 10)) + unichr(0xdc00 + (c & 0x3ff))
 else:
+    def try_ord(s):
+        if len(s) == 1: return ord(s)
+        return None
+
     unichar = unichr
 
 def char_name(i):
     name = ExternalData.get_char_name(i) or u''
     if name: name = u' ' + name
-    return u'U+%04X%s (%c)' % (i, name, i)
+    return u'U+%04X%s (%s)' % (i, name, unichar(i))
 
 def ensure_sentinels(g, always_copy=False):
     if not isinstance(g.data, list): return g
@@ -610,12 +620,14 @@ class Font(object):
             u\+(?P<start>[0-9a-f]{4,8})(?:\.\.(?P<end>[0-9a-f]{4,8})(?:/(?P<step>[0-9a-f]+))?)?
         )$''', re.I | re.X)
         def parse_char_name(s):
-            if len(s) == 1: return [ord(s)]
+            c = try_ord(s)
+            if c is not None: return [c]
 
             ret = []
             for i in s.split('|'):
-                if len(i) == 1:
-                    ret.append(ord(i))
+                c = try_ord(i)
+                if c is not None:
+                    ret.append(c)
                 else:
                     m = CHAR_ITEM_PATTERN.match(i)
                     if not m: raise ParseError(u'invalid character name/index %r' % s)
@@ -1807,12 +1819,24 @@ class Font(object):
         # cmap
         print >>fp, '<cmap>'
         print >>fp, '<tableVersion version="0"/>'
+        exbmp = False
         for platid, platenc in ((0, 3), (1, 0), (3, 1)):
             print >>fp, '<cmap_format_4 platformID="{platid}" platEncID="{platenc}" ' \
                          'language="0">'.format(platid=platid, platenc=platenc)
             for ch, name in sorted(self.cmap.items()):
+                if ch >= 0x10000: exbmp = True; continue
                 print >>fp, '<map code="{ch:#x}" name="{name}"/>'.format(ch=ch, name=escape(name))
             print >>fp, '</cmap_format_4>'
+        if exbmp:
+            for platid, platenc in ((0, 4), (3, 10)):
+                print >>fp, '<!-- length/nGroups fields are automatically updated: -->'
+                print >>fp, '<cmap_format_12 platformID="{platid}" platEncID="{platenc}" ' \
+                             'language="0" format="12" reserved="0" length="0" ' \
+                             'nGroups="0">'.format(platid=platid, platenc=platenc)
+                for ch, name in sorted(self.cmap.items()):
+                    print >>fp, '<map code="{ch:#x}" name="{name}"/>'.format(ch=ch,
+                                                                             name=escape(name))
+                print >>fp, '</cmap_format_12>'
         print >>fp, '</cmap>'
 
         # loca

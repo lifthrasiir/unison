@@ -2903,6 +2903,37 @@ glyph sm-z-upper
 /P...
 @@@@@
 
+// sm-*-bold are designed to fit and fill 5x5
+// harmonizes with numeric sm-*-bold
+
+glyph sm-a-bold
+/@@@\
+@@.@@
+@@@@@
+@@.@@
+@@.@@
+
+glyph sm-j-bold
+.@@@@
+...@@
+...@@
+@@.@@
+\@@@/
+
+glyph sm-k-bold
+@@/@P
+@@@P.
+@@(..
+@@@b.
+@@\@b
+
+glyph sm-q-bold
+/@@@\
+@@.@@
+@@.@@
+\@@@/
+..9@@
+
 // sm-*-4x6 are designed to fit (and fill) 4x6
 // they are generic in that there is little room left for
 // miniscule-majuscule distinction
