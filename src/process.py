@@ -162,6 +162,9 @@ Subglyph = namedtuple('Subglyph', 'top left height width stride data negated')
 # note that all internal coordinates exclude preferred_top/left.
 Glyph = namedtuple('Glyph', 'flags height width preferred_top preferred_left subglyphs points')
 
+# all four fields contain a list of either a glyph name, a set name (preceded by %) or glyph list.
+Remap = namedtuple('Remap', 'lookbehind pattern lookahead replacement')
+
 class ParseError(ValueError): pass
 
 UCD = namedtuple('UCD', 'name decomp')
@@ -323,6 +326,9 @@ class ExternalData(object):
 ExternalData = ExternalData(
     cachepath=os.path.join(os.path.dirname(__file__), '..', 'cache'),
     universion='8.0.0')
+
+def lcm(a, b):
+    return a // gcd(a, b) * b
 
 def escape(s):
     return s.encode('utf-8').replace('&', '&amp;').replace('"', '&quot;') \
@@ -590,6 +596,8 @@ class Font(object):
 
         self.glyphs = {} # name: Glyph
         self.cmap = {} # index: glyph name
+        self.remaps = {} # set name: a list of Remaps
+        self.features = {} # feature name: a list of remap set names
         self.exclude_from_sample = set()
 
         if fp: self.read(fp)
@@ -650,11 +658,7 @@ class Font(object):
                     part.extend([n] * int(rep or 1))
                 parts[i] = part
 
-            count = 1
-            for i in xrange(1, len(parts), 2):
-                partcount = len(parts[i])
-                count = count / gcd(count, partcount) * partcount
-
+            count = reduce(lcm, map(len, parts[1::2]), 1)
             ss = []
             for k in xrange(count):
                 n = u''.join(x if i%2==0 else x[k%len(x)] for i, x in enumerate(parts))
@@ -996,6 +1000,59 @@ class Font(object):
                         raise ParseError(u'duplicate character %s' % char_name(ch))
                     self.cmap[ch] = glyph
 
+            elif args[0] == 'remap':
+                # remap <set> : [<lookbehind glyph> ... :] <glyph> ... -> <glyph> ...
+                #               [: <lookahead glyph> ...]
+                if len(args) <= 2 or args[2] != ':':
+                    raise ParseError(u'unexpected arguments to `remap`')
+
+                setname = args[1]
+                lookbehind = []
+                pattern = []
+                replacement = []
+                lookahead = []
+                aftercolon = afterarrow = False
+                current = []
+                for arg in args[3:]:
+                    if arg == ':':
+                        if aftercolon: raise ParseError(u'too many `:` in `remap` arguments')
+                        if afterarrow: lookbehind = current # ... : (here) ... -> ... : ...
+                        else:         replacement = current # ... : ... -> ... : (here) ...
+                        current = []
+                        aftercolon = True
+                    elif arg == '->':
+                        if afterarrow: raise ParseError(u'too many `->` in `remap` arguments')
+                        pattern = current # ... : ... -> (here) ... : ...
+                        current = []
+                        afterarrow = True
+                    else:
+                        current.append(parse_glyph_name(arg))
+                if not afterarrow: raise ParseError(u'missing `->` in `remap` arguments')
+                if aftercolon: lookahead = current # ... : ... -> ... : ... (here)
+                else:        replacement = current # ... : ... -> ... (here)
+
+                if not pattern or not replacement:
+                    raise ParseError(u'missing pattern or replacement in `remap` arguments')
+
+                self.remaps.setdefault(setname, []).append(Remap(
+                    lookbehind=lookbehind, pattern=pattern,
+                    lookahead=lookahead, replacement=replacement))
+
+            elif args[0] == 'feature':
+                # feature <feature> : <set> ... [: <condition> ...]
+                if len(args) <= 2 or args[2] != ':':
+                    raise ParseError(u'unexpected arguments to `feature`')
+
+                featurename = args[1]
+                if len(featurename) != 4:
+                    raise ParseError(u'invalid feature name %r' % featurename)
+
+                sets = self.features.setdefault(featurename, [])
+                for arg in args[3:]:
+                    if arg == ':':
+                        raise ParseError(u'conditional features are not yet supported')
+                    sets.append(arg)
+
             elif args[0] == 'exclude-from-sample':
                 # exclude-from-sample <char>
                 for arg in args[1:]:
@@ -1160,13 +1217,42 @@ class Font(object):
 
         for name in self.glyphs.keys(): resolve(name)
 
-        for ch, name in self.cmap.items():
+        def make_sticky(name):
             try:
                 gg = self.glyphs[name]
                 self.glyphs[name] = gg._replace(flags=gg.flags | G_STICKY)
+                return True
             except KeyError:
+                return False
+
+        for ch, name in self.cmap.items():
+            if not make_sticky(name):
                 raise ParseError(u'character %s is mapped to non-existant glyph %s' %
                                  (char_name(ch), name))
+
+        for setname, remaps in self.remaps.items():
+            for remap in remaps:
+                for names in (remap.lookbehind, remap.pattern, remap.replacement, remap.lookahead):
+                    for name in names:
+                        if not isinstance(name, list): name = [name]
+                        for iname in name:
+                            if not make_sticky(iname):
+                                raise ParseError(u'remapping set %s has a reference to '
+                                                 u'non-existant glyph %s' % (setname, iname))
+
+        for featurename, sets in self.features.items():
+            # deduplicate the set names
+            seen = set()
+            offset = 0
+            for i in xrange(len(sets)):
+                if sets[i] in seen:
+                    offset += 1
+                elif sets[i] not in self.remaps:
+                    raise ParseError(u'feature %s has a reference to non-existant '
+                                     u'remapping set %s' % (featurename, sets[i]))
+                else:
+                    sets[i-offset] = sets[i]
+            if offset: del sets[-offset:]
 
     def inline_glyphs(self):
         # invariant: redirect_to[a][0] == b <=> a in redirect_from[b]
@@ -1857,6 +1943,112 @@ class Font(object):
         print >>fp, '<psNames/>'
         print >>fp, '<extraNames/>'
         print >>fp, '</post>'
+
+        # OpenType features
+        lookups = []
+        settolookup = {}
+        for setname, remaps in self.remaps.items():
+            # determine the most compact format for given remaps
+            if all(len(r.pattern) == 1 and len(r.replacement) == 1 and
+                   len(r.lookbehind) == 0 and len(r.lookahead) == 0 for r in remaps):
+                # single substitution: a -> b
+                lines = []
+                lines.append('<LookupFlag value="0"/>')
+                lines.append('<SingleSubst index="0">')
+                for r in remaps:
+                    pattern, = r.pattern
+                    replacement, = r.replacement
+                    if not isinstance(pattern, list): pattern = [pattern]
+                    if not isinstance(replacement, list): replacement = [replacement]
+                    for pat, rep in zip(pattern, itertools.cycle(replacement)):
+                        lines.append('<Substitution in="{pat}" out="{rep}"/>'.format(pat=pat,
+                                                                                     rep=rep))
+                lines.append('</SingleSubst>')
+                settolookup[setname] = len(lookups)
+                lookups.append((setname, lines))
+
+            elif all(len(r.pattern) > 1 and len(r.replacement) == 1 and
+                     len(r.lookbehind) == 0 and len(r.lookahead) == 0 for r in remaps):
+                # ligature substitution: a1 a2 a3 -> b
+                starts = {}
+                for r in remaps:
+                    patterns = r.pattern
+                    replacement, = r.replacement
+                    patterns = list(itertools.product(*[x if isinstance(x, list) else [x]
+                                                        for x in patterns]))
+                    if not isinstance(replacement, list): replacement = [replacement]
+                    if all(len(pat) == 1 for pat in patterns):
+                        assert len(replacement) == 1, \
+                            'the number of replacements may not exceed that of patterns'
+                        patterns = [pat for pat, in patterns]
+                        starts.setdefault(pat[0], []).append((pat[1:], replacement[0]))
+                    else:
+                        if len(replacement) == 1:
+                            replacement = itertools.repeat(replacement[0], len(patterns))
+                        else:
+                            assert len(replacement) == len(patterns), \
+                                'the number of replacements does not match that of patterns'
+                        for pat, rep in zip(patterns, replacement):
+                            starts.setdefault(pat[0], []).append((pat[1:], rep))
+                lines = []
+                lines.append('<LookupFlag value="0"/>')
+                lines.append('<LigatureSubst index="0">')
+                for start, ligatures in starts.items():
+                    ligatures.sort(key=lambda (k,v): (-len(k), k, v))
+                    lines.append('<LigatureSet glyph="{start}">'.format(start=start))
+                    for remainder, mapped in ligatures:
+                        lines.append('<Ligature components="{remainder}" glyph="{mapped}"/>'.format(
+                            remainder=','.join(remainder), mapped=mapped))
+                    lines.append('</LigatureSet>')
+                lines.append('</LigatureSubst>')
+                settolookup[setname] = len(lookups)
+                lookups.append((setname, lines))
+
+            else:
+                assert False, 'not yet supported remapping set format'
+
+        # GDEF
+        print >>fp, '<GDEF>'
+        print >>fp, '<Version value="1.0"/>'
+        print >>fp, '</GDEF>'
+
+        # GSUB
+        print >>fp, '<GSUB>'
+        print >>fp, '<Version value="1.0"/>'
+        print >>fp, '<ScriptList>'
+        print >>fp, '<ScriptRecord index="0">'
+        print >>fp, '<ScriptTag value="DFLT"/>'
+        print >>fp, '<Script>'
+        print >>fp, '<DefaultLangSys>'
+        print >>fp, '<ReqFeatureIndex value="65535"/>'
+        features = []
+        for featurename, sets in self.features.items():
+            print >>fp, '<FeatureIndex index="{index}" value="{feature}"/>'.format(
+                    index=len(features), feature=len(features))
+            features.append(featurename)
+        print >>fp, '</DefaultLangSys>'
+        print >>fp, '</Script>'
+        print >>fp, '</ScriptRecord>'
+        print >>fp, '</ScriptList>'
+        print >>fp, '<FeatureList>'
+        for i, featurename in enumerate(features):
+            setnames = self.features[featurename]
+            print >>fp, '<FeatureRecord index="{index}">'.format(index=i)
+            print >>fp, '<FeatureTag value="{tag}"/>'.format(tag=featurename)
+            print >>fp, '<Feature>'
+            for j, setname in enumerate(setnames):
+                print >>fp, '<LookupListIndex index="{index}" value="{lookup}"/><!-- {set} -->'.format(
+                        index=j, lookup=settolookup[setname], set=setname)
+            print >>fp, '</Feature>'
+            print >>fp, '</FeatureRecord>'
+        print >>fp, '</FeatureList>'
+        print >>fp, '<LookupList>'
+        for i, (setname, lines) in enumerate(lookups):
+            print >>fp, '<Lookup index="{index}"><!-- {set} -->'.format(index=i, set=setname)
+            for line in lines: print >>fp, line
+            print >>fp, '</Lookup>'
+        print >>fp, '</LookupList>'
+        print >>fp, '</GSUB>'
 
         print >>fp, '</ttFont>'
 
