@@ -643,15 +643,22 @@ class Font(object):
 
             return ret
 
+        # glyph names are complex enough that name list can be replaced by
+        # name parts reference `$<name>` or `($<name>)`.
+        nameparts = {} # name including $: a list of strings
+
         GLYPH_NAME_PATTERN = re.compile(ur'''^(?:
             # single name
             (?P<name>[0-9a-z\-_.]+) |
             # name list
-            (?P<names>[0-9a-z\-_.]*(?:\*\d+)?(?:\|[0-9a-z\-_.]*(?:\*\d+)?)*) |
+            (?P<names>[0-9a-z\-_.]*(?:\*\d+)? (?:\|[0-9a-z\-_.]*(?:\*\d+)?)* ) |
+            # sole name parts reference
+            (?P<ref>\$[0-9a-z\-_.]+) |
             # name list with one or more parts
             (?P<parts>[0-9a-z\-_.]*
-                      (?:\([0-9a-z\-_.]*(?:\*\d+)?(?:\|[0-9a-z\-_.]*(?:\*\d+)?)*\)
-                         [0-9a-z\-_.]*)+)
+                      (?: \( (?: \$[0-9a-z\-_.]+ |
+                                 [0-9a-z\-_.]*(?:\*\d+)? (?:\|[0-9a-z\-_.]*(?:\*\d+)?)* ) \)
+                          [0-9a-z\-_.]* )+ )
         )$''', re.I | re.X)
         def parse_glyph_name(s):
             m = GLYPH_NAME_PATTERN.match(s)
@@ -661,14 +668,19 @@ class Font(object):
                 return m.group('name').lower()
 
             # multiple names
-            if m.group('names'): s = u'(%s)' % s # implicit parentheses
+            if m.group('names') or m.group('ref'): s = u'(%s)' % s # implicit parentheses
             parts = s.replace('(', ')').split(')')
             for i in xrange(1, len(parts), 2):
-                part = []
-                for alt in parts[i].split('|'):
-                    n, _, rep = alt.partition('*')
-                    part.extend([n] * int(rep or 1))
-                parts[i] = part
+                if parts[i].startswith('$'):
+                    try: parts[i] = nameparts[parts[i]]
+                    except KeyError:
+                        raise ParseError(u'invalid name parts reference %r' % parts[i])
+                else:
+                    part = []
+                    for alt in parts[i].split('|'):
+                        n, _, rep = alt.partition('*')
+                        part.extend([n] * int(rep or 1))
+                    parts[i] = part
 
             count = reduce(lcm, map(len, parts[1::2]), 1)
             ss = []
@@ -798,6 +810,11 @@ class Font(object):
                     pixels.append(v)
             return pixels
 
+        # referenced by flush_glyph and define_glyph
+        default_flags = 0
+        default_left = 0
+        default_width = None
+
         def flush_glyph(name, flags, lines, parts, pos2marks, morepixels):
             if not lines and not parts:
                 raise ParseError(u'data for glyph %s is missing' % name)
@@ -889,7 +906,7 @@ class Font(object):
                 top, left, bottom, right = bbox
                 height = bottom - top + 1
                 width = right - left + 1
-                subglyphs.append(Subglyph(top=0, left=0, height=height, width=width,
+                subglyphs.append(Subglyph(top=0, left=default_left, height=height, width=width,
                                           stride=width, data=pixels, negated=0))
 
             # we now have proper relocation infos for subglyphs if any
@@ -903,7 +920,7 @@ class Font(object):
                     subheight = subbottom - subtop + 1
                     subwidth = subright - subleft + 1
                     subglyphs.append(Subglyph(top=subtop-roff+(p.roff or 0),
-                                              left=subleft-coff+(p.coff or 0),
+                                              left=subleft-coff+(p.coff or 0)+default_left,
                                               width=subwidth, height=subheight,
                                               stride=None, data=subname, negated=negated))
                 else:
@@ -913,7 +930,8 @@ class Font(object):
                                               stride=None, data=subname, negated=negated))
 
             if name == u'.notdef': flags |= G_STICKY
-            self.glyphs[name] = Glyph(flags=flags, height=None, width=None,
+            # if default_width is None, advance is calculated from intrinsic width later
+            self.glyphs[name] = Glyph(flags=flags, height=None, width=default_width,
                                       preferred_top=roff, preferred_left=coff,
                                       subglyphs=subglyphs, points=points)
 
@@ -931,7 +949,7 @@ class Font(object):
                 placeholder_chars = [p.placeholder for p in subglyph_spec if p.placeholder]
                 if len(placeholder_chars) != len(set(placeholder_chars)):
                     raise ParseError(u'duplicate placeholder characters for glyph %s' % name)
-                return GlyphArgs(name=name, flags=0, lines=[], parts=subglyph_spec,
+                return GlyphArgs(name=name, flags=default_flags, lines=[], parts=subglyph_spec,
                                  pos2marks={}, morepixels=[])
             else:
                 # multiple glyph definition (combined glyph only)
@@ -951,17 +969,24 @@ class Font(object):
                     subglyph_spec[j] = p._replace(name=subnames)
                 for i, name in enumerate(names):
                     spec = [p._replace(name=p.name.next()) for p in subglyph_spec]
-                    flush_glyph(name, 0, [], spec, {}, [])
+                    flush_glyph(name, default_flags, [], spec, {}, [])
                 return None
 
         current_glyph = None # or GlyphArgs
         prev_args = []
+        TOKEN_PATTERN = re.compile(ur'`(?:[^`]|``)*`|\S+')
         for line in fp:
-            line = line.decode('utf-8')
-            line, _, comment = (u' ' + u' '.join(line.split())).partition(u' //')
-            line = line.strip()
-            if not line: continue
-            args = line.split()
+            args = []
+            for tok in TOKEN_PATTERN.findall(line.decode('utf-8')):
+                if tok.startswith('//'): break # beginning of comment
+                if tok.startswith('`'):
+                    assert len(tok) >= 2 and tok.endswith('`')
+                    args.append(tok[1:-1].replace('``', '`'))
+                elif '`' in tok:
+                    raise ParseError('unquoted backquotes in token %r' % tok)
+                else:
+                    args.append(tok)
+            if not args: continue
             if args[-1] == '..': # continuation token
                 prev_args.extend(args[:-1])
                 continue
@@ -981,7 +1006,7 @@ class Font(object):
                     name = parse_glyph_name(args[1])
                     if not isinstance(name, basestring):
                         raise ParseError(u'unexpected arguments to `glyph`')
-                    current_glyph = GlyphArgs(name=name, flags=0, lines=[], parts=[],
+                    current_glyph = GlyphArgs(name=name, flags=default_flags, lines=[], parts=[],
                                               pos2marks={}, morepixels=[])
                 else:
                     raise ParseError(u'unexpected arguments to `glyph`')
@@ -1015,6 +1040,21 @@ class Font(object):
             elif args[0] == 'remap':
                 # remap <set> : [<lookbehind glyph> ... :] <glyph> ... -> <glyph> ...
                 #               [: <lookahead glyph> ...]
+                #
+                # it should be noted that while remap can be defined for multiple glyphs
+                # there is a strong restriction for each rule: both input and output
+                # glyphs can contain at most *one* glyph containing parentheses,
+                # and when both input and output glyphs contain such glyph name,
+                # the number of generated glyphs should match (and applied pairwise).
+                # lookbehind and lookahead glyphs are distinct and may contain
+                # any number of parentheses (as it is essentially a matching pattern).
+                # this restriction makes a straight mapping to GSUB substitution rules.
+                #
+                # e.g. (a|b) (c|d|e) : (f|g) -> (h|i) : (j|k|l|m) is valid;
+                #      the substitution is `f -> h` and `g -> i`,
+                #      the lookbehind is `a c`, `a d`, `a e`, `b c`, `b d` or `b e`,
+                #      the lookahead is `j`, `k`, `l` or `m`.
+
                 if len(args) <= 2 or args[2] != ':':
                     raise ParseError(u'unexpected arguments to `remap`')
 
@@ -1028,8 +1068,8 @@ class Font(object):
                 for arg in args[3:]:
                     if arg == ':':
                         if aftercolon: raise ParseError(u'too many `:` in `remap` arguments')
-                        if afterarrow: lookbehind = current # ... : (here) ... -> ... : ...
-                        else:         replacement = current # ... : ... -> ... : (here) ...
+                        if afterarrow: replacement = current # ... : (here) ... -> ... : ...
+                        else:           lookbehind = current # ... : ... -> ... : (here) ...
                         current = []
                         aftercolon = True
                     elif arg == '->':
@@ -1037,6 +1077,7 @@ class Font(object):
                         pattern = current # ... : ... -> (here) ... : ...
                         current = []
                         afterarrow = True
+                        aftercolon = False
                     else:
                         current.append(parse_glyph_name(arg))
                 if not afterarrow: raise ParseError(u'missing `->` in `remap` arguments')
@@ -1045,6 +1086,26 @@ class Font(object):
 
                 if not pattern or not replacement:
                     raise ParseError(u'missing pattern or replacement in `remap` arguments')
+
+                # quick check, so we don't have to repeat ourselves in render
+                patcount = None
+                repcount = None
+                for pat in pattern:
+                    if not isinstance(pat, list): continue
+                    if patcount is not None:
+                        raise ParseError(u'`remap` pattern has multiple parentheses')
+                    patcount = len(pat)
+                for rep in replacement:
+                    if not isinstance(rep, list): continue
+                    if repcount is not None:
+                        raise ParseError(u'`remap` replacement has multiple parentheses')
+                    repcount = len(rep)
+                if patcount is None and repcount is not None:
+                    raise ParseError(u'`remap` cannot map a single input to multiple outputs '
+                                     u'with `->` operator')
+                if patcount is not None and repcount is not None and patcount != repcount:
+                    raise ParseError(u'`remap` pattern and replacement both has parentheses '
+                                     u'but the number of sequences does not match')
 
                 self.remaps.setdefault(setname, []).append(Remap(
                     lookbehind=lookbehind, pattern=pattern,
@@ -1066,10 +1127,70 @@ class Font(object):
                     sets.append(arg)
 
             elif args[0] == 'exclude-from-sample':
-                # exclude-from-sample <char>
+                # exclude-from-sample <char> ...
                 for arg in args[1:]:
                     for name in parse_char_name(arg):
                         self.exclude_from_sample.add(name)
+
+            elif args[0] == 'default':
+                # default +<option> [<args> ...]
+                # default -<option>
+                if current_glyph:
+                    flush_glyph(*current_glyph)
+                    current_glyph = None
+
+                params = args[1:]
+                if not params:
+                    raise ParseError(u'missing `default` arguments')
+                elif params == ['+sticky']:
+                    default_flags |= G_STICKY
+                elif params == ['-sticky']:
+                    default_flags &= ~G_STICKY
+                elif params[0] == '+left' and len(params) == 2:
+                    try: default_left = int(params[1])
+                    except ValueError:
+                        raise ParseError(u'`default +left` should be an integer')
+                elif params == ['-left']:
+                    default_left = 0
+                elif params[0] == '+advance' and len(params) == 2:
+                    try: default_width = int(params[1])
+                    except ValueError:
+                        raise ParseError(u'`default +advance` should be an integer')
+                elif params == ['-advance']:
+                    default_width = None
+                else:
+                    raise ParseError(u'unknown `default` arguments %r' % params)
+
+            elif args[0] == 'name-parts':
+                # name-parts $<name> = <str> <str>|<str> <str>*<count> $<ref> ...
+                # | is exactly identical to whitespace for the purpose of this command.
+                if len(args) <= 3 or args[2] != '=':
+                    raise ParseError(u'unexpected arguments to `name-parts`')
+
+                partsname = args[1]
+                if not re.search(r'(?i)^\$[0-9a-z\-_.]+$', partsname):
+                    raise ParseError(u'invalid name %r for `name-parts`' % partsname)
+                if partsname in nameparts:
+                    raise ParseError(u'duplicate name %r for `name-parts`' % partsname)
+
+                partslist = []
+                for parts in args[3:]:
+                    if re.search(r'(?i)^\$[0-9a-z\-_.]+$', parts):
+                        try: partslist.extend(nameparts[parts])
+                        except KeyError:
+                            raise ParseError(u'invalid name parts reference %r in name parts %s' %
+                                             (parts, partsname))
+                    else:
+                        for part in parts.split('|'):
+                            part, _, rep = part.partition('*')
+                            if not re.search(r'(?i)^[0-9a-z\-_.]*$', part): # may be empty!
+                                raise ParseError(u'name parts %s has an invalid part %r' %
+                                                 (partsname, part))
+                            if rep and not rep.isdigit():
+                                raise ParseError(u'non-integral repeating count '
+                                                 u'in name parts %s' % partsname)
+                            partslist.extend([part] * int(rep or 1))
+                nameparts[partsname] = partslist
 
             else:
                 if not current_glyph:
@@ -1550,7 +1671,8 @@ class Font(object):
     def write_live_html(self, fp):
         print >>fp, '<!doctype html>'
         print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: live sample</title><style>'
-        print >>fp, '@font-face{font-family:Unison;src:url(unison.ttf)}pre{font-family:Unison,monospace;font-size:200%;line-height:1;margin:0;white-space:pre-wrap}pre span{background:#eee}.hide{display:none}'
+        print >>fp, '@font-face{font-family:Unison;src:url(unison.ttf);font-feature-settings:%s}' % (','.join("'%s'"%feat for feat in self.features) or 'inherit')
+        print >>fp, 'pre{font-family:Unison,monospace;font-size:200%;line-height:1;margin:0;white-space:pre-wrap}pre span{background:#eee}.hide{display:none}'
         print >>fp, '</style><script>window.onload=function(){var e=document.getElementById("edit");e.contentEditable="true";for(var x=document.querySelectorAll("a[href^=\'#\']"),i=0;x[i];++i)x[i].onclick=function(){e.innerHTML=document.getElementById(this.getAttribute("href").substring(1)).innerHTML;return false}}</script>'
         print >>fp, '</head><body><pre>'
         print >>fp, 'Hello? This is the <u>Unison</u> font.'
@@ -1644,6 +1766,7 @@ class Font(object):
         # OpenType requires that every glyph is either simple or composite.
         # since some glyphs are hybrid, we need to remap them.
         subnames = []
+        glyphids = {}
         hasnotdef = False
         def custom_sort_key((name, _)):
             # what, the, real, fuck.
@@ -1669,6 +1792,7 @@ class Font(object):
                     subnames.append(('%s#%d' % (name, i), g.width,
                                      get_lsb_from_pixels(g.height, g.width, g.stride, g.data)))
             subnames.append((name, gg.width, get_lsb(name)))
+            glyphids[name] = len(glyphids)
         assert hasnotdef, '.notdef glyph is undefined, will cause a bad effect including ' \
                           'a missing glyph for the first character (generally U+0020)'
 
@@ -1972,11 +2096,12 @@ class Font(object):
         lookups = []
         settolookup = {}
         for setname, remaps in self.remaps.items():
+            lines = []
+
             # determine the most compact format for given remaps
             if all(len(r.pattern) == 1 and len(r.replacement) == 1 and
                    len(r.lookbehind) == 0 and len(r.lookahead) == 0 for r in remaps):
                 # single substitution: a -> b
-                lines = []
                 lines.append('<LookupFlag value="0"/>')
                 lines.append('<SingleSubst index="0">')
                 for r in remaps:
@@ -1988,8 +2113,6 @@ class Font(object):
                         lines.append('<Substitution in="{pat}" out="{rep}"/>'.format(pat=pat,
                                                                                      rep=rep))
                 lines.append('</SingleSubst>')
-                settolookup[setname] = len(lookups)
-                lookups.append((setname, lines))
 
             elif all(len(r.pattern) > 1 and len(r.replacement) == 1 and
                      len(r.lookbehind) == 0 and len(r.lookahead) == 0 for r in remaps):
@@ -2002,19 +2125,16 @@ class Font(object):
                                                         for x in patterns]))
                     if not isinstance(replacement, list): replacement = [replacement]
                     if all(len(pat) == 1 for pat in patterns):
-                        assert len(replacement) == 1, \
-                            'the number of replacements may not exceed that of patterns'
+                        assert len(replacement) == 1
                         patterns = [pat for pat, in patterns]
                         starts.setdefault(pat[0], []).append((pat[1:], replacement[0]))
                     else:
                         if len(replacement) == 1:
                             replacement = itertools.repeat(replacement[0], len(patterns))
                         else:
-                            assert len(replacement) == len(patterns), \
-                                'the number of replacements does not match that of patterns'
+                            assert len(replacement) == len(patterns)
                         for pat, rep in zip(patterns, replacement):
                             starts.setdefault(pat[0], []).append((pat[1:], rep))
-                lines = []
                 lines.append('<LookupFlag value="0"/>')
                 lines.append('<LigatureSubst index="0">')
                 for start, ligatures in starts.items():
@@ -2025,11 +2145,63 @@ class Font(object):
                             remainder=','.join(remainder), mapped=mapped))
                     lines.append('</LigatureSet>')
                 lines.append('</LigatureSubst>')
-                settolookup[setname] = len(lookups)
-                lookups.append((setname, lines))
+
+            elif all(len(r.pattern) == 1 and len(r.replacement) == 1 for r in remaps):
+                # chaining contextual substitution: lb1 lb2 : a -> b : la1 la2
+                # unlike single/ligature substs, we keep each `r` in `remaps`.
+                lines = []
+                lines.append('<LookupFlag value="0"/>')
+                for i, r in enumerate(remaps):
+                    # we need a separate lookup to be run when the context matches
+                    chainedlines = []
+                    chainedlines.append('<LookupFlag value="0"/>')
+                    chainedlines.append('<SingleSubst index="0">')
+                    pats, = r.pattern
+                    reps, = r.replacement
+                    if not isinstance(pats, list): pats = [pats]
+                    if not isinstance(reps, list): reps = [reps]
+                    if len(pats) > len(reps):
+                        assert len(pats) % len(reps) == 0
+                        reps *= len(pats) // len(reps)
+                    for pat, rep in zip(pats, reps):
+                        chainedlines.append('<Substitution in="{pat}" '
+                                                          'out="{rep}"/>'.format(pat=pat, rep=rep))
+                    chainedlines.append('</SingleSubst>')
+                    chainedlookup = len(lookups)
+                    chainedsetname = '%s#%d' % (setname, i)
+                    lookups.append((chainedsetname, chainedlines))
+
+                    lines.append('<ChainContextSubst index="{index}" Format="3">'.format(index=i))
+                    for j, glyphs in enumerate(reversed(r.lookbehind)):
+                        if not isinstance(glyphs, list): glyphs = [glyphs]
+                        lines.append('<BacktrackCoverage index="{index}">'.format(index=j))
+                        for glyph in sorted(glyphs, key=lambda name: glyphids[name]):
+                            lines.append('<Glyph value="{glyph}"/>'.format(glyph=glyph))
+                        lines.append('</BacktrackCoverage>')
+                    for j, glyphs in enumerate(r.pattern):
+                        if not isinstance(glyphs, list): glyphs = [glyphs]
+                        lines.append('<InputCoverage index="{index}">'.format(index=j))
+                        for glyph in sorted(glyphs, key=lambda name: glyphids[name]):
+                            lines.append('<Glyph value="{glyph}"/>'.format(glyph=glyph))
+                        lines.append('</InputCoverage>')
+                    for j, glyphs in enumerate(r.lookahead):
+                        if not isinstance(glyphs, list): glyphs = [glyphs]
+                        lines.append('<LookAheadCoverage index="{index}">'.format(index=j))
+                        for glyph in sorted(glyphs, key=lambda name: glyphids[name]):
+                            lines.append('<Glyph value="{glyph}"/>'.format(glyph=glyph))
+                        lines.append('</LookAheadCoverage>')
+                    lines.append('<SubstLookupRecord index="0">')
+                    lines.append('<SequenceIndex value="0"/>')
+                    lines.append('<LookupListIndex value="{lookup}"/><!-- {set} -->'.format(
+                                    lookup=chainedlookup, set=chainedsetname))
+                    lines.append('</SubstLookupRecord>')
+                    lines.append('</ChainContextSubst>')
 
             else:
                 assert False, 'not yet supported remapping set format'
+
+            settolookup[setname] = len(lookups)
+            lookups.append((setname, lines))
 
         # GDEF
         print >>fp, '<GDEF>'

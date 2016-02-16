@@ -477,7 +477,7 @@ glyph quote-dangle-right
 ........
 ........
 
-map ` = bquot
+map ```` = bquot // ` is an escape character in the input format
 map ' = apos
 map " = quot
 

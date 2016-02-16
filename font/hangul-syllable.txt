@@ -1,6 +1,33 @@
 ////////////////////////////////////////
 // hangul syllables
 
+// the following glyphs are used as representatives for combining jamos:
+//   hangul-init-*-l-f, hangul-med-*-f, hangul-fin-*-w
+// representative glyphs are converted to appropriate glyphs based on surrounding,
+// and assigned a correct advance to get those glyphs overlaid.
+// (16px for initials, 0px for medials and finals)
+// since their advances should be separately recorded from representatives,
+// both sets of glyphs are marked sticky.
+
+name-parts $modern-init = g|gg|n|d|dd|r|m|b|bb|s|ss|0|j|jj|c|k|t|p|h
+name-parts $modern-med = a|ae|ya|yae|eo|e|yeo|ye|o|oa|oae|oi|yo|u|ueo|ue|ui|yu|eu|eui|i
+name-parts $modern-fin = g|gg|gs|n|nj|nh|d|r|rg|rm|rb|rs|rt|rp|rh|m|b|bs|s|ss|0|j|c|k|t|p|h
+
+name-parts $modern-init0 = `` $modern-init
+name-parts $modern-med0 = `` $modern-med
+name-parts $modern-fin0 = `` $modern-fin
+
+name-parts $init = $modern-init
+name-parts $med = $modern-med .|.i
+name-parts $fin = $modern-fin
+
+name-parts $init0 = `` $init
+name-parts $med0 = `` $med
+name-parts $fin0 = `` $fin
+
+//--------------------------------------
+// contextual jamo parts
+
 glyph hangul-init-g-l-nof
 ...........!!!!!
 ...........!!!!!
@@ -1086,8 +1113,9 @@ glyph hangul-init-h-tl-f
 !!!!!!!!!!!!!!!!
 
 // it is intentional to make hangul-init-*-t-nof and hangul-* identical in shape
-glyph hangul-init-(g|gg|n|d|dd|r|m|b|bb|s|ss|0|j|jj|c|k|t|p|h)-t-nof = ..
-	hangul-(g|gg|n|d|dd|r|m|b|bb|s|ss|0|j|jj|c|k|t|p|h)@>>v
+// wsp is required since this glyph will be used as a top-level glyph
+// and we need the proper width (advance) and height
+glyph hangul-init-($modern-init)-t-nof = wsp hangul-($modern-init)@>>v
 
 glyph hangul-init-g-t-f
 ................
@@ -1809,6 +1837,42 @@ glyph hangul-med-i-nof
 !!!!!!!!!!!.@@..
 !!!!!!!!!!!.....
 
+glyph hangul-med-.-nof
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+................
+................
+......<@@\......
+.......\@@>.....
+................
+................
+................
+
+glyph hangul-med-.i-nof
+!!!!!!!!!!!.....
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+....<@@\....@@..
+.....\@@>...@@..
+............@@..
+............@@..
+............@@..
+............@@..
+................
+
 glyph hangul-med-a-f
 !!!!!!!!!!!.....
 !!!!!!!!!!!.@@..
@@ -2198,6 +2262,42 @@ glyph hangul-med-i-f
 !!!!!!!!!!!.@@..
 !!!!!!!!!!!.@@..
 !!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+
+glyph hangul-med-.-f
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+................
+......<@@\......
+.......\@@>.....
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!
+
+glyph hangul-med-.i-f
+!!!!!!!!!!!.....
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+!!!!!!!!!!!.@@..
+....<@@\....@@..
+.....\@@>...@@..
+!!!!!!!!!!!!@@!!
 !!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!
@@ -3213,8 +3313,9 @@ glyph hangul-fin-h-w
 ...\9@@@@@@P/...
 ................
 
-glyph hangul-fin-(|g|gg|gs|n|nj|nh|d|r|rg|rm|rb|rs|rt|rp|rh|m|b|bs|s|ss|0|j|c|k|t|p|h)-r = ..
-	hangul-fin-(|g|gg|gs|n|nj|nh|d|r|rg|rm|rb|rs|rt|rp|rh|m|b|bs|s|ss|0|j|c|k|t|p|h)-l@>
+// wsp is required since this glyph will be used as a top-level glyph
+// and we need the proper width (advance) and height
+glyph hangul-fin-($fin0)-r = wsp hangul-fin-($fin0)-l@>
 
 // here we go!
 map U+AC00..D7A3 = ..
@@ -3224,4 +3325,93 @@ map U+AC00..D7A3 = ..
 
 // there are so many hangul syllables that we want to hide (most of) them from sample.html
 exclude-from-sample U+AD00..D699
+
+//--------------------------------------
+// combining jamos
+
+// representative glyphs
+glyph hangul-init-($init) = hangul-init-($init)-l-f
+glyph hangul-med-($med) = hangul-med-($med)-f
+glyph hangul-fin-($fin) = hangul-fin-($fin)-w
+
+// combining jamo variants
+default +sticky
+glyph hangul-init- = wsp
+glyph hangul-init-comb-($init)-l-nof  = hangul-init-($init)-l-nof
+glyph hangul-init-comb-($init)-l-f    = hangul-init-($init)-l-f
+glyph hangul-init-comb-($init)-tl-nof = hangul-init-($init)-tl-nof
+glyph hangul-init-comb-($init)-tl-f   = hangul-init-($init)-tl-f
+glyph hangul-init-comb-($init)-t-nof  = hangul-init-($init)-t-nof
+glyph hangul-init-comb-($init)-t-f    = hangul-init-($init)-t-f
+glyph hangul-med- = wsp
+default +advance 0
+glyph hangul-med-comb--(nof|f) = wsp // should be distinct from hangul-med-
+glyph hangul-med-comb-($med)-nof = hangul-med-($med)-nof@<<<<<<<<<<<<<<<<
+glyph hangul-med-comb-($med)-f   = hangul-med-($med)-f@<<<<<<<<<<<<<<<<
+glyph hangul-fin-comb-($fin)-l   = hangul-fin-($fin)-l@<<<<<<<<<<<<<<<<
+glyph hangul-fin-comb-($fin)-w   = hangul-fin-($fin)-w@<<<<<<<<<<<<<<<<
+glyph hangul-fin-comb-($fin)-r   = hangul-fin-($fin)-r@<<<<<<<<<<<<<<<<
+default -sticky
+default -advance
+
+// fillers are spacing but should be different for the purpose of GSUB
+map U+115F = hangul-init-
+map U+1160 = hangul-med-
+
+map U+1100..1112 = hangul-init-($modern-init)
+map U+1161..1175 = hangul-med-($modern-med)
+map U+11A8..11C2 = hangul-fin-($modern-fin)
+
+map U+119E = hangul-med-.
+map U+11A1 = hangul-med-.i
+
+// https://www.microsoft.com/typography/OpenTypeDev/hangul/intro.htm
+
+remap hangul-ljmo : ..
+	hangul-init-($init) -> hangul-init-comb-($init)-l-f : ..
+	hangul-med-(a|ae|ya|yae|eo|e|yeo|ye|i) hangul-fin-($fin)
+remap hangul-ljmo : ..
+	hangul-init-($init) -> hangul-init-comb-($init)-t-f : ..
+	hangul-med-(|o|yo|u|yu|eu|.) hangul-fin-($fin)
+remap hangul-ljmo : ..
+	hangul-init-($init) -> hangul-init-comb-($init)-tl-f : ..
+	hangul-med-(oa|oae|oi|ueo|ue|ui|eui|.i) hangul-fin-($fin)
+remap hangul-ljmo : ..
+	hangul-init-($init) -> hangul-init-comb-($init)-l-nof : ..
+	hangul-med-(a|ae|ya|yae|eo|e|yeo|ye|i)
+remap hangul-ljmo : ..
+	hangul-init-($init) -> hangul-init-comb-($init)-tl-nof : ..
+	hangul-med-(oa|oae|oi|ueo|ue|ui|eui|.i)
+remap hangul-ljmo : ..
+	hangul-init-($init) -> hangul-init-comb-($init)-t-nof : ..
+	hangul-med-(|o|yo|u|yu|eu|.)
+
+remap hangul-vjmo : ..
+	hangul-med-($med0) -> hangul-med-comb-($med0)-f : ..
+	hangul-fin-($fin)
+remap hangul-vjmo : ..
+	hangul-med-($med0) -> hangul-med-comb-($med0)-nof
+
+remap hangul-tjmo : ..
+	hangul-med-comb-(a*2|ya*2|ueo*2|ui*2|i*2)-f : ..
+	hangul-fin-($fin) -> hangul-fin-comb-($fin)-l
+remap hangul-tjmo : ..
+	hangul-med-comb-(*2|o*2|oa*2|oi*2|yo*2|u*2|yu*2|eu*2|eui*2|.*2|.i*2)-f : ..
+	hangul-fin-($fin) -> hangul-fin-comb-($fin)-w
+remap hangul-tjmo : ..
+	hangul-med-comb-(ae*2|yae*2|eo*2|e*2|yeo*2|ye*2|oae*2|ue*2)-f : ..
+	hangul-fin-($fin) -> hangul-fin-comb-($fin)-r
+remap hangul-tjmo : ..
+	hangul-med-comb-(a*2|ya*2|ueo*2|ui*2|i*2)-nof : ..
+	hangul-fin-($fin) -> hangul-fin-comb-($fin)-l
+remap hangul-tjmo : ..
+	hangul-med-comb-(*2|o*2|oa*2|oi*2|yo*2|u*2|yu*2|eu*2|eui*2|.*2|.i*2)-nof : ..
+	hangul-fin-($fin) -> hangul-fin-comb-($fin)-w
+remap hangul-tjmo : ..
+	hangul-med-comb-(ae*2|yae*2|eo*2|e*2|yeo*2|ye*2|oae*2|ue*2)-nof : ..
+	hangul-fin-($fin) -> hangul-fin-comb-($fin)-r
+
+feature ljmo : hangul-ljmo
+feature vjmo : hangul-vjmo
+feature tjmo : hangul-tjmo
 
