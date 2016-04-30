@@ -66,6 +66,16 @@ glyph hangul-b-sm
 @@..@@
 @@@@@@
 
+glyph hangul-v-sm
+......
+@@..@@
+@@@@@@
+@@..@@
+@@..@@
+@@@@@@
+.@..@.
+.\@@/.
+
 glyph hangul-s-sm
 ......
 ..@@..
@@ -186,8 +196,8 @@ glyph hangul-g
 ..........@@
 ..........@@
 
-glyph hangul-gg = hangul-g-sm hangul-g-sm@>>>>>>
-glyph hangul-gs = hangul-g-sm hangul-s-sm@>>>>>>
+glyph hangul-g(g|d|s) = ..
+	hangul-g-sm hangul-(g|d|s)-sm@>>>>>>
 
 glyph hangul-n
 ............
@@ -199,12 +209,8 @@ glyph hangul-n
 @@..........
 @@@@@@@@@@@@
 
-glyph hangul-nn = hangul-n-sm hangul-n-sm@>>>>>>
-glyph hangul-nd = hangul-n-sm hangul-d-sm@>>>>>>
-glyph hangul-ns = hangul-n-sm hangul-s-sm@>>>>>>
-glyph hangul-nz = hangul-n-sm hangul-z-sm@>>>>>>
-glyph hangul-nj = hangul-n-sm hangul-j-sm@>>>>>>
-glyph hangul-nh = hangul-n-sm hangul-h-sm@>>>>>>
+glyph hangul-n(g|n|d|b|s|z|j|h) = ..
+	hangul-n-sm hangul-(g|n|d|b|s|z|j|h)-sm@>>>>>>
 
 glyph hangul-d
 ............
@@ -216,7 +222,8 @@ glyph hangul-d
 @@..........
 @@@@@@@@@@@@
 
-glyph hangul-dd = hangul-d-sm hangul-d-sm@>>>>>>
+glyph hangul-d(g|d|r|m|b|s|j) = ..
+	hangul-d-sm hangul-(g|d|r|m|b|s|j)-sm@>>>>>>
 
 glyph hangul-r
 ............
@@ -228,16 +235,18 @@ glyph hangul-r
 @@..........
 @@@@@@@@@@@@
 
-glyph hangul-rg = hangul-r-sm hangul-g-sm@>>>>>>
-glyph hangul-rd = hangul-r-sm hangul-d-sm@>>>>>>
-glyph hangul-rm = hangul-r-sm hangul-m-sm@>>>>>>
-glyph hangul-rb = hangul-r-sm hangul-b-sm@>>>>>>
-glyph hangul-rs = hangul-r-sm hangul-s-sm@>>>>>>
-glyph hangul-rz = hangul-r-sm hangul-z-sm@>>>>>>
-glyph hangul-rt = hangul-r-sm hangul-t-sm@>>>>>>
-glyph hangul-rp = hangul-r-sm hangul-p-sm@>>>>>>
-glyph hangul-rh = hangul-r-sm hangul-h-sm@>>>>>>
-glyph hangul-rx = hangul-r-sm hangul-x-sm@>>>>>>
+glyph hangul-r(g|n|d|r|m|b|v|s|z|j|k|t|p|h|x) = ..
+	hangul-r-sm hangul-(g|n|d|r|m|b|v|s|z|j|k|t|p|h|x)-sm@>>>>>>
+
+glyph hangul-rgg
+............
+@@@@@@@@@@@@
+..@@..@@..@@
+..@@..@@..@@
+@@@@..@@..@@
+@@....@@..@@
+@@....@@..@@
+@@@@..@@..@@
 
 glyph hangul-rgs
 ............
@@ -249,6 +258,26 @@ glyph hangul-rgs
 @@....@@dP9b
 @@@@..@@@/\@
 
+glyph hangul-rdd
+............
+@@@@@@@@@@@@
+..@@@@..@@..
+..@@@@..@@..
+@@@@@@..@@..
+@@..@@..@@..
+@@..@@..@@..
+@@@@@@@@@@@@
+
+glyph hangul-rbb
+............
+@@@@@@.@@.@@
+..@@@@.@@.@@
+..@@@@.@@.@@
+@@@@@@@@@@@@
+@@..@@.@@.@@
+@@..@@.@@.@@
+@@@@@@@@@@@@
+
 glyph hangul-rbs
 ............
 @@@@@.@@.@@.
@@ -258,6 +287,16 @@ glyph hangul-rbs
 @@..@.@@/@@\
 @@..@.@@dP9b
 @@@@@@@@@/\@
+
+glyph hangul-l
+............
+@@@@@@@@@@@@
+..........@@
+@@@@@@@@@@@@
+@@..........
+@@@@@@@@@@@@
+....@..@....
+....\@@/....
 
 glyph hangul-m
 ............
@@ -269,9 +308,8 @@ glyph hangul-m
 @@........@@
 @@@@@@@@@@@@
 
-glyph hangul-mb = hangul-m-sm hangul-b-sm@>>>>>>
-glyph hangul-ms = hangul-m-sm hangul-s-sm@>>>>>>
-glyph hangul-mz = hangul-m-sm hangul-z-sm@>>>>>>
+glyph hangul-m(g|d|b|s|z) = ..
+	hangul-m-sm hangul-(g|d|b|s|z)-sm@>>>>>>
 
 glyph hangul-w
 ............
@@ -303,11 +341,8 @@ glyph hangul-bb
 @@...@@...@@
 @@@@@@@@@@@@
 
-glyph hangul-bg = hangul-b-sm hangul-g-sm@>>>>>>
-glyph hangul-bd = hangul-b-sm hangul-d-sm@>>>>>>
-glyph hangul-bs = hangul-b-sm hangul-s-sm@>>>>>>
-glyph hangul-bj = hangul-b-sm hangul-j-sm@>>>>>>
-glyph hangul-bt = hangul-b-sm hangul-t-sm@>>>>>>
+glyph hangul-b(g|n|d|s|j|c|k|t|p|h) = ..
+	hangul-b-sm hangul-(g|n|d|s|j|c|k|t|p|h)-sm@>>>>>>
 
 glyph hangul-bsg
 ............
@@ -325,6 +360,46 @@ glyph hangul-bsd
 @@.@.@@.@@..
 @@.@.@@.@@..
 @@@@.@@.@@..
+@@.@/@@\@@..
+@@.@dP9b@@..
+@@@@@/\@@@@@
+
+glyph hangul-bsb
+............
+@@.@.@@.@@.@
+@@.@.@@.@@.@
+@@.@.@@.@@.@
+@@@@.@@.@@@@
+@@.@/@@\@@.@
+@@.@dP9b@@.@
+@@@@@/\@@@@@
+
+glyph hangul-bss
+............
+@@.@.@@..@@.
+@@.@.@@..@@.
+@@.@.@@..@@.
+@@@@.@@..@@.
+@@.@/@@\/@@\
+@@.@dP9bdP9b
+@@@@@/\@@/\@
+
+glyph hangul-bsj
+............
+@@.@.@@.@@@@
+@@.@.@@..@@.
+@@.@.@@..@@.
+@@@@.@@..@@.
+@@.@/@@\/@@\
+@@.@dP9bdP9b
+@@@@@/\@@/\@
+
+glyph hangul-bst
+............
+@@.@.@@.@@@@
+@@.@.@@.@@..
+@@.@.@@.@@..
+@@@@.@@.@@@@
 @@.@/@@\@@..
 @@.@dP9b@@..
 @@@@@/\@@@@@
@@ -369,11 +444,78 @@ d@/\@bd@/\@b
 @@..\@@/..@@
 @@...@@...@@
 
-glyph hangul-sg = hangul-s-sm hangul-g-sm@>>>>>>
-glyph hangul-sn = hangul-s-sm hangul-n-sm@>>>>>>
-glyph hangul-sd = hangul-s-sm hangul-d-sm@>>>>>>
-glyph hangul-sb = hangul-s-sm hangul-b-sm@>>>>>>
-glyph hangul-sj = hangul-s-sm hangul-j-sm@>>>>>>
+glyph hangul-s(g|n|d|r|m|b|0|j|c|k|t|p|h) = ..
+	hangul-s-sm hangul-(g|n|d|r|m|b|0|j|c|k|t|p|h)-sm@>>>>>>
+
+glyph hangul-sbg
+............
+.@@.@@.@@@@@
+.@@.@@.@..@@
+.@@.@@.@..@@
+.@@.@@@@..@@
+/@@\@@.@..@@
+dP9b@@.@..@@
+@/\@@@@@..@@
+
+glyph hangul-ssb
+............
+.@@..@@.@@.@
+.@@..@@.@@.@
+.@@..@@.@@.@
+.@@..@@.@@@@
+/@@\/@@\@@.@
+dP9bdP9b@@.@
+@/\@@/\@@@@@
+
+glyph hangul-sss
+............
+.@@..@@..@@.
+.@@..@@..@@.
+.@@..@@..@@.
+.@@..@@..@@.
+/@@\/@@\/@@\
+dP9bdP9bdP9b
+@/\@@/\@@/\@
+
+glyph hangul-_s
+............
+.....@@.....
+.....@@.....
+....d@@b\...
+...d@/\9@b\.
+..d@/...\9@b
+.d@/........
+d@/.........
+
+glyph hangul-_ss
+............
+..@@....@@..
+..@@....@@..
+./@@b\./@@b\
+/@P\9@u@P\9@
+d@/..9@@/...
+@@....@@....
+@@....@@....
+
+glyph hangul-s_
+............
+.....@@.....
+.....@@.....
+.../d@@b....
+./d@P/\@b...
+d@P/...\@b..
+........\@b.
+.........\@b
+
+glyph hangul-ss_
+............
+..@@....@@..
+..@@....@@..
+/d@@\./d@@\.
+@P/9@u@P/9@\
+...\@@P..\@b
+....@@....@@
+....@@....@@
 
 glyph hangul-z
 ............
@@ -395,7 +537,8 @@ d@........@b
 \@b......d@/
 .\9@@@@@@P/.
 
-glyph hangul-00 = hangul-0-sm hangul-0-sm@>>>>>>
+glyph hangul-0(g|d|r|m|b|s|z|0|j|c|t|p|h) = ..
+	hangul-0-sm hangul-(g|d|r|m|b|s|z|0|j|c|t|p|h)-sm@>>>>>>
 
 glyph hangul-q
 .....@@.....
@@ -407,8 +550,8 @@ d@........@b
 \@b......d@/
 .\9@@@@@@P/.
 
-glyph hangul-qs = hangul-q-sm hangul-s-sm@>>>>>>
-glyph hangul-qz = hangul-q-sm hangul-z-sm@>>>>>>
+glyph hangul-q(s|z) = ..
+	hangul-q-sm hangul-(s|z)-sm@>>>>>>
 
 glyph hangul-j
 ............
@@ -430,6 +573,59 @@ d@/\@bd@/\@b
 @@..\@@/..@@
 @@...@@...@@
 
+glyph hangul-j0 = ..
+	hangul-j-sm hangul-0-sm@>>>>>>
+
+glyph hangul-jjh
+............
+@@@@@@@@.@@.
+.@@..@@.@@@@
+.@@..@@./@@\
+.@@..@@.@@.@
+/@@\/@@\@@.@
+dP9bdP9b@@.@
+@/\@@/\@\@@/
+
+glyph hangul-_j
+............
+@@@@@@@@@@@@
+.....@@.....
+....d@@b\...
+...d@/\9@b\.
+..d@/...\9@b
+.d@/........
+d@/.........
+
+glyph hangul-_jj
+............
+@@@@@@@@@@@@
+..@@....@@..
+./@@b\./@@b\
+/@P\9@u@P\9@
+d@/..9@@/...
+@@....@@....
+@@....@@....
+
+glyph hangul-j_
+............
+@@@@@@@@@@@@
+.....@@.....
+.../d@@b....
+./d@P/\@b...
+d@P/...\@b..
+........\@b.
+.........\@b
+
+glyph hangul-jj_
+............
+@@@@@@@@@@@@
+..@@....@@..
+/d@@\./d@@\.
+@P/9@u@P/9@\
+...\@@P..\@b
+....@@....@@
+....@@....@@
+
 glyph hangul-c
 .....@@.....
 .....@@.....
@@ -439,6 +635,29 @@ glyph hangul-c
 ..d@/..\@b..
 .d@/....\@b.
 d@/......\@b
+
+glyph hangul-c(k|h) = ..
+	hangul-c-sm hangul-(k|h)-sm@>>>>>>
+
+glyph hangul-_c
+.....@@.....
+.....@@.....
+@@@@@@@@@@@@
+....d@@b\...
+...d@/\9@b\.
+..d@/...\9@b
+.d@/........
+d@/.........
+
+glyph hangul-c_
+.....@@.....
+.....@@.....
+@@@@@@@@@@@@
+.../d@@b....
+./d@P/\@b...
+d@P/...\@b..
+........\@b.
+.........\@b
 
 glyph hangul-k
 ............
@@ -460,6 +679,9 @@ glyph hangul-t
 @@..........
 @@@@@@@@@@@@
 
+glyph hangul-tt = ..
+	hangul-t-sm hangul-t-sm@>>>>>>
+
 glyph hangul-p
 ............
 @@@@@@@@@@@@
@@ -469,6 +691,9 @@ glyph hangul-p
 ..@@....@@..
 ..@@....@@..
 @@@@@@@@@@@@
+
+glyph hangul-p(b|h) = ..
+	hangul-p-sm hangul-(b|h)-sm@>>>>>>
 
 glyph hangul-f
 ............
@@ -490,7 +715,8 @@ glyph hangul-h
 \@b......d@/
 .\9@@@@@@P/.
 
-glyph hangul-hh = hangul-h-sm hangul-h-sm@>>>>>>
+glyph hangul-h(s|h) = ..
+	hangul-h-sm hangul-(s|h)-sm@>>>>>>
 
 glyph hangul-x
 ............
@@ -501,6 +727,9 @@ glyph hangul-x
 @@........@@
 \@b......d@/
 .\9@@@@@@P/.
+
+glyph hangul-xx = ..
+	hangul-x-sm hangul-x-sm@>>>>>>
 
 // unlike consonants that are used during the hangul input,
 // vowels have no change to turn into other characters here
@@ -2148,3 +2377,4 @@ map ￚ = hangul-eu-half
 map ￛ = hangul-eui-half
 map ￜ = hangul-i-half
 
+// vim: ft=unison

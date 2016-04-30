@@ -737,7 +737,8 @@ class Font(object):
                     if px == '@':
                         v = PX_ALMOSTFULL
                     elif px == '*':
-                        v = PX_DOT
+                        # does not participate to the contextual positioning
+                        v = PX_DOT | PX_FULL
                     elif px in '.!+':
                         v = PX_EMPTY
                     elif px == 'b':
@@ -1679,7 +1680,7 @@ class Font(object):
         print >>fp, 'You can play with it right here or download it <a href="unison.ttf">here</a>.'
         print >>fp, 'Please note that this is in development and subject to change.'
         print >>fp
-        print >>fp, 'Load: <a href="#udhr">UDHR</a>, <a href="#confus">Confusables</a>, <a href="#all">All Glyphs</a>'
+        print >>fp, 'Load: <a href="#udhr">UDHR</a>, <a href="#confus">Confusables</a>, <a href="#hangul">All Hangul</a>, <a href="#all">All Glyphs</a>'
         print >>fp, '────────────────────────────────────────────────────────────'
         print >>fp, '</pre><pre id="edit">'
         print >>fp, '''888     888          d8b'''
@@ -1721,6 +1722,13 @@ class Font(object):
                     '<span title="%s">%s</span>' % (escape(u'\n'.join(char_name(c) for c in i)),
                                                     escape(u''.join(map(unichar, i))))
                     for i in v)
+        print >>fp, '</pre><pre id="hangul" class="hide">'
+        print >>fp, '┌────────────────────┐'
+        print >>fp, '│All Hangul Syllables│'
+        print >>fp, '│ (Modern + Ancient) │'
+        print >>fp, '└────────────────────┘'
+        print >>fp
+        print >>fp, r'''<div style="white-space:pre"><span><a href="#" onclick="var p=[],i,j,k;for(i=0;i<125;++i,p.push('\n'))for(j=0;j</*96*/22;++j,p.push('\n'))for(k=0;k</*138*/28;++k)p.push(String.fromCharCode(i?i<96?i-1+0x1100:i-96+0xa960:0x115f,j?j<72?j-1+0x1161:j-74+0xd7b0:0x1160),k?String.fromCharCode(k<89?k-1+0x11a8:k-89+0xd7cb):'');this.parentNode.replaceChild(document.createTextNode(p.join('')),this);return!1">Render!</a></span></div>'''
         print >>fp, '</pre><pre id="all" class="hide">'
         print >>fp, '┌────────────────────┐'
         print >>fp, '│All Supported Glyphs│'
