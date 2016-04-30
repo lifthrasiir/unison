@@ -378,3 +378,4 @@ map ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = ..
 map ⒛ = ..
 	enclosing-full-stop-bg 2-4x10@>>vvv 0-4x10@>>>>>>>vvv
 
+// vim: ft=unison

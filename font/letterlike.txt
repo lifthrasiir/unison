@@ -271,3 +271,4 @@ map ㎼ = micro w-upper@>>>>>>>>
 map ㏞ = v-upper slash@>>>>>>>> m-lower@>>>>>>>>>>>>>>>>
 map ㏝ = w-upper b-lower@>>>>>>>>
 
+// vim: ft=unison

@@ -1759,3 +1759,4 @@ glyph secondary-stress
 map ˈ = primary-stress
 map ˌ = secondary-stress
 
+// vim: ft=unison

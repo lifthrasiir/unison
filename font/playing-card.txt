@@ -258,3 +258,4 @@ map U+1F0E1..1F0E9 = card-tarot-blank sm-(1|2|3|4|5|6|7|8|9)@vvvvv>>>>>>>
 map U+1F0EA..1F0F3 = card-tarot-blank sm-1@vvvvv>>>>> sm-(0|1|2|3|4|5|6|7|8|9)@vvvvv>>>>>>>>>
 map U+1F0F4..1F0F5 = card-tarot-blank sm-2@vvvvv>>>>> sm-(0|1)@vvvvv>>>>>>>>>
 
+// vim: ft=unison

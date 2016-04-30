@@ -1895,3 +1895,4 @@ map ꚛ = cy-crossed-o-lower
 
 map ꙮ = cy-multiocular-o
 
+// vim: ft=unison

@@ -922,3 +922,4 @@ glyph 1-over-10 = fraction-slash@X
 
 map ⅒ = 1-over-10
 
+// vim: ft=unison

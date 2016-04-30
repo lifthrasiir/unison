@@ -69,3 +69,4 @@ map ⅽ = roman-100-lower
 map ⅾ = roman-500-lower
 map ⅿ = roman-1000-lower
 
+// vim: ft=unison

@@ -1717,3 +1717,4 @@ map ᛫ = runic-sep-single
 map ᛬ = runic-sep-multiple
 map ᛭ = runic-sep-cross
 
+// vim: ft=unison

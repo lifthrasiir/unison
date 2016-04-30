@@ -492,3 +492,4 @@ map ䷫|䷛|䷱|䷟|䷸|䷯|䷑|䷭|䷅|䷮|䷿|䷧|䷺|䷜|䷃|䷆|䷠|䷞|䷷|
 	hexagram-5-(yang*16|yin*16) ..
 	hexagram-6-yin
 
+// vim: ft=unison

@@ -940,3 +940,4 @@ map ω = gr-omega-lower
 
 map ό = gr-omicron-lower acute-lower
 
+// vim: ft=unison

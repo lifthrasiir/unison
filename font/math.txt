@@ -495,3 +495,4 @@ map ≥ = ge
 map ≦ = leq
 map ≧ = geq
 
+// vim: ft=unison

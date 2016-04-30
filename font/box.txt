@@ -1069,3 +1069,4 @@ map ▙ = sp quad-lu         quad-ld quad-rd
 map ▜ = sp quad-lu quad-ru         quad-rd
 map ▛ = sp quad-lu quad-ru quad-ld
 
+// vim: ft=unison

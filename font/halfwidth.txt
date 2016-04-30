@@ -1277,3 +1277,4 @@ map ･ = ideographic-middot-half
 map ｢ = corner-bracket-lu-half
 map ｣ = corner-bracket-rd-half
 
+// vim: ft=unison

@@ -345,3 +345,4 @@ map ㆝ = kanbun-heaven
 map ㆞ = kanbun-earth
 map ㆟ = kanbun-man
 
+// vim: ft=unison

@@ -540,3 +540,4 @@ map U+2840..28FF = ..
 	braille-7-(on*64|off*64|on*64) .. // exclude 6-dots
 	braille-8-(off*64|on*128) // ditto
 
+// vim: ft=unison

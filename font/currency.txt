@@ -633,3 +633,4 @@ map ₼ = manat
 map ₽ = ruble
 map ₾ = lari
 
+// vim: ft=unison

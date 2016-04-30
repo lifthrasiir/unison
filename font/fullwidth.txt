@@ -1965,3 +1965,4 @@ map ￤ = broken-bar-double
 map ￥ =        yen-double
 map ￦ =        won-double
 
+// vim: ft=unison

@@ -992,3 +992,4 @@ map ␣ = open-box
 map ␥ = delete-form-2
 map ␦ = subst-form-2
 
+// vim: ft=unison

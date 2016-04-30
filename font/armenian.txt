@@ -1670,3 +1670,4 @@ map ֍ = hy-eternity-cw
 map ֎ = hy-eternity-ccw
 map ֏ = hy-dram
 
+// vim: ft=unison

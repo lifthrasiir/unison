@@ -910,3 +910,4 @@ map ¯ = sp mac-lower
 map ´ = sp acute-lower
 map ¸ = sp ced
 
+// vim: ft=unison
