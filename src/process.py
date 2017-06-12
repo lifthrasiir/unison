@@ -203,35 +203,6 @@ class ExternalData(object):
                 pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
             return data
 
-    def make_udhr_samples(self):
-        # returns a list of (script id, first article, set of used code points)
-
-        udhrpath = os.path.join(self.cachepath, 'udhr_xml.zip')
-        self.download_if_not_exists('http://www.unicode.org/udhr/assemblies/udhr_xml.zip', udhrpath)
-
-        # prioritize some languages to optimize the number of unique languages
-        reorder = ['eng', 'rus', 'kor']
-        samples = []
-        with zipfile.ZipFile(udhrpath, 'r') as z:
-            infos = z.infolist()
-            infos.sort(key=lambda info: (info.filename[5:-4] not in reorder, info.filename))
-            for info in infos:
-                if info.filename.startswith('udhr_') and info.filename.endswith('.xml'):
-                    code = info.filename[5:-4].encode()
-                    root = ET.fromstring(z.read(info, 'r'))
-                    first = root.find('{http://www.unhchr.ch/udhr}article[@number="1"]/'
-                                      '{http://www.unhchr.ch/udhr}para')
-                    if first is None: continue # well, some XML file seems to be wrong atm
-                    sample = first.text.replace(u'\t', u' ').replace(u'\n', u' ')
-                    chars = set(map(ord, u''.join(root.itertext())))
-                    chars.discard(ord(u'\t'))
-                    chars.discard(ord(u'\n'))
-                    samples.append((code, sample, chars))
-        return samples
-
-    def get_udhr_samples(self):
-        return self.try_fetch_cache('udhr_samples.dat', self.make_udhr_samples)
-
     def parse_unicodedata(self):
         ucdpath = os.path.join(self.cachepath, 'UnicodeData.txt')
         self.download_if_not_exists('http://www.unicode.org/Public/' + self.universion +
@@ -279,50 +250,6 @@ class ExternalData(object):
         if not entry: return None
         return entry.name
 
-    def get_char_decomp(self, code):
-        # algorithmic mappings
-        if 0xac00 <= code <= 0xd7a3:
-            a, bc = divmod(code - 0xac00, 588)
-            b, c = divmod(bc, 28)
-            codes = [0x1100 + a, 0x1161 + b]
-            if c: codes.append(0x11a7 + c)
-            return (None, codes)
-
-        entry = self.get_unicodedata().get(code, None)
-        if not entry: return None
-        return entry.decomp
-
-    def normalize_char(self, code, canonical=True):
-        decompty, decompmap = self.get_char_decomp(code) or (None, None)
-        if canonical and decompty: decompmap = None # skip compatibility mappings
-        if not decompmap: return [code]
-
-        # recursion
-        chars = []
-        for c in decompmap:
-            cc = self.normalize_char(c, canonical=canonical)
-            if cc: chars += cc
-            else: chars.append(c)
-        return chars
-
-    def parse_confusables(self):
-        confuspath = os.path.join(self.cachepath, 'confusables.txt')
-        self.download_if_not_exists('http://www.unicode.org/Public/security/' + self.universion +
-                                    '/confusables.txt', confuspath)
-        data = {}
-        with open(confuspath) as f:
-            for line in f:
-                line, _, _ = line.rstrip('\r\n').decode('u8').lstrip(u'\ufeff').partition('#')
-                if not line.strip(): continue
-                before, after, category = line.split(';')
-                before = tuple(int(c, 16) for c in before.split())
-                after = tuple(int(c, 16) for c in after.split())
-                data.setdefault(after, []).append(before)
-        return data
-
-    def get_confusables(self):
-        return self.try_fetch_cache('confusables.dat', self.parse_confusables)
-
 ExternalData = ExternalData(
     cachepath=os.path.join(os.path.dirname(__file__), '..', 'cache'),
     universion='8.0.0')
@@ -356,39 +283,6 @@ def char_name(i):
     name = ExternalData.get_char_name(i) or u''
     if name: name = u' ' + name
     return u'U+%04X%s (%s)' % (i, name, unichar(i))
-
-def ensure_sentinels(g, always_copy=False):
-    if not isinstance(g.data, list): return g
-    if g.stride > g.width and len(g.data) >= g.stride * (g.height + 1):
-        if always_copy: g = g._replace(data=g.data[:])
-        return g
-
-    stride = g.width + 1
-    data = []
-    for r in xrange(g.height):
-        data.extend(g.data[r*g.stride:r*g.stride+g.width])
-        data.append(PX_EMPTY)
-    data.extend([PX_EMPTY] * stride)
-    return g._replace(stride=stride, data=data)
-
-def merge_subglyphs_sans_subpixel(height, width, subglyphs):
-    stride = width + 1
-    data = [PX_EMPTY] * ((height + 1) * stride)
-    for g in subglyphs:
-        gtop, gleft, gheight, gwidth, gstride, gdata, gnegated = g
-        assert gleft is not None and not isinstance(gleft, Delta)
-        assert gtop is not None and not isinstance(gtop, Delta)
-        assert len(gdata) == gwidth * gheight
-        if gnegated & 1:
-            for r in xrange(gheight):
-                for c in xrange(gwidth):
-                    data[(gtop+r)*stride+(gleft+c)] &= ~gdata[r*gstride+c]
-        else:
-            for r in xrange(gheight):
-                for c in xrange(gwidth):
-                    data[(gtop+r)*stride+(gleft+c)] |= gdata[r*gstride+c]
-    return Subglyph(top=0, left=0, height=height, width=width,
-                    stride=stride, data=data, negated=0)
 
 def signed_area(path):
     x0, y0 = path[-1]
@@ -494,6 +388,7 @@ def track_contour(height, width, stride0, data0, mask):
                     if ~pixel & disconnected:
                         segs.extend((x + x1, y + y1, x + x2, y + y2) for x1, y1, x2, y2 in gapsegs)
 
+            assert len(segs) == len(set(segs)), segs
             pxtosegs = {}
             for x1, y1, x2, y2 in segs:
                 pxtosegs.setdefault((x1, y1), []).append((x2, y2))
@@ -502,6 +397,7 @@ def track_contour(height, width, stride0, data0, mask):
             while pxtosegs:
                 (x0, y0), v = pxtosegs.popitem()
                 assert len(v) >= 2
+                assert len(v) % 2 == 0
                 x, y = v.pop()
                 pxtosegs[x0, y0] = v
 
@@ -527,6 +423,7 @@ def track_contour(height, width, stride0, data0, mask):
 
                         # if nothing remains, we've reached the initial point.
                         if not path:
+                            assert len(nx) % 2 == 0
                             if nx: pxtosegs[x, y] = nx
                             break
 
@@ -539,6 +436,7 @@ def track_contour(height, width, stride0, data0, mask):
                         dy = y - py
 
                     xx, yy = nx.pop(0)
+                    assert len(nx) % 2 == 0
                     if nx: pxtosegs[x, y] = nx
 
                     # flush the previous segment if the current segment has a different slope
@@ -1478,271 +1376,6 @@ class Font(object):
         for name, gg in self.glyphs.items():
             if gg.flags & G_INLINE: del self.glyphs[name]
 
-    def get_subglyphs(self, name):
-        def collect(g, roff, coff, acc, negated):
-            if isinstance(g.data, list):
-                acc.append(g._replace(top=g.top+roff, left=g.left+coff,
-                                      negated=g.negated+negated))
-            else:
-                gg = self.glyphs[g.data]
-                for g2 in gg.subglyphs:
-                    collect(g2, g.top+roff, g.left+coff, acc, g.negated+negated)
-
-        acc = []
-        gg = self.glyphs[name]
-        for g in gg.subglyphs: collect(g, gg.preferred_top, gg.preferred_left, acc, 0)
-        return acc
-
-    def write_html(self, fp):
-        contour_cache = {PX_FULL: {}, PX_SUBPIXEL: {}}
-        def print_pixels(g, mask, cache=True):
-            borders = None
-            if cache:
-                try:
-                    key = g.height, g.width, g.stride, id(g.data)
-                    borders = contour_cache[mask][key]
-                except KeyError: pass
-            if not borders:
-                borders = track_contour(g.height, g.width, g.stride, g.data, mask)
-                if cache: contour_cache[mask][key] = borders
-
-            if borders:
-                pathstr = []
-                for p in borders:
-                    x0, y0 = p[0]
-                    pathstr.append('M%s %s' % (x0 + g.left, y0 + g.top))
-                    for i in xrange(1, len(p)):
-                        x, y = p[i]
-                        if y == y0: pathstr.append('h%s' % (x - x0))
-                        elif x == x0: pathstr.append('v%s' % (y - y0))
-                        else: pathstr.append('l%s %s' % (x - x0, y - y0))
-                        x0 = x; y0 = y
-                    pathstr.append('z')
-                path = ''.join(pathstr)
-                if g.negated & 1:
-                    print >>fp, '<g><path d="{path}" fill="#000" /></g>'.format(path = path)
-                else:
-                    print >>fp, '<path d="{path}" fill="#{color:06x}" />'.format(
-                        path = path, color = (hash(path) & 0x7f7f7f) + 0x808080,
-                    )
-
-        def print_svg(name, scale, ignore_subpixel):
-            gg = self.glyphs[name]
-            height = gg.height
-            width = gg.width
-            glyphs = self.get_subglyphs(name)
-
-            mask = PX_FULL if ignore_subpixel else PX_SUBPIXEL
-
-            print >>fp, '<svg viewBox="0 0 {w} {h}" width="{ww}" height="{hh}">'.format(
-                w = width, h = height,
-                ww = width * scale, hh = height * scale,
-            )
-            if False and ignore_subpixel: # no cache slows things down
-                print_pixels(merge_subglyphs_sans_subpixel(height, width, glyphs), mask,
-                             cache=False)
-            else:
-                for g in glyphs: print_pixels(g, mask)
-            fp.write('</svg>')
-
-        all_chars = sorted(self.cmap.keys(), key=lambda k: (ExternalData.normalize_char(k), k))
-        num_glyphs = len(self.glyphs)
-        num_chars = len(self.cmap)
-
-        print >>fp, '<!doctype html>'
-        print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: graphic sample</title><style>'
-        print >>fp, 'body{background:black;color:white;line-height:1}div{color:gray}#sampleglyphs{display:none}body.sample #sampleglyphs{display:block}body.sample #glyphs{display:none}.scaled{font-size:500%}'
-        print >>fp, 'svg{background:#111;fill:white;vertical-align:top}:target svg{background:#333}svg:hover>path,body.sample svg>path{fill:white!important}a svg>path{fill:gray!important}'
-        print >>fp, '</style></head><body>'
-        print >>fp, '<input id="sample" placeholder="Input sample text here" size="40"> <input type="reset" id="reset" value="Reset"> | %d characters, %d intermediate glyphs so far | <a href="sample.png">PNG</a> | <a href="live.html">live</a>' % (num_chars, num_glyphs)
-        print >>fp, '<hr /><div id="sampleglyphs"></div><div id="glyphs">'
-        excluded = False
-        for ch in all_chars:
-            if ch in self.exclude_from_sample:
-                if not excluded: fp.write('…'); excluded = True
-            else:
-                excluded = False
-                fp.write('<a href="#u%x"><span id="sm-u%x" title="%s">' % (ch, ch, escape(char_name(ch))))
-                print_svg(self.cmap[ch], 1, True)
-                fp.write('</span></a>')
-        print >>fp, '<hr /><span class="scaled">'
-        excluded = False
-        for ch in all_chars:
-            if ch in self.exclude_from_sample:
-                if not excluded: fp.write('…'); excluded = True
-            else:
-                excluded = False
-                fp.write('<span id="u%x" title="%s">' % (ch, escape(char_name(ch))))
-                print_svg(self.cmap[ch], 5, False)
-                fp.write('</span>')
-        print >>fp, '</span></div><script>'
-        print >>fp, 'function $(x){return document.getElementById(x)}'
-        print >>fp, 'function f(t){if(t.normalize)t=t.normalize();document.body.className=t?"sample":"";var sm="",bg="";for(var i=0;i<t.length;++i){var c=t.charCodeAt(i).toString(16);sm+=($("sm-u"+c)||{}).innerHTML||t[i];bg+=($("u"+c)||{}).innerHTML||t[i]}$("sampleglyphs").innerHTML=sm+"<hr /><span class=scaled>"+bg+"</span>"}'
-        print >>fp, '$("sample").onchange=$("sample").onkeyup=function(e){f(this.value)}'
-        print >>fp, '$("reset").onclick=function(){$("sample").value="";f("")}'
-        print >>fp, '</script></body></html>'
-
-    def write_pgm(self, fp):
-        MAX_HEIGHT = 16
-        LINE_WIDTH = 512
-        NUM_GLYPHS_PER_LINE = (64, 32, 16, 8, 4, 2, 1)
-        MAX_GLYPHS_PER_LINE = NUM_GLYPHS_PER_LINE[0]
-
-        # determine the width of glyphs (and check the height)
-        glyphs = {} # (width, height, list of resolved subglyphs)
-        unavailable_widths = set() # (# glyphs per line, start character)
-        for ch, name in self.cmap.items():
-            gg = self.glyphs[name]
-            subglyphs = self.get_subglyphs(name)
-            assert gg.height <= MAX_HEIGHT, 'glyph %s is too tall' % name
-            assert gg.width <= LINE_WIDTH, 'glyph %s is too wide' % name
-            glyphs[name] = gg.width, gg.height, subglyphs
-            for w in NUM_GLYPHS_PER_LINE:
-                if gg.width > LINE_WIDTH // w:
-                    unavailable_widths.add((w, ch & -w))
-
-        # determine the position of each glyph
-        last = None
-        row = -1
-        gap = 0
-        positions = {} # (row, column)
-        row_starts = []
-        row_offset = [] # i.e. accumulated `gap`
-        for ch, name in sorted(self.cmap.items()):
-            for w in NUM_GLYPHS_PER_LINE:
-                if (w, ch & -w) not in unavailable_widths: break
-            else: assert False
-            current = w, ch & -w
-            if last != current:
-                if current[1] - (last or (0, 0))[1] > MAX_GLYPHS_PER_LINE: gap += 8
-                row += 1
-                row_starts.append(ch & -w)
-                row_offset.append(gap)
-                last = current
-            positions[ch] = row, (ch & (w-1)) * (LINE_WIDTH // w)
-        nrows = row + 1
-
-        #          +---------------------+ ^
-        # __U+xxxx | a b c d e f g h ... | | 17px each + last one
-        # <------> +---------------------+ v
-        #  8*8px+1 ^ <-----------------> ^
-        #         1px      8*64px       1px
-        imwidth = 8*8 + 1 + 1 + LINE_WIDTH + 1
-        imheight = (MAX_HEIGHT + 1) * nrows + 1 + gap
-        imline = bytearray('\xff') * (8*8 + 1) + bytearray('\x80') * (1 + LINE_WIDTH + 1)
-
-        def render_glyphs(current, left, (width, height, glyphs), color):
-            for r in xrange(height):
-                for c in xrange(left, left + width):
-                    current[r][c] = 255
-            for g in glyphs:
-                icolor = 255 if g.negated & 1 else color
-                for r in xrange(g.height):
-                    for c in xrange(g.width):
-                        if g.data[r*g.stride+c] & PX_FULL:
-                            current[g.top+r][g.left+left+c] = icolor
-
-        fp.write('P5 %d %d 255\n' % (imwidth, imheight))
-        fp.write(imline)
-        row = -1
-        current = None
-        lastlabel = None
-        for ch, name in sorted(self.cmap.items()):
-            r, left = positions[ch]
-            if r != row:
-                assert r - row == 1
-                row = r
-                if current:
-                    for line in current: fp.write(line)
-                for i in xrange(row_offset[row-1] if row>0 else 0, row_offset[row]):
-                    fp.write(imline)
-                current = [imline[:] for i in xrange(MAX_HEIGHT + 1)]
-                color = 128
-                if lastlabel != (row_starts[row] & -MAX_GLYPHS_PER_LINE):
-                    lastlabel = (row_starts[row] & -MAX_GLYPHS_PER_LINE)
-                    color = 0
-                label = '%8s' % ('U+%04X' % row_starts[row])
-                for i, cch in enumerate(label):
-                    if cch == ' ': continue
-                    render_glyphs(current, i * 8, glyphs[self.cmap[ord(cch)]], color)
-            render_glyphs(current, 8*8 + 1 + 1 + left, glyphs[name], 0)
-        if current:
-            for line in current: fp.write(line)
-
-    def write_live_html(self, fp):
-        print >>fp, '<!doctype html>'
-        print >>fp, '<html><head><meta charset="utf-8" /><title>Unison: live sample</title><style>'
-        print >>fp, '@font-face{font-family:Unison;src:url(unison.ttf);font-feature-settings:%s}' % (','.join("'%s'"%feat for feat in self.features) or 'inherit')
-        print >>fp, 'pre{font-family:Unison,monospace;font-size:200%;line-height:1;margin:0;white-space:pre-wrap}pre span{background:#eee}.hide{display:none}'
-        print >>fp, '</style><script>window.onload=function(){var e=document.getElementById("edit");e.contentEditable="true";for(var x=document.querySelectorAll("a[href^=\'#\']"),i=0;x[i];++i)x[i].onclick=function(){e.innerHTML=document.getElementById(this.getAttribute("href").substring(1)).innerHTML;return false}}</script>'
-        print >>fp, '</head><body><pre>'
-        print >>fp, 'Hello? This is the <u>Unison</u> font.'
-        print >>fp, 'You can play with it right here or download it <a href="unison.ttf">here</a>.'
-        print >>fp, 'Please note that this is in development and subject to change.'
-        print >>fp
-        print >>fp, 'Load: <a href="#udhr">UDHR</a>, <a href="#confus">Confusables</a>, <a href="#hangul">All Hangul</a>, <a href="#all">All Glyphs</a>'
-        print >>fp, '────────────────────────────────────────────────────────────'
-        print >>fp, '</pre><pre id="edit">'
-        print >>fp, '''888     888          d8b'''
-        print >>fp, '''888     888          Y8P'''
-        print >>fp, '''888     888'''
-        print >>fp, '''888     888 88888b.  888 .d8888b   .d88b.  88888b.'''
-        print >>fp, '''888     888 888 "88b 888 88K      d88""88b 888 "88b'''
-        print >>fp, '''888     888 888  888 888 "Y8888b. 888  888 888  888'''
-        print >>fp, '''Y88b. .d88P 888  888 888      X88 Y88..88P 888  888'''
-        print >>fp, ''' "Y88888P"  888  888 888  88888P'  "Y88P"  888  888'''
-        print >>fp, '</pre><pre id="udhr" class="hide">'
-        print >>fp, '┌──────────────────────────────────────────────────┐'
-        print >>fp, '│Article 1 of Universal Declaration of Human Rights│'
-        print >>fp, '└──────────────────────────────────────────────────┘'
-        print >>fp
-        avail = set(self.cmap.keys())
-        appeared = set()
-        for scriptcode, sample, required in ExternalData.get_udhr_samples():
-            prevlen = len(appeared)
-            appeared.update(required)
-            if len(appeared) > prevlen: # has new code points, try to print
-                if required.issubset(avail):
-                    print >>fp, '• %s: <span>%s</span>' % (scriptcode, escape(sample))
-                else:
-                    assert '--' not in sample
-                    missing = sorted(map(unichar, required - avail))
-                    fp.write('<!--\n%s: [%s] %s -->' % (scriptcode, escape(u''.join(missing)),
-                                                        escape(sample)))
-        print >>fp
-        print >>fp, '</pre><pre id="confus" class="hide">'
-        print >>fp, '┌───────────┐'
-        print >>fp, '│Confusables│'
-        print >>fp, '└───────────┘'
-        print >>fp
-        for k, v in sorted(ExternalData.get_confusables().items()):
-            v = sorted(i for i in [k] + v if all(c in avail for c in i))
-            if len(v) > 1:
-                print >>fp, ' '.join(
-                    '<span title="%s">%s</span>' % (escape(u'\n'.join(char_name(c) for c in i)),
-                                                    escape(u''.join(map(unichar, i))))
-                    for i in v)
-        print >>fp, '</pre><pre id="hangul" class="hide">'
-        print >>fp, '┌────────────────────┐'
-        print >>fp, '│All Hangul Syllables│'
-        print >>fp, '│ (Modern + Ancient) │'
-        print >>fp, '└────────────────────┘'
-        print >>fp
-        print >>fp, r'''<div style="white-space:pre"><span><a href="#" onclick="var p=[],i,j,k;for(i=0;i<125;++i,p.push('\n'))for(j=0;j</*96*/22;++j,p.push('\n'))for(k=0;k</*138*/28;++k)p.push(String.fromCharCode(i?i<96?i-1+0x1100:i-96+0xa960:0x115f,j?j<72?j-1+0x1161:j-74+0xd7b0:0x1160),k?String.fromCharCode(k<89?k-1+0x11a8:k-89+0xd7cb):'');this.parentNode.replaceChild(document.createTextNode(p.join('')),this);return!1">Render!</a></span></div>'''
-        print >>fp, '</pre><pre id="all" class="hide">'
-        print >>fp, '┌────────────────────┐'
-        print >>fp, '│All Supported Glyphs│'
-        print >>fp, '└────────────────────┘'
-        print >>fp
-        chars = []
-        for ch in sorted(self.cmap.keys()):
-            if chars and (chars[0] >> 5) != (ch >> 5):
-                print >>fp, '<span>%s</span>' % escape(u''.join(map(unichar, chars)))
-                chars = []
-            chars.append(ch)
-        if chars: print >>fp, '<span>%s</span>' % escape(u''.join(map(unichar, chars)))
-        print >>fp, '</pre></body></html>'
-
     def write_ttx(self, fp):
         SCALE = 16
 
@@ -2256,6 +1889,13 @@ class Font(object):
 
         print >>fp, '</ttFont>'
 
+    def write_json(self, fp):
+        import json
+        def default(o):
+            if isinstance(o, set): return list(o)
+            raise TypeError
+        json.dump(self.__dict__, fp, separators=(',',':'), default=default)
+
 if __name__ == '__main__':
     font = Font()
     t1 = time.time()
@@ -2274,12 +1914,8 @@ if __name__ == '__main__':
         print >>sys.stderr, unicode(e).encode('utf-8')
         raise SystemExit(1)
     t2 = time.time()
-    with open('sample.html', 'w') as f:
-        font.write_html(f)
-    with open('live.html', 'w') as f:
-        font.write_live_html(f)
-    with open('sample.pgm', 'w') as f:
-        font.write_pgm(f)
+    with open('unison.json', 'wb') as f:
+        font.write_json(f)
     with open('unison.ttx', 'w') as f:
         font.write_ttx(f)
     t3 = time.time()

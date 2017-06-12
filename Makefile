@@ -1,6 +1,8 @@
 PYTHON = python
 CONVERT = convert
 TTX = ttx
+CARGO = cargo
+CARGOFLAGS =
 
 SRC = \
 	Unison \
@@ -23,11 +25,21 @@ sample: sample.html live.html sample.png
 
 .PHONY: clean
 clean:
-	-$(RM) -f sample.html live.html sample.png sample.pgm unison.ttf unison.ttx
+	-$(RM) -f .ran_process .ran_cargo sample.html live.html sample.png sample.pgm unison.json unison.ttf unison.ttx
 
-sample.html live.html sample.pgm unison.ttx: src/process.py $(SRCFILES)
+unison.json unison.ttx: .ran_process
+.ran_process: src/process.py $(SRCFILES)
 	$(PYTHON) src/process.py $(SRCFILES)
+	@touch $@
+
+sample.html live.html sample.pgm: .ran_cargo
+.ran_cargo: unison.json Cargo.toml src/*.rs
+	$(CARGO) run $(CARGOFLAGS) < $<
+	@touch $@
+
 sample.png: sample.pgm
-	$(CONVERT) $< $@
+	$(CONVERT) $< -define png:bit-depth=2 -define png:color-type=3 $@
+
 unison.ttf: unison.ttx
 	$(TTX) -f -o $@ $<
+

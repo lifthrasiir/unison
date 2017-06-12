@@ -1,4 +1,6 @@
 *.ttx
 *.pgm
+*.json
+.ran_*
 cache
 target
