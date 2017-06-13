@@ -20,19 +20,21 @@ pub mod sample;
 fn main() {
     let font = font::Font::from_json(io::stdin()).expect("failed to parse");
 
-    {
-        let mut f = File::create("sample.pgm").expect("failed to open PGM");
-        sample::write_pgm(&mut f, &font).expect("failed to write PGM");
-    }
+    rayon::scope(|s| {
+        s.spawn(|_| {
+            let mut f = File::create("sample.pgm").expect("failed to open PGM");
+            sample::write_pgm(&mut f, &font).expect("failed to write PGM");
+        });
 
-    {
-        let mut f = File::create("sample.html").expect("failed to open HTML");
-        sample::write_html(&mut f, &font).expect("failed to write HTML");
-    }
+        s.spawn(|_| {
+            let mut f = File::create("sample.html").expect("failed to open HTML");
+            sample::write_html(&mut f, &font).expect("failed to write HTML");
+        });
 
-    {
-        let mut f = File::create("live.html").expect("failed to open HTML");
-        sample::write_live_html(&mut f, &font).expect("failed to write HTML");
-    }
+        s.spawn(|_| {
+            let mut f = File::create("live.html").expect("failed to open HTML");
+            sample::write_live_html(&mut f, &font).expect("failed to write HTML");
+        });
+    });
 }
 

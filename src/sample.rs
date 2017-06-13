@@ -1,11 +1,12 @@
 use std::char;
-use std::io;
+use std::io::{self, Write};
 use std::fmt;
 use std::collections::BTreeSet;
 use gif;
 use base64;
 use unicode_normalization::UnicodeNormalization;
 use md5;
+use rayon::prelude::*;
 use external_data::{UNICODE_DATA, UDHR_SAMPLES, CONFUSABLES};
 use font::*;
 use contour;
@@ -52,7 +53,7 @@ fn hash(s: &str) -> u32 {
     (h[0] as u32) << 24 | (h[1] as u32) << 16 | (h[2] as u32) << 8 | h[3] as u32
 }
 
-pub fn write_pgm(f: &mut io::Write, font: &Font) -> io::Result<()> {
+pub fn write_pgm(f: &mut Write, font: &Font) -> io::Result<()> {
     use std::collections::{HashMap, HashSet};
 
     const MAX_HEIGHT: u32 = 16;
@@ -188,7 +189,7 @@ pub fn write_pgm(f: &mut io::Write, font: &Font) -> io::Result<()> {
     Ok(())
 }
 
-pub fn write_html(f: &mut io::Write, font: &Font) -> io::Result<()> {
+pub fn write_html(f: &mut Write, font: &Font) -> io::Result<()> {
     const SCALE_SHIFT: usize = 1;
 
     fn pixels_to_path(top: i32, left: i32, height: u32, width: u32, stride: usize, data: &[u8],
@@ -222,7 +223,7 @@ pub fn write_html(f: &mut io::Write, font: &Font) -> io::Result<()> {
         pathstr
     }
 
-    fn print_fullpixel_image(f: &mut io::Write, name: &str, font: &Font) -> io::Result<()> {
+    fn print_fullpixel_image(f: &mut Write, name: &str, font: &Font) -> io::Result<()> {
         let glyphs = font.get_subglyphs(name)?;
         let gg = font.glyphs.get(name).unwrap();
 
@@ -255,7 +256,7 @@ pub fn write_html(f: &mut io::Write, font: &Font) -> io::Result<()> {
                base64::encode(&buf), gg.width, gg.height)
     }
 
-    fn print_svg(f: &mut io::Write, name: &str, font: &Font, scale: u32,
+    fn print_svg(f: &mut Write, name: &str, font: &Font, scale: u32,
                  subpixel: bool) -> io::Result<()> {
         let glyphs = font.get_subglyphs(name)?;
         let gg = font.glyphs.get(name).unwrap();
@@ -295,41 +296,54 @@ img{background:#222;vertical-align:top;opacity:0.5}img:hover,body.sample img{bac
 ",
     )?;
 
-    let mut excluded = false;
-    for &&ch in &all_chars {
-        if font.exclude_from_sample.contains(&ch) {
-            if !excluded {
+    // we parallelly track contours, but they should be displayed in the order
+    // and omissions from `exclude_from_sample` should be correctly handled.
+    // therefore we first collect all outputs to the vector then sequentially print them.
+    fn write_glyphs(f: &mut Write, glyphs: Vec<Option<Vec<u8>>>) -> io::Result<()> {
+        let mut excluded = false;
+        for s in glyphs {
+            if let Some(s) = s {
+                excluded = false;
+                f.write(&s)?;
+            } else if !excluded {
                 write!(f, "…")?;
                 excluded = true;
             }
-        } else {
-            excluded = false;
-            write!(f, "<a href='#u{:x}'><span id='sm-u{:x}' title='{}'>", ch, ch,
-                   escape(&char_name(ch).to_string()))?;
-            if true {
-                print_svg(f, font.cmap.get(&ch).unwrap(), font, 1, false)?;
-            } else {
-                print_fullpixel_image(f, font.cmap.get(&ch).unwrap(), font)?;
-            }
-            write!(f, "</span></a>")?;
         }
+        Ok(())
     }
 
-    writeln!(f, "<hr><span class='scaled'>")?;
-    let mut excluded = false;
-    for &&ch in &all_chars {
+    write_glyphs(f, all_chars.par_iter().map(|&&ch| {
         if font.exclude_from_sample.contains(&ch) {
-            if !excluded {
-                write!(f, "…")?;
-                excluded = true;
-            }
-        } else {
-            excluded = false;
-            write!(f, "<span id='u{:x}' title='{}'>", ch, escape(&char_name(ch).to_string()))?;
-            print_svg(f, font.cmap.get(&ch).unwrap(), font, 5, true)?;
-            write!(f, "</span>")?;
+            return None;
         }
-    }
+
+        let mut s = Vec::new();
+        let _ = write!(&mut s, "<a href='#u{:x}'><span id='sm-u{:x}' title='{}'>", ch, ch,
+                       escape(&char_name(ch).to_string()));
+        if true {
+            let _ = print_svg(&mut s, font.cmap.get(&ch).unwrap(), font, 1, false);
+        } else {
+            let _ = print_fullpixel_image(&mut s, font.cmap.get(&ch).unwrap(), font);
+        }
+        let _ = write!(&mut s, "</span></a>");
+        Some(s)
+    }).collect())?;
+
+    writeln!(f, "<hr><span class='scaled'>")?;
+
+    write_glyphs(f, all_chars.par_iter().map(|&&ch| {
+        if font.exclude_from_sample.contains(&ch) {
+            return None;
+        }
+
+        let mut s = Vec::new();
+        let _ = write!(&mut s, "<span id='u{:x}' title='{}'>",
+                       ch, escape(&char_name(ch).to_string()));
+        let _ = print_svg(&mut s, font.cmap.get(&ch).unwrap(), font, 5, true);
+        let _ = write!(&mut s, "</span>");
+        Some(s)
+    }).collect())?;
 
     writeln!(f,
         "</span></div><script>\n{script}</script></body></html>",
@@ -346,7 +360,7 @@ $('reset').onclick=function(){$('sample').value='';f('')}
     Ok(())
 }
 
-pub fn write_live_html(f: &mut io::Write, font: &Font) -> io::Result<()> {
+pub fn write_live_html(f: &mut Write, font: &Font) -> io::Result<()> {
     let features =
         font.features.keys().map(|feat| format!("'{}'", feat)).collect::<Vec<_>>().join(",");
     writeln!(f, "\
