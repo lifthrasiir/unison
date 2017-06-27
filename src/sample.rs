@@ -1,15 +1,45 @@
 use std::char;
+use std::usize;
 use std::io::{self, Write};
 use std::fmt;
 use std::collections::BTreeSet;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use gif;
 use base64;
 use unicode_normalization::UnicodeNormalization;
 use md5;
 use rayon::prelude::*;
+use indicatif::ProgressBar;
 use external_data::{UNICODE_DATA, UDHR_SAMPLES, CONFUSABLES};
 use font::*;
 use contour;
+
+struct SlowerTick {
+    shift: usize,
+    last_value: AtomicUsize,
+}
+
+impl SlowerTick {
+    fn new(shift: usize) -> SlowerTick {
+        SlowerTick { shift: shift, last_value: AtomicUsize::new(0) }
+    }
+
+    fn inc(&self, delta: u64, bar: &ProgressBar) {
+        let shift = self.shift;
+        let last_value = self.last_value.fetch_add(delta as usize, Ordering::Relaxed);
+        let value = last_value + delta as usize;
+        let scaled_delta = (value >> shift) - (last_value >> shift);
+        if scaled_delta > 0 {
+            bar.inc((scaled_delta as u64) << shift);
+        }
+    }
+
+    fn finish(self, bar: &ProgressBar) {
+        bar.inc(self.last_value.into_inner() as u64 & ((1 << self.shift) - 1));
+    }
+}
+
+const GLYPH_TICK_SHIFT: usize = 8;
 
 struct Escape<'a>(&'a str);
 
@@ -53,7 +83,7 @@ fn hash(s: &str) -> u32 {
     (h[0] as u32) << 24 | (h[1] as u32) << 16 | (h[2] as u32) << 8 | h[3] as u32
 }
 
-pub fn write_pgm(f: &mut Write, font: &Font) -> io::Result<()> {
+pub fn write_pgm(f: &mut Write, font: &Font, bar: &ProgressBar) -> io::Result<()> {
     use std::collections::{HashMap, HashSet};
 
     const MAX_HEIGHT: u32 = 16;
@@ -146,11 +176,14 @@ pub fn write_pgm(f: &mut Write, font: &Font) -> io::Result<()> {
         }
     }
 
+    bar.set_length(font.cmap.len() as u64);
+
     write!(f, "P5 {} {} 255\n", imwidth, imheight)?;
     f.write(&imline)?;
     let mut row = -1i32;
     let mut current: Vec<Vec<u8>> = Vec::new();
     let mut lastlabelidx = None;
+    let tick = SlowerTick::new(GLYPH_TICK_SHIFT);
     for (&ch, name) in font.cmap.iter() {
         let &(r, left) = positions.get(&ch).unwrap();
         if r as i32 != row {
@@ -181,7 +214,9 @@ pub fn write_pgm(f: &mut Write, font: &Font) -> io::Result<()> {
             }
         }
         render_glyphs(&mut current, 8*8 + 1 + 1 + left as i32, glyphs.get(name).unwrap(), 0);
+        tick.inc(1, &bar);
     }
+    tick.finish(&bar);
     for line in &current {
         f.write(line)?;
     }
@@ -189,7 +224,7 @@ pub fn write_pgm(f: &mut Write, font: &Font) -> io::Result<()> {
     Ok(())
 }
 
-pub fn write_html(f: &mut Write, font: &Font) -> io::Result<()> {
+pub fn write_html(f: &mut Write, font: &Font, bar: &ProgressBar) -> io::Result<()> {
     const SCALE_SHIFT: usize = 1;
 
     fn pixels_to_path(top: i32, left: i32, height: u32, width: u32, stride: usize, data: &[u8],
@@ -313,8 +348,12 @@ img{background:#222;vertical-align:top;opacity:0.5}img:hover,body.sample img{bac
         Ok(())
     }
 
+    bar.set_length(all_chars.len() as u64 * 2);
+
+    let tick = SlowerTick::new(GLYPH_TICK_SHIFT);
     write_glyphs(f, all_chars.par_iter().map(|&&ch| {
         if font.exclude_from_sample.contains(&ch) {
+            tick.inc(1, &bar);
             return None;
         }
 
@@ -327,13 +366,18 @@ img{background:#222;vertical-align:top;opacity:0.5}img:hover,body.sample img{bac
             let _ = print_fullpixel_image(&mut s, font.cmap.get(&ch).unwrap(), font);
         }
         let _ = write!(&mut s, "</span></a>");
+
+        tick.inc(1, &bar);
         Some(s)
     }).collect())?;
+    tick.finish(&bar);
 
     writeln!(f, "<hr><span class='scaled'>")?;
 
+    let tick = SlowerTick::new(GLYPH_TICK_SHIFT);
     write_glyphs(f, all_chars.par_iter().map(|&&ch| {
         if font.exclude_from_sample.contains(&ch) {
+            tick.inc(1, &bar);
             return None;
         }
 
@@ -342,8 +386,11 @@ img{background:#222;vertical-align:top;opacity:0.5}img:hover,body.sample img{bac
                        ch, escape(&char_name(ch).to_string()));
         let _ = print_svg(&mut s, font.cmap.get(&ch).unwrap(), font, 5, true);
         let _ = write!(&mut s, "</span>");
+
+        tick.inc(1, &bar);
         Some(s)
     }).collect())?;
+    tick.finish(&bar);
 
     writeln!(f,
         "</span></div><script>\n{script}</script></body></html>",
@@ -356,11 +403,13 @@ $('sample').onchange=$('sample').onkeyup=function(e){f(this.value)}
 $('reset').onclick=function(){$('sample').value='';f('')}
 "
     )?;
-    
+
     Ok(())
 }
 
-pub fn write_live_html(f: &mut Write, font: &Font) -> io::Result<()> {
+pub fn write_live_html(f: &mut Write, font: &Font, bar: &ProgressBar) -> io::Result<()> {
+    bar.set_length(1);
+
     let features =
         font.features.keys().map(|feat| format!("'{}'", feat)).collect::<Vec<_>>().join(",");
     writeln!(f, "\
@@ -473,6 +522,7 @@ return!1"),
     }
 
     writeln!(f, "</pre></body></html>")?;
+    bar.inc(1);
     Ok(())
 }
 
