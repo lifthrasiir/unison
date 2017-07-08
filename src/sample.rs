@@ -322,12 +322,13 @@ pub fn write_html(f: &mut Write, font: &Font, bar: &ProgressBar) -> io::Result<(
         <html><head><meta charset=utf-8><title>Unison: graphic sample</title><style>\n\
         {style}</style></head><body>\n\
         <input id=sample placeholder='Input sample text here' size=40> <input type=reset id=reset value=Reset> | {nchars} characters, {nglyphs} intermediate glyphs so far | <a href='sample.png'>PNG</a> | <a href='live.html'>live</a>\n\
-        <hr><div id=sampleglyphs></div><div id=glyphs>",
+        <hr><div id=sampleglyphs></div><div id=glyphs><span class=glyphs>",
         nchars = font.cmap.len(),
         nglyphs = font.glyphs.len(),
         style = "\
 body{background:black;color:white;line-height:1}div{color:gray}#sampleglyphs{display:none}body.sample #sampleglyphs{display:block}body.sample #glyphs{display:none}.scaled{font-size:500%}\n\
-img{background:#222;vertical-align:top;opacity:0.5}img:hover,body.sample img{background:#111;opacity:1}svg{background:#111;fill:white;vertical-align:top}:target svg{background:#333}svg:hover>path,body.sample svg>path{fill:white}a svg>path{fill:gray}
+img{background:#222;vertical-align:top;opacity:0.5}img:hover,body.sample img{background:#111;opacity:1}.glyphs>:nth-child(even) img{background:#444}.glyphs>:nth-child(even) img:hover,body.sample .glyphs>:nth-child(even) img{background:#222}
+svg{background:#111;fill:white;vertical-align:top}.glyphs>:nth-child(even) svg{background:#222}:target svg{background:#333}svg:hover>path,body.sample svg>path{fill:white}a svg>path{fill:gray}
 ",
     )?;
 
@@ -372,7 +373,7 @@ img{background:#222;vertical-align:top;opacity:0.5}img:hover,body.sample img{bac
     }).collect())?;
     tick.finish(&bar);
 
-    writeln!(f, "<hr><span class='scaled'>")?;
+    writeln!(f, "</span><hr><span class='scaled glyphs'>")?;
 
     let tick = SlowerTick::new(GLYPH_TICK_SHIFT);
     write_glyphs(f, all_chars.par_iter().map(|&&ch| {
