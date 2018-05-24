@@ -90,7 +90,7 @@ lazy_static! {
     };
 
     pub static ref UDHR_SAMPLES: Vec<UdhrSample> = {
-        let mut udhr = include!(concat!(env!("OUT_DIR"), "/udhr.rs")).to_owned();
+        let mut udhr = include!(concat!(env!("OUT_DIR"), "/udhr.rs")).to_vec();
 
         // prioritize some languages to optimize the number of unique languages
         let reorder = ["eng", "rus", "kor"];
