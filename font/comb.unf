@@ -1,0 +1,298 @@
+////////////////////////////////////////
+// combining marks
+
+//--------------------------------------
+// diaeresis
+
+glyph dia-lower 5 2
+/01\../10\
+\01/..\10/
+point -above 2 1
+
+glyph dia-lower-bg 6 2
+/01\..../10\
+\01/....\10/
+
+glyph dia-upper 5 2
+..........
+..........
+ref dia-lower 0 0
+
+glyph dia-upper-bg 6 2
+............
+............
+ref dia-lower-bg 0 0
+
+glyph dia-bottom 5 2
+..........
+..........
+ref dia-lower 0 0
+
+//--------------------------------------
+// acute accents
+
+glyph acute-lower 4 2
+../1@@0/
+/1@@0/..
+
+glyph acute-lower-shift 4 2
+../0@@1/
+/0@@1/..
+
+glyph acute-upper 4 2
+........
+........
+ref acute-lower 0 0
+
+//--------------------------------------
+// double acute accents
+
+glyph dacute-lower 7 2
+..............
+..............
+ref acute-lower-shift 0 0
+ref acute-lower-shift 3 0
+
+glyph dacute-upper 7 2
+..............
+..............
+ref dacute-lower 0 0
+
+//--------------------------------------
+// grave accents
+
+glyph grave-lower 4 2
+\0@@1\..
+..\0@@1\
+
+glyph grave-lower-shift 4 2
+\1@@0\..
+..\1@@0\
+
+glyph grave-upper 4 2
+........
+........
+ref grave-lower 0 0
+
+//--------------------------------------
+// double grave accents
+
+glyph dgrave-lower 7 2
+..............
+..............
+ref grave-lower-shift 0 0
+ref grave-lower-shift 3 0
+
+glyph dgrave-upper 7 2
+..............
+..............
+ref dgrave-lower 0 0
+
+//--------------------------------------
+// macrons
+
+glyph mac-lower 5 1
+@@@@@@@@@@
+
+glyph mac-upper 5 1
+..........
+ref mac-lower 0 0
+
+glyph mac-lower-sm 4 1
+@@@@@@@@
+
+glyph mac-upper-sm 4 1
+........
+ref mac-lower-sm 0 0
+
+glyph mac-bottom 5 1
+..........
+ref mac-lower 0 0
+
+glyph mac-bottom-sm 4 1
+........
+ref mac-lower-sm 0 0
+
+//--------------------------------------
+// cedilla/comma
+
+// intended to look like a comma as well
+// (the choice between cedilla and comma is ultimately a locale matter
+// that is hard to resolve within a single font anyway)
+glyph ced 2 3
+@@@@
+\0@@
+@@0/
+
+glyph ced-inverted-lower 2 3
+/0@@
+@@0\
+@@@@
+
+//--------------------------------------
+// ogonek
+
+// needs additional adjustments per glyph
+glyph ogonek 2 3
+/01/
+1<..
+\1@@
+
+//--------------------------------------
+// caron (hacek)
+
+glyph caron-lower 5 2
+\01\../10/
+..\0@@0/..
+
+glyph caron-upper 5 2
+..........
+..........
+ref caron-lower 0 0
+
+// looks like a comma, used for czech and slovak
+glyph caron-alt 2 3
+@@@@
+\0@@
+@@0/
+
+//--------------------------------------
+// circumflex
+
+glyph circ-lower 5 2
+../0@@0\..
+/01/..\10\
+
+glyph circ-upper 5 2
+..........
+..........
+ref circ-lower 0 0
+
+glyph circ-bottom 5 2
+..........
+..........
+ref circ-lower 0 0
+
+//--------------------------------------
+// breve
+
+glyph breve-lower 5 2
+@@1\../1@@
+\0@@@@@@0/
+
+glyph breve-upper 5 2
+..........
+..........
+ref breve-lower 0 0
+
+glyph breve-bottom 5 2
+..........
+..........
+ref breve-lower 0 0
+
+//--------------------------------------
+// inverted breve (arch)
+
+glyph arch-lower 5 2
+/0@@@@@@0\
+@@1/..\1@@
+
+glyph arch-upper 5 2
+..........
+..........
+ref arch-lower 0 0
+
+//--------------------------------------
+// ring
+
+glyph ring-lower 3 3
+/0@@0\
+@@..@@
+\0@@0/
+
+glyph ring-upper 3 3
+......
+......
+......
+ref ring-lower 0 0
+
+glyph ring-bottom 3 3
+......
+......
+......
+ref ring-lower 0 0
+
+//--------------------------------------
+// tilde
+
+glyph tilde-lower 5 2
+/0@@1\../1
+1/..\1@@0/
+
+glyph tilde-upper 5 2
+..........
+..........
+ref tilde-lower 0 0
+
+glyph tilde-bottom 5 2
+..........
+..........
+ref tilde-lower 0 0
+
+//--------------------------------------
+// dot
+
+glyph dot-lower 2 2
+@@@@
+@@@@
+
+glyph dot-upper 2 2
+....
+....
+ref dot-lower 0 0
+
+glyph dot-bottom 2 2
+....
+....
+ref dot-lower 0 0
+
+glyph dot-middle 2 2
+....
+....
+ref dot-lower 0 0
+
+//--------------------------------------
+// hook above
+
+glyph hook-lower 3 3
+/1@@1\
+0/..@@
+../10/
+
+glyph hook-upper 3 3
+......
+......
+......
+ref hook-lower 0 0
+
+//--------------------------------------
+// spacing forms of combining marks
+
+glyph uni00A8
+ref sp
+ref dia-lower 2 2
+map ¨ = uni00A8
+glyph uni00AF
+ref sp
+ref mac-lower 2 3
+map ¯ = uni00AF
+glyph uni00B4
+ref sp
+ref acute-lower 3 2
+map ´ = uni00B4
+glyph uni00B8
+ref sp
+ref ced 4 13
+map ¸ = uni00B8
+
+// vim: ft=unison

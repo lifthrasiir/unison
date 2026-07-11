@@ -1,0 +1,597 @@
+////////////////////////////////////////
+// enclosed letters
+
+//--------------------------------------
+// circled letters
+
+// slight ellipsis to make an enclosed number balanced
+glyph enclosing-circle 16 16
+................................
+........../h~H@@@@@@H~h\........
+......../1H_h/......\h_H1\......
+....../10/..............\01\....
+.....vV/..................\Vv...
+..../Vv'..................`vV\..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....\Vv....................vV/..
+....`vV\................../Vv'..
+......\10\............../01/....
+........\1H~h\....../h~H1/......
+..........\h_H@@@@@@H_h/........
+................................
+
+glyph enclosing-circle-sbg 16 16
+................................
+......../h~H@@@@@@@@H~h\........
+....../1H_h/........\h_H1\......
+..../10/................\01\....
+...vV/....................\Vv...
+../Vv'....................`vV\..
+..@@........................@@..
+..@@........................@@..
+..@@........................@@..
+..@@........................@@..
+..\Vv......................vV/..
+..`vV\..................../Vv'..
+....\10\................/01/....
+......\1H~h\......../h~H1/......
+........\h_H@@@@@@@@H_h/........
+................................
+
+glyph enclosing-circle-bg 16 16
+................................
+......../h~H@@@@@@@@@@H~h\......
+....../1H_h/..........\h_H1\....
+..../10/..................\01\..
+...vV/......................\Vv.
+../Vv'......................`vV\
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..\Vv........................vV/
+..`vV\....................../Vv'
+....\10\................../01/..
+......\1H~h\........../h~H1/....
+........\h_H@@@@@@@@@@H_h/......
+................................
+
+// used for dingbat "sans-serif" digits
+glyph enclosing-small-circle 16 16
+................................
+................................
+................................
+........../h~H@@@@@@H~h\........
+.........v@@0/......\0@@v.......
+......../V0/..........\0V\......
+........@@..............@@......
+........@@..............@@......
+........@@..............@@......
+........@@..............@@......
+........\V0\........../0V/......
+........`v@@0\....../0@@v'......
+..........\h_H@@@@@@H_h/........
+................................
+................................
+................................
+
+glyph uni24EA|uni2460|uni2461|uni2462|uni2463|uni2464|uni2465|uni2466|uni2467|uni2468
+ref enclosing-circle
+ref (0|1|2|3|4|5|6|7|8|9) 4 0
+map ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = uni24EA|uni2460|uni2461|uni2462|uni2463|uni2464|uni2465|uni2466|uni2467|uni2468
+glyph uni2469|uni246A|uni246B|uni246C|uni246D|uni246E|uni246F|uni2470|uni2471|uni2472
+ref enclosing-circle-bg
+ref 1-4x10 4 3
+ref (0|1|2|3|4|5|6|7|8|9)-4x10 9 3
+map ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = uni2469|uni246A|uni246B|uni246C|uni246D|uni246E|uni246F|uni2470|uni2471|uni2472
+glyph uni2473|uni3251|uni3252|uni3253|uni3254|uni3255|uni3256|uni3257|uni3258|uni3259
+ref enclosing-circle-bg
+ref 2-4x10 4 3
+ref (0|1|2|3|4|5|6|7|8|9)-4x10 9 3
+map ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = uni2473|uni3251|uni3252|uni3253|uni3254|uni3255|uni3256|uni3257|uni3258|uni3259
+glyph uni325A|uni325B|uni325C|uni325D|uni325E|uni325F|uni32B1|uni32B2|uni32B3|uni32B4
+ref enclosing-circle-bg
+ref 3-4x10 4 3
+ref (0|1|2|3|4|5|6|7|8|9)-4x10 9 3
+map ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = uni325A|uni325B|uni325C|uni325D|uni325E|uni325F|uni32B1|uni32B2|uni32B3|uni32B4
+glyph uni32B5|uni32B6|uni32B7|uni32B8|uni32B9|uni32BA|uni32BB|uni32BC|uni32BD|uni32BE
+ref enclosing-circle-bg
+ref 4-4x10 4 3
+ref (0|1|2|3|4|5|6|7|8|9)-4x10 9 3
+map ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = uni32B5|uni32B6|uni32B7|uni32B8|uni32B9|uni32BA|uni32BB|uni32BC|uni32BD|uni32BE
+glyph uni32BF
+ref enclosing-circle-bg
+ref 5-4x10 4 3
+ref 0-4x10 9 3
+map ㊿ = uni32BF
+
+glyph uni24B6|uni24B7|uni24B8|uni24B9|uni24BA|uni24BB|uni24BC|uni24BD|uni24BE|uni24BF|uni24C0|uni24C1|uni24C2|uni24C3|uni24C4|uni24C5|uni24C6|uni24C7|uni24C8|uni24C9|uni24CA|uni24CB|uni24CC|uni24CD|uni24CE|uni24CF
+ref enclosing-circle
+ref (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)-upper 4 0
+map Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = uni24B6|uni24B7|uni24B8|uni24B9|uni24BA|uni24BB|uni24BC|uni24BD|uni24BE|uni24BF|uni24C0|uni24C1|uni24C2|uni24C3|uni24C4|uni24C5|uni24C6|uni24C7|uni24C8|uni24C9|uni24CA|uni24CB|uni24CC|uni24CD|uni24CE|uni24CF
+
+// they need an individual control
+glyph uni24D0
+ref enclosing-circle
+ref a-lower 4 -1
+map ⓐ = uni24D0
+glyph uni24D1
+ref enclosing-circle
+ref b-lower 4 0
+map ⓑ = uni24D1
+glyph uni24D2
+ref enclosing-circle
+ref c-lower 4 -1
+map ⓒ = uni24D2
+glyph uni24D3
+ref enclosing-circle
+ref d-lower 4 0
+map ⓓ = uni24D3
+glyph uni24D4
+ref enclosing-circle
+ref e-lower 4 -1
+map ⓔ = uni24D4
+glyph uni24D5
+ref enclosing-circle
+ref f-lower 4 0
+map ⓕ = uni24D5
+glyph uni24D6
+ref enclosing-circle
+ref g-lower 4 -1
+map ⓖ = uni24D6
+glyph uni24D7
+ref enclosing-circle
+ref h-lower 4 0
+map ⓗ = uni24D7
+glyph uni24D8
+ref enclosing-circle
+ref i-lower 4 0
+map ⓘ = uni24D8
+glyph uni24D9
+ref enclosing-circle
+ref j-lower-compressed 4 0
+map ⓙ = uni24D9
+glyph uni24DA
+ref enclosing-circle
+ref k-lower 4 0
+map ⓚ = uni24DA
+glyph uni24DB
+ref enclosing-circle
+ref l-lower 4 0
+map ⓛ = uni24DB
+glyph uni24DC
+ref enclosing-circle
+ref m-lower 4 -1
+map ⓜ = uni24DC
+glyph uni24DD
+ref enclosing-circle
+ref n-lower 4 -1
+map ⓝ = uni24DD
+glyph uni24DE
+ref enclosing-circle
+ref o-lower 4 -1
+map ⓞ = uni24DE
+glyph uni24DF
+ref enclosing-circle
+ref p-lower-compressed 4 -1
+map ⓟ = uni24DF
+glyph uni24E0
+ref enclosing-circle
+ref q-lower-compressed 4 -1
+map ⓠ = uni24E0
+glyph uni24E1
+ref enclosing-circle
+ref r-lower 4 -1
+map ⓡ = uni24E1
+glyph uni24E2
+ref enclosing-circle
+ref s-lower 4 -1
+map ⓢ = uni24E2
+glyph uni24E3
+ref enclosing-circle
+ref t-lower 4 0
+map ⓣ = uni24E3
+glyph uni24E4
+ref enclosing-circle
+ref u-lower 4 -1
+map ⓤ = uni24E4
+glyph uni24E5
+ref enclosing-circle
+ref v-lower 4 -1
+map ⓥ = uni24E5
+glyph uni24E6
+ref enclosing-circle
+ref w-lower 4 -1
+map ⓦ = uni24E6
+glyph uni24E7
+ref enclosing-circle
+ref x-lower 4 -1
+map ⓧ = uni24E7
+glyph uni24E8
+ref enclosing-circle
+ref y-lower 4 -1
+map ⓨ = uni24E8
+glyph uni24E9
+ref enclosing-circle
+ref z-lower 4 -1
+map ⓩ = uni24E9
+
+glyph uni2780|uni2781|uni2782|uni2783|uni2784|uni2785|uni2786|uni2787|uni2788|uni2789
+ref enclosing-small-circle
+ref (1|2|3|4|5|6|7|8|9|10)-5x6 6 5
+map ➀|➁|➂|➃|➄|➅|➆|➇|➈|➉ = uni2780|uni2781|uni2782|uni2783|uni2784|uni2785|uni2786|uni2787|uni2788|uni2789
+
+glyph uni3260|uni3261|uni3262|uni3263|uni3264|uni3265|uni3266|uni3267|uni3268|uni3269|uni326A|uni326B|uni326C|uni326D
+ref enclosing-circle-sbg
+ref hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half 4 0
+map ㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|㉨|㉩|㉪|㉫|㉬|㉭ = uni3260|uni3261|uni3262|uni3263|uni3264|uni3265|uni3266|uni3267|uni3268|uni3269|uni326A|uni326B|uni326C|uni326D
+
+glyph uni326E|uni326F|uni3270|uni3271|uni3272|uni3273|uni3274|uni3275|uni3276|uni3277|uni3278|uni3279|uni327A|uni327B
+ref enclosing-circle-bg
+ref hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half 3 0
+ref hangul-a-half-narrow 8 0
+map ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = uni326E|uni326F|uni3270|uni3271|uni3272|uni3273|uni3274|uni3275|uni3276|uni3277|uni3278|uni3279|uni327A|uni327B
+
+//--------------------------------------
+// negated circled letters
+
+glyph enclosing-black-circle 16 16
+................................
+........../h~H@@@@@@H~h\........
+......../1@@@@@@@@@@@@@@1\......
+....../1@@@@@@@@@@@@@@@@@@1\....
+.....v@@@@@@@@@@@@@@@@@@@@@@v...
+..../V@@@@@@@@@@@@@@@@@@@@@@V\..
+....@@@@@@@@@@@@@@@@@@@@@@@@@@..
+....@@@@@@@@@@@@@@@@@@@@@@@@@@..
+....@@@@@@@@@@@@@@@@@@@@@@@@@@..
+....@@@@@@@@@@@@@@@@@@@@@@@@@@..
+....\V@@@@@@@@@@@@@@@@@@@@@@V/..
+....`v@@@@@@@@@@@@@@@@@@@@@@v'..
+......\1@@@@@@@@@@@@@@@@@@1/....
+........\1@@@@@@@@@@@@@@1/......
+..........\h_H@@@@@@H_h/........
+................................
+
+glyph enclosing-black-circle-bg 16 16
+................................
+......../h~H@@@@@@@@@@H~h\......
+....../1@@@@@@@@@@@@@@@@@@1\....
+..../1@@@@@@@@@@@@@@@@@@@@@@1\..
+...v@@@@@@@@@@@@@@@@@@@@@@@@@@v.
+../V@@@@@@@@@@@@@@@@@@@@@@@@@@V\
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+..\V@@@@@@@@@@@@@@@@@@@@@@@@@@V/
+..`v@@@@@@@@@@@@@@@@@@@@@@@@@@v'
+....\1@@@@@@@@@@@@@@@@@@@@@@1/..
+......\1@@@@@@@@@@@@@@@@@@1/....
+........\h_H@@@@@@@@@@H_h/......
+................................
+
+// used for dingbat "sans-serif" digits
+glyph enclosing-small-black-circle 16 16
+................................
+................................
+................................
+........../h~H@@@@@@H~h\........
+.........v@@@@@@@@@@@@@@v.......
+......../V@@@@@@@@@@@@@@V\......
+........@@@@@@@@@@@@@@@@@@......
+........@@@@@@@@@@@@@@@@@@......
+........@@@@@@@@@@@@@@@@@@......
+........@@@@@@@@@@@@@@@@@@......
+........\V@@@@@@@@@@@@@@V/......
+........`v@@@@@@@@@@@@@@v'......
+..........\h_H@@@@@@H_h/........
+................................
+................................
+................................
+
+glyph uni24FF|uni2776|uni2777|uni2778|uni2779|uni277A|uni277B|uni277C|uni277D|uni277E
+ref enclosing-black-circle
+ref (0|1|2|3|4|5|6|7|8|9) 4 0 negated
+map ⓿|❶|❷|❸|❹|❺|❻|❼|❽|❾ = uni24FF|uni2776|uni2777|uni2778|uni2779|uni277A|uni277B|uni277C|uni277D|uni277E
+glyph uni277F|uni24EB|uni24EC|uni24ED|uni24EE|uni24EF|uni24F0|uni24F1|uni24F2|uni24F3
+ref enclosing-black-circle-bg
+ref 1-4x10 4 3 negated
+ref (0|1|2|3|4|5|6|7|8|9)-4x10 9 3 negated
+map ❿|⓫|⓬|⓭|⓮|⓯|⓰|⓱|⓲|⓳ = uni277F|uni24EB|uni24EC|uni24ED|uni24EE|uni24EF|uni24F0|uni24F1|uni24F2|uni24F3
+glyph uni24F4
+ref enclosing-black-circle-bg
+ref 2-4x10 4 3 negated
+ref 0-4x10 9 3 negated
+map ⓴ = uni24F4
+
+glyph uni278A|uni278B|uni278C|uni278D|uni278E|uni278F|uni2790|uni2791|uni2792|uni2793
+ref enclosing-small-black-circle
+ref (1|2|3|4|5|6|7|8|9|10)-5x6 6 5 negated
+map ➊|➋|➌|➍|➎|➏|➐|➑|➒|➓ = uni278A|uni278B|uni278C|uni278D|uni278E|uni278F|uni2790|uni2791|uni2792|uni2793
+
+//--------------------------------------
+// circled letters in a black square
+
+glyph enclosing-circle-in-black-square 16 16
+................................
+....@@@@@@@@@@@@@@@@@@@@@@@@@@..
+....@@@@H_h/..........\h_H@@@@..
+....@@V/..................\V@@..
+....@@v'..................`v@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@v....................v@@..
+....@@V\................../V@@..
+....@@@@H~h\........../h~H@@@@..
+....@@@@@@@@@@@@@@@@@@@@@@@@@@..
+................................
+
+glyph uni3248|uni3249|uni324A|uni324B|uni324C|uni324D|uni324E|uni324F
+ref enclosing-circle-in-black-square
+ref (1|2|3|4|5|6|7|8)-4x10 4 3
+ref 0-4x10 9 3
+map ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = uni3248|uni3249|uni324A|uni324B|uni324C|uni324D|uni324E|uni324F
+
+//--------------------------------------
+// doubly circled letters
+
+glyph enclosing-dcircle
+ref enclosing-circle
+ref enclosing-small-circle
+
+glyph uni24F5|uni24F6|uni24F7|uni24F8|uni24F9|uni24FA|uni24FB|uni24FC|uni24FD|uni24FE
+ref enclosing-dcircle
+ref (1|2|3|4|5|6|7|8|9|10)-5x6 6 5
+map ⓵|⓶|⓷|⓸|⓹|⓺|⓻|⓼|⓽|⓾ = uni24F5|uni24F6|uni24F7|uni24F8|uni24F9|uni24FA|uni24FB|uni24FC|uni24FD|uni24FE
+
+//--------------------------------------
+// parenthesed letters
+
+glyph enclosing-parens 16 16
+................................
+................................
+....../01/..............\10\....
+.....vV/..................\Vv...
+..../Vv'..................`vV\..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....@@......................@@..
+....\Vv....................vV/..
+....`vV\................../Vv'..
+......\01\............../10/....
+................................
+................................
+
+glyph enclosing-parens-sbg 16 16
+................................
+................................
+..../01/................\10\....
+...vV/....................\Vv...
+../Vv'....................`vV\..
+..@@........................@@..
+..@@........................@@..
+..@@........................@@..
+..@@........................@@..
+..@@........................@@..
+..@@........................@@..
+..\Vv......................vV/..
+..`vV\..................../Vv'..
+....\01\................/10/....
+................................
+................................
+
+glyph enclosing-parens-bg 16 16
+................................
+................................
+..../01/..................\10\..
+...vV/......................\Vv.
+../Vv'......................`vV\
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..\Vv........................vV/
+..`vV\....................../Vv'
+....\01\................../10/..
+................................
+................................
+
+glyph uni2474|uni2475|uni2476|uni2477|uni2478|uni2479|uni247A|uni247B|uni247C
+ref enclosing-parens
+ref (1|2|3|4|5|6|7|8|9) 4 0
+map ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = uni2474|uni2475|uni2476|uni2477|uni2478|uni2479|uni247A|uni247B|uni247C
+glyph uni247D|uni247E|uni247F|uni2480|uni2481|uni2482|uni2483|uni2484|uni2485|uni2486
+ref enclosing-parens-bg
+ref 1-4x10 4 3
+ref (0|1|2|3|4|5|6|7|8|9)-4x10 9 3
+map ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = uni247D|uni247E|uni247F|uni2480|uni2481|uni2482|uni2483|uni2484|uni2485|uni2486
+glyph uni2487
+ref enclosing-parens-bg
+ref 2-4x10 4 3
+ref 0-4x10 9 3
+map ⒇ = uni2487
+
+glyph uni249C
+ref enclosing-parens
+ref a-lower 4 -1
+map ⒜ = uni249C
+glyph uni249D
+ref enclosing-parens
+ref b-lower 4 0
+map ⒝ = uni249D
+glyph uni249E
+ref enclosing-parens
+ref c-lower 4 -1
+map ⒞ = uni249E
+glyph uni249F
+ref enclosing-parens
+ref d-lower 4 0
+map ⒟ = uni249F
+glyph uni24A0
+ref enclosing-parens
+ref e-lower 4 -1
+map ⒠ = uni24A0
+glyph uni24A1
+ref enclosing-parens
+ref f-lower 4 0
+map ⒡ = uni24A1
+glyph uni24A2
+ref enclosing-parens
+ref g-lower 4 -1
+map ⒢ = uni24A2
+glyph uni24A3
+ref enclosing-parens
+ref h-lower 4 0
+map ⒣ = uni24A3
+glyph uni24A4
+ref enclosing-parens
+ref i-lower 4 0
+map ⒤ = uni24A4
+glyph uni24A5
+ref enclosing-parens
+ref j-lower-compressed 4 0
+map ⒥ = uni24A5
+glyph uni24A6
+ref enclosing-parens
+ref k-lower 4 0
+map ⒦ = uni24A6
+glyph uni24A7
+ref enclosing-parens
+ref l-lower 4 0
+map ⒧ = uni24A7
+glyph uni24A8
+ref enclosing-parens
+ref m-lower 4 -1
+map ⒨ = uni24A8
+glyph uni24A9
+ref enclosing-parens
+ref n-lower 4 -1
+map ⒩ = uni24A9
+glyph uni24AA
+ref enclosing-parens
+ref o-lower 4 -1
+map ⒪ = uni24AA
+glyph uni24AB
+ref enclosing-parens
+ref p-lower-compressed 4 -1
+map ⒫ = uni24AB
+glyph uni24AC
+ref enclosing-parens
+ref q-lower-compressed 4 -1
+map ⒬ = uni24AC
+glyph uni24AD
+ref enclosing-parens
+ref r-lower 4 -1
+map ⒭ = uni24AD
+glyph uni24AE
+ref enclosing-parens
+ref s-lower 4 -1
+map ⒮ = uni24AE
+glyph uni24AF
+ref enclosing-parens
+ref t-lower 4 0
+map ⒯ = uni24AF
+glyph uni24B0
+ref enclosing-parens
+ref u-lower 4 -1
+map ⒰ = uni24B0
+glyph uni24B1
+ref enclosing-parens
+ref v-lower 4 -1
+map ⒱ = uni24B1
+glyph uni24B2
+ref enclosing-parens
+ref w-lower 4 -1
+map ⒲ = uni24B2
+glyph uni24B3
+ref enclosing-parens
+ref x-lower 4 -1
+map ⒳ = uni24B3
+glyph uni24B4
+ref enclosing-parens
+ref y-lower 4 -1
+map ⒴ = uni24B4
+glyph uni24B5
+ref enclosing-parens
+ref z-lower 4 -1
+map ⒵ = uni24B5
+
+glyph uni3200|uni3201|uni3202|uni3203|uni3204|uni3205|uni3206|uni3207|uni3208|uni3209|uni320A|uni320B|uni320C|uni320D
+ref enclosing-parens-sbg
+ref hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half 4 0
+map ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = uni3200|uni3201|uni3202|uni3203|uni3204|uni3205|uni3206|uni3207|uni3208|uni3209|uni320A|uni320B|uni320C|uni320D
+
+glyph uni320E|uni320F|uni3210|uni3211|uni3212|uni3213|uni3214|uni3215|uni3216|uni3217|uni3218|uni3219|uni321A|uni321B
+ref enclosing-parens-bg
+ref hangul-(g|n|d|r|m|b|s|0|j|c|k|t|p|h)-half 3 0
+ref hangul-a-half-narrow 8 0
+map ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = uni320E|uni320F|uni3210|uni3211|uni3212|uni3213|uni3214|uni3215|uni3216|uni3217|uni3218|uni3219|uni321A|uni321B
+
+//--------------------------------------
+// with full stop
+
+glyph enclosing-full-stop 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+......................@@@@......
+......................@@@@......
+......................@@@@......
+................................
+................................
+................................
+
+glyph enclosing-full-stop-bg 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+........................@@@@....
+........................@@@@....
+........................@@@@....
+................................
+................................
+................................
+
+glyph uni2488|uni2489|uni248A|uni248B|uni248C|uni248D|uni248E|uni248F|uni2490
+ref enclosing-full-stop
+ref (1|2|3|4|5|6|7|8|9) 2 0
+map ⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = uni2488|uni2489|uni248A|uni248B|uni248C|uni248D|uni248E|uni248F|uni2490
+glyph uni2491|uni2492|uni2493|uni2494|uni2495|uni2496|uni2497|uni2498|uni2499|uni249A
+ref enclosing-full-stop-bg
+ref 1-4x10 2 3
+ref (0|1|2|3|4|5|6|7|8|9)-4x10 7 3
+map ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = uni2491|uni2492|uni2493|uni2494|uni2495|uni2496|uni2497|uni2498|uni2499|uni249A
+glyph uni249B
+ref enclosing-full-stop-bg
+ref 2-4x10 2 3
+ref 0-4x10 7 3
+map ⒛ = uni249B
+
+// vim: ft=unison

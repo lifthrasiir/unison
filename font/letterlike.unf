@@ -1,0 +1,633 @@
+////////////////////////////////////////
+// letterlike symbols
+
+glyph feminine-ordinal 8 16
+................
+......@@@@@@0\..
+..........@@@@..
+..../0@@@@@@@@..
+....@@0<..@@@@..
+....\0@@@@@@@@..
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+
+glyph masculine-ordinal 8 16
+................
+..../0@@@@0\....
+....@@....@@....
+....@@....@@....
+....\0@@@@0/....
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+
+glyph micro 8 16
+................
+................
+................
+................
+................
+..@@@@....@@@@..
+..@@@@....@@@@..
+..@@@@....@@@@..
+..@@@@....@@@@..
+..@@@@....@@@@..
+..@@@@....@@@@..
+..@@@@1\..@@@@..
+..@@@@\0@@@@P0@@
+..@@@@..........
+..@@@@..........
+................
+
+glyph script-l-lower 8 16
+................
+................
+................
+....../h~HH~h\..
+.....v@@1/\1@@v.
+..../V@@....@@V\
+....@@@@....@@@@
+....@@@@....@@@@
+....\V@@v...@@V/
+....`v@@V\/1@@v'
+......>1@@@@0/..
+../h~H@@P1@@H~h\
+..@@H_h/..\h_H@@
+................
+................
+................
+
+glyph copyright 8 16
+................
+................
+................
+................
+../0@@@@@@@@@@0\
+..@@..........@@
+..@@../0@@@@..@@
+..@@..@@......@@
+..@@..@@......@@
+..@@..\0@@@@..@@
+..@@..........@@
+..\0@@@@@@@@@@0/
+................
+................
+................
+................
+
+glyph registered 8 16
+................
+................
+................
+................
+../0@@@@@@@@@@0\
+..@@..........@@
+..@@..@@@@@@..@@
+..@@..@@..@@..@@
+..@@..@@@@0<..@@
+..@@..@@..@@..@@
+..@@..........@@
+..\0@@@@@@@@@@0/
+................
+................
+................
+................
+
+glyph trademark 16 16
+................................
+..@@@@@@@@@@@@..@@@@1\../1@@@@..
+......@@@@......@@@@@@1d@@@@@@..
+......@@@@......@@@@\0@@0/@@@@..
+......@@@@......@@@@..0P..@@@@..
+......@@@@......@@@@......@@@@..
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+
+glyph servicemark 16 16
+................................
+../0@@@@@@@@@@..@@@@1\../1@@@@..
+..@@@@..........@@@@@@1d@@@@@@..
+..\0@@@@@@@@0\..@@@@\0@@0/@@@@..
+..........@@@@..@@@@..0P..@@@@..
+..@@@@@@@@@@0/..@@@@......@@@@..
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+
+map ª = feminine-ordinal
+map ° = masculine-ordinal
+map µ = micro
+map ℓ = script-l-lower
+map © = copyright
+map ® = registered
+map ™ = trademark
+map ℠ = servicemark
+
+//--------------------------------------
+// unit symbols
+
+// subject to change. (also, we really need a special syntax for ligatures)
+
+glyph uni33C2
+ref a-lower
+ref period 8 0
+ref m-lower 16 0
+ref period 24 0
+map ㏂ = uni33C2
+glyph uni33DF
+ref a-upper
+ref slash 8 0
+ref m-lower 16 0
+map ㏟ = uni33DF
+glyph uni3373
+ref a-upper
+ref u-upper 8 0
+map ㍳ = uni3373
+glyph uni3374
+ref b-lower
+ref a-lower 8 0
+ref r-lower 16 0
+map ㍴ = uni3374
+glyph uni33C3
+ref b-upper
+ref q-lower 8 0
+map ㏃ = uni33C3
+glyph uni33C6
+ref c-upper
+ref slash 8 0
+ref k-lower 16 0
+ref g-lower 24 0
+map ㏆ = uni33C6
+glyph uni3388
+ref c-lower
+ref a-lower 8 0
+ref l-lower 16 0
+map ㎈ = uni3388
+glyph uni33C4
+ref c-lower
+ref c-lower 8 0
+map ㏄ = uni33C4
+glyph uni33C5
+ref c-lower
+ref d-lower 8 0
+map ㏅ = uni33C5
+glyph uni339D
+ref c-lower
+ref m-lower 8 0
+map ㎝ = uni339D
+glyph uni33A0
+ref c-lower
+ref m-lower 8 0
+ref sup-2 16 0
+map ㎠ = uni33A0
+glyph uni33A4
+ref c-lower
+ref m-lower 8 0
+ref sup-3 16 0
+map ㎤ = uni33A4
+glyph uni33C7
+ref c-upper
+ref o-lower 8 0
+ref period 16 0
+map ㏇ = uni33C7
+glyph uni3372
+ref d-lower
+ref a-lower 8 0
+map ㍲ = uni3372
+glyph uni33C8
+ref d-lower
+ref b-upper 8 0
+map ㏈ = uni33C8
+glyph uni3397
+ref d-lower
+ref script-l-lower 8 0
+map ㎗ = uni3397
+glyph uni3377
+ref d-lower
+ref m-lower 8 0
+map ㍷ = uni3377
+glyph uni3378
+ref d-lower
+ref m-lower 8 0
+ref sup-2 16 0
+map ㍸ = uni3378
+glyph uni3379
+ref d-lower
+ref m-lower 8 0
+ref sup-3 16 0
+map ㍹ = uni3379
+glyph uni3399
+ref f-lower
+ref m-lower 8 0
+map ㎙ = uni3399
+glyph uni33FF
+ref g-lower
+ref a-lower 8 0
+ref l-lower 16 0
+map ㏿ = uni33FF
+glyph uni3387
+ref g-upper
+ref b-upper 8 0
+map ㎇ = uni3387
+glyph uni3393
+ref g-upper
+ref h-upper 8 0
+ref z-lower 16 0
+map ㎓ = uni3393
+glyph uni33AC
+ref g-upper
+ref p-upper 8 0
+ref a-lower 16 0
+map ㎬ = uni33AC
+glyph uni33C9
+ref g-upper
+ref y-lower 8 0
+map ㏉ = uni33C9
+glyph uni33CA
+ref h-lower
+ref a-lower 8 0
+map ㏊ = uni33CA
+glyph uni33CB
+ref h-upper
+ref p-upper 8 0
+map ㏋ = uni33CB
+glyph uni3390
+ref h-upper
+ref z-lower 8 0
+map ㎐ = uni3390
+glyph uni33CC
+ref i-lower
+ref n-lower 8 0
+map ㏌ = uni33CC
+glyph uni337A
+ref i-upper
+ref u-upper 8 0
+map ㍺ = uni337A
+glyph uni33CD
+ref k-upper
+ref period 8 0
+ref k-upper 16 0
+ref period 24 0
+map ㏍ = uni33CD
+glyph uni3384
+ref k-lower
+ref a-upper 8 0
+map ㎄ = uni3384
+glyph uni3385
+ref k-upper
+ref b-upper 8 0
+map ㎅ = uni3385
+glyph uni3389
+ref k-lower
+ref c-lower 8 0
+ref a-lower 16 0
+ref l-lower 24 0
+map ㎉ = uni3389
+glyph uni338F
+ref k-lower
+ref g-lower 8 0
+map ㎏ = uni338F
+glyph uni3391
+ref k-lower
+ref h-upper 8 0
+ref z-lower 16 0
+map ㎑ = uni3391
+glyph uni3398
+ref k-lower
+ref script-l-lower 8 0
+map ㎘ = uni3398
+glyph uni33CE
+ref k-upper
+ref m-upper 8 0
+map ㏎ = uni33CE
+glyph uni339E
+ref k-lower
+ref m-lower 8 0
+map ㎞ = uni339E
+glyph uni33A2
+ref k-lower
+ref m-lower 8 0
+ref sup-2 16 0
+map ㎢ = uni33A2
+glyph uni33A6
+ref k-lower
+ref m-lower 8 0
+ref sup-3 16 0
+map ㎦ = uni33A6
+glyph uni33C0
+ref k-lower
+ref gr-omega-upper 8 0
+map ㏀ = uni33C0
+glyph uni33AA
+ref k-lower
+ref p-upper 8 0
+ref a-lower 16 0
+map ㎪ = uni33AA
+glyph uni33CF
+ref k-lower
+ref t-lower 8 0
+map ㏏ = uni33CF
+glyph uni33B8
+ref k-lower
+ref v-upper 8 0
+map ㎸ = uni33B8
+glyph uni33BE
+ref k-lower
+ref w-upper 8 0
+map ㎾ = uni33BE
+glyph uni33D0
+ref l-lower
+ref m-lower 8 0
+map ㏐ = uni33D0
+glyph uni33D1
+ref l-lower
+ref n-lower 8 0
+map ㏑ = uni33D1
+glyph uni33D2
+ref l-lower
+ref o-lower 8 0
+ref g-lower 16 0
+map ㏒ = uni33D2
+glyph uni33D3
+ref l-lower
+ref x-lower 8 0
+map ㏓ = uni33D3
+glyph uni33A7
+ref m-lower
+ref slash 8 0
+ref s-lower 16 0
+map ㎧ = uni33A7
+glyph uni33A8
+ref m-lower
+ref slash 8 0
+ref s-lower 16 0
+ref sup-2 24 0
+map ㎨ = uni33A8
+glyph uni33A1
+ref m-lower
+ref sup-2 8 0
+map ㎡ = uni33A1
+glyph uni33A5
+ref m-lower
+ref sup-3 8 0
+map ㎥ = uni33A5
+glyph uni3383
+ref m-lower
+ref a-upper 8 0
+map ㎃ = uni3383
+glyph uni3386
+ref m-upper
+ref b-upper 8 0
+map ㎆ = uni3386
+glyph uni33D4
+ref m-lower
+ref b-lower 8 0
+map ㏔ = uni33D4
+glyph uni338E
+ref m-lower
+ref g-lower 8 0
+map ㎎ = uni338E
+glyph uni3392
+ref m-upper
+ref h-upper 8 0
+ref z-lower 16 0
+map ㎒ = uni3392
+glyph uni33D5
+ref m-lower
+ref i-lower 8 0
+ref l-lower 16 0
+map ㏕ = uni33D5
+glyph uni3396
+ref m-lower
+ref script-l-lower 8 0
+map ㎖ = uni3396
+glyph uni339C
+ref m-lower
+ref m-lower 8 0
+map ㎜ = uni339C
+glyph uni339F
+ref m-lower
+ref m-lower 8 0
+ref sup-2 16 0
+map ㎟ = uni339F
+glyph uni33A3
+ref m-lower
+ref m-lower 8 0
+ref sup-3 16 0
+map ㎣ = uni33A3
+glyph uni33D6
+ref m-lower
+ref o-lower 8 0
+ref l-lower 16 0
+map ㏖ = uni33D6
+glyph uni33C1
+ref m-upper
+ref gr-omega-upper 8 0
+map ㏁ = uni33C1
+glyph uni33AB
+ref m-upper
+ref p-upper 8 0
+ref a-lower 16 0
+map ㎫ = uni33AB
+glyph uni33B3
+ref m-lower
+ref s-lower 8 0
+map ㎳ = uni33B3
+glyph uni33B9
+ref m-upper
+ref v-upper 8 0
+map ㎹ = uni33B9
+glyph uni33B7
+ref m-lower
+ref v-upper 8 0
+map ㎷ = uni33B7
+glyph uni33BF
+ref m-upper
+ref w-upper 8 0
+map ㎿ = uni33BF
+glyph uni33BD
+ref m-lower
+ref w-upper 8 0
+map ㎽ = uni33BD
+glyph uni3381
+ref n-lower
+ref a-upper 8 0
+map ㎁ = uni3381
+glyph uni338B
+ref n-lower
+ref f-upper 8 0
+map ㎋ = uni338B
+glyph uni339A
+ref n-lower
+ref m-lower 8 0
+map ㎚ = uni339A
+glyph uni33B1
+ref n-lower
+ref s-lower 8 0
+map ㎱ = uni33B1
+glyph uni33B5
+ref n-lower
+ref v-upper 8 0
+map ㎵ = uni33B5
+glyph uni33BB
+ref n-lower
+ref w-upper 8 0
+map ㎻ = uni33BB
+glyph uni3375
+ref o-lower
+ref v-upper 8 0
+map ㍵ = uni3375
+glyph uni33D8
+ref p-lower
+ref period 8 0
+ref m-lower 16 0
+ref period 24 0
+map ㏘ = uni33D8
+glyph uni33A9
+ref p-upper
+ref a-lower 8 0
+map ㎩ = uni33A9
+glyph uni3380
+ref p-lower
+ref a-upper 8 0
+map ㎀ = uni3380
+glyph uni3376
+ref p-lower
+ref c-lower 8 0
+map ㍶ = uni3376
+glyph uni338A
+ref p-lower
+ref f-upper 8 0
+map ㎊ = uni338A
+glyph uni33D7
+ref p-lower
+ref h-upper 8 0
+map ㏗ = uni33D7
+glyph uni33D9
+ref p-upper
+ref p-upper 8 0
+ref m-upper 16 0
+map ㏙ = uni33D9
+glyph uni33DA
+ref p-upper
+ref r-upper 8 0
+map ㏚ = uni33DA
+glyph uni33B0
+ref p-lower
+ref s-lower 8 0
+map ㎰ = uni33B0
+glyph uni33B4
+ref p-lower
+ref v-upper 8 0
+map ㎴ = uni33B4
+glyph uni33BA
+ref p-lower
+ref w-upper 8 0
+map ㎺ = uni33BA
+glyph uni33AD
+ref r-lower
+ref a-lower 8 0
+ref d-lower 16 0
+map ㎭ = uni33AD
+glyph uni33AE
+ref r-lower
+ref a-lower 8 0
+ref d-lower 16 0
+ref slash 24 0
+ref s-lower 32 0
+map ㎮ = uni33AE
+glyph uni33AF
+ref r-lower
+ref a-lower 8 0
+ref d-lower 16 0
+ref slash 24 0
+ref s-lower 32 0
+ref sup-2 40 0
+map ㎯ = uni33AF
+glyph uni33DB
+ref s-lower
+ref r-lower 8 0
+map ㏛ = uni33DB
+glyph uni33DC
+ref s-upper
+ref v-lower 8 0
+map ㏜ = uni33DC
+glyph uni3394
+ref t-upper
+ref h-upper 8 0
+ref z-lower 16 0
+map ㎔ = uni3394
+glyph uni3382
+ref micro
+ref a-upper 8 0
+map ㎂ = uni3382
+glyph uni338C
+ref micro
+ref f-upper 8 0
+map ㎌ = uni338C
+glyph uni338D
+ref micro
+ref g-lower 8 0
+map ㎍ = uni338D
+glyph uni3395
+ref micro
+ref script-l-lower 8 0
+map ㎕ = uni3395
+glyph uni339B
+ref micro
+ref m-lower 8 0
+map ㎛ = uni339B
+glyph uni33B2
+ref micro
+ref s-lower 8 0
+map ㎲ = uni33B2
+glyph uni33B6
+ref micro
+ref v-upper 8 0
+map ㎶ = uni33B6
+glyph uni33BC
+ref micro
+ref w-upper 8 0
+map ㎼ = uni33BC
+glyph uni33DE
+ref v-upper
+ref slash 8 0
+ref m-lower 16 0
+map ㏞ = uni33DE
+glyph uni33DD
+ref w-upper
+ref b-lower 8 0
+map ㏝ = uni33DD
+
+// vim: ft=unison

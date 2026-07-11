@@ -1,0 +1,5 @@
+[alias]
+xb = 'xbuild'
+xbuild = 'xwin build --target x86_64-pc-windows-msvc'
+xr = 'exec target\x86_64-pc-windows-msvc\debug\uniform.exe'
+xrr = 'exec target\x86_64-pc-windows-msvc\release\uniform.exe'
