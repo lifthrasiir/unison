@@ -67,7 +67,7 @@ pub struct UniformApp {
     close_confirmed: bool,
     hex_input: Option<String>,
     bottom_panel_height: f32,
-    bottom_panel_tab: usize,
+    bottom_panel_tab: Option<usize>,
     preview_font_size: f32,
     preview_font_size_slider: f32,
     shaped_preview: ShapedPreviewState,
@@ -167,7 +167,7 @@ impl UniformApp {
             close_confirmed: false,
             hex_input: None,
             bottom_panel_height: 200.0,
-            bottom_panel_tab: 0,
+            bottom_panel_tab: Some(0),
             preview_font_size: 32.0,
             preview_font_size_slider: 32.0,
             shaped_preview: ShapedPreviewState::new(),
@@ -1186,15 +1186,25 @@ impl eframe::App for UniformApp {
 
         let mut specimen_clicked_glyph: Option<String> = None;
         let mut issues_click: Option<(PathBuf, usize)> = None;
-        egui::TopBottomPanel::bottom("bottom_panel")
-            .resizable(true)
-            .default_height(self.bottom_panel_height)
-            .min_height(100.0)
-            .show(ctx, |ui| {
-                self.bottom_panel_height = ui.available_height();
+        let bottom_panel_expanded = self.bottom_panel_tab.is_some();
+        let mut bottom_panel = egui::TopBottomPanel::bottom("bottom_panel")
+            .resizable(bottom_panel_expanded);
+        if bottom_panel_expanded {
+            bottom_panel = bottom_panel
+                .default_height(self.bottom_panel_height)
+                .min_height(100.0);
+        }
+        bottom_panel.show(ctx, |ui| {
+                if bottom_panel_expanded {
+                    self.bottom_panel_height = ui.available_height();
+                }
                 ui.horizontal(|ui| {
-                    ui.selectable_value(&mut self.bottom_panel_tab, 0, "Preview");
-                    ui.selectable_value(&mut self.bottom_panel_tab, 1, "Specimen");
+                    for (idx, label) in [(0, "Preview"), (1, "Specimen")] {
+                        let selected = self.bottom_panel_tab == Some(idx);
+                        if ui.selectable_label(selected, label).clicked() {
+                            self.bottom_panel_tab = if selected { None } else { Some(idx) };
+                        }
+                    }
                     let issues_label = if self.issues.is_empty() {
                         "Issues".to_string()
                     } else {
@@ -1207,11 +1217,17 @@ impl eframe::App for UniformApp {
                         if warnings > 0 { parts.push(format!("{warnings} warning{}", if warnings == 1 { "" } else { "s" })); }
                         format!("Issues ({})", parts.join(", "))
                     };
-                    ui.selectable_value(&mut self.bottom_panel_tab, 2, issues_label);
+                    let issues_selected = self.bottom_panel_tab == Some(2);
+                    if ui.selectable_label(issues_selected, issues_label).clicked() {
+                        self.bottom_panel_tab = if issues_selected { None } else { Some(2) };
+                    }
                 });
+                if self.bottom_panel_tab.is_none() {
+                    return;
+                }
                 ui.separator();
                 match self.bottom_panel_tab {
-                    0 => {
+                    Some(0) => {
                         ui.horizontal(|ui| {
                             ui.label("Font size:");
                             let slider_resp = ui.add(
@@ -1248,7 +1264,7 @@ impl eframe::App for UniformApp {
                             self.preview_font_size,
                         );
                     }
-                    1 => {
+                    Some(1) => {
                         let all_docs: Vec<&Document> = {
                             let mut docs: Vec<&Document> = Vec::new();
                             for od in &self.open_documents {
@@ -1270,7 +1286,7 @@ impl eframe::App for UniformApp {
                         );
                         specimen_clicked_glyph = self.specimen.show(ui);
                     }
-                    2 => {
+                    Some(2) => {
                         show_issues_tab(ui, &self.issues, &mut issues_click);
                     }
                     _ => {}
