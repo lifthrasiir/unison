@@ -264,19 +264,16 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                             negated: r.negated,
                         })
                         .collect();
-                    match expand_glyph_block(&subst_name, &subst_refs) {
-                        Ok(expanded) => {
-                            for mut item in expanded {
-                                if let DocumentItem::Glyph { body: ref mut b, .. } = item {
-                                    b.points = body.points.clone();
-                                    b.sticky = body.sticky;
-                                    b.advance = body.advance;
-                                    b.left = body.left;
-                                }
-                                all_items.push(item);
+                    if let Ok(expanded) = expand_glyph_block(&subst_name, &subst_refs) {
+                        for mut item in expanded {
+                            if let DocumentItem::Glyph { body: ref mut b, .. } = item {
+                                b.points = body.points.clone();
+                                b.sticky = body.sticky;
+                                b.advance = body.advance;
+                                b.left = body.left;
                             }
+                            all_items.push(item);
                         }
-                        Err(e) => eprintln!("warning: glyph range expansion failed: {e}"),
                     }
                 } else {
                     let mut body = body.clone();
