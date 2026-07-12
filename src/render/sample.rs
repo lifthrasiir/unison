@@ -158,7 +158,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         if let Some(cached) = cache.get(name) {
             return Some(cached);
         }
-        let expanded = crate::editor::ref_composite::expand_ref_names(name)?;
+        let expanded = crate::ref_composite::expand_ref_names(name)?;
         cache.get(expanded.first()?)
     }
 
@@ -221,7 +221,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             }
             let pg = pending.swap_remove(i);
             let (effective_refs, anchors) =
-                crate::editor::ref_composite::derive_ref_offsets_with(
+                crate::ref_composite::derive_ref_offsets_with(
                     &pg.points,
                     &pg.refs,
                     |name| {

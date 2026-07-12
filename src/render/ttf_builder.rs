@@ -46,12 +46,14 @@ pub struct ContourCache {
 
 pub type SharedContourCache = Arc<Mutex<ContourCache>>;
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 impl ContourCache {
     pub fn clear(&mut self) {
         self.entries.clear();
     }
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn new_contour_cache() -> SharedContourCache {
     Arc::new(Mutex::new(ContourCache::default()))
 }
@@ -161,6 +163,7 @@ pub fn build_bitmap_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {
     build_font_from_documents_inner(docs, true, None)
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn build_font_pair_cached(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
@@ -358,7 +361,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             }
             let pg = pending.swap_remove(i);
             let (effective_refs, anchors) =
-                crate::editor::ref_composite::derive_ref_offsets_with(
+                crate::ref_composite::derive_ref_offsets_with(
                     &pg.points,
                     &pg.refs,
                     |name| {
@@ -1197,7 +1200,7 @@ fn resolve_cached_ref<'a>(
     if let Some(cached) = cache.get(name) {
         return Some(cached);
     }
-    let expanded = crate::editor::ref_composite::expand_ref_names(name)?;
+    let expanded = crate::ref_composite::expand_ref_names(name)?;
     cache.get(expanded.first()?)
 }
 

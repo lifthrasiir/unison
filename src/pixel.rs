@@ -171,6 +171,7 @@ pub struct EdgeInterval {
     pub end: f32,
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 impl EdgeInterval {
     pub const EMPTY: Self = Self {
         start: 0.0,
@@ -193,6 +194,7 @@ impl EdgeInterval {
 }
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct ShapeEdgeCoverage {
     pub top: EdgeInterval,
     pub bottom: EdgeInterval,
@@ -203,6 +205,7 @@ pub struct ShapeEdgeCoverage {
 static EDGE_COVERAGE: std::sync::LazyLock<[ShapeEdgeCoverage; 32]> =
     std::sync::LazyLock::new(|| std::array::from_fn(|i| compute_edge_coverage(i as u8)));
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn edge_coverage(shape_id: u8) -> &'static ShapeEdgeCoverage {
     &EDGE_COVERAGE[shape_id.min(31) as usize]
 }
@@ -556,6 +559,7 @@ static COMBINE: std::sync::LazyLock<ShapeCombineTable> = std::sync::LazyLock::ne
 /// Union two pixel shapes. Returns the combined shape, or a `PX_DOT`
 /// fallback if the geometric result doesn't match any known shape.
 /// The filled flag is set if either input is filled.
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() {
         return b;
@@ -570,6 +574,7 @@ pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
 /// Subtract shape `b`'s area from shape `a`. The filled flag is preserved
 /// from `a`. Returns `EMPTY` when nothing remains, or a `PX_DOT` fallback
 /// when the geometric result doesn't match any known shape.
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() || b.is_empty() {
         return a;

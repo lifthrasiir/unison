@@ -10,7 +10,7 @@ pub mod inline_tools;
 pub mod minimap;
 pub mod pixel_interaction;
 pub mod reconcile;
-pub mod ref_composite;
+pub(crate) use crate::ref_composite;
 pub mod shape_palette;
 pub mod undo;
 pub mod visual_lines;

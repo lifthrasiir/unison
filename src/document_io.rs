@@ -86,6 +86,7 @@ pub fn quote_token(s: &str) -> String {
 /// click/hover). `raw_start..raw_end` covers the full raw representation
 /// including backtick delimiters.
 #[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct TokenSpan {
     pub value: String,
     pub raw_start: usize,
@@ -94,6 +95,7 @@ pub struct TokenSpan {
 
 /// Like [`tokenize_tokens`] but also returns character-offset spans for each
 /// token in the original line.
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn tokenize_with_spans(line: &str) -> std::result::Result<Vec<TokenSpan>, String> {
     let mut tokens = Vec::new();
     let chars: Vec<char> = line.chars().collect();
@@ -476,6 +478,7 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
 
 /// Convert old `= ..` range format to standard `glyph`/`ref` format.
 /// `glyph NAME = ..\n\tbody1 ..\n\tbody2` becomes `glyph NAME\nref body1 0 0\nref body2 0 0`.
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn parse_doclines(content: &str) -> Vec<DocLine> {
     let mut lines = Vec::new();
     let mut iter = content.lines().peekable();
@@ -529,6 +532,7 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
     lines
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn serialize_doclines(lines: &[DocLine], writer: &mut dyn Write) -> Result<()> {
     for line in lines {
         match line {
@@ -1481,4 +1485,28 @@ exclude-from-sample stem
         assert_eq!(spans[2].raw_start, 12);
         assert_eq!(spans[2].raw_end, 13);
     }
+}
+
+// Write via temp file + rename to work around macOS SMB server silently
+// ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
+pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
+    let dir = path.parent().unwrap_or(Path::new("."));
+    let tmp_path = dir.join(format!(
+        ".~{}",
+        path.file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+    ));
+    let mut f = std::fs::File::create(&tmp_path)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    f.write_all(data)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    f.sync_all()
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    drop(f);
+    if let Err(e) = std::fs::rename(&tmp_path, path) {
+        let _ = std::fs::remove_file(&tmp_path);
+        return Err(anyhow::anyhow!("{e}"));
+    }
+    Ok(())
 }

@@ -3,16 +3,14 @@ name = "uniform"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = ["editor"]
+editor = ["eframe", "egui", "tiny-skia", "notify", "rfd", "arboard", "embed-resource"]
+
 [dependencies]
-eframe = { version = "0.31", default-features = false, features = ["wgpu"] }
-egui = "0.31"
-tiny-skia = "0.11"
-notify = "7"
 anyhow = "1"
 write-fonts = "0.50"
 read-fonts = "0.41"
-rfd = "0.15"
-arboard = "3"
 harfbuzz_rs = { version = "2", default-features = false, features = ["build-native-harfbuzz"] }
 skrifa = "0.44"
 png = "0.18"
@@ -20,6 +18,13 @@ unicode_names2 = "3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ttf2woff2 = { version = "0.13", default-features = false }
+
+eframe = { version = "0.31", default-features = false, features = ["wgpu"], optional = true }
+egui = { version = "0.31", optional = true }
+tiny-skia = { version = "0.11", optional = true }
+notify = { version = "7", optional = true }
+rfd = { version = "0.15", optional = true }
+arboard = { version = "3", optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-text = "20"
@@ -35,6 +40,6 @@ windows = { version = "0.58", features = [
 windows-core = "0.58"
 
 [build-dependencies]
-embed-resource = "3"
+embed-resource = { version = "3", optional = true }
 
 [dev-dependencies]

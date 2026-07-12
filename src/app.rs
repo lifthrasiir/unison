@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
-use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::mpsc;
 
 use crate::document::{DocLine, Document, NamePartsMap};
@@ -534,7 +533,7 @@ impl UniformApp {
             let mut buf = Vec::new();
             if let Err(e) = document_io::serialize_doclines(&doc.lines, &mut buf)
                 .and_then(|()| {
-                    write_and_sync(&doc.document.path, &buf)
+                    document_io::write_and_sync(&doc.document.path, &buf)
                 })
             {
                 self.status_message =
@@ -647,7 +646,7 @@ impl UniformApp {
                 let mut buf = Vec::new();
                 let result = document_io::serialize_doclines(&doc.lines, &mut buf)
                     .and_then(|()| {
-                        write_and_sync(&doc.document.path, &buf)
+                        document_io::write_and_sync(&doc.document.path, &buf)
                     });
                 let path_display = doc.document.path.display().to_string();
                 match result {
@@ -1406,30 +1405,6 @@ fn validate_hex_codepoint(hex: &str) -> Option<char> {
         return None;
     }
     char::from_u32(value)
-}
-
-// Write via temp file + rename to work around macOS SMB server silently
-// ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
-pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
-    let dir = path.parent().unwrap_or(Path::new("."));
-    let tmp_path = dir.join(format!(
-        ".~{}",
-        path.file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-    ));
-    let mut f = std::fs::File::create(&tmp_path)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    f.write_all(data)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    f.sync_all()
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    drop(f);
-    if let Err(e) = std::fs::rename(&tmp_path, path) {
-        let _ = std::fs::remove_file(&tmp_path);
-        return Err(anyhow::anyhow!("{e}"));
-    }
-    Ok(())
 }
 
 fn show_issues_tab(

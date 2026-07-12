@@ -168,6 +168,7 @@ pub enum DocumentItem {
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct Document {
     pub items: Vec<DocumentItem>,
     pub item_line_starts: Vec<usize>,
@@ -869,6 +870,7 @@ pub enum DocLine {
     Grid(PixelGrid),
 }
 
+#[cfg(any(feature = "editor", test))]
 impl DocLine {
     pub fn as_text(&self) -> Option<&str> {
         match self {

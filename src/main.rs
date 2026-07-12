@@ -1,14 +1,22 @@
+#[cfg(feature = "editor")]
 mod app;
 mod migrate;
 mod document;
 mod document_io;
+#[cfg(feature = "editor")]
 mod edit_menu;
 mod pixel;
+mod ref_composite;
+#[cfg(feature = "editor")]
 mod preview;
 mod render;
+#[cfg(feature = "editor")]
 mod editor;
+#[cfg(feature = "editor")]
 mod issues;
+#[cfg(feature = "editor")]
 mod sidebar;
+#[cfg(feature = "editor")]
 mod specimen;
 
 #[cfg(target_os = "windows")]
@@ -204,19 +212,29 @@ fn main() {
     }
 
     // GUI mode
-    let font_dir = args.get(1).map(std::path::PathBuf::from);
+    #[cfg(feature = "editor")]
+    {
+        let font_dir = args.get(1).map(std::path::PathBuf::from);
 
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1200.0, 800.0])
-            .with_title("Uniform"),
-        ..Default::default()
-    };
+        let options = eframe::NativeOptions {
+            viewport: egui::ViewportBuilder::default()
+                .with_inner_size([1200.0, 800.0])
+                .with_title("Uniform"),
+            ..Default::default()
+        };
 
-    eframe::run_native(
-        "uniform",
-        options,
-        Box::new(move |cc| Ok(Box::new(app::UniformApp::new(cc, font_dir)))),
-    )
-    .expect("failed to run eframe");
+        eframe::run_native(
+            "uniform",
+            options,
+            Box::new(move |cc| Ok(Box::new(app::UniformApp::new(cc, font_dir)))),
+        )
+        .expect("failed to run eframe");
+    }
+
+    #[cfg(not(feature = "editor"))]
+    {
+        eprintln!("Usage: uniform <build|migrate> [options...]");
+        eprintln!("GUI mode requires the 'editor' feature.");
+        std::process::exit(1);
+    }
 }

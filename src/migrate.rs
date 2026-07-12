@@ -1482,7 +1482,7 @@ pub fn migrate_directory(input_dir: &Path, output_dir: &Path) -> Result<()> {
                 };
                 let mut buf = Vec::new();
                 document_io::serialize_document(&doc, &mut buf)?;
-                crate::app::write_and_sync(&out_path, &buf)?;
+                crate::document_io::write_and_sync(&out_path, &buf)?;
 
                 eprintln!(
                     "  -> {} ({} glyphs, {} maps)",

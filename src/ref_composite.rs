@@ -5,13 +5,16 @@ use crate::document::{
     expand_name_pattern, substitute_name_parts,
 };
 
+#[cfg(feature = "editor")]
 const PHI: f64 = 1.618033988749895;
 
+#[cfg(feature = "editor")]
 pub fn ref_color_sv(s: f32, v: f32, index: usize) -> egui::Color32 {
     let hue = ((index + 1) as f64 / PHI % 1.0 * 360.0) as f32;
     hsv_to_rgb(hue, s, v)
 }
 
+#[cfg(feature = "editor")]
 fn hsv_to_rgb(h: f32, s: f32, v: f32) -> egui::Color32 {
     let c = v * s;
     let x = c * (1.0 - ((h / 60.0) % 2.0 - 1.0).abs());
@@ -183,6 +186,7 @@ where
     (effective_refs, exposed_minus)
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn resolve_named_glyphs_with_parts(
     docs: &[&Document],
     name_parts: &NamePartsMap,
@@ -340,6 +344,7 @@ pub fn resolve_named_glyphs_with_parts(
     cache
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct GlyphComposite {
     pub width: u16,
     pub height: u16,
@@ -348,6 +353,7 @@ pub struct GlyphComposite {
     pub layers: Vec<CompositeLayer>,
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 impl GlyphComposite {
     pub fn any_layer_filled_at(&self, composite_row: i16, composite_col: i16) -> bool {
         let mut filled = false;
@@ -367,6 +373,7 @@ impl GlyphComposite {
     }
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct CompositeLayer {
     pub ref_idx: usize,
     pub grid: PixelGrid,
@@ -409,6 +416,7 @@ pub fn resolve_ref_name_with_parts<'a>(
 
 /// Check that a ref name resolves to valid glyphs. For pattern refs, ALL
 /// expansions must exist; returns false if any expansion is missing.
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn is_ref_valid(
     name: &str,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
@@ -477,6 +485,7 @@ pub(crate) fn composite_bounds(
     (min_r, min_c, max_r, max_c)
 }
 
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn compute_composite(
     body: &GlyphBody,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
