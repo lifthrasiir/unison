@@ -204,18 +204,19 @@ pub(crate) fn draw_inline_tools_panel(
             );
         }
 
-        if let Some(cp) = click_pos
-            && ref_rect.contains(cp)
-        {
+        // Context menu on right-click; also use this response for left-click
+        // layer selection — ui.interact() consumes the click from the parent
+        // response, so click_pos would be None for ref previews.
+        let interact_id = egui::Id::new(("ref_layer_ctx", edit_idx, ref_idx));
+        let ref_response = ui.interact(ref_rect, interact_id, egui::Sense::click());
+
+        if ref_response.clicked() {
             state.mode = EditMode::LayerMove {
                 item_idx: edit_idx,
                 layer_idx: ref_idx,
             };
         }
 
-        // Context menu on right-click
-        let interact_id = egui::Id::new(("ref_layer_ctx", edit_idx, ref_idx));
-        let ref_response = ui.interact(ref_rect, interact_id, egui::Sense::click());
         ref_response.context_menu(|ui| {
             if ui.button("Inline to pixels").clicked() {
                 inline_ref_action = Some(ref_idx);

@@ -1412,9 +1412,10 @@ pub fn show_document(
             let owns_grid = matches!(lines.get(state.cursor.line), Some(DocLine::Text(_)))
                 && matches!(lines.get(state.cursor.line + 1), Some(DocLine::Grid(_)));
 
-            let defer = (on_ref_line && state.last_reparse_line == Some(state.cursor.line))
-                || on_glyph_header
-                || owns_grid;
+            let defer = matches!(state.mode, EditMode::Normal)
+                && ((on_ref_line && state.last_reparse_line == Some(state.cursor.line))
+                    || on_glyph_header
+                    || owns_grid);
 
             if defer {
                 defer_document_changes(doc, state);
