@@ -584,7 +584,7 @@ pub fn show_document(
                 } => {
                     if *row >= 0
                         && *row < *own_height as i16
-                        && matches!(lines.get(*grid_doc_line), Some(DocLine::Grid(_)))
+                        && matches!(lines.get(*grid_doc_line), Some(DocLine::Grid(g)) if !g.is_all_empty())
                     {
                         source_offsets
                             .get(*grid_doc_line)
@@ -1666,7 +1666,11 @@ fn source_line_offsets(lines: &[DocLine]) -> Vec<usize> {
         offsets.push(src);
         match line {
             DocLine::Text(_) => src += 1,
-            DocLine::Grid(g) => src += g.height as usize,
+            DocLine::Grid(g) => {
+                if !g.is_all_empty() {
+                    src += g.height as usize;
+                }
+            }
         }
     }
     offsets

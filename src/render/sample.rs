@@ -90,6 +90,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         Ok(expanded) => {
                             for mut item in expanded {
                                 if let DocumentItem::Glyph { body: ref mut b, .. } = item {
+                                    b.pixels = body.pixels.clone();
                                     b.points = body.points.clone();
                                     b.sticky = body.sticky;
                                     b.advance = body.advance;

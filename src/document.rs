@@ -52,6 +52,10 @@ impl PixelGrid {
         self.height = new_height;
         self.pixels = new_pixels;
     }
+
+    pub fn is_all_empty(&self) -> bool {
+        self.pixels.iter().all(|s| s.is_empty())
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -194,7 +198,11 @@ pub fn compute_docline_file_lines(lines: &[DocLine]) -> Vec<usize> {
         result.push(file_line);
         match line {
             DocLine::Text(_) => file_line += 1,
-            DocLine::Grid(grid) => file_line += grid.height as usize,
+            DocLine::Grid(grid) => {
+                if !grid.is_all_empty() {
+                    file_line += grid.height as usize;
+                }
+            }
         }
     }
     result

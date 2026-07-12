@@ -14,18 +14,12 @@ glyph dia-lower-bg 6 2
 \01/....\10/
 
 glyph dia-upper 5 2
-..........
-..........
 ref dia-lower 0 0
 
 glyph dia-upper-bg 6 2
-............
-............
 ref dia-lower-bg 0 0
 
 glyph dia-bottom 5 2
-..........
-..........
 ref dia-lower 0 0
 
 //--------------------------------------
@@ -40,22 +34,16 @@ glyph acute-lower-shift 4 2
 /0@@1/..
 
 glyph acute-upper 4 2
-........
-........
 ref acute-lower 0 0
 
 //--------------------------------------
 // double acute accents
 
 glyph dacute-lower 7 2
-..............
-..............
 ref acute-lower-shift 0 0
 ref acute-lower-shift 3 0
 
 glyph dacute-upper 7 2
-..............
-..............
 ref dacute-lower 0 0
 
 //--------------------------------------
@@ -70,22 +58,16 @@ glyph grave-lower-shift 4 2
 ..\1@@0\
 
 glyph grave-upper 4 2
-........
-........
 ref grave-lower 0 0
 
 //--------------------------------------
 // double grave accents
 
 glyph dgrave-lower 7 2
-..............
-..............
 ref grave-lower-shift 0 0
 ref grave-lower-shift 3 0
 
 glyph dgrave-upper 7 2
-..............
-..............
 ref dgrave-lower 0 0
 
 //--------------------------------------
@@ -95,22 +77,18 @@ glyph mac-lower 5 1
 @@@@@@@@@@
 
 glyph mac-upper 5 1
-..........
 ref mac-lower 0 0
 
 glyph mac-lower-sm 4 1
 @@@@@@@@
 
 glyph mac-upper-sm 4 1
-........
 ref mac-lower-sm 0 0
 
 glyph mac-bottom 5 1
-..........
 ref mac-lower 0 0
 
 glyph mac-bottom-sm 4 1
-........
 ref mac-lower-sm 0 0
 
 //--------------------------------------
@@ -146,8 +124,6 @@ glyph caron-lower 5 2
 ..\0@@0/..
 
 glyph caron-upper 5 2
-..........
-..........
 ref caron-lower 0 0
 
 // looks like a comma, used for czech and slovak
@@ -164,13 +140,9 @@ glyph circ-lower 5 2
 /01/..\10\
 
 glyph circ-upper 5 2
-..........
-..........
 ref circ-lower 0 0
 
 glyph circ-bottom 5 2
-..........
-..........
 ref circ-lower 0 0
 
 //--------------------------------------
@@ -181,13 +153,9 @@ glyph breve-lower 5 2
 \0@@@@@@0/
 
 glyph breve-upper 5 2
-..........
-..........
 ref breve-lower 0 0
 
 glyph breve-bottom 5 2
-..........
-..........
 ref breve-lower 0 0
 
 //--------------------------------------
@@ -198,8 +166,6 @@ glyph arch-lower 5 2
 @@1/..\1@@
 
 glyph arch-upper 5 2
-..........
-..........
 ref arch-lower 0 0
 
 //--------------------------------------
@@ -211,15 +177,9 @@ glyph ring-lower 3 3
 \0@@0/
 
 glyph ring-upper 3 3
-......
-......
-......
 ref ring-lower 0 0
 
 glyph ring-bottom 3 3
-......
-......
-......
 ref ring-lower 0 0
 
 //--------------------------------------
@@ -230,13 +190,9 @@ glyph tilde-lower 5 2
 1/..\1@@0/
 
 glyph tilde-upper 5 2
-..........
-..........
 ref tilde-lower 0 0
 
 glyph tilde-bottom 5 2
-..........
-..........
 ref tilde-lower 0 0
 
 //--------------------------------------
@@ -247,18 +203,12 @@ glyph dot-lower 2 2
 @@@@
 
 glyph dot-upper 2 2
-....
-....
 ref dot-lower 0 0
 
 glyph dot-bottom 2 2
-....
-....
 ref dot-lower 0 0
 
 glyph dot-middle 2 2
-....
-....
 ref dot-lower 0 0
 
 //--------------------------------------
@@ -270,9 +220,6 @@ glyph hook-lower 3 3
 ../10/
 
 glyph hook-upper 3 3
-......
-......
-......
 ref hook-lower 0 0
 
 //--------------------------------------

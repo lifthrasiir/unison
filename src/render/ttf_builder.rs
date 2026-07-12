@@ -267,6 +267,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     if let Ok(expanded) = expand_glyph_block(&subst_name, &subst_refs) {
                         for mut item in expanded {
                             if let DocumentItem::Glyph { body: ref mut b, .. } = item {
+                                b.pixels = body.pixels.clone();
                                 b.points = body.points.clone();
                                 b.sticky = body.sticky;
                                 b.advance = body.advance;
@@ -1247,6 +1248,7 @@ impl CachedContours {
         cc: Option<&mut ContourCache>,
     ) -> Option<Self> {
         let has_negated = refs.iter().any(|r| r.negated);
+        let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
 
         if has_negated || own_pixels.is_some() {
             // Use pixel-level composition (same semantics as the editor)

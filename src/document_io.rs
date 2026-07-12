@@ -215,8 +215,12 @@ fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
             lines.push(DocLine::Text(line.to_string()));
 
             if let Some(dims) = glyph_header_dims(parts) {
-                let grid = parse_pixel_rows(&mut iter, dims.width, dims.height, line_no)?;
-                lines.push(DocLine::Grid(grid));
+                if is_pixel_row_next(&mut iter, dims.width) {
+                    let grid = parse_pixel_rows(&mut iter, dims.width, dims.height, line_no)?;
+                    lines.push(DocLine::Grid(grid));
+                } else {
+                    lines.push(DocLine::Grid(PixelGrid::new(dims.width, dims.height)));
+                }
             }
         } else {
             lines.push(DocLine::Text(line.to_string()));
@@ -303,6 +307,24 @@ fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<(
         }
     }
     Ok(())
+}
+
+fn is_pixel_row_next(
+    lines: &mut std::iter::Peekable<std::iter::Enumerate<std::str::Lines<'_>>>,
+    width: u16,
+) -> bool {
+    let Some(&(_, line)) = lines.peek() else { return false };
+    let chars: Vec<char> = line.chars().collect();
+    let expected_len = width as usize * 2;
+    if chars.len() != expected_len {
+        return false;
+    }
+    for col in 0..width as usize {
+        if chars_to_shape(chars[col * 2], chars[col * 2 + 1]).is_none() {
+            return false;
+        }
+    }
+    true
 }
 
 fn parse_pixel_rows(
@@ -419,8 +441,10 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
 
     if let Some(grid) = &body.pixels {
         writeln!(writer, "glyph {qname} {} {}{flags}", grid.width, grid.height)?;
-        for row in 0..grid.height {
-            writeln!(writer, "{}", encode_grid_row(grid, row))?;
+        if !grid.is_all_empty() {
+            for row in 0..grid.height {
+                writeln!(writer, "{}", encode_grid_row(grid, row))?;
+            }
         }
     } else {
         writeln!(writer, "glyph {qname}{flags}")?;
@@ -475,6 +499,16 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
             let height = dims.height;
             let mut grid = PixelGrid::new(width, height);
             for row in 0..height {
+                let is_pixel = iter.peek().is_some_and(|peek_line| {
+                    let chars: Vec<char> = peek_line.chars().collect();
+                    chars.len() == width as usize * 2
+                        && (0..width as usize).all(|col| {
+                            chars_to_shape(chars[col * 2], chars[col * 2 + 1]).is_some()
+                        })
+                });
+                if !is_pixel {
+                    break;
+                }
                 if let Some(pixel_line) = iter.next() {
                     let chars: Vec<char> = pixel_line.chars().collect();
                     for col in 0..width as usize {
@@ -500,8 +534,10 @@ pub fn serialize_doclines(lines: &[DocLine], writer: &mut dyn Write) -> Result<(
         match line {
             DocLine::Text(s) => writeln!(writer, "{s}")?,
             DocLine::Grid(g) => {
-                for row in 0..g.height {
-                    writeln!(writer, "{}", encode_grid_row(g, row))?;
+                if !g.is_all_empty() {
+                    for row in 0..g.height {
+                        writeln!(writer, "{}", encode_grid_row(g, row))?;
+                    }
                 }
             }
         }
@@ -663,12 +699,15 @@ pub fn derive_document(
                             continue;
                         }
 
-                        if let (Some(w), Some(h)) = (width, height)
-                            && let Some(DocLine::Grid(g)) = lines.get(i)
+                        if let (Some(w), Some(h)) = (width, height) {
+                            if let Some(DocLine::Grid(g)) = lines.get(i)
                                 && g.width == w && g.height == h {
                                     body.pixels = Some(g.clone());
                                     i += 1;
+                                } else {
+                                    body.pixels = Some(PixelGrid::new(w, h));
                                 }
+                        }
 
                         // Collect ref and point lines
                         while let Some(DocLine::Text(t)) = lines.get(i) {
@@ -804,6 +843,28 @@ exclude-from-sample U+AD00
         } else {
             panic!("expected glyph");
         }
+    }
+
+    #[test]
+    fn parse_glyph_without_pixel_rows() {
+        let input = "glyph empty 4 3\nref other 0 0\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert_eq!(doc.items.len(), 1);
+        if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
+            let grid = body.pixels.as_ref().expect("should produce empty grid");
+            assert_eq!(grid.width, 4);
+            assert_eq!(grid.height, 3);
+            assert!(grid.is_all_empty());
+            assert_eq!(body.refs.len(), 1);
+            assert_eq!(body.refs[0].name, "other");
+        } else {
+            panic!("expected glyph");
+        }
+
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, "glyph empty 4 3\nref other 0 0\n");
     }
 
     #[test]
@@ -1162,7 +1223,10 @@ ref bar 0 0
         let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
         assert_eq!(doc.items.len(), 1);
         if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
-            assert!(body.pixels.is_none());
+            let grid = body.pixels.as_ref().expect("should have empty grid");
+            assert_eq!(grid.width, 8);
+            assert_eq!(grid.height, 16);
+            assert!(grid.is_all_empty());
             assert!(body.refs.is_empty());
         } else {
             panic!("expected glyph");
