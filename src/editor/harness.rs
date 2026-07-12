@@ -1,0 +1,425 @@
+//! Headless GUI test harness for the document editor.
+//!
+//! Drives the real `show_document` inside a plain `egui::Context` (no
+//! window, no GPU) so that tests can feed synthetic input events — key
+//! presses, text, IME, mouse clicks on computed coordinates — and then
+//! assert on both the document/editor state and the *rendered layout*
+//! (visual lines, grid rows, gutter line numbers).
+//!
+//! `show_document` publishes a [`ViewSnapshot`] of every frame's layout via
+//! `capture_snapshot` (compiled only under `cfg(test)`), which is what the
+//! query helpers here read.
+
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use crate::document::{DocLine, Document, NamePartsMap, PixelGrid, collect_name_parts};
+use crate::document_io::{derive_document, parse_doclines};
+use crate::editor::caret::Caret;
+use crate::editor::document_view::{
+    LEFT_PAD, VLineKind, VisualLine, gutter_line_number, show_document,
+};
+use crate::editor::ref_composite::{ResolvedGlyph, resolve_named_glyphs_with_parts};
+use crate::editor::{EditMode, EditorState};
+
+// ---------------------------------------------------------------------------
+// Per-frame layout snapshot
+// ---------------------------------------------------------------------------
+
+#[derive(Clone, Debug)]
+pub(crate) enum SnapKind {
+    Text {
+        text: String,
+        col_offset: usize,
+    },
+    GridRow {
+        #[allow(dead_code)]
+        item_idx: usize,
+        row: i16,
+        left: i16,
+        #[allow(dead_code)]
+        right: i16,
+    },
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct SnapLine {
+    pub doc_line: usize,
+    /// Absolute screen y of this visual line's top edge.
+    pub y: f32,
+    pub height: f32,
+    /// Line number drawn in the gutter, if any.
+    pub gutter: Option<usize>,
+    pub kind: SnapKind,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct ViewSnapshot {
+    /// Absolute screen x where text/grids start (right of the gutter).
+    pub origin_x: f32,
+    #[allow(dead_code)]
+    pub row_height: f32,
+    pub grid_cell: f32,
+    pub widget_id: egui::Id,
+    pub vlines: Vec<SnapLine>,
+}
+
+fn snapshot_id() -> egui::Id {
+    egui::Id::new("uniform_test_view_snapshot")
+}
+
+/// Called from `show_document` (test builds only) to publish the layout the
+/// frame is about to paint.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn capture_snapshot(
+    ctx: &egui::Context,
+    vlines: &[VisualLine],
+    lines: &[DocLine],
+    source_offsets: &[usize],
+    origin: egui::Pos2,
+    row_height: f32,
+    grid_cell: f32,
+    widget_id: egui::Id,
+) {
+    let mut y = origin.y;
+    let mut snaps = Vec::with_capacity(vlines.len());
+    for vl in vlines {
+        let h = vl.height(row_height, grid_cell);
+        let kind = match &vl.kind {
+            VLineKind::Text(t) => SnapKind::Text {
+                text: t.clone(),
+                col_offset: vl.col_offset,
+            },
+            VLineKind::GridRow {
+                item_idx,
+                row,
+                extent,
+                ..
+            } => SnapKind::GridRow {
+                item_idx: *item_idx,
+                row: *row,
+                left: extent.left,
+                right: extent.right,
+            },
+        };
+        snaps.push(SnapLine {
+            doc_line: vl.doc_line,
+            y,
+            height: h,
+            gutter: gutter_line_number(vl, lines, source_offsets),
+            kind,
+        });
+        y += h;
+    }
+    let snapshot = ViewSnapshot {
+        origin_x: origin.x,
+        row_height,
+        grid_cell,
+        widget_id,
+        vlines: snaps,
+    };
+    ctx.data_mut(|d| d.insert_temp(snapshot_id(), Arc::new(snapshot)));
+}
+
+// ---------------------------------------------------------------------------
+// Harness
+// ---------------------------------------------------------------------------
+
+pub(crate) struct EditorHarness {
+    pub ctx: egui::Context,
+    pub doc: Document,
+    pub lines: Vec<DocLine>,
+    pub state: EditorState,
+    pub named_glyphs: HashMap<String, ResolvedGlyph>,
+    pub name_parts: NamePartsMap,
+    pub zoom: u32,
+    pub font_id: egui::FontId,
+    time: f64,
+    snapshot: Option<Arc<ViewSnapshot>>,
+}
+
+impl EditorHarness {
+    /// Build a harness from `.unf` source text, mirroring how the app opens
+    /// a document (parse → derive → resolve glyphs), and render an initial
+    /// frame so layout queries work immediately.
+    pub fn new(source: &str) -> Self {
+        let lines = parse_doclines(source);
+        let (doc, _) = derive_document(&lines, "test.unf".into()).expect("derive_document");
+        let mut h = Self {
+            ctx: egui::Context::default(),
+            doc,
+            lines,
+            state: EditorState::new(),
+            named_glyphs: HashMap::new(),
+            name_parts: NamePartsMap::new(),
+            zoom: 1,
+            font_id: egui::FontId::monospace(16.0),
+            time: 0.0,
+            snapshot: None,
+        };
+        h.rebuild_derived();
+        h.frame();
+        h.frame();
+        h
+    }
+
+    fn rebuild_derived(&mut self) {
+        let docs: Vec<&Document> = vec![&self.doc];
+        let name_parts = collect_name_parts(&docs);
+        self.named_glyphs = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        self.name_parts = name_parts;
+    }
+
+    /// Run one frame of the real editor with the given input events.
+    pub fn frame_with(&mut self, events: Vec<egui::Event>, modifiers: egui::Modifiers) {
+        self.time += 1.0 / 60.0;
+        let raw = egui::RawInput {
+            screen_rect: Some(egui::Rect::from_min_size(
+                egui::pos2(0.0, 0.0),
+                egui::vec2(1000.0, 2400.0),
+            )),
+            time: Some(self.time),
+            modifiers,
+            events,
+            ..Default::default()
+        };
+        let prev_gen = self.doc.edit_gen;
+        let ctx = self.ctx.clone();
+        let _ = ctx.run(raw, |cx| {
+            egui::CentralPanel::default().show(cx, |ui| {
+                let _ = show_document(
+                    ui,
+                    &mut self.doc,
+                    &mut self.lines,
+                    &mut self.state,
+                    &self.named_glyphs,
+                    &self.name_parts,
+                    self.zoom,
+                    &self.font_id,
+                );
+            });
+        });
+        self.snapshot = ctx.data(|d| d.get_temp::<Arc<ViewSnapshot>>(snapshot_id()));
+        if self.doc.edit_gen != prev_gen {
+            // The app rebuilds resolved glyphs whenever a document rederives.
+            self.rebuild_derived();
+        }
+    }
+
+    /// Run one idle frame (no input).
+    pub fn frame(&mut self) {
+        self.frame_with(Vec::new(), egui::Modifiers::NONE);
+    }
+
+    // -- input ------------------------------------------------------------
+
+    /// Give the editor widget keyboard focus without clicking.
+    #[allow(dead_code)]
+    pub fn focus(&mut self) {
+        let wid = self.snap().widget_id;
+        self.ctx.memory_mut(|m| m.request_focus(wid));
+        self.frame();
+    }
+
+    /// Take keyboard focus away from the editor widget, as if the user
+    /// focused another panel.
+    pub fn blur(&mut self) {
+        let wid = self.snap().widget_id;
+        self.ctx.memory_mut(|m| m.surrender_focus(wid));
+        self.frame();
+    }
+
+    pub fn key(&mut self, key: egui::Key) {
+        self.key_mod(key, egui::Modifiers::NONE);
+    }
+
+    pub fn key_mod(&mut self, key: egui::Key, modifiers: egui::Modifiers) {
+        self.frame_with(
+            vec![egui::Event::Key {
+                key,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers,
+            }],
+            modifiers,
+        );
+        self.frame_with(
+            vec![egui::Event::Key {
+                key,
+                physical_key: None,
+                pressed: false,
+                repeat: false,
+                modifiers,
+            }],
+            modifiers,
+        );
+        self.frame();
+    }
+
+    /// Type text as if entered from the keyboard.
+    pub fn type_text(&mut self, text: &str) {
+        self.frame_with(
+            vec![egui::Event::Text(text.to_string())],
+            egui::Modifiers::NONE,
+        );
+        self.frame();
+    }
+
+    /// Click the primary mouse button at an absolute screen position.
+    pub fn click_at(&mut self, pos: egui::Pos2) {
+        self.click_at_mod(pos, egui::Modifiers::NONE);
+    }
+
+    pub fn click_at_mod(&mut self, pos: egui::Pos2, modifiers: egui::Modifiers) {
+        // Space successive clicks out in time so they don't register as
+        // double/triple clicks.
+        self.time += 1.0;
+        self.frame_with(
+            vec![
+                egui::Event::PointerMoved(pos),
+                egui::Event::PointerButton {
+                    pos,
+                    button: egui::PointerButton::Primary,
+                    pressed: true,
+                    modifiers,
+                },
+            ],
+            modifiers,
+        );
+        self.frame_with(
+            vec![egui::Event::PointerButton {
+                pos,
+                button: egui::PointerButton::Primary,
+                pressed: false,
+                modifiers,
+            }],
+            modifiers,
+        );
+        self.frame();
+    }
+
+    /// Click on a text line at a character column.
+    pub fn click_text(&mut self, line: usize, col: usize) {
+        let pos = self.text_pos(line, col);
+        self.click_at(pos);
+    }
+
+    /// Click the center of a grid cell. `grid_doc_line` is the DocLine index
+    /// of the `DocLine::Grid`; `row`/`col` are grid coordinates.
+    pub fn click_grid_cell(&mut self, grid_doc_line: usize, row: i16, col: i16) {
+        let pos = self.grid_cell_pos(grid_doc_line, row, col);
+        self.click_at(pos);
+    }
+
+    // -- coordinate lookup --------------------------------------------------
+
+    pub fn snap(&self) -> &ViewSnapshot {
+        self.snapshot
+            .as_deref()
+            .expect("no frame has been rendered yet")
+    }
+
+    fn char_x(&self, text: &str, col: usize) -> f32 {
+        if col == 0 || text.is_empty() {
+            return 0.0;
+        }
+        let prefix: String = text.chars().take(col).collect();
+        let font_id = self.font_id.clone();
+        self.ctx.fonts(|f| {
+            f.layout_no_wrap(prefix, font_id, egui::Color32::WHITE)
+                .rect
+                .width()
+        })
+    }
+
+    /// Screen position just right of the caret slot at `line:col`, suitable
+    /// for clicking to place the caret there.
+    pub fn text_pos(&self, line: usize, col: usize) -> egui::Pos2 {
+        let snap = self.snap();
+        for vl in &snap.vlines {
+            if vl.doc_line != line {
+                continue;
+            }
+            if let SnapKind::Text { text, col_offset } = &vl.kind {
+                let len = text.chars().count();
+                if col >= *col_offset && col <= col_offset + len {
+                    let x = snap.origin_x + LEFT_PAD + self.char_x(text, col - col_offset) + 1.0;
+                    return egui::pos2(x, vl.y + vl.height * 0.5);
+                }
+            }
+        }
+        panic!("no text visual line covering doc line {line} col {col}");
+    }
+
+    /// Screen position of the center of a grid cell.
+    pub fn grid_cell_pos(&self, grid_doc_line: usize, row: i16, col: i16) -> egui::Pos2 {
+        let snap = self.snap();
+        for vl in &snap.vlines {
+            if vl.doc_line != grid_doc_line {
+                continue;
+            }
+            if let SnapKind::GridRow { row: r, left, .. } = &vl.kind
+                && *r == row
+            {
+                let x = snap.origin_x
+                    + LEFT_PAD
+                    + (col - left) as f32 * snap.grid_cell
+                    + snap.grid_cell / 2.0;
+                return egui::pos2(x, vl.y + snap.grid_cell / 2.0);
+            }
+        }
+        panic!("no grid visual line for doc line {grid_doc_line} row {row}");
+    }
+
+    // -- queries ------------------------------------------------------------
+
+    pub fn cursor(&self) -> Caret {
+        self.state.cursor
+    }
+
+    pub fn mode(&self) -> &EditMode {
+        &self.state.mode
+    }
+
+    /// Text content of a DocLine (panics on grids).
+    pub fn text(&self, line: usize) -> &str {
+        match &self.lines[line] {
+            DocLine::Text(s) => s,
+            other => panic!("doc line {line} is not text: {other:?}"),
+        }
+    }
+
+    /// The pixel grid stored at a DocLine (panics if not a grid).
+    pub fn grid(&self, line: usize) -> &PixelGrid {
+        match &self.lines[line] {
+            DocLine::Grid(g) => g,
+            other => panic!("doc line {line} is not a grid: {other:?}"),
+        }
+    }
+
+    /// Number of grid-row visual lines rendered for a grid DocLine.
+    pub fn grid_row_count(&self, grid_doc_line: usize) -> usize {
+        self.snap()
+            .vlines
+            .iter()
+            .filter(|vl| {
+                vl.doc_line == grid_doc_line && matches!(vl.kind, SnapKind::GridRow { .. })
+            })
+            .count()
+    }
+
+    /// Gutter number of the first visual line of a DocLine, as rendered.
+    pub fn gutter_of(&self, doc_line: usize) -> Option<usize> {
+        self.snap()
+            .vlines
+            .iter()
+            .find(|vl| vl.doc_line == doc_line)
+            .and_then(|vl| vl.gutter)
+    }
+
+    /// All rendered gutter numbers in visual order.
+    pub fn gutter_numbers(&self) -> Vec<usize> {
+        self.snap().vlines.iter().filter_map(|vl| vl.gutter).collect()
+    }
+}

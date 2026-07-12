@@ -511,6 +511,19 @@ pub fn show_document(
         let origin = egui::pos2(rect.min.x + gutter_width, rect.min.y);
         let sel = state.selection_range();
 
+        // Publish the frame's layout for the in-crate GUI test harness.
+        #[cfg(test)]
+        crate::editor::harness::capture_snapshot(
+            ui.ctx(),
+            &vlines,
+            lines,
+            &source_offsets,
+            origin,
+            row_height,
+            grid_cell,
+            wid,
+        );
+
         let is_double = response.double_clicked();
         let is_triple = response.triple_clicked();
         let click_pos = if response.clicked() || response.drag_started() || is_double || is_triple {
@@ -571,29 +584,7 @@ pub fn show_document(
                 continue;
             }
 
-            let src_line = match &vl.kind {
-                VLineKind::Text(_) if vl.col_offset == 0 => {
-                    source_offsets.get(vl.doc_line).map(|&off| off + 1)
-                }
-                VLineKind::Text(_) => None,
-                VLineKind::GridRow {
-                    row,
-                    own_height,
-                    grid_doc_line,
-                    ..
-                } => {
-                    if *row >= 0
-                        && *row < *own_height as i16
-                        && matches!(lines.get(*grid_doc_line), Some(DocLine::Grid(g)) if !g.is_all_empty())
-                    {
-                        source_offsets
-                            .get(*grid_doc_line)
-                            .map(|&off| off + *row as usize + 1)
-                    } else {
-                        None
-                    }
-                }
-            };
+            let src_line = gutter_line_number(vl, lines, &source_offsets);
             if let Some(num) = src_line {
                 let num_text = format!("{num:>5} ");
                 painter.text(
@@ -1414,9 +1405,16 @@ pub fn show_document(
                 lines.get(state.cursor.line),
                 Some(DocLine::Text(t)) if crate::editor::reconcile::parse_glyph_header_dims(t).is_some()
             );
+            // A text line directly above a grid is that grid's header. While
+            // it is being edited it may be transiently unparseable (e.g. the
+            // height digits were just deleted); reconciling now would demote
+            // the grid to text mid-edit, so hold off until the caret leaves.
+            let owns_grid = matches!(lines.get(state.cursor.line), Some(DocLine::Text(_)))
+                && matches!(lines.get(state.cursor.line + 1), Some(DocLine::Grid(_)));
 
             let defer = (on_ref_line && state.last_reparse_line == Some(state.cursor.line))
-                || on_glyph_header;
+                || on_glyph_header
+                || owns_grid;
 
             if defer {
                 defer_document_changes(doc, state);
@@ -1659,7 +1657,40 @@ pub(crate) fn apply_scroll_physics(ui: &egui::Ui, zoom_level: u32, salt: &str) {
     }
 }
 
-fn source_line_offsets(lines: &[DocLine]) -> Vec<usize> {
+/// The source-file line number drawn in the gutter for a visual line, if any.
+/// Wrapped text continuations and grid rows outside the glyph's own area
+/// carry no number.
+pub(crate) fn gutter_line_number(
+    vl: &VisualLine,
+    lines: &[DocLine],
+    source_offsets: &[usize],
+) -> Option<usize> {
+    match &vl.kind {
+        VLineKind::Text(_) if vl.col_offset == 0 => {
+            source_offsets.get(vl.doc_line).map(|&off| off + 1)
+        }
+        VLineKind::Text(_) => None,
+        VLineKind::GridRow {
+            row,
+            own_height,
+            grid_doc_line,
+            ..
+        } => {
+            if *row >= 0
+                && *row < *own_height as i16
+                && matches!(lines.get(*grid_doc_line), Some(DocLine::Grid(g)) if !g.is_all_empty())
+            {
+                source_offsets
+                    .get(*grid_doc_line)
+                    .map(|&off| off + *row as usize + 1)
+            } else {
+                None
+            }
+        }
+    }
+}
+
+pub(crate) fn source_line_offsets(lines: &[DocLine]) -> Vec<usize> {
     let mut offsets = Vec::with_capacity(lines.len());
     let mut src = 0usize;
     for line in lines {

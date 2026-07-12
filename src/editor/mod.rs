@@ -6,6 +6,8 @@ pub mod document_view;
 pub mod editing;
 pub mod glyph_widget;
 pub mod grid_render;
+#[cfg(test)]
+pub(crate) mod harness;
 pub mod inline_tools;
 pub mod minimap;
 pub mod pixel_interaction;
@@ -13,6 +15,8 @@ pub mod reconcile;
 pub(crate) use crate::ref_composite;
 pub mod shape_palette;
 pub mod undo;
+#[cfg(test)]
+mod view_tests;
 pub mod visual_lines;
 
 use crate::document::DocLine;
