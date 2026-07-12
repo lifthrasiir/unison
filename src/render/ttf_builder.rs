@@ -387,6 +387,10 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     composite_components: None,
                 }
             });
+            if let Some(grid) = &pg.pixels {
+                cached_entry.width = cached_entry.width.max(grid.width);
+                cached_entry.height = cached_entry.height.max(grid.height);
+            }
             cached_entry.anchors = anchors;
             cache.insert(pg.name.clone(), cached_entry);
             progress = true;
