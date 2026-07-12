@@ -256,11 +256,11 @@ impl EditorState {
                     && let Ok(text_to_paste) = clip.get_text()
                         && !text_to_paste.is_empty()
                 {
-                    doc_input::delete_selection_if_any(lines, self);
                     doc_input::paste_text(
                         lines,
                         &mut self.undo,
                         &mut self.cursor,
+                        self.selection_anchor.take(),
                         &text_to_paste,
                     );
                     true

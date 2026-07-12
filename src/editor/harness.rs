@@ -266,6 +266,15 @@ impl EditorHarness {
         self.frame();
     }
 
+    /// Paste text as if from the clipboard (Cmd+V / Ctrl+V).
+    pub fn paste(&mut self, text: &str) {
+        self.frame_with(
+            vec![egui::Event::Paste(text.to_string())],
+            egui::Modifiers::NONE,
+        );
+        self.frame();
+    }
+
     /// Click the primary mouse button at an absolute screen position.
     pub fn click_at(&mut self, pos: egui::Pos2) {
         self.click_at_mod(pos, egui::Modifiers::NONE);

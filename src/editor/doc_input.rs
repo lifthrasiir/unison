@@ -60,8 +60,13 @@ pub(crate) fn handle_keys(
                 }
                 egui::Event::Paste(text_to_paste) => {
                     if !text_to_paste.is_empty() {
-                        delete_selection_if_any(lines, state);
-                        paste_text(lines, &mut state.undo, &mut state.cursor, text_to_paste);
+                        paste_text(
+                            lines,
+                            &mut state.undo,
+                            &mut state.cursor,
+                            state.selection_anchor.take(),
+                            text_to_paste,
+                        );
                         changed = true;
                     }
                 }
@@ -271,17 +276,76 @@ pub(crate) fn paste_text(
     lines: &mut Vec<DocLine>,
     undo: &mut crate::editor::undo::UndoStack,
     cursor: &mut Caret,
+    selection_anchor: Option<Caret>,
     text: &str,
 ) {
-    for (i, chunk) in text.split('\n').enumerate() {
-        if i > 0 {
-            *cursor = crate::editor::editing::insert_newline(lines, undo, *cursor);
-        }
-        if !chunk.is_empty() {
-            let clean: String = chunk.replace('\r', "");
+    if text.is_empty() {
+        return;
+    }
+
+    let sel = selection_anchor.and_then(|anchor| {
+        let lo = (*cursor).min(anchor);
+        let hi = (*cursor).max(anchor);
+        if lo != hi { Some((lo, hi)) } else { None }
+    });
+
+    let chunks: Vec<&str> = text.split('\n').collect();
+
+    // No selection, single-line paste: use Text op (supports coalescing).
+    if sel.is_none() && chunks.len() == 1 {
+        let clean: String = chunks[0].replace('\r', "");
+        if !clean.is_empty() {
             *cursor = crate::editor::editing::insert_str(lines, undo, *cursor, &clean);
         }
+        return;
     }
+
+    // Everything else (multi-line paste, or paste-over-selection) is a
+    // single Lines op so the whole thing undoes atomically.
+    let (lo, hi) = sel.unwrap_or((*cursor, *cursor));
+
+    let prefix = match &lines[lo.line] {
+        DocLine::Text(s) => {
+            let byte = crate::editor::caret::char_to_byte(s, lo.col);
+            s[..byte].to_string()
+        }
+        DocLine::Grid(_) => return,
+    };
+
+    let suffix = match &lines[hi.line] {
+        DocLine::Text(s) => {
+            let byte = crate::editor::caret::char_to_byte(s, hi.col);
+            s[byte..].to_string()
+        }
+        DocLine::Grid(_) => String::new(),
+    };
+
+    let old: Vec<DocLine> = lines[lo.line..=hi.line].to_vec();
+    let mut new: Vec<DocLine> = Vec::with_capacity(chunks.len());
+
+    let first_clean = chunks[0].replace('\r', "");
+    if chunks.len() == 1 {
+        let col = prefix.chars().count() + first_clean.chars().count();
+        new.push(DocLine::Text(format!("{prefix}{first_clean}{suffix}")));
+        let caret_after = Caret::new(lo.line, col);
+        undo.push_lines(lo.line, old, new.clone(), *cursor, caret_after);
+        lines.splice(lo.line..=hi.line, new);
+        *cursor = caret_after;
+        return;
+    }
+
+    new.push(DocLine::Text(format!("{prefix}{first_clean}")));
+    for chunk in &chunks[1..chunks.len() - 1] {
+        new.push(DocLine::Text(chunk.replace('\r', "")));
+    }
+    let last_clean = chunks[chunks.len() - 1].replace('\r', "");
+    let last_col = last_clean.chars().count();
+    new.push(DocLine::Text(format!("{last_clean}{suffix}")));
+
+    let caret_after = Caret::new(lo.line + chunks.len() - 1, last_col);
+    undo.push_lines(lo.line, old, new.clone(), *cursor, caret_after);
+    lines.splice(lo.line..=hi.line, new);
+    *cursor = caret_after;
 }
 
 fn update_selection(state: &mut EditorState, shift: bool) {

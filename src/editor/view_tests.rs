@@ -266,6 +266,112 @@ fn newline_shifts_following_gutter_numbers() {
 }
 
 #[test]
+fn paste_single_line_and_undo() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.click_text(2, 0);
+
+    h.paste("hello");
+    assert_eq!(h.text(2), "hello");
+    assert_eq!(h.cursor(), Caret::new(2, 5));
+
+    cmd_z(&mut h);
+    assert_eq!(h.text(2), "");
+    assert_eq!(h.cursor(), Caret::new(2, 0));
+}
+
+#[test]
+fn paste_multiline_undoes_atomically() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.click_text(2, 0);
+    let original_lines = h.lines.clone();
+
+    h.paste("line1\nline2\nline3");
+    assert_eq!(h.text(2), "line1");
+    assert_eq!(h.text(3), "line2");
+    assert_eq!(h.text(4), "line3");
+    assert_eq!(h.cursor(), Caret::new(4, 5));
+    assert_eq!(h.lines.len(), original_lines.len() + 2);
+
+    // Single undo must revert the entire multi-line paste at once.
+    cmd_z(&mut h);
+    assert_eq!(h.lines, original_lines);
+    assert_eq!(h.cursor(), Caret::new(2, 0));
+}
+
+#[test]
+fn paste_multiline_into_middle_of_text_and_undo() {
+    let mut h = EditorHarness::new("abc\ndef\n");
+    h.click_text(0, 1); // between 'a' and 'bc'
+
+    h.paste("X\nY\nZ");
+    assert_eq!(h.text(0), "aX");
+    assert_eq!(h.text(1), "Y");
+    assert_eq!(h.text(2), "Zbc");
+    assert_eq!(h.cursor(), Caret::new(2, 1));
+
+    cmd_z(&mut h);
+    assert_eq!(h.text(0), "abc");
+    assert_eq!(h.cursor(), Caret::new(0, 1));
+}
+
+#[test]
+fn paste_multiline_with_crlf_and_undo() {
+    let mut h = EditorHarness::new("hello\n");
+    let n = h.lines.len();
+    h.click_text(0, 5);
+
+    h.paste(" world\r\nfoo\r\nbar");
+    assert_eq!(h.text(0), "hello world");
+    assert_eq!(h.text(1), "foo");
+    assert_eq!(h.text(2), "bar");
+
+    cmd_z(&mut h);
+    assert_eq!(h.text(0), "hello");
+    assert_eq!(h.lines.len(), n);
+}
+
+#[test]
+fn paste_over_selection_undoes_atomically() {
+    let mut h = EditorHarness::new("abcdef\nghijkl\n");
+    let original_lines = h.lines.clone();
+
+    // Select "cdef\nghi" (from (0,2) to (1,3))
+    h.click_text(0, 2);
+    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    assert!(h.state.selection_range().is_some());
+
+    h.paste("XY");
+    assert_eq!(h.text(0), "abXYjkl");
+    assert_eq!(h.lines.len(), 1);
+
+    // Single undo must revert both the selection deletion and the paste.
+    cmd_z(&mut h);
+    assert_eq!(h.lines, original_lines);
+}
+
+#[test]
+fn paste_multiline_over_selection_undoes_atomically() {
+    let mut h = EditorHarness::new("abcdef\nghijkl\nmnopqr\n");
+    let original_lines = h.lines.clone();
+
+    // Select "cdef\nghijkl\nmno" (from (0,2) to (2,3))
+    h.click_text(0, 2);
+    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    assert!(h.state.selection_range().is_some());
+
+    h.paste("1\n2\n3");
+    assert_eq!(h.text(0), "ab1");
+    assert_eq!(h.text(1), "2");
+    assert_eq!(h.text(2), "3pqr");
+
+    cmd_z(&mut h);
+    assert_eq!(h.lines, original_lines);
+}
+
+#[test]
 fn select_all_and_shift_arrow_selection() {
     let mut h = EditorHarness::new(&sample_doc());
     h.click_text(0, 0);
