@@ -2,6 +2,7 @@
 
 **Unison** is a pan-Unicode hybrid bitmap monospace font in development.
 
+* Download: [TTF](https://lifthrasiir.github.io/unison/unison.ttf), [WOFF2](https://lifthrasiir.github.io/unison/unison.woff2)
 * [Glyph samples](https://lifthrasiir.github.io/unison/sample.html)
 * [Live sample](https://lifthrasiir.github.io/unison/live.html)
 
@@ -69,5 +70,5 @@ The major differences (and possible advantages) are as follows:
 
 For now, please see the bitmap glyph chart below.
 
-![Glyph chart](./sample.png)
+![Glyph chart](https://lifthrasiir.github.io/unison/sample.png)
 
