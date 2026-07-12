@@ -137,4 +137,3 @@ glyph logo 16 16
 
 map U+F8FF = logo
 
-// vim: ft=unison

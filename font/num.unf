@@ -1,6 +1,12 @@
 ////////////////////////////////////////
 // numerals
 
+name-parts $1-9 = 1 2 3 4 5 6 7 8 9
+name-parts $0-9 = 0 $1-9
+name-parts $1-10 = $1-9 10
+
+//--------------------------------------
+
 glyph 0 8 16
 ................
 ................
@@ -557,12 +563,12 @@ glyph sm-9-bold 5 5
 //--------------------------------------
 // superscript/subscript
 
-glyph sup-(0|1|2|3|4|5|6|7|8|9)
+glyph sup-($0-9)
 ref sp
-ref sm-(0|1|2|3|4|5|6|7|8|9) 2 1
-glyph sub-(0|1|2|3|4|5|6|7|8|9)
+ref sm-($0-9) 2 1
+glyph sub-($0-9)
 ref sp
-ref sm-(0|1|2|3|4|5|6|7|8|9) 2 10
+ref sm-($0-9) 2 10
 
 map ⁰ = sup-0
 map ¹ = sup-1
@@ -883,108 +889,89 @@ glyph num-7 8 16
 ................
 ref sm-7 1 3
 
-glyph uni215F
+glyph 1-over
 ref num-1
 ref fraction-slash 1 5
-map ⅟ = uni215F
 
-glyph uni00BD
+glyph 1-over-2
 ref num-1
 ref fraction-slash 1 5
 ref denom-2
-map ½ = uni00BD
 
-glyph uni2189
+glyph 0-over-3
 ref num-0
 ref fraction-slash 1 5
 ref denom-3
-map ↉ = uni2189
-glyph uni2153
+glyph 1-over-3
 ref num-1
 ref fraction-slash 1 5
 ref denom-3
-map ⅓ = uni2153
-glyph uni2154
+glyph 2-over-3
 ref num-2
 ref fraction-slash 1 5
 ref denom-3
-map ⅔ = uni2154
 
-glyph uni00BC
+glyph 1-over-4
 ref num-1
 ref fraction-slash 1 5
 ref denom-4
-map ¼ = uni00BC
-glyph uni00BE
+glyph 3-over-4
 ref num-3
 ref fraction-slash 1 5
 ref denom-4
-map ¾ = uni00BE
 
-glyph uni2155
+glyph 1-over-5
 ref num-1
 ref fraction-slash 1 5
 ref denom-5
-map ⅕ = uni2155
-glyph uni2156
+glyph 2-over-5
 ref num-2
 ref fraction-slash 1 5
 ref denom-5
-map ⅖ = uni2156
-glyph uni2157
+glyph 3-over-5
 ref num-3
 ref fraction-slash 1 5
 ref denom-5
-map ⅗ = uni2157
-glyph uni2158
+glyph 4-over-5
 ref num-4
 ref fraction-slash 1 5
 ref denom-5
-map ⅘ = uni2158
 
-glyph uni2159
+glyph 1-over-6
 ref num-1
 ref fraction-slash 1 5
 ref denom-6
-map ⅙ = uni2159
-glyph uni215A
+glyph 5-over-6
 ref num-5
 ref fraction-slash 1 5
 ref denom-6
-map ⅚ = uni215A
 
-glyph uni2150
+glyph 1-over-7
 ref num-1
 ref fraction-slash 1 5
 ref denom-7
-map ⅐ = uni2150
 
-glyph uni215B
+glyph 1-over-8
 ref num-1
 ref fraction-slash 1 5
 ref denom-8
-map ⅛ = uni215B
-glyph uni215C
+glyph 3-over-8
 ref num-3
 ref fraction-slash 1 5
 ref denom-8
-map ⅜ = uni215C
-glyph uni215D
+glyph 5-over-8
 ref num-5
 ref fraction-slash 1 5
 ref denom-8
-map ⅝ = uni215D
-glyph uni215E
+glyph 7-over-8
 ref num-7
 ref fraction-slash 1 5
 ref denom-8
-map ⅞ = uni215E
 
-glyph uni2151
+glyph 1-over-9
 ref num-1
 ref fraction-slash 1 5
 ref denom-9
-map ⅑ = uni2151
 
 // we are out of space now.
 glyph 1-over-10 8 16
@@ -1006,6 +993,33 @@ glyph 1-over-10 8 16
 ................
 ref fraction-slash 1 4
 
+map ⅟ = 1-over
+
+map ½ = 1-over-2
+
+map ↉ = 0-over-3
+map ⅓ = 1-over-3
+map ⅔ = 2-over-3
+
+map ¼ = 1-over-4
+map ¾ = 3-over-4
+
+map ⅕ = 1-over-5
+map ⅖ = 2-over-5
+map ⅗ = 3-over-5
+map ⅘ = 4-over-5
+
+map ⅙ = 1-over-6
+map ⅚ = 5-over-6
+
+map ⅐ = 1-over-7
+
+map ⅛ = 1-over-8
+map ⅜ = 3-over-8
+map ⅝ = 5-over-8
+map ⅞ = 7-over-8
+
+map ⅑ = 1-over-9
+
 map ⅒ = 1-over-10
 
-// vim: ft=unison

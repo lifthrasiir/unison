@@ -1,6 +1,8 @@
 ////////////////////////////////////////
 // playing cards
 
+name-parts $card-rank = a 2 3 4 5 6 7 8 9 10 j kn q k
+
 //--------------------------------------
 // 56-card decks
 
@@ -225,27 +227,28 @@ glyph card-joker-red 16 16
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
 
-map U+1F0A0 = card-back
-glyph U+1F0A1..1F0AE
+glyph card-spade-($card-rank)
 ref card-blank
 ref card-suit-spade
-ref card-rank-(a|2|3|4|5|6|7|8|9|10|j|kn|q|k)
-map U+1F0A1..1F0AE = U+1F0A1..1F0AE
-glyph U+1F0B1..1F0BE
+ref card-rank-($card-rank)
+glyph card-heart-($card-rank)
 ref card-blank
 ref card-suit-heart
-ref card-rank-(a|2|3|4|5|6|7|8|9|10|j|kn|q|k)
-map U+1F0B1..1F0BE = U+1F0B1..1F0BE
-glyph U+1F0C1..1F0CE
+ref card-rank-($card-rank)
+glyph card-diamond-($card-rank)
 ref card-blank
 ref card-suit-diamond
-ref card-rank-(a|2|3|4|5|6|7|8|9|10|j|kn|q|k)
-map U+1F0C1..1F0CE = U+1F0C1..1F0CE
-glyph U+1F0D1..1F0DE
+ref card-rank-($card-rank)
+glyph card-club-($card-rank)
 ref card-blank
 ref card-suit-club
-ref card-rank-(a|2|3|4|5|6|7|8|9|10|j|kn|q|k)
-map U+1F0D1..1F0DE = U+1F0D1..1F0DE
+ref card-rank-($card-rank)
+
+map U+1F0A0 = card-back
+map U+1F0A1..1F0AE = card-spade-($card-rank)
+map U+1F0B1..1F0BE = card-heart-($card-rank)
+map U+1F0C1..1F0CE = card-diamond-($card-rank)
+map U+1F0D1..1F0DE = card-club-($card-rank)
 map U+1F0BF = card-joker-red
 map U+1F0CF = card-joker-black
 map U+1F0DF = card-joker-white
@@ -271,20 +274,20 @@ glyph card-tarot-blank 16 16
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
 
-map U+1F0E0 = card-tarot-blank
-glyph U+1F0E1..1F0E9
+glyph card-tarot-($1-9)
 ref card-tarot-blank
-ref sm-(1|2|3|4|5|6|7|8|9) 7 5
-map U+1F0E1..1F0E9 = U+1F0E1..1F0E9
-glyph U+1F0EA..1F0F3
+ref sm-($1-9) 7 5
+glyph card-tarot-1($0-9)
 ref card-tarot-blank
 ref sm-1 5 5
-ref sm-(0|1|2|3|4|5|6|7|8|9) 9 5
-map U+1F0EA..1F0F3 = U+1F0EA..1F0F3
-glyph U+1F0F4..1F0F5
+ref sm-($0-9) 9 5
+glyph card-tarot-2(0|1)
 ref card-tarot-blank
 ref sm-2 5 5
 ref sm-(0|1) 9 5
-map U+1F0F4..1F0F5 = U+1F0F4..1F0F5
 
-// vim: ft=unison
+map U+1F0E0 = card-tarot-blank
+map U+1F0E1..1F0E9 = card-tarot-($1-9)
+map U+1F0EA..1F0F3 = card-tarot-1($0-9)
+map U+1F0F4..1F0F5 = card-tarot-2(0|1)
+

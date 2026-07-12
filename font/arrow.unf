@@ -563,6 +563,29 @@ glyph arrow-vert-base 16 16
 ref arrow-head-d2u 5 2
 ref arrow-head-u2d 5 6
 
+glyph arrow-r2l-stroked
+ref arrow-r2l
+ref arrow-horiz-stroke 4 5
+glyph arrow-l2r-stroked
+ref arrow-l2r
+ref arrow-horiz-stroke 0 5
+glyph arrow-horiz-stroked
+ref arrow-horiz
+ref arrow-horiz-stroke 2 5
+
+glyph arrow-r2l-r2l
+ref arrow-r2l
+ref arrow-head-r2l 5 5
+glyph arrow-d2u-d2u
+ref arrow-d2u
+ref arrow-head-d2u 5 5
+glyph arrow-l2r-l2r
+ref arrow-l2r
+ref arrow-head-l2r 5 5
+glyph arrow-u2d-u2d
+ref arrow-u2d
+ref arrow-head-u2d 5 5
+
 map ← = arrow-r2l
 map ↑ = arrow-d2u
 map → = arrow-l2r
@@ -574,38 +597,16 @@ map ↗ = arrow-ld2ru
 map ↘ = arrow-lu2rd
 map ↙ = arrow-ru2ld
 
-glyph uni219A
-ref arrow-r2l
-ref arrow-horiz-stroke 4 5
-map ↚ = uni219A
-glyph uni219B
-ref arrow-l2r
-ref arrow-horiz-stroke 0 5
-map ↛ = uni219B
-glyph uni21AE
-ref arrow-horiz
-ref arrow-horiz-stroke 2 5
-map ↮ = uni21AE
-
+map ↚ = arrow-r2l-stroked
+map ↛ = arrow-l2r-stroked
+map ↮ = arrow-horiz-stroked
 //map ↜
 //map ↝
 
-glyph uni219E
-ref arrow-r2l
-ref arrow-head-r2l 5 5
-map ↞ = uni219E
-glyph uni219F
-ref arrow-d2u
-ref arrow-head-d2u 5 5
-map ↟ = uni219F
-glyph uni21A0
-ref arrow-l2r
-ref arrow-head-l2r 5 5
-map ↠ = uni21A0
-glyph uni21A1
-ref arrow-u2d
-ref arrow-head-u2d 5 5
-map ↡ = uni21A1
+map ↞ = arrow-r2l-r2l
+map ↟ = arrow-d2u-d2u
+map ↠ = arrow-l2r-l2r
+map ↡ = arrow-u2d-u2d
 
 map ↢ = arrow-r2l-tail
 map ↣ = arrow-l2r-tail
@@ -617,45 +618,45 @@ map ↧ = arrow-u2d-from-bar
 
 map ↨ = arrow-vert-base
 
-//map ↩ = 
-//map ↪ = 
+//map ↩ =
+//map ↪ =
 //
-//map ↫ = 
-//map ↬ = 
+//map ↫ =
+//map ↬ =
 //
-//map ↭ = 
-//map ↯ = 
+//map ↭ =
+//map ↯ =
 //
-//map ↰ = 
-//map ↱ = 
-//map ↲ = 
-//map ↳ = 
-//map ↴ = 
-//map ↵ = 
-//map ↶ = 
-//map ↷ = 
-//map ↸ = 
-//map ↹ = 
-//map ↺ = 
-//map ↻ = 
-//map ↼ = 
-//map ↽ = 
-//map ↾ = 
-//map ↿ = 
+//map ↰ =
+//map ↱ =
+//map ↲ =
+//map ↳ =
+//map ↴ =
+//map ↵ =
+//map ↶ =
+//map ↷ =
+//map ↸ =
+//map ↹ =
+//map ↺ =
+//map ↻ =
+//map ↼ =
+//map ↽ =
+//map ↾ =
+//map ↿ =
 //
-//map ⇀ = 
-//map ⇁ = 
-//map ⇂ = 
-//map ⇃ = 
-//map ⇄ = 
-//map ⇅ = 
-//map ⇆ = 
-//map ⇇ = 
-//map ⇈ = 
-//map ⇉ = 
-//map ⇊ = 
-//map ⇋ = 
-//map ⇌ = 
+//map ⇀ =
+//map ⇁ =
+//map ⇂ =
+//map ⇃ =
+//map ⇄ =
+//map ⇅ =
+//map ⇆ =
+//map ⇇ =
+//map ⇈ =
+//map ⇉ =
+//map ⇊ =
+//map ⇋ =
+//map ⇌ =
 
 map ⇐ = arrow-r2l-double
 map ⇑ = arrow-d2u-double
@@ -672,45 +673,44 @@ map ⇙ = arrow-ru2ld-double
 //map ⇏ = arrow-l2r-double arrow-horiz-stroke@<<
 //map ⇎ = arrow-horiz-double arrow-horiz-stroke
 
-//map ⇚ = 
-//map ⇛ = 
-//map ⇜ = 
-//map ⇝ = 
-//map ⇞ = 
-//map ⇟ = 
+//map ⇚ =
+//map ⇛ =
+//map ⇜ =
+//map ⇝ =
+//map ⇞ =
+//map ⇟ =
 //
-//map ⇠ = 
-//map ⇡ = 
-//map ⇢ = 
-//map ⇣ = 
-//map ⇤ = 
-//map ⇥ = 
-//map ⇦ = 
-//map ⇧ = 
-//map ⇨ = 
-//map ⇩ = 
-//map ⇪ = 
-//map ⇫ = 
-//map ⇬ = 
-//map ⇭ = 
-//map ⇮ = 
-//map ⇯ = 
+//map ⇠ =
+//map ⇡ =
+//map ⇢ =
+//map ⇣ =
+//map ⇤ =
+//map ⇥ =
+//map ⇦ =
+//map ⇧ =
+//map ⇨ =
+//map ⇩ =
+//map ⇪ =
+//map ⇫ =
+//map ⇬ =
+//map ⇭ =
+//map ⇮ =
+//map ⇯ =
 //
-//map ⇰ = 
-//map ⇱ = 
-//map ⇲ = 
-//map ⇳ = 
-//map ⇴ = 
-//map ⇵ = 
-//map ⇶ = 
-//map ⇷ = 
-//map ⇸ = 
-//map ⇹ = 
-//map ⇺ = 
-//map ⇻ = 
-//map ⇼ = 
-//map ⇽ = 
-//map ⇾ = 
-//map ⇿ = 
+//map ⇰ =
+//map ⇱ =
+//map ⇲ =
+//map ⇳ =
+//map ⇴ =
+//map ⇵ =
+//map ⇶ =
+//map ⇷ =
+//map ⇸ =
+//map ⇹ =
+//map ⇺ =
+//map ⇻ =
+//map ⇼ =
+//map ⇽ =
+//map ⇾ =
+//map ⇿ =
 
-// vim: ft=unison
