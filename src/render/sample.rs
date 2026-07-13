@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::document::*;
 use crate::pixel::PX_SUBPIXEL;
-use crate::render::contour::{track_contour, track_contour_fullpixel};
+use crate::render::contour::{track_contour, track_contour_fullpixel, track_contour_multi};
 use crate::render::ttf_builder::expand_map_pairs;
 
 #[derive(Clone)]
@@ -286,6 +286,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             let mut result = PixelGrid::new(width, height);
 
             let mut components = Vec::new();
+            let mut contour_layers: Vec<(&PixelGrid, i32, i32)> = Vec::new();
 
             if let Some(grid) = own_pixels {
                 let off_r = -min_r;
@@ -308,6 +309,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     grid: grid.clone(),
                     negated: false,
                 });
+                if !has_negated {
+                    contour_layers.push((grid, off_r, off_c));
+                }
             }
 
             for gref in refs {
@@ -344,6 +348,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                             }
                         }
                     }
+                    if !has_negated && !gref.negated {
+                        contour_layers.push((ref_grid, off_r, off_c));
+                    }
                 }
                 for comp in &cached.components {
                     components.push(SampleComponent {
@@ -355,7 +362,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 }
             }
 
-            let contours = track_contour(&result, PX_SUBPIXEL);
+            let contours = if has_negated {
+                track_contour(&result, PX_SUBPIXEL)
+            } else {
+                track_contour_multi(&contour_layers, PX_SUBPIXEL)
+            };
             return Some(CachedGlyph {
                 width,
                 height,

@@ -31,7 +31,7 @@ use write_fonts::types::{Fixed, GlyphId, GlyphId16, NameId, Tag};
 use crate::document::*;
 use crate::document_io;
 use crate::pixel::{PX_ALMOSTFULL, PX_SUBPIXEL, PixelShape};
-use crate::render::contour::track_contour;
+use crate::render::contour::{track_contour, track_contour_multi};
 
 const UNITS_PER_EM: u16 = 1024;
 
@@ -1282,9 +1282,8 @@ impl CachedContours {
         let has_negated = refs.iter().any(|r| r.negated);
         let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
 
-        if has_negated || own_pixels.is_some() {
-            // Use pixel-level composition (same semantics as the editor)
-            // to correctly handle negated refs and own-pixel interaction.
+        if has_negated {
+            // Use pixel-level composition with subtraction for negated refs.
             let mut min_r: i32 = 0;
             let mut min_c: i32 = 0;
             let mut max_r: i32 = 0;
@@ -1309,7 +1308,6 @@ impl CachedContours {
             let height = (max_r - min_r).max(0) as u16;
             let mut result = PixelGrid::new(width, height);
 
-            // Paint own pixels first
             if let Some(grid) = own_pixels {
                 let off_r = -min_r;
                 let off_c = -min_c;
@@ -1327,7 +1325,6 @@ impl CachedContours {
                 }
             }
 
-            // Apply refs in order (same as editor's composite_to_grid)
             for gref in refs {
                 let Some(cached) = resolve_cached_ref(&gref.name, cache) else { continue };
                 let Some(ref_grid) = &cached.grid else { continue };
@@ -1374,7 +1371,81 @@ impl CachedContours {
             });
         }
 
-        // No negated refs and no own pixels: simple contour translation
+        // No negated refs. Collect layers for potential multi-layer contour
+        // tracing that correctly handles overlapping subpixel shapes.
+        let mut layers: Vec<(&PixelGrid, i32, i32)> = Vec::new();
+        if let Some(grid) = own_pixels {
+            layers.push((grid, 0, 0));
+        }
+        for gref in refs {
+            if let Some(cached) = resolve_cached_ref(&gref.name, cache) {
+                if let Some(ref_grid) = &cached.grid {
+                    layers.push((ref_grid, gref.row() as i32, gref.col() as i32));
+                }
+            }
+        }
+
+        let needs_multi = own_pixels.is_some() || layers_overlap(&layers);
+
+        if needs_multi {
+            // Use track_contour_multi to correctly union overlapping subpixels.
+            let contours = if bitmap {
+                let bitmap_grids: Vec<PixelGrid> = layers
+                    .iter()
+                    .map(|(g, _, _)| to_bitmap_grid(g))
+                    .collect();
+                let bitmap_layers: Vec<(&PixelGrid, i32, i32)> = bitmap_grids
+                    .iter()
+                    .zip(layers.iter())
+                    .map(|(bg, &(_, r, c))| (bg, r, c))
+                    .collect();
+                track_contour_multi(&bitmap_layers, PX_SUBPIXEL)
+            } else {
+                track_contour_multi(&layers, PX_SUBPIXEL)
+            };
+
+            // Build combined grid for downstream composites
+            let mut min_r: i32 = 0;
+            let mut min_c: i32 = 0;
+            let mut max_r: i32 = 0;
+            let mut max_c: i32 = 0;
+            for &(grid, row_off, col_off) in &layers {
+                min_r = min_r.min(row_off);
+                min_c = min_c.min(col_off);
+                max_r = max_r.max(row_off + grid.height as i32);
+                max_c = max_c.max(col_off + grid.width as i32);
+            }
+            let width = (max_c - min_c).max(0) as u16;
+            let height = (max_r - min_r).max(0) as u16;
+            let mut result = PixelGrid::new(width, height);
+            for &(grid, row_off, col_off) in &layers {
+                let off_r = row_off - min_r;
+                let off_c = col_off - min_c;
+                for r in 0..grid.height as i32 {
+                    for c in 0..grid.width as i32 {
+                        let shape = grid.get(r as u16, c as u16);
+                        if !shape.is_empty() {
+                            let dr = off_r + r;
+                            let dc = off_c + c;
+                            if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
+                                result.set(dr as u16, dc as u16, shape);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Some(Self {
+                width,
+                height,
+                contours,
+                anchors: Vec::new(),
+                grid: Some(result),
+                composite_components: None,
+            });
+        }
+
+        // No negated refs, no own pixels, no overlap: simple contour translation
         let mut all_contours = Vec::new();
         let mut max_width = 0u16;
         let mut max_height = 0u16;
@@ -1396,7 +1467,6 @@ impl CachedContours {
             max_width = max_width.max(w);
             max_height = max_height.max(h);
 
-            // Combine grids for downstream composites
             if let Some(ref_grid) = &cached.grid {
                 let cg = combined_grid.get_or_insert_with(|| PixelGrid::new(max_width, max_height));
                 if cg.width < max_width || cg.height < max_height {
@@ -1428,6 +1498,35 @@ impl CachedContours {
             composite_components: Some(components),
         })
     }
+}
+
+fn layers_overlap(layers: &[(&PixelGrid, i32, i32)]) -> bool {
+    for i in 0..layers.len() {
+        for j in i + 1..layers.len() {
+            let (g1, r1, c1) = layers[i];
+            let (g2, r2, c2) = layers[j];
+            if r1 < r2 + g2.height as i32
+                && r2 < r1 + g1.height as i32
+                && c1 < c2 + g2.width as i32
+                && c2 < c1 + g1.width as i32
+            {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn to_bitmap_grid(grid: &PixelGrid) -> PixelGrid {
+    let mut bg = PixelGrid::new(grid.width, grid.height);
+    for r in 0..grid.height {
+        for c in 0..grid.width {
+            if grid.get(r, c).is_filled() {
+                bg.set(r, c, PixelShape::new(PX_ALMOSTFULL, true));
+            }
+        }
+    }
+    bg
 }
 
 fn gcd(mut a: i32, mut b: i32) -> i32 {

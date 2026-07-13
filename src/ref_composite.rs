@@ -1329,4 +1329,69 @@ ref ($ab)-inner
             "b-inner:compressed should be selected because its -center (1x2) matches +center (1x2)"
         );
     }
+
+    #[test]
+    fn overlapping_subpixel_contours_are_correct() {
+        use crate::document_io;
+        use crate::pixel::PX_SUBPIXEL;
+        use crate::render::contour::track_contour_multi;
+
+        // HALF1 (1\, bottom-left triangle) + HALF2 (\1, top-right triangle) = full
+        let input = "\
+glyph base 1 1
+1\\
+
+glyph overlay 1 1
+\\1
+
+glyph combined
+ref base
+ref overlay
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+        let base = &resolved["base"].grid;
+        let overlay = &resolved["overlay"].grid;
+        let contours = track_contour_multi(
+            &[(base, 0, 0), (overlay, 0, 0)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(contours.len(), 1, "complement halves should form one full-pixel contour");
+        let path = &contours[0];
+        assert!(path.contains(&(0.0, 0.0)));
+        assert!(path.contains(&(1.0, 0.0)));
+        assert!(path.contains(&(1.0, 1.0)));
+        assert!(path.contains(&(0.0, 1.0)));
+    }
+
+    #[test]
+    fn own_grid_plus_ref_contours_are_unioned() {
+        use crate::document_io;
+        use crate::pixel::PX_SUBPIXEL;
+        use crate::render::contour::track_contour_multi;
+
+        let input = "\
+glyph part 1 1
+\\1
+
+glyph host 1 1
+1\\
+ref part
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+        let host_grid = &resolved["host"].grid;
+        let part_grid = &resolved["part"].grid;
+
+        // The own grid has HALF1 at (0,0), the ref has HALF2 at (0,0).
+        // track_contour_multi should trace the union as a full pixel.
+        let contours = track_contour_multi(
+            &[(host_grid, 0, 0), (part_grid, 0, 0)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(contours.len(), 1);
+        let path = &contours[0];
+        assert!(path.contains(&(0.0, 0.0)));
+        assert!(path.contains(&(1.0, 1.0)));
+    }
 }

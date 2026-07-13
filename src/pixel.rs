@@ -588,6 +588,194 @@ pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
 }
 
 // ---------------------------------------------------------------------------
+// Multi-shape adjacency (union of overlapping subpixels within one pixel)
+// ---------------------------------------------------------------------------
+
+/// Compute adjacency bits and gap segments for the union of multiple shapes
+/// within a single pixel cell. Returns `(combined_adj_bits, gap_segments)`.
+///
+/// For a single shape this is equivalent to [`adjacency`]. For multiple shapes,
+/// the adjacency bits are OR'd and the gap segments are geometrically clipped
+/// so they represent the boundary of the union polygon.
+pub fn multi_shape_adjacency(shapes: &[u8]) -> (u8, Vec<Seg>) {
+    match shapes.len() {
+        0 => return (0, Vec::new()),
+        1 => {
+            let (bits, segs) = adjacency(shapes[0]);
+            return (bits, segs.to_vec());
+        }
+        _ => {}
+    }
+
+    let mut combined_bits = 0u8;
+    for &s in shapes {
+        combined_bits |= adjacency(s).0;
+    }
+    if combined_bits == 0xFF {
+        return (0xFF, Vec::new());
+    }
+
+    let polygons: Vec<Vec<(f32, f32)>> = shapes.iter().map(|&s| build_unit_polygon(s)).collect();
+
+    let mut combined_segs: Vec<Seg> = Vec::new();
+    for (i, &s) in shapes.iter().enumerate() {
+        let (_, gap_segs) = adjacency(s);
+        if gap_segs.is_empty() {
+            continue;
+        }
+        let outside_normal = gap_outside_normal(gap_segs[0], &polygons[i]);
+
+        for &seg in gap_segs {
+            let mut intervals = vec![(0.0f32, 1.0f32)];
+            for (j, poly_j) in polygons.iter().enumerate() {
+                if i == j || poly_j.len() < 3 {
+                    continue;
+                }
+                intervals =
+                    subtract_covered_intervals(seg, outside_normal, &intervals, poly_j);
+                if intervals.is_empty() {
+                    break;
+                }
+            }
+            let (x1, y1, x2, y2) = seg;
+            for (t0, t1) in intervals {
+                if t1 - t0 < 1e-4 {
+                    continue;
+                }
+                combined_segs.push((
+                    x1 + t0 * (x2 - x1),
+                    y1 + t0 * (y2 - y1),
+                    x1 + t1 * (x2 - x1),
+                    y1 + t1 * (y2 - y1),
+                ));
+            }
+        }
+    }
+
+    (combined_bits, combined_segs)
+}
+
+/// Determine which side of a gap segment is "outside" (empty) for the given polygon.
+/// Returns a normal vector pointing toward the empty side.
+fn gap_outside_normal(seg: Seg, polygon: &[(f32, f32)]) -> (f32, f32) {
+    let (x1, y1, x2, y2) = seg;
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    let mx = (x1 + x2) * 0.5;
+    let my = (y1 + y2) * 0.5;
+    let eps = 0.002;
+    // Left normal candidate
+    let (nx, ny) = (-dy, dx);
+    let len = (nx * nx + ny * ny).sqrt().max(1e-9);
+    let (nx, ny) = (nx / len, ny / len);
+    if !point_in_polygon(mx + eps * nx, my + eps * ny, polygon) {
+        (nx, ny)
+    } else {
+        (-nx, -ny)
+    }
+}
+
+fn point_in_polygon(x: f32, y: f32, polygon: &[(f32, f32)]) -> bool {
+    let n = polygon.len();
+    if n < 3 {
+        return false;
+    }
+    let mut inside = false;
+    let mut j = n - 1;
+    for i in 0..n {
+        let (xi, yi) = polygon[i];
+        let (xj, yj) = polygon[j];
+        if ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi) {
+            inside = !inside;
+        }
+        j = i;
+    }
+    inside
+}
+
+/// Clip gap segment intervals, removing parts where the "outside" of the
+/// source shape is filled by `other_polygon`.
+fn subtract_covered_intervals(
+    seg: Seg,
+    outside_normal: (f32, f32),
+    intervals: &[(f32, f32)],
+    other_polygon: &[(f32, f32)],
+) -> Vec<(f32, f32)> {
+    let (x1, y1, x2, y2) = seg;
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+
+    let n = other_polygon.len();
+    let mut crossings: Vec<f32> = Vec::new();
+    for i in 0..n {
+        let (px1, py1) = other_polygon[i];
+        let (px2, py2) = other_polygon[(i + 1) % n];
+        if let Some(t) = seg_intersect_t(x1, y1, x2, y2, px1, py1, px2, py2) {
+            if t > 0.002 && t < 0.998 {
+                crossings.push(t);
+            }
+        }
+    }
+    crossings.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    crossings.dedup_by(|a, b| (*a - *b).abs() < 0.002);
+
+    let eps = 0.002;
+    let (nx, ny) = outside_normal;
+
+    let mut result = Vec::new();
+    for &(start, end) in intervals {
+        let mut splits = vec![start];
+        for &t in &crossings {
+            if t > start + eps && t < end - eps {
+                splits.push(t);
+            }
+        }
+        splits.push(end);
+
+        for k in 0..splits.len() - 1 {
+            let s = splits[k];
+            let e = splits[k + 1];
+            let mid = (s + e) * 0.5;
+            let test_x = x1 + mid * dx + eps * nx;
+            let test_y = y1 + mid * dy + eps * ny;
+            if !point_in_polygon(test_x, test_y, other_polygon) {
+                result.push((s, e));
+            }
+        }
+    }
+    result
+}
+
+/// Parameter `t` along segment A where it intersects segment B.
+/// Returns `None` if segments are parallel or don't intersect.
+fn seg_intersect_t(
+    ax1: f32,
+    ay1: f32,
+    ax2: f32,
+    ay2: f32,
+    bx1: f32,
+    by1: f32,
+    bx2: f32,
+    by2: f32,
+) -> Option<f32> {
+    let dx = ax2 - ax1;
+    let dy = ay2 - ay1;
+    let ex = bx2 - bx1;
+    let ey = by2 - by1;
+    let denom = dx * ey - dy * ex;
+    if denom.abs() < 1e-9 {
+        return None;
+    }
+    let t = ((bx1 - ax1) * ey - (by1 - ay1) * ex) / denom;
+    let u = ((bx1 - ax1) * dy - (by1 - ay1) * dx) / denom;
+    if t >= -0.001 && t <= 1.001 && u >= -0.001 && u <= 1.001 {
+        Some(t.clamp(0.0, 1.0))
+    } else {
+        None
+    }
+}
+
+// ---------------------------------------------------------------------------
 
 static PAIR_TO_SHAPE: std::sync::LazyLock<std::collections::HashMap<(char, char), PixelShape>> =
     std::sync::LazyLock::new(|| {
@@ -756,5 +944,43 @@ mod tests {
         assert!((cov.left.end - 1.0).abs() < 0.01);
         assert!((cov.right.start - 0.0).abs() < 0.01);
         assert!((cov.right.end - 1.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn multi_shape_single_same_as_adjacency() {
+        for s in 0..32u8 {
+            let (bits, segs) = adjacency(s);
+            let (mbits, msegs) = multi_shape_adjacency(&[s]);
+            assert_eq!(bits, mbits, "bits mismatch for shape {s}");
+            assert_eq!(segs.len(), msegs.len(), "segs len mismatch for shape {s}");
+        }
+    }
+
+    #[test]
+    fn multi_shape_complements_fill_pixel() {
+        // HALF1 + HALF2 = full pixel, no gap segs
+        let (bits, segs) = multi_shape_adjacency(&[PX_HALF1, PX_HALF2]);
+        assert_eq!(bits, 0xFF);
+        assert!(segs.is_empty());
+    }
+
+    #[test]
+    fn multi_shape_slant_union_gap_segments() {
+        // SLANT1H (bottom-left triangle) + SLANT3H (upper-left triangle)
+        // Union covers: a, h, g, f edges; gap goes via (0.25,0.5)
+        let (bits, segs) = multi_shape_adjacency(&[PX_SLANT1H, PX_SLANT3H]);
+        assert_eq!(
+            bits,
+            adjacency(PX_SLANT1H).0 | adjacency(PX_SLANT3H).0,
+        );
+        // Should have 2 gap segments meeting at the intersection point
+        assert_eq!(segs.len(), 2, "expected 2 clipped gap segments, got {}", segs.len());
+        // Both segments should share the intersection point (0.25, 0.5)
+        let has_intersection = segs.iter().any(|&(x1, y1, _, _)| {
+            (x1 - 0.25).abs() < 0.01 && (y1 - 0.5).abs() < 0.01
+        }) || segs.iter().any(|&(_, _, x2, y2)| {
+            (x2 - 0.25).abs() < 0.01 && (y2 - 0.5).abs() < 0.01
+        });
+        assert!(has_intersection, "gap segs should meet at (0.25, 0.5): {segs:?}");
     }
 }
