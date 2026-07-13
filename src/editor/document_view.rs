@@ -501,7 +501,7 @@ pub fn show_document(
                     horizontal_arrows: true,
                     vertical_arrows: true,
                     escape: true,
-                    tab: false,
+                    tab: state.autocomplete.is_some(),
                 });
             });
             ui.output_mut(|o| o.mutable_text_under_cursor = true);
@@ -1077,6 +1077,7 @@ pub fn show_document(
         // Process click (skip while rename popup is open)
         if goto_glyph_name.is_none() && !matches!(state.popup, PopupState::Rename { .. })
             && let Some(target) = click_result {
+                state.autocomplete = None;
                 let shift = ui.input(|i| i.modifiers.shift);
                 match target {
                     ClickTarget::Text(caret_pos) => {
@@ -1198,60 +1199,106 @@ pub fn show_document(
     let prev_cursor = state.cursor;
     let mut rename_result: Option<RenameAction> = None;
     if state.active {
-        if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
-            if matches!(state.popup, PopupState::Rename { .. }) {
-                state.popup = PopupState::None;
-            } else if !matches!(state.mode, EditMode::Normal) {
-                state.mode = EditMode::Normal;
+        // Autocomplete key handling takes priority
+        let ac_result = crate::editor::autocomplete::handle_keys(ui, lines, state);
+        if matches!(ac_result, crate::editor::autocomplete::HandleResult::TextChanged) {
+            needs_rederive = true;
+        }
+
+        if matches!(ac_result, crate::editor::autocomplete::HandleResult::NotConsumed) {
+            if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+                if matches!(state.popup, PopupState::Rename { .. }) {
+                    state.popup = PopupState::None;
+                } else if !matches!(state.mode, EditMode::Normal) {
+                    state.mode = EditMode::Normal;
+                }
+            }
+
+            // F2: rename symbol at caret
+            if matches!(state.mode, EditMode::Normal)
+                && matches!(state.popup, PopupState::None)
+                && ui.input(|i| i.key_pressed(egui::Key::F2))
+                && let Some(DocLine::Text(line_text)) = lines.get(state.cursor.line)
+                    && let Some(target) = doc_links::find_renameable_at_caret(line_text, state.cursor.col) {
+                        state.popup = PopupState::Rename {
+                            original_name: target.name.clone(),
+                            new_name: target.name,
+                            kind: target.kind,
+                            focus_set: false,
+                        };
+                    }
+
+            // Undo/redo in GlyphEdit/LayerMove modes (Normal mode handles it via doc_input::handle_keys)
+            if !matches!(state.mode, EditMode::Normal)
+                && !matches!(state.popup, PopupState::Rename { .. })
+            {
+                let undo_pressed = ui.input(|i| {
+                    i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::Z)
+                });
+                let redo_pressed = ui.input(|i| {
+                    (i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::Z))
+                        || (i.modifiers.command && i.key_pressed(egui::Key::Y))
+                });
+                if undo_pressed {
+                    if let Some(c) = state.undo.undo(lines) {
+                        state.cursor = caret::clamp(lines, c);
+                        state.selection_anchor = None;
+                        state.skip_reconcile = true;
+                        needs_rederive = true;
+                    }
+                } else if redo_pressed {
+                    if let Some(c) = state.undo.redo(lines) {
+                        state.cursor = caret::clamp(lines, c);
+                        state.selection_anchor = None;
+                        state.skip_reconcile = true;
+                        needs_rederive = true;
+                    }
+                }
+            }
+
+            if matches!(state.mode, EditMode::Normal)
+                && !matches!(state.popup, PopupState::Rename { .. })
+            {
+                let text_changed = doc_input::handle_keys(ui, lines, state);
+                needs_rederive |= text_changed;
+
+                // Update autocomplete candidates after text changes
+                if text_changed && state.autocomplete.is_some() {
+                    crate::editor::autocomplete::update_after_edit(lines, state);
+                }
             }
         }
 
-        // F2: rename symbol at caret
-        if matches!(state.mode, EditMode::Normal)
+        // Ctrl+Space (or Cmd+Space on macOS) to trigger autocomplete
+        let trigger_ac = ui.input(|i| {
+            let ctrl_space = i.modifiers.ctrl && i.key_pressed(egui::Key::Space);
+            let cmd_period = cfg!(target_os = "macos")
+                && i.modifiers.command
+                && i.key_pressed(egui::Key::Period);
+            ctrl_space || cmd_period
+        });
+        if trigger_ac
+            && state.autocomplete.is_none()
+            && matches!(state.mode, EditMode::Normal)
             && matches!(state.popup, PopupState::None)
-            && ui.input(|i| i.key_pressed(egui::Key::F2))
-            && let Some(DocLine::Text(line_text)) = lines.get(state.cursor.line)
-                && let Some(target) = doc_links::find_renameable_at_caret(line_text, state.cursor.col) {
-                    state.popup = PopupState::Rename {
-                        original_name: target.name.clone(),
-                        new_name: target.name,
-                        kind: target.kind,
-                        focus_set: false,
-                    };
-                }
-
-        // Undo/redo in GlyphEdit/LayerMove modes (Normal mode handles it via doc_input::handle_keys)
-        if !matches!(state.mode, EditMode::Normal)
-            && !matches!(state.popup, PopupState::Rename { .. })
         {
-            let undo_pressed = ui.input(|i| {
-                i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::Z)
-            });
-            let redo_pressed = ui.input(|i| {
-                (i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::Z))
-                    || (i.modifiers.command && i.key_pressed(egui::Key::Y))
-            });
-            if undo_pressed {
-                if let Some(c) = state.undo.undo(lines) {
-                    state.cursor = caret::clamp(lines, c);
-                    state.selection_anchor = None;
-                    state.skip_reconcile = true;
-                    needs_rederive = true;
-                }
-            } else if redo_pressed {
-                if let Some(c) = state.undo.redo(lines) {
-                    state.cursor = caret::clamp(lines, c);
-                    state.selection_anchor = None;
-                    state.skip_reconcile = true;
-                    needs_rederive = true;
-                }
-            }
+            let source = crate::editor::autocomplete::CompletionSource {
+                named_glyphs,
+                name_parts,
+                doc,
+            };
+            crate::editor::autocomplete::trigger(lines, state, &source);
         }
 
-        if matches!(state.mode, EditMode::Normal)
-            && !matches!(state.popup, PopupState::Rename { .. })
-        {
-            needs_rederive |= doc_input::handle_keys(ui, lines, state);
+        // Dismiss autocomplete when cursor moves inappropriately
+        if let Some(ac) = &state.autocomplete {
+            if state.cursor.line != ac.line || state.cursor.col < ac.replace_start {
+                state.autocomplete = None;
+            }
+        }
+        // Also re-filter if cursor moved within the token but no text changed
+        if state.autocomplete.is_some() && state.cursor != prev_cursor && !needs_rederive {
+            crate::editor::autocomplete::update_after_edit(lines, state);
         }
     }
 
@@ -1331,9 +1378,67 @@ pub fn show_document(
         }
     }
 
+    // Autocomplete popup
+    if state.autocomplete.is_some() {
+        let popup_id = egui::Id::new("autocomplete_popup");
+        let stored_pos: Option<egui::Pos2> =
+            ui.ctx().data(|d| d.get_temp(egui::Id::new("cursor_screen_pos")));
+        let stored_rh: f32 = ui
+            .ctx()
+            .data(|d| d.get_temp(egui::Id::new("cursor_row_height")).unwrap_or(16.0));
+        let popup_pos = stored_pos.unwrap_or(egui::pos2(100.0, 100.0));
+        let popup_pos = egui::pos2(popup_pos.x, popup_pos.y + stored_rh + 2.0);
+
+        let ac_area = egui::Area::new(popup_id)
+            .order(egui::Order::Foreground)
+            .fixed_pos(popup_pos)
+            .show(ui.ctx(), |ui| {
+                egui::Frame::popup(ui.style()).show(ui, |ui| {
+                    let ac = state.autocomplete.as_ref().unwrap();
+                    let end = ac
+                        .candidates
+                        .len()
+                        .min(ac.scroll_offset + crate::editor::autocomplete::MAX_VISIBLE);
+                    ui.set_min_width(180.0);
+                    let mut clicked_idx: Option<usize> = None;
+                    for i in ac.scroll_offset..end {
+                        let selected = i == ac.selected;
+                        let candidate = &ac.candidates[i];
+                        let kind_char = match candidate.kind {
+                            crate::editor::autocomplete::CompletionKind::Glyph => "G",
+                            crate::editor::autocomplete::CompletionKind::NameParts => "$",
+                            crate::editor::autocomplete::CompletionKind::Point => "P",
+                            crate::editor::autocomplete::CompletionKind::Keyword => "K",
+                            crate::editor::autocomplete::CompletionKind::GlyphFlag => "F",
+                        };
+                        let text = format!("{kind_char}  {}", candidate.label);
+                        if ui.selectable_label(selected, &text).clicked() {
+                            clicked_idx = Some(i);
+                        }
+                    }
+                    if ac.candidates.len() > crate::editor::autocomplete::MAX_VISIBLE {
+                        ui.label(format!(
+                            "{}/{}",
+                            ac.selected + 1,
+                            ac.candidates.len()
+                        ));
+                    }
+                    clicked_idx
+                })
+            });
+        if let Some(clicked) = ac_area.inner.inner {
+            if let Some(ac) = &mut state.autocomplete {
+                ac.selected = clicked;
+            }
+            crate::editor::autocomplete::handle_accept(lines, state);
+            needs_rederive = true;
+        }
+    }
+
     // Error tooltip: show when caret is inside an error span
     if state.active
         && matches!(state.popup, PopupState::None)
+        && state.autocomplete.is_none()
     {
         let tooltip_data: Option<Option<(egui::Pos2, String)>> =
             ui.ctx().data(|d| d.get_temp(egui::Id::new("error_tooltip_data")));

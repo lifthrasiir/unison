@@ -1,3 +1,4 @@
+pub mod autocomplete;
 pub mod caret;
 pub mod colors;
 pub mod doc_input;
@@ -62,6 +63,7 @@ pub struct EditorState {
     pub(crate) last_reparse_line: Option<usize>,
     document_sync_requested: bool,
     pub(crate) popup: PopupState,
+    pub(crate) autocomplete: Option<autocomplete::AutocompleteState>,
     scroll_to_cursor: bool,
     zoom_changed_from: Option<u32>,
     pub(crate) grid_hover: bool,
@@ -84,6 +86,7 @@ impl EditorState {
             last_reparse_line: None,
             document_sync_requested: false,
             popup: PopupState::None,
+            autocomplete: None,
             scroll_to_cursor: false,
             zoom_changed_from: None,
             grid_hover: false,

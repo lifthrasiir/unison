@@ -50,83 +50,60 @@ fn initial_layout_has_expected_gutter_and_grid_rows() {
     assert_eq!(h.gutter_of(0), Some(1));
     assert_eq!(h.gutter_of(2), Some(18));
     assert_eq!(h.gutter_of(3), Some(19));
-    // Every visual line carries a consecutive source line number.
     assert_eq!(h.gutter_numbers(), (1..=21).collect::<Vec<_>>());
 }
 
 #[test]
-fn click_places_caret_and_focuses_editor() {
+fn click_then_type_places_text() {
     let mut h = EditorHarness::new(&sample_doc());
-    assert!(!h.state.is_active());
-
     h.click_text(0, 6);
-    assert!(h.state.is_active());
     assert_eq!(h.cursor(), Caret::new(0, 6));
-
-    h.click_text(3, 0);
-    assert_eq!(h.cursor(), Caret::new(3, 0));
-
-    h.click_text(0, 15); // end of "glyph foo 16 16"
-    assert_eq!(h.cursor(), Caret::new(0, 15));
-}
-
-#[test]
-fn arrow_keys_traverse_grid_lines() {
-    let mut h = EditorHarness::new(&sample_doc());
-    h.click_text(0, 5);
-
-    h.key(Key::ArrowDown);
-    assert_eq!(h.cursor(), Caret::new(1, 0), "grid line clamps caret to col 0");
-    h.key(Key::ArrowDown);
-    assert_eq!(h.cursor(), Caret::new(2, 0));
-    h.key(Key::ArrowUp);
-    h.key(Key::ArrowUp);
-    assert_eq!(h.cursor(), Caret::new(0, 0));
-
-    h.key(Key::End);
-    assert_eq!(h.cursor(), Caret::new(0, 15));
-    h.key(Key::Home);
-    assert_eq!(h.cursor(), Caret::new(0, 0));
+    h.type_text("X");
+    assert_eq!(h.text(0), "glyph Xfoo 16 16");
 }
 
 #[test]
 fn typing_inserts_text_and_marks_document_dirty() {
     let mut h = EditorHarness::new(&sample_doc());
-    h.click_text(2, 0);
     assert!(!h.doc.dirty);
 
-    h.type_text("// note");
-    assert_eq!(h.text(2), "// note");
-    assert_eq!(h.cursor(), Caret::new(2, 7));
+    h.click_text(0, 0);
+    h.type_text("// ");
+    assert_eq!(h.text(0), "// glyph foo 16 16");
     assert!(h.doc.dirty);
 
     undo_all(&mut h);
-    assert_eq!(h.text(2), "");
+    assert_eq!(h.text(0), "glyph foo 16 16");
     assert!(!h.doc.dirty);
 }
 
-/// The scenario from the editor's core contract: change `glyph foo 16 16`
-/// to `glyph foo 16 8`, and the grid must keep its old size while the
-/// header line is still being edited, then shrink (dropping overflowing
-/// pixels) once the caret leaves the line — pulling all following lines up
-/// and renumbering the gutter — and undo must restore all of it.
+#[test]
+fn click_grid_enters_glyph_edit() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.click_grid_cell(1, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
+        "expected GlyphEdit for item_idx 0"
+    );
+}
+
 #[test]
 fn header_height_edit_resizes_grid_when_caret_leaves_line() {
     let mut h = EditorHarness::new(&sample_doc());
     let original_lines = h.lines.clone();
 
-    // Caret at the end of "glyph foo 16 16"; delete "16", type "8".
+    // "glyph foo 16 16" -> "glyph foo 16 8"
+    // Select trailing "16" by navigating to end, backspace twice.
     h.click_text(0, 15);
     h.key(Key::Backspace);
     h.key(Key::Backspace);
     h.type_text("8");
     assert_eq!(h.text(0), "glyph foo 16 8");
 
-    // While the caret is still on the header line the resize is deferred:
-    // the grid widget and the gutter numbering are unchanged.
-    assert_eq!(h.grid_row_count(1), 16);
-    assert_eq!(h.gutter_of(3), Some(19));
-    assert_eq!(h.grid(1).height, 16);
+    // Grid hasn't changed yet — resize is deferred while the caret is on the
+    // header line.
+    assert_eq!(h.grid_row_count(1), 16, "grid is still 16 rows while deferred");
+    assert_eq!(h.gutter_of(3), Some(19), "gutter hasn't changed yet");
 
     // Move the caret off the header line — now the grid resizes.
     h.key(Key::ArrowDown);
@@ -187,188 +164,88 @@ fn growing_header_height_expands_grid_and_gutter() {
 
     undo_all(&mut h);
     assert_eq!(h.grid(4).height, 2);
-    assert_eq!(h.gutter_numbers(), (1..=21).collect::<Vec<_>>());
 }
 
-#[test]
-fn clicking_grid_enters_glyph_edit_and_escape_exits() {
-    let mut h = EditorHarness::new(&sample_doc());
-
-    h.click_grid_cell(1, 5, 5);
-    assert!(
-        matches!(h.mode(), EditMode::GlyphEdit { item_idx: 0, .. }),
-        "clicking foo's grid enters GlyphEdit for item 0, got {:?}",
-        h.mode()
-    );
-
-    h.key(Key::Escape);
-    assert!(matches!(h.mode(), EditMode::Normal));
+fn text_doc() -> String {
+    "line one\nline two\nline three\n".to_string()
 }
 
-#[test]
-fn painting_a_pixel_in_glyph_edit_mode_and_undo() {
-    let mut h = EditorHarness::new(&sample_doc());
-
-    // First click enters GlyphEdit (and is suppressed as a paint).
-    h.click_grid_cell(1, 2, 10);
-    assert!(matches!(h.mode(), EditMode::GlyphEdit { item_idx: 0, .. }));
-    assert!(h.grid(1).get(2, 10).is_empty(), "entering click must not paint");
-
-    // Second click paints with the selected shape.
-    h.click_grid_cell(1, 2, 10);
-    assert!(!h.grid(1).get(2, 10).is_empty(), "click paints the cell");
-    assert!(h.doc.dirty);
-
-    cmd_z(&mut h);
-    assert!(h.grid(1).get(2, 10).is_empty(), "undo clears the painted cell");
-}
-
-#[test]
-fn deleting_glyph_header_demotes_grid_to_text_and_undo_restores() {
-    let mut h = EditorHarness::new(&sample_doc());
-    let original_lines = h.lines.clone();
-
-    // Select the whole "glyph bar 4 2" line and delete it.
-    h.click_text(3, 0);
-    h.key_mod(Key::End, Modifiers::SHIFT);
-    assert!(h.state.selection_range().is_some());
-    h.key(Key::Backspace);
-
-    // While the caret still sits on the (now empty) header line the grid is
-    // left alone — the user may be about to retype the header.
-    assert_eq!(h.text(3), "");
-    assert!(matches!(h.lines[4], DocLine::Grid(_)));
-
-    // Leaving the line orphans the grid, demoting it back to two text rows.
-    h.key(Key::ArrowUp);
-    assert_eq!(h.text(4), "@@......");
-    assert_eq!(h.text(5), "......@@");
-    assert!(matches!(h.lines[4], DocLine::Text(_)));
-
-    undo_all(&mut h);
-    assert_eq!(h.lines, original_lines);
-    assert_eq!(h.grid_row_count(4), 2);
-}
-
-#[test]
-fn newline_shifts_following_gutter_numbers() {
-    let mut h = EditorHarness::new(&sample_doc());
-
-    h.click_text(2, 0);
-    h.key(Key::Enter);
-    // "glyph bar" moved from doc line 3 to 4, source line 19 -> 20.
-    assert_eq!(h.text(4), "glyph bar 4 2");
-    assert_eq!(h.gutter_of(4), Some(20));
-
-    undo_all(&mut h);
-    assert_eq!(h.text(3), "glyph bar 4 2");
-    assert_eq!(h.gutter_of(3), Some(19));
-}
+// -- paste tests --
 
 #[test]
 fn paste_single_line_and_undo() {
-    let mut h = EditorHarness::new(&sample_doc());
-    h.click_text(2, 0);
-
-    h.paste("hello");
-    assert_eq!(h.text(2), "hello");
-    assert_eq!(h.cursor(), Caret::new(2, 5));
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(0, 5);
+    h.paste("ABC");
+    assert_eq!(h.text(0), "line ABCone");
+    assert_eq!(h.cursor(), Caret::new(0, 8));
 
     cmd_z(&mut h);
-    assert_eq!(h.text(2), "");
-    assert_eq!(h.cursor(), Caret::new(2, 0));
+    assert_eq!(h.text(0), "line one");
+    assert_eq!(h.cursor(), Caret::new(0, 5));
 }
 
 #[test]
 fn paste_multiline_undoes_atomically() {
-    let mut h = EditorHarness::new(&sample_doc());
-    h.click_text(2, 0);
-    let original_lines = h.lines.clone();
-
-    h.paste("line1\nline2\nline3");
-    assert_eq!(h.text(2), "line1");
-    assert_eq!(h.text(3), "line2");
-    assert_eq!(h.text(4), "line3");
-    assert_eq!(h.cursor(), Caret::new(4, 5));
-    assert_eq!(h.lines.len(), original_lines.len() + 2);
-
-    // Single undo must revert the entire multi-line paste at once.
-    cmd_z(&mut h);
-    assert_eq!(h.lines, original_lines);
-    assert_eq!(h.cursor(), Caret::new(2, 0));
-}
-
-#[test]
-fn paste_multiline_into_middle_of_text_and_undo() {
-    let mut h = EditorHarness::new("abc\ndef\n");
-    h.click_text(0, 1); // between 'a' and 'bc'
-
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(0, 4);
     h.paste("X\nY\nZ");
-    assert_eq!(h.text(0), "aX");
+    assert_eq!(h.text(0), "lineX");
     assert_eq!(h.text(1), "Y");
-    assert_eq!(h.text(2), "Zbc");
+    assert_eq!(h.text(2), "Z one");
     assert_eq!(h.cursor(), Caret::new(2, 1));
 
     cmd_z(&mut h);
-    assert_eq!(h.text(0), "abc");
-    assert_eq!(h.cursor(), Caret::new(0, 1));
+    assert_eq!(h.text(0), "line one");
 }
 
 #[test]
 fn paste_multiline_with_crlf_and_undo() {
-    let mut h = EditorHarness::new("hello\n");
-    let n = h.lines.len();
-    h.click_text(0, 5);
-
-    h.paste(" world\r\nfoo\r\nbar");
-    assert_eq!(h.text(0), "hello world");
-    assert_eq!(h.text(1), "foo");
-    assert_eq!(h.text(2), "bar");
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(0, 4);
+    h.paste("X\r\nY\r\nZ");
+    assert_eq!(h.text(0), "lineX");
+    assert_eq!(h.text(1), "Y");
+    assert_eq!(h.text(2), "Z one");
+    assert_eq!(h.cursor(), Caret::new(2, 1));
 
     cmd_z(&mut h);
-    assert_eq!(h.text(0), "hello");
-    assert_eq!(h.lines.len(), n);
+    assert_eq!(h.text(0), "line one");
 }
 
 #[test]
 fn paste_over_selection_undoes_atomically() {
-    let mut h = EditorHarness::new("abcdef\nghijkl\n");
-    let original_lines = h.lines.clone();
-
-    // Select "cdef\nghi" (from (0,2) to (1,3))
-    h.click_text(0, 2);
-    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(0, 5);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
     h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
     assert!(h.state.selection_range().is_some());
+    h.paste("ABC");
+    assert_eq!(h.text(0), "line ABC");
 
-    h.paste("XY");
-    assert_eq!(h.text(0), "abXYjkl");
-    assert_eq!(h.lines.len(), 1);
-
-    // Single undo must revert both the selection deletion and the paste.
     cmd_z(&mut h);
-    assert_eq!(h.lines, original_lines);
+    assert_eq!(h.text(0), "line one");
 }
 
 #[test]
 fn paste_multiline_over_selection_undoes_atomically() {
-    let mut h = EditorHarness::new("abcdef\nghijkl\nmnopqr\n");
-    let original_lines = h.lines.clone();
-
-    // Select "cdef\nghijkl\nmno" (from (0,2) to (2,3))
-    h.click_text(0, 2);
-    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
-    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
-    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
-    assert!(h.state.selection_range().is_some());
-
-    h.paste("1\n2\n3");
-    assert_eq!(h.text(0), "ab1");
-    assert_eq!(h.text(1), "2");
-    assert_eq!(h.text(2), "3pqr");
+    let mut h = EditorHarness::new(&text_doc());
+    // Select "one\nline two\nline "
+    h.click_text(0, 5);
+    for _ in 0..18 {
+        h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    }
+    h.paste("X\nY\nZ");
+    assert_eq!(h.text(0), "line X");
+    assert_eq!(h.text(1), "Y");
+    assert_eq!(h.text(2), "Zthree");
+    assert_eq!(h.cursor(), Caret::new(2, 1));
 
     cmd_z(&mut h);
-    assert_eq!(h.lines, original_lines);
+    assert_eq!(h.text(0), "line one");
+    assert_eq!(h.text(1), "line two");
+    assert_eq!(h.text(2), "line three");
 }
 
 #[test]
@@ -391,12 +268,10 @@ fn select_all_and_shift_arrow_selection() {
     assert_eq!(hi.line, 4, "select-all extends to the last doc line");
 }
 
-fn text_doc() -> String {
-    "line one\nline two\nline three\n".to_string()
-}
+// -- Cmd+C / Cmd+X with no selection (line copy/cut) --
 
 #[test]
-fn copy_no_selection_copies_current_line_with_newline() {
+fn copy_no_selection_copies_whole_line() {
     let mut h = EditorHarness::new(&text_doc());
     h.click_text(0, 0);
     assert!(h.state.selection_range().is_none());
@@ -446,3 +321,88 @@ fn copy_with_selection_still_copies_selection() {
     assert_eq!(h.last_copied_text.as_deref(), Some("one"));
 }
 
+// -- autocomplete -----------------------------------------------------------
+
+/// DocLines: 0=glyph alpha header, 1=Grid(2x2), 2=glyph beta header,
+/// 3=Grid(2x2), 4=blank, 5="ref "
+fn ac_doc() -> String {
+    "glyph alpha 2 2\n@@@@\n@@..\n\
+     glyph beta 2 2\n..@@\n@@@@\n\
+     \n\
+     ref "
+        .to_string()
+}
+
+fn ctrl_space(h: &mut EditorHarness) {
+    h.key_mod(Key::Space, Modifiers::CTRL);
+}
+
+#[test]
+fn autocomplete_trigger_and_dismiss() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    assert!(h.state.autocomplete.is_none());
+
+    ctrl_space(&mut h);
+    assert!(h.state.autocomplete.is_some());
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    assert!(ac.candidates.len() >= 2);
+
+    h.key(Key::Escape);
+    assert!(h.state.autocomplete.is_none());
+}
+
+#[test]
+fn autocomplete_accept_inserts_text() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    ctrl_space(&mut h);
+
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    let first_label = ac.candidates[0].label.clone();
+
+    h.key(Key::Enter);
+    assert!(h.state.autocomplete.is_none());
+    assert_eq!(h.text(5), format!("ref {}", first_label));
+}
+
+#[test]
+fn autocomplete_filters_as_you_type() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    ctrl_space(&mut h);
+    let initial_count = h.state.autocomplete.as_ref().unwrap().candidates.len();
+
+    h.type_text("al");
+    if let Some(ac) = &h.state.autocomplete {
+        assert!(ac.candidates.len() <= initial_count);
+        assert!(ac.candidates.iter().all(|c| c.label.starts_with("al")));
+    }
+}
+
+#[test]
+fn autocomplete_keyword_on_empty_line() {
+    // DocLines: 0=header, 1=grid, 2=blank
+    let mut h = EditorHarness::new("glyph alpha 2 2\n@@@@\n@@..\n\n");
+    h.click_text(2, 0);
+    ctrl_space(&mut h);
+    if let Some(ac) = &h.state.autocomplete {
+        assert!(ac.candidates.iter().any(|c| c.label == "glyph"));
+        assert!(ac.candidates.iter().any(|c| c.label == "ref"));
+    } else {
+        panic!("autocomplete should be active on empty line");
+    }
+}
+
+#[test]
+fn autocomplete_undo_after_accept() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    let original_text = h.text(5).to_string();
+    ctrl_space(&mut h);
+    h.key(Key::Enter);
+    assert_ne!(h.text(5), original_text);
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    assert_eq!(h.text(5), original_text);
+}

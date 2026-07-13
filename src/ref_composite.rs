@@ -46,7 +46,7 @@ pub struct ResolvedGlyph {
     /// extend left/up from the glyph origin.
     pub(crate) origin_row: i32,
     pub(crate) origin_col: i32,
-    anchors: Vec<GlyphPoint>,
+    pub(crate) anchors: Vec<GlyphPoint>,
 }
 
 fn saturating_i16(value: i32) -> i16 {
