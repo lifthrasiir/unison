@@ -162,6 +162,25 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         cache.get(expanded.first()?)
     }
 
+    fn build_cached_alternatives(
+        cache: &HashMap<String, CachedGlyph>,
+    ) -> HashMap<String, Vec<(String, Vec<GlyphPoint>)>> {
+        let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+        for (name, cached) in cache {
+            let mut prefix = name.as_str();
+            while let Some(colon_pos) = prefix.rfind(':') {
+                prefix = &prefix[..colon_pos];
+                map.entry(prefix.to_string())
+                    .or_default()
+                    .push((name.clone(), cached.anchors.clone()));
+            }
+        }
+        for alts in map.values_mut() {
+            alts.sort_by(|(a, _), (b, _)| a.cmp(b));
+        }
+        map
+    }
+
     let mut cache: HashMap<String, CachedGlyph> = HashMap::new();
 
     struct PendingGlyph {
@@ -209,6 +228,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut progress = true;
     while progress {
         progress = false;
+        let alt_index = build_cached_alternatives(&cache);
         let mut i = 0;
         while i < pending.len() {
             if !pending[i]
@@ -228,7 +248,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         resolve_cached_ref(name, &cache)
                             .map(|resolved| resolved.anchors.clone())
                     },
-                    |_| Vec::new(),
+                    |name| {
+                        alt_index
+                            .get(name)
+                            .map_or_else(Vec::new, |v| v.clone())
+                    },
                 );
 
             let mut cached = composite_glyph(
