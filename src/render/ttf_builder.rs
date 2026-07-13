@@ -1385,7 +1385,7 @@ impl CachedContours {
             }
         }
 
-        let needs_multi = own_pixels.is_some() || layers_overlap(&layers);
+        let needs_multi = own_pixels.is_some() || layers_have_subpixel_conflicts(&layers);
 
         if needs_multi {
             // Use track_contour_multi to correctly union overlapping subpixels.
@@ -1435,13 +1435,25 @@ impl CachedContours {
                 }
             }
 
+            // Pure-ref composites (no own pixels) can still use TrueType
+            // composite format; the contours above serve as a fallback
+            // for inline glyphs.
+            let composite_components = if own_pixels.is_none() {
+                Some(refs.iter().filter_map(|gref| {
+                    resolve_cached_ref(&gref.name, cache)?;
+                    Some((gref.name.clone(), gref.col() as f32, gref.row() as f32))
+                }).collect())
+            } else {
+                None
+            };
+
             return Some(Self {
                 width,
                 height,
                 contours,
                 anchors: Vec::new(),
                 grid: Some(result),
-                composite_components: None,
+                composite_components,
             });
         }
 
@@ -1500,17 +1512,23 @@ impl CachedContours {
     }
 }
 
-fn layers_overlap(layers: &[(&PixelGrid, i32, i32)]) -> bool {
+fn layers_have_subpixel_conflicts(layers: &[(&PixelGrid, i32, i32)]) -> bool {
     for i in 0..layers.len() {
+        let (g1, r1, c1) = layers[i];
         for j in i + 1..layers.len() {
-            let (g1, r1, c1) = layers[i];
             let (g2, r2, c2) = layers[j];
-            if r1 < r2 + g2.height as i32
-                && r2 < r1 + g1.height as i32
-                && c1 < c2 + g2.width as i32
-                && c2 < c1 + g1.width as i32
-            {
-                return true;
+            let overlap_r0 = r1.max(r2);
+            let overlap_r1 = (r1 + g1.height as i32).min(r2 + g2.height as i32);
+            let overlap_c0 = c1.max(c2);
+            let overlap_c1 = (c1 + g1.width as i32).min(c2 + g2.width as i32);
+            for r in overlap_r0..overlap_r1 {
+                for c in overlap_c0..overlap_c1 {
+                    let s1 = g1.get((r - r1) as u16, (c - c1) as u16);
+                    let s2 = g2.get((r - r2) as u16, (c - c2) as u16);
+                    if !s1.is_empty() && !s2.is_empty() && s1 != s2 {
+                        return true;
+                    }
+                }
             }
         }
     }
