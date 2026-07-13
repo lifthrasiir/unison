@@ -81,6 +81,28 @@ pub struct GlyphPoint {
     pub position: String,
     pub col: i16,
     pub row: i16,
+    /// Inclusive end of the column range. Equal to `col` for single-cell anchors.
+    pub col_end: i16,
+    /// Inclusive end of the row range. Equal to `row` for single-cell anchors.
+    pub row_end: i16,
+}
+
+impl GlyphPoint {
+    pub fn width(&self) -> u16 {
+        (self.col_end - self.col + 1) as u16
+    }
+
+    pub fn height(&self) -> u16 {
+        (self.row_end - self.row + 1) as u16
+    }
+
+    pub fn is_single_cell(&self) -> bool {
+        self.col == self.col_end && self.row == self.row_end
+    }
+
+    pub fn size_matches(&self, other: &GlyphPoint) -> bool {
+        self.width() == other.width() && self.height() == other.height()
+    }
 }
 
 #[derive(Clone, Debug)]

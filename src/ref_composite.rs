@@ -73,13 +73,19 @@ pub(crate) fn expand_ref_names(name: &str) -> Option<Vec<String>> {
 /// `+name` is available yet, resolution is deferred until a later ref
 /// publishes it. Refs that remain unresolved after the fixpoint fall back
 /// to `(0, 0)`.
-pub(crate) fn derive_ref_offsets_with<F>(
+///
+/// `lookup_alternatives` returns sorted alternative glyph names for a base
+/// name (e.g. for "foo" it returns ["foo:bar", "foo:baz"]). When the primary
+/// ref's anchors don't size-match, alternatives are tried in order.
+pub(crate) fn derive_ref_offsets_with<F, G>(
     own_points: &[GlyphPoint],
     refs: &[GlyphRef],
     mut lookup_anchors: F,
+    mut lookup_alternatives: G,
 ) -> (Vec<GlyphRef>, Vec<GlyphPoint>)
 where
     F: FnMut(&str) -> Option<Vec<GlyphPoint>>,
+    G: FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
 {
     let mut exposed_minus: Vec<GlyphPoint> = own_points
         .iter()
@@ -95,6 +101,17 @@ where
     let target_anchors_list: Vec<Option<Vec<GlyphPoint>>> = refs
         .iter()
         .map(|gref| lookup_anchors(&gref.name))
+        .collect();
+
+    let alternatives_list: Vec<Vec<(String, Vec<GlyphPoint>)>> = refs
+        .iter()
+        .map(|gref| {
+            if gref.offset.is_some() {
+                Vec::new()
+            } else {
+                lookup_alternatives(&gref.name)
+            }
+        })
         .collect();
 
     let n = refs.len();
@@ -113,25 +130,72 @@ where
                 continue;
             };
 
-            let offset = if let Some(offset) = gref.offset {
-                offset
-            } else {
-                let matched = try_match_minus_plus(target_anchors, &available_plus);
-                match matched {
-                    Some(offset) => offset,
-                    None if target_anchors
-                        .iter()
-                        .any(|p| p.position.starts_with('-')) =>
-                    {
-                        continue;
-                    }
-                    None => (0, 0),
+            if let Some(offset) = gref.offset {
+                commit_ref(
+                    gref,
+                    offset,
+                    target_anchors,
+                    &mut available_plus,
+                    &mut exposed_minus,
+                    &mut effective_refs[i],
+                );
+                progress = true;
+                continue;
+            }
+
+            if let Some(offset) = try_match_minus_plus(target_anchors, &available_plus) {
+                commit_ref(
+                    gref,
+                    offset,
+                    target_anchors,
+                    &mut available_plus,
+                    &mut exposed_minus,
+                    &mut effective_refs[i],
+                );
+                progress = true;
+                continue;
+            }
+
+            // Try alternatives when primary doesn't size-match.
+            let mut alt_matched = false;
+            for (alt_name, alt_anchors) in &alternatives_list[i] {
+                if let Some(offset) = try_match_minus_plus(alt_anchors, &available_plus) {
+                    let alt_gref = GlyphRef {
+                        name: alt_name.clone(),
+                        offset: None,
+                        negated: gref.negated,
+                    };
+                    commit_ref(
+                        &alt_gref,
+                        offset,
+                        alt_anchors,
+                        &mut available_plus,
+                        &mut exposed_minus,
+                        &mut effective_refs[i],
+                    );
+                    alt_matched = true;
+                    progress = true;
+                    break;
                 }
-            };
+            }
+            if alt_matched {
+                continue;
+            }
+
+            // Defer if any candidate has minus anchors (might match later).
+            let has_minus = target_anchors
+                .iter()
+                .any(|p| p.position.starts_with('-'))
+                || alternatives_list[i]
+                    .iter()
+                    .any(|(_, a)| a.iter().any(|p| p.position.starts_with('-')));
+            if has_minus {
+                continue;
+            }
 
             commit_ref(
                 gref,
-                offset,
+                (0, 0),
                 target_anchors,
                 &mut available_plus,
                 &mut exposed_minus,
@@ -149,13 +213,32 @@ where
             continue;
         }
         let target_anchors = target_anchors_list[i].as_deref().unwrap_or(&[]);
-        let offset = gref
-            .offset
-            .unwrap_or_else(|| try_match_minus_plus(target_anchors, &available_plus).unwrap_or((0, 0)));
+        let (resolved_name, offset, used_anchors) = if let Some(offset) = gref.offset {
+            (gref.name.clone(), offset, target_anchors)
+        } else {
+            match try_match_minus_plus(target_anchors, &available_plus) {
+                Some(offset) => (gref.name.clone(), offset, target_anchors),
+                None => {
+                    let mut found = None;
+                    for (alt_name, alt_anchors) in &alternatives_list[i] {
+                        if let Some(offset) = try_match_minus_plus(alt_anchors, &available_plus) {
+                            found = Some((alt_name.clone(), offset, alt_anchors.as_slice()));
+                            break;
+                        }
+                    }
+                    found.unwrap_or_else(|| (gref.name.clone(), (0, 0), target_anchors))
+                }
+            }
+        };
+        let resolved_gref = GlyphRef {
+            name: resolved_name,
+            offset: gref.offset,
+            negated: gref.negated,
+        };
         commit_ref(
-            gref,
+            &resolved_gref,
             offset,
-            target_anchors,
+            used_anchors,
             &mut available_plus,
             &mut exposed_minus,
             &mut effective_refs[i],
@@ -178,7 +261,7 @@ fn try_match_minus_plus(
         let base = minus.position.strip_prefix('-')?;
         if let Some(plus) = available_plus
             .iter()
-            .find(|p| p.position.strip_prefix('+') == Some(base))
+            .find(|p| p.position.strip_prefix('+') == Some(base) && p.size_matches(minus))
         {
             return Some((
                 saturating_i16(plus.col as i32 - minus.col as i32),
@@ -208,20 +291,24 @@ fn commit_ref(
     // Consume before publishing. In particular, a component carrying
     // both `-join` and `+join` must publish its outgoing anchor rather
     // than immediately deleting it again.
-    let consumed_names: Vec<&str> = target_anchors
+    let consumed_names: Vec<String> = target_anchors
         .iter()
         .filter(|p| p.position.starts_with('-'))
-        .filter_map(|minus| minus.position.strip_prefix('-'))
-        .filter(|base| {
-            available_plus
-                .iter()
-                .any(|p| p.position.strip_prefix('+') == Some(*base))
+        .filter_map(|minus| {
+            let base = minus.position.strip_prefix('-')?;
+            if available_plus.iter().any(|p| {
+                p.position.strip_prefix('+') == Some(base) && p.size_matches(minus)
+            }) {
+                Some(base.to_string())
+            } else {
+                None
+            }
         })
         .collect();
     available_plus.retain(|p| {
         !p.position
             .strip_prefix('+')
-            .is_some_and(|base| consumed_names.contains(&base))
+            .is_some_and(|base| consumed_names.iter().any(|n| n == base))
     });
 
     for minus in target_anchors
@@ -231,11 +318,13 @@ fn commit_ref(
         let Some(base) = minus.position.strip_prefix('-') else {
             continue;
         };
-        if !consumed_names.contains(&base) {
+        if !consumed_names.iter().any(|n| n == base) {
             exposed_minus.push(GlyphPoint {
                 position: minus.position.clone(),
                 col: saturating_i16(minus.col as i32 + off_col as i32),
                 row: saturating_i16(minus.row as i32 + off_row as i32),
+                col_end: saturating_i16(minus.col_end as i32 + off_col as i32),
+                row_end: saturating_i16(minus.row_end as i32 + off_row as i32),
             });
         }
     }
@@ -254,6 +343,8 @@ fn commit_ref(
                 position: plus.position.clone(),
                 col: saturating_i16(plus.col as i32 + off_col as i32),
                 row: saturating_i16(plus.row as i32 + off_row as i32),
+                col_end: saturating_i16(plus.col_end as i32 + off_col as i32),
+                row_end: saturating_i16(plus.row_end as i32 + off_row as i32),
             });
         }
     }
@@ -265,7 +356,7 @@ fn commit_ref(
 pub fn resolve_named_glyphs_with_parts(
     docs: &[&Document],
     name_parts: &NamePartsMap,
-) -> HashMap<String, ResolvedGlyph> {
+) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
     let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
 
     struct Pending {
@@ -386,6 +477,7 @@ pub fn resolve_named_glyphs_with_parts(
     let mut progress = true;
     while progress {
         progress = false;
+        let alt_index = AlternativesIndex::build(&cache);
         pending.retain(|pg| {
             if !pg
                 .refs
@@ -395,10 +487,15 @@ pub fn resolve_named_glyphs_with_parts(
                 return true;
             }
             let (effective_refs, anchors) =
-                derive_ref_offsets_with(&pg.points, &pg.refs, |name| {
-                    resolve_ref_name_with_parts(name, &cache, name_parts)
-                        .map(|resolved| resolved.anchors.clone())
-                });
+                derive_ref_offsets_with(
+                    &pg.points,
+                    &pg.refs,
+                    |name| {
+                        resolve_ref_name_with_parts(name, &cache, name_parts)
+                            .map(|resolved| resolved.anchors.clone())
+                    },
+                    |name| alt_index.get(name).to_vec(),
+                );
             let (min_r, min_c, _, _) =
                 composite_bounds(pg.pixels.as_ref(), &effective_refs, &cache, name_parts);
             let grid = composite_to_grid(&pg.pixels, &effective_refs, &cache, name_parts);
@@ -416,7 +513,8 @@ pub fn resolve_named_glyphs_with_parts(
         });
     }
 
-    cache
+    let alt_index = AlternativesIndex::build(&cache);
+    (cache, alt_index)
 }
 
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
@@ -451,6 +549,8 @@ impl GlyphComposite {
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub struct CompositeLayer {
     pub ref_idx: usize,
+    /// The resolved name (may differ from the source ref if an alternative was chosen).
+    pub resolved_name: String,
     pub grid: PixelGrid,
     pub offset_row: i16,
     pub offset_col: i16,
@@ -512,6 +612,37 @@ pub fn is_ref_valid(
     false
 }
 
+/// Pre-built index mapping each base name to its sorted alternatives.
+/// For glyph "foo:bar", entries are added under base "foo".
+/// For "foo:bar:baz", entries are added under "foo" and "foo:bar".
+#[derive(Clone, Debug, Default)]
+pub struct AlternativesIndex {
+    map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>>,
+}
+
+impl AlternativesIndex {
+    pub fn build(named_glyphs: &HashMap<String, ResolvedGlyph>) -> Self {
+        let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+        for (name, resolved) in named_glyphs {
+            let mut prefix = name.as_str();
+            while let Some(colon_pos) = prefix.rfind(':') {
+                prefix = &prefix[..colon_pos];
+                map.entry(prefix.to_string())
+                    .or_default()
+                    .push((name.clone(), resolved.anchors.clone()));
+            }
+        }
+        for alts in map.values_mut() {
+            alts.sort_by(|(a, _), (b, _)| a.cmp(b));
+        }
+        Self { map }
+    }
+
+    pub fn get(&self, base_name: &str) -> &[(String, Vec<GlyphPoint>)] {
+        self.map.get(base_name).map_or(&[], |v| v.as_slice())
+    }
+}
+
 /// The effective (row, col) offset of a resolved ref within its owning glyph.
 pub(crate) fn ref_effective_offset(gref: &GlyphRef, resolved: &ResolvedGlyph) -> (i32, i32) {
     (
@@ -565,15 +696,21 @@ pub fn compute_composite(
     body: &GlyphBody,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    alt_index: &AlternativesIndex,
 ) -> Option<GlyphComposite> {
     if body.refs.is_empty() {
         return None;
     }
 
-    let (effective_refs, _) = derive_ref_offsets_with(&body.points, &body.refs, |name| {
-        resolve_ref_name_with_parts(name, named_glyphs, name_parts)
-            .map(|resolved| resolved.anchors.clone())
-    });
+    let (effective_refs, _) = derive_ref_offsets_with(
+        &body.points,
+        &body.refs,
+        |name| {
+            resolve_ref_name_with_parts(name, named_glyphs, name_parts)
+                .map(|resolved| resolved.anchors.clone())
+        },
+        |name| alt_index.get(name).to_vec(),
+    );
 
     let (min_r, min_c, max_r, max_c) = composite_bounds(
         body.pixels.as_ref(),
@@ -591,6 +728,7 @@ pub fn compute_composite(
             let (raster_row, raster_col) = ref_effective_offset(gref, resolved);
             layers.push(CompositeLayer {
                 ref_idx: idx,
+                resolved_name: gref.name.clone(),
                 grid: resolved.grid.clone(),
                 offset_row: saturating_i16(raster_row - min_r),
                 offset_col: saturating_i16(raster_col - min_c),
@@ -733,7 +871,7 @@ mod tests {
             ..GlyphBody::new()
         };
         let empty_parts = NamePartsMap::new();
-        let composite = compute_composite(&body, &cache, &empty_parts).expect("has refs");
+        let composite = compute_composite(&body, &cache, &empty_parts, &AlternativesIndex::default()).expect("has refs");
         assert_eq!(
             composite.layers.len(),
             1,
@@ -788,7 +926,7 @@ ref target
 
         let docs = vec![&doc];
         let name_parts = NamePartsMap::new();
-        let resolved = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
         let container = resolved
             .get("container")
@@ -823,7 +961,7 @@ ref target
         let mut doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let name_parts = NamePartsMap::new();
 
-        let resolved = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
         assert_eq!(resolved["container"].grid.width, 4);
         let container_body = doc
             .items
@@ -834,7 +972,7 @@ ref target
         })
         .unwrap();
         assert_eq!(container_body.refs[0].offset, None);
-        let composite = compute_composite(container_body, &resolved, &name_parts).unwrap();
+        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx).unwrap();
         assert_eq!(
             (
                 composite.layers[0].offset_row - composite.own_offset_row,
@@ -852,8 +990,9 @@ ref target
             })
             .unwrap();
         target_body.points[0].col = 2;
+        target_body.points[0].col_end = 2;
 
-        let resolved = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
         assert_eq!(resolved["container"].grid.width, 2);
         let container_body = doc
             .items
@@ -864,7 +1003,7 @@ ref target
         })
         .unwrap();
         assert_eq!(container_body.refs[0].offset, None);
-        let composite = compute_composite(container_body, &resolved, &name_parts).unwrap();
+        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx).unwrap();
         assert_eq!(
             (
                 composite.layers[0].offset_row - composite.own_offset_row,
@@ -894,7 +1033,7 @@ ref wrapped
 ref wrapped
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-        let resolved = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
         assert_eq!(resolved["chain"].grid.width, 3);
         assert!(resolved["chain"].grid.get(0, 0).is_filled());
         assert!(resolved["chain"].grid.get(0, 2).is_filled());
@@ -934,7 +1073,7 @@ ref $base
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let docs = [&doc];
         let name_parts = crate::document::collect_name_parts(&docs);
-        let resolved = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
         for name in [
             "via-parts",
@@ -997,7 +1136,7 @@ ref outer
 ref inner
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-        let resolved = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
 
         let pf = resolved.get("combo-plus-first").unwrap();
         let mf = resolved.get("combo-minus-first").unwrap();
@@ -1005,6 +1144,189 @@ ref inner
             (pf.grid.width, pf.grid.height),
             (mf.grid.width, mf.grid.height),
             "ref order should not affect resolved dimensions"
+        );
+    }
+
+    #[test]
+    fn anchor_range_parsing_and_size_match() {
+        use crate::document_io;
+
+        let input = "\
+glyph target-wide 4 2
+@@@@@@@@
+@@@@@@@@
+anchor -join 1..2 0..1
+
+glyph target-narrow 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph container 6 2
+............
+............
+anchor +join 3..4 0..1
+ref target-wide
+ref target-narrow
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+
+        let container = resolved.get("container").unwrap();
+        // target-wide has 2x2 anchor matching +join (2x2): offset = 3-1 = 2, placed at col 2.
+        // target-narrow has 1x1 anchor, doesn't match +join (2x2), falls back to (0,0).
+        // container own 6px + target-wide 4px at col 2 → max(6, 2+4) = 6.
+        // target-narrow 2px at col 0 → still within bounds.
+        assert_eq!(container.grid.width, 6);
+    }
+
+    #[test]
+    fn alternative_glyph_selected_on_size_mismatch() {
+        use crate::document_io;
+
+        let input = "\
+glyph stem 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph stem:wide 4 2
+@@@@@@@@
+@@@@@@@@
+anchor -join 0..1 0
+
+glyph container 6 2
+............
+............
+anchor +join 3..4 0
+ref stem
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let name_parts = NamePartsMap::new();
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        // stem has 1x1 anchor, +join is 2x1. stem:wide has 2x1 anchor → matches.
+        let container = resolved.get("container").unwrap();
+        // stem:wide is 4 wide, placed at col 3-0=3? No: +join col=3..4, -join col=0..1
+        // offset = plus.col - minus.col = 3 - 0 = 3
+        // container pixels: 6 wide, stem:wide at col 3 → extends to col 7.
+        // total width = max(6, 3+4) = 7
+        assert_eq!(container.grid.width, 7);
+
+        // Verify via compute_composite that resolved_name is the alternative.
+        let container_body = doc
+            .items
+            .iter()
+            .find_map(|item| match item {
+                DocumentItem::Glyph { name, body } if name.display() == "container" => Some(body),
+                _ => None,
+            })
+            .unwrap();
+        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx).unwrap();
+        assert_eq!(composite.layers[0].resolved_name, "stem:wide");
+    }
+
+    #[test]
+    fn alternative_glyph_alphabetical_priority() {
+        use crate::document_io;
+
+        let input = "\
+glyph base 1 1
+@@
+anchor -a 0 0
+
+glyph base:zzz 2 2
+@@@@
+@@@@
+anchor -a 0..1 0..1
+
+glyph base:aaa 2 2
+@@@@
+@@@@
+anchor -a 0..1 0..1
+
+glyph host 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +a 1..2 1..2
+ref base
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let name_parts = NamePartsMap::new();
+        let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        let host_body = doc
+            .items
+            .iter()
+            .find_map(|item| match item {
+                DocumentItem::Glyph { name, body } if name.display() == "host" => Some(body),
+                _ => None,
+            })
+            .unwrap();
+        let composite = compute_composite(host_body, &resolved, &name_parts, &_alt_idx).unwrap();
+        // base:aaa comes before base:zzz alphabetically.
+        assert_eq!(composite.layers[0].resolved_name, "base:aaa");
+    }
+
+    #[test]
+    fn pattern_ref_selects_alternative_by_anchor_size() {
+        use crate::document_io;
+
+        let input = "\
+name-parts $ab = a b
+
+glyph enclosing 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +center 2 1..2
+
+glyph a-inner 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+anchor -center 1 2
+
+glyph b-inner 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+anchor -center 1 2
+
+glyph b-inner:compressed 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+anchor -center 1 1..2
+
+glyph ($ab)-combo
+ref enclosing
+ref ($ab)-inner
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs = [&doc];
+        let name_parts = crate::document::collect_name_parts(&docs);
+        let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+        let b_refs = vec![
+            GlyphRef { name: "enclosing".to_string(), offset: None, negated: false },
+            GlyphRef { name: "b-inner".to_string(), offset: None, negated: false },
+        ];
+        let (effective, _) = derive_ref_offsets_with(
+            &[],
+            &b_refs,
+            |name| resolved.get(name).map(|r| r.anchors.clone()),
+            |name| alt_idx.get(name).to_vec(),
+        );
+        assert_eq!(
+            effective[1].name, "b-inner:compressed",
+            "b-inner:compressed should be selected because its -center (1x2) matches +center (1x2)"
         );
     }
 }

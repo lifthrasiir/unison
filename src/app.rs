@@ -17,7 +17,7 @@ use crate::sidebar::{Sidebar, SidebarAction};
 
 type FontPair = (Vec<u8>, Vec<u8>);
 type FontBuildMessage = (u64, Option<FontPair>);
-type DerivedDataMessage = (u64, HashMap<String, ResolvedGlyph>, NamePartsMap, Vec<Issue>);
+type DerivedDataMessage = (u64, HashMap<String, ResolvedGlyph>, crate::editor::ref_composite::AlternativesIndex, NamePartsMap, Vec<Issue>);
 
 fn collect_effective_docs<'a>(
     open_documents: &'a [OpenDocument],
@@ -57,6 +57,7 @@ pub struct UniformApp {
     font_build_gen: u64,
     contour_cache: SharedContourCache,
     named_glyphs: HashMap<String, ResolvedGlyph>,
+    alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
     named_glyphs_gen: u64,
     derived_data_tx: mpsc::Sender<DerivedDataMessage>,
@@ -157,6 +158,7 @@ impl UniformApp {
             font_build_gen: 0,
             contour_cache,
             named_glyphs: HashMap::new(),
+            alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
             named_glyphs_gen: u64::MAX,
             derived_data_tx,
@@ -409,11 +411,13 @@ impl UniformApp {
     fn rebuild_named_glyphs_sync(&mut self) {
         let all_docs = self.collect_all_docs();
         let name_parts = crate::document::collect_name_parts(&all_docs);
-        self.named_glyphs =
+        let (named_glyphs, alt_index) =
             crate::editor::ref_composite::resolve_named_glyphs_with_parts(
                 &all_docs,
                 &name_parts,
             );
+        self.named_glyphs = named_glyphs;
+        self.alt_index = alt_index;
         self.name_parts = name_parts;
     }
 
@@ -426,7 +430,7 @@ impl UniformApp {
         std::thread::spawn(move || {
             let refs: Vec<&Document> = owned_docs.iter().collect();
             let name_parts = crate::document::collect_name_parts(&refs);
-            let named_glyphs =
+            let (named_glyphs, alt_index) =
                 crate::editor::ref_composite::resolve_named_glyphs_with_parts(
                     &refs,
                     &name_parts,
@@ -441,7 +445,7 @@ impl UniformApp {
                     file_line: 1,
                 });
             }
-            let _ = tx.send((build_gen, named_glyphs, name_parts, issues));
+            let _ = tx.send((build_gen, named_glyphs, alt_index, name_parts, issues));
             ctx.request_repaint();
         });
     }
@@ -806,10 +810,11 @@ impl eframe::App for UniformApp {
             self.derived_rebuild_at = None;
         }
 
-        if let Some((data_gen, named_glyphs, name_parts, issues)) =
+        if let Some((data_gen, named_glyphs, alt_index, name_parts, issues)) =
             take_latest_derived_data(&self.derived_data_rx)
         {
             self.named_glyphs = named_glyphs;
+            self.alt_index = alt_index;
             self.name_parts = name_parts;
             self.named_glyphs_gen = data_gen;
             self.issues = issues;
@@ -1317,6 +1322,7 @@ impl eframe::App for UniformApp {
                         &mut doc.editor_state,
                         &self.named_glyphs,
                         &self.name_parts,
+                        &self.alt_index,
                         self.zoom_level,
                         &editor_font_id,
                     );
@@ -1736,8 +1742,14 @@ fn replace_dollar_var(text: &str, old_var: &str, new_var: &str) -> String {
 fn rename_point_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &str) -> Option<String> {
     let leading = &full[..full.len() - trimmed.len()];
 
-    // point [+|-]NAME COL ROW
-    let rest = trimmed.strip_prefix("point ")?;
+    // anchor [+|-]NAME COL ROW  (or legacy: point [+|-]NAME COL ROW)
+    let (keyword, rest) = if let Some(r) = trimmed.strip_prefix("anchor ") {
+        ("anchor", r)
+    } else if let Some(r) = trimmed.strip_prefix("point ") {
+        ("anchor", r)
+    } else {
+        return None;
+    };
     let parts: Vec<&str> = rest.splitn(2, char::is_whitespace).collect();
     let token = parts[0];
 
@@ -1754,7 +1766,7 @@ fn rename_point_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &st
     }
 
     let after = if parts.len() > 1 { format!(" {}", parts[1]) } else { String::new() };
-    Some(format!("{leading}point {prefix_char}{new_name}{after}"))
+    Some(format!("{leading}{keyword} {prefix_char}{new_name}{after}"))
 }
 
 #[cfg(test)]
@@ -1875,21 +1887,21 @@ mod rename_tests {
     fn rename_point_plus() {
         let lines = vec![t("point +above 4 1")];
         let result = do_rename(&lines, "above", "top", &RenameKind::Point);
-        assert_eq!(result, vec!["point +top 4 1"]);
+        assert_eq!(result, vec!["anchor +top 4 1"]);
     }
 
     #[test]
     fn rename_point_minus() {
         let lines = vec![t("point -above 2 1")];
         let result = do_rename(&lines, "above", "top", &RenameKind::Point);
-        assert_eq!(result, vec!["point -top 2 1"]);
+        assert_eq!(result, vec!["anchor -top 2 1"]);
     }
 
     #[test]
     fn rename_point_both_variants() {
         let lines = vec![t("point +above 4 1"), t("point -above 2 1")];
         let result = do_rename(&lines, "above", "top", &RenameKind::Point);
-        assert_eq!(result, vec!["point +top 4 1", "point -top 2 1"]);
+        assert_eq!(result, vec!["anchor +top 4 1", "anchor -top 2 1"]);
     }
 
     #[test]

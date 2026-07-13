@@ -349,6 +349,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
     let mut progress = true;
     while progress {
         progress = false;
+        let alt_index = build_cached_alternatives(&cache);
         let mut i = 0;
         while i < pending.len() {
             if !pending[i]
@@ -367,6 +368,11 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     |name| {
                         resolve_cached_ref(name, &cache)
                             .map(|resolved| resolved.anchors.clone())
+                    },
+                    |name| {
+                        alt_index
+                            .get(name)
+                            .map_or_else(Vec::new, |v| v.clone())
                     },
                 );
             let mut cached_entry = CachedContours::from_components(
@@ -1195,6 +1201,25 @@ struct CachedContours {
     grid: Option<PixelGrid>,
     /// For composite-eligible glyphs: (component_name, col_offset, row_offset)
     composite_components: Option<Vec<(String, f32, f32)>>,
+}
+
+fn build_cached_alternatives(
+    cache: &HashMap<String, CachedContours>,
+) -> HashMap<String, Vec<(String, Vec<GlyphPoint>)>> {
+    let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+    for (name, cached) in cache {
+        let mut prefix = name.as_str();
+        while let Some(colon_pos) = prefix.rfind(':') {
+            prefix = &prefix[..colon_pos];
+            map.entry(prefix.to_string())
+                .or_default()
+                .push((name.clone(), cached.anchors.clone()));
+        }
+    }
+    for alts in map.values_mut() {
+        alts.sort_by(|(a, _), (b, _)| a.cmp(b));
+    }
+    map
 }
 
 fn resolve_cached_ref<'a>(
@@ -2502,4 +2527,95 @@ feature feat for latn : set1
         );
     }
 
+    #[test]
+    fn ttf_build_selects_alternative_glyph_by_anchor_size() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph enclosing 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+anchor +center 8 7..8
+
+glyph inner 8 16
+................
+................
+................
+................
+................
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+................
+................
+................
+................
+anchor -center 4 8
+
+glyph inner:compressed 8 16
+................
+................
+................
+................
+................
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+................
+................
+................
+................
+anchor -center 4 7..8
+
+glyph combo
+ref enclosing
+ref inner
+map a = combo
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (_, _, glyph_data, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let combo = glyph_data.iter().find(|g| g.name == "combo").unwrap();
+        // inner:compressed has -center 1x2 matching +center 1x2.
+        // With compressed selected at offset (4, 0): contours shift right by 4 pixels.
+        // Without: contours at (0, 0).
+        // Verify by checking that contour points are shifted.
+        assert!(
+            !combo.contours.is_empty(),
+            "combo glyph should have contours"
+        );
+        // The inner glyph is 8px wide. With offset col=4, leftmost contour x ≥ 4.
+        // Without offset, leftmost contour x = 0.
+        let min_x: i16 = combo.contours.iter()
+            .flat_map(|c| c.iter().map(|&(x, _)| x))
+            .min()
+            .unwrap();
+        let scale = UNITS_PER_EM as f32 / 16.0;
+        let expected_min = (4.0 * scale).round() as i16;
+        assert!(
+            min_x >= expected_min,
+            "inner:compressed should be selected (offset col=4), but min_x={min_x}, expected>={expected_min}"
+        );
+    }
 }

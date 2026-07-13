@@ -44,11 +44,12 @@ pub(crate) fn build_composites(
     doc: &Document,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    alt_index: &ref_composite::AlternativesIndex,
 ) -> HashMap<usize, GlyphComposite> {
     let mut composites = HashMap::new();
     for (idx, item) in doc.items.iter().enumerate() {
         if let DocumentItem::Glyph { body, .. } = item
-            && let Some(comp) = ref_composite::compute_composite(body, named_glyphs, name_parts)
+            && let Some(comp) = ref_composite::compute_composite(body, named_glyphs, name_parts, alt_index)
         {
             composites.insert(idx, comp);
         }
@@ -284,15 +285,14 @@ pub(crate) fn render_grid_row(
         }
     }
 
-    // Draw point markers (X marks)
+    // Draw anchor markers
     if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) {
         let num_refs = body.refs.len();
         for (pi, point) in body.points.iter().enumerate() {
-            if row != point.row {
+            if row < point.row || row > point.row_end {
                 continue;
             }
-            let dc = point.col;
-            if dc < extent.left || dc >= extent.right {
+            if point.col_end < extent.left || point.col >= extent.right {
                 continue;
             }
             let layer_idx = num_refs + pi;
@@ -308,11 +308,22 @@ pub(crate) fn render_grid_row(
             } else {
                 color
             };
-            let cell_rect = egui::Rect::from_min_size(
-                egui::pos2(x + (dc - extent.left) as f32 * cs, y),
-                egui::vec2(cs, cs),
-            );
-            draw_point_x_mark(painter, cell_rect, color, pal.grid_bg);
+            if point.is_single_cell() {
+                let cell_rect = egui::Rect::from_min_size(
+                    egui::pos2(x + (point.col - extent.left) as f32 * cs, y),
+                    egui::vec2(cs, cs),
+                );
+                draw_point_x_mark(painter, cell_rect, color, pal.grid_bg);
+            } else {
+                let anchor_rect = egui::Rect::from_min_size(
+                    egui::pos2(
+                        x + (point.col - extent.left) as f32 * cs,
+                        y + (point.row - row) as f32 * cs,
+                    ),
+                    egui::vec2(point.width() as f32 * cs, point.height() as f32 * cs),
+                );
+                draw_anchor_region(painter, anchor_rect, row, point, cs, color, pal.grid_bg);
+            }
         }
     }
 
@@ -338,6 +349,59 @@ pub(crate) fn draw_point_x_mark(
     painter.line_segment([tr, bl], egui::Stroke::new(border_w, border_color));
     painter.line_segment([tl, br], egui::Stroke::new(stroke_w, fill_color));
     painter.line_segment([tr, bl], egui::Stroke::new(stroke_w, fill_color));
+}
+
+/// Draw a multi-cell anchor mark. The shape is an inset rectangle at
+/// `(x1+0.5, y1+0.5)–(x2-0.5, y2-0.5)` in cell coordinates, plus four
+/// diagonal line segments from each outer corner to the corresponding
+/// inner corner. When width or height is 1 the rectangle collapses to a
+/// line; when both are 1 it collapses to a point and the diagonals form
+/// the same X mark as `draw_point_x_mark`.
+fn draw_anchor_region(
+    painter: &egui::Painter,
+    full_rect: egui::Rect,
+    _current_row: i16,
+    _point: &crate::document::GlyphPoint,
+    cs: f32,
+    fill_color: egui::Color32,
+    border_color: egui::Color32,
+) {
+    let stroke_w = (cs * 0.15).max(1.5);
+    let border_w = stroke_w + 2.0;
+    let m = cs * 0.1;
+    let half = cs * 0.5;
+
+    // Outer corners (same inset as the single-cell X mark).
+    let otl = egui::pos2(full_rect.min.x + m, full_rect.min.y + m);
+    let otr = egui::pos2(full_rect.max.x - m, full_rect.min.y + m);
+    let obl = egui::pos2(full_rect.min.x + m, full_rect.max.y - m);
+    let obr = egui::pos2(full_rect.max.x - m, full_rect.max.y - m);
+
+    // Inner corners — half a cell inward from each edge.
+    let itl = egui::pos2(full_rect.min.x + half, full_rect.min.y + half);
+    let itr = egui::pos2(full_rect.max.x - half, full_rect.min.y + half);
+    let ibl = egui::pos2(full_rect.min.x + half, full_rect.max.y - half);
+    let ibr = egui::pos2(full_rect.max.x - half, full_rect.max.y - half);
+
+    // Inner rectangle (collapses to line or point when dimension is 1).
+    let inner_segments = [[itl, itr], [itr, ibr], [ibr, ibl], [ibl, itl]];
+    // Diagonal stubs from outer corners to inner corners.
+    let diag_segments = [[otl, itl], [otr, itr], [obl, ibl], [obr, ibr]];
+
+    for segs in [&inner_segments[..], &diag_segments[..]] {
+        for [a, b] in segs {
+            if (a.x - b.x).abs() > 0.5 || (a.y - b.y).abs() > 0.5 {
+                painter.line_segment([*a, *b], egui::Stroke::new(border_w, border_color));
+            }
+        }
+    }
+    for segs in [&inner_segments[..], &diag_segments[..]] {
+        for [a, b] in segs {
+            if (a.x - b.x).abs() > 0.5 || (a.y - b.y).abs() > 0.5 {
+                painter.line_segment([*a, *b], egui::Stroke::new(stroke_w, fill_color));
+            }
+        }
+    }
 }
 
 #[allow(clippy::too_many_arguments)]

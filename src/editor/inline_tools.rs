@@ -279,9 +279,25 @@ pub(crate) fn draw_inline_tools_panel(
         );
     } else if let EditMode::LayerMove { layer_idx, .. } = &state.mode {
         let num_refs = body.refs.len();
-        if let Some(point) = body.points.get(layer_idx - num_refs) {
-            let label_y = panel_y + prh + 4.0;
-            let layer_color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *layer_idx);
+        let label_y = panel_y + prh + 4.0;
+        let layer_color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *layer_idx);
+        if *layer_idx < num_refs {
+            // Show the resolved alternative name if it differs from the source ref.
+            if let Some(comp) = composite {
+                if let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == *layer_idx) {
+                    let source_name = &body.refs[*layer_idx].name;
+                    if layer.resolved_name != *source_name {
+                        painter.text(
+                            egui::pos2(panel_x, label_y),
+                            egui::Align2::LEFT_TOP,
+                            &layer.resolved_name,
+                            egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
+                            layer_color,
+                        );
+                    }
+                }
+            }
+        } else if let Some(point) = body.points.get(layer_idx - num_refs) {
             painter.text(
                 egui::pos2(panel_x, label_y),
                 egui::Align2::LEFT_TOP,

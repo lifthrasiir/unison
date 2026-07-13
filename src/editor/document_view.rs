@@ -220,6 +220,7 @@ pub fn show_document(
     state: &mut EditorState,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    alt_index: &crate::editor::ref_composite::AlternativesIndex,
     zoom_level: u32,
     font_id: &egui::FontId,
 ) -> DocumentViewResult {
@@ -255,7 +256,7 @@ pub fn show_document(
         }
     };
 
-    let composites = grid_render::build_composites(doc, named_glyphs, name_parts);
+    let composites = grid_render::build_composites(doc, named_glyphs, name_parts, alt_index);
     let vlines = visual_lines::build_visual_lines(
         lines,
         doc,

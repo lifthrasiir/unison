@@ -156,6 +156,28 @@ pub fn parse_document(path: &Path) -> Result<Document> {
     parse_document_from_str(&content, path.to_path_buf())
 }
 
+/// Parse a range token like `3` (single value) or `3..5` (inclusive range).
+fn parse_range_token(s: &str) -> Option<(i16, i16)> {
+    if let Some((start_s, end_s)) = s.split_once("..") {
+        let start: i16 = start_s.parse().ok()?;
+        let end: i16 = end_s.parse().ok()?;
+        if end < start {
+            return None;
+        }
+        Some((start, end))
+    } else {
+        let v: i16 = s.parse().ok()?;
+        Some((v, v))
+    }
+}
+
+/// Parse an anchor/point from its three token parts: position, col_range, row_range.
+fn parse_anchor_point(position: &str, col_tok: &str, row_tok: &str) -> Option<GlyphPoint> {
+    let (col, col_end) = parse_range_token(col_tok)?;
+    let (row, row_end) = parse_range_token(row_tok)?;
+    Some(GlyphPoint { position: position.to_string(), col, row, col_end, row_end })
+}
+
 /// Parsed dimensions of a `glyph NAME W H [OFF_ROW OFF_COL]` header, i.e. a
 /// header that expects pixel rows to follow.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -471,7 +493,17 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
         }
     }
     for p in &body.points {
-        writeln!(writer, "point {} {} {}", quote_token(&p.position), p.col, p.row)?;
+        let col_s = if p.col == p.col_end {
+            format!("{}", p.col)
+        } else {
+            format!("{}..{}", p.col, p.col_end)
+        };
+        let row_s = if p.row == p.row_end {
+            format!("{}", p.row)
+        } else {
+            format!("{}..{}", p.row, p.row_end)
+        };
+        writeln!(writer, "anchor {} {} {}", quote_token(&p.position), col_s, row_s)?;
     }
     Ok(())
 }
@@ -755,21 +787,15 @@ pub fn derive_document(
                                 body.refs.push(parsed_ref);
                                 i += 1;
                                 continue;
-                            } else if sub_tokens.first().is_some_and(|t| t == "point") {
+                            } else if sub_tokens.first().is_some_and(|t| t == "point" || t == "anchor") {
                                 let point_parts = &sub_tokens[1..];
-                                if point_parts.len() == 3
-                                    && let (Ok(col), Ok(row)) = (
-                                        point_parts[1].parse::<i16>(),
-                                        point_parts[2].parse::<i16>(),
-                                    ) {
-                                        body.points.push(GlyphPoint {
-                                            position: point_parts[0].clone(),
-                                            col,
-                                            row,
-                                        });
+                                if point_parts.len() == 3 {
+                                    if let Some(pt) = parse_anchor_point(&point_parts[0], &point_parts[1], &point_parts[2]) {
+                                        body.points.push(pt);
                                         i += 1;
                                         continue;
                                     }
+                                }
                                 break;
                             } else {
                                 break;
@@ -829,6 +855,67 @@ exclude-from-sample U+AD00
 
         let doc2 = parse_document_from_str(&output_str, "test2.unf".into()).unwrap();
         assert_eq!(doc2.items.len(), doc.items.len());
+    }
+
+    #[test]
+    fn anchor_range_roundtrip() {
+        let input = "\
+glyph foo 2 2
+@@@@
+@@@@
+anchor +join 1..3 0..2
+anchor -bar 5 7
+";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
+            assert_eq!(body.points.len(), 2);
+            let p0 = &body.points[0];
+            assert_eq!(p0.position, "+join");
+            assert_eq!((p0.col, p0.col_end), (1, 3));
+            assert_eq!((p0.row, p0.row_end), (0, 2));
+            assert_eq!(p0.width(), 3);
+            assert_eq!(p0.height(), 3);
+            let p1 = &body.points[1];
+            assert_eq!(p1.position, "-bar");
+            assert_eq!((p1.col, p1.col_end), (5, 5));
+            assert_eq!((p1.row, p1.row_end), (7, 7));
+            assert!(p1.is_single_cell());
+        } else {
+            panic!("expected glyph");
+        }
+
+        // Roundtrip through serialize_document
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert!(output_str.contains("anchor +join 1..3 0..2"));
+        assert!(output_str.contains("anchor -bar 5 7"));
+
+        // Re-parse the serialized output
+        let doc2 = parse_document_from_str(&output_str, "test2.unf".into()).unwrap();
+        if let DocumentItem::Glyph { body, .. } = &doc2.items[0] {
+            assert_eq!(body.points.len(), 2);
+            assert_eq!(body.points[0].width(), 3);
+            assert!(body.points[1].is_single_cell());
+        } else {
+            panic!("expected glyph on re-parse");
+        }
+    }
+
+    #[test]
+    fn legacy_point_parsed_as_single_cell_anchor() {
+        let input = "glyph foo 1 1\n@@\npoint +bar 3 5\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
+            assert_eq!(body.points.len(), 1);
+            let p = &body.points[0];
+            assert_eq!(p.position, "+bar");
+            assert_eq!((p.col, p.col_end), (3, 3));
+            assert_eq!((p.row, p.row_end), (5, 5));
+            assert!(p.is_single_cell());
+        } else {
+            panic!("expected glyph");
+        }
     }
 
     #[test]

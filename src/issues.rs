@@ -348,6 +348,94 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
         }
     }
 
+    // Detect alternative glyphs with ambiguous anchor matches.
+    // For base "foo", if "foo" and "foo:bar" both have a `-name` anchor with
+    // the same dimensions, warn that they are ambiguous (the first alphabetically wins).
+    {
+        let mut bases_to_alts: HashMap<String, Vec<(String, PathBuf, usize, usize)>> = HashMap::new();
+        for doc in docs {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+                    if body.points.iter().any(|p| p.position.starts_with('-')) {
+                        let resolved_name = substitute_name_parts(n, &name_parts);
+                        let line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
+                        let file_line = docline_to_file_line(doc, line);
+                        // Find all base prefixes (foo:bar:quux is alt for "foo" and "foo:bar")
+                        let mut prefix = resolved_name.as_str();
+                        while let Some(colon_pos) = prefix.rfind(':') {
+                            prefix = &prefix[..colon_pos];
+                            bases_to_alts
+                                .entry(prefix.to_string())
+                                .or_default()
+                                .push((resolved_name.clone(), doc.path.clone(), line, file_line));
+                        }
+                        // Also register as the base itself
+                        bases_to_alts
+                            .entry(resolved_name.clone())
+                            .or_default()
+                            .push((resolved_name.clone(), doc.path.clone(), line, file_line));
+                    }
+                }
+            }
+        }
+
+        // For each base, find point definitions and check for dimension conflicts.
+        let mut glyph_points_map: HashMap<String, Vec<(String, u16, u16)>> = HashMap::new();
+        for doc in docs {
+            for item in &doc.items {
+                if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+                    let resolved_name = substitute_name_parts(n, &name_parts);
+                    for pt in &body.points {
+                        if pt.position.starts_with('-') {
+                            glyph_points_map
+                                .entry(resolved_name.clone())
+                                .or_default()
+                                .push((pt.position.clone(), pt.width(), pt.height()));
+                        }
+                    }
+                }
+            }
+        }
+
+        for (base, alts) in &bases_to_alts {
+            if alts.len() < 2 {
+                continue;
+            }
+            // Group by (position_name, width, height) and find duplicates.
+            let mut seen: HashMap<(String, u16, u16), Vec<&str>> = HashMap::new();
+            for (alt_name, _, _, _) in alts {
+                if let Some(pts) = glyph_points_map.get(alt_name) {
+                    for (pos, w, h) in pts {
+                        seen.entry((pos.clone(), *w, *h))
+                            .or_default()
+                            .push(alt_name);
+                    }
+                }
+            }
+            for ((pos, _w, _h), names) in &seen {
+                if names.len() > 1 {
+                    // Warn on all but the first (alphabetically).
+                    let mut sorted_names: Vec<&str> = names.iter().copied().collect();
+                    sorted_names.sort();
+                    for &dup in &sorted_names[1..] {
+                        if let Some((_, file, line, file_line)) = alts.iter().find(|(n, _, _, _)| n == dup) {
+                            issues.push(Issue {
+                                severity: Severity::Warning,
+                                message: format!(
+                                    "alternative '{}' has same anchor dimensions as '{}' for '{}' (base '{}')",
+                                    dup, sorted_names[0], pos, base,
+                                ),
+                                file: file.clone(),
+                                line: *line,
+                                file_line: *file_line,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     issues.sort_by(|a, b| {
         a.severity
             .cmp(&b.severity)
@@ -431,6 +519,33 @@ map A = foo
         assert!(
             issues.is_empty(),
             "expected no issues, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn duplicate_alternative_anchor_warns() {
+        let input = "\
+glyph stem 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph stem:a 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph stem:b 2 2
+@@@@
+@@@@
+anchor -join 0 0
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Warning
+                && i.message.contains("same anchor dimensions")),
+            "expected duplicate alternative anchor warning, got: {issues:?}",
         );
     }
 }

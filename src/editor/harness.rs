@@ -19,7 +19,7 @@ use crate::editor::caret::Caret;
 use crate::editor::document_view::{
     LEFT_PAD, VLineKind, VisualLine, gutter_line_number, show_document,
 };
-use crate::editor::ref_composite::{ResolvedGlyph, resolve_named_glyphs_with_parts};
+use crate::editor::ref_composite::{AlternativesIndex, ResolvedGlyph, resolve_named_glyphs_with_parts};
 use crate::editor::{EditMode, EditorState};
 
 // ---------------------------------------------------------------------------
@@ -131,6 +131,7 @@ pub(crate) struct EditorHarness {
     pub lines: Vec<DocLine>,
     pub state: EditorState,
     pub named_glyphs: HashMap<String, ResolvedGlyph>,
+    pub alt_index: AlternativesIndex,
     pub name_parts: NamePartsMap,
     pub zoom: u32,
     pub font_id: egui::FontId,
@@ -151,6 +152,7 @@ impl EditorHarness {
             lines,
             state: EditorState::new(),
             named_glyphs: HashMap::new(),
+            alt_index: AlternativesIndex::default(),
             name_parts: NamePartsMap::new(),
             zoom: 1,
             font_id: egui::FontId::monospace(16.0),
@@ -166,7 +168,9 @@ impl EditorHarness {
     fn rebuild_derived(&mut self) {
         let docs: Vec<&Document> = vec![&self.doc];
         let name_parts = collect_name_parts(&docs);
-        self.named_glyphs = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        self.named_glyphs = named_glyphs;
+        self.alt_index = alt_index;
         self.name_parts = name_parts;
     }
 
@@ -194,6 +198,7 @@ impl EditorHarness {
                     &mut self.state,
                     &self.named_glyphs,
                     &self.name_parts,
+                    &self.alt_index,
                     self.zoom,
                     &self.font_id,
                 );

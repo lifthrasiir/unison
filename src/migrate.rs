@@ -640,6 +640,8 @@ pub fn migrate_file(
                 position: position.clone(),
                 col: col - coff as i16,
                 row: row - roff as i16,
+                col_end: col - coff as i16,
+                row_end: row - roff as i16,
             });
         }
 

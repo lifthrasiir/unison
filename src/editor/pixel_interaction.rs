@@ -342,6 +342,7 @@ mod tests {
             own_offset_col: 3,
             layers: vec![CompositeLayer {
                 ref_idx: 7,
+                resolved_name: String::new(),
                 grid: PixelGrid::new(1, 1),
                 offset_row: 6,
                 offset_col: 8,
@@ -397,6 +398,8 @@ fn handle_point_drag_inner(
 
     let new_col = point.col + dcol;
     let new_row = point.row + drow;
+    let new_col_end = point.col_end + dcol;
+    let new_row_end = point.row_end + drow;
 
     accum.x -= dcol as f32 * grid_cell;
     accum.y -= drow as f32 * grid_cell;
@@ -408,7 +411,17 @@ fn handle_point_drag_inner(
 
     if let Some(DocLine::Text(old_text)) = lines.get(point_line) {
         let old_text = old_text.clone();
-        let new_text = format!("point {} {} {}", point.position, new_col, new_row);
+        let col_s = if new_col == new_col_end {
+            format!("{}", new_col)
+        } else {
+            format!("{}..{}", new_col, new_col_end)
+        };
+        let row_s = if new_row == new_row_end {
+            format!("{}", new_row)
+        } else {
+            format!("{}..{}", new_row, new_row_end)
+        };
+        let new_text = format!("anchor {} {} {}", point.position, col_s, row_s);
         if old_text != new_text {
             state.undo.push_text(
                 point_line,

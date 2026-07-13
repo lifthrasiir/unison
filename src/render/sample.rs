@@ -228,6 +228,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         resolve_cached_ref(name, &cache)
                             .map(|resolved| resolved.anchors.clone())
                     },
+                    |_| Vec::new(),
                 );
 
             let mut cached = composite_glyph(

@@ -241,7 +241,7 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
     let rest = &spans[1..];
 
     match keyword {
-        "point" => {
+        "point" | "anchor" => {
             let token_span = rest.first()?;
             if token_span.value.is_empty() {
                 return None;
