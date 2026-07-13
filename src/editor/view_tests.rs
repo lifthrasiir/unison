@@ -391,3 +391,58 @@ fn select_all_and_shift_arrow_selection() {
     assert_eq!(hi.line, 4, "select-all extends to the last doc line");
 }
 
+fn text_doc() -> String {
+    "line one\nline two\nline three\n".to_string()
+}
+
+#[test]
+fn copy_no_selection_copies_current_line_with_newline() {
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(0, 0);
+    assert!(h.state.selection_range().is_none());
+    h.copy();
+    assert_eq!(h.last_copied_text.as_deref(), Some("line one\n"));
+}
+
+#[test]
+fn copy_no_selection_mid_line() {
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(0, 4);
+    assert!(h.state.selection_range().is_none());
+    h.copy();
+    assert_eq!(h.last_copied_text.as_deref(), Some("line one\n"));
+}
+
+#[test]
+fn copy_no_selection_last_line_no_trailing_newline() {
+    let mut h = EditorHarness::new("alpha\nbeta");
+    h.click_text(1, 2);
+    assert!(h.state.selection_range().is_none());
+    h.copy();
+    assert_eq!(h.last_copied_text.as_deref(), Some("beta"));
+}
+
+#[test]
+fn cut_no_selection_removes_line() {
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(1, 3);
+    assert!(h.state.selection_range().is_none());
+    h.cut();
+    assert_eq!(h.last_copied_text.as_deref(), Some("line two\n"));
+    assert_eq!(h.text(0), "line one");
+    assert_eq!(h.text(1), "line three");
+    assert_eq!(h.cursor(), Caret::new(1, 0));
+}
+
+#[test]
+fn copy_with_selection_still_copies_selection() {
+    let mut h = EditorHarness::new(&text_doc());
+    h.click_text(0, 5);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
+    assert!(h.state.selection_range().is_some());
+    h.copy();
+    assert_eq!(h.last_copied_text.as_deref(), Some("one"));
+}
+

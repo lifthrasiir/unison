@@ -137,6 +137,7 @@ pub(crate) struct EditorHarness {
     pub font_id: egui::FontId,
     time: f64,
     snapshot: Option<Arc<ViewSnapshot>>,
+    pub last_copied_text: Option<String>,
 }
 
 impl EditorHarness {
@@ -158,6 +159,7 @@ impl EditorHarness {
             font_id: egui::FontId::monospace(16.0),
             time: 0.0,
             snapshot: None,
+            last_copied_text: None,
         };
         h.rebuild_derived();
         h.frame();
@@ -189,7 +191,7 @@ impl EditorHarness {
         };
         let prev_gen = self.doc.edit_gen;
         let ctx = self.ctx.clone();
-        let _ = ctx.run(raw, |cx| {
+        let full_output = ctx.run(raw, |cx| {
             egui::CentralPanel::default().show(cx, |ui| {
                 let _ = show_document(
                     ui,
@@ -204,6 +206,11 @@ impl EditorHarness {
                 );
             });
         });
+        for cmd in &full_output.platform_output.commands {
+            if let egui::OutputCommand::CopyText(text) = cmd {
+                self.last_copied_text = Some(text.clone());
+            }
+        }
         self.snapshot = ctx.data(|d| d.get_temp::<Arc<ViewSnapshot>>(snapshot_id()));
         if self.doc.edit_gen != prev_gen {
             // The app rebuilds resolved glyphs whenever a document rederives.
@@ -268,6 +275,20 @@ impl EditorHarness {
             vec![egui::Event::Text(text.to_string())],
             egui::Modifiers::NONE,
         );
+        self.frame();
+    }
+
+    /// Send a Copy event (Cmd+C / Ctrl+C).
+    pub fn copy(&mut self) {
+        self.last_copied_text = None;
+        self.frame_with(vec![egui::Event::Copy], egui::Modifiers::COMMAND);
+        self.frame();
+    }
+
+    /// Send a Cut event (Cmd+X / Ctrl+X).
+    pub fn cut(&mut self) {
+        self.last_copied_text = None;
+        self.frame_with(vec![egui::Event::Cut], egui::Modifiers::COMMAND);
         self.frame();
     }
 

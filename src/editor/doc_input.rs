@@ -40,6 +40,12 @@ pub(crate) fn handle_keys(
                         if !text.is_empty() {
                             clipboard_out = Some(text);
                         }
+                    } else {
+                        let (lo, hi) = current_line_range(lines, state.cursor);
+                        let text = caret::extract_text(lines, lo, hi);
+                        if !text.is_empty() {
+                            clipboard_out = Some(text);
+                        }
                     }
                 }
                 egui::Event::Cut => {
@@ -55,6 +61,19 @@ pub(crate) fn handle_keys(
                             state.selection_anchor.unwrap(),
                         );
                         state.selection_anchor = None;
+                        changed = true;
+                    } else {
+                        let (lo, hi) = current_line_range(lines, state.cursor);
+                        let text = caret::extract_text(lines, lo, hi);
+                        if !text.is_empty() {
+                            clipboard_out = Some(text);
+                        }
+                        state.cursor = crate::editor::editing::delete_selection(
+                            lines,
+                            &mut state.undo,
+                            lo,
+                            hi,
+                        );
                         changed = true;
                     }
                 }
@@ -346,6 +365,16 @@ pub(crate) fn paste_text(
     undo.push_lines(lo.line, old, new.clone(), *cursor, caret_after);
     lines.splice(lo.line..=hi.line, new);
     *cursor = caret_after;
+}
+
+fn current_line_range(lines: &[DocLine], cursor: Caret) -> (Caret, Caret) {
+    let lo = Caret::new(cursor.line, 0);
+    let hi = if cursor.line + 1 < lines.len() {
+        Caret::new(cursor.line + 1, 0)
+    } else {
+        Caret::new(cursor.line, caret::line_char_len(lines, cursor.line))
+    };
+    (lo, hi)
 }
 
 fn update_selection(state: &mut EditorState, shift: bool) {
