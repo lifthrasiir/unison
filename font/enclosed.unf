@@ -22,6 +22,7 @@ glyph enclosing-circle 16 16
 ........\1H~h\....../h~H1/......
 ..........\h_H@@@@@@H_h/........
 ................................
+anchor +center 8 7..8
 
 glyph enclosing-circle-sbg 16 16
 ................................
@@ -101,85 +102,9 @@ glyph ($a-z)-upper-circled
 ref enclosing-circle
 ref ($a-z)-upper 4 0
 
-// they need an individual control
-glyph a-lower-circled
+glyph ($a-z)-lower-circled
 ref enclosing-circle
-ref a-lower 4 -1
-glyph b-lower-circled
-ref enclosing-circle
-ref b-lower 4 0
-glyph c-lower-circled
-ref enclosing-circle
-ref c-lower 4 -1
-glyph d-lower-circled
-ref enclosing-circle
-ref d-lower 4 0
-glyph e-lower-circled
-ref enclosing-circle
-ref e-lower 4 -1
-glyph f-lower-circled
-ref enclosing-circle
-ref f-lower 4 0
-glyph g-lower-circled
-ref enclosing-circle
-ref g-lower 4 -1
-glyph h-lower-circled
-ref enclosing-circle
-ref h-lower 4 0
-glyph i-lower-circled
-ref enclosing-circle
-ref i-lower 4 0
-glyph j-lower-circled
-ref enclosing-circle
-ref j-lower-compressed 4 0
-glyph k-lower-circled
-ref enclosing-circle
-ref k-lower 4 0
-glyph l-lower-circled
-ref enclosing-circle
-ref l-lower 4 0
-glyph m-lower-circled
-ref enclosing-circle
-ref m-lower 4 -1
-glyph n-lower-circled
-ref enclosing-circle
-ref n-lower 4 -1
-glyph o-lower-circled
-ref enclosing-circle
-ref o-lower 4 -1
-glyph p-lower-circled
-ref enclosing-circle
-ref p-lower-compressed 4 -1
-glyph q-lower-circled
-ref enclosing-circle
-ref q-lower-compressed 4 -1
-glyph r-lower-circled
-ref enclosing-circle
-ref r-lower 4 -1
-glyph s-lower-circled
-ref enclosing-circle
-ref s-lower 4 -1
-glyph t-lower-circled
-ref enclosing-circle
-ref t-lower 4 0
-glyph u-lower-circled
-ref enclosing-circle
-ref u-lower 4 -1
-glyph v-lower-circled
-ref enclosing-circle
-ref v-lower 4 -1
-glyph w-lower-circled
-ref enclosing-circle
-ref w-lower 4 -1
-glyph x-lower-circled
-ref enclosing-circle
-ref x-lower 4 -1
-glyph y-lower-circled
-ref enclosing-circle
-ref y-lower 4 -1
-glyph z-lower-circled
-ref enclosing-circle
-ref z-lower 4 -1
+ref ($a-z)-lower
 
 map Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ($a-z)-upper-circled
 map ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|ⓕ|ⓖ|ⓗ|ⓘ|ⓙ|ⓚ|ⓛ|ⓜ|ⓝ|ⓞ|ⓟ|ⓠ|ⓡ|ⓢ|ⓣ|ⓤ|ⓥ|ⓦ|ⓧ|ⓨ|ⓩ = ($a-z)-lower-circled
@@ -340,6 +265,7 @@ glyph enclosing-parens 16 16
 ......\01\............../10/....
 ................................
 ................................
+anchor +center 8 7..8
 
 glyph enclosing-parens-sbg 16 16
 ................................
@@ -393,84 +319,10 @@ map ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ($1-9)-in-parens
 map ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = 1($0-9)-in-parens
 map ⒇ = 20-in-parens
 
-glyph a-lower-in-parens
+glyph ($a-z)-lower-in-parens
 ref enclosing-parens
-ref a-lower 4 -1
-glyph b-lower-in-parens
-ref enclosing-parens
-ref b-lower 4 0
-glyph c-lower-in-parens
-ref enclosing-parens
-ref c-lower 4 -1
-glyph d-lower-in-parens
-ref enclosing-parens
-ref d-lower 4 0
-glyph e-lower-in-parens
-ref enclosing-parens
-ref e-lower 4 -1
-glyph f-lower-in-parens
-ref enclosing-parens
-ref f-lower 4 0
-glyph g-lower-in-parens
-ref enclosing-parens
-ref g-lower 4 -1
-glyph h-lower-in-parens
-ref enclosing-parens
-ref h-lower 4 0
-glyph i-lower-in-parens
-ref enclosing-parens
-ref i-lower 4 0
-glyph j-lower-in-parens
-ref enclosing-parens
-ref j-lower-compressed 4 0
-glyph k-lower-in-parens
-ref enclosing-parens
-ref k-lower 4 0
-glyph l-lower-in-parens
-ref enclosing-parens
-ref l-lower 4 0
-glyph m-lower-in-parens
-ref enclosing-parens
-ref m-lower 4 -1
-glyph n-lower-in-parens
-ref enclosing-parens
-ref n-lower 4 -1
-glyph o-lower-in-parens
-ref enclosing-parens
-ref o-lower 4 -1
-glyph p-lower-in-parens
-ref enclosing-parens
-ref p-lower-compressed 4 -1
-glyph q-lower-in-parens
-ref enclosing-parens
-ref q-lower-compressed 4 -1
-glyph r-lower-in-parens
-ref enclosing-parens
-ref r-lower 4 -1
-glyph s-lower-in-parens
-ref enclosing-parens
-ref s-lower 4 -1
-glyph t-lower-in-parens
-ref enclosing-parens
-ref t-lower 4 0
-glyph u-lower-in-parens
-ref enclosing-parens
-ref u-lower 4 -1
-glyph v-lower-in-parens
-ref enclosing-parens
-ref v-lower 4 -1
-glyph w-lower-in-parens
-ref enclosing-parens
-ref w-lower 4 -1
-glyph x-lower-in-parens
-ref enclosing-parens
-ref x-lower 4 -1
-glyph y-lower-in-parens
-ref enclosing-parens
-ref y-lower 4 -1
-glyph z-lower-in-parens
-ref enclosing-parens
-ref z-lower 4 -1
+ref ($a-z)-lower 4 0
+
 map ⒜|⒝|⒞|⒟|⒠|⒡|⒢|⒣|⒤|⒥|⒦|⒧|⒨|⒩|⒪|⒫|⒬|⒭|⒮|⒯|⒰|⒱|⒲|⒳|⒴|⒵ = ($a-z)-lower-in-parens
 
 glyph hangul-($hangul-init-lex)-in-parens
