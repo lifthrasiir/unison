@@ -68,6 +68,11 @@ pub(crate) fn expand_ref_names(name: &str) -> Option<Vec<String>> {
 /// target's `+name` anchors are published for following refs. Unconsumed
 /// minus anchors remain exposed so aliases/composites forward anchors from
 /// their targets.
+///
+/// Ref order does not matter: when a target carries `-name` but no matching
+/// `+name` is available yet, resolution is deferred until a later ref
+/// publishes it. Refs that remain unresolved after the fixpoint fall back
+/// to `(0, 0)`.
 pub(crate) fn derive_ref_offsets_with<F>(
     own_points: &[GlyphPoint],
     refs: &[GlyphRef],
@@ -86,104 +91,174 @@ where
         .filter(|p| p.position.starts_with('+'))
         .cloned()
         .collect();
-    let mut effective_refs = Vec::with_capacity(refs.len());
 
-    for gref in refs {
-        let Some(target_anchors) = lookup_anchors(&gref.name) else {
-            effective_refs.push(gref.clone());
-            continue;
-        };
+    let target_anchors_list: Vec<Option<Vec<GlyphPoint>>> = refs
+        .iter()
+        .map(|gref| lookup_anchors(&gref.name))
+        .collect();
 
-        let derived_offset = gref.offset.unwrap_or_else(|| {
-            for minus in target_anchors
-                .iter()
-                .filter(|p| p.position.starts_with('-'))
-            {
-                let Some(base) = minus.position.strip_prefix('-') else {
-                    continue;
-                };
-                if let Some(plus) = available_plus
-                    .iter()
-                    .find(|p| p.position.strip_prefix('+') == Some(base))
-                {
-                    return (
-                        saturating_i16(plus.col as i32 - minus.col as i32),
-                        saturating_i16(plus.row as i32 - minus.row as i32),
-                    );
+    let n = refs.len();
+    let mut effective_refs: Vec<Option<GlyphRef>> = vec![None; n];
+
+    loop {
+        let mut progress = false;
+        for (i, gref) in refs.iter().enumerate() {
+            if effective_refs[i].is_some() {
+                continue;
+            }
+
+            let Some(ref target_anchors) = target_anchors_list[i] else {
+                effective_refs[i] = Some(gref.clone());
+                progress = true;
+                continue;
+            };
+
+            let offset = if let Some(offset) = gref.offset {
+                offset
+            } else {
+                let matched = try_match_minus_plus(target_anchors, &available_plus);
+                match matched {
+                    Some(offset) => offset,
+                    None if target_anchors
+                        .iter()
+                        .any(|p| p.position.starts_with('-')) =>
+                    {
+                        continue;
+                    }
+                    None => (0, 0),
                 }
-            }
-            (0, 0)
-        });
-        let effective = GlyphRef {
-            name: gref.name.clone(),
-            offset: Some(derived_offset),
-            negated: gref.negated,
-        };
-
-        let off_col = effective.col();
-        let off_row = effective.row();
-
-        // Consume before publishing. In particular, a component carrying
-        // both `-join` and `+join` must publish its outgoing anchor rather
-        // than immediately deleting it again.
-        // Decide which anchor names are consumed from the pre-component
-        // plus set. Otherwise duplicate `-name` anchors re-expose the second
-        // occurrence after the first one removes the matching plus.
-        let consumed_names: Vec<&str> = target_anchors
-            .iter()
-            .filter(|p| p.position.starts_with('-'))
-            .filter_map(|minus| minus.position.strip_prefix('-'))
-            .filter(|base| {
-                available_plus
-                    .iter()
-                    .any(|p| p.position.strip_prefix('+') == Some(*base))
-            })
-            .collect();
-        available_plus.retain(|p| {
-            !p.position
-                .strip_prefix('+')
-                .is_some_and(|base| consumed_names.contains(&base))
-        });
-
-        for minus in target_anchors
-            .iter()
-            .filter(|p| p.position.starts_with('-'))
-        {
-            let Some(base) = minus.position.strip_prefix('-') else {
-                continue;
             };
-            if !consumed_names.contains(&base) {
-                exposed_minus.push(GlyphPoint {
-                    position: minus.position.clone(),
-                    col: saturating_i16(minus.col as i32 + off_col as i32),
-                    row: saturating_i16(minus.row as i32 + off_row as i32),
-                });
-            }
-        }
-        for plus in target_anchors
-            .iter()
-            .filter(|p| p.position.starts_with('+'))
-        {
-            let Some(base) = plus.position.strip_prefix('+') else {
-                continue;
-            };
-            if !available_plus
-                .iter()
-                .any(|p| p.position.strip_prefix('+') == Some(base))
-            {
-                available_plus.push(GlyphPoint {
-                    position: plus.position.clone(),
-                    col: saturating_i16(plus.col as i32 + off_col as i32),
-                    row: saturating_i16(plus.row as i32 + off_row as i32),
-                });
-            }
-        }
 
-        effective_refs.push(effective);
+            commit_ref(
+                gref,
+                offset,
+                target_anchors,
+                &mut available_plus,
+                &mut exposed_minus,
+                &mut effective_refs[i],
+            );
+            progress = true;
+        }
+        if !progress {
+            break;
+        }
     }
 
+    for (i, gref) in refs.iter().enumerate() {
+        if effective_refs[i].is_some() {
+            continue;
+        }
+        let target_anchors = target_anchors_list[i].as_deref().unwrap_or(&[]);
+        let offset = gref
+            .offset
+            .unwrap_or_else(|| try_match_minus_plus(target_anchors, &available_plus).unwrap_or((0, 0)));
+        commit_ref(
+            gref,
+            offset,
+            target_anchors,
+            &mut available_plus,
+            &mut exposed_minus,
+            &mut effective_refs[i],
+        );
+    }
+
+    let effective_refs = effective_refs.into_iter().map(Option::unwrap).collect();
     exposed_minus.extend(available_plus);
     (effective_refs, exposed_minus)
+}
+
+fn try_match_minus_plus(
+    target_anchors: &[GlyphPoint],
+    available_plus: &[GlyphPoint],
+) -> Option<(i16, i16)> {
+    for minus in target_anchors
+        .iter()
+        .filter(|p| p.position.starts_with('-'))
+    {
+        let base = minus.position.strip_prefix('-')?;
+        if let Some(plus) = available_plus
+            .iter()
+            .find(|p| p.position.strip_prefix('+') == Some(base))
+        {
+            return Some((
+                saturating_i16(plus.col as i32 - minus.col as i32),
+                saturating_i16(plus.row as i32 - minus.row as i32),
+            ));
+        }
+    }
+    None
+}
+
+fn commit_ref(
+    gref: &GlyphRef,
+    offset: (i16, i16),
+    target_anchors: &[GlyphPoint],
+    available_plus: &mut Vec<GlyphPoint>,
+    exposed_minus: &mut Vec<GlyphPoint>,
+    out: &mut Option<GlyphRef>,
+) {
+    let effective = GlyphRef {
+        name: gref.name.clone(),
+        offset: Some(offset),
+        negated: gref.negated,
+    };
+    let off_col = effective.col();
+    let off_row = effective.row();
+
+    // Consume before publishing. In particular, a component carrying
+    // both `-join` and `+join` must publish its outgoing anchor rather
+    // than immediately deleting it again.
+    let consumed_names: Vec<&str> = target_anchors
+        .iter()
+        .filter(|p| p.position.starts_with('-'))
+        .filter_map(|minus| minus.position.strip_prefix('-'))
+        .filter(|base| {
+            available_plus
+                .iter()
+                .any(|p| p.position.strip_prefix('+') == Some(*base))
+        })
+        .collect();
+    available_plus.retain(|p| {
+        !p.position
+            .strip_prefix('+')
+            .is_some_and(|base| consumed_names.contains(&base))
+    });
+
+    for minus in target_anchors
+        .iter()
+        .filter(|p| p.position.starts_with('-'))
+    {
+        let Some(base) = minus.position.strip_prefix('-') else {
+            continue;
+        };
+        if !consumed_names.contains(&base) {
+            exposed_minus.push(GlyphPoint {
+                position: minus.position.clone(),
+                col: saturating_i16(minus.col as i32 + off_col as i32),
+                row: saturating_i16(minus.row as i32 + off_row as i32),
+            });
+        }
+    }
+    for plus in target_anchors
+        .iter()
+        .filter(|p| p.position.starts_with('+'))
+    {
+        let Some(base) = plus.position.strip_prefix('+') else {
+            continue;
+        };
+        if !available_plus
+            .iter()
+            .any(|p| p.position.strip_prefix('+') == Some(base))
+        {
+            available_plus.push(GlyphPoint {
+                position: plus.position.clone(),
+                col: saturating_i16(plus.col as i32 + off_col as i32),
+                row: saturating_i16(plus.row as i32 + off_row as i32),
+            });
+        }
+    }
+
+    *out = Some(effective);
 }
 
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
@@ -880,5 +955,56 @@ ref $base
         }
         assert!(is_ref_valid("$base", &resolved, &name_parts));
         assert!(is_ref_valid("stem-(a|b)", &resolved, &name_parts));
+    }
+
+    #[test]
+    fn adjoin_resolves_minus_before_plus_ref_order() {
+        use crate::document_io;
+
+        let input = "\
+glyph inner 8 8
+................
+................
+................
+................
+................
+................
+................
+................
+point +center 4 4
+
+glyph outer 12 12
+........................
+........................
+........................
+........................
+........................
+........................
+........................
+........................
+........................
+........................
+........................
+........................
+point -center 6 6
+
+glyph combo-plus-first
+ref inner
+ref outer
+
+glyph combo-minus-first
+ref outer
+ref inner
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let resolved = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+
+        let pf = resolved.get("combo-plus-first").unwrap();
+        let mf = resolved.get("combo-minus-first").unwrap();
+        assert_eq!(
+            (pf.grid.width, pf.grid.height),
+            (mf.grid.width, mf.grid.height),
+            "ref order should not affect resolved dimensions"
+        );
     }
 }
