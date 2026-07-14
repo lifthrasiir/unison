@@ -565,6 +565,7 @@ pub struct CompositeLayer {
     pub logical_offset_row: i16,
     pub logical_offset_col: i16,
     pub negated: bool,
+    #[cfg(feature = "editor")]
     pub fill_color: Option<egui::Color32>,
 }
 
@@ -750,18 +751,13 @@ pub fn compute_composite(
         if let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
             let (raster_row, raster_col) = ref_effective_offset(gref, resolved);
             let orig_ref = &body.refs[idx.min(body.refs.len() - 1)];
-            let fill_color = {
-                #[cfg(feature = "editor")]
-                {
-                    orig_ref.fill.as_ref().and_then(|f| resolve_fill_display_color(f, color_aliases))
-                }
-                #[cfg(not(feature = "editor"))]
-                {
-                    let _ = color_aliases;
-                    let _ = &orig_ref.fill;
-                    None
-                }
-            };
+            #[cfg(feature = "editor")]
+            let fill_color = orig_ref.fill.as_ref().and_then(|f| resolve_fill_display_color(f, color_aliases));
+            #[cfg(not(feature = "editor"))]
+            {
+                let _ = color_aliases;
+                let _ = &orig_ref.fill;
+            }
             layers.push(CompositeLayer {
                 ref_idx: idx,
                 resolved_name: gref.name.clone(),
@@ -771,6 +767,7 @@ pub fn compute_composite(
                 logical_offset_row: gref.row(),
                 logical_offset_col: gref.col(),
                 negated: gref.negated,
+                #[cfg(feature = "editor")]
                 fill_color,
             });
         }
