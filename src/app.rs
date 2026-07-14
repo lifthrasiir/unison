@@ -1173,6 +1173,9 @@ impl eframe::App for UniformApp {
                     && let Some(label) = self.shaped_preview.selection_codepoints_label() {
                         ui.label(label);
                     }
+                else if let Some(status) = &self.specimen.hover_status {
+                    ui.label(status);
+                }
                 else if let Some((msg, time)) = &self.status_message
                     && time.elapsed().as_secs() < 5 {
                         ui.label(msg);
@@ -1236,6 +1239,9 @@ impl eframe::App for UniformApp {
                         self.bottom_panel_tab = if issues_selected { None } else { Some(2) };
                     }
                 });
+                if self.bottom_panel_tab != Some(1) {
+                    self.specimen.hover_status = None;
+                }
                 if self.bottom_panel_tab.is_none() {
                     return;
                 }
@@ -1300,7 +1306,10 @@ impl eframe::App for UniformApp {
                         self.specimen.rebuild_if_needed(
                             &all_docs, &self.name_parts, self.font_build_gen,
                         );
-                        specimen_clicked_glyph = self.specimen.show(ui);
+                        specimen_clicked_glyph = self.specimen.show(
+                            ui,
+                            self.font_data.as_ref(),
+                        );
                     }
                     Some(2) => {
                         show_issues_tab(ui, &self.issues, &mut issues_click);

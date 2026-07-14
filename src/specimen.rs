@@ -1,11 +1,16 @@
 use std::collections::BTreeMap;
 
+use skrifa::{FontRef, MetadataProvider};
+
 use crate::document::{Document, DocumentItem, NamePartsMap, substitute_name_parts};
+use crate::preview::rasterizer::GlyphCache;
 use crate::render::ttf_builder::expand_map_pairs;
 
 pub struct SpecimenState {
     entries: Vec<(u32, String)>,
     cached_gen: u64,
+    glyph_cache: GlyphCache,
+    pub hover_status: Option<String>,
 }
 
 impl SpecimenState {
@@ -13,6 +18,8 @@ impl SpecimenState {
         Self {
             entries: Vec::new(),
             cached_gen: u64::MAX,
+            glyph_cache: GlyphCache::new(),
+            hover_status: None,
         }
     }
 
@@ -26,6 +33,7 @@ impl SpecimenState {
             return;
         }
         self.cached_gen = font_gen;
+        self.glyph_cache.invalidate_if_changed(font_gen);
 
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
         for doc in docs {
@@ -42,7 +50,13 @@ impl SpecimenState {
         self.entries = map.into_iter().collect();
     }
 
-    pub fn show(&self, ui: &mut egui::Ui) -> Option<String> {
+    pub fn show(
+        &mut self,
+        ui: &mut egui::Ui,
+        font_data: Option<&(Vec<u8>, Vec<u8>)>,
+    ) -> Option<String> {
+        self.hover_status = None;
+
         if self.entries.is_empty() {
             ui.label("No cmap entries.");
             return None;
@@ -58,13 +72,21 @@ impl SpecimenState {
         let grid_width = cols as f32 * cell_w;
 
         let label_font = crate::app::uniform_font_id(ui.ctx(), 16.0);
-        let glyph_font = crate::app::uniform_font_id(ui.ctx(), 48.0);
         let label_color = egui::Color32::from_gray(180);
         let glyph_color = egui::Color32::BLACK;
         let bg_color = egui::Color32::WHITE;
         let border_stroke = egui::Stroke::new(1.0, egui::Color32::BLACK);
+        let px_size = 48.0_f32;
+
+        let raster_font = font_data.map(|p| &p.1);
 
         crate::editor::document_view::apply_scroll_physics(ui, 1, "specimen");
+
+        let hover_pointer = ui.input(|i| i.pointer.hover_pos());
+        let ctrl_c = ui.input(|i| {
+            i.events.iter().any(|e| matches!(e, egui::Event::Copy))
+                || (i.modifiers.command && i.key_pressed(egui::Key::C))
+        });
 
         let inner = egui::ScrollArea::vertical()
             .id_salt("specimen_scroll")
@@ -112,50 +134,105 @@ impl SpecimenState {
                     );
                 }
 
+                let hovered_idx = hover_pointer.and_then(|pos| {
+                    if !response.rect.contains(pos) {
+                        return None;
+                    }
+                    let col = ((pos.x - origin.x) / cell_w).floor() as usize;
+                    let row = ((pos.y - origin.y) / cell_h).floor() as usize;
+                    if col >= cols {
+                        return None;
+                    }
+                    let idx = row * cols + col;
+                    if idx < self.entries.len() {
+                        Some(idx)
+                    } else {
+                        None
+                    }
+                });
+
+                struct DeferredHover {
+                    cell_min: egui::Pos2,
+                    cp: u32,
+                    glyph_name: String,
+                }
+                let mut deferred_hover: Option<DeferredHover> = None;
+
                 for row in first_row..last_row {
                     for col in 0..cols {
                         let idx = row * cols + col;
                         if idx >= self.entries.len() {
                             break;
                         }
-                        let (cp, _) = &self.entries[idx];
+                        let (cp, glyph_name) = &self.entries[idx];
                         let cp = *cp;
+                        let is_hovered = hovered_idx == Some(idx);
                         let cell_min = egui::pos2(
                             origin.x + col as f32 * cell_w,
                             origin.y + row as f32 * cell_h,
                         );
-
-                        let hex = format!("{cp:04X}");
-                        let label_galley = painter.layout_no_wrap(
-                            hex,
-                            label_font.clone(),
-                            label_color,
-                        );
-                        painter.galley(
-                            egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
-                            label_galley,
-                            label_color,
+                        let cell_rect = egui::Rect::from_min_size(
+                            cell_min,
+                            egui::vec2(cell_w, cell_h),
                         );
 
-                        if let Some(ch) = char::from_u32(cp) {
-                            let glyph_galley = painter.layout_no_wrap(
-                                ch.to_string(),
-                                glyph_font.clone(),
-                                glyph_color,
-                            );
-                            let glyph_size = glyph_galley.size();
-                            let center_x = cell_min.x + cell_w / 2.0;
-                            let center_y = cell_min.y + cell_h / 2.0 + 8.0;
-                            painter.galley(
-                                egui::pos2(
-                                    center_x - glyph_size.x / 2.0,
-                                    center_y - glyph_size.y / 2.0,
-                                ),
-                                glyph_galley,
-                                glyph_color,
-                            );
+                        if is_hovered {
+                            deferred_hover = Some(DeferredHover {
+                                cell_min,
+                                cp,
+                                glyph_name: glyph_name.clone(),
+                            });
+                            continue;
                         }
+
+                        self.draw_cell(
+                            &painter,
+                            cell_min,
+                            cell_rect,
+                            cell_w,
+                            cell_h,
+                            cp,
+                            px_size,
+                            false,
+                            &label_font,
+                            label_color,
+                            glyph_color,
+                            raster_font,
+                            ui.ctx(),
+                        );
                     }
+                }
+
+                if let Some(hover) = &deferred_hover {
+                    let cell_rect = egui::Rect::from_min_size(
+                        hover.cell_min,
+                        egui::vec2(cell_w, cell_h),
+                    );
+                    painter.rect_filled(cell_rect, 0.0, egui::Color32::BLACK);
+
+                    if let Some(gr) = self.compute_glyph_rect(
+                        hover.cell_min, cell_w, cell_h, hover.cp, px_size,
+                        raster_font, ui.ctx(),
+                    ) {
+                        let padded = gr.expand(4.0);
+                        painter.rect_filled(padded, 0.0, egui::Color32::BLACK);
+                    }
+
+                    self.draw_cell(
+                        &painter,
+                        hover.cell_min,
+                        cell_rect,
+                        cell_w,
+                        cell_h,
+                        hover.cp,
+                        px_size,
+                        true,
+                        &label_font,
+                        label_color,
+                        egui::Color32::WHITE,
+                        raster_font,
+                        ui.ctx(),
+                    );
                 }
 
                 if response.clicked() {
@@ -166,8 +243,26 @@ impl SpecimenState {
                             ((pos.y - origin.y) / cell_h).floor() as usize;
                         let idx = row * cols + col;
                         if col < cols && idx < self.entries.len() {
-                            clicked_glyph =
-                                Some(self.entries[idx].1.clone());
+                            clicked_glyph = Some(self.entries[idx].1.clone());
+                        }
+                    }
+                }
+
+                if let Some(hover) = deferred_hover {
+                    let ch = char::from_u32(hover.cp);
+                    let char_str = ch.map(|c| c.to_string()).unwrap_or_default();
+                    let char_name = ch
+                        .and_then(|c| unicode_names2::name(c))
+                        .map(|n| n.to_string())
+                        .unwrap_or_else(|| "<unknown>".to_string());
+                    self.hover_status = Some(format!(
+                        "U+{:04X} {} {} ({})",
+                        hover.cp, char_str, char_name, hover.glyph_name,
+                    ));
+
+                    if ctrl_c {
+                        if let Some(ch) = ch {
+                            ui.ctx().copy_text(ch.to_string());
                         }
                     }
                 }
@@ -175,5 +270,163 @@ impl SpecimenState {
         let _ = inner;
 
         clicked_glyph
+    }
+
+    fn draw_cell(
+        &mut self,
+        painter: &egui::Painter,
+        cell_min: egui::Pos2,
+        cell_rect: egui::Rect,
+        cell_w: f32,
+        cell_h: f32,
+        cp: u32,
+        px_size: f32,
+        is_hovered: bool,
+        label_font: &egui::FontId,
+        label_color: egui::Color32,
+        glyph_color: egui::Color32,
+        raster_font: Option<&Vec<u8>>,
+        ctx: &egui::Context,
+    ) {
+        let hex = format!("{cp:04X}");
+        let label_galley = painter.layout_no_wrap(
+            hex,
+            label_font.clone(),
+            label_color,
+        );
+        painter.galley(
+            egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
+            label_galley,
+            label_color,
+        );
+
+        let Some(ch) = char::from_u32(cp) else { return };
+
+        let mut drawn_via_rasterizer = false;
+
+        if let Some(font_bytes) = raster_font {
+            if let Ok(font) = FontRef::new(font_bytes) {
+                let charmap = font.charmap();
+                if let Some(gid) = charmap.map(ch) {
+                    let glyph_id = gid.to_u32() as u16;
+                    if let Some(cached) = self.glyph_cache.get_or_rasterize(
+                        ctx,
+                        font_bytes,
+                        glyph_id,
+                        px_size,
+                        true,
+                        glyph_color,
+                    ) {
+                        let center_x = cell_min.x + cell_w / 2.0;
+                        let center_y = cell_min.y + cell_h / 2.0 + 8.0;
+
+                        let draw_x = center_x - cached.width / 2.0;
+                        let draw_y = center_y - cached.height / 2.0;
+
+                        let draw_rect = egui::Rect::from_min_size(
+                            egui::pos2(draw_x, draw_y),
+                            egui::vec2(cached.width, cached.height),
+                        );
+
+                        let tint = if cached.is_color {
+                            egui::Color32::WHITE
+                        } else {
+                            glyph_color
+                        };
+
+                        if is_hovered {
+                            painter.image(
+                                cached.texture.id(),
+                                draw_rect,
+                                egui::Rect::from_min_max(
+                                    egui::pos2(0.0, 0.0),
+                                    egui::pos2(1.0, 1.0),
+                                ),
+                                tint,
+                            );
+                        } else {
+                            let sub = painter.with_clip_rect(cell_rect);
+                            sub.image(
+                                cached.texture.id(),
+                                draw_rect,
+                                egui::Rect::from_min_max(
+                                    egui::pos2(0.0, 0.0),
+                                    egui::pos2(1.0, 1.0),
+                                ),
+                                tint,
+                            );
+                        }
+                        drawn_via_rasterizer = true;
+                    }
+                }
+            }
+        }
+
+        if !drawn_via_rasterizer {
+            let glyph_font = crate::app::uniform_font_id(ctx, px_size);
+            let glyph_galley = painter.layout_no_wrap(
+                ch.to_string(),
+                glyph_font,
+                glyph_color,
+            );
+            let glyph_size = glyph_galley.size();
+            let center_x = cell_min.x + cell_w / 2.0;
+            let center_y = cell_min.y + cell_h / 2.0 + 8.0;
+            let pos = egui::pos2(
+                center_x - glyph_size.x / 2.0,
+                center_y - glyph_size.y / 2.0,
+            );
+
+            if is_hovered {
+                painter.galley(pos, glyph_galley, glyph_color);
+            } else {
+                let sub = painter.with_clip_rect(cell_rect);
+                sub.galley(pos, glyph_galley, glyph_color);
+            }
+        }
+    }
+
+    fn compute_glyph_rect(
+        &mut self,
+        cell_min: egui::Pos2,
+        cell_w: f32,
+        cell_h: f32,
+        cp: u32,
+        px_size: f32,
+        raster_font: Option<&Vec<u8>>,
+        ctx: &egui::Context,
+    ) -> Option<egui::Rect> {
+        let ch = char::from_u32(cp)?;
+        let center_x = cell_min.x + cell_w / 2.0;
+        let center_y = cell_min.y + cell_h / 2.0 + 8.0;
+
+        if let Some(font_bytes) = raster_font {
+            if let Ok(font) = FontRef::new(font_bytes) {
+                let charmap = font.charmap();
+                if let Some(gid) = charmap.map(ch) {
+                    let glyph_id = gid.to_u32() as u16;
+                    if let Some(cached) = self.glyph_cache.get_or_rasterize(
+                        ctx, font_bytes, glyph_id, px_size, true,
+                        egui::Color32::WHITE,
+                    ) {
+                        return Some(egui::Rect::from_min_size(
+                            egui::pos2(
+                                center_x - cached.width / 2.0,
+                                center_y - cached.height / 2.0,
+                            ),
+                            egui::vec2(cached.width, cached.height),
+                        ));
+                    }
+                }
+            }
+        }
+
+        let glyph_font = crate::app::uniform_font_id(ctx, px_size);
+        let galley = ctx.fonts(|f| f.layout_no_wrap(ch.to_string(), glyph_font, egui::Color32::WHITE));
+        let size = galley.size();
+        Some(egui::Rect::from_min_size(
+            egui::pos2(center_x - size.x / 2.0, center_y - size.y / 2.0),
+            size,
+        ))
     }
 }
