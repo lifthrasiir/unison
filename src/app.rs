@@ -1269,6 +1269,8 @@ impl eframe::App for UniformApp {
                             }
                             ui.separator();
                             self.shaped_preview.show_engine_combo(ui);
+                            ui.separator();
+                            ui.checkbox(&mut self.shaped_preview.color_font, "Color");
                         });
                         ui.separator();
                         self.shaped_preview.show(

@@ -6,7 +6,10 @@ use std::path::Path;
 use crate::document::*;
 use crate::pixel::PX_SUBPIXEL;
 use crate::render::contour::{track_contour, track_contour_fullpixel, track_contour_multi};
-use crate::render::ttf_builder::expand_map_pairs;
+use crate::render::ttf_builder::{
+    ColorAliasMap, Rgba, collect_color_aliases, effective_visibility, expand_map_pairs,
+    resolve_fill_rgba,
+};
 
 #[derive(Clone)]
 struct SampleComponent {
@@ -14,6 +17,8 @@ struct SampleComponent {
     col: i32,
     grid: PixelGrid,
     negated: bool,
+    fill_rgba: Option<Rgba>,
+    visibility: LayerVisibility,
 }
 
 struct SampleGlyph {
@@ -69,6 +74,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     }
 
     let name_parts = collect_name_parts(docs);
+    let color_aliases = collect_color_aliases(docs);
 
     let mut all_items: Vec<DocumentItem> = Vec::new();
     for doc in docs {
@@ -147,6 +153,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     col: 0,
                     grid: grid.clone(),
                     negated: false,
+                    fill_rgba: None,
+                    visibility: LayerVisibility::Both,
                 }],
             }
         }
@@ -260,6 +268,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 pg.pixels.as_ref(),
                 &effective_refs,
                 &cache,
+                &color_aliases,
             ).unwrap_or_else(|| if let Some(grid) = &pg.pixels {
                 CachedGlyph::from_grid(grid)
             } else {
@@ -278,10 +287,25 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }
     }
 
+    fn ref_fill_info(
+        gref: &GlyphRef,
+        color_aliases: &ColorAliasMap,
+    ) -> (Option<Rgba>, LayerVisibility) {
+        match &gref.fill {
+            Some(fill) => {
+                let rgba = resolve_fill_rgba(fill, color_aliases);
+                let vis = effective_visibility(fill, color_aliases);
+                (rgba, vis)
+            }
+            None => (None, LayerVisibility::Both),
+        }
+    }
+
     fn composite_glyph(
         own_pixels: Option<&PixelGrid>,
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedGlyph>,
+        color_aliases: &ColorAliasMap,
     ) -> Option<CachedGlyph> {
         let has_negated = refs.iter().any(|r| r.negated);
 
@@ -333,6 +357,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     col: off_c,
                     grid: grid.clone(),
                     negated: false,
+                    fill_rgba: None,
+                    visibility: LayerVisibility::Both,
                 });
                 if !has_negated {
                     contour_layers.push((grid, off_r, off_c));
@@ -343,6 +369,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 let Some(cached) = resolve_cached_ref(&gref.name, cache) else { continue };
                 let off_r = gref.row() as i32 - min_r;
                 let off_c = gref.col() as i32 - min_c;
+                let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
                 if let Some(ref_grid) = &cached.grid {
                     for r in 0..ref_grid.height as i32 {
                         for c in 0..ref_grid.width as i32 {
@@ -383,6 +410,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         col: comp.col + off_c,
                         grid: comp.grid.clone(),
                         negated: comp.negated ^ gref.negated,
+                        fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
+                        visibility: if fill_rgba.is_some() { fill_vis } else { comp.visibility },
                     });
                 }
             }
@@ -425,12 +454,15 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
             let off_r = gref.row() as i32;
             let off_c = gref.col() as i32;
+            let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
             for comp in &cached.components {
                 components.push(SampleComponent {
                     row: comp.row + off_r,
                     col: comp.col + off_c,
                     grid: comp.grid.clone(),
                     negated: comp.negated,
+                    fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
+                    visibility: if fill_rgba.is_some() { fill_vis } else { comp.visibility },
                 });
             }
 
@@ -703,11 +735,17 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
             let sh = sg.height as u32 * 5;
             write!(w, "<svg viewBox=\"0 0 {vw} {vh}\" width=\"{sw}\" height=\"{sh}\">")?;
             for comp in &sg.components {
+                if comp.visibility == LayerVisibility::MonoOnly {
+                    continue;
+                }
                 let contours = track_contour(&comp.grid, PX_SUBPIXEL);
                 let path = contours_to_svg_path(&contours, svg_scale, comp.col as f32, comp.row as f32);
                 if !path.is_empty() {
                     if comp.negated {
                         write!(w, "<path d='{path}' fill='#000'/>")?;
+                    } else if let Some(ref rgba) = comp.fill_rgba {
+                        write!(w, "<path d='{path}' fill='#{:02x}{:02x}{:02x}'/>"
+                            , rgba.r, rgba.g, rgba.b)?;
                     } else {
                         let color = path_hash_color(&path);
                         write!(w, "<path d='{path}' fill='#{color:06x}'/>")?;
@@ -804,49 +842,54 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
     let img_width = label_width + 1 + line_width + 1;
     let img_height = (max_height + 1) * nrows + 1 + gap;
 
-    // Render to grayscale pixel buffer
-    let mut pixels = vec![0xFFu8; (img_width * img_height) as usize];
+    // Render to RGBA pixel buffer
+    let mut pixels = vec![0xFFu8; (img_width * img_height * 4) as usize];
     let stride = img_width as usize;
+
+    fn set_pixel(pixels: &mut [u8], stride: usize, x: usize, y: usize, r: u8, g: u8, b: u8) {
+        let off = (y * stride + x) * 4;
+        pixels[off] = r;
+        pixels[off + 1] = g;
+        pixels[off + 2] = b;
+        pixels[off + 3] = 255;
+    }
 
     // Draw grid lines
     for row_idx in 0..nrows {
         let prev_offset = if row_idx > 0 { row_offsets[row_idx as usize - 1] } else { 0 };
         let offset = row_offsets[row_idx as usize];
 
-        // Separator lines (gray)
         for extra_y in prev_offset..offset {
             let y = (max_height + 1) * row_idx + extra_y;
             if y < img_height {
                 for x in label_width..img_width {
-                    pixels[y as usize * stride + x as usize] = 0x80;
+                    set_pixel(&mut pixels, stride, x as usize, y as usize, 0x80, 0x80, 0x80);
                 }
             }
         }
 
-        // Row line
         let y = (max_height + 1) * row_idx + offset;
         if y < img_height {
             for x in label_width..img_width {
-                pixels[y as usize * stride + x as usize] = 0x80;
+                set_pixel(&mut pixels, stride, x as usize, y as usize, 0x80, 0x80, 0x80);
             }
         }
 
-        // Row label (simplified: just write "U+XXXX" as text — we'll render using font glyphs)
         let label = format!("U+{:04X}", row_starts[row_idx as usize]);
         let label_y = y + 1;
-        // Simple 1px-per-pixel label rendering using the font's own glyphs
         for (char_idx, ch) in label.chars().enumerate() {
             let cp = ch as u32;
             if let Some(glyph_name) = data.cmap.get(&cp) {
                 if let Some(sg) = data.glyphs.get(glyph_name) {
-                    render_glyph_bitmap(
+                    render_glyph_bitmap_rgba(
                         &mut pixels,
                         stride,
                         img_height as usize,
                         (char_idx as u32 * 8) as i32,
                         label_y as i32,
                         sg,
-                        0x80,
+                        [0x80, 0x80, 0x80],
+                        false,
                     );
                 }
             }
@@ -856,7 +899,7 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
     {
         let y = img_height - 1;
         for x in label_width..img_width {
-            pixels[y as usize * stride + x as usize] = 0x80;
+            set_pixel(&mut pixels, stride, x as usize, y as usize, 0x80, 0x80, 0x80);
         }
     }
 
@@ -868,7 +911,7 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
             let py = (y + dy) as usize;
             if py < img_height as usize {
                 for x in (label_width + 1) as usize..(img_width - 1) as usize {
-                    pixels[py * stride + x] = 0xC0;
+                    set_pixel(&mut pixels, stride, x, py, 0xC0, 0xC0, 0xC0);
                 }
             }
         }
@@ -887,37 +930,54 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
                 let py = (y + dy) as usize;
                 let px = (x + dx) as usize;
                 if py < img_height as usize && px < stride {
-                    pixels[py * stride + px] = 0xFF;
+                    set_pixel(&mut pixels, stride, px, py, 0xFF, 0xFF, 0xFF);
                 }
             }
         }
 
-        render_glyph_bitmap(
+        render_glyph_bitmap_rgba(
             &mut pixels,
             stride,
             img_height as usize,
             x as i32,
             y as i32,
             sg,
-            0x00,
+            [0x00, 0x00, 0x00],
+            true,
         );
     }
 
     // Encode as PNG
-    encode_grayscale_png(w, &pixels, img_width, img_height)
+    encode_rgba_png(w, &pixels, img_width, img_height)
 }
 
-fn render_glyph_bitmap(
+fn render_glyph_bitmap_rgba(
     pixels: &mut [u8],
     stride: usize,
     img_height: usize,
     x: i32,
     y: i32,
     sg: &SampleGlyph,
-    color: u8,
+    fg_color: [u8; 3],
+    use_fill_colors: bool,
 ) {
     for comp in &sg.components {
-        let icolor = if comp.negated { 0xFF } else { color };
+        if use_fill_colors && comp.visibility == LayerVisibility::MonoOnly {
+            continue;
+        }
+
+        let [cr, cg, cb] = if use_fill_colors && !comp.negated {
+            if let Some(ref rgba) = comp.fill_rgba {
+                [rgba.r, rgba.g, rgba.b]
+            } else {
+                fg_color
+            }
+        } else if comp.negated {
+            [0xFF, 0xFF, 0xFF]
+        } else {
+            fg_color
+        };
+
         for r in 0..comp.grid.height as i32 {
             for c in 0..comp.grid.width as i32 {
                 let shape = comp.grid.get(r as u16, c as u16);
@@ -925,7 +985,11 @@ fn render_glyph_bitmap(
                     let py = y + comp.row + r;
                     let px = x + comp.col + c;
                     if py >= 0 && px >= 0 && (py as usize) < img_height && (px as usize) < stride {
-                        pixels[py as usize * stride + px as usize] = icolor;
+                        let off = (py as usize * stride + px as usize) * 4;
+                        pixels[off] = cr;
+                        pixels[off + 1] = cg;
+                        pixels[off + 2] = cb;
+                        pixels[off + 3] = 255;
                     }
                 }
             }
@@ -933,9 +997,9 @@ fn render_glyph_bitmap(
     }
 }
 
-fn encode_grayscale_png(w: &mut dyn Write, pixels: &[u8], width: u32, height: u32) -> io::Result<()> {
+fn encode_rgba_png(w: &mut dyn Write, pixels: &[u8], width: u32, height: u32) -> io::Result<()> {
     let mut encoder = png::Encoder::new(w, width, height);
-    encoder.set_color(png::ColorType::Grayscale);
+    encoder.set_color(png::ColorType::Rgba);
     encoder.set_depth(png::BitDepth::Eight);
     let mut writer = encoder.write_header()?;
     writer.write_image_data(pixels)?;

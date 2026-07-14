@@ -17,6 +17,7 @@ pub struct ShapedPreviewState {
     pub backends: Vec<Box<dyn ShaperBackend>>,
     pub selected_backend: usize,
     pub glyph_cache: GlyphCache,
+    pub color_font: bool,
     shaped_result: Option<ShapedResult>,
     last_error: Option<String>,
     preedit: String,
@@ -46,6 +47,7 @@ impl ShapedPreviewState {
             backends: preview::available_backends(),
             selected_backend: 0,
             glyph_cache: GlyphCache::new(),
+            color_font: true,
             shaped_result: None,
             last_error: None,
             preedit: String::new(),
@@ -476,11 +478,18 @@ impl ShapedPreviewState {
                 let gx = pen_x + g.x_offset * px_size;
                 let gy = baseline_y - g.y_offset * px_size;
 
+                let raster_font = if px_size == 16.0 {
+                    &font_pair.0
+                } else {
+                    &font_pair.1
+                };
                 if let Some(cached) = self.glyph_cache.get_or_rasterize(
                     ui.ctx(),
-                    &font_pair.1,
+                    raster_font,
                     g.glyph_id,
                     px_size,
+                    self.color_font,
+                    text_color,
                 ) {
                     let draw_x = gx + cached.bearing_x;
                     let draw_y = gy - cached.bearing_y;
@@ -489,13 +498,15 @@ impl ShapedPreviewState {
                         egui::vec2(cached.width, cached.height),
                     );
 
-                    let glyph_color =
-                        if preedit_range.is_some_and(|(ps, pe)| g.cluster >= ps && g.cluster < pe)
-                        {
-                            widget_bg
-                        } else {
-                            text_color
-                        };
+                    let is_preedit =
+                        preedit_range.is_some_and(|(ps, pe)| g.cluster >= ps && g.cluster < pe);
+                    let glyph_color = if is_preedit {
+                        widget_bg
+                    } else if cached.is_color {
+                        egui::Color32::WHITE
+                    } else {
+                        text_color
+                    };
 
                     painter.image(
                         cached.texture.id(),

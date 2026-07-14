@@ -176,7 +176,7 @@ fn resolve_color_value(value: &str, aliases: &ColorAliasMap) -> Option<Rgba> {
     }
 }
 
-fn resolve_fill_rgba(
+pub fn resolve_fill_rgba(
     fill: &RefFill,
     color_aliases: &ColorAliasMap,
 ) -> Option<Rgba> {
@@ -189,7 +189,7 @@ fn resolve_fill_rgba(
     color_aliases.get(&fill.color).map(|(rgba, _)| rgba.clone())
 }
 
-fn effective_visibility(
+pub fn effective_visibility(
     fill: &RefFill,
     color_aliases: &ColorAliasMap,
 ) -> LayerVisibility {
