@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::document::*;
 use crate::pixel::PX_SUBPIXEL;
-use crate::render::contour::{track_contour, track_contour_fullpixel, track_contour_multi};
+use crate::render::contour::{track_contour, track_contour_fullpixel, track_contour_multi, track_contour_multi_diff};
 use crate::render::ttf_builder::{
     ColorAliasMap, Rgba, collect_color_aliases, effective_visibility, expand_map_pairs,
     resolve_fill_rgba,
@@ -336,6 +336,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
             let mut components = Vec::new();
             let mut contour_layers: Vec<(&PixelGrid, i32, i32)> = Vec::new();
+            let mut diff_layers: Vec<(&PixelGrid, i32, i32, bool)> = Vec::new();
 
             if let Some(grid) = own_pixels {
                 let off_r = -min_r;
@@ -360,7 +361,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     fill_rgba: None,
                     visibility: LayerVisibility::Both,
                 });
-                if !has_negated {
+                if has_negated {
+                    diff_layers.push((grid, off_r, off_c, false));
+                } else {
                     contour_layers.push((grid, off_r, off_c));
                 }
             }
@@ -379,19 +382,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                                 let dc = off_c + c;
                                 if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
                                     if gref.negated {
-                                        use crate::pixel::PixelShape;
                                         let current = result.get(dr as u16, dc as u16);
                                         if !current.is_empty() {
-                                            let out = if shape.shape_id() == 0 && shape.is_filled() {
-                                                PixelShape::EMPTY
-                                            } else if current.shape_id() == 0 && current.is_filled() {
-                                                shape.negated()
-                                            } else if current == shape {
-                                                PixelShape::EMPTY
-                                            } else {
-                                                current
-                                            };
-                                            result.set(dr as u16, dc as u16, out);
+                                            result.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
                                         }
                                     } else {
                                         result.set(dr as u16, dc as u16, shape);
@@ -400,7 +393,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                             }
                         }
                     }
-                    if !has_negated && !gref.negated {
+                    if has_negated {
+                        diff_layers.push((ref_grid, off_r, off_c, gref.negated));
+                    } else if !gref.negated {
                         contour_layers.push((ref_grid, off_r, off_c));
                     }
                 }
@@ -417,7 +412,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             }
 
             let contours = if has_negated {
-                track_contour(&result, PX_SUBPIXEL)
+                track_contour_multi_diff(&diff_layers, PX_SUBPIXEL)
             } else {
                 track_contour_multi(&contour_layers, PX_SUBPIXEL)
             };

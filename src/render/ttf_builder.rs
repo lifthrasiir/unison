@@ -33,7 +33,7 @@ use write_fonts::types::{Fixed, GlyphId, GlyphId16, NameId, Tag};
 use crate::document::*;
 use crate::document_io;
 use crate::pixel::{PX_ALMOSTFULL, PX_SUBPIXEL, PixelShape};
-use crate::render::contour::{track_contour, track_contour_multi};
+use crate::render::contour::{track_contour, track_contour_multi, track_contour_multi_diff};
 
 const UNITS_PER_EM: u16 = 1024;
 
@@ -1558,32 +1558,60 @@ impl CachedContours {
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedContours>,
         bitmap: bool,
-        cc: Option<&mut ContourCache>,
+        _cc: Option<&mut ContourCache>,
     ) -> Option<Self> {
         let has_negated = refs.iter().any(|r| r.negated);
         let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
 
         if has_negated {
-            // Use pixel-level composition with subtraction for negated refs.
+            // Collect layers with negation flags and trace contours via
+            // track_contour_multi_diff, which computes the geometric difference
+            // (positive union minus negative union) per pixel.
+            let mut diff_layers: Vec<(&PixelGrid, i32, i32, bool)> = Vec::new();
+            if let Some(grid) = own_pixels {
+                diff_layers.push((grid, 0, 0, false));
+            }
+            for gref in refs {
+                if let Some(cached) = resolve_cached_ref(&gref.name, cache) {
+                    if let Some(ref_grid) = &cached.grid {
+                        diff_layers.push((
+                            ref_grid,
+                            gref.row() as i32,
+                            gref.col() as i32,
+                            gref.negated,
+                        ));
+                    }
+                }
+            }
+
+            let contours = if bitmap {
+                let bitmap_grids: Vec<PixelGrid> = diff_layers
+                    .iter()
+                    .map(|(g, _, _, _)| to_bitmap_grid(g))
+                    .collect();
+                let bitmap_layers: Vec<(&PixelGrid, i32, i32, bool)> = bitmap_grids
+                    .iter()
+                    .zip(diff_layers.iter())
+                    .map(|(bg, &(_, r, c, neg))| (bg as &PixelGrid, r, c, neg))
+                    .collect();
+                track_contour_multi_diff(&bitmap_layers, PX_SUBPIXEL)
+            } else {
+                track_contour_multi_diff(&diff_layers, PX_SUBPIXEL)
+            };
+
+            // Build flattened grid for downstream composites that reference
+            // this glyph.  shape_subtract may produce PX_DOT for some pixels,
+            // which is acceptable here since the grid is only used for pixel
+            // lookups, not for contour tracing.
             let mut min_r: i32 = 0;
             let mut min_c: i32 = 0;
             let mut max_r: i32 = 0;
             let mut max_c: i32 = 0;
-            if let Some(grid) = own_pixels {
-                max_r = grid.height as i32;
-                max_c = grid.width as i32;
-            }
-            for gref in refs {
-                if let Some(cached) = resolve_cached_ref(&gref.name, cache) {
-                    let eff_r = gref.row() as i32;
-                    let eff_c = gref.col() as i32;
-                    if cached.width != 0 && cached.height != 0 {
-                        min_r = min_r.min(eff_r);
-                        min_c = min_c.min(eff_c);
-                        max_r = max_r.max(eff_r + cached.height as i32);
-                        max_c = max_c.max(eff_c + cached.width as i32);
-                    }
-                }
+            for &(grid, row_off, col_off, _) in &diff_layers {
+                min_r = min_r.min(row_off);
+                min_c = min_c.min(col_off);
+                max_r = max_r.max(row_off + grid.height as i32);
+                max_c = max_c.max(col_off + grid.width as i32);
             }
             let width = (max_c - min_c).max(0) as u16;
             let height = (max_r - min_r).max(0) as u16;
@@ -1621,16 +1649,7 @@ impl CachedContours {
                                 if gref.negated {
                                     let current = result.get(dr as u16, dc as u16);
                                     if !current.is_empty() {
-                                        let out = if shape.shape_id() == 0 && shape.is_filled() {
-                                            PixelShape::EMPTY
-                                        } else if current.shape_id() == 0 && current.is_filled() {
-                                            shape.negated()
-                                        } else if current == shape {
-                                            PixelShape::EMPTY
-                                        } else {
-                                            current
-                                        };
-                                        result.set(dr as u16, dc as u16, out);
+                                        result.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
                                     }
                                 } else {
                                     result.set(dr as u16, dc as u16, shape);
@@ -1641,11 +1660,10 @@ impl CachedContours {
                 }
             }
 
-            let cached = Self::from_grid(&result, bitmap, cc);
             return Some(Self {
                 width,
                 height,
-                contours: cached.contours,
+                contours,
                 anchors: Vec::new(),
                 grid: Some(result),
                 composite_components: None,

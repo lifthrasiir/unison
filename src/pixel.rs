@@ -58,9 +58,6 @@ impl PixelShape {
         self.shape_id() == PX_EMPTY && !self.is_filled()
     }
 
-    pub fn negated(self) -> Self {
-        Self(self.0 ^ PX_FULL)
-    }
 }
 
 impl fmt::Debug for PixelShape {
@@ -774,6 +771,92 @@ fn seg_intersect_t(
         None
     }
 }
+
+// ---------------------------------------------------------------------------
+// Multi-shape difference adjacency (union of positive shapes minus union of
+// negative shapes).  Used by contour tracing for negated ref layers.
+// ---------------------------------------------------------------------------
+
+/// Compute adjacency bits and gap segments for the geometric difference of
+/// two sets of shapes within a single pixel cell:  union(positive) \ union(negative).
+///
+/// The result is computed by rasterizing both unions on a fine grid, taking
+/// the set difference, and finding the closest known shape whose adjacency
+/// (bits + gap segments) is guaranteed to form valid closed contours.
+pub fn multi_shape_diff_adjacency(
+    positive_shapes: &[u8],
+    negative_shapes: &[u8],
+) -> (u8, Vec<Seg>) {
+    if negative_shapes.is_empty() {
+        return multi_shape_adjacency(positive_shapes);
+    }
+    if positive_shapes.is_empty() {
+        return (0, Vec::new());
+    }
+
+    let rasters = &DIFF_TABLE.rasters;
+
+    let mut pos_raster = 0u128;
+    for &s in positive_shapes {
+        pos_raster |= rasters[s as usize];
+    }
+    let mut neg_raster = 0u128;
+    for &s in negative_shapes {
+        neg_raster |= rasters[s as usize];
+    }
+
+    let result_raster = pos_raster & (!neg_raster & FULL_RASTER);
+    if result_raster == 0 {
+        return (0, Vec::new());
+    }
+
+    let best_id = DIFF_TABLE.closest_shape(result_raster);
+    let (bits, segs) = adjacency(best_id);
+    (bits, segs.to_vec())
+}
+
+struct DiffTable {
+    rasters: [u128; 32],
+}
+
+impl DiffTable {
+    fn closest_shape(&self, target: u128) -> u8 {
+        if target == 0 {
+            return PX_EMPTY;
+        }
+        if target == FULL_RASTER {
+            return PX_ALMOSTFULL;
+        }
+        // Exact match first.
+        for (i, &r) in self.rasters.iter().enumerate() {
+            if r == target {
+                return i as u8;
+            }
+        }
+        // Best-fit by minimum Hamming distance.
+        let mut best = PX_ALMOSTFULL;
+        let mut best_dist = u32::MAX;
+        for (i, &r) in self.rasters.iter().enumerate() {
+            if r == 0 {
+                continue;
+            }
+            let dist = (target ^ r).count_ones();
+            if dist < best_dist {
+                best_dist = dist;
+                best = i as u8;
+            }
+        }
+        best
+    }
+}
+
+static DIFF_TABLE: std::sync::LazyLock<DiffTable> = std::sync::LazyLock::new(|| {
+    let mut rasters = [0u128; 32];
+    for s in 0..32u8 {
+        rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
+    }
+    DiffTable { rasters }
+});
 
 // ---------------------------------------------------------------------------
 

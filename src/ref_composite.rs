@@ -828,20 +828,8 @@ fn composite_to_grid(
                         if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
                             if gref.negated {
                                 let current = result.get(dr as u16, dc as u16);
-                                // Subtraction must never create ink on an
-                                // empty canvas. PixelShape can represent the
-                                // common full-cell-minus-mask case exactly.
                                 if !current.is_empty() {
-                                    let out = if shape.shape_id() == 0 && shape.is_filled() {
-                                        crate::pixel::PixelShape::EMPTY
-                                    } else if current.shape_id() == 0 && current.is_filled() {
-                                        shape.negated()
-                                    } else if current == shape {
-                                        crate::pixel::PixelShape::EMPTY
-                                    } else {
-                                        current
-                                    };
-                                    result.set(dr as u16, dc as u16, out);
+                                    result.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
                                 }
                             } else {
                                 result.set(dr as u16, dc as u16, shape);

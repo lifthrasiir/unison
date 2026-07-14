@@ -563,6 +563,292 @@ pub fn track_contour_multi(
     paths
 }
 
+/// Like [`track_contour_multi`] but supports negative (subtracted) layers.
+///
+/// Each entry in `layers` is `(grid, row_offset, col_offset, negated)`.
+/// Positive layers are unioned; negative layers are subtracted from the result.
+/// Per-pixel adjacency is computed via [`pixel::multi_shape_diff_adjacency`]
+/// and cached by `(positive_mask, negative_mask)` to avoid redundant work.
+pub fn track_contour_multi_diff(
+    layers: &[(&PixelGrid, i32, i32, bool)],
+    mask: u8,
+) -> Vec<Vec<(f32, f32)>> {
+    if layers.is_empty() {
+        return Vec::new();
+    }
+    let has_negated = layers.iter().any(|l| l.3);
+    if !has_negated {
+        let plain: Vec<(&PixelGrid, i32, i32)> =
+            layers.iter().map(|&(g, r, c, _)| (g, r, c)).collect();
+        return track_contour_multi(&plain, mask);
+    }
+
+    // Compute bounding box
+    let mut min_r: i32 = 0;
+    let mut min_c: i32 = 0;
+    let mut max_r: i32 = 0;
+    let mut max_c: i32 = 0;
+    for &(grid, row_off, col_off, _) in layers {
+        min_r = min_r.min(row_off);
+        min_c = min_c.min(col_off);
+        max_r = max_r.max(row_off + grid.height as i32);
+        max_c = max_c.max(col_off + grid.width as i32);
+    }
+    let width = (max_c - min_c).max(0) as usize;
+    let height = (max_r - min_r).max(0) as usize;
+    if width == 0 || height == 0 {
+        return Vec::new();
+    }
+
+    let stride = width + 1;
+    let total = (height + 2) * stride;
+
+    let mut pos_masks: Vec<u32> = vec![0; total];
+    let mut neg_masks: Vec<u32> = vec![0; total];
+
+    for &(grid, row_off, col_off, negated) in layers {
+        let off_r = (row_off - min_r) as usize;
+        let off_c = (col_off - min_c) as usize;
+        let target = if negated { &mut neg_masks } else { &mut pos_masks };
+        for r in 0..grid.height as usize {
+            for c in 0..grid.width as usize {
+                let sid = grid.get(r as u16, c as u16).shape_id() & mask;
+                if sid != PX_EMPTY {
+                    let idx = (off_r + r + 1) * stride + (off_c + c);
+                    target[idx] |= 1u32 << sid;
+                }
+            }
+        }
+    }
+
+    // A pixel has content if positive shapes remain after subtracting negatives.
+    // For the adjacency pre-computation we use the diff-aware function; however
+    // for the quick "is this pixel non-empty" test we conservatively mark any
+    // pixel that has positive shapes (we'll skip it during tracing if its diff
+    // adjacency turns out to be 0).
+
+    // Pre-compute per-pixel adjacency.
+    let mut adj_data: Vec<u8> = vec![0; total];
+    let mut diff_cache: HashMap<(u32, u32), (u8, Vec<(f32, f32, f32, f32)>)> = HashMap::new();
+
+    for i in 0..total {
+        if pos_masks[i] != 0 {
+            let key = (pos_masks[i], neg_masks[i]);
+            let (bits, _) = diff_cache.entry(key).or_insert_with(|| {
+                let pos_ids = bitmask_to_ids(pos_masks[i]);
+                if neg_masks[i] == 0 {
+                    pixel::multi_shape_adjacency(&pos_ids)
+                } else {
+                    let neg_ids = bitmask_to_ids(neg_masks[i]);
+                    pixel::multi_shape_diff_adjacency(&pos_ids, &neg_ids)
+                }
+            });
+            adj_data[i] = *bits;
+        }
+    }
+
+    let mut paths = Vec::new();
+    let mut visited = HashSet::new();
+
+    for row in 0..height {
+        let i0 = (row + 1) * stride;
+        for i in i0..i0 + width {
+            if pos_masks[i] == 0 || adj_data[i] == 0 || visited.contains(&i) {
+                continue;
+            }
+
+            let mut unsure = vec![i];
+            let mut segs: Vec<(f32, f32, f32, f32)> = Vec::new();
+
+            while let Some(i) = unsure.pop() {
+                if visited.contains(&i) {
+                    continue;
+                }
+                if adj_data[i] == 0 {
+                    continue;
+                }
+                visited.insert(i);
+
+                let key = (pos_masks[i], neg_masks[i]);
+                let (pixel_adj, gap_segs) = {
+                    let entry = diff_cache.get(&key).unwrap();
+                    (entry.0, std::borrow::Cow::Borrowed(entry.1.as_slice()))
+                };
+
+                let top_adj = adj_data[i.wrapping_sub(stride)];
+                let bottom_adj = adj_data[i + stride];
+                let left_adj = adj_data[i.wrapping_sub(1)];
+                let right_adj = adj_data[i + 1];
+
+                let connected = (pixel_adj & (top_adj << 5) & 0b10000000)
+                    | (pixel_adj & (top_adj << 3) & 0b01000000)
+                    | (pixel_adj & (right_adj << 5) & 0b00100000)
+                    | (pixel_adj & (right_adj << 3) & 0b00010000)
+                    | (pixel_adj & (bottom_adj >> 3) & 0b00001000)
+                    | (pixel_adj & (bottom_adj >> 5) & 0b00000100)
+                    | (pixel_adj & (left_adj >> 3) & 0b00000010)
+                    | (pixel_adj & (left_adj >> 5) & 0b00000001);
+
+                if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
+                    unsure.push(i - stride);
+                }
+                if (connected & 0b00110000) != 0 && !visited.contains(&(i + 1)) {
+                    unsure.push(i + 1);
+                }
+                if (connected & 0b00001100) != 0 && !visited.contains(&(i + stride)) {
+                    unsure.push(i + stride);
+                }
+                if (connected & 0b00000011) != 0 && !visited.contains(&(i - 1)) {
+                    unsure.push(i - 1);
+                }
+
+                let disconnected = connected ^ 0xFF;
+                if disconnected != 0 {
+                    let y = (i / stride) as f32 - 1.0;
+                    let x = (i % stride) as f32;
+
+                    let line_segs = pixel_adj & disconnected;
+
+                    if (line_segs & 0b11000000) == 0b11000000 {
+                        segs.push((x, y, x + 1.0, y));
+                    } else {
+                        if line_segs & 0b10000000 != 0 {
+                            segs.push((x, y, x + 0.5, y));
+                        }
+                        if line_segs & 0b01000000 != 0 {
+                            segs.push((x + 0.5, y, x + 1.0, y));
+                        }
+                    }
+
+                    if (line_segs & 0b00110000) == 0b00110000 {
+                        segs.push((x + 1.0, y, x + 1.0, y + 1.0));
+                    } else {
+                        if line_segs & 0b00100000 != 0 {
+                            segs.push((x + 1.0, y, x + 1.0, y + 0.5));
+                        }
+                        if line_segs & 0b00010000 != 0 {
+                            segs.push((x + 1.0, y + 0.5, x + 1.0, y + 1.0));
+                        }
+                    }
+
+                    if (line_segs & 0b00001100) == 0b00001100 {
+                        segs.push((x + 1.0, y + 1.0, x, y + 1.0));
+                    } else {
+                        if line_segs & 0b00001000 != 0 {
+                            segs.push((x + 1.0, y + 1.0, x + 0.5, y + 1.0));
+                        }
+                        if line_segs & 0b00000100 != 0 {
+                            segs.push((x + 0.5, y + 1.0, x, y + 1.0));
+                        }
+                    }
+
+                    if (line_segs & 0b00000011) == 0b00000011 {
+                        segs.push((x, y + 1.0, x, y));
+                    } else {
+                        if line_segs & 0b00000010 != 0 {
+                            segs.push((x, y + 1.0, x, y + 0.5));
+                        }
+                        if line_segs & 0b00000001 != 0 {
+                            segs.push((x, y + 0.5, x, y));
+                        }
+                    }
+
+                    if !pixel_adj & disconnected != 0 {
+                        for &(x1, y1, x2, y2) in gap_segs.as_ref() {
+                            segs.push((x + x1, y + y1, x + x2, y + y2));
+                        }
+                    }
+                }
+            }
+
+            let mut px_to_segs: BTreeMap<(i64, i64), Vec<(i64, i64)>> = BTreeMap::new();
+            for (x1, y1, x2, y2) in &segs {
+                let k1 = to_key_fine(*x1, *y1);
+                let k2 = to_key_fine(*x2, *y2);
+                px_to_segs.entry(k1).or_default().push(k2);
+                px_to_segs.entry(k2).or_default().push(k1);
+            }
+
+            for list in px_to_segs.values_mut() {
+                list.sort();
+            }
+
+            while !px_to_segs.is_empty() {
+                let (&start_key, _) = px_to_segs.iter().next().unwrap();
+                let v = px_to_segs.get_mut(&start_key).unwrap();
+                assert!(v.len() >= 2);
+                let next_key = v.pop().unwrap();
+                if v.is_empty() {
+                    px_to_segs.remove(&start_key);
+                }
+
+                let mut path: Vec<(i64, i64)> = vec![start_key];
+                let mut indices: HashMap<(i64, i64), usize> = HashMap::new();
+                indices.insert(start_key, 0);
+
+                let mut x0 = start_key;
+                let mut x = next_key;
+                let mut dx = start_key.0 - next_key.0;
+                let mut dy = start_key.1 - next_key.1;
+
+                while let Some(mut list) = px_to_segs.remove(&x) {
+                    list.retain(|k| *k != x0);
+                    let nx_list = list;
+
+                    if let Some(&k) = indices.get(&x) {
+                        let mut extracted: Vec<(i64, i64)> = path[k..].to_vec();
+                        path.truncate(k);
+                        if extracted.first() != Some(&x) {
+                            extracted.insert(0, x);
+                        }
+                        paths.push(
+                            extracted
+                                .iter()
+                                .map(|&(a, b)| from_key_fine(a, b))
+                                .collect(),
+                        );
+
+                        if path.is_empty() {
+                            if !nx_list.is_empty() {
+                                px_to_segs.insert(x, nx_list);
+                            }
+                            break;
+                        }
+
+                        indices.retain(|_, v| *v < path.len());
+
+                        let prev = path[path.len() - 1];
+                        dx = x.0 - prev.0;
+                        dy = x.1 - prev.1;
+                    }
+
+                    if nx_list.is_empty() {
+                        break;
+                    }
+
+                    let xx = nx_list[0];
+                    if nx_list.len() > 1 {
+                        px_to_segs.insert(x, nx_list[1..].to_vec());
+                    }
+
+                    indices.insert(x, path.len());
+                    if dx * (x.1 - xx.1) != dy * (x.0 - xx.0) {
+                        path.push(x);
+                        dx = x.0 - xx.0;
+                        dy = x.1 - xx.1;
+                    }
+
+                    x0 = x;
+                    x = xx;
+                }
+            }
+        }
+    }
+
+    fix_winding(&mut paths);
+    paths
+}
+
 // Clipped gap segments can have coordinates at 1/4, 1/6, 1/8 etc. of a pixel
 // (from intersections of diagonal gap segments between half-pixel-aligned endpoints).
 // Use 24× resolution so all such coordinates map to distinct integer keys.
@@ -720,5 +1006,58 @@ mod tests {
         assert!(path.contains(&(2.0, 0.0)));
         assert!(path.contains(&(2.0, 1.0)));
         assert!(path.contains(&(0.0, 1.0)));
+    }
+
+    #[test]
+    fn diff_full_minus_half_produces_smooth_contour() {
+        use crate::pixel::{PX_HALF1, PX_HALF2};
+        // Full pixel minus bottom-left triangle → top-right triangle.
+        let full = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
+        let half = make_grid(1, 1, &[PX_HALF1 | PX_FULL]);
+        let paths = track_contour_multi_diff(
+            &[(&full, 0, 0, false), (&half, 0, 0, true)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(paths.len(), 1, "should produce one contour");
+        let path = &paths[0];
+        // The result is the top-right triangle: (0,0)→(1,0)→(1,1)→(0,0).
+        assert!(path.contains(&(0.0, 0.0)), "missing (0,0): {path:?}");
+        assert!(path.contains(&(1.0, 0.0)), "missing (1,0): {path:?}");
+        assert!(path.contains(&(1.0, 1.0)), "missing (1,1): {path:?}");
+        // Should NOT have grid-like staircase points.
+        assert!(path.len() <= 4, "too many vertices (grid-like?): {path:?}");
+    }
+
+    #[test]
+    fn diff_adjacent_full_minus_half_produces_valid_contours() {
+        use crate::pixel::PX_HALF1;
+        // Two full pixels side by side; subtract bottom-left half from the right one.
+        // Result: full square on left + top-right triangle on right (share only a point,
+        // so they form two separate contours).
+        let full = make_grid(2, 1, &[PX_ALMOSTFULL | PX_FULL, PX_ALMOSTFULL | PX_FULL]);
+        let half = make_grid(1, 1, &[PX_HALF1 | PX_FULL]);
+        let paths = track_contour_multi_diff(
+            &[(&full, 0, 0, false), (&half, 0, 1, true)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(paths.len(), 2, "full square + triangle share only a point: {paths:?}");
+        // Neither contour should be grid-like (excessive vertices).
+        for path in &paths {
+            assert!(path.len() <= 5, "contour has too many vertices: {path:?}");
+        }
+    }
+
+    #[test]
+    fn diff_no_negated_delegates_to_multi() {
+        // Without any negated layers, should produce the same result as
+        // track_contour_multi.
+        let grid = make_grid(2, 1, &[PX_ALMOSTFULL | PX_FULL, PX_ALMOSTFULL | PX_FULL]);
+        let paths_multi = track_contour_multi(&[(&grid, 0, 0)], PX_SUBPIXEL);
+        let paths_diff = track_contour_multi_diff(
+            &[(&grid, 0, 0, false)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(paths_multi.len(), paths_diff.len());
+        assert_eq!(paths_multi[0].len(), paths_diff[0].len());
     }
 }
