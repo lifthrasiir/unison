@@ -84,6 +84,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                             name: substitute_name_parts(&r.name, &name_parts),
                             offset: r.offset,
                             negated: r.negated,
+                            fill: r.fill.clone(),
                         })
                         .collect();
                     match expand_glyph_block(&subst_name, &subst_refs) {

@@ -14,6 +14,7 @@ pub(crate) enum CompletionKind {
     Point,
     Keyword,
     GlyphFlag,
+    Color,
 }
 
 #[derive(Clone, Debug)]
@@ -299,7 +300,42 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
     let rest_token_idx = find_rest_token_at(rest, adj_col);
 
     match keyword {
-        "ref" | "exclude-from-sample" => {
+        "ref" => {
+            // After `fill` token, offer color completion
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
+                let after_fill = fill_pos + 1;
+                match rest_token_idx {
+                    Some(idx) if idx >= after_fill => {
+                        let val = &rest[idx].value;
+                        if val != "coloronly" && val != "monoonly" {
+                            return Some(CompletionContext {
+                                kind: CompletionKind::Color,
+                                prefix: word,
+                                replace_start: word_start,
+                            });
+                        }
+                    }
+                    None if adj_col > rest.last().map_or(0, |s| s.raw_end)
+                        && rest.len() == after_fill =>
+                    {
+                        return Some(CompletionContext {
+                            kind: CompletionKind::Color,
+                            prefix: word,
+                            replace_start: word_start,
+                        });
+                    }
+                    _ => {}
+                }
+            }
+            if rest_token_idx <= Some(0) || (rest.is_empty() && adj_col > spans[0].raw_end) {
+                return Some(CompletionContext {
+                    kind: CompletionKind::Glyph,
+                    prefix: word,
+                    replace_start: word_start,
+                });
+            }
+        }
+        "exclude-from-sample" => {
             if rest_token_idx <= Some(0) || (rest.is_empty() && adj_col > spans[0].raw_end) {
                 return Some(CompletionContext {
                     kind: CompletionKind::Glyph,
@@ -437,6 +473,32 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
                 }
             }
         }
+        "color" => {
+            // color NAME = VALUE [coloronly|monoonly]
+            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
+                let after_eq = eq_pos + 1;
+                match rest_token_idx {
+                    Some(idx) if idx >= after_eq => {
+                        let val = &rest[idx].value;
+                        if val != "coloronly" && val != "monoonly" {
+                            return Some(CompletionContext {
+                                kind: CompletionKind::Color,
+                                prefix: word,
+                                replace_start: word_start,
+                            });
+                        }
+                    }
+                    None if rest.len() == after_eq => {
+                        return Some(CompletionContext {
+                            kind: CompletionKind::Color,
+                            prefix: word,
+                            replace_start: word_start,
+                        });
+                    }
+                    _ => {}
+                }
+            }
+        }
         _ => {}
     }
 
@@ -482,6 +544,7 @@ fn collect_candidates(
                 "feature",
                 "font-meta",
                 "exclude-from-sample",
+                "color",
             ];
             for kw in &keywords {
                 candidates.push(CompletionCandidate {
@@ -543,6 +606,22 @@ fn collect_candidates(
                     kind: CompletionKind::GlyphFlag,
                 });
             }
+        }
+        CompletionKind::Color => {
+            candidates.push(CompletionCandidate {
+                label: "fg".to_string(),
+                kind: CompletionKind::Color,
+            });
+            for item in &source.doc.items {
+                if let DocumentItem::Color { name, .. } = item {
+                    candidates.push(CompletionCandidate {
+                        label: name.clone(),
+                        kind: CompletionKind::Color,
+                    });
+                }
+            }
+            candidates.sort_by(|a, b| a.label.cmp(&b.label));
+            candidates.dedup_by(|a, b| a.label == b.label);
         }
     }
 
@@ -640,5 +719,40 @@ mod tests {
     #[test]
     fn no_context_on_comment() {
         assert!(detect_context("# comment", 5).is_none());
+    }
+
+    #[test]
+    fn detect_color_after_color_eq() {
+        let ctx = detect_context("color red = ", 12).unwrap();
+        assert_eq!(ctx.kind, CompletionKind::Color);
+        assert_eq!(ctx.prefix, "");
+    }
+
+    #[test]
+    fn detect_color_after_color_eq_partial() {
+        let ctx = detect_context("color red = blu", 15).unwrap();
+        assert_eq!(ctx.kind, CompletionKind::Color);
+        assert_eq!(ctx.prefix, "blu");
+    }
+
+    #[test]
+    fn detect_color_after_ref_fill() {
+        let ctx = detect_context("ref foo 0 0 fill ", 17).unwrap();
+        assert_eq!(ctx.kind, CompletionKind::Color);
+        assert_eq!(ctx.prefix, "");
+    }
+
+    #[test]
+    fn detect_color_after_ref_fill_partial() {
+        let ctx = detect_context("ref foo 0 0 fill re", 19).unwrap();
+        assert_eq!(ctx.kind, CompletionKind::Color);
+        assert_eq!(ctx.prefix, "re");
+    }
+
+    #[test]
+    fn detect_color_keyword() {
+        let ctx = detect_context("col", 3).unwrap();
+        assert_eq!(ctx.kind, CompletionKind::Keyword);
+        assert_eq!(ctx.prefix, "col");
     }
 }

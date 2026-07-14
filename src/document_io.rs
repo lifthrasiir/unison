@@ -150,6 +150,74 @@ pub fn tokenize_with_spans(line: &str) -> std::result::Result<Vec<TokenSpan>, St
     Ok(tokens)
 }
 
+fn parse_visibility(s: &str) -> Option<LayerVisibility> {
+    match s {
+        "coloronly" => Some(LayerVisibility::ColorOnly),
+        "monoonly" => Some(LayerVisibility::MonoOnly),
+        _ => None,
+    }
+}
+
+/// Parse the tokens after `ref` into a `GlyphRef`.
+///
+/// Accepted forms:
+/// - `ref NAME`
+/// - `ref NAME negated`
+/// - `ref NAME COL ROW [negated]`
+/// - Any of the above followed by `fill COLOR [coloronly|monoonly]`
+fn parse_ref_line(parts: &[String]) -> Option<GlyphRef> {
+    if parts.is_empty() {
+        return None;
+    }
+    let name = parts[0].clone();
+    let mut idx = 1;
+    let mut offset: Option<(i16, i16)> = None;
+    let mut negated = false;
+
+    // Try to parse COL ROW
+    if idx + 1 < parts.len()
+        && let Ok(col) = parts[idx].parse::<i16>()
+        && let Ok(row) = parts[idx + 1].parse::<i16>()
+    {
+        offset = Some((col, row));
+        idx += 2;
+    }
+
+    // Parse `negated`
+    if idx < parts.len() && parts[idx] == "negated" {
+        negated = true;
+        idx += 1;
+    }
+
+    // Parse `fill COLOR [coloronly|monoonly]`
+    let fill = if idx < parts.len() && parts[idx] == "fill" {
+        idx += 1;
+        if idx >= parts.len() {
+            return None;
+        }
+        let color = parts[idx].clone();
+        idx += 1;
+        let visibility = if idx < parts.len() {
+            parse_visibility(&parts[idx])
+        } else {
+            None
+        };
+        if visibility.is_some() {
+            idx += 1;
+        }
+        Some(RefFill { color, visibility })
+    } else {
+        None
+    };
+
+    // Reject trailing garbage
+    if idx < parts.len() {
+        return None;
+    }
+
+    Some(GlyphRef { name, offset, negated, fill })
+}
+
 pub fn parse_document(path: &Path) -> Result<Document> {
     let content =
         std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
@@ -409,7 +477,8 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Directive(text) => writeln!(writer, "{text}")?,
             item @ DocumentItem::NameParts { .. }
             | item @ DocumentItem::Remap { .. }
-            | item @ DocumentItem::Feature { .. } => {
+            | item @ DocumentItem::Feature { .. }
+            | item @ DocumentItem::Color { .. } => {
                 if let Some(line) = item.serialize_line() {
                     writeln!(writer, "{line}")?;
                 }
@@ -475,22 +544,22 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
     }
     for r in &body.refs {
         let rname = quote_token(&r.name);
-        match r.offset {
-            Some((c, row)) => {
-                if r.negated {
-                    writeln!(writer, "ref {rname} {c} {row} negated")?;
-                } else {
-                    writeln!(writer, "ref {rname} {c} {row}")?;
-                }
-            }
-            None => {
-                if r.negated {
-                    writeln!(writer, "ref {rname} negated")?;
-                } else {
-                    writeln!(writer, "ref {rname}")?;
-                }
+        let mut parts = vec![format!("ref {rname}")];
+        if let Some((c, row)) = r.offset {
+            parts.push(format!("{c} {row}"));
+        }
+        if r.negated {
+            parts.push("negated".into());
+        }
+        if let Some(ref fill) = r.fill {
+            parts.push(format!("fill {}", quote_token(&fill.color)));
+            match fill.visibility {
+                Some(LayerVisibility::ColorOnly) => parts.push("coloronly".into()),
+                Some(LayerVisibility::MonoOnly) => parts.push("monoonly".into()),
+                Some(LayerVisibility::Both) | None => {}
             }
         }
+        writeln!(writer, "{}", parts.join(" "))?;
     }
     for p in &body.points {
         let col_s = if p.col == p.col_end {
@@ -729,6 +798,7 @@ pub fn derive_document(
                                 name: alias_name,
                                 offset: None,
                                 negated: false,
+                                fill: None,
                             });
                             item_line_starts.push(header_idx);
                             doc.items.push(DocumentItem::Glyph { name, body });
@@ -753,34 +823,7 @@ pub fn derive_document(
                                 Err(_) => break,
                             };
                             if sub_tokens.first().is_some_and(|t| t == "ref") {
-                                let ref_parts = &sub_tokens[1..];
-                                let parsed_ref = if ref_parts.len() == 1 {
-                                    Some(GlyphRef {
-                                        name: ref_parts[0].clone(),
-                                        offset: None,
-                                        negated: false,
-                                    })
-                                } else if ref_parts.len() == 2 && ref_parts[1] == "negated" {
-                                    Some(GlyphRef {
-                                        name: ref_parts[0].clone(),
-                                        offset: None,
-                                        negated: true,
-                                    })
-                                } else if (ref_parts.len() == 3
-                                    || (ref_parts.len() == 4 && ref_parts[3] == "negated"))
-                                    && let (Ok(col), Ok(row)) = (
-                                        ref_parts[1].parse::<i16>(),
-                                        ref_parts[2].parse::<i16>(),
-                                    )
-                                {
-                                    Some(GlyphRef {
-                                        name: ref_parts[0].clone(),
-                                        offset: Some((col, row)),
-                                        negated: ref_parts.len() == 4,
-                                    })
-                                } else {
-                                    None
-                                };
+                                let parsed_ref = parse_ref_line(&sub_tokens[1..]);
                                 let Some(parsed_ref) = parsed_ref else {
                                     break;
                                 };
@@ -808,6 +851,24 @@ pub fn derive_document(
                     "name-parts" | "remap" | "feature" => {
                         item_line_starts.push(i);
                         doc.items.push(DocumentItem::parse_directive(&tokens));
+                        i += 1;
+                    }
+                    "color" => {
+                        item_line_starts.push(i);
+                        if tokens.len() >= 4 && tokens[2] == "=" {
+                            let visibility = match tokens.get(4).map(|s| s.as_str()) {
+                                Some("coloronly") => Some(LayerVisibility::ColorOnly),
+                                Some("monoonly") => Some(LayerVisibility::MonoOnly),
+                                _ => None,
+                            };
+                            doc.items.push(DocumentItem::Color {
+                                name: tokens[1].clone(),
+                                value: tokens[3].clone(),
+                                visibility,
+                            });
+                        } else {
+                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                        }
                         i += 1;
                     }
                     _ => {
@@ -1571,6 +1632,88 @@ exclude-from-sample stem
         assert_eq!(spans[2].value, "8");
         assert_eq!(spans[2].raw_start, 12);
         assert_eq!(spans[2].raw_end, 13);
+    }
+
+    #[test]
+    fn roundtrip_color_directive() {
+        let input = "color red = #ff0000\ncolor blue = #0000ffcc coloronly\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert_eq!(doc.items.len(), 2);
+        if let DocumentItem::Color { name, value, visibility } = &doc.items[0] {
+            assert_eq!(name, "red");
+            assert_eq!(value, "#ff0000");
+            assert!(visibility.is_none());
+        } else {
+            panic!("expected Color");
+        }
+        if let DocumentItem::Color { name, value, visibility } = &doc.items[1] {
+            assert_eq!(name, "blue");
+            assert_eq!(value, "#0000ffcc");
+            assert_eq!(*visibility, Some(LayerVisibility::ColorOnly));
+        } else {
+            panic!("expected Color");
+        }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, input);
+    }
+
+    #[test]
+    fn roundtrip_ref_fill() {
+        let input = "\
+glyph combo
+ref part-a fill #ff0000
+ref part-b 2 3 fill fg coloronly
+ref part-c fill blue monoonly
+";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert_eq!(doc.items.len(), 1);
+        if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
+            assert_eq!(body.refs.len(), 3);
+            let r0 = &body.refs[0];
+            assert_eq!(r0.name, "part-a");
+            assert_eq!(r0.offset, None);
+            let f0 = r0.fill.as_ref().unwrap();
+            assert_eq!(f0.color, "#ff0000");
+            assert!(f0.visibility.is_none());
+
+            let r1 = &body.refs[1];
+            assert_eq!(r1.name, "part-b");
+            assert_eq!(r1.offset, Some((2, 3)));
+            let f1 = r1.fill.as_ref().unwrap();
+            assert_eq!(f1.color, "fg");
+            assert_eq!(f1.visibility, Some(LayerVisibility::ColorOnly));
+
+            let r2 = &body.refs[2];
+            assert_eq!(r2.fill.as_ref().unwrap().color, "blue");
+            assert_eq!(r2.fill.as_ref().unwrap().visibility, Some(LayerVisibility::MonoOnly));
+        } else {
+            panic!("expected Glyph");
+        }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, input);
+    }
+
+    #[test]
+    fn ref_fill_negated_combined() {
+        let input = "glyph foo\nref bar 1 2 negated fill #00ff00\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
+            let r = &body.refs[0];
+            assert_eq!(r.name, "bar");
+            assert_eq!(r.offset, Some((1, 2)));
+            assert!(r.negated);
+            assert_eq!(r.fill.as_ref().unwrap().color, "#00ff00");
+        } else {
+            panic!("expected Glyph");
+        }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, input);
     }
 }
 

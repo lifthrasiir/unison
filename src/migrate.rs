@@ -516,7 +516,7 @@ pub fn migrate_file(
                     let row = roff + def_off.0;
                     let col = coff + def_off.1;
                     let offset = glyph_ref_offset(row, col, explicit);
-                    GlyphRef { name, offset, negated }
+                    GlyphRef { name, offset, negated, fill: None }
                 })
                 .collect();
 
@@ -651,7 +651,7 @@ pub fn migrate_file(
         let make_ref =
             |row: i16, col: i16, name: String, negated: bool, explicit: bool| -> GlyphRef {
             let offset = glyph_ref_offset(row, col, explicit);
-            GlyphRef { name, offset, negated }
+            GlyphRef { name, offset, negated, fill: None }
         };
         let refs: Vec<GlyphRef> = accum
             .specs
@@ -1209,7 +1209,7 @@ fn emit_map_glyph(
             let row = roff + def_off.0;
             let col = coff + def_off.1;
             let offset = glyph_ref_offset(row, col, explicit);
-            GlyphRef { name: lname, offset, negated }
+            GlyphRef { name: lname, offset, negated, fill: None }
         })
         .collect();
 
@@ -1290,7 +1290,7 @@ fn expand_map_items(
             let row = roff + def_off.0;
             let col = coff + def_off.1;
             let offset = glyph_ref_offset(row, col, explicit);
-            GlyphRef { name: unexpanded_name.to_lowercase(), offset, negated }
+            GlyphRef { name: unexpanded_name.to_lowercase(), offset, negated, fill: None }
         })
         .collect();
 

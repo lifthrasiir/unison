@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
 use crate::document::{DocLine, Document, DocumentItem, NamePartsMap, PixelGrid};
-use crate::document_io;
+use crate::document_io::{self, tokenize_with_spans};
 use crate::editor::caret::{self, Caret};
+use crate::render::ttf_builder::ColorAliasMap;
 use crate::editor::doc_input;
 use crate::editor::doc_links::{self, LinkSpan, LinkTargetKind, RenameKind};
 use crate::editor::grid_render;
@@ -221,6 +222,7 @@ pub fn show_document(
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     alt_index: &crate::editor::ref_composite::AlternativesIndex,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
     zoom_level: u32,
     font_id: &egui::FontId,
 ) -> DocumentViewResult {
@@ -256,7 +258,7 @@ pub fn show_document(
         }
     };
 
-    let composites = grid_render::build_composites(doc, named_glyphs, name_parts, alt_index);
+    let composites = grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
     let vlines = visual_lines::build_visual_lines(
         lines,
         doc,
@@ -611,6 +613,12 @@ pub fn show_document(
                         text,
                         font_id.clone(),
                         vl.color,
+                    );
+
+                    // Color background for color tokens in color/ref-fill lines
+                    paint_color_backgrounds(
+                        &painter, ui, &font_id, text, vl.col_offset,
+                        origin.x + LEFT_PAD, origin.y + y, h, color_aliases,
                     );
 
                     if !vl.error_spans.is_empty() {
@@ -1066,6 +1074,7 @@ pub fn show_document(
                     LinkTargetKind::Glyph => 0,
                     LinkTargetKind::NameParts => 1,
                     LinkTargetKind::Remap => 2,
+                    LinkTargetKind::Color => 3,
                 };
                 ui.ctx().data_mut(|d| {
                     d.insert_temp(egui::Id::new("goto_cross_file"), target_name.clone());
@@ -1323,6 +1332,7 @@ pub fn show_document(
                             RenameKind::Glyph => "Rename glyph",
                             RenameKind::NameParts => "Rename name-parts",
                             RenameKind::Point => "Rename point",
+                            RenameKind::Color => "Rename color",
                         },
                         _ => "Rename",
                     };
@@ -1410,6 +1420,7 @@ pub fn show_document(
                             crate::editor::autocomplete::CompletionKind::Point => "P",
                             crate::editor::autocomplete::CompletionKind::Keyword => "K",
                             crate::editor::autocomplete::CompletionKind::GlyphFlag => "F",
+                            crate::editor::autocomplete::CompletionKind::Color => "C",
                         };
                         let text = format!("{kind_char}  {}", candidate.label);
                         if ui.selectable_label(selected, &text).clicked() {
@@ -2048,6 +2059,105 @@ pub fn apply_edit_action_to_editor(
     state.apply_edit_action(action, lines, ctx)
 }
 
+fn resolve_color_for_display(
+    token: &str,
+    aliases: &ColorAliasMap,
+) -> Option<egui::Color32> {
+    if token == "fg" {
+        return None;
+    }
+    if token.starts_with('#') {
+        let rgba = crate::render::ttf_builder::parse_hex_color(token)?;
+        return Some(egui::Color32::from_rgba_unmultiplied(rgba.r, rgba.g, rgba.b, rgba.a));
+    }
+    let (rgba, _) = aliases.get(token)?;
+    Some(egui::Color32::from_rgba_unmultiplied(rgba.r, rgba.g, rgba.b, rgba.a))
+}
+
+fn contrast_text_color(bg: egui::Color32) -> egui::Color32 {
+    let [r, g, b, _] = bg.to_array();
+    let luma = 0.299 * r as f32 + 0.587 * g as f32 + 0.114 * b as f32;
+    if luma > 128.0 {
+        egui::Color32::BLACK
+    } else {
+        egui::Color32::WHITE
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn paint_color_backgrounds(
+    painter: &egui::Painter,
+    ui: &egui::Ui,
+    font_id: &egui::FontId,
+    text: &str,
+    col_offset: usize,
+    base_x: f32,
+    base_y: f32,
+    row_h: f32,
+    aliases: &ColorAliasMap,
+) {
+    let trimmed = text.trim_start();
+    let leading = text.chars().count() - trimmed.chars().count();
+    let spans = match tokenize_with_spans(trimmed) {
+        Ok(s) if !s.is_empty() => s,
+        _ => return,
+    };
+    let keyword = spans[0].value.as_str();
+    let rest = &spans[1..];
+
+    let mut color_spans: Vec<(usize, usize, egui::Color32)> = Vec::new();
+
+    match keyword {
+        "color" => {
+            if rest.len() >= 3 && rest[1].value == "=" {
+                let val_span = &rest[2];
+                if let Some(color) = resolve_color_for_display(&val_span.value, aliases) {
+                    color_spans.push((
+                        leading + val_span.raw_start,
+                        leading + val_span.raw_end,
+                        color,
+                    ));
+                }
+            }
+        }
+        "ref" => {
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
+                if let Some(color_span) = rest.get(fill_pos + 1) {
+                    if let Some(color) = resolve_color_for_display(&color_span.value, aliases) {
+                        color_spans.push((
+                            leading + color_span.raw_start,
+                            leading + color_span.raw_end,
+                            color,
+                        ));
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+
+    for (col_start, col_end, bg_color) in &color_spans {
+        let adj_start = col_start.saturating_sub(col_offset);
+        let adj_end = col_end.saturating_sub(col_offset);
+        let x0 = base_x + grid_render::char_x_pos(ui, font_id, text, adj_start);
+        let x1 = base_x + grid_render::char_x_pos(ui, font_id, text, adj_end);
+        let rect = egui::Rect::from_min_size(
+            egui::pos2(x0, base_y),
+            egui::vec2(x1 - x0, row_h),
+        );
+        painter.rect_filled(rect, 0.0, *bg_color);
+        let token_text: String = text.chars().skip(adj_start).take(adj_end - adj_start).collect();
+        let fg = contrast_text_color(*bg_color);
+        painter.text(
+            egui::pos2(x0, base_y),
+            egui::Align2::LEFT_TOP,
+            &token_text,
+            font_id.clone(),
+            fg,
+        );
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2125,7 +2235,8 @@ mod tests {
                     | DocumentItem::Map { .. }
                     | DocumentItem::NameParts { .. }
                     | DocumentItem::Remap { .. }
-                    | DocumentItem::Feature { .. } => start + 1,
+                    | DocumentItem::Feature { .. }
+                    | DocumentItem::Color { .. } => start + 1,
                     DocumentItem::Glyph { body, .. } => {
                         let is_alias = body.is_simple_alias();
                         if is_alias {

@@ -59,6 +59,7 @@ pub struct UniformApp {
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
+    color_aliases: crate::render::ttf_builder::ColorAliasMap,
     named_glyphs_gen: u64,
     derived_data_tx: mpsc::Sender<DerivedDataMessage>,
     derived_data_rx: mpsc::Receiver<DerivedDataMessage>,
@@ -160,6 +161,7 @@ impl UniformApp {
             named_glyphs: HashMap::new(),
             alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
+            color_aliases: Default::default(),
             named_glyphs_gen: u64::MAX,
             derived_data_tx,
             derived_data_rx,
@@ -312,6 +314,9 @@ impl UniformApp {
                     LinkTargetKind::Remap => doc.items.iter().any(|item| {
                         matches!(item, DocumentItem::Remap { feature: f, .. } if f == name)
                     }),
+                    LinkTargetKind::Color => doc.items.iter().any(|item| {
+                        matches!(item, DocumentItem::Color { name: n, .. } if n == name)
+                    }),
                 };
                 has_match.then(|| doc.path.clone())
             })
@@ -396,6 +401,7 @@ impl UniformApp {
                 RenameKind::Glyph => "glyph",
                 RenameKind::NameParts => "name-parts",
                 RenameKind::Point => "point",
+                RenameKind::Color => "color",
             };
             self.set_status(format!(
                 "Renamed {} '{}' → '{}' ({} file{})",
@@ -819,6 +825,9 @@ impl eframe::App for UniformApp {
             self.named_glyphs_gen = data_gen;
             self.issues = issues;
             self.issues_gen = data_gen;
+            let all_docs = self.collect_all_docs();
+            let doc_refs: Vec<&Document> = all_docs.iter().copied().collect();
+            self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);
         }
 
         let theme_before = ctx.options(|o| o.theme_preference);
@@ -1323,6 +1332,7 @@ impl eframe::App for UniformApp {
                         &self.named_glyphs,
                         &self.name_parts,
                         &self.alt_index,
+                        &self.color_aliases,
                         self.zoom_level,
                         &editor_font_id,
                     );
@@ -1502,6 +1512,7 @@ fn rename_in_lines(
             RenameKind::Glyph => rename_glyph_in_line(trimmed, s, old_name, new_name),
             RenameKind::NameParts => rename_name_parts_in_line(trimmed, s, old_name, new_name),
             RenameKind::Point => rename_point_in_line(trimmed, s, old_name, new_name),
+            RenameKind::Color => rename_color_in_line(trimmed, s, old_name, new_name),
         };
 
         match new_text {
@@ -1767,6 +1778,49 @@ fn rename_point_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &st
 
     let after = if parts.len() > 1 { format!(" {}", parts[1]) } else { String::new() };
     Some(format!("{leading}{keyword} {prefix_char}{new_name}{after}"))
+}
+
+fn rename_color_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &str) -> Option<String> {
+    let leading = &full[..full.len() - trimmed.len()];
+    let tokens = crate::document_io::tokenize_tokens(trimmed).ok()?;
+    if tokens.is_empty() {
+        return None;
+    }
+
+    let mut changed = false;
+    let mut new_tokens = tokens.clone();
+
+    match tokens[0].as_str() {
+        "color" => {
+            if tokens.len() >= 4 && tokens[2] == "=" {
+                if tokens[1] == old_name {
+                    new_tokens[1] = new_name.to_string();
+                    changed = true;
+                }
+                if tokens[3] == old_name {
+                    new_tokens[3] = new_name.to_string();
+                    changed = true;
+                }
+            }
+        }
+        "ref" => {
+            if let Some(fill_pos) = tokens.iter().position(|t| t == "fill") {
+                if let Some(color_val) = tokens.get(fill_pos + 1) {
+                    if color_val == old_name {
+                        new_tokens[fill_pos + 1] = new_name.to_string();
+                        changed = true;
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+
+    if !changed {
+        return None;
+    }
+    let quoted: Vec<String> = new_tokens.iter().map(|t| crate::document_io::quote_token(t)).collect();
+    Some(format!("{leading}{}", quoted.join(" ")))
 }
 
 #[cfg(test)]

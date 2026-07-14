@@ -201,6 +201,7 @@ impl EditorHarness {
                     &self.named_glyphs,
                     &self.name_parts,
                     &self.alt_index,
+                    &Default::default(),
                     self.zoom,
                     &self.font_id,
                 );

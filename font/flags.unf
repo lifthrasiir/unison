@@ -63,7 +63,7 @@ glyph regional-indicator-($a-z)-left 16 16
 ref regional-indicator-left
 ref ($a-z)-upper 4 -1
 
-glyph regional-indicator-($a-z)-right 8 16 left -4 advance 8
+glyph regional-indicator-($a-z)-right 8 16 advance 8
 ref regional-indicator-right
 ref ($a-z)-upper -4 -1
 

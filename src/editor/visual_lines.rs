@@ -305,7 +305,8 @@ pub(crate) fn build_visual_lines(
             | DocumentItem::Map { .. }
             | DocumentItem::NameParts { .. }
             | DocumentItem::Remap { .. }
-            | DocumentItem::Feature { .. } => {
+            | DocumentItem::Feature { .. }
+            | DocumentItem::Color { .. } => {
                 if let Some(DocLine::Text(s)) = lines.get(item_start) {
                     push_wrapped_text_vlines(
                         &mut vlines,

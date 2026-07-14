@@ -323,6 +323,7 @@ mod tests {
             name: "part".into(),
             offset: Some((1, 0)),
             negated: false,
+            fill: None,
         };
         assert_eq!(format_dragged_ref(&normal, 0, 0), "ref part 0 0");
 
@@ -349,6 +350,7 @@ mod tests {
                 logical_offset_row: 4,
                 logical_offset_col: 5,
                 negated: false,
+                fill_color: None,
             }],
         };
         assert_eq!(layer_effective_offset(&composite, 7), Some((4, 5)));

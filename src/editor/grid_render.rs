@@ -45,11 +45,12 @@ pub(crate) fn build_composites(
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     alt_index: &ref_composite::AlternativesIndex,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
 ) -> HashMap<usize, GlyphComposite> {
     let mut composites = HashMap::new();
     for (idx, item) in doc.items.iter().enumerate() {
         if let DocumentItem::Glyph { body, .. } = item
-            && let Some(comp) = ref_composite::compute_composite(body, named_glyphs, name_parts, alt_index)
+            && let Some(comp) = ref_composite::compute_composite(body, named_glyphs, name_parts, alt_index, color_aliases)
         {
             composites.insert(idx, comp);
         }
@@ -130,7 +131,9 @@ pub(crate) fn render_grid_row(
             if Some(layer.ref_idx) == active_ref {
                 continue;
             }
-            let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx);
+            let color = layer.fill_color.unwrap_or_else(||
+                ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx)
+            );
             let opacity = if is_layer_mode { 0.35 } else { 1.0 };
             let color = if opacity < 1.0 {
                 apply_opacity(color, opacity)
@@ -254,7 +257,9 @@ pub(crate) fn render_grid_row(
         && let Some(comp) = composite
         && let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == active)
     {
-        let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx);
+        let color = layer.fill_color.unwrap_or_else(||
+            ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx)
+        );
         for dc in extent.left..extent.right {
             let lr_in_layer = comp.own_offset_row + row - layer.offset_row;
             let lc_in_layer = comp.own_offset_col + dc - layer.offset_col;

@@ -14,6 +14,7 @@ pub enum LinkTargetKind {
     Glyph,
     NameParts,
     Remap,
+    Color,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -21,6 +22,7 @@ pub enum RenameKind {
     Glyph,
     NameParts,
     Point,
+    Color,
 }
 
 #[derive(Clone, Debug)]
@@ -115,7 +117,20 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
                 Some(s) if !s.value.is_empty() => s,
                 _ => return Vec::new(),
             };
-            extract_glyph_and_parts_links(&name_span.value, leading + name_span.raw_start)
+            let mut links = extract_glyph_and_parts_links(&name_span.value, leading + name_span.raw_start);
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
+                if let Some(color_span) = rest.get(fill_pos + 1) {
+                    if !color_span.value.starts_with('#') && color_span.value != "fg" && !color_span.value.is_empty() {
+                        links.push(LinkSpan {
+                            col_start: leading + color_span.raw_start,
+                            col_end: leading + color_span.raw_end,
+                            target: color_span.value.clone(),
+                            kind: LinkTargetKind::Color,
+                        });
+                    }
+                }
+            }
+            links
         }
         "glyph" => {
             if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
@@ -170,6 +185,21 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
                         col_end: leading + remap_span.raw_end,
                         target: remap_span.value.clone(),
                         kind: LinkTargetKind::Remap,
+                    }];
+                }
+            }
+            Vec::new()
+        }
+        "color" => {
+            // color NAME = VALUE [coloronly|monoonly]
+            if rest.len() >= 3 && rest[1].value == "=" {
+                let value_span = &rest[2];
+                if !value_span.value.starts_with('#') && !value_span.value.is_empty() {
+                    return vec![LinkSpan {
+                        col_start: leading + value_span.raw_start,
+                        col_end: leading + value_span.raw_end,
+                        target: value_span.value.clone(),
+                        kind: LinkTargetKind::Color,
                     }];
                 }
             }
@@ -315,6 +345,25 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
             if name_span.value.is_empty() {
                 return None;
             }
+            // Check if cursor is on a fill color name
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
+                if let Some(color_span) = rest.get(fill_pos + 1) {
+                    let cs = leading + color_span.raw_start;
+                    let ce = leading + color_span.raw_end;
+                    if col >= cs && col <= ce
+                        && !color_span.value.starts_with('#')
+                        && color_span.value != "fg"
+                        && !color_span.value.is_empty()
+                    {
+                        return Some(RenameTarget {
+                            name: color_span.value.clone(),
+                            kind: RenameKind::Color,
+                            col_start: cs,
+                            col_end: ce,
+                        });
+                    }
+                }
+            }
             simple_glyph_rename(name_span, leading, col)
         }
         "name-parts" => {
@@ -377,6 +426,37 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
             }
             simple_glyph_rename(name_span, leading, col)
         }
+        "color" => {
+            // color NAME = VALUE [coloronly|monoonly]
+            if rest.len() >= 3 && rest[1].value == "=" {
+                let def_span = &rest[0];
+                let def_start = leading + def_span.raw_start;
+                let def_end = leading + def_span.raw_end;
+                if col >= def_start && col <= def_end {
+                    return Some(RenameTarget {
+                        name: def_span.value.clone(),
+                        kind: RenameKind::Color,
+                        col_start: def_start,
+                        col_end: def_end,
+                    });
+                }
+                let value_span = &rest[2];
+                let vs = leading + value_span.raw_start;
+                let ve = leading + value_span.raw_end;
+                if col >= vs && col <= ve
+                    && !value_span.value.starts_with('#')
+                    && !value_span.value.is_empty()
+                {
+                    return Some(RenameTarget {
+                        name: value_span.value.clone(),
+                        kind: RenameKind::Color,
+                        col_start: vs,
+                        col_end: ve,
+                    });
+                }
+            }
+            None
+        }
         _ => None,
     }
 }
@@ -428,6 +508,21 @@ pub fn find_link_target_in_doc(
                                     return Some(i);
                                 }
                             }
+                        }
+                    }
+                }
+            }
+            None
+        }
+        LinkTargetKind::Color => {
+            for (i, line) in lines.iter().enumerate() {
+                if let DocLine::Text(s) = line {
+                    let trimmed = s.trim();
+                    if let Ok(tokens) = tokenize_tokens(trimmed) {
+                        if tokens.first().is_some_and(|t| t == "color")
+                            && tokens.get(1).is_some_and(|t| t == name)
+                        {
+                            return Some(i);
                         }
                     }
                 }
@@ -572,5 +667,77 @@ mod rename_detection_tests {
     #[test]
     fn comment_line() {
         assert!(find_renameable_at_caret("# some comment", 2).is_none());
+    }
+
+    #[test]
+    fn color_def_name() {
+        let t = find_renameable_at_caret("color red = #ff0000", 6).unwrap();
+        assert_eq!(t.name, "red");
+        assert_eq!(t.kind, RenameKind::Color);
+    }
+
+    #[test]
+    fn color_def_value_hex_is_renameable() {
+        // Hex values are not color name references, but they are still renameable
+        // (a hex value is not a color name, so no rename target)
+        assert!(find_renameable_at_caret("color red = #ff0000", 12).is_none());
+    }
+
+    #[test]
+    fn color_def_value_name_ref() {
+        let t = find_renameable_at_caret("color light-red = red", 18).unwrap();
+        assert_eq!(t.name, "red");
+        assert_eq!(t.kind, RenameKind::Color);
+    }
+
+    #[test]
+    fn ref_fill_color_name() {
+        let t = find_renameable_at_caret("ref foo 0 0 fill red", 17).unwrap();
+        assert_eq!(t.name, "red");
+        assert_eq!(t.kind, RenameKind::Color);
+    }
+
+    #[test]
+    fn ref_fill_fg_not_renameable() {
+        assert!(find_renameable_at_caret("ref foo 0 0 fill fg", 17).is_none());
+    }
+
+    #[test]
+    fn ref_fill_hex_not_renameable() {
+        assert!(find_renameable_at_caret("ref foo 0 0 fill #ff0000", 17).is_none());
+    }
+
+    #[test]
+    fn color_links_value_name() {
+        let links = extract_line_links("color light-red = red");
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].target, "red");
+        assert!(matches!(links[0].kind, LinkTargetKind::Color));
+    }
+
+    #[test]
+    fn color_links_value_hex_no_link() {
+        let links = extract_line_links("color red = #ff0000");
+        assert!(links.is_empty());
+    }
+
+    #[test]
+    fn ref_fill_links_color_name() {
+        let links = extract_line_links("ref foo 0 0 fill red");
+        // Should have glyph link for 'foo' AND color link for 'red'
+        assert!(links.iter().any(|l| l.target == "red" && matches!(l.kind, LinkTargetKind::Color)));
+        assert!(links.iter().any(|l| l.target == "foo" && matches!(l.kind, LinkTargetKind::Glyph)));
+    }
+
+    #[test]
+    fn ref_fill_links_fg_no_color_link() {
+        let links = extract_line_links("ref foo 0 0 fill fg");
+        assert!(!links.iter().any(|l| matches!(l.kind, LinkTargetKind::Color)));
+    }
+
+    #[test]
+    fn ref_fill_links_hex_no_color_link() {
+        let links = extract_line_links("ref foo 0 0 fill #ff0000");
+        assert!(!links.iter().any(|l| matches!(l.kind, LinkTargetKind::Color)));
     }
 }

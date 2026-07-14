@@ -58,12 +58,26 @@ impl PixelGrid {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LayerVisibility {
+    Both,
+    ColorOnly,
+    MonoOnly,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RefFill {
+    pub color: String,
+    pub visibility: Option<LayerVisibility>,
+}
+
 #[derive(Clone, Debug)]
 pub struct GlyphRef {
     pub name: String,
     /// `(col, row)` offset. `None` = auto-resolve from points (adjoin), defaulting to (0, 0).
     pub offset: Option<(i16, i16)>,
     pub negated: bool,
+    pub fill: Option<RefFill>,
 }
 
 impl GlyphRef {
@@ -136,6 +150,7 @@ impl GlyphBody {
             && self.refs.len() == 1
             && self.refs[0].offset.is_none()
             && !self.refs[0].negated
+            && self.refs[0].fill.is_none()
             && self.points.is_empty()
             && !self.sticky
             && !self.inline
@@ -186,6 +201,12 @@ pub enum DocumentItem {
         name: String,
         scripts: Vec<String>,
         remap_group: String,
+    },
+    /// `color NAME = #xxxxxx[xx]|COLORNAME [coloronly|monoonly]`
+    Color {
+        name: String,
+        value: String,
+        visibility: Option<LayerVisibility>,
     },
 }
 
@@ -359,6 +380,14 @@ impl DocumentItem {
                     qscripts.join(" "),
                     quote_token(remap_group),
                 ))
+            }
+            DocumentItem::Color { name, value, visibility } => {
+                let vis = match visibility {
+                    Some(LayerVisibility::ColorOnly) => " coloronly",
+                    Some(LayerVisibility::MonoOnly) => " monoonly",
+                    _ => "",
+                };
+                Some(format!("color {} = {}{}", quote_token(name), quote_token(value), vis))
             }
             _ => None,
         }
@@ -866,6 +895,7 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<Doc
                 name: expand_segments_at(segs, i),
                 offset: *offset,
                 negated: *negated,
+                fill: None,
             })
             .collect();
 
@@ -941,6 +971,7 @@ mod tests {
             name: name.to_string(),
             offset: None,
             negated: false,
+            fill: None,
         }
     }
 

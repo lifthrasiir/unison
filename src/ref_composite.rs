@@ -164,6 +164,7 @@ where
                         name: alt_name.clone(),
                         offset: None,
                         negated: gref.negated,
+                        fill: gref.fill.clone(),
                     };
                     commit_ref(
                         &alt_gref,
@@ -234,6 +235,7 @@ where
             name: resolved_name,
             offset: gref.offset,
             negated: gref.negated,
+            fill: gref.fill.clone(),
         };
         commit_ref(
             &resolved_gref,
@@ -284,6 +286,7 @@ fn commit_ref(
         name: gref.name.clone(),
         offset: Some(offset),
         negated: gref.negated,
+        fill: gref.fill.clone(),
     };
     let off_col = effective.col();
     let off_row = effective.row();
@@ -398,6 +401,7 @@ pub fn resolve_named_glyphs_with_parts(
                                     name: substitute_name_parts(&r.name, name_parts),
                                     offset: r.offset,
                                     negated: r.negated,
+                                    fill: r.fill.clone(),
                                 })
                                 .collect();
 
@@ -444,6 +448,7 @@ pub fn resolve_named_glyphs_with_parts(
                                     name: rname,
                                     offset: r.offset,
                                     negated: r.negated,
+                                    fill: r.fill.clone(),
                                 }
                             })
                             .collect();
@@ -560,6 +565,7 @@ pub struct CompositeLayer {
     pub logical_offset_row: i16,
     pub logical_offset_col: i16,
     pub negated: bool,
+    pub fill_color: Option<egui::Color32>,
 }
 
 pub fn resolve_ref_name<'a>(
@@ -691,12 +697,29 @@ pub(crate) fn composite_bounds(
     (min_r, min_c, max_r, max_c)
 }
 
+#[cfg(feature = "editor")]
+fn resolve_fill_display_color(
+    fill: &crate::document::RefFill,
+    aliases: &crate::render::ttf_builder::ColorAliasMap,
+) -> Option<egui::Color32> {
+    if fill.color == "fg" {
+        return None;
+    }
+    if fill.color.starts_with('#') {
+        let rgba = crate::render::ttf_builder::parse_hex_color(&fill.color)?;
+        return Some(egui::Color32::from_rgba_unmultiplied(rgba.r, rgba.g, rgba.b, rgba.a));
+    }
+    let (rgba, _) = aliases.get(&fill.color)?;
+    Some(egui::Color32::from_rgba_unmultiplied(rgba.r, rgba.g, rgba.b, rgba.a))
+}
+
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn compute_composite(
     body: &GlyphBody,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     alt_index: &AlternativesIndex,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
 ) -> Option<GlyphComposite> {
     if body.refs.is_empty() {
         return None;
@@ -726,6 +749,19 @@ pub fn compute_composite(
     for (idx, gref) in effective_refs.iter().enumerate() {
         if let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
             let (raster_row, raster_col) = ref_effective_offset(gref, resolved);
+            let orig_ref = &body.refs[idx.min(body.refs.len() - 1)];
+            let fill_color = {
+                #[cfg(feature = "editor")]
+                {
+                    orig_ref.fill.as_ref().and_then(|f| resolve_fill_display_color(f, color_aliases))
+                }
+                #[cfg(not(feature = "editor"))]
+                {
+                    let _ = color_aliases;
+                    let _ = &orig_ref.fill;
+                    None
+                }
+            };
             layers.push(CompositeLayer {
                 ref_idx: idx,
                 resolved_name: gref.name.clone(),
@@ -735,6 +771,7 @@ pub fn compute_composite(
                 logical_offset_row: gref.row(),
                 logical_offset_col: gref.col(),
                 negated: gref.negated,
+                fill_color,
             });
         }
     }
@@ -862,6 +899,7 @@ mod tests {
             name: "digit(0|1)".to_string(),
             offset: None,
             negated: false,
+            fill: None,
         }];
 
         // compute_composite resolves the pattern ref via resolve_ref_name's
@@ -871,7 +909,7 @@ mod tests {
             ..GlyphBody::new()
         };
         let empty_parts = NamePartsMap::new();
-        let composite = compute_composite(&body, &cache, &empty_parts, &AlternativesIndex::default()).expect("has refs");
+        let composite = compute_composite(&body, &cache, &empty_parts, &AlternativesIndex::default(), &Default::default()).expect("has refs");
         assert_eq!(
             composite.layers.len(),
             1,
@@ -972,7 +1010,7 @@ ref target
         })
         .unwrap();
         assert_eq!(container_body.refs[0].offset, None);
-        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx).unwrap();
+        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
         assert_eq!(
             (
                 composite.layers[0].offset_row - composite.own_offset_row,
@@ -1003,7 +1041,7 @@ ref target
         })
         .unwrap();
         assert_eq!(container_body.refs[0].offset, None);
-        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx).unwrap();
+        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
         assert_eq!(
             (
                 composite.layers[0].offset_row - composite.own_offset_row,
@@ -1222,7 +1260,7 @@ ref stem
                 _ => None,
             })
             .unwrap();
-        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx).unwrap();
+        let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
         assert_eq!(composite.layers[0].resolved_name, "stem:wide");
     }
 
@@ -1265,7 +1303,7 @@ ref base
                 _ => None,
             })
             .unwrap();
-        let composite = compute_composite(host_body, &resolved, &name_parts, &_alt_idx).unwrap();
+        let composite = compute_composite(host_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
         // base:aaa comes before base:zzz alphabetically.
         assert_eq!(composite.layers[0].resolved_name, "base:aaa");
     }
@@ -1315,8 +1353,8 @@ ref ($ab)-inner
         let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
         let b_refs = vec![
-            GlyphRef { name: "enclosing".to_string(), offset: None, negated: false },
-            GlyphRef { name: "b-inner".to_string(), offset: None, negated: false },
+            GlyphRef { name: "enclosing".to_string(), offset: None, negated: false, fill: None },
+            GlyphRef { name: "b-inner".to_string(), offset: None, negated: false, fill: None },
         ];
         let (effective, _) = derive_ref_offsets_with(
             &[],
