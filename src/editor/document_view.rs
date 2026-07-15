@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::document::{DocLine, Document, DocumentItem, NamePartsMap, PixelGrid};
+use crate::document::{DocLine, Document, DocumentItem, GlyphPoint, NamePartsMap, PixelGrid};
 use crate::document_io::{self, tokenize_with_spans};
 use crate::editor::caret::{self, Caret};
 use crate::render::ttf_builder::ColorAliasMap;
@@ -90,8 +90,9 @@ impl GridExtent {
 pub(crate) fn compute_grid_display_extent(
     pixels: Option<&PixelGrid>,
     composite: Option<&GlyphComposite>,
+    points: &[GlyphPoint],
 ) -> (u16, u16, GridExtent) {
-    if let Some(grid) = pixels {
+    let (own_w, own_h, mut extent) = if let Some(grid) = pixels {
         let own_w = grid.width;
         let own_h = grid.height;
         if let Some(comp) = composite {
@@ -126,7 +127,16 @@ pub(crate) fn compute_grid_display_extent(
                 right: 0,
             },
         )
+    };
+
+    for pt in points {
+        extent.top = extent.top.min(pt.row);
+        extent.left = extent.left.min(pt.col);
+        extent.bottom = extent.bottom.max(pt.row_end + 1);
+        extent.right = extent.right.max(pt.col_end + 1);
     }
+
+    (own_w, own_h, extent)
 }
 
 // ---------------------------------------------------------------------------

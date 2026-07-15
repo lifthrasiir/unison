@@ -401,7 +401,7 @@ pub(crate) fn build_visual_lines(
                 if let Some(grid) = &body.pixels {
                     let grid_doc_line = cur;
                     let (own_w, own_h, extent) =
-                        compute_grid_display_extent(Some(grid), composites.get(&item_idx));
+                        compute_grid_display_extent(Some(grid), composites.get(&item_idx), &body.points);
                     push_grid_vlines(
                         &mut vlines,
                         item_idx,
@@ -436,7 +436,7 @@ pub(crate) fn build_visual_lines(
                         font_id,
                     );
 
-                    let (own_w, own_h, extent) = compute_grid_display_extent(None, Some(comp));
+                    let (own_w, own_h, extent) = compute_grid_display_extent(None, Some(comp), &body.points);
                     push_grid_vlines(
                         &mut vlines,
                         item_idx,
