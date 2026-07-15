@@ -158,6 +158,7 @@ pub struct GlyphBody {
     pub mark: bool,
     pub advance: Option<u16>,
     pub left: Option<i16>,
+    pub top: Option<i16>,
 }
 
 impl GlyphBody {
@@ -171,6 +172,7 @@ impl GlyphBody {
             mark: false,
             advance: None,
             left: None,
+            top: None,
         }
     }
 
@@ -188,6 +190,7 @@ impl GlyphBody {
             && !self.mark
             && self.advance.is_none()
             && self.left.is_none()
+            && self.top.is_none()
     }
 }
 

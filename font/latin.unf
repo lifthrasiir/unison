@@ -1441,6 +1441,7 @@ glyph i-lower:dotless 8 16
 ................
 ................
 anchor +above 3..4 4
+anchor +below 3..4 14
 
 glyph i-lower 8 16
 ................
@@ -2298,7 +2299,7 @@ map z = z-lower
 map Ä
 glyph uni01DE
 ref a-upper-compressed
-ref dia-above 2 2
+ref dia-above:narrow 2 2
 ref mac-upper 2 0
 map Ǟ = uni01DE
 map Ë
@@ -2306,34 +2307,34 @@ map Ḧ
 map Ï
 glyph uni1E2E
 ref i-upper-compressed
-ref dia-above:wide 1 2
+ref dia-above 1 2
 ref acute-upper 3 0
 map Ḯ = uni1E2E
 map Ö
 glyph uni022A
 ref o-upper-compressed
-ref dia-above 2 2
+ref dia-above:narrow 2 2
 ref mac-upper 2 0
 map Ȫ = uni022A
 map Ü
 glyph uni01D5
 ref u-upper-compressed
-ref dia-above 2 2
+ref dia-above:narrow 2 2
 ref mac-upper 2 0
 map Ǖ = uni01D5
 glyph uni01D7
 ref u-upper-compressed
-ref dia-above 2 2
+ref dia-above:narrow 2 2
 ref acute-upper 3 0
 map Ǘ = uni01D7
 glyph uni01D9
 ref u-upper-compressed
-ref dia-above 2 2
+ref dia-above:narrow 2 2
 ref caron-upper 2 0
 map Ǚ = uni01D9
 glyph uni01DB
 ref u-upper-compressed
-ref dia-above 2 2
+ref dia-above:narrow 2 2
 ref grave-upper 2 0
 map Ǜ = uni01DB
 map Ṳ
@@ -2344,46 +2345,46 @@ map Ÿ
 map ä
 glyph uni01DF
 ref a-lower:compressed
-ref dia-below 2 4
+ref dia-below:narrow 2 4
 ref mac-lower 2 2
 map ǟ = uni01DF
 map ë
 glyph uni1E27
 ref h-lower:sm
-ref dia-below 2 1
+ref dia-below:narrow 2 1
 map ḧ = uni1E27
 map ï
 glyph uni1E2F
 ref i-lower:dotless
-ref dia-below:wide 1 4
+ref dia-below 1 4
 ref acute-lower 3 2
 map ḯ = uni1E2F
 map ö
 glyph uni022B
 ref o-lower:compressed
-ref dia-below 2 4
+ref dia-below:narrow 2 4
 ref mac-lower 2 2
 map ȫ = uni022B
 map ẗ
 map ü
 glyph uni01D6
 ref u-lower:compressed
-ref dia-below 2 4
+ref dia-below:narrow 2 4
 ref mac-lower 2 2
 map ǖ = uni01D6
 glyph uni01D8
 ref u-lower:compressed
-ref dia-below 2 4
+ref dia-below:narrow 2 4
 ref acute-lower 3 2
 map ǘ = uni01D8
 glyph uni01DA
 ref u-lower:compressed
-ref dia-below 2 4
+ref dia-below:narrow 2 4
 ref caron-lower 2 2
 map ǚ = uni01DA
 glyph uni01DC
 ref u-lower:compressed
-ref dia-below 2 4
+ref dia-below:narrow 2 4
 ref grave-lower 2 2
 map ǜ = uni01DC
 map ṳ
@@ -2815,7 +2816,7 @@ map Ū = uni016A
 glyph uni1E7A
 ref u-upper-compressed
 ref mac-upper 2 2
-ref dia-above 2 0
+ref dia-above:narrow 2 0
 map Ṻ = uni1E7A
 glyph uni0232
 ref y-upper
@@ -2909,7 +2910,7 @@ map ū = uni016B
 glyph uni1E7B
 ref u-lower:compressed
 ref mac-lower 2 4
-ref dia-below 2 2
+ref dia-below:narrow 2 2
 map ṻ = uni1E7B
 glyph uni0233
 ref y-lower
@@ -3771,7 +3772,7 @@ map Ṍ = uni1E4C
 glyph uni1E4E
 ref o-upper-compressed
 ref tilde-upper 2 2
-ref dia-above 2 0
+ref dia-above:narrow 2 0
 map Ṏ = uni1E4E
 glyph uni1EE0
 ref o-horn-upper
@@ -3844,7 +3845,7 @@ map ṍ = uni1E4D
 glyph uni1E4F
 ref o-lower:compressed
 ref tilde-lower 2 4
-ref dia-below 2 2
+ref dia-below:narrow 2 2
 map ṏ = uni1E4F
 glyph uni1EE1
 ref o-horn-lower

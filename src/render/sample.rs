@@ -25,6 +25,8 @@ struct SampleGlyph {
     width: u16,
     height: u16,
     components: Vec<SampleComponent>,
+    left: i16,
+    top: i16,
 }
 
 struct SampleData {
@@ -150,9 +152,14 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut pending: Vec<PendingGlyph> = Vec::new();
 
     let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+    let mut glyph_offsets: HashMap<String, (i16, i16)> = HashMap::new();
     for item in &all_items {
         if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
             glyph_declared_anchors.entry(n.clone()).or_insert_with(|| body.points.clone());
+            if body.left.is_some() || body.top.is_some() {
+                glyph_offsets.entry(n.clone())
+                    .or_insert((body.left.unwrap_or(0), body.top.unwrap_or(0)));
+            }
         }
     }
 
@@ -475,10 +482,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             continue;
         }
         if let Some(cached) = cache.get(glyph_name) {
+            let (left, top) = glyph_offsets.get(glyph_name).copied().unwrap_or((0, 0));
             sample_glyphs.insert(glyph_name.clone(), SampleGlyph {
                 width: cached.width,
                 height: cached.height,
                 components: cached.components.clone(),
+                left,
+                top,
             });
         }
     }
@@ -540,6 +550,14 @@ fn path_hash_color(path: &str) -> u32 {
         h = h.wrapping_mul(16777619);
     }
     (h & 0x7f7f7f) + 0x808080
+}
+
+fn sample_display_metrics(sg: &SampleGlyph, font_height: u16) -> (u16, u16, i16, i16) {
+    let col_off = sg.left.max(0);
+    let row_off = sg.top.max(0);
+    let display_w = col_off as u16 + sg.width;
+    let display_h = font_height;
+    (display_w, display_h, col_off, row_off)
 }
 
 fn composite_components(width: u16, height: u16, components: &[SampleComponent]) -> PixelGrid {
@@ -633,12 +651,17 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         let title = html_escape(&char_name_str(cp));
         write!(w, "<a href='#u{cp:x}'><span id='sm-u{cp:x}' title='{title}'>")?;
         if let Some(sg) = data.glyphs.get(glyph_name) {
-            let combined = composite_components(sg.width, sg.height, &sg.components);
+            let (display_w, display_h, col_off, row_off) = sample_display_metrics(sg, data.height);
+            let shifted: Vec<SampleComponent> = sg.components.iter().map(|c| {
+                let mut c2 = c.clone();
+                c2.col += col_off as i32;
+                c2.row += row_off as i32;
+                c2
+            }).collect();
+            let combined = composite_components(display_w, display_h, &shifted);
             let contours = track_contour_fullpixel(&combined);
             let path = contours_to_svg_path(&contours, 1.0, 0.0, 0.0);
-            let vw = sg.width;
-            let vh = sg.height;
-            write!(w, "<svg viewBox=\"0 0 {vw} {vh}\" width=\"{vw}\" height=\"{vh}\"><path d='{path}'/></svg>")?;
+            write!(w, "<svg viewBox=\"0 0 {display_w} {display_h}\" width=\"{display_w}\" height=\"{display_h}\"><path d='{path}'/></svg>")?;
         }
         write!(w, "</span></a>")?;
     }
@@ -660,17 +683,18 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         let title = html_escape(&char_name_str(cp));
         write!(w, "<span id='u{cp:x}' title='{title}'>")?;
         if let Some(sg) = data.glyphs.get(glyph_name) {
-            let vw = sg.width as f32 * svg_scale;
-            let vh = sg.height as f32 * svg_scale;
-            let sw = sg.width as u32 * 5;
-            let sh = sg.height as u32 * 5;
+            let (display_w, display_h, col_off, row_off) = sample_display_metrics(sg, data.height);
+            let vw = display_w as f32 * svg_scale;
+            let vh = display_h as f32 * svg_scale;
+            let sw = display_w as u32 * 5;
+            let sh = display_h as u32 * 5;
             write!(w, "<svg viewBox=\"0 0 {vw} {vh}\" width=\"{sw}\" height=\"{sh}\">")?;
             for comp in &sg.components {
                 if comp.visibility == LayerVisibility::MonoOnly {
                     continue;
                 }
                 let contours = track_contour(&comp.grid, PX_SUBPIXEL);
-                let path = contours_to_svg_path(&contours, svg_scale, comp.col as f32, comp.row as f32);
+                let path = contours_to_svg_path(&contours, svg_scale, (comp.col + col_off as i32) as f32, (comp.row + row_off as i32) as f32);
                 if !path.is_empty() {
                     if comp.negated {
                         write!(w, "<path d='{path}' fill='#000'/>")?;
@@ -723,8 +747,9 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
 
     for (&cp, glyph_name) in &data.cmap {
         if let Some(sg) = data.glyphs.get(glyph_name) {
-            let w = sg.width as u32;
-            let h = sg.height as u32;
+            let (dw, dh, _, _) = sample_display_metrics(sg, data.height);
+            let w = dw as u32;
+            let h = dh as u32;
             glyph_widths.insert(glyph_name.clone(), (w, h));
             for &ngl in num_glyphs_per_line {
                 if w > line_width / ngl {
@@ -854,9 +879,11 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
         let y = (max_height + 1) * r + row_offsets[r as usize] + 1;
         let x = label_width + 1 + left;
 
+        let (dw, dh, col_off, row_off) = sample_display_metrics(sg, data.height as u16);
+
         // Clear glyph area to white
-        for dy in 0..sg.height.min(max_height as u16) as u32 {
-            for dx in 0..sg.width as u32 {
+        for dy in 0..dh.min(max_height as u16) as u32 {
+            for dx in 0..dw as u32 {
                 let py = (y + dy) as usize;
                 let px = (x + dx) as usize;
                 if py < img_height as usize && px < stride {
@@ -869,8 +896,8 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
             &mut pixels,
             stride,
             img_height as usize,
-            x as i32,
-            y as i32,
+            x as i32 + col_off as i32,
+            y as i32 + row_off as i32,
             sg,
             [0x00, 0x00, 0x00],
             true,

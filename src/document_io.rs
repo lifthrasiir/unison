@@ -325,12 +325,14 @@ fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<(
                 }
                 i += 1;
             }
-            "left" => {
+            "left" | "top" => {
+                let kw = tokens[i].as_ref().to_string();
                 i += 1;
                 if i >= tokens.len() || tokens[i].as_ref().parse::<i16>().is_err() {
                     bail!(
-                        "line {}: 'left' requires an i16 value",
+                        "line {}: '{}' requires an i16 value",
                         line_no + 1,
+                        kw,
                     );
                 }
                 i += 1;
@@ -343,7 +345,7 @@ fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<(
                         i += 1;
                     } else if i < tokens.len() && !matches!(
                         tokens[i].as_ref(),
-                        "sticky" | "inline" | "mark" | "advance" | "left",
+                        "sticky" | "inline" | "mark" | "advance" | "left" | "top",
                     ) {
                         bail!(
                             "line {}: expected height after width, got '{}'",
@@ -488,6 +490,9 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     }
     if let Some(left) = body.left {
         flags.push_str(&format!(" left {left}"));
+    }
+    if let Some(top) = body.top {
+        flags.push_str(&format!(" top {top}"));
     }
     flags
 }
@@ -752,6 +757,12 @@ pub fn derive_document(
                                     fp += 1;
                                     if fp < flag_parts.len() {
                                         body.left = flag_parts[fp].parse().ok();
+                                    }
+                                }
+                                "top" => {
+                                    fp += 1;
+                                    if fp < flag_parts.len() {
+                                        body.top = flag_parts[fp].parse().ok();
                                     }
                                 }
                                 other => {

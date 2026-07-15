@@ -683,6 +683,7 @@ pub fn migrate_file(
                 mark: false,
                 advance: accum.advance,
                 left: accum.left,
+                top: None,
             },
         });
         Ok(())

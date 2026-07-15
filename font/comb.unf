@@ -4,7 +4,7 @@
 //--------------------------------------
 // diaeresis
 
-glyph dia 5 2 inline
+glyph dia-narrow 5 2 inline
 /01\../10\
 \01/..\10/
 
@@ -12,26 +12,26 @@ glyph dia-wide 6 2 inline
 /01\..../10\
 \01/....\10/
 
-glyph dia-below 5 2 mark
+glyph dia-below:narrow 5 2 mark
 /01\../10\
 \01/..\10/
-ref dia 0 0
+ref dia-narrow 0 0
 anchor -below 2 0
 anchor +below 2 2
 
-glyph dia-below:wide 6 2 mark
+glyph dia-below 6 2 mark advance 0 left -3 top 14
 /01\..../10\
 \01/....\10/
 ref dia-wide 0 0
 anchor -below 2..3 0
 anchor +below 2..3 2
 
-glyph dia-above 5 2 mark
-ref dia 0 0
+glyph dia-above:narrow 5 2 mark
+ref dia-narrow 0 0
 anchor -above 2 1
 anchor +above 2 -1
 
-glyph dia-above:wide 6 2 mark
+glyph dia-above 6 2 mark advance 0 left -3 top 0
 ref dia-wide 0 0
 anchor -above 2..3 1
 anchor +above 2..3 -1
@@ -247,7 +247,7 @@ ref hook-lower 0 0
 
 glyph uni00A8
 ref sp
-ref dia-below 2 2
+ref dia-below:narrow 2 2
 map ¨ = uni00A8
 glyph uni00AF
 ref sp

@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 use write_fonts::tables::cmap::Cmap;
 use write_fonts::tables::colr::{BaseGlyph, Colr, Layer as ColrLayer};
 use write_fonts::tables::cpal::{ColorRecord, Cpal};
-use write_fonts::tables::gdef::Gdef;
+use write_fonts::tables::gdef::{Gdef, MarkGlyphSets};
 use write_fonts::tables::gpos::{
     AnchorTable, BaseArray, BaseRecord, Gpos, Mark2Array, Mark2Record,
     MarkArray, MarkBasePosFormat1, MarkMarkPosFormat1, MarkRecord,
@@ -124,6 +124,9 @@ struct CollectedGlyph {
     resolved_anchors: Vec<GlyphPoint>,
     /// Anchors declared directly on the glyph body (not forwarded).
     declared_anchors: Vec<GlyphPoint>,
+    /// Left/top offsets in font units, for GPOS anchor coordinate adjustment.
+    left_offset: i16,
+    top_offset: i16,
 }
 
 struct CollectedColorLayer {
@@ -381,12 +384,13 @@ fn derive_effective_refs(
 }
 
 /// Scale pixel-space contours to font units, flipping y around the ascent
-/// and shifting x by `left_offset` (already in font units).
+/// and shifting by `left_offset`/`top_offset` (already in font units).
 fn scale_glyph_contours(
     contours: &[Vec<(f32, f32)>],
     scale: f32,
     ascent: u16,
     left_offset: i16,
+    top_offset: i16,
 ) -> Vec<Vec<(i16, i16)>> {
     contours
         .iter()
@@ -395,7 +399,7 @@ fn scale_glyph_contours(
                 .map(|&(x, y)| {
                     (
                         (x * scale).round() as i16 + left_offset,
-                        ((ascent as f32 - y) * scale).round() as i16,
+                        ((ascent as f32 - y) * scale).round() as i16 - top_offset,
                     )
                 })
                 .collect()
@@ -403,31 +407,38 @@ fn scale_glyph_contours(
         .collect()
 }
 
-/// Advance width and left offset in font units, from explicit `advance`/
-/// `left` flags when present, else the resolved raster width.
+/// Advance width, left offset, and top offset in font units, from explicit
+/// `advance`/`left`/`top` flags when present, else the resolved raster width.
 fn resolve_glyph_metrics(
-    glyph_meta: &HashMap<String, (Option<u16>, Option<i16>)>,
+    glyph_meta: &HashMap<String, (Option<u16>, Option<i16>, Option<i16>)>,
     name: &str,
     resolved_width: u16,
     scale: f32,
-) -> (u16, i16) {
+) -> (u16, i16, i16) {
     let advance_width = match glyph_meta.get(name) {
-        Some(&(Some(adv), _)) => (adv as f32 * scale).round() as u16,
+        Some(&(Some(adv), _, _)) => (adv as f32 * scale).round() as u16,
         _ => (resolved_width as f32 * scale).round() as u16,
     };
     let left_offset = match glyph_meta.get(name) {
-        Some(&(_, Some(left))) => (left as f32 * scale).round() as i16,
+        Some(&(_, Some(left), _)) => (left as f32 * scale).round() as i16,
         _ => 0,
     };
-    (advance_width, left_offset)
+    let top_offset = match glyph_meta.get(name) {
+        Some(&(_, _, Some(top))) => (top as f32 * scale).round() as i16,
+        _ => 0,
+    };
+    (advance_width, left_offset, top_offset)
 }
 
 /// Composite references for a resolved glyph in font units, or empty when
-/// the glyph is forced inline.
+/// the glyph is forced inline.  Compensates for each component glyph's own
+/// left/top offset so that the shift doesn't propagate into parent composites.
 fn build_composite_refs(
     resolved: &CachedContours,
     inline: bool,
     left_offset: i16,
+    top_offset: i16,
+    glyph_meta: &HashMap<String, (Option<u16>, Option<i16>, Option<i16>)>,
     scale: f32,
 ) -> Vec<CompositeRef> {
     if inline {
@@ -437,10 +448,17 @@ fn build_composite_refs(
         return Vec::new();
     };
     comps.iter().map(|(name, dx, dy)| {
+        let (comp_left, comp_top) = match glyph_meta.get(name.as_str()) {
+            Some(&(_, left, top)) => (
+                left.map_or(0, |l| (l as f32 * scale).round() as i16),
+                top.map_or(0, |t| (t as f32 * scale).round() as i16),
+            ),
+            None => (0, 0),
+        };
         CompositeRef {
             component_name: name.clone(),
-            x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16,
-            y_offset: (-*dy * scale).round() as i16,
+            x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16 - comp_left,
+            y_offset: (-*dy * scale).round() as i16 - top_offset + comp_top,
         }
     }).collect()
 }
@@ -475,6 +493,7 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
                                 b.sticky = body.sticky;
                                 b.advance = body.advance;
                                 b.left = body.left;
+                                b.top = body.top;
                             }
                             all_items.push(item);
                         }
@@ -700,13 +719,13 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
     let gsub_data = collect_gsub_data(docs, &name_parts);
     let color_aliases = collect_color_aliases(docs);
 
-    let mut glyph_meta: HashMap<String, (Option<u16>, Option<i16>)> = HashMap::new();
+    let mut glyph_meta: HashMap<String, (Option<u16>, Option<i16>, Option<i16>)> = HashMap::new();
     let mut inline_glyphs: HashSet<String> = HashSet::new();
     let mut glyph_bodies: HashMap<String, &GlyphBody> = HashMap::new();
     for item in &all_items {
         if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
-            if body.advance.is_some() || body.left.is_some() {
-                glyph_meta.insert(n.clone(), (body.advance, body.left));
+            if body.advance.is_some() || body.left.is_some() || body.top.is_some() {
+                glyph_meta.insert(n.clone(), (body.advance, body.left, body.top));
             }
             if body.inline {
                 inline_glyphs.insert(n.clone());
@@ -725,14 +744,16 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         for (cp, glyph_name) in &pairs {
             let Some(resolved) = cache.get(glyph_name.as_str()) else { continue };
 
-            let (advance_width, left_offset) =
+            let (advance_width, left_offset, top_offset) =
                 resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, scale);
             let font_contours =
-                scale_glyph_contours(&resolved.contours, scale, meta.ascent, left_offset);
+                scale_glyph_contours(&resolved.contours, scale, meta.ascent, left_offset, top_offset);
             let composite_refs = build_composite_refs(
                 resolved,
                 inline_glyphs.contains(glyph_name.as_str()),
                 left_offset,
+                top_offset,
+                &glyph_meta,
                 scale,
             );
 
@@ -755,6 +776,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 mark: is_mark,
                 resolved_anchors: glyph_anchors,
                 declared_anchors,
+                left_offset,
+                top_offset,
             });
         }
     }
@@ -779,7 +802,11 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             &body.points, &body.refs, &cache, &alt_index, &declared_anchors_map);
 
         let left_offset = match glyph_meta.get(&g.name) {
-            Some(&(_, Some(left))) => (left as f32 * scale).round() as i16,
+            Some(&(_, Some(left), _)) => (left as f32 * scale).round() as i16,
+            _ => 0,
+        };
+        let top_offset = match glyph_meta.get(&g.name) {
+            Some(&(_, _, Some(top))) => (top as f32 * scale).round() as i16,
             _ => 0,
         };
 
@@ -790,7 +817,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         if let Some(ref own_grid) = body.pixels
             && !own_grid.is_all_empty() {
                 let c = track_contour(own_grid, PX_SUBPIXEL);
-                fg_contours.extend(scale_glyph_contours(&c, scale, meta.ascent, left_offset));
+                fg_contours.extend(scale_glyph_contours(&c, scale, meta.ascent, left_offset, top_offset));
             }
 
         for (ri, eref) in effective_refs.iter().enumerate() {
@@ -814,7 +841,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                         .map(|&(x, y)| {
                             (
                                 ((x + dx) * scale).round() as i16 + left_offset,
-                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16,
+                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16 - top_offset,
                             )
                         })
                         .collect()
@@ -864,7 +891,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                             .map(|&(x, y)| {
                                 (
                                     (x * scale).round() as i16 + left_offset,
-                                    ((meta.ascent as f32 - y) * scale).round() as i16,
+                                    ((meta.ascent as f32 - y) * scale).round() as i16 - top_offset,
                                 )
                             })
                             .collect()
@@ -888,7 +915,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                         .map(|&(x, y)| {
                             (
                                 ((x + dx) * scale).round() as i16 + left_offset,
-                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16,
+                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16 - top_offset,
                             )
                         })
                         .collect()
@@ -1033,14 +1060,16 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             composite_components: None,
         };
         let resolved = cache.get(glyph_name.as_str()).unwrap_or(&empty_cached);
-        let (advance_width, left_offset) =
+        let (advance_width, left_offset, top_offset) =
             resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, scale);
         let font_contours =
-            scale_glyph_contours(&resolved.contours, scale, meta.ascent, left_offset);
+            scale_glyph_contours(&resolved.contours, scale, meta.ascent, left_offset, top_offset);
         let composite_refs = build_composite_refs(
             resolved,
             inline_glyphs.contains(glyph_name.as_str()),
             left_offset,
+            top_offset,
+            &glyph_meta,
             scale,
         );
 
@@ -1062,6 +1091,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             mark: is_mark,
             resolved_anchors: glyph_anchors,
             declared_anchors,
+            left_offset,
+            top_offset,
         });
     }
 
@@ -1082,7 +1113,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 };
                 let resolved = cache.get(cr.component_name.as_str()).unwrap_or(&empty_cached);
                 let font_contours =
-                    scale_glyph_contours(&resolved.contours, scale, meta.ascent, 0);
+                    scale_glyph_contours(&resolved.contours, scale, meta.ascent, 0, 0);
                 let advance_width = (resolved.width as f32 * scale).round() as u16;
                 component_extras.push(CollectedGlyph {
                     name: cr.component_name.clone(),
@@ -1094,6 +1125,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     mark: false,
                     resolved_anchors: Vec::new(),
                     declared_anchors: Vec::new(),
+                    left_offset: 0,
+                    top_offset: 0,
                 });
             }
         }
@@ -1530,6 +1563,9 @@ struct AnchorGposData {
     /// Per-feature-tag GSUB lookups for anchor-based substitution.
     /// Each entry: (feature_tag, scripts, lookups).
     feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)>,
+    /// Mark glyph sets for GDEF MarkGlyphSets table, used by
+    /// USE_MARK_FILTERING_SET on mark-subst lookups.
+    mark_glyph_sets: Vec<CoverageTable>,
     /// Base substitution entries: (source, target, anchor_name).
     #[cfg(test)]
     base_subst_entries: Vec<(String, String, String)>,
@@ -1550,6 +1586,7 @@ fn build_anchor_gpos(
             gpos: None,
             gdef: Gdef::default(),
             feature_lookups: Vec::new(),
+            mark_glyph_sets: Vec::new(),
             #[cfg(test)]
             base_subst_entries: Vec::new(),
             #[cfg(test)]
@@ -1618,6 +1655,8 @@ fn build_anchor_gpos(
 
     for g in glyphs {
         let Some(&gid) = name_to_gid.get(&g.name) else { continue };
+        let loff = g.left_offset;
+        let toff = g.top_offset;
 
         if g.mark {
             mark_gid_set.insert(gid);
@@ -1628,8 +1667,8 @@ fn build_anchor_gpos(
                 let minus_name = format!("-{anchor_name}");
                 if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == minus_name) {
                     let class = anchor_class_map[anchor_name];
-                    let x = (pt.col as f32 * scale).round() as i16;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    let x = (pt.col as f32 * scale).round() as i16 + loff;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
                     mark_gids.push((gid, class, x, y));
                     break;
                 }
@@ -1642,8 +1681,8 @@ fn build_anchor_gpos(
                 let plus_name = format!("+{anchor_name}");
                 if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let x = (pt.col as f32 * scale).round() as i16;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    let x = (pt.col as f32 * scale).round() as i16 + loff;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
                     plus_anchors[class] = Some((x, y));
                     has_any = true;
                 }
@@ -1664,8 +1703,8 @@ fn build_anchor_gpos(
                 let plus_name = format!("+{anchor_name}");
                 if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let x = (pt.col as f32 * scale).round() as i16;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    let x = (pt.col as f32 * scale).round() as i16 + loff;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
                     own_plus[class] = Some((x, y));
                     has_own = true;
                 } else if let Some(alts) = alt_index.get(&g.name) {
@@ -1673,8 +1712,11 @@ fn build_anchor_gpos(
                     for (alt_name, alt_anchors) in alts {
                         if let Some(pt) = alt_anchors.iter().find(|p| p.position == plus_name) {
                             let class = anchor_class_map[anchor_name] as usize;
-                            let x = (pt.col as f32 * scale).round() as i16;
-                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                            let alt_g = glyphs.iter().find(|gg| gg.name == *alt_name);
+                            let alt_loff = alt_g.map_or(0, |gg| gg.left_offset);
+                            let alt_toff = alt_g.map_or(0, |gg| gg.top_offset);
+                            let x = (pt.col as f32 * scale).round() as i16 + alt_loff;
+                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - alt_toff;
                             let entry = alt_plus_map
                                 .entry(alt_name.clone())
                                 .or_insert_with(|| vec![None; num_classes as usize]);
@@ -1690,15 +1732,15 @@ fn build_anchor_gpos(
                     if !alt_found
                         && let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                             let class = anchor_class_map[anchor_name] as usize;
-                            let x = (pt.col as f32 * scale).round() as i16;
-                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                            let x = (pt.col as f32 * scale).round() as i16 + loff;
+                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
                             own_plus[class] = Some((x, y));
                             has_own = true;
                         }
                 } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let x = (pt.col as f32 * scale).round() as i16;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    let x = (pt.col as f32 * scale).round() as i16 + loff;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
                     own_plus[class] = Some((x, y));
                     has_own = true;
                 }
@@ -2001,6 +2043,7 @@ fn build_anchor_gpos(
     // For each anchor, collect (mark, mark:alt) pairs where the alt has
     // a differently-sized `-X`.  Then generate a chain context with
     // backtrack = bases whose `+X` matches the alt's `-X` size.
+    let mut mark_glyph_sets: Vec<CoverageTable> = Vec::new();
     {
         let mark_alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = {
             let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
@@ -2024,6 +2067,24 @@ fn build_anchor_gpos(
             let minus_name = format!("-{anchor_name}");
             let plus_name = format!("+{anchor_name}");
 
+            // Mark filtering set: all marks carrying `-X` for this anchor,
+            // plus their alternatives.  Registered in GDEF MarkGlyphSets
+            // so that USE_MARK_FILTERING_SET on mark-subst lookups causes
+            // marks of OTHER anchor classes to be skipped during backtrack.
+            let mut filtering_gids: Vec<GlyphId16> = glyphs.iter()
+                .filter(|g| g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name))
+                .filter_map(|g| name_to_gid.get(&g.name).copied())
+                .collect();
+            filtering_gids.sort();
+            filtering_gids.dedup();
+            let filtering_set_idx = if !filtering_gids.is_empty() {
+                let idx = mark_glyph_sets.len() as u16;
+                mark_glyph_sets.push(CoverageTable::format_1(filtering_gids));
+                Some(idx)
+            } else {
+                None
+            };
+
             // Collect marks that have alternatives with different `-X` sizes.
             for g in glyphs {
                 if !g.mark { continue; }
@@ -2038,12 +2099,13 @@ fn build_anchor_gpos(
                         continue; // same size, no substitution needed
                     }
 
-                    // Find bases whose `+X` matches the alt's `-X` size.
+                    // Find bases (and mark2 glyphs with `+X`) whose `+X`
+                    // matches the alt's `-X` size.  Including marks here
+                    // handles mark-to-mark stacking where a second mark
+                    // should be substituted based on the first mark's anchor.
                     let mut backtrack_gids: Vec<GlyphId16> = Vec::new();
                     for base in glyphs {
-                        if base.mark { continue; }
                         let Some(&base_gid) = name_to_gid.get(&base.name) else { continue };
-                        // Check own declared +X first; if not present, check resolved.
                         let plus_pt = base.declared_anchors.iter()
                             .find(|p| p.position == plus_name)
                             .or_else(|| base.resolved_anchors.iter().find(|p| p.position == plus_name));
@@ -2110,10 +2172,17 @@ fn build_anchor_gpos(
                             }],
                         ),
                     );
-                    lookups.push(SubstitutionLookup::ChainContextual(Lookup::new(
-                        LookupFlag::empty(),
-                        vec![sc],
-                    )));
+                    let chain_lookup = if let Some(set_idx) = filtering_set_idx {
+                        let mut lk = Lookup::new(
+                            LookupFlag::USE_MARK_FILTERING_SET,
+                            vec![sc],
+                        );
+                        lk.mark_filtering_set = Some(set_idx);
+                        lk
+                    } else {
+                        Lookup::new(LookupFlag::empty(), vec![sc])
+                    };
+                    lookups.push(SubstitutionLookup::ChainContextual(chain_lookup));
                 }
             }
         }
@@ -2123,6 +2192,7 @@ fn build_anchor_gpos(
         gpos,
         gdef,
         feature_lookups,
+        mark_glyph_sets,
         #[cfg(test)]
         base_subst_entries,
         #[cfg(test)]
@@ -3237,7 +3307,12 @@ fn build_ttf(
     }
 
     if has_gsub || has_gpos {
-        builder.add_table(&anchor_data.gdef).unwrap();
+        let mut gdef = anchor_data.gdef;
+        if !anchor_data.mark_glyph_sets.is_empty() {
+            gdef.mark_glyph_sets_def =
+                Some(MarkGlyphSets::new(anchor_data.mark_glyph_sets)).into();
+        }
+        builder.add_table(&gdef).unwrap();
     }
 
     if has_color {
