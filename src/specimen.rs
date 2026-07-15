@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use skrifa::prelude::*;
 use skrifa::{FontRef, MetadataProvider};
 
 use crate::document::{Document, DocumentItem, NamePartsMap, substitute_name_parts};
@@ -326,8 +327,17 @@ impl SpecimenState {
                         let center_x = cell_min.x + cell_w / 2.0;
                         let center_y = cell_min.y + cell_h / 2.0 + 8.0;
 
-                        let draw_x = center_x - cached.width / 2.0;
-                        let draw_y = center_y - cached.height / 2.0;
+                        let font_metrics = font.metrics(Size::new(px_size), LocationRef::default());
+                        let glyph_metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
+                        let advance_w = glyph_metrics.advance_width(gid).unwrap_or(cached.width);
+                        let ascent = font_metrics.ascent;
+                        let descent = font_metrics.descent;
+
+                        let baseline_y = center_y + (ascent + descent) / 2.0;
+                        let pen_x = center_x - advance_w / 2.0;
+
+                        let draw_x = pen_x + cached.bearing_x;
+                        let draw_y = baseline_y - cached.bearing_y;
 
                         let draw_rect = egui::Rect::from_min_size(
                             egui::pos2(draw_x, draw_y),
@@ -409,19 +419,20 @@ impl SpecimenState {
             && let Ok(font) = FontRef::new(font_bytes) {
                 let charmap = font.charmap();
                 if let Some(gid) = charmap.map(ch) {
-                    let glyph_id = gid.to_u32() as u16;
-                    if let Some(cached) = self.glyph_cache.get_or_rasterize(
-                        ctx, font_bytes, glyph_id, px_size, true,
-                        egui::Color32::WHITE,
-                    ) {
-                        return Some(egui::Rect::from_min_size(
-                            egui::pos2(
-                                center_x - cached.width / 2.0,
-                                center_y - cached.height / 2.0,
-                            ),
-                            egui::vec2(cached.width, cached.height),
-                        ));
-                    }
+                    let font_metrics = font.metrics(Size::new(px_size), LocationRef::default());
+                    let glyph_metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
+                    let advance_w = glyph_metrics.advance_width(gid).unwrap_or(0.0);
+                    let ascent = font_metrics.ascent;
+                    let descent = font_metrics.descent;
+                    let extent_h = ascent - descent;
+
+                    let baseline_y = center_y + (ascent + descent) / 2.0;
+                    let pen_x = center_x - advance_w / 2.0;
+
+                    return Some(egui::Rect::from_min_size(
+                        egui::pos2(pen_x, baseline_y - ascent),
+                        egui::vec2(advance_w, extent_h),
+                    ));
                 }
             }
 

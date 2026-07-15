@@ -23,7 +23,7 @@ struct SampleComponent {
 
 struct SampleGlyph {
     width: u16,
-    height: u16,
+    _height: u16,
     components: Vec<SampleComponent>,
     left: i16,
     top: i16,
@@ -485,7 +485,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             let (left, top) = glyph_offsets.get(glyph_name).copied().unwrap_or((0, 0));
             sample_glyphs.insert(glyph_name.clone(), SampleGlyph {
                 width: cached.width,
-                height: cached.height,
+                _height: cached.height,
                 components: cached.components.clone(),
                 left,
                 top,
