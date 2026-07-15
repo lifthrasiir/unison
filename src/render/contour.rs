@@ -48,14 +48,8 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
                 let (left_adj, _) = pixel::adjacency(data[i.wrapping_sub(1)] & mask);
                 let (right_adj, _) = pixel::adjacency(data[i + 1] & mask);
 
-                let connected = (pixel_adj & (top_adj << 5) & 0b10000000)
-                    | (pixel_adj & (top_adj << 3) & 0b01000000)
-                    | (pixel_adj & (right_adj << 5) & 0b00100000)
-                    | (pixel_adj & (right_adj << 3) & 0b00010000)
-                    | (pixel_adj & (bottom_adj >> 3) & 0b00001000)
-                    | (pixel_adj & (bottom_adj >> 5) & 0b00000100)
-                    | (pixel_adj & (left_adj >> 3) & 0b00000010)
-                    | (pixel_adj & (left_adj >> 5) & 0b00000001);
+                let connected =
+                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
 
                 if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
                     unsure.push(i - stride);
@@ -72,141 +66,14 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
 
                 let disconnected = connected ^ 0xFF;
                 if disconnected != 0 {
-                    let y = (i / stride) as f32 - 1.0; // subtract sentinel offset
+                    let y = (i / stride) as f32 - 1.0;
                     let x = (i % stride) as f32;
-
-                    let line_segs = pixel_adj & disconnected;
-
-                    if (line_segs & 0b11000000) == 0b11000000 {
-                        segs.push((x, y, x + 1.0, y));
-                    } else {
-                        if line_segs & 0b10000000 != 0 {
-                            segs.push((x, y, x + 0.5, y));
-                        }
-                        if line_segs & 0b01000000 != 0 {
-                            segs.push((x + 0.5, y, x + 1.0, y));
-                        }
-                    }
-
-                    if (line_segs & 0b00110000) == 0b00110000 {
-                        segs.push((x + 1.0, y, x + 1.0, y + 1.0));
-                    } else {
-                        if line_segs & 0b00100000 != 0 {
-                            segs.push((x + 1.0, y, x + 1.0, y + 0.5));
-                        }
-                        if line_segs & 0b00010000 != 0 {
-                            segs.push((x + 1.0, y + 0.5, x + 1.0, y + 1.0));
-                        }
-                    }
-
-                    if (line_segs & 0b00001100) == 0b00001100 {
-                        segs.push((x + 1.0, y + 1.0, x, y + 1.0));
-                    } else {
-                        if line_segs & 0b00001000 != 0 {
-                            segs.push((x + 1.0, y + 1.0, x + 0.5, y + 1.0));
-                        }
-                        if line_segs & 0b00000100 != 0 {
-                            segs.push((x + 0.5, y + 1.0, x, y + 1.0));
-                        }
-                    }
-
-                    if (line_segs & 0b00000011) == 0b00000011 {
-                        segs.push((x, y + 1.0, x, y));
-                    } else {
-                        if line_segs & 0b00000010 != 0 {
-                            segs.push((x, y + 1.0, x, y + 0.5));
-                        }
-                        if line_segs & 0b00000001 != 0 {
-                            segs.push((x, y + 0.5, x, y));
-                        }
-                    }
-
-                    if !pixel_adj & disconnected != 0 {
-                        for &(x1, y1, x2, y2) in gap_segs {
-                            segs.push((x + x1, y + y1, x + x2, y + y2));
-                        }
-                    }
+                    emit_boundary_segs(x, y, pixel_adj, disconnected, gap_segs, &mut segs);
                 }
             }
 
-            // Build adjacency map from segments
-            let mut px_to_segs: BTreeMap<(i64, i64), Vec<(i64, i64)>> = BTreeMap::new();
-            for (x1, y1, x2, y2) in &segs {
-                let k1 = to_key(*x1, *y1);
-                let k2 = to_key(*x2, *y2);
-                px_to_segs.entry(k1).or_default().push(k2);
-                px_to_segs.entry(k2).or_default().push(k1);
-            }
-
-            for list in px_to_segs.values_mut() {
-                list.sort();
-            }
-
-            // Trace closed paths
-            while !px_to_segs.is_empty() {
-                let (&start_key, _) = px_to_segs.iter().next().unwrap();
-                let v = px_to_segs.get_mut(&start_key).unwrap();
-                assert!(v.len() >= 2);
-                let next_key = v.pop().unwrap();
-                if v.is_empty() {
-                    px_to_segs.remove(&start_key);
-                }
-
-                let mut path: Vec<(i64, i64)> = vec![start_key];
-                let mut indices: HashMap<(i64, i64), usize> = HashMap::new();
-                indices.insert(start_key, 0);
-
-                let mut x0 = start_key;
-                let mut x = next_key;
-                let mut dx = start_key.0 - next_key.0;
-                let mut dy = start_key.1 - next_key.1;
-
-                while let Some(mut list) = px_to_segs.remove(&x) {
-                    list.retain(|k| *k != x0);
-                    let nx_list = list;
-
-                    if let Some(&k) = indices.get(&x) {
-                        let mut extracted: Vec<(i64, i64)> = path[k..].to_vec();
-                        path.truncate(k);
-                        if extracted.first() != Some(&x) {
-                            extracted.insert(0, x);
-                        }
-                        paths.push(extracted.iter().map(|&(a, b)| from_key(a, b)).collect());
-
-                        if path.is_empty() {
-                            if !nx_list.is_empty() {
-                                px_to_segs.insert(x, nx_list);
-                            }
-                            break;
-                        }
-
-                        indices.retain(|_, v| *v < path.len());
-
-                        let prev = path[path.len() - 1];
-                        dx = x.0 - prev.0;
-                        dy = x.1 - prev.1;
-                    }
-
-                    if nx_list.is_empty() {
-                        break;
-                    }
-
-                    let xx = nx_list[0];
-                    if nx_list.len() > 1 {
-                        px_to_segs.insert(x, nx_list[1..].to_vec());
-                    }
-
-                    indices.insert(x, path.len());
-                    if dx * (x.1 - xx.1) != dy * (x.0 - xx.0) {
-                        path.push(x);
-                        dx = x.0 - xx.0;
-                        dy = x.1 - xx.1;
-                    }
-
-                    x0 = x;
-                    x = xx;
-                }
-            }
+            // Link segments into closed paths
+            trace_closed_paths(&segs, to_key, from_key, &mut paths);
         }
     }
 
@@ -214,6 +81,171 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
     fix_winding(&mut paths);
 
     paths
+}
+
+/// Combined-connectivity bits between a pixel's adjacency and its four
+/// neighbors' adjacency (see `pixel::adjacency` for the bit layout).
+fn connected_bits(pixel_adj: u8, top_adj: u8, right_adj: u8, bottom_adj: u8, left_adj: u8) -> u8 {
+    (pixel_adj & (top_adj << 5) & 0b10000000)
+        | (pixel_adj & (top_adj << 3) & 0b01000000)
+        | (pixel_adj & (right_adj << 5) & 0b00100000)
+        | (pixel_adj & (right_adj << 3) & 0b00010000)
+        | (pixel_adj & (bottom_adj >> 3) & 0b00001000)
+        | (pixel_adj & (bottom_adj >> 5) & 0b00000100)
+        | (pixel_adj & (left_adj >> 3) & 0b00000010)
+        | (pixel_adj & (left_adj >> 5) & 0b00000001)
+}
+
+/// Emit the boundary segments of the pixel at `(x, y)` whose sides are not
+/// connected to a neighbor. `line_segs` holds the disconnected adjacency
+/// bits; `gap_segs` are the pixel's interior gap segments, emitted when any
+/// non-adjacent side is disconnected.
+fn emit_boundary_segs(
+    x: f32,
+    y: f32,
+    pixel_adj: u8,
+    disconnected: u8,
+    gap_segs: &[(f32, f32, f32, f32)],
+    segs: &mut Vec<(f32, f32, f32, f32)>,
+) {
+    let line_segs = pixel_adj & disconnected;
+
+    if (line_segs & 0b11000000) == 0b11000000 {
+        segs.push((x, y, x + 1.0, y));
+    } else {
+        if line_segs & 0b10000000 != 0 {
+            segs.push((x, y, x + 0.5, y));
+        }
+        if line_segs & 0b01000000 != 0 {
+            segs.push((x + 0.5, y, x + 1.0, y));
+        }
+    }
+
+    if (line_segs & 0b00110000) == 0b00110000 {
+        segs.push((x + 1.0, y, x + 1.0, y + 1.0));
+    } else {
+        if line_segs & 0b00100000 != 0 {
+            segs.push((x + 1.0, y, x + 1.0, y + 0.5));
+        }
+        if line_segs & 0b00010000 != 0 {
+            segs.push((x + 1.0, y + 0.5, x + 1.0, y + 1.0));
+        }
+    }
+
+    if (line_segs & 0b00001100) == 0b00001100 {
+        segs.push((x + 1.0, y + 1.0, x, y + 1.0));
+    } else {
+        if line_segs & 0b00001000 != 0 {
+            segs.push((x + 1.0, y + 1.0, x + 0.5, y + 1.0));
+        }
+        if line_segs & 0b00000100 != 0 {
+            segs.push((x + 0.5, y + 1.0, x, y + 1.0));
+        }
+    }
+
+    if (line_segs & 0b00000011) == 0b00000011 {
+        segs.push((x, y + 1.0, x, y));
+    } else {
+        if line_segs & 0b00000010 != 0 {
+            segs.push((x, y + 1.0, x, y + 0.5));
+        }
+        if line_segs & 0b00000001 != 0 {
+            segs.push((x, y + 0.5, x, y));
+        }
+    }
+
+    if !pixel_adj & disconnected != 0 {
+        for &(x1, y1, x2, y2) in gap_segs {
+            segs.push((x + x1, y + y1, x + x2, y + y2));
+        }
+    }
+}
+
+/// Link the unordered boundary segments of one connected component into
+/// closed paths and append them to `paths`. Segment endpoints are quantized
+/// with `to_key`/`from_key` so shared endpoints coincide exactly.
+fn trace_closed_paths(
+    segs: &[(f32, f32, f32, f32)],
+    to_key: fn(f32, f32) -> (i64, i64),
+    from_key: fn(i64, i64) -> (f32, f32),
+    paths: &mut Vec<Vec<(f32, f32)>>,
+) {
+    let mut px_to_segs: BTreeMap<(i64, i64), Vec<(i64, i64)>> = BTreeMap::new();
+    for (x1, y1, x2, y2) in segs {
+        let k1 = to_key(*x1, *y1);
+        let k2 = to_key(*x2, *y2);
+        px_to_segs.entry(k1).or_default().push(k2);
+        px_to_segs.entry(k2).or_default().push(k1);
+    }
+
+    for list in px_to_segs.values_mut() {
+        list.sort();
+    }
+
+    while !px_to_segs.is_empty() {
+        let (&start_key, _) = px_to_segs.iter().next().unwrap();
+        let v = px_to_segs.get_mut(&start_key).unwrap();
+        assert!(v.len() >= 2);
+        let next_key = v.pop().unwrap();
+        if v.is_empty() {
+            px_to_segs.remove(&start_key);
+        }
+
+        let mut path: Vec<(i64, i64)> = vec![start_key];
+        let mut indices: HashMap<(i64, i64), usize> = HashMap::new();
+        indices.insert(start_key, 0);
+
+        let mut x0 = start_key;
+        let mut x = next_key;
+        let mut dx = start_key.0 - next_key.0;
+        let mut dy = start_key.1 - next_key.1;
+
+        while let Some(mut list) = px_to_segs.remove(&x) {
+            list.retain(|k| *k != x0);
+            let nx_list = list;
+
+            if let Some(&k) = indices.get(&x) {
+                let mut extracted: Vec<(i64, i64)> = path[k..].to_vec();
+                path.truncate(k);
+                if extracted.first() != Some(&x) {
+                    extracted.insert(0, x);
+                }
+                paths.push(extracted.iter().map(|&(a, b)| from_key(a, b)).collect());
+
+                if path.is_empty() {
+                    if !nx_list.is_empty() {
+                        px_to_segs.insert(x, nx_list);
+                    }
+                    break;
+                }
+
+                indices.retain(|_, v| *v < path.len());
+
+                let prev = path[path.len() - 1];
+                dx = x.0 - prev.0;
+                dy = x.1 - prev.1;
+            }
+
+            if nx_list.is_empty() {
+                break;
+            }
+
+            let xx = nx_list[0];
+            if nx_list.len() > 1 {
+                px_to_segs.insert(x, nx_list[1..].to_vec());
+            }
+
+            indices.insert(x, path.len());
+            if dx * (x.1 - xx.1) != dy * (x.0 - xx.0) {
+                path.push(x);
+                dx = x.0 - xx.0;
+                dy = x.1 - xx.1;
+            }
+
+            x0 = x;
+            x = xx;
+        }
+    }
 }
 
 fn to_key(x: f32, y: f32) -> (i64, i64) {
@@ -396,14 +428,8 @@ pub fn track_contour_multi(
                 let left_adj = adj_data[i.wrapping_sub(1)];
                 let right_adj = adj_data[i + 1];
 
-                let connected = (pixel_adj & (top_adj << 5) & 0b10000000)
-                    | (pixel_adj & (top_adj << 3) & 0b01000000)
-                    | (pixel_adj & (right_adj << 5) & 0b00100000)
-                    | (pixel_adj & (right_adj << 3) & 0b00010000)
-                    | (pixel_adj & (bottom_adj >> 3) & 0b00001000)
-                    | (pixel_adj & (bottom_adj >> 5) & 0b00000100)
-                    | (pixel_adj & (left_adj >> 3) & 0b00000010)
-                    | (pixel_adj & (left_adj >> 5) & 0b00000001);
+                let connected =
+                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
 
                 if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
                     unsure.push(i - stride);
@@ -422,140 +448,11 @@ pub fn track_contour_multi(
                 if disconnected != 0 {
                     let y = (i / stride) as f32 - 1.0;
                     let x = (i % stride) as f32;
-
-                    let line_segs = pixel_adj & disconnected;
-
-                    if (line_segs & 0b11000000) == 0b11000000 {
-                        segs.push((x, y, x + 1.0, y));
-                    } else {
-                        if line_segs & 0b10000000 != 0 {
-                            segs.push((x, y, x + 0.5, y));
-                        }
-                        if line_segs & 0b01000000 != 0 {
-                            segs.push((x + 0.5, y, x + 1.0, y));
-                        }
-                    }
-
-                    if (line_segs & 0b00110000) == 0b00110000 {
-                        segs.push((x + 1.0, y, x + 1.0, y + 1.0));
-                    } else {
-                        if line_segs & 0b00100000 != 0 {
-                            segs.push((x + 1.0, y, x + 1.0, y + 0.5));
-                        }
-                        if line_segs & 0b00010000 != 0 {
-                            segs.push((x + 1.0, y + 0.5, x + 1.0, y + 1.0));
-                        }
-                    }
-
-                    if (line_segs & 0b00001100) == 0b00001100 {
-                        segs.push((x + 1.0, y + 1.0, x, y + 1.0));
-                    } else {
-                        if line_segs & 0b00001000 != 0 {
-                            segs.push((x + 1.0, y + 1.0, x + 0.5, y + 1.0));
-                        }
-                        if line_segs & 0b00000100 != 0 {
-                            segs.push((x + 0.5, y + 1.0, x, y + 1.0));
-                        }
-                    }
-
-                    if (line_segs & 0b00000011) == 0b00000011 {
-                        segs.push((x, y + 1.0, x, y));
-                    } else {
-                        if line_segs & 0b00000010 != 0 {
-                            segs.push((x, y + 1.0, x, y + 0.5));
-                        }
-                        if line_segs & 0b00000001 != 0 {
-                            segs.push((x, y + 0.5, x, y));
-                        }
-                    }
-
-                    if !pixel_adj & disconnected != 0 {
-                        for &(x1, y1, x2, y2) in gap_segs.as_ref() {
-                            segs.push((x + x1, y + y1, x + x2, y + y2));
-                        }
-                    }
+                    emit_boundary_segs(x, y, pixel_adj, disconnected, gap_segs.as_ref(), &mut segs);
                 }
             }
 
-            // Build adjacency map from segments (using fine-resolution keys
-            // to handle clipped gap segment coordinates correctly)
-            let mut px_to_segs: BTreeMap<(i64, i64), Vec<(i64, i64)>> = BTreeMap::new();
-            for (x1, y1, x2, y2) in &segs {
-                let k1 = to_key_fine(*x1, *y1);
-                let k2 = to_key_fine(*x2, *y2);
-                px_to_segs.entry(k1).or_default().push(k2);
-                px_to_segs.entry(k2).or_default().push(k1);
-            }
-
-            for list in px_to_segs.values_mut() {
-                list.sort();
-            }
-
-            // Trace closed paths
-            while !px_to_segs.is_empty() {
-                let (&start_key, _) = px_to_segs.iter().next().unwrap();
-                let v = px_to_segs.get_mut(&start_key).unwrap();
-                assert!(v.len() >= 2);
-                let next_key = v.pop().unwrap();
-                if v.is_empty() {
-                    px_to_segs.remove(&start_key);
-                }
-
-                let mut path: Vec<(i64, i64)> = vec![start_key];
-                let mut indices: HashMap<(i64, i64), usize> = HashMap::new();
-                indices.insert(start_key, 0);
-
-                let mut x0 = start_key;
-                let mut x = next_key;
-                let mut dx = start_key.0 - next_key.0;
-                let mut dy = start_key.1 - next_key.1;
-
-                while let Some(mut list) = px_to_segs.remove(&x) {
-                    list.retain(|k| *k != x0);
-                    let nx_list = list;
-
-                    if let Some(&k) = indices.get(&x) {
-                        let mut extracted: Vec<(i64, i64)> = path[k..].to_vec();
-                        path.truncate(k);
-                        if extracted.first() != Some(&x) {
-                            extracted.insert(0, x);
-                        }
-                        paths.push(extracted.iter().map(|&(a, b)| from_key_fine(a, b)).collect());
-
-                        if path.is_empty() {
-                            if !nx_list.is_empty() {
-                                px_to_segs.insert(x, nx_list);
-                            }
-                            break;
-                        }
-
-                        indices.retain(|_, v| *v < path.len());
-
-                        let prev = path[path.len() - 1];
-                        dx = x.0 - prev.0;
-                        dy = x.1 - prev.1;
-                    }
-
-                    if nx_list.is_empty() {
-                        break;
-                    }
-
-                    let xx = nx_list[0];
-                    if nx_list.len() > 1 {
-                        px_to_segs.insert(x, nx_list[1..].to_vec());
-                    }
-
-                    indices.insert(x, path.len());
-                    if dx * (x.1 - xx.1) != dy * (x.0 - xx.0) {
-                        path.push(x);
-                        dx = x.0 - xx.0;
-                        dy = x.1 - xx.1;
-                    }
-
-                    x0 = x;
-                    x = xx;
-                }
-            }
+            trace_closed_paths(&segs, to_key_fine, from_key_fine, &mut paths);
         }
     }
 
@@ -680,14 +577,8 @@ pub fn track_contour_multi_diff(
                 let left_adj = adj_data[i.wrapping_sub(1)];
                 let right_adj = adj_data[i + 1];
 
-                let connected = (pixel_adj & (top_adj << 5) & 0b10000000)
-                    | (pixel_adj & (top_adj << 3) & 0b01000000)
-                    | (pixel_adj & (right_adj << 5) & 0b00100000)
-                    | (pixel_adj & (right_adj << 3) & 0b00010000)
-                    | (pixel_adj & (bottom_adj >> 3) & 0b00001000)
-                    | (pixel_adj & (bottom_adj >> 5) & 0b00000100)
-                    | (pixel_adj & (left_adj >> 3) & 0b00000010)
-                    | (pixel_adj & (left_adj >> 5) & 0b00000001);
+                let connected =
+                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
 
                 if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
                     unsure.push(i - stride);
@@ -706,142 +597,11 @@ pub fn track_contour_multi_diff(
                 if disconnected != 0 {
                     let y = (i / stride) as f32 - 1.0;
                     let x = (i % stride) as f32;
-
-                    let line_segs = pixel_adj & disconnected;
-
-                    if (line_segs & 0b11000000) == 0b11000000 {
-                        segs.push((x, y, x + 1.0, y));
-                    } else {
-                        if line_segs & 0b10000000 != 0 {
-                            segs.push((x, y, x + 0.5, y));
-                        }
-                        if line_segs & 0b01000000 != 0 {
-                            segs.push((x + 0.5, y, x + 1.0, y));
-                        }
-                    }
-
-                    if (line_segs & 0b00110000) == 0b00110000 {
-                        segs.push((x + 1.0, y, x + 1.0, y + 1.0));
-                    } else {
-                        if line_segs & 0b00100000 != 0 {
-                            segs.push((x + 1.0, y, x + 1.0, y + 0.5));
-                        }
-                        if line_segs & 0b00010000 != 0 {
-                            segs.push((x + 1.0, y + 0.5, x + 1.0, y + 1.0));
-                        }
-                    }
-
-                    if (line_segs & 0b00001100) == 0b00001100 {
-                        segs.push((x + 1.0, y + 1.0, x, y + 1.0));
-                    } else {
-                        if line_segs & 0b00001000 != 0 {
-                            segs.push((x + 1.0, y + 1.0, x + 0.5, y + 1.0));
-                        }
-                        if line_segs & 0b00000100 != 0 {
-                            segs.push((x + 0.5, y + 1.0, x, y + 1.0));
-                        }
-                    }
-
-                    if (line_segs & 0b00000011) == 0b00000011 {
-                        segs.push((x, y + 1.0, x, y));
-                    } else {
-                        if line_segs & 0b00000010 != 0 {
-                            segs.push((x, y + 1.0, x, y + 0.5));
-                        }
-                        if line_segs & 0b00000001 != 0 {
-                            segs.push((x, y + 0.5, x, y));
-                        }
-                    }
-
-                    if !pixel_adj & disconnected != 0 {
-                        for &(x1, y1, x2, y2) in gap_segs.as_ref() {
-                            segs.push((x + x1, y + y1, x + x2, y + y2));
-                        }
-                    }
+                    emit_boundary_segs(x, y, pixel_adj, disconnected, gap_segs.as_ref(), &mut segs);
                 }
             }
 
-            let mut px_to_segs: BTreeMap<(i64, i64), Vec<(i64, i64)>> = BTreeMap::new();
-            for (x1, y1, x2, y2) in &segs {
-                let k1 = to_key_fine(*x1, *y1);
-                let k2 = to_key_fine(*x2, *y2);
-                px_to_segs.entry(k1).or_default().push(k2);
-                px_to_segs.entry(k2).or_default().push(k1);
-            }
-
-            for list in px_to_segs.values_mut() {
-                list.sort();
-            }
-
-            while !px_to_segs.is_empty() {
-                let (&start_key, _) = px_to_segs.iter().next().unwrap();
-                let v = px_to_segs.get_mut(&start_key).unwrap();
-                assert!(v.len() >= 2);
-                let next_key = v.pop().unwrap();
-                if v.is_empty() {
-                    px_to_segs.remove(&start_key);
-                }
-
-                let mut path: Vec<(i64, i64)> = vec![start_key];
-                let mut indices: HashMap<(i64, i64), usize> = HashMap::new();
-                indices.insert(start_key, 0);
-
-                let mut x0 = start_key;
-                let mut x = next_key;
-                let mut dx = start_key.0 - next_key.0;
-                let mut dy = start_key.1 - next_key.1;
-
-                while let Some(mut list) = px_to_segs.remove(&x) {
-                    list.retain(|k| *k != x0);
-                    let nx_list = list;
-
-                    if let Some(&k) = indices.get(&x) {
-                        let mut extracted: Vec<(i64, i64)> = path[k..].to_vec();
-                        path.truncate(k);
-                        if extracted.first() != Some(&x) {
-                            extracted.insert(0, x);
-                        }
-                        paths.push(
-                            extracted
-                                .iter()
-                                .map(|&(a, b)| from_key_fine(a, b))
-                                .collect(),
-                        );
-
-                        if path.is_empty() {
-                            if !nx_list.is_empty() {
-                                px_to_segs.insert(x, nx_list);
-                            }
-                            break;
-                        }
-
-                        indices.retain(|_, v| *v < path.len());
-
-                        let prev = path[path.len() - 1];
-                        dx = x.0 - prev.0;
-                        dy = x.1 - prev.1;
-                    }
-
-                    if nx_list.is_empty() {
-                        break;
-                    }
-
-                    let xx = nx_list[0];
-                    if nx_list.len() > 1 {
-                        px_to_segs.insert(x, nx_list[1..].to_vec());
-                    }
-
-                    indices.insert(x, path.len());
-                    if dx * (x.1 - xx.1) != dy * (x.0 - xx.0) {
-                        path.push(x);
-                        dx = x.0 - xx.0;
-                        dy = x.1 - xx.1;
-                    }
-
-                    x0 = x;
-                    x = xx;
-                }
-            }
+            trace_closed_paths(&segs, to_key_fine, from_key_fine, &mut paths);
         }
     }
 
@@ -1010,7 +770,7 @@ mod tests {
 
     #[test]
     fn diff_full_minus_half_produces_smooth_contour() {
-        use crate::pixel::{PX_HALF1, PX_HALF2};
+        use crate::pixel::PX_HALF1;
         // Full pixel minus bottom-left triangle → top-right triangle.
         let full = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
         let half = make_grid(1, 1, &[PX_HALF1 | PX_FULL]);

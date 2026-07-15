@@ -38,7 +38,7 @@ pub(crate) fn find_name_col_range_after_prefix(line: &str, prefix: &str) -> Opti
     let trimmed = line.trim_start();
     let leading_chars = line.chars().count() - trimmed.chars().count();
     let spans = tokenize_with_spans(trimmed).ok()?;
-    if spans.first().map_or(true, |t| t.value != prefix.trim()) {
+    if spans.first().is_none_or(|t| t.value != prefix.trim()) {
         return None;
     }
     let name_span = spans.get(1)?;
@@ -118,9 +118,9 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
                 _ => return Vec::new(),
             };
             let mut links = extract_glyph_and_parts_links(&name_span.value, leading + name_span.raw_start);
-            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
-                if let Some(color_span) = rest.get(fill_pos + 1) {
-                    if !color_span.value.starts_with('#') && color_span.value != "fg" && !color_span.value.is_empty() {
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill")
+                && let Some(color_span) = rest.get(fill_pos + 1)
+                    && !color_span.value.starts_with('#') && color_span.value != "fg" && !color_span.value.is_empty() {
                         links.push(LinkSpan {
                             col_start: leading + color_span.raw_start,
                             col_end: leading + color_span.raw_end,
@@ -128,13 +128,11 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
                             kind: LinkTargetKind::Color,
                         });
                     }
-                }
-            }
             links
         }
         "glyph" => {
-            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
-                if let Some(alias_span) = rest.get(eq_pos + 1) {
+            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=")
+                && let Some(alias_span) = rest.get(eq_pos + 1) {
                     let alias_base = leading + alias_span.raw_start;
                     let mut links = extract_glyph_and_parts_links(&alias_span.value, alias_base);
                     if let Some(name_span) = rest.first() {
@@ -142,7 +140,6 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
                     }
                     return links;
                 }
-            }
             let name_span = match rest.first() {
                 Some(s) if !s.value.is_empty() => s,
                 _ => return Vec::new(),
@@ -178,8 +175,8 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
             links
         }
         "feature" => {
-            if let Some(colon_pos) = rest.iter().position(|s| s.value == ":") {
-                if let Some(remap_span) = rest.get(colon_pos + 1) {
+            if let Some(colon_pos) = rest.iter().position(|s| s.value == ":")
+                && let Some(remap_span) = rest.get(colon_pos + 1) {
                     return vec![LinkSpan {
                         col_start: leading + remap_span.raw_start,
                         col_end: leading + remap_span.raw_end,
@@ -187,7 +184,6 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
                         kind: LinkTargetKind::Remap,
                     }];
                 }
-            }
             Vec::new()
         }
         "color" => {
@@ -346,8 +342,8 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
                 return None;
             }
             // Check if cursor is on a fill color name
-            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
-                if let Some(color_span) = rest.get(fill_pos + 1) {
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill")
+                && let Some(color_span) = rest.get(fill_pos + 1) {
                     let cs = leading + color_span.raw_start;
                     let ce = leading + color_span.raw_end;
                     if col >= cs && col <= ce
@@ -363,7 +359,6 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
                         });
                     }
                 }
-            }
             simple_glyph_rename(name_span, leading, col)
         }
         "name-parts" => {
@@ -471,13 +466,12 @@ pub fn find_link_target_in_doc(
             for (i, line) in lines.iter().enumerate() {
                 if let DocLine::Text(s) = line {
                     let trimmed = s.trim();
-                    if let Ok(tokens) = tokenize_tokens(trimmed) {
-                        if tokens.first().is_some_and(|t| t == "glyph")
+                    if let Ok(tokens) = tokenize_tokens(trimmed)
+                        && tokens.first().is_some_and(|t| t == "glyph")
                             && tokens.get(1).is_some_and(|t| t == name)
                         {
                             return Some(i);
                         }
-                    }
                 }
             }
             None
@@ -486,13 +480,12 @@ pub fn find_link_target_in_doc(
             for (i, line) in lines.iter().enumerate() {
                 if let DocLine::Text(s) = line {
                     let trimmed = s.trim();
-                    if let Ok(tokens) = tokenize_tokens(trimmed) {
-                        if tokens.first().is_some_and(|t| t == "name-parts")
+                    if let Ok(tokens) = tokenize_tokens(trimmed)
+                        && tokens.first().is_some_and(|t| t == "name-parts")
                             && tokens.get(1).is_some_and(|t| t == name)
                         {
                             return Some(i);
                         }
-                    }
                 }
             }
             None
@@ -501,15 +494,12 @@ pub fn find_link_target_in_doc(
             for (i, line) in lines.iter().enumerate() {
                 if let DocLine::Text(s) = line {
                     let trimmed = s.trim();
-                    if let Ok(tokens) = tokenize_tokens(trimmed) {
-                        if tokens.first().is_some_and(|t| t == "remap") {
-                            if let Some(first) = tokens.get(1) {
-                                if first == name || first.trim_end_matches(':') == name {
+                    if let Ok(tokens) = tokenize_tokens(trimmed)
+                        && tokens.first().is_some_and(|t| t == "remap")
+                            && let Some(first) = tokens.get(1)
+                                && (first == name || first.trim_end_matches(':') == name) {
                                     return Some(i);
                                 }
-                            }
-                        }
-                    }
                 }
             }
             None
@@ -518,13 +508,12 @@ pub fn find_link_target_in_doc(
             for (i, line) in lines.iter().enumerate() {
                 if let DocLine::Text(s) = line {
                     let trimmed = s.trim();
-                    if let Ok(tokens) = tokenize_tokens(trimmed) {
-                        if tokens.first().is_some_and(|t| t == "color")
+                    if let Ok(tokens) = tokenize_tokens(trimmed)
+                        && tokens.first().is_some_and(|t| t == "color")
                             && tokens.get(1).is_some_and(|t| t == name)
                         {
                             return Some(i);
                         }
-                    }
                 }
             }
             None

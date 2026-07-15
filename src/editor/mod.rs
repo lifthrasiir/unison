@@ -14,7 +14,6 @@ pub mod minimap;
 pub mod pixel_interaction;
 pub mod reconcile;
 pub(crate) use crate::ref_composite;
-pub mod shape_palette;
 pub mod undo;
 #[cfg(test)]
 mod view_tests;
@@ -24,6 +23,35 @@ use crate::document::DocLine;
 use crate::edit_menu::EditMenuCaps;
 use crate::pixel::PixelShape;
 use doc_links::RenameKind;
+
+/// Maps a hex-digit key press to its character, for Alt+hex Unicode entry.
+pub(crate) fn key_to_hex_char(key: egui::Key) -> Option<char> {
+    match key {
+        egui::Key::Num0 => Some('0'),
+        egui::Key::Num1 => Some('1'),
+        egui::Key::Num2 => Some('2'),
+        egui::Key::Num3 => Some('3'),
+        egui::Key::Num4 => Some('4'),
+        egui::Key::Num5 => Some('5'),
+        egui::Key::Num6 => Some('6'),
+        egui::Key::Num7 => Some('7'),
+        egui::Key::Num8 => Some('8'),
+        egui::Key::Num9 => Some('9'),
+        egui::Key::A => Some('A'),
+        egui::Key::B => Some('B'),
+        egui::Key::C => Some('C'),
+        egui::Key::D => Some('D'),
+        egui::Key::E => Some('E'),
+        egui::Key::F => Some('F'),
+        _ => None,
+    }
+}
+
+/// Parses an accumulated hex string into a scalar value, rejecting
+/// surrogates and out-of-range codepoints.
+pub(crate) fn validate_hex_codepoint(hex: &str) -> Option<char> {
+    u32::from_str_radix(hex, 16).ok().and_then(char::from_u32)
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum EditMode {
@@ -101,28 +129,8 @@ impl EditorState {
         self.active
     }
 
-    #[expect(dead_code)]
-    pub fn is_normal_mode(&self) -> bool {
-        matches!(self.mode, EditMode::Normal)
-    }
-
-    #[expect(dead_code)]
-    pub fn is_popup_open(&self) -> bool {
-        !matches!(self.popup, PopupState::None)
-    }
-
     pub fn cursor_source_line(&self) -> usize {
         self.cursor_source_line
-    }
-
-    #[expect(dead_code)]
-    pub fn cursor_item(&self) -> Option<usize> {
-        self.cursor_item
-    }
-
-    #[expect(dead_code)]
-    pub fn is_dirty_relative(&self) -> bool {
-        !self.undo.is_at_saved()
     }
 
     pub fn edit_menu_caps(&self) -> EditMenuCaps {
@@ -138,11 +146,6 @@ impl EditorState {
         self.mode = EditMode::Normal;
         self.selection_anchor = None;
         self.cursor = caret::Caret::new(line, 0);
-        self.scroll_to_cursor = true;
-    }
-
-    #[expect(dead_code)]
-    pub fn request_scroll_to_cursor(&mut self) {
         self.scroll_to_cursor = true;
     }
 
@@ -188,8 +191,8 @@ impl EditorState {
         if !matches!(self.popup, PopupState::None) {
             return;
         }
-        if let Some(DocLine::Text(line_text)) = lines.get(self.cursor.line) {
-            if let Some(target) =
+        if let Some(DocLine::Text(line_text)) = lines.get(self.cursor.line)
+            && let Some(target) =
                 doc_links::find_renameable_at_caret(line_text, self.cursor.col)
             {
                 self.popup = PopupState::Rename {
@@ -199,7 +202,6 @@ impl EditorState {
                     focus_set: false,
                 };
             }
-        }
     }
 
     pub fn apply_edit_action(

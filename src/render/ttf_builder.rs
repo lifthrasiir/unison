@@ -206,11 +206,10 @@ pub fn effective_visibility(
     if let Some(vis) = fill.visibility {
         return vis;
     }
-    if !fill.color.starts_with('#') && fill.color != "fg" {
-        if let Some((_, Some(vis))) = color_aliases.get(&fill.color) {
+    if !fill.color.starts_with('#') && fill.color != "fg"
+        && let Some((_, Some(vis))) = color_aliases.get(&fill.color) {
             return *vis;
         }
-    }
     LayerVisibility::Both
 }
 
@@ -259,11 +258,6 @@ pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<(std:
 
 pub fn build_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {
     build_font_from_documents_inner(docs, false, None)
-}
-
-#[allow(dead_code)]
-pub fn build_bitmap_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {
-    build_font_from_documents_inner(docs, true, None)
 }
 
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
@@ -325,47 +319,149 @@ fn build_font_from_documents_inner(docs: &[&Document], bitmap: bool, contour_cac
 /// directly (e.g. to canonicalize away the non-deterministic contour
 /// point/rotation order that `track_contour` can produce — see
 /// `tests::ttf_build_digest_real_files_is_stable`).
+/// Everything needed to assemble the font tables for one build flavor:
+/// font metadata, pixel→unit scale, glyphs, GSUB inputs, and color palette.
+type CollectedFontData = (FontMeta, f32, Vec<CollectedGlyph>, GsubData, Vec<Rgba>);
+
 #[cfg(test)]
-fn collect_glyph_data(docs: &[&Document], bitmap: bool) -> Option<(FontMeta, f32, Vec<CollectedGlyph>, GsubData, Vec<Rgba>)> {
+fn collect_glyph_data(docs: &[&Document], bitmap: bool) -> Option<CollectedFontData> {
     collect_glyph_data_cached(docs, bitmap, None)
 }
 
-fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache: Option<&mut ContourCache>) -> Option<(FontMeta, f32, Vec<CollectedGlyph>, GsubData, Vec<Rgba>)> {
-    if docs.is_empty() {
-        return None;
+/// OpenType tag from a string, right-padded with spaces to 4 bytes.
+fn make_tag(name: &str) -> Tag {
+    let mut tag_arr = [b' '; 4];
+    for (i, &b) in name.as_bytes().iter().enumerate().take(4) {
+        tag_arr[i] = b;
     }
+    Tag::new(&tag_arr)
+}
 
-    let mut meta = FontMeta::default();
-    for doc in docs {
-        for item in &doc.items {
-            if let DocumentItem::FontMeta(s) = item {
-                parse_font_meta(s, &mut meta);
-            }
+/// Script records with one default LangSys per script, from a
+/// script-tag → feature-indices map.
+fn build_script_records(script_feature_indices: &BTreeMap<String, Vec<u16>>) -> Vec<ScriptRecord> {
+    let mut script_records: Vec<ScriptRecord> = Vec::new();
+    for (script_tag, feat_indices) in script_feature_indices {
+        let lang_sys = LangSys {
+            required_feature_index: 0xFFFF,
+            feature_indices: feat_indices.clone(),
+        };
+        let script = Script::new(Some(lang_sys), vec![]);
+        script_records.push(ScriptRecord::new(make_tag(script_tag), script));
+    }
+    script_records
+}
+
+/// [`derive_ref_offsets_with`](crate::ref_composite::derive_ref_offsets_with)
+/// wired to the contour cache: anchors and alternatives are looked up from
+/// `cache`/`alt_index`, declared anchors from `declared_anchors_map`.
+fn derive_effective_refs(
+    points: &[GlyphPoint],
+    refs: &[GlyphRef],
+    cache: &HashMap<String, CachedContours>,
+    alt_index: &HashMap<String, Vec<(String, Vec<GlyphPoint>)>>,
+    declared_anchors_map: &HashMap<String, Vec<GlyphPoint>>,
+) -> (Vec<GlyphRef>, Vec<GlyphPoint>) {
+    crate::ref_composite::derive_ref_offsets_with(
+        points,
+        refs,
+        |name| {
+            resolve_cached_ref(name, cache)
+                .map(|resolved| resolved.anchors.clone())
+        },
+        |name| {
+            alt_index
+                .get(name)
+                .map_or_else(Vec::new, |v| v.clone())
+        },
+        |name| {
+            declared_anchors_map.get(name).cloned()
+        },
+    )
+}
+
+/// Scale pixel-space contours to font units, flipping y around the ascent
+/// and shifting x by `left_offset` (already in font units).
+fn scale_glyph_contours(
+    contours: &[Vec<(f32, f32)>],
+    scale: f32,
+    ascent: u16,
+    left_offset: i16,
+) -> Vec<Vec<(i16, i16)>> {
+    contours
+        .iter()
+        .map(|c| {
+            c.iter()
+                .map(|&(x, y)| {
+                    (
+                        (x * scale).round() as i16 + left_offset,
+                        ((ascent as f32 - y) * scale).round() as i16,
+                    )
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// Advance width and left offset in font units, from explicit `advance`/
+/// `left` flags when present, else the resolved raster width.
+fn resolve_glyph_metrics(
+    glyph_meta: &HashMap<String, (Option<u16>, Option<i16>)>,
+    name: &str,
+    resolved_width: u16,
+    scale: f32,
+) -> (u16, i16) {
+    let advance_width = match glyph_meta.get(name) {
+        Some(&(Some(adv), _)) => (adv as f32 * scale).round() as u16,
+        _ => (resolved_width as f32 * scale).round() as u16,
+    };
+    let left_offset = match glyph_meta.get(name) {
+        Some(&(_, Some(left))) => (left as f32 * scale).round() as i16,
+        _ => 0,
+    };
+    (advance_width, left_offset)
+}
+
+/// Composite references for a resolved glyph in font units, or empty when
+/// the glyph is forced inline.
+fn build_composite_refs(
+    resolved: &CachedContours,
+    inline: bool,
+    left_offset: i16,
+    scale: f32,
+) -> Vec<CompositeRef> {
+    if inline {
+        return Vec::new();
+    }
+    let Some(comps) = &resolved.composite_components else {
+        return Vec::new();
+    };
+    comps.iter().map(|(name, dx, dy)| {
+        CompositeRef {
+            component_name: name.clone(),
+            x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16,
+            y_offset: (-*dy * scale).round() as i16,
         }
-    }
+    }).collect()
+}
 
-    if meta.height == 0 {
-        eprintln!("error: font-meta height must be > 0");
-        return None;
-    }
-
-    let scale = UNITS_PER_EM as f32 / meta.height as f32;
-
-    let name_parts = collect_name_parts(docs);
-
+/// Collect all items from `docs` with name-part patterns substituted and
+/// expanded, and `map-decomposed` directives turned into synthesized
+/// composite glyphs + `map` entries via NFD decomposition.
+pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsMap) -> Vec<DocumentItem> {
     // Collect all items, expanding ranged glyph names
     let mut all_items: Vec<DocumentItem> = Vec::new();
     for doc in docs {
         for item in &doc.items {
             if let DocumentItem::Glyph { name, body } = item {
-                let name_str = substitute_name_parts(&name.display(), &name_parts);
+                let name_str = substitute_name_parts(&name.display(), name_parts);
                 if is_name_pattern(&name_str) {
                     let subst_name = GlyphName(name_str);
                     let subst_refs: Vec<GlyphRef> = body
                         .refs
                         .iter()
                         .map(|r| GlyphRef {
-                            name: substitute_name_parts(&r.name, &name_parts),
+                            name: substitute_name_parts(&r.name, name_parts),
                             offset: r.offset,
                             negated: r.negated,
                             fill: r.fill.clone(),
@@ -386,7 +482,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 } else {
                     let mut body = body.clone();
                     for gref in &mut body.refs {
-                        gref.name = substitute_name_parts(&gref.name, &name_parts);
+                        gref.name = substitute_name_parts(&gref.name, name_parts);
                     }
                     all_items.push(DocumentItem::Glyph {
                         name: GlyphName(name_str),
@@ -396,7 +492,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             } else if let DocumentItem::Map { char_repr, glyph } = item {
                 all_items.push(DocumentItem::Map {
                     char_repr: char_repr.clone(),
-                    glyph: substitute_name_parts(glyph, &name_parts),
+                    glyph: substitute_name_parts(glyph, name_parts),
                 });
             } else if let DocumentItem::MapDecomposed { .. } = item {
                 all_items.push(item.clone());
@@ -474,6 +570,34 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         all_items.extend(decomposed_items);
     }
 
+    all_items
+}
+
+fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache: Option<&mut ContourCache>) -> Option<CollectedFontData> {
+    if docs.is_empty() {
+        return None;
+    }
+
+    let mut meta = FontMeta::default();
+    for doc in docs {
+        for item in &doc.items {
+            if let DocumentItem::FontMeta(s) = item {
+                parse_font_meta(s, &mut meta);
+            }
+        }
+    }
+
+    if meta.height == 0 {
+        eprintln!("error: font-meta height must be > 0");
+        return None;
+    }
+
+    let scale = UNITS_PER_EM as f32 / meta.height as f32;
+
+    let name_parts = collect_name_parts(docs);
+
+    let all_items = collect_expanded_items(docs, &name_parts);
+
     // Own-points map: for look-ahead alternative selection in ref resolution.
     let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &all_items {
@@ -543,23 +667,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 continue;
             }
             let pg = pending.swap_remove(i);
-            let (effective_refs, anchors) =
-                crate::ref_composite::derive_ref_offsets_with(
-                    &pg.points,
-                    &pg.refs,
-                    |name| {
-                        resolve_cached_ref(name, &cache)
-                            .map(|resolved| resolved.anchors.clone())
-                    },
-                    |name| {
-                        alt_index
-                            .get(name)
-                            .map_or_else(Vec::new, |v| v.clone())
-                    },
-                    |name| {
-                        declared_anchors_map.get(name).cloned()
-                    },
-                );
+            let (effective_refs, anchors) = derive_effective_refs(
+                &pg.points, &pg.refs, &cache, &alt_index, &declared_anchors_map);
             let mut cached_entry = CachedContours::from_components(
                 pg.pixels.as_ref(),
                 &effective_refs,
@@ -616,52 +725,16 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         for (cp, glyph_name) in &pairs {
             let Some(resolved) = cache.get(glyph_name.as_str()) else { continue };
 
-            let font_contours: Vec<Vec<(i16, i16)>> = resolved
-                .contours
-                .iter()
-                .map(|c| {
-                    c.iter()
-                        .map(|&(x, y)| {
-                            (
-                                (x * scale).round() as i16,
-                                ((meta.ascent as f32 - y) * scale).round() as i16,
-                            )
-                        })
-                        .collect()
-                })
-                .collect();
-
-            let advance_width = match glyph_meta.get(glyph_name.as_str()) {
-                Some(&(Some(adv), _)) => (adv as f32 * scale).round() as u16,
-                _ => (resolved.width as f32 * scale).round() as u16,
-            };
-            let left_offset = match glyph_meta.get(glyph_name.as_str()) {
-                Some(&(_, Some(left))) => (left as f32 * scale).round() as i16,
-                _ => 0,
-            };
-            let font_contours = if left_offset != 0 {
-                font_contours.into_iter().map(|c| {
-                    c.into_iter().map(|(x, y)| (x + left_offset, y)).collect()
-                }).collect()
-            } else {
-                font_contours
-            };
-
-            let composite_refs = if !inline_glyphs.contains(glyph_name.as_str()) {
-                if let Some(comps) = &resolved.composite_components {
-                    comps.iter().map(|(name, dx, dy)| {
-                        CompositeRef {
-                            component_name: name.clone(),
-                            x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16,
-                            y_offset: (-*dy * scale).round() as i16,
-                        }
-                    }).collect()
-                } else {
-                    Vec::new()
-                }
-            } else {
-                Vec::new()
-            };
+            let (advance_width, left_offset) =
+                resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, scale);
+            let font_contours =
+                scale_glyph_contours(&resolved.contours, scale, meta.ascent, left_offset);
+            let composite_refs = build_composite_refs(
+                resolved,
+                inline_glyphs.contains(glyph_name.as_str()),
+                left_offset,
+                scale,
+            );
 
             let is_mark = glyph_bodies.get(glyph_name.as_str()).is_some_and(|b| b.mark);
             let glyph_anchors = cache.get(glyph_name.as_str())
@@ -681,7 +754,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 color_layers: Vec::new(),
                 mark: is_mark,
                 resolved_anchors: glyph_anchors,
-                declared_anchors: declared_anchors,
+                declared_anchors,
             });
         }
     }
@@ -702,23 +775,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
 
         // Resolve effective refs (anchor matching etc.)
         let alt_index = build_cached_alternatives(&cache);
-        let (effective_refs, _) =
-            crate::ref_composite::derive_ref_offsets_with(
-                &body.points,
-                &body.refs,
-                |name| {
-                    resolve_cached_ref(name, &cache)
-                        .map(|resolved| resolved.anchors.clone())
-                },
-                |name| {
-                    alt_index
-                        .get(name)
-                        .map_or_else(Vec::new, |v| v.clone())
-                },
-                |name| {
-                    declared_anchors_map.get(name).cloned()
-                },
-            );
+        let (effective_refs, _) = derive_effective_refs(
+            &body.points, &body.refs, &cache, &alt_index, &declared_anchors_map);
 
         let left_offset = match glyph_meta.get(&g.name) {
             Some(&(_, Some(left))) => (left as f32 * scale).round() as i16,
@@ -729,23 +787,11 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         // and separate color layers (refs with non-fg fill).
         let mut fg_contours: Vec<Vec<(i16, i16)>> = Vec::new();
 
-        if let Some(ref own_grid) = body.pixels {
-            if !own_grid.is_all_empty() {
+        if let Some(ref own_grid) = body.pixels
+            && !own_grid.is_all_empty() {
                 let c = track_contour(own_grid, PX_SUBPIXEL);
-                for contour in &c {
-                    fg_contours.push(
-                        contour.iter()
-                            .map(|&(x, y)| {
-                                (
-                                    (x * scale).round() as i16 + left_offset,
-                                    ((meta.ascent as f32 - y) * scale).round() as i16,
-                                )
-                            })
-                            .collect()
-                    );
-                }
+                fg_contours.extend(scale_glyph_contours(&c, scale, meta.ascent, left_offset));
             }
-        }
 
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
@@ -809,8 +855,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
 
         // Rebuild fallback contours: only non-coloronly layers
         let mut fallback_contours: Vec<Vec<(i16, i16)>> = Vec::new();
-        if let Some(ref own_grid) = body.pixels {
-            if !own_grid.is_all_empty() {
+        if let Some(ref own_grid) = body.pixels
+            && !own_grid.is_all_empty() {
                 let c = track_contour(own_grid, PX_SUBPIXEL);
                 for contour in &c {
                     fallback_contours.push(
@@ -825,7 +871,6 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     );
                 }
             }
-        }
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
             let fill = orig_ref.fill.as_ref();
@@ -966,11 +1011,10 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     if seen_names.contains(alt_name) || extra_name_set.contains(alt_name) {
                         continue;
                     }
-                    if let Some(alt_minus) = alt_anchors.iter().find(|p| p.position == minus_name) {
-                        if !alt_minus.size_matches(mark_minus) {
+                    if let Some(alt_minus) = alt_anchors.iter().find(|p| p.position == minus_name)
+                        && !alt_minus.size_matches(mark_minus) {
                             extra_name_set.insert(alt_name.clone());
                         }
-                    }
                 }
             }
         }
@@ -989,52 +1033,16 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             composite_components: None,
         };
         let resolved = cache.get(glyph_name.as_str()).unwrap_or(&empty_cached);
-        let font_contours: Vec<Vec<(i16, i16)>> = resolved
-            .contours
-            .iter()
-            .map(|c| {
-                c.iter()
-                    .map(|&(x, y)| {
-                        (
-                            (x * scale).round() as i16,
-                            ((meta.ascent as f32 - y) * scale).round() as i16,
-                        )
-                    })
-                    .collect()
-            })
-            .collect();
-
-        let advance_width = match glyph_meta.get(glyph_name.as_str()) {
-            Some(&(Some(adv), _)) => (adv as f32 * scale).round() as u16,
-            _ => (resolved.width as f32 * scale).round() as u16,
-        };
-        let left_offset = match glyph_meta.get(glyph_name.as_str()) {
-            Some(&(_, Some(left))) => (left as f32 * scale).round() as i16,
-            _ => 0,
-        };
-        let font_contours = if left_offset != 0 {
-            font_contours.into_iter().map(|c| {
-                c.into_iter().map(|(x, y)| (x + left_offset, y)).collect()
-            }).collect()
-        } else {
-            font_contours
-        };
-
-        let composite_refs = if !inline_glyphs.contains(glyph_name.as_str()) {
-            if let Some(comps) = &resolved.composite_components {
-                comps.iter().map(|(name, dx, dy)| {
-                    CompositeRef {
-                        component_name: name.clone(),
-                        x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16,
-                        y_offset: (-*dy * scale).round() as i16,
-                    }
-                }).collect()
-            } else {
-                Vec::new()
-            }
-        } else {
-            Vec::new()
-        };
+        let (advance_width, left_offset) =
+            resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, scale);
+        let font_contours =
+            scale_glyph_contours(&resolved.contours, scale, meta.ascent, left_offset);
+        let composite_refs = build_composite_refs(
+            resolved,
+            inline_glyphs.contains(glyph_name.as_str()),
+            left_offset,
+            scale,
+        );
 
         let is_mark = glyph_bodies.get(glyph_name.as_str()).is_some_and(|b| b.mark);
         let glyph_anchors = cache.get(glyph_name.as_str())
@@ -1053,7 +1061,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             color_layers: Vec::new(),
             mark: is_mark,
             resolved_anchors: glyph_anchors,
-            declared_anchors: declared_anchors,
+            declared_anchors,
         });
     }
 
@@ -1073,20 +1081,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     composite_components: None,
                 };
                 let resolved = cache.get(cr.component_name.as_str()).unwrap_or(&empty_cached);
-                let font_contours: Vec<Vec<(i16, i16)>> = resolved
-                    .contours
-                    .iter()
-                    .map(|c| {
-                        c.iter()
-                            .map(|&(x, y)| {
-                                (
-                                    (x * scale).round() as i16,
-                                    ((meta.ascent as f32 - y) * scale).round() as i16,
-                                )
-                            })
-                            .collect()
-                    })
-                    .collect();
+                let font_contours =
+                    scale_glyph_contours(&resolved.contours, scale, meta.ascent, 0);
                 let advance_width = (resolved.width as f32 * scale).round() as u16;
                 component_extras.push(CollectedGlyph {
                     name: cr.component_name.clone(),
@@ -1497,12 +1493,7 @@ fn build_gsub(
     // Collect which feature indices belong to which script tags
     let mut script_feature_indices: BTreeMap<String, Vec<u16>> = BTreeMap::new();
     for (feat_tag, scripts, set_names) in &gsub_data.features {
-        let tag_bytes = feat_tag.as_bytes();
-        let mut tag_arr = [b' '; 4];
-        for (i, &b) in tag_bytes.iter().enumerate().take(4) {
-            tag_arr[i] = b;
-        }
-        let tag = Tag::new(&tag_arr);
+        let tag = make_tag(feat_tag);
 
         let lookup_indices: Vec<u16> = set_names
             .iter()
@@ -1520,20 +1511,7 @@ fn build_gsub(
         }
     }
 
-    let mut script_records: Vec<ScriptRecord> = Vec::new();
-    for (script_tag, feat_indices) in &script_feature_indices {
-        let tag_bytes = script_tag.as_bytes();
-        let mut tag_arr = [b' '; 4];
-        for (i, &b) in tag_bytes.iter().enumerate().take(4) {
-            tag_arr[i] = b;
-        }
-        let lang_sys = LangSys {
-            required_feature_index: 0xFFFF,
-            feature_indices: feat_indices.clone(),
-        };
-        let script = Script::new(Some(lang_sys), vec![]);
-        script_records.push(ScriptRecord::new(Tag::new(&tag_arr), script));
-    }
+    let script_records = build_script_records(&script_feature_indices);
 
     let script_list = ScriptList::new(script_records);
     let feature_list = FeatureList::new(feature_records);
@@ -1709,15 +1687,14 @@ fn build_anchor_gpos(
                             break;
                         }
                     }
-                    if !alt_found {
-                        if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
+                    if !alt_found
+                        && let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                             let class = anchor_class_map[anchor_name] as usize;
                             let x = (pt.col as f32 * scale).round() as i16;
                             let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
                             own_plus[class] = Some((x, y));
                             has_own = true;
                         }
-                    }
                 } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
                     let x = (pt.col as f32 * scale).round() as i16;
@@ -1902,20 +1879,7 @@ fn build_anchor_gpos(
             }
         }
 
-        let mut script_records: Vec<ScriptRecord> = Vec::new();
-        for (script_tag, feat_indices) in &script_feature_indices {
-            let tag_bytes = script_tag.as_bytes();
-            let mut tag_arr = [b' '; 4];
-            for (i, &b) in tag_bytes.iter().enumerate().take(4) {
-                tag_arr[i] = b;
-            }
-            let lang_sys = LangSys {
-                required_feature_index: 0xFFFF,
-                feature_indices: feat_indices.clone(),
-            };
-            let script = Script::new(Some(lang_sys), vec![]);
-            script_records.push(ScriptRecord::new(Tag::new(&tag_arr), script));
-        }
+        let script_records = build_script_records(&script_feature_indices);
 
         let script_list = ScriptList::new(script_records);
         let feature_list = FeatureList::new(feature_records);
@@ -2083,11 +2047,10 @@ fn build_anchor_gpos(
                         let plus_pt = base.declared_anchors.iter()
                             .find(|p| p.position == plus_name)
                             .or_else(|| base.resolved_anchors.iter().find(|p| p.position == plus_name));
-                        if let Some(pt) = plus_pt {
-                            if pt.size_matches(alt_minus) && !pt.size_matches(mark_minus) {
+                        if let Some(pt) = plus_pt
+                            && pt.size_matches(alt_minus) && !pt.size_matches(mark_minus) {
                                 backtrack_gids.push(base_gid);
                             }
-                        }
                     }
                     if backtrack_gids.is_empty() {
                         continue;
@@ -2126,8 +2089,8 @@ fn build_anchor_gpos(
                     };
 
                     let subst_lookup = build_single_subst_from_pairs(
-                        &[g.name.clone()],
-                        &[alt_name.clone()],
+                        std::slice::from_ref(&g.name),
+                        std::slice::from_ref(alt_name),
                         name_to_gid,
                     );
                     let subst_idx = lookups.len();
@@ -2384,8 +2347,8 @@ impl CachedContours {
                 diff_layers.push((grid, 0, 0, false));
             }
             for gref in refs {
-                if let Some(cached) = resolve_cached_ref(&gref.name, cache) {
-                    if let Some(ref_grid) = &cached.grid {
+                if let Some(cached) = resolve_cached_ref(&gref.name, cache)
+                    && let Some(ref_grid) = &cached.grid {
                         diff_layers.push((
                             ref_grid,
                             gref.row() as i32,
@@ -2393,7 +2356,6 @@ impl CachedContours {
                             gref.negated,
                         ));
                     }
-                }
             }
 
             let contours = if bitmap {
@@ -2430,46 +2392,13 @@ impl CachedContours {
             let mut result = PixelGrid::new(width, height);
 
             if let Some(grid) = own_pixels {
-                let off_r = -min_r;
-                let off_c = -min_c;
-                for r in 0..grid.height as i32 {
-                    for c in 0..grid.width as i32 {
-                        let shape = grid.get(r as u16, c as u16);
-                        if !shape.is_empty() {
-                            let dr = off_r + r;
-                            let dc = off_c + c;
-                            if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
-                                result.set(dr as u16, dc as u16, shape);
-                            }
-                        }
-                    }
-                }
+                result.blit(grid, -min_r, -min_c, false);
             }
 
             for gref in refs {
                 let Some(cached) = resolve_cached_ref(&gref.name, cache) else { continue };
                 let Some(ref_grid) = &cached.grid else { continue };
-                let off_r = gref.row() as i32 - min_r;
-                let off_c = gref.col() as i32 - min_c;
-                for r in 0..ref_grid.height as i32 {
-                    for c in 0..ref_grid.width as i32 {
-                        let shape = ref_grid.get(r as u16, c as u16);
-                        if !shape.is_empty() {
-                            let dr = off_r + r;
-                            let dc = off_c + c;
-                            if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
-                                if gref.negated {
-                                    let current = result.get(dr as u16, dc as u16);
-                                    if !current.is_empty() {
-                                        result.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
-                                    }
-                                } else {
-                                    result.set(dr as u16, dc as u16, shape);
-                                }
-                            }
-                        }
-                    }
-                }
+                result.blit(ref_grid, gref.row() as i32 - min_r, gref.col() as i32 - min_c, gref.negated);
             }
 
             return Some(Self {
@@ -2489,11 +2418,10 @@ impl CachedContours {
             layers.push((grid, 0, 0));
         }
         for gref in refs {
-            if let Some(cached) = resolve_cached_ref(&gref.name, cache) {
-                if let Some(ref_grid) = &cached.grid {
+            if let Some(cached) = resolve_cached_ref(&gref.name, cache)
+                && let Some(ref_grid) = &cached.grid {
                     layers.push((ref_grid, gref.row() as i32, gref.col() as i32));
                 }
-            }
         }
 
         let needs_multi = own_pixels.is_some() || layers_have_subpixel_conflicts(&layers);
@@ -2626,8 +2554,7 @@ impl CachedContours {
 fn layers_have_subpixel_conflicts(layers: &[(&PixelGrid, i32, i32)]) -> bool {
     for i in 0..layers.len() {
         let (g1, r1, c1) = layers[i];
-        for j in i + 1..layers.len() {
-            let (g2, r2, c2) = layers[j];
+        for &(g2, r2, c2) in &layers[i + 1..] {
             let overlap_r0 = r1.max(r2);
             let overlap_r1 = (r1 + g1.height as i32).min(r2 + g2.height as i32);
             let overlap_c0 = c1.max(c2);
@@ -2908,7 +2835,7 @@ fn build_ttf(
     let mut max_component_depth = 0u16;
 
     // Pass 2: build glyph outlines
-    for (_i, g) in glyphs.iter().enumerate() {
+    for g in glyphs.iter() {
         let is_composite = !g.composite_refs.is_empty()
             && g.composite_refs.iter().all(|cr| name_to_gid.contains_key(&cr.component_name));
 
@@ -3240,11 +3167,7 @@ fn build_ttf(
             gsub.lookup_list.lookups.push(lookup.into());
         }
 
-        let mut tag_arr = [b' '; 4];
-        for (i, &b) in feature_tag.as_bytes().iter().enumerate().take(4) {
-            tag_arr[i] = b;
-        }
-        let feat_tag = Tag::new(&tag_arr);
+        let feat_tag = make_tag(&feature_tag);
 
         let feat_idx = gsub.feature_list.feature_records.len() as u16;
         gsub.feature_list.feature_records.push(FeatureRecord::new(
@@ -3253,11 +3176,7 @@ fn build_ttf(
         ));
 
         for script in &scripts {
-            let mut script_arr = [b' '; 4];
-            for (i, &b) in script.as_bytes().iter().enumerate().take(4) {
-                script_arr[i] = b;
-            }
-            let script_tag = Tag::new(&script_arr);
+            let script_tag = make_tag(script);
 
             let existing = gsub
                 .script_list
@@ -4101,7 +4020,7 @@ map A = combo
         // the contours would cover all 4 cells. If only base, all 4 cells too.
         // This test is hard to distinguish by contour shape alone.
         // Just verify the font builds and has color layers.
-        assert!(combo.color_layers.len() >= 1);
+        assert!(!combo.color_layers.is_empty());
     }
 
     #[test]
@@ -4269,7 +4188,6 @@ feature ccmp for DFLT : anchor above
         assert!(gpos.is_ok(), "GPOS table should be present");
     }
 
-    #[test]
     /// Regression test for anchor-based ccmp and GPOS with three base
     /// glyphs that have different anchor/alternative configurations:
     ///
@@ -4629,11 +4547,10 @@ feature ccmp for DFLT : anchor below
         for lookup in lookups {
             if let PositionLookup::MarkToBase(ref lk) = *lookup.as_ref() {
                 for sub in &lk.subtables {
-                    if let CoverageTable::Format1(ref cov) = *sub.base_coverage {
-                        if cov.glyph_array.contains(&composite_gid) {
+                    if let CoverageTable::Format1(ref cov) = *sub.base_coverage
+                        && cov.glyph_array.contains(&composite_gid) {
                             found_in_base_coverage = true;
                         }
-                    }
                 }
             }
         }

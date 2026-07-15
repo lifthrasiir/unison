@@ -5,7 +5,6 @@
 //! assertions read both the editor/document state and the rendered layout
 //! (visual lines, grid rows, gutter line numbers) captured per frame.
 
-use crate::document::DocLine;
 use crate::editor::EditMode;
 use crate::editor::caret::Caret;
 use crate::editor::harness::EditorHarness;

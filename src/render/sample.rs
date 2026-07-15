@@ -55,8 +55,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         for item in &doc.items {
             if let DocumentItem::FontMeta(s) = item {
                 for pair in s.split_whitespace().collect::<Vec<_>>().chunks(2) {
-                    if pair.len() == 2 {
-                        if let Ok(v) = pair[1].parse::<u16>() {
+                    if pair.len() == 2
+                        && let Ok(v) = pair[1].parse::<u16>() {
                             match pair[0] {
                                 "height" => height = v,
                                 "ascent" => ascent = v,
@@ -64,7 +64,6 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                                 _ => {}
                             }
                         }
-                    }
                 }
             }
         }
@@ -76,125 +75,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let name_parts = collect_name_parts(docs);
     let color_aliases = collect_color_aliases(docs);
 
-    let mut all_items: Vec<DocumentItem> = Vec::new();
-    for doc in docs {
-        for item in &doc.items {
-            if let DocumentItem::Glyph { name, body } = item {
-                let name_str = substitute_name_parts(&name.display(), &name_parts);
-                if is_name_pattern(&name_str) {
-                    let subst_name = GlyphName(name_str);
-                    let subst_refs: Vec<GlyphRef> = body
-                        .refs
-                        .iter()
-                        .map(|r| GlyphRef {
-                            name: substitute_name_parts(&r.name, &name_parts),
-                            offset: r.offset,
-                            negated: r.negated,
-                            fill: r.fill.clone(),
-                        })
-                        .collect();
-                    match expand_glyph_block(&subst_name, &subst_refs) {
-                        Ok(expanded) => {
-                            for mut item in expanded {
-                                if let DocumentItem::Glyph { body: ref mut b, .. } = item {
-                                    b.pixels = body.pixels.clone();
-                                    b.points = body.points.clone();
-                                    b.sticky = body.sticky;
-                                    b.advance = body.advance;
-                                    b.left = body.left;
-                                }
-                                all_items.push(item);
-                            }
-                        }
-                        Err(_) => {}
-                    }
-                } else {
-                    let mut body = body.clone();
-                    for gref in &mut body.refs {
-                        gref.name = substitute_name_parts(&gref.name, &name_parts);
-                    }
-                    all_items.push(DocumentItem::Glyph {
-                        name: GlyphName(name_str),
-                        body,
-                    });
-                }
-            } else if let DocumentItem::Map { char_repr, glyph } = item {
-                all_items.push(DocumentItem::Map {
-                    char_repr: char_repr.clone(),
-                    glyph: substitute_name_parts(glyph, &name_parts),
-                });
-            } else {
-                all_items.push(item.clone());
-            }
-        }
-    }
-
-    // Expand MapDecomposed: synthesize composite glyphs from NFD decomposition.
-    {
-        use unicode_normalization::UnicodeNormalization;
-
-        let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
-        for item in &all_items {
-            if let DocumentItem::Map { char_repr, glyph } = item {
-                let pairs = expand_map_pairs(char_repr, glyph);
-                for (cp, gname) in pairs {
-                    cp_to_glyph.entry(cp).or_insert(gname);
-                }
-            }
-        }
-
-        let mut decomposed_items: Vec<DocumentItem> = Vec::new();
-        let all_items_snapshot = all_items.clone();
-        for item in &all_items_snapshot {
-            let DocumentItem::MapDecomposed { char_repr } = item else {
-                continue;
-            };
-            let Some(cp) = crate::render::ttf_builder::parse_map_char(char_repr) else {
-                continue;
-            };
-            let Some(ch) = char::from_u32(cp) else {
-                continue;
-            };
-
-            let nfd: Vec<char> = ch.nfd().collect();
-            if nfd.len() < 2 {
-                continue;
-            }
-
-            let glyph_refs: Vec<Option<String>> = nfd
-                .iter()
-                .map(|c| cp_to_glyph.get(&(*c as u32)).cloned())
-                .collect();
-            if glyph_refs.iter().any(|g| g.is_none()) {
-                continue;
-            }
-
-            let composite_name = format!("uni{cp:04X}");
-            let refs: Vec<GlyphRef> = glyph_refs
-                .into_iter()
-                .map(|g| GlyphRef {
-                    name: g.unwrap(),
-                    offset: None,
-                    negated: false,
-                    fill: None,
-                })
-                .collect();
-
-            decomposed_items.push(DocumentItem::Glyph {
-                name: GlyphName(composite_name.clone()),
-                body: GlyphBody {
-                    refs,
-                    ..GlyphBody::new()
-                },
-            });
-            decomposed_items.push(DocumentItem::Map {
-                char_repr: char_repr.clone(),
-                glyph: composite_name,
-            });
-        }
-        all_items.retain(|item| !matches!(item, DocumentItem::MapDecomposed { .. }));
-        all_items.extend(decomposed_items);
-    }
+    let all_items =
+        crate::render::ttf_builder::collect_expanded_items(docs, &name_parts);
 
     // Build contour cache for named glyphs
     struct CachedGlyph {
@@ -418,18 +300,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             if let Some(grid) = own_pixels {
                 let off_r = -min_r;
                 let off_c = -min_c;
-                for r in 0..grid.height as i32 {
-                    for c in 0..grid.width as i32 {
-                        let shape = grid.get(r as u16, c as u16);
-                        if !shape.is_empty() {
-                            let dr = off_r + r;
-                            let dc = off_c + c;
-                            if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
-                                result.set(dr as u16, dc as u16, shape);
-                            }
-                        }
-                    }
-                }
+                result.blit(grid, off_r, off_c, false);
                 components.push(SampleComponent {
                     row: off_r,
                     col: off_c,
@@ -451,25 +322,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 let off_c = gref.col() as i32 - min_c;
                 let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
                 if let Some(ref_grid) = &cached.grid {
-                    for r in 0..ref_grid.height as i32 {
-                        for c in 0..ref_grid.width as i32 {
-                            let shape = ref_grid.get(r as u16, c as u16);
-                            if !shape.is_empty() {
-                                let dr = off_r + r;
-                                let dc = off_c + c;
-                                if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
-                                    if gref.negated {
-                                        let current = result.get(dr as u16, dc as u16);
-                                        if !current.is_empty() {
-                                            result.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
-                                        }
-                                    } else {
-                                        result.set(dr as u16, dc as u16, shape);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    result.blit(ref_grid, off_r, off_c, gref.negated);
                     if has_negated {
                         diff_layers.push((ref_grid, off_r, off_c, gref.negated));
                     } else if !gref.negated {
@@ -590,8 +443,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     // Collect exclude-from-sample
     let mut excluded: BTreeSet<u32> = BTreeSet::new();
     for item in &all_items {
-        if let DocumentItem::Directive(s) = item {
-            if let Some(rest) = s.strip_prefix("exclude-from-sample ") {
+        if let DocumentItem::Directive(s) = item
+            && let Some(rest) = s.strip_prefix("exclude-from-sample ") {
                 for tok in rest.split_whitespace() {
                     if let Some(cp) = crate::render::ttf_builder::parse_map_char(tok) {
                         excluded.insert(cp);
@@ -603,18 +456,16 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     }
                 }
             }
-        }
     }
 
     // Collect features
     let mut features: Vec<String> = Vec::new();
     let mut seen_features: HashSet<String> = HashSet::new();
     for item in &all_items {
-        if let DocumentItem::Feature { name, .. } = item {
-            if seen_features.insert(name.clone()) {
+        if let DocumentItem::Feature { name, .. } = item
+            && seen_features.insert(name.clone()) {
                 features.push(name.clone());
             }
-        }
     }
 
     // Build sample glyphs from cache
@@ -837,14 +688,14 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         write!(w, "</span>")?;
     }
 
-    write!(w, "</span></div><script>\n{}</script></body></html>\n", "\
+    write!(w, "</span></div><script>\n\
 prevt=0;
-function $(x){return document.getElementById(x)}
-function f(t,h){if(t.normalize)t=t.normalize();if(prevt===t)return;prevt=t;if(!h)location.hash=t?'#!'+encodeURIComponent(t):'';$('sample').value=t;document.body.className=t?'sample':'';var sm='',bg='';for(var i=0;i<t.length;++i){var c=t.charCodeAt(i).toString(16);sm+=($('sm-u'+c)||{}).innerHTML||t[i];bg+=($('u'+c)||{}).innerHTML||t[i]}$('sampleglyphs').innerHTML=sm+'<hr><span class=scaled>'+bg+'</span>'}
-(window.onhashchange=function(){var h=location.hash||'';f(h.match(/^#!/)?decodeURIComponent(h.substring(2)):'',1);return false})();
-$('sample').onchange=$('sample').onkeyup=function(e){f(this.value)}
-$('reset').onclick=function(){$('sample').value='';f('')}
-")?;
+function $(x){{return document.getElementById(x)}}
+function f(t,h){{if(t.normalize)t=t.normalize();if(prevt===t)return;prevt=t;if(!h)location.hash=t?'#!'+encodeURIComponent(t):'';$('sample').value=t;document.body.className=t?'sample':'';var sm='',bg='';for(var i=0;i<t.length;++i){{var c=t.charCodeAt(i).toString(16);sm+=($('sm-u'+c)||{{}}).innerHTML||t[i];bg+=($('u'+c)||{{}}).innerHTML||t[i]}}$('sampleglyphs').innerHTML=sm+'<hr><span class=scaled>'+bg+'</span>'}}
+(window.onhashchange=function(){{var h=location.hash||'';f(h.match(/^#!/)?decodeURIComponent(h.substring(2)):'',1);return false}})();
+$('sample').onchange=$('sample').onkeyup=function(e){{f(this.value)}}
+$('reset').onclick=function(){{$('sample').value='';f('')}}
+</script></body></html>\n")?;
 
     Ok(())
 }
@@ -959,8 +810,8 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
         let label_y = y + 1;
         for (char_idx, ch) in label.chars().enumerate() {
             let cp = ch as u32;
-            if let Some(glyph_name) = data.cmap.get(&cp) {
-                if let Some(sg) = data.glyphs.get(glyph_name) {
+            if let Some(glyph_name) = data.cmap.get(&cp)
+                && let Some(sg) = data.glyphs.get(glyph_name) {
                     render_glyph_bitmap_rgba(
                         &mut pixels,
                         stride,
@@ -972,7 +823,6 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
                         false,
                     );
                 }
-            }
         }
     }
     // Bottom border
@@ -1345,12 +1195,10 @@ fn write_live_confusables(
             continue;
         }
         let source_cps: Vec<u32> = parts[0]
-            .trim()
             .split_whitespace()
             .filter_map(|s| u32::from_str_radix(s.trim(), 16).ok())
             .collect();
         let target_cps: Vec<u32> = parts[1]
-            .trim()
             .split_whitespace()
             .filter_map(|s| u32::from_str_radix(s.trim(), 16).ok())
             .collect();
@@ -1467,7 +1315,7 @@ return!1\">Render!</a></span></div>\n")?;
 
 fn base64_encode(data: &[u8]) -> String {
     const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    let mut out = String::with_capacity((data.len() + 2) / 3 * 4);
+    let mut out = String::with_capacity(data.len().div_ceil(3) * 4);
     for chunk in data.chunks(3) {
         let b0 = chunk[0] as u32;
         let b1 = if chunk.len() > 1 { chunk[1] as u32 } else { 0 };

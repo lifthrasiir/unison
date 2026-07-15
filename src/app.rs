@@ -85,6 +85,19 @@ pub struct OpenDocument {
     pub editor_state: EditorState,
 }
 
+impl OpenDocument {
+    /// Flush pending line-level edits into the `Document` model, if any.
+    fn flush_pending_changes(&mut self) {
+        if self.editor_state.has_pending_document_sync() {
+            crate::editor::document_view::flush_document_changes(
+                &mut self.lines,
+                &mut self.document,
+                &mut self.editor_state,
+            );
+        }
+    }
+}
+
 pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
     let bitmap_family = egui::FontFamily::Name("UniformBitmap".into());
     let has_uniform = ctx.fonts(|f| f.families().contains(&bitmap_family));
@@ -196,24 +209,12 @@ impl UniformApp {
         let Some(doc) = self.open_documents.get_mut(idx) else {
             return;
         };
-        if doc.editor_state.has_pending_document_sync() {
-            crate::editor::document_view::flush_document_changes(
-                &mut doc.lines,
-                &mut doc.document,
-                &mut doc.editor_state,
-            );
-        }
+        doc.flush_pending_changes();
     }
 
     fn flush_all_open_documents(&mut self) {
         for doc in &mut self.open_documents {
-            if doc.editor_state.has_pending_document_sync() {
-                crate::editor::document_view::flush_document_changes(
-                    &mut doc.lines,
-                    &mut doc.document,
-                    &mut doc.editor_state,
-                );
-            }
+            doc.flush_pending_changes();
         }
     }
 
@@ -530,13 +531,7 @@ impl UniformApp {
 
     fn save_all(&mut self) -> bool {
         for doc in &mut self.open_documents {
-            if doc.editor_state.has_pending_document_sync() {
-                crate::editor::document_view::flush_document_changes(
-                    &mut doc.lines,
-                    &mut doc.document,
-                    &mut doc.editor_state,
-                );
-            }
+            doc.flush_pending_changes();
             if !doc.document.dirty {
                 continue;
             }
@@ -646,13 +641,7 @@ impl UniformApp {
     fn save_active(&mut self) {
         if let Some(idx) = self.active_doc_idx
             && let Some(doc) = self.open_documents.get_mut(idx) {
-                if doc.editor_state.has_pending_document_sync() {
-                    crate::editor::document_view::flush_document_changes(
-                        &mut doc.lines,
-                        &mut doc.document,
-                        &mut doc.editor_state,
-                    );
-                }
+                doc.flush_pending_changes();
                 let mut buf = Vec::new();
                 let result = document_io::serialize_doclines(&doc.lines, &mut buf)
                     .and_then(|()| {
@@ -766,13 +755,11 @@ impl eframe::App for UniformApp {
                     } else {
                         self.zoom_level = (self.zoom_level - 1).max(1);
                     }
-                    if self.zoom_level != old_zoom {
-                        if let Some(idx) = self.active_doc_idx {
-                            if let Some(doc) = self.open_documents.get_mut(idx) {
+                    if self.zoom_level != old_zoom
+                        && let Some(idx) = self.active_doc_idx
+                            && let Some(doc) = self.open_documents.get_mut(idx) {
                                 doc.editor_state.notify_zoom_change(old_zoom);
                             }
-                        }
-                    }
                     ctx.input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
                 }
         }
@@ -826,7 +813,7 @@ impl eframe::App for UniformApp {
             self.issues = issues;
             self.issues_gen = data_gen;
             let all_docs = self.collect_all_docs();
-            let doc_refs: Vec<&Document> = all_docs.iter().copied().collect();
+            let doc_refs: Vec<&Document> = all_docs.to_vec();
             self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);
         }
 
@@ -1086,11 +1073,10 @@ impl eframe::App for UniformApp {
         if ctrl_s_pressed {
             self.save_active();
         }
-        if ctrl_shift_s_pressed {
-            if self.save_all() {
+        if ctrl_shift_s_pressed
+            && self.save_all() {
                 self.set_status("Saved all files".to_string());
             }
-        }
 
         if menu_export {
             if let Some(path) = self.last_export_path.clone() {
@@ -1417,38 +1403,7 @@ impl eframe::App for UniformApp {
     }
 }
 
-fn key_to_hex_char(key: egui::Key) -> Option<char> {
-    match key {
-        egui::Key::Num0 => Some('0'),
-        egui::Key::Num1 => Some('1'),
-        egui::Key::Num2 => Some('2'),
-        egui::Key::Num3 => Some('3'),
-        egui::Key::Num4 => Some('4'),
-        egui::Key::Num5 => Some('5'),
-        egui::Key::Num6 => Some('6'),
-        egui::Key::Num7 => Some('7'),
-        egui::Key::Num8 => Some('8'),
-        egui::Key::Num9 => Some('9'),
-        egui::Key::A => Some('A'),
-        egui::Key::B => Some('B'),
-        egui::Key::C => Some('C'),
-        egui::Key::D => Some('D'),
-        egui::Key::E => Some('E'),
-        egui::Key::F => Some('F'),
-        _ => None,
-    }
-}
-
-fn validate_hex_codepoint(hex: &str) -> Option<char> {
-    if hex.is_empty() {
-        return None;
-    }
-    let value = u32::from_str_radix(hex, 16).ok()?;
-    if (0xD800..=0xDFFF).contains(&value) {
-        return None;
-    }
-    char::from_u32(value)
-}
+use crate::editor::{key_to_hex_char, validate_hex_codepoint};
 
 fn show_issues_tab(
     ui: &mut egui::Ui,
@@ -1815,14 +1770,12 @@ fn rename_color_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &st
             }
         }
         "ref" => {
-            if let Some(fill_pos) = tokens.iter().position(|t| t == "fill") {
-                if let Some(color_val) = tokens.get(fill_pos + 1) {
-                    if color_val == old_name {
+            if let Some(fill_pos) = tokens.iter().position(|t| t == "fill")
+                && let Some(color_val) = tokens.get(fill_pos + 1)
+                    && color_val == old_name {
                         new_tokens[fill_pos + 1] = new_name.to_string();
                         changed = true;
                     }
-                }
-            }
         }
         _ => {}
     }

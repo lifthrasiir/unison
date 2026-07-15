@@ -156,8 +156,8 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                 }
             }
         }
-        if let (Some(h), Some(a), Some(d)) = (height, ascent, descent) {
-            if a + d != h {
+        if let (Some(h), Some(a), Some(d)) = (height, ascent, descent)
+            && a + d != h {
                 issues.push(Issue {
                     severity: Severity::Warning,
                     message: format!(
@@ -168,7 +168,6 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                     file_line: meta_file_line,
                 });
             }
-        }
         if height == Some(0) {
             issues.push(Issue {
                 severity: Severity::Error,
@@ -355,8 +354,8 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
         let mut bases_to_alts: HashMap<String, Vec<(String, PathBuf, usize, usize)>> = HashMap::new();
         for doc in docs {
             for (item_idx, item) in doc.items.iter().enumerate() {
-                if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
-                    if body.points.iter().any(|p| p.position.starts_with('-')) {
+                if let DocumentItem::Glyph { name: GlyphName(n), body } = item
+                    && body.points.iter().any(|p| p.position.starts_with('-')) {
                         let resolved_name = substitute_name_parts(n, &name_parts);
                         let line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
                         let file_line = docline_to_file_line(doc, line);
@@ -375,7 +374,6 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                             .or_default()
                             .push((resolved_name.clone(), doc.path.clone(), line, file_line));
                     }
-                }
             }
         }
 
@@ -415,7 +413,7 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
             for ((pos, _w, _h), names) in &seen {
                 if names.len() > 1 {
                     // Warn on all but the first (alphabetically).
-                    let mut sorted_names: Vec<&str> = names.iter().copied().collect();
+                    let mut sorted_names: Vec<&str> = names.to_vec();
                     sorted_names.sort();
                     for &dup in &sorted_names[1..] {
                         if let Some((_, file, line, file_line)) = alts.iter().find(|(n, _, _, _)| n == dup) {

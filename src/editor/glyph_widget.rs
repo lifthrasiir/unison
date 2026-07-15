@@ -64,106 +64,10 @@ fn build_shape_polygon(
     let o = rect.min;
     let w = rect.width();
     let h = rect.height();
-
-    if adj_bits == 0xFF {
-        return vec![
-            egui::pos2(o.x, o.y),
-            egui::pos2(o.x + w, o.y),
-            egui::pos2(o.x + w, o.y + h),
-            egui::pos2(o.x, o.y + h),
-        ];
-    }
-
-    //   TL --(a)-- TM --(b)-- TR
-    //  (h)                    (c)
-    //   LM                    RM
-    //  (g)                    (d)
-    //   BL --(f)-- BM --(e)-- BR
-    // Bits: a=7, b=6, c=5, d=4, e=3, f=2, g=1, h=0
-
-    // Directed boundary segments for each half-edge (clockwise)
-    let boundary: [(u8, [f32; 4]); 8] = [
-        (7, [0.0, 0.0, 0.5, 0.0]), // a: TL→TM
-        (6, [0.5, 0.0, 1.0, 0.0]), // b: TM→TR
-        (5, [1.0, 0.0, 1.0, 0.5]), // c: TR→RM
-        (4, [1.0, 0.5, 1.0, 1.0]), // d: RM→BR
-        (3, [1.0, 1.0, 0.5, 1.0]), // e: BR→BM
-        (2, [0.5, 1.0, 0.0, 1.0]), // f: BM→BL
-        (1, [0.0, 1.0, 0.0, 0.5]), // g: BL→LM
-        (0, [0.0, 0.5, 0.0, 0.0]), // h: LM→TL
-    ];
-
-    // Collect all directed edges: set boundary + gap segments (both directions)
-    let mut edges: Vec<[f32; 4]> = Vec::new();
-
-    for &(bit, seg) in &boundary {
-        if adj_bits & (1 << bit) != 0 {
-            edges.push(seg);
-        }
-    }
-
-    for &(x1, y1, x2, y2) in gap_segs {
-        edges.push([x1, y1, x2, y2]);
-        edges.push([x2, y2, x1, y1]);
-    }
-
-    if edges.is_empty() {
-        return vec![];
-    }
-
-    // Chain edges into a closed polygon
-    let mut used = vec![false; edges.len()];
-
-    // Start from the first boundary segment
-    used[0] = true;
-    mark_reverse(&edges, &mut used, 0);
-    let mut polygon = vec![(edges[0][0], edges[0][1])];
-    let mut cur = (edges[0][2], edges[0][3]);
-
-    for _ in 0..edges.len() {
-        if near(cur, polygon[0]) {
-            break;
-        }
-        let mut found = false;
-        for (i, e) in edges.iter().enumerate() {
-            if !used[i] && near((e[0], e[1]), cur) {
-                used[i] = true;
-                mark_reverse(&edges, &mut used, i);
-                polygon.push((e[0], e[1]));
-                cur = (e[2], e[3]);
-                found = true;
-                break;
-            }
-        }
-        if !found {
-            break;
-        }
-    }
-
-    // Remove consecutive duplicates
-    polygon.dedup_by(|a, b| near(*a, *b));
-
-    polygon
+    pixel::polygon_from_adjacency(adj_bits, gap_segs)
         .into_iter()
         .map(|(x, y)| egui::pos2(o.x + x * w, o.y + y * h))
         .collect()
-}
-
-fn near(a: (f32, f32), b: (f32, f32)) -> bool {
-    (a.0 - b.0).abs() < 0.001 && (a.1 - b.1).abs() < 0.001
-}
-
-fn mark_reverse(edges: &[[f32; 4]], used: &mut [bool], idx: usize) {
-    let e = edges[idx];
-    for (j, other) in edges.iter().enumerate() {
-        if !used[j]
-            && near((other[0], other[1]), (e[2], e[3]))
-            && near((other[2], other[3]), (e[0], e[1]))
-        {
-            used[j] = true;
-            return;
-        }
-    }
 }
 
 fn triangulate(points: &[egui::Pos2]) -> Vec<[egui::Pos2; 3]> {

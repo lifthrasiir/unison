@@ -1,6 +1,5 @@
 pub mod contour;
 pub mod sample;
-pub mod shape_preview;
 pub mod ttf_builder;
 
 pub use ttf_builder::{build_font_from_documents, load_docs_from_directory};

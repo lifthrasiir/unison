@@ -56,6 +56,34 @@ impl PixelGrid {
     pub fn is_all_empty(&self) -> bool {
         self.pixels.iter().all(|s| s.is_empty())
     }
+
+    /// Blit `src` into `self` with its top-left at `(off_r, off_c)`,
+    /// overwriting the destination wherever `src` has a non-empty shape.
+    /// When `negated`, `src` shapes are instead subtracted from non-empty
+    /// destination pixels (see [`crate::pixel::shape_subtract`]).
+    pub fn blit(&mut self, src: &PixelGrid, off_r: i32, off_c: i32, negated: bool) {
+        for r in 0..src.height as i32 {
+            for c in 0..src.width as i32 {
+                let shape = src.get(r as u16, c as u16);
+                if shape.is_empty() {
+                    continue;
+                }
+                let dr = off_r + r;
+                let dc = off_c + c;
+                if dr < 0 || dc < 0 || dr >= self.height as i32 || dc >= self.width as i32 {
+                    continue;
+                }
+                if negated {
+                    let current = self.get(dr as u16, dc as u16);
+                    if !current.is_empty() {
+                        self.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
+                    }
+                } else {
+                    self.set(dr as u16, dc as u16, shape);
+                }
+            }
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -110,6 +138,7 @@ impl GlyphPoint {
         (self.row_end - self.row + 1) as u16
     }
 
+    #[cfg_attr(not(feature = "editor"), expect(dead_code))]
     pub fn is_single_cell(&self) -> bool {
         self.col == self.col_end && self.row == self.row_end
     }
@@ -292,9 +321,9 @@ impl DocumentItem {
                 let rest = &tokens[1..];
                 // feature NAME for SCRIPT... : REMAP_GROUP
                 // feature NAME for SCRIPT... : anchor ANCHOR_NAME
-                if let Some(for_pos) = rest.iter().position(|t| t == "for") {
-                    if let Some(colon_pos) = rest.iter().position(|t| t == ":") {
-                        if for_pos == 1 && colon_pos > 2 && colon_pos + 1 < rest.len() {
+                if let Some(for_pos) = rest.iter().position(|t| t == "for")
+                    && let Some(colon_pos) = rest.iter().position(|t| t == ":")
+                        && for_pos == 1 && colon_pos > 2 && colon_pos + 1 < rest.len() {
                             if rest.get(colon_pos + 1).is_some_and(|t| t == "anchor")
                                 && colon_pos + 2 < rest.len()
                             {
@@ -310,8 +339,6 @@ impl DocumentItem {
                                 remap_group: rest[colon_pos + 1].clone(),
                             };
                         }
-                    }
-                }
             }
             _ => {}
         }

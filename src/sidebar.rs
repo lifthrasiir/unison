@@ -161,7 +161,7 @@ impl Sidebar {
                     .unwrap_or_default();
 
                 let is_active = active_path == Some(path.as_path());
-                let is_dirty = dirty_paths.iter().any(|dp| *dp == path.as_path());
+                let is_dirty = dirty_paths.contains(&path.as_path());
 
                 let label = if is_dirty {
                     format!("* {name}")

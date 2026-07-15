@@ -140,7 +140,7 @@ pub(crate) enum HandleResult {
 /// Handles autocomplete-specific key events.
 pub(crate) fn handle_keys(
     ui: &egui::Ui,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut super::EditorState,
 ) -> HandleResult {
     if state.autocomplete.is_none() {
@@ -191,11 +191,7 @@ pub(crate) fn handle_keys(
     HandleResult::NotConsumed
 }
 
-pub(crate) fn handle_accept(lines: &mut Vec<DocLine>, state: &mut super::EditorState) {
-    apply_completion(lines, state);
-}
-
-fn apply_completion(lines: &mut Vec<DocLine>, state: &mut super::EditorState) {
+pub(crate) fn apply_completion(lines: &mut [DocLine], state: &mut super::EditorState) {
     let ac = match state.autocomplete.take() {
         Some(ac) => ac,
         None => return,

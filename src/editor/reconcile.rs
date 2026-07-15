@@ -6,14 +6,14 @@ use crate::editor::undo::UndoStack;
 /// Parse a `glyph NAME W H` header line and return its pixel dimensions,
 /// or `None` if the line isn't a header that expects pixel rows (e.g.
 /// `glyph NAME = ALIAS` or `glyph NAME` with no dimensions).
-pub fn parse_glyph_header_dims(s: &str) -> Option<(u16, u16, bool)> {
+pub fn parse_glyph_header_dims(s: &str) -> Option<(u16, u16)> {
     let trimmed = s.trim();
     let tokens = tokenize_tokens(trimmed).ok()?;
-    if tokens.first().map_or(true, |t| t != "glyph") {
+    if tokens.first().is_none_or(|t| t != "glyph") {
         return None;
     }
     let dims = glyph_header_dims(&tokens[1..])?;
-    Some((dims.width, dims.height, true))
+    Some((dims.width, dims.height))
 }
 
 pub fn reconcile(
@@ -24,7 +24,7 @@ pub fn reconcile(
     // Pass A: header/grid mismatch — resize or create
     for i in 0..lines.len() {
         if let DocLine::Text(t) = &lines[i]
-            && let Some((w, h, true)) = parse_glyph_header_dims(t) {
+            && let Some((w, h)) = parse_glyph_header_dims(t) {
                 match lines.get(i + 1) {
                     Some(DocLine::Grid(g)) if g.width == w && g.height == h => {
                         // Dimensions match — nothing to do
@@ -71,7 +71,7 @@ pub fn reconcile(
         if let DocLine::Grid(g) = &lines[i] {
             let valid_header = i > 0
                 && matches!(&lines[i - 1], DocLine::Text(t)
-                    if parse_glyph_header_dims(t).is_some_and(|(_, _, expects)| expects));
+                    if parse_glyph_header_dims(t).is_some());
 
             if !valid_header {
                 let rows: Vec<DocLine> = (0..g.height)
@@ -130,8 +130,8 @@ mod tests {
 
     #[test]
     fn parse_header_dims_basic() {
-        assert_eq!(parse_glyph_header_dims("glyph foo 8 16"), Some((8, 16, true)));
-        assert_eq!(parse_glyph_header_dims("glyph foo 8 16 sticky"), Some((8, 16, true)));
+        assert_eq!(parse_glyph_header_dims("glyph foo 8 16"), Some((8, 16)));
+        assert_eq!(parse_glyph_header_dims("glyph foo 8 16 sticky"), Some((8, 16)));
         assert_eq!(parse_glyph_header_dims("glyph U+0041 = test"), None);
         assert_eq!(parse_glyph_header_dims("font-meta height 16"), None);
         assert_eq!(parse_glyph_header_dims("// comment"), None);

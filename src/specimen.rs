@@ -75,7 +75,7 @@ impl SpecimenState {
         let cell_h = 80.0_f32;
         let avail_width = ui.available_width();
         let cols = (avail_width / cell_w).floor().max(1.0) as usize;
-        let num_rows = (self.entries.len() + cols - 1) / cols;
+        let num_rows = self.entries.len().div_ceil(cols);
         let total_height = num_rows as f32 * cell_h;
         let grid_width = cols as f32 * cell_w;
 
@@ -243,8 +243,8 @@ impl SpecimenState {
                     );
                 }
 
-                if response.clicked() {
-                    if let Some(pos) = response.interact_pointer_pos() {
+                if response.clicked()
+                    && let Some(pos) = response.interact_pointer_pos() {
                         let col =
                             ((pos.x - origin.x) / cell_w).floor() as usize;
                         let row =
@@ -254,13 +254,12 @@ impl SpecimenState {
                             clicked_glyph = Some(self.entries[idx].1.clone());
                         }
                     }
-                }
 
                 if let Some(hover) = deferred_hover {
                     let ch = char::from_u32(hover.cp);
                     let char_str = ch.map(|c| c.to_string()).unwrap_or_default();
                     let char_name = ch
-                        .and_then(|c| unicode_names2::name(c))
+                        .and_then(unicode_names2::name)
                         .map(|n| n.to_string())
                         .unwrap_or_else(|| "<unknown>".to_string());
                     self.hover_status = Some(format!(
@@ -268,11 +267,10 @@ impl SpecimenState {
                         hover.cp, char_str, char_name, hover.glyph_name,
                     ));
 
-                    if ctrl_c {
-                        if let Some(ch) = ch {
+                    if ctrl_c
+                        && let Some(ch) = ch {
                             ui.ctx().copy_text(ch.to_string());
                         }
-                    }
                 }
             });
         let _ = inner;
@@ -312,8 +310,8 @@ impl SpecimenState {
 
         let mut drawn_via_rasterizer = false;
 
-        if let Some(font_bytes) = raster_font {
-            if let Ok(font) = FontRef::new(font_bytes) {
+        if let Some(font_bytes) = raster_font
+            && let Ok(font) = FontRef::new(font_bytes) {
                 let charmap = font.charmap();
                 if let Some(gid) = charmap.map(ch) {
                     let glyph_id = gid.to_u32() as u16;
@@ -368,7 +366,6 @@ impl SpecimenState {
                     }
                 }
             }
-        }
 
         if !drawn_via_rasterizer {
             let glyph_font = crate::app::uniform_font_id(ctx, px_size);
@@ -408,8 +405,8 @@ impl SpecimenState {
         let center_x = cell_min.x + cell_w / 2.0;
         let center_y = cell_min.y + cell_h / 2.0 + 8.0;
 
-        if let Some(font_bytes) = raster_font {
-            if let Ok(font) = FontRef::new(font_bytes) {
+        if let Some(font_bytes) = raster_font
+            && let Ok(font) = FontRef::new(font_bytes) {
                 let charmap = font.charmap();
                 if let Some(gid) = charmap.map(ch) {
                     let glyph_id = gid.to_u32() as u16;
@@ -427,7 +424,6 @@ impl SpecimenState {
                     }
                 }
             }
-        }
 
         let glyph_font = crate::app::uniform_font_id(ctx, px_size);
         let galley = ctx.fonts(|f| f.layout_no_wrap(ch.to_string(), glyph_font, egui::Color32::WHITE));

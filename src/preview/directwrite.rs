@@ -213,15 +213,7 @@ fn err(e: windows::core::Error) -> ShapeError {
     ShapeError(format!("DirectWrite error: {e}"))
 }
 
-fn build_utf16_to_char_map(text: &str) -> Vec<usize> {
-    let mut map = Vec::new();
-    for (char_idx, ch) in text.chars().enumerate() {
-        for _ in 0..ch.len_utf16() {
-            map.push(char_idx);
-        }
-    }
-    map
-}
+use super::build_utf16_to_char_map;
 
 // --- COM implementations ---
 

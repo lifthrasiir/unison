@@ -180,11 +180,11 @@ impl ShapedPreviewState {
         }
 
         parts.push("[".to_string());
-        for i in lo..hi {
-            if i > lo {
+        for (i, &ch) in chars[lo..hi].iter().enumerate() {
+            if i > 0 {
                 parts.push(" ".to_string());
             }
-            parts.push(format!("{:04X}", chars[i] as u32));
+            parts.push(format!("{:04X}", ch as u32));
         }
         parts.push("]".to_string());
 
@@ -759,38 +759,8 @@ impl ShapedPreviewState {
     }
 }
 
-fn char_to_byte(s: &str, char_idx: usize) -> usize {
-    s.char_indices()
-        .nth(char_idx)
-        .map(|(b, _)| b)
-        .unwrap_or(s.len())
-}
-
-fn key_to_hex_char(key: egui::Key) -> Option<char> {
-    match key {
-        egui::Key::Num0 => Some('0'),
-        egui::Key::Num1 => Some('1'),
-        egui::Key::Num2 => Some('2'),
-        egui::Key::Num3 => Some('3'),
-        egui::Key::Num4 => Some('4'),
-        egui::Key::Num5 => Some('5'),
-        egui::Key::Num6 => Some('6'),
-        egui::Key::Num7 => Some('7'),
-        egui::Key::Num8 => Some('8'),
-        egui::Key::Num9 => Some('9'),
-        egui::Key::A => Some('A'),
-        egui::Key::B => Some('B'),
-        egui::Key::C => Some('C'),
-        egui::Key::D => Some('D'),
-        egui::Key::E => Some('E'),
-        egui::Key::F => Some('F'),
-        _ => None,
-    }
-}
-
-fn validate_hex_codepoint(hex: &str) -> Option<char> {
-    u32::from_str_radix(hex, 16).ok().and_then(char::from_u32)
-}
+use crate::editor::caret::char_to_byte;
+use crate::editor::{key_to_hex_char, validate_hex_codepoint};
 
 fn committed_to_display(
     idx: usize,

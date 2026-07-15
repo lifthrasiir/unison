@@ -9,6 +9,18 @@ pub mod coretext;
 #[cfg(target_os = "windows")]
 pub mod directwrite;
 
+/// Maps each UTF-16 code unit index of `text` to its char index.
+#[cfg(any(target_os = "macos", target_os = "windows"))]
+fn build_utf16_to_char_map(text: &str) -> Vec<usize> {
+    let mut map = Vec::new();
+    for (char_idx, ch) in text.chars().enumerate() {
+        for _ in 0..ch.len_utf16() {
+            map.push(char_idx);
+        }
+    }
+    map
+}
+
 #[derive(Clone, Debug)]
 pub struct Feature {
     pub tag: [u8; 4],

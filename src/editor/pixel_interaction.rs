@@ -98,8 +98,8 @@ pub(crate) fn handle_pixel_painting(
                     let header_line = grid_doc_line - 1;
                     if let Some(DocLine::Text(header_text)) = lines.get(header_line) {
                         let trimmed = header_text.trim();
-                        if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed) {
-                            if tokens.first().is_some_and(|t| t == "glyph") && tokens.len() == 2 {
+                        if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed)
+                            && tokens.first().is_some_and(|t| t == "glyph") && tokens.len() == 2 {
                                 let new_header =
                                     format!("{} {} {}", trimmed, grid_width, grid_height);
                                 let mut new_grid = PixelGrid::new(grid_width, grid_height);
@@ -125,7 +125,6 @@ pub(crate) fn handle_pixel_painting(
                                 *needs_rederive = true;
                                 ui.ctx().request_repaint();
                             }
-                        }
                     }
                 }
             }
@@ -185,6 +184,36 @@ pub(crate) fn handle_layer_drag(
     }
 }
 
+/// Accumulate the pointer drag and convert it to a whole-cell step.
+/// Returns `(dcol, drow, accum)` once the accumulated drag reaches at least
+/// one cell; returns `None` (updating or clearing the stored accumulator as
+/// appropriate) while the drag is still sub-cell or the button is released.
+fn drag_cell_step(ui: &egui::Ui, grid_cell: f32) -> Option<(i16, i16, egui::Vec2)> {
+    let dragging = ui.input(|i| i.pointer.primary_down());
+    let drag_id = egui::Id::new("layer_drag_accum");
+    if !dragging {
+        ui.data_mut(|d| d.remove::<egui::Vec2>(drag_id));
+        return None;
+    }
+
+    let drag_delta = ui.input(|i| i.pointer.delta());
+    if drag_delta.x.abs() < 0.5 && drag_delta.y.abs() < 0.5 {
+        return None;
+    }
+
+    let mut accum = ui.data_mut(|d| d.get_temp::<egui::Vec2>(drag_id).unwrap_or_default());
+    accum += drag_delta;
+
+    let dcol = (accum.x / grid_cell).round() as i16;
+    let drow = (accum.y / grid_cell).round() as i16;
+
+    if dcol == 0 && drow == 0 {
+        ui.data_mut(|d| d.insert_temp(drag_id, accum));
+        return None;
+    }
+    Some((dcol, drow, accum))
+}
+
 #[allow(clippy::too_many_arguments, clippy::ptr_arg)]
 fn handle_ref_drag_inner(
     ui: &egui::Ui,
@@ -214,28 +243,10 @@ fn handle_ref_drag_inner(
         None => return,
     };
 
-    let dragging = ui.input(|i| i.pointer.primary_down());
+    let Some((dcol, drow, mut accum)) = drag_cell_step(ui, grid_cell) else {
+        return;
+    };
     let drag_id = egui::Id::new("layer_drag_accum");
-    if !dragging {
-        ui.data_mut(|d| d.remove::<egui::Vec2>(drag_id));
-        return;
-    }
-
-    let drag_delta = ui.input(|i| i.pointer.delta());
-    if drag_delta.x.abs() < 0.5 && drag_delta.y.abs() < 0.5 {
-        return;
-    }
-
-    let mut accum = ui.data_mut(|d| d.get_temp::<egui::Vec2>(drag_id).unwrap_or_default());
-    accum += drag_delta;
-
-    let dcol = (accum.x / grid_cell).round() as i16;
-    let drow = (accum.y / grid_cell).round() as i16;
-
-    if dcol == 0 && drow == 0 {
-        ui.data_mut(|d| d.insert_temp(drag_id, accum));
-        return;
-    }
 
     let (current_row, current_col) =
         layer_effective_offset(comp, ref_idx).unwrap_or_else(|| (gref.row(), gref.col()));
@@ -311,6 +322,69 @@ fn handle_ref_drag_inner(
     }
 }
 
+#[allow(clippy::too_many_arguments, clippy::ptr_arg)]
+fn handle_point_drag_inner(
+    ui: &egui::Ui,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    needs_rederive: &mut bool,
+    body: &crate::document::GlyphBody,
+    item_idx: usize,
+    point_idx: usize,
+    item_line_starts: &[usize],
+    grid_cell: f32,
+) {
+    let point = match body.points.get(point_idx) {
+        Some(p) => p,
+        None => return,
+    };
+
+    let Some((dcol, drow, mut accum)) = drag_cell_step(ui, grid_cell) else {
+        return;
+    };
+    let drag_id = egui::Id::new("layer_drag_accum");
+
+    let new_col = point.col + dcol;
+    let new_row = point.row + drow;
+    let new_col_end = point.col_end + dcol;
+    let new_row_end = point.row_end + drow;
+
+    accum.x -= dcol as f32 * grid_cell;
+    accum.y -= drow as f32 * grid_cell;
+    ui.data_mut(|d| d.insert_temp(drag_id, accum));
+
+    let header_line = item_line_starts.get(item_idx).copied().unwrap_or(0);
+    let point_line =
+        header_line + 1 + if body.pixels.is_some() { 1 } else { 0 } + body.refs.len() + point_idx;
+
+    if let Some(DocLine::Text(old_text)) = lines.get(point_line) {
+        let old_text = old_text.clone();
+        let col_s = if new_col == new_col_end {
+            format!("{}", new_col)
+        } else {
+            format!("{}..{}", new_col, new_col_end)
+        };
+        let row_s = if new_row == new_row_end {
+            format!("{}", new_row)
+        } else {
+            format!("{}..{}", new_row, new_row_end)
+        };
+        let new_text = format!("anchor {} {} {}", point.position, col_s, row_s);
+        if old_text != new_text {
+            state.undo.push_text(
+                point_line,
+                0,
+                old_text,
+                new_text.clone(),
+                state.cursor,
+                state.cursor,
+            );
+            lines[point_line] = DocLine::Text(new_text);
+            *needs_rederive = true;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -355,86 +429,5 @@ mod tests {
         };
         assert_eq!(layer_effective_offset(&composite, 7), Some((4, 5)));
         assert_eq!(layer_effective_offset(&composite, 6), None);
-    }
-}
-
-#[allow(clippy::too_many_arguments, clippy::ptr_arg)]
-fn handle_point_drag_inner(
-    ui: &egui::Ui,
-    lines: &mut Vec<DocLine>,
-    state: &mut EditorState,
-    needs_rederive: &mut bool,
-    body: &crate::document::GlyphBody,
-    item_idx: usize,
-    point_idx: usize,
-    item_line_starts: &[usize],
-    grid_cell: f32,
-) {
-    let point = match body.points.get(point_idx) {
-        Some(p) => p,
-        None => return,
-    };
-
-    let dragging = ui.input(|i| i.pointer.primary_down());
-    let drag_id = egui::Id::new("layer_drag_accum");
-    if !dragging {
-        ui.data_mut(|d| d.remove::<egui::Vec2>(drag_id));
-        return;
-    }
-
-    let drag_delta = ui.input(|i| i.pointer.delta());
-    if drag_delta.x.abs() < 0.5 && drag_delta.y.abs() < 0.5 {
-        return;
-    }
-
-    let mut accum = ui.data_mut(|d| d.get_temp::<egui::Vec2>(drag_id).unwrap_or_default());
-    accum += drag_delta;
-
-    let dcol = (accum.x / grid_cell).round() as i16;
-    let drow = (accum.y / grid_cell).round() as i16;
-
-    if dcol == 0 && drow == 0 {
-        ui.data_mut(|d| d.insert_temp(drag_id, accum));
-        return;
-    }
-
-    let new_col = point.col + dcol;
-    let new_row = point.row + drow;
-    let new_col_end = point.col_end + dcol;
-    let new_row_end = point.row_end + drow;
-
-    accum.x -= dcol as f32 * grid_cell;
-    accum.y -= drow as f32 * grid_cell;
-    ui.data_mut(|d| d.insert_temp(drag_id, accum));
-
-    let header_line = item_line_starts.get(item_idx).copied().unwrap_or(0);
-    let point_line =
-        header_line + 1 + if body.pixels.is_some() { 1 } else { 0 } + body.refs.len() + point_idx;
-
-    if let Some(DocLine::Text(old_text)) = lines.get(point_line) {
-        let old_text = old_text.clone();
-        let col_s = if new_col == new_col_end {
-            format!("{}", new_col)
-        } else {
-            format!("{}..{}", new_col, new_col_end)
-        };
-        let row_s = if new_row == new_row_end {
-            format!("{}", new_row)
-        } else {
-            format!("{}..{}", new_row, new_row_end)
-        };
-        let new_text = format!("anchor {} {} {}", point.position, col_s, row_s);
-        if old_text != new_text {
-            state.undo.push_text(
-                point_line,
-                0,
-                old_text,
-                new_text.clone(),
-                state.cursor,
-                state.cursor,
-            );
-            lines[point_line] = DocLine::Text(new_text);
-            *needs_rederive = true;
-        }
     }
 }

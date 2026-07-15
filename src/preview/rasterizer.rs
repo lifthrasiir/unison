@@ -231,7 +231,7 @@ impl ColorPainter for ColrPainter<'_> {
             return;
         };
 
-        let effective_a = ((a as f32) * alpha).min(255.0).max(0.0) as u8;
+        let effective_a = ((a as f32) * alpha).clamp(0.0, 255.0) as u8;
 
         let Some(path) = draw_outline_to_path(self.font, glyph_id, self.px_size) else {
             return;

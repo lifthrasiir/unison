@@ -264,8 +264,8 @@ pub(crate) fn derive_ref_offsets_with(
                             break;
                         }
                     }
-                    if found.is_none() {
-                        if let Some((alt_name, alt_anchors)) = try_lookahead_alt(
+                    if found.is_none()
+                        && let Some((alt_name, alt_anchors)) = try_lookahead_alt(
                             i, n, target_anchors,
                             target_declared_anchors_list[i].as_deref(),
                             &available_plus,
@@ -273,7 +273,6 @@ pub(crate) fn derive_ref_offsets_with(
                         ) {
                             found = Some((alt_name.clone(), (0, 0), alt_anchors));
                         }
-                    }
                     found.unwrap_or_else(|| (gref.name.clone(), (0, 0), target_anchors))
                 }
             }
@@ -910,46 +909,13 @@ fn composite_to_grid(
     // The owning glyph is the initial canvas. Refs are then applied in
     // document order, so a negated ref can actually cut the owning pixels.
     if let Some(grid) = own_pixels {
-        let off_r = -min_r;
-        let off_c = -min_c;
-        for r in 0..grid.height as i32 {
-            for c in 0..grid.width as i32 {
-                let shape = grid.get(r as u16, c as u16);
-                if !shape.is_empty() {
-                    let dr = off_r + r;
-                    let dc = off_c + c;
-                    if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
-                        result.set(dr as u16, dc as u16, shape);
-                    }
-                }
-            }
-        }
+        result.blit(grid, -min_r, -min_c, false);
     }
 
     for gref in refs {
         if let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
             let (eff_row, eff_col) = ref_effective_offset(gref, resolved);
-            let off_r = eff_row - min_r;
-            let off_c = eff_col - min_c;
-            for r in 0..resolved.grid.height as i32 {
-                for c in 0..resolved.grid.width as i32 {
-                    let shape = resolved.grid.get(r as u16, c as u16);
-                    if !shape.is_empty() {
-                        let dr = off_r + r;
-                        let dc = off_c + c;
-                        if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
-                            if gref.negated {
-                                let current = result.get(dr as u16, dc as u16);
-                                if !current.is_empty() {
-                                    result.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
-                                }
-                            } else {
-                                result.set(dr as u16, dc as u16, shape);
-                            }
-                        }
-                    }
-                }
-            }
+            result.blit(&resolved.grid, eff_row - min_r, eff_col - min_c, gref.negated);
         }
     }
 

@@ -957,8 +957,8 @@ pub fn show_document(
             if panel_result.click_consumed {
                 click_result = None;
             }
-            if let Some(ref_idx) = panel_result.inline_ref {
-                if inline_ref_to_pixels(
+            if let Some(ref_idx) = panel_result.inline_ref
+                && inline_ref_to_pixels(
                     lines,
                     doc,
                     state,
@@ -969,7 +969,6 @@ pub fn show_document(
                 ) {
                     needs_rederive = true;
                 }
-            }
         }
 
         // Layer move drag handling (refs and points)
@@ -1013,30 +1012,9 @@ pub fn show_document(
                     if let Some(step) = debounced_scroll_step(ui.ctx()) {
                         if ctrl_held {
                             // Ctrl+wheel on grid: cycle layers (same as layer palette)
-                            let layer_count = body.refs.len() + body.points.len();
-                            let total = 1 + layer_count as i32;
-                            let current = match &state.mode {
-                                EditMode::GlyphEdit { .. } => 0,
-                                EditMode::LayerMove { layer_idx, .. } => *layer_idx as i32 + 1,
-                                _ => 0,
-                            };
-                            let next = (current + step).clamp(0, total - 1);
-                            if next != current {
-                                if next == 0 {
-                                    state.mode = EditMode::GlyphEdit {
-                                        item_idx: edit_idx,
-                                        selected_shape: pixel::PixelShape::new(
-                                            pixel::PX_ALMOSTFULL,
-                                            true,
-                                        ),
-                                    };
-                                } else {
-                                    state.mode = EditMode::LayerMove {
-                                        item_idx: edit_idx,
-                                        layer_idx: (next - 1) as usize,
-                                    };
-                                }
-                            }
+                            crate::editor::inline_tools::cycle_layer_mode(
+                                state, body, edit_idx, step,
+                            );
                         } else if matches!(state.mode, EditMode::GlyphEdit { item_idx, .. } if item_idx == edit_idx)
                         {
                             // Wheel on grid in pixel layer: cycle subpixel shapes
@@ -1255,14 +1233,13 @@ pub fn show_document(
                         state.skip_reconcile = true;
                         needs_rederive = true;
                     }
-                } else if redo_pressed {
-                    if let Some(c) = state.undo.redo(lines) {
+                } else if redo_pressed
+                    && let Some(c) = state.undo.redo(lines) {
                         state.cursor = caret::clamp(lines, c);
                         state.selection_anchor = None;
                         state.skip_reconcile = true;
                         needs_rederive = true;
                     }
-                }
             }
 
             if matches!(state.mode, EditMode::Normal)
@@ -1300,11 +1277,10 @@ pub fn show_document(
         }
 
         // Dismiss autocomplete when cursor moves inappropriately
-        if let Some(ac) = &state.autocomplete {
-            if state.cursor.line != ac.line || state.cursor.col < ac.replace_start {
+        if let Some(ac) = &state.autocomplete
+            && (state.cursor.line != ac.line || state.cursor.col < ac.replace_start) {
                 state.autocomplete = None;
             }
-        }
         // Also re-filter if cursor moved within the token but no text changed
         if state.autocomplete.is_some() && state.cursor != prev_cursor && !needs_rederive {
             crate::editor::autocomplete::update_after_edit(lines, state);
@@ -1441,7 +1417,7 @@ pub fn show_document(
             if let Some(ac) = &mut state.autocomplete {
                 ac.selected = clicked;
             }
-            crate::editor::autocomplete::handle_accept(lines, state);
+            crate::editor::autocomplete::apply_completion(lines, state);
             needs_rederive = true;
         }
     }
@@ -1491,22 +1467,16 @@ pub fn show_document(
                     );
                 });
             }
-        } else {
-            if cursor_y < scroll_y + margin {
-                ui.ctx().data_mut(|d| {
-                    d.insert_temp(
-                        egui::Id::new("goto_scroll_target"),
-                        (cursor_y - margin).max(0.0),
-                    );
-                });
-            } else if cursor_y + cursor_h > scroll_y + viewport_h - margin {
-                ui.ctx().data_mut(|d| {
-                    d.insert_temp(
-                        egui::Id::new("goto_scroll_target"),
-                        (cursor_y - margin).max(0.0),
-                    );
-                });
-            }
+        } else if cursor_y < scroll_y + margin
+            || cursor_y + cursor_h > scroll_y + viewport_h - margin
+        {
+            // Cursor line taller than the viewport: align its top.
+            ui.ctx().data_mut(|d| {
+                d.insert_temp(
+                    egui::Id::new("goto_scroll_target"),
+                    (cursor_y - margin).max(0.0),
+                );
+            });
         }
     }
 
@@ -2121,17 +2091,15 @@ fn paint_color_backgrounds(
             }
         }
         "ref" => {
-            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
-                if let Some(color_span) = rest.get(fill_pos + 1) {
-                    if let Some(color) = resolve_color_for_display(&color_span.value, aliases) {
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill")
+                && let Some(color_span) = rest.get(fill_pos + 1)
+                    && let Some(color) = resolve_color_for_display(&color_span.value, aliases) {
                         color_spans.push((
                             leading + color_span.raw_start,
                             leading + color_span.raw_end,
                             color,
                         ));
                     }
-                }
-            }
         }
         _ => {}
     }

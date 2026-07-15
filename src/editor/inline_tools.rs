@@ -18,6 +18,38 @@ pub(crate) struct InlineToolsResult {
 }
 
 #[allow(clippy::too_many_arguments)]
+/// Step the layer selection (0 = pixel layer, 1.. = ref/point layers) by
+/// `step`, switching the edit mode accordingly. Used by both scroll-wheel
+/// layer cycling on the grid and on the inline tools preview row.
+pub(crate) fn cycle_layer_mode(
+    state: &mut EditorState,
+    body: &crate::document::GlyphBody,
+    edit_idx: usize,
+    step: i32,
+) {
+    let layer_count = body.refs.len() + body.points.len();
+    let total = 1 + layer_count as i32;
+    let current = match &state.mode {
+        EditMode::GlyphEdit { .. } => 0,
+        EditMode::LayerMove { layer_idx, .. } => *layer_idx as i32 + 1,
+        _ => 0,
+    };
+    let next = (current + step).clamp(0, total - 1);
+    if next != current {
+        if next == 0 {
+            state.mode = EditMode::GlyphEdit {
+                item_idx: edit_idx,
+                selected_shape: pixel::PixelShape::new(pixel::PX_ALMOSTFULL, true),
+            };
+        } else {
+            state.mode = EditMode::LayerMove {
+                item_idx: edit_idx,
+                layer_idx: (next - 1) as usize,
+            };
+        }
+    }
+}
+
 pub(crate) fn draw_inline_tools_panel(
     ui: &egui::Ui,
     painter: &egui::Painter,
@@ -77,27 +109,7 @@ pub(crate) fn draw_inline_tools_panel(
         );
     });
     if hover_on_preview_row && let Some(step) = debounced_scroll_step(ui.ctx()) {
-        let layer_count = body.refs.len() + body.points.len();
-        let total = 1 + layer_count as i32;
-        let current = match &state.mode {
-            EditMode::GlyphEdit { .. } => 0,
-            EditMode::LayerMove { layer_idx, .. } => *layer_idx as i32 + 1,
-            _ => 0,
-        };
-        let next = (current + step).clamp(0, total - 1);
-        if next != current {
-            if next == 0 {
-                state.mode = EditMode::GlyphEdit {
-                    item_idx: edit_idx,
-                    selected_shape: pixel::PixelShape::new(pixel::PX_ALMOSTFULL, true),
-                };
-            } else {
-                state.mode = EditMode::LayerMove {
-                    item_idx: edit_idx,
-                    layer_idx: (next - 1) as usize,
-                };
-            }
-        }
+        cycle_layer_mode(state, body, edit_idx, step);
     }
 
     // --- Row 0-1: 2x pixelated previews (composite + subglyphs) ---
@@ -283,8 +295,8 @@ pub(crate) fn draw_inline_tools_panel(
         let layer_color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *layer_idx);
         if *layer_idx < num_refs {
             // Show the resolved alternative name if it differs from the source ref.
-            if let Some(comp) = composite {
-                if let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == *layer_idx) {
+            if let Some(comp) = composite
+                && let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == *layer_idx) {
                     let source_name = &body.refs[*layer_idx].name;
                     if layer.resolved_name != *source_name {
                         painter.text(
@@ -296,7 +308,6 @@ pub(crate) fn draw_inline_tools_panel(
                         );
                     }
                 }
-            }
         } else if let Some(point) = body.points.get(layer_idx - num_refs) {
             painter.text(
                 egui::pos2(panel_x, label_y),
@@ -340,14 +351,12 @@ fn draw_inline_palette(
             .hover_pos()
             .is_some_and(|hp| palette_rect.contains(hp))
     });
-    if hover_on_palette {
-        if let Some(step) = debounced_scroll_step(ui.ctx()) {
-            if let Some(cur_idx) = shapes.iter().position(|s| *s == *selected_shape) {
+    if hover_on_palette
+        && let Some(step) = debounced_scroll_step(ui.ctx())
+            && let Some(cur_idx) = shapes.iter().position(|s| *s == *selected_shape) {
                 let next = (cur_idx as i32 + step).clamp(0, shapes.len() as i32 - 1) as usize;
                 *selected_shape = shapes[next];
             }
-        }
-    }
     ui.ctx().data_mut(|d| {
         d.insert_temp(egui::Id::new("shape_palette_hover"), hover_on_palette);
     });

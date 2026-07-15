@@ -21,53 +21,7 @@ use crate::pixel::{chars_to_shape, shape_to_chars};
 ///   of input, otherwise an error is returned.
 /// - Outside of quotes, backticks are ordinary characters.
 pub fn tokenize_tokens(line: &str) -> std::result::Result<Vec<String>, String> {
-    let mut tokens = Vec::new();
-    let chars: Vec<char> = line.chars().collect();
-    let mut i = 0;
-
-    while i < chars.len() {
-        if chars[i].is_whitespace() {
-            i += 1;
-            continue;
-        }
-
-        if chars[i] == '`' {
-            i += 1;
-            let mut token = String::new();
-            loop {
-                if i >= chars.len() {
-                    return Err("unclosed backtick quote".into());
-                }
-                if chars[i] == '`' {
-                    if i + 1 < chars.len() && chars[i + 1] == '`' {
-                        token.push('`');
-                        i += 2;
-                    } else {
-                        i += 1;
-                        if i < chars.len() && !chars[i].is_whitespace() {
-                            return Err(format!(
-                                "expected whitespace after closing backtick, got '{}'",
-                                chars[i],
-                            ));
-                        }
-                        break;
-                    }
-                } else {
-                    token.push(chars[i]);
-                    i += 1;
-                }
-            }
-            tokens.push(token);
-        } else {
-            let start = i;
-            while i < chars.len() && !chars[i].is_whitespace() {
-                i += 1;
-            }
-            tokens.push(chars[start..i].iter().collect());
-        }
-    }
-
-    Ok(tokens)
+    Ok(tokenize_with_spans(line)?.into_iter().map(|t| t.value).collect())
 }
 
 /// Quote a token for serialization. Wraps in backticks when the value is
@@ -95,7 +49,6 @@ pub struct TokenSpan {
 
 /// Like [`tokenize_tokens`] but also returns character-offset spans for each
 /// token in the original line.
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn tokenize_with_spans(line: &str) -> std::result::Result<Vec<TokenSpan>, String> {
     let mut tokens = Vec::new();
     let chars: Vec<char> = line.chars().collect();
@@ -271,11 +224,10 @@ pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> 
     // Find the first pair of consecutive numeric tokens (W H).
     // Keyword flags like `mark`, `sticky`, `inline` may precede W H.
     for i in 1..parts.len() - 1 {
-        if let Ok(width) = parts[i].as_ref().parse::<u16>() {
-            if let Ok(height) = parts[i + 1].as_ref().parse::<u16>() {
+        if let Ok(width) = parts[i].as_ref().parse::<u16>()
+            && let Ok(height) = parts[i + 1].as_ref().parse::<u16>() {
                 return Some(GlyphHeaderDims { width, height });
             }
-        }
     }
     None
 }
@@ -715,7 +667,7 @@ pub fn derive_document(
                 }
 
                 let tokens = tokenize_tokens(trimmed)
-                    .map_err(|e| DeriveError(e))?;
+                    .map_err(DeriveError)?;
                 if tokens.is_empty() {
                     item_line_starts.push(i);
                     doc.items.push(DocumentItem::BlankLine);
@@ -857,13 +809,12 @@ pub fn derive_document(
                                 continue;
                             } else if sub_tokens.first().is_some_and(|t| t == "point" || t == "anchor") {
                                 let point_parts = &sub_tokens[1..];
-                                if point_parts.len() == 3 {
-                                    if let Some(pt) = parse_anchor_point(&point_parts[0], &point_parts[1], &point_parts[2]) {
+                                if point_parts.len() == 3
+                                    && let Some(pt) = parse_anchor_point(&point_parts[0], &point_parts[1], &point_parts[2]) {
                                         body.points.push(pt);
                                         i += 1;
                                         continue;
                                     }
-                                }
                                 break;
                             } else {
                                 break;
@@ -909,6 +860,30 @@ pub fn derive_document(
     doc.item_line_starts = item_line_starts.clone();
     doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
     Ok((doc, item_line_starts))
+}
+
+// Write via temp file + rename to work around macOS SMB server silently
+// ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
+pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
+    let dir = path.parent().unwrap_or(Path::new("."));
+    let tmp_path = dir.join(format!(
+        ".~{}",
+        path.file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+    ));
+    let mut f = std::fs::File::create(&tmp_path)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    f.write_all(data)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    f.sync_all()
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    drop(f);
+    if let Err(e) = std::fs::rename(&tmp_path, path) {
+        let _ = std::fs::remove_file(&tmp_path);
+        return Err(anyhow::anyhow!("{e}"));
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -1740,28 +1715,4 @@ ref part-c fill blue monoonly
         let output_str = String::from_utf8(output).unwrap();
         assert_eq!(output_str, input);
     }
-}
-
-// Write via temp file + rename to work around macOS SMB server silently
-// ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
-pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
-    let dir = path.parent().unwrap_or(Path::new("."));
-    let tmp_path = dir.join(format!(
-        ".~{}",
-        path.file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-    ));
-    let mut f = std::fs::File::create(&tmp_path)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    f.write_all(data)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    f.sync_all()
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    drop(f);
-    if let Err(e) = std::fs::rename(&tmp_path, path) {
-        let _ = std::fs::remove_file(&tmp_path);
-        return Err(anyhow::anyhow!("{e}"));
-    }
-    Ok(())
 }

@@ -315,6 +315,15 @@ fn build_unit_polygon(shape_id: u8) -> Vec<(f32, f32)> {
     if adj_bits == 0 && gap_segs.is_empty() {
         return vec![];
     }
+    polygon_from_adjacency(adj_bits, gap_segs)
+}
+
+/// Chain a shape's boundary half-edges and gap segments into a single
+/// closed polygon in unit-square coordinates.
+pub(crate) fn polygon_from_adjacency(
+    adj_bits: u8,
+    gap_segs: &[(f32, f32, f32, f32)],
+) -> Vec<(f32, f32)> {
     if adj_bits == 0xFF {
         return vec![(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)];
     }
@@ -571,7 +580,6 @@ pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
 /// Subtract shape `b`'s area from shape `a`. The filled flag is preserved
 /// from `a`. Returns `EMPTY` when nothing remains, or a `PX_DOT` fallback
 /// when the geometric result doesn't match any known shape.
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() || b.is_empty() {
         return a;
@@ -707,11 +715,10 @@ fn subtract_covered_intervals(
     for i in 0..n {
         let (px1, py1) = other_polygon[i];
         let (px2, py2) = other_polygon[(i + 1) % n];
-        if let Some(t) = seg_intersect_t(x1, y1, x2, y2, px1, py1, px2, py2) {
-            if t > 0.002 && t < 0.998 {
+        if let Some(t) = seg_intersect_t(x1, y1, x2, y2, px1, py1, px2, py2)
+            && t > 0.002 && t < 0.998 {
                 crossings.push(t);
             }
-        }
     }
     crossings.sort_by(|a, b| a.partial_cmp(b).unwrap());
     crossings.dedup_by(|a, b| (*a - *b).abs() < 0.002);
@@ -765,7 +772,7 @@ fn seg_intersect_t(
     }
     let t = ((bx1 - ax1) * ey - (by1 - ay1) * ex) / denom;
     let u = ((bx1 - ax1) * dy - (by1 - ay1) * dx) / denom;
-    if t >= -0.001 && t <= 1.001 && u >= -0.001 && u <= 1.001 {
+    if (-0.001..=1.001).contains(&t) && (-0.001..=1.001).contains(&u) {
         Some(t.clamp(0.0, 1.0))
     } else {
         None

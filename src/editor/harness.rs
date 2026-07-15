@@ -20,7 +20,7 @@ use crate::editor::document_view::{
     LEFT_PAD, VLineKind, VisualLine, gutter_line_number, show_document,
 };
 use crate::editor::ref_composite::{AlternativesIndex, ResolvedGlyph, resolve_named_glyphs_with_parts};
-use crate::editor::{EditMode, EditorState};
+use crate::editor::EditorState;
 
 // ---------------------------------------------------------------------------
 // Per-frame layout snapshot
@@ -412,10 +412,6 @@ impl EditorHarness {
 
     pub fn cursor(&self) -> Caret {
         self.state.cursor
-    }
-
-    pub fn mode(&self) -> &EditMode {
-        &self.state.mode
     }
 
     /// Text content of a DocLine (panics on grids).
