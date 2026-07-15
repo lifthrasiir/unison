@@ -680,6 +680,7 @@ pub fn migrate_file(
                 points,
                 sticky: accum.sticky,
                 inline: accum.is_inline,
+                mark: false,
                 advance: accum.advance,
                 left: accum.left,
             },

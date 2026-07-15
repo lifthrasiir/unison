@@ -268,9 +268,16 @@ pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> 
     if parts.iter().any(|p| p.as_ref() == "=") {
         return None;
     }
-    let width: u16 = parts[1].as_ref().parse().ok()?;
-    let height: u16 = parts[2].as_ref().parse().ok()?;
-    Some(GlyphHeaderDims { width, height })
+    // Find the first pair of consecutive numeric tokens (W H).
+    // Keyword flags like `mark`, `sticky`, `inline` may precede W H.
+    for i in 1..parts.len() - 1 {
+        if let Ok(width) = parts[i].as_ref().parse::<u16>() {
+            if let Ok(height) = parts[i + 1].as_ref().parse::<u16>() {
+                return Some(GlyphHeaderDims { width, height });
+            }
+        }
+    }
+    None
 }
 
 /// Parse `.unf` source text into a `Document`.
@@ -352,23 +359,10 @@ fn validate_glyph_header<S: AsRef<str>>(parts: &[S], line_no: usize) -> Result<(
 
 fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<()> {
     let mut i = 0;
-    // Optional W H (two consecutive valid u16 values)
-    if i < tokens.len() && tokens[i].as_ref().parse::<u16>().is_ok() {
-        i += 1;
-        if i < tokens.len() && tokens[i].as_ref().parse::<u16>().is_ok() {
-            i += 1;
-        } else if i < tokens.len() {
-            bail!(
-                "line {}: expected height after width, got '{}'",
-                line_no + 1,
-                tokens[i].as_ref(),
-            );
-        }
-    }
-    // Keyword flags
+    let mut width_seen = false;
     while i < tokens.len() {
         match tokens[i].as_ref() {
-            "sticky" | "inline" => i += 1,
+            "sticky" | "inline" | "mark" => i += 1,
             "advance" => {
                 i += 1;
                 if i >= tokens.len() || tokens[i].as_ref().parse::<u16>().is_err() {
@@ -390,11 +384,28 @@ fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<(
                 i += 1;
             }
             other => {
-                bail!(
-                    "line {}: unrecognized glyph header token '{}'",
-                    line_no + 1,
-                    other,
-                );
+                if !width_seen && other.parse::<u16>().is_ok() {
+                    width_seen = true;
+                    i += 1;
+                    if i < tokens.len() && tokens[i].as_ref().parse::<u16>().is_ok() {
+                        i += 1;
+                    } else if i < tokens.len() && !matches!(
+                        tokens[i].as_ref(),
+                        "sticky" | "inline" | "mark" | "advance" | "left",
+                    ) {
+                        bail!(
+                            "line {}: expected height after width, got '{}'",
+                            line_no + 1,
+                            tokens[i].as_ref(),
+                        );
+                    }
+                } else {
+                    bail!(
+                        "line {}: unrecognized glyph header token '{}'",
+                        line_no + 1,
+                        other,
+                    );
+                }
             }
         }
     }
@@ -478,6 +489,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             item @ DocumentItem::NameParts { .. }
             | item @ DocumentItem::Remap { .. }
             | item @ DocumentItem::Feature { .. }
+            | item @ DocumentItem::FeatureAnchor { .. }
             | item @ DocumentItem::Color { .. } => {
                 if let Some(line) = item.serialize_line() {
                     writeln!(writer, "{line}")?;
@@ -488,6 +500,9 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             }
             DocumentItem::Map { char_repr, glyph } => {
                 writeln!(writer, "map {} = {}", quote_token(char_repr), quote_token(glyph))?;
+            }
+            DocumentItem::MapDecomposed { char_repr } => {
+                writeln!(writer, "map {}", quote_token(char_repr))?;
             }
         }
     }
@@ -512,6 +527,9 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     }
     if body.inline {
         flags.push_str(" inline");
+    }
+    if body.mark {
+        flags.push_str(" mark");
     }
     if let Some(adv) = body.advance {
         flags.push_str(&format!(" advance {adv}"));
@@ -728,6 +746,12 @@ pub fn derive_document(
                                 glyph: tokens[3].clone(),
                             });
                             i += 1;
+                        } else if tokens.len() == 2 {
+                            item_line_starts.push(i);
+                            doc.items.push(DocumentItem::MapDecomposed {
+                                char_repr: tokens[1].clone(),
+                            });
+                            i += 1;
                         } else {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Directive(trimmed.to_string()));
@@ -765,6 +789,7 @@ pub fn derive_document(
                             match flag_parts[fp].as_str() {
                                 "sticky" => body.sticky = true,
                                 "inline" => body.inline = true,
+                                "mark" => body.mark = true,
                                 "advance" => {
                                     fp += 1;
                                     if fp < flag_parts.len() {

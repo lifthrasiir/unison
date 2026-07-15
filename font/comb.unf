@@ -4,23 +4,39 @@
 //--------------------------------------
 // diaeresis
 
-glyph dia-lower 5 2
+glyph dia 5 2 inline
 /01\../10\
 \01/..\10/
-point -above 2 1
 
-glyph dia-lower-bg 6 2
+glyph dia-wide 6 2 inline
 /01\..../10\
 \01/....\10/
 
-glyph dia-upper 5 2
-ref dia-lower 0 0
+glyph dia-below 5 2 mark
+/01\../10\
+\01/..\10/
+ref dia 0 0
+anchor -below 2 0
 
-glyph dia-upper-bg 6 2
-ref dia-lower-bg 0 0
+glyph dia-below:wide 6 2 mark
+/01\..../10\
+\01/....\10/
+ref dia-wide 0 0
+anchor -below 2..3 0
 
-glyph dia-bottom 5 2
-ref dia-lower 0 0
+glyph dia-above 5 2 mark
+ref dia 0 0
+anchor -above 2 1
+
+glyph dia-above:wide 6 2 mark
+ref dia-wide 0 0
+anchor -above 2..3 1
+
+map U+0308 = dia-above
+map U+0324 = dia-below
+
+feature ccmp for DFLT : anchor below
+feature ccmp for DFLT : anchor above
 
 //--------------------------------------
 // acute accents
@@ -227,7 +243,7 @@ ref hook-lower 0 0
 
 glyph uni00A8
 ref sp
-ref dia-lower 2 2
+ref dia-below 2 2
 map ¨ = uni00A8
 glyph uni00AF
 ref sp

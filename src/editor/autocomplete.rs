@@ -588,7 +588,7 @@ fn collect_candidates(
         CompletionKind::Point => {
             let mut seen = HashSet::new();
             for glyph in source.named_glyphs.values() {
-                for anchor in &glyph.anchors {
+                for anchor in &glyph.resolved_anchors {
                     if seen.insert(anchor.position.clone()) {
                         candidates.push(CompletionCandidate {
                             label: anchor.position.clone(),

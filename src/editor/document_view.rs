@@ -2236,6 +2236,8 @@ mod tests {
                     | DocumentItem::NameParts { .. }
                     | DocumentItem::Remap { .. }
                     | DocumentItem::Feature { .. }
+                    | DocumentItem::FeatureAnchor { .. }
+                    | DocumentItem::MapDecomposed { .. }
                     | DocumentItem::Color { .. } => start + 1,
                     DocumentItem::Glyph { body, .. } => {
                         let is_alias = body.is_simple_alias();

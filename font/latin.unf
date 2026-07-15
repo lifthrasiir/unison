@@ -81,6 +81,7 @@ glyph b-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph c-upper 8 16
 ................
@@ -101,6 +102,7 @@ glyph c-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph d-upper 8 16
 ................
@@ -121,6 +123,7 @@ glyph d-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph d-z-upper 16 16
 ref d-upper 0 0
@@ -148,6 +151,9 @@ glyph eth-upper 8 16
 ................
 ................
 ref d-upper
+anchor +above 4 1
+anchor +below 4 14
+anchor -center 4 7..8
 
 glyph d-bar-upper 8 16
 ................
@@ -167,6 +173,9 @@ glyph d-bar-upper 8 16
 ................
 ................
 ref d-upper
+anchor +above 4 1
+anchor +below 4 14
+anchor -center 4 7..8
 
 glyph african-d-upper 8 16
 ................
@@ -187,6 +196,7 @@ glyph african-d-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph d-hook-upper 8 16
 ................
@@ -207,6 +217,7 @@ glyph d-hook-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph e-upper 8 16
 ................
@@ -227,6 +238,7 @@ glyph e-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph e-upper-compressed 8 16
 ................
@@ -265,6 +277,7 @@ glyph schwa-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph f-upper 8 16
 ................
@@ -285,6 +298,7 @@ glyph f-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph g-upper 8 16
 ................
@@ -305,6 +319,7 @@ glyph g-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph h-upper 8 16
 ................
@@ -325,6 +340,7 @@ glyph h-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph h-bar-upper 8 16
 ................
@@ -345,6 +361,7 @@ glyph h-bar-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph i-upper 8 16
 ................
@@ -363,8 +380,9 @@ glyph i-upper 8 16
 ................
 ................
 ................
-anchor +above 4 1
-anchor +below 4 14
+anchor +above 3..4 1
+anchor +below 3..4 14
+anchor -center 4 7..8
 
 glyph i-upper-compressed 8 16
 ................
@@ -401,6 +419,9 @@ glyph i-j-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor -center 4 7..8
 
 glyph i-bar-upper 8 16
 ................
@@ -420,6 +441,9 @@ glyph i-bar-upper 8 16
 ................
 ................
 ref i-upper
+anchor +above 4 1
+anchor +below 4 14
+anchor -center 4 7..8
 
 glyph j-upper 8 16
 ................
@@ -440,6 +464,7 @@ glyph j-upper 8 16
 ................
 anchor +above 5 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph k-upper 8 16
 ................
@@ -460,6 +485,7 @@ glyph k-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph l-upper 8 16
 ................
@@ -480,6 +506,7 @@ glyph l-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph l-stroke-upper 8 16
 ................
@@ -500,6 +527,7 @@ glyph l-stroke-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph m-upper 8 16
 ................
@@ -520,6 +548,7 @@ glyph m-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph n-upper 8 16
 ................
@@ -540,6 +569,7 @@ glyph n-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph o-upper 8 16
 ................
@@ -560,6 +590,7 @@ glyph o-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph o-upper-compressed 8 16
 ................
@@ -596,8 +627,9 @@ glyph o-horn-upper 8 16
 ................
 ................
 ................
-anchor +above 3 1
-anchor +below 3 14
+anchor +above 3..4 1
+anchor +below 3..4 14
+anchor -center 4 7..8
 
 glyph o-e-upper 8 16
 ................
@@ -618,6 +650,7 @@ glyph o-e-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph oe-upper 8 16
 ................
@@ -638,6 +671,7 @@ glyph oe-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph p-upper 8 16
 ................
@@ -658,6 +692,7 @@ glyph p-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph q-upper 8 16
 ................
@@ -678,6 +713,7 @@ glyph q-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph r-upper 8 16
 ................
@@ -698,6 +734,7 @@ glyph r-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph s-upper 8 16
 ................
@@ -718,6 +755,7 @@ glyph s-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph s-upper-compressed 8 16
 ................
@@ -756,6 +794,7 @@ glyph reversed-s-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph sz-upper 8 16
 ................
@@ -776,6 +815,7 @@ glyph sz-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph t-upper 8 16
 ................
@@ -796,6 +836,7 @@ glyph t-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph thorn-upper 8 16
 ................
@@ -816,6 +857,7 @@ glyph thorn-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph u-upper 8 16
 ................
@@ -836,6 +878,7 @@ glyph u-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph u-upper-compressed 8 16
 ................
@@ -872,8 +915,9 @@ glyph u-horn-upper 8 16
 ................
 ................
 ................
-anchor +above 3 1
-anchor +below 3 14
+anchor +above 3..4 1
+anchor +below 3..4 14
+anchor -center 4 7..8
 
 glyph v-upper 8 16
 ................
@@ -894,6 +938,7 @@ glyph v-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph w-upper 8 16
 ................
@@ -914,6 +959,7 @@ glyph w-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph x-upper 8 16
 ................
@@ -934,6 +980,7 @@ glyph x-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph y-upper 8 16
 ................
@@ -952,8 +999,9 @@ glyph y-upper 8 16
 ................
 ................
 ................
-anchor +above 4 1
-anchor +below 4 14
+anchor +above 3..4 1
+anchor +below 3..4 14
+anchor -center 4 7..8
 
 glyph z-upper 8 16
 ................
@@ -974,6 +1022,7 @@ glyph z-upper 8 16
 ................
 anchor +above 4 1
 anchor +below 4 14
+anchor -center 4 7..8
 
 glyph a-lower 8 16
 ................
@@ -1034,6 +1083,7 @@ glyph a-e-lower 8 16
 ................
 anchor +above 4 3
 anchor +below 4 14
+anchor -center 4 8..9
 
 glyph b-lower 8 16
 ................
@@ -1052,6 +1102,8 @@ glyph b-lower 8 16
 ................
 ................
 ................
+anchor +above 4 2
+anchor +below 4 14
 anchor -center 4 7..8
 
 glyph c-lower 8 16
@@ -1092,6 +1144,8 @@ glyph d-lower 8 16
 ................
 ................
 ................
+anchor +above 4 2
+anchor +below 4 14
 anchor -center 4 7..8
 
 glyph d-lower-narrow 8 16
@@ -1284,6 +1338,8 @@ glyph f-lower 8 16
 ................
 ................
 ref f-lower-stem
+anchor +above 4 1
+anchor +below 4 14
 anchor -center 4 7..8
 
 glyph g-lower 8 16
@@ -1304,6 +1360,7 @@ glyph g-lower 8 16
 ..\0@@@@@@@@@@0/
 ................
 anchor +above 4 3
+anchor +below 4 16
 anchor -center 4 9..10
 
 glyph h-lower 8 16
@@ -1323,6 +1380,8 @@ glyph h-lower 8 16
 ................
 ................
 ................
+anchor +above 4 2
+anchor +below 4 14
 anchor -center 4 7..8
 
 glyph h-lower:sm 8 16
@@ -1361,8 +1420,10 @@ glyph h-bar-lower 8 16
 ................
 ................
 ................
+anchor +above 4 2
+anchor +below 4 14
 
-glyph dotless-i-lower 8 16
+glyph i-lower:dotless 8 16
 ................
 ................
 ................
@@ -1379,8 +1440,7 @@ glyph dotless-i-lower 8 16
 ................
 ................
 ................
-anchor +above 4 4
-anchor +below 4 14
+anchor +above 3..4 4
 
 glyph i-lower 8 16
 ................
@@ -1399,7 +1459,8 @@ glyph i-lower 8 16
 ................
 ................
 ................
-ref dotless-i-lower
+ref i-lower:dotless
+anchor +below 3..4 14
 anchor -center 4 7..8
 
 glyph i-bar-lower 8 16
@@ -1440,7 +1501,7 @@ glyph i-j-lower 8 16
 ................
 ref j-lower
 
-glyph dotless-j-lower 8 16
+glyph j-lower:dotless 8 16
 ................
 ................
 ................
@@ -1457,6 +1518,7 @@ glyph dotless-j-lower 8 16
 ..@@@@......@@@@
 ..\0@@@@@@@@@@0/
 ................
+anchor +above 5 4
 
 glyph j-lower 8 16
 ................
@@ -1475,7 +1537,7 @@ glyph j-lower 8 16
 ................
 ................
 ................
-ref dotless-j-lower
+ref j-lower:dotless
 anchor -center 4 8
 
 glyph j-lower:compressed 8 16
@@ -1495,6 +1557,7 @@ glyph j-lower:compressed 8 16
 ................
 ................
 ................
+anchor +below 4 14
 anchor -center 4 7..8
 
 glyph k-lower 8 16
@@ -1514,6 +1577,8 @@ glyph k-lower 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
 anchor -center 4 7..8
 
 // distinguish with k-smallcaps
@@ -1553,6 +1618,8 @@ glyph l-lower 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
 anchor -center 5 7..8
 
 glyph l-stroke-lower 8 16
@@ -1609,6 +1676,8 @@ glyph m-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph n-lower 8 16
@@ -1628,6 +1697,8 @@ glyph n-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph o-lower 8 16
@@ -1647,6 +1718,8 @@ glyph o-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph o-lower:compressed 8 16
@@ -1685,6 +1758,8 @@ glyph o-horn-lower 8 16
 ................
 ................
 ................
+anchor +above 3..4 3
+anchor +below 3..4 14
 
 glyph o-e-lower 8 16
 ................
@@ -1739,6 +1814,8 @@ glyph p-lower 8 16
 ..@@@@..........
 ..@@@@..........
 ..@@@@..........
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 10
 
 glyph p-lower:compressed 8 16
@@ -1777,6 +1854,8 @@ glyph q-lower 8 16
 ............@@@@
 ............@@@@
 ............@@@@
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 10
 
 glyph q-lower:compressed 8 16
@@ -1815,6 +1894,8 @@ glyph r-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph s-lower 8 16
@@ -1834,6 +1915,8 @@ glyph s-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph s-lower:compressed 8 16
@@ -1927,6 +2010,8 @@ glyph t-lower 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
 anchor -center 4 7..8
 
 glyph thorn-lower 8 16
@@ -1964,6 +2049,8 @@ glyph u-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph u-lower:compressed 8 16
@@ -2002,6 +2089,8 @@ glyph u-horn-lower 8 16
 ................
 ................
 ................
+anchor +above 3..4 3
+anchor +below 3..4 14
 
 glyph v-lower 8 16
 ................
@@ -2020,6 +2109,8 @@ glyph v-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph w-lower 8 16
@@ -2039,6 +2130,8 @@ glyph w-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph x-lower 8 16
@@ -2058,6 +2151,8 @@ glyph x-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 glyph y-lower 8 16
@@ -2077,6 +2172,8 @@ glyph y-lower 8 16
 ../0@@@@0/......
 ..@@@@0/........
 ................
+anchor +above 4 3
+anchor +below 4 15
 anchor -center 4 9..10
 
 glyph z-lower 8 16
@@ -2096,6 +2193,8 @@ glyph z-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
 anchor -center 4 8..9
 
 map A = a-upper
@@ -2161,11 +2260,11 @@ map g = g-lower
 map h = h-lower
 map ħ = h-bar-lower
 map i = i-lower
-map ı = dotless-i-lower
+map ı = i-lower:dotless
 map ɨ = i-bar-lower
 map ĳ = i-j-lower
 map j = j-lower
-map ȷ = dotless-j-lower
+map ȷ = j-lower:dotless
 map k = k-lower
 map ĸ = kra-lower
 map l = l-lower
@@ -2196,161 +2295,101 @@ map z = z-lower
 //--------------------------------------
 // with diaeresis
 
-glyph uni00C4
-ref a-upper
-ref dia-upper 2 0
-map Ä = uni00C4
+map Ä
 glyph uni01DE
 ref a-upper-compressed
-ref dia-upper 2 2
+ref dia-above 2 2
 ref mac-upper 2 0
 map Ǟ = uni01DE
-glyph uni00CB
-ref e-upper
-ref dia-upper 2 0
-map Ë = uni00CB
-glyph uni1E26
-ref h-upper
-ref dia-upper 2 0
-map Ḧ = uni1E26
-glyph uni00CF
-ref i-upper
-ref dia-upper-bg 1 0
-map Ï = uni00CF
+map Ë
+map Ḧ
+map Ï
 glyph uni1E2E
 ref i-upper-compressed
-ref dia-upper-bg 1 2
+ref dia-above:wide 1 2
 ref acute-upper 3 0
 map Ḯ = uni1E2E
-glyph uni00D6
-ref o-upper
-ref dia-upper 2 0
-map Ö = uni00D6
+map Ö
 glyph uni022A
 ref o-upper-compressed
-ref dia-upper 2 2
+ref dia-above 2 2
 ref mac-upper 2 0
 map Ȫ = uni022A
-glyph uni00DC
-ref u-upper
-ref dia-upper 2 0
-map Ü = uni00DC
+map Ü
 glyph uni01D5
 ref u-upper-compressed
-ref dia-upper 2 2
+ref dia-above 2 2
 ref mac-upper 2 0
 map Ǖ = uni01D5
 glyph uni01D7
 ref u-upper-compressed
-ref dia-upper 2 2
+ref dia-above 2 2
 ref acute-upper 3 0
 map Ǘ = uni01D7
 glyph uni01D9
 ref u-upper-compressed
-ref dia-upper 2 2
+ref dia-above 2 2
 ref caron-upper 2 0
 map Ǚ = uni01D9
 glyph uni01DB
 ref u-upper-compressed
-ref dia-upper 2 2
+ref dia-above 2 2
 ref grave-upper 2 0
 map Ǜ = uni01DB
-glyph uni1E72
-ref u-upper
-ref dia-bottom 2 14
-map Ṳ = uni1E72
-glyph uni1E84
-ref w-upper
-ref dia-upper 2 0
-map Ẅ = uni1E84
-glyph uni1E8C
-ref x-upper
-ref dia-upper 2 0
-map Ẍ = uni1E8C
-glyph uni0178
-ref y-upper
-ref dia-upper 2 0
-map Ÿ = uni0178
+map Ṳ
+map Ẅ
+map Ẍ
+map Ÿ
 
-glyph uni00E4
-ref a-lower
-ref dia-lower 2 2
-map ä = uni00E4
+map ä
 glyph uni01DF
 ref a-lower:compressed
-ref dia-lower 2 4
+ref dia-below 2 4
 ref mac-lower 2 2
 map ǟ = uni01DF
-glyph uni00EB
-ref e-lower
-ref dia-lower 2 2
-map ë = uni00EB
+map ë
 glyph uni1E27
 ref h-lower:sm
-ref dia-lower 2 1
+ref dia-below 2 1
 map ḧ = uni1E27
-glyph uni00EF
-ref dotless-i-lower
-ref dia-lower-bg 1 3
-map ï = uni00EF
+map ï
 glyph uni1E2F
-ref dotless-i-lower
-ref dia-lower-bg 1 4
+ref i-lower:dotless
+ref dia-below:wide 1 4
 ref acute-lower 3 2
 map ḯ = uni1E2F
-glyph uni00F6
-ref o-lower
-ref dia-lower 2 2
-map ö = uni00F6
+map ö
 glyph uni022B
 ref o-lower:compressed
-ref dia-lower 2 4
+ref dia-below 2 4
 ref mac-lower 2 2
 map ȫ = uni022B
-glyph uni1E97
-ref t-lower
-ref dia-upper 2 0
-map ẗ = uni1E97
-glyph uni00FC
-ref u-lower
-ref dia-lower 2 2
-map ü = uni00FC
+map ẗ
+map ü
 glyph uni01D6
 ref u-lower:compressed
-ref dia-lower 2 4
+ref dia-below 2 4
 ref mac-lower 2 2
 map ǖ = uni01D6
 glyph uni01D8
 ref u-lower:compressed
-ref dia-lower 2 4
+ref dia-below 2 4
 ref acute-lower 3 2
 map ǘ = uni01D8
 glyph uni01DA
 ref u-lower:compressed
-ref dia-lower 2 4
+ref dia-below 2 4
 ref caron-lower 2 2
 map ǚ = uni01DA
 glyph uni01DC
 ref u-lower:compressed
-ref dia-lower 2 4
+ref dia-below 2 4
 ref grave-lower 2 2
 map ǜ = uni01DC
-glyph uni1E73
-ref u-lower
-ref dia-bottom 2 14
-map ṳ = uni1E73
-glyph uni1E85
-ref w-lower
-ref dia-lower 2 2
-map ẅ = uni1E85
-glyph uni1E8D
-ref x-lower
-ref dia-lower 2 2
-map ẍ = uni1E8D
-glyph uni00FF
-ref y-lower
-ref dia-lower 2 2
-map ÿ = uni00FF
+map ṳ
+map ẅ
+map ẍ
+map ÿ
 
 //--------------------------------------
 // with acute accents
@@ -2466,7 +2505,7 @@ ref g-lower
 ref acute-lower 3 2
 map ǵ = uni01F5
 glyph uni00ED
-ref dotless-i-lower
+ref i-lower:dotless
 ref acute-lower-shift 2 3
 map í = uni00ED
 glyph uni1E31
@@ -2609,7 +2648,7 @@ ref e-lower
 ref grave-lower 2 2
 map è = uni00E8
 glyph uni00EC
-ref dotless-i-lower
+ref i-lower:dotless
 ref grave-lower 2 3
 map ì = uni00EC
 glyph uni00F2
@@ -2678,7 +2717,7 @@ ref e-lower
 ref dgrave-lower 1 2
 map ȅ = uni0205
 glyph uni0209
-ref dotless-i-lower
+ref i-lower:dotless
 ref dgrave-lower 1 3
 map ȉ = uni0209
 glyph uni020D
@@ -2776,7 +2815,7 @@ map Ū = uni016A
 glyph uni1E7A
 ref u-upper-compressed
 ref mac-upper 2 2
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ṻ = uni1E7A
 glyph uni0232
 ref y-upper
@@ -2826,7 +2865,7 @@ ref h-lower
 ref mac-bottom 2 14
 map ẖ = uni1E96
 glyph uni012B
-ref dotless-i-lower
+ref i-lower:dotless
 ref mac-lower-sm 2 4
 map ī = uni012B
 glyph uni1E35
@@ -2870,7 +2909,7 @@ map ū = uni016B
 glyph uni1E7B
 ref u-lower:compressed
 ref mac-lower 2 4
-ref dia-lower 2 2
+ref dia-below 2 2
 map ṻ = uni1E7B
 glyph uni0233
 ref y-lower
@@ -3160,11 +3199,11 @@ ref h-lower:sm
 ref caron-lower 2 1
 map ȟ = uni021F
 glyph uni01D0
-ref dotless-i-lower
+ref i-lower:dotless
 ref caron-lower 2 3
 map ǐ = uni01D0
 glyph uni01F0
-ref dotless-j-lower
+ref j-lower:dotless
 ref caron-lower 2 3
 map ǰ = uni01F0
 glyph uni01E9
@@ -3419,11 +3458,11 @@ ref h-lower:sm
 ref circ-lower 2 1
 map ĥ = uni0125
 glyph uni00EE
-ref dotless-i-lower
+ref i-lower:dotless
 ref circ-lower 2 3
 map î = uni00EE
 glyph uni0135
-ref dotless-j-lower
+ref j-lower:dotless
 ref circ-lower 2 3
 map ĵ = uni0135
 glyph uni1E3D
@@ -3576,7 +3615,7 @@ ref h-lower
 ref breve-bottom 2 14
 map ḫ = uni1E2B
 glyph uni012D
-ref dotless-i-lower
+ref i-lower:dotless
 ref breve-lower 2 3
 map ĭ = uni012D
 glyph uni014F
@@ -3625,7 +3664,7 @@ ref e-lower
 ref arch-lower 2 2
 map ȇ = uni0207
 glyph uni020B
-ref dotless-i-lower
+ref i-lower:dotless
 ref arch-lower 2 3
 map ȋ = uni020B
 glyph uni020F
@@ -3732,7 +3771,7 @@ map Ṍ = uni1E4C
 glyph uni1E4E
 ref o-upper-compressed
 ref tilde-upper 2 2
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ṏ = uni1E4E
 glyph uni1EE0
 ref o-horn-upper
@@ -3777,7 +3816,7 @@ ref e-lower
 ref tilde-bottom 2 14
 map ḛ = uni1E1B
 glyph uni0129
-ref dotless-i-lower
+ref i-lower:dotless
 ref tilde-lower 2 3
 map ĩ = uni0129
 glyph uni1E2D
@@ -3805,7 +3844,7 @@ map ṍ = uni1E4D
 glyph uni1E4F
 ref o-lower:compressed
 ref tilde-lower 2 4
-ref dia-lower 2 2
+ref dia-below 2 2
 map ṏ = uni1E4F
 glyph uni1EE1
 ref o-horn-lower
@@ -4313,7 +4352,7 @@ ref e-lower
 ref hook-lower 3 2
 map ẻ = uni1EBB
 glyph uni1EC9
-ref dotless-i-lower
+ref i-lower:dotless
 ref hook-lower 3 2
 map ỉ = uni1EC9
 glyph uni1ECF

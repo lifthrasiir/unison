@@ -46,7 +46,10 @@ pub struct ResolvedGlyph {
     /// extend left/up from the glyph origin.
     pub(crate) origin_row: i32,
     pub(crate) origin_col: i32,
-    pub(crate) anchors: Vec<GlyphPoint>,
+    pub(crate) resolved_anchors: Vec<GlyphPoint>,
+    /// The glyph body's own declared anchor/point lines (not forwarded
+    /// from refs).  Used by look-ahead alternative selection.
+    pub(crate) declared_anchors: Vec<GlyphPoint>,
 }
 
 fn saturating_i16(value: i32) -> i16 {
@@ -63,36 +66,39 @@ pub(crate) fn expand_ref_names(name: &str) -> Option<Vec<String>> {
 }
 
 /// Derive effective ref offsets and the anchors exposed by the resulting
-/// composite without changing the source refs. A target's `-name` anchors
+/// composite without changing the source refs.  A target's `-name` anchors
 /// consume matching `+name` anchors that are already available, then the
-/// target's `+name` anchors are published for following refs. Unconsumed
+/// target's `+name` anchors are published for following refs.  Unconsumed
 /// minus anchors remain exposed so aliases/composites forward anchors from
 /// their targets.
 ///
 /// Ref order does not matter: when a target carries `-name` but no matching
 /// `+name` is available yet, resolution is deferred until a later ref
-/// publishes it. Refs that remain unresolved after the fixpoint fall back
+/// publishes it.  Refs that remain unresolved after the fixpoint fall back
 /// to `(0, 0)`.
 ///
 /// `lookup_alternatives` returns sorted alternative glyph names for a base
-/// name (e.g. for "foo" it returns ["foo:bar", "foo:baz"]). When the primary
-/// ref's anchors don't size-match, alternatives are tried in order.
-pub(crate) fn derive_ref_offsets_with<F, G>(
-    own_points: &[GlyphPoint],
+/// name (e.g. for "foo" it returns ["foo:bar", "foo:baz"]).  When the
+/// primary ref's anchors don't size-match, alternatives are tried in order.
+///
+/// `lookup_declared_anchors` returns a ref target's own declared anchors
+/// (not forwarded from its refs).  This enables look-ahead alternative
+/// selection: if a later ref would consume `+X` via `-X` and the current
+/// ref's declared anchors lack `+X` (it is only forwarded from sub-refs),
+/// an alternative that declares `+X` directly is preferred.
+pub(crate) fn derive_ref_offsets_with(
+    declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],
-    mut lookup_anchors: F,
-    mut lookup_alternatives: G,
-) -> (Vec<GlyphRef>, Vec<GlyphPoint>)
-where
-    F: FnMut(&str) -> Option<Vec<GlyphPoint>>,
-    G: FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
-{
-    let mut exposed_minus: Vec<GlyphPoint> = own_points
+    mut lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
+    mut lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
+    mut lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
+) -> (Vec<GlyphRef>, Vec<GlyphPoint>) {
+    let mut exposed_minus: Vec<GlyphPoint> = declared_anchors
         .iter()
         .filter(|p| p.position.starts_with('-'))
         .cloned()
         .collect();
-    let mut available_plus: Vec<GlyphPoint> = own_points
+    let mut available_plus: Vec<GlyphPoint> = declared_anchors
         .iter()
         .filter(|p| p.position.starts_with('+'))
         .cloned()
@@ -101,6 +107,11 @@ where
     let target_anchors_list: Vec<Option<Vec<GlyphPoint>>> = refs
         .iter()
         .map(|gref| lookup_anchors(&gref.name))
+        .collect();
+
+    let target_declared_anchors_list: Vec<Option<Vec<GlyphPoint>>> = refs
+        .iter()
+        .map(|gref| lookup_declared_anchors(&gref.name))
         .collect();
 
     let alternatives_list: Vec<Vec<(String, Vec<GlyphPoint>)>> = refs
@@ -194,14 +205,40 @@ where
                 continue;
             }
 
-            commit_ref(
-                gref,
-                (0, 0),
-                target_anchors,
-                &mut available_plus,
-                &mut exposed_minus,
-                &mut effective_refs[i],
+            // Look-ahead substitution: if this ref publishes +anchor
+            // that a subsequent unresolved ref would consume via -anchor,
+            // prefer an alternative that provides +anchor directly.
+            let alt_found = try_lookahead_alt(
+                i, n, target_anchors,
+                target_declared_anchors_list[i].as_deref(),
+                &available_plus,
+                &alternatives_list[i], &effective_refs, &target_anchors_list,
             );
+            if let Some((alt_name, alt_anchors)) = alt_found {
+                let alt_gref = GlyphRef {
+                    name: alt_name,
+                    offset: None,
+                    negated: gref.negated,
+                    fill: gref.fill.clone(),
+                };
+                commit_ref(
+                    &alt_gref,
+                    (0, 0),
+                    alt_anchors,
+                    &mut available_plus,
+                    &mut exposed_minus,
+                    &mut effective_refs[i],
+                );
+            } else {
+                commit_ref(
+                    gref,
+                    (0, 0),
+                    target_anchors,
+                    &mut available_plus,
+                    &mut exposed_minus,
+                    &mut effective_refs[i],
+                );
+            }
             progress = true;
         }
         if !progress {
@@ -227,6 +264,16 @@ where
                             break;
                         }
                     }
+                    if found.is_none() {
+                        if let Some((alt_name, alt_anchors)) = try_lookahead_alt(
+                            i, n, target_anchors,
+                            target_declared_anchors_list[i].as_deref(),
+                            &available_plus,
+                            &alternatives_list[i], &effective_refs, &target_anchors_list,
+                        ) {
+                            found = Some((alt_name.clone(), (0, 0), alt_anchors));
+                        }
+                    }
                     found.unwrap_or_else(|| (gref.name.clone(), (0, 0), target_anchors))
                 }
             }
@@ -250,6 +297,60 @@ where
     let effective_refs = effective_refs.into_iter().map(Option::unwrap).collect();
     exposed_minus.extend(available_plus);
     (effective_refs, exposed_minus)
+}
+
+/// Look-ahead alternative selection: when a ref at index `i` publishes
+/// `+anchor` that a subsequent unresolved ref would consume via `-anchor`,
+/// AND the ref's own declared points do NOT include that `+anchor` (it is
+/// only forwarded from the ref's own sub-refs), prefer an alternative that
+/// provides `+anchor` directly.
+///
+/// This handles cases like `i-lower` (which forwards `+above` from
+/// `ref i-lower:dotless`) followed by `dia-above` (which needs `-above`):
+/// `i-lower:dotless` should be used because it is the correct visual form
+/// when the above-anchor is consumed (the dot would conflict).  But when
+/// followed by `dia-below`, no substitution occurs because `i-lower` has
+/// `+below` as its own declared anchor.
+fn try_lookahead_alt<'a>(
+    i: usize,
+    n: usize,
+    target_anchors: &[GlyphPoint],
+    target_declared_anchors: Option<&[GlyphPoint]>,
+    available_plus: &[GlyphPoint],
+    alternatives: &'a [(String, Vec<GlyphPoint>)],
+    effective_refs: &[Option<GlyphRef>],
+    target_anchors_list: &[Option<Vec<GlyphPoint>>],
+) -> Option<(String, &'a [GlyphPoint])> {
+    let declared = target_declared_anchors?;
+    let plus_anchors: Vec<&GlyphPoint> = target_anchors
+        .iter()
+        .filter(|p| p.position.starts_with('+'))
+        .filter(|p| !available_plus.iter().any(|a| a.position == p.position))
+        .filter(|p| !declared.iter().any(|o| o.position == p.position))
+        .collect();
+    if plus_anchors.is_empty() {
+        return None;
+    }
+    for (alt_name, alt_anchors) in alternatives {
+        for plus in &plus_anchors {
+            let base = plus.position.strip_prefix('+')?;
+            let minus_name = format!("-{base}");
+            let needed_by_later = (i + 1..n).any(|j| {
+                effective_refs[j].is_none()
+                    && target_anchors_list[j]
+                        .as_deref()
+                        .unwrap_or(&[])
+                        .iter()
+                        .any(|p| p.position == minus_name)
+            });
+            if needed_by_later
+                && alt_anchors.iter().any(|a| a.position == plus.position)
+            {
+                return Some((alt_name.clone(), alt_anchors.as_slice()));
+            }
+        }
+    }
+    None
 }
 
 fn try_match_minus_plus(
@@ -390,7 +491,8 @@ pub fn resolve_named_glyphs_with_parts(
                                         .unwrap_or_else(|| PixelGrid::new(0, 0)),
                                     origin_row: 0,
                                     origin_col: 0,
-                                    anchors: body.points.clone(),
+                                    resolved_anchors: body.points.clone(),
+                                    declared_anchors: body.points.clone(),
                                 },
                             );
                         } else {
@@ -462,7 +564,8 @@ pub fn resolve_named_glyphs_with_parts(
                                         .unwrap_or_else(|| PixelGrid::new(0, 0)),
                                     origin_row: 0,
                                     origin_col: 0,
-                                    anchors: body.points.clone(),
+                                    resolved_anchors: body.points.clone(),
+                                    declared_anchors: body.points.clone(),
                                 },
                             );
                         } else {
@@ -497,9 +600,13 @@ pub fn resolve_named_glyphs_with_parts(
                     &pg.refs,
                     |name| {
                         resolve_ref_name_with_parts(name, &cache, name_parts)
-                            .map(|resolved| resolved.anchors.clone())
+                            .map(|resolved| resolved.resolved_anchors.clone())
                     },
                     |name| alt_index.get(name).to_vec(),
+                    |name| {
+                        resolve_ref_name_with_parts(name, &cache, name_parts)
+                            .map(|resolved| resolved.declared_anchors.clone())
+                    },
                 );
             let (min_r, min_c, _, _) =
                 composite_bounds(pg.pixels.as_ref(), &effective_refs, &cache, name_parts);
@@ -510,7 +617,8 @@ pub fn resolve_named_glyphs_with_parts(
                     grid,
                     origin_row: min_r,
                     origin_col: min_c,
-                    anchors,
+                    resolved_anchors: anchors,
+                    declared_anchors: pg.points.clone(),
                 },
             );
             progress = true;
@@ -636,7 +744,7 @@ impl AlternativesIndex {
                 prefix = &prefix[..colon_pos];
                 map.entry(prefix.to_string())
                     .or_default()
-                    .push((name.clone(), resolved.anchors.clone()));
+                    .push((name.clone(), resolved.resolved_anchors.clone()));
             }
         }
         for alts in map.values_mut() {
@@ -731,9 +839,13 @@ pub fn compute_composite(
         &body.refs,
         |name| {
             resolve_ref_name_with_parts(name, named_glyphs, name_parts)
-                .map(|resolved| resolved.anchors.clone())
+                .map(|resolved| resolved.resolved_anchors.clone())
         },
         |name| alt_index.get(name).to_vec(),
+        |name| {
+            resolve_ref_name_with_parts(name, named_glyphs, name_parts)
+                .map(|resolved| resolved.declared_anchors.clone())
+        },
     );
 
     let (min_r, min_c, max_r, max_c) = composite_bounds(
@@ -876,7 +988,8 @@ mod tests {
                 grid: filled_grid(2, 2),
                 origin_row: 0,
                 origin_col: 0,
-                anchors: Vec::new(),
+                resolved_anchors: Vec::new(),
+                declared_anchors: Vec::new(),
             },
         );
 
@@ -1344,8 +1457,9 @@ ref ($ab)-inner
         let (effective, _) = derive_ref_offsets_with(
             &[],
             &b_refs,
-            |name| resolved.get(name).map(|r| r.anchors.clone()),
+            |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
+            |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
         );
         assert_eq!(
             effective[1].name, "b-inner:compressed",
@@ -1416,5 +1530,87 @@ ref part
         let path = &contours[0];
         assert!(path.contains(&(0.0, 0.0)));
         assert!(path.contains(&(1.0, 1.0)));
+    }
+
+    #[test]
+    fn lookahead_selects_alternative_when_later_ref_consumes_forwarded_anchor() {
+        use crate::document_io;
+
+        let input = "\
+glyph base:alt 2 2
+@@@@
+@@@@
+anchor +above 1 0
+anchor +below 1 1
+
+glyph base 2 4
+@@@@
+@@@@
+....
+....
+ref base:alt 0 2
+anchor +below 1 3
+
+glyph mark-above 2 1 mark
+@@@@
+anchor -above 1 0
+
+glyph mark-below 2 1 mark
+@@@@
+anchor -below 1 0
+
+glyph combo-above
+ref base
+ref mark-above
+
+glyph combo-below
+ref base
+ref mark-below
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+
+        let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+        for item in &doc.items {
+            if let DocumentItem::Glyph { name, body } = item {
+                decl_anchors.entry(name.display()).or_insert_with(|| body.points.clone());
+            }
+        }
+
+        // combo-above: base + mark-above → should substitute base:alt
+        // because base's own points lack +above (forwarded from ref base:alt)
+        let above_body = doc.items.iter().find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "combo-above" => Some(body),
+            _ => None,
+        }).unwrap();
+        let (effective, _) = derive_ref_offsets_with(
+            &above_body.points,
+            &above_body.refs,
+            |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
+            |name| alt_idx.get(name).to_vec(),
+            |name| decl_anchors.get(name).cloned(),
+        );
+        assert_eq!(
+            effective[0].name, "base:alt",
+            "should select base:alt for mark-above (base's own points lack +above)"
+        );
+
+        // combo-below: base + mark-below → should NOT substitute
+        // because base's own points include +below
+        let below_body = doc.items.iter().find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "combo-below" => Some(body),
+            _ => None,
+        }).unwrap();
+        let (effective, _) = derive_ref_offsets_with(
+            &below_body.points,
+            &below_body.refs,
+            |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
+            |name| alt_idx.get(name).to_vec(),
+            |name| decl_anchors.get(name).cloned(),
+        );
+        assert_eq!(
+            effective[0].name, "base",
+            "should keep base for mark-below (base's own points have +below)"
+        );
     }
 }

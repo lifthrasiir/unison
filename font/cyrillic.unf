@@ -1610,92 +1610,92 @@ map я = cy-ya-lower
 
 glyph uni04D2
 ref cy-a-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӓ = uni04D2
 glyph uni0401
 ref cy-ye-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ё = uni0401
 glyph uni04DC
 ref cy-zhe-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӝ = uni04DC
 glyph uni04DE
 ref cy-ze-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӟ = uni04DE
 glyph uni04E4
 ref cy-i-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӥ = uni04E4
 glyph uni0407
 ref cy-dotted-i-upper
-ref dia-upper-bg 1 0
+ref dia-above:wide 1 0
 map Ї = uni0407
 glyph uni04E6
 ref cy-o-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӧ = uni04E6
 glyph uni04F0
 ref cy-u-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӱ = uni04F0
 glyph uni04F4
 ref cy-che-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӵ = uni04F4
 glyph uni04EC
 ref cy-e-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӭ = uni04EC
 glyph uni04F8
 ref cy-yery-upper
-ref dia-upper 2 0
+ref dia-above 2 0
 map Ӹ = uni04F8
 
 glyph uni04D3
 ref cy-a-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӓ = uni04D3
 glyph uni0451
 ref cy-ye-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ё = uni0451
 glyph uni04DD
 ref cy-zhe-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӝ = uni04DD
 glyph uni04DF
 ref cy-ze-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӟ = uni04DF
 glyph uni04E5
 ref cy-i-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӥ = uni04E5
 glyph uni0457
 ref cy-dotless-dotted-i-lower
-ref dia-lower-bg 1 3
+ref dia-below:wide 1 3
 map ї = uni0457
 glyph uni04E7
 ref cy-o-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӧ = uni04E7
 glyph uni04F1
 ref cy-u-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӱ = uni04F1
 glyph uni04F5
 ref cy-che-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӵ = uni04F5
 glyph uni04ED
 ref cy-e-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӭ = uni04ED
 glyph uni04F9
 ref cy-yery-lower
-ref dia-lower 2 2
+ref dia-below 2 2
 map ӹ = uni04F9
 
 //--------------------------------------

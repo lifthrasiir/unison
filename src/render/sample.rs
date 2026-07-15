@@ -129,6 +129,73 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }
     }
 
+    // Expand MapDecomposed: synthesize composite glyphs from NFD decomposition.
+    {
+        use unicode_normalization::UnicodeNormalization;
+
+        let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
+        for item in &all_items {
+            if let DocumentItem::Map { char_repr, glyph } = item {
+                let pairs = expand_map_pairs(char_repr, glyph);
+                for (cp, gname) in pairs {
+                    cp_to_glyph.entry(cp).or_insert(gname);
+                }
+            }
+        }
+
+        let mut decomposed_items: Vec<DocumentItem> = Vec::new();
+        let all_items_snapshot = all_items.clone();
+        for item in &all_items_snapshot {
+            let DocumentItem::MapDecomposed { char_repr } = item else {
+                continue;
+            };
+            let Some(cp) = crate::render::ttf_builder::parse_map_char(char_repr) else {
+                continue;
+            };
+            let Some(ch) = char::from_u32(cp) else {
+                continue;
+            };
+
+            let nfd: Vec<char> = ch.nfd().collect();
+            if nfd.len() < 2 {
+                continue;
+            }
+
+            let glyph_refs: Vec<Option<String>> = nfd
+                .iter()
+                .map(|c| cp_to_glyph.get(&(*c as u32)).cloned())
+                .collect();
+            if glyph_refs.iter().any(|g| g.is_none()) {
+                continue;
+            }
+
+            let composite_name = format!("uni{cp:04X}");
+            let refs: Vec<GlyphRef> = glyph_refs
+                .into_iter()
+                .map(|g| GlyphRef {
+                    name: g.unwrap(),
+                    offset: None,
+                    negated: false,
+                    fill: None,
+                })
+                .collect();
+
+            decomposed_items.push(DocumentItem::Glyph {
+                name: GlyphName(composite_name.clone()),
+                body: GlyphBody {
+                    refs,
+                    ..GlyphBody::new()
+                },
+            });
+            decomposed_items.push(DocumentItem::Map {
+                char_repr: char_repr.clone(),
+                glyph: composite_name,
+            });
+        }
+        all_items.retain(|item| !matches!(item, DocumentItem::MapDecomposed { .. }));
+        all_items.extend(decomposed_items);
+    }
+
     // Build contour cache for named glyphs
     struct CachedGlyph {
         width: u16,
@@ -200,6 +267,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     }
     let mut pending: Vec<PendingGlyph> = Vec::new();
 
+    let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+    for item in &all_items {
+        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+            glyph_declared_anchors.entry(n.clone()).or_insert_with(|| body.points.clone());
+        }
+    }
+
     for item in &all_items {
         let (cache_key, body) = match item {
             DocumentItem::Glyph { name: GlyphName(n), body } => (n.clone(), body),
@@ -261,6 +335,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         alt_index
                             .get(name)
                             .map_or_else(Vec::new, |v| v.clone())
+                    },
+                    |name| {
+                        glyph_declared_anchors.get(name).cloned()
                     },
                 );
 
@@ -494,11 +571,19 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     // Collect cmap
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
     for item in &all_items {
-        if let DocumentItem::Map { char_repr, glyph } = item {
-            let pairs = expand_map_pairs(char_repr, glyph);
-            for (cp, glyph_name) in pairs {
-                cmap.entry(cp).or_insert(glyph_name);
+        match item {
+            DocumentItem::Map { char_repr, glyph } => {
+                let pairs = expand_map_pairs(char_repr, glyph);
+                for (cp, glyph_name) in pairs {
+                    cmap.entry(cp).or_insert(glyph_name);
+                }
             }
+            DocumentItem::MapDecomposed { char_repr } => {
+                if let Some(cp) = crate::render::ttf_builder::parse_map_char(char_repr) {
+                    cmap.entry(cp).or_insert_with(|| format!("uni{cp:04X}"));
+                }
+            }
+            _ => {}
         }
     }
 

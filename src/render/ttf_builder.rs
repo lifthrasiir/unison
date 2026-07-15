@@ -7,6 +7,11 @@ use write_fonts::tables::cmap::Cmap;
 use write_fonts::tables::colr::{BaseGlyph, Colr, Layer as ColrLayer};
 use write_fonts::tables::cpal::{ColorRecord, Cpal};
 use write_fonts::tables::gdef::Gdef;
+use write_fonts::tables::gpos::{
+    AnchorTable, BaseArray, BaseRecord, Gpos, Mark2Array, Mark2Record,
+    MarkArray, MarkBasePosFormat1, MarkMarkPosFormat1, MarkRecord,
+    PositionLookup, PositionLookupList,
+};
 use write_fonts::tables::glyf::{Bbox, Component, ComponentFlags, CompositeGlyph, Contour, Glyph, GlyfLocaBuilder, SimpleGlyph};
 use read_fonts::tables::glyf::Anchor;
 use read_fonts::tables::glyf::CurvePoint;
@@ -18,9 +23,9 @@ use write_fonts::tables::head::{Flags, Head};
 use write_fonts::tables::hhea::Hhea;
 use write_fonts::tables::hmtx::{Hmtx, LongMetric};
 use write_fonts::tables::layout::{
-    ChainedSequenceContext, ChainedSequenceContextFormat3, CoverageTable, Feature, FeatureList,
-    FeatureRecord, LangSys, Lookup, LookupFlag, LookupList, Script, ScriptList, ScriptRecord,
-    SequenceLookupRecord,
+    ChainedSequenceContext, ChainedSequenceContextFormat3, ClassDef, ClassDefFormat2,
+    ClassRangeRecord, CoverageTable, Feature, FeatureList, FeatureRecord, LangSys, Lookup,
+    LookupFlag, LookupList, Script, ScriptList, ScriptRecord, SequenceLookupRecord,
 };
 use write_fonts::tables::maxp::Maxp;
 use write_fonts::tables::name::{Name, NameRecord};
@@ -114,6 +119,11 @@ struct CollectedGlyph {
     contours: Vec<Vec<(i16, i16)>>,
     composite_refs: Vec<CompositeRef>,
     color_layers: Vec<CollectedColorLayer>,
+    mark: bool,
+    /// Resolved anchors (including forwarded from refs).
+    resolved_anchors: Vec<GlyphPoint>,
+    /// Anchors declared directly on the glyph body (not forwarded).
+    declared_anchors: Vec<GlyphPoint>,
 }
 
 struct CollectedColorLayer {
@@ -220,6 +230,8 @@ struct GsubData {
     remap_sets: BTreeMap<String, Vec<ExpandedRemap>>,
     /// (feature_tag, scripts, remap_set_names)
     features: Vec<(String, Vec<String>, Vec<String>)>,
+    /// Anchor-based feature declarations: (feature_tag, scripts, anchor_name)
+    anchor_features: Vec<(String, Vec<String>, String)>,
 }
 
 pub fn load_docs_from_directory(dir: &Path) -> Vec<Document> {
@@ -283,8 +295,8 @@ pub fn build_font_pair_cached(
     };
 
     let (bitmap, vector) = std::thread::scope(|s| {
-        let bh = s.spawn(|| build_ttf(b_ascender, b_descender, &b_glyphs, 0, &b_gsub, &b_palette));
-        let vector = build_ttf(v_ascender, v_descender, &v_glyphs, v_hint_ppem, &v_gsub, &v_palette);
+        let bh = s.spawn(|| build_ttf(b_ascender, b_descender, &b_glyphs, 0, &b_gsub, &b_palette, b_scale, b_meta.ascent));
+        let vector = build_ttf(v_ascender, v_descender, &v_glyphs, v_hint_ppem, &v_gsub, &v_palette, v_scale, v_meta.ascent);
         let bitmap = bh.join().unwrap();
         (bitmap, vector)
     });
@@ -303,7 +315,7 @@ fn build_font_from_documents_inner(docs: &[&Document], bitmap: bool, contour_cac
     } else {
         0
     };
-    Some(build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette))
+    Some(build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent))
 }
 
 /// Resolve all documents' glyph items (expanding name patterns, following
@@ -386,9 +398,87 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     char_repr: char_repr.clone(),
                     glyph: substitute_name_parts(glyph, &name_parts),
                 });
+            } else if let DocumentItem::MapDecomposed { .. } = item {
+                all_items.push(item.clone());
             } else {
                 all_items.push(item.clone());
             }
+        }
+    }
+
+    // Expand MapDecomposed: build codepoint→glyph reverse map, then
+    // synthesize composite glyphs from NFD decomposition.
+    {
+        use unicode_normalization::UnicodeNormalization;
+
+        let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
+        for item in &all_items {
+            if let DocumentItem::Map { char_repr, glyph } = item {
+                let pairs = expand_map_pairs(char_repr, glyph);
+                for (cp, gname) in pairs {
+                    cp_to_glyph.entry(cp).or_insert(gname);
+                }
+            }
+        }
+
+        let mut decomposed_items: Vec<DocumentItem> = Vec::new();
+        let all_items_snapshot = all_items.clone();
+        for item in &all_items_snapshot {
+            let DocumentItem::MapDecomposed { char_repr } = item else {
+                continue;
+            };
+            let Some(cp) = parse_map_char(char_repr) else {
+                continue;
+            };
+            let Some(ch) = char::from_u32(cp) else {
+                continue;
+            };
+
+            let nfd: Vec<char> = ch.nfd().collect();
+            if nfd.len() < 2 {
+                continue;
+            }
+
+            let glyph_refs: Vec<Option<String>> = nfd
+                .iter()
+                .map(|c| cp_to_glyph.get(&(*c as u32)).cloned())
+                .collect();
+            if glyph_refs.iter().any(|g| g.is_none()) {
+                continue;
+            }
+
+            let composite_name = format!("uni{cp:04X}");
+            let refs: Vec<GlyphRef> = glyph_refs
+                .into_iter()
+                .map(|g| GlyphRef {
+                    name: g.unwrap(),
+                    offset: None,
+                    negated: false,
+                    fill: None,
+                })
+                .collect();
+
+            decomposed_items.push(DocumentItem::Glyph {
+                name: GlyphName(composite_name.clone()),
+                body: GlyphBody {
+                    refs,
+                    ..GlyphBody::new()
+                },
+            });
+            decomposed_items.push(DocumentItem::Map {
+                char_repr: char_repr.clone(),
+                glyph: composite_name,
+            });
+        }
+        all_items.retain(|item| !matches!(item, DocumentItem::MapDecomposed { .. }));
+        all_items.extend(decomposed_items);
+    }
+
+    // Own-points map: for look-ahead alternative selection in ref resolution.
+    let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+    for item in &all_items {
+        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+            declared_anchors_map.entry(n.clone()).or_insert_with(|| body.points.clone());
         }
     }
 
@@ -465,6 +555,9 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                         alt_index
                             .get(name)
                             .map_or_else(Vec::new, |v| v.clone())
+                    },
+                    |name| {
+                        declared_anchors_map.get(name).cloned()
                     },
                 );
             let mut cached_entry = CachedContours::from_components(
@@ -570,6 +663,14 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 Vec::new()
             };
 
+            let is_mark = glyph_bodies.get(glyph_name.as_str()).is_some_and(|b| b.mark);
+            let glyph_anchors = cache.get(glyph_name.as_str())
+                .map(|c| c.anchors.clone())
+                .unwrap_or_default();
+            let declared_anchors = glyph_bodies.get(glyph_name.as_str())
+                .map(|b| b.points.clone())
+                .unwrap_or_default();
+
             seen_names.insert(glyph_name.clone());
             glyph_data.push(CollectedGlyph {
                 name: glyph_name.clone(),
@@ -578,6 +679,9 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 contours: font_contours,
                 composite_refs,
                 color_layers: Vec::new(),
+                mark: is_mark,
+                resolved_anchors: glyph_anchors,
+                declared_anchors: declared_anchors,
             });
         }
     }
@@ -610,6 +714,9 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     alt_index
                         .get(name)
                         .map_or_else(Vec::new, |v| v.clone())
+                },
+                |name| {
+                    declared_anchors_map.get(name).cloned()
                 },
             );
 
@@ -808,6 +915,67 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             extra_name_set.insert(name.clone());
         }
     }
+
+    // Include alternative glyphs needed for anchor-based features:
+    // 1. Base alts: base lacks own "+X" but base:alt has it.
+    // 2. Mark alts: mark has "-X" of one size, mark:alt has "-X" of a
+    //    different size that matches some base's "+X".
+    if !gsub_data.anchor_features.is_empty() {
+        let anchor_names: Vec<&str> = gsub_data
+            .anchor_features
+            .iter()
+            .map(|(_, _, a)| a.as_str())
+            .collect();
+        let alt_index = build_cached_alternatives(&cache);
+
+        // 1. Base alts
+        for (base_name, alts) in &alt_index {
+            if !seen_names.contains(base_name) {
+                continue;
+            }
+            let declared = glyph_bodies.get(base_name).map(|b| &b.points[..]).unwrap_or(&[]);
+            for anchor_name in &anchor_names {
+                let plus_name = format!("+{anchor_name}");
+                if declared.iter().any(|p| p.position == plus_name) {
+                    continue;
+                }
+                for (alt_name, alt_anchors) in alts {
+                    if alt_anchors.iter().any(|p| p.position == plus_name)
+                        && !seen_names.contains(alt_name)
+                    {
+                        extra_name_set.insert(alt_name.clone());
+                    }
+                }
+            }
+        }
+
+        // 2. Mark alts: include mark:alt when its "-X" has a different
+        //    size from the primary mark's "-X".
+        for (mark_name, alts) in &alt_index {
+            if !seen_names.contains(mark_name) {
+                continue;
+            }
+            let mark_body = match glyph_bodies.get(mark_name) {
+                Some(b) if b.mark => b,
+                _ => continue,
+            };
+            for anchor_name in &anchor_names {
+                let minus_name = format!("-{anchor_name}");
+                let Some(mark_minus) = mark_body.points.iter().find(|p| p.position == minus_name) else { continue };
+                for (alt_name, alt_anchors) in alts {
+                    if seen_names.contains(alt_name) || extra_name_set.contains(alt_name) {
+                        continue;
+                    }
+                    if let Some(alt_minus) = alt_anchors.iter().find(|p| p.position == minus_name) {
+                        if !alt_minus.size_matches(mark_minus) {
+                            extra_name_set.insert(alt_name.clone());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     let mut extra_names: Vec<String> = extra_name_set.into_iter().collect();
     extra_names.sort();
 
@@ -868,6 +1036,14 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             Vec::new()
         };
 
+        let is_mark = glyph_bodies.get(glyph_name.as_str()).is_some_and(|b| b.mark);
+        let glyph_anchors = cache.get(glyph_name.as_str())
+            .map(|c| c.anchors.clone())
+            .unwrap_or_default();
+        let declared_anchors = glyph_bodies.get(glyph_name.as_str())
+            .map(|b| b.points.clone())
+            .unwrap_or_default();
+
         glyph_data.push(CollectedGlyph {
             name: glyph_name.clone(),
             codepoint: None,
@@ -875,6 +1051,9 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             contours: font_contours,
             composite_refs,
             color_layers: Vec::new(),
+            mark: is_mark,
+            resolved_anchors: glyph_anchors,
+            declared_anchors: declared_anchors,
         });
     }
 
@@ -916,6 +1095,9 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                     contours: font_contours,
                     composite_refs: Vec::new(),
                     color_layers: Vec::new(),
+                    mark: false,
+                    resolved_anchors: Vec::new(),
+                    declared_anchors: Vec::new(),
                 });
             }
         }
@@ -1098,6 +1280,7 @@ fn expand_remap_element(s: &str, name_parts: &NamePartsMap) -> Vec<String> {
 fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData {
     let mut remap_sets: BTreeMap<String, Vec<ExpandedRemap>> = BTreeMap::new();
     let mut features: Vec<(String, Vec<String>, Vec<String>)> = Vec::new();
+    let mut anchor_features: Vec<(String, Vec<String>, String)> = Vec::new();
 
     for doc in docs {
         for item in &doc.items {
@@ -1159,6 +1342,9 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                 DocumentItem::Feature { name, scripts, remap_group } => {
                     features.push((name.clone(), scripts.clone(), vec![remap_group.clone()]));
                 }
+                DocumentItem::FeatureAnchor { name, scripts, anchor } => {
+                    anchor_features.push((name.clone(), scripts.clone(), anchor.clone()));
+                }
                 _ => {}
             }
         }
@@ -1167,6 +1353,7 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
     GsubData {
         remap_sets,
         features,
+        anchor_features,
     }
 }
 
@@ -1353,6 +1540,582 @@ fn build_gsub(
     let lookup_list: LookupList<SubstitutionLookup> = LookupList::new(lookups);
 
     Some(Gsub::new(script_list, feature_list, lookup_list))
+}
+
+// ---------------------------------------------------------------------------
+// GPOS / GDEF / ccmp generation from anchor features
+// ---------------------------------------------------------------------------
+
+struct AnchorGposData {
+    gpos: Option<Gpos>,
+    gdef: Gdef,
+    /// Per-feature-tag GSUB lookups for anchor-based substitution.
+    /// Each entry: (feature_tag, scripts, lookups).
+    feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)>,
+}
+
+fn build_anchor_gpos(
+    glyphs: &[CollectedGlyph],
+    gsub_data: &GsubData,
+    name_to_gid: &HashMap<String, GlyphId16>,
+    scale: f32,
+    ascent: u16,
+) -> AnchorGposData {
+    if gsub_data.anchor_features.is_empty() {
+        return AnchorGposData {
+            gpos: None,
+            gdef: Gdef::default(),
+            feature_lookups: Vec::new(),
+        };
+    }
+
+    let anchor_names: Vec<String> = gsub_data
+        .anchor_features
+        .iter()
+        .map(|(_, _, a)| a.clone())
+        .collect();
+
+    let mut all_scripts: Vec<String> = Vec::new();
+    for (_, scripts, _) in &gsub_data.anchor_features {
+        for s in scripts {
+            if !all_scripts.contains(s) {
+                all_scripts.push(s.clone());
+            }
+        }
+    }
+
+    // Assign anchor classes: each unique anchor name (from feature declarations) gets a class.
+    let mut anchor_class_map: HashMap<String, u16> = HashMap::new();
+    for (i, name) in anchor_names.iter().enumerate() {
+        anchor_class_map.entry(name.clone()).or_insert(i as u16);
+    }
+    let num_classes = anchor_class_map.len() as u16;
+
+    // Classify glyphs: mark glyphs have `-anchor` anchors, base glyphs have `+anchor`.
+    // For mark-to-mark: a mark glyph with `+anchor` serves as mark2 (the base mark).
+    let mut mark_gids: Vec<(GlyphId16, u16, i16, i16)> = Vec::new(); // (gid, class, x, y)
+    let mut base_gids: Vec<(GlyphId16, Vec<Option<(i16, i16)>>)> = Vec::new();
+    let mut mark2_gids: Vec<(GlyphId16, Vec<Option<(i16, i16)>>)> = Vec::new();
+
+    // Collect all mark glyph GIDs for ccmp/GDEF
+    let mut mark_gid_set: HashSet<GlyphId16> = HashSet::new();
+
+    // Build alternative index from glyphs: name:variant → base_name
+    let mut alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+    for g in glyphs {
+        let mut prefix = g.name.as_str();
+        while let Some(colon_pos) = prefix.rfind(':') {
+            prefix = &prefix[..colon_pos];
+            alt_index
+                .entry(prefix.to_string())
+                .or_default()
+                .push((g.name.clone(), g.resolved_anchors.clone()));
+        }
+    }
+    for alts in alt_index.values_mut() {
+        alts.sort_by(|(a, _), (b, _)| a.cmp(b));
+    }
+
+    // Track base glyphs that need alternative substitution, grouped
+    // by anchor name.  Each entry also records the feature tag so the
+    // resulting lookups land under the correct OpenType feature.
+    let mut ccmp_entries: Vec<(String, String, String)> = Vec::new(); // (source, target, anchor_name)
+
+    // Map anchor_name → (feature_tag, scripts) from the declarations.
+    let mut anchor_to_feature: HashMap<String, (String, Vec<String>)> = HashMap::new();
+    for (tag, scripts, anchor_name) in &gsub_data.anchor_features {
+        anchor_to_feature.entry(anchor_name.clone())
+            .or_insert_with(|| (tag.clone(), scripts.clone()));
+    }
+
+    for g in glyphs {
+        let Some(&gid) = name_to_gid.get(&g.name) else { continue };
+
+        if g.mark {
+            mark_gid_set.insert(gid);
+
+            // Mark glyphs: look for `-anchor` anchors in declared_anchors only
+            // (not forwarded anchors from refs) to determine mark class.
+            for anchor_name in anchor_names.iter() {
+                let minus_name = format!("-{anchor_name}");
+                if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == minus_name) {
+                    let class = anchor_class_map[anchor_name];
+                    let x = (pt.col as f32 * scale).round() as i16;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    mark_gids.push((gid, class, x, y));
+                    break;
+                }
+            }
+
+            // Mark-to-mark: mark glyphs with `+anchor` anchors
+            let mut plus_anchors: Vec<Option<(i16, i16)>> = vec![None; num_classes as usize];
+            let mut has_any = false;
+            for anchor_name in anchor_names.iter() {
+                let plus_name = format!("+{anchor_name}");
+                if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
+                    let class = anchor_class_map[anchor_name] as usize;
+                    let x = (pt.col as f32 * scale).round() as i16;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    plus_anchors[class] = Some((x, y));
+                    has_any = true;
+                }
+            }
+            if has_any {
+                mark2_gids.push((gid, plus_anchors));
+            }
+        } else {
+            // Base glyphs: look for `+anchor` anchors (direct or via alternatives).
+            // Own anchors go on the original glyph; anchors provided only by
+            // alternatives go on the alt glyph (which ccmp substitutes in).
+            let mut own_plus: Vec<Option<(i16, i16)>> = vec![None; num_classes as usize];
+            let mut has_own = false;
+            // alt_name → plus_anchors for each alternative that provides anchors
+            let mut alt_plus_map: HashMap<String, Vec<Option<(i16, i16)>>> = HashMap::new();
+
+            for anchor_name in anchor_names.iter() {
+                let plus_name = format!("+{anchor_name}");
+                if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == plus_name) {
+                    let class = anchor_class_map[anchor_name] as usize;
+                    let x = (pt.col as f32 * scale).round() as i16;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    own_plus[class] = Some((x, y));
+                    has_own = true;
+                } else if let Some(alts) = alt_index.get(&g.name) {
+                    for (alt_name, alt_anchors) in alts {
+                        if let Some(pt) = alt_anchors.iter().find(|p| p.position == plus_name) {
+                            let class = anchor_class_map[anchor_name] as usize;
+                            let x = (pt.col as f32 * scale).round() as i16;
+                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                            let entry = alt_plus_map
+                                .entry(alt_name.clone())
+                                .or_insert_with(|| vec![None; num_classes as usize]);
+                            entry[class] = Some((x, y));
+
+                            if !ccmp_entries.iter().any(|(s, _, a)| s == &g.name && a == anchor_name) {
+                                ccmp_entries.push((g.name.clone(), alt_name.clone(), anchor_name.clone()));
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if has_own {
+                base_gids.push((gid, own_plus));
+            }
+            for (alt_name, alt_anchors) in &alt_plus_map {
+                if let Some(&alt_gid) = name_to_gid.get(alt_name.as_str()) {
+                    base_gids.push((alt_gid, alt_anchors.clone()));
+                }
+            }
+        }
+    }
+
+    // Compact class indices: only keep classes that are actually used by marks.
+    let used_classes: Vec<u16> = {
+        let mut s: Vec<u16> = mark_gids.iter().map(|&(_, class, _, _)| class).collect();
+        s.sort();
+        s.dedup();
+        s
+    };
+    if !used_classes.is_empty() {
+        let class_remap: HashMap<u16, u16> = used_classes
+            .iter()
+            .enumerate()
+            .map(|(new_idx, &old_idx)| (old_idx, new_idx as u16))
+            .collect();
+        let compact_num_classes = used_classes.len();
+
+        for entry in &mut mark_gids {
+            entry.1 = class_remap[&entry.1];
+        }
+        for (_, anchors) in &mut base_gids {
+            let compacted: Vec<Option<(i16, i16)>> = used_classes
+                .iter()
+                .map(|&old_class| anchors.get(old_class as usize).copied().flatten())
+                .collect();
+            *anchors = compacted;
+        }
+        for (_, anchors) in &mut mark2_gids {
+            let compacted: Vec<Option<(i16, i16)>> = used_classes
+                .iter()
+                .map(|&old_class| anchors.get(old_class as usize).copied().flatten())
+                .collect();
+            *anchors = compacted;
+        }
+        let _ = compact_num_classes; // used implicitly via compacted vectors
+    }
+
+    // Sort by GID for coverage tables
+    mark_gids.sort_by_key(|&(gid, _, _, _)| gid);
+    mark_gids.dedup_by_key(|entry| entry.0);
+    base_gids.sort_by_key(|&(gid, _)| gid);
+    base_gids.dedup_by_key(|entry| entry.0);
+    mark2_gids.sort_by_key(|&(gid, _)| gid);
+    mark2_gids.dedup_by_key(|entry| entry.0);
+
+    // Build GPOS lookups
+    let mut gpos_lookups: Vec<PositionLookup> = Vec::new();
+    let mut gpos_lookup_indices: Vec<u16> = Vec::new();
+
+    // MarkBasePos (lookup type 4)
+    if !mark_gids.is_empty() && !base_gids.is_empty() {
+        let mark_coverage = CoverageTable::format_1(
+            mark_gids.iter().map(|&(gid, _, _, _)| gid).collect(),
+        );
+        let base_coverage = CoverageTable::format_1(
+            base_gids.iter().map(|&(gid, _)| gid).collect(),
+        );
+        let mark_array = MarkArray::new(
+            mark_gids
+                .iter()
+                .map(|&(_, class, x, y)| {
+                    MarkRecord::new(class, AnchorTable::format_1(x, y))
+                })
+                .collect(),
+        );
+        let base_array = BaseArray::new(
+            base_gids
+                .iter()
+                .map(|(_, anchors)| {
+                    BaseRecord::new(
+                        anchors
+                            .iter()
+                            .map(|opt| opt.map(|(x, y)| AnchorTable::format_1(x, y)))
+                            .collect(),
+                    )
+                })
+                .collect(),
+        );
+        let lookup_idx = gpos_lookups.len() as u16;
+        gpos_lookups.push(PositionLookup::MarkToBase(Lookup::new(
+            LookupFlag::empty(),
+            vec![MarkBasePosFormat1::new(
+                mark_coverage,
+                base_coverage,
+                mark_array,
+                base_array,
+            )],
+        )));
+        gpos_lookup_indices.push(lookup_idx);
+    }
+
+    // MarkMarkPos (lookup type 6)
+    if !mark_gids.is_empty() && !mark2_gids.is_empty() {
+        let mark1_coverage = CoverageTable::format_1(
+            mark_gids.iter().map(|&(gid, _, _, _)| gid).collect(),
+        );
+        let mark2_coverage = CoverageTable::format_1(
+            mark2_gids.iter().map(|&(gid, _)| gid).collect(),
+        );
+        let mark1_array = MarkArray::new(
+            mark_gids
+                .iter()
+                .map(|&(_, class, x, y)| {
+                    MarkRecord::new(class, AnchorTable::format_1(x, y))
+                })
+                .collect(),
+        );
+        let mark2_array = Mark2Array::new(
+            mark2_gids
+                .iter()
+                .map(|(_, anchors)| {
+                    Mark2Record::new(
+                        anchors
+                            .iter()
+                            .map(|opt| opt.map(|(x, y)| AnchorTable::format_1(x, y)))
+                            .collect(),
+                    )
+                })
+                .collect(),
+        );
+        let lookup_idx = gpos_lookups.len() as u16;
+        gpos_lookups.push(PositionLookup::MarkToMark(Lookup::new(
+            LookupFlag::empty(),
+            vec![MarkMarkPosFormat1::new(
+                mark1_coverage,
+                mark2_coverage,
+                mark1_array,
+                mark2_array,
+            )],
+        )));
+        gpos_lookup_indices.push(lookup_idx);
+    }
+
+    // Build GPOS table
+    let gpos = if !gpos_lookups.is_empty() {
+        let mut feature_records: Vec<FeatureRecord> = Vec::new();
+        let mut script_feature_indices: BTreeMap<String, Vec<u16>> = BTreeMap::new();
+
+        // mark feature
+        let mark_feat_idx = feature_records.len() as u16;
+        feature_records.push(FeatureRecord::new(
+            Tag::new(b"mark"),
+            Feature::new(None, gpos_lookup_indices.clone()),
+        ));
+        for script in &all_scripts {
+            script_feature_indices
+                .entry(script.clone())
+                .or_default()
+                .push(mark_feat_idx);
+        }
+
+        // mkmk feature (if MarkMarkPos exists)
+        if gpos_lookup_indices.len() > 1 {
+            let mkmk_feat_idx = feature_records.len() as u16;
+            feature_records.push(FeatureRecord::new(
+                Tag::new(b"mkmk"),
+                Feature::new(None, vec![gpos_lookup_indices[1]]),
+            ));
+            for script in &all_scripts {
+                script_feature_indices
+                    .entry(script.clone())
+                    .or_default()
+                    .push(mkmk_feat_idx);
+            }
+        }
+
+        let mut script_records: Vec<ScriptRecord> = Vec::new();
+        for (script_tag, feat_indices) in &script_feature_indices {
+            let tag_bytes = script_tag.as_bytes();
+            let mut tag_arr = [b' '; 4];
+            for (i, &b) in tag_bytes.iter().enumerate().take(4) {
+                tag_arr[i] = b;
+            }
+            let lang_sys = LangSys {
+                required_feature_index: 0xFFFF,
+                feature_indices: feat_indices.clone(),
+            };
+            let script = Script::new(Some(lang_sys), vec![]);
+            script_records.push(ScriptRecord::new(Tag::new(&tag_arr), script));
+        }
+
+        let script_list = ScriptList::new(script_records);
+        let feature_list = FeatureList::new(feature_records);
+        let lookup_list = PositionLookupList::new(gpos_lookups);
+
+        Some(Gpos::new(script_list, feature_list, lookup_list))
+    } else {
+        None
+    };
+
+    // Build GDEF with mark glyph class
+    let gdef = if !mark_gid_set.is_empty() {
+        let mut mark_gids_sorted: Vec<GlyphId16> = mark_gid_set.into_iter().collect();
+        mark_gids_sorted.sort();
+
+        let mut class_ranges: Vec<ClassRangeRecord> = Vec::new();
+        let mut i = 0;
+        while i < mark_gids_sorted.len() {
+            let start = mark_gids_sorted[i];
+            let mut end = start;
+            while i + 1 < mark_gids_sorted.len()
+                && mark_gids_sorted[i + 1].to_u16() == end.to_u16() + 1
+            {
+                i += 1;
+                end = mark_gids_sorted[i];
+            }
+            class_ranges.push(ClassRangeRecord::new(start, end, 3)); // 3 = Mark
+            i += 1;
+        }
+
+        let class_def = ClassDef::Format2(ClassDefFormat2 {
+            class_range_records: class_ranges,
+        });
+        Gdef::new(Some(class_def), None, None, None)
+    } else {
+        Gdef::default()
+    };
+
+    // Build ccmp GSUB lookups, grouped by anchor name.
+    // Each anchor gets its own chain context + single subst pair so
+    // that the lookahead only includes marks carrying that anchor's
+    // `-X` (e.g. only dia-above marks for the "above" anchor, not
+    // dia-below marks).
+    // Build per-feature GSUB lookups grouped by feature tag, then anchor.
+    let mut feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)> = Vec::new();
+    if !ccmp_entries.is_empty() {
+        // Group entries by feature tag, then by anchor within each tag.
+        let mut tag_groups: BTreeMap<String, BTreeMap<String, (Vec<String>, Vec<String>)>> = BTreeMap::new();
+        for (source, target, anchor_name) in &ccmp_entries {
+            let (tag, _) = anchor_to_feature.get(anchor_name)
+                .cloned()
+                .unwrap_or_else(|| ("ccmp".to_string(), vec!["DFLT".to_string()]));
+            let group = tag_groups.entry(tag).or_default()
+                .entry(anchor_name.clone()).or_default();
+            if !group.0.contains(source) {
+                group.0.push(source.clone());
+                group.1.push(target.clone());
+            }
+        }
+
+        for (tag, anchor_groups) in &tag_groups {
+            let scripts: Vec<String> = gsub_data.anchor_features.iter()
+                .filter(|(t, _, _)| t == tag)
+                .flat_map(|(_, s, _)| s.clone())
+                .collect::<Vec<_>>()
+                .into_iter()
+                .fold(Vec::new(), |mut acc, s| { if !acc.contains(&s) { acc.push(s); } acc });
+
+            let mut lookups: Vec<SubstitutionLookup> = Vec::new();
+            for (anchor_name, (sources, targets)) in anchor_groups {
+                let minus_name = format!("-{anchor_name}");
+                let mark_coverage = CoverageTable::format_1({
+                    let mut gids: Vec<GlyphId16> = glyphs
+                        .iter()
+                        .filter(|g| g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name))
+                        .filter_map(|g| name_to_gid.get(&g.name).copied())
+                        .collect();
+                    gids.sort();
+                    gids.dedup();
+                    gids
+                });
+
+                let subst_lookup = build_single_subst_from_pairs(sources, targets, name_to_gid);
+                let subst_idx = lookups.len();
+                lookups.push(subst_lookup);
+
+                let source_coverage = make_coverage(sources, name_to_gid);
+                let mut sc = SubstitutionChainContext::default();
+                *sc = ChainedSequenceContext::Format3(
+                    ChainedSequenceContextFormat3::new(
+                        vec![],
+                        vec![source_coverage],
+                        vec![mark_coverage],
+                        vec![SequenceLookupRecord {
+                            sequence_index: 0,
+                            lookup_list_index: subst_idx as u16,
+                        }],
+                    ),
+                );
+                lookups.push(SubstitutionLookup::ChainContextual(Lookup::new(
+                    LookupFlag::empty(),
+                    vec![sc],
+                )));
+            }
+
+            feature_lookups.push((tag.clone(), scripts, lookups));
+        }
+    }
+
+    // Mark alternative substitution: when a mark's `-X` anchor doesn't
+    // size-match the preceding base's `+X`, substitute with a mark:alt
+    // whose `-X` does match.
+    //
+    // For each anchor, collect (mark, mark:alt) pairs where the alt has
+    // a differently-sized `-X`.  Then generate a chain context with
+    // backtrack = bases whose `+X` matches the alt's `-X` size.
+    {
+        let mark_alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = {
+            let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
+            for g in glyphs {
+                if !g.mark { continue; }
+                let mut prefix = g.name.as_str();
+                while let Some(colon_pos) = prefix.rfind(':') {
+                    prefix = &prefix[..colon_pos];
+                    map.entry(prefix.to_string())
+                        .or_default()
+                        .push((g.name.clone(), g.declared_anchors.clone()));
+                }
+            }
+            for alts in map.values_mut() {
+                alts.sort_by(|(a, _), (b, _)| a.cmp(b));
+            }
+            map
+        };
+
+        for anchor_name in &anchor_names {
+            let minus_name = format!("-{anchor_name}");
+            let plus_name = format!("+{anchor_name}");
+
+            // Collect marks that have alternatives with different `-X` sizes.
+            for g in glyphs {
+                if !g.mark { continue; }
+                let Some(&mark_gid) = name_to_gid.get(&g.name) else { continue };
+                let Some(mark_minus) = g.declared_anchors.iter().find(|p| p.position == minus_name) else { continue };
+                let Some(alts) = mark_alt_index.get(&g.name) else { continue };
+
+                for (alt_name, alt_declared) in alts {
+                    let Some(&_alt_gid) = name_to_gid.get(alt_name.as_str()) else { continue };
+                    let Some(alt_minus) = alt_declared.iter().find(|p| p.position == minus_name) else { continue };
+                    if alt_minus.size_matches(mark_minus) {
+                        continue; // same size, no substitution needed
+                    }
+
+                    // Find bases whose `+X` matches the alt's `-X` size.
+                    let mut backtrack_gids: Vec<GlyphId16> = Vec::new();
+                    for base in glyphs {
+                        if base.mark { continue; }
+                        let Some(&base_gid) = name_to_gid.get(&base.name) else { continue };
+                        // Check own declared +X first; if not present, check resolved.
+                        let plus_pt = base.declared_anchors.iter()
+                            .find(|p| p.position == plus_name)
+                            .or_else(|| base.resolved_anchors.iter().find(|p| p.position == plus_name));
+                        if let Some(pt) = plus_pt {
+                            if pt.size_matches(alt_minus) && !pt.size_matches(mark_minus) {
+                                backtrack_gids.push(base_gid);
+                            }
+                        }
+                    }
+                    if backtrack_gids.is_empty() {
+                        continue;
+                    }
+                    backtrack_gids.sort();
+                    backtrack_gids.dedup();
+
+                    let (tag, _) = anchor_to_feature.get(anchor_name.as_str())
+                        .cloned()
+                        .unwrap_or_else(|| ("ccmp".to_string(), vec!["DFLT".to_string()]));
+                    let scripts: Vec<String> = gsub_data.anchor_features.iter()
+                        .filter(|(t, _, _)| *t == tag)
+                        .flat_map(|(_, s, _)| s.clone())
+                        .fold(Vec::new(), |mut acc, s| { if !acc.contains(&s) { acc.push(s); } acc });
+
+                    // Find or create the feature_lookups entry for this tag.
+                    let entry = feature_lookups.iter_mut().find(|(t, _, _)| *t == tag);
+                    let lookups = if let Some((_, _, lks)) = entry {
+                        lks
+                    } else {
+                        feature_lookups.push((tag.clone(), scripts, Vec::new()));
+                        &mut feature_lookups.last_mut().unwrap().2
+                    };
+
+                    let subst_lookup = build_single_subst_from_pairs(
+                        &[g.name.clone()],
+                        &[alt_name.clone()],
+                        name_to_gid,
+                    );
+                    let subst_idx = lookups.len();
+                    lookups.push(subst_lookup);
+
+                    let backtrack_coverage = CoverageTable::format_1(backtrack_gids);
+                    let input_coverage = CoverageTable::format_1(vec![mark_gid]);
+                    let mut sc = SubstitutionChainContext::default();
+                    *sc = ChainedSequenceContext::Format3(
+                        ChainedSequenceContextFormat3::new(
+                            vec![backtrack_coverage],
+                            vec![input_coverage],
+                            vec![],
+                            vec![SequenceLookupRecord {
+                                sequence_index: 0,
+                                lookup_list_index: subst_idx as u16,
+                            }],
+                        ),
+                    );
+                    lookups.push(SubstitutionLookup::ChainContextual(Lookup::new(
+                        LookupFlag::empty(),
+                        vec![sc],
+                    )));
+                }
+            }
+        }
+    }
+
+    AnchorGposData {
+        gpos,
+        gdef,
+        feature_lookups,
+    }
 }
 
 fn compute_max_context(gsub_data: &GsubData) -> u16 {
@@ -2047,6 +2810,8 @@ fn build_ttf(
     hint_ppem: u16,
     gsub_data: &GsubData,
     palette: &[Rgba],
+    scale: f32,
+    pixel_ascent: u16,
 ) -> Vec<u8> {
     let mut num_glyphs = u16::try_from(glyphs.len() + 1).expect("glyph count checked earlier"); // +1 for .notdef
 
@@ -2385,8 +3150,88 @@ fn build_ttf(
         ..Default::default()
     };
 
-    // GSUB / GDEF
-    let gsub = build_gsub(gsub_data, &name_to_gid);
+    // GSUB / GPOS / GDEF
+    let mut gsub = build_gsub(gsub_data, &name_to_gid);
+
+    let anchor_data = build_anchor_gpos(
+        glyphs,
+        gsub_data,
+        &name_to_gid,
+        scale,
+        pixel_ascent,
+    );
+
+    // Merge anchor-based feature lookups into GSUB
+    for (feature_tag, scripts, lookups) in anchor_data.feature_lookups {
+        if lookups.is_empty() {
+            continue;
+        }
+        let gsub = gsub.get_or_insert_with(|| {
+            Gsub::new(
+                ScriptList::new(vec![]),
+                FeatureList::new(vec![]),
+                LookupList::new(vec![]),
+            )
+        });
+
+        let base_idx = gsub.lookup_list.lookups.len() as u16;
+        let mut chain_indices: Vec<u16> = Vec::new();
+        for (local_idx, mut lookup) in lookups.into_iter().enumerate() {
+            let global_idx = base_idx + local_idx as u16;
+            if let SubstitutionLookup::ChainContextual(ref mut lk) = lookup {
+                for subtable in &mut lk.subtables {
+                    if let ChainedSequenceContext::Format3(ref mut f3) = ***subtable {
+                        for rec in &mut f3.seq_lookup_records {
+                            rec.lookup_list_index += base_idx;
+                        }
+                    }
+                }
+                chain_indices.push(global_idx);
+            }
+            gsub.lookup_list.lookups.push(lookup.into());
+        }
+
+        let mut tag_arr = [b' '; 4];
+        for (i, &b) in feature_tag.as_bytes().iter().enumerate().take(4) {
+            tag_arr[i] = b;
+        }
+        let feat_tag = Tag::new(&tag_arr);
+
+        let feat_idx = gsub.feature_list.feature_records.len() as u16;
+        gsub.feature_list.feature_records.push(FeatureRecord::new(
+            feat_tag,
+            Feature::new(None, chain_indices),
+        ));
+
+        for script in &scripts {
+            let mut script_arr = [b' '; 4];
+            for (i, &b) in script.as_bytes().iter().enumerate().take(4) {
+                script_arr[i] = b;
+            }
+            let script_tag = Tag::new(&script_arr);
+
+            let existing = gsub
+                .script_list
+                .script_records
+                .iter_mut()
+                .find(|sr| sr.script_tag == script_tag);
+
+            if let Some(sr) = existing {
+                if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
+                    default_ls.feature_indices.push(feat_idx);
+                }
+            } else {
+                let lang_sys = LangSys {
+                    required_feature_index: 0xFFFF,
+                    feature_indices: vec![feat_idx],
+                };
+                let script_obj = Script::new(Some(lang_sys), vec![]);
+                gsub.script_list
+                    .script_records
+                    .push(ScriptRecord::new(script_tag, script_obj));
+            }
+        }
+    }
 
     // Assemble
     let mut builder = FontBuilder::new();
@@ -2412,10 +3257,19 @@ fn build_ttf(
         .add_table(&loca)
         .unwrap();
 
+    let has_gsub = gsub.is_some();
+    let has_gpos = anchor_data.gpos.is_some();
+
     if let Some(ref gsub) = gsub {
         builder.add_table(gsub).unwrap();
-        let gdef = Gdef::default();
-        builder.add_table(&gdef).unwrap();
+    }
+
+    if let Some(ref gpos) = anchor_data.gpos {
+        builder.add_table(gpos).unwrap();
+    }
+
+    if has_gsub || has_gpos {
+        builder.add_table(&anchor_data.gdef).unwrap();
     }
 
     if has_color {
@@ -2494,6 +3348,7 @@ fn glyph_bounds(contours: &[Vec<(i16, i16)>]) -> (i16, i16, i16, i16) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use read_fonts::TableProvider;
 
     /// Rotate a contour so it starts at its lexicographically-smallest point.
     /// `render::contour::track_contour` traces contours via `HashMap`
@@ -3198,5 +4053,247 @@ map A = combo
         // This test is hard to distinguish by contour shape alone.
         // Just verify the font builds and has color layers.
         assert!(combo.color_layers.len() >= 1);
+    }
+
+    #[test]
+    fn gpos_mark_base_from_anchor_feature() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph base-letter 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+
+glyph dia mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+
+map a = base-letter
+map \u{0308} = dia
+
+feature ccmp for DFLT : anchor above
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+
+        // Verify parsed data
+        let (_, _, glyph_data, gsub_data, _) = collect_glyph_data(&docs, false).unwrap();
+        let dia_glyph = glyph_data.iter().find(|g| g.name == "dia").unwrap();
+        assert!(dia_glyph.mark, "dia should be marked");
+        assert!(!dia_glyph.resolved_anchors.is_empty(), "dia should have anchors");
+        assert!(!gsub_data.anchor_features.is_empty(), "anchor features should be collected");
+
+        let base_glyph = glyph_data.iter().find(|g| g.name == "base-letter").unwrap();
+        assert!(!base_glyph.resolved_anchors.is_empty(), "base-letter should have anchors");
+
+        let font_data = build_font_from_documents(&docs);
+        assert!(font_data.is_some(), "font should build successfully");
+
+        let bytes = font_data.unwrap();
+        let font = read_fonts::FontRef::new(&bytes).unwrap();
+        let gpos = font.gpos();
+        assert!(gpos.is_ok(), "GPOS table should be present");
+
+        let gdef = font.gdef();
+        assert!(gdef.is_ok(), "GDEF table should be present");
+        let gdef = gdef.unwrap();
+        let class_def = gdef.glyph_class_def().unwrap();
+        assert!(class_def.is_ok(), "GDEF should have glyph class def");
+    }
+
+    #[test]
+    fn gpos_ccmp_generated_for_alternative() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph base:alt 4 4
+@@@@@@@@
+..@@@@..
+..@@@@..
+@@@@@@@@
+anchor +above 2 0
+
+glyph dia mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+
+map a = base
+map \u{0308} = dia
+
+feature ccmp for DFLT : anchor above
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+        let font_data = build_font_from_documents(&docs);
+        assert!(font_data.is_some(), "font should build successfully");
+
+        let bytes = font_data.unwrap();
+        let font = read_fonts::FontRef::new(&bytes).unwrap();
+
+        // GSUB should exist with ccmp feature
+        let gsub = font.gsub();
+        assert!(gsub.is_ok(), "GSUB table should be present");
+
+        // GPOS should exist
+        let gpos = font.gpos();
+        assert!(gpos.is_ok(), "GPOS table should be present");
+    }
+
+    #[test]
+    fn ccmp_generated_when_base_refs_its_alternative() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph base:alt 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+
+glyph base 4 6
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+ref base:alt
+
+glyph dia mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+
+map a = base
+map \u{0308} = dia
+
+feature ccmp for DFLT : anchor above
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+        let font_data = build_font_from_documents(&docs);
+        assert!(font_data.is_some(), "font should build successfully");
+
+        let bytes = font_data.unwrap();
+        let font = read_fonts::FontRef::new(&bytes).unwrap();
+
+        // GSUB must exist: base needs ccmp substitution to base:alt
+        // even though base forwards +above from ref base:alt.
+        let gsub = font.gsub();
+        assert!(gsub.is_ok(), "GSUB table should be present (ccmp for base -> base:alt)");
+
+        let gpos = font.gpos();
+        assert!(gpos.is_ok(), "GPOS table should be present");
+    }
+
+    #[test]
+    fn mark_flag_roundtrips() {
+        let input = "\
+glyph dia 3 2 mark
+@@@@@@
+@@@@@@
+anchor -above 1 1
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
+            assert!(body.mark, "mark flag should be parsed");
+        } else {
+            panic!("expected glyph");
+        }
+
+        let mut output = Vec::new();
+        document_io::serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert!(output_str.contains("mark"), "mark flag should be serialized");
+
+        let doc2 = document_io::parse_document_from_str(&output_str, "test.unf".into()).unwrap();
+        if let DocumentItem::Glyph { body, .. } = &doc2.items[0] {
+            assert!(body.mark, "mark flag should survive roundtrip");
+        }
+    }
+
+    #[test]
+    fn feature_anchor_roundtrips() {
+        let input = "\
+feature ccmp for DFLT latn : anchor above
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::FeatureAnchor { name, scripts, anchor } = &doc.items[0] {
+            assert_eq!(name, "ccmp");
+            assert_eq!(scripts, &["DFLT", "latn"]);
+            assert_eq!(anchor, "above");
+        } else {
+            panic!("expected FeatureAnchor, got {:?}", doc.items[0]);
+        }
+
+        let mut output = Vec::new();
+        document_io::serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert!(output_str.contains("anchor above"));
+    }
+
+    #[test]
+    fn map_decomposed_roundtrips() {
+        let input = "\
+map ä
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::MapDecomposed { char_repr } = &doc.items[0] {
+            assert_eq!(char_repr, "ä");
+        } else {
+            panic!("expected MapDecomposed, got {:?}", doc.items[0]);
+        }
+
+        let mut output = Vec::new();
+        document_io::serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert!(output_str.contains("map ä"));
+    }
+
+    #[test]
+    fn map_decomposed_generates_composite_glyph() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph a-lower 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+
+glyph dia-above mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+
+map a = a-lower
+map \u{0308} = dia-above
+map ä
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+        let font_data = build_font_from_documents(&docs);
+        assert!(font_data.is_some(), "font should build");
+
+        let bytes = font_data.unwrap();
+        let font = read_fonts::FontRef::new(&bytes).unwrap();
+
+        // ä (U+00E4) should be in the cmap
+        let cmap = font.cmap().unwrap();
+        let gid = cmap.map_codepoint('ä');
+        assert!(gid.is_some(), "ä should be mapped in cmap");
     }
 }

@@ -4,7 +4,7 @@ use skrifa::{FontRef, MetadataProvider};
 
 use crate::document::{Document, DocumentItem, NamePartsMap, substitute_name_parts};
 use crate::preview::rasterizer::GlyphCache;
-use crate::render::ttf_builder::expand_map_pairs;
+use crate::render::ttf_builder::{expand_map_pairs, parse_map_char};
 
 pub struct SpecimenState {
     entries: Vec<(u32, String)>,
@@ -38,12 +38,20 @@ impl SpecimenState {
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
         for doc in docs {
             for item in &doc.items {
-                if let DocumentItem::Map { char_repr, glyph } = item {
-                    let subst_glyph = substitute_name_parts(glyph, name_parts);
-                    let pairs = expand_map_pairs(char_repr, &subst_glyph);
-                    for (cp, glyph_name) in pairs {
-                        map.entry(cp).or_insert(glyph_name);
+                match item {
+                    DocumentItem::Map { char_repr, glyph } => {
+                        let subst_glyph = substitute_name_parts(glyph, name_parts);
+                        let pairs = expand_map_pairs(char_repr, &subst_glyph);
+                        for (cp, glyph_name) in pairs {
+                            map.entry(cp).or_insert(glyph_name);
+                        }
                     }
+                    DocumentItem::MapDecomposed { char_repr } => {
+                        if let Some(cp) = parse_map_char(char_repr) {
+                            map.entry(cp).or_insert_with(|| format!("uni{cp:04X}"));
+                        }
+                    }
+                    _ => {}
                 }
             }
         }

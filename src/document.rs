@@ -126,6 +126,7 @@ pub struct GlyphBody {
     pub points: Vec<GlyphPoint>,
     pub sticky: bool,
     pub inline: bool,
+    pub mark: bool,
     pub advance: Option<u16>,
     pub left: Option<i16>,
 }
@@ -138,6 +139,7 @@ impl GlyphBody {
             points: Vec::new(),
             sticky: false,
             inline: false,
+            mark: false,
             advance: None,
             left: None,
         }
@@ -154,6 +156,7 @@ impl GlyphBody {
             && self.points.is_empty()
             && !self.sticky
             && !self.inline
+            && !self.mark
             && self.advance.is_none()
             && self.left.is_none()
     }
@@ -183,6 +186,11 @@ pub enum DocumentItem {
         char_repr: String,
         glyph: String,
     },
+    /// `map CHAR` — auto-decomposed cmap mapping. The glyph is synthesized from
+    /// the character's Unicode canonical decomposition.
+    MapDecomposed {
+        char_repr: String,
+    },
     /// `name-parts $NAME = token1 token2 $ref3 ...`
     NameParts {
         name: String,
@@ -201,6 +209,12 @@ pub enum DocumentItem {
         name: String,
         scripts: Vec<String>,
         remap_group: String,
+    },
+    /// `feature NAME for SCRIPT... : anchor ANCHOR_NAME`
+    FeatureAnchor {
+        name: String,
+        scripts: Vec<String>,
+        anchor: String,
     },
     /// `color NAME = #xxxxxx[xx]|COLORNAME [coloronly|monoonly]`
     Color {
@@ -277,9 +291,19 @@ impl DocumentItem {
             "feature" => {
                 let rest = &tokens[1..];
                 // feature NAME for SCRIPT... : REMAP_GROUP
+                // feature NAME for SCRIPT... : anchor ANCHOR_NAME
                 if let Some(for_pos) = rest.iter().position(|t| t == "for") {
                     if let Some(colon_pos) = rest.iter().position(|t| t == ":") {
                         if for_pos == 1 && colon_pos > 2 && colon_pos + 1 < rest.len() {
+                            if rest.get(colon_pos + 1).is_some_and(|t| t == "anchor")
+                                && colon_pos + 2 < rest.len()
+                            {
+                                return DocumentItem::FeatureAnchor {
+                                    name: rest[0].clone(),
+                                    scripts: rest[2..colon_pos].to_vec(),
+                                    anchor: rest[colon_pos + 2].clone(),
+                                };
+                            }
                             return DocumentItem::Feature {
                                 name: rest[0].clone(),
                                 scripts: rest[2..colon_pos].to_vec(),
@@ -379,6 +403,15 @@ impl DocumentItem {
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(remap_group),
+                ))
+            }
+            DocumentItem::FeatureAnchor { name, scripts, anchor } => {
+                let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
+                Some(format!(
+                    "feature {} for {} : anchor {}",
+                    quote_token(name),
+                    qscripts.join(" "),
+                    quote_token(anchor),
                 ))
             }
             DocumentItem::Color { name, value, visibility } => {
@@ -905,7 +938,10 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<Doc
 
         items.push(DocumentItem::Glyph {
             name: expanded_name,
-            body: GlyphBody { refs: expanded_refs, ..GlyphBody::new() },
+            body: GlyphBody {
+                refs: expanded_refs,
+                ..GlyphBody::new()
+            },
         });
     }
 
