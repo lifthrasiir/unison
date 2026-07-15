@@ -1552,6 +1552,12 @@ struct AnchorGposData {
     /// Per-feature-tag GSUB lookups for anchor-based substitution.
     /// Each entry: (feature_tag, scripts, lookups).
     feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)>,
+    /// Base substitution entries: (source, target, anchor_name).
+    #[cfg(test)]
+    base_subst_entries: Vec<(String, String, String)>,
+    /// Mark substitution entries: (mark, mark_alt, anchor_name, backtrack_bases).
+    #[cfg(test)]
+    mark_subst_entries: Vec<(String, String, String, Vec<String>)>,
 }
 
 fn build_anchor_gpos(
@@ -1566,6 +1572,10 @@ fn build_anchor_gpos(
             gpos: None,
             gdef: Gdef::default(),
             feature_lookups: Vec::new(),
+            #[cfg(test)]
+            base_subst_entries: Vec::new(),
+            #[cfg(test)]
+            mark_subst_entries: Vec::new(),
         };
     }
 
@@ -1998,6 +2008,11 @@ fn build_anchor_gpos(
         }
     }
 
+    #[cfg(test)]
+    let base_subst_entries = ccmp_entries.clone();
+    #[cfg(test)]
+    let mut mark_subst_entries: Vec<(String, String, String, Vec<String>)> = Vec::new();
+
     // Mark alternative substitution: when a mark's `-X` anchor doesn't
     // size-match the preceding base's `+X`, substitute with a mark:alt
     // whose `-X` does match.
@@ -2063,6 +2078,19 @@ fn build_anchor_gpos(
                     backtrack_gids.sort();
                     backtrack_gids.dedup();
 
+                    #[cfg(test)]
+                    {
+                        let bt_names: Vec<String> = backtrack_gids.iter()
+                            .filter_map(|gid| {
+                                glyphs.iter().find(|g| name_to_gid.get(&g.name) == Some(gid))
+                                    .map(|g| g.name.clone())
+                            })
+                            .collect();
+                        mark_subst_entries.push((
+                            g.name.clone(), alt_name.clone(), anchor_name.clone(), bt_names,
+                        ));
+                    }
+
                     let (tag, _) = anchor_to_feature.get(anchor_name.as_str())
                         .cloned()
                         .unwrap_or_else(|| ("ccmp".to_string(), vec!["DFLT".to_string()]));
@@ -2115,6 +2143,10 @@ fn build_anchor_gpos(
         gpos,
         gdef,
         feature_lookups,
+        #[cfg(test)]
+        base_subst_entries,
+        #[cfg(test)]
+        mark_subst_entries,
     }
 }
 
@@ -4151,51 +4183,199 @@ feature ccmp for DFLT : anchor above
     }
 
     #[test]
-    fn ccmp_generated_when_base_refs_its_alternative() {
+    /// Regression test for anchor-based ccmp and GPOS with three base
+    /// glyphs that have different anchor/alternative configurations:
+    ///
+    /// - `ii`: own `+below` (2-cell), ref `ii:dotless` (has `+above` 2-cell).
+    ///   +above: substitute to ii:dotless.  +below: no substitution.
+    /// - `jj`: no own + anchors, ref `jj:dotless` (has `+above` 1-cell).
+    ///   Alt `jj:compressed` has `+below` (1-cell).
+    ///   +above: substitute to jj:dotless.  +below: substitute to jj:compressed.
+    /// - `kk`: own `+above` (1-cell) and `+below` (1-cell).
+    ///   No substitution needed for either anchor.
+    ///
+    /// Mark glyphs `dia-above` (1-cell `-above`) and `dia-below` (1-cell
+    /// `-below`) each have a `:wide` variant with a 2-cell anchor.  The
+    /// wide variant should be selected via ccmp when the base's `+` anchor
+    /// is 2-cells wide.
+    #[test]
+    fn anchor_ccmp_base_and_mark_substitution() {
         let input = "\
 font-meta height 16 ascent 12 descent 4
 
-glyph base:alt 4 4
+glyph dia 2 1
+@@@@
+
+glyph dia-wide 3 1
+@@@@@@
+
+glyph dia-below 2 1 mark
+ref dia 0 0
+anchor -below 1 0
+
+glyph dia-below:wide 3 1 mark
+ref dia-wide 0 0
+anchor -below 1..2 0
+
+glyph dia-above 2 1 mark
+ref dia 0 0
+anchor -above 1 0
+
+glyph dia-above:wide 3 1 mark
+ref dia-wide 0 0
+anchor -above 1..2 0
+
+glyph ii:dotless 4 8
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2..3 0
+
+glyph ii 4 10
+@@@@@@@@
+@@@@@@@@
+........
+........
+........
+........
+........
+........
+........
+........
+ref ii:dotless 0 2
+anchor +below 2..3 9
+
+glyph jj:dotless 4 8
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
 @@@@@@@@
 @@@@@@@@
 @@@@@@@@
 @@@@@@@@
 anchor +above 2 0
 
-glyph base 4 6
+glyph jj 4 10
 @@@@@@@@
 @@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-@@@@@@@@
-ref base:alt
+........
+........
+........
+........
+........
+........
+........
+........
+ref jj:dotless 0 2
 
-glyph dia mark 3 2
-@@@@@@
-@@@@@@
-anchor -above 1 1
+glyph jj:compressed 4 10
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +below 2 9
 
-map a = base
-map \u{0308} = dia
+glyph kk 4 10
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+anchor +below 2 9
+
+map a = ii
+map b = jj
+map c = kk
+map \u{0308} = dia-above
+map \u{0324} = dia-below
 
 feature ccmp for DFLT : anchor above
+feature ccmp for DFLT : anchor below
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let docs: Vec<&Document> = vec![&doc];
-        let font_data = build_font_from_documents(&docs);
-        assert!(font_data.is_some(), "font should build successfully");
 
-        let bytes = font_data.unwrap();
-        let font = read_fonts::FontRef::new(&bytes).unwrap();
+        let (meta, scale, glyphs, gsub_data, _) =
+            collect_glyph_data(&docs, false).expect("should collect glyph data");
 
-        // GSUB must exist: base needs ccmp substitution to base:alt
-        // even though base forwards +above from ref base:alt.
-        let gsub = font.gsub();
-        assert!(gsub.is_ok(), "GSUB table should be present (ccmp for base -> base:alt)");
+        let name_to_gid: HashMap<String, GlyphId16> = glyphs
+            .iter()
+            .enumerate()
+            .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+            .collect();
 
-        let gpos = font.gpos();
-        assert!(gpos.is_ok(), "GPOS table should be present");
+        let anchor_data = build_anchor_gpos(
+            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent,
+        );
+
+        // --- Base substitution ------------------------------------------------
+
+        // ii + dia-above: ii lacks own +above → substituted to ii:dotless
+        assert!(anchor_data.base_subst_entries.iter()
+            .any(|(s, t, a)| s == "ii" && t == "ii:dotless" && a == "above"),
+            "ii should be substituted to ii:dotless for anchor above");
+        // ii + dia-below: ii has own +below → NOT substituted
+        assert!(!anchor_data.base_subst_entries.iter()
+            .any(|(s, _, a)| s == "ii" && a == "below"),
+            "ii must not be substituted for anchor below (has own +below)");
+
+        // jj + dia-above: jj lacks own +above → substituted to jj:dotless
+        assert!(anchor_data.base_subst_entries.iter()
+            .any(|(s, t, a)| s == "jj" && t == "jj:dotless" && a == "above"),
+            "jj should be substituted to jj:dotless for anchor above");
+        // jj + dia-below: jj lacks own +below → substituted to jj:compressed
+        assert!(anchor_data.base_subst_entries.iter()
+            .any(|(s, t, a)| s == "jj" && t == "jj:compressed" && a == "below"),
+            "jj should be substituted to jj:compressed for anchor below");
+
+        // kk: has own +above and +below → NOT substituted for either
+        assert!(!anchor_data.base_subst_entries.iter().any(|(s, _, _)| s == "kk"),
+            "kk should not have any base substitution");
+
+        // --- Mark substitution ------------------------------------------------
+
+        // dia-above → dia-above:wide after bases with 2-cell +above
+        let da_entry = anchor_data.mark_subst_entries.iter()
+            .find(|(m, alt, a, _)| m == "dia-above" && alt == "dia-above:wide" && a == "above");
+        assert!(da_entry.is_some(), "dia-above should be substituted to dia-above:wide");
+        let da_bases = &da_entry.unwrap().3;
+        assert!(da_bases.contains(&"ii:dotless".to_string()),
+            "ii:dotless (2-cell +above) should trigger dia-above:wide");
+        assert!(!da_bases.contains(&"kk".to_string()),
+            "kk (1-cell +above) must not trigger dia-above:wide");
+
+        // dia-below → dia-below:wide after bases with 2-cell +below
+        let db_entry = anchor_data.mark_subst_entries.iter()
+            .find(|(m, alt, a, _)| m == "dia-below" && alt == "dia-below:wide" && a == "below");
+        assert!(db_entry.is_some(), "dia-below should be substituted to dia-below:wide");
+        let db_bases = &db_entry.unwrap().3;
+        assert!(db_bases.contains(&"ii".to_string()),
+            "ii (2-cell +below) should trigger dia-below:wide");
+        assert!(!db_bases.contains(&"kk".to_string()),
+            "kk (1-cell +below) must not trigger dia-below:wide");
+
+        // --- GPOS exists ------------------------------------------------------
+
+        assert!(anchor_data.gpos.is_some(), "GPOS should exist");
+        assert!(!anchor_data.feature_lookups.is_empty(), "feature lookups should exist");
     }
 
     #[test]
