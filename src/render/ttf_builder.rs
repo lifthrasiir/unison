@@ -1691,6 +1691,7 @@ fn build_anchor_gpos(
                     own_plus[class] = Some((x, y));
                     has_own = true;
                 } else if let Some(alts) = alt_index.get(&g.name) {
+                    let mut alt_found = false;
                     for (alt_name, alt_anchors) in alts {
                         if let Some(pt) = alt_anchors.iter().find(|p| p.position == plus_name) {
                             let class = anchor_class_map[anchor_name] as usize;
@@ -1704,9 +1705,25 @@ fn build_anchor_gpos(
                             if !ccmp_entries.iter().any(|(s, _, a)| s == &g.name && a == anchor_name) {
                                 ccmp_entries.push((g.name.clone(), alt_name.clone(), anchor_name.clone()));
                             }
+                            alt_found = true;
                             break;
                         }
                     }
+                    if !alt_found {
+                        if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
+                            let class = anchor_class_map[anchor_name] as usize;
+                            let x = (pt.col as f32 * scale).round() as i16;
+                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                            own_plus[class] = Some((x, y));
+                            has_own = true;
+                        }
+                    }
+                } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
+                    let class = anchor_class_map[anchor_name] as usize;
+                    let x = (pt.col as f32 * scale).round() as i16;
+                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16;
+                    own_plus[class] = Some((x, y));
+                    has_own = true;
                 }
             }
 
@@ -4138,6 +4155,76 @@ feature ccmp for DFLT : anchor above
     }
 
     #[test]
+    fn gpos_mark_to_mark_from_anchor_feature() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph base-letter 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+
+glyph dia mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+anchor +above 1 -1
+
+map a = base-letter
+map \u{0308} = dia
+
+feature ccmp for DFLT : anchor above
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+
+        let (meta, scale, glyphs, gsub_data, _) =
+            collect_glyph_data(&docs, false).expect("should collect glyph data");
+
+        let name_to_gid: HashMap<String, GlyphId16> = glyphs
+            .iter()
+            .enumerate()
+            .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+            .collect();
+
+        let anchor_data = build_anchor_gpos(
+            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent,
+        );
+
+        assert!(anchor_data.gpos.is_some(), "GPOS should exist");
+        let gpos = anchor_data.gpos.unwrap();
+
+        let lookups = &gpos.lookup_list.lookups;
+        assert!(lookups.len() >= 2, "should have MarkBasePos and MarkMarkPos lookups");
+
+        let has_mark_to_base = lookups.iter().any(|l| {
+            matches!(l.as_ref(), PositionLookup::MarkToBase(_))
+        });
+        let has_mark_to_mark = lookups.iter().any(|l| {
+            matches!(l.as_ref(), PositionLookup::MarkToMark(_))
+        });
+        assert!(has_mark_to_base, "MarkBasePos lookup should exist");
+        assert!(has_mark_to_mark, "MarkMarkPos lookup should exist");
+
+        let font_data = build_font_from_documents(&docs);
+        assert!(font_data.is_some(), "font should build successfully");
+
+        let bytes = font_data.unwrap();
+        let font = read_fonts::FontRef::new(&bytes).unwrap();
+        let gpos_table = font.gpos().expect("GPOS table should be present");
+        let feature_list = gpos_table.feature_list().expect("feature list");
+        let feature_tags: Vec<_> = feature_list.feature_records().iter()
+            .map(|r| r.feature_tag())
+            .collect();
+        assert!(feature_tags.iter().any(|t| *t == Tag::new(b"mark")),
+            "mark feature should exist");
+        assert!(feature_tags.iter().any(|t| *t == Tag::new(b"mkmk")),
+            "mkmk feature should exist");
+    }
+
+    #[test]
     fn gpos_ccmp_generated_for_alternative() {
         let input = "\
 font-meta height 16 ascent 12 descent 4
@@ -4475,5 +4562,83 @@ map ä
         let cmap = font.cmap().unwrap();
         let gid = cmap.map_codepoint('ä');
         assert!(gid.is_some(), "ä should be mapped in cmap");
+    }
+
+    #[test]
+    fn map_decomposed_forwards_mark_anchors() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph a-lower 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+anchor +below 2 3
+
+glyph dia-above mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+anchor +above 1 -1
+
+map a = a-lower
+map \u{0308} = dia-above
+map ä
+
+feature ccmp for DFLT : anchor above
+feature ccmp for DFLT : anchor below
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+
+        let (_, _, glyphs, _, _) =
+            collect_glyph_data(&docs, false).expect("should collect");
+
+        let composite = glyphs.iter().find(|g| g.name == "uni00E4").unwrap();
+        let has_plus_above = composite.resolved_anchors.iter()
+            .any(|p| p.position == "+above");
+        let has_plus_below = composite.resolved_anchors.iter()
+            .any(|p| p.position == "+below");
+        assert!(has_plus_above,
+            "uni00E4 should forward +above from dia-above; anchors: {:?}",
+            composite.resolved_anchors);
+        assert!(has_plus_below,
+            "uni00E4 should forward +below from a-lower; anchors: {:?}",
+            composite.resolved_anchors);
+
+        // Verify that the composite is registered as a base in GPOS
+        let (meta, scale, glyphs, gsub_data, _) =
+            collect_glyph_data(&docs, false).unwrap();
+        let name_to_gid: HashMap<String, GlyphId16> = glyphs
+            .iter()
+            .enumerate()
+            .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+            .collect();
+        let anchor_data = build_anchor_gpos(
+            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent,
+        );
+        assert!(anchor_data.gpos.is_some(), "GPOS should exist");
+
+        // Check that uni00E4 is in the MarkBasePos base coverage
+        let gpos = anchor_data.gpos.unwrap();
+        let lookups = &gpos.lookup_list.lookups;
+        let composite_gid = *name_to_gid.get("uni00E4").unwrap();
+        let mut found_in_base_coverage = false;
+        for lookup in lookups {
+            if let PositionLookup::MarkToBase(ref lk) = *lookup.as_ref() {
+                for sub in &lk.subtables {
+                    if let CoverageTable::Format1(ref cov) = *sub.base_coverage {
+                        if cov.glyph_array.contains(&composite_gid) {
+                            found_in_base_coverage = true;
+                        }
+                    }
+                }
+            }
+        }
+        assert!(found_in_base_coverage,
+            "uni00E4 (gid {:?}) should be in MarkBasePos base coverage",
+            composite_gid);
     }
 }

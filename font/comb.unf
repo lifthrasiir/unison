@@ -17,20 +17,24 @@ glyph dia-below 5 2 mark
 \01/..\10/
 ref dia 0 0
 anchor -below 2 0
+anchor +below 2 2
 
 glyph dia-below:wide 6 2 mark
 /01\..../10\
 \01/....\10/
 ref dia-wide 0 0
 anchor -below 2..3 0
+anchor +below 2..3 2
 
 glyph dia-above 5 2 mark
 ref dia 0 0
 anchor -above 2 1
+anchor +above 2 -1
 
 glyph dia-above:wide 6 2 mark
 ref dia-wide 0 0
 anchor -above 2..3 1
+anchor +above 2..3 -1
 
 map U+0308 = dia-above
 map U+0324 = dia-below
