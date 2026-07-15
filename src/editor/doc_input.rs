@@ -353,15 +353,27 @@ pub(crate) fn paste_text(
         return;
     }
 
-    new.push(DocLine::Text(format!("{prefix}{first_clean}")));
-    for chunk in &chunks[1..chunks.len() - 1] {
-        new.push(DocLine::Text(chunk.replace('\r', "")));
-    }
     let last_clean = chunks[chunks.len() - 1].replace('\r', "");
-    let last_col = last_clean.chars().count();
-    new.push(DocLine::Text(format!("{last_clean}{suffix}")));
 
-    let caret_after = Caret::new(lo.line + chunks.len() - 1, last_col);
+    let mut content = format!("{prefix}{first_clean}");
+    for chunk in &chunks[1..chunks.len() - 1] {
+        content.push('\n');
+        content.push_str(&chunk.replace('\r', ""));
+    }
+    content.push('\n');
+    content.push_str(&last_clean);
+    content.push_str(&suffix);
+
+    let new = crate::document_io::parse_doclines(&content);
+
+    let caret_after = match new.last() {
+        Some(DocLine::Grid(_)) => Caret::new(lo.line + new.len() - 1, 0),
+        Some(DocLine::Text(s)) => {
+            let suffix_chars = suffix.chars().count();
+            Caret::new(lo.line + new.len() - 1, s.chars().count() - suffix_chars)
+        }
+        None => Caret::new(lo.line, 0),
+    };
     undo.push_lines(lo.line, old, new.clone(), *cursor, caret_after);
     lines.splice(lo.line..=hi.line, new);
     *cursor = caret_after;

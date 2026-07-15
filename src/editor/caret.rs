@@ -274,7 +274,14 @@ pub fn extract_text(lines: &[DocLine], lo: Caret, hi: Caret) -> String {
                 };
                 result.push_str(&s[start..end]);
             }
-            Some(DocLine::Grid(_)) => {}
+            Some(DocLine::Grid(g)) => {
+                for row in 0..g.height {
+                    if row > 0 {
+                        result.push('\n');
+                    }
+                    result.push_str(&crate::document_io::encode_grid_row(g, row));
+                }
+            }
             None => {}
         }
         if line_idx < hi.line {
@@ -531,7 +538,7 @@ mod tests {
         let lines = vec![text("abc"), grid(2, 2), text("def")];
         assert_eq!(
             extract_text(&lines, Caret::new(0, 1), Caret::new(2, 2)),
-            "bc\n\nde",
+            "bc\n....\n....\nde",
         );
     }
 

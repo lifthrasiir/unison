@@ -321,6 +321,41 @@ fn copy_with_selection_still_copies_selection() {
     assert_eq!(h.last_copied_text.as_deref(), Some("one"));
 }
 
+#[test]
+fn copy_paste_preserves_grid_content() {
+    // DocLines: 0=header "glyph bar 4 2", 1=Grid(4x2), 2=blank
+    let doc = "glyph bar 4 2\n@@......\n......@@\n\n".to_string();
+    let mut h = EditorHarness::new(&doc);
+
+    // Select header + grid (lines 0..=1): click start of header, shift-down twice
+    h.click_text(0, 0);
+    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
+    h.copy();
+    let copied = h.last_copied_text.clone().unwrap();
+    assert!(copied.contains("@@......"), "grid row 0 should be in clipboard");
+    assert!(copied.contains("......@@"), "grid row 1 should be in clipboard");
+
+    // Paste into the blank line (line 2)
+    h.key(Key::ArrowDown);
+    h.click_text(2, 0);
+    h.paste(&copied);
+
+    // The pasted content should reconstruct a glyph header + grid
+    assert_eq!(h.text(2), "glyph bar 4 2");
+    let pasted_grid = h.grid(3);
+    assert_eq!(pasted_grid.width, 4);
+    assert_eq!(pasted_grid.height, 2);
+    assert!(pasted_grid.get(0, 0).is_filled());
+    assert!(pasted_grid.get(0, 1).is_empty());
+    assert!(pasted_grid.get(1, 2).is_empty());
+    assert!(pasted_grid.get(1, 3).is_filled());
+
+    // Undo should restore the original state
+    cmd_z(&mut h);
+    assert_eq!(h.text(2), "");
+}
+
 // -- autocomplete -----------------------------------------------------------
 
 /// DocLines: 0=glyph alpha header, 1=Grid(2x2), 2=glyph beta header,
