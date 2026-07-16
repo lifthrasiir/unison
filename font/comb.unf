@@ -68,8 +68,7 @@ ref acute-left
 anchor -below 1..2 0
 anchor +below 1..2 2
 
-glyph acute-lower-shift
-ref acute-right
+glyph acute-lower-shift = acute-right
 
 glyph acute-above mark
 ref acute-left
@@ -208,14 +207,11 @@ glyph circ 5 2
 ../0@@0\..
 /01/..\10\
 
-glyph circ-lower
-ref circ
+glyph circ-lower = circ
 
-glyph circ-upper
-ref circ
+glyph circ-upper = circ
 
-glyph circ-bottom
-ref circ
+glyph circ-bottom = circ
 
 //--------------------------------------
 // breve
@@ -224,14 +220,11 @@ glyph breve 5 2
 @@1\../1@@
 \0@@@@@@0/
 
-glyph breve-lower
-ref breve
+glyph breve-lower = breve
 
-glyph breve-upper
-ref breve
+glyph breve-upper = breve
 
-glyph breve-bottom
-ref breve
+glyph breve-bottom = breve
 
 //--------------------------------------
 // inverted breve (arch)
@@ -240,11 +233,9 @@ glyph arch 5 2
 /0@@@@@@0\
 @@1/..\1@@
 
-glyph arch-lower
-ref arch
+glyph arch-lower = arch
 
-glyph arch-upper
-ref arch
+glyph arch-upper = arch
 
 //--------------------------------------
 // ring
@@ -254,14 +245,11 @@ glyph ring 3 3
 @@..@@
 \0@@0/
 
-glyph ring-lower
-ref ring
+glyph ring-lower = ring
 
-glyph ring-upper
-ref ring
+glyph ring-upper = ring
 
-glyph ring-bottom
-ref ring
+glyph ring-bottom = ring
 
 //--------------------------------------
 // tilde
@@ -270,14 +258,11 @@ glyph comb-tilde 5 2
 /0@@1\../1
 1/..\1@@0/
 
-glyph tilde-lower
-ref comb-tilde
+glyph tilde-lower = comb-tilde
 
-glyph tilde-upper
-ref comb-tilde
+glyph tilde-upper = comb-tilde
 
-glyph tilde-bottom
-ref comb-tilde
+glyph tilde-bottom = comb-tilde
 
 //--------------------------------------
 // dot
@@ -286,8 +271,7 @@ glyph comb-dot 2 2
 @@@@
 @@@@
 
-glyph dot-lower
-ref comb-dot
+glyph dot-lower = comb-dot
 
 glyph dot-upper 2 2
 ref comb-dot
@@ -306,9 +290,25 @@ glyph hook 3 3
 0/..@@
 ../10/
 
-glyph hook-lower
-ref hook
+glyph hook-lower = hook
 
-glyph hook-upper
-ref hook
+glyph hook-upper = hook
+
+//--------------------------------------
+// tests
+
+// i + combining marks
+assert shape ï : uni00EF
+assert shape i̤ : i-lower : dia-below offset -4 0
+assert shape ï̈ : uni00EF : dia-above offset -4 1
+assert shape i̤̤ : i-lower : dia-below offset -4 0 : dia-below offset -4 2
+assert shape ï̤ : uni00EF : dia-below offset -4 0
+assert shape ï̤ : uni00EF : dia-below offset -4 0
+
+// j + combining marks
+assert shape j̈ : j-lower:dotless : dia-above:narrow offset -5 3
+assert shape j̤ : j-lower:compressed : dia-below:narrow offset -6 14
+assert shape j̈̈ : j-lower:dotless : dia-above:narrow offset -5 3 : dia-above:narrow offset -5 1
+assert shape j̤̤ : j-lower:compressed : dia-below:narrow offset -6 14 : dia-below:narrow offset -6 16
+// TODO j + U+0308 + U+0324 and j + U+0324 + U+0308 (needs compressed+dotless variant)
 

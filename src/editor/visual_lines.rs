@@ -308,7 +308,8 @@ pub(crate) fn build_visual_lines(
             | DocumentItem::Feature { .. }
             | DocumentItem::FeatureAnchor { .. }
             | DocumentItem::MapDecomposed { .. }
-            | DocumentItem::Color { .. } => {
+            | DocumentItem::Color { .. }
+            | DocumentItem::AssertShape { .. } => {
                 if let Some(DocLine::Text(s)) = lines.get(item_start) {
                     push_wrapped_text_vlines(
                         &mut vlines,

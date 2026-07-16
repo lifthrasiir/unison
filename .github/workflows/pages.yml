@@ -36,6 +36,9 @@ jobs:
       - name: Build font and samples
         run: make CARGOFLAGS="-r --no-default-features"
 
+      - name: Run shape assertions
+        run: make test CARGOFLAGS="-r --no-default-features"
+
       - name: Prepare pages directory
         run: |
           mkdir _site

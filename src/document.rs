@@ -254,6 +254,25 @@ pub enum DocumentItem {
         value: String,
         visibility: Option<LayerVisibility>,
     },
+    /// `assert shape \`text\` [+feat] [-feat] : glyph1 [advance N] [offset X Y] : glyph2 ...`
+    AssertShape {
+        text: String,
+        features: Vec<ShapeFeatureFlag>,
+        expected: Vec<ExpectedGlyph>,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ShapeFeatureFlag {
+    pub tag: String,
+    pub enable: bool,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExpectedGlyph {
+    pub name: String,
+    pub advance: Option<i32>,
+    pub offset: Option<(i32, i32)>,
 }
 
 #[derive(Clone, Debug)]
@@ -313,6 +332,13 @@ impl DocumentItem {
                         name: rest[0].clone(),
                         values: rest[2..].to_vec(),
                     };
+                }
+            }
+            "assert" => {
+                if tokens.get(1).is_some_and(|t| t == "shape") {
+                    if let Some(item) = Self::parse_assert_shape(&tokens[2..]) {
+                        return item;
+                    }
                 }
             }
             "remap" => {
@@ -400,6 +426,73 @@ impl DocumentItem {
         })
     }
 
+    /// Parse `assert shape` tokens after the `assert shape` prefix.
+    /// Format: `TEXT [+feat] [-feat] : GLYPH1 [advance N] [offset X Y] : GLYPH2 ...`
+    fn parse_assert_shape(tokens: &[String]) -> Option<DocumentItem> {
+        if tokens.is_empty() {
+            return None;
+        }
+        let text = tokens[0].clone();
+
+        let first_colon = tokens.iter().position(|t| t == ":")?;
+
+        let mut features = Vec::new();
+        for tok in &tokens[1..first_colon] {
+            if let Some(tag) = tok.strip_prefix('+') {
+                features.push(ShapeFeatureFlag { tag: tag.to_string(), enable: true });
+            } else if let Some(tag) = tok.strip_prefix('-') {
+                features.push(ShapeFeatureFlag { tag: tag.to_string(), enable: false });
+            }
+        }
+
+        let glyph_tokens = &tokens[first_colon + 1..];
+        let mut expected = Vec::new();
+        let mut segments: Vec<&[String]> = Vec::new();
+
+        let mut start = 0;
+        for (i, tok) in glyph_tokens.iter().enumerate() {
+            if tok == ":" && i > start {
+                segments.push(&glyph_tokens[start..i]);
+                start = i + 1;
+            }
+        }
+        if start < glyph_tokens.len() {
+            segments.push(&glyph_tokens[start..]);
+        }
+
+        for seg in segments {
+            if seg.is_empty() {
+                continue;
+            }
+            let name = seg[0].clone();
+            let mut advance = None;
+            let mut offset = None;
+            let mut i = 1;
+            while i < seg.len() {
+                match seg[i].as_str() {
+                    "advance" if i + 1 < seg.len() => {
+                        advance = seg[i + 1].parse().ok();
+                        i += 2;
+                    }
+                    "offset" if i + 2 < seg.len() => {
+                        if let (Ok(x), Ok(y)) = (seg[i + 1].parse(), seg[i + 2].parse()) {
+                            offset = Some((x, y));
+                        }
+                        i += 3;
+                    }
+                    _ => { i += 1; }
+                }
+            }
+            expected.push(ExpectedGlyph { name, advance, offset });
+        }
+
+        if expected.is_empty() {
+            return None;
+        }
+
+        Some(DocumentItem::AssertShape { text, features, expected })
+    }
+
     pub fn serialize_line(&self) -> Option<String> {
         use crate::document_io::quote_token;
         match self {
@@ -451,6 +544,32 @@ impl DocumentItem {
                     _ => "",
                 };
                 Some(format!("color {} = {}{}", quote_token(name), quote_token(value), vis))
+            }
+            DocumentItem::AssertShape { text, features, expected } => {
+                let mut parts = vec![
+                    "assert".to_string(),
+                    "shape".to_string(),
+                    quote_token(text),
+                ];
+                for f in features {
+                    let prefix = if f.enable { "+" } else { "-" };
+                    parts.push(format!("{prefix}{}", f.tag));
+                }
+                for (i, g) in expected.iter().enumerate() {
+                    parts.push(":".to_string());
+                    parts.push(quote_token(&g.name));
+                    if let Some(adv) = g.advance {
+                        parts.push("advance".to_string());
+                        parts.push(adv.to_string());
+                    }
+                    if let Some((x, y)) = g.offset {
+                        parts.push("offset".to_string());
+                        parts.push(x.to_string());
+                        parts.push(y.to_string());
+                    }
+                    let _ = i;
+                }
+                Some(parts.join(" "))
             }
             _ => None,
         }

@@ -12,7 +12,6 @@ mod preview;
 mod render;
 #[cfg(feature = "editor")]
 mod editor;
-#[cfg(feature = "editor")]
 mod issues;
 #[cfg(feature = "editor")]
 mod sidebar;
@@ -208,6 +207,66 @@ fn main() {
             eprintln!("Wrote {}", path.display());
         }
 
+        return;
+    }
+
+    // Test subcommand: uniform test --input DIR
+    if args.get(1).map(|s| s.as_str()) == Some("test") {
+        let mut input_dir = None;
+        let mut i = 2;
+        while i < args.len() {
+            match args[i].as_str() {
+                "--input" | "-i" => {
+                    i += 1;
+                    input_dir = args.get(i).map(std::path::PathBuf::from);
+                }
+                _ => {
+                    eprintln!("Unknown test option: {}", args[i]);
+                    std::process::exit(1);
+                }
+            }
+            i += 1;
+        }
+
+        let Some(input) = input_dir else {
+            eprintln!("Usage: uniform test --input <DIR>");
+            std::process::exit(1);
+        };
+
+        let docs = render::load_docs_from_directory(&input);
+        if docs.is_empty() {
+            eprintln!("No .unf files found in {}", input.display());
+            std::process::exit(1);
+        }
+        let refs: Vec<&document::Document> = docs.iter().collect();
+
+        let Some(built) = render::build_font_with_gid_map(&refs) else {
+            eprintln!("Font build failed");
+            std::process::exit(1);
+        };
+
+        let result = render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height);
+        if result.total == 0 {
+            eprintln!("No assertions found.");
+            return;
+        }
+
+        for issue in &result.issues {
+            let file_name = issue.file.file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default();
+            eprintln!("FAIL {}:{}: {}", file_name, issue.file_line, issue.message);
+        }
+
+        let failed = result.total - result.passed;
+        eprintln!(
+            "\n{} assertion(s): {} passed, {} failed.",
+            result.total, result.passed, failed,
+        );
+
+        if failed > 0 {
+            std::process::exit(1);
+        }
         return;
     }
 

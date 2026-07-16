@@ -444,7 +444,8 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             | item @ DocumentItem::Remap { .. }
             | item @ DocumentItem::Feature { .. }
             | item @ DocumentItem::FeatureAnchor { .. }
-            | item @ DocumentItem::Color { .. } => {
+            | item @ DocumentItem::Color { .. }
+            | item @ DocumentItem::AssertShape { .. } => {
                 if let Some(line) = item.serialize_line() {
                     writeln!(writer, "{line}")?;
                 }
@@ -835,7 +836,7 @@ pub fn derive_document(
                         item_line_starts.push(header_idx);
                         doc.items.push(DocumentItem::Glyph { name, body });
                     }
-                    "name-parts" | "remap" | "feature" => {
+                    "name-parts" | "remap" | "feature" | "assert" => {
                         item_line_starts.push(i);
                         doc.items.push(DocumentItem::parse_directive(&tokens));
                         i += 1;
@@ -1721,6 +1722,65 @@ ref part-c fill blue monoonly
         } else {
             panic!("expected Glyph");
         }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, input);
+    }
+
+    #[test]
+    fn parse_assert_shape_basic() {
+        let input = "assert shape `AB` : a-upper : b-upper\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert_eq!(doc.items.len(), 1);
+        if let DocumentItem::AssertShape { text, features, expected } = &doc.items[0] {
+            assert_eq!(text, "AB");
+            assert!(features.is_empty());
+            assert_eq!(expected.len(), 2);
+            assert_eq!(expected[0].name, "a-upper");
+            assert_eq!(expected[1].name, "b-upper");
+            assert!(expected[0].advance.is_none());
+        } else {
+            panic!("expected AssertShape");
+        }
+    }
+
+    #[test]
+    fn parse_assert_shape_with_features_and_props() {
+        let input = "assert shape `fi` +liga -frac : fi-lig advance 512 : x offset 10 20\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert_eq!(doc.items.len(), 1);
+        if let DocumentItem::AssertShape { text, features, expected } = &doc.items[0] {
+            assert_eq!(text, "fi");
+            assert_eq!(features.len(), 2);
+            assert_eq!(features[0].tag, "liga");
+            assert!(features[0].enable);
+            assert_eq!(features[1].tag, "frac");
+            assert!(!features[1].enable);
+            assert_eq!(expected.len(), 2);
+            assert_eq!(expected[0].name, "fi-lig");
+            assert_eq!(expected[0].advance, Some(512));
+            assert_eq!(expected[1].name, "x");
+            assert_eq!(expected[1].offset, Some((10, 20)));
+        } else {
+            panic!("expected AssertShape");
+        }
+    }
+
+    #[test]
+    fn roundtrip_assert_shape() {
+        let input = "assert shape `AB` +liga : a-upper advance 512 : b-upper offset 10 20\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, "assert shape AB +liga : a-upper advance 512 : b-upper offset 10 20\n");
+    }
+
+    #[test]
+    fn roundtrip_assert_shape_quoted_text() {
+        let input = "assert shape `hello world` : hw\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
         let mut output = Vec::new();
         serialize_document(&doc, &mut output).unwrap();
         let output_str = String::from_utf8(output).unwrap();

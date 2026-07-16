@@ -40,7 +40,7 @@ use crate::document_io;
 use crate::pixel::{PX_ALMOSTFULL, PX_SUBPIXEL, PixelShape};
 use crate::render::contour::{track_contour, track_contour_multi, track_contour_multi_diff};
 
-const UNITS_PER_EM: u16 = 1024;
+pub const UNITS_PER_EM: u16 = 1024;
 
 // ---------------------------------------------------------------------------
 // Persistent contour cache — survives across incremental rebuilds
@@ -299,6 +299,34 @@ pub fn build_font_pair_cached(
     });
 
     Some((bitmap, vector))
+}
+
+/// Build result containing the TTF bytes, GID→name map, and the pixel
+/// em-height needed to convert font units back to pixel coordinates.
+pub struct FontWithGidMap {
+    pub ttf: Vec<u8>,
+    pub gid_to_name: HashMap<u16, String>,
+    pub height: u16,
+}
+
+/// Build the font and return the TTF bytes together with a GID→glyph-name map
+/// and the pixel em-height.
+pub fn build_font_with_gid_map(docs: &[&Document]) -> Option<FontWithGidMap> {
+    let (meta, scale, glyph_data, gsub_data, palette) = collect_glyph_data_cached(docs, false, None)?;
+    let ascender = (meta.ascent as f32 * scale).round() as i16;
+    let descender = -((meta.descent as f32 * scale).round() as i16);
+    let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height) { meta.height } else { 0 };
+
+    let mut gid_to_name: HashMap<u16, String> = HashMap::new();
+    let mut seen = std::collections::HashSet::new();
+    for (i, g) in glyph_data.iter().enumerate() {
+        if seen.insert(g.name.clone()) {
+            gid_to_name.insert((i + 1) as u16, g.name.clone());
+        }
+    }
+
+    let ttf = build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent);
+    Some(FontWithGidMap { ttf, gid_to_name, height: meta.height })
 }
 
 fn build_font_from_documents_inner(docs: &[&Document], bitmap: bool, contour_cache: Option<&mut ContourCache>) -> Option<Vec<u8>> {

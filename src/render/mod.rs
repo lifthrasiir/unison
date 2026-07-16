@@ -1,8 +1,9 @@
+pub mod assert;
 pub mod contour;
 pub mod sample;
 pub mod ttf_builder;
 
-pub use ttf_builder::{build_font_from_documents, load_docs_from_directory};
+pub use ttf_builder::{build_font_from_documents, build_font_with_gid_map, load_docs_from_directory};
 #[cfg(feature = "editor")]
 pub use ttf_builder::{SharedContourCache, build_font_pair_cached, new_contour_cache};
 

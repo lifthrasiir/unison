@@ -18,6 +18,7 @@ use crate::sidebar::{Sidebar, SidebarAction};
 type FontPair = (Vec<u8>, Vec<u8>);
 type FontBuildMessage = (u64, Option<FontPair>);
 type DerivedDataMessage = (u64, HashMap<String, ResolvedGlyph>, crate::editor::ref_composite::AlternativesIndex, NamePartsMap, Vec<Issue>);
+type AssertResultMessage = Vec<Issue>;
 
 fn collect_effective_docs<'a>(
     open_documents: &'a [OpenDocument],
@@ -81,6 +82,10 @@ pub struct UniformApp {
     issues: Vec<Issue>,
     issues_gen: u64,
     file_parse_errors: Vec<(PathBuf, String)>,
+    assert_issues: Vec<Issue>,
+    assert_rx: mpsc::Receiver<AssertResultMessage>,
+    assert_tx: mpsc::Sender<AssertResultMessage>,
+    assert_running: bool,
 }
 
 pub struct OpenDocument {
@@ -158,6 +163,7 @@ impl UniformApp {
 
         let (font_build_tx, font_build_rx) = mpsc::channel();
         let (derived_data_tx, derived_data_rx) = mpsc::channel();
+        let (assert_tx, assert_rx) = mpsc::channel();
         let mut app = Self {
             font_dir: font_dir.clone(),
             last_title: String::new(),
@@ -198,6 +204,10 @@ impl UniformApp {
             issues: Vec::new(),
             issues_gen: u64::MAX,
             file_parse_errors,
+            assert_issues: Vec::new(),
+            assert_rx,
+            assert_tx,
+            assert_running: false,
         };
 
         if let Some(dir) = &font_dir {
@@ -304,6 +314,49 @@ impl UniformApp {
 
     fn collect_all_docs(&self) -> Vec<&Document> {
         collect_effective_docs(&self.open_documents, &self.font_base_docs)
+    }
+
+    fn run_shape_assertions(&mut self, ctx: &egui::Context, current_file_only: bool) {
+        if self.assert_running {
+            return;
+        }
+        self.assert_running = true;
+        self.status_message = Some(("Running shape assertions...".to_string(), std::time::Instant::now()));
+
+        let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
+        let active_path = if current_file_only {
+            self.active_doc_idx.map(|i| self.open_documents[i].document.path.clone())
+        } else {
+            None
+        };
+        let tx = self.assert_tx.clone();
+        let ctx = ctx.clone();
+        std::thread::spawn(move || {
+            let refs: Vec<&Document> = all_docs.iter().collect();
+            let result = if let Some(built) =
+                crate::render::build_font_with_gid_map(&refs)
+            {
+                let assert_result = if let Some(path) = &active_path {
+                    let test_docs: Vec<&Document> = all_docs.iter()
+                        .filter(|d| &d.path == path)
+                        .collect();
+                    crate::render::assert::run_assertions_for_files(&test_docs, &built.ttf, &built.gid_to_name, built.height)
+                } else {
+                    crate::render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height)
+                };
+                assert_result.issues
+            } else {
+                vec![Issue {
+                    severity: crate::issues::Severity::Error,
+                    message: "Font build failed — cannot run shape assertions".to_string(),
+                    file: std::path::PathBuf::new(),
+                    line: 0,
+                    file_line: 0,
+                }]
+            };
+            let _ = tx.send(result);
+            ctx.request_repaint();
+        });
     }
 
     fn rebuild_font(&self, ctx: &egui::Context) {
@@ -710,10 +763,19 @@ impl eframe::App for UniformApp {
         }
 
         let mut escape_toggled = false;
+        let mut run_assert_all = false;
+        let mut run_assert_file = false;
         ctx.input(|i| {
             if i.key_pressed(egui::Key::F12) {
                 self.escape_mode = !self.escape_mode;
                 escape_toggled = true;
+            }
+            if i.key_pressed(egui::Key::F6) {
+                if i.modifiers.command || i.modifiers.ctrl {
+                    run_assert_all = true;
+                } else {
+                    run_assert_file = true;
+                }
             }
         });
 
@@ -842,6 +904,21 @@ impl eframe::App for UniformApp {
             let all_docs = self.collect_all_docs();
             let doc_refs: Vec<&Document> = all_docs.to_vec();
             self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);
+        }
+
+        if let Ok(assert_issues) = self.assert_rx.try_recv() {
+            let count = assert_issues.len();
+            self.assert_issues = assert_issues;
+            self.assert_running = false;
+            let total_msg = if count == 0 {
+                "All shape assertions passed.".to_string()
+            } else {
+                format!("{count} shape assertion(s) failed.")
+            };
+            self.status_message = Some((total_msg, std::time::Instant::now()));
+            if count > 0 {
+                self.bottom_panel_tab = Some(2);
+            }
         }
 
         let theme_before = ctx.options(|o| o.theme_preference);
@@ -976,6 +1053,22 @@ impl eframe::App for UniformApp {
                         ui.close_menu();
                     }
                 });
+                ui.menu_button("Font", |ui| {
+                    if ui.add_enabled(
+                        !self.assert_running && self.active_doc_idx.is_some(),
+                        egui::Button::new("Run assertions (current file)").shortcut_text("F6"),
+                    ).clicked() {
+                        run_assert_file = true;
+                        ui.close_menu();
+                    }
+                    if ui.add_enabled(
+                        !self.assert_running,
+                        egui::Button::new("Run assertions (all files)").shortcut_text(format!("{mod_name}F6")),
+                    ).clicked() {
+                        run_assert_all = true;
+                        ui.close_menu();
+                    }
+                });
                 ui.menu_button("View", |ui| {
                     let (font_label, preview_family) = if self.escape_mode {
                         ("Use dogfooded font", egui::FontFamily::Name("UniformBitmap".into()))
@@ -1015,6 +1108,11 @@ impl eframe::App for UniformApp {
                 });
             });
         });
+        if run_assert_all {
+            self.run_shape_assertions(ctx, false);
+        } else if run_assert_file {
+            self.run_shape_assertions(ctx, true);
+        }
         if ctx.options(|o| o.theme_preference) != theme_before {
             self.font_applied = None;
         }
@@ -1235,13 +1333,14 @@ impl eframe::App for UniformApp {
                             self.bottom_panel_tab = if selected { None } else { Some(idx) };
                         }
                     }
-                    let issues_label = if self.issues.is_empty() {
+                    let total_issues = self.issues.len() + self.assert_issues.len();
+                    let issues_label = if total_issues == 0 {
                         "Issues".to_string()
                     } else {
-                        let errors = self.issues.iter()
+                        let errors = self.issues.iter().chain(self.assert_issues.iter())
                             .filter(|i| i.severity == crate::issues::Severity::Error)
                             .count();
-                        let warnings = self.issues.len() - errors;
+                        let warnings = total_issues - errors;
                         let mut parts = Vec::new();
                         if errors > 0 { parts.push(format!("{errors} error{}", if errors == 1 { "" } else { "s" })); }
                         if warnings > 0 { parts.push(format!("{warnings} warning{}", if warnings == 1 { "" } else { "s" })); }
@@ -1315,7 +1414,9 @@ impl eframe::App for UniformApp {
                         );
                     }
                     Some(2) => {
-                        show_issues_tab(ui, &self.issues, &mut issues_click);
+                        let mut all_issues: Vec<&Issue> = self.issues.iter().collect();
+                        all_issues.extend(self.assert_issues.iter());
+                        show_issues_tab(ui, &all_issues, &mut issues_click);
                     }
                     _ => {}
                 }
@@ -1426,7 +1527,7 @@ use crate::editor::{key_to_hex_char, validate_hex_codepoint};
 
 fn show_issues_tab(
     ui: &mut egui::Ui,
-    issues: &[Issue],
+    issues: &[&Issue],
     click: &mut Option<(PathBuf, usize)>,
 ) {
     if issues.is_empty() {
