@@ -32,6 +32,26 @@ pub fn insert_newline(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Car
         return caret;
     };
 
+    // A text line directly above a grid is that grid's header; the two are
+    // welded together. Enter at the end of the header opens the new line
+    // below the grid instead of splitting the pair (which would orphan the
+    // grid and demote its pixels to text).
+    if caret.col >= t.chars().count()
+        && matches!(lines.get(caret.line + 1), Some(DocLine::Grid(_)))
+    {
+        let at = caret.line + 2;
+        let new_caret = Caret::new(at, 0);
+        undo.push_lines(
+            at,
+            vec![],
+            vec![DocLine::Text(String::new())],
+            caret,
+            new_caret,
+        );
+        lines.insert(at, DocLine::Text(String::new()));
+        return new_caret;
+    }
+
     let byte = char_to_byte(t, caret.col);
     let before_str = t[..byte].to_string();
     let after_str = t[byte..].to_string();
@@ -254,6 +274,36 @@ mod tests {
         let mut undo = UndoStack::new();
         let caret = insert_newline(&mut lines, &mut undo, c(0, 3));
         assert_eq!(lines, vec![text("abc"), text("")]);
+        assert_eq!(caret, c(1, 0));
+    }
+
+    #[test]
+    fn insert_newline_at_end_of_grid_header_opens_line_below_grid() {
+        // The header and its grid are welded: Enter at the end of the header
+        // must not split them apart (which would demote the grid to text).
+        let mut lines = vec![text("glyph foo 2 2"), grid(2, 2), text("next")];
+        let mut undo = UndoStack::new();
+        let caret = insert_newline(&mut lines, &mut undo, c(0, 13));
+        assert_eq!(
+            lines,
+            vec![text("glyph foo 2 2"), grid(2, 2), text(""), text("next")]
+        );
+        assert_eq!(caret, c(2, 0));
+
+        let caret = undo.undo(&mut lines).unwrap();
+        assert_eq!(lines, vec![text("glyph foo 2 2"), grid(2, 2), text("next")]);
+        assert_eq!(caret, c(0, 13));
+    }
+
+    #[test]
+    fn insert_newline_mid_grid_header_still_splits() {
+        let mut lines = vec![text("glyph foo 2 2"), grid(2, 2)];
+        let mut undo = UndoStack::new();
+        let caret = insert_newline(&mut lines, &mut undo, c(0, 9));
+        assert_eq!(
+            lines,
+            vec![text("glyph foo"), text(" 2 2"), grid(2, 2)]
+        );
         assert_eq!(caret, c(1, 0));
     }
 

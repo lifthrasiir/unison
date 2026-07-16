@@ -207,29 +207,89 @@ pub struct GlyphHeaderDims {
     pub height: u16,
 }
 
+/// Glyph header flags/dimensions, as parsed by [`parse_glyph_flag_parts`].
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct GlyphHeaderFlags {
+    pub sticky: bool,
+    pub inline: bool,
+    pub mark: bool,
+    pub advance: Option<u16>,
+    pub left: Option<i16>,
+    pub top: Option<i16>,
+    pub width: Option<u16>,
+    pub height: Option<u16>,
+}
+
+/// Parse the flag tokens of a `glyph NAME ...` header (everything after the
+/// name, with any `= ALIAS` part already stripped).
+///
+/// This is the single implementation of the header flag grammar: keyword
+/// flags (`sticky`, `inline`, `mark`), valued flags (`advance N`, `left N`,
+/// `top N`) and the `W H` dimension pair may appear in any order. It is
+/// shared by `derive_document` and [`glyph_header_dims`] so that the
+/// document model and grid reconciliation can never disagree about whether
+/// a header owns a pixel grid.
+pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFlags {
+    let mut flags = GlyphHeaderFlags::default();
+    let mut fp = 0;
+    while fp < flag_parts.len() {
+        match flag_parts[fp].as_ref() {
+            "sticky" => flags.sticky = true,
+            "inline" => flags.inline = true,
+            "mark" => flags.mark = true,
+            "advance" => {
+                fp += 1;
+                if fp < flag_parts.len() {
+                    flags.advance = flag_parts[fp].as_ref().parse().ok();
+                }
+            }
+            "left" => {
+                fp += 1;
+                if fp < flag_parts.len() {
+                    flags.left = flag_parts[fp].as_ref().parse().ok();
+                }
+            }
+            "top" => {
+                fp += 1;
+                if fp < flag_parts.len() {
+                    flags.top = flag_parts[fp].as_ref().parse().ok();
+                }
+            }
+            other => {
+                if flags.width.is_none()
+                    && let Ok(w) = other.parse::<u16>() {
+                        flags.width = Some(w);
+                        fp += 1;
+                        if fp < flag_parts.len() {
+                            flags.height = flag_parts[fp].as_ref().parse().ok();
+                        }
+                        fp += 1;
+                        continue;
+                    }
+            }
+        }
+        fp += 1;
+    }
+    flags
+}
+
 /// Parse the whitespace-split tokens of a `glyph ...` header (with the glyph
 /// name at index 0) to determine whether pixel rows follow, and if so their
 /// dimensions.
 ///
 /// Returns `None` for ref-only headers (`glyph NAME`) or simple aliases
 /// (`glyph NAME = ALIAS`). Handles keyword flags like `sticky`, `advance N`,
-/// `left N` appearing after `W H`.
+/// `left N` appearing before or after `W H`.
 pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> {
-    if parts.len() < 3 {
+    if parts.is_empty() {
         return None;
     }
     if parts.iter().any(|p| p.as_ref() == "=") {
         return None;
     }
-    // Find the first pair of consecutive numeric tokens (W H).
-    // Keyword flags like `mark`, `sticky`, `inline` may precede W H.
-    for i in 1..parts.len() - 1 {
-        if let Ok(width) = parts[i].as_ref().parse::<u16>()
-            && let Ok(height) = parts[i + 1].as_ref().parse::<u16>() {
-                return Some(GlyphHeaderDims { width, height });
-            }
-    }
-    None
+    let flags = parse_glyph_flag_parts(&parts[1..]);
+    let (width, height) = (flags.width?, flags.height?);
+    Some(GlyphHeaderDims { width, height })
 }
 
 /// Parse `.unf` source text into a `Document`.
@@ -740,47 +800,14 @@ pub fn derive_document(
                         };
 
                         let mut body = GlyphBody::new();
-                        let mut width: Option<u16> = None;
-                        let mut height: Option<u16> = None;
-                        let mut fp = 0;
-                        while fp < flag_parts.len() {
-                            match flag_parts[fp].as_str() {
-                                "sticky" => body.sticky = true,
-                                "inline" => body.inline = true,
-                                "mark" => body.mark = true,
-                                "advance" => {
-                                    fp += 1;
-                                    if fp < flag_parts.len() {
-                                        body.advance = flag_parts[fp].parse().ok();
-                                    }
-                                }
-                                "left" => {
-                                    fp += 1;
-                                    if fp < flag_parts.len() {
-                                        body.left = flag_parts[fp].parse().ok();
-                                    }
-                                }
-                                "top" => {
-                                    fp += 1;
-                                    if fp < flag_parts.len() {
-                                        body.top = flag_parts[fp].parse().ok();
-                                    }
-                                }
-                                other => {
-                                    if width.is_none()
-                                        && let Ok(w) = other.parse::<u16>() {
-                                            width = Some(w);
-                                            fp += 1;
-                                            if fp < flag_parts.len() {
-                                                height = flag_parts[fp].parse().ok();
-                                            }
-                                            fp += 1;
-                                            continue;
-                                        }
-                                }
-                            }
-                            fp += 1;
-                        }
+                        let flags = parse_glyph_flag_parts(flag_parts);
+                        body.sticky = flags.sticky;
+                        body.inline = flags.inline;
+                        body.mark = flags.mark;
+                        body.advance = flags.advance;
+                        body.left = flags.left;
+                        body.top = flags.top;
+                        let (width, height) = (flags.width, flags.height);
 
                         if let Some(alias_name) = alias {
                             body.refs.push(GlyphRef {
@@ -901,6 +928,44 @@ pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// `glyph_header_dims` and `derive_document` must agree on which headers
+    /// own a pixel grid — a disagreement leaves reconciliation and the
+    /// document model permanently fighting over the grid DocLine.
+    #[test]
+    fn header_dims_match_derive_for_valued_flags() {
+        // Valued flags may precede W H; their argument is not a dimension.
+        let dims = glyph_header_dims(&["foo", "advance", "0", "4", "3"]);
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3 }));
+
+        let dims = glyph_header_dims(&["foo", "left", "2", "3"]);
+        assert_eq!(dims, None, "width 3 without height is not a grid header");
+
+        let dims = glyph_header_dims(&["foo", "4", "3", "advance", "0"]);
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3 }));
+
+        let dims = glyph_header_dims(&["foo", "sticky", "4", "3"]);
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3 }));
+
+        // Cross-check against derive_document on the same headers.
+        for (header, expected) in [
+            ("glyph foo advance 0 4 3", Some((4u16, 3u16))),
+            ("glyph foo left 2 3", None),
+            ("glyph foo 4 3 advance 0", Some((4, 3))),
+        ] {
+            let lines = vec![DocLine::Text(header.to_string())];
+            let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+            let Some(DocumentItem::Glyph { body, .. }) = doc.items.first() else {
+                panic!("expected glyph item for {header:?}");
+            };
+            let derived = body.pixels.as_ref().map(|g| (g.width, g.height));
+            assert_eq!(derived, expected, "derive mismatch for {header:?}");
+            let tokens = tokenize_tokens(header).unwrap();
+            let dims = glyph_header_dims(&tokens[1..])
+                .map(|d| (d.width, d.height));
+            assert_eq!(dims, expected, "glyph_header_dims mismatch for {header:?}");
+        }
+    }
 
     #[test]
     fn roundtrip_simple() {

@@ -5,10 +5,64 @@
 //! assertions read both the editor/document state and the rendered layout
 //! (visual lines, grid rows, gutter line numbers) captured per frame.
 
+use crate::document::DocLine;
 use crate::editor::EditMode;
 use crate::editor::caret::Caret;
-use crate::editor::harness::EditorHarness;
+use crate::editor::harness::{EditorHarness, SnapKind};
 use egui::{Key, Modifiers};
+
+/// Assert that the rendered visual lines and the logical `DocLine`s agree:
+/// every DocLine is rendered (no line is "eaten"), text visual lines show
+/// the actual line content, grid rows sit on grid lines (or on the ref lines
+/// of a ref-only composite), and visual order follows logical order.
+#[track_caller]
+fn assert_view_consistent(h: &EditorHarness) {
+    let vlines = &h.snap().vlines;
+    let mut covered = vec![false; h.lines.len()];
+    let mut prev_doc_line = 0usize;
+    for vl in vlines {
+        assert!(
+            vl.doc_line < h.lines.len(),
+            "visual line points past the document: {} >= {}",
+            vl.doc_line,
+            h.lines.len()
+        );
+        assert!(
+            vl.doc_line >= prev_doc_line,
+            "visual order must follow logical order ({} after {})",
+            vl.doc_line,
+            prev_doc_line
+        );
+        prev_doc_line = vl.doc_line;
+        covered[vl.doc_line] = true;
+        match (&vl.kind, &h.lines[vl.doc_line]) {
+            (SnapKind::Text { text, col_offset }, DocLine::Text(s)) => {
+                let seg: String = s.chars().skip(*col_offset).take(text.chars().count()).collect();
+                assert_eq!(
+                    text, &seg,
+                    "text visual line differs from DocLine {} content",
+                    vl.doc_line
+                );
+            }
+            (SnapKind::Text { .. }, DocLine::Grid(_)) => {
+                panic!("text visual line rendered on grid DocLine {}", vl.doc_line);
+            }
+            (SnapKind::GridRow { .. }, DocLine::Grid(_)) => {}
+            (SnapKind::GridRow { .. }, DocLine::Text(s)) => {
+                // Ref-only composites render their virtual grid on the
+                // first `ref` line; anything else is a misattribution.
+                assert!(
+                    s.trim_start().starts_with("ref "),
+                    "grid rows rendered on non-grid DocLine {} ({s:?})",
+                    vl.doc_line
+                );
+            }
+        }
+    }
+    for (i, seen) in covered.iter().enumerate() {
+        assert!(seen, "DocLine {i} ({:?}) has no visual line", h.lines[i]);
+    }
+}
 
 /// glyph foo 16 16 with a filled diagonal, a blank line, then glyph bar 4 2.
 ///
@@ -441,6 +495,111 @@ fn autocomplete_undo_after_accept() {
     assert_eq!(h.text(5), original_text);
 }
 
+// -- visual line <-> logical line reconciliation --------------------------
+
+/// glyph foo 4 4 with a filled diagonal, a blank line, then glyph bar 4 2.
+/// DocLines: 0 header foo, 1 grid 4x4, 2 blank, 3 header bar, 4 grid 4x2.
+fn two_glyph_doc() -> String {
+    let mut s = String::from("glyph foo 4 4\n");
+    for r in 0..4 {
+        for c in 0..4 {
+            s.push_str(if r == c { "@@" } else { ".." });
+        }
+        s.push('\n');
+    }
+    s.push('\n');
+    s.push_str("glyph bar 4 2\n@@......\n......@@\n");
+    s
+}
+
+/// Enter at the end of a grid-owning header must open the new line *below*
+/// the grid, leaving the header/grid pair and everything after it intact.
+/// It used to split the pair, which replaced the grid with a fresh empty one
+/// and demoted the pixel art to raw text, shifting the following glyph.
+#[test]
+fn enter_at_end_of_grid_header_opens_line_below_grid() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+    let original_lines = h.lines.clone();
+
+    h.click_text(0, 13); // end of "glyph foo 4 4"
+    h.key(Key::Enter);
+
+    // Local effect only: one new blank line after foo's grid.
+    assert_eq!(h.text(0), "glyph foo 4 4");
+    let grid = h.grid(1);
+    assert_eq!((grid.width, grid.height), (4, 4));
+    assert!(grid.get(2, 2).is_filled(), "pixel art must survive");
+    assert_eq!(h.text(2), "");
+    assert_eq!(h.cursor(), Caret::new(2, 0));
+    assert_eq!(h.text(3), "");
+    assert_eq!(h.text(4), "glyph bar 4 2");
+    assert_eq!(h.grid(5).height, 2);
+
+    // The rendered view is immediately consistent: foo's grid rows on line 1,
+    // bar's header and grid where they belong, no line eaten.
+    assert_eq!(h.grid_row_count(1), 4);
+    assert_eq!(h.grid_row_count(5), 2);
+    assert_view_consistent(&h);
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+    assert_view_consistent(&h);
+}
+
+/// Enter in the middle of a grid-owning header detaches the grid; the grid
+/// demotes to text rows immediately and locally — the following glyph keeps
+/// its own grid, and no visual line is misattributed while the change is
+/// pending.
+#[test]
+fn enter_mid_header_demotes_grid_immediately_and_locally() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+    let original_lines = h.lines.clone();
+
+    h.click_text(0, 9); // "glyph foo| 4 4"
+    h.key(Key::Enter);
+
+    assert_eq!(h.text(0), "glyph foo");
+    assert_eq!(h.text(1), " 4 4");
+    assert_eq!(h.cursor(), Caret::new(1, 0));
+    // The orphaned grid demoted to its four pixel-text rows.
+    assert_eq!(h.text(2), "@@......");
+    assert_eq!(h.text(5), "......@@");
+    // The following glyph is untouched.
+    assert_eq!(h.text(7), "glyph bar 4 2");
+    assert_eq!(h.grid(8).height, 2);
+    assert_eq!(h.grid_row_count(8), 2);
+    assert_view_consistent(&h);
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+    assert_view_consistent(&h);
+}
+
+/// A header with a valued flag before the dimensions (`advance 0 4 3`) must
+/// produce a 4x3 grid that the document model accepts. Reconciliation and
+/// derivation used to parse the dimensions differently (0x4 vs 4x3), leaving
+/// the editor in a permanently inconsistent state where the visual grid
+/// swallowed the following line.
+#[test]
+fn valued_flag_before_dims_creates_matching_grid() {
+    let mut h = EditorHarness::new("// top\n\n\nglyph bar 4 2\n@@......\n......@@\n");
+
+    h.click_text(1, 0);
+    h.type_text("glyph baz advance 0 4 3");
+    h.key(Key::ArrowDown); // leave the header line -> flush
+
+    assert_eq!(h.text(1), "glyph baz advance 0 4 3");
+    let grid = h.grid(2);
+    assert_eq!((grid.width, grid.height), (4, 3));
+    assert_eq!(h.grid_row_count(2), 3);
+    // The blank line and the following glyph survive unshifted.
+    assert_eq!(h.text(3), "");
+    assert_eq!(h.text(4), "glyph bar 4 2");
+    assert_eq!(h.grid(5).height, 2);
+    assert_eq!(h.grid_row_count(5), 2);
+    assert_view_consistent(&h);
+}
+
 #[test]
 fn view_cache_reused_when_idle_and_rebuilt_on_edit() {
     let mut h = EditorHarness::new(&sample_doc());
@@ -454,7 +613,21 @@ fn view_cache_reused_when_idle_and_rebuilt_on_edit() {
     h.click_text(0, 6);
     h.type_text("X");
     h.frame();
-    let ptr_after = h.state.view_cache.as_ref().expect("cache rebuilt").data_ptr();
-    assert_ne!(ptr_before, ptr_after, "an edit must invalidate the cached view");
     assert_eq!(h.text(0), "glyph Xfoo 16 16");
+    // The rendered view (not just the DocLines) must reflect the edit; a
+    // pointer comparison would be flaky since a rebuilt Arc can be
+    // reallocated at the freed cache's address.
+    let rendered: Vec<&str> = h
+        .snap()
+        .vlines
+        .iter()
+        .filter_map(|vl| match &vl.kind {
+            crate::editor::harness::SnapKind::Text { text, .. } => Some(text.as_str()),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        rendered.contains(&"glyph Xfoo 16 16"),
+        "edited text must appear in the rebuilt view: {rendered:?}"
+    );
 }

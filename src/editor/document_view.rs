@@ -1589,7 +1589,14 @@ pub fn show_document(
             let owns_grid = matches!(lines.get(state.cursor.line), Some(DocLine::Text(_)))
                 && matches!(lines.get(state.cursor.line + 1), Some(DocLine::Grid(_)));
 
-            let defer = matches!(state.mode, EditMode::Normal)
+            // Deferring only works while the line structure still matches
+            // the derived `Document`: visual lines are built from the stale
+            // item structure, so an edit that added or removed DocLines
+            // would attribute grids and headers to the wrong lines.
+            let structure_stable = doc.docline_file_lines.len() == lines.len();
+
+            let defer = structure_stable
+                && matches!(state.mode, EditMode::Normal)
                 && ((on_ref_line && state.last_reparse_line == Some(state.cursor.line))
                     || on_glyph_header
                     || owns_grid);
