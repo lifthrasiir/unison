@@ -72,6 +72,18 @@ impl ShapedPreviewState {
     }
 
     fn ensure_shaped(&mut self, font_data: &[u8], font_gen: u64, px_size: f32) {
+        let params_match = self.shaped_result.as_ref().is_some_and(|r| {
+            r.font_gen == font_gen
+                && r.backend_idx == self.selected_backend
+                && r.px_size == px_size
+        });
+        if params_match
+            && self.preedit.is_empty()
+            && self.shaped_result.as_ref().is_some_and(|r| r.text == self.text)
+        {
+            return;
+        }
+
         let (display_text, preedit_range) = if self.preedit.is_empty() {
             (self.text.clone(), None)
         } else {
@@ -86,17 +98,9 @@ impl ShapedPreviewState {
             (display, Some((self.caret_pos, self.caret_pos + preedit_len)))
         };
 
-        let needs_reshape = match &self.shaped_result {
-            Some(r) => {
-                r.text != display_text
-                    || r.font_gen != font_gen
-                    || r.backend_idx != self.selected_backend
-                    || r.px_size != px_size
-            }
-            None => true,
-        };
-
-        if !needs_reshape {
+        if params_match
+            && self.shaped_result.as_ref().is_some_and(|r| r.text == display_text)
+        {
             return;
         }
 

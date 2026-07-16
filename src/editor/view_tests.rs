@@ -440,3 +440,21 @@ fn autocomplete_undo_after_accept() {
     h.key_mod(Key::Z, Modifiers::COMMAND);
     assert_eq!(h.text(5), original_text);
 }
+
+#[test]
+fn view_cache_reused_when_idle_and_rebuilt_on_edit() {
+    let mut h = EditorHarness::new(&sample_doc());
+
+    let ptr_before = h.state.view_cache.as_ref().expect("cache built").data_ptr();
+    h.frame();
+    h.frame();
+    let ptr_idle = h.state.view_cache.as_ref().expect("cache kept").data_ptr();
+    assert_eq!(ptr_before, ptr_idle, "idle frames must reuse the cached view");
+
+    h.click_text(0, 6);
+    h.type_text("X");
+    h.frame();
+    let ptr_after = h.state.view_cache.as_ref().expect("cache rebuilt").data_ptr();
+    assert_ne!(ptr_before, ptr_after, "an edit must invalidate the cached view");
+    assert_eq!(h.text(0), "glyph Xfoo 16 16");
+}

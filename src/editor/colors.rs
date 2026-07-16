@@ -143,8 +143,16 @@ impl Palette {
 
     pub fn store(ctx: &egui::Context) {
         let id = egui::Id::new("uniform_palette");
+        let dark_id = egui::Id::new("uniform_palette_dark");
         let dark = ctx.theme() == egui::Theme::Dark;
-        ctx.data_mut(|d| d.insert_temp(id, Self::for_theme(dark)));
+        let stored_dark: Option<bool> = ctx.data(|d| d.get_temp(dark_id));
+        if stored_dark == Some(dark) {
+            return;
+        }
+        ctx.data_mut(|d| {
+            d.insert_temp(id, Self::for_theme(dark));
+            d.insert_temp(dark_id, dark);
+        });
     }
 
     pub fn get(ui: &egui::Ui) -> Self {

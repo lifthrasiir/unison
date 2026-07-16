@@ -41,6 +41,7 @@ fn collect_effective_docs<'a>(
 
 pub struct UniformApp {
     font_dir: Option<PathBuf>,
+    last_title: String,
     open_documents: Vec<OpenDocument>,
     active_doc_idx: Option<usize>,
     sidebar: Sidebar,
@@ -61,6 +62,9 @@ pub struct UniformApp {
     name_parts: NamePartsMap,
     color_aliases: crate::render::ttf_builder::ColorAliasMap,
     named_glyphs_gen: u64,
+    // Bumped whenever named_glyphs/name_parts/alt_index/color_aliases are
+    // replaced; keys the editor's per-frame view cache.
+    derived_gen: u64,
     derived_data_tx: mpsc::Sender<DerivedDataMessage>,
     derived_data_rx: mpsc::Receiver<DerivedDataMessage>,
     derived_rebuild_at: Option<std::time::Instant>,
@@ -156,6 +160,7 @@ impl UniformApp {
         let (derived_data_tx, derived_data_rx) = mpsc::channel();
         let mut app = Self {
             font_dir: font_dir.clone(),
+            last_title: String::new(),
             open_documents: Vec::new(),
             active_doc_idx: None,
             sidebar: Sidebar::new(),
@@ -176,6 +181,7 @@ impl UniformApp {
             name_parts: NamePartsMap::new(),
             color_aliases: Default::default(),
             named_glyphs_gen: u64::MAX,
+            derived_gen: 0,
             derived_data_tx,
             derived_data_rx,
             derived_rebuild_at: None,
@@ -272,12 +278,28 @@ impl UniformApp {
     }
 
     fn current_font_gen(&self) -> u64 {
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        for doc in self.collect_all_docs() {
+        // Order-independent combination (XOR of per-doc hashes) so the
+        // effective doc set needs neither collection nor sorting per frame.
+        fn doc_hash(doc: &Document) -> u64 {
+            let mut hasher = std::collections::hash_map::DefaultHasher::new();
             doc.path.hash(&mut hasher);
             doc.edit_gen.hash(&mut hasher);
+            hasher.finish()
         }
-        hasher.finish()
+        let mut combined = 0u64;
+        for open_doc in &self.open_documents {
+            combined ^= doc_hash(&open_doc.document);
+        }
+        for base_doc in &self.font_base_docs {
+            let dominated = self
+                .open_documents
+                .iter()
+                .any(|open_doc| open_doc.document.path == base_doc.path);
+            if !dominated {
+                combined ^= doc_hash(base_doc);
+            }
+        }
+        combined
     }
 
     fn collect_all_docs(&self) -> Vec<&Document> {
@@ -426,6 +448,7 @@ impl UniformApp {
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
+        self.derived_gen = self.derived_gen.wrapping_add(1);
     }
 
     fn rebuild_derived_data(&self, ctx: &egui::Context) {
@@ -680,7 +703,10 @@ impl eframe::App for UniformApp {
             } else {
                 "Uniform".to_string()
             };
-            ctx.send_viewport_cmd(egui::ViewportCommand::Title(title));
+            if title != self.last_title {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Title(title.clone()));
+                self.last_title = title;
+            }
         }
 
         let mut escape_toggled = false;
@@ -810,6 +836,7 @@ impl eframe::App for UniformApp {
             self.alt_index = alt_index;
             self.name_parts = name_parts;
             self.named_glyphs_gen = data_gen;
+            self.derived_gen = self.derived_gen.wrapping_add(1);
             self.issues = issues;
             self.issues_gen = data_gen;
             let all_docs = self.collect_all_docs();
@@ -1273,25 +1300,15 @@ impl eframe::App for UniformApp {
                         );
                     }
                     Some(1) => {
-                        let all_docs: Vec<&Document> = {
-                            let mut docs: Vec<&Document> = Vec::new();
-                            for od in &self.open_documents {
-                                docs.push(&od.document);
-                            }
-                            for bd in &self.font_base_docs {
-                                let dominated = self.open_documents
-                                    .iter()
-                                    .any(|od| od.document.path == bd.path);
-                                if !dominated {
-                                    docs.push(bd);
-                                }
-                            }
-                            docs.sort_by(|a, b| a.path.cmp(&b.path));
-                            docs
-                        };
-                        self.specimen.rebuild_if_needed(
-                            &all_docs, &self.name_parts, self.font_build_gen,
-                        );
+                        if self.specimen.needs_rebuild(self.font_build_gen) {
+                            let all_docs = collect_effective_docs(
+                                &self.open_documents,
+                                &self.font_base_docs,
+                            );
+                            self.specimen.rebuild_if_needed(
+                                &all_docs, &self.name_parts, self.font_build_gen,
+                            );
+                        }
                         specimen_clicked_glyph = self.specimen.show(
                             ui,
                             self.font_data.as_ref(),
@@ -1330,6 +1347,8 @@ impl eframe::App for UniformApp {
                         &self.name_parts,
                         &self.alt_index,
                         &self.color_aliases,
+                        self.derived_gen,
+                        self.font_data_gen,
                         self.zoom_level,
                         &editor_font_id,
                     );

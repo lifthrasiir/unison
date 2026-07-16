@@ -24,6 +24,10 @@ impl SpecimenState {
         }
     }
 
+    pub fn needs_rebuild(&self, font_gen: u64) -> bool {
+        self.cached_gen != font_gen
+    }
+
     pub fn rebuild_if_needed(
         &mut self,
         docs: &[&Document],

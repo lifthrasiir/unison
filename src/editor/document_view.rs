@@ -164,6 +164,43 @@ pub(crate) enum VLineKind {
     },
 }
 
+/// Everything derivable from the document/line buffers that `show_document`
+/// needs each frame. Rebuilding it is O(document); the cache below keeps the
+/// last result so idle frames (no edits, no layout change) skip the rebuild.
+pub(crate) struct ViewData {
+    pub(crate) composites: HashMap<usize, GlyphComposite>,
+    pub(crate) vlines: Vec<VisualLine>,
+    pub(crate) source_offsets: Vec<usize>,
+}
+
+/// Inputs `ViewData` was computed from. `edit_gen` stands in for the document
+/// contents, so anything that mutates `lines` without an immediate rederive
+/// must drop the cache instead (see the `needs_rederive` handling below).
+#[derive(PartialEq)]
+struct ViewCacheKey {
+    edit_gen: u64,
+    derived_gen: u64,
+    font_gen: u64,
+    zoom_level: u32,
+    editing_item_idx: Option<usize>,
+    wrap_width_bits: Option<u32>,
+    font_id: egui::FontId,
+    dark_mode: bool,
+    ppp_bits: u32,
+}
+
+pub(crate) struct ViewCache {
+    key: ViewCacheKey,
+    data: std::sync::Arc<ViewData>,
+}
+
+#[cfg(test)]
+impl ViewCache {
+    pub(crate) fn data_ptr(&self) -> *const ViewData {
+        std::sync::Arc::as_ptr(&self.data)
+    }
+}
+
 impl VisualLine {
     pub(crate) fn height(&self, row_h: f32, grid_cell: f32) -> f32 {
         match &self.kind {
@@ -233,6 +270,8 @@ pub fn show_document(
     name_parts: &NamePartsMap,
     alt_index: &crate::editor::ref_composite::AlternativesIndex,
     color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    derived_gen: u64,
+    font_gen: u64,
     zoom_level: u32,
     font_id: &egui::FontId,
 ) -> DocumentViewResult {
@@ -251,7 +290,6 @@ pub fn show_document(
         EditMode::Normal => None,
     };
 
-    let source_offsets = source_line_offsets(lines);
     let gutter_width = ui.fonts(|f| {
         f.layout_no_wrap("88888 ".to_string(), font_id.clone(), egui::Color32::WHITE)
             .rect
@@ -268,21 +306,59 @@ pub fn show_document(
         }
     };
 
-    let composites = grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
-    let vlines = visual_lines::build_visual_lines(
-        lines,
-        doc,
-        &doc.item_line_starts,
-        &composites,
-        named_glyphs,
-        name_parts,
-        editing_item_idx,
+    let cache_key = ViewCacheKey {
+        edit_gen: doc.edit_gen,
+        derived_gen,
+        font_gen,
         zoom_level,
-        &pal,
-        wrap_width,
-        ui.ctx(),
-        &font_id,
-    );
+        editing_item_idx,
+        wrap_width_bits: wrap_width.map(f32::to_bits),
+        font_id: font_id.clone(),
+        dark_mode: ui.ctx().theme() == egui::Theme::Dark,
+        ppp_bits: ui.ctx().pixels_per_point().to_bits(),
+    };
+    // An external mutation of `lines` (menu action, rename, …) queues a sync
+    // request; the cached view predates that mutation, so rebuild.
+    let cache_valid = !state.document_sync_requested
+        && state
+            .view_cache
+            .as_ref()
+            .is_some_and(|c| c.key == cache_key);
+    let view = if cache_valid {
+        std::sync::Arc::clone(&state.view_cache.as_ref().unwrap().data)
+    } else {
+        let composites =
+            grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
+        let vlines = visual_lines::build_visual_lines(
+            lines,
+            doc,
+            &doc.item_line_starts,
+            &composites,
+            named_glyphs,
+            name_parts,
+            editing_item_idx,
+            zoom_level,
+            &pal,
+            wrap_width,
+            ui.ctx(),
+            &font_id,
+        );
+        let source_offsets = source_line_offsets(lines);
+        let data = std::sync::Arc::new(ViewData {
+            composites,
+            vlines,
+            source_offsets,
+        });
+        state.view_cache = Some(ViewCache {
+            key: cache_key,
+            data: std::sync::Arc::clone(&data),
+        });
+        data
+    };
+    let composites = &view.composites;
+    let vlines: &[VisualLine] = &view.vlines;
+    let source_offsets: &[usize] = &view.source_offsets;
+
     let total_height: f32 = vlines
         .iter()
         .map(|vl| vl.height(row_height, grid_cell))
@@ -313,9 +389,9 @@ pub fn show_document(
         .show_inside(ui, |ui| {
             minimap_scroll_target = minimap::draw_minimap(
                 ui,
-                &vlines,
+                vlines,
                 doc,
-                &composites,
+                composites,
                 total_height,
                 prev_scroll_y,
                 prev_viewport_h,
@@ -373,7 +449,7 @@ pub fn show_document(
 
             let mut vline_y: Vec<f32> = Vec::with_capacity(vlines.len());
             let mut y_acc = 0.0f32;
-            for vl in &vlines {
+            for vl in vlines {
                 vline_y.push(y_acc);
                 y_acc += vl.height(row_height, grid_cell);
             }
@@ -469,7 +545,7 @@ pub fn show_document(
                 Some((old_doc_y * scale - pvo).max(0.0))
             } else {
                 let new_caret_y =
-                    doc_line_to_y(&vlines, row_height, grid_cell, state.cursor.line);
+                    doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
                 let old_caret_y = new_caret_y / scale;
                 let visual_offset = (old_caret_y - prev_scroll_y).max(0.0);
                 Some((new_caret_y - visual_offset).max(0.0))
@@ -486,7 +562,7 @@ pub fn show_document(
     }
     let scroll_to_cursor = state.take_scroll_to_cursor();
     let cursor_scroll = if scroll_to_cursor {
-        let target_y = doc_line_to_y(&vlines, row_height, grid_cell, state.cursor.line);
+        let target_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
         Some((target_y - viewport_h / 3.0).max(0.0))
     } else {
         None
@@ -528,9 +604,9 @@ pub fn show_document(
         #[cfg(test)]
         crate::editor::harness::capture_snapshot(
             ui.ctx(),
-            &vlines,
+            vlines,
             lines,
-            &source_offsets,
+            source_offsets,
             origin,
             row_height,
             grid_cell,
@@ -563,7 +639,7 @@ pub fn show_document(
         let vis_bottom = clip.max.y - origin.y;
 
         let mut y = 0.0f32;
-        for vl in &vlines {
+        for vl in vlines {
             let h = vl.height(row_height, grid_cell);
 
             if y + h < vis_top || y > vis_bottom {
@@ -597,7 +673,7 @@ pub fn show_document(
                 continue;
             }
 
-            let src_line = gutter_line_number(vl, lines, &source_offsets);
+            let src_line = gutter_line_number(vl, lines, source_offsets);
             if let Some(num) = src_line {
                 let num_text = format!("{num:>5} ");
                 painter.text(
@@ -938,7 +1014,7 @@ pub fn show_document(
                 doc,
                 origin,
                 y,
-                &composites,
+                composites,
                 grid_cell,
                 &pal,
             );
@@ -958,7 +1034,7 @@ pub fn show_document(
                 doc,
                 state,
                 edit_idx,
-                &composites,
+                composites,
                 named_glyphs,
                 name_parts,
                 click_pos,
@@ -1052,7 +1128,7 @@ pub fn show_document(
                 state.mode = EditMode::Normal;
                 state.selection_anchor = None;
                 state.cursor = Caret::new(line_idx, 0);
-                let target_y = doc_line_to_y(&vlines, row_height, grid_cell, line_idx);
+                let target_y = doc_line_to_y(vlines, row_height, grid_cell, line_idx);
                 let centered = (target_y - viewport_h / 3.0).max(0.0);
                 ui.ctx().data_mut(|d| {
                     d.insert_temp(egui::Id::new("goto_scroll_target"), centered);
@@ -1452,7 +1528,7 @@ pub fn show_document(
     }
 
     if state.cursor != prev_cursor {
-        let cursor_y = doc_line_to_y(&vlines, row_height, grid_cell, state.cursor.line);
+        let cursor_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
         let cursor_h: f32 = vlines
             .iter()
             .filter(|vl| vl.doc_line == state.cursor.line)
@@ -1491,6 +1567,10 @@ pub fn show_document(
     }
 
     if needs_rederive {
+        // `lines` changed this frame; the cached view no longer reflects it.
+        // A deferred reparse leaves `edit_gen` untouched, so the key alone
+        // would not invalidate — drop the cache explicitly.
+        state.view_cache = None;
         if state.skip_reconcile {
             flush_document_changes(lines, doc, state);
         } else {

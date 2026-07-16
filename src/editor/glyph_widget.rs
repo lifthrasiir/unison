@@ -163,7 +163,12 @@ fn point_in_tri(p: egui::Pos2, a: egui::Pos2, b: egui::Pos2, c: egui::Pos2) -> b
     !(has_neg && has_pos)
 }
 
-pub fn all_valid_shapes() -> Vec<PixelShape> {
+pub fn all_valid_shapes() -> &'static [PixelShape] {
+    static SHAPES: std::sync::LazyLock<Vec<PixelShape>> = std::sync::LazyLock::new(build_all_valid_shapes);
+    &SHAPES
+}
+
+fn build_all_valid_shapes() -> Vec<PixelShape> {
     let mut shapes = Vec::new();
 
     // Filled shapes first (more commonly used)

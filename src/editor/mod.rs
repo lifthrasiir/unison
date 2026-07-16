@@ -95,6 +95,9 @@ pub struct EditorState {
     scroll_to_cursor: bool,
     zoom_changed_from: Option<u32>,
     pub(crate) grid_hover: bool,
+    /// Cached per-frame view data (composites, visual lines, source offsets);
+    /// rebuilt only when the document or layout inputs change.
+    pub(crate) view_cache: Option<document_view::ViewCache>,
 }
 
 impl EditorState {
@@ -118,6 +121,7 @@ impl EditorState {
             scroll_to_cursor: false,
             zoom_changed_from: None,
             grid_hover: false,
+            view_cache: None,
         }
     }
 
