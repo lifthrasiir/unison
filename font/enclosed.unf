@@ -79,23 +79,23 @@ glyph enclosing-small-circle 16 16
 ................................
 ................................
 
-glyph ($0-9)-circled
+glyph ($0..9)-circled
 ref enclosing-circle
-ref ($0-9) 4 0
-glyph (1*10|2*10|3*10|4*10)($0-9)-circled
+ref ($0..9) 4 0
+glyph (1*10|2*10|3*10|4*10)($0..9)-circled
 ref enclosing-circle-bg
 ref (1*10|2*10|3*10|4*10)-4x10 4 3
-ref ($0-9)-4x10 9 3
+ref ($0..9)-4x10 9 3
 glyph 50-circled
 ref enclosing-circle-bg
 ref 5-4x10 4 3
 ref 0-4x10 9 3
 
-map ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ($0-9)-circled
-map ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = 1($0-9)-circled
-map ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = 2($0-9)-circled
-map ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = 3($0-9)-circled
-map ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = 4($0-9)-circled
+map ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ($0..9)-circled
+map ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = 1($0..9)-circled
+map ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = 2($0..9)-circled
+map ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = 3($0..9)-circled
+map ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = 4($0..9)-circled
 map ㊿ = 50-circled
 
 glyph ($a-z)-upper-circled
@@ -109,10 +109,10 @@ ref ($a-z)-lower
 map Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ($a-z)-upper-circled
 map ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|ⓕ|ⓖ|ⓗ|ⓘ|ⓙ|ⓚ|ⓛ|ⓜ|ⓝ|ⓞ|ⓟ|ⓠ|ⓡ|ⓢ|ⓣ|ⓤ|ⓥ|ⓦ|ⓧ|ⓨ|ⓩ = ($a-z)-lower-circled
 
-glyph ($0-10)-circled-sm
+glyph ($0..10)-circled-sm
 ref enclosing-small-circle
-ref ($0-10)-5x6 6 5
-map 🄋|➀|➁|➂|➃|➄|➅|➆|➇|➈|➉ = ($0-10)-circled-sm
+ref ($0..10)-5x6 6 5
+map 🄋|➀|➁|➂|➃|➄|➅|➆|➇|➈|➉ = ($0..10)-circled-sm
 
 glyph hangul-($hangul-init-lex)-circled
 ref enclosing-circle-sbg
@@ -210,26 +210,26 @@ glyph enclosing-small-black-circle 16 16
 ................................
 ................................
 
-glyph ($0-9)-circled-black
+glyph ($0..9)-circled-black
 ref enclosing-black-circle
-ref ($0-9) 4 0 negated
-glyph 1($0-9)-circled-black
+ref ($0..9) 4 0 negated
+glyph 1($0..9)-circled-black
 ref enclosing-black-circle-bg
 ref 1-4x10 4 3 negated
-ref ($0-9)-4x10 9 3 negated
+ref ($0..9)-4x10 9 3 negated
 glyph 20-cirlced-black
 ref enclosing-black-circle-bg
 ref 2-4x10 4 3 negated
 ref 0-4x10 9 3 negated
 
-map ⓿|❶|❷|❸|❹|❺|❻|❼|❽|❾ = ($0-9)-circled-black
-map ❿|⓫|⓬|⓭|⓮|⓯|⓰|⓱|⓲|⓳ = 1($0-9)-circled-black
+map ⓿|❶|❷|❸|❹|❺|❻|❼|❽|❾ = ($0..9)-circled-black
+map ❿|⓫|⓬|⓭|⓮|⓯|⓰|⓱|⓲|⓳ = 1($0..9)-circled-black
 map ⓴ = 20-cirlced-black
 
-glyph ($0-10)-circled-black-sm
+glyph ($0..10)-circled-black-sm
 ref enclosing-small-black-circle
-ref ($0-10)-5x6 6 5 negated
-map 🄌|➊|➋|➌|➍|➎|➏|➐|➑|➒|➓ = ($0-10)-circled-black-sm
+ref ($0..10)-5x6 6 5 negated
+map 🄌|➊|➋|➌|➍|➎|➏|➐|➑|➒|➓ = ($0..10)-circled-black-sm
 
 glyph ($a-z)-upper-circled-black
 ref enclosing-black-circle
@@ -298,11 +298,11 @@ glyph enclosing-dcircle
 ref enclosing-circle
 ref enclosing-small-circle
 
-glyph ($1-10)-dcircled
+glyph ($1..10)-dcircled
 ref enclosing-dcircle
-ref ($1-10)-5x6 6 5
+ref ($1..10)-5x6 6 5
 
-map ⓵|⓶|⓷|⓸|⓹|⓺|⓻|⓼|⓽|⓾ = ($1-10)-dcircled
+map ⓵|⓶|⓷|⓸|⓹|⓺|⓻|⓼|⓽|⓾ = ($1..10)-dcircled
 
 //--------------------------------------
 // parenthesed letters
@@ -362,20 +362,20 @@ glyph enclosing-parens-bg 16 16
 ................................
 ................................
 
-glyph ($1-9)-in-parens
+glyph ($1..9)-in-parens
 ref enclosing-parens
-ref ($1-9) 4 0
-glyph 1($0-9)-in-parens
+ref ($1..9) 4 0
+glyph 1($0..9)-in-parens
 ref enclosing-parens-bg
 ref 1-4x10 4 3
-ref ($0-9)-4x10 9 3
+ref ($0..9)-4x10 9 3
 glyph 20-in-parens
 ref enclosing-parens-bg
 ref 2-4x10 4 3
 ref 0-4x10 9 3
 
-map ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ($1-9)-in-parens
-map ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = 1($0-9)-in-parens
+map ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ($1..9)-in-parens
+map ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = 1($0..9)-in-parens
 map ⒇ = 20-in-parens
 
 glyph ($a-z)-upper-in-parens
@@ -456,25 +456,25 @@ glyph enclosing-comma 16 16
 ................................
 ................................
 
-glyph ($0-9)-and-full-stop
+glyph ($0..9)-and-full-stop
 ref enclosing-full-stop
-ref ($0-9) 2 0
-glyph 1($0-9)-and-full-stop
+ref ($0..9) 2 0
+glyph 1($0..9)-and-full-stop
 ref enclosing-full-stop-bg
 ref 1-4x10 2 3
-ref ($0-9)-4x10 7 3
+ref ($0..9)-4x10 7 3
 glyph 20-and-full-stop
 ref enclosing-full-stop-bg
 ref 2-4x10 2 3
 ref 0-4x10 7 3
 
-glyph ($0-9)-and-comma
+glyph ($0..9)-and-comma
 ref enclosing-comma
-ref ($0-9) 2 0
+ref ($0..9) 2 0
 
-map 🄀|⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = ($0-9)-and-full-stop
-map ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = 1($0-9)-and-full-stop
+map 🄀|⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = ($0..9)-and-full-stop
+map ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = 1($0..9)-and-full-stop
 map ⒛ = 20-and-full-stop
 
-map 🄁|🄂|🄃|🄄|🄅|🄆|🄇|🄈|🄉|🄊 = ($0-9)-and-comma
+map 🄁|🄂|🄃|🄄|🄅|🄆|🄇|🄈|🄉|🄊 = ($0..9)-and-comma
 

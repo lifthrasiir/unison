@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 use crate::document::{
     Document, DocumentItem, GlyphName, collect_name_parts, expand_name_pattern,
-    is_name_pattern, substitute_name_parts,
+    find_invalid_inline_ranges, is_name_pattern, substitute_name_parts,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -43,6 +43,18 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
 
             match item {
                 DocumentItem::Glyph { name: GlyphName(n), body } => {
+                    for bad in find_invalid_inline_ranges(n) {
+                        issues.push(Issue {
+                            severity: Severity::Error,
+                            message: format!(
+                                "invalid inline range '{}' (end < start or too large)",
+                                bad,
+                            ),
+                            file: doc.path.clone(),
+                            line,
+                            file_line,
+                        });
+                    }
                     let name_str = substitute_name_parts(n, &name_parts);
                     if is_name_pattern(&name_str) {
                         match expand_name_pattern(&name_str) {

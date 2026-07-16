@@ -274,20 +274,20 @@ glyph card-tarot-blank 16 16
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
 
-glyph card-tarot-($1-9)
+glyph card-tarot-($1..9)
 ref card-tarot-blank
-ref sm-($1-9) 7 5
-glyph card-tarot-1($0-9)
+ref sm-($1..9) 7 5
+glyph card-tarot-1($0..9)
 ref card-tarot-blank
 ref sm-1 5 5
-ref sm-($0-9) 9 5
+ref sm-($0..9) 9 5
 glyph card-tarot-2(0|1)
 ref card-tarot-blank
 ref sm-2 5 5
 ref sm-(0|1) 9 5
 
 map U+1F0E0 = card-tarot-blank
-map U+1F0E1..1F0E9 = card-tarot-($1-9)
-map U+1F0EA..1F0F3 = card-tarot-1($0-9)
+map U+1F0E1..1F0E9 = card-tarot-($1..9)
+map U+1F0EA..1F0F3 = card-tarot-1($0..9)
 map U+1F0F4..1F0F5 = card-tarot-2(0|1)
 

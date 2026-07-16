@@ -809,9 +809,83 @@ pub fn collect_name_parts(docs: &[&Document]) -> NamePartsMap {
     map
 }
 
+/// Try to parse an inline numeric range at `chars[start]` (which must be `$`).
+///
+/// Syntax: `$DIGITS..DIGITS` (decimal) or `$#HEX..HEX` (hexadecimal, lowercase).
+/// Returns `Some((end_pos, expanded))` where `expanded` is `v1|v2|...|vn`.
+/// The minimum output width is determined by the number of digits in the start
+/// number, so `$00..09` produces `00|01|...|09`.
+/// Returns `None` if the text doesn't match the range syntax at all.
+/// Returns an empty expansion string if end < start (caller should leave as-is
+/// or flag an error).
+fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, String)> {
+    let mut i = start + 1; // skip '$'
+
+    let is_hex = i < chars.len() && chars[i] == '#';
+    if is_hex {
+        i += 1;
+    }
+
+    let digit_pred: fn(char) -> bool = if is_hex {
+        |c: char| c.is_ascii_hexdigit()
+    } else {
+        |c: char| c.is_ascii_digit()
+    };
+
+    let num_start = i;
+    while i < chars.len() && digit_pred(chars[i]) {
+        i += 1;
+    }
+    if i == num_start {
+        return None;
+    }
+    let start_str: String = chars[num_start..i].iter().collect();
+
+    if i + 1 >= chars.len() || chars[i] != '.' || chars[i + 1] != '.' {
+        return None;
+    }
+    i += 2;
+
+    let end_start = i;
+    while i < chars.len() && digit_pred(chars[i]) {
+        i += 1;
+    }
+    if i == end_start {
+        return None;
+    }
+    let end_str: String = chars[end_start..i].iter().collect();
+
+    let min_width = start_str.len();
+    let radix = if is_hex { 16 } else { 10 };
+
+    let start_val = u64::from_str_radix(&start_str, radix).ok()?;
+    let end_val = u64::from_str_radix(&end_str, radix).ok()?;
+    if end_val < start_val {
+        return Some((i, String::new()));
+    }
+    let count = end_val - start_val + 1;
+    if count > MAX_EXPANSION as u64 {
+        return Some((i, String::new()));
+    }
+
+    let parts: Vec<String> = if is_hex {
+        (start_val..=end_val)
+            .map(|v| format!("{v:0>width$x}", width = min_width))
+            .collect()
+    } else {
+        (start_val..=end_val)
+            .map(|v| format!("{v:0>width$}", width = min_width))
+            .collect()
+    };
+    Some((i, parts.join("|")))
+}
+
 /// Replace `$var` tokens inside `(...)` groups with `val1|val2|...` from name-parts.
 /// E.g. `hangul-init-($init)-l-f` with `$init = [g, gg, n]`
 /// becomes `hangul-init-(g|gg|n)-l-f`.
+///
+/// Also expands inline numeric ranges: `($0..9)` → `(0|1|...|9)`,
+/// `($#a0..af)` → `(a0|a1|...|af)`.
 pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
     if !s.contains('$') {
         return s.to_string();
@@ -821,6 +895,16 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
     let mut i = 0;
     while i < chars.len() {
         if chars[i] == '$' {
+            if let Some((end_pos, expanded)) = try_expand_inline_range(&chars, i) {
+                if expanded.is_empty() {
+                    let orig: String = chars[i..end_pos].iter().collect();
+                    result.push_str(&orig);
+                } else {
+                    result.push_str(&expanded);
+                }
+                i = end_pos;
+                continue;
+            }
             let start = i;
             i += 1;
             while i < chars.len()
@@ -840,6 +924,32 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
         }
     }
     result
+}
+
+/// Check a string for invalid inline numeric ranges (`$end..start` where
+/// end < start, or ranges exceeding `MAX_EXPANSION`). Returns descriptions
+/// of each invalid range found.
+pub fn find_invalid_inline_ranges(s: &str) -> Vec<String> {
+    if !s.contains('$') {
+        return Vec::new();
+    }
+    let mut errors = Vec::new();
+    let chars: Vec<char> = s.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '$' {
+            if let Some((end_pos, expanded)) = try_expand_inline_range(&chars, i) {
+                if expanded.is_empty() {
+                    let orig: String = chars[i..end_pos].iter().collect();
+                    errors.push(orig);
+                }
+                i = end_pos;
+                continue;
+            }
+        }
+        i += 1;
+    }
+    errors
 }
 
 // ---------------------------------------------------------------------------
@@ -1295,6 +1405,77 @@ mod tests {
                 ("out-b".to_string(), "dep-2".to_string()),
             ],
         );
+    }
+
+    #[test]
+    fn inline_range_decimal() {
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            substitute_name_parts("($0..9)", &parts),
+            "(0|1|2|3|4|5|6|7|8|9)",
+        );
+    }
+
+    #[test]
+    fn inline_range_decimal_zero_padded() {
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            substitute_name_parts("($00..12)", &parts),
+            "(00|01|02|03|04|05|06|07|08|09|10|11|12)",
+        );
+    }
+
+    #[test]
+    fn inline_range_decimal_mixed_width() {
+        let parts = NamePartsMap::new();
+        let result = substitute_name_parts("($0..11)", &parts);
+        assert!(result.starts_with("(0|1|2|"));
+        assert!(result.contains("|9|10|11)"));
+    }
+
+    #[test]
+    fn inline_range_hex() {
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            substitute_name_parts("($#a..f)", &parts),
+            "(a|b|c|d|e|f)",
+        );
+    }
+
+    #[test]
+    fn inline_range_hex_zero_padded() {
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            substitute_name_parts("($#0a..0c)", &parts),
+            "(0a|0b|0c)",
+        );
+    }
+
+    #[test]
+    fn inline_range_reversed_leaves_as_is() {
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            substitute_name_parts("($3..2)", &parts),
+            "($3..2)",
+        );
+    }
+
+    #[test]
+    fn inline_range_in_glyph_name() {
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            substitute_name_parts("sup-($0..9)", &parts),
+            "sup-(0|1|2|3|4|5|6|7|8|9)",
+        );
+    }
+
+    #[test]
+    fn inline_range_find_invalid() {
+        assert_eq!(
+            find_invalid_inline_ranges("($3..2)"),
+            vec!["$3..2"],
+        );
+        assert!(find_invalid_inline_ranges("($0..9)").is_empty());
     }
 
     #[test]
