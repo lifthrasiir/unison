@@ -1,6 +1,9 @@
 ////////////////////////////////////////
 // combining marks
 
+feature ccmp for DFLT : anchor below
+feature ccmp for DFLT : anchor above
+
 //--------------------------------------
 // diaeresis
 
@@ -12,59 +15,96 @@ glyph dia-wide 6 2 inline
 /01\..../10\
 \01/....\10/
 
-glyph dia-below:narrow 5 2 mark
-/01\../10\
-\01/..\10/
-ref dia-narrow 0 0
+glyph dia-below:narrow mark
+ref dia-narrow
 anchor -below 2 0
 anchor +below 2 2
 
-glyph dia-below 6 2 mark advance 0 left -3 top 14
-/01\..../10\
-\01/....\10/
-ref dia-wide 0 0
+glyph dia-below mark advance 0 left -3 top 14
+ref dia-wide
 anchor -below 2..3 0
 anchor +below 2..3 2
 
-glyph dia-above:narrow 5 2 mark
-ref dia-narrow 0 0
+glyph dia-above:narrow mark
+ref dia-narrow
 anchor -above 2 1
 anchor +above 2 -1
 
-glyph dia-above 6 2 mark advance 0 left -3 top 0
-ref dia-wide 0 0
+glyph dia-above mark advance 0 left -3 top 0
+ref dia-wide
 anchor -above 2..3 1
 anchor +above 2..3 -1
 
 map U+0308 = dia-above
 map U+0324 = dia-below
 
-feature ccmp for DFLT : anchor below
-feature ccmp for DFLT : anchor above
+glyph dia-above-spacing
+ref sp
+ref dia-below:narrow 2 0
+
+map ¨ = dia-above-spacing
 
 //--------------------------------------
 // acute accents
+//
+// shared with Polish kreska, which is steeper than acute
+// but such fine distinction is hard in bitmaps anyway.
 
-glyph acute-lower 4 2
+glyph acute-left 4 2 inline
 ../1@@0/
 /1@@0/..
 
-glyph acute-lower-shift 4 2
+glyph acute-right 4 2 inline
 ../0@@1/
 /0@@1/..
 
-glyph acute-upper 4 2
-ref acute-lower 0 0
+glyph acute-below mark
+ref acute-right
+anchor -below 2 0
+anchor +below 2 2
+
+glyph acute-below:wide mark
+ref acute-left
+anchor -below 1..2 0
+anchor +below 1..2 2
+
+glyph acute-lower-shift
+ref acute-right
+
+glyph acute-above mark
+ref acute-left
+anchor -above 1 1
+anchor +above 1 -1
+
+glyph acute-above:wide mark
+ref acute-right
+anchor -above 1..2 1
+anchor +above 1..2 -1
+
+map U+0301 = acute-above
+map U+0317 = acute-below
+
+glyph acute-above-spacing
+ref sp
+ref acute-left 3 0
+map ´ = acute-above-spacing
 
 //--------------------------------------
 // double acute accents
 
-glyph dacute-lower 7 2
-ref acute-lower-shift 0 0
-ref acute-lower-shift 3 0
+glyph dacute-above mark
+ref acute-right 0 0
+ref acute-right 3 0
+anchor -above 3 1
+anchor +above 3 -1
 
-glyph dacute-upper 7 2
-ref dacute-lower 0 0
+glyph dacute-above:wide mark
+ref acute-left 0 0
+ref acute-left 3 0
+anchor -above 3..4 1
+anchor +above 3..4 -1
+
+map U+030B = dacute-above
 
 //--------------------------------------
 // grave accents
@@ -111,6 +151,11 @@ ref mac-lower 0 0
 glyph mac-bottom-sm 4 1
 ref mac-lower-sm 0 0
 
+glyph uni00AF
+ref sp
+ref mac-lower 2 3
+map ¯ = uni00AF
+
 //--------------------------------------
 // cedilla/comma
 
@@ -127,10 +172,14 @@ glyph ced-inverted-lower 2 3
 @@0\
 @@@@
 
+glyph uni00B8
+ref sp
+ref ced 4 13
+map ¸ = uni00B8
+
 //--------------------------------------
 // ogonek
 
-// needs additional adjustments per glyph
 glyph ogonek 2 3
 /01/
 1<..
@@ -155,111 +204,111 @@ glyph caron-alt 2 3
 //--------------------------------------
 // circumflex
 
-glyph circ-lower 5 2
+glyph circ 5 2
 ../0@@0\..
 /01/..\10\
 
-glyph circ-upper 5 2
-ref circ-lower 0 0
+glyph circ-lower
+ref circ
 
-glyph circ-bottom 5 2
-ref circ-lower 0 0
+glyph circ-upper
+ref circ
+
+glyph circ-bottom
+ref circ
 
 //--------------------------------------
 // breve
 
-glyph breve-lower 5 2
+glyph breve 5 2
 @@1\../1@@
 \0@@@@@@0/
 
-glyph breve-upper 5 2
-ref breve-lower 0 0
+glyph breve-lower
+ref breve
 
-glyph breve-bottom 5 2
-ref breve-lower 0 0
+glyph breve-upper
+ref breve
+
+glyph breve-bottom
+ref breve
 
 //--------------------------------------
 // inverted breve (arch)
 
-glyph arch-lower 5 2
+glyph arch 5 2
 /0@@@@@@0\
 @@1/..\1@@
 
-glyph arch-upper 5 2
-ref arch-lower 0 0
+glyph arch-lower
+ref arch
+
+glyph arch-upper
+ref arch
 
 //--------------------------------------
 // ring
 
-glyph ring-lower 3 3
+glyph ring 3 3
 /0@@0\
 @@..@@
 \0@@0/
 
-glyph ring-upper 3 3
-ref ring-lower 0 0
+glyph ring-lower
+ref ring
 
-glyph ring-bottom 3 3
-ref ring-lower 0 0
+glyph ring-upper
+ref ring
+
+glyph ring-bottom
+ref ring
 
 //--------------------------------------
 // tilde
 
-glyph tilde-lower 5 2
+glyph comb-tilde 5 2
 /0@@1\../1
 1/..\1@@0/
 
-glyph tilde-upper 5 2
-ref tilde-lower 0 0
+glyph tilde-lower
+ref comb-tilde
 
-glyph tilde-bottom 5 2
-ref tilde-lower 0 0
+glyph tilde-upper
+ref comb-tilde
+
+glyph tilde-bottom
+ref comb-tilde
 
 //--------------------------------------
 // dot
 
-glyph dot-lower 2 2
+glyph comb-dot 2 2
 @@@@
 @@@@
+
+glyph dot-lower
+ref comb-dot
 
 glyph dot-upper 2 2
-ref dot-lower 0 0
+ref comb-dot
 
 glyph dot-bottom 2 2
-ref dot-lower 0 0
+ref comb-dot
 
 glyph dot-middle 2 2
-ref dot-lower 0 0
+ref comb-dot
 
 //--------------------------------------
 // hook above
 
-glyph hook-lower 3 3
+glyph hook 3 3
 /1@@1\
 0/..@@
 ../10/
 
-glyph hook-upper 3 3
-ref hook-lower 0 0
+glyph hook-lower
+ref hook
 
-//--------------------------------------
-// spacing forms of combining marks
+glyph hook-upper
+ref hook
 
-glyph uni00A8
-ref sp
-ref dia-below:narrow 2 2
-map ¨ = uni00A8
-glyph uni00AF
-ref sp
-ref mac-lower 2 3
-map ¯ = uni00AF
-glyph uni00B4
-ref sp
-ref acute-lower 3 2
-map ´ = uni00B4
-glyph uni00B8
-ref sp
-ref ced 4 13
-map ¸ = uni00B8
-
-// vim: ft=unison

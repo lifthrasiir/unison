@@ -1805,36 +1805,18 @@ map ӹ
 //--------------------------------------
 // with acute accents
 
-glyph uni0403
-ref cy-ghe-upper
-ref acute-upper 3 0
-map Ѓ = uni0403
-glyph uni040C
-ref cy-ka-upper
-ref acute-upper 3 0
-map Ќ = uni040C
+map Ѓ
+map Ќ
 
-glyph uni0453
-ref cy-ghe-lower
-ref acute-lower 3 2
-map ѓ = uni0453
-glyph uni045C
-ref cy-ka-lower
-ref acute-lower 3 2
-map ќ = uni045C
+map ѓ
+map ќ
 
 //--------------------------------------
 // with double acute accents
 
-glyph uni04F2
-ref cy-u-upper
-ref dacute-upper 1 0
-map Ӳ = uni04F2
+map Ӳ
 
-glyph uni04F3
-ref cy-u-lower
-ref dacute-lower 1 2
-map ӳ = uni04F3
+map ӳ
 
 //--------------------------------------
 // with grave accents

@@ -948,7 +948,7 @@ map ω = gr-omega-lower
 
 glyph uni03CC
 ref gr-omicron-lower
-ref acute-lower 3 2
+ref acute-below 3 2
 map ό = uni03CC
 
 // vim: ft=unison
