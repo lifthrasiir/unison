@@ -2335,7 +2335,7 @@ map Ǚ = uni01D9
 glyph uni01DB
 ref u-upper-compressed
 ref dia-above:narrow 2 2
-ref grave-upper 2 0
+ref grave-above 2 0
 map Ǜ = uni01DB
 map Ṳ
 map Ẅ
@@ -2385,7 +2385,7 @@ map ǚ = uni01DA
 glyph uni01DC
 ref u-lower:compressed
 ref dia-below:narrow 2 4
-ref grave-lower 2 2
+ref grave-below 2 2
 map ǜ = uni01DC
 map ṳ
 map ẅ
@@ -2436,7 +2436,7 @@ map ǵ
 map í
 glyph uni1E31
 ref k-lower
-ref acute-lower-shift 3 2
+ref acute-below 3 2
 map ḱ = uni1E31
 map ĺ
 map ḿ
@@ -2479,140 +2479,62 @@ map ű
 //--------------------------------------
 // with grave accents
 
-glyph uni00C0
-ref a-upper
-ref grave-upper 2 0
-map À = uni00C0
-glyph uni00C8
-ref e-upper
-ref grave-upper 2 0
-map È = uni00C8
-glyph uni00CC
-ref i-upper
-ref grave-upper 2 0
-map Ì = uni00CC
-glyph uni01F8
-ref n-upper
-ref grave-upper 2 0
-map Ǹ = uni01F8
-glyph uni00D2
-ref o-upper
-ref grave-upper 2 0
-map Ò = uni00D2
+map À
+map È
+map Ì
+map Ǹ
+map Ò
 glyph uni1EDC
 ref o-horn-upper
-ref grave-upper 1 0
+ref grave-above 1 0
 map Ờ = uni1EDC
-glyph uni00D9
-ref u-upper
-ref grave-upper 2 0
-map Ù = uni00D9
+map Ù
 glyph uni1EEA
 ref u-horn-upper
-ref grave-upper 1 0
+ref grave-above 1 0
 map Ừ = uni1EEA
-glyph uni1E80
-ref w-upper
-ref grave-upper 2 0
-map Ẁ = uni1E80
-glyph uni1EF2
-ref y-upper
-ref grave-upper 2 0
-map Ỳ = uni1EF2
+map Ẁ
+map Ỳ
 
-glyph uni00E0
-ref a-lower
-ref grave-lower 2 2
-map à = uni00E0
-glyph uni00E8
-ref e-lower
-ref grave-lower 2 2
-map è = uni00E8
+map à
+map è
 glyph uni00EC
 ref i-lower:dotless
-ref grave-lower 2 3
+ref grave-below 2 3
 map ì = uni00EC
-glyph uni00F2
-ref o-lower
-ref grave-lower 2 2
-map ò = uni00F2
+map ò
 glyph uni1EDD
 ref o-horn-lower
-ref grave-lower 1 2
+ref grave-below 1 2
 map ờ = uni1EDD
-glyph uni00F9
-ref u-lower
-ref grave-lower 2 2
-map ù = uni00F9
+map ù
 glyph uni1EEB
 ref u-horn-lower
-ref grave-lower 1 2
+ref grave-below 1 2
 map ừ = uni1EEB
-glyph uni01F9
-ref n-lower
-ref grave-lower 2 2
-map ǹ = uni01F9
-glyph uni1E81
-ref w-lower
-ref grave-lower 2 2
-map ẁ = uni1E81
-glyph uni1EF3
-ref y-lower
-ref grave-lower 2 2
-map ỳ = uni1EF3
+map ǹ
+map ẁ
+map ỳ
 
 //--------------------------------------
 // with double grave accents
 
-glyph uni0200
-ref a-upper
-ref dgrave-upper 1 0
-map Ȁ = uni0200
-glyph uni0204
-ref e-upper
-ref dgrave-upper 1 0
-map Ȅ = uni0204
-glyph uni0208
-ref i-upper
-ref dgrave-upper 1 0
-map Ȉ = uni0208
-glyph uni020C
-ref o-upper
-ref dgrave-upper 1 0
-map Ȍ = uni020C
-glyph uni0210
-ref r-upper
-ref dgrave-upper 1 0
-map Ȑ = uni0210
-glyph uni0214
-ref u-upper
-ref dgrave-upper 1 0
-map Ȕ = uni0214
+map Ȁ
+map Ȅ
+map Ȉ
+map Ȍ
+map Ȑ
+map Ȕ
 
-glyph uni0201
-ref a-lower
-ref dgrave-lower 1 2
-map ȁ = uni0201
-glyph uni0205
-ref e-lower
-ref dgrave-lower 1 2
-map ȅ = uni0205
+map ȁ
+map ȅ
 glyph uni0209
 ref i-lower:dotless
-ref dgrave-lower 1 3
+ref dgrave-above 1 3
 map ȉ = uni0209
-glyph uni020D
-ref o-lower
-ref dgrave-lower 1 2
-map ȍ = uni020D
-glyph uni0211
-ref r-lower
-ref dgrave-lower 1 2
-map ȑ = uni0211
-glyph uni0215
-ref u-lower
-ref dgrave-lower 1 2
-map ȕ = uni0215
+map ȍ
+map ȑ
+map ȕ
 
 //--------------------------------------
 // with macron
@@ -2640,7 +2562,7 @@ map Ē = uni0112
 glyph uni1E14
 ref e-upper-compressed
 ref mac-upper 2 2
-ref grave-upper 2 0
+ref grave-above 2 0
 map Ḕ = uni1E14
 glyph uni1E16
 ref e-upper-compressed
@@ -2674,7 +2596,7 @@ map Ō = uni014C
 glyph uni1E50
 ref o-upper-compressed
 ref mac-upper 2 2
-ref grave-upper 2 0
+ref grave-above 2 0
 map Ṑ = uni1E50
 glyph uni1E52
 ref o-upper-compressed
@@ -2730,7 +2652,7 @@ map ē = uni0113
 glyph uni1E15
 ref e-lower:compressed
 ref mac-lower 2 4
-ref grave-lower 2 2
+ref grave-below 2 2
 map ḕ = uni1E15
 glyph uni1E17
 ref e-lower:compressed
@@ -2768,7 +2690,7 @@ map ō = uni014D
 glyph uni1E51
 ref o-lower:compressed
 ref mac-lower 2 4
-ref grave-lower 2 2
+ref grave-below 2 2
 map ṑ = uni1E51
 glyph uni1E53
 ref o-lower:compressed
@@ -3140,7 +3062,7 @@ map Â = uni00C2
 glyph uni1EA6
 ref a-upper-compressed
 ref circ-upper 2 2
-ref grave-upper 1 0
+ref grave-above 1 0
 map Ầ = uni1EA6
 glyph uni1EA8
 ref a-upper-compressed
@@ -3172,7 +3094,7 @@ map Ê = uni00CA
 glyph uni1EC0
 ref e-upper-compressed
 ref circ-upper 2 2
-ref grave-upper 1 0
+ref grave-above 1 0
 map Ề = uni1EC0
 glyph uni1EC2
 ref e-upper-compressed
@@ -3224,7 +3146,7 @@ map Ô = uni00D4
 glyph uni1ED2
 ref o-upper-compressed
 ref circ-upper 2 2
-ref grave-upper 1 0
+ref grave-above 1 0
 map Ồ = uni1ED2
 glyph uni1ED4
 ref o-upper-compressed
@@ -3277,7 +3199,7 @@ map â = uni00E2
 glyph uni1EA7
 ref a-lower:compressed
 ref circ-lower 2 4
-ref grave-lower 1 2
+ref grave-below 1 2
 map ầ = uni1EA7
 glyph uni1EA9
 ref a-lower:compressed
@@ -3309,7 +3231,7 @@ map ê = uni00EA
 glyph uni1EC1
 ref e-lower:compressed
 ref circ-lower 2 4
-ref grave-lower 1 2
+ref grave-below 1 2
 map ề = uni1EC1
 glyph uni1EC3
 ref e-lower:compressed
@@ -3361,7 +3283,7 @@ map ô = uni00F4
 glyph uni1ED3
 ref o-lower:compressed
 ref circ-lower 2 4
-ref grave-lower 1 2
+ref grave-below 1 2
 map ồ = uni1ED3
 glyph uni1ED5
 ref o-lower:compressed
@@ -3417,7 +3339,7 @@ map Ă = uni0102
 glyph uni1EB0
 ref a-upper-compressed
 ref breve-upper 2 2
-ref grave-upper 1 0
+ref grave-above 1 0
 map Ằ = uni1EB0
 glyph uni1EB2
 ref a-upper-compressed
@@ -3466,7 +3388,7 @@ map ă = uni0103
 glyph uni1EB1
 ref a-lower:compressed
 ref breve-lower 2 4
-ref grave-lower 1 2
+ref grave-below 1 2
 map ằ = uni1EB1
 glyph uni1EB3
 ref a-lower:compressed

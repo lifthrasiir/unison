@@ -68,8 +68,6 @@ ref acute-left
 anchor -below 1..2 0
 anchor +below 1..2 2
 
-glyph acute-lower-shift = acute-right
-
 glyph acute-above mark
 ref acute-left
 anchor -above 1 1
@@ -108,29 +106,62 @@ map U+030B = dacute-above
 //--------------------------------------
 // grave accents
 
-glyph grave-lower 4 2
+glyph grave-right 4 2 inline
 \0@@1\..
 ..\0@@1\
 
-glyph grave-lower-shift 4 2
+glyph grave-left 4 2 inline
 \1@@0\..
 ..\1@@0\
 
-glyph grave-upper 4 2
-ref grave-lower 0 0
+glyph grave-below mark
+ref grave-right
+anchor -below 2 0
+anchor +below 2 2
+
+glyph grave-below:wide mark
+ref grave-left
+anchor -below 1..2 0
+anchor +below 1..2 2
+
+glyph grave-above mark
+ref grave-left
+anchor -above 1 1
+anchor +above 1 -1
+
+glyph grave-above:wide mark
+ref grave-right
+anchor -above 1..2 1
+anchor +above 1..2 -1
+
+map U+0300 = grave-above
+map U+0316 = grave-below
 
 //--------------------------------------
 // double grave accents
 
-glyph dgrave-lower 7 2
-ref grave-lower-shift 0 0
-ref grave-lower-shift 3 0
+glyph dgrave-above mark
+ref grave-left 0 0
+ref grave-left 3 0
+anchor -above 3 1
+anchor +above 3 -1
 
-glyph dgrave-upper 7 2
-ref dgrave-lower 0 0
+glyph dgrave-above:wide mark
+ref grave-right 0 0
+ref grave-right 3 0
+anchor -above 2..3 1
+anchor +above 2..3 -1
+
+map U+030F = dgrave-above
 
 //--------------------------------------
 // macrons
+
+glyph mac-wide 5 1
+@@@@@@@@@@
+
+glyph mac-narrow 4 1
+@@@@@@@@
 
 glyph mac-lower 5 1
 @@@@@@@@@@

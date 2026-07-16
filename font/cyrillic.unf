@@ -1823,20 +1823,20 @@ map ӳ
 
 glyph uni0400
 ref cy-ye-upper
-ref grave-upper 2 0
+ref grave-above 2 0
 map Ѐ = uni0400
 glyph uni040D
 ref cy-i-upper
-ref grave-upper 2 0
+ref grave-above 2 0
 map Ѝ = uni040D
 
 glyph uni0450
 ref cy-ye-lower
-ref grave-lower 2 2
+ref grave-below 2 2
 map ѐ = uni0450
 glyph uni045D
 ref cy-i-lower
-ref grave-lower 2 2
+ref grave-below 2 2
 map ѝ = uni045D
 
 //--------------------------------------
