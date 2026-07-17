@@ -567,7 +567,18 @@ pub fn show_document(
     } else {
         None
     };
-    if let Some(target) = minimap_scroll_target.or(goto_scroll).or(cursor_scroll).or(zoom_scroll) {
+    let saved_scroll_y = (state.saved_scroll_frac * total_height - viewport_h / 2.0).max(0.0);
+    let restore_scroll = if minimap_scroll_target.is_none()
+        && goto_scroll.is_none()
+        && cursor_scroll.is_none()
+        && zoom_scroll.is_none()
+        && (saved_scroll_y - prev_scroll_y).abs() > 1.0
+    {
+        Some(saved_scroll_y)
+    } else {
+        None
+    };
+    if let Some(target) = minimap_scroll_target.or(goto_scroll).or(cursor_scroll).or(zoom_scroll).or(restore_scroll) {
         scroll_area_builder = scroll_area_builder.vertical_scroll_offset(target);
     }
 
@@ -1263,6 +1274,9 @@ pub fn show_document(
         }
     });
 
+    if total_height > 0.0 {
+        state.saved_scroll_frac = (scroll_output.state.offset.y + viewport_h / 2.0) / total_height;
+    }
     ui.ctx().data_mut(|d| {
         d.insert_temp(egui::Id::new("doc_scroll_y"), scroll_output.state.offset.y);
         d.insert_temp(egui::Id::new("doc_viewport_h"), viewport_h);

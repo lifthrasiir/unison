@@ -456,4 +456,11 @@ impl EditorHarness {
     pub fn gutter_numbers(&self) -> Vec<usize> {
         self.snap().vlines.iter().filter_map(|vl| vl.gutter).collect()
     }
+
+    /// Current vertical scroll offset (pixels) as reported by egui.
+    pub fn scroll_y(&self) -> f32 {
+        self.ctx
+            .data(|d| d.get_temp::<f32>(egui::Id::new("doc_scroll_y")))
+            .unwrap_or(0.0)
+    }
 }

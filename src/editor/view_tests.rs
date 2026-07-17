@@ -631,3 +631,60 @@ fn view_cache_reused_when_idle_and_rebuilt_on_edit() {
         "edited text must appear in the rebuilt view: {rendered:?}"
     );
 }
+
+// -- scroll persistence across zoom changes ----------------------------------
+
+/// Build a document tall enough to scroll (20 × 16-row glyphs ≈ 5000 px).
+fn tall_doc() -> String {
+    let mut s = String::new();
+    for i in 0..20 {
+        use std::fmt::Write;
+        writeln!(s, "glyph tall{i} 16 16").unwrap();
+        for _ in 0..16 {
+            s.push_str("@@..............................\n");
+        }
+        s.push('\n');
+    }
+    s
+}
+
+#[test]
+fn scroll_position_survives_zoom_change_across_documents() {
+    let mut h = EditorHarness::new(&tall_doc());
+
+    // Scroll to a line well past the viewport.
+    h.state.goto_line(100);
+    h.frame();
+    h.frame();
+
+    let scroll_y_z1 = h.scroll_y();
+    assert!(scroll_y_z1 > 100.0, "should have scrolled down; y = {scroll_y_z1}");
+
+    // --- simulate switching to another document ---
+    let mut stashed = std::mem::replace(&mut h.state, crate::editor::EditorState::new());
+
+    // The "other document" scrolls to the top and we change zoom.
+    h.frame();
+    h.frame();
+
+    h.zoom = 2;
+    h.state.notify_zoom_change(1);
+    h.frame();
+    h.frame();
+
+    // --- switch back to the original document ---
+    std::mem::swap(&mut h.state, &mut stashed);
+    h.frame();
+    h.frame();
+
+    let scroll_y_z2 = h.scroll_y();
+
+    // At zoom=2, grid rows are 2× taller so the same logical position
+    // requires a substantially larger pixel offset.  A naïve raw-pixel
+    // restore would keep scroll_y ≈ scroll_y_z1; the correct centre-
+    // fraction restore scales it up.
+    assert!(
+        scroll_y_z2 > scroll_y_z1 * 1.3,
+        "scroll was not scaled for the new zoom: z1={scroll_y_z1:.1}, z2={scroll_y_z2:.1}"
+    );
+}

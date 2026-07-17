@@ -93,6 +93,7 @@ pub struct EditorState {
     pub(crate) popup: PopupState,
     pub(crate) autocomplete: Option<autocomplete::AutocompleteState>,
     scroll_to_cursor: bool,
+    pub(crate) saved_scroll_frac: f32,
     zoom_changed_from: Option<u32>,
     pub(crate) grid_hover: bool,
     /// Cached per-frame view data (composites, visual lines, source offsets);
@@ -119,6 +120,7 @@ impl EditorState {
             popup: PopupState::None,
             autocomplete: None,
             scroll_to_cursor: false,
+            saved_scroll_frac: 0.0,
             zoom_changed_from: None,
             grid_hover: false,
             view_cache: None,
