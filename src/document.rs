@@ -1505,4 +1505,37 @@ mod tests {
             ],
         );
     }
+
+    #[test]
+    fn compute_docline_file_lines_skips_omitted_empty_grids() {
+        use crate::document_io::serialize_doclines;
+        use crate::pixel::{PX_ALMOSTFULL, PX_FULL, PixelShape};
+
+        // "glyph a" has declared dims but an all-empty grid, which the
+        // serializer omits entirely; lines after it must still map to their
+        // real (post-omission) line numbers in the serialized file.
+        let mut filled = PixelGrid::new(1, 1);
+        filled.set(0, 0, PixelShape(PX_ALMOSTFULL | PX_FULL));
+
+        let lines = vec![
+            DocLine::Text("glyph a 2 2".to_string()),
+            DocLine::Grid(PixelGrid::new(2, 2)),
+            DocLine::Text("glyph b 1 1".to_string()),
+            DocLine::Grid(filled),
+            DocLine::Text("map A = b".to_string()),
+        ];
+
+        let file_lines = compute_docline_file_lines(&lines);
+        assert_eq!(file_lines, vec![0, 1, 1, 2, 3]);
+
+        // Cross-check against the actual serialized output.
+        let mut buf = Vec::new();
+        serialize_doclines(&lines, &mut buf).unwrap();
+        let serialized = String::from_utf8(buf).unwrap();
+        let serialized_lines: Vec<&str> = serialized.lines().collect();
+        assert_eq!(serialized_lines.len(), 4);
+        assert_eq!(serialized_lines[file_lines[0]], "glyph a 2 2");
+        assert_eq!(serialized_lines[file_lines[2]], "glyph b 1 1");
+        assert_eq!(serialized_lines[file_lines[4]], "map A = b");
+    }
 }

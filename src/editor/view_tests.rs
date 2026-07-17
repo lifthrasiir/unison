@@ -688,3 +688,154 @@ fn scroll_position_survives_zoom_change_across_documents() {
         "scroll was not scaled for the new zoom: z1={scroll_y_z1:.1}, z2={scroll_y_z2:.1}"
     );
 }
+
+// -- subglyph layer interactions ---------------------------------------------
+
+/// `child` is a plain 4x4 glyph; `parent` owns its own 8x4 pixel grid and
+/// additionally references `child` once via a `ref` line.
+///
+/// DocLines: 0 header child, 1 grid child (4x4), 2 blank,
+///           3 header parent, 4 grid parent (8x4), 5 "ref child 4 0".
+/// Item indices: child = 0, blank line = 1, parent = 2 (`DocumentItem` gives
+/// blank lines their own slot).
+fn composite_doc() -> String {
+    let mut s = String::from("glyph child 4 4\n");
+    for r in 0..4 {
+        for c in 0..4 {
+            s.push_str(if r < 2 && c < 2 { "@@" } else { ".." });
+        }
+        s.push('\n');
+    }
+    s.push('\n');
+    s.push_str("glyph parent 8 4\n");
+    for r in 0..4 {
+        for c in 0..8 {
+            s.push_str(if r < 2 && c < 2 { "@@" } else { ".." });
+        }
+        s.push('\n');
+    }
+    s.push_str("ref child 4 0\n");
+    s
+}
+
+/// Regression test: dragging a `ref` layer in `LayerMove` mode used to get
+/// stuck after ~1 pixel because the "defer rederive" guard (meant to
+/// tolerate transiently-invalid text while typing) also applied while
+/// `LayerMove`-dragging, so the composite/document never re-derived past the
+/// first drag step. The fix gates that guard to `EditMode::Normal` only.
+#[test]
+fn drag_layer_move_advances_full_distance_across_frames() {
+    let mut h = EditorHarness::new(&composite_doc());
+
+    // Enter GlyphEdit on the parent glyph (item_idx 1) by clicking its grid.
+    h.click_grid_cell(4, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "expected GlyphEdit for item_idx 2, got {:?}",
+        h.state.mode
+    );
+
+    // Let any scroll-into-view animation settle before computing screen
+    // coordinates to click/hover on.
+    for _ in 0..10 {
+        h.frame();
+    }
+
+    // Cycle to the ref layer (layer_idx 0) with Ctrl+wheel over the grid,
+    // exactly as the app's layer palette does.
+    let hover = h.grid_cell_pos(4, 0, 0);
+    h.frame_with(
+        vec![
+            egui::Event::PointerMoved(hover),
+            egui::Event::MouseWheel {
+                unit: egui::MouseWheelUnit::Line,
+                delta: egui::vec2(0.0, -1.0),
+                modifiers: Modifiers::COMMAND,
+            },
+        ],
+        Modifiers::COMMAND,
+    );
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove { item_idx: 2, layer_idx: 0 }
+        ),
+        "expected LayerMove on the ref layer, got {:?}",
+        h.state.mode
+    );
+
+    // Drag the pointer left by 3 whole grid cells over three separate
+    // frames. Keep the pointer off in empty space (well below any rendered
+    // content) so the drag doesn't also trip text/grid click handling. Move
+    // there *before* pressing (in its own frame) so the teleport itself
+    // isn't misread as part of the drag delta.
+    let grid_cell = h.snap().grid_cell;
+    let start = egui::pos2(500.0, 5000.0);
+    h.frame_with(vec![egui::Event::PointerMoved(start)], Modifiers::NONE);
+    h.frame_with(
+        vec![egui::Event::PointerButton {
+            pos: start,
+            button: egui::PointerButton::Primary,
+            pressed: true,
+            modifiers: Modifiers::NONE,
+        }],
+        Modifiers::NONE,
+    );
+    let mut pos = start;
+    for _ in 0..3 {
+        pos.x -= grid_cell;
+        h.frame_with(vec![egui::Event::PointerMoved(pos)], Modifiers::NONE);
+    }
+    h.frame_with(
+        vec![egui::Event::PointerButton {
+            pos,
+            button: egui::PointerButton::Primary,
+            pressed: false,
+            modifiers: Modifiers::NONE,
+        }],
+        Modifiers::NONE,
+    );
+
+    assert_eq!(
+        h.text(5),
+        "ref child 1 0",
+        "ref offset should have advanced the full 3-cell drag distance, not stuck after 1 step"
+    );
+}
+
+/// Regression test: clicking a ref-layer thumbnail in the inline tools panel
+/// used to do nothing, because `ui.interact()` (added for the right-click
+/// context menu) consumed the click before the panel's own `click_pos`-based
+/// hit test could see it. The fix reuses that same `ui.interact()` response
+/// for left-click layer selection.
+#[test]
+fn click_ref_layer_thumbnail_selects_that_layer() {
+    let mut h = EditorHarness::new(&composite_doc());
+
+    // Enter GlyphEdit on the parent glyph (item_idx 2) to render its inline
+    // tools panel (which shows the composite preview plus a ref thumbnail).
+    h.click_grid_cell(4, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "expected GlyphEdit for item_idx 2, got {:?}",
+        h.state.mode
+    );
+
+    // Let any scroll-into-view animation settle before computing screen
+    // coordinates to click on.
+    for _ in 0..10 {
+        h.frame();
+    }
+
+    let ref_pos = h.ref_thumbnail_pos(2, 0);
+    h.click_at(ref_pos);
+
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove { item_idx: 2, layer_idx: 0 }
+        ),
+        "clicking the ref-layer thumbnail should select that layer, got {:?}",
+        h.state.mode
+    );
+}

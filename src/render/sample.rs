@@ -1363,3 +1363,149 @@ fn base64_encode(data: &[u8]) -> String {
     }
     out
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::document_io;
+
+    fn parse(input: &str) -> Document {
+        document_io::parse_document_from_str(input, "test.unf".into()).unwrap()
+    }
+
+    #[test]
+    fn sample_selects_alternative_glyph_on_anchor_size_mismatch() {
+        // Mirrors ref_composite::tests::alternative_glyph_selected_on_size_mismatch,
+        // but exercised through the sample-rendering path (collect_sample_data),
+        // which used to never consider alternatives because it passed
+        // `|_| Vec::new()` as `lookup_alternatives`.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph stem 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph stem:wide 4 2
+@@@@@@@@
+@@@@@@@@
+anchor -join 0..1 0
+
+glyph container 6 2
+............
+............
+anchor +join 3..4 0
+ref stem
+
+map A = container
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let container = data.glyphs.get("container").expect("container glyph present");
+        // stem (1-wide -join) doesn't size-match +join (2-wide), so stem:wide
+        // (2-wide -join) must be selected instead, placed at offset col=3.
+        // Total width becomes max(6, 3 + 4) = 7; without alternative
+        // selection, stem (width 2) is placed at (0, 0) giving width 6.
+        assert_eq!(
+            container.width, 7,
+            "stem:wide should have been selected via anchor-size matching"
+        );
+    }
+
+    #[test]
+    fn sample_includes_map_decomposed_composite_glyph() {
+        // `map <precomposed char>` (DocumentItem::MapDecomposed) synthesizes a
+        // composite glyph via NFD decomposition; it used to be silently
+        // skipped when collecting sample data.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph a-lower 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+
+glyph dia-above mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+
+map a = a-lower
+map \u{0308} = dia-above
+map ä
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let gid = data
+            .cmap
+            .get(&('ä' as u32))
+            .cloned()
+            .expect("'a with combining diaeresis' should be mapped in cmap");
+        assert!(
+            data.glyphs.contains_key(&gid),
+            "sample glyph entry should exist for the map-decomposed character"
+        );
+    }
+
+    #[test]
+    fn sample_expanded_glyph_retains_declared_pixel_dims() {
+        // Callsites of expand_glyph_block used to copy over the expanded
+        // glyph items but drop `body.pixels`, so a pattern-named glyph with
+        // declared dims + an all-empty grid + refs lost its declared
+        // width/height in sample rendering.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph part 2 2
+@@@@
+@@@@
+
+glyph test-(a|b) 4 4
+........
+........
+........
+........
+ref part
+
+map A = test-a
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("test-a").expect("test-a should be in sample glyphs");
+        assert_eq!(
+            g.width, 4,
+            "expanded glyph should retain its declared width despite an empty own grid"
+        );
+    }
+
+    #[test]
+    fn sample_display_metrics_reflects_top_flag() {
+        // `sample_display_metrics` used to hardcode the vertical offset to 0,
+        // so the `top N` glyph flag had no effect in sample output.
+        let sg_with_top = SampleGlyph {
+            width: 5,
+            _height: 5,
+            components: Vec::new(),
+            left: 0,
+            top: 3,
+        };
+        let (_, _, _, row_off) = sample_display_metrics(&sg_with_top, 16);
+        assert_eq!(row_off, 3);
+
+        let sg_without_top = SampleGlyph {
+            width: 5,
+            _height: 5,
+            components: Vec::new(),
+            left: 0,
+            top: 0,
+        };
+        let (_, _, _, row_off) = sample_display_metrics(&sg_without_top, 16);
+        assert_eq!(row_off, 0);
+    }
+}

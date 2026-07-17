@@ -68,6 +68,23 @@ fn snapshot_id() -> egui::Id {
     egui::Id::new("uniform_test_view_snapshot")
 }
 
+fn ref_rects_id() -> egui::Id {
+    egui::Id::new("uniform_test_ref_rects")
+}
+
+/// Called from `draw_inline_tools_panel` (test builds only) to publish the
+/// on-screen rect of a ref-layer thumbnail, so tests can click it precisely
+/// without re-deriving the panel's layout math by hand.
+pub(crate) fn capture_ref_rect(ctx: &egui::Context, edit_idx: usize, ref_idx: usize, rect: egui::Rect) {
+    ctx.data_mut(|d| {
+        let mut map = d
+            .get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id())
+            .unwrap_or_default();
+        map.insert((edit_idx, ref_idx), rect);
+        d.insert_temp(ref_rects_id(), map);
+    });
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -388,6 +405,18 @@ impl EditorHarness {
             }
         }
         panic!("no text visual line covering doc line {line} col {col}");
+    }
+
+    /// Screen position of the center of a ref-layer thumbnail in the inline
+    /// tools panel (only available once that panel has rendered a frame with
+    /// the glyph at `edit_idx` being edited).
+    pub fn ref_thumbnail_pos(&self, edit_idx: usize, ref_idx: usize) -> egui::Pos2 {
+        let map = self
+            .ctx
+            .data(|d| d.get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id()));
+        map.and_then(|m| m.get(&(edit_idx, ref_idx)).copied())
+            .expect("ref thumbnail rect not captured -- was the inline tools panel rendered?")
+            .center()
     }
 
     /// Screen position of the center of a grid cell.

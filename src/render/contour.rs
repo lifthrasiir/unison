@@ -820,4 +820,30 @@ mod tests {
         assert_eq!(paths_multi.len(), paths_diff.len());
         assert_eq!(paths_multi[0].len(), paths_diff[0].len());
     }
+
+    #[test]
+    fn fine_key_distinguishes_eighth_fractions() {
+        // Gap-segment intersection points can land at 1/8, 1/6, 1/12 etc. of a
+        // pixel. These must not collide when quantized into integer keys.
+        let pts = [(1.0 / 8.0, 0.0), (1.0 / 6.0, 0.0), (1.0 / 12.0, 0.0)];
+        let keys: Vec<(i64, i64)> = pts.iter().map(|&(x, y)| to_key_fine(x, y)).collect();
+        assert_ne!(keys[0], keys[1], "1/8 and 1/6 must map to distinct keys: {keys:?}");
+        assert_ne!(keys[0], keys[2], "1/8 and 1/12 must map to distinct keys: {keys:?}");
+        assert_ne!(keys[1], keys[2], "1/6 and 1/12 must map to distinct keys: {keys:?}");
+    }
+
+    #[test]
+    fn fine_key_roundtrips_within_fine_resolution() {
+        let tolerance = 1.0 / (2.0 * MULTI_KEY_SCALE) + 1e-4;
+        for &(x, y) in &[
+            (1.0 / 8.0, 3.0 / 8.0),
+            (1.0 / 6.0, 5.0 / 6.0),
+            (1.0 / 12.0, 7.0 / 12.0),
+        ] {
+            let (kx, ky) = to_key_fine(x, y);
+            let (rx, ry) = from_key_fine(kx, ky);
+            assert!((rx - x).abs() <= tolerance, "x round-trip off: {x} -> {rx}");
+            assert!((ry - y).abs() <= tolerance, "y round-trip off: {y} -> {ry}");
+        }
+    }
 }

@@ -183,6 +183,11 @@ pub(crate) fn draw_inline_tools_panel(
 
         let ref_rect = egui::Rect::from_min_size(egui::pos2(px, panel_y), ref_size);
 
+        // Publish this thumbnail's rect for the in-crate GUI test harness, so
+        // tests can click it without hand-replicating the layout math above.
+        #[cfg(test)]
+        crate::editor::harness::capture_ref_rect(ui.ctx(), edit_idx, ref_idx, ref_rect);
+
         let is_active = matches!(
             state.mode,
             EditMode::LayerMove { item_idx, layer_idx } if item_idx == edit_idx && layer_idx == ref_idx
