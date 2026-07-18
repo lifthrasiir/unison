@@ -1411,6 +1411,7 @@ impl eframe::App for UniformApp {
                         specimen_clicked_glyph = self.specimen.show(
                             ui,
                             self.font_data.as_ref(),
+                            self.font_data_gen,
                         );
                     }
                     Some(2) => {

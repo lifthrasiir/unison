@@ -10,6 +10,7 @@ use crate::render::ttf_builder::{expand_map_pairs, parse_map_char};
 pub struct SpecimenState {
     entries: Vec<(u32, String)>,
     cached_gen: u64,
+    cached_font_data_gen: u64,
     glyph_cache: GlyphCache,
     pub hover_status: Option<String>,
 }
@@ -19,6 +20,7 @@ impl SpecimenState {
         Self {
             entries: Vec::new(),
             cached_gen: u64::MAX,
+            cached_font_data_gen: u64::MAX,
             glyph_cache: GlyphCache::new(),
             hover_status: None,
         }
@@ -38,7 +40,6 @@ impl SpecimenState {
             return;
         }
         self.cached_gen = font_gen;
-        self.glyph_cache.invalidate_if_changed(font_gen);
 
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
         for doc in docs {
@@ -67,7 +68,10 @@ impl SpecimenState {
         &mut self,
         ui: &mut egui::Ui,
         font_data: Option<&(Vec<u8>, Vec<u8>)>,
+        font_data_gen: u64,
     ) -> Option<String> {
+        self.glyph_cache.invalidate_if_changed(font_data_gen);
+        self.cached_font_data_gen = font_data_gen;
         self.hover_status = None;
 
         if self.entries.is_empty() {
