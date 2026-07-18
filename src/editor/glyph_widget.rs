@@ -36,11 +36,11 @@ pub fn draw_pixel_cell_colored(
     let points = build_shape_polygon(adj_bits, segs, rect);
 
     if points.len() >= 3 {
-        let triangles = triangulate(&points);
-        if !triangles.is_empty() {
-            let mut mesh = egui::Mesh::default();
-            let white_uv = egui::pos2(0.0, 0.0);
-            for tri in &triangles {
+        let sub_polys = split_at_pinch_points(&points);
+        let mut mesh = egui::Mesh::default();
+        let white_uv = egui::pos2(0.0, 0.0);
+        for poly in &sub_polys {
+            for tri in &triangulate(poly) {
                 let base = mesh.vertices.len() as u32;
                 for &p in tri {
                     mesh.vertices.push(egui::epaint::Vertex {
@@ -51,9 +51,31 @@ pub fn draw_pixel_cell_colored(
                 }
                 mesh.indices.extend_from_slice(&[base, base + 1, base + 2]);
             }
+        }
+        if !mesh.indices.is_empty() {
             painter.add(egui::Shape::mesh(mesh));
         }
     }
+}
+
+fn split_at_pinch_points(points: &[egui::Pos2]) -> Vec<Vec<egui::Pos2>> {
+    let n = points.len();
+    let eps = 0.01;
+    for i in 0..n {
+        for j in i + 2..n {
+            if (points[i].x - points[j].x).abs() < eps
+                && (points[i].y - points[j].y).abs() < eps
+            {
+                let sub_a: Vec<_> = points[i..j].to_vec();
+                let mut sub_b: Vec<_> = points[j..].to_vec();
+                sub_b.extend_from_slice(&points[..i]);
+                let mut result = split_at_pinch_points(&sub_a);
+                result.extend(split_at_pinch_points(&sub_b));
+                return result;
+            }
+        }
+    }
+    vec![points.to_vec()]
 }
 
 fn build_shape_polygon(
@@ -185,15 +207,13 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
         s.push(PixelShape::new(id, false));
     }
 
-    // Row 2 (8): quads in qwer key order (q=QUAD2, w=QUAD3, e=QUAD4, r=QUAD1), filled + unfilled
+    // Row 2 (16): quad + inv quad
     for &id in &[PX_QUAD2, PX_QUAD3, PX_QUAD4, PX_QUAD1] {
         s.push(PixelShape::new(id, true));
     }
     for &id in &[PX_QUAD2, PX_QUAD3, PX_QUAD4, PX_QUAD1] {
         s.push(PixelShape::new(id, false));
     }
-
-    // Row 3 (8): invquads in zxcv key order (z=INVQUAD2, x=INVQUAD3, c=INVQUAD4, v=INVQUAD1)
     for &id in &[PX_INVQUAD2, PX_INVQUAD3, PX_INVQUAD4, PX_INVQUAD1] {
         s.push(PixelShape::new(id, true));
     }
@@ -201,7 +221,27 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
         s.push(PixelShape::new(id, false));
     }
 
-    // Row 4 (8): halfslant V (w1:h2, 3/4) in asdf order, filled + unfilled
+    // Row 3 (16): cone + inv cone
+    for &id in &[PX_CONE2, PX_CONE3, PX_CONE4, PX_CONE1] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_CONE2, PX_CONE3, PX_CONE4, PX_CONE1] {
+        s.push(PixelShape::new(id, false));
+    }
+    for &id in &[PX_INVCONE2, PX_INVCONE3, PX_INVCONE4, PX_INVCONE1] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_INVCONE2, PX_INVCONE3, PX_INVCONE4, PX_INVCONE1] {
+        s.push(PixelShape::new(id, false));
+    }
+
+    // Row 4 (16): halfslant H (w2:h1, 3/4) + halfslant V (w1:h2, 3/4)
+    for &id in &[PX_HALFSLANT3H, PX_HALFSLANT2H, PX_HALFSLANT4H, PX_HALFSLANT1H] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_HALFSLANT3H, PX_HALFSLANT2H, PX_HALFSLANT4H, PX_HALFSLANT1H] {
+        s.push(PixelShape::new(id, false));
+    }
     for &id in &[PX_HALFSLANT3V, PX_HALFSLANT2V, PX_HALFSLANT4V, PX_HALFSLANT1V] {
         s.push(PixelShape::new(id, true));
     }
@@ -209,27 +249,17 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
         s.push(PixelShape::new(id, false));
     }
 
-    // Row 5 (8): halfslant H (w2:h1, 3/4) in asdf order, filled + unfilled
-    for &id in &[PX_HALFSLANT3H, PX_HALFSLANT2H, PX_HALFSLANT4H, PX_HALFSLANT1H] {
-        s.push(PixelShape::new(id, true));
-    }
-    for &id in &[PX_HALFSLANT3H, PX_HALFSLANT2H, PX_HALFSLANT4H, PX_HALFSLANT1H] {
-        s.push(PixelShape::new(id, false));
-    }
-
-    // Row 6 (8): slant V (w1:h2, 1/4) — same-direction pair of row 4
-    for &id in &[PX_SLANT3V, PX_SLANT2V, PX_SLANT4V, PX_SLANT1V] {
-        s.push(PixelShape::new(id, true));
-    }
-    for &id in &[PX_SLANT3V, PX_SLANT2V, PX_SLANT4V, PX_SLANT1V] {
-        s.push(PixelShape::new(id, false));
-    }
-
-    // Row 7 (8): slant H (w2:h1, 1/4) — same-direction pair of row 5
+    // Row 5 (16): slant H (w2:h1, 1/4) + slant V (w1:h2, 1/4)
     for &id in &[PX_SLANT3H, PX_SLANT2H, PX_SLANT4H, PX_SLANT1H] {
         s.push(PixelShape::new(id, true));
     }
     for &id in &[PX_SLANT3H, PX_SLANT2H, PX_SLANT4H, PX_SLANT1H] {
+        s.push(PixelShape::new(id, false));
+    }
+    for &id in &[PX_SLANT3V, PX_SLANT2V, PX_SLANT4V, PX_SLANT1V] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_SLANT3V, PX_SLANT2V, PX_SLANT4V, PX_SLANT1V] {
         s.push(PixelShape::new(id, false));
     }
 
@@ -237,14 +267,18 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
 }
 
 pub const PALETTE_FIRST_ROW_LEN: usize = 3;
-pub const PALETTE_COLS: usize = 8;
+pub const PALETTE_SECOND_ROW_LEN: usize = 8;
+const PALETTE_HEADER_LEN: usize = PALETTE_FIRST_ROW_LEN + PALETTE_SECOND_ROW_LEN;
+pub const PALETTE_COLS: usize = 16;
 
 pub fn palette_row_col(idx: usize) -> (usize, usize) {
     if idx < PALETTE_FIRST_ROW_LEN {
         (0, idx)
+    } else if idx < PALETTE_HEADER_LEN {
+        (1, idx - PALETTE_FIRST_ROW_LEN)
     } else {
-        let adj = idx - PALETTE_FIRST_ROW_LEN;
-        (1 + adj / PALETTE_COLS, adj % PALETTE_COLS)
+        let adj = idx - PALETTE_HEADER_LEN;
+        (2 + adj / PALETTE_COLS, adj % PALETTE_COLS)
     }
 }
 
@@ -252,8 +286,10 @@ pub fn palette_rows() -> usize {
     let n = all_valid_shapes().len();
     if n <= PALETTE_FIRST_ROW_LEN {
         1
+    } else if n <= PALETTE_HEADER_LEN {
+        2
     } else {
-        1 + (n - PALETTE_FIRST_ROW_LEN).div_ceil(PALETTE_COLS)
+        2 + (n - PALETTE_HEADER_LEN).div_ceil(PALETTE_COLS)
     }
 }
 

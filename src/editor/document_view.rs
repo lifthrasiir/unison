@@ -2471,37 +2471,37 @@ fn handle_shape_shortcuts(ui: &egui::Ui, selected_shape: &mut pixel::PixelShape)
     // (key, cycle of shapes) — cycle length 1..=3
     const MAPPINGS: &[(egui::Key, &[PixelShape])] = &[
         (egui::Key::Num1, &[PixelShape(PX_ALMOSTFULL | PX_FULL)]),
-        // asdf: halves → halfslant V (3/4) → halfslant H (3/4)
+        // asdf: halves → halfslant H (w2:h1, 3/4) → halfslant V (w1:h2, 3/4)
         (egui::Key::F, &[
             PixelShape(PX_HALF1 | PX_FULL),
-            PixelShape(PX_HALFSLANT1V | PX_FULL),
             PixelShape(PX_HALFSLANT1H | PX_FULL),
+            PixelShape(PX_HALFSLANT1V | PX_FULL),
         ]),
         (egui::Key::S, &[
             PixelShape(PX_HALF2 | PX_FULL),
-            PixelShape(PX_HALFSLANT2V | PX_FULL),
             PixelShape(PX_HALFSLANT2H | PX_FULL),
+            PixelShape(PX_HALFSLANT2V | PX_FULL),
         ]),
         (egui::Key::A, &[
             PixelShape(PX_HALF3 | PX_FULL),
-            PixelShape(PX_HALFSLANT3V | PX_FULL),
             PixelShape(PX_HALFSLANT3H | PX_FULL),
+            PixelShape(PX_HALFSLANT3V | PX_FULL),
         ]),
         (egui::Key::D, &[
             PixelShape(PX_HALF4 | PX_FULL),
-            PixelShape(PX_HALFSLANT4V | PX_FULL),
             PixelShape(PX_HALFSLANT4H | PX_FULL),
+            PixelShape(PX_HALFSLANT4V | PX_FULL),
         ]),
-        // qwer: quads
-        (egui::Key::R, &[PixelShape(PX_QUAD1 | PX_FULL)]),
-        (egui::Key::Q, &[PixelShape(PX_QUAD2 | PX_FULL)]),
-        (egui::Key::W, &[PixelShape(PX_QUAD3 | PX_FULL)]),
-        (egui::Key::E, &[PixelShape(PX_QUAD4 | PX_FULL)]),
-        // zxcv: invquads
-        (egui::Key::V, &[PixelShape(PX_INVQUAD1 | PX_FULL)]),
-        (egui::Key::Z, &[PixelShape(PX_INVQUAD2 | PX_FULL)]),
-        (egui::Key::X, &[PixelShape(PX_INVQUAD3 | PX_FULL)]),
-        (egui::Key::C, &[PixelShape(PX_INVQUAD4 | PX_FULL)]),
+        // qwer: quad → cone
+        (egui::Key::R, &[PixelShape(PX_QUAD1 | PX_FULL), PixelShape(PX_CONE1 | PX_FULL)]),
+        (egui::Key::Q, &[PixelShape(PX_QUAD2 | PX_FULL), PixelShape(PX_CONE2 | PX_FULL)]),
+        (egui::Key::W, &[PixelShape(PX_QUAD3 | PX_FULL), PixelShape(PX_CONE3 | PX_FULL)]),
+        (egui::Key::E, &[PixelShape(PX_QUAD4 | PX_FULL), PixelShape(PX_CONE4 | PX_FULL)]),
+        // zxcv: invquad → invcone
+        (egui::Key::V, &[PixelShape(PX_INVQUAD1 | PX_FULL), PixelShape(PX_INVCONE1 | PX_FULL)]),
+        (egui::Key::Z, &[PixelShape(PX_INVQUAD2 | PX_FULL), PixelShape(PX_INVCONE2 | PX_FULL)]),
+        (egui::Key::X, &[PixelShape(PX_INVQUAD3 | PX_FULL), PixelShape(PX_INVCONE3 | PX_FULL)]),
+        (egui::Key::C, &[PixelShape(PX_INVQUAD4 | PX_FULL), PixelShape(PX_INVCONE4 | PX_FULL)]),
     ];
 
     for &(key, cycle) in MAPPINGS {

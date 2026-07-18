@@ -352,7 +352,7 @@ pub fn track_contour_multi(
     let total = (height + 2) * stride;
 
     // Per-pixel shape bitmask (bit i set ↔ shape_id i is present).
-    let mut shape_masks: Vec<u32> = vec![0; total];
+    let mut shape_masks: Vec<u128> = vec![0; total];
     // Also track single-shape fast path
     let mut single_shape: Vec<u8> = vec![PX_EMPTY; total];
 
@@ -364,11 +364,10 @@ pub fn track_contour_multi(
                 let sid = grid.get(r as u16, c as u16).shape_id() & mask;
                 if sid != PX_EMPTY {
                     let idx = (off_r + r + 1) * stride + (off_c + c);
-                    let bit = 1u32 << sid;
                     if shape_masks[idx] == 0 {
                         single_shape[idx] = sid;
                     }
-                    shape_masks[idx] |= bit;
+                    shape_masks[idx] |= 1u128 << sid;
                 }
             }
         }
@@ -390,7 +389,7 @@ pub fn track_contour_multi(
     }
 
     // Cache for multi-shape gap segments, keyed by shape bitmask
-    let mut gap_cache: HashMap<u32, (u8, Vec<(f32, f32, f32, f32)>)> = HashMap::new();
+    let mut gap_cache: HashMap<u128, (u8, Vec<(f32, f32, f32, f32)>)> = HashMap::new();
 
     let mut paths = Vec::new();
     let mut visited = HashSet::new();
@@ -500,8 +499,8 @@ pub fn track_contour_multi_diff(
     let stride = width + 1;
     let total = (height + 2) * stride;
 
-    let mut pos_masks: Vec<u32> = vec![0; total];
-    let mut neg_masks: Vec<u32> = vec![0; total];
+    let mut pos_masks: Vec<u128> = vec![0; total];
+    let mut neg_masks: Vec<u128> = vec![0; total];
 
     for &(grid, row_off, col_off, negated) in layers {
         let off_r = (row_off - min_r) as usize;
@@ -512,7 +511,7 @@ pub fn track_contour_multi_diff(
                 let sid = grid.get(r as u16, c as u16).shape_id() & mask;
                 if sid != PX_EMPTY {
                     let idx = (off_r + r + 1) * stride + (off_c + c);
-                    target[idx] |= 1u32 << sid;
+                    target[idx] |= 1u128 << sid;
                 }
             }
         }
@@ -526,7 +525,7 @@ pub fn track_contour_multi_diff(
 
     // Pre-compute per-pixel adjacency.
     let mut adj_data: Vec<u8> = vec![0; total];
-    let mut diff_cache: HashMap<(u32, u32), (u8, Vec<(f32, f32, f32, f32)>)> = HashMap::new();
+    let mut diff_cache: HashMap<(u128, u128), (u8, Vec<(f32, f32, f32, f32)>)> = HashMap::new();
 
     for i in 0..total {
         if pos_masks[i] != 0 {
@@ -622,12 +621,13 @@ fn from_key_fine(x: i64, y: i64) -> (f32, f32) {
     (x as f32 / MULTI_KEY_SCALE, y as f32 / MULTI_KEY_SCALE)
 }
 
-fn bitmask_to_ids(mask: u32) -> Vec<u8> {
+fn bitmask_to_ids(mask: u128) -> Vec<u8> {
     let mut ids = Vec::new();
-    for i in 0..32u8 {
-        if mask & (1u32 << i) != 0 {
-            ids.push(i);
-        }
+    let mut m = mask;
+    while m != 0 {
+        let bit = m.trailing_zeros() as u8;
+        ids.push(bit);
+        m &= m - 1;
     }
     ids
 }

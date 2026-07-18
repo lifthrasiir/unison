@@ -1,7 +1,7 @@
 use std::fmt;
 
-pub const PX_SUBPIXEL: u8 = 0x1f;
-pub const PX_FULL: u8 = 0x20;
+pub const PX_SUBPIXEL: u8 = 0x7f;
+pub const PX_FULL: u8 = 0x80;
 
 pub const PX_EMPTY: u8 = 0;
 pub const PX_ALMOSTFULL: u8 = PX_SUBPIXEL;
@@ -34,6 +34,14 @@ pub const PX_HALFSLANT2V: u8 = 11 ^ PX_SUBPIXEL;
 pub const PX_HALFSLANT3V: u8 = 14 ^ PX_SUBPIXEL;
 pub const PX_HALFSLANT4V: u8 = 13 ^ PX_SUBPIXEL;
 pub const PX_DOT: u8 = 15;
+pub const PX_CONE1: u8 = 16;
+pub const PX_CONE2: u8 = 17;
+pub const PX_CONE3: u8 = 18;
+pub const PX_CONE4: u8 = 19;
+pub const PX_INVCONE1: u8 = 16 ^ PX_SUBPIXEL;
+pub const PX_INVCONE2: u8 = 17 ^ PX_SUBPIXEL;
+pub const PX_INVCONE3: u8 = 18 ^ PX_SUBPIXEL;
+pub const PX_INVCONE4: u8 = 19 ^ PX_SUBPIXEL;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct PixelShape(pub u8);
@@ -42,7 +50,7 @@ impl PixelShape {
     pub const EMPTY: Self = Self(PX_EMPTY);
 
     pub fn new(shape_id: u8, filled: bool) -> Self {
-        debug_assert!(shape_id < 32);
+        debug_assert!(shape_id < 128);
         Self(shape_id | if filled { PX_FULL } else { 0 })
     }
 
@@ -161,16 +169,36 @@ const ADJACENCY_MAP: &[(u8, u8, &[Seg])] = &[
             (0.5, 1.0, 0.0, 0.5),
         ],
     ),
+    (
+        PX_CONE1,
+        0b00000011,
+        &[(0.0, 0.0, 1.0, 0.5), (1.0, 0.5, 0.0, 1.0)],
+    ),
+    (
+        PX_CONE2,
+        0b11000000,
+        &[(0.0, 0.0, 0.5, 1.0), (0.5, 1.0, 1.0, 0.0)],
+    ),
+    (
+        PX_CONE3,
+        0b00110000,
+        &[(1.0, 0.0, 0.0, 0.5), (0.0, 0.5, 1.0, 1.0)],
+    ),
+    (
+        PX_CONE4,
+        0b00001100,
+        &[(0.0, 1.0, 0.5, 0.0), (0.5, 0.0, 1.0, 1.0)],
+    ),
 ];
 
-static ADJACENCY: std::sync::LazyLock<[AdjEntry; 33]> = std::sync::LazyLock::new(|| {
-    let mut table: [AdjEntry; 33] = std::array::from_fn(|_| AdjEntry { bits: 0, segs: &[] });
+static ADJACENCY: std::sync::LazyLock<[AdjEntry; 129]> = std::sync::LazyLock::new(|| {
+    let mut table: [AdjEntry; 129] = std::array::from_fn(|_| AdjEntry { bits: 0, segs: &[] });
 
     for &(shape, bits, segs) in ADJACENCY_MAP {
         table[shape as usize] = AdjEntry { bits, segs };
     }
 
-    for k in 0u8..32 {
+    for k in 0u8..128 {
         if ADJACENCY_MAP.iter().any(|&(s, _, _)| s == k) {
             continue;
         }
@@ -183,7 +211,7 @@ static ADJACENCY: std::sync::LazyLock<[AdjEntry; 33]> = std::sync::LazyLock::new
         }
     }
 
-    table[32] = AdjEntry {
+    table[128] = AdjEntry {
         bits: table[PX_ALMOSTFULL as usize].bits,
         segs: table[PX_ALMOSTFULL as usize].segs,
     };
@@ -192,7 +220,7 @@ static ADJACENCY: std::sync::LazyLock<[AdjEntry; 33]> = std::sync::LazyLock::new
 });
 
 pub fn adjacency(shape_id: u8) -> (u8, &'static [(f32, f32, f32, f32)]) {
-    let entry = &ADJACENCY[shape_id.min(32) as usize];
+    let entry = &ADJACENCY[shape_id.min(128) as usize];
     (entry.bits, entry.segs)
 }
 
@@ -233,12 +261,12 @@ pub struct ShapeEdgeCoverage {
     pub right: EdgeInterval,
 }
 
-static EDGE_COVERAGE: std::sync::LazyLock<[ShapeEdgeCoverage; 32]> =
+static EDGE_COVERAGE: std::sync::LazyLock<[ShapeEdgeCoverage; 128]> =
     std::sync::LazyLock::new(|| std::array::from_fn(|i| compute_edge_coverage(i as u8)));
 
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn edge_coverage(shape_id: u8) -> &'static ShapeEdgeCoverage {
-    &EDGE_COVERAGE[shape_id.min(31) as usize]
+    &EDGE_COVERAGE[shape_id.min(127) as usize]
 }
 
 fn compute_edge_coverage(shape_id: u8) -> ShapeEdgeCoverage {
@@ -413,6 +441,53 @@ pub(crate) fn polygon_from_adjacency(
         }
     }
 
+    // Splice in sub-loops from unused edges whose start coincides with
+    // a vertex already in the polygon (handles pinch-point shapes like
+    // inv-cone where the apex sits on a boundary midpoint).
+    loop {
+        let mut spliced = false;
+        for (i, e) in edges.iter().enumerate() {
+            if used[i] {
+                continue;
+            }
+            if let Some(insert_at) = polygon.iter().position(|&v| near_f(v, (e[0], e[1]))) {
+                used[i] = true;
+                mark_reverse_local(&edges, &mut used, i);
+                let mut sub = vec![(e[0], e[1])];
+                let mut sub_cur = (e[2], e[3]);
+                for _ in 0..edges.len() {
+                    if near_f(sub_cur, sub[0]) {
+                        break;
+                    }
+                    let mut found = false;
+                    for (j, e2) in edges.iter().enumerate() {
+                        if !used[j] && near_f((e2[0], e2[1]), sub_cur) {
+                            used[j] = true;
+                            mark_reverse_local(&edges, &mut used, j);
+                            sub.push((e2[0], e2[1]));
+                            sub_cur = (e2[2], e2[3]);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if !found {
+                        break;
+                    }
+                }
+                // Insert the sub-loop vertices after the matching position
+                let splice: Vec<_> = sub.into_iter().skip(1).collect();
+                for (k, v) in splice.into_iter().enumerate() {
+                    polygon.insert(insert_at + 1 + k, v);
+                }
+                spliced = true;
+                break;
+            }
+        }
+        if !spliced {
+            break;
+        }
+    }
+
     polygon.dedup_by(|a, b| near_f(*a, *b));
     polygon
 }
@@ -434,8 +509,8 @@ fn mark_reverse_local(edges: &[[f32; 4]], used: &mut [bool], idx: usize) {
     }
 }
 
-const SHAPE_TO_CHARS: [[u8; 2]; 64] = {
-    let mut table = [*b"??"; 64];
+const SHAPE_TO_CHARS: [[u8; 2]; 256] = {
+    let mut table = [*b"??"; 256];
     // Unfilled shapes (PX_FULL = 0)
     table[PX_EMPTY as usize] = *b"..";
     table[PX_HALF1 as usize] = *b"0\\";
@@ -453,7 +528,14 @@ const SHAPE_TO_CHARS: [[u8; 2]; 64] = {
     table[PX_SLANT3V as usize] = *b"h/";
     table[PX_SLANT4V as usize] = *b"/h";
     table[PX_DOT as usize] = *b"<>";
-    // 16 is unused, skip
+    table[PX_CONE1 as usize] = *b"2>";
+    table[PX_CONE2 as usize] = *b"2P";
+    table[PX_CONE3 as usize] = *b"<2";
+    table[PX_CONE4 as usize] = *b"d2";
+    table[PX_INVCONE4 as usize] = *b"P2";
+    table[PX_INVCONE3 as usize] = *b"2<";
+    table[PX_INVCONE2 as usize] = *b"2d";
+    table[PX_INVCONE1 as usize] = *b">2";
     table[PX_HALFSLANT3V as usize] = *b"h_";
     table[PX_HALFSLANT4V as usize] = *b"~h";
     table[PX_HALFSLANT1V as usize] = *b"h~";
@@ -470,40 +552,46 @@ const SHAPE_TO_CHARS: [[u8; 2]; 64] = {
     table[PX_HALF2 as usize] = *b"\\0";
     table[PX_ALMOSTFULL as usize] = *b"88"; // unfilled almostfull — rare
 
-    // Filled shapes (PX_FULL = 0x20, offset by 32)
-    table[32 + PX_EMPTY as usize] = *b"__"; // filled empty — unlikely but define
-    table[32 + PX_HALF1 as usize] = *b"1\\";
-    table[32 + PX_HALF3 as usize] = *b"1/";
-    table[32 + PX_QUAD1 as usize] = *b"1>";
-    table[32 + PX_QUAD2 as usize] = *b"1P";
-    table[32 + PX_QUAD3 as usize] = *b"<1";
-    table[32 + PX_QUAD4 as usize] = *b"d1";
-    // SLANT types don't get PX_FULL in practice, but define for completeness
-    table[32 + PX_SLANT1H as usize] = *b"V.";
-    table[32 + PX_SLANT2H as usize] = *b"`V";
-    table[32 + PX_SLANT3H as usize] = *b"V'";
-    table[32 + PX_SLANT4H as usize] = *b".V";
-    table[32 + PX_SLANT1V as usize] = *b"H\\";
-    table[32 + PX_SLANT2V as usize] = *b"\\H";
-    table[32 + PX_SLANT3V as usize] = *b"H/";
-    table[32 + PX_SLANT4V as usize] = *b"/H";
-    table[32 + PX_DOT as usize] = *b"{}"; // filled dot
-                                          // 32+16 unused
-    table[32 + PX_HALFSLANT3V as usize] = *b"H_";
-    table[32 + PX_HALFSLANT4V as usize] = *b"~H";
-    table[32 + PX_HALFSLANT1V as usize] = *b"H~";
-    table[32 + PX_HALFSLANT2V as usize] = *b"_H";
-    table[32 + PX_HALFSLANT3H as usize] = *b"V/";
-    table[32 + PX_HALFSLANT4H as usize] = *b"/V";
-    table[32 + PX_HALFSLANT1H as usize] = *b"V\\";
-    table[32 + PX_HALFSLANT2H as usize] = *b"\\V";
-    table[32 + PX_INVQUAD4 as usize] = *b"P1";
-    table[32 + PX_INVQUAD3 as usize] = *b"1<";
-    table[32 + PX_INVQUAD2 as usize] = *b"1d";
-    table[32 + PX_INVQUAD1 as usize] = *b">1";
-    table[32 + PX_HALF4 as usize] = *b"/1";
-    table[32 + PX_HALF2 as usize] = *b"\\1";
-    table[32 + PX_ALMOSTFULL as usize] = *b"@@"; // the standard filled pixel
+    // Filled shapes (PX_FULL = 0x80, offset by 128)
+    table[128 + PX_EMPTY as usize] = *b"__"; // filled empty — unlikely but define
+    table[128 + PX_HALF1 as usize] = *b"1\\";
+    table[128 + PX_HALF3 as usize] = *b"1/";
+    table[128 + PX_QUAD1 as usize] = *b"1>";
+    table[128 + PX_QUAD2 as usize] = *b"1P";
+    table[128 + PX_QUAD3 as usize] = *b"<1";
+    table[128 + PX_QUAD4 as usize] = *b"d1";
+    table[128 + PX_SLANT1H as usize] = *b"V.";
+    table[128 + PX_SLANT2H as usize] = *b"`V";
+    table[128 + PX_SLANT3H as usize] = *b"V'";
+    table[128 + PX_SLANT4H as usize] = *b".V";
+    table[128 + PX_SLANT1V as usize] = *b"H\\";
+    table[128 + PX_SLANT2V as usize] = *b"\\H";
+    table[128 + PX_SLANT3V as usize] = *b"H/";
+    table[128 + PX_SLANT4V as usize] = *b"/H";
+    table[128 + PX_DOT as usize] = *b"{}"; // filled dot
+    table[128 + PX_CONE1 as usize] = *b"3>";
+    table[128 + PX_CONE2 as usize] = *b"3P";
+    table[128 + PX_CONE3 as usize] = *b"<3";
+    table[128 + PX_CONE4 as usize] = *b"d3";
+    table[128 + PX_INVCONE4 as usize] = *b"P3";
+    table[128 + PX_INVCONE3 as usize] = *b"3<";
+    table[128 + PX_INVCONE2 as usize] = *b"3d";
+    table[128 + PX_INVCONE1 as usize] = *b">3";
+    table[128 + PX_HALFSLANT3V as usize] = *b"H_";
+    table[128 + PX_HALFSLANT4V as usize] = *b"~H";
+    table[128 + PX_HALFSLANT1V as usize] = *b"H~";
+    table[128 + PX_HALFSLANT2V as usize] = *b"_H";
+    table[128 + PX_HALFSLANT3H as usize] = *b"V/";
+    table[128 + PX_HALFSLANT4H as usize] = *b"/V";
+    table[128 + PX_HALFSLANT1H as usize] = *b"V\\";
+    table[128 + PX_HALFSLANT2H as usize] = *b"\\V";
+    table[128 + PX_INVQUAD4 as usize] = *b"P1";
+    table[128 + PX_INVQUAD3 as usize] = *b"1<";
+    table[128 + PX_INVQUAD2 as usize] = *b"1d";
+    table[128 + PX_INVQUAD1 as usize] = *b">1";
+    table[128 + PX_HALF4 as usize] = *b"/1";
+    table[128 + PX_HALF2 as usize] = *b"\\1";
+    table[128 + PX_ALMOSTFULL as usize] = *b"@@"; // the standard filled pixel
 
     table
 };
@@ -556,28 +644,44 @@ fn rasterize_polygon(polygon: &[(f32, f32)]) -> u128 {
 }
 
 struct ShapeCombineTable {
-    union_id: [[u8; 32]; 32],
-    subtract_id: [[u8; 32]; 32],
+    union_id: Box<[[u8; 128]; 128]>,
+    subtract_id: Box<[[u8; 128]; 128]>,
+}
+
+fn valid_shape_ids() -> Vec<u8> {
+    let mut ids: Vec<u8> = Vec::new();
+    for &(shape, _, _) in ADJACENCY_MAP {
+        ids.push(shape);
+        let complement = shape ^ PX_SUBPIXEL;
+        if complement != shape && !ids.contains(&complement) {
+            ids.push(complement);
+        }
+    }
+    ids.sort();
+    ids.dedup();
+    ids
 }
 
 static COMBINE: std::sync::LazyLock<ShapeCombineTable> = std::sync::LazyLock::new(|| {
-    let mut rasters = [0u128; 32];
-    for s in 0..32u8 {
+    let valid = valid_shape_ids();
+
+    let mut rasters = [0u128; 128];
+    for &s in &valid {
         rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
     }
 
     let mut raster_to_id = std::collections::HashMap::new();
-    for s in 0..32u8 {
+    for &s in &valid {
         raster_to_id.entry(rasters[s as usize]).or_insert(s);
     }
     raster_to_id.insert(0, PX_EMPTY);
     raster_to_id.insert(FULL_RASTER, PX_ALMOSTFULL);
 
-    let mut union_id = [[PX_DOT; 32]; 32];
-    let mut subtract_id = [[PX_DOT; 32]; 32];
+    let mut union_id = Box::new([[PX_DOT; 128]; 128]);
+    let mut subtract_id = Box::new([[PX_DOT; 128]; 128]);
 
-    for a in 0..32u8 {
-        for b in 0..32u8 {
+    for &a in &valid {
+        for &b in &valid {
             let ur = rasters[a as usize] | rasters[b as usize];
             if let Some(&id) = raster_to_id.get(&ur) {
                 union_id[a as usize][b as usize] = id;
@@ -857,7 +961,8 @@ pub fn multi_shape_diff_adjacency(
 }
 
 struct DiffTable {
-    rasters: [u128; 32],
+    rasters: Box<[u128; 128]>,
+    valid: Vec<u8>,
 }
 
 impl DiffTable {
@@ -868,23 +973,22 @@ impl DiffTable {
         if target == FULL_RASTER {
             return PX_ALMOSTFULL;
         }
-        // Exact match first.
-        for (i, &r) in self.rasters.iter().enumerate() {
-            if r == target {
-                return i as u8;
+        for &s in &self.valid {
+            if self.rasters[s as usize] == target {
+                return s;
             }
         }
-        // Best-fit by minimum Hamming distance.
         let mut best = PX_ALMOSTFULL;
         let mut best_dist = u32::MAX;
-        for (i, &r) in self.rasters.iter().enumerate() {
+        for &s in &self.valid {
+            let r = self.rasters[s as usize];
             if r == 0 {
                 continue;
             }
             let dist = (target ^ r).count_ones();
             if dist < best_dist {
                 best_dist = dist;
-                best = i as u8;
+                best = s;
             }
         }
         best
@@ -892,11 +996,12 @@ impl DiffTable {
 }
 
 static DIFF_TABLE: std::sync::LazyLock<DiffTable> = std::sync::LazyLock::new(|| {
-    let mut rasters = [0u128; 32];
-    for s in 0..32u8 {
+    let valid = valid_shape_ids();
+    let mut rasters = Box::new([0u128; 128]);
+    for &s in &valid {
         rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
     }
-    DiffTable { rasters }
+    DiffTable { rasters, valid }
 });
 
 // ---------------------------------------------------------------------------
@@ -920,8 +1025,8 @@ mod tests {
 
     #[test]
     fn pixel_shape_roundtrip() {
-        for raw in 0u8..64 {
-            let shape = PixelShape(raw);
+        for raw in 0u16..256 {
+            let shape = PixelShape(raw as u8);
             let [c1, c2] = shape_to_chars(shape);
             if c1 == '?' {
                 continue;
@@ -1072,7 +1177,7 @@ mod tests {
 
     #[test]
     fn multi_shape_single_same_as_adjacency() {
-        for s in 0..32u8 {
+        for &s in &valid_shape_ids() {
             let (bits, segs) = adjacency(s);
             let (mbits, msegs) = multi_shape_adjacency(&[s]);
             assert_eq!(bits, mbits, "bits mismatch for shape {s}");
@@ -1106,5 +1211,41 @@ mod tests {
             (x2 - 0.25).abs() < 0.01 && (y2 - 0.5).abs() < 0.01
         });
         assert!(has_intersection, "gap segs should meet at (0.25, 0.5): {segs:?}");
+    }
+
+    #[test]
+    fn cone_adjacency() {
+        let (bits, segs) = adjacency(PX_CONE1);
+        assert_eq!(bits, 0b00000011, "CONE1 bits");
+        assert_eq!(segs.len(), 2, "CONE1 segs");
+
+        let (bits, segs) = adjacency(PX_INVCONE1);
+        assert_eq!(bits, 0b11111100, "INVCONE1 bits");
+        assert_eq!(segs.len(), 2, "INVCONE1 segs");
+
+        let poly = polygon_from_adjacency(bits, segs);
+        assert!(poly.len() >= 5, "INVCONE1 polygon should have >= 5 vertices, got {}", poly.len());
+    }
+
+    #[test]
+    fn cone_complement_union_gives_full() {
+        assert_eq!(
+            shape_union(
+                PixelShape::new(PX_CONE1, false),
+                PixelShape::new(PX_INVCONE1, false),
+            ),
+            PixelShape::new(PX_ALMOSTFULL, false),
+        );
+    }
+
+    #[test]
+    fn invcone3_polygon_has_both_triangles() {
+        let (bits, segs) = adjacency(PX_INVCONE3);
+        let poly = polygon_from_adjacency(bits, segs);
+        assert!(poly.len() >= 7, "INVCONE3 should have >= 7 vertices, got {}", poly.len());
+        let has_top_right = poly.iter().any(|&(x, y)| (x - 1.0).abs() < 0.01 && y.abs() < 0.01);
+        let has_bottom_right = poly.iter().any(|&(x, y)| (x - 1.0).abs() < 0.01 && (y - 1.0).abs() < 0.01);
+        assert!(has_top_right, "missing top-right corner (1,0)");
+        assert!(has_bottom_right, "missing bottom-right corner (1,1)");
     }
 }
