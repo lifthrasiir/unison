@@ -115,11 +115,6 @@ impl fmt::Debug for PixelShape {
 
 type Seg = (f32, f32, f32, f32);
 
-struct AdjEntry {
-    bits: u8,
-    segs: &'static [Seg],
-}
-
 const ADJACENCY_MAP: &[(u8, u8, &[Seg])] = &[
     //    a   b
     //   +--+--+
@@ -191,37 +186,38 @@ const ADJACENCY_MAP: &[(u8, u8, &[Seg])] = &[
     ),
 ];
 
-static ADJACENCY: std::sync::LazyLock<[AdjEntry; 129]> = std::sync::LazyLock::new(|| {
-    let mut table: [AdjEntry; 129] = std::array::from_fn(|_| AdjEntry { bits: 0, segs: &[] });
-
-    for &(shape, bits, segs) in ADJACENCY_MAP {
-        table[shape as usize] = AdjEntry { bits, segs };
-    }
-
-    for k in 0u8..128 {
-        if ADJACENCY_MAP.iter().any(|&(s, _, _)| s == k) {
-            continue;
-        }
-        let complement = k ^ PX_SUBPIXEL;
-        if let Some(&(_, bits, segs)) = ADJACENCY_MAP.iter().find(|&&(s, _, _)| s == complement) {
-            table[k as usize] = AdjEntry {
-                bits: bits ^ 0xFF,
-                segs,
-            };
-        }
-    }
-
-    table[128] = AdjEntry {
-        bits: table[PX_ALMOSTFULL as usize].bits,
-        segs: table[PX_ALMOSTFULL as usize].segs,
-    };
-
-    table
-});
+#[rustfmt::skip]
+const ADJACENCY_BITS: [u8; 129] = [
+    0x00, 0x0F, 0xC3, 0x03, 0xC0, 0x30, 0x0C, 0x07, // 0-7
+    0x70, 0x83, 0x38, 0x0E, 0xE0, 0xC1, 0x1C, 0x00, // 8-15
+    0x03, 0xC0, 0x30, 0x0C, 0x00, 0x00, 0x00, 0x00, // 16-23
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 24-31
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 32-39
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 40-47
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 48-55
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 56-63
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 64-71
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 72-79
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 80-87
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 88-95
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 96-103
+    0x00, 0x00, 0x00, 0x00, 0xF3, 0xCF, 0x3F, 0xFC, // 104-111
+    0xFF, 0xE3, 0x3E, 0x1F, 0xF1, 0xC7, 0x7C, 0x8F, // 112-119
+    0xF8, 0xF3, 0xCF, 0x3F, 0xFC, 0x3C, 0xF0, 0xFF, // 120-127
+    0xFF, // 128 (clamped alias for ALMOSTFULL)
+];
 
 pub fn adjacency(shape_id: u8) -> (u8, &'static [(f32, f32, f32, f32)]) {
-    let entry = &ADJACENCY[shape_id.min(128) as usize];
-    (entry.bits, entry.segs)
+    let idx = shape_id.min(128) as usize;
+    let bits = ADJACENCY_BITS[idx];
+    let map_idx = if shape_id <= 19 {
+        shape_id as usize
+    } else if shape_id >= 108 {
+        (127 - shape_id.min(127)) as usize
+    } else {
+        return (bits, &[]);
+    };
+    (bits, ADJACENCY_MAP[map_idx].2)
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -261,115 +257,78 @@ pub struct ShapeEdgeCoverage {
     pub right: EdgeInterval,
 }
 
-static EDGE_COVERAGE: std::sync::LazyLock<[ShapeEdgeCoverage; 128]> =
-    std::sync::LazyLock::new(|| std::array::from_fn(|i| compute_edge_coverage(i as u8)));
+const EC_Z: ShapeEdgeCoverage = ShapeEdgeCoverage {
+    top: EdgeInterval::EMPTY,
+    bottom: EdgeInterval::EMPTY,
+    left: EdgeInterval::EMPTY,
+    right: EdgeInterval::EMPTY,
+};
+const EC_F: ShapeEdgeCoverage = ShapeEdgeCoverage {
+    top: EdgeInterval { start: 0.0, end: 1.0 },
+    bottom: EdgeInterval { start: 0.0, end: 1.0 },
+    left: EdgeInterval { start: 0.0, end: 1.0 },
+    right: EdgeInterval { start: 0.0, end: 1.0 },
+};
+
+const fn ec(ts: f32, te: f32, bs: f32, be: f32, ls: f32, le: f32, rs: f32, re: f32) -> ShapeEdgeCoverage {
+    ShapeEdgeCoverage {
+        top: EdgeInterval { start: ts, end: te },
+        bottom: EdgeInterval { start: bs, end: be },
+        left: EdgeInterval { start: ls, end: le },
+        right: EdgeInterval { start: rs, end: re },
+    }
+}
+
+#[rustfmt::skip]
+const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
+    let mut t = [EC_Z; 128];
+    // 0: empty → all zero (default)
+    t[ 1] = ec(0.0,0.0, 0.0,1.0, 0.0,1.0, 0.0,0.0); // HALF1
+    t[ 2] = ec(0.0,1.0, 0.0,0.0, 0.0,1.0, 0.0,0.0); // HALF3
+    t[ 3] = ec(0.0,0.0, 0.0,0.0, 0.0,1.0, 0.0,0.0); // QUAD1
+    t[ 4] = ec(0.0,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.0); // QUAD2
+    t[ 5] = ec(0.0,0.0, 0.0,0.0, 0.0,0.0, 0.0,1.0); // QUAD3
+    t[ 6] = ec(0.0,0.0, 0.0,1.0, 0.0,0.0, 0.0,0.0); // QUAD4
+    t[ 7] = ec(0.0,0.0, 0.0,0.5, 0.0,1.0, 0.0,0.0); // SLANT1H
+    t[ 8] = ec(0.5,1.0, 0.0,0.0, 0.0,0.0, 0.0,1.0); // SLANT2H
+    t[ 9] = ec(0.0,0.5, 0.0,0.0, 0.0,1.0, 0.0,0.0); // SLANT3H
+    t[10] = ec(0.0,0.0, 0.5,1.0, 0.0,0.0, 0.0,1.0); // SLANT4H
+    t[11] = ec(0.0,0.0, 0.0,1.0, 0.5,1.0, 0.0,0.0); // SLANT1V
+    t[12] = ec(0.0,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.5); // SLANT2V
+    t[13] = ec(0.0,1.0, 0.0,0.0, 0.0,0.5, 0.0,0.0); // SLANT3V
+    t[14] = ec(0.0,0.0, 0.0,1.0, 0.0,0.0, 0.5,1.0); // SLANT4V
+    // 15: DOT → all zero
+    t[16] = ec(0.0,0.0, 0.0,0.0, 0.0,1.0, 0.0,0.0); // CONE1
+    t[17] = ec(0.0,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.0); // CONE2
+    t[18] = ec(0.0,0.0, 0.0,0.0, 0.0,0.0, 0.0,1.0); // CONE3
+    t[19] = ec(0.0,0.0, 0.0,1.0, 0.0,0.0, 0.0,0.0); // CONE4
+    // 108-112: inverted halves/quads → full edges
+    t[108] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT1H (inv)
+    t[109] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT2H (inv)
+    t[110] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT3H (inv)
+    t[111] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT4H (inv)
+    t[112] = EC_F; // ALMOSTFULL complement (DOT inv)
+    t[113] = ec(0.0,1.0, 0.0,0.0, 0.0,1.0, 0.0,0.5); // HALFSLANT1V (inv)
+    t[114] = ec(0.0,0.0, 0.0,1.0, 0.5,1.0, 0.0,1.0); // HALFSLANT2V (inv)
+    t[115] = ec(0.0,0.0, 0.0,1.0, 0.0,1.0, 0.5,1.0); // HALFSLANT3V (inv)
+    t[116] = ec(0.0,1.0, 0.0,0.0, 0.0,0.5, 0.0,1.0); // HALFSLANT4V (inv)
+    t[117] = ec(0.0,1.0, 0.0,0.5, 0.0,1.0, 0.0,0.0); // HALFSLANT1H
+    t[118] = ec(0.5,1.0, 0.0,1.0, 0.0,0.0, 0.0,1.0); // HALFSLANT2H
+    t[119] = ec(0.0,0.5, 0.0,1.0, 0.0,1.0, 0.0,0.0); // HALFSLANT3H
+    t[120] = ec(0.0,1.0, 0.5,1.0, 0.0,0.0, 0.0,1.0); // HALFSLANT4H
+    t[121] = EC_F; // INVQUAD1
+    t[122] = EC_F; // INVQUAD2
+    t[123] = EC_F; // INVQUAD3
+    t[124] = EC_F; // INVQUAD4
+    t[125] = ec(0.0,0.0, 0.0,1.0, 0.0,0.0, 0.0,1.0); // INVCONE1
+    t[126] = ec(0.0,1.0, 0.0,0.0, 0.0,0.0, 0.0,1.0); // INVCONE2
+    t[127] = EC_F; // ALMOSTFULL
+    t
+};
 
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn edge_coverage(shape_id: u8) -> &'static ShapeEdgeCoverage {
-    &EDGE_COVERAGE[shape_id.min(127) as usize]
-}
-
-fn compute_edge_coverage(shape_id: u8) -> ShapeEdgeCoverage {
-    let polygon = build_unit_polygon(shape_id);
-    if polygon.len() < 3 {
-        return ShapeEdgeCoverage {
-            top: EdgeInterval::EMPTY,
-            bottom: EdgeInterval::EMPTY,
-            left: EdgeInterval::EMPTY,
-            right: EdgeInterval::EMPTY,
-        };
-    }
-
-    ShapeEdgeCoverage {
-        top: coverage_on_edge(&polygon, Edge::Top),
-        bottom: coverage_on_edge(&polygon, Edge::Bottom),
-        left: coverage_on_edge(&polygon, Edge::Left),
-        right: coverage_on_edge(&polygon, Edge::Right),
-    }
-}
-
-enum Edge {
-    Top,
-    Bottom,
-    Left,
-    Right,
-}
-
-fn coverage_on_edge(polygon: &[(f32, f32)], edge: Edge) -> EdgeInterval {
-    let n = polygon.len();
-    let mut points_on_edge: Vec<f32> = Vec::new();
-
-    for i in 0..n {
-        let (x1, y1) = polygon[i];
-        let (x2, y2) = polygon[(i + 1) % n];
-
-        match edge {
-            Edge::Top => {
-                // y=0 edge, parameter is x
-                collect_edge_intersections(y1, y2, x1, x2, 0.0, &mut points_on_edge);
-            }
-            Edge::Bottom => {
-                // y=1 edge, parameter is x
-                collect_edge_intersections(y1, y2, x1, x2, 1.0, &mut points_on_edge);
-            }
-            Edge::Left => {
-                // x=0 edge, parameter is y
-                collect_edge_intersections(x1, x2, y1, y2, 0.0, &mut points_on_edge);
-            }
-            Edge::Right => {
-                // x=1 edge, parameter is y
-                collect_edge_intersections(x1, x2, y1, y2, 1.0, &mut points_on_edge);
-            }
-        }
-    }
-
-    if points_on_edge.is_empty() {
-        return EdgeInterval::EMPTY;
-    }
-
-    let min = points_on_edge.iter().cloned().fold(f32::INFINITY, f32::min);
-    let max = points_on_edge
-        .iter()
-        .cloned()
-        .fold(f32::NEG_INFINITY, f32::max);
-
-    if max - min < 1e-6 {
-        EdgeInterval::EMPTY
-    } else {
-        EdgeInterval {
-            start: min,
-            end: max,
-        }
-    }
-}
-
-fn collect_edge_intersections(
-    coord1: f32,
-    coord2: f32, // coordinate perpendicular to the edge
-    param1: f32,
-    param2: f32,     // coordinate along the edge
-    edge_coord: f32, // the fixed coordinate value of the edge (0 or 1)
-    out: &mut Vec<f32>,
-) {
-    let eps = 1e-6;
-    let on1 = (coord1 - edge_coord).abs() < eps;
-    let on2 = (coord2 - edge_coord).abs() < eps;
-
-    if on1 {
-        out.push(param1.clamp(0.0, 1.0));
-    }
-    if on2 {
-        out.push(param2.clamp(0.0, 1.0));
-    }
-
-    if !on1 && !on2 {
-        // Check if the segment crosses the edge
-        if (coord1 - edge_coord) * (coord2 - edge_coord) < 0.0 {
-            let t = (edge_coord - coord1) / (coord2 - coord1);
-            let param = param1 + t * (param2 - param1);
-            out.push(param.clamp(0.0, 1.0));
-        }
-    }
+    &EDGE_COVERAGE_TABLE[shape_id.min(127) as usize]
 }
 
 fn build_unit_polygon(shape_id: u8) -> Vec<(f32, f32)> {
@@ -602,107 +561,79 @@ pub fn shape_to_chars(shape: PixelShape) -> [char; 2] {
 }
 
 pub fn chars_to_shape(c1: char, c2: char) -> Option<PixelShape> {
-    PAIR_TO_SHAPE.get(&(c1, c2)).copied()
+    let b1 = c1 as u8;
+    let b2 = c2 as u8;
+    SHAPE_TO_CHARS.iter().enumerate()
+        .find(|&(_, &[a, b])| a == b1 && b == b2)
+        .map(|(i, _)| PixelShape(i as u8))
 }
 
 // ---------------------------------------------------------------------------
-// Shape combine (union / subtract) table
+// Shape combine (union / subtract) via precomputed rasters
 // ---------------------------------------------------------------------------
 
 const RASTER_N: usize = 10;
 const RASTER_BITS: usize = RASTER_N * RASTER_N;
 const FULL_RASTER: u128 = (1u128 << RASTER_BITS) - 1;
 
-fn rasterize_polygon(polygon: &[(f32, f32)]) -> u128 {
-    if polygon.len() < 3 {
-        return 0;
+#[rustfmt::skip]
+const SHAPE_RASTERS: [u128; 128] = {
+    let mut r = [0u128; 128];
+    r[  0] = 0x0000000000000000000000000;
+    r[  1] = 0x7FCFF1FC3F07C0F01C0300400;
+    r[  2] = 0x0040301C0F07C3F1FCFF7FFFF;
+    r[  3] = 0x0040301C0F07C0F01C0300400;
+    r[  4] = 0x0000000000000301E0FC7FBFF;
+    r[  5] = 0x80300E03C0F83C0E030080000;
+    r[  6] = 0x7F8FC1E030000000000000000;
+    r[  7] = 0x07C0F03C0701C0300C0100400;
+    r[  8] = 0x0020080300C0380E03C0F03E0;
+    r[  9] = 0x000010040300C0701C0F03C1F;
+    r[ 10] = 0xF83C0F0380E0300C020080000;
+    r[ 11] = 0x7FC7F07C07004000000000000;
+    r[ 12] = 0x000000000000200E03E0FE3FE;
+    r[ 13] = 0x00000000000000101C1F1FDFF;
+    r[ 14] = 0xFFBF8F8380800000000000000;
+    r[ 15] = 0x0C0783F1FEFFDFE3F0780C000;
+    r[ 16] = 0x0040707C7F7FDFF1FC1F01C01;
+    r[ 17] = 0x000300C0781E0FC3F1FE7FBFF;
+    r[ 18] = 0x80380F83F8FFBFEFE3E0E0200;
+    r[ 19] = 0xFFDFE7F8FC3F0781E0300C000;
+    r[108] = 0x0020180703C0F87E1FCFF3FFF;
+    r[109] = 0x7FC7F07C070040101C1F1FDFF;
+    r[110] = 0xFFFCFF3F87E1F03C0E0180400;
+    r[111] = 0xFFBF8F838080200E03E0FE3FE;
+    r[112] = FULL_RASTER;
+    r[113] = 0x0040707C7F7FFFFFFFFFFFFFF;
+    r[114] = 0xFFFFFFFFFFFFFFEFE3E0E0200;
+    r[115] = 0xFFFFFFFFFFFFDFF1FC1F01C01;
+    r[116] = 0x80380F83F8FFBFFFFFFFFFFFF;
+    r[117] = 0x07C3F0FC7F1FCFF3FDFF7FFFF;
+    r[118] = 0xFFFFEFFBFCFF3F8FE3F0FC3E0;
+    r[119] = 0xFFDFF7FCFF3FC7F1FC3F0FC1F;
+    r[120] = 0xF83F0FC3F8FE3FCFF3FEFFBFF;
+    r[121] = 0x80703E1FCFFFFFFFFFFFFFFFF;
+    r[122] = 0x7FCFF1FC3F07C3F1FCFF7FFFF;
+    r[123] = 0xFFFFFFFFFFFFFCFE1F0380400;
+    r[124] = 0xFFBFCFE3F0F83F0FE3FCFFBFF;
+    r[125] = 0xFFBFCFE3F0F83C0E030080000;
+    r[126] = 0x80300E03C0F83F0FE3FCFFBFF;
+    r[127] = FULL_RASTER;
+    r
+};
+
+fn raster_to_shape_id(raster: u128) -> u8 {
+    if raster == 0 { return PX_EMPTY; }
+    if raster == FULL_RASTER { return PX_ALMOSTFULL; }
+    for i in 0u8..20 {
+        if SHAPE_RASTERS[i as usize] == raster { return i; }
     }
-    let mut bits = 0u128;
-    let n = polygon.len();
-    for r in 0..RASTER_N {
-        for c in 0..RASTER_N {
-            let px = (c as f32 + 0.5) / RASTER_N as f32;
-            let py = (r as f32 + 0.3) / RASTER_N as f32;
-            let mut inside = false;
-            let mut j = n - 1;
-            for i in 0..n {
-                let (xi, yi) = polygon[i];
-                let (xj, yj) = polygon[j];
-                if ((yi > py) != (yj > py))
-                    && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)
-                {
-                    inside = !inside;
-                }
-                j = i;
-            }
-            if inside {
-                bits |= 1u128 << (r * RASTER_N + c);
-            }
-        }
+    for i in 108u8..128 {
+        if SHAPE_RASTERS[i as usize] == raster { return i; }
     }
-    bits
+    PX_DOT
 }
 
-struct ShapeCombineTable {
-    union_id: Box<[[u8; 128]; 128]>,
-    subtract_id: Box<[[u8; 128]; 128]>,
-}
-
-fn valid_shape_ids() -> Vec<u8> {
-    let mut ids: Vec<u8> = Vec::new();
-    for &(shape, _, _) in ADJACENCY_MAP {
-        ids.push(shape);
-        let complement = shape ^ PX_SUBPIXEL;
-        if complement != shape && !ids.contains(&complement) {
-            ids.push(complement);
-        }
-    }
-    ids.sort();
-    ids.dedup();
-    ids
-}
-
-static COMBINE: std::sync::LazyLock<ShapeCombineTable> = std::sync::LazyLock::new(|| {
-    let valid = valid_shape_ids();
-
-    let mut rasters = [0u128; 128];
-    for &s in &valid {
-        rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
-    }
-
-    let mut raster_to_id = std::collections::HashMap::new();
-    for &s in &valid {
-        raster_to_id.entry(rasters[s as usize]).or_insert(s);
-    }
-    raster_to_id.insert(0, PX_EMPTY);
-    raster_to_id.insert(FULL_RASTER, PX_ALMOSTFULL);
-
-    let mut union_id = Box::new([[PX_DOT; 128]; 128]);
-    let mut subtract_id = Box::new([[PX_DOT; 128]; 128]);
-
-    for &a in &valid {
-        for &b in &valid {
-            let ur = rasters[a as usize] | rasters[b as usize];
-            if let Some(&id) = raster_to_id.get(&ur) {
-                union_id[a as usize][b as usize] = id;
-            }
-
-            let sr = rasters[a as usize] & (!rasters[b as usize] & FULL_RASTER);
-            if let Some(&id) = raster_to_id.get(&sr) {
-                subtract_id[a as usize][b as usize] = id;
-            }
-        }
-    }
-
-    ShapeCombineTable {
-        union_id,
-        subtract_id,
-    }
-});
-
-/// Union two pixel shapes. Returns the combined shape, or a `PX_DOT`
-/// fallback if the geometric result doesn't match any known shape.
-/// The filled flag is set if either input is filled.
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() {
@@ -711,18 +642,17 @@ pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
     if b.is_empty() {
         return a;
     }
-    let result_id = COMBINE.union_id[a.shape_id() as usize][b.shape_id() as usize];
+    let ur = SHAPE_RASTERS[a.shape_id() as usize] | SHAPE_RASTERS[b.shape_id() as usize];
+    let result_id = raster_to_shape_id(ur);
     PixelShape::new(result_id, a.is_filled() || b.is_filled())
 }
 
-/// Subtract shape `b`'s area from shape `a`. The filled flag is preserved
-/// from `a`. Returns `EMPTY` when nothing remains, or a `PX_DOT` fallback
-/// when the geometric result doesn't match any known shape.
 pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() || b.is_empty() {
         return a;
     }
-    let result_id = COMBINE.subtract_id[a.shape_id() as usize][b.shape_id() as usize];
+    let sr = SHAPE_RASTERS[a.shape_id() as usize] & (!SHAPE_RASTERS[b.shape_id() as usize] & FULL_RASTER);
+    let result_id = raster_to_shape_id(sr);
     if result_id == PX_EMPTY {
         PixelShape::EMPTY
     } else {
@@ -939,15 +869,13 @@ pub fn multi_shape_diff_adjacency(
         return (0, Vec::new());
     }
 
-    let rasters = &DIFF_TABLE.rasters;
-
     let mut pos_raster = 0u128;
     for &s in positive_shapes {
-        pos_raster |= rasters[s as usize];
+        pos_raster |= SHAPE_RASTERS[s as usize];
     }
     let mut neg_raster = 0u128;
     for &s in negative_shapes {
-        neg_raster |= rasters[s as usize];
+        neg_raster |= SHAPE_RASTERS[s as usize];
     }
 
     let result_raster = pos_raster & (!neg_raster & FULL_RASTER);
@@ -955,69 +883,34 @@ pub fn multi_shape_diff_adjacency(
         return (0, Vec::new());
     }
 
-    let best_id = DIFF_TABLE.closest_shape(result_raster);
+    let best_id = closest_raster_shape(result_raster);
     let (bits, segs) = adjacency(best_id);
     (bits, segs.to_vec())
 }
 
-struct DiffTable {
-    rasters: Box<[u128; 128]>,
-    valid: Vec<u8>,
-}
-
-impl DiffTable {
-    fn closest_shape(&self, target: u128) -> u8 {
-        if target == 0 {
-            return PX_EMPTY;
-        }
-        if target == FULL_RASTER {
-            return PX_ALMOSTFULL;
-        }
-        for &s in &self.valid {
-            if self.rasters[s as usize] == target {
-                return s;
-            }
-        }
-        let mut best = PX_ALMOSTFULL;
-        let mut best_dist = u32::MAX;
-        for &s in &self.valid {
-            let r = self.rasters[s as usize];
-            if r == 0 {
-                continue;
-            }
-            let dist = (target ^ r).count_ones();
-            if dist < best_dist {
-                best_dist = dist;
-                best = s;
-            }
-        }
-        best
+fn closest_raster_shape(target: u128) -> u8 {
+    if target == 0 { return PX_EMPTY; }
+    if target == FULL_RASTER { return PX_ALMOSTFULL; }
+    for i in 0u8..20 {
+        if SHAPE_RASTERS[i as usize] == target { return i; }
     }
-}
-
-static DIFF_TABLE: std::sync::LazyLock<DiffTable> = std::sync::LazyLock::new(|| {
-    let valid = valid_shape_ids();
-    let mut rasters = Box::new([0u128; 128]);
-    for &s in &valid {
-        rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
+    for i in 108u8..128 {
+        if SHAPE_RASTERS[i as usize] == target { return i; }
     }
-    DiffTable { rasters, valid }
-});
+    let mut best = PX_ALMOSTFULL;
+    let mut best_dist = u32::MAX;
+    for i in 1u8..20 {
+        let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
+        if dist < best_dist { best_dist = dist; best = i; }
+    }
+    for i in 108u8..128 {
+        let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
+        if dist < best_dist { best_dist = dist; best = i; }
+    }
+    best
+}
 
 // ---------------------------------------------------------------------------
-
-static PAIR_TO_SHAPE: std::sync::LazyLock<std::collections::HashMap<(char, char), PixelShape>> =
-    std::sync::LazyLock::new(|| {
-        let mut map = std::collections::HashMap::new();
-        for (i, &[c1, c2]) in SHAPE_TO_CHARS.iter().enumerate() {
-            if c1 != b'?' || c2 != b'?' {
-                let shape = PixelShape(i as u8);
-                let pair = shape_to_chars(shape);
-                map.insert((pair[0], pair[1]), shape);
-            }
-        }
-        map
-    });
 
 #[cfg(test)]
 mod tests {
@@ -1247,5 +1140,225 @@ mod tests {
         let has_bottom_right = poly.iter().any(|&(x, y)| (x - 1.0).abs() < 0.01 && (y - 1.0).abs() < 0.01);
         assert!(has_top_right, "missing top-right corner (1,0)");
         assert!(has_bottom_right, "missing bottom-right corner (1,1)");
+    }
+
+    // -----------------------------------------------------------------------
+    // Verification: recompute all precomputed tables from geometry and compare
+    // -----------------------------------------------------------------------
+
+    fn valid_shape_ids() -> Vec<u8> {
+        let mut ids: Vec<u8> = Vec::new();
+        for &(shape, _, _) in ADJACENCY_MAP {
+            ids.push(shape);
+            let complement = shape ^ PX_SUBPIXEL;
+            if complement != shape && !ids.contains(&complement) {
+                ids.push(complement);
+            }
+        }
+        ids.sort();
+        ids.dedup();
+        ids
+    }
+
+    fn rasterize_polygon(polygon: &[(f32, f32)]) -> u128 {
+        if polygon.len() < 3 {
+            return 0;
+        }
+        let mut bits = 0u128;
+        let n = polygon.len();
+        for r in 0..RASTER_N {
+            for c in 0..RASTER_N {
+                let px = (c as f32 + 0.5) / RASTER_N as f32;
+                let py = (r as f32 + 0.3) / RASTER_N as f32;
+                let mut inside = false;
+                let mut j = n - 1;
+                for i in 0..n {
+                    let (xi, yi) = polygon[i];
+                    let (xj, yj) = polygon[j];
+                    if ((yi > py) != (yj > py))
+                        && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)
+                    {
+                        inside = !inside;
+                    }
+                    j = i;
+                }
+                if inside {
+                    bits |= 1u128 << (r * RASTER_N + c);
+                }
+            }
+        }
+        bits
+    }
+
+    fn compute_edge_coverage(shape_id: u8) -> ShapeEdgeCoverage {
+        let polygon = build_unit_polygon(shape_id);
+        if polygon.len() < 3 {
+            return EC_Z;
+        }
+        ShapeEdgeCoverage {
+            top: coverage_on_edge(&polygon, 0),
+            bottom: coverage_on_edge(&polygon, 1),
+            left: coverage_on_edge(&polygon, 2),
+            right: coverage_on_edge(&polygon, 3),
+        }
+    }
+
+    fn coverage_on_edge(polygon: &[(f32, f32)], edge: u8) -> EdgeInterval {
+        let n = polygon.len();
+        let mut pts: Vec<f32> = Vec::new();
+        for i in 0..n {
+            let (x1, y1) = polygon[i];
+            let (x2, y2) = polygon[(i + 1) % n];
+            match edge {
+                0 => collect_intersections(y1, y2, x1, x2, 0.0, &mut pts),
+                1 => collect_intersections(y1, y2, x1, x2, 1.0, &mut pts),
+                2 => collect_intersections(x1, x2, y1, y2, 0.0, &mut pts),
+                _ => collect_intersections(x1, x2, y1, y2, 1.0, &mut pts),
+            }
+        }
+        if pts.is_empty() { return EdgeInterval::EMPTY; }
+        let min = pts.iter().cloned().fold(f32::INFINITY, f32::min);
+        let max = pts.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
+        if max - min < 1e-6 { EdgeInterval::EMPTY }
+        else { EdgeInterval { start: min, end: max } }
+    }
+
+    fn collect_intersections(c1: f32, c2: f32, p1: f32, p2: f32, ec: f32, out: &mut Vec<f32>) {
+        let eps = 1e-6;
+        let on1 = (c1 - ec).abs() < eps;
+        let on2 = (c2 - ec).abs() < eps;
+        if on1 { out.push(p1.clamp(0.0, 1.0)); }
+        if on2 { out.push(p2.clamp(0.0, 1.0)); }
+        if !on1 && !on2 && (c1 - ec) * (c2 - ec) < 0.0 {
+            let t = (ec - c1) / (c2 - c1);
+            out.push((p1 + t * (p2 - p1)).clamp(0.0, 1.0));
+        }
+    }
+
+    #[test]
+    fn verify_adjacency_bits() {
+        for &(shape, bits, _) in ADJACENCY_MAP {
+            assert_eq!(ADJACENCY_BITS[shape as usize], bits,
+                "ADJACENCY_BITS mismatch for base shape {shape}");
+            let compl = shape ^ PX_SUBPIXEL;
+            assert_eq!(ADJACENCY_BITS[compl as usize], bits ^ 0xFF,
+                "ADJACENCY_BITS mismatch for complement shape {compl}");
+        }
+        assert_eq!(ADJACENCY_BITS[128], ADJACENCY_BITS[PX_ALMOSTFULL as usize]);
+    }
+
+    #[test]
+    fn verify_adjacency_segs() {
+        for &(shape, _, expected_segs) in ADJACENCY_MAP {
+            let (_, segs) = adjacency(shape);
+            assert_eq!(segs, expected_segs,
+                "adjacency segs mismatch for base shape {shape}");
+            let compl = shape ^ PX_SUBPIXEL;
+            let (_, csegs) = adjacency(compl);
+            assert_eq!(csegs, expected_segs,
+                "adjacency segs mismatch for complement shape {compl}");
+        }
+    }
+
+    #[test]
+    fn verify_edge_coverage() {
+        for i in 0u8..128 {
+            let expected = compute_edge_coverage(i);
+            let actual = &EDGE_COVERAGE_TABLE[i as usize];
+            let close = |a: f32, b: f32| (a - b).abs() < 0.01;
+            assert!(close(actual.top.start, expected.top.start)
+                && close(actual.top.end, expected.top.end)
+                && close(actual.bottom.start, expected.bottom.start)
+                && close(actual.bottom.end, expected.bottom.end)
+                && close(actual.left.start, expected.left.start)
+                && close(actual.left.end, expected.left.end)
+                && close(actual.right.start, expected.right.start)
+                && close(actual.right.end, expected.right.end),
+                "EDGE_COVERAGE mismatch for shape {i}: \
+                expected ({},{},{},{},{},{},{},{}) got ({},{},{},{},{},{},{},{})",
+                expected.top.start, expected.top.end,
+                expected.bottom.start, expected.bottom.end,
+                expected.left.start, expected.left.end,
+                expected.right.start, expected.right.end,
+                actual.top.start, actual.top.end,
+                actual.bottom.start, actual.bottom.end,
+                actual.left.start, actual.left.end,
+                actual.right.start, actual.right.end,
+            );
+        }
+    }
+
+    #[test]
+    fn verify_rasters() {
+        let valid = valid_shape_ids();
+        for &s in &valid {
+            let polygon = build_unit_polygon(s);
+            let expected = rasterize_polygon(&polygon);
+            assert_eq!(SHAPE_RASTERS[s as usize], expected,
+                "SHAPE_RASTERS mismatch for shape {s}");
+        }
+    }
+
+    #[test]
+    fn verify_union_exhaustive() {
+        let valid = valid_shape_ids();
+        let mut computed_rasters = [0u128; 128];
+        for &s in &valid {
+            computed_rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
+        }
+        let mut raster_to_id = std::collections::HashMap::new();
+        for &s in &valid {
+            raster_to_id.entry(computed_rasters[s as usize]).or_insert(s);
+        }
+        raster_to_id.insert(0, PX_EMPTY);
+        raster_to_id.insert(FULL_RASTER, PX_ALMOSTFULL);
+
+        for &a in &valid {
+            for &b in &valid {
+                let ur = computed_rasters[a as usize] | computed_rasters[b as usize];
+                let expected = raster_to_id.get(&ur).copied().unwrap_or(PX_DOT);
+                let sa = PixelShape(a);
+                let sb = PixelShape(b);
+                if sa.is_empty() {
+                    assert_eq!(shape_union(sa, sb), sb, "union({a},{b}) identity");
+                } else if sb.is_empty() {
+                    assert_eq!(shape_union(sa, sb), sa, "union({a},{b}) identity");
+                } else {
+                    assert_eq!(shape_union(sa, sb).shape_id(), expected,
+                        "union({a},{b}) mismatch");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn verify_subtract_exhaustive() {
+        let valid = valid_shape_ids();
+        let mut computed_rasters = [0u128; 128];
+        for &s in &valid {
+            computed_rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
+        }
+        let mut raster_to_id = std::collections::HashMap::new();
+        for &s in &valid {
+            raster_to_id.entry(computed_rasters[s as usize]).or_insert(s);
+        }
+        raster_to_id.insert(0, PX_EMPTY);
+        raster_to_id.insert(FULL_RASTER, PX_ALMOSTFULL);
+
+        for &a in &valid {
+            for &b in &valid {
+                let sr = computed_rasters[a as usize] & (!computed_rasters[b as usize] & FULL_RASTER);
+                let expected = raster_to_id.get(&sr).copied().unwrap_or(PX_DOT);
+                let sa = PixelShape(a);
+                let sb = PixelShape(b);
+                if sa.is_empty() || sb.is_empty() {
+                    continue; // early-return paths tested separately
+                }
+                let result = shape_subtract(sa, sb);
+                let result_id = if result.is_empty() { PX_EMPTY } else { result.shape_id() };
+                assert_eq!(result_id, expected,
+                    "subtract({a},{b}) mismatch: got {result_id}, expected {expected}");
+            }
+        }
     }
 }
