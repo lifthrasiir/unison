@@ -343,7 +343,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         grid: comp.grid.clone(),
                         negated: comp.negated ^ gref.negated,
                         fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                        visibility: if fill_rgba.is_some() { fill_vis } else { comp.visibility },
+                        visibility: if gref.fill.is_some() { fill_vis } else { comp.visibility },
                     });
                 }
             }
@@ -394,7 +394,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     grid: comp.grid.clone(),
                     negated: comp.negated,
                     fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                    visibility: if fill_rgba.is_some() { fill_vis } else { comp.visibility },
+                    visibility: if gref.fill.is_some() { fill_vis } else { comp.visibility },
                 });
             }
 
@@ -629,7 +629,7 @@ pub fn write_sample_html(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()
 <!doctype html>
 <html><head><meta charset=utf-8><title>Unison: graphic sample</title><style>
 body{{background:black;color:white;line-height:1}}div{{color:gray}}#sampleglyphs{{display:none}}body.sample #sampleglyphs{{display:block}}body.sample #glyphs{{display:none}}.scaled{{font-size:500%}}
-svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg{{background:#222}}:target svg{{background:#333}}svg:hover>path,body.sample svg>path{{fill:white}}a svg>path{{fill:gray}}
+svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg{{background:#222}}:target svg{{background:#333}}svg:hover>path:not(.c),body.sample svg>path:not(.c){{fill:white}}a svg>path:not(.c){{fill:gray}}
 </style></head><body>
 <input id=sample placeholder='Input sample text here' size=40> <input type=reset id=reset value=Reset> | {nchars} characters
 <hr><div id=sampleglyphs></div><div id=glyphs><span class=glyphs>",
@@ -652,12 +652,14 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         write!(w, "<a href='#u{cp:x}'><span id='sm-u{cp:x}' title='{title}'>")?;
         if let Some(sg) = data.glyphs.get(glyph_name) {
             let (display_w, display_h, col_off, row_off) = sample_display_metrics(sg, data.height);
-            let shifted: Vec<SampleComponent> = sg.components.iter().map(|c| {
-                let mut c2 = c.clone();
-                c2.col += col_off as i32;
-                c2.row += row_off as i32;
-                c2
-            }).collect();
+            let shifted: Vec<SampleComponent> = sg.components.iter()
+                .filter(|c| c.visibility != LayerVisibility::ColorOnly)
+                .map(|c| {
+                    let mut c2 = c.clone();
+                    c2.col += col_off as i32;
+                    c2.row += row_off as i32;
+                    c2
+                }).collect();
             let combined = composite_components(display_w, display_h, &shifted);
             let contours = track_contour_fullpixel(&combined);
             let path = contours_to_svg_path(&contours, 1.0, 0.0, 0.0);
@@ -697,9 +699,9 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
                 let path = contours_to_svg_path(&contours, svg_scale, (comp.col + col_off as i32) as f32, (comp.row + row_off as i32) as f32);
                 if !path.is_empty() {
                     if comp.negated {
-                        write!(w, "<path d='{path}' fill='#000'/>")?;
+                        write!(w, "<path class='c' d='{path}' fill='#000'/>")?;
                     } else if let Some(ref rgba) = comp.fill_rgba {
-                        write!(w, "<path d='{path}' fill='#{:02x}{:02x}{:02x}'/>"
+                        write!(w, "<path class='c' d='{path}' fill='#{:02x}{:02x}{:02x}'/>"
                             , rgba.r, rgba.g, rgba.b)?;
                     } else {
                         let color = path_hash_color(&path);
