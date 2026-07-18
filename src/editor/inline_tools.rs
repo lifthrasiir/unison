@@ -30,7 +30,7 @@ pub(crate) fn cycle_layer_mode(
     let layer_count = body.refs.len() + body.points.len();
     let total = 1 + layer_count as i32;
     let current = match &state.mode {
-        EditMode::GlyphEdit { .. } => 0,
+        EditMode::GlyphEdit { .. } | EditMode::PixelSelect { .. } => 0,
         EditMode::LayerMove { layer_idx, .. } => *layer_idx as i32 + 1,
         _ => 0,
     };

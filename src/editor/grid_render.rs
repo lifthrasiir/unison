@@ -804,6 +804,87 @@ pub(crate) fn handle_grid_hover_preview(
     }
 }
 
+pub(crate) fn render_pixel_selection_overlay(
+    painter: &egui::Painter,
+    x: f32,
+    y: f32,
+    row: i16,
+    extent: GridExtent,
+    grid_cell: f32,
+    sel: &crate::editor::pixel_selection::PixelSelection,
+    pal: &Palette,
+) {
+    let cs = grid_cell;
+    let sel_top = sel.row;
+    let sel_bottom = sel.row + sel.height as i16;
+    let sel_left = sel.col;
+    let sel_right = sel.col + sel.width as i16;
+
+    if row < sel_top || row >= sel_bottom {
+        return;
+    }
+
+    // 1. Render floating pixels
+    if sel.is_floating() {
+        let float = sel.float_pixels.as_ref().unwrap();
+        let fr = (row - sel.row) as u16;
+        for dc in extent.left..extent.right {
+            if dc < sel_left || dc >= sel_right {
+                continue;
+            }
+            let fc = (dc - sel.col) as u16;
+            let shape = float.get(fr, fc);
+            if !shape.is_empty() {
+                let cell_rect = egui::Rect::from_min_size(
+                    egui::pos2(x + (dc - extent.left) as f32 * cs, y),
+                    egui::vec2(cs, cs),
+                );
+                let color = if shape.is_filled() {
+                    pal.pixel_filled
+                } else {
+                    apply_opacity(pal.pixel_filled, UNFILLED_OPACITY)
+                };
+                glyph_widget::draw_pixel_cell_colored(painter, cell_rect, shape, Some(color));
+            }
+        }
+    }
+
+    // 2. Blue selection overlay
+    let vis_left = sel_left.max(extent.left);
+    let vis_right = sel_right.min(extent.right);
+    if vis_left >= vis_right {
+        return;
+    }
+    let x0 = x + (vis_left - extent.left) as f32 * cs;
+    let x1 = x + (vis_right - extent.left) as f32 * cs;
+
+    // Fill
+    let band_rect = egui::Rect::from_min_size(egui::pos2(x0, y), egui::vec2(x1 - x0, cs));
+    painter.rect_filled(band_rect, 0.0, apply_opacity(pal.pixel_selection, 0.25));
+
+    let border_color = apply_opacity(pal.pixel_selection, 0.8);
+    let stroke = egui::Stroke::new(1.5, border_color);
+
+    // Top border
+    if row == sel_top {
+        painter.line_segment([egui::pos2(x0, y), egui::pos2(x1, y)], stroke);
+    }
+    // Bottom border
+    if row + 1 == sel_bottom {
+        painter.line_segment([egui::pos2(x0, y + cs), egui::pos2(x1, y + cs)], stroke);
+    }
+    // Left border
+    if sel_left >= extent.left {
+        let lx = x + (sel_left - extent.left) as f32 * cs;
+        painter.line_segment([egui::pos2(lx, y), egui::pos2(lx, y + cs)], stroke);
+    }
+    // Right border
+    if sel_right <= extent.right {
+        let rx = x + (sel_right - extent.left) as f32 * cs;
+        painter.line_segment([egui::pos2(rx, y), egui::pos2(rx, y + cs)], stroke);
+    }
+}
+
 pub(crate) fn char_x_pos(
     ui: &egui::Ui,
     font_id: &egui::FontId,

@@ -12,6 +12,7 @@ pub(crate) mod harness;
 pub mod inline_tools;
 pub mod minimap;
 pub mod pixel_interaction;
+pub mod pixel_selection;
 pub mod reconcile;
 pub(crate) use crate::ref_composite;
 pub mod undo;
@@ -60,6 +61,9 @@ pub enum EditMode {
         item_idx: usize,
         selected_shape: PixelShape,
     },
+    PixelSelect {
+        item_idx: usize,
+    },
     LayerMove {
         item_idx: usize,
         layer_idx: usize,
@@ -96,6 +100,7 @@ pub struct EditorState {
     pub(crate) saved_scroll_frac: f32,
     zoom_changed_from: Option<u32>,
     pub(crate) grid_hover: bool,
+    pub(crate) pixel_selection: Option<pixel_selection::PixelSelection>,
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
     pub(crate) view_cache: Option<document_view::ViewCache>,
@@ -123,6 +128,7 @@ impl EditorState {
             saved_scroll_frac: 0.0,
             zoom_changed_from: None,
             grid_hover: false,
+            pixel_selection: None,
             view_cache: None,
         }
     }

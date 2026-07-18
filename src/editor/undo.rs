@@ -1,5 +1,6 @@
-use crate::document::DocLine;
+use crate::document::{DocLine, PixelGrid};
 use crate::editor::caret::{char_to_byte, Caret};
+use crate::editor::EditMode;
 use crate::pixel::PixelShape;
 
 const COALESCE_MS: u128 = 800;
@@ -10,6 +11,16 @@ pub struct PixelChange {
     pub col: u16,
     pub old: PixelShape,
     pub new: PixelShape,
+}
+
+#[derive(Clone, Debug)]
+pub struct PixelSelectionSnapshot {
+    pub item_idx: usize,
+    pub row: i16,
+    pub col: i16,
+    pub width: u16,
+    pub height: u16,
+    pub float_pixels: Option<PixelGrid>,
 }
 
 #[derive(Clone, Debug)]
@@ -29,6 +40,14 @@ pub enum UndoOp {
         line: usize,
         changes: Vec<PixelChange>,
     },
+    PixelSelection {
+        line: usize,
+        pixel_changes: Vec<PixelChange>,
+        mode_before: EditMode,
+        mode_after: EditMode,
+        before: Option<PixelSelectionSnapshot>,
+        after: Option<PixelSelectionSnapshot>,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -36,6 +55,11 @@ pub struct UndoEntry {
     pub op: UndoOp,
     pub caret_before: Caret,
     pub caret_after: Caret,
+}
+
+pub struct SelectionUndoCtx<'a> {
+    pub mode: &'a mut EditMode,
+    pub pixel_selection: &'a mut Option<crate::editor::pixel_selection::PixelSelection>,
 }
 
 pub struct UndoStack {
@@ -230,6 +254,80 @@ impl UndoStack {
         self.position = self.entries.len();
     }
 
+    pub fn push_pixel_selection(
+        &mut self,
+        line: usize,
+        pixel_changes: Vec<PixelChange>,
+        mode_before: EditMode,
+        mode_after: EditMode,
+        before: Option<PixelSelectionSnapshot>,
+        after: Option<PixelSelectionSnapshot>,
+        caret_before: Caret,
+        caret_after: Caret,
+    ) {
+        let pixel_changes_for_merge = pixel_changes.clone();
+        let after_for_merge = after.clone();
+        let mode_after_for_merge = mode_after.clone();
+
+        self.push_coalescing(
+            caret_before,
+            caret_after,
+            move |entry| {
+                let UndoOp::PixelSelection {
+                    line: prev_line,
+                    pixel_changes: _,
+                    after: prev_after,
+                    mode_after: prev_mode_after,
+                    ..
+                } = &mut entry.op
+                else {
+                    return false;
+                };
+                if *prev_line != line {
+                    return false;
+                }
+                // Only coalesce consecutive floating moves (no new pixel changes)
+                if !pixel_changes_for_merge.is_empty() {
+                    return false;
+                }
+                if prev_after.as_ref().is_none_or(|s| s.float_pixels.is_none()) {
+                    return false;
+                }
+                *prev_after = after_for_merge;
+                *prev_mode_after = mode_after_for_merge;
+                true
+            },
+            move || UndoOp::PixelSelection {
+                line,
+                pixel_changes,
+                mode_before,
+                mode_after,
+                before,
+                after,
+            },
+        );
+    }
+
+    pub fn push_pixel_batch(
+        &mut self,
+        line: usize,
+        changes: Vec<PixelChange>,
+        caret_before: Caret,
+        caret_after: Caret,
+    ) {
+        if changes.is_empty() {
+            return;
+        }
+        self.truncate_and_invalidate();
+        self.entries.push(UndoEntry {
+            op: UndoOp::Pixels { line, changes },
+            caret_before,
+            caret_after,
+        });
+        self.position = self.entries.len();
+        self.break_coalesce();
+    }
+
     pub fn can_undo(&self) -> bool {
         self.position > 0
     }
@@ -239,6 +337,14 @@ impl UndoStack {
     }
 
     pub fn undo(&mut self, lines: &mut Vec<DocLine>) -> Option<Caret> {
+        self.undo_with_sel(lines, None)
+    }
+
+    pub fn undo_with_sel(
+        &mut self,
+        lines: &mut Vec<DocLine>,
+        sel: Option<SelectionUndoCtx>,
+    ) -> Option<Caret> {
         if self.position == 0 {
             return None;
         }
@@ -265,12 +371,39 @@ impl UndoStack {
                     }
                 }
             }
+            UndoOp::PixelSelection {
+                line,
+                pixel_changes,
+                mode_before,
+                before,
+                ..
+            } => {
+                if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
+                    for ch in pixel_changes.iter().rev() {
+                        grid.set(ch.row, ch.col, ch.old);
+                    }
+                }
+                if let Some(ctx) = sel {
+                    *ctx.mode = mode_before.clone();
+                    *ctx.pixel_selection = before
+                        .as_ref()
+                        .map(crate::editor::pixel_selection::PixelSelection::from_snapshot);
+                }
+            }
         }
         self.break_coalesce();
         Some(caret)
     }
 
     pub fn redo(&mut self, lines: &mut Vec<DocLine>) -> Option<Caret> {
+        self.redo_with_sel(lines, None)
+    }
+
+    pub fn redo_with_sel(
+        &mut self,
+        lines: &mut Vec<DocLine>,
+        sel: Option<SelectionUndoCtx>,
+    ) -> Option<Caret> {
         if self.position >= self.entries.len() {
             return None;
         }
@@ -294,6 +427,25 @@ impl UndoStack {
                     for ch in changes {
                         grid.set(ch.row, ch.col, ch.new);
                     }
+                }
+            }
+            UndoOp::PixelSelection {
+                line,
+                pixel_changes,
+                mode_after,
+                after,
+                ..
+            } => {
+                if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
+                    for ch in pixel_changes {
+                        grid.set(ch.row, ch.col, ch.new);
+                    }
+                }
+                if let Some(ctx) = sel {
+                    *ctx.mode = mode_after.clone();
+                    *ctx.pixel_selection = after
+                        .as_ref()
+                        .map(crate::editor::pixel_selection::PixelSelection::from_snapshot);
                 }
             }
         }

@@ -839,3 +839,265 @@ fn click_ref_layer_thumbnail_selects_that_layer() {
         h.state.mode
     );
 }
+
+// ---------------------------------------------------------------------------
+// Pixel selection mode tests
+// ---------------------------------------------------------------------------
+
+fn make_pixel_select_harness() -> EditorHarness {
+    let mut h = EditorHarness::new("glyph test 4 3\n@@@@@@..\n..@@@@..\n........");
+    h.click_grid_cell(1, 0, 0); // enter GlyphEdit
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
+        "should be in GlyphEdit"
+    );
+    h.key(Key::Backtick); // enter PixelSelect
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        "should be in PixelSelect"
+    );
+    h
+}
+
+#[test]
+fn backtick_enters_pixel_select_and_num1_returns() {
+    let mut h = make_pixel_select_harness();
+    h.key(Key::Num1);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
+        "Num1 should return to GlyphEdit"
+    );
+}
+
+#[test]
+fn escape_exits_pixel_select() {
+    let mut h = make_pixel_select_harness();
+    h.key(Key::Escape);
+    assert!(
+        matches!(h.state.mode, EditMode::Normal),
+        "Escape should go to Normal"
+    );
+}
+
+#[test]
+fn drag_creates_grounded_selection() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (1, 1));
+    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    assert_eq!((sel.row, sel.col, sel.width, sel.height), (0, 0, 2, 2));
+    assert!(!sel.is_floating());
+}
+
+#[test]
+fn move_selection_makes_floating_and_clears_grid() {
+    let mut h = make_pixel_select_harness();
+    // Select the top-left 2x2 area
+    h.drag_grid(1, (0, 0), (1, 1));
+
+    // Now drag from inside the selection to move it
+    h.drag_grid(1, (0, 0), (0, 2));
+
+    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    assert!(sel.is_floating());
+    // The original position (0,0)-(1,1) in grid should be cleared
+    let grid = h.grid(1);
+    assert!(grid.get(0, 0).is_empty(), "original cell should be empty after move");
+    assert!(grid.get(0, 1).is_empty());
+}
+
+#[test]
+fn undo_move_restores_grid_and_grounded_state() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (1, 1));
+    h.drag_grid(1, (0, 0), (0, 2));
+
+    // Should be floating now
+    assert!(h.state.pixel_selection.as_ref().unwrap().is_floating());
+
+    // Undo
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    let sel = h.state.pixel_selection.as_ref().expect("should have selection after undo");
+    assert!(!sel.is_floating(), "should be grounded after undo");
+    assert_eq!((sel.row, sel.col), (0, 0), "should be back at original position");
+
+    // Grid should be restored
+    let grid = h.grid(1);
+    assert!(grid.get(0, 0).is_filled(), "grid should be restored after undo");
+}
+
+#[test]
+fn mode_change_commits_floating_selection() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 1));
+    h.drag_grid(1, (0, 0), (2, 0)); // move down by 2
+
+    let sel = h.state.pixel_selection.as_ref().unwrap();
+    assert!(sel.is_floating());
+
+    // Switch to GlyphEdit (commits)
+    h.key(Key::Num1);
+    assert!(h.state.pixel_selection.is_none(), "selection should be cleared");
+
+    // The moved pixels should be merged into the grid at new position
+    let grid = h.grid(1);
+    assert!(grid.get(2, 0).is_filled(), "moved pixel should be merged at new position");
+    // Original position should be empty
+    assert!(grid.get(0, 0).is_empty(), "original position should be empty");
+}
+
+#[test]
+fn delete_grounded_fills_empty() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 1));
+
+    // Delete
+    h.key(Key::Delete);
+    assert!(h.state.pixel_selection.is_none());
+
+    let grid = h.grid(1);
+    assert!(grid.get(0, 0).is_empty());
+    assert!(grid.get(0, 1).is_empty());
+    // Rest unchanged
+    assert!(grid.get(0, 2).is_filled());
+}
+
+#[test]
+fn delete_floating_discards_no_merge() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 1));
+    h.drag_grid(1, (0, 0), (2, 0)); // move down
+
+    h.key(Key::Delete);
+    assert!(h.state.pixel_selection.is_none());
+
+    let grid = h.grid(1);
+    // Original was cleared during float, and floating was discarded, so both are empty
+    assert!(grid.get(0, 0).is_empty());
+    assert!(grid.get(0, 1).is_empty());
+    assert!(grid.get(2, 0).is_empty(), "floating pixels should not merge on delete");
+}
+
+#[test]
+fn copy_produces_correct_text() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (1, 1));
+
+    // Copy (uses Event::Copy, same as Cmd+C)
+    h.copy();
+    let copied = h.last_copied_text.as_ref().expect("should have copied text");
+    assert_eq!(copied, "@@@@\n..@@", "copied text should match grid content");
+}
+
+
+#[test]
+fn paste_in_pixel_select_creates_floating() {
+    let mut h = make_pixel_select_harness();
+    h.paste("@@..\n..@@");
+
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        "should stay in PixelSelect"
+    );
+    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    assert!(sel.is_floating());
+    assert_eq!((sel.width, sel.height), (2, 2));
+}
+
+#[test]
+fn paste_in_glyph_edit_switches_to_pixel_select() {
+    let mut h = EditorHarness::new("glyph test 4 3\n@@@@@@..\n..@@@@..\n........");
+    h.click_grid_cell(1, 0, 0); // enter GlyphEdit
+    assert!(matches!(h.state.mode, EditMode::GlyphEdit { .. }));
+
+    h.paste("@@\n@@");
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        "paste should switch to PixelSelect"
+    );
+    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    assert!(sel.is_floating());
+}
+
+#[test]
+fn cut_copies_and_deletes() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 1));
+
+    h.cut();
+    let copied = h.last_copied_text.as_ref().expect("should have copied");
+    assert_eq!(copied, "@@@@");
+    assert!(h.state.pixel_selection.is_none());
+
+    let grid = h.grid(1);
+    assert!(grid.get(0, 0).is_empty());
+    assert!(grid.get(0, 1).is_empty());
+}
+
+#[test]
+fn paste_via_pixel_selection_function() {
+    use crate::document_io::{derive_document, parse_doclines};
+    use crate::editor::pixel_selection;
+
+    let mut lines = parse_doclines("glyph test 3 2\n......\n......");
+    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let mut state = crate::editor::EditorState::new();
+    state.mode = EditMode::GlyphEdit {
+        item_idx: 0,
+        selected_shape: crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
+    };
+
+    let ok = pixel_selection::paste_selection(&doc, &mut lines, &mut state, "@@..\n..@@");
+    assert!(ok, "paste should succeed");
+    assert!(matches!(state.mode, EditMode::PixelSelect { item_idx: 0 }));
+    let sel = state.pixel_selection.as_ref().unwrap();
+    assert!(sel.is_floating());
+    assert_eq!((sel.width, sel.height), (2, 2));
+}
+
+#[test]
+fn paste_too_small_for_selection_fails() {
+    use crate::document_io::{derive_document, parse_doclines};
+    use crate::editor::pixel_selection;
+
+    let mut lines = parse_doclines("glyph test 3 2\n......\n......");
+    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let mut state = crate::editor::EditorState::new();
+    state.mode = EditMode::PixelSelect { item_idx: 0 };
+    state.pixel_selection = Some(pixel_selection::PixelSelection {
+        item_idx: 0,
+        row: 0,
+        col: 0,
+        width: 3,
+        height: 2,
+        float_pixels: None,
+    });
+
+    let ok = pixel_selection::paste_selection(&doc, &mut lines, &mut state, "@@\n@@");
+    assert!(!ok, "paste should fail when clipboard is smaller than selection");
+}
+
+#[test]
+fn right_click_cancels_selection() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 1));
+    assert!(h.state.pixel_selection.is_some());
+
+    let pos = h.grid_cell_pos(1, 0, 0);
+    h.right_click_at(pos);
+    assert!(h.state.pixel_selection.is_none(), "right click should cancel selection");
+}
+
+#[test]
+fn blur_commits_floating() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 0)); // select single cell
+    h.drag_grid(1, (0, 0), (2, 0)); // move to row 2
+
+    assert!(h.state.pixel_selection.as_ref().unwrap().is_floating());
+    h.blur();
+    assert!(h.state.pixel_selection.is_none(), "blur should commit and clear");
+
+    // Pixel should be merged at new position
+    let grid = h.grid(1);
+    assert!(grid.get(2, 0).is_filled());
+}

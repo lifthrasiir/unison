@@ -10,6 +10,7 @@ use crate::editor::grid_render;
 use crate::editor::inline_tools;
 use crate::editor::minimap;
 use crate::editor::pixel_interaction;
+use crate::editor::pixel_selection;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 use crate::editor::visual_lines;
 use crate::editor::{EditMode, EditorState, PopupState};
@@ -286,6 +287,7 @@ pub fn show_document(
 
     let editing_item_idx = match &state.mode {
         EditMode::GlyphEdit { item_idx, .. } => Some(*item_idx),
+        EditMode::PixelSelect { item_idx } => Some(*item_idx),
         EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
         EditMode::Normal => None,
     };
@@ -593,6 +595,8 @@ pub fn show_document(
         }
         let has_focus = ui.memory(|m| m.has_focus(wid));
         state.active = has_focus;
+
+        needs_rederive |= pixel_selection::reconcile(doc, lines, state);
 
         if has_focus {
             ui.memory_mut(|m| {
@@ -976,20 +980,37 @@ pub fn show_document(
                             }
                         }
 
-                    pixel_interaction::handle_pixel_painting(
-                        ui,
-                        lines,
-                        state,
-                        &mut needs_rederive,
-                        *grid_doc_line,
-                        *item_idx,
-                        *row,
-                        *own_width,
-                        *own_height,
-                        *extent,
-                        grid_x,
-                        grid_y,
-                        grid_cell,
+                    if !matches!(state.mode, EditMode::PixelSelect { item_idx: eidx } if eidx == *item_idx)
+                    {
+                        pixel_interaction::handle_pixel_painting(
+                            ui,
+                            lines,
+                            state,
+                            &mut needs_rederive,
+                            *grid_doc_line,
+                            *item_idx,
+                            *row,
+                            *own_width,
+                            *own_height,
+                            *extent,
+                            grid_x,
+                            grid_y,
+                            grid_cell,
+                        );
+                    }
+
+                    // Pixel selection overlay + interaction
+                    if let Some(sel) = state.pixel_selection.as_ref()
+                        .filter(|s| s.item_idx == *item_idx)
+                    {
+                        grid_render::render_pixel_selection_overlay(
+                            &painter, grid_x, grid_y, *row, *extent, grid_cell, sel, &pal,
+                        );
+                    }
+                    pixel_selection::handle_pixel_select_interaction(
+                        ui, doc, lines, state, &mut needs_rederive,
+                        *grid_doc_line, *item_idx, *row, *own_width, *own_height,
+                        *extent, grid_x, grid_y, grid_cell,
                     );
 
                     // Grid caret
@@ -1199,6 +1220,9 @@ pub fn show_document(
                             EditMode::GlyphEdit { item_idx: eidx, .. } if eidx == item_idx
                         ) && !matches!(
                             state.mode,
+                            EditMode::PixelSelect { item_idx: eidx } if eidx == item_idx
+                        ) && !matches!(
+                            state.mode,
                             EditMode::LayerMove { item_idx: eidx, .. } if eidx == item_idx
                         ) {
                             let has_pixels = matches!(
@@ -1327,19 +1351,126 @@ pub fn show_document(
                         || (i.modifiers.command && i.key_pressed(egui::Key::Y))
                 });
                 if undo_pressed {
-                    if let Some(c) = state.undo.undo(lines) {
+                    let sel_ctx = Some(crate::editor::undo::SelectionUndoCtx {
+                        mode: &mut state.mode,
+                        pixel_selection: &mut state.pixel_selection,
+                    });
+                    if let Some(c) = state.undo.undo_with_sel(lines, sel_ctx) {
                         state.cursor = caret::clamp(lines, c);
                         state.selection_anchor = None;
                         state.skip_reconcile = true;
                         needs_rederive = true;
                     }
-                } else if redo_pressed
-                    && let Some(c) = state.undo.redo(lines) {
+                } else if redo_pressed {
+                    let sel_ctx = Some(crate::editor::undo::SelectionUndoCtx {
+                        mode: &mut state.mode,
+                        pixel_selection: &mut state.pixel_selection,
+                    });
+                    if let Some(c) = state.undo.redo_with_sel(lines, sel_ctx) {
                         state.cursor = caret::clamp(lines, c);
                         state.selection_anchor = None;
                         state.skip_reconcile = true;
                         needs_rederive = true;
                     }
+                }
+            }
+
+            // Backtick: GlyphEdit → PixelSelect
+            if let EditMode::GlyphEdit { item_idx, .. } = &state.mode {
+                if ui.input(|i| {
+                    i.key_pressed(egui::Key::Backtick)
+                        && !i.modifiers.command
+                        && !i.modifiers.alt
+                }) {
+                    state.mode = EditMode::PixelSelect {
+                        item_idx: *item_idx,
+                    };
+                }
+            }
+
+            // PixelSelect key handling
+            if let EditMode::PixelSelect { item_idx } = state.mode {
+                // 1: back to GlyphEdit
+                if ui.input(|i| {
+                    i.key_pressed(egui::Key::Num1)
+                        && !i.modifiers.command
+                        && !i.modifiers.alt
+                }) {
+                    // Reconciliation will commit any floating selection
+                    state.mode = EditMode::GlyphEdit {
+                        item_idx,
+                        selected_shape: pixel::PixelShape::new(pixel::PX_ALMOSTFULL, true),
+                    };
+                }
+
+                // Delete/Backspace: delete selection
+                if ui.input(|i| {
+                    (i.key_pressed(egui::Key::Delete) || i.key_pressed(egui::Key::Backspace))
+                        && !i.modifiers.command
+                }) && state.pixel_selection.is_some()
+                {
+                    pixel_selection::handle_delete_selection(doc, lines, state);
+                    needs_rederive = true;
+                }
+
+                // Copy/Cut/Paste via egui events
+                let mut sel_clipboard_out: Option<String> = None;
+                let mut sel_do_cut = false;
+                let mut sel_paste_text: Option<String> = None;
+                ui.input(|input| {
+                    for event in &input.events {
+                        match event {
+                            egui::Event::Copy => {
+                                if let Some(sel) = &state.pixel_selection {
+                                    sel_clipboard_out =
+                                        pixel_selection::copy_selection(doc, lines, sel);
+                                }
+                            }
+                            egui::Event::Cut => {
+                                if let Some(sel) = &state.pixel_selection {
+                                    sel_clipboard_out =
+                                        pixel_selection::copy_selection(doc, lines, sel);
+                                    sel_do_cut = true;
+                                }
+                            }
+                            egui::Event::Paste(text) if !text.is_empty() => {
+                                sel_paste_text = Some(text.clone());
+                            }
+                            _ => {}
+                        }
+                    }
+                });
+                if let Some(text) = sel_clipboard_out {
+                    ui.ctx().copy_text(text);
+                }
+                if sel_do_cut {
+                    pixel_selection::handle_delete_selection(doc, lines, state);
+                    needs_rederive = true;
+                }
+                if let Some(text) = sel_paste_text {
+                    if pixel_selection::paste_selection(doc, lines, state, &text) {
+                        needs_rederive = true;
+                    }
+                }
+            }
+
+            // Paste in GlyphEdit mode: check for pixel grid paste
+            if matches!(state.mode, EditMode::GlyphEdit { .. }) {
+                let mut paste_text: Option<String> = None;
+                ui.input(|input| {
+                    for event in &input.events {
+                        if let egui::Event::Paste(text) = event {
+                            if !text.is_empty() {
+                                paste_text = Some(text.clone());
+                            }
+                        }
+                    }
+                });
+                if let Some(text) = paste_text {
+                    if pixel_selection::paste_selection(doc, lines, state, &text) {
+                        needs_rederive = true;
+                    }
+                }
             }
 
             // Subpixel shape shortcuts in GlyphEdit mode

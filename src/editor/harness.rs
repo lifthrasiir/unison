@@ -367,6 +367,85 @@ impl EditorHarness {
         self.click_at(pos);
     }
 
+    /// Drag from one grid cell to another (primary button).
+    pub fn drag_grid(
+        &mut self,
+        grid_doc_line: usize,
+        from: (i16, i16),
+        to: (i16, i16),
+    ) {
+        let from_pos = self.grid_cell_pos(grid_doc_line, from.0, from.1);
+        let to_pos = self.grid_cell_pos(grid_doc_line, to.0, to.1);
+
+        self.time += 1.0;
+        // Press at start position
+        self.frame_with(
+            vec![
+                egui::Event::PointerMoved(from_pos),
+                egui::Event::PointerButton {
+                    pos: from_pos,
+                    button: egui::PointerButton::Primary,
+                    pressed: true,
+                    modifiers: egui::Modifiers::NONE,
+                },
+            ],
+            egui::Modifiers::NONE,
+        );
+
+        // Move to destination over a few frames
+        let steps = 4;
+        for i in 1..=steps {
+            let t = i as f32 / steps as f32;
+            let pos = egui::pos2(
+                from_pos.x + (to_pos.x - from_pos.x) * t,
+                from_pos.y + (to_pos.y - from_pos.y) * t,
+            );
+            self.frame_with(
+                vec![egui::Event::PointerMoved(pos)],
+                egui::Modifiers::NONE,
+            );
+        }
+
+        // Release
+        self.frame_with(
+            vec![egui::Event::PointerButton {
+                pos: to_pos,
+                button: egui::PointerButton::Primary,
+                pressed: false,
+                modifiers: egui::Modifiers::NONE,
+            }],
+            egui::Modifiers::NONE,
+        );
+        self.frame();
+    }
+
+    /// Right-click at a screen position.
+    pub fn right_click_at(&mut self, pos: egui::Pos2) {
+        self.time += 1.0;
+        self.frame_with(
+            vec![
+                egui::Event::PointerMoved(pos),
+                egui::Event::PointerButton {
+                    pos,
+                    button: egui::PointerButton::Secondary,
+                    pressed: true,
+                    modifiers: egui::Modifiers::NONE,
+                },
+            ],
+            egui::Modifiers::NONE,
+        );
+        self.frame_with(
+            vec![egui::Event::PointerButton {
+                pos,
+                button: egui::PointerButton::Secondary,
+                pressed: false,
+                modifiers: egui::Modifiers::NONE,
+            }],
+            egui::Modifiers::NONE,
+        );
+        self.frame();
+    }
+
     // -- coordinate lookup --------------------------------------------------
 
     pub fn snap(&self) -> &ViewSnapshot {

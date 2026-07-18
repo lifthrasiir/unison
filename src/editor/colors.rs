@@ -46,6 +46,9 @@ pub struct Palette {
     // Glyph edit hover preview
     pub glyph_edit_preview: Color32,
 
+    // Pixel selection
+    pub pixel_selection: Color32,
+
     // Ref colors HSV parameters
     pub ref_hsv_s: f32,
     pub ref_hsv_v: f32,
@@ -89,6 +92,8 @@ impl Palette {
 
             glyph_edit_preview: Color32::from_rgba_unmultiplied(100, 180, 255, 120),
 
+            pixel_selection: Color32::from_rgb(64, 140, 255),
+
             ref_hsv_s: 0.55,
             ref_hsv_v: 0.9,
         }
@@ -131,6 +136,8 @@ impl Palette {
             pixel_filled: grid.pixel_filled,
 
             glyph_edit_preview: grid.glyph_edit_preview,
+
+            pixel_selection: grid.pixel_selection,
 
             ref_hsv_s: grid.ref_hsv_s,
             ref_hsv_v: grid.ref_hsv_v,
