@@ -43,6 +43,7 @@ pub(crate) fn handle_pixel_painting(
     grid_cell: f32,
 ) {
     let in_own_row = pixel_row >= 0 && pixel_row < grid_height as i16;
+    let mut slant_toggle: Option<pixel::PixelShape> = None;
     if let EditMode::GlyphEdit {
         item_idx: eidx,
         selected_shape,
@@ -54,6 +55,13 @@ pub(crate) fn handle_pixel_painting(
         }
         let primary = !state.suppress_grid_click && ui.input(|i| i.pointer.primary_down());
         let secondary = ui.input(|i| i.pointer.secondary_down());
+        let shift_held = ui.input(|i| i.modifiers.shift);
+
+        let slant_last_id = egui::Id::new("slant_toggle_last_cell");
+        if !primary && !secondary {
+            ui.data_mut(|d| d.remove::<(u16, u16)>(slant_last_id));
+        }
+
         if (primary || secondary)
             && let Some(pp) = ui.input(|i| i.pointer.hover_pos())
         {
@@ -67,12 +75,21 @@ pub(crate) fn handle_pixel_painting(
             {
                 let col = gc as u16;
                 let row = pixel_row as u16;
+                let last_cell: Option<(u16, u16)> =
+                    ui.data(|d| d.get_temp(slant_last_id));
+                let on_same_slant_cell = selected_shape.is_slant_pair()
+                    && last_cell == Some((row, col));
                 let new_shape = if secondary {
                     pixel::PixelShape::EMPTY
+                } else if shift_held && !selected_shape.is_empty() {
+                    selected_shape.with_fill_toggled()
                 } else {
                     *selected_shape
                 };
-                if let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) {
+                let mut painted = false;
+                if on_same_slant_cell {
+                    // Already painted this cell with the pre-toggle shape; don't overwrite.
+                } else if let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) {
                     let old_shape = grid.get(row, col);
                     if old_shape != new_shape {
                         state.undo.push_pixel(
@@ -92,6 +109,7 @@ pub(crate) fn handle_pixel_painting(
                         state.skip_reconcile = true;
                         *needs_rederive = true;
                         ui.ctx().request_repaint();
+                        painted = true;
                     }
                 } else if !new_shape.is_empty() && grid_doc_line > 0 {
                     // Materialize pixel grid for ref-only glyph
@@ -124,10 +142,20 @@ pub(crate) fn handle_pixel_painting(
                                 state.skip_reconcile = true;
                                 *needs_rederive = true;
                                 ui.ctx().request_repaint();
+                                painted = true;
                             }
                     }
                 }
+                if painted && !secondary && new_shape.is_slant_pair() {
+                    slant_toggle = Some(new_shape.slant_direction_pair());
+                    ui.data_mut(|d| d.insert_temp(slant_last_id, (row, col)));
+                }
             }
+        }
+    }
+    if let Some(toggled) = slant_toggle {
+        if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
+            *selected_shape = toggled;
         }
     }
 }

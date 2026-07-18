@@ -81,11 +81,10 @@ pub(crate) fn draw_inline_tools_panel(
     let prh = preview_row_height(zoom_level, max_ph);
 
     // Compute panel bounding rect to detect if click is consumed
-    let shapes_count = crate::editor::glyph_widget::all_valid_shapes().len();
-    let palette_cols = 8usize;
-    let palette_rows = shapes_count.div_ceil(palette_cols);
+    let palette_rows = crate::editor::glyph_widget::palette_rows();
     let palette_height = palette_rows as f32 * palette_cell;
     let panel_total_height = prh + 4.0 + palette_height;
+    let palette_cols = crate::editor::glyph_widget::PALETTE_COLS;
     let panel_width = palette_cols as f32 * palette_cell;
     let panel_rect = egui::Rect::from_min_size(
         egui::pos2(panel_x, panel_y),
@@ -284,6 +283,7 @@ pub(crate) fn draw_inline_tools_panel(
     // --- Row 2+: Shape palette or point name ---
     if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
         let palette_y = panel_y + prh + 4.0;
+        let shift_held = ui.input(|i| i.modifiers.shift);
         draw_inline_palette(
             ui,
             painter,
@@ -293,6 +293,7 @@ pub(crate) fn draw_inline_tools_panel(
             click_pos,
             palette_cell,
             &pal,
+            shift_held,
         );
     } else if let EditMode::LayerMove { layer_idx, .. } = &state.mode {
         let num_refs = body.refs.len();
@@ -339,17 +340,19 @@ fn draw_inline_palette(
     click_pos: Option<egui::Pos2>,
     cell_size: f32,
     pal: &Palette,
+    shift_held: bool,
 ) {
-    use crate::editor::glyph_widget::{all_valid_shapes, draw_pixel_cell_colored};
+    use crate::editor::glyph_widget::{
+        all_valid_shapes, draw_pixel_cell_colored, palette_row_col, palette_rows, PALETTE_COLS,
+    };
 
     let shapes = all_valid_shapes();
     let cell = cell_size;
-    let cols = 8;
+    let num_rows = palette_rows();
 
-    let palette_rows = shapes.len().div_ceil(cols);
     let palette_rect = egui::Rect::from_min_size(
         egui::pos2(x, y),
-        egui::vec2(cols as f32 * cell, palette_rows as f32 * cell),
+        egui::vec2(PALETTE_COLS as f32 * cell, num_rows as f32 * cell),
     );
     let hover_on_palette = ui.input(|i| {
         i.pointer
@@ -367,10 +370,9 @@ fn draw_inline_palette(
     });
 
     for (i, shape) in shapes.iter().enumerate() {
-        let col = (i % cols) as f32;
-        let row = (i / cols) as f32;
+        let (row, col) = palette_row_col(i);
         let cell_rect = egui::Rect::from_min_size(
-            egui::pos2(x + col * cell, y + row * cell),
+            egui::pos2(x + col as f32 * cell, y + row as f32 * cell),
             egui::vec2(cell, cell),
         );
 
@@ -381,7 +383,13 @@ fn draw_inline_palette(
             pal.shape_palette_bg
         };
         painter.rect_filled(cell_rect, 1.0, bg);
-        let px_color = if shape.is_filled() {
+        let apply_shift = shift_held && !shape.is_empty();
+        let display_filled = if is_selected {
+            shape.is_filled()
+        } else {
+            shape.is_filled() ^ apply_shift
+        };
+        let px_color = if display_filled {
             pal.pixel_filled
         } else {
             grid_render::apply_opacity(pal.pixel_filled, UNFILLED_OPACITY)
@@ -400,7 +408,17 @@ fn draw_inline_palette(
         if let Some(cp) = click_pos
             && cell_rect.contains(cp)
         {
-            *selected_shape = *shape;
+            if shape.is_slant_pair() && *selected_shape == *shape {
+                *selected_shape = shape.slant_direction_pair();
+            } else if shape.is_slant_pair()
+                && *selected_shape == shape.slant_direction_pair()
+            {
+                *selected_shape = *shape;
+            } else if shift_held && !shape.is_empty() {
+                *selected_shape = shape.with_fill_toggled();
+            } else {
+                *selected_shape = *shape;
+            }
         }
     }
 }

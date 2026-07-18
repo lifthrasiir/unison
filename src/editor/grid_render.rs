@@ -778,7 +778,13 @@ pub(crate) fn handle_grid_hover_preview(
                 egui::vec2(grid_cell, grid_cell),
             );
             let preview_color = Palette::get(ui).glyph_edit_preview;
-            if selected_shape.is_empty() {
+            let shift_held = ui.input(|i| i.modifiers.shift);
+            let preview_shape = if shift_held && !selected_shape.is_empty() {
+                selected_shape.with_fill_toggled()
+            } else {
+                *selected_shape
+            };
+            if preview_shape.is_empty() {
                 painter.rect_stroke(
                     cell_rect.shrink(1.0),
                     0.0,
@@ -789,7 +795,7 @@ pub(crate) fn handle_grid_hover_preview(
                 glyph_widget::draw_pixel_cell_colored(
                     painter,
                     cell_rect,
-                    *selected_shape,
+                    preview_shape,
                     Some(preview_color),
                 );
             }

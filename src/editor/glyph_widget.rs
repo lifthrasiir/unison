@@ -169,101 +169,92 @@ pub fn all_valid_shapes() -> &'static [PixelShape] {
 }
 
 fn build_all_valid_shapes() -> Vec<PixelShape> {
-    let mut shapes = Vec::new();
+    use pixel::*;
+    let mut s = Vec::new();
 
-    // Filled shapes first (more commonly used)
-    shapes.push(PixelShape::new(pixel::PX_ALMOSTFULL, true)); // @
-    shapes.push(PixelShape::EMPTY); // .
+    // Row 0 (3 items): fully filled, fully unfilled, dot
+    s.push(PixelShape::new(PX_ALMOSTFULL, true));
+    s.push(PixelShape::EMPTY);
+    s.push(PixelShape::new(PX_DOT, false));
 
-    // Halves - filled
-    for &id in &[
-        pixel::PX_HALF1,
-        pixel::PX_HALF2,
-        pixel::PX_HALF3,
-        pixel::PX_HALF4,
-    ] {
-        shapes.push(PixelShape::new(id, true));
+    // Row 1 (8): halves in asdf key order (a=HALF3, s=HALF2, d=HALF4, f=HALF1), filled + unfilled
+    for &id in &[PX_HALF3, PX_HALF2, PX_HALF4, PX_HALF1] {
+        s.push(PixelShape::new(id, true));
     }
-    // Halves - unfilled
-    for &id in &[
-        pixel::PX_HALF1,
-        pixel::PX_HALF2,
-        pixel::PX_HALF3,
-        pixel::PX_HALF4,
-    ] {
-        shapes.push(PixelShape::new(id, false));
+    for &id in &[PX_HALF3, PX_HALF2, PX_HALF4, PX_HALF1] {
+        s.push(PixelShape::new(id, false));
     }
 
-    // Quads - filled
-    for &id in &[
-        pixel::PX_QUAD1,
-        pixel::PX_QUAD2,
-        pixel::PX_QUAD3,
-        pixel::PX_QUAD4,
-    ] {
-        shapes.push(PixelShape::new(id, true));
+    // Row 2 (8): quads in qwer key order (q=QUAD2, w=QUAD3, e=QUAD4, r=QUAD1), filled + unfilled
+    for &id in &[PX_QUAD2, PX_QUAD3, PX_QUAD4, PX_QUAD1] {
+        s.push(PixelShape::new(id, true));
     }
-    // Quads - unfilled
-    for &id in &[
-        pixel::PX_QUAD1,
-        pixel::PX_QUAD2,
-        pixel::PX_QUAD3,
-        pixel::PX_QUAD4,
-    ] {
-        shapes.push(PixelShape::new(id, false));
+    for &id in &[PX_QUAD2, PX_QUAD3, PX_QUAD4, PX_QUAD1] {
+        s.push(PixelShape::new(id, false));
     }
 
-    // InvQuads - filled
-    for &id in &[
-        pixel::PX_INVQUAD1,
-        pixel::PX_INVQUAD2,
-        pixel::PX_INVQUAD3,
-        pixel::PX_INVQUAD4,
-    ] {
-        shapes.push(PixelShape::new(id, true));
+    // Row 3 (8): invquads in zxcv key order (z=INVQUAD2, x=INVQUAD3, c=INVQUAD4, v=INVQUAD1)
+    for &id in &[PX_INVQUAD2, PX_INVQUAD3, PX_INVQUAD4, PX_INVQUAD1] {
+        s.push(PixelShape::new(id, true));
     }
-    // InvQuads - unfilled
-    for &id in &[
-        pixel::PX_INVQUAD1,
-        pixel::PX_INVQUAD2,
-        pixel::PX_INVQUAD3,
-        pixel::PX_INVQUAD4,
-    ] {
-        shapes.push(PixelShape::new(id, false));
+    for &id in &[PX_INVQUAD2, PX_INVQUAD3, PX_INVQUAD4, PX_INVQUAD1] {
+        s.push(PixelShape::new(id, false));
     }
 
-    // Slants (unfilled only)
-    for &id in &[
-        pixel::PX_SLANT1H,
-        pixel::PX_SLANT2H,
-        pixel::PX_SLANT3H,
-        pixel::PX_SLANT4H,
-        pixel::PX_SLANT1V,
-        pixel::PX_SLANT2V,
-        pixel::PX_SLANT3V,
-        pixel::PX_SLANT4V,
-    ] {
-        shapes.push(PixelShape::new(id, false));
+    // Row 4 (8): halfslant V (w1:h2, 3/4) in asdf order, filled + unfilled
+    for &id in &[PX_HALFSLANT3V, PX_HALFSLANT2V, PX_HALFSLANT4V, PX_HALFSLANT1V] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_HALFSLANT3V, PX_HALFSLANT2V, PX_HALFSLANT4V, PX_HALFSLANT1V] {
+        s.push(PixelShape::new(id, false));
     }
 
-    // Halfslants (filled only)
-    for &id in &[
-        pixel::PX_HALFSLANT1H,
-        pixel::PX_HALFSLANT2H,
-        pixel::PX_HALFSLANT3H,
-        pixel::PX_HALFSLANT4H,
-        pixel::PX_HALFSLANT1V,
-        pixel::PX_HALFSLANT2V,
-        pixel::PX_HALFSLANT3V,
-        pixel::PX_HALFSLANT4V,
-    ] {
-        shapes.push(PixelShape::new(id, true));
+    // Row 5 (8): halfslant H (w2:h1, 3/4) in asdf order, filled + unfilled
+    for &id in &[PX_HALFSLANT3H, PX_HALFSLANT2H, PX_HALFSLANT4H, PX_HALFSLANT1H] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_HALFSLANT3H, PX_HALFSLANT2H, PX_HALFSLANT4H, PX_HALFSLANT1H] {
+        s.push(PixelShape::new(id, false));
     }
 
-    // Dot
-    shapes.push(PixelShape::new(pixel::PX_DOT, false));
+    // Row 6 (8): slant V (w1:h2, 1/4) — same-direction pair of row 4
+    for &id in &[PX_SLANT3V, PX_SLANT2V, PX_SLANT4V, PX_SLANT1V] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_SLANT3V, PX_SLANT2V, PX_SLANT4V, PX_SLANT1V] {
+        s.push(PixelShape::new(id, false));
+    }
 
-    shapes
+    // Row 7 (8): slant H (w2:h1, 1/4) — same-direction pair of row 5
+    for &id in &[PX_SLANT3H, PX_SLANT2H, PX_SLANT4H, PX_SLANT1H] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_SLANT3H, PX_SLANT2H, PX_SLANT4H, PX_SLANT1H] {
+        s.push(PixelShape::new(id, false));
+    }
+
+    s
+}
+
+pub const PALETTE_FIRST_ROW_LEN: usize = 3;
+pub const PALETTE_COLS: usize = 8;
+
+pub fn palette_row_col(idx: usize) -> (usize, usize) {
+    if idx < PALETTE_FIRST_ROW_LEN {
+        (0, idx)
+    } else {
+        let adj = idx - PALETTE_FIRST_ROW_LEN;
+        (1 + adj / PALETTE_COLS, adj % PALETTE_COLS)
+    }
+}
+
+pub fn palette_rows() -> usize {
+    let n = all_valid_shapes().len();
+    if n <= PALETTE_FIRST_ROW_LEN {
+        1
+    } else {
+        1 + (n - PALETTE_FIRST_ROW_LEN).div_ceil(PALETTE_COLS)
+    }
 }
 
 #[cfg(test)]

@@ -45,9 +45,7 @@ pub(crate) fn min_grid_rows_for_panel(zoom_level: u32, max_preview_h: u16) -> i1
     let grid_cell = GRID_CELL * zoom_level as f32;
     let zoom = zoom_level as f32;
     let palette_cell = INLINE_PALETTE_CELL * zoom;
-    let shapes_count = crate::editor::glyph_widget::all_valid_shapes().len();
-    let palette_cols = 8usize;
-    let palette_rows = shapes_count.div_ceil(palette_cols);
+    let palette_rows = crate::editor::glyph_widget::palette_rows();
     let palette_height = palette_rows as f32 * palette_cell;
     let prh = preview_row_height(zoom_level, max_preview_h);
     let panel_height = prh + 4.0 + palette_height;

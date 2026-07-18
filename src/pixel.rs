@@ -58,6 +58,40 @@ impl PixelShape {
         self.shape_id() == PX_EMPTY && !self.is_filled()
     }
 
+    pub fn with_fill_toggled(self) -> Self {
+        Self(self.0 ^ PX_FULL)
+    }
+
+    pub fn is_slant_pair(self) -> bool {
+        let id = self.shape_id();
+        let base = id.min(id ^ PX_SUBPIXEL);
+        (7..=14).contains(&base)
+    }
+
+    pub fn slant_direction_pair(self) -> Self {
+        let id = self.shape_id();
+        let pair_id = match id {
+            PX_HALFSLANT1H => PX_SLANT1H,
+            PX_HALFSLANT2H => PX_SLANT2H,
+            PX_HALFSLANT3H => PX_SLANT3H,
+            PX_HALFSLANT4H => PX_SLANT4H,
+            PX_HALFSLANT1V => PX_SLANT1V,
+            PX_HALFSLANT2V => PX_SLANT2V,
+            PX_HALFSLANT3V => PX_SLANT3V,
+            PX_HALFSLANT4V => PX_SLANT4V,
+            PX_SLANT1H => PX_HALFSLANT1H,
+            PX_SLANT2H => PX_HALFSLANT2H,
+            PX_SLANT3H => PX_HALFSLANT3H,
+            PX_SLANT4H => PX_HALFSLANT4H,
+            PX_SLANT1V => PX_HALFSLANT1V,
+            PX_SLANT2V => PX_HALFSLANT2V,
+            PX_SLANT3V => PX_HALFSLANT3V,
+            PX_SLANT4V => PX_HALFSLANT4V,
+            _ => return self,
+        };
+        Self::new(pair_id, !self.is_filled())
+    }
+
 }
 
 impl fmt::Debug for PixelShape {
