@@ -6,7 +6,12 @@ name-parts $card-rank = a 2 3 4 5 6 7 8 9 10 j kn q k
 //--------------------------------------
 // 56-card decks
 
-glyph card-blank 16 16
+color card-border = #404040
+color card-white = #ffffff coloronly
+color card-black = #000000
+color card-red = #ff0000
+
+glyph card-border 16 16
 ................................
 ..../0@@@@@@@@@@@@@@@@@@@@@@0\..
 ....@@......................@@..
@@ -24,7 +29,7 @@ glyph card-blank 16 16
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
 
-glyph card-back 16 16
+glyph card-half-fill 16 16
 ................................
 ..../0@@@@@@@@@@@@@@@@@@@@@@0\..
 ....@@0//10//10//10//10//10/@@..
@@ -40,6 +45,28 @@ glyph card-back 16 16
 ....@@0//10//10//10//10//10/@@..
 ....@@/10//10//10//10//10//1@@..
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
+................................
+
+glyph card-back 16 16
+ref card-fill fill card-white
+ref card-half-fill fill card-border
+
+glyph card-fill 16 16
+................................
+................................
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+................................
 ................................
 
 glyph card-suit-spade 16 16
@@ -172,7 +199,7 @@ glyph card-rank-kn 16 16
 ................................
 ................................
 
-glyph card-joker-white 16 16
+glyph card-joker 16 16
 ................................
 ................................
 ................................
@@ -189,60 +216,82 @@ glyph card-joker-white 16 16
 ................................
 ................................
 ................................
-ref card-blank
+
+glyph card-joker-white 16 16
+ref card-border fill card-border
+ref card-fill fill card-white
+ref card-joker fill card-black
+
+glyph card-joker-fill 16 16
+................................
+................................
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@........@@@@@@....
+......@@@@@@@@@@@@....@@@@@@....
+......@@@@@@@@@@@@....@@@@@@....
+......@@@@@@....@@....@@@@@@....
+......@@@@@@1\....../1@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+......@@@@@@@@@@@@@@@@@@@@@@....
+................................
+................................
 
 glyph card-joker-black 16 16
+ref card-border fill card-border
+ref card-fill fill card-white
+ref card-joker-fill fill card-black
+
+glyph card-joker-half-fill 16 16
 ................................
-..../0@@@@@@@@@@@@@@@@@@@@@@0\..
-....@@@@@@@@@@@@@@@@@@@@@@@@@@..
-....@@@@@@@@@@@@@@@@@@@@@@@@@@..
-....@@@@@@@@@@@@@@@@@@@@@@@@@@..
-....@@@@@@@@@@........@@@@@@@@..
-....@@@@@@@@@@@@@@....@@@@@@@@..
-....@@@@@@@@@@@@@@....@@@@@@@@..
-....@@@@@@@@....@@....@@@@@@@@..
-....@@@@@@@@1\....../1@@@@@@@@..
-....@@@@@@@@@@@@@@@@@@@@@@@@@@..
-....@@@@@@@@@@@@@@@@@@@@@@@@@@..
-....@@@@@@@@@@@@@@@@@@@@@@@@@@..
-....@@@@@@@@@@@@@@@@@@@@@@@@@@..
-....\0@@@@@@@@@@@@@@@@@@@@@@0/..
+................................
+......0//10//10//10//10//10/....
+....../10//10//10//10//10//1....
+......0//10/@@@@@@@@@@@@/10/....
+....../10//1@@........@@0//1....
+......0//10/@@@@@@....@@/10/....
+....../10/@@@@@@@@....@@0//1....
+......0//1@@....@@....@@/10/....
+....../10/@@1\....../1@@0//1....
+......0//10/@@@@@@@@@@0//10/....
+....../10//10//10//10//10//1....
+......0//10//10//10//10//10/....
+....../10//10//10//10//10//1....
+................................
 ................................
 
 glyph card-joker-red 16 16
-................................
-..../0@@@@@@@@@@@@@@@@@@@@@@0\..
-....@@0//10//10//10//10//10/@@..
-....@@/10//10//10//10//10//1@@..
-....@@0//10/@@@@@@@@@@@@/10/@@..
-....@@/10//1@@........@@0//1@@..
-....@@0//10/@@@@@@....@@/10/@@..
-....@@/10/@@@@@@@@....@@0//1@@..
-....@@0//1@@....@@....@@/10/@@..
-....@@/10/@@1\....../1@@0//1@@..
-....@@0//10/@@@@@@@@@@0//10/@@..
-....@@/10//10//10//10//10//1@@..
-....@@0//10//10//10//10//10/@@..
-....@@/10//10//10//10//10//1@@..
-....\0@@@@@@@@@@@@@@@@@@@@@@0/..
-................................
+ref card-border fill card-border
+ref card-fill fill card-red coloronly
+ref card-joker fill card-white coloronly
+ref card-joker-half-fill fill fg monoonly
 
 glyph card-spade-($card-rank)
-ref card-blank
-ref card-suit-spade
-ref card-rank-($card-rank)
+ref card-border fill card-border
+ref card-fill fill card-white
+ref card-suit-spade fill card-black
+ref card-rank-($card-rank) fill card-black
+
 glyph card-heart-($card-rank)
-ref card-blank
-ref card-suit-heart
-ref card-rank-($card-rank)
+ref card-border fill card-border
+ref card-fill fill card-white
+ref card-suit-heart fill card-red
+ref card-rank-($card-rank) fill card-black
+
 glyph card-diamond-($card-rank)
-ref card-blank
-ref card-suit-diamond
-ref card-rank-($card-rank)
+ref card-border fill card-border
+ref card-fill fill card-white
+ref card-suit-diamond fill card-red
+ref card-rank-($card-rank) fill card-black
+
 glyph card-club-($card-rank)
-ref card-blank
-ref card-suit-club
-ref card-rank-($card-rank)
+ref card-border fill card-border
+ref card-fill fill card-white
+ref card-suit-club fill card-black
+ref card-rank-($card-rank) fill card-black
 
 map U+1F0A0 = card-back
 map U+1F0A1..1F0AE = card-spade-($card-rank)
@@ -256,7 +305,7 @@ map U+1F0DF = card-joker-white
 //--------------------------------------
 // tarot decks
 
-glyph card-tarot-blank 16 16
+glyph card-tarot-border 16 16
 ................................
 ..../0@@@@@@@@@@@@@@@@@@@@@@0\..
 ....@@../01/..........\10\..@@..
@@ -274,17 +323,26 @@ glyph card-tarot-blank 16 16
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
 
+glyph card-tarot-blank 16 16
+ref card-fill fill card-white
+ref card-tarot-border fill card-border
+
 glyph card-tarot-($1..9)
-ref card-tarot-blank
-ref sm-($1..9) 7 5
+ref card-fill fill card-white
+ref card-tarot-border fill card-border
+ref sm-($1..9) 7 5 fill card-black
+
 glyph card-tarot-1($0..9)
-ref card-tarot-blank
-ref sm-1 5 5
-ref sm-($0..9) 9 5
+ref card-fill fill card-white
+ref card-tarot-border fill card-border
+ref sm-1 5 5 fill card-black
+ref sm-($0..9) 9 5 fill card-black
+
 glyph card-tarot-2(0|1)
-ref card-tarot-blank
-ref sm-2 5 5
-ref sm-(0|1) 9 5
+ref card-fill fill card-white
+ref card-tarot-border fill card-border
+ref sm-2 5 5 fill card-black
+ref sm-(0|1) 9 5 fill card-black
 
 map U+1F0E0 = card-tarot-blank
 map U+1F0E1..1F0E9 = card-tarot-($1..9)
