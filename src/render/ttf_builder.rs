@@ -4127,6 +4127,122 @@ map A = combo
     }
 
     #[test]
+    fn coloronly_white_fill_excluded_from_fallback() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph card-blank 4 4
+@@@@@@@@
+@@....@@
+@@....@@
+@@@@@@@@
+
+glyph card-fill 4 4
+........
+..@@@@..
+..@@@@..
+........
+
+glyph combo
+ref card-blank fill #000000
+ref card-fill fill #ffffff coloronly
+
+map A = combo
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (_, _, glyph_data, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let combo = glyph_data.iter().find(|g| g.name == "combo").unwrap();
+
+        assert!(
+            !combo.color_layers.is_empty(),
+            "should have color layers"
+        );
+
+        // The white fill layer should exist in color_layers
+        let white_layers: Vec<_> = combo.color_layers.iter()
+            .filter(|l| l.palette_index != 0xFFFF)
+            .collect();
+        assert!(
+            !white_layers.is_empty(),
+            "white fill layer should be in color_layers"
+        );
+
+        // Fallback should NOT include the coloronly card-fill
+        // card-blank is a border shape (1 or 2 contours), card-fill is inner fill
+        // If card-fill leaked, there would be extra contours
+        let card_blank_doc = document_io::parse_document_from_str(
+            "font-meta height 16 ascent 12 descent 4\nglyph card-blank 4 4\n@@@@@@@@\n@@....@@\n@@....@@\n@@@@@@@@\nmap B = card-blank\n",
+            "test2.unf".into()
+        ).unwrap();
+        let (_, _, blank_data, _, _) = collect_glyph_data(&[&card_blank_doc], false).unwrap();
+        let blank = blank_data.iter().find(|g| g.name == "card-blank").unwrap();
+
+        assert_eq!(
+            combo.contours.len(), blank.contours.len(),
+            "fallback contours should match card-blank only (coloronly card-fill excluded). \
+             combo has {} contours, card-blank has {}",
+            combo.contours.len(), blank.contours.len()
+        );
+    }
+
+    #[test]
+    fn coloronly_with_pattern_expansion() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+name-parts $suit = spade heart
+
+glyph card-blank 4 4
+@@@@@@@@
+@@....@@
+@@....@@
+@@@@@@@@
+
+glyph card-fill 4 4
+........
+..@@@@..
+..@@@@..
+........
+
+glyph card-suit-spade 2 2
+@@@@
+@@@@
+
+glyph card-suit-heart 2 2
+..@@
+@@..
+
+glyph card-($suit)
+ref card-blank fill #000000
+ref card-fill fill #ffffff coloronly
+ref card-suit-($suit) fill #000000
+
+map A = card-spade
+map B = card-heart
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (_, _, glyph_data, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+
+        for name in ["card-spade", "card-heart"] {
+            let g = glyph_data.iter().find(|g| g.name == name).unwrap();
+            assert!(
+                !g.color_layers.is_empty(),
+                "{name} should have color layers"
+            );
+
+            // Check that there IS a non-foreground (white) layer in color_layers
+            let non_fg: Vec<_> = g.color_layers.iter()
+                .filter(|l| l.palette_index != 0xFFFF)
+                .collect();
+            assert!(
+                non_fg.len() >= 1,
+                "{name}: should have at least one non-fg color layer (white fill), got {}",
+                non_fg.len()
+            );
+        }
+    }
+
+    #[test]
     fn gpos_mark_base_from_anchor_feature() {
         let input = "\
 font-meta height 16 ascent 12 descent 4

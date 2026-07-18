@@ -1164,10 +1164,10 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<Doc
     let name_str = name.display();
     let (name_pattern, name_count) = parse_name_pattern(&name_str)?;
 
-    let mut parsed_refs: Vec<(Vec<Segment>, Option<(i16, i16)>, bool)> = Vec::new();
+    let mut parsed_refs: Vec<(Vec<Segment>, Option<(i16, i16)>, bool, Option<RefFill>)> = Vec::new();
     for r in refs {
         let (_, segs) = parse_line_segments(&r.name)?;
-        parsed_refs.push((segs, r.offset, r.negated));
+        parsed_refs.push((segs, r.offset, r.negated, r.fill.clone()));
     }
 
     // The glyph-name pattern determines how many glyphs are declared. Each
@@ -1183,11 +1183,11 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<Doc
 
         let expanded_refs: Vec<GlyphRef> = parsed_refs
             .iter()
-            .map(|(segs, offset, negated)| GlyphRef {
+            .map(|(segs, offset, negated, fill)| GlyphRef {
                 name: expand_segments_at(segs, i),
                 offset: *offset,
                 negated: *negated,
-                fill: None,
+                fill: fill.clone(),
             })
             .collect();
 
