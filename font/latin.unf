@@ -4366,6 +4366,8 @@ glyph sm-z-upper 5 5
 /01/......
 @@@@@@@@@@
 
+assume unused sm-($a-z)-upper
+
 // sm-*-bold are designed to fit and fill 5x5
 // harmonizes with numeric sm-*-bold
 
@@ -4557,4 +4559,5 @@ glyph sm-z-4x6 6 4
 /h~HH_h/....
 @@@@@@@@@@@@
 
-// vim: ft=unison
+assume unused sm-($a-z)-4x6
+

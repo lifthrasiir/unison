@@ -346,7 +346,10 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                 }
                 DocumentItem::Directive(text) => {
                     let trimmed = text.trim();
-                    if !trimmed.is_empty() && !trimmed.starts_with("exclude-from-sample ") {
+                    if !trimmed.is_empty()
+                        && !trimmed.starts_with("exclude-from-sample ")
+                        && !trimmed.starts_with("assume unused ")
+                    {
                         issues.push(Issue {
                             severity: Severity::Warning,
                             message: format!("unrecognized directive '{}'", trimmed),
@@ -438,6 +441,20 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                                 }
                             } else {
                                 root_names.insert(resolved);
+                            }
+                        }
+                    }
+                    DocumentItem::Directive(text) => {
+                        if let Some(rest) = text.strip_prefix("assume unused ") {
+                            for token in rest.split_whitespace() {
+                                let resolved = substitute_name_parts(token, &name_parts);
+                                if is_name_pattern(&resolved) {
+                                    if let Ok(expanded) = expand_name_pattern(&resolved) {
+                                        root_names.extend(expanded);
+                                    }
+                                } else {
+                                    root_names.insert(resolved);
+                                }
                             }
                         }
                     }
@@ -832,6 +849,33 @@ glyph stem:wide 2 1
         assert!(
             !issues.iter().any(|i| i.message.contains("is unused")),
             "sticky glyph should not be unused: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn assume_unused_suppresses_warning() {
+        let input = "\
+glyph orphan 2 1
+@@..
+
+glyph other 2 1
+..@@
+
+assume unused orphan
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("glyph 'orphan' is unused")),
+            "assume unused should suppress warning: {issues:?}",
+        );
+        assert!(
+            issues.iter().any(|i| i.message.contains("glyph 'other' is unused")),
+            "non-assumed glyph should still be reported: {issues:?}",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("unrecognized directive")),
+            "assume unused should not be flagged as unrecognized: {issues:?}",
         );
     }
 

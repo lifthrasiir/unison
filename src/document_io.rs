@@ -748,11 +748,11 @@ pub fn derive_document(
                         doc.items.push(DocumentItem::FontMeta(rest.join(" ")));
                         i += 1;
                     }
-                    "exclude-from-sample" => {
+                    "exclude-from-sample" | "assume" => {
                         item_line_starts.push(i);
                         let rest: Vec<String> = tokens[1..].iter().map(|t| quote_token(t)).collect();
                         doc.items.push(DocumentItem::Directive(
-                            format!("exclude-from-sample {}", rest.join(" ")),
+                            format!("{} {}", tokens[0], rest.join(" ")),
                         ));
                         i += 1;
                     }

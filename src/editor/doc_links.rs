@@ -421,6 +421,16 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
             }
             simple_glyph_rename(name_span, leading, col)
         }
+        "assume" => {
+            if rest.first().is_some_and(|s| s.value == "unused") {
+                for span in &rest[1..] {
+                    if let Some(r) = simple_glyph_rename(span, leading, col) {
+                        return Some(r);
+                    }
+                }
+            }
+            None
+        }
         "color" => {
             // color NAME = VALUE [coloronly|monoonly]
             if rest.len() >= 3 && rest[1].value == "=" {

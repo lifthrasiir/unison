@@ -1930,6 +1930,21 @@ fn rename_glyph_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &st
         return None;
     }
 
+    // assume unused NAME...
+    if let Some(rest) = trimmed.strip_prefix("assume unused ") {
+        if rest.split_whitespace().any(|t| t == old_name) {
+            let new_line = format!(
+                "{leading}assume unused {}",
+                rest.split_whitespace()
+                    .map(|t| if t == old_name { new_name } else { t })
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            );
+            return Some(new_line);
+        }
+        return None;
+    }
+
     None
 }
 

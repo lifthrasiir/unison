@@ -259,7 +259,9 @@ pub(crate) fn build_visual_lines(
             ref_color
         } else if trimmed.starts_with("font-meta ") {
             meta_color
-        } else if trimmed.starts_with("exclude-from-sample ") {
+        } else if trimmed.starts_with("exclude-from-sample ")
+            || trimmed.starts_with("assume unused ")
+        {
             directive_color
         } else if trimmed.starts_with("name-parts ")
             || trimmed.starts_with("remap ")

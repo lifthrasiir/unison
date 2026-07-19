@@ -340,6 +340,19 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
                 });
             }
         }
+        "assume" => {
+            if rest.first().is_some_and(|s| s.value == "unused") {
+                if rest_token_idx.is_some_and(|i| i >= 1)
+                    || (rest.len() == 1 && adj_col > rest[0].raw_end)
+                {
+                    return Some(CompletionContext {
+                        kind: CompletionKind::Glyph,
+                        prefix: word,
+                        replace_start: word_start,
+                    });
+                }
+            }
+        }
         "glyph" => {
             // Check for alias form: glyph NAME [flags...] = ALIAS
             if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
@@ -540,6 +553,7 @@ fn collect_candidates(
                 "feature",
                 "font-meta",
                 "exclude-from-sample",
+                "assume",
                 "color",
             ];
             for kw in &keywords {

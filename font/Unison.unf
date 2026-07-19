@@ -39,6 +39,8 @@ glyph placeholder-16 16 16
 <>..............................
 ..<>..<>..<>..<>..<>..<>..<>..<>
 
+assume unused placeholder-(8|16)
+
 glyph sp 8 16 sticky
 
 glyph wsp 16 16 sticky

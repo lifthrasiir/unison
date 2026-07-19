@@ -483,6 +483,8 @@ glyph sm-9 3 5
 ....@@
 \1@@0/
 
+assume unused sm-($0..9)
+
 // sm-*-bold are designed to fit and fill in 5x5
 // harmonizes with latin sm-*-bold
 
@@ -555,6 +557,8 @@ glyph sm-9-bold 5 5
 \1@@@@@@@@
 ......@@@@
 \1@@@@@@0/
+
+assume unused sm-($0..9)-bold
 
 //--------------------------------------
 // superscript/subscript
