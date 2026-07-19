@@ -100,6 +100,176 @@ impl PixelShape {
         Self::new(pair_id, !self.is_filled())
     }
 
+    pub fn mirror_h(self) -> Self {
+        Self(transform_shape(self.0, MIRROR_H_TABLE))
+    }
+
+    pub fn flip_v(self) -> Self {
+        Self(transform_shape(self.0, FLIP_V_TABLE))
+    }
+
+    pub fn rotate_cw(self) -> Self {
+        Self(transform_shape(self.0, ROTATE_CW_TABLE))
+    }
+
+    pub fn rotate_ccw(self) -> Self {
+        Self(transform_shape(self.0, ROTATE_CCW_TABLE))
+    }
+
+    pub fn rotate_180(self) -> Self {
+        Self(transform_shape(self.0, ROTATE_180_TABLE))
+    }
+
+    pub fn opposite(self) -> Self {
+        if self.is_empty() {
+            self
+        } else {
+            self.with_fill_toggled()
+        }
+    }
+}
+
+// Transform lookup tables: map shape_id → transformed shape_id for base shapes (0-19).
+// Complement shapes (id ≥ 108) use: transform(id ^ 127) ^ 127.
+// The fill bit (PX_FULL) passes through unchanged.
+#[rustfmt::skip]
+const MIRROR_H_TABLE: [u8; 20] = [
+    0,   // EMPTY → EMPTY
+    125, // HALF1 (\ BL) → HALF4 (/ BR)
+    126, // HALF3 (/ TL) → HALF2 (\ TR)
+    5,   // QUAD1 (left) → QUAD3 (right)
+    4,   // QUAD2 (top) → QUAD2 (top)
+    3,   // QUAD3 (right) → QUAD1 (left)
+    6,   // QUAD4 (bottom) → QUAD4 (bottom)
+    10,  // SLANT1H → SLANT4H
+    9,   // SLANT2H → SLANT3H
+    8,   // SLANT3H → SLANT2H
+    7,   // SLANT4H → SLANT1H
+    14,  // SLANT1V → SLANT4V
+    13,  // SLANT2V → SLANT3V
+    12,  // SLANT3V → SLANT2V
+    11,  // SLANT4V → SLANT1V
+    15,  // DOT → DOT
+    18,  // CONE1 (left) → CONE3 (right)
+    17,  // CONE2 (top) → CONE2 (top)
+    16,  // CONE3 (right) → CONE1 (left)
+    19,  // CONE4 (bottom) → CONE4 (bottom)
+];
+
+#[rustfmt::skip]
+const FLIP_V_TABLE: [u8; 20] = [
+    0,   // EMPTY → EMPTY
+    2,   // HALF1 (\ BL) → HALF3 (/ TL)
+    1,   // HALF3 (/ TL) → HALF1 (\ BL)
+    3,   // QUAD1 (left) → QUAD1 (left)
+    6,   // QUAD2 (top) → QUAD4 (bottom)
+    5,   // QUAD3 (right) → QUAD3 (right)
+    4,   // QUAD4 (bottom) → QUAD2 (top)
+    9,   // SLANT1H → SLANT3H
+    10,  // SLANT2H → SLANT4H
+    7,   // SLANT3H → SLANT1H
+    8,   // SLANT4H → SLANT2H
+    13,  // SLANT1V → SLANT3V
+    14,  // SLANT2V → SLANT4V
+    11,  // SLANT3V → SLANT1V
+    12,  // SLANT4V → SLANT2V
+    15,  // DOT → DOT
+    16,  // CONE1 (left) → CONE1 (left)
+    19,  // CONE2 (top) → CONE4 (bottom)
+    18,  // CONE3 (right) → CONE3 (right)
+    17,  // CONE4 (bottom) → CONE2 (top)
+];
+
+#[rustfmt::skip]
+const ROTATE_CW_TABLE: [u8; 20] = [
+    0,   // EMPTY → EMPTY
+    2,   // HALF1 (\ BL) → HALF3 (/ TL)
+    126, // HALF3 (/ TL) → HALF2 (\ TR)
+    4,   // QUAD1 (left) → QUAD2 (top)
+    5,   // QUAD2 (top) → QUAD3 (right)
+    6,   // QUAD3 (right) → QUAD4 (bottom)
+    3,   // QUAD4 (bottom) → QUAD1 (left)
+    13,  // SLANT1H → SLANT3V
+    14,  // SLANT2H → SLANT4V
+    12,  // SLANT3H → SLANT2V
+    11,  // SLANT4H → SLANT1V
+    9,   // SLANT1V → SLANT3H
+    10,  // SLANT2V → SLANT4H
+    8,   // SLANT3V → SLANT2H
+    7,   // SLANT4V → SLANT1H
+    15,  // DOT → DOT
+    17,  // CONE1 (left) → CONE2 (top)
+    18,  // CONE2 (top) → CONE3 (right)
+    19,  // CONE3 (right) → CONE4 (bottom)
+    16,  // CONE4 (bottom) → CONE1 (left)
+];
+
+#[rustfmt::skip]
+const ROTATE_CCW_TABLE: [u8; 20] = [
+    0,   // EMPTY → EMPTY
+    125, // HALF1 (\ BL) → HALF4 (/ BR)
+    1,   // HALF3 (/ TL) → HALF1 (\ BL)
+    6,   // QUAD1 (left) → QUAD4 (bottom)
+    3,   // QUAD2 (top) → QUAD1 (left)
+    4,   // QUAD3 (right) → QUAD2 (top)
+    5,   // QUAD4 (bottom) → QUAD3 (right)
+    14,  // SLANT1H → SLANT4V
+    13,  // SLANT2H → SLANT3V
+    11,  // SLANT3H → SLANT1V
+    12,  // SLANT4H → SLANT2V
+    10,  // SLANT1V → SLANT4H
+    9,   // SLANT2V → SLANT3H
+    7,   // SLANT3V → SLANT1H
+    8,   // SLANT4V → SLANT2H
+    15,  // DOT → DOT
+    19,  // CONE1 (left) → CONE4 (bottom)
+    16,  // CONE2 (top) → CONE1 (left)
+    17,  // CONE3 (right) → CONE2 (top)
+    18,  // CONE4 (bottom) → CONE3 (right)
+];
+
+#[rustfmt::skip]
+const ROTATE_180_TABLE: [u8; 20] = [
+    0,   // EMPTY → EMPTY
+    126, // HALF1 (\ BL) → HALF2 (\ TR)
+    125, // HALF3 (/ TL) → HALF4 (/ BR)
+    5,   // QUAD1 (left) → QUAD3 (right)
+    6,   // QUAD2 (top) → QUAD4 (bottom)
+    3,   // QUAD3 (right) → QUAD1 (left)
+    4,   // QUAD4 (bottom) → QUAD2 (top)
+    8,   // SLANT1H → SLANT2H
+    7,   // SLANT2H → SLANT1H
+    10,  // SLANT3H → SLANT4H
+    9,   // SLANT4H → SLANT3H
+    12,  // SLANT1V → SLANT2V
+    11,  // SLANT2V → SLANT1V
+    14,  // SLANT3V → SLANT4V
+    13,  // SLANT4V → SLANT3V
+    15,  // DOT → DOT
+    18,  // CONE1 (left) → CONE3 (right)
+    19,  // CONE2 (top) → CONE4 (bottom)
+    16,  // CONE3 (right) → CONE1 (left)
+    17,  // CONE4 (bottom) → CONE2 (top)
+];
+
+fn transform_shape(raw: u8, table: [u8; 20]) -> u8 {
+    let fill = raw & PX_FULL;
+    let id = raw & PX_SUBPIXEL;
+    let new_id = if id <= 19 {
+        table[id as usize]
+    } else if id == PX_ALMOSTFULL {
+        PX_ALMOSTFULL
+    } else if id >= 108 {
+        let base = id ^ PX_SUBPIXEL;
+        if base <= 19 {
+            table[base as usize] ^ PX_SUBPIXEL
+        } else {
+            id
+        }
+    } else {
+        id
+    };
+    new_id | fill
 }
 
 impl fmt::Debug for PixelShape {
@@ -1359,6 +1529,84 @@ mod tests {
                 assert_eq!(result_id, expected,
                     "subtract({a},{b}) mismatch: got {result_id}, expected {expected}");
             }
+        }
+    }
+
+    #[test]
+    fn transform_tables_consistent_with_adjacency() {
+        // Verify transforms using adjacency bits (8 half-edges around the cell).
+        // Mirror H swaps: a↔b, c↔h, d↔g, e↔f
+        // Flip V: new = (f,e,d,c,b,a,h,g) from original (a,b,c,d,e,f,g,h)
+        // Rotate CW: new = (g,h,a,b,c,d,e,f) (shift right by 2)
+        fn adj(id: u8) -> u8 { ADJACENCY_BITS[id.min(128) as usize] }
+        fn mirror_adj(bits: u8) -> u8 {
+            let a = (bits >> 7) & 1; let b = (bits >> 6) & 1;
+            let c = (bits >> 5) & 1; let d = (bits >> 4) & 1;
+            let e = (bits >> 3) & 1; let f = (bits >> 2) & 1;
+            let g = (bits >> 1) & 1; let h = bits & 1;
+            (b<<7)|(a<<6)|(h<<5)|(g<<4)|(f<<3)|(e<<2)|(d<<1)|c
+        }
+        fn flip_adj(bits: u8) -> u8 {
+            let a = (bits >> 7) & 1; let b = (bits >> 6) & 1;
+            let c = (bits >> 5) & 1; let d = (bits >> 4) & 1;
+            let e = (bits >> 3) & 1; let f = (bits >> 2) & 1;
+            let g = (bits >> 1) & 1; let h = bits & 1;
+            (f<<7)|(e<<6)|(d<<5)|(c<<4)|(b<<3)|(a<<2)|(h<<1)|g
+        }
+        fn rotate_cw_adj(bits: u8) -> u8 {
+            let a = (bits >> 7) & 1; let b = (bits >> 6) & 1;
+            let c = (bits >> 5) & 1; let d = (bits >> 4) & 1;
+            let e = (bits >> 3) & 1; let f = (bits >> 2) & 1;
+            let g = (bits >> 1) & 1; let h = bits & 1;
+            (g<<7)|(h<<6)|(a<<5)|(b<<4)|(c<<3)|(d<<2)|(e<<1)|f
+        }
+
+        let used_ids: Vec<u8> = (0..20).chain(108..128).collect();
+        for &id in &used_ids {
+            let bits = adj(id);
+            let shape = PixelShape(id);
+
+            let m_id = shape.mirror_h().shape_id();
+            assert_eq!(adj(m_id), mirror_adj(bits),
+                "mirror_h adjacency mismatch for id={id}: got id={m_id} adj={:#010b}, expected adj={:#010b}",
+                adj(m_id), mirror_adj(bits));
+
+            let f_id = shape.flip_v().shape_id();
+            assert_eq!(adj(f_id), flip_adj(bits),
+                "flip_v adjacency mismatch for id={id}: got id={f_id} adj={:#010b}, expected adj={:#010b}",
+                adj(f_id), flip_adj(bits));
+
+            let r_id = shape.rotate_cw().shape_id();
+            assert_eq!(adj(r_id), rotate_cw_adj(bits),
+                "rotate_cw adjacency mismatch for id={id}: got id={r_id} adj={:#010b}, expected adj={:#010b}",
+                adj(r_id), rotate_cw_adj(bits));
+        }
+    }
+
+    #[test]
+    fn transform_inverse_properties() {
+        let used_ids: Vec<u8> = (0..20).chain(108..128).collect();
+        for &id in &used_ids {
+            let shape = PixelShape(id | PX_FULL);
+
+            // mirror_h is self-inverse
+            assert_eq!(shape.mirror_h().mirror_h(), shape, "mirror_h not involutory for id={id}");
+
+            // flip_v is self-inverse
+            assert_eq!(shape.flip_v().flip_v(), shape, "flip_v not involutory for id={id}");
+
+            // rotate_180 is self-inverse
+            assert_eq!(shape.rotate_180().rotate_180(), shape, "rotate_180 not involutory for id={id}");
+
+            // rotate_cw and rotate_ccw are inverses
+            assert_eq!(shape.rotate_cw().rotate_ccw(), shape, "cw/ccw not inverse for id={id}");
+            assert_eq!(shape.rotate_ccw().rotate_cw(), shape, "ccw/cw not inverse for id={id}");
+
+            // 4x rotate_cw = identity
+            assert_eq!(shape.rotate_cw().rotate_cw().rotate_cw().rotate_cw(), shape, "4x cw not identity for id={id}");
+
+            // rotate_180 = rotate_cw twice
+            assert_eq!(shape.rotate_cw().rotate_cw(), shape.rotate_180(), "2x cw != 180 for id={id}");
         }
     }
 }

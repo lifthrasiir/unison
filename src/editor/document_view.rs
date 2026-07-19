@@ -1473,6 +1473,44 @@ pub fn show_document(
                 }
             }
 
+            // Selection transforms (Ctrl+M/I/O/J/K/L) in GlyphEdit/PixelSelect
+            if matches!(
+                state.mode,
+                EditMode::GlyphEdit { .. } | EditMode::PixelSelect { .. }
+            ) {
+                use pixel_selection::SelectionTransform;
+                let transform = ui.input(|i| {
+                    if i.modifiers.command && !i.modifiers.alt && !i.modifiers.shift {
+                        if i.key_pressed(egui::Key::M) {
+                            Some(SelectionTransform::MirrorH)
+                        } else if i.key_pressed(egui::Key::I) {
+                            Some(SelectionTransform::FlipV)
+                        } else if i.key_pressed(egui::Key::O) {
+                            Some(SelectionTransform::Opposite)
+                        } else if i.key_pressed(egui::Key::J) {
+                            Some(SelectionTransform::RotateCCW)
+                        } else if i.key_pressed(egui::Key::K) {
+                            Some(SelectionTransform::Rotate180)
+                        } else if i.key_pressed(egui::Key::L) {
+                            Some(SelectionTransform::RotateCW)
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                });
+                if let Some(t) = transform {
+                    if pixel_selection::can_transform(doc, state, t) {
+                        if pixel_selection::handle_transform_selection(
+                            doc, lines, state, t,
+                        ) {
+                            needs_rederive = true;
+                        }
+                    }
+                }
+            }
+
             // Subpixel shape shortcuts in GlyphEdit mode
             if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
                 handle_shape_shortcuts(ui, selected_shape);

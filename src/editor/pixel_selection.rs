@@ -615,6 +615,221 @@ pub(crate) fn paste_selection(
 }
 
 // ---------------------------------------------------------------------------
+// Transform operations (mirror, flip, rotate, opposite)
+// ---------------------------------------------------------------------------
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SelectionTransform {
+    MirrorH,
+    FlipV,
+    RotateCW,
+    RotateCCW,
+    Rotate180,
+    Opposite,
+}
+
+pub(crate) fn can_transform(
+    doc: &Document,
+    state: &EditorState,
+    transform: SelectionTransform,
+) -> bool {
+    let item_idx = match &state.mode {
+        EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => *item_idx,
+        _ => return false,
+    };
+    let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
+        return false;
+    };
+    let Some(pixels) = &body.pixels else {
+        return false;
+    };
+
+    let (sel_w, sel_h) = if let Some(sel) = &state.pixel_selection {
+        if sel.item_idx != item_idx {
+            return false;
+        }
+        (sel.width, sel.height)
+    } else {
+        (pixels.width, pixels.height)
+    };
+
+    match transform {
+        SelectionTransform::RotateCW | SelectionTransform::RotateCCW => {
+            if sel_w == sel_h {
+                return true;
+            }
+            if state.pixel_selection.is_some() {
+                // After rotation, dimensions become (sel_h × sel_w); check if it fits
+                sel_h <= pixels.width && sel_w <= pixels.height
+            } else {
+                false
+            }
+        }
+        _ => true,
+    }
+}
+
+pub(crate) fn handle_transform_selection(
+    doc: &Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    transform: SelectionTransform,
+) -> bool {
+    let item_idx = match &state.mode {
+        EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => *item_idx,
+        _ => return false,
+    };
+    let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
+        return false;
+    };
+    let Some(pixels) = &body.pixels else {
+        return false;
+    };
+    let grid_width = pixels.width;
+    let grid_height = pixels.height;
+
+    let start = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
+    let grid_doc_line = start + 1;
+
+    if state.pixel_selection.is_some() {
+        // Transform the selection (grounded → floating, then transform floating)
+        let sel = state.pixel_selection.clone().unwrap();
+        if sel.item_idx != item_idx {
+            return false;
+        }
+
+        let before_snap = sel.to_snapshot();
+        let mode_before = state.mode.clone();
+
+        let mut pixel_changes = Vec::new();
+        let source_grid = if let Some(float) = &sel.float_pixels {
+            float.clone()
+        } else {
+            // Extract pixels from grid (grounded → floating)
+            let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) else {
+                return false;
+            };
+            let mut extracted = PixelGrid::new(sel.width, sel.height);
+            for r in 0..sel.height {
+                for c in 0..sel.width {
+                    let gr = sel.row + r as i16;
+                    let gc = sel.col + c as i16;
+                    if gr >= 0
+                        && gr < grid_height as i16
+                        && gc >= 0
+                        && gc < grid_width as i16
+                    {
+                        let shape = grid.get(gr as u16, gc as u16);
+                        extracted.set(r, c, shape);
+                        if !shape.is_empty() {
+                            pixel_changes.push(undo::PixelChange {
+                                row: gr as u16,
+                                col: gc as u16,
+                                old: shape,
+                                new: PixelShape::EMPTY,
+                            });
+                        }
+                    }
+                }
+            }
+            if let Some(DocLine::Grid(grid)) = lines.get_mut(grid_doc_line) {
+                for ch in &pixel_changes {
+                    grid.set(ch.row, ch.col, ch.new);
+                }
+            }
+            extracted
+        };
+
+        let transformed = match transform {
+            SelectionTransform::MirrorH => source_grid.mirror_h(),
+            SelectionTransform::FlipV => source_grid.flip_v(),
+            SelectionTransform::RotateCW => source_grid.rotate_cw(),
+            SelectionTransform::RotateCCW => source_grid.rotate_ccw(),
+            SelectionTransform::Rotate180 => source_grid.rotate_180(),
+            SelectionTransform::Opposite => source_grid.opposite(),
+        };
+
+        let new_w = transformed.width;
+        let new_h = transformed.height;
+
+        // Compute new position: try to keep center, clamp to grid bounds
+        let old_center_r = sel.row as f32 + sel.height as f32 / 2.0;
+        let old_center_c = sel.col as f32 + sel.width as f32 / 2.0;
+        let new_row = ((old_center_r - new_h as f32 / 2.0).round() as i16)
+            .clamp(0, grid_height as i16 - new_h as i16);
+        let new_col = ((old_center_c - new_w as f32 / 2.0).round() as i16)
+            .clamp(0, grid_width as i16 - new_w as i16);
+
+        state.mode = EditMode::PixelSelect { item_idx };
+        state.pixel_selection = Some(PixelSelection {
+            item_idx,
+            row: new_row,
+            col: new_col,
+            width: new_w,
+            height: new_h,
+            float_pixels: Some(transformed),
+        });
+
+        let after_snap = state.pixel_selection.as_ref().unwrap().to_snapshot();
+        state.undo.push_pixel_selection(
+            grid_doc_line,
+            pixel_changes,
+            mode_before,
+            state.mode.clone(),
+            Some(before_snap),
+            Some(after_snap),
+            state.cursor,
+            state.cursor,
+        );
+        state.skip_reconcile = true;
+        true
+    } else {
+        // No selection: transform entire glyph grid in-place
+        let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) else {
+            return false;
+        };
+        let old_grid = grid.clone();
+
+        let transformed = match transform {
+            SelectionTransform::MirrorH => old_grid.mirror_h(),
+            SelectionTransform::FlipV => old_grid.flip_v(),
+            SelectionTransform::RotateCW => old_grid.rotate_cw(),
+            SelectionTransform::RotateCCW => old_grid.rotate_ccw(),
+            SelectionTransform::Rotate180 => old_grid.rotate_180(),
+            SelectionTransform::Opposite => old_grid.opposite(),
+        };
+
+        // Compute pixel changes for undo
+        let mut changes = Vec::new();
+        for r in 0..grid_height {
+            for c in 0..grid_width {
+                let old = old_grid.get(r, c);
+                let new = transformed.get(r, c);
+                if old != new {
+                    changes.push(undo::PixelChange { row: r, col: c, old, new });
+                }
+            }
+        }
+
+        if changes.is_empty() {
+            return false;
+        }
+
+        if let Some(DocLine::Grid(grid)) = lines.get_mut(grid_doc_line) {
+            for ch in &changes {
+                grid.set(ch.row, ch.col, ch.new);
+            }
+        }
+
+        state
+            .undo
+            .push_pixel_batch(grid_doc_line, changes, state.cursor, state.cursor);
+        state.skip_reconcile = true;
+        true
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Reconciliation — called once per frame at the top of show_document
 // ---------------------------------------------------------------------------
 
@@ -837,5 +1052,148 @@ mod tests {
         assert!(grid.get(0, 0).is_empty());
         assert!(grid.get(0, 1).is_empty());
         assert!(grid.get(0, 2).is_filled());
+    }
+
+    #[test]
+    fn mirror_h_entire_glyph() {
+        use crate::document_io::parse_doclines;
+        let content = "glyph test 3 2\n@@@@..\n..@@@@";
+        let mut lines = parse_doclines(content);
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+
+        let mut state = EditorState::new();
+        state.mode = EditMode::PixelSelect { item_idx: 0 };
+
+        let changed = handle_transform_selection(
+            &doc, &mut lines, &mut state, SelectionTransform::MirrorH,
+        );
+        assert!(changed);
+
+        let DocLine::Grid(grid) = &lines[1] else { panic!("expected grid") };
+        assert!(grid.get(0, 0).is_empty());
+        assert!(grid.get(0, 1).is_filled());
+        assert!(grid.get(0, 2).is_filled());
+        assert!(grid.get(1, 0).is_filled());
+        assert!(grid.get(1, 1).is_filled());
+        assert!(grid.get(1, 2).is_empty());
+    }
+
+    #[test]
+    fn flip_v_entire_glyph() {
+        use crate::document_io::parse_doclines;
+        let content = "glyph test 3 2\n@@@@..\n......";
+        let mut lines = parse_doclines(content);
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+
+        let mut state = EditorState::new();
+        state.mode = EditMode::PixelSelect { item_idx: 0 };
+
+        handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::FlipV);
+
+        let DocLine::Grid(grid) = &lines[1] else { panic!("expected grid") };
+        assert!(grid.get(0, 0).is_empty());
+        assert!(grid.get(0, 1).is_empty());
+        assert!(grid.get(0, 2).is_empty());
+        assert!(grid.get(1, 0).is_filled());
+        assert!(grid.get(1, 1).is_filled());
+        assert!(grid.get(1, 2).is_empty());
+    }
+
+    #[test]
+    fn rotate_180_entire_glyph() {
+        use crate::document_io::parse_doclines;
+        let content = "glyph test 3 2\n@@....\n......";
+        let mut lines = parse_doclines(content);
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+
+        let mut state = EditorState::new();
+        state.mode = EditMode::PixelSelect { item_idx: 0 };
+
+        handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::Rotate180);
+
+        let DocLine::Grid(grid) = &lines[1] else { panic!("expected grid") };
+        assert!(grid.get(0, 0).is_empty());
+        assert!(grid.get(0, 1).is_empty());
+        assert!(grid.get(0, 2).is_empty());
+        assert!(grid.get(1, 0).is_empty());
+        assert!(grid.get(1, 1).is_empty());
+        assert!(grid.get(1, 2).is_filled());
+    }
+
+    #[test]
+    fn rotate_cw_blocked_on_non_square_glyph() {
+        use crate::document_io::parse_doclines;
+        let content = "glyph test 3 2\n@@@@..\n......";
+        let lines = parse_doclines(content);
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+
+        let mut state = EditorState::new();
+        state.mode = EditMode::PixelSelect { item_idx: 0 };
+
+        assert!(!can_transform(&doc, &state, SelectionTransform::RotateCW));
+        assert!(!can_transform(&doc, &state, SelectionTransform::RotateCCW));
+        assert!(can_transform(&doc, &state, SelectionTransform::Rotate180));
+        assert!(can_transform(&doc, &state, SelectionTransform::MirrorH));
+    }
+
+    #[test]
+    fn transform_grounded_selection_becomes_floating() {
+        use crate::document_io::parse_doclines;
+        let content = "glyph test 4 4\n@@@@....\n........\n........\n........";
+        let mut lines = parse_doclines(content);
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+
+        let mut state = EditorState::new();
+        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.pixel_selection = Some(PixelSelection {
+            item_idx: 0,
+            row: 0,
+            col: 0,
+            width: 4,
+            height: 1,
+            float_pixels: None,
+        });
+
+        handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::MirrorH);
+
+        let sel = state.pixel_selection.as_ref().unwrap();
+        assert!(sel.is_floating());
+        assert_eq!(sel.width, 4);
+        assert_eq!(sel.height, 1);
+        let float = sel.float_pixels.as_ref().unwrap();
+        // Original: filled, filled, empty, empty → mirrored: empty, empty, filled, filled
+        assert!(float.get(0, 0).is_empty());
+        assert!(float.get(0, 1).is_empty());
+        assert!(float.get(0, 2).is_filled());
+        assert!(float.get(0, 3).is_filled());
+    }
+
+    #[test]
+    fn rotate_cw_selection_changes_dimensions() {
+        use crate::document_io::parse_doclines;
+        let content = "glyph test 4 4\n@@@@@@..\n........\n........\n........";
+        let mut lines = parse_doclines(content);
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+
+        let mut state = EditorState::new();
+        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.pixel_selection = Some(PixelSelection {
+            item_idx: 0,
+            row: 0,
+            col: 0,
+            width: 3,
+            height: 1,
+            float_pixels: None,
+        });
+
+        // 3x1 selection: fits when rotated (becomes 1x3, which fits in 4x4 grid)
+        assert!(can_transform(&doc, &state, SelectionTransform::RotateCW));
+
+        handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::RotateCW);
+
+        let sel = state.pixel_selection.as_ref().unwrap();
+        assert!(sel.is_floating());
+        assert_eq!(sel.width, 1);
+        assert_eq!(sel.height, 3);
     }
 }

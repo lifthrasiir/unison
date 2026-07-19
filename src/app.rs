@@ -953,11 +953,18 @@ impl eframe::App for UniformApp {
         let mut ctrl_shift_s_pressed = false;
 
         use crate::edit_menu::{EditAction, EditMenuCaps};
+        use crate::editor::pixel_selection::SelectionTransform;
 
         #[derive(Clone, Copy, PartialEq)]
         enum EditTarget { Editor, Preview }
 
+        enum SelMenuAction {
+            Cancel,
+            Transform(SelectionTransform),
+        }
+
         let mut edit_action = EditAction::None;
+        let mut sel_menu_action: Option<SelMenuAction> = None;
         let edit_target = if self.shaped_preview.is_focused() {
             EditTarget::Preview
         } else {
@@ -1099,6 +1106,91 @@ impl eframe::App for UniformApp {
                                 };
                             }
                         }
+                        ui.close_menu();
+                    }
+                });
+                ui.menu_button("Selection", |ui| {
+                    let (mod_name, _) = if cfg!(target_os = "macos") {
+                        ("⌘", "⇧")
+                    } else {
+                        ("Ctrl+", "Shift+")
+                    };
+                    let active_doc = self.active_doc_idx
+                        .and_then(|i| self.open_documents.get(i));
+                    let in_grid_mode = active_doc.is_some_and(|d| matches!(
+                        d.editor_state.mode,
+                        crate::editor::EditMode::GlyphEdit { .. }
+                            | crate::editor::EditMode::PixelSelect { .. }
+                    ));
+                    let has_sel = active_doc.is_some_and(|d|
+                        d.editor_state.pixel_selection.is_some()
+                    );
+
+                    use crate::editor::pixel_selection::{can_transform, SelectionTransform};
+
+                    let can_do = |t: SelectionTransform| -> bool {
+                        if !in_grid_mode { return false; }
+                        if let Some(d) = active_doc {
+                            return can_transform(&d.document, &d.editor_state, t);
+                        }
+                        false
+                    };
+
+                    if ui.add_enabled(
+                        has_sel,
+                        egui::Button::new("Cancel selection").shortcut_text("Esc"),
+                    ).clicked() {
+                        sel_menu_action = Some(SelMenuAction::Cancel);
+                        ui.close_menu();
+                    }
+
+                    ui.separator();
+
+                    if ui.add_enabled(
+                        can_do(SelectionTransform::MirrorH),
+                        egui::Button::new("Mirror selection").shortcut_text(format!("{mod_name}M")),
+                    ).clicked() {
+                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::MirrorH));
+                        ui.close_menu();
+                    }
+                    if ui.add_enabled(
+                        can_do(SelectionTransform::FlipV),
+                        egui::Button::new("Flip selection").shortcut_text(format!("{mod_name}I")),
+                    ).clicked() {
+                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::FlipV));
+                        ui.close_menu();
+                    }
+                    ui.menu_button("Rotate selection", |ui| {
+                        if ui.add_enabled(
+                            can_do(SelectionTransform::RotateCCW),
+                            egui::Button::new("Counterclockwise").shortcut_text(format!("{mod_name}J")),
+                        ).clicked() {
+                            sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCCW));
+                            ui.close_menu();
+                        }
+                        if ui.add_enabled(
+                            can_do(SelectionTransform::Rotate180),
+                            egui::Button::new("180 degrees").shortcut_text(format!("{mod_name}K")),
+                        ).clicked() {
+                            sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Rotate180));
+                            ui.close_menu();
+                        }
+                        if ui.add_enabled(
+                            can_do(SelectionTransform::RotateCW),
+                            egui::Button::new("Clockwise").shortcut_text(format!("{mod_name}L")),
+                        ).clicked() {
+                            sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCW));
+                            ui.close_menu();
+                        }
+                    });
+
+                    ui.separator();
+
+                    if ui.add_enabled(
+                        can_do(SelectionTransform::Opposite),
+                        egui::Button::new("Opposite subglyphs").shortcut_text(format!("{mod_name}O")),
+                    ).clicked() {
+                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Opposite));
                         ui.close_menu();
                     }
                 });
@@ -1614,6 +1706,40 @@ impl eframe::App for UniformApp {
                                 );
                             }
                         }
+                }
+            }
+        }
+
+        if let Some(action) = sel_menu_action {
+            if let Some(idx) = self.active_doc_idx
+                && let Some(doc) = self.open_documents.get_mut(idx)
+            {
+                match action {
+                    SelMenuAction::Cancel => {
+                        if let Some(sel) = doc.editor_state.pixel_selection.clone() {
+                            crate::editor::pixel_selection::commit_and_clear(
+                                &doc.document,
+                                &mut doc.lines,
+                                &mut doc.editor_state,
+                                &sel,
+                            );
+                        }
+                        doc.editor_state.pixel_selection = None;
+                    }
+                    SelMenuAction::Transform(t) => {
+                        if crate::editor::pixel_selection::handle_transform_selection(
+                            &doc.document,
+                            &mut doc.lines,
+                            &mut doc.editor_state,
+                            t,
+                        ) {
+                            crate::editor::document_view::flush_document_changes(
+                                &mut doc.lines,
+                                &mut doc.document,
+                                &mut doc.editor_state,
+                            );
+                        }
+                    }
                 }
             }
         }

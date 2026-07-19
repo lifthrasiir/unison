@@ -57,6 +57,64 @@ impl PixelGrid {
         self.pixels.iter().all(|s| s.is_empty())
     }
 
+    pub fn mirror_h(&self) -> Self {
+        let mut out = Self::new(self.width, self.height);
+        for r in 0..self.height {
+            for c in 0..self.width {
+                out.set(r, self.width - 1 - c, self.get(r, c).mirror_h());
+            }
+        }
+        out
+    }
+
+    pub fn flip_v(&self) -> Self {
+        let mut out = Self::new(self.width, self.height);
+        for r in 0..self.height {
+            for c in 0..self.width {
+                out.set(self.height - 1 - r, c, self.get(r, c).flip_v());
+            }
+        }
+        out
+    }
+
+    pub fn rotate_cw(&self) -> Self {
+        let mut out = Self::new(self.height, self.width);
+        for r in 0..self.height {
+            for c in 0..self.width {
+                out.set(c, self.height - 1 - r, self.get(r, c).rotate_cw());
+            }
+        }
+        out
+    }
+
+    pub fn rotate_ccw(&self) -> Self {
+        let mut out = Self::new(self.height, self.width);
+        for r in 0..self.height {
+            for c in 0..self.width {
+                out.set(self.width - 1 - c, r, self.get(r, c).rotate_ccw());
+            }
+        }
+        out
+    }
+
+    pub fn rotate_180(&self) -> Self {
+        let mut out = Self::new(self.width, self.height);
+        for r in 0..self.height {
+            for c in 0..self.width {
+                out.set(self.height - 1 - r, self.width - 1 - c, self.get(r, c).rotate_180());
+            }
+        }
+        out
+    }
+
+    pub fn opposite(&self) -> Self {
+        let mut out = self.clone();
+        for px in &mut out.pixels {
+            *px = px.opposite();
+        }
+        out
+    }
+
     /// Blit `src` into `self` with its top-left at `(off_r, off_c)`,
     /// overwriting the destination wherever `src` has a non-empty shape.
     /// When `negated`, `src` shapes are instead subtracted from non-empty
