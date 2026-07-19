@@ -192,6 +192,7 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
     }
 
     let mut mapped_codepoints: HashMap<u32, (PathBuf, usize)> = HashMap::new();
+    let mut mapped_glyphs: HashSet<String> = HashSet::new();
 
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -250,6 +251,7 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                         });
                     }
                     for (cp, target) in &expanded_pairs {
+                        mapped_glyphs.insert(target.clone());
                         if !all_glyph_names.contains(target.as_str()) {
                             issues.push(Issue {
                                 severity: Severity::Error,
@@ -355,6 +357,165 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                     }
                 }
                 _ => {}
+            }
+        }
+    }
+
+    // Detect unused glyphs: glyphs not reachable from any map/remap root.
+    // Works at glyph-item granularity to avoid expensive repeated pattern expansion.
+    {
+        // Assign each glyph item an index; track which items are reachable.
+        // name_to_item: expanded glyph name -> item index
+        let mut name_to_item: HashMap<String, usize> = HashMap::new();
+        // item_refs[i]: ref target names (expanded) for item i
+        let mut item_refs: Vec<Vec<String>> = Vec::new();
+        // item_location[i]: (doc_idx, item_idx, raw_name) for reporting
+        let mut item_location: Vec<(usize, usize, &str)> = Vec::new();
+
+        for (doc_idx, doc) in docs.iter().enumerate() {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+                    let idx = item_refs.len();
+                    item_location.push((doc_idx, item_idx, n));
+
+                    let resolved = substitute_name_parts(n, &name_parts);
+                    if is_name_pattern(&resolved) {
+                        if let Ok(expanded) = expand_name_pattern(&resolved) {
+                            for en in expanded {
+                                name_to_item.entry(en).or_insert(idx);
+                            }
+                        }
+                    } else {
+                        name_to_item.entry(resolved).or_insert(idx);
+                    }
+
+                    let mut refs = Vec::new();
+                    for gref in &body.refs {
+                        let ref_resolved = substitute_name_parts(&gref.name, &name_parts);
+                        if is_name_pattern(&ref_resolved) {
+                            if let Ok(expanded) = expand_name_pattern(&ref_resolved) {
+                                refs.extend(expanded);
+                            }
+                        } else {
+                            refs.push(ref_resolved);
+                        }
+                    }
+                    item_refs.push(refs);
+                }
+            }
+        }
+
+        // Collect root names from map targets and remap references.
+        let mut root_names: HashSet<String> = mapped_glyphs;
+        // .notdef is always required in TrueType fonts.
+        root_names.insert(".notdef".to_string());
+
+        for doc in docs {
+            for item in &doc.items {
+                match item {
+                    DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
+                        for token in source.split_whitespace()
+                            .chain(std::iter::once(target.as_str()))
+                            .chain(lookbehind.iter().map(|s| s.as_str()))
+                            .chain(lookahead.iter().map(|s| s.as_str()))
+                        {
+                            let resolved = substitute_name_parts(token, &name_parts);
+                            if is_name_pattern(&resolved) {
+                                if let Ok(expanded) = expand_name_pattern(&resolved) {
+                                    root_names.extend(expanded);
+                                }
+                            } else {
+                                root_names.insert(resolved);
+                            }
+                        }
+                    }
+                    DocumentItem::Glyph { name: GlyphName(n), body } => {
+                        if body.sticky || body.mark {
+                            let resolved = substitute_name_parts(n, &name_parts);
+                            if is_name_pattern(&resolved) {
+                                if let Ok(expanded) = expand_name_pattern(&resolved) {
+                                    root_names.extend(expanded);
+                                }
+                            } else {
+                                root_names.insert(resolved);
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        // Build alternative lookup: base name -> list of "base:variant" names.
+        let mut alt_names: HashMap<&str, Vec<&str>> = HashMap::new();
+        for name in all_glyph_names.iter() {
+            if let Some(colon_pos) = name.find(':') {
+                let base = &name[..colon_pos];
+                alt_names.entry(base).or_default().push(name.as_str());
+            }
+        }
+
+        // BFS over items.
+        let mut reachable_items: Vec<bool> = vec![false; item_refs.len()];
+        let mut queue: Vec<usize> = Vec::new();
+
+        // Seed with root names.
+        for name in &root_names {
+            if let Some(&idx) = name_to_item.get(name.as_str()) {
+                if !reachable_items[idx] {
+                    reachable_items[idx] = true;
+                    queue.push(idx);
+                }
+            }
+            // Alternatives of root names are also roots.
+            if let Some(alts) = alt_names.get(name.as_str()) {
+                for &alt in alts {
+                    if let Some(&idx) = name_to_item.get(alt) {
+                        if !reachable_items[idx] {
+                            reachable_items[idx] = true;
+                            queue.push(idx);
+                        }
+                    }
+                }
+            }
+        }
+
+        while let Some(item_idx) = queue.pop() {
+            for ref_name in &item_refs[item_idx] {
+                if let Some(&target_item) = name_to_item.get(ref_name.as_str()) {
+                    if !reachable_items[target_item] {
+                        reachable_items[target_item] = true;
+                        queue.push(target_item);
+                    }
+                }
+                // Alternatives of ref targets are also reachable.
+                if let Some(alts) = alt_names.get(ref_name.as_str()) {
+                    for &alt in alts {
+                        if let Some(&alt_item) = name_to_item.get(alt) {
+                            if !reachable_items[alt_item] {
+                                reachable_items[alt_item] = true;
+                                queue.push(alt_item);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Report unreachable items.
+        for (idx, &reached) in reachable_items.iter().enumerate() {
+            if !reached {
+                let (doc_idx, doc_item_idx, name) = item_location[idx];
+                let doc = docs[doc_idx];
+                let line = doc.item_line_starts.get(doc_item_idx).copied().unwrap_or(0);
+                let file_line = docline_to_file_line(doc, line);
+                issues.push(Issue {
+                    severity: Severity::Warning,
+                    message: format!("glyph '{}' is unused", name),
+                    file: doc.path.clone(),
+                    line,
+                    file_line,
+                });
             }
         }
     }
@@ -558,4 +719,120 @@ anchor -join 0 0
             "expected duplicate alternative anchor warning, got: {issues:?}",
         );
     }
+
+    #[test]
+    fn unused_glyph_reported() {
+        let input = "\
+glyph used 2 1
+..@@
+map A = used
+
+glyph orphan 2 1
+@@..
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Warning
+                && i.message.contains("glyph 'orphan' is unused")),
+            "expected unused glyph warning, got: {issues:?}",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("glyph 'used' is unused")),
+            "mapped glyph should not be reported as unused",
+        );
+    }
+
+    #[test]
+    fn transitively_used_glyph_not_reported() {
+        let input = "\
+glyph base 2 1
+..@@
+
+glyph composite 2 1
+@@..
+ref base 0 0
+
+map A = composite
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("is unused")),
+            "transitively used glyph should not be unused: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn mutually_referencing_cluster_reported() {
+        let input = "\
+glyph a 2 1
+..@@
+ref b 0 0
+
+glyph b 2 1
+@@..
+ref a 0 0
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.message.contains("glyph 'a' is unused")),
+            "mutual ref cluster should be unused: {issues:?}",
+        );
+        assert!(
+            issues.iter().any(|i| i.message.contains("glyph 'b' is unused")),
+            "mutual ref cluster should be unused: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn remap_target_counts_as_used() {
+        let input = "\
+glyph base 2 1
+..@@
+map A = base
+
+glyph alt 2 1
+@@..
+
+remap liga : base -> alt
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("glyph 'alt' is unused")),
+            "remap target should count as used: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn alternative_glyph_used_when_base_used() {
+        let input = "\
+glyph stem 2 1
+..@@
+map A = stem
+
+glyph stem:wide 2 1
+@@..
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("glyph 'stem:wide' is unused")),
+            "alternative of used base should not be unused: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn sticky_glyph_not_reported_unused() {
+        let input = "glyph keep sticky advance 0\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("is unused")),
+            "sticky glyph should not be unused: {issues:?}",
+        );
+    }
+
 }
