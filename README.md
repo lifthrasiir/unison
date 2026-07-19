@@ -72,3 +72,16 @@ For now, please see the bitmap glyph chart below.
 
 ![Glyph chart](https://lifthrasiir.github.io/unison/sample.png)
 
+## Uniform
+
+**Uniform** is a hybrid bitmap font editor designed primarily for Unison.
+
+![Uniform screenshot](data/uniform-20260719.png)
+
+Uniform is in heavy development, even more so than Unison itself.
+There is no public release yet, but you can try the latest development version
+by installing [Rust](https://rustup.rs/) and running the following command:
+
+```shell
+cargo run --release
+```
