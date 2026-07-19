@@ -74,6 +74,7 @@ pub struct UniformApp {
     close_confirmed: bool,
     hex_input: Option<String>,
     bottom_panel_height: f32,
+    bottom_panel_height_override: bool,
     bottom_panel_tab: Option<usize>,
     preview_font_size: f32,
     preview_font_size_slider: f32,
@@ -144,7 +145,19 @@ fn take_latest_derived_data(
     received
 }
 
+fn min_bottom_panel_height(screen_height: f32) -> f32 {
+    270.0_f32.min(screen_height * 0.5)
+}
+
 impl UniformApp {
+    fn ensure_min_panel_height(&mut self, screen_height: f32) {
+        let min_h = min_bottom_panel_height(screen_height);
+        if self.bottom_panel_height < min_h {
+            self.bottom_panel_height = min_h;
+            self.bottom_panel_height_override = true;
+        }
+    }
+
     pub fn new(cc: &eframe::CreationContext<'_>, font_dir: Option<PathBuf>) -> Self {
         let _ = cc;
 
@@ -195,8 +208,9 @@ impl UniformApp {
             last_export_path: None,
             close_confirmed: false,
             hex_input: None,
-            bottom_panel_height: 200.0,
-            bottom_panel_tab: Some(0),
+            bottom_panel_height: 0.0,
+            bottom_panel_height_override: false,
+            bottom_panel_tab: None,
             preview_font_size: 32.0,
             preview_font_size_slider: 32.0,
             shaped_preview: ShapedPreviewState::new(),
@@ -1052,6 +1066,41 @@ impl eframe::App for UniformApp {
                         menu_rename_symbol = true;
                         ui.close_menu();
                     }
+                    let in_grid_edit = self.active_doc_idx
+                        .and_then(|i| self.open_documents.get(i))
+                        .is_some_and(|d| matches!(
+                            d.editor_state.mode,
+                            crate::editor::EditMode::GlyphEdit { .. }
+                                | crate::editor::EditMode::PixelSelect { .. }
+                        ));
+                    ui.separator();
+                    if ui
+                        .add_enabled(in_grid_edit, egui::Button::new("Selection mode").shortcut_text("`"))
+                        .clicked()
+                    {
+                        if let Some(d) = self.active_doc_idx.and_then(|i| self.open_documents.get_mut(i)) {
+                            if let crate::editor::EditMode::GlyphEdit { item_idx, .. } = d.editor_state.mode {
+                                d.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx };
+                            }
+                        }
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add_enabled(in_grid_edit, egui::Button::new("Drawing mode").shortcut_text("1"))
+                        .clicked()
+                    {
+                        if let Some(d) = self.active_doc_idx.and_then(|i| self.open_documents.get_mut(i)) {
+                            if let crate::editor::EditMode::PixelSelect { item_idx } = d.editor_state.mode {
+                                d.editor_state.mode = crate::editor::EditMode::GlyphEdit {
+                                    item_idx,
+                                    selected_shape: crate::pixel::PixelShape::new(
+                                        crate::pixel::PX_ALMOSTFULL, true,
+                                    ),
+                                };
+                            }
+                        }
+                        ui.close_menu();
+                    }
                 });
                 ui.menu_button("Font", |ui| {
                     if ui.add_enabled(
@@ -1070,6 +1119,24 @@ impl eframe::App for UniformApp {
                     }
                 });
                 ui.menu_button("View", |ui| {
+                    if ui.add(egui::Button::new("Close panes").shortcut_text(format!("{mod_name}`"))).clicked() {
+                        self.bottom_panel_tab = None;
+                        ui.close_menu();
+                    }
+                    ui.separator();
+                    for (tab, label) in [(0, "Preview"), (1, "Specimen"), (2, "Issues")] {
+                        let selected = self.bottom_panel_tab == Some(tab);
+                        let mut btn = egui::Button::new(label)
+                            .shortcut_text(format!("{mod_name}{}", tab + 1));
+                        if selected {
+                            btn = btn.fill(ui.visuals().selection.bg_fill);
+                        }
+                        if ui.add(btn).clicked() {
+                            self.bottom_panel_tab = Some(tab);
+                            ui.close_menu();
+                        }
+                    }
+                    ui.separator();
                     let (font_label, preview_family) = if self.escape_mode {
                         ("Use dogfooded font", egui::FontFamily::Name("UniformBitmap".into()))
                     } else {
@@ -1142,6 +1209,25 @@ impl eframe::App for UniformApp {
                 }
             } else if i.modifiers.alt && i.key_pressed(egui::Key::F4) {
                 menu_exit = true;
+            }
+            if i.modifiers.command && !i.modifiers.shift {
+                for (key, tab) in [
+                    (egui::Key::Num1, 0),
+                    (egui::Key::Num2, 1),
+                    (egui::Key::Num3, 2),
+                ] {
+                    if i.key_pressed(key) {
+                        self.bottom_panel_tab = Some(tab);
+                        let min_h = min_bottom_panel_height(i.screen_rect.height());
+                        if self.bottom_panel_height < min_h {
+                            self.bottom_panel_height = min_h;
+                            self.bottom_panel_height_override = true;
+                        }
+                    }
+                }
+                if i.key_pressed(egui::Key::Backtick) {
+                    self.bottom_panel_tab = None;
+                }
             }
         });
 
@@ -1315,6 +1401,19 @@ impl eframe::App for UniformApp {
         let mut specimen_clicked_glyph: Option<String> = None;
         let mut issues_click: Option<(PathBuf, usize)> = None;
         let bottom_panel_expanded = self.bottom_panel_tab.is_some();
+        if self.bottom_panel_height_override {
+            self.bottom_panel_height_override = false;
+            let panel_id = egui::Id::new("bottom_panel");
+            if let Some(mut state) =
+                ctx.data_mut(|d| d.get_persisted::<egui::panel::PanelState>(panel_id))
+            {
+                let h = state.rect.height();
+                if h < self.bottom_panel_height {
+                    state.rect.set_height(self.bottom_panel_height);
+                    ctx.data_mut(|d| d.insert_persisted(panel_id, state));
+                }
+            }
+        }
         let mut bottom_panel = egui::TopBottomPanel::bottom("bottom_panel")
             .resizable(bottom_panel_expanded);
         if bottom_panel_expanded {
@@ -1327,10 +1426,16 @@ impl eframe::App for UniformApp {
                     self.bottom_panel_height = ui.available_height();
                 }
                 ui.horizontal(|ui| {
+                    let screen_h = ui.ctx().input(|i| i.screen_rect.height());
                     for (idx, label) in [(0, "Preview"), (1, "Specimen")] {
                         let selected = self.bottom_panel_tab == Some(idx);
                         if ui.selectable_label(selected, label).clicked() {
-                            self.bottom_panel_tab = if selected { None } else { Some(idx) };
+                            if selected {
+                                self.bottom_panel_tab = None;
+                            } else {
+                                self.bottom_panel_tab = Some(idx);
+                                self.ensure_min_panel_height(screen_h);
+                            }
                         }
                     }
                     let total_issues = self.issues.len() + self.assert_issues.len();
@@ -1348,7 +1453,12 @@ impl eframe::App for UniformApp {
                     };
                     let issues_selected = self.bottom_panel_tab == Some(2);
                     if ui.selectable_label(issues_selected, issues_label).clicked() {
-                        self.bottom_panel_tab = if issues_selected { None } else { Some(2) };
+                        if issues_selected {
+                            self.bottom_panel_tab = None;
+                        } else {
+                            self.bottom_panel_tab = Some(2);
+                            self.ensure_min_panel_height(screen_h);
+                        }
                     }
                 });
                 if self.bottom_panel_tab != Some(1) {
