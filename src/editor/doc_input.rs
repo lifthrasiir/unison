@@ -175,13 +175,13 @@ pub(crate) fn handle_keys(
                                     changed = true;
                                 }
                             } else {
-                                let new_c = crate::editor::editing::delete(
+                                let (new_c, deleted) = crate::editor::editing::delete(
                                     lines,
                                     &mut state.undo,
                                     state.cursor,
                                 );
-                                changed = new_c != state.cursor;
                                 state.cursor = new_c;
+                                changed = deleted || new_c != state.cursor;
                             }
                         }
                         egui::Key::Enter => {

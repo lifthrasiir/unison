@@ -131,6 +131,16 @@ fn typing_inserts_text_and_marks_document_dirty() {
 }
 
 #[test]
+fn delete_key_updates_immediately() {
+    let mut h = EditorHarness::new(&sample_doc());
+    // Place cursor at start of "glyph foo 16 16"
+    h.click_text(0, 0);
+    h.key(Key::Delete);
+    assert_eq!(h.text(0), "lyph foo 16 16");
+    assert!(h.doc.dirty);
+}
+
+#[test]
 fn click_grid_enters_glyph_edit() {
     let mut h = EditorHarness::new(&sample_doc());
     h.click_grid_cell(1, 0, 0);

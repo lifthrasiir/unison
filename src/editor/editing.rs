@@ -115,10 +115,10 @@ pub fn backspace(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
     }
 }
 
-pub fn delete(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> Caret {
+pub fn delete(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> (Caret, bool) {
     // Grid line with no selection: no-op
     if matches!(lines.get(caret.line), Some(DocLine::Grid(_))) {
-        return caret;
+        return (caret, false);
     }
 
     if let Some(DocLine::Text(t)) = lines.get(caret.line) {
@@ -130,19 +130,19 @@ pub fn delete(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> C
             let removed = t[b0..b1].to_string();
             undo.push_text(caret.line, caret.col, removed, String::new(), caret, caret);
             t.replace_range(b0..b1, "");
-            return caret;
+            return (caret, true);
         }
     }
 
     // At end of text line, need to join with next line or skip grid
     if caret.line + 1 >= lines.len() {
-        return caret;
+        return (caret, false);
     }
 
     match &lines[caret.line + 1] {
         DocLine::Grid(_) => {
             // Move caret onto grid (select it), no edit
-            Caret::new(caret.line + 1, 0)
+            (Caret::new(caret.line + 1, 0), false)
         }
         DocLine::Text(next) => {
             let cur = lines[caret.line].as_text().unwrap().to_string();
@@ -151,7 +151,7 @@ pub fn delete(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> C
             let new = vec![DocLine::Text(merged)];
             undo.push_lines(caret.line, old, new.clone(), caret, caret);
             lines.splice(caret.line..=caret.line + 1, new);
-            caret
+            (caret, true)
         }
     }
 }
@@ -365,36 +365,40 @@ mod tests {
     fn delete_within_text() {
         let mut lines = vec![text("abc")];
         let mut undo = UndoStack::new();
-        let caret = delete(&mut lines, &mut undo, c(0, 1));
+        let (caret, changed) = delete(&mut lines, &mut undo, c(0, 1));
         assert_eq!(lines[0], text("ac"));
         assert_eq!(caret, c(0, 1));
+        assert!(changed);
     }
 
     #[test]
     fn delete_joins_text_lines() {
         let mut lines = vec![text("ab"), text("cd")];
         let mut undo = UndoStack::new();
-        let caret = delete(&mut lines, &mut undo, c(0, 2));
+        let (caret, changed) = delete(&mut lines, &mut undo, c(0, 2));
         assert_eq!(lines, vec![text("abcd")]);
         assert_eq!(caret, c(0, 2));
+        assert!(changed);
     }
 
     #[test]
     fn delete_at_end_before_grid_selects_grid() {
         let mut lines = vec![text("ab"), grid(2, 2), text("cd")];
         let mut undo = UndoStack::new();
-        let caret = delete(&mut lines, &mut undo, c(0, 2));
+        let (caret, changed) = delete(&mut lines, &mut undo, c(0, 2));
         assert_eq!(caret, c(1, 0));
         assert_eq!(lines.len(), 3);
+        assert!(!changed);
     }
 
     #[test]
     fn delete_on_grid_is_noop() {
         let mut lines = vec![text("ab"), grid(2, 2), text("cd")];
         let mut undo = UndoStack::new();
-        let caret = delete(&mut lines, &mut undo, c(1, 0));
+        let (caret, changed) = delete(&mut lines, &mut undo, c(1, 0));
         assert_eq!(caret, c(1, 0));
         assert_eq!(lines.len(), 3);
+        assert!(!changed);
     }
 
     #[test]
