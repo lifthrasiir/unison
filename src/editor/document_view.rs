@@ -1179,7 +1179,7 @@ pub fn show_document(
                             if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
                                 let shapes = crate::editor::glyph_widget::all_valid_shapes();
                                 if let Some(cur_idx) =
-                                    shapes.iter().position(|s| *s == *selected_shape)
+                                    shapes.iter().position(|s| s.shape_id() == selected_shape.shape_id())
                                 {
                                     let next_idx = (cur_idx as i32 + step)
                                         .clamp(0, shapes.len() as i32 - 1)

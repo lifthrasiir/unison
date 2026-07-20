@@ -369,9 +369,10 @@ fn draw_inline_palette(
     });
     if gesture_on_interceptor && hover_on_palette
         && let Some(step) = debounced_scroll_step(ui.ctx())
-            && let Some(cur_idx) = shapes.iter().position(|s| *s == *selected_shape) {
+            && let Some(cur_idx) = shapes.iter().position(|s| s.shape_id() == selected_shape.shape_id()) {
                 let next = (cur_idx as i32 + step).clamp(0, shapes.len() as i32 - 1) as usize;
-                *selected_shape = shapes[next];
+                let next_shape = shapes[next];
+                *selected_shape = pixel::PixelShape::new(next_shape.shape_id(), next_shape.is_filled());
             }
     ui.ctx().data_mut(|d| {
         d.insert_temp(egui::Id::new("shape_palette_hover"), hover_on_palette);
@@ -384,7 +385,7 @@ fn draw_inline_palette(
             egui::vec2(cell, cell),
         );
 
-        let is_selected = *shape == *selected_shape;
+        let is_selected = shape.shape_id() == selected_shape.shape_id();
         let bg = if is_selected {
             pal.shape_palette_selected_bg
         } else {
@@ -392,11 +393,7 @@ fn draw_inline_palette(
         };
         painter.rect_filled(cell_rect, 1.0, bg);
         let apply_shift = shift_held && !shape.is_empty();
-        let display_filled = if is_selected {
-            shape.is_filled()
-        } else {
-            shape.is_filled() ^ apply_shift
-        };
+        let display_filled = shape.is_filled() ^ apply_shift;
         let px_color = if display_filled {
             pal.pixel_filled
         } else {
@@ -416,16 +413,17 @@ fn draw_inline_palette(
         if let Some(cp) = click_pos
             && cell_rect.contains(cp)
         {
-            if shape.is_slant_pair() && *selected_shape == *shape {
-                *selected_shape = shape.slant_direction_pair();
+            if shape.is_slant_pair() && selected_shape.shape_id() == shape.shape_id() {
+                let pair = shape.slant_direction_pair();
+                *selected_shape = if shift_held { pair.with_fill_toggled() } else { pair };
             } else if shape.is_slant_pair()
-                && *selected_shape == shape.slant_direction_pair()
+                && selected_shape.shape_id() == shape.slant_direction_pair().shape_id()
             {
-                *selected_shape = *shape;
-            } else if shift_held && !shape.is_empty() {
-                *selected_shape = shape.with_fill_toggled();
+                let target = if shift_held { shape.with_fill_toggled() } else { *shape };
+                *selected_shape = target;
             } else {
-                *selected_shape = *shape;
+                let new_fill = shape.is_filled() ^ (shift_held && !shape.is_empty());
+                *selected_shape = pixel::PixelShape::new(shape.shape_id(), new_fill);
             }
         }
     }

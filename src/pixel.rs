@@ -42,6 +42,16 @@ pub const PX_INVCONE1: u8 = 16 ^ PX_SUBPIXEL;
 pub const PX_INVCONE2: u8 = 17 ^ PX_SUBPIXEL;
 pub const PX_INVCONE3: u8 = 18 ^ PX_SUBPIXEL;
 pub const PX_INVCONE4: u8 = 19 ^ PX_SUBPIXEL;
+pub const PX_HQUAD: u8 = 20; //              >< (left+right quads bowtie)
+pub const PX_VQUAD: u8 = 20 ^ PX_SUBPIXEL; // top+bottom quads bowtie
+pub const PX_CORNER1: u8 = 21; //            BL corner triangle
+pub const PX_CORNER2: u8 = 22; //            TR corner triangle
+pub const PX_CORNER3: u8 = 23; //            TL corner triangle
+pub const PX_CORNER4: u8 = 24; //            BR corner triangle
+pub const PX_INVCORNER1: u8 = 21 ^ PX_SUBPIXEL;
+pub const PX_INVCORNER2: u8 = 22 ^ PX_SUBPIXEL;
+pub const PX_INVCORNER3: u8 = 23 ^ PX_SUBPIXEL;
+pub const PX_INVCORNER4: u8 = 24 ^ PX_SUBPIXEL;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct PixelShape(pub u8);
@@ -121,11 +131,7 @@ impl PixelShape {
     }
 
     pub fn opposite(self) -> Self {
-        if self.is_empty() {
-            self
-        } else {
-            self.with_fill_toggled()
-        }
+        Self(!self.0)
     }
 
     pub fn opposite_bitmap(self) -> Self {
@@ -137,11 +143,11 @@ impl PixelShape {
     }
 }
 
-// Transform lookup tables: map shape_id → transformed shape_id for base shapes (0-19).
-// Complement shapes (id ≥ 108) use: transform(id ^ 127) ^ 127.
+// Transform lookup tables: map shape_id → transformed shape_id for base shapes (0-24).
+// Complement shapes (id ≥ 103) use: transform(id ^ 127) ^ 127.
 // The fill bit (PX_FULL) passes through unchanged.
 #[rustfmt::skip]
-const MIRROR_H_TABLE: [u8; 20] = [
+const MIRROR_H_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     125, // HALF1 (\ BL) → HALF4 (/ BR)
     126, // HALF3 (/ TL) → HALF2 (\ TR)
@@ -162,10 +168,15 @@ const MIRROR_H_TABLE: [u8; 20] = [
     17,  // CONE2 (top) → CONE2 (top)
     16,  // CONE3 (right) → CONE1 (left)
     19,  // CONE4 (bottom) → CONE4 (bottom)
+    20,  // HQUAD → HQUAD (symmetric)
+    24,  // CORNER1 (BL) → CORNER4 (BR)
+    23,  // CORNER2 (TR) → CORNER3 (TL)
+    22,  // CORNER3 (TL) → CORNER2 (TR)
+    21,  // CORNER4 (BR) → CORNER1 (BL)
 ];
 
 #[rustfmt::skip]
-const FLIP_V_TABLE: [u8; 20] = [
+const FLIP_V_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     2,   // HALF1 (\ BL) → HALF3 (/ TL)
     1,   // HALF3 (/ TL) → HALF1 (\ BL)
@@ -186,10 +197,15 @@ const FLIP_V_TABLE: [u8; 20] = [
     19,  // CONE2 (top) → CONE4 (bottom)
     18,  // CONE3 (right) → CONE3 (right)
     17,  // CONE4 (bottom) → CONE2 (top)
+    20,  // HQUAD → HQUAD (symmetric)
+    23,  // CORNER1 (BL) → CORNER3 (TL)
+    24,  // CORNER2 (TR) → CORNER4 (BR)
+    21,  // CORNER3 (TL) → CORNER1 (BL)
+    22,  // CORNER4 (BR) → CORNER2 (TR)
 ];
 
 #[rustfmt::skip]
-const ROTATE_CW_TABLE: [u8; 20] = [
+const ROTATE_CW_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     2,   // HALF1 (\ BL) → HALF3 (/ TL)
     126, // HALF3 (/ TL) → HALF2 (\ TR)
@@ -210,10 +226,15 @@ const ROTATE_CW_TABLE: [u8; 20] = [
     18,  // CONE2 (top) → CONE3 (right)
     19,  // CONE3 (right) → CONE4 (bottom)
     16,  // CONE4 (bottom) → CONE1 (left)
+    107, // HQUAD → VQUAD
+    23,  // CORNER1 (BL) → CORNER3 (TL)
+    24,  // CORNER2 (TR) → CORNER4 (BR)
+    22,  // CORNER3 (TL) → CORNER2 (TR)
+    21,  // CORNER4 (BR) → CORNER1 (BL)
 ];
 
 #[rustfmt::skip]
-const ROTATE_CCW_TABLE: [u8; 20] = [
+const ROTATE_CCW_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     125, // HALF1 (\ BL) → HALF4 (/ BR)
     1,   // HALF3 (/ TL) → HALF1 (\ BL)
@@ -234,10 +255,15 @@ const ROTATE_CCW_TABLE: [u8; 20] = [
     16,  // CONE2 (top) → CONE1 (left)
     17,  // CONE3 (right) → CONE2 (top)
     18,  // CONE4 (bottom) → CONE3 (right)
+    107, // HQUAD → VQUAD
+    24,  // CORNER1 (BL) → CORNER4 (BR)
+    23,  // CORNER2 (TR) → CORNER3 (TL)
+    21,  // CORNER3 (TL) → CORNER1 (BL)
+    22,  // CORNER4 (BR) → CORNER2 (TR)
 ];
 
 #[rustfmt::skip]
-const ROTATE_180_TABLE: [u8; 20] = [
+const ROTATE_180_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     126, // HALF1 (\ BL) → HALF2 (\ TR)
     125, // HALF3 (/ TL) → HALF4 (/ BR)
@@ -258,18 +284,23 @@ const ROTATE_180_TABLE: [u8; 20] = [
     19,  // CONE2 (top) → CONE4 (bottom)
     16,  // CONE3 (right) → CONE1 (left)
     17,  // CONE4 (bottom) → CONE2 (top)
+    20,  // HQUAD → HQUAD (symmetric)
+    22,  // CORNER1 (BL) → CORNER2 (TR)
+    21,  // CORNER2 (TR) → CORNER1 (BL)
+    24,  // CORNER3 (TL) → CORNER4 (BR)
+    23,  // CORNER4 (BR) → CORNER3 (TL)
 ];
 
-fn transform_shape(raw: u8, table: [u8; 20]) -> u8 {
+fn transform_shape(raw: u8, table: [u8; 25]) -> u8 {
     let fill = raw & PX_FULL;
     let id = raw & PX_SUBPIXEL;
-    let new_id = if id <= 19 {
+    let new_id = if id <= 24 {
         table[id as usize]
     } else if id == PX_ALMOSTFULL {
         PX_ALMOSTFULL
-    } else if id >= 108 {
+    } else if id >= 103 {
         let base = id ^ PX_SUBPIXEL;
-        if base <= 19 {
+        if base <= 24 {
             table[base as usize] ^ PX_SUBPIXEL
         } else {
             id
@@ -362,14 +393,28 @@ const ADJACENCY_MAP: &[(u8, u8, &[Seg])] = &[
         0b00001100,
         &[(0.0, 1.0, 0.5, 0.0), (0.5, 0.0, 1.0, 1.0)],
     ),
+    (
+        PX_HQUAD,
+        0b00110011,
+        &[
+            (0.0, 0.0, 0.5, 0.5),
+            (0.5, 0.5, 0.0, 1.0),
+            (1.0, 0.0, 0.5, 0.5),
+            (0.5, 0.5, 1.0, 1.0),
+        ],
+    ),
+    (PX_CORNER1, 0b00000110, &[(0.0, 0.5, 0.5, 1.0)]),
+    (PX_CORNER2, 0b01100000, &[(1.0, 0.5, 0.5, 0.0)]),
+    (PX_CORNER3, 0b10000001, &[(0.5, 0.0, 0.0, 0.5)]),
+    (PX_CORNER4, 0b00011000, &[(0.5, 1.0, 1.0, 0.5)]),
 ];
 
 #[rustfmt::skip]
 const ADJACENCY_BITS: [u8; 129] = [
     0x00, 0x0F, 0xC3, 0x03, 0xC0, 0x30, 0x0C, 0x07, // 0-7
     0x70, 0x83, 0x38, 0x0E, 0xE0, 0xC1, 0x1C, 0x00, // 8-15
-    0x03, 0xC0, 0x30, 0x0C, 0x00, 0x00, 0x00, 0x00, // 16-23
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 24-31
+    0x03, 0xC0, 0x30, 0x0C, 0x33, 0x06, 0x60, 0x81, // 16-23
+    0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 24-31
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 32-39
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 40-47
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 48-55
@@ -378,8 +423,8 @@ const ADJACENCY_BITS: [u8; 129] = [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 72-79
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 80-87
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 88-95
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 96-103
-    0x00, 0x00, 0x00, 0x00, 0xF3, 0xCF, 0x3F, 0xFC, // 104-111
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE7, // 96-103
+    0x7E, 0x9F, 0xF9, 0xCC, 0xF3, 0xCF, 0x3F, 0xFC, // 104-111
     0xFF, 0xE3, 0x3E, 0x1F, 0xF1, 0xC7, 0x7C, 0x8F, // 112-119
     0xF8, 0xF3, 0xCF, 0x3F, 0xFC, 0x3C, 0xF0, 0xFF, // 120-127
     0xFF, // 128 (clamped alias for ALMOSTFULL)
@@ -388,9 +433,9 @@ const ADJACENCY_BITS: [u8; 129] = [
 pub fn adjacency(shape_id: u8) -> (u8, &'static [(f32, f32, f32, f32)]) {
     let idx = shape_id.min(128) as usize;
     let bits = ADJACENCY_BITS[idx];
-    let map_idx = if shape_id <= 19 {
+    let map_idx = if shape_id <= 24 {
         shape_id as usize
-    } else if shape_id >= 108 {
+    } else if shape_id >= 103 {
         (127 - shape_id.min(127)) as usize
     } else {
         return (bits, &[]);
@@ -480,6 +525,16 @@ const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
     t[17] = ec(0.0,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.0); // CONE2
     t[18] = ec(0.0,0.0, 0.0,0.0, 0.0,0.0, 0.0,1.0); // CONE3
     t[19] = ec(0.0,0.0, 0.0,1.0, 0.0,0.0, 0.0,0.0); // CONE4
+    t[20] = ec(0.0,0.0, 0.0,1.0, 0.5,1.0, 0.0,1.0); // HQUAD
+    t[21] = ec(0.0,0.0, 0.0,0.5, 0.5,1.0, 0.0,0.0); // CORNER1
+    t[22] = ec(0.5,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.5); // CORNER2
+    t[23] = ec(0.0,0.5, 0.0,0.0, 0.0,0.5, 0.0,0.0); // CORNER3
+    t[24] = ec(0.0,0.0, 0.5,1.0, 0.0,0.0, 0.5,1.0); // CORNER4
+    t[103] = ec(0.0,1.0, 0.0,0.5, 0.0,1.0, 0.0,0.5); // INVCORNER4
+    t[104] = ec(0.5,1.0, 0.0,1.0, 0.5,1.0, 0.0,1.0); // INVCORNER3
+    t[105] = ec(0.0,0.5, 0.0,1.0, 0.0,1.0, 0.5,1.0); // INVCORNER2
+    t[106] = ec(0.0,1.0, 0.5,1.0, 0.0,0.5, 0.0,1.0); // INVCORNER1
+    t[107] = ec(0.0,1.0, 0.5,1.0, 0.0,0.0, 0.0,1.0); // VQUAD
     // 108-112: inverted halves/quads → full edges
     t[108] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT1H (inv)
     t[109] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT2H (inv)
@@ -669,6 +724,16 @@ const SHAPE_TO_CHARS: [[u8; 2]; 256] = {
     table[PX_CONE2 as usize] = *b"2P";
     table[PX_CONE3 as usize] = *b"<2";
     table[PX_CONE4 as usize] = *b"d2";
+    table[PX_HQUAD as usize] = *b"><";
+    table[PX_CORNER1 as usize] = *b"\\.";
+    table[PX_CORNER2 as usize] = *b".\\";
+    table[PX_CORNER3 as usize] = *b"/.";
+    table[PX_CORNER4 as usize] = *b"./";
+    table[PX_VQUAD as usize] = *b"0B";
+    table[PX_INVCORNER1 as usize] = *b"\\@";
+    table[PX_INVCORNER2 as usize] = *b"@\\";
+    table[PX_INVCORNER3 as usize] = *b"/@";
+    table[PX_INVCORNER4 as usize] = *b"@/";
     table[PX_INVCONE4 as usize] = *b"P2";
     table[PX_INVCONE3 as usize] = *b"2<";
     table[PX_INVCONE2 as usize] = *b"2d";
@@ -710,6 +775,16 @@ const SHAPE_TO_CHARS: [[u8; 2]; 256] = {
     table[128 + PX_CONE2 as usize] = *b"3P";
     table[128 + PX_CONE3 as usize] = *b"<3";
     table[128 + PX_CONE4 as usize] = *b"d3";
+    table[128 + PX_HQUAD as usize] = *b")(";
+    table[128 + PX_CORNER1 as usize] = *b"b.";
+    table[128 + PX_CORNER2 as usize] = *b".9";
+    table[128 + PX_CORNER3 as usize] = *b"P.";
+    table[128 + PX_CORNER4 as usize] = *b".d";
+    table[128 + PX_VQUAD as usize] = *b"1B";
+    table[128 + PX_INVCORNER1 as usize] = *b"9@";
+    table[128 + PX_INVCORNER2 as usize] = *b"@b";
+    table[128 + PX_INVCORNER3 as usize] = *b"d@";
+    table[128 + PX_INVCORNER4 as usize] = *b"@P";
     table[128 + PX_INVCONE4 as usize] = *b"P3";
     table[128 + PX_INVCONE3 as usize] = *b"3<";
     table[128 + PX_INVCONE2 as usize] = *b"3d";
@@ -777,6 +852,16 @@ const SHAPE_RASTERS: [u128; 128] = {
     r[ 17] = 0x000300C0781E0FC3F1FE7FBFF;
     r[ 18] = 0x80380F83F8FFBFEFE3E0E0200;
     r[ 19] = 0xFFDFE7F8FC3F0781E0300C000;
+    r[ 20] = 0x80703E1FCFFFFFEFE3E0E0200; // HQUAD
+    r[ 21] = 0x03C0700C01000000000000000; // CORNER1
+    r[ 22] = 0x000000000000200C0380F03E0; // CORNER2
+    r[ 23] = 0x00000000000000100C0703C1F; // CORNER3
+    r[ 24] = 0xF0380C0200000000000000000; // CORNER4
+    r[103] = 0x0FC7F3FDFFFFFFFFFFFFFFFFF; // INVCORNER4
+    r[104] = 0xFFFFFFFFFFFFFFEFF3F8FC3E0; // INVCORNER3
+    r[105] = 0xFFFFFFFFFFFFDFF3FC7F0FC1F; // INVCORNER2
+    r[106] = 0xFC3F8FF3FEFFFFFFFFFFFFFFF; // INVCORNER1
+    r[107] = 0x780F01C0380603C1F0FE7FBFF; // VQUAD
     r[108] = 0x0020180703C0F87E1FCFF3FFF;
     r[109] = 0x7FC7F07C070040101C1F1FDFF;
     r[110] = 0xFFFCFF3F87E1F03C0E0180400;
@@ -803,10 +888,10 @@ const SHAPE_RASTERS: [u128; 128] = {
 fn raster_to_shape_id(raster: u128) -> u8 {
     if raster == 0 { return PX_EMPTY; }
     if raster == FULL_RASTER { return PX_ALMOSTFULL; }
-    for i in 0u8..20 {
+    for i in 0u8..25 {
         if SHAPE_RASTERS[i as usize] == raster { return i; }
     }
-    for i in 108u8..128 {
+    for i in 103u8..128 {
         if SHAPE_RASTERS[i as usize] == raster { return i; }
     }
     PX_DOT
@@ -1069,19 +1154,19 @@ pub fn multi_shape_diff_adjacency(
 fn closest_raster_shape(target: u128) -> u8 {
     if target == 0 { return PX_EMPTY; }
     if target == FULL_RASTER { return PX_ALMOSTFULL; }
-    for i in 0u8..20 {
+    for i in 0u8..25 {
         if SHAPE_RASTERS[i as usize] == target { return i; }
     }
-    for i in 108u8..128 {
+    for i in 103u8..128 {
         if SHAPE_RASTERS[i as usize] == target { return i; }
     }
     let mut best = PX_ALMOSTFULL;
     let mut best_dist = u32::MAX;
-    for i in 1u8..20 {
+    for i in 1u8..25 {
         let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
         if dist < best_dist { best_dist = dist; best = i; }
     }
-    for i in 108u8..128 {
+    for i in 103u8..128 {
         let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
         if dist < best_dist { best_dist = dist; best = i; }
     }
@@ -1617,4 +1702,5 @@ mod tests {
             assert_eq!(shape.rotate_cw().rotate_cw(), shape.rotate_180(), "2x cw != 180 for id={id}");
         }
     }
+
 }
