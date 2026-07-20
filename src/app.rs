@@ -20,6 +20,62 @@ type FontBuildMessage = (u64, Option<FontPair>);
 type DerivedDataMessage = (u64, HashMap<String, ResolvedGlyph>, crate::editor::ref_composite::AlternativesIndex, NamePartsMap, Vec<Issue>);
 type AssertResultMessage = Vec<Issue>;
 
+enum BackgroundTaskPhase {
+    Running(std::time::Instant),
+    Finished(std::time::Instant, std::time::Duration),
+}
+
+struct BackgroundTaskStatus {
+    build: Option<BackgroundTaskPhase>,
+    test: Option<BackgroundTaskPhase>,
+}
+
+impl BackgroundTaskStatus {
+    fn new() -> Self {
+        Self { build: None, test: None }
+    }
+
+    fn start_build(&mut self) {
+        self.build = Some(BackgroundTaskPhase::Running(std::time::Instant::now()));
+    }
+
+    fn finish_build(&mut self) {
+        if let Some(BackgroundTaskPhase::Running(start)) = self.build {
+            self.build = Some(BackgroundTaskPhase::Finished(
+                std::time::Instant::now(),
+                start.elapsed(),
+            ));
+        }
+    }
+
+    fn start_test(&mut self) {
+        self.test = Some(BackgroundTaskPhase::Running(std::time::Instant::now()));
+    }
+
+    fn finish_test(&mut self) {
+        if let Some(BackgroundTaskPhase::Running(start)) = self.test {
+            self.test = Some(BackgroundTaskPhase::Finished(
+                std::time::Instant::now(),
+                start.elapsed(),
+            ));
+        }
+    }
+
+    fn gc(&mut self) {
+        let expire = std::time::Duration::from_secs(10);
+        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.build {
+            if at.elapsed() >= expire {
+                self.build = None;
+            }
+        }
+        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.test {
+            if at.elapsed() >= expire {
+                self.test = None;
+            }
+        }
+    }
+}
+
 fn collect_effective_docs<'a>(
     open_documents: &'a [OpenDocument],
     font_base_docs: &'a [Document],
@@ -87,6 +143,7 @@ pub struct UniformApp {
     assert_rx: mpsc::Receiver<AssertResultMessage>,
     assert_tx: mpsc::Sender<AssertResultMessage>,
     assert_running: bool,
+    bg_tasks: BackgroundTaskStatus,
 }
 
 pub struct OpenDocument {
@@ -232,6 +289,7 @@ impl UniformApp {
             assert_rx,
             assert_tx,
             assert_running: false,
+            bg_tasks: BackgroundTaskStatus::new(),
         };
 
         if let Some(dir) = &font_dir {
@@ -345,6 +403,7 @@ impl UniformApp {
             return;
         }
         self.assert_running = true;
+        self.bg_tasks.start_test();
         self.status_message = Some(("Running shape assertions...".to_string(), std::time::Instant::now()));
 
         let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
@@ -383,7 +442,8 @@ impl UniformApp {
         });
     }
 
-    fn rebuild_font(&self, ctx: &egui::Context) {
+    fn rebuild_font(&mut self, ctx: &egui::Context) {
+        self.bg_tasks.start_build();
         let build_gen = self.font_build_gen;
         let owned_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
         let tx = self.font_build_tx.clone();
@@ -894,6 +954,7 @@ impl eframe::App for UniformApp {
             if let Some(pair) =
                 take_current_font_build(&self.font_build_rx, self.font_build_gen)
             {
+                self.bg_tasks.finish_build();
                 self.font_data = pair;
                 self.font_data_gen = self.font_build_gen;
                 self.font_applied = None;
@@ -934,6 +995,7 @@ impl eframe::App for UniformApp {
             let count = assert_issues.len();
             self.assert_issues = assert_issues;
             self.assert_running = false;
+            self.bg_tasks.finish_test();
             let total_msg = if count == 0 {
                 "All shape assertions passed.".to_string()
             } else {
@@ -943,6 +1005,11 @@ impl eframe::App for UniformApp {
             if count > 0 {
                 self.bottom_panel_tab = Some(2);
             }
+        }
+
+        self.bg_tasks.gc();
+        if self.bg_tasks.build.is_some() || self.bg_tasks.test.is_some() {
+            ctx.request_repaint_after(std::time::Duration::from_millis(100));
         }
 
         let theme_before = ctx.options(|o| o.theme_preference);
@@ -1495,6 +1562,24 @@ impl eframe::App for UniformApp {
                             let dirty = if doc.document.dirty { " [modified]" } else { "" };
                             ui.label(format!("{name}:{line}{dirty}"));
                         }
+                    for (label, phase) in [
+                        ("Build", &self.bg_tasks.build),
+                        ("Test", &self.bg_tasks.test),
+                    ] {
+                        if let Some(phase) = phase {
+                            let (text, color) = match phase {
+                                BackgroundTaskPhase::Running(start) => {
+                                    let secs = start.elapsed().as_secs_f64();
+                                    (format!("{label} {secs:.1}s"), egui::Color32::from_rgb(100, 180, 255))
+                                }
+                                BackgroundTaskPhase::Finished(_, dur) => {
+                                    let secs = dur.as_secs_f64();
+                                    (format!("{label} {secs:.1}s"), egui::Color32::from_rgb(100, 200, 100))
+                                }
+                            };
+                            ui.label(egui::RichText::new(format!("{{{text}}}")).color(color));
+                        }
+                    }
                 });
             });
         });
