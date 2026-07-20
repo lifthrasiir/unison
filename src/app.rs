@@ -150,6 +150,16 @@ fn min_bottom_panel_height(screen_height: f32) -> f32 {
 }
 
 impl UniformApp {
+    fn in_grid_edit(&self) -> bool {
+        self.active_doc_idx
+            .and_then(|i| self.open_documents.get(i))
+            .is_some_and(|d| matches!(
+                d.editor_state.mode,
+                crate::editor::EditMode::GlyphEdit { .. }
+                    | crate::editor::EditMode::PixelSelect { .. }
+            ))
+    }
+
     fn ensure_min_panel_height(&mut self, screen_height: f32) {
         let min_h = min_bottom_panel_height(screen_height);
         if self.bottom_panel_height < min_h {
@@ -1073,13 +1083,7 @@ impl eframe::App for UniformApp {
                         menu_rename_symbol = true;
                         ui.close_menu();
                     }
-                    let in_grid_edit = self.active_doc_idx
-                        .and_then(|i| self.open_documents.get(i))
-                        .is_some_and(|d| matches!(
-                            d.editor_state.mode,
-                            crate::editor::EditMode::GlyphEdit { .. }
-                                | crate::editor::EditMode::PixelSelect { .. }
-                        ));
+                    let in_grid_edit = self.in_grid_edit();
                     ui.separator();
                     if ui
                         .add_enabled(in_grid_edit, egui::Button::new("Selection mode").shortcut_text("`"))
@@ -1117,11 +1121,7 @@ impl eframe::App for UniformApp {
                     };
                     let active_doc = self.active_doc_idx
                         .and_then(|i| self.open_documents.get(i));
-                    let in_grid_mode = active_doc.is_some_and(|d| matches!(
-                        d.editor_state.mode,
-                        crate::editor::EditMode::GlyphEdit { .. }
-                            | crate::editor::EditMode::PixelSelect { .. }
-                    ));
+                    let in_grid_mode = self.in_grid_edit();
                     let has_sel = active_doc.is_some_and(|d|
                         d.editor_state.pixel_selection.is_some()
                     );
@@ -1191,6 +1191,13 @@ impl eframe::App for UniformApp {
                         egui::Button::new("Opposite subglyphs").shortcut_text(format!("{mod_name}O")),
                     ).clicked() {
                         sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Opposite));
+                        ui.close_menu();
+                    }
+                    if ui.add_enabled(
+                        can_do(SelectionTransform::OppositeBitmap),
+                        egui::Button::new("Opposite bitmap").shortcut_text(format!("{mod_name}\u{21e7}O")),
+                    ).clicked() {
+                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::OppositeBitmap));
                         ui.close_menu();
                     }
                 });
@@ -1281,7 +1288,9 @@ impl eframe::App for UniformApp {
                 menu_new_file = true;
             }
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::O) {
-                menu_open_folder = true;
+                if !self.in_grid_edit() {
+                    menu_open_folder = true;
+                }
             }
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::S) {
                 ctrl_s_pressed = true;

@@ -115,6 +115,14 @@ impl PixelGrid {
         out
     }
 
+    pub fn opposite_bitmap(&self) -> Self {
+        let mut out = self.clone();
+        for px in &mut out.pixels {
+            *px = px.opposite_bitmap();
+        }
+        out
+    }
+
     /// Blit `src` into `self` with its top-left at `(off_r, off_c)`,
     /// overwriting the destination wherever `src` has a non-empty shape.
     /// When `negated`, `src` shapes are instead subtracted from non-empty

@@ -626,6 +626,7 @@ pub(crate) enum SelectionTransform {
     RotateCCW,
     Rotate180,
     Opposite,
+    OppositeBitmap,
 }
 
 pub(crate) fn can_transform(
@@ -747,6 +748,7 @@ pub(crate) fn handle_transform_selection(
             SelectionTransform::RotateCCW => source_grid.rotate_ccw(),
             SelectionTransform::Rotate180 => source_grid.rotate_180(),
             SelectionTransform::Opposite => source_grid.opposite(),
+            SelectionTransform::OppositeBitmap => source_grid.opposite_bitmap(),
         };
 
         let new_w = transformed.width;
@@ -797,6 +799,7 @@ pub(crate) fn handle_transform_selection(
             SelectionTransform::RotateCCW => old_grid.rotate_ccw(),
             SelectionTransform::Rotate180 => old_grid.rotate_180(),
             SelectionTransform::Opposite => old_grid.opposite(),
+            SelectionTransform::OppositeBitmap => old_grid.opposite_bitmap(),
         };
 
         // Compute pixel changes for undo

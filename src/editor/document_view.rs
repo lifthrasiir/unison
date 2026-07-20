@@ -1496,6 +1496,12 @@ pub fn show_document(
                         } else {
                             None
                         }
+                    } else if i.modifiers.command && !i.modifiers.alt && i.modifiers.shift {
+                        if i.key_pressed(egui::Key::O) {
+                            Some(SelectionTransform::OppositeBitmap)
+                        } else {
+                            None
+                        }
                     } else {
                         None
                     }

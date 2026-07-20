@@ -127,6 +127,14 @@ impl PixelShape {
             self.with_fill_toggled()
         }
     }
+
+    pub fn opposite_bitmap(self) -> Self {
+        if self.shape_id() == PX_EMPTY {
+            self
+        } else {
+            self.with_fill_toggled()
+        }
+    }
 }
 
 // Transform lookup tables: map shape_id → transformed shape_id for base shapes (0-19).
