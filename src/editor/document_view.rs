@@ -62,6 +62,7 @@ const SCROLL_ACCEL_STEP: f32 = 0.8;
 const SCROLL_ACCEL_MAX: f32 = 5.0;
 const SCROLL_RAPID_THRESHOLD: f64 = 0.12;
 const SCROLL_ACCEL_RESET: f64 = 0.20;
+const SCROLL_GESTURE_GRACE: f64 = 0.50;
 
 use super::colors::Palette;
 
@@ -401,16 +402,51 @@ pub fn show_document(
             );
         });
 
-    let subglyph_hover_id = egui::Id::new("subglyph_preview_hover");
-    let shape_palette_hover_id = egui::Id::new("shape_palette_hover");
-    if ui
-        .ctx()
-        .data(|d| {
-            d.get_temp::<bool>(subglyph_hover_id).unwrap_or(false)
-                || d.get_temp::<bool>(shape_palette_hover_id).unwrap_or(false)
-        })
-        || state.grid_hover
-    {
+    // Track whether this scroll gesture started on an interceptor area
+    // (grid, subglyph preview, shape palette). Once a gesture begins, lock
+    // in the starting zone so that scrolling the document doesn't
+    // accidentally switch to palette selection when the grid passes under
+    // the cursor.
+    let scroll_on_interceptor = {
+        let currently_on = ui.ctx().data(|d| {
+            d.get_temp::<bool>(egui::Id::new("subglyph_preview_hover"))
+                .unwrap_or(false)
+                || d.get_temp::<bool>(egui::Id::new("shape_palette_hover"))
+                    .unwrap_or(false)
+        }) || state.grid_hover;
+
+        let has_wheel = ui.input(|i| {
+            i.events
+                .iter()
+                .any(|e| matches!(e, egui::Event::MouseWheel { .. }))
+        });
+
+        let gesture_id = egui::Id::new("scroll_gesture_zone");
+        let now = ui.input(|i| i.time);
+
+        if has_wheel {
+            let prev: Option<(f64, bool)> = ui.ctx().data(|d| d.get_temp(gesture_id));
+            let on = match prev {
+                Some((t, was_on)) if now - t < SCROLL_GESTURE_GRACE => was_on,
+                _ => currently_on,
+            };
+            ui.ctx()
+                .data_mut(|d| d.insert_temp(gesture_id, (now, on)));
+            on
+        } else {
+            ui.ctx()
+                .data(|d| d.get_temp::<(f64, bool)>(gesture_id))
+                .is_some_and(|(_, on)| on)
+                && ui.input(|i| i.smooth_scroll_delta.y.abs() > 0.01)
+        }
+    };
+    ui.ctx().data_mut(|d| {
+        d.insert_temp(
+            egui::Id::new("scroll_on_interceptor"),
+            scroll_on_interceptor,
+        );
+    });
+    if scroll_on_interceptor {
         ui.ctx()
             .input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
     }
@@ -1125,7 +1161,11 @@ pub fn show_document(
                 });
                 state.grid_hover = on_grid;
 
-                if on_grid {
+                let gesture_on_interceptor = ui.ctx().data(|d| {
+                    d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
+                        .unwrap_or(false)
+                });
+                if gesture_on_interceptor && on_grid {
                     let ctrl_held = ui.input(|i| i.modifiers.command);
                     if let Some(step) = debounced_scroll_step(ui.ctx()) {
                         if ctrl_held {

@@ -107,7 +107,11 @@ pub(crate) fn draw_inline_tools_panel(
             hover_on_preview_row,
         );
     });
-    if hover_on_preview_row && let Some(step) = debounced_scroll_step(ui.ctx()) {
+    let gesture_on_interceptor = ui.ctx().data(|d| {
+        d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
+            .unwrap_or(false)
+    });
+    if gesture_on_interceptor && hover_on_preview_row && let Some(step) = debounced_scroll_step(ui.ctx()) {
         cycle_layer_mode(state, body, edit_idx, step);
     }
 
@@ -359,7 +363,11 @@ fn draw_inline_palette(
             .hover_pos()
             .is_some_and(|hp| palette_rect.contains(hp))
     });
-    if hover_on_palette
+    let gesture_on_interceptor = ui.ctx().data(|d| {
+        d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
+            .unwrap_or(false)
+    });
+    if gesture_on_interceptor && hover_on_palette
         && let Some(step) = debounced_scroll_step(ui.ctx())
             && let Some(cur_idx) = shapes.iter().position(|s| *s == *selected_shape) {
                 let next = (cur_idx as i32 + step).clamp(0, shapes.len() as i32 - 1) as usize;
