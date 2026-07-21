@@ -945,9 +945,13 @@ impl eframe::App for UniformApp {
         if font_gen != self.last_font_gen && !any_pixel_painting {
             self.last_font_gen = font_gen;
             self.font_build_gen = self.font_build_gen.wrapping_add(1);
+            let had_text_input = ctx.input(|i| {
+                i.events.iter().any(|e| matches!(e, egui::Event::Text(_)))
+            });
+            let debounce_ms = if had_text_input { 1000 } else { 300 };
             self.font_rebuild_at =
-                Some(std::time::Instant::now() + std::time::Duration::from_millis(300));
-            ctx.request_repaint_after(std::time::Duration::from_millis(300));
+                Some(std::time::Instant::now() + std::time::Duration::from_millis(debounce_ms));
+            ctx.request_repaint_after(std::time::Duration::from_millis(debounce_ms));
         }
         if let Some(at) = self.font_rebuild_at
             && std::time::Instant::now() >= at {
