@@ -348,11 +348,9 @@ impl UniformApp {
                 // Replacing the directory snapshot with an opened file is a
                 // new source revision even when the path is unchanged. The
                 // file may have changed on disk since the folder was loaded.
-                doc.edit_gen = self
-                    .font_base_docs
-                    .iter()
-                    .find(|base| base.path == path)
-                    .map_or(1, |base| base.edit_gen.wrapping_add(1));
+                let base = self.font_base_docs.iter().find(|base| base.path == path);
+                doc.edit_gen = base.map_or(1, |b| b.edit_gen.wrapping_add(1));
+                doc.content_gen = base.map_or(1, |b| b.content_gen.wrapping_add(1));
 
                 let open_doc = OpenDocument {
                     document: doc,
@@ -375,7 +373,7 @@ impl UniformApp {
         fn doc_hash(doc: &Document) -> u64 {
             let mut hasher = std::collections::hash_map::DefaultHasher::new();
             doc.path.hash(&mut hasher);
-            doc.edit_gen.hash(&mut hasher);
+            doc.content_gen.hash(&mut hasher);
             doc.pixel_gen.hash(&mut hasher);
             hasher.finish()
         }
@@ -539,12 +537,20 @@ impl UniformApp {
                 doc.lines = new_lines;
                 match crate::document_io::derive_document(&doc.lines, doc.document.path.clone()) {
                     Ok((new_doc, _)) => {
+                        let items_changed = !doc.document.items.iter().filter(|i| i.affects_font())
+                            .eq(new_doc.items.iter().filter(|i| i.affects_font()));
                         let next_gen = doc.document.edit_gen + 1;
                         let pixel_gen = doc.document.pixel_gen;
+                        let content_gen = if items_changed {
+                            doc.document.content_gen + 1
+                        } else {
+                            doc.document.content_gen
+                        };
                         doc.document = new_doc;
                         doc.document.dirty = true;
                         doc.document.edit_gen = next_gen;
                         doc.document.pixel_gen = pixel_gen;
+                        doc.document.content_gen = content_gen;
                     }
                     Err(_) => {
                         doc.document.dirty = true;

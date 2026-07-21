@@ -1484,6 +1484,7 @@ pub fn migrate_directory(input_dir: &Path, output_dir: &Path) -> Result<()> {
                     dirty: false,
                     edit_gen: 0,
                     pixel_gen: 0,
+                    content_gen: 0,
                 };
                 let mut buf = Vec::new();
                 document_io::serialize_document(&doc, &mut buf)?;

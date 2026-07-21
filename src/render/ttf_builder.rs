@@ -46,9 +46,17 @@ pub const UNITS_PER_EM: u16 = 1024;
 // Persistent contour cache — survives across incremental rebuilds
 // ---------------------------------------------------------------------------
 
+#[derive(Clone)]
+struct CacheEntry<T> {
+    value: T,
+    gen_id: u64,
+}
+
 #[derive(Default, Clone)]
 pub struct ContourCache {
-    entries: HashMap<u64, Vec<Vec<(f32, f32)>>>,
+    entries: HashMap<u64, CacheEntry<Vec<Vec<(f32, f32)>>>>,
+    composite_entries: HashMap<u64, CacheEntry<CachedContours>>,
+    gen_id: u64,
 }
 
 pub type SharedContourCache = Arc<Mutex<ContourCache>>;
@@ -57,6 +65,17 @@ pub type SharedContourCache = Arc<Mutex<ContourCache>>;
 impl ContourCache {
     pub fn clear(&mut self) {
         self.entries.clear();
+        self.composite_entries.clear();
+    }
+
+    pub fn begin_generation(&mut self) {
+        self.gen_id += 1;
+    }
+
+    pub fn evict_stale(&mut self) {
+        let cur_gen =self.gen_id;
+        self.entries.retain(|_, e| e.gen_id == cur_gen);
+        self.composite_entries.retain(|_, e| e.gen_id == cur_gen);
     }
 }
 
@@ -82,14 +101,17 @@ fn cached_track_contour(
     bitmap: bool,
 ) -> Vec<Vec<(f32, f32)>> {
     let key = hash_grid_for_cache(grid, bitmap);
-    if let Some(cached) = cache.entries.get(&key) {
-        return cached.clone();
+    let cur_gen =cache.gen_id;
+    if let Some(entry) = cache.entries.get_mut(&key) {
+        entry.gen_id = cur_gen;
+        return entry.value.clone();
     }
     let contours = track_contour(grid, PX_SUBPIXEL);
-    cache.entries.insert(key, contours.clone());
+    cache.entries.insert(key, CacheEntry { value: contours.clone(), gen_id: cur_gen });
     contours
 }
 
+#[derive(Clone, Copy)]
 struct FontMeta {
     height: u16,
     ascent: u16,
@@ -220,6 +242,7 @@ pub fn effective_visibility(
 // GSUB remap data structures
 // ---------------------------------------------------------------------------
 
+#[derive(Clone)]
 struct ExpandedRemap {
     lookbehind: Vec<Vec<String>>,
     /// Each inner Vec is a sequence of input glyph positions (len > 1 = ligature).
@@ -228,6 +251,7 @@ struct ExpandedRemap {
     lookahead: Vec<Vec<String>>,
 }
 
+#[derive(Clone)]
 struct GsubData {
     remap_sets: BTreeMap<String, Vec<ExpandedRemap>>,
     /// (feature_tag, scripts, remap_set_names)
@@ -268,11 +292,15 @@ pub fn build_font_pair_cached(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
 ) -> Option<(Vec<u8>, Vec<u8>)> {
+    let shared = compute_shared_font_input(docs)?;
+
     let mut cc = shared_cache.lock().unwrap();
+    cc.begin_generation();
 
-    let bitmap_data = collect_glyph_data_cached(docs, true, Some(&mut cc))?;
-    let vector_data = collect_glyph_data_cached(docs, false, Some(&mut cc))?;
+    let bitmap_data = collect_glyph_data_with_shared(&shared, true, Some(&mut cc))?;
+    let vector_data = collect_glyph_data_with_shared(&shared, false, Some(&mut cc))?;
 
+    cc.evict_stale();
     drop(cc);
 
     let (b_meta, _, b_glyphs, b_gsub, b_palette) = bitmap_data;
@@ -620,7 +648,19 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
     all_items
 }
 
-fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache: Option<&mut ContourCache>) -> Option<CollectedFontData> {
+struct SharedFontInput {
+    meta: FontMeta,
+    scale: f32,
+    all_items: Vec<DocumentItem>,
+    declared_anchors_map: HashMap<String, Vec<GlyphPoint>>,
+    gsub_data: GsubData,
+    color_aliases: ColorAliasMap,
+    glyph_meta: HashMap<String, (Option<u16>, Option<i16>, Option<i16>)>,
+    inline_glyphs: HashSet<String>,
+    glyph_bodies: Vec<(String, GlyphBody)>,
+}
+
+fn compute_shared_font_input(docs: &[&Document]) -> Option<SharedFontInput> {
     if docs.is_empty() {
         return None;
     }
@@ -642,10 +682,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
     let scale = UNITS_PER_EM as f32 / meta.height as f32;
 
     let name_parts = collect_name_parts(docs);
-
     let all_items = collect_expanded_items(docs, &name_parts);
 
-    // Own-points map: for look-ahead alternative selection in ref resolution.
     let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &all_items {
         if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
@@ -653,8 +691,60 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         }
     }
 
-    // Contour cache: compute track_contour once per unique named glyph,
-    // then composite glyphs just translate and concatenate cached contours.
+    let gsub_data = collect_gsub_data(docs, &name_parts);
+    let color_aliases = collect_color_aliases(docs);
+
+    let mut glyph_meta: HashMap<String, (Option<u16>, Option<i16>, Option<i16>)> = HashMap::new();
+    let mut inline_glyphs: HashSet<String> = HashSet::new();
+    let mut glyph_bodies: Vec<(String, GlyphBody)> = Vec::new();
+    let mut seen_bodies: HashSet<String> = HashSet::new();
+    for item in &all_items {
+        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+            if body.advance.is_some() || body.left.is_some() || body.top.is_some() {
+                glyph_meta.insert(n.clone(), (body.advance, body.left, body.top));
+            }
+            if body.inline {
+                inline_glyphs.insert(n.clone());
+            }
+            if seen_bodies.insert(n.clone()) {
+                glyph_bodies.push((n.clone(), body.clone()));
+            }
+        }
+    }
+
+    Some(SharedFontInput {
+        meta,
+        scale,
+        all_items,
+        declared_anchors_map,
+        gsub_data,
+        color_aliases,
+        glyph_meta,
+        inline_glyphs,
+        glyph_bodies,
+    })
+}
+
+fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, contour_cache: Option<&mut ContourCache>) -> Option<CollectedFontData> {
+    let shared = compute_shared_font_input(docs)?;
+    collect_glyph_data_with_shared(&shared, bitmap, contour_cache)
+}
+
+fn collect_glyph_data_with_shared(
+    shared: &SharedFontInput,
+    bitmap: bool,
+    mut contour_cache: Option<&mut ContourCache>,
+) -> Option<CollectedFontData> {
+    let meta = &shared.meta;
+    let scale = shared.scale;
+    let all_items = &shared.all_items;
+    let declared_anchors_map = &shared.declared_anchors_map;
+    let gsub_data = &shared.gsub_data;
+    let color_aliases = &shared.color_aliases;
+    let glyph_meta = &shared.glyph_meta;
+    let inline_glyphs = &shared.inline_glyphs;
+    let glyph_bodies = &shared.glyph_bodies;
+
     let mut cache: HashMap<String, CachedContours> = HashMap::new();
 
     struct PendingGlyph {
@@ -665,7 +755,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
     }
     let mut pending: Vec<PendingGlyph> = Vec::new();
 
-    for item in &all_items {
+    for item in all_items {
         let (cache_key, body) = match item {
             DocumentItem::Glyph { name: GlyphName(n), body } => (n.clone(), body),
             _ => continue,
@@ -698,7 +788,6 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         }
     }
 
-    // Iteratively resolve named glyphs that depend on other named glyphs
     let mut progress = true;
     while progress {
         progress = false;
@@ -744,28 +833,14 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         }
     }
 
-    let gsub_data = collect_gsub_data(docs, &name_parts);
-    let color_aliases = collect_color_aliases(docs);
-
-    let mut glyph_meta: HashMap<String, (Option<u16>, Option<i16>, Option<i16>)> = HashMap::new();
-    let mut inline_glyphs: HashSet<String> = HashSet::new();
-    let mut glyph_bodies: HashMap<String, &GlyphBody> = HashMap::new();
-    for item in &all_items {
-        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
-            if body.advance.is_some() || body.left.is_some() || body.top.is_some() {
-                glyph_meta.insert(n.clone(), (body.advance, body.left, body.top));
-            }
-            if body.inline {
-                inline_glyphs.insert(n.clone());
-            }
-            glyph_bodies.entry(n.clone()).or_insert(body);
-        }
-    }
+    let glyph_bodies_map: HashMap<&str, &GlyphBody> = glyph_bodies.iter()
+        .map(|(n, b)| (n.as_str(), b))
+        .collect();
 
     let mut glyph_data: Vec<CollectedGlyph> = Vec::new();
     let mut seen_names: HashSet<String> = HashSet::new();
 
-    for item in &all_items {
+    for item in all_items {
         let DocumentItem::Map { char_repr, glyph } = item else { continue };
 
         let pairs = expand_map_pairs(char_repr, glyph);
@@ -785,11 +860,11 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
                 scale,
             );
 
-            let is_mark = glyph_bodies.get(glyph_name.as_str()).is_some_and(|b| b.mark);
+            let is_mark = glyph_bodies_map.get(glyph_name.as_str()).is_some_and(|b| b.mark);
             let glyph_anchors = cache.get(glyph_name.as_str())
                 .map(|c| c.anchors.clone())
                 .unwrap_or_default();
-            let declared_anchors = glyph_bodies.get(glyph_name.as_str())
+            let declared_anchors = glyph_bodies_map.get(glyph_name.as_str())
                 .map(|b| b.points.clone())
                 .unwrap_or_default();
 
@@ -817,17 +892,16 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
     let mut palette_colors: Vec<Rgba> = Vec::new();
     let mut color_to_index: HashMap<Rgba, u16> = HashMap::new();
     // Build per-glyph color layers
+    let color_alt_index = build_cached_alternatives(&cache);
     for g in &mut glyph_data {
-        let Some(body) = glyph_bodies.get(&g.name) else { continue };
+        let Some(body) = glyph_bodies_map.get(g.name.as_str()) else { continue };
         let has_fill = body.refs.iter().any(|r| r.fill.is_some());
         if !has_fill {
             continue;
         }
 
-        // Resolve effective refs (anchor matching etc.)
-        let alt_index = build_cached_alternatives(&cache);
         let (effective_refs, _) = derive_effective_refs(
-            &body.points, &body.refs, &cache, &alt_index, &declared_anchors_map);
+            &body.points, &body.refs, &cache, &color_alt_index, &declared_anchors_map);
 
         let left_offset = match glyph_meta.get(&g.name) {
             Some(&(_, Some(left), _)) => (left as f32 * scale).round() as i16,
@@ -1004,7 +1078,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         .filter(|n| !seen_names.contains(**n))
         .map(|n| n.to_string())
         .collect();
-    for item in &all_items {
+    for item in all_items {
         if let DocumentItem::Glyph {
             name: GlyphName(name),
             body,
@@ -1033,7 +1107,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             if !seen_names.contains(base_name) {
                 continue;
             }
-            let declared = glyph_bodies.get(base_name).map(|b| &b.points[..]).unwrap_or(&[]);
+            let declared = glyph_bodies_map.get(base_name.as_str()).map(|b| &b.points[..]).unwrap_or(&[]);
             for anchor_name in &anchor_names {
                 let plus_name = format!("+{anchor_name}");
                 if declared.iter().any(|p| p.position == plus_name) {
@@ -1055,8 +1129,8 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             if !seen_names.contains(mark_name) {
                 continue;
             }
-            let mark_body = match glyph_bodies.get(mark_name) {
-                Some(b) if b.mark => b,
+            let mark_body = match glyph_bodies_map.get(mark_name.as_str()) {
+                Some(b) if b.mark => *b,
                 _ => continue,
             };
             for anchor_name in &anchor_names {
@@ -1101,11 +1175,11 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
             scale,
         );
 
-        let is_mark = glyph_bodies.get(glyph_name.as_str()).is_some_and(|b| b.mark);
+        let is_mark = glyph_bodies_map.get(glyph_name.as_str()).is_some_and(|b| b.mark);
         let glyph_anchors = cache.get(glyph_name.as_str())
             .map(|c| c.anchors.clone())
             .unwrap_or_default();
-        let declared_anchors = glyph_bodies.get(glyph_name.as_str())
+        let declared_anchors = glyph_bodies_map.get(glyph_name.as_str())
             .map(|b| b.points.clone())
             .unwrap_or_default();
 
@@ -1176,7 +1250,7 @@ fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, mut contour_cache
         return None;
     }
 
-    Some((meta, scale, glyph_data, gsub_data, palette_colors))
+    Some((meta.clone(), scale, glyph_data, gsub_data.clone(), palette_colors))
 }
 
 pub(crate) fn parse_map_char(s: &str) -> Option<u32> {
@@ -2347,6 +2421,7 @@ fn build_ligature_subst_lookup(
     ))
 }
 
+#[derive(Clone)]
 struct CachedContours {
     width: u16,
     height: u16,
@@ -2426,12 +2501,67 @@ impl CachedContours {
         }
     }
 
+    fn hash_composite_key(
+        own_pixels: Option<&PixelGrid>,
+        refs: &[GlyphRef],
+        cache: &HashMap<String, CachedContours>,
+        bitmap: bool,
+    ) -> u64 {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        bitmap.hash(&mut hasher);
+        if let Some(grid) = own_pixels {
+            1u8.hash(&mut hasher);
+            hash_grid_for_cache(grid, bitmap).hash(&mut hasher);
+        } else {
+            0u8.hash(&mut hasher);
+        }
+        refs.len().hash(&mut hasher);
+        for gref in refs {
+            gref.name.hash(&mut hasher);
+            gref.offset.hash(&mut hasher);
+            gref.negated.hash(&mut hasher);
+            if let Some(resolved) = resolve_cached_ref(&gref.name, cache) {
+                if let Some(ref grid) = resolved.grid {
+                    hash_grid_for_cache(grid, bitmap).hash(&mut hasher);
+                }
+            }
+        }
+        hasher.finish()
+    }
+
     fn from_components(
         own_pixels: Option<&PixelGrid>,
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedContours>,
         bitmap: bool,
-        _cc: Option<&mut ContourCache>,
+        mut cc: Option<&mut ContourCache>,
+    ) -> Option<Self> {
+        let comp_key = Self::hash_composite_key(own_pixels, refs, cache, bitmap);
+        if let Some(ref mut cc) = cc {
+            let cur_gen = cc.gen_id;
+            if let Some(entry) = cc.composite_entries.get_mut(&comp_key) {
+                entry.gen_id = cur_gen;
+                return Some(entry.value.clone());
+            }
+        }
+
+        let result = Self::from_components_inner(own_pixels, refs, cache, bitmap);
+
+        if let Some(ref val) = result {
+            if let Some(cc) = cc {
+                let cur_gen = cc.gen_id;
+                cc.composite_entries.insert(comp_key, CacheEntry { value: val.clone(), gen_id: cur_gen });
+            }
+        }
+
+        result
+    }
+
+    fn from_components_inner(
+        own_pixels: Option<&PixelGrid>,
+        refs: &[GlyphRef],
+        cache: &HashMap<String, CachedContours>,
+        bitmap: bool,
     ) -> Option<Self> {
         let has_negated = refs.iter().any(|r| r.negated);
         let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
@@ -3224,7 +3354,6 @@ fn build_ttf(
         ..Default::default()
     };
 
-    // GSUB / GPOS / GDEF
     let mut gsub = build_gsub(gsub_data, &name_to_gid);
 
     let anchor_data = build_anchor_gpos(
@@ -3299,7 +3428,6 @@ fn build_ttf(
         }
     }
 
-    // Assemble
     let mut builder = FontBuilder::new();
     builder
         .add_table(&head)

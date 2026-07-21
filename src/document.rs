@@ -165,7 +165,7 @@ pub struct RefFill {
     pub visibility: Option<LayerVisibility>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GlyphRef {
     pub name: String,
     /// `(col, row)` offset. `None` = auto-resolve from points (adjoin), defaulting to (0, 0).
@@ -184,7 +184,7 @@ impl GlyphRef {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GlyphPoint {
     pub position: String,
     pub col: i16,
@@ -214,7 +214,7 @@ impl GlyphPoint {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GlyphBody {
     pub pixels: Option<PixelGrid>,
     pub refs: Vec<GlyphRef>,
@@ -269,7 +269,7 @@ impl GlyphName {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum DocumentItem {
     Comment(String),
     BlankLine,
@@ -328,6 +328,18 @@ pub enum DocumentItem {
     },
 }
 
+impl DocumentItem {
+    pub fn affects_font(&self) -> bool {
+        !matches!(
+            self,
+            DocumentItem::Comment(_)
+                | DocumentItem::BlankLine
+                | DocumentItem::Directive(_)
+                | DocumentItem::AssertShape { .. }
+        )
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ShapeFeatureFlag {
     pub tag: String,
@@ -352,6 +364,8 @@ pub struct Document {
     pub dirty: bool,
     pub edit_gen: u64,
     pub pixel_gen: u64,
+    /// Incremented only when `items` actually change (not on every keystroke).
+    pub content_gen: u64,
 }
 
 impl Document {
@@ -364,6 +378,7 @@ impl Document {
             dirty: false,
             edit_gen: 0,
             pixel_gen: 0,
+            content_gen: 0,
         }
     }
 }

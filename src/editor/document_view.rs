@@ -2199,12 +2199,16 @@ fn rederive(
 ) {
     match crate::document_io::derive_document(lines, doc.path.clone()) {
         Ok((new_doc, _)) => {
+            let items_changed = !doc.items.iter().filter(|i| i.affects_font())
+                .eq(new_doc.items.iter().filter(|i| i.affects_font()));
             let next_gen = doc.edit_gen + 1;
             let pixel_gen = doc.pixel_gen;
+            let content_gen = if items_changed { doc.content_gen + 1 } else { doc.content_gen };
             *doc = new_doc;
             doc.dirty = !is_at_saved;
             doc.edit_gen = next_gen;
             doc.pixel_gen = pixel_gen;
+            doc.content_gen = content_gen;
         }
         Err(_) => {
             doc.dirty = !is_at_saved;
@@ -2232,6 +2236,7 @@ fn flush_pixel_change(
     }
     doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
     doc.pixel_gen += 1;
+    doc.content_gen += 1;
     doc.dirty = !state.undo.is_at_saved();
 
     state.pending_reparse_line = None;
