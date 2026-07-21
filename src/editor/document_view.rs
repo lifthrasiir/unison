@@ -668,7 +668,12 @@ pub fn show_document(
         let is_triple = response.triple_clicked();
         let click_pos = if response.clicked() || response.drag_started() || is_double || is_triple {
             response.interact_pointer_pos()
-        } else if response.dragged() {
+        } else if response.dragged() && matches!(state.mode, EditMode::Normal) {
+            // Only track drag position for text selection in Normal mode.
+            // In edit modes (GlyphEdit/PixelSelect/LayerMove), drag tracking
+            // is handled directly via pointer.hover_pos()/delta() by each
+            // mode's handler; letting click_pos resolve here would hit a text
+            // line and force a mode change back to Normal mid-drag.
             ui.input(|i| i.pointer.hover_pos())
         } else {
             None
@@ -1148,6 +1153,9 @@ pub fn show_document(
         }
 
         // Wheel scroll on grid: change subpixel shape or layer
+        if inline_panel_edit_idx.is_none() {
+            state.grid_hover = false;
+        }
         if let (Some(edit_idx), Some(grid_rect)) =
             (inline_panel_edit_idx, edit_grid_rect)
         {
