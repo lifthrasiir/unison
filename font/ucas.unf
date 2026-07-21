@@ -5119,6 +5119,10 @@ glyph ca-tlhe 16 16
 ................................
 ref ca-ke
 
+glyph ca-tlhwe
+ref ca-tlhe
+ref ca-dot 13 7
+
 glyph ca-tlhi 16 16
 ................................
 ................................
@@ -5157,6 +5161,10 @@ glyph ca-tlho 16 16
 ................................
 ref ca-ko
 
+glyph ca-tlhoo
+ref ca-tlho
+ref ca-dot 8 0
+
 glyph ca-tlha 16 16
 ................................
 ................................
@@ -5177,8 +5185,13 @@ glyph ca-tlha 16 16
 ref ca-ka
 
 map ᖆ = ca-tlhe
+map ᣨ = ca-tlhwe
+
 map ᖇ = ca-tlhi
+
 map ᖈ = ca-tlho
+map ᣩ = ca-tlhoo
+
 map ᖉ = ca-tlha
 
 //--------------------------------------
@@ -5282,6 +5295,10 @@ glyph ca-she-sayisi 16 16
 ................................
 ................................
 
+glyph ca-shwe-sayisi
+ref ca-she-sayisi
+ref ca-dot 13 7
+
 glyph ca-shi-sayisi 16 16
 ................................
 ................................
@@ -5318,6 +5335,10 @@ glyph ca-sho-sayisi 16 16
 ................................
 ................................
 
+glyph ca-shoo-sayisi
+ref ca-sho-sayisi
+ref ca-dot 10 0
+
 glyph ca-sha-sayisi 16 16
 ................................
 ................................
@@ -5337,8 +5358,13 @@ glyph ca-sha-sayisi 16 16
 ................................
 
 map ᖗ = ca-she-sayisi
+map ᣪ = ca-shwe-sayisi
+
 map ᖘ = ca-shi-sayisi
+
 map ᖙ = ca-sho-sayisi
+map ᣫ = ca-shoo-sayisi
+
 map ᖚ = ca-sha-sayisi
 
 //--------------------------------------
@@ -6170,6 +6196,10 @@ glyph ca-ho-sayisi 16 16
 ................................
 ................................
 
+glyph ca-hoo-sayisi
+ref ca-ho-sayisi
+ref ca-dot 10 0
+
 glyph ca-ha-sayisi 16 16
 ................................
 ................................
@@ -6189,8 +6219,12 @@ glyph ca-ha-sayisi 16 16
 ................................
 
 map ᗀ = ca-he-sayisi
+
 map ᗁ = ca-hi-sayisi
+
 map ᗂ = ca-ho-sayisi
+map ᣬ = ca-hoo-sayisi
+
 map ᗃ = ca-ha-sayisi
 
 //--------------------------------------
