@@ -107,6 +107,8 @@ pub(crate) fn handle_pixel_painting(
                             grid.set(row, col, new_shape);
                         }
                         state.skip_reconcile = true;
+                        state.pixel_paint_dirty = Some((item_idx, grid_doc_line));
+                        state.suppress_font_rebuild = true;
                         *needs_rederive = true;
                         ui.ctx().request_repaint();
                         painted = true;

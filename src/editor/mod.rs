@@ -104,6 +104,12 @@ pub struct EditorState {
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
     pub(crate) view_cache: Option<document_view::ViewCache>,
+    /// Set by pixel painting: (item_idx, grid_doc_line) of the modified grid.
+    /// Consumed by the rederive path to bypass full `derive_document`.
+    pub(crate) pixel_paint_dirty: Option<(usize, usize)>,
+    /// True while pixel painting is in progress (mouse held). Suppresses
+    /// TTF font rebuild until the drag ends.
+    pub(crate) suppress_font_rebuild: bool,
 }
 
 impl EditorState {
@@ -130,6 +136,8 @@ impl EditorState {
             grid_hover: false,
             pixel_selection: None,
             view_cache: None,
+            pixel_paint_dirty: None,
+            suppress_font_rebuild: false,
         }
     }
 

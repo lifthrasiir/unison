@@ -280,6 +280,12 @@ pub fn show_document(
     Palette::store(ui.ctx());
     let pal = Palette::get(ui);
 
+    if state.suppress_font_rebuild
+        && !ui.input(|i| i.pointer.primary_down() || i.pointer.secondary_down())
+    {
+        state.suppress_font_rebuild = false;
+    }
+
     let grid_cell = GRID_CELL * zoom_level as f32;
     let font_id = font_id.clone();
     let row_height = ui.fonts(|f| f.row_height(&font_id));
@@ -1809,13 +1815,18 @@ pub fn show_document(
     }
 
     if needs_rederive {
-        // `lines` changed this frame; the cached view no longer reflects it.
-        // A deferred reparse leaves `edit_gen` untouched, so the key alone
-        // would not invalidate — drop the cache explicitly.
-        state.view_cache = None;
-        if state.skip_reconcile {
+        if let Some((item_idx, grid_doc_line)) = state.pixel_paint_dirty.take() {
+            // Pixel-only fast path: sync the single modified grid without
+            // reparsing the entire document or invalidating the view cache.
+            flush_pixel_change(lines, doc, state, item_idx, grid_doc_line);
+        } else if state.skip_reconcile {
+            // `lines` changed this frame; the cached view no longer reflects it.
+            // A deferred reparse leaves `edit_gen` untouched, so the key alone
+            // would not invalidate — drop the cache explicitly.
+            state.view_cache = None;
             flush_document_changes(lines, doc, state);
         } else {
+            state.view_cache = None;
             let on_ref_line = matches!(
                 lines.get(state.cursor.line),
                 Some(DocLine::Text(t)) if t.trim_start().starts_with("ref ") || t.trim_start().starts_with("point ")
@@ -2189,15 +2200,43 @@ fn rederive(
     match crate::document_io::derive_document(lines, doc.path.clone()) {
         Ok((new_doc, _)) => {
             let next_gen = doc.edit_gen + 1;
+            let pixel_gen = doc.pixel_gen;
             *doc = new_doc;
             doc.dirty = !is_at_saved;
             doc.edit_gen = next_gen;
+            doc.pixel_gen = pixel_gen;
         }
         Err(_) => {
             doc.dirty = !is_at_saved;
             doc.edit_gen += 1;
         }
     }
+}
+
+/// Lightweight rederive for pixel-only changes: sync the modified grid from
+/// `DocLine::Grid` into the corresponding `Document` item, bypassing the
+/// full text reparse of `derive_document`.
+fn flush_pixel_change(
+    lines: &[DocLine],
+    doc: &mut Document,
+    state: &mut EditorState,
+    item_idx: usize,
+    grid_doc_line: usize,
+) {
+    state.skip_reconcile = false;
+
+    if let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) {
+        if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get_mut(item_idx) {
+            body.pixels = Some(grid.clone());
+        }
+    }
+    doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
+    doc.pixel_gen += 1;
+    doc.dirty = !state.undo.is_at_saved();
+
+    state.pending_reparse_line = None;
+    state.last_reparse_line = Some(state.cursor.line);
+    state.clear_document_sync_request();
 }
 
 fn inline_ref_to_pixels(

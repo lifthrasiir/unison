@@ -351,6 +351,7 @@ pub struct Document {
     pub path: PathBuf,
     pub dirty: bool,
     pub edit_gen: u64,
+    pub pixel_gen: u64,
 }
 
 impl Document {
@@ -362,6 +363,7 @@ impl Document {
             path,
             dirty: false,
             edit_gen: 0,
+            pixel_gen: 0,
         }
     }
 }

@@ -376,6 +376,7 @@ impl UniformApp {
             let mut hasher = std::collections::hash_map::DefaultHasher::new();
             doc.path.hash(&mut hasher);
             doc.edit_gen.hash(&mut hasher);
+            doc.pixel_gen.hash(&mut hasher);
             hasher.finish()
         }
         let mut combined = 0u64;
@@ -539,9 +540,11 @@ impl UniformApp {
                 match crate::document_io::derive_document(&doc.lines, doc.document.path.clone()) {
                     Ok((new_doc, _)) => {
                         let next_gen = doc.document.edit_gen + 1;
+                        let pixel_gen = doc.document.pixel_gen;
                         doc.document = new_doc;
                         doc.document.dirty = true;
                         doc.document.edit_gen = next_gen;
+                        doc.document.pixel_gen = pixel_gen;
                     }
                     Err(_) => {
                         doc.document.dirty = true;
@@ -936,8 +939,10 @@ impl eframe::App for UniformApp {
                 }
         }
 
+        let any_pixel_painting = self.open_documents.iter()
+            .any(|d| d.editor_state.suppress_font_rebuild);
         let font_gen = self.current_font_gen();
-        if font_gen != self.last_font_gen {
+        if font_gen != self.last_font_gen && !any_pixel_painting {
             self.last_font_gen = font_gen;
             self.font_build_gen = self.font_build_gen.wrapping_add(1);
             self.font_rebuild_at =
