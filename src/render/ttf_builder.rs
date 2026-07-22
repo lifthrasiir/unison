@@ -2560,7 +2560,7 @@ fn build_single_subst_lookup(
     let mut all_targets = Vec::new();
     for r in remaps {
         for (seq, tgt) in r.source.iter().zip(r.target.iter()) {
-            if seq.len() == 1 {
+            if seq.len() == 1 && !tgt.is_empty() {
                 all_sources.push(seq[0].clone());
                 all_targets.push(tgt[0].clone());
             }
@@ -2585,6 +2585,9 @@ fn build_ligature_subst_lookup(
                 .filter_map(|name| name_to_gid.get(name.as_str()).copied())
                 .collect();
             if gids.len() != seq.len() {
+                continue;
+            }
+            if tgt.is_empty() {
                 continue;
             }
             let Some(&tgt_gid) = name_to_gid.get(tgt[0].as_str()) else {
