@@ -424,6 +424,7 @@ mod tests {
             offset: Some((1, 0)),
             negated: false,
             fill: None,
+            visibility: None,
         };
         assert_eq!(format_dragged_ref(&normal, 0, 0), "ref part 0 0");
 

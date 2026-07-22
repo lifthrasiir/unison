@@ -257,14 +257,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         gref: &GlyphRef,
         color_aliases: &ColorAliasMap,
     ) -> (Option<Rgba>, LayerVisibility) {
-        match &gref.fill {
-            Some(fill) => {
-                let rgba = resolve_fill_rgba(fill, color_aliases);
-                let vis = effective_visibility(fill, color_aliases);
-                (rgba, vis)
-            }
-            None => (None, LayerVisibility::Both),
-        }
+        let rgba = gref.fill.as_ref().and_then(|f| resolve_fill_rgba(f, color_aliases));
+        let vis = effective_visibility(gref.visibility, gref.fill.as_ref(), color_aliases);
+        (rgba, vis)
     }
 
     fn composite_glyph(
@@ -343,7 +338,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         grid: comp.grid.clone(),
                         negated: comp.negated ^ gref.negated,
                         fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                        visibility: if gref.fill.is_some() { fill_vis } else { comp.visibility },
+                        visibility: if gref.fill.is_some() || gref.visibility.is_some() { fill_vis } else { comp.visibility },
                     });
                 }
             }
@@ -394,7 +389,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     grid: comp.grid.clone(),
                     negated: comp.negated,
                     fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                    visibility: if gref.fill.is_some() { fill_vis } else { comp.visibility },
+                    visibility: if gref.fill.is_some() || gref.visibility.is_some() { fill_vis } else { comp.visibility },
                 });
             }
 

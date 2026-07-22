@@ -167,7 +167,7 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
             };
             for name in names_to_check {
                 if !all_glyph_names.contains(&name)
-                    && crate::ref_composite::parse_on_demand_glyph(&name).is_some()
+                    && crate::ref_composite::detect_on_demand_glyph(&name, |n| all_glyph_names.contains(n)).is_some()
                 {
                     all_glyph_names.insert(name);
                 }

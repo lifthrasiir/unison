@@ -117,7 +117,8 @@ fn parse_visibility(s: &str) -> Option<LayerVisibility> {
 /// - `ref NAME`
 /// - `ref NAME negated`
 /// - `ref NAME COL ROW [negated]`
-/// - Any of the above followed by `fill COLOR [coloronly|monoonly]`
+/// - Any of the above followed by `fill COLOR` and/or `coloronly`/`monoonly`
+///   (`fill` and visibility are independent; either can appear without the other)
 fn parse_ref_line(parts: &[String]) -> Option<GlyphRef> {
     if parts.is_empty() {
         return None;
@@ -126,6 +127,8 @@ fn parse_ref_line(parts: &[String]) -> Option<GlyphRef> {
     let mut idx = 1;
     let mut offset: Option<(i16, i16)> = None;
     let mut negated = false;
+    let mut fill: Option<RefFill> = None;
+    let mut visibility: Option<LayerVisibility> = None;
 
     // Try to parse COL ROW
     if idx + 1 < parts.len()
@@ -136,39 +139,28 @@ fn parse_ref_line(parts: &[String]) -> Option<GlyphRef> {
         idx += 2;
     }
 
-    // Parse `negated`
-    if idx < parts.len() && parts[idx] == "negated" {
-        negated = true;
+    while idx < parts.len() {
+        match parts[idx].as_str() {
+            "negated" => negated = true,
+            "fill" => {
+                idx += 1;
+                if idx >= parts.len() {
+                    return None;
+                }
+                fill = Some(RefFill { color: parts[idx].clone() });
+            }
+            s => {
+                if let Some(vis) = parse_visibility(s) {
+                    visibility = Some(vis);
+                } else {
+                    return None;
+                }
+            }
+        }
         idx += 1;
     }
 
-    // Parse `fill COLOR [coloronly|monoonly]`
-    let fill = if idx < parts.len() && parts[idx] == "fill" {
-        idx += 1;
-        if idx >= parts.len() {
-            return None;
-        }
-        let color = parts[idx].clone();
-        idx += 1;
-        let visibility = if idx < parts.len() {
-            parse_visibility(&parts[idx])
-        } else {
-            None
-        };
-        if visibility.is_some() {
-            idx += 1;
-        }
-        Some(RefFill { color, visibility })
-    } else {
-        None
-    };
-
-    // Reject trailing garbage
-    if idx < parts.len() {
-        return None;
-    }
-
-    Some(GlyphRef { name, offset, negated, fill })
+    Some(GlyphRef { name, offset, negated, fill, visibility })
 }
 
 pub fn parse_document(path: &Path) -> Result<Document> {
@@ -799,6 +791,7 @@ pub fn derive_document(
                                 offset: None,
                                 negated: false,
                                 fill: None,
+                                visibility: None,
                             });
                             item_line_starts.push(header_idx);
                             doc.items.push(DocumentItem::Glyph { name, body });
@@ -1739,18 +1732,50 @@ ref part-c fill blue monoonly
             assert_eq!(r0.offset, None);
             let f0 = r0.fill.as_ref().unwrap();
             assert_eq!(f0.color, "#ff0000");
-            assert!(f0.visibility.is_none());
+            assert!(r0.visibility.is_none());
 
             let r1 = &body.refs[1];
             assert_eq!(r1.name, "part-b");
             assert_eq!(r1.offset, Some((2, 3)));
             let f1 = r1.fill.as_ref().unwrap();
             assert_eq!(f1.color, "fg");
-            assert_eq!(f1.visibility, Some(LayerVisibility::ColorOnly));
+            assert_eq!(r1.visibility, Some(LayerVisibility::ColorOnly));
 
             let r2 = &body.refs[2];
             assert_eq!(r2.fill.as_ref().unwrap().color, "blue");
-            assert_eq!(r2.fill.as_ref().unwrap().visibility, Some(LayerVisibility::MonoOnly));
+            assert_eq!(r2.visibility, Some(LayerVisibility::MonoOnly));
+        } else {
+            panic!("expected Glyph");
+        }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, input);
+    }
+
+    #[test]
+    fn ref_visibility_without_fill() {
+        let input = "\
+glyph combo
+ref part-a coloronly
+ref part-b monoonly
+ref part-c fill #ff0000 monoonly
+";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
+            assert_eq!(body.refs.len(), 3);
+
+            let r0 = &body.refs[0];
+            assert!(r0.fill.is_none());
+            assert_eq!(r0.visibility, Some(LayerVisibility::ColorOnly));
+
+            let r1 = &body.refs[1];
+            assert!(r1.fill.is_none());
+            assert_eq!(r1.visibility, Some(LayerVisibility::MonoOnly));
+
+            let r2 = &body.refs[2];
+            assert_eq!(r2.fill.as_ref().unwrap().color, "#ff0000");
+            assert_eq!(r2.visibility, Some(LayerVisibility::MonoOnly));
         } else {
             panic!("expected Glyph");
         }

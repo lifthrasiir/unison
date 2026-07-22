@@ -52,9 +52,15 @@ pub struct ResolvedGlyph {
     pub(crate) declared_anchors: Vec<GlyphPoint>,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum OnDemandGlyph {
+    Rect(u8, u8),
+    ColorMono { mono: String, color: String },
+}
+
 /// Parse an on-demand glyph name of the form `WxH` (e.g. `3x5`) into
-/// `(width, height)`.  Both W and H must start with a non-zero digit.
-pub fn parse_on_demand_glyph(name: &str) -> Option<(u16, u16)> {
+/// `Rect(width, height)`.  Both W and H must start with a non-zero digit.
+pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
     let (w_str, h_str) = name.split_once('x')?;
     if w_str.is_empty()
         || h_str.is_empty()
@@ -63,15 +69,30 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<(u16, u16)> {
     {
         return None;
     }
-    let w: u16 = w_str.parse().ok()?;
-    let h: u16 = h_str.parse().ok()?;
-    Some((w, h))
+    let w: u8 = w_str.parse().ok()?;
+    let h: u8 = h_str.parse().ok()?;
+    Some(OnDemandGlyph::Rect(w, h))
 }
 
-fn make_on_demand_resolved(w: u16, h: u16) -> ResolvedGlyph {
-    let mut grid = PixelGrid::new(w, h);
-    for r in 0..h {
-        for c in 0..w {
+/// Detect an on-demand color/mono glyph: name X is not defined, but both
+/// X:mono and X:color exist.  X itself must not contain `:mono` or `:color`.
+pub fn detect_color_mono_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> Option<OnDemandGlyph> {
+    if name.contains(":mono") || name.contains(":color") {
+        return None;
+    }
+    let mono = format!("{name}:mono");
+    let color = format!("{name}:color");
+    if has_glyph(&mono) && has_glyph(&color) {
+        Some(OnDemandGlyph::ColorMono { mono, color })
+    } else {
+        None
+    }
+}
+
+fn make_on_demand_resolved(w: u8, h: u8) -> ResolvedGlyph {
+    let mut grid = PixelGrid::new(w as u16, h as u16);
+    for r in 0..h as u16 {
+        for c in 0..w as u16 {
             grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
         }
     }
@@ -208,6 +229,7 @@ pub(crate) fn derive_ref_offsets_with(
                         offset: None,
                         negated: gref.negated,
                         fill: gref.fill.clone(),
+                        visibility: gref.visibility,
                     };
                     commit_ref(
                         &alt_gref,
@@ -252,6 +274,7 @@ pub(crate) fn derive_ref_offsets_with(
                     offset: None,
                     negated: gref.negated,
                     fill: gref.fill.clone(),
+                    visibility: gref.visibility,
                 };
                 commit_ref(
                     &alt_gref,
@@ -314,6 +337,7 @@ pub(crate) fn derive_ref_offsets_with(
             offset: gref.offset,
             negated: gref.negated,
             fill: gref.fill.clone(),
+            visibility: gref.visibility,
         };
         commit_ref(
             &resolved_gref,
@@ -419,6 +443,7 @@ fn commit_ref(
         offset: Some(offset),
         negated: gref.negated,
         fill: gref.fill.clone(),
+        visibility: gref.visibility,
     };
     let off_col = effective.col();
     let off_row = effective.row();
@@ -487,9 +512,15 @@ fn commit_ref(
     *out = Some(effective);
 }
 
-/// Scan documents for on-demand glyph names (WxH) referenced in refs,
-/// maps, and remaps, and insert synthetic filled-rectangle glyphs into
-/// the cache for any that aren't already defined.
+/// Detect any on-demand glyph for `name`: first tries WxH rect, then
+/// color/mono composite (checking whether X:mono and X:color exist).
+pub fn detect_on_demand_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> Option<OnDemandGlyph> {
+    parse_on_demand_glyph(name).or_else(|| detect_color_mono_glyph(name, has_glyph))
+}
+
+/// Scan documents for on-demand glyph names referenced in refs, maps,
+/// and remaps, and insert synthetic glyphs into the cache for any that
+/// aren't already defined.
 fn inject_on_demand_glyphs(
     docs: &[&Document],
     cache: &mut HashMap<String, ResolvedGlyph>,
@@ -537,7 +568,7 @@ fn inject_on_demand_glyphs(
     }
 
     for name in &needed {
-        if let Some((w, h)) = parse_on_demand_glyph(name) {
+        if let Some(OnDemandGlyph::Rect(w, h)) = parse_on_demand_glyph(name) {
             cache.entry(name.clone()).or_insert_with(|| make_on_demand_resolved(w, h));
         }
     }
@@ -591,6 +622,7 @@ pub fn resolve_named_glyphs_with_parts(
                                     offset: r.offset,
                                     negated: r.negated,
                                     fill: r.fill.clone(),
+                                    visibility: r.visibility,
                                 })
                                 .collect();
 
@@ -638,6 +670,7 @@ pub fn resolve_named_glyphs_with_parts(
                                     offset: r.offset,
                                     negated: r.negated,
                                     fill: r.fill.clone(),
+                                    visibility: r.visibility,
                                 }
                             })
                             .collect();
@@ -670,6 +703,89 @@ pub fn resolve_named_glyphs_with_parts(
     }
 
     inject_on_demand_glyphs(docs, &mut cache);
+
+    // Collect all referenced glyph names that are not yet defined.
+    {
+        let mut all_referenced: std::collections::HashSet<String> = std::collections::HashSet::new();
+        for doc in docs {
+            for item in &doc.items {
+                match item {
+                    DocumentItem::Glyph { body, .. } => {
+                        for r in &body.refs {
+                            let subst = substitute_name_parts(&r.name, name_parts);
+                            all_referenced.insert(subst);
+                        }
+                    }
+                    DocumentItem::Map { glyph, .. } => {
+                        all_referenced.insert(substitute_name_parts(glyph, name_parts));
+                    }
+                    DocumentItem::Remap { lookbehind, source, target, lookahead, .. } => {
+                        for token in source.iter().chain(target).chain(lookbehind).chain(lookahead) {
+                            all_referenced.insert(substitute_name_parts(token, name_parts));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        let all_defined: std::collections::HashSet<String> = cache.keys().cloned()
+            .chain(pending.iter().map(|p| p.name.clone()))
+            .collect();
+
+        // Build a lookup of glyph bodies from documents for color/mono source glyphs.
+        let mut glyph_bodies: HashMap<String, &GlyphBody> = HashMap::new();
+        for doc in docs {
+            for item in &doc.items {
+                if let DocumentItem::Glyph { name, body } = item {
+                    let key = substitute_name_parts(&name.display(), name_parts);
+                    glyph_bodies.entry(key).or_insert(body);
+                }
+            }
+        }
+
+        for name in &all_referenced {
+            if all_defined.contains(name) {
+                continue;
+            }
+            if let Some(OnDemandGlyph::ColorMono { mono, color }) =
+                detect_color_mono_glyph(name, |n| all_defined.contains(n) || glyph_bodies.contains_key(n))
+            {
+                let mono_body = glyph_bodies.get(&mono);
+                let color_body = glyph_bodies.get(&color);
+                if let (Some(mono_body), Some(color_body)) = (mono_body, color_body) {
+                    let mut refs = Vec::new();
+                    for r in &mono_body.refs {
+                        refs.push(GlyphRef {
+                            name: substitute_name_parts(&r.name, name_parts),
+                            offset: r.offset,
+                            negated: r.negated,
+                            fill: r.fill.clone(),
+                            visibility: Some(crate::document::LayerVisibility::MonoOnly),
+                        });
+                    }
+                    for r in &color_body.refs {
+                        refs.push(GlyphRef {
+                            name: substitute_name_parts(&r.name, name_parts),
+                            offset: r.offset,
+                            negated: r.negated,
+                            fill: r.fill.clone(),
+                            visibility: Some(crate::document::LayerVisibility::ColorOnly),
+                        });
+                    }
+                    let mut points = Vec::new();
+                    points.extend_from_slice(&mono_body.points);
+                    points.extend_from_slice(&color_body.points);
+                    pending.push(Pending {
+                        name: name.clone(),
+                        pixels: None,
+                        refs,
+                        points,
+                    });
+                }
+            }
+        }
+    }
 
     let mut progress = true;
     while progress {
@@ -1060,6 +1176,7 @@ mod tests {
             offset: None,
             negated: false,
             fill: None,
+            visibility: None,
         }];
 
         // compute_composite resolves the pattern ref via resolve_ref_name's
@@ -1513,8 +1630,8 @@ ref ($ab)-inner
         let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
         let b_refs = vec![
-            GlyphRef { name: "enclosing".to_string(), offset: None, negated: false, fill: None },
-            GlyphRef { name: "b-inner".to_string(), offset: None, negated: false, fill: None },
+            GlyphRef { name: "enclosing".to_string(), offset: None, negated: false, fill: None, visibility: None },
+            GlyphRef { name: "b-inner".to_string(), offset: None, negated: false, fill: None, visibility: None },
         ];
         let (effective, _) = derive_ref_offsets_with(
             &[],
@@ -1678,9 +1795,9 @@ ref mark-below
 
     #[test]
     fn parse_on_demand_glyph_valid() {
-        assert_eq!(parse_on_demand_glyph("3x5"), Some((3, 5)));
-        assert_eq!(parse_on_demand_glyph("12x34"), Some((12, 34)));
-        assert_eq!(parse_on_demand_glyph("1x1"), Some((1, 1)));
+        assert_eq!(parse_on_demand_glyph("3x5"), Some(OnDemandGlyph::Rect(3, 5)));
+        assert_eq!(parse_on_demand_glyph("12x34"), Some(OnDemandGlyph::Rect(12, 34)));
+        assert_eq!(parse_on_demand_glyph("1x1"), Some(OnDemandGlyph::Rect(1, 1)));
     }
 
     #[test]
@@ -1767,5 +1884,58 @@ ref mark-below
                 assert!(!resolved.grid.get(r, c).is_filled());
             }
         }
+    }
+
+    #[test]
+    fn color_mono_on_demand_glyph_created() {
+        let doc = make_doc(concat!(
+            "glyph part-a 2 2\n@@@@\n@@@@\n",
+            "glyph part-b 2 2\n@@@@\n@@@@\n",
+            "glyph test:mono\n  ref part-a\n",
+            "glyph test:color\n  ref part-b\n",
+            "glyph container\n  ref test\n",
+        ));
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        assert!(cache.contains_key("test"), "color/mono on-demand glyph 'test' should be synthesized");
+        let resolved = &cache["test"];
+        assert_eq!(resolved.grid.width, 2);
+        assert_eq!(resolved.grid.height, 2);
+    }
+
+    #[test]
+    fn color_mono_on_demand_not_created_when_name_contains_mono_or_color() {
+        assert_eq!(detect_color_mono_glyph("foo:mono", |_| true), None);
+        assert_eq!(detect_color_mono_glyph("foo:color", |_| true), None);
+        assert_eq!(detect_color_mono_glyph("foo:mono:bar", |_| true), None);
+    }
+
+    #[test]
+    fn color_mono_on_demand_not_created_when_defined() {
+        let doc = make_doc(concat!(
+            "glyph part 2 2\n@@@@\n@@@@\n",
+            "glyph test:mono\n  ref part\n",
+            "glyph test:color\n  ref part\n",
+            "glyph test\n  ref part\n",
+            "glyph container\n  ref test\n",
+        ));
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        assert!(cache.contains_key("test"));
+    }
+
+    #[test]
+    fn color_mono_on_demand_not_created_when_only_mono_exists() {
+        let doc = make_doc(concat!(
+            "glyph part 2 2\n@@@@\n@@@@\n",
+            "glyph test:mono\n  ref part\n",
+            "glyph container\n  ref test\n",
+        ));
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        assert!(!cache.contains_key("test"), "should not synthesize when only :mono exists");
     }
 }

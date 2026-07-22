@@ -162,7 +162,6 @@ pub enum LayerVisibility {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RefFill {
     pub color: String,
-    pub visibility: Option<LayerVisibility>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -172,6 +171,7 @@ pub struct GlyphRef {
     pub offset: Option<(i16, i16)>,
     pub negated: bool,
     pub fill: Option<RefFill>,
+    pub visibility: Option<LayerVisibility>,
 }
 
 impl GlyphRef {
@@ -203,11 +203,11 @@ impl GlyphRef {
         }
         if let Some(ref fill) = self.fill {
             parts.push(format!("fill {}", quote_token(&fill.color)));
-            match fill.visibility {
-                Some(LayerVisibility::ColorOnly) => parts.push("coloronly".into()),
-                Some(LayerVisibility::MonoOnly) => parts.push("monoonly".into()),
-                Some(LayerVisibility::Both) | None => {}
-            }
+        }
+        match self.visibility {
+            Some(LayerVisibility::ColorOnly) => parts.push("coloronly".into()),
+            Some(LayerVisibility::MonoOnly) => parts.push("monoonly".into()),
+            Some(LayerVisibility::Both) | None => {}
         }
         parts.join(" ")
     }
@@ -279,6 +279,7 @@ impl GlyphBody {
             && self.refs[0].offset.is_none()
             && !self.refs[0].negated
             && self.refs[0].fill.is_none()
+            && self.refs[0].visibility.is_none()
             && self.points.is_empty()
             && !self.sticky
             && !self.inline
@@ -1278,10 +1279,10 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<Doc
     let name_str = name.display();
     let (name_pattern, name_count) = parse_name_pattern(&name_str)?;
 
-    let mut parsed_refs: Vec<(Vec<Segment>, Option<(i16, i16)>, bool, Option<RefFill>)> = Vec::new();
+    let mut parsed_refs: Vec<(Vec<Segment>, Option<(i16, i16)>, bool, Option<RefFill>, Option<LayerVisibility>)> = Vec::new();
     for r in refs {
         let (_, segs) = parse_line_segments(&r.name)?;
-        parsed_refs.push((segs, r.offset, r.negated, r.fill.clone()));
+        parsed_refs.push((segs, r.offset, r.negated, r.fill.clone(), r.visibility));
     }
 
     // The glyph-name pattern determines how many glyphs are declared. Each
@@ -1297,11 +1298,12 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<Doc
 
         let expanded_refs: Vec<GlyphRef> = parsed_refs
             .iter()
-            .map(|(segs, offset, negated, fill)| GlyphRef {
+            .map(|(segs, offset, negated, fill, visibility)| GlyphRef {
                 name: expand_segments_at(segs, i),
                 offset: *offset,
                 negated: *negated,
                 fill: fill.clone(),
+                visibility: *visibility,
             })
             .collect();
 
@@ -1381,6 +1383,7 @@ mod tests {
             offset: None,
             negated: false,
             fill: None,
+            visibility: None,
         }
     }
 

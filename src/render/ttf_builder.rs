@@ -225,16 +225,19 @@ pub fn resolve_fill_rgba(
 }
 
 pub fn effective_visibility(
-    fill: &RefFill,
+    ref_visibility: Option<LayerVisibility>,
+    fill: Option<&RefFill>,
     color_aliases: &ColorAliasMap,
 ) -> LayerVisibility {
-    if let Some(vis) = fill.visibility {
+    if let Some(vis) = ref_visibility {
         return vis;
     }
-    if !fill.color.starts_with('#') && fill.color != "fg"
-        && let Some((_, Some(vis))) = color_aliases.get(&fill.color) {
-            return *vis;
-        }
+    if let Some(fill) = fill {
+        if !fill.color.starts_with('#') && fill.color != "fg"
+            && let Some((_, Some(vis))) = color_aliases.get(&fill.color) {
+                return *vis;
+            }
+    }
     LayerVisibility::Both
 }
 
@@ -540,6 +543,7 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
                             offset: r.offset,
                             negated: r.negated,
                             fill: r.fill.clone(),
+                            visibility: r.visibility,
                         })
                         .collect();
                     if let Ok(expanded) = expand_glyph_block(&subst_name, &subst_refs) {
@@ -627,6 +631,7 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
                     offset: None,
                     negated: false,
                     fill: None,
+                    visibility: None,
                 })
                 .collect();
 
@@ -651,26 +656,24 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
     all_items
 }
 
-/// Scan `all_items` for on-demand glyph names (WxH) referenced in refs,
-/// maps, and remaps. For each one not already defined as a glyph, append
-/// a synthetic filled-rectangle `DocumentItem::Glyph`.
+/// Scan `all_items` for on-demand glyph names referenced in refs, maps,
+/// and remaps. For each one not already defined as a glyph, append a
+/// synthetic `DocumentItem::Glyph` (filled rectangle for WxH, or a
+/// color/mono composite when X:mono and X:color both exist).
 fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
     let mut defined: HashSet<String> = HashSet::new();
-    let mut needed: HashSet<String> = HashSet::new();
+    let mut glyph_bodies: HashMap<String, GlyphBody> = HashMap::new();
 
     for item in all_items.iter() {
-        match item {
-            DocumentItem::Glyph { name: GlyphName(n), .. } => {
-                defined.insert(n.clone());
-            }
-            _ => {}
+        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+            defined.insert(n.clone());
+            glyph_bodies.insert(n.clone(), body.clone());
         }
     }
 
+    let mut needed: HashSet<String> = HashSet::new();
     let mut consider = |name: &str| {
-        if !defined.contains(name)
-            && crate::ref_composite::parse_on_demand_glyph(name).is_some()
-        {
+        if !defined.contains(name) {
             needed.insert(name.to_string());
         }
     };
@@ -708,20 +711,60 @@ fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
     }
 
     for name in needed {
-        if let Some((w, h)) = crate::ref_composite::parse_on_demand_glyph(&name) {
-            let mut grid = PixelGrid::new(w, h);
-            for r in 0..h {
-                for c in 0..w {
-                    grid.set(r, c, PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+        use crate::ref_composite::{OnDemandGlyph, detect_on_demand_glyph};
+        match detect_on_demand_glyph(&name, |n| defined.contains(n)) {
+            Some(OnDemandGlyph::Rect(w, h)) => {
+                let mut grid = PixelGrid::new(w as u16, h as u16);
+                for r in 0..h as u16 {
+                    for c in 0..w as u16 {
+                        grid.set(r, c, PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+                    }
+                }
+                all_items.push(DocumentItem::Glyph {
+                    name: GlyphName(name),
+                    body: GlyphBody {
+                        pixels: Some(grid),
+                        ..GlyphBody::new()
+                    },
+                });
+            }
+            Some(OnDemandGlyph::ColorMono { mono, color }) => {
+                let mono_body = glyph_bodies.get(&mono);
+                let color_body = glyph_bodies.get(&color);
+                if let (Some(mono_body), Some(color_body)) = (mono_body, color_body) {
+                    let mut refs = Vec::new();
+                    for r in &mono_body.refs {
+                        refs.push(GlyphRef {
+                            name: r.name.clone(),
+                            offset: r.offset,
+                            negated: r.negated,
+                            fill: r.fill.clone(),
+                            visibility: Some(LayerVisibility::MonoOnly),
+                        });
+                    }
+                    for r in &color_body.refs {
+                        refs.push(GlyphRef {
+                            name: r.name.clone(),
+                            offset: r.offset,
+                            negated: r.negated,
+                            fill: r.fill.clone(),
+                            visibility: Some(LayerVisibility::ColorOnly),
+                        });
+                    }
+                    let mut points = Vec::new();
+                    points.extend_from_slice(&mono_body.points);
+                    points.extend_from_slice(&color_body.points);
+                    all_items.push(DocumentItem::Glyph {
+                        name: GlyphName(name),
+                        body: GlyphBody {
+                            refs,
+                            points,
+                            ..GlyphBody::new()
+                        },
+                    });
                 }
             }
-            all_items.push(DocumentItem::Glyph {
-                name: GlyphName(name),
-                body: GlyphBody {
-                    pixels: Some(grid),
-                    ..GlyphBody::new()
-                },
-            });
+            None => {}
         }
     }
 }
@@ -1165,8 +1208,8 @@ fn collect_glyph_data_with_shared(
     let color_alt_index = build_cached_alternatives(&cache);
     for g in &mut glyph_data {
         let Some(body) = glyph_bodies_map.get(g.name.as_str()) else { continue };
-        let has_fill = body.refs.iter().any(|r| r.fill.is_some());
-        if !has_fill {
+        let has_fill_or_vis = body.refs.iter().any(|r| r.fill.is_some() || r.visibility.is_some());
+        if !has_fill_or_vis {
             continue;
         }
 
@@ -1195,8 +1238,7 @@ fn collect_glyph_data_with_shared(
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
             let fill = orig_ref.fill.as_ref();
-            let vis = fill.map(|f| effective_visibility(f, &color_aliases))
-                .unwrap_or(LayerVisibility::Both);
+            let vis = effective_visibility(orig_ref.visibility, fill, &color_aliases);
             if vis == LayerVisibility::MonoOnly {
                 continue;
             }
@@ -1273,8 +1315,7 @@ fn collect_glyph_data_with_shared(
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
             let fill = orig_ref.fill.as_ref();
-            let vis = fill.map(|f| effective_visibility(f, &color_aliases))
-                .unwrap_or(LayerVisibility::Both);
+            let vis = effective_visibility(orig_ref.visibility, fill, &color_aliases);
             if vis == LayerVisibility::ColorOnly {
                 continue;
             }
