@@ -3364,6 +3364,23 @@ fn build_ttf(
             };
             sg.recompute_bounding_box();
 
+            // Extend the base glyph's bbox to cover COLR layers and the
+            // full advance width so that renderers clipping COLRv0 to
+            // the base glyph's bbox don't cut off coloronly content.
+            if !g.color_layers.is_empty() {
+                for cl in &g.color_layers {
+                    for c in &cl.contours {
+                        for &(x, y) in c {
+                            sg.bbox.x_min = sg.bbox.x_min.min(x);
+                            sg.bbox.y_min = sg.bbox.y_min.min(y);
+                            sg.bbox.x_max = sg.bbox.x_max.max(x);
+                            sg.bbox.y_max = sg.bbox.y_max.max(y);
+                        }
+                    }
+                }
+                sg.bbox.x_max = sg.bbox.x_max.max(g.advance_width as i16);
+            }
+
             h_metrics.push(LongMetric {
                 advance: g.advance_width,
                 side_bearing: sg.bbox.x_min,
@@ -5799,6 +5816,59 @@ map X = test-xy
             (24.0_f32 * 1024.0 / 16.0).round() as u16,
             "advance should be 24 logical pixels = {}",
             (24.0_f32 * 1024.0 / 16.0).round() as u16,
+        );
+    }
+
+    #[test]
+    fn colr_base_glyph_bbox_covers_color_layers() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph frame-left 4 4
+..@@@@@@
+..@@....
+..@@....
+..@@@@@@
+
+glyph frame-right 4 4
+@@@@@@..
+....@@..
+....@@..
+@@@@@@..
+
+glyph test-flag:mono
+ref frame-left
+ref frame-right 4 0
+
+glyph test-flag:color 8 4 scale 2
+ref 14x6 1 1 fill #ff0000
+
+map A = test-flag
+";
+        let doc = document_io::parse_document_from_str(input, "t.unf".into()).unwrap();
+        let font_data = build_font_from_documents(&[&doc]);
+        assert!(font_data.is_some(), "font should build");
+        let bytes = font_data.unwrap();
+        let font = read_fonts::FontRef::new(&bytes).unwrap();
+        let glyf = font.glyf().unwrap();
+        let loca = font.loca(None).unwrap();
+        let hmtx = font.hmtx().unwrap();
+
+        let cmap = font.cmap().unwrap();
+        let gid = cmap
+            .map_codepoint('A')
+            .expect("A should be mapped");
+        let advance = hmtx.advance(gid).unwrap();
+        let glyph = loca.get_glyf(gid, &glyf).unwrap().unwrap();
+        let simple = match glyph {
+            read_fonts::tables::glyf::Glyph::Simple(s) => s,
+            _ => panic!("expected simple glyph"),
+        };
+        assert!(
+            simple.x_max() >= advance as i16,
+            "base glyph xMax ({}) should be >= advance ({}) to prevent COLR clipping",
+            simple.x_max(),
+            advance,
         );
     }
 
