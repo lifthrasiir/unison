@@ -54,25 +54,144 @@ pub struct ResolvedGlyph {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub struct OnDemandRect {
+    pub w: u8,
+    pub h: u8,
+    pub w_frac: u8,
+    pub h_frac: u8,
+    pub scale: u8,
+    pub neg_w: bool,
+    pub neg_h: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum OnDemandGlyph {
-    Rect(u8, u8),
+    Rect(OnDemandRect),
     ColorMono { mono: String, color: String },
 }
 
-/// Parse an on-demand glyph name of the form `WxH` (e.g. `3x5`) into
-/// `Rect(width, height)`.  Both W and H must start with a non-zero digit.
-pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
-    let (w_str, h_str) = name.split_once('x')?;
-    if w_str.is_empty()
-        || h_str.is_empty()
-        || w_str.starts_with('0')
-        || h_str.starts_with('0')
-    {
+fn parse_uint_no_leading_zero(s: &str) -> Option<u8> {
+    if s.is_empty() {
         return None;
     }
-    let w: u8 = w_str.parse().ok()?;
-    let h: u8 = h_str.parse().ok()?;
-    Some(OnDemandGlyph::Rect(w, h))
+    if s.len() > 1 && s.starts_with('0') {
+        return None;
+    }
+    s.parse().ok()
+}
+
+/// Parse one dimension: `[-]A[pBrR]`.
+/// Returns `(negated, base, Option<(frac, scale)>)`.
+fn parse_rect_dim(s: &str) -> Option<(bool, u8, Option<(u8, u8)>)> {
+    let (neg, s) = if let Some(rest) = s.strip_prefix('-') {
+        (true, rest)
+    } else {
+        (false, s)
+    };
+    if let Some(p_pos) = s.find('p') {
+        let base_str = &s[..p_pos];
+        let rest = &s[p_pos + 1..];
+        let (frac_str, scale_str) = rest.split_once('r')?;
+        let base = parse_uint_no_leading_zero(base_str)?;
+        let frac = parse_uint_no_leading_zero(frac_str)?;
+        let scale = parse_uint_no_leading_zero(scale_str)?;
+        Some((neg, base, Some((frac, scale))))
+    } else {
+        let base = parse_uint_no_leading_zero(s)?;
+        Some((neg, base, None))
+    }
+}
+
+/// Parse an on-demand glyph name of the form `WxH` (e.g. `3x5`) or the
+/// extended form `[-]A[pBrR]x[-]C[pDrR]` (e.g. `1p2r3x4`, `-3p1r4x-2p3r4`).
+///
+/// Simple `WxH`: both W and H must be non-zero.
+/// Extended form: R >= 2 on both sides (must match), 0 <= B,D < R, and the
+/// total dimension A+B/R must be positive on each axis.
+pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
+    let (w_str, h_str) = name.split_once('x')?;
+    let (neg_w, w, w_detail) = parse_rect_dim(w_str)?;
+    let (neg_h, h, h_detail) = parse_rect_dim(h_str)?;
+
+    match (w_detail, h_detail) {
+        (None, None) => {
+            if w == 0 || h == 0 || neg_w || neg_h {
+                return None;
+            }
+            Some(OnDemandGlyph::Rect(OnDemandRect {
+                w,
+                h,
+                w_frac: 0,
+                h_frac: 0,
+                scale: 1,
+                neg_w: false,
+                neg_h: false,
+            }))
+        }
+        (Some((wf, ws)), Some((hf, hs))) => {
+            if ws != hs || ws < 2 {
+                return None;
+            }
+            if wf >= ws || hf >= hs {
+                return None;
+            }
+            if w == 0 && wf == 0 {
+                return None;
+            }
+            if h == 0 && hf == 0 {
+                return None;
+            }
+            Some(OnDemandGlyph::Rect(OnDemandRect {
+                w,
+                h,
+                w_frac: wf,
+                h_frac: hf,
+                scale: ws,
+                neg_w,
+                neg_h,
+            }))
+        }
+        (Some((wf, ws)), None) => {
+            if ws < 2 || wf >= ws {
+                return None;
+            }
+            if w == 0 && wf == 0 {
+                return None;
+            }
+            if h == 0 {
+                return None;
+            }
+            Some(OnDemandGlyph::Rect(OnDemandRect {
+                w,
+                h,
+                w_frac: wf,
+                h_frac: 0,
+                scale: ws,
+                neg_w,
+                neg_h,
+            }))
+        }
+        (None, Some((hf, hs))) => {
+            if hs < 2 || hf >= hs {
+                return None;
+            }
+            if w == 0 {
+                return None;
+            }
+            if h == 0 && hf == 0 {
+                return None;
+            }
+            Some(OnDemandGlyph::Rect(OnDemandRect {
+                w,
+                h,
+                w_frac: 0,
+                h_frac: hf,
+                scale: hs,
+                neg_w,
+                neg_h,
+            }))
+        }
+    }
 }
 
 /// Detect an on-demand color/mono glyph: name X is not defined, but both
@@ -90,10 +209,20 @@ pub fn detect_color_mono_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> 
     }
 }
 
-fn make_on_demand_resolved(w: u8, h: u8) -> ResolvedGlyph {
-    let mut grid = PixelGrid::new(w as u16, h as u16);
-    for r in 0..h as u16 {
-        for c in 0..w as u16 {
+fn make_on_demand_resolved(rect: &OnDemandRect) -> ResolvedGlyph {
+    let s = rect.scale.max(1) as u16;
+    let rect_w = rect.w as u16 * s + rect.w_frac as u16;
+    let rect_h = rect.h as u16 * s + rect.h_frac as u16;
+    let extent_w = (rect_w + s - 1) / s;
+    let extent_h = (rect_h + s - 1) / s;
+    let grid_w = extent_w * s;
+    let grid_h = extent_h * s;
+    let off_c = if rect.neg_w { grid_w - rect_w } else { 0 };
+    let off_r = if rect.neg_h { grid_h - rect_h } else { 0 };
+
+    let mut grid = PixelGrid::new(grid_w, grid_h);
+    for r in off_r..(off_r + rect_h) {
+        for c in off_c..(off_c + rect_w) {
             grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
         }
     }
@@ -103,7 +232,7 @@ fn make_on_demand_resolved(w: u8, h: u8) -> ResolvedGlyph {
         origin_col: 0,
         resolved_anchors: Vec::new(),
         declared_anchors: Vec::new(),
-        scale: 1,
+        scale: rect.scale,
     }
 }
 
@@ -570,8 +699,8 @@ fn inject_on_demand_glyphs(
     }
 
     for name in &needed {
-        if let Some(OnDemandGlyph::Rect(w, h)) = parse_on_demand_glyph(name) {
-            cache.entry(name.clone()).or_insert_with(|| make_on_demand_resolved(w, h));
+        if let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph(name) {
+            cache.entry(name.clone()).or_insert_with(|| make_on_demand_resolved(&rect));
         }
     }
 }
@@ -1832,11 +1961,23 @@ ref mark-below
         );
     }
 
+    fn simple_rect(w: u8, h: u8) -> OnDemandGlyph {
+        OnDemandGlyph::Rect(OnDemandRect {
+            w, h, w_frac: 0, h_frac: 0, scale: 1, neg_w: false, neg_h: false,
+        })
+    }
+
+    fn frac_rect(w: u8, h: u8, wf: u8, hf: u8, s: u8, nw: bool, nh: bool) -> OnDemandGlyph {
+        OnDemandGlyph::Rect(OnDemandRect {
+            w, h, w_frac: wf, h_frac: hf, scale: s, neg_w: nw, neg_h: nh,
+        })
+    }
+
     #[test]
     fn parse_on_demand_glyph_valid() {
-        assert_eq!(parse_on_demand_glyph("3x5"), Some(OnDemandGlyph::Rect(3, 5)));
-        assert_eq!(parse_on_demand_glyph("12x34"), Some(OnDemandGlyph::Rect(12, 34)));
-        assert_eq!(parse_on_demand_glyph("1x1"), Some(OnDemandGlyph::Rect(1, 1)));
+        assert_eq!(parse_on_demand_glyph("3x5"), Some(simple_rect(3, 5)));
+        assert_eq!(parse_on_demand_glyph("12x34"), Some(simple_rect(12, 34)));
+        assert_eq!(parse_on_demand_glyph("1x1"), Some(simple_rect(1, 1)));
     }
 
     #[test]
@@ -1849,6 +1990,98 @@ ref mark-below
         assert_eq!(parse_on_demand_glyph("3"), None);
         assert_eq!(parse_on_demand_glyph("x5"), None);
         assert_eq!(parse_on_demand_glyph("3x"), None);
+    }
+
+    #[test]
+    fn parse_on_demand_glyph_fractional() {
+        assert_eq!(
+            parse_on_demand_glyph("1p2r3x4p0r3"),
+            Some(frac_rect(1, 4, 2, 0, 3, false, false)),
+        );
+        assert_eq!(
+            parse_on_demand_glyph("1p2r3x4"),
+            Some(frac_rect(1, 4, 2, 0, 3, false, false)),
+        );
+        assert_eq!(
+            parse_on_demand_glyph("3x1p1r2"),
+            Some(frac_rect(3, 1, 0, 1, 2, false, false)),
+        );
+        assert_eq!(
+            parse_on_demand_glyph("-1p2r3x-4p1r3"),
+            Some(frac_rect(1, 4, 2, 1, 3, true, true)),
+        );
+        assert_eq!(
+            parse_on_demand_glyph("0p1r3x1p0r3"),
+            Some(frac_rect(0, 1, 1, 0, 3, false, false)),
+        );
+    }
+
+    #[test]
+    fn parse_on_demand_glyph_fractional_rejects_invalid() {
+        // R mismatch
+        assert_eq!(parse_on_demand_glyph("1p1r2x1p1r3"), None);
+        // R < 2
+        assert_eq!(parse_on_demand_glyph("1p0r1x1p0r1"), None);
+        // B >= R
+        assert_eq!(parse_on_demand_glyph("1p3r3x1p0r3"), None);
+        // D >= R
+        assert_eq!(parse_on_demand_glyph("1p0r3x1p3r3"), None);
+        // both zero: 0p0r3
+        assert_eq!(parse_on_demand_glyph("0p0r3x1p0r3"), None);
+        // neg without frac (simple format)
+        assert_eq!(parse_on_demand_glyph("-3x5"), None);
+    }
+
+    #[test]
+    fn on_demand_fractional_rect_resolved() {
+        // 1p2r3x4 → scale 3, grid 6×12, rect (0,0)-(5,12)
+        let doc = make_doc("glyph container\n  ref 1p2r3x4\n");
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        assert!(cache.contains_key("1p2r3x4"));
+        let resolved = &cache["1p2r3x4"];
+        assert_eq!(resolved.scale, 3);
+        assert_eq!(resolved.grid.width, 6);
+        assert_eq!(resolved.grid.height, 12);
+        for r in 0..12 {
+            for c in 0..6 {
+                if c < 5 {
+                    assert!(resolved.grid.get(r, c).is_filled(),
+                        "pixel ({r},{c}) should be filled");
+                } else {
+                    assert!(!resolved.grid.get(r, c).is_filled(),
+                        "pixel ({r},{c}) should be empty");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn on_demand_fractional_rect_neg_anchoring() {
+        // -1p2r3x-1p1r3 → scale 3, grid 6×3
+        // rect 5×4, right-aligned → off_c=1, bottom-aligned → off_r=−1
+        // Wait: extent_w = ceil(5/3) = 2, grid_w = 6, off_c = 6-5 = 1
+        //        extent_h = ceil(4/3) = 2, grid_h = 6, off_r = 6-4 = 2
+        let doc = make_doc("glyph container\n  ref -1p2r3x-1p1r3\n");
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        let resolved = &cache["-1p2r3x-1p1r3"];
+        assert_eq!(resolved.scale, 3);
+        assert_eq!(resolved.grid.width, 6);
+        assert_eq!(resolved.grid.height, 6);
+        // filled region: cols 1..6, rows 2..6
+        for r in 0..6 {
+            for c in 0..6 {
+                let should_fill = c >= 1 && r >= 2;
+                assert_eq!(
+                    resolved.grid.get(r, c).is_filled(), should_fill,
+                    "pixel ({r},{c}) fill={} expected={should_fill}",
+                    resolved.grid.get(r, c).is_filled(),
+                );
+            }
+        }
     }
 
     fn make_doc(text: &str) -> Document {
