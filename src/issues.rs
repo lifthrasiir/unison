@@ -140,6 +140,41 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
         }
     }
 
+    // On-demand glyphs (WxH) are valid targets even without explicit
+    // definitions, so register any referenced WxH names as known glyphs.
+    for doc in docs {
+        for item in &doc.items {
+            let names_to_check: Vec<String> = match item {
+                DocumentItem::Glyph { body, .. } => {
+                    body.refs.iter().map(|r| {
+                        substitute_name_parts(&r.name, &name_parts)
+                    }).collect()
+                }
+                DocumentItem::Map { glyph, .. } => {
+                    let subst = substitute_name_parts(glyph, &name_parts);
+                    crate::render::ttf_builder::expand_map_pairs("U+0000", &subst)
+                        .into_iter().map(|(_, n)| n).collect()
+                }
+                DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
+                    std::iter::once(source.as_str())
+                        .chain(std::iter::once(target.as_str()))
+                        .chain(lookbehind.iter().map(|s| s.as_str()))
+                        .chain(lookahead.iter().map(|s| s.as_str()))
+                        .map(|s| substitute_name_parts(s, &name_parts))
+                        .collect()
+                }
+                _ => Vec::new(),
+            };
+            for name in names_to_check {
+                if !all_glyph_names.contains(&name)
+                    && crate::ref_composite::parse_on_demand_glyph(&name).is_some()
+                {
+                    all_glyph_names.insert(name);
+                }
+            }
+        }
+    }
+
     // font-meta validation
     {
         let mut height: Option<u16> = None;

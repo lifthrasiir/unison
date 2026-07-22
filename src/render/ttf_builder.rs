@@ -645,7 +645,82 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
         all_items.extend(decomposed_items);
     }
 
+    inject_on_demand_glyph_items(&mut all_items);
+
     all_items
+}
+
+/// Scan `all_items` for on-demand glyph names (WxH) referenced in refs,
+/// maps, and remaps. For each one not already defined as a glyph, append
+/// a synthetic filled-rectangle `DocumentItem::Glyph`.
+fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
+    let mut defined: HashSet<String> = HashSet::new();
+    let mut needed: HashSet<String> = HashSet::new();
+
+    for item in all_items.iter() {
+        match item {
+            DocumentItem::Glyph { name: GlyphName(n), .. } => {
+                defined.insert(n.clone());
+            }
+            _ => {}
+        }
+    }
+
+    let mut consider = |name: &str| {
+        if !defined.contains(name)
+            && crate::ref_composite::parse_on_demand_glyph(name).is_some()
+        {
+            needed.insert(name.to_string());
+        }
+    };
+
+    for item in all_items.iter() {
+        match item {
+            DocumentItem::Glyph { body, .. } => {
+                for r in &body.refs {
+                    consider(&r.name);
+                }
+            }
+            DocumentItem::Map { glyph, .. } => consider(glyph),
+            DocumentItem::Remap {
+                lookbehind,
+                source,
+                target,
+                lookahead,
+                ..
+            } => {
+                for token in source.split_whitespace() {
+                    consider(token);
+                }
+                consider(target);
+                for lb in lookbehind {
+                    consider(lb);
+                }
+                for la in lookahead {
+                    consider(la);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    for name in needed {
+        if let Some((w, h)) = crate::ref_composite::parse_on_demand_glyph(&name) {
+            let mut grid = PixelGrid::new(w, h);
+            for r in 0..h {
+                for c in 0..w {
+                    grid.set(r, c, PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+                }
+            }
+            all_items.push(DocumentItem::Glyph {
+                name: GlyphName(name),
+                body: GlyphBody {
+                    pixels: Some(grid),
+                    ..GlyphBody::new()
+                },
+            });
+        }
+    }
 }
 
 struct SharedFontInput {

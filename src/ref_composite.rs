@@ -52,6 +52,38 @@ pub struct ResolvedGlyph {
     pub(crate) declared_anchors: Vec<GlyphPoint>,
 }
 
+/// Parse an on-demand glyph name of the form `WxH` (e.g. `3x5`) into
+/// `(width, height)`.  Both W and H must start with a non-zero digit.
+pub fn parse_on_demand_glyph(name: &str) -> Option<(u16, u16)> {
+    let (w_str, h_str) = name.split_once('x')?;
+    if w_str.is_empty()
+        || h_str.is_empty()
+        || w_str.starts_with('0')
+        || h_str.starts_with('0')
+    {
+        return None;
+    }
+    let w: u16 = w_str.parse().ok()?;
+    let h: u16 = h_str.parse().ok()?;
+    Some((w, h))
+}
+
+fn make_on_demand_resolved(w: u16, h: u16) -> ResolvedGlyph {
+    let mut grid = PixelGrid::new(w, h);
+    for r in 0..h {
+        for c in 0..w {
+            grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+        }
+    }
+    ResolvedGlyph {
+        grid,
+        origin_row: 0,
+        origin_col: 0,
+        resolved_anchors: Vec::new(),
+        declared_anchors: Vec::new(),
+    }
+}
+
 fn saturating_i16(value: i32) -> i16 {
     value.clamp(i16::MIN as i32, i16::MAX as i32) as i16
 }
@@ -455,6 +487,60 @@ fn commit_ref(
     *out = Some(effective);
 }
 
+/// Scan documents for on-demand glyph names (WxH) referenced in refs,
+/// maps, and remaps, and insert synthetic filled-rectangle glyphs into
+/// the cache for any that aren't already defined.
+fn inject_on_demand_glyphs(
+    docs: &[&Document],
+    cache: &mut HashMap<String, ResolvedGlyph>,
+) {
+    let mut needed: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+    let mut consider = |name: &str| {
+        if !cache.contains_key(name) && parse_on_demand_glyph(name).is_some() {
+            needed.insert(name.to_string());
+        }
+    };
+
+    for doc in docs {
+        for item in &doc.items {
+            match item {
+                DocumentItem::Glyph { body, .. } => {
+                    for r in &body.refs {
+                        consider(&r.name);
+                    }
+                }
+                DocumentItem::Map { glyph, .. } => consider(glyph),
+                DocumentItem::Remap {
+                    lookbehind,
+                    source,
+                    target,
+                    lookahead,
+                    ..
+                } => {
+                    for token in source.split_whitespace() {
+                        consider(token);
+                    }
+                    consider(target);
+                    for lb in lookbehind {
+                        consider(lb);
+                    }
+                    for la in lookahead {
+                        consider(la);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    for name in &needed {
+        if let Some((w, h)) = parse_on_demand_glyph(name) {
+            cache.entry(name.clone()).or_insert_with(|| make_on_demand_resolved(w, h));
+        }
+    }
+}
+
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn resolve_named_glyphs_with_parts(
     docs: &[&Document],
@@ -580,6 +666,8 @@ pub fn resolve_named_glyphs_with_parts(
             }
         }
     }
+
+    inject_on_demand_glyphs(docs, &mut cache);
 
     let mut progress = true;
     while progress {
@@ -714,14 +802,20 @@ pub fn is_ref_valid(
     if named_glyphs.contains_key(name) {
         return true;
     }
+    if parse_on_demand_glyph(name).is_some() {
+        return true;
+    }
     let subst = substitute_name_parts(name, name_parts);
     if named_glyphs.contains_key(&subst) {
+        return true;
+    }
+    if parse_on_demand_glyph(&subst).is_some() {
         return true;
     }
     if let Some(expanded) = expand_ref_names(&subst) {
         return expanded
             .into_iter()
-            .all(|n| named_glyphs.contains_key(&n));
+            .all(|n| named_glyphs.contains_key(&n) || parse_on_demand_glyph(&n).is_some());
     }
     false
 }
@@ -1578,5 +1672,98 @@ ref mark-below
             effective[0].name, "base",
             "should keep base for mark-below (base's own points have +below)"
         );
+    }
+
+    #[test]
+    fn parse_on_demand_glyph_valid() {
+        assert_eq!(parse_on_demand_glyph("3x5"), Some((3, 5)));
+        assert_eq!(parse_on_demand_glyph("12x34"), Some((12, 34)));
+        assert_eq!(parse_on_demand_glyph("1x1"), Some((1, 1)));
+    }
+
+    #[test]
+    fn parse_on_demand_glyph_rejects_invalid() {
+        assert_eq!(parse_on_demand_glyph("0x5"), None);
+        assert_eq!(parse_on_demand_glyph("3x0"), None);
+        assert_eq!(parse_on_demand_glyph("03x5"), None);
+        assert_eq!(parse_on_demand_glyph("3x05"), None);
+        assert_eq!(parse_on_demand_glyph("abc"), None);
+        assert_eq!(parse_on_demand_glyph("3"), None);
+        assert_eq!(parse_on_demand_glyph("x5"), None);
+        assert_eq!(parse_on_demand_glyph("3x"), None);
+    }
+
+    fn make_doc(text: &str) -> Document {
+        use crate::document_io::{parse_doclines, derive_document};
+        let lines = parse_doclines(text);
+        let (doc, _) = derive_document(&lines, std::path::PathBuf::new()).unwrap();
+        doc
+    }
+
+    #[test]
+    fn on_demand_glyph_injected_for_ref() {
+        let doc = make_doc("glyph test 3 5\n......\n......\n......\n......\n......\n  ref 2x3\n");
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        assert!(cache.contains_key("2x3"));
+        let resolved = &cache["2x3"];
+        assert_eq!(resolved.grid.width, 2);
+        assert_eq!(resolved.grid.height, 3);
+        for r in 0..3 {
+            for c in 0..2 {
+                assert!(resolved.grid.get(r, c).is_filled());
+            }
+        }
+    }
+
+    #[test]
+    fn on_demand_glyph_composite_resolves() {
+        let doc = make_doc("glyph composite\n  ref 3x2\n");
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        assert!(cache.contains_key("3x2"), "on-demand glyph 3x2 missing from cache");
+        assert!(cache.contains_key("composite"), "composite glyph missing from cache");
+        let comp = &cache["composite"];
+        assert_eq!(comp.grid.width, 3);
+        assert_eq!(comp.grid.height, 2);
+        for r in 0..2 {
+            for c in 0..3 {
+                assert!(comp.grid.get(r, c).is_filled(),
+                    "composite pixel ({r},{c}) should be filled");
+            }
+        }
+    }
+
+    #[test]
+    fn on_demand_glyph_resolves_in_multi_ref_composite() {
+        let doc = make_doc(concat!(
+            "glyph base 2 2\n@@@@\n@@@@\n",
+            "glyph comp\n",
+            "  ref base\n",
+            "  ref 3x2 2 0\n",
+        ));
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        assert!(cache.contains_key("3x2"), "on-demand 3x2 should be in cache");
+        assert!(cache.contains_key("comp"), "comp should resolve");
+        let comp = &cache["comp"];
+        assert!(comp.grid.width >= 5, "composite width should span base(2) + 3x2 at col 2");
+    }
+
+    #[test]
+    fn on_demand_glyph_not_injected_when_defined() {
+        let doc = make_doc("glyph 2x3 2 3\n....\n....\n....\n");
+        let name_parts = NamePartsMap::new();
+        let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+
+        let resolved = &cache["2x3"];
+        for r in 0..3 {
+            for c in 0..2 {
+                assert!(!resolved.grid.get(r, c).is_filled());
+            }
+        }
     }
 }
