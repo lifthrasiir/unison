@@ -6582,9 +6582,9 @@ name-parts $hangul-modern-med-map-for-fin = l r l r r r r r w w r w w w l r l w 
 
 // here we go!
 glyph hangul-($#AC00..D7A3)
-ref hangul-init-($hangul-modern-init*588)-($hangul-modern-med-map-for-init*28)-(nof|f*27)
-ref hangul-med-($hangul-modern-med*28)-(nof|f*27)
-ref hangul-fin-($hangul-modern-fin0)-($hangul-modern-med-map-for-fin*28)
+ref hangul-init-($hangul-modern-init**588)-($hangul-modern-med-map-for-init**28)-(nof|f*27)
+ref hangul-med-($hangul-modern-med**28)-(nof|f*27)
+ref hangul-fin-($hangul-modern-fin0)-($hangul-modern-med-map-for-fin**28)
 map U+AC00..D7A3 = hangul-($#AC00..D7A3)
 
 // there are so many hangul syllables that we want to hide (most of) them from sample.html
@@ -6675,12 +6675,12 @@ name-parts $hangul-med-for-fin-l = a ya ueo ui i
 name-parts $hangul-med-for-fin-w = `` o oa oi yo u yu eu eui . .i
 name-parts $hangul-med-for-fin-r = ae yae eo e yeo ye oae ue
 
-remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-l*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
-remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-w*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
-remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-r*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
-remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-l*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
-remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-w*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
-remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-r*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-l**2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-w**2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-r**2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-l**2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-w**2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-r**2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
 
 feature ljmo for hang : hangul-ljmo
 feature vjmo for hang : hangul-vjmo

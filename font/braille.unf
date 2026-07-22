@@ -11,24 +11,24 @@ glyph braille-on 3 3
 @@@@@@
 \0@@0/
 
-glyph braille-(|1)(*2|2*2)(*4|3*4)(*8|4*8)(*16|5*16)(*32|6*32) 8 16
+glyph braille-(|1)(|2**2)(|3**4)(|4**8)(|5**16)(|6**32) 8 16
 ref braille-(off|on) 1 2
-ref braille-(off*2|on*2) 1 6
-ref braille-(off*4|on*4) 1 10
-ref braille-(off*8|on*8) 5 2
-ref braille-(off*16|on*16) 5 6
-ref braille-(off*32|on*32) 5 10
+ref braille-(off|on**2) 1 6
+ref braille-(off|on**4) 1 10
+ref braille-(off|on**8) 5 2
+ref braille-(off|on**16) 5 6
+ref braille-(off|on**32) 5 10
 
-glyph braille-(|1)(*2|2*2)(*4|3*4)(*8|4*8)(*16|5*16)(*32|6*32)(7*64|*64|7*64)(*64|8*128) 8 16
+glyph braille-(|1)(|2**2)(|3**4)(|4**8)(|5**16)(|6**32)(7||7**64)(*64|8*128) 8 16
 ref braille-(off|on) 1 0
-ref braille-(off*2|on*2) 1 4
-ref braille-(off*4|on*4) 1 8
-ref braille-(off*8|on*8) 5 0
-ref braille-(off*16|on*16) 5 4
-ref braille-(off*32|on*32) 5 8
-ref braille-(on*64|off*64|on*64) 1 12
+ref braille-(off|on**2) 1 4
+ref braille-(off|on**4) 1 8
+ref braille-(off|on**8) 5 0
+ref braille-(off|on**16) 5 4
+ref braille-(off|on**32) 5 8
+ref braille-(on|off|on**64) 1 12
 ref braille-(off*64|on*128) 5 12
 
-map U+2800..283F = braille-(|1)(*2|2*2)(*4|3*4)(*8|4*8)(*16|5*16)(*32|6*32)
-map U+2840..28FF = braille-(|1)(*2|2*2)(*4|3*4)(*8|4*8)(*16|5*16)(*32|6*32)(7*64|*64|7*64)(*64|8*128)
+map U+2800..283F = braille-(|1)(|2**2)(|3**4)(|4**8)(|5**16)(|6**32)
+map U+2840..28FF = braille-(|1)(|2**2)(|3**4)(|4**8)(|5**16)(|6**32)(7||7**64)(*64|8*128)
 

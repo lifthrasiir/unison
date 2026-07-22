@@ -82,9 +82,9 @@ glyph enclosing-small-circle 16 16
 glyph ($0..9)-circled
 ref enclosing-circle
 ref ($0..9) 4 0
-glyph (1*10|2*10|3*10|4*10)($0..9)-circled
+glyph ($1..4**10)($0..9)-circled
 ref enclosing-circle-bg
-ref (1*10|2*10|3*10|4*10)-4x10 4 3
+ref ($1..4**10)-4x10 4 3
 ref ($0..9)-4x10 9 3
 glyph 50-circled
 ref enclosing-circle-bg
@@ -284,12 +284,12 @@ glyph enclosing-circle-in-black-square 16 16
 ....@@@@@@@@@@@@@@@@@@@@@@@@@@..
 ................................
 
-glyph (1|2|3|4|5|6|7|8)0-circled-in-black-square
+glyph ($1..8)0-circled-in-black-square
 ref enclosing-circle-in-black-square
-ref (1|2|3|4|5|6|7|8)-4x10 4 3
+ref ($1..8)-4x10 4 3
 ref 0-4x10 9 3
 
-map ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = (1|2|3|4|5|6|7|8)0-circled-in-black-square
+map ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ($1..8)0-circled-in-black-square
 
 //--------------------------------------
 // doubly circled letters

@@ -839,6 +839,9 @@ pub fn expand_name_pattern(s: &str) -> Result<ExpandedNames, NamePatternError> {
         if i % 2 == 0 {
             parts.push(Part::Fixed(part.to_string()));
         } else {
+            let (part, group_mult) = extract_group_mult(part).map_err(|e| {
+                NamePatternError::Syntax(e)
+            })?;
             let mut alts = Vec::new();
             for alt in part.split('|') {
                 if let Some((name, rep_str)) = alt.rsplit_once('*') {
@@ -861,6 +864,22 @@ pub fn expand_name_pattern(s: &str) -> Result<ExpandedNames, NamePatternError> {
             }
             if alts.is_empty() {
                 return Err(NamePatternError::Syntax("empty alternation group".into()));
+            }
+            if group_mult > 1 {
+                let base = alts;
+                let total = base
+                    .len()
+                    .checked_mul(group_mult)
+                    .ok_or(NamePatternError::TooManyExpansions(usize::MAX))?;
+                if total > MAX_EXPANSION {
+                    return Err(NamePatternError::TooManyExpansions(total));
+                }
+                alts = Vec::with_capacity(total);
+                for name in &base {
+                    for _ in 0..group_mult {
+                        alts.push(name.clone());
+                    }
+                }
             }
             parts.push(Part::Alternation(alts));
         }
@@ -1049,32 +1068,27 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
                 i += 1;
             }
             let var: String = chars[start..i].iter().collect();
-            // Check for a `*N` suffix to distribute over each value.
+            // Check for a `**N` group-multiplier suffix.
             let suffix_start = i;
-            let mut suffix = String::new();
-            if i < chars.len() && chars[i] == '*' {
+            let mut group_mult = String::new();
+            if i + 1 < chars.len() && chars[i] == '*' && chars[i + 1] == '*' {
                 let star = i;
-                i += 1;
+                i += 2;
                 while i < chars.len() && chars[i].is_ascii_digit() {
                     i += 1;
                 }
-                if i > star + 1 {
-                    suffix = chars[star..i].iter().collect();
+                if i > star + 2 {
+                    group_mult = chars[star..i].iter().collect();
                 } else {
                     i = suffix_start;
                 }
             }
             if let Some(values) = parts.get(&var) {
-                if suffix.is_empty() {
-                    result.push_str(&values.join("|"));
-                } else {
-                    let suffixed: Vec<String> =
-                        values.iter().map(|v| format!("{v}{suffix}")).collect();
-                    result.push_str(&suffixed.join("|"));
-                }
+                result.push_str(&values.join("|"));
+                result.push_str(&group_mult);
             } else {
                 result.push_str(&var);
-                result.push_str(&suffix);
+                result.push_str(&group_mult);
             }
         } else {
             result.push(chars[i]);
@@ -1128,7 +1142,24 @@ enum Segment {
     Alts(Vec<String>),
 }
 
+fn extract_group_mult(content: &str) -> Result<(&str, usize), String> {
+    let last_pipe = content.rfind('|').map_or(0, |p| p + 1);
+    let last_alt = &content[last_pipe..];
+    if let Some(pos) = last_alt.rfind("**") {
+        let after = &last_alt[pos + 2..];
+        if !after.is_empty() && after.bytes().all(|b| b.is_ascii_digit()) {
+            let k: usize = after
+                .parse()
+                .map_err(|_| format!("invalid group multiplier: {after}"))?;
+            return Ok((&content[..last_pipe + pos], k));
+        }
+    }
+    Ok((content, 1))
+}
+
 fn parse_alt_content(content: &str) -> Result<Vec<String>, String> {
+    let (content, group_mult) = extract_group_mult(content)?;
+
     let mut alts = Vec::new();
     for part in content.split('|') {
         if let Some((name, count_str)) = part.rsplit_once('*') {
@@ -1148,6 +1179,24 @@ fn parse_alt_content(content: &str) -> Result<Vec<String>, String> {
     if alts.is_empty() {
         return Err("alternation must contain at least one value".into());
     }
+
+    if group_mult > 1 {
+        let base = alts;
+        let total = base
+            .len()
+            .checked_mul(group_mult)
+            .ok_or_else(|| "group multiplier too large".to_string())?;
+        if total > MAX_EXPANSION {
+            return Err(format!("alternation too large after group multiply: {total}"));
+        }
+        alts = Vec::with_capacity(total);
+        for name in &base {
+            for _ in 0..group_mult {
+                alts.push(name.clone());
+            }
+        }
+    }
+
     Ok(alts)
 }
 
@@ -1644,15 +1693,15 @@ mod tests {
     }
 
     #[test]
-    fn substitute_name_parts_with_repeat_suffix() {
+    fn substitute_name_parts_with_group_mult_suffix() {
         let mut parts = NamePartsMap::new();
         parts.insert(
             "$foo".to_string(),
             vec!["a".to_string(), "b".to_string(), "c".to_string()],
         );
         assert_eq!(
-            substitute_name_parts("($foo*3)", &parts),
-            "(a*3|b*3|c*3)",
+            substitute_name_parts("($foo**3)", &parts),
+            "(a|b|c**3)",
         );
         // Without suffix, normal expansion.
         assert_eq!(
@@ -1661,8 +1710,70 @@ mod tests {
         );
         // Unknown var keeps suffix verbatim.
         assert_eq!(
-            substitute_name_parts("($bar*2)", &NamePartsMap::new()),
-            "($bar*2)",
+            substitute_name_parts("($bar**2)", &NamePartsMap::new()),
+            "($bar**2)",
+        );
+    }
+
+    #[test]
+    fn expand_name_pattern_group_mult() {
+        assert_eq!(
+            expand_name_pattern("(a|b**3)").unwrap().into_vec(),
+            vec!["a", "a", "a", "b", "b", "b"],
+        );
+        assert_eq!(
+            expand_name_pattern("(a*2|b**3)").unwrap().into_vec(),
+            vec!["a", "a", "a", "a", "a", "a", "b", "b", "b"],
+        );
+    }
+
+    #[test]
+    fn glyph_block_group_mult() {
+        let items = expand_glyph_block(
+            &GlyphName("out-(a|b**3)".to_string()),
+            &[pattern_ref("base")],
+            1,
+        )
+        .unwrap();
+
+        let names: Vec<String> = items
+            .into_iter()
+            .map(|item| match item {
+                DocumentItem::Glyph { name, .. } => name.display(),
+                _ => unreachable!(),
+            })
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "out-a", "out-a", "out-a",
+                "out-b", "out-b", "out-b",
+            ],
+        );
+    }
+
+    #[test]
+    fn glyph_block_group_mult_with_individual_repeats() {
+        let items = expand_glyph_block(
+            &GlyphName("out-(a*2|b**3)".to_string()),
+            &[pattern_ref("base")],
+            1,
+        )
+        .unwrap();
+
+        let names: Vec<String> = items
+            .into_iter()
+            .map(|item| match item {
+                DocumentItem::Glyph { name, .. } => name.display(),
+                _ => unreachable!(),
+            })
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "out-a", "out-a", "out-a", "out-a", "out-a", "out-a",
+                "out-b", "out-b", "out-b",
+            ],
         );
     }
 

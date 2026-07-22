@@ -345,7 +345,5 @@ ref sm-2 5 5 fill card-black
 ref sm-(0|1) 9 5 fill card-black
 
 map U+1F0E0 = card-tarot-blank
-map U+1F0E1..1F0E9 = card-tarot-($1..9)
-map U+1F0EA..1F0F3 = card-tarot-1($0..9)
-map U+1F0F4..1F0F5 = card-tarot-2(0|1)
+map U+1F0E1..1F0F5 = card-tarot-($1..21)
 
