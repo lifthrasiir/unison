@@ -888,167 +888,6 @@ fn collect_glyph_data_with_shared(
     glyph_data.sort_by_key(|g| g.codepoint);
     glyph_data.dedup_by_key(|g| g.codepoint);
 
-    // Build color palette: collect all unique RGBA colors used across fills
-    let mut palette_colors: Vec<Rgba> = Vec::new();
-    let mut color_to_index: HashMap<Rgba, u16> = HashMap::new();
-    // Build per-glyph color layers
-    let color_alt_index = build_cached_alternatives(&cache);
-    for g in &mut glyph_data {
-        let Some(body) = glyph_bodies_map.get(g.name.as_str()) else { continue };
-        let has_fill = body.refs.iter().any(|r| r.fill.is_some());
-        if !has_fill {
-            continue;
-        }
-
-        let (effective_refs, _) = derive_effective_refs(
-            &body.points, &body.refs, &cache, &color_alt_index, &declared_anchors_map);
-
-        let left_offset = match glyph_meta.get(&g.name) {
-            Some(&(_, Some(left), _)) => (left as f32 * scale).round() as i16,
-            _ => 0,
-        };
-        let top_offset = match glyph_meta.get(&g.name) {
-            Some(&(_, _, Some(top))) => (top as f32 * scale).round() as i16,
-            _ => 0,
-        };
-
-        // Collect foreground contours (own pixels + refs without fill or with fill=fg)
-        // and separate color layers (refs with non-fg fill).
-        let mut fg_contours: Vec<Vec<(i16, i16)>> = Vec::new();
-
-        if let Some(ref own_grid) = body.pixels
-            && !own_grid.is_all_empty() {
-                let c = track_contour(own_grid, PX_SUBPIXEL);
-                fg_contours.extend(scale_glyph_contours(&c, scale, meta.ascent, left_offset, top_offset));
-            }
-
-        for (ri, eref) in effective_refs.iter().enumerate() {
-            let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
-            let fill = orig_ref.fill.as_ref();
-            let vis = fill.map(|f| effective_visibility(f, &color_aliases))
-                .unwrap_or(LayerVisibility::Both);
-            if vis == LayerVisibility::MonoOnly {
-                continue;
-            }
-
-            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else { continue };
-            let dx = eref.col() as f32;
-            let dy = eref.row() as f32;
-
-            let layer_contours: Vec<Vec<(i16, i16)>> = ref_cached
-                .contours
-                .iter()
-                .map(|c| {
-                    c.iter()
-                        .map(|&(x, y)| {
-                            (
-                                ((x + dx) * scale).round() as i16 + left_offset,
-                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16 - top_offset,
-                            )
-                        })
-                        .collect()
-                })
-                .collect();
-
-            if layer_contours.is_empty() {
-                continue;
-            }
-
-            let is_fg = fill.is_none() || fill.is_some_and(|f| f.color == "fg");
-            if is_fg {
-                fg_contours.extend(layer_contours);
-            } else {
-                let f = fill.unwrap();
-                let palette_index = if let Some(rgba) = resolve_fill_rgba(f, &color_aliases) {
-                    *color_to_index.entry(rgba.clone()).or_insert_with(|| {
-                        let idx = palette_colors.len() as u16;
-                        palette_colors.push(rgba);
-                        idx
-                    })
-                } else {
-                    0xFFFF
-                };
-                g.color_layers.push(CollectedColorLayer {
-                    contours: layer_contours,
-                    palette_index,
-                });
-            }
-        }
-
-        if !fg_contours.is_empty() {
-            g.color_layers.insert(0, CollectedColorLayer {
-                contours: fg_contours,
-                palette_index: 0xFFFF,
-            });
-        }
-
-        // Rebuild fallback contours: only non-coloronly layers
-        let mut fallback_contours: Vec<Vec<(i16, i16)>> = Vec::new();
-        if let Some(ref own_grid) = body.pixels
-            && !own_grid.is_all_empty() {
-                let c = track_contour(own_grid, PX_SUBPIXEL);
-                for contour in &c {
-                    fallback_contours.push(
-                        contour.iter()
-                            .map(|&(x, y)| {
-                                (
-                                    (x * scale).round() as i16 + left_offset,
-                                    ((meta.ascent as f32 - y) * scale).round() as i16 - top_offset,
-                                )
-                            })
-                            .collect()
-                    );
-                }
-            }
-        for (ri, eref) in effective_refs.iter().enumerate() {
-            let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
-            let fill = orig_ref.fill.as_ref();
-            let vis = fill.map(|f| effective_visibility(f, &color_aliases))
-                .unwrap_or(LayerVisibility::Both);
-            if vis == LayerVisibility::ColorOnly {
-                continue;
-            }
-            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else { continue };
-            let dx = eref.col() as f32;
-            let dy = eref.row() as f32;
-            for c in &ref_cached.contours {
-                fallback_contours.push(
-                    c.iter()
-                        .map(|&(x, y)| {
-                            (
-                                ((x + dx) * scale).round() as i16 + left_offset,
-                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16 - top_offset,
-                            )
-                        })
-                        .collect()
-                );
-            }
-        }
-        g.contours = fallback_contours;
-        g.composite_refs.clear();
-    }
-
-    // Sort palette colors for determinism
-    {
-        let mut sorted_colors: Vec<Rgba> = palette_colors.clone();
-        sorted_colors.sort();
-        sorted_colors.dedup();
-        let old_to_new: HashMap<u16, u16> = palette_colors.iter().enumerate()
-            .map(|(old_idx, rgba)| {
-                let new_idx = sorted_colors.iter().position(|c| c == rgba).unwrap() as u16;
-                (old_idx as u16, new_idx)
-            })
-            .collect();
-        palette_colors = sorted_colors;
-        for g in &mut glyph_data {
-            for layer in &mut g.color_layers {
-                if layer.palette_index != 0xFFFF {
-                    layer.palette_index = old_to_new[&layer.palette_index];
-                }
-            }
-        }
-    }
-
     let mut remap_referenced: HashSet<&str> = HashSet::new();
     for remaps in gsub_data.remap_sets.values() {
         for r in remaps {
@@ -1237,6 +1076,167 @@ fn collect_glyph_data_with_shared(
 
     if glyph_data.is_empty() {
         return None;
+    }
+
+    // Build color palette: collect all unique RGBA colors used across fills
+    let mut palette_colors: Vec<Rgba> = Vec::new();
+    let mut color_to_index: HashMap<Rgba, u16> = HashMap::new();
+    // Build per-glyph color layers
+    let color_alt_index = build_cached_alternatives(&cache);
+    for g in &mut glyph_data {
+        let Some(body) = glyph_bodies_map.get(g.name.as_str()) else { continue };
+        let has_fill = body.refs.iter().any(|r| r.fill.is_some());
+        if !has_fill {
+            continue;
+        }
+
+        let (effective_refs, _) = derive_effective_refs(
+            &body.points, &body.refs, &cache, &color_alt_index, &declared_anchors_map);
+
+        let left_offset = match glyph_meta.get(&g.name) {
+            Some(&(_, Some(left), _)) => (left as f32 * scale).round() as i16,
+            _ => 0,
+        };
+        let top_offset = match glyph_meta.get(&g.name) {
+            Some(&(_, _, Some(top))) => (top as f32 * scale).round() as i16,
+            _ => 0,
+        };
+
+        // Collect foreground contours (own pixels + refs without fill or with fill=fg)
+        // and separate color layers (refs with non-fg fill).
+        let mut fg_contours: Vec<Vec<(i16, i16)>> = Vec::new();
+
+        if let Some(ref own_grid) = body.pixels
+            && !own_grid.is_all_empty() {
+                let c = track_contour(own_grid, PX_SUBPIXEL);
+                fg_contours.extend(scale_glyph_contours(&c, scale, meta.ascent, left_offset, top_offset));
+            }
+
+        for (ri, eref) in effective_refs.iter().enumerate() {
+            let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
+            let fill = orig_ref.fill.as_ref();
+            let vis = fill.map(|f| effective_visibility(f, &color_aliases))
+                .unwrap_or(LayerVisibility::Both);
+            if vis == LayerVisibility::MonoOnly {
+                continue;
+            }
+
+            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else { continue };
+            let dx = eref.col() as f32;
+            let dy = eref.row() as f32;
+
+            let layer_contours: Vec<Vec<(i16, i16)>> = ref_cached
+                .contours
+                .iter()
+                .map(|c| {
+                    c.iter()
+                        .map(|&(x, y)| {
+                            (
+                                ((x + dx) * scale).round() as i16 + left_offset,
+                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16 - top_offset,
+                            )
+                        })
+                        .collect()
+                })
+                .collect();
+
+            if layer_contours.is_empty() {
+                continue;
+            }
+
+            let is_fg = fill.is_none() || fill.is_some_and(|f| f.color == "fg");
+            if is_fg {
+                fg_contours.extend(layer_contours);
+            } else {
+                let f = fill.unwrap();
+                let palette_index = if let Some(rgba) = resolve_fill_rgba(f, &color_aliases) {
+                    *color_to_index.entry(rgba.clone()).or_insert_with(|| {
+                        let idx = palette_colors.len() as u16;
+                        palette_colors.push(rgba);
+                        idx
+                    })
+                } else {
+                    0xFFFF
+                };
+                g.color_layers.push(CollectedColorLayer {
+                    contours: layer_contours,
+                    palette_index,
+                });
+            }
+        }
+
+        if !fg_contours.is_empty() {
+            g.color_layers.insert(0, CollectedColorLayer {
+                contours: fg_contours,
+                palette_index: 0xFFFF,
+            });
+        }
+
+        // Rebuild fallback contours: only non-coloronly layers
+        let mut fallback_contours: Vec<Vec<(i16, i16)>> = Vec::new();
+        if let Some(ref own_grid) = body.pixels
+            && !own_grid.is_all_empty() {
+                let c = track_contour(own_grid, PX_SUBPIXEL);
+                for contour in &c {
+                    fallback_contours.push(
+                        contour.iter()
+                            .map(|&(x, y)| {
+                                (
+                                    (x * scale).round() as i16 + left_offset,
+                                    ((meta.ascent as f32 - y) * scale).round() as i16 - top_offset,
+                                )
+                            })
+                            .collect()
+                    );
+                }
+            }
+        for (ri, eref) in effective_refs.iter().enumerate() {
+            let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
+            let fill = orig_ref.fill.as_ref();
+            let vis = fill.map(|f| effective_visibility(f, &color_aliases))
+                .unwrap_or(LayerVisibility::Both);
+            if vis == LayerVisibility::ColorOnly {
+                continue;
+            }
+            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else { continue };
+            let dx = eref.col() as f32;
+            let dy = eref.row() as f32;
+            for c in &ref_cached.contours {
+                fallback_contours.push(
+                    c.iter()
+                        .map(|&(x, y)| {
+                            (
+                                ((x + dx) * scale).round() as i16 + left_offset,
+                                ((meta.ascent as f32 - (y + dy)) * scale).round() as i16 - top_offset,
+                            )
+                        })
+                        .collect()
+                );
+            }
+        }
+        g.contours = fallback_contours;
+        g.composite_refs.clear();
+    }
+
+    // Sort palette colors for determinism
+    {
+        let mut sorted_colors: Vec<Rgba> = palette_colors.clone();
+        sorted_colors.sort();
+        sorted_colors.dedup();
+        let old_to_new: HashMap<u16, u16> = palette_colors.iter().enumerate()
+            .map(|(old_idx, rgba)| {
+                let new_idx = sorted_colors.iter().position(|c| c == rgba).unwrap() as u16;
+                (old_idx as u16, new_idx)
+            })
+            .collect();
+        palette_colors = sorted_colors;
+        for g in &mut glyph_data {
+            for layer in &mut g.color_layers {
+                if layer.palette_index != 0xFFFF {
+                    layer.palette_index = old_to_new[&layer.palette_index];
+                }
+            }
+        }
     }
 
     // .notdef takes one GID slot, so usable glyph count is u16::MAX - 1 = 65534.
@@ -5346,6 +5346,92 @@ map B = parent
             parent.composite_refs[0].x_offset, -comp_left,
             "parent composite must subtract the child's own left offset (already baked into \
              the child's own glyph outline) so it isn't double-applied"
+        );
+    }
+
+    #[test]
+    fn color_layers_built_for_remap_only_glyphs() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph base-a 8 8
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+
+glyph base-b 8 8
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+
+glyph mono-layer 8 8
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+
+glyph color-layer 8 8
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+
+glyph combined
+ref mono-layer fill fg monoonly
+ref color-layer fill #FF0000 coloronly
+
+map A = base-a
+map B = base-b
+
+remap sub : base-a base-b -> combined
+feature ccmp for DFLT : sub
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (_, _, glyphs, _, palette) = collect_glyph_data(&[&doc], false).unwrap();
+        let combined = glyphs.iter().find(|g| g.name == "combined").expect(
+            "combined glyph should be in glyph_data as a remap-referenced extra glyph"
+        );
+        assert!(
+            !combined.color_layers.is_empty(),
+            "remap-only glyph with fill refs must have COLR layers"
+        );
+        assert!(
+            !palette.is_empty(),
+            "palette must contain at least the #FF0000 color"
+        );
+        assert!(
+            combined.color_layers.iter().all(|cl| !cl.contours.is_empty()),
+            "every color layer should have contours"
+        );
+        let has_colored = combined.color_layers.iter().any(|cl| cl.palette_index != 0xFFFF);
+        assert!(has_colored, "at least one layer must reference a palette color");
+
+        let fallback_non_empty = !combined.contours.is_empty();
+        assert!(fallback_non_empty, "fallback contours (monoonly layer) should be present");
+
+        let color_layer_count = combined.color_layers.len();
+        assert_eq!(
+            color_layer_count, 1,
+            "monoonly ref should be excluded from color layers, \
+             so only the coloronly ref (with its palette color) should remain"
         );
     }
 }
