@@ -16,7 +16,7 @@ use crate::specimen::SpecimenState;
 use crate::sidebar::{Sidebar, SidebarAction};
 
 type FontPair = (Vec<u8>, Vec<u8>);
-type FontBuildMessage = (u64, Option<FontPair>);
+type FontBuildMessage = (u64, Option<(FontPair, HashMap<String, u16>)>);
 type DerivedDataMessage = (u64, HashMap<String, ResolvedGlyph>, crate::editor::ref_composite::AlternativesIndex, NamePartsMap, Vec<Issue>);
 type AssertResultMessage = Vec<Issue>;
 
@@ -106,6 +106,7 @@ pub struct UniformApp {
     status_message: Option<(String, std::time::Instant)>,
     font_base_docs: Vec<Document>,
     font_data: Option<FontPair>,
+    font_name_to_gid: HashMap<String, u16>,
     font_applied: Option<bool>,
     font_data_gen: u64,
     last_font_gen: u64,
@@ -182,11 +183,11 @@ pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
 fn take_current_font_build(
     rx: &mpsc::Receiver<FontBuildMessage>,
     current_gen: u64,
-) -> Option<Option<FontPair>> {
+) -> Option<Option<(FontPair, HashMap<String, u16>)>> {
     let mut received = None;
-    while let Ok((build_gen, pair)) = rx.try_recv() {
+    while let Ok((build_gen, result)) = rx.try_recv() {
         if build_gen == current_gen {
-            received = Some(pair);
+            received = Some(result);
         }
     }
     received
@@ -234,11 +235,14 @@ impl UniformApp {
             .unwrap_or_default();
 
         let contour_cache = crate::render::new_contour_cache();
-        let font_data = if font_base_docs.is_empty() {
-            None
+        let (font_data, font_name_to_gid) = if font_base_docs.is_empty() {
+            (None, HashMap::new())
         } else {
             let refs: Vec<&Document> = font_base_docs.iter().collect();
-            crate::render::build_font_pair_cached(&refs, &contour_cache)
+            match crate::render::build_font_pair_cached(&refs, &contour_cache) {
+                Some((pair, map)) => (Some(pair), map),
+                None => (None, HashMap::new()),
+            }
         };
 
         let (font_build_tx, font_build_rx) = mpsc::channel();
@@ -254,6 +258,7 @@ impl UniformApp {
             status_message: None,
             font_base_docs,
             font_data,
+            font_name_to_gid,
             font_applied: None,
             font_data_gen: 0,
             last_font_gen: 0,
@@ -643,9 +648,7 @@ impl UniformApp {
             .cloned()
             .unwrap_or_default();
 
-        let (mut bitmap_list, mut vector_list) = if let Some((bitmap_ttf, vector_ttf)) =
-            &self.font_data
-        {
+        let (mut bitmap_list, mut vector_list) = if let Some((bitmap_ttf, vector_ttf)) = &self.font_data {
             fonts.font_data.insert(
                 "uniform_bitmap".into(),
                 egui::FontData::from_owned(bitmap_ttf.clone()).into(),
@@ -966,11 +969,20 @@ impl eframe::App for UniformApp {
             }
 
         {
-            if let Some(pair) =
+            if let Some(result) =
                 take_current_font_build(&self.font_build_rx, self.font_build_gen)
             {
                 self.bg_tasks.finish_build();
-                self.font_data = pair;
+                match result {
+                    Some((pair, gid_map)) => {
+                        self.font_data = Some(pair);
+                        self.font_name_to_gid = gid_map;
+                    }
+                    None => {
+                        self.font_data = None;
+                        self.font_name_to_gid.clear();
+                    }
+                }
                 self.font_data_gen = self.font_build_gen;
                 self.font_applied = None;
                 self.shaped_preview.invalidate_font(self.font_data_gen);
@@ -1430,7 +1442,16 @@ impl eframe::App for UniformApp {
                 self.file_parse_errors = parse_errors;
                 let refs: Vec<&Document> = self.font_base_docs.iter().collect();
                 self.contour_cache.lock().unwrap().clear();
-                self.font_data = crate::render::build_font_pair_cached(&refs, &self.contour_cache);
+                match crate::render::build_font_pair_cached(&refs, &self.contour_cache) {
+                    Some((pair, gid_map)) => {
+                        self.font_data = Some(pair);
+                        self.font_name_to_gid = gid_map;
+                    }
+                    None => {
+                        self.font_data = None;
+                        self.font_name_to_gid.clear();
+                    }
+                }
                 self.font_build_gen = self.font_build_gen.wrapping_add(1);
                 self.font_data_gen = self.font_build_gen;
                 self.font_applied = None;
@@ -1599,7 +1620,7 @@ impl eframe::App for UniformApp {
             });
         });
 
-        let mut specimen_clicked_glyph: Option<String> = None;
+        let mut specimen_clicked_glyph: Option<crate::specimen::SpecimenClick> = None;
         let mut issues_click: Option<(PathBuf, usize)> = None;
         let bottom_panel_expanded = self.bottom_panel_tab.is_some();
         if self.bottom_panel_height_override {
@@ -1716,7 +1737,7 @@ impl eframe::App for UniformApp {
                                 &self.font_base_docs,
                             );
                             self.specimen.rebuild_if_needed(
-                                &all_docs, &self.name_parts, self.font_build_gen,
+                                &all_docs, &self.name_parts, &self.font_name_to_gid, self.font_build_gen,
                             );
                         }
                         specimen_clicked_glyph = self.specimen.show(
@@ -1778,8 +1799,8 @@ impl eframe::App for UniformApp {
             self.goto_glyph(ctx, &goto.name, &goto.kind);
         }
 
-        if let Some(glyph_name) = specimen_clicked_glyph {
-            self.goto_glyph(ctx, &glyph_name, &LinkTargetKind::Glyph);
+        if let Some(click) = specimen_clicked_glyph {
+            self.goto_glyph(ctx, &click.name, &click.kind);
         }
 
         if let Some((path, line)) = issues_click {
@@ -2422,14 +2443,18 @@ mod font_build_tests {
     #[test]
     fn stale_background_font_cannot_replace_current_result() {
         let (tx, rx) = mpsc::channel();
-        tx.send((2, Some((vec![2], vec![20])))).unwrap();
-        // An older, slower build finishes after the current one.
-        tx.send((1, Some((vec![1], vec![10])))).unwrap();
+        let m2: HashMap<String, u16> = HashMap::new();
+        let m1: HashMap<String, u16> = HashMap::new();
+        tx.send((2, Some(((vec![2], vec![20]), m2.clone())))).unwrap();
+        tx.send((1, Some(((vec![1], vec![10]), m1)))).unwrap();
 
-        assert_eq!(
-            take_current_font_build(&rx, 2),
-            Some(Some((vec![2], vec![20]))),
-        );
+        let result = take_current_font_build(&rx, 2);
+        assert!(result.is_some());
+        let inner = result.unwrap();
+        assert!(inner.is_some());
+        let ((bitmap, vector), _map) = inner.unwrap();
+        assert_eq!(bitmap, vec![2]);
+        assert_eq!(vector, vec![20]);
     }
 
     #[test]
@@ -2437,7 +2462,9 @@ mod font_build_tests {
         let (tx, rx) = mpsc::channel();
         tx.send((3, None)).unwrap();
 
-        assert_eq!(take_current_font_build(&rx, 3), Some(None));
+        let result = take_current_font_build(&rx, 3);
+        assert!(result.is_some());
+        assert!(result.unwrap().is_none());
     }
 
     #[test]

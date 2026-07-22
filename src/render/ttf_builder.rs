@@ -295,7 +295,7 @@ pub fn build_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {
 pub fn build_font_pair_cached(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
-) -> Option<(Vec<u8>, Vec<u8>)> {
+) -> Option<((Vec<u8>, Vec<u8>), HashMap<String, u16>)> {
     let shared = compute_shared_font_input(docs)?;
 
     let mut cc = shared_cache.lock().unwrap();
@@ -309,6 +309,11 @@ pub fn build_font_pair_cached(
 
     let (b_meta, _, b_glyphs, b_gsub, b_palette) = bitmap_data;
     let (v_meta, v_scale, v_glyphs, v_gsub, v_palette) = vector_data;
+
+    let mut name_to_gid: HashMap<String, u16> = HashMap::new();
+    for (i, g) in v_glyphs.iter().enumerate() {
+        name_to_gid.entry(g.name.clone()).or_insert((i + 1) as u16);
+    }
 
     let b_scale = UNITS_PER_EM as f32 / b_meta.height as f32;
     let b_ascender = (b_meta.ascent as f32 * b_scale).round() as i16;
@@ -330,7 +335,7 @@ pub fn build_font_pair_cached(
         (bitmap, vector)
     });
 
-    Some((bitmap, vector))
+    Some(((bitmap, vector), name_to_gid))
 }
 
 /// Build result containing the TTF bytes, GID→name map, and the pixel
