@@ -50,6 +50,7 @@ pub struct ResolvedGlyph {
     /// The glyph body's own declared anchor/point lines (not forwarded
     /// from refs).  Used by look-ahead alternative selection.
     pub(crate) declared_anchors: Vec<GlyphPoint>,
+    pub scale: u8,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -102,6 +103,7 @@ fn make_on_demand_resolved(w: u8, h: u8) -> ResolvedGlyph {
         origin_col: 0,
         resolved_anchors: Vec::new(),
         declared_anchors: Vec::new(),
+        scale: 1,
     }
 }
 
@@ -586,6 +588,7 @@ pub fn resolve_named_glyphs_with_parts(
         pixels: Option<PixelGrid>,
         refs: Vec<GlyphRef>,
         points: Vec<GlyphPoint>,
+        scale: u8,
     }
 
     let mut pending: Vec<Pending> = Vec::new();
@@ -611,6 +614,7 @@ pub fn resolve_named_glyphs_with_parts(
                                     origin_col: 0,
                                     resolved_anchors: body.points.clone(),
                                     declared_anchors: body.points.clone(),
+                                    scale: body.scale,
                                 },
                             );
                         } else {
@@ -631,6 +635,7 @@ pub fn resolve_named_glyphs_with_parts(
                                 pixels: body.pixels.clone(),
                                 refs: subs_refs,
                                 points: body.points.clone(),
+                                scale: body.scale,
                             });
                         }
                     }
@@ -686,6 +691,7 @@ pub fn resolve_named_glyphs_with_parts(
                                     origin_col: 0,
                                     resolved_anchors: body.points.clone(),
                                     declared_anchors: body.points.clone(),
+                                    scale: body.scale,
                                 },
                             );
                         } else {
@@ -694,6 +700,7 @@ pub fn resolve_named_glyphs_with_parts(
                                 pixels: body.pixels.clone(),
                                 refs: expanded_refs,
                                 points: body.points.clone(),
+                                scale: body.scale,
                             });
                         }
                     }
@@ -781,6 +788,7 @@ pub fn resolve_named_glyphs_with_parts(
                         pixels: None,
                         refs,
                         points,
+                        scale: 1,
                     });
                 }
             }
@@ -814,8 +822,8 @@ pub fn resolve_named_glyphs_with_parts(
                     },
                 );
             let (min_r, min_c, _, _) =
-                composite_bounds(pg.pixels.as_ref(), &effective_refs, &cache, name_parts);
-            let grid = composite_to_grid(&pg.pixels, &effective_refs, &cache, name_parts);
+                composite_bounds(pg.pixels.as_ref(), &effective_refs, &cache, name_parts, pg.scale);
+            let grid = composite_to_grid(&pg.pixels, &effective_refs, &cache, name_parts, pg.scale);
             cache.insert(
                 pg.name.clone(),
                 ResolvedGlyph {
@@ -824,6 +832,7 @@ pub fn resolve_named_glyphs_with_parts(
                     origin_col: min_c,
                     resolved_anchors: anchors,
                     declared_anchors: pg.points.clone(),
+                    scale: pg.scale,
                 },
             );
             progress = true;
@@ -970,11 +979,33 @@ impl AlternativesIndex {
 }
 
 /// The effective (row, col) offset of a resolved ref within its owning glyph.
+#[expect(dead_code)]
 pub(crate) fn ref_effective_offset(gref: &GlyphRef, resolved: &ResolvedGlyph) -> (i32, i32) {
     (
         gref.row() as i32 + resolved.origin_row,
         gref.col() as i32 + resolved.origin_col,
     )
+}
+
+fn ref_effective_offset_scaled(
+    gref: &GlyphRef,
+    resolved: &ResolvedGlyph,
+    parent_scale: u8,
+) -> (i32, i32) {
+    let ps = parent_scale as i32;
+    let rs = resolved.scale.max(1) as i32;
+    (
+        gref.row() as i32 + resolved.origin_row * ps / rs,
+        gref.col() as i32 + resolved.origin_col * ps / rs,
+    )
+}
+
+fn ref_grid_scaled(grid: &PixelGrid, ref_scale: u8, parent_scale: u8) -> PixelGrid {
+    if ref_scale == parent_scale {
+        grid.clone()
+    } else {
+        grid.rescale(ref_scale.max(1), parent_scale.max(1))
+    }
 }
 
 /// Bounding box (min_row, min_col, max_row, max_col) of a composite made of
@@ -986,6 +1017,7 @@ pub(crate) fn composite_bounds(
     refs: &[GlyphRef],
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    parent_scale: u8,
 ) -> (i32, i32, i32, i32) {
     let mut min_r: i32 = 0;
     let mut min_c: i32 = 0;
@@ -997,6 +1029,7 @@ pub(crate) fn composite_bounds(
         max_c = grid.width as i32;
     }
 
+    let ps = parent_scale as i32;
     for gref in refs {
         let resolved = if name_parts.is_empty() {
             resolve_ref_name(&gref.name, named_glyphs)
@@ -1004,12 +1037,15 @@ pub(crate) fn composite_bounds(
             resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts)
         };
         if let Some(resolved) = resolved {
-            let (eff_row, eff_col) = ref_effective_offset(gref, resolved);
+            let rs = resolved.scale.max(1) as i32;
+            let (eff_row, eff_col) = ref_effective_offset_scaled(gref, resolved, parent_scale);
             if resolved.grid.width != 0 && resolved.grid.height != 0 {
+                let scaled_h = resolved.grid.height as i32 * ps / rs;
+                let scaled_w = resolved.grid.width as i32 * ps / rs;
                 min_r = min_r.min(eff_row);
                 min_c = min_c.min(eff_col);
-                max_r = max_r.max(eff_row + resolved.grid.height as i32);
-                max_c = max_c.max(eff_col + resolved.grid.width as i32);
+                max_r = max_r.max(eff_row + scaled_h);
+                max_c = max_c.max(eff_col + scaled_w);
             }
         }
     }
@@ -1064,6 +1100,7 @@ pub fn compute_composite(
         &effective_refs,
         named_glyphs,
         name_parts,
+        body.scale,
     );
 
     let width = raster_dimension(min_c, max_c).max(1);
@@ -1072,7 +1109,8 @@ pub fn compute_composite(
     let mut layers = Vec::new();
     for (idx, gref) in effective_refs.iter().enumerate() {
         if let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
-            let (raster_row, raster_col) = ref_effective_offset(gref, resolved);
+            let (raster_row, raster_col) = ref_effective_offset_scaled(gref, resolved, body.scale);
+            let scaled_grid = ref_grid_scaled(&resolved.grid, resolved.scale, body.scale);
             let orig_ref = &body.refs[idx.min(body.refs.len() - 1)];
             #[cfg(feature = "editor")]
             let fill_color = orig_ref.fill.as_ref().and_then(|f| resolve_fill_display_color(f, color_aliases));
@@ -1084,7 +1122,7 @@ pub fn compute_composite(
             layers.push(CompositeLayer {
                 ref_idx: idx,
                 resolved_name: gref.name.clone(),
-                grid: resolved.grid.clone(),
+                grid: scaled_grid,
                 offset_row: saturating_i16(raster_row - min_r),
                 offset_col: saturating_i16(raster_col - min_c),
                 logical_offset_row: gref.row(),
@@ -1110,24 +1148,24 @@ fn composite_to_grid(
     refs: &[GlyphRef],
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    parent_scale: u8,
 ) -> PixelGrid {
     let (min_r, min_c, max_r, max_c) =
-        composite_bounds(own_pixels.as_ref(), refs, named_glyphs, name_parts);
+        composite_bounds(own_pixels.as_ref(), refs, named_glyphs, name_parts, parent_scale);
 
     let width = raster_dimension(min_c, max_c);
     let height = raster_dimension(min_r, max_r);
     let mut result = PixelGrid::new(width, height);
 
-    // The owning glyph is the initial canvas. Refs are then applied in
-    // document order, so a negated ref can actually cut the owning pixels.
     if let Some(grid) = own_pixels {
         result.blit(grid, -min_r, -min_c, false);
     }
 
     for gref in refs {
         if let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
-            let (eff_row, eff_col) = ref_effective_offset(gref, resolved);
-            result.blit(&resolved.grid, eff_row - min_r, eff_col - min_c, gref.negated);
+            let (eff_row, eff_col) = ref_effective_offset_scaled(gref, resolved, parent_scale);
+            let scaled = ref_grid_scaled(&resolved.grid, resolved.scale, parent_scale);
+            result.blit(&scaled, eff_row - min_r, eff_col - min_c, gref.negated);
         }
     }
 
@@ -1168,6 +1206,7 @@ mod tests {
                 origin_col: 0,
                 resolved_anchors: Vec::new(),
                 declared_anchors: Vec::new(),
+                scale: 1,
             },
         );
 
@@ -1195,7 +1234,7 @@ mod tests {
 
         // composite_to_grid must resolve the same ref the same way, and thus
         // produce a non-empty grid with the layer's pixels present.
-        let grid = composite_to_grid(&None, &refs, &cache, &empty_parts);
+        let grid = composite_to_grid(&None, &refs, &cache, &empty_parts, 1);
         assert_eq!(
             grid.get(0, 0),
             PixelShape::new(0, true),

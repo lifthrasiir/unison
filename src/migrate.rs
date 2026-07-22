@@ -684,6 +684,7 @@ pub fn migrate_file(
                 advance: accum.advance,
                 left: accum.left,
                 top: None,
+                scale: 1,
             },
         });
         Ok(())

@@ -833,6 +833,229 @@ pub(crate) fn handle_transform_selection(
 }
 
 // ---------------------------------------------------------------------------
+// Scale adjustment
+// ---------------------------------------------------------------------------
+
+fn round_half_to_even(x: f64) -> i64 {
+    let floor = x.floor();
+    let frac = x - floor;
+    if frac > 0.5 {
+        floor as i64 + 1
+    } else if frac < 0.5 {
+        floor as i64
+    } else {
+        let f = floor as i64;
+        if f % 2 == 0 { f } else { f + 1 }
+    }
+}
+
+fn scale_offset(v: i16, old_scale: u8, new_scale: u8) -> i16 {
+    round_half_to_even(v as f64 * new_scale as f64 / old_scale as f64) as i16
+}
+
+fn scale_range(start: i16, end: i16, old_scale: u8, new_scale: u8) -> (i16, i16) {
+    let new_start = scale_offset(start, old_scale, new_scale);
+    let new_end = scale_offset(end + 1, old_scale, new_scale) - 1;
+    (new_start, new_end.max(new_start))
+}
+
+pub(crate) fn current_glyph_item_idx(
+    doc: &Document,
+    lines: &[DocLine],
+    state: &EditorState,
+) -> Option<usize> {
+    match &state.mode {
+        EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => {
+            Some(*item_idx)
+        }
+        _ => {
+            let cursor_line = state.cursor.line;
+            let idx = doc
+                .item_line_starts
+                .iter()
+                .rposition(|&start| start <= cursor_line)?;
+            if let Some(DocumentItem::Glyph { .. }) = doc.items.get(idx) {
+                // Verify cursor is within this glyph block (before the next item)
+                let end = doc
+                    .item_line_starts
+                    .get(idx + 1)
+                    .copied()
+                    .unwrap_or(lines.len());
+                if cursor_line < end { Some(idx) } else { None }
+            } else {
+                None
+            }
+        }
+    }
+}
+
+pub(crate) fn can_adjust_scale(
+    doc: &Document,
+    lines: &[DocLine],
+    state: &EditorState,
+) -> Option<u8> {
+    let item_idx = current_glyph_item_idx(doc, lines, state)?;
+    let DocumentItem::Glyph { body, .. } = doc.items.get(item_idx)? else {
+        return None;
+    };
+    body.pixels.as_ref()?;
+    Some(body.scale)
+}
+
+pub(crate) fn handle_adjust_scale(
+    doc: &Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    new_scale: u8,
+) -> bool {
+    let Some(item_idx) = current_glyph_item_idx(doc, lines, state) else {
+        return false;
+    };
+    let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
+        return false;
+    };
+    let old_scale = body.scale;
+    if old_scale == new_scale || new_scale == 0 {
+        return false;
+    }
+    if body.pixels.is_none() {
+        return false;
+    }
+
+    let start = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
+    let end = doc
+        .item_line_starts
+        .get(item_idx + 1)
+        .copied()
+        .unwrap_or(lines.len());
+
+    let old_lines: Vec<DocLine> = lines[start..end].to_vec();
+    let mut new_lines: Vec<DocLine> = Vec::with_capacity(old_lines.len());
+
+    for (i, line) in old_lines.iter().enumerate() {
+        match line {
+            DocLine::Text(t) if i == 0 => {
+                new_lines.push(DocLine::Text(rewrite_scale_in_header(t, new_scale)));
+            }
+            DocLine::Grid(grid) => {
+                new_lines.push(DocLine::Grid(grid.rescale(old_scale, new_scale)));
+            }
+            DocLine::Text(t) => {
+                let trimmed = t.trim();
+                if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed) {
+                    if tokens.first().is_some_and(|k| k == "ref") {
+                        new_lines.push(DocLine::Text(
+                            rewrite_ref_line(&tokens, old_scale, new_scale),
+                        ));
+                        continue;
+                    }
+                    if tokens.first().is_some_and(|k| k == "point" || k == "anchor") {
+                        new_lines.push(DocLine::Text(
+                            rewrite_anchor_line(&tokens, old_scale, new_scale),
+                        ));
+                        continue;
+                    }
+                }
+                new_lines.push(line.clone());
+            }
+        }
+    }
+
+    let cursor = state.cursor;
+    state.undo.break_coalesce();
+    state.undo.push_lines(start, old_lines, new_lines.clone(), cursor, cursor);
+    state.undo.break_coalesce();
+    lines.splice(start..end, new_lines);
+    state.skip_reconcile = true;
+    true
+}
+
+fn rewrite_scale_in_header(header: &str, new_scale: u8) -> String {
+    let Ok(tokens) = crate::document_io::tokenize_tokens(header.trim()) else {
+        return header.to_string();
+    };
+
+    let mut result: Vec<String> = Vec::new();
+    let mut i = 0;
+    let mut scale_written = false;
+    while i < tokens.len() {
+        if tokens[i] == "scale" && i + 1 < tokens.len() {
+            if new_scale > 1 {
+                result.push("scale".into());
+                result.push(new_scale.to_string());
+                scale_written = true;
+            }
+            i += 2;
+        } else {
+            result.push(crate::document_io::quote_token(&tokens[i]));
+            i += 1;
+        }
+    }
+    if new_scale > 1 && !scale_written {
+        result.push("scale".into());
+        result.push(new_scale.to_string());
+    }
+    result.join(" ")
+}
+
+fn rewrite_ref_line(tokens: &[String], old_scale: u8, new_scale: u8) -> String {
+    // ref NAME [COL ROW] [negated] [fill COLOR] [coloronly|monoonly]
+    if tokens.len() < 2 {
+        return tokens.iter().map(|t| crate::document_io::quote_token(t)).collect::<Vec<_>>().join(" ");
+    }
+    let mut out = vec![
+        "ref".to_string(),
+        crate::document_io::quote_token(&tokens[1]),
+    ];
+    let mut i = 2;
+    if i + 1 < tokens.len()
+        && tokens[i].parse::<i16>().is_ok()
+        && tokens[i + 1].parse::<i16>().is_ok()
+    {
+        let col: i16 = tokens[i].parse().unwrap();
+        let row: i16 = tokens[i + 1].parse().unwrap();
+        out.push(scale_offset(col, old_scale, new_scale).to_string());
+        out.push(scale_offset(row, old_scale, new_scale).to_string());
+        i += 2;
+    }
+    while i < tokens.len() {
+        out.push(crate::document_io::quote_token(&tokens[i]));
+        i += 1;
+    }
+    out.join(" ")
+}
+
+fn rewrite_anchor_line(tokens: &[String], old_scale: u8, new_scale: u8) -> String {
+    // anchor|point POSITION COL_RANGE ROW_RANGE
+    if tokens.len() != 4 {
+        return tokens.iter().map(|t| crate::document_io::quote_token(t)).collect::<Vec<_>>().join(" ");
+    }
+    let keyword = &tokens[0];
+    let position = crate::document_io::quote_token(&tokens[1]);
+
+    let col_s = scale_range_token(&tokens[2], old_scale, new_scale);
+    let row_s = scale_range_token(&tokens[3], old_scale, new_scale);
+
+    format!("{keyword} {position} {col_s} {row_s}")
+}
+
+fn scale_range_token(tok: &str, old_scale: u8, new_scale: u8) -> String {
+    if let Some((start_s, end_s)) = tok.split_once("..") {
+        if let (Ok(start), Ok(end)) = (start_s.parse::<i16>(), end_s.parse::<i16>()) {
+            let (new_start, new_end) = scale_range(start, end, old_scale, new_scale);
+            return format!("{new_start}..{new_end}");
+        }
+    } else if let Ok(v) = tok.parse::<i16>() {
+        let (new_start, new_end) = scale_range(v, v, old_scale, new_scale);
+        if new_start == new_end {
+            return new_start.to_string();
+        }
+        return format!("{new_start}..{new_end}");
+    }
+    tok.to_string()
+}
+
+// ---------------------------------------------------------------------------
 // Reconciliation — called once per frame at the top of show_document
 // ---------------------------------------------------------------------------
 
@@ -1198,5 +1421,173 @@ mod tests {
         assert!(sel.is_floating());
         assert_eq!(sel.width, 1);
         assert_eq!(sel.height, 3);
+    }
+
+    // -----------------------------------------------------------------------
+    // Scale adjustment tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn round_half_to_even_cases() {
+        assert_eq!(round_half_to_even(0.5), 0);
+        assert_eq!(round_half_to_even(1.5), 2);
+        assert_eq!(round_half_to_even(2.5), 2);
+        assert_eq!(round_half_to_even(3.5), 4);
+        assert_eq!(round_half_to_even(-0.5), 0);
+        assert_eq!(round_half_to_even(-1.5), -2);
+        assert_eq!(round_half_to_even(2.3), 2);
+        assert_eq!(round_half_to_even(2.7), 3);
+    }
+
+    fn make_scale_test_doc(source: &str) -> (Document, Vec<DocLine>, EditorState) {
+        let lines = crate::document_io::parse_doclines(source);
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+        let state = EditorState::new();
+        (doc, lines, state)
+    }
+
+    #[test]
+    fn adjust_scale_rescales_grid() {
+        let source = "\
+glyph foo 2 2
+@@..
+..@@
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert_eq!(can_adjust_scale(&doc, &lines, &state), Some(1));
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 2));
+
+        // Header should now have scale 2
+        let header = lines[0].as_text().unwrap();
+        assert!(header.contains("scale 2"), "header: {header}");
+
+        // Grid should be 4x4
+        let grid = lines[1].as_grid().unwrap();
+        assert_eq!((grid.width, grid.height), (4, 4));
+        // Top-left 2×2 block should be filled (was one filled pixel)
+        assert!(grid.get(0, 0).is_filled());
+        assert!(grid.get(0, 1).is_filled());
+        assert!(grid.get(1, 0).is_filled());
+        assert!(grid.get(1, 1).is_filled());
+        // Top-right 2×2 block should be empty
+        assert!(grid.get(0, 2).is_empty());
+    }
+
+    #[test]
+    fn adjust_scale_updates_ref_offsets() {
+        let source = "\
+glyph foo 3 3
+......
+......
+......
+ref bar 2 4
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 2));
+
+        // ref line should have scaled offsets: 2*2/1=4, 4*2/1=8
+        let ref_text = lines[2].as_text().unwrap();
+        assert_eq!(ref_text.trim(), "ref bar 4 8");
+    }
+
+    #[test]
+    fn adjust_scale_updates_anchor_positions() {
+        let source = "\
+glyph foo 4 4
+........
+........
+........
+........
+anchor top 1 2
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 3));
+
+        let anchor_text = lines[2].as_text().unwrap();
+        // Single cell at scale 1 → 3-cell range at scale 3
+        assert_eq!(anchor_text.trim(), "anchor top 3..5 6..8");
+    }
+
+    #[test]
+    fn adjust_scale_noop_for_same_scale() {
+        let source = "\
+glyph foo 2 2 scale 2
+@@@@
+@@@@
+@@@@
+@@@@
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert_eq!(can_adjust_scale(&doc, &lines, &state), Some(2));
+        assert!(!handle_adjust_scale(&doc, &mut lines, &mut state, 2));
+    }
+
+    #[test]
+    fn adjust_scale_removes_scale_when_1() {
+        let source = "\
+glyph foo 2 2 scale 2
+@@@@
+@@@@
+@@@@
+@@@@
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 1));
+
+        let header = lines[0].as_text().unwrap();
+        assert!(!header.contains("scale"), "header: {header}");
+        let grid = lines[1].as_grid().unwrap();
+        assert_eq!((grid.width, grid.height), (2, 2));
+    }
+
+    #[test]
+    fn adjust_scale_undo_restores_original() {
+        let source = "\
+glyph foo 2 2
+@@..
+..@@
+ref bar 1 2
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        let original_lines = lines.clone();
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 3));
+
+        // Verify it changed
+        assert_ne!(lines, original_lines);
+
+        // Undo
+        state.undo.undo(&mut lines);
+        assert_eq!(lines, original_lines);
+    }
+
+    #[test]
+    fn adjust_scale_anchor_range() {
+        let source = "\
+glyph foo 4 4
+........
+........
+........
+........
+anchor top 1..3 2..3
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 2));
+
+        let anchor_text = lines[2].as_text().unwrap();
+        assert_eq!(anchor_text.trim(), "anchor top 2..7 4..7");
     }
 }

@@ -53,6 +53,24 @@ impl PixelGrid {
         self.pixels = new_pixels;
     }
 
+    pub fn rescale(&self, old_scale: u8, new_scale: u8) -> Self {
+        let old_s = old_scale as u16;
+        let new_s = new_scale as u16;
+        let logical_w = self.width / old_s;
+        let logical_h = self.height / old_s;
+        let new_width = logical_w * new_s;
+        let new_height = logical_h * new_s;
+        let mut out = Self::new(new_width, new_height);
+        for r in 0..new_height {
+            for c in 0..new_width {
+                let src_r = r * old_s / new_s;
+                let src_c = c * old_s / new_s;
+                out.set(r, c, self.get(src_r, src_c));
+            }
+        }
+        out
+    }
+
     pub fn is_all_empty(&self) -> bool {
         self.pixels.iter().all(|s| s.is_empty())
     }
@@ -254,6 +272,7 @@ pub struct GlyphBody {
     pub advance: Option<u16>,
     pub left: Option<i16>,
     pub top: Option<i16>,
+    pub scale: u8,
 }
 
 impl GlyphBody {
@@ -268,6 +287,7 @@ impl GlyphBody {
             advance: None,
             left: None,
             top: None,
+            scale: 1,
         }
     }
 
@@ -287,6 +307,7 @@ impl GlyphBody {
             && self.advance.is_none()
             && self.left.is_none()
             && self.top.is_none()
+            && self.scale == 1
     }
 }
 
@@ -1297,7 +1318,7 @@ fn expand_name_at(pattern: &NamePattern, count: usize, i: usize) -> GlyphName {
 /// already-pattern-named item, and `.unf` content never combines a
 /// pattern name with pixel data on the same glyph (patterns are only
 /// used for ref/composite batches).
-pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<DocumentItem>, String> {
+pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef], scale: u8) -> Result<Vec<DocumentItem>, String> {
     let name_str = name.display();
     let (name_pattern, name_count) = parse_name_pattern(&name_str)?;
 
@@ -1337,6 +1358,7 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef]) -> Result<Vec<Doc
             name: expanded_name,
             body: GlyphBody {
                 refs: expanded_refs,
+                scale,
                 ..GlyphBody::new()
             },
         });
@@ -1486,6 +1508,7 @@ mod tests {
         let result = expand_glyph_block(
             &GlyphName("glyph*0".to_string()),
             &[pattern_ref("base")],
+            1,
         );
 
         assert!(result.is_err());
@@ -1496,6 +1519,7 @@ mod tests {
         let result = expand_glyph_block(
             &GlyphName("U+00000000..FFFFFFFF".to_string()),
             &[pattern_ref("base")],
+            1,
         );
 
         assert!(result.is_err());
@@ -1506,6 +1530,7 @@ mod tests {
         let items = expand_glyph_block(
             &GlyphName("u+2800..2801".to_string()),
             &[pattern_ref("base")],
+            1,
         )
         .unwrap();
         let names: Vec<String> = items
@@ -1524,6 +1549,7 @@ mod tests {
         let items = expand_glyph_block(
             &GlyphName("out-(a|b)".to_string()),
             &[pattern_ref("dep-(1|2|3|4)")],
+            1,
         )
         .unwrap();
 
@@ -1645,6 +1671,7 @@ mod tests {
         let items = expand_glyph_block(
             &GlyphName("out-(a|b)-(1|2|3)".to_string()),
             &[pattern_ref("base")],
+            1,
         )
         .unwrap();
 
@@ -1699,5 +1726,58 @@ mod tests {
         assert_eq!(serialized_lines[file_lines[0]], "glyph a 2 2");
         assert_eq!(serialized_lines[file_lines[2]], "glyph b 1 1");
         assert_eq!(serialized_lines[file_lines[4]], "map A = b");
+    }
+
+    #[test]
+    fn rescale_up_nearest_neighbor() {
+        // 2×2 grid at scale 1, rescale to scale 2 → 4×4
+        let mut g = PixelGrid::new(2, 2);
+        g.set(0, 0, PixelShape::new(0, true)); // top-left filled
+        g.set(1, 1, PixelShape::new(0, true)); // bottom-right filled
+
+        let r = g.rescale(1, 2);
+        assert_eq!((r.width, r.height), (4, 4));
+        // Each source pixel becomes a 2×2 block
+        assert_eq!(r.get(0, 0), PixelShape::new(0, true));
+        assert_eq!(r.get(0, 1), PixelShape::new(0, true));
+        assert_eq!(r.get(1, 0), PixelShape::new(0, true));
+        assert_eq!(r.get(1, 1), PixelShape::new(0, true));
+        assert_eq!(r.get(0, 2), PixelShape::EMPTY);
+        assert_eq!(r.get(2, 0), PixelShape::EMPTY);
+        assert_eq!(r.get(2, 2), PixelShape::new(0, true));
+        assert_eq!(r.get(2, 3), PixelShape::new(0, true));
+        assert_eq!(r.get(3, 2), PixelShape::new(0, true));
+        assert_eq!(r.get(3, 3), PixelShape::new(0, true));
+    }
+
+    #[test]
+    fn rescale_down_nearest_neighbor() {
+        // 4×4 grid at scale 2, rescale to scale 1 → 2×2
+        let mut g = PixelGrid::new(4, 4);
+        let filled = PixelShape::new(0, true);
+        for r in 0..2 { for c in 0..2 { g.set(r, c, filled); } }
+        for r in 2..4 { for c in 2..4 { g.set(r, c, filled); } }
+
+        let r = g.rescale(2, 1);
+        assert_eq!((r.width, r.height), (2, 2));
+        assert_eq!(r.get(0, 0), filled);
+        assert_eq!(r.get(0, 1), PixelShape::EMPTY);
+        assert_eq!(r.get(1, 0), PixelShape::EMPTY);
+        assert_eq!(r.get(1, 1), filled);
+    }
+
+    #[test]
+    fn rescale_fractional_ratio() {
+        // 6×3 grid at scale 3, rescale to scale 2 → 4×2
+        let mut g = PixelGrid::new(6, 3);
+        let filled = PixelShape::new(0, true);
+        for r in 0..3 { for c in 0..3 { g.set(r, c, filled); } }
+
+        let r = g.rescale(3, 2);
+        assert_eq!((r.width, r.height), (4, 2));
+        assert_eq!(r.get(0, 0), filled);
+        assert_eq!(r.get(0, 1), filled);
+        assert_eq!(r.get(0, 2), PixelShape::EMPTY);
+        assert_eq!(r.get(1, 0), filled);
     }
 }

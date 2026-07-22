@@ -197,6 +197,7 @@ fn parse_anchor_point(position: &str, col_tok: &str, row_tok: &str) -> Option<Gl
 pub struct GlyphHeaderDims {
     pub width: u16,
     pub height: u16,
+    pub scale: u8,
 }
 
 /// Glyph header flags/dimensions, as parsed by [`parse_glyph_flag_parts`].
@@ -210,6 +211,7 @@ pub struct GlyphHeaderFlags {
     pub top: Option<i16>,
     pub width: Option<u16>,
     pub height: Option<u16>,
+    pub scale: Option<u8>,
 }
 
 /// Parse the flag tokens of a `glyph NAME ...` header (everything after the
@@ -247,6 +249,12 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
                     flags.top = flag_parts[fp].as_ref().parse().ok();
                 }
             }
+            "scale" => {
+                fp += 1;
+                if fp < flag_parts.len() {
+                    flags.scale = flag_parts[fp].as_ref().parse().ok();
+                }
+            }
             other => {
                 if flags.width.is_none()
                     && let Ok(w) = other.parse::<u16>() {
@@ -281,7 +289,12 @@ pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> 
     }
     let flags = parse_glyph_flag_parts(&parts[1..]);
     let (width, height) = (flags.width?, flags.height?);
-    Some(GlyphHeaderDims { width, height })
+    let scale = flags.scale.unwrap_or(1);
+    Some(GlyphHeaderDims {
+        width: width.checked_mul(scale as u16)?,
+        height: height.checked_mul(scale as u16)?,
+        scale,
+    })
 }
 
 /// Parse `.unf` source text into a `Document`.
@@ -367,12 +380,14 @@ fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<(
     while i < tokens.len() {
         match tokens[i].as_ref() {
             "sticky" | "inline" | "mark" => i += 1,
-            "advance" => {
+            "advance" | "scale" => {
+                let kw = tokens[i].as_ref().to_string();
                 i += 1;
                 if i >= tokens.len() || tokens[i].as_ref().parse::<u16>().is_err() {
                     bail!(
-                        "line {}: 'advance' requires a u16 value",
+                        "line {}: '{}' requires a numeric value",
                         line_no + 1,
+                        kw,
                     );
                 }
                 i += 1;
@@ -397,7 +412,7 @@ fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<(
                         i += 1;
                     } else if i < tokens.len() && !matches!(
                         tokens[i].as_ref(),
-                        "sticky" | "inline" | "mark" | "advance" | "left" | "top",
+                        "sticky" | "inline" | "mark" | "advance" | "left" | "top" | "scale",
                     ) {
                         bail!(
                             "line {}: expected height after width, got '{}'",
@@ -547,6 +562,9 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     if let Some(top) = body.top {
         flags.push_str(&format!(" top {top}"));
     }
+    if body.scale > 1 {
+        flags.push_str(&format!(" scale {}", body.scale));
+    }
     flags
 }
 
@@ -561,7 +579,8 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
     }
 
     if let Some(grid) = &body.pixels {
-        writeln!(writer, "glyph {qname} {} {}{flags}", grid.width, grid.height)?;
+        let s = body.scale as u16;
+        writeln!(writer, "glyph {qname} {} {}{flags}", grid.width / s, grid.height / s)?;
         if !grid.is_all_empty() {
             for row in 0..grid.height {
                 writeln!(writer, "{}", encode_grid_row(grid, row))?;
@@ -783,7 +802,12 @@ pub fn derive_document(
                         body.advance = flags.advance;
                         body.left = flags.left;
                         body.top = flags.top;
-                        let (width, height) = (flags.width, flags.height);
+                        body.scale = flags.scale.unwrap_or(1);
+                        let scale = body.scale as u16;
+                        let (width, height) = (
+                            flags.width.and_then(|w| w.checked_mul(scale)),
+                            flags.height.and_then(|h| h.checked_mul(scale)),
+                        );
 
                         if let Some(alias_name) = alias {
                             body.refs.push(GlyphRef {
@@ -913,16 +937,16 @@ mod tests {
     fn header_dims_match_derive_for_valued_flags() {
         // Valued flags may precede W H; their argument is not a dimension.
         let dims = glyph_header_dims(&["foo", "advance", "0", "4", "3"]);
-        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3 }));
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3, scale: 1 }));
 
         let dims = glyph_header_dims(&["foo", "left", "2", "3"]);
         assert_eq!(dims, None, "width 3 without height is not a grid header");
 
         let dims = glyph_header_dims(&["foo", "4", "3", "advance", "0"]);
-        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3 }));
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3, scale: 1 }));
 
         let dims = glyph_header_dims(&["foo", "sticky", "4", "3"]);
-        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3 }));
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3, scale: 1 }));
 
         // Cross-check against derive_document on the same headers.
         for (header, expected) in [
@@ -1861,5 +1885,44 @@ ref part-c fill #ff0000 monoonly
         serialize_document(&doc, &mut output).unwrap();
         let output_str = String::from_utf8(output).unwrap();
         assert_eq!(output_str, input);
+    }
+
+    #[test]
+    fn scale_roundtrip() {
+        let input = "\
+glyph flag 10 5 scale 2
+....................@@@@@@@@@@..........@@@@@@@@@@
+....................@@@@@@@@@@..........@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else { panic!() };
+        assert_eq!(body.scale, 2);
+        let grid = body.pixels.as_ref().unwrap();
+        assert_eq!((grid.width, grid.height), (20, 10));
+
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        let output_str = String::from_utf8(output).unwrap();
+        assert_eq!(output_str, input);
+    }
+
+    #[test]
+    fn scale_header_dims() {
+        let dims = glyph_header_dims(&["foo", "10", "5", "scale", "2"]);
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 20, height: 10, scale: 2 }));
+
+        let dims = glyph_header_dims(&["foo", "scale", "3", "4", "2"]);
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 12, height: 6, scale: 3 }));
+
+        let dims = glyph_header_dims(&["foo", "4", "2"]);
+        assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 2, scale: 1 }));
     }
 }

@@ -2275,7 +2275,17 @@ fn inline_ref_to_pixels(
     let item_start = doc.item_line_starts[edit_idx];
     let grid_line_idx = item_start + 1;
 
-    let (eff_row, eff_col) = ref_composite::ref_effective_offset(gref, resolved);
+    let parent_scale = body.scale;
+    let ref_scale = resolved.scale.max(1);
+    let scaled_ref_grid = if ref_scale == parent_scale {
+        std::borrow::Cow::Borrowed(&resolved.grid)
+    } else {
+        std::borrow::Cow::Owned(resolved.grid.rescale(ref_scale, parent_scale))
+    };
+    let ps = parent_scale as i32;
+    let rs = ref_scale as i32;
+    let eff_row = gref.row() as i32 + resolved.origin_row * ps / rs;
+    let eff_col = gref.col() as i32 + resolved.origin_col * ps / rs;
     let negated = gref.negated;
 
     if has_grid {
@@ -2284,7 +2294,7 @@ fn inline_ref_to_pixels(
             lines[grid_line_idx..grid_line_idx + body_line_count].to_vec();
 
         if let Some(DocLine::Grid(grid)) = lines.get_mut(grid_line_idx) {
-            merge_ref_pixels(grid, resolved, eff_row, eff_col, negated);
+            merge_ref_pixels(grid, &scaled_ref_grid, eff_row, eff_col, negated);
         }
 
         let ref_text_line_idx = grid_line_idx + 1 + ref_idx;
@@ -2308,7 +2318,7 @@ fn inline_ref_to_pixels(
         let has_dims = parse_glyph_header_dims(&tokens).is_some();
         let (w, h) = parse_glyph_header_dims(&tokens).unwrap_or_else(|| {
             let (_min_r, _min_c, max_r, max_c) =
-                ref_composite::composite_bounds(None, &body.refs, named_glyphs, name_parts);
+                ref_composite::composite_bounds(None, &body.refs, named_glyphs, name_parts, body.scale);
             let w = (max_c).max(0) as u16;
             let h = (max_r).max(0) as u16;
             (w, h)
@@ -2328,7 +2338,7 @@ fn inline_ref_to_pixels(
             lines[item_start] = DocLine::Text(new_header);
         }
         let mut grid = PixelGrid::new(w, h);
-        merge_ref_pixels(&mut grid, resolved, eff_row, eff_col, negated);
+        merge_ref_pixels(&mut grid, &scaled_ref_grid, eff_row, eff_col, negated);
         lines.insert(grid_line_idx, DocLine::Grid(grid));
 
         let ref_text_line_idx = grid_line_idx + 1 + ref_idx;
@@ -2354,14 +2364,14 @@ fn inline_ref_to_pixels(
 
 fn merge_ref_pixels(
     grid: &mut PixelGrid,
-    resolved: &ResolvedGlyph,
+    ref_grid: &PixelGrid,
     eff_row: i32,
     eff_col: i32,
     negated: bool,
 ) {
-    for r in 0..resolved.grid.height as i32 {
-        for c in 0..resolved.grid.width as i32 {
-            let shape = resolved.grid.get(r as u16, c as u16);
+    for r in 0..ref_grid.height as i32 {
+        for c in 0..ref_grid.width as i32 {
+            let shape = ref_grid.get(r as u16, c as u16);
             if shape.is_empty() {
                 continue;
             }
@@ -2385,22 +2395,8 @@ fn parse_glyph_header_dims(tokens: &[String]) -> Option<(u16, u16)> {
     if tokens.first().map(|s| s.as_str()) != Some("glyph") || tokens.len() < 2 {
         return None;
     }
-    let parts = &tokens[2..];
-    let mut fp = 0;
-    while fp < parts.len() {
-        match parts[fp].as_str() {
-            "sticky" | "=" => { fp += 1; }
-            "advance" | "left" => { fp += 2; }
-            other => {
-                if let Ok(w) = other.parse::<u16>() {
-                    let h = parts.get(fp + 1).and_then(|s| s.parse::<u16>().ok())?;
-                    return Some((w, h));
-                }
-                fp += 1;
-            }
-        }
-    }
-    None
+    let dims = crate::document_io::glyph_header_dims(&tokens[1..])?;
+    Some((dims.width, dims.height))
 }
 
 pub fn apply_edit_action_to_editor(

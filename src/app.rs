@@ -1069,6 +1069,7 @@ impl eframe::App for UniformApp {
 
         let mut edit_action = EditAction::None;
         let mut sel_menu_action: Option<SelMenuAction> = None;
+        let mut scale_action: Option<u8> = None;
         let edit_target = if self.shaped_preview.is_focused() {
             EditTarget::Preview
         } else {
@@ -1206,6 +1207,32 @@ impl eframe::App for UniformApp {
                         }
                         ui.close_menu();
                     }
+                    ui.separator();
+                    let current_scale = self.active_doc_idx
+                        .and_then(|i| self.open_documents.get(i))
+                        .and_then(|d| {
+                            crate::editor::pixel_selection::can_adjust_scale(
+                                &d.document, &d.lines, &d.editor_state,
+                            )
+                        });
+                    ui.add_enabled_ui(current_scale.is_some(), |ui| {
+                        ui.menu_button("Adjust scale", |ui| {
+                            for s in 1u8..=10 {
+                                let label = if current_scale == Some(s) {
+                                    format!("{s} ✓")
+                                } else {
+                                    format!("{s}")
+                                };
+                                if ui.add_enabled(
+                                    current_scale != Some(s),
+                                    egui::Button::new(label),
+                                ).clicked() {
+                                    scale_action = Some(s);
+                                    ui.close_menu();
+                                }
+                            }
+                        });
+                    });
                 });
                 ui.menu_button("Selection", |ui| {
                     let (mod_name, _) = if cfg!(target_os = "macos") {
@@ -1870,6 +1897,25 @@ impl eframe::App for UniformApp {
                             );
                         }
                     }
+                }
+            }
+        }
+
+        if let Some(new_scale) = scale_action {
+            if let Some(idx) = self.active_doc_idx
+                && let Some(doc) = self.open_documents.get_mut(idx)
+            {
+                if crate::editor::pixel_selection::handle_adjust_scale(
+                    &doc.document,
+                    &mut doc.lines,
+                    &mut doc.editor_state,
+                    new_scale,
+                ) {
+                    crate::editor::document_view::flush_document_changes(
+                        &mut doc.lines,
+                        &mut doc.document,
+                        &mut doc.editor_state,
+                    );
                 }
             }
         }
