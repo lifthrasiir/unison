@@ -518,10 +518,12 @@ fn inject_on_demand_glyphs(
                     lookahead,
                     ..
                 } => {
-                    for token in source.split_whitespace() {
+                    for token in source {
                         consider(token);
                     }
-                    consider(target);
+                    for token in target {
+                        consider(token);
+                    }
                     for lb in lookbehind {
                         consider(lb);
                     }

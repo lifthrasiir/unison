@@ -247,7 +247,8 @@ struct ExpandedRemap {
     lookbehind: Vec<Vec<String>>,
     /// Each inner Vec is a sequence of input glyph positions (len > 1 = ligature).
     source: Vec<Vec<String>>,
-    target: Vec<String>,
+    /// Each inner Vec is a sequence of output glyph positions.
+    target: Vec<Vec<String>>,
     lookahead: Vec<Vec<String>>,
 }
 
@@ -689,10 +690,12 @@ fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
                 lookahead,
                 ..
             } => {
-                for token in source.split_whitespace() {
+                for token in source {
                     consider(token);
                 }
-                consider(target);
+                for token in target {
+                    consider(token);
+                }
                 for lb in lookbehind {
                     consider(lb);
                 }
@@ -971,8 +974,10 @@ fn collect_glyph_data_with_shared(
                     remap_referenced.insert(name.as_str());
                 }
             }
-            for name in &r.target {
-                remap_referenced.insert(name.as_str());
+            for seq in &r.target {
+                for name in seq {
+                    remap_referenced.insert(name.as_str());
+                }
             }
             for names in &r.lookbehind {
                 for name in names {
@@ -1498,8 +1503,7 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                     target,
                     lookahead,
                 } => {
-                    let source_positions: Vec<&str> = source.split_whitespace().collect();
-                    let expanded_positions: Vec<Vec<String>> = source_positions
+                    let expanded_positions: Vec<Vec<String>> = source
                         .iter()
                         .map(|s| expand_remap_element(s, name_parts))
                         .collect();
@@ -1514,17 +1518,30 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                         .map(|p| p.len())
                         .fold(1usize, |a, b| a / usize_gcd(a, b) * b);
 
-                    let tgt_names = expand_remap_element(target, name_parts);
+                    let expanded_target_positions: Vec<Vec<String>> = target
+                        .iter()
+                        .map(|s| expand_remap_element(s, name_parts))
+                        .collect();
+
+                    let entry_count = expanded_positions
+                        .iter()
+                        .chain(expanded_target_positions.iter())
+                        .map(|p| p.len())
+                        .fold(entry_count, |a, b| a / usize_gcd(a, b) * b);
 
                     let mut source_seqs = Vec::with_capacity(entry_count);
-                    let mut target_expanded = Vec::with_capacity(entry_count);
+                    let mut target_seqs = Vec::with_capacity(entry_count);
                     for i in 0..entry_count {
                         let seq: Vec<String> = expanded_positions
                             .iter()
                             .map(|pos| pos[i % pos.len()].clone())
                             .collect();
                         source_seqs.push(seq);
-                        target_expanded.push(tgt_names[i % tgt_names.len()].clone());
+                        let tseq: Vec<String> = expanded_target_positions
+                            .iter()
+                            .map(|pos| pos[i % pos.len()].clone())
+                            .collect();
+                        target_seqs.push(tseq);
                     }
 
                     let lb: Vec<Vec<String>> = lookbehind
@@ -1540,7 +1557,7 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                         ExpandedRemap {
                             lookbehind: lb,
                             source: source_seqs,
-                            target: target_expanded,
+                            target: target_seqs,
                             lookahead: la,
                         },
                     );
@@ -1647,7 +1664,8 @@ fn build_gsub(
                     // Build helper SingleSubst for the first input position
                     let first_sources: Vec<String> = r.source.iter().map(|seq| seq[0].clone()).collect();
                     let helper_idx = lookups.len() as u16;
-                    let helper = build_single_subst_from_pairs(&first_sources, &r.target, name_to_gid);
+                    let first_targets: Vec<String> = r.target.iter().map(|seq| seq[0].clone()).collect();
+                    let helper = build_single_subst_from_pairs(&first_sources, &first_targets, name_to_gid);
                     lookups.push(helper);
 
                     let backtrack: Vec<CoverageTable> = r
@@ -2436,7 +2454,7 @@ fn build_single_subst_lookup(
         for (seq, tgt) in r.source.iter().zip(r.target.iter()) {
             if seq.len() == 1 {
                 all_sources.push(seq[0].clone());
-                all_targets.push(tgt.clone());
+                all_targets.push(tgt[0].clone());
             }
         }
     }
@@ -2461,7 +2479,7 @@ fn build_ligature_subst_lookup(
             if gids.len() != seq.len() {
                 continue;
             }
-            let Some(&tgt_gid) = name_to_gid.get(tgt.as_str()) else {
+            let Some(&tgt_gid) = name_to_gid.get(tgt[0].as_str()) else {
                 continue;
             };
             let first = gids[0];

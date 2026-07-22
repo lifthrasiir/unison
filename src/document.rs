@@ -327,8 +327,8 @@ pub enum DocumentItem {
     Remap {
         feature: String,
         lookbehind: Vec<String>,
-        source: String,
-        target: String,
+        source: Vec<String>,
+        target: Vec<String>,
         lookahead: Vec<String>,
     },
     /// `feature NAME for SCRIPT... : REMAP_GROUP`
@@ -516,17 +516,17 @@ impl DocumentItem {
             (Vec::new(), first_colon_after_feature)
         };
 
-        let source = tokens[source_start..arrow_pos].join(" ");
+        let source = tokens[source_start..arrow_pos].to_vec();
 
         let after_arrow = arrow_pos + 1;
         let lookahead_colon = colon_positions.iter().copied().find(|&p| p > arrow_pos);
 
         let (target, lookahead) = if let Some(lc) = lookahead_colon {
-            let target = tokens[after_arrow..lc].join(" ");
+            let target = tokens[after_arrow..lc].to_vec();
             let la: Vec<String> = tokens[lc + 1..].to_vec();
             (target, la)
         } else {
-            (tokens[after_arrow..].join(" "), Vec::new())
+            (tokens[after_arrow..].to_vec(), Vec::new())
         };
 
         Some(DocumentItem::Remap {
@@ -624,7 +624,9 @@ impl DocumentItem {
                     let lb: Vec<String> = lookbehind.iter().map(|s| quote_token(s)).collect();
                     parts.push(format!("{} :", lb.join(" ")));
                 }
-                parts.push(format!("{} -> {}", quote_token(source), quote_token(target)));
+                let qs: Vec<String> = source.iter().map(|s| quote_token(s)).collect();
+                let qt: Vec<String> = target.iter().map(|s| quote_token(s)).collect();
+                parts.push(format!("{} -> {}", qs.join(" "), qt.join(" ")));
                 if !lookahead.is_empty() {
                     let la: Vec<String> = lookahead.iter().map(|s| quote_token(s)).collect();
                     parts.push(format!(": {}", la.join(" ")));

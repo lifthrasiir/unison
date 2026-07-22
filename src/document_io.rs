@@ -1477,6 +1477,8 @@ glyph sticky-empty sticky advance 0
 map A = stem
 map B = wide
 remap set1 : stem -> wide
+remap liga1 : stem wide -> batch
+remap liga2 : stem wide -> batch stem
 feature liga for latn : set1
 exclude-from-sample stem
 ";

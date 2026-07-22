@@ -156,8 +156,8 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                         .into_iter().map(|(_, n)| n).collect()
                 }
                 DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
-                    std::iter::once(source.as_str())
-                        .chain(std::iter::once(target.as_str()))
+                    source.iter().map(|s| s.as_str())
+                        .chain(target.iter().map(|s| s.as_str()))
                         .chain(lookbehind.iter().map(|s| s.as_str()))
                         .chain(lookahead.iter().map(|s| s.as_str()))
                         .map(|s| substitute_name_parts(s, &name_parts))
@@ -324,8 +324,8 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                 DocumentItem::Remap {
                     source, target, lookbehind, lookahead, ..
                 } => {
-                    for name in std::iter::once(source.as_str())
-                        .chain(std::iter::once(target.as_str()))
+                    for name in source.iter().map(|s| s.as_str())
+                        .chain(target.iter().map(|s| s.as_str()))
                         .chain(lookbehind.iter().map(|s| s.as_str()))
                         .chain(lookahead.iter().map(|s| s.as_str()))
                     {
@@ -452,8 +452,8 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
             for item in &doc.items {
                 match item {
                     DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
-                        for token in source.split_whitespace()
-                            .chain(std::iter::once(target.as_str()))
+                        for token in source.iter().map(|s| s.as_str())
+                            .chain(target.iter().map(|s| s.as_str()))
                             .chain(lookbehind.iter().map(|s| s.as_str()))
                             .chain(lookahead.iter().map(|s| s.as_str()))
                         {
