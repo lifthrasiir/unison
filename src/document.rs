@@ -1028,10 +1028,32 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
                 i += 1;
             }
             let var: String = chars[start..i].iter().collect();
+            // Check for a `*N` suffix to distribute over each value.
+            let suffix_start = i;
+            let mut suffix = String::new();
+            if i < chars.len() && chars[i] == '*' {
+                let star = i;
+                i += 1;
+                while i < chars.len() && chars[i].is_ascii_digit() {
+                    i += 1;
+                }
+                if i > star + 1 {
+                    suffix = chars[star..i].iter().collect();
+                } else {
+                    i = suffix_start;
+                }
+            }
             if let Some(values) = parts.get(&var) {
-                result.push_str(&values.join("|"));
+                if suffix.is_empty() {
+                    result.push_str(&values.join("|"));
+                } else {
+                    let suffixed: Vec<String> =
+                        values.iter().map(|v| format!("{v}{suffix}")).collect();
+                    result.push_str(&suffixed.join("|"));
+                }
             } else {
                 result.push_str(&var);
+                result.push_str(&suffix);
             }
         } else {
             result.push(chars[i]);
@@ -1593,6 +1615,29 @@ mod tests {
             vec!["$3..2"],
         );
         assert!(find_invalid_inline_ranges("($0..9)").is_empty());
+    }
+
+    #[test]
+    fn substitute_name_parts_with_repeat_suffix() {
+        let mut parts = NamePartsMap::new();
+        parts.insert(
+            "$foo".to_string(),
+            vec!["a".to_string(), "b".to_string(), "c".to_string()],
+        );
+        assert_eq!(
+            substitute_name_parts("($foo*3)", &parts),
+            "(a*3|b*3|c*3)",
+        );
+        // Without suffix, normal expansion.
+        assert_eq!(
+            substitute_name_parts("($foo)", &parts),
+            "(a|b|c)",
+        );
+        // Unknown var keeps suffix verbatim.
+        assert_eq!(
+            substitute_name_parts("($bar*2)", &NamePartsMap::new()),
+            "($bar*2)",
+        );
     }
 
     #[test]

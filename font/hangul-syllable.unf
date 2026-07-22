@@ -6577,12 +6577,15 @@ glyph hangul-fin-h-w 16 16
 //--------------------------------------
 // pre-combined hangul syllable
 
+name-parts $hangul-modern-med-map-for-init = l l l l l l l l t tl tl tl t t tl tl tl t t tl l
+name-parts $hangul-modern-med-map-for-fin = l r l r r r r r w w r w w w l r l w w w l
+
 // here we go!
-glyph U+AC00..D7A3
-ref hangul-init-(g*588|gg*588|n*588|d*588|dd*588|r*588|m*588|b*588|bb*588|s*588|ss*588|0*588|j*588|jj*588|c*588|k*588|t*588|p*588|h*588)-(l*28|l*28|l*28|l*28|l*28|l*28|l*28|l*28|t*28|tl*28|tl*28|tl*28|t*28|t*28|tl*28|tl*28|tl*28|t*28|t*28|tl*28|l*28)-(nof|f*27)
-ref hangul-med-(a*28|ae*28|ya*28|yae*28|eo*28|e*28|yeo*28|ye*28|o*28|oa*28|oae*28|oi*28|yo*28|u*28|ueo*28|ue*28|ui*28|yu*28|eu*28|eui*28|i*28)-(nof|f*27)
-ref hangul-fin-(|g|gg|gs|n|nj|nh|d|r|rg|rm|rb|rs|rt|rp|rh|m|b|bs|s|ss|0|j|c|k|t|p|h)-(l*28|r*28|l*28|r*28|r*28|r*28|r*28|r*28|w*28|w*28|r*28|w*28|w*28|w*28|l*28|r*28|l*28|w*28|w*28|w*28|l*28)
-map U+AC00..D7A3 = U+AC00..D7A3
+glyph hangul-($#AC00..D7A3)
+ref hangul-init-($hangul-modern-init*588)-($hangul-modern-med-map-for-init*28)-(nof|f*27)
+ref hangul-med-($hangul-modern-med*28)-(nof|f*27)
+ref hangul-fin-($hangul-modern-fin0)-($hangul-modern-med-map-for-fin*28)
+map U+AC00..D7A3 = hangul-($#AC00..D7A3)
 
 // there are so many hangul syllables that we want to hide (most of) them from sample.html
 exclude-from-sample U+AD00..D699
@@ -6646,22 +6649,38 @@ map U+11A8..11C2 = hangul-fin-($hangul-modern-fin)
 
 // TODO hangul-ccmp for pre-U5.2 compat
 
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-l-f : hangul-med-(a|ae|ya|yae|eo|e|yeo|ye|i) hangul-fin-($hangul-fin)
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-tl-f : hangul-med-(oa|oae|oi|ueo|ue|ui|eui|.i) hangul-fin-($hangul-fin)
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-f : hangul-med-(|o|yo|u|yu|eu|.) hangul-fin-($hangul-fin)
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-l-nof : hangul-med-(a|ae|ya|yae|eo|e|yeo|ye|i)
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-tl-nof : hangul-med-(oa|oae|oi|ueo|ue|ui|eui|.i)
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-nof : hangul-med-(|o|yo|u|yu|eu|.)
+// +--------+  +--------+  +--------+
+// |     |  |  |     |  |  |        |
+// |     |  |  |     |  |  |        |
+// |     |  |  |     |  |  |        |
+// |     |  |  |-----+  |  |--------|
+// |     |  |  |        |  |        |
+// +--------+  +--------+  +--------+
+//     l           tl          t
+name-parts $hangul-med-for-init-l = a ae ya yae eo e yeo ye i
+name-parts $hangul-med-for-init-tl = oa oae oi ueo ue ui eui .i
+name-parts $hangul-med-for-init-t = `` o yo u yu eu .
+
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-l-f : hangul-med-($hangul-med-for-init-l) hangul-fin-($hangul-fin)
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-tl-f : hangul-med-($hangul-med-for-init-tl) hangul-fin-($hangul-fin)
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-f : hangul-med-($hangul-med-for-init-f) hangul-fin-($hangul-fin)
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-l-nof : hangul-med-($hangul-med-for-init-l)
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-tl-nof : hangul-med-($hangul-med-for-init-tl)
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-nof : hangul-med-($hangul-med-for-init-f)
 
 remap hangul-vjmo : hangul-med-($hangul-med0) -> hangul-med-comb-($hangul-med0)-f : hangul-fin-($hangul-fin)
 remap hangul-vjmo : hangul-med-($hangul-med0) -> hangul-med-comb-($hangul-med0)-nof
 
-remap hangul-tjmo : hangul-med-comb-(a*2|ya*2|ueo*2|ui*2|i*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
-remap hangul-tjmo : hangul-med-comb-(*2|o*2|oa*2|oi*2|yo*2|u*2|yu*2|eu*2|eui*2|.*2|.i*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
-remap hangul-tjmo : hangul-med-comb-(ae*2|yae*2|eo*2|e*2|yeo*2|ye*2|oae*2|ue*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
-remap hangul-tjmo : hangul-med-comb-(a*2|ya*2|ueo*2|ui*2|i*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
-remap hangul-tjmo : hangul-med-comb-(*2|o*2|oa*2|oi*2|yo*2|u*2|yu*2|eu*2|eui*2|.*2|.i*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
-remap hangul-tjmo : hangul-med-comb-(ae*2|yae*2|eo*2|e*2|yeo*2|ye*2|oae*2|ue*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
+name-parts $hangul-med-for-fin-l = a ya ueo ui i
+name-parts $hangul-med-for-fin-w = `` o oa oi yo u yu eu eui . .i
+name-parts $hangul-med-for-fin-r = ae yae eo e yeo ye oae ue
+
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-l*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-w*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-r*2)-f : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-l*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-l
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-w*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-w
+remap hangul-tjmo : hangul-med-comb-($hangul-med-for-fin-r*2)-nof : hangul-fin-($hangul-fin) -> hangul-fin-comb-($hangul-fin)-r
 
 feature ljmo for hang : hangul-ljmo
 feature vjmo for hang : hangul-vjmo
@@ -6709,4 +6728,3 @@ glyph hangul-tone-2 8 16
 map U+302E = hangul-tone-1
 map U+302F = hangul-tone-2
 
-// vim: ft=unison
