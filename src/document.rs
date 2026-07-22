@@ -182,6 +182,35 @@ impl GlyphRef {
     pub fn col(&self) -> i16 {
         self.offset.map_or(0, |(c, _)| c)
     }
+
+    /// Format as a `ref …` line. When `offset_override` is `Some`, that
+    /// offset is written instead of `self.offset` (and is always explicit,
+    /// even for `0 0`).
+    pub fn format_line(&self, offset_override: Option<(i16, i16)>) -> String {
+        use crate::document_io::quote_token;
+        let rname = quote_token(&self.name);
+        let mut parts = vec![format!("ref {rname}")];
+        match offset_override {
+            Some((c, r)) => parts.push(format!("{c} {r}")),
+            None => {
+                if let Some((c, r)) = self.offset {
+                    parts.push(format!("{c} {r}"));
+                }
+            }
+        }
+        if self.negated {
+            parts.push("negated".into());
+        }
+        if let Some(ref fill) = self.fill {
+            parts.push(format!("fill {}", quote_token(&fill.color)));
+            match fill.visibility {
+                Some(LayerVisibility::ColorOnly) => parts.push("coloronly".into()),
+                Some(LayerVisibility::MonoOnly) => parts.push("monoonly".into()),
+                Some(LayerVisibility::Both) | None => {}
+            }
+        }
+        parts.join(" ")
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]

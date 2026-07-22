@@ -579,23 +579,7 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
         writeln!(writer, "glyph {qname}{flags}")?;
     }
     for r in &body.refs {
-        let rname = quote_token(&r.name);
-        let mut parts = vec![format!("ref {rname}")];
-        if let Some((c, row)) = r.offset {
-            parts.push(format!("{c} {row}"));
-        }
-        if r.negated {
-            parts.push("negated".into());
-        }
-        if let Some(ref fill) = r.fill {
-            parts.push(format!("fill {}", quote_token(&fill.color)));
-            match fill.visibility {
-                Some(LayerVisibility::ColorOnly) => parts.push("coloronly".into()),
-                Some(LayerVisibility::MonoOnly) => parts.push("monoonly".into()),
-                Some(LayerVisibility::Both) | None => {}
-            }
-        }
-        writeln!(writer, "{}", parts.join(" "))?;
+        writeln!(writer, "{}", r.format_line(None))?;
     }
     for p in &body.points {
         let col_s = if p.col == p.col_end {

@@ -9,13 +9,9 @@ use crate::pixel;
 use super::document_view::GridExtent;
 
 fn format_dragged_ref(gref: &crate::document::GlyphRef, col: i16, row: i16) -> String {
-    // A drag is an explicit placement even when it lands at the origin.
-    // Omitting `0 0` would turn it back into an auto-offset ref.
-    if gref.negated {
-        format!("ref {} {} {} negated", gref.name, col, row)
-    } else {
-        format!("ref {} {} {}", gref.name, col, row)
-    }
+    // Always pass an explicit offset — even `0 0` — so the ref doesn't
+    // revert to auto-placement.
+    gref.format_line(Some((col, row)))
 }
 
 fn layer_effective_offset(composite: &GlyphComposite, ref_idx: usize) -> Option<(i16, i16)> {
