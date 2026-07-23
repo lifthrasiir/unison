@@ -205,6 +205,15 @@ glyph flag-kr-trigrams 21 14 scale 2
 ....................................................................................
 ....................................................................................
 
+// Seychelles (aspect 2:1)
+glyph flag-sc:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #D92323
+ref 14x14-ul 2 1 fill #FED141
+ref 7x14-ul 2 1 fill #002F6C
+ref 21x-9p1r3-dr 2 5 fill #ffffff
+ref 21x-4p2r3-dr 2 10 fill #007A33
+
 // United States (aspect 19:10 -> 11:7)
 glyph flag-us:color 24 16
 ref 24x15 0 0 fill #00000080
@@ -308,6 +317,7 @@ remap flag : regional-indicator-a-left regional-indicator-t-right -> flag-at
 remap flag : regional-indicator-f-left regional-indicator-r-right -> flag-fr
 remap flag : regional-indicator-j-left regional-indicator-p-right -> flag-jp
 remap flag : regional-indicator-k-left regional-indicator-r-right -> flag-kr
+remap flag : regional-indicator-s-left regional-indicator-c-right -> flag-sc
 remap flag : regional-indicator-u-left regional-indicator-s-right -> flag-us
 
 feature ccmp for DFLT : flag
