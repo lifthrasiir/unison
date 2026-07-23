@@ -180,6 +180,12 @@ pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
     egui::FontId::new(size, family)
 }
 
+/// Whether `[perf]` stage timing logs are enabled (UNIFORM_PERF env var).
+fn perf_log_enabled() -> bool {
+    static ENABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ENABLED.get_or_init(|| std::env::var_os("UNIFORM_PERF").is_some())
+}
+
 fn take_current_font_build(
     rx: &mpsc::Receiver<FontBuildMessage>,
     current_gen: u64,
@@ -454,8 +460,12 @@ impl UniformApp {
         let ctx = ctx.clone();
         let cache = self.contour_cache.clone();
         std::thread::spawn(move || {
+            let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
             let pair = crate::render::build_font_pair_cached(&refs, &cache);
+            if let Some(t0) = perf_t0 {
+                eprintln!("[perf] font build (background): {:?}", t0.elapsed());
+            }
             let _ = tx.send((build_gen, pair));
             ctx.request_repaint();
         });
@@ -589,6 +599,7 @@ impl UniformApp {
     }
 
     fn rebuild_named_glyphs_sync(&mut self) {
+        let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
         let all_docs = self.collect_all_docs();
         let name_parts = crate::document::collect_name_parts(&all_docs);
         let (named_glyphs, alt_index) =
@@ -600,6 +611,9 @@ impl UniformApp {
         self.alt_index = alt_index;
         self.name_parts = name_parts;
         self.derived_gen = self.derived_gen.wrapping_add(1);
+        if let Some(t0) = perf_t0 {
+            eprintln!("[perf] resolve (sync, main thread): {:?}", t0.elapsed());
+        }
     }
 
     fn rebuild_derived_data(&self, ctx: &egui::Context) {
@@ -609,6 +623,7 @@ impl UniformApp {
         let tx = self.derived_data_tx.clone();
         let ctx = ctx.clone();
         std::thread::spawn(move || {
+            let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
             let name_parts = crate::document::collect_name_parts(&refs);
             let (named_glyphs, alt_index) =
@@ -616,6 +631,9 @@ impl UniformApp {
                     &refs,
                     &name_parts,
                 );
+            if let Some(t0) = perf_t0 {
+                eprintln!("[perf] resolve (derived thread): {:?}", t0.elapsed());
+            }
             let mut issues = collect_issues(&refs);
             for (path, msg) in &file_parse_errors {
                 issues.insert(0, Issue {

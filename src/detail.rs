@@ -155,6 +155,40 @@ fn classify_index() -> &'static HashMap<DetailRegion, u8> {
     })
 }
 
+/// Exact `a − b` for two catalog shape ids, memoized. Negated blits hit
+/// this for every overlapping plain pixel pair (e.g. dozens of star glyphs
+/// punched out of a field), so the geometry must not be recomputed per
+/// pixel.
+pub fn catalog_subtract(a_id: u8, b_id: u8) -> Classified {
+    let key = (a_id & PX_SUBPIXEL, b_id & PX_SUBPIXEL);
+    subtract_classified(
+        &shape_region_table()[key.0 as usize],
+        &shape_region_table()[key.1 as usize],
+    )
+}
+
+/// Exact classified `a − b` for arbitrary regions, memoized by region pair.
+/// Compositions subtract the same few regions (a negated ref's cells) from
+/// the same few backgrounds once per referencing site, so pair identity
+/// repeats heavily.
+pub fn subtract_classified(a: &DetailRegion, b: &DetailRegion) -> Classified {
+    use std::sync::Mutex;
+    type PairCache = HashMap<(DetailRegion, DetailRegion), Classified>;
+    static CACHE: Mutex<Option<PairCache>> = Mutex::new(None);
+    let key = (a.clone(), b.clone());
+    if let Some(hit) = CACHE.lock().unwrap().get_or_insert_with(HashMap::new).get(&key) {
+        return hit.clone();
+    }
+    let result = bool_op(a, b, BoolOp::Subtract).classify();
+    let mut cache = CACHE.lock().unwrap();
+    let map = cache.get_or_insert_with(HashMap::new);
+    if map.len() > 65536 {
+        map.clear();
+    }
+    map.insert(key, result.clone());
+    result
+}
+
 // ---------------------------------------------------------------------------
 // Exact rational scalar (internal)
 // ---------------------------------------------------------------------------

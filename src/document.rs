@@ -93,6 +93,21 @@ impl PixelGrid {
         }
     }
 
+    /// Apply an already-classified region to a pixel.
+    fn apply_classified(&mut self, row: u16, col: u16, classified: Classified, filled: bool) {
+        match classified {
+            Classified::Empty => self.set(row, col, PixelShape::EMPTY),
+            Classified::Full => self.set(row, col, PixelShape::new(PX_ALMOSTFULL, filled)),
+            Classified::Shape(id) => self.set(row, col, PixelShape::new(id, filled)),
+            Classified::Custom(region) => {
+                // Route through set_detail for denominator bookkeeping (the
+                // region is already canonical, so classification is a cheap
+                // table hit).
+                self.set_detail(row, col, &region, filled);
+            }
+        }
+    }
+
     /// The exact filled region of a pixel, whether plain or custom.
     pub fn region_at(&self, row: u16, col: u16) -> DetailRegion {
         let shape = self.get(row, col);
@@ -375,10 +390,26 @@ impl PixelGrid {
                     if current.is_empty() {
                         continue;
                     }
+                    let cur_custom = current.shape_id() == PX_CUSTOM;
+                    if !cur_custom && !src_custom {
+                        // Plain − plain: the result depends only on the two
+                        // catalog ids — use the memoized table.
+                        self.apply_classified(
+                            dr as u16,
+                            dc as u16,
+                            detail::catalog_subtract(current.shape_id(), shape.shape_id()),
+                            current.is_filled(),
+                        );
+                        continue;
+                    }
                     let cur_region = self.region_at(dr as u16, dc as u16);
                     let sub = src.region_at(r as u16, c as u16);
-                    let result = detail::bool_op(&cur_region, &sub, detail::BoolOp::Subtract);
-                    self.set_detail(dr as u16, dc as u16, &result, current.is_filled());
+                    self.apply_classified(
+                        dr as u16,
+                        dc as u16,
+                        detail::subtract_classified(&cur_region, &sub),
+                        current.is_filled(),
+                    );
                 } else if src_custom {
                     let region = src.region_at(r as u16, c as u16);
                     self.set_detail(dr as u16, dc as u16, &region, shape.is_filled());
