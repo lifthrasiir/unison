@@ -1111,3 +1111,57 @@ fn blur_commits_floating() {
     let grid = h.grid(1);
     assert!(grid.get(2, 0).is_filled());
 }
+
+#[test]
+fn on_demand_triangle_ref_reaches_renderer() {
+    // A ref-only glyph pointing at an on-demand triangle must resolve with
+    // exact custom details, expose them through the composite layers the
+    // grid renderer draws from, and lay out one grid row per pixel row.
+    let h = EditorHarness::new("glyph tri\nref 4x16-ul 0 0\n");
+    assert_view_consistent(&h);
+
+    // The offsetless form (auto-resolved placement) must reach the
+    // renderer just the same.
+    let h2 = EditorHarness::new("glyph tri2\nref 4x16-ul\n");
+    assert_view_consistent(&h2);
+    let resolved2 = h2.named_glyphs.get("tri2").expect("tri2 must resolve");
+    assert!(
+        !resolved2.grid.details.is_empty(),
+        "offsetless triangle ref must resolve with details"
+    );
+
+    let resolved = h.named_glyphs.get("tri").expect("tri must resolve");
+    assert!(
+        !resolved.grid.details.is_empty(),
+        "1:4 hypotenuse requires custom details in the resolved grid"
+    );
+
+    let rows = h
+        .snap()
+        .vlines
+        .iter()
+        .filter(|vl| matches!(vl.kind, SnapKind::GridRow { .. }))
+        .count();
+    assert_eq!(rows, 16, "one grid row per pixel row");
+
+    // The composite the renderer receives must carry the custom cells and
+    // report them as filled (thumbnails and previews use that test).
+    let comp = crate::editor::ref_composite::compute_composite(
+        match &h.doc.items[0] {
+            crate::document::DocumentItem::Glyph { body, .. } => body,
+            other => panic!("expected glyph item, got {other:?}"),
+        },
+        &h.named_glyphs,
+        &h.name_parts,
+        &h.alt_index,
+        &Default::default(),
+    )
+    .expect("composite for ref-only glyph");
+    let layer = &comp.layers[0];
+    assert!(
+        !layer.grid.details.is_empty(),
+        "composite layer must keep the custom details the renderer draws"
+    );
+    assert!(comp.any_layer_filled_at(0, 0), "right-angle corner filled");
+    assert!(!comp.any_layer_filled_at(15, 3), "opposite corner empty");
+}

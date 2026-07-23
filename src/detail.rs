@@ -106,6 +106,55 @@ const fn base_shape_rings(id: u8) -> &'static [&'static [(u8, u8)]] {
     }
 }
 
+/// Canonical regions of all 128 catalog ids, built once.
+fn shape_region_table() -> &'static [DetailRegion; 128] {
+    static TABLE: std::sync::OnceLock<Box<[DetailRegion; 128]>> = std::sync::OnceLock::new();
+    TABLE.get_or_init(|| {
+        let mut table: Vec<DetailRegion> = (0..128u8)
+            .map(|id| {
+                if id == PX_EMPTY || id > 24 {
+                    DetailRegion::EMPTY // complements filled below
+                } else {
+                    let rings = base_shape_rings(id);
+                    if rings.is_empty() {
+                        DetailRegion::EMPTY
+                    } else {
+                        DetailRegion {
+                            den: 2,
+                            rings: rings.iter().map(|r| r.to_vec()).collect(),
+                        }
+                        .canonical()
+                    }
+                }
+            })
+            .collect();
+        table[PX_ALMOSTFULL as usize] = DetailRegion::full().canonical();
+        for id in 103..PX_ALMOSTFULL {
+            let base = (id ^ PX_SUBPIXEL) as usize;
+            if !table[base].is_empty() {
+                table[id as usize] =
+                    bool_op(&DetailRegion::full(), &table[base], BoolOp::Subtract).canonical();
+            }
+        }
+        table.try_into().unwrap()
+    })
+}
+
+/// Reverse lookup: canonical region → catalog id (including ALMOSTFULL).
+fn classify_index() -> &'static HashMap<DetailRegion, u8> {
+    static INDEX: std::sync::OnceLock<HashMap<DetailRegion, u8>> = std::sync::OnceLock::new();
+    INDEX.get_or_init(|| {
+        let mut map = HashMap::new();
+        for (id, region) in shape_region_table().iter().enumerate() {
+            if !region.is_empty() {
+                // Prefer the smallest id when two ids share geometry.
+                map.entry(region.clone()).or_insert(id as u8);
+            }
+        }
+        map
+    })
+}
+
 // ---------------------------------------------------------------------------
 // Exact rational scalar (internal)
 // ---------------------------------------------------------------------------
@@ -584,33 +633,11 @@ impl DetailRegion {
         self.rings.is_empty()
     }
 
-    /// Build the exact region of a catalog pixel shape (any id `0..=127`).
+    /// The exact region of a catalog pixel shape (any id `0..=127`).
+    /// Served from a lazily built table — this is on the hot path of
+    /// rescaling and classification.
     pub fn from_shape(shape_id: u8) -> DetailRegion {
-        let id = shape_id & PX_SUBPIXEL;
-        if id == PX_EMPTY {
-            return DetailRegion::EMPTY;
-        }
-        if id == PX_ALMOSTFULL {
-            return DetailRegion::full();
-        }
-        if id > 24 {
-            // Complement ids: derive geometrically from the base shape (the
-            // catalog stores no hole-capable outlines).
-            let base = id ^ PX_SUBPIXEL;
-            if base > 24 {
-                return DetailRegion::EMPTY; // unassigned id range
-            }
-            return DetailRegion::from_shape(base).complement();
-        }
-        let rings = base_shape_rings(id);
-        if rings.is_empty() {
-            return DetailRegion::EMPTY;
-        }
-        DetailRegion {
-            den: 2,
-            rings: rings.iter().map(|r| r.to_vec()).collect(),
-        }
-        .canonical()
+        shape_region_table()[(shape_id & PX_SUBPIXEL) as usize].clone()
     }
 
     /// Twice the filled area in unit-square terms. Only meaningful for
@@ -709,15 +736,13 @@ impl DetailRegion {
         if canon.is_empty() {
             return Classified::Empty;
         }
-        if canon == DetailRegion::full().canonical() {
-            return Classified::Full;
-        }
         if canon.den <= 2 {
-            for id in 1..PX_SUBPIXEL {
-                let shape = DetailRegion::from_shape(id);
-                if !shape.is_empty() && shape == canon {
-                    return Classified::Shape(id);
-                }
+            if let Some(&id) = classify_index().get(&canon) {
+                return if id == PX_ALMOSTFULL {
+                    Classified::Full
+                } else {
+                    Classified::Shape(id)
+                };
             }
         }
         Classified::Custom(canon)

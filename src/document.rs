@@ -127,7 +127,60 @@ impl PixelGrid {
     /// destination pixel receives the union of the source regions that
     /// overlap it, mapped exactly; results are re-encoded as plain shape
     /// codes when possible and stored as custom details otherwise.
+    ///
+    /// Results are memoized by content: the same source grid is typically
+    /// rescaled once per referencing glyph, which made this the dominant
+    /// cost of resolving a font before caching.
     pub fn rescale(&self, old_scale: u8, new_scale: u8) -> Self {
+        if old_scale.max(1) == new_scale.max(1) {
+            return self.clone();
+        }
+        use std::sync::Mutex;
+        type CacheEntry = (PixelGrid, u8, u8, PixelGrid);
+        static CACHE: Mutex<Option<HashMap<u64, Vec<CacheEntry>>>> = Mutex::new(None);
+
+        let key = {
+            use std::hash::{Hash, Hasher};
+            let mut h = std::collections::hash_map::DefaultHasher::new();
+            self.width.hash(&mut h);
+            self.height.hash(&mut h);
+            for px in &self.pixels {
+                px.0.hash(&mut h);
+            }
+            self.den.hash(&mut h);
+            self.details.hash(&mut h);
+            old_scale.hash(&mut h);
+            new_scale.hash(&mut h);
+            h.finish()
+        };
+        {
+            let mut cache = CACHE.lock().unwrap();
+            if let Some(entries) = cache.get_or_insert_with(HashMap::new).get(&key) {
+                for (src, o, n, out) in entries {
+                    if *o == old_scale && *n == new_scale && src == self {
+                        return out.clone();
+                    }
+                }
+            }
+        }
+        let out = self.rescale_uncached(old_scale, new_scale);
+        let mut cache = CACHE.lock().unwrap();
+        let map = cache.get_or_insert_with(HashMap::new);
+        // Crude bound: drop everything when the cache grows unreasonable
+        // (long editor sessions keep mutating grids).
+        if map.len() > 4096 {
+            map.clear();
+        }
+        map.entry(key).or_default().push((
+            self.clone(),
+            old_scale,
+            new_scale,
+            out.clone(),
+        ));
+        out
+    }
+
+    fn rescale_uncached(&self, old_scale: u8, new_scale: u8) -> Self {
         let old_s = old_scale.max(1) as i64;
         let new_s = new_scale.max(1) as i64;
         if old_s == new_s {

@@ -59,10 +59,10 @@ pub enum TriCorner {
     Ul,
     /// Right angle at the upper-right corner.
     Ur,
-    /// Right angle at the lower-left corner.
-    Ll,
-    /// Right angle at the lower-right corner.
-    Lr,
+    /// Right angle at the lower ("down") left corner.
+    Dl,
+    /// Right angle at the lower ("down") right corner.
+    Dr,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -75,7 +75,8 @@ pub struct OnDemandRect {
     pub neg_w: bool,
     pub neg_h: bool,
     /// `Some` makes this a right triangle with legs `w × h`, the right
-    /// angle sitting at the given corner of the bounding rectangle.
+    /// angle sitting at the given corner of the bounding rectangle
+    /// (`-ul`/`-ur`/`-dl`/`-dr` name suffixes).
     pub corner: Option<TriCorner>,
 }
 
@@ -124,17 +125,18 @@ fn parse_rect_dim(s: &str) -> Option<(bool, u8, Option<(u8, u8)>)> {
 /// Extended form: R >= 2 on both sides (must match), 0 <= B,D < R, and the
 /// total dimension A+B/R must be positive on each axis.
 ///
-/// A `-ul`/`-ur`/`-ll`/`-lr` suffix turns the rectangle into a right
-/// triangle with legs W × H, the right angle at the named corner.
+/// A `-ul`/`-ur`/`-dl`/`-dr` suffix turns the rectangle into a right
+/// triangle with legs W × H, the right angle at the named corner
+/// (u = up, d = down).
 pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
     let (name, corner) = if let Some(rest) = name.strip_suffix("-ul") {
         (rest, Some(TriCorner::Ul))
     } else if let Some(rest) = name.strip_suffix("-ur") {
         (rest, Some(TriCorner::Ur))
-    } else if let Some(rest) = name.strip_suffix("-ll") {
-        (rest, Some(TriCorner::Ll))
-    } else if let Some(rest) = name.strip_suffix("-lr") {
-        (rest, Some(TriCorner::Lr))
+    } else if let Some(rest) = name.strip_suffix("-dl") {
+        (rest, Some(TriCorner::Dl))
+    } else if let Some(rest) = name.strip_suffix("-dr") {
+        (rest, Some(TriCorner::Dr))
     } else {
         (name, None)
     };
@@ -273,8 +275,8 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
     let tri: [(i64, i64); 3] = match corner {
         TriCorner::Ul => [(x0, y0), (x0 + w, y0), (x0, y0 + h)],
         TriCorner::Ur => [(x0 + w, y0), (x0 + w, y0 + h), (x0, y0)],
-        TriCorner::Ll => [(x0, y0 + h), (x0, y0), (x0 + w, y0 + h)],
-        TriCorner::Lr => [(x0 + w, y0 + h), (x0 + w, y0), (x0, y0 + h)],
+        TriCorner::Dl => [(x0, y0 + h), (x0, y0), (x0 + w, y0 + h)],
+        TriCorner::Dr => [(x0 + w, y0 + h), (x0 + w, y0), (x0, y0 + h)],
     };
     // The hypotenuse connects tri[1] and tri[2]; tri[0] is the right angle.
     let (hx1, hy1) = tri[1];
@@ -2090,15 +2092,15 @@ ref mark-below
             Some(OnDemandGlyph::Rect(r)) => assert_eq!(r.corner, Some(TriCorner::Ul)),
             other => panic!("4x8-ul parsed as {other:?}"),
         }
-        match parse_on_demand_glyph("1p2r3x4-lr") {
+        match parse_on_demand_glyph("1p2r3x4-dr") {
             Some(OnDemandGlyph::Rect(r)) => {
-                assert_eq!(r.corner, Some(TriCorner::Lr));
+                assert_eq!(r.corner, Some(TriCorner::Dr));
                 assert_eq!((r.w, r.w_frac, r.scale), (1, 2, 3));
             }
-            other => panic!("1p2r3x4-lr parsed as {other:?}"),
+            other => panic!("1p2r3x4-dr parsed as {other:?}"),
         }
         assert_eq!(parse_on_demand_glyph("4x-ul"), None);
-        assert_eq!(parse_on_demand_glyph("x8-ll"), None);
+        assert_eq!(parse_on_demand_glyph("x8-dl"), None);
     }
 
     #[test]
@@ -2130,10 +2132,10 @@ ref mark-below
 
     #[test]
     fn on_demand_triangle_third_slope_traces_cleanly() {
-        // 3x1-lr: slope 1:3 (the smooth-mosaic case) — needs custom
+        // 3x1-dr: slope 1:3 (the smooth-mosaic case) — needs custom
         // details, and the contour must come out as one clean triangle.
-        let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph("3x1-lr") else {
-            panic!("3x1-lr must parse");
+        let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph("3x1-dr") else {
+            panic!("3x1-dr must parse");
         };
         let grid = make_on_demand_grid(&rect);
         assert_eq!((grid.width, grid.height), (3, 1));
