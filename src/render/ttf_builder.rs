@@ -3637,34 +3637,46 @@ fn build_ttf(
 
         let feat_tag = make_tag(&feature_tag);
 
-        let feat_idx = gsub.feature_list.feature_records.len() as u16;
-        gsub.feature_list.feature_records.push(FeatureRecord::new(
-            feat_tag,
-            Feature::new(None, chain_indices),
-        ));
+        // Try to merge into an existing feature record with the same tag
+        // to avoid duplicate feature entries (which some shapers ignore).
+        let existing_feat = gsub
+            .feature_list
+            .feature_records
+            .iter_mut()
+            .find(|fr| fr.feature_tag == feat_tag);
 
-        for script in &scripts {
-            let script_tag = make_tag(script);
+        if let Some(fr) = existing_feat {
+            fr.feature.lookup_list_indices.extend(chain_indices);
+        } else {
+            let feat_idx = gsub.feature_list.feature_records.len() as u16;
+            gsub.feature_list.feature_records.push(FeatureRecord::new(
+                feat_tag,
+                Feature::new(None, chain_indices),
+            ));
 
-            let existing = gsub
-                .script_list
-                .script_records
-                .iter_mut()
-                .find(|sr| sr.script_tag == script_tag);
+            for script in &scripts {
+                let script_tag = make_tag(script);
 
-            if let Some(sr) = existing {
-                if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
-                    default_ls.feature_indices.push(feat_idx);
-                }
-            } else {
-                let lang_sys = LangSys {
-                    required_feature_index: 0xFFFF,
-                    feature_indices: vec![feat_idx],
-                };
-                let script_obj = Script::new(Some(lang_sys), vec![]);
-                gsub.script_list
+                let existing = gsub
+                    .script_list
                     .script_records
-                    .push(ScriptRecord::new(script_tag, script_obj));
+                    .iter_mut()
+                    .find(|sr| sr.script_tag == script_tag);
+
+                if let Some(sr) = existing {
+                    if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
+                        default_ls.feature_indices.push(feat_idx);
+                    }
+                } else {
+                    let lang_sys = LangSys {
+                        required_feature_index: 0xFFFF,
+                        feature_indices: vec![feat_idx],
+                    };
+                    let script_obj = Script::new(Some(lang_sys), vec![]);
+                    gsub.script_list
+                        .script_records
+                        .push(ScriptRecord::new(script_tag, script_obj));
+                }
             }
         }
     }
