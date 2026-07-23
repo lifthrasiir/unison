@@ -155,10 +155,12 @@ pub(crate) fn render_grid_row(
                             egui::vec2(cs, cs),
                         );
                         if layer.negated {
-                            glyph_widget::draw_pixel_cell_colored(
+                            glyph_widget::draw_grid_cell_colored(
                                 painter,
                                 cell_rect,
-                                shape,
+                                &layer.grid,
+                                lr_in_layer as u16,
+                                lc_in_layer as u16,
                                 Some(pal.grid_bg),
                             );
                         } else {
@@ -167,10 +169,12 @@ pub(crate) fn render_grid_row(
                             } else {
                                 apply_opacity(color, UNFILLED_OPACITY)
                             };
-                            glyph_widget::draw_pixel_cell_colored(
+                            glyph_widget::draw_grid_cell_colored(
                                 painter,
                                 cell_rect,
-                                shape,
+                                &layer.grid,
+                                lr_in_layer as u16,
+                                lc_in_layer as u16,
                                 Some(px_color),
                             );
                         }
@@ -279,10 +283,12 @@ pub(crate) fn render_grid_row(
                     } else {
                         apply_opacity(color, UNFILLED_OPACITY)
                     };
-                    glyph_widget::draw_pixel_cell_colored(
+                    glyph_widget::draw_grid_cell_colored(
                         painter,
                         cell_rect,
-                        shape,
+                        &layer.grid,
+                        lr_in_layer as u16,
+                        lc_in_layer as u16,
                         Some(px_color),
                     );
                 }

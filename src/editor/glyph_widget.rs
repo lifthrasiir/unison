@@ -1,5 +1,74 @@
 use crate::pixel::{self, PixelShape};
 
+/// Draw one cell of a grid, dispatching custom detail cells to their exact
+/// stored geometry.
+pub fn draw_grid_cell_colored(
+    painter: &egui::Painter,
+    rect: egui::Rect,
+    grid: &crate::document::PixelGrid,
+    row: u16,
+    col: u16,
+    color_override: Option<egui::Color32>,
+) {
+    let shape = grid.get(row, col);
+    if shape.shape_id() == pixel::PX_CUSTOM {
+        if let Some(region) = grid.details.get(&(row, col)) {
+            draw_detail_region(painter, rect, region, shape, color_override);
+        }
+        return;
+    }
+    draw_pixel_cell_colored(painter, rect, shape, color_override);
+}
+
+fn draw_detail_region(
+    painter: &egui::Painter,
+    rect: egui::Rect,
+    region: &crate::detail::DetailRegion,
+    shape: PixelShape,
+    color_override: Option<egui::Color32>,
+) {
+    if region.is_empty() {
+        return;
+    }
+    let color = color_override.unwrap_or(if shape.is_filled() {
+        egui::Color32::from_rgb(210, 215, 230)
+    } else {
+        egui::Color32::from_rgba_unmultiplied(210, 215, 230, 89)
+    });
+    let o = rect.min;
+    let w = rect.width();
+    let h = rect.height();
+    let den = region.den.max(1) as f32;
+    // NOTE: hole rings (regions with interior holes) are filled over; exact
+    // even-odd meshing can be added if such details ever occur in practice.
+    for ring in &region.rings {
+        let pts: Vec<egui::Pos2> = ring
+            .iter()
+            .map(|&(x, y)| {
+                egui::pos2(o.x + x as f32 / den * w, o.y + y as f32 / den * h)
+            })
+            .collect();
+        if pts.len() < 3 {
+            continue;
+        }
+        let sub_polys = split_at_pinch_points(&pts);
+        let mut mesh = egui::Mesh::default();
+        let white_uv = egui::pos2(0.0, 0.0);
+        for poly in &sub_polys {
+            for tri in &triangulate(poly) {
+                let base = mesh.vertices.len() as u32;
+                for &p in tri {
+                    mesh.vertices.push(egui::epaint::Vertex { pos: p, uv: white_uv, color });
+                }
+                mesh.indices.extend_from_slice(&[base, base + 1, base + 2]);
+            }
+        }
+        if !mesh.indices.is_empty() {
+            painter.add(egui::Shape::mesh(mesh));
+        }
+    }
+}
+
 pub fn draw_pixel_cell_colored(
     painter: &egui::Painter,
     rect: egui::Rect,

@@ -91,6 +91,10 @@ fn hash_grid_for_cache(grid: &PixelGrid, bitmap: bool) -> u64 {
     for px in &grid.pixels {
         px.0.hash(&mut hasher);
     }
+    if !grid.details.is_empty() {
+        grid.den.hash(&mut hasher);
+        grid.details.hash(&mut hasher);
+    }
     bitmap.hash(&mut hasher);
     hasher.finish()
 }

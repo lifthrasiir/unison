@@ -1,14 +1,22 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fmt;
 use std::path::PathBuf;
 
-use crate::pixel::PixelShape;
+use crate::detail::{self, Classified, DetailRegion, Frac64};
+use crate::pixel::{PX_ALMOSTFULL, PX_CUSTOM, PixelShape};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct PixelGrid {
     pub width: u16,
     pub height: u16,
     pub pixels: Vec<PixelShape>,
+    /// Common lattice denominator for `details`; every stored region's
+    /// denominator divides this.
+    pub den: u8,
+    /// Custom geometry (in canonical form) for pixels whose shape id is
+    /// [`PX_CUSTOM`]. Only derived grids carry entries; document source
+    /// grids never do.
+    pub details: BTreeMap<(u16, u16), DetailRegion>,
 }
 
 impl PixelGrid {
@@ -17,6 +25,8 @@ impl PixelGrid {
             width,
             height,
             pixels: vec![PixelShape::EMPTY; width as usize * height as usize],
+            den: 1,
+            details: BTreeMap::new(),
         }
     }
 
@@ -28,9 +38,68 @@ impl PixelGrid {
         }
     }
 
+    /// Set a pixel's shape, discarding any custom detail stored for the
+    /// cell. Assigning a [`PX_CUSTOM`] shape is allowed but leaves the cell
+    /// without geometry until the caller inserts the matching detail; use
+    /// [`PixelGrid::set_detail`] unless doing exactly that.
     pub fn set(&mut self, row: u16, col: u16, shape: PixelShape) {
         if row < self.height && col < self.width {
             self.pixels[row as usize * self.width as usize + col as usize] = shape;
+            if !self.details.is_empty() {
+                self.details.remove(&(row, col));
+            }
+        }
+    }
+
+    /// Set a pixel from an arbitrary region: re-encoded as a plain shape
+    /// code whenever the geometry allows, stored as a custom detail
+    /// otherwise (growing the grid's common denominator as needed).
+    pub fn set_detail(&mut self, row: u16, col: u16, region: &DetailRegion, filled: bool) {
+        if row >= self.height || col >= self.width {
+            return;
+        }
+        match region.classify() {
+            Classified::Empty => self.set(row, col, PixelShape::EMPTY),
+            Classified::Full => self.set(row, col, PixelShape::new(PX_ALMOSTFULL, filled)),
+            Classified::Shape(id) => self.set(row, col, PixelShape::new(id, filled)),
+            Classified::Custom(canon) => {
+                let canon = match detail::lcm_den(self.den, canon.den) {
+                    Some(l) => {
+                        self.den = l;
+                        canon
+                    }
+                    // The common denominator would overflow; degrade this
+                    // cell to the existing grid lattice.
+                    None => match canon.snap_to_den(self.den).classify() {
+                        Classified::Empty => {
+                            self.set(row, col, PixelShape::EMPTY);
+                            return;
+                        }
+                        Classified::Full => {
+                            self.set(row, col, PixelShape::new(PX_ALMOSTFULL, filled));
+                            return;
+                        }
+                        Classified::Shape(id) => {
+                            self.set(row, col, PixelShape::new(id, filled));
+                            return;
+                        }
+                        Classified::Custom(snapped) => snapped,
+                    },
+                };
+                self.pixels[row as usize * self.width as usize + col as usize] =
+                    PixelShape::new(PX_CUSTOM, filled);
+                self.details.insert((row, col), canon);
+            }
+        }
+    }
+
+    /// The exact filled region of a pixel, whether plain or custom.
+    pub fn region_at(&self, row: u16, col: u16) -> DetailRegion {
+        let shape = self.get(row, col);
+        if shape.shape_id() == PX_CUSTOM {
+            self.details.get(&(row, col)).cloned().unwrap_or(DetailRegion::EMPTY)
+        } else {
+            DetailRegion::from_shape(shape.shape_id())
         }
     }
 
@@ -51,21 +120,84 @@ impl PixelGrid {
         self.width = new_width;
         self.height = new_height;
         self.pixels = new_pixels;
+        self.details.retain(|&(r, c), _| r < new_height && c < new_width);
     }
 
+    /// Exact geometric rescale between two pixel-subdivision scales. Every
+    /// destination pixel receives the union of the source regions that
+    /// overlap it, mapped exactly; results are re-encoded as plain shape
+    /// codes when possible and stored as custom details otherwise.
     pub fn rescale(&self, old_scale: u8, new_scale: u8) -> Self {
-        let old_s = old_scale as u16;
-        let new_s = new_scale as u16;
-        let logical_w = self.width / old_s;
-        let logical_h = self.height / old_s;
-        let new_width = logical_w * new_s;
-        let new_height = logical_h * new_s;
+        let old_s = old_scale.max(1) as i64;
+        let new_s = new_scale.max(1) as i64;
+        if old_s == new_s {
+            return self.clone();
+        }
+        let logical_w = self.width / old_s as u16;
+        let logical_h = self.height / old_s as u16;
+        let new_width = logical_w * new_s as u16;
+        let new_height = logical_h * new_s as u16;
         let mut out = Self::new(new_width, new_height);
         for r in 0..new_height {
             for c in 0..new_width {
-                let src_r = r * old_s / new_s;
-                let src_c = c * old_s / new_s;
-                out.set(r, c, self.get(src_r, src_c));
+                // The destination pixel covers source-space
+                // [c·old/new, (c+1)·old/new) × [r·old/new, (r+1)·old/new).
+                let sc0 = (c as i64 * old_s).div_euclid(new_s);
+                let sc1 = ((c as i64 + 1) * old_s).div_euclid(new_s)
+                    + if ((c as i64 + 1) * old_s).rem_euclid(new_s) != 0 { 1 } else { 0 };
+                let sr0 = (r as i64 * old_s).div_euclid(new_s);
+                let sr1 = ((r as i64 + 1) * old_s).div_euclid(new_s)
+                    + if ((r as i64 + 1) * old_s).rem_euclid(new_s) != 0 { 1 } else { 0 };
+
+                // Fast path: all overlapping source pixels are uniformly
+                // full or uniformly empty — no geometry needed.
+                let mut all_full = true;
+                let mut all_empty = true;
+                let mut any_filled = false;
+                for sr in sr0..sr1 {
+                    for sc in sc0..sc1 {
+                        let s = self.get(sr as u16, sc as u16);
+                        let id = s.shape_id();
+                        if id != PX_ALMOSTFULL {
+                            all_full = false;
+                        }
+                        if id != crate::pixel::PX_EMPTY {
+                            all_empty = false;
+                        }
+                        any_filled |= s.is_filled();
+                    }
+                }
+                if all_empty {
+                    continue;
+                }
+                if all_full {
+                    out.set(r, c, PixelShape::new(PX_ALMOSTFULL, any_filled));
+                    continue;
+                }
+
+                let mut region = DetailRegion::EMPTY;
+                for sr in sr0..sr1 {
+                    for sc in sc0..sc1 {
+                        let src_region = self.region_at(sr as u16, sc as u16);
+                        if src_region.is_empty() {
+                            continue;
+                        }
+                        // Source pixel sc spans destination-local x
+                        // [(sc·new − c·old)/old, (sc·new − c·old)/old + new/old].
+                        let piece = src_region.transform_into(
+                            Frac64::new(sc * new_s - c as i64 * old_s, old_s),
+                            Frac64::new(sr * new_s - r as i64 * old_s, old_s),
+                            Frac64::new(new_s, old_s),
+                            Frac64::new(new_s, old_s),
+                        );
+                        region = if region.is_empty() {
+                            piece
+                        } else {
+                            detail::bool_op(&region, &piece, detail::BoolOp::Union)
+                        };
+                    }
+                }
+                out.set_detail(r, c, &region, any_filled);
             }
         }
         out
@@ -77,50 +209,70 @@ impl PixelGrid {
 
     pub fn mirror_h(&self) -> Self {
         let mut out = Self::new(self.width, self.height);
+        out.den = self.den;
         for r in 0..self.height {
             for c in 0..self.width {
                 out.set(r, self.width - 1 - c, self.get(r, c).mirror_h());
             }
+        }
+        for (&(r, c), d) in &self.details {
+            out.details.insert((r, self.width - 1 - c), d.mirror_h());
         }
         out
     }
 
     pub fn flip_v(&self) -> Self {
         let mut out = Self::new(self.width, self.height);
+        out.den = self.den;
         for r in 0..self.height {
             for c in 0..self.width {
                 out.set(self.height - 1 - r, c, self.get(r, c).flip_v());
             }
+        }
+        for (&(r, c), d) in &self.details {
+            out.details.insert((self.height - 1 - r, c), d.flip_v());
         }
         out
     }
 
     pub fn rotate_cw(&self) -> Self {
         let mut out = Self::new(self.height, self.width);
+        out.den = self.den;
         for r in 0..self.height {
             for c in 0..self.width {
                 out.set(c, self.height - 1 - r, self.get(r, c).rotate_cw());
             }
+        }
+        for (&(r, c), d) in &self.details {
+            out.details.insert((c, self.height - 1 - r), d.rotate_cw());
         }
         out
     }
 
     pub fn rotate_ccw(&self) -> Self {
         let mut out = Self::new(self.height, self.width);
+        out.den = self.den;
         for r in 0..self.height {
             for c in 0..self.width {
                 out.set(self.width - 1 - c, r, self.get(r, c).rotate_ccw());
             }
+        }
+        for (&(r, c), d) in &self.details {
+            out.details.insert((self.width - 1 - c, r), d.rotate_ccw());
         }
         out
     }
 
     pub fn rotate_180(&self) -> Self {
         let mut out = Self::new(self.width, self.height);
+        out.den = self.den;
         for r in 0..self.height {
             for c in 0..self.width {
                 out.set(self.height - 1 - r, self.width - 1 - c, self.get(r, c).rotate_180());
             }
+        }
+        for (&(r, c), d) in &self.details {
+            out.details.insert((self.height - 1 - r, self.width - 1 - c), d.rotate_180());
         }
         out
     }
@@ -129,6 +281,12 @@ impl PixelGrid {
         let mut out = self.clone();
         for px in &mut out.pixels {
             *px = px.opposite();
+        }
+        // Custom cells: PixelShape::opposite mangles the sentinel id, so
+        // complement the stored geometry instead.
+        for (&(r, c), region) in &self.details {
+            let filled = !self.get(r, c).is_filled();
+            out.set_detail(r, c, &region.complement(), filled);
         }
         out
     }
@@ -143,8 +301,9 @@ impl PixelGrid {
 
     /// Blit `src` into `self` with its top-left at `(off_r, off_c)`,
     /// overwriting the destination wherever `src` has a non-empty shape.
-    /// When `negated`, `src` shapes are instead subtracted from non-empty
-    /// destination pixels (see [`crate::pixel::shape_subtract`]).
+    /// When `negated`, `src` regions are instead subtracted exactly from
+    /// non-empty destination pixels (re-encoded as plain shape codes when
+    /// possible, custom details otherwise).
     pub fn blit(&mut self, src: &PixelGrid, off_r: i32, off_c: i32, negated: bool) {
         for r in 0..src.height as i32 {
             for c in 0..src.width as i32 {
@@ -157,11 +316,19 @@ impl PixelGrid {
                 if dr < 0 || dc < 0 || dr >= self.height as i32 || dc >= self.width as i32 {
                     continue;
                 }
+                let src_custom = shape.shape_id() == PX_CUSTOM;
                 if negated {
                     let current = self.get(dr as u16, dc as u16);
-                    if !current.is_empty() {
-                        self.set(dr as u16, dc as u16, crate::pixel::shape_subtract(current, shape));
+                    if current.is_empty() {
+                        continue;
                     }
+                    let cur_region = self.region_at(dr as u16, dc as u16);
+                    let sub = src.region_at(r as u16, c as u16);
+                    let result = detail::bool_op(&cur_region, &sub, detail::BoolOp::Subtract);
+                    self.set_detail(dr as u16, dc as u16, &result, current.is_filled());
+                } else if src_custom {
+                    let region = src.region_at(r as u16, c as u16);
+                    self.set_detail(dr as u16, dc as u16, &region, shape.is_filled());
                 } else {
                     self.set(dr as u16, dc as u16, shape);
                 }
@@ -1840,55 +2007,140 @@ mod tests {
     }
 
     #[test]
-    fn rescale_up_nearest_neighbor() {
+    fn rescale_up() {
         // 2×2 grid at scale 1, rescale to scale 2 → 4×4
         let mut g = PixelGrid::new(2, 2);
-        g.set(0, 0, PixelShape::new(0, true)); // top-left filled
-        g.set(1, 1, PixelShape::new(0, true)); // bottom-right filled
+        let full = PixelShape::new(PX_ALMOSTFULL, true);
+        g.set(0, 0, full); // top-left filled
+        g.set(1, 1, full); // bottom-right filled
 
         let r = g.rescale(1, 2);
         assert_eq!((r.width, r.height), (4, 4));
         // Each source pixel becomes a 2×2 block
-        assert_eq!(r.get(0, 0), PixelShape::new(0, true));
-        assert_eq!(r.get(0, 1), PixelShape::new(0, true));
-        assert_eq!(r.get(1, 0), PixelShape::new(0, true));
-        assert_eq!(r.get(1, 1), PixelShape::new(0, true));
+        assert_eq!(r.get(0, 0), full);
+        assert_eq!(r.get(0, 1), full);
+        assert_eq!(r.get(1, 0), full);
+        assert_eq!(r.get(1, 1), full);
         assert_eq!(r.get(0, 2), PixelShape::EMPTY);
         assert_eq!(r.get(2, 0), PixelShape::EMPTY);
-        assert_eq!(r.get(2, 2), PixelShape::new(0, true));
-        assert_eq!(r.get(2, 3), PixelShape::new(0, true));
-        assert_eq!(r.get(3, 2), PixelShape::new(0, true));
-        assert_eq!(r.get(3, 3), PixelShape::new(0, true));
+        assert_eq!(r.get(2, 2), full);
+        assert_eq!(r.get(2, 3), full);
+        assert_eq!(r.get(3, 2), full);
+        assert_eq!(r.get(3, 3), full);
     }
 
     #[test]
-    fn rescale_down_nearest_neighbor() {
+    fn rescale_down() {
         // 4×4 grid at scale 2, rescale to scale 1 → 2×2
         let mut g = PixelGrid::new(4, 4);
-        let filled = PixelShape::new(0, true);
-        for r in 0..2 { for c in 0..2 { g.set(r, c, filled); } }
-        for r in 2..4 { for c in 2..4 { g.set(r, c, filled); } }
+        let full = PixelShape::new(PX_ALMOSTFULL, true);
+        for r in 0..2 { for c in 0..2 { g.set(r, c, full); } }
+        for r in 2..4 { for c in 2..4 { g.set(r, c, full); } }
 
         let r = g.rescale(2, 1);
         assert_eq!((r.width, r.height), (2, 2));
-        assert_eq!(r.get(0, 0), filled);
+        assert_eq!(r.get(0, 0), full);
         assert_eq!(r.get(0, 1), PixelShape::EMPTY);
         assert_eq!(r.get(1, 0), PixelShape::EMPTY);
-        assert_eq!(r.get(1, 1), filled);
+        assert_eq!(r.get(1, 1), full);
     }
 
     #[test]
     fn rescale_fractional_ratio() {
         // 6×3 grid at scale 3, rescale to scale 2 → 4×2
         let mut g = PixelGrid::new(6, 3);
-        let filled = PixelShape::new(0, true);
-        for r in 0..3 { for c in 0..3 { g.set(r, c, filled); } }
+        let full = PixelShape::new(PX_ALMOSTFULL, true);
+        for r in 0..3 { for c in 0..3 { g.set(r, c, full); } }
 
         let r = g.rescale(3, 2);
         assert_eq!((r.width, r.height), (4, 2));
-        assert_eq!(r.get(0, 0), filled);
-        assert_eq!(r.get(0, 1), filled);
+        assert_eq!(r.get(0, 0), full);
+        assert_eq!(r.get(0, 1), full);
         assert_eq!(r.get(0, 2), PixelShape::EMPTY);
-        assert_eq!(r.get(1, 0), filled);
+        assert_eq!(r.get(1, 0), full);
+    }
+
+    #[test]
+    fn rescale_up_subpixel_shape_exact() {
+        // A HALF1 diagonal upscaled 3× must stay one straight diagonal:
+        // cells on the diagonal become HALF1, cells below it full, cells
+        // above it empty — all plain codes, no details. (The former
+        // nearest-neighbor rescale duplicated the diagonal into every
+        // cell, visibly snapping mixed-scale composites to one grid.)
+        let mut g = PixelGrid::new(1, 1);
+        g.set(0, 0, PixelShape::new(crate::pixel::PX_HALF1, true));
+        let r = g.rescale(1, 3);
+        assert_eq!((r.width, r.height), (3, 3));
+        assert!(r.details.is_empty());
+        for row in 0..3u16 {
+            for col in 0..3u16 {
+                let expected = if row == col {
+                    crate::pixel::PX_HALF1
+                } else if row > col {
+                    PX_ALMOSTFULL
+                } else {
+                    crate::pixel::PX_EMPTY
+                };
+                assert_eq!(
+                    r.get(row, col).shape_id(),
+                    expected,
+                    "cell ({row}, {col})"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn rescale_fractional_creates_exact_details() {
+        // A logical pixel two-thirds covered (2 of 3 columns full at scale
+        // 3) rescaled to scale 2: the filled region is 4/3 destination
+        // pixels wide. The right column's sliver is not representable as a
+        // plain code and must become an exact custom detail, and the
+        // contour tracer must produce a single clean rectangle outline.
+        let mut g = PixelGrid::new(3, 3);
+        let full = PixelShape::new(PX_ALMOSTFULL, true);
+        for r in 0..3 { for c in 0..2 { g.set(r, c, full); } }
+
+        let out = g.rescale(3, 2);
+        assert_eq!((out.width, out.height), (2, 2));
+        assert_eq!(out.get(0, 0).shape_id(), PX_ALMOSTFULL);
+        assert_eq!(out.get(1, 0).shape_id(), PX_ALMOSTFULL);
+        assert_eq!(out.get(0, 1).shape_id(), PX_CUSTOM);
+        assert_eq!(out.get(1, 1).shape_id(), PX_CUSTOM);
+        let d = out.details.get(&(0, 1)).unwrap();
+        assert_eq!(d.den, 3);
+        assert_eq!(d.area2(), 2.0 / 3.0);
+
+        let paths =
+            crate::render::contour::track_contour(&out, crate::pixel::PX_SUBPIXEL);
+        assert_eq!(paths.len(), 1, "one rectangle outline, got {paths:?}");
+        let mut pts = paths[0].clone();
+        pts.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let expected = [(0.0f32, 0.0f32), (0.0, 2.0), (4.0 / 3.0, 0.0), (4.0 / 3.0, 2.0)];
+        assert_eq!(pts.len(), 4, "rectangle has 4 corners: {pts:?}");
+        for (p, e) in pts.iter().zip(expected.iter()) {
+            assert!((p.0 - e.0).abs() < 1e-5 && (p.1 - e.1).abs() < 1e-5,
+                "vertex {p:?} != {e:?} in {pts:?}");
+        }
+    }
+
+    #[test]
+    fn blit_negated_subtracts_exactly() {
+        // Subtracting a third-of-a-pixel bar from a full pixel leaves an
+        // exact custom remainder instead of a raster-snapped catalog shape.
+        let mut dst = PixelGrid::new(1, 1);
+        dst.set(0, 0, PixelShape::new(PX_ALMOSTFULL, true));
+
+        let mut src = PixelGrid::new(1, 1);
+        let bar = crate::detail::DetailRegion {
+            den: 3,
+            rings: vec![vec![(0, 0), (1, 0), (1, 3), (0, 3)]],
+        };
+        src.set_detail(0, 0, &bar, true);
+
+        dst.blit(&src, 0, 0, true);
+        assert_eq!(dst.get(0, 0).shape_id(), PX_CUSTOM);
+        let d = dst.details.get(&(0, 0)).unwrap();
+        assert_eq!(d.area2(), 2.0 * 2.0 / 3.0);
     }
 }

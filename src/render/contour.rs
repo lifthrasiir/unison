@@ -19,6 +19,35 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
         }
     }
 
+    // Precompute custom cell geometry at a common lattice. `lat` doubles as
+    // the endpoint key quantization scale, so plain half-lattice geometry
+    // and custom detail geometry share exact keys.
+    let lat: i64 = if grid.details.is_empty() {
+        2
+    } else {
+        let den = grid.den.max(1) as i64;
+        if den % 2 == 0 { den } else { den * 2 }
+    };
+    let mut custom: HashMap<usize, CustomCell> = HashMap::new();
+    for (&(r, c), region) in &grid.details {
+        let idx = (r as usize + 1) * stride + c as usize;
+        if data[idx] & mask != pixel::PX_CUSTOM {
+            continue;
+        }
+        let cov = region.edge_coverage();
+        let scale = lat / cov.den.max(1) as i64;
+        let cnv = |list: &[(u8, u8)]| -> Vec<(i64, i64)> {
+            list.iter().map(|&(a, b)| (a as i64 * scale, b as i64 * scale)).collect()
+        };
+        custom.insert(
+            idx,
+            CustomCell {
+                cov: [cnv(&cov.top), cnv(&cov.right), cnv(&cov.bottom), cnv(&cov.left)],
+                interior: region.interior_segments(),
+            },
+        );
+    }
+
     let mut paths = Vec::new();
     let mut visited = HashSet::new();
 
@@ -41,6 +70,21 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
                     continue;
                 }
                 visited.insert(i);
+
+                // top, right, bottom, left (guarded by the sentinel border).
+                let neighbor_idx =
+                    [i.wrapping_sub(stride), i + 1, i + stride, i.wrapping_sub(1)];
+                let custom_involved = !custom.is_empty()
+                    && (custom.contains_key(&i)
+                        || neighbor_idx.iter().any(|n| custom.contains_key(n)));
+
+                if custom_involved {
+                    trace_custom_pixel(
+                        i, stride, &data, mask, &custom, lat, neighbor_idx, &visited,
+                        &mut unsure, &mut segs,
+                    );
+                    continue;
+                }
 
                 let (pixel_adj, gap_segs) = pixel::adjacency(data[i] & mask);
                 let (top_adj, _) = pixel::adjacency(data[i.wrapping_sub(stride)] & mask);
@@ -73,7 +117,7 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
             }
 
             // Link segments into closed paths
-            trace_closed_paths(&segs, to_key, from_key, &mut paths);
+            trace_closed_paths(&segs, lat as f32, &mut paths);
         }
     }
 
@@ -81,6 +125,129 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
     fix_winding(&mut paths);
 
     paths
+}
+
+/// Exact per-side geometry of a custom pixel, at the tracer's common
+/// lattice. Side order: top, right, bottom, left.
+struct CustomCell {
+    cov: [Vec<(i64, i64)>; 4],
+    interior: Vec<(f32, f32, f32, f32)>,
+}
+
+/// Interval-based connectivity and boundary emission for a pixel that is
+/// custom or has a custom neighbor. Equivalent to the half-edge bit logic
+/// whenever both sides are plain shapes.
+#[expect(clippy::too_many_arguments)]
+fn trace_custom_pixel(
+    i: usize,
+    stride: usize,
+    data: &[u8],
+    mask: u8,
+    custom: &HashMap<usize, CustomCell>,
+    lat: i64,
+    neighbor_idx: [usize; 4],
+    visited: &HashSet<usize>,
+    unsure: &mut Vec<usize>,
+    segs: &mut Vec<(f32, f32, f32, f32)>,
+) {
+    let side_cov = |idx: usize, side: usize| -> Vec<(i64, i64)> {
+        if let Some(cell) = custom.get(&idx) {
+            return cell.cov[side].clone();
+        }
+        let (bits, _) = pixel::adjacency(data[idx] & mask);
+        // Half-edge bits per side, in axis direction:
+        //    a   b        top:    a=0x80 [0,½], b=0x40 [½,1]
+        //   +--+--+       right:  c=0x20 [0,½], d=0x10 [½,1]
+        // h |     | c     bottom: f=0x04 [0,½], e=0x08 [½,1]
+        //   +     +       left:   h=0x01 [0,½], g=0x02 [½,1]
+        // g |     | d
+        //   +--+--+
+        //    f   e
+        let (b1, b2) = match side {
+            0 => (0x80, 0x40),
+            1 => (0x20, 0x10),
+            2 => (0x04, 0x08),
+            _ => (0x01, 0x02),
+        };
+        let h = lat / 2;
+        match (bits & b1 != 0, bits & b2 != 0) {
+            (false, false) => vec![],
+            (true, false) => vec![(0, h)],
+            (false, true) => vec![(h, lat)],
+            (true, true) => vec![(0, lat)],
+        }
+    };
+
+    let y = (i / stride) as f32 - 1.0;
+    let x = (i % stride) as f32;
+    let latf = lat as f32;
+
+    for side in 0..4 {
+        let n = neighbor_idx[side];
+        let cov_s = side_cov(i, side);
+        let cov_n = side_cov(n, side ^ 2);
+        if intervals_intersect(&cov_s, &cov_n) && !visited.contains(&n) {
+            unsure.push(n);
+        }
+        for (a, b) in intervals_subtract(&cov_s, &cov_n) {
+            let (fa, fb) = (a as f32 / latf, b as f32 / latf);
+            let seg = match side {
+                0 => (x + fa, y, x + fb, y),
+                1 => (x + 1.0, y + fa, x + 1.0, y + fb),
+                2 => (x + fa, y + 1.0, x + fb, y + 1.0),
+                _ => (x, y + fa, x, y + fb),
+            };
+            segs.push(seg);
+        }
+    }
+
+    if let Some(cell) = custom.get(&i) {
+        for &(x1, y1, x2, y2) in &cell.interior {
+            segs.push((x + x1, y + y1, x + x2, y + y2));
+        }
+    } else {
+        let (pixel_adj, gap_segs) = pixel::adjacency(data[i] & mask);
+        if pixel_adj != 0xFF {
+            for &(x1, y1, x2, y2) in gap_segs {
+                segs.push((x + x1, y + y1, x + x2, y + y2));
+            }
+        }
+    }
+}
+
+fn intervals_intersect(a: &[(i64, i64)], b: &[(i64, i64)]) -> bool {
+    for &(a1, a2) in a {
+        for &(b1, b2) in b {
+            if a1.max(b1) < a2.min(b2) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// Subtract sorted disjoint interval lists: `a − b`.
+fn intervals_subtract(a: &[(i64, i64)], b: &[(i64, i64)]) -> Vec<(i64, i64)> {
+    let mut out = Vec::new();
+    for &(a1, a2) in a {
+        let mut cur = a1;
+        for &(b1, b2) in b {
+            if b2 <= cur || b1 >= a2 {
+                continue;
+            }
+            if b1 > cur {
+                out.push((cur, b1));
+            }
+            cur = cur.max(b2);
+            if cur >= a2 {
+                break;
+            }
+        }
+        if cur < a2 {
+            out.push((cur, a2));
+        }
+    }
+    out
 }
 
 /// Combined-connectivity bits between a pixel's adjacency and its four
@@ -163,13 +330,19 @@ fn emit_boundary_segs(
 
 /// Link the unordered boundary segments of one connected component into
 /// closed paths and append them to `paths`. Segment endpoints are quantized
-/// with `to_key`/`from_key` so shared endpoints coincide exactly.
+/// at `key_scale` subdivisions per pixel so shared endpoints coincide
+/// exactly (all emitted coordinates are multiples of `1/key_scale`).
 fn trace_closed_paths(
     segs: &[(f32, f32, f32, f32)],
-    to_key: fn(f32, f32) -> (i64, i64),
-    from_key: fn(i64, i64) -> (f32, f32),
+    key_scale: f32,
     paths: &mut Vec<Vec<(f32, f32)>>,
 ) {
+    let to_key = |x: f32, y: f32| -> (i64, i64) {
+        ((x * key_scale).round() as i64, (y * key_scale).round() as i64)
+    };
+    let from_key = |x: i64, y: i64| -> (f32, f32) {
+        (x as f32 / key_scale, y as f32 / key_scale)
+    };
     let mut px_to_segs: BTreeMap<(i64, i64), Vec<(i64, i64)>> = BTreeMap::new();
     for (x1, y1, x2, y2) in segs {
         let k1 = to_key(*x1, *y1);
@@ -246,14 +419,6 @@ fn trace_closed_paths(
             x = xx;
         }
     }
-}
-
-fn to_key(x: f32, y: f32) -> (i64, i64) {
-    ((x * 2.0) as i64, (y * 2.0) as i64)
-}
-
-fn from_key(x: i64, y: i64) -> (f32, f32) {
-    (x as f32 / 2.0, y as f32 / 2.0)
 }
 
 fn signed_area(path: &[(f32, f32)]) -> f32 {
@@ -451,7 +616,7 @@ pub fn track_contour_multi(
                 }
             }
 
-            trace_closed_paths(&segs, to_key_fine, from_key_fine, &mut paths);
+            trace_closed_paths(&segs, MULTI_KEY_SCALE, &mut paths);
         }
     }
 
@@ -600,7 +765,7 @@ pub fn track_contour_multi_diff(
                 }
             }
 
-            trace_closed_paths(&segs, to_key_fine, from_key_fine, &mut paths);
+            trace_closed_paths(&segs, MULTI_KEY_SCALE, &mut paths);
         }
     }
 
@@ -612,14 +777,6 @@ pub fn track_contour_multi_diff(
 // (from intersections of diagonal gap segments between half-pixel-aligned endpoints).
 // Use 24× resolution so all such coordinates map to distinct integer keys.
 const MULTI_KEY_SCALE: f32 = 24.0;
-
-fn to_key_fine(x: f32, y: f32) -> (i64, i64) {
-    ((x * MULTI_KEY_SCALE).round() as i64, (y * MULTI_KEY_SCALE).round() as i64)
-}
-
-fn from_key_fine(x: i64, y: i64) -> (f32, f32) {
-    (x as f32 / MULTI_KEY_SCALE, y as f32 / MULTI_KEY_SCALE)
-}
 
 fn bitmask_to_ids(mask: u128) -> Vec<u8> {
     let mut ids = Vec::new();
@@ -686,6 +843,8 @@ mod tests {
             width: w,
             height: h,
             pixels: pixels.iter().map(|&p| PixelShape(p)).collect(),
+            den: 1,
+            details: Default::default(),
         }
     }
 
@@ -826,7 +985,7 @@ mod tests {
         // Gap-segment intersection points can land at 1/8, 1/6, 1/12 etc. of a
         // pixel. These must not collide when quantized into integer keys.
         let pts = [(1.0 / 8.0, 0.0), (1.0 / 6.0, 0.0), (1.0 / 12.0, 0.0)];
-        let keys: Vec<(i64, i64)> = pts.iter().map(|&(x, y)| to_key_fine(x, y)).collect();
+        let keys: Vec<(i64, i64)> = pts.iter().map(|&(x, y)| ((x * MULTI_KEY_SCALE).round() as i64, (y * MULTI_KEY_SCALE).round() as i64)).collect();
         assert_ne!(keys[0], keys[1], "1/8 and 1/6 must map to distinct keys: {keys:?}");
         assert_ne!(keys[0], keys[2], "1/8 and 1/12 must map to distinct keys: {keys:?}");
         assert_ne!(keys[1], keys[2], "1/6 and 1/12 must map to distinct keys: {keys:?}");
@@ -840,8 +999,8 @@ mod tests {
             (1.0 / 6.0, 5.0 / 6.0),
             (1.0 / 12.0, 7.0 / 12.0),
         ] {
-            let (kx, ky) = to_key_fine(x, y);
-            let (rx, ry) = from_key_fine(kx, ky);
+            let (kx, ky) = ((x * MULTI_KEY_SCALE).round() as i64, (y * MULTI_KEY_SCALE).round() as i64);
+            let (rx, ry) = (kx as f32 / MULTI_KEY_SCALE, ky as f32 / MULTI_KEY_SCALE);
             assert!((rx - x).abs() <= tolerance, "x round-trip off: {x} -> {rx}");
             assert!((ry - y).abs() <= tolerance, "y round-trip off: {y} -> {ry}");
         }

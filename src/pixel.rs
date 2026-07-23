@@ -52,6 +52,12 @@ pub const PX_INVCORNER1: u8 = 21 ^ PX_SUBPIXEL;
 pub const PX_INVCORNER2: u8 = 22 ^ PX_SUBPIXEL;
 pub const PX_INVCORNER3: u8 = 23 ^ PX_SUBPIXEL;
 pub const PX_INVCORNER4: u8 = 24 ^ PX_SUBPIXEL;
+/// Sentinel id: the pixel's geometry is a custom [`crate::detail::DetailRegion`]
+/// stored in the owning grid's detail table. Only ever appears in derived
+/// (resolved/composited) grids, never in document source grids, and is
+/// never serialized. Its complement id (102) is intentionally left unused:
+/// negation involving custom pixels is resolved eagerly into a new region.
+pub const PX_CUSTOM: u8 = 25;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct PixelShape(pub u8);
@@ -568,7 +574,10 @@ pub fn edge_coverage(shape_id: u8) -> &'static ShapeEdgeCoverage {
 }
 
 /// The unit-square outline polygon of a catalog shape. All vertices lie on
-/// the half lattice. Empty for `PX_EMPTY` and unassigned ids.
+/// the half lattice. Empty for `PX_EMPTY` and unassigned ids. Note that the
+/// chained outline is not a faithful boundary for multi-part shapes
+/// (HQUAD/VQUAD) or hole-carrying complements.
+#[cfg(test)]
 pub fn unit_polygon(shape_id: u8) -> Vec<(f32, f32)> {
     build_unit_polygon(shape_id)
 }

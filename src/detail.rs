@@ -13,10 +13,6 @@
 //! run exactly, so only genuinely off-lattice vertices (crossing points of
 //! diagonal edges) are snapped to the output lattice at the very end.
 
-// TODO: remove once the composite/tracer integration lands and consumes
-// this module.
-#![allow(dead_code)]
-
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap};
 
@@ -55,6 +51,7 @@ pub enum Classified {
 pub enum BoolOp {
     Union,
     Subtract,
+    #[cfg_attr(not(test), expect(dead_code))]
     Intersect,
 }
 
@@ -617,8 +614,9 @@ impl DetailRegion {
     }
 
     /// Twice the filled area in unit-square terms. Only meaningful for
-    /// canonical regions (sweep-derived rings: outer rings and holes are
+    /// canonical regions (test/diagnostic helper) (sweep-derived rings: outer rings and holes are
     /// wound oppositely, so the signed shoelace sum is the even-odd area).
+    #[cfg_attr(not(test), expect(dead_code))]
     pub fn area2(&self) -> f64 {
         let mut a = 0i64;
         for ring in &self.rings {
@@ -730,18 +728,44 @@ impl DetailRegion {
         bool_op(&DetailRegion::full(), self, BoolOp::Subtract)
     }
 
+    fn map_lattice(&self, f: impl Fn(u8, u8, u8) -> (u8, u8)) -> DetailRegion {
+        DetailRegion {
+            den: self.den,
+            rings: self
+                .rings
+                .iter()
+                .map(|ring| ring.iter().map(|&(x, y)| f(x, y, self.den)).collect())
+                .collect(),
+        }
+        .canonical()
+    }
+
+    pub fn mirror_h(&self) -> DetailRegion {
+        self.map_lattice(|x, y, d| (d - x, y))
+    }
+
+    pub fn flip_v(&self) -> DetailRegion {
+        self.map_lattice(|x, y, d| (x, d - y))
+    }
+
+    pub fn rotate_cw(&self) -> DetailRegion {
+        self.map_lattice(|x, y, d| (d - y, x))
+    }
+
+    pub fn rotate_ccw(&self) -> DetailRegion {
+        self.map_lattice(|x, y, d| (y, d - x))
+    }
+
+    pub fn rotate_180(&self) -> DetailRegion {
+        self.map_lattice(|x, y, d| (d - x, d - y))
+    }
+
     /// Map this region into the rectangle `[x0, x0+w] × [y0, y0+h]` of a
-    /// destination unit square and clip to that square, snapping the output
-    /// to `out_den`. Used by exact rescaling: a source pixel occupies a
-    /// rational sub-rectangle of each destination pixel it overlaps.
-    pub fn transform_into(
-        &self,
-        x0: Frac64,
-        y0: Frac64,
-        w: Frac64,
-        h: Frac64,
-        out_den: u8,
-    ) -> DetailRegion {
+    /// destination unit square and clip to that square. Used by exact
+    /// rescaling: a source pixel occupies a rational sub-rectangle of each
+    /// destination pixel it overlaps. The output lattice is chosen
+    /// automatically (exact up to [`MAX_DEN`]).
+    pub fn transform_into(&self, x0: Frac64, y0: Frac64, w: Frac64, h: Frac64) -> DetailRegion {
         let den = self.den as i64;
         let fx0 = Frac::new(x0.n, x0.d);
         let fy0 = Frac::new(y0.n, y0.d);
@@ -768,7 +792,7 @@ impl DetailRegion {
         }
         let traps = sweep(&edges, &|a, b| a && b);
         let (den, rings) = traps_to_rings(&traps);
-        DetailRegion { den, rings }.snap_to_den(out_den)
+        DetailRegion { den, rings }
     }
 }
 
@@ -1079,7 +1103,6 @@ mod tests {
             Frac64::new(0, 1),
             Frac64::new(1, 2),
             Frac64::new(1, 2),
-            4,
         );
         assert_eq!(out.area2(), 0.25);
     }
@@ -1092,7 +1115,6 @@ mod tests {
             Frac64::new(0, 1),
             Frac64::new(1, 1),
             Frac64::new(1, 1),
-            2,
         );
         assert_eq!(out.area2(), 1.0);
         let cov = out.edge_coverage();
