@@ -49,6 +49,7 @@ pub enum Classified {
 /// Boolean operation selector for [`bool_op`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BoolOp {
+    #[cfg_attr(not(test), expect(dead_code))]
     Union,
     Subtract,
     #[cfg_attr(not(test), expect(dead_code))]
@@ -820,10 +821,11 @@ impl DetailRegion {
     }
 
     /// Map this region into the rectangle `[x0, x0+w] × [y0, y0+h]` of a
-    /// destination unit square and clip to that square. Used by exact
-    /// rescaling: a source pixel occupies a rational sub-rectangle of each
-    /// destination pixel it overlaps. The output lattice is chosen
-    /// automatically (exact up to [`MAX_DEN`]).
+    /// destination unit square and clip to that square. The single-piece
+    /// form of [`union_disjoint_transformed`], which rescaling now uses to
+    /// combine all pieces of a destination pixel in one sweep. The output
+    /// lattice is chosen automatically (exact up to [`MAX_DEN`]).
+    #[cfg_attr(not(test), expect(dead_code))]
     pub fn transform_into(&self, x0: Frac64, y0: Frac64, w: Frac64, h: Frac64) -> DetailRegion {
         let den = self.den as i64;
         let fx0 = Frac::new(x0.n, x0.d);
@@ -853,6 +855,48 @@ impl DetailRegion {
         let (den, rings) = traps_to_rings(&traps);
         DetailRegion { den, rings }
     }
+}
+
+/// Union of transformed pieces with mutually disjoint interiors, clipped to
+/// the unit pixel, in one sweep. Each piece is `region` mapped exactly like
+/// [`DetailRegion::transform_into`] with origin `(x0, y0)` and scale
+/// `(w, h)`. All pieces share one even-odd parity, so their interiors MUST
+/// be disjoint (true for images of distinct source cells in a rescale);
+/// shared boundaries cancel exactly. Replaces a chain of per-piece
+/// `transform_into` + `bool_op` union sweeps, which is quadratic in the
+/// piece count.
+pub fn union_disjoint_transformed(
+    pieces: &[(DetailRegion, Frac64, Frac64, Frac64, Frac64)],
+) -> DetailRegion {
+    let mut edges = Vec::new();
+    for (region, x0, y0, w, h) in pieces {
+        let den = region.den as i64;
+        let fx0 = Frac::new(x0.n, x0.d);
+        let fy0 = Frac::new(y0.n, y0.d);
+        let fw = Frac::new(w.n, w.d);
+        let fh = Frac::new(h.n, h.d);
+        for ring in &region.rings {
+            let n = ring.len();
+            for i in 0..n {
+                let map = |p: (u8, u8)| {
+                    (
+                        fx0.add(Frac::new(p.0 as i64, den).mul(fw)),
+                        fy0.add(Frac::new(p.1 as i64, den).mul(fh)),
+                    )
+                };
+                if let Some(e) = SweepEdge::new(map(ring[i]), map(ring[(i + 1) % n]), 0) {
+                    edges.push(e);
+                }
+            }
+        }
+    }
+    let unit = DetailRegion::full();
+    for ring in &unit.rings {
+        ring_sweep_edges(ring, unit.den as i64, 1, &mut edges);
+    }
+    let traps = sweep(&edges, &|a, b| a && b);
+    let (den, rings) = traps_to_rings(&traps);
+    DetailRegion { den, rings }
 }
 
 /// Clip an arbitrary polygon (in pixel-local coordinates, possibly far

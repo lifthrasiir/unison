@@ -196,6 +196,24 @@ impl PixelGrid {
     }
 
     fn rescale_uncached(&self, old_scale: u8, new_scale: u8) -> Self {
+        // A merged rectangle of uniformly full source cells, as one piece
+        // for the destination cell's union sweep.
+        fn full_run_piece(
+            run: (i64, i64, i64, i64),
+            cell_x0: &impl Fn(i64) -> Frac64,
+            cell_y0: &impl Fn(i64) -> Frac64,
+            old_s: i64,
+            new_s: i64,
+        ) -> (DetailRegion, Frac64, Frac64, Frac64, Frac64) {
+            let (sc_start, sc_end, sr_start, sr_end) = run;
+            (
+                DetailRegion::full(),
+                cell_x0(sc_start),
+                cell_y0(sr_start),
+                Frac64::new((sc_end - sc_start + 1) * new_s, old_s),
+                Frac64::new((sr_end - sr_start + 1) * new_s, old_s),
+            )
+        }
         let old_s = old_scale.max(1) as i64;
         let new_s = new_scale.max(1) as i64;
         if old_s == new_s {
@@ -243,28 +261,69 @@ impl PixelGrid {
                     continue;
                 }
 
-                let mut region = DetailRegion::EMPTY;
+                // Source pixel (sr, sc) spans destination-local x
+                // [(sc·new − c·old)/old, (sc·new − c·old)/old + new/old]
+                // (and likewise for y), so all pieces have disjoint
+                // interiors and can be unioned in a single sweep.
+                let cell_x0 = |sc: i64| Frac64::new(sc * new_s - c as i64 * old_s, old_s);
+                let cell_y0 = |sr: i64| Frac64::new(sr * new_s - r as i64 * old_s, old_s);
+                let cell_span = Frac64::new(new_s, old_s);
+                let mut pieces: Vec<(DetailRegion, Frac64, Frac64, Frac64, Frac64)> = Vec::new();
+
+                // Merge runs of uniformly full source cells into single
+                // rectangles (row runs, then equal runs of consecutive
+                // rows) so a mostly-full block contributes a handful of
+                // edges to the sweep instead of four per cell.
+                // Open run rectangles: (sc_start, sc_end, sr_start, sr_end).
+                let mut open_runs: Vec<(i64, i64, i64, i64)> = Vec::new();
                 for sr in sr0..sr1 {
+                    let mut row_runs: Vec<(i64, i64)> = Vec::new();
+                    let mut run_start: Option<i64> = None;
                     for sc in sc0..sc1 {
-                        let src_region = self.region_at(sr as u16, sc as u16);
-                        if src_region.is_empty() {
+                        let s = self.get(sr as u16, sc as u16);
+                        if s.shape_id() == PX_ALMOSTFULL {
+                            run_start.get_or_insert(sc);
                             continue;
                         }
-                        // Source pixel sc spans destination-local x
-                        // [(sc·new − c·old)/old, (sc·new − c·old)/old + new/old].
-                        let piece = src_region.transform_into(
-                            Frac64::new(sc * new_s - c as i64 * old_s, old_s),
-                            Frac64::new(sr * new_s - r as i64 * old_s, old_s),
-                            Frac64::new(new_s, old_s),
-                            Frac64::new(new_s, old_s),
-                        );
-                        region = if region.is_empty() {
-                            piece
-                        } else {
-                            detail::bool_op(&region, &piece, detail::BoolOp::Union)
-                        };
+                        if let Some(start) = run_start.take() {
+                            row_runs.push((start, sc - 1));
+                        }
+                        if s.shape_id() == crate::pixel::PX_EMPTY {
+                            continue;
+                        }
+                        pieces.push((
+                            self.region_at(sr as u16, sc as u16),
+                            cell_x0(sc),
+                            cell_y0(sr),
+                            cell_span,
+                            cell_span,
+                        ));
                     }
+                    if let Some(start) = run_start.take() {
+                        row_runs.push((start, sc1 - 1));
+                    }
+                    let mut next_open: Vec<(i64, i64, i64, i64)> = Vec::new();
+                    for (start, end) in row_runs {
+                        if let Some(pos) = open_runs
+                            .iter()
+                            .position(|&(s, e, _, er)| s == start && e == end && er == sr - 1)
+                        {
+                            let (s, e, sr_start, _) = open_runs.swap_remove(pos);
+                            next_open.push((s, e, sr_start, sr));
+                        } else {
+                            next_open.push((start, end, sr, sr));
+                        }
+                    }
+                    for run in open_runs.drain(..) {
+                        pieces.push(full_run_piece(run, &cell_x0, &cell_y0, old_s, new_s));
+                    }
+                    open_runs = next_open;
                 }
+                for run in open_runs.drain(..) {
+                    pieces.push(full_run_piece(run, &cell_x0, &cell_y0, old_s, new_s));
+                }
+
+                let region = detail::union_disjoint_transformed(&pieces);
                 out.set_detail(r, c, &region, any_filled);
             }
         }

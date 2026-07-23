@@ -825,6 +825,9 @@ pub fn resolve_named_glyphs_with_parts(
     }
 
     let mut pending: Vec<Pending> = Vec::new();
+    // Mirrors `pending` names for O(1) duplicate checks; a linear scan here
+    // is quadratic over the whole font (~18k glyphs).
+    let mut pending_names: std::collections::HashSet<String> = std::collections::HashSet::new();
 
     for doc in docs {
         for item in &doc.items {
@@ -834,7 +837,7 @@ pub fn resolve_named_glyphs_with_parts(
                 let expanded_keys = expand_ref_names(&key);
                 let expanded_count = expanded_keys.as_ref().map_or(1, |e| e.len());
                 if expanded_count <= 1 {
-                    if !cache.contains_key(&key) && !pending.iter().any(|p| p.name == key) {
+                    if !cache.contains_key(&key) && !pending_names.contains(&key) {
                         if body.refs.is_empty() {
                             cache.insert(
                                 key,
@@ -863,6 +866,7 @@ pub fn resolve_named_glyphs_with_parts(
                                 })
                                 .collect();
 
+                            pending_names.insert(key.clone());
                             pending.push(Pending {
                                 name: key,
                                 pixels: body.pixels.clone(),
@@ -884,7 +888,7 @@ pub fn resolve_named_glyphs_with_parts(
                         .collect();
                     for (k, expanded_name) in expanded_keys.into_iter().enumerate() {
                         if cache.contains_key(&expanded_name)
-                            || pending.iter().any(|p| p.name == expanded_name)
+                            || pending_names.contains(&expanded_name)
                         {
                             continue;
                         }
@@ -928,6 +932,7 @@ pub fn resolve_named_glyphs_with_parts(
                                 },
                             );
                         } else {
+                            pending_names.insert(expanded_name.clone());
                             pending.push(Pending {
                                 name: expanded_name,
                                 pixels: body.pixels.clone(),
@@ -1028,10 +1033,15 @@ pub fn resolve_named_glyphs_with_parts(
         }
     }
 
+    // Built once and grown incrementally: a full rebuild clones every name
+    // and anchor list in the cache, which is too expensive to repeat per
+    // fixpoint round. Entries resolved during a round are merged at round
+    // end, matching the visibility the per-round rebuild used to provide.
+    let mut alt_index = AlternativesIndex::build(&cache);
     let mut progress = true;
     while progress {
         progress = false;
-        let alt_index = AlternativesIndex::build(&cache);
+        let mut new_entries: Vec<(String, Vec<GlyphPoint>)> = Vec::new();
         pending.retain(|pg| {
             if !pg
                 .refs
@@ -1057,6 +1067,7 @@ pub fn resolve_named_glyphs_with_parts(
             let (min_r, min_c, _, _) =
                 composite_bounds(pg.pixels.as_ref(), &effective_refs, &cache, name_parts, pg.scale);
             let grid = composite_to_grid(&pg.pixels, &effective_refs, &cache, name_parts, pg.scale);
+            new_entries.push((pg.name.clone(), anchors.clone()));
             cache.insert(
                 pg.name.clone(),
                 ResolvedGlyph {
@@ -1071,9 +1082,9 @@ pub fn resolve_named_glyphs_with_parts(
             progress = true;
             false
         });
+        alt_index.extend(new_entries);
     }
 
-    let alt_index = AlternativesIndex::build(&cache);
     (cache, alt_index)
 }
 
@@ -1204,6 +1215,26 @@ impl AlternativesIndex {
             alts.sort_by(|(a, _), (b, _)| a.cmp(b));
         }
         Self { map }
+    }
+
+    /// Add entries for newly resolved glyphs, keeping each alternative list
+    /// sorted (the same order [`Self::build`] produces). Lets the resolve
+    /// fixpoint grow one index instead of rebuilding it from the whole cache
+    /// every round.
+    fn extend(&mut self, entries: impl IntoIterator<Item = (String, Vec<GlyphPoint>)>) {
+        for (name, anchors) in entries {
+            let mut prefix = name.as_str();
+            while let Some(colon_pos) = prefix.rfind(':') {
+                prefix = &prefix[..colon_pos];
+                let alts = self.map.entry(prefix.to_string()).or_default();
+                match alts.binary_search_by(|(a, _)| a.as_str().cmp(&name)) {
+                    // Same glyph resolved again (cache overwrite): keep the
+                    // list free of duplicate names, like a full rebuild would.
+                    Ok(pos) => alts[pos].1 = anchors.clone(),
+                    Err(pos) => alts.insert(pos, (name.clone(), anchors.clone())),
+                }
+            }
+        }
     }
 
     pub fn get(&self, base_name: &str) -> &[(String, Vec<GlyphPoint>)] {
@@ -2384,5 +2415,32 @@ ref mark-below
         let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
         assert!(!cache.contains_key("test"), "should not synthesize when only :mono exists");
+    }
+
+    /// Manual profiling harness:
+    /// `cargo test -r profile_resolve_name_expansion -- --ignored --nocapture`
+    /// Loads the real font sources and times a cold resolve (the derived
+    /// rebuild stage that includes name expansion) plus a full font build.
+    /// `UNIFORM_PROFILE_RUNS=N` controls the resolve repeat count (useful
+    /// for attaching a sampling profiler).
+    #[test]
+    #[ignore]
+    fn profile_resolve_name_expansion() {
+        let docs = crate::render::load_docs_from_directory(std::path::Path::new("font"));
+        assert!(!docs.is_empty(), "font/ not found; run from repo root");
+        let refs: Vec<&Document> = docs.iter().collect();
+        let name_parts = crate::document::collect_name_parts(&refs);
+        let runs: usize = std::env::var("UNIFORM_PROFILE_RUNS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(4);
+        for run in 0..runs {
+            let t0 = std::time::Instant::now();
+            let (resolved, _alt) = resolve_named_glyphs_with_parts(&refs, &name_parts);
+            eprintln!("run {run}: resolve {:?}, {} glyphs", t0.elapsed(), resolved.len());
+        }
+        let t0 = std::time::Instant::now();
+        let built = crate::render::build_font_from_documents(&refs);
+        eprintln!("font build: {:?}, ok={}", t0.elapsed(), built.is_some());
     }
 }
