@@ -48,6 +48,7 @@ pub enum UndoOp {
         before: Option<PixelSelectionSnapshot>,
         after: Option<PixelSelectionSnapshot>,
     },
+    Compound(Vec<UndoOp>),
 }
 
 #[derive(Clone, Debug)]
@@ -176,6 +177,21 @@ impl UndoStack {
         self.truncate_and_invalidate();
         self.entries.push(UndoEntry {
             op: UndoOp::Lines { at, old, new },
+            caret_before,
+            caret_after,
+        });
+        self.position = self.entries.len();
+    }
+
+    pub fn push_compound(
+        &mut self,
+        ops: Vec<UndoOp>,
+        caret_before: Caret,
+        caret_after: Caret,
+    ) {
+        self.truncate_and_invalidate();
+        self.entries.push(UndoEntry {
+            op: UndoOp::Compound(ops),
             caret_before,
             caret_after,
         });
@@ -371,6 +387,17 @@ impl UndoStack {
                     }
                 }
             }
+            UndoOp::Compound(ops) => {
+                for op in ops.iter().rev() {
+                    match op {
+                        UndoOp::Lines { at, old, new } => {
+                            let end = (*at + new.len()).min(lines.len());
+                            lines.splice(*at..end, old.iter().cloned());
+                        }
+                        _ => {}
+                    }
+                }
+            }
             UndoOp::PixelSelection {
                 line,
                 pixel_changes,
@@ -426,6 +453,17 @@ impl UndoStack {
                 if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
                     for ch in changes {
                         grid.set(ch.row, ch.col, ch.new);
+                    }
+                }
+            }
+            UndoOp::Compound(ops) => {
+                for op in ops {
+                    match op {
+                        UndoOp::Lines { at, old, new } => {
+                            let end = (*at + old.len()).min(lines.len());
+                            lines.splice(*at..end, new.iter().cloned());
+                        }
+                        _ => {}
                     }
                 }
             }

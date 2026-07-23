@@ -523,41 +523,58 @@ impl UniformApp {
     fn execute_rename(&mut self, action: &crate::editor::document_view::RenameAction) {
         use crate::editor::doc_links::RenameKind;
 
-        let files: Vec<PathBuf> = self.sidebar.files().to_vec();
         let saved_active = self.active_doc_idx;
         let mut changed_count = 0usize;
 
-        // First pass: check which unopened files would be affected and open them
-        let mut to_open = Vec::new();
-        for file_path in &files {
-            let already_open = self.open_documents.iter().any(|d| &d.document.path == file_path);
-            if !already_open
-                && let Ok(content) = std::fs::read_to_string(file_path) {
-                    let text_lines: Vec<DocLine> = content.lines().map(|l| DocLine::Text(l.to_string())).collect();
-                    let new_lines = rename_in_lines(&text_lines, &action.old_name, &action.new_name, &action.kind);
-                    if new_lines != text_lines {
-                        to_open.push(file_path.clone());
-                    }
-                }
-        }
-        for path in &to_open {
-            self.open_file(path.clone());
+        // First pass: check which unopened files would be affected and open them.
+        // Uses already-parsed font_base_docs (in memory) to avoid disk I/O
+        // for the check; affected files are loaded in parallel.
+        let to_open: Vec<PathBuf> = self.font_base_docs.iter()
+            .filter(|base| {
+                !self.open_documents.iter().any(|d| d.document.path == base.path)
+                    && doc_may_reference(&base.items, &action.old_name, &action.kind)
+            })
+            .map(|base| base.path.clone())
+            .collect();
+
+        if !to_open.is_empty() {
+            let base_docs = &self.font_base_docs;
+            let loaded: Vec<_> = std::thread::scope(|s| {
+                let handles: Vec<_> = to_open.iter().map(|path| {
+                    let path = path.clone();
+                    let base_gen = base_docs.iter().find(|b| b.path == path)
+                        .map(|b| (b.edit_gen, b.content_gen));
+                    s.spawn(move || load_file_for_rename(path, base_gen))
+                }).collect();
+                handles.into_iter().filter_map(|h| h.join().ok().flatten()).collect()
+            });
+            for open_doc in loaded {
+                self.open_documents.push(open_doc);
+            }
         }
 
-        // Second pass: apply rename to all open documents
+        // Second pass: apply rename in place to all open documents.
+        // Only touches Text lines; Grid lines are never cloned or compared.
         for doc in &mut self.open_documents {
-            let old_lines: Vec<DocLine> = doc.lines.clone();
-            let new_lines = rename_in_lines(&doc.lines, &action.old_name, &action.new_name, &action.kind);
-            if new_lines != old_lines {
+            let changed_text = rename_in_place(&mut doc.lines, &action.old_name, &action.new_name, &action.kind);
+            if !changed_text.is_empty() {
                 doc.editor_state.undo.break_coalesce();
-                doc.editor_state.undo.push_lines(
-                    0,
-                    old_lines,
-                    new_lines.clone(),
+                let ops: Vec<_> = changed_text.iter().map(|(idx, old_text)| {
+                    let new_text = match &doc.lines[*idx] {
+                        DocLine::Text(s) => s.clone(),
+                        _ => unreachable!(),
+                    };
+                    crate::editor::undo::UndoOp::Lines {
+                        at: *idx,
+                        old: vec![DocLine::Text(old_text.clone())],
+                        new: vec![DocLine::Text(new_text)],
+                    }
+                }).collect();
+                doc.editor_state.undo.push_compound(
+                    ops,
                     doc.editor_state.cursor,
                     doc.editor_state.cursor,
                 );
-                doc.lines = new_lines;
                 match crate::document_io::derive_document(&doc.lines, doc.document.path.clone()) {
                     Ok((new_doc, _)) => {
                         let items_changed = !doc.document.items.iter().filter(|i| i.affects_font())
@@ -588,7 +605,6 @@ impl UniformApp {
         self.active_doc_idx = saved_active;
 
         if changed_count > 0 {
-            self.rebuild_named_glyphs_sync();
             let kind_str = match action.kind {
                 RenameKind::Glyph => "glyph",
                 RenameKind::NameParts => "name-parts",
@@ -2025,16 +2041,49 @@ fn show_issues_tab(
     });
 }
 
-fn rename_in_lines(
-    lines: &[DocLine],
+fn load_file_for_rename(
+    path: PathBuf,
+    base_gen: Option<(u64, u64)>,
+) -> Option<OpenDocument> {
+    let doc = document_io::parse_document(&path).ok()?;
+    let mut buf = Vec::new();
+    document_io::serialize_document(&doc, &mut buf).ok();
+    let canonical = String::from_utf8(buf).unwrap_or_default();
+    let mut lines = document_io::parse_doclines(&canonical);
+    if lines.is_empty() {
+        lines.push(crate::document::DocLine::Text(String::new()));
+    }
+    let mut doc = doc;
+    if let Ok((fresh_doc, _)) = document_io::derive_document(&lines, path.clone()) {
+        doc = fresh_doc;
+    }
+    let (edit_gen, content_gen) = base_gen
+        .map(|(e, c)| (e.wrapping_add(1), c.wrapping_add(1)))
+        .unwrap_or((1, 1));
+    doc.edit_gen = edit_gen;
+    doc.content_gen = content_gen;
+    Some(OpenDocument {
+        document: doc,
+        lines,
+        editor_state: EditorState::new(),
+    })
+}
+
+/// Apply rename in place, returning the old text values of changed lines
+/// (as `(line_index, old_text)` pairs) so callers can build undo entries
+/// without cloning the entire document (which is expensive when Grid lines
+/// dominate).
+fn rename_in_place(
+    lines: &mut [DocLine],
     old_name: &str,
     new_name: &str,
     kind: &crate::editor::doc_links::RenameKind,
-) -> Vec<DocLine> {
+) -> Vec<(usize, String)> {
     use crate::editor::doc_links::RenameKind;
 
-    lines.iter().map(|line| {
-        let DocLine::Text(s) = line else { return line.clone() };
+    let mut changed = Vec::new();
+    for (i, line) in lines.iter_mut().enumerate() {
+        let DocLine::Text(s) = line else { continue };
         let trimmed = s.trim_start();
 
         let new_text = match kind {
@@ -2044,11 +2093,63 @@ fn rename_in_lines(
             RenameKind::Color => rename_color_in_line(trimmed, s, old_name, new_name),
         };
 
-        match new_text {
-            Some(t) => DocLine::Text(t),
-            None => line.clone(),
+        if let Some(t) = new_text {
+            changed.push((i, std::mem::replace(s, t)));
         }
-    }).collect()
+    }
+    changed
+}
+
+fn doc_may_reference(
+    items: &[crate::document::DocumentItem],
+    name: &str,
+    kind: &crate::editor::doc_links::RenameKind,
+) -> bool {
+    use crate::document::DocumentItem;
+    use crate::editor::doc_links::RenameKind;
+
+    for item in items {
+        match (kind, item) {
+            (RenameKind::Glyph, DocumentItem::Glyph { name: gn, body }) => {
+                if gn.0 == name { return true; }
+                if body.refs.iter().any(|r| r.name == name) { return true; }
+            }
+            (RenameKind::Glyph, DocumentItem::Map { glyph, .. }) => {
+                if glyph == name { return true; }
+            }
+            (RenameKind::Glyph, DocumentItem::Remap { source, target, lookbehind, lookahead, .. }) => {
+                let mut all = source.iter().chain(target).chain(lookbehind).chain(lookahead);
+                if all.any(|s| s == name) { return true; }
+            }
+            (RenameKind::Glyph, DocumentItem::Directive(s)) => {
+                if s.contains(name) { return true; }
+            }
+            (RenameKind::NameParts, DocumentItem::NameParts { name: n, values }) => {
+                if n == name || values.iter().any(|v| v == name) { return true; }
+            }
+            (RenameKind::NameParts, DocumentItem::Glyph { name: gn, body }) => {
+                if gn.0.contains(name) { return true; }
+                if body.refs.iter().any(|r| r.name.contains(name)) { return true; }
+            }
+            (RenameKind::Point, DocumentItem::Glyph { body, .. }) => {
+                let stripped = name.trim_start_matches(['+', '-']);
+                if body.points.iter().any(|p| {
+                    let ps = p.position.trim_start_matches(['+', '-']);
+                    ps == stripped
+                }) { return true; }
+            }
+            (RenameKind::Color, DocumentItem::Color { name: n, .. }) => {
+                if n == name { return true; }
+            }
+            (RenameKind::Color, DocumentItem::Glyph { body, .. }) => {
+                if body.refs.iter().any(|r| r.fill.as_ref().is_some_and(|f| f.color == name)) {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
+    false
 }
 
 fn rename_glyph_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &str) -> Option<String> {
@@ -2374,8 +2475,9 @@ mod rename_tests {
     fn t(s: &str) -> DocLine { DocLine::Text(s.to_string()) }
 
     fn do_rename(lines: &[DocLine], old: &str, new: &str, kind: &RenameKind) -> Vec<String> {
-        rename_in_lines(lines, old, new, kind)
-            .into_iter()
+        let mut lines = lines.to_vec();
+        rename_in_place(&mut lines, old, new, kind);
+        lines.into_iter()
             .filter_map(|l| if let DocLine::Text(s) = l { Some(s) } else { None })
             .collect()
     }

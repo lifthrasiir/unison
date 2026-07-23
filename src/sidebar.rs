@@ -37,6 +37,7 @@ impl Sidebar {
         }
     }
 
+    #[expect(unused)]
     pub fn files(&self) -> &[PathBuf] {
         &self.files
     }
