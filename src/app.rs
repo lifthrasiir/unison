@@ -126,6 +126,13 @@ pub struct UniformApp {
     derived_data_tx: mpsc::Sender<DerivedDataMessage>,
     derived_data_rx: mpsc::Receiver<DerivedDataMessage>,
     derived_rebuild_at: Option<std::time::Instant>,
+    /// A derived-data rebuild thread is currently running. Without this
+    /// guard the scheduler below respawns a rebuild every debounce period
+    /// for as long as one is in flight — on machines where a resolve takes
+    /// longer than the debounce, that snowballs into dozens of concurrent
+    /// resolve threads starving each other (observed: 2s resolves stretching
+    /// past 20s under the pile-up).
+    derived_inflight: bool,
     zoom_level: u32,
     last_export_path: Option<PathBuf>,
     close_confirmed: bool,
@@ -282,6 +289,7 @@ impl UniformApp {
             derived_data_tx,
             derived_data_rx,
             derived_rebuild_at: None,
+            derived_inflight: false,
             zoom_level: 1,
             last_export_path: None,
             close_confirmed: false,
@@ -1009,6 +1017,7 @@ impl eframe::App for UniformApp {
 
         if self.font_build_gen != self.named_glyphs_gen
             && self.derived_rebuild_at.is_none()
+            && !self.derived_inflight
         {
             self.derived_rebuild_at =
                 Some(std::time::Instant::now() + std::time::Duration::from_millis(300));
@@ -1016,14 +1025,17 @@ impl eframe::App for UniformApp {
         }
         if let Some(at) = self.derived_rebuild_at
             && std::time::Instant::now() >= at
+            && !self.derived_inflight
         {
             self.rebuild_derived_data(ctx);
+            self.derived_inflight = true;
             self.derived_rebuild_at = None;
         }
 
         if let Some((data_gen, named_glyphs, alt_index, name_parts, issues)) =
             take_latest_derived_data(&self.derived_data_rx)
         {
+            self.derived_inflight = false;
             self.named_glyphs = named_glyphs;
             self.alt_index = alt_index;
             self.name_parts = name_parts;
