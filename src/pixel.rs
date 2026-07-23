@@ -525,7 +525,7 @@ const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
     t[17] = ec(0.0,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.0); // CONE2
     t[18] = ec(0.0,0.0, 0.0,0.0, 0.0,0.0, 0.0,1.0); // CONE3
     t[19] = ec(0.0,0.0, 0.0,1.0, 0.0,0.0, 0.0,0.0); // CONE4
-    t[20] = ec(0.0,0.0, 0.0,1.0, 0.5,1.0, 0.0,1.0); // HQUAD
+    t[20] = ec(0.0,0.0, 0.0,0.0, 0.0,1.0, 0.0,1.0); // HQUAD (left+right bowtie)
     t[21] = ec(0.0,0.0, 0.0,0.5, 0.5,1.0, 0.0,0.0); // CORNER1
     t[22] = ec(0.5,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.5); // CORNER2
     t[23] = ec(0.0,0.5, 0.0,0.0, 0.0,0.5, 0.0,0.0); // CORNER3
@@ -534,12 +534,13 @@ const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
     t[104] = ec(0.5,1.0, 0.0,1.0, 0.5,1.0, 0.0,1.0); // INVCORNER3
     t[105] = ec(0.0,0.5, 0.0,1.0, 0.0,1.0, 0.5,1.0); // INVCORNER2
     t[106] = ec(0.0,1.0, 0.5,1.0, 0.0,0.5, 0.0,1.0); // INVCORNER1
-    t[107] = ec(0.0,1.0, 0.5,1.0, 0.0,0.0, 0.0,1.0); // VQUAD
-    // 108-112: inverted halves/quads → full edges
-    t[108] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT1H (inv)
-    t[109] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT2H (inv)
-    t[110] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT3H (inv)
-    t[111] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // HALFSLANT4H (inv)
+    t[107] = ec(0.0,1.0, 0.0,1.0, 0.0,0.0, 0.0,0.0); // VQUAD (top+bottom bowtie)
+    // 108-111: inverted cones — the edge the cone's base sits on is owned
+    // by the cone, the other three are fully covered by the complement.
+    t[108] = ec(0.0,1.0, 0.0,0.0, 0.0,1.0, 0.0,1.0); // INVCONE4 (base at bottom)
+    t[109] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,0.0); // INVCONE3 (base at right)
+    t[110] = ec(0.0,0.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // INVCONE2 (base at top)
+    t[111] = ec(0.0,1.0, 0.0,1.0, 0.0,0.0, 0.0,1.0); // INVCONE1 (base at left)
     t[112] = EC_F; // ALMOSTFULL complement (DOT inv)
     t[113] = ec(0.0,1.0, 0.0,0.0, 0.0,1.0, 0.0,0.5); // HALFSLANT1V (inv)
     t[114] = ec(0.0,0.0, 0.0,1.0, 0.5,1.0, 0.0,1.0); // HALFSLANT2V (inv)
@@ -549,10 +550,12 @@ const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
     t[118] = ec(0.5,1.0, 0.0,1.0, 0.0,0.0, 0.0,1.0); // HALFSLANT2H
     t[119] = ec(0.0,0.5, 0.0,1.0, 0.0,1.0, 0.0,0.0); // HALFSLANT3H
     t[120] = ec(0.0,1.0, 0.5,1.0, 0.0,0.0, 0.0,1.0); // HALFSLANT4H
-    t[121] = EC_F; // INVQUAD1
-    t[122] = EC_F; // INVQUAD2
-    t[123] = EC_F; // INVQUAD3
-    t[124] = EC_F; // INVQUAD4
+    // Inverted quadrants: the edge the quadrant's base sits on is owned by
+    // the quadrant, the other three are fully covered by the complement.
+    t[121] = ec(0.0,1.0, 0.0,0.0, 0.0,1.0, 0.0,1.0); // INVQUAD4 (base at bottom)
+    t[122] = ec(0.0,1.0, 0.0,1.0, 0.0,1.0, 0.0,0.0); // INVQUAD3 (base at right)
+    t[123] = ec(0.0,0.0, 0.0,1.0, 0.0,1.0, 0.0,1.0); // INVQUAD2 (base at top)
+    t[124] = ec(0.0,1.0, 0.0,1.0, 0.0,0.0, 0.0,1.0); // INVQUAD1 (base at left)
     t[125] = ec(0.0,0.0, 0.0,1.0, 0.0,0.0, 0.0,1.0); // INVCONE1
     t[126] = ec(0.0,1.0, 0.0,0.0, 0.0,0.0, 0.0,1.0); // INVCONE2
     t[127] = EC_F; // ALMOSTFULL
@@ -562,6 +565,12 @@ const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn edge_coverage(shape_id: u8) -> &'static ShapeEdgeCoverage {
     &EDGE_COVERAGE_TABLE[shape_id.min(127) as usize]
+}
+
+/// The unit-square outline polygon of a catalog shape. All vertices lie on
+/// the half lattice. Empty for `PX_EMPTY` and unassigned ids.
+pub fn unit_polygon(shape_id: u8) -> Vec<(f32, f32)> {
+    build_unit_polygon(shape_id)
 }
 
 fn build_unit_polygon(shape_id: u8) -> Vec<(f32, f32)> {
@@ -1453,48 +1462,35 @@ mod tests {
         bits
     }
 
+    /// Derive edge coverage from the adjacency half-edge bits, which are
+    /// the tracer's ground truth. Every catalog shape covers each square
+    /// edge in a single run whose endpoints are on the half lattice, so the
+    /// two bits per edge determine the interval exactly. (The former
+    /// polygon-based derivation inherited broken outlines for multi-part
+    /// shapes like HQUAD, whose chained "single polygon" is not a faithful
+    /// boundary.)
     fn compute_edge_coverage(shape_id: u8) -> ShapeEdgeCoverage {
-        let polygon = build_unit_polygon(shape_id);
-        if polygon.len() < 3 {
-            return EC_Z;
-        }
-        ShapeEdgeCoverage {
-            top: coverage_on_edge(&polygon, 0),
-            bottom: coverage_on_edge(&polygon, 1),
-            left: coverage_on_edge(&polygon, 2),
-            right: coverage_on_edge(&polygon, 3),
-        }
-    }
-
-    fn coverage_on_edge(polygon: &[(f32, f32)], edge: u8) -> EdgeInterval {
-        let n = polygon.len();
-        let mut pts: Vec<f32> = Vec::new();
-        for i in 0..n {
-            let (x1, y1) = polygon[i];
-            let (x2, y2) = polygon[(i + 1) % n];
-            match edge {
-                0 => collect_intersections(y1, y2, x1, x2, 0.0, &mut pts),
-                1 => collect_intersections(y1, y2, x1, x2, 1.0, &mut pts),
-                2 => collect_intersections(x1, x2, y1, y2, 0.0, &mut pts),
-                _ => collect_intersections(x1, x2, y1, y2, 1.0, &mut pts),
+        let bits = ADJACENCY_BITS[shape_id.min(128) as usize];
+        let iv = |first: bool, second: bool| -> EdgeInterval {
+            match (first, second) {
+                (false, false) => EdgeInterval::EMPTY,
+                (true, false) => EdgeInterval { start: 0.0, end: 0.5 },
+                (false, true) => EdgeInterval { start: 0.5, end: 1.0 },
+                (true, true) => EdgeInterval { start: 0.0, end: 1.0 },
             }
-        }
-        if pts.is_empty() { return EdgeInterval::EMPTY; }
-        let min = pts.iter().cloned().fold(f32::INFINITY, f32::min);
-        let max = pts.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
-        if max - min < 1e-6 { EdgeInterval::EMPTY }
-        else { EdgeInterval { start: min, end: max } }
-    }
-
-    fn collect_intersections(c1: f32, c2: f32, p1: f32, p2: f32, ec: f32, out: &mut Vec<f32>) {
-        let eps = 1e-6;
-        let on1 = (c1 - ec).abs() < eps;
-        let on2 = (c2 - ec).abs() < eps;
-        if on1 { out.push(p1.clamp(0.0, 1.0)); }
-        if on2 { out.push(p2.clamp(0.0, 1.0)); }
-        if !on1 && !on2 && (c1 - ec) * (c2 - ec) < 0.0 {
-            let t = (ec - c1) / (c2 - c1);
-            out.push((p1 + t * (p2 - p1)).clamp(0.0, 1.0));
+        };
+        //    a   b
+        //   +--+--+
+        // h |     | c
+        //   +     +
+        // g |     | d
+        //   +--+--+
+        //    f   e
+        ShapeEdgeCoverage {
+            top: iv(bits & 0x80 != 0, bits & 0x40 != 0),
+            right: iv(bits & 0x20 != 0, bits & 0x10 != 0),
+            bottom: iv(bits & 0x04 != 0, bits & 0x08 != 0),
+            left: iv(bits & 0x01 != 0, bits & 0x02 != 0),
         }
     }
 

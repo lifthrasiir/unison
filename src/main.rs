@@ -1,6 +1,7 @@
 #[cfg(feature = "editor")]
 mod app;
 mod migrate;
+mod detail;
 mod document;
 mod document_io;
 #[cfg(feature = "editor")]
