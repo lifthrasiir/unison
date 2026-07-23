@@ -796,6 +796,34 @@ impl DetailRegion {
     }
 }
 
+/// Clip an arbitrary polygon (in pixel-local coordinates, possibly far
+/// outside the unit square) to the unit square. Used to cut per-pixel
+/// pieces out of large synthetic shapes such as on-demand triangles.
+pub fn clip_polygon_to_cell(pts: &[(Frac64, Frac64)]) -> DetailRegion {
+    if pts.len() < 3 {
+        return DetailRegion::EMPTY;
+    }
+    let mut edges = Vec::new();
+    let n = pts.len();
+    for i in 0..n {
+        let a = (Frac::new(pts[i].0.n, pts[i].0.d), Frac::new(pts[i].1.n, pts[i].1.d));
+        let b = (
+            Frac::new(pts[(i + 1) % n].0.n, pts[(i + 1) % n].0.d),
+            Frac::new(pts[(i + 1) % n].1.n, pts[(i + 1) % n].1.d),
+        );
+        if let Some(e) = SweepEdge::new(a, b, 0) {
+            edges.push(e);
+        }
+    }
+    let unit = DetailRegion::full();
+    for ring in &unit.rings {
+        ring_sweep_edges(ring, unit.den as i64, 1, &mut edges);
+    }
+    let traps = sweep(&edges, &|a, b| a && b);
+    let (den, rings) = traps_to_rings(&traps);
+    DetailRegion { den, rings }
+}
+
 /// Boolean combination of two regions. The output lattice denominator is
 /// chosen automatically as the smallest one representing every output
 /// vertex — including crossing points of diagonal edges — exactly; only

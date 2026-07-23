@@ -53,6 +53,18 @@ pub struct ResolvedGlyph {
     pub scale: u8,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TriCorner {
+    /// Right angle at the upper-left corner.
+    Ul,
+    /// Right angle at the upper-right corner.
+    Ur,
+    /// Right angle at the lower-left corner.
+    Ll,
+    /// Right angle at the lower-right corner.
+    Lr,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OnDemandRect {
     pub w: u8,
@@ -62,6 +74,9 @@ pub struct OnDemandRect {
     pub scale: u8,
     pub neg_w: bool,
     pub neg_h: bool,
+    /// `Some` makes this a right triangle with legs `w × h`, the right
+    /// angle sitting at the given corner of the bounding rectangle.
+    pub corner: Option<TriCorner>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -108,7 +123,21 @@ fn parse_rect_dim(s: &str) -> Option<(bool, u8, Option<(u8, u8)>)> {
 /// Simple `WxH`: both W and H must be non-zero.
 /// Extended form: R >= 2 on both sides (must match), 0 <= B,D < R, and the
 /// total dimension A+B/R must be positive on each axis.
+///
+/// A `-ul`/`-ur`/`-ll`/`-lr` suffix turns the rectangle into a right
+/// triangle with legs W × H, the right angle at the named corner.
 pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
+    let (name, corner) = if let Some(rest) = name.strip_suffix("-ul") {
+        (rest, Some(TriCorner::Ul))
+    } else if let Some(rest) = name.strip_suffix("-ur") {
+        (rest, Some(TriCorner::Ur))
+    } else if let Some(rest) = name.strip_suffix("-ll") {
+        (rest, Some(TriCorner::Ll))
+    } else if let Some(rest) = name.strip_suffix("-lr") {
+        (rest, Some(TriCorner::Lr))
+    } else {
+        (name, None)
+    };
     let (w_str, h_str) = name.split_once('x')?;
     let (neg_w, w, w_detail) = parse_rect_dim(w_str)?;
     let (neg_h, h, h_detail) = parse_rect_dim(h_str)?;
@@ -126,6 +155,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 scale: 1,
                 neg_w: false,
                 neg_h: false,
+                corner,
             }))
         }
         (Some((wf, ws)), Some((hf, hs))) => {
@@ -149,6 +179,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 scale: ws,
                 neg_w,
                 neg_h,
+                corner,
             }))
         }
         (Some((wf, ws)), None) => {
@@ -169,6 +200,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 scale: ws,
                 neg_w,
                 neg_h,
+                corner,
             }))
         }
         (None, Some((hf, hs))) => {
@@ -189,6 +221,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 scale: hs,
                 neg_w,
                 neg_h,
+                corner,
             }))
         }
     }
@@ -209,7 +242,10 @@ pub fn detect_color_mono_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> 
     }
 }
 
-fn make_on_demand_resolved(rect: &OnDemandRect) -> ResolvedGlyph {
+/// Build the pixel grid of an on-demand rectangle or triangle. The grid is
+/// at subpixel resolution `rect.scale`; triangles get exact per-pixel
+/// geometry, re-encoded as plain shape codes wherever possible.
+pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
     let s = rect.scale.max(1) as u16;
     let rect_w = rect.w as u16 * s + rect.w_frac as u16;
     let rect_h = rect.h as u16 * s + rect.h_frac as u16;
@@ -221,13 +257,79 @@ fn make_on_demand_resolved(rect: &OnDemandRect) -> ResolvedGlyph {
     let off_r = if rect.neg_h { grid_h - rect_h } else { 0 };
 
     let mut grid = PixelGrid::new(grid_w, grid_h);
+    let Some(corner) = rect.corner else {
+        for r in off_r..(off_r + rect_h) {
+            for c in off_c..(off_c + rect_w) {
+                grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+            }
+        }
+        return grid;
+    };
+
+    // Triangle vertices in grid subpixel units: the right-angle corner and
+    // the two leg endpoints.
+    let (x0, y0) = (off_c as i64, off_r as i64);
+    let (w, h) = (rect_w as i64, rect_h as i64);
+    let tri: [(i64, i64); 3] = match corner {
+        TriCorner::Ul => [(x0, y0), (x0 + w, y0), (x0, y0 + h)],
+        TriCorner::Ur => [(x0 + w, y0), (x0 + w, y0 + h), (x0, y0)],
+        TriCorner::Ll => [(x0, y0 + h), (x0, y0), (x0 + w, y0 + h)],
+        TriCorner::Lr => [(x0 + w, y0 + h), (x0 + w, y0), (x0, y0 + h)],
+    };
+    // The hypotenuse connects tri[1] and tri[2]; tri[0] is the right angle.
+    let (hx1, hy1) = tri[1];
+    let (hx2, hy2) = tri[2];
+    let inside_sign = {
+        let c = (hx2 - hx1) * (tri[0].1 - hy1) - (hy2 - hy1) * (tri[0].0 - hx1);
+        c.signum()
+    };
+
     for r in off_r..(off_r + rect_h) {
         for c in off_c..(off_c + rect_w) {
-            grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+            // Classify the pixel's corners against the hypotenuse.
+            let mut inside = 0;
+            let mut outside = 0;
+            for (px, py) in [
+                (c as i64, r as i64),
+                (c as i64 + 1, r as i64),
+                (c as i64, r as i64 + 1),
+                (c as i64 + 1, r as i64 + 1),
+            ] {
+                let cr = (hx2 - hx1) * (py - hy1) - (hy2 - hy1) * (px - hx1);
+                match (cr * inside_sign as i64).signum() {
+                    1 => inside += 1,
+                    -1 => outside += 1,
+                    _ => {}
+                }
+            }
+            if outside == 0 {
+                // Fully inside the triangle (the pixel is already within
+                // the leg bounding box).
+                grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+                continue;
+            }
+            if inside == 0 {
+                continue;
+            }
+            let local: Vec<(crate::detail::Frac64, crate::detail::Frac64)> = tri
+                .iter()
+                .map(|&(tx, ty)| {
+                    (
+                        crate::detail::Frac64::new(tx - c as i64, 1),
+                        crate::detail::Frac64::new(ty - r as i64, 1),
+                    )
+                })
+                .collect();
+            let piece = crate::detail::clip_polygon_to_cell(&local);
+            grid.set_detail(r, c, &piece, true);
         }
     }
+    grid
+}
+
+fn make_on_demand_resolved(rect: &OnDemandRect) -> ResolvedGlyph {
     ResolvedGlyph {
-        grid,
+        grid: make_on_demand_grid(rect),
         origin_row: 0,
         origin_col: 0,
         resolved_anchors: Vec::new(),
@@ -1964,12 +2066,14 @@ ref mark-below
     fn simple_rect(w: u8, h: u8) -> OnDemandGlyph {
         OnDemandGlyph::Rect(OnDemandRect {
             w, h, w_frac: 0, h_frac: 0, scale: 1, neg_w: false, neg_h: false,
+            corner: None,
         })
     }
 
     fn frac_rect(w: u8, h: u8, wf: u8, hf: u8, s: u8, nw: bool, nh: bool) -> OnDemandGlyph {
         OnDemandGlyph::Rect(OnDemandRect {
             w, h, w_frac: wf, h_frac: hf, scale: s, neg_w: nw, neg_h: nh,
+            corner: None,
         })
     }
 
@@ -1978,6 +2082,75 @@ ref mark-below
         assert_eq!(parse_on_demand_glyph("3x5"), Some(simple_rect(3, 5)));
         assert_eq!(parse_on_demand_glyph("12x34"), Some(simple_rect(12, 34)));
         assert_eq!(parse_on_demand_glyph("1x1"), Some(simple_rect(1, 1)));
+    }
+
+    #[test]
+    fn parse_on_demand_triangle_names() {
+        match parse_on_demand_glyph("4x8-ul") {
+            Some(OnDemandGlyph::Rect(r)) => assert_eq!(r.corner, Some(TriCorner::Ul)),
+            other => panic!("4x8-ul parsed as {other:?}"),
+        }
+        match parse_on_demand_glyph("1p2r3x4-lr") {
+            Some(OnDemandGlyph::Rect(r)) => {
+                assert_eq!(r.corner, Some(TriCorner::Lr));
+                assert_eq!((r.w, r.w_frac, r.scale), (1, 2, 3));
+            }
+            other => panic!("1p2r3x4-lr parsed as {other:?}"),
+        }
+        assert_eq!(parse_on_demand_glyph("4x-ul"), None);
+        assert_eq!(parse_on_demand_glyph("x8-ll"), None);
+    }
+
+    #[test]
+    fn on_demand_triangle_catalog_slope_uses_plain_codes() {
+        // 4x8-ul: the hypotenuse (from (4,0) to (0,8)) has the catalog 1:2
+        // slope, so every pixel re-encodes as a plain shape code.
+        let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph("4x8-ul") else {
+            panic!("4x8-ul must parse");
+        };
+        let grid = make_on_demand_grid(&rect);
+        assert_eq!((grid.width, grid.height), (4, 8));
+        assert!(
+            grid.details.is_empty(),
+            "1:2 slope must use plain slants, got details {:?}",
+            grid.details
+        );
+        // The right angle corner is filled, the opposite corner empty.
+        assert_eq!(grid.get(0, 0).shape_id(), crate::pixel::PX_ALMOSTFULL);
+        assert!(grid.get(7, 3).is_empty());
+        // Area check: sum of per-pixel region areas must equal W·H/2.
+        let mut area2 = 0.0f64;
+        for r in 0..8 {
+            for c in 0..4 {
+                area2 += grid.region_at(r, c).canonical().area2();
+            }
+        }
+        assert!((area2 - 4.0 * 8.0).abs() < 1e-9, "area2 {area2}");
+    }
+
+    #[test]
+    fn on_demand_triangle_third_slope_traces_cleanly() {
+        // 3x1-lr: slope 1:3 (the smooth-mosaic case) — needs custom
+        // details, and the contour must come out as one clean triangle.
+        let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph("3x1-lr") else {
+            panic!("3x1-lr must parse");
+        };
+        let grid = make_on_demand_grid(&rect);
+        assert_eq!((grid.width, grid.height), (3, 1));
+        assert!(!grid.details.is_empty(), "1:3 slope requires custom details");
+
+        let paths = crate::render::contour::track_contour(&grid, crate::pixel::PX_SUBPIXEL);
+        assert_eq!(paths.len(), 1, "single outline, got {paths:?}");
+        let mut pts = paths[0].clone();
+        pts.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let expected = [(0.0f32, 1.0f32), (3.0, 0.0), (3.0, 1.0)];
+        assert_eq!(pts.len(), 3, "triangle has 3 vertices: {pts:?}");
+        for (p, e) in pts.iter().zip(expected.iter()) {
+            assert!(
+                (p.0 - e.0).abs() < 1e-5 && (p.1 - e.1).abs() < 1e-5,
+                "vertex {p:?} != {e:?} in {pts:?}"
+            );
+        }
     }
 
     #[test]

@@ -726,21 +726,7 @@ fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
         use crate::ref_composite::{OnDemandGlyph, detect_on_demand_glyph};
         match detect_on_demand_glyph(&name, |n| defined.contains(n)) {
             Some(OnDemandGlyph::Rect(rect)) => {
-                let s = rect.scale.max(1) as u16;
-                let rect_w = rect.w as u16 * s + rect.w_frac as u16;
-                let rect_h = rect.h as u16 * s + rect.h_frac as u16;
-                let extent_w = (rect_w + s - 1) / s;
-                let extent_h = (rect_h + s - 1) / s;
-                let grid_w = extent_w * s;
-                let grid_h = extent_h * s;
-                let off_c = if rect.neg_w { grid_w - rect_w } else { 0 };
-                let off_r = if rect.neg_h { grid_h - rect_h } else { 0 };
-                let mut grid = PixelGrid::new(grid_w, grid_h);
-                for r in off_r..(off_r + rect_h) {
-                    for c in off_c..(off_c + rect_w) {
-                        grid.set(r, c, PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
-                    }
-                }
+                let grid = crate::ref_composite::make_on_demand_grid(&rect);
                 all_items.push(DocumentItem::Glyph {
                     name: GlyphName(name),
                     body: GlyphBody {
