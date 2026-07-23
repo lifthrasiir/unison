@@ -19,14 +19,6 @@ glyph ca-ring 3 3
 @@..@@
 \1@@1/
 
-glyph ca-acute-left 4 6
-.....Vv/
-..../Vv'
-...Vv/..
-../Vv'..
-.Vv/....
-/Vv'....
-
 glyph ca-acute-right 4 6
 .....vV/
 ..../vV'

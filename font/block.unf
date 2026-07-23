@@ -1,0 +1,179 @@
+////////////////////////////////////////
+// block elements
+
+glyph full-25 8 16
+..@@..@@..@@..@@
+................
+@@..@@..@@..@@..
+................
+..@@..@@..@@..@@
+................
+@@..@@..@@..@@..
+................
+..@@..@@..@@..@@
+................
+@@..@@..@@..@@..
+................
+..@@..@@..@@..@@
+................
+@@..@@..@@..@@..
+................
+
+glyph full-50 8 16
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+..@@..@@..@@..@@
+@@..@@..@@..@@..
+
+glyph full-75 8 16
+..@@..@@..@@..@@
+@@@@@@@@@@@@@@@@
+@@..@@..@@..@@..
+@@@@@@@@@@@@@@@@
+..@@..@@..@@..@@
+@@@@@@@@@@@@@@@@
+@@..@@..@@..@@..
+@@@@@@@@@@@@@@@@
+..@@..@@..@@..@@
+@@@@@@@@@@@@@@@@
+@@..@@..@@..@@..
+@@@@@@@@@@@@@@@@
+..@@..@@..@@..@@
+@@@@@@@@@@@@@@@@
+@@..@@..@@..@@..
+@@@@@@@@@@@@@@@@
+
+glyph full 8 16
+ref 8x16
+
+glyph upper-half 8 16
+ref 8x8
+
+glyph upper-eighth 8 16
+ref 8x2
+
+glyph lower-1-over-8 8 16
+ref 8x2 0 14
+
+glyph lower-2-over-8 8 16
+ref 8x4 0 12
+
+glyph lower-3-over-8 8 16
+ref 8x6 0 10
+
+glyph lower-4-over-8 8 16
+ref 8x8 0 8
+
+glyph lower-5-over-8 8 16
+ref 8x10 0 6
+
+glyph lower-6-over-8 8 16
+ref 8x12 0 4
+
+glyph lower-7-over-8 8 16
+ref 8x14 0 2
+
+glyph left-7-over-8 8 16
+ref 7x16
+
+glyph left-6-over-8 8 16
+ref 6x16
+
+glyph left-5-over-8 8 16
+ref 5x16
+
+glyph left-4-over-8 8 16
+ref 4x16
+
+glyph left-3-over-8 8 16
+ref 3x16
+
+glyph left-2-over-8 8 16
+ref 2x16
+
+glyph left-1-over-8 8 16
+ref 1x16
+
+glyph right-eighth 8 16
+ref 1x16 7 0
+
+glyph right-half 8 16
+ref 4x16 4 0
+
+map ░ = full-25
+map ▒ = full-50
+map ▓ = full-75
+map █ = full
+
+map ▀ = upper-half
+map ▔ = upper-eighth
+map ▁|▂|▃|▄|▅|▆|▇ = lower-(1|2|3|4|5|6|7)-over-8
+
+map ▉|▊|▋|▌|▍|▎|▏ = left-(7|6|5|4|3|2|1)-over-8
+map ▕ = right-eighth
+map ▐ = right-half
+
+//--------------------------------------
+// quadrants
+
+glyph quadrant-1 8 16
+ref 4x8
+
+glyph quadrant-2 8 16
+ref 4x8 4 0
+
+glyph quadrant-3 8 16
+ref 4x8 0 8
+
+glyph quadrant-4 8 16
+ref 4x8 4 8
+
+glyph quadrant-14 8 16
+ref 4x8 0 0
+ref 4x8 4 8
+
+glyph quadrant-23 8 16
+ref 4x8 4 0
+ref 4x8 0 8
+
+glyph quadrant-234 8 16
+ref 4x8 4 0
+ref 8x8 0 8
+
+glyph quadrant-134 8 16
+ref 4x8 0 0
+ref 8x8 0 8
+
+glyph quadrant-124 8 16
+ref 8x8 0 0
+ref 4x8 4 8
+
+glyph quadrant-123 8 16
+ref 8x8 0 0
+ref 4x8 0 8
+
+map ▘ = quadrant-1
+map ▝ = quadrant-2
+map ▖ = quadrant-3
+map ▗ = quadrant-4
+
+map ▚ = quadrant-14
+map ▞ = quadrant-23
+
+map ▟ = quadrant-234
+map ▙ = quadrant-134
+map ▜ = quadrant-124
+map ▛ = quadrant-123
+
