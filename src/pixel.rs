@@ -961,6 +961,15 @@ pub fn multi_shape_adjacency(shapes: &[u8]) -> (u8, Vec<Seg>) {
         _ => {}
     }
 
+    // Decompose multi-part shapes (HQUAD, VQUAD) into constituent quads
+    // so that each component has a faithful single polygon for clipping.
+    let expanded: Vec<u8> = shapes.iter().flat_map(|&s| match s {
+        PX_HQUAD => vec![PX_QUAD1, PX_QUAD3],
+        PX_VQUAD => vec![PX_QUAD2, PX_QUAD4],
+        _ => vec![s],
+    }).collect();
+    let shapes = &expanded[..];
+
     let mut combined_bits = 0u8;
     for &s in shapes {
         combined_bits |= adjacency(s).0;
@@ -1705,6 +1714,39 @@ mod tests {
 
             // rotate_180 = rotate_cw twice
             assert_eq!(shape.rotate_cw().rotate_cw(), shape.rotate_180(), "2x cw != 180 for id={id}");
+        }
+    }
+
+    #[test]
+    fn multi_shape_adjacency_hquad_dot() {
+        let (bits, segs) = multi_shape_adjacency(&[PX_HQUAD, PX_DOT]);
+        assert_eq!(bits, 0b00110011);
+        // Gap segments + boundary edges must form closed contours.
+        // Collect all edges (gap + boundary) and verify even degree.
+        let mut all_segs = segs.clone();
+        let boundary: [(u8, [f32; 4]); 8] = [
+            (7, [0.0, 0.0, 0.5, 0.0]),
+            (6, [0.5, 0.0, 1.0, 0.0]),
+            (5, [1.0, 0.0, 1.0, 0.5]),
+            (4, [1.0, 0.5, 1.0, 1.0]),
+            (3, [1.0, 1.0, 0.5, 1.0]),
+            (2, [0.5, 1.0, 0.0, 1.0]),
+            (1, [0.0, 1.0, 0.0, 0.5]),
+            (0, [0.0, 0.5, 0.0, 0.0]),
+        ];
+        for &(bit, seg) in &boundary {
+            if bits & (1 << bit) != 0 {
+                all_segs.push((seg[0], seg[1], seg[2], seg[3]));
+            }
+        }
+        let mut degree: std::collections::HashMap<(i32, i32), u32> = std::collections::HashMap::new();
+        let quantize = |v: f32| (v * 1200.0).round() as i32;
+        for &(x1, y1, x2, y2) in &all_segs {
+            *degree.entry((quantize(x1), quantize(y1))).or_default() += 1;
+            *degree.entry((quantize(x2), quantize(y2))).or_default() += 1;
+        }
+        for (&k, &d) in &degree {
+            assert!(d % 2 == 0, "odd degree {d} at ({}, {})", k.0, k.1);
         }
     }
 
