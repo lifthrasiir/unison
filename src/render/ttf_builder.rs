@@ -511,6 +511,7 @@ fn build_composite_refs(
     glyph_meta: &HashMap<String, (Option<u16>, Option<i16>, Option<i16>)>,
     scale: f32,
     base_scale: f32,
+    inline_glyphs: &HashSet<String>,
 ) -> Vec<CompositeRef> {
     if inline {
         return Vec::new();
@@ -518,6 +519,9 @@ fn build_composite_refs(
     let Some(comps) = &resolved.composite_components else {
         return Vec::new();
     };
+    if comps.iter().any(|(name, _, _)| inline_glyphs.contains(name.as_str())) {
+        return Vec::new();
+    }
     comps.iter().map(|(name, dx, dy)| {
         let (comp_left, comp_top) = match glyph_meta.get(name.as_str()) {
             Some(&(_, left, top)) => (
@@ -732,6 +736,7 @@ fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
                     body: GlyphBody {
                         scale: rect.scale,
                         pixels: Some(grid),
+                        inline: true,
                         ..GlyphBody::new()
                     },
                 });
@@ -1038,6 +1043,7 @@ fn collect_glyph_data_with_shared(
                 &glyph_meta,
                 glyph_scale,
                 scale,
+                inline_glyphs,
             );
 
             let is_mark = glyph_bodies_map.get(glyph_name.as_str()).is_some_and(|b| b.mark);
@@ -1197,6 +1203,7 @@ fn collect_glyph_data_with_shared(
             &glyph_meta,
             glyph_scale,
             scale,
+            inline_glyphs,
         );
 
         let is_mark = glyph_bodies_map.get(glyph_name.as_str()).is_some_and(|b| b.mark);
