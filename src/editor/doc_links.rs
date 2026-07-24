@@ -201,6 +201,40 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
             }
             Vec::new()
         }
+        "assert" => {
+            let sub = match rest.first().map(|s| s.value.as_str()) {
+                Some("same") | Some("distinct") => &rest[1..],
+                Some("shape") => {
+                    // assert shape TEXT [+feat]... : GLYPH1 ... : GLYPH2 ...
+                    // Link each glyph name (first token after each `:`)
+                    let mut links = Vec::new();
+                    let mut after_colon = false;
+                    for span in &rest[1..] {
+                        if span.value == "//" { break; }
+                        if span.value == ":" {
+                            after_colon = true;
+                            continue;
+                        }
+                        if after_colon {
+                            links.extend(extract_glyph_and_parts_links(
+                                &span.value, leading + span.raw_start,
+                            ));
+                            after_colon = false;
+                        }
+                    }
+                    return links;
+                }
+                _ => return Vec::new(),
+            };
+            let mut links = Vec::new();
+            for span in sub {
+                if span.value == "//" { break; }
+                links.extend(extract_glyph_and_parts_links(
+                    &span.value, leading + span.raw_start,
+                ));
+            }
+            links
+        }
         _ => Vec::new(),
     }
 }
@@ -458,6 +492,36 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
                         col_start: vs,
                         col_end: ve,
                     });
+                }
+            }
+            None
+        }
+        "assert" => {
+            let sub = match rest.first().map(|s| s.value.as_str()) {
+                Some("same") | Some("distinct") => &rest[1..],
+                Some("shape") => {
+                    let mut after_colon = false;
+                    for span in &rest[1..] {
+                        if span.value == "//" { break; }
+                        if span.value == ":" {
+                            after_colon = true;
+                            continue;
+                        }
+                        if after_colon {
+                            if let Some(r) = simple_glyph_rename(span, leading, col) {
+                                return Some(r);
+                            }
+                            after_colon = false;
+                        }
+                    }
+                    return None;
+                }
+                _ => return None,
+            };
+            for span in sub {
+                if span.value == "//" { break; }
+                if let Some(r) = simple_glyph_rename(span, leading, col) {
+                    return Some(r);
                 }
             }
             None
@@ -738,5 +802,73 @@ mod rename_detection_tests {
     fn ref_fill_links_hex_no_color_link() {
         let links = extract_line_links("ref foo 0 0 fill #ff0000");
         assert!(!links.iter().any(|l| matches!(l.kind, LinkTargetKind::Color)));
+    }
+
+    #[test]
+    fn assert_same_links_glyph_names() {
+        let links = extract_line_links("assert same foo bar");
+        assert_eq!(links.len(), 2);
+        assert!(links.iter().any(|l| l.target == "foo" && matches!(l.kind, LinkTargetKind::Glyph)));
+        assert!(links.iter().any(|l| l.target == "bar" && matches!(l.kind, LinkTargetKind::Glyph)));
+    }
+
+    #[test]
+    fn assert_distinct_links_glyph_names() {
+        let links = extract_line_links("assert distinct a b c");
+        assert_eq!(links.len(), 3);
+        assert!(links.iter().any(|l| l.target == "a"));
+        assert!(links.iter().any(|l| l.target == "b"));
+        assert!(links.iter().any(|l| l.target == "c"));
+    }
+
+    #[test]
+    fn assert_same_comment_not_linked() {
+        let links = extract_line_links("assert same foo bar // not a glyph");
+        let glyph_names: Vec<&str> = links.iter()
+            .filter(|l| matches!(l.kind, LinkTargetKind::Glyph))
+            .map(|l| l.target.as_str())
+            .collect();
+        assert_eq!(glyph_names.len(), 2);
+        assert!(glyph_names.contains(&"foo"));
+        assert!(glyph_names.contains(&"bar"));
+    }
+
+    #[test]
+    fn assert_shape_links_glyph_names() {
+        let links = extract_line_links("assert shape AB : a-upper : b-upper");
+        assert!(links.iter().any(|l| l.target == "a-upper" && matches!(l.kind, LinkTargetKind::Glyph)));
+        assert!(links.iter().any(|l| l.target == "b-upper" && matches!(l.kind, LinkTargetKind::Glyph)));
+    }
+
+    #[test]
+    fn assert_same_rename_glyph() {
+        let t = find_renameable_at_caret("assert same foo bar", 12).unwrap();
+        assert_eq!(t.name, "foo");
+        assert_eq!(t.kind, RenameKind::Glyph);
+    }
+
+    #[test]
+    fn assert_distinct_rename_glyph() {
+        let t = find_renameable_at_caret("assert distinct abc def", 16).unwrap();
+        assert_eq!(t.name, "abc");
+        assert_eq!(t.kind, RenameKind::Glyph);
+    }
+
+    #[test]
+    fn assert_same_rename_not_on_keyword() {
+        assert!(find_renameable_at_caret("assert same foo bar", 0).is_none());
+        assert!(find_renameable_at_caret("assert same foo bar", 7).is_none());
+    }
+
+    #[test]
+    fn assert_shape_rename_glyph() {
+        let t = find_renameable_at_caret("assert shape AB : a-upper : b-upper", 18).unwrap();
+        assert_eq!(t.name, "a-upper");
+        assert_eq!(t.kind, RenameKind::Glyph);
+    }
+
+    #[test]
+    fn assert_rename_not_in_comment() {
+        assert!(find_renameable_at_caret("assert same foo bar // comment", 23).is_none());
     }
 }

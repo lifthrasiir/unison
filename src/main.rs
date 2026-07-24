@@ -246,23 +246,31 @@ fn main() {
             std::process::exit(1);
         };
 
-        let result = render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height);
-        if result.total == 0 {
+        let name_parts = document::collect_name_parts(&refs);
+        let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
+
+        let shape_result = render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height);
+        let sd_result = render::assert::run_same_distinct_assertions(&refs, &resolved);
+
+        let total = shape_result.total + sd_result.total;
+        let passed = shape_result.passed + sd_result.passed;
+
+        if total == 0 {
             eprintln!("No assertions found.");
             return;
         }
 
-        for issue in &result.issues {
+        for issue in shape_result.issues.iter().chain(sd_result.issues.iter()) {
             let file_name = issue.file.file_name()
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_default();
             eprintln!("FAIL {}:{}: {}", file_name, issue.file_line, issue.message);
         }
 
-        let failed = result.total - result.passed;
+        let failed = total - passed;
         eprintln!(
             "\n{} assertion(s): {} passed, {} failed.",
-            result.total, result.passed, failed,
+            total, passed, failed,
         );
 
         if failed > 0 {

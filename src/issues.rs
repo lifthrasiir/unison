@@ -888,6 +888,27 @@ glyph stem:wide 2 1
     }
 
     #[test]
+    fn assert_same_distinct_not_unrecognized() {
+        let input = "\
+glyph a 2 1
+..@@
+glyph b 2 1
+@@..
+map A = a
+map B = b
+
+assert same a b
+assert distinct a b
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("unrecognized directive")),
+            "assert same/distinct should not be flagged as unrecognized: {issues:?}",
+        );
+    }
+
+    #[test]
     fn assume_unused_suppresses_warning() {
         let input = "\
 glyph orphan 2 1

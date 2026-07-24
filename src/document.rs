@@ -469,11 +469,25 @@ impl PixelGrid {
                         detail::subtract_classified(&cur_region, &sub),
                         current.is_filled(),
                     );
-                } else if src_custom {
-                    let region = src.region_at(r as u16, c as u16);
-                    self.set_detail(dr as u16, dc as u16, &region, shape.is_filled());
                 } else {
-                    self.set(dr as u16, dc as u16, shape);
+                    let current = self.get(dr as u16, dc as u16);
+                    if current.is_empty() {
+                        if src_custom {
+                            let region = src.region_at(r as u16, c as u16);
+                            self.set_detail(dr as u16, dc as u16, &region, shape.is_filled());
+                        } else {
+                            self.set(dr as u16, dc as u16, shape);
+                        }
+                    } else {
+                        let cur_region = self.region_at(dr as u16, dc as u16);
+                        let src_region = src.region_at(r as u16, c as u16);
+                        self.apply_classified(
+                            dr as u16,
+                            dc as u16,
+                            detail::bool_op(&cur_region, &src_region, detail::BoolOp::Union).classify(),
+                            current.is_filled() || shape.is_filled(),
+                        );
+                    }
                 }
             }
         }
@@ -686,6 +700,17 @@ pub enum DocumentItem {
         text: String,
         features: Vec<ShapeFeatureFlag>,
         expected: Vec<ExpectedGlyph>,
+        comment: Option<String>,
+    },
+    /// `assert same GLYPH1 GLYPH2 ...`
+    AssertSame {
+        names: Vec<String>,
+        comment: Option<String>,
+    },
+    /// `assert distinct GLYPH1 GLYPH2 ...`
+    AssertDistinct {
+        names: Vec<String>,
+        comment: Option<String>,
     },
 }
 
@@ -697,6 +722,8 @@ impl DocumentItem {
                 | DocumentItem::BlankLine
                 | DocumentItem::Directive(_)
                 | DocumentItem::AssertShape { .. }
+                | DocumentItem::AssertSame { .. }
+                | DocumentItem::AssertDistinct { .. }
         )
     }
 }
@@ -761,6 +788,28 @@ pub fn compute_docline_file_lines(lines: &[DocLine]) -> Vec<usize> {
     result
 }
 
+fn split_inline_comment(tokens: &[String]) -> (Vec<String>, Option<String>) {
+    if let Some(pos) = tokens.iter().position(|t| t == "//") {
+        let body = tokens[..pos].to_vec();
+        let comment_parts: Vec<&str> = tokens[pos + 1..].iter().map(|s| s.as_str()).collect();
+        let comment = if comment_parts.is_empty() {
+            None
+        } else {
+            Some(comment_parts.join(" "))
+        };
+        (body, comment)
+    } else {
+        (tokens.to_vec(), None)
+    }
+}
+
+fn serialize_comment_suffix(comment: &Option<String>) -> String {
+    match comment {
+        Some(c) => format!(" // {c}"),
+        None => String::new(),
+    }
+}
+
 impl DocumentItem {
     /// Parse a structured directive from pre-tokenized tokens.
     /// The first token is the keyword ("name-parts", "remap", or "feature").
@@ -779,10 +828,20 @@ impl DocumentItem {
                 }
             }
             "assert" => {
+                let (tokens, comment) = split_inline_comment(tokens);
                 if tokens.get(1).is_some_and(|t| t == "shape") {
-                    if let Some(item) = Self::parse_assert_shape(&tokens[2..]) {
+                    if let Some(item) = Self::parse_assert_shape(&tokens[2..], comment.clone()) {
                         return item;
                     }
+                }
+                match tokens.get(1).map(|s| s.as_str()) {
+                    Some("same") if tokens.len() >= 4 => {
+                        return DocumentItem::AssertSame { names: tokens[2..].to_vec(), comment };
+                    }
+                    Some("distinct") if tokens.len() >= 4 => {
+                        return DocumentItem::AssertDistinct { names: tokens[2..].to_vec(), comment };
+                    }
+                    _ => {}
                 }
             }
             "remap" => {
@@ -870,9 +929,7 @@ impl DocumentItem {
         })
     }
 
-    /// Parse `assert shape` tokens after the `assert shape` prefix.
-    /// Format: `TEXT [+feat] [-feat] : GLYPH1 [advance N] [offset X Y] : GLYPH2 ...`
-    fn parse_assert_shape(tokens: &[String]) -> Option<DocumentItem> {
+    fn parse_assert_shape(tokens: &[String], comment: Option<String>) -> Option<DocumentItem> {
         if tokens.is_empty() {
             return None;
         }
@@ -934,7 +991,7 @@ impl DocumentItem {
             return None;
         }
 
-        Some(DocumentItem::AssertShape { text, features, expected })
+        Some(DocumentItem::AssertShape { text, features, expected, comment })
     }
 
     pub fn serialize_line(&self) -> Option<String> {
@@ -991,7 +1048,7 @@ impl DocumentItem {
                 };
                 Some(format!("color {} = {}{}", quote_token(name), quote_token(value), vis))
             }
-            DocumentItem::AssertShape { text, features, expected } => {
+            DocumentItem::AssertShape { text, features, expected, comment } => {
                 let mut parts = vec![
                     "assert".to_string(),
                     "shape".to_string(),
@@ -1015,7 +1072,15 @@ impl DocumentItem {
                     }
                     let _ = i;
                 }
-                Some(parts.join(" "))
+                Some(format!("{}{}", parts.join(" "), serialize_comment_suffix(comment)))
+            }
+            DocumentItem::AssertSame { names, comment } => {
+                let qnames: Vec<String> = names.iter().map(|n| quote_token(n)).collect();
+                Some(format!("assert same {}{}", qnames.join(" "), serialize_comment_suffix(comment)))
+            }
+            DocumentItem::AssertDistinct { names, comment } => {
+                let qnames: Vec<String> = names.iter().map(|n| quote_token(n)).collect();
+                Some(format!("assert distinct {}{}", qnames.join(" "), serialize_comment_suffix(comment)))
             }
             _ => None,
         }

@@ -434,7 +434,10 @@ impl UniformApp {
         let ctx = ctx.clone();
         std::thread::spawn(move || {
             let refs: Vec<&Document> = all_docs.iter().collect();
-            let result = if let Some(built) =
+            let name_parts = crate::document::collect_name_parts(&refs);
+            let (resolved, _) = crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
+
+            let mut result = if let Some(built) =
                 crate::render::build_font_with_gid_map(&refs)
             {
                 let assert_result = if let Some(path) = &active_path {
@@ -455,6 +458,17 @@ impl UniformApp {
                     file_line: 0,
                 }]
             };
+
+            let sd_result = if let Some(path) = &active_path {
+                let test_docs: Vec<&Document> = all_docs.iter()
+                    .filter(|d| &d.path == path)
+                    .collect();
+                crate::render::assert::run_same_distinct_assertions_for_files(&test_docs, &resolved)
+            } else {
+                crate::render::assert::run_same_distinct_assertions(&refs, &resolved)
+            };
+            result.extend(sd_result.issues);
+
             let _ = tx.send(result);
             ctx.request_repaint();
         });
@@ -2250,6 +2264,23 @@ fn rename_glyph_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &st
             return Some(new_line);
         }
         return None;
+    }
+
+    // assert same NAME... / assert distinct NAME...
+    for keyword in &["assert same ", "assert distinct "] {
+        if let Some(rest) = trimmed.strip_prefix(keyword) {
+            if rest.split_whitespace().any(|t| t == old_name) {
+                let new_line = format!(
+                    "{leading}{keyword}{}",
+                    rest.split_whitespace()
+                        .map(|t| if t == old_name { new_name } else { t })
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                );
+                return Some(new_line);
+            }
+            return None;
+        }
     }
 
     None

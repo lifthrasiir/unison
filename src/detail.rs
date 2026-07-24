@@ -49,7 +49,6 @@ pub enum Classified {
 /// Boolean operation selector for [`bool_op`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BoolOp {
-    #[cfg_attr(not(test), expect(dead_code))]
     Union,
     Subtract,
     #[cfg_attr(not(test), expect(dead_code))]

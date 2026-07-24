@@ -261,6 +261,7 @@ pub(crate) fn build_visual_lines(
             meta_color
         } else if trimmed.starts_with("exclude-from-sample ")
             || trimmed.starts_with("assume unused ")
+            || trimmed.starts_with("assert ")
         {
             directive_color
         } else if trimmed.starts_with("name-parts ")
@@ -309,7 +310,9 @@ pub(crate) fn build_visual_lines(
             | DocumentItem::FeatureAnchor { .. }
             | DocumentItem::MapDecomposed { .. }
             | DocumentItem::Color { .. }
-            | DocumentItem::AssertShape { .. } => {
+            | DocumentItem::AssertShape { .. }
+            | DocumentItem::AssertSame { .. }
+            | DocumentItem::AssertDistinct { .. } => {
                 if let Some(DocLine::Text(s)) = lines.get(item_start) {
                     push_wrapped_text_vlines(
                         &mut vlines,

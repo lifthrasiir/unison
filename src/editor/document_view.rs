@@ -2586,7 +2586,9 @@ mod tests {
                     | DocumentItem::FeatureAnchor { .. }
                     | DocumentItem::MapDecomposed { .. }
                     | DocumentItem::Color { .. }
-                    | DocumentItem::AssertShape { .. } => start + 1,
+                    | DocumentItem::AssertShape { .. }
+                    | DocumentItem::AssertSame { .. }
+                    | DocumentItem::AssertDistinct { .. } => start + 1,
                     DocumentItem::Glyph { body, .. } => {
                         let is_alias = body.is_simple_alias();
                         if is_alias {

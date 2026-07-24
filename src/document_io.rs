@@ -512,7 +512,9 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             | item @ DocumentItem::Feature { .. }
             | item @ DocumentItem::FeatureAnchor { .. }
             | item @ DocumentItem::Color { .. }
-            | item @ DocumentItem::AssertShape { .. } => {
+            | item @ DocumentItem::AssertShape { .. }
+            | item @ DocumentItem::AssertSame { .. }
+            | item @ DocumentItem::AssertDistinct { .. } => {
                 if let Some(line) = item.serialize_line() {
                     writeln!(writer, "{line}")?;
                 }
@@ -1833,13 +1835,14 @@ ref part-c fill #ff0000 monoonly
         let input = "assert shape `AB` : a-upper : b-upper\n";
         let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
         assert_eq!(doc.items.len(), 1);
-        if let DocumentItem::AssertShape { text, features, expected } = &doc.items[0] {
+        if let DocumentItem::AssertShape { text, features, expected, comment } = &doc.items[0] {
             assert_eq!(text, "AB");
             assert!(features.is_empty());
             assert_eq!(expected.len(), 2);
             assert_eq!(expected[0].name, "a-upper");
             assert_eq!(expected[1].name, "b-upper");
             assert!(expected[0].advance.is_none());
+            assert!(comment.is_none());
         } else {
             panic!("expected AssertShape");
         }
@@ -1850,7 +1853,7 @@ ref part-c fill #ff0000 monoonly
         let input = "assert shape `fi` +liga -frac : fi-lig advance 512 : x offset 10 20\n";
         let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
         assert_eq!(doc.items.len(), 1);
-        if let DocumentItem::AssertShape { text, features, expected } = &doc.items[0] {
+        if let DocumentItem::AssertShape { text, features, expected, .. } = &doc.items[0] {
             assert_eq!(text, "fi");
             assert_eq!(features.len(), 2);
             assert_eq!(features[0].tag, "liga");
@@ -1885,6 +1888,99 @@ ref part-c fill #ff0000 monoonly
         serialize_document(&doc, &mut output).unwrap();
         let output_str = String::from_utf8(output).unwrap();
         assert_eq!(output_str, input);
+    }
+
+    #[test]
+    fn parse_assert_same() {
+        let input = "assert same foo bar\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert_eq!(doc.items.len(), 1);
+        if let DocumentItem::AssertSame { names, comment } = &doc.items[0] {
+            assert_eq!(names, &["foo", "bar"]);
+            assert!(comment.is_none());
+        } else {
+            panic!("expected AssertSame, got {:?}", doc.items[0]);
+        }
+    }
+
+    #[test]
+    fn parse_assert_distinct() {
+        let input = "assert distinct a b c\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert_eq!(doc.items.len(), 1);
+        if let DocumentItem::AssertDistinct { names, .. } = &doc.items[0] {
+            assert_eq!(names, &["a", "b", "c"]);
+        } else {
+            panic!("expected AssertDistinct, got {:?}", doc.items[0]);
+        }
+    }
+
+    #[test]
+    fn roundtrip_assert_same() {
+        let input = "assert same foo bar baz\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), input);
+    }
+
+    #[test]
+    fn roundtrip_assert_distinct() {
+        let input = "assert distinct foo bar\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), input);
+    }
+
+    #[test]
+    fn assert_same_too_few_names_falls_back() {
+        let input = "assert same foo\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        assert!(matches!(&doc.items[0], DocumentItem::Directive(_)));
+    }
+
+    #[test]
+    fn roundtrip_assert_same_quoted() {
+        let input = "assert same `foo bar` `baz quux`\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::AssertSame { names, .. } = &doc.items[0] {
+            assert_eq!(names, &["foo bar", "baz quux"]);
+        } else {
+            panic!("expected AssertSame, got {:?}", doc.items[0]);
+        }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), input);
+    }
+
+    #[test]
+    fn parse_assert_same_with_comment() {
+        let input = "assert same foo bar // they should match\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::AssertSame { names, comment } = &doc.items[0] {
+            assert_eq!(names, &["foo", "bar"]);
+            assert_eq!(comment.as_deref(), Some("they should match"));
+        } else {
+            panic!("expected AssertSame, got {:?}", doc.items[0]);
+        }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), input);
+    }
+
+    #[test]
+    fn roundtrip_assert_shape_with_comment() {
+        let input = "assert shape AB : a-upper : b-upper // check shaping\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        if let DocumentItem::AssertShape { comment, .. } = &doc.items[0] {
+            assert_eq!(comment.as_deref(), Some("check shaping"));
+        } else {
+            panic!("expected AssertShape, got {:?}", doc.items[0]);
+        }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), input);
     }
 
     #[test]
