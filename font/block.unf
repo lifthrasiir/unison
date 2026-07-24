@@ -58,10 +58,44 @@ glyph full-75 8 16
 glyph full 8 16
 ref 8x16
 
-glyph upper-half 8 16
+map ░ = full-25
+map ▒ = full-50
+map ▓ = full-75
+map █ = full
+
+//--------------------------------------
+// thirds
+
+glyph left-1-over-3 8 16
+ref 2p2r3x16
+
+glyph left-2-over-3 8 16
+ref 5p1r3x16
+
+map 🯏|🯎 = left-(1|2)-over-3
+
+//--------------------------------------
+// eighths
+
+glyph upper-7-over-8 8 16
+ref 8x14
+
+glyph upper-6-over-8 8 16
+ref 8x12
+
+glyph upper-5-over-8 8 16
+ref 8x10
+
+glyph upper-4-over-8 8 16
 ref 8x8
 
-glyph upper-eighth 8 16
+glyph upper-3-over-8 8 16
+ref 8x6
+
+glyph upper-2-over-8 8 16
+ref 8x4
+
+glyph upper-1-over-8 8 16
 ref 8x2
 
 glyph lower-1-over-8 8 16
@@ -106,74 +140,973 @@ ref 2x16
 glyph left-1-over-8 8 16
 ref 1x16
 
-glyph right-eighth 8 16
+glyph right-1-over-8 8 16
 ref 1x16 7 0
 
-glyph right-half 8 16
+glyph right-2-over-8 8 16
+ref 2x16 6 0
+
+glyph right-3-over-8 8 16
+ref 3x16 5 0
+
+glyph right-4-over-8 8 16
 ref 4x16 4 0
 
-map ░ = full-25
-map ▒ = full-50
-map ▓ = full-75
-map █ = full
+glyph right-5-over-8 8 16
+ref 5x16 3 0
 
-map ▀ = upper-half
-map ▔ = upper-eighth
+glyph right-6-over-8 8 16
+ref 6x16 2 0
+
+glyph right-7-over-8 8 16
+ref 7x16 1 0
+
+glyph horiz-1-over-8-at-2 8 16
+ref 8x2 0 2
+
+glyph horiz-1-over-8-at-3 8 16
+ref 8x2 0 4
+
+glyph horiz-1-over-8-at-4 8 16
+ref 8x2 0 6
+
+glyph horiz-1-over-8-at-5 8 16
+ref 8x2 0 8
+
+glyph horiz-1-over-8-at-6 8 16
+ref 8x2 0 10
+
+glyph horiz-1-over-8-at-7 8 16
+ref 8x2 0 12
+
+glyph vert-1-over-8-at-2 8 16
+ref 1x16 1 0
+
+glyph vert-1-over-8-at-3 8 16
+ref 1x16 2 0
+
+glyph vert-1-over-8-at-4 8 16
+ref 1x16 3 0
+
+glyph vert-1-over-8-at-5 8 16
+ref 1x16 4 0
+
+glyph vert-1-over-8-at-6 8 16
+ref 1x16 5 0
+
+glyph vert-1-over-8-at-7 8 16
+ref 1x16 6 0
+
+map 🮆|🮅|🮄|▀|🮃|🮂|▔ = upper-(7|6|5|4|3|2|1)-over-8
 map ▁|▂|▃|▄|▅|▆|▇ = lower-(1|2|3|4|5|6|7)-over-8
 
 map ▉|▊|▋|▌|▍|▎|▏ = left-(7|6|5|4|3|2|1)-over-8
-map ▕ = right-eighth
-map ▐ = right-half
+map ▕|🮇|🮈|▐|🮉|🮊|🮋 = right-(1|2|3|4|5|6|7)-over-8
+
+map 🭶|🭷|🭸|🭹|🭺|🭻 = horiz-1-over-8-at-(2|3|4|5|6|7)
+map 🭰|🭱|🭲|🭳|🭴|🭵 = vert-1-over-8-at-(2|3|4|5|6|7)
+
+//--------------------------------------
+// sixteenths
+
+glyph sixteenth-11 8 16
+ref 2x4 0 0
+glyph sixteenth-12 8 16
+ref 2x4 0 4
+glyph sixteenth-13 8 16
+ref 2x4 0 8
+glyph sixteenth-14 8 16
+ref 2x4 0 12
+
+glyph sixteenth-21 8 16
+ref 2x4 2 0
+glyph sixteenth-22 8 16
+ref 2x4 2 4
+glyph sixteenth-23 8 16
+ref 2x4 2 8
+glyph sixteenth-24 8 16
+ref 2x4 2 12
+
+glyph sixteenth-31 8 16
+ref 2x4 4 0
+glyph sixteenth-32 8 16
+ref 2x4 4 4
+glyph sixteenth-33 8 16
+ref 2x4 4 8
+glyph sixteenth-34 8 16
+ref 2x4 4 12
+
+glyph sixteenth-41 8 16
+ref 2x4 6 0
+glyph sixteenth-42 8 16
+ref 2x4 6 4
+glyph sixteenth-43 8 16
+ref 2x4 6 8
+glyph sixteenth-44 8 16
+ref 2x4 6 12
+
+map U+1CE90..1CE9F = sixteenth-(1|2|3|4)(1|2|3|4**4)
+
+glyph sixteenth-34-44 8 16
+ref 4x4 4 12
+glyph sixteenth-24-34-44 8 16
+ref 6x4 2 12
+glyph sixteenth-14-24-34 8 16
+ref 6x4 0 12
+glyph sixteenth-14-24 8 16
+ref 4x4 0 12
+
+glyph sixteenth-13-14 8 16
+ref 2x8 0 8
+glyph sixteenth-12-13-14 8 16
+ref 2x12 0 4
+glyph sixteenth-11-12-13 8 16
+ref 2x12 0 0
+glyph sixteenth-11-12 8 16
+ref 2x8 0 0
+glyph sixteenth-11-21 8 16
+ref 4x4 0 0
+glyph sixteenth-11-21-31 8 16
+ref 6x4 0 0
+glyph sixteenth-21-31-41 8 16
+ref 6x4 2 0
+glyph sixteenth-31-41 8 16
+ref 4x4 4 0
+
+glyph sixteenth-41-42 8 16
+ref 2x8 6 0
+glyph sixteenth-41-42-43 8 16
+ref 2x12 6 0
+glyph sixteenth-42-43-44 8 16
+ref 2x12 6 4
+glyph sixteenth-43-44 8 16
+ref 2x8 6 8
+
+map 𜺠 = sixteenth-34-44
+map 𜺡 = sixteenth-24-34-44
+map 𜺢 = sixteenth-14-24-34
+map 𜺣 = sixteenth-14-24
+
+map 𜺤 = sixteenth-13-14
+map 𜺥 = sixteenth-12-13-14
+map 𜺦 = sixteenth-11-12-13
+map 𜺧 = sixteenth-11-12
+
+map 𜺨 = sixteenth-11-21
+map 𜺩 = sixteenth-11-21-31
+map 𜺪 = sixteenth-21-31-41
+map 𜺫 = sixteenth-31-41
+
+map 𜺬 = sixteenth-41-42
+map 𜺭 = sixteenth-41-42-43
+map 𜺮 = sixteenth-42-43-44
+map 𜺯 = sixteenth-43-44
 
 //--------------------------------------
 // quadrants
 
-glyph quadrant-1 8 16
+glyph quadrant-1-on 8 16 inline
 ref 4x8
 
-glyph quadrant-2 8 16
+glyph quadrant-1-on2 8 16 inline
+ref 3x7 1 0
+
+glyph quadrant-2-on 8 16 inline
 ref 4x8 4 0
 
-glyph quadrant-3 8 16
+glyph quadrant-2-on2 8 16 inline
+ref 3x7 5 0
+
+glyph quadrant-3-on 8 16 inline
 ref 4x8 0 8
 
-glyph quadrant-4 8 16
+glyph quadrant-3-on2 8 16 inline
+ref 3x7 1 8
+
+glyph quadrant-4-on 8 16 inline
 ref 4x8 4 8
 
-glyph quadrant-14 8 16
-ref 4x8 0 0
-ref 4x8 4 8
+glyph quadrant-4-on2 8 16 inline
+ref 3x7 5 8
 
-glyph quadrant-23 8 16
-ref 4x8 4 0
-ref 4x8 0 8
+glyph quadrant-1-off 8 16 inline
+glyph quadrant-2-off 8 16 inline
+glyph quadrant-3-off 8 16 inline
+glyph quadrant-4-off 8 16 inline
 
-glyph quadrant-234 8 16
-ref 4x8 4 0
-ref 8x8 0 8
+glyph quadrant-(|1)(|2**2)(|3**4)(|4**8) 8 16
+ref quadrant-1-(off|on)
+ref quadrant-2-(off|on**2)
+ref quadrant-3-(off|on**4)
+ref quadrant-4-(off|on**8)
 
-glyph quadrant-134 8 16
-ref 4x8 0 0
-ref 8x8 0 8
-
-glyph quadrant-124 8 16
-ref 8x8 0 0
-ref 4x8 4 8
-
-glyph quadrant-123 8 16
-ref 8x8 0 0
-ref 4x8 0 8
+glyph quadrant-sep-(|1)(|2**2)(|3**4)(|4**8) 8 16
+ref quadrant-1-(off|on2)
+ref quadrant-2-(off|on2**2)
+ref quadrant-3-(off|on2**4)
+ref quadrant-4-(off|on2**8)
 
 map ▘ = quadrant-1
 map ▝ = quadrant-2
+assert same quadrant-12 upper-4-over-8
 map ▖ = quadrant-3
-map ▗ = quadrant-4
-
-map ▚ = quadrant-14
+assert same quadrant-13 left-4-over-8
 map ▞ = quadrant-23
-
-map ▟ = quadrant-234
-map ▙ = quadrant-134
-map ▜ = quadrant-124
 map ▛ = quadrant-123
+map ▗ = quadrant-4
+map ▚ = quadrant-14
+assert same quadrant-24 right-4-over-8
+map ▜ = quadrant-124
+assert same quadrant-34 lower-4-over-8
+map ▙ = quadrant-134
+map ▟ = quadrant-234
+
+map 𜰡 = quadrant-sep-1
+map 𜰢 = quadrant-sep-2
+map 𜰣 = quadrant-sep-12
+map 𜰤 = quadrant-sep-3
+map 𜰥 = quadrant-sep-13
+map 𜰦 = quadrant-sep-23
+map 𜰧 = quadrant-sep-123
+map 𜰨 = quadrant-sep-4
+map 𜰩 = quadrant-sep-14
+map 𜰪 = quadrant-sep-24
+map 𜰫 = quadrant-sep-124
+map 𜰬 = quadrant-sep-34
+map 𜰭 = quadrant-sep-134
+map 𜰮 = quadrant-sep-234
+map 𜰯 = quadrant-sep-1234
+
+glyph quadrant-between-1-2 8 16
+ref 4x8 2 0
+
+glyph quadrant-between-1-3 8 16
+ref 4x8 0 4
+
+glyph quadrant-between-2-4 8 16
+ref 4x8 4 4
+
+glyph quadrant-between-3-4 8 16
+ref 4x8 2 8
+
+map 🯤 = quadrant-between-1-2
+map 🯥 = quadrant-between-3-4
+map 🯦 = quadrant-between-1-3
+map 🯧 = quadrant-between-2-4
+
+glyph quadrant-l 8 16
+ref 4x8-dl
+ref 4x8-ul 0 8
+glyph quadrant-r 8 16
+ref 4x8-dr 4 0
+ref 4x8-ur 4 8
+glyph quadrant-u 8 16
+ref 4x8-ur
+ref 4x8-ul 4 0
+glyph quadrant-d 8 16
+ref 4x8-dr 0 8
+ref 4x8-dl 4 8
+
+glyph quadrant-rud 8 16
+ref 8x16-ur
+ref 8x16-dr
+glyph quadrant-lrd 8 16
+ref 8x16-dl
+ref 8x16-dr
+glyph quadrant-lud 8 16
+ref 8x16-ul
+ref 8x16-dl
+glyph quadrant-lru 8 16
+ref 8x16-ul
+ref 8x16-ur
+
+map 🭬 = quadrant-l
+map 🭮 = quadrant-r
+map 🭭 = quadrant-u
+map 🭯 = quadrant-d
+
+map 🭨 = quadrant-rud
+map 🭩 = quadrant-lrd
+map 🭪 = quadrant-lud
+map 🭫 = quadrant-lru
+
+//--------------------------------------
+// sextants
+
+glyph sextant-1-on 8 16 inline
+ref 4x5p1r3
+
+glyph sextant-1-on2 8 16 inline
+ref 3x4p1r3 1 0
+
+glyph sextant-2-on 8 16 inline
+ref 4x5p1r3 4 0
+
+glyph sextant-2-on2 8 16 inline
+ref 3x4p1r3 5 0
+
+glyph sextant-3-on 8 16 inline
+ref 4x-0p2r3 0 5
+ref 4x4p2r3 0 6
+
+glyph sextant-3-on2 8 16 inline
+ref 3x-0p2r3 1 5
+ref 3x3p2r3 1 6
+
+glyph sextant-4-on 8 16 inline
+ref 4x-0p2r3 4 5
+ref 4x4p2r3 4 6
+
+glyph sextant-4-on2 8 16 inline
+ref 3x-0p2r3 5 5
+ref 3x3p2r3 5 6
+
+glyph sextant-5-on 8 16 inline
+ref 4x-5p1r3 0 10
+
+glyph sextant-5-on2 8 16 inline
+ref 3x-4p1r3 1 10
+
+glyph sextant-6-on 8 16 inline
+ref 4x-5p1r3 4 10
+
+glyph sextant-6-on2 8 16 inline
+ref 3x-4p1r3 5 10
+
+glyph sextant-1-off 8 16 inline
+glyph sextant-2-off 8 16 inline
+glyph sextant-3-off 8 16 inline
+glyph sextant-4-off 8 16 inline
+glyph sextant-5-off 8 16 inline
+glyph sextant-6-off 8 16 inline
+
+glyph sextant-(|1)(|2**2)(|3**4)(|4**8)(|5**16)(|6**32) 8 16
+ref sextant-1-(off|on)
+ref sextant-2-(off|on**2)
+ref sextant-3-(off|on**4)
+ref sextant-4-(off|on**8)
+ref sextant-5-(off|on**16)
+ref sextant-6-(off|on**32)
+
+glyph sextant-sep-(|1)(|2**2)(|3**4)(|4**8)(|5**16)(|6**32) 8 16
+ref sextant-1-(off|on2)
+ref sextant-2-(off|on2**2)
+ref sextant-3-(off|on2**4)
+ref sextant-4-(off|on2**8)
+ref sextant-5-(off|on2**16)
+ref sextant-6-(off|on2**32)
+
+map 🬀 = sextant-1
+map 🬁 = sextant-2
+map 🬂 = sextant-12
+map 🬃 = sextant-3
+map 🬄 = sextant-13
+map 🬅 = sextant-23
+map 🬆 = sextant-123
+map 🬇 = sextant-4
+map 🬈 = sextant-14
+map 🬉 = sextant-24
+map 🬊 = sextant-124
+map 🬋 = sextant-34
+map 🬌 = sextant-134
+map 🬍 = sextant-234
+map 🬎 = sextant-1234
+map 🬏 = sextant-5
+map 🬐 = sextant-15
+map 🬑 = sextant-25
+map 🬒 = sextant-125
+map 🬓 = sextant-35
+assert same sextant-135 left-4-over-8
+map 🬔 = sextant-235
+map 🬕 = sextant-1235
+map 🬖 = sextant-45
+map 🬗 = sextant-145
+map 🬘 = sextant-245
+map 🬙 = sextant-1245
+map 🬚 = sextant-345
+map 🬛 = sextant-1345
+map 🬜 = sextant-2345
+map 🬝 = sextant-12345
+map 🬞 = sextant-6
+map 🬟 = sextant-16
+map 🬠 = sextant-26
+map 🬡 = sextant-126
+map 🬢 = sextant-36
+map 🬣 = sextant-136
+map 🬤 = sextant-236
+map 🬥 = sextant-1236
+map 🬦 = sextant-46
+map 🬧 = sextant-146
+assert same sextant-246 right-4-over-8
+map 🬨 = sextant-1246
+map 🬩 = sextant-346
+map 🬪 = sextant-1346
+map 🬫 = sextant-2346
+map 🬬 = sextant-12346
+map 🬭 = sextant-56
+map 🬮 = sextant-156
+map 🬯 = sextant-256
+map 🬰 = sextant-1256
+map 🬱 = sextant-356
+map 🬲 = sextant-1356
+map 🬳 = sextant-2356
+map 🬴 = sextant-12356
+map 🬵 = sextant-456
+map 🬶 = sextant-1456
+map 🬷 = sextant-2456
+map 🬸 = sextant-12456
+map 🬹 = sextant-3456
+map 🬺 = sextant-13456
+map 🬻 = sextant-23456
+
+map 𜹑 = sextant-sep-1
+map 𜹒 = sextant-sep-2
+map 𜹓 = sextant-sep-12
+map 𜹔 = sextant-sep-3
+map 𜹕 = sextant-sep-13
+map 𜹖 = sextant-sep-23
+map 𜹗 = sextant-sep-123
+map 𜹘 = sextant-sep-4
+map 𜹙 = sextant-sep-14
+map 𜹚 = sextant-sep-24
+map 𜹛 = sextant-sep-124
+map 𜹜 = sextant-sep-34
+map 𜹝 = sextant-sep-134
+map 𜹞 = sextant-sep-234
+map 𜹟 = sextant-sep-1234
+map 𜹠 = sextant-sep-5
+map 𜹡 = sextant-sep-15
+map 𜹢 = sextant-sep-25
+map 𜹣 = sextant-sep-125
+map 𜹤 = sextant-sep-35
+map 𜹥 = sextant-sep-135
+map 𜹦 = sextant-sep-235
+map 𜹧 = sextant-sep-1235
+map 𜹨 = sextant-sep-45
+map 𜹩 = sextant-sep-145
+map 𜹪 = sextant-sep-245
+map 𜹫 = sextant-sep-1245
+map 𜹬 = sextant-sep-345
+map 𜹭 = sextant-sep-1345
+map 𜹮 = sextant-sep-2345
+map 𜹯 = sextant-sep-12345
+map 𜹰 = sextant-sep-6
+map 𜹱 = sextant-sep-16
+map 𜹲 = sextant-sep-26
+map 𜹳 = sextant-sep-126
+map 𜹴 = sextant-sep-36
+map 𜹵 = sextant-sep-136
+map 𜹶 = sextant-sep-236
+map 𜹷 = sextant-sep-1236
+map 𜹸 = sextant-sep-46
+map 𜹹 = sextant-sep-146
+map 𜹺 = sextant-sep-246
+map 𜹻 = sextant-sep-1246
+map 𜹼 = sextant-sep-346
+map 𜹽 = sextant-sep-1346
+map 𜹾 = sextant-sep-2346
+map 𜹿 = sextant-sep-12346
+map 𜺀 = sextant-sep-56
+map 𜺁 = sextant-sep-156
+map 𜺂 = sextant-sep-256
+map 𜺃 = sextant-sep-1256
+map 𜺄 = sextant-sep-356
+map 𜺅 = sextant-sep-1356
+map 𜺆 = sextant-sep-2356
+map 𜺇 = sextant-sep-12356
+map 𜺈 = sextant-sep-456
+map 𜺉 = sextant-sep-1456
+map 𜺊 = sextant-sep-2456
+map 𜺋 = sextant-sep-12456
+map 𜺌 = sextant-sep-3456
+map 𜺍 = sextant-sep-13456
+map 𜺎 = sextant-sep-23456
+map 𜺏 = sextant-sep-123456
+
+glyph sextant-5-dl 8 16
+ref 4x-5p1r3-dl 0 10
+glyph sextant-56-dl 8 16
+ref 8x-5p1r3-dl 0 10
+glyph sextant-35-dl 8 16
+ref 4x-10p2r3-dl 0 5
+glyph sextant-3456-dl 8 16
+ref 8x-10p2r3-dl 0 5
+glyph sextant-135-dl 8 16
+ref 4x16-dl 0 0
+glyph sextant-123456-dl 8 16
+ref 8x16-dl 0 0
+glyph sextant-246-dl 8 16
+ref 4x16
+ref 4x16-dl 4 0
+glyph sextant-1234-dl 8 16
+ref 8x10p2r3-dl
+ref 8x-5p1r3 0 10
+glyph sextant-24-dl 8 16
+ref 4x16
+ref 4x10p2r3-dl 4 0
+ref 8x-5p1r3 0 10
+glyph sextant-12-dl 8 16
+ref 8x5p1r3-dl
+ref 8x-10p2r3 0 5
+glyph sextant-2-dl 8 16
+ref 4x16
+ref 4x5p1r3-dl 4 0
+ref 8x-10p2r3 0 5
+
+glyph sextant-6-dr 8 16
+ref 4x-5p1r3-dr 4 10
+glyph sextant-56-dr 8 16
+ref 8x-5p1r3-dr 0 10
+glyph sextant-46-dr 8 16
+ref 4x-10p2r3-dr 4 5
+glyph sextant-3456-dr 8 16
+ref 8x-10p2r3-dr 0 5
+glyph sextant-246-dr 8 16
+ref 4x16-dr 4 0
+glyph sextant-123456-dr 8 16
+ref 8x16-dr 0 0
+glyph sextant-135-dr 8 16
+ref 4x16-dr
+ref 4x16 4 0
+glyph sextant-1234-dr 8 16
+ref 8x10p2r3-dr
+ref 8x-5p1r3 0 10
+glyph sextant-13-dr 8 16
+ref 4x10p2r3-dr
+ref 4x16 4 0
+ref 8x-5p1r3 0 10
+glyph sextant-12-dr 8 16
+ref 8x5p1r3-dr
+ref 8x-10p2r3 0 5
+glyph sextant-1-dr 8 16
+ref 4x5p1r3-dr
+ref 4x16 4 0
+ref 8x-10p2r3 0 5
+
+glyph sextant-1-ul 8 16
+ref 4x5p1r3-ul
+glyph sextant-12-ul 8 16
+ref 8x5p1r3-ul
+glyph sextant-13-ul 8 16
+ref 4x10p2r3-ul
+glyph sextant-1234-ul 8 16
+ref 8x10p2r3-ul
+glyph sextant-135-ul 8 16
+ref 4x16-ul
+glyph sextant-123456-ul 8 16
+ref 8x16-ul
+glyph sextant-246-ul 8 16
+ref 4x16
+ref 4x16-ul 4 0
+glyph sextant-3456-ul 8 16
+ref 8x5p1r3
+ref 8x-10p2r3-ul 0 5
+glyph sextant-46-ul 8 16
+ref 4x16
+ref 8x5p1r3
+ref 4x-10p2r3-ul 4 5
+glyph sextant-56-ul 8 16
+ref 8x10p2r3
+ref 8x-5p1r3-ul 0 10
+glyph sextant-6-ul 8 16
+ref 4x16
+ref 8x10p2r3
+ref 4x-5p1r3-ul 4 10
+
+glyph sextant-2-ur 8 16
+ref 4x5p1r3-ur 4 0
+glyph sextant-12-ur 8 16
+ref 8x5p1r3-ur
+glyph sextant-24-ur 8 16
+ref 4x10p2r3-ur 4 0
+glyph sextant-1234-ur 8 16
+ref 8x10p2r3-ur
+glyph sextant-246-ur 8 16
+ref 4x16-ur 4 0
+glyph sextant-123456-ur 8 16
+ref 8x16-ur
+glyph sextant-135-ur 8 16
+ref 4x16-ur
+ref 4x16 4 0
+glyph sextant-3456-ur 8 16
+ref 8x5p1r3
+ref 8x-10p2r3-ur 0 5
+glyph sextant-35-ur 8 16
+ref 8x5p1r3
+ref 4x16 4 0
+ref 4x-10p2r3-ur 0 5
+glyph sextant-56-ur 8 16
+ref 8x10p2r3
+ref 8x-5p1r3-ur 0 10
+glyph sextant-5-ur 8 16
+ref 8x10p2r3
+ref 4x16 4 0
+ref 4x-5p1r3-ur 0 10
+
+glyph sextant-34-dl 8 16 scale 3
+ref 8x5p1r3-dl 0 16
+ref 8x-5p1r3 0 30
+glyph sextant-34-dr 8 16 scale 3
+ref 8x5p1r3-dr 0 16
+ref 8x-5p1r3 0 30
+glyph sextant-34-ul 8 16 scale 3
+ref 8x5p1r3
+ref 8x5p1r3-ul 0 16
+glyph sextant-34-ur 8 16 scale 3
+ref 8x5p1r3
+ref 8x5p1r3-ur 0 16
+
+map 🬼 = sextant-5-dl
+map 🬽 = sextant-56-dl
+map 🬾 = sextant-35-dl
+map 🬿 = sextant-3456-dl
+map 🭀 = sextant-135-dl
+map ◣ = sextant-123456-dl
+map 🭐 = sextant-246-dl
+map 🭏 = sextant-1234-dl
+map 🭎 = sextant-24-dl
+map 🭍 = sextant-12-dl
+map 🭌 = sextant-2-dl
+
+map 🭇 = sextant-6-dr
+map 🭈 = sextant-56-dr
+map 🭉 = sextant-46-dr
+map 🭊 = sextant-3456-dr
+map 🭋 = sextant-246-dr
+map ◢ = sextant-123456-dr
+map 🭅 = sextant-135-dr
+map 🭄 = sextant-1234-dr
+map 🭃 = sextant-13-dr
+map 🭂 = sextant-12-dr
+map 🭁 = sextant-1-dr
+
+map 🭗 = sextant-1-ul
+map 🭘 = sextant-12-ul
+map 🭙 = sextant-13-ul
+map 🭚 = sextant-1234-ul
+map 🭛 = sextant-135-ul
+map ◤ = sextant-123456-ul
+map 🭡 = sextant-246-ul
+map 🭠 = sextant-3456-ul
+map 🭟 = sextant-46-ul
+map 🭞 = sextant-56-ul
+map 🭝 = sextant-6-ul
+
+map 🭢 = sextant-2-ur
+map 🭣 = sextant-12-ur
+map 🭤 = sextant-24-ur
+map 🭥 = sextant-1234-ur
+map 🭦 = sextant-246-ur
+map ◥ = sextant-123456-ur
+map 🭖 = sextant-135-ur
+map 🭕 = sextant-3456-ur
+map 🭔 = sextant-35-ur
+map 🭓 = sextant-56-ur
+map 🭒 = sextant-5-ur
+
+map 🭑 = sextant-34-dl
+map 🭆 = sextant-34-dr
+map 🭜 = sextant-34-ul
+map 🭧 = sextant-34-ur
+
+//--------------------------------------
+// octants
+
+glyph octant-1-on 8 16 inline
+ref 4x4
+
+glyph octant-2-on 8 16 inline
+ref 4x4 4 0
+
+glyph octant-3-on 8 16 inline
+ref 4x4 0 4
+
+glyph octant-4-on 8 16 inline
+ref 4x4 4 4
+
+glyph octant-5-on 8 16 inline
+ref 4x4 0 8
+
+glyph octant-6-on 8 16 inline
+ref 4x4 4 8
+
+glyph octant-7-on 8 16 inline
+ref 4x4 0 12
+
+glyph octant-8-on 8 16 inline
+ref 4x4 4 12
+
+glyph octant-1-off 8 16 inline
+glyph octant-2-off 8 16 inline
+glyph octant-3-off 8 16 inline
+glyph octant-4-off 8 16 inline
+glyph octant-5-off 8 16 inline
+glyph octant-6-off 8 16 inline
+glyph octant-7-off 8 16 inline
+glyph octant-8-off 8 16 inline
+
+glyph octant-(|1)(|2**2)(|3**4)(|4**8)(|5**16)(|6**32)(|7**64)(|8**128) 8 16
+ref octant-1-(off|on)
+ref octant-2-(off|on**2)
+ref octant-3-(off|on**4)
+ref octant-4-(off|on**8)
+ref octant-5-(off|on**16)
+ref octant-6-(off|on**32)
+ref octant-7-(off|on**64)
+ref octant-8-(off|on**128)
+
+assert same octant-1 sixteenth-11-21
+assert same octant-2 sixteenth-31-41
+assert same octant-12 upper-2-over-8
+map 𜴀 = octant-3
+assert same octant-13 quadrant-1
+map 𜴁 = octant-23
+map 𜴂 = octant-123
+map 𜴃 = octant-4
+map 𜴄 = octant-14
+assert same octant-24 quadrant-2
+map 𜴅 = octant-124
+map 𜴆 = octant-34
+map 𜴇 = octant-134
+map 𜴈 = octant-234
+assert same octant-1234 upper-4-over-8
+map 𜴉 = octant-5
+map 𜴊 = octant-15
+map 𜴋 = octant-25
+map 𜴌 = octant-125
+assert same octant-35 quadrant-between-1-3
+map 𜴍 = octant-135
+map 𜴎 = octant-235
+map 𜴏 = octant-1235
+map 𜴐 = octant-45
+map 𜴑 = octant-145
+map 𜴒 = octant-245
+map 𜴓 = octant-1245
+map 𜴔 = octant-345
+map 𜴕 = octant-1345
+map 𜴖 = octant-2345
+map 𜴗 = octant-12345
+map 𜴘 = octant-6
+map 𜴙 = octant-16
+map 𜴚 = octant-26
+map 𜴛 = octant-126
+map 𜴜 = octant-36
+map 𜴝 = octant-136
+map 𜴞 = octant-236
+map 𜴟 = octant-1236
+assert same octant-46 quadrant-between-2-4
+map 𜴠 = octant-146
+map 𜴡 = octant-246
+map 𜴢 = octant-1246
+map 𜴣 = octant-346
+map 𜴤 = octant-1346
+map 𜴥 = octant-2346
+map 𜴦 = octant-12346
+map 𜴧 = octant-56
+map 𜴨 = octant-156
+map 𜴩 = octant-256
+map 𜴪 = octant-1256
+map 𜴫 = octant-356
+map 𜴬 = octant-1356
+map 𜴭 = octant-2356
+map 𜴮 = octant-12356
+map 𜴯 = octant-456
+map 𜴰 = octant-1456
+map 𜴱 = octant-2456
+map 𜴲 = octant-12456
+map 𜴳 = octant-3456
+map 𜴴 = octant-13456
+map 𜴵 = octant-23456
+assert same octant-123456 upper-6-over-8
+assert same octant-7 sixteenth-14-24
+map 𜴶 = octant-17
+map 𜴷 = octant-27
+map 𜴸 = octant-127
+map 𜴹 = octant-37
+map 𜴺 = octant-137
+map 𜴻 = octant-237
+map 𜴼 = octant-1237
+map 𜴽 = octant-47
+map 𜴾 = octant-147
+map 𜴿 = octant-247
+map 𜵀 = octant-1247
+map 𜵁 = octant-347
+map 𜵂 = octant-1347
+map 𜵃 = octant-2347
+map 𜵄 = octant-12347
+assert same octant-57 quadrant-3
+map 𜵅 = octant-157
+map 𜵆 = octant-257
+map 𜵇 = octant-1257
+map 𜵈 = octant-357
+assert same octant-1357 left-4-over-8
+map 𜵉 = octant-2357
+map 𜵊 = octant-12357
+map 𜵋 = octant-457
+map 𜵌 = octant-1457
+assert same octant-2457 quadrant-23
+map 𜵍 = octant-12457
+map 𜵎 = octant-3457
+map 𜵏 = octant-13457
+map 𜵐 = octant-23457
+assert same octant-123457 quadrant-123
+map 𜵑 = octant-67
+map 𜵒 = octant-167
+map 𜵓 = octant-267
+map 𜵔 = octant-1267
+map 𜵕 = octant-367
+map 𜵖 = octant-1367
+map 𜵗 = octant-2367
+map 𜵘 = octant-12367
+map 𜵙 = octant-467
+map 𜵚 = octant-1467
+map 𜵛 = octant-2467
+map 𜵜 = octant-12467
+map 𜵝 = octant-3467
+map 𜵞 = octant-13467
+map 𜵟 = octant-23467
+map 𜵠 = octant-123467
+map 𜵡 = octant-567
+map 𜵢 = octant-1567
+map 𜵣 = octant-2567
+map 𜵤 = octant-12567
+map 𜵥 = octant-3567
+map 𜵦 = octant-13567
+map 𜵧 = octant-23567
+map 𜵨 = octant-123567
+map 𜵩 = octant-4567
+map 𜵪 = octant-14567
+map 𜵫 = octant-24567
+map 𜵬 = octant-124567
+map 𜵭 = octant-34567
+map 𜵮 = octant-134567
+map 𜵯 = octant-234567
+map 𜵰 = octant-1234567
+assert same octant-8 sixteenth-34-44
+map 𜵱 = octant-18
+map 𜵲 = octant-28
+map 𜵳 = octant-128
+map 𜵴 = octant-38
+map 𜵵 = octant-138
+map 𜵶 = octant-238
+map 𜵷 = octant-1238
+map 𜵸 = octant-48
+map 𜵹 = octant-148
+map 𜵺 = octant-248
+map 𜵻 = octant-1248
+map 𜵼 = octant-348
+map 𜵽 = octant-1348
+map 𜵾 = octant-2348
+map 𜵿 = octant-12348
+map 𜶀 = octant-58
+map 𜶁 = octant-158
+map 𜶂 = octant-258
+map 𜶃 = octant-1258
+map 𜶄 = octant-358
+map 𜶅 = octant-1358
+map 𜶆 = octant-2358
+map 𜶇 = octant-12358
+map 𜶈 = octant-458
+map 𜶉 = octant-1458
+map 𜶊 = octant-2458
+map 𜶋 = octant-12458
+map 𜶌 = octant-3458
+map 𜶍 = octant-13458
+map 𜶎 = octant-23458
+map 𜶏 = octant-123458
+assert same octant-68 quadrant-4
+map 𜶐 = octant-168
+map 𜶑 = octant-268
+map 𜶒 = octant-1268
+map 𜶓 = octant-368
+assert same octant-1368 quadrant-14
+map 𜶔 = octant-2368
+map 𜶕 = octant-12368
+map 𜶖 = octant-468
+map 𜶗 = octant-1468
+assert same octant-2468 right-4-over-8
+map 𜶘 = octant-12468
+map 𜶙 = octant-3468
+map 𜶚 = octant-13468
+map 𜶛 = octant-23468
+assert same octant-123468 quadrant-124
+map 𜶜 = octant-568
+map 𜶝 = octant-1568
+map 𜶞 = octant-2568
+map 𜶟 = octant-12568
+map 𜶠 = octant-3568
+map 𜶡 = octant-13568
+map 𜶢 = octant-23568
+map 𜶣 = octant-123568
+map 𜶤 = octant-4568
+map 𜶥 = octant-14568
+map 𜶦 = octant-24568
+map 𜶧 = octant-124568
+map 𜶨 = octant-34568
+map 𜶩 = octant-134568
+map 𜶪 = octant-234568
+map 𜶫 = octant-1234568
+assert same octant-78 lower-2-over-8
+map 𜶬 = octant-178
+map 𜶭 = octant-278
+map 𜶮 = octant-1278
+map 𜶯 = octant-378
+map 𜶰 = octant-1378
+map 𜶱 = octant-2378
+map 𜶲 = octant-12378
+map 𜶳 = octant-478
+map 𜶴 = octant-1478
+map 𜶵 = octant-2478
+map 𜶶 = octant-12478
+map 𜶷 = octant-3478
+map 𜶸 = octant-13478
+map 𜶹 = octant-23478
+map 𜶺 = octant-123478
+map 𜶻 = octant-578
+map 𜶼 = octant-1578
+map 𜶽 = octant-2578
+map 𜶾 = octant-12578
+map 𜶿 = octant-3578
+map 𜷀 = octant-13578
+map 𜷁 = octant-23578
+map 𜷂 = octant-123578
+map 𜷃 = octant-4578
+map 𜷄 = octant-14578
+map 𜷅 = octant-24578
+map 𜷆 = octant-124578
+map 𜷇 = octant-34578
+map 𜷈 = octant-134578
+map 𜷉 = octant-234578
+map 𜷊 = octant-1234578
+map 𜷋 = octant-678
+map 𜷌 = octant-1678
+map 𜷍 = octant-2678
+map 𜷎 = octant-12678
+map 𜷏 = octant-3678
+map 𜷐 = octant-13678
+map 𜷑 = octant-23678
+map 𜷒 = octant-123678
+map 𜷓 = octant-4678
+map 𜷔 = octant-14678
+map 𜷕 = octant-24678
+map 𜷖 = octant-124678
+map 𜷗 = octant-34678
+map 𜷘 = octant-134678
+map 𜷙 = octant-234678
+map 𜷚 = octant-1234678
+assert same octant-5678 lower-4-over-8
+map 𜷛 = octant-15678
+map 𜷜 = octant-25678
+map 𜷝 = octant-125678
+map 𜷞 = octant-35678
+assert same octant-135678 quadrant-134
+map 𜷟 = octant-235678
+map 𜷠 = octant-1235678
+map 𜷡 = octant-45678
+map 𜷢 = octant-145678
+assert same octant-245678 quadrant-234
+map 𜷣 = octant-1245678
+assert same octant-345678 lower-6-over-8
+map 𜷤 = octant-1345678
+map 𜷥 = octant-2345678
 
