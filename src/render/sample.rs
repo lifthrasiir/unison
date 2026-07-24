@@ -27,6 +27,7 @@ struct SampleGlyph {
     components: Vec<SampleComponent>,
     left: i16,
     top: i16,
+    scale: u8,
 }
 
 struct SampleData {
@@ -88,6 +89,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         anchors: Vec<GlyphPoint>,
         grid: Option<PixelGrid>,
         components: Vec<SampleComponent>,
+        scale: u8,
     }
 
     impl CachedGlyph {
@@ -107,6 +109,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     fill_rgba: None,
                     visibility: LayerVisibility::Both,
                 }],
+                scale: 1,
             }
         }
     }
@@ -148,6 +151,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         pixels: Option<PixelGrid>,
         refs: Vec<GlyphRef>,
         points: Vec<GlyphPoint>,
+        scale: u8,
     }
     let mut pending: Vec<PendingGlyph> = Vec::new();
 
@@ -172,6 +176,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             if let Some(ref pixels) = body.pixels && body.refs.is_empty() {
                 let mut cached = CachedGlyph::from_grid(pixels);
                 cached.anchors = body.points.clone();
+                cached.scale = body.scale;
                 cache.insert(cache_key, cached);
             } else if body.pixels.is_some() || !body.refs.is_empty() {
                 pending.push(PendingGlyph {
@@ -179,6 +184,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     pixels: body.pixels.clone(),
                     refs: body.refs.clone(),
                     points: body.points.clone(),
+                    scale: body.scale,
                 });
             } else if body.sticky {
                 cache.insert(
@@ -190,6 +196,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         anchors: body.points.clone(),
                         grid: None,
                         components: Vec::new(),
+                        scale: 1,
                     },
                 );
             }
@@ -235,6 +242,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 &effective_refs,
                 &cache,
                 &color_aliases,
+                pg.scale,
             ).unwrap_or_else(|| if let Some(grid) = &pg.pixels {
                 CachedGlyph::from_grid(grid)
             } else {
@@ -245,9 +253,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     anchors: Vec::new(),
                     grid: None,
                     components: Vec::new(),
+                    scale: 1,
                 }
             });
             cached.anchors = anchors;
+            cached.scale = pg.scale;
             cache.insert(pg.name.clone(), cached);
             progress = true;
         }
@@ -262,13 +272,27 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         (rgba, vis)
     }
 
+    fn rescale_ref_grid(cached: &CachedGlyph, parent_scale: u8) -> Option<PixelGrid> {
+        let ref_grid = cached.grid.as_ref()?;
+        let rs = cached.scale.max(1);
+        let ps = parent_scale.max(1);
+        Some(if rs == ps { ref_grid.clone() } else { ref_grid.rescale(rs, ps) })
+    }
+
     fn composite_glyph(
         own_pixels: Option<&PixelGrid>,
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedGlyph>,
         color_aliases: &ColorAliasMap,
+        parent_scale: u8,
     ) -> Option<CachedGlyph> {
         let has_negated = refs.iter().any(|r| r.negated);
+        let ps = parent_scale.max(1);
+
+        let ref_scaled: Vec<Option<PixelGrid>> = refs.iter().map(|gref| {
+            let cached = resolve_cached_ref(&gref.name, cache)?;
+            rescale_ref_grid(cached, ps)
+        }).collect();
 
         if has_negated || own_pixels.is_some() {
             let mut min_r: i32 = 0;
@@ -279,15 +303,15 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 max_r = grid.height as i32;
                 max_c = grid.width as i32;
             }
-            for gref in refs {
-                if let Some(cached) = resolve_cached_ref(&gref.name, cache) {
+            for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
+                if let Some(sg) = sg {
                     let eff_r = gref.row() as i32;
                     let eff_c = gref.col() as i32;
-                    if cached.width != 0 && cached.height != 0 {
+                    if sg.width != 0 && sg.height != 0 {
                         min_r = min_r.min(eff_r);
                         min_c = min_c.min(eff_c);
-                        max_r = max_r.max(eff_r + cached.height as i32);
-                        max_c = max_c.max(eff_c + cached.width as i32);
+                        max_r = max_r.max(eff_r + sg.height as i32);
+                        max_c = max_c.max(eff_c + sg.width as i32);
                     }
                 }
             }
@@ -318,24 +342,31 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 }
             }
 
-            for gref in refs {
+            for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
                 let Some(cached) = resolve_cached_ref(&gref.name, cache) else { continue };
                 let off_r = gref.row() as i32 - min_r;
                 let off_c = gref.col() as i32 - min_c;
                 let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
-                if let Some(ref_grid) = &cached.grid {
-                    result.blit(ref_grid, off_r, off_c, gref.negated);
+                if let Some(sg) = sg {
+                    result.blit(sg, off_r, off_c, gref.negated);
                     if has_negated {
-                        diff_layers.push((ref_grid, off_r, off_c, gref.negated));
+                        diff_layers.push((sg, off_r, off_c, gref.negated));
                     } else if !gref.negated {
-                        contour_layers.push((ref_grid, off_r, off_c));
+                        contour_layers.push((sg, off_r, off_c));
                     }
                 }
+                let rs = cached.scale.max(1);
+                let rsf = ps as f32 / rs as f32;
                 for comp in &cached.components {
+                    let scaled_grid = if rs == ps {
+                        comp.grid.clone()
+                    } else {
+                        comp.grid.rescale(rs, ps)
+                    };
                     components.push(SampleComponent {
-                        row: comp.row + off_r,
-                        col: comp.col + off_c,
-                        grid: comp.grid.clone(),
+                        row: (comp.row as f32 * rsf).round() as i32 + off_r,
+                        col: (comp.col as f32 * rsf).round() as i32 + off_c,
+                        grid: scaled_grid,
                         negated: comp.negated ^ gref.negated,
                         fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
                         visibility: if gref.fill.is_some() || gref.visibility.is_some() { fill_vis } else { comp.visibility },
@@ -355,6 +386,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 anchors: Vec::new(),
                 grid: Some(result),
                 components,
+                scale: ps,
             });
         }
 
@@ -365,17 +397,20 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         let mut combined_grid: Option<PixelGrid> = None;
         let mut components = Vec::new();
 
-        for gref in refs {
+        for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
             let cached = resolve_cached_ref(&gref.name, cache)?;
+            let sg = sg.as_ref()?;
             let dx = gref.col() as f32;
             let dy = gref.row() as f32;
+            let rs = cached.scale.max(1);
+            let rsf = ps as f32 / rs as f32;
             for contour in &cached.contours {
                 let translated: Vec<(f32, f32)> =
-                    contour.iter().map(|&(x, y)| (x + dx, y + dy)).collect();
+                    contour.iter().map(|&(x, y)| (x * rsf + dx, y * rsf + dy)).collect();
                 all_contours.push(translated);
             }
-            let w = (gref.col() as i32 + cached.width as i32).max(0) as u16;
-            let h = (gref.row() as i32 + cached.height as i32).max(0) as u16;
+            let w = (gref.col() as i32 + sg.width as i32).max(0) as u16;
+            let h = (gref.row() as i32 + sg.height as i32).max(0) as u16;
             max_width = max_width.max(w);
             max_height = max_height.max(h);
 
@@ -383,24 +418,29 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             let off_c = gref.col() as i32;
             let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
             for comp in &cached.components {
+                let scaled_grid = if rs == ps {
+                    comp.grid.clone()
+                } else {
+                    comp.grid.rescale(rs, ps)
+                };
                 components.push(SampleComponent {
-                    row: comp.row + off_r,
-                    col: comp.col + off_c,
-                    grid: comp.grid.clone(),
+                    row: (comp.row as f32 * rsf).round() as i32 + off_r,
+                    col: (comp.col as f32 * rsf).round() as i32 + off_c,
+                    grid: scaled_grid,
                     negated: comp.negated,
                     fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
                     visibility: if gref.fill.is_some() || gref.visibility.is_some() { fill_vis } else { comp.visibility },
                 });
             }
 
-            if let Some(ref_grid) = &cached.grid {
+            {
                 let cg = combined_grid.get_or_insert_with(|| PixelGrid::new(max_width, max_height));
                 if cg.width < max_width || cg.height < max_height {
                     cg.resize(max_width, max_height);
                 }
-                for r in 0..ref_grid.height as i32 {
-                    for c in 0..ref_grid.width as i32 {
-                        let shape = ref_grid.get(r as u16, c as u16);
+                for r in 0..sg.height as i32 {
+                    for c in 0..sg.width as i32 {
+                        let shape = sg.get(r as u16, c as u16);
                         if !shape.is_empty() {
                             let dr = off_r + r;
                             let dc = off_c + c;
@@ -420,6 +460,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             anchors: Vec::new(),
             grid: combined_grid,
             components,
+            scale: ps,
         })
     }
 
@@ -470,7 +511,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             }
     }
 
-    // Build sample glyphs from cache
+    // Build sample glyphs from cache.  Components are kept at their
+    // original scale; width/height are normalized to scale=1 for layout.
     let mut sample_glyphs: HashMap<String, SampleGlyph> = HashMap::new();
     for glyph_name in cmap.values() {
         if sample_glyphs.contains_key(glyph_name) {
@@ -478,12 +520,14 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }
         if let Some(cached) = cache.get(glyph_name) {
             let (left, top) = glyph_offsets.get(glyph_name).copied().unwrap_or((0, 0));
+            let s = cached.scale.max(1);
             sample_glyphs.insert(glyph_name.clone(), SampleGlyph {
-                width: cached.width,
-                _height: cached.height,
+                width: (cached.width + s as u16 - 1) / s as u16,
+                _height: (cached.height + s as u16 - 1) / s as u16,
                 components: cached.components.clone(),
                 left,
                 top,
+                scale: s,
             });
         }
     }
@@ -545,6 +589,26 @@ fn path_hash_color(path: &str) -> u32 {
         h = h.wrapping_mul(16777619);
     }
     (h & 0x7f7f7f) + 0x808080
+}
+
+impl SampleGlyph {
+    fn normalized_components(&self) -> Vec<SampleComponent> {
+        let s = self.scale.max(1);
+        if s == 1 {
+            return self.components.clone();
+        }
+        let sf = s as f32;
+        self.components.iter().map(|c| {
+            SampleComponent {
+                row: (c.row as f32 / sf).round() as i32,
+                col: (c.col as f32 / sf).round() as i32,
+                grid: c.grid.rescale(s, 1),
+                negated: c.negated,
+                fill_rgba: c.fill_rgba.clone(),
+                visibility: c.visibility,
+            }
+        }).collect()
+    }
 }
 
 fn sample_display_metrics(sg: &SampleGlyph, font_height: u16) -> (u16, u16, i16, i16) {
@@ -647,7 +711,8 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         write!(w, "<a href='#u{cp:x}'><span id='sm-u{cp:x}' title='{title}'>")?;
         if let Some(sg) = data.glyphs.get(glyph_name) {
             let (display_w, display_h, col_off, row_off) = sample_display_metrics(sg, data.height);
-            let shifted: Vec<SampleComponent> = sg.components.iter()
+            let norm = sg.normalized_components();
+            let shifted: Vec<SampleComponent> = norm.iter()
                 .filter(|c| c.visibility != LayerVisibility::ColorOnly)
                 .map(|c| {
                     let mut c2 = c.clone();
@@ -685,13 +750,17 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
             let vh = display_h as f32 * svg_scale;
             let sw = display_w as u32 * 5;
             let sh = display_h as u32 * 5;
+            let gs = sg.scale.max(1) as f32;
+            let comp_svg_scale = svg_scale / gs;
             write!(w, "<svg viewBox=\"0 0 {vw} {vh}\" width=\"{sw}\" height=\"{sh}\">")?;
             for comp in &sg.components {
                 if comp.visibility == LayerVisibility::MonoOnly {
                     continue;
                 }
                 let contours = track_contour(&comp.grid, PX_SUBPIXEL);
-                let path = contours_to_svg_path(&contours, svg_scale, (comp.col + col_off as i32) as f32, (comp.row + row_off as i32) as f32);
+                let off_x = comp.col as f32 + col_off as f32 * gs;
+                let off_y = comp.row as f32 + row_off as f32 * gs;
+                let path = contours_to_svg_path(&contours, comp_svg_scale, off_x, off_y);
                 if !path.is_empty() {
                     if comp.negated {
                         write!(w, "<path class='c' d='{path}' fill='#000'/>")?;
@@ -915,7 +984,8 @@ fn render_glyph_bitmap_rgba(
     fg_color: [u8; 3],
     use_fill_colors: bool,
 ) {
-    for comp in &sg.components {
+    let norm = sg.normalized_components();
+    for comp in &norm {
         if use_fill_colors && comp.visibility == LayerVisibility::MonoOnly {
             continue;
         }
@@ -1491,6 +1561,7 @@ map A = test-a
             components: Vec::new(),
             left: 0,
             top: 3,
+            scale: 1,
         };
         let (_, _, _, row_off) = sample_display_metrics(&sg_with_top, 16);
         assert_eq!(row_off, 3);
@@ -1501,8 +1572,187 @@ map A = test-a
             components: Vec::new(),
             left: 0,
             top: 0,
+            scale: 1,
         };
         let (_, _, _, row_off) = sample_display_metrics(&sg_without_top, 16);
         assert_eq!(row_off, 0);
+    }
+
+    #[test]
+    fn sample_fractional_on_demand_ref_rescaled_to_parent() {
+        // A glyph at scale=1 referencing a fractional on-demand glyph
+        // (scale=3) must rescale the ref grid to the parent scale.
+        // Without rescaling, the sub-pixel grid bleeds out at 3x size.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph container 8 16
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+ref 4x5p1r3
+
+map A = container
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("container").expect("container glyph present");
+        assert_eq!(g.width, 8, "width must match parent, not inflated by sub-pixel ref");
+    }
+
+    #[test]
+    fn sample_slanted_sextant_fits_in_cell() {
+        // sextant-5-dl references 4x-5p1r3-dl (triangle, scale=3).
+        // The component grids must be rescaled so the rendered glyph
+        // fits within the 8×16 cell.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph slant 8 16
+ref 4x-5p1r3-dl 0 10
+
+map A = slant
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("slant").expect("slant glyph present");
+        assert_eq!(g.width, 8, "slanted sextant width");
+        assert_components_fit(g, 8, 16, "slant");
+    }
+
+    #[test]
+    fn sample_multi_ref_slanted_sextant_fits_in_cell() {
+        // sextant-1234-dl: triangle + rect, both fractional scale=3
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph combo 8 16
+ref 8x10p2r3-dl
+ref 8x-5p1r3 0 10
+
+map A = combo
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("combo").expect("combo glyph present");
+        assert_eq!(g.width, 8, "combo sextant width");
+        assert_components_fit(g, 8, 16, "combo");
+    }
+
+    #[test]
+    fn sample_composed_slanted_sextant_fits_in_cell() {
+        // Full chain: final sextant composed from -off/-on/-dl parts,
+        // where the -dl part internally uses fractional scale=3 refs.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph part-off 8 16 inline
+glyph part-on 8 16 inline
+ref 8x10p2r3-dl
+ref 8x-5p1r3 0 10
+
+glyph final-(|1) 8 16
+ref part-(off|on)
+
+map A = final-1
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("final-1").expect("final-1 glyph present");
+        assert_eq!(g.width, 8, "final-1 width");
+        assert_components_fit(g, 8, 16, "final-1");
+    }
+
+    #[test]
+    fn sample_directly_mapped_scale3_glyph_normalized() {
+        // A glyph declared with `scale 3` that is directly mapped must
+        // have its width/height and components normalized to scale=1.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph diag 8 16 scale 3
+ref 8x5p1r3-dr 0 16
+ref 8x-5p1r3 0 30
+
+map A = diag
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("diag").expect("diag glyph present");
+        assert_eq!(g.width, 8, "width must be normalized to scale=1");
+        assert_eq!(g.scale, 3, "scale must be preserved");
+        assert_components_fit(g, 8, 16, "diag");
+    }
+
+    #[test]
+    fn sample_html_scale3_glyph_has_fractional_offsets() {
+        // The large-glyph SVG path must use fractional offsets for
+        // scale>1 components, not integer-truncated ones.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph diag 8 16 scale 3
+ref 8x5p1r3-dr 0 16
+ref 8x-5p1r3 0 30
+
+map A = diag
+",
+        );
+        let mut buf = Vec::new();
+        write_sample_html(&mut buf, &[&d]).unwrap();
+        let html = String::from_utf8(buf).unwrap();
+        // Extract the large-glyph SVG (id='u41' for 'A')
+        let svg = html.split("id='u41'").nth(1).unwrap();
+        let svg = &svg[..svg.find("</span>").unwrap()];
+        // viewBox must be 16×32 (8*2 × 16*2), not 48×32
+        assert!(svg.contains("viewBox=\"0 0 16 32\""), "viewBox: {svg}");
+        // The triangle ref is at row=16 in scale-3 grid → pixel 16/3=5.33
+        // In SVG coords (×2): 10.666...
+        // The path must NOT start at integer 10 or 0.
+        let path_start = svg.split("<path").nth(1).unwrap();
+        let d_attr = path_start.split("d='").nth(1).unwrap();
+        let d_attr = &d_attr[..d_attr.find('\'').unwrap()];
+        let y_start: f32 = d_attr.strip_prefix('M').unwrap()
+            .split(|c: char| c == 'l' || c == 'h' || c == 'v')
+            .next().unwrap()
+            .split_whitespace().nth(1).unwrap()
+            .parse().unwrap();
+        let expected = 16.0 / 3.0 * 2.0; // 10.666...
+        assert!(
+            (y_start - expected).abs() < 0.01,
+            "first path y={y_start}, expected ~{expected}"
+        );
+    }
+
+    fn assert_components_fit(g: &SampleGlyph, max_w: i32, max_h: i32, label: &str) {
+        let norm = g.normalized_components();
+        for (i, comp) in norm.iter().enumerate() {
+            let bottom = comp.row + comp.grid.height as i32;
+            let right = comp.col + comp.grid.width as i32;
+            assert!(
+                bottom <= max_h && right <= max_w,
+                "{label} component {i} overflows: row={} h={} col={} w={} (bottom={bottom}, right={right})",
+                comp.row, comp.grid.height, comp.col, comp.grid.width,
+            );
+        }
     }
 }
