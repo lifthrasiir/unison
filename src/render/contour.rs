@@ -1005,4 +1005,115 @@ mod tests {
             assert!((ry - y).abs() <= tolerance, "y round-trip off: {y} -> {ry}");
         }
     }
+
+    #[test]
+    fn brute_force_multi_shape_degree_parity() {
+        // Test all pairs of shapes overlapping in the same pixel.
+        // The contour segments must form a graph where every vertex has even degree.
+        use std::collections::BTreeMap;
+
+        let shape_ids: Vec<u8> = (1..=24)
+            .chain((1..=24).map(|s| s ^ PX_SUBPIXEL))
+            .collect();
+
+        let mut failures: Vec<(u8, u8)> = Vec::new();
+
+        for &s1 in &shape_ids {
+            for &s2 in &shape_ids {
+                if s1 >= s2 {
+                    continue;
+                }
+                let grid_a = make_grid(1, 1, &[s1 | PX_FULL]);
+                let grid_b = make_grid(1, 1, &[s2 | PX_FULL]);
+
+                let width = 1usize;
+                let height = 1usize;
+                let stride = width + 1;
+                let total = (height + 2) * stride;
+
+                let mut shape_masks: Vec<u128> = vec![0; total];
+                let mut single_shape: Vec<u8> = vec![PX_EMPTY; total];
+                let mut adj_data: Vec<u8> = vec![0; total];
+
+                // Layer 1
+                let sid1 = s1 & PX_SUBPIXEL;
+                let idx = 1 * stride + 0;
+                single_shape[idx] = sid1;
+                shape_masks[idx] |= 1u128 << sid1;
+
+                // Layer 2
+                let sid2 = s2 & PX_SUBPIXEL;
+                if sid2 != sid1 {
+                    shape_masks[idx] |= 1u128 << sid2;
+                }
+
+                // Compute adj_data the same way as track_contour_multi
+                for i in 0..total {
+                    if shape_masks[i] != 0 {
+                        if shape_masks[i].count_ones() == 1 {
+                            adj_data[i] = pixel::adjacency(single_shape[i]).0;
+                        } else {
+                            let ids = bitmask_to_ids(shape_masks[i]);
+                            for &s in &ids {
+                                adj_data[i] |= pixel::adjacency(s).0;
+                            }
+                        }
+                    }
+                }
+
+                // Compute segments like track_contour_multi does
+                let smask = shape_masks[idx];
+                if smask == 0 {
+                    continue;
+                }
+                let (pixel_adj, gap_segs) = if smask.count_ones() == 1 {
+                    let (a, g) = pixel::adjacency(single_shape[idx]);
+                    (a, g.to_vec())
+                } else {
+                    let ids = bitmask_to_ids(smask);
+                    pixel::multi_shape_adjacency(&ids)
+                };
+
+                let top_adj = adj_data[idx.wrapping_sub(stride)];
+                let bottom_adj = adj_data[idx + stride];
+                let left_adj = adj_data[idx.wrapping_sub(1)];
+                let right_adj = adj_data[idx + 1];
+
+                let connected =
+                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
+                let disconnected = connected ^ 0xFF;
+
+                if disconnected == 0 {
+                    continue;
+                }
+
+                let mut segs: Vec<(f32, f32, f32, f32)> = Vec::new();
+                emit_boundary_segs(0.0, 0.0, pixel_adj, disconnected, &gap_segs, &mut segs);
+
+                // Check degree parity
+                let to_key = |x: f32, y: f32| -> (i64, i64) {
+                    ((x * MULTI_KEY_SCALE).round() as i64, (y * MULTI_KEY_SCALE).round() as i64)
+                };
+                let mut degree: BTreeMap<(i64, i64), usize> = BTreeMap::new();
+                for &(x1, y1, x2, y2) in &segs {
+                    let k1 = to_key(x1, y1);
+                    let k2 = to_key(x2, y2);
+                    *degree.entry(k1).or_default() += 1;
+                    *degree.entry(k2).or_default() += 1;
+                }
+
+                let has_odd = degree.iter().any(|(_, &d)| d % 2 != 0);
+                if has_odd {
+                    failures.push((s1, s2));
+                }
+            }
+        }
+
+        assert!(
+            failures.is_empty(),
+            "Shape pairs with odd-degree vertices: {:?}",
+            failures
+        );
+    }
+
 }

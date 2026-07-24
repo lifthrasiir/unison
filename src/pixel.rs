@@ -986,9 +986,9 @@ pub fn multi_shape_adjacency(shapes: &[u8]) -> (u8, Vec<Seg>) {
         if gap_segs.is_empty() {
             continue;
         }
-        let outside_normal = gap_outside_normal(gap_segs[0], &polygons[i]);
 
         for &seg in gap_segs {
+            let outside_normal = gap_outside_normal(seg, &polygons[i]);
             let mut intervals = vec![(0.0f32, 1.0f32)];
             for (j, poly_j) in polygons.iter().enumerate() {
                 if i == j || poly_j.len() < 3 {
@@ -1014,6 +1014,21 @@ pub fn multi_shape_adjacency(shapes: &[u8]) -> (u8, Vec<Seg>) {
             }
         }
     }
+
+    // When two shapes share a collinear gap boundary (e.g. HALF1's diagonal
+    // and QUAD1's diagonal), both shapes emit the overlapping portion because
+    // `subtract_covered_intervals` cannot clip collinear polygon edges.
+    // Deduplicate so each boundary segment appears exactly once.
+    let seg_key = |s: &Seg| -> (u32, u32, u32, u32) {
+        let (x1, y1, x2, y2) = *s;
+        if (x1.to_bits(), y1.to_bits()) <= (x2.to_bits(), y2.to_bits()) {
+            (x1.to_bits(), y1.to_bits(), x2.to_bits(), y2.to_bits())
+        } else {
+            (x2.to_bits(), y2.to_bits(), x1.to_bits(), y1.to_bits())
+        }
+    };
+    combined_segs.sort_by(|a, b| seg_key(a).cmp(&seg_key(b)));
+    combined_segs.dedup_by(|a, b| seg_key(a) == seg_key(b));
 
     (combined_bits, combined_segs)
 }
