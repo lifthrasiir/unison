@@ -256,6 +256,10 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     scale: 1,
                 }
             });
+            if let Some(grid) = &pg.pixels {
+                cached.width = cached.width.max(grid.width);
+                cached.height = cached.height.max(grid.height);
+            }
             cached.anchors = anchors;
             cached.scale = pg.scale;
             cache.insert(pg.name.clone(), cached);
@@ -287,6 +291,12 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         parent_scale: u8,
     ) -> Option<CachedGlyph> {
         let has_negated = refs.iter().any(|r| r.negated);
+        // An all-empty own grid only declares dimensions; treating it as a
+        // real layer would pin the composite's origin to (0, 0) and shift
+        // refs placed at negative offsets into positive territory.  The
+        // declared dims are re-applied by the caller.  Mirrors
+        // `CachedContours::from_components_inner`.
+        let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
         let ps = parent_scale.max(1);
 
         let ref_scaled: Vec<Option<PixelGrid>> = refs.iter().map(|gref| {
@@ -409,8 +419,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     contour.iter().map(|&(x, y)| (x * rsf + dx, y * rsf + dy)).collect();
                 all_contours.push(translated);
             }
-            let w = (gref.col() as i32 + sg.width as i32).max(0) as u16;
-            let h = (gref.row() as i32 + sg.height as i32).max(0) as u16;
+            // Extend by the ref's *declared* extent, not its raster grid: a
+            // glyph with declared dims and an all-empty own grid has a grid
+            // narrower than its advance.  Mirrors `from_components_inner`.
+            let scaled_w = (cached.width as f32 * rsf).round() as i32;
+            let scaled_h = (cached.height as f32 * rsf).round() as i32;
+            let w = (gref.col() as i32 + scaled_w).max(0) as u16;
+            let h = (gref.row() as i32 + scaled_h).max(0) as u16;
             max_width = max_width.max(w);
             max_height = max_height.max(h);
 
@@ -1516,6 +1531,73 @@ map ä
         assert!(
             data.glyphs.contains_key(&gid),
             "sample glyph entry should exist for the map-decomposed character"
+        );
+    }
+
+    #[test]
+    fn sample_map_decomposed_mark_does_not_widen_advance() {
+        // A zero-advance mark glyph (`glyph m 0 H mark` with a ref at a
+        // negative column) used to have its own all-empty declared grid
+        // treated as a real layer, which shifted the whole composite to
+        // positive columns and gave the mark a non-zero width.  The
+        // `map <precomposed>` composite then laid the mark out *after* the
+        // base instead of anchoring it on top, inflating the advance.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph a-lower 16 16
+................................
+................................
+................................
+................................
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+................................
+................................
+................................
+................................
+anchor +above 13 2
+
+glyph dia0 5 5
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph dia-above 0 16 mark
+ref dia0 -5 3
+anchor -above -3 3
+
+map a = a-lower
+map \u{0308} = dia-above
+map ä
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+
+        let mark = data.glyphs.get("dia-above").expect("mark should be in sample glyphs");
+        assert_eq!(
+            mark.width, 0,
+            "a `0 H mark` glyph whose ref sits at a negative column must keep width 0"
+        );
+
+        let gid = data
+            .cmap
+            .get(&('ä' as u32))
+            .cloned()
+            .expect("precomposed char should be mapped");
+        let composite = data.glyphs.get(&gid).expect("composite sample glyph");
+        assert_eq!(
+            composite.width, 16,
+            "the mark should be absorbed into the base advance, not appended after it"
         );
     }
 
