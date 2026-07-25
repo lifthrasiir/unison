@@ -21,7 +21,20 @@ struct ShapedGlyph {
     y_offset: i32,
 }
 
+/// Shape `text`, splitting it into single-script runs first; see
+/// [`crate::script_run`] for why that is required.
 fn shape_text(
+    font_data: &[u8],
+    text: &str,
+    features: &[ShapeFeatureFlag],
+) -> Vec<ShapedGlyph> {
+    crate::script_run::split_script_runs(text)
+        .iter()
+        .flat_map(|run| shape_run(font_data, &text[run.bytes.clone()], features))
+        .collect()
+}
+
+fn shape_run(
     font_data: &[u8],
     text: &str,
     features: &[ShapeFeatureFlag],

@@ -11,6 +11,7 @@ mod ref_composite;
 #[cfg(feature = "editor")]
 mod preview;
 mod render;
+mod script_run;
 #[cfg(feature = "editor")]
 mod editor;
 mod issues;

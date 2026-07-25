@@ -119,7 +119,7 @@ impl ShapedPreviewState {
         }
 
         let backend = &self.backends[self.selected_backend];
-        match backend.shape(font_data, &display_text, 1024, &[]) {
+        match crate::preview::shape_text(backend.as_ref(), font_data, &display_text, 1024, &[]) {
             Ok(glyphs) => {
                 let total_chars = display_text.chars().count();
                 let mut clusters = cluster::build_clusters(&glyphs, px_size);

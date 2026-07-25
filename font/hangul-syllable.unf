@@ -6728,3 +6728,7 @@ glyph hangul-tone-2 8 16
 map U+302E = hangul-tone-1
 map U+302F = hangul-tone-2
 
+// Tone marks reorder before the syllable; must not be affected by a
+// preceding run of a different script (script segmentation).
+assert shape 각〯 : hangul-tone-2 : hangul-ac01
+assert shape `ひ 각〯` : hiragana-hi : sp : hangul-tone-2 : hangul-ac01

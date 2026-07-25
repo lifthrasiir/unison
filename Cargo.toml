@@ -26,6 +26,7 @@ tiny-skia = { version = "0.11", optional = true }
 notify = { version = "7", optional = true }
 rfd = { version = "0.15", optional = true }
 arboard = { version = "3", optional = true }
+unicode-script = "0.5.8"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-text = "20"

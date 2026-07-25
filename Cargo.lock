@@ -3204,6 +3204,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "unicode-script"
+version = "0.5.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "383ad40bb927465ec0ce7720e033cb4ca06912855fc35db31b5755d0de75b1ee"
+
+[[package]]
 name = "unicode-segmentation"
 version = "1.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3264,6 +3270,7 @@ dependencies = [
  "tiny-skia",
  "ttf2woff2",
  "unicode-normalization",
+ "unicode-script",
  "unicode_names2",
  "windows",
  "windows-core",
