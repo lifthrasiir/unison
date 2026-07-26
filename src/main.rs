@@ -16,6 +16,9 @@ mod stackmon;
 #[cfg(feature = "editor")]
 mod editor;
 mod issues;
+mod resolve;
+#[cfg(test)]
+mod golden;
 #[cfg(feature = "editor")]
 mod sidebar;
 #[cfg(feature = "editor")]
@@ -23,6 +26,37 @@ mod specimen;
 
 #[cfg(target_os = "windows")]
 extern crate windows_core;
+
+/// Print what resolution could not make sense of. The font build silently
+/// drops such glyphs, so without this a broken reference only shows up as a
+/// missing glyph much later.
+fn report_resolution_issues(docs: &[&document::Document]) {
+    let issues = render::resolution_issues(docs);
+    if issues.is_empty() {
+        return;
+    }
+    let errors = issues
+        .iter()
+        .filter(|i| i.severity == issues::Severity::Error)
+        .count();
+    for issue in &issues {
+        let label = match issue.severity {
+            issues::Severity::Error => "error",
+            issues::Severity::Warning => "warning",
+        };
+        let file = issue
+            .file
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        eprintln!("{label}: {file}:{}: {}", issue.file_line, issue.message);
+    }
+    eprintln!(
+        "{} resolution problem(s), {} error(s)",
+        issues.len(),
+        errors,
+    );
+}
 
 fn main() {
     stackmon::init();
@@ -132,6 +166,7 @@ fn main() {
             std::process::exit(1);
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
+        report_resolution_issues(&refs);
         let Some(font_bytes) = render::build_font_from_documents(&refs) else {
             eprintln!("Font build failed");
             std::process::exit(1);
@@ -244,6 +279,7 @@ fn main() {
             std::process::exit(1);
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
+        report_resolution_issues(&refs);
 
         let Some(built) = render::build_font_with_gid_map(&refs) else {
             eprintln!("Font build failed");

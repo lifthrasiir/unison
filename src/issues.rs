@@ -5,6 +5,7 @@ use crate::document::{
     Document, DocumentItem, GlyphName, collect_name_parts, expand_name_pattern,
     find_invalid_inline_ranges, is_name_pattern, substitute_name_parts,
 };
+use crate::resolve::DocSet;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Severity {
@@ -31,8 +32,26 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
     let mut issues = Vec::new();
 
     let name_parts = collect_name_parts(docs);
+    let docset = DocSet::new(docs);
 
-    let mut all_glyph_names: HashSet<String> = HashSet::new();
+    // Resolution is the same expansion the font build performs. Running it
+    // here means the problems it detects — unresolvable references, maps that
+    // cannot be synthesized, on-demand names that resolve to nothing — are
+    // reported instead of silently skipped, and that this file no longer has
+    // to reimplement any of it.
+    let expansion = crate::render::ttf_builder::expand_documents(docs, &name_parts);
+    issues.extend(docset.to_issues(&expansion.diagnostics));
+
+    // Every glyph the font will actually contain, including synthesized
+    // on-demand and decomposed-map glyphs.
+    let all_glyph_names: HashSet<String> = expansion
+        .items()
+        .filter_map(|item| match item {
+            DocumentItem::Glyph { name: GlyphName(n), .. } => Some(n.clone()),
+            _ => None,
+        })
+        .collect();
+
     let mut glyph_defs: HashMap<String, (PathBuf, usize)> = HashMap::new();
     let mut remap_groups: HashSet<String> = HashSet::new();
 
@@ -55,53 +74,26 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                             file_line,
                         });
                     }
+                    // Duplicate detection needs the *defining* line of each
+                    // expanded name, which the expansion does not retain, so
+                    // it expands names (not bodies) once more here.
                     let name_str = substitute_name_parts(n, &name_parts);
-                    if is_name_pattern(&name_str) {
-                        match expand_name_pattern(&name_str) {
-                            Ok(expanded) => {
-                                for en in &expanded {
-                                    if let Some((prev_file, prev_line)) =
-                                        glyph_defs.get(en.as_str())
-                                    {
-                                        issues.push(Issue {
-                                            severity: Severity::Warning,
-                                            message: format!(
-                                                "duplicate glyph '{}' (first defined at {}:{})",
-                                                en,
-                                                short_path(prev_file),
-                                                prev_line,
-                                            ),
-                                            file: doc.path.clone(),
-                                            line,
-                                            file_line,
-                                        });
-                                    } else {
-                                        glyph_defs.insert(
-                                            en.clone(),
-                                            (doc.path.clone(), file_line),
-                                        );
-                                    }
-                                    all_glyph_names.insert(en.clone());
-                                }
-                            }
-                            Err(e) => {
-                                issues.push(Issue {
-                                    severity: Severity::Error,
-                                    message: format!("name pattern error: {e}"),
-                                    file: doc.path.clone(),
-                                    line,
-                                    file_line,
-                                });
-                            }
-                        }
+                    let expanded: Vec<String> = if is_name_pattern(&name_str) {
+                        // A pattern that fails to expand is already reported
+                        // by the resolution pass.
+                        expand_name_pattern(&name_str)
+                            .map(|e| e.into_vec())
+                            .unwrap_or_default()
                     } else {
-                        if let Some((prev_file, prev_line)) = glyph_defs.get(name_str.as_str())
-                        {
+                        vec![name_str]
+                    };
+                    for en in expanded {
+                        if let Some((prev_file, prev_line)) = glyph_defs.get(en.as_str()) {
                             issues.push(Issue {
                                 severity: Severity::Warning,
                                 message: format!(
                                     "duplicate glyph '{}' (first defined at {}:{})",
-                                    name_str,
+                                    en,
                                     short_path(prev_file),
                                     prev_line,
                                 ),
@@ -110,10 +102,8 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                                 file_line,
                             });
                         } else {
-                            glyph_defs
-                                .insert(name_str.clone(), (doc.path.clone(), file_line));
+                            glyph_defs.insert(en, (doc.path.clone(), file_line));
                         }
-                        all_glyph_names.insert(name_str.clone());
                     }
 
                     if body.pixels.is_none()
@@ -136,41 +126,6 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                     remap_groups.insert(feature.clone());
                 }
                 _ => {}
-            }
-        }
-    }
-
-    // On-demand glyphs (WxH) are valid targets even without explicit
-    // definitions, so register any referenced WxH names as known glyphs.
-    for doc in docs {
-        for item in &doc.items {
-            let names_to_check: Vec<String> = match item {
-                DocumentItem::Glyph { body, .. } => {
-                    body.refs.iter().map(|r| {
-                        substitute_name_parts(&r.name, &name_parts)
-                    }).collect()
-                }
-                DocumentItem::Map { glyph, .. } => {
-                    let subst = substitute_name_parts(glyph, &name_parts);
-                    crate::render::ttf_builder::expand_map_pairs("U+0000", &subst)
-                        .into_iter().map(|(_, n)| n).collect()
-                }
-                DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
-                    source.iter().map(|s| s.as_str())
-                        .chain(target.iter().map(|s| s.as_str()))
-                        .chain(lookbehind.iter().map(|s| s.as_str()))
-                        .chain(lookahead.iter().map(|s| s.as_str()))
-                        .map(|s| substitute_name_parts(s, &name_parts))
-                        .collect()
-                }
-                _ => Vec::new(),
-            };
-            for name in names_to_check {
-                if !all_glyph_names.contains(&name)
-                    && crate::ref_composite::detect_on_demand_glyph(&name, |n| all_glyph_names.contains(n)).is_some()
-                {
-                    all_glyph_names.insert(name);
-                }
             }
         }
     }
@@ -235,71 +190,16 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
             let file_line = docline_to_file_line(doc, line);
 
             match item {
-                DocumentItem::Glyph { name: _, body } => {
-                    for gref in &body.refs {
-                        let ref_name = substitute_name_parts(&gref.name, &name_parts);
-                        if is_name_pattern(&ref_name) {
-                            if let Ok(expanded) = expand_name_pattern(&ref_name) {
-                                for en in &expanded {
-                                    if !all_glyph_names.contains(en.as_str()) {
-                                        issues.push(Issue {
-                                            severity: Severity::Error,
-                                            message: format!(
-                                                "unresolved ref '{}'",
-                                                en,
-                                            ),
-                                            file: doc.path.clone(),
-                                            line,
-                                            file_line,
-                                        });
-                                        break;
-                                    }
-                                }
-                            }
-                        } else if !all_glyph_names.contains(ref_name.as_str()) {
-                            issues.push(Issue {
-                                severity: Severity::Error,
-                                message: format!("unresolved ref '{}'", ref_name),
-                                file: doc.path.clone(),
-                                line,
-                                file_line,
-                            });
-                        }
-                    }
-                }
+                // Unresolvable refs, map targets and remap operands are all
+                // reported by the resolution pass above.
                 DocumentItem::Map { char_repr, glyph } => {
                     let subst_glyph = substitute_name_parts(glyph, &name_parts);
                     let expanded_pairs =
                         crate::render::ttf_builder::expand_map_pairs(
                             char_repr, &subst_glyph,
                         );
-                    if expanded_pairs.is_empty() {
-                        issues.push(Issue {
-                            severity: Severity::Error,
-                            message: format!(
-                                "map has no valid codepoints ('{}')",
-                                char_repr,
-                            ),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
-                    }
                     for (cp, target) in &expanded_pairs {
                         mapped_glyphs.insert(target.clone());
-                        if !all_glyph_names.contains(target.as_str()) {
-                            issues.push(Issue {
-                                severity: Severity::Error,
-                                message: format!(
-                                    "map '{}' targets undefined glyph '{}'",
-                                    char_repr, target,
-                                ),
-                                file: doc.path.clone(),
-                                line,
-                                file_line,
-                            });
-                            break;
-                        }
                         if let Some((prev_file, prev_line)) =
                             mapped_codepoints.get(cp)
                         {
@@ -318,32 +218,6 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                         } else {
                             mapped_codepoints
                                 .insert(*cp, (doc.path.clone(), file_line));
-                        }
-                    }
-                }
-                DocumentItem::Remap {
-                    source, target, lookbehind, lookahead, ..
-                } => {
-                    for name in source.iter().map(|s| s.as_str())
-                        .chain(target.iter().map(|s| s.as_str()))
-                        .chain(lookbehind.iter().map(|s| s.as_str()))
-                        .chain(lookahead.iter().map(|s| s.as_str()))
-                    {
-                        let resolved = substitute_name_parts(name, &name_parts);
-                        if is_name_pattern(&resolved) {
-                            continue;
-                        }
-                        if !all_glyph_names.contains(resolved.as_str()) {
-                            issues.push(Issue {
-                                severity: Severity::Warning,
-                                message: format!(
-                                    "remap references undefined glyph '{}'",
-                                    resolved,
-                                ),
-                                file: doc.path.clone(),
-                                line,
-                                file_line,
-                            });
                         }
                     }
                 }
@@ -395,99 +269,6 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                     }
                 }
                 _ => {}
-            }
-        }
-    }
-
-    // `map CHAR` without `=` synthesizes a composite glyph from the
-    // character's canonical decomposition, so the character must actually
-    // decompose and every decomposed codepoint must itself be mapped.
-    {
-        use unicode_normalization::UnicodeNormalization;
-
-        let mut mapped_cps: HashSet<u32> = HashSet::new();
-        for doc in docs {
-            for item in &doc.items {
-                if let DocumentItem::Map { char_repr, glyph } = item {
-                    let subst = substitute_name_parts(glyph, &name_parts);
-                    for (cp, _) in
-                        crate::render::ttf_builder::expand_map_pairs(char_repr, &subst)
-                    {
-                        mapped_cps.insert(cp);
-                    }
-                }
-            }
-        }
-
-        for doc in docs {
-            for (item_idx, item) in doc.items.iter().enumerate() {
-                let DocumentItem::MapDecomposed { char_repr } = item else {
-                    continue;
-                };
-                let line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
-                let file_line = docline_to_file_line(doc, line);
-
-                let pairs = crate::render::ttf_builder::expand_map_pairs(char_repr, "");
-                if pairs.is_empty() {
-                    issues.push(Issue {
-                        severity: Severity::Error,
-                        message: format!("map has no valid codepoints ('{}')", char_repr),
-                        file: doc.path.clone(),
-                        line,
-                        file_line,
-                    });
-                    continue;
-                }
-
-                for (cp, _) in pairs {
-                    let Some(ch) = char::from_u32(cp) else {
-                        issues.push(Issue {
-                            severity: Severity::Error,
-                            message: format!("map 'U+{cp:04X}' is not a valid character"),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
-                        continue;
-                    };
-
-                    let nfd: Vec<char> = ch.nfd().collect();
-                    if nfd.len() == 1 && nfd[0] == ch {
-                        issues.push(Issue {
-                            severity: Severity::Error,
-                            message: format!(
-                                "map '{}' (U+{:04X}) has no canonical decomposition; \
-                                 use `map {} = GLYPH` instead",
-                                ch, cp, ch,
-                            ),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
-                        continue;
-                    }
-
-                    let missing: Vec<String> = nfd
-                        .iter()
-                        .filter(|c| !mapped_cps.contains(&(**c as u32)))
-                        .map(|c| format!("U+{:04X}", *c as u32))
-                        .collect();
-                    if !missing.is_empty() {
-                        issues.push(Issue {
-                            severity: Severity::Error,
-                            message: format!(
-                                "map '{}' (U+{:04X}) decomposes to unmapped codepoint{} {}",
-                                ch,
-                                cp,
-                                if missing.len() == 1 { "" } else { "s" },
-                                missing.join(", "),
-                            ),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
-                    }
-                }
             }
         }
     }
@@ -835,6 +616,33 @@ map A = foo
         assert!(
             issues.is_empty(),
             "expected no issues, got: {issues:?}",
+        );
+    }
+
+    // `testdata/` declares a single consistent `font-meta` because it has to
+    // stay a coherent project, so the broken variants are covered here.
+
+    #[test]
+    fn font_meta_ascent_plus_descent_must_equal_height() {
+        let input = "font-meta height 16 ascent 12 descent 3\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Warning
+                && i.message.contains("!= height")),
+            "expected font-meta mismatch warning, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn font_meta_zero_height_reported() {
+        let input = "font-meta height 0 ascent 0 descent 0\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("font-meta height is 0")),
+            "expected zero-height error, got: {issues:?}",
         );
     }
 

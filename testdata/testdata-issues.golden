@@ -1,0 +1,29 @@
+error	issues-base.unf	22	unresolved ref 'no-such-glyph'
+error	issues-base.unf	36	map 'C' targets undefined glyph 'never-defined'
+error	issues-base.unf	37	map 'U+FFFFFFFF' is not a valid Unicode scalar value
+error	issues-base.unf	43	feature references undefined remap group 'no-such-remap-group'
+error	issues-patterns.unf	10	name pattern error: range end < start
+error	issues-patterns.unf	31	map 'P' targets undefined glyph 'p'
+error	issues-patterns.unf	32	map 'Q' targets undefined glyph 'q'
+error	issues-patterns.unf	39	map 'Z' (U+005A) has no canonical decomposition; use `map Z = GLYPH` instead
+error	issues-patterns.unf	4	glyph pattern '(p|q)' defines no glyphs; a pattern glyph needs `ref` lines, a pixel grid alone cannot be shared
+error	issues-patterns.unf	7	glyph pattern 'pat-(0|1|2|3)' defines no glyphs; a pattern glyph needs `ref` lines, a pixel grid alone cannot be shared
+warning	issues-base.unf	11	undefined name-parts reference '$nonexistent'
+warning	issues-base.unf	25	glyph 'empty-body' has no content
+warning	issues-base.unf	25	glyph 'empty-body' is unused
+warning	issues-base.unf	27	glyph 'dup' is unused
+warning	issues-base.unf	30	duplicate glyph 'dup' (first defined at issues-base.unf:27)
+warning	issues-base.unf	30	glyph 'dup' is unused
+warning	issues-base.unf	35	duplicate codepoint mapping U+0041 (first at issues-base.unf:33)
+warning	issues-base.unf	40	remap references undefined glyph 'also-never-defined'
+warning	issues-base.unf	47	unrecognized directive 'totally-unknown-directive foo bar'
+warning	issues-patterns.unf	10	glyph 'U+2802..2800' is unused
+warning	issues-patterns.unf	18	alternative 'stem:a' has same anchor dimensions as 'stem' for '-join' (base 'stem')
+warning	issues-patterns.unf	23	alternative 'stem:b' has same anchor dimensions as 'stem' for '-join' (base 'stem')
+warning	issues-patterns.unf	7	glyph 'pat-($digit)' is unused
+warning	latin.unf	25	glyph 'U+0041' is unused
+warning	latin.unf	43	glyph 'b-upper' is unused
+warning	latin.unf	5	glyph 'sp' is unused
+warning	latin.unf	61	glyph 'U+0042' is unused
+warning	latin.unf	7	glyph 'a-upper' is unused
+warning	subpixels.unf	3	glyph 'subpixel-test' is unused

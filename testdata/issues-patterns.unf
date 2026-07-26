@@ -1,0 +1,39 @@
+// Name patterns, decomposing maps and alternative anchors.
+// See issues-base.unf.
+
+glyph (p|q) 2 1
+@@..
+
+glyph pat-($digit) 2 1
+..@@
+
+glyph U+2802..2800 2 1
+@@..
+
+glyph stem 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph stem:a 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph stem:b 2 2
+@@@@
+@@@@
+anchor -join 0 0
+
+glyph dieresis 2 1
+@@..
+
+map P = p
+map Q = q
+map U+0308 = dieresis
+map S = stem
+
+// decomposes to U+0041 U+0308; U+0041 is mapped in base.unf
+map Ä
+// already in NFD, cannot be synthesized
+map Z

@@ -1,0 +1,51 @@
+// Fixture for the diagnostics golden snapshot. Deliberately broken in many
+// small ways; every diagnostic category should have at least one instance
+// here, so a consolidation refactor that drops a check shows up in the diff.
+//
+// See src/golden.rs.
+//
+// testdata/ is one font project, so `font-meta` stays in latin.unf and this
+// file must not declare a second, conflicting one.
+
+name-parts $digit = 0 1 2 3
+name-parts $bad = $nonexistent a b
+
+glyph ok 2 2
+@@@@
+@@@@
+
+glyph alias-of-ok = ok
+
+glyph composite 2 2
+....
+....
+ref ok 0 0
+
+glyph dangling 2 2
+....
+....
+ref no-such-glyph 0 0
+
+glyph empty-body
+
+glyph dup 2 1
+@@..
+
+glyph dup 2 1
+..@@
+
+map A = ok
+map B = ok
+map U+0041 = composite
+map C = never-defined
+map U+FFFFFFFF = ok
+
+remap liga : ok -> alias-of-ok
+remap liga : ok -> also-never-defined
+
+feature liga for latn : liga
+feature calt for latn : no-such-remap-group
+
+exclude-from-sample ok
+assume unused dangling
+totally-unknown-directive foo bar

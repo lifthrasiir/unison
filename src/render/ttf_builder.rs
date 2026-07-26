@@ -37,6 +37,8 @@ use write_fonts::types::{Fixed, GlyphId, GlyphId16, NameId, Tag};
 
 use crate::document::*;
 use crate::document_io;
+use crate::issues::Severity;
+use crate::resolve::{Diagnostic, ItemRef};
 use crate::pixel::{PX_ALMOSTFULL, PX_SUBPIXEL, PixelShape};
 use crate::render::contour::{track_contour, track_contour_multi, track_contour_multi_diff};
 
@@ -538,14 +540,59 @@ fn build_composite_refs(
     }).collect()
 }
 
+/// One item of the expanded item list, tagged with the source item it came
+/// from. Synthesized items (on-demand glyphs, `map <decomposable>` composites)
+/// carry the origin of whatever asked for them.
+pub(crate) struct ExpandedItem {
+    pub item: DocumentItem,
+    pub origin: Option<ItemRef>,
+}
+
+/// Result of expanding a document set, including everything the expansion
+/// could not make sense of. Before this carried diagnostics the expansion
+/// simply `continue`d past bad input, so problems that are only detectable
+/// here — an unmapped decomposition component, an unresolvable on-demand
+/// glyph name — never reached the user.
+pub(crate) struct Expansion {
+    pub items: Vec<ExpandedItem>,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+impl Expansion {
+    pub fn items(&self) -> impl Iterator<Item = &DocumentItem> {
+        self.items.iter().map(|e| &e.item)
+    }
+}
+
+/// How a glyph name was referenced, so a name that resolves to nothing can be
+/// reported in the terms the author wrote it.
+#[derive(Clone, PartialEq, Eq)]
+enum RefKind {
+    Ref,
+    /// Carries the `char_repr` the map was written with, which is what the
+    /// author recognizes the line by.
+    Map(String),
+    Remap,
+}
+
 /// Collect all items from `docs` with name-part patterns substituted and
 /// expanded, and `map-decomposed` directives turned into synthesized
 /// composite glyphs + `map` entries via NFD decomposition.
 pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsMap) -> Vec<DocumentItem> {
-    // Collect all items, expanding ranged glyph names
-    let mut all_items: Vec<DocumentItem> = Vec::new();
-    for doc in docs {
-        for item in &doc.items {
+    expand_documents(docs, name_parts)
+        .items
+        .into_iter()
+        .map(|e| e.item)
+        .collect()
+}
+
+pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) -> Expansion {
+    let mut all_items: Vec<ExpandedItem> = Vec::new();
+    let mut diagnostics: Vec<Diagnostic> = Vec::new();
+
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            let origin = ItemRef::new(doc_idx, item_idx);
             if let DocumentItem::Glyph { name, body } = item {
                 let name_str = substitute_name_parts(&name.display(), name_parts);
                 if is_name_pattern(&name_str) {
@@ -561,89 +608,178 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
                             visibility: r.visibility,
                         })
                         .collect();
-                    if let Ok(expanded) = expand_glyph_block(&subst_name, &subst_refs, body.scale) {
-                        for mut item in expanded {
-                            if let DocumentItem::Glyph { body: ref mut b, .. } = item {
-                                b.pixels = body.pixels.clone();
-                                b.points = body.points.clone();
-                                b.sticky = body.sticky;
-                                b.advance = body.advance;
-                                b.left = body.left;
-                                b.top = body.top;
-                                b.scale = body.scale;
-                            }
-                            all_items.push(item);
+                    match expand_glyph_block(&subst_name, &subst_refs, body.scale) {
+                        Ok(expanded) if expanded.is_empty() => {
+                            // `expand_glyph_block` only emits a glyph per
+                            // expanded name when that name has refs, so a
+                            // pattern glyph carrying just a pixel grid used to
+                            // vanish from the font without a word.
+                            diagnostics.push(Diagnostic::error(
+                                origin,
+                                format!(
+                                    "glyph pattern '{}' defines no glyphs; a pattern glyph \
+                                     needs `ref` lines, a pixel grid alone cannot be shared",
+                                    subst_name.display(),
+                                ),
+                            ));
                         }
+                        Ok(expanded) => {
+                            for mut item in expanded {
+                                if let DocumentItem::Glyph { body: ref mut b, .. } = item {
+                                    b.pixels = body.pixels.clone();
+                                    b.points = body.points.clone();
+                                    b.sticky = body.sticky;
+                                    b.advance = body.advance;
+                                    b.left = body.left;
+                                    b.top = body.top;
+                                    b.scale = body.scale;
+                                }
+                                all_items.push(ExpandedItem { item, origin: Some(origin) });
+                            }
+                        }
+                        Err(e) => diagnostics.push(Diagnostic::error(
+                            origin,
+                            format!("name pattern error: {e}"),
+                        )),
                     }
                 } else {
                     let mut body = body.clone();
                     for gref in &mut body.refs {
                         gref.name = substitute_name_parts(&gref.name, name_parts);
                     }
-                    all_items.push(DocumentItem::Glyph {
-                        name: GlyphName(name_str),
-                        body,
+                    all_items.push(ExpandedItem {
+                        item: DocumentItem::Glyph { name: GlyphName(name_str), body },
+                        origin: Some(origin),
                     });
                 }
             } else if let DocumentItem::Map { char_repr, glyph } = item {
-                all_items.push(DocumentItem::Map {
-                    char_repr: char_repr.clone(),
-                    glyph: substitute_name_parts(glyph, name_parts),
+                all_items.push(ExpandedItem {
+                    item: DocumentItem::Map {
+                        char_repr: char_repr.clone(),
+                        glyph: substitute_name_parts(glyph, name_parts),
+                    },
+                    origin: Some(origin),
                 });
-            } else if let DocumentItem::MapDecomposed { .. } = item {
-                all_items.push(item.clone());
             } else {
-                all_items.push(item.clone());
+                all_items.push(ExpandedItem { item: item.clone(), origin: Some(origin) });
             }
         }
     }
 
-    // Expand MapDecomposed: build codepoint→glyph reverse map, then
-    // synthesize composite glyphs from NFD decomposition.
+    // `map` codepoints. The range form of `expand_map_pairs` filters out
+    // non-scalar values but the single/pipe forms cannot, so an out-of-range
+    // `map U+FFFFFFFF = g` used to reach the cmap builder unnoticed.
     {
-        use unicode_normalization::UnicodeNormalization;
-
-        let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
-        for item in &all_items {
-            if let DocumentItem::Map { char_repr, glyph } = item {
-                let pairs = expand_map_pairs(char_repr, glyph);
-                for (cp, gname) in pairs {
-                    cp_to_glyph.entry(cp).or_insert(gname);
+        let mut bad: Vec<Diagnostic> = Vec::new();
+        for e in &all_items {
+            let DocumentItem::Map { char_repr, glyph } = &e.item else {
+                continue;
+            };
+            let pairs = expand_map_pairs(char_repr, glyph);
+            if pairs.is_empty() {
+                bad.push(Diagnostic::error(
+                    e.origin,
+                    format!("map has no valid codepoints ('{char_repr}')"),
+                ));
+                continue;
+            }
+            for (cp, _) in &pairs {
+                if char::from_u32(*cp).is_none() {
+                    bad.push(Diagnostic::error(
+                        e.origin,
+                        format!("map 'U+{cp:04X}' is not a valid Unicode scalar value"),
+                    ));
+                    break;
                 }
             }
         }
+        diagnostics.append(&mut bad);
+    }
 
-        let mut decomposed_items: Vec<DocumentItem> = Vec::new();
-        let all_items_snapshot = all_items.clone();
-        for item in &all_items_snapshot {
-            let DocumentItem::MapDecomposed { char_repr } = item else {
-                continue;
-            };
-            let Some(cp) = parse_map_char(char_repr) else {
-                continue;
-            };
+    expand_decomposed_maps(&mut all_items, &mut diagnostics);
+    inject_on_demand_glyph_items(&mut all_items, &mut diagnostics);
+
+    Expansion { items: all_items, diagnostics }
+}
+
+/// Turn `map <decomposable codepoint>` into a synthesized composite glyph plus
+/// a plain `map` to it, reporting the characters that cannot be synthesized.
+fn expand_decomposed_maps(all_items: &mut Vec<ExpandedItem>, diagnostics: &mut Vec<Diagnostic>) {
+    use unicode_normalization::UnicodeNormalization;
+
+    let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
+    for e in all_items.iter() {
+        if let DocumentItem::Map { char_repr, glyph } = &e.item {
+            for (cp, gname) in expand_map_pairs(char_repr, glyph) {
+                cp_to_glyph.entry(cp).or_insert(gname);
+            }
+        }
+    }
+
+    let mut decomposed_items: Vec<ExpandedItem> = Vec::new();
+    let pending: Vec<(String, Option<ItemRef>)> = all_items
+        .iter()
+        .filter_map(|e| match &e.item {
+            DocumentItem::MapDecomposed { char_repr } => Some((char_repr.clone(), e.origin)),
+            _ => None,
+        })
+        .collect();
+
+    for (char_repr, origin) in pending {
+        let pairs = expand_map_pairs(&char_repr, "");
+        if pairs.is_empty() {
+            diagnostics.push(Diagnostic::error(
+                origin,
+                format!("map has no valid codepoints ('{char_repr}')"),
+            ));
+            continue;
+        }
+
+        for (cp, _) in pairs {
             let Some(ch) = char::from_u32(cp) else {
+                diagnostics.push(Diagnostic::error(
+                    origin,
+                    format!("map 'U+{cp:04X}' is not a valid character"),
+                ));
                 continue;
             };
 
             let nfd: Vec<char> = ch.nfd().collect();
             if nfd.len() == 1 && nfd[0] == ch {
+                diagnostics.push(Diagnostic::error(
+                    origin,
+                    format!(
+                        "map '{ch}' (U+{cp:04X}) has no canonical decomposition; \
+                         use `map {ch} = GLYPH` instead",
+                    ),
+                ));
                 continue;
             }
 
-            let glyph_refs: Vec<Option<String>> = nfd
+            let missing: Vec<String> = nfd
                 .iter()
-                .map(|c| cp_to_glyph.get(&(*c as u32)).cloned())
+                .filter(|c| !cp_to_glyph.contains_key(&(**c as u32)))
+                .map(|c| format!("U+{:04X}", *c as u32))
                 .collect();
-            if glyph_refs.iter().any(|g| g.is_none()) {
+            if !missing.is_empty() {
+                diagnostics.push(Diagnostic::error(
+                    origin,
+                    format!(
+                        "map '{}' (U+{:04X}) decomposes to unmapped codepoint{} {}",
+                        ch,
+                        cp,
+                        if missing.len() == 1 { "" } else { "s" },
+                        missing.join(", "),
+                    ),
+                ));
                 continue;
             }
 
             let composite_name = format!("uni{cp:04X}");
-            let refs: Vec<GlyphRef> = glyph_refs
-                .into_iter()
-                .map(|g| GlyphRef {
-                    name: g.unwrap(),
+            let refs: Vec<GlyphRef> = nfd
+                .iter()
+                .map(|c| GlyphRef {
+                    name: cp_to_glyph[&(*c as u32)].clone(),
                     offset: None,
                     negated: false,
                     fill: None,
@@ -651,57 +787,71 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
                 })
                 .collect();
 
-            decomposed_items.push(DocumentItem::Glyph {
-                name: GlyphName(composite_name.clone()),
-                body: GlyphBody {
-                    refs,
-                    ..GlyphBody::new()
+            decomposed_items.push(ExpandedItem {
+                item: DocumentItem::Glyph {
+                    name: GlyphName(composite_name.clone()),
+                    body: GlyphBody { refs, ..GlyphBody::new() },
                 },
+                origin,
             });
-            decomposed_items.push(DocumentItem::Map {
-                char_repr: char_repr.clone(),
-                glyph: composite_name,
+            decomposed_items.push(ExpandedItem {
+                item: DocumentItem::Map {
+                    char_repr: format!("U+{cp:04X}"),
+                    glyph: composite_name,
+                },
+                origin,
             });
         }
-        all_items.retain(|item| !matches!(item, DocumentItem::MapDecomposed { .. }));
-        all_items.extend(decomposed_items);
     }
 
-    inject_on_demand_glyph_items(&mut all_items);
-
-    all_items
+    all_items.retain(|e| !matches!(e.item, DocumentItem::MapDecomposed { .. }));
+    all_items.extend(decomposed_items);
 }
 
 /// Scan `all_items` for on-demand glyph names referenced in refs, maps,
 /// and remaps. For each one not already defined as a glyph, append a
 /// synthetic `DocumentItem::Glyph` (filled rectangle for WxH, or a
 /// color/mono composite when X:mono and X:color both exist).
-fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
+fn inject_on_demand_glyph_items(
+    all_items: &mut Vec<ExpandedItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
     let mut defined: HashSet<String> = HashSet::new();
     let mut glyph_bodies: HashMap<String, GlyphBody> = HashMap::new();
 
-    for item in all_items.iter() {
-        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+    for e in all_items.iter() {
+        if let DocumentItem::Glyph { name: GlyphName(n), body } = &e.item {
             defined.insert(n.clone());
             glyph_bodies.insert(n.clone(), body.clone());
         }
     }
 
-    let mut needed: HashSet<String> = HashSet::new();
-    let mut consider = |name: &str| {
-        if !defined.contains(name) {
-            needed.insert(name.to_string());
+    // Every mention of an undefined name, so one that turns out not to be an
+    // on-demand glyph either is reported at each place the author wrote it —
+    // not once for the whole font. Deduped per (site, name) so a pattern that
+    // expands to the same missing name repeatedly reports once per line.
+    let mut mentions: Vec<(String, Option<ItemRef>, RefKind)> = Vec::new();
+    let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::new();
+    let mut consider = |name: &str, origin: Option<ItemRef>, kind: RefKind| {
+        if !defined.contains(name) && mention_seen.insert((origin, name.to_string())) {
+            mentions.push((name.to_string(), origin, kind));
         }
     };
 
-    for item in all_items.iter() {
-        match item {
+    for e in all_items.iter() {
+        match &e.item {
             DocumentItem::Glyph { body, .. } => {
                 for r in &body.refs {
-                    consider(&r.name);
+                    consider(&r.name, e.origin, RefKind::Ref);
                 }
             }
-            DocumentItem::Map { glyph, .. } => consider(glyph),
+            DocumentItem::Map { glyph, char_repr } => {
+                // `glyph` is still a pattern here; the cmap builder expands it
+                // per codepoint, so the reference check has to as well.
+                for (_, target) in expand_map_pairs(char_repr, glyph) {
+                    consider(&target, e.origin, RefKind::Map(char_repr.clone()));
+                }
+            }
             DocumentItem::Remap {
                 lookbehind,
                 source,
@@ -709,36 +859,48 @@ fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
                 lookahead,
                 ..
             } => {
-                for token in source {
-                    consider(token);
-                }
-                for token in target {
-                    consider(token);
-                }
-                for lb in lookbehind {
-                    consider(lb);
-                }
-                for la in lookahead {
-                    consider(la);
+                for token in source.iter().chain(target).chain(lookbehind).chain(lookahead) {
+                    // Remap operands keep their name-part patterns until the
+                    // GSUB builder expands them, so a still-unexpanded name
+                    // says nothing about whether the glyph exists.
+                    if is_name_pattern(token) || token.contains('$') {
+                        continue;
+                    }
+                    consider(token, e.origin, RefKind::Remap);
                 }
             }
             _ => {}
         }
     }
 
-    for name in needed {
+    // Synthesis is per unique name; reporting is per mention, so the loops
+    // are separate.
+    let unique: Vec<(String, Option<ItemRef>)> = {
+        let mut seen: HashSet<&str> = HashSet::new();
+        mentions
+            .iter()
+            .filter(|(n, _, _)| seen.insert(n.as_str()))
+            .map(|(n, o, _)| (n.clone(), *o))
+            .collect()
+    };
+    let mut unresolved: HashSet<String> = HashSet::new();
+
+    for (name, origin) in unique {
         use crate::ref_composite::{OnDemandGlyph, detect_on_demand_glyph};
         match detect_on_demand_glyph(&name, |n| defined.contains(n)) {
             Some(OnDemandGlyph::Rect(rect)) => {
                 let grid = crate::ref_composite::make_on_demand_grid(&rect);
-                all_items.push(DocumentItem::Glyph {
-                    name: GlyphName(name),
-                    body: GlyphBody {
-                        scale: rect.scale,
-                        pixels: Some(grid),
-                        inline: true,
-                        ..GlyphBody::new()
+                all_items.push(ExpandedItem {
+                    item: DocumentItem::Glyph {
+                        name: GlyphName(name),
+                        body: GlyphBody {
+                            scale: rect.scale,
+                            pixels: Some(grid),
+                            inline: true,
+                            ..GlyphBody::new()
+                        },
                     },
+                    origin,
                 });
             }
             Some(OnDemandGlyph::ColorMono { mono, color }) => {
@@ -804,23 +966,58 @@ fn inject_on_demand_glyph_items(all_items: &mut Vec<DocumentItem>) {
                         (None, None) => None,
                     };
 
-                    all_items.push(DocumentItem::Glyph {
-                        name: GlyphName(name),
-                        body: GlyphBody {
-                            refs,
-                            points,
-                            pixels,
-                            scale: combined_scale,
-                            advance: mono_body.advance.or(color_body.advance),
-                            left: mono_body.left.or(color_body.left),
-                            top: mono_body.top.or(color_body.top),
-                            ..GlyphBody::new()
+                    all_items.push(ExpandedItem {
+                        item: DocumentItem::Glyph {
+                            name: GlyphName(name),
+                            body: GlyphBody {
+                                refs,
+                                points,
+                                pixels,
+                                scale: combined_scale,
+                                advance: mono_body.advance.or(color_body.advance),
+                                left: mono_body.left.or(color_body.left),
+                                top: mono_body.top.or(color_body.top),
+                                ..GlyphBody::new()
+                            },
                         },
+                        origin,
                     });
+                } else {
+                    // `X:mono`/`X:color` was recognized but one half is not a
+                    // real glyph, so nothing is emitted and every reference to
+                    // `X` silently resolves to nothing.
+                    let absent = if mono_body.is_none() { &mono } else { &color };
+                    diagnostics.push(Diagnostic::error(
+                        origin,
+                        format!(
+                            "color/mono glyph '{name}' cannot be synthesized: \
+                             '{absent}' is not defined",
+                        ),
+                    ));
                 }
             }
-            None => {}
+            None => {
+                unresolved.insert(name);
+            }
         }
+    }
+
+    for (name, origin, kind) in mentions {
+        if !unresolved.contains(&name) {
+            continue;
+        }
+        let (severity, message) = match kind {
+            RefKind::Ref => (Severity::Error, format!("unresolved ref '{name}'")),
+            RefKind::Map(char_repr) => (
+                Severity::Error,
+                format!("map '{char_repr}' targets undefined glyph '{name}'"),
+            ),
+            RefKind::Remap => (
+                Severity::Warning,
+                format!("remap references undefined glyph '{name}'"),
+            ),
+        };
+        diagnostics.push(Diagnostic::new(severity, origin, message));
     }
 }
 
