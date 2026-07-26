@@ -2018,6 +2018,21 @@ struct AnchorGposData {
     mark_subst_entries: Vec<(String, String, String, Vec<String>)>,
 }
 
+/// Converts an anchor point's grid position to font units, applying the
+/// glyph's left/top offsets. Grid rows grow downward while font units grow
+/// upward from the baseline, so the row is flipped against `ascent`.
+fn anchor_font_units(
+    pt: &GlyphPoint,
+    scale: f32,
+    ascent: u16,
+    left_offset: i16,
+    top_offset: i16,
+) -> (i16, i16) {
+    let x = (pt.col as f32 * scale).round() as i16 + left_offset;
+    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - top_offset;
+    (x, y)
+}
+
 fn build_anchor_gpos(
     glyphs: &[CollectedGlyph],
     gsub_data: &GsubData,
@@ -2111,8 +2126,7 @@ fn build_anchor_gpos(
                 let minus_name = format!("-{anchor_name}");
                 if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == minus_name) {
                     let class = anchor_class_map[anchor_name];
-                    let x = (pt.col as f32 * scale).round() as i16 + loff;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
+                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
                     mark_gids.push((gid, class, x, y));
                     break;
                 }
@@ -2125,8 +2139,7 @@ fn build_anchor_gpos(
                 let plus_name = format!("+{anchor_name}");
                 if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let x = (pt.col as f32 * scale).round() as i16 + loff;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
+                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
                     plus_anchors[class] = Some((x, y));
                     has_any = true;
                 }
@@ -2147,8 +2160,7 @@ fn build_anchor_gpos(
                 let plus_name = format!("+{anchor_name}");
                 if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let x = (pt.col as f32 * scale).round() as i16 + loff;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
+                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
                     own_plus[class] = Some((x, y));
                     has_own = true;
                 } else if let Some(alts) = alt_index.get(&g.name) {
@@ -2159,8 +2171,7 @@ fn build_anchor_gpos(
                             let alt_g = glyphs.iter().find(|gg| gg.name == *alt_name);
                             let alt_loff = alt_g.map_or(0, |gg| gg.left_offset);
                             let alt_toff = alt_g.map_or(0, |gg| gg.top_offset);
-                            let x = (pt.col as f32 * scale).round() as i16 + alt_loff;
-                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - alt_toff;
+                            let (x, y) = anchor_font_units(pt, scale, ascent, alt_loff, alt_toff);
                             let entry = alt_plus_map
                                 .entry(alt_name.clone())
                                 .or_insert_with(|| vec![None; num_classes as usize]);
@@ -2176,15 +2187,13 @@ fn build_anchor_gpos(
                     if !alt_found
                         && let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                             let class = anchor_class_map[anchor_name] as usize;
-                            let x = (pt.col as f32 * scale).round() as i16 + loff;
-                            let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
+                            let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
                             own_plus[class] = Some((x, y));
                             has_own = true;
                         }
                 } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let x = (pt.col as f32 * scale).round() as i16 + loff;
-                    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - toff;
+                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
                     own_plus[class] = Some((x, y));
                     has_own = true;
                 }
