@@ -24,6 +24,19 @@ cargo run -r -- migrate -i ../unison/font/ -o font/    # legacy .txt → .unf
 cargo run -r -- build -i font/ -o unison.ttf           # build TTF from .unf
 ```
 
+## Stack Overflow Monitor (`stackmon.rs`)
+
+The main thread occasionally dies of a stack overflow with no reproducer. `stackmon` is the diagnostic for it; it is inert unless `UNIFORM_STACKMON=1`.
+
+```sh
+set UNIFORM_STACKMON=1
+cargo xrr           # log goes to stderr and ./uniform-stackmon.log
+```
+
+On Windows a watchdog thread suspends the main thread every 250 ms and reads `Rsp`, so usage is measured across *all* code (egui, wgpu, DirectWrite) with no instrumentation. Past `UNIFORM_STACKMON_DUMP_PCT` (default 40%) of the stack it walks the suspended thread with `StackWalkEx` and logs a symbolized backtrace — i.e. the runaway call chain is captured *before* the process dies. A vectored exception handler also dumps `EXCEPTION_STACK_OVERFLOW` as a last resort (`SetThreadStackGuarantee` reserves 128 KiB so it can run). One backtrace is logged at startup as a self-test.
+
+`crate::stackmon::phase("...")` markers in `app.rs::update` name the frame stage in each report. `crate::stackmon::probe()` records a high-water mark where sampling is unavailable (non-Windows). `[profile.release] debug = "line-tables-only"` exists so these backtraces have symbols; the `.pdb` must sit next to the `.exe`.
+
 ## Editor Structure
 
 - `UniformApp` (`app.rs`) — eframe entry point. Manages open documents, font build, derived data (resolved glyphs, issues).

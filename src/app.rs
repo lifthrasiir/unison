@@ -894,6 +894,8 @@ impl UniformApp {
 
 impl eframe::App for UniformApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        crate::stackmon::phase("update:begin");
+        crate::stackmon::probe();
         {
             let title = if let Some(idx) = self.active_doc_idx {
                 let doc = &self.open_documents[idx];
@@ -1006,6 +1008,7 @@ impl eframe::App for UniformApp {
 
         let any_pixel_painting = self.open_documents.iter()
             .any(|d| d.editor_state.suppress_font_rebuild);
+        crate::stackmon::phase("update:derived-data");
         let font_gen = self.current_font_gen();
         if font_gen != self.last_font_gen && !any_pixel_painting {
             self.last_font_gen = font_gen;
@@ -1140,6 +1143,7 @@ impl eframe::App for UniformApp {
             .and_then(|i| self.open_documents.get(i))
             .is_some_and(|d| d.editor_state.is_active());
 
+        crate::stackmon::phase("update:menu_bar");
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
@@ -1594,6 +1598,7 @@ impl eframe::App for UniformApp {
         let mut sidebar_actions = Vec::new();
         let mut goto_glyph_request: Option<crate::editor::document_view::GotoGlyph> = None;
         let mut rename_request: Option<crate::editor::document_view::RenameAction> = None;
+        crate::stackmon::phase("update:sidebar");
         egui::SidePanel::left("sidebar")
             .default_width(200.0)
             .show(ctx, |ui| {
@@ -1641,6 +1646,7 @@ impl eframe::App for UniformApp {
             }
         }
 
+        crate::stackmon::phase("update:status");
         egui::TopBottomPanel::bottom("status").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 if self.escape_mode {
@@ -1723,6 +1729,7 @@ impl eframe::App for UniformApp {
                 }
             }
         }
+        crate::stackmon::phase("update:preview");
         let mut bottom_panel = egui::TopBottomPanel::bottom("bottom_panel")
             .resizable(bottom_panel_expanded);
         if bottom_panel_expanded {
@@ -1842,6 +1849,7 @@ impl eframe::App for UniformApp {
                 }
             });
 
+        crate::stackmon::phase("update:central/editor");
         egui::CentralPanel::default().show(ctx, |ui| {
             if self.open_documents.is_empty() {
                 ui.centered_and_justified(|ui| {
@@ -1980,6 +1988,7 @@ impl eframe::App for UniformApp {
             }
         }
 
+        crate::stackmon::phase("update:end (egui tessellate/paint follows)");
         // Decide whether to close only after this frame's editor input has
         // updated the source buffer and dirty state.
         if menu_exit && self.confirm_close_and_maybe_save() {

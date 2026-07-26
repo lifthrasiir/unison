@@ -29,6 +29,7 @@ arboard = { version = "3", optional = true }
 unicode-script = "0.5.8"
 
 [target.'cfg(target_os = "macos")'.dependencies]
+libc = "0.2"
 core-text = "20"
 core-graphics = "0.23"
 core-foundation = "0.9"
@@ -37,6 +38,10 @@ core-foundation = "0.9"
 windows = { version = "0.58", features = [
     "Win32_Graphics_DirectWrite",
     "Win32_System_Com",
+    # stackmon: thread sampling + stack walking for the stack-overflow monitor
+    "Win32_System_Threading",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Kernel",
     "implement",
 ] }
 windows-core = "0.58"
@@ -45,3 +50,8 @@ windows-core = "0.58"
 embed-resource = { version = "3", optional = true }
 
 [dev-dependencies]
+
+# Line tables only: enough for stackmon/panic backtraces to name functions and
+# source lines, without the size and build-time cost of full debug info.
+[profile.release]
+debug = "line-tables-only"

@@ -12,6 +12,7 @@ mod ref_composite;
 mod preview;
 mod render;
 mod script_run;
+mod stackmon;
 #[cfg(feature = "editor")]
 mod editor;
 mod issues;
@@ -24,6 +25,8 @@ mod specimen;
 extern crate windows_core;
 
 fn main() {
+    stackmon::init();
+
     let args: Vec<String> = std::env::args().collect();
 
     // Check for migrate subcommand: uniform migrate --input DIR --output DIR
