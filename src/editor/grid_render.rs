@@ -91,39 +91,24 @@ pub(crate) fn render_grid_row(
 
     let is_layer_mode =
         matches!(mode, EditMode::LayerMove { item_idx: eidx, .. } if *eidx == item_idx);
-    let active_ref = match mode {
+    // LayerMove indexes refs first, then points; split the active layer index
+    // into whichever of the two it denotes.
+    let (active_ref, active_point) = match mode {
         EditMode::LayerMove {
             item_idx: eidx,
             layer_idx,
         } if *eidx == item_idx => {
-            if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) {
-                if *layer_idx < body.refs.len() {
-                    Some(*layer_idx)
-                } else {
-                    None
+            match doc.items.get(item_idx) {
+                Some(DocumentItem::Glyph { body, .. }) if *layer_idx < body.refs.len() => {
+                    (Some(*layer_idx), None)
                 }
-            } else {
-                None
+                Some(DocumentItem::Glyph { body, .. }) => {
+                    (None, Some(*layer_idx - body.refs.len()))
+                }
+                _ => (None, None),
             }
         }
-        _ => None,
-    };
-    let active_point = match mode {
-        EditMode::LayerMove {
-            item_idx: eidx,
-            layer_idx,
-        } if *eidx == item_idx => {
-            if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) {
-                if *layer_idx >= body.refs.len() {
-                    Some(*layer_idx - body.refs.len())
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        }
-        _ => None,
+        _ => (None, None),
     };
 
     if let Some(comp) = composite {
@@ -161,7 +146,7 @@ pub(crate) fn render_grid_row(
                                 &layer.grid,
                                 lr_in_layer as u16,
                                 lc_in_layer as u16,
-                                Some(pal.grid_bg),
+                                pal.grid_bg,
                             );
                         } else {
                             let px_color = if shape.is_filled() {
@@ -175,7 +160,7 @@ pub(crate) fn render_grid_row(
                                 &layer.grid,
                                 lr_in_layer as u16,
                                 lc_in_layer as u16,
-                                Some(px_color),
+                                px_color,
                             );
                         }
                     }
@@ -248,7 +233,7 @@ pub(crate) fn render_grid_row(
                 } else {
                     base_color
                 };
-                glyph_widget::draw_pixel_cell_colored(painter, cell_rect, shape, Some(color));
+                glyph_widget::draw_pixel_cell_colored(painter, cell_rect, shape, color);
             } else if !has_ref_pixel(dc) {
                 painter.rect_filled(cell_rect, 0.0, pal.grid_off);
             }
@@ -289,7 +274,7 @@ pub(crate) fn render_grid_row(
                         &layer.grid,
                         lr_in_layer as u16,
                         lc_in_layer as u16,
-                        Some(px_color),
+                        px_color,
                     );
                 }
             }
@@ -804,7 +789,7 @@ pub(crate) fn handle_grid_hover_preview(
                     painter,
                     cell_rect,
                     preview_shape,
-                    Some(preview_color),
+                    preview_color,
                 );
             }
             ui.ctx().request_repaint();
@@ -852,7 +837,7 @@ pub(crate) fn render_pixel_selection_overlay(
                 } else {
                     apply_opacity(pal.pixel_filled, UNFILLED_OPACITY)
                 };
-                glyph_widget::draw_pixel_cell_colored(painter, cell_rect, shape, Some(color));
+                glyph_widget::draw_pixel_cell_colored(painter, cell_rect, shape, color);
             }
         }
     }

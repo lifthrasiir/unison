@@ -441,11 +441,12 @@ pub fn split_top_level_pipes(s: &str) -> Vec<&str> {
     parts
 }
 
-fn gcd(a: usize, b: usize) -> usize {
+/// Shared integer helpers; callers with narrower types cast through `usize`.
+pub(crate) fn gcd(a: usize, b: usize) -> usize {
     if b == 0 { a } else { gcd(b, a % b) }
 }
 
-fn lcm(a: usize, b: usize) -> usize {
+pub(crate) fn lcm(a: usize, b: usize) -> usize {
     a / gcd(a, b) * b
 }
 

@@ -127,18 +127,18 @@ fn draw_outline_to_path(
     pen.builder.finish()
 }
 
-fn rasterize_glyph(
-    ctx: &egui::Context,
-    font_data: &[u8],
-    glyph_id: u16,
-    px_size: f32,
-    is_color: bool,
-) -> Option<CachedGlyph> {
-    let font = FontRef::new(font_data).ok()?;
+/// Pixmap geometry for one glyph: a padded canvas sized from the glyph
+/// bounds (capped at 512×512), with the transform that places the outline
+/// on it.  `bearing_x`/`bearing_y` are the un-padded bounds origin.
+struct RasterCanvas {
+    pixmap: tiny_skia::Pixmap,
+    transform: tiny_skia::Transform,
+    bearing_x: f32,
+    bearing_y: f32,
+    pad: f32,
+}
 
-    let gid = GlyphId::new(glyph_id as u32);
-    let path = draw_outline_to_path(&font, gid, px_size)?;
-
+fn raster_canvas(font: &FontRef, gid: GlyphId, px_size: f32) -> Option<RasterCanvas> {
     let metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
     let bounds = metrics.bounds(gid)?;
 
@@ -152,19 +152,32 @@ fn rasterize_glyph(
 
     let bearing_x = bounds.x_min;
     let bearing_y = bounds.y_max;
+    let pixmap = tiny_skia::Pixmap::new(w, h)?;
+    let transform = tiny_skia::Transform::from_translate(-bearing_x + pad, bearing_y + pad);
+    Some(RasterCanvas { pixmap, transform, bearing_x, bearing_y, pad })
+}
 
-    let mut pixmap = tiny_skia::Pixmap::new(w, h)?;
+fn rasterize_glyph(
+    ctx: &egui::Context,
+    font_data: &[u8],
+    glyph_id: u16,
+    px_size: f32,
+    is_color: bool,
+) -> Option<CachedGlyph> {
+    let font = FontRef::new(font_data).ok()?;
+
+    let gid = GlyphId::new(glyph_id as u32);
+    let path = draw_outline_to_path(&font, gid, px_size)?;
+
+    let RasterCanvas { mut pixmap, transform, bearing_x, bearing_y, pad } =
+        raster_canvas(&font, gid, px_size)?;
+    let (w, h) = (pixmap.width(), pixmap.height());
 
     let paint = tiny_skia::Paint {
         shader: tiny_skia::Shader::SolidColor(tiny_skia::Color::WHITE),
         anti_alias: true,
         ..Default::default()
     };
-
-    let transform = tiny_skia::Transform::from_translate(
-        -bearing_x + pad,
-        bearing_y + pad,
-    );
 
     pixmap.fill_path(&path, &paint, tiny_skia::FillRule::Winding, transform, None);
 
@@ -271,26 +284,9 @@ fn rasterize_color_glyph(
 
     let color_glyph: ColorGlyph<'_> = font.color_glyphs().get(gid)?;
 
-    let metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
-    let bounds = metrics.bounds(gid)?;
-
-    let pad = 1.0;
-    let w = ((bounds.x_max - bounds.x_min).ceil() + pad * 2.0).max(1.0) as u32;
-    let h = ((bounds.y_max - bounds.y_min).ceil() + pad * 2.0).max(1.0) as u32;
-
-    if w > 512 || h > 512 {
-        return None;
-    }
-
-    let bearing_x = bounds.x_min;
-    let bearing_y = bounds.y_max;
-
-    let mut pixmap = tiny_skia::Pixmap::new(w, h)?;
-
-    let transform = tiny_skia::Transform::from_translate(
-        -bearing_x + pad,
-        bearing_y + pad,
-    );
+    let RasterCanvas { mut pixmap, transform, bearing_x, bearing_y, pad } =
+        raster_canvas(&font, gid, px_size)?;
+    let (w, h) = (pixmap.width(), pixmap.height());
 
     let palette: Vec<[u8; 4]> = font
         .color_palettes()

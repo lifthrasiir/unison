@@ -510,74 +510,19 @@ impl SpecimenState {
         );
 
         let Some(ch) = char::from_u32(cp) else { return };
+        let center = cell_center(cell_min, cell_w, cell_h);
 
         let mut drawn_via_rasterizer = false;
 
         if let Some(font_bytes) = raster_font
-            && let Ok(font) = FontRef::new(font_bytes) {
-                let charmap = font.charmap();
-                if let Some(gid) = charmap.map(ch) {
-                    let glyph_id = gid.to_u32() as u16;
-                    if let Some(cached) = self.glyph_cache.get_or_rasterize(
-                        ctx,
-                        font_bytes,
-                        glyph_id,
-                        px_size,
-                        true,
-                        glyph_color,
-                    ) {
-                        let center_x = cell_min.x + cell_w / 2.0;
-                        let center_y = cell_min.y + cell_h / 2.0 + 8.0;
-
-                        let font_metrics = font.metrics(Size::new(px_size), LocationRef::default());
-                        let glyph_metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
-                        let advance_w = glyph_metrics.advance_width(gid).unwrap_or(cached.width);
-                        let ascent = font_metrics.ascent;
-                        let descent = font_metrics.descent;
-
-                        let baseline_y = center_y + (ascent + descent) / 2.0;
-                        let pen_x = center_x - advance_w / 2.0;
-
-                        let draw_x = pen_x + cached.bearing_x;
-                        let draw_y = baseline_y - cached.bearing_y;
-
-                        let draw_rect = egui::Rect::from_min_size(
-                            egui::pos2(draw_x, draw_y),
-                            egui::vec2(cached.width, cached.height),
-                        );
-
-                        let tint = if cached.is_color {
-                            egui::Color32::WHITE
-                        } else {
-                            glyph_color
-                        };
-
-                        if is_hovered {
-                            painter.image(
-                                cached.texture.id(),
-                                draw_rect,
-                                egui::Rect::from_min_max(
-                                    egui::pos2(0.0, 0.0),
-                                    egui::pos2(1.0, 1.0),
-                                ),
-                                tint,
-                            );
-                        } else {
-                            let sub = painter.with_clip_rect(cell_rect);
-                            sub.image(
-                                cached.texture.id(),
-                                draw_rect,
-                                egui::Rect::from_min_max(
-                                    egui::pos2(0.0, 0.0),
-                                    egui::pos2(1.0, 1.0),
-                                ),
-                                tint,
-                            );
-                        }
-                        drawn_via_rasterizer = true;
-                    }
-                }
-            }
+            && let Ok(font) = FontRef::new(font_bytes)
+            && let Some(gid) = font.charmap().map(ch)
+        {
+            drawn_via_rasterizer = self.draw_rasterized_glyph(
+                painter, cell_rect, center, &font, font_bytes, gid, px_size,
+                is_hovered, glyph_color, ctx,
+            );
+        }
 
         if !drawn_via_rasterizer {
             let glyph_font = crate::app::uniform_font_id(ctx, px_size);
@@ -587,19 +532,11 @@ impl SpecimenState {
                 glyph_color,
             );
             let glyph_size = glyph_galley.size();
-            let center_x = cell_min.x + cell_w / 2.0;
-            let center_y = cell_min.y + cell_h / 2.0 + 8.0;
             let pos = egui::pos2(
-                center_x - glyph_size.x / 2.0,
-                center_y - glyph_size.y / 2.0,
+                center.0 - glyph_size.x / 2.0,
+                center.1 - glyph_size.y / 2.0,
             );
-
-            if is_hovered {
-                painter.galley(pos, glyph_galley, glyph_color);
-            } else {
-                let sub = painter.with_clip_rect(cell_rect);
-                sub.galley(pos, glyph_galley, glyph_color);
-            }
+            cell_painter(painter, cell_rect, is_hovered).galley(pos, glyph_galley, glyph_color);
         }
     }
 
@@ -628,82 +565,69 @@ impl SpecimenState {
             label_font.clone(),
             label_color,
         );
-        if is_hovered {
-            painter.galley(
-                egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
-                label_galley,
-                label_color,
-            );
-        } else {
-            let sub = painter.with_clip_rect(cell_rect);
-            sub.galley(
-                egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
-                label_galley,
-                label_color,
-            );
-        }
+        cell_painter(painter, cell_rect, is_hovered).galley(
+            egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
+            label_galley,
+            label_color,
+        );
 
         if let Some(font_bytes) = raster_font
-            && let Ok(font) = FontRef::new(font_bytes) {
-                let glyph_id = skrifa::GlyphId::new(gid as u32);
-                if let Some(cached) = self.glyph_cache.get_or_rasterize(
-                    ctx,
-                    font_bytes,
-                    gid,
-                    px_size,
-                    true,
-                    glyph_color,
-                ) {
-                    let center_x = cell_min.x + cell_w / 2.0;
-                    let center_y = cell_min.y + cell_h / 2.0 + 8.0;
+            && let Ok(font) = FontRef::new(font_bytes)
+        {
+            let center = cell_center(cell_min, cell_w, cell_h);
+            self.draw_rasterized_glyph(
+                painter, cell_rect, center, &font, font_bytes,
+                skrifa::GlyphId::new(gid as u32), px_size,
+                is_hovered, glyph_color, ctx,
+            );
+        }
+    }
 
-                    let font_metrics = font.metrics(Size::new(px_size), LocationRef::default());
-                    let glyph_metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
-                    let advance_w = glyph_metrics.advance_width(glyph_id).unwrap_or(cached.width);
-                    let ascent = font_metrics.ascent;
-                    let descent = font_metrics.descent;
+    /// Rasterizes `gid` and paints it centered on the cell baseline; returns
+    /// false when the rasterizer produced nothing so the caller can fall back
+    /// to text rendering.
+    #[expect(clippy::too_many_arguments)]
+    fn draw_rasterized_glyph(
+        &mut self,
+        painter: &egui::Painter,
+        cell_rect: egui::Rect,
+        center: (f32, f32),
+        font: &FontRef,
+        font_bytes: &[u8],
+        gid: skrifa::GlyphId,
+        px_size: f32,
+        is_hovered: bool,
+        glyph_color: egui::Color32,
+        ctx: &egui::Context,
+    ) -> bool {
+        let Some(cached) = self.glyph_cache.get_or_rasterize(
+            ctx,
+            font_bytes,
+            gid.to_u32() as u16,
+            px_size,
+            true,
+            glyph_color,
+        ) else {
+            return false;
+        };
 
-                    let baseline_y = center_y + (ascent + descent) / 2.0;
-                    let pen_x = center_x - advance_w / 2.0;
-
-                    let draw_x = pen_x + cached.bearing_x;
-                    let draw_y = baseline_y - cached.bearing_y;
-
-                    let draw_rect = egui::Rect::from_min_size(
-                        egui::pos2(draw_x, draw_y),
-                        egui::vec2(cached.width, cached.height),
-                    );
-
-                    let tint = if cached.is_color {
-                        egui::Color32::WHITE
-                    } else {
-                        glyph_color
-                    };
-
-                    if is_hovered {
-                        painter.image(
-                            cached.texture.id(),
-                            draw_rect,
-                            egui::Rect::from_min_max(
-                                egui::pos2(0.0, 0.0),
-                                egui::pos2(1.0, 1.0),
-                            ),
-                            tint,
-                        );
-                    } else {
-                        let sub = painter.with_clip_rect(cell_rect);
-                        sub.image(
-                            cached.texture.id(),
-                            draw_rect,
-                            egui::Rect::from_min_max(
-                                egui::pos2(0.0, 0.0),
-                                egui::pos2(1.0, 1.0),
-                            ),
-                            tint,
-                        );
-                    }
-                }
-            }
+        let m = cell_glyph_metrics(font, gid, px_size, center, cached.width);
+        let draw_rect = egui::Rect::from_min_size(
+            egui::pos2(m.pen_x + cached.bearing_x, m.baseline_y - cached.bearing_y),
+            egui::vec2(cached.width, cached.height),
+        );
+        let tint = if cached.is_color {
+            egui::Color32::WHITE
+        } else {
+            glyph_color
+        };
+        cell_painter(painter, cell_rect, is_hovered).image(
+            cached.texture.id(),
+            draw_rect,
+            egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
+            tint,
+        );
+        true
     }
 
     fn compute_glyph_rect(
@@ -717,35 +641,20 @@ impl SpecimenState {
         ctx: &egui::Context,
     ) -> Option<egui::Rect> {
         let ch = char::from_u32(cp)?;
-        let center_x = cell_min.x + cell_w / 2.0;
-        let center_y = cell_min.y + cell_h / 2.0 + 8.0;
+        let center = cell_center(cell_min, cell_w, cell_h);
 
         if let Some(font_bytes) = raster_font
-            && let Ok(font) = FontRef::new(font_bytes) {
-                let charmap = font.charmap();
-                if let Some(gid) = charmap.map(ch) {
-                    let font_metrics = font.metrics(Size::new(px_size), LocationRef::default());
-                    let glyph_metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
-                    let advance_w = glyph_metrics.advance_width(gid).unwrap_or(0.0);
-                    let ascent = font_metrics.ascent;
-                    let descent = font_metrics.descent;
-                    let extent_h = ascent - descent;
-
-                    let baseline_y = center_y + (ascent + descent) / 2.0;
-                    let pen_x = center_x - advance_w / 2.0;
-
-                    return Some(egui::Rect::from_min_size(
-                        egui::pos2(pen_x, baseline_y - ascent),
-                        egui::vec2(advance_w, extent_h),
-                    ));
-                }
-            }
+            && let Ok(font) = FontRef::new(font_bytes)
+            && let Some(gid) = font.charmap().map(ch)
+        {
+            return Some(raster_glyph_rect(&font, gid, px_size, center));
+        }
 
         let glyph_font = crate::app::uniform_font_id(ctx, px_size);
         let galley = ctx.fonts(|f| f.layout_no_wrap(ch.to_string(), glyph_font, egui::Color32::WHITE));
         let size = galley.size();
         Some(egui::Rect::from_min_size(
-            egui::pos2(center_x - size.x / 2.0, center_y - size.y / 2.0),
+            egui::pos2(center.0 - size.x / 2.0, center.1 - size.y / 2.0),
             size,
         ))
     }
@@ -761,25 +670,72 @@ impl SpecimenState {
         _ctx: &egui::Context,
     ) -> Option<egui::Rect> {
         let gid = self.remap_entries[remap_idx].gid;
-        let center_x = cell_min.x + cell_w / 2.0;
-        let center_y = cell_min.y + cell_h / 2.0 + 8.0;
-
-        let font_bytes = raster_font?;
-        let font = FontRef::new(font_bytes).ok()?;
-        let glyph_id = skrifa::GlyphId::new(gid as u32);
-        let font_metrics = font.metrics(Size::new(px_size), LocationRef::default());
-        let glyph_metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
-        let advance_w = glyph_metrics.advance_width(glyph_id).unwrap_or(0.0);
-        let ascent = font_metrics.ascent;
-        let descent = font_metrics.descent;
-        let extent_h = ascent - descent;
-
-        let baseline_y = center_y + (ascent + descent) / 2.0;
-        let pen_x = center_x - advance_w / 2.0;
-
-        Some(egui::Rect::from_min_size(
-            egui::pos2(pen_x, baseline_y - ascent),
-            egui::vec2(advance_w, extent_h),
+        let font = FontRef::new(raster_font?).ok()?;
+        Some(raster_glyph_rect(
+            &font,
+            skrifa::GlyphId::new(gid as u32),
+            px_size,
+            cell_center(cell_min, cell_w, cell_h),
         ))
     }
+}
+
+/// The glyph anchor point of a specimen cell: horizontally centered, nudged
+/// below center to leave room for the codepoint label.
+fn cell_center(cell_min: egui::Pos2, cell_w: f32, cell_h: f32) -> (f32, f32) {
+    (cell_min.x + cell_w / 2.0, cell_min.y + cell_h / 2.0 + 8.0)
+}
+
+/// A painter that clips to the cell unless the cell is hovered (hovered
+/// cells intentionally overflow their neighbors).
+fn cell_painter(painter: &egui::Painter, cell_rect: egui::Rect, is_hovered: bool) -> egui::Painter {
+    if is_hovered {
+        painter.clone()
+    } else {
+        painter.with_clip_rect(cell_rect)
+    }
+}
+
+struct CellGlyphMetrics {
+    advance_w: f32,
+    ascent: f32,
+    descent: f32,
+    baseline_y: f32,
+    pen_x: f32,
+}
+
+/// Baseline/pen placement centering a glyph's advance in a cell.
+fn cell_glyph_metrics(
+    font: &FontRef,
+    gid: skrifa::GlyphId,
+    px_size: f32,
+    center: (f32, f32),
+    fallback_advance: f32,
+) -> CellGlyphMetrics {
+    let font_metrics = font.metrics(Size::new(px_size), LocationRef::default());
+    let glyph_metrics = font.glyph_metrics(Size::new(px_size), LocationRef::default());
+    let advance_w = glyph_metrics.advance_width(gid).unwrap_or(fallback_advance);
+    let ascent = font_metrics.ascent;
+    let descent = font_metrics.descent;
+    CellGlyphMetrics {
+        advance_w,
+        ascent,
+        descent,
+        baseline_y: center.1 + (ascent + descent) / 2.0,
+        pen_x: center.0 - advance_w / 2.0,
+    }
+}
+
+/// The rect a rasterized glyph's advance/extent occupies in a cell.
+fn raster_glyph_rect(
+    font: &FontRef,
+    gid: skrifa::GlyphId,
+    px_size: f32,
+    center: (f32, f32),
+) -> egui::Rect {
+    let m = cell_glyph_metrics(font, gid, px_size, center, 0.0);
+    egui::Rect::from_min_size(
+        egui::pos2(m.pen_x, m.baseline_y - m.ascent),
+        egui::vec2(m.advance_w, m.ascent - m.descent),
+    )
 }

@@ -196,28 +196,16 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }).collect();
 
         if has_negated || own_pixels.is_some() {
-            let mut min_r: i32 = 0;
-            let mut min_c: i32 = 0;
-            let mut max_r: i32 = 0;
-            let mut max_c: i32 = 0;
-            if let Some(grid) = own_pixels {
-                max_r = grid.height as i32;
-                max_c = grid.width as i32;
-            }
-            for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
-                if let Some(sg) = sg {
-                    let eff_r = gref.row() as i32;
-                    let eff_c = gref.col() as i32;
-                    if sg.width != 0 && sg.height != 0 {
-                        min_r = min_r.min(eff_r);
-                        min_c = min_c.min(eff_c);
-                        max_r = max_r.max(eff_r + sg.height as i32);
-                        max_c = max_c.max(eff_c + sg.width as i32);
-                    }
-                }
-            }
-            let width = (max_c - min_c).max(0) as u16;
-            let height = (max_r - min_r).max(0) as u16;
+            let (min_r, min_c, width, height) = crate::render::contour::layer_bounds(
+                own_pixels.map(|g| (g, 0, 0)).into_iter().chain(
+                    refs.iter().zip(ref_scaled.iter()).filter_map(|(gref, sg)| {
+                        sg.as_ref()
+                            .filter(|g| g.width != 0 && g.height != 0)
+                            .map(|g| (g, gref.row() as i32, gref.col() as i32))
+                    }),
+                ),
+            );
+            let (width, height) = (width as u16, height as u16);
             let mut result = PixelGrid::new(width, height);
 
             let mut components = Vec::new();

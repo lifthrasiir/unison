@@ -476,6 +476,70 @@ pub fn track_contour_fullpixel(grid: &PixelGrid) -> Vec<Vec<(f32, f32)>> {
     track_contour(&fp_grid, PX_SUBPIXEL)
 }
 
+/// Bounding box of positioned layers: `(min_r, min_c, width, height)`.
+/// The box always includes the origin, matching how composites treat (0, 0)
+/// as the own-glyph anchor.
+pub(crate) fn layer_bounds<'a>(
+    layers: impl IntoIterator<Item = (&'a PixelGrid, i32, i32)>,
+) -> (i32, i32, usize, usize) {
+    let mut min_r: i32 = 0;
+    let mut min_c: i32 = 0;
+    let mut max_r: i32 = 0;
+    let mut max_c: i32 = 0;
+    for (grid, row_off, col_off) in layers {
+        min_r = min_r.min(row_off);
+        min_c = min_c.min(col_off);
+        max_r = max_r.max(row_off + grid.height as i32);
+        max_c = max_c.max(col_off + grid.width as i32);
+    }
+    let width = (max_c - min_c).max(0) as usize;
+    let height = (max_r - min_r).max(0) as usize;
+    (min_r, min_c, width, height)
+}
+
+/// One step of the flood fill shared by [`track_contour_multi`] and
+/// [`track_contour_multi_diff`]: computes which sides of pixel `i` connect
+/// to its neighbors, queues connected unvisited neighbors, and emits
+/// boundary segments for the disconnected sides.
+#[expect(clippy::too_many_arguments)]
+fn expand_pixel(
+    i: usize,
+    stride: usize,
+    pixel_adj: u8,
+    gap_segs: &[(f32, f32, f32, f32)],
+    adj_data: &[u8],
+    visited: &HashSet<usize>,
+    unsure: &mut Vec<usize>,
+    segs: &mut Vec<(f32, f32, f32, f32)>,
+) {
+    let top_adj = adj_data[i.wrapping_sub(stride)];
+    let bottom_adj = adj_data[i + stride];
+    let left_adj = adj_data[i.wrapping_sub(1)];
+    let right_adj = adj_data[i + 1];
+
+    let connected = connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
+
+    if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
+        unsure.push(i - stride);
+    }
+    if (connected & 0b00110000) != 0 && !visited.contains(&(i + 1)) {
+        unsure.push(i + 1);
+    }
+    if (connected & 0b00001100) != 0 && !visited.contains(&(i + stride)) {
+        unsure.push(i + stride);
+    }
+    if (connected & 0b00000011) != 0 && !visited.contains(&(i - 1)) {
+        unsure.push(i - 1);
+    }
+
+    let disconnected = connected ^ 0xFF;
+    if disconnected != 0 {
+        let y = (i / stride) as f32 - 1.0;
+        let x = (i % stride) as f32;
+        emit_boundary_segs(x, y, pixel_adj, disconnected, gap_segs, segs);
+    }
+}
+
 /// Trace contours from multiple overlapping grids, correctly handling pixels
 /// where different layers contribute different subpixel shapes by computing
 /// the geometric union.
@@ -496,19 +560,7 @@ pub fn track_contour_multi(
         return track_contour(layers[0].0, mask);
     }
 
-    // Compute bounding box
-    let mut min_r: i32 = 0;
-    let mut min_c: i32 = 0;
-    let mut max_r: i32 = 0;
-    let mut max_c: i32 = 0;
-    for &(grid, row_off, col_off) in layers {
-        min_r = min_r.min(row_off);
-        min_c = min_c.min(col_off);
-        max_r = max_r.max(row_off + grid.height as i32);
-        max_c = max_c.max(col_off + grid.width as i32);
-    }
-    let width = (max_c - min_c).max(0) as usize;
-    let height = (max_r - min_r).max(0) as usize;
+    let (min_r, min_c, width, height) = layer_bounds(layers.iter().copied());
     if width == 0 || height == 0 {
         return Vec::new();
     }
@@ -587,33 +639,10 @@ pub fn track_contour_multi(
                     (entry.0, std::borrow::Cow::Borrowed(entry.1.as_slice()))
                 };
 
-                let top_adj = adj_data[i.wrapping_sub(stride)];
-                let bottom_adj = adj_data[i + stride];
-                let left_adj = adj_data[i.wrapping_sub(1)];
-                let right_adj = adj_data[i + 1];
-
-                let connected =
-                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
-
-                if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
-                    unsure.push(i - stride);
-                }
-                if (connected & 0b00110000) != 0 && !visited.contains(&(i + 1)) {
-                    unsure.push(i + 1);
-                }
-                if (connected & 0b00001100) != 0 && !visited.contains(&(i + stride)) {
-                    unsure.push(i + stride);
-                }
-                if (connected & 0b00000011) != 0 && !visited.contains(&(i - 1)) {
-                    unsure.push(i - 1);
-                }
-
-                let disconnected = connected ^ 0xFF;
-                if disconnected != 0 {
-                    let y = (i / stride) as f32 - 1.0;
-                    let x = (i % stride) as f32;
-                    emit_boundary_segs(x, y, pixel_adj, disconnected, gap_segs.as_ref(), &mut segs);
-                }
+                expand_pixel(
+                    i, stride, pixel_adj, gap_segs.as_ref(), &adj_data,
+                    &visited, &mut unsure, &mut segs,
+                );
             }
 
             trace_closed_paths(&segs, MULTI_KEY_SCALE, &mut paths);
@@ -644,19 +673,8 @@ pub fn track_contour_multi_diff(
         return track_contour_multi(&plain, mask);
     }
 
-    // Compute bounding box
-    let mut min_r: i32 = 0;
-    let mut min_c: i32 = 0;
-    let mut max_r: i32 = 0;
-    let mut max_c: i32 = 0;
-    for &(grid, row_off, col_off, _) in layers {
-        min_r = min_r.min(row_off);
-        min_c = min_c.min(col_off);
-        max_r = max_r.max(row_off + grid.height as i32);
-        max_c = max_c.max(col_off + grid.width as i32);
-    }
-    let width = (max_c - min_c).max(0) as usize;
-    let height = (max_r - min_r).max(0) as usize;
+    let (min_r, min_c, width, height) =
+        layer_bounds(layers.iter().map(|&(g, r, c, _)| (g, r, c)));
     if width == 0 || height == 0 {
         return Vec::new();
     }
@@ -731,38 +749,13 @@ pub fn track_contour_multi_diff(
                 visited.insert(i);
 
                 let key = (pos_masks[i], neg_masks[i]);
-                let (pixel_adj, gap_segs) = {
-                    let entry = diff_cache.get(&key).unwrap();
-                    (entry.0, std::borrow::Cow::Borrowed(entry.1.as_slice()))
-                };
+                let entry = diff_cache.get(&key).unwrap();
+                let (pixel_adj, gap_segs) = (entry.0, entry.1.as_slice());
 
-                let top_adj = adj_data[i.wrapping_sub(stride)];
-                let bottom_adj = adj_data[i + stride];
-                let left_adj = adj_data[i.wrapping_sub(1)];
-                let right_adj = adj_data[i + 1];
-
-                let connected =
-                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
-
-                if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
-                    unsure.push(i - stride);
-                }
-                if (connected & 0b00110000) != 0 && !visited.contains(&(i + 1)) {
-                    unsure.push(i + 1);
-                }
-                if (connected & 0b00001100) != 0 && !visited.contains(&(i + stride)) {
-                    unsure.push(i + stride);
-                }
-                if (connected & 0b00000011) != 0 && !visited.contains(&(i - 1)) {
-                    unsure.push(i - 1);
-                }
-
-                let disconnected = connected ^ 0xFF;
-                if disconnected != 0 {
-                    let y = (i / stride) as f32 - 1.0;
-                    let x = (i % stride) as f32;
-                    emit_boundary_segs(x, y, pixel_adj, disconnected, gap_segs.as_ref(), &mut segs);
-                }
+                expand_pixel(
+                    i, stride, pixel_adj, gap_segs, &adj_data,
+                    &visited, &mut unsure, &mut segs,
+                );
             }
 
             trace_closed_paths(&segs, MULTI_KEY_SCALE, &mut paths);

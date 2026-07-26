@@ -1,11 +1,14 @@
 use std::fmt;
+#[cfg(any(feature = "editor", test))]
 use std::io::Write;
 use std::path::Path;
 
 use anyhow::{Context, Result, bail};
 
 use crate::document::*;
-use crate::pixel::{chars_to_shape, shape_to_chars};
+use crate::pixel::chars_to_shape;
+#[cfg(any(feature = "editor", test))]
+use crate::pixel::shape_to_chars;
 
 // ---------------------------------------------------------------------------
 // Backtick-quoting tokenizer
@@ -224,6 +227,19 @@ pub struct GlyphHeaderFlags {
 /// document model and grid reconciliation can never disagree about whether
 /// a header owns a pixel grid.
 pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFlags {
+    parse_glyph_flag_parts_impl(flag_parts, &mut |_| {})
+}
+
+const GLYPH_FLAG_KEYWORDS: [&str; 7] =
+    ["sticky", "inline", "mark", "advance", "left", "top", "scale"];
+
+/// The one walker behind both the lenient parse and the strict validation.
+/// `err` receives a message for each malformed token; the lenient caller
+/// ignores them, the strict caller reports the first one.
+fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
+    flag_parts: &[S],
+    err: &mut impl FnMut(String),
+) -> GlyphHeaderFlags {
     let mut flags = GlyphHeaderFlags::default();
     let mut fp = 0;
     while fp < flag_parts.len() {
@@ -233,26 +249,27 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
             "mark" => flags.mark = true,
             "advance" => {
                 fp += 1;
-                if fp < flag_parts.len() {
-                    flags.advance = flag_parts[fp].as_ref().parse().ok();
-                }
-            }
-            "left" => {
-                fp += 1;
-                if fp < flag_parts.len() {
-                    flags.left = flag_parts[fp].as_ref().parse().ok();
-                }
-            }
-            "top" => {
-                fp += 1;
-                if fp < flag_parts.len() {
-                    flags.top = flag_parts[fp].as_ref().parse().ok();
+                flags.advance = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
+                if flags.advance.is_none() {
+                    err("'advance' requires a numeric value".to_string());
                 }
             }
             "scale" => {
                 fp += 1;
-                if fp < flag_parts.len() {
-                    flags.scale = flag_parts[fp].as_ref().parse().ok();
+                flags.scale = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
+                if flags.scale.is_none() {
+                    err("'scale' requires a numeric value".to_string());
+                }
+            }
+            kw @ ("left" | "top") => {
+                fp += 1;
+                let value = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
+                if value.is_none() {
+                    err(format!("'{kw}' requires an i16 value"));
+                }
+                match kw {
+                    "left" => flags.left = value,
+                    _ => flags.top = value,
                 }
             }
             other => {
@@ -261,11 +278,21 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
                         flags.width = Some(w);
                         fp += 1;
                         if fp < flag_parts.len() {
-                            flags.height = flag_parts[fp].as_ref().parse().ok();
+                            let next = flag_parts[fp].as_ref();
+                            if let Ok(h) = next.parse::<u16>() {
+                                flags.height = Some(h);
+                            } else if GLYPH_FLAG_KEYWORDS.contains(&next) {
+                                // A flag keyword right after a lone width:
+                                // no height given, keyword handled next round.
+                                continue;
+                            } else {
+                                err(format!("expected height after width, got '{next}'"));
+                            }
                         }
                         fp += 1;
                         continue;
                     }
+                err(format!("unrecognized glyph header token '{other}'"));
             }
         }
         fp += 1;
@@ -382,63 +409,19 @@ fn validate_glyph_header<S: AsRef<str>>(parts: &[S], line_no: usize) -> Result<(
     validate_glyph_flags(rest, line_no)
 }
 
+/// Strict form of [`parse_glyph_flag_parts`]: same grammar, same walker,
+/// but the first malformed token becomes an error.
 fn validate_glyph_flags<S: AsRef<str>>(tokens: &[S], line_no: usize) -> Result<()> {
-    let mut i = 0;
-    let mut width_seen = false;
-    while i < tokens.len() {
-        match tokens[i].as_ref() {
-            "sticky" | "inline" | "mark" => i += 1,
-            "advance" | "scale" => {
-                let kw = tokens[i].as_ref().to_string();
-                i += 1;
-                if i >= tokens.len() || tokens[i].as_ref().parse::<u16>().is_err() {
-                    bail!(
-                        "line {}: '{}' requires a numeric value",
-                        line_no + 1,
-                        kw,
-                    );
-                }
-                i += 1;
-            }
-            "left" | "top" => {
-                let kw = tokens[i].as_ref().to_string();
-                i += 1;
-                if i >= tokens.len() || tokens[i].as_ref().parse::<i16>().is_err() {
-                    bail!(
-                        "line {}: '{}' requires an i16 value",
-                        line_no + 1,
-                        kw,
-                    );
-                }
-                i += 1;
-            }
-            other => {
-                if !width_seen && other.parse::<u16>().is_ok() {
-                    width_seen = true;
-                    i += 1;
-                    if i < tokens.len() && tokens[i].as_ref().parse::<u16>().is_ok() {
-                        i += 1;
-                    } else if i < tokens.len() && !matches!(
-                        tokens[i].as_ref(),
-                        "sticky" | "inline" | "mark" | "advance" | "left" | "top" | "scale",
-                    ) {
-                        bail!(
-                            "line {}: expected height after width, got '{}'",
-                            line_no + 1,
-                            tokens[i].as_ref(),
-                        );
-                    }
-                } else {
-                    bail!(
-                        "line {}: unrecognized glyph header token '{}'",
-                        line_no + 1,
-                        other,
-                    );
-                }
-            }
+    let mut first_err: Option<String> = None;
+    parse_glyph_flag_parts_impl(tokens, &mut |msg| {
+        if first_err.is_none() {
+            first_err = Some(msg);
         }
+    });
+    match first_err {
+        Some(msg) => bail!("line {}: {}", line_no + 1, msg),
+        None => Ok(()),
     }
-    Ok(())
 }
 
 fn is_pixel_row_next(
@@ -508,6 +491,7 @@ fn parse_pixel_rows(
     Ok(grid)
 }
 
+#[cfg(any(feature = "editor", test))]
 pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> {
     for item in &doc.items {
         match item {
@@ -542,6 +526,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
 }
 
 /// Encode a single pixel row of `grid` as a string of 2-char pixel codes.
+#[cfg(any(feature = "editor", test))]
 pub fn encode_grid_row(grid: &PixelGrid, row: u16) -> String {
     let mut s = String::with_capacity(grid.width as usize * 2);
     for col in 0..grid.width {
@@ -552,6 +537,7 @@ pub fn encode_grid_row(grid: &PixelGrid, row: u16) -> String {
     s
 }
 
+#[cfg(any(feature = "editor", test))]
 fn format_glyph_flags(body: &GlyphBody) -> String {
     let mut flags = String::new();
     if body.sticky {
@@ -578,6 +564,7 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     flags
 }
 
+#[cfg(any(feature = "editor", test))]
 fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -> Result<()> {
     let flags = format_glyph_flags(body);
     let qname = quote_token(&name.display());
@@ -914,6 +901,7 @@ pub fn derive_document(
 
 // Write via temp file + rename to work around macOS SMB server silently
 // ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
+#[cfg(any(feature = "editor", test))]
 pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
     let dir = path.parent().unwrap_or(Path::new("."));
     let tmp_path = dir.join(format!(

@@ -20,6 +20,36 @@ use crate::pixel;
 const COARSE_SCROLL_COOLDOWN: f64 = 0.05;
 pub(crate) const UNFILLED_OPACITY: f32 = 0.35;
 
+/// A foreground popup area anchored just below the caret (whose screen
+/// position and row height the paint loop stores per frame).
+fn caret_anchored_area(ctx: &egui::Context, id: egui::Id) -> egui::Area {
+    let stored_pos: Option<egui::Pos2> =
+        ctx.data(|d| d.get_temp(egui::Id::new("cursor_screen_pos")));
+    let stored_rh: f32 =
+        ctx.data(|d| d.get_temp(egui::Id::new("cursor_row_height")).unwrap_or(16.0));
+    let pos = stored_pos.unwrap_or(egui::pos2(100.0, 100.0));
+    egui::Area::new(id)
+        .order(egui::Order::Foreground)
+        .fixed_pos(egui::pos2(pos.x, pos.y + stored_rh + 2.0))
+}
+
+/// Wheel step for hover-scroll gestures that arrived via the scroll
+/// interceptor: `Some(step)` only when the interceptor captured the gesture
+/// and the pointer hovers the target area.
+pub(crate) fn interceptor_scroll_step(ctx: &egui::Context, hovering: bool) -> Option<i32> {
+    if !hovering {
+        return None;
+    }
+    let on_interceptor = ctx.data(|d| {
+        d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
+            .unwrap_or(false)
+    });
+    if !on_interceptor {
+        return None;
+    }
+    debounced_scroll_step(ctx)
+}
+
 pub(crate) fn debounced_scroll_step(ctx: &egui::Context) -> Option<i32> {
     let now = ctx.input(|i| i.time);
     ctx.input(|i| i.pointer.hover_pos())?;
@@ -1388,13 +1418,9 @@ pub fn show_document(
                 });
                 state.grid_hover = on_grid;
 
-                let gesture_on_interceptor = ui.ctx().data(|d| {
-                    d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
-                        .unwrap_or(false)
-                });
-                if gesture_on_interceptor && on_grid {
+                {
                     let ctrl_held = ui.input(|i| i.modifiers.command);
-                    if let Some(step) = debounced_scroll_step(ui.ctx()) {
+                    if let Some(step) = interceptor_scroll_step(ui.ctx(), on_grid) {
                         if ctrl_held {
                             // Ctrl+wheel on grid: cycle layers (same as layer palette)
                             crate::editor::inline_tools::cycle_layer_mode(
@@ -1836,15 +1862,7 @@ pub fn show_document(
 
     // Rename popup
     if matches!(state.popup, PopupState::Rename { .. }) {
-        let popup_id = egui::Id::new("rename_popup");
-        let stored_pos: Option<egui::Pos2> = ui.ctx().data(|d| d.get_temp(egui::Id::new("cursor_screen_pos")));
-        let stored_rh: f32 = ui.ctx().data(|d| d.get_temp(egui::Id::new("cursor_row_height")).unwrap_or(16.0));
-        let popup_pos = stored_pos.unwrap_or(egui::pos2(100.0, 100.0));
-        let popup_pos = egui::pos2(popup_pos.x, popup_pos.y + stored_rh + 2.0);
-
-        let area = egui::Area::new(popup_id)
-            .order(egui::Order::Foreground)
-            .fixed_pos(popup_pos);
+        let area = caret_anchored_area(ui.ctx(), egui::Id::new("rename_popup"));
 
         let area_resp = area.show(ui.ctx(), |ui| {
             egui::Frame::popup(ui.style()).show(ui, |ui| {
@@ -1913,18 +1931,7 @@ pub fn show_document(
 
     // Autocomplete popup
     if state.autocomplete.is_some() {
-        let popup_id = egui::Id::new("autocomplete_popup");
-        let stored_pos: Option<egui::Pos2> =
-            ui.ctx().data(|d| d.get_temp(egui::Id::new("cursor_screen_pos")));
-        let stored_rh: f32 = ui
-            .ctx()
-            .data(|d| d.get_temp(egui::Id::new("cursor_row_height")).unwrap_or(16.0));
-        let popup_pos = stored_pos.unwrap_or(egui::pos2(100.0, 100.0));
-        let popup_pos = egui::pos2(popup_pos.x, popup_pos.y + stored_rh + 2.0);
-
-        let ac_area = egui::Area::new(popup_id)
-            .order(egui::Order::Foreground)
-            .fixed_pos(popup_pos)
+        let ac_area = caret_anchored_area(ui.ctx(), egui::Id::new("autocomplete_popup"))
             .show(ui.ctx(), |ui| {
                 egui::Frame::popup(ui.style()).show(ui, |ui| {
                     let ac = state.autocomplete.as_ref().unwrap();

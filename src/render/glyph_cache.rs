@@ -50,9 +50,7 @@ pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
 ) -> HashMap<String, Vec<(String, Vec<GlyphPoint>)>> {
     let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
     for (name, cached) in cache {
-        let mut prefix = name.as_str();
-        while let Some(colon_pos) = prefix.rfind(':') {
-            prefix = &prefix[..colon_pos];
+        for prefix in crate::ref_composite::alternative_prefixes(name) {
             map.entry(prefix.to_string())
                 .or_default()
                 .push((name.clone(), cached.anchors().to_vec()));

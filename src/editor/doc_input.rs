@@ -16,16 +16,10 @@ pub(crate) fn handle_keys(
             || (i.modifiers.command && i.key_pressed(egui::Key::Y))
     });
 
-    if undo_pressed && let Some(c) = state.undo.undo(lines) {
-        state.cursor = caret::clamp(lines, c);
-        state.selection_anchor = None;
-        state.skip_reconcile = true;
+    if undo_pressed && state.perform_undo(lines) {
         return true;
     }
-    if redo_pressed && let Some(c) = state.undo.redo(lines) {
-        state.cursor = caret::clamp(lines, c);
-        state.selection_anchor = None;
-        state.skip_reconcile = true;
+    if redo_pressed && state.perform_redo(lines) {
         return true;
     }
 
@@ -35,47 +29,29 @@ pub(crate) fn handle_keys(
         for event in &input.events {
             match event {
                 egui::Event::Copy => {
-                    if let Some((lo, hi)) = state.selection_range() {
-                        let text = caret::extract_text(lines, lo, hi);
-                        if !text.is_empty() {
-                            clipboard_out = Some(text);
-                        }
-                    } else {
-                        let (lo, hi) = current_line_range(lines, state.cursor);
-                        let text = caret::extract_text(lines, lo, hi);
-                        if !text.is_empty() {
-                            clipboard_out = Some(text);
-                        }
+                    let (lo, hi) = copy_range(lines, state);
+                    let text = caret::extract_text(lines, lo, hi);
+                    if !text.is_empty() {
+                        clipboard_out = Some(text);
                     }
                 }
                 egui::Event::Cut => {
-                    if let Some((lo, hi)) = state.selection_range() {
-                        let text = caret::extract_text(lines, lo, hi);
-                        if !text.is_empty() {
-                            clipboard_out = Some(text);
-                        }
-                        state.cursor = crate::editor::editing::delete_selection(
+                    let (lo, hi) = copy_range(lines, state);
+                    let text = caret::extract_text(lines, lo, hi);
+                    if !text.is_empty() {
+                        clipboard_out = Some(text);
+                    }
+                    state.cursor = if let Some(anchor) = state.selection_anchor.take() {
+                        crate::editor::editing::delete_selection(
                             lines,
                             &mut state.undo,
                             state.cursor,
-                            state.selection_anchor.unwrap(),
-                        );
-                        state.selection_anchor = None;
-                        changed = true;
+                            anchor,
+                        )
                     } else {
-                        let (lo, hi) = current_line_range(lines, state.cursor);
-                        let text = caret::extract_text(lines, lo, hi);
-                        if !text.is_empty() {
-                            clipboard_out = Some(text);
-                        }
-                        state.cursor = crate::editor::editing::delete_selection(
-                            lines,
-                            &mut state.undo,
-                            lo,
-                            hi,
-                        );
-                        changed = true;
-                    }
+                        crate::editor::editing::delete_selection(lines, &mut state.undo, lo, hi)
+                    };
+                    changed = true;
                 }
                 egui::Event::Paste(text_to_paste) => {
                     if !text_to_paste.is_empty() {
@@ -377,6 +353,14 @@ pub(crate) fn paste_text(
     undo.push_lines(lo.line, old, new.clone(), *cursor, caret_after);
     lines.splice(lo.line..=hi.line, new);
     *cursor = caret_after;
+}
+
+/// The range Copy/Cut operate on: the selection, or the whole current line
+/// when nothing is selected.
+fn copy_range(lines: &[DocLine], state: &EditorState) -> (Caret, Caret) {
+    state
+        .selection_range()
+        .unwrap_or_else(|| current_line_range(lines, state.cursor))
 }
 
 fn current_line_range(lines: &[DocLine], cursor: Caret) -> (Caret, Caret) {

@@ -25,8 +25,10 @@ pub struct Issue {
     pub file_line: usize,
 }
 
-fn docline_to_file_line(doc: &Document, docline_idx: usize) -> usize {
-    doc.docline_file_lines.get(docline_idx).copied().unwrap_or(docline_idx) + 1
+/// An issue anchored at item `item_idx`'s defining line in `doc`.
+fn issue_at(doc: &Document, item_idx: usize, severity: Severity, message: String) -> Issue {
+    let (line, file_line) = doc.item_lines(item_idx);
+    Issue { severity, message, file: doc.path.clone(), line, file_line }
 }
 
 pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
@@ -67,22 +69,13 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            let line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
-            let file_line = docline_to_file_line(doc, line);
-
             match item {
                 DocumentItem::Glyph { name: GlyphName(n), body } => {
                     for bad in find_invalid_inline_ranges(n) {
-                        issues.push(Issue {
-                            severity: Severity::Error,
-                            message: format!(
-                                "invalid inline range '{}' (end < start or too large)",
-                                bad,
-                            ),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
+                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
+                            "invalid inline range '{}' (end < start or too large)",
+                            bad,
+                        )));
                     }
                     // Duplicate detection needs the *defining* line of each
                     // expanded name, which the expansion does not retain, so
@@ -99,19 +92,14 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     };
                     for en in expanded {
                         if let Some((prev_file, prev_line)) = glyph_defs.get(en.as_str()) {
-                            issues.push(Issue {
-                                severity: Severity::Warning,
-                                message: format!(
-                                    "duplicate glyph '{}' (first defined at {}:{})",
-                                    en,
-                                    short_path(prev_file),
-                                    prev_line,
-                                ),
-                                file: doc.path.clone(),
-                                line,
-                                file_line,
-                            });
+                            issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
+                                "duplicate glyph '{}' (first defined at {}:{})",
+                                en,
+                                short_path(prev_file),
+                                prev_line,
+                            )));
                         } else {
+                            let (_, file_line) = doc.item_lines(item_idx);
                             glyph_defs.insert(en, (doc.path.clone(), file_line));
                         }
                     }
@@ -123,13 +111,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         && body.left.is_none()
                         && body.points.is_empty()
                     {
-                        issues.push(Issue {
-                            severity: Severity::Warning,
-                            message: format!("glyph '{}' has no content", n),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
+                        issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
+                            "glyph '{}' has no content", n,
+                        )));
                     }
                 }
                 DocumentItem::Remap { feature, .. } => {
@@ -168,9 +152,6 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            let line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
-            let file_line = docline_to_file_line(doc, line);
-
             match item {
                 // Unresolvable refs, map targets and remap operands are all
                 // reported by the resolution pass above.
@@ -185,19 +166,14 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         if let Some((prev_file, prev_line)) =
                             mapped_codepoints.get(cp)
                         {
-                            issues.push(Issue {
-                                severity: Severity::Warning,
-                                message: format!(
-                                    "duplicate codepoint mapping U+{:04X} (first at {}:{})",
-                                    cp,
-                                    short_path(prev_file),
-                                    prev_line,
-                                ),
-                                file: doc.path.clone(),
-                                line,
-                                file_line,
-                            });
+                            issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
+                                "duplicate codepoint mapping U+{:04X} (first at {}:{})",
+                                cp,
+                                short_path(prev_file),
+                                prev_line,
+                            )));
                         } else {
+                            let (_, file_line) = doc.item_lines(item_idx);
                             mapped_codepoints
                                 .insert(*cp, (doc.path.clone(), file_line));
                         }
@@ -207,43 +183,27 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     remap_group, ..
                 } => {
                     if !remap_groups.contains(remap_group.as_str()) {
-                        issues.push(Issue {
-                            severity: Severity::Error,
-                            message: format!(
-                                "feature references undefined remap group '{}'",
-                                remap_group,
-                            ),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
+                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
+                            "feature references undefined remap group '{}'",
+                            remap_group,
+                        )));
                     }
                 }
                 DocumentItem::NameParts { values, .. } => {
                     for val in values {
                         if val.starts_with('$') && !name_parts.contains_key(val.as_str()) {
-                            issues.push(Issue {
-                                severity: Severity::Warning,
-                                message: format!(
-                                    "undefined name-parts reference '{}'",
-                                    val,
-                                ),
-                                file: doc.path.clone(),
-                                line,
-                                file_line,
-                            });
+                            issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
+                                "undefined name-parts reference '{}'",
+                                val,
+                            )));
                         }
                     }
                 }
                 DocumentItem::Directive(text) => {
                     if classify_directive(text) == Directive::Unrecognized {
-                        issues.push(Issue {
-                            severity: Severity::Warning,
-                            message: format!("unrecognized directive '{}'", text.trim()),
-                            file: doc.path.clone(),
-                            line,
-                            file_line,
-                        });
+                        issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
+                            "unrecognized directive '{}'", text.trim(),
+                        )));
                     }
                 }
                 _ => {}
@@ -372,15 +332,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             if !reached {
                 let (doc_idx, doc_item_idx, name) = item_location[idx];
                 let doc = docs[doc_idx];
-                let line = doc.item_line_starts.get(doc_item_idx).copied().unwrap_or(0);
-                let file_line = docline_to_file_line(doc, line);
-                issues.push(Issue {
-                    severity: Severity::Warning,
-                    message: format!("glyph '{}' is unused", name),
-                    file: doc.path.clone(),
-                    line,
-                    file_line,
-                });
+                issues.push(issue_at(doc, doc_item_idx, Severity::Warning, format!(
+                    "glyph '{}' is unused", name,
+                )));
             }
         }
     }
@@ -395,12 +349,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 if let DocumentItem::Glyph { name: GlyphName(n), body } = item
                     && body.points.iter().any(|p| p.position.starts_with('-')) {
                         let resolved_name = substitute_name_parts(n, &name_parts);
-                        let line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
-                        let file_line = docline_to_file_line(doc, line);
+                        let (line, file_line) = doc.item_lines(item_idx);
                         // Find all base prefixes (foo:bar:quux is alt for "foo" and "foo:bar")
-                        let mut prefix = resolved_name.as_str();
-                        while let Some(colon_pos) = prefix.rfind(':') {
-                            prefix = &prefix[..colon_pos];
+                        for prefix in crate::ref_composite::alternative_prefixes(&resolved_name) {
                             bases_to_alts
                                 .entry(prefix.to_string())
                                 .or_default()

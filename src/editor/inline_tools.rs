@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::document::{Document, DocumentItem, NamePartsMap};
 use crate::editor::colors::Palette;
 use crate::editor::document_view::{
-    INLINE_PALETTE_CELL, PREVIEW_SCALE, UNFILLED_OPACITY, debounced_scroll_step,
+    INLINE_PALETTE_CELL, PREVIEW_SCALE, UNFILLED_OPACITY,
 };
 use crate::editor::grid_render;
 use crate::editor::minimap;
@@ -107,11 +107,9 @@ pub(crate) fn draw_inline_tools_panel(
             hover_on_preview_row,
         );
     });
-    let gesture_on_interceptor = ui.ctx().data(|d| {
-        d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
-            .unwrap_or(false)
-    });
-    if gesture_on_interceptor && hover_on_preview_row && let Some(step) = debounced_scroll_step(ui.ctx()) {
+    if let Some(step) =
+        crate::editor::document_view::interceptor_scroll_step(ui.ctx(), hover_on_preview_row)
+    {
         cycle_layer_mode(state, body, edit_idx, step);
     }
 
@@ -363,12 +361,8 @@ fn draw_inline_palette(
             .hover_pos()
             .is_some_and(|hp| palette_rect.contains(hp))
     });
-    let gesture_on_interceptor = ui.ctx().data(|d| {
-        d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
-            .unwrap_or(false)
-    });
-    if gesture_on_interceptor && hover_on_palette
-        && let Some(step) = debounced_scroll_step(ui.ctx())
+    if let Some(step) =
+        crate::editor::document_view::interceptor_scroll_step(ui.ctx(), hover_on_palette)
             && let Some(cur_idx) = shapes.iter().position(|s| s.shape_id() == selected_shape.shape_id()) {
                 let next = (cur_idx as i32 + step).clamp(0, shapes.len() as i32 - 1) as usize;
                 let next_shape = shapes[next];
@@ -399,7 +393,7 @@ fn draw_inline_palette(
         } else {
             grid_render::apply_opacity(pal.pixel_filled, UNFILLED_OPACITY)
         };
-        draw_pixel_cell_colored(painter, cell_rect.shrink(2.0), *shape, Some(px_color));
+        draw_pixel_cell_colored(painter, cell_rect.shrink(2.0), *shape, px_color);
 
         if is_selected {
             painter.rect_stroke(

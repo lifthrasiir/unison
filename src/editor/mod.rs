@@ -71,6 +71,18 @@ pub enum EditMode {
     },
 }
 
+impl EditMode {
+    /// The glyph item being pixel-edited, in either grid-editing mode.
+    pub fn pixel_edit_item_idx(&self) -> Option<usize> {
+        match self {
+            EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => {
+                Some(*item_idx)
+            }
+            _ => None,
+        }
+    }
+}
+
 pub enum PopupState {
     None,
     Rename {
@@ -230,6 +242,31 @@ impl EditorState {
             }
     }
 
+    /// Undoes one entry and restores caret/selection state; returns whether
+    /// anything changed.  The single implementation behind both the raw
+    /// Cmd+Z path and the Edit-menu action.
+    pub fn perform_undo(&mut self, lines: &mut Vec<DocLine>) -> bool {
+        if let Some(c) = self.undo.undo(lines) {
+            self.cursor = caret::clamp(lines, c);
+            self.selection_anchor = None;
+            self.skip_reconcile = true;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn perform_redo(&mut self, lines: &mut Vec<DocLine>) -> bool {
+        if let Some(c) = self.undo.redo(lines) {
+            self.cursor = caret::clamp(lines, c);
+            self.selection_anchor = None;
+            self.skip_reconcile = true;
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn apply_edit_action(
         &mut self,
         action: crate::edit_menu::EditAction,
@@ -239,26 +276,8 @@ impl EditorState {
         use crate::edit_menu::EditAction;
         let changed = match action {
             EditAction::None => false,
-            EditAction::Undo => {
-                if let Some(c) = self.undo.undo(lines) {
-                    self.cursor = caret::clamp(lines, c);
-                    self.selection_anchor = None;
-                    self.skip_reconcile = true;
-                    true
-                } else {
-                    false
-                }
-            }
-            EditAction::Redo => {
-                if let Some(c) = self.undo.redo(lines) {
-                    self.cursor = caret::clamp(lines, c);
-                    self.selection_anchor = None;
-                    self.skip_reconcile = true;
-                    true
-                } else {
-                    false
-                }
-            }
+            EditAction::Undo => self.perform_undo(lines),
+            EditAction::Redo => self.perform_redo(lines),
             EditAction::Cut => {
                 if let Some((lo, hi)) = self.selection_range() {
                     let text = caret::extract_text(lines, lo, hi);

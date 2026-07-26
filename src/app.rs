@@ -76,6 +76,14 @@ impl BackgroundTaskStatus {
     }
 }
 
+/// Whether a directory-snapshot document at `path` is shadowed by an open
+/// document editing the same file.
+fn shadowed_by_open(open_documents: &[OpenDocument], path: &std::path::Path) -> bool {
+    open_documents
+        .iter()
+        .any(|open_doc| open_doc.document.path == path)
+}
+
 fn collect_effective_docs<'a>(
     open_documents: &'a [OpenDocument],
     font_base_docs: &'a [Document],
@@ -85,10 +93,7 @@ fn collect_effective_docs<'a>(
         .map(|open_doc| &open_doc.document)
         .collect();
     for base_doc in font_base_docs {
-        let dominated = open_documents
-            .iter()
-            .any(|open_doc| open_doc.document.path == base_doc.path);
-        if !dominated {
+        if !shadowed_by_open(open_documents, &base_doc.path) {
             all_docs.push(base_doc);
         }
     }
@@ -221,9 +226,16 @@ fn min_bottom_panel_height(screen_height: f32) -> f32 {
 }
 
 impl UniformApp {
+    fn active_doc(&self) -> Option<&OpenDocument> {
+        self.active_doc_idx.and_then(|i| self.open_documents.get(i))
+    }
+
+    fn active_doc_mut(&mut self) -> Option<&mut OpenDocument> {
+        self.active_doc_idx.and_then(|i| self.open_documents.get_mut(i))
+    }
+
     fn in_grid_edit(&self) -> bool {
-        self.active_doc_idx
-            .and_then(|i| self.open_documents.get(i))
+        self.active_doc()
             .is_some_and(|d| matches!(
                 d.editor_state.mode,
                 crate::editor::EditMode::GlyphEdit { .. }
@@ -348,34 +360,16 @@ impl UniformApp {
             return;
         }
 
-        match document_io::parse_document(&path) {
-            Ok(doc) => {
-                let mut buf = Vec::new();
-                document_io::serialize_document(&doc, &mut buf).ok();
-                let canonical = String::from_utf8(buf).unwrap_or_default();
-                let mut lines = document_io::parse_doclines(&canonical);
-                if lines.is_empty() {
-                    lines.push(crate::document::DocLine::Text(String::new()));
-                }
-
-                let mut doc = doc;
-                if let Ok((fresh_doc, _)) =
-                    document_io::derive_document(&lines, path.clone())
-                {
-                    doc = fresh_doc;
-                }
-                // Replacing the directory snapshot with an opened file is a
-                // new source revision even when the path is unchanged. The
-                // file may have changed on disk since the folder was loaded.
-                let base = self.font_base_docs.iter().find(|base| base.path == path);
-                doc.edit_gen = base.map_or(1, |b| b.edit_gen.wrapping_add(1));
-                doc.content_gen = base.map_or(1, |b| b.content_gen.wrapping_add(1));
-
-                let open_doc = OpenDocument {
-                    document: doc,
-                    lines,
-                    editor_state: EditorState::new(),
-                };
+        // Replacing the directory snapshot with an opened file is a new
+        // source revision even when the path is unchanged. The file may have
+        // changed on disk since the folder was loaded.
+        let base_gen = self
+            .font_base_docs
+            .iter()
+            .find(|base| base.path == path)
+            .map(|b| (b.edit_gen, b.content_gen));
+        match load_open_document(path.clone(), base_gen) {
+            Ok(open_doc) => {
                 self.open_documents.push(open_doc);
                 self.active_doc_idx = Some(self.open_documents.len() - 1);
                 self.set_status(format!("Opened {}", path.display()));
@@ -401,11 +395,7 @@ impl UniformApp {
             combined ^= doc_hash(&open_doc.document);
         }
         for base_doc in &self.font_base_docs {
-            let dominated = self
-                .open_documents
-                .iter()
-                .any(|open_doc| open_doc.document.path == base_doc.path);
-            if !dominated {
+            if !shadowed_by_open(&self.open_documents, &base_doc.path) {
                 combined ^= doc_hash(base_doc);
             }
         }
@@ -545,7 +535,7 @@ impl UniformApp {
         // for the check; affected files are loaded in parallel.
         let to_open: Vec<PathBuf> = self.font_base_docs.iter()
             .filter(|base| {
-                !self.open_documents.iter().any(|d| d.document.path == base.path)
+                !shadowed_by_open(&self.open_documents, &base.path)
                     && doc_may_reference(&base.items, &action.old_name, &action.kind)
             })
             .map(|base| base.path.clone())
@@ -558,7 +548,7 @@ impl UniformApp {
                     let path = path.clone();
                     let base_gen = base_docs.iter().find(|b| b.path == path)
                         .map(|b| (b.edit_gen, b.content_gen));
-                    s.spawn(move || load_file_for_rename(path, base_gen))
+                    s.spawn(move || load_open_document(path, base_gen).ok())
                 }).collect();
                 handles.into_iter().filter_map(|h| h.join().ok().flatten()).collect()
             });
@@ -990,8 +980,7 @@ impl eframe::App for UniformApp {
         // (skip when hovering on the editing grid — ctrl+scroll cycles layers there)
         {
             let cmd_held = ctx.input(|i| i.modifiers.command);
-            let grid_hover = self.active_doc_idx
-                .and_then(|i| self.open_documents.get(i))
+            let grid_hover = self.active_doc()
                 .is_some_and(|d| d.editor_state.is_grid_hover());
             if cmd_held && !grid_hover
                 && let Some(step) = debounced_scroll_step(ctx) {
@@ -1107,11 +1096,8 @@ impl eframe::App for UniformApp {
         }
 
         let theme_before = ctx.options(|o| o.theme_preference);
-        let (mod_name, shift_name, exit_shortcut) = if cfg!(target_os = "macos") {
-            ("⌘", "⇧", "⌘Q")
-        } else {
-            ("Ctrl+", "Shift+", "Alt+F4")
-        };
+        let (mod_name, shift_name) = crate::edit_menu::platform_shortcut_names();
+        let exit_shortcut = if cfg!(target_os = "macos") { "⌘Q" } else { "Alt+F4" };
 
         let mut menu_new_file = false;
         let mut menu_open_folder = false;
@@ -1143,8 +1129,7 @@ impl eframe::App for UniformApp {
             EditTarget::Editor
         };
 
-        let editor_focused = self.active_doc_idx
-            .and_then(|i| self.open_documents.get(i))
+        let editor_focused = self.active_doc()
             .is_some_and(|d| d.editor_state.is_active());
 
         crate::stackmon::phase("update:menu_bar");
@@ -1226,8 +1211,7 @@ impl eframe::App for UniformApp {
                     let caps = match edit_target {
                         EditTarget::Preview => self.shaped_preview.edit_menu_caps(),
                         EditTarget::Editor => {
-                            self.active_doc_idx
-                                .and_then(|i| self.open_documents.get(i))
+                            self.active_doc()
                                 .map(|d| d.editor_state.edit_menu_caps())
                                 .unwrap_or(EditMenuCaps {
                                     can_undo: false,
@@ -1252,7 +1236,7 @@ impl eframe::App for UniformApp {
                         .add_enabled(in_grid_edit, egui::Button::new("Selection mode").shortcut_text("`"))
                         .clicked()
                     {
-                        if let Some(d) = self.active_doc_idx.and_then(|i| self.open_documents.get_mut(i)) {
+                        if let Some(d) = self.active_doc_mut() {
                             if let crate::editor::EditMode::GlyphEdit { item_idx, .. } = d.editor_state.mode {
                                 d.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx };
                             }
@@ -1263,7 +1247,7 @@ impl eframe::App for UniformApp {
                         .add_enabled(in_grid_edit, egui::Button::new("Drawing mode").shortcut_text("1"))
                         .clicked()
                     {
-                        if let Some(d) = self.active_doc_idx.and_then(|i| self.open_documents.get_mut(i)) {
+                        if let Some(d) = self.active_doc_mut() {
                             if let crate::editor::EditMode::PixelSelect { item_idx } = d.editor_state.mode {
                                 d.editor_state.mode = crate::editor::EditMode::GlyphEdit {
                                     item_idx,
@@ -1276,8 +1260,7 @@ impl eframe::App for UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
-                    let current_scale = self.active_doc_idx
-                        .and_then(|i| self.open_documents.get(i))
+                    let current_scale = self.active_doc()
                         .and_then(|d| {
                             crate::editor::pixel_selection::can_adjust_scale(
                                 &d.document, &d.lines, &d.editor_state,
@@ -1303,13 +1286,8 @@ impl eframe::App for UniformApp {
                     });
                 });
                 ui.menu_button("Selection", |ui| {
-                    let (mod_name, _) = if cfg!(target_os = "macos") {
-                        ("⌘", "⇧")
-                    } else {
-                        ("Ctrl+", "Shift+")
-                    };
-                    let active_doc = self.active_doc_idx
-                        .and_then(|i| self.open_documents.get(i));
+                    let (mod_name, _) = crate::edit_menu::platform_shortcut_names();
+                    let active_doc = self.active_doc();
                     let in_grid_mode = self.in_grid_edit();
                     let has_sel = active_doc.is_some_and(|d|
                         d.editor_state.pixel_selection.is_some()
@@ -1611,14 +1589,13 @@ impl eframe::App for UniformApp {
                     .filter(|d| d.document.dirty)
                     .map(|d| d.document.path.as_path())
                     .collect();
-                sidebar_actions = self.sidebar.show(
-                    ui,
-                    self.active_doc_idx
-                        .and_then(|i| self.open_documents.get(i))
-                        .map(|d| d.document.path.as_path()),
-                    &dirty_paths,
-                    editor_focused,
-                );
+                // Field-level accesses so the `sidebar` borrow stays disjoint
+                // from the `open_documents` one.
+                let active_path = self
+                    .active_doc_idx
+                    .and_then(|i| self.open_documents.get(i))
+                    .map(|d| d.document.path.as_path());
+                sidebar_actions = self.sidebar.show(ui, active_path, &dirty_paths, editor_focused);
             });
 
         for action in sidebar_actions {
@@ -2068,11 +2045,15 @@ fn show_issues_tab(
     });
 }
 
-fn load_file_for_rename(
+/// Loads a file from disk into a fresh `OpenDocument`: parse, serialize to
+/// canonical text, re-derive from the resulting doclines, and bump the
+/// generation counters past the directory snapshot's (`base_gen`).  Shared by
+/// interactive open and the parallel loads `execute_rename` performs.
+fn load_open_document(
     path: PathBuf,
     base_gen: Option<(u64, u64)>,
-) -> Option<OpenDocument> {
-    let doc = document_io::parse_document(&path).ok()?;
+) -> anyhow::Result<OpenDocument> {
+    let doc = document_io::parse_document(&path)?;
     let mut buf = Vec::new();
     document_io::serialize_document(&doc, &mut buf).ok();
     let canonical = String::from_utf8(buf).unwrap_or_default();
@@ -2089,7 +2070,7 @@ fn load_file_for_rename(
         .unwrap_or((1, 1));
     doc.edit_gen = edit_gen;
     doc.content_gen = content_gen;
-    Some(OpenDocument {
+    Ok(OpenDocument {
         document: doc,
         lines,
         editor_state: EditorState::new(),

@@ -885,11 +885,8 @@ fn inject_on_demand_glyph_items(
                 if let (Some(mono_body), Some(color_body)) = (mono_body, color_body) {
                     let mono_s = mono_body.scale.max(1);
                     let color_s = color_body.scale.max(1);
-                    fn lcm(a: u8, b: u8) -> u8 {
-                        fn gcd(mut a: u8, mut b: u8) -> u8 { while b != 0 { let t = b; b = a % b; a = t; } a }
-                        a / gcd(a, b) * b
-                    }
-                    let combined_scale = lcm(mono_s, color_s);
+                    let combined_scale =
+                        crate::pattern::lcm(mono_s as usize, color_s as usize) as u8;
                     let mono_s = mono_s as i16;
                     let color_s = color_s as i16;
                     let combined_s = combined_scale as i16;
@@ -2827,18 +2824,10 @@ impl CachedContours {
             // this glyph.  shape_subtract may produce PX_DOT for some pixels,
             // which is acceptable here since the grid is only used for pixel
             // lookups, not for contour tracing.
-            let mut min_r: i32 = 0;
-            let mut min_c: i32 = 0;
-            let mut max_r: i32 = 0;
-            let mut max_c: i32 = 0;
-            for &(grid, row_off, col_off, _) in &diff_layers {
-                min_r = min_r.min(row_off);
-                min_c = min_c.min(col_off);
-                max_r = max_r.max(row_off + grid.height as i32);
-                max_c = max_c.max(col_off + grid.width as i32);
-            }
-            let width = (max_c - min_c).max(0) as u16;
-            let height = (max_r - min_r).max(0) as u16;
+            let (min_r, min_c, width, height) = crate::render::contour::layer_bounds(
+                diff_layers.iter().map(|&(g, r, c, _)| (g, r, c)),
+            );
+            let (width, height) = (width as u16, height as u16);
             let mut result = PixelGrid::new(width, height);
 
             if let Some(grid) = own_pixels {
@@ -2900,18 +2889,9 @@ impl CachedContours {
             };
 
             // Build combined grid for downstream composites
-            let mut min_r: i32 = 0;
-            let mut min_c: i32 = 0;
-            let mut max_r: i32 = 0;
-            let mut max_c: i32 = 0;
-            for &(grid, row_off, col_off) in &layers {
-                min_r = min_r.min(row_off);
-                min_c = min_c.min(col_off);
-                max_r = max_r.max(row_off + grid.height as i32);
-                max_c = max_c.max(col_off + grid.width as i32);
-            }
-            let width = (max_c - min_c).max(0) as u16;
-            let height = (max_r - min_r).max(0) as u16;
+            let (min_r, min_c, width, height) =
+                crate::render::contour::layer_bounds(layers.iter().copied());
+            let (width, height) = (width as u16, height as u16);
             let mut result = PixelGrid::new(width, height);
             for &(grid, row_off, col_off) in &layers {
                 let off_r = row_off - min_r;
@@ -3047,15 +3027,8 @@ fn to_bitmap_grid(grid: &PixelGrid) -> PixelGrid {
     bg
 }
 
-fn gcd(mut a: i32, mut b: i32) -> i32 {
-    a = a.abs();
-    b = b.abs();
-    while b != 0 {
-        let t = b;
-        b = a % b;
-        a = t;
-    }
-    a
+fn gcd(a: i32, b: i32) -> i32 {
+    crate::pattern::gcd(a.unsigned_abs() as usize, b.unsigned_abs() as usize) as i32
 }
 
 fn contour_signed_area(contour: &[(i16, i16)]) -> i64 {

@@ -8,33 +8,27 @@ pub fn draw_grid_cell_colored(
     grid: &crate::document::PixelGrid,
     row: u16,
     col: u16,
-    color_override: Option<egui::Color32>,
+    color: egui::Color32,
 ) {
     let shape = grid.get(row, col);
     if shape.shape_id() == pixel::PX_CUSTOM {
         if let Some(region) = grid.details.get(&(row, col)) {
-            draw_detail_region(painter, rect, region, shape, color_override);
+            draw_detail_region(painter, rect, region, color);
         }
         return;
     }
-    draw_pixel_cell_colored(painter, rect, shape, color_override);
+    draw_pixel_cell_colored(painter, rect, shape, color);
 }
 
 fn draw_detail_region(
     painter: &egui::Painter,
     rect: egui::Rect,
     region: &crate::detail::DetailRegion,
-    shape: PixelShape,
-    color_override: Option<egui::Color32>,
+    color: egui::Color32,
 ) {
     if region.is_empty() {
         return;
     }
-    let color = color_override.unwrap_or(if shape.is_filled() {
-        egui::Color32::from_rgb(210, 215, 230)
-    } else {
-        egui::Color32::from_rgba_unmultiplied(210, 215, 230, 89)
-    });
     let o = rect.min;
     let w = rect.width();
     let h = rect.height();
@@ -73,17 +67,11 @@ pub fn draw_pixel_cell_colored(
     painter: &egui::Painter,
     rect: egui::Rect,
     shape: PixelShape,
-    color_override: Option<egui::Color32>,
+    color: egui::Color32,
 ) {
     if shape.is_empty() {
         return;
     }
-
-    let color = color_override.unwrap_or(if shape.is_filled() {
-        egui::Color32::from_rgb(210, 215, 230)
-    } else {
-        egui::Color32::from_rgba_unmultiplied(210, 215, 230, 89)
-    });
 
     let shape_id = shape.shape_id();
 

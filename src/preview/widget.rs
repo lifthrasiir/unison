@@ -731,18 +731,8 @@ impl ShapedPreviewState {
                                 hex_char_to_inject = Some(ch);
                             }
                 }
-                egui::Event::Copy => {
-                    if let Some(sel) = self.selected_text() {
-                        ui.ctx().copy_text(sel);
-                    }
-                }
-                egui::Event::Cut => {
-                    if let Some(sel) = self.selected_text() {
-                        ui.ctx().copy_text(sel);
-                        self.save_for_undo();
-                        self.delete_selection();
-                    }
-                }
+                egui::Event::Copy => self.apply_edit_action(EditAction::Copy, ui.ctx()),
+                egui::Event::Cut => self.apply_edit_action(EditAction::Cut, ui.ctx()),
                 egui::Event::Paste(s) => {
                     self.insert_at_caret(s);
                 }

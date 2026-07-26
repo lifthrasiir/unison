@@ -154,12 +154,7 @@ impl<'a> DocSet<'a> {
         let Some(doc) = self.get(r) else {
             return (PathBuf::new(), 0, 1);
         };
-        let line = doc
-            .item_line_starts
-            .get(r.item as usize)
-            .copied()
-            .unwrap_or(0);
-        let file_line = doc.docline_file_lines.get(line).copied().unwrap_or(line) + 1;
+        let (line, file_line) = doc.item_lines(r.item as usize);
         (doc.path.clone(), line, file_line)
     }
 

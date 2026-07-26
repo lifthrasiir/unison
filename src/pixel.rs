@@ -847,6 +847,7 @@ const SHAPE_TO_CHARS: [[u8; 2]; 256] = {
     table
 };
 
+#[cfg(any(feature = "editor", test))]
 pub fn shape_to_chars(shape: PixelShape) -> [char; 2] {
     let [c1, c2] = SHAPE_TO_CHARS[shape.0 as usize];
     [c1 as char, c2 as char]

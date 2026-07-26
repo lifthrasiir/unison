@@ -17,6 +17,15 @@ pub struct EditMenuCaps {
     pub can_edit: bool,
 }
 
+/// Modifier-key prefixes for menu shortcut labels: `(command, shift)`.
+pub fn platform_shortcut_names() -> (&'static str, &'static str) {
+    if cfg!(target_os = "macos") {
+        ("⌘", "⇧")
+    } else {
+        ("Ctrl+", "Shift+")
+    }
+}
+
 pub fn show_edit_menu_items(
     ui: &mut egui::Ui,
     caps: &EditMenuCaps,
@@ -24,11 +33,7 @@ pub fn show_edit_menu_items(
 ) -> EditAction {
     let mut action = EditAction::None;
 
-    let (mod_name, shift_name) = if cfg!(target_os = "macos") {
-        ("⌘", "⇧")
-    } else {
-        ("Ctrl+", "Shift+")
-    };
+    let (mod_name, shift_name) = platform_shortcut_names();
 
     macro_rules! btn {
         ($label:expr) => {

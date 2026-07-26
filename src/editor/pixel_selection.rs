@@ -239,38 +239,11 @@ pub(crate) fn handle_pixel_select_interaction(
             // First move: extract pixels from grid
             let mut pixel_changes = Vec::new();
             if !sel.is_floating() {
-                let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) else {
+                let Some(extracted) = extract_grounded_to_float(
+                    lines, grid_doc_line, &sel, grid_width, grid_height, &mut pixel_changes,
+                ) else {
                     return;
                 };
-                let mut extracted = PixelGrid::new(sel.width, sel.height);
-                for r in 0..sel.height {
-                    for c in 0..sel.width {
-                        let gr = sel.row + r as i16;
-                        let gc = sel.col + c as i16;
-                        if gr >= 0
-                            && gr < grid_height as i16
-                            && gc >= 0
-                            && gc < grid_width as i16
-                        {
-                            let shape = grid.get(gr as u16, gc as u16);
-                            extracted.set(r, c, shape);
-                            if !shape.is_empty() {
-                                pixel_changes.push(undo::PixelChange {
-                                    row: gr as u16,
-                                    col: gc as u16,
-                                    old: shape,
-                                    new: PixelShape::EMPTY,
-                                });
-                            }
-                        }
-                    }
-                }
-                // Apply extraction to grid
-                if let Some(DocLine::Grid(grid)) = lines.get_mut(grid_doc_line) {
-                    for ch in &pixel_changes {
-                        grid.set(ch.row, ch.col, ch.new);
-                    }
-                }
 
                 state.pixel_selection = Some(PixelSelection {
                     item_idx,
@@ -532,9 +505,8 @@ pub(crate) fn paste_selection(
     };
 
     // Determine target item
-    let item_idx = match &state.mode {
-        EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => *item_idx,
-        _ => return false,
+    let Some(item_idx) = state.mode.pixel_edit_item_idx() else {
+        return false;
     };
 
     // Must have a pixel grid
@@ -630,14 +602,66 @@ pub(crate) enum SelectionTransform {
     OppositeBitmap,
 }
 
+fn apply_transform(grid: &PixelGrid, transform: SelectionTransform) -> PixelGrid {
+    match transform {
+        SelectionTransform::MirrorH => grid.mirror_h(),
+        SelectionTransform::FlipV => grid.flip_v(),
+        SelectionTransform::RotateCW => grid.rotate_cw(),
+        SelectionTransform::RotateCCW => grid.rotate_ccw(),
+        SelectionTransform::Rotate180 => grid.rotate_180(),
+        SelectionTransform::Opposite => grid.opposite(),
+        SelectionTransform::OppositeBitmap => grid.opposite_bitmap(),
+    }
+}
+
+/// Extracts the grounded selection's pixels into a floating grid, recording
+/// each cleared cell in `pixel_changes` and applying the clears to the doc
+/// grid.  Returns `None` when `grid_doc_line` is not a pixel grid.
+fn extract_grounded_to_float(
+    lines: &mut [DocLine],
+    grid_doc_line: usize,
+    sel: &PixelSelection,
+    grid_width: u16,
+    grid_height: u16,
+    pixel_changes: &mut Vec<undo::PixelChange>,
+) -> Option<PixelGrid> {
+    let DocLine::Grid(grid) = lines.get(grid_doc_line)? else {
+        return None;
+    };
+    let mut extracted = PixelGrid::new(sel.width, sel.height);
+    for r in 0..sel.height {
+        for c in 0..sel.width {
+            let gr = sel.row + r as i16;
+            let gc = sel.col + c as i16;
+            if gr >= 0 && gr < grid_height as i16 && gc >= 0 && gc < grid_width as i16 {
+                let shape = grid.get(gr as u16, gc as u16);
+                extracted.set(r, c, shape);
+                if !shape.is_empty() {
+                    pixel_changes.push(undo::PixelChange {
+                        row: gr as u16,
+                        col: gc as u16,
+                        old: shape,
+                        new: PixelShape::EMPTY,
+                    });
+                }
+            }
+        }
+    }
+    if let Some(DocLine::Grid(grid)) = lines.get_mut(grid_doc_line) {
+        for ch in pixel_changes.iter() {
+            grid.set(ch.row, ch.col, ch.new);
+        }
+    }
+    Some(extracted)
+}
+
 pub(crate) fn can_transform(
     doc: &Document,
     state: &EditorState,
     transform: SelectionTransform,
 ) -> bool {
-    let item_idx = match &state.mode {
-        EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => *item_idx,
-        _ => return false,
+    let Some(item_idx) = state.mode.pixel_edit_item_idx() else {
+        return false;
     };
     let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
         return false;
@@ -677,9 +701,8 @@ pub(crate) fn handle_transform_selection(
     state: &mut EditorState,
     transform: SelectionTransform,
 ) -> bool {
-    let item_idx = match &state.mode {
-        EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => *item_idx,
-        _ => return false,
+    let Some(item_idx) = state.mode.pixel_edit_item_idx() else {
+        return false;
     };
     let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
         return false;
@@ -708,49 +731,15 @@ pub(crate) fn handle_transform_selection(
             float.clone()
         } else {
             // Extract pixels from grid (grounded → floating)
-            let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) else {
+            let Some(extracted) = extract_grounded_to_float(
+                lines, grid_doc_line, &sel, grid_width, grid_height, &mut pixel_changes,
+            ) else {
                 return false;
             };
-            let mut extracted = PixelGrid::new(sel.width, sel.height);
-            for r in 0..sel.height {
-                for c in 0..sel.width {
-                    let gr = sel.row + r as i16;
-                    let gc = sel.col + c as i16;
-                    if gr >= 0
-                        && gr < grid_height as i16
-                        && gc >= 0
-                        && gc < grid_width as i16
-                    {
-                        let shape = grid.get(gr as u16, gc as u16);
-                        extracted.set(r, c, shape);
-                        if !shape.is_empty() {
-                            pixel_changes.push(undo::PixelChange {
-                                row: gr as u16,
-                                col: gc as u16,
-                                old: shape,
-                                new: PixelShape::EMPTY,
-                            });
-                        }
-                    }
-                }
-            }
-            if let Some(DocLine::Grid(grid)) = lines.get_mut(grid_doc_line) {
-                for ch in &pixel_changes {
-                    grid.set(ch.row, ch.col, ch.new);
-                }
-            }
             extracted
         };
 
-        let transformed = match transform {
-            SelectionTransform::MirrorH => source_grid.mirror_h(),
-            SelectionTransform::FlipV => source_grid.flip_v(),
-            SelectionTransform::RotateCW => source_grid.rotate_cw(),
-            SelectionTransform::RotateCCW => source_grid.rotate_ccw(),
-            SelectionTransform::Rotate180 => source_grid.rotate_180(),
-            SelectionTransform::Opposite => source_grid.opposite(),
-            SelectionTransform::OppositeBitmap => source_grid.opposite_bitmap(),
-        };
+        let transformed = apply_transform(&source_grid, transform);
 
         let new_w = transformed.width;
         let new_h = transformed.height;
@@ -793,15 +782,7 @@ pub(crate) fn handle_transform_selection(
         };
         let old_grid = grid.clone();
 
-        let transformed = match transform {
-            SelectionTransform::MirrorH => old_grid.mirror_h(),
-            SelectionTransform::FlipV => old_grid.flip_v(),
-            SelectionTransform::RotateCW => old_grid.rotate_cw(),
-            SelectionTransform::RotateCCW => old_grid.rotate_ccw(),
-            SelectionTransform::Rotate180 => old_grid.rotate_180(),
-            SelectionTransform::Opposite => old_grid.opposite(),
-            SelectionTransform::OppositeBitmap => old_grid.opposite_bitmap(),
-        };
+        let transformed = apply_transform(&old_grid, transform);
 
         // Compute pixel changes for undo
         let mut changes = Vec::new();
@@ -865,11 +846,9 @@ pub(crate) fn current_glyph_item_idx(
     lines: &[DocLine],
     state: &EditorState,
 ) -> Option<usize> {
-    match &state.mode {
-        EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => {
-            Some(*item_idx)
-        }
-        _ => {
+    match state.mode.pixel_edit_item_idx() {
+        Some(item_idx) => Some(item_idx),
+        None => {
             let cursor_line = state.cursor.line;
             let idx = doc
                 .item_line_starts

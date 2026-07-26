@@ -970,6 +970,15 @@ pub fn is_ref_valid(
     false
 }
 
+/// Iterator over the base prefixes an alternative name registers under:
+/// `foo:bar:baz` yields `foo:bar`, then `foo`.
+pub(crate) fn alternative_prefixes(name: &str) -> impl Iterator<Item = &str> {
+    std::iter::successors(
+        name.rfind(':').map(|p| &name[..p]),
+        |prefix| prefix.rfind(':').map(|p| &prefix[..p]),
+    )
+}
+
 /// Pre-built index mapping each base name to its sorted alternatives.
 /// For glyph "foo:bar", entries are added under base "foo".
 /// For "foo:bar:baz", entries are added under "foo" and "foo:bar".
@@ -982,9 +991,7 @@ impl AlternativesIndex {
     pub fn build(named_glyphs: &HashMap<String, ResolvedGlyph>) -> Self {
         let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
         for (name, resolved) in named_glyphs {
-            let mut prefix = name.as_str();
-            while let Some(colon_pos) = prefix.rfind(':') {
-                prefix = &prefix[..colon_pos];
+            for prefix in alternative_prefixes(name) {
                 map.entry(prefix.to_string())
                     .or_default()
                     .push((name.clone(), resolved.resolved_anchors.clone()));
@@ -1002,9 +1009,7 @@ impl AlternativesIndex {
     /// every round.
     fn extend(&mut self, entries: impl IntoIterator<Item = (String, Vec<GlyphPoint>)>) {
         for (name, anchors) in entries {
-            let mut prefix = name.as_str();
-            while let Some(colon_pos) = prefix.rfind(':') {
-                prefix = &prefix[..colon_pos];
+            for prefix in alternative_prefixes(&name) {
                 let alts = self.map.entry(prefix.to_string()).or_default();
                 match alts.binary_search_by(|(a, _)| a.as_str().cmp(&name)) {
                     // Same glyph resolved again (cache overwrite): keep the

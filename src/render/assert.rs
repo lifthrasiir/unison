@@ -106,11 +106,7 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             if let DocumentItem::AssertShape { text, features, expected, comment } = item {
-                let docline = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
-                let file_line = doc.docline_file_lines
-                    .get(docline)
-                    .copied()
-                    .unwrap_or(0) + 1;
+                let (docline, file_line) = doc.item_lines(item_idx);
                 result.push(CollectedAssertion {
                     text: text.clone(),
                     features: features.clone(),
@@ -258,15 +254,6 @@ fn glyph_lattice_denom(g: &ResolvedGlyph) -> i64 {
     2 * g.grid.den.max(1) as i64 * g.scale.max(1) as i64
 }
 
-fn gcd(mut a: i64, mut b: i64) -> i64 {
-    while b != 0 { let t = b; b = a % b; a = t; }
-    a
-}
-
-fn lcm(a: i64, b: i64) -> i64 {
-    a / gcd(a, b) * b
-}
-
 fn canonicalize_contours(grid: &crate::document::PixelGrid, scale: u8, q: i64) -> CanonicalContours {
     let raw = track_contour(grid, PX_SUBPIXEL);
     let s = scale.max(1) as f64;
@@ -349,11 +336,7 @@ fn collect_same_distinct_assertions(docs: &[&Document]) -> Vec<SameDistinctAsser
                 DocumentItem::AssertDistinct { names, comment } => (false, names, comment),
                 _ => continue,
             };
-            let docline = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
-            let file_line = doc.docline_file_lines
-                .get(docline)
-                .copied()
-                .unwrap_or(0) + 1;
+            let (docline, file_line) = doc.item_lines(item_idx);
             let resolved_names: Vec<String> = names
                 .iter()
                 .map(|n| substitute_name_parts(n, &name_parts))
@@ -408,7 +391,9 @@ fn run_same_distinct_inner(
             continue;
         }
 
-        let q = glyphs.iter().fold(1i64, |acc, (_, g)| lcm(acc, glyph_lattice_denom(g)));
+        let q = glyphs.iter().fold(1i64, |acc, (_, g)| {
+            crate::pattern::lcm(acc as usize, glyph_lattice_denom(g) as usize) as i64
+        });
         let entries: Vec<(&str, (u16, u16), CanonicalContours)> = glyphs
             .iter()
             .map(|(name, g)| {

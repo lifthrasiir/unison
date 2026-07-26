@@ -333,79 +333,61 @@ impl PixelGrid {
         self.pixels.iter().all(|s| s.is_empty())
     }
 
+    /// Geometric-transform skeleton shared by the five transforms below,
+    /// mirroring `DetailRegion::map_lattice` one layer down: `coord` maps a
+    /// source cell to its destination, while `shape`/`detail` transform the
+    /// cell contents to match.
     #[cfg(feature = "editor")]
-    pub fn mirror_h(&self) -> Self {
-        let mut out = Self::new(self.width, self.height);
+    fn map_coords(
+        &self,
+        new_w: u16,
+        new_h: u16,
+        coord: impl Fn(u16, u16) -> (u16, u16),
+        shape: impl Fn(PixelShape) -> PixelShape,
+        detail: impl Fn(&detail::DetailRegion) -> detail::DetailRegion,
+    ) -> Self {
+        let mut out = Self::new(new_w, new_h);
         out.den = self.den;
         for r in 0..self.height {
             for c in 0..self.width {
-                out.set(r, self.width - 1 - c, self.get(r, c).mirror_h());
+                let (nr, nc) = coord(r, c);
+                out.set(nr, nc, shape(self.get(r, c)));
             }
         }
         for (&(r, c), d) in &self.details {
-            out.details.insert((r, self.width - 1 - c), d.mirror_h());
+            out.details.insert(coord(r, c), detail(d));
         }
         out
+    }
+
+    #[cfg(feature = "editor")]
+    pub fn mirror_h(&self) -> Self {
+        let (w, h) = (self.width, self.height);
+        self.map_coords(w, h, |r, c| (r, w - 1 - c), |s| s.mirror_h(), |d| d.mirror_h())
     }
 
     #[cfg(feature = "editor")]
     pub fn flip_v(&self) -> Self {
-        let mut out = Self::new(self.width, self.height);
-        out.den = self.den;
-        for r in 0..self.height {
-            for c in 0..self.width {
-                out.set(self.height - 1 - r, c, self.get(r, c).flip_v());
-            }
-        }
-        for (&(r, c), d) in &self.details {
-            out.details.insert((self.height - 1 - r, c), d.flip_v());
-        }
-        out
+        let (w, h) = (self.width, self.height);
+        self.map_coords(w, h, |r, c| (h - 1 - r, c), |s| s.flip_v(), |d| d.flip_v())
     }
 
     #[cfg(feature = "editor")]
     pub fn rotate_cw(&self) -> Self {
-        let mut out = Self::new(self.height, self.width);
-        out.den = self.den;
-        for r in 0..self.height {
-            for c in 0..self.width {
-                out.set(c, self.height - 1 - r, self.get(r, c).rotate_cw());
-            }
-        }
-        for (&(r, c), d) in &self.details {
-            out.details.insert((c, self.height - 1 - r), d.rotate_cw());
-        }
-        out
+        let (w, h) = (self.width, self.height);
+        self.map_coords(h, w, |r, c| (c, h - 1 - r), |s| s.rotate_cw(), |d| d.rotate_cw())
     }
 
     #[cfg(feature = "editor")]
     pub fn rotate_ccw(&self) -> Self {
-        let mut out = Self::new(self.height, self.width);
-        out.den = self.den;
-        for r in 0..self.height {
-            for c in 0..self.width {
-                out.set(self.width - 1 - c, r, self.get(r, c).rotate_ccw());
-            }
-        }
-        for (&(r, c), d) in &self.details {
-            out.details.insert((self.width - 1 - c, r), d.rotate_ccw());
-        }
-        out
+        let (w, h) = (self.width, self.height);
+        self.map_coords(h, w, |r, c| (w - 1 - c, r), |s| s.rotate_ccw(), |d| d.rotate_ccw())
     }
 
     #[cfg(feature = "editor")]
     pub fn rotate_180(&self) -> Self {
-        let mut out = Self::new(self.width, self.height);
-        out.den = self.den;
-        for r in 0..self.height {
-            for c in 0..self.width {
-                out.set(self.height - 1 - r, self.width - 1 - c, self.get(r, c).rotate_180());
-            }
-        }
-        for (&(r, c), d) in &self.details {
-            out.details.insert((self.height - 1 - r, self.width - 1 - c), d.rotate_180());
-        }
-        out
+        let (w, h) = (self.width, self.height);
+        self.map_coords(w, h, |r, c| (h - 1 - r, w - 1 - c), |s| s.rotate_180(), |d| d.rotate_180())
     }
 
     #[cfg(feature = "editor")]
@@ -534,6 +516,7 @@ impl GlyphRef {
     /// Format as a `ref …` line. When `offset_override` is `Some`, that
     /// offset is written instead of `self.offset` (and is always explicit,
     /// even for `0 0`).
+    #[cfg(any(feature = "editor", test))]
     pub fn format_line(&self, offset_override: Option<(i16, i16)>) -> String {
         use crate::document_io::quote_token;
         let rname = quote_token(&self.name);
@@ -623,6 +606,7 @@ impl GlyphBody {
 
     /// True if this body is a simple alias (`glyph NAME = ALIAS`): no pixel
     /// data, exactly one ref, with no positional offset.
+    #[cfg(any(feature = "editor", test))]
     pub fn is_simple_alias(&self) -> bool {
         self.pixels.is_none()
             && self.refs.len() == 1
@@ -828,6 +812,17 @@ impl Document {
             content_gen: 0,
         }
     }
+
+    /// 1-based line of `docline_idx` in the serialized file.
+    pub fn docline_file_line(&self, docline_idx: usize) -> usize {
+        self.docline_file_lines.get(docline_idx).copied().unwrap_or(docline_idx) + 1
+    }
+
+    /// `(docline, 1-based file line)` of item `item_idx`'s defining header.
+    pub fn item_lines(&self, item_idx: usize) -> (usize, usize) {
+        let line = self.item_line_starts.get(item_idx).copied().unwrap_or(0);
+        (line, self.docline_file_line(line))
+    }
 }
 
 pub fn compute_docline_file_lines(lines: &[DocLine]) -> Vec<usize> {
@@ -862,6 +857,7 @@ fn split_inline_comment(tokens: &[String]) -> (Vec<String>, Option<String>) {
     }
 }
 
+#[cfg(any(feature = "editor", test))]
 fn serialize_comment_suffix(comment: &Option<String>) -> String {
     match comment {
         Some(c) => format!(" // {c}"),
@@ -1053,6 +1049,7 @@ impl DocumentItem {
         Some(DocumentItem::AssertShape { text, features, expected, comment })
     }
 
+    #[cfg(any(feature = "editor", test))]
     pub fn serialize_line(&self) -> Option<String> {
         use crate::document_io::quote_token;
         match self {
