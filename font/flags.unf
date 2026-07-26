@@ -123,6 +123,13 @@ ref 16x14 4 1 fill #fdda25
 ref 5p1r3x14 4 1 fill #000000
 ref -5p1r3x14 14 1 fill #ef3340
 
+// Bulgaria (aspect 5:3 -> 22:13, division 1:1:1)
+glyph flag-bg:color 24 16
+ref 24x15 0 0 fill #00000080
+ref 22x13 1 1 fill #00966E
+ref 22x4p1r3 1 1 fill #ffffff
+ref 22x-4p1r3 1 9 fill #D62612
+
 // Bahrain (aspect 5:3 -> 22:13)
 glyph flag-bh:color 24 16
 ref 24x15 0 0 fill #00000080
@@ -142,6 +149,20 @@ ref -3p3r10x-1p3r10-dr 24 42
 ref -3p3r10x1p3r10-ur 24 52
 ref -3p3r10x-1p3r10-dr 24 55
 
+// Benin (aspect 3:2, division 2:3)
+glyph flag-bj:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x7 2 1 fill #FCD20F
+ref 21x7 2 8 fill #E90929
+ref 8p2r5x14 2 1 fill #008850
+
+// Bolivia (aspect 22:15 -> 3:2, division 1:1:1)
+glyph flag-bo:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #F4E400
+ref 21x4p2r3 2 1 fill #DA291C
+ref 21x-4p2r3 2 10 fill #007A33
+
 // The Bahamas (aspect 2:1 -> 11:7, division 1:1:1)
 glyph flag-bs:color 24 16
 ref 24x16 0 0 fill #00000080
@@ -151,12 +172,219 @@ ref 22x-4p2r3 1 10 fill #00778B
 ref 9p1r2x7-dl 1 1 fill #000000
 ref 9p1r2x7-ul 1 8 fill #000000
 
+// Botswana (aspect 3:2, division 9:1:4:1:9)
+glyph flag-bw:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #000000
+ref 21x5p5r6 2 1 fill #ffffff
+ref 21x-5p5r6 2 9 fill #ffffff
+ref 21x5p1r4 2 1 fill #6DA9D2
+ref 21x-5p1r4 2 9 fill #6DA9D2
+
+// Republic of the Congo (aspect 3:2, division 2:1 & 1:2)
+glyph flag-cg:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #FFD100
+ref 14x14-ul 2 1 fill #009739
+ref 14x14-dr 9 1 fill #EF3340
+
+// Ivory Coast (aspect 3:2, division 1:1:1)
+glyph flag-ci:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #FF8200
+ref 7x14 9 1 fill #FFFFFF
+ref 7x14 16 1 fill #009A44
+
+// Colombia (aspect 3:2, division 2:1:1)
+glyph flag-co:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x7 2 1 fill #FFCD00
+ref 21x7 2 8 fill #003087
+ref 21x-3p1r2 2 11 fill #C8102E
+
+// Costa Rica (aspect 5:3, division 1:1:2:1:1)
+glyph flag-cr:color 24 16
+ref 24x15 0 0 fill #00000080
+ref 22x13 1 1 fill #DA291C
+ref 22x4p1r3 1 1 fill #FFFFFF
+ref 22x-4p1r3 1 9 fill #FFFFFF
+ref 22x2p1r6 1 1 fill #001489
+ref 22x-2p1r6 1 11 fill #001489
+
+// Czech Republic (aspect 3:2, division 1:1)
+glyph flag-cz:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x7 2 1 fill #FFFFFF
+ref 21x7 2 8 fill #D7141A
+ref 10p1r2x7-dl 2 1 fill #11457E
+ref 10p1r2x7-ul 2 8 fill #11457E
+
+// Germany (aspect 5:3 -> 22:13, division 1:1:1)
+glyph flag-de:color 24 16
+ref 24x15 0 0 fill #00000080
+ref 22x13 1 1 fill #FF0000
+ref 22x4p1r3 1 1 fill #000000
+ref 22x-4p1r3 1 9 fill #FFCC00
+
+// Denmark (aspect 37:28 -> 19:14, division 12:4:21 & 3:1:3 -> 12:4:22 & 3:1:3)
+glyph flag-dk:color 24 16
+ref 21x16 2 0 fill #00000080
+ref 19x14 3 1 fill #D21034
+ref 19x2 3 7 fill #FFFFFF
+ref 2x14 9 1 fill #FFFFFF
+
+// Estonia (aspect 11:7, division 1:1:1)
+glyph flag-ee:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #000000
+ref 22x4p2r3 1 1 fill #0072CE
+ref 22x-4p2r3 1 10 fill #FFFFFF
+
+// Finland (aspect 18:11 -> 22:13, division 5:3:10 & 4:3:4 -> 5:3:10+8/13 & 4:3:4)
+glyph flag-fi:color 24 16
+ref 24x15 0 0 fill #00000080
+ref 22x13 1 1 fill #002F6C
+ref 5p10r11x4p8r11 1 1 fill #FFFFFF
+ref 5p10r11x-4p8r11 1 9 fill #FFFFFF
+ref -12p6r11x4p8r11 10 1 fill #FFFFFF
+ref -12p6r11x-4p8r11 10 9 fill #FFFFFF
+
 // France (aspect 3:2, division 1:1:1)
 glyph flag-fr:color 24 16
 ref 23x16 1 0 fill #00000080
 ref 7x14 2 1 fill #000091
 ref 7x14 9 1 fill #FFFFFF
 ref 7x14 16 1 fill #E1000F
+
+// Gabon (aspect 4:3 -> 19:14, division 1:1:1)
+glyph flag-ga:color 24 16
+ref 21x16 2 0 fill #00000080
+ref 19x14 3 1 fill #FFD100
+ref 19x4p2r3 3 1 fill #009639
+ref 19x-4p2r3 3 10 fill #003DA5
+
+// The Gambia (aspect 3:2, division 6:1:4:1:6)
+glyph flag-gm:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #0c1c8c
+ref 21x5p4r9 2 1 fill #ffffff
+ref 21x4p2r3 2 1 fill #ce1126
+ref 21x-5p4r9 2 9 fill #ffffff
+ref 21x-4p2r3 2 10 fill #3a7728
+
+// Guinea (aspect 3:2, division 1:1:1)
+glyph flag-gn:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #CE1126
+ref 7x14 9 1 fill #FCD116
+ref 7x14 16 1 fill #009460
+
+// Greece (aspect 3:2)
+glyph flag-gr:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #FFFFFF
+ref flag-gr-blue 2 1 fill #014488
+
+glyph flag-gr-blue 21 14 scale 9
+ref -13p2r9x1p5r9 63 0
+ref -13p2r9x1p5r9 63 28
+ref -13p2r9x1p5r9 63 56
+ref 21x-1p5r9 0 80
+ref 21x-1p5r9 0 108
+ref 3p1r9x3p1r9 0 0
+ref 3p1r9x3p1r9 42 0
+ref 3p1r9x3p1r9 0 42
+ref 3p1r9x3p1r9 42 42
+
+// Guynea (aspect 5:3 -> 22:13)
+glyph flag-gy:color 24 16 scale 2
+ref 24x15 0 0 fill #00000080
+ref 22x13 2 2 fill #2A936A
+ref 22x6p1r2-dl 2 2 fill #FFFFFF
+ref 20p1r2x6-dl 2 3 fill #FFC20E
+ref 22x-6p1r2-ul 2 14 fill #FFFFFF
+ref 20p1r2x6-ul 2 15 fill #FFC20E
+ref 11x6p1r2-dl 2 2 fill #000000
+ref 10p1r6x6-dl 2 3 fill #BE1E2D
+ref 11x-6p1r2-ul 2 14 fill #000000
+ref 10p1r6x6-ul 2 15 fill #BE1E2D
+
+// Hungary (aspect 2:1 -> 11:7, division 1:1:1)
+glyph flag-hu:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref 22x4p2r3 1 1 fill #CE2939
+ref 22x-4p2r3 1 10 fill #477050
+
+// Indonesia (aspect 3:2, division 1:1)
+glyph flag-id:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x7 2 1 fill #FF0000
+ref 21x7 2 8 fill #FFFFFF
+
+// Ireland (aspect 2:1 -> 11:7, division 1:1:1)
+glyph flag-ie:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref 7p1r3x14 1 1 fill #169B62
+ref -7p1r3x14 15 1 fill #FF883E
+
+// Israel (aspect 11:8 -> 19:14, division 3:5:16:5:3)
+glyph flag-il:color 24 16
+ref 21x16 2 0 fill #00000080
+ref 19x14 3 1 fill #FFFFFF
+ref 19x3p1r2 3 1 fill #0038b8
+ref 19x1p5r16 3 1 fill #FFFFFF
+ref 19x-3p1r2 3 11 fill #0038b8
+ref 19x-1p5r16 3 13 fill #FFFFFF
+ref flag-il-david 10 5 fill #0038b8
+
+glyph flag-il-david 5 6 scale 2
+.........VV.........
+......../VV\........
+.......VV/\VV.......
+`V@@@@@@@@@@@@@@@@V'
+..\V3dV/....\V3dV/..
+..`V@@V'....`V@@V'..
+...V@@V......V@@V...
+../VP3V\..../VP3V\..
+.V@@@@@@@@@@@@@@@@V.
+......`VV\/VV'......
+........\VV/........
+........`VV'........
+
+// Iceland (aspect 25:18 -> 19:14, division 7:1:2:1:14 & 7:1:2:1:7 -> 7:1:2:1:13+3/7 & 7:1:7:1:7)
+glyph flag-is:color 24 16
+ref 21x16 2 0 fill #00000080
+ref 19x14 3 1 fill #DC1E35
+ref 6p2r9x6p2r9 3 1 fill #FFFFFF
+ref 5p4r9x5p4r9 3 1 fill #02529C
+ref -11p2r9x6p2r9 10 1 fill #FFFFFF
+ref -10p4r9x5p4r9 11 1 fill #02529C
+ref 6p2r9x-6p2r9 3 8 fill #FFFFFF
+ref 5p4r9x-5p4r9 3 9 fill #02529C
+ref -11p2r9x-6p2r9 10 8 fill #FFFFFF
+ref -10p4r9x-5p4r9 11 9 fill #02529C
+
+// Italy (aspect 3:2, division 1:1:1)
+glyph flag-it:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #008C45
+ref 7x14 9 1 fill #F4F5F0
+ref 7x14 16 1 fill #CD212A
+
+// Jamaica (aspect 2:1 -> 11:7)
+glyph flag-jm:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFC700
+ref 9x6-ur 3 1 fill #19975D
+ref 9x6-ul 12 1 fill #19975D
+ref 9x6-dr 3 9 fill #19975D
+ref 9x6-dl 12 9 fill #19975D
+ref 9x6-dl 1 2 fill #2d2926
+ref 9x6-dr 14 2 fill #2d2926
+ref 9x6-ul 1 8 fill #2d2926
+ref 9x6-ur 14 8 fill #2d2926
 
 // Japan (aspect 3:2)
 glyph flag-jp:color 24 16
@@ -265,6 +493,13 @@ ref 7p1r3x14-ul 1 1 fill #002F6C
 ref 22x-9p1r3-dr 1 5 fill #ffffff
 ref 22x-4p2r3-dr 1 10 fill #007A33
 
+// Chad (aspect 3:2, division 1:1:1)
+glyph flag-td:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #00205B
+ref 7x14 9 1 fill #FFCD00
+ref 7x14 16 1 fill #C8102E
+
 // United States (aspect 19:10 -> 11:7)
 glyph flag-us:color 24 16
 ref 24x15 0 0 fill #00000080
@@ -366,13 +601,52 @@ remap flag : regional-indicator-a-left regional-indicator-d-right -> flag-ad
 remap flag : regional-indicator-a-left regional-indicator-m-right -> flag-am
 remap flag : regional-indicator-a-left regional-indicator-r-right -> flag-ar
 remap flag : regional-indicator-a-left regional-indicator-t-right -> flag-at
+
 remap flag : regional-indicator-b-left regional-indicator-e-right -> flag-be
+remap flag : regional-indicator-b-left regional-indicator-g-right -> flag-bg
 remap flag : regional-indicator-b-left regional-indicator-h-right -> flag-bh
+remap flag : regional-indicator-b-left regional-indicator-j-right -> flag-bj
+remap flag : regional-indicator-b-left regional-indicator-o-right -> flag-bo
 remap flag : regional-indicator-b-left regional-indicator-s-right -> flag-bs
+remap flag : regional-indicator-b-left regional-indicator-w-right -> flag-bw
+
+remap flag : regional-indicator-c-left regional-indicator-g-right -> flag-cg
+remap flag : regional-indicator-c-left regional-indicator-i-right -> flag-ci
+remap flag : regional-indicator-c-left regional-indicator-o-right -> flag-co
+remap flag : regional-indicator-c-left regional-indicator-r-right -> flag-cr
+remap flag : regional-indicator-c-left regional-indicator-z-right -> flag-cz
+
+remap flag : regional-indicator-d-left regional-indicator-e-right -> flag-de
+remap flag : regional-indicator-d-left regional-indicator-k-right -> flag-dk
+
+remap flag : regional-indicator-e-left regional-indicator-e-right -> flag-ee
+
+remap flag : regional-indicator-f-left regional-indicator-i-right -> flag-fi
 remap flag : regional-indicator-f-left regional-indicator-r-right -> flag-fr
+
+remap flag : regional-indicator-g-left regional-indicator-a-right -> flag-ga
+remap flag : regional-indicator-g-left regional-indicator-m-right -> flag-gm
+remap flag : regional-indicator-g-left regional-indicator-n-right -> flag-gn
+remap flag : regional-indicator-g-left regional-indicator-r-right -> flag-gr
+remap flag : regional-indicator-g-left regional-indicator-y-right -> flag-gy
+
+remap flag : regional-indicator-h-left regional-indicator-u-right -> flag-hu
+
+remap flag : regional-indicator-i-left regional-indicator-d-right -> flag-id
+remap flag : regional-indicator-i-left regional-indicator-e-right -> flag-ie
+remap flag : regional-indicator-i-left regional-indicator-l-right -> flag-il
+remap flag : regional-indicator-i-left regional-indicator-s-right -> flag-is
+remap flag : regional-indicator-i-left regional-indicator-t-right -> flag-it
+
+remap flag : regional-indicator-j-left regional-indicator-m-right -> flag-jm
 remap flag : regional-indicator-j-left regional-indicator-p-right -> flag-jp
+
 remap flag : regional-indicator-k-left regional-indicator-r-right -> flag-kr
+
 remap flag : regional-indicator-s-left regional-indicator-c-right -> flag-sc
+
+remap flag : regional-indicator-t-left regional-indicator-d-right -> flag-td
+
 remap flag : regional-indicator-u-left regional-indicator-s-right -> flag-us
 
 feature ccmp for DFLT : flag
