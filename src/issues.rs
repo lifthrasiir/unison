@@ -399,6 +399,99 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
         }
     }
 
+    // `map CHAR` without `=` synthesizes a composite glyph from the
+    // character's canonical decomposition, so the character must actually
+    // decompose and every decomposed codepoint must itself be mapped.
+    {
+        use unicode_normalization::UnicodeNormalization;
+
+        let mut mapped_cps: HashSet<u32> = HashSet::new();
+        for doc in docs {
+            for item in &doc.items {
+                if let DocumentItem::Map { char_repr, glyph } = item {
+                    let subst = substitute_name_parts(glyph, &name_parts);
+                    for (cp, _) in
+                        crate::render::ttf_builder::expand_map_pairs(char_repr, &subst)
+                    {
+                        mapped_cps.insert(cp);
+                    }
+                }
+            }
+        }
+
+        for doc in docs {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                let DocumentItem::MapDecomposed { char_repr } = item else {
+                    continue;
+                };
+                let line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
+                let file_line = docline_to_file_line(doc, line);
+
+                let pairs = crate::render::ttf_builder::expand_map_pairs(char_repr, "");
+                if pairs.is_empty() {
+                    issues.push(Issue {
+                        severity: Severity::Error,
+                        message: format!("map has no valid codepoints ('{}')", char_repr),
+                        file: doc.path.clone(),
+                        line,
+                        file_line,
+                    });
+                    continue;
+                }
+
+                for (cp, _) in pairs {
+                    let Some(ch) = char::from_u32(cp) else {
+                        issues.push(Issue {
+                            severity: Severity::Error,
+                            message: format!("map 'U+{cp:04X}' is not a valid character"),
+                            file: doc.path.clone(),
+                            line,
+                            file_line,
+                        });
+                        continue;
+                    };
+
+                    let nfd: Vec<char> = ch.nfd().collect();
+                    if nfd.len() == 1 && nfd[0] == ch {
+                        issues.push(Issue {
+                            severity: Severity::Error,
+                            message: format!(
+                                "map '{}' (U+{:04X}) has no canonical decomposition; \
+                                 use `map {} = GLYPH` instead",
+                                ch, cp, ch,
+                            ),
+                            file: doc.path.clone(),
+                            line,
+                            file_line,
+                        });
+                        continue;
+                    }
+
+                    let missing: Vec<String> = nfd
+                        .iter()
+                        .filter(|c| !mapped_cps.contains(&(**c as u32)))
+                        .map(|c| format!("U+{:04X}", *c as u32))
+                        .collect();
+                    if !missing.is_empty() {
+                        issues.push(Issue {
+                            severity: Severity::Error,
+                            message: format!(
+                                "map '{}' (U+{:04X}) decomposes to unmapped codepoint{} {}",
+                                ch,
+                                cp,
+                                if missing.len() == 1 { "" } else { "s" },
+                                missing.join(", "),
+                            ),
+                            file: doc.path.clone(),
+                            line,
+                            file_line,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     // Detect unused glyphs: glyphs not reachable from any map/remap root.
     // Works at glyph-item granularity to avoid expensive repeated pattern expansion.
     {
@@ -905,6 +998,63 @@ assert distinct a b
         assert!(
             !issues.iter().any(|i| i.message.contains("unrecognized directive")),
             "assert same/distinct should not be flagged as unrecognized: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn map_decomposed_without_decomposition_reported() {
+        // 'A' is already in NFD, so `map A` cannot synthesize anything.
+        let input = "\
+glyph a 2 1
+..@@
+map U+0041 = a
+map A
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("no canonical decomposition")),
+            "expected no-decomposition error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn map_decomposed_with_unmapped_component_reported() {
+        // 'Ä' decomposes to U+0041 U+0308; U+0308 is not mapped.
+        let input = "\
+glyph a 2 1
+..@@
+map A = a
+map Ä
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("unmapped codepoint")
+                && i.message.contains("U+0308")),
+            "expected unmapped component error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn map_decomposed_fully_mapped_accepted() {
+        let input = "\
+glyph a 2 1
+..@@
+glyph dieresis 2 1
+@@..
+map A = a
+map U+0308 = dieresis
+map Ä
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("decomposition")
+                || i.message.contains("unmapped codepoint")),
+            "fully mapped decomposition should be accepted, got: {issues:?}",
         );
     }
 

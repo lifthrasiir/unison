@@ -627,7 +627,7 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
             };
 
             let nfd: Vec<char> = ch.nfd().collect();
-            if nfd.len() < 2 {
+            if nfd.len() == 1 && nfd[0] == ch {
                 continue;
             }
 
