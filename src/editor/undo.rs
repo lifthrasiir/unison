@@ -359,7 +359,7 @@ impl UndoStack {
     pub fn undo_with_sel(
         &mut self,
         lines: &mut Vec<DocLine>,
-        sel: Option<SelectionUndoCtx>,
+        mut sel: Option<SelectionUndoCtx>,
     ) -> Option<Caret> {
         if self.position == 0 {
             return None;
@@ -367,57 +367,7 @@ impl UndoStack {
         self.position -= 1;
         let entry = &self.entries[self.position];
         let caret = entry.caret_before;
-
-        match &entry.op {
-            UndoOp::Text { line, col, old, new } => {
-                if let Some(DocLine::Text(s)) = lines.get_mut(*line) {
-                    let byte_start = char_to_byte(s, *col);
-                    let byte_end = char_to_byte(s, *col + new.chars().count());
-                    s.replace_range(byte_start..byte_end, old);
-                }
-            }
-            UndoOp::Lines { at, old, new } => {
-                let end = (*at + new.len()).min(lines.len());
-                lines.splice(*at..end, old.iter().cloned());
-            }
-            UndoOp::Pixels { line, changes } => {
-                if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
-                    for ch in changes.iter().rev() {
-                        grid.set(ch.row, ch.col, ch.old);
-                    }
-                }
-            }
-            UndoOp::Compound(ops) => {
-                for op in ops.iter().rev() {
-                    match op {
-                        UndoOp::Lines { at, old, new } => {
-                            let end = (*at + new.len()).min(lines.len());
-                            lines.splice(*at..end, old.iter().cloned());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            UndoOp::PixelSelection {
-                line,
-                pixel_changes,
-                mode_before,
-                before,
-                ..
-            } => {
-                if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
-                    for ch in pixel_changes.iter().rev() {
-                        grid.set(ch.row, ch.col, ch.old);
-                    }
-                }
-                if let Some(ctx) = sel {
-                    *ctx.mode = mode_before.clone();
-                    *ctx.pixel_selection = before
-                        .as_ref()
-                        .map(crate::editor::pixel_selection::PixelSelection::from_snapshot);
-                }
-            }
-        }
+        apply_op(&entry.op, lines, Direction::Undo, &mut sel);
         self.break_coalesce();
         Some(caret)
     }
@@ -429,67 +379,105 @@ impl UndoStack {
     pub fn redo_with_sel(
         &mut self,
         lines: &mut Vec<DocLine>,
-        sel: Option<SelectionUndoCtx>,
+        mut sel: Option<SelectionUndoCtx>,
     ) -> Option<Caret> {
         if self.position >= self.entries.len() {
             return None;
         }
         let entry = &self.entries[self.position];
         let caret = entry.caret_after;
-
-        match &entry.op {
-            UndoOp::Text { line, col, old, new } => {
-                if let Some(DocLine::Text(s)) = lines.get_mut(*line) {
-                    let byte_start = char_to_byte(s, *col);
-                    let byte_end = char_to_byte(s, *col + old.chars().count());
-                    s.replace_range(byte_start..byte_end, new);
-                }
-            }
-            UndoOp::Lines { at, old, new } => {
-                let end = (*at + old.len()).min(lines.len());
-                lines.splice(*at..end, new.iter().cloned());
-            }
-            UndoOp::Pixels { line, changes } => {
-                if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
-                    for ch in changes {
-                        grid.set(ch.row, ch.col, ch.new);
-                    }
-                }
-            }
-            UndoOp::Compound(ops) => {
-                for op in ops {
-                    match op {
-                        UndoOp::Lines { at, old, new } => {
-                            let end = (*at + old.len()).min(lines.len());
-                            lines.splice(*at..end, new.iter().cloned());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            UndoOp::PixelSelection {
-                line,
-                pixel_changes,
-                mode_after,
-                after,
-                ..
-            } => {
-                if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
-                    for ch in pixel_changes {
-                        grid.set(ch.row, ch.col, ch.new);
-                    }
-                }
-                if let Some(ctx) = sel {
-                    *ctx.mode = mode_after.clone();
-                    *ctx.pixel_selection = after
-                        .as_ref()
-                        .map(crate::editor::pixel_selection::PixelSelection::from_snapshot);
-                }
-            }
-        }
+        apply_op(&entry.op, lines, Direction::Redo, &mut sel);
         self.position += 1;
         self.break_coalesce();
         Some(caret)
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Direction {
+    Undo,
+    Redo,
+}
+
+/// Applies one op in the given direction. Undo applies each op's `old` side
+/// (nested ops in reverse order); redo applies the `new` side (in order).
+/// One shared implementation so a new op kind (or a new nesting rule) cannot
+/// be handled asymmetrically between undo and redo.
+fn apply_op(
+    op: &UndoOp,
+    lines: &mut Vec<DocLine>,
+    dir: Direction,
+    sel: &mut Option<SelectionUndoCtx>,
+) {
+    match op {
+        UndoOp::Text { line, col, old, new } => {
+            let (remove, insert) = match dir {
+                Direction::Undo => (new, old),
+                Direction::Redo => (old, new),
+            };
+            if let Some(DocLine::Text(s)) = lines.get_mut(*line) {
+                let byte_start = char_to_byte(s, *col);
+                let byte_end = char_to_byte(s, *col + remove.chars().count());
+                s.replace_range(byte_start..byte_end, insert);
+            }
+        }
+        UndoOp::Lines { at, old, new } => {
+            let (remove, insert) = match dir {
+                Direction::Undo => (new, old),
+                Direction::Redo => (old, new),
+            };
+            let end = (*at + remove.len()).min(lines.len());
+            lines.splice(*at..end, insert.iter().cloned());
+        }
+        UndoOp::Pixels { line, changes } => {
+            if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
+                apply_pixel_changes(grid, changes, dir);
+            }
+        }
+        UndoOp::Compound(ops) => {
+            let mut each = |op| apply_op(op, lines, dir, sel);
+            match dir {
+                Direction::Undo => ops.iter().rev().for_each(&mut each),
+                Direction::Redo => ops.iter().for_each(&mut each),
+            }
+        }
+        UndoOp::PixelSelection {
+            line,
+            pixel_changes,
+            mode_before,
+            mode_after,
+            before,
+            after,
+        } => {
+            if let Some(DocLine::Grid(grid)) = lines.get_mut(*line) {
+                apply_pixel_changes(grid, pixel_changes, dir);
+            }
+            let (mode, snapshot) = match dir {
+                Direction::Undo => (mode_before, before),
+                Direction::Redo => (mode_after, after),
+            };
+            if let Some(ctx) = sel.as_mut() {
+                *ctx.mode = mode.clone();
+                *ctx.pixel_selection = snapshot
+                    .as_ref()
+                    .map(crate::editor::pixel_selection::PixelSelection::from_snapshot);
+            }
+        }
+    }
+}
+
+fn apply_pixel_changes(grid: &mut PixelGrid, changes: &[PixelChange], dir: Direction) {
+    match dir {
+        Direction::Undo => {
+            for ch in changes.iter().rev() {
+                grid.set(ch.row, ch.col, ch.old);
+            }
+        }
+        Direction::Redo => {
+            for ch in changes {
+                grid.set(ch.row, ch.col, ch.new);
+            }
+        }
     }
 }
 
@@ -956,6 +944,32 @@ mod tests {
 
         undo.redo(&mut lines);
         assert!(!undo.is_at_saved());
+    }
+
+    #[test]
+    fn compound_undo_redo_applies_non_line_ops() {
+        // A compound entry may nest any op kind; text ops inside it must
+        // participate in undo/redo like top-level ones, in reverse order on
+        // undo and forward order on redo.
+        let mut lines = vec![text("ab"), text("cd")];
+        let mut undo = UndoStack::new();
+
+        undo.push_compound(
+            vec![
+                UndoOp::Text { line: 0, col: 2, old: "".into(), new: "X".into() },
+                UndoOp::Lines { at: 1, old: vec![text("cd")], new: vec![text("c"), text("d")] },
+            ],
+            c(0, 2),
+            c(1, 1),
+        );
+        lines[0] = text("abX");
+        lines.splice(1..2, vec![text("c"), text("d")]);
+
+        undo.undo(&mut lines);
+        assert_eq!(lines, vec![text("ab"), text("cd")]);
+
+        undo.redo(&mut lines);
+        assert_eq!(lines, vec![text("abX"), text("c"), text("d")]);
     }
 
     #[test]
