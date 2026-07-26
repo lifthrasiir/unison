@@ -3214,42 +3214,48 @@ fn tt_push(code: &mut Vec<u8>, value: i32) {
     }
 }
 
-fn build_ttf(
-    ascender: i16,
-    descender: i16,
+/// glyf/loca input plus everything accumulated while adding glyph outlines:
+/// metrics, cmap mappings, name→GID assignments and the `maxp` counters.
+struct OutlineBuild {
+    glyf_builder: GlyfLocaBuilder,
+    h_metrics: Vec<LongMetric>,
+    cmap_mappings: Vec<(char, GlyphId)>,
+    name_to_gid: HashMap<String, GlyphId16>,
+    max_points: u16,
+    max_contours: u16,
+    max_insn_size: u16,
+    max_stack: u16,
+    max_composite_points: u16,
+    max_composite_contours: u16,
+    max_component_elements: u16,
+    max_component_depth: u16,
+}
+
+/// Passes 1 and 2 of the build: assign GIDs (`.notdef` first), collect cmap
+/// mappings, and add every glyph's outline (TrueType composite, empty, or
+/// hinted simple glyph) with its horizontal metric.
+fn build_glyph_outlines(
     glyphs: &[CollectedGlyph],
     hint_ppem: u16,
-    gsub_data: &GsubData,
-    palette: &[Rgba],
-    scale: f32,
-    pixel_ascent: u16,
-) -> Vec<u8> {
-    let mut num_glyphs = u16::try_from(glyphs.len() + 1).expect("glyph count checked earlier"); // +1 for .notdef
-
-    let default_aw = glyphs
-        .iter()
-        .find(|g| g.codepoint == Some(0x20))
-        .or(glyphs.first())
-        .map(|g| g.advance_width)
-        .unwrap_or(UNITS_PER_EM / 2);
-
-    // Build glyf/loca
-    let mut glyf_builder = GlyfLocaBuilder::new();
+    default_aw: u16,
+) -> OutlineBuild {
+    let mut out = OutlineBuild {
+        glyf_builder: GlyfLocaBuilder::new(),
+        h_metrics: vec![LongMetric { advance: default_aw, side_bearing: 0 }],
+        cmap_mappings: Vec::new(),
+        name_to_gid: HashMap::new(),
+        max_points: 0,
+        max_contours: 0,
+        max_insn_size: 0,
+        max_stack: 0,
+        max_composite_points: 0,
+        max_composite_contours: 0,
+        max_component_elements: 0,
+        max_component_depth: 0,
+    };
 
     // .notdef (empty glyph)
-    glyf_builder.add_glyph(&Glyph::Empty).unwrap();
-
-    let mut max_points = 0u16;
-    let mut max_contours = 0u16;
-    let mut max_insn_size = 0u16;
-    let mut max_stack = 0u16;
-    let mut h_metrics = vec![LongMetric {
-        advance: default_aw,
-        side_bearing: 0,
-    }];
-
-    let mut cmap_mappings: Vec<(char, GlyphId)> = Vec::new();
-    let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
+    out.glyf_builder.add_glyph(&Glyph::Empty).unwrap();
 
     // Pass 1: build name→GID mapping and cmap
     for (i, g) in glyphs.iter().enumerate() {
@@ -3258,26 +3264,21 @@ fn build_ttf(
 
         if let Some(cp) = g.codepoint
             && let Some(ch) = char::from_u32(cp) {
-                cmap_mappings.push((ch, glyph_id));
+                out.cmap_mappings.push((ch, glyph_id));
             }
 
-        name_to_gid.entry(g.name.clone()).or_insert(glyph_id16);
+        out.name_to_gid.entry(g.name.clone()).or_insert(glyph_id16);
     }
-
-    let mut max_composite_points = 0u16;
-    let mut max_composite_contours = 0u16;
-    let mut max_component_elements = 0u16;
-    let mut max_component_depth = 0u16;
 
     // Pass 2: build glyph outlines
     for g in glyphs.iter() {
         let is_composite = !g.composite_refs.is_empty()
-            && g.composite_refs.iter().all(|cr| name_to_gid.contains_key(&cr.component_name));
+            && g.composite_refs.iter().all(|cr| out.name_to_gid.contains_key(&cr.component_name));
 
         if is_composite {
             let mut comp_glyph: Option<CompositeGlyph> = None;
             for cr in &g.composite_refs {
-                let comp_gid = name_to_gid[&cr.component_name];
+                let comp_gid = out.name_to_gid[&cr.component_name];
                 let component = Component::new(
                     comp_gid,
                     Anchor::Offset { x: cr.x_offset, y: cr.y_offset },
@@ -3296,23 +3297,24 @@ fn build_ttf(
                 }
             }
             let cg = comp_glyph.unwrap();
-            max_component_elements = max_component_elements.max(g.composite_refs.len() as u16);
-            max_component_depth = max_component_depth.max(1);
+            out.max_component_elements =
+                out.max_component_elements.max(g.composite_refs.len() as u16);
+            out.max_component_depth = out.max_component_depth.max(1);
 
             let (gx0, ..) = glyph_bounds(&g.contours);
             let n_points: usize = g.contours.iter().map(|c| c.len()).sum();
-            max_composite_points = max_composite_points.max(n_points as u16);
-            max_composite_contours = max_composite_contours.max(g.contours.len() as u16);
+            out.max_composite_points = out.max_composite_points.max(n_points as u16);
+            out.max_composite_contours = out.max_composite_contours.max(g.contours.len() as u16);
 
-            h_metrics.push(LongMetric {
+            out.h_metrics.push(LongMetric {
                 advance: g.advance_width,
                 side_bearing: gx0,
             });
 
-            glyf_builder.add_glyph(&cg).unwrap();
+            out.glyf_builder.add_glyph(&cg).unwrap();
         } else if g.contours.is_empty() {
-            glyf_builder.add_glyph(&Glyph::Empty).unwrap();
-            h_metrics.push(LongMetric {
+            out.glyf_builder.add_glyph(&Glyph::Empty).unwrap();
+            out.h_metrics.push(LongMetric {
                 advance: g.advance_width,
                 side_bearing: 0,
             });
@@ -3336,11 +3338,11 @@ fn build_ttf(
                 .collect();
 
             let n_points: usize = contours.iter().map(|c| c.len()).sum();
-            max_points = max_points.max(n_points as u16);
-            max_contours = max_contours.max(contours.len() as u16);
-            max_insn_size = max_insn_size.max(instructions.len() as u16);
+            out.max_points = out.max_points.max(n_points as u16);
+            out.max_contours = out.max_contours.max(contours.len() as u16);
+            out.max_insn_size = out.max_insn_size.max(instructions.len() as u16);
             if !instructions.is_empty() {
-                max_stack = max_stack.max(2);
+                out.max_stack = out.max_stack.max(2);
             }
 
             let mut sg = SimpleGlyph {
@@ -3367,16 +3369,25 @@ fn build_ttf(
                 sg.bbox.x_max = sg.bbox.x_max.max(g.advance_width as i16);
             }
 
-            h_metrics.push(LongMetric {
+            out.h_metrics.push(LongMetric {
                 advance: g.advance_width,
                 side_bearing: sg.bbox.x_min,
             });
 
-            glyf_builder.add_glyph(&sg).unwrap();
+            out.glyf_builder.add_glyph(&sg).unwrap();
         }
     }
 
-    // COLRv0: add layer glyphs and build COLR/CPAL data
+    out
+}
+
+/// COLRv0: appends one extra outline glyph per color layer (allocating GIDs
+/// from `num_glyphs` onward) and returns the COLR base-glyph/layer records.
+fn add_color_layer_glyphs(
+    glyphs: &[CollectedGlyph],
+    out: &mut OutlineBuild,
+    num_glyphs: &mut u16,
+) -> (Vec<BaseGlyph>, Vec<ColrLayer>) {
     let mut colr_base_glyphs: Vec<BaseGlyph> = Vec::new();
     let mut colr_layers: Vec<ColrLayer> = Vec::new();
 
@@ -3388,12 +3399,12 @@ fn build_ttf(
         let first_layer_index = colr_layers.len() as u16;
 
         for cl in &g.color_layers {
-            let layer_gid_val = num_glyphs;
-            num_glyphs += 1;
+            let layer_gid_val = *num_glyphs;
+            *num_glyphs += 1;
 
             if cl.contours.is_empty() {
-                glyf_builder.add_glyph(&Glyph::Empty).unwrap();
-                h_metrics.push(LongMetric {
+                out.glyf_builder.add_glyph(&Glyph::Empty).unwrap();
+                out.h_metrics.push(LongMetric {
                     advance: g.advance_width,
                     side_bearing: 0,
                 });
@@ -3416,8 +3427,8 @@ fn build_ttf(
                 };
                 sg.recompute_bounding_box();
                 let lsb = sg.bbox.x_min;
-                glyf_builder.add_glyph(&sg).unwrap();
-                h_metrics.push(LongMetric {
+                out.glyf_builder.add_glyph(&sg).unwrap();
+                out.h_metrics.push(LongMetric {
                     advance: g.advance_width,
                     side_bearing: lsb,
                 });
@@ -3436,39 +3447,196 @@ fn build_ttf(
         ));
     }
 
-    let has_color = !colr_base_glyphs.is_empty();
-    let colr_layers_count = colr_layers.len() as u16;
+    (colr_base_glyphs, colr_layers)
+}
 
-    let (glyf, loca, loca_format) = glyf_builder.build();
+/// Font-wide bounds and metric extremes for `head`/`hhea`.
+struct GlobalBounds {
+    x_min: i16,
+    y_min: i16,
+    x_max: i16,
+    y_max: i16,
+    aw_max: u16,
+    min_lsb: i16,
+    min_rsb: i16,
+    x_max_extent: i16,
+}
 
-    // Compute global bounds
-    let mut x_min = 0i16;
-    let mut y_min = descender;
-    let mut x_max = default_aw as i16;
-    let mut y_max = ascender;
-    let mut aw_max = default_aw;
-    let mut min_lsb = 0i16;
-    let mut min_rsb = i16::MAX;
-    let mut x_max_extent = 0i16;
+fn compute_global_bounds(
+    glyphs: &[CollectedGlyph],
+    h_metrics: &[LongMetric],
+    default_aw: u16,
+    ascender: i16,
+    descender: i16,
+) -> GlobalBounds {
+    let mut b = GlobalBounds {
+        x_min: 0,
+        y_min: descender,
+        x_max: default_aw as i16,
+        y_max: ascender,
+        aw_max: default_aw,
+        min_lsb: 0,
+        min_rsb: i16::MAX,
+        x_max_extent: 0,
+    };
 
     for (i, g) in glyphs.iter().enumerate() {
         let m = &h_metrics[i + 1];
-        aw_max = aw_max.max(m.advance);
+        b.aw_max = b.aw_max.max(m.advance);
         if !g.contours.is_empty() {
             let (gx0, gy0, gx1, gy1) = glyph_bounds(&g.contours);
-            x_min = x_min.min(gx0);
-            y_min = y_min.min(gy0);
-            x_max = x_max.max(gx1);
-            y_max = y_max.max(gy1);
-            min_lsb = min_lsb.min(gx0);
+            b.x_min = b.x_min.min(gx0);
+            b.y_min = b.y_min.min(gy0);
+            b.x_max = b.x_max.max(gx1);
+            b.y_max = b.y_max.max(gy1);
+            b.min_lsb = b.min_lsb.min(gx0);
             let rsb = m.advance as i16 - gx1;
-            min_rsb = min_rsb.min(rsb);
-            x_max_extent = x_max_extent.max(gx1);
+            b.min_rsb = b.min_rsb.min(rsb);
+            b.x_max_extent = b.x_max_extent.max(gx1);
         }
     }
-    if min_rsb == i16::MAX {
-        min_rsb = 0;
+    if b.min_rsb == i16::MAX {
+        b.min_rsb = 0;
     }
+    b
+}
+
+/// Merges the anchor-based per-feature GSUB lookups into `gsub` (creating an
+/// empty GSUB if none exists), rebasing chained-context lookup indices and
+/// folding into existing feature records with the same tag (duplicate
+/// feature entries are ignored by some shapers).
+fn merge_anchor_feature_lookups(
+    gsub: &mut Option<Gsub>,
+    feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)>,
+) {
+    for (feature_tag, scripts, lookups) in feature_lookups {
+        if lookups.is_empty() {
+            continue;
+        }
+        let gsub = gsub.get_or_insert_with(|| {
+            Gsub::new(
+                ScriptList::new(vec![]),
+                FeatureList::new(vec![]),
+                LookupList::new(vec![]),
+            )
+        });
+
+        let base_idx = gsub.lookup_list.lookups.len() as u16;
+        let mut chain_indices: Vec<u16> = Vec::new();
+        for (local_idx, mut lookup) in lookups.into_iter().enumerate() {
+            let global_idx = base_idx + local_idx as u16;
+            if let SubstitutionLookup::ChainContextual(ref mut lk) = lookup {
+                for subtable in &mut lk.subtables {
+                    if let ChainedSequenceContext::Format3(ref mut f3) = ***subtable {
+                        for rec in &mut f3.seq_lookup_records {
+                            rec.lookup_list_index += base_idx;
+                        }
+                    }
+                }
+                chain_indices.push(global_idx);
+            }
+            gsub.lookup_list.lookups.push(lookup.into());
+        }
+
+        let feat_tag = make_tag(&feature_tag);
+
+        // Try to merge into an existing feature record with the same tag
+        // to avoid duplicate feature entries (which some shapers ignore).
+        let existing_feat = gsub
+            .feature_list
+            .feature_records
+            .iter_mut()
+            .find(|fr| fr.feature_tag == feat_tag);
+
+        if let Some(fr) = existing_feat {
+            fr.feature.lookup_list_indices.extend(chain_indices);
+        } else {
+            let feat_idx = gsub.feature_list.feature_records.len() as u16;
+            gsub.feature_list.feature_records.push(FeatureRecord::new(
+                feat_tag,
+                Feature::new(None, chain_indices),
+            ));
+
+            for script in &scripts {
+                let script_tag = make_tag(script);
+
+                let existing = gsub
+                    .script_list
+                    .script_records
+                    .iter_mut()
+                    .find(|sr| sr.script_tag == script_tag);
+
+                if let Some(sr) = existing {
+                    if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
+                        default_ls.feature_indices.push(feat_idx);
+                    }
+                } else {
+                    let lang_sys = LangSys {
+                        required_feature_index: 0xFFFF,
+                        feature_indices: vec![feat_idx],
+                    };
+                    let script_obj = Script::new(Some(lang_sys), vec![]);
+                    gsub.script_list
+                        .script_records
+                        .push(ScriptRecord::new(script_tag, script_obj));
+                }
+            }
+        }
+    }
+}
+
+fn build_ttf(
+    ascender: i16,
+    descender: i16,
+    glyphs: &[CollectedGlyph],
+    hint_ppem: u16,
+    gsub_data: &GsubData,
+    palette: &[Rgba],
+    scale: f32,
+    pixel_ascent: u16,
+) -> Vec<u8> {
+    let mut num_glyphs = u16::try_from(glyphs.len() + 1).expect("glyph count checked earlier"); // +1 for .notdef
+
+    let default_aw = glyphs
+        .iter()
+        .find(|g| g.codepoint == Some(0x20))
+        .or(glyphs.first())
+        .map(|g| g.advance_width)
+        .unwrap_or(UNITS_PER_EM / 2);
+
+    let mut outlines = build_glyph_outlines(glyphs, hint_ppem, default_aw);
+    let (colr_base_glyphs, colr_layers) =
+        add_color_layer_glyphs(glyphs, &mut outlines, &mut num_glyphs);
+    let has_color = !colr_base_glyphs.is_empty();
+    let colr_layers_count = colr_layers.len() as u16;
+
+    let OutlineBuild {
+        glyf_builder,
+        h_metrics,
+        cmap_mappings,
+        name_to_gid,
+        max_points,
+        max_contours,
+        max_insn_size,
+        max_stack,
+        max_composite_points,
+        max_composite_contours,
+        max_component_elements,
+        max_component_depth,
+    } = outlines;
+
+    let (glyf, loca, loca_format) = glyf_builder.build();
+
+    let GlobalBounds {
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        aw_max,
+        min_lsb,
+        min_rsb,
+        x_max_extent,
+    } = compute_global_bounds(glyphs, &h_metrics, default_aw, ascender, descender);
 
     // head
     let head = Head {
@@ -3580,89 +3748,14 @@ fn build_ttf(
 
     let mut gsub = build_gsub(gsub_data, &name_to_gid);
 
-    let anchor_data = build_anchor_gpos(
+    let mut anchor_data = build_anchor_gpos(
         glyphs,
         gsub_data,
         &name_to_gid,
         scale,
         pixel_ascent,
     );
-
-    // Merge anchor-based feature lookups into GSUB
-    for (feature_tag, scripts, lookups) in anchor_data.feature_lookups {
-        if lookups.is_empty() {
-            continue;
-        }
-        let gsub = gsub.get_or_insert_with(|| {
-            Gsub::new(
-                ScriptList::new(vec![]),
-                FeatureList::new(vec![]),
-                LookupList::new(vec![]),
-            )
-        });
-
-        let base_idx = gsub.lookup_list.lookups.len() as u16;
-        let mut chain_indices: Vec<u16> = Vec::new();
-        for (local_idx, mut lookup) in lookups.into_iter().enumerate() {
-            let global_idx = base_idx + local_idx as u16;
-            if let SubstitutionLookup::ChainContextual(ref mut lk) = lookup {
-                for subtable in &mut lk.subtables {
-                    if let ChainedSequenceContext::Format3(ref mut f3) = ***subtable {
-                        for rec in &mut f3.seq_lookup_records {
-                            rec.lookup_list_index += base_idx;
-                        }
-                    }
-                }
-                chain_indices.push(global_idx);
-            }
-            gsub.lookup_list.lookups.push(lookup.into());
-        }
-
-        let feat_tag = make_tag(&feature_tag);
-
-        // Try to merge into an existing feature record with the same tag
-        // to avoid duplicate feature entries (which some shapers ignore).
-        let existing_feat = gsub
-            .feature_list
-            .feature_records
-            .iter_mut()
-            .find(|fr| fr.feature_tag == feat_tag);
-
-        if let Some(fr) = existing_feat {
-            fr.feature.lookup_list_indices.extend(chain_indices);
-        } else {
-            let feat_idx = gsub.feature_list.feature_records.len() as u16;
-            gsub.feature_list.feature_records.push(FeatureRecord::new(
-                feat_tag,
-                Feature::new(None, chain_indices),
-            ));
-
-            for script in &scripts {
-                let script_tag = make_tag(script);
-
-                let existing = gsub
-                    .script_list
-                    .script_records
-                    .iter_mut()
-                    .find(|sr| sr.script_tag == script_tag);
-
-                if let Some(sr) = existing {
-                    if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
-                        default_ls.feature_indices.push(feat_idx);
-                    }
-                } else {
-                    let lang_sys = LangSys {
-                        required_feature_index: 0xFFFF,
-                        feature_indices: vec![feat_idx],
-                    };
-                    let script_obj = Script::new(Some(lang_sys), vec![]);
-                    gsub.script_list
-                        .script_records
-                        .push(ScriptRecord::new(script_tag, script_obj));
-                }
-            }
-        }
-    }
+    merge_anchor_feature_lookups(&mut gsub, std::mem::take(&mut anchor_data.feature_lookups));
 
     let mut builder = FontBuilder::new();
     builder

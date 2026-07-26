@@ -890,118 +890,244 @@ impl eframe::App for UniformApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         crate::stackmon::phase("update:begin");
         crate::stackmon::probe();
-        {
-            let title = if let Some(idx) = self.active_doc_idx {
-                let doc = &self.open_documents[idx];
-                let path = doc.document.path.display().to_string();
-                if doc.document.dirty {
-                    format!("{path}* - Uniform")
-                } else {
-                    format!("{path} - Uniform")
-                }
-            } else if let Some(dir) = &self.font_dir {
-                format!("{} - Uniform", dir.display())
-            } else {
-                "Uniform".to_string()
-            };
-            if title != self.last_title {
-                ctx.send_viewport_cmd(egui::ViewportCommand::Title(title.clone()));
-                self.last_title = title;
-            }
-        }
+        self.sync_window_title(ctx);
 
-        let mut escape_toggled = false;
-        let mut run_assert_all = false;
-        let mut run_assert_file = false;
+        let mut menu = MenuActions::default();
         ctx.input(|i| {
             if i.key_pressed(egui::Key::F12) {
                 self.escape_mode = !self.escape_mode;
-                escape_toggled = true;
+                menu.escape_toggled = true;
             }
             if i.key_pressed(egui::Key::F6) {
                 if i.modifiers.command || i.modifiers.ctrl {
-                    run_assert_all = true;
+                    menu.run_assert_all = true;
                 } else {
-                    run_assert_file = true;
+                    menu.run_assert_file = true;
                 }
             }
         });
 
-        // Alt + hex digit codepoint input
+        self.intercept_hex_codepoint_input(ctx);
+        self.handle_zoom_scroll(ctx);
+
+        crate::stackmon::phase("update:derived-data");
+        self.pump_background_pipeline(ctx);
+
+        let edit_target = if self.shaped_preview.is_focused() {
+            EditTarget::Preview
+        } else {
+            EditTarget::Editor
+        };
+        let editor_focused = self.active_doc()
+            .is_some_and(|d| d.editor_state.is_active());
+
+        crate::stackmon::phase("update:menu_bar");
+        self.show_menu_bar(ctx, &mut menu, edit_target, editor_focused);
+        if menu.run_assert_all {
+            self.run_shape_assertions(ctx, false);
+        } else if menu.run_assert_file {
+            self.run_shape_assertions(ctx, true);
+        }
+        self.apply_file_menu_actions(ctx, &menu);
+
+        crate::stackmon::phase("update:sidebar");
+        self.show_sidebar_panel(ctx, editor_focused);
+
+        crate::stackmon::phase("update:status");
+        self.show_status_bar(ctx);
+
+        crate::stackmon::phase("update:preview");
+        let (specimen_clicked_glyph, issues_click) = self.show_bottom_panel(ctx);
+
+        crate::stackmon::phase("update:central/editor");
+        let (goto_glyph_request, rename_request) = self.show_editor_panel(ctx);
+
+        if let Some(goto) = goto_glyph_request {
+            self.goto_glyph(ctx, &goto.name, &goto.kind);
+        }
+
+        if let Some(click) = specimen_clicked_glyph {
+            self.goto_glyph(ctx, &click.name, &click.kind);
+        }
+
+        if let Some((path, line)) = issues_click {
+            self.open_file(path.clone());
+            if let Some(idx) = self.open_documents.iter().position(|d| d.document.path == path) {
+                self.active_doc_idx = Some(idx);
+                self.open_documents[idx].editor_state.goto_line(line);
+            }
+        }
+
+        if let Some(rename) = rename_request {
+            self.execute_rename(&rename);
+        }
+
+        self.apply_edit_menu_actions(ctx, edit_target, menu.take_edit_actions());
+
+        crate::stackmon::phase("update:end (egui tessellate/paint follows)");
+        // Decide whether to close only after this frame's editor input has
+        // updated the source buffer and dirty state.
+        if menu.exit && self.confirm_close_and_maybe_save() {
+            self.close_confirmed = true;
+            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+        }
+
+        if ctx.input(|i| i.viewport().close_requested())
+            && !self.close_confirmed
+            && !self.confirm_close_and_maybe_save()
         {
-            let mut hex_char_to_inject: Option<char> = None;
-            let hex_input = &mut self.hex_input;
-            ctx.input_mut(|input| {
-                let alt_held = input.modifiers.alt;
-                input.events.retain(|event| {
-                    match event {
-                        egui::Event::Key {
-                            key, pressed: true, modifiers, ..
-                        } if modifiers.alt && !modifiers.command && !modifiers.ctrl => {
-                            if let Some(hex) = key_to_hex_char(*key) {
-                                let buf = hex_input.get_or_insert_with(String::new);
-                                if buf.len() < 6 {
-                                    buf.push(hex);
-                                }
-                                return false;
+            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum EditTarget {
+    Editor,
+    Preview,
+}
+
+enum SelMenuAction {
+    Cancel,
+    Transform(crate::editor::pixel_selection::SelectionTransform),
+}
+
+/// Everything the menu bar (and its keyboard accelerators) requested this
+/// frame; dispatched after the panels have run.
+#[derive(Default)]
+struct MenuActions {
+    new_file: bool,
+    open_folder: bool,
+    rename_file: bool,
+    rename_symbol: bool,
+    export: bool,
+    export_new: bool,
+    exit: bool,
+    save: bool,
+    save_all: bool,
+    escape_toggled: bool,
+    run_assert_all: bool,
+    run_assert_file: bool,
+    edit_action: crate::edit_menu::EditAction,
+    sel_menu_action: Option<SelMenuAction>,
+    scale_action: Option<u8>,
+}
+
+/// The subset of [`MenuActions`] dispatched after the central panel.
+struct EditMenuActions {
+    edit_action: crate::edit_menu::EditAction,
+    sel_menu_action: Option<SelMenuAction>,
+    scale_action: Option<u8>,
+}
+
+impl MenuActions {
+    fn take_edit_actions(&mut self) -> EditMenuActions {
+        EditMenuActions {
+            edit_action: std::mem::take(&mut self.edit_action),
+            sel_menu_action: self.sel_menu_action.take(),
+            scale_action: self.scale_action.take(),
+        }
+    }
+}
+
+impl UniformApp {
+    fn sync_window_title(&mut self, ctx: &egui::Context) {
+        let title = if let Some(idx) = self.active_doc_idx {
+            let doc = &self.open_documents[idx];
+            let path = doc.document.path.display().to_string();
+            if doc.document.dirty {
+                format!("{path}* - Uniform")
+            } else {
+                format!("{path} - Uniform")
+            }
+        } else if let Some(dir) = &self.font_dir {
+            format!("{} - Uniform", dir.display())
+        } else {
+            "Uniform".to_string()
+        };
+        if title != self.last_title {
+            ctx.send_viewport_cmd(egui::ViewportCommand::Title(title.clone()));
+            self.last_title = title;
+        }
+    }
+
+    /// Alt + hex digit codepoint input: buffers hex digits while Alt is held
+    /// and injects the decoded character as a text event on release.
+    fn intercept_hex_codepoint_input(&mut self, ctx: &egui::Context) {
+        let mut hex_char_to_inject: Option<char> = None;
+        let hex_input = &mut self.hex_input;
+        ctx.input_mut(|input| {
+            let alt_held = input.modifiers.alt;
+            input.events.retain(|event| {
+                match event {
+                    egui::Event::Key {
+                        key, pressed: true, modifiers, ..
+                    } if modifiers.alt && !modifiers.command && !modifiers.ctrl => {
+                        if let Some(hex) = key_to_hex_char(*key) {
+                            let buf = hex_input.get_or_insert_with(String::new);
+                            if buf.len() < 6 {
+                                buf.push(hex);
                             }
-                            if hex_input.is_some() {
-                                *hex_input = None;
-                                return false;
-                            }
-                            true
+                            return false;
                         }
-                        egui::Event::Key {
-                            key: _, pressed: false, modifiers, ..
-                        } if !alt_held && hex_input.is_some() => {
-                            let _ = modifiers;
-                            if let Some(hex_str) = hex_input.take()
-                                && let Some(ch) = validate_hex_codepoint(&hex_str) {
-                                    hex_char_to_inject = Some(ch);
-                                }
-                            true
+                        if hex_input.is_some() {
+                            *hex_input = None;
+                            return false;
                         }
-                        egui::Event::Text(_) if hex_input.is_some() => false,
-                        _ => true,
+                        true
                     }
-                });
-                if !alt_held && hex_input.is_some()
-                    && let Some(hex_str) = hex_input.take()
-                        && let Some(ch) = validate_hex_codepoint(&hex_str) {
-                            hex_char_to_inject = Some(ch);
-                        }
-                if let Some(ch) = hex_char_to_inject {
-                    input.events.push(egui::Event::Text(ch.to_string()));
+                    egui::Event::Key {
+                        key: _, pressed: false, modifiers, ..
+                    } if !alt_held && hex_input.is_some() => {
+                        let _ = modifiers;
+                        if let Some(hex_str) = hex_input.take()
+                            && let Some(ch) = validate_hex_codepoint(&hex_str) {
+                                hex_char_to_inject = Some(ch);
+                            }
+                        true
+                    }
+                    egui::Event::Text(_) if hex_input.is_some() => false,
+                    _ => true,
                 }
             });
-        }
-
-        // Cmd/Ctrl + scroll wheel to adjust zoom level
-        // (skip when hovering on the editing grid — ctrl+scroll cycles layers there)
-        {
-            let cmd_held = ctx.input(|i| i.modifiers.command);
-            let grid_hover = self.active_doc()
-                .is_some_and(|d| d.editor_state.is_grid_hover());
-            if cmd_held && !grid_hover
-                && let Some(step) = debounced_scroll_step(ctx) {
-                    let old_zoom = self.zoom_level;
-                    if step < 0 {
-                        self.zoom_level = (self.zoom_level + 1).min(8);
-                    } else {
-                        self.zoom_level = (self.zoom_level - 1).max(1);
+            if !alt_held && hex_input.is_some()
+                && let Some(hex_str) = hex_input.take()
+                    && let Some(ch) = validate_hex_codepoint(&hex_str) {
+                        hex_char_to_inject = Some(ch);
                     }
-                    if self.zoom_level != old_zoom
-                        && let Some(idx) = self.active_doc_idx
-                            && let Some(doc) = self.open_documents.get_mut(idx) {
-                                doc.editor_state.notify_zoom_change(old_zoom);
-                            }
-                    ctx.input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
-                }
-        }
+            if let Some(ch) = hex_char_to_inject {
+                input.events.push(egui::Event::Text(ch.to_string()));
+            }
+        });
+    }
 
+    /// Cmd/Ctrl + scroll wheel to adjust zoom level
+    /// (skip when hovering on the editing grid — ctrl+scroll cycles layers there)
+    fn handle_zoom_scroll(&mut self, ctx: &egui::Context) {
+        let cmd_held = ctx.input(|i| i.modifiers.command);
+        let grid_hover = self.active_doc()
+            .is_some_and(|d| d.editor_state.is_grid_hover());
+        if cmd_held && !grid_hover
+            && let Some(step) = debounced_scroll_step(ctx) {
+                let old_zoom = self.zoom_level;
+                if step < 0 {
+                    self.zoom_level = (self.zoom_level + 1).min(8);
+                } else {
+                    self.zoom_level = (self.zoom_level - 1).max(1);
+                }
+                if self.zoom_level != old_zoom
+                    && let Some(doc) = self.active_doc_mut() {
+                        doc.editor_state.notify_zoom_change(old_zoom);
+                    }
+                ctx.input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
+            }
+    }
+
+    /// Schedules debounced font/derived-data rebuilds and drains the three
+    /// background channels (font build, derived data, shape assertions).
+    fn pump_background_pipeline(&mut self, ctx: &egui::Context) {
         let any_pixel_painting = self.open_documents.iter()
             .any(|d| d.editor_state.suppress_font_rebuild);
-        crate::stackmon::phase("update:derived-data");
         let font_gen = self.current_font_gen();
         if font_gen != self.last_font_gen && !any_pixel_painting {
             self.last_font_gen = font_gen;
@@ -1020,25 +1146,23 @@ impl eframe::App for UniformApp {
                 self.font_rebuild_at = None;
             }
 
+        if let Some(result) =
+            take_current_font_build(&self.font_build_rx, self.font_build_gen)
         {
-            if let Some(result) =
-                take_current_font_build(&self.font_build_rx, self.font_build_gen)
-            {
-                self.bg_tasks.finish_build();
-                match result {
-                    Some((pair, gid_map)) => {
-                        self.font_data = Some(pair);
-                        self.font_name_to_gid = gid_map;
-                    }
-                    None => {
-                        self.font_data = None;
-                        self.font_name_to_gid.clear();
-                    }
+            self.bg_tasks.finish_build();
+            match result {
+                Some((pair, gid_map)) => {
+                    self.font_data = Some(pair);
+                    self.font_name_to_gid = gid_map;
                 }
-                self.font_data_gen = self.font_build_gen;
-                self.font_applied = None;
-                self.shaped_preview.invalidate_font(self.font_data_gen);
+                None => {
+                    self.font_data = None;
+                    self.font_name_to_gid.clear();
+                }
             }
+            self.font_data_gen = self.font_build_gen;
+            self.font_applied = None;
+            self.shaped_preview.invalidate_font(self.font_data_gen);
         }
 
         if self.font_build_gen != self.named_glyphs_gen
@@ -1094,55 +1218,49 @@ impl eframe::App for UniformApp {
         if self.bg_tasks.build.is_some() || self.bg_tasks.test.is_some() {
             ctx.request_repaint_after(std::time::Duration::from_millis(100));
         }
+    }
 
+    /// The top menu bar plus its global keyboard accelerators; every request
+    /// lands in `menu` for dispatch after the panels.
+    fn show_menu_bar(
+        &mut self,
+        ctx: &egui::Context,
+        menu: &mut MenuActions,
+        edit_target: EditTarget,
+        editor_focused: bool,
+    ) {
         let theme_before = ctx.options(|o| o.theme_preference);
         let (mod_name, shift_name) = crate::edit_menu::platform_shortcut_names();
         let exit_shortcut = if cfg!(target_os = "macos") { "⌘Q" } else { "Alt+F4" };
 
-        let mut menu_new_file = false;
-        let mut menu_open_folder = false;
-        let mut menu_rename = false;
-        let mut menu_rename_symbol = false;
-        let mut menu_export = false;
-        let mut menu_export_new = false;
-        let mut menu_exit = false;
-        let mut ctrl_s_pressed = false;
-        let mut ctrl_shift_s_pressed = false;
+        let menu_new_file = &mut menu.new_file;
+        let menu_open_folder = &mut menu.open_folder;
+        let menu_rename = &mut menu.rename_file;
+        let menu_rename_symbol = &mut menu.rename_symbol;
+        let menu_export = &mut menu.export;
+        let menu_export_new = &mut menu.export_new;
+        let menu_exit = &mut menu.exit;
+        let ctrl_s_pressed = &mut menu.save;
+        let ctrl_shift_s_pressed = &mut menu.save_all;
+        let escape_toggled = &mut menu.escape_toggled;
+        let run_assert_all = &mut menu.run_assert_all;
+        let run_assert_file = &mut menu.run_assert_file;
+        let edit_action = &mut menu.edit_action;
+        let sel_menu_action = &mut menu.sel_menu_action;
+        let scale_action = &mut menu.scale_action;
 
-        use crate::edit_menu::{EditAction, EditMenuCaps};
-        use crate::editor::pixel_selection::SelectionTransform;
+        use crate::edit_menu::EditMenuCaps;
 
-        #[derive(Clone, Copy, PartialEq)]
-        enum EditTarget { Editor, Preview }
-
-        enum SelMenuAction {
-            Cancel,
-            Transform(SelectionTransform),
-        }
-
-        let mut edit_action = EditAction::None;
-        let mut sel_menu_action: Option<SelMenuAction> = None;
-        let mut scale_action: Option<u8> = None;
-        let edit_target = if self.shaped_preview.is_focused() {
-            EditTarget::Preview
-        } else {
-            EditTarget::Editor
-        };
-
-        let editor_focused = self.active_doc()
-            .is_some_and(|d| d.editor_state.is_active());
-
-        crate::stackmon::phase("update:menu_bar");
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.add(egui::Button::new("New file...").shortcut_text(format!("{mod_name}N"))).clicked() {
-                        menu_new_file = true;
+                        *menu_new_file = true;
                         ui.close_menu();
                     }
                     ui.separator();
                     if ui.add(egui::Button::new("Open folder...").shortcut_text(format!("{mod_name}{shift_name}O"))).clicked() {
-                        menu_open_folder = true;
+                        *menu_open_folder = true;
                         ui.close_menu();
                     }
                     ui.separator();
@@ -1151,14 +1269,14 @@ impl eframe::App for UniformApp {
                         .add_enabled(has_active, egui::Button::new("Save").shortcut_text(format!("{mod_name}S")))
                         .clicked()
                     {
-                        ctrl_s_pressed = true;
+                        *ctrl_s_pressed = true;
                         ui.close_menu();
                     }
                     if ui
                         .add(egui::Button::new("Save all").shortcut_text(format!("{mod_name}{shift_name}S")))
                         .clicked()
                     {
-                        ctrl_shift_s_pressed = true;
+                        *ctrl_shift_s_pressed = true;
                         ui.close_menu();
                     }
                     ui.separator();
@@ -1166,7 +1284,7 @@ impl eframe::App for UniformApp {
                         .add_enabled(has_active && !editor_focused, egui::Button::new("Rename file...").shortcut_text("F2"))
                         .clicked()
                     {
-                        menu_rename = true;
+                        *menu_rename = true;
                         ui.close_menu();
                     }
                     ui.separator();
@@ -1188,7 +1306,7 @@ impl eframe::App for UniformApp {
                         )
                         .clicked()
                     {
-                        menu_export = true;
+                        *menu_export = true;
                         ui.close_menu();
                     }
                     if ui
@@ -1198,12 +1316,12 @@ impl eframe::App for UniformApp {
                         )
                         .clicked()
                     {
-                        menu_export_new = true;
+                        *menu_export_new = true;
                         ui.close_menu();
                     }
                     ui.separator();
                     if ui.add(egui::Button::new("Exit").shortcut_text(exit_shortcut)).clicked() {
-                        menu_exit = true;
+                        *menu_exit = true;
                         ui.close_menu();
                     }
                 });
@@ -1221,13 +1339,13 @@ impl eframe::App for UniformApp {
                                 })
                         }
                     };
-                    edit_action = crate::edit_menu::show_edit_menu_items(ui, &caps, true);
+                    *edit_action = crate::edit_menu::show_edit_menu_items(ui, &caps, true);
                     ui.separator();
                     if ui
                         .add_enabled(editor_focused, egui::Button::new("Rename symbol...").shortcut_text("F2"))
                         .clicked()
                     {
-                        menu_rename_symbol = true;
+                        *menu_rename_symbol = true;
                         ui.close_menu();
                     }
                     let in_grid_edit = self.in_grid_edit();
@@ -1278,7 +1396,7 @@ impl eframe::App for UniformApp {
                                     current_scale != Some(s),
                                     egui::Button::new(label),
                                 ).clicked() {
-                                    scale_action = Some(s);
+                                    *scale_action = Some(s);
                                     ui.close_menu();
                                 }
                             }
@@ -1307,7 +1425,7 @@ impl eframe::App for UniformApp {
                         has_sel,
                         egui::Button::new("Cancel selection").shortcut_text("Esc"),
                     ).clicked() {
-                        sel_menu_action = Some(SelMenuAction::Cancel);
+                        *sel_menu_action = Some(SelMenuAction::Cancel);
                         ui.close_menu();
                     }
 
@@ -1317,14 +1435,14 @@ impl eframe::App for UniformApp {
                         can_do(SelectionTransform::MirrorH),
                         egui::Button::new("Mirror selection").shortcut_text(format!("{mod_name}M")),
                     ).clicked() {
-                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::MirrorH));
+                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::MirrorH));
                         ui.close_menu();
                     }
                     if ui.add_enabled(
                         can_do(SelectionTransform::FlipV),
                         egui::Button::new("Flip selection").shortcut_text(format!("{mod_name}I")),
                     ).clicked() {
-                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::FlipV));
+                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::FlipV));
                         ui.close_menu();
                     }
                     ui.menu_button("Rotate selection", |ui| {
@@ -1332,21 +1450,21 @@ impl eframe::App for UniformApp {
                             can_do(SelectionTransform::RotateCCW),
                             egui::Button::new("Counterclockwise").shortcut_text(format!("{mod_name}J")),
                         ).clicked() {
-                            sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCCW));
+                            *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCCW));
                             ui.close_menu();
                         }
                         if ui.add_enabled(
                             can_do(SelectionTransform::Rotate180),
                             egui::Button::new("180 degrees").shortcut_text(format!("{mod_name}K")),
                         ).clicked() {
-                            sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Rotate180));
+                            *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Rotate180));
                             ui.close_menu();
                         }
                         if ui.add_enabled(
                             can_do(SelectionTransform::RotateCW),
                             egui::Button::new("Clockwise").shortcut_text(format!("{mod_name}L")),
                         ).clicked() {
-                            sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCW));
+                            *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCW));
                             ui.close_menu();
                         }
                     });
@@ -1357,14 +1475,14 @@ impl eframe::App for UniformApp {
                         can_do(SelectionTransform::Opposite),
                         egui::Button::new("Opposite subglyphs").shortcut_text(format!("{mod_name}O")),
                     ).clicked() {
-                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Opposite));
+                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Opposite));
                         ui.close_menu();
                     }
                     if ui.add_enabled(
                         can_do(SelectionTransform::OppositeBitmap),
                         egui::Button::new("Opposite bitmap").shortcut_text(format!("{mod_name}\u{21e7}O")),
                     ).clicked() {
-                        sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::OppositeBitmap));
+                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::OppositeBitmap));
                         ui.close_menu();
                     }
                 });
@@ -1373,14 +1491,14 @@ impl eframe::App for UniformApp {
                         !self.assert_running && self.active_doc_idx.is_some(),
                         egui::Button::new("Run assertions (current file)").shortcut_text("F6"),
                     ).clicked() {
-                        run_assert_file = true;
+                        *run_assert_file = true;
                         ui.close_menu();
                     }
                     if ui.add_enabled(
                         !self.assert_running,
                         egui::Button::new("Run assertions (all files)").shortcut_text(format!("{mod_name}F6")),
                     ).clicked() {
-                        run_assert_all = true;
+                        *run_assert_all = true;
                         ui.close_menu();
                     }
                 });
@@ -1411,7 +1529,7 @@ impl eframe::App for UniformApp {
                     let label = egui::RichText::new(font_label).family(preview_family);
                     if ui.add(egui::Button::new(label).shortcut_text("F12")).clicked() {
                         self.escape_mode = !self.escape_mode;
-                        escape_toggled = true;
+                        *escape_toggled = true;
                         ui.close_menu();
                     }
                     ui.separator();
@@ -1441,42 +1559,37 @@ impl eframe::App for UniformApp {
                 });
             });
         });
-        if run_assert_all {
-            self.run_shape_assertions(ctx, false);
-        } else if run_assert_file {
-            self.run_shape_assertions(ctx, true);
-        }
         if ctx.options(|o| o.theme_preference) != theme_before {
             self.font_applied = None;
         }
 
         ctx.input(|i| {
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::N) {
-                menu_new_file = true;
+                *menu_new_file = true;
             }
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::O) {
                 if !self.in_grid_edit() {
-                    menu_open_folder = true;
+                    *menu_open_folder = true;
                 }
             }
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::S) {
-                ctrl_s_pressed = true;
+                *ctrl_s_pressed = true;
             }
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::S) {
-                ctrl_shift_s_pressed = true;
+                *ctrl_shift_s_pressed = true;
             }
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::E) {
-                menu_export = true;
+                *menu_export = true;
             }
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::E) {
-                menu_export_new = true;
+                *menu_export_new = true;
             }
             if cfg!(target_os = "macos") {
                 if i.modifiers.command && i.key_pressed(egui::Key::Q) {
-                    menu_exit = true;
+                    *menu_exit = true;
                 }
             } else if i.modifiers.alt && i.key_pressed(egui::Key::F4) {
-                menu_exit = true;
+                *menu_exit = true;
             }
             if i.modifiers.command && !i.modifiers.shift {
                 for (key, tab) in [
@@ -1498,12 +1611,16 @@ impl eframe::App for UniformApp {
                 }
             }
         });
+    }
 
-        if menu_new_file && self.font_dir.is_some() {
+    /// Dispatches the file-level menu requests (and the escape-font toggle)
+    /// before the panels are laid out.
+    fn apply_file_menu_actions(&mut self, ctx: &egui::Context, menu: &MenuActions) {
+        if menu.new_file && self.font_dir.is_some() {
             self.sidebar.start_new_file();
         }
 
-        if menu_open_folder
+        if menu.open_folder
             && let Some(dir) = rfd::FileDialog::new().pick_folder()
             && self.confirm_close_and_maybe_save() {
                 self.font_dir = Some(dir.clone());
@@ -1541,46 +1658,44 @@ impl eframe::App for UniformApp {
                 self.set_status(format!("Opened folder {}", dir.display()));
             }
 
-        if menu_rename
-            && let Some(idx) = self.active_doc_idx
-                && let Some(doc) = self.open_documents.get(idx)  {
-                    self.sidebar.start_rename(&doc.document.path);
-                }
+        if menu.rename_file
+            && let Some(doc) = self.active_doc() {
+                let path = doc.document.path.clone();
+                self.sidebar.start_rename(&path);
+            }
 
-        if menu_rename_symbol
-            && let Some(idx) = self.active_doc_idx
-                && let Some(doc) = self.open_documents.get_mut(idx) {
-                    doc.editor_state.start_rename_at_cursor(&doc.lines);
-                }
+        if menu.rename_symbol
+            && let Some(doc) = self.active_doc_mut() {
+                doc.editor_state.start_rename_at_cursor(&doc.lines);
+            }
 
-        if escape_toggled {
+        if menu.escape_toggled {
             self.font_applied = None;
         }
         self.apply_font(ctx);
 
-        if ctrl_s_pressed {
+        if menu.save {
             self.save_active();
         }
-        if ctrl_shift_s_pressed
+        if menu.save_all
             && self.save_all() {
                 self.set_status("Saved all files".to_string());
             }
 
-        if menu_export {
+        if menu.export {
             if let Some(path) = self.last_export_path.clone() {
                 self.export_to_path(path);
             } else {
                 self.export_with_dialog();
             }
         }
-        if menu_export_new {
+        if menu.export_new {
             self.export_with_dialog();
         }
+    }
 
+    fn show_sidebar_panel(&mut self, ctx: &egui::Context, editor_focused: bool) {
         let mut sidebar_actions = Vec::new();
-        let mut goto_glyph_request: Option<crate::editor::document_view::GotoGlyph> = None;
-        let mut rename_request: Option<crate::editor::document_view::RenameAction> = None;
-        crate::stackmon::phase("update:sidebar");
         egui::SidePanel::left("sidebar")
             .default_width(200.0)
             .show(ctx, |ui| {
@@ -1626,8 +1741,9 @@ impl eframe::App for UniformApp {
                 }
             }
         }
+    }
 
-        crate::stackmon::phase("update:status");
+    fn show_status_bar(&mut self, ctx: &egui::Context) {
         egui::TopBottomPanel::bottom("status").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 if self.escape_mode {
@@ -1693,7 +1809,17 @@ impl eframe::App for UniformApp {
                 });
             });
         });
+    }
 
+    /// The bottom Preview/Specimen/Issues panel.  Returns any specimen glyph
+    /// click and any issue-row click for post-frame navigation.
+    fn show_bottom_panel(
+        &mut self,
+        ctx: &egui::Context,
+    ) -> (
+        Option<crate::specimen::SpecimenClick>,
+        Option<(PathBuf, usize)>,
+    ) {
         let mut specimen_clicked_glyph: Option<crate::specimen::SpecimenClick> = None;
         let mut issues_click: Option<(PathBuf, usize)> = None;
         let bottom_panel_expanded = self.bottom_panel_tab.is_some();
@@ -1710,7 +1836,6 @@ impl eframe::App for UniformApp {
                 }
             }
         }
-        crate::stackmon::phase("update:preview");
         let mut bottom_panel = egui::TopBottomPanel::bottom("bottom_panel")
             .resizable(bottom_panel_expanded);
         if bottom_panel_expanded {
@@ -1830,7 +1955,20 @@ impl eframe::App for UniformApp {
                 }
             });
 
-        crate::stackmon::phase("update:central/editor");
+        (specimen_clicked_glyph, issues_click)
+    }
+
+    /// The central editor panel.  Returns any goto/rename request produced
+    /// by the document view for post-frame dispatch.
+    fn show_editor_panel(
+        &mut self,
+        ctx: &egui::Context,
+    ) -> (
+        Option<crate::editor::document_view::GotoGlyph>,
+        Option<crate::editor::document_view::RenameAction>,
+    ) {
+        let mut goto_glyph_request = None;
+        let mut rename_request = None;
         egui::CentralPanel::default().show(ctx, |ui| {
             if self.open_documents.is_empty() {
                 ui.centered_and_justified(|ui| {
@@ -1870,58 +2008,54 @@ impl eframe::App for UniformApp {
                     }
                 }
         });
+        (goto_glyph_request, rename_request)
+    }
 
-        if let Some(goto) = goto_glyph_request {
-            self.goto_glyph(ctx, &goto.name, &goto.kind);
+    /// Runs a document mutation on the active document and flushes the line
+    /// buffer back into the `Document` when it reports a change.
+    fn with_active_doc_flush(&mut self, f: impl FnOnce(&mut OpenDocument) -> bool) {
+        if let Some(doc) = self.active_doc_mut()
+            && f(doc)
+        {
+            crate::editor::document_view::flush_document_changes(
+                &mut doc.lines,
+                &mut doc.document,
+                &mut doc.editor_state,
+            );
         }
+    }
 
-        if let Some(click) = specimen_clicked_glyph {
-            self.goto_glyph(ctx, &click.name, &click.kind);
-        }
+    /// Dispatches the Edit/Selection menu requests after the central panel
+    /// (so this frame's editor input has already been applied).
+    fn apply_edit_menu_actions(
+        &mut self,
+        ctx: &egui::Context,
+        edit_target: EditTarget,
+        actions: EditMenuActions,
+    ) {
+        use crate::edit_menu::EditAction;
 
-        if let Some((path, line)) = issues_click {
-            self.open_file(path.clone());
-            if let Some(idx) = self.open_documents.iter().position(|d| d.document.path == path) {
-                self.active_doc_idx = Some(idx);
-                self.open_documents[idx].editor_state.goto_line(line);
-            }
-        }
-
-        if let Some(rename) = rename_request {
-            self.execute_rename(&rename);
-        }
-
-        if edit_action != EditAction::None {
+        if actions.edit_action != EditAction::None {
             match edit_target {
                 EditTarget::Preview => {
-                    self.shaped_preview.apply_edit_action(edit_action, ctx);
+                    self.shaped_preview.apply_edit_action(actions.edit_action, ctx);
                 }
                 EditTarget::Editor => {
-                    if let Some(idx) = self.active_doc_idx
-                        && let Some(doc) = self.open_documents.get_mut(idx) {
-                            let changed = doc.editor_state.apply_edit_action(
-                                edit_action,
-                                &mut doc.lines,
-                                ctx,
-                            );
-                            if changed {
-                                crate::editor::document_view::flush_document_changes(
-                                    &mut doc.lines,
-                                    &mut doc.document,
-                                    &mut doc.editor_state,
-                                );
-                            }
-                        }
+                    self.with_active_doc_flush(|doc| {
+                        doc.editor_state.apply_edit_action(
+                            actions.edit_action,
+                            &mut doc.lines,
+                            ctx,
+                        )
+                    });
                 }
             }
         }
 
-        if let Some(action) = sel_menu_action {
-            if let Some(idx) = self.active_doc_idx
-                && let Some(doc) = self.open_documents.get_mut(idx)
-            {
-                match action {
-                    SelMenuAction::Cancel => {
+        if let Some(action) = actions.sel_menu_action {
+            match action {
+                SelMenuAction::Cancel => {
+                    if let Some(doc) = self.active_doc_mut() {
                         if let Some(sel) = doc.editor_state.pixel_selection.clone() {
                             crate::editor::pixel_selection::commit_and_clear(
                                 &doc.document,
@@ -1932,56 +2066,29 @@ impl eframe::App for UniformApp {
                         }
                         doc.editor_state.pixel_selection = None;
                     }
-                    SelMenuAction::Transform(t) => {
-                        if crate::editor::pixel_selection::handle_transform_selection(
+                }
+                SelMenuAction::Transform(t) => {
+                    self.with_active_doc_flush(|doc| {
+                        crate::editor::pixel_selection::handle_transform_selection(
                             &doc.document,
                             &mut doc.lines,
                             &mut doc.editor_state,
                             t,
-                        ) {
-                            crate::editor::document_view::flush_document_changes(
-                                &mut doc.lines,
-                                &mut doc.document,
-                                &mut doc.editor_state,
-                            );
-                        }
-                    }
+                        )
+                    });
                 }
             }
         }
 
-        if let Some(new_scale) = scale_action {
-            if let Some(idx) = self.active_doc_idx
-                && let Some(doc) = self.open_documents.get_mut(idx)
-            {
-                if crate::editor::pixel_selection::handle_adjust_scale(
+        if let Some(new_scale) = actions.scale_action {
+            self.with_active_doc_flush(|doc| {
+                crate::editor::pixel_selection::handle_adjust_scale(
                     &doc.document,
                     &mut doc.lines,
                     &mut doc.editor_state,
                     new_scale,
-                ) {
-                    crate::editor::document_view::flush_document_changes(
-                        &mut doc.lines,
-                        &mut doc.document,
-                        &mut doc.editor_state,
-                    );
-                }
-            }
-        }
-
-        crate::stackmon::phase("update:end (egui tessellate/paint follows)");
-        // Decide whether to close only after this frame's editor input has
-        // updated the source buffer and dirty state.
-        if menu_exit && self.confirm_close_and_maybe_save() {
-            self.close_confirmed = true;
-            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-        }
-
-        if ctx.input(|i| i.viewport().close_requested())
-            && !self.close_confirmed
-            && !self.confirm_close_and_maybe_save()
-        {
-            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+                )
+            });
         }
     }
 }

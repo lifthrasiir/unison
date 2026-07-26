@@ -1,5 +1,6 @@
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Default, PartialEq)]
 pub enum EditAction {
+    #[default]
     None,
     Undo,
     Redo,

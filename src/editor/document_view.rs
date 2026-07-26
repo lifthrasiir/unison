@@ -436,6 +436,311 @@ pub struct DocumentViewResult {
 // ---------------------------------------------------------------------------
 
 #[allow(clippy::too_many_arguments)]
+/// The cached-or-rebuilt derived view (composites, visual lines, source
+/// offsets) for the current document revision and view parameters.
+#[expect(clippy::too_many_arguments)]
+fn resolve_view(
+    ctx: &egui::Context,
+    doc: &Document,
+    lines: &[DocLine],
+    state: &mut EditorState,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    alt_index: &crate::editor::ref_composite::AlternativesIndex,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    cache_key: ViewCacheKey,
+    editing_item_idx: Option<usize>,
+    zoom_level: u32,
+    pal: &Palette,
+    wrap_width: Option<f32>,
+    font_id: &egui::FontId,
+) -> std::sync::Arc<ViewData> {
+    // An external mutation of `lines` (menu action, rename, …) queues a sync
+    // request; the cached view predates that mutation, so rebuild.
+    let cache_valid = !state.document_sync_requested
+        && state
+            .view_cache
+            .as_ref()
+            .is_some_and(|c| c.key == cache_key);
+    if cache_valid {
+        return std::sync::Arc::clone(&state.view_cache.as_ref().unwrap().data);
+    }
+    let composites =
+        grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
+    let vlines = visual_lines::build_visual_lines(
+        lines,
+        doc,
+        &doc.item_line_starts,
+        &composites,
+        named_glyphs,
+        name_parts,
+        editing_item_idx,
+        zoom_level,
+        pal,
+        wrap_width,
+        ctx,
+        font_id,
+    );
+    let source_offsets = source_line_offsets(lines);
+    let data = std::sync::Arc::new(ViewData {
+        composites,
+        vlines,
+        source_offsets,
+    });
+    state.view_cache = Some(ViewCache {
+        key: cache_key,
+        data: std::sync::Arc::clone(&data),
+    });
+    data
+}
+
+/// Track whether this scroll gesture started on an interceptor area
+/// (grid, subglyph preview, shape palette). Once a gesture begins, lock
+/// in the starting zone so that scrolling the document doesn't
+/// accidentally switch to palette selection when the grid passes under
+/// the cursor.
+fn lock_scroll_gesture_zone(ui: &mut egui::Ui, grid_hover: bool) {
+    let scroll_on_interceptor = {
+        let currently_on = ui.ctx().data(|d| {
+            d.get_temp::<bool>(egui::Id::new("subglyph_preview_hover"))
+                .unwrap_or(false)
+                || d.get_temp::<bool>(egui::Id::new("shape_palette_hover"))
+                    .unwrap_or(false)
+        }) || grid_hover;
+
+        let has_wheel = ui.input(|i| {
+            i.events
+                .iter()
+                .any(|e| matches!(e, egui::Event::MouseWheel { .. }))
+        });
+
+        let gesture_id = egui::Id::new("scroll_gesture_zone");
+        let now = ui.input(|i| i.time);
+
+        if has_wheel {
+            let prev: Option<(f64, bool)> = ui.ctx().data(|d| d.get_temp(gesture_id));
+            let on = match prev {
+                Some((t, was_on)) if now - t < SCROLL_GESTURE_GRACE => was_on,
+                _ => currently_on,
+            };
+            ui.ctx()
+                .data_mut(|d| d.insert_temp(gesture_id, (now, on)));
+            on
+        } else {
+            ui.ctx()
+                .data(|d| d.get_temp::<(f64, bool)>(gesture_id))
+                .is_some_and(|(_, on)| on)
+                && ui.input(|i| i.smooth_scroll_delta.y.abs() > 0.01)
+        }
+    };
+    ui.ctx().data_mut(|d| {
+        d.insert_temp(
+            egui::Id::new("scroll_on_interceptor"),
+            scroll_on_interceptor,
+        );
+    });
+    if scroll_on_interceptor {
+        ui.ctx()
+            .input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
+    }
+}
+
+/// PageUp/PageDown: scroll so last/first fully visible line becomes
+/// first/last; move the caret by the same number of visual lines.
+/// A "sticky vline index" survives across presses so that landing
+/// inside a multi-row grid doesn't snap to the grid top and drift.
+#[expect(clippy::too_many_arguments)]
+fn handle_page_scroll(
+    ui: &egui::Ui,
+    lines: &[DocLine],
+    state: &mut EditorState,
+    vlines: &[VisualLine],
+    row_height: f32,
+    grid_cell: f32,
+    prev_scroll_y: f32,
+    prev_viewport_h: f32,
+) {
+    // Clear page-scroll sticky state when cursor moved by non-page means.
+    {
+        let id = egui::Id::new("page_last_cursor");
+        let prev: Option<(usize, usize)> =
+            ui.ctx().data(|d| d.get_temp(id));
+        if prev.is_some_and(|(l, c)| l != state.cursor.line || c != state.cursor.col) {
+            ui.ctx().data_mut(|d| {
+                d.remove::<usize>(egui::Id::new("page_sticky_vi"));
+                d.remove::<(usize, usize)>(id);
+            });
+        }
+    }
+
+    let page_id = egui::Id::new("page_scroll_request");
+    let Some((dir, shift)) = ui.ctx().data(|d| d.get_temp::<(i32, bool)>(page_id)) else {
+        return;
+    };
+    ui.ctx().data_mut(|d| d.remove::<(i32, bool)>(page_id));
+    if shift {
+        if state.selection_anchor.is_none() {
+            state.selection_anchor = Some(state.cursor);
+        }
+    } else {
+        state.selection_anchor = None;
+    }
+
+    let eps = 0.5;
+
+    let mut vline_y: Vec<f32> = Vec::with_capacity(vlines.len());
+    let mut y_acc = 0.0f32;
+    for vl in vlines {
+        vline_y.push(y_acc);
+        y_acc += vl.height(row_height, grid_cell);
+    }
+
+    let mut first_vis: Option<usize> = None;
+    let mut last_vis: Option<usize> = None;
+    for i in 0..vlines.len() {
+        let top = vline_y[i];
+        let h = vlines[i].height(row_height, grid_cell);
+        if top >= prev_scroll_y - eps
+            && top + h <= prev_scroll_y + prev_viewport_h + eps
+        {
+            if first_vis.is_none() {
+                first_vis = Some(i);
+            }
+            last_vis = Some(i);
+        }
+    }
+
+    let sticky_vi_id = egui::Id::new("page_sticky_vi");
+    let cursor_vi = ui
+        .ctx()
+        .data(|d| d.get_temp::<usize>(sticky_vi_id))
+        .map(|vi| vi.min(vlines.len().saturating_sub(1)))
+        .unwrap_or_else(|| {
+            let mut result = 0usize;
+            let mut in_target = false;
+            for (i, vl) in vlines.iter().enumerate() {
+                if vl.doc_line != state.cursor.line {
+                    if in_target {
+                        break;
+                    }
+                    continue;
+                }
+                in_target = true;
+                result = i;
+                match &vl.kind {
+                    VLineKind::Text(text) => {
+                        let seg_len = text.chars().count();
+                        if state.cursor.col >= vl.col_offset
+                            && state.cursor.col <= vl.col_offset + seg_len
+                        {
+                            break;
+                        }
+                    }
+                    _ => break,
+                }
+            }
+            result
+        });
+
+    if let (Some(fv), Some(lv)) = (first_vis, last_vis) {
+        let page_vlines = lv - fv;
+        if page_vlines > 0 {
+            let (new_scroll, new_cvi) = if dir > 0 {
+                (vline_y[lv], (cursor_vi + page_vlines).min(vlines.len() - 1))
+            } else {
+                let fh = vlines[fv].height(row_height, grid_cell);
+                let ns = (vline_y[fv] + fh - prev_viewport_h).max(0.0);
+                (ns, cursor_vi.saturating_sub(page_vlines))
+            };
+
+            let new_line = vlines[new_cvi].doc_line;
+            state.cursor = Caret::new(
+                new_line,
+                state.cursor.col.min(caret::line_char_len(lines, new_line)),
+            );
+
+            ui.ctx().data_mut(|d| {
+                d.insert_temp(sticky_vi_id, new_cvi);
+                d.insert_temp(
+                    egui::Id::new("page_last_cursor"),
+                    (state.cursor.line, state.cursor.col),
+                );
+                d.insert_temp(egui::Id::new("goto_scroll_target"), new_scroll);
+            });
+        }
+    }
+}
+
+/// Where the scroll area should jump this frame, if anywhere: minimap click,
+/// pending goto, scroll-to-cursor request, zoom recentering, or restoring
+/// the saved position — in that priority order.
+#[expect(clippy::too_many_arguments)]
+fn resolve_scroll_target(
+    ui: &egui::Ui,
+    state: &mut EditorState,
+    vlines: &[VisualLine],
+    row_height: f32,
+    grid_cell: f32,
+    zoom_level: u32,
+    prev_scroll_y: f32,
+    viewport_h: f32,
+    total_height: f32,
+    minimap_scroll_target: Option<f32>,
+) -> Option<f32> {
+    // When zoom level changes, adjust scroll so the content under the mouse
+    // pointer stays at the same screen position.
+    let zoom_scroll: Option<f32> = {
+        let old_zoom: Option<u32> = state.take_zoom_change();
+        if let Some(old_z) = old_zoom {
+            let scale = zoom_level as f32 / old_z as f32;
+            let pointer_y = ui.ctx().input(|i| i.pointer.hover_pos().map(|p| p.y));
+            if let Some(py) = pointer_y {
+                let viewport_top = ui.max_rect().top();
+                let pvo = py - viewport_top;
+                let old_doc_y = prev_scroll_y + pvo;
+                Some((old_doc_y * scale - pvo).max(0.0))
+            } else {
+                let new_caret_y =
+                    doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
+                let old_caret_y = new_caret_y / scale;
+                let visual_offset = (old_caret_y - prev_scroll_y).max(0.0);
+                Some((new_caret_y - visual_offset).max(0.0))
+            }
+        } else {
+            None
+        }
+    };
+
+    let goto_scroll_id = egui::Id::new("goto_scroll_target");
+    let goto_scroll: Option<f32> = ui.ctx().data(|d| d.get_temp::<f32>(goto_scroll_id));
+    if goto_scroll.is_some() {
+        ui.ctx().data_mut(|d| d.remove::<f32>(goto_scroll_id));
+    }
+    let scroll_to_cursor = state.take_scroll_to_cursor();
+    let cursor_scroll = if scroll_to_cursor {
+        let target_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
+        Some((target_y - viewport_h / 3.0).max(0.0))
+    } else {
+        None
+    };
+    let saved_scroll_y = (state.saved_scroll_frac * total_height - viewport_h / 2.0).max(0.0);
+    let restore_scroll = if minimap_scroll_target.is_none()
+        && goto_scroll.is_none()
+        && cursor_scroll.is_none()
+        && zoom_scroll.is_none()
+        && (saved_scroll_y - prev_scroll_y).abs() > 1.0
+    {
+        Some(saved_scroll_y)
+    } else {
+        None
+    };
+    minimap_scroll_target
+        .or(goto_scroll)
+        .or(cursor_scroll)
+        .or(zoom_scroll)
+        .or(restore_scroll)
+}
+
 pub fn show_document(
     ui: &mut egui::Ui,
     doc: &mut Document,
@@ -499,44 +804,22 @@ pub fn show_document(
         dark_mode: ui.ctx().theme() == egui::Theme::Dark,
         ppp_bits: ui.ctx().pixels_per_point().to_bits(),
     };
-    // An external mutation of `lines` (menu action, rename, …) queues a sync
-    // request; the cached view predates that mutation, so rebuild.
-    let cache_valid = !state.document_sync_requested
-        && state
-            .view_cache
-            .as_ref()
-            .is_some_and(|c| c.key == cache_key);
-    let view = if cache_valid {
-        std::sync::Arc::clone(&state.view_cache.as_ref().unwrap().data)
-    } else {
-        let composites =
-            grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
-        let vlines = visual_lines::build_visual_lines(
-            lines,
-            doc,
-            &doc.item_line_starts,
-            &composites,
-            named_glyphs,
-            name_parts,
-            editing_item_idx,
-            zoom_level,
-            &pal,
-            wrap_width,
-            ui.ctx(),
-            &font_id,
-        );
-        let source_offsets = source_line_offsets(lines);
-        let data = std::sync::Arc::new(ViewData {
-            composites,
-            vlines,
-            source_offsets,
-        });
-        state.view_cache = Some(ViewCache {
-            key: cache_key,
-            data: std::sync::Arc::clone(&data),
-        });
-        data
-    };
+    let view = resolve_view(
+        ui.ctx(),
+        doc,
+        lines,
+        state,
+        named_glyphs,
+        name_parts,
+        alt_index,
+        color_aliases,
+        cache_key,
+        editing_item_idx,
+        zoom_level,
+        &pal,
+        wrap_width,
+        &font_id,
+    );
     let composites = &view.composites;
     let vlines: &[VisualLine] = &view.vlines;
     let source_offsets: &[usize] = &view.source_offsets;
@@ -581,225 +864,142 @@ pub fn show_document(
             );
         });
 
-    // Track whether this scroll gesture started on an interceptor area
-    // (grid, subglyph preview, shape palette). Once a gesture begins, lock
-    // in the starting zone so that scrolling the document doesn't
-    // accidentally switch to palette selection when the grid passes under
-    // the cursor.
-    let scroll_on_interceptor = {
-        let currently_on = ui.ctx().data(|d| {
-            d.get_temp::<bool>(egui::Id::new("subglyph_preview_hover"))
-                .unwrap_or(false)
-                || d.get_temp::<bool>(egui::Id::new("shape_palette_hover"))
-                    .unwrap_or(false)
-        }) || state.grid_hover;
-
-        let has_wheel = ui.input(|i| {
-            i.events
-                .iter()
-                .any(|e| matches!(e, egui::Event::MouseWheel { .. }))
-        });
-
-        let gesture_id = egui::Id::new("scroll_gesture_zone");
-        let now = ui.input(|i| i.time);
-
-        if has_wheel {
-            let prev: Option<(f64, bool)> = ui.ctx().data(|d| d.get_temp(gesture_id));
-            let on = match prev {
-                Some((t, was_on)) if now - t < SCROLL_GESTURE_GRACE => was_on,
-                _ => currently_on,
-            };
-            ui.ctx()
-                .data_mut(|d| d.insert_temp(gesture_id, (now, on)));
-            on
-        } else {
-            ui.ctx()
-                .data(|d| d.get_temp::<(f64, bool)>(gesture_id))
-                .is_some_and(|(_, on)| on)
-                && ui.input(|i| i.smooth_scroll_delta.y.abs() > 0.01)
-        }
-    };
-    ui.ctx().data_mut(|d| {
-        d.insert_temp(
-            egui::Id::new("scroll_on_interceptor"),
-            scroll_on_interceptor,
-        );
-    });
-    if scroll_on_interceptor {
-        ui.ctx()
-            .input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
-    }
+    lock_scroll_gesture_zone(ui, state.grid_hover);
 
     let viewport_h = ui.available_height();
     let mut scroll_area_builder = egui::ScrollArea::vertical().auto_shrink([false, false]);
 
-    // Clear page-scroll sticky state when cursor moved by non-page means.
-    {
-        let id = egui::Id::new("page_last_cursor");
-        let prev: Option<(usize, usize)> =
-            ui.ctx().data(|d| d.get_temp(id));
-        if prev.is_some_and(|(l, c)| l != state.cursor.line || c != state.cursor.col) {
-            ui.ctx().data_mut(|d| {
-                d.remove::<usize>(egui::Id::new("page_sticky_vi"));
-                d.remove::<(usize, usize)>(id);
-            });
-        }
-    }
+    handle_page_scroll(
+        ui, lines, state, vlines, row_height, grid_cell, prev_scroll_y, prev_viewport_h,
+    );
 
-    // PageUp/PageDown: scroll so last/first fully visible line becomes
-    // first/last; move the caret by the same number of visual lines.
-    // A "sticky vline index" survives across presses so that landing
-    // inside a multi-row grid doesn't snap to the grid top and drift.
-    {
-        let page_id = egui::Id::new("page_scroll_request");
-        if let Some((dir, shift)) = ui.ctx().data(|d| d.get_temp::<(i32, bool)>(page_id)) {
-            ui.ctx().data_mut(|d| d.remove::<(i32, bool)>(page_id));
-            if shift {
-                if state.selection_anchor.is_none() {
-                    state.selection_anchor = Some(state.cursor);
-                }
-            } else {
-                state.selection_anchor = None;
-            }
-
-            let eps = 0.5;
-
-            let mut vline_y: Vec<f32> = Vec::with_capacity(vlines.len());
-            let mut y_acc = 0.0f32;
-            for vl in vlines {
-                vline_y.push(y_acc);
-                y_acc += vl.height(row_height, grid_cell);
-            }
-
-            let mut first_vis: Option<usize> = None;
-            let mut last_vis: Option<usize> = None;
-            for i in 0..vlines.len() {
-                let top = vline_y[i];
-                let h = vlines[i].height(row_height, grid_cell);
-                if top >= prev_scroll_y - eps
-                    && top + h <= prev_scroll_y + prev_viewport_h + eps
-                {
-                    if first_vis.is_none() {
-                        first_vis = Some(i);
-                    }
-                    last_vis = Some(i);
-                }
-            }
-
-            let sticky_vi_id = egui::Id::new("page_sticky_vi");
-            let cursor_vi = ui
-                .ctx()
-                .data(|d| d.get_temp::<usize>(sticky_vi_id))
-                .map(|vi| vi.min(vlines.len().saturating_sub(1)))
-                .unwrap_or_else(|| {
-                    let mut result = 0usize;
-                    let mut in_target = false;
-                    for (i, vl) in vlines.iter().enumerate() {
-                        if vl.doc_line != state.cursor.line {
-                            if in_target {
-                                break;
-                            }
-                            continue;
-                        }
-                        in_target = true;
-                        result = i;
-                        match &vl.kind {
-                            VLineKind::Text(text) => {
-                                let seg_len = text.chars().count();
-                                if state.cursor.col >= vl.col_offset
-                                    && state.cursor.col <= vl.col_offset + seg_len
-                                {
-                                    break;
-                                }
-                            }
-                            _ => break,
-                        }
-                    }
-                    result
-                });
-
-            if let (Some(fv), Some(lv)) = (first_vis, last_vis) {
-                let page_vlines = lv - fv;
-                if page_vlines > 0 {
-                    let (new_scroll, new_cvi) = if dir > 0 {
-                        (vline_y[lv], (cursor_vi + page_vlines).min(vlines.len() - 1))
-                    } else {
-                        let fh = vlines[fv].height(row_height, grid_cell);
-                        let ns = (vline_y[fv] + fh - prev_viewport_h).max(0.0);
-                        (ns, cursor_vi.saturating_sub(page_vlines))
-                    };
-
-                    let new_line = vlines[new_cvi].doc_line;
-                    state.cursor = Caret::new(
-                        new_line,
-                        state.cursor.col.min(caret::line_char_len(lines, new_line)),
-                    );
-
-                    ui.ctx().data_mut(|d| {
-                        d.insert_temp(sticky_vi_id, new_cvi);
-                        d.insert_temp(
-                            egui::Id::new("page_last_cursor"),
-                            (state.cursor.line, state.cursor.col),
-                        );
-                        d.insert_temp(egui::Id::new("goto_scroll_target"), new_scroll);
-                    });
-                }
-            }
-        }
-    }
-
-    // When zoom level changes, adjust scroll so the content under the mouse
-    // pointer stays at the same screen position.
-    let zoom_scroll: Option<f32> = {
-        let old_zoom: Option<u32> = state.take_zoom_change();
-        if let Some(old_z) = old_zoom {
-            let scale = zoom_level as f32 / old_z as f32;
-            let pointer_y = ui.ctx().input(|i| i.pointer.hover_pos().map(|p| p.y));
-            if let Some(py) = pointer_y {
-                let viewport_top = ui.max_rect().top();
-                let pvo = py - viewport_top;
-                let old_doc_y = prev_scroll_y + pvo;
-                Some((old_doc_y * scale - pvo).max(0.0))
-            } else {
-                let new_caret_y =
-                    doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
-                let old_caret_y = new_caret_y / scale;
-                let visual_offset = (old_caret_y - prev_scroll_y).max(0.0);
-                Some((new_caret_y - visual_offset).max(0.0))
-            }
-        } else {
-            None
-        }
-    };
-
-    let goto_scroll_id = egui::Id::new("goto_scroll_target");
-    let goto_scroll: Option<f32> = ui.ctx().data(|d| d.get_temp::<f32>(goto_scroll_id));
-    if goto_scroll.is_some() {
-        ui.ctx().data_mut(|d| d.remove::<f32>(goto_scroll_id));
-    }
-    let scroll_to_cursor = state.take_scroll_to_cursor();
-    let cursor_scroll = if scroll_to_cursor {
-        let target_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
-        Some((target_y - viewport_h / 3.0).max(0.0))
-    } else {
-        None
-    };
-    let saved_scroll_y = (state.saved_scroll_frac * total_height - viewport_h / 2.0).max(0.0);
-    let restore_scroll = if minimap_scroll_target.is_none()
-        && goto_scroll.is_none()
-        && cursor_scroll.is_none()
-        && zoom_scroll.is_none()
-        && (saved_scroll_y - prev_scroll_y).abs() > 1.0
-    {
-        Some(saved_scroll_y)
-    } else {
-        None
-    };
-    if let Some(target) = minimap_scroll_target.or(goto_scroll).or(cursor_scroll).or(zoom_scroll).or(restore_scroll) {
+    if let Some(target) = resolve_scroll_target(
+        ui,
+        state,
+        vlines,
+        row_height,
+        grid_cell,
+        zoom_level,
+        prev_scroll_y,
+        viewport_h,
+        total_height,
+        minimap_scroll_target,
+    ) {
         scroll_area_builder = scroll_area_builder.vertical_scroll_offset(target);
     }
 
     let scroll_output = scroll_area_builder.show(ui, |ui| {
+        paint_document_area(
+            ui,
+            doc,
+            lines,
+            state,
+            vlines,
+            composites,
+            source_offsets,
+            named_glyphs,
+            name_parts,
+            color_aliases,
+            &pal,
+            &font_id,
+            row_height,
+            grid_cell,
+            gutter_width,
+            total_height,
+            viewport_h,
+            zoom_level,
+            cursor_color,
+            inline_panel_edit_idx,
+            &mut needs_rederive,
+        );
+    });
+
+    if total_height > 0.0 {
+        state.saved_scroll_frac = (scroll_output.state.offset.y + viewport_h / 2.0) / total_height;
+    }
+    ui.ctx().data_mut(|d| {
+        d.insert_temp(egui::Id::new("doc_scroll_y"), scroll_output.state.offset.y);
+        d.insert_temp(egui::Id::new("doc_viewport_h"), viewport_h);
+    });
+
+    let prev_cursor = state.cursor;
+    handle_document_keys(
+        ui, doc, lines, state, named_glyphs, name_parts, prev_cursor, &mut needs_rederive,
+    );
+
+    let rename_result = show_rename_popup(ui, state);
+    show_autocomplete_popup(ui, lines, state, &mut needs_rederive);
+    show_error_tooltip(ui, state, &pal);
+    scroll_cursor_into_view(
+        ui,
+        state,
+        vlines,
+        row_height,
+        grid_cell,
+        prev_cursor,
+        scroll_output.state.offset.y,
+        viewport_h,
+    );
+    apply_pending_rederive(doc, lines, state, needs_rederive);
+
+    state.cursor = caret::clamp(lines, state.cursor);
+    state.cursor_item = line_to_item_idx(&doc.item_line_starts, state.cursor.line);
+    state.cursor_source_line = source_offsets
+        .get(state.cursor.line)
+        .map(|&off| off + 1)
+        .unwrap_or(1);
+
+    let cross_file_id = egui::Id::new("goto_cross_file");
+    let goto_request: Option<String> = ui.ctx().data(|d| d.get_temp(cross_file_id));
+    if let Some(name) = goto_request {
+        let kind_u8: u8 = ui
+            .ctx()
+            .data(|d| d.get_temp(egui::Id::new("goto_cross_file_kind")).unwrap_or(0));
+        let kind = match kind_u8 {
+            1 => LinkTargetKind::NameParts,
+            2 => LinkTargetKind::Remap,
+            _ => LinkTargetKind::Glyph,
+        };
+        ui.ctx().data_mut(|d| {
+            d.remove::<String>(cross_file_id);
+            d.remove::<u8>(egui::Id::new("goto_cross_file_kind"));
+        });
+        return DocumentViewResult {
+            goto: Some(GotoGlyph { name, kind }),
+            rename: rename_result,
+        };
+    }
+    DocumentViewResult { goto: None, rename: rename_result }
+}
+
+/// The scrollable document canvas: allocates the full-height area, paints
+/// every visual line (text, grids, selection, links, caret) and handles all
+/// pointer interaction inside it — clicks, drags, wheel gestures, the inline
+/// tool panel, layer-move drags and the context menu.
+#[expect(clippy::too_many_arguments)]
+fn paint_document_area(
+    ui: &mut egui::Ui,
+    doc: &Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    vlines: &[VisualLine],
+    composites: &HashMap<usize, GlyphComposite>,
+    source_offsets: &[usize],
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    pal: &Palette,
+    font_id: &egui::FontId,
+    row_height: f32,
+    grid_cell: f32,
+    gutter_width: f32,
+    total_height: f32,
+    viewport_h: f32,
+    zoom_level: u32,
+    cursor_color: egui::Color32,
+    inline_panel_edit_idx: Option<usize>,
+    needs_rederive: &mut bool,
+) {
         let avail_w = ui.available_width();
         let desired = egui::vec2(avail_w, total_height.max(row_height));
         let (rect, response) = ui.allocate_exact_size(desired, egui::Sense::click_and_drag());
@@ -811,7 +1011,7 @@ pub fn show_document(
         let has_focus = ui.memory(|m| m.has_focus(wid));
         state.active = has_focus;
 
-        needs_rederive |= pixel_selection::reconcile(doc, lines, state);
+        *needs_rederive |= pixel_selection::reconcile(doc, lines, state);
 
         if has_focus {
             ui.memory_mut(|m| {
@@ -1271,7 +1471,7 @@ pub fn show_document(
                             ui,
                             lines,
                             state,
-                            &mut needs_rederive,
+                            needs_rederive,
                             *grid_doc_line,
                             *item_idx,
                             *row,
@@ -1294,7 +1494,7 @@ pub fn show_document(
                         );
                     }
                     pixel_selection::handle_pixel_select_interaction(
-                        ui, doc, lines, state, &mut needs_rederive,
+                        ui, doc, lines, state, needs_rederive,
                         *grid_doc_line, *item_idx, *row, *own_width, *own_height,
                         *extent, &strip, grid_x, grid_y, grid_cell,
                     );
@@ -1375,7 +1575,7 @@ pub fn show_document(
                     named_glyphs,
                     name_parts,
                 ) {
-                    needs_rederive = true;
+                    *needs_rederive = true;
                 }
         }
 
@@ -1389,7 +1589,7 @@ pub fn show_document(
                 ui,
                 lines,
                 state,
-                &mut needs_rederive,
+                needs_rederive,
                 doc,
                 eidx,
                 layer_idx,
@@ -1585,28 +1785,32 @@ pub fn show_document(
             };
             let action = crate::edit_menu::show_edit_menu_items(ui, &caps, false);
             if apply_edit_action_to_editor(action, lines, state, ui.ctx()) {
-                needs_rederive = true;
+                *needs_rederive = true;
             }
         });
         }
-    });
+}
 
-    if total_height > 0.0 {
-        state.saved_scroll_frac = (scroll_output.state.offset.y + viewport_h / 2.0) / total_height;
-    }
-    ui.ctx().data_mut(|d| {
-        d.insert_temp(egui::Id::new("doc_scroll_y"), scroll_output.state.offset.y);
-        d.insert_temp(egui::Id::new("doc_viewport_h"), viewport_h);
-    });
-
-    // Keyboard handling
-    let prev_cursor = state.cursor;
-    let mut rename_result: Option<RenameAction> = None;
+/// All keyboard input for the focused document: autocomplete keys first,
+/// then mode switches, undo/redo, pixel-selection clipboard/transforms, and
+/// finally plain text editing.  `needs_rederive` accumulates whether any of
+/// it changed the document.
+#[expect(clippy::too_many_arguments)]
+fn handle_document_keys(
+    ui: &egui::Ui,
+    doc: &Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    prev_cursor: Caret,
+    needs_rederive: &mut bool,
+) {
     if state.active {
         // Autocomplete key handling takes priority
         let ac_result = crate::editor::autocomplete::handle_keys(ui, lines, state);
         if matches!(ac_result, crate::editor::autocomplete::HandleResult::TextChanged) {
-            needs_rederive = true;
+            *needs_rederive = true;
         }
 
         if matches!(ac_result, crate::editor::autocomplete::HandleResult::NotConsumed) {
@@ -1652,7 +1856,7 @@ pub fn show_document(
                         state.cursor = caret::clamp(lines, c);
                         state.selection_anchor = None;
                         state.skip_reconcile = true;
-                        needs_rederive = true;
+                        *needs_rederive = true;
                     }
                 } else if redo_pressed {
                     let sel_ctx = Some(crate::editor::undo::SelectionUndoCtx {
@@ -1663,7 +1867,7 @@ pub fn show_document(
                         state.cursor = caret::clamp(lines, c);
                         state.selection_anchor = None;
                         state.skip_reconcile = true;
-                        needs_rederive = true;
+                        *needs_rederive = true;
                     }
                 }
             }
@@ -1703,7 +1907,7 @@ pub fn show_document(
                 }) && state.pixel_selection.is_some()
                 {
                     pixel_selection::handle_delete_selection(doc, lines, state);
-                    needs_rederive = true;
+                    *needs_rederive = true;
                 }
 
                 // Copy/Cut/Paste via egui events
@@ -1738,11 +1942,11 @@ pub fn show_document(
                 }
                 if sel_do_cut {
                     pixel_selection::handle_delete_selection(doc, lines, state);
-                    needs_rederive = true;
+                    *needs_rederive = true;
                 }
                 if let Some(text) = sel_paste_text {
                     if pixel_selection::paste_selection(doc, lines, state, &text) {
-                        needs_rederive = true;
+                        *needs_rederive = true;
                     }
                 }
             }
@@ -1761,7 +1965,7 @@ pub fn show_document(
                 });
                 if let Some(text) = paste_text {
                     if pixel_selection::paste_selection(doc, lines, state, &text) {
-                        needs_rederive = true;
+                        *needs_rederive = true;
                     }
                 }
             }
@@ -1804,7 +2008,7 @@ pub fn show_document(
                         if pixel_selection::handle_transform_selection(
                             doc, lines, state, t,
                         ) {
-                            needs_rederive = true;
+                            *needs_rederive = true;
                         }
                     }
                 }
@@ -1819,7 +2023,7 @@ pub fn show_document(
                 && !matches!(state.popup, PopupState::Rename { .. })
             {
                 let text_changed = doc_input::handle_keys(ui, lines, state);
-                needs_rederive |= text_changed;
+                *needs_rederive |= text_changed;
 
                 // Update autocomplete candidates after text changes
                 if text_changed && state.autocomplete.is_some() {
@@ -1855,12 +2059,15 @@ pub fn show_document(
                 state.autocomplete = None;
             }
         // Also re-filter if cursor moved within the token but no text changed
-        if state.autocomplete.is_some() && state.cursor != prev_cursor && !needs_rederive {
+        if state.autocomplete.is_some() && state.cursor != prev_cursor && !*needs_rederive {
             crate::editor::autocomplete::update_after_edit(lines, state);
         }
     }
+}
 
-    // Rename popup
+/// The rename popup; returns the confirmed rename, if any.
+fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Option<RenameAction> {
+    let mut rename_result: Option<RenameAction> = None;
     if matches!(state.popup, PopupState::Rename { .. }) {
         let area = caret_anchored_area(ui.ctx(), egui::Id::new("rename_popup"));
 
@@ -1928,8 +2135,15 @@ pub fn show_document(
             None => {}
         }
     }
+    rename_result
+}
 
-    // Autocomplete popup
+fn show_autocomplete_popup(
+    ui: &egui::Ui,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    needs_rederive: &mut bool,
+) {
     if state.autocomplete.is_some() {
         let ac_area = caret_anchored_area(ui.ctx(), egui::Id::new("autocomplete_popup"))
             .show(ui.ctx(), |ui| {
@@ -1972,11 +2186,13 @@ pub fn show_document(
                 ac.selected = clicked;
             }
             crate::editor::autocomplete::apply_completion(lines, state);
-            needs_rederive = true;
+            *needs_rederive = true;
         }
     }
+}
 
-    // Error tooltip: show when caret is inside an error span
+/// Error tooltip: show when caret is inside an error span.
+fn show_error_tooltip(ui: &egui::Ui, state: &EditorState, pal: &Palette) {
     if state.active
         && matches!(state.popup, PopupState::None)
         && state.autocomplete.is_none()
@@ -1994,7 +2210,21 @@ pub fn show_document(
                 });
         }
     }
+}
 
+/// Queues a scroll so a cursor that moved this frame stays inside the
+/// viewport (with a half-row margin; over-tall lines align their top).
+#[expect(clippy::too_many_arguments)]
+fn scroll_cursor_into_view(
+    ui: &egui::Ui,
+    state: &EditorState,
+    vlines: &[VisualLine],
+    row_height: f32,
+    grid_cell: f32,
+    prev_cursor: Caret,
+    scroll_y: f32,
+    viewport_h: f32,
+) {
     if state.cursor != prev_cursor {
         let cursor_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
         let cursor_h: f32 = vlines
@@ -2003,7 +2233,6 @@ pub fn show_document(
             .map(|vl| vl.height(row_height, grid_cell))
             .sum();
         let cursor_h = if cursor_h > 0.0 { cursor_h } else { row_height };
-        let scroll_y = scroll_output.state.offset.y;
         let margin = row_height * 0.5;
         if cursor_h + margin * 2.0 <= viewport_h {
             if cursor_y < scroll_y + margin {
@@ -2033,7 +2262,17 @@ pub fn show_document(
             });
         }
     }
+}
 
+/// Applies this frame's document changes: the pixel-only fast path, an
+/// immediate flush, or a deferred reparse while the caret sits on a line
+/// whose transient state must not be reconciled yet.
+fn apply_pending_rederive(
+    doc: &mut Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    needs_rederive: bool,
+) {
     if needs_rederive {
         if let Some((item_idx, grid_doc_line)) = state.pixel_paint_dirty.take() {
             // Pixel-only fast path: sync the single modified grid without
@@ -2091,35 +2330,6 @@ pub fn show_document(
             }
         }
     }
-
-    state.cursor = caret::clamp(lines, state.cursor);
-    state.cursor_item = line_to_item_idx(&doc.item_line_starts, state.cursor.line);
-    state.cursor_source_line = source_offsets
-        .get(state.cursor.line)
-        .map(|&off| off + 1)
-        .unwrap_or(1);
-
-    let cross_file_id = egui::Id::new("goto_cross_file");
-    let goto_request: Option<String> = ui.ctx().data(|d| d.get_temp(cross_file_id));
-    if let Some(name) = goto_request {
-        let kind_u8: u8 = ui
-            .ctx()
-            .data(|d| d.get_temp(egui::Id::new("goto_cross_file_kind")).unwrap_or(0));
-        let kind = match kind_u8 {
-            1 => LinkTargetKind::NameParts,
-            2 => LinkTargetKind::Remap,
-            _ => LinkTargetKind::Glyph,
-        };
-        ui.ctx().data_mut(|d| {
-            d.remove::<String>(cross_file_id);
-            d.remove::<u8>(egui::Id::new("goto_cross_file_kind"));
-        });
-        return DocumentViewResult {
-            goto: Some(GotoGlyph { name, kind }),
-            rename: rename_result,
-        };
-    }
-    DocumentViewResult { goto: None, rename: rename_result }
 }
 
 // ---------------------------------------------------------------------------
