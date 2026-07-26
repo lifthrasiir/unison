@@ -1426,6 +1426,21 @@ mod tests {
     }
 
     #[test]
+    fn dot_polygon_is_the_edge_midpoint_diamond() {
+        // The editor draws PX_DOT through the generic polygon path, so this
+        // must match the outline the font builder emits (`detail.rs`).
+        let (bits, segs) = adjacency(PX_DOT);
+        let poly = polygon_from_adjacency(bits, segs);
+        assert_eq!(poly.len(), 4, "DOT polygon vertices: {poly:?}");
+        for v in [(0.5, 0.0), (1.0, 0.5), (0.5, 1.0), (0.0, 0.5)] {
+            assert!(
+                poly.iter().any(|&p| near_f(p, v)),
+                "DOT polygon missing {v:?}: {poly:?}"
+            );
+        }
+    }
+
+    #[test]
     fn cone_complement_union_gives_full() {
         assert_eq!(
             shape_union(

@@ -92,11 +92,9 @@ pub fn draw_pixel_cell_colored(
         return;
     }
 
-    if shape_id == pixel::PX_DOT {
-        painter.circle_filled(rect.center(), rect.width() * 0.2, color);
-        return;
-    }
-
+    // Bowtie shapes need their two triangles drawn separately: the generic
+    // edge-chaining in `polygon_from_adjacency` closes the ring at the center
+    // pinch point and drops one triangle's outer corner.
     if shape_id == pixel::PX_HQUAD || shape_id == pixel::PX_VQUAD {
         let (q1, q2) = if shape_id == pixel::PX_HQUAD {
             (pixel::PX_QUAD1, pixel::PX_QUAD3)
@@ -499,6 +497,37 @@ mod tests {
         let pts = build_shape_polygon(adj, segs, rect);
         let tris = triangulate(&pts);
         assert!(!tris.is_empty(), "triangulation failed for invquad2");
+    }
+
+    fn near(a: (f32, f32), b: (f32, f32)) -> bool {
+        (a.0 - b.0).abs() < 0.01 && (a.1 - b.1).abs() < 0.01
+    }
+}
+
+#[cfg(test)]
+mod dot_render_tests {
+    use super::*;
+    use crate::pixel::{adjacency, PX_DOT};
+
+    /// PX_DOT must render as the same edge-midpoint diamond the font builder
+    /// emits (`detail.rs::base_shape_rings`), not as a circle.
+    #[test]
+    fn dot_renders_as_full_cell_diamond() {
+        let rect = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(10.0, 10.0));
+        let (adj, segs) = adjacency(PX_DOT);
+        let pts = build_shape_polygon(adj, segs, rect);
+        assert_eq!(pts.len(), 4, "dot polygon: {pts:?}");
+        for want in [(5.0, 0.0), (10.0, 5.0), (5.0, 10.0), (0.0, 5.0)] {
+            assert!(
+                pts.iter().any(|p| near((p.x, p.y), want)),
+                "dot polygon missing {want:?}: {pts:?}"
+            );
+        }
+        let area: f32 = triangulate(&pts)
+            .iter()
+            .map(|t| cross_2d(t[0], t[1], t[2]).abs() / 2.0)
+            .sum();
+        assert!((area - 50.0).abs() < 0.01, "dot area: {area}");
     }
 
     fn near(a: (f32, f32), b: (f32, f32)) -> bool {
