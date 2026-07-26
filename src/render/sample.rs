@@ -103,8 +103,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         if let Some(cached) = cache.get(name) {
             return Some(cached);
         }
-        let expanded = crate::ref_composite::expand_ref_names(name)?;
-        cache.get(expanded.first()?)
+        let expanded = crate::ref_composite::parse_ref_pattern(name)?;
+        cache.get(&expanded.get(0))
     }
 
     fn build_cached_alternatives(

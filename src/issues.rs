@@ -3,9 +3,9 @@ use std::path::{Path, PathBuf};
 
 use crate::document::{
     Directive, Document, DocumentItem, GlyphName, classify_directive, expand_name_element,
-    expand_name_pattern,
     find_invalid_inline_ranges, is_name_pattern, substitute_name_parts,
 };
+use crate::pattern::NamePattern;
 use crate::resolve::{Diagnostic, DocSet, Resolution};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -91,7 +91,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     let expanded: Vec<String> = if is_name_pattern(&name_str) {
                         // A pattern that fails to expand is already reported
                         // by the resolution pass.
-                        expand_name_pattern(&name_str)
+                        NamePattern::parse(&name_str)
                             .map(|e| e.into_vec())
                             .unwrap_or_default()
                     } else {

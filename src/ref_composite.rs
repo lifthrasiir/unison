@@ -2,8 +2,9 @@ use std::collections::HashMap;
 
 use crate::document::{
     Document, DocumentItem, GlyphName, GlyphPoint, GlyphRef, NamePartsMap, PixelGrid,
-    expand_name_pattern, substitute_name_parts,
+    substitute_name_parts,
 };
+use crate::pattern::NamePattern;
 // Only the composite helpers and their tests need this.
 #[cfg(any(feature = "editor", test))]
 use crate::document::GlyphBody;
@@ -340,9 +341,9 @@ fn raster_dimension(min: i32, max: i32) -> u16 {
     max.saturating_sub(min).clamp(0, u16::MAX as i32) as u16
 }
 
-/// Expansion used by runtime ref lookup and dependency resolution.
-pub(crate) fn expand_ref_names(name: &str) -> Option<Vec<String>> {
-    expand_name_pattern(name).ok().map(|names| names.into_vec())
+/// Pattern expansion used by runtime ref lookup and dependency resolution.
+pub(crate) fn parse_ref_pattern(name: &str) -> Option<NamePattern> {
+    NamePattern::parse_element(name).ok()
 }
 
 /// Derive effective ref offsets and the anchors exposed by the resulting
@@ -935,10 +936,8 @@ pub fn resolve_ref_name_with_parts<'a>(
     if let Some(resolved) = named_glyphs.get(&subst) {
         return Some(resolved);
     }
-    if let Some(expanded) = expand_ref_names(&subst)
-        && let Some(first) = expanded.first()
-    {
-        return named_glyphs.get(first);
+    if let Some(expanded) = parse_ref_pattern(&subst) {
+        return named_glyphs.get(&expanded.get(0));
     }
     None
 }
@@ -964,9 +963,9 @@ pub fn is_ref_valid(
     if parse_on_demand_glyph(&subst).is_some() {
         return true;
     }
-    if let Some(expanded) = expand_ref_names(&subst) {
+    if let Some(expanded) = parse_ref_pattern(&subst) {
         return expanded
-            .into_iter()
+            .iter()
             .all(|n| named_glyphs.contains_key(&n) || parse_on_demand_glyph(&n).is_some());
     }
     false
@@ -1224,7 +1223,7 @@ mod tests {
     }
 
     /// `compute_composite` resolves ref names via `resolve_ref_name`, which
-    /// falls back to `expand_name_pattern` when a direct cache lookup misses
+    /// falls back to `parse_ref_pattern` when a direct cache lookup misses
     /// (e.g. a ref pointing at a pattern name like "digit(0|1)" whose
     /// expansions, not the raw pattern string, are the cache keys).
     /// `composite_to_grid` used to do a bare `cache.get(&gref.name)` with no

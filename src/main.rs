@@ -4,6 +4,7 @@ mod migrate;
 mod detail;
 mod document;
 mod document_io;
+mod pattern;
 #[cfg(feature = "editor")]
 mod edit_menu;
 mod pixel;

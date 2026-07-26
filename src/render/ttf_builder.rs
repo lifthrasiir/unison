@@ -618,10 +618,7 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
                                 all_items.push(ExpandedItem { item, origin: Some(origin) });
                             }
                         }
-                        Err(e) => diagnostics.push(Diagnostic::error(
-                            origin,
-                            format!("name pattern error: {e}"),
-                        )),
+                        Err(e) => diagnostics.push(Diagnostic::error(origin, e)),
                     }
                 } else {
                     let mut body = body.clone();
@@ -1618,25 +1615,6 @@ pub(crate) fn parse_map_char(s: &str) -> Option<u32> {
     }
 }
 
-fn split_top_level_pipes(s: &str) -> Vec<&str> {
-    let mut parts = Vec::new();
-    let mut depth = 0i32;
-    let mut start = 0;
-    for (i, c) in s.char_indices() {
-        match c {
-            '(' => depth += 1,
-            ')' => depth -= 1,
-            '|' if depth == 0 => {
-                parts.push(&s[start..i]);
-                start = i + 1;
-            }
-            _ => {}
-        }
-    }
-    parts.push(&s[start..]);
-    parts
-}
-
 pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String)> {
     // Range: U+XXXX..YYYY or u+XXXX..YYYY
     if let Some(hex_rest) = char_repr.strip_prefix("U+").or_else(|| char_repr.strip_prefix("u+"))
@@ -1701,34 +1679,8 @@ pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String
 }
 
 pub(crate) fn expand_glyph_pattern(pattern: &str, count: usize) -> Vec<String> {
-    if let Some(hex_rest) = pattern.strip_prefix("U+").or_else(|| pattern.strip_prefix("u+"))
-        && let Some((start_hex, end_hex)) = hex_rest.split_once("..")
-            && let (Ok(start), Ok(end)) = (
-                u32::from_str_radix(start_hex, 16),
-                u32::from_str_radix(end_hex, 16),
-            ) {
-                if end < start {
-                    return vec![pattern.to_string(); count];
-                }
-                return (start..=end).map(|cp| format!("U+{cp:04X}")).collect();
-            }
-
-    if !pattern.contains('(') && !pattern.contains('|') && !has_bare_repeat(pattern) {
-        return vec![pattern.to_string(); count];
-    }
-
-    match crate::document::expand_name_pattern(pattern) {
-        Ok(expanded) => {
-            let names = expanded.into_vec();
-            if names.is_empty() {
-                return vec![pattern.to_string(); count];
-            }
-            let mut result = Vec::with_capacity(count);
-            for i in 0..count {
-                result.push(names[i % names.len()].clone());
-            }
-            result
-        }
+    match NamePattern::parse_element(pattern) {
+        Ok(expanded) => (0..count).map(|i| expanded.get(i)).collect(),
         Err(_) => vec![pattern.to_string(); count],
     }
 }
@@ -1752,44 +1704,29 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                     target,
                     lookahead,
                 } => {
-                    let expanded_positions: Vec<Vec<String>> = source
+                    let source_patterns: Vec<NamePattern> = source
                         .iter()
-                        .map(|s| expand_name_element(s, name_parts))
+                        .map(|s| parse_name_element(s, name_parts))
+                        .collect();
+                    let target_patterns: Vec<NamePattern> = target
+                        .iter()
+                        .map(|s| parse_name_element(s, name_parts))
                         .collect();
 
                     // The number of remap entries is the LCM of all position
                     // expansion counts (each position cycles independently).
-                    fn usize_gcd(a: usize, b: usize) -> usize {
-                        if b == 0 { a } else { usize_gcd(b, a % b) }
-                    }
-                    let entry_count = expanded_positions
-                        .iter()
-                        .map(|p| p.len())
-                        .fold(1usize, |a, b| a / usize_gcd(a, b) * b);
-
-                    let expanded_target_positions: Vec<Vec<String>> = target
-                        .iter()
-                        .map(|s| expand_name_element(s, name_parts))
-                        .collect();
-
-                    let entry_count = expanded_positions
-                        .iter()
-                        .chain(expanded_target_positions.iter())
-                        .map(|p| p.len())
-                        .fold(entry_count, |a, b| a / usize_gcd(a, b) * b);
+                    let entry_count = crate::pattern::combined_len(
+                        source_patterns.iter().chain(target_patterns.iter()),
+                    );
 
                     let mut source_seqs = Vec::with_capacity(entry_count);
                     let mut target_seqs = Vec::with_capacity(entry_count);
                     for i in 0..entry_count {
-                        let seq: Vec<String> = expanded_positions
-                            .iter()
-                            .map(|pos| pos[i % pos.len()].clone())
-                            .collect();
+                        let seq: Vec<String> =
+                            source_patterns.iter().map(|pos| pos.get(i)).collect();
                         source_seqs.push(seq);
-                        let tseq: Vec<String> = expanded_target_positions
-                            .iter()
-                            .map(|pos| pos[i % pos.len()].clone())
-                            .collect();
+                        let tseq: Vec<String> =
+                            target_patterns.iter().map(|pos| pos.get(i)).collect();
                         target_seqs.push(tseq);
                     }
 
@@ -2813,8 +2750,8 @@ fn resolve_cached_ref<'a>(
     if let Some(cached) = cache.get(name) {
         return Some(cached);
     }
-    let expanded = crate::ref_composite::expand_ref_names(name)?;
-    cache.get(expanded.first()?)
+    let expanded = crate::ref_composite::parse_ref_pattern(name)?;
+    cache.get(&expanded.get(0))
 }
 
 impl CachedContours {

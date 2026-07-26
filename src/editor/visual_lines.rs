@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use crate::document::{
-    DocLine, Document, DocumentItem, GlyphBody, GlyphRef, NamePartsMap, expand_name_pattern,
-    is_name_pattern,
+    DocLine, Document, DocumentItem, GlyphBody, GlyphRef, NamePartsMap, is_name_pattern,
 };
+use crate::pattern::NamePattern;
 use crate::editor::annotations::{self, InlineAnnotation};
 use crate::editor::colors::Palette;
 use crate::editor::doc_links;
@@ -389,7 +389,7 @@ pub(crate) fn build_visual_lines(
 
                     let name_str = name.display();
                     if is_name_pattern(&name_str)
-                        && let Err(e) = expand_name_pattern(&name_str)
+                        && let Err(e) = NamePattern::parse(&name_str)
                         && let Some(range) =
                             doc_links::find_name_col_range_after_prefix(s, "glyph ")
                     {

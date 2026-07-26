@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use skrifa::prelude::*;
 use skrifa::{FontRef, MetadataProvider};
 
-use crate::document::{Document, DocumentItem, NamePartsMap, expand_name_pattern, is_name_pattern, substitute_name_parts};
+use crate::document::{Document, DocumentItem, NamePartsMap, expand_name_element, substitute_name_parts};
 use crate::editor::doc_links::LinkTargetKind;
 use crate::preview::rasterizer::GlyphCache;
 use crate::render::ttf_builder::{expand_map_pairs, parse_map_char};
@@ -103,23 +103,15 @@ impl SpecimenState {
         // feature name for each remap-only glyph (first seen wins).
         let mut glyph_feature: HashMap<String, String> = HashMap::new();
 
-        fn expand_token(s: &str, name_parts: &NamePartsMap) -> Vec<String> {
-            let subst = substitute_name_parts(s, name_parts);
-            if is_name_pattern(&subst) {
-                expand_name_pattern(&subst).map(|e| e.into_vec()).unwrap_or_else(|_| vec![subst])
-            } else {
-                vec![subst]
-            }
-        }
 
         for doc in docs {
             for item in &doc.items {
                 if let DocumentItem::Remap { feature, source, target, lookbehind, lookahead } = item {
                     let tgt_expanded: Vec<Vec<String>> = target.iter()
-                        .map(|s| expand_token(s, name_parts))
+                        .map(|s| expand_name_element(s, name_parts))
                         .collect();
                     let src_expanded: Vec<Vec<String>> = source.iter()
-                        .map(|s| expand_token(s, name_parts))
+                        .map(|s| expand_name_element(s, name_parts))
                         .collect();
 
                     let max_len = src_expanded.iter().chain(tgt_expanded.iter())

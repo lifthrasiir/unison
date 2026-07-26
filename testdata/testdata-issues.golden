@@ -2,7 +2,7 @@ error	issues-base.unf	22	unresolved ref 'no-such-glyph'
 error	issues-base.unf	36	map 'C' targets undefined glyph 'never-defined'
 error	issues-base.unf	37	map 'U+FFFFFFFF' is not a valid Unicode scalar value
 error	issues-base.unf	43	feature references undefined remap group 'no-such-remap-group'
-error	issues-patterns.unf	10	name pattern error: range end < start
+error	issues-patterns.unf	10	name pattern syntax error: range end < start
 error	issues-patterns.unf	31	map 'P' targets undefined glyph 'p'
 error	issues-patterns.unf	32	map 'Q' targets undefined glyph 'q'
 error	issues-patterns.unf	39	map 'Z' (U+005A) has no canonical decomposition; use `map Z = GLYPH` instead
