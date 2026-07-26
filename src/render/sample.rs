@@ -75,6 +75,18 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     }
 
     impl CachedGlyph {
+        fn empty() -> Self {
+            Self {
+                width: 0,
+                height: 0,
+                contours: Vec::new(),
+                anchors: Vec::new(),
+                grid: None,
+                components: Vec::new(),
+                scale: 1,
+            }
+        }
+
         fn from_grid(grid: &PixelGrid) -> Self {
             let contours = track_contour(grid, PX_SUBPIXEL);
             Self {
@@ -96,46 +108,22 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }
     }
 
-    fn resolve_cached_ref<'a>(
-        name: &str,
-        cache: &'a HashMap<String, CachedGlyph>,
-    ) -> Option<&'a CachedGlyph> {
-        if let Some(cached) = cache.get(name) {
-            return Some(cached);
+    impl crate::render::glyph_cache::CachedGlyphEntry for CachedGlyph {
+        fn anchors(&self) -> &[GlyphPoint] {
+            &self.anchors
         }
-        let expanded = crate::ref_composite::parse_ref_pattern(name)?;
-        cache.get(&expanded.get(0))
+
+        fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
+            (&mut self.width, &mut self.height)
+        }
+
+        fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8) {
+            self.anchors = anchors;
+            self.scale = scale;
+        }
     }
 
-    fn build_cached_alternatives(
-        cache: &HashMap<String, CachedGlyph>,
-    ) -> HashMap<String, Vec<(String, Vec<GlyphPoint>)>> {
-        let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
-        for (name, cached) in cache {
-            let mut prefix = name.as_str();
-            while let Some(colon_pos) = prefix.rfind(':') {
-                prefix = &prefix[..colon_pos];
-                map.entry(prefix.to_string())
-                    .or_default()
-                    .push((name.clone(), cached.anchors.clone()));
-            }
-        }
-        for alts in map.values_mut() {
-            alts.sort_by(|(a, _), (b, _)| a.cmp(b));
-        }
-        map
-    }
-
-    let mut cache: HashMap<String, CachedGlyph> = HashMap::new();
-
-    struct PendingGlyph {
-        name: String,
-        pixels: Option<PixelGrid>,
-        refs: Vec<GlyphRef>,
-        points: Vec<GlyphPoint>,
-        scale: u8,
-    }
-    let mut pending: Vec<PendingGlyph> = Vec::new();
+    use crate::render::glyph_cache::resolve_cached as resolve_cached_ref;
 
     let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     let mut glyph_offsets: HashMap<String, (i16, i16)> = HashMap::new();
@@ -149,105 +137,26 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }
     }
 
-    for item in &all_items {
-        let (cache_key, body) = match item {
-            DocumentItem::Glyph { name: GlyphName(n), body } => (n.clone(), body),
-            _ => continue,
-        };
-        if !cache_key.is_empty() && !cache.contains_key(&cache_key) {
-            if let Some(ref pixels) = body.pixels && body.refs.is_empty() {
-                let mut cached = CachedGlyph::from_grid(pixels);
-                cached.anchors = body.points.clone();
-                cached.scale = body.scale;
-                cache.insert(cache_key, cached);
-            } else if body.pixels.is_some() || !body.refs.is_empty() {
-                pending.push(PendingGlyph {
-                    name: cache_key,
-                    pixels: body.pixels.clone(),
-                    refs: body.refs.clone(),
-                    points: body.points.clone(),
-                    scale: body.scale,
-                });
-            } else if body.sticky {
-                cache.insert(
-                    cache_key,
-                    CachedGlyph {
-                        width: 0,
-                        height: 0,
-                        contours: Vec::new(),
-                        anchors: body.points.clone(),
-                        grid: None,
-                        components: Vec::new(),
-                        scale: 1,
-                    },
-                );
-            }
-        }
-    }
-
-    // Resolve refs iteratively
-    let mut progress = true;
-    while progress {
-        progress = false;
-        let alt_index = build_cached_alternatives(&cache);
-        let mut i = 0;
-        while i < pending.len() {
-            if !pending[i]
-                .refs
-                .iter()
-                .all(|gref| resolve_cached_ref(&gref.name, &cache).is_some())
-            {
-                i += 1;
-                continue;
-            }
-            let pg = pending.swap_remove(i);
-            let (effective_refs, anchors) =
-                crate::ref_composite::derive_ref_offsets_with(
-                    &pg.points,
-                    &pg.refs,
-                    |name| {
-                        resolve_cached_ref(name, &cache)
-                            .map(|resolved| resolved.anchors.clone())
-                    },
-                    |name| {
-                        alt_index
-                            .get(name)
-                            .map_or_else(Vec::new, |v| v.clone())
-                    },
-                    |name| {
-                        glyph_declared_anchors.get(name).cloned()
-                    },
-                );
-
-            let mut cached = composite_glyph(
-                pg.pixels.as_ref(),
-                &effective_refs,
-                &cache,
-                &color_aliases,
-                pg.scale,
-            ).unwrap_or_else(|| if let Some(grid) = &pg.pixels {
-                CachedGlyph::from_grid(grid)
-            } else {
-                CachedGlyph {
-                    width: 0,
-                    height: 0,
-                    contours: Vec::new(),
-                    anchors: Vec::new(),
-                    grid: None,
-                    components: Vec::new(),
-                    scale: 1,
-                }
-            });
-            if let Some(grid) = &pg.pixels {
-                cached.width = cached.width.max(grid.width);
-                cached.height = cached.height.max(grid.height);
-            }
-            cached.anchors = anchors;
-            cached.scale = pg.scale;
-            cache.insert(pg.name.clone(), cached);
-            progress = true;
-        }
-    }
+    let (mut cache, pending) = crate::render::glyph_cache::seed_cache(
+        &all_items,
+        CachedGlyph::from_grid,
+        CachedGlyph::empty,
+    );
+    crate::render::glyph_cache::resolve_pending(
+        &mut cache,
+        pending,
+        |name| glyph_declared_anchors.get(name).cloned(),
+        |pg, effective_refs, cache| {
+            composite_glyph(pg.pixels.as_ref(), effective_refs, cache, &color_aliases, pg.scale)
+                .unwrap_or_else(|| {
+                    if let Some(grid) = &pg.pixels {
+                        CachedGlyph::from_grid(grid)
+                    } else {
+                        CachedGlyph::empty()
+                    }
+                })
+        },
+    );
 
     fn ref_fill_info(
         gref: &GlyphRef,

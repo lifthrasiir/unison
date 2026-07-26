@@ -1,5 +1,6 @@
 pub mod assert;
 pub mod contour;
+pub(crate) mod glyph_cache;
 pub mod sample;
 pub mod ttf_builder;
 

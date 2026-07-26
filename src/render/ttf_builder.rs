@@ -42,6 +42,9 @@ use crate::issues::Severity;
 use crate::resolve::{Diagnostic, FontMeta, ItemRef};
 use crate::pixel::{PX_ALMOSTFULL, PX_SUBPIXEL, PixelShape};
 use crate::render::contour::{track_contour, track_contour_multi, track_contour_multi_diff};
+use crate::render::glyph_cache::{
+    build_alt_index as build_cached_alternatives, resolve_cached as resolve_cached_ref,
+};
 
 pub const UNITS_PER_EM: u16 = 1024;
 
@@ -1084,99 +1087,38 @@ fn collect_glyph_data_with_shared(
     let inline_glyphs = &shared.inline_glyphs;
     let glyph_bodies = &shared.glyph_bodies;
 
-    let mut cache: HashMap<String, CachedContours> = HashMap::new();
-
-    struct PendingGlyph {
-        name: String,
-        pixels: Option<PixelGrid>,
-        refs: Vec<GlyphRef>,
-        points: Vec<GlyphPoint>,
-        scale: u8,
-    }
-    let mut pending: Vec<PendingGlyph> = Vec::new();
-
-    for item in all_items {
-        let (cache_key, body) = match item {
-            DocumentItem::Glyph { name: GlyphName(n), body } => (n.clone(), body),
-            _ => continue,
-        };
-        if !cache_key.is_empty() && !cache.contains_key(&cache_key) {
-            if let Some(ref pixels) = body.pixels && body.refs.is_empty() {
-                let mut cached = CachedContours::from_grid(pixels, bitmap, contour_cache.as_deref_mut());
-                cached.anchors = body.points.clone();
-                cached.scale = body.scale;
-                cache.insert(cache_key, cached);
-            } else if body.pixels.is_some() || !body.refs.is_empty() {
-                pending.push(PendingGlyph {
-                    name: cache_key,
-                    pixels: body.pixels.clone(),
-                    refs: body.refs.clone(),
-                    points: body.points.clone(),
-                    scale: body.scale,
-                });
-            } else if body.sticky {
-                cache.insert(
-                    cache_key,
-                    CachedContours {
-                        width: 0,
-                        height: 0,
-                        contours: Vec::new(),
-                        anchors: body.points.clone(),
-                        grid: None,
-                        composite_components: None,
-                        scale: 1,
-                    },
-                );
-            }
-        }
-    }
-
-    let mut progress = true;
-    while progress {
-        progress = false;
-        let alt_index = build_cached_alternatives(&cache);
-        let mut i = 0;
-        while i < pending.len() {
-            if !pending[i]
-                .refs
-                .iter()
-                .all(|gref| resolve_cached_ref(&gref.name, &cache).is_some())
-            {
-                i += 1;
-                continue;
-            }
-            let pg = pending.swap_remove(i);
-            let (effective_refs, anchors) = derive_effective_refs(
-                &pg.points, &pg.refs, &cache, &alt_index, &declared_anchors_map);
-            let mut cached_entry = CachedContours::from_components(
-                pg.pixels.as_ref(),
-                &effective_refs,
-                &cache,
-                bitmap,
-                contour_cache.as_deref_mut(),
-                pg.scale,
-            ).unwrap_or_else(|| if let Some(grid) = &pg.pixels {
-                CachedContours::from_grid(grid, bitmap, contour_cache.as_deref_mut())
-            } else {
-                CachedContours {
-                    width: 0,
-                    height: 0,
-                    contours: Vec::new(),
-                    anchors: Vec::new(),
-                    grid: None,
-                    composite_components: None,
-                    scale: 1,
-                }
-            });
-            if let Some(grid) = &pg.pixels {
-                cached_entry.width = cached_entry.width.max(grid.width);
-                cached_entry.height = cached_entry.height.max(grid.height);
-            }
-            cached_entry.anchors = anchors;
-            cached_entry.scale = pg.scale;
-            cache.insert(pg.name.clone(), cached_entry);
-            progress = true;
-        }
+    let (mut cache, pending) = {
+        let cc = &mut contour_cache;
+        crate::render::glyph_cache::seed_cache(
+            all_items,
+            |pixels| CachedContours::from_grid(pixels, bitmap, cc.as_deref_mut()),
+            CachedContours::empty,
+        )
+    };
+    {
+        let cc = &mut contour_cache;
+        crate::render::glyph_cache::resolve_pending(
+            &mut cache,
+            pending,
+            |name| declared_anchors_map.get(name).cloned(),
+            |pg, effective_refs, cache| {
+                CachedContours::from_components(
+                    pg.pixels.as_ref(),
+                    effective_refs,
+                    cache,
+                    bitmap,
+                    cc.as_deref_mut(),
+                    pg.scale,
+                )
+                .unwrap_or_else(|| {
+                    if let Some(grid) = &pg.pixels {
+                        CachedContours::from_grid(grid, bitmap, cc.as_deref_mut())
+                    } else {
+                        CachedContours::empty()
+                    }
+                })
+            },
+        );
     }
 
     let glyph_bodies_map: HashMap<&str, &GlyphBody> = glyph_bodies.iter()
@@ -1343,15 +1285,7 @@ fn collect_glyph_data_with_shared(
     extra_names.sort();
 
     for glyph_name in &extra_names {
-        let empty_cached = CachedContours {
-            width: 0,
-            height: 0,
-            contours: Vec::new(),
-            anchors: Vec::new(),
-            grid: None,
-            composite_components: None,
-            scale: 1,
-        };
+        let empty_cached = CachedContours::empty();
         let resolved = cache.get(glyph_name.as_str()).unwrap_or(&empty_cached);
         let glyph_scale = scale / resolved.scale as f32;
         let (advance_width, left_offset, top_offset) =
@@ -1399,15 +1333,7 @@ fn collect_glyph_data_with_shared(
         for cr in &g.composite_refs {
             if !all_names.contains(&cr.component_name) {
                 all_names.insert(cr.component_name.clone());
-                let empty_cached = CachedContours {
-                    width: 0,
-                    height: 0,
-                    contours: Vec::new(),
-                    anchors: Vec::new(),
-                    grid: None,
-                    composite_components: None,
-                    scale: 1,
-                };
+                let empty_cached = CachedContours::empty();
                 let resolved = cache.get(cr.component_name.as_str()).unwrap_or(&empty_cached);
                 let comp_glyph_scale = scale / resolved.scale as f32;
                 let font_contours =
@@ -2724,37 +2650,34 @@ struct CachedContours {
     scale: u8,
 }
 
-fn build_cached_alternatives(
-    cache: &HashMap<String, CachedContours>,
-) -> HashMap<String, Vec<(String, Vec<GlyphPoint>)>> {
-    let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
-    for (name, cached) in cache {
-        let mut prefix = name.as_str();
-        while let Some(colon_pos) = prefix.rfind(':') {
-            prefix = &prefix[..colon_pos];
-            map.entry(prefix.to_string())
-                .or_default()
-                .push((name.clone(), cached.anchors.clone()));
-        }
+impl crate::render::glyph_cache::CachedGlyphEntry for CachedContours {
+    fn anchors(&self) -> &[GlyphPoint] {
+        &self.anchors
     }
-    for alts in map.values_mut() {
-        alts.sort_by(|(a, _), (b, _)| a.cmp(b));
-    }
-    map
-}
 
-fn resolve_cached_ref<'a>(
-    name: &str,
-    cache: &'a HashMap<String, CachedContours>,
-) -> Option<&'a CachedContours> {
-    if let Some(cached) = cache.get(name) {
-        return Some(cached);
+    fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
+        (&mut self.width, &mut self.height)
     }
-    let expanded = crate::ref_composite::parse_ref_pattern(name)?;
-    cache.get(&expanded.get(0))
+
+    fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8) {
+        self.anchors = anchors;
+        self.scale = scale;
+    }
 }
 
 impl CachedContours {
+    fn empty() -> Self {
+        Self {
+            width: 0,
+            height: 0,
+            contours: Vec::new(),
+            anchors: Vec::new(),
+            grid: None,
+            composite_components: None,
+            scale: 1,
+        }
+    }
+
     fn from_grid(grid: &PixelGrid, bitmap: bool, cc: Option<&mut ContourCache>) -> Self {
         if bitmap {
             let mut bitmap_grid = grid.clone();
