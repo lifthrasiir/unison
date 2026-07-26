@@ -22,13 +22,18 @@ ref ok 0 0 fill #FF0000
 // Forces the color/mono synthesis by referring to the bare name.
 remap badge : ok -> badge-a
 
-// Remap operands keep their name-part patterns until the GSUB builder expands
-// them, so this must not be reported as referring to an undefined glyph.
+// Remap operands carry name-part patterns that only the GSUB builder expands.
+// Every expansion of this one exists, so it must stay quiet...
 remap badge-pattern : ok -> badge-($ab)
+
+// ...while this one expands to glyphs that do not exist. The GSUB builder
+// drops such rules silently, so unless resolution expands remap operands the
+// same way the builder does, a whole feature can go missing unreported.
+remap badge-broken : ok -> no-such-badge-($ab)
 
 feature liga for latn : badge
 feature liga for latn : badge-pattern
+feature liga for latn : badge-broken
 
 assume unused badge-($ab):mono
 assume unused badge-($ab):color
-assume unused badge-b

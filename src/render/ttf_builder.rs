@@ -700,7 +700,7 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
     }
 
     expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
-    inject_on_demand_glyph_items(&mut all_items, map_targets, &mut diagnostics);
+    inject_on_demand_glyph_items(&mut all_items, map_targets, name_parts, &mut diagnostics);
 
     Expansion { items: all_items, diagnostics }
 }
@@ -813,6 +813,7 @@ fn expand_decomposed_maps(
 fn inject_on_demand_glyph_items(
     all_items: &mut Vec<ExpandedItem>,
     map_targets: Vec<(String, Option<ItemRef>, String)>,
+    name_parts: &NamePartsMap,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let mut defined: HashSet<String> = HashSet::new();
@@ -853,12 +854,13 @@ fn inject_on_demand_glyph_items(
             } => {
                 for token in source.iter().chain(target).chain(lookbehind).chain(lookahead) {
                     // Remap operands keep their name-part patterns until the
-                    // GSUB builder expands them, so a still-unexpanded name
-                    // says nothing about whether the glyph exists.
-                    if is_name_pattern(token) || token.contains('$') {
-                        continue;
+                    // GSUB builder expands them, so checking the written name
+                    // says nothing. Expanding with the builder's own function
+                    // is what keeps the two from drifting apart: rules whose
+                    // glyphs have no id are dropped there without a word.
+                    for name in expand_remap_element(token, name_parts) {
+                        consider(&name, e.origin, RefKind::Remap);
                     }
-                    consider(token, e.origin, RefKind::Remap);
                 }
             }
             _ => {}

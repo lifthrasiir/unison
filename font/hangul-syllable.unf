@@ -6663,10 +6663,17 @@ name-parts $hangul-med-for-init-t = `` o yo u yu eu .
 
 remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-l-f : hangul-med-($hangul-med-for-init-l) hangul-fin-($hangul-fin)
 remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-tl-f : hangul-med-($hangul-med-for-init-tl) hangul-fin-($hangul-fin)
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-f : hangul-med-($hangul-med-for-init-f) hangul-fin-($hangul-fin)
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-f : hangul-med-($hangul-med-for-init-t) hangul-fin-($hangul-fin)
 remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-l-nof : hangul-med-($hangul-med-for-init-l)
 remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-tl-nof : hangul-med-($hangul-med-for-init-tl)
-remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-nof : hangul-med-($hangul-med-for-init-f)
+remap hangul-ljmo : hangul-init-($hangul-init) -> hangul-init-comb-($hangul-init)-t-nof : hangul-med-($hangul-med-for-init-t)
+
+// The `-t` (top medial) rules above are easy to break by reaching for the
+// wrong name-part: the suffix that selects the medial class and the -f/-nof
+// suffix that records whether a final follows look alike, and a rule whose
+// operands do not expand is dropped by the GSUB builder without a word.
+assert shape ᄀᆞ : hangul-init-comb-g-t-nof : hangul-med-comb-.-nof
+assert shape ᄀᆞᆨ : hangul-init-comb-g-t-f : hangul-med-comb-.-f : hangul-fin-comb-g-w
 
 remap hangul-vjmo : hangul-med-($hangul-med0) -> hangul-med-comb-($hangul-med0)-f : hangul-fin-($hangul-fin)
 remap hangul-vjmo : hangul-med-($hangul-med0) -> hangul-med-comb-($hangul-med0)-nof

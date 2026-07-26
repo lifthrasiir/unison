@@ -8,6 +8,8 @@ error	issues-patterns.unf	32	map 'Q' targets undefined glyph 'q'
 error	issues-patterns.unf	39	map 'Z' (U+005A) has no canonical decomposition; use `map Z = GLYPH` instead
 error	issues-patterns.unf	4	glyph pattern '(p|q)' defines no glyphs; a pattern glyph needs `ref` lines, a pixel grid alone cannot be shared
 error	issues-patterns.unf	7	glyph pattern 'pat-(0|1|2|3)' defines no glyphs; a pattern glyph needs `ref` lines, a pixel grid alone cannot be shared
+warning	composites.unf	28	remap references undefined glyph 'no-such-badge-a'
+warning	composites.unf	28	remap references undefined glyph 'no-such-badge-b'
 warning	issues-base.unf	11	undefined name-parts reference '$nonexistent'
 warning	issues-base.unf	25	glyph 'empty-body' has no content
 warning	issues-base.unf	25	glyph 'empty-body' is unused

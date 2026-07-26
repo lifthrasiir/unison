@@ -628,6 +628,55 @@ map A = foo
     // stay a coherent project, so the broken variants are covered here.
 
     #[test]
+    fn remap_pattern_operand_expansions_are_checked() {
+        // Remap operands keep their patterns until the GSUB builder expands
+        // them, and that builder drops rules whose glyphs have no id without
+        // a word. Validation therefore has to expand them the same way.
+        let input = "\
+name-parts $ab = a b
+
+glyph ok 2 1
+@@..
+map A = ok
+
+remap liga : ok -> missing-($ab)
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.message.contains("missing-a")),
+            "expected the expanded remap target to be reported, got: {issues:?}",
+        );
+        assert!(
+            issues.iter().any(|i| i.message.contains("missing-b")),
+            "every expansion should be reported, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn remap_pattern_operand_that_resolves_is_quiet() {
+        let input = "\
+name-parts $ab = a b
+
+glyph ok 2 1
+@@..
+glyph present-a 2 1
+@@..
+glyph present-b 2 1
+..@@
+map A = ok
+
+remap liga : ok -> present-($ab)
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("remap")),
+            "a remap whose expansions all exist must be quiet, got: {issues:?}",
+        );
+    }
+
+    #[test]
     fn font_meta_ascent_plus_descent_must_equal_height() {
         let input = "font-meta height 16 ascent 12 descent 3\n";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
