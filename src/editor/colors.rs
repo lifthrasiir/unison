@@ -35,6 +35,11 @@ pub struct Palette {
     pub shape_palette_selected_bg: Color32,
     pub shape_palette_selected_stroke: Color32,
 
+    // Horizontal grid scrollbar
+    pub hscroll_track: Color32,
+    pub hscroll_thumb: Color32,
+    pub hscroll_thumb_active: Color32,
+
     // Minimap
     pub minimap_bg: Color32,
     pub minimap_viewport_fill: Color32,
@@ -84,6 +89,10 @@ impl Palette {
             shape_palette_selected_bg: Color32::from_rgb(60, 80, 120),
             shape_palette_selected_stroke: Color32::from_rgb(100, 160, 240),
 
+            hscroll_track: Color32::from_rgba_unmultiplied(60, 63, 75, 140),
+            hscroll_thumb: Color32::from_rgba_unmultiplied(130, 138, 160, 200),
+            hscroll_thumb_active: Color32::from_rgb(150, 190, 240),
+
             minimap_bg: Color32::from_rgb(25, 27, 35),
             minimap_viewport_fill: Color32::from_rgba_unmultiplied(100, 150, 220, 25),
             minimap_viewport_stroke: Color32::from_rgba_unmultiplied(120, 170, 240, 60),
@@ -128,6 +137,10 @@ impl Palette {
             shape_palette_bg: grid.shape_palette_bg,
             shape_palette_selected_bg: grid.shape_palette_selected_bg,
             shape_palette_selected_stroke: grid.shape_palette_selected_stroke,
+
+            hscroll_track: Color32::from_rgba_unmultiplied(150, 155, 170, 120),
+            hscroll_thumb: Color32::from_rgba_unmultiplied(90, 95, 115, 200),
+            hscroll_thumb_active: Color32::from_rgb(40, 100, 190),
 
             minimap_bg: grid.minimap_bg,
             minimap_viewport_fill: grid.minimap_viewport_fill,

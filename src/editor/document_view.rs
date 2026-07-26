@@ -56,6 +56,14 @@ const MINIMAP_WIDTH: f32 = 64.0;
 const INLINE_PANEL_GAP: f32 = 12.0;
 pub(crate) const INLINE_PALETTE_CELL: f32 = 16.0;
 
+/// Horizontal grid scrollbar: thickness, distance below the grid, and the
+/// width of the edge band that triggers auto-scrolling while dragging.
+const HSCROLL_HEIGHT: f32 = 8.0;
+const HSCROLL_GAP: f32 = 2.0;
+const HSCROLL_EDGE_ZONE: f32 = 24.0;
+/// Auto-scroll speed at the outer end of the edge band, in points per second.
+const HSCROLL_AUTO_SPEED: f32 = 900.0;
+
 const SCROLL_BASE_MULTIPLIER: f32 = 2.5;
 const SCROLL_ACCEL_START: u32 = 3;
 const SCROLL_ACCEL_STEP: f32 = 0.8;
@@ -87,6 +95,125 @@ impl GridExtent {
     pub(crate) fn display_width(&self, grid_cell: f32) -> f32 {
         (self.right - self.left) as f32 * grid_cell
     }
+}
+
+/// The horizontal band the glyph grids are drawn in. It stops short of the
+/// right edge so the inline tool panel always has room; a grid wider than the
+/// band is clipped to it and scrolled with `scroll`.
+#[derive(Clone, Debug)]
+pub(crate) struct GridStrip {
+    /// Left edge in screen coordinates.
+    pub(crate) x: f32,
+    /// Width of the visible band.
+    pub(crate) w: f32,
+    /// Shared scroll offset, `>= 0`. Applied to a grid only as far as that
+    /// grid actually overflows, so narrower grids are unaffected.
+    pub(crate) scroll: f32,
+    /// Horizontal scrollbars drawn over the band. A pointer inside one of
+    /// them drives the scrollbar, not the grid underneath.
+    pub(crate) bars: Vec<egui::Rect>,
+    /// Set while a scrollbar drag is in flight. The drag keeps following the
+    /// pointer after it leaves the bar, so the grid must ignore it for the
+    /// whole gesture, not just while it is over the bar.
+    pub(crate) captured: bool,
+}
+
+fn hscroll_drag_id() -> egui::Id {
+    egui::Id::new("grid_hscroll_dragging")
+}
+
+impl GridStrip {
+    pub(crate) fn right(&self) -> f32 {
+        self.x + self.w
+    }
+
+    /// How far a grid of `content_w` extends past the band.
+    pub(crate) fn overflow(&self, content_w: f32) -> f32 {
+        (content_w - self.w).max(0.0)
+    }
+
+    /// Screen x of column `extent.left` for a grid of `content_w`.
+    pub(crate) fn grid_x(&self, content_w: f32) -> f32 {
+        self.x - self.scroll.min(self.overflow(content_w))
+    }
+
+    pub(crate) fn contains_x(&self, x: f32) -> bool {
+        x >= self.x && x < self.right()
+    }
+
+    /// Whether a pointer position should be routed to the grid: inside the
+    /// band and not on top of a scrollbar.
+    pub(crate) fn accepts_pointer(&self, p: egui::Pos2) -> bool {
+        !self.captured && self.contains_x(p.x) && !self.bars.iter().any(|r| r.contains(p))
+    }
+
+    /// Clip a grid-relative span to the visible band.
+    fn clip_span(&self, x0: f32, x1: f32) -> Option<(f32, f32)> {
+        let lo = x0.max(self.x);
+        let hi = x1.min(self.right());
+        (lo < hi).then_some((lo, hi))
+    }
+}
+
+/// The part of a grid block that is actually visible inside the band, or
+/// `None` when the band has scrolled past it entirely.
+fn visible_grid_rect(
+    strip: &GridStrip,
+    grid_x: f32,
+    grid_y: f32,
+    content_w: f32,
+    content_h: f32,
+) -> Option<egui::Rect> {
+    let (x0, x1) = strip.clip_span(grid_x, grid_x + content_w)?;
+    Some(egui::Rect::from_min_max(
+        egui::pos2(x0, grid_y),
+        egui::pos2(x1, grid_y + content_h),
+    ))
+}
+
+/// Minimum room kept to the right of the grid band for the inline tool panel.
+fn inline_panel_reserved_width(zoom: f32) -> f32 {
+    INLINE_PANEL_GAP * zoom
+        + crate::editor::glyph_widget::PALETTE_COLS as f32 * INLINE_PALETTE_CELL * zoom
+}
+
+/// A run of consecutive grid rows belonging to one glyph, in scroll-area
+/// coordinates. Used to place the horizontal scrollbar and to bound
+/// drag-driven auto-scrolling.
+struct GridBlock {
+    item_idx: usize,
+    y0: f32,
+    y1: f32,
+    content_w: f32,
+}
+
+fn collect_grid_blocks(
+    vlines: &[VisualLine],
+    row_height: f32,
+    grid_cell: f32,
+) -> Vec<GridBlock> {
+    let mut blocks: Vec<GridBlock> = Vec::new();
+    let mut y = 0.0f32;
+    for vl in vlines {
+        let h = vl.height(row_height, grid_cell);
+        if let VLineKind::GridRow { item_idx, extent, .. } = &vl.kind {
+            let content_w = extent.display_width(grid_cell);
+            match blocks.last_mut() {
+                Some(b) if b.item_idx == *item_idx && (b.y1 - y).abs() < 0.5 => {
+                    b.y1 = y + h;
+                    b.content_w = b.content_w.max(content_w);
+                }
+                _ => blocks.push(GridBlock {
+                    item_idx: *item_idx,
+                    y0: y,
+                    y1: y + h,
+                    content_w,
+                }),
+            }
+        }
+        y += h;
+    }
+    blocks
 }
 
 pub(crate) fn compute_grid_display_extent(
@@ -657,6 +784,56 @@ pub fn show_document(
         let origin = egui::pos2(rect.min.x + gutter_width, rect.min.y);
         let sel = state.selection_range();
 
+        // Grid band: everything left of the space reserved for the inline
+        // tool panel. Grids wider than the band scroll inside it.
+        let blocks = collect_grid_blocks(vlines, row_height, grid_cell);
+        let mut strip = {
+            let x = origin.x + LEFT_PAD;
+            let w = (rect.max.x - x - inline_panel_reserved_width(zoom_level as f32))
+                .max(grid_cell * 2.0);
+            let max_overflow = blocks
+                .iter()
+                .fold(0.0f32, |acc, b| acc.max(b.content_w - w));
+            state.grid_scroll_x = state.grid_scroll_x.clamp(0.0, max_overflow.max(0.0));
+            let captured = ui.ctx().data(|d| d.get_temp::<bool>(hscroll_drag_id()))
+                .unwrap_or(false)
+                && ui.input(|i| i.pointer.primary_down());
+            GridStrip { x, w, scroll: state.grid_scroll_x, bars: Vec::new(), captured }
+        };
+        // The scrollbar belongs to the glyph being edited only: it sits in
+        // the line below the grid, which for any other glyph still holds its
+        // `ref`/`anchor` lines. Normally it goes just under the block; a
+        // block taller than the viewport would put it out of sight, so in
+        // that case it is pulled back in — covering grid rows is the lesser
+        // evil there.
+        let hbars: Vec<(usize, egui::Rect)> = {
+            let view = ui.clip_rect();
+            let zoom = zoom_level as f32;
+            let bar_h = HSCROLL_HEIGHT * zoom;
+            let gap = HSCROLL_GAP * zoom;
+            let lo = view.min.y + gap;
+            let hi = view.max.y - bar_h - gap;
+            blocks
+                .iter()
+                .enumerate()
+                .filter(|_| lo <= hi)
+                .filter(|(_, b)| inline_panel_edit_idx == Some(b.item_idx))
+                .filter(|(_, b)| strip.overflow(b.content_w) > 0.0)
+                .filter(|(_, b)| origin.y + b.y1 >= view.min.y && origin.y + b.y0 <= view.max.y)
+                .map(|(i, b)| {
+                    let bar_y = (origin.y + b.y1 + gap).clamp(lo, hi);
+                    (
+                        i,
+                        egui::Rect::from_min_size(
+                            egui::pos2(strip.x, bar_y),
+                            egui::vec2(strip.w, bar_h),
+                        ),
+                    )
+                })
+                .collect()
+        };
+        strip.bars = hbars.iter().map(|(_, r)| *r).collect();
+
         // Publish the frame's layout for the in-crate GUI test harness.
         #[cfg(test)]
         crate::editor::harness::capture_snapshot(
@@ -668,6 +845,14 @@ pub fn show_document(
             row_height,
             grid_cell,
             wid,
+            &strip,
+        );
+        let grid_painter = painter.with_clip_rect(
+            egui::Rect::from_min_max(
+                egui::pos2(strip.x, rect.min.y),
+                egui::pos2(strip.right(), rect.max.y),
+            )
+            .intersect(painter.clip_rect()),
         );
 
         let is_double = response.double_clicked();
@@ -715,21 +900,22 @@ pub fn show_document(
                         && inline_panel_edit_idx == Some(*item_idx)
                             && vl.kind_row() == Some(extent.top)
                         {
-                            let gx = origin.x + LEFT_PAD;
+                            let content_w = extent.display_width(grid_cell);
+                            let gx = strip.grid_x(content_w);
                             let gy = origin.y + y;
                             inline_panel_origin = Some((
-                                gx + extent.display_width(grid_cell)
+                                (gx + content_w).min(strip.right())
                                     + INLINE_PANEL_GAP * zoom_level as f32,
                                 gy,
-                                extent.display_width(grid_cell),
+                                content_w,
                             ));
-                            edit_grid_rect = Some(egui::Rect::from_min_size(
-                                egui::pos2(gx, gy),
-                                egui::vec2(
-                                    extent.display_width(grid_cell),
-                                    (extent.bottom - extent.top) as f32 * grid_cell,
-                                ),
-                            ));
+                            edit_grid_rect = visible_grid_rect(
+                                &strip,
+                                gx,
+                                gy,
+                                content_w,
+                                (extent.bottom - extent.top) as f32 * grid_cell,
+                            );
                         }
                 y += h;
                 continue;
@@ -749,7 +935,8 @@ pub fn show_document(
 
             if let Some((sel_lo, sel_hi)) = sel {
                 draw_selection(
-                    &painter, ui, &font_id, vl, origin, y, h, sel_lo, sel_hi, grid_cell,
+                    &painter, &grid_painter, ui, &font_id, vl, origin, y, h, sel_lo, sel_hi,
+                    &strip, grid_cell,
                 );
             }
 
@@ -961,11 +1148,12 @@ pub fn show_document(
                     grid_doc_line,
                     extent,
                 } => {
-                    let grid_x = origin.x + LEFT_PAD;
+                    let content_w = extent.display_width(grid_cell);
+                    let grid_x = strip.grid_x(content_w);
                     let grid_y = origin.y + y;
 
                     grid_render::render_grid_row(
-                        &painter,
+                        &grid_painter,
                         grid_x,
                         grid_y,
                         doc,
@@ -982,7 +1170,8 @@ pub fn show_document(
 
                     grid_render::handle_grid_hover_preview(
                         ui,
-                        &painter,
+                        &grid_painter,
+                        &strip,
                         &state.mode,
                         *item_idx,
                         *own_width,
@@ -999,26 +1188,28 @@ pub fn show_document(
                         && *row == extent.top
                     {
                         inline_panel_origin = Some((
-                            grid_x
-                                + extent.display_width(grid_cell)
+                            (grid_x + content_w).min(strip.right())
                                 + INLINE_PANEL_GAP * zoom_level as f32,
                             grid_y,
-                            extent.display_width(grid_cell),
+                            content_w,
                         ));
-                        edit_grid_rect = Some(egui::Rect::from_min_size(
-                            egui::pos2(grid_x, grid_y),
-                            egui::vec2(
-                                extent.display_width(grid_cell),
-                                (extent.bottom - extent.top) as f32 * grid_cell,
-                            ),
-                        ));
+                        edit_grid_rect = visible_grid_rect(
+                            &strip,
+                            grid_x,
+                            grid_y,
+                            content_w,
+                            (extent.bottom - extent.top) as f32 * grid_cell,
+                        );
                     }
 
                     if let Some(cp) = click_pos
                         && cp.y >= grid_y && cp.y < grid_y + grid_cell {
                             let rel_x = cp.x - grid_x;
                             let gc = (rel_x / grid_cell) as i32 + extent.left as i32;
-                            if gc >= extent.left as i32 && gc < extent.right as i32 {
+                            if strip.accepts_pointer(cp)
+                                && gc >= extent.left as i32
+                                && gc < extent.right as i32
+                            {
                                 click_result = Some(ClickTarget::Grid {
                                     item_idx: *item_idx,
                                 });
@@ -1040,6 +1231,7 @@ pub fn show_document(
                             *own_width,
                             *own_height,
                             *extent,
+                            &strip,
                             grid_x,
                             grid_y,
                             grid_cell,
@@ -1051,13 +1243,13 @@ pub fn show_document(
                         .filter(|s| s.item_idx == *item_idx)
                     {
                         grid_render::render_pixel_selection_overlay(
-                            &painter, grid_x, grid_y, *row, *extent, grid_cell, sel, &pal,
+                            &grid_painter, grid_x, grid_y, *row, *extent, grid_cell, sel, &pal,
                         );
                     }
                     pixel_selection::handle_pixel_select_interaction(
                         ui, doc, lines, state, &mut needs_rederive,
                         *grid_doc_line, *item_idx, *row, *own_width, *own_height,
-                        *extent, grid_x, grid_y, grid_cell,
+                        *extent, &strip, grid_x, grid_y, grid_cell,
                     );
 
                     // Grid caret
@@ -1074,7 +1266,7 @@ pub fn show_document(
                                 *own_height as f32 * grid_cell,
                             ),
                         );
-                        painter.rect_stroke(
+                        grid_painter.rect_stroke(
                             border_rect,
                             0.0,
                             egui::Stroke::new(2.0, pal.grid_border),
@@ -1087,19 +1279,23 @@ pub fn show_document(
             }
 
             draw_edit_border(
-                &painter,
+                &grid_painter,
                 &state.mode,
                 vl,
                 doc,
                 origin,
                 y,
                 composites,
+                &strip,
                 grid_cell,
                 &pal,
             );
 
             y += h;
         }
+
+        draw_grid_hscrollbars(ui, &painter, state, &strip, &blocks, &hbars, zoom_level, &pal);
+        auto_scroll_grid_on_drag(ui, state, &strip, &blocks, origin, zoom_level);
 
         // Inline tools panel (preview + palette) to the right of the grid
         if let (Some(edit_idx), Some((panel_x, panel_y, _grid_w))) =
@@ -1903,12 +2099,147 @@ pub fn show_document(
 }
 
 // ---------------------------------------------------------------------------
+// Horizontal grid scrolling
+// ---------------------------------------------------------------------------
+
+/// Smallest thumb we will draw, so a very wide grid still leaves something
+/// to grab.
+const HSCROLL_MIN_THUMB: f32 = 24.0;
+
+#[allow(clippy::too_many_arguments)]
+fn draw_grid_hscrollbars(
+    ui: &egui::Ui,
+    painter: &egui::Painter,
+    state: &mut EditorState,
+    strip: &GridStrip,
+    blocks: &[GridBlock],
+    hbars: &[(usize, egui::Rect)],
+    zoom_level: u32,
+    pal: &Palette,
+) {
+    let zoom = zoom_level as f32;
+    let mut dragging = false;
+    for (block_idx, bar) in hbars {
+        let Some(block) = blocks.get(*block_idx) else {
+            continue;
+        };
+        let overflow = strip.overflow(block.content_w);
+        if overflow <= 0.0 {
+            continue;
+        }
+
+        let track_w = bar.width();
+        let thumb_w = (track_w * strip.w / block.content_w)
+            .clamp((HSCROLL_MIN_THUMB * zoom).min(track_w), track_w);
+        let travel = track_w - thumb_w;
+
+        let resp = ui.interact(
+            *bar,
+            egui::Id::new(("grid_hscroll", block.item_idx)),
+            egui::Sense::click_and_drag(),
+        );
+        dragging |= resp.is_pointer_button_down_on() || resp.dragged();
+
+        let scroll = state.grid_scroll_x.min(overflow);
+        let thumb_x = bar.min.x + if travel > 0.5 { travel * scroll / overflow } else { 0.0 };
+
+        // A press outside the thumb jumps to that position first; the drag
+        // then continues from there.
+        let jump_to = |px: f32| {
+            (((px - bar.min.x - thumb_w * 0.5) / travel.max(1.0)).clamp(0.0, 1.0)) * overflow
+        };
+        let mut new_scroll = scroll;
+        if (resp.drag_started() || resp.clicked())
+            && let Some(p) = resp.interact_pointer_pos()
+            && (p.x < thumb_x || p.x > thumb_x + thumb_w)
+        {
+            new_scroll = jump_to(p.x);
+        }
+        if resp.dragged() && travel > 0.5 {
+            new_scroll += resp.drag_delta().x * overflow / travel;
+        }
+        let new_scroll = new_scroll.clamp(0.0, overflow);
+        if (new_scroll - state.grid_scroll_x).abs() > 0.01 {
+            state.grid_scroll_x = new_scroll;
+            ui.ctx().request_repaint();
+        }
+
+        let radius = bar.height() * 0.5;
+        painter.rect_filled(*bar, radius, pal.hscroll_track);
+        let thumb = egui::Rect::from_min_size(
+            egui::pos2(
+                bar.min.x + if travel > 0.5 { travel * new_scroll / overflow } else { 0.0 },
+                bar.min.y,
+            ),
+            egui::vec2(thumb_w, bar.height()),
+        );
+        let color = if resp.dragged() || resp.hovered() {
+            pal.hscroll_thumb_active
+        } else {
+            pal.hscroll_thumb
+        };
+        painter.rect_filled(thumb, radius, color);
+    }
+    ui.ctx()
+        .data_mut(|d| d.insert_temp(hscroll_drag_id(), dragging));
+}
+
+/// While dragging inside a grid, holding the pointer near (or past) either
+/// edge of the band scrolls it, so a selection or a layer can be dragged
+/// beyond the visible columns.
+fn auto_scroll_grid_on_drag(
+    ui: &egui::Ui,
+    state: &mut EditorState,
+    strip: &GridStrip,
+    blocks: &[GridBlock],
+    origin: egui::Pos2,
+    zoom_level: u32,
+) {
+    if matches!(state.mode, EditMode::Normal) || !ui.input(|i| i.pointer.primary_down()) {
+        return;
+    }
+    let Some(hp) = ui.input(|i| i.pointer.hover_pos()) else {
+        return;
+    };
+    if strip.captured || strip.bars.iter().any(|r| r.contains(hp)) {
+        return;
+    }
+    let Some(block) = blocks.iter().find(|b| {
+        hp.y >= origin.y + b.y0 && hp.y < origin.y + b.y1 && strip.overflow(b.content_w) > 0.0
+    }) else {
+        return;
+    };
+
+    let zoom = zoom_level as f32;
+    let edge = HSCROLL_EDGE_ZONE * zoom;
+    let past_right = hp.x - (strip.right() - edge);
+    let past_left = (strip.x + edge) - hp.x;
+    let ratio = if past_right > 0.0 {
+        (past_right / edge).min(1.0)
+    } else if past_left > 0.0 {
+        -(past_left / edge).min(1.0)
+    } else {
+        return;
+    };
+
+    let dt = ui.input(|i| i.stable_dt).min(0.1);
+    let overflow = strip.overflow(block.content_w);
+    let next =
+        (state.grid_scroll_x + ratio * HSCROLL_AUTO_SPEED * zoom * dt).clamp(0.0, overflow);
+    if (next - state.grid_scroll_x).abs() > 0.01 {
+        state.grid_scroll_x = next;
+    }
+    ui.ctx().request_repaint();
+}
+
+// ---------------------------------------------------------------------------
 // Selection drawing
 // ---------------------------------------------------------------------------
 
 #[allow(clippy::too_many_arguments)]
 fn draw_selection(
     painter: &egui::Painter,
+    grid_painter: &egui::Painter,
     ui: &egui::Ui,
     font_id: &egui::FontId,
     vl: &VisualLine,
@@ -1917,6 +2248,7 @@ fn draw_selection(
     h: f32,
     sel_lo: Caret,
     sel_hi: Caret,
+    strip: &GridStrip,
     grid_cell: f32,
 ) {
     let dl = vl.doc_line;
@@ -1952,14 +2284,18 @@ fn draw_selection(
             );
         }
         VLineKind::GridRow { extent, .. } => {
-            painter.rect_filled(
-                egui::Rect::from_min_size(
-                    egui::pos2(origin.x + LEFT_PAD, origin.y + y),
-                    egui::vec2(extent.display_width(grid_cell), h),
-                ),
-                0.0,
-                sel_color,
-            );
+            let content_w = extent.display_width(grid_cell);
+            let gx = strip.grid_x(content_w);
+            if let Some((x0, x1)) = strip.clip_span(gx, gx + content_w) {
+                grid_painter.rect_filled(
+                    egui::Rect::from_min_max(
+                        egui::pos2(x0, origin.y + y),
+                        egui::pos2(x1, origin.y + y + h),
+                    ),
+                    0.0,
+                    sel_color,
+                );
+            }
         }
     }
 }
@@ -1977,6 +2313,7 @@ fn draw_edit_border(
     origin: egui::Pos2,
     y: f32,
     _composites: &HashMap<usize, GlyphComposite>,
+    strip: &GridStrip,
     grid_cell: f32,
     pal: &Palette,
 ) {
@@ -1996,7 +2333,8 @@ fn draw_edit_border(
             extent,
             ..
         } if *item_idx == eidx && *row == 0 => {
-            let own_x = origin.x + LEFT_PAD + (-extent.left) as f32 * grid_cell;
+            let own_x = strip.grid_x(extent.display_width(grid_cell))
+                + (-extent.left) as f32 * grid_cell;
             let border_rect = egui::Rect::from_min_size(
                 egui::pos2(own_x, origin.y + y),
                 egui::vec2(

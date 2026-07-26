@@ -89,6 +89,7 @@ pub(crate) fn handle_pixel_select_interaction(
     grid_width: u16,
     grid_height: u16,
     extent: super::document_view::GridExtent,
+    strip: &super::document_view::GridStrip,
     grid_x: f32,
     grid_y: f32,
     grid_cell: f32,
@@ -121,8 +122,8 @@ pub(crate) fn handle_pixel_select_interaction(
         return;
     };
 
-    // Only process if pointer is on this row
-    if hp.y < grid_y || hp.y >= grid_y + grid_cell {
+    // Only process if pointer is on this row, inside the visible grid band.
+    if hp.y < grid_y || hp.y >= grid_y + grid_cell || !strip.accepts_pointer(hp) {
         return;
     }
 

@@ -17,7 +17,7 @@ use crate::document::{DocLine, Document, NamePartsMap, PixelGrid, collect_name_p
 use crate::document_io::{derive_document, parse_doclines};
 use crate::editor::caret::Caret;
 use crate::editor::document_view::{
-    LEFT_PAD, VLineKind, VisualLine, gutter_line_number, show_document,
+    GridStrip, LEFT_PAD, VLineKind, VisualLine, gutter_line_number, show_document,
 };
 use crate::editor::ref_composite::{AlternativesIndex, ResolvedGlyph, resolve_named_glyphs_with_parts};
 use crate::editor::EditorState;
@@ -61,7 +61,17 @@ pub(crate) struct ViewSnapshot {
     pub row_height: f32,
     pub grid_cell: f32,
     pub widget_id: egui::Id,
+    /// The band the grids are drawn in, with the frame's horizontal offset.
+    pub strip: GridStrip,
     pub vlines: Vec<SnapLine>,
+}
+
+impl ViewSnapshot {
+    /// Screen x of column `left` for a grid row of `left..right`.
+    pub fn grid_row_x(&self, left: i16, right: i16) -> f32 {
+        self.strip
+            .grid_x((right - left) as f32 * self.grid_cell)
+    }
 }
 
 fn snapshot_id() -> egui::Id {
@@ -97,6 +107,7 @@ pub(crate) fn capture_snapshot(
     row_height: f32,
     grid_cell: f32,
     widget_id: egui::Id,
+    strip: &GridStrip,
 ) {
     let mut y = origin.y;
     let mut snaps = Vec::with_capacity(vlines.len());
@@ -133,6 +144,7 @@ pub(crate) fn capture_snapshot(
         row_height,
         grid_cell,
         widget_id,
+        strip: strip.clone(),
         vlines: snaps,
     };
     ctx.data_mut(|d| d.insert_temp(snapshot_id(), Arc::new(snapshot)));
@@ -419,6 +431,41 @@ impl EditorHarness {
         self.frame();
     }
 
+    /// Press the primary button at a position and keep it held.
+    pub fn press_at(&mut self, pos: egui::Pos2) {
+        self.time += 1.0;
+        self.frame_with(
+            vec![
+                egui::Event::PointerMoved(pos),
+                egui::Event::PointerButton {
+                    pos,
+                    button: egui::PointerButton::Primary,
+                    pressed: true,
+                    modifiers: egui::Modifiers::NONE,
+                },
+            ],
+            egui::Modifiers::NONE,
+        );
+    }
+
+    /// Move the pointer for one frame without changing button state.
+    pub fn move_pointer(&mut self, pos: egui::Pos2) {
+        self.frame_with(vec![egui::Event::PointerMoved(pos)], egui::Modifiers::NONE);
+    }
+
+    /// Release the primary button at a position.
+    pub fn release_at(&mut self, pos: egui::Pos2) {
+        self.frame_with(
+            vec![egui::Event::PointerButton {
+                pos,
+                button: egui::PointerButton::Primary,
+                pressed: false,
+                modifiers: egui::Modifiers::NONE,
+            }],
+            egui::Modifiers::NONE,
+        );
+    }
+
     /// Right-click at a screen position.
     pub fn right_click_at(&mut self, pos: egui::Pos2) {
         self.time += 1.0;
@@ -505,11 +552,10 @@ impl EditorHarness {
             if vl.doc_line != grid_doc_line {
                 continue;
             }
-            if let SnapKind::GridRow { row: r, left, .. } = &vl.kind
+            if let SnapKind::GridRow { row: r, left, right, .. } = &vl.kind
                 && *r == row
             {
-                let x = snap.origin_x
-                    + LEFT_PAD
+                let x = snap.grid_row_x(*left, *right)
                     + (col - left) as f32 * snap.grid_cell
                     + snap.grid_cell / 2.0;
                 return egui::pos2(x, vl.y + snap.grid_cell / 2.0);

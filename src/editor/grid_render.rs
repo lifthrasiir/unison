@@ -752,6 +752,7 @@ fn draw_simple_grid_lines(
 pub(crate) fn handle_grid_hover_preview(
     ui: &egui::Ui,
     painter: &egui::Painter,
+    strip: &crate::editor::document_view::GridStrip,
     mode: &EditMode,
     item_idx: usize,
     grid_width: u16,
@@ -770,6 +771,7 @@ pub(crate) fn handle_grid_hover_preview(
         && let Some(hp) = ui.input(|i| i.pointer.hover_pos())
         && hp.y >= grid_y
         && hp.y < grid_y + grid_cell
+        && strip.accepts_pointer(hp)
     {
         let rel_x = hp.x - grid_x;
         let gc = (rel_x / grid_cell) as i32 + extent.left as i32;

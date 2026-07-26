@@ -34,6 +34,7 @@ pub(crate) fn handle_pixel_painting(
     grid_width: u16,
     grid_height: u16,
     extent: GridExtent,
+    strip: &super::document_view::GridStrip,
     grid_x: f32,
     grid_y: f32,
     grid_cell: f32,
@@ -63,7 +64,8 @@ pub(crate) fn handle_pixel_painting(
         {
             let rel_x = pp.x - grid_x;
             let gc = (rel_x / grid_cell) as i32 + extent.left as i32;
-            if pp.y >= grid_y
+            if strip.accepts_pointer(pp)
+                && pp.y >= grid_y
                 && pp.y < grid_y + grid_cell
                 && in_own_row
                 && gc >= 0

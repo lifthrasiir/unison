@@ -100,6 +100,10 @@ pub struct EditorState {
     pub(crate) saved_scroll_frac: f32,
     zoom_changed_from: Option<u32>,
     pub(crate) grid_hover: bool,
+    /// Horizontal scroll offset of the glyph grid strip, in pixels. Only
+    /// grids wider than the strip use it, each clamped to its own overflow,
+    /// so narrow grids stay put while a wide one scrolls.
+    pub(crate) grid_scroll_x: f32,
     pub(crate) pixel_selection: Option<pixel_selection::PixelSelection>,
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
@@ -134,6 +138,7 @@ impl EditorState {
             saved_scroll_frac: 0.0,
             zoom_changed_from: None,
             grid_hover: false,
+            grid_scroll_x: 0.0,
             pixel_selection: None,
             view_cache: None,
             pixel_paint_dirty: None,
