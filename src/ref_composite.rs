@@ -846,9 +846,15 @@ pub fn resolve_expansion(
                             .map(|resolved| resolved.declared_anchors.clone())
                     },
                 );
-            let (min_r, min_c, _, _) =
-                composite_bounds(pg.pixels.as_ref(), &effective_refs, &cache, name_parts, pg.scale);
-            let grid = composite_to_grid(&pg.pixels, &effective_refs, &cache, name_parts, pg.scale);
+            let layout = resolve_composite_layout(
+                pg.pixels.as_ref(),
+                &effective_refs,
+                &cache,
+                name_parts,
+                pg.scale,
+            );
+            let (min_r, min_c) = (layout.min_r, layout.min_c);
+            let grid = layout.to_grid(pg.pixels.as_ref(), pg.scale);
             new_entries.push((pg.name.clone(), anchors.clone()));
             cache.insert(
                 pg.name.clone(),
@@ -915,13 +921,6 @@ pub struct CompositeLayer {
     pub negated: bool,
     #[cfg(feature = "editor")]
     pub fill_color: Option<egui::Color32>,
-}
-
-pub fn resolve_ref_name<'a>(
-    name: &str,
-    named_glyphs: &'a HashMap<String, ResolvedGlyph>,
-) -> Option<&'a ResolvedGlyph> {
-    resolve_ref_name_with_parts(name, named_glyphs, &NamePartsMap::new())
 }
 
 pub fn resolve_ref_name_with_parts<'a>(
@@ -1043,17 +1042,39 @@ fn ref_grid_scaled(grid: &PixelGrid, ref_scale: u8, parent_scale: u8) -> PixelGr
     }
 }
 
-/// Bounding box (min_row, min_col, max_row, max_col) of a composite made of
-/// `own_pixels` (if any) plus `refs`, each resolved against `named_glyphs`
-/// via [`resolve_ref_name`] (which falls back to pattern expansion when a
-/// ref name isn't a direct cache key).
-pub(crate) fn composite_bounds(
+/// One ref resolved to its target and raster placement.
+struct ResolvedLayer<'a> {
+    #[cfg_attr(not(any(feature = "editor", test)), expect(dead_code))]
+    ref_idx: usize,
+    gref: &'a GlyphRef,
+    resolved: &'a ResolvedGlyph,
+    raster_row: i32,
+    raster_col: i32,
+}
+
+/// All refs of a composite resolved once, with the resulting bounding box.
+///
+/// This is the single resolution pass shared by the build cache
+/// (`resolve_expansion` → [`CompositeLayout::to_grid`]), the editor's live
+/// composite ([`compute_composite`]) and bounds queries
+/// ([`composite_bounds`]).  They must agree on how every ref resolves —
+/// a historical divergence here made the editor and the flattened font
+/// disagree on pattern refs — so none of them resolves refs on its own.
+struct CompositeLayout<'a> {
+    layers: Vec<ResolvedLayer<'a>>,
+    min_r: i32,
+    min_c: i32,
+    max_r: i32,
+    max_c: i32,
+}
+
+fn resolve_composite_layout<'a>(
     own_pixels: Option<&PixelGrid>,
-    refs: &[GlyphRef],
-    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    refs: &'a [GlyphRef],
+    named_glyphs: &'a HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     parent_scale: u8,
-) -> (i32, i32, i32, i32) {
+) -> CompositeLayout<'a> {
     let mut min_r: i32 = 0;
     let mut min_c: i32 = 0;
     let mut max_r: i32 = 0;
@@ -1065,27 +1086,72 @@ pub(crate) fn composite_bounds(
     }
 
     let ps = parent_scale as i32;
-    for gref in refs {
-        let resolved = if name_parts.is_empty() {
-            resolve_ref_name(&gref.name, named_glyphs)
-        } else {
-            resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts)
+    let mut layers = Vec::new();
+    for (ref_idx, gref) in refs.iter().enumerate() {
+        let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts)
+        else {
+            continue;
         };
-        if let Some(resolved) = resolved {
-            let rs = resolved.scale.max(1) as i32;
-            let (eff_row, eff_col) = ref_effective_offset_scaled(gref, resolved, parent_scale);
-            if resolved.grid.width != 0 && resolved.grid.height != 0 {
-                let scaled_h = resolved.grid.height as i32 * ps / rs;
-                let scaled_w = resolved.grid.width as i32 * ps / rs;
-                min_r = min_r.min(eff_row);
-                min_c = min_c.min(eff_col);
-                max_r = max_r.max(eff_row + scaled_h);
-                max_c = max_c.max(eff_col + scaled_w);
-            }
+        let rs = resolved.scale.max(1) as i32;
+        let (raster_row, raster_col) = ref_effective_offset_scaled(gref, resolved, parent_scale);
+        if resolved.grid.width != 0 && resolved.grid.height != 0 {
+            let scaled_h = resolved.grid.height as i32 * ps / rs;
+            let scaled_w = resolved.grid.width as i32 * ps / rs;
+            min_r = min_r.min(raster_row);
+            min_c = min_c.min(raster_col);
+            max_r = max_r.max(raster_row + scaled_h);
+            max_c = max_c.max(raster_col + scaled_w);
         }
+        layers.push(ResolvedLayer { ref_idx, gref, resolved, raster_row, raster_col });
     }
 
-    (min_r, min_c, max_r, max_c)
+    CompositeLayout { layers, min_r, min_c, max_r, max_c }
+}
+
+impl CompositeLayout<'_> {
+    #[cfg(any(feature = "editor", test))]
+    fn bounds(&self) -> (i32, i32, i32, i32) {
+        (self.min_r, self.min_c, self.max_r, self.max_c)
+    }
+
+    /// Flatten into one grid: own pixels plus each layer blitted at its
+    /// raster placement (negated refs subtract).
+    fn to_grid(&self, own_pixels: Option<&PixelGrid>, parent_scale: u8) -> PixelGrid {
+        let width = raster_dimension(self.min_c, self.max_c);
+        let height = raster_dimension(self.min_r, self.max_r);
+        let mut result = PixelGrid::new(width, height);
+
+        if let Some(grid) = own_pixels {
+            result.blit(grid, -self.min_r, -self.min_c, false);
+        }
+
+        for layer in &self.layers {
+            let scaled = ref_grid_scaled(&layer.resolved.grid, layer.resolved.scale, parent_scale);
+            result.blit(
+                &scaled,
+                layer.raster_row - self.min_r,
+                layer.raster_col - self.min_c,
+                layer.gref.negated,
+            );
+        }
+
+        result
+    }
+}
+
+/// Bounding box (min_row, min_col, max_row, max_col) of a composite made of
+/// `own_pixels` (if any) plus `refs`, each resolved against `named_glyphs`
+/// via [`resolve_ref_name_with_parts`] (which falls back to pattern expansion
+/// when a ref name isn't a direct cache key).
+#[cfg(any(feature = "editor", test))]
+pub(crate) fn composite_bounds(
+    own_pixels: Option<&PixelGrid>,
+    refs: &[GlyphRef],
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    parent_scale: u8,
+) -> (i32, i32, i32, i32) {
+    resolve_composite_layout(own_pixels, refs, named_glyphs, name_parts, parent_scale).bounds()
 }
 
 #[cfg(feature = "editor")]
@@ -1130,43 +1196,41 @@ pub fn compute_composite(
         },
     );
 
-    let (min_r, min_c, max_r, max_c) = composite_bounds(
+    let layout = resolve_composite_layout(
         body.pixels.as_ref(),
         &effective_refs,
         named_glyphs,
         name_parts,
         body.scale,
     );
+    let (min_r, min_c, max_r, max_c) = layout.bounds();
 
     let width = raster_dimension(min_c, max_c).max(1);
     let height = raster_dimension(min_r, max_r).max(1);
 
     let mut layers = Vec::new();
-    for (idx, gref) in effective_refs.iter().enumerate() {
-        if let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
-            let (raster_row, raster_col) = ref_effective_offset_scaled(gref, resolved, body.scale);
-            let scaled_grid = ref_grid_scaled(&resolved.grid, resolved.scale, body.scale);
-            let orig_ref = &body.refs[idx.min(body.refs.len() - 1)];
-            #[cfg(feature = "editor")]
-            let fill_color = orig_ref.fill.as_ref().and_then(|f| resolve_fill_display_color(f, color_aliases));
-            #[cfg(not(feature = "editor"))]
-            {
-                let _ = color_aliases;
-                let _ = &orig_ref.fill;
-            }
-            layers.push(CompositeLayer {
-                ref_idx: idx,
-                resolved_name: gref.name.clone(),
-                grid: scaled_grid,
-                offset_row: saturating_i16(raster_row - min_r),
-                offset_col: saturating_i16(raster_col - min_c),
-                logical_offset_row: gref.row(),
-                logical_offset_col: gref.col(),
-                negated: gref.negated,
-                #[cfg(feature = "editor")]
-                fill_color,
-            });
+    for layer in &layout.layers {
+        let scaled_grid = ref_grid_scaled(&layer.resolved.grid, layer.resolved.scale, body.scale);
+        let orig_ref = &body.refs[layer.ref_idx.min(body.refs.len() - 1)];
+        #[cfg(feature = "editor")]
+        let fill_color = orig_ref.fill.as_ref().and_then(|f| resolve_fill_display_color(f, color_aliases));
+        #[cfg(not(feature = "editor"))]
+        {
+            let _ = color_aliases;
+            let _ = &orig_ref.fill;
         }
+        layers.push(CompositeLayer {
+            ref_idx: layer.ref_idx,
+            resolved_name: layer.gref.name.clone(),
+            grid: scaled_grid,
+            offset_row: saturating_i16(layer.raster_row - min_r),
+            offset_col: saturating_i16(layer.raster_col - min_c),
+            logical_offset_row: layer.gref.row(),
+            logical_offset_col: layer.gref.col(),
+            negated: layer.gref.negated,
+            #[cfg(feature = "editor")]
+            fill_color,
+        });
     }
 
     Some(GlyphComposite {
@@ -1178,6 +1242,7 @@ pub fn compute_composite(
     })
 }
 
+#[cfg(test)]
 fn composite_to_grid(
     own_pixels: &Option<PixelGrid>,
     refs: &[GlyphRef],
@@ -1185,26 +1250,8 @@ fn composite_to_grid(
     name_parts: &NamePartsMap,
     parent_scale: u8,
 ) -> PixelGrid {
-    let (min_r, min_c, max_r, max_c) =
-        composite_bounds(own_pixels.as_ref(), refs, named_glyphs, name_parts, parent_scale);
-
-    let width = raster_dimension(min_c, max_c);
-    let height = raster_dimension(min_r, max_r);
-    let mut result = PixelGrid::new(width, height);
-
-    if let Some(grid) = own_pixels {
-        result.blit(grid, -min_r, -min_c, false);
-    }
-
-    for gref in refs {
-        if let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
-            let (eff_row, eff_col) = ref_effective_offset_scaled(gref, resolved, parent_scale);
-            let scaled = ref_grid_scaled(&resolved.grid, resolved.scale, parent_scale);
-            result.blit(&scaled, eff_row - min_r, eff_col - min_c, gref.negated);
-        }
-    }
-
-    result
+    resolve_composite_layout(own_pixels.as_ref(), refs, named_glyphs, name_parts, parent_scale)
+        .to_grid(own_pixels.as_ref(), parent_scale)
 }
 
 #[cfg(test)]
@@ -1222,14 +1269,14 @@ mod tests {
         g
     }
 
-    /// `compute_composite` resolves ref names via `resolve_ref_name`, which
-    /// falls back to `parse_ref_pattern` when a direct cache lookup misses
-    /// (e.g. a ref pointing at a pattern name like "digit(0|1)" whose
-    /// expansions, not the raw pattern string, are the cache keys).
-    /// `composite_to_grid` used to do a bare `cache.get(&gref.name)` with no
-    /// such fallback, so the same ref would render live via
-    /// `compute_composite` but silently drop out of the flattened grid
-    /// produced by `composite_to_grid`.
+    /// Ref names resolve via `resolve_ref_name_with_parts`, which falls back
+    /// to `parse_ref_pattern` when a direct cache lookup misses (e.g. a ref
+    /// pointing at a pattern name like "digit(0|1)" whose expansions, not
+    /// the raw pattern string, are the cache keys). `composite_to_grid` used
+    /// to do a bare `cache.get(&gref.name)` with no such fallback, so the
+    /// same ref would render live via `compute_composite` but silently drop
+    /// out of the flattened grid. Both now share `resolve_composite_layout`,
+    /// which this test pins down.
     #[test]
     fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
         let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
@@ -1253,7 +1300,7 @@ mod tests {
             visibility: None,
         }];
 
-        // compute_composite resolves the pattern ref via resolve_ref_name's
+        // compute_composite resolves the pattern ref via the shared layout's
         // fallback and includes the layer.
         let body = GlyphBody {
             refs: refs.clone(),
