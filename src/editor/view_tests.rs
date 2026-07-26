@@ -36,7 +36,7 @@ fn assert_view_consistent(h: &EditorHarness) {
         prev_doc_line = vl.doc_line;
         covered[vl.doc_line] = true;
         match (&vl.kind, &h.lines[vl.doc_line]) {
-            (SnapKind::Text { text, col_offset }, DocLine::Text(s)) => {
+            (SnapKind::Text { text, col_offset, .. }, DocLine::Text(s)) => {
                 let seg: String = s.chars().skip(*col_offset).take(text.chars().count()).collect();
                 assert_eq!(
                     text, &seg,
@@ -1425,4 +1425,59 @@ fn scrollbar_only_shows_for_the_glyph_being_edited() {
     h.key(Key::Escape);
     assert!(matches!(h.state.mode, EditMode::Normal));
     assert!(h.snap().strip.bars.is_empty());
+}
+
+/// `map` spells out the codepoint of a literally written character as a
+/// dimmed inline annotation. It is display-only: the document line is
+/// untouched, and the caret treats the character plus its annotation as one.
+#[test]
+fn map_literal_char_renders_codepoint_annotation() {
+    let mut h = EditorHarness::new("map 가 = hangul-ga\nglyph hangul-ga 2 2\n....\n....\n");
+    assert_view_consistent(&h);
+
+    let vl = &h.snap().vlines[0];
+    match &vl.kind {
+        SnapKind::Text { text, display, .. } => {
+            assert_eq!(text, "map 가 = hangul-ga", "the document line is unchanged");
+            assert_eq!(display, "map 가 U+AC00 = hangul-ga");
+        }
+        other => panic!("expected a text visual line, got {other:?}"),
+    }
+
+    // Clicking on either side of the annotated character lands on the
+    // document column, not inside the annotation.
+    h.click_text(0, 4);
+    assert_eq!(h.state.cursor, Caret::new(0, 4));
+    h.click_text(0, 5);
+    assert_eq!(h.state.cursor, Caret::new(0, 5));
+
+    // Nothing in the span the annotation occupies resolves to a column
+    // between the two: the pair is a single caret step.
+    let x0 = h.text_pos(0, 4);
+    let x1 = h.text_pos(0, 5);
+    let steps = 12;
+    for i in 1..steps {
+        let t = i as f32 / steps as f32;
+        h.click_at(egui::pos2(x0.x + (x1.x - x0.x) * t, x0.y));
+        let col = h.state.cursor.col;
+        assert!(
+            col == 4 || col == 5,
+            "caret landed inside the annotation at col {col}"
+        );
+    }
+
+    // Typing still edits the document, annotation and all.
+    h.click_text(0, 5);
+    h.key(Key::ArrowRight);
+    assert_eq!(h.state.cursor, Caret::new(0, 6));
+}
+
+/// A `map` already written as `U+XXXX` needs no annotation.
+#[test]
+fn map_explicit_codepoint_is_not_annotated() {
+    let h = EditorHarness::new("map U+AC00 = hangul-ga\nglyph hangul-ga 2 2\n....\n....\n");
+    match &h.snap().vlines[0].kind {
+        SnapKind::Text { text, display, .. } => assert_eq!(display, text),
+        other => panic!("expected a text visual line, got {other:?}"),
+    }
 }

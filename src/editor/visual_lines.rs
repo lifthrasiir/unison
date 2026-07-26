@@ -4,6 +4,7 @@ use crate::document::{
     DocLine, Document, DocumentItem, GlyphBody, GlyphRef, NamePartsMap, expand_name_pattern,
     is_name_pattern,
 };
+use crate::editor::annotations::{self, InlineAnnotation};
 use crate::editor::colors::Palette;
 use crate::editor::doc_links;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
@@ -54,6 +55,7 @@ pub(crate) fn min_grid_rows_for_panel(zoom_level: u32, max_preview_h: u16) -> i1
 
 fn compute_wrap_segments(
     text: &str,
+    annotations: &[InlineAnnotation],
     wrap_width: Option<f32>,
     ctx: &egui::Context,
     font_id: &egui::FontId,
@@ -63,12 +65,41 @@ fn compute_wrap_segments(
         _ => return vec![(text.to_string(), 0)],
     };
 
-    let total_w = ctx.fonts(|f| {
-        f.layout_no_wrap(text.to_string(), font_id.clone(), egui::Color32::WHITE)
-            .rect
-            .width()
-    });
-    if total_w <= max_w {
+    // Widths are measured on the *rendered* line, annotations included, so a
+    // line only wraps where it visually overflows.
+    let width = |from: usize, to: usize| -> f32 {
+        let mut s = String::new();
+        let mut ai = 0usize;
+        for (i, c) in text.chars().enumerate() {
+            if i >= to {
+                break;
+            }
+            if i >= from {
+                s.push(c);
+            }
+            while let Some(a) = annotations.get(ai) {
+                if a.col <= i + 1 {
+                    if i >= from {
+                        s.push_str(&a.text);
+                    }
+                    ai += 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        if s.is_empty() {
+            return 0.0;
+        }
+        ctx.fonts(|f| {
+            f.layout_no_wrap(s, font_id.clone(), egui::Color32::WHITE)
+                .rect
+                .width()
+        })
+    };
+
+    let char_count = text.chars().count();
+    if width(0, char_count) <= max_w {
         return vec![(text.to_string(), 0)];
     }
 
@@ -77,14 +108,8 @@ fn compute_wrap_segments(
     let mut start = 0;
 
     while start < chars.len() {
-        let remaining: String = chars[start..].iter().collect();
-        let rem_w = ctx.fonts(|f| {
-            f.layout_no_wrap(remaining.clone(), font_id.clone(), egui::Color32::WHITE)
-                .rect
-                .width()
-        });
-        if rem_w <= max_w {
-            result.push((remaining, start));
+        if width(start, chars.len()) <= max_w {
+            result.push((chars[start..].iter().collect(), start));
             break;
         }
 
@@ -92,13 +117,7 @@ fn compute_wrap_segments(
         let mut hi = chars.len() - start;
         while lo < hi {
             let mid = (lo + hi).div_ceil(2);
-            let prefix: String = chars[start..start + mid].iter().collect();
-            let w = ctx.fonts(|f| {
-                f.layout_no_wrap(prefix, font_id.clone(), egui::Color32::WHITE)
-                    .rect
-                    .width()
-            });
-            if w <= max_w {
+            if width(start, start + mid) <= max_w {
                 lo = mid;
             } else {
                 hi = mid - 1;
@@ -115,6 +134,25 @@ fn compute_wrap_segments(
     result
 }
 
+/// The annotations falling in the wrapped segment `col_offset..col_offset +
+/// seg_len`, rebased onto it. An annotation trails the character at `col - 1`,
+/// so it stays on the segment holding that character and never straddles a
+/// soft wrap.
+fn segment_annotations(
+    annotations: &[InlineAnnotation],
+    col_offset: usize,
+    seg_len: usize,
+) -> Vec<InlineAnnotation> {
+    annotations
+        .iter()
+        .filter(|a| a.col > col_offset && a.col <= col_offset + seg_len)
+        .map(|a| InlineAnnotation {
+            col: a.col - col_offset,
+            text: a.text.clone(),
+        })
+        .collect()
+}
+
 #[allow(clippy::too_many_arguments)]
 fn push_wrapped_text_vlines(
     vlines: &mut Vec<VisualLine>,
@@ -126,9 +164,11 @@ fn push_wrapped_text_vlines(
     ctx: &egui::Context,
     font_id: &egui::FontId,
 ) {
-    let segments = compute_wrap_segments(text, wrap_width, ctx, font_id);
+    let annotations = annotations::line_annotations(text);
+    let segments = compute_wrap_segments(text, &annotations, wrap_width, ctx, font_id);
     for (seg_text, col_offset) in segments {
         let seg_len = seg_text.chars().count();
+        let seg_annotations = segment_annotations(&annotations, col_offset, seg_len);
         let seg_errors: Vec<(usize, usize, String)> = error_spans
             .iter()
             .filter_map(|(s, e, msg)| {
@@ -147,6 +187,7 @@ fn push_wrapped_text_vlines(
             color,
             error_spans: seg_errors,
             col_offset,
+            annotations: seg_annotations,
         });
     }
 }
@@ -185,6 +226,7 @@ fn push_grid_vlines(
             color: default_color,
             error_spans: Vec::new(),
             col_offset: 0,
+            annotations: Vec::new(),
         });
     }
 }
@@ -492,4 +534,93 @@ pub(crate) fn build_visual_lines(
     }
 
     vlines
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::editor::annotations::AnnotatedText;
+
+    fn test_ctx() -> egui::Context {
+        let ctx = egui::Context::default();
+        // Run a frame so the font atlas exists before we measure with it.
+        let _ = ctx.run(egui::RawInput::default(), |_| {});
+        ctx
+    }
+
+    fn width(ctx: &egui::Context, font_id: &egui::FontId, s: &str) -> f32 {
+        if s.is_empty() {
+            return 0.0;
+        }
+        ctx.fonts(|f| {
+            f.layout_no_wrap(s.to_string(), font_id.clone(), egui::Color32::WHITE)
+                .rect
+                .width()
+        })
+    }
+
+    /// Soft wrapping measures the *rendered* line, so an annotation never
+    /// splits across a wrap and never pushes a segment past the wrap width:
+    /// the line breaks before the annotated character instead.
+    #[test]
+    fn annotations_wrap_atomically_with_their_character() {
+        let ctx = test_ctx();
+        let font_id = egui::FontId::monospace(16.0);
+        let text = "map 가 = hangul-syllable-ga-with-a-long-name";
+        let annotations = annotations::line_annotations(text);
+        assert_eq!(annotations.len(), 1);
+
+        for w in (30..500).step_by(11) {
+            let max_w = w as f32;
+            let segments = compute_wrap_segments(text, &annotations, Some(max_w), &ctx, &font_id);
+
+            // Segments still partition the document line in order.
+            let joined: String = segments.iter().map(|(s, _)| s.as_str()).collect();
+            assert_eq!(joined, text, "segments must reassemble the line (w={w})");
+            let mut expected_offset = 0usize;
+            for (seg, off) in &segments {
+                assert_eq!(*off, expected_offset, "segment offsets must be contiguous");
+                expected_offset += seg.chars().count();
+            }
+
+            // No segment overflows, and the annotation is never cut in half.
+            let mut seen_annotation = 0usize;
+            for (seg, off) in &segments {
+                let seg_len = seg.chars().count();
+                let seg_annotations = segment_annotations(&annotations, *off, seg_len);
+                seen_annotation += seg_annotations.len();
+                for a in &seg_annotations {
+                    assert!(a.col >= 1 && a.col <= seg_len);
+                }
+                let display = AnnotatedText::new(seg, &seg_annotations).display_string();
+                assert!(
+                    width(&ctx, &font_id, &display) <= max_w || seg_len <= 1,
+                    "rendered segment {display:?} overflows wrap width {max_w}"
+                );
+            }
+            assert_eq!(
+                seen_annotation, 1,
+                "the annotation must land on exactly one segment (w={w})"
+            );
+        }
+    }
+
+    /// The unannotated line wraps exactly as before the annotation feature.
+    #[test]
+    fn lines_without_annotations_wrap_unchanged() {
+        let ctx = test_ctx();
+        let font_id = egui::FontId::monospace(16.0);
+        let text = "glyph hangul-syllable-ga 16 16 advance 16 left 0";
+        for w in (30..500).step_by(11) {
+            let segments = compute_wrap_segments(text, &[], Some(w as f32), &ctx, &font_id);
+            let joined: String = segments.iter().map(|(s, _)| s.as_str()).collect();
+            assert_eq!(joined, text);
+            for (seg, _) in &segments {
+                assert!(
+                    width(&ctx, &font_id, seg) <= w as f32 || seg.chars().count() <= 1,
+                    "segment {seg:?} overflows wrap width {w}"
+                );
+            }
+        }
+    }
 }

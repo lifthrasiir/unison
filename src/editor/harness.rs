@@ -15,6 +15,7 @@ use std::sync::Arc;
 
 use crate::document::{DocLine, Document, NamePartsMap, PixelGrid, collect_name_parts};
 use crate::document_io::{derive_document, parse_doclines};
+use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::Caret;
 use crate::editor::document_view::{
     GridStrip, LEFT_PAD, VLineKind, VisualLine, gutter_line_number, show_document,
@@ -31,6 +32,9 @@ pub(crate) enum SnapKind {
     Text {
         text: String,
         col_offset: usize,
+        /// The line as rendered, inline annotations spliced in.
+        display: String,
+        annotations: Vec<InlineAnnotation>,
     },
     GridRow {
         #[allow(dead_code)]
@@ -117,6 +121,10 @@ pub(crate) fn capture_snapshot(
             VLineKind::Text(t) => SnapKind::Text {
                 text: t.clone(),
                 col_offset: vl.col_offset,
+                display: vl
+                    .annotated_text()
+                    .map_or_else(|| t.clone(), |a| a.display_string()),
+                annotations: vl.annotations.clone(),
             },
             VLineKind::GridRow {
                 item_idx,
@@ -501,11 +509,13 @@ impl EditorHarness {
             .expect("no frame has been rendered yet")
     }
 
-    fn char_x(&self, text: &str, col: usize) -> f32 {
+    /// x offset of document column `col`, inline annotations included, so
+    /// clicking lands where the editor actually draws that column.
+    fn char_x(&self, text: &str, annotations: &[InlineAnnotation], col: usize) -> f32 {
         if col == 0 || text.is_empty() {
             return 0.0;
         }
-        let prefix: String = text.chars().take(col).collect();
+        let prefix = AnnotatedText::new(text, annotations).display_prefix(col);
         let font_id = self.font_id.clone();
         self.ctx.fonts(|f| {
             f.layout_no_wrap(prefix, font_id, egui::Color32::WHITE)
@@ -522,10 +532,19 @@ impl EditorHarness {
             if vl.doc_line != line {
                 continue;
             }
-            if let SnapKind::Text { text, col_offset } = &vl.kind {
+            if let SnapKind::Text {
+                text,
+                col_offset,
+                annotations,
+                ..
+            } = &vl.kind
+            {
                 let len = text.chars().count();
                 if col >= *col_offset && col <= col_offset + len {
-                    let x = snap.origin_x + LEFT_PAD + self.char_x(text, col - col_offset) + 1.0;
+                    let x = snap.origin_x
+                        + LEFT_PAD
+                        + self.char_x(text, annotations, col - col_offset)
+                        + 1.0;
                     return egui::pos2(x, vl.y + vl.height * 0.5);
                 }
             }

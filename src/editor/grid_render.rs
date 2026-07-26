@@ -893,32 +893,5 @@ pub(crate) fn render_pixel_selection_overlay(
     }
 }
 
-pub(crate) fn char_x_pos(
-    ui: &egui::Ui,
-    font_id: &egui::FontId,
-    text: &str,
-    char_col: usize,
-) -> f32 {
-    if char_col == 0 || text.is_empty() {
-        return 0.0;
-    }
-    let prefix: String = text.chars().take(char_col).collect();
-    ui.fonts(|f| {
-        let galley = f.layout_no_wrap(prefix, font_id.clone(), egui::Color32::WHITE);
-        galley.rect.width()
-    })
-}
-
-pub(crate) fn x_to_char_col(ui: &egui::Ui, font_id: &egui::FontId, text: &str, x: f32) -> usize {
-    if text.is_empty() || x <= 0.0 {
-        return 0;
-    }
-    let char_count = text.chars().count();
-    for col in 0..=char_count {
-        let cx = char_x_pos(ui, font_id, text, col);
-        if cx > x {
-            return if col > 0 { col - 1 } else { 0 };
-        }
-    }
-    char_count
-}
+// Text column<->x geometry lives in `annotations::AnnotatedText`, which
+// also accounts for inline annotations.

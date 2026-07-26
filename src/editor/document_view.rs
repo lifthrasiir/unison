@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::document::{DocLine, Document, DocumentItem, GlyphPoint, NamePartsMap, PixelGrid};
 use crate::document_io::{self, tokenize_with_spans};
+use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::{self, Caret};
 use crate::render::ttf_builder::ColorAliasMap;
 use crate::editor::doc_input;
@@ -278,6 +279,21 @@ pub(crate) struct VisualLine {
     pub(crate) color: egui::Color32,
     pub(crate) error_spans: Vec<(usize, usize, String)>,
     pub(crate) col_offset: usize,
+    /// Display-only text spliced into this line, at columns relative to the
+    /// segment (i.e. already shifted by `col_offset`). Empty for grid rows.
+    pub(crate) annotations: Vec<InlineAnnotation>,
+}
+
+impl VisualLine {
+    /// The line's text paired with its annotations, for measuring and painting.
+    /// Returns `None` for grid rows.
+    #[cfg(test)]
+    pub(crate) fn annotated_text(&self) -> Option<AnnotatedText<'_>> {
+        match &self.kind {
+            VLineKind::Text(text) => Some(AnnotatedText::new(text, &self.annotations)),
+            VLineKind::GridRow { .. } => None,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -942,17 +958,18 @@ pub fn show_document(
 
             match &vl.kind {
                 VLineKind::Text(text) => {
-                    painter.text(
+                    let atext = AnnotatedText::new(text, &vl.annotations);
+                    atext.paint(
+                        &painter,
+                        ui,
+                        &font_id,
                         egui::pos2(origin.x + LEFT_PAD, origin.y + y),
-                        egui::Align2::LEFT_TOP,
-                        text,
-                        font_id.clone(),
                         vl.color,
                     );
 
                     // Color background for color tokens in color/ref-fill lines
                     paint_color_backgrounds(
-                        &painter, ui, &font_id, text, vl.col_offset,
+                        &painter, ui, &font_id, &atext, vl.col_offset,
                         origin.x + LEFT_PAD, origin.y + y, h, color_aliases,
                     );
 
@@ -961,8 +978,8 @@ pub fn show_document(
                         for (col_start, col_end, _msg) in &vl.error_spans {
                             let col_start = *col_start;
                             let col_end = *col_end;
-                            let x0 = grid_render::char_x_pos(ui, &font_id, text, col_start);
-                            let x1 = grid_render::char_x_pos(ui, &font_id, text, col_end);
+                            let x0 = atext.x_pos(ui, &font_id, col_start);
+                            let x1 = atext.x_pos(ui, &font_id, col_end);
                             let name_text: String = text
                                 .chars()
                                 .skip(col_start)
@@ -1008,9 +1025,9 @@ pub fn show_document(
                                     let adj_end =
                                         link.col_end.saturating_sub(vl.col_offset);
                                     let lx0 =
-                                        origin.x + LEFT_PAD + grid_render::char_x_pos(ui, &font_id, text, adj_start);
+                                        origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, adj_start);
                                     let lx1 =
-                                        origin.x + LEFT_PAD + grid_render::char_x_pos(ui, &font_id, text, adj_end);
+                                        origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, adj_end);
                                     if hp.x >= lx0 && hp.x < lx1 {
                                         let span_len = link.col_end - link.col_start;
                                         if best.is_none_or(|b| {
@@ -1030,10 +1047,10 @@ pub fn show_document(
                                     link.col_end.saturating_sub(vl.col_offset);
                                 let lx0 = origin.x
                                     + LEFT_PAD
-                                    + grid_render::char_x_pos(ui, &font_id, text, adj_start);
+                                    + atext.x_pos(ui, &font_id, adj_start);
                                 let lx1 = origin.x
                                     + LEFT_PAD
-                                    + grid_render::char_x_pos(ui, &font_id, text, adj_end);
+                                    + atext.x_pos(ui, &font_id, adj_end);
                                 let link_text: String = text
                                     .chars()
                                     .skip(adj_start)
@@ -1070,7 +1087,7 @@ pub fn show_document(
                     if let Some(cp) = click_pos
                         && cp.y >= origin.y + y && cp.y < origin.y + y + h {
                             let rel_x = (cp.x - origin.x - LEFT_PAD).max(0.0);
-                            let col = vl.col_offset + grid_render::x_to_char_col(ui, &font_id, text, rel_x);
+                            let col = vl.col_offset + atext.x_to_col(ui, &font_id, rel_x);
                             click_result = Some(ClickTarget::Text(Caret::new(vl.doc_line, col)));
                         }
 
@@ -1083,7 +1100,7 @@ pub fn show_document(
                     {
                         let local_col = state.cursor.col - vl.col_offset;
                         let cx =
-                            origin.x + LEFT_PAD + grid_render::char_x_pos(ui, &font_id, text, local_col);
+                            origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, local_col);
                         let cy = origin.y + y;
 
                         if has_focus {
@@ -1130,7 +1147,7 @@ pub fn show_document(
                         for (s, e, msg) in &vl.error_spans {
                             if local_col >= *s && local_col < *e {
                                 let span_x = origin.x + LEFT_PAD
-                                    + grid_render::char_x_pos(ui, &font_id, text, *s);
+                                    + atext.x_pos(ui, &font_id, *s);
                                 error_tooltip = Some((
                                     egui::pos2(span_x, cy + h + 2.0),
                                     msg.clone(),
@@ -2272,8 +2289,9 @@ fn draw_selection(
             if col_lo >= col_hi {
                 return;
             }
-            let x0 = grid_render::char_x_pos(ui, font_id, text, col_lo);
-            let x1 = grid_render::char_x_pos(ui, font_id, text, col_hi);
+            let atext = AnnotatedText::new(text, &vl.annotations);
+            let x0 = atext.x_pos(ui, font_id, col_lo);
+            let x1 = atext.x_pos(ui, font_id, col_hi);
             painter.rect_filled(
                 egui::Rect::from_min_max(
                     egui::pos2(origin.x + LEFT_PAD + x0, origin.y + y),
@@ -2776,13 +2794,14 @@ fn paint_color_backgrounds(
     painter: &egui::Painter,
     ui: &egui::Ui,
     font_id: &egui::FontId,
-    text: &str,
+    atext: &AnnotatedText<'_>,
     col_offset: usize,
     base_x: f32,
     base_y: f32,
     row_h: f32,
     aliases: &ColorAliasMap,
 ) {
+    let text = atext.text();
     let trimmed = text.trim_start();
     let leading = text.chars().count() - trimmed.chars().count();
     let spans = match tokenize_with_spans(trimmed) {
@@ -2824,8 +2843,8 @@ fn paint_color_backgrounds(
     for (col_start, col_end, bg_color) in &color_spans {
         let adj_start = col_start.saturating_sub(col_offset);
         let adj_end = col_end.saturating_sub(col_offset);
-        let x0 = base_x + grid_render::char_x_pos(ui, font_id, text, adj_start);
-        let x1 = base_x + grid_render::char_x_pos(ui, font_id, text, adj_end);
+        let x0 = base_x + atext.x_pos(ui, font_id, adj_start);
+        let x1 = base_x + atext.x_pos(ui, font_id, adj_end);
         let rect = egui::Rect::from_min_size(
             egui::pos2(x0, base_y),
             egui::vec2(x1 - x0, row_h),

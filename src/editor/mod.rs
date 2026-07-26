@@ -1,3 +1,4 @@
+pub mod annotations;
 pub mod autocomplete;
 pub mod caret;
 pub mod colors;
