@@ -39,7 +39,7 @@ use write_fonts::types::{Fixed, GlyphId, GlyphId16, NameId, Tag};
 use crate::document::*;
 use crate::document_io;
 use crate::issues::Severity;
-use crate::resolve::{Diagnostic, ItemRef};
+use crate::resolve::{Diagnostic, FontMeta, ItemRef};
 use crate::pixel::{PX_ALMOSTFULL, PX_SUBPIXEL, PixelShape};
 use crate::render::contour::{track_contour, track_contour_multi, track_contour_multi_diff};
 
@@ -117,23 +117,6 @@ fn cached_track_contour(
     let contours = track_contour(grid, PX_SUBPIXEL);
     cache.entries.insert(key, CacheEntry { value: contours.clone(), gen_id: cur_gen });
     contours
-}
-
-#[derive(Clone, Copy)]
-struct FontMeta {
-    height: u16,
-    ascent: u16,
-    descent: u16,
-}
-
-impl Default for FontMeta {
-    fn default() -> Self {
-        Self {
-            height: 16,
-            ascent: 14,
-            descent: 2,
-        }
-    }
 }
 
 struct CompositeRef {
@@ -319,22 +302,22 @@ pub fn build_font_pair_cached(
         name_to_gid.entry(g.name.clone()).or_insert((i + 1) as u16);
     }
 
-    let b_scale = UNITS_PER_EM as f32 / b_meta.height as f32;
-    let b_ascender = (b_meta.ascent as f32 * b_scale).round() as i16;
-    let b_descender = -((b_meta.descent as f32 * b_scale).round() as i16);
+    let b_scale = UNITS_PER_EM as f32 / b_meta.height() as f32;
+    let b_ascender = (b_meta.ascent() as f32 * b_scale).round() as i16;
+    let b_descender = -((b_meta.descent() as f32 * b_scale).round() as i16);
 
-    let v_ascender = (v_meta.ascent as f32 * v_scale).round() as i16;
-    let v_descender = -((v_meta.descent as f32 * v_scale).round() as i16);
+    let v_ascender = (v_meta.ascent() as f32 * v_scale).round() as i16;
+    let v_descender = -((v_meta.descent() as f32 * v_scale).round() as i16);
 
-    let v_hint_ppem = if UNITS_PER_EM.is_multiple_of(v_meta.height) {
-        v_meta.height
+    let v_hint_ppem = if UNITS_PER_EM.is_multiple_of(v_meta.height()) {
+        v_meta.height()
     } else {
         0
     };
 
     let (bitmap, vector) = std::thread::scope(|s| {
-        let bh = s.spawn(|| build_ttf(b_ascender, b_descender, &b_glyphs, 0, &b_gsub, &b_palette, b_scale, b_meta.ascent));
-        let vector = build_ttf(v_ascender, v_descender, &v_glyphs, v_hint_ppem, &v_gsub, &v_palette, v_scale, v_meta.ascent);
+        let bh = s.spawn(|| build_ttf(b_ascender, b_descender, &b_glyphs, 0, &b_gsub, &b_palette, b_scale, b_meta.ascent()));
+        let vector = build_ttf(v_ascender, v_descender, &v_glyphs, v_hint_ppem, &v_gsub, &v_palette, v_scale, v_meta.ascent());
         let bitmap = bh.join().unwrap();
         (bitmap, vector)
     });
@@ -354,9 +337,9 @@ pub struct FontWithGidMap {
 /// and the pixel em-height.
 pub fn build_font_with_gid_map(docs: &[&Document]) -> Option<FontWithGidMap> {
     let (meta, scale, glyph_data, gsub_data, palette) = collect_glyph_data_cached(docs, false, None)?;
-    let ascender = (meta.ascent as f32 * scale).round() as i16;
-    let descender = -((meta.descent as f32 * scale).round() as i16);
-    let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height) { meta.height } else { 0 };
+    let ascender = (meta.ascent() as f32 * scale).round() as i16;
+    let descender = -((meta.descent() as f32 * scale).round() as i16);
+    let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) { meta.height() } else { 0 };
 
     let mut gid_to_name: HashMap<u16, String> = HashMap::new();
     let mut seen = std::collections::HashSet::new();
@@ -366,22 +349,22 @@ pub fn build_font_with_gid_map(docs: &[&Document]) -> Option<FontWithGidMap> {
         }
     }
 
-    let ttf = build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent);
-    Some(FontWithGidMap { ttf, gid_to_name, height: meta.height })
+    let ttf = build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent());
+    Some(FontWithGidMap { ttf, gid_to_name, height: meta.height() })
 }
 
 fn build_font_from_documents_inner(docs: &[&Document], bitmap: bool, contour_cache: Option<&mut ContourCache>) -> Option<Vec<u8>> {
     let (meta, scale, glyph_data, gsub_data, palette) = collect_glyph_data_cached(docs, bitmap, contour_cache)?;
 
-    let ascender = (meta.ascent as f32 * scale).round() as i16;
-    let descender = -((meta.descent as f32 * scale).round() as i16);
+    let ascender = (meta.ascent() as f32 * scale).round() as i16;
+    let descender = -((meta.descent() as f32 * scale).round() as i16);
 
-    let hint_ppem = if !bitmap && UNITS_PER_EM.is_multiple_of(meta.height) {
-        meta.height
+    let hint_ppem = if !bitmap && UNITS_PER_EM.is_multiple_of(meta.height()) {
+        meta.height()
     } else {
         0
     };
-    Some(build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent))
+    Some(build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent()))
 }
 
 /// Resolve all documents' glyph items (expanding name patterns, following
@@ -845,20 +828,14 @@ fn inject_on_demand_glyph_items(
                     consider(&r.name, e.origin, RefKind::Ref);
                 }
             }
-            DocumentItem::Remap {
-                lookbehind,
-                source,
-                target,
-                lookahead,
-                ..
-            } => {
-                for token in source.iter().chain(target).chain(lookbehind).chain(lookahead) {
+            DocumentItem::Remap { .. } => {
+                for token in e.item.remap_operands() {
                     // Remap operands keep their name-part patterns until the
                     // GSUB builder expands them, so checking the written name
-                    // says nothing. Expanding with the builder's own function
-                    // is what keeps the two from drifting apart: rules whose
-                    // glyphs have no id are dropped there without a word.
-                    for name in expand_remap_element(token, name_parts) {
+                    // says nothing. Expanding with the same helper the builder
+                    // uses is what keeps the two from drifting apart: rules
+                    // whose glyphs have no id are dropped there without a word.
+                    for name in expand_name_element(token, name_parts) {
                         consider(&name, e.origin, RefKind::Remap);
                     }
                 }
@@ -1037,21 +1014,14 @@ fn compute_shared_font_input(docs: &[&Document]) -> Option<SharedFontInput> {
         return None;
     }
 
-    let mut meta = FontMeta::default();
-    for doc in docs {
-        for item in &doc.items {
-            if let DocumentItem::FontMeta(s) = item {
-                parse_font_meta(s, &mut meta);
-            }
-        }
-    }
+    let meta = FontMeta::collect(docs);
 
-    if meta.height == 0 {
+    if meta.height() == 0 {
         eprintln!("error: font-meta height must be > 0");
         return None;
     }
 
-    let scale = UNITS_PER_EM as f32 / meta.height as f32;
+    let scale = UNITS_PER_EM as f32 / meta.height() as f32;
 
     let name_parts = collect_name_parts(docs);
     let all_items = collect_expanded_items(docs, &name_parts);
@@ -1230,7 +1200,7 @@ fn collect_glyph_data_with_shared(
             let (advance_width, left_offset, top_offset) =
                 resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
             let font_contours =
-                scale_glyph_contours(&resolved.contours, glyph_scale, meta.ascent * resolved.scale as u16, left_offset, top_offset);
+                scale_glyph_contours(&resolved.contours, glyph_scale, meta.ascent() * resolved.scale as u16, left_offset, top_offset);
             let composite_refs = build_composite_refs(
                 resolved,
                 inline_glyphs.contains(glyph_name.as_str()),
@@ -1390,7 +1360,7 @@ fn collect_glyph_data_with_shared(
         let (advance_width, left_offset, top_offset) =
             resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
         let font_contours =
-            scale_glyph_contours(&resolved.contours, glyph_scale, meta.ascent * resolved.scale as u16, left_offset, top_offset);
+            scale_glyph_contours(&resolved.contours, glyph_scale, meta.ascent() * resolved.scale as u16, left_offset, top_offset);
         let composite_refs = build_composite_refs(
             resolved,
             inline_glyphs.contains(glyph_name.as_str()),
@@ -1444,7 +1414,7 @@ fn collect_glyph_data_with_shared(
                 let resolved = cache.get(cr.component_name.as_str()).unwrap_or(&empty_cached);
                 let comp_glyph_scale = scale / resolved.scale as f32;
                 let font_contours =
-                    scale_glyph_contours(&resolved.contours, comp_glyph_scale, meta.ascent * resolved.scale as u16, 0, 0);
+                    scale_glyph_contours(&resolved.contours, comp_glyph_scale, meta.ascent() * resolved.scale as u16, 0, 0);
                 let advance_width = (resolved.width as f32 * comp_glyph_scale).round() as u16;
                 component_extras.push(CollectedGlyph {
                     name: cr.component_name.clone(),
@@ -1484,7 +1454,7 @@ fn collect_glyph_data_with_shared(
             &body.points, &body.refs, &cache, &color_alt_index, &declared_anchors_map);
 
         let color_glyph_scale = scale / body.scale as f32;
-        let color_ascent = meta.ascent * body.scale as u16;
+        let color_ascent = meta.ascent() * body.scale as u16;
         let left_offset = match glyph_meta.get(&g.name) {
             Some(&(_, Some(left), _)) => (left as f32 * scale).round() as i16,
             _ => 0,
@@ -1763,31 +1733,9 @@ pub(crate) fn expand_glyph_pattern(pattern: &str, count: usize) -> Vec<String> {
     }
 }
 
-fn parse_font_meta(s: &str, meta: &mut FontMeta) {
-    let mut iter = s.split_whitespace();
-    while let Some(key) = iter.next() {
-        let Some(val) = iter.next() else { break };
-        let Ok(v) = val.parse::<u16>() else { continue };
-        match key {
-            "height" => meta.height = v,
-            "ascent" => meta.ascent = v,
-            "descent" => meta.descent = v,
-            _ => {}
-        }
-    }
-}
-
 // ---------------------------------------------------------------------------
 // GSUB remap collection & expansion
 // ---------------------------------------------------------------------------
-
-fn expand_remap_element(s: &str, name_parts: &NamePartsMap) -> Vec<String> {
-    let substituted = substitute_name_parts(s, name_parts);
-    match expand_name_pattern(&substituted) {
-        Ok(names) => names.into_vec(),
-        Err(_) => vec![substituted],
-    }
-}
 
 fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData {
     let mut remap_sets: BTreeMap<String, Vec<ExpandedRemap>> = BTreeMap::new();
@@ -1806,7 +1754,7 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                 } => {
                     let expanded_positions: Vec<Vec<String>> = source
                         .iter()
-                        .map(|s| expand_remap_element(s, name_parts))
+                        .map(|s| expand_name_element(s, name_parts))
                         .collect();
 
                     // The number of remap entries is the LCM of all position
@@ -1821,7 +1769,7 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
 
                     let expanded_target_positions: Vec<Vec<String>> = target
                         .iter()
-                        .map(|s| expand_remap_element(s, name_parts))
+                        .map(|s| expand_name_element(s, name_parts))
                         .collect();
 
                     let entry_count = expanded_positions
@@ -1847,11 +1795,11 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
 
                     let lb: Vec<Vec<String>> = lookbehind
                         .iter()
-                        .map(|s| expand_remap_element(s, name_parts))
+                        .map(|s| expand_name_element(s, name_parts))
                         .collect();
                     let la: Vec<Vec<String>> = lookahead
                         .iter()
-                        .map(|s| expand_remap_element(s, name_parts))
+                        .map(|s| expand_name_element(s, name_parts))
                         .collect();
 
                     remap_sets.entry(feature.clone()).or_default().push(
@@ -4902,7 +4850,7 @@ feature ccmp for DFLT : anchor above
             .collect();
 
         let anchor_data = build_anchor_gpos(
-            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent,
+            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent(),
         );
 
         assert!(anchor_data.gpos.is_some(), "GPOS should exist");
@@ -5121,7 +5069,7 @@ feature ccmp for DFLT : anchor below
             .collect();
 
         let anchor_data = build_anchor_gpos(
-            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent,
+            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent(),
         );
 
         // --- Base substitution ------------------------------------------------
@@ -5328,7 +5276,7 @@ feature ccmp for DFLT : anchor below
             .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
             .collect();
         let anchor_data = build_anchor_gpos(
-            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent,
+            &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent(),
         );
         assert!(anchor_data.gpos.is_some(), "GPOS should exist");
 
@@ -5642,7 +5590,7 @@ feature ccmp for DFLT : anchor above
             .enumerate()
             .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
             .collect();
-        let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent);
+        let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
         let gpos = anchor_data.gpos.expect("GPOS should exist");
         let dia_above_gid = *name_to_gid.get("dia-above").unwrap();
 
@@ -5719,7 +5667,7 @@ feature ccmp for DFLT : anchor above
             .enumerate()
             .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
             .collect();
-        let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent);
+        let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
         let gpos = anchor_data.gpos.expect("GPOS should exist");
 
         let dia_below_gid = *name_to_gid.get("dia-below").unwrap();

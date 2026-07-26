@@ -2,10 +2,11 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use crate::document::{
-    Directive, Document, DocumentItem, GlyphName, classify_directive, expand_name_pattern,
+    Directive, Document, DocumentItem, GlyphName, classify_directive, expand_name_element,
+    expand_name_pattern,
     find_invalid_inline_ranges, is_name_pattern, substitute_name_parts,
 };
-use crate::resolve::{DocSet, Resolution};
+use crate::resolve::{Diagnostic, DocSet, Resolution};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Severity {
@@ -139,54 +140,26 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
-    // font-meta validation
+    // font-meta validation. Only the effective numbers matter to the font
+    // build; here the distinction between "not declared" and "declared as the
+    // default" is what decides whether to complain at all.
     {
-        let mut height: Option<u16> = None;
-        let mut ascent: Option<u16> = None;
-        let mut descent: Option<u16> = None;
-        let mut meta_file = PathBuf::new();
-        let mut meta_line = 0usize;
-        let mut meta_file_line = 0usize;
-        for doc in docs {
-            for (item_idx, item) in doc.items.iter().enumerate() {
-                if let DocumentItem::FontMeta(s) = item {
-                    let dl = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
-                    meta_file = doc.path.clone();
-                    meta_line = dl;
-                    meta_file_line = docline_to_file_line(doc, dl);
-                    for pair in s.split_whitespace().collect::<Vec<_>>().chunks(2) {
-                        if pair.len() == 2 {
-                            match pair[0] {
-                                "height" => height = pair[1].parse().ok(),
-                                "ascent" => ascent = pair[1].parse().ok(),
-                                "descent" => descent = pair[1].parse().ok(),
-                                _ => {}
-                            }
-                        }
-                    }
-                }
-            }
+        let meta = &resolution.meta;
+        let origin = meta.origin;
+        if let (Some(h), Some(a), Some(d)) = (meta.height, meta.ascent, meta.descent)
+            && a + d != h
+        {
+            issues.push(docset.to_issue(&Diagnostic::new(
+                Severity::Warning,
+                origin,
+                format!("font-meta ascent ({a}) + descent ({d}) != height ({h})"),
+            )));
         }
-        if let (Some(h), Some(a), Some(d)) = (height, ascent, descent)
-            && a + d != h {
-                issues.push(Issue {
-                    severity: Severity::Warning,
-                    message: format!(
-                        "font-meta ascent ({a}) + descent ({d}) != height ({h})",
-                    ),
-                    file: meta_file.clone(),
-                    line: meta_line,
-                    file_line: meta_file_line,
-                });
-            }
-        if height == Some(0) {
-            issues.push(Issue {
-                severity: Severity::Error,
-                message: "font-meta height is 0".to_string(),
-                file: meta_file,
-                line: meta_line,
-                file_line: meta_file_line,
-            });
+        if meta.height == Some(0) {
+            issues.push(docset.to_issue(&Diagnostic::error(
+                origin,
+                "font-meta height is 0",
+            )));
         }
     }
 
@@ -295,27 +268,13 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     let idx = item_refs.len();
                     item_location.push((doc_idx, item_idx, n));
 
-                    let resolved = substitute_name_parts(n, &name_parts);
-                    if is_name_pattern(&resolved) {
-                        if let Ok(expanded) = expand_name_pattern(&resolved) {
-                            for en in expanded {
-                                name_to_item.entry(en).or_insert(idx);
-                            }
-                        }
-                    } else {
-                        name_to_item.entry(resolved).or_insert(idx);
+                    for en in expand_name_element(n, name_parts) {
+                        name_to_item.entry(en).or_insert(idx);
                     }
 
                     let mut refs = Vec::new();
                     for gref in &body.refs {
-                        let ref_resolved = substitute_name_parts(&gref.name, &name_parts);
-                        if is_name_pattern(&ref_resolved) {
-                            if let Ok(expanded) = expand_name_pattern(&ref_resolved) {
-                                refs.extend(expanded);
-                            }
-                        } else {
-                            refs.push(ref_resolved);
-                        }
+                        refs.extend(expand_name_element(&gref.name, name_parts));
                     }
                     item_refs.push(refs);
                 }
@@ -330,45 +289,20 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         for doc in docs {
             for item in &doc.items {
                 match item {
-                    DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
-                        for token in source.iter().map(|s| s.as_str())
-                            .chain(target.iter().map(|s| s.as_str()))
-                            .chain(lookbehind.iter().map(|s| s.as_str()))
-                            .chain(lookahead.iter().map(|s| s.as_str()))
-                        {
-                            let resolved = substitute_name_parts(token, &name_parts);
-                            if is_name_pattern(&resolved) {
-                                if let Ok(expanded) = expand_name_pattern(&resolved) {
-                                    root_names.extend(expanded);
-                                }
-                            } else {
-                                root_names.insert(resolved);
-                            }
+                    DocumentItem::Remap { .. } => {
+                        for token in item.remap_operands() {
+                            root_names.extend(expand_name_element(token, name_parts));
                         }
                     }
                     DocumentItem::Glyph { name: GlyphName(n), body } => {
                         if body.sticky || body.mark {
-                            let resolved = substitute_name_parts(n, &name_parts);
-                            if is_name_pattern(&resolved) {
-                                if let Ok(expanded) = expand_name_pattern(&resolved) {
-                                    root_names.extend(expanded);
-                                }
-                            } else {
-                                root_names.insert(resolved);
-                            }
+                            root_names.extend(expand_name_element(n, name_parts));
                         }
                     }
                     DocumentItem::Directive(text) => {
                         if let Directive::AssumeUnused(rest) = classify_directive(text) {
                             for token in rest.split_whitespace() {
-                                let resolved = substitute_name_parts(token, &name_parts);
-                                if is_name_pattern(&resolved) {
-                                    if let Ok(expanded) = expand_name_pattern(&resolved) {
-                                        root_names.extend(expanded);
-                                    }
-                                } else {
-                                    root_names.insert(resolved);
-                                }
+                                root_names.extend(expand_name_element(token, name_parts));
                             }
                         }
                     }

@@ -51,26 +51,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         return None;
     }
 
-    let mut height: u16 = 16;
-    let mut ascent: u16 = 14;
-    let mut descent: u16 = 2;
-    for doc in docs {
-        for item in &doc.items {
-            if let DocumentItem::FontMeta(s) = item {
-                for pair in s.split_whitespace().collect::<Vec<_>>().chunks(2) {
-                    if pair.len() == 2
-                        && let Ok(v) = pair[1].parse::<u16>() {
-                            match pair[0] {
-                                "height" => height = v,
-                                "ascent" => ascent = v,
-                                "descent" => descent = v,
-                                _ => {}
-                            }
-                        }
-                }
-            }
-        }
-    }
+    let meta = crate::resolve::FontMeta::collect(docs);
+    let (height, ascent, descent) = (meta.height(), meta.ascent(), meta.descent());
     if height == 0 {
         return None;
     }

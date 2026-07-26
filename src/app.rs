@@ -2144,8 +2144,8 @@ fn doc_may_reference(
             (RenameKind::Glyph, DocumentItem::Map { glyph, .. }) => {
                 if glyph == name { return true; }
             }
-            (RenameKind::Glyph, DocumentItem::Remap { source, target, lookbehind, lookahead, .. }) => {
-                let mut all = source.iter().chain(target).chain(lookbehind).chain(lookahead);
+            (RenameKind::Glyph, DocumentItem::Remap { .. }) => {
+                let mut all = item.remap_operands();
                 if all.any(|s| s == name) { return true; }
             }
             (RenameKind::Glyph, DocumentItem::Directive(s)) => {

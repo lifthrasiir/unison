@@ -14,7 +14,7 @@
 
 use std::path::PathBuf;
 
-use crate::document::Document;
+use crate::document::{Document, DocumentItem};
 use crate::issues::{Issue, Severity};
 
 /// Points at one `DocumentItem` within a `&[&Document]` slice. Small enough to
@@ -54,6 +54,64 @@ impl Diagnostic {
     }
 }
 
+/// The `font-meta` values a document set declares.
+///
+/// Each field records whether it was actually declared, because validation has
+/// to tell "not stated" apart from "stated as the default"; every other
+/// consumer just wants the effective number and reads it through the
+/// accessors. This used to be parsed three times — by the font build, the
+/// sample renderer and the validator — with three slightly different loops.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct FontMeta {
+    pub height: Option<u16>,
+    pub ascent: Option<u16>,
+    pub descent: Option<u16>,
+    /// The last `font-meta` line that set anything, for error reporting.
+    pub origin: Option<ItemRef>,
+}
+
+impl FontMeta {
+    pub const DEFAULT_HEIGHT: u16 = 16;
+    pub const DEFAULT_ASCENT: u16 = 14;
+    pub const DEFAULT_DESCENT: u16 = 2;
+
+    pub fn height(&self) -> u16 {
+        self.height.unwrap_or(Self::DEFAULT_HEIGHT)
+    }
+
+    pub fn ascent(&self) -> u16 {
+        self.ascent.unwrap_or(Self::DEFAULT_ASCENT)
+    }
+
+    pub fn descent(&self) -> u16 {
+        self.descent.unwrap_or(Self::DEFAULT_DESCENT)
+    }
+
+    pub fn collect(docs: &[&Document]) -> Self {
+        let mut meta = Self::default();
+        for (doc_idx, doc) in docs.iter().enumerate() {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                let DocumentItem::FontMeta(s) = item else {
+                    continue;
+                };
+                meta.origin = Some(ItemRef::new(doc_idx, item_idx));
+                let mut iter = s.split_whitespace();
+                while let Some(key) = iter.next() {
+                    let Some(val) = iter.next() else { break };
+                    let Ok(v) = val.parse::<u16>() else { continue };
+                    match key {
+                        "height" => meta.height = Some(v),
+                        "ascent" => meta.ascent = Some(v),
+                        "descent" => meta.descent = Some(v),
+                        _ => {}
+                    }
+                }
+            }
+        }
+        meta
+    }
+}
+
 /// Everything derived from a document set that more than one consumer needs.
 ///
 /// Resolution is expensive enough (~25 ms over `font/`) that the editor used
@@ -62,6 +120,7 @@ impl Diagnostic {
 /// around is the point of the type.
 pub struct Resolution {
     pub name_parts: crate::document::NamePartsMap,
+    pub meta: FontMeta,
     pub expansion: crate::render::ttf_builder::Expansion,
 }
 
@@ -69,7 +128,7 @@ impl Resolution {
     pub fn compute(docs: &[&Document]) -> Self {
         let name_parts = crate::document::collect_name_parts(docs);
         let expansion = crate::render::ttf_builder::expand_documents(docs, &name_parts);
-        Self { name_parts, expansion }
+        Self { name_parts, meta: FontMeta::collect(docs), expansion }
     }
 }
 

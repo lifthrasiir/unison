@@ -761,6 +761,19 @@ pub enum DocumentItem {
 }
 
 impl DocumentItem {
+    /// The glyph names a `remap` rule names, in rule order. Empty for every
+    /// other item. Enumerating the four operand lists by hand is easy to get
+    /// subtly wrong — a forgotten `lookahead` silently narrows a check.
+    pub fn remap_operands(&self) -> impl Iterator<Item = &String> {
+        let lists: [&[String]; 4] = match self {
+            DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
+                [source, target, lookbehind, lookahead]
+            }
+            _ => [&[], &[], &[], &[]],
+        };
+        lists.into_iter().flatten()
+    }
+
     #[cfg(feature = "editor")]
     pub fn affects_font(&self) -> bool {
         !matches!(
@@ -1463,6 +1476,22 @@ fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, Strin
 ///
 /// Also expands inline numeric ranges: `($0..9)` → `(0|1|...|9)`,
 /// `($#a0..af)` → `(a0|a1|...|af)`.
+/// Every glyph name a single written name can denote: name-part references
+/// substituted, then the resulting pattern expanded.
+///
+/// This is the one operation `remap` operands, `assume unused` arguments and
+/// sticky/mark roots all need, and it is what the GSUB builder applies to
+/// remap operands — validation has to expand them exactly the same way or it
+/// checks names the font never looks up. A name whose pattern does not expand
+/// is returned as-is; the malformed pattern is reported elsewhere.
+pub fn expand_name_element(s: &str, parts: &NamePartsMap) -> Vec<String> {
+    let substituted = substitute_name_parts(s, parts);
+    match expand_name_pattern(&substituted) {
+        Ok(names) => names.into_vec(),
+        Err(_) => vec![substituted],
+    }
+}
+
 pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
     if !s.contains('$') {
         return s.to_string();
