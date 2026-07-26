@@ -17,10 +17,9 @@ cargo xb -r       # same as above but for Windows
 cargo xrr         # run the compiled executable in Windows (only to be used by users)
 ```
 
-Subcommands (`migrate`, `build`) require native execution:
+Subcommands (`build`, `test`) require native execution:
 
 ```sh
-cargo run -r -- migrate -i ../unison/font/ -o font/    # legacy .txt → .unf
 cargo run -r -- build -i font/ -o unison.ttf           # build TTF from .unf
 ```
 
@@ -49,7 +48,7 @@ On Windows a watchdog thread suspends the main thread every 250 ms and reads `Rs
 
 ## Document Format (.unf)
 
-`migrated/*.unf` are the font data sources (one file per glyph category). Parsed/serialized in `document_io.rs`. Tokens use backtick-quoting: `` `foo bar` `` for tokens with spaces, four backticks (two for escape, two for quoting) for literal backtick.
+`font/*.unf` are the font data sources (one file per glyph category). Parsed/serialized in `document_io.rs`. Tokens use backtick-quoting: `` `foo bar` `` for tokens with spaces, four backticks (two for escape, two for quoting) for literal backtick.
 
 ### Directives
 

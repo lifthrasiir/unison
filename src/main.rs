@@ -1,6 +1,5 @@
 #[cfg(feature = "editor")]
 mod app;
-mod migrate;
 mod detail;
 mod document;
 mod document_io;
@@ -79,48 +78,6 @@ fn main() {
     stackmon::init();
 
     let args: Vec<String> = std::env::args().collect();
-
-    // Check for migrate subcommand: uniform migrate --input DIR --output DIR
-    if args.get(1).map(|s| s.as_str()) == Some("migrate") {
-        let mut input_dir = None;
-        let mut output_dir = None;
-        let mut i = 2;
-        while i < args.len() {
-            match args[i].as_str() {
-                "--input" | "-i" => {
-                    i += 1;
-                    input_dir = args.get(i).map(std::path::PathBuf::from);
-                }
-                "--output" | "-o" => {
-                    i += 1;
-                    output_dir = args.get(i).map(std::path::PathBuf::from);
-                }
-                _ => {
-                    eprintln!("Unknown migrate option: {}", args[i]);
-                    std::process::exit(1);
-                }
-            }
-            i += 1;
-        }
-
-        let Some(input) = input_dir else {
-            eprintln!("Usage: uniform migrate --input <DIR> --output <DIR>");
-            std::process::exit(1);
-        };
-        let Some(output) = output_dir else {
-            eprintln!("Usage: uniform migrate --input <DIR> --output <DIR>");
-            std::process::exit(1);
-        };
-
-        match migrate::migrate_directory(&input, &output) {
-            Ok(()) => {}
-            Err(e) => {
-                eprintln!("Migration failed: {e:#}");
-                std::process::exit(1);
-            }
-        }
-        return;
-    }
 
     // Build subcommand: uniform build --input DIR --output FILE [--output FILE ...]
     //   [--sample-html FILE] [--sample-png FILE] [--live-html FILE]
@@ -358,7 +315,7 @@ fn main() {
 
     #[cfg(not(feature = "editor"))]
     {
-        eprintln!("Usage: uniform <build|migrate> [options...]");
+        eprintln!("Usage: uniform <build|test> [options...]");
         eprintln!("GUI mode requires the 'editor' feature.");
         std::process::exit(1);
     }
