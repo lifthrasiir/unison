@@ -1,0 +1,34 @@
+// Resolution cases that only show up in combination, extracted from the real
+// font where they were originally caught. See src/golden.rs.
+//
+// `badge-a`/`badge-b` are never declared: they are synthesized from the
+// `:mono` and `:color` halves, which are themselves declared by a name
+// pattern. Looking the halves up under their unexpanded pattern name finds
+// nothing, which is how the editor and the built font came to disagree about
+// whether `badge-a` exists.
+
+name-parts $ab = a b
+
+glyph badge-($ab):mono 2 2
+....
+....
+ref ok 0 0
+
+glyph badge-($ab):color 2 2
+....
+....
+ref ok 0 0 fill #FF0000
+
+// Forces the color/mono synthesis by referring to the bare name.
+remap badge : ok -> badge-a
+
+// Remap operands keep their name-part patterns until the GSUB builder expands
+// them, so this must not be reported as referring to an undefined glyph.
+remap badge-pattern : ok -> badge-($ab)
+
+feature liga for latn : badge
+feature liga for latn : badge-pattern
+
+assume unused badge-($ab):mono
+assume unused badge-($ab):color
+assume unused badge-b

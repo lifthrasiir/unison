@@ -54,6 +54,25 @@ impl Diagnostic {
     }
 }
 
+/// Everything derived from a document set that more than one consumer needs.
+///
+/// Resolution is expensive enough (~25 ms over `font/`) that the editor used
+/// to pay for it three times per edit — once for the glyph cache, once for
+/// validation and once for the font build. Computing it once and handing this
+/// around is the point of the type.
+pub struct Resolution {
+    pub name_parts: crate::document::NamePartsMap,
+    pub expansion: crate::render::ttf_builder::Expansion,
+}
+
+impl Resolution {
+    pub fn compute(docs: &[&Document]) -> Self {
+        let name_parts = crate::document::collect_name_parts(docs);
+        let expansion = crate::render::ttf_builder::expand_documents(docs, &name_parts);
+        Self { name_parts, expansion }
+    }
+}
+
 /// A borrowed set of documents plus the lookup that turns an [`ItemRef`] back
 /// into a file position.
 #[derive(Clone, Copy)]

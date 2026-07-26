@@ -502,7 +502,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut excluded: BTreeSet<u32> = BTreeSet::new();
     for item in &all_items {
         if let DocumentItem::Directive(s) = item
-            && let Some(rest) = s.strip_prefix("exclude-from-sample ") {
+            && let crate::document::Directive::ExcludeFromSample(rest) =
+                crate::document::classify_directive(s) {
                 for tok in rest.split_whitespace() {
                     if let Some(cp) = crate::render::ttf_builder::parse_map_char(tok) {
                         excluded.insert(cp);

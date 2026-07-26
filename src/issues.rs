@@ -2,10 +2,10 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use crate::document::{
-    Document, DocumentItem, GlyphName, collect_name_parts, expand_name_pattern,
+    Directive, Document, DocumentItem, GlyphName, classify_directive, expand_name_pattern,
     find_invalid_inline_ranges, is_name_pattern, substitute_name_parts,
 };
-use crate::resolve::DocSet;
+use crate::resolve::{DocSet, Resolution};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Severity {
@@ -29,17 +29,26 @@ fn docline_to_file_line(doc: &Document, docline_idx: usize) -> usize {
 }
 
 pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
+    collect_issues_with(docs, &Resolution::compute(docs))
+}
+
+/// Validate `docs` against an already-computed [`Resolution`].
+///
+/// Callers that resolve for their own reasons — the editor's glyph cache, the
+/// font build — should use this rather than [`collect_issues`], which resolves
+/// again from scratch.
+pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<Issue> {
     let mut issues = Vec::new();
 
-    let name_parts = collect_name_parts(docs);
+    let name_parts = &resolution.name_parts;
+    let expansion = &resolution.expansion;
     let docset = DocSet::new(docs);
 
-    // Resolution is the same expansion the font build performs. Running it
-    // here means the problems it detects — unresolvable references, maps that
-    // cannot be synthesized, on-demand names that resolve to nothing — are
-    // reported instead of silently skipped, and that this file no longer has
-    // to reimplement any of it.
-    let expansion = crate::render::ttf_builder::expand_documents(docs, &name_parts);
+    // Resolution is the same expansion the font build performs, so the
+    // problems it detects — unresolvable references, maps that cannot be
+    // synthesized, on-demand names that resolve to nothing — are reported
+    // here instead of silently skipped, and this file does not reimplement
+    // any of it.
     issues.extend(docset.to_issues(&expansion.diagnostics));
 
     // Every glyph the font will actually contain, including synthesized
@@ -254,14 +263,10 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                     }
                 }
                 DocumentItem::Directive(text) => {
-                    let trimmed = text.trim();
-                    if !trimmed.is_empty()
-                        && !trimmed.starts_with("exclude-from-sample ")
-                        && !trimmed.starts_with("assume unused ")
-                    {
+                    if classify_directive(text) == Directive::Unrecognized {
                         issues.push(Issue {
                             severity: Severity::Warning,
-                            message: format!("unrecognized directive '{}'", trimmed),
+                            message: format!("unrecognized directive '{}'", text.trim()),
                             file: doc.path.clone(),
                             line,
                             file_line,
@@ -354,7 +359,7 @@ pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
                         }
                     }
                     DocumentItem::Directive(text) => {
-                        if let Some(rest) = text.strip_prefix("assume unused ") {
+                        if let Directive::AssumeUnused(rest) = classify_directive(text) {
                             for token in rest.split_whitespace() {
                                 let resolved = substitute_name_parts(token, &name_parts);
                                 if is_name_pattern(&resolved) {

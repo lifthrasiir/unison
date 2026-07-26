@@ -3,7 +3,7 @@ pub mod contour;
 pub mod sample;
 pub mod ttf_builder;
 
-pub use ttf_builder::{build_font_from_documents, build_font_with_gid_map, load_docs_from_directory};
+pub use ttf_builder::{build_font_from_documents, build_font_with_gid_map};
 #[cfg(feature = "editor")]
 pub use ttf_builder::{SharedContourCache, build_font_pair_cached, new_contour_cache};
 
@@ -12,9 +12,8 @@ pub use ttf_builder::{SharedContourCache, build_font_pair_cached, new_contour_ca
 /// to nothing simply produces no glyph — so callers that want the user to hear
 /// about them have to ask.
 pub fn resolution_issues(docs: &[&crate::document::Document]) -> Vec<crate::issues::Issue> {
-    let name_parts = crate::document::collect_name_parts(docs);
-    let expansion = ttf_builder::expand_documents(docs, &name_parts);
-    crate::resolve::DocSet::new(docs).to_issues(&expansion.diagnostics)
+    let resolution = crate::resolve::Resolution::compute(docs);
+    crate::resolve::DocSet::new(docs).to_issues(&resolution.expansion.diagnostics)
 }
 
 pub fn ttf_to_woff2(ttf_bytes: &[u8]) -> Result<Vec<u8>, String> {

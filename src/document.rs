@@ -644,6 +644,45 @@ impl GlyphName {
     }
 }
 
+/// What a [`DocumentItem::Directive`]'s raw text means.
+///
+/// `document_io` keeps directives that have no typed item as raw text, so
+/// every consumer used to re-parse them with its own `strip_prefix` chain and
+/// its own idea of which keywords are recognized — five copies that had to be
+/// kept in sync with the parser by hand. This is that knowledge, once.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Directive<'a> {
+    /// `exclude-from-sample NAME...` — the argument text.
+    ExcludeFromSample(&'a str),
+    /// `assume unused NAME...` — the argument text.
+    AssumeUnused(&'a str),
+    /// Blank or whitespace only.
+    Empty,
+    /// A keyword we do not know, or a known keyword whose arguments did not
+    /// parse into a typed item.
+    Unrecognized,
+}
+
+/// Note: this deliberately does *not* know about the directives that parse
+/// into typed items (`name-parts`, `remap`, `feature`, `color`, `assert`).
+/// Those only reach [`DocumentItem::Directive`] when malformed, and are
+/// reported as unrecognized so the author hears about the typo.
+pub fn classify_directive(text: &str) -> Directive<'_> {
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return Directive::Empty;
+    }
+    if let Some(rest) = trimmed.strip_prefix("exclude-from-sample ") {
+        return Directive::ExcludeFromSample(rest);
+    }
+    if let Some(rest) = trimmed.strip_prefix("assume unused ") {
+        return Directive::AssumeUnused(rest);
+    }
+    // `assert` lines that parse become typed items, so an `assert` reaching
+    // here is malformed and should be reported like any other unknown line.
+    Directive::Unrecognized
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum DocumentItem {
     Comment(String),
@@ -1853,6 +1892,27 @@ mod tests {
             fill: None,
             visibility: None,
         }
+    }
+
+    #[test]
+    fn classify_directive_recognizes_exactly_the_untyped_directives() {
+        use super::{Directive, classify_directive};
+        assert_eq!(
+            classify_directive("exclude-from-sample a b"),
+            Directive::ExcludeFromSample("a b"),
+        );
+        assert_eq!(
+            classify_directive("  assume unused foo  "),
+            Directive::AssumeUnused("foo"),
+        );
+        assert_eq!(classify_directive("   "), Directive::Empty);
+        // No arguments means no match: `assume unused` alone says nothing.
+        assert_eq!(classify_directive("assume unused"), Directive::Unrecognized);
+        assert_eq!(classify_directive("assume something"), Directive::Unrecognized);
+        // Malformed forms of directives that normally parse into typed items
+        // must still be reported rather than silently accepted.
+        assert_eq!(classify_directive("assert bogus"), Directive::Unrecognized);
+        assert_eq!(classify_directive("whatever"), Directive::Unrecognized);
     }
 
     #[test]

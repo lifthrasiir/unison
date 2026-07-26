@@ -1,11 +1,14 @@
-//! Golden snapshots of the diagnostics produced over the real `font/` tree and
-//! over the deliberately broken `testdata/` project.
+//! Golden snapshots over the `testdata/` project: the diagnostics validation
+//! reports, and a digest of what resolution produces.
 //!
-//! The resolution/validation code is being consolidated (issues.rs, ttf_builder
-//! and ref_composite each grew their own copy of name expansion and reference
-//! collection). Behaviour-preserving steps of that refactor are verified by
-//! this snapshot; steps that *intentionally* surface previously-swallowed
-//! problems update it, so the diff is reviewable.
+//! The resolution/validation code was consolidated (issues.rs, ttf_builder and
+//! ref_composite each grew their own copy of name expansion and reference
+//! collection). Behaviour-preserving changes there are verified by these
+//! snapshots; changes that *intentionally* surface previously-swallowed
+//! problems update them, so the diff is reviewable.
+//!
+//! `font/` is deliberately not a test target — cases it turned up are
+//! extracted into `testdata/` instead.
 //!
 //! Regenerate with:
 //!
@@ -17,10 +20,6 @@ use std::path::{Path, PathBuf};
 
 use crate::document::Document;
 use crate::issues::Issue;
-
-fn font_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("font")
-}
 
 fn testdata_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata")
@@ -109,19 +108,56 @@ fn check_golden(name: &str, actual: &str) -> Result<(), String> {
 }
 
 fn load_docs(dir: &Path) -> Vec<Document> {
-    let docs = crate::render::ttf_builder::load_docs_from_directory(dir);
+    let (docs, errors) = crate::render::ttf_builder::load_docs_from_directory_checked(dir);
+    assert!(errors.is_empty(), "fixtures must parse: {errors:?}");
     assert!(!docs.is_empty(), "no .unf files found in {}", dir.display());
     docs
 }
 
-/// The real font tree is nearly clean, so this catches regressions that would
-/// start reporting problems on valid data.
+/// A digest of every resolved glyph: name, grid dimensions, a hash of the
+/// pixel bytes, scale and anchor names. Consolidating `ref_composite`'s own
+/// expansion into the shared one must not change what the editor draws, and
+/// only a snapshot at this granularity can show that.
+fn format_resolved(
+    resolved: &std::collections::HashMap<String, crate::ref_composite::ResolvedGlyph>,
+) -> String {
+    use std::hash::{Hash, Hasher};
+
+    let mut lines: Vec<String> = resolved
+        .iter()
+        .map(|(name, g)| {
+            let mut h = std::collections::hash_map::DefaultHasher::new();
+            for p in &g.grid.pixels {
+                p.0.hash(&mut h);
+            }
+            g.grid.den.hash(&mut h);
+            format!("{:?}", g.grid.details).hash(&mut h);
+            let mut anchors: Vec<&str> =
+                g.declared_anchors.iter().map(|p| p.position.as_str()).collect();
+            anchors.sort();
+            format!(
+                "{name}\t{}x{}\ts{}\t{:016x}\t{}",
+                g.grid.width,
+                g.grid.height,
+                g.scale,
+                h.finish(),
+                anchors.join(","),
+            )
+        })
+        .collect();
+    lines.sort();
+    lines.push(String::new());
+    lines.join("\n")
+}
+
 #[test]
-fn issues_over_font_dir_match_golden() {
-    let docs = load_docs(&font_dir());
+fn resolved_glyphs_over_testdata_match_golden() {
+    let docs = load_docs(&testdata_dir());
     let refs: Vec<&Document> = docs.iter().collect();
-    let issues = crate::issues::collect_issues(&refs);
-    if let Err(e) = check_golden("font-issues.golden", &format_issues(&issues)) {
+    let name_parts = crate::document::collect_name_parts(&refs);
+    let (resolved, _) =
+        crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
+    if let Err(e) = check_golden("testdata-resolved.golden", &format_resolved(&resolved)) {
         panic!("{e}");
     }
 }
@@ -138,4 +174,6 @@ fn issues_over_testdata_match_golden() {
         panic!("{e}");
     }
 }
+
+
 

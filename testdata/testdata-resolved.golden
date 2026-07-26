@@ -1,0 +1,21 @@
+U+0041	8x16	s1	503a2febddfbf42e	
+U+0042	8x16	s1	24c9630910705b78	
+a-upper	8x16	s1	503a2febddfbf42e	
+alias-of-ok	2x2	s1	63e21525bb202e5e	
+b-upper	8x16	s1	24c9630910705b78	
+badge-a	2x2	s1	63e21525bb202e5e	
+badge-a:color	2x2	s1	63e21525bb202e5e	
+badge-a:mono	2x2	s1	63e21525bb202e5e	
+badge-b:color	2x2	s1	63e21525bb202e5e	
+badge-b:mono	2x2	s1	63e21525bb202e5e	
+composite	2x2	s1	63e21525bb202e5e	
+dieresis	2x1	s1	37eb7d7b1cf1c3c9	
+dup	2x1	s1	37eb7d7b1cf1c3c9	
+empty-body	0x0	s1	3787a04b920c6778	
+ok	2x2	s1	63e21525bb202e5e	
+sp	8x16	s1	91570edd385711f8	
+stem	2x2	s1	63e21525bb202e5e	-join
+stem:a	2x2	s1	63e21525bb202e5e	-join
+stem:b	2x2	s1	63e21525bb202e5e	-join
+subpixel-test	19x14	s1	619990b0b8dba975	
+uni00C4	2x2	s1	63e21525bb202e5e	

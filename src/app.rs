@@ -663,16 +663,20 @@ impl UniformApp {
         std::thread::spawn(move || {
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
-            let name_parts = crate::document::collect_name_parts(&refs);
-            let (named_glyphs, alt_index) =
-                crate::editor::ref_composite::resolve_named_glyphs_with_parts(
-                    &refs,
-                    &name_parts,
-                );
+            // One resolution feeds both the glyph cache and validation; they
+            // used to expand the whole document set independently.
+            let resolution = crate::resolve::Resolution::compute(&refs);
+            // Validation only reads names and diagnostics, so it runs before
+            // the expansion is consumed by the glyph cache.
+            let mut issues = crate::issues::collect_issues_with(&refs, &resolution);
+            let name_parts = resolution.name_parts;
+            let (named_glyphs, alt_index) = crate::editor::ref_composite::resolve_expansion(
+                resolution.expansion,
+                &name_parts,
+            );
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] resolve (derived thread): {:?}", t0.elapsed());
             }
-            let mut issues = collect_issues(&refs);
             for (path, msg) in &file_parse_errors {
                 issues.insert(0, Issue {
                     severity: crate::issues::Severity::Error,
@@ -2251,7 +2255,9 @@ fn rename_glyph_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &st
     }
 
     // exclude-from-sample NAME
-    if let Some(rest) = trimmed.strip_prefix("exclude-from-sample ") {
+    if let crate::document::Directive::ExcludeFromSample(rest) =
+        crate::document::classify_directive(trimmed)
+    {
         let token = rest.split_whitespace().next()?;
         if token == old_name {
             let after = &rest[token.len()..];
@@ -2261,7 +2267,9 @@ fn rename_glyph_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &st
     }
 
     // assume unused NAME...
-    if let Some(rest) = trimmed.strip_prefix("assume unused ") {
+    if let crate::document::Directive::AssumeUnused(rest) =
+        crate::document::classify_directive(trimmed)
+    {
         if rest.split_whitespace().any(|t| t == old_name) {
             let new_line = format!(
                 "{leading}assume unused {}",

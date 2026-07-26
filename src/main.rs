@@ -27,6 +27,25 @@ mod specimen;
 #[cfg(target_os = "windows")]
 extern crate windows_core;
 
+/// Load a font directory, reporting files that failed to parse.
+///
+/// `load_docs_from_directory` drops them silently, so a single bad file used
+/// to produce a font quietly built from everything else.
+fn load_docs_reporting_errors(dir: &std::path::Path) -> Vec<document::Document> {
+    let (docs, errors) = render::ttf_builder::load_docs_from_directory_checked(dir);
+    for (path, msg) in &errors {
+        let file = path
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        eprintln!("error: {file}: {msg}");
+    }
+    if !errors.is_empty() {
+        eprintln!("{} file(s) failed to parse and were skipped", errors.len());
+    }
+    docs
+}
+
 /// Print what resolution could not make sense of. The font build silently
 /// drops such glyphs, so without this a broken reference only shows up as a
 /// missing glyph much later.
@@ -160,7 +179,7 @@ fn main() {
             std::process::exit(1);
         }
 
-        let docs = render::load_docs_from_directory(&input);
+        let docs = load_docs_reporting_errors(&input);
         if docs.is_empty() {
             eprintln!("No .unf files found in {}", input.display());
             std::process::exit(1);
@@ -273,7 +292,7 @@ fn main() {
             std::process::exit(1);
         };
 
-        let docs = render::load_docs_from_directory(&input);
+        let docs = load_docs_reporting_errors(&input);
         if docs.is_empty() {
             eprintln!("No .unf files found in {}", input.display());
             std::process::exit(1);

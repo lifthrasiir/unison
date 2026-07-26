@@ -322,6 +322,14 @@ fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
     while let Some((line_no, line)) = iter.next() {
         let trimmed = line.trim();
 
+        // Comments are free text — `derive_document` passes them through
+        // verbatim. Tokenizing them anyway meant a backtick in prose aborted
+        // the whole file.
+        if trimmed.starts_with("//") {
+            lines.push(DocLine::Text(line.to_string()));
+            continue;
+        }
+
         let tokens = tokenize_tokens(trimmed)
             .map_err(|e| anyhow::anyhow!("line {}: {}", line_no + 1, e))?;
 
@@ -1545,6 +1553,17 @@ exclude-from-sample stem
     // -----------------------------------------------------------------------
     // Backtick-quoting tokenizer tests
     // -----------------------------------------------------------------------
+
+    #[test]
+    fn comment_lines_are_not_tokenized() {
+        // A comment is free text; backticks in it are not quoting syntax.
+        // Tokenizing comments made one stray backtick abort the whole file,
+        // and the CLI build then silently proceeded without that file.
+        let input = "// see `foo`/`bar`\nglyph a 2 1\n@@..\n";
+        let doc = parse_document_from_str(input, "test.unf".into())
+            .expect("comment with backticks must parse");
+        assert!(matches!(&doc.items[0], DocumentItem::Comment(_)));
+    }
 
     #[test]
     fn tokenize_simple_whitespace() {

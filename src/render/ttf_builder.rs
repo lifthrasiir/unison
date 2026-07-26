@@ -270,10 +270,6 @@ struct GsubData {
     anchor_features: Vec<(String, Vec<String>, String)>,
 }
 
-pub fn load_docs_from_directory(dir: &Path) -> Vec<Document> {
-    load_docs_from_directory_checked(dir).0
-}
-
 pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<(std::path::PathBuf, String)>) {
     let mut docs = Vec::new();
     let mut errors = Vec::new();
@@ -666,55 +662,55 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
         }
     }
 
-    // `map` codepoints. The range form of `expand_map_pairs` filters out
-    // non-scalar values but the single/pipe forms cannot, so an out-of-range
-    // `map U+FFFFFFFF = g` used to reach the cmap builder unnoticed.
-    {
-        let mut bad: Vec<Diagnostic> = Vec::new();
-        for e in &all_items {
-            let DocumentItem::Map { char_repr, glyph } = &e.item else {
-                continue;
-            };
-            let pairs = expand_map_pairs(char_repr, glyph);
-            if pairs.is_empty() {
-                bad.push(Diagnostic::error(
-                    e.origin,
-                    format!("map has no valid codepoints ('{char_repr}')"),
-                ));
-                continue;
-            }
-            for (cp, _) in &pairs {
-                if char::from_u32(*cp).is_none() {
-                    bad.push(Diagnostic::error(
-                        e.origin,
-                        format!("map 'U+{cp:04X}' is not a valid Unicode scalar value"),
-                    ));
-                    break;
-                }
-            }
+    // Expanding a `map` is not free (the font has ranges thousands of
+    // codepoints wide), and three later steps need the result, so it happens
+    // exactly once here.
+    //
+    // The range form of `expand_map_pairs` filters out non-scalar values but
+    // the single/pipe forms cannot, so an out-of-range `map U+FFFFFFFF = g`
+    // used to reach the cmap builder unnoticed.
+    let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
+    let mut map_targets: Vec<(String, Option<ItemRef>, String)> = Vec::new();
+    for e in &all_items {
+        let DocumentItem::Map { char_repr, glyph } = &e.item else {
+            continue;
+        };
+        let pairs = expand_map_pairs(char_repr, glyph);
+        if pairs.is_empty() {
+            diagnostics.push(Diagnostic::error(
+                e.origin,
+                format!("map has no valid codepoints ('{char_repr}')"),
+            ));
+            continue;
         }
-        diagnostics.append(&mut bad);
+        let mut reported = false;
+        for (cp, target) in pairs {
+            if !reported && char::from_u32(cp).is_none() {
+                diagnostics.push(Diagnostic::error(
+                    e.origin,
+                    format!("map 'U+{cp:04X}' is not a valid Unicode scalar value"),
+                ));
+                reported = true;
+            }
+            map_targets.push((target.clone(), e.origin, char_repr.clone()));
+            cp_to_glyph.entry(cp).or_insert(target);
+        }
     }
 
-    expand_decomposed_maps(&mut all_items, &mut diagnostics);
-    inject_on_demand_glyph_items(&mut all_items, &mut diagnostics);
+    expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
+    inject_on_demand_glyph_items(&mut all_items, map_targets, &mut diagnostics);
 
     Expansion { items: all_items, diagnostics }
 }
 
 /// Turn `map <decomposable codepoint>` into a synthesized composite glyph plus
 /// a plain `map` to it, reporting the characters that cannot be synthesized.
-fn expand_decomposed_maps(all_items: &mut Vec<ExpandedItem>, diagnostics: &mut Vec<Diagnostic>) {
+fn expand_decomposed_maps(
+    all_items: &mut Vec<ExpandedItem>,
+    cp_to_glyph: &HashMap<u32, String>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
     use unicode_normalization::UnicodeNormalization;
-
-    let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
-    for e in all_items.iter() {
-        if let DocumentItem::Map { char_repr, glyph } = &e.item {
-            for (cp, gname) in expand_map_pairs(char_repr, glyph) {
-                cp_to_glyph.entry(cp).or_insert(gname);
-            }
-        }
-    }
 
     let mut decomposed_items: Vec<ExpandedItem> = Vec::new();
     let pending: Vec<(String, Option<ItemRef>)> = all_items
@@ -814,6 +810,7 @@ fn expand_decomposed_maps(all_items: &mut Vec<ExpandedItem>, diagnostics: &mut V
 /// color/mono composite when X:mono and X:color both exist).
 fn inject_on_demand_glyph_items(
     all_items: &mut Vec<ExpandedItem>,
+    map_targets: Vec<(String, Option<ItemRef>, String)>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let mut defined: HashSet<String> = HashSet::new();
@@ -845,13 +842,6 @@ fn inject_on_demand_glyph_items(
                     consider(&r.name, e.origin, RefKind::Ref);
                 }
             }
-            DocumentItem::Map { glyph, char_repr } => {
-                // `glyph` is still a pattern here; the cmap builder expands it
-                // per codepoint, so the reference check has to as well.
-                for (_, target) in expand_map_pairs(char_repr, glyph) {
-                    consider(&target, e.origin, RefKind::Map(char_repr.clone()));
-                }
-            }
             DocumentItem::Remap {
                 lookbehind,
                 source,
@@ -871,6 +861,11 @@ fn inject_on_demand_glyph_items(
             }
             _ => {}
         }
+    }
+    // Map targets were expanded once by the caller: `glyph` is still a pattern
+    // on the item, and the cmap builder expands it per codepoint.
+    for (target, origin, char_repr) in map_targets {
+        consider(&target, origin, RefKind::Map(char_repr));
     }
 
     // Synthesis is per unique name; reporting is per mention, so the loops

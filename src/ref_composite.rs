@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::document::{
-    Document, DocumentItem, GlyphBody, GlyphPoint, GlyphRef, NamePartsMap, PixelGrid,
+    Document, DocumentItem, GlyphBody, GlyphName, GlyphPoint, GlyphRef, NamePartsMap, PixelGrid,
     expand_name_pattern, substitute_name_parts,
 };
 
@@ -327,17 +327,6 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
         }
     }
     grid
-}
-
-fn make_on_demand_resolved(rect: &OnDemandRect) -> ResolvedGlyph {
-    ResolvedGlyph {
-        grid: make_on_demand_grid(rect),
-        origin_row: 0,
-        origin_col: 0,
-        resolved_anchors: Vec::new(),
-        declared_anchors: Vec::new(),
-        scale: rect.scale,
-    }
 }
 
 fn saturating_i16(value: i32) -> i16 {
@@ -753,65 +742,24 @@ pub fn detect_on_demand_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> O
     parse_on_demand_glyph(name).or_else(|| detect_color_mono_glyph(name, has_glyph))
 }
 
-/// Scan documents for on-demand glyph names referenced in refs, maps,
-/// and remaps, and insert synthetic glyphs into the cache for any that
-/// aren't already defined.
-fn inject_on_demand_glyphs(
-    docs: &[&Document],
-    cache: &mut HashMap<String, ResolvedGlyph>,
-) {
-    let mut needed: std::collections::HashSet<String> = std::collections::HashSet::new();
-
-    let mut consider = |name: &str| {
-        if !cache.contains_key(name) && parse_on_demand_glyph(name).is_some() {
-            needed.insert(name.to_string());
-        }
-    };
-
-    for doc in docs {
-        for item in &doc.items {
-            match item {
-                DocumentItem::Glyph { body, .. } => {
-                    for r in &body.refs {
-                        consider(&r.name);
-                    }
-                }
-                DocumentItem::Map { glyph, .. } => consider(glyph),
-                DocumentItem::Remap {
-                    lookbehind,
-                    source,
-                    target,
-                    lookahead,
-                    ..
-                } => {
-                    for token in source {
-                        consider(token);
-                    }
-                    for token in target {
-                        consider(token);
-                    }
-                    for lb in lookbehind {
-                        consider(lb);
-                    }
-                    for la in lookahead {
-                        consider(la);
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    for name in &needed {
-        if let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph(name) {
-            cache.entry(name.clone()).or_insert_with(|| make_on_demand_resolved(&rect));
-        }
-    }
-}
-
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn resolve_named_glyphs_with_parts(
     docs: &[&Document],
+    name_parts: &NamePartsMap,
+) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    let expansion = crate::render::ttf_builder::expand_documents(docs, name_parts);
+    resolve_expansion(expansion, name_parts)
+}
+
+/// Compose every glyph in an already-expanded document set.
+///
+/// Name-part substitution, pattern expansion and on-demand/decomposed-map
+/// synthesis all happen in [`crate::render::ttf_builder::expand_documents`],
+/// so this function starts from the same glyph set the font build sees. It
+/// used to redo all of that itself, which is how the editor and the built
+/// font could disagree about which glyphs exist.
+pub fn resolve_expansion(
+    expansion: crate::render::ttf_builder::Expansion,
     name_parts: &NamePartsMap,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
     let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
@@ -829,207 +777,38 @@ pub fn resolve_named_glyphs_with_parts(
     // is quadratic over the whole font (~18k glyphs).
     let mut pending_names: std::collections::HashSet<String> = std::collections::HashSet::new();
 
-    for doc in docs {
-        for item in &doc.items {
-            if let DocumentItem::Glyph { name, body } = item {
-                let raw_key = name.display();
-                let key = substitute_name_parts(&raw_key, name_parts);
-                let expanded_keys = expand_ref_names(&key);
-                let expanded_count = expanded_keys.as_ref().map_or(1, |e| e.len());
-                if expanded_count <= 1 {
-                    if !cache.contains_key(&key) && !pending_names.contains(&key) {
-                        if body.refs.is_empty() {
-                            cache.insert(
-                                key,
-                                ResolvedGlyph {
-                                    grid: body
-                                        .pixels
-                                        .clone()
-                                        .unwrap_or_else(|| PixelGrid::new(0, 0)),
-                                    origin_row: 0,
-                                    origin_col: 0,
-                                    resolved_anchors: body.points.clone(),
-                                    declared_anchors: body.points.clone(),
-                                    scale: body.scale,
-                                },
-                            );
-                        } else {
-                            let subs_refs: Vec<GlyphRef> = body
-                                .refs
-                                .iter()
-                                .map(|r| GlyphRef {
-                                    name: substitute_name_parts(&r.name, name_parts),
-                                    offset: r.offset,
-                                    negated: r.negated,
-                                    fill: r.fill.clone(),
-                                    visibility: r.visibility,
-                                })
-                                .collect();
-
-                            pending_names.insert(key.clone());
-                            pending.push(Pending {
-                                name: key,
-                                pixels: body.pixels.clone(),
-                                refs: subs_refs,
-                                points: body.points.clone(),
-                                scale: body.scale,
-                            });
-                        }
-                    }
-                } else {
-                    let expanded_keys = expanded_keys.unwrap();
-                    let ref_expansions: Vec<Option<_>> = body
-                        .refs
-                        .iter()
-                        .map(|r| {
-                            let subst = substitute_name_parts(&r.name, name_parts);
-                            expand_ref_names(&subst)
-                        })
-                        .collect();
-                    for (k, expanded_name) in expanded_keys.into_iter().enumerate() {
-                        if cache.contains_key(&expanded_name)
-                            || pending_names.contains(&expanded_name)
-                        {
-                            continue;
-                        }
-                        let expanded_refs: Vec<GlyphRef> = body
-                            .refs
-                            .iter()
-                            .enumerate()
-                            .map(|(ri, r)| {
-                                let rname = ref_expansions[ri]
-                                    .as_ref()
-                                    .and_then(|e| {
-                                        if e.len() > 1 {
-                                            e.get(k % e.len()).cloned()
-                                        } else {
-                                            None
-                                        }
-                                    })
-                                    .unwrap_or_else(|| substitute_name_parts(&r.name, name_parts));
-                                GlyphRef {
-                                    name: rname,
-                                    offset: r.offset,
-                                    negated: r.negated,
-                                    fill: r.fill.clone(),
-                                    visibility: r.visibility,
-                                }
-                            })
-                            .collect();
-                        if expanded_refs.is_empty() {
-                            cache.insert(
-                                expanded_name,
-                                ResolvedGlyph {
-                                    grid: body
-                                        .pixels
-                                        .clone()
-                                        .unwrap_or_else(|| PixelGrid::new(0, 0)),
-                                    origin_row: 0,
-                                    origin_col: 0,
-                                    resolved_anchors: body.points.clone(),
-                                    declared_anchors: body.points.clone(),
-                                    scale: body.scale,
-                                },
-                            );
-                        } else {
-                            pending_names.insert(expanded_name.clone());
-                            pending.push(Pending {
-                                name: expanded_name,
-                                pixels: body.pixels.clone(),
-                                refs: expanded_refs,
-                                points: body.points.clone(),
-                                scale: body.scale,
-                            });
-                        }
-                    }
-                }
-            }
+    // The expansion is consumed, not borrowed: it already owns a full copy of
+    // every glyph body, and cloning it a second time into `pending` cost more
+    // than sharing the expansion saved.
+    for expanded in expansion.items {
+        let DocumentItem::Glyph { name: GlyphName(key), body } = expanded.item else {
+            continue;
+        };
+        // First definition wins, matching the font build.
+        if cache.contains_key(&key) || pending_names.contains(&key) {
+            continue;
         }
-    }
-
-    inject_on_demand_glyphs(docs, &mut cache);
-
-    // Collect all referenced glyph names that are not yet defined.
-    {
-        let mut all_referenced: std::collections::HashSet<String> = std::collections::HashSet::new();
-        for doc in docs {
-            for item in &doc.items {
-                match item {
-                    DocumentItem::Glyph { body, .. } => {
-                        for r in &body.refs {
-                            let subst = substitute_name_parts(&r.name, name_parts);
-                            all_referenced.insert(subst);
-                        }
-                    }
-                    DocumentItem::Map { glyph, .. } => {
-                        all_referenced.insert(substitute_name_parts(glyph, name_parts));
-                    }
-                    DocumentItem::Remap { lookbehind, source, target, lookahead, .. } => {
-                        for token in source.iter().chain(target).chain(lookbehind).chain(lookahead) {
-                            all_referenced.insert(substitute_name_parts(token, name_parts));
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        let all_defined: std::collections::HashSet<String> = cache.keys().cloned()
-            .chain(pending.iter().map(|p| p.name.clone()))
-            .collect();
-
-        // Build a lookup of glyph bodies from documents for color/mono source glyphs.
-        let mut glyph_bodies: HashMap<String, &GlyphBody> = HashMap::new();
-        for doc in docs {
-            for item in &doc.items {
-                if let DocumentItem::Glyph { name, body } = item {
-                    let key = substitute_name_parts(&name.display(), name_parts);
-                    glyph_bodies.entry(key).or_insert(body);
-                }
-            }
-        }
-
-        for name in &all_referenced {
-            if all_defined.contains(name) {
-                continue;
-            }
-            if let Some(OnDemandGlyph::ColorMono { mono, color }) =
-                detect_color_mono_glyph(name, |n| all_defined.contains(n) || glyph_bodies.contains_key(n))
-            {
-                let mono_body = glyph_bodies.get(&mono);
-                let color_body = glyph_bodies.get(&color);
-                if let (Some(mono_body), Some(color_body)) = (mono_body, color_body) {
-                    let mut refs = Vec::new();
-                    for r in &mono_body.refs {
-                        refs.push(GlyphRef {
-                            name: substitute_name_parts(&r.name, name_parts),
-                            offset: r.offset,
-                            negated: r.negated,
-                            fill: r.fill.clone(),
-                            visibility: Some(crate::document::LayerVisibility::MonoOnly),
-                        });
-                    }
-                    for r in &color_body.refs {
-                        refs.push(GlyphRef {
-                            name: substitute_name_parts(&r.name, name_parts),
-                            offset: r.offset,
-                            negated: r.negated,
-                            fill: r.fill.clone(),
-                            visibility: Some(crate::document::LayerVisibility::ColorOnly),
-                        });
-                    }
-                    let mut points = Vec::new();
-                    points.extend_from_slice(&mono_body.points);
-                    points.extend_from_slice(&color_body.points);
-                    pending.push(Pending {
-                        name: name.clone(),
-                        pixels: None,
-                        refs,
-                        points,
-                        scale: 1,
-                    });
-                }
-            }
+        if body.refs.is_empty() {
+            cache.insert(
+                key,
+                ResolvedGlyph {
+                    grid: body.pixels.unwrap_or_else(|| PixelGrid::new(0, 0)),
+                    origin_row: 0,
+                    origin_col: 0,
+                    resolved_anchors: body.points.clone(),
+                    declared_anchors: body.points,
+                    scale: body.scale,
+                },
+            );
+        } else {
+            pending_names.insert(key.clone());
+            pending.push(Pending {
+                name: key,
+                pixels: body.pixels,
+                refs: body.refs,
+                points: body.points,
+                scale: body.scale,
+            });
         }
     }
 
@@ -2426,7 +2205,8 @@ ref mark-below
     #[test]
     #[ignore]
     fn profile_resolve_name_expansion() {
-        let docs = crate::render::load_docs_from_directory(std::path::Path::new("font"));
+        let docs =
+            crate::render::ttf_builder::load_docs_from_directory_checked(std::path::Path::new("font")).0;
         assert!(!docs.is_empty(), "font/ not found; run from repo root");
         let refs: Vec<&Document> = docs.iter().collect();
         let name_parts = crate::document::collect_name_parts(&refs);
