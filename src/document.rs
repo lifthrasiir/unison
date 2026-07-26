@@ -334,6 +334,7 @@ impl PixelGrid {
         self.pixels.iter().all(|s| s.is_empty())
     }
 
+    #[cfg(feature = "editor")]
     pub fn mirror_h(&self) -> Self {
         let mut out = Self::new(self.width, self.height);
         out.den = self.den;
@@ -348,6 +349,7 @@ impl PixelGrid {
         out
     }
 
+    #[cfg(feature = "editor")]
     pub fn flip_v(&self) -> Self {
         let mut out = Self::new(self.width, self.height);
         out.den = self.den;
@@ -362,6 +364,7 @@ impl PixelGrid {
         out
     }
 
+    #[cfg(feature = "editor")]
     pub fn rotate_cw(&self) -> Self {
         let mut out = Self::new(self.height, self.width);
         out.den = self.den;
@@ -376,6 +379,7 @@ impl PixelGrid {
         out
     }
 
+    #[cfg(feature = "editor")]
     pub fn rotate_ccw(&self) -> Self {
         let mut out = Self::new(self.height, self.width);
         out.den = self.den;
@@ -390,6 +394,7 @@ impl PixelGrid {
         out
     }
 
+    #[cfg(feature = "editor")]
     pub fn rotate_180(&self) -> Self {
         let mut out = Self::new(self.width, self.height);
         out.den = self.den;
@@ -404,6 +409,7 @@ impl PixelGrid {
         out
     }
 
+    #[cfg(feature = "editor")]
     pub fn opposite(&self) -> Self {
         let mut out = self.clone();
         for px in &mut out.pixels {
@@ -418,6 +424,7 @@ impl PixelGrid {
         out
     }
 
+    #[cfg(feature = "editor")]
     pub fn opposite_bitmap(&self) -> Self {
         let mut out = self.clone();
         for px in &mut out.pixels {
@@ -575,7 +582,7 @@ impl GlyphPoint {
         (self.row_end - self.row + 1) as u16
     }
 
-    #[cfg_attr(not(feature = "editor"), expect(dead_code))]
+    #[cfg(any(feature = "editor", test))]
     pub fn is_single_cell(&self) -> bool {
         self.col == self.col_end && self.row == self.row_end
     }
@@ -754,6 +761,7 @@ pub enum DocumentItem {
 }
 
 impl DocumentItem {
+    #[cfg(feature = "editor")]
     pub fn affects_font(&self) -> bool {
         !matches!(
             self,
@@ -1840,7 +1848,7 @@ pub enum DocLine {
     Grid(PixelGrid),
 }
 
-#[cfg(any(feature = "editor", test))]
+#[cfg(feature = "editor")]
 impl DocLine {
     pub fn as_text(&self) -> Option<&str> {
         match self {

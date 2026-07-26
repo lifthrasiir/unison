@@ -677,7 +677,7 @@ impl DetailRegion {
     /// Twice the filled area in unit-square terms. Only meaningful for
     /// canonical regions (test/diagnostic helper) (sweep-derived rings: outer rings and holes are
     /// wound oppositely, so the signed shoelace sum is the even-odd area).
-    #[cfg_attr(not(test), expect(dead_code))]
+    #[cfg(test)]
     pub fn area2(&self) -> f64 {
         let mut a = 0i64;
         for ring in &self.rings {
@@ -783,10 +783,12 @@ impl DetailRegion {
     }
 
     /// Complement within the unit square.
+    #[cfg(any(feature = "editor", test))]
     pub fn complement(&self) -> DetailRegion {
         bool_op(&DetailRegion::full(), self, BoolOp::Subtract)
     }
 
+    #[cfg(feature = "editor")]
     fn map_lattice(&self, f: impl Fn(u8, u8, u8) -> (u8, u8)) -> DetailRegion {
         DetailRegion {
             den: self.den,
@@ -799,22 +801,27 @@ impl DetailRegion {
         .canonical()
     }
 
+    #[cfg(feature = "editor")]
     pub fn mirror_h(&self) -> DetailRegion {
         self.map_lattice(|x, y, d| (d - x, y))
     }
 
+    #[cfg(feature = "editor")]
     pub fn flip_v(&self) -> DetailRegion {
         self.map_lattice(|x, y, d| (x, d - y))
     }
 
+    #[cfg(feature = "editor")]
     pub fn rotate_cw(&self) -> DetailRegion {
         self.map_lattice(|x, y, d| (d - y, x))
     }
 
+    #[cfg(feature = "editor")]
     pub fn rotate_ccw(&self) -> DetailRegion {
         self.map_lattice(|x, y, d| (y, d - x))
     }
 
+    #[cfg(feature = "editor")]
     pub fn rotate_180(&self) -> DetailRegion {
         self.map_lattice(|x, y, d| (d - x, d - y))
     }
@@ -824,7 +831,7 @@ impl DetailRegion {
     /// form of [`union_disjoint_transformed`], which rescaling now uses to
     /// combine all pieces of a destination pixel in one sweep. The output
     /// lattice is chosen automatically (exact up to [`MAX_DEN`]).
-    #[cfg_attr(not(test), expect(dead_code))]
+    #[cfg(test)]
     pub fn transform_into(&self, x0: Frac64, y0: Frac64, w: Frac64, h: Frac64) -> DetailRegion {
         let den = self.den as i64;
         let fx0 = Frac::new(x0.n, x0.d);

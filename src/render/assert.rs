@@ -234,6 +234,7 @@ pub fn run_assertions(
 }
 
 /// Run shape assertions only from the specified subset of documents.
+#[cfg(feature = "editor")]
 pub fn run_assertions_for_files(
     test_docs: &[&Document],
     font_data: &[u8],
@@ -490,6 +491,7 @@ pub fn run_same_distinct_assertions(
 }
 
 /// Run same/distinct assertions only from the specified subset of documents.
+#[cfg(feature = "editor")]
 pub fn run_same_distinct_assertions_for_files(
     test_docs: &[&Document],
     resolved: &HashMap<String, ResolvedGlyph>,

@@ -46,11 +46,12 @@ fn load_docs_reporting_errors(dir: &std::path::Path) -> Vec<document::Document> 
     docs
 }
 
-/// Print what resolution could not make sense of. The font build silently
-/// drops such glyphs, so without this a broken reference only shows up as a
-/// missing glyph much later.
-fn report_resolution_issues(docs: &[&document::Document]) {
-    let issues = render::resolution_issues(docs);
+/// Print the same validation the editor shows. The font build proceeds
+/// regardless — a reference that resolves to nothing simply produces no glyph
+/// — so without this a broken document only shows up as a missing glyph much
+/// later.
+fn report_issues(docs: &[&document::Document]) {
+    let issues = issues::collect_issues(docs);
     if issues.is_empty() {
         return;
     }
@@ -70,11 +71,7 @@ fn report_resolution_issues(docs: &[&document::Document]) {
             .unwrap_or_default();
         eprintln!("{label}: {file}:{}: {}", issue.file_line, issue.message);
     }
-    eprintln!(
-        "{} resolution problem(s), {} error(s)",
-        issues.len(),
-        errors,
-    );
+    eprintln!("{} problem(s), {} error(s)", issues.len(), errors);
 }
 
 fn main() {
@@ -185,7 +182,7 @@ fn main() {
             std::process::exit(1);
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
-        report_resolution_issues(&refs);
+        report_issues(&refs);
         let Some(font_bytes) = render::build_font_from_documents(&refs) else {
             eprintln!("Font build failed");
             std::process::exit(1);
@@ -298,7 +295,7 @@ fn main() {
             std::process::exit(1);
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
-        report_resolution_issues(&refs);
+        report_issues(&refs);
 
         let Some(built) = render::build_font_with_gid_map(&refs) else {
             eprintln!("Font build failed");

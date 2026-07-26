@@ -111,6 +111,7 @@ pub fn init() {
 /// Only needed on platforms without sampling support; on Windows the watchdog
 /// already sees every depth. Cheap enough (one load, one compare) to leave in.
 #[inline]
+#[cfg(feature = "editor")]
 pub fn probe() {
     if !ENABLED.load(Ordering::Relaxed) {
         return;
@@ -127,6 +128,7 @@ pub fn probe() {
 /// Marks what the main thread is currently doing, so a deep-stack report can
 /// name the phase. `tag` must be a `'static` NUL-free string.
 #[inline]
+#[cfg(feature = "editor")]
 pub fn phase(tag: &'static str) {
     if ENABLED.load(Ordering::Relaxed) {
         PHASE.store(tag.as_ptr() as *mut u8, Ordering::Relaxed);

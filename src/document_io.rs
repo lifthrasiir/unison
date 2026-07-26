@@ -40,7 +40,7 @@ pub fn quote_token(s: &str) -> String {
 /// click/hover). `raw_start..raw_end` covers the full raw representation
 /// including backtick delimiters.
 #[derive(Clone, Debug)]
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub struct TokenSpan {
     pub value: String,
     pub raw_start: usize,
@@ -620,7 +620,7 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
 
 /// Convert old `= ..` range format to standard `glyph`/`ref` format.
 /// `glyph NAME = ..\n\tbody1 ..\n\tbody2` becomes `glyph NAME\nref body1 0 0\nref body2 0 0`.
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 pub fn parse_doclines(content: &str) -> Vec<DocLine> {
     let mut lines = Vec::new();
     let mut iter = content.lines().peekable();
@@ -674,7 +674,7 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
     lines
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 pub fn serialize_doclines(lines: &[DocLine], writer: &mut dyn Write) -> Result<()> {
     for line in lines {
         match line {

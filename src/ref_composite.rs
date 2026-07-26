@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
 use crate::document::{
-    Document, DocumentItem, GlyphBody, GlyphName, GlyphPoint, GlyphRef, NamePartsMap, PixelGrid,
+    Document, DocumentItem, GlyphName, GlyphPoint, GlyphRef, NamePartsMap, PixelGrid,
     expand_name_pattern, substitute_name_parts,
 };
+// Only the composite helpers and their tests need this.
+#[cfg(any(feature = "editor", test))]
+use crate::document::GlyphBody;
 
 #[cfg(feature = "editor")]
 const PHI: f64 = 1.618033988749895;
@@ -742,7 +745,6 @@ pub fn detect_on_demand_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> O
     parse_on_demand_glyph(name).or_else(|| detect_color_mono_glyph(name, has_glyph))
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn resolve_named_glyphs_with_parts(
     docs: &[&Document],
     name_parts: &NamePartsMap,
@@ -943,7 +945,7 @@ pub fn resolve_ref_name_with_parts<'a>(
 
 /// Check that a ref name resolves to valid glyphs. For pattern refs, ALL
 /// expansions must exist; returns false if any expansion is missing.
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 pub fn is_ref_valid(
     name: &str,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
@@ -1019,15 +1021,6 @@ impl AlternativesIndex {
     pub fn get(&self, base_name: &str) -> &[(String, Vec<GlyphPoint>)] {
         self.map.get(base_name).map_or(&[], |v| v.as_slice())
     }
-}
-
-/// The effective (row, col) offset of a resolved ref within its owning glyph.
-#[expect(dead_code)]
-pub(crate) fn ref_effective_offset(gref: &GlyphRef, resolved: &ResolvedGlyph) -> (i32, i32) {
-    (
-        gref.row() as i32 + resolved.origin_row,
-        gref.col() as i32 + resolved.origin_col,
-    )
 }
 
 fn ref_effective_offset_scaled(
@@ -1112,7 +1105,7 @@ fn resolve_fill_display_color(
     Some(egui::Color32::from_rgba_unmultiplied(rgba.r, rgba.g, rgba.b, rgba.a))
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 pub fn compute_composite(
     body: &GlyphBody,
     named_glyphs: &HashMap<String, ResolvedGlyph>,

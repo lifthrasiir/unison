@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::path::Path;
+#[cfg(feature = "editor")]
 use std::sync::{Arc, Mutex};
 
 use write_fonts::tables::cmap::Cmap;
@@ -61,9 +62,10 @@ pub struct ContourCache {
     gen_id: u64,
 }
 
+#[cfg(feature = "editor")]
 pub type SharedContourCache = Arc<Mutex<ContourCache>>;
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(feature = "editor")]
 impl ContourCache {
     pub fn clear(&mut self) {
         self.entries.clear();
@@ -81,7 +83,7 @@ impl ContourCache {
     }
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(feature = "editor")]
 pub fn new_contour_cache() -> SharedContourCache {
     Arc::new(Mutex::new(ContourCache::default()))
 }
@@ -293,7 +295,7 @@ pub fn build_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {
     build_font_from_documents_inner(docs, false, None)
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(feature = "editor")]
 pub fn build_font_pair_cached(
     docs: &[&Document],
     shared_cache: &SharedContourCache,

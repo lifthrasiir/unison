@@ -1023,9 +1023,6 @@ mod tests {
                 if s1 >= s2 {
                     continue;
                 }
-                let grid_a = make_grid(1, 1, &[s1 | PX_FULL]);
-                let grid_b = make_grid(1, 1, &[s2 | PX_FULL]);
-
                 let width = 1usize;
                 let height = 1usize;
                 let stride = width + 1;

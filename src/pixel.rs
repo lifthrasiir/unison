@@ -82,16 +82,19 @@ impl PixelShape {
         self.shape_id() == PX_EMPTY && !self.is_filled()
     }
 
+    #[cfg(feature = "editor")]
     pub fn with_fill_toggled(self) -> Self {
         Self(self.0 ^ PX_FULL)
     }
 
+    #[cfg(feature = "editor")]
     pub fn is_slant_pair(self) -> bool {
         let id = self.shape_id();
         let base = id.min(id ^ PX_SUBPIXEL);
         (7..=14).contains(&base)
     }
 
+    #[cfg(feature = "editor")]
     pub fn slant_direction_pair(self) -> Self {
         let id = self.shape_id();
         let pair_id = match id {
@@ -116,30 +119,37 @@ impl PixelShape {
         Self::new(pair_id, !self.is_filled())
     }
 
+    #[cfg(any(feature = "editor", test))]
     pub fn mirror_h(self) -> Self {
         Self(transform_shape(self.0, MIRROR_H_TABLE))
     }
 
+    #[cfg(any(feature = "editor", test))]
     pub fn flip_v(self) -> Self {
         Self(transform_shape(self.0, FLIP_V_TABLE))
     }
 
+    #[cfg(any(feature = "editor", test))]
     pub fn rotate_cw(self) -> Self {
         Self(transform_shape(self.0, ROTATE_CW_TABLE))
     }
 
+    #[cfg(any(feature = "editor", test))]
     pub fn rotate_ccw(self) -> Self {
         Self(transform_shape(self.0, ROTATE_CCW_TABLE))
     }
 
+    #[cfg(any(feature = "editor", test))]
     pub fn rotate_180(self) -> Self {
         Self(transform_shape(self.0, ROTATE_180_TABLE))
     }
 
+    #[cfg(feature = "editor")]
     pub fn opposite(self) -> Self {
         Self(!self.0)
     }
 
+    #[cfg(feature = "editor")]
     pub fn opposite_bitmap(self) -> Self {
         if self.shape_id() == PX_EMPTY {
             self
@@ -153,6 +163,7 @@ impl PixelShape {
 // Complement shapes (id ≥ 103) use: transform(id ^ 127) ^ 127.
 // The fill bit (PX_FULL) passes through unchanged.
 #[rustfmt::skip]
+#[cfg(any(feature = "editor", test))]
 const MIRROR_H_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     125, // HALF1 (\ BL) → HALF4 (/ BR)
@@ -182,6 +193,7 @@ const MIRROR_H_TABLE: [u8; 25] = [
 ];
 
 #[rustfmt::skip]
+#[cfg(any(feature = "editor", test))]
 const FLIP_V_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     2,   // HALF1 (\ BL) → HALF3 (/ TL)
@@ -211,6 +223,7 @@ const FLIP_V_TABLE: [u8; 25] = [
 ];
 
 #[rustfmt::skip]
+#[cfg(any(feature = "editor", test))]
 const ROTATE_CW_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     2,   // HALF1 (\ BL) → HALF3 (/ TL)
@@ -240,6 +253,7 @@ const ROTATE_CW_TABLE: [u8; 25] = [
 ];
 
 #[rustfmt::skip]
+#[cfg(any(feature = "editor", test))]
 const ROTATE_CCW_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     125, // HALF1 (\ BL) → HALF4 (/ BR)
@@ -269,6 +283,7 @@ const ROTATE_CCW_TABLE: [u8; 25] = [
 ];
 
 #[rustfmt::skip]
+#[cfg(any(feature = "editor", test))]
 const ROTATE_180_TABLE: [u8; 25] = [
     0,   // EMPTY → EMPTY
     126, // HALF1 (\ BL) → HALF2 (\ TR)
@@ -297,6 +312,7 @@ const ROTATE_180_TABLE: [u8; 25] = [
     23,  // CORNER4 (BR) → CORNER3 (TL)
 ];
 
+#[cfg(any(feature = "editor", test))]
 fn transform_shape(raw: u8, table: [u8; 25]) -> u8 {
     let fill = raw & PX_FULL;
     let id = raw & PX_SUBPIXEL;
@@ -449,13 +465,14 @@ pub fn adjacency(shape_id: u8) -> (u8, &'static [(f32, f32, f32, f32)]) {
     (bits, ADJACENCY_MAP[map_idx].2)
 }
 
+#[cfg(any(feature = "editor", test))]
 #[derive(Clone, Copy, Debug)]
 pub struct EdgeInterval {
     pub start: f32,
     pub end: f32,
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 impl EdgeInterval {
     pub const EMPTY: Self = Self {
         start: 0.0,
@@ -478,7 +495,7 @@ impl EdgeInterval {
 }
 
 #[derive(Clone, Copy, Debug)]
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 pub struct ShapeEdgeCoverage {
     pub top: EdgeInterval,
     pub bottom: EdgeInterval,
@@ -486,12 +503,14 @@ pub struct ShapeEdgeCoverage {
     pub right: EdgeInterval,
 }
 
+#[cfg(any(feature = "editor", test))]
 const EC_Z: ShapeEdgeCoverage = ShapeEdgeCoverage {
     top: EdgeInterval::EMPTY,
     bottom: EdgeInterval::EMPTY,
     left: EdgeInterval::EMPTY,
     right: EdgeInterval::EMPTY,
 };
+#[cfg(any(feature = "editor", test))]
 const EC_F: ShapeEdgeCoverage = ShapeEdgeCoverage {
     top: EdgeInterval { start: 0.0, end: 1.0 },
     bottom: EdgeInterval { start: 0.0, end: 1.0 },
@@ -499,6 +518,7 @@ const EC_F: ShapeEdgeCoverage = ShapeEdgeCoverage {
     right: EdgeInterval { start: 0.0, end: 1.0 },
 };
 
+#[cfg(any(feature = "editor", test))]
 const fn ec(ts: f32, te: f32, bs: f32, be: f32, ls: f32, le: f32, rs: f32, re: f32) -> ShapeEdgeCoverage {
     ShapeEdgeCoverage {
         top: EdgeInterval { start: ts, end: te },
@@ -509,6 +529,7 @@ const fn ec(ts: f32, te: f32, bs: f32, be: f32, ls: f32, le: f32, rs: f32, re: f
 }
 
 #[rustfmt::skip]
+#[cfg(any(feature = "editor", test))]
 const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
     let mut t = [EC_Z; 128];
     // 0: empty → all zero (default)
@@ -568,7 +589,7 @@ const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
     t
 };
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 pub fn edge_coverage(shape_id: u8) -> &'static ShapeEdgeCoverage {
     &EDGE_COVERAGE_TABLE[shape_id.min(127) as usize]
 }
@@ -903,6 +924,7 @@ const SHAPE_RASTERS: [u128; 128] = {
     r
 };
 
+#[cfg(any(feature = "editor", test))]
 fn raster_to_shape_id(raster: u128) -> u8 {
     if raster == 0 { return PX_EMPTY; }
     if raster == FULL_RASTER { return PX_ALMOSTFULL; }
@@ -915,7 +937,7 @@ fn raster_to_shape_id(raster: u128) -> u8 {
     PX_DOT
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg(any(feature = "editor", test))]
 pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() {
         return b;
@@ -928,6 +950,7 @@ pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
     PixelShape::new(result_id, a.is_filled() || b.is_filled())
 }
 
+#[cfg(any(feature = "editor", test))]
 pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() || b.is_empty() {
         return a;
