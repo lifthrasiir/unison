@@ -77,32 +77,79 @@ feature liga for DFLT : regional-indicator
 //--------------------------------------
 // experimental color flags
 
+// the glyph dimension is limited to 22px by 14px, giving the aspect ratio of 11:7 (~1.57:1).
+// any flag larger than 5:3 (~1.67:1) is therefore trimmed or scaled to 11:7 for the uniformity.
+// otherwise the flag is scaled to fill either the width and/or height,
+// with a minimal adjustment to the aspect ratio to snap to nearest pixel boundaries.
+
 glyph flag-($a-z**26)($a-z):mono
 ref regional-indicator-($a-z**26)-left
 ref regional-indicator-($a-z)-right 16 0
 
-assume unused flag-($a-z*26)($a-z):mono
+assume unused flag-($a-z**26)($a-z):mono
 
 // Andorra (aspect 10:7, division 8:9:8 -> 13:14:13)
-glyph flag-ad:color 24 16 scale 2
-ref 22x16 2 0 fill #00000080
-ref 6p1r2x14 4 2 fill #10069f
-ref 7x14 17 2 fill #fedd00
-ref 6p1r2x14 31 2 fill #d50032
+glyph flag-ad:color 24 16
+ref 22x16 1 0 fill #00000080
+ref 20x14 2 1 fill #fedd00
+ref 6p1r2x14 2 1 fill #10069f
+ref -6p1r2x14 15 1 fill #d50032
+
+// Armenia (aspect 2:1 -> 11:7, division 1:1:1)
+glyph flag-am:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #0033A0
+ref 22x4p2r3 1 1 fill #D90012
+ref 22x-4p2r3 1 10 fill #F2A800
 
 // Argentina (aspect 8:5 or 14:9 -> 11:7, division 1:1:1)
-glyph flag-ar:color 24 16 scale 3
+glyph flag-ar:color 24 16
 ref 24x16 0 0 fill #00000080
-ref 22x4p2r3 3 3 fill #74ACDF
-ref 22x4p2r3 3 17 fill #ffffff
-ref 22x4p2r3 3 31 fill #74ACDF
+ref 22x14 1 1 fill #ffffff
+ref 22x4p2r3 1 1 fill #74ACDF
+ref 22x-4p2r3 1 10 fill #74ACDF
 
 // Austria (aspect 3:2, division 1:1:1)
-glyph flag-at:color 24 16 scale 3
-ref 23x16 3 0 fill #00000080
-ref 21x4p2r3 6 3 fill #C8102E
-ref 21x4p2r3 6 17 fill #ffffff
-ref 21x4p2r3 6 31 fill #C8102E
+glyph flag-at:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #ffffff
+ref 21x4p2r3 2 1 fill #C8102E
+ref 21x-4p2r3 2 10 fill #C8102E
+
+// Belgium (aspect 15:13 -> 16:14)
+glyph flag-be:color 24 16
+ref 18x16 3 0 fill #00000080
+ref 16x14 4 1 fill #fdda25
+ref 5p1r3x14 4 1 fill #000000
+ref -5p1r3x14 14 1 fill #ef3340
+
+// Bahrain (aspect 5:3 -> 22:13)
+glyph flag-bh:color 24 16
+ref 24x15 0 0 fill #00000080
+ref 22x13 1 1 fill #ffffff
+ref flag-bh-right 1 1 fill #DA291C
+
+glyph flag-bh-right 22 13 scale 5
+ref 13p1r5x13 44 0
+ref -3p3r10x1p3r10-ur 24 0
+ref -3p3r10x-1p3r10-dr 24 3
+ref -3p3r10x1p3r10-ur 24 13
+ref -3p3r10x-1p3r10-dr 24 16
+ref -3p3r10x1p3r10-ur 24 26
+ref -3p3r10x-1p3r10-dr 24 29
+ref -3p3r10x1p3r10-ur 24 39
+ref -3p3r10x-1p3r10-dr 24 42
+ref -3p3r10x1p3r10-ur 24 52
+ref -3p3r10x-1p3r10-dr 24 55
+
+// The Bahamas (aspect 2:1 -> 11:7, division 1:1:1)
+glyph flag-bs:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFC72C
+ref 22x4p2r3 1 1 fill #00778B
+ref 22x-4p2r3 1 10 fill #00778B
+ref 9p1r2x7-dl 1 1 fill #000000
+ref 9p1r2x7-ul 1 8 fill #000000
 
 // France (aspect 3:2, division 1:1:1)
 glyph flag-fr:color 24 16
@@ -136,14 +183,15 @@ glyph flag-jp-circle 9 8 scale 2
 ..........\h_H@@@@@@@@H_h/..........
 
 // South Korea (aspect 3:2)
-glyph flag-kr:color 24 16 scale 2
-ref 23x16 2 0 fill #00000080
-ref 21x14 4 2 fill #ffffff
-ref flag-kr-taegeuk-u 18 9 fill #CD2E3A
-ref flag-kr-taegeuk-d 18 9 fill #0047A0
-ref flag-kr-trigrams 4 2 fill #000000
+glyph flag-kr:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #ffffff
+ref flag-kr-taegeuk-u 9 4 fill #CD2E3A
+ref flag-kr-taegeuk-d 9 4 fill #0047A0
+ref flag-kr-trigrams 2 1 fill #000000
 
-glyph flag-kr-taegeuk-u 7 7 scale 2
+glyph flag-kr-taegeuk-u 7 8 scale 2
+............................
 ....../h~H@@@@@@@@H~h\......
 ..../1@@@@@@@@@@@@@@@@1\....
 ../1@@@@@@@@@@@@@@@@@@@@1\..
@@ -158,8 +206,10 @@ glyph flag-kr-taegeuk-u 7 7 scale 2
 ............................
 ............................
 ............................
+............................
 
-glyph flag-kr-taegeuk-d 7 7 scale 2
+glyph flag-kr-taegeuk-d 7 8 scale 2
+............................
 ............................
 ............................
 ............................
@@ -174,6 +224,7 @@ V\........../0@@@@@@@@@@@@V\
 ..\1@@@@@@@@@@@@@@@@@@@@1/..
 ....\1@@@@@@@@@@@@@@@@1/....
 ......\h_H@@@@@@@@H_h/......
+............................
 
 glyph flag-kr-trigrams 21 14 scale 2
 ....................................................................................
@@ -205,14 +256,14 @@ glyph flag-kr-trigrams 21 14 scale 2
 ....................................................................................
 ....................................................................................
 
-// Seychelles (aspect 2:1)
+// Seychelles (aspect 2:1 -> 11:7)
 glyph flag-sc:color 24 16
-ref 23x16 1 0 fill #00000080
-ref 21x14 2 1 fill #D92323
-ref 14x14-ul 2 1 fill #FED141
-ref 7x14-ul 2 1 fill #002F6C
-ref 21x-9p1r3-dr 2 5 fill #ffffff
-ref 21x-4p2r3-dr 2 10 fill #007A33
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #D92323
+ref 14p2r3x14-ul 1 1 fill #FED141
+ref 7p1r3x14-ul 1 1 fill #002F6C
+ref 22x-9p1r3-dr 1 5 fill #ffffff
+ref 22x-4p2r3-dr 1 10 fill #007A33
 
 // United States (aspect 19:10 -> 11:7)
 glyph flag-us:color 24 16
@@ -312,8 +363,12 @@ glyph flag-us-star 1 1 scale 20
 ........................................
 
 remap flag : regional-indicator-a-left regional-indicator-d-right -> flag-ad
+remap flag : regional-indicator-a-left regional-indicator-m-right -> flag-am
 remap flag : regional-indicator-a-left regional-indicator-r-right -> flag-ar
 remap flag : regional-indicator-a-left regional-indicator-t-right -> flag-at
+remap flag : regional-indicator-b-left regional-indicator-e-right -> flag-be
+remap flag : regional-indicator-b-left regional-indicator-h-right -> flag-bh
+remap flag : regional-indicator-b-left regional-indicator-s-right -> flag-bs
 remap flag : regional-indicator-f-left regional-indicator-r-right -> flag-fr
 remap flag : regional-indicator-j-left regional-indicator-p-right -> flag-jp
 remap flag : regional-indicator-k-left regional-indicator-r-right -> flag-kr
