@@ -8,6 +8,7 @@ pub mod document_view;
 pub mod editing;
 pub mod glyph_widget;
 pub mod grid_render;
+pub mod line_fields;
 #[cfg(test)]
 pub(crate) mod harness;
 pub mod inline_tools;

@@ -292,220 +292,122 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
     let rest = &spans[1..];
     let adj_col = col.saturating_sub(leading);
 
-    // Find which token index (in rest) the cursor is in or after
+    let ctx = |kind: CompletionKind| {
+        Some(CompletionContext {
+            kind,
+            prefix: word.clone(),
+            replace_start: word_start,
+        })
+    };
+
+    // A caret on a classified name token completes as that field's kind; the
+    // shared classification is what keeps completion, links and rename in
+    // agreement about which tokens are names.
+    for f in crate::editor::line_fields::classify_line(line) {
+        if !f.contains_col(col) {
+            continue;
+        }
+        use crate::editor::line_fields::FieldRole;
+        return match f.role {
+            FieldRole::GlyphRef | FieldRole::RemapGroupRef => ctx(CompletionKind::Glyph),
+            FieldRole::ColorRef => ctx(CompletionKind::Color),
+            FieldRole::PointDef => ctx(CompletionKind::Point),
+            FieldRole::NamePartsDef => ctx(CompletionKind::NameParts),
+            // Definitions of new names (and name-parts values without a `$`,
+            // which the word check above already handled) get no completion.
+            FieldRole::GlyphDef | FieldRole::NamePartsValue | FieldRole::ColorDef => None,
+        };
+    }
+
+    // The caret is between tokens or past the end: decide what a *new* token
+    // here would be.  This zone knowledge is completion-specific.
     let rest_token_idx = find_rest_token_at(rest, adj_col);
+    let past_last = rest_token_idx.is_none() && adj_col > rest.last().map_or(0, |s| s.raw_end);
 
     match keyword {
         "ref" => {
-            // After `fill` token, offer color completion
-            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill") {
-                let after_fill = fill_pos + 1;
-                match rest_token_idx {
-                    Some(idx) if idx >= after_fill => {
-                        let val = &rest[idx].value;
-                        if val != "coloronly" && val != "monoonly" {
-                            return Some(CompletionContext {
-                                kind: CompletionKind::Color,
-                                prefix: word,
-                                replace_start: word_start,
-                            });
-                        }
-                    }
-                    None if adj_col > rest.last().map_or(0, |s| s.raw_end)
-                        && rest.len() == after_fill =>
-                    {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Color,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    _ => {}
-                }
+            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill")
+                && past_last
+                && rest.len() == fill_pos + 1
+            {
+                return ctx(CompletionKind::Color);
             }
-            if rest_token_idx <= Some(0) || (rest.is_empty() && adj_col > spans[0].raw_end) {
-                return Some(CompletionContext {
-                    kind: CompletionKind::Glyph,
-                    prefix: word,
-                    replace_start: word_start,
-                });
+            if rest_token_idx.is_none() {
+                return ctx(CompletionKind::Glyph);
             }
         }
         "exclude-from-sample" => {
-            if rest_token_idx <= Some(0) || (rest.is_empty() && adj_col > spans[0].raw_end) {
-                return Some(CompletionContext {
-                    kind: CompletionKind::Glyph,
-                    prefix: word,
-                    replace_start: word_start,
-                });
+            if rest_token_idx.is_none() {
+                return ctx(CompletionKind::Glyph);
             }
         }
         "assume" => {
-            if rest.first().is_some_and(|s| s.value == "unused") {
-                if rest_token_idx.is_some_and(|i| i >= 1)
-                    || (rest.len() == 1 && adj_col > rest[0].raw_end)
-                {
-                    return Some(CompletionContext {
-                        kind: CompletionKind::Glyph,
-                        prefix: word,
-                        replace_start: word_start,
-                    });
-                }
+            if rest.first().is_some_and(|s| s.value == "unused")
+                && rest.len() == 1
+                && past_last
+            {
+                return ctx(CompletionKind::Glyph);
             }
         }
         "glyph" => {
-            // Check for alias form: glyph NAME [flags...] = ALIAS
-            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
-                let after_eq = eq_pos + 1;
-                match rest_token_idx {
-                    Some(idx) if idx >= after_eq => {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Glyph,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    None if rest.len() == after_eq => {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Glyph,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    _ => {}
-                }
+            // Trailing alias position: glyph NAME [flags...] = |
+            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=")
+                && rest_token_idx.is_none()
+                && rest.len() == eq_pos + 1
+            {
+                return ctx(CompletionKind::Glyph);
             }
             // After dims, offer glyph flags
             if rest.len() >= 2 {
-                let has_dims = rest[0].value.parse::<u16>().is_ok()
-                    || (rest.len() > 1
-                        && rest.iter().any(|s| s.value.parse::<u16>().is_ok()));
+                let has_dims = rest.iter().any(|s| s.value.parse::<u16>().is_ok());
                 if has_dims {
                     if let Some(idx) = rest_token_idx {
                         if idx >= 2 || (idx >= 1 && rest[0].value.parse::<u16>().is_err()) {
-                            return Some(CompletionContext {
-                                kind: CompletionKind::GlyphFlag,
-                                prefix: word,
-                                replace_start: word_start,
-                            });
+                            return ctx(CompletionKind::GlyphFlag);
                         }
-                    } else if adj_col > rest.last().map_or(0, |s| s.raw_end) {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::GlyphFlag,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
+                    } else if past_last {
+                        return ctx(CompletionKind::GlyphFlag);
                     }
                 }
             }
         }
         "map" => {
-            // map CHAR = GLYPH
-            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
-                let after_eq = eq_pos + 1;
-                match rest_token_idx {
-                    Some(idx) if idx >= after_eq => {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Glyph,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    None if rest.len() == after_eq => {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Glyph,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    _ => {}
-                }
+            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=")
+                && rest_token_idx.is_none()
+                && rest.len() == eq_pos + 1
+            {
+                return ctx(CompletionKind::Glyph);
             }
         }
         "point" | "anchor" => {
-            if rest_token_idx <= Some(0) || (rest.is_empty() && adj_col > spans[0].raw_end) {
-                return Some(CompletionContext {
-                    kind: CompletionKind::Point,
-                    prefix: word,
-                    replace_start: word_start,
-                });
+            if rest_token_idx.is_none() {
+                return ctx(CompletionKind::Point);
             }
         }
         "remap" => {
-            // All non-structural tokens can be glyph names
-            if let Some(idx) = rest_token_idx {
-                let val = &rest[idx].value;
-                if val != ":" && val != "->" {
-                    return Some(CompletionContext {
-                        kind: CompletionKind::Glyph,
-                        prefix: word,
-                        replace_start: word_start,
-                    });
-                }
-            } else if adj_col > spans[0].raw_end {
-                return Some(CompletionContext {
-                    kind: CompletionKind::Glyph,
-                    prefix: word,
-                    replace_start: word_start,
-                });
+            if rest_token_idx.is_none() {
+                return ctx(CompletionKind::Glyph);
             }
         }
         "name-parts" => {
-            if rest_token_idx <= Some(0) || (rest.is_empty() && adj_col > spans[0].raw_end) {
-                return Some(CompletionContext {
-                    kind: CompletionKind::NameParts,
-                    prefix: word,
-                    replace_start: word_start,
-                });
+            if rest_token_idx.is_none() {
+                return ctx(CompletionKind::NameParts);
             }
         }
         "feature" => {
-            // feature NAME for SCRIPT... : REMAP_GROUP
-            if let Some(colon_pos) = rest.iter().position(|s| s.value == ":") {
-                let after_colon = colon_pos + 1;
-                match rest_token_idx {
-                    Some(idx) if idx >= after_colon => {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Glyph,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    None if rest.len() == after_colon => {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Glyph,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    _ => {}
-                }
+            if let Some(colon_pos) = rest.iter().position(|s| s.value == ":")
+                && rest_token_idx.is_none()
+                && rest.len() == colon_pos + 1
+            {
+                return ctx(CompletionKind::Glyph);
             }
         }
         "color" => {
-            // color NAME = VALUE [coloronly|monoonly]
-            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
-                let after_eq = eq_pos + 1;
-                match rest_token_idx {
-                    Some(idx) if idx >= after_eq => {
-                        let val = &rest[idx].value;
-                        if val != "coloronly" && val != "monoonly" {
-                            return Some(CompletionContext {
-                                kind: CompletionKind::Color,
-                                prefix: word,
-                                replace_start: word_start,
-                            });
-                        }
-                    }
-                    None if rest.len() == after_eq => {
-                        return Some(CompletionContext {
-                            kind: CompletionKind::Color,
-                            prefix: word,
-                            replace_start: word_start,
-                        });
-                    }
-                    _ => {}
-                }
+            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=")
+                && rest_token_idx.is_none()
+                && rest.len() == eq_pos + 1
+            {
+                return ctx(CompletionKind::Color);
             }
         }
         _ => {}

@@ -2087,21 +2087,10 @@ fn rename_in_place(
     new_name: &str,
     kind: &crate::editor::doc_links::RenameKind,
 ) -> Vec<(usize, String)> {
-    use crate::editor::doc_links::RenameKind;
-
     let mut changed = Vec::new();
     for (i, line) in lines.iter_mut().enumerate() {
         let DocLine::Text(s) = line else { continue };
-        let trimmed = s.trim_start();
-
-        let new_text = match kind {
-            RenameKind::Glyph => rename_glyph_in_line(trimmed, s, old_name, new_name),
-            RenameKind::NameParts => rename_name_parts_in_line(trimmed, s, old_name, new_name),
-            RenameKind::Point => rename_point_in_line(trimmed, s, old_name, new_name),
-            RenameKind::Color => rename_color_in_line(trimmed, s, old_name, new_name),
-        };
-
-        if let Some(t) = new_text {
+        if let Some(t) = rename_in_line(s, old_name, new_name, kind) {
             changed.push((i, std::mem::replace(s, t)));
         }
     }
@@ -2160,239 +2149,79 @@ fn doc_may_reference(
     false
 }
 
-fn rename_glyph_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &str) -> Option<String> {
-    let leading = &full[..full.len() - trimmed.len()];
+/// Applies a rename to one line by splicing new text over the classified
+/// name fields (`crate::editor::line_fields`).  Detection and mutation share
+/// the classification, so whatever the rename popup identified is exactly
+/// what gets rewritten.  Returns `None` when the line is unaffected.
+fn rename_in_line(
+    full: &str,
+    old_name: &str,
+    new_name: &str,
+    kind: &crate::editor::doc_links::RenameKind,
+) -> Option<String> {
+    use crate::editor::doc_links::RenameKind;
+    use crate::editor::line_fields::{FieldRole, classify_line};
 
-    // glyph NAME ...
-    if let Some(rest) = trimmed.strip_prefix("glyph ") {
-        let name = rest.split_whitespace().next().unwrap_or("");
-        if name.is_empty() {
-            return None;
-        }
-        let after_name = &rest[name.len()..]; // preserves whitespace
-
-        let ws_parts: Vec<&str> = rest.split_whitespace().collect();
-        if let Some(eq_token) = ws_parts.iter().position(|&part| part == "=")
-            && let Some(&alias) = ws_parts.get(eq_token + 1) {
-            // glyph NAME [flags...] = ALIAS [more...]
-            if name == old_name {
-                return Some(format!("{leading}glyph {new_name}{after_name}"));
+    // (char col start, char col end, replacement)
+    let mut reps: Vec<(usize, usize, String)> = Vec::new();
+    for f in classify_line(full) {
+        let rep = match (kind, f.role) {
+            (RenameKind::Glyph, FieldRole::GlyphDef | FieldRole::GlyphRef)
+                if f.token == old_name =>
+            {
+                Some(crate::document_io::quote_token(new_name))
             }
-            if alias == old_name {
-                // Find the alias in the after_name portion and replace it
-                let eq_pos = after_name.find('=').unwrap();
-                let before_eq = &after_name[..eq_pos + 1]; // " ="
-                let after_eq = &after_name[eq_pos + 1..]; // " ALIAS [more]"
-                let alias_start = after_eq.find(alias).unwrap();
-                let before_alias = &after_eq[..alias_start];
-                let after_alias = &after_eq[alias_start + alias.len()..];
-                return Some(format!("{leading}glyph {name}{before_eq}{before_alias}{new_name}{after_alias}"));
+            (
+                RenameKind::NameParts,
+                FieldRole::GlyphDef | FieldRole::GlyphRef | FieldRole::NamePartsValue,
+            ) => {
+                let new_tok = replace_dollar_var(&f.token, old_name, new_name);
+                (new_tok != f.token).then(|| crate::document_io::quote_token(&new_tok))
             }
-            return None;
-        }
-
-        if name == old_name {
-            return Some(format!("{leading}glyph {new_name}{after_name}"));
-        }
-        return None;
-    }
-
-    // ref NAME COL ROW [negated]
-    if let Some(rest) = trimmed.strip_prefix("ref ") {
-        let parts: Vec<&str> = rest.splitn(2, char::is_whitespace).collect();
-        if parts[0] == old_name {
-            let after = if parts.len() > 1 { format!(" {}", parts[1]) } else { String::new() };
-            return Some(format!("{leading}ref {new_name}{after}"));
-        }
-        return None;
-    }
-
-    // map CHAR = NAME
-    if let Some(rest) = trimmed.strip_prefix("map ") {
-        let parts: Vec<&str> = rest.split_whitespace().collect();
-        if parts.len() == 3 && parts[1] == "=" && parts[2] == old_name {
-            return Some(format!("{leading}map {} = {new_name}", parts[0]));
-        }
-        return None;
-    }
-
-    // remap tokens: replace old_name with new_name as whole tokens
-    if let Some(rest) = trimmed.strip_prefix("remap ") {
-        let mut changed = false;
-        let new_tokens: Vec<String> = rest.split_whitespace().map(|tok| {
-            let has_colon = tok.ends_with(':');
-            let clean = tok.trim_end_matches(':');
-            if clean == old_name {
-                changed = true;
-                if has_colon { format!("{new_name}:") } else { new_name.to_string() }
-            } else {
-                tok.to_string()
+            (RenameKind::NameParts, FieldRole::NamePartsDef) if f.token == old_name => {
+                Some(new_name.to_string())
             }
-        }).collect();
-        if changed {
-            return Some(format!("{leading}remap {}", new_tokens.join(" ")));
-        }
-        return None;
-    }
-
-    // exclude-from-sample NAME
-    if let crate::document::Directive::ExcludeFromSample(rest) =
-        crate::document::classify_directive(trimmed)
-    {
-        let token = rest.split_whitespace().next()?;
-        if token == old_name {
-            let after = &rest[token.len()..];
-            return Some(format!("{leading}exclude-from-sample {new_name}{after}"));
-        }
-        return None;
-    }
-
-    // assume unused NAME...
-    if let crate::document::Directive::AssumeUnused(rest) =
-        crate::document::classify_directive(trimmed)
-    {
-        if rest.split_whitespace().any(|t| t == old_name) {
-            let new_line = format!(
-                "{leading}assume unused {}",
-                rest.split_whitespace()
-                    .map(|t| if t == old_name { new_name } else { t })
-                    .collect::<Vec<_>>()
-                    .join(" ")
-            );
-            return Some(new_line);
-        }
-        return None;
-    }
-
-    // assert same NAME... / assert distinct NAME...
-    for keyword in &["assert same ", "assert distinct "] {
-        if let Some(rest) = trimmed.strip_prefix(keyword) {
-            if rest.split_whitespace().any(|t| t == old_name) {
-                let new_line = format!(
-                    "{leading}{keyword}{}",
-                    rest.split_whitespace()
-                        .map(|t| if t == old_name { new_name } else { t })
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                );
-                return Some(new_line);
+            (RenameKind::Point, FieldRole::PointDef) => {
+                let (prefix, bare) = match f.token.strip_prefix(['+', '-']) {
+                    Some(stripped) => (&f.token[..1], stripped),
+                    None => ("", f.token.as_str()),
+                };
+                (bare == old_name).then(|| format!("{prefix}{new_name}"))
             }
-            return None;
+            (RenameKind::Color, FieldRole::ColorDef | FieldRole::ColorRef)
+                if f.token == old_name =>
+            {
+                Some(crate::document_io::quote_token(new_name))
+            }
+            _ => None,
+        };
+        if let Some(r) = rep {
+            reps.push((f.col_start, f.col_end, r));
         }
     }
 
-    None
-}
-
-fn rename_name_parts_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &str) -> Option<String> {
-    // old_name includes the $ prefix (e.g., "$init")
-    // Replace all occurrences of the $var token in the line
-    if !full.contains(old_name) {
+    if reps.is_empty() {
         return None;
     }
 
-    let leading = &full[..full.len() - trimmed.len()];
-
-    // name-parts $NAME = ...  (definition)
-    if let Some(rest) = trimmed.strip_prefix("name-parts ") {
-        let parts: Vec<&str> = rest.splitn(2, char::is_whitespace).collect();
-        let def_name = parts[0];
-        let mut result_parts = Vec::new();
-        let mut changed = false;
-
-        if def_name == old_name {
-            result_parts.push(new_name.to_string());
-            changed = true;
-        } else {
-            result_parts.push(def_name.to_string());
+    // Renaming an anchor also migrates the legacy `point` keyword.
+    if matches!(kind, RenameKind::Point) {
+        let trimmed = full.trim_start();
+        if trimmed.starts_with("point ") {
+            let leading = full.chars().count() - trimmed.chars().count();
+            reps.push((leading, leading + "point".len(), "anchor".to_string()));
         }
-
-        if parts.len() > 1 {
-            // Replace $var references in the values portion
-            let values_str = parts[1];
-            let new_values = replace_dollar_var(values_str, old_name, new_name);
-            if new_values != values_str {
-                changed = true;
-            }
-            result_parts.push(new_values);
-        }
-
-        if changed {
-            return Some(format!("{leading}name-parts {}", result_parts.join(" ")));
-        }
-        return None;
     }
 
-    // For glyph headers: replace $var in the name portion
-    if let Some(rest) = trimmed.strip_prefix("glyph ") {
-        let parts: Vec<&str> = rest.splitn(2, char::is_whitespace).collect();
-        let name = parts[0];
-        if name.contains(old_name) {
-            let new_n = replace_dollar_var(name, old_name, new_name);
-            if new_n != name {
-                let after = if parts.len() > 1 { format!(" {}", parts[1]) } else { String::new() };
-                return Some(format!("{leading}glyph {new_n}{after}"));
-            }
-        }
-        // Also check alias part
-        if parts.len() > 1 {
-            let after = parts[1];
-            if after.contains(old_name) {
-                let new_after = replace_dollar_var(after, old_name, new_name);
-                if new_after != after {
-                    return Some(format!("{leading}glyph {name} {new_after}"));
-                }
-            }
-        }
-        return None;
+    use crate::editor::caret::char_to_byte;
+    reps.sort_by_key(|&(start, _, _)| std::cmp::Reverse(start));
+    let mut out = full.to_string();
+    for (start, end, replacement) in reps {
+        let byte_start = char_to_byte(&out, start);
+        let byte_end = char_to_byte(&out, end);
+        out.replace_range(byte_start..byte_end, &replacement);
     }
-
-    // ref NAME: replace $var in name
-    if let Some(rest) = trimmed.strip_prefix("ref ") {
-        let parts: Vec<&str> = rest.splitn(2, char::is_whitespace).collect();
-        let name = parts[0];
-        if name.contains(old_name) {
-            let new_n = replace_dollar_var(name, old_name, new_name);
-            if new_n != name {
-                let after = if parts.len() > 1 { format!(" {}", parts[1]) } else { String::new() };
-                return Some(format!("{leading}ref {new_n}{after}"));
-            }
-        }
-        return None;
-    }
-
-    // map CHAR = NAME: replace $var in glyph name
-    if let Some(rest) = trimmed.strip_prefix("map ") {
-        let parts: Vec<&str> = rest.split_whitespace().collect();
-        if parts.len() == 3 && parts[1] == "=" && parts[2].contains(old_name) {
-            let new_n = replace_dollar_var(parts[2], old_name, new_name);
-            if new_n != parts[2] {
-                return Some(format!("{leading}map {} = {new_n}", parts[0]));
-            }
-        }
-        return None;
-    }
-
-    // remap tokens: replace $var in tokens
-    if let Some(rest) = trimmed.strip_prefix("remap ") {
-        let mut changed = false;
-        let new_tokens: Vec<String> = rest.split_whitespace().map(|tok| {
-            if tok.contains(old_name) {
-                let new_tok = replace_dollar_var(tok, old_name, new_name);
-                if new_tok != tok {
-                    changed = true;
-                    return new_tok;
-                }
-            }
-            tok.to_string()
-        }).collect();
-        if changed {
-            return Some(format!("{leading}remap {}", new_tokens.join(" ")));
-        }
-        return None;
-    }
-
-    None
+    Some(out)
 }
 
 fn replace_dollar_var(text: &str, old_var: &str, new_var: &str) -> String {
@@ -2422,77 +2251,6 @@ fn replace_dollar_var(text: &str, old_var: &str, new_var: &str) -> String {
         i += 1;
     }
     result
-}
-
-fn rename_point_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &str) -> Option<String> {
-    let leading = &full[..full.len() - trimmed.len()];
-
-    // anchor [+|-]NAME COL ROW  (or legacy: point [+|-]NAME COL ROW)
-    let (keyword, rest) = if let Some(r) = trimmed.strip_prefix("anchor ") {
-        ("anchor", r)
-    } else if let Some(r) = trimmed.strip_prefix("point ") {
-        ("anchor", r)
-    } else {
-        return None;
-    };
-    let parts: Vec<&str> = rest.splitn(2, char::is_whitespace).collect();
-    let token = parts[0];
-
-    let (prefix_char, bare_name) = if let Some(stripped) = token.strip_prefix('+') {
-        ("+", stripped)
-    } else if let Some(stripped) = token.strip_prefix('-') {
-        ("-", stripped)
-    } else {
-        ("", token)
-    };
-
-    if bare_name != old_name {
-        return None;
-    }
-
-    let after = if parts.len() > 1 { format!(" {}", parts[1]) } else { String::new() };
-    Some(format!("{leading}{keyword} {prefix_char}{new_name}{after}"))
-}
-
-fn rename_color_in_line(trimmed: &str, full: &str, old_name: &str, new_name: &str) -> Option<String> {
-    let leading = &full[..full.len() - trimmed.len()];
-    let tokens = crate::document_io::tokenize_tokens(trimmed).ok()?;
-    if tokens.is_empty() {
-        return None;
-    }
-
-    let mut changed = false;
-    let mut new_tokens = tokens.clone();
-
-    match tokens[0].as_str() {
-        "color" => {
-            if tokens.len() >= 4 && tokens[2] == "=" {
-                if tokens[1] == old_name {
-                    new_tokens[1] = new_name.to_string();
-                    changed = true;
-                }
-                if tokens[3] == old_name {
-                    new_tokens[3] = new_name.to_string();
-                    changed = true;
-                }
-            }
-        }
-        "ref" => {
-            if let Some(fill_pos) = tokens.iter().position(|t| t == "fill")
-                && let Some(color_val) = tokens.get(fill_pos + 1)
-                    && color_val == old_name {
-                        new_tokens[fill_pos + 1] = new_name.to_string();
-                        changed = true;
-                    }
-        }
-        _ => {}
-    }
-
-    if !changed {
-        return None;
-    }
-    let quoted: Vec<String> = new_tokens.iter().map(|t| crate::document_io::quote_token(t)).collect();
-    Some(format!("{leading}{}", quoted.join(" ")))
 }
 
 #[cfg(test)]
@@ -2629,6 +2387,29 @@ mod rename_tests {
         let lines = vec![t("point +above 4 1"), t("point -above 2 1")];
         let result = do_rename(&lines, "above", "top", &RenameKind::Point);
         assert_eq!(result, vec!["anchor +top 4 1", "anchor -top 2 1"]);
+    }
+
+    #[test]
+    fn rename_glyph_assert_same() {
+        let lines = vec![t("assert same foo bar")];
+        let result = do_rename(&lines, "foo", "quux", &RenameKind::Glyph);
+        assert_eq!(result, vec!["assert same quux bar"]);
+    }
+
+    #[test]
+    fn rename_glyph_assert_shape() {
+        // Mutation follows the same classification the rename popup uses,
+        // so `assert shape` glyph slots rename too.
+        let lines = vec![t("assert shape AB : foo : b-upper")];
+        let result = do_rename(&lines, "foo", "quux", &RenameKind::Glyph);
+        assert_eq!(result, vec!["assert shape AB : quux : b-upper"]);
+    }
+
+    #[test]
+    fn rename_preserves_irregular_spacing() {
+        let lines = vec![t("  remap liga :  foo   ->  bar")];
+        let result = do_rename(&lines, "foo", "quux", &RenameKind::Glyph);
+        assert_eq!(result, vec!["  remap liga :  quux   ->  bar"]);
     }
 
     #[test]

@@ -1,5 +1,6 @@
 use crate::document::DocLine;
-use crate::document_io::{tokenize_tokens, tokenize_with_spans, TokenSpan};
+use crate::document_io::{tokenize_tokens, tokenize_with_spans};
+use crate::editor::line_fields::{FieldRole, LineField, classify_line};
 
 #[derive(Clone, Debug)]
 pub(crate) struct LinkSpan {
@@ -100,143 +101,40 @@ fn extract_glyph_and_parts_links(name: &str, base_col: usize) -> Vec<LinkSpan> {
 }
 
 pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
-    let trimmed = line.trim_start();
-    let leading = line.chars().count() - trimmed.chars().count();
-
-    let spans = match tokenize_with_spans(trimmed) {
-        Ok(s) if !s.is_empty() => s,
-        _ => return Vec::new(),
-    };
-
-    let keyword = spans[0].value.as_str();
-    let rest = &spans[1..];
-
-    match keyword {
-        "ref" => {
-            let name_span = match rest.first() {
-                Some(s) if !s.value.is_empty() => s,
-                _ => return Vec::new(),
-            };
-            let mut links = extract_glyph_and_parts_links(&name_span.value, leading + name_span.raw_start);
-            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill")
-                && let Some(color_span) = rest.get(fill_pos + 1)
-                    && !color_span.value.starts_with('#') && color_span.value != "fg" && !color_span.value.is_empty() {
-                        links.push(LinkSpan {
-                            col_start: leading + color_span.raw_start,
-                            col_end: leading + color_span.raw_end,
-                            target: color_span.value.clone(),
-                            kind: LinkTargetKind::Color,
-                        });
-                    }
-            links
-        }
-        "glyph" => {
-            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=")
-                && let Some(alias_span) = rest.get(eq_pos + 1) {
-                    let alias_base = leading + alias_span.raw_start;
-                    let mut links = extract_glyph_and_parts_links(&alias_span.value, alias_base);
-                    if let Some(name_span) = rest.first() {
-                        links.extend(extract_name_parts_vars(&name_span.value, leading + name_span.raw_start));
-                    }
-                    return links;
-                }
-            let name_span = match rest.first() {
-                Some(s) if !s.value.is_empty() => s,
-                _ => return Vec::new(),
-            };
-            extract_name_parts_vars(&name_span.value, leading + name_span.raw_start)
-        }
-        "name-parts" => {
-            if rest.len() >= 3 && rest[1].value == "=" {
-                let mut links = Vec::new();
-                for span in &rest[2..] {
-                    scan_dollar_refs(&span.value, leading + span.raw_start, &mut links);
-                }
-                return links;
+    let mut links = Vec::new();
+    for f in classify_line(line) {
+        match f.role {
+            FieldRole::GlyphRef => {
+                links.extend(extract_glyph_and_parts_links(&f.token, f.col_start));
             }
-            Vec::new()
-        }
-        "map" => {
-            if rest.len() == 3 && rest[1].value == "=" {
-                let glyph_span = &rest[2];
-                return extract_glyph_and_parts_links(&glyph_span.value, leading + glyph_span.raw_start);
+            // Definitions aren't links to themselves, but the `$var`s inside
+            // a pattern name are.
+            FieldRole::GlyphDef => {
+                links.extend(extract_name_parts_vars(&f.token, f.col_start));
             }
-            Vec::new()
-        }
-        "remap" => {
-            let mut links = Vec::new();
-            for span in rest {
-                let clean = span.value.trim_end_matches(':');
-                let clean_chars = clean.chars().count();
-                if clean_chars > 0 && clean != "->" && clean != ":" {
-                    links.extend(extract_glyph_and_parts_links(clean, leading + span.raw_start));
-                }
+            FieldRole::NamePartsValue => {
+                scan_dollar_refs(&f.token, f.col_start, &mut links);
             }
-            links
-        }
-        "feature" => {
-            if let Some(colon_pos) = rest.iter().position(|s| s.value == ":")
-                && let Some(remap_span) = rest.get(colon_pos + 1) {
-                    return vec![LinkSpan {
-                        col_start: leading + remap_span.raw_start,
-                        col_end: leading + remap_span.raw_end,
-                        target: remap_span.value.clone(),
-                        kind: LinkTargetKind::Remap,
-                    }];
-                }
-            Vec::new()
-        }
-        "color" => {
-            // color NAME = VALUE [coloronly|monoonly]
-            if rest.len() >= 3 && rest[1].value == "=" {
-                let value_span = &rest[2];
-                if !value_span.value.starts_with('#') && !value_span.value.is_empty() {
-                    return vec![LinkSpan {
-                        col_start: leading + value_span.raw_start,
-                        col_end: leading + value_span.raw_end,
-                        target: value_span.value.clone(),
-                        kind: LinkTargetKind::Color,
-                    }];
-                }
+            FieldRole::ColorRef => {
+                links.push(LinkSpan {
+                    col_start: f.col_start,
+                    col_end: f.col_end,
+                    target: f.token,
+                    kind: LinkTargetKind::Color,
+                });
             }
-            Vec::new()
-        }
-        "assert" => {
-            let sub = match rest.first().map(|s| s.value.as_str()) {
-                Some("same") | Some("distinct") => &rest[1..],
-                Some("shape") => {
-                    // assert shape TEXT [+feat]... : GLYPH1 ... : GLYPH2 ...
-                    // Link each glyph name (first token after each `:`)
-                    let mut links = Vec::new();
-                    let mut after_colon = false;
-                    for span in &rest[1..] {
-                        if span.value == "//" { break; }
-                        if span.value == ":" {
-                            after_colon = true;
-                            continue;
-                        }
-                        if after_colon {
-                            links.extend(extract_glyph_and_parts_links(
-                                &span.value, leading + span.raw_start,
-                            ));
-                            after_colon = false;
-                        }
-                    }
-                    return links;
-                }
-                _ => return Vec::new(),
-            };
-            let mut links = Vec::new();
-            for span in sub {
-                if span.value == "//" { break; }
-                links.extend(extract_glyph_and_parts_links(
-                    &span.value, leading + span.raw_start,
-                ));
+            FieldRole::RemapGroupRef => {
+                links.push(LinkSpan {
+                    col_start: f.col_start,
+                    col_end: f.col_end,
+                    target: f.token,
+                    kind: LinkTargetKind::Remap,
+                });
             }
-            links
+            FieldRole::NamePartsDef | FieldRole::PointDef | FieldRole::ColorDef => {}
         }
-        _ => Vec::new(),
     }
+    links
 }
 
 fn scan_dollar_ref_at(text: &str, base_col: usize, col: usize) -> Option<RenameTarget> {
@@ -271,263 +169,60 @@ fn scan_dollar_ref_at(text: &str, base_col: usize, col: usize) -> Option<RenameT
     None
 }
 
-fn simple_glyph_rename(span: &TokenSpan, leading: usize, col: usize) -> Option<RenameTarget> {
-    let base = leading + span.raw_start;
-    let end = leading + span.raw_end;
-    if let Some(t) = scan_dollar_ref_at(&span.value, base, col) {
+/// A glyph-name field is renameable as a whole when it is a plain name;
+/// pattern names are only renameable at the `$var` under the caret.
+fn glyph_rename_at(field: &LineField, col: usize) -> Option<RenameTarget> {
+    if let Some(t) = scan_dollar_ref_at(&field.token, field.col_start, col) {
         return Some(t);
     }
-    if col >= base && col <= end && !span.value.contains('$') && !span.value.contains('(') {
+    if field.contains_col(col) && !field.token.contains('$') && !field.token.contains('(') {
         return Some(RenameTarget {
-            name: span.value.clone(),
+            name: field.token.clone(),
             kind: RenameKind::Glyph,
-            col_start: base,
-            col_end: end,
+            col_start: field.col_start,
+            col_end: field.col_end,
         });
     }
     None
 }
 
-pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameTarget> {
-    let trimmed = line.trim_start();
-    let leading = line.chars().count() - trimmed.chars().count();
-
-    let spans = tokenize_with_spans(trimmed).ok()?;
-    if spans.is_empty() {
+fn whole_field_rename(field: &LineField, col: usize, kind: RenameKind) -> Option<RenameTarget> {
+    if !field.contains_col(col) {
         return None;
     }
+    Some(RenameTarget {
+        name: field.token.clone(),
+        kind,
+        col_start: field.col_start,
+        col_end: field.col_end,
+    })
+}
 
-    let keyword = spans[0].value.as_str();
-    let rest = &spans[1..];
-
-    match keyword {
-        "point" | "anchor" => {
-            let token_span = rest.first()?;
-            if token_span.value.is_empty() {
-                return None;
+pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameTarget> {
+    for f in classify_line(line) {
+        let target = match f.role {
+            FieldRole::GlyphDef | FieldRole::GlyphRef => glyph_rename_at(&f, col),
+            FieldRole::NamePartsValue => scan_dollar_ref_at(&f.token, f.col_start, col),
+            FieldRole::NamePartsDef => whole_field_rename(&f, col, RenameKind::NameParts),
+            FieldRole::ColorDef | FieldRole::ColorRef => {
+                whole_field_rename(&f, col, RenameKind::Color)
             }
-            let name_start = leading + token_span.raw_start;
-            let name_end = leading + token_span.raw_end;
-            if col >= name_start && col <= name_end {
-                let stripped = token_span.value
-                    .strip_prefix('+')
-                    .or_else(|| token_span.value.strip_prefix('-'))
-                    .unwrap_or(&token_span.value);
-                return Some(RenameTarget {
-                    name: stripped.to_string(),
-                    kind: RenameKind::Point,
-                    col_start: name_start,
-                    col_end: name_end,
-                });
-            }
-            None
+            FieldRole::PointDef => whole_field_rename(&f, col, RenameKind::Point).map(|mut t| {
+                t.name = t
+                    .name
+                    .strip_prefix(['+', '-'])
+                    .unwrap_or(&t.name)
+                    .to_string();
+                t
+            }),
+            // Remap groups have no rename support.
+            FieldRole::RemapGroupRef => None,
+        };
+        if target.is_some() {
+            return target;
         }
-        "glyph" => {
-            if let Some(eq_pos) = rest.iter().position(|s| s.value == "=") {
-                if let Some(alias_span) = rest.get(eq_pos + 1) {
-                    // glyph NAME ... = ALIAS form
-                    if let Some(def_span) = rest.first() {
-                        let def_start = leading + def_span.raw_start;
-                        let def_end = leading + def_span.raw_end;
-                        if let Some(t) = scan_dollar_ref_at(&def_span.value, def_start, col) {
-                            return Some(t);
-                        }
-                        if col >= def_start && col <= def_end
-                            && !def_span.value.contains('$')
-                            && !def_span.value.contains('(')
-                        {
-                            return Some(RenameTarget {
-                                name: def_span.value.clone(),
-                                kind: RenameKind::Glyph,
-                                col_start: def_start,
-                                col_end: def_end,
-                            });
-                        }
-                    }
-                    return simple_glyph_rename(alias_span, leading, col);
-                }
-                return None;
-            }
-            let name_span = rest.first()?;
-            if name_span.value.is_empty() {
-                return None;
-            }
-            let base_col = leading + name_span.raw_start;
-            let name_end = leading + name_span.raw_end;
-            if let Some(t) = scan_dollar_ref_at(&name_span.value, base_col, col) {
-                return Some(t);
-            }
-            if col >= base_col && col <= name_end
-                && !name_span.value.contains('$')
-                && !name_span.value.contains('(')
-            {
-                return Some(RenameTarget {
-                    name: name_span.value.clone(),
-                    kind: RenameKind::Glyph,
-                    col_start: base_col,
-                    col_end: name_end,
-                });
-            }
-            None
-        }
-        "ref" => {
-            let name_span = rest.first()?;
-            if name_span.value.is_empty() {
-                return None;
-            }
-            // Check if cursor is on a fill color name
-            if let Some(fill_pos) = rest.iter().position(|s| s.value == "fill")
-                && let Some(color_span) = rest.get(fill_pos + 1) {
-                    let cs = leading + color_span.raw_start;
-                    let ce = leading + color_span.raw_end;
-                    if col >= cs && col <= ce
-                        && !color_span.value.starts_with('#')
-                        && color_span.value != "fg"
-                        && !color_span.value.is_empty()
-                    {
-                        return Some(RenameTarget {
-                            name: color_span.value.clone(),
-                            kind: RenameKind::Color,
-                            col_start: cs,
-                            col_end: ce,
-                        });
-                    }
-                }
-            simple_glyph_rename(name_span, leading, col)
-        }
-        "name-parts" => {
-            if rest.len() >= 3 && rest[1].value == "=" {
-                let def_span = &rest[0];
-                let def_start = leading + def_span.raw_start;
-                let def_end = leading + def_span.raw_end;
-                if col >= def_start && col <= def_end {
-                    return Some(RenameTarget {
-                        name: def_span.value.clone(),
-                        kind: RenameKind::NameParts,
-                        col_start: def_start,
-                        col_end: def_end,
-                    });
-                }
-                // $var in values
-                for span in &rest[2..] {
-                    if let Some(t) = scan_dollar_ref_at(&span.value, leading + span.raw_start, col) {
-                        return Some(t);
-                    }
-                }
-            }
-            None
-        }
-        "map" => {
-            if rest.len() == 3 && rest[1].value == "=" {
-                let glyph_span = &rest[2];
-                return simple_glyph_rename(glyph_span, leading, col);
-            }
-            None
-        }
-        "remap" => {
-            for span in rest {
-                let clean = span.value.trim_end_matches(':');
-                let clean_chars = clean.chars().count();
-                if clean_chars > 0 && clean != "->" && clean != ":" {
-                    let token_col = leading + span.raw_start;
-                    let token_end = token_col + clean_chars;
-                    if col >= token_col && col <= token_end {
-                        if let Some(t) = scan_dollar_ref_at(clean, token_col, col) {
-                            return Some(t);
-                        }
-                        if !clean.contains('$') && !clean.contains('(') {
-                            return Some(RenameTarget {
-                                name: clean.to_string(),
-                                kind: RenameKind::Glyph,
-                                col_start: token_col,
-                                col_end: token_end,
-                            });
-                        }
-                    }
-                }
-            }
-            None
-        }
-        "exclude-from-sample" => {
-            let name_span = rest.first()?;
-            if name_span.value.is_empty() {
-                return None;
-            }
-            simple_glyph_rename(name_span, leading, col)
-        }
-        "assume" => {
-            if rest.first().is_some_and(|s| s.value == "unused") {
-                for span in &rest[1..] {
-                    if let Some(r) = simple_glyph_rename(span, leading, col) {
-                        return Some(r);
-                    }
-                }
-            }
-            None
-        }
-        "color" => {
-            // color NAME = VALUE [coloronly|monoonly]
-            if rest.len() >= 3 && rest[1].value == "=" {
-                let def_span = &rest[0];
-                let def_start = leading + def_span.raw_start;
-                let def_end = leading + def_span.raw_end;
-                if col >= def_start && col <= def_end {
-                    return Some(RenameTarget {
-                        name: def_span.value.clone(),
-                        kind: RenameKind::Color,
-                        col_start: def_start,
-                        col_end: def_end,
-                    });
-                }
-                let value_span = &rest[2];
-                let vs = leading + value_span.raw_start;
-                let ve = leading + value_span.raw_end;
-                if col >= vs && col <= ve
-                    && !value_span.value.starts_with('#')
-                    && !value_span.value.is_empty()
-                {
-                    return Some(RenameTarget {
-                        name: value_span.value.clone(),
-                        kind: RenameKind::Color,
-                        col_start: vs,
-                        col_end: ve,
-                    });
-                }
-            }
-            None
-        }
-        "assert" => {
-            let sub = match rest.first().map(|s| s.value.as_str()) {
-                Some("same") | Some("distinct") => &rest[1..],
-                Some("shape") => {
-                    let mut after_colon = false;
-                    for span in &rest[1..] {
-                        if span.value == "//" { break; }
-                        if span.value == ":" {
-                            after_colon = true;
-                            continue;
-                        }
-                        if after_colon {
-                            if let Some(r) = simple_glyph_rename(span, leading, col) {
-                                return Some(r);
-                            }
-                            after_colon = false;
-                        }
-                    }
-                    return None;
-                }
-                _ => return None,
-            };
-            for span in sub {
-                if span.value == "//" { break; }
-                if let Some(r) = simple_glyph_rename(span, leading, col) {
-                    return Some(r);
-                }
-            }
-            None
-        }
-        _ => None,
     }
+    None
 }
 
 pub fn find_link_target_in_doc(
@@ -870,5 +565,20 @@ mod rename_detection_tests {
     #[test]
     fn assert_rename_not_in_comment() {
         assert!(find_renameable_at_caret("assert same foo bar // comment", 23).is_none());
+    }
+
+    #[test]
+    fn exclude_from_sample_links_glyph_name() {
+        let links = extract_line_links("exclude-from-sample foo");
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].target, "foo");
+        assert!(matches!(links[0].kind, LinkTargetKind::Glyph));
+    }
+
+    #[test]
+    fn assume_unused_links_glyph_names() {
+        let links = extract_line_links("assume unused foo bar");
+        assert!(links.iter().any(|l| l.target == "foo"));
+        assert!(links.iter().any(|l| l.target == "bar"));
     }
 }
