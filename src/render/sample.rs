@@ -981,6 +981,17 @@ fn write_live_html_inner(
             }))
             .unwrap_or(false)
     });
+    // CLDR subdivision containment, e.g. `cldr-subdivisions-48.2.0.json`; the version is part of
+    // the file name, so match by prefix rather than pinning a release here.
+    let subdivisions_path = data_dir.and_then(|d| {
+        std::fs::read_dir(d).ok().and_then(|entries| {
+            entries.filter_map(|e| e.ok()).map(|e| e.path()).find(|p| {
+                p.file_name().and_then(|n| n.to_str()).is_some_and(|n| {
+                    n.starts_with("cldr-subdivisions-") && n.ends_with(".json")
+                })
+            })
+        })
+    });
 
     write!(w, "\
 <!doctype html>
@@ -1003,6 +1014,7 @@ Load: ")?;
     if has_udhr { links.push(("udhr", "UDHR")); }
     if has_confusables { links.push(("confus", "Confusables")); }
     links.push(("hangul", "All Hangul"));
+    links.push(("flags", "All Flags"));
     links.push(("all", "All Glyphs"));
     for (i, (id, label)) in links.iter().enumerate() {
         if i > 0 { write!(w, ", ")?; }
@@ -1037,6 +1049,9 @@ Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
 
     // Hangul section
     write_live_hangul(w)?;
+
+    // Flags section
+    write_live_flags(w, subdivisions_path.as_deref())?;
 
     // All Glyphs section
     write!(w, "</pre><pre id=all class=hide>\n\
@@ -1302,6 +1317,68 @@ return!1\">Render!</a></span></div>\n")?;
     Ok(())
 }
 
+// ---------------------------------------------------------------------------
+// live.html: Flags section
+// ---------------------------------------------------------------------------
+
+/// Emoji tag sequence for a subdivision code, per UTS #51 Annex C.1: tag_base U+1F3F4, one tag
+/// character per `[0-9a-z]` of the code, then tag_end U+E007F. Returns `None` for a code that
+/// cannot form a well-formed sequence, so a bad data file degrades instead of emitting garbage.
+fn subdivision_flag_seq(code: &str) -> Option<String> {
+    if code.is_empty() || code.len() > 6 {
+        return None;
+    }
+    let mut s = String::from("\u{1f3f4}");
+    for b in code.bytes() {
+        if !b.is_ascii_lowercase() && !b.is_ascii_digit() {
+            return None;
+        }
+        s.push(char::from_u32(0xe0000 + b as u32)?);
+    }
+    s.push('\u{e007f}');
+    Some(s)
+}
+
+fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::Result<()> {
+    write!(w, "</pre><pre id=flags class=hide>\n\
+\u{250c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2510}\n\
+\u{2502}All Flags\u{2502}\n\
+\u{2514}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2518}\n\n")?;
+
+    // Every regional indicator pair, 26 per line.
+    let mut line = String::new();
+    for hi in 0..26u32 {
+        line.clear();
+        for lo in 0..26u32 {
+            line.push(char::from_u32(0x1f1e6 + hi).unwrap());
+            line.push(char::from_u32(0x1f1e6 + lo).unwrap());
+        }
+        writeln!(w, "{line}")?;
+    }
+
+    let Some(path) = subdivisions_path else { return Ok(()) };
+
+    #[derive(serde::Deserialize)]
+    struct SubdivisionFile {
+        subdivisions: BTreeMap<String, Vec<String>>,
+    }
+
+    let content = std::fs::read_to_string(path)?;
+    let parsed: SubdivisionFile = serde_json::from_str(&content)
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+
+    writeln!(w)?;
+    for (region, codes) in &parsed.subdivisions {
+        let seqs: Vec<String> = codes.iter().filter_map(|c| subdivision_flag_seq(c)).collect();
+        if seqs.is_empty() {
+            continue;
+        }
+        writeln!(w, "{region} {}", seqs.join(""))?;
+    }
+
+    Ok(())
+}
+
 fn base64_encode(data: &[u8]) -> String {
     const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let mut out = String::with_capacity(data.len().div_ceil(3) * 4);
@@ -1333,6 +1410,19 @@ mod tests {
 
     fn parse(input: &str) -> Document {
         document_io::parse_document_from_str(input, "test.unf".into()).unwrap()
+    }
+
+    #[test]
+    fn subdivision_flag_is_a_tag_sequence() {
+        assert_eq!(
+            subdivision_flag_seq("gbsct").as_deref(),
+            Some("\u{1f3f4}\u{e0067}\u{e0062}\u{e0073}\u{e0063}\u{e0074}\u{e007f}")
+        );
+        // UTS #51 restricts tag_spec to [0-9a-z], 1..=6 characters.
+        assert_eq!(subdivision_flag_seq("us-tx"), None);
+        assert_eq!(subdivision_flag_seq("GBSCT"), None);
+        assert_eq!(subdivision_flag_seq(""), None);
+        assert_eq!(subdivision_flag_seq("abcdefg"), None);
     }
 
     #[test]
