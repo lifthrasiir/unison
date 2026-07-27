@@ -3403,9 +3403,17 @@ struct OutlineBuild {
     max_component_depth: u16,
 }
 
+/// What a glyph turned into in `glyf`, kept so the composite `maxp` limits can
+/// be computed from the outlines that were actually written.
+enum Emitted {
+    Simple { points: u32, contours: u32 },
+    Composite(Vec<GlyphId16>),
+}
+
 /// Passes 1 and 2 of the build: assign GIDs (`.notdef` first), collect cmap
 /// mappings, and add every glyph's outline (TrueType composite, empty, or
-/// hinted simple glyph) with its horizontal metric.
+/// hinted simple glyph) with its horizontal metric.  Pass 3 then sizes the
+/// composite `maxp` limits from what pass 2 emitted.
 fn build_glyph_outlines(
     glyphs: &[CollectedGlyph],
     hint_ppem: u16,
@@ -3482,7 +3490,10 @@ fn build_glyph_outlines(
         }
     }
 
-    // Pass 2: build glyph outlines
+    // Pass 2: build glyph outlines, recording what each one turned into so
+    // that pass 3 can size the `maxp` composite limits.
+    let mut emitted: Vec<Emitted> = Vec::with_capacity(glyphs.len() + 1);
+    emitted.push(Emitted::Simple { points: 0, contours: 0 }); // .notdef
     for g in glyphs.iter() {
         let live_refs: Vec<&CompositeRef> = g
             .composite_refs
@@ -3516,12 +3527,11 @@ fn build_glyph_outlines(
             let cg = comp_glyph.unwrap();
             out.max_component_elements =
                 out.max_component_elements.max(live_refs.len() as u16);
-            out.max_component_depth = out.max_component_depth.max(1);
+            emitted.push(Emitted::Composite(
+                live_refs.iter().map(|cr| out.name_to_gid[&cr.component_name]).collect(),
+            ));
 
             let (gx0, ..) = glyph_bounds(&g.contours);
-            let n_points: usize = g.contours.iter().map(|c| c.len()).sum();
-            out.max_composite_points = out.max_composite_points.max(n_points as u16);
-            out.max_composite_contours = out.max_composite_contours.max(g.contours.len() as u16);
 
             out.h_metrics.push(LongMetric {
                 advance: g.advance_width,
@@ -3530,6 +3540,7 @@ fn build_glyph_outlines(
 
             out.glyf_builder.add_glyph(&cg).unwrap();
         } else if g.contours.is_empty() {
+            emitted.push(Emitted::Simple { points: 0, contours: 0 });
             out.glyf_builder.add_glyph(&Glyph::Empty).unwrap();
             out.h_metrics.push(LongMetric {
                 advance: g.advance_width,
@@ -3555,6 +3566,10 @@ fn build_glyph_outlines(
                 .collect();
 
             let n_points: usize = contours.iter().map(|c| c.len()).sum();
+            emitted.push(Emitted::Simple {
+                points: n_points as u32,
+                contours: contours.len() as u32,
+            });
             out.max_points = out.max_points.max(n_points as u16);
             out.max_contours = out.max_contours.max(contours.len() as u16);
             out.max_insn_size = out.max_insn_size.max(instructions.len() as u16);
@@ -3593,6 +3608,57 @@ fn build_glyph_outlines(
 
             out.glyf_builder.add_glyph(&sg).unwrap();
         }
+    }
+
+    // Pass 3: the composite `maxp` limits.  Per the spec these count the glyph
+    // *fully decomposed*, so they cannot be read off the parent's own outline:
+    // components are emitted with grid-snap hints, which insert points along
+    // diagonals that the parent's pre-hinting contours never had.  Nesting
+    // depth likewise has to be measured — `map`ping a decomposable codepoint
+    // builds composites out of composites, several levels deep.
+    //
+    // Relaxed to a fixpoint rather than recursed, for the same reasons as the
+    // empty-glyph pass above.
+    let mut totals: Vec<Option<(u32, u32, u16)>> = emitted
+        .iter()
+        .map(|e| match e {
+            Emitted::Simple { points, contours } => Some((*points, *contours, 0)),
+            Emitted::Composite(_) => None,
+        })
+        .collect();
+    loop {
+        let mut changed = false;
+        for (i, e) in emitted.iter().enumerate() {
+            let Emitted::Composite(comps) = e else { continue };
+            if totals[i].is_some() {
+                continue;
+            }
+            let mut acc = (0u32, 0u32, 0u16);
+            for gid in comps {
+                let Some((p, n, d)) = totals[gid.to_u16() as usize] else {
+                    acc = (0, 0, 0);
+                    break;
+                };
+                acc = (acc.0 + p, acc.1 + n, acc.2.max(d + 1));
+            }
+            if acc.2 > 0 {
+                totals[i] = Some(acc);
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    for (i, e) in emitted.iter().enumerate() {
+        if !matches!(e, Emitted::Composite(_)) {
+            continue;
+        }
+        let Some((points, contours, depth)) = totals[i] else { continue };
+        out.max_composite_points = out.max_composite_points.max(points.min(u16::MAX as u32) as u16);
+        out.max_composite_contours =
+            out.max_composite_contours.max(contours.min(u16::MAX as u32) as u16);
+        out.max_component_depth = out.max_component_depth.max(depth);
     }
 
     out
@@ -3637,6 +3703,15 @@ fn add_color_layer_glyphs(
                         Contour::from(points)
                     })
                     .collect();
+                // Layer glyphs are real outlines with their own GIDs, so they
+                // count towards `maxp` like any other simple glyph.  A merged
+                // foreground layer is often the largest outline in the font,
+                // its pieces being inlined on-demand refs that exist nowhere
+                // else.
+                out.max_points =
+                    out.max_points.max(contours.iter().map(|c| c.len()).sum::<usize>() as u16);
+                out.max_contours = out.max_contours.max(contours.len() as u16);
+
                 let mut sg = SimpleGlyph {
                     bbox: Bbox::default(),
                     contours,
@@ -6599,6 +6674,157 @@ map D = nested
         };
         let comps: Vec<_> = c.components().map(|c| GlyphId::from(c.glyph)).collect();
         assert_eq!(comps, vec![solid], "mixed should keep only the solid layer");
+    }
+
+    /// `maxp` limits recomputed from the emitted `glyf`, the way OTS and
+    /// friends check them: point/contour counts of composites are the *fully
+    /// decomposed* totals, and COLR layer glyphs count like any other outline.
+    fn recomputed_maxp(bytes: &[u8]) -> HashMap<&'static str, u16> {
+        let font = read_fonts::FontRef::new(bytes).unwrap();
+        let glyf = font.glyf().unwrap();
+        let loca = font.loca(None).unwrap();
+        let num_glyphs = font.maxp().unwrap().num_glyphs();
+
+        // (points, contours, depth) of a glyph after full decomposition.
+        fn stats(
+            gid: GlyphId,
+            glyf: &read_fonts::tables::glyf::Glyf,
+            loca: &read_fonts::tables::loca::Loca,
+            seen: &mut Vec<u32>,
+        ) -> (u32, u32, u16) {
+            if seen.contains(&gid.to_u32()) {
+                return (0, 0, 0); // cycle guard; must not happen
+            }
+            match loca.get_glyf(gid, glyf).unwrap() {
+                None => (0, 0, 0),
+                Some(read_fonts::tables::glyf::Glyph::Simple(s)) => {
+                    (s.num_points() as u32, s.end_pts_of_contours().len() as u32, 0)
+                }
+                Some(read_fonts::tables::glyf::Glyph::Composite(c)) => {
+                    seen.push(gid.to_u32());
+                    let (mut p, mut n, mut d) = (0, 0, 0);
+                    for comp in c.components() {
+                        let (cp, cn, cd) = stats(GlyphId::from(comp.glyph), glyf, loca, seen);
+                        p += cp;
+                        n += cn;
+                        d = d.max(cd + 1);
+                    }
+                    seen.pop();
+                    (p, n, d)
+                }
+            }
+        }
+
+        let mut m: HashMap<&'static str, u16> = HashMap::new();
+        for raw in 0..num_glyphs as u32 {
+            let gid = GlyphId::new(raw);
+            let glyph = loca.get_glyf(gid, &glyf).unwrap();
+            let (p, n, d) = stats(gid, &glyf, &loca, &mut Vec::new());
+            let (points, contours) = match glyph {
+                Some(read_fonts::tables::glyf::Glyph::Composite(c)) => {
+                    let elems = c.components().count() as u16;
+                    let e = m.entry("maxComponentElements").or_insert(0);
+                    *e = (*e).max(elems);
+                    let e = m.entry("maxComponentDepth").or_insert(0);
+                    *e = (*e).max(d);
+                    ("maxCompositePoints", "maxCompositeContours")
+                }
+                Some(read_fonts::tables::glyf::Glyph::Simple(_)) => ("maxPoints", "maxContours"),
+                None => continue,
+            };
+            let e = m.entry(points).or_insert(0);
+            *e = (*e).max(p as u16);
+            let e = m.entry(contours).or_insert(0);
+            *e = (*e).max(n as u16);
+        }
+        m
+    }
+
+    /// Firefox reports every `maxp` limit the outlines actually exceed
+    /// ("Component depth exceeds maxp maxComponentDepth", "Number of composite
+    /// points … exceeds maxp maxCompositePoints", "Number of contour points
+    /// exceeds maxp maxPoints").  Composite totals must be counted after full
+    /// decomposition, nesting depth must be measured rather than assumed to be
+    /// 1, and COLR layer glyphs must be counted at all.
+    #[test]
+    fn maxp_limits_cover_the_emitted_outlines() {
+        // A merged foreground COLR layer made of on-demand pieces: they are
+        // inlined, so the layer's points exist nowhere else in the font.
+        let color_refs: String = (0..10)
+            .flat_map(|i| [(i * 2, 0), (i * 2, 2)])
+            .map(|(c, r)| format!("ref 1x1 {c} {r} coloronly\n"))
+            .collect();
+        let input = format!(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+// diagonal edges gain intermediate points when the glyph is emitted with
+// grid-snap hints, so a component carries more points than the parent's own
+// pre-hinting outline suggests
+glyph tri 4 4
+/1@@@@@@
+../1@@@@
+..../1@@
+....../1
+
+// three levels of nesting.  Each level is mapped on purpose: a glyph pulled
+// into the font only as a component is collected without its own `ref`s and
+// would flatten into a simple outline instead of nesting.
+glyph nest1
+ref tri
+ref tri 4 0
+
+glyph nest2
+ref nest1
+ref nest1 8 0
+
+glyph nest3
+ref nest2
+ref nest2 16 0
+
+color red = #ff0000
+
+glyph colored 20 4
+@@......................................
+........................................
+........................................
+........................................
+{color_refs}ref 1x1 0 3 coloronly fill red
+
+map A = nest1
+map B = nest2
+map C = nest3
+map D = colored
+"
+        );
+        let doc = document_io::parse_document_from_str(&input, "t.unf".into()).unwrap();
+        let bytes = build_font_from_documents(&[&doc]).expect("font should build");
+
+        let want = recomputed_maxp(&bytes);
+        let font = read_fonts::FontRef::new(&bytes).unwrap();
+        let maxp = font.maxp().unwrap();
+        let got: HashMap<&'static str, u16> = HashMap::from([
+            ("maxPoints", maxp.max_points().unwrap()),
+            ("maxContours", maxp.max_contours().unwrap()),
+            ("maxCompositePoints", maxp.max_composite_points().unwrap()),
+            ("maxCompositeContours", maxp.max_composite_contours().unwrap()),
+            ("maxComponentElements", maxp.max_component_elements().unwrap()),
+            ("maxComponentDepth", maxp.max_component_depth().unwrap()),
+        ]);
+
+        // The fixture has to actually exercise each limit, or the comparison
+        // below would pass on a font that never nests or never colors.
+        assert_eq!(want["maxComponentDepth"], 3, "fixture should nest three deep");
+
+        for key in got.keys() {
+            assert_eq!(
+                got[key],
+                want[key],
+                "maxp {key}: stored {} but the outlines need {}",
+                got[key],
+                want[key],
+            );
+        }
     }
 }
 
