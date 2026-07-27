@@ -1298,6 +1298,27 @@ fn dragging_to_the_band_edge_auto_scrolls() {
 }
 
 #[test]
+fn dragging_in_the_inline_tool_panel_does_not_auto_scroll() {
+    let mut h = EditorHarness::new(&wide_doc());
+    h.click_grid_cell(1, 0, 0);
+    h.frame();
+    let row_y = h.grid_cell_pos(1, 0, 0).y;
+    // The inline tool panel lives past the band's right edge, i.e. inside the
+    // auto-scroll edge zone. A gesture starting there is not a grid drag.
+    let panel_x = h.snap().strip.right() + 20.0;
+
+    h.press_at(egui::pos2(panel_x, row_y));
+    for _ in 0..5 {
+        h.move_pointer(egui::pos2(panel_x, row_y));
+    }
+    assert_eq!(
+        h.state.grid_scroll_x, 0.0,
+        "a press in the inline tool panel must not auto-scroll the band"
+    );
+    h.release_at(egui::pos2(panel_x, row_y));
+}
+
+#[test]
 fn scrollbar_sits_below_the_grid_and_drags_it() {
     let mut h = EditorHarness::new(&wide_doc());
     h.click_grid_cell(1, 0, 0);

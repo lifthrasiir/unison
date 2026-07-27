@@ -2438,6 +2438,15 @@ fn auto_scroll_grid_on_drag(
     if strip.captured || strip.bars.iter().any(|r| r.contains(hp)) {
         return;
     }
+    // Only a gesture that started on the grid itself scrolls it. The inline
+    // tool panel sits just past the band's right edge, i.e. inside the edge
+    // zone, so a press there would otherwise be read as a drag to the edge.
+    let started_on_grid = ui
+        .input(|i| i.pointer.press_origin())
+        .is_some_and(|p| strip.contains_x(p.x));
+    if !started_on_grid {
+        return;
+    }
     let Some(block) = blocks.iter().find(|b| {
         hp.y >= origin.y + b.y0 && hp.y < origin.y + b.y1 && strip.overflow(b.content_w) > 0.0
     }) else {
