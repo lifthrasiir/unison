@@ -40,7 +40,7 @@ use crate::document::*;
 use crate::document_io;
 use crate::issues::Severity;
 use crate::resolve::{Diagnostic, FontMeta, ItemRef};
-use crate::pixel::{PX_ALMOSTFULL, PX_SUBPIXEL, PixelShape};
+use crate::pixel::{PX_ALMOSTFULL, PX_CUSTOM, PX_SUBPIXEL, PixelShape};
 use crate::render::contour::{track_contour, track_contour_multi, track_contour_multi_diff};
 use crate::render::glyph_cache::{
     build_alt_index as build_cached_alternatives, resolve_cached as resolve_cached_ref,
@@ -3003,9 +3003,21 @@ fn layers_have_subpixel_conflicts(layers: &[(&PixelGrid, i32, i32)]) -> bool {
             let overlap_c1 = (c1 + g1.width as i32).min(c2 + g2.width as i32);
             for r in overlap_r0..overlap_r1 {
                 for c in overlap_c0..overlap_c1 {
-                    let s1 = g1.get((r - r1) as u16, (c - c1) as u16);
-                    let s2 = g2.get((r - r2) as u16, (c - c2) as u16);
-                    if !s1.is_empty() && !s2.is_empty() && s1 != s2 {
+                    let (p1, p2) = (((r - r1) as u16, (c - c1) as u16), ((r - r2) as u16, (c - c2) as u16));
+                    let s1 = g1.get(p1.0, p1.1);
+                    let s2 = g2.get(p2.0, p2.1);
+                    if s1.is_empty() || s2.is_empty() {
+                        continue;
+                    }
+                    if s1 != s2 {
+                        return true;
+                    }
+                    // Equal shape ids normally union to themselves, but two
+                    // custom cells share one id while holding different
+                    // geometry.
+                    if s1.shape_id() == PX_CUSTOM
+                        && g1.region_at(p1.0, p1.1) != g2.region_at(p2.0, p2.1)
+                    {
                         return true;
                     }
                 }
@@ -5797,6 +5809,76 @@ map A = base
 
         assert_eq!(glyphs1[0].advance_width, glyphs2[0].advance_width);
         assert!(!glyphs2[0].contours.is_empty());
+    }
+
+    /// U+1FB43 and its seven siblings: a smooth-mosaic sextant built from an
+    /// on-demand triangle whose slope needs custom detail cells, plus two
+    /// rectangles.  The union must stay the convex pentagon the triangle
+    /// implies — the shape-id-only tracer used to drop the detail cells and
+    /// leave a concave whole-pixel staircase.
+    #[test]
+    fn smooth_mosaic_sextant_traces_as_a_convex_polygon() {
+        let doc = document_io::parse_document_from_str(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph sextant-13-dr 8 16
+ref 4x10p2r3-dr
+ref 4x16 4 0
+ref 8x-5p1r3 0 10
+
+map A = sextant-13-dr
+",
+            "test.unf".into(),
+        )
+        .unwrap();
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let glyph = glyphs.iter().find(|g| g.name == "sextant-13-dr").unwrap();
+        assert_eq!(glyph.contours.len(), 1, "single outline: {:?}", glyph.contours);
+        let contour = &glyph.contours[0];
+        assert_eq!(contour.len(), 5, "no staircase: {contour:?}");
+        // Every turn must go the same way for a convex polygon.
+        let n = contour.len();
+        let signs: Vec<i64> = (0..n)
+            .map(|i| {
+                let (p, q, r) = (contour[i], contour[(i + 1) % n], contour[(i + 2) % n]);
+                let cross = (q.0 as i64 - p.0 as i64) * (r.1 as i64 - p.1 as i64)
+                    - (q.1 as i64 - p.1 as i64) * (r.0 as i64 - p.0 as i64);
+                cross.signum()
+            })
+            .collect();
+        assert!(
+            signs.iter().all(|&s| s == signs[0] && s != 0),
+            "contour is not convex: {contour:?} (turns {signs:?})",
+        );
+    }
+
+    /// Two custom-detail refs that merely touch (an on-demand triangle on top
+    /// of a rectangle) share one shape id, so the overlap check used to call
+    /// them identical and emit both outlines with a coincident edge instead of
+    /// their union.
+    #[test]
+    fn touching_detail_refs_merge_into_one_outline() {
+        let doc = document_io::parse_document_from_str(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph sextant-1234-dr 8 16
+ref 8x10p2r3-dr
+ref 8x-5p1r3 0 10
+
+map A = sextant-1234-dr
+",
+            "test.unf".into(),
+        )
+        .unwrap();
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let glyph = glyphs.iter().find(|g| g.name == "sextant-1234-dr").unwrap();
+        assert_eq!(
+            glyph.contours.len(), 1,
+            "triangle and rectangle must union: {:?}", glyph.contours,
+        );
+        assert_eq!(glyph.contours[0].len(), 4, "{:?}", glyph.contours[0]);
     }
 
     #[test]

@@ -497,6 +497,91 @@ pub(crate) fn layer_bounds<'a>(
     (min_r, min_c, width, height)
 }
 
+/// Merge positioned layers into a single grid with exact per-cell geometry:
+/// positive layers unioned, negated layers subtracted.
+///
+/// The bitmask tracers below identify a cell by its shape id alone, so every
+/// `PX_CUSTOM` cell looks alike to them (and carries no adjacency at all).
+/// Whenever custom detail geometry is in play we therefore combine the cells
+/// through [`crate::detail::bool_op`] first and hand the result to
+/// [`track_contour`], which does understand detail regions.
+fn merge_layers_exact(
+    layers: &[(&PixelGrid, i32, i32, bool)],
+    mask: u8,
+    min_r: i32,
+    min_c: i32,
+    width: usize,
+    height: usize,
+) -> PixelGrid {
+    use crate::detail::{BoolOp, DetailRegion, bool_op};
+
+    let mut out = PixelGrid::new(width as u16, height as u16);
+    for r in 0..height as i32 {
+        for c in 0..width as i32 {
+            let mut single: Option<PixelShape> = None;
+            let mut multiple = false;
+            let mut filled = false;
+            let mut pos: Option<DetailRegion> = None;
+            let mut neg: Option<DetailRegion> = None;
+
+            for &(grid, row_off, col_off, negated) in layers {
+                let lr = r + min_r - row_off;
+                let lc = c + min_c - col_off;
+                if lr < 0 || lc < 0 || lr >= grid.height as i32 || lc >= grid.width as i32 {
+                    continue;
+                }
+                let shape = grid.get(lr as u16, lc as u16);
+                if shape.shape_id() & mask == PX_EMPTY {
+                    continue;
+                }
+                let region = grid.region_at(lr as u16, lc as u16);
+                if negated {
+                    neg = Some(match neg {
+                        None => region,
+                        Some(acc) => bool_op(&acc, &region, BoolOp::Union),
+                    });
+                    continue;
+                }
+                filled |= shape.is_filled();
+                if single.is_some() {
+                    multiple = true;
+                } else {
+                    single = Some(shape);
+                }
+                pos = Some(match pos {
+                    None => region,
+                    Some(acc) => bool_op(&acc, &region, BoolOp::Union),
+                });
+            }
+
+            let Some(pos) = pos else { continue };
+            // A lone positive catalog cell keeps its own shape id verbatim,
+            // which avoids re-classifying geometry that is already exact.
+            // Custom cells must go through `set_detail` so their region is
+            // carried over into the merged grid.
+            let plain_single = single
+                .filter(|_| !multiple && neg.is_none())
+                .filter(|s| s.shape_id() & mask != pixel::PX_CUSTOM);
+            if let Some(shape) = plain_single {
+                out.set(r as u16, c as u16, shape);
+                continue;
+            }
+            let region = match neg {
+                Some(neg) => bool_op(&pos, &neg, BoolOp::Subtract),
+                None => pos.canonical(),
+            };
+            out.set_detail(r as u16, c as u16, &region, filled);
+        }
+    }
+    out
+}
+
+/// Whether any layer carries custom detail geometry, which the shape-id
+/// bitmask tracers cannot represent.
+fn layers_have_detail(layers: &[(&PixelGrid, i32, i32, bool)]) -> bool {
+    layers.iter().any(|&(grid, _, _, _)| !grid.details.is_empty())
+}
+
 /// One step of the flood fill shared by [`track_contour_multi`] and
 /// [`track_contour_multi_diff`]: computes which sides of pixel `i` connect
 /// to its neighbors, queues connected unvisited neighbors, and emits
@@ -563,6 +648,13 @@ pub fn track_contour_multi(
     let (min_r, min_c, width, height) = layer_bounds(layers.iter().copied());
     if width == 0 || height == 0 {
         return Vec::new();
+    }
+
+    let flagged: Vec<(&PixelGrid, i32, i32, bool)> =
+        layers.iter().map(|&(g, r, c)| (g, r, c, false)).collect();
+    if layers_have_detail(&flagged) {
+        let merged = merge_layers_exact(&flagged, mask, min_r, min_c, width, height);
+        return track_contour(&merged, mask);
     }
 
     let stride = width + 1;
@@ -677,6 +769,11 @@ pub fn track_contour_multi_diff(
         layer_bounds(layers.iter().map(|&(g, r, c, _)| (g, r, c)));
     if width == 0 || height == 0 {
         return Vec::new();
+    }
+
+    if layers_have_detail(layers) {
+        let merged = merge_layers_exact(layers, mask, min_r, min_c, width, height);
+        return track_contour(&merged, mask);
     }
 
     let stride = width + 1;
@@ -1106,4 +1203,51 @@ mod tests {
         );
     }
 
+    /// A layer with custom detail geometry must keep that geometry when it is
+    /// merged with other layers: the shape-id tracer sees every custom cell as
+    /// one and the same (adjacency-less) id, which used to drop the diagonal
+    /// and leave a whole-pixel staircase.
+    #[test]
+    fn multi_layer_keeps_custom_detail_geometry() {
+        use crate::ref_composite::{OnDemandGlyph, make_on_demand_grid, parse_on_demand_glyph};
+
+        let grid_of = |name: &str| {
+            let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph(name) else {
+                panic!("{name} must parse");
+            };
+            make_on_demand_grid(&rect)
+        };
+        // The three refs of `sextant-13-dr` (U+1FB43), rescaled to the
+        // parent's scale 1: a 1:8/3-slope triangle plus two rectangles.
+        let tri = grid_of("4x10p2r3-dr").rescale(3, 1);
+        assert!(!tri.details.is_empty(), "the 8:3 slope needs custom details");
+        let right = grid_of("4x16");
+        let bottom = grid_of("8x-5p1r3").rescale(3, 1);
+
+        let paths = track_contour_multi(
+            &[(&tri, 0, 0), (&right, 0, 4), (&bottom, 10, 0)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(paths.len(), 1, "single outline: {paths:?}");
+        // Convex pentagon: the hypotenuse runs from (4, 0) to (0, 32/3).
+        let expected = [
+            (0.0f32, 32.0 / 3.0),
+            (4.0, 0.0),
+            (8.0, 0.0),
+            (8.0, 16.0),
+            (0.0, 16.0),
+        ];
+        assert_eq!(paths[0].len(), expected.len(), "no staircase: {paths:?}");
+        let start = paths[0]
+            .iter()
+            .position(|p| (p.0 - expected[0].0).abs() < 1e-4 && (p.1 - expected[0].1).abs() < 1e-4)
+            .unwrap_or_else(|| panic!("apex missing in {paths:?}"));
+        for (i, e) in expected.iter().enumerate() {
+            let p = paths[0][(start + i) % expected.len()];
+            assert!(
+                (p.0 - e.0).abs() < 1e-4 && (p.1 - e.1).abs() < 1e-4,
+                "vertex {i} is {p:?}, expected {e:?} in {paths:?}",
+            );
+        }
+    }
 }
