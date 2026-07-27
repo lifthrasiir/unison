@@ -3442,14 +3442,59 @@ fn build_glyph_outlines(
         out.name_to_gid.entry(g.name.clone()).or_insert(glyph_id16);
     }
 
+    // Which glyphs end up with nothing in `glyf` at all — no contours and no
+    // surviving components.  A `ref` at one of these is the deliberate blank
+    // placeholder idiom (`ref sp`), and emitting it as a component makes OTS
+    // warn "empty gid N used as component in glyph M" for every parent; when it
+    // is the only component OTS cannot even repair it, and DirectWrite chokes.
+    // So they are dropped from the component list below.
+    //
+    // Deliberately a fixpoint over the *emitted* shape rather than a recursion,
+    // so a chain of blank refs collapses in one place and deep composites
+    // cannot grow the stack.  A composite whose contours cancel out to nothing
+    // but whose components are real (negated refs) is not empty.
+    let mut empty_glyphs: HashSet<&str> = HashSet::new();
+    loop {
+        let mut changed = false;
+        for (i, g) in glyphs.iter().enumerate() {
+            // Duplicate names resolve to the first occurrence's GID; only that
+            // one describes what a component reference actually points at.
+            if out.name_to_gid.get(&g.name) != Some(&GlyphId16::new((i + 1) as u16))
+                || empty_glyphs.contains(g.name.as_str())
+                || !g.contours.is_empty()
+            {
+                continue;
+            }
+            let stays_composite = g
+                .composite_refs
+                .iter()
+                .all(|cr| out.name_to_gid.contains_key(&cr.component_name))
+                && g.composite_refs
+                    .iter()
+                    .any(|cr| !empty_glyphs.contains(cr.component_name.as_str()));
+            if !stays_composite {
+                empty_glyphs.insert(g.name.as_str());
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
     // Pass 2: build glyph outlines
     for g in glyphs.iter() {
-        let is_composite = !g.composite_refs.is_empty()
+        let live_refs: Vec<&CompositeRef> = g
+            .composite_refs
+            .iter()
+            .filter(|cr| !empty_glyphs.contains(cr.component_name.as_str()))
+            .collect();
+        let is_composite = !live_refs.is_empty()
             && g.composite_refs.iter().all(|cr| out.name_to_gid.contains_key(&cr.component_name));
 
         if is_composite {
             let mut comp_glyph: Option<CompositeGlyph> = None;
-            for cr in &g.composite_refs {
+            for cr in &live_refs {
                 let comp_gid = out.name_to_gid[&cr.component_name];
                 let component = Component::new(
                     comp_gid,
@@ -3457,7 +3502,7 @@ fn build_glyph_outlines(
                     read_fonts::tables::glyf::Transform::default(),
                     ComponentFlags {
                         round_xy_to_grid: true,
-                        overlap_compound: g.composite_refs.len() > 1,
+                        overlap_compound: live_refs.len() > 1,
                         ..Default::default()
                     },
                 );
@@ -3470,7 +3515,7 @@ fn build_glyph_outlines(
             }
             let cg = comp_glyph.unwrap();
             out.max_component_elements =
-                out.max_component_elements.max(g.composite_refs.len() as u16);
+                out.max_component_elements.max(live_refs.len() as u16);
             out.max_component_depth = out.max_component_depth.max(1);
 
             let (gx0, ..) = glyph_bounds(&g.contours);
@@ -6471,6 +6516,89 @@ feature ccmp for DFLT : grp
             vec!["b".to_string()],
             "an empty target must delete the glyph"
         );
+    }
+
+    /// A `ref` to a contentless glyph (the `ref sp` placeholder idiom) must not
+    /// survive into `glyf` as a component: OTS warns "empty gid N used as
+    /// component in glyph M" for every such component, and when it is the only
+    /// component it cannot even repair it.
+    #[test]
+    fn composites_do_not_reference_empty_glyphs() {
+        let solid_rows = "@@@@@@@@@@@@@@@@\n".repeat(16);
+        let input = format!(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph blank 8 16 sticky
+
+glyph solid 8 16
+{solid_rows}
+glyph placeholder advance 0
+ref blank
+
+glyph mixed
+ref solid
+ref blank 8 0
+
+glyph nested advance 0
+ref placeholder
+
+map A = solid
+map B = placeholder
+map C = mixed
+map D = nested
+"
+        );
+        let doc = document_io::parse_document_from_str(&input, "t.unf".into()).unwrap();
+        let built = build_font_with_gid_map(&[&doc]).expect("font should build");
+        let font = read_fonts::FontRef::new(&built.ttf).unwrap();
+        let glyf = font.glyf().unwrap();
+        let loca = font.loca(None).unwrap();
+        let cmap = font.cmap().unwrap();
+        let maxp = font.maxp().unwrap();
+
+        let name_of = |gid: GlyphId| -> String {
+            built
+                .gid_to_name
+                .get(&(gid.to_u32() as u16))
+                .cloned()
+                .unwrap_or_else(|| format!("gid {}", gid.to_u32()))
+        };
+        let is_empty = |gid: GlyphId| loca.get_glyf(gid, &glyf).unwrap().is_none();
+
+        for raw in 0..maxp.num_glyphs() as u32 {
+            let gid = GlyphId::new(raw);
+            let Some(read_fonts::tables::glyf::Glyph::Composite(c)) =
+                loca.get_glyf(gid, &glyf).unwrap()
+            else {
+                continue;
+            };
+            for comp in c.components() {
+                let comp_gid = GlyphId::from(comp.glyph);
+                assert!(
+                    !is_empty(comp_gid),
+                    "glyph '{}' uses empty glyph '{}' as a component",
+                    name_of(gid),
+                    name_of(comp_gid),
+                );
+            }
+        }
+
+        // `placeholder` and `nested` collapse to plain empty glyphs...
+        for ch in ['B', 'D'] {
+            let gid = cmap.map_codepoint(ch).expect("mapped");
+            assert!(is_empty(gid), "{ch} should become an empty glyph");
+        }
+        // ...while `mixed` stays a composite, minus the blank layer.
+        let mixed = cmap.map_codepoint('C').expect("mapped");
+        let solid = cmap.map_codepoint('A').expect("mapped");
+        let Some(read_fonts::tables::glyf::Glyph::Composite(c)) =
+            loca.get_glyf(mixed, &glyf).unwrap()
+        else {
+            panic!("mixed should stay a composite");
+        };
+        let comps: Vec<_> = c.components().map(|c| GlyphId::from(c.glyph)).collect();
+        assert_eq!(comps, vec![solid], "mixed should keep only the solid layer");
     }
 }
 
