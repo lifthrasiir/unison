@@ -95,6 +95,14 @@ ref 20x14 2 1 fill #fedd00
 ref 6p1r2x14 2 1 fill #10069f
 ref -6p1r2x14 15 1 fill #d50032
 
+// United Arab Emirates (aspect 2:1 -> 11:7, division 1:1:1 & 1:3 -> 1:1:1 & 1:2+1/7)
+glyph flag-ae:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #E1E1E1
+ref 22x4p2r3 1 1 fill #00843D
+ref 22x-4p2r3 1 10 fill #000000
+ref 7x14 1 1 fill #C8102E
+
 // Armenia (aspect 2:1 -> 11:7, division 1:1:1)
 glyph flag-am:color 24 16
 ref 24x16 0 0 fill #00000080
@@ -187,6 +195,19 @@ ref 23x16 1 0 fill #00000080
 ref 21x14 2 1 fill #FFD100
 ref 14x14-ul 2 1 fill #009739
 ref 14x14-dr 9 1 fill #EF3340
+
+// Switzerland (aspect 1:1, division 6:7:6:7:6)
+glyph flag-ch:color 24 16
+ref 16x16 4 0 fill #00000080
+ref 14x14 5 1 fill #DA291C
+ref -4p3r8x-1p7r8 7 6 fill #FFFFFF
+ref 4p3r8x-1p7r8 12 6 fill #FFFFFF
+ref -4p3r8x1p7r8 7 8 fill #FFFFFF
+ref 4p3r8x1p7r8 12 8 fill #FFFFFF
+ref -1p7r8x-4p3r8 10 3 fill #FFFFFF
+ref -1p7r8x4p3r8 10 8 fill #FFFFFF
+ref 1p7r8x-4p3r8 12 3 fill #FFFFFF
+ref 1p7r8x4p3r8 12 8 fill #FFFFFF
 
 // Ivory Coast (aspect 3:2, division 1:1:1)
 glyph flag-ci:color 24 16
@@ -394,9 +415,9 @@ ref flag-jp-circle 8 4 fill #ee0000
 
 glyph flag-jp-circle 9 8 scale 2
 ........../h~H@@@@@@@@H~h\..........
-......../1@@@@@@@@@@@@@@@@1\........
-....../1@@@@@@@@@@@@@@@@@@@@1\......
-..../1@@@@@@@@@@@@@@@@@@@@@@@@1\....
+......./~H@@@@@@@@@@@@@@@@H~\.......
+...../d@@@@@@@@@@@@@@@@@@@@@@b\.....
+..../V@@@@@@@@@@@@@@@@@@@@@@@@V\....
 ...v@@@@@@@@@@@@@@@@@@@@@@@@@@@@v...
 ../V@@@@@@@@@@@@@@@@@@@@@@@@@@@@V\..
 ..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
@@ -405,9 +426,9 @@ glyph flag-jp-circle 9 8 scale 2
 ..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
 ..\V@@@@@@@@@@@@@@@@@@@@@@@@@@@@V/..
 ..`v@@@@@@@@@@@@@@@@@@@@@@@@@@@@v'..
-....\1@@@@@@@@@@@@@@@@@@@@@@@@1/....
-......\1@@@@@@@@@@@@@@@@@@@@1/......
-........\1@@@@@@@@@@@@@@@@1/........
+....\V@@@@@@@@@@@@@@@@@@@@@@@@V/....
+.....\9@@@@@@@@@@@@@@@@@@@@@@P/.....
+.......\_H@@@@@@@@@@@@@@@@H_/.......
 ..........\h_H@@@@@@@@H_h/..........
 
 // South Korea (aspect 3:2)
@@ -484,6 +505,262 @@ glyph flag-kr-trigrams 21 14 scale 2
 ....................................................................................
 ....................................................................................
 
+// Kuwait (aspect 2:1 -> 11:7, division 1:1:1 & 1:3 -> 1:1:1 & 1:2)
+glyph flag-kw:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #ffffff
+ref 7x14 1 1 fill #000000
+ref 22x4p2r3 1 1 fill #007a3d
+ref 22x-4p2r3 1 10 fill #ce1126
+ref 7x4p2r3-dl 1 1 fill #000000
+ref 7x-4p2r3-ul 1 10 fill #000000
+
+// Laos (aspect 3:2, division 1:2:1)
+glyph flag-la:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #002868
+ref 21x3p1r2 2 1 fill #CE1126
+ref 21x-3p1r2 2 11 fill #CE1126
+ref flag-la-circle 9 5 fill #FFFFFF
+
+glyph flag-la-circle 7 6 scale 4
+........................................................
+................../h~h@@@@@@@@@@@@h~h\..................
+............../h~h@@@@@@@@@@@@@@@@@@@@h~h\..............
+............/0@@@@@@@@@@@@@@@@@@@@@@@@@@@@0\............
+........../0@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@0\..........
+.........v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v.........
+......../v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v\........
+.......v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v.......
+....../v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v\......
+......@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@......
+......@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@......
+......@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@......
+......@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@......
+......@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@......
+......@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@......
+......\v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v/......
+......`v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v'......
+........\v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v/........
+........`v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v'........
+..........\0@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@0/..........
+............\0@@@@@@@@@@@@@@@@@@@@@@@@@@@@0/............
+..............\h_h@@@@@@@@@@@@@@@@@@@@h_h/..............
+..................\h_h@@@@@@@@@@@@h_h/..................
+........................................................
+
+// Saint Lucia (aspect 2:1 -> 11:7)
+glyph flag-lc:color 24 16 scale 3
+ref 24x16 0 0 fill #00000080
+ref 22x14 3 3 fill #66ccff
+ref -4p2r3x11p1r3-dr 21 7 fill #ffffff
+ref 4p2r3x11p1r3-dl 36 7 fill #ffffff
+ref 4x-9p5r6-dr 24 11 fill #000000
+ref 4x-9p5r6-dl 36 11 fill #000000
+ref -4p2r3x5p2r3-dr 21 24 fill #fcd116
+ref 4p2r3x5p2r3-dl 36 24 fill #fcd116
+
+// Lithuania (aspect 5:3 -> 22:13, ratio 1:1:1)
+glyph flag-lt:color 24 16
+ref 24x15 0 0 fill #00000080
+ref 22x13 1 1 fill #006A44
+ref 22x4p1r3 1 1 fill #FDB913
+ref 22x-4p1r3 1 9 fill #C1272D
+
+// Luxembourg (aspect 5:3 -> 22:13, ratio 1:1:1)
+glyph flag-lu:color 24 16
+ref 24x15 0 0 fill #00000080
+ref 22x13 1 1 fill #FFFFFF
+ref 22x4p1r3 1 1 fill #EF3340
+ref 22x-4p1r3 1 9 fill #00A3E0
+
+// Latvia (aspect 2:1 -> 11:7, ratio 2:1:2)
+glyph flag-lv:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref 22x5p3r5 1 1 fill #9D2235
+ref 22x-5p3r5 1 9 fill #9D2235
+
+// Monaco (aspect 5:4 -> 9:7, ratio 1:1)
+glyph flag-mc:color 24 16
+ref 20x16 2 0 fill #00000080
+ref 18x7 3 1 fill #CE1126
+ref 18x7 3 8 fill #FFFFFF
+
+// Madagascar (aspect 3:2, ratio 1:2 & 1:1)
+glyph flag-mg:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #ffffff
+ref 14x7 9 1 fill #f9423a
+ref 14x7 9 8 fill #00843d
+
+// Mali (aspect 3:2, division 1:1:1)
+glyph flag-ml:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #14B53A
+ref 7x14 9 1 fill #FCD116
+ref 7x14 16 1 fill #CE1126
+
+// Mauritius (aspect 3:2, division 1:2:1)
+glyph flag-mu:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x7 2 1 fill #2D3359
+ref 21x3p1r2 2 1 fill #D01C1F
+ref 21x7 2 8 fill #008658
+ref 21x3p1r2 2 8 fill #F7B718
+
+// Niger (aspect 7:6 -> 8:7, division 1:1:1)
+glyph flag-ne:color 24 16
+ref 18x16 3 0 fill #00000080
+ref 16x14 4 1 fill #FFFFFF
+ref 16x4p2r3 4 1 fill #E05206
+ref 16x-4p2r3 4 10 fill #0DB02B
+ref flag-ne-circle 10 6 fill #E05206
+
+glyph flag-ne-circle 4 4 scale 2
+.../~H@@@@H~\...
+./d@@@@@@@@@@b\.
+/V@@@@@@@@@@@@V\
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+\V@@@@@@@@@@@@V/
+.\9@@@@@@@@@@P/.
+...\_H@@@@H_/...
+
+// Nigeria (aspect 2:1 -> 11:7, division 1:1:1)
+glyph flag-ng:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref 7p1r3x14 1 1 fill #008751
+ref -7p1r3x14 15 1 fill #008751
+
+// Netherlands (aspect 3:2, division 1:1:1)
+glyph flag-nl:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #FFFFFF
+ref 21x4p2r3 2 1 fill #AD1D25
+ref 21x-4p2r3 2 10 fill #1E4785
+
+// Norway (aspect 11:8 -> 19:14, division 6:1:2:1:12 & 6:1:2:1:6 -> 7:1:2:1:13+3/7 & 7:1:7:1:7)
+glyph flag-no:color 24 16
+ref 21x16 2 0 fill #00000080
+ref 19x14 3 1 fill #003698
+ref 6p1r8x6p1r8 3 1 fill #FFFFFF
+ref 5p2r8x5p2r8 3 1 fill #D21034
+ref -11p1r8x6p1r8 10 1 fill #FFFFFF
+ref -10p2r8x5p2r8 11 1 fill #D21034
+ref 6p1r8x-6p1r8 3 8 fill #FFFFFF
+ref 5p2r8x-5p2r8 3 9 fill #D21034
+ref -11p1r8x-6p1r8 10 8 fill #FFFFFF
+ref -10p2r8x-5p2r8 11 9 fill #D21034
+
+// Peru (aspect 3:2, division 1:1:1)
+glyph flag-pe:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #D91023
+ref 7x14 9 1 fill #FFFFFF
+ref 7x14 16 1 fill #D91023
+
+// Poland (aspect 8:5 -> 11:7, division 1:1)
+glyph flag-pl:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x7 1 1 fill #ffffff
+ref 22x7 1 8 fill #dc143c
+
+// Palestine (aspect 2:1 -> 11:7, division 1:1:1)
+glyph flag-ps:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref 22x4p2r3 1 1 fill #000000
+ref 22x-4p2r3 1 10 fill #009736
+ref 9p1r3x7-dl 1 1 fill #EE2A35
+ref 9p1r3x7-ul 1 8 fill #EE2A35
+
+// Palau (aspect 8:5 -> 11:7)
+glyph flag-pw:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #0099FF
+ref flag-pw-circle 6 3 fill #FFFF00
+
+glyph flag-pw-circle 9 9 scale 4
+........................................................................
+......................../h~h@@@@@@@@@@@@@@@@@@@@h~h\....................
+..................../h~h@@@@@@@@@@@@@@@@@@@@@@@@@@@@h~h\................
+................./~h@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@h~\.............
+.............../d@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@b\...........
+............./d@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@b\.........
+.........../d@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@b\.......
+........./d@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@b\.....
+......../v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v\....
+.......v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v...
+....../v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v\..
+.....v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v.
+..../v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v\
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+....\v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v/
+....`v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v'
+......\v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v/..
+......`v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v'..
+........\v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@v/....
+.........\9@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P/.....
+...........\9@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P/.......
+.............\9@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P/.........
+...............\9@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P/...........
+.................\_h@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@h_/.............
+....................\h_h@@@@@@@@@@@@@@@@@@@@@@@@@@@@h_h/................
+........................\h_h@@@@@@@@@@@@@@@@@@@@h_h/....................
+........................................................................
+
+// Qatar (aspect 28:11 -> 11:7)
+glyph flag-qa:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref flag-qa-right 1 1 fill #8A1538
+
+glyph flag-qa-right 22 14 scale 9
+ref -13p2r9x14 72 0
+ref 2p8r9x0p7r9-ur 53 0
+ref 2p8r9x-0p7r9-dr 53 5
+ref 2p8r9x0p7r9-ur 53 14
+ref 2p8r9x-0p7r9-dr 53 19
+ref 2p8r9x0p7r9-ur 53 28
+ref 2p8r9x-0p7r9-dr 53 33
+ref 2p8r9x0p7r9-ur 53 42
+ref 2p8r9x-0p7r9-dr 53 47
+ref 2p8r9x0p7r9-ur 53 56
+ref 2p8r9x-0p7r9-dr 53 61
+ref 2p8r9x0p7r9-ur 53 70
+ref 2p8r9x-0p7r9-dr 53 75
+ref 2p8r9x0p7r9-ur 53 84
+ref 2p8r9x-0p7r9-dr 53 89
+ref 2p8r9x0p7r9-ur 53 98
+ref 2p8r9x-0p7r9-dr 53 103
+ref 2p8r9x0p7r9-ur 53 112
+ref 2p8r9x-0p7r9-dr 53 117
+
+// Romania (aspect 3:2, division 1:1:1)
+glyph flag-ro:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 7x14 2 1 fill #002B7F
+ref 7x14 9 1 fill #FCD116
+ref 7x14 16 1 fill #CE1126
+
+// Russia (aspect 3:2, division 1:1:1)
+glyph flag-ru:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #0032A0
+ref 21x4p2r3 2 1 fill #FFFFFF
+ref 21x-4p2r3 2 10 fill #DA291C
+
 // Seychelles (aspect 2:1 -> 11:7)
 glyph flag-sc:color 24 16
 ref 24x16 0 0 fill #00000080
@@ -493,12 +770,111 @@ ref 7p1r3x14-ul 1 1 fill #002F6C
 ref 22x-9p1r3-dr 1 5 fill #ffffff
 ref 22x-4p2r3-dr 1 10 fill #007A33
 
+// Sudan (aspect 2:1 -> 11:7, division 1:1:1)
+glyph flag-sd:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref 22x4p2r3 1 1 fill #D21034
+ref 22x-4p2r3 1 10 fill #000000
+ref 9p1r3x7-dl 1 1 fill #007229
+ref 9p1r3x7-ul 1 8 fill #007229
+
+// Sweden (aspect 8:5 -> 11:7, division 5:2:9 & 4:2:4 -> 4+6/7:2:8+6/7 & 4:2:4)
+glyph flag-se:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFC200
+ref 6p4r5x5p3r5 1 1 fill #005583
+ref 6p4r5x-5p3r5 1 9 fill #005583
+ref -12p2r5x5p3r5 10 1 fill #005583
+ref -12p2r5x-5p3r5 10 9 fill #005583
+
+// Sierra Leone (aspect 3:2, division 1:1:1)
+glyph flag-sl:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #FFFFFF
+ref 21x4p2r3 2 1 fill #1EB53A
+ref 21x-4p2r3 2 10 fill #0072C6
+
 // Chad (aspect 3:2, division 1:1:1)
 glyph flag-td:color 24 16
 ref 23x16 1 0 fill #00000080
 ref 7x14 2 1 fill #00205B
 ref 7x14 9 1 fill #FFCD00
 ref 7x14 16 1 fill #C8102E
+
+// Thailand (aspect 3:2, division 1:1:2:1:1)
+glyph flag-th:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #2D2A4A
+ref 21x4p2r3 2 1 fill #F4F5F8
+ref 21x2p1r3 2 1 fill #A51931
+ref 21x-4p2r3 2 10 fill #F4F5F8
+ref 21x-2p1r3 2 12 fill #A51931
+
+// Tonga (aspect 2:1 -> 11:7)
+glyph flag-to:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #C10000
+ref 9p1r6x7 1 1 fill #FFFFFF
+ref flag-to-cross 1 1 fill #C10000
+
+glyph flag-to-cross 9 7 scale 8
+ref 5p1r4x1p3r4 15 21
+ref 1p3r4x5p1r4 29 7
+
+// Trinidad and Tobago (aspect 5:3 -> 11:7)
+glyph flag-tt:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #000000
+ref 1x14 1 1 fill #FFFFFF
+ref 15p1r4x14-dl 2 1 fill #FFFFFF
+ref 15p1r4x14-dl 1 1 fill #DA1A35
+ref 1x14 22 1 fill #FFFFFF
+ref -15p1r4x14-ur 6 1 fill #FFFFFF
+ref -15p1r4x14-ur 7 1 fill #DA1A35
+
+// Tanzania (aspect 3:2)
+glyph flag-tz:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #000000
+ref 17p4r7x11p5r7-ul 2 1 fill #fcd116
+ref 16x10p5r7-ul 2 1 fill #1eb53a
+ref -17p4r7x-11p5r7-dr 5 3 fill #fcd116
+ref -16x-10p5r7-dr 7 4 fill #00a3dd
+
+// Ukraine (aspect 3:2, division 1:1)
+glyph flag-ua:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x7 2 1 fill #0057B7
+ref 21x7 2 8 fill #FFD700
+
+// United Kingdom (aspect 2:1 -> 11:7, division 25:2:6:2:25 & 10:2:6:2:10 -> 18+4/7:2:6:2:18+4/7 & 10:2:6:2:10)
+glyph flag-uk:color 24 16 scale 6
+ref 24x16 0 0 fill #00000080
+ref 22x14 6 6 fill #FFFFFF
+ref 6x3p5r6-ur 22 6 fill #012169
+ref 7p1r3x4p2r3-dl 6 6 fill #C8102E
+ref 5p2r3x3p2r3-dl 6 12 fill #FFFFFF
+ref 4p5r6x3p1r6-dl 6 15 fill #012169
+ref 6x3p5r6-ul 86 6 fill #012169
+ref 1p5r6x4p4r6 127 6 fill #C8102E
+ref 7p1r3x4p2r3-dr 83 6 fill #C8102E
+ref 7p1r3x4p2r3-dr 94 6 fill #FFFFFF
+ref 4p5r6x3p1r6-dr 109 15 fill #012169
+ref 6x3p5r6-dr 22 67 fill #012169
+ref 1p5r6x4p4r6 6 62 fill #C8102E
+ref 7p1r3x4p2r3-ul 17 62 fill #C8102E
+ref 7p1r3x4p2r3-ul 6 62 fill #FFFFFF
+ref 4p5r6x3p1r6-ul 6 62 fill #012169
+ref 6x3p5r6-dl 86 67 fill #012169
+ref 7p1r3x4p2r3-ur 94 62 fill #C8102E
+ref 5p2r3x3p2r3-ur 104 62 fill #FFFFFF
+ref 4p5r6x3p1r6-ur 109 62 fill #012169
+ref 4p2r3x14 58 6 fill #FFFFFF
+ref 22x-1p2r5 6 36 fill #C8102E
+ref 22x1p2r5 6 48 fill #C8102E
+ref -1p2r5x14 60 6 fill #C8102E
+ref 1p2r5x14 72 6 fill #C8102E
 
 // United States (aspect 19:10 -> 11:7)
 glyph flag-us:color 24 16
@@ -597,57 +973,126 @@ glyph flag-us-star 1 1 scale 20
 ........................................
 ........................................
 
-remap flag : regional-indicator-a-left regional-indicator-d-right -> flag-ad
-remap flag : regional-indicator-a-left regional-indicator-m-right -> flag-am
-remap flag : regional-indicator-a-left regional-indicator-r-right -> flag-ar
-remap flag : regional-indicator-a-left regional-indicator-t-right -> flag-at
+// Saint Vincent and the Grenadines (aspect 3:2, division 1:2:1)
+glyph flag-vc:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #fcd022
+ref 5p1r2x14 2 1 fill #002674
+ref -5p1r2x14 17 1 fill #007c2e
+ref flag-vc-diamond 9 5 fill #007c2e
 
-remap flag : regional-indicator-b-left regional-indicator-e-right -> flag-be
-remap flag : regional-indicator-b-left regional-indicator-g-right -> flag-bg
-remap flag : regional-indicator-b-left regional-indicator-h-right -> flag-bh
-remap flag : regional-indicator-b-left regional-indicator-j-right -> flag-bj
-remap flag : regional-indicator-b-left regional-indicator-o-right -> flag-bo
-remap flag : regional-indicator-b-left regional-indicator-s-right -> flag-bs
-remap flag : regional-indicator-b-left regional-indicator-w-right -> flag-bw
+glyph flag-vc-diamond 7 9 scale 4
+........................................................
+........................................................
+........................................................
+...............VV......................VV...............
+............../VV\..................../VV\..............
+.............V@@@@V..................V@@@@V.............
+............/V@@@@V\................/V@@@@V\............
+...........V@@@@@@@@V..............V@@@@@@@@V...........
+........../V@@@@@@@@V\............/V@@@@@@@@V\..........
+.........V@@@@@@@@@@@@V..........V@@@@@@@@@@@@V.........
+......../V@@@@@@@@@@@@V\......../V@@@@@@@@@@@@V\........
+.......V@@@@@@@@@@@@@@@@V......V@@@@@@@@@@@@@@@@V.......
+......`V@@@@@@@@@@@@@@@@V'....`V@@@@@@@@@@@@@@@@V'......
+........\V@@@@@@@@@@@@V/........\V@@@@@@@@@@@@V/........
+........`V@@@@@@@@@@@@V'........`V@@@@@@@@@@@@V'........
+..........\V@@@@@@@@V/.....VV.....\V@@@@@@@@V/..........
+..........`V@@@@@@@@V'..../VV\....`V@@@@@@@@V'..........
+............\V@@@@V/.....V@@@@V.....\V@@@@V/............
+............`V@@@@V'..../V@@@@V\....`V@@@@V'............
+..............\VV/.....V@@@@@@@@V.....\VV/..............
+..............`VV'..../V@@@@@@@@V\....`VV'..............
+.....................V@@@@@@@@@@@@V.....................
+..................../V@@@@@@@@@@@@V\....................
+...................V@@@@@@@@@@@@@@@@V...................
+..................`V@@@@@@@@@@@@@@@@V'..................
+....................\V@@@@@@@@@@@@V/....................
+....................`V@@@@@@@@@@@@V'....................
+......................\V@@@@@@@@V/......................
+......................`V@@@@@@@@V'......................
+........................\V@@@@V/........................
+........................`V@@@@V'........................
+..........................\VV/..........................
+..........................`VV'..........................
+........................................................
+........................................................
+........................................................
 
-remap flag : regional-indicator-c-left regional-indicator-g-right -> flag-cg
-remap flag : regional-indicator-c-left regional-indicator-i-right -> flag-ci
-remap flag : regional-indicator-c-left regional-indicator-o-right -> flag-co
-remap flag : regional-indicator-c-left regional-indicator-r-right -> flag-cr
-remap flag : regional-indicator-c-left regional-indicator-z-right -> flag-cz
+// Yemen (aspect 3:2, division 1:1:1)
+glyph flag-ye:color 24 16
+ref 23x16 1 0 fill #00000080
+ref 21x14 2 1 fill #FFFFFF
+ref 21x4p2r3 2 1 fill #CE1126
+ref 21x-4p2r3 2 10 fill #000000
 
-remap flag : regional-indicator-d-left regional-indicator-e-right -> flag-de
-remap flag : regional-indicator-d-left regional-indicator-k-right -> flag-dk
+// South Africa (aspect 3:2, division 5:1:3:1:5)
+glyph flag-za:color 24 16 scale 2
+ref 23x16 2 0 fill #00000080
+ref 21x7 4 2 fill #DE3831
+ref 21x7 4 16 fill #002395
+ref 21x-2p1r3 4 10 fill #FFFFFF
+ref 21x2p1r3 4 16 fill #FFFFFF
+ref 4x14 4 2 fill #FFFFFF
+ref 10p1r2x7-dl 12 2 fill #FFFFFF
+ref 10p1r2x7-ul 12 16 fill #FFFFFF
+ref 21x-1p2r5 4 12 fill #007A4D
+ref 21x1p2r5 4 16 fill #007A4D
+ref 2p1r2x14 4 2 fill #007A4D
+ref 10p1r2x7-dl 9 2 fill #007A4D
+ref 10p1r2x7-ul 9 16 fill #007A4D
+ref 8x-5p2r5-dl 4 4 fill #FFB612
+ref 8x5p2r5-ul 4 16 fill #FFB612
+ref 6p3r10x-4p2r10-dl 4 6 fill #000000
+ref 6p3r10x4p2r10-ul 4 16 fill #000000
 
-remap flag : regional-indicator-e-left regional-indicator-e-right -> flag-ee
+name-parts $flag-a = d e m r t
+name-parts $flag-b = e g h j o s w
+name-parts $flag-c = g h i o r z
+name-parts $flag-d = e k
+name-parts $flag-e = e
+name-parts $flag-f = i r
+name-parts $flag-g = a m n r y
+name-parts $flag-h = u
+name-parts $flag-i = d e l s t
+name-parts $flag-j = m p
+name-parts $flag-k = r w
+name-parts $flag-l = a c t u v
+name-parts $flag-m = c g l u
+name-parts $flag-n = e g l o
+name-parts $flag-p = e l s w
+name-parts $flag-q = a
+name-parts $flag-r = o u
+name-parts $flag-s = c d e l
+name-parts $flag-t = d h o t z
+name-parts $flag-u = a k s
+name-parts $flag-v = c
+name-parts $flag-y = e
+name-parts $flag-z = a
 
-remap flag : regional-indicator-f-left regional-indicator-i-right -> flag-fi
-remap flag : regional-indicator-f-left regional-indicator-r-right -> flag-fr
-
-remap flag : regional-indicator-g-left regional-indicator-a-right -> flag-ga
-remap flag : regional-indicator-g-left regional-indicator-m-right -> flag-gm
-remap flag : regional-indicator-g-left regional-indicator-n-right -> flag-gn
-remap flag : regional-indicator-g-left regional-indicator-r-right -> flag-gr
-remap flag : regional-indicator-g-left regional-indicator-y-right -> flag-gy
-
-remap flag : regional-indicator-h-left regional-indicator-u-right -> flag-hu
-
-remap flag : regional-indicator-i-left regional-indicator-d-right -> flag-id
-remap flag : regional-indicator-i-left regional-indicator-e-right -> flag-ie
-remap flag : regional-indicator-i-left regional-indicator-l-right -> flag-il
-remap flag : regional-indicator-i-left regional-indicator-s-right -> flag-is
-remap flag : regional-indicator-i-left regional-indicator-t-right -> flag-it
-
-remap flag : regional-indicator-j-left regional-indicator-m-right -> flag-jm
-remap flag : regional-indicator-j-left regional-indicator-p-right -> flag-jp
-
-remap flag : regional-indicator-k-left regional-indicator-r-right -> flag-kr
-
-remap flag : regional-indicator-s-left regional-indicator-c-right -> flag-sc
-
-remap flag : regional-indicator-t-left regional-indicator-d-right -> flag-td
-
-remap flag : regional-indicator-u-left regional-indicator-s-right -> flag-us
+remap flag : regional-indicator-a-left regional-indicator-($flag-a)-right -> flag-a($flag-a)
+remap flag : regional-indicator-b-left regional-indicator-($flag-b)-right -> flag-b($flag-b)
+remap flag : regional-indicator-c-left regional-indicator-($flag-c)-right -> flag-c($flag-c)
+remap flag : regional-indicator-d-left regional-indicator-($flag-d)-right -> flag-d($flag-d)
+remap flag : regional-indicator-e-left regional-indicator-($flag-e)-right -> flag-e($flag-e)
+remap flag : regional-indicator-f-left regional-indicator-($flag-f)-right -> flag-f($flag-f)
+remap flag : regional-indicator-g-left regional-indicator-($flag-g)-right -> flag-g($flag-g)
+remap flag : regional-indicator-h-left regional-indicator-($flag-h)-right -> flag-h($flag-h)
+remap flag : regional-indicator-i-left regional-indicator-($flag-i)-right -> flag-i($flag-i)
+remap flag : regional-indicator-j-left regional-indicator-($flag-j)-right -> flag-j($flag-j)
+remap flag : regional-indicator-k-left regional-indicator-($flag-k)-right -> flag-k($flag-k)
+remap flag : regional-indicator-l-left regional-indicator-($flag-l)-right -> flag-l($flag-l)
+remap flag : regional-indicator-m-left regional-indicator-($flag-m)-right -> flag-m($flag-m)
+remap flag : regional-indicator-n-left regional-indicator-($flag-n)-right -> flag-n($flag-n)
+remap flag : regional-indicator-p-left regional-indicator-($flag-p)-right -> flag-p($flag-p)
+remap flag : regional-indicator-q-left regional-indicator-($flag-q)-right -> flag-q($flag-q)
+remap flag : regional-indicator-r-left regional-indicator-($flag-r)-right -> flag-r($flag-r)
+remap flag : regional-indicator-s-left regional-indicator-($flag-s)-right -> flag-s($flag-s)
+remap flag : regional-indicator-t-left regional-indicator-($flag-t)-right -> flag-t($flag-t)
+remap flag : regional-indicator-u-left regional-indicator-($flag-u)-right -> flag-u($flag-u)
+remap flag : regional-indicator-v-left regional-indicator-($flag-v)-right -> flag-v($flag-v)
+remap flag : regional-indicator-y-left regional-indicator-($flag-y)-right -> flag-y($flag-y)
+remap flag : regional-indicator-z-left regional-indicator-($flag-z)-right -> flag-z($flag-z)
 
 feature ccmp for DFLT : flag
 
