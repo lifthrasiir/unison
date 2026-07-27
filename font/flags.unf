@@ -1,5 +1,8 @@
 ////////////////////////////////////////
-// region indicators and flags
+// flags
+
+//--------------------------------------
+// regional indicator
 
 glyph regional-indicator-single 16 16
 ..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
@@ -72,7 +75,125 @@ map U+1F1E6..1F1FF = regional-indicator-($a-z)
 remap regional-indicator : regional-indicator-($a-z)-left : regional-indicator-($a-z) -> regional-indicator-($a-z)-right
 remap regional-indicator : regional-indicator-($a-z) -> regional-indicator-($a-z)-left : regional-indicator-($a-z)
 
-feature liga for DFLT : regional-indicator
+feature ccmp for DFLT : regional-indicator
+
+//--------------------------------------
+// tags
+
+// tags are invisible but have to be assigned distinct glyphs for the GSUB rules
+glyph tag-($a-z|$0..9|cancel) advance 0
+ref sp
+
+glyph black-flag:mono 16 16
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..........................
+..@@@@..........................
+
+// black-flag needs to have a color representation (even though it is essentially same to the mono version)
+// because Gecko apparently falls back to the system emoji font without one.
+glyph black-flag:color 16 16
+ref black-flag:mono 0 0 fill fg
+
+glyph black-flag-start 16 16
+..@@@@..@@@@@@@@@@@@@@@@@@......
+..@@@@@@@@@@@@@@@@@@@@@@@@......
+..@@@@..@@@@@@@@@@@@@@@@@@......
+..@@@@@@@@@@@@@@@@@@@@@@@@......
+..@@@@..@@@@@@@@@@@@@@@@@@......
+..@@@@@@@@@@@@@@@@@@@@@@@@......
+..@@@@..@@@@@@@@@@@@@@@@@@......
+..@@@@@@@@@@@@@@@@@@@@@@@@......
+..@@@@..@@@@@@@@@@@@@@@@@@......
+..@@@@@@@@@@@@@@@@@@@@@@@@......
+..@@@@..@@@@@@@@@@@@@@@@@@......
+..@@@@@@@@@@@@@@@@@@@@@@@@......
+..@@@@..@@@@@@@@@@@@@@@@@@......
+..@@@@@@@@@@@@@@@@@@@@@@@@......
+..@@@@..........................
+..@@@@..........................
+
+glyph black-flag-($a-z) 16 16
+ref black-flag-start
+ref ($a-z)-upper 5 -1 negated
+
+glyph black-flag-($0..9) 16 16
+ref black-flag-start
+ref ($0..9) 5 -1 negated
+
+glyph black-flag-cont 8 16
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+................
+................
+
+glyph black-flag-($a-z)-cont 8 16 left -3
+ref black-flag-cont -3 0
+ref ($a-z)-upper -3 -1 negated
+
+glyph black-flag-($0..9)-cont 8 16 left -3
+ref black-flag-cont -3 0
+ref ($0..9) -3 -1 negated
+
+glyph black-flag-end-aux 2 16
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+@@@@
+....
+....
+
+glyph black-flag-end advance 0 top 1
+ref black-flag-end-aux -3 0
+
+map 🏴 = black-flag
+map U+E0030..E0039 = tag-($0..9)
+map U+E0061..E007A = tag-($a-z)
+map U+E007F = tag-cancel
+
+remap flag-tag : black-flag tag-($a-z|$0..9) -> black-flag-($a-z|$0..9)
+remap flag-tag : black-flag-($a-z|$0..9) : tag-($a-z|$0..9) -> black-flag-($a-z|$0..9)-cont
+remap flag-tag : black-flag-($a-z|$0..9)-cont : tag-($a-z|$0..9) -> black-flag-($a-z|$0..9)-cont
+remap flag-tag : black-flag-($a-z|$0..9) : tag-cancel -> black-flag-end
+remap flag-tag : black-flag-($a-z|$0..9)-cont : tag-cancel -> black-flag-end
+
+feature ccmp for DFLT : flag-tag
+
+assert shape 🏴󠁡󠁢󠁣󠁿 : black-flag-a : black-flag-b-cont : black-flag-c-cont : black-flag-end
 
 //--------------------------------------
 // experimental color flags
