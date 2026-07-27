@@ -1,7 +1,7 @@
 ////////////////////////////////////////
 // hiragana & katakana
 
-glyph kana-dhyphen 16 16
+glyph ja-dhyphen 16 16
 ................................
 ................................
 ................................
@@ -19,7 +19,7 @@ glyph kana-dhyphen 16 16
 ................................
 ................................
 
-glyph kana-cdot 16 16
+glyph ideographic-middot 16 16
 ................................
 ................................
 ................................
@@ -37,7 +37,7 @@ glyph kana-cdot 16 16
 ................................
 ................................
 
-glyph kana-long 16 16
+glyph ja-long 16 16
 ................................
 ................................
 ................................
@@ -55,42 +55,42 @@ glyph kana-long 16 16
 ................................
 ................................
 
-glyph kana-takuten0 5 5
+glyph ja-voiced0 5 5
 ....@@....
 @@....@@..
 @@....@@..
 ..@@....@@
 ....@@....
 
-glyph kana-hantakuten0 5 5
+glyph ja-half-voiced0 5 5
 ./~H@@H~\.
 /V0/..\0V\
 @@......@@
 \V0\../0V/
 .\_H@@H_/.
 
-glyph kana-takuten-spacing 16 16
-ref kana-takuten0 1 1
+glyph ja-voiced 16 16
+ref ja-voiced0 1 1
 
-glyph kana-hantakuten-spacing 16 16
-ref kana-hantakuten0 1 1
+glyph ja-half-voiced 16 16
+ref ja-half-voiced0 1 1
 
-glyph kana-takuten 0 16 mark
-ref kana-takuten0 -5 1
+glyph ja-voiced-comb 0 16 mark
+ref ja-voiced0 -5 1
 anchor -kana-mod -3 3
 
-glyph kana-hantakuten 0 16 mark
-ref kana-hantakuten0 -5 1
+glyph ja-half-voiced-comb 0 16 mark
+ref ja-half-voiced0 -5 1
 anchor -kana-mod -3 3
 
-map ゠ = kana-dhyphen
-map ・ = kana-cdot
-map ー = kana-long
+map ゠ = ja-dhyphen
+map ・ = ideographic-middot
+map ー = ja-long
 
-map U+3099 = kana-takuten
-map U+309A = kana-hantakuten
-map ゛ = kana-takuten-spacing
-map ゜ = kana-hantakuten-spacing
+map U+3099 = ja-voiced-comb
+map U+309A = ja-half-voiced-comb
+map ゛ = ja-voiced
+map ゜ = ja-half-voiced
 
 feature ccmp for kana : anchor kana-mod
 
