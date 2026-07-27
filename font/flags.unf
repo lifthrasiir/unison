@@ -460,10 +460,7 @@ ref 22x-1p2r5 1 6 fill #C8102E
 ref 22x1p2r5 1 8 fill #C8102E
 ref -1p2r5x14 10 1 fill #C8102E
 ref 1p2r5x14 12 1 fill #C8102E
-// XXX: this indirection is currently required
 glyph flag-gbeng:mono
-ref flag-gbeng-mono
-glyph flag-gbeng-mono
 ref black-flag-wide
 ref sm-g-upper 5 2 negated
 ref sm-b-upper 10 2 negated
@@ -483,10 +480,7 @@ ref 8p2r5x-5p2r5-dl 1 2 fill #005EB8
 ref 8p2r5x5p2r5-ul 1 8 fill #005EB8
 ref -8p2r5x-5p2r5-dr 14 2 fill #005EB8
 ref -8p2r5x5p2r5-ur 14 8 fill #005EB8
-// XXX: this indirection is currently required
 glyph flag-gbsct:mono
-ref flag-gbsct-mono
-glyph flag-gbsct-mono
 ref black-flag-wide
 ref sm-g-upper 5 2 negated
 ref sm-b-upper 10 2 negated

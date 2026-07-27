@@ -1412,21 +1412,72 @@ fn collect_glyph_data_with_shared(
             _ => 0,
         };
 
+        // A `negated` ref draws nothing of its own — it only removes area from
+        // the layers under it.  This path splits a composite into per-layer
+        // contour sets, so each surviving layer has to be traced against the
+        // negated layers that follow it, and negated refs contribute no layer
+        // of their own.  Cutting is per pass: a monoonly negation cannot reach
+        // the coloronly layers, which are not present when it is drawn.
+        let has_negated = body.refs.iter().any(|r| r.negated);
+        let ref_layers: Vec<Option<(PixelGrid, i32, i32)>> = if has_negated {
+            effective_refs
+                .iter()
+                .map(|eref| {
+                    let ref_cached = resolve_cached_ref(&eref.name, &cache)?;
+                    let grid = ref_cached.grid.as_ref()?;
+                    let (rs, ps) = (ref_cached.scale.max(1), body.scale.max(1));
+                    let scaled = if rs == ps { grid.clone() } else { grid.rescale(rs, ps) };
+                    Some((scaled, eref.row() as i32, eref.col() as i32))
+                })
+                .collect()
+        } else {
+            Vec::new()
+        };
+        let ref_vis: Vec<LayerVisibility> = (0..effective_refs.len())
+            .map(|ri| {
+                let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
+                effective_visibility(orig_ref.visibility, orig_ref.fill.as_ref(), &color_aliases)
+            })
+            .collect();
+        // Negated layers drawn after ref `from` (all of them, for own pixels),
+        // restricted to the pass that `skip` selects.
+        let negated_after = |from: Option<usize>, skip: LayerVisibility| {
+            let start = from.map_or(0, |i| i + 1);
+            (start..ref_layers.len())
+                .filter(|&j| body.refs[j.min(body.refs.len() - 1)].negated && ref_vis[j] != skip)
+                .filter_map(|j| ref_layers[j].as_ref().map(|(g, r, c)| (g, *r, *c, true)))
+                .collect::<Vec<_>>()
+        };
+        // Trace one positive layer minus the negated layers that follow it.
+        // `None` when nothing cuts this layer, so a layer no negation reaches
+        // keeps its own exactly traced contours instead of being re-traced.
+        let cut_contours = |grid: &PixelGrid, row: i32, col: i32, negs: Vec<(&PixelGrid, i32, i32, bool)>| {
+            if negs.is_empty() {
+                return None;
+            }
+            let mut layers = vec![(grid, row, col, false)];
+            layers.extend(negs);
+            Some(track_contour_multi_diff(&layers, PX_SUBPIXEL))
+        };
+
         // Collect foreground contours (own pixels + refs without fill or with fill=fg)
         // and separate color layers (refs with non-fg fill).
         let mut fg_contours: Vec<Vec<(i16, i16)>> = Vec::new();
 
         if let Some(ref own_grid) = body.pixels
             && !own_grid.is_all_empty() {
-                let c = track_contour(own_grid, PX_SUBPIXEL);
+                let c = has_negated
+                    .then(|| cut_contours(own_grid, 0, 0, negated_after(None, LayerVisibility::MonoOnly)))
+                    .flatten()
+                    .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
                 fg_contours.extend(scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset));
             }
 
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
             let fill = orig_ref.fill.as_ref();
-            let vis = effective_visibility(orig_ref.visibility, fill, &color_aliases);
-            if vis == LayerVisibility::MonoOnly {
+            let vis = ref_vis[ri];
+            if vis == LayerVisibility::MonoOnly || orig_ref.negated {
                 continue;
             }
 
@@ -1435,20 +1486,30 @@ fn collect_glyph_data_with_shared(
             let dy = eref.row() as f32;
             let rsf = body.scale as f32 / ref_cached.scale.max(1) as f32;
 
-            let layer_contours: Vec<Vec<(i16, i16)>> = ref_cached
-                .contours
-                .iter()
-                .map(|c| {
-                    c.iter()
-                        .map(|&(x, y)| {
-                            (
-                                ((x * rsf + dx) * color_glyph_scale).round() as i16 + left_offset,
-                                ((color_ascent as f32 - (y * rsf + dy)) * color_glyph_scale).round() as i16 - top_offset,
-                            )
-                        })
-                        .collect()
+            let cut = has_negated
+                .then(|| {
+                    let (grid, row, col) = ref_layers[ri].as_ref()?;
+                    cut_contours(grid, *row, *col, negated_after(Some(ri), LayerVisibility::MonoOnly))
                 })
-                .collect();
+                .flatten();
+            let layer_contours: Vec<Vec<(i16, i16)>> = if let Some(c) = cut {
+                scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset)
+            } else {
+                ref_cached
+                    .contours
+                    .iter()
+                    .map(|c| {
+                        c.iter()
+                            .map(|&(x, y)| {
+                                (
+                                    ((x * rsf + dx) * color_glyph_scale).round() as i16 + left_offset,
+                                    ((color_ascent as f32 - (y * rsf + dy)) * color_glyph_scale).round() as i16 - top_offset,
+                                )
+                            })
+                            .collect()
+                    })
+                    .collect()
+            };
 
             if layer_contours.is_empty() {
                 continue;
@@ -1486,14 +1547,26 @@ fn collect_glyph_data_with_shared(
         let mut fallback_contours: Vec<Vec<(i16, i16)>> = Vec::new();
         if let Some(ref own_grid) = body.pixels
             && !own_grid.is_all_empty() {
-                let c = track_contour(own_grid, PX_SUBPIXEL);
+                let c = has_negated
+                    .then(|| cut_contours(own_grid, 0, 0, negated_after(None, LayerVisibility::ColorOnly)))
+                    .flatten()
+                    .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
                 fallback_contours.extend(scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset));
             }
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
-            let fill = orig_ref.fill.as_ref();
-            let vis = effective_visibility(orig_ref.visibility, fill, &color_aliases);
-            if vis == LayerVisibility::ColorOnly {
+            let vis = ref_vis[ri];
+            if vis == LayerVisibility::ColorOnly || orig_ref.negated {
+                continue;
+            }
+            let cut = has_negated
+                .then(|| {
+                    let (grid, row, col) = ref_layers[ri].as_ref()?;
+                    cut_contours(grid, *row, *col, negated_after(Some(ri), LayerVisibility::ColorOnly))
+                })
+                .flatten();
+            if let Some(c) = cut {
+                fallback_contours.extend(scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset));
                 continue;
             }
             let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else { continue };
@@ -6053,6 +6126,117 @@ feature ccmp for DFLT : sub
             color_layer_count, 1,
             "monoonly ref should be excluded from color layers, \
              so only the coloronly ref (with its palette color) should remain"
+        );
+    }
+
+    /// Nonzero winding number of `contours` at `(x, y)`, in font units.
+    fn winding_at(contours: &[Vec<(i16, i16)>], x: f32, y: f32) -> i32 {
+        let mut winding = 0;
+        for contour in contours {
+            for i in 0..contour.len() {
+                let (x0, y0) = contour[i];
+                let (x1, y1) = contour[(i + 1) % contour.len()];
+                let (x0, y0, x1, y1) = (x0 as f32, y0 as f32, x1 as f32, y1 as f32);
+                if y0 <= y {
+                    if y1 > y && (x1 - x0) * (y - y0) - (x - x0) * (y1 - y0) > 0.0 {
+                        winding += 1;
+                    }
+                } else if y1 <= y && (x1 - x0) * (y - y0) - (x - x0) * (y1 - y0) < 0.0 {
+                    winding -= 1;
+                }
+            }
+        }
+        winding
+    }
+
+    /// A `negated` ref only *removes* area from the layers below it; it never
+    /// draws anything of its own. The color-layer rebuild path (taken as soon
+    /// as any ref carries a fill or a visibility flag) used to translate every
+    /// ref's contours in unconditionally, so a negated ref inside a monoonly
+    /// stack filled its own shape in instead of punching a hole.
+    #[test]
+    fn negated_ref_subtracts_in_fallback_contours() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph hole 2 2
+@@@@
+@@@@
+
+glyph combo
+ref base monoonly
+ref hole 1 1 negated monoonly
+ref base coloronly fill #ff0000
+
+map A = combo
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let combo = glyphs.iter().find(|g| g.name == "combo").unwrap();
+
+        // scale = UNITS_PER_EM / height = 1024 / 16 = 64, y = (ascent - row) * scale.
+        let s = 64.0;
+        assert_ne!(
+            winding_at(&combo.contours, 0.5 * s, (12.0 - 0.5) * s),
+            0,
+            "the base layer should be filled"
+        );
+        assert_eq!(
+            winding_at(&combo.contours, 2.0 * s, (12.0 - 2.0) * s),
+            0,
+            "the negated ref should punch a hole, not fill itself in"
+        );
+    }
+
+    /// The same thing one level up: an on-demand `X` synthesized from `X:mono`
+    /// and `X:color` flattens both bodies' refs into one glyph with visibility
+    /// flags, which is exactly what pushes it onto the color-layer path.
+    /// `font/flags.unf` had to route `X:mono` through an extra indirection
+    /// glyph to keep its negated refs working.
+    #[test]
+    fn negated_ref_subtracts_in_synthesized_color_mono_glyph() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph hole 2 2
+@@@@
+@@@@
+
+glyph flag:mono
+ref base
+ref hole 1 1 negated
+
+glyph flag:color
+ref base fill #ff0000
+
+map A = flag
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let flag = glyphs.iter().find(|g| g.name == "flag").unwrap();
+
+        let s = 64.0;
+        assert_ne!(
+            winding_at(&flag.contours, 0.5 * s, (12.0 - 0.5) * s),
+            0,
+            "the mono base layer should be filled"
+        );
+        assert_eq!(
+            winding_at(&flag.contours, 2.0 * s, (12.0 - 2.0) * s),
+            0,
+            "the negated ref in X:mono should punch a hole in the synthesized X"
         );
     }
 
