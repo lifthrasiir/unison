@@ -39,43 +39,46 @@ fn shape_run(
     text: &str,
     features: &[ShapeFeatureFlag],
 ) -> Vec<ShapedGlyph> {
-    let face = harfbuzz_rs::Face::from_bytes(font_data, 0);
-    let font = harfbuzz_rs::Font::new(face);
-    let buffer = harfbuzz_rs::UnicodeBuffer::new().add_str(text);
+    let Some(face) = rustybuzz::Face::from_slice(font_data, 0) else {
+        return Vec::new();
+    };
+    let mut buffer = rustybuzz::UnicodeBuffer::new();
+    buffer.push_str(text);
 
-    let hb_features: Vec<harfbuzz_rs::Feature> = features
+    let hb_features: Vec<rustybuzz::Feature> = features
         .iter()
         .map(|f| {
-            let bytes = f.tag.as_bytes();
-            let mut tag_arr = [b' '; 4];
-            for (i, &b) in bytes.iter().enumerate().take(4) {
-                tag_arr[i] = b;
-            }
-            harfbuzz_rs::Feature::new(
-                harfbuzz_rs::Tag::new(
-                    tag_arr[0] as char, tag_arr[1] as char,
-                    tag_arr[2] as char, tag_arr[3] as char,
-                ),
+            rustybuzz::Feature::new(
+                feature_tag(f.tag.as_bytes()),
                 if f.enable { 1 } else { 0 },
                 ..,
             )
         })
         .collect();
 
-    let output = harfbuzz_rs::shape(&font, buffer, &hb_features);
-    let positions = output.get_glyph_positions();
-    let infos = output.get_glyph_infos();
+    let output = rustybuzz::shape(&face, &hb_features, buffer);
+    let positions = output.glyph_positions();
+    let infos = output.glyph_infos();
 
     infos
         .iter()
         .zip(positions.iter())
         .map(|(info, pos)| ShapedGlyph {
-            glyph_id: info.codepoint as u16,
+            glyph_id: info.glyph_id as u16,
             x_advance: pos.x_advance,
             x_offset: pos.x_offset,
             y_offset: pos.y_offset,
         })
         .collect()
+}
+
+/// OpenType tags are exactly four bytes; shorter names are space-padded.
+pub(crate) fn feature_tag(bytes: &[u8]) -> rustybuzz::ttf_parser::Tag {
+    let mut tag = [b' '; 4];
+    for (slot, &b) in tag.iter_mut().zip(bytes.iter()) {
+        *slot = b;
+    }
+    rustybuzz::ttf_parser::Tag::from_bytes(&tag)
 }
 
 /// Convert a font-unit offset to pixel units (top-left origin, Y-down).

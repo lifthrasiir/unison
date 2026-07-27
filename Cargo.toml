@@ -11,7 +11,7 @@ editor = ["eframe", "egui", "tiny-skia", "notify", "rfd", "arboard", "embed-reso
 anyhow = "1"
 write-fonts = "0.50"
 read-fonts = "0.41"
-harfbuzz_rs = { version = "2", default-features = false, features = ["build-native-harfbuzz"] }
+rustybuzz = "0.20"
 skrifa = "0.44"
 png = "0.18"
 unicode_names2 = "3.1"

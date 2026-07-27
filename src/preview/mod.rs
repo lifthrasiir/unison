@@ -1,5 +1,5 @@
 pub mod cluster;
-pub mod harfbuzz;
+pub mod rustybuzz;
 pub mod rasterizer;
 pub mod widget;
 
@@ -104,7 +104,7 @@ fn clip_feature(feature: &Feature, char_start: usize, char_len: usize) -> Option
 }
 
 pub fn available_backends() -> Vec<Box<dyn ShaperBackend>> {
-    let mut v: Vec<Box<dyn ShaperBackend>> = vec![Box::new(harfbuzz::HarfBuzzBackend)];
+    let mut v: Vec<Box<dyn ShaperBackend>> = vec![Box::new(rustybuzz::RustyBuzzBackend)];
     #[cfg(target_os = "macos")]
     v.push(Box::new(coretext::CoreTextBackend));
     #[cfg(target_os = "windows")]

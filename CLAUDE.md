@@ -85,7 +85,7 @@ Editor (feature `editor`):
   `reconcile`, `undo`, `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`,
   `glyph_widget`, `grid_render`, `pixel_interaction`, `pixel_selection`, `harness`, `view_tests`.
 - `sidebar.rs` — `.unf` file list (open, rename, create). `specimen.rs` — specimen rendering.
-- `edit_menu.rs`, `preview/` — bottom live-preview panel: HarfBuzz shaping + platform rasterizer
+- `edit_menu.rs`, `preview/` — bottom live-preview panel: rustybuzz shaping + platform rasterizer
   (`coretext.rs` on macOS, `directwrite.rs` on Windows).
 
 `font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files

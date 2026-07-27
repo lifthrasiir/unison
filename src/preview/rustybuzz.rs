@@ -1,6 +1,7 @@
 use crate::preview::{Feature, ShapeError, ShapedGlyph, ShaperBackend};
+use crate::render::assert::feature_tag;
 
-pub struct HarfBuzzBackend;
+pub struct RustyBuzzBackend;
 
 fn byte_to_char_map(text: &str) -> Vec<usize> {
     let mut map = vec![0usize; text.len() + 1];
@@ -20,9 +21,9 @@ fn byte_to_char_map(text: &str) -> Vec<usize> {
     map
 }
 
-impl ShaperBackend for HarfBuzzBackend {
+impl ShaperBackend for RustyBuzzBackend {
     fn name(&self) -> &'static str {
-        "HarfBuzz"
+        "rustybuzz"
     }
 
     fn shape(
@@ -32,32 +33,25 @@ impl ShaperBackend for HarfBuzzBackend {
         _upm: u16,
         features: &[Feature],
     ) -> Result<Vec<ShapedGlyph>, ShapeError> {
-        let face = harfbuzz_rs::Face::from_bytes(font_data, 0);
-        let font = harfbuzz_rs::Font::new(face);
+        let face = rustybuzz::Face::from_slice(font_data, 0)
+            .ok_or_else(|| ShapeError("failed to parse the font".to_string()))?;
 
-        let buffer = harfbuzz_rs::UnicodeBuffer::new().add_str(text);
+        let mut buffer = rustybuzz::UnicodeBuffer::new();
+        buffer.push_str(text);
 
-        let hb_features: Vec<harfbuzz_rs::Feature> = features
+        let hb_features: Vec<rustybuzz::Feature> = features
             .iter()
-            .map(|f| {
-                let tag = harfbuzz_rs::Tag::new(
-                    f.tag[0] as char,
-                    f.tag[1] as char,
-                    f.tag[2] as char,
-                    f.tag[3] as char,
-                );
-                harfbuzz_rs::Feature::new(tag, f.value, f.start..f.end)
-            })
+            .map(|f| rustybuzz::Feature::new(feature_tag(&f.tag), f.value, f.start..f.end))
             .collect();
 
-        let output = harfbuzz_rs::shape(&font, buffer, &hb_features);
+        let output = rustybuzz::shape(&face, &hb_features, buffer);
 
-        let positions = output.get_glyph_positions();
-        let infos = output.get_glyph_infos();
+        let positions = output.glyph_positions();
+        let infos = output.glyph_infos();
 
         let byte_to_char = byte_to_char_map(text);
 
-        let upem = font.face().upem() as f32;
+        let upem = face.units_per_em() as f32;
         let result = infos
             .iter()
             .zip(positions.iter())
@@ -69,7 +63,7 @@ impl ShaperBackend for HarfBuzzBackend {
                     text.chars().count()
                 };
                 ShapedGlyph {
-                    glyph_id: info.codepoint as u16,
+                    glyph_id: info.glyph_id as u16,
                     cluster,
                     x_advance: pos.x_advance as f32 / upem,
                     y_advance: pos.y_advance as f32 / upem,
