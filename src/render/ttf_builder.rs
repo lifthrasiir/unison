@@ -17,8 +17,8 @@ use write_fonts::tables::glyf::{Bbox, Component, ComponentFlags, CompositeGlyph,
 use read_fonts::tables::glyf::Anchor;
 use read_fonts::tables::glyf::CurvePoint;
 use write_fonts::tables::gsub::{
-    Gsub, Ligature, LigatureSet, LigatureSubstFormat1, SingleSubst, SingleSubstFormat2,
-    SubstitutionChainContext, SubstitutionLookup,
+    Gsub, Ligature, LigatureSet, LigatureSubstFormat1, MultipleSubstFormat1, Sequence, SingleSubst,
+    SingleSubstFormat2, SubstitutionChainContext, SubstitutionLookup,
 };
 use write_fonts::tables::head::{Flags, Head};
 use write_fonts::tables::hhea::Hhea;
@@ -1691,37 +1691,66 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
 
 enum RemapSetKind {
     Single,
+    Multiple,
     Ligature,
     ChainContext,
+}
+
+/// The GSUB lookup type a single `remap` line needs, ignoring its context.
+///
+/// `None` means the rule cannot be expressed in OpenType at all: many-to-many
+/// and many-to-nothing have no lookup type. Those are reported as errors by
+/// [`crate::issues`]; here they are simply dropped.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RemapRuleKind {
+    Single,
+    Multiple,
+    Ligature,
+}
+
+pub(crate) fn remap_rule_kind(source_len: usize, target_len: usize) -> Option<RemapRuleKind> {
+    match (source_len, target_len) {
+        (0, _) => None,
+        (1, 1) => Some(RemapRuleKind::Single),
+        // Zero targets is a deletion, which MultipleSubst expresses as an
+        // empty sequence — disallowed by the spec, honoured by every shaper.
+        (1, _) => Some(RemapRuleKind::Multiple),
+        (_, 1) => Some(RemapRuleKind::Ligature),
+        _ => None,
+    }
+}
+
+fn rule_kind_of(r: &ExpandedRemap) -> Option<RemapRuleKind> {
+    remap_rule_kind(
+        r.source.first().map_or(0, |seq| seq.len()),
+        r.target.first().map_or(0, |seq| seq.len()),
+    )
 }
 
 fn classify_remap_set(remaps: &[ExpandedRemap]) -> RemapSetKind {
     let has_context = remaps
         .iter()
         .any(|r| !r.lookbehind.is_empty() || !r.lookahead.is_empty());
-    let has_multi_input = remaps
-        .iter()
-        .any(|r| r.source.iter().any(|seq| seq.len() > 1));
+    if has_context {
+        return RemapSetKind::ChainContext;
+    }
 
-    if has_context || has_multi_input {
-        if has_context {
-            RemapSetKind::ChainContext
-        } else {
-            RemapSetKind::Ligature
-        }
-    } else {
-        // All sources are single-glyph, no context
-        let has_single = remaps.iter().any(|r| r.source.iter().any(|seq| seq.len() == 1));
-        let has_ligature = has_multi_input;
-        if has_ligature && has_single {
-            // Mixed — currently treat as ligature; single entries become
-            // 1-component "ligatures" which work but are suboptimal.
-            RemapSetKind::Ligature
-        } else if has_ligature {
-            RemapSetKind::Ligature
-        } else {
-            RemapSetKind::Single
-        }
+    // A homogeneous group collapses into one lookup of that type. A mixed one
+    // cannot: the aggregate builders each ignore rules of the other kinds, so
+    // whichever kind lost used to vanish without a word. Chain context with an
+    // empty context expresses every kind at once, one nested lookup per rule,
+    // and keeps the declaration order that a single lookup would have had.
+    let mut kinds = remaps.iter().filter_map(rule_kind_of);
+    let Some(first) = kinds.next() else {
+        return RemapSetKind::ChainContext;
+    };
+    if !kinds.all(|k| k == first) {
+        return RemapSetKind::ChainContext;
+    }
+    match first {
+        RemapRuleKind::Single => RemapSetKind::Single,
+        RemapRuleKind::Multiple => RemapSetKind::Multiple,
+        RemapRuleKind::Ligature => RemapSetKind::Ligature,
     }
 }
 
@@ -1760,6 +1789,11 @@ fn build_gsub(
                 set_to_lookup.insert(setname.clone(), lookups.len() as u16);
                 lookups.push(lookup);
             }
+            RemapSetKind::Multiple => {
+                let lookup = build_multiple_subst_lookup(remaps, name_to_gid);
+                set_to_lookup.insert(setname.clone(), lookups.len() as u16);
+                lookups.push(lookup);
+            }
             RemapSetKind::Ligature => {
                 let lookup = build_ligature_subst_lookup(remaps, name_to_gid);
                 set_to_lookup.insert(setname.clone(), lookups.len() as u16);
@@ -1770,11 +1804,15 @@ fn build_gsub(
                 let mut chain_subtables: Vec<SubstitutionChainContext> = Vec::new();
 
                 for r in remaps {
-                    // Build helper SingleSubst for the first input position
-                    let first_sources: Vec<String> = r.source.iter().map(|seq| seq[0].clone()).collect();
+                    // The nested lookup does the actual substitution. Its type
+                    // has to follow the rule: a multi-glyph source needs a
+                    // ligature there, and forcing a SingleSubst on the first
+                    // input position instead used to turn `a b -> c` into
+                    // "replace a, keep b" without a word.
+                    let Some(helper) = build_chain_helper(r, name_to_gid) else {
+                        continue;
+                    };
                     let helper_idx = lookups.len() as u16;
-                    let first_targets: Vec<String> = r.target.iter().map(|seq| seq[0].clone()).collect();
-                    let helper = build_single_subst_from_pairs(&first_sources, &first_targets, name_to_gid);
                     lookups.push(helper);
 
                     let backtrack: Vec<CoverageTable> = r
@@ -1826,24 +1864,46 @@ fn build_gsub(
         }
     }
 
-    let mut feature_records: Vec<FeatureRecord> = Vec::new();
-    // Collect which feature indices belong to which script tags
-    let mut script_feature_indices: BTreeMap<String, Vec<u16>> = BTreeMap::new();
+    // One feature record per (script, tag). A shaper resolves a tag to the
+    // first record listed for the script and never looks further, so two
+    // `feature` directives sharing a tag *and* a script must contribute to one
+    // record — otherwise every group after the first is dead weight, and a font
+    // could only ever use as many remap groups as there are feature tags.
+    // Lookups accumulate in declaration order, which is also application order.
+    let mut per_script: BTreeMap<String, Vec<(String, Vec<u16>)>> = BTreeMap::new();
     for (feat_tag, scripts, set_names) in &gsub_data.features {
-        let tag = make_tag(feat_tag);
-
         let lookup_indices: Vec<u16> = set_names
             .iter()
             .filter_map(|sn| set_to_lookup.get(sn).copied())
             .collect();
 
-        let feat_idx = feature_records.len() as u16;
-        feature_records.push(FeatureRecord::new(
-            tag,
-            Feature::new(None, lookup_indices),
-        ));
-
         for script in scripts {
+            let tags = per_script.entry(script.clone()).or_default();
+            match tags.iter_mut().find(|(t, _)| t == feat_tag) {
+                Some((_, indices)) => indices.extend(lookup_indices.iter().copied()),
+                None => tags.push((feat_tag.clone(), lookup_indices.clone())),
+            }
+        }
+    }
+
+    let mut feature_records: Vec<FeatureRecord> = Vec::new();
+    let mut record_of: HashMap<(String, Vec<u16>), u16> = HashMap::new();
+    // Collect which feature indices belong to which script tags
+    let mut script_feature_indices: BTreeMap<String, Vec<u16>> = BTreeMap::new();
+    for (script, tags) in per_script {
+        for (feat_tag, lookup_indices) in tags {
+            // Scripts that end up with the same tag and the same lookups share
+            // one record rather than duplicating it.
+            let feat_idx = *record_of
+                .entry((feat_tag.clone(), lookup_indices.clone()))
+                .or_insert_with(|| {
+                    let idx = feature_records.len() as u16;
+                    feature_records.push(FeatureRecord::new(
+                        make_tag(&feat_tag),
+                        Feature::new(None, lookup_indices),
+                    ));
+                    idx
+                });
             script_feature_indices.entry(script.clone()).or_default().push(feat_idx);
         }
     }
@@ -2577,6 +2637,78 @@ fn build_single_subst_lookup(
         }
     }
     build_single_subst_from_pairs(&all_sources, &all_targets, name_to_gid)
+}
+
+/// The nested lookup a chain-context rule invokes at input position 0.
+fn build_chain_helper(
+    r: &ExpandedRemap,
+    name_to_gid: &HashMap<String, GlyphId16>,
+) -> Option<SubstitutionLookup> {
+    let first_sources: Vec<String> = r.source.iter().map(|seq| seq[0].clone()).collect();
+    match rule_kind_of(r)? {
+        RemapRuleKind::Single => {
+            let first_targets: Vec<String> = r.target.iter().map(|seq| seq[0].clone()).collect();
+            Some(build_single_subst_from_pairs(&first_sources, &first_targets, name_to_gid))
+        }
+        RemapRuleKind::Multiple => Some(build_multiple_subst_from_pairs(
+            &first_sources,
+            &r.target,
+            name_to_gid,
+        )),
+        RemapRuleKind::Ligature => Some(build_ligature_subst_lookup(
+            std::slice::from_ref(r),
+            name_to_gid,
+        )),
+    }
+}
+
+fn build_multiple_subst_from_pairs(
+    sources: &[String],
+    targets: &[Vec<String>],
+    name_to_gid: &HashMap<String, GlyphId16>,
+) -> SubstitutionLookup {
+    let mut pairs: Vec<(GlyphId16, Vec<GlyphId16>)> = sources
+        .iter()
+        .zip(targets.iter())
+        .filter_map(|(s, seq)| {
+            let sg = *name_to_gid.get(s)?;
+            let gids: Vec<GlyphId16> = seq
+                .iter()
+                .filter_map(|t| name_to_gid.get(t).copied())
+                .collect();
+            // A target glyph that has no id would silently shorten the
+            // sequence, so drop the whole rule instead.
+            (gids.len() == seq.len()).then_some((sg, gids))
+        })
+        .collect();
+    pairs.sort_by_key(|(s, _)| *s);
+    pairs.dedup_by_key(|p| p.0);
+
+    let coverage = CoverageTable::format_1(pairs.iter().map(|(s, _)| *s).collect());
+    let sequences: Vec<Sequence> = pairs
+        .into_iter()
+        .map(|(_, gids)| Sequence::new(gids))
+        .collect();
+    let subtable = MultipleSubstFormat1::new(coverage, sequences);
+
+    SubstitutionLookup::Multiple(Lookup::new(LookupFlag::empty(), vec![subtable]))
+}
+
+fn build_multiple_subst_lookup(
+    remaps: &[ExpandedRemap],
+    name_to_gid: &HashMap<String, GlyphId16>,
+) -> SubstitutionLookup {
+    let mut all_sources = Vec::new();
+    let mut all_targets = Vec::new();
+    for r in remaps {
+        for (seq, tgt) in r.source.iter().zip(r.target.iter()) {
+            if seq.len() == 1 {
+                all_sources.push(seq[0].clone());
+                all_targets.push(tgt.clone());
+            }
+        }
+    }
+    build_multiple_subst_from_pairs(&all_sources, &all_targets, name_to_gid)
 }
 
 fn build_ligature_subst_lookup(
@@ -6097,6 +6229,219 @@ map A = combo
         assert_eq!(
             g1[0].contours, g2[0].contours,
             "contours should match"
+        );
+    }
+
+    /// Build `input` into a font and shape `text` through it, returning the
+    /// resulting glyph names. Table-level assertions cannot tell "emitted" from
+    /// "emitted and actually reachable by a shaper" — and every GSUB bug found
+    /// so far lived exactly in that gap.
+    fn shape_glyph_names(input: &str, text: &str) -> Vec<String> {
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let built = build_font_with_gid_map(&[&doc]).expect("font should build");
+        let face = rustybuzz::Face::from_slice(&built.ttf, 0).expect("font should parse");
+        let mut buffer = rustybuzz::UnicodeBuffer::new();
+        buffer.push_str(text);
+        let out = rustybuzz::shape(&face, &[], buffer);
+        out.glyph_infos()
+            .iter()
+            .map(|i| {
+                built
+                    .gid_to_name
+                    .get(&(i.glyph_id as u16))
+                    .cloned()
+                    .unwrap_or_else(|| format!("gid{}", i.glyph_id))
+            })
+            .collect()
+    }
+
+    /// Two `feature` directives sharing a tag *and* a script used to emit two
+    /// FeatureRecords. A shaper resolves a tag to the first record it finds, so
+    /// every group after the first was dead — silently, and the more feature
+    /// tags a font uses up the harder it became to add another remap at all.
+    #[test]
+    fn duplicate_feature_tags_merge_into_one_record() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph c = pix
+glyph d = pix
+map A = a
+map C = c
+remap first : a -> b
+remap second : c -> d
+feature ccmp for DFLT : first
+feature ccmp for DFLT : second
+";
+        assert_eq!(
+            shape_glyph_names(input, "AC"),
+            vec!["b".to_string(), "d".to_string()],
+            "both groups under the same tag+script must stay reachable"
+        );
+    }
+
+    /// Same tag under *different* scripts stays separate — that is what the
+    /// script filter is for.
+    #[test]
+    fn same_feature_tag_under_different_scripts_stays_separate() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph c = pix
+glyph d = pix
+map A = a
+map C = c
+remap first : a -> b
+remap second : c -> d
+feature ccmp for DFLT : first
+feature ccmp for hang : second
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let (_, _, glyph_data, gsub_data, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
+        for (i, g) in glyph_data.iter().enumerate() {
+            name_to_gid.entry(g.name.clone()).or_insert(GlyphId16::new((i + 1) as u16));
+        }
+        let gsub = build_gsub(&gsub_data, &name_to_gid).expect("GSUB");
+        assert_eq!(
+            gsub.feature_list.feature_records.len(), 2,
+            "different scripts must keep their own feature records"
+        );
+    }
+
+    /// A group that mixes a multi-glyph source with contextual rules used to be
+    /// emitted as chain context throughout, and the chain-context helper only
+    /// ever substituted the *first* input glyph — so `a b -> c` quietly became
+    /// "replace a, keep b".
+    #[test]
+    fn ligature_rule_survives_in_a_contextual_group() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph base = pix
+glyph t-a = pix
+glyph t-b = pix
+glyph base-a = pix
+glyph cont-b = pix
+map U+0042 = base
+map U+0061 = t-a
+map U+0062 = t-b
+map U+0041 = base-a
+map U+0051 = cont-b
+remap grp : base t-a -> base-a
+remap grp : base-a : t-b -> cont-b
+feature ccmp for DFLT : grp
+";
+        assert_eq!(
+            shape_glyph_names(input, "Bab"),
+            vec!["base-a".to_string(), "cont-b".to_string()],
+            "the ligature must ligate even though the group also has context"
+        );
+    }
+
+    /// A contextual rule may itself consume several glyphs; the nested lookup
+    /// has to be a ligature, not a single substitution on the first position.
+    #[test]
+    fn contextual_rule_with_a_multi_glyph_source_ligates() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph mark = pix
+glyph a = pix
+glyph b = pix
+glyph ab = pix
+map U+004D = mark
+map U+0061 = a
+map U+0062 = b
+map U+0058 = ab
+remap grp : mark : a b -> ab
+feature ccmp for DFLT : grp
+";
+        assert_eq!(
+            shape_glyph_names(input, "Mab"),
+            vec!["mark".to_string(), "ab".to_string()],
+            "a contextual multi-glyph source must ligate"
+        );
+        assert_eq!(
+            shape_glyph_names(input, "ab"),
+            vec!["a".to_string(), "b".to_string()],
+            "and must not fire without the context"
+        );
+    }
+
+    /// A context-free group mixing single-glyph and multi-glyph sources used to
+    /// drop the single-glyph rules on the floor.
+    #[test]
+    fn single_and_multi_glyph_sources_coexist_in_one_group() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph ab = pix
+glyph c = pix
+glyph d = pix
+map U+0061 = a
+map U+0062 = b
+map U+0058 = ab
+map U+0063 = c
+map U+0044 = d
+remap grp : a b -> ab
+remap grp : c -> d
+feature ccmp for DFLT : grp
+";
+        assert_eq!(
+            shape_glyph_names(input, "abc"),
+            vec!["ab".to_string(), "d".to_string()],
+            "both the ligature and the single substitution must apply"
+        );
+    }
+
+    /// One source, several targets — a multiple substitution. Every builder
+    /// used to keep `target[0]` and drop the rest.
+    #[test]
+    fn a_multi_glyph_target_expands() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph c = pix
+map U+0061 = a
+map U+0042 = b
+map U+0043 = c
+remap grp : a -> b c
+feature ccmp for DFLT : grp
+";
+        assert_eq!(
+            shape_glyph_names(input, "a"),
+            vec!["b".to_string(), "c".to_string()],
+            "a multi-glyph target must expand"
+        );
+    }
+
+    /// An empty target is documented as removal; it used to be skipped by
+    /// every builder, so the glyph stayed put.
+    #[test]
+    fn an_empty_target_removes_the_glyph() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+map U+0061 = a
+map U+0062 = b
+remap grp : a ->
+feature ccmp for DFLT : grp
+";
+        assert_eq!(
+            shape_glyph_names(input, "ab"),
+            vec!["b".to_string()],
+            "an empty target must delete the glyph"
         );
     }
 }

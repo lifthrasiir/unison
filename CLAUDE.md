@@ -130,8 +130,13 @@ spaces; four backticks (two to escape, two to quote) for a literal backtick. `//
 - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
 - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]` — GSUB substitution.
   Source and target are *lists* of glyph names in all cases; an empty target means removal.
-- `feature NAME for SCRIPT... : REMAP_GROUP` — OpenType feature, script-filtered. Multiple tables with
-  the same feature tag are merged.
+  The list lengths pick the lookup type: 1→1 single, 1→N (incl. 1→0) multiple, N→1 ligature.
+  N→M and N→0 have no OpenType lookup type and are an **error** — `issues.rs` reports them rather
+  than letting the builder emit something close-but-wrong.
+- `feature NAME for SCRIPT... : REMAP_GROUP` — OpenType feature, script-filtered. Directives sharing
+  a tag *and* a script are merged into one feature record (lookups accumulate in declaration order),
+  because a shaper only ever finds the first record for a tag. Same tag under different scripts
+  stays separate.
 - `feature NAME for SCRIPT... : anchor ANCHOR_NAME` — anchor-driven (mark attachment) variant.
 - `assert shape TEXT [+feat|-feat...] : GLYPH [advance N] [offset X Y] : GLYPH ...` — shaping assertion.
 - `assert same NAME...` / `assert distinct NAME...` — resolved-glyph equality assertions.

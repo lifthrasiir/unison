@@ -116,8 +116,22 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         )));
                     }
                 }
-                DocumentItem::Remap { feature, .. } => {
+                DocumentItem::Remap { feature, source, target, .. } => {
                     remap_groups.insert(feature.clone());
+
+                    // OpenType has a lookup type for one-to-one, one-to-many
+                    // (including one-to-nothing) and many-to-one, and nothing
+                    // for the rest. The builder used to emit whatever was
+                    // closest and lose the difference in silence.
+                    if crate::render::ttf_builder::remap_rule_kind(
+                        source.len(), target.len(),
+                    ).is_none() {
+                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
+                            "remap of {} glyph(s) to {} glyph(s) has no OpenType lookup type; \
+                             a source of more than one glyph needs exactly one target",
+                            source.len(), target.len(),
+                        )));
+                    }
                 }
                 _ => {}
             }
@@ -511,6 +525,85 @@ map A = foo
 
     // `testdata/` declares a single consistent `font-meta` because it has to
     // stay a coherent project, so the broken variants are covered here.
+
+    #[test]
+    fn many_to_many_remap_is_an_error() {
+        // Neither a ligature nor a multiple substitution can express this, and
+        // guessing one of them silently loses half the rule.
+        let input = "\
+glyph a 1 1
+@@
+glyph b 1 1
+@@
+glyph c 1 1
+@@
+glyph d 1 1
+@@
+map A = a
+map B = b
+remap liga : a b -> c d
+feature liga for DFLT : liga
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("no OpenType lookup type")),
+            "a 2-to-2 remap must be an error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn many_to_nothing_remap_is_an_error() {
+        let input = "\
+glyph a 1 1
+@@
+glyph b 1 1
+@@
+map A = a
+map B = b
+remap liga : a b ->
+feature liga for DFLT : liga
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("no OpenType lookup type")),
+            "deleting a multi-glyph sequence must be an error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn expressible_remap_shapes_are_quiet() {
+        // one-to-one, one-to-many, one-to-nothing and many-to-one all have a
+        // lookup type, so none of them may be reported.
+        let input = "\
+glyph a 1 1
+@@
+glyph b 1 1
+@@
+glyph c 1 1
+@@
+map A = a
+map B = b
+map C = c
+remap g1 : a -> b
+remap g2 : a -> b c
+remap g3 : a ->
+remap g4 : a b -> c
+feature liga for DFLT : g1
+feature liga for DFLT : g2
+feature liga for DFLT : g3
+feature liga for DFLT : g4
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("no OpenType lookup type")),
+            "expressible remaps must be quiet, got: {issues:?}",
+        );
+    }
 
     #[test]
     fn remap_pattern_operand_expansions_are_checked() {
