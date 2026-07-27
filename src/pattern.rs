@@ -6,10 +6,13 @@
 //! - `(a|b|c)` — an alternation group spliced into the surrounding literal
 //!   text (`foo-(a|b)` → `foo-a`, `foo-b`);
 //! - `a*N` — inside a group, repeats one alternative N times;
-//! - `(...**N)` — repeats each alternative of the whole group N times;
+//! - `(...**N)` — at the end of a group only, repeats each of its
+//!   alternatives N times; a `**N` anywhere else is a syntax error;
 //! - `$var` / `$0..9` / `$#a0..af` — name-part references and inline numeric
 //!   ranges, substituted textually by [`substitute_name_parts`] *before*
-//!   pattern parsing.
+//!   pattern parsing.  A reference is just one alternative among the others,
+//!   so `(foo|$bar|baz*5|$#00..ff*3**2)` mixes all the forms freely; a `*N`
+//!   on a reference repeats each of its values.
 //!
 //! Multiple groups in one pattern combine cyclically: the total length is the
 //! LCM of the group sizes and group `k` contributes its `i % len(k)`-th
@@ -331,6 +334,15 @@ fn parse_alt_content(content: &str) -> Result<Vec<String>, NamePatternError> {
 
     let mut alts = Vec::new();
     for part in content.split('|') {
+        // `**N` is the whole-group multiplier and only exists at the very end
+        // of the group, where `extract_group_mult` has already taken it off.
+        // Anywhere else it is a typo for the per-alternative `*N`.
+        if part.contains("**") {
+            return Err(NamePatternError::Syntax(format!(
+                "'**' multiplier is only allowed at the end of a group (use '*N' to repeat one \
+                 alternative): {part}"
+            )));
+        }
         if let Some((name, rep_str)) = part.rsplit_once('*') {
             let rep: usize = rep_str.parse().map_err(|_| {
                 NamePatternError::Syntax(format!("invalid repeat count: {rep_str}"))
@@ -373,6 +385,11 @@ fn parse_alt_content(content: &str) -> Result<Vec<String>, NamePatternError> {
     Ok(alts)
 }
 
+/// Returns true if `s` is a non-empty run of ASCII digits (a repeat count).
+fn is_count(s: &str) -> bool {
+    !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit())
+}
+
 /// Recognizes a `**N` multiplier at the end of a group's last alternative and
 /// splits it off.  Returns `(content_without_multiplier, multiplier)`.
 fn extract_group_mult(content: &str) -> Result<(&str, usize), NamePatternError> {
@@ -380,7 +397,7 @@ fn extract_group_mult(content: &str) -> Result<(&str, usize), NamePatternError> 
     let last_alt = &content[last_pipe..];
     if let Some(pos) = last_alt.rfind("**") {
         let after = &last_alt[pos + 2..];
-        if !after.is_empty() && after.bytes().all(|b| b.is_ascii_digit()) {
+        if is_count(after) {
             let k: usize = after.parse().map_err(|_| {
                 NamePatternError::Syntax(format!("invalid group multiplier: {after}"))
             })?;
@@ -495,6 +512,12 @@ pub fn parse_name_element(s: &str, parts: &NamePartsMap) -> NamePattern {
 ///
 /// Also expands inline numeric ranges: `($0..9)` → `(0|1|...|9)`,
 /// `($#a0..af)` → `(a0|a1|...|af)`.
+///
+/// A reference may carry a `*N` repeat, which distributes over every
+/// substituted value — `($foo*2|bar)` becomes `(a*2|b*2|c*2|bar)` — so a
+/// reference can be freely mixed with literal alternatives.  `**N` right at
+/// the end of the group keeps its historical whole-group meaning and is left
+/// for [`extract_group_mult`]; elsewhere it is treated like `*N`.
 pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
     if !s.contains('$') {
         return s.to_string();
@@ -503,65 +526,89 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
     let chars: Vec<char> = s.chars().collect();
     let mut i = 0;
     while i < chars.len() {
-        if chars[i] == '$' {
-            if let Some((end_pos, expanded)) = try_expand_inline_range(&chars, i) {
-                if expanded.is_empty() {
-                    let orig: String = chars[i..end_pos].iter().collect();
-                    result.push_str(&orig);
-                } else {
-                    result.push_str(&expanded);
-                }
+        if chars[i] != '$' {
+            result.push(chars[i]);
+            i += 1;
+            continue;
+        }
+
+        // The reference itself: an inline range, or a `$name` looked up in
+        // `parts` (`None` when undefined — then everything stays verbatim).
+        let start = i;
+        let (values, after_ref) = match try_expand_inline_range(&chars, i) {
+            Some((end_pos, values)) if values.is_empty() => {
+                // Malformed range; reported by `find_invalid_inline_ranges`.
+                result.extend(&chars[start..end_pos]);
                 i = end_pos;
                 continue;
             }
-            let start = i;
-            i += 1;
-            while i < chars.len()
-                && (chars[i].is_alphanumeric() || chars[i] == '-' || chars[i] == '_')
-            {
-                i += 1;
-            }
-            let var: String = chars[start..i].iter().collect();
-            // Check for a `**N` group-multiplier suffix.
-            let suffix_start = i;
-            let mut group_mult = String::new();
-            if i + 1 < chars.len() && chars[i] == '*' && chars[i + 1] == '*' {
-                let star = i;
-                i += 2;
-                while i < chars.len() && chars[i].is_ascii_digit() {
-                    i += 1;
+            Some((end_pos, values)) => (Some(values), end_pos),
+            None => {
+                let mut j = start + 1;
+                while j < chars.len()
+                    && (chars[j].is_alphanumeric() || chars[j] == '-' || chars[j] == '_')
+                {
+                    j += 1;
                 }
-                if i > star + 2 {
-                    group_mult = chars[star..i].iter().collect();
-                } else {
-                    i = suffix_start;
-                }
+                let var: String = chars[start..j].iter().collect();
+                (parts.get(&var).cloned(), j)
             }
-            if let Some(values) = parts.get(&var) {
+        };
+
+        let (repeat, after_suffix) = parse_repeat_suffix(&chars, after_ref);
+        let Some(values) = values else {
+            result.extend(&chars[start..after_suffix]);
+            i = after_suffix;
+            continue;
+        };
+        i = after_suffix;
+
+        match repeat {
+            // `**N` closing the group multiplies the whole group, not just
+            // these values; leave it in place for the pattern parser.
+            Some((2, n)) if after_suffix >= chars.len() || chars[after_suffix] == ')' => {
                 result.push_str(&values.join("|"));
-                result.push_str(&group_mult);
-            } else {
-                result.push_str(&var);
-                result.push_str(&group_mult);
+                result.push_str(&format!("**{n}"));
             }
-        } else {
-            result.push(chars[i]);
-            i += 1;
+            Some((_, n)) => {
+                result.push_str(&values.join(&format!("*{n}|")));
+                result.push_str(&format!("*{n}"));
+            }
+            None => result.push_str(&values.join("|")),
         }
     }
     result
 }
 
+/// Reads a `*N` / `**N` repeat suffix at `pos`.  Returns the star count and
+/// the repeat, plus the position just past the suffix (`pos` if there is none).
+fn parse_repeat_suffix(chars: &[char], pos: usize) -> (Option<(usize, usize)>, usize) {
+    if pos >= chars.len() || chars[pos] != '*' {
+        return (None, pos);
+    }
+    let stars = if pos + 1 < chars.len() && chars[pos + 1] == '*' { 2 } else { 1 };
+    let digits_start = pos + stars;
+    let mut end = digits_start;
+    while end < chars.len() && chars[end].is_ascii_digit() {
+        end += 1;
+    }
+    let digits: String = chars[digits_start..end].iter().collect();
+    match digits.parse::<usize>() {
+        Ok(n) => (Some((stars, n)), end),
+        Err(_) => (None, pos),
+    }
+}
+
 /// Try to parse an inline numeric range at `chars[start]` (which must be `$`).
 ///
 /// Syntax: `$DIGITS..DIGITS` (decimal) or `$#HEX..HEX` (hexadecimal, lowercase).
-/// Returns `Some((end_pos, expanded))` where `expanded` is `v1|v2|...|vn`.
-/// The minimum output width is determined by the number of digits in the start
-/// number, so `$00..09` produces `00|01|...|09`.
+/// Returns `Some((end_pos, values))`.  The minimum output width is determined
+/// by the number of digits in the start number, so `$00..09` produces
+/// `00`, `01`, …, `09`.
 /// Returns `None` if the text doesn't match the range syntax at all.
-/// Returns an empty expansion string if end < start (caller should leave as-is
+/// Returns an empty value list if end < start (caller should leave as-is
 /// or flag an error).
-fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, String)> {
+fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, Vec<String>)> {
     let mut i = start + 1; // skip '$'
 
     let is_hex = i < chars.len() && chars[i] == '#';
@@ -604,11 +651,11 @@ fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, Strin
     let start_val = u64::from_str_radix(&start_str, radix).ok()?;
     let end_val = u64::from_str_radix(&end_str, radix).ok()?;
     if end_val < start_val {
-        return Some((i, String::new()));
+        return Some((i, Vec::new()));
     }
     let count = end_val - start_val + 1;
     if count > MAX_EXPANSION as u64 {
-        return Some((i, String::new()));
+        return Some((i, Vec::new()));
     }
 
     let parts: Vec<String> = if is_hex {
@@ -620,7 +667,7 @@ fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, Strin
             .map(|v| format!("{v:0>width$}", width = min_width))
             .collect()
     };
-    Some((i, parts.join("|")))
+    Some((i, parts))
 }
 
 /// Check a string for invalid inline numeric ranges (`$end..start` where
@@ -635,8 +682,8 @@ pub fn find_invalid_inline_ranges(s: &str) -> Vec<String> {
     let mut i = 0;
     while i < chars.len() {
         if chars[i] == '$' {
-            if let Some((end_pos, expanded)) = try_expand_inline_range(&chars, i) {
-                if expanded.is_empty() {
+            if let Some((end_pos, values)) = try_expand_inline_range(&chars, i) {
+                if values.is_empty() {
                     let orig: String = chars[i..end_pos].iter().collect();
                     errors.push(orig);
                 }
@@ -839,6 +886,84 @@ mod tests {
             vec!["$3..2"],
         );
         assert!(find_invalid_inline_ranges("($0..9)").is_empty());
+    }
+
+    fn abc_parts() -> NamePartsMap {
+        let mut parts = NamePartsMap::new();
+        parts.insert(
+            "$foo".to_string(),
+            vec!["a".to_string(), "b".to_string(), "c".to_string()],
+        );
+        parts
+    }
+
+    #[test]
+    fn name_part_mixed_with_literal_alternatives() {
+        let parts = abc_parts();
+        assert_eq!(substitute_name_parts("($foo|bar)", &parts), "(a|b|c|bar)");
+        assert_eq!(
+            element(&substitute_name_parts("($foo|bar)", &parts)),
+            vec!["a", "b", "c", "bar"],
+        );
+        assert_eq!(
+            element(&substitute_name_parts("(x|$foo|y)", &parts)),
+            vec!["x", "a", "b", "c", "y"],
+        );
+    }
+
+    #[test]
+    fn name_part_repeat_distributes_over_every_value() {
+        let parts = abc_parts();
+        // `*N` right after a name-part repeats *each* value, not just the last.
+        assert_eq!(element(&substitute_name_parts("($foo*2)", &parts)), vec![
+            "a", "a", "b", "b", "c", "c"
+        ]);
+        // Same when other alternatives follow, where the repeat can no longer
+        // be read as a whole-group multiplier.
+        assert_eq!(
+            element(&substitute_name_parts("($foo*2|bar)", &parts)),
+            vec!["a", "a", "b", "b", "c", "c", "bar"],
+        );
+        assert_eq!(
+            element(&substitute_name_parts("($foo**2|bar)", &parts)),
+            vec!["a", "a", "b", "b", "c", "c", "bar"],
+        );
+    }
+
+    #[test]
+    fn inline_range_repeat_distributes_over_every_value() {
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            substitute_name_parts("($#0a..0c*2)", &parts),
+            "(0a*2|0b*2|0c*2)",
+        );
+        assert_eq!(element(&substitute_name_parts("($0..2*2|z)", &parts)), vec![
+            "0", "0", "1", "1", "2", "2", "z"
+        ]);
+    }
+
+    #[test]
+    fn mid_group_double_star_is_a_syntax_error() {
+        // `**N` is the whole-group multiplier and only means anything at the
+        // end of the group; per-alternative repeats must be written `*N`.
+        assert!(matches!(
+            NamePattern::parse_element("(a|b**3|c)"),
+            Err(NamePatternError::Syntax(_)),
+        ));
+        assert_eq!(element("(a|b*3|c)"), vec!["a", "b", "b", "b", "c"]);
+    }
+
+    #[test]
+    fn arbitrary_mixture_of_alternative_forms() {
+        let mut parts = NamePartsMap::new();
+        parts.insert("$bar".to_string(), vec!["b1".to_string(), "b2".to_string()]);
+        let s = substitute_name_parts("(foo|$bar|baz*5|$#00..02*3**2)", &parts);
+        let mut expected = vec!["foo", "foo", "b1", "b1", "b2", "b2"];
+        expected.extend(std::iter::repeat_n("baz", 10));
+        expected.extend(std::iter::repeat_n("00", 6));
+        expected.extend(std::iter::repeat_n("01", 6));
+        expected.extend(std::iter::repeat_n("02", 6));
+        assert_eq!(element(&s), expected);
     }
 
     #[test]

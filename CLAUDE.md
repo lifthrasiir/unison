@@ -116,6 +116,13 @@ repeats, `(...**N)` whole-group multiplier, `($name-parts)` and `($name-parts*N)
 ranges `$0..9` / `$1..4**10` (zero-padded to the start token's width), and `U+XXXX..YYYY` codepoint
 ranges. Expansion is capped by `MAX_EXPANSION`.
 
+All alternative forms mix freely inside one group: `(foo|$bar|baz*5|$#00..ff*3**2)`. A `*N` on a
+`$name-parts`/inline-range reference distributes over *every* substituted value (`($foo*2|bar)` is
+`(a*2|b*2|c*2|bar)`), which is what `substitute_name_parts` emits. `**N` is the whole-group
+multiplier and is only meaningful at the group's end — anywhere else it is a syntax error, so
+`(a|b**3|c)` is rejected and must be written `(a|b*3|c)`. `($foo**N)` at a group end keeps its
+historical whole-group meaning.
+
 ## Document Format (.unf)
 
 Parsed/serialized in `document_io.rs`. Tokens use backtick-quoting: `` `foo bar` `` for tokens with
