@@ -180,6 +180,25 @@ glyph black-flag-end-aux 2 16
 glyph black-flag-end advance 0 top 1
 ref black-flag-end-aux -3 0
 
+// used for the mono version of color flag emojis.
+glyph black-flag-wide 24 16
+..@@@@..........................................
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
+..@@@@..........................................
+..@@@@..........................................
+
 map 🏴 = black-flag
 map U+E0030..E0039 = tag-($0..9)
 map U+E0061..E007A = tag-($a-z)
@@ -404,6 +423,76 @@ ref 21x16 2 0 fill #00000080
 ref 19x14 3 1 fill #FFD100
 ref 19x4p2r3 3 1 fill #009639
 ref 19x-4p2r3 3 10 fill #003DA5
+
+// United Kingdom (aspect 2:1 -> 11:7, division 25:2:6:2:25 & 10:2:6:2:10 -> 18+4/7:2:6:2:18+4/7 & 10:2:6:2:10)
+glyph flag-gb:color 24 16 scale 6
+ref 24x16 0 0 fill #00000080
+ref 22x14 6 6 fill #FFFFFF
+ref 6x3p5r6-ur 22 6 fill #012169
+ref 7p1r3x4p2r3-dl 6 6 fill #C8102E
+ref 5p2r3x3p2r3-dl 6 12 fill #FFFFFF
+ref 4p5r6x3p1r6-dl 6 15 fill #012169
+ref 6x3p5r6-ul 86 6 fill #012169
+ref 1p5r6x4p4r6 127 6 fill #C8102E
+ref 7p1r3x4p2r3-dr 83 6 fill #C8102E
+ref 7p1r3x4p2r3-dr 94 6 fill #FFFFFF
+ref 4p5r6x3p1r6-dr 109 15 fill #012169
+ref 6x3p5r6-dr 22 67 fill #012169
+ref 1p5r6x4p4r6 6 62 fill #C8102E
+ref 7p1r3x4p2r3-ul 17 62 fill #C8102E
+ref 7p1r3x4p2r3-ul 6 62 fill #FFFFFF
+ref 4p5r6x3p1r6-ul 6 62 fill #012169
+ref 6x3p5r6-dl 86 67 fill #012169
+ref 7p1r3x4p2r3-ur 94 62 fill #C8102E
+ref 5p2r3x3p2r3-ur 104 62 fill #FFFFFF
+ref 4p5r6x3p1r6-ur 109 62 fill #012169
+ref 4p2r3x14 58 6 fill #FFFFFF
+ref 22x-1p2r5 6 36 fill #C8102E
+ref 22x1p2r5 6 48 fill #C8102E
+ref -1p2r5x14 60 6 fill #C8102E
+ref 1p2r5x14 72 6 fill #C8102E
+
+// England (aspect 5:3 -> 11:7, division 11:3:11 & 2:1:2)
+glyph flag-gbeng:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref 22x-1p2r5 1 6 fill #C8102E
+ref 22x1p2r5 1 8 fill #C8102E
+ref -1p2r5x14 10 1 fill #C8102E
+ref 1p2r5x14 12 1 fill #C8102E
+// XXX: this indirection is currently required
+glyph flag-gbeng:mono
+ref flag-gbeng-mono
+glyph flag-gbeng-mono
+ref black-flag-wide
+ref sm-g-upper 5 2 negated
+ref sm-b-upper 10 2 negated
+ref sm-e-upper 5 8 negated
+ref sm-n-upper 10 8 negated
+ref sm-g-upper 15 8 negated
+
+// Scotland (aspect 5:3? -> 11:7)
+glyph flag-gbsct:color 24 16
+ref 24x16 0 0 fill #00000080
+ref 22x14 1 1 fill #FFFFFF
+ref -8p2r5x5p2r5-ur 3 1 fill #005EB8
+ref 8p2r5x5p2r5-ul 12 1 fill #005EB8
+ref -8p2r5x-5p2r5-dr 3 9 fill #005EB8
+ref 8p2r5x-5p2r5-dl 12 9 fill #005EB8
+ref 8p2r5x-5p2r5-dl 1 2 fill #005EB8
+ref 8p2r5x5p2r5-ul 1 8 fill #005EB8
+ref -8p2r5x-5p2r5-dr 14 2 fill #005EB8
+ref -8p2r5x5p2r5-ur 14 8 fill #005EB8
+// XXX: this indirection is currently required
+glyph flag-gbsct:mono
+ref flag-gbsct-mono
+glyph flag-gbsct-mono
+ref black-flag-wide
+ref sm-g-upper 5 2 negated
+ref sm-b-upper 10 2 negated
+ref sm-s-upper 5 8 negated
+ref sm-c-upper 10 8 negated
+ref sm-t-upper 15 8 negated
 
 // The Gambia (aspect 3:2, division 6:1:4:1:6)
 glyph flag-gm:color 24 16
@@ -969,34 +1058,6 @@ ref 23x16 1 0 fill #00000080
 ref 21x7 2 1 fill #0057B7
 ref 21x7 2 8 fill #FFD700
 
-// United Kingdom (aspect 2:1 -> 11:7, division 25:2:6:2:25 & 10:2:6:2:10 -> 18+4/7:2:6:2:18+4/7 & 10:2:6:2:10)
-glyph flag-uk:color 24 16 scale 6
-ref 24x16 0 0 fill #00000080
-ref 22x14 6 6 fill #FFFFFF
-ref 6x3p5r6-ur 22 6 fill #012169
-ref 7p1r3x4p2r3-dl 6 6 fill #C8102E
-ref 5p2r3x3p2r3-dl 6 12 fill #FFFFFF
-ref 4p5r6x3p1r6-dl 6 15 fill #012169
-ref 6x3p5r6-ul 86 6 fill #012169
-ref 1p5r6x4p4r6 127 6 fill #C8102E
-ref 7p1r3x4p2r3-dr 83 6 fill #C8102E
-ref 7p1r3x4p2r3-dr 94 6 fill #FFFFFF
-ref 4p5r6x3p1r6-dr 109 15 fill #012169
-ref 6x3p5r6-dr 22 67 fill #012169
-ref 1p5r6x4p4r6 6 62 fill #C8102E
-ref 7p1r3x4p2r3-ul 17 62 fill #C8102E
-ref 7p1r3x4p2r3-ul 6 62 fill #FFFFFF
-ref 4p5r6x3p1r6-ul 6 62 fill #012169
-ref 6x3p5r6-dl 86 67 fill #012169
-ref 7p1r3x4p2r3-ur 94 62 fill #C8102E
-ref 5p2r3x3p2r3-ur 104 62 fill #FFFFFF
-ref 4p5r6x3p1r6-ur 109 62 fill #012169
-ref 4p2r3x14 58 6 fill #FFFFFF
-ref 22x-1p2r5 6 36 fill #C8102E
-ref 22x1p2r5 6 48 fill #C8102E
-ref -1p2r5x14 60 6 fill #C8102E
-ref 1p2r5x14 72 6 fill #C8102E
-
 // United States (aspect 19:10 -> 11:7)
 glyph flag-us:color 24 16
 ref 24x15 0 0 fill #00000080
@@ -1173,7 +1234,7 @@ name-parts $flag-c = g h i o r z
 name-parts $flag-d = e k
 name-parts $flag-e = e
 name-parts $flag-f = i r
-name-parts $flag-g = a m n r y
+name-parts $flag-g = a b m n r y
 name-parts $flag-h = u
 name-parts $flag-i = d e l s t
 name-parts $flag-j = m p
@@ -1186,7 +1247,7 @@ name-parts $flag-q = a
 name-parts $flag-r = o u
 name-parts $flag-s = c d e l
 name-parts $flag-t = d h o t z
-name-parts $flag-u = a k s
+name-parts $flag-u = a s
 name-parts $flag-v = c
 name-parts $flag-y = e
 name-parts $flag-z = a
@@ -1214,6 +1275,9 @@ remap flag : regional-indicator-u-left regional-indicator-($flag-u)-right -> fla
 remap flag : regional-indicator-v-left regional-indicator-($flag-v)-right -> flag-v($flag-v)
 remap flag : regional-indicator-y-left regional-indicator-($flag-y)-right -> flag-y($flag-y)
 remap flag : regional-indicator-z-left regional-indicator-($flag-z)-right -> flag-z($flag-z)
+
+remap flag : black-flag-g black-flag-b-cont black-flag-e-cont black-flag-n-cont black-flag-g-cont black-flag-end -> flag-gbeng
+remap flag : black-flag-g black-flag-b-cont black-flag-s-cont black-flag-c-cont black-flag-t-cont black-flag-end -> flag-gbsct
 
 feature ccmp for DFLT : flag
 
