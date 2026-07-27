@@ -158,6 +158,13 @@ spaces; four backticks (two to escape, two to quote) for a literal backtick. `//
 - `glyph NAME [flags...]` with no dims — ref-only composite, followed by `ref`/`point` lines.
 - NAME supports the patterns above; blocks expand in lock-step with their `ref` patterns.
 
+A glyph needs a pixel grid or at least one `ref` to exist at all — `advance`/`left`/`top`/`point`
+do not make one buildable, and a contentless glyph never enters the resolution cache, so it is
+absent from cmap, from composites and from GSUB coverage. Referencing one from a `map`, a `ref` or
+a `remap` is an **error**; leaving it unused is only the usual unused-glyph warning. Pattern glyphs
+are stricter still: they need `ref` lines, since a pixel grid cannot be shared across expansions.
+For a deliberately blank glyph, `ref sp`.
+
 ### On-demand glyphs (`ref_composite.rs`)
 
 Names that are not defined anywhere but match a synthesizable shape are generated on demand and are

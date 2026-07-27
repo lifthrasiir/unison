@@ -813,10 +813,21 @@ fn inject_on_demand_glyph_items(
     // on-demand glyph either is reported at each place the author wrote it —
     // not once for the whole font. Deduped per (site, name) so a pattern that
     // expands to the same missing name repeatedly reports once per line.
+    // A glyph with neither a pixel grid nor a ref never enters the resolution
+    // cache (see `glyph_cache::seed_cache`), so it is not built and every use
+    // of it — cmap entry, composite component, GSUB coverage — is dropped. It
+    // is as unusable as an undefined name, and reported the same way.
+    let contentless: HashSet<String> = glyph_bodies
+        .iter()
+        .filter(|(_, body)| body.pixels.is_none() && body.refs.is_empty())
+        .map(|(name, _)| name.clone())
+        .collect();
+
     let mut mentions: Vec<(String, Option<ItemRef>, RefKind)> = Vec::new();
     let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::new();
     let mut consider = |name: &str, origin: Option<ItemRef>, kind: RefKind| {
-        if !defined.contains(name) && mention_seen.insert((origin, name.to_string())) {
+        let unusable = !defined.contains(name) || contentless.contains(name);
+        if unusable && mention_seen.insert((origin, name.to_string())) {
             mentions.push((name.to_string(), origin, kind));
         }
     };
@@ -855,7 +866,9 @@ fn inject_on_demand_glyph_items(
         let mut seen: HashSet<&str> = HashSet::new();
         mentions
             .iter()
-            .filter(|(n, _, _)| seen.insert(n.as_str()))
+            // Contentless names are in `mentions` to be reported, but they are
+            // defined, so there is nothing to synthesize for them.
+            .filter(|(n, _, _)| !defined.contains(n) && seen.insert(n.as_str()))
             .map(|(n, o, _)| (n.clone(), *o))
             .collect()
     };
@@ -976,18 +989,33 @@ fn inject_on_demand_glyph_items(
     }
 
     for (name, origin, kind) in mentions {
-        if !unresolved.contains(&name) {
-            continue;
-        }
-        let (severity, message) = match kind {
-            RefKind::Ref => (Severity::Error, format!("unresolved ref '{name}'")),
-            RefKind::Map(char_repr) => (
+        // A name that is defined but contentless gets its own wording:
+        // "undefined" would send the author looking for a definition that is
+        // right there. `advance`/`left`/`top`/`point` do not make a glyph
+        // buildable, so the fix is always to add a pixel grid or a `ref`.
+        const EMPTY: &str = "has neither a pixel grid nor a ref, so it is not built";
+        let (severity, message) = match (unresolved.contains(&name), contentless.contains(&name), kind) {
+            (false, false, _) => continue,
+            (true, _, RefKind::Ref) => (Severity::Error, format!("unresolved ref '{name}'")),
+            (true, _, RefKind::Map(char_repr)) => (
                 Severity::Error,
                 format!("map '{char_repr}' targets undefined glyph '{name}'"),
             ),
-            RefKind::Remap => (
+            (true, _, RefKind::Remap) => (
                 Severity::Warning,
                 format!("remap references undefined glyph '{name}'"),
+            ),
+            (false, true, RefKind::Ref) => (
+                Severity::Error,
+                format!("ref '{name}' {EMPTY}"),
+            ),
+            (false, true, RefKind::Map(char_repr)) => (
+                Severity::Error,
+                format!("map '{char_repr}' targets glyph '{name}', which {EMPTY}"),
+            ),
+            (false, true, RefKind::Remap) => (
+                Severity::Error,
+                format!("remap references glyph '{name}', which {EMPTY}"),
             ),
         };
         diagnostics.push(Diagnostic::new(severity, origin, message));

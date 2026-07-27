@@ -527,6 +527,101 @@ map A = foo
     // stay a coherent project, so the broken variants are covered here.
 
     #[test]
+    fn a_map_to_a_contentless_glyph_is_an_error() {
+        // Neither a pixel grid nor a ref means the glyph never enters the
+        // resolution cache, so it silently vanishes from the cmap. `advance`
+        // does not make it buildable, but it does suppress the "has no
+        // content" warning, so this used to pass without a single word.
+        let input = "\
+glyph pix 1 1
+@@
+glyph vis = pix
+glyph blank advance 0
+map A = vis
+map B = blank
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("'blank'")
+                && i.message.contains("not built")),
+            "mapping a contentless glyph must be an error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn a_ref_and_a_remap_to_a_contentless_glyph_are_errors() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph vis = pix
+glyph blank advance 0
+glyph host
+ref blank
+map A = vis
+remap liga : vis -> blank
+feature liga for DFLT : liga
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        let errors: Vec<_> = issues
+            .iter()
+            .filter(|i| i.severity == Severity::Error && i.message.contains("'blank'"))
+            .collect();
+        assert!(
+            errors.len() >= 2,
+            "both the ref and the remap must be reported, got: {issues:?}",
+        );
+    }
+
+    /// A glyph that is contentless but never used stays a warning — it builds
+    /// nothing, but it also breaks nothing.
+    #[test]
+    fn an_unused_contentless_glyph_is_not_an_error() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph vis = pix
+glyph blank advance 0
+map A = vis
+assume unused blank
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.severity == Severity::Error),
+            "an unused contentless glyph must not be an error, got: {issues:?}",
+        );
+    }
+
+    /// Pattern glyphs already refuse to be empty, whatever the reason — a
+    /// pixel grid cannot be shared across the expansions, so only `ref` lines
+    /// can fill them.
+    #[test]
+    fn an_empty_pattern_glyph_is_an_error() {
+        for body in ["", " advance 0"] {
+            let input = format!(
+                "\
+name-parts $ab = a b
+
+glyph pix 1 1
+@@
+glyph pat-($ab){body}
+map A|B = pat-($ab)
+"
+            );
+            let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+            let issues = collect_issues(&[&doc]);
+            assert!(
+                issues.iter().any(|i| i.severity == Severity::Error
+                    && i.message.contains("defines no glyphs")),
+                "an empty pattern glyph must be an error (body {body:?}), got: {issues:?}",
+            );
+        }
+    }
+
+    #[test]
     fn many_to_many_remap_is_an_error() {
         // Neither a ligature nor a multiple substitution can express this, and
         // guessing one of them silently loses half the rule.
