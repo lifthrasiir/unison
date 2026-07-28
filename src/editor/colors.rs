@@ -161,6 +161,9 @@ impl Palette {
         if dark_mode { Self::dark() } else { Self::light() }
     }
 
+    /// The palette is cached under a context-global id on purpose: it is
+    /// derived from the context's own theme, so every editor in it wants the
+    /// same value. See [`crate::editor::ids`] for what *is* per-editor.
     pub fn store(ctx: &egui::Context) {
         let id = egui::Id::new("uniform_palette");
         let dark_id = egui::Id::new("uniform_palette_dark");

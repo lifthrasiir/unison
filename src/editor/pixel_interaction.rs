@@ -1,7 +1,7 @@
 use crate::document::{DocLine, Document, DocumentItem, PixelGrid};
 use crate::editor::ref_composite::GlyphComposite;
 use crate::editor::undo;
-use crate::editor::{EditMode, EditorState};
+use crate::editor::{EditMode, EditorId, EditorState, Slot};
 use crate::pixel;
 
 use super::document_view::GridExtent;
@@ -52,7 +52,7 @@ pub(crate) fn handle_pixel_painting(
         let secondary = ui.input(|i| i.pointer.secondary_down());
         let shift_held = ui.input(|i| i.modifiers.shift);
 
-        let slant_last_id = egui::Id::new("slant_toggle_last_cell");
+        let slant_last_id = state.key(Slot::SlantToggleLastCell);
         if !primary && !secondary {
             ui.data_mut(|d| d.remove::<(u16, u16)>(slant_last_id));
         }
@@ -205,7 +205,7 @@ pub(crate) fn handle_layer_drag(
         _ => return,
     };
 
-    let Some((dcol, drow)) = drag_cell_step(ui, grid_cell) else {
+    let Some((dcol, drow)) = drag_cell_step(ui, state.id(), grid_cell) else {
         return;
     };
 
@@ -247,9 +247,9 @@ pub(crate) fn handle_layer_drag(
 /// keeping the sub-cell remainder for the next frame; returns `None` (updating
 /// or clearing the stored accumulator as appropriate) while the drag is still
 /// sub-cell or the button is released.
-fn drag_cell_step(ui: &egui::Ui, grid_cell: f32) -> Option<(i16, i16)> {
+fn drag_cell_step(ui: &egui::Ui, editor: EditorId, grid_cell: f32) -> Option<(i16, i16)> {
     let dragging = ui.input(|i| i.pointer.primary_down());
-    let drag_id = egui::Id::new("layer_drag_accum");
+    let drag_id = editor.key(Slot::LayerDragAccum);
     if !dragging {
         ui.data_mut(|d| d.remove::<egui::Vec2>(drag_id));
         return None;

@@ -17,7 +17,7 @@ use crate::editor::pixel_interaction;
 use crate::editor::pixel_selection;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 use crate::editor::visual_lines;
-use crate::editor::{EditMode, EditorState, PopupState};
+use crate::editor::{EditMode, EditorState, PopupState, Slot};
 use crate::pixel;
 
 mod changes;
@@ -85,26 +85,87 @@ pub struct DocumentViewResult {
     pub rename: Option<RenameAction>,
 }
 
-#[allow(clippy::too_many_arguments)]
+/// Everything an editor reads but never owns: the resolved font data, the
+/// name tables and the view parameters the host decides. It is borrowed and
+/// `Copy`, so any number of editors can render against one environment in the
+/// same frame.
+#[derive(Clone, Copy)]
+pub struct EditorEnv<'a> {
+    pub named_glyphs: &'a HashMap<String, ResolvedGlyph>,
+    pub name_parts: &'a NamePartsMap,
+    pub alt_index: &'a crate::editor::ref_composite::AlternativesIndex,
+    pub color_aliases: &'a ColorAliasMap,
+    /// Generation of the derived data above; bumping it invalidates the
+    /// editor's per-frame view cache.
+    pub derived_gen: u64,
+    /// Generation of the built font, which the view cache also keys on.
+    pub font_gen: u64,
+    pub zoom_level: u32,
+    pub font_id: &'a egui::FontId,
+}
+
+/// One editor instance, as a widget.
+///
+/// The three `&mut` borrows are what an editor owns — the document, the line
+/// buffer it edits and its own [`EditorState`] — and everything else is
+/// shared through [`EditorEnv`]. Nothing else is instance state: the ids the
+/// editor uses inside `egui` are all salted with `state.id()`, so building a
+/// second `DocumentEditor` over a second document and state is all it takes
+/// to have two live editors in one frame.
+pub struct DocumentEditor<'a> {
+    doc: &'a mut Document,
+    lines: &'a mut Vec<DocLine>,
+    state: &'a mut EditorState,
+    env: EditorEnv<'a>,
+}
+
+impl<'a> DocumentEditor<'a> {
+    pub fn new(
+        doc: &'a mut Document,
+        lines: &'a mut Vec<DocLine>,
+        state: &'a mut EditorState,
+        env: EditorEnv<'a>,
+    ) -> Self {
+        Self { doc, lines, state, env }
+    }
+
+    /// Renders this editor into `ui` and reports the actions only the host can
+    /// carry out (following a link into another file, applying a rename).
+    pub fn show(self, ui: &mut egui::Ui) -> DocumentViewResult {
+        let Self { doc, lines, state, env } = self;
+        // Salt every *auto-generated* id inside — the canvas widget, the
+        // scroll area, each interaction rect — with this editor's namespace.
+        // The explicitly-named ids (areas, panels, temp slots) carry the same
+        // salt via `Slot`; between the two, no id an editor creates depends on
+        // being the only editor in the context.
+        let salt = state.id().egui_id();
+        ui.push_id(salt, |ui| show_document(ui, doc, lines, state, env))
+            .inner
+    }
+}
+
 /// The cached-or-rebuilt derived view (composites, visual lines, source
 /// offsets) for the current document revision and view parameters.
-#[expect(clippy::too_many_arguments)]
 fn resolve_view(
     ctx: &egui::Context,
     doc: &Document,
     lines: &[DocLine],
     state: &mut EditorState,
-    named_glyphs: &HashMap<String, ResolvedGlyph>,
-    name_parts: &NamePartsMap,
-    alt_index: &crate::editor::ref_composite::AlternativesIndex,
-    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    env: EditorEnv<'_>,
     cache_key: ViewCacheKey,
     editing_item_idx: Option<usize>,
-    zoom_level: u32,
     pal: &Palette,
     wrap_width: Option<f32>,
-    font_id: &egui::FontId,
 ) -> std::sync::Arc<ViewData> {
+    let EditorEnv {
+        named_glyphs,
+        name_parts,
+        alt_index,
+        color_aliases,
+        zoom_level,
+        font_id,
+        ..
+    } = env;
     // An external mutation of `lines` (menu action, rename, …) queues a sync
     // request; the cached view predates that mutation, so rebuild.
     let cache_valid = !state.document_sync_requested
@@ -144,20 +205,24 @@ fn resolve_view(
     data
 }
 
-pub fn show_document(
+/// The editor's frame loop. Reached through [`DocumentEditor::show`], which
+/// is also what establishes the instance's id namespace.
+fn show_document(
     ui: &mut egui::Ui,
     doc: &mut Document,
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
-    named_glyphs: &HashMap<String, ResolvedGlyph>,
-    name_parts: &NamePartsMap,
-    alt_index: &crate::editor::ref_composite::AlternativesIndex,
-    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
-    derived_gen: u64,
-    font_gen: u64,
-    zoom_level: u32,
-    font_id: &egui::FontId,
+    env: EditorEnv<'_>,
 ) -> DocumentViewResult {
+    let EditorEnv {
+        named_glyphs,
+        name_parts,
+        derived_gen,
+        font_gen,
+        zoom_level,
+        font_id,
+        ..
+    } = env;
     Palette::store(ui.ctx());
     let pal = Palette::get(ui);
 
@@ -212,16 +277,11 @@ pub fn show_document(
         doc,
         lines,
         state,
-        named_glyphs,
-        name_parts,
-        alt_index,
-        color_aliases,
+        env,
         cache_key,
         editing_item_idx,
-        zoom_level,
         &pal,
         wrap_width,
-        &font_id,
     );
     let composites = &view.composites;
     let vlines: &[VisualLine] = &view.vlines;
@@ -239,19 +299,21 @@ pub fn show_document(
     // derived document cannot remain stale.
     let mut needs_rederive = state.take_document_sync_request();
 
+    let scroll_y_id = state.key(Slot::ScrollY);
+    let viewport_h_id = state.key(Slot::ViewportH);
     let prev_scroll_y = ui
         .ctx()
-        .data(|d| d.get_temp::<f32>(egui::Id::new("doc_scroll_y")))
+        .data(|d| d.get_temp::<f32>(scroll_y_id))
         .unwrap_or(0.0);
     let prev_viewport_h = ui
         .ctx()
-        .data(|d| d.get_temp::<f32>(egui::Id::new("doc_viewport_h")))
+        .data(|d| d.get_temp::<f32>(viewport_h_id))
         .unwrap_or(200.0);
 
-    apply_scroll_physics(ui, zoom_level, "editor");
+    apply_scroll_physics(ui, zoom_level, state.key(Slot::ScrollAccel));
 
     let mut minimap_scroll_target: Option<f32> = None;
-    egui::SidePanel::right("minimap")
+    egui::SidePanel::right(state.key(Slot::MinimapPanel))
         .exact_width(MINIMAP_WIDTH * zoom_level as f32)
         .resizable(false)
         .show_inside(ui, |ui| {
@@ -267,7 +329,7 @@ pub fn show_document(
             );
         });
 
-    lock_scroll_gesture_zone(ui, state.grid_hover);
+    lock_scroll_gesture_zone(ui, state);
 
     let viewport_h = ui.available_height();
     let mut scroll_area_builder = egui::ScrollArea::vertical().auto_shrink([false, false]);
@@ -297,20 +359,16 @@ pub fn show_document(
             doc,
             lines,
             state,
+            env,
             vlines,
             composites,
             source_offsets,
-            named_glyphs,
-            name_parts,
-            color_aliases,
             &pal,
-            &font_id,
             row_height,
             grid_cell,
             gutter_width,
             total_height,
             viewport_h,
-            zoom_level,
             cursor_color,
             inline_panel_edit_idx,
             &mut needs_rederive,
@@ -321,8 +379,8 @@ pub fn show_document(
         state.saved_scroll_frac = (scroll_output.state.offset.y + viewport_h / 2.0) / total_height;
     }
     ui.ctx().data_mut(|d| {
-        d.insert_temp(egui::Id::new("doc_scroll_y"), scroll_output.state.offset.y);
-        d.insert_temp(egui::Id::new("doc_viewport_h"), viewport_h);
+        d.insert_temp(scroll_y_id, scroll_output.state.offset.y);
+        d.insert_temp(viewport_h_id, viewport_h);
     });
 
     let prev_cursor = state.cursor;
@@ -352,12 +410,11 @@ pub fn show_document(
         .map(|&off| off + 1)
         .unwrap_or(1);
 
-    let cross_file_id = egui::Id::new("goto_cross_file");
+    let cross_file_id = state.key(Slot::GotoCrossFile);
+    let cross_file_kind_id = state.key(Slot::GotoCrossFileKind);
     let goto_request: Option<String> = ui.ctx().data(|d| d.get_temp(cross_file_id));
     if let Some(name) = goto_request {
-        let kind_u8: u8 = ui
-            .ctx()
-            .data(|d| d.get_temp(egui::Id::new("goto_cross_file_kind")).unwrap_or(0));
+        let kind_u8: u8 = ui.ctx().data(|d| d.get_temp(cross_file_kind_id).unwrap_or(0));
         let kind = match kind_u8 {
             1 => LinkTargetKind::NameParts,
             2 => LinkTargetKind::Remap,
@@ -365,7 +422,7 @@ pub fn show_document(
         };
         ui.ctx().data_mut(|d| {
             d.remove::<String>(cross_file_id);
-            d.remove::<u8>(egui::Id::new("goto_cross_file_kind"));
+            d.remove::<u8>(cross_file_kind_id);
         });
         return DocumentViewResult {
             goto: Some(GotoGlyph { name, kind }),

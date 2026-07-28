@@ -89,8 +89,10 @@ Editor (feature `editor`):
   the small shared helpers; `background.rs` (build/derive/assert threads and applying their results),
   `docs.rs` (open/flush/save/export), `menus.rs`, `panels.rs`, `rename.rs`, `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode` (`Normal` text editing, `GlyphEdit` pixel painting,
-  `LayerMove` ref/layer repositioning).
-- `editor/document_view/` — the `show_document` frame loop (most churn in the editor). `mod.rs` is the
+  `LayerMove` ref/layer repositioning). `editor/ids.rs` — `EditorId`/`Slot`, the per-instance `egui`
+  id namespace (see *The editor is a widget* below).
+- `editor/document_view/` — the editor widget: `DocumentEditor::show` and the `show_document` frame
+  loop behind it (most churn in the editor). `mod.rs` is the
   loop itself plus the view cache; `layout.rs` (grid extents/strips, the visual-line model),
   `paint.rs` (the document area, selection, edit border, color backgrounds), `scroll.rs`, `keys.rs`,
   `popups.rs` (rename/autocomplete/error tooltip), `changes.rs` (writing edits back and re-deriving).
@@ -103,6 +105,34 @@ Editor (feature `editor`):
 
 `font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files
 plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
+
+### The editor is a widget
+
+An editor instance is `DocumentEditor { doc, lines, state, env }` and is shown with `.show(ui)`.
+Those three `&mut` borrows are the *entire* instance state; `EditorEnv` is the borrowed, `Copy`,
+read-only side (resolved glyphs, name parts, alternatives, color aliases, the two generation
+counters, zoom, font id) that any number of editors share. Constructing a second `DocumentEditor`
+over a second document and `EditorState` is all it takes to have two live editors in one frame —
+`editor/view_tests.rs::two_editors_do_not_share_view_state` drives exactly that through
+`EditorHarness::split`.
+
+What makes that work is `editor/ids.rs`. Everything an editor parks in `ctx.data()` — scroll offset,
+viewport height, scroll target, gesture zone, wheel acceleration, page-scroll request/sticky line,
+grid hscroll drag, caret screen position, error-tooltip payload, hover flags, slant/layer/selection
+drag accumulators — plus every named area, panel and interaction id, is keyed by the instance's
+`EditorId`. `Slot` is the **single inventory** of those keys and is an enum on purpose: a new piece of
+per-frame or cross-frame editor scratch is added there, never as a fresh `Id::new("...")` string.
+`DocumentEditor::show` additionally wraps the body in `ui.push_id(state.id())`, so *auto-generated*
+widget ids (the canvas, the scroll area, interaction rects) are salted too.
+
+Two ids stay deliberately context-global, and both are documented where they live: the `Palette`
+cache in `colors.rs` (derived from the context theme, identical for every editor) and
+`debounced_scroll_step`'s coarse wheel cooldown in `scroll.rs` (it describes the input device — one
+physical tick must yield one step no matter how many surfaces ask). Anything else global in the
+editor is a bug.
+
+The host still owns what is genuinely per-window: zoom level, escape mode, panel sizes and the
+zoom-routing rects in `app/`. Those are not editor state and do not belong in `EditorState`.
 
 ### `line_fields.rs` — where names live
 

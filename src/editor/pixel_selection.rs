@@ -1,6 +1,6 @@
 use crate::document::{DocLine, Document, DocumentItem, PixelGrid};
 use crate::editor::undo::{self, PixelSelectionSnapshot};
-use crate::editor::{EditMode, EditorState};
+use crate::editor::{EditMode, EditorState, Slot};
 use crate::pixel::{self, PixelShape};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -59,7 +59,7 @@ impl PixelSelection {
 }
 
 // ---------------------------------------------------------------------------
-// Drag state stored in egui temp data
+// Drag state stored in the owning editor's egui temp slot
 // ---------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
@@ -68,8 +68,9 @@ enum SelectDrag {
     Move { accum: egui::Vec2 },
 }
 
-fn drag_id() -> egui::Id {
-    egui::Id::new("pixel_select_drag")
+/// The owning editor's slot for the in-progress selection drag.
+fn drag_id(state: &EditorState) -> egui::Id {
+    state.key(Slot::PixelSelectDrag)
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,7 @@ pub(crate) fn handle_pixel_select_interaction(
         return;
     }
 
+    let sel_drag_id = drag_id(state);
     let in_own_row = pixel_row >= 0 && pixel_row < grid_height as i16;
 
     // Right-click: cancel selection
@@ -114,7 +116,7 @@ pub(crate) fn handle_pixel_select_interaction(
     let primary_down = ui.input(|i| i.pointer.primary_down());
 
     if !primary_pressed && !primary_down {
-        ui.data_mut(|d| d.remove::<SelectDrag>(drag_id()));
+        ui.data_mut(|d| d.remove::<SelectDrag>(sel_drag_id));
         return;
     }
 
@@ -144,7 +146,7 @@ pub(crate) fn handle_pixel_select_interaction(
         if inside {
             // Start move drag
             ui.data_mut(|d| {
-                d.insert_temp(drag_id(), SelectDrag::Move { accum: egui::Vec2::ZERO })
+                d.insert_temp(sel_drag_id, SelectDrag::Move { accum: egui::Vec2::ZERO })
             });
         } else {
             // Commit existing floating selection before starting new one
@@ -164,7 +166,7 @@ pub(crate) fn handle_pixel_select_interaction(
             });
             ui.data_mut(|d| {
                 d.insert_temp(
-                    drag_id(),
+                    sel_drag_id,
                     SelectDrag::New {
                         anchor_row: hover_row,
                         anchor_col: hover_col,
@@ -177,7 +179,7 @@ pub(crate) fn handle_pixel_select_interaction(
     }
 
     // primary_down (held) - process drag
-    let drag_state: Option<SelectDrag> = ui.data(|d| d.get_temp(drag_id()));
+    let drag_state: Option<SelectDrag> = ui.data(|d| d.get_temp(sel_drag_id));
     let Some(drag) = drag_state else { return };
 
     match drag {
@@ -207,7 +209,7 @@ pub(crate) fn handle_pixel_select_interaction(
             let drow = (accum.y / grid_cell).round() as i16;
 
             if dcol == 0 && drow == 0 {
-                ui.data_mut(|d| d.insert_temp(drag_id(), SelectDrag::Move { accum }));
+                ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::Move { accum }));
                 return;
             }
 
@@ -225,13 +227,13 @@ pub(crate) fn handle_pixel_select_interaction(
             let actual_dcol = new_col - sel.col;
 
             if actual_drow == 0 && actual_dcol == 0 {
-                ui.data_mut(|d| d.insert_temp(drag_id(), SelectDrag::Move { accum }));
+                ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::Move { accum }));
                 return;
             }
 
             accum.x -= actual_dcol as f32 * grid_cell;
             accum.y -= actual_drow as f32 * grid_cell;
-            ui.data_mut(|d| d.insert_temp(drag_id(), SelectDrag::Move { accum }));
+            ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::Move { accum }));
 
             let before_snap = sel.to_snapshot();
             let mode_before = state.mode.clone();

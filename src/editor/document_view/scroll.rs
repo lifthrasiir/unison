@@ -2,19 +2,24 @@
 //! drag auto-scroll.
 
 use super::*;
+use crate::editor::EditorId;
 use super::layout::{GridBlock, GridStrip, VLineKind, VisualLine, doc_line_to_y};
 
 const COARSE_SCROLL_COOLDOWN: f64 = 0.05;
 
 /// Wheel step for hover-scroll gestures that arrived via the scroll
-/// interceptor: `Some(step)` only when the interceptor captured the gesture
-/// and the pointer hovers the target area.
-pub(crate) fn interceptor_scroll_step(ctx: &egui::Context, hovering: bool) -> Option<i32> {
+/// interceptor: `Some(step)` only when `editor`'s interceptor captured the
+/// gesture and the pointer hovers the target area.
+pub(crate) fn interceptor_scroll_step(
+    ctx: &egui::Context,
+    editor: EditorId,
+    hovering: bool,
+) -> Option<i32> {
     if !hovering {
         return None;
     }
     let on_interceptor = ctx.data(|d| {
-        d.get_temp::<bool>(egui::Id::new("scroll_on_interceptor"))
+        d.get_temp::<bool>(editor.key(Slot::ScrollOnInterceptor))
             .unwrap_or(false)
     });
     if !on_interceptor {
@@ -23,6 +28,11 @@ pub(crate) fn interceptor_scroll_step(ctx: &egui::Context, hovering: bool) -> Op
     debounced_scroll_step(ctx)
 }
 
+/// Coarse wheel debounce, deliberately shared by every scrollable surface in
+/// the context (editors, specimen, the zoom handler): it describes the input
+/// device, not a view, and one physical tick must produce one step no matter
+/// how many surfaces ask. Only the surface under the pointer asks, so the
+/// sharing is what prevents a double step rather than causing one.
 pub(crate) fn debounced_scroll_step(ctx: &egui::Context) -> Option<i32> {
     let now = ctx.input(|i| i.time);
     ctx.input(|i| i.pointer.hover_pos())?;
@@ -78,8 +88,8 @@ const SCROLL_ACCEL_RESET: f64 = 0.20;
 
 const SCROLL_GESTURE_GRACE: f64 = 0.50;
 
-pub(super) fn hscroll_drag_id() -> egui::Id {
-    egui::Id::new("grid_hscroll_dragging")
+pub(super) fn hscroll_drag_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::GridHscrollDrag)
 }
 
 /// Track whether this scroll gesture started on an interceptor area
@@ -87,12 +97,13 @@ pub(super) fn hscroll_drag_id() -> egui::Id {
 /// in the starting zone so that scrolling the document doesn't
 /// accidentally switch to palette selection when the grid passes under
 /// the cursor.
-pub(super) fn lock_scroll_gesture_zone(ui: &mut egui::Ui, grid_hover: bool) {
+pub(super) fn lock_scroll_gesture_zone(ui: &mut egui::Ui, state: &EditorState) {
+    let grid_hover = state.grid_hover;
     let scroll_on_interceptor = {
         let currently_on = ui.ctx().data(|d| {
-            d.get_temp::<bool>(egui::Id::new("subglyph_preview_hover"))
+            d.get_temp::<bool>(state.key(Slot::SubglyphPreviewHover))
                 .unwrap_or(false)
-                || d.get_temp::<bool>(egui::Id::new("shape_palette_hover"))
+                || d.get_temp::<bool>(state.key(Slot::ShapePaletteHover))
                     .unwrap_or(false)
         }) || grid_hover;
 
@@ -102,7 +113,7 @@ pub(super) fn lock_scroll_gesture_zone(ui: &mut egui::Ui, grid_hover: bool) {
                 .any(|e| matches!(e, egui::Event::MouseWheel { .. }))
         });
 
-        let gesture_id = egui::Id::new("scroll_gesture_zone");
+        let gesture_id = state.key(Slot::ScrollGestureZone);
         let now = ui.input(|i| i.time);
 
         if has_wheel {
@@ -122,10 +133,7 @@ pub(super) fn lock_scroll_gesture_zone(ui: &mut egui::Ui, grid_hover: bool) {
         }
     };
     ui.ctx().data_mut(|d| {
-        d.insert_temp(
-            egui::Id::new("scroll_on_interceptor"),
-            scroll_on_interceptor,
-        );
+        d.insert_temp(state.key(Slot::ScrollOnInterceptor), scroll_on_interceptor);
     });
     if scroll_on_interceptor {
         ui.ctx()
@@ -148,20 +156,21 @@ pub(super) fn handle_page_scroll(
     prev_scroll_y: f32,
     prev_viewport_h: f32,
 ) {
+    let last_cursor_id = state.key(Slot::PageLastCursor);
+    let sticky_vi_id = state.key(Slot::PageStickyVline);
+
     // Clear page-scroll sticky state when cursor moved by non-page means.
     {
-        let id = egui::Id::new("page_last_cursor");
-        let prev: Option<(usize, usize)> =
-            ui.ctx().data(|d| d.get_temp(id));
+        let prev: Option<(usize, usize)> = ui.ctx().data(|d| d.get_temp(last_cursor_id));
         if prev.is_some_and(|(l, c)| l != state.cursor.line || c != state.cursor.col) {
             ui.ctx().data_mut(|d| {
-                d.remove::<usize>(egui::Id::new("page_sticky_vi"));
-                d.remove::<(usize, usize)>(id);
+                d.remove::<usize>(sticky_vi_id);
+                d.remove::<(usize, usize)>(last_cursor_id);
             });
         }
     }
 
-    let page_id = egui::Id::new("page_scroll_request");
+    let page_id = state.key(Slot::PageScrollRequest);
     let Some((dir, shift)) = ui.ctx().data(|d| d.get_temp::<(i32, bool)>(page_id)) else {
         return;
     };
@@ -198,7 +207,6 @@ pub(super) fn handle_page_scroll(
         }
     }
 
-    let sticky_vi_id = egui::Id::new("page_sticky_vi");
     let cursor_vi = ui
         .ctx()
         .data(|d| d.get_temp::<usize>(sticky_vi_id))
@@ -249,11 +257,8 @@ pub(super) fn handle_page_scroll(
 
             ui.ctx().data_mut(|d| {
                 d.insert_temp(sticky_vi_id, new_cvi);
-                d.insert_temp(
-                    egui::Id::new("page_last_cursor"),
-                    (state.cursor.line, state.cursor.col),
-                );
-                d.insert_temp(egui::Id::new("goto_scroll_target"), new_scroll);
+                d.insert_temp(last_cursor_id, (state.cursor.line, state.cursor.col));
+                d.insert_temp(state.key(Slot::ScrollTarget), new_scroll);
             });
         }
     }
@@ -299,7 +304,7 @@ pub(super) fn resolve_scroll_target(
         }
     };
 
-    let goto_scroll_id = egui::Id::new("goto_scroll_target");
+    let goto_scroll_id = state.key(Slot::ScrollTarget);
     let goto_scroll: Option<f32> = ui.ctx().data(|d| d.get_temp::<f32>(goto_scroll_id));
     if goto_scroll.is_some() {
         ui.ctx().data_mut(|d| d.remove::<f32>(goto_scroll_id));
@@ -343,6 +348,7 @@ pub(super) fn scroll_cursor_into_view(
     viewport_h: f32,
 ) {
     if state.cursor != prev_cursor {
+        let target_id = state.key(Slot::ScrollTarget);
         let cursor_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
         let cursor_h: f32 = vlines
             .iter()
@@ -354,15 +360,12 @@ pub(super) fn scroll_cursor_into_view(
         if cursor_h + margin * 2.0 <= viewport_h {
             if cursor_y < scroll_y + margin {
                 ui.ctx().data_mut(|d| {
-                    d.insert_temp(
-                        egui::Id::new("goto_scroll_target"),
-                        (cursor_y - margin).max(0.0),
-                    );
+                    d.insert_temp(target_id, (cursor_y - margin).max(0.0));
                 });
             } else if cursor_y + cursor_h > scroll_y + viewport_h - margin {
                 ui.ctx().data_mut(|d| {
                     d.insert_temp(
-                        egui::Id::new("goto_scroll_target"),
+                        target_id,
                         (cursor_y + cursor_h - viewport_h + margin).max(0.0),
                     );
                 });
@@ -372,10 +375,7 @@ pub(super) fn scroll_cursor_into_view(
         {
             // Cursor line taller than the viewport: align its top.
             ui.ctx().data_mut(|d| {
-                d.insert_temp(
-                    egui::Id::new("goto_scroll_target"),
-                    (cursor_y - margin).max(0.0),
-                );
+                d.insert_temp(target_id, (cursor_y - margin).max(0.0));
             });
         }
     }
@@ -414,7 +414,7 @@ pub(super) fn draw_grid_hscrollbars(
 
         let resp = ui.interact(
             *bar,
-            egui::Id::new(("grid_hscroll", block.item_idx)),
+            state.keyed(Slot::GridHscrollBar, block.item_idx),
             egui::Sense::click_and_drag(),
         );
         dragging |= resp.is_pointer_button_down_on() || resp.dragged();
@@ -460,7 +460,7 @@ pub(super) fn draw_grid_hscrollbars(
         painter.rect_filled(thumb, radius, color);
     }
     ui.ctx()
-        .data_mut(|d| d.insert_temp(hscroll_drag_id(), dragging));
+        .data_mut(|d| d.insert_temp(hscroll_drag_id(state.id()), dragging));
 }
 
 /// While dragging inside a grid, holding the pointer near (or past) either
@@ -520,7 +520,10 @@ pub(super) fn auto_scroll_grid_on_drag(
     ui.ctx().request_repaint();
 }
 
-pub(crate) fn apply_scroll_physics(ui: &egui::Ui, zoom_level: u32, salt: &str) {
+/// Wheel acceleration for one scrollable surface. `accel_id` names the
+/// surface's own acceleration state — an editor passes its
+/// [`Slot::ScrollAccel`] key, so two editors accelerate independently.
+pub(crate) fn apply_scroll_physics(ui: &egui::Ui, zoom_level: u32, accel_id: egui::Id) {
     let cmd_held = ui.input(|i| i.modifiers.command);
     if cmd_held {
         return;
@@ -533,7 +536,6 @@ pub(crate) fn apply_scroll_physics(ui: &egui::Ui, zoom_level: u32, salt: &str) {
         return;
     }
 
-    let accel_id = egui::Id::new(("scroll_accel_state", salt));
     let now = ui.input(|i| i.time);
 
     let has_line_scroll = ui.input(|i| {

@@ -1,5 +1,5 @@
 use crate::document::DocLine;
-use crate::editor::EditorState;
+use crate::editor::{EditorState, Slot};
 use crate::editor::caret::{self, Caret};
 
 pub(crate) fn handle_keys(
@@ -249,7 +249,7 @@ pub(crate) fn handle_keys(
     if let Some(dir) = page_dir {
         let shift = ui.input(|i| i.modifiers.shift);
         ui.ctx().data_mut(|d| {
-            d.insert_temp(egui::Id::new("page_scroll_request"), (dir, shift));
+            d.insert_temp(state.key(Slot::PageScrollRequest), (dir, shift));
         });
     }
 

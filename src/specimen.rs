@@ -215,7 +215,11 @@ impl SpecimenState {
 
         let raster_font = font_data.map(|p| &p.1);
 
-        crate::editor::document_view::apply_scroll_physics(ui, 1, "specimen");
+        crate::editor::document_view::apply_scroll_physics(
+            ui,
+            1,
+            egui::Id::new("specimen_scroll_accel"),
+        );
 
         let hover_pointer = ui.input(|i| i.pointer.hover_pos());
         let ctrl_c = ui.input(|i| {

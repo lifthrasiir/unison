@@ -22,24 +22,28 @@ pub(super) fn paint_document_area(
     doc: &Document,
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
+    env: EditorEnv<'_>,
     vlines: &[VisualLine],
     composites: &HashMap<usize, GlyphComposite>,
     source_offsets: &[usize],
-    named_glyphs: &HashMap<String, ResolvedGlyph>,
-    name_parts: &NamePartsMap,
-    color_aliases: &crate::render::ttf_builder::ColorAliasMap,
     pal: &Palette,
-    font_id: &egui::FontId,
     row_height: f32,
     grid_cell: f32,
     gutter_width: f32,
     total_height: f32,
     viewport_h: f32,
-    zoom_level: u32,
     cursor_color: egui::Color32,
     inline_panel_edit_idx: Option<usize>,
     needs_rederive: &mut bool,
 ) {
+        let EditorEnv {
+            named_glyphs,
+            name_parts,
+            color_aliases,
+            zoom_level,
+            font_id,
+            ..
+        } = env;
         let avail_w = ui.available_width();
         let desired = egui::vec2(avail_w, total_height.max(row_height));
         let (rect, response) = ui.allocate_exact_size(desired, egui::Sense::click_and_drag());
@@ -82,7 +86,7 @@ pub(super) fn paint_document_area(
                 .iter()
                 .fold(0.0f32, |acc, b| acc.max(b.content_w - w));
             state.grid_scroll_x = state.grid_scroll_x.clamp(0.0, max_overflow.max(0.0));
-            let captured = ui.ctx().data(|d| d.get_temp::<bool>(hscroll_drag_id()))
+            let captured = ui.ctx().data(|d| d.get_temp::<bool>(hscroll_drag_id(state.id())))
                 .unwrap_or(false)
                 && ui.input(|i| i.pointer.primary_down());
             GridStrip { x, w, scroll: state.grid_scroll_x, bars: Vec::new(), captured }
@@ -125,6 +129,7 @@ pub(super) fn paint_document_area(
         #[cfg(test)]
         crate::editor::harness::capture_snapshot(
             ui.ctx(),
+            state.id(),
             vlines,
             lines,
             source_offsets,
@@ -668,7 +673,7 @@ pub(super) fn paint_document_area(
 
                 {
                     let ctrl_held = ui.input(|i| i.modifiers.command);
-                    if let Some(step) = interceptor_scroll_step(ui.ctx(), on_grid) {
+                    if let Some(step) = interceptor_scroll_step(ui.ctx(), state.id(), on_grid) {
                         if ctrl_held {
                             // Ctrl+wheel on grid: cycle layers (same as layer palette)
                             crate::editor::inline_tools::cycle_layer_mode(
@@ -704,7 +709,7 @@ pub(super) fn paint_document_area(
                 let target_y = doc_line_to_y(vlines, row_height, grid_cell, line_idx);
                 let centered = (target_y - viewport_h / 3.0).max(0.0);
                 ui.ctx().data_mut(|d| {
-                    d.insert_temp(egui::Id::new("goto_scroll_target"), centered);
+                    d.insert_temp(state.key(Slot::ScrollTarget), centered);
                 });
             } else {
                 let kind_u8: u8 = match kind {
@@ -714,8 +719,8 @@ pub(super) fn paint_document_area(
                     LinkTargetKind::Color => 3,
                 };
                 ui.ctx().data_mut(|d| {
-                    d.insert_temp(egui::Id::new("goto_cross_file"), target_name.clone());
-                    d.insert_temp(egui::Id::new("goto_cross_file_kind"), kind_u8);
+                    d.insert_temp(state.key(Slot::GotoCrossFile), target_name.clone());
+                    d.insert_temp(state.key(Slot::GotoCrossFileKind), kind_u8);
                 });
             }
         }
@@ -813,14 +818,14 @@ pub(super) fn paint_document_area(
         // Store cursor screen position for popup use
         if let Some(cpos) = cursor_screen {
             ui.ctx().data_mut(|d| {
-                d.insert_temp(egui::Id::new("cursor_screen_pos"), cpos);
-                d.insert_temp(egui::Id::new("cursor_row_height"), row_height);
+                d.insert_temp(state.key(Slot::CursorScreenPos), cpos);
+                d.insert_temp(state.key(Slot::CursorRowHeight), row_height);
             });
         }
 
         // Store error tooltip for display outside scroll area
         ui.ctx().data_mut(|d| {
-            d.insert_temp(egui::Id::new("error_tooltip_data"), error_tooltip);
+            d.insert_temp(state.key(Slot::ErrorTooltipData), error_tooltip);
         });
 
         // Right-clicking the grid while a ref layer is selected offers the same
@@ -828,7 +833,7 @@ pub(super) fn paint_document_area(
         // tools panel. Whether the click landed on the grid has to be latched:
         // `context_menu` is re-evaluated every frame while the menu is open, and
         // by then the pointer sits on the menu itself.
-        let grid_ctx_id = egui::Id::new("grid_subglyph_ctx_on_grid");
+        let grid_ctx_id = state.key(Slot::GridSubglyphCtxOnGrid);
         if response.secondary_clicked() {
             let on_grid = response
                 .interact_pointer_pos()

@@ -8,6 +8,7 @@ pub mod document_view;
 pub mod editing;
 pub mod glyph_widget;
 pub mod grid_render;
+pub mod ids;
 pub mod line_fields;
 #[cfg(test)]
 pub(crate) mod harness;
@@ -26,6 +27,8 @@ use crate::document::DocLine;
 use crate::edit_menu::EditMenuCaps;
 use crate::pixel::PixelShape;
 use doc_links::RenameKind;
+pub use ids::EditorId;
+pub(crate) use ids::Slot;
 
 /// Maps a hex-digit key press to its character, for Alt+hex Unicode entry.
 pub(crate) fn key_to_hex_char(key: egui::Key) -> Option<char> {
@@ -95,6 +98,10 @@ pub enum PopupState {
 }
 
 pub struct EditorState {
+    /// This instance's `egui` id namespace. Every id the editor derives is
+    /// salted with it, so two editors in one context keep their scroll
+    /// offsets, drags and popups apart. See [`ids`].
+    id: EditorId,
     pub(crate) mode: EditMode,
     pub(crate) cursor: caret::Caret,
     pub(crate) selection_anchor: Option<caret::Caret>,
@@ -134,8 +141,17 @@ pub struct EditorState {
 }
 
 impl EditorState {
+    /// A new editor with a freshly allocated id namespace.
     pub fn new() -> Self {
+        Self::with_id(EditorId::allocate())
+    }
+
+    /// A new editor bound to a caller-chosen id namespace, for a host that
+    /// identifies its panes itself. Reusing an id hands the new editor the
+    /// previous occupant's scroll offset and drag state.
+    pub fn with_id(id: EditorId) -> Self {
         Self {
+            id,
             mode: EditMode::Normal,
             cursor: caret::Caret::zero(),
             selection_anchor: None,
@@ -162,6 +178,21 @@ impl EditorState {
             pixel_paint_dirty: None,
             suppress_font_rebuild: false,
         }
+    }
+
+    /// This editor's id namespace.
+    pub fn id(&self) -> EditorId {
+        self.id
+    }
+
+    /// The id of one of this editor's scratch slots.
+    pub(crate) fn key(&self, slot: Slot) -> egui::Id {
+        self.id.key(slot)
+    }
+
+    /// The id of a per-sub-object scratch slot of this editor.
+    pub(crate) fn keyed(&self, slot: Slot, extra: impl std::hash::Hash) -> egui::Id {
+        self.id.keyed(slot, extra)
     }
 
     pub fn selection_range(&self) -> Option<(caret::Caret, caret::Caret)> {

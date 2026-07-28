@@ -9,7 +9,7 @@ use crate::editor::grid_render;
 use crate::editor::minimap;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 use crate::editor::visual_lines::{preview_max_height, preview_row_height};
-use crate::editor::{EditMode, EditorState};
+use crate::editor::{EditMode, EditorId, EditorState, Slot};
 use crate::pixel;
 
 pub(crate) struct InlineToolsResult {
@@ -113,14 +113,15 @@ pub(crate) fn draw_inline_tools_panel(
             .hover_pos()
             .is_some_and(|hp| preview_row_rect.contains(hp))
     });
+    let editor = state.id();
     ui.ctx().data_mut(|d| {
-        d.insert_temp(
-            egui::Id::new("subglyph_preview_hover"),
-            hover_on_preview_row,
-        );
+        d.insert_temp(editor.key(Slot::SubglyphPreviewHover), hover_on_preview_row);
     });
-    if let Some(step) =
-        crate::editor::document_view::interceptor_scroll_step(ui.ctx(), hover_on_preview_row)
+    if let Some(step) = crate::editor::document_view::interceptor_scroll_step(
+        ui.ctx(),
+        editor,
+        hover_on_preview_row,
+    )
     {
         cycle_layer_mode(state, body, edit_idx, step);
     }
@@ -199,7 +200,13 @@ pub(crate) fn draw_inline_tools_panel(
         // Publish this thumbnail's rect for the in-crate GUI test harness, so
         // tests can click it without hand-replicating the layout math above.
         #[cfg(test)]
-        crate::editor::harness::capture_ref_rect(ui.ctx(), edit_idx, ref_idx, ref_rect);
+        crate::editor::harness::capture_ref_rect(
+            ui.ctx(),
+            state.id(),
+            edit_idx,
+            ref_idx,
+            ref_rect,
+        );
 
         let is_active = matches!(
             state.mode,
@@ -237,7 +244,7 @@ pub(crate) fn draw_inline_tools_panel(
         // Context menu on right-click; also use this response for left-click
         // layer selection — ui.interact() consumes the click from the parent
         // response, so click_pos would be None for ref previews.
-        let interact_id = egui::Id::new(("ref_layer_ctx", edit_idx, ref_idx));
+        let interact_id = state.keyed(Slot::RefLayerCtx, (edit_idx, ref_idx));
         let ref_response = ui.interact(ref_rect, interact_id, egui::Sense::click());
 
         if ref_response.clicked() {
@@ -300,6 +307,7 @@ pub(crate) fn draw_inline_tools_panel(
         draw_inline_palette(
             ui,
             painter,
+            editor,
             panel_x,
             palette_y,
             selected_shape,
@@ -344,9 +352,11 @@ pub(crate) fn draw_inline_tools_panel(
     }
 }
 
+#[expect(clippy::too_many_arguments)]
 fn draw_inline_palette(
     ui: &egui::Ui,
     painter: &egui::Painter,
+    editor: EditorId,
     x: f32,
     y: f32,
     selected_shape: &mut pixel::PixelShape,
@@ -373,14 +383,14 @@ fn draw_inline_palette(
             .is_some_and(|hp| palette_rect.contains(hp))
     });
     if let Some(step) =
-        crate::editor::document_view::interceptor_scroll_step(ui.ctx(), hover_on_palette)
+        crate::editor::document_view::interceptor_scroll_step(ui.ctx(), editor, hover_on_palette)
             && let Some(cur_idx) = shapes.iter().position(|s| s.shape_id() == selected_shape.shape_id()) {
                 let next = (cur_idx as i32 + step).clamp(0, shapes.len() as i32 - 1) as usize;
                 let next_shape = shapes[next];
                 *selected_shape = pixel::PixelShape::new(next_shape.shape_id(), next_shape.is_filled());
             }
     ui.ctx().data_mut(|d| {
-        d.insert_temp(egui::Id::new("shape_palette_hover"), hover_on_palette);
+        d.insert_temp(editor.key(Slot::ShapePaletteHover), hover_on_palette);
     });
 
     for (i, shape) in shapes.iter().enumerate() {

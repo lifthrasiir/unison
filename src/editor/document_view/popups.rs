@@ -2,15 +2,16 @@
 
 use super::*;
 
-/// A foreground popup area anchored just below the caret (whose screen
+/// A foreground popup area anchored just below `state`'s caret (whose screen
 /// position and row height the paint loop stores per frame).
-fn caret_anchored_area(ctx: &egui::Context, id: egui::Id) -> egui::Area {
+fn caret_anchored_area(ctx: &egui::Context, state: &EditorState, slot: Slot) -> egui::Area {
     let stored_pos: Option<egui::Pos2> =
-        ctx.data(|d| d.get_temp(egui::Id::new("cursor_screen_pos")));
-    let stored_rh: f32 =
-        ctx.data(|d| d.get_temp(egui::Id::new("cursor_row_height")).unwrap_or(16.0));
+        ctx.data(|d| d.get_temp(state.key(Slot::CursorScreenPos)));
+    let stored_rh: f32 = ctx.data(|d| {
+        d.get_temp(state.key(Slot::CursorRowHeight)).unwrap_or(16.0)
+    });
     let pos = stored_pos.unwrap_or(egui::pos2(100.0, 100.0));
-    egui::Area::new(id)
+    egui::Area::new(state.key(slot))
         .order(egui::Order::Foreground)
         .fixed_pos(egui::pos2(pos.x, pos.y + stored_rh + 2.0))
 }
@@ -19,7 +20,7 @@ fn caret_anchored_area(ctx: &egui::Context, id: egui::Id) -> egui::Area {
 pub(super) fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Option<RenameAction> {
     let mut rename_result: Option<RenameAction> = None;
     if matches!(state.popup, PopupState::Rename { .. }) {
-        let area = caret_anchored_area(ui.ctx(), egui::Id::new("rename_popup"));
+        let area = caret_anchored_area(ui.ctx(), state, Slot::RenamePopup);
 
         let area_resp = area.show(ui.ctx(), |ui| {
             egui::Frame::popup(ui.style()).show(ui, |ui| {
@@ -110,7 +111,7 @@ pub(super) fn show_autocomplete_popup(
     needs_rederive: &mut bool,
 ) {
     if state.autocomplete.is_some() {
-        let ac_area = caret_anchored_area(ui.ctx(), egui::Id::new("autocomplete_popup"))
+        let ac_area = caret_anchored_area(ui.ctx(), state, Slot::AutocompletePopup)
             .show(ui.ctx(), |ui| {
                 egui::Frame::popup(ui.style()).show(ui, |ui| {
                     let ac = state.autocomplete.as_ref().unwrap();
@@ -163,9 +164,9 @@ pub(super) fn show_error_tooltip(ui: &egui::Ui, state: &EditorState, pal: &Palet
         && state.autocomplete.is_none()
     {
         let tooltip_data: Option<Option<(egui::Pos2, String)>> =
-            ui.ctx().data(|d| d.get_temp(egui::Id::new("error_tooltip_data")));
+            ui.ctx().data(|d| d.get_temp(state.key(Slot::ErrorTooltipData)));
         if let Some(Some((pos, msg))) = tooltip_data {
-            egui::Area::new(egui::Id::new("error_tooltip"))
+            egui::Area::new(state.key(Slot::ErrorTooltip))
                 .order(egui::Order::Foreground)
                 .fixed_pos(pos)
                 .show(ui.ctx(), |ui| {

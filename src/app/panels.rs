@@ -374,20 +374,23 @@ impl UniformApp {
                     } else {
                         uniform_font_id(ui.ctx(), font_size)
                     };
-                    let result = crate::editor::document_view::show_document(
-                        ui,
+                    let env = crate::editor::document_view::EditorEnv {
+                        named_glyphs: &self.named_glyphs,
+                        name_parts: &self.name_parts,
+                        alt_index: &self.alt_index,
+                        color_aliases: &self.color_aliases,
+                        derived_gen: self.derived_gen,
+                        font_gen: self.font_data_gen,
+                        zoom_level: self.zoom_level,
+                        font_id: &editor_font_id,
+                    };
+                    let result = crate::editor::document_view::DocumentEditor::new(
                         &mut doc.document,
                         &mut doc.lines,
                         &mut doc.editor_state,
-                        &self.named_glyphs,
-                        &self.name_parts,
-                        &self.alt_index,
-                        &self.color_aliases,
-                        self.derived_gen,
-                        self.font_data_gen,
-                        self.zoom_level,
-                        &editor_font_id,
-                    );
+                        env,
+                    )
+                    .show(ui);
                     if let Some(goto) = result.goto {
                         goto_glyph_request = Some(goto);
                     }

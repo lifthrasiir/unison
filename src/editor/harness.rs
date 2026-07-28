@@ -18,10 +18,10 @@ use crate::document_io::{derive_document, parse_doclines};
 use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::Caret;
 use crate::editor::document_view::{
-    GridStrip, LEFT_PAD, VLineKind, VisualLine, gutter_line_number, show_document,
+    DocumentEditor, EditorEnv, GridStrip, LEFT_PAD, VLineKind, VisualLine, gutter_line_number,
 };
 use crate::editor::ref_composite::{AlternativesIndex, ResolvedGlyph, resolve_named_glyphs_with_parts};
-use crate::editor::EditorState;
+use crate::editor::{EditorId, EditorState, Slot};
 
 // ---------------------------------------------------------------------------
 // Per-frame layout snapshot
@@ -81,24 +81,30 @@ impl ViewSnapshot {
     }
 }
 
-fn snapshot_id() -> egui::Id {
-    egui::Id::new("uniform_test_view_snapshot")
+fn snapshot_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestViewSnapshot)
 }
 
-fn ref_rects_id() -> egui::Id {
-    egui::Id::new("uniform_test_ref_rects")
+fn ref_rects_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestRefRects)
 }
 
 /// Called from `draw_inline_tools_panel` (test builds only) to publish the
 /// on-screen rect of a ref-layer thumbnail, so tests can click it precisely
 /// without re-deriving the panel's layout math by hand.
-pub(crate) fn capture_ref_rect(ctx: &egui::Context, edit_idx: usize, ref_idx: usize, rect: egui::Rect) {
+pub(crate) fn capture_ref_rect(
+    ctx: &egui::Context,
+    editor: EditorId,
+    edit_idx: usize,
+    ref_idx: usize,
+    rect: egui::Rect,
+) {
     ctx.data_mut(|d| {
         let mut map = d
-            .get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id())
+            .get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id(editor))
             .unwrap_or_default();
         map.insert((edit_idx, ref_idx), rect);
-        d.insert_temp(ref_rects_id(), map);
+        d.insert_temp(ref_rects_id(editor), map);
     });
 }
 
@@ -107,6 +113,7 @@ pub(crate) fn capture_ref_rect(ctx: &egui::Context, edit_idx: usize, ref_idx: us
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn capture_snapshot(
     ctx: &egui::Context,
+    editor: EditorId,
     vlines: &[VisualLine],
     lines: &[DocLine],
     source_offsets: &[usize],
@@ -159,7 +166,7 @@ pub(crate) fn capture_snapshot(
         strip: strip.clone(),
         vlines: snaps,
     };
-    ctx.data_mut(|d| d.insert_temp(snapshot_id(), Arc::new(snapshot)));
+    ctx.data_mut(|d| d.insert_temp(snapshot_id(editor), Arc::new(snapshot)));
 }
 
 // ---------------------------------------------------------------------------
@@ -179,6 +186,47 @@ pub(crate) struct EditorHarness {
     time: f64,
     snapshot: Option<Arc<ViewSnapshot>>,
     pub last_copied_text: Option<String>,
+    /// A second editor drawn beside the primary one in the *same* context and
+    /// the same frame. Only [`EditorHarness::split`] creates it; every other
+    /// test keeps the single-pane layout untouched.
+    pub second: Option<Pane>,
+}
+
+/// A secondary editor's own document and state, so a test can assert that two
+/// live editors keep their scroll offsets, carets and layouts to themselves.
+pub(crate) struct Pane {
+    pub doc: Document,
+    pub lines: Vec<DocLine>,
+    pub state: EditorState,
+    pub named_glyphs: HashMap<String, ResolvedGlyph>,
+    pub alt_index: AlternativesIndex,
+    pub name_parts: NamePartsMap,
+}
+
+impl Pane {
+    fn new(source: &str) -> Self {
+        let lines = parse_doclines(source);
+        let (doc, _) = derive_document(&lines, "second.unf".into()).expect("derive_document");
+        let mut pane = Self {
+            doc,
+            lines,
+            state: EditorState::new(),
+            named_glyphs: HashMap::new(),
+            alt_index: AlternativesIndex::default(),
+            name_parts: NamePartsMap::new(),
+        };
+        pane.rebuild_derived();
+        pane
+    }
+
+    fn rebuild_derived(&mut self) {
+        let docs: Vec<&Document> = vec![&self.doc];
+        let name_parts = collect_name_parts(&docs);
+        let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        self.named_glyphs = named_glyphs;
+        self.alt_index = alt_index;
+        self.name_parts = name_parts;
+    }
 }
 
 impl EditorHarness {
@@ -201,11 +249,20 @@ impl EditorHarness {
             time: 0.0,
             snapshot: None,
             last_copied_text: None,
+            second: None,
         };
         h.rebuild_derived();
         h.frame();
         h.frame();
         h
+    }
+
+    /// Adds a second editor on `source`, drawn beside the primary one in the
+    /// same context, and settles both.
+    pub fn split(&mut self, source: &str) {
+        self.second = Some(Pane::new(source));
+        self.frame();
+        self.frame();
     }
 
     fn rebuild_derived(&mut self) {
@@ -231,23 +288,72 @@ impl EditorHarness {
             ..Default::default()
         };
         let prev_gen = self.doc.edit_gen;
+        let prev_second_gen = self.second.as_ref().map(|p| p.doc.edit_gen);
         let ctx = self.ctx.clone();
         let full_output = ctx.run(raw, |cx| {
             egui::CentralPanel::default().show(cx, |ui| {
-                let _ = show_document(
-                    ui,
-                    &mut self.doc,
-                    &mut self.lines,
-                    &mut self.state,
-                    &self.named_glyphs,
-                    &self.name_parts,
-                    &self.alt_index,
-                    &Default::default(),
-                    0,
-                    0,
-                    self.zoom,
-                    &self.font_id,
-                );
+                let colors = crate::render::ttf_builder::ColorAliasMap::default();
+                let Some(second) = &mut self.second else {
+                    let _ = DocumentEditor::new(
+                        &mut self.doc,
+                        &mut self.lines,
+                        &mut self.state,
+                        EditorEnv {
+                            named_glyphs: &self.named_glyphs,
+                            name_parts: &self.name_parts,
+                            alt_index: &self.alt_index,
+                            color_aliases: &colors,
+                            derived_gen: 0,
+                            font_gen: 0,
+                            zoom_level: self.zoom,
+                            font_id: &self.font_id,
+                        },
+                    )
+                    .show(ui);
+                    return;
+                };
+                // Split layout: each editor gets half the width, so the two
+                // occupy disjoint screen space and only their `egui` ids can
+                // collide.
+                let pane_size = egui::vec2(ui.available_width() * 0.5, ui.available_height());
+                ui.horizontal_top(|ui| {
+                    ui.allocate_ui(pane_size, |ui| {
+                        let _ = DocumentEditor::new(
+                            &mut self.doc,
+                            &mut self.lines,
+                            &mut self.state,
+                            EditorEnv {
+                                named_glyphs: &self.named_glyphs,
+                                name_parts: &self.name_parts,
+                                alt_index: &self.alt_index,
+                                color_aliases: &colors,
+                                derived_gen: 0,
+                                font_gen: 0,
+                                zoom_level: self.zoom,
+                                font_id: &self.font_id,
+                            },
+                        )
+                        .show(ui);
+                    });
+                    ui.allocate_ui(pane_size, |ui| {
+                        let _ = DocumentEditor::new(
+                            &mut second.doc,
+                            &mut second.lines,
+                            &mut second.state,
+                            EditorEnv {
+                                named_glyphs: &second.named_glyphs,
+                                name_parts: &second.name_parts,
+                                alt_index: &second.alt_index,
+                                color_aliases: &colors,
+                                derived_gen: 0,
+                                font_gen: 0,
+                                zoom_level: self.zoom,
+                                font_id: &self.font_id,
+                            },
+                        )
+                        .show(ui);
+                    });
+                });
             });
         });
         for cmd in &full_output.platform_output.commands {
@@ -255,10 +361,15 @@ impl EditorHarness {
                 self.last_copied_text = Some(text.clone());
             }
         }
-        self.snapshot = ctx.data(|d| d.get_temp::<Arc<ViewSnapshot>>(snapshot_id()));
+        self.snapshot = self.snapshot_of(&self.state);
         if self.doc.edit_gen != prev_gen {
             // The app rebuilds resolved glyphs whenever a document rederives.
             self.rebuild_derived();
+        }
+        if let Some(second) = &mut self.second
+            && prev_second_gen != Some(second.doc.edit_gen)
+        {
+            second.rebuild_derived();
         }
     }
 
@@ -580,7 +691,9 @@ impl EditorHarness {
     pub fn ref_thumbnail_pos(&self, edit_idx: usize, ref_idx: usize) -> egui::Pos2 {
         let map = self
             .ctx
-            .data(|d| d.get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id()));
+            .data(|d| {
+                d.get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id(self.state.id()))
+            });
         map.and_then(|m| m.get(&(edit_idx, ref_idx)).copied())
             .expect("ref thumbnail rect not captured -- was the inline tools panel rendered?")
             .center()
@@ -660,8 +773,27 @@ impl EditorHarness {
 
     /// Current vertical scroll offset (pixels) as reported by egui.
     pub fn scroll_y(&self) -> f32 {
+        self.scroll_y_of(&self.state)
+    }
+
+    /// The same, for whichever editor `state` belongs to.
+    pub fn scroll_y_of(&self, state: &EditorState) -> f32 {
         self.ctx
-            .data(|d| d.get_temp::<f32>(egui::Id::new("doc_scroll_y")))
+            .data(|d| d.get_temp::<f32>(state.key(Slot::ScrollY)))
             .unwrap_or(0.0)
+    }
+
+    /// The layout snapshot published by whichever editor `state` belongs to.
+    fn snapshot_of(&self, state: &EditorState) -> Option<Arc<ViewSnapshot>> {
+        self.ctx
+            .data(|d| d.get_temp::<Arc<ViewSnapshot>>(snapshot_id(state.id())))
+    }
+
+    /// Layout snapshot of the secondary pane created by
+    /// [`EditorHarness::split`].
+    pub fn second_snap(&self) -> Arc<ViewSnapshot> {
+        let second = self.second.as_ref().expect("no secondary pane; call split()");
+        self.snapshot_of(&second.state)
+            .expect("secondary pane published no snapshot")
     }
 }
