@@ -703,24 +703,7 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
         writeln!(writer, "{}", r.format_line(None))?;
     }
     for p in &body.points {
-        let col_s = if p.col == p.col_end {
-            format!("{}", p.col)
-        } else {
-            format!("{}..{}", p.col, p.col_end)
-        };
-        let row_s = if p.row == p.row_end {
-            format!("{}", p.row)
-        } else {
-            format!("{}..{}", p.row, p.row_end)
-        };
-        writeln!(
-            writer,
-            "anchor {} {} {}{}",
-            quote_token(&p.position),
-            col_s,
-            row_s,
-            comment_suffix(&p.comment),
-        )?;
+        writeln!(writer, "{}", p.format_line())?;
     }
     Ok(())
 }

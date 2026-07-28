@@ -590,6 +590,38 @@ impl GlyphPoint {
     pub fn size_matches(&self, other: &GlyphPoint) -> bool {
         self.width() == other.width() && self.height() == other.height()
     }
+
+    /// The `anchor` line for this point, comment included. Single implementation
+    /// shared by the serializer and by layer dragging in the editor.
+    #[cfg(any(feature = "editor", test))]
+    pub fn format_line(&self) -> String {
+        let range = |start: i16, end: i16| {
+            if start == end {
+                format!("{start}")
+            } else {
+                format!("{start}..{end}")
+            }
+        };
+        format!(
+            "anchor {} {} {}{}",
+            crate::document_io::quote_token(&self.position),
+            range(self.col, self.col_end),
+            range(self.row, self.row_end),
+            crate::document_io::comment_suffix(&self.comment),
+        )
+    }
+
+    /// A copy of this point moved by `(dcol, drow)` whole cells.
+    #[cfg(feature = "editor")]
+    pub fn shifted(&self, dcol: i16, drow: i16) -> GlyphPoint {
+        GlyphPoint {
+            col: self.col + dcol,
+            col_end: self.col_end + dcol,
+            row: self.row + drow,
+            row_end: self.row_end + drow,
+            ..self.clone()
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]

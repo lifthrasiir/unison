@@ -728,20 +728,15 @@ fn composite_doc() -> String {
     s
 }
 
-/// Regression test: dragging a `ref` layer in `LayerMove` mode used to get
-/// stuck after ~1 pixel because the "defer rederive" guard (meant to
-/// tolerate transiently-invalid text while typing) also applied while
-/// `LayerMove`-dragging, so the composite/document never re-derived past the
-/// first drag step. The fix gates that guard to `EditMode::Normal` only.
-#[test]
-fn drag_layer_move_advances_full_distance_across_frames() {
-    let mut h = EditorHarness::new(&composite_doc());
-
-    // Enter GlyphEdit on the parent glyph (item_idx 1) by clicking its grid.
-    h.click_grid_cell(4, 0, 0);
+/// Put `item_idx`'s glyph into `LayerMove` on `layer_idx`: click its grid (whose
+/// DocLine is `grid_doc_line`) to enter `GlyphEdit`, then Ctrl+wheel over the
+/// grid to step onto the wanted layer, exactly as the app's layer palette does.
+#[track_caller]
+fn enter_layer_move(h: &mut EditorHarness, grid_doc_line: usize, item_idx: usize, layer_idx: usize) {
+    h.click_grid_cell(grid_doc_line, 0, 0);
     assert!(
-        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
-        "expected GlyphEdit for item_idx 2, got {:?}",
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: i, .. } if i == item_idx),
+        "expected GlyphEdit for item_idx {item_idx}, got {:?}",
         h.state.mode
     );
 
@@ -751,36 +746,32 @@ fn drag_layer_move_advances_full_distance_across_frames() {
         h.frame();
     }
 
-    // Cycle to the ref layer (layer_idx 0) with Ctrl+wheel over the grid,
-    // exactly as the app's layer palette does.
-    let hover = h.grid_cell_pos(4, 0, 0);
-    h.frame_with(
-        vec![
-            egui::Event::PointerMoved(hover),
-            egui::Event::MouseWheel {
-                unit: egui::MouseWheelUnit::Line,
-                delta: egui::vec2(0.0, -1.0),
-                modifiers: Modifiers::COMMAND,
-            },
-        ],
-        Modifiers::COMMAND,
-    );
+    let hover = h.grid_cell_pos(grid_doc_line, 0, 0);
+    for _ in 0..=layer_idx {
+        h.frame_with(
+            vec![
+                egui::Event::PointerMoved(hover),
+                egui::Event::MouseWheel {
+                    unit: egui::MouseWheelUnit::Line,
+                    delta: egui::vec2(0.0, -1.0),
+                    modifiers: Modifiers::COMMAND,
+                },
+            ],
+            Modifiers::COMMAND,
+        );
+    }
     assert!(
-        matches!(
-            h.state.mode,
-            EditMode::LayerMove { item_idx: 2, layer_idx: 0 }
-        ),
-        "expected LayerMove on the ref layer, got {:?}",
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: i, layer_idx: l } if i == item_idx && l == layer_idx),
+        "expected LayerMove on layer {layer_idx}, got {:?}",
         h.state.mode
     );
+}
 
-    // Drag the pointer left by 3 whole grid cells over three separate
-    // frames. Keep the pointer off in empty space (well below any rendered
-    // content) so the drag doesn't also trip text/grid click handling. Move
-    // there *before* pressing (in its own frame) so the teleport itself
-    // isn't misread as part of the drag delta.
+/// Drag from `start` by `cells` whole grid cells to the left, one cell per
+/// frame. The pointer is moved to `start` *before* pressing (in its own frame)
+/// so the teleport itself isn't misread as part of the drag delta.
+fn drag_left_by_cells(h: &mut EditorHarness, start: egui::Pos2, cells: usize) {
     let grid_cell = h.snap().grid_cell;
-    let start = egui::pos2(500.0, 5000.0);
     h.frame_with(vec![egui::Event::PointerMoved(start)], Modifiers::NONE);
     h.frame_with(
         vec![egui::Event::PointerButton {
@@ -792,7 +783,7 @@ fn drag_layer_move_advances_full_distance_across_frames() {
         Modifiers::NONE,
     );
     let mut pos = start;
-    for _ in 0..3 {
+    for _ in 0..cells {
         pos.x -= grid_cell;
         h.frame_with(vec![egui::Event::PointerMoved(pos)], Modifiers::NONE);
     }
@@ -805,12 +796,97 @@ fn drag_layer_move_advances_full_distance_across_frames() {
         }],
         Modifiers::NONE,
     );
+}
+
+/// Regression test: dragging a `ref` layer in `LayerMove` mode used to get
+/// stuck after ~1 pixel because the "defer rederive" guard (meant to
+/// tolerate transiently-invalid text while typing) also applied while
+/// `LayerMove`-dragging, so the composite/document never re-derived past the
+/// first drag step. The fix gates that guard to `EditMode::Normal` only.
+#[test]
+fn drag_layer_move_advances_full_distance_across_frames() {
+    let mut h = EditorHarness::new(&composite_doc());
+    enter_layer_move(&mut h, 4, 2, 0);
+
+    // Keep the pointer off in empty space (well below any rendered content) so
+    // the drag doesn't also trip text/grid click handling.
+    drag_left_by_cells(&mut h, egui::pos2(500.0, 5000.0), 3);
 
     assert_eq!(
         h.text(5),
         "ref child 1 0",
         "ref offset should have advanced the full 3-cell drag distance, not stuck after 1 step"
     );
+}
+
+/// Regression test: dragging a layer *on the grid* past the left edge of its
+/// glyph's own columns dropped out of `LayerMove` after one cell. The drag's
+/// first frame resolved a click target, the pointer was already outside the
+/// grid's columns by then, so it read as a click on the underlying text line
+/// and reset the mode to `Normal`.
+#[test]
+fn drag_layer_move_on_grid_survives_leaving_the_grid_columns() {
+    let mut h = EditorHarness::new(&composite_doc());
+    enter_layer_move(&mut h, 4, 2, 0);
+
+    let start = h.grid_cell_pos(4, 0, 0);
+    drag_left_by_cells(&mut h, start, 3);
+
+    assert_eq!(
+        h.text(5),
+        "ref child 1 0",
+        "dragging on the grid should move the layer the full 3 cells"
+    );
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove { item_idx: 2, layer_idx: 0 }
+        ),
+        "the drag should not have kicked the editor out of LayerMove, got {:?}",
+        h.state.mode
+    );
+}
+
+/// Same as [`composite_doc`], but `parent` has no pixel grid of its own: it is
+/// a ref-only composite of two side-by-side copies of `child`.
+///
+/// DocLines: 0 header child, 1 grid child (4x4), 2 blank,
+///           3 header parent, 4 "ref child 0 0", 5 "ref child 4 0".
+/// Item indices: child = 0, blank line = 1, parent = 2.
+fn ref_only_composite_doc() -> String {
+    let mut s = String::from("glyph child 4 4\n");
+    for r in 0..4 {
+        for c in 0..4 {
+            s.push_str(if r < 2 && c < 2 { "@@" } else { ".." });
+        }
+        s.push('\n');
+    }
+    s.push('\n');
+    s.push_str("glyph parent\n");
+    s.push_str("ref child 0 0\n");
+    s.push_str("ref child 4 0\n");
+    s
+}
+
+/// Regression test: a subglyph layer of a ref-only composite could not be
+/// dragged in `LayerMove` mode at all. The layer had to overlap the glyph's
+/// pixel grid or another layer *at its destination*, and a ref-only glyph of two
+/// adjacent parts satisfies that nowhere, so it was stuck in every direction.
+#[test]
+fn drag_layer_move_works_on_ref_only_glyph() {
+    // The synthesized grid of a ref-only composite sits on its first ref line.
+    let mut h = EditorHarness::new(&ref_only_composite_doc());
+    enter_layer_move(&mut h, 4, 2, 0);
+
+    let start = h.grid_cell_pos(4, 0, 0);
+    drag_left_by_cells(&mut h, start, 3);
+
+    assert_eq!(
+        h.text(4),
+        "ref child -3 0",
+        "ref offset of a ref-only composite should follow the 3-cell drag"
+    );
+    assert_eq!(h.text(5), "ref child 4 0", "the other ref must not move");
 }
 
 /// Regression test: clicking a ref-layer thumbnail in the inline tools panel

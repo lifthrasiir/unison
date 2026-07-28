@@ -1107,14 +1107,22 @@ fn paint_document_area(
 
         let is_double = response.double_clicked();
         let is_triple = response.triple_clicked();
-        let click_pos = if response.clicked() || response.drag_started() || is_double || is_triple {
+        // Only track drag positions for text selection in Normal mode. In edit
+        // modes (GlyphEdit/PixelSelect/LayerMove), drag tracking is handled
+        // directly via pointer.hover_pos()/delta() by each mode's handler;
+        // letting click_pos resolve here would hit a text line and force a
+        // mode change back to Normal mid-drag. That goes for the drag's *first*
+        // frame too: a layer dragged past the edge of its glyph's own columns
+        // (which is the whole point of dragging it) puts the pointer outside
+        // the grid on the very frame the drag starts.
+        let normal_mode = matches!(state.mode, EditMode::Normal);
+        let click_pos = if response.clicked()
+            || is_double
+            || is_triple
+            || (response.drag_started() && normal_mode)
+        {
             response.interact_pointer_pos()
-        } else if response.dragged() && matches!(state.mode, EditMode::Normal) {
-            // Only track drag position for text selection in Normal mode.
-            // In edit modes (GlyphEdit/PixelSelect/LayerMove), drag tracking
-            // is handled directly via pointer.hover_pos()/delta() by each
-            // mode's handler; letting click_pos resolve here would hit a text
-            // line and force a mode change back to Normal mid-drag.
+        } else if response.dragged() && normal_mode {
             ui.input(|i| i.pointer.hover_pos())
         } else {
             None
@@ -1600,8 +1608,6 @@ fn paint_document_area(
                 layer_idx,
                 &doc.item_line_starts,
                 composites.get(&eidx),
-                named_glyphs,
-                name_parts,
                 grid_cell,
             );
         }
@@ -3182,7 +3188,12 @@ mod tests {
                         if is_alias {
                             start + 1
                         } else {
-                            start + 1 + if body.pixels.is_some() { 1 } else { 0 } + body.refs.len() + body.points.len()
+                            // One past the glyph's last layer line.
+                            pixel_interaction::layer_doc_line(
+                                body,
+                                start,
+                                body.refs.len() + body.points.len(),
+                            )
                         }
                     }
                 }
