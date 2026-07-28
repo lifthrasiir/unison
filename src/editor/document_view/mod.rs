@@ -23,6 +23,7 @@ use crate::pixel;
 mod changes;
 mod keys;
 mod layout;
+mod number_scroll;
 mod paint;
 mod popups;
 mod scroll;
@@ -32,6 +33,7 @@ mod tests;
 use changes::{apply_pending_rederive, line_to_item_idx, source_line_offsets};
 use keys::handle_document_keys;
 use layout::{ViewCacheKey, ViewData};
+use number_scroll::{apply_number_bump, detect_number_bump, swallow_wheel_delta};
 use paint::paint_document_area;
 use popups::{show_autocomplete_popup, show_error_tooltip, show_rename_popup};
 use scroll::{
@@ -299,6 +301,13 @@ fn show_document(
     // derived document cannot remain stale.
     let mut needs_rederive = state.take_document_sync_request();
 
+    // Alt + wheel steps the number at the caret. Resolved here, before the
+    // scroll area sees the wheel — a gesture that lands on a number takes the
+    // delta with it — but written back below with the frame's other edits, so
+    // the view being painted still matches `lines`.
+    let number_bump = detect_number_bump(ui, lines, state, ui.max_rect());
+    swallow_wheel_delta(ui, state, number_bump.is_some());
+
     let scroll_y_id = state.key(Slot::ScrollY);
     let viewport_h_id = state.key(Slot::ViewportH);
     let prev_scroll_y = ui
@@ -387,6 +396,10 @@ fn show_document(
     handle_document_keys(
         ui, doc, lines, state, named_glyphs, name_parts, prev_cursor, &mut needs_rederive,
     );
+
+    if let Some(bump) = number_bump {
+        needs_rederive |= apply_number_bump(lines, state, bump);
+    }
 
     let rename_result = show_rename_popup(ui, state);
     show_autocomplete_popup(ui, lines, state, &mut needs_rederive);

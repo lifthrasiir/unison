@@ -27,6 +27,31 @@ pub fn insert_str(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret, 
     after
 }
 
+/// Replaces the character range `[start, end)` of one text line with `text`,
+/// as a single `Text` undo op. Rewriting the same span again within the
+/// coalesce window folds into that op, so a gesture that keeps rewriting one
+/// span (Alt+wheel on a number) is one edit to undo rather than one per step.
+pub fn replace_in_line(
+    lines: &mut [DocLine],
+    undo: &mut UndoStack,
+    line: usize,
+    start: usize,
+    end: usize,
+    text: &str,
+    caret_before: Caret,
+) -> Caret {
+    let Some(DocLine::Text(t)) = lines.get_mut(line) else {
+        return caret_before;
+    };
+    let b0 = char_to_byte(t, start);
+    let b1 = char_to_byte(t, end);
+    let old = t[b0..b1].to_string();
+    let after = Caret::new(line, start + text.chars().count());
+    undo.push_text(line, start, old, text.to_string(), caret_before, after);
+    t.replace_range(b0..b1, text);
+    after
+}
+
 pub fn insert_newline(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> Caret {
     let DocLine::Text(t) = &lines[caret.line] else {
         return caret;

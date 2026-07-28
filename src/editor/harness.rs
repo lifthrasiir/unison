@@ -607,6 +607,29 @@ impl EditorHarness {
         );
     }
 
+    /// Alt + wheel over a screen position, one coarse tick. `up` is the
+    /// direction the wheel is pushed. The coarse debounce is shared and lasts
+    /// longer than one frame, so a few idle frames are run first to let a
+    /// preceding tick expire.
+    pub fn alt_wheel_at(&mut self, pos: egui::Pos2, up: bool) {
+        for _ in 0..5 {
+            self.frame();
+        }
+        let dy = if up { 1.0 } else { -1.0 };
+        self.frame_with(
+            vec![
+                egui::Event::PointerMoved(pos),
+                egui::Event::MouseWheel {
+                    unit: egui::MouseWheelUnit::Line,
+                    delta: egui::vec2(0.0, dy),
+                    modifiers: egui::Modifiers::ALT,
+                },
+            ],
+            egui::Modifiers::ALT,
+        );
+        self.frame();
+    }
+
     /// Right-click at a screen position.
     pub fn right_click_at(&mut self, pos: egui::Pos2) {
         self.time += 1.0;

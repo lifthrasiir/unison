@@ -155,8 +155,11 @@ impl UndoStack {
                     *prev_col = col;
                     return true;
                 }
-                // Whole-line replace chain (ref drag): prev.new == current old
-                if *prev_col == 0 && col == 0 && *prev_new == old_for_merge {
+                // Replace chain: the same span rewritten over and over, so
+                // this edit's `old` is exactly what the previous one wrote.
+                // A `ref` drag rewrites its whole line this way; Alt+wheel
+                // rewrites one number in place. Either is one edit to undo.
+                if *prev_col == col && *prev_new == old_for_merge {
                     *prev_new = new_for_merge.clone();
                     return true;
                 }
@@ -685,6 +688,44 @@ mod tests {
         if let DocLine::Grid(g) = &lines[0] {
             assert_eq!(g.get(0, 0), s1); // back to original
         }
+    }
+
+    #[test]
+    fn same_span_replacements_coalesce_into_one_entry() {
+        // A span rewritten over and over — a `ref` drag, or Alt+wheel
+        // stepping one number — is one edit, not one per step.
+        let mut lines = vec![text("h 16")];
+        let mut undo = UndoStack::new();
+
+        undo.push_text(0, 2, "16".into(), "17".into(), c(0, 4), c(0, 4));
+        lines[0] = text("h 17");
+        undo.push_text(0, 2, "17".into(), "18".into(), c(0, 4), c(0, 4));
+        lines[0] = text("h 18");
+        undo.push_text(0, 2, "18".into(), "19".into(), c(0, 4), c(0, 4));
+        lines[0] = text("h 19");
+        assert_eq!(undo.position, 1);
+
+        undo.undo(&mut lines);
+        assert_eq!(lines[0], text("h 16"));
+        assert!(!undo.can_undo());
+    }
+
+    #[test]
+    fn a_broken_coalesce_splits_a_replacement_chain() {
+        let mut lines = vec![text("h 16")];
+        let mut undo = UndoStack::new();
+
+        undo.push_text(0, 2, "16".into(), "17".into(), c(0, 4), c(0, 4));
+        lines[0] = text("h 17");
+        undo.break_coalesce();
+        undo.push_text(0, 2, "17".into(), "18".into(), c(0, 4), c(0, 4));
+        lines[0] = text("h 18");
+        assert_eq!(undo.position, 2);
+
+        undo.undo(&mut lines);
+        assert_eq!(lines[0], text("h 17"));
+        undo.undo(&mut lines);
+        assert_eq!(lines[0], text("h 16"));
     }
 
     #[test]
