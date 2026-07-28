@@ -2352,8 +2352,12 @@ fn apply_pending_rederive(
     } else {
         state.skip_reconcile = false;
         if let Some(pend_line) = state.pending_reparse_line {
-            let should_flush =
-                !state.active || pend_line != state.cursor.line;
+            // Deferring is only ever chosen in `Normal` mode; entering a pixel
+            // mode (e.g. clicking straight into the grid from the header line)
+            // ends the text edit just as much as moving the caret away does.
+            let should_flush = !state.active
+                || pend_line != state.cursor.line
+                || !matches!(state.mode, EditMode::Normal);
             if should_flush {
                 flush_document_changes(lines, doc, state);
             }

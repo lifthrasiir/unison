@@ -209,6 +209,30 @@ fn header_height_edit_resizes_grid_on_focus_loss() {
     assert_eq!(h.gutter_of(3), Some(11));
 }
 
+/// Same as above, but the deferred resize is flushed by clicking straight into
+/// the grid: entering a pixel mode leaves the header line just as surely as
+/// moving the caret off it does.
+#[test]
+fn header_height_edit_resizes_grid_on_grid_click() {
+    let mut h = EditorHarness::new(&sample_doc());
+
+    h.click_text(0, 15);
+    h.key(Key::Backspace);
+    h.key(Key::Backspace);
+    h.type_text("8");
+    assert_eq!(h.grid_row_count(1), 16, "still deferred while editing");
+
+    // Click into the grid without moving the caret off the header line first.
+    h.click_grid_cell(1, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
+        "expected GlyphEdit for item_idx 0"
+    );
+    assert_eq!(h.grid(1).height, 8, "header edit applied on entering the grid");
+    assert_eq!(h.grid_row_count(1), 8);
+    assert_eq!(h.gutter_of(3), Some(11));
+}
+
 #[test]
 fn growing_header_height_expands_grid_and_gutter() {
     let mut h = EditorHarness::new(&sample_doc());
