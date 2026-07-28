@@ -1625,3 +1625,58 @@ fn typing_a_comment_on_a_header_keeps_the_grid() {
         other => panic!("expected a text visual line, got {other:?}"),
     }
 }
+
+/// Cancelling the F2 rename popup with Escape hands keyboard focus back to
+/// the editor canvas, with the caret still where it was — otherwise the user
+/// has to click back into the document before typing again.
+#[test]
+fn rename_popup_escape_restores_editor_focus() {
+    let mut h = EditorHarness::new("glyph foo 2 1\n@@..\n");
+    h.click_text(0, 8);
+    assert!(h.editor_has_focus());
+    let caret = h.cursor();
+
+    h.key(Key::F2);
+    h.frame();
+    assert!(!h.editor_has_focus(), "the popup's text field takes focus");
+
+    h.key(Key::Escape);
+    h.frame();
+    assert!(h.editor_has_focus(), "focus must return to the editor");
+    assert_eq!(h.cursor(), caret);
+    assert_eq!(h.text(0), "glyph foo 2 1");
+}
+
+/// Confirming the rename popup with Enter likewise returns focus to the
+/// editor.
+#[test]
+fn rename_popup_confirm_restores_editor_focus() {
+    let mut h = EditorHarness::new("glyph foo 2 1\n@@..\n");
+    h.click_text(0, 8);
+    h.key(Key::F2);
+    h.frame();
+    h.type_text("bar");
+    h.key(Key::Enter);
+    h.frame();
+    assert!(h.editor_has_focus(), "focus must return to the editor");
+}
+
+/// Clicking elsewhere in the document also cancels the rename popup, and the
+/// click keeps its usual effect: the caret moves to where it landed and the
+/// editor has focus again.
+#[test]
+fn rename_popup_click_cancels_and_moves_the_caret() {
+    let mut h = EditorHarness::new("glyph foo 2 1\n@@..\nmap A = foo\n");
+    h.click_text(2, 9);
+    h.key(Key::F2);
+    h.frame();
+    assert!(!h.editor_has_focus());
+
+    // Press and release inside one frame, so the click is processed while
+    // the popup is still open — the path that used to swallow it.
+    let pos = h.text_pos(0, 3);
+    h.click_at_same_frame(pos);
+    assert!(h.editor_has_focus(), "focus must return to the editor");
+    assert_eq!(h.cursor(), Caret { line: 0, col: 3 });
+    assert_eq!(h.text(2), "map A = foo", "the rename was cancelled");
+}

@@ -378,6 +378,24 @@ impl EditorHarness {
         self.frame();
     }
 
+    /// Click with press and release inside a *single* frame, as a fast click
+    /// on a slow frame produces.  Widgets then see the whole click while any
+    /// popup that the press dismisses is still open.
+    pub fn click_at_same_frame(&mut self, pos: egui::Pos2) {
+        self.time += 1.0; // don't let it read as a double click
+        let button = |pressed| egui::Event::PointerButton {
+            pos,
+            button: egui::PointerButton::Primary,
+            pressed,
+            modifiers: egui::Modifiers::NONE,
+        };
+        self.frame_with(
+            vec![egui::Event::PointerMoved(pos), button(true), button(false)],
+            egui::Modifiers::NONE,
+        );
+        self.frame();
+    }
+
     /// Click on a text line at a character column.
     pub fn click_text(&mut self, line: usize, col: usize) {
         let pos = self.text_pos(line, col);
@@ -632,6 +650,12 @@ impl EditorHarness {
     /// All rendered gutter numbers in visual order.
     pub fn gutter_numbers(&self) -> Vec<usize> {
         self.snap().vlines.iter().filter_map(|vl| vl.gutter).collect()
+    }
+
+    /// Whether the editor canvas widget currently holds keyboard focus.
+    pub fn editor_has_focus(&self) -> bool {
+        let wid = self.snap().widget_id;
+        self.ctx.memory(|m| m.has_focus(wid))
     }
 
     /// Current vertical scroll offset (pixels) as reported by egui.

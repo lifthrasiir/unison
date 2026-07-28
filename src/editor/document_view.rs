@@ -1009,6 +1009,7 @@ fn paint_document_area(
         let (rect, response) = ui.allocate_exact_size(desired, egui::Sense::click_and_drag());
 
         let wid = response.id;
+        state.canvas_id = Some(wid);
         if response.clicked() || response.drag_started() {
             ui.memory_mut(|m| m.request_focus(wid));
         }
@@ -1683,8 +1684,10 @@ fn paint_document_area(
             }
         }
 
-        // Process click (skip while rename popup is open)
-        if goto_glyph_name.is_none() && !matches!(state.popup, PopupState::Rename { .. })
+        // Process click.  A click on the canvas while the rename popup is
+        // open cancels it (the popup's field loses focus), and the caret
+        // moves to where the user clicked — so the click is *not* swallowed.
+        if goto_glyph_name.is_none()
             && let Some(target) = click_result {
                 state.autocomplete = None;
                 let shift = ui.input(|i| i.modifiers.shift);
@@ -2126,6 +2129,7 @@ fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Option<RenameAct
         match area_resp.inner {
             Some(true) => {
                 // Confirmed
+                restore_editor_focus(ui, state);
                 if let PopupState::Rename { original_name, new_name, kind, .. } =
                     std::mem::replace(&mut state.popup, PopupState::None)
                 {
@@ -2141,12 +2145,26 @@ fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Option<RenameAct
             }
             Some(false) => {
                 // Cancelled
+                restore_editor_focus(ui, state);
                 state.popup = PopupState::None;
             }
             None => {}
         }
     }
     rename_result
+}
+
+/// Hands keyboard focus back to the editor canvas after a popup closes, so
+/// typing continues in the document instead of going nowhere.  A widget that
+/// already claimed focus this frame (the canvas itself when the popup was
+/// dismissed by clicking into the document, or a panel outside the editor)
+/// keeps it.
+fn restore_editor_focus(ui: &egui::Ui, state: &EditorState) {
+    let Some(wid) = state.canvas_id else { return };
+    let focused = ui.ctx().memory(|m| m.focused());
+    if focused.is_none_or(|id| id == wid) {
+        ui.memory_mut(|m| m.request_focus(wid));
+    }
 }
 
 fn show_autocomplete_popup(

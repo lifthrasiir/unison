@@ -109,6 +109,9 @@ pub struct EditorState {
     pub(crate) last_reparse_line: Option<usize>,
     document_sync_requested: bool,
     pub(crate) popup: PopupState,
+    /// Id of the editor canvas widget, republished every frame so a popup
+    /// that closes can hand keyboard focus back to it.
+    pub(crate) canvas_id: Option<egui::Id>,
     pub(crate) autocomplete: Option<autocomplete::AutocompleteState>,
     scroll_to_cursor: bool,
     pub(crate) saved_scroll_frac: f32,
@@ -147,6 +150,7 @@ impl EditorState {
             last_reparse_line: None,
             document_sync_requested: false,
             popup: PopupState::None,
+            canvas_id: None,
             autocomplete: None,
             scroll_to_cursor: false,
             saved_scroll_frac: 0.0,

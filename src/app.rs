@@ -560,7 +560,14 @@ impl UniformApp {
         // Second pass: apply rename in place to all open documents.
         // Only touches Text lines; Grid lines are never cloned or compared.
         for doc in &mut self.open_documents {
-            let changed_text = rename_in_place(&mut doc.lines, &action.old_name, &action.new_name, &action.kind);
+            let cursor_before = doc.editor_state.cursor;
+            let changed_text = rename_in_place(
+                &mut doc.lines,
+                &action.old_name,
+                &action.new_name,
+                &action.kind,
+                Some(&mut doc.editor_state.cursor),
+            );
             if !changed_text.is_empty() {
                 doc.editor_state.undo.break_coalesce();
                 let ops: Vec<_> = changed_text.iter().map(|(idx, old_text)| {
@@ -576,7 +583,7 @@ impl UniformApp {
                 }).collect();
                 doc.editor_state.undo.push_compound(
                     ops,
-                    doc.editor_state.cursor,
+                    cursor_before,
                     doc.editor_state.cursor,
                 );
                 match crate::document_io::derive_document(&doc.lines, doc.document.path.clone()) {
@@ -2188,16 +2195,25 @@ fn load_open_document(
 /// (as `(line_index, old_text)` pairs) so callers can build undo entries
 /// without cloning the entire document (which is expensive when Grid lines
 /// dominate).
+/// `caret`, when given, is moved along with the text it sits in, so the
+/// editor's caret still points at the same place once the popup closes.
 fn rename_in_place(
     lines: &mut [DocLine],
     old_name: &str,
     new_name: &str,
     kind: &crate::editor::doc_links::RenameKind,
+    caret: Option<&mut crate::editor::caret::Caret>,
 ) -> Vec<(usize, String)> {
     let mut changed = Vec::new();
+    let mut caret = caret;
     for (i, line) in lines.iter_mut().enumerate() {
         let DocLine::Text(s) = line else { continue };
-        if let Some(t) = rename_in_line(s, old_name, new_name, kind) {
+        if let Some((t, spans)) = rename_in_line(s, old_name, new_name, kind) {
+            if let Some(c) = caret.as_deref_mut()
+                && c.line == i
+            {
+                c.col = shift_caret_col(c.col, &spans);
+            }
             changed.push((i, std::mem::replace(s, t)));
         }
     }
@@ -2265,7 +2281,7 @@ fn rename_in_line(
     old_name: &str,
     new_name: &str,
     kind: &crate::editor::doc_links::RenameKind,
-) -> Option<String> {
+) -> Option<(String, Vec<(usize, usize, usize)>)> {
     use crate::editor::doc_links::RenameKind;
     use crate::editor::line_fields::{FieldRole, classify_line};
 
@@ -2323,12 +2339,35 @@ fn rename_in_line(
     use crate::editor::caret::char_to_byte;
     reps.sort_by_key(|&(start, _, _)| std::cmp::Reverse(start));
     let mut out = full.to_string();
+    let mut spans = Vec::with_capacity(reps.len());
     for (start, end, replacement) in reps {
         let byte_start = char_to_byte(&out, start);
         let byte_end = char_to_byte(&out, end);
+        spans.push((start, end, replacement.chars().count()));
         out.replace_range(byte_start..byte_end, &replacement);
     }
-    Some(out)
+    spans.reverse(); // back to ascending order
+    Some((out, spans))
+}
+
+/// Maps a caret column across the replacements one `rename_in_line` made,
+/// given as ascending `(char start, char end, new char length)` spans.  A
+/// caret anywhere on a rewritten token lands just *after* the new text, so
+/// the user sees the symbol they renamed; everything further right shifts
+/// with it.
+fn shift_caret_col(col: usize, spans: &[(usize, usize, usize)]) -> usize {
+    let mut delta: isize = 0;
+    for &(start, end, new_len) in spans {
+        if start <= col && col <= end {
+            return (start as isize + delta) as usize + new_len;
+        }
+        if end < col {
+            delta += new_len as isize - (end - start) as isize;
+        } else {
+            break;
+        }
+    }
+    (col as isize + delta).max(0) as usize
 }
 
 fn replace_dollar_var(text: &str, old_var: &str, new_var: &str) -> String {
@@ -2370,7 +2409,7 @@ mod rename_tests {
 
     fn do_rename(lines: &[DocLine], old: &str, new: &str, kind: &RenameKind) -> Vec<String> {
         let mut lines = lines.to_vec();
-        rename_in_place(&mut lines, old, new, kind);
+        rename_in_place(&mut lines, old, new, kind, None);
         lines.into_iter()
             .filter_map(|l| if let DocLine::Text(s) = l { Some(s) } else { None })
             .collect()
@@ -2580,5 +2619,70 @@ mod font_build_tests {
             [std::path::Path::new("a.unf"), std::path::Path::new("b.unf")],
         );
         assert_eq!(docs.len(), 2, "the base copy of b.unf must be replaced");
+    }
+}
+
+#[cfg(test)]
+mod rename_caret_tests {
+    use super::*;
+    use crate::document::DocLine;
+    use crate::editor::caret::Caret;
+    use crate::editor::doc_links::RenameKind;
+
+    fn t(s: &str) -> DocLine { DocLine::Text(s.to_string()) }
+
+    fn caret_after(lines: &[DocLine], caret: Caret, old: &str, new: &str) -> Caret {
+        let mut lines = lines.to_vec();
+        let mut caret = caret;
+        rename_in_place(&mut lines, old, new, &RenameKind::Glyph, Some(&mut caret));
+        caret
+    }
+
+    /// The caret sits inside the renamed token, so it lands right after the
+    /// new name.
+    #[test]
+    fn caret_lands_after_the_renamed_symbol() {
+        let lines = vec![t("glyph foo 8 16")];
+        // "glyph fo|o 8 16" → "glyph quux| 8 16"
+        let c = caret_after(&lines, Caret { line: 0, col: 8 }, "foo", "quux");
+        assert_eq!(c, Caret { line: 0, col: 10 });
+    }
+
+    /// Same for a shorter new name, and for a caret already at the token's
+    /// start or end.
+    #[test]
+    fn caret_lands_after_a_shorter_name() {
+        let lines = vec![t("glyph foobar 8 16")];
+        for col in [6, 11, 12] {
+            let c = caret_after(&lines, Caret { line: 0, col }, "foobar", "ab");
+            assert_eq!(c, Caret { line: 0, col: 8 }, "caret was at {col}");
+        }
+    }
+
+    /// Text after the renamed token shifts with it.
+    #[test]
+    fn caret_after_the_token_shifts() {
+        let lines = vec![t("glyph foo 8 16")];
+        // caret on the "16"
+        let c = caret_after(&lines, Caret { line: 0, col: 12 }, "foo", "quux");
+        assert_eq!(c, Caret { line: 0, col: 13 });
+    }
+
+    /// Several occurrences on one line: earlier ones shift the caret, and it
+    /// still ends up after the occurrence it was on.
+    #[test]
+    fn caret_shifts_past_earlier_occurrences() {
+        let lines = vec![t("glyph foo = foo")];
+        // caret at the start of the second "foo" → "glyph quux = quux|"
+        let c = caret_after(&lines, Caret { line: 0, col: 12 }, "foo", "quux");
+        assert_eq!(c, Caret { line: 0, col: 17 });
+    }
+
+    /// A caret on a different line still tracks that line's own rewrite.
+    #[test]
+    fn caret_on_another_line_tracks_that_line() {
+        let lines = vec![t("glyph foo 8 16"), t("ref foo 0 0")];
+        let c = caret_after(&lines, Caret { line: 1, col: 9 }, "foo", "quux");
+        assert_eq!(c, Caret { line: 1, col: 10 });
     }
 }
