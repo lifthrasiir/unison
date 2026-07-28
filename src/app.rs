@@ -76,6 +76,15 @@ impl BackgroundTaskStatus {
     }
 }
 
+/// Bounds of the editor's integral zoom level.
+const MIN_ZOOM_LEVEL: u32 = 1;
+const MAX_ZOOM_LEVEL: u32 = 8;
+
+/// Moves `level` by `delta` steps, saturating at the zoom bounds.
+fn zoom_step(level: u32, delta: i32) -> u32 {
+    (level as i32 + delta).clamp(MIN_ZOOM_LEVEL as i32, MAX_ZOOM_LEVEL as i32) as u32
+}
+
 /// Whether a directory-snapshot document at `path` is shadowed by an open
 /// document editing the same file.
 fn shadowed_by_open(open_documents: &[OpenDocument], path: &std::path::Path) -> bool {
@@ -252,7 +261,9 @@ impl UniformApp {
     }
 
     pub fn new(cc: &eframe::CreationContext<'_>, font_dir: Option<PathBuf>) -> Self {
-        let _ = cc;
+        // We map Cmd/Ctrl +/-/0 onto our own integral zoom level, so egui must not also
+        // grab them for `pixels_per_point` scaling.
+        cc.egui_ctx.options_mut(|o| o.zoom_with_keyboard = false);
 
         let (font_base_docs, file_parse_errors) = font_dir
             .as_ref()
@@ -916,6 +927,7 @@ impl eframe::App for UniformApp {
 
         self.intercept_hex_codepoint_input(ctx);
         self.handle_zoom_scroll(ctx);
+        self.handle_zoom_keys(ctx);
 
         crate::stackmon::phase("update:derived-data");
         self.pump_background_pipeline(ctx);
@@ -1108,6 +1120,21 @@ impl UniformApp {
         });
     }
 
+    /// Sets the zoom level (clamped to [`MIN_ZOOM_LEVEL`]..=[`MAX_ZOOM_LEVEL`]) and lets the
+    /// active document recenter its scroll. Returns whether the level actually moved.
+    fn set_zoom_level(&mut self, level: u32) -> bool {
+        let level = level.clamp(MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
+        let old_zoom = self.zoom_level;
+        if level == old_zoom {
+            return false;
+        }
+        self.zoom_level = level;
+        if let Some(doc) = self.active_doc_mut() {
+            doc.editor_state.notify_zoom_change(old_zoom);
+        }
+        true
+    }
+
     /// Cmd/Ctrl + scroll wheel to adjust zoom level
     /// (skip when hovering on the editing grid — ctrl+scroll cycles layers there)
     fn handle_zoom_scroll(&mut self, ctx: &egui::Context) {
@@ -1116,18 +1143,33 @@ impl UniformApp {
             .is_some_and(|d| d.editor_state.is_grid_hover());
         if cmd_held && !grid_hover
             && let Some(step) = debounced_scroll_step(ctx) {
-                let old_zoom = self.zoom_level;
-                if step < 0 {
-                    self.zoom_level = (self.zoom_level + 1).min(8);
-                } else {
-                    self.zoom_level = (self.zoom_level - 1).max(1);
-                }
-                if self.zoom_level != old_zoom
-                    && let Some(doc) = self.active_doc_mut() {
-                        doc.editor_state.notify_zoom_change(old_zoom);
-                    }
+                self.set_zoom_level(zoom_step(self.zoom_level, if step < 0 { 1 } else { -1 }));
                 ctx.input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
             }
+    }
+
+    /// Cmd/Ctrl + `-` / `=` / `0` to adjust the zoom level. egui's built-in
+    /// `zoom_with_keyboard` (which scales `pixels_per_point` instead) is disabled in
+    /// [`UniformApp::new`] so these are the only handlers for those chords.
+    fn handle_zoom_keys(&mut self, ctx: &egui::Context) {
+        let (zoom_in, zoom_out, zoom_reset) = ctx.input(|i| {
+            if !i.modifiers.command {
+                return (false, false, false);
+            }
+            (
+                // `+` is Shift+`=` on most layouts; accept either, shifted or not.
+                i.key_pressed(egui::Key::Equals) || i.key_pressed(egui::Key::Plus),
+                i.key_pressed(egui::Key::Minus),
+                i.key_pressed(egui::Key::Num0),
+            )
+        });
+        if zoom_reset {
+            self.set_zoom_level(1);
+        } else if zoom_in {
+            self.set_zoom_level(zoom_step(self.zoom_level, 1));
+        } else if zoom_out {
+            self.set_zoom_level(zoom_step(self.zoom_level, -1));
+        }
     }
 
     /// Schedules debounced font/derived-data rebuilds and drains the three
@@ -1537,6 +1579,28 @@ impl UniformApp {
                     if ui.add(egui::Button::new(label).shortcut_text("F12")).clicked() {
                         self.escape_mode = !self.escape_mode;
                         *escape_toggled = true;
+                        ui.close_menu();
+                    }
+                    ui.separator();
+                    if ui.add_enabled(
+                        self.zoom_level < MAX_ZOOM_LEVEL,
+                        egui::Button::new("Zoom in").shortcut_text(format!("{mod_name}=")),
+                    ).clicked() {
+                        self.set_zoom_level(zoom_step(self.zoom_level, 1));
+                        ui.close_menu();
+                    }
+                    if ui.add_enabled(
+                        self.zoom_level > MIN_ZOOM_LEVEL,
+                        egui::Button::new("Zoom out").shortcut_text(format!("{mod_name}-")),
+                    ).clicked() {
+                        self.set_zoom_level(zoom_step(self.zoom_level, -1));
+                        ui.close_menu();
+                    }
+                    if ui.add_enabled(
+                        self.zoom_level != 1,
+                        egui::Button::new("Reset zoom").shortcut_text(format!("{mod_name}0")),
+                    ).clicked() {
+                        self.set_zoom_level(1);
                         ui.close_menu();
                     }
                     ui.separator();
@@ -2684,5 +2748,19 @@ mod rename_caret_tests {
         let lines = vec![t("glyph foo 8 16"), t("ref foo 0 0")];
         let c = caret_after(&lines, Caret { line: 1, col: 9 }, "foo", "quux");
         assert_eq!(c, Caret { line: 1, col: 10 });
+    }
+}
+
+#[cfg(test)]
+mod zoom_tests {
+    use super::*;
+
+    #[test]
+    fn zoom_step_saturates_at_the_bounds() {
+        assert_eq!(zoom_step(1, 1), 2);
+        assert_eq!(zoom_step(2, -1), 1);
+        // At either end the step is a no-op rather than wrapping or panicking.
+        assert_eq!(zoom_step(MIN_ZOOM_LEVEL, -1), MIN_ZOOM_LEVEL);
+        assert_eq!(zoom_step(MAX_ZOOM_LEVEL, 1), MAX_ZOOM_LEVEL);
     }
 }
