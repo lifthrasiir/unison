@@ -70,7 +70,7 @@ The major differences (and possible advantages) are as follows:
 
 For now, please see the bitmap glyph chart below.
 
-[![Glyph chart](https://lifthrasiir.github.io/unison/sample.png))(https://lifthrasiir.github.io/unison/sample.png)
+![Glyph chart](https://lifthrasiir.github.io/unison/sample.png)
 
 ## Uniform
 
