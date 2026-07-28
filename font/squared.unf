@@ -1,0 +1,585 @@
+////////////////////////////////////////
+// CJK squared symbols
+
+//--------------------------------------
+// unit symbols
+
+// subject to change. (also, we really need a special syntax for ligatures)
+
+glyph squared-am
+ref a-lower
+ref period 8 0
+ref m-lower 16 0
+ref period 24 0
+
+glyph squared-a-over-m
+ref a-upper
+ref slash 8 0
+ref m-lower 16 0
+
+glyph squared-au
+ref a-upper
+ref u-upper 8 0
+
+glyph squared-bar
+ref b-lower
+ref a-lower 8 0
+ref r-lower 16 0
+
+glyph squared-bq
+ref b-upper
+ref q-lower 8 0
+
+glyph squared-c-over-kg
+ref c-upper
+ref slash 8 0
+ref k-lower 16 0
+ref g-lower 24 0
+
+glyph squared-cal
+ref c-lower
+ref a-lower 8 0
+ref l-lower 16 0
+
+glyph squared-cc
+ref c-lower
+ref c-lower 8 0
+
+glyph squared-cd
+ref c-lower
+ref d-lower 8 0
+
+glyph squared-cm
+ref c-lower
+ref m-lower 8 0
+
+glyph squared-cm2
+ref c-lower
+ref m-lower 8 0
+ref sup-2 16 0
+
+glyph squared-cm3
+ref c-lower
+ref m-lower 8 0
+ref sup-3 16 0
+
+glyph squared-co
+ref c-upper
+ref o-lower 8 0
+ref period 16 0
+
+glyph squared-da
+ref d-lower
+ref a-lower 8 0
+
+glyph squared-db
+ref d-lower
+ref b-upper 8 0
+
+glyph squared-dl
+ref d-lower
+ref script-l-lower 8 0
+
+glyph squared-dm
+ref d-lower
+ref m-lower 8 0
+
+glyph squared-dm2
+ref d-lower
+ref m-lower 8 0
+ref sup-2 16 0
+
+glyph squared-dm3
+ref d-lower
+ref m-lower 8 0
+ref sup-3 16 0
+
+glyph squared-fm
+ref f-lower
+ref m-lower 8 0
+
+glyph squared-gal
+ref g-lower
+ref a-lower 8 0
+ref l-lower 16 0
+
+glyph squared-gb
+ref g-upper
+ref b-upper 8 0
+
+glyph squared-ghz
+ref g-upper
+ref h-upper 8 0
+ref z-lower 16 0
+
+glyph squared-gpa
+ref g-upper
+ref p-upper 8 0
+ref a-lower 16 0
+
+glyph squared-gy
+ref g-upper
+ref y-lower 8 0
+
+glyph squared-ha
+ref h-lower
+ref a-lower 8 0
+
+glyph squared-hp
+ref h-upper
+ref p-upper 8 0
+
+glyph squared-hz
+ref h-upper
+ref z-lower 8 0
+
+glyph squared-in
+ref i-lower
+ref n-lower 8 0
+
+glyph squared-iu
+ref i-upper
+ref u-upper 8 0
+
+glyph squared-kk
+ref k-upper
+ref period 8 0
+ref k-upper 16 0
+ref period 24 0
+
+glyph squared-ka
+ref k-lower
+ref a-upper 8 0
+
+glyph squared-kb
+ref k-upper
+ref b-upper 8 0
+
+glyph squared-kcal
+ref k-lower
+ref c-lower 8 0
+ref a-lower 16 0
+ref l-lower 24 0
+
+glyph squared-kg
+ref k-lower
+ref g-lower 8 0
+
+glyph squared-khz
+ref k-lower
+ref h-upper 8 0
+ref z-lower 16 0
+
+glyph squared-kl
+ref k-lower
+ref script-l-lower 8 0
+
+glyph squared-km-upper
+ref k-upper
+ref m-upper 8 0
+
+glyph squared-km
+ref k-lower
+ref m-lower 8 0
+
+glyph squared-km2
+ref k-lower
+ref m-lower 8 0
+ref sup-2 16 0
+
+glyph squared-km3
+ref k-lower
+ref m-lower 8 0
+ref sup-3 16 0
+
+glyph squared-kohm
+ref k-lower
+ref gr-omega-upper 8 0
+
+glyph squared-kpa
+ref k-lower
+ref p-upper 8 0
+ref a-lower 16 0
+
+glyph squared-kt
+ref k-lower
+ref t-lower 8 0
+
+glyph squared-kv
+ref k-lower
+ref v-upper 8 0
+
+glyph squared-kw
+ref k-lower
+ref w-upper 8 0
+
+glyph squared-lm
+ref l-lower
+ref m-lower 8 0
+
+glyph squared-ln
+ref l-lower
+ref n-lower 8 0
+
+glyph squared-log
+ref l-lower
+ref o-lower 8 0
+ref g-lower 16 0
+
+glyph squared-lx
+ref l-lower
+ref x-lower 8 0
+
+glyph squared-m-over-s
+ref m-lower
+ref slash 8 0
+ref s-lower 16 0
+
+glyph squared-m-over-s2
+ref m-lower
+ref slash 8 0
+ref s-lower 16 0
+ref sup-2 24 0
+
+glyph squared-m2
+ref m-lower
+ref sup-2 8 0
+
+glyph squared-m3
+ref m-lower
+ref sup-3 8 0
+
+glyph squared-ma
+ref m-lower
+ref a-upper 8 0
+
+glyph squared-mb-upper
+ref m-upper
+ref b-upper 8 0
+
+glyph squared-mb
+ref m-lower
+ref b-lower 8 0
+
+glyph squared-mg
+ref m-lower
+ref g-lower 8 0
+
+glyph squared-mhz
+ref m-upper
+ref h-upper 8 0
+ref z-lower 16 0
+
+glyph squared-mil
+ref m-lower
+ref i-lower 8 0
+ref l-lower 16 0
+
+glyph squared-ml
+ref m-lower
+ref script-l-lower 8 0
+
+glyph squared-mm
+ref m-lower
+ref m-lower 8 0
+
+glyph squared-mm2
+ref m-lower
+ref m-lower 8 0
+ref sup-2 16 0
+
+glyph squared-mm3
+ref m-lower
+ref m-lower 8 0
+ref sup-3 16 0
+
+glyph squared-mol
+ref m-lower
+ref o-lower 8 0
+ref l-lower 16 0
+
+glyph squared-mohm
+ref m-upper
+ref gr-omega-upper 8 0
+
+glyph squared-mpa
+ref m-upper
+ref p-upper 8 0
+ref a-lower 16 0
+
+glyph squared-ms
+ref m-lower
+ref s-lower 8 0
+
+glyph squared-mv-upper
+ref m-upper
+ref v-upper 8 0
+
+glyph squared-mv
+ref m-lower
+ref v-upper 8 0
+
+glyph squared-mw-upper
+ref m-upper
+ref w-upper 8 0
+
+glyph squared-mw
+ref m-lower
+ref w-upper 8 0
+
+glyph squared-na
+ref n-lower
+ref a-upper 8 0
+
+glyph squared-nf
+ref n-lower
+ref f-upper 8 0
+
+glyph squared-nm
+ref n-lower
+ref m-lower 8 0
+
+glyph squared-ns
+ref n-lower
+ref s-lower 8 0
+
+glyph squared-nv
+ref n-lower
+ref v-upper 8 0
+
+glyph squared-nw
+ref n-lower
+ref w-upper 8 0
+
+glyph squared-ov
+ref o-lower
+ref v-upper 8 0
+
+glyph squared-pm
+ref p-lower
+ref period 8 0
+ref m-lower 16 0
+ref period 24 0
+
+glyph squared-p-upper-a
+ref p-upper
+ref a-lower 8 0
+
+glyph squared-p-a-upper
+ref p-lower
+ref a-upper 8 0
+
+glyph squared-pc
+ref p-lower
+ref c-lower 8 0
+
+glyph squared-pf
+ref p-lower
+ref f-upper 8 0
+
+glyph squared-ph
+ref p-lower
+ref h-upper 8 0
+
+glyph squared-ppm
+ref p-upper
+ref p-upper 8 0
+ref m-upper 16 0
+
+glyph squared-pr
+ref p-upper
+ref r-upper 8 0
+
+glyph squared-ps
+ref p-lower
+ref s-lower 8 0
+
+glyph squared-pv
+ref p-lower
+ref v-upper 8 0
+
+glyph squared-pw
+ref p-lower
+ref w-upper 8 0
+
+glyph squared-rad
+ref r-lower
+ref a-lower 8 0
+ref d-lower 16 0
+
+glyph squared-rad-over-s
+ref r-lower
+ref a-lower 8 0
+ref d-lower 16 0
+ref slash 24 0
+ref s-lower 32 0
+
+glyph squared-rad-over-s2
+ref r-lower
+ref a-lower 8 0
+ref d-lower 16 0
+ref slash 24 0
+ref s-lower 32 0
+ref sup-2 40 0
+
+glyph squared-sr
+ref s-lower
+ref r-lower 8 0
+
+glyph squared-sv
+ref s-upper
+ref v-lower 8 0
+
+glyph squared-thz
+ref t-upper
+ref h-upper 8 0
+ref z-lower 16 0
+
+glyph squared-ua
+ref micro
+ref a-upper 8 0
+
+glyph squared-uf
+ref micro
+ref f-upper 8 0
+
+glyph squared-ug
+ref micro
+ref g-lower 8 0
+
+glyph squared-ul
+ref micro
+ref script-l-lower 8 0
+
+glyph squared-um
+ref micro
+ref m-lower 8 0
+
+glyph squared-us
+ref micro
+ref s-lower 8 0
+
+glyph squared-uv
+ref micro
+ref v-upper 8 0
+
+glyph squared-uw
+ref micro
+ref w-upper 8 0
+
+glyph squared-v-over-m
+ref v-upper
+ref slash 8 0
+ref m-lower 16 0
+
+glyph squared-wb
+ref w-upper
+ref b-lower 8 0
+
+map ㏂ = squared-am
+map ㏟ = squared-a-over-m
+map ㍳ = squared-au
+map ㍴ = squared-bar
+map ㏃ = squared-bq
+map ㏆ = squared-c-over-kg
+map ㎈ = squared-cal
+map ㏄ = squared-cc
+map ㏅ = squared-cd
+map ㎝ = squared-cm
+map ㎠ = squared-cm2
+map ㎤ = squared-cm3
+map ㏇ = squared-co
+map ㍲ = squared-da
+map ㏈ = squared-db
+map ㎗ = squared-dl
+map ㍷ = squared-dm
+map ㍸ = squared-dm2
+map ㍹ = squared-dm3
+map ㎙ = squared-fm
+map ㏿ = squared-gal
+map ㎇ = squared-gb
+map ㎓ = squared-ghz
+map ㎬ = squared-gpa
+map ㏉ = squared-gy
+map ㏊ = squared-ha
+map ㏋ = squared-hp
+map ㎐ = squared-hz
+map ㏌ = squared-in
+map ㍺ = squared-iu
+map ㏍ = squared-kk
+map ㎄ = squared-ka
+map ㎅ = squared-kb
+map ㎉ = squared-kcal
+map ㎏ = squared-kg
+map ㎑ = squared-khz
+map ㎘ = squared-kl
+map ㏎ = squared-km-upper
+map ㎞ = squared-km
+map ㎢ = squared-km2
+map ㎦ = squared-km3
+map ㏀ = squared-kohm
+map ㎪ = squared-kpa
+map ㏏ = squared-kt
+map ㎸ = squared-kv
+map ㎾ = squared-kw
+map ㏐ = squared-lm
+map ㏑ = squared-ln
+map ㏒ = squared-log
+map ㏓ = squared-lx
+map ㎧ = squared-m-over-s
+map ㎨ = squared-m-over-s2
+map ㎡ = squared-m2
+map ㎥ = squared-m3
+map ㎃ = squared-ma
+map ㎆ = squared-mb-upper
+map ㏔ = squared-mb
+map ㎎ = squared-mg
+map ㎒ = squared-mhz
+map ㏕ = squared-mil
+map ㎖ = squared-ml
+map ㎜ = squared-mm
+map ㎟ = squared-mm2
+map ㎣ = squared-mm3
+map ㏖ = squared-mol
+map ㏁ = squared-mohm
+map ㎫ = squared-mpa
+map ㎳ = squared-ms
+map ㎹ = squared-mv-upper
+map ㎷ = squared-mv
+map ㎿ = squared-mw-upper
+map ㎽ = squared-mw
+map ㎁ = squared-na
+map ㎋ = squared-nf
+map ㎚ = squared-nm
+map ㎱ = squared-ns
+map ㎵ = squared-nv
+map ㎻ = squared-nw
+map ㍵ = squared-ov
+map ㏘ = squared-pm
+map ㎩ = squared-p-upper-a
+map ㎀ = squared-p-a-upper
+map ㍶ = squared-pc
+map ㎊ = squared-pf
+map ㏗ = squared-ph
+map ㏙ = squared-ppm
+map ㏚ = squared-pr
+map ㎰ = squared-ps
+map ㎴ = squared-pv
+map ㎺ = squared-pw
+map ㎭ = squared-rad
+map ㎮ = squared-rad-over-s
+map ㎯ = squared-rad-over-s2
+map ㏛ = squared-sr
+map ㏜ = squared-sv
+map ㎔ = squared-thz
+map ㎂ = squared-ua
+map ㎌ = squared-uf
+map ㎍ = squared-ug
+map ㎕ = squared-ul
+map ㎛ = squared-um
+map ㎲ = squared-us
+map ㎶ = squared-uv
+map ㎼ = squared-uw
+map ㏞ = squared-v-over-m
+map ㏝ = squared-wb
+
