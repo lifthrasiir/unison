@@ -50,6 +50,18 @@ pub(crate) fn cycle_layer_mode(
     }
 }
 
+/// Items of the subglyph (ref layer) context menu. Shared by the ref thumbnail
+/// in the inline tools panel and by right-clicking the grid while that layer is
+/// the selected one, so both entry points offer the same actions.
+/// Returns true when "Inline to pixels" was chosen.
+pub(crate) fn subglyph_context_menu(ui: &mut egui::Ui) -> bool {
+    if ui.button("Inline to pixels").clicked() {
+        ui.close_menu();
+        return true;
+    }
+    false
+}
+
 pub(crate) fn draw_inline_tools_panel(
     ui: &egui::Ui,
     painter: &egui::Painter,
@@ -236,9 +248,8 @@ pub(crate) fn draw_inline_tools_panel(
         }
 
         ref_response.context_menu(|ui| {
-            if ui.button("Inline to pixels").clicked() {
+            if subglyph_context_menu(ui) {
                 inline_ref_action = Some(ref_idx);
-                ui.close_menu();
             }
         });
 

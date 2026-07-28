@@ -823,9 +823,55 @@ pub(super) fn paint_document_area(
             d.insert_temp(egui::Id::new("error_tooltip_data"), error_tooltip);
         });
 
+        // Right-clicking the grid while a ref layer is selected offers the same
+        // subglyph menu as right-clicking that layer's thumbnail in the inline
+        // tools panel. Whether the click landed on the grid has to be latched:
+        // `context_menu` is re-evaluated every frame while the menu is open, and
+        // by then the pointer sits on the menu itself.
+        let grid_ctx_id = egui::Id::new("grid_subglyph_ctx_on_grid");
+        if response.secondary_clicked() {
+            let on_grid = response
+                .interact_pointer_pos()
+                .zip(edit_grid_rect)
+                .is_some_and(|(p, r)| r.contains(p));
+            ui.ctx().data_mut(|d| d.insert_temp(grid_ctx_id, on_grid));
+        }
+        let grid_subglyph_ref = match state.mode {
+            EditMode::LayerMove {
+                item_idx,
+                layer_idx,
+            } if ui
+                .ctx()
+                .data(|d| d.get_temp::<bool>(grid_ctx_id).unwrap_or(false)) =>
+            {
+                matches!(doc.items.get(item_idx),
+                    Some(DocumentItem::Glyph { body, .. }) if layer_idx < body.refs.len())
+                    .then_some((item_idx, layer_idx))
+            }
+            _ => None,
+        };
+
         // Context menu (only in Normal mode; edit modes use right-click for erasing)
         let ctx_mode_normal = matches!(state.mode, EditMode::Normal);
-        if ctx_mode_normal {
+        if let Some((edit_idx, ref_idx)) = grid_subglyph_ref {
+            let mut inline = false;
+            response.context_menu(|ui| {
+                inline = inline_tools::subglyph_context_menu(ui);
+            });
+            if inline
+                && inline_ref_to_pixels(
+                    lines,
+                    doc,
+                    state,
+                    edit_idx,
+                    ref_idx,
+                    named_glyphs,
+                    name_parts,
+                )
+            {
+                *needs_rederive = true;
+            }
+        } else if ctx_mode_normal {
         response.context_menu(|ui| {
             let caps = crate::edit_menu::EditMenuCaps {
                 can_undo: state.undo.can_undo(),

@@ -982,6 +982,37 @@ fn click_ref_layer_thumbnail_selects_that_layer() {
     );
 }
 
+/// The subglyph menu ("Inline to pixels") used to be reachable only by
+/// right-clicking the ref thumbnail in the inline tools panel. Right-clicking
+/// the grid while that ref layer is the selected one must offer it too.
+#[test]
+fn right_click_grid_in_layer_move_offers_subglyph_menu() {
+    let mut h = EditorHarness::new(&composite_doc());
+    enter_layer_move(&mut h, 4, 2, 0);
+
+    let cell = h.grid_cell_pos(4, 0, 0);
+    h.right_click_at(cell);
+    h.frame();
+
+    // Click the first item of the context menu, which egui lays out just
+    // inside the menu frame at the click position. Move the pointer there
+    // first: pressing and moving in one frame reads as a layer drag.
+    let item = cell + egui::vec2(24.0, 14.0);
+    h.move_pointer(item);
+    h.click_at(item);
+    h.frame();
+
+    assert!(
+        h.grid(4).get(0, 4).is_filled(),
+        "the ref's ink should have been inlined into the parent's pixel grid"
+    );
+    assert!(
+        !matches!(h.lines.get(5), Some(DocLine::Text(t)) if t.starts_with("ref ")),
+        "the inlined ref line should be gone, lines: {:?}",
+        h.lines
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Pixel selection mode tests
 // ---------------------------------------------------------------------------
