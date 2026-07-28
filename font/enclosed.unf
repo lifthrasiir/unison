@@ -125,6 +125,11 @@ ref hangul-($hangul-init-lex)-half 3 0
 ref hangul-a-half-narrow 8 0
 map ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = hangul-($hangul-init-lex)a-circled
 
+glyph katakana-($kana-lex)-circled
+ref enclosing-circle
+ref katakana-($kana-lex)-half 4 0
+map U+32D0..32FE = katakana-($kana-lex)-circled
+
 //--------------------------------------
 // squared letters
 
