@@ -175,6 +175,21 @@ Appending to a line must go through `append_to_line` to stay in front of the com
 - `glyph NAME [flags...]` with no dims — ref-only composite, followed by `ref`/`point` lines.
 - NAME supports the patterns above; blocks expand in lock-step with their `ref` patterns.
 
+A **negative `ref` offset is a bearing, not something to normalize away**: the glyph origin stays at
+(0, 0), the outline keeps its negative coordinates (negative lsb, or ink above the ascent), and the
+advance still measures only the extent to the *right* of the origin. `left`/`top` are for shifting a
+glyph that has no such ref; do not use them to undo a negative offset. Every composite path has to
+agree on this — `CachedContours`/`CachedGlyph` therefore carry `origin_row`/`origin_col` (the logical
+coordinate of raster cell (0, 0)) beside their normalized grid, and a parent adds a ref target's
+origin to the `ref` offset when placing it, or it silently loses whatever sits left of that origin.
+`contour::track_contour_multi{,_diff}` normalize to the bounding box; the production callers use the
+`_at` variants, which put the contours back in the layers' own space.
+
+A bearing only exists where something is drawn: `glyph_cache::trim_blank_before_origin` trims the
+blank margin before the origin and pulls `origin_*` back towards zero, so pulling a ref up into its
+own empty top rows (`ref X 0 -3`) stays metrically identical to placing that ink directly. Without
+it such a glyph grows a phantom bearing that the sample then pads its cell for.
+
 A glyph needs a pixel grid or at least one `ref` to exist at all — `advance`/`left`/`top`/`point`
 do not make one buildable, and a contentless glyph never enters the resolution cache, so it is
 absent from cmap, from composites and from GSUB coverage. Referencing one from a `map`, a `ref` or

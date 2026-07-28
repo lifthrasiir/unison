@@ -5,7 +5,9 @@ use std::path::Path;
 
 use crate::document::*;
 use crate::pixel::PX_SUBPIXEL;
-use crate::render::contour::{track_contour, track_contour_fullpixel, track_contour_multi, track_contour_multi_diff};
+use crate::render::contour::{
+    track_contour, track_contour_fullpixel, track_contour_multi_at, track_contour_multi_diff_at,
+};
 use crate::render::ttf_builder::{
     ColorAliasMap, Rgba, collect_color_aliases, effective_visibility, expand_map_pairs,
     resolve_fill_rgba,
@@ -25,6 +27,10 @@ struct SampleGlyph {
     width: u16,
     _height: u16,
     components: Vec<SampleComponent>,
+    /// How far the glyph reaches before its origin (never positive), in
+    /// scale-1 pixels: a bearing the sample cell has to make room for.
+    origin_row: i16,
+    origin_col: i16,
     left: i16,
     top: i16,
     scale: u8,
@@ -65,11 +71,20 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
     // Build contour cache for named glyphs
     struct CachedGlyph {
+        /// Extent right of / below the glyph origin; area a negative ref
+        /// offset puts *before* the origin is a bearing and is not counted.
         width: u16,
         height: u16,
         contours: Vec<Vec<(f32, f32)>>,
         anchors: Vec<GlyphPoint>,
         grid: Option<PixelGrid>,
+        /// Logical coordinate of raster cell `(0, 0)` of `grid`, in this
+        /// glyph's own scale.  Negative once a ref reaches left of / above
+        /// the origin.  Mirrors `CachedContours`.
+        origin_row: i32,
+        origin_col: i32,
+        /// Components in the glyph's own logical space, so they may sit at
+        /// negative rows/columns.
         components: Vec<SampleComponent>,
         scale: u8,
     }
@@ -82,6 +97,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 contours: Vec::new(),
                 anchors: Vec::new(),
                 grid: None,
+                origin_row: 0,
+                origin_col: 0,
                 components: Vec::new(),
                 scale: 1,
             }
@@ -95,6 +112,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 contours,
                 anchors: Vec::new(),
                 grid: Some(grid.clone()),
+                origin_row: 0,
+                origin_col: 0,
                 components: vec![SampleComponent {
                     row: 0,
                     col: 0,
@@ -105,6 +124,17 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 }],
                 scale: 1,
             }
+        }
+
+        /// Where this glyph's raster grid sits when referenced from a parent
+        /// at `(ref_row, ref_col)`, rescaled to the parent's resolution.
+        fn placed_at(&self, ref_row: i32, ref_col: i32, parent_scale: u8) -> (i32, i32) {
+            let rs = self.scale.max(1) as i32;
+            let ps = parent_scale.max(1) as i32;
+            (
+                ref_row + self.origin_row * ps / rs,
+                ref_col + self.origin_col * ps / rs,
+            )
         }
     }
 
@@ -190,58 +220,58 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
         let ps = parent_scale.max(1);
 
-        let ref_scaled: Vec<Option<PixelGrid>> = refs.iter().map(|gref| {
+        // Each ref grid is placed where it logically sits: a target that
+        // itself reaches left of / above its origin starts that much before
+        // the `ref` offset.
+        let ref_scaled: Vec<Option<(PixelGrid, i32, i32)>> = refs.iter().map(|gref| {
             let cached = resolve_cached_ref(&gref.name, cache)?;
-            rescale_ref_grid(cached, ps)
+            let grid = rescale_ref_grid(cached, ps)?;
+            let (row, col) = cached.placed_at(gref.row() as i32, gref.col() as i32, ps);
+            Some((grid, row, col))
         }).collect();
 
         if has_negated || own_pixels.is_some() {
-            let (min_r, min_c, width, height) = crate::render::contour::layer_bounds(
+            let (min_r, min_c, raster_w, raster_h) = crate::render::contour::layer_bounds(
                 own_pixels.map(|g| (g, 0, 0)).into_iter().chain(
-                    refs.iter().zip(ref_scaled.iter()).filter_map(|(gref, sg)| {
-                        sg.as_ref()
-                            .filter(|g| g.width != 0 && g.height != 0)
-                            .map(|g| (g, gref.row() as i32, gref.col() as i32))
+                    ref_scaled.iter().flatten().filter_map(|(g, row, col)| {
+                        (g.width != 0 && g.height != 0).then_some((g, *row, *col))
                     }),
                 ),
             );
-            let (width, height) = (width as u16, height as u16);
-            let mut result = PixelGrid::new(width, height);
+            let (raster_w, raster_h) = (raster_w as i32, raster_h as i32);
+            let mut result = PixelGrid::new(raster_w as u16, raster_h as u16);
 
             let mut components = Vec::new();
             let mut contour_layers: Vec<(&PixelGrid, i32, i32)> = Vec::new();
             let mut diff_layers: Vec<(&PixelGrid, i32, i32, bool)> = Vec::new();
 
             if let Some(grid) = own_pixels {
-                let off_r = -min_r;
-                let off_c = -min_c;
-                result.blit(grid, off_r, off_c, false);
+                result.blit(grid, -min_r, -min_c, false);
                 components.push(SampleComponent {
-                    row: off_r,
-                    col: off_c,
+                    row: 0,
+                    col: 0,
                     grid: grid.clone(),
                     negated: false,
                     fill_rgba: None,
                     visibility: LayerVisibility::Both,
                 });
                 if has_negated {
-                    diff_layers.push((grid, off_r, off_c, false));
+                    diff_layers.push((grid, 0, 0, false));
                 } else {
-                    contour_layers.push((grid, off_r, off_c));
+                    contour_layers.push((grid, 0, 0));
                 }
             }
 
             for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
                 let Some(cached) = resolve_cached_ref(&gref.name, cache) else { continue };
-                let off_r = gref.row() as i32 - min_r;
-                let off_c = gref.col() as i32 - min_c;
+                let (off_r, off_c) = (gref.row() as i32, gref.col() as i32);
                 let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
-                if let Some(sg) = sg {
-                    result.blit(sg, off_r, off_c, gref.negated);
+                if let Some((sg, row, col)) = sg {
+                    result.blit(sg, row - min_r, col - min_c, gref.negated);
                     if has_negated {
-                        diff_layers.push((sg, off_r, off_c, gref.negated));
+                        diff_layers.push((sg, *row, *col, gref.negated));
                     } else if !gref.negated {
-                        contour_layers.push((sg, off_r, off_c));
+                        contour_layers.push((sg, *row, *col));
                     }
                 }
                 let rs = cached.scale.max(1);
@@ -264,16 +294,25 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             }
 
             let contours = if has_negated {
-                track_contour_multi_diff(&diff_layers, PX_SUBPIXEL)
+                track_contour_multi_diff_at(&diff_layers, PX_SUBPIXEL)
             } else {
-                track_contour_multi(&contour_layers, PX_SUBPIXEL)
+                track_contour_multi_at(&contour_layers, PX_SUBPIXEL)
             };
+            let (mut origin_row, mut origin_col) = (min_r, min_c);
+            crate::render::glyph_cache::trim_blank_before_origin(
+                &mut result,
+                &mut origin_row,
+                &mut origin_col,
+            );
+
             return Some(CachedGlyph {
-                width,
-                height,
+                width: (min_c + raster_w).max(0) as u16,
+                height: (min_r + raster_h).max(0) as u16,
                 contours,
                 anchors: Vec::new(),
                 grid: Some(result),
+                origin_row,
+                origin_col,
                 components,
                 scale: ps,
             });
@@ -281,14 +320,15 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
         // Simple contour translation
         let mut all_contours = Vec::new();
-        let mut max_width = 0u16;
-        let mut max_height = 0u16;
-        let mut combined_grid: Option<PixelGrid> = None;
+        let mut max_width = 0i32;
+        let mut max_height = 0i32;
+        let mut min_r = 0i32;
+        let mut min_c = 0i32;
         let mut components = Vec::new();
 
         for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
             let cached = resolve_cached_ref(&gref.name, cache)?;
-            let sg = sg.as_ref()?;
+            let (_, sg_row, sg_col) = sg.as_ref()?;
             let dx = gref.col() as f32;
             let dy = gref.row() as f32;
             let rs = cached.scale.max(1);
@@ -303,10 +343,10 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             // narrower than its advance.  Mirrors `from_components_inner`.
             let scaled_w = (cached.width as f32 * rsf).round() as i32;
             let scaled_h = (cached.height as f32 * rsf).round() as i32;
-            let w = (gref.col() as i32 + scaled_w).max(0) as u16;
-            let h = (gref.row() as i32 + scaled_h).max(0) as u16;
-            max_width = max_width.max(w);
-            max_height = max_height.max(h);
+            max_width = max_width.max(gref.col() as i32 + scaled_w);
+            max_height = max_height.max(gref.row() as i32 + scaled_h);
+            min_r = min_r.min(*sg_row);
+            min_c = min_c.min(*sg_col);
 
             let off_r = gref.row() as i32;
             let off_c = gref.col() as i32;
@@ -327,32 +367,45 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 });
             }
 
-            {
-                let cg = combined_grid.get_or_insert_with(|| PixelGrid::new(max_width, max_height));
-                if cg.width < max_width || cg.height < max_height {
-                    cg.resize(max_width, max_height);
-                }
-                for r in 0..sg.height as i32 {
-                    for c in 0..sg.width as i32 {
-                        let shape = sg.get(r as u16, c as u16);
-                        if !shape.is_empty() {
-                            let dr = off_r + r;
-                            let dc = off_c + c;
-                            if dr >= 0 && dc >= 0 && dr < max_height as i32 && dc < max_width as i32 {
-                                cg.set(dr as u16, dc as u16, shape);
-                            }
+        }
+        let (max_width, max_height) = (max_width.max(0), max_height.max(0));
+
+        let mut combined_grid: Option<PixelGrid> = None;
+        for (grid, row, col) in ref_scaled.iter().flatten() {
+            let cg = combined_grid.get_or_insert_with(|| {
+                PixelGrid::new((max_width - min_c) as u16, (max_height - min_r) as u16)
+            });
+            let (off_r, off_c) = (row - min_r, col - min_c);
+            for r in 0..grid.height as i32 {
+                for c in 0..grid.width as i32 {
+                    let shape = grid.get(r as u16, c as u16);
+                    if !shape.is_empty() {
+                        let (dr, dc) = (off_r + r, off_c + c);
+                        if dr >= 0 && dc >= 0 && dr < cg.height as i32 && dc < cg.width as i32 {
+                            cg.set(dr as u16, dc as u16, shape);
                         }
                     }
                 }
             }
         }
 
+        let (mut origin_row, mut origin_col) = (min_r, min_c);
+        if let Some(grid) = &mut combined_grid {
+            crate::render::glyph_cache::trim_blank_before_origin(
+                grid,
+                &mut origin_row,
+                &mut origin_col,
+            );
+        }
+
         Some(CachedGlyph {
-            width: max_width,
-            height: max_height,
+            width: max_width as u16,
+            height: max_height as u16,
             contours: all_contours,
             anchors: Vec::new(),
             grid: combined_grid,
+            origin_row,
+            origin_col,
             components,
             scale: ps,
         })
@@ -420,6 +473,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 width: (cached.width + s as u16 - 1) / s as u16,
                 _height: (cached.height + s as u16 - 1) / s as u16,
                 components: cached.components.clone(),
+                origin_row: cached.origin_row.div_euclid(s as i32) as i16,
+                origin_col: cached.origin_col.div_euclid(s as i32) as i16,
                 left,
                 top,
                 scale: s,
@@ -506,12 +561,16 @@ impl SampleGlyph {
     }
 }
 
+/// Cell size and the offset the glyph is drawn at inside it.  A glyph can
+/// reach before its origin, either because `left`/`top` push it there or
+/// because a ref sits at a negative offset; the cell grows to the left/top by
+/// that much so the sample shows the bearing instead of clipping it.
 fn sample_display_metrics(sg: &SampleGlyph, font_height: u16) -> (u16, u16, i16, i16) {
-    let col_off = sg.left.max(0);
-    let row_off = sg.top.max(0);
-    let display_w = col_off as u16 + sg.width;
-    let display_h = font_height;
-    (display_w, display_h, col_off, row_off)
+    let pad_c = -(sg.origin_col + sg.left).min(0);
+    let pad_r = -(sg.origin_row + sg.top).min(0);
+    let display_w = pad_c as u16 + sg.width + sg.left.max(0) as u16;
+    let display_h = font_height + pad_r as u16;
+    (display_w, display_h, pad_c + sg.left, pad_r + sg.top)
 }
 
 fn composite_components(width: u16, height: u16, components: &[SampleComponent]) -> PixelGrid {
@@ -1611,6 +1670,8 @@ map A = test-a
             width: 5,
             _height: 5,
             components: Vec::new(),
+            origin_row: 0,
+            origin_col: 0,
             left: 0,
             top: 3,
             scale: 1,
@@ -1622,12 +1683,103 @@ map A = test-a
             width: 5,
             _height: 5,
             components: Vec::new(),
+            origin_row: 0,
+            origin_col: 0,
             left: 0,
             top: 0,
             scale: 1,
         };
         let (_, _, _, row_off) = sample_display_metrics(&sg_without_top, 16);
         assert_eq!(row_off, 0);
+    }
+
+    #[test]
+    fn sample_keeps_negative_ref_offsets_as_bearings() {
+        // The sample used to normalize a negative ref offset away, so its
+        // idea of the glyph disagreed with the font the builder emitted.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph part 2 2
+@@@@
+@@@@
+
+glyph shifted 2 2
+@@@@
+@@@@
+ref part -1 0
+
+map A = shifted
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("shifted").expect("shifted should be in sample glyphs");
+        assert_eq!((g.origin_col, g.width), (-1, 2));
+        let (display_w, _, col_off, _) = sample_display_metrics(g, data.height);
+        assert_eq!((display_w, col_off), (3, 1));
+    }
+
+    #[test]
+    fn blank_margin_before_the_origin_is_not_a_bearing() {
+        // Pulling a ref up into its own empty top rows is the usual way to
+        // nudge a composite; nothing is drawn before the origin, so it must
+        // not become a bearing and must not pad the sample cell.
+        let d = parse(
+            "\
+font-meta height 16 ascent 12 descent 4
+
+glyph padded 2 4
+....
+....
+@@@@
+@@@@
+
+glyph raised 2 4
+....
+....
+....
+....
+ref padded 0 -2
+
+map A = raised
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("raised").expect("raised should be in sample glyphs");
+        assert_eq!((g.origin_row, g.origin_col), (0, 0));
+        assert_eq!(sample_display_metrics(g, data.height), (2, 16, 0, 0));
+    }
+
+    #[test]
+    fn sample_display_metrics_makes_room_for_negative_bearings() {
+        // A glyph reaching before its origin — via a negative ref offset or a
+        // negative `left` — used to be drawn at cell column 0 and clipped.
+        let with_negative_origin = SampleGlyph {
+            width: 8,
+            _height: 16,
+            components: Vec::new(),
+            origin_row: -1,
+            origin_col: -3,
+            left: 0,
+            top: 0,
+            scale: 1,
+        };
+        let (w, h, col_off, row_off) = sample_display_metrics(&with_negative_origin, 16);
+        assert_eq!((w, h, col_off, row_off), (11, 17, 3, 1));
+
+        let with_negative_left = SampleGlyph {
+            width: 8,
+            _height: 16,
+            components: Vec::new(),
+            origin_row: 0,
+            origin_col: 0,
+            left: -3,
+            top: 0,
+            scale: 1,
+        };
+        let (w, _, col_off, _) = sample_display_metrics(&with_negative_left, 16);
+        assert_eq!((w, col_off), (11, 0));
     }
 
     #[test]

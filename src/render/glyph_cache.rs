@@ -43,6 +43,55 @@ pub(crate) fn resolve_cached<'a, V>(
     cache.get(&expanded.get(0))
 }
 
+/// Trim the blank margin a composite's raster grid has *before* its origin,
+/// moving `origin_row`/`origin_col` back towards zero by as much as is
+/// dropped.
+///
+/// A negative `ref` offset is a bearing only where something is actually
+/// drawn.  Pulling a ref up into its own empty top rows (`ref X 0 -3` when
+/// `X`'s first rows are blank) is the ordinary way to nudge a composite, and
+/// it has to stay metrically identical to the same ink placed directly —
+/// otherwise every such glyph would grow a phantom bearing that the sample
+/// then pads its cell for.  Only the margin left of / above the origin is
+/// trimmed, so the grid still starts exactly at `origin_*`.
+pub(crate) fn trim_blank_before_origin(
+    grid: &mut PixelGrid,
+    origin_row: &mut i32,
+    origin_col: &mut i32,
+) {
+    let blank_rows = (0..grid.height)
+        .take_while(|&r| (0..grid.width).all(|c| grid.get(r, c).is_empty()))
+        .count() as i32;
+    let blank_cols = (0..grid.width)
+        .take_while(|&c| (0..grid.height).all(|r| grid.get(r, c).is_empty()))
+        .count() as i32;
+    let trim_r = blank_rows.min(-*origin_row).max(0) as u16;
+    let trim_c = blank_cols.min(-*origin_col).max(0) as u16;
+    if trim_r == 0 && trim_c == 0 {
+        return;
+    }
+
+    let (new_w, new_h) = (grid.width - trim_c, grid.height - trim_r);
+    let mut trimmed = PixelGrid::new(new_w, new_h);
+    trimmed.den = grid.den;
+    for r in 0..new_h {
+        for c in 0..new_w {
+            trimmed.pixels[r as usize * new_w as usize + c as usize] =
+                grid.get(r + trim_r, c + trim_c);
+        }
+    }
+    trimmed.details = grid
+        .details
+        .iter()
+        .filter(|&(&(r, c), _)| r >= trim_r && c >= trim_c)
+        .map(|(&(r, c), d)| ((r - trim_r, c - trim_c), d.clone()))
+        .collect();
+
+    *grid = trimmed;
+    *origin_row += trim_r as i32;
+    *origin_col += trim_c as i32;
+}
+
 /// Index of `:`-suffixed alternatives: `foo:bar:baz` registers under `foo`
 /// and `foo:bar`, carrying each alternative's resolved anchors.
 pub(crate) fn build_alt_index<V: CachedGlyphEntry>(

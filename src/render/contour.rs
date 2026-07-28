@@ -625,6 +625,47 @@ fn expand_pixel(
     }
 }
 
+/// Shift contours traced in bounding-box space back into the coordinate space
+/// the layers were positioned in.  [`layer_bounds`] anchors its box at the
+/// topmost/leftmost layer, so a layer at a negative offset comes back out at
+/// zero; callers that treat a negative offset as a bearing need it preserved.
+fn to_layer_space(contours: &mut [Vec<(f32, f32)>], min_r: i32, min_c: i32) {
+    if min_r == 0 && min_c == 0 {
+        return;
+    }
+    let (dx, dy) = (min_c as f32, min_r as f32);
+    for contour in contours {
+        for point in contour.iter_mut() {
+            point.0 += dx;
+            point.1 += dy;
+        }
+    }
+}
+
+/// [`track_contour_multi`] with the result in the layers' own coordinate
+/// space rather than normalized to the bounding box origin.
+pub fn track_contour_multi_at(
+    layers: &[(&PixelGrid, i32, i32)],
+    mask: u8,
+) -> Vec<Vec<(f32, f32)>> {
+    let (min_r, min_c, _, _) = layer_bounds(layers.iter().copied());
+    let mut contours = track_contour_multi(layers, mask);
+    to_layer_space(&mut contours, min_r, min_c);
+    contours
+}
+
+/// [`track_contour_multi_diff`] with the result in the layers' own coordinate
+/// space rather than normalized to the bounding box origin.
+pub fn track_contour_multi_diff_at(
+    layers: &[(&PixelGrid, i32, i32, bool)],
+    mask: u8,
+) -> Vec<Vec<(f32, f32)>> {
+    let (min_r, min_c, _, _) = layer_bounds(layers.iter().map(|&(g, r, c, _)| (g, r, c)));
+    let mut contours = track_contour_multi_diff(layers, mask);
+    to_layer_space(&mut contours, min_r, min_c);
+    contours
+}
+
 /// Trace contours from multiple overlapping grids, correctly handling pixels
 /// where different layers contribute different subpixel shapes by computing
 /// the geometric union.

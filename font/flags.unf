@@ -151,34 +151,31 @@ glyph black-flag-cont 8 16
 ................
 ................
 
-glyph black-flag-($a-z)-cont 8 16 left -3
+glyph black-flag-($a-z)-cont 8 16
 ref black-flag-cont -3 0
 ref ($a-z)-upper -3 -1 negated
 
-glyph black-flag-($0..9)-cont 8 16 left -3
+glyph black-flag-($0..9)-cont 8 16
 ref black-flag-cont -3 0
 ref ($0..9) -3 -1 negated
 
-glyph black-flag-end-aux 2 16
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-@@@@
-....
-....
-
-glyph black-flag-end advance 0 top 1
-ref black-flag-end-aux -3 0
+glyph black-flag-end 3 16 advance 0 left -3
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+@@@@..
+......
+......
 
 // used for the mono version of color flag emojis.
 glyph black-flag-wide 24 16
