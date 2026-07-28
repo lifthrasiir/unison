@@ -208,7 +208,32 @@ Names that are not defined anywhere but match a synthesizable shape are generate
   the cell. e.g. `1p2r3x4` = 1⅔ × 4.
 - Any of the above with a `-ul`/`-ur`/`-dl`/`-dr` suffix — right triangle with legs W × H and the
   right angle at that corner (u = up, d = down).
+- Any of the above with a trailing `:ceil`/`:floor`/`:zero` — the bitmap fill rule (below).
 - `X` where `X` is undefined but both `X:mono` and `X:color` exist — picks by rendering mode.
+
+Any other `:`-suffix makes the name a non-match, so ordinary glyph names containing a colon fall
+through to normal lookup.
+
+**The bitmap fill rule (`BitmapFill`).** The font is built twice — a vector build that reads the
+geometry and a bitmap build that keeps only the `PX_FULL` ink flag and squares every lit cell off
+(`ttf_builder::CachedContours::from_grid`). A synthesized shape therefore has to decide which cells
+that second build lights, and it does so **per logical pixel** (not per subcell) from the exact
+covered area: `Round` (default, ties round up), `:ceil` (any coverage), `:floor` (full coverage
+only), `:zero` (never — vector-only). Whole-pixel shapes are covered 1/1 everywhere, so `WxH` names
+render identically under everything but `:zero`.
+
+Two invariants hold this together and are easy to break:
+
+- **Per logical pixel, applied uniformly to that pixel's subcells.** `PixelGrid::rescale` ORs the ink
+  flags of the source subcells each destination subcell covers, and it preserves logical dimensions,
+  so that OR never crosses a logical pixel boundary. Deciding per subcell instead gets undone by that
+  OR, which is itself a `Ceil`.
+- **The rule moves no outline.** `make_on_demand_grid` lays down geometry first and stamps ink flags
+  afterwards (`apply_bitmap_fill`), so the vector build cannot observe the flag.
+
+The ½ tie is real (it is every 45° triangle edge cell), so the area comparison must stay exact —
+`DetailRegion::area_exact` returns `(num, den)` on the lattice for that reason. `area2` is the f64
+test helper, not the production path.
 
 Sub-pixel shape codes live in `pixel.rs` (`PX_HALF*`, `PX_QUAD*`, `PX_SLANT*`, `PX_CONE*`,
 `PX_CORNER*`, `PX_HQUAD`/`PX_VQUAD`, `PX_DOT`, …), each with a complement id via `^ PX_SUBPIXEL`.

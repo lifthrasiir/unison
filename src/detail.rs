@@ -674,18 +674,29 @@ impl DetailRegion {
         shape_region_table()[(shape_id & PX_SUBPIXEL) as usize].clone()
     }
 
-    /// Twice the filled area in unit-square terms. Only meaningful for
-    /// canonical regions (test/diagnostic helper) (sweep-derived rings: outer rings and holes are
-    /// wound oppositely, so the signed shoelace sum is the even-odd area).
-    #[cfg(test)]
-    pub fn area2(&self) -> f64 {
+    /// Exact filled area as `(num, den)` in unit-square terms, so a full cell
+    /// is `1/1`. Only meaningful for canonical regions (sweep-derived rings:
+    /// outer rings and holes are wound oppositely, so the signed shoelace sum
+    /// is the even-odd area).
+    ///
+    /// Staying on the lattice matters when the result is compared against a
+    /// threshold — half a cell is exactly the tie `BitmapFill::Round` has to
+    /// resolve, and a float would leave it to chance.
+    pub fn area_exact(&self) -> (i64, i64) {
         let mut a = 0i64;
         for ring in &self.rings {
             let ring: Vec<(i64, i64)> =
                 ring.iter().map(|&(x, y)| (x as i64, y as i64)).collect();
             a += lattice_ring_area2(&ring);
         }
-        a.abs() as f64 / (self.den as f64 * self.den as f64)
+        (a.abs(), 2 * self.den as i64 * self.den as i64)
+    }
+
+    /// Twice the filled area in unit-square terms (test/diagnostic helper).
+    #[cfg(test)]
+    pub fn area2(&self) -> f64 {
+        let (n, d) = self.area_exact();
+        2.0 * n as f64 / d as f64
     }
 
     /// Re-derive the region through the sweep engine. The output ring set is

@@ -640,18 +640,18 @@ ref 4x16
 ref 4x16-dl 4 0
 glyph sextant-1234-dl 8 16
 ref 8x10p2r3-dl
-ref 8x-5p1r3 0 10
+ref 8x-5p1r3:ceil 0 10
 glyph sextant-24-dl 8 16
 ref 4x16
 ref 4x10p2r3-dl 4 0
-ref 8x-5p1r3 0 10
+ref 8x-5p1r3:ceil 0 10
 glyph sextant-12-dl 8 16
 ref 8x5p1r3-dl
-ref 8x-10p2r3 0 5
+ref 8x-10p2r3:ceil 0 5
 glyph sextant-2-dl 8 16
 ref 4x16
 ref 4x5p1r3-dl 4 0
-ref 8x-10p2r3 0 5
+ref 8x-10p2r3:ceil 0 5
 
 glyph sextant-6-dr 8 16
 ref 4x-5p1r3-dr 4 10
@@ -674,14 +674,14 @@ ref 8x-5p1r3 0 10
 glyph sextant-13-dr 8 16
 ref 4x10p2r3-dr
 ref 4x16 4 0
-ref 8x-5p1r3 0 10
+ref 8x-5p1r3:ceil 0 10
 glyph sextant-12-dr 8 16
 ref 8x5p1r3-dr
 ref 8x-10p2r3 0 5
 glyph sextant-1-dr 8 16
 ref 4x5p1r3-dr
 ref 4x16 4 0
-ref 8x-10p2r3 0 5
+ref 8x-10p2r3:ceil 0 5
 
 glyph sextant-1-ul 8 16
 ref 4x5p1r3-ul
@@ -703,14 +703,14 @@ ref 8x5p1r3
 ref 8x-10p2r3-ul 0 5
 glyph sextant-46-ul 8 16
 ref 4x16
-ref 8x5p1r3
+ref 8x5p1r3:ceil
 ref 4x-10p2r3-ul 4 5
 glyph sextant-56-ul 8 16
-ref 8x10p2r3
+ref 8x10p2r3:ceil
 ref 8x-5p1r3-ul 0 10
 glyph sextant-6-ul 8 16
 ref 4x16
-ref 8x10p2r3
+ref 8x10p2r3:ceil
 ref 4x-5p1r3-ul 4 10
 
 glyph sextant-2-ur 8 16
@@ -732,28 +732,28 @@ glyph sextant-3456-ur 8 16
 ref 8x5p1r3
 ref 8x-10p2r3-ur 0 5
 glyph sextant-35-ur 8 16
-ref 8x5p1r3
+ref 8x5p1r3:ceil
 ref 4x16 4 0
 ref 4x-10p2r3-ur 0 5
 glyph sextant-56-ur 8 16
-ref 8x10p2r3
+ref 8x10p2r3:ceil
 ref 8x-5p1r3-ur 0 10
 glyph sextant-5-ur 8 16
-ref 8x10p2r3
+ref 8x10p2r3:ceil
 ref 4x16 4 0
 ref 4x-5p1r3-ur 0 10
 
 glyph sextant-34-dl 8 16 scale 3
 ref 8x5p1r3-dl 0 16
-ref 8x-5p1r3 0 30
+ref 8x-5p1r3:ceil 0 30
 glyph sextant-34-dr 8 16 scale 3
 ref 8x5p1r3-dr 0 16
-ref 8x-5p1r3 0 30
+ref 8x-5p1r3:ceil 0 30
 glyph sextant-34-ul 8 16 scale 3
-ref 8x5p1r3
+ref 8x5p1r3:ceil
 ref 8x5p1r3-ul 0 16
 glyph sextant-34-ur 8 16 scale 3
-ref 8x5p1r3
+ref 8x5p1r3:ceil
 ref 8x5p1r3-ur 0 16
 
 map 🬼 = sextant-5-dl

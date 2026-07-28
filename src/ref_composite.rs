@@ -69,6 +69,29 @@ pub enum TriCorner {
     Dr,
 }
 
+/// How a shape's exact coverage of a *logical* pixel is rounded into that
+/// pixel's ink flag ([`crate::pixel::PX_FULL`]), which is what the bitmap
+/// build of the font draws (`ttf_builder::CachedContours::from_grid`). The
+/// vector build reads the geometry instead, so this never moves an outline.
+///
+/// Whole-pixel shapes are covered 1/1 everywhere and so render identically
+/// under every variant but [`BitmapFill::Zero`]; the choice only bites on
+/// fractional rectangles and on the cells a triangle's hypotenuse crosses.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum BitmapFill {
+    /// Coverage of at least half a pixel lights it, ties included. The
+    /// default, and the only one that needs no name suffix.
+    #[default]
+    Round,
+    /// Any coverage at all lights the pixel (`:ceil`).
+    Ceil,
+    /// Only fully covered pixels are lit (`:floor`).
+    Floor,
+    /// Nothing is ever lit (`:zero`): the shape exists for the vector build
+    /// only and contributes no bitmap ink.
+    Zero,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OnDemandRect {
     pub w: u8,
@@ -82,6 +105,9 @@ pub struct OnDemandRect {
     /// angle sitting at the given corner of the bounding rectangle
     /// (`-ul`/`-ur`/`-dl`/`-dr` name suffixes).
     pub corner: Option<TriCorner>,
+    /// From the `:ceil`/`:floor`/`:zero` name suffix; [`BitmapFill::Round`]
+    /// when absent.
+    pub fill: BitmapFill,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -132,7 +158,20 @@ fn parse_rect_dim(s: &str) -> Option<(bool, u8, Option<(u8, u8)>)> {
 /// A `-ul`/`-ur`/`-dl`/`-dr` suffix turns the rectangle into a right
 /// triangle with legs W × H, the right angle at the named corner
 /// (u = up, d = down).
+///
+/// A trailing `:ceil`/`:floor`/`:zero` picks the [`BitmapFill`] rule; it comes
+/// after the corner suffix (`8x16-ul:floor`). Any other `:`-suffix makes the
+/// whole name a non-match, so ordinary glyph names that happen to contain a
+/// colon — and the `:mono`/`:color` pair handled by
+/// [`detect_color_mono_glyph`] — fall through untouched.
 pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
+    let (name, fill) = match name.rsplit_once(':') {
+        Some((rest, "ceil")) => (rest, BitmapFill::Ceil),
+        Some((rest, "floor")) => (rest, BitmapFill::Floor),
+        Some((rest, "zero")) => (rest, BitmapFill::Zero),
+        Some(_) => return None,
+        None => (name, BitmapFill::Round),
+    };
     let (name, corner) = if let Some(rest) = name.strip_suffix("-ul") {
         (rest, Some(TriCorner::Ul))
     } else if let Some(rest) = name.strip_suffix("-ur") {
@@ -162,6 +201,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 neg_w: false,
                 neg_h: false,
                 corner,
+                fill,
             }))
         }
         (Some((wf, ws)), Some((hf, hs))) => {
@@ -186,6 +226,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 neg_w,
                 neg_h,
                 corner,
+                fill,
             }))
         }
         (Some((wf, ws)), None) => {
@@ -207,6 +248,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 neg_w,
                 neg_h,
                 corner,
+                fill,
             }))
         }
         (None, Some((hf, hs))) => {
@@ -228,6 +270,7 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
                 neg_w,
                 neg_h,
                 corner,
+                fill,
             }))
         }
     }
@@ -248,9 +291,92 @@ pub fn detect_color_mono_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> 
     }
 }
 
+/// Stamp each logical pixel's ink flag from its exact covered area, applying
+/// the flag uniformly across the pixel's `s × s` subcells.
+///
+/// The uniformity is what carries the decision into a parent of any scale:
+/// [`PixelGrid::rescale`] ORs the ink flags of the source subcells a
+/// destination subcell covers, and — because it preserves logical dimensions —
+/// that OR never reaches across a logical pixel boundary. Deciding per subcell
+/// instead would be undone by exactly that OR, which is itself a `Ceil`.
+fn apply_bitmap_fill(grid: &mut PixelGrid, s: u16, fill: BitmapFill) {
+    if s == 0 {
+        return;
+    }
+    for lr in 0..grid.height / s {
+        for lc in 0..grid.width / s {
+            // Uniformly full or uniformly empty logical pixels — every pixel
+            // of a whole-pixel rectangle, and the bulk of everything else —
+            // need no geometry, only their shape ids.
+            let mut all_full = true;
+            let mut all_empty = true;
+            for dr in 0..s {
+                for dc in 0..s {
+                    match grid.get(lr * s + dr, lc * s + dc).shape_id() {
+                        crate::pixel::PX_ALMOSTFULL => all_empty = false,
+                        crate::pixel::PX_EMPTY => all_full = false,
+                        _ => {
+                            all_full = false;
+                            all_empty = false;
+                        }
+                    }
+                }
+            }
+            let filled = if all_empty {
+                false
+            } else if all_full {
+                fill != BitmapFill::Zero
+            } else {
+                // Exact covered area of the logical pixel, as `num/den` in
+                // subcell units; a fully covered pixel is `s²`.
+                let (mut num, mut den) = (0i128, 1i128);
+                for dr in 0..s {
+                    for dc in 0..s {
+                        let (n, d) = grid.region_at(lr * s + dr, lc * s + dc).area_exact();
+                        let (n, d) = (n as i128, d as i128);
+                        num = num * d + n * den;
+                        den *= d;
+                        let g = gcd_i128(num.abs(), den);
+                        if g > 1 {
+                            num /= g;
+                            den /= g;
+                        }
+                    }
+                }
+                let full = den * (s as i128) * (s as i128);
+                match fill {
+                    BitmapFill::Zero => false,
+                    BitmapFill::Ceil => num > 0,
+                    BitmapFill::Floor => num >= full,
+                    BitmapFill::Round => 2 * num >= full,
+                }
+            };
+            for dr in 0..s {
+                for dc in 0..s {
+                    grid.set_filled(lr * s + dr, lc * s + dc, filled);
+                }
+            }
+        }
+    }
+}
+
+fn gcd_i128(a: i128, b: i128) -> i128 {
+    let (mut a, mut b) = (a, b);
+    while b != 0 {
+        let t = a % b;
+        a = b;
+        b = t;
+    }
+    a
+}
+
 /// Build the pixel grid of an on-demand rectangle or triangle. The grid is
 /// at subpixel resolution `rect.scale`; triangles get exact per-pixel
 /// geometry, re-encoded as plain shape codes wherever possible.
+///
+/// Geometry is laid down first and the ink flags ([`crate::pixel::PX_FULL`])
+/// are decided afterwards by [`apply_bitmap_fill`], so `rect.fill` changes
+/// only what the bitmap build draws, never an outline.
 pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
     let s = rect.scale.max(1) as u16;
     let rect_w = rect.w as u16 * s + rect.w_frac as u16;
@@ -269,6 +395,7 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
                 grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
             }
         }
+        apply_bitmap_fill(&mut grid, s, rect.fill);
         return grid;
     };
 
@@ -330,6 +457,7 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
             grid.set_detail(r, c, &piece, true);
         }
     }
+    apply_bitmap_fill(&mut grid, s, rect.fill);
     grid
 }
 
@@ -1928,10 +2056,179 @@ ref mark-below
         );
     }
 
+    /// Ink flag of every *logical* pixel of an on-demand glyph's grid, as a
+    /// `lh × lw` table. The flag is uniform across a logical pixel's subcells
+    /// by construction, so reading the top-left subcell is enough; the helper
+    /// asserts that uniformity rather than trusting it.
+    fn logical_fill(name: &str) -> Vec<Vec<bool>> {
+        let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph(name) else {
+            panic!("{name} must parse as an on-demand rect");
+        };
+        let grid = make_on_demand_grid(&rect);
+        let s = rect.scale.max(1) as u16;
+        (0..grid.height / s)
+            .map(|lr| {
+                (0..grid.width / s)
+                    .map(|lc| {
+                        let want = grid.get(lr * s, lc * s).is_filled();
+                        for dr in 0..s {
+                            for dc in 0..s {
+                                assert_eq!(
+                                    grid.get(lr * s + dr, lc * s + dc).is_filled(), want,
+                                    "{name}: ink flag not uniform across logical pixel ({lr},{lc})"
+                                );
+                            }
+                        }
+                        want
+                    })
+                    .collect()
+            })
+            .collect()
+    }
+
+    fn count_filled(name: &str) -> usize {
+        logical_fill(name).iter().flatten().filter(|f| **f).count()
+    }
+
+    #[test]
+    fn on_demand_bitmap_fill_rounds_coverage_half_up() {
+        // 4x5p1r3 is 5⅓ tall: logical row 5 is covered ⅓ and stays dark.
+        let fill = logical_fill("4x5p1r3");
+        assert_eq!(fill.len(), 6);
+        for (lr, row) in fill.iter().enumerate() {
+            let want = lr < 5;
+            assert!(row.iter().all(|f| *f == want), "row {lr}: {row:?}, expected all {want}");
+        }
+
+        // 4x-0p2r3 is a single ⅔-covered row: ⅔ ≥ ½, so it lights up.
+        assert_eq!(logical_fill("4x-0p2r3"), vec![vec![true; 4]]);
+
+        // Exactly ½ rounds up.
+        assert_eq!(logical_fill("1p1r2x1"), vec![vec![true, true]]);
+        // Just under ½ does not.
+        assert_eq!(logical_fill("1p2r5x1"), vec![vec![true, false]]);
+    }
+
+    #[test]
+    fn on_demand_bitmap_fill_leaves_integer_rects_alone() {
+        // Whole-pixel shapes have coverage 1 everywhere, so no rounding rule
+        // can change them — this is what keeps the plain `WxH` names stable.
+        assert_eq!(logical_fill("3x5"), vec![vec![true; 3]; 5]);
+        assert_eq!(count_filled("1x1"), 1);
+    }
+
+    #[test]
+    fn on_demand_bitmap_fill_rounds_triangle_edge_cells() {
+        // 8x16-ul: 56 pixels lie fully inside and 16 straddle the hypotenuse,
+        // every one of them covered exactly ½ — all of which round up.
+        assert_eq!(count_filled("8x16-ul"), 64);
+        // 9x6-ul: the 2:3 slope leaves edge cells on both sides of ½.
+        assert_eq!(count_filled("9x6-ul"), 27);
+        // 2x2-ul: one full pixel plus two half pixels.
+        assert_eq!(logical_fill("2x2-ul"), vec![vec![true, true], vec![true, false]]);
+    }
+
+    #[test]
+    fn on_demand_bitmap_fill_flags_pick_the_rounding_rule() {
+        // 4x5p1r3's logical row 5 is covered ⅓ — the one row the rules split on.
+        assert!(logical_fill("4x5p1r3:ceil")[5].iter().all(|f| *f));
+        assert!(logical_fill("4x5p1r3:floor")[5].iter().all(|f| !*f));
+        assert!(logical_fill("4x5p1r3:floor")[4].iter().all(|f| *f));
+        assert_eq!(count_filled("4x5p1r3:zero"), 0);
+        // :zero darkens even whole pixels, which is what separates it from :floor.
+        assert_eq!(count_filled("3x5:zero"), 0);
+        assert_eq!(count_filled("3x5:floor"), 15);
+        // Triangles: ties go up by default, vanish under :floor.
+        assert_eq!(count_filled("8x16-ul:ceil"), 72);
+        assert_eq!(count_filled("8x16-ul:floor"), 56);
+    }
+
+    #[test]
+    fn on_demand_bitmap_fill_survives_rescale_to_any_parent_scale() {
+        // The decision is only worth making per logical pixel if it reaches
+        // the parent intact: `rescale` ORs the ink flags it merges, so a
+        // per-subcell decision would silently come back out as `:ceil`.
+        let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph("4x5p1r3") else {
+            panic!("must parse");
+        };
+        let grid = make_on_demand_grid(&rect);
+        for parent_scale in [1u8, 2, 3, 4, 6] {
+            let out = grid.rescale(3, parent_scale);
+            let s = parent_scale.max(1) as u16;
+            assert_eq!(out.height / s, 6, "scale {parent_scale}: logical height");
+            for lr in 0..6u16 {
+                for lc in 0..out.width / s {
+                    for dr in 0..s {
+                        for dc in 0..s {
+                            assert_eq!(
+                                out.get(lr * s + dr, lc * s + dc).is_filled(), lr < 5,
+                                "scale {parent_scale}: logical pixel ({lr},{lc}) subcell ({dr},{dc})"
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn on_demand_bitmap_fill_leaves_geometry_alone() {
+        // The flag is an ink-flag rule, so the vector build must not notice it.
+        let base = make_on_demand_grid(&match parse_on_demand_glyph("9x6-ul").unwrap() {
+            OnDemandGlyph::Rect(r) => r,
+            _ => unreachable!(),
+        });
+        for flag in [":ceil", ":floor", ":zero"] {
+            let name = format!("9x6-ul{flag}");
+            let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph(&name) else {
+                panic!("{name} must parse");
+            };
+            let grid = make_on_demand_grid(&rect);
+            assert_eq!((grid.width, grid.height), (base.width, base.height), "{name}");
+            for r in 0..grid.height {
+                for c in 0..grid.width {
+                    assert_eq!(
+                        grid.get(r, c).shape_id(), base.get(r, c).shape_id(),
+                        "{name}: geometry changed at ({r},{c})"
+                    );
+                    assert_eq!(
+                        grid.region_at(r, c), base.region_at(r, c),
+                        "{name}: detail region changed at ({r},{c})"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn parse_on_demand_bitmap_fill_suffix() {
+        let fill_of = |n: &str| match parse_on_demand_glyph(n) {
+            Some(OnDemandGlyph::Rect(r)) => Some(r.fill),
+            _ => None,
+        };
+        assert_eq!(fill_of("3x5"), Some(BitmapFill::Round));
+        assert_eq!(fill_of("3x5:ceil"), Some(BitmapFill::Ceil));
+        assert_eq!(fill_of("1p2r3x4:floor"), Some(BitmapFill::Floor));
+        // The rule suffix follows the corner suffix.
+        match parse_on_demand_glyph("8x16-ul:zero") {
+            Some(OnDemandGlyph::Rect(r)) => {
+                assert_eq!((r.corner, r.fill), (Some(TriCorner::Ul), BitmapFill::Zero));
+            }
+            other => panic!("8x16-ul:zero parsed as {other:?}"),
+        }
+        // Unknown or stacked suffixes are not on-demand names at all, which is
+        // what keeps ordinary colon-bearing glyph names out of this path.
+        assert_eq!(parse_on_demand_glyph("3x5:bogus"), None);
+        assert_eq!(parse_on_demand_glyph("3x5:ceil:floor"), None);
+        assert_eq!(parse_on_demand_glyph("3x5:mono"), None);
+        assert_eq!(parse_on_demand_glyph("b-inner:compressed"), None);
+    }
+
     fn simple_rect(w: u8, h: u8) -> OnDemandGlyph {
         OnDemandGlyph::Rect(OnDemandRect {
             w, h, w_frac: 0, h_frac: 0, scale: 1, neg_w: false, neg_h: false,
             corner: None,
+            fill: BitmapFill::Round,
         })
     }
 
@@ -1939,6 +2236,7 @@ ref mark-below
         OnDemandGlyph::Rect(OnDemandRect {
             w, h, w_frac: wf, h_frac: hf, scale: s, neg_w: nw, neg_h: nh,
             corner: None,
+            fill: BitmapFill::Round,
         })
     }
 
@@ -2082,15 +2380,16 @@ ref mark-below
         assert_eq!(resolved.scale, 3);
         assert_eq!(resolved.grid.width, 6);
         assert_eq!(resolved.grid.height, 12);
+        // Geometry stops at subcolumn 5, but the ink flag is decided per
+        // logical pixel: the second one is covered ⅔, which rounds up, so the
+        // bitmap is a full 2 columns wide.
         for r in 0..12 {
             for c in 0..6 {
-                if c < 5 {
-                    assert!(resolved.grid.get(r, c).is_filled(),
-                        "pixel ({r},{c}) should be filled");
-                } else {
-                    assert!(!resolved.grid.get(r, c).is_filled(),
-                        "pixel ({r},{c}) should be empty");
-                }
+                assert_eq!(
+                    resolved.grid.get(r, c).shape_id() != crate::pixel::PX_EMPTY, c < 5,
+                    "pixel ({r},{c}) geometry"
+                );
+                assert!(resolved.grid.get(r, c).is_filled(), "pixel ({r},{c}) should be inked");
             }
         }
     }
@@ -2109,14 +2408,21 @@ ref mark-below
         assert_eq!(resolved.scale, 3);
         assert_eq!(resolved.grid.width, 6);
         assert_eq!(resolved.grid.height, 6);
-        // filled region: cols 1..6, rows 2..6
+        // geometry: cols 1..6, rows 2..6
         for r in 0..6 {
             for c in 0..6 {
-                let should_fill = c >= 1 && r >= 2;
                 assert_eq!(
-                    resolved.grid.get(r, c).is_filled(), should_fill,
-                    "pixel ({r},{c}) fill={} expected={should_fill}",
-                    resolved.grid.get(r, c).is_filled(),
+                    resolved.grid.get(r, c).shape_id() != crate::pixel::PX_EMPTY,
+                    c >= 1 && r >= 2,
+                    "pixel ({r},{c}) geometry"
+                );
+                // Ink, per logical pixel: both columns are covered ⅔ or more
+                // and round up, but logical row 0 holds only subrow 2 — ⅓ —
+                // and stays dark.
+                assert_eq!(
+                    resolved.grid.get(r, c).is_filled(), r >= 3,
+                    "pixel ({r},{c}) fill={} expected={}",
+                    resolved.grid.get(r, c).is_filled(), r >= 3,
                 );
             }
         }

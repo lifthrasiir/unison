@@ -50,6 +50,16 @@ impl PixelGrid {
         }
     }
 
+    /// Set a pixel's ink flag ([`crate::pixel::PX_FULL`]) without touching its
+    /// geometry, keeping any custom detail intact — unlike [`PixelGrid::set`],
+    /// which discards it.
+    pub fn set_filled(&mut self, row: u16, col: u16, filled: bool) {
+        if row < self.height && col < self.width {
+            let px = &mut self.pixels[row as usize * self.width as usize + col as usize];
+            *px = PixelShape::new(px.shape_id(), filled);
+        }
+    }
+
     /// Set a pixel from an arbitrary region: re-encoded as a plain shape
     /// code whenever the geometry allows, stored as a custom detail
     /// otherwise (growing the grid's common denominator as needed).
