@@ -1,0 +1,338 @@
+//! Geometry of the document view: pixel-grid extents and strips, and the
+//! visual-line model the frame loop lays text out with.
+
+use super::*;
+
+#[derive(Clone, Copy)]
+pub(crate) struct GridExtent {
+    pub(crate) top: i16,
+    pub(crate) left: i16,
+    pub(crate) bottom: i16,
+    pub(crate) right: i16,
+}
+
+impl GridExtent {
+    pub(crate) fn own_area(width: u16, height: u16) -> Self {
+        Self {
+            top: 0,
+            left: 0,
+            bottom: height as i16,
+            right: width as i16,
+        }
+    }
+
+    pub(crate) fn display_width(&self, grid_cell: f32) -> f32 {
+        (self.right - self.left) as f32 * grid_cell
+    }
+}
+
+/// The horizontal band the glyph grids are drawn in. It stops short of the
+/// right edge so the inline tool panel always has room; a grid wider than the
+/// band is clipped to it and scrolled with `scroll`.
+#[derive(Clone, Debug)]
+pub(crate) struct GridStrip {
+    /// Left edge in screen coordinates.
+    pub(crate) x: f32,
+    /// Width of the visible band.
+    pub(crate) w: f32,
+    /// Shared scroll offset, `>= 0`. Applied to a grid only as far as that
+    /// grid actually overflows, so narrower grids are unaffected.
+    pub(crate) scroll: f32,
+    /// Horizontal scrollbars drawn over the band. A pointer inside one of
+    /// them drives the scrollbar, not the grid underneath.
+    pub(crate) bars: Vec<egui::Rect>,
+    /// Set while a scrollbar drag is in flight. The drag keeps following the
+    /// pointer after it leaves the bar, so the grid must ignore it for the
+    /// whole gesture, not just while it is over the bar.
+    pub(crate) captured: bool,
+}
+
+impl GridStrip {
+    pub(crate) fn right(&self) -> f32 {
+        self.x + self.w
+    }
+
+    /// How far a grid of `content_w` extends past the band.
+    pub(crate) fn overflow(&self, content_w: f32) -> f32 {
+        (content_w - self.w).max(0.0)
+    }
+
+    /// Screen x of column `extent.left` for a grid of `content_w`.
+    pub(crate) fn grid_x(&self, content_w: f32) -> f32 {
+        self.x - self.scroll.min(self.overflow(content_w))
+    }
+
+    pub(crate) fn contains_x(&self, x: f32) -> bool {
+        x >= self.x && x < self.right()
+    }
+
+    /// Whether a pointer position should be routed to the grid: inside the
+    /// band and not on top of a scrollbar.
+    pub(crate) fn accepts_pointer(&self, p: egui::Pos2) -> bool {
+        !self.captured && self.contains_x(p.x) && !self.bars.iter().any(|r| r.contains(p))
+    }
+
+    /// Clip a grid-relative span to the visible band.
+    pub(super) fn clip_span(&self, x0: f32, x1: f32) -> Option<(f32, f32)> {
+        let lo = x0.max(self.x);
+        let hi = x1.min(self.right());
+        (lo < hi).then_some((lo, hi))
+    }
+}
+
+/// The part of a grid block that is actually visible inside the band, or
+/// `None` when the band has scrolled past it entirely.
+pub(super) fn visible_grid_rect(
+    strip: &GridStrip,
+    grid_x: f32,
+    grid_y: f32,
+    content_w: f32,
+    content_h: f32,
+) -> Option<egui::Rect> {
+    let (x0, x1) = strip.clip_span(grid_x, grid_x + content_w)?;
+    Some(egui::Rect::from_min_max(
+        egui::pos2(x0, grid_y),
+        egui::pos2(x1, grid_y + content_h),
+    ))
+}
+
+/// Minimum room kept to the right of the grid band for the inline tool panel.
+pub(super) fn inline_panel_reserved_width(zoom: f32) -> f32 {
+    INLINE_PANEL_GAP * zoom
+        + crate::editor::glyph_widget::PALETTE_COLS as f32 * INLINE_PALETTE_CELL * zoom
+}
+
+/// A run of consecutive grid rows belonging to one glyph, in scroll-area
+/// coordinates. Used to place the horizontal scrollbar and to bound
+/// drag-driven auto-scrolling.
+pub(super) struct GridBlock {
+    pub(super) item_idx: usize,
+    pub(super) y0: f32,
+    pub(super) y1: f32,
+    pub(super) content_w: f32,
+}
+
+pub(super) fn collect_grid_blocks(
+    vlines: &[VisualLine],
+    row_height: f32,
+    grid_cell: f32,
+) -> Vec<GridBlock> {
+    let mut blocks: Vec<GridBlock> = Vec::new();
+    let mut y = 0.0f32;
+    for vl in vlines {
+        let h = vl.height(row_height, grid_cell);
+        if let VLineKind::GridRow { item_idx, extent, .. } = &vl.kind {
+            let content_w = extent.display_width(grid_cell);
+            match blocks.last_mut() {
+                Some(b) if b.item_idx == *item_idx && (b.y1 - y).abs() < 0.5 => {
+                    b.y1 = y + h;
+                    b.content_w = b.content_w.max(content_w);
+                }
+                _ => blocks.push(GridBlock {
+                    item_idx: *item_idx,
+                    y0: y,
+                    y1: y + h,
+                    content_w,
+                }),
+            }
+        }
+        y += h;
+    }
+    blocks
+}
+
+pub(crate) fn compute_grid_display_extent(
+    pixels: Option<&PixelGrid>,
+    composite: Option<&GlyphComposite>,
+    points: &[GlyphPoint],
+) -> (u16, u16, GridExtent) {
+    let (own_w, own_h, mut extent) = if let Some(grid) = pixels {
+        let own_w = grid.width;
+        let own_h = grid.height;
+        if let Some(comp) = composite {
+            let extent = GridExtent {
+                top: (-comp.own_offset_row).min(0),
+                left: (-comp.own_offset_col).min(0),
+                bottom: (comp.height as i16 - comp.own_offset_row).max(own_h as i16),
+                right: (comp.width as i16 - comp.own_offset_col).max(own_w as i16),
+            };
+            (own_w, own_h, extent)
+        } else {
+            (own_w, own_h, GridExtent::own_area(own_w, own_h))
+        }
+    } else if let Some(comp) = composite {
+        let own_w = (comp.width as i16 - comp.own_offset_col) as u16;
+        let own_h = (comp.height as i16 - comp.own_offset_row) as u16;
+        let extent = GridExtent {
+            top: (-comp.own_offset_row).min(0),
+            left: (-comp.own_offset_col).min(0),
+            bottom: own_h as i16,
+            right: own_w as i16,
+        };
+        (own_w, own_h, extent)
+    } else {
+        (
+            0,
+            0,
+            GridExtent {
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+            },
+        )
+    };
+
+    for pt in points {
+        extent.top = extent.top.min(pt.row);
+        extent.left = extent.left.min(pt.col);
+        extent.bottom = extent.bottom.max(pt.row_end + 1);
+        extent.right = extent.right.max(pt.col_end + 1);
+    }
+
+    (own_w, own_h, extent)
+}
+
+pub(crate) struct VisualLine {
+    pub(crate) doc_line: usize,
+    pub(crate) kind: VLineKind,
+    pub(crate) color: egui::Color32,
+    pub(crate) error_spans: Vec<(usize, usize, String)>,
+    pub(crate) col_offset: usize,
+    /// Display-only text spliced into this line, at columns relative to the
+    /// segment (i.e. already shifted by `col_offset`). Empty for grid rows.
+    pub(crate) annotations: Vec<InlineAnnotation>,
+    /// Column (relative to the segment) where the line's `// …` comment
+    /// starts, if any of it falls in this segment. Painted in the comment
+    /// color whatever the rest of the line is.
+    pub(crate) comment_col: Option<usize>,
+}
+
+impl VisualLine {
+    /// The line's text paired with its annotations, for measuring and painting.
+    /// Returns `None` for grid rows.
+    #[cfg(test)]
+    pub(crate) fn annotated_text(&self) -> Option<AnnotatedText<'_>> {
+        match &self.kind {
+            VLineKind::Text(text) => Some(AnnotatedText::new(text, &self.annotations)),
+            VLineKind::GridRow { .. } => None,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub(crate) enum VLineKind {
+    Text(String),
+    GridRow {
+        item_idx: usize,
+        row: i16,
+        own_width: u16,
+        own_height: u16,
+        grid_doc_line: usize,
+        extent: GridExtent,
+    },
+}
+
+/// Everything derivable from the document/line buffers that `show_document`
+/// needs each frame. Rebuilding it is O(document); the cache below keeps the
+/// last result so idle frames (no edits, no layout change) skip the rebuild.
+pub(crate) struct ViewData {
+    pub(crate) composites: HashMap<usize, GlyphComposite>,
+    pub(crate) vlines: Vec<VisualLine>,
+    pub(crate) source_offsets: Vec<usize>,
+}
+
+/// Inputs `ViewData` was computed from. `edit_gen` stands in for the document
+/// contents, so anything that mutates `lines` without an immediate rederive
+/// must drop the cache instead (see the `needs_rederive` handling below).
+#[derive(PartialEq)]
+pub(super) struct ViewCacheKey {
+    pub(super) edit_gen: u64,
+    pub(super) derived_gen: u64,
+    pub(super) font_gen: u64,
+    pub(super) zoom_level: u32,
+    pub(super) editing_item_idx: Option<usize>,
+    pub(super) wrap_width_bits: Option<u32>,
+    pub(super) font_id: egui::FontId,
+    pub(super) dark_mode: bool,
+    pub(super) ppp_bits: u32,
+}
+
+pub(crate) struct ViewCache {
+    pub(super) key: ViewCacheKey,
+    pub(super) data: std::sync::Arc<ViewData>,
+}
+
+#[cfg(test)]
+impl ViewCache {
+    pub(crate) fn data_ptr(&self) -> *const ViewData {
+        std::sync::Arc::as_ptr(&self.data)
+    }
+}
+
+impl VisualLine {
+    pub(crate) fn height(&self, row_h: f32, grid_cell: f32) -> f32 {
+        match &self.kind {
+            VLineKind::Text(_) => row_h,
+            VLineKind::GridRow { .. } => grid_cell,
+        }
+    }
+
+    pub(super) fn kind_row(&self) -> Option<i16> {
+        match &self.kind {
+            VLineKind::GridRow { row, .. } => Some(*row),
+            _ => None,
+        }
+    }
+}
+
+/// Vertical offset (in pixels) of the first visual line belonging to
+/// `target_doc_line`, i.e. the sum of heights of all visual lines before it.
+pub(super) fn doc_line_to_y(
+    vlines: &[VisualLine],
+    row_height: f32,
+    grid_cell: f32,
+    target_doc_line: usize,
+) -> f32 {
+    let mut y = 0.0f32;
+    for vl in vlines {
+        if vl.doc_line >= target_doc_line {
+            break;
+        }
+        y += vl.height(row_height, grid_cell);
+    }
+    y
+}
+
+/// The source-file line number drawn in the gutter for a visual line, if any.
+/// Wrapped text continuations and grid rows outside the glyph's own area
+/// carry no number.
+pub(crate) fn gutter_line_number(
+    vl: &VisualLine,
+    lines: &[DocLine],
+    source_offsets: &[usize],
+) -> Option<usize> {
+    match &vl.kind {
+        VLineKind::Text(_) if vl.col_offset == 0 => {
+            source_offsets.get(vl.doc_line).map(|&off| off + 1)
+        }
+        VLineKind::Text(_) => None,
+        VLineKind::GridRow {
+            row,
+            own_height,
+            grid_doc_line,
+            ..
+        } => {
+            if *row >= 0
+                && *row < *own_height as i16
+                && matches!(lines.get(*grid_doc_line), Some(DocLine::Grid(g)) if !g.is_all_empty())
+            {
+                source_offsets
+                    .get(*grid_doc_line)
+                    .map(|&off| off + *row as usize + 1)
+            } else {
+                None
+            }
+        }
+    }
+}

@@ -1,0 +1,450 @@
+//! The eframe application: `UniformApp`, its panels and the background
+//! pipeline that keeps the font and derived data fresh.
+
+use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+use std::path::PathBuf;
+use std::sync::mpsc;
+
+use crate::document::{DocLine, Document, NamePartsMap};
+use crate::document_io;
+use crate::editor::EditorState;
+use crate::editor::doc_links::LinkTargetKind;
+use crate::editor::document_view::debounced_scroll_step;
+use crate::editor::ref_composite::ResolvedGlyph;
+use crate::issues::{Issue, collect_issues};
+use crate::preview::widget::ShapedPreviewState;
+use crate::render::SharedContourCache;
+use crate::specimen::SpecimenState;
+use crate::sidebar::{Sidebar, SidebarAction};
+
+mod background;
+mod docs;
+mod menus;
+mod panels;
+mod rename;
+mod zoom;
+
+use background::BackgroundTaskStatus;
+use docs::OpenDocument;
+use menus::{EditTarget, MenuActions};
+use zoom::DEFAULT_PREVIEW_FONT_SIZE;
+
+type FontPair = (Vec<u8>, Vec<u8>);
+type FontBuildMessage = (u64, Option<(FontPair, HashMap<String, u16>)>);
+type DerivedDataMessage = (u64, HashMap<String, ResolvedGlyph>, crate::editor::ref_composite::AlternativesIndex, NamePartsMap, Vec<Issue>);
+type AssertResultMessage = Vec<Issue>;
+
+pub struct UniformApp {
+    font_dir: Option<PathBuf>,
+    last_title: String,
+    open_documents: Vec<OpenDocument>,
+    active_doc_idx: Option<usize>,
+    sidebar: Sidebar,
+    escape_mode: bool,
+    status_message: Option<(String, std::time::Instant)>,
+    font_base_docs: Vec<Document>,
+    font_data: Option<FontPair>,
+    font_name_to_gid: HashMap<String, u16>,
+    font_applied: Option<bool>,
+    font_data_gen: u64,
+    last_font_gen: u64,
+    font_rebuild_at: Option<std::time::Instant>,
+    font_build_rx: mpsc::Receiver<FontBuildMessage>,
+    font_build_tx: mpsc::Sender<FontBuildMessage>,
+    font_build_gen: u64,
+    contour_cache: SharedContourCache,
+    named_glyphs: HashMap<String, ResolvedGlyph>,
+    alt_index: crate::editor::ref_composite::AlternativesIndex,
+    name_parts: NamePartsMap,
+    color_aliases: crate::render::ttf_builder::ColorAliasMap,
+    named_glyphs_gen: u64,
+    // Bumped whenever named_glyphs/name_parts/alt_index/color_aliases are
+    // replaced; keys the editor's per-frame view cache.
+    derived_gen: u64,
+    derived_data_tx: mpsc::Sender<DerivedDataMessage>,
+    derived_data_rx: mpsc::Receiver<DerivedDataMessage>,
+    derived_rebuild_at: Option<std::time::Instant>,
+    /// A derived-data rebuild thread is currently running. Without this
+    /// guard the scheduler below respawns a rebuild every debounce period
+    /// for as long as one is in flight — on machines where a resolve takes
+    /// longer than the debounce, that snowballs into dozens of concurrent
+    /// resolve threads starving each other (observed: 2s resolves stretching
+    /// past 20s under the pile-up).
+    derived_inflight: bool,
+    zoom_level: u32,
+    last_export_path: Option<PathBuf>,
+    close_confirmed: bool,
+    hex_input: Option<String>,
+    bottom_panel_height: f32,
+    bottom_panel_height_override: bool,
+    bottom_panel_tab: Option<usize>,
+    preview_font_size: f32,
+    preview_font_size_slider: f32,
+    /// Screen rects of the two zoomable surfaces as of the last frame, used to
+    /// route Cmd/Ctrl + wheel to whichever one the pointer is over. `None`
+    /// when the surface was not drawn (no open document, preview tab hidden).
+    editor_view_rect: Option<egui::Rect>,
+    preview_view_rect: Option<egui::Rect>,
+    shaped_preview: ShapedPreviewState,
+    specimen: SpecimenState,
+    issues: Vec<Issue>,
+    issues_gen: u64,
+    file_parse_errors: Vec<(PathBuf, String)>,
+    assert_issues: Vec<Issue>,
+    assert_rx: mpsc::Receiver<AssertResultMessage>,
+    assert_tx: mpsc::Sender<AssertResultMessage>,
+    assert_running: bool,
+    bg_tasks: BackgroundTaskStatus,
+}
+
+pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
+    let bitmap_family = egui::FontFamily::Name("UniformBitmap".into());
+    let has_uniform = ctx.fonts(|f| f.families().contains(&bitmap_family));
+    if !has_uniform {
+        return egui::FontId::new(size, egui::FontFamily::Proportional);
+    }
+    let family = if size <= 16.0 {
+        bitmap_family
+    } else {
+        egui::FontFamily::Name("UniformVector".into())
+    };
+    egui::FontId::new(size, family)
+}
+
+/// Whether `[perf]` stage timing logs are enabled (UNIFORM_PERF env var).
+fn perf_log_enabled() -> bool {
+    static ENABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ENABLED.get_or_init(|| std::env::var_os("UNIFORM_PERF").is_some())
+}
+
+impl UniformApp {
+    fn active_doc(&self) -> Option<&OpenDocument> {
+        self.active_doc_idx.and_then(|i| self.open_documents.get(i))
+    }
+
+    fn active_doc_mut(&mut self) -> Option<&mut OpenDocument> {
+        self.active_doc_idx.and_then(|i| self.open_documents.get_mut(i))
+    }
+
+    fn in_grid_edit(&self) -> bool {
+        self.active_doc()
+            .is_some_and(|d| matches!(
+                d.editor_state.mode,
+                crate::editor::EditMode::GlyphEdit { .. }
+                    | crate::editor::EditMode::PixelSelect { .. }
+            ))
+    }
+
+    pub fn new(cc: &eframe::CreationContext<'_>, font_dir: Option<PathBuf>) -> Self {
+        // We map Cmd/Ctrl +/-/0 onto our own integral zoom level, so egui must not also
+        // grab them for `pixels_per_point` scaling.
+        cc.egui_ctx.options_mut(|o| o.zoom_with_keyboard = false);
+
+        let (font_base_docs, file_parse_errors) = font_dir
+            .as_ref()
+            .map(|d| crate::render::ttf_builder::load_docs_from_directory_checked(d))
+            .unwrap_or_default();
+
+        let contour_cache = crate::render::new_contour_cache();
+        let (font_data, font_name_to_gid) = if font_base_docs.is_empty() {
+            (None, HashMap::new())
+        } else {
+            let refs: Vec<&Document> = font_base_docs.iter().collect();
+            match crate::render::build_font_pair_cached(&refs, &contour_cache) {
+                Some((pair, map)) => (Some(pair), map),
+                None => (None, HashMap::new()),
+            }
+        };
+
+        let (font_build_tx, font_build_rx) = mpsc::channel();
+        let (derived_data_tx, derived_data_rx) = mpsc::channel();
+        let (assert_tx, assert_rx) = mpsc::channel();
+        let mut app = Self {
+            font_dir: font_dir.clone(),
+            last_title: String::new(),
+            open_documents: Vec::new(),
+            active_doc_idx: None,
+            sidebar: Sidebar::new(),
+            escape_mode: false,
+            status_message: None,
+            font_base_docs,
+            font_data,
+            font_name_to_gid,
+            font_applied: None,
+            font_data_gen: 0,
+            last_font_gen: 0,
+            font_rebuild_at: None,
+            font_build_rx,
+            font_build_tx,
+            font_build_gen: 0,
+            contour_cache,
+            named_glyphs: HashMap::new(),
+            alt_index: Default::default(),
+            name_parts: NamePartsMap::new(),
+            color_aliases: Default::default(),
+            named_glyphs_gen: u64::MAX,
+            derived_gen: 0,
+            derived_data_tx,
+            derived_data_rx,
+            derived_rebuild_at: None,
+            derived_inflight: false,
+            zoom_level: 1,
+            last_export_path: None,
+            close_confirmed: false,
+            hex_input: None,
+            bottom_panel_height: 0.0,
+            bottom_panel_height_override: false,
+            bottom_panel_tab: None,
+            preview_font_size: DEFAULT_PREVIEW_FONT_SIZE,
+            preview_font_size_slider: DEFAULT_PREVIEW_FONT_SIZE,
+            editor_view_rect: None,
+            preview_view_rect: None,
+            shaped_preview: ShapedPreviewState::new(),
+            specimen: SpecimenState::new(),
+            issues: Vec::new(),
+            issues_gen: u64::MAX,
+            file_parse_errors,
+            assert_issues: Vec::new(),
+            assert_rx,
+            assert_tx,
+            assert_running: false,
+            bg_tasks: BackgroundTaskStatus::new(),
+        };
+
+        if let Some(dir) = &font_dir {
+            app.sidebar.set_directory(dir);
+        }
+
+        app
+    }
+
+    fn set_status(&mut self, msg: impl Into<String>) {
+        self.status_message = Some((msg.into(), std::time::Instant::now()));
+    }
+
+    fn goto_glyph(&mut self, _ctx: &egui::Context, name: &str, kind: &LinkTargetKind) {
+        use crate::document::{DocumentItem, GlyphName};
+        use crate::editor::doc_links::find_link_target_in_doc;
+
+        let target_path = {
+            let all_docs = self.collect_all_docs();
+            all_docs.iter().find_map(|doc| {
+                let has_match = match kind {
+                    LinkTargetKind::Glyph => doc.items.iter().any(|item| {
+                        matches!(item, DocumentItem::Glyph { name: GlyphName(n), .. } if n == name)
+                    }),
+                    LinkTargetKind::NameParts => doc.items.iter().any(|item| {
+                        matches!(item, DocumentItem::NameParts { name: n, .. } if n == name)
+                    }),
+                    LinkTargetKind::Remap => doc.items.iter().any(|item| {
+                        matches!(item, DocumentItem::Remap { feature: f, .. } if f == name)
+                    }),
+                    LinkTargetKind::Color => doc.items.iter().any(|item| {
+                        matches!(item, DocumentItem::Color { name: n, .. } if n == name)
+                    }),
+                };
+                has_match.then(|| doc.path.clone())
+            })
+        };
+
+        let Some(path) = target_path else { return };
+
+        self.open_file(path.clone());
+
+        let idx = match self.open_documents.iter().position(|d| d.document.path == path) {
+            Some(i) => i,
+            None => return,
+        };
+        self.active_doc_idx = Some(idx);
+
+        let doc = &mut self.open_documents[idx];
+        if let Some(line_idx) = find_link_target_in_doc(&doc.lines, name, kind) {
+            doc.editor_state.goto_line(line_idx);
+        }
+    }
+}
+
+impl eframe::App for UniformApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        crate::stackmon::phase("update:begin");
+        crate::stackmon::probe();
+        self.sync_window_title(ctx);
+
+        let mut menu = MenuActions::default();
+        ctx.input(|i| {
+            if i.key_pressed(egui::Key::F12) {
+                self.escape_mode = !self.escape_mode;
+                menu.escape_toggled = true;
+            }
+            if i.key_pressed(egui::Key::F6) {
+                if i.modifiers.command || i.modifiers.ctrl {
+                    menu.run_assert_all = true;
+                } else {
+                    menu.run_assert_file = true;
+                }
+            }
+        });
+
+        self.intercept_hex_codepoint_input(ctx);
+        self.handle_zoom_scroll(ctx);
+        self.handle_zoom_keys(ctx);
+
+        crate::stackmon::phase("update:derived-data");
+        self.pump_background_pipeline(ctx);
+
+        let edit_target = if self.shaped_preview.is_focused() {
+            EditTarget::Preview
+        } else {
+            EditTarget::Editor
+        };
+        let editor_focused = self.active_doc()
+            .is_some_and(|d| d.editor_state.is_active());
+
+        crate::stackmon::phase("update:menu_bar");
+        self.show_menu_bar(ctx, &mut menu, edit_target, editor_focused);
+        if menu.run_assert_all {
+            self.run_shape_assertions(ctx, false);
+        } else if menu.run_assert_file {
+            self.run_shape_assertions(ctx, true);
+        }
+        self.apply_file_menu_actions(ctx, &menu);
+
+        crate::stackmon::phase("update:sidebar");
+        self.show_sidebar_panel(ctx, editor_focused);
+
+        crate::stackmon::phase("update:status");
+        self.show_status_bar(ctx);
+
+        crate::stackmon::phase("update:preview");
+        let (specimen_clicked_glyph, issues_click) = self.show_bottom_panel(ctx);
+
+        crate::stackmon::phase("update:central/editor");
+        let (goto_glyph_request, rename_request) = self.show_editor_panel(ctx);
+
+        if let Some(goto) = goto_glyph_request {
+            self.goto_glyph(ctx, &goto.name, &goto.kind);
+        }
+
+        if let Some(click) = specimen_clicked_glyph {
+            self.goto_glyph(ctx, &click.name, &click.kind);
+        }
+
+        if let Some((path, line)) = issues_click {
+            self.open_file(path.clone());
+            if let Some(idx) = self.open_documents.iter().position(|d| d.document.path == path) {
+                self.active_doc_idx = Some(idx);
+                self.open_documents[idx].editor_state.goto_line(line);
+            }
+        }
+
+        if let Some(rename) = rename_request {
+            self.execute_rename(&rename);
+        }
+
+        self.apply_edit_menu_actions(ctx, edit_target, menu.take_edit_actions());
+
+        crate::stackmon::phase("update:end (egui tessellate/paint follows)");
+        // Decide whether to close only after this frame's editor input has
+        // updated the source buffer and dirty state.
+        if menu.exit && self.confirm_close_and_maybe_save() {
+            self.close_confirmed = true;
+            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+        }
+
+        if ctx.input(|i| i.viewport().close_requested())
+            && !self.close_confirmed
+            && !self.confirm_close_and_maybe_save()
+        {
+            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+        }
+    }
+}
+
+impl UniformApp {
+    fn sync_window_title(&mut self, ctx: &egui::Context) {
+        let title = if let Some(idx) = self.active_doc_idx {
+            let doc = &self.open_documents[idx];
+            let path = doc.document.path.display().to_string();
+            if doc.document.dirty {
+                format!("{path}* - Uniform")
+            } else {
+                format!("{path} - Uniform")
+            }
+        } else if let Some(dir) = &self.font_dir {
+            format!("{} - Uniform", dir.display())
+        } else {
+            "Uniform".to_string()
+        };
+        if title != self.last_title {
+            ctx.send_viewport_cmd(egui::ViewportCommand::Title(title.clone()));
+            self.last_title = title;
+        }
+    }
+
+    /// Alt + hex digit codepoint input: buffers hex digits while Alt is held
+    /// and injects the decoded character as a text event on release.
+    fn intercept_hex_codepoint_input(&mut self, ctx: &egui::Context) {
+        let mut hex_char_to_inject: Option<char> = None;
+        let hex_input = &mut self.hex_input;
+        ctx.input_mut(|input| {
+            let alt_held = input.modifiers.alt;
+            input.events.retain(|event| {
+                match event {
+                    egui::Event::Key {
+                        key, pressed: true, modifiers, ..
+                    } if modifiers.alt && !modifiers.command && !modifiers.ctrl => {
+                        if let Some(hex) = key_to_hex_char(*key) {
+                            let buf = hex_input.get_or_insert_with(String::new);
+                            if buf.len() < 6 {
+                                buf.push(hex);
+                            }
+                            return false;
+                        }
+                        if hex_input.is_some() {
+                            *hex_input = None;
+                            return false;
+                        }
+                        true
+                    }
+                    egui::Event::Key {
+                        key: _, pressed: false, modifiers, ..
+                    } if !alt_held && hex_input.is_some() => {
+                        let _ = modifiers;
+                        if let Some(hex_str) = hex_input.take()
+                            && let Some(ch) = validate_hex_codepoint(&hex_str) {
+                                hex_char_to_inject = Some(ch);
+                            }
+                        true
+                    }
+                    egui::Event::Text(_) if hex_input.is_some() => false,
+                    _ => true,
+                }
+            });
+            if !alt_held && hex_input.is_some()
+                && let Some(hex_str) = hex_input.take()
+                    && let Some(ch) = validate_hex_codepoint(&hex_str) {
+                        hex_char_to_inject = Some(ch);
+                    }
+            if let Some(ch) = hex_char_to_inject {
+                input.events.push(egui::Event::Text(ch.to_string()));
+            }
+        });
+    }
+
+    /// Runs a document mutation on the active document and flushes the line
+    /// buffer back into the `Document` when it reports a change.
+    fn with_active_doc_flush(&mut self, f: impl FnOnce(&mut OpenDocument) -> bool) {
+        if let Some(doc) = self.active_doc_mut()
+            && f(doc)
+        {
+            crate::editor::document_view::flush_document_changes(
+                &mut doc.lines,
+                &mut doc.document,
+                &mut doc.editor_state,
+            );
+        }
+    }
+}
+
+use crate::editor::{key_to_hex_char, validate_hex_codepoint};

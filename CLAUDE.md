@@ -40,7 +40,7 @@ The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 
 | Var | Effect |
 | --- | --- |
-| `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app.rs`) |
+| `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app/background.rs`) |
 | `UNIFORM_UPDATE_GOLDEN=1` | Rewrite `testdata/*.golden` instead of comparing (`cargo test golden`) |
 | `UNIFORM_STACKMON=1` | Enable the stack-overflow monitor (see below) |
 | `UNIFORM_STACKMON_DUMP_PCT` | Backtrace threshold as % of stack, default 40 |
@@ -58,29 +58,42 @@ Core (feature-independent):
 
 - `document.rs` / `document_io.rs` — the `.unf` data model, parser and serializer. `DocLine` is the
   line-level model the editor edits; parsing is incremental (pixel-only edits do not reparse the file).
+  Tests live beside it in `document_io_tests.rs` (see *Where the tests live* below).
 - `pattern.rs` — `NamePattern`, the single name-expansion engine (see *Name patterns* below).
 - `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
 - `detail.rs` — `DetailRegion`: exact per-pixel sub-pixel geometry on a `1/den` lattice, combined by
   an exact-rational trapezoid sweep. This is what makes composition exact instead of code-approximate.
-- `ref_composite.rs` — composite (`ref`) resolution, anchor/point alignment, on-demand glyph synthesis.
+- `ref_composite.rs` — composite (`ref`) resolution, anchor/point alignment, on-demand glyph synthesis
+  (tests in `ref_composite_tests.rs`).
 - `resolve.rs` — shared vocabulary for the resolution pipeline (`ItemRef` provenance, `Diagnostic`),
   so build/editor/validation cannot drift apart. Resolution emits issues directly.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
-- `render/` — `contour.rs` (pixel shapes → contours), `ttf_builder.rs` (contours → TrueType, GSUB,
-  cmap; `UNITS_PER_EM = 1024`), `glyph_cache.rs` (shared composite-resolution driver used by both
-  `ttf_builder` and `sample`), `sample.rs` (sample HTML/PNG/live HTML), `assert.rs` (`assert` directives).
+- `render/` — `contour.rs` (pixel shapes → contours), `glyph_cache.rs` (shared composite-resolution
+  driver used by both `ttf_builder` and `sample`), `sample.rs` (sample HTML/PNG/live HTML), `assert.rs`
+  (`assert` directives).
+- `render/ttf_builder/` — contours → TrueType, GSUB, cmap; `UNITS_PER_EM = 1024`. `mod.rs` holds the
+  collected-glyph vocabulary and the build entry points and delegates each stage:
+  `expand.rs` (pattern expansion, on-demand/decomposed-map item synthesis),
+  `collect.rs` (per-glyph refs, metrics, traced contours), `contours.rs` (the contour cache and
+  `CachedContours`), `color.rs`, `gsub.rs`, `gpos.rs`, `hints.rs`, `outlines.rs` (glyf/metrics/cmap
+  emission), `tables.rs` (final table assembly). Its tests are `render/ttf_tests/`.
 - `stackmon.rs` — stack-overflow watchdog (below).
 - `golden.rs` — `cfg(test)` golden snapshots over `testdata/`.
 
 Editor (feature `editor`):
 
-- `app.rs` — `UniformApp` eframe entry point; open documents, background font build, derived data
+- `app/` — `UniformApp` eframe entry point; open documents, background font build, derived data
   (resolved glyphs, issues). Rebuilds are debounced (300 ms, 1000 ms after text input) and guarded
-  against overlapping rebuild threads.
+  against overlapping rebuild threads. `mod.rs` owns the struct, `new`, the `eframe::App` loop and
+  the small shared helpers; `background.rs` (build/derive/assert threads and applying their results),
+  `docs.rs` (open/flush/save/export), `menus.rs`, `panels.rs`, `rename.rs`, `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode` (`Normal` text editing, `GlyphEdit` pixel painting,
   `LayerMove` ref/layer repositioning).
-- `editor/document_view.rs` — the `show_document` frame loop (largest editor file, most churn).
+- `editor/document_view/` — the `show_document` frame loop (most churn in the editor). `mod.rs` is the
+  loop itself plus the view cache; `layout.rs` (grid extents/strips, the visual-line model),
+  `paint.rs` (the document area, selection, edit border, color backgrounds), `scroll.rs`, `keys.rs`,
+  `popups.rs` (rename/autocomplete/error tooltip), `changes.rs` (writing edits back and re-deriving).
 - `editor/` others — `caret`, `visual_lines`, `line_fields`, `doc_links`, `doc_input`, `editing`,
   `reconcile`, `undo`, `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`,
   `glyph_widget`, `grid_render`, `pixel_interaction`, `pixel_selection`, `harness`, `view_tests`.
@@ -216,7 +229,7 @@ through to normal lookup.
 
 **The bitmap fill rule (`BitmapFill`).** The font is built twice — a vector build that reads the
 geometry and a bitmap build that keeps only the `PX_FULL` ink flag and squares every lit cell off
-(`ttf_builder::CachedContours::from_grid`). A synthesized shape therefore has to decide which cells
+(`ttf_builder::contours::CachedContours::from_grid`). A synthesized shape therefore has to decide which cells
 that second build lights, and it does so **per logical pixel** (not per subcell) from the exact
 covered area: `Round` (default, ties round up), `:ceil` (any coverage), `:floor` (full coverage
 only), `:zero` (never — vector-only). Whole-pixel shapes are covered 1/1 everywhere, so `WxH` names
@@ -242,8 +255,8 @@ it only ever appears in derived grids and is **never serialized**.
 
 ## Testing
 
-- `cargo test` — ~500 unit tests. Heaviest suites: `document_io.rs` (parser round-trips),
-  `editor/view_tests.rs` (GUI scenarios), `render/ttf_builder.rs`, `editor/doc_links.rs`, `pattern.rs`.
+- `cargo test` — ~680 unit tests. Heaviest suites: `document_io_tests.rs` (parser round-trips),
+  `editor/view_tests.rs` (GUI scenarios), `render/ttf_tests/`, `editor/doc_links.rs`, `pattern.rs`.
 - **GUI behavior must be tested through `EditorHarness` (`src/editor/harness.rs`)**, not left to manual
   testing. It drives the real `show_document` in a headless `egui::Context`, injects key/mouse events,
   and exposes per-frame layout snapshots (visual lines, grid rows, gutter numbers). Add new interaction
@@ -257,6 +270,22 @@ it only ever appears in derived grids and is **never serialized**.
 - `assert` directives in `font/*.unf` are the font-level regression suite; run with `make test`.
   Prefer adding an `assert same/distinct` or `assert shape` when fixing a glyph-level bug.
 - Per project policy: write the regression test first, observe the failure, then fix.
+
+### Where the tests live
+
+Small `#[cfg(test)] mod tests` blocks stay at the bottom of the module they test. Where the suite grew
+past the source it tests, it lives in a sibling file (or directory) declared as a *child* module through
+`#[path]`, so it still reaches the module's private items:
+
+| Module | Tests |
+| --- | --- |
+| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, with shared canonicalization helpers in its `mod.rs` |
+| `document_io.rs` | `document_io_tests.rs` |
+| `ref_composite.rs` | `ref_composite_tests.rs` |
+| `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests.rs` (harness scenarios) |
+
+Keep a source file at roughly 2000 lines or under; split by stage (as `ttf_builder/` and
+`document_view/` are) rather than growing one file further.
 
 ### `font/` is a consumer, not a part of Uniform
 
@@ -275,7 +304,7 @@ needs realistic scale and never runs in a default `cargo test`; keep any such ca
 
 Ranked by how often recent commits touched them for a *fix* rather than a feature:
 
-1. **`render/ttf_builder.rs` + `render/contour.rs`** — by far the most churn and the most fixes.
+1. **`render/ttf_builder/` + `render/contour.rs`** — by far the most churn and the most fixes.
    Contour tracing over sub-pixel and on-demand shapes is the recurring theme: faulty rendering of
    fractional on-demand glyphs, wrong contours from glyphs containing on-demand triangle subglyphs,
    underestimated `xMax` when `coloronly`/`monoonly` layers are mixed, panics from multi-part shapes.
@@ -288,14 +317,14 @@ Ranked by how often recent commits touched them for a *fix* rather than a featur
    cache values (shared driver in `glyph_cache.rs`). Bugs here are usually "font is right, sample is
    wrong": zero-width grids affecting layout, remap-only glyphs missing, color handling of indirectly
    mapped glyphs. When fixing a rendering bug, check both the TTF and the sample.
-4. **`editor/document_view.rs` and the interaction layer** — focus capture, wheel scroll over the
+4. **`editor/document_view/` and the interaction layer** — focus capture, wheel scroll over the
    pixel grid, delete-key behavior, lost glyph flags after dragging a layer. These are exactly the
    regressions `EditorHarness` exists for.
-5. **Name expansion and remap** (`pattern.rs`, GSUB in `ttf_builder.rs`) — empty remap targets,
+5. **Name expansion and remap** (`pattern.rs`, `ttf_builder/gsub.rs`) — empty remap targets,
    missing remap warnings, Hangul composition rules. The context-dependent parse rules above are the
    usual trap.
 6. **Performance regressions count as bugs here** — a slow `resolve` used to snowball into dozens of
-   concurrent rebuild threads. `UNIFORM_PERF`, the rebuild guard in `app.rs`, memoized exact
+   concurrent rebuild threads. `UNIFORM_PERF`, the rebuild guard in `app/background.rs`, memoized exact
    subtraction and the `PixelGrid::rescale` caches all exist because of that. Keep the caches keyed
    correctly when changing geometry.
 
@@ -327,7 +356,7 @@ process dies. A vectored exception handler also dumps `EXCEPTION_STACK_OVERFLOW`
 (`SetThreadStackGuarantee` reserves 128 KiB so it can run). One backtrace is logged at startup as a
 self-test.
 
-`crate::stackmon::phase("...")` markers in `app.rs::update` name the frame stage in each report.
+`crate::stackmon::phase("...")` markers in `app::update` name the frame stage in each report.
 `crate::stackmon::probe()` records a high-water mark where sampling is unavailable (non-Windows).
 `[profile.release] debug = "line-tables-only"` exists so these backtraces have symbols; the `.pdb`
 must sit next to the `.exe`.
