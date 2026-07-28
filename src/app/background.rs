@@ -116,7 +116,7 @@ impl UniformApp {
 
         let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
         let active_path = if current_file_only {
-            self.active_doc_idx.map(|i| self.open_documents[i].document.path.clone())
+            self.active_doc_idx().map(|i| self.open_documents[i].document.path.clone())
         } else {
             None
         };

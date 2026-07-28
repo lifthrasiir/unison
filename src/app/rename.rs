@@ -451,7 +451,8 @@ impl UniformApp {
     pub(super) fn execute_rename(&mut self, action: &crate::editor::document_view::RenameAction) {
         use crate::editor::doc_links::RenameKind;
 
-        let saved_active = self.active_doc_idx;
+        // Documents opened below are only appended, so the pane's document
+        // indices — and with them the focus — stay valid throughout.
         let mut changed_count = 0usize;
 
         // First pass: check which unopened files would be affected and open them.
@@ -535,9 +536,6 @@ impl UniformApp {
                 changed_count += 1;
             }
         }
-
-        // Restore active tab
-        self.active_doc_idx = saved_active;
 
         if changed_count > 0 {
             let kind_str = match action.kind {

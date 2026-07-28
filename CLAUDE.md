@@ -87,7 +87,8 @@ Editor (feature `editor`):
   (resolved glyphs, issues). Rebuilds are debounced (300 ms, 1000 ms after text input) and guarded
   against overlapping rebuild threads. `mod.rs` owns the struct, `new`, the `eframe::App` loop and
   the small shared helpers; `background.rs` (build/derive/assert threads and applying their results),
-  `docs.rs` (open/flush/save/export), `menus.rs`, `panels.rs`, `rename.rs`, `zoom.rs`.
+  `docs.rs` (open/flush/save/export), `menus.rs`, `panels.rs`, `panes.rs` (the split-editor model,
+  below), `rename.rs`, `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode` (`Normal` text editing, `GlyphEdit` pixel painting,
   `LayerMove` ref/layer repositioning). `editor/ids.rs` — `EditorId`/`Slot`, the per-instance `egui`
   id namespace (see *The editor is a widget* below).
@@ -131,8 +132,41 @@ cache in `colors.rs` (derived from the context theme, identical for every editor
 physical tick must yield one step no matter how many surfaces ask). Anything else global in the
 editor is a bug.
 
-The host still owns what is genuinely per-window: zoom level, escape mode, panel sizes and the
-zoom-routing rects in `app/`. Those are not editor state and do not belong in `EditorState`.
+The host still owns what is genuinely per-*pane*: zoom level, panel sizes and the zoom-routing
+rects in `app/`, plus what is per-window (escape mode). Those are not editor state and do not
+belong in `EditorState`.
+
+### `app/panes.rs` — the split editor
+
+The central area is one or two panes, split vertically; a *pane* is the whole editor surface (text,
+grids, minimap, inline tool palette), not a sub-widget of one. `Panes` holds the list, the focused
+index and the divider ratio; `Pane` holds the document index (`None` = the placeholder), the pane's
+own zoom level and last frame's screen rect for zoom routing. Panes are views onto
+`open_documents`, which is a buffer list: closing a pane detaches it from its document but leaves
+the document open, dirty flag, undo stack and all — as already happened when a second file was
+opened over a first.
+
+Two invariants make the single sidebar unambiguous, and `panes.rs`'s tests pin both:
+
+- **At most one placeholder.** An opened file goes to the placeholder pane if there is one, else to
+  the focused pane. Two placeholders would leave no rule for "which one". The only operation that
+  could produce a second is a split, so splitting is offered *only* from a single pane that has a
+  document (`can_split`) — never from a placeholder, and never into a third pane.
+- **A document is shown by at most one pane.** Opening a file already on screen just moves the
+  focus to the pane showing it (`show_document`). Two live editors over one document would need
+  line-by-line synchronization; that is deliberately not supported.
+
+The focus follows whichever editor egui reports as focused (`sync_pane_focus`, run right after the
+panes are laid out), and pane commands — Cmd/Ctrl+Alt+←/→ split, Cmd/Ctrl+Alt+X swap, Cmd/Ctrl+W
+close — are dispatched after that, so they act on the pane the focus is actually in this frame.
+The swap chord is the exception to how accelerators are read: `egui-winit`'s `is_cut_command`
+ignores alt and *returns* after pushing `Event::Cut`, so Cmd/Ctrl+Alt+X never arrives as a key
+press at all. `intercept_swap_panes_chord` takes that event out of the queue at the top of the
+frame (beside `intercept_hex_codepoint_input`, the other input-queue rewrite) — left in, the
+focused editor cuts the selection instead.
+Dragging the divider onto either edge and releasing closes the pane it collapsed; `split_layout`
+still clamps both panes to `MIN_PANE_WIDTH`, so the shaded overlay is what tells the user the drop
+will close rather than resize.
 
 ### `line_fields.rs` — where names live
 

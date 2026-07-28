@@ -88,7 +88,8 @@ impl UniformApp {
                 // Field-level accesses so the `sidebar` borrow stays disjoint
                 // from the `open_documents` one.
                 let active_path = self
-                    .active_doc_idx
+                    .panes
+                    .active_doc_idx()
                     .and_then(|i| self.open_documents.get(i))
                     .map(|d| d.document.path.as_path());
                 sidebar_actions = self.sidebar.show(ui, active_path, &dirty_paths, editor_focused);
@@ -154,10 +155,13 @@ impl UniformApp {
                     }
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if self.zoom_level > 1 {
-                        ui.label(format!("{}x", self.zoom_level));
+                    // The zoom level is per pane, so the one shown is the
+                    // focused pane's, alongside that pane's file name.
+                    let zoom_level = self.panes.focused().zoom_level;
+                    if zoom_level > 1 {
+                        ui.label(format!("{zoom_level}x"));
                     }
-                    if let Some(idx) = self.active_doc_idx
+                    if let Some(idx) = self.active_doc_idx()
                         && let Some(doc) = self.open_documents.get(idx) {
                             let name = doc
                                 .document
@@ -342,64 +346,251 @@ impl UniformApp {
         (specimen_clicked_glyph, issues_click)
     }
 
-    /// The central editor panel.  Returns any goto/rename request produced
-    /// by the document view for post-frame dispatch.
+    /// One pane's contents: the editor for its document, or the placeholder.
+    /// Returns the pane's screen rect for zoom routing, which stays `None` for
+    /// the placeholder — that is not an editor, so hovering it must not make
+    /// Cmd/Ctrl + wheel zoom anything.
+    fn show_pane(
+        &mut self,
+        ui: &mut egui::Ui,
+        pane_idx: usize,
+        goto_glyph_request: &mut Option<crate::editor::document_view::GotoGlyph>,
+        rename_request: &mut Option<crate::editor::document_view::RenameAction>,
+    ) -> Option<egui::Rect> {
+        let pane = self.panes.get(pane_idx)?;
+        let zoom_level = pane.zoom_level;
+        let Some(doc_idx) = pane.doc_idx else {
+            ui.centered_and_justified(|ui| {
+                if self.font_dir.is_some() {
+                    ui.label("Select a file from the sidebar");
+                } else {
+                    ui.label("Usage: uniform <font-directory>");
+                }
+            });
+            return None;
+        };
+        let doc = self.open_documents.get_mut(doc_idx)?;
+
+        let rect = ui.max_rect();
+        let font_size = 16.0 * zoom_level as f32;
+        let editor_font_id = if self.escape_mode {
+            egui::FontId::new(font_size, egui::FontFamily::Monospace)
+        } else {
+            uniform_font_id(ui.ctx(), font_size)
+        };
+        let env = crate::editor::document_view::EditorEnv {
+            named_glyphs: &self.named_glyphs,
+            name_parts: &self.name_parts,
+            alt_index: &self.alt_index,
+            color_aliases: &self.color_aliases,
+            derived_gen: self.derived_gen,
+            font_gen: self.font_data_gen,
+            zoom_level,
+            font_id: &editor_font_id,
+        };
+        let result = crate::editor::document_view::DocumentEditor::new(
+            &mut doc.document,
+            &mut doc.lines,
+            &mut doc.editor_state,
+            env,
+        )
+        .show(ui);
+        if let Some(goto) = result.goto {
+            *goto_glyph_request = Some(goto);
+        }
+        if let Some(rename) = result.rename {
+            *rename_request = Some(rename);
+        }
+        Some(rect)
+    }
+
+    /// The central editor panel: one pane, or two side by side with a
+    /// draggable divider.  Returns any goto/rename request produced by a
+    /// document view for post-frame dispatch, plus the pane a divider drop
+    /// asked to close.
     pub(super) fn show_editor_panel(
         &mut self,
         ctx: &egui::Context,
     ) -> (
         Option<crate::editor::document_view::GotoGlyph>,
         Option<crate::editor::document_view::RenameAction>,
+        Option<usize>,
     ) {
         let mut goto_glyph_request = None;
         let mut rename_request = None;
-        // Stays `None` for the placeholder panel below: that is not an editor,
-        // so hovering it must not make Cmd/Ctrl + wheel zoom the editor.
-        let mut editor_rect = None;
+        let mut divider_closed_pane = None;
+        let mut pane_rects = [None, None];
         egui::CentralPanel::default().show(ctx, |ui| {
-            if self.open_documents.is_empty() {
-                ui.centered_and_justified(|ui| {
-                    if self.font_dir.is_some() {
-                        ui.label("Select a file from the sidebar");
-                    } else {
-                        ui.label("Usage: uniform <font-directory>");
-                    }
-                });
-            } else if let Some(idx) = self.active_doc_idx
-                && let Some(doc) = self.open_documents.get_mut(idx) {
-                    editor_rect = Some(ui.max_rect());
-                    let font_size = 16.0 * self.zoom_level as f32;
-                    let editor_font_id = if self.escape_mode {
-                        egui::FontId::new(font_size, egui::FontFamily::Monospace)
-                    } else {
-                        uniform_font_id(ui.ctx(), font_size)
-                    };
-                    let env = crate::editor::document_view::EditorEnv {
-                        named_glyphs: &self.named_glyphs,
-                        name_parts: &self.name_parts,
-                        alt_index: &self.alt_index,
-                        color_aliases: &self.color_aliases,
-                        derived_gen: self.derived_gen,
-                        font_gen: self.font_data_gen,
-                        zoom_level: self.zoom_level,
-                        font_id: &editor_font_id,
-                    };
-                    let result = crate::editor::document_view::DocumentEditor::new(
-                        &mut doc.document,
-                        &mut doc.lines,
-                        &mut doc.editor_state,
-                        env,
-                    )
-                    .show(ui);
-                    if let Some(goto) = result.goto {
-                        goto_glyph_request = Some(goto);
-                    }
-                    if let Some(rename) = result.rename {
-                        rename_request = Some(rename);
-                    }
-                }
+            if !self.panes.is_split() {
+                pane_rects[0] =
+                    self.show_pane(ui, 0, &mut goto_glyph_request, &mut rename_request);
+                return;
+            }
+
+            let full = ui.max_rect();
+            let (left, divider, right) = split_layout(full, self.panes.split_ratio);
+            let drag = self.show_divider(ui, divider, full);
+            divider_closed_pane = drag.closed;
+
+            for (idx, rect) in [(0, left), (1, right)] {
+                let mut child = ui.new_child(
+                    egui::UiBuilder::new()
+                        .max_rect(rect)
+                        .layout(*ui.layout()),
+                );
+                child.set_clip_rect(rect);
+                pane_rects[idx] =
+                    self.show_pane(&mut child, idx, &mut goto_glyph_request, &mut rename_request);
+            }
+
+            // With one sidebar for two panes, which pane an opened file lands
+            // in is the focused one, so the focus has to be visible.
+            let focused_rect = if self.panes.focus() == 0 { left } else { right };
+            ui.painter().rect_stroke(
+                focused_rect.shrink(0.5),
+                0.0,
+                egui::Stroke::new(1.0, ui.visuals().selection.bg_fill),
+                egui::StrokeKind::Inside,
+            );
+
+            // The layout keeps both panes at their minimum width, so a drag
+            // that has reached the closing zone would otherwise look like a
+            // divider that simply stopped moving. Shade the pane it would
+            // close instead.
+            if let Some(idx) = drag.would_close {
+                let doomed = if idx == 0 { left } else { right };
+                ui.painter().rect_filled(
+                    doomed,
+                    0.0,
+                    ui.visuals().extreme_bg_color.gamma_multiply(0.7),
+                );
+            }
         });
-        self.editor_view_rect = editor_rect;
-        (goto_glyph_request, rename_request)
+
+        for (idx, rect) in pane_rects.into_iter().enumerate() {
+            if let Some(pane) = self.panes.get_mut(idx) {
+                pane.view_rect = rect;
+            }
+        }
+        (goto_glyph_request, rename_request, divider_closed_pane)
+    }
+
+    /// The draggable divider between two panes.
+    fn show_divider(
+        &mut self,
+        ui: &mut egui::Ui,
+        divider: egui::Rect,
+        full: egui::Rect,
+    ) -> DividerDrag {
+        // The visible divider is a hairline; the grab area around it is not.
+        let resp = ui.interact(
+            divider.expand2(egui::vec2(3.0, 0.0)),
+            ui.id().with("pane_divider"),
+            egui::Sense::drag(),
+        );
+        if resp.hovered() || resp.dragged() {
+            ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+        }
+        if resp.dragged()
+            && let Some(pos) = ui.ctx().input(|i| i.pointer.latest_pos())
+            && full.width() > 0.0
+        {
+            self.panes.split_ratio = ((pos.x - full.left()) / full.width()).clamp(0.0, 1.0);
+        }
+        let at_edge = self.panes.pane_closed_by_ratio(self.panes.split_ratio);
+        let closed = if resp.drag_stopped() { at_edge } else { None };
+        if resp.drag_stopped() && closed.is_none() {
+            // Snap the divider back inside the minimum widths it was allowed
+            // to visually ignore during the drag.
+            self.panes.split_ratio = clamp_ratio(self.panes.split_ratio, full.width());
+        }
+
+        let stroke = if resp.hovered() || resp.dragged() {
+            ui.visuals().widgets.hovered.bg_fill
+        } else {
+            ui.visuals().widgets.noninteractive.bg_stroke.color
+        };
+        ui.painter().rect_filled(divider, 0.0, stroke);
+        DividerDrag {
+            closed,
+            would_close: resp.dragged().then_some(at_edge).flatten(),
+        }
+    }
+}
+
+/// What one frame of divider interaction asked for.
+struct DividerDrag {
+    /// A drop at an edge closed this pane.
+    closed: Option<usize>,
+    /// A drag currently held at an edge would close this pane if released.
+    would_close: Option<usize>,
+}
+
+/// Keeps a divider ratio far enough from either edge that both panes stay
+/// usable. The drag itself is not clamped, so a drop at an edge can still be
+/// read as "close that pane".
+fn clamp_ratio(ratio: f32, width: f32) -> f32 {
+    if width <= super::panes::MIN_PANE_WIDTH * 2.0 {
+        return 0.5;
+    }
+    let margin = super::panes::MIN_PANE_WIDTH / width;
+    ratio.clamp(margin, 1.0 - margin)
+}
+
+/// Splits `full` into the left pane, the divider and the right pane.
+fn split_layout(full: egui::Rect, ratio: f32) -> (egui::Rect, egui::Rect, egui::Rect) {
+    const DIVIDER_WIDTH: f32 = 4.0;
+    let usable = (full.width() - DIVIDER_WIDTH).max(0.0);
+    let ratio = clamp_ratio(ratio, full.width());
+    let left_w = (usable * ratio).round();
+    let left = egui::Rect::from_min_size(full.min, egui::vec2(left_w, full.height()));
+    let divider = egui::Rect::from_min_size(
+        egui::pos2(left.right(), full.top()),
+        egui::vec2(DIVIDER_WIDTH, full.height()),
+    );
+    let right = egui::Rect::from_min_max(
+        egui::pos2(divider.right(), full.top()),
+        full.max,
+    );
+    (left, divider, right)
+}
+
+#[cfg(test)]
+mod pane_layout_tests {
+    use super::*;
+
+    fn rect(w: f32) -> egui::Rect {
+        egui::Rect::from_min_size(egui::pos2(10.0, 0.0), egui::vec2(w, 100.0))
+    }
+
+    #[test]
+    fn split_layout_tiles_the_area_without_gaps_or_overlap() {
+        let full = rect(804.0);
+        let (left, divider, right) = split_layout(full, 0.5);
+        assert_eq!(left.left(), full.left());
+        assert_eq!(left.right(), divider.left());
+        assert_eq!(divider.right(), right.left());
+        assert_eq!(right.right(), full.right());
+        assert_eq!(left.width(), 400.0);
+        assert_eq!(right.width(), 400.0);
+    }
+
+    #[test]
+    fn a_dragged_ratio_never_collapses_a_pane_in_the_layout() {
+        let full = rect(804.0);
+        // The drag itself may reach the edge (that is how a drop closes a
+        // pane), but the laid-out panes keep their minimum width.
+        let (left, _, right) = split_layout(full, 0.0);
+        assert!(left.width() >= super::super::panes::MIN_PANE_WIDTH - 1.0);
+        assert!(right.width() > 0.0);
+        let (left, _, right) = split_layout(full, 1.0);
+        assert!(right.width() >= super::super::panes::MIN_PANE_WIDTH - 1.0);
+        assert!(left.width() > 0.0);
+    }
+
+    #[test]
+    fn a_too_narrow_area_falls_back_to_an_even_split() {
+        assert_eq!(clamp_ratio(0.0, 100.0), 0.5);
+        assert_eq!(clamp_ratio(1.0, 100.0), 0.5);
     }
 }

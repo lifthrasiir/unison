@@ -36,49 +36,60 @@ pub(super) fn preview_font_step(size: f32, delta: i32) -> f32 {
 }
 
 /// Which surface a zoom gesture applies to. Zoom is not one global setting:
-/// the editor has its integral zoom level and the shaped preview has its font
-/// size, so every zoom gesture picks a target first — the focused surface for
-/// the keyboard chords, the hovered one for Cmd/Ctrl + wheel.
+/// *each editor pane* has its own integral zoom level and the shaped preview
+/// has its font size, so every zoom gesture picks a target first — the focused
+/// surface for the keyboard chords, the hovered one for Cmd/Ctrl + wheel.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub(super) enum ZoomTarget {
-    Editor,
+    /// The editor pane at this index.
+    Editor(usize),
     Preview,
     /// Neither surface, so the zoom commands do nothing and the corresponding
     /// menu entries are disabled.
     None,
 }
 
-/// Picks the zoom target under `pointer`. Either rect is `None` when that
-/// surface is not on screen — in particular the editor rect is `None` while
-/// the no-document placeholder panel is shown, since that is not an editor.
+/// Picks the zoom target under `pointer`. A pane rect is `None` when that pane
+/// shows the no-document placeholder, which is not an editor; the preview rect
+/// is `None` while its tab is hidden.
 fn zoom_target_at(
     pointer: Option<egui::Pos2>,
-    editor_rect: Option<egui::Rect>,
+    pane_rects: &[Option<egui::Rect>],
     preview_rect: Option<egui::Rect>,
 ) -> ZoomTarget {
     let Some(pos) = pointer else {
         return ZoomTarget::None;
     };
     if preview_rect.is_some_and(|r| r.contains(pos)) {
-        ZoomTarget::Preview
-    } else if editor_rect.is_some_and(|r| r.contains(pos)) {
-        ZoomTarget::Editor
-    } else {
-        ZoomTarget::None
+        return ZoomTarget::Preview;
+    }
+    match pane_rects.iter().position(|r| r.is_some_and(|r| r.contains(pos))) {
+        Some(idx) => ZoomTarget::Editor(idx),
+        None => ZoomTarget::None,
     }
 }
 
 impl UniformApp {
-    /// Sets the zoom level (clamped to [`MIN_ZOOM_LEVEL`]..=[`MAX_ZOOM_LEVEL`]) and lets the
-    /// active document recenter its scroll. Returns whether the level actually moved.
-    pub(super) fn set_zoom_level(&mut self, level: u32) -> bool {
+    /// The focused pane's zoom level, which is what the View menu's entries
+    /// and the status bar report.
+    pub(super) fn focused_zoom_level(&self) -> u32 {
+        self.panes.focused().zoom_level
+    }
+
+    /// Sets pane `pane_idx`'s zoom level (clamped to
+    /// [`MIN_ZOOM_LEVEL`]..=[`MAX_ZOOM_LEVEL`]) and lets the document in it
+    /// recenter its scroll. Returns whether the level actually moved.
+    pub(super) fn set_pane_zoom_level(&mut self, pane_idx: usize, level: u32) -> bool {
         let level = level.clamp(MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
-        let old_zoom = self.zoom_level;
+        let Some(pane) = self.panes.get_mut(pane_idx) else {
+            return false;
+        };
+        let old_zoom = pane.zoom_level;
         if level == old_zoom {
             return false;
         }
-        self.zoom_level = level;
-        if let Some(doc) = self.active_doc_mut() {
+        pane.zoom_level = level;
+        if let Some(doc) = self.pane_doc_mut(pane_idx) {
             doc.editor_state.notify_zoom_change(old_zoom);
         }
         true
@@ -97,14 +108,14 @@ impl UniformApp {
         true
     }
 
-    /// The surface the zoom *keyboard* chords act on: whichever of the editor
-    /// and the shaped preview holds the focus. The preview wins the same way
-    /// it does for the edit menu.
+    /// The surface the zoom *keyboard* chords act on: whichever of the focused
+    /// editor pane and the shaped preview holds the focus. The preview wins
+    /// the same way it does for the edit menu.
     pub(super) fn focused_zoom_target(&self) -> ZoomTarget {
         if self.bottom_panel_tab == Some(0) && self.shaped_preview.is_focused() {
             ZoomTarget::Preview
         } else if self.active_doc().is_some_and(|d| d.editor_state.is_active()) {
-            ZoomTarget::Editor
+            ZoomTarget::Editor(self.panes.focus())
         } else {
             ZoomTarget::None
         }
@@ -118,21 +129,30 @@ impl UniformApp {
         if !ctx.input(|i| i.modifiers.command) {
             return;
         }
+        let pane_rects: Vec<Option<egui::Rect>> =
+            self.panes.iter().map(|p| p.view_rect).collect();
         let target = zoom_target_at(
             ctx.input(|i| i.pointer.latest_pos()),
-            self.editor_view_rect,
+            &pane_rects,
             self.preview_view_rect,
         );
-        let grid_hover = self.active_doc()
-            .is_some_and(|d| d.editor_state.is_grid_hover());
-        if target == ZoomTarget::None || (target == ZoomTarget::Editor && grid_hover) {
+        // Over a pixel grid Ctrl+scroll already cycles layers, so that pane's
+        // own hover flag — not the focused pane's — is what suppresses zoom.
+        let grid_hover = matches!(target, ZoomTarget::Editor(idx) if self
+            .panes
+            .get(idx)
+            .and_then(|p| p.doc_idx)
+            .and_then(|d| self.open_documents.get(d))
+            .is_some_and(|d| d.editor_state.is_grid_hover()));
+        if target == ZoomTarget::None || grid_hover {
             return;
         }
         if let Some(step) = debounced_scroll_step(ctx) {
             let delta = if step < 0 { 1 } else { -1 };
             match target {
-                ZoomTarget::Editor => {
-                    self.set_zoom_level(zoom_step(self.zoom_level, delta));
+                ZoomTarget::Editor(idx) => {
+                    let level = self.panes.get(idx).map_or(1, |p| p.zoom_level);
+                    self.set_pane_zoom_level(idx, zoom_step(level, delta));
                 }
                 ZoomTarget::Preview => {
                     let size = preview_font_step(self.preview_font_size, delta);
@@ -160,13 +180,14 @@ impl UniformApp {
             )
         });
         match self.focused_zoom_target() {
-            ZoomTarget::Editor => {
+            ZoomTarget::Editor(idx) => {
+                let level = self.panes.get(idx).map_or(1, |p| p.zoom_level);
                 if zoom_reset {
-                    self.set_zoom_level(1);
+                    self.set_pane_zoom_level(idx, 1);
                 } else if zoom_in {
-                    self.set_zoom_level(zoom_step(self.zoom_level, 1));
+                    self.set_pane_zoom_level(idx, zoom_step(level, 1));
                 } else if zoom_out {
-                    self.set_zoom_level(zoom_step(self.zoom_level, -1));
+                    self.set_pane_zoom_level(idx, zoom_step(level, -1));
                 }
             }
             ZoomTarget::Preview => {
@@ -223,25 +244,53 @@ mod zoom_tests {
 
     #[test]
     fn zoom_target_at_picks_the_hovered_surface() {
-        let editor = Some(rect(0.0, 0.0, 100.0, 100.0));
+        let editor = [Some(rect(0.0, 0.0, 100.0, 100.0))];
         let preview = Some(rect(0.0, 100.0, 100.0, 150.0));
         assert_eq!(
-            zoom_target_at(Some(egui::pos2(50.0, 50.0)), editor, preview),
-            ZoomTarget::Editor
+            zoom_target_at(Some(egui::pos2(50.0, 50.0)), &editor, preview),
+            ZoomTarget::Editor(0)
         );
         assert_eq!(
-            zoom_target_at(Some(egui::pos2(50.0, 120.0)), editor, preview),
+            zoom_target_at(Some(egui::pos2(50.0, 120.0)), &editor, preview),
             ZoomTarget::Preview
         );
         // Outside both (the sidebar, the menu bar) nothing zooms.
         assert_eq!(
-            zoom_target_at(Some(egui::pos2(500.0, 50.0)), editor, preview),
+            zoom_target_at(Some(egui::pos2(500.0, 50.0)), &editor, preview),
             ZoomTarget::None
         );
-        assert_eq!(zoom_target_at(None, editor, preview), ZoomTarget::None);
+        assert_eq!(zoom_target_at(None, &editor, preview), ZoomTarget::None);
         // The placeholder panel shown with no open document is not an editor.
         assert_eq!(
-            zoom_target_at(Some(egui::pos2(50.0, 50.0)), None, preview),
+            zoom_target_at(Some(egui::pos2(50.0, 50.0)), &[None], preview),
+            ZoomTarget::None
+        );
+    }
+
+    #[test]
+    fn zoom_target_at_distinguishes_the_two_panes() {
+        // Split panes: the wheel zooms whichever one the pointer is over,
+        // and a placeholder pane beside a real one still zooms nothing.
+        let panes = [
+            Some(rect(0.0, 0.0, 100.0, 100.0)),
+            Some(rect(104.0, 0.0, 200.0, 100.0)),
+        ];
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(50.0, 50.0)), &panes, None),
+            ZoomTarget::Editor(0)
+        );
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(150.0, 50.0)), &panes, None),
+            ZoomTarget::Editor(1)
+        );
+        // The divider between them belongs to neither pane.
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(102.0, 50.0)), &panes, None),
+            ZoomTarget::None
+        );
+        let with_placeholder = [Some(rect(0.0, 0.0, 100.0, 100.0)), None];
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(150.0, 50.0)), &with_placeholder, None),
             ZoomTarget::None
         );
     }

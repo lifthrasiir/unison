@@ -35,7 +35,7 @@ pub struct OpenDocument {
 
 impl OpenDocument {
     /// Flush pending line-level edits into the `Document` model, if any.
-    fn flush_pending_changes(&mut self) {
+    pub(super) fn flush_pending_changes(&mut self) {
         if self.editor_state.has_pending_document_sync() {
             crate::editor::document_view::flush_document_changes(
                 &mut self.lines,
@@ -92,8 +92,13 @@ impl UniformApp {
         }
     }
 
+    /// Opens `path` into a pane and focuses it. Which pane is
+    /// [`Panes::show_document`]'s call: the placeholder if one is up,
+    /// otherwise the pane that last had the focus — and a file that is
+    /// already on screen only moves the focus to the pane showing it, since
+    /// no document is ever shown by two panes at once.
     pub(super) fn open_file(&mut self, path: PathBuf) {
-        if let Some(idx) = self.active_doc_idx {
+        if let Some(idx) = self.active_doc_idx() {
             self.flush_open_document(idx);
         }
         if let Some(idx) = self
@@ -101,7 +106,7 @@ impl UniformApp {
             .iter()
             .position(|d| d.document.path == path)
         {
-            self.active_doc_idx = Some(idx);
+            self.panes.show_document(idx);
             return;
         }
 
@@ -116,7 +121,7 @@ impl UniformApp {
         match load_open_document(path.clone(), base_gen) {
             Ok(open_doc) => {
                 self.open_documents.push(open_doc);
-                self.active_doc_idx = Some(self.open_documents.len() - 1);
+                self.panes.show_document(self.open_documents.len() - 1);
                 self.set_status(format!("Opened {}", path.display()));
             }
             Err(e) => {
@@ -245,7 +250,7 @@ impl UniformApp {
     }
 
     pub(super) fn save_active(&mut self) {
-        if let Some(idx) = self.active_doc_idx
+        if let Some(idx) = self.active_doc_idx()
             && let Some(doc) = self.open_documents.get_mut(idx) {
                 doc.flush_pending_changes();
                 let mut buf = Vec::new();

@@ -2,6 +2,7 @@
 
 use super::*;
 use super::panels::min_bottom_panel_height;
+use super::panes::{PaneAction, SplitSide};
 use super::zoom::{
     DEFAULT_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE, MAX_ZOOM_LEVEL, MIN_PREVIEW_FONT_SIZE,
     MIN_ZOOM_LEVEL, ZoomTarget, preview_font_step, zoom_step
@@ -37,6 +38,9 @@ pub(super) struct MenuActions {
     edit_action: crate::edit_menu::EditAction,
     sel_menu_action: Option<SelMenuAction>,
     scale_action: Option<u8>,
+    /// Split/swap/close, dispatched after the panes are laid out so it acts on
+    /// the pane the focus is actually in this frame.
+    pub(super) pane_action: PaneAction,
 }
 
 /// The subset of [`MenuActions`] dispatched after the central panel.
@@ -54,6 +58,29 @@ impl MenuActions {
             scale_action: self.scale_action.take(),
         }
     }
+}
+
+/// Reads the swap-panes chord (Cmd/Ctrl+Alt+X) off the event queue, removing
+/// the event it arrived as.
+///
+/// It cannot be read as a key press, and the gate that decides that is not
+/// ours to move: `egui-winit`'s `is_cut_command` matches any `command` + X
+/// *regardless of alt*, pushes `Event::Cut` and returns without ever emitting
+/// the `Event::Key`. `egui-winit` reaches us through `eframe` from crates.io,
+/// so short of patching a fork of the egui workspace, the queue is the
+/// earliest place we own. Leave the event in it and the focused editor obeys
+/// it, cutting the selection instead of the panes swapping.
+///
+/// Alt is what tells the two apart — a plain Cmd/Ctrl+X carries no alt — and
+/// the modifier test mirrors the other pane accelerators so that Windows'
+/// Shift+Delete cut is not caught here either.
+fn take_swap_cut_event(events: &mut Vec<egui::Event>, modifiers: egui::Modifiers) -> bool {
+    if !(modifiers.command && modifiers.alt && !modifiers.shift) {
+        return false;
+    }
+    let before = events.len();
+    events.retain(|e| !matches!(e, egui::Event::Cut));
+    events.len() != before
 }
 
 impl UniformApp {
@@ -85,6 +112,7 @@ impl UniformApp {
         let edit_action = &mut menu.edit_action;
         let sel_menu_action = &mut menu.sel_menu_action;
         let scale_action = &mut menu.scale_action;
+        let pane_action = &mut menu.pane_action;
 
         use crate::edit_menu::EditMenuCaps;
 
@@ -101,7 +129,7 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
-                    let has_active = self.active_doc_idx.is_some();
+                    let has_active = self.active_doc_idx().is_some();
                     if ui
                         .add_enabled(has_active, egui::Button::new("Save").shortcut_text(format!("{mod_name}S")))
                         .clicked()
@@ -325,7 +353,7 @@ impl UniformApp {
                 });
                 ui.menu_button("Font", |ui| {
                     if ui.add_enabled(
-                        !self.assert_running && self.active_doc_idx.is_some(),
+                        !self.assert_running && self.active_doc_idx().is_some(),
                         egui::Button::new("Run assertions (current file)").shortcut_text("F6"),
                     ).clicked() {
                         *run_assert_file = true;
@@ -340,6 +368,49 @@ impl UniformApp {
                     }
                 });
                 ui.menu_button("View", |ui| {
+                    // Splitting is only offered from a single pane that has a
+                    // document: from a placeholder it would leave two of them,
+                    // and there is no third pane.
+                    let alt_name = if cfg!(target_os = "macos") { "\u{2325}" } else { "Alt+" };
+                    for (side, label, key) in [
+                        (SplitSide::Left, "Split editor left", "\u{2190}"),
+                        (SplitSide::Right, "Split editor right", "\u{2192}"),
+                    ] {
+                        if ui
+                            .add_enabled(
+                                self.panes.can_split(),
+                                egui::Button::new(label)
+                                    .shortcut_text(format!("{mod_name}{alt_name}{key}")),
+                            )
+                            .clicked()
+                        {
+                            *pane_action = PaneAction::Split(side);
+                            ui.close_menu();
+                        }
+                    }
+                    if ui
+                        .add_enabled(
+                            self.panes.can_swap(),
+                            egui::Button::new("Swap editor panes")
+                                .shortcut_text(format!("{mod_name}{alt_name}X")),
+                        )
+                        .clicked()
+                    {
+                        *pane_action = PaneAction::Swap;
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add_enabled(
+                            self.panes.can_close(),
+                            egui::Button::new("Close editor pane")
+                                .shortcut_text(format!("{mod_name}W")),
+                        )
+                        .clicked()
+                    {
+                        *pane_action = PaneAction::Close;
+                        ui.close_menu();
+                    }
+                    ui.separator();
                     if ui.add(egui::Button::new("Close panes").shortcut_text(format!("{mod_name}`"))).clicked() {
                         self.bottom_panel_tab = None;
                         ui.close_menu();
@@ -373,11 +444,12 @@ impl UniformApp {
                     // The zoom entries drive whichever surface has the focus, and are
                     // disabled outright when that is neither the editor nor the preview.
                     let zoom_target = self.focused_zoom_target();
+                    let editor_zoom = self.focused_zoom_level();
                     let (can_in, can_out, can_reset) = match zoom_target {
-                        ZoomTarget::Editor => (
-                            self.zoom_level < MAX_ZOOM_LEVEL,
-                            self.zoom_level > MIN_ZOOM_LEVEL,
-                            self.zoom_level != 1,
+                        ZoomTarget::Editor(_) => (
+                            editor_zoom < MAX_ZOOM_LEVEL,
+                            editor_zoom > MIN_ZOOM_LEVEL,
+                            editor_zoom != 1,
                         ),
                         ZoomTarget::Preview => (
                             self.preview_font_size < MAX_PREVIEW_FONT_SIZE,
@@ -391,8 +463,8 @@ impl UniformApp {
                         egui::Button::new("Zoom in").shortcut_text(format!("{mod_name}=")),
                     ).clicked() {
                         match zoom_target {
-                            ZoomTarget::Editor => {
-                                self.set_zoom_level(zoom_step(self.zoom_level, 1));
+                            ZoomTarget::Editor(idx) => {
+                                self.set_pane_zoom_level(idx, zoom_step(editor_zoom, 1));
                             }
                             ZoomTarget::Preview => {
                                 let size = preview_font_step(self.preview_font_size, 1);
@@ -407,8 +479,8 @@ impl UniformApp {
                         egui::Button::new("Zoom out").shortcut_text(format!("{mod_name}-")),
                     ).clicked() {
                         match zoom_target {
-                            ZoomTarget::Editor => {
-                                self.set_zoom_level(zoom_step(self.zoom_level, -1));
+                            ZoomTarget::Editor(idx) => {
+                                self.set_pane_zoom_level(idx, zoom_step(editor_zoom, -1));
                             }
                             ZoomTarget::Preview => {
                                 let size = preview_font_step(self.preview_font_size, -1);
@@ -423,8 +495,8 @@ impl UniformApp {
                         egui::Button::new("Reset zoom").shortcut_text(format!("{mod_name}0")),
                     ).clicked() {
                         match zoom_target {
-                            ZoomTarget::Editor => {
-                                self.set_zoom_level(1);
+                            ZoomTarget::Editor(idx) => {
+                                self.set_pane_zoom_level(idx, 1);
                             }
                             ZoomTarget::Preview => {
                                 self.set_preview_font_size(DEFAULT_PREVIEW_FONT_SIZE);
@@ -482,6 +554,23 @@ impl UniformApp {
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::E) {
                 *menu_export = true;
             }
+            // Pane commands. The arrows carry Alt as well as Cmd/Ctrl because
+            // bare Alt + arrow is word-wise cursor movement on macOS. Swap
+            // (Cmd/Ctrl+Alt+X) is not here: it never arrives as a key press,
+            // see `take_swap_cut_event` below.
+            if i.modifiers.command && !i.modifiers.shift {
+                if i.key_pressed(egui::Key::W) {
+                    *pane_action = PaneAction::Close;
+                }
+                if i.modifiers.alt {
+                    if i.key_pressed(egui::Key::ArrowLeft) {
+                        *pane_action = PaneAction::Split(SplitSide::Left);
+                    }
+                    if i.key_pressed(egui::Key::ArrowRight) {
+                        *pane_action = PaneAction::Split(SplitSide::Right);
+                    }
+                }
+            }
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::E) {
                 *menu_export_new = true;
             }
@@ -514,6 +603,22 @@ impl UniformApp {
         });
     }
 
+    /// Takes the swap-panes chord out of the input queue before anything else
+    /// reads it. Runs with the other input-queue rewriting at the top of the
+    /// frame, since the event has to be gone before the editors are drawn.
+    pub(super) fn intercept_swap_panes_chord(
+        &mut self,
+        ctx: &egui::Context,
+        menu: &mut MenuActions,
+    ) {
+        ctx.input_mut(|i| {
+            let modifiers = i.modifiers;
+            if take_swap_cut_event(&mut i.events, modifiers) {
+                menu.pane_action = PaneAction::Swap;
+            }
+        });
+    }
+
     /// Dispatches the file-level menu requests (and the escape-font toggle)
     /// before the panels are laid out.
     pub(super) fn apply_file_menu_actions(&mut self, ctx: &egui::Context, menu: &MenuActions) {
@@ -526,7 +631,9 @@ impl UniformApp {
             && self.confirm_close_and_maybe_save() {
                 self.font_dir = Some(dir.clone());
                 self.open_documents.clear();
-                self.active_doc_idx = None;
+                // The pane layout is not carried across folders: its documents
+                // are gone, and pane indices would dangle.
+                self.panes = Panes::new();
                 self.sidebar.set_directory(&dir);
                 let (base_docs, parse_errors) = crate::render::ttf_builder::load_docs_from_directory_checked(&dir);
                 self.font_base_docs = base_docs;
@@ -660,5 +767,43 @@ impl UniformApp {
                 )
             });
         }
+    }
+}
+
+#[cfg(test)]
+mod shortcut_tests {
+    use super::*;
+
+    fn mods(command: bool, alt: bool, shift: bool) -> egui::Modifiers {
+        egui::Modifiers { alt, ctrl: command, shift, mac_cmd: command, command }
+    }
+
+    /// The swap chord arrives as a cut, so it must be taken *and* removed:
+    /// left in the queue, the focused editor cuts the selection instead.
+    #[test]
+    fn the_swap_chord_is_taken_out_of_the_queue() {
+        let mut events = vec![egui::Event::Cut];
+        assert!(take_swap_cut_event(&mut events, mods(true, true, false)));
+        assert!(events.is_empty());
+    }
+
+    /// A plain Cmd/Ctrl+X is a real cut and must reach the editor untouched.
+    #[test]
+    fn a_plain_cut_is_left_alone() {
+        let mut events = vec![egui::Event::Cut];
+        assert!(!take_swap_cut_event(&mut events, mods(true, false, false)));
+        assert_eq!(events.len(), 1);
+        // Windows' Shift+Delete cut, with alt held for some other reason.
+        let mut events = vec![egui::Event::Cut];
+        assert!(!take_swap_cut_event(&mut events, mods(true, true, true)));
+        assert_eq!(events.len(), 1);
+    }
+
+    /// Holding the chord's modifiers over unrelated input takes nothing.
+    #[test]
+    fn other_events_under_the_same_modifiers_are_untouched() {
+        let mut events = vec![egui::Event::Copy, egui::Event::Paste("x".into())];
+        assert!(!take_swap_cut_event(&mut events, mods(true, true, false)));
+        assert_eq!(events.len(), 2);
     }
 }

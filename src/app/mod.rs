@@ -22,12 +22,14 @@ mod background;
 mod docs;
 mod menus;
 mod panels;
+mod panes;
 mod rename;
 mod zoom;
 
 use background::BackgroundTaskStatus;
 use docs::OpenDocument;
 use menus::{EditTarget, MenuActions};
+use panes::Panes;
 use zoom::DEFAULT_PREVIEW_FONT_SIZE;
 
 type FontPair = (Vec<u8>, Vec<u8>);
@@ -39,7 +41,10 @@ pub struct UniformApp {
     font_dir: Option<PathBuf>,
     last_title: String,
     open_documents: Vec<OpenDocument>,
-    active_doc_idx: Option<usize>,
+    /// The one or two editor panes and which of them has the focus. The
+    /// focused pane's document is what "the active document" means everywhere
+    /// else in the application.
+    panes: Panes,
     sidebar: Sidebar,
     escape_mode: bool,
     status_message: Option<(String, std::time::Instant)>,
@@ -72,7 +77,6 @@ pub struct UniformApp {
     /// resolve threads starving each other (observed: 2s resolves stretching
     /// past 20s under the pile-up).
     derived_inflight: bool,
-    zoom_level: u32,
     last_export_path: Option<PathBuf>,
     close_confirmed: bool,
     hex_input: Option<String>,
@@ -81,10 +85,9 @@ pub struct UniformApp {
     bottom_panel_tab: Option<usize>,
     preview_font_size: f32,
     preview_font_size_slider: f32,
-    /// Screen rects of the two zoomable surfaces as of the last frame, used to
-    /// route Cmd/Ctrl + wheel to whichever one the pointer is over. `None`
-    /// when the surface was not drawn (no open document, preview tab hidden).
-    editor_view_rect: Option<egui::Rect>,
+    /// Screen rect of the shaped preview as of the last frame, used to route
+    /// Cmd/Ctrl + wheel to whichever surface the pointer is over. `None` when
+    /// the preview tab is hidden. The editors' own rects live on their panes.
     preview_view_rect: Option<egui::Rect>,
     shaped_preview: ShapedPreviewState,
     specimen: SpecimenState,
@@ -119,12 +122,42 @@ fn perf_log_enabled() -> bool {
 }
 
 impl UniformApp {
+    /// The document of the focused pane, which is what the menus, the status
+    /// bar and the window title mean by "active".
+    fn active_doc_idx(&self) -> Option<usize> {
+        self.panes.active_doc_idx()
+    }
+
     fn active_doc(&self) -> Option<&OpenDocument> {
-        self.active_doc_idx.and_then(|i| self.open_documents.get(i))
+        self.active_doc_idx().and_then(|i| self.open_documents.get(i))
     }
 
     fn active_doc_mut(&mut self) -> Option<&mut OpenDocument> {
-        self.active_doc_idx.and_then(|i| self.open_documents.get_mut(i))
+        self.active_doc_idx().and_then(|i| self.open_documents.get_mut(i))
+    }
+
+    /// The document shown by pane `idx`, if that pane has one.
+    fn pane_doc_mut(&mut self, idx: usize) -> Option<&mut OpenDocument> {
+        let doc_idx = self.panes.get(idx)?.doc_idx?;
+        self.open_documents.get_mut(doc_idx)
+    }
+
+    /// Moves the focus onto whichever pane is showing an editor whose widget
+    /// holds the keyboard focus. Run after the panes are laid out, so "the
+    /// pane the focus was last in" is what the sidebar and the menus see.
+    fn sync_pane_focus(&mut self) {
+        for idx in 0..self.panes.len() {
+            let active = self
+                .panes
+                .get(idx)
+                .and_then(|p| p.doc_idx)
+                .and_then(|d| self.open_documents.get(d))
+                .is_some_and(|d| d.editor_state.is_active());
+            if active {
+                self.panes.set_focus(idx);
+                return;
+            }
+        }
     }
 
     fn in_grid_edit(&self) -> bool {
@@ -164,7 +197,7 @@ impl UniformApp {
             font_dir: font_dir.clone(),
             last_title: String::new(),
             open_documents: Vec::new(),
-            active_doc_idx: None,
+            panes: Panes::new(),
             sidebar: Sidebar::new(),
             escape_mode: false,
             status_message: None,
@@ -189,7 +222,6 @@ impl UniformApp {
             derived_data_rx,
             derived_rebuild_at: None,
             derived_inflight: false,
-            zoom_level: 1,
             last_export_path: None,
             close_confirmed: false,
             hex_input: None,
@@ -198,7 +230,6 @@ impl UniformApp {
             bottom_panel_tab: None,
             preview_font_size: DEFAULT_PREVIEW_FONT_SIZE,
             preview_font_size_slider: DEFAULT_PREVIEW_FONT_SIZE,
-            editor_view_rect: None,
             preview_view_rect: None,
             shaped_preview: ShapedPreviewState::new(),
             specimen: SpecimenState::new(),
@@ -256,7 +287,7 @@ impl UniformApp {
             Some(i) => i,
             None => return,
         };
-        self.active_doc_idx = Some(idx);
+        self.panes.show_document(idx);
 
         let doc = &mut self.open_documents[idx];
         if let Some(line_idx) = find_link_target_in_doc(&doc.lines, name, kind) {
@@ -287,6 +318,7 @@ impl eframe::App for UniformApp {
         });
 
         self.intercept_hex_codepoint_input(ctx);
+        self.intercept_swap_panes_chord(ctx, &mut menu);
         self.handle_zoom_scroll(ctx);
         self.handle_zoom_keys(ctx);
 
@@ -320,7 +352,19 @@ impl eframe::App for UniformApp {
         let (specimen_clicked_glyph, issues_click) = self.show_bottom_panel(ctx);
 
         crate::stackmon::phase("update:central/editor");
-        let (goto_glyph_request, rename_request) = self.show_editor_panel(ctx);
+        let (goto_glyph_request, rename_request, divider_closed_pane) =
+            self.show_editor_panel(ctx);
+        // Now that this frame's editors have run, "the pane the focus is in"
+        // is up to date — everything below acts on that pane.
+        self.sync_pane_focus();
+        if let Some(pane) = divider_closed_pane {
+            self.panes.set_focus(pane);
+            self.close_focused_pane();
+            self.focus_pane_editor(ctx);
+        }
+        if self.apply_pane_action(menu.pane_action) {
+            self.focus_pane_editor(ctx);
+        }
 
         if let Some(goto) = goto_glyph_request {
             self.goto_glyph(ctx, &goto.name, &goto.kind);
@@ -333,7 +377,7 @@ impl eframe::App for UniformApp {
         if let Some((path, line)) = issues_click {
             self.open_file(path.clone());
             if let Some(idx) = self.open_documents.iter().position(|d| d.document.path == path) {
-                self.active_doc_idx = Some(idx);
+                self.panes.show_document(idx);
                 self.open_documents[idx].editor_state.goto_line(line);
             }
         }
@@ -363,7 +407,7 @@ impl eframe::App for UniformApp {
 
 impl UniformApp {
     fn sync_window_title(&mut self, ctx: &egui::Context) {
-        let title = if let Some(idx) = self.active_doc_idx {
+        let title = if let Some(idx) = self.active_doc_idx() {
             let doc = &self.open_documents[idx];
             let path = doc.document.path.display().to_string();
             if doc.document.dirty {
