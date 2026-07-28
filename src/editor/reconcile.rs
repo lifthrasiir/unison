@@ -35,7 +35,7 @@ pub fn reconcile(
                         let mut resized = old_grid.clone();
                         resized.resize(w, h);
                         undo.break_coalesce();
-                        undo.push_lines(
+                        undo.push_derived_lines(
                             i + 1,
                             vec![DocLine::Grid(old_grid)],
                             vec![DocLine::Grid(resized.clone())],
@@ -51,7 +51,7 @@ pub fn reconcile(
                         let empty = PixelGrid::new(w, h);
                         let caret_after = caret_after_splice(caret, i + 1, 0, 1);
                         undo.break_coalesce();
-                        undo.push_lines(
+                        undo.push_derived_lines(
                             i + 1,
                             vec![],
                             vec![DocLine::Grid(empty.clone())],
@@ -79,7 +79,7 @@ pub fn reconcile(
                     .collect();
                 let caret_after = caret_after_splice(caret, i, 1, rows.len());
                 undo.break_coalesce();
-                undo.push_lines(i, vec![lines[i].clone()], rows.clone(), caret, caret_after);
+                undo.push_derived_lines(i, vec![lines[i].clone()], rows.clone(), caret, caret_after);
                 undo.break_coalesce();
                 lines.splice(i..=i, rows);
                 return Some(caret_after);

@@ -190,6 +190,38 @@ fn header_height_edit_resizes_grid_when_caret_leaves_line() {
     assert_eq!(h.gutter_numbers(), (1..=21).collect::<Vec<_>>());
 }
 
+/// The grid resize is a consequence of the header edit, not a separate user
+/// action: one undo has to take the text *and* the grid back together. Undoing
+/// only the resize would leave a `18 16` header over an 8-wide grid, which the
+/// reparse then renders as an empty 18-wide grid.
+#[test]
+fn header_dimension_edit_undoes_in_one_step() {
+    let mut h = EditorHarness::new(&sample_doc());
+    let original_lines = h.lines.clone();
+
+    // "glyph foo 16 16" -> "glyph foo 18 16"
+    h.click_text(0, 12); // just after the width "16"
+    h.key(Key::Backspace);
+    h.key(Key::Backspace);
+    h.type_text("18");
+    assert_eq!(h.text(0), "glyph foo 18 16");
+
+    h.key(Key::ArrowDown);
+    assert_eq!((h.grid(1).width, h.grid(1).height), (18, 16));
+
+    cmd_z(&mut h);
+    assert_eq!(h.text(0), "glyph foo 16 16", "header text restored by one undo");
+    assert_eq!(h.lines, original_lines, "grid restored by the same undo");
+    assert_eq!(h.grid_row_count(1), 16);
+    assert!(!h.state.undo.can_undo(), "no leftover undo entry for the resize");
+
+    // Redo has to bring both sides back in one step too.
+    h.key_mod(Key::Z, Modifiers::COMMAND | Modifiers::SHIFT);
+    assert_eq!(h.text(0), "glyph foo 18 16");
+    assert_eq!((h.grid(1).width, h.grid(1).height), (18, 16));
+    assert!(!h.state.undo.can_redo(), "no leftover redo entry for the resize");
+}
+
 /// Same as above, but the deferred resize is flushed by the editor losing
 /// keyboard focus rather than by caret movement.
 #[test]

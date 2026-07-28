@@ -183,6 +183,46 @@ impl UndoStack {
         self.position = self.entries.len();
     }
 
+    /// Record a structural change that is a *consequence* of the last user
+    /// edit rather than an edit of its own — the grid resize/creation/demotion
+    /// `reconcile` performs once the caret leaves a glyph header.
+    ///
+    /// It folds into the preceding entry, so one undo takes the header text and
+    /// its grid back together. Undoing them separately would leave a `18 16`
+    /// header over a 16-wide grid, which the reparse renders as an empty grid.
+    pub fn push_derived_lines(
+        &mut self,
+        at: usize,
+        old: Vec<DocLine>,
+        new: Vec<DocLine>,
+        caret_before: Caret,
+        caret_after: Caret,
+    ) {
+        // Only foldable at the tip of the stack, and never onto the entry the
+        // saved snapshot points at: merging there would keep `is_at_saved`
+        // true even though `lines` no longer match the file on disk.
+        let foldable = self.position == self.entries.len()
+            && self.position > 0
+            && self.saved_position != Some(self.position);
+        if !foldable {
+            self.push_lines(at, old, new, caret_before, caret_after);
+            return;
+        }
+
+        let op = UndoOp::Lines { at, old, new };
+        let entry = &mut self.entries[self.position - 1];
+        match &mut entry.op {
+            UndoOp::Compound(ops) => ops.push(op),
+            other => {
+                let prev = std::mem::replace(other, UndoOp::Compound(Vec::new()));
+                let UndoOp::Compound(ops) = other else { unreachable!() };
+                ops.push(prev);
+                ops.push(op);
+            }
+        }
+        entry.caret_after = caret_after;
+    }
+
     pub fn push_compound(
         &mut self,
         ops: Vec<UndoOp>,
@@ -528,6 +568,48 @@ mod tests {
         assert_eq!(lines.len(), 3);
         assert!(matches!(lines[1], DocLine::Grid(_)));
         assert_eq!(caret, c(1, 0));
+    }
+
+    #[test]
+    fn derived_lines_fold_into_the_preceding_edit() {
+        let mut lines = vec![text("glyph foo 8 2"), grid(8, 2)];
+        let mut undo = UndoStack::new();
+
+        // The user edit...
+        undo.push_text(0, 10, "8".into(), "18".into(), c(0, 11), c(0, 12));
+        lines[0] = text("glyph foo 18 2");
+        // ...and the resize it implies.
+        undo.push_derived_lines(1, vec![grid(8, 2)], vec![grid(18, 2)], c(0, 12), c(0, 12));
+        lines[1] = grid(18, 2);
+
+        let caret = undo.undo(&mut lines).unwrap();
+        assert_eq!(lines, vec![text("glyph foo 8 2"), grid(8, 2)]);
+        assert_eq!(caret, c(0, 11));
+        assert!(!undo.can_undo(), "both halves belong to one entry");
+
+        undo.redo(&mut lines).unwrap();
+        assert_eq!(lines, vec![text("glyph foo 18 2"), grid(18, 2)]);
+        assert!(!undo.can_redo());
+    }
+
+    #[test]
+    fn derived_lines_stay_separate_at_the_saved_snapshot() {
+        let mut lines = vec![text("glyph foo 8 2")];
+        let mut undo = UndoStack::new();
+
+        undo.push_text(0, 0, "".into(), "x".into(), c(0, 0), c(0, 1));
+        undo.mark_saved();
+        assert!(undo.is_at_saved());
+
+        // Folding here would leave the document looking saved despite the
+        // grid insertion, so it has to become its own entry.
+        undo.push_derived_lines(1, vec![], vec![grid(8, 2)], c(0, 1), c(0, 1));
+        lines.push(grid(8, 2));
+        assert!(!undo.is_at_saved());
+
+        undo.undo(&mut lines).unwrap();
+        assert_eq!(lines.len(), 1);
+        assert!(undo.is_at_saved());
     }
 
     #[test]
