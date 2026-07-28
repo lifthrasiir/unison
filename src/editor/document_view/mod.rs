@@ -82,8 +82,31 @@ pub struct RenameAction {
     pub kind: RenameKind,
 }
 
+/// Where a followed link led. The two cases differ in who can carry the jump
+/// out: a target in this same document is the editor's own business, anything
+/// else needs the host, which is the only thing that knows the other files.
+pub enum NavTarget {
+    /// The target is in this document and the editor has already moved the
+    /// caret to `line`.
+    Local { line: usize },
+    /// The target is not in this document; only the host can find and open it.
+    CrossFile(GotoGlyph),
+}
+
+/// One Ctrl/Cmd+click on a link, reported so the host can both carry out the
+/// cross-file case and record the jump in its go-back/go-forward history.
+///
+/// `from` is the position of the *link* — not of the caret, which a Ctrl+click
+/// deliberately leaves alone. Going back returns there rather than to wherever
+/// the caret happened to sit, which is what makes "back" land on the reference
+/// the user followed.
+pub struct NavRequest {
+    pub from: Caret,
+    pub target: NavTarget,
+}
+
 pub struct DocumentViewResult {
-    pub goto: Option<GotoGlyph>,
+    pub nav: Option<NavRequest>,
     pub rename: Option<RenameAction>,
 }
 
@@ -423,24 +446,5 @@ fn show_document(
         .map(|&off| off + 1)
         .unwrap_or(1);
 
-    let cross_file_id = state.key(Slot::GotoCrossFile);
-    let cross_file_kind_id = state.key(Slot::GotoCrossFileKind);
-    let goto_request: Option<String> = ui.ctx().data(|d| d.get_temp(cross_file_id));
-    if let Some(name) = goto_request {
-        let kind_u8: u8 = ui.ctx().data(|d| d.get_temp(cross_file_kind_id).unwrap_or(0));
-        let kind = match kind_u8 {
-            1 => LinkTargetKind::NameParts,
-            2 => LinkTargetKind::Remap,
-            _ => LinkTargetKind::Glyph,
-        };
-        ui.ctx().data_mut(|d| {
-            d.remove::<String>(cross_file_id);
-            d.remove::<u8>(cross_file_kind_id);
-        });
-        return DocumentViewResult {
-            goto: Some(GotoGlyph { name, kind }),
-            rename: rename_result,
-        };
-    }
-    DocumentViewResult { goto: None, rename: rename_result }
+    DocumentViewResult { nav: state.pending_nav.take(), rename: rename_result }
 }

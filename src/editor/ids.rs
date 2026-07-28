@@ -139,13 +139,6 @@ pub(crate) enum Slot {
     /// Area id of the error tooltip.
     ErrorTooltip,
 
-    // -- cross-file navigation ---------------------------------------------
-    /// Name of a link target that lives in another file; the editor cannot
-    /// follow it itself, so it hands it back to the host.
-    GotoCrossFile,
-    /// Kind discriminant that goes with `GotoCrossFile`.
-    GotoCrossFileKind,
-
     // -- inline tool panel and pixel editing -------------------------------
     /// Whether the pointer is over the subglyph preview row.
     SubglyphPreviewHover,

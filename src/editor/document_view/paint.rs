@@ -175,6 +175,7 @@ pub(super) fn paint_document_area(
         let mut error_tooltip: Option<(egui::Pos2, String)> = None;
         let mut goto_glyph_name: Option<String> = None;
         let mut goto_glyph_kind: Option<LinkTargetKind> = None;
+        let mut goto_link_pos: Option<Caret> = None;
         let mut inline_panel_origin: Option<(f32, f32, f32)> = None; // (x, y, grid_display_width)
         let mut edit_grid_rect: Option<egui::Rect> = None;
 
@@ -364,6 +365,10 @@ pub(super) fn paint_document_area(
                                         Some(link.target.clone());
                                     goto_glyph_kind =
                                         Some(link.kind.clone());
+                                    goto_link_pos = Some(Caret::new(
+                                        vl.doc_line,
+                                        link.col_start,
+                                    ));
                                 }
                             }
                         }
@@ -701,8 +706,13 @@ pub(super) fn paint_document_area(
 
         // Ctrl/Cmd+click goto
         if let Some(ref target_name) = goto_glyph_name {
-            let kind = goto_glyph_kind.as_ref().unwrap_or(&LinkTargetKind::Glyph);
-            if let Some(line_idx) = doc_links::find_link_target_in_doc(lines, target_name, kind) {
+            let kind = goto_glyph_kind.clone().unwrap_or(LinkTargetKind::Glyph);
+            // The link's own position, so "go back" returns to the reference
+            // rather than to the untouched caret.
+            let from = goto_link_pos.unwrap_or(state.cursor);
+            let target = if let Some(line_idx) =
+                doc_links::find_link_target_in_doc(lines, target_name, &kind)
+            {
                 state.mode = EditMode::Normal;
                 state.selection_anchor = None;
                 state.cursor = Caret::new(line_idx, 0);
@@ -711,18 +721,11 @@ pub(super) fn paint_document_area(
                 ui.ctx().data_mut(|d| {
                     d.insert_temp(state.key(Slot::ScrollTarget), centered);
                 });
+                NavTarget::Local { line: line_idx }
             } else {
-                let kind_u8: u8 = match kind {
-                    LinkTargetKind::Glyph => 0,
-                    LinkTargetKind::NameParts => 1,
-                    LinkTargetKind::Remap => 2,
-                    LinkTargetKind::Color => 3,
-                };
-                ui.ctx().data_mut(|d| {
-                    d.insert_temp(state.key(Slot::GotoCrossFile), target_name.clone());
-                    d.insert_temp(state.key(Slot::GotoCrossFileKind), kind_u8);
-                });
-            }
+                NavTarget::CrossFile(GotoGlyph { name: target_name.clone(), kind })
+            };
+            state.pending_nav = Some(NavRequest { from, target });
         }
 
         // Process click.  A click on the canvas while the rename popup is

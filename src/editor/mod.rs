@@ -138,6 +138,9 @@ pub struct EditorState {
     /// True while pixel painting is in progress (mouse held). Suppresses
     /// TTF font rebuild until the drag ends.
     pub(crate) suppress_font_rebuild: bool,
+    /// A link followed this frame, handed to the host at the end of it: the
+    /// host owns the other files and the navigation history.
+    pub(crate) pending_nav: Option<document_view::NavRequest>,
 }
 
 impl EditorState {
@@ -177,6 +180,7 @@ impl EditorState {
             view_cache: None,
             pixel_paint_dirty: None,
             suppress_font_rebuild: false,
+            pending_nav: None,
         }
     }
 
@@ -220,6 +224,16 @@ impl EditorState {
         self.mode = EditMode::Normal;
         self.selection_anchor = None;
         self.cursor = caret::Caret::new(line, 0);
+        self.scroll_to_cursor = true;
+    }
+
+    /// Moves the caret to a remembered position, clamped to the document as it
+    /// stands now. Navigation history records raw line/column pairs, so an edit
+    /// since the jump can leave one pointing past the end.
+    pub fn goto_caret(&mut self, lines: &[DocLine], line: usize, col: usize) {
+        self.mode = EditMode::Normal;
+        self.selection_anchor = None;
+        self.cursor = caret::clamp(lines, caret::Caret::new(line, col));
         self.scroll_to_cursor = true;
     }
 

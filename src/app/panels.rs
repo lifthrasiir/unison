@@ -354,7 +354,7 @@ impl UniformApp {
         &mut self,
         ui: &mut egui::Ui,
         pane_idx: usize,
-        goto_glyph_request: &mut Option<crate::editor::document_view::GotoGlyph>,
+        nav_request: &mut Option<(usize, crate::editor::document_view::NavRequest)>,
         rename_request: &mut Option<crate::editor::document_view::RenameAction>,
     ) -> Option<egui::Rect> {
         let pane = self.panes.get(pane_idx)?;
@@ -395,8 +395,8 @@ impl UniformApp {
             env,
         )
         .show(ui);
-        if let Some(goto) = result.goto {
-            *goto_glyph_request = Some(goto);
+        if let Some(nav) = result.nav {
+            *nav_request = Some((doc_idx, nav));
         }
         if let Some(rename) = result.rename {
             *rename_request = Some(rename);
@@ -405,25 +405,25 @@ impl UniformApp {
     }
 
     /// The central editor panel: one pane, or two side by side with a
-    /// draggable divider.  Returns any goto/rename request produced by a
-    /// document view for post-frame dispatch, plus the pane a divider drop
-    /// asked to close.
+    /// draggable divider.  Returns any navigation/rename request produced by a
+    /// document view for post-frame dispatch (the navigation one tagged with
+    /// the document it came from), plus the pane a divider drop asked to close.
     pub(super) fn show_editor_panel(
         &mut self,
         ctx: &egui::Context,
     ) -> (
-        Option<crate::editor::document_view::GotoGlyph>,
+        Option<(usize, crate::editor::document_view::NavRequest)>,
         Option<crate::editor::document_view::RenameAction>,
         Option<usize>,
     ) {
-        let mut goto_glyph_request = None;
+        let mut nav_request = None;
         let mut rename_request = None;
         let mut divider_closed_pane = None;
         let mut pane_rects = [None, None];
         egui::CentralPanel::default().show(ctx, |ui| {
             if !self.panes.is_split() {
                 pane_rects[0] =
-                    self.show_pane(ui, 0, &mut goto_glyph_request, &mut rename_request);
+                    self.show_pane(ui, 0, &mut nav_request, &mut rename_request);
                 return;
             }
 
@@ -440,7 +440,7 @@ impl UniformApp {
                 );
                 child.set_clip_rect(rect);
                 pane_rects[idx] =
-                    self.show_pane(&mut child, idx, &mut goto_glyph_request, &mut rename_request);
+                    self.show_pane(&mut child, idx, &mut nav_request, &mut rename_request);
             }
 
             // With one sidebar for two panes, which pane an opened file lands
@@ -472,7 +472,7 @@ impl UniformApp {
                 pane.view_rect = rect;
             }
         }
-        (goto_glyph_request, rename_request, divider_closed_pane)
+        (nav_request, rename_request, divider_closed_pane)
     }
 
     /// The draggable divider between two panes.

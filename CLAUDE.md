@@ -87,7 +87,8 @@ Editor (feature `editor`):
   (resolved glyphs, issues). Rebuilds are debounced (300 ms, 1000 ms after text input) and guarded
   against overlapping rebuild threads. `mod.rs` owns the struct, `new`, the `eframe::App` loop and
   the small shared helpers; `background.rs` (build/derive/assert threads and applying their results),
-  `docs.rs` (open/flush/save/export), `menus.rs`, `panels.rs`, `panes.rs` (the split-editor model,
+  `docs.rs` (open/flush/save/export), `history.rs` (go back/forward, below), `menus.rs`,
+  `panels.rs`, `panes.rs` (the split-editor model,
   below), `rename.rs`, `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode` (`Normal` text editing, `GlyphEdit` pixel painting,
   `LayerMove` ref/layer repositioning). `editor/ids.rs` — `EditorId`/`Slot`, the per-instance `egui`
@@ -167,6 +168,30 @@ focused editor cuts the selection instead.
 Dragging the divider onto either edge and releasing closes the pane it collapsed; `split_layout`
 still clamps both panes to `MIN_PANE_WIDTH`, so the shaded overlay is what tells the user the drop
 will close rather than resize.
+
+### `app/history.rs` — go back / go forward
+
+The reverse of Ctrl/Cmd+click "go to symbol" (Cmd/Ctrl+T back, Cmd/Ctrl+Shift+T forward; Edit menu).
+The stack behaves exactly like the undo stack — pushing while rewound replaces everything after the
+current position — but each entry stores **two** positions, because following a link is asymmetric:
+Go Back must reach the *link*, Go Forward the *target*. One position per entry lands one of the two
+directions a step off.
+
+`from` is the link's own line/column, not the caret — a Ctrl+click deliberately leaves the caret
+alone, so a `from` taken from the caret points wherever the user last clicked
+(`view_tests.rs::following_a_link_reports_the_link_position_not_the_caret` pins this).
+
+The history spans files, so it lives in `UniformApp`, not in an `EditorState`; locations are indices
+into `open_documents`, which is only ever appended to, so an index cannot come to mean a different
+file. Opening another folder clears that list and clears the history with it. The editor reports
+each followed link once, as `DocumentViewResult::nav` — a `NavTarget::Local` the editor already
+carried out itself, or a `NavTarget::CrossFile` only the host can resolve — so both cases are
+recorded through one path.
+
+Positions are **not** rewritten when the document is edited under them, so a jump remembered across
+an insertion can come back a few lines off (navigation clamps, so it is stale, never invalid). Doing
+better needs anchors that every mutation updates: `UndoStack::push_lines` is nearly the choke point
+for line-count changes, but `reconcile.rs` and `rename.rs` bypass it, so it is not one edit yet.
 
 ### `line_fields.rs` — where names live
 

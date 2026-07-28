@@ -1986,3 +1986,84 @@ fn a_plain_wheel_still_scrolls_after_an_alt_gesture() {
     }
     assert!(h.scroll_y() > 1.0, "the view no longer scrolls; y = {}", h.scroll_y());
 }
+
+// ---------------------------------------------------------------------------
+// Following links (the input side of go back / go forward)
+// ---------------------------------------------------------------------------
+
+fn link_doc(body: &str) -> String {
+    format!("glyph a 2 2\n@@..\n..@@\nglyph b\n{body}\n")
+}
+
+/// Doc-line index of the first text line starting with `prefix`.
+#[track_caller]
+fn text_line_at(h: &EditorHarness, prefix: &str) -> usize {
+    h.lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(s) if s.trim_start().starts_with(prefix)))
+        .unwrap_or_else(|| panic!("no line starting with {prefix:?}"))
+}
+
+/// Ctrl/Cmd+clicking a link reports the jump, and reports it as starting at
+/// the *link* — not at the caret, which the click deliberately leaves where it
+/// was. Go Back relies on that position to return to the reference.
+#[test]
+fn following_a_link_reports_the_link_position_not_the_caret() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(&link_doc("ref a 0 0"));
+    let ref_line = text_line_at(&h, "ref a");
+    let def_line = text_line_at(&h, "glyph a");
+
+    // Park the caret somewhere unrelated, so a `from` taken from the caret
+    // would be visibly wrong.
+    h.click_text(text_line_at(&h, "glyph b"), 2);
+    assert_eq!(h.state.cursor.line, text_line_at(&h, "glyph b"));
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(ref_line, 4), Modifiers::COMMAND);
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    assert_eq!(nav.from, Caret::new(ref_line, 4));
+    match nav.target {
+        NavTarget::Local { line } => assert_eq!(line, def_line),
+        NavTarget::CrossFile(_) => panic!("`a` is defined in this document"),
+    }
+    // The editor carries the local jump out itself.
+    assert_eq!(h.state.cursor.line, def_line);
+}
+
+/// A link whose target is in another file cannot be resolved by the editor, so
+/// it is handed to the host — still carrying the link position to come back to.
+#[test]
+fn a_link_to_another_file_is_handed_to_the_host() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(&link_doc("ref elsewhere 0 0"));
+    let ref_line = text_line_at(&h, "ref elsewhere");
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(ref_line, 4), Modifiers::COMMAND);
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    assert_eq!(nav.from, Caret::new(ref_line, 4));
+    match &nav.target {
+        NavTarget::CrossFile(goto) => assert_eq!(goto.name, "elsewhere"),
+        NavTarget::Local { .. } => panic!("`elsewhere` is not in this document"),
+    }
+    // Nothing moved: only the host can follow it.
+    assert_ne!(h.state.cursor.line, ref_line + 1);
+}
+
+/// An ordinary click on a link is just a click — no jump, and nothing recorded.
+#[test]
+fn clicking_a_link_without_the_modifier_reports_nothing() {
+    let mut h = EditorHarness::new(&link_doc("ref a 0 0"));
+    let ref_line = text_line_at(&h, "ref a");
+
+    h.last_nav = None;
+    h.click_text(ref_line, 4);
+
+    assert!(h.last_nav.is_none());
+    assert_eq!(h.state.cursor, Caret::new(ref_line, 4));
+}

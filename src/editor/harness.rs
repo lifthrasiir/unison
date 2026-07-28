@@ -186,6 +186,9 @@ pub(crate) struct EditorHarness {
     time: f64,
     snapshot: Option<Arc<ViewSnapshot>>,
     pub last_copied_text: Option<String>,
+    /// The navigation request the primary editor reported on the most recent
+    /// frame that produced one — what the host would act on and record.
+    pub last_nav: Option<crate::editor::document_view::NavRequest>,
     /// A second editor drawn beside the primary one in the *same* context and
     /// the same frame. Only [`EditorHarness::split`] creates it; every other
     /// test keeps the single-pane layout untouched.
@@ -249,6 +252,7 @@ impl EditorHarness {
             time: 0.0,
             snapshot: None,
             last_copied_text: None,
+            last_nav: None,
             second: None,
         };
         h.rebuild_derived();
@@ -290,11 +294,12 @@ impl EditorHarness {
         let prev_gen = self.doc.edit_gen;
         let prev_second_gen = self.second.as_ref().map(|p| p.doc.edit_gen);
         let ctx = self.ctx.clone();
+        let mut nav_result = None;
         let full_output = ctx.run(raw, |cx| {
             egui::CentralPanel::default().show(cx, |ui| {
                 let colors = crate::render::ttf_builder::ColorAliasMap::default();
                 let Some(second) = &mut self.second else {
-                    let _ = DocumentEditor::new(
+                    let result = DocumentEditor::new(
                         &mut self.doc,
                         &mut self.lines,
                         &mut self.state,
@@ -310,6 +315,7 @@ impl EditorHarness {
                         },
                     )
                     .show(ui);
+                    nav_result = result.nav;
                     return;
                 };
                 // Split layout: each editor gets half the width, so the two
@@ -318,7 +324,7 @@ impl EditorHarness {
                 let pane_size = egui::vec2(ui.available_width() * 0.5, ui.available_height());
                 ui.horizontal_top(|ui| {
                     ui.allocate_ui(pane_size, |ui| {
-                        let _ = DocumentEditor::new(
+                        let result = DocumentEditor::new(
                             &mut self.doc,
                             &mut self.lines,
                             &mut self.state,
@@ -334,6 +340,7 @@ impl EditorHarness {
                             },
                         )
                         .show(ui);
+                        nav_result = result.nav;
                     });
                     ui.allocate_ui(pane_size, |ui| {
                         let _ = DocumentEditor::new(
@@ -356,6 +363,9 @@ impl EditorHarness {
                 });
             });
         });
+        if nav_result.is_some() {
+            self.last_nav = nav_result;
+        }
         for cmd in &full_output.platform_output.commands {
             if let egui::OutputCommand::CopyText(text) = cmd {
                 self.last_copied_text = Some(text.clone());

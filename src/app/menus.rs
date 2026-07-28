@@ -19,6 +19,13 @@ enum SelMenuAction {
     Transform(crate::editor::pixel_selection::SelectionTransform),
 }
 
+/// A step through the go-to-symbol history.
+#[derive(Clone, Copy, PartialEq)]
+pub(super) enum NavAction {
+    Back,
+    Forward,
+}
+
 /// Everything the menu bar (and its keyboard accelerators) requested this
 /// frame; dispatched after the panels have run.
 #[derive(Default)]
@@ -41,6 +48,8 @@ pub(super) struct MenuActions {
     /// Split/swap/close, dispatched after the panes are laid out so it acts on
     /// the pane the focus is actually in this frame.
     pub(super) pane_action: PaneAction,
+    /// Go back / go forward through the followed-link history.
+    pub(super) nav_action: Option<NavAction>,
 }
 
 /// The subset of [`MenuActions`] dispatched after the central panel.
@@ -113,6 +122,7 @@ impl UniformApp {
         let sel_menu_action = &mut menu.sel_menu_action;
         let scale_action = &mut menu.scale_action;
         let pane_action = &mut menu.pane_action;
+        let nav_action = &mut menu.nav_action;
 
         use crate::edit_menu::EditMenuCaps;
 
@@ -205,6 +215,28 @@ impl UniformApp {
                         }
                     };
                     *edit_action = crate::edit_menu::show_edit_menu_items(ui, &caps, true);
+                    ui.separator();
+                    if ui
+                        .add_enabled(
+                            self.nav_history.can_go_back(),
+                            egui::Button::new("Go back").shortcut_text(format!("{mod_name}T")),
+                        )
+                        .clicked()
+                    {
+                        *nav_action = Some(NavAction::Back);
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add_enabled(
+                            self.nav_history.can_go_forward(),
+                            egui::Button::new("Go forward")
+                                .shortcut_text(format!("{mod_name}{shift_name}T")),
+                        )
+                        .clicked()
+                    {
+                        *nav_action = Some(NavAction::Forward);
+                        ui.close_menu();
+                    }
                     ui.separator();
                     if ui
                         .add_enabled(editor_focused, egui::Button::new("Rename symbol...").shortcut_text("F2"))
@@ -574,6 +606,16 @@ impl UniformApp {
             if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::E) {
                 *menu_export_new = true;
             }
+            // Go back / go forward through followed links. Both are dispatched
+            // even with nothing to go to; the history just reports there is no
+            // step to take.
+            if i.modifiers.command && i.key_pressed(egui::Key::T) {
+                *nav_action = Some(if i.modifiers.shift {
+                    NavAction::Forward
+                } else {
+                    NavAction::Back
+                });
+            }
             if cfg!(target_os = "macos") {
                 if i.modifiers.command && i.key_pressed(egui::Key::Q) {
                     *menu_exit = true;
@@ -632,8 +674,10 @@ impl UniformApp {
                 self.font_dir = Some(dir.clone());
                 self.open_documents.clear();
                 // The pane layout is not carried across folders: its documents
-                // are gone, and pane indices would dangle.
+                // are gone, and pane indices would dangle. The navigation
+                // history indexes the same list, so it goes with them.
                 self.panes = Panes::new();
+                self.nav_history.clear();
                 self.sidebar.set_directory(&dir);
                 let (base_docs, parse_errors) = crate::render::ttf_builder::load_docs_from_directory_checked(&dir);
                 self.font_base_docs = base_docs;

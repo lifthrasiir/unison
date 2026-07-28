@@ -20,6 +20,7 @@ use crate::sidebar::{Sidebar, SidebarAction};
 
 mod background;
 mod docs;
+mod history;
 mod menus;
 mod panels;
 mod panes;
@@ -28,7 +29,8 @@ mod zoom;
 
 use background::BackgroundTaskStatus;
 use docs::OpenDocument;
-use menus::{EditTarget, MenuActions};
+use history::{NavEntry, NavHistory, NavLoc};
+use menus::{EditTarget, MenuActions, NavAction};
 use panes::Panes;
 use zoom::DEFAULT_PREVIEW_FONT_SIZE;
 
@@ -45,6 +47,9 @@ pub struct UniformApp {
     /// focused pane's document is what "the active document" means everywhere
     /// else in the application.
     panes: Panes,
+    /// Followed links, so they can be walked back and forward again. It spans
+    /// files, which is why it lives here and not in an `EditorState`.
+    nav_history: NavHistory,
     sidebar: Sidebar,
     escape_mode: bool,
     status_message: Option<(String, std::time::Instant)>,
@@ -198,6 +203,7 @@ impl UniformApp {
             last_title: String::new(),
             open_documents: Vec::new(),
             panes: Panes::new(),
+            nav_history: NavHistory::new(),
             sidebar: Sidebar::new(),
             escape_mode: false,
             status_message: None,
@@ -254,7 +260,53 @@ impl UniformApp {
         self.status_message = Some((msg.into(), std::time::Instant::now()));
     }
 
-    fn goto_glyph(&mut self, _ctx: &egui::Context, name: &str, kind: &LinkTargetKind) {
+    /// Carries out a link the editor followed and records it in the navigation
+    /// history, so Go Back can undo the jump.
+    fn follow_nav_request(
+        &mut self,
+        ctx: &egui::Context,
+        from_doc: usize,
+        nav: crate::editor::document_view::NavRequest,
+    ) {
+        use crate::editor::document_view::NavTarget;
+        let from = NavLoc::new(from_doc, nav.from.line, nav.from.col);
+        let to = match nav.target {
+            // The editor already moved its own caret; only the record is left.
+            NavTarget::Local { line } => Some(NavLoc::new(from_doc, line, 0)),
+            NavTarget::CrossFile(goto) => self
+                .goto_glyph(ctx, &goto.name, &goto.kind)
+                .map(|(doc_idx, line)| NavLoc::new(doc_idx, line, 0)),
+        };
+        if let Some(to) = to {
+            self.nav_history.push(NavEntry { from, to });
+        }
+    }
+
+    /// Walks the navigation history one step and moves the caret there.
+    fn navigate_history(&mut self, ctx: &egui::Context, forward: bool) {
+        let target = if forward {
+            self.nav_history.go_forward()
+        } else {
+            self.nav_history.go_back()
+        };
+        let Some(loc) = target else { return };
+        if self.open_documents.get(loc.doc_idx).is_none() {
+            return;
+        }
+        self.panes.show_document(loc.doc_idx);
+        let doc = &mut self.open_documents[loc.doc_idx];
+        doc.editor_state.goto_caret(&doc.lines, loc.line, loc.col);
+        self.focus_pane_editor(ctx);
+    }
+
+    /// Opens and reveals a link target that is not in the document the link was
+    /// written in. Reports where it landed, as `(document index, line)`.
+    fn goto_glyph(
+        &mut self,
+        _ctx: &egui::Context,
+        name: &str,
+        kind: &LinkTargetKind,
+    ) -> Option<(usize, usize)> {
         use crate::document::{DocumentItem, GlyphName};
         use crate::editor::doc_links::find_link_target_in_doc;
 
@@ -279,20 +331,17 @@ impl UniformApp {
             })
         };
 
-        let Some(path) = target_path else { return };
+        let path = target_path?;
 
         self.open_file(path.clone());
 
-        let idx = match self.open_documents.iter().position(|d| d.document.path == path) {
-            Some(i) => i,
-            None => return,
-        };
+        let idx = self.open_documents.iter().position(|d| d.document.path == path)?;
         self.panes.show_document(idx);
 
         let doc = &mut self.open_documents[idx];
-        if let Some(line_idx) = find_link_target_in_doc(&doc.lines, name, kind) {
-            doc.editor_state.goto_line(line_idx);
-        }
+        let line_idx = find_link_target_in_doc(&doc.lines, name, kind)?;
+        doc.editor_state.goto_line(line_idx);
+        Some((idx, line_idx))
     }
 }
 
@@ -352,7 +401,7 @@ impl eframe::App for UniformApp {
         let (specimen_clicked_glyph, issues_click) = self.show_bottom_panel(ctx);
 
         crate::stackmon::phase("update:central/editor");
-        let (goto_glyph_request, rename_request, divider_closed_pane) =
+        let (nav_request, rename_request, divider_closed_pane) =
             self.show_editor_panel(ctx);
         // Now that this frame's editors have run, "the pane the focus is in"
         // is up to date — everything below acts on that pane.
@@ -366,12 +415,22 @@ impl eframe::App for UniformApp {
             self.focus_pane_editor(ctx);
         }
 
-        if let Some(goto) = goto_glyph_request {
-            self.goto_glyph(ctx, &goto.name, &goto.kind);
+        if let Some((from_doc, nav)) = nav_request {
+            self.follow_nav_request(ctx, from_doc, nav);
         }
 
+        // A specimen click is not a link in a document, so there is no position
+        // to come back to and nothing to record.
         if let Some(click) = specimen_clicked_glyph {
             self.goto_glyph(ctx, &click.name, &click.kind);
+        }
+
+        // After the jump above, so a Go Back in the same frame as a click would
+        // still see that jump.
+        match menu.nav_action {
+            Some(NavAction::Back) => self.navigate_history(ctx, false),
+            Some(NavAction::Forward) => self.navigate_history(ctx, true),
+            None => {}
         }
 
         if let Some((path, line)) = issues_click {
