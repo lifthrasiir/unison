@@ -238,6 +238,10 @@ impl<'a> AnnotatedText<'a> {
     }
 
     /// Draws the line at `pos` (LEFT_TOP), annotations dimmed against `color`.
+    ///
+    /// `comment` is `(document column where the line's `// …` comment starts,
+    /// the color to draw it in)`; everything from that column on is painted in
+    /// the comment color instead of `color`.
     pub(crate) fn paint(
         &self,
         painter: &egui::Painter,
@@ -245,8 +249,12 @@ impl<'a> AnnotatedText<'a> {
         font_id: &egui::FontId,
         pos: egui::Pos2,
         color: egui::Color32,
+        comment: Option<(usize, egui::Color32)>,
     ) {
-        if self.annotations.is_empty() {
+        // Byte offset in the *display* string at which the comment starts.
+        let split = comment.map(|(col, c)| (self.display_prefix(col).len(), c));
+
+        if self.annotations.is_empty() && split.is_none() {
             painter.text(
                 pos,
                 egui::Align2::LEFT_TOP,
@@ -259,14 +267,36 @@ impl<'a> AnnotatedText<'a> {
         let display = self.display_string();
         let dim = color.gamma_multiply(ANNOTATION_OPACITY);
         for run in self.runs() {
-            let x = text_width(ui, font_id, &display[..run.display_start]);
-            painter.text(
-                egui::pos2(pos.x + x, pos.y),
-                egui::Align2::LEFT_TOP,
-                &run.text,
-                font_id.clone(),
-                if run.is_annotation { dim } else { color },
-            );
+            let base = if run.is_annotation { dim } else { color };
+            let run_end = run.display_start + run.text.len();
+            let commented = |c: egui::Color32| {
+                if run.is_annotation { c.gamma_multiply(ANNOTATION_OPACITY) } else { c }
+            };
+            // A run straddling the comment boundary is drawn in two pieces so
+            // the split lands exactly on the `//`.
+            let pieces: Vec<(usize, &str, egui::Color32)> = match split {
+                Some((at, ccolor)) if at > run.display_start && at < run_end => {
+                    let cut = at - run.display_start;
+                    vec![
+                        (run.display_start, &run.text[..cut], base),
+                        (at, &run.text[cut..], commented(ccolor)),
+                    ]
+                }
+                Some((at, ccolor)) if at <= run.display_start => {
+                    vec![(run.display_start, run.text.as_str(), commented(ccolor))]
+                }
+                _ => vec![(run.display_start, run.text.as_str(), base)],
+            };
+            for (start, text, c) in pieces {
+                let x = text_width(ui, font_id, &display[..start]);
+                painter.text(
+                    egui::pos2(pos.x + x, pos.y),
+                    egui::Align2::LEFT_TOP,
+                    text,
+                    font_id.clone(),
+                    c,
+                );
+            }
         }
     }
 }

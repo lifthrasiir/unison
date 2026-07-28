@@ -453,6 +453,7 @@ pub(crate) fn derive_ref_offsets_with(
             for (alt_name, alt_anchors) in &alternatives_list[i] {
                 if let Some(offset) = try_match_minus_plus(alt_anchors, &available_plus) {
                     let alt_gref = GlyphRef {
+                        comment: None,
                         name: alt_name.clone(),
                         offset: None,
                         negated: gref.negated,
@@ -498,6 +499,7 @@ pub(crate) fn derive_ref_offsets_with(
             );
             if let Some((alt_name, alt_anchors)) = alt_found {
                 let alt_gref = GlyphRef {
+                    comment: None,
                     name: alt_name,
                     offset: None,
                     negated: gref.negated,
@@ -561,6 +563,7 @@ pub(crate) fn derive_ref_offsets_with(
             }
         };
         let resolved_gref = GlyphRef {
+            comment: None,
             name: resolved_name,
             offset: gref.offset,
             negated: gref.negated,
@@ -667,6 +670,7 @@ fn commit_ref(
     out: &mut Option<GlyphRef>,
 ) {
     let effective = GlyphRef {
+        comment: None,
         name: gref.name.clone(),
         offset: Some(offset),
         negated: gref.negated,
@@ -708,6 +712,7 @@ fn commit_ref(
         };
         if !consumed_names.iter().any(|n| n == base) {
             exposed_minus.push(GlyphPoint {
+                comment: None,
                 position: minus.position.clone(),
                 col: saturating_i16(minus.col as i32 + off_col as i32),
                 row: saturating_i16(minus.row as i32 + off_row as i32),
@@ -728,6 +733,7 @@ fn commit_ref(
             .any(|p| p.position.strip_prefix('+') == Some(base))
         {
             available_plus.push(GlyphPoint {
+                comment: None,
                 position: plus.position.clone(),
                 col: saturating_i16(plus.col as i32 + off_col as i32),
                 row: saturating_i16(plus.row as i32 + off_row as i32),
@@ -1298,6 +1304,7 @@ mod tests {
         );
 
         let refs = vec![GlyphRef {
+            comment: None,
             name: "digit(0|1)".to_string(),
             offset: None,
             negated: false,
@@ -1756,8 +1763,10 @@ ref ($ab)-inner
         let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
         let b_refs = vec![
-            GlyphRef { name: "enclosing".to_string(), offset: None, negated: false, fill: None, visibility: None },
-            GlyphRef { name: "b-inner".to_string(), offset: None, negated: false, fill: None, visibility: None },
+            GlyphRef {
+                comment: None, name: "enclosing".to_string(), offset: None, negated: false, fill: None, visibility: None },
+            GlyphRef {
+                comment: None, name: "b-inner".to_string(), offset: None, negated: false, fill: None, visibility: None },
         ];
         let (effective, _) = derive_ref_offsets_with(
             &[],

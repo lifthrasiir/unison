@@ -126,8 +126,18 @@ historical whole-group meaning.
 ## Document Format (.unf)
 
 Parsed/serialized in `document_io.rs`. Tokens use backtick-quoting: `` `foo bar` `` for tokens with
-spaces; four backticks (two to escape, two to quote) for a literal backtick. `//` starts a comment
-(accepted on `assert` and most directives).
+spaces; four backticks (two to escape, two to quote) for a literal backtick.
+
+**Comments.** `//` starts a comment on *every* line except pixel rows (where `//` is a legal pixel
+pair, so `split_comment` must never see one). It is a single token that runs to the end of the line
+and cannot be quoted, so ``foo `//` bar // quux`` is four tokens: the quoted `` `//` `` is ordinary,
+the unquoted one opens the comment. `document_io::split_comment` is the single implementation;
+`tokenize_tokens`/`tokenize_with_spans` drop the comment, so grammar, links, completion and rename
+never see comment prose. Every item keeps its comment (`comment` field on the structured
+`DocumentItem` variants, on `GlyphBody`/`GlyphRef`/`GlyphPoint`, and inline in the raw text of
+`FontMeta`/`Directive`) so serializing a document does not lose it — the editor canonicalizes each
+file through `serialize_document` on open, so a comment the model drops is a comment the user loses.
+Appending to a line must go through `append_to_line` to stay in front of the comment.
 
 ### Directives
 

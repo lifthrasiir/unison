@@ -118,8 +118,10 @@ pub(crate) fn handle_pixel_painting(
                         let trimmed = header_text.trim();
                         if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed)
                             && tokens.first().is_some_and(|t| t == "glyph") && tokens.len() == 2 {
-                                let new_header =
-                                    format!("{} {} {}", trimmed, grid_width, grid_height);
+                                let new_header = crate::document_io::append_to_line(
+                                    trimmed,
+                                    &format!("{grid_width} {grid_height}"),
+                                );
                                 let mut new_grid = PixelGrid::new(grid_width, grid_height);
                                 new_grid.set(row, col, new_shape);
 
@@ -422,6 +424,7 @@ mod tests {
     #[test]
     fn dragged_ref_at_origin_stays_explicit() {
         let normal = GlyphRef {
+            comment: None,
             name: "part".into(),
             offset: Some((1, 0)),
             negated: false,

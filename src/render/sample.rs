@@ -362,13 +362,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
     for item in &all_items {
         match item {
-            DocumentItem::Map { char_repr, glyph } => {
+            DocumentItem::Map { char_repr, glyph, .. } => {
                 let pairs = expand_map_pairs(char_repr, glyph);
                 for (cp, glyph_name) in pairs {
                     cmap.entry(cp).or_insert(glyph_name);
                 }
             }
-            DocumentItem::MapDecomposed { char_repr } => {
+            DocumentItem::MapDecomposed { char_repr, .. } => {
                 if let Some(cp) = crate::render::ttf_builder::parse_map_char(char_repr) {
                     cmap.entry(cp).or_insert_with(|| format!("uni{cp:04X}"));
                 }

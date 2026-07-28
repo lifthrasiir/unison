@@ -2228,7 +2228,7 @@ fn doc_may_reference(
             (RenameKind::Glyph, DocumentItem::Directive(s)) => {
                 if s.contains(name) { return true; }
             }
-            (RenameKind::NameParts, DocumentItem::NameParts { name: n, values }) => {
+            (RenameKind::NameParts, DocumentItem::NameParts { name: n, values, .. }) => {
                 if n == name || values.iter().any(|v| v == name) { return true; }
             }
             (RenameKind::NameParts, DocumentItem::Glyph { name: gn, body }) => {

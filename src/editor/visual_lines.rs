@@ -165,6 +165,10 @@ fn push_wrapped_text_vlines(
     font_id: &egui::FontId,
 ) {
     let annotations = annotations::line_annotations(text);
+    // A `// …` comment is a comment wherever the line's own color comes from.
+    let comment_col = crate::document_io::split_comment(text)
+        .1
+        .map(|c| text.chars().count() - c.chars().count());
     let segments = compute_wrap_segments(text, &annotations, wrap_width, ctx, font_id);
     for (seg_text, col_offset) in segments {
         let seg_len = seg_text.chars().count();
@@ -181,6 +185,9 @@ fn push_wrapped_text_vlines(
                 }
             })
             .collect();
+        let seg_comment_col = comment_col
+            .filter(|c| *c < col_offset + seg_len)
+            .map(|c| c.saturating_sub(col_offset));
         vlines.push(VisualLine {
             doc_line,
             kind: VLineKind::Text(seg_text),
@@ -188,6 +195,7 @@ fn push_wrapped_text_vlines(
             error_spans: seg_errors,
             col_offset,
             annotations: seg_annotations,
+            comment_col: seg_comment_col,
         });
     }
 }
@@ -227,6 +235,7 @@ fn push_grid_vlines(
             error_spans: Vec::new(),
             col_offset: 0,
             annotations: Vec::new(),
+            comment_col: None,
         });
     }
 }

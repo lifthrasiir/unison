@@ -184,7 +184,7 @@ pub fn collect_color_aliases(docs: &[&Document]) -> ColorAliasMap {
     let mut map = ColorAliasMap::new();
     for doc in docs {
         for item in &doc.items {
-            if let DocumentItem::Color { name, value, visibility } = item {
+            if let DocumentItem::Color { name, value, visibility, .. } = item {
                 let resolved = resolve_color_value(value, &map);
                 if let Some(rgba) = resolved {
                     map.insert(name.clone(), (rgba, *visibility));
@@ -585,6 +585,7 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
                         .refs
                         .iter()
                         .map(|r| GlyphRef {
+                            comment: None,
                             name: substitute_name_parts(&r.name, name_parts),
                             offset: r.offset,
                             negated: r.negated,
@@ -633,9 +634,10 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
                         origin: Some(origin),
                     });
                 }
-            } else if let DocumentItem::Map { char_repr, glyph } = item {
+            } else if let DocumentItem::Map { char_repr, glyph, .. } = item {
                 all_items.push(ExpandedItem {
                     item: DocumentItem::Map {
+                        comment: None,
                         char_repr: char_repr.clone(),
                         glyph: substitute_name_parts(glyph, name_parts),
                     },
@@ -657,7 +659,7 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
     let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
     let mut map_targets: Vec<(String, Option<ItemRef>, String)> = Vec::new();
     for e in &all_items {
-        let DocumentItem::Map { char_repr, glyph } = &e.item else {
+        let DocumentItem::Map { char_repr, glyph, .. } = &e.item else {
             continue;
         };
         let pairs = expand_map_pairs(char_repr, glyph);
@@ -701,7 +703,7 @@ fn expand_decomposed_maps(
     let pending: Vec<(String, Option<ItemRef>)> = all_items
         .iter()
         .filter_map(|e| match &e.item {
-            DocumentItem::MapDecomposed { char_repr } => Some((char_repr.clone(), e.origin)),
+            DocumentItem::MapDecomposed { char_repr, .. } => Some((char_repr.clone(), e.origin)),
             _ => None,
         })
         .collect();
@@ -760,6 +762,7 @@ fn expand_decomposed_maps(
             let refs: Vec<GlyphRef> = nfd
                 .iter()
                 .map(|c| GlyphRef {
+                    comment: None,
                     name: cp_to_glyph[&(*c as u32)].clone(),
                     offset: None,
                     negated: false,
@@ -777,6 +780,7 @@ fn expand_decomposed_maps(
             });
             decomposed_items.push(ExpandedItem {
                 item: DocumentItem::Map {
+                    comment: None,
                     char_repr: format!("U+{cp:04X}"),
                     glyph: composite_name,
                 },
@@ -912,6 +916,7 @@ fn inject_on_demand_glyph_items(
                             r.offset.map(|(row, col)| (row * combined_s / mono_s, col * combined_s / mono_s))
                         };
                         refs.push(GlyphRef {
+                            comment: None,
                             name: r.name.clone(),
                             offset,
                             negated: r.negated,
@@ -926,6 +931,7 @@ fn inject_on_demand_glyph_items(
                             r.offset.map(|(row, col)| (row * combined_s / color_s, col * combined_s / color_s))
                         };
                         refs.push(GlyphRef {
+                            comment: None,
                             name: r.name.clone(),
                             offset,
                             negated: r.negated,
@@ -1154,7 +1160,7 @@ fn collect_glyph_data_with_shared(
     let mut seen_names: HashSet<String> = HashSet::new();
 
     for item in all_items {
-        let DocumentItem::Map { char_repr, glyph } = item else { continue };
+        let DocumentItem::Map { char_repr, glyph, .. } = item else { continue };
 
         let pairs = expand_map_pairs(char_repr, glyph);
         for (cp, glyph_name) in &pairs {
@@ -1727,6 +1733,7 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                     source,
                     target,
                     lookahead,
+                    ..
                 } => {
                     let source_patterns: Vec<NamePattern> = source
                         .iter()
@@ -1772,10 +1779,10 @@ fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData 
                         },
                     );
                 }
-                DocumentItem::Feature { name, scripts, remap_group } => {
+                DocumentItem::Feature { name, scripts, remap_group, .. } => {
                     features.push((name.clone(), scripts.clone(), vec![remap_group.clone()]));
                 }
-                DocumentItem::FeatureAnchor { name, scripts, anchor } => {
+                DocumentItem::FeatureAnchor { name, scripts, anchor, .. } => {
                     anchor_features.push((name.clone(), scripts.clone(), anchor.clone()));
                 }
                 _ => {}
@@ -5456,7 +5463,7 @@ anchor -above 1 1
 feature ccmp for DFLT latn : anchor above
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-        if let DocumentItem::FeatureAnchor { name, scripts, anchor } = &doc.items[0] {
+        if let DocumentItem::FeatureAnchor { name, scripts, anchor, .. } = &doc.items[0] {
             assert_eq!(name, "ccmp");
             assert_eq!(scripts, &["DFLT", "latn"]);
             assert_eq!(anchor, "above");
@@ -5476,7 +5483,7 @@ feature ccmp for DFLT latn : anchor above
 map ä
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-        if let DocumentItem::MapDecomposed { char_repr } = &doc.items[0] {
+        if let DocumentItem::MapDecomposed { char_repr, .. } = &doc.items[0] {
             assert_eq!(char_repr, "ä");
         } else {
             panic!("expected MapDecomposed, got {:?}", doc.items[0]);

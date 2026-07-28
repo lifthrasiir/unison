@@ -35,6 +35,9 @@ pub(crate) enum SnapKind {
         /// The line as rendered, inline annotations spliced in.
         display: String,
         annotations: Vec<InlineAnnotation>,
+        /// Where this segment's `// …` comment starts, if any; painted in the
+        /// comment color regardless of the line's own color.
+        comment_col: Option<usize>,
     },
     GridRow {
         #[allow(dead_code)]
@@ -125,6 +128,7 @@ pub(crate) fn capture_snapshot(
                     .annotated_text()
                     .map_or_else(|| t.clone(), |a| a.display_string()),
                 annotations: vl.annotations.clone(),
+                comment_col: vl.comment_col,
             },
             VLineKind::GridRow {
                 item_idx,

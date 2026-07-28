@@ -171,9 +171,6 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
         "assert" => match rest.first().map(|s| s.value.as_str()) {
             Some("same") | Some("distinct") => {
                 for span in &rest[1..] {
-                    if span.value == "//" {
-                        break;
-                    }
                     if !span.value.is_empty() {
                         fields.push(field(FieldRole::GlyphRef, leading, span));
                     }
@@ -184,9 +181,6 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 // Only the first token after each `:` is a glyph name.
                 let mut after_colon = false;
                 for span in &rest[1..] {
-                    if span.value == "//" {
-                        break;
-                    }
                     if span.value == ":" {
                         after_colon = true;
                         continue;
@@ -269,6 +263,32 @@ mod tests {
                 (FieldRole::GlyphRef, "a-b".to_string()),
                 (FieldRole::GlyphRef, "c".to_string()),
             ],
+        );
+    }
+
+    /// A trailing comment names nothing, on any directive.
+    #[test]
+    fn comments_contribute_no_fields() {
+        assert_eq!(
+            roles("assert same foo bar // baz quux"),
+            vec![
+                (FieldRole::GlyphRef, "foo".to_string()),
+                (FieldRole::GlyphRef, "bar".to_string()),
+            ],
+        );
+        assert_eq!(
+            roles("ref foo 0 0 // fill red"),
+            vec![(FieldRole::GlyphRef, "foo".to_string())],
+        );
+        assert_eq!(
+            roles("assert shape AB : a-b // : c"),
+            vec![(FieldRole::GlyphRef, "a-b".to_string())],
+        );
+        // The quoted `//` is a token like any other, so the comment is the
+        // *unquoted* one that follows it.
+        assert_eq!(
+            roles("map `//` = solidus // the slash"),
+            vec![(FieldRole::GlyphRef, "solidus".to_string())],
         );
     }
 

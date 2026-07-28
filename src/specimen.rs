@@ -63,7 +63,7 @@ impl SpecimenState {
         for doc in docs {
             for item in &doc.items {
                 match item {
-                    DocumentItem::Map { char_repr, glyph } => {
+                    DocumentItem::Map { char_repr, glyph, .. } => {
                         let subst_glyph = substitute_name_parts(glyph, name_parts);
                         let pairs = expand_map_pairs(char_repr, &subst_glyph);
                         for (cp, glyph_name) in pairs {
@@ -71,7 +71,7 @@ impl SpecimenState {
                             map.entry(cp).or_insert(glyph_name);
                         }
                     }
-                    DocumentItem::MapDecomposed { char_repr } => {
+                    DocumentItem::MapDecomposed { char_repr, .. } => {
                         if let Some(cp) = parse_map_char(char_repr) {
                             let name = format!("uni{cp:04X}");
                             mapped_glyphs.insert(name.clone());
@@ -106,7 +106,7 @@ impl SpecimenState {
 
         for doc in docs {
             for item in &doc.items {
-                if let DocumentItem::Remap { feature, source, target, lookbehind, lookahead } = item {
+                if let DocumentItem::Remap { feature, source, target, lookbehind, lookahead, .. } = item {
                     let tgt_expanded: Vec<Vec<String>> = target.iter()
                         .map(|s| expand_name_element(s, name_parts))
                         .collect();

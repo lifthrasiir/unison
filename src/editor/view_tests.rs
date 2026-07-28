@@ -1502,3 +1502,50 @@ fn map_explicit_codepoint_is_not_annotated() {
         other => panic!("expected a text visual line, got {other:?}"),
     }
 }
+
+/// A `// …` comment is highlighted as a comment wherever it sits, and only
+/// from its `//` on. The pixel rows below it keep their `//` as pixels.
+#[test]
+fn inline_comment_is_highlighted_from_its_marker() {
+    let h = EditorHarness::new("glyph slash 2 1 // a note\n0//1\n");
+    assert_view_consistent(&h);
+    match &h.snap().vlines[0].kind {
+        SnapKind::Text { text, comment_col, .. } => {
+            assert_eq!(*comment_col, Some(text.find("//").unwrap()));
+        }
+        other => panic!("expected a text visual line, got {other:?}"),
+    }
+    // The pixel row is still a grid, not a commented-out text line.
+    assert!(matches!(h.snap().vlines[1].kind, SnapKind::GridRow { .. }));
+    assert_eq!(h.grid(1).width, 2);
+}
+
+/// A line without a comment has nothing highlighted, and a quoted `//` is an
+/// ordinary token rather than a comment marker.
+#[test]
+fn quoted_double_slash_is_not_a_comment() {
+    let h = EditorHarness::new("map `//` = solidus-double\nglyph solidus-double 2 1\n@@..\n");
+    match &h.snap().vlines[0].kind {
+        SnapKind::Text { comment_col, .. } => assert_eq!(*comment_col, None),
+        other => panic!("expected a text visual line, got {other:?}"),
+    }
+}
+
+/// Typing a comment onto a glyph header must not cost the header its grid:
+/// the comment is not part of the `W H` grammar.
+#[test]
+fn typing_a_comment_on_a_header_keeps_the_grid() {
+    let mut h = EditorHarness::new("glyph foo 4 2\n@@......\n......@@\n");
+    h.click_text(0, 13);
+    h.type_text(" // a note");
+    h.key(Key::ArrowDown);
+    assert_eq!(h.text(0), "glyph foo 4 2 // a note");
+    assert_view_consistent(&h);
+    let grid = h.grid(1);
+    assert_eq!((grid.width, grid.height), (4, 2));
+    assert!(!grid.get(0, 0).is_empty(), "pixels survived the header edit");
+    match &h.snap().vlines[0].kind {
+        SnapKind::Text { comment_col, .. } => assert_eq!(*comment_col, Some(14)),
+        other => panic!("expected a text visual line, got {other:?}"),
+    }
+}

@@ -502,6 +502,8 @@ pub struct GlyphRef {
     pub negated: bool,
     pub fill: Option<RefFill>,
     pub visibility: Option<LayerVisibility>,
+    /// Trailing `// …` comment of the `ref` line, without its marker.
+    pub comment: Option<String>,
 }
 
 impl GlyphRef {
@@ -540,7 +542,11 @@ impl GlyphRef {
             Some(LayerVisibility::MonoOnly) => parts.push("monoonly".into()),
             Some(LayerVisibility::Both) | None => {}
         }
-        parts.join(" ")
+        format!(
+            "{}{}",
+            parts.join(" "),
+            crate::document_io::comment_suffix(&self.comment),
+        )
     }
 }
 
@@ -553,6 +559,8 @@ pub struct GlyphPoint {
     pub col_end: i16,
     /// Inclusive end of the row range. Equal to `row` for single-cell anchors.
     pub row_end: i16,
+    /// Trailing `// …` comment of the `point`/`anchor` line, without its marker.
+    pub comment: Option<String>,
 }
 
 impl GlyphPoint {
@@ -586,6 +594,8 @@ pub struct GlyphBody {
     pub left: Option<i16>,
     pub top: Option<i16>,
     pub scale: u8,
+    /// Trailing `// …` comment of the `glyph` header line, without its marker.
+    pub comment: Option<String>,
 }
 
 impl GlyphBody {
@@ -601,6 +611,7 @@ impl GlyphBody {
             left: None,
             top: None,
             scale: 1,
+            comment: None,
         }
     }
 
@@ -658,6 +669,9 @@ pub enum Directive<'a> {
 /// Those only reach [`DocumentItem::Directive`] when malformed, and are
 /// reported as unrecognized so the author hears about the typo.
 pub fn classify_directive(text: &str) -> Directive<'_> {
+    // Raw-text directives keep their `// …` comment inline, so it has to come
+    // off before the arguments are read.
+    let (text, _) = crate::document_io::split_comment(text);
     let trimmed = text.trim();
     if trimmed.is_empty() {
         return Directive::Empty;
@@ -687,16 +701,19 @@ pub enum DocumentItem {
     Map {
         char_repr: String,
         glyph: String,
+        comment: Option<String>,
     },
     /// `map CHAR` — auto-decomposed cmap mapping. The glyph is synthesized from
     /// the character's Unicode canonical decomposition.
     MapDecomposed {
         char_repr: String,
+        comment: Option<String>,
     },
     /// `name-parts $NAME = token1 token2 $ref3 ...`
     NameParts {
         name: String,
         values: Vec<String>,
+        comment: Option<String>,
     },
     /// `remap FEATURE : [LOOKBEHIND... :] SOURCE -> TARGET [: LOOKAHEAD...]`
     Remap {
@@ -705,24 +722,28 @@ pub enum DocumentItem {
         source: Vec<String>,
         target: Vec<String>,
         lookahead: Vec<String>,
+        comment: Option<String>,
     },
     /// `feature NAME for SCRIPT... : REMAP_GROUP`
     Feature {
         name: String,
         scripts: Vec<String>,
         remap_group: String,
+        comment: Option<String>,
     },
     /// `feature NAME for SCRIPT... : anchor ANCHOR_NAME`
     FeatureAnchor {
         name: String,
         scripts: Vec<String>,
         anchor: String,
+        comment: Option<String>,
     },
     /// `color NAME = #xxxxxx[xx]|COLORNAME [coloronly|monoonly]`
     Color {
         name: String,
         value: String,
         visibility: Option<LayerVisibility>,
+        comment: Option<String>,
     },
     /// `assert shape \`text\` [+feat] [-feat] : glyph1 [advance N] [offset X Y] : glyph2 ...`
     AssertShape {
@@ -842,33 +863,14 @@ pub fn compute_docline_file_lines(lines: &[DocLine]) -> Vec<usize> {
     result
 }
 
-fn split_inline_comment(tokens: &[String]) -> (Vec<String>, Option<String>) {
-    if let Some(pos) = tokens.iter().position(|t| t == "//") {
-        let body = tokens[..pos].to_vec();
-        let comment_parts: Vec<&str> = tokens[pos + 1..].iter().map(|s| s.as_str()).collect();
-        let comment = if comment_parts.is_empty() {
-            None
-        } else {
-            Some(comment_parts.join(" "))
-        };
-        (body, comment)
-    } else {
-        (tokens.to_vec(), None)
-    }
-}
-
 #[cfg(any(feature = "editor", test))]
-fn serialize_comment_suffix(comment: &Option<String>) -> String {
-    match comment {
-        Some(c) => format!(" // {c}"),
-        None => String::new(),
-    }
-}
+use crate::document_io::comment_suffix as serialize_comment_suffix;
 
 impl DocumentItem {
-    /// Parse a structured directive from pre-tokenized tokens.
+    /// Parse a structured directive from pre-tokenized tokens (the line's
+    /// `// …` comment already split off and passed as `comment`).
     /// The first token is the keyword ("name-parts", "remap", or "feature").
-    pub fn parse_directive(tokens: &[String]) -> DocumentItem {
+    pub fn parse_directive(tokens: &[String], comment: Option<String>) -> DocumentItem {
         if tokens.is_empty() {
             return DocumentItem::Directive(String::new());
         }
@@ -879,11 +881,11 @@ impl DocumentItem {
                     return DocumentItem::NameParts {
                         name: rest[0].clone(),
                         values: rest[2..].to_vec(),
+                        comment,
                     };
                 }
             }
             "assert" => {
-                let (tokens, comment) = split_inline_comment(tokens);
                 if tokens.get(1).is_some_and(|t| t == "shape") {
                     if let Some(item) = Self::parse_assert_shape(&tokens[2..], comment.clone()) {
                         return item;
@@ -900,7 +902,7 @@ impl DocumentItem {
                 }
             }
             "remap" => {
-                if let Some(item) = Self::parse_remap(&tokens[1..]) {
+                if let Some(item) = Self::parse_remap(&tokens[1..], comment.clone()) {
                     return item;
                 }
             }
@@ -918,22 +920,30 @@ impl DocumentItem {
                                     name: rest[0].clone(),
                                     scripts: rest[2..colon_pos].to_vec(),
                                     anchor: rest[colon_pos + 2].clone(),
+                                    comment,
                                 };
                             }
                             return DocumentItem::Feature {
                                 name: rest[0].clone(),
                                 scripts: rest[2..colon_pos].to_vec(),
                                 remap_group: rest[colon_pos + 1].clone(),
+                                comment,
                             };
                         }
             }
             _ => {}
         }
+        // Malformed: keep the line as raw text, comment included, so nothing
+        // is lost on the way back out.
         let quoted: Vec<String> = tokens.iter().map(|t| crate::document_io::quote_token(t)).collect();
-        DocumentItem::Directive(quoted.join(" "))
+        let comment = match comment {
+            Some(c) => format!(" // {c}"),
+            None => String::new(),
+        };
+        DocumentItem::Directive(format!("{}{}", quoted.join(" "), comment))
     }
 
-    fn parse_remap(tokens: &[String]) -> Option<DocumentItem> {
+    fn parse_remap(tokens: &[String], comment: Option<String>) -> Option<DocumentItem> {
         let arrow_pos = tokens.iter().position(|t| t == "->")?;
 
         let colon_positions: Vec<usize> = tokens
@@ -981,6 +991,7 @@ impl DocumentItem {
             source,
             target,
             lookahead,
+            comment,
         })
     }
 
@@ -1053,9 +1064,14 @@ impl DocumentItem {
     pub fn serialize_line(&self) -> Option<String> {
         use crate::document_io::quote_token;
         match self {
-            DocumentItem::NameParts { name, values } => {
+            DocumentItem::NameParts { name, values, comment } => {
                 let qvals: Vec<String> = values.iter().map(|v| quote_token(v)).collect();
-                Some(format!("name-parts {} = {}", quote_token(name), qvals.join(" ")))
+                Some(format!(
+                    "name-parts {} = {}{}",
+                    quote_token(name),
+                    qvals.join(" "),
+                    serialize_comment_suffix(comment),
+                ))
             }
             DocumentItem::Remap {
                 feature,
@@ -1063,6 +1079,7 @@ impl DocumentItem {
                 source,
                 target,
                 lookahead,
+                comment,
             } => {
                 let mut parts = vec![format!("remap {} :", quote_token(feature))];
                 if !lookbehind.is_empty() {
@@ -1076,33 +1093,41 @@ impl DocumentItem {
                     let la: Vec<String> = lookahead.iter().map(|s| quote_token(s)).collect();
                     parts.push(format!(": {}", la.join(" ")));
                 }
-                Some(parts.join(" "))
+                Some(format!("{}{}", parts.join(" "), serialize_comment_suffix(comment)))
             }
-            DocumentItem::Feature { name, scripts, remap_group } => {
+            DocumentItem::Feature { name, scripts, remap_group, comment } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
-                    "feature {} for {} : {}",
+                    "feature {} for {} : {}{}",
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(remap_group),
+                    serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::FeatureAnchor { name, scripts, anchor } => {
+            DocumentItem::FeatureAnchor { name, scripts, anchor, comment } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
-                    "feature {} for {} : anchor {}",
+                    "feature {} for {} : anchor {}{}",
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(anchor),
+                    serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::Color { name, value, visibility } => {
+            DocumentItem::Color { name, value, visibility, comment } => {
                 let vis = match visibility {
                     Some(LayerVisibility::ColorOnly) => " coloronly",
                     Some(LayerVisibility::MonoOnly) => " monoonly",
                     _ => "",
                 };
-                Some(format!("color {} = {}{}", quote_token(name), quote_token(value), vis))
+                Some(format!(
+                    "color {} = {}{}{}",
+                    quote_token(name),
+                    quote_token(value),
+                    vis,
+                    serialize_comment_suffix(comment),
+                ))
             }
             DocumentItem::AssertShape { text, features, expected, comment } => {
                 let mut parts = vec![
@@ -1160,7 +1185,7 @@ pub fn collect_name_parts(docs: &[&Document]) -> NamePartsMap {
     let mut map = NamePartsMap::new();
     for doc in docs {
         for item in &doc.items {
-            if let DocumentItem::NameParts { name, values } = item {
+            if let DocumentItem::NameParts { name, values, .. } = item {
                 let mut resolved = Vec::new();
                 for token in values {
                     if token.starts_with('$') {
@@ -1237,6 +1262,7 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef], scale: u8) -> Res
         let expanded_refs: Vec<GlyphRef> = parsed_refs
             .iter()
             .map(|(pattern, offset, negated, fill, visibility)| GlyphRef {
+                comment: None,
                 name: pattern.get(i),
                 offset: *offset,
                 negated: *negated,
@@ -1310,6 +1336,7 @@ mod tests {
 
     fn pattern_ref(name: &str) -> GlyphRef {
         GlyphRef {
+            comment: None,
             name: name.to_string(),
             offset: None,
             negated: false,
@@ -1343,6 +1370,7 @@ mod tests {
     fn collect_name_parts_decodes_empty_alternative() {
         let mut doc = Document::new("test.unf".into());
         doc.items.push(DocumentItem::NameParts {
+            comment: None,
             name: "$part".to_string(),
             values: vec!["``|a".to_string()],
         });
@@ -1359,6 +1387,7 @@ mod tests {
         let mut doc = Document::new("test.unf".into());
         let oversized = format!("b*{}", MAX_EXPANSION);
         doc.items.push(DocumentItem::NameParts {
+            comment: None,
             name: "$part".to_string(),
             values: vec!["a".to_string(), oversized.clone()],
         });

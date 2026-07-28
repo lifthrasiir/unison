@@ -248,6 +248,12 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
         return None;
     }
 
+    // Comment prose names nothing, so nothing completes inside one.
+    let (body, comment) = crate::document_io::split_comment(line);
+    if comment.is_some() && col >= body.chars().count() {
+        return None;
+    }
+
     // Find the current word boundaries (whitespace-delimited)
     let mut word_start = col;
     while word_start > 0 && !chars[word_start - 1].is_whitespace() {
@@ -556,6 +562,15 @@ mod tests {
         let ctx = detect_context("re", 2).unwrap();
         assert_eq!(ctx.kind, CompletionKind::Keyword);
         assert_eq!(ctx.prefix, "re");
+    }
+
+    /// Comment prose names nothing, so completion stays out of it.
+    #[test]
+    fn no_completion_inside_a_comment() {
+        assert!(detect_context("ref foo // lat", 14).is_none());
+        assert!(detect_context("ref foo // $na", 14).is_none());
+        // Before the marker the line completes as usual.
+        assert!(detect_context("ref lat // note", 7).is_some());
     }
 
     #[test]

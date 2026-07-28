@@ -312,6 +312,10 @@ pub(crate) struct VisualLine {
     /// Display-only text spliced into this line, at columns relative to the
     /// segment (i.e. already shifted by `col_offset`). Empty for grid rows.
     pub(crate) annotations: Vec<InlineAnnotation>,
+    /// Column (relative to the segment) where the line's `// …` comment
+    /// starts, if any of it falls in this segment. Painted in the comment
+    /// color whatever the rest of the line is.
+    pub(crate) comment_col: Option<usize>,
 }
 
 impl VisualLine {
@@ -1195,6 +1199,7 @@ fn paint_document_area(
                         &font_id,
                         egui::pos2(origin.x + LEFT_PAD, origin.y + y),
                         vl.color,
+                        vl.comment_col.map(|c| (c, pal.text_comment)),
                     );
 
                     // Color background for color tokens in color/ref-fill lines
@@ -2916,7 +2921,7 @@ fn inline_ref_to_pixels(
             lines[undo_start..undo_start + old_line_count].to_vec();
 
         if !has_dims {
-            let new_header = format!("{} {} {}", header_text.trim_end(), w, h);
+            let new_header = document_io::append_to_line(&header_text, &format!("{w} {h}"));
             lines[item_start] = DocLine::Text(new_header);
         }
         let mut grid = PixelGrid::new(w, h);

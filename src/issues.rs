@@ -169,7 +169,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             match item {
                 // Unresolvable refs, map targets and remap operands are all
                 // reported by the resolution pass above.
-                DocumentItem::Map { char_repr, glyph } => {
+                DocumentItem::Map { char_repr, glyph, .. } => {
                     let subst_glyph = substitute_name_parts(glyph, &name_parts);
                     let expanded_pairs =
                         crate::render::ttf_builder::expand_map_pairs(

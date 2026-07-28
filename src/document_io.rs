@@ -14,7 +14,8 @@ use crate::pixel::shape_to_chars;
 // Backtick-quoting tokenizer
 // ---------------------------------------------------------------------------
 
-/// Tokenize a line into tokens using backtick-quoting rules.
+/// Tokenize a line into tokens using backtick-quoting rules, dropping any
+/// trailing `// …` comment (see [`split_comment`]).
 ///
 /// - Tokens are separated by whitespace.
 /// - A token starting with `` ` `` is a quoted token: content runs until the
@@ -25,6 +26,98 @@ use crate::pixel::shape_to_chars;
 /// - Outside of quotes, backticks are ordinary characters.
 pub fn tokenize_tokens(line: &str) -> std::result::Result<Vec<String>, String> {
     Ok(tokenize_with_spans(line)?.into_iter().map(|t| t.value).collect())
+}
+
+/// Split a line into its command text and its trailing `// …` comment
+/// (the returned comment keeps its `//` marker; use [`comment_text`] for the
+/// prose alone).
+///
+/// The comment is a *single* token: it starts at an unquoted token beginning
+/// with `//` and runs to the end of the line, and quoting does not apply
+/// inside it. Conversely a quoted `` `//` `` is an ordinary token, so
+/// ``foo `//` bar // quux`` is four tokens.
+///
+/// Pixel rows must never be passed through here — `//` is a legal pixel pair.
+pub fn split_comment(line: &str) -> (&str, Option<&str>) {
+    let mut chars = line.char_indices().peekable();
+    let mut at_token_start = true;
+    while let Some(&(idx, c)) = chars.peek() {
+        if c.is_whitespace() {
+            chars.next();
+            at_token_start = true;
+            continue;
+        }
+        if at_token_start && line[idx..].starts_with("//") {
+            return (&line[..idx], Some(&line[idx..]));
+        }
+        // Not a comment: skip the whole token. A quoted token is skipped by
+        // its quoting rules so that a `` `//` `` inside it is not a marker;
+        // a malformed quote is left to the tokenizer to report.
+        if c == '`' {
+            chars.next();
+            loop {
+                match chars.next() {
+                    None => return (line, None),
+                    Some((_, '`')) => {
+                        if matches!(chars.peek(), Some(&(_, '`'))) {
+                            chars.next();
+                        } else {
+                            break;
+                        }
+                    }
+                    Some(_) => {}
+                }
+            }
+        } else {
+            while chars.peek().is_some_and(|&(_, c)| !c.is_whitespace()) {
+                chars.next();
+            }
+        }
+        // Only whitespace opens a new token, so `` `a`//b `` stays malformed
+        // rather than becoming a valid line plus a comment.
+        at_token_start = false;
+    }
+    (line, None)
+}
+
+/// The prose of a comment returned by [`split_comment`]: the text after `//`,
+/// trimmed. Empty when the line ends right after the marker.
+pub fn comment_text(comment: &str) -> &str {
+    comment.strip_prefix("//").unwrap_or(comment).trim()
+}
+
+/// [`split_comment`] with the comment already reduced to an owned
+/// [`comment_text`], and `None` for an empty one — the form document items
+/// store.
+fn split_comment_owned(line: &str) -> (&str, Option<String>) {
+    let (body, comment) = split_comment(line);
+    let comment = comment
+        .map(comment_text)
+        .filter(|c| !c.is_empty())
+        .map(str::to_string);
+    (body, comment)
+}
+
+/// Append `extra` to a directive line, keeping any trailing `// …` comment
+/// last — a comment is only a comment at the end of its line, so text appended
+/// after one would be swallowed by it.
+#[cfg(any(feature = "editor", test))]
+pub fn append_to_line(line: &str, extra: &str) -> String {
+    let (body, comment) = split_comment(line);
+    match comment {
+        Some(c) => format!("{} {extra} {c}", body.trim_end()),
+        None => format!("{} {extra}", body.trim_end()),
+    }
+}
+
+/// ` // comment`, or the empty string. The serialized form of a comment on a
+/// directive line.
+#[cfg(any(feature = "editor", test))]
+pub fn comment_suffix(comment: &Option<String>) -> String {
+    match comment {
+        Some(c) => format!(" // {c}"),
+        None => String::new(),
+    }
 }
 
 /// Quote a token for serialization. Wraps in backticks when the value is
@@ -51,8 +144,11 @@ pub struct TokenSpan {
 }
 
 /// Like [`tokenize_tokens`] but also returns character-offset spans for each
-/// token in the original line.
+/// token in the original line. The trailing comment is not a token here
+/// either, so span-consuming callers (links, completion, annotations) never
+/// mistake comment prose for a name.
 pub fn tokenize_with_spans(line: &str) -> std::result::Result<Vec<TokenSpan>, String> {
+    let (line, _) = split_comment(line);
     let mut tokens = Vec::new();
     let chars: Vec<char> = line.chars().collect();
     let mut i = 0;
@@ -122,7 +218,7 @@ fn parse_visibility(s: &str) -> Option<LayerVisibility> {
 /// - `ref NAME COL ROW [negated]`
 /// - Any of the above followed by `fill COLOR` and/or `coloronly`/`monoonly`
 ///   (`fill` and visibility are independent; either can appear without the other)
-fn parse_ref_line(parts: &[String]) -> Option<GlyphRef> {
+fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef> {
     if parts.is_empty() {
         return None;
     }
@@ -163,7 +259,7 @@ fn parse_ref_line(parts: &[String]) -> Option<GlyphRef> {
         idx += 1;
     }
 
-    Some(GlyphRef { name, offset, negated, fill, visibility })
+    Some(GlyphRef { name, offset, negated, fill, visibility, comment })
 }
 
 pub fn parse_document(path: &Path) -> Result<Document> {
@@ -188,10 +284,15 @@ fn parse_range_token(s: &str) -> Option<(i16, i16)> {
 }
 
 /// Parse an anchor/point from its three token parts: position, col_range, row_range.
-fn parse_anchor_point(position: &str, col_tok: &str, row_tok: &str) -> Option<GlyphPoint> {
+fn parse_anchor_point(
+    position: &str,
+    col_tok: &str,
+    row_tok: &str,
+    comment: Option<String>,
+) -> Option<GlyphPoint> {
     let (col, col_end) = parse_range_token(col_tok)?;
     let (row, row_end) = parse_range_token(row_tok)?;
-    Some(GlyphPoint { position: position.to_string(), col, row, col_end, row_end })
+    Some(GlyphPoint { position: position.to_string(), col, row, col_end, row_end, comment })
 }
 
 /// Parsed dimensions of a `glyph NAME W H [OFF_ROW OFF_COL]` header, i.e. a
@@ -514,11 +615,17 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Glyph { name, body } => {
                 serialize_glyph(writer, name, body)?;
             }
-            DocumentItem::Map { char_repr, glyph } => {
-                writeln!(writer, "map {} = {}", quote_token(char_repr), quote_token(glyph))?;
+            DocumentItem::Map { char_repr, glyph, comment } => {
+                writeln!(
+                    writer,
+                    "map {} = {}{}",
+                    quote_token(char_repr),
+                    quote_token(glyph),
+                    comment_suffix(comment),
+                )?;
             }
-            DocumentItem::MapDecomposed { char_repr } => {
-                writeln!(writer, "map {}", quote_token(char_repr))?;
+            DocumentItem::MapDecomposed { char_repr, comment } => {
+                writeln!(writer, "map {}{}", quote_token(char_repr), comment_suffix(comment))?;
             }
         }
     }
@@ -569,22 +676,28 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
     let flags = format_glyph_flags(body);
     let qname = quote_token(&name.display());
 
+    let hcomment = comment_suffix(&body.comment);
+
     // Simple alias: glyph NAME [flags] = ALIAS
     if body.is_simple_alias() {
-        writeln!(writer, "glyph {qname}{flags} = {}", quote_token(&body.refs[0].name))?;
+        writeln!(
+            writer,
+            "glyph {qname}{flags} = {}{hcomment}",
+            quote_token(&body.refs[0].name),
+        )?;
         return Ok(());
     }
 
     if let Some(grid) = &body.pixels {
         let s = body.scale as u16;
-        writeln!(writer, "glyph {qname} {} {}{flags}", grid.width / s, grid.height / s)?;
+        writeln!(writer, "glyph {qname} {} {}{flags}{hcomment}", grid.width / s, grid.height / s)?;
         if !grid.is_all_empty() {
             for row in 0..grid.height {
                 writeln!(writer, "{}", encode_grid_row(grid, row))?;
             }
         }
     } else {
-        writeln!(writer, "glyph {qname}{flags}")?;
+        writeln!(writer, "glyph {qname}{flags}{hcomment}")?;
     }
     for r in &body.refs {
         writeln!(writer, "{}", r.format_line(None))?;
@@ -600,7 +713,14 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
         } else {
             format!("{}..{}", p.row, p.row_end)
         };
-        writeln!(writer, "anchor {} {} {}", quote_token(&p.position), col_s, row_s)?;
+        writeln!(
+            writer,
+            "anchor {} {} {}{}",
+            quote_token(&p.position),
+            col_s,
+            row_s,
+            comment_suffix(&p.comment),
+        )?;
     }
     Ok(())
 }
@@ -724,10 +844,20 @@ pub fn derive_document(
                     continue;
                 }
 
-                let tokens = tokenize_tokens(trimmed)
+                // Every directive line may end in a `// …` comment; it is one
+                // token, it never reaches the grammar below, and it is kept on
+                // the item so serializing the document does not drop it.
+                let (body_text, comment) = split_comment_owned(trimmed);
+                let comment_raw = comment
+                    .as_deref()
+                    .map(|c| format!(" // {c}"))
+                    .unwrap_or_default();
+                let tokens = tokenize_tokens(body_text)
                     .map_err(DeriveError)?;
                 if tokens.is_empty() {
                     item_line_starts.push(i);
+                    // A comment-only line never reaches here: it was taken by
+                    // the `//` branch above.
                     doc.items.push(DocumentItem::BlankLine);
                     i += 1;
                     continue;
@@ -737,15 +867,19 @@ pub fn derive_document(
                     "font-meta" => {
                         item_line_starts.push(i);
                         let rest: Vec<String> = tokens[1..].iter().map(|t| quote_token(t)).collect();
-                        doc.items.push(DocumentItem::FontMeta(rest.join(" ")));
+                        let text = rest.join(" ");
+                        doc.items.push(DocumentItem::FontMeta(format!(
+                            "{}{comment_raw}",
+                            text.trim_end(),
+                        )));
                         i += 1;
                     }
                     "exclude-from-sample" | "assume" => {
                         item_line_starts.push(i);
                         let rest: Vec<String> = tokens[1..].iter().map(|t| quote_token(t)).collect();
-                        doc.items.push(DocumentItem::Directive(
-                            format!("{} {}", tokens[0], rest.join(" ")),
-                        ));
+                        let text = format!("{} {}", tokens[0], rest.join(" "));
+                        doc.items
+                            .push(DocumentItem::Directive(format!("{}{comment_raw}", text.trim_end())));
                         i += 1;
                     }
                     "map" => {
@@ -754,12 +888,14 @@ pub fn derive_document(
                             doc.items.push(DocumentItem::Map {
                                 char_repr: tokens[1].clone(),
                                 glyph: tokens[3].clone(),
+                                comment,
                             });
                             i += 1;
                         } else if tokens.len() == 2 {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::MapDecomposed {
                                 char_repr: tokens[1].clone(),
+                                comment,
                             });
                             i += 1;
                         } else {
@@ -792,6 +928,7 @@ pub fn derive_document(
                         };
 
                         let mut body = GlyphBody::new();
+                        body.comment = comment;
                         let flags = parse_glyph_flag_parts(flag_parts);
                         body.sticky = flags.sticky;
                         body.inline = flags.inline;
@@ -813,6 +950,7 @@ pub fn derive_document(
                                 negated: false,
                                 fill: None,
                                 visibility: None,
+                                comment: None,
                             });
                             item_line_starts.push(header_idx);
                             doc.items.push(DocumentItem::Glyph { name, body });
@@ -831,13 +969,13 @@ pub fn derive_document(
 
                         // Collect ref and point lines
                         while let Some(DocLine::Text(t)) = lines.get(i) {
-                            let rt = t.trim();
-                            let sub_tokens = match tokenize_tokens(rt) {
+                            let (sub_text, sub_comment) = split_comment_owned(t.trim());
+                            let sub_tokens = match tokenize_tokens(sub_text) {
                                 Ok(t) => t,
                                 Err(_) => break,
                             };
                             if sub_tokens.first().is_some_and(|t| t == "ref") {
-                                let parsed_ref = parse_ref_line(&sub_tokens[1..]);
+                                let parsed_ref = parse_ref_line(&sub_tokens[1..], sub_comment);
                                 let Some(parsed_ref) = parsed_ref else {
                                     break;
                                 };
@@ -847,7 +985,7 @@ pub fn derive_document(
                             } else if sub_tokens.first().is_some_and(|t| t == "point" || t == "anchor") {
                                 let point_parts = &sub_tokens[1..];
                                 if point_parts.len() == 3
-                                    && let Some(pt) = parse_anchor_point(&point_parts[0], &point_parts[1], &point_parts[2]) {
+                                    && let Some(pt) = parse_anchor_point(&point_parts[0], &point_parts[1], &point_parts[2], sub_comment) {
                                         body.points.push(pt);
                                         i += 1;
                                         continue;
@@ -863,7 +1001,7 @@ pub fn derive_document(
                     }
                     "name-parts" | "remap" | "feature" | "assert" => {
                         item_line_starts.push(i);
-                        doc.items.push(DocumentItem::parse_directive(&tokens));
+                        doc.items.push(DocumentItem::parse_directive(&tokens, comment));
                         i += 1;
                     }
                     "color" => {
@@ -878,6 +1016,7 @@ pub fn derive_document(
                                 name: tokens[1].clone(),
                                 value: tokens[3].clone(),
                                 visibility,
+                                comment,
                             });
                         } else {
                             doc.items.push(DocumentItem::Directive(trimmed.to_string()));
@@ -1296,15 +1435,15 @@ ref other 1 1
                     assert_eq!(a, b, "directive mismatch at item {idx}");
                 }
                 (
-                    DocumentItem::NameParts { name: n1, values: v1 },
-                    DocumentItem::NameParts { name: n2, values: v2 },
+                    DocumentItem::NameParts { name: n1, values: v1, .. },
+                    DocumentItem::NameParts { name: n2, values: v2, .. },
                 ) => {
                     assert_eq!(n1, n2, "name-parts name mismatch at item {idx}");
                     assert_eq!(v1, v2, "name-parts values mismatch at item {idx}");
                 }
                 (
-                    DocumentItem::Remap { feature: f1, lookbehind: lb1, source: s1, target: t1, lookahead: la1 },
-                    DocumentItem::Remap { feature: f2, lookbehind: lb2, source: s2, target: t2, lookahead: la2 },
+                    DocumentItem::Remap { feature: f1, lookbehind: lb1, source: s1, target: t1, lookahead: la1, .. },
+                    DocumentItem::Remap { feature: f2, lookbehind: lb2, source: s2, target: t2, lookahead: la2, .. },
                 ) => {
                     assert_eq!(f1, f2, "remap feature mismatch at item {idx}");
                     assert_eq!(lb1, lb2, "remap lookbehind mismatch at item {idx}");
@@ -1313,8 +1452,8 @@ ref other 1 1
                     assert_eq!(la1, la2, "remap lookahead mismatch at item {idx}");
                 }
                 (
-                    DocumentItem::Feature { name: n1, scripts: s1, remap_group: r1 },
-                    DocumentItem::Feature { name: n2, scripts: s2, remap_group: r2 },
+                    DocumentItem::Feature { name: n1, scripts: s1, remap_group: r1, .. },
+                    DocumentItem::Feature { name: n2, scripts: s2, remap_group: r2, .. },
                 ) => {
                     assert_eq!(n1, n2, "feature name mismatch at item {idx}");
                     assert_eq!(s1, s2, "feature scripts mismatch at item {idx}");
@@ -1663,7 +1802,7 @@ exclude-from-sample stem
         // map ```` = bquot  →  map backtick-char to "bquot"
         let input = "map ```` = bquot\n";
         let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-        if let DocumentItem::Map { char_repr, glyph } = &doc.items[0] {
+        if let DocumentItem::Map { char_repr, glyph, .. } = &doc.items[0] {
             assert_eq!(char_repr, "`");
             assert_eq!(glyph, "bquot");
         } else {
@@ -1682,7 +1821,7 @@ exclude-from-sample stem
         // name-parts $init0 = `` $init
         let input = "name-parts $init0 = `` $init\n";
         let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-        if let DocumentItem::NameParts { name, values } = &doc.items[0] {
+        if let DocumentItem::NameParts { name, values, .. } = &doc.items[0] {
             assert_eq!(name, "$init0");
             assert_eq!(values, &vec!["".to_string(), "$init".to_string()]);
         } else {
@@ -1728,14 +1867,14 @@ exclude-from-sample stem
         let input = "color red = #ff0000\ncolor blue = #0000ffcc coloronly\n";
         let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
         assert_eq!(doc.items.len(), 2);
-        if let DocumentItem::Color { name, value, visibility } = &doc.items[0] {
+        if let DocumentItem::Color { name, value, visibility, .. } = &doc.items[0] {
             assert_eq!(name, "red");
             assert_eq!(value, "#ff0000");
             assert!(visibility.is_none());
         } else {
             panic!("expected Color");
         }
-        if let DocumentItem::Color { name, value, visibility } = &doc.items[1] {
+        if let DocumentItem::Color { name, value, visibility, .. } = &doc.items[1] {
             assert_eq!(name, "blue");
             assert_eq!(value, "#0000ffcc");
             assert_eq!(*visibility, Some(LayerVisibility::ColorOnly));
@@ -1985,6 +2124,147 @@ ref part-c fill #ff0000 monoonly
         } else {
             panic!("expected AssertShape, got {:?}", doc.items[0]);
         }
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), input);
+    }
+
+    // -----------------------------------------------------------------------
+    // Inline `// …` comments (every directive except pixel rows)
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn comment_is_one_unquotable_token_at_the_end_of_the_line() {
+        // `foo `//` bar // quux` is four tokens: the quoted `//` is an
+        // ordinary token, and everything from the unquoted `//` on is one
+        // comment token that quoting no longer applies to.
+        let (body, comment) = split_comment("foo ```` bar // quux");
+        assert_eq!(tokenize_tokens(body).unwrap(), vec!["foo", "`", "bar"]);
+        assert_eq!(comment, Some("// quux"));
+
+        let (body, comment) = split_comment("foo `//` bar // quux `x");
+        assert_eq!(tokenize_tokens(body).unwrap(), vec!["foo", "//", "bar"]);
+        assert_eq!(comment, Some("// quux `x"));
+        assert_eq!(comment.map(comment_text), Some("quux `x"));
+
+        // No comment at all, and a `//` inside a token is not one either.
+        assert_eq!(split_comment("foo bar"), ("foo bar", None));
+        assert_eq!(split_comment("http://x y"), ("http://x y", None));
+
+        // The tokenizers drop the comment for callers that only want tokens.
+        assert_eq!(tokenize_tokens("map A = a // hi").unwrap(), vec!["map", "A", "=", "a"]);
+        let spans = tokenize_with_spans("map A = a // hi").unwrap();
+        assert_eq!(spans.len(), 4);
+    }
+
+    /// Every directive form keeps its meaning with a comment attached, and the
+    /// comment survives a parse/serialize round trip.
+    #[test]
+    fn comments_on_directives_round_trip() {
+        let input = "\
+font-meta height 16 ascent 12 descent 4 // metrics
+map A = latin-a // the letter
+map U+00C0 // decomposed
+name-parts $x = a b // parts
+remap liga : a b -> ab // ligature
+feature liga for latn : liga // feature
+color red = #ff0000 // brand
+exclude-from-sample foo // not interesting
+assume unused bar // deliberate
+glyph a-b 2 1 // header
+@@..
+ref other 1 2 // layer
+anchor top 0 0 // where marks go
+";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+
+        assert!(
+            matches!(&doc.items[1], DocumentItem::Map { char_repr, glyph, comment }
+                if char_repr == "A" && glyph == "latin-a" && comment.as_deref() == Some("the letter")),
+            "got {:?}", doc.items[1],
+        );
+        assert!(
+            matches!(&doc.items[2], DocumentItem::MapDecomposed { char_repr, .. }
+                if char_repr == "U+00C0"),
+            "got {:?}", doc.items[2],
+        );
+        assert!(
+            matches!(&doc.items[3], DocumentItem::NameParts { values, comment, .. }
+                if values == &["a".to_string(), "b".to_string()]
+                    && comment.as_deref() == Some("parts")),
+            "got {:?}", doc.items[3],
+        );
+        assert!(
+            matches!(&doc.items[4], DocumentItem::Remap { source, target, comment, .. }
+                if source == &["a".to_string(), "b".to_string()]
+                    && target == &["ab".to_string()]
+                    && comment.as_deref() == Some("ligature")),
+            "got {:?}", doc.items[4],
+        );
+        assert!(
+            matches!(&doc.items[5], DocumentItem::Feature { remap_group, comment, .. }
+                if remap_group == "liga" && comment.as_deref() == Some("feature")),
+            "got {:?}", doc.items[5],
+        );
+        assert!(
+            matches!(&doc.items[6], DocumentItem::Color { value, comment, .. }
+                if value == "#ff0000" && comment.as_deref() == Some("brand")),
+            "got {:?}", doc.items[6],
+        );
+        let DocumentItem::Glyph { body, .. } = &doc.items[9] else {
+            panic!("expected Glyph, got {:?}", doc.items[9]);
+        };
+        assert_eq!(body.comment.as_deref(), Some("header"));
+        assert!(body.pixels.is_some(), "the pixel row must still be a grid");
+        assert_eq!(body.refs[0].comment.as_deref(), Some("layer"));
+        assert_eq!(body.points[0].comment.as_deref(), Some("where marks go"));
+
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), input);
+    }
+
+    /// A comment must not leak into the arguments of the raw-text directives.
+    #[test]
+    fn comment_is_not_a_directive_argument() {
+        let input = "exclude-from-sample foo // not interesting\nassume unused bar // deliberate\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Directive(a) = &doc.items[0] else { panic!() };
+        let DocumentItem::Directive(b) = &doc.items[1] else { panic!() };
+        assert_eq!(
+            crate::document::classify_directive(a),
+            crate::document::Directive::ExcludeFromSample("foo"),
+        );
+        assert_eq!(
+            crate::document::classify_directive(b),
+            crate::document::Directive::AssumeUnused("bar"),
+        );
+    }
+
+    /// Text appended to a commented line has to land *before* the comment,
+    /// or the comment swallows it.
+    #[test]
+    fn appending_to_a_line_keeps_the_comment_last() {
+        assert_eq!(append_to_line("glyph foo", "4 2"), "glyph foo 4 2");
+        assert_eq!(
+            append_to_line("glyph foo // a note", "4 2"),
+            "glyph foo 4 2 // a note",
+        );
+        let appended = append_to_line("glyph foo // a note", "4 2");
+        assert_eq!(
+            glyph_header_dims(&tokenize_tokens(&appended).unwrap()[1..]),
+            Some(GlyphHeaderDims { width: 4, height: 2, scale: 1 }),
+        );
+    }
+
+    /// Pixel rows are the one place `//` stays a pixel pair.
+    #[test]
+    fn pixel_rows_are_never_comments() {
+        let input = "glyph slash 2 1\n0//1\n";
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else { panic!() };
+        let grid = body.pixels.as_ref().unwrap();
+        assert_eq!(grid.get(0, 0), chars_to_shape('0', '/').unwrap());
         let mut output = Vec::new();
         serialize_document(&doc, &mut output).unwrap();
         assert_eq!(String::from_utf8(output).unwrap(), input);
