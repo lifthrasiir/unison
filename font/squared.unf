@@ -4,477 +4,657 @@
 //--------------------------------------
 // unit symbols
 
-// subject to change. (also, we really need a special syntax for ligatures)
+glyph narrow-micro 5 16
+..........
+..........
+..........
+..........
+..........
+..........
+@@....@@..
+@@....@@..
+@@....@@..
+@@....@@..
+@@....@@..
+@@v..v@@v.
+@@9@@@P2@@
+@@........
+@@........
+@@........
 
-glyph squared-am
-ref a-lower
-ref period 8 0
-ref m-lower 16 0
-ref period 24 0
+glyph narrow-script-l-lower 5 16
+..........
+..........
+..........
+...v@@v...
+../VP2V\..
+..@@..@@..
+..@@..@@..
+..@@..@@..
+..\Vv.@@..
+..`V@@V/..
+....@@v'..
+...v@@H~h\
+../Vv'\0@@
+..........
+..........
+..........
 
-glyph squared-a-over-m
-ref a-upper
-ref slash 8 0
-ref m-lower 16 0
+glyph narrow-ohm 5 16
+..........
+..........
+..........
+/0@@@@@@0\
+@@......@@
+@@......@@
+@@......@@
+@@......@@
+\Vv....vV/
+`vV\../Vv'
+..@@..@@..
+..@@..@@..
+@@@@..@@@@
+..........
+..........
+..........
 
-glyph squared-au
-ref a-upper
-ref u-upper 8 0
+glyph narrow-slash 5 16
+..........
+..........
+..........
+......../V
+.......vV/
+....../Vv'
+.....vV/..
+..../Vv'..
+...vV/....
+../Vv'....
+.vV/......
+/Vv'......
+V/........
+..........
+..........
+..........
 
-glyph squared-bar
-ref b-lower
-ref a-lower 8 0
-ref r-lower 16 0
+glyph squared-am 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+............@@..............@@..
+............@@..............@@..
+............@@..............@@..
+................................
+................................
+................................
+ref narrow-a-lower
+ref narrow-m-lower 8 0
 
-glyph squared-bq
-ref b-upper
-ref q-lower 8 0
+glyph squared-a-over-m 16 16
+ref narrow-a-upper
+ref narrow-slash 6 0
+ref narrow-m-lower 11 0
+
+glyph squared-au 16 16
+ref narrow-a-upper 3 0
+ref narrow-u-upper 8 0
+
+glyph squared-bar 16 16
+ref narrow-b-lower
+ref narrow-a-lower 5 0
+ref narrow-r-lower 10 0
+
+glyph squared-bq 16 16
+ref narrow-b-upper 3 0
+ref narrow-q-lower 8 0
 
 glyph squared-c-over-kg
-ref c-upper
-ref slash 8 0
-ref k-lower 16 0
-ref g-lower 24 0
+ref narrow-c-upper 0 -3
+ref narrow-slash 5 -3
+ref narrow-k-lower 7 0
+ref narrow-g-lower 11 0
 
-glyph squared-cal
-ref c-lower
-ref a-lower 8 0
-ref l-lower 16 0
+glyph squared-cal 16 16
+ref narrow-c-lower
+ref narrow-a-lower 5 0
+ref narrow-l-lower 10 0
 
-glyph squared-cc
-ref c-lower
-ref c-lower 8 0
+glyph squared-cc 16 16
+ref narrow-c-lower 3 0
+ref narrow-c-lower 8 0
 
-glyph squared-cd
-ref c-lower
-ref d-lower 8 0
+glyph squared-cd 16 16
+ref narrow-c-lower 3 0
+ref narrow-d-lower 8 0
 
-glyph squared-cm
-ref c-lower
-ref m-lower 8 0
+glyph squared-cm 16 16
+ref narrow-c-lower 2 0
+ref narrow-m-lower 8 0
 
-glyph squared-cm2
-ref c-lower
-ref m-lower 8 0
-ref sup-2 16 0
+glyph squared-cm2 16 16 advance 16
+ref narrow-c-lower
+ref narrow-m-lower 6 0
+ref sup-2 10 0
 
-glyph squared-cm3
-ref c-lower
-ref m-lower 8 0
-ref sup-3 16 0
+glyph squared-cm3 16 16 advance 16
+ref narrow-c-lower
+ref narrow-m-lower 6 0
+ref sup-3 10 0
 
-glyph squared-co
-ref c-upper
-ref o-lower 8 0
-ref period 16 0
+glyph squared-co 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+..........................@@....
+..........................@@....
+..........................@@....
+................................
+................................
+................................
+ref narrow-c-upper 1 0
+ref narrow-o-lower 7 0
 
-glyph squared-da
-ref d-lower
-ref a-lower 8 0
+glyph squared-da 16 16
+ref narrow-d-lower 3 0
+ref narrow-a-lower 8 0
 
-glyph squared-db
-ref d-lower
-ref b-upper 8 0
+glyph squared-db 16 16
+ref narrow-d-lower 3 0
+ref narrow-b-upper 8 0
 
-glyph squared-dl
-ref d-lower
-ref script-l-lower 8 0
+glyph squared-dl 16 16
+ref narrow-d-lower 3 0
+ref narrow-script-l-lower 8 0
 
-glyph squared-dm
-ref d-lower
-ref m-lower 8 0
+glyph squared-dm 16 16
+ref narrow-d-lower 2 0
+ref narrow-m-lower 8 0
 
-glyph squared-dm2
-ref d-lower
-ref m-lower 8 0
-ref sup-2 16 0
+glyph squared-dm2 16 16 advance 16
+ref narrow-d-lower
+ref narrow-m-lower 6 0
+ref sup-2 10 0
 
-glyph squared-dm3
-ref d-lower
-ref m-lower 8 0
-ref sup-3 16 0
+glyph squared-dm3 16 16 advance 16
+ref narrow-d-lower
+ref narrow-m-lower 6 0
+ref sup-3 10 0
 
-glyph squared-fm
-ref f-lower
-ref m-lower 8 0
+glyph squared-erg 16 16
+ref narrow-e-lower 0 0
+ref narrow-r-lower 5 0
+ref narrow-g-lower 10 0
 
-glyph squared-gal
-ref g-lower
-ref a-lower 8 0
-ref l-lower 16 0
+glyph squared-ev 16 16
+ref narrow-e-lower 2 0
+ref narrow-v-upper 8 0
 
-glyph squared-gb
-ref g-upper
-ref b-upper 8 0
+glyph squared-fm 16 16
+ref narrow-f-lower 2 0
+ref narrow-m-lower 8 0
 
-glyph squared-ghz
-ref g-upper
-ref h-upper 8 0
-ref z-lower 16 0
+glyph squared-gal 16 16
+ref narrow-g-lower
+ref narrow-a-lower 5 0
+ref narrow-l-lower 10 0
 
-glyph squared-gpa
-ref g-upper
-ref p-upper 8 0
-ref a-lower 16 0
+glyph squared-gb 16 16
+ref narrow-g-upper 3 0
+ref narrow-b-upper 8 0
 
-glyph squared-gy
-ref g-upper
-ref y-lower 8 0
+glyph squared-ghz 16 16
+ref narrow-g-upper
+ref narrow-h-upper 5 0
+ref narrow-z-lower 10 0
 
-glyph squared-ha
-ref h-lower
-ref a-lower 8 0
+glyph squared-gpa 16 16
+ref narrow-g-upper
+ref narrow-p-upper 5 0
+ref narrow-a-lower 10 0
 
-glyph squared-hp
-ref h-upper
-ref p-upper 8 0
+glyph squared-gy 16 16
+ref narrow-g-upper 3 0
+ref narrow-y-lower 8 0
 
-glyph squared-hz
-ref h-upper
-ref z-lower 8 0
+glyph squared-ha 16 16
+ref narrow-h-lower 3 0
+ref narrow-a-lower 8 0
 
-glyph squared-in
-ref i-lower
-ref n-lower 8 0
+glyph squared-hg 16 16
+ref narrow-h-upper 3 0
+ref narrow-g-lower 8 0
 
-glyph squared-iu
-ref i-upper
-ref u-upper 8 0
+glyph squared-hp 16 16
+ref narrow-h-upper 3 0
+ref narrow-p-upper 8 0
 
-glyph squared-kk
-ref k-upper
-ref period 8 0
-ref k-upper 16 0
-ref period 24 0
+glyph squared-hz 16 16
+ref narrow-h-upper 3 0
+ref narrow-z-lower 8 0
 
-glyph squared-ka
-ref k-lower
-ref a-upper 8 0
+glyph squared-in 16 16
+ref narrow-i-lower 3 0
+ref narrow-n-lower 8 0
 
-glyph squared-kb
-ref k-upper
-ref b-upper 8 0
+glyph squared-iu 16 16
+ref narrow-i-upper 3 0
+ref narrow-u-upper 7 0
 
-glyph squared-kcal
-ref k-lower
-ref c-lower 8 0
-ref a-lower 16 0
-ref l-lower 24 0
+glyph squared-kk 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+..............@@............@@..
+..............@@............@@..
+..............@@............@@..
+................................
+................................
+................................
+ref narrow-k-upper 1 0
+ref narrow-k-upper 8 0
 
-glyph squared-kg
-ref k-lower
-ref g-lower 8 0
+glyph squared-ka 16 16
+ref narrow-k-lower 3 0
+ref narrow-a-upper 8 0
 
-glyph squared-khz
-ref k-lower
-ref h-upper 8 0
-ref z-lower 16 0
+glyph squared-kb 16 16
+ref narrow-k-upper 3 0
+ref narrow-b-upper 8 0
 
-glyph squared-kl
-ref k-lower
-ref script-l-lower 8 0
+glyph squared-kcal 16 16
+ref narrow-k-lower
+ref narrow-c-lower 4 0
+ref narrow-a-lower 8 0
+ref narrow-l-lower 11 0
 
-glyph squared-km-upper
-ref k-upper
-ref m-upper 8 0
+glyph squared-kg 16 16
+ref narrow-k-lower 3 0
+ref narrow-g-lower 8 0
 
-glyph squared-km
-ref k-lower
-ref m-lower 8 0
+glyph squared-khz 16 16
+ref narrow-k-lower
+ref narrow-h-upper 5 0
+ref narrow-z-lower 10 0
 
-glyph squared-km2
-ref k-lower
-ref m-lower 8 0
-ref sup-2 16 0
+glyph squared-kl 16 16
+ref narrow-k-lower 3 0
+ref narrow-script-l-lower 8 0
 
-glyph squared-km3
-ref k-lower
-ref m-lower 8 0
-ref sup-3 16 0
+glyph squared-km-upper 16 16
+ref narrow-k-upper 2 0
+ref narrow-m-upper 8 0
 
-glyph squared-kohm
-ref k-lower
-ref gr-omega-upper 8 0
+glyph squared-km 16 16
+ref narrow-k-lower 2 0
+ref narrow-m-lower 8 0
 
-glyph squared-kpa
-ref k-lower
-ref p-upper 8 0
-ref a-lower 16 0
+glyph squared-km2 16 16 advance 16
+ref narrow-k-lower
+ref narrow-m-lower 6 0
+ref sup-2 10 0
 
-glyph squared-kt
-ref k-lower
-ref t-lower 8 0
+glyph squared-km3 16 16 advance 16
+ref narrow-k-lower
+ref narrow-m-lower 6 0
+ref sup-3 10 0
 
-glyph squared-kv
-ref k-lower
-ref v-upper 8 0
+glyph squared-kohm 16 16
+ref narrow-k-lower 2 0
+ref narrow-ohm 8 0
 
-glyph squared-kw
-ref k-lower
-ref w-upper 8 0
+glyph squared-kpa 16 16
+ref narrow-k-lower
+ref narrow-p-upper 5 0
+ref narrow-a-lower 10 0
 
-glyph squared-lm
-ref l-lower
-ref m-lower 8 0
+glyph squared-kt 16 16
+ref narrow-k-lower 3 0
+ref narrow-t-lower 8 0
 
-glyph squared-ln
-ref l-lower
-ref n-lower 8 0
+glyph squared-kv 16 16
+ref narrow-k-lower 2 0
+ref narrow-v-upper 8 0
 
-glyph squared-log
-ref l-lower
-ref o-lower 8 0
-ref g-lower 16 0
+glyph squared-kw 16 16
+ref narrow-k-lower 2 0
+ref narrow-w-upper 8 0
 
-glyph squared-lx
-ref l-lower
-ref x-lower 8 0
+glyph squared-lm 16 16
+ref narrow-l-lower 2 0
+ref narrow-m-lower 8 0
 
-glyph squared-m-over-s
-ref m-lower
-ref slash 8 0
-ref s-lower 16 0
+glyph squared-ln 16 16
+ref narrow-l-lower 3 0
+ref narrow-n-lower 8 0
 
-glyph squared-m-over-s2
-ref m-lower
-ref slash 8 0
-ref s-lower 16 0
-ref sup-2 24 0
+glyph squared-log 16 16
+ref narrow-l-lower -1 0
+ref narrow-o-lower 5 0
+ref narrow-g-lower 10 0
 
-glyph squared-m2
-ref m-lower
+glyph squared-ltd 16 16
+ref narrow-l-upper 0 0
+ref narrow-t-upper 5 0
+ref narrow-d-upper 10 0
+
+glyph squared-lx 16 16
+ref narrow-l-lower 2 0
+ref narrow-x-lower 8 0
+
+glyph squared-m-over-s 16 16
+ref narrow-m-lower 1 0
+ref narrow-slash 7 0
+ref narrow-s-lower 10 0
+
+glyph squared-m-over-s2 16 16 advance 16
+ref narrow-m-lower
+ref narrow-slash 5 0
+ref narrow-s-lower 8 0
+ref sup-2 11 0
+
+glyph squared-m2 16 16
+ref narrow-m-lower 4 0
 ref sup-2 8 0
 
-glyph squared-m3
-ref m-lower
+glyph squared-m3 16 16
+ref narrow-m-lower 4 0
 ref sup-3 8 0
 
-glyph squared-ma
-ref m-lower
-ref a-upper 8 0
+glyph squared-ma 16 16
+ref narrow-m-lower 3 0
+ref narrow-a-upper 8 0
 
-glyph squared-mb-upper
-ref m-upper
-ref b-upper 8 0
+glyph squared-mb-upper 16 16
+ref narrow-m-upper 3 0
+ref narrow-b-upper 8 0
 
-glyph squared-mb
-ref m-lower
-ref b-lower 8 0
+glyph squared-mb 16 16
+ref narrow-m-lower 3 0
+ref narrow-b-lower 8 0
 
-glyph squared-mg
-ref m-lower
-ref g-lower 8 0
+glyph squared-mg 16 16
+ref narrow-m-lower 3 0
+ref narrow-g-lower 8 0
 
-glyph squared-mhz
-ref m-upper
-ref h-upper 8 0
-ref z-lower 16 0
+glyph squared-mhz 16 16
+ref narrow-m-upper 1 0
+ref narrow-h-upper 6 0
+ref narrow-z-lower 11 0
 
-glyph squared-mil
-ref m-lower
-ref i-lower 8 0
-ref l-lower 16 0
+glyph squared-mil 16 16
+ref narrow-m-lower 1 0
+ref narrow-i-lower 6 0
+ref narrow-l-lower 11 0
 
-glyph squared-ml
-ref m-lower
-ref script-l-lower 8 0
+glyph squared-ml 16 16
+ref narrow-m-lower 3 0
+ref narrow-script-l-lower 8 0
 
-glyph squared-mm
-ref m-lower
-ref m-lower 8 0
+glyph squared-mm 16 16
+ref narrow-m-lower 3 0
+ref narrow-m-lower 9 0
 
-glyph squared-mm2
-ref m-lower
-ref m-lower 8 0
-ref sup-2 16 0
+glyph squared-mm2 16 16 advance 16
+ref narrow-m-lower 1 0
+ref narrow-m-lower 7 0
+ref sup-2 10 0
 
-glyph squared-mm3
-ref m-lower
-ref m-lower 8 0
-ref sup-3 16 0
+glyph squared-mm3 16 16 advance 16
+ref narrow-m-lower 1 0
+ref narrow-m-lower 7 0
+ref sup-3 10 0
 
-glyph squared-mol
-ref m-lower
-ref o-lower 8 0
-ref l-lower 16 0
+glyph squared-mol 16 16
+ref narrow-m-lower 1 0
+ref narrow-o-lower 7 0
+ref narrow-l-lower 11 0
 
-glyph squared-mohm
-ref m-upper
-ref gr-omega-upper 8 0
+glyph squared-mohm 16 16
+ref narrow-m-upper 3 0
+ref narrow-ohm 9 0
 
-glyph squared-mpa
-ref m-upper
-ref p-upper 8 0
-ref a-lower 16 0
+glyph squared-mpa 16 16
+ref narrow-m-upper 1 0
+ref narrow-p-upper 6 0
+ref narrow-a-lower 11 0
 
-glyph squared-ms
-ref m-lower
-ref s-lower 8 0
+glyph squared-ms 16 16
+ref narrow-m-lower 3 0
+ref narrow-s-lower 8 0
 
-glyph squared-mv-upper
-ref m-upper
-ref v-upper 8 0
+glyph squared-mv-upper 16 16
+ref narrow-m-upper 3 0
+ref narrow-v-upper 9 0
 
-glyph squared-mv
-ref m-lower
-ref v-upper 8 0
+glyph squared-mv 16 16
+ref narrow-m-lower 3 0
+ref narrow-v-upper 9 0
 
-glyph squared-mw-upper
-ref m-upper
-ref w-upper 8 0
+glyph squared-mw-upper 16 16
+ref narrow-m-upper 3 0
+ref narrow-w-upper 9 0
 
-glyph squared-mw
-ref m-lower
-ref w-upper 8 0
+glyph squared-mw 16 16
+ref narrow-m-lower 3 0
+ref narrow-w-upper 9 0
 
-glyph squared-na
-ref n-lower
-ref a-upper 8 0
+glyph squared-na 16 16
+ref narrow-n-lower 3 0
+ref narrow-a-upper 8 0
 
-glyph squared-nf
-ref n-lower
-ref f-upper 8 0
+glyph squared-nf 16 16
+ref narrow-n-lower 3 0
+ref narrow-f-upper 8 0
 
-glyph squared-nm
-ref n-lower
-ref m-lower 8 0
+glyph squared-nm 16 16
+ref narrow-n-lower 2 0
+ref narrow-m-lower 8 0
 
-glyph squared-ns
-ref n-lower
-ref s-lower 8 0
+glyph squared-ns 16 16
+ref narrow-n-lower 3 0
+ref narrow-s-lower 8 0
 
-glyph squared-nv
-ref n-lower
-ref v-upper 8 0
+glyph squared-nv 16 16
+ref narrow-n-lower 2 0
+ref narrow-v-upper 8 0
 
-glyph squared-nw
-ref n-lower
-ref w-upper 8 0
+glyph squared-nw 16 16
+ref narrow-n-lower 2 0
+ref narrow-w-upper 8 0
 
-glyph squared-ov
-ref o-lower
-ref v-upper 8 0
+glyph squared-ov 16 16
+ref narrow-o-lower 3 0
+ref narrow-v-upper 9 0
 
-glyph squared-pm
-ref p-lower
-ref period 8 0
-ref m-lower 16 0
-ref period 24 0
+glyph squared-pm 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+............@@..............@@..
+............@@..............@@..
+................................
+................................
+................................
+ref narrow-p-lower
+ref narrow-m-lower 8 0
 
-glyph squared-p-upper-a
-ref p-upper
-ref a-lower 8 0
+glyph squared-p-upper-a 16 16
+ref narrow-p-upper 3 0
+ref narrow-a-lower 8 0
 
-glyph squared-p-a-upper
-ref p-lower
-ref a-upper 8 0
+glyph squared-p-a-upper 16 16
+ref narrow-p-lower 3 0
+ref narrow-a-upper 8 0
 
-glyph squared-pc
-ref p-lower
-ref c-lower 8 0
+glyph squared-pc 16 16
+ref narrow-p-lower 3 0
+ref narrow-c-lower 8 0
 
-glyph squared-pf
-ref p-lower
-ref f-upper 8 0
+glyph squared-pf 16 16
+ref narrow-p-lower 3 0
+ref narrow-f-upper 8 0
 
-glyph squared-ph
-ref p-lower
-ref h-upper 8 0
+glyph squared-ph 16 16
+ref narrow-p-lower 3 0
+ref narrow-h-upper 8 0
 
-glyph squared-ppm
-ref p-upper
-ref p-upper 8 0
-ref m-upper 16 0
+glyph squared-ppm 16 16
+ref narrow-p-upper
+ref narrow-p-upper 5 0
+ref narrow-m-upper 11 0
 
-glyph squared-pr
-ref p-upper
-ref r-upper 8 0
+glyph squared-pr 16 16
+ref narrow-p-upper 3 0
+ref narrow-r-upper 8 0
 
-glyph squared-ps
-ref p-lower
-ref s-lower 8 0
+glyph squared-ps 16 16
+ref narrow-p-lower 3 0
+ref narrow-s-lower 8 0
 
-glyph squared-pv
-ref p-lower
-ref v-upper 8 0
+glyph squared-pv 16 16
+ref narrow-p-lower 2 0
+ref narrow-v-upper 8 0
 
-glyph squared-pw
-ref p-lower
-ref w-upper 8 0
+glyph squared-pw 16 16
+ref narrow-p-lower 2 0
+ref narrow-w-upper 8 0
 
-glyph squared-rad
-ref r-lower
-ref a-lower 8 0
-ref d-lower 16 0
+glyph squared-rad 16 16
+ref narrow-r-lower
+ref narrow-a-lower 5 0
+ref narrow-d-lower 10 0
 
-glyph squared-rad-over-s
-ref r-lower
-ref a-lower 8 0
-ref d-lower 16 0
-ref slash 24 0
-ref s-lower 32 0
+glyph sm-squared-rad 10 8
+..................@@
+..................@@
+..................@@
+@@/0@@..@@0\../0@@@@
+@@@P/.....@@..@@..@@
+@@/.../0@@@@..@@..@@
+@@....@@..@@..@@..@@
+@@....\0@@@@..\0@@@@
 
-glyph squared-rad-over-s2
-ref r-lower
-ref a-lower 8 0
-ref d-lower 16 0
-ref slash 24 0
-ref s-lower 32 0
-ref sup-2 40 0
+glyph squared-rad-over-s 16 16
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+........................../0@@@@
+..........................@@....
+..........................@@....
+..........................\0@@0\
+..............................@@
+..............................@@
+..........................@@@@0/
+ref sm-squared-rad 1 0
+ref narrow-slash 10 0
 
-glyph squared-sr
-ref s-lower
-ref r-lower 8 0
+glyph squared-rad-over-s2 16 16
+................................
+................................
+................................
+................................
+................................
+............................@@1\
+............................./@P
+............................d@/.
+............................@@@@
+....................../0@@@@....
+......................@@........
+......................@@........
+......................\0@@0\....
+..........................@@....
+..........................@@....
+......................@@@@0/....
+ref sm-squared-rad
+ref narrow-slash 8 0
 
-glyph squared-sv
-ref s-upper
-ref v-lower 8 0
+glyph squared-sr 16 16
+ref narrow-s-lower 3 0
+ref narrow-r-lower 8 0
 
-glyph squared-thz
-ref t-upper
-ref h-upper 8 0
-ref z-lower 16 0
+glyph squared-sv 16 16
+ref narrow-s-upper 3 0
+ref narrow-v-lower 8 0
 
-glyph squared-ua
-ref micro
-ref a-upper 8 0
+glyph squared-thz 16 16
+ref narrow-t-upper 1 0
+ref narrow-h-upper 6 0
+ref narrow-z-lower 11 0
 
-glyph squared-uf
-ref micro
-ref f-upper 8 0
+glyph squared-ua 16 16
+ref narrow-micro 3 0
+ref narrow-a-upper 8 0
 
-glyph squared-ug
-ref micro
-ref g-lower 8 0
+glyph squared-uf 16 16
+ref narrow-micro 3 0
+ref narrow-f-upper 8 0
 
-glyph squared-ul
-ref micro
-ref script-l-lower 8 0
+glyph squared-ug 16 16
+ref narrow-micro 3 0
+ref narrow-g-lower 8 0
 
-glyph squared-um
-ref micro
-ref m-lower 8 0
+glyph squared-ul 16 16
+ref narrow-micro 3 0
+ref narrow-script-l-lower 8 0
 
-glyph squared-us
-ref micro
-ref s-lower 8 0
+glyph squared-um 16 16
+ref narrow-micro 3 0
+ref narrow-m-lower 9 0
 
-glyph squared-uv
-ref micro
-ref v-upper 8 0
+glyph squared-us 16 16
+ref narrow-micro 3 0
+ref narrow-s-lower 8 0
 
-glyph squared-uw
-ref micro
-ref w-upper 8 0
+glyph squared-uv 16 16
+ref narrow-micro 3 0
+ref narrow-v-upper 9 0
 
-glyph squared-v-over-m
-ref v-upper
-ref slash 8 0
-ref m-lower 16 0
+glyph squared-uw 16 16
+ref narrow-micro 3 0
+ref narrow-w-upper 9 0
 
-glyph squared-wb
-ref w-upper
-ref b-lower 8 0
+glyph squared-v-over-m 16 16
+ref narrow-v-upper 1 0
+ref narrow-slash 5 0
+ref narrow-m-lower 10 0
+
+glyph squared-wb 16 16
+ref narrow-w-upper 3 0
+ref narrow-b-lower 8 0
 
 map ㏂ = squared-am
 map ㏟ = squared-a-over-m
@@ -495,6 +675,8 @@ map ㎗ = squared-dl
 map ㍷ = squared-dm
 map ㍸ = squared-dm2
 map ㍹ = squared-dm3
+map ㋍ = squared-erg
+map ㋎ = squared-ev
 map ㎙ = squared-fm
 map ㏿ = squared-gal
 map ㎇ = squared-gb
@@ -502,6 +684,7 @@ map ㎓ = squared-ghz
 map ㎬ = squared-gpa
 map ㏉ = squared-gy
 map ㏊ = squared-ha
+map ㋌ = squared-hg
 map ㏋ = squared-hp
 map ㎐ = squared-hz
 map ㏌ = squared-in
@@ -525,6 +708,7 @@ map ㎾ = squared-kw
 map ㏐ = squared-lm
 map ㏑ = squared-ln
 map ㏒ = squared-log
+map ㋏ = squared-ltd
 map ㏓ = squared-lx
 map ㎧ = squared-m-over-s
 map ㎨ = squared-m-over-s2
