@@ -85,6 +85,58 @@ fn zoom_step(level: u32, delta: i32) -> u32 {
     (level as i32 + delta).clamp(MIN_ZOOM_LEVEL as i32, MAX_ZOOM_LEVEL as i32) as u32
 }
 
+/// Bounds, step and default of the shaped preview's font size, in pixels.
+/// These match the slider and drag value in the preview tab's toolbar.
+const MIN_PREVIEW_FONT_SIZE: f32 = 16.0;
+const MAX_PREVIEW_FONT_SIZE: f32 = 128.0;
+const PREVIEW_FONT_SIZE_STEP: f32 = 16.0;
+const DEFAULT_PREVIEW_FONT_SIZE: f32 = 32.0;
+
+/// Moves `size` one step along the `PREVIEW_FONT_SIZE_STEP` grid in `delta`'s
+/// direction, saturating at the bounds. The drag value admits off-grid sizes,
+/// so a step first snaps onto the grid rather than carrying the offset along.
+fn preview_font_step(size: f32, delta: i32) -> f32 {
+    let stepped = match delta.signum() {
+        1 => ((size / PREVIEW_FONT_SIZE_STEP).floor() + 1.0) * PREVIEW_FONT_SIZE_STEP,
+        -1 => ((size / PREVIEW_FONT_SIZE_STEP).ceil() - 1.0) * PREVIEW_FONT_SIZE_STEP,
+        _ => size,
+    };
+    stepped.clamp(MIN_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE)
+}
+
+/// Which surface a zoom gesture applies to. Zoom is not one global setting:
+/// the editor has its integral zoom level and the shaped preview has its font
+/// size, so every zoom gesture picks a target first — the focused surface for
+/// the keyboard chords, the hovered one for Cmd/Ctrl + wheel.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum ZoomTarget {
+    Editor,
+    Preview,
+    /// Neither surface, so the zoom commands do nothing and the corresponding
+    /// menu entries are disabled.
+    None,
+}
+
+/// Picks the zoom target under `pointer`. Either rect is `None` when that
+/// surface is not on screen — in particular the editor rect is `None` while
+/// the no-document placeholder panel is shown, since that is not an editor.
+fn zoom_target_at(
+    pointer: Option<egui::Pos2>,
+    editor_rect: Option<egui::Rect>,
+    preview_rect: Option<egui::Rect>,
+) -> ZoomTarget {
+    let Some(pos) = pointer else {
+        return ZoomTarget::None;
+    };
+    if preview_rect.is_some_and(|r| r.contains(pos)) {
+        ZoomTarget::Preview
+    } else if editor_rect.is_some_and(|r| r.contains(pos)) {
+        ZoomTarget::Editor
+    } else {
+        ZoomTarget::None
+    }
+}
+
 /// Whether a directory-snapshot document at `path` is shadowed by an open
 /// document editing the same file.
 fn shadowed_by_open(open_documents: &[OpenDocument], path: &std::path::Path) -> bool {
@@ -156,6 +208,11 @@ pub struct UniformApp {
     bottom_panel_tab: Option<usize>,
     preview_font_size: f32,
     preview_font_size_slider: f32,
+    /// Screen rects of the two zoomable surfaces as of the last frame, used to
+    /// route Cmd/Ctrl + wheel to whichever one the pointer is over. `None`
+    /// when the surface was not drawn (no open document, preview tab hidden).
+    editor_view_rect: Option<egui::Rect>,
+    preview_view_rect: Option<egui::Rect>,
     shaped_preview: ShapedPreviewState,
     specimen: SpecimenState,
     issues: Vec<Issue>,
@@ -320,8 +377,10 @@ impl UniformApp {
             bottom_panel_height: 0.0,
             bottom_panel_height_override: false,
             bottom_panel_tab: None,
-            preview_font_size: 32.0,
-            preview_font_size_slider: 32.0,
+            preview_font_size: DEFAULT_PREVIEW_FONT_SIZE,
+            preview_font_size_slider: DEFAULT_PREVIEW_FONT_SIZE,
+            editor_view_rect: None,
+            preview_view_rect: None,
             shaped_preview: ShapedPreviewState::new(),
             specimen: SpecimenState::new(),
             issues: Vec::new(),
@@ -1135,20 +1194,67 @@ impl UniformApp {
         true
     }
 
-    /// Cmd/Ctrl + scroll wheel to adjust zoom level
-    /// (skip when hovering on the editing grid — ctrl+scroll cycles layers there)
-    fn handle_zoom_scroll(&mut self, ctx: &egui::Context) {
-        let cmd_held = ctx.input(|i| i.modifiers.command);
-        let grid_hover = self.active_doc()
-            .is_some_and(|d| d.editor_state.is_grid_hover());
-        if cmd_held && !grid_hover
-            && let Some(step) = debounced_scroll_step(ctx) {
-                self.set_zoom_level(zoom_step(self.zoom_level, if step < 0 { 1 } else { -1 }));
-                ctx.input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
-            }
+    /// Sets the shaped preview's font size (clamped to the slider's range) and
+    /// keeps the snapped slider position in sync. Returns whether it moved.
+    fn set_preview_font_size(&mut self, size: f32) -> bool {
+        let size = size.clamp(MIN_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE);
+        if size == self.preview_font_size {
+            return false;
+        }
+        self.preview_font_size = size;
+        self.preview_font_size_slider =
+            (size / PREVIEW_FONT_SIZE_STEP).round() * PREVIEW_FONT_SIZE_STEP;
+        true
     }
 
-    /// Cmd/Ctrl + `-` / `=` / `0` to adjust the zoom level. egui's built-in
+    /// The surface the zoom *keyboard* chords act on: whichever of the editor
+    /// and the shaped preview holds the focus. The preview wins the same way
+    /// it does for the edit menu.
+    fn focused_zoom_target(&self) -> ZoomTarget {
+        if self.bottom_panel_tab == Some(0) && self.shaped_preview.is_focused() {
+            ZoomTarget::Preview
+        } else if self.active_doc().is_some_and(|d| d.editor_state.is_active()) {
+            ZoomTarget::Editor
+        } else {
+            ZoomTarget::None
+        }
+    }
+
+    /// Cmd/Ctrl + scroll wheel to zoom. This one ignores the focus and goes by
+    /// what the pointer is over instead, so the surface being pointed at is the
+    /// one that zooms. Skipped over the editing grid, where Ctrl+scroll already
+    /// cycles layers.
+    fn handle_zoom_scroll(&mut self, ctx: &egui::Context) {
+        if !ctx.input(|i| i.modifiers.command) {
+            return;
+        }
+        let target = zoom_target_at(
+            ctx.input(|i| i.pointer.latest_pos()),
+            self.editor_view_rect,
+            self.preview_view_rect,
+        );
+        let grid_hover = self.active_doc()
+            .is_some_and(|d| d.editor_state.is_grid_hover());
+        if target == ZoomTarget::None || (target == ZoomTarget::Editor && grid_hover) {
+            return;
+        }
+        if let Some(step) = debounced_scroll_step(ctx) {
+            let delta = if step < 0 { 1 } else { -1 };
+            match target {
+                ZoomTarget::Editor => {
+                    self.set_zoom_level(zoom_step(self.zoom_level, delta));
+                }
+                ZoomTarget::Preview => {
+                    let size = preview_font_step(self.preview_font_size, delta);
+                    self.set_preview_font_size(size);
+                }
+                ZoomTarget::None => {}
+            }
+            ctx.input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
+        }
+    }
+
+    /// Cmd/Ctrl + `-` / `=` / `0` to zoom the focused surface. egui's built-in
     /// `zoom_with_keyboard` (which scales `pixels_per_point` instead) is disabled in
     /// [`UniformApp::new`] so these are the only handlers for those chords.
     fn handle_zoom_keys(&mut self, ctx: &egui::Context) {
@@ -1163,12 +1269,28 @@ impl UniformApp {
                 i.key_pressed(egui::Key::Num0),
             )
         });
-        if zoom_reset {
-            self.set_zoom_level(1);
-        } else if zoom_in {
-            self.set_zoom_level(zoom_step(self.zoom_level, 1));
-        } else if zoom_out {
-            self.set_zoom_level(zoom_step(self.zoom_level, -1));
+        match self.focused_zoom_target() {
+            ZoomTarget::Editor => {
+                if zoom_reset {
+                    self.set_zoom_level(1);
+                } else if zoom_in {
+                    self.set_zoom_level(zoom_step(self.zoom_level, 1));
+                } else if zoom_out {
+                    self.set_zoom_level(zoom_step(self.zoom_level, -1));
+                }
+            }
+            ZoomTarget::Preview => {
+                if zoom_reset {
+                    self.set_preview_font_size(DEFAULT_PREVIEW_FONT_SIZE);
+                } else if zoom_in {
+                    let size = preview_font_step(self.preview_font_size, 1);
+                    self.set_preview_font_size(size);
+                } else if zoom_out {
+                    let size = preview_font_step(self.preview_font_size, -1);
+                    self.set_preview_font_size(size);
+                }
+            }
+            ZoomTarget::None => {}
         }
     }
 
@@ -1582,25 +1704,67 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
+                    // The zoom entries drive whichever surface has the focus, and are
+                    // disabled outright when that is neither the editor nor the preview.
+                    let zoom_target = self.focused_zoom_target();
+                    let (can_in, can_out, can_reset) = match zoom_target {
+                        ZoomTarget::Editor => (
+                            self.zoom_level < MAX_ZOOM_LEVEL,
+                            self.zoom_level > MIN_ZOOM_LEVEL,
+                            self.zoom_level != 1,
+                        ),
+                        ZoomTarget::Preview => (
+                            self.preview_font_size < MAX_PREVIEW_FONT_SIZE,
+                            self.preview_font_size > MIN_PREVIEW_FONT_SIZE,
+                            self.preview_font_size != DEFAULT_PREVIEW_FONT_SIZE,
+                        ),
+                        ZoomTarget::None => (false, false, false),
+                    };
                     if ui.add_enabled(
-                        self.zoom_level < MAX_ZOOM_LEVEL,
+                        can_in,
                         egui::Button::new("Zoom in").shortcut_text(format!("{mod_name}=")),
                     ).clicked() {
-                        self.set_zoom_level(zoom_step(self.zoom_level, 1));
+                        match zoom_target {
+                            ZoomTarget::Editor => {
+                                self.set_zoom_level(zoom_step(self.zoom_level, 1));
+                            }
+                            ZoomTarget::Preview => {
+                                let size = preview_font_step(self.preview_font_size, 1);
+                                self.set_preview_font_size(size);
+                            }
+                            ZoomTarget::None => {}
+                        }
                         ui.close_menu();
                     }
                     if ui.add_enabled(
-                        self.zoom_level > MIN_ZOOM_LEVEL,
+                        can_out,
                         egui::Button::new("Zoom out").shortcut_text(format!("{mod_name}-")),
                     ).clicked() {
-                        self.set_zoom_level(zoom_step(self.zoom_level, -1));
+                        match zoom_target {
+                            ZoomTarget::Editor => {
+                                self.set_zoom_level(zoom_step(self.zoom_level, -1));
+                            }
+                            ZoomTarget::Preview => {
+                                let size = preview_font_step(self.preview_font_size, -1);
+                                self.set_preview_font_size(size);
+                            }
+                            ZoomTarget::None => {}
+                        }
                         ui.close_menu();
                     }
                     if ui.add_enabled(
-                        self.zoom_level != 1,
+                        can_reset,
                         egui::Button::new("Reset zoom").shortcut_text(format!("{mod_name}0")),
                     ).clicked() {
-                        self.set_zoom_level(1);
+                        match zoom_target {
+                            ZoomTarget::Editor => {
+                                self.set_zoom_level(1);
+                            }
+                            ZoomTarget::Preview => {
+                                self.set_preview_font_size(DEFAULT_PREVIEW_FONT_SIZE);
+                            }
+                            ZoomTarget::None => {}
+                        }
                         ui.close_menu();
                     }
                     ui.separator();
@@ -1893,6 +2057,7 @@ impl UniformApp {
     ) {
         let mut specimen_clicked_glyph: Option<crate::specimen::SpecimenClick> = None;
         let mut issues_click: Option<(PathBuf, usize)> = None;
+        let mut preview_rect: Option<egui::Rect> = None;
         let bottom_panel_expanded = self.bottom_panel_tab.is_some();
         if self.bottom_panel_height_override {
             self.bottom_panel_height_override = false;
@@ -2000,6 +2165,7 @@ impl UniformApp {
                             self.font_data_gen,
                             self.preview_font_size,
                         );
+                        preview_rect = self.shaped_preview.last_rect();
                     }
                     Some(1) => {
                         if self.specimen.needs_rebuild(self.font_build_gen) {
@@ -2026,6 +2192,7 @@ impl UniformApp {
                 }
             });
 
+        self.preview_view_rect = preview_rect;
         (specimen_clicked_glyph, issues_click)
     }
 
@@ -2040,6 +2207,9 @@ impl UniformApp {
     ) {
         let mut goto_glyph_request = None;
         let mut rename_request = None;
+        // Stays `None` for the placeholder panel below: that is not an editor,
+        // so hovering it must not make Cmd/Ctrl + wheel zoom the editor.
+        let mut editor_rect = None;
         egui::CentralPanel::default().show(ctx, |ui| {
             if self.open_documents.is_empty() {
                 ui.centered_and_justified(|ui| {
@@ -2051,6 +2221,7 @@ impl UniformApp {
                 });
             } else if let Some(idx) = self.active_doc_idx
                 && let Some(doc) = self.open_documents.get_mut(idx) {
+                    editor_rect = Some(ui.max_rect());
                     let font_size = 16.0 * self.zoom_level as f32;
                     let editor_font_id = if self.escape_mode {
                         egui::FontId::new(font_size, egui::FontFamily::Monospace)
@@ -2079,6 +2250,7 @@ impl UniformApp {
                     }
                 }
         });
+        self.editor_view_rect = editor_rect;
         (goto_glyph_request, rename_request)
     }
 
@@ -2762,5 +2934,53 @@ mod zoom_tests {
         // At either end the step is a no-op rather than wrapping or panicking.
         assert_eq!(zoom_step(MIN_ZOOM_LEVEL, -1), MIN_ZOOM_LEVEL);
         assert_eq!(zoom_step(MAX_ZOOM_LEVEL, 1), MAX_ZOOM_LEVEL);
+    }
+
+    #[test]
+    fn preview_font_step_walks_the_16px_grid_and_clamps() {
+        assert_eq!(preview_font_step(32.0, 1), 48.0);
+        assert_eq!(preview_font_step(32.0, -1), 16.0);
+        // The drag value admits off-grid sizes; a step snaps back onto the grid.
+        assert_eq!(preview_font_step(20.0, 1), 32.0);
+        assert_eq!(preview_font_step(20.0, -1), 16.0);
+        assert_eq!(
+            preview_font_step(MIN_PREVIEW_FONT_SIZE, -1),
+            MIN_PREVIEW_FONT_SIZE
+        );
+        assert_eq!(
+            preview_font_step(MAX_PREVIEW_FONT_SIZE, 1),
+            MAX_PREVIEW_FONT_SIZE
+        );
+        // Below the minimum a decrement must not fall through to zero.
+        assert_eq!(preview_font_step(8.0, -1), MIN_PREVIEW_FONT_SIZE);
+    }
+
+    fn rect(x0: f32, y0: f32, x1: f32, y1: f32) -> egui::Rect {
+        egui::Rect::from_min_max(egui::pos2(x0, y0), egui::pos2(x1, y1))
+    }
+
+    #[test]
+    fn zoom_target_at_picks_the_hovered_surface() {
+        let editor = Some(rect(0.0, 0.0, 100.0, 100.0));
+        let preview = Some(rect(0.0, 100.0, 100.0, 150.0));
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(50.0, 50.0)), editor, preview),
+            ZoomTarget::Editor
+        );
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(50.0, 120.0)), editor, preview),
+            ZoomTarget::Preview
+        );
+        // Outside both (the sidebar, the menu bar) nothing zooms.
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(500.0, 50.0)), editor, preview),
+            ZoomTarget::None
+        );
+        assert_eq!(zoom_target_at(None, editor, preview), ZoomTarget::None);
+        // The placeholder panel shown with no open document is not an editor.
+        assert_eq!(
+            zoom_target_at(Some(egui::pos2(50.0, 50.0)), None, preview),
+            ZoomTarget::None
+        );
     }
 }

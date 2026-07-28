@@ -26,6 +26,7 @@ pub struct ShapedPreviewState {
     redo_stack: Vec<UndoSnapshot>,
     last_edit_time: std::time::Instant,
     has_focus: bool,
+    last_rect: Option<egui::Rect>,
 }
 
 struct ShapedResult {
@@ -56,11 +57,19 @@ impl ShapedPreviewState {
             redo_stack: Vec::new(),
             last_edit_time: std::time::Instant::now() - std::time::Duration::from_secs(10),
             has_focus: false,
+            last_rect: None,
         }
     }
 
     pub fn is_focused(&self) -> bool {
         self.has_focus
+    }
+
+    /// The screen rect the preview text occupied on the last frame it was
+    /// drawn, or `None` if it was not drawn (no font, shaping error). The app
+    /// uses it to route Cmd/Ctrl + wheel to whatever the pointer is over.
+    pub fn last_rect(&self) -> Option<egui::Rect> {
+        self.last_rect
     }
 
     pub fn invalidate_font(&mut self, font_gen: u64) {
@@ -351,6 +360,7 @@ impl ShapedPreviewState {
     ) {
         let Some(font_pair) = font_data else {
             self.has_focus = false;
+            self.last_rect = None;
             ui.label("No font built yet.");
             return;
         };
@@ -359,6 +369,7 @@ impl ShapedPreviewState {
 
         if let Some(ref err) = self.last_error {
             self.has_focus = false;
+            self.last_rect = None;
             ui.colored_label(egui::Color32::RED, format!("Shaping error: {err}"));
             return;
         }
@@ -371,6 +382,7 @@ impl ShapedPreviewState {
             ui.allocate_painter(remaining, egui::Sense::click().union(egui::Sense::drag()));
 
         let rect = response.rect;
+        self.last_rect = Some(rect);
 
         painter.rect(rect, 2.0, widget_bg, widget_stroke, egui::epaint::StrokeKind::Inside);
 
