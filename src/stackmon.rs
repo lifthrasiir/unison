@@ -15,6 +15,13 @@
 //! * A vectored exception handler catches `EXCEPTION_STACK_OVERFLOW` itself and
 //!   dumps a backtrace as a last resort. `SetThreadStackGuarantee` reserves room
 //!   so the handler can actually run.
+//! * The same handler *records* every first-chance exception -- code, faulting
+//!   address, thread, phase, one line per distinct site with a running count.
+//!   A backtrace answers "where is the stack", not "what put it there", and an
+//!   overflow whose frames are all exception-dispatch machinery (as observed on
+//!   2026-07-29) is caused by whatever keeps raising, which no walk can see.
+//!   Recording happens at the fault point, so it is atomics only; the watchdog
+//!   does the logging.
 //!
 //! Two rules keep the monitor from wedging the process it is meant to diagnose,
 //! both learned the hard way from a hang mid-report:
@@ -165,6 +172,13 @@ fn spawn_watchdog() {
             let mut last_reported_peak = 0usize;
             loop {
                 std::thread::sleep(interval);
+                // Before anything else: the exception handler only *records*
+                // (it must not allocate or take the log lock at the point of a
+                // fault), so the watchdog is what turns that table into log
+                // lines. Doing it first means a report below is preceded by
+                // the exceptions that led to it.
+                platform::report_exceptions();
+
                 let used = platform::sample_main_stack().unwrap_or(0);
                 if used > 0 {
                     CURRENT.store(used, Ordering::Relaxed);
@@ -221,6 +235,12 @@ fn percent(used: usize) -> usize {
 
 static LOG: std::sync::Mutex<Option<std::fs::File>> = std::sync::Mutex::new(None);
 static LOG_OPENED: AtomicBool = AtomicBool::new(false);
+thread_local! {
+    /// Set while [`log`] is running on this thread; see the guard there.
+    /// `Cell<bool>` has no destructor, so this is a plain TLS slot with no
+    /// lazy-init machinery -- safe to touch from an exception handler.
+    static IN_LOG: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
 
 /// Writes one line to stderr and to the log file.
 ///
@@ -232,6 +252,22 @@ static LOG_OPENED: AtomicBool = AtomicBool::new(false);
 /// bare addresses while suspended and only symbolizes and logs afterwards.
 pub(crate) fn log(msg: &str) {
     use std::io::Write;
+    // `LOG` is a plain (non-reentrant) mutex, so a second `log` on a thread
+    // that is already inside one would deadlock against itself. That is not
+    // hypothetical: the exception handler logs, and an exception can be raised
+    // from anywhere -- including from inside this function's own file I/O.
+    // Dropping the nested line is the only safe answer.
+    struct Guard;
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            IN_LOG.set(false);
+        }
+    }
+    if IN_LOG.replace(true) {
+        return;
+    }
+    let _reentry = Guard;
+
     eprintln!("[stackmon] {msg}");
     let mut guard = match LOG.lock() {
         Ok(g) => g,
@@ -345,13 +381,14 @@ fn collapse(pcs: &[u64]) -> Vec<Entry> {
 #[cfg(target_os = "windows")]
 mod platform {
     use super::{
-        ENABLED, Entry, HEAD_ENTRIES, STACK_HIGH, TAIL_ENTRIES, collapse, human, log,
+        ENABLED, Entry, HEAD_ENTRIES, STACK_HIGH, TAIL_ENTRIES, collapse, current_phase, human,
+        log,
     };
     use std::ffi::c_void;
-    use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
+    use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicUsize, Ordering};
     use windows::Win32::Foundation::{EXCEPTION_STACK_OVERFLOW, HANDLE};
     use windows::Win32::System::Diagnostics::Debug::{
-        AddVectoredExceptionHandler, EXCEPTION_POINTERS,
+        AddVectoredExceptionHandler, EXCEPTION_POINTERS, EXCEPTION_RECORD,
     };
 
     // The `windows` crate exposes these as Rust-ABI wrappers, but `StackWalkEx`
@@ -496,6 +533,7 @@ mod platform {
         // symbolization and logging after the thread is running again. Only
         // `collect_frames` sees the frozen thread. See `with_main_context`.
         ensure_symbols();
+        log_new_modules();
         let mut pcs = vec![0u64; MAX_FRAMES];
         let mut sps = vec![0u64; MAX_FRAMES];
         match with_main_context(|ctx| collect_frames(ctx, &mut pcs, &mut sps)) {
@@ -518,8 +556,60 @@ mod platform {
     /// Logs one backtrace at startup so it is immediately obvious whether
     /// symbolization works at all, rather than finding out during a crash.
     pub(super) fn self_test() {
+        log_new_modules();
         log("self-test: backtrace of the main thread at init --");
         dump_main_thread_backtrace();
+    }
+
+    /// Logs every module loaded since the last call, as `base+size name`.
+    ///
+    /// A bare address in a report is only actionable against a module list:
+    /// ASLR moves every base, so the mapping has to come from the same run.
+    /// Modules keep loading well after startup (wgpu, the D3D and DirectWrite
+    /// stacks), hence "since the last call" rather than a one-shot dump.
+    fn log_new_modules() {
+        use windows::Win32::System::Diagnostics::Debug::EnumerateLoadedModules64;
+
+        static SEEN: std::sync::Mutex<Vec<u64>> = std::sync::Mutex::new(Vec::new());
+        static PENDING: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+
+        unsafe extern "system" fn cb(
+            name: windows::core::PCSTR,
+            base: u64,
+            size: u32,
+            _ctx: *const c_void,
+        ) -> windows::Win32::Foundation::BOOL {
+            let mut seen = match SEEN.lock() {
+                Ok(g) => g,
+                Err(p) => p.into_inner(),
+            };
+            if !seen.contains(&base) {
+                seen.push(base);
+                let name = unsafe { name.to_string() }.unwrap_or_default();
+                let line = format!("  {base:#018x}..{:#018x}  {name}", base + size as u64);
+                if let Ok(mut pending) = PENDING.lock() {
+                    pending.push(line);
+                }
+            }
+            true.into()
+        }
+
+        // The callback only collects: `log` takes a lock dbghelp has no reason
+        // to expect us to hold inside its enumeration.
+        unsafe {
+            let _ = EnumerateLoadedModules64(GetCurrentProcess(), Some(cb), None);
+        }
+        let lines = match PENDING.lock() {
+            Ok(mut g) => std::mem::take(&mut *g),
+            Err(p) => std::mem::take(&mut *p.into_inner()),
+        };
+        if lines.is_empty() {
+            return;
+        }
+        log(&format!("modules loaded ({}):", lines.len()));
+        for line in lines {
+            log(&line);
+        }
     }
 
     /// Initializes dbghelp. Called before any walk, never while the main
@@ -679,15 +769,15 @@ mod platform {
                 SizeOfStruct: std::mem::size_of::<IMAGEHLP_MODULE64>() as u32,
                 ..Default::default()
             };
-            let (module_name, export_only) = if SymGetModuleInfo64(hproc, addr, &mut module).is_ok()
-            {
-                let name = std::ffi::CStr::from_ptr(module.ModuleName.as_ptr())
-                    .to_string_lossy()
-                    .into_owned();
-                (name, module.SymType == SymExport)
-            } else {
-                (String::new(), false)
-            };
+            let (module_name, export_only, base) =
+                if SymGetModuleInfo64(hproc, addr, &mut module).is_ok() {
+                    let name = std::ffi::CStr::from_ptr(module.ModuleName.as_ptr())
+                        .to_string_lossy()
+                        .into_owned();
+                    (name, module.SymType == SymExport, module.BaseOfImage)
+                } else {
+                    (String::new(), false, 0)
+                };
 
             let mut buf = [0u8; std::mem::size_of::<SYMBOL_INFO>() + 512];
             let sym = buf.as_mut_ptr() as *mut SYMBOL_INFO;
@@ -721,17 +811,209 @@ mod platform {
                 String::new()
             };
 
+            let named = !name.is_empty();
             let mut text = match (module_name.is_empty(), name.is_empty()) {
-                (_, true) => format!("{addr:#018x}"),
+                // No symbol at all. The *module* is still known from the load
+                // address alone, and `module+RVA` is what a later
+                // `llvm-symbolizer`/`windbg` run needs -- printing the raw
+                // address instead throws that away, which is exactly what left
+                // the one interesting frame of the 2026-07-29 report unnamed.
+                (true, true) => format!("{addr:#018x}"),
+                (false, true) => format!("{module_name}+{:#x} ({addr:#018x})", addr - base),
                 (true, false) => name,
                 (false, false) => format!("{module_name}!{name}"),
             };
             text.push_str(&where_);
-            if where_.is_empty() && (export_only || disp > NEAREST_EXPORT_DISP) {
-                text.push_str("  <- no symbols; nearest export, name unreliable");
+            if where_.is_empty() && named && (export_only || disp > NEAREST_EXPORT_DISP) {
+                text.push_str(&format!(
+                    "  <- no symbols; nearest export, name unreliable (rva {:#x})",
+                    addr.saturating_sub(base),
+                ));
             }
             text
         }
+    }
+
+    // ------------------------------------------------- first-chance exceptions
+
+    /// One distinct `(code, faulting address)` pair seen by [`veh`].
+    ///
+    /// All-atomic and fixed-size on purpose: [`veh`] runs at the point of the
+    /// fault, on any thread, possibly while that thread holds the heap lock or
+    /// the log lock -- so recording must not allocate, log, or block. The
+    /// watchdog turns these into log lines later, from a thread that is free
+    /// to do both.
+    struct ExcSlot {
+        /// Written last, with `Release`: nonzero means the slot is readable.
+        count: AtomicU64,
+        code: AtomicU32,
+        thread: AtomicU32,
+        addr: AtomicU64,
+        /// `ExceptionInformation[0..2]`: for an access violation, the access
+        /// type and the address that could not be accessed.
+        info0: AtomicU64,
+        info1: AtomicU64,
+        /// Phase at the *first* sighting, as a `'static` str ptr/len.
+        phase: AtomicUsize,
+        phase_len: AtomicUsize,
+        /// Count as of the last line the watchdog logged for this slot.
+        reported: AtomicU64,
+    }
+
+    /// Distinct exceptions tracked. A storm repeats one pair, so this only has
+    /// to be wide enough for the ordinary background noise plus the culprit.
+    const MAX_EXC: usize = 32;
+
+    static EXC: [ExcSlot; MAX_EXC] = [const { ExcSlot::new() }; MAX_EXC];
+    static EXC_USED: AtomicUsize = AtomicUsize::new(0);
+    static EXC_DROPPED: AtomicU64 = AtomicU64::new(0);
+
+    impl ExcSlot {
+        const fn new() -> Self {
+            Self {
+                count: AtomicU64::new(0),
+                code: AtomicU32::new(0),
+                thread: AtomicU32::new(0),
+                addr: AtomicU64::new(0),
+                info0: AtomicU64::new(0),
+                info1: AtomicU64::new(0),
+                phase: AtomicUsize::new(0),
+                phase_len: AtomicUsize::new(0),
+                reported: AtomicU64::new(0),
+            }
+        }
+    }
+
+    /// Records one exception. Allocation- and lock-free; see [`ExcSlot`].
+    ///
+    /// Racing threads can end up with two slots for one pair. That is fine --
+    /// a duplicate line is far cheaper than the synchronization needed to
+    /// avoid it at a fault point.
+    unsafe fn record_exception(rec: *const EXCEPTION_RECORD) {
+        unsafe {
+            let code = (*rec).ExceptionCode.0 as u32;
+            let addr = (*rec).ExceptionAddress as u64;
+            let used = EXC_USED.load(Ordering::Acquire).min(MAX_EXC);
+            for slot in &EXC[..used] {
+                if slot.count.load(Ordering::Acquire) != 0
+                    && slot.code.load(Ordering::Relaxed) == code
+                    && slot.addr.load(Ordering::Relaxed) == addr
+                {
+                    slot.count.fetch_add(1, Ordering::AcqRel);
+                    return;
+                }
+            }
+
+            let idx = EXC_USED.fetch_add(1, Ordering::AcqRel);
+            if idx >= MAX_EXC {
+                EXC_USED.store(MAX_EXC, Ordering::Release);
+                EXC_DROPPED.fetch_add(1, Ordering::Relaxed);
+                return;
+            }
+            let slot = &EXC[idx];
+            slot.code.store(code, Ordering::Relaxed);
+            slot.addr.store(addr, Ordering::Relaxed);
+            slot.thread.store(GetCurrentThreadId(), Ordering::Relaxed);
+            let n = (*rec).NumberParameters as usize;
+            let params = &(*rec).ExceptionInformation;
+            slot.info0
+                .store(if n > 0 { params[0] as u64 } else { 0 }, Ordering::Relaxed);
+            slot.info1
+                .store(if n > 1 { params[1] as u64 } else { 0 }, Ordering::Relaxed);
+            let phase = current_phase();
+            slot.phase.store(phase.as_ptr() as usize, Ordering::Relaxed);
+            slot.phase_len.store(phase.len(), Ordering::Relaxed);
+            // Release: publishes every field above to the readers' `Acquire`.
+            slot.count.store(1, Ordering::Release);
+        }
+    }
+
+    /// Logs every exception seen since the last call, with its running count.
+    ///
+    /// Called from the watchdog (and from the overflow handler, which is
+    /// already logging anyway), never with the main thread suspended: it
+    /// symbolizes and logs.
+    pub(super) fn report_exceptions() {
+        let used = EXC_USED.load(Ordering::Acquire).min(MAX_EXC);
+        for slot in &EXC[..used] {
+            let count = slot.count.load(Ordering::Acquire);
+            if count == 0 {
+                continue;
+            }
+            let reported = slot.reported.swap(count, Ordering::AcqRel);
+            if reported == count {
+                continue;
+            }
+            let code = slot.code.load(Ordering::Relaxed);
+            let addr = slot.addr.load(Ordering::Relaxed);
+            let phase = {
+                let p = slot.phase.load(Ordering::Relaxed) as *const u8;
+                let len = slot.phase_len.load(Ordering::Relaxed);
+                if p.is_null() || len == 0 {
+                    "-"
+                } else {
+                    // Safety: set from `current_phase`, which yields `'static`.
+                    unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(p, len)) }
+                }
+            };
+            log(&format!(
+                "exception {:#010x} ({}) x{}{} at {} thread {} phase={}{}",
+                code,
+                exception_name(code),
+                count,
+                if reported == 0 {
+                    String::new()
+                } else {
+                    format!(" (+{})", count - reported)
+                },
+                describe(addr),
+                slot.thread.load(Ordering::Relaxed),
+                phase,
+                access_violation_detail(code, slot),
+            ));
+        }
+        let dropped = EXC_DROPPED.swap(0, Ordering::Relaxed);
+        if dropped > 0 {
+            log(&format!(
+                "  ({dropped} exception(s) not recorded: more than {MAX_EXC} distinct sites)"
+            ));
+        }
+    }
+
+    /// The handful of codes worth naming; anything else prints as bare hex.
+    fn exception_name(code: u32) -> &'static str {
+        match code {
+            0xC000_0005 => "access violation",
+            0xC000_001D => "illegal instruction",
+            0xC000_008C => "array bounds exceeded",
+            0xC000_008E => "float divide by zero",
+            0xC000_0094 => "integer divide by zero",
+            0xC000_00FD => "stack overflow",
+            0xC000_0409 => "security check failure",
+            0xC000_0374 => "heap corruption",
+            0x4000_001E | 0x4000_001F => "debug print",
+            0x4064_2472 => "thread name",
+            0x8000_0003 => "breakpoint",
+            0xE06D_7363 => "C++ exception",
+            0xE24C_4A02 => "Rust panic",
+            _ => "?",
+        }
+    }
+
+    fn access_violation_detail(code: u32, slot: &ExcSlot) -> String {
+        if code != 0xC000_0005 {
+            return String::new();
+        }
+        let kind = match slot.info0.load(Ordering::Relaxed) {
+            0 => "read",
+            1 => "write",
+            8 => "execute (DEP)",
+            _ => "?",
+        };
+        format!(
+            "  [{kind} of {:#018x}]",
+            slot.info1.load(Ordering::Relaxed)
+        )
     }
 
     unsafe extern "system" fn veh(info: *mut EXCEPTION_POINTERS) -> i32 {
@@ -741,7 +1023,15 @@ mod platform {
                 return EXCEPTION_CONTINUE_SEARCH;
             }
             let rec = (*info).ExceptionRecord;
-            if rec.is_null() || (*rec).ExceptionCode != EXCEPTION_STACK_OVERFLOW {
+            if rec.is_null() {
+                return EXCEPTION_CONTINUE_SEARCH;
+            }
+            // Every first-chance exception is recorded, not just the fatal
+            // one: an overflow whose stack is *all* exception-dispatch frames
+            // is caused by whatever keeps raising, and that raise is invisible
+            // by the time the stack is walked.
+            record_exception(rec);
+            if (*rec).ExceptionCode != EXCEPTION_STACK_OVERFLOW {
                 return EXCEPTION_CONTINUE_SEARCH;
             }
             if GetCurrentThreadId() != MAIN_THREAD_ID.load(Ordering::Relaxed) {
@@ -759,6 +1049,10 @@ mod platform {
             IN_VEH.store(true, Ordering::Release);
 
             log("!!! STACK OVERFLOW on the main thread -- backtrace follows");
+            // Flush here too: the watchdog may never get another tick, and the
+            // exceptions recorded so far are the best evidence of *why* the
+            // stack grew.
+            report_exceptions();
             let ctxp = (*info).ContextRecord;
             if !ctxp.is_null() {
                 let mut ctx = AlignedContext(*ctxp);
@@ -791,6 +1085,9 @@ mod platform {
     pub(super) fn init_main_thread() {}
 
     pub(super) fn self_test() {}
+
+    /// No exception handler here, so there is never anything to report.
+    pub(super) fn report_exceptions() {}
 
     pub(super) const SAMPLING: bool = false;
 

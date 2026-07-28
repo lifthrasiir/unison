@@ -427,6 +427,15 @@ reached the OS clipboard, because `ctx.copy_text()` only writes egui's output bu
 it at end of frame. Suspects not yet ruled out: egui tessellation, wgpu, the DirectWrite preview path
 (`src/preview/directwrite.rs`).
 
+A captured overflow (2026-07-29, idle window) narrowed it: of 8155 frames, **exactly one was outside
+ntdll**, and the rest were a 4-frame, 3.9 KiB cycle repeated ~2000 times — an exception being raised,
+and its dispatch faulting and raising again, not recursion in our code. The growth decelerates
+(2.32 → 1.34 → 1.07 → 0.73 MiB per 250 ms tick), which is the quadratic cost of each nested dispatch
+walking an ever-deeper stack. `phase=update:central/editor` puts the *first* exception between
+`app/mod.rs:403` and `:450`, i.e. in the central panel/editor, not in tessellation. The walk cannot
+reach past the storm, so the originating frame is invisible — which is why the handler now records
+first-chance exceptions (below): the culprit is the exception, not the stack.
+
 **When the user reports another crash, ask for `uniform-stackmon.log` first — do not re-derive the
 static analysis.**
 
@@ -444,6 +453,16 @@ measured across *all* code (egui, wgpu, DirectWrite) with no instrumentation. Pa
 process dies. A vectored exception handler also dumps `EXCEPTION_STACK_OVERFLOW` as a last resort
 (`SetThreadStackGuarantee` reserves 128 KiB so it can run). One backtrace is logged at startup as a
 self-test.
+
+That handler also **records every first-chance exception** — code, faulting address, thread, phase —
+as `exception 0xc0000005 (access violation) x1234 (+600) at ... phase=...`, one line per distinct
+`(code, address)` with a running count, so an exception storm shows up as a count that explodes.
+Recording runs at the fault point, on any thread, possibly under the heap lock: it is a fixed
+32-entry table of atomics with no allocation, no logging and no blocking, and the *watchdog* turns it
+into log lines. `log` carries a thread-local reentrancy guard for the same reason (a nested `log`
+would deadlock on its own non-reentrant mutex). Module load bases are logged as they appear
+(`log_new_modules`), and an unsymbolized frame prints as `module+0xRVA` — with ASLR, a bare address
+is unusable after the fact.
 
 `crate::stackmon::phase("...")` markers in `app::update` name the frame stage in each report.
 `crate::stackmon::probe()` records a high-water mark where sampling is unavailable (non-Windows).
