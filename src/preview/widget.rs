@@ -169,8 +169,12 @@ impl ShapedPreviewState {
 
     fn selection_range_sorted(&self) -> Option<(usize, usize)> {
         let anchor = self.selection_anchor?;
-        let lo = anchor.min(self.caret_pos);
-        let hi = anchor.max(self.caret_pos);
+        // Clamped: every mutation is supposed to keep the anchor and the caret
+        // within the text, but a stale index must degrade into a shorter
+        // selection rather than into a slicing panic.
+        let len = self.text.chars().count();
+        let lo = anchor.min(self.caret_pos).min(len);
+        let hi = anchor.max(self.caret_pos).min(len);
         if lo == hi {
             None
         } else {
@@ -339,6 +343,40 @@ impl ShapedPreviewState {
             self.caret_pos = lo;
             self.selection_anchor = None;
             self.shaped_result = None;
+        }
+    }
+
+    fn backspace(&mut self) {
+        if self.selection_range_sorted().is_some() {
+            self.save_for_undo();
+            self.delete_selection();
+        } else if self.caret_pos > 0 {
+            self.save_for_undo();
+            let start = char_to_byte(&self.text, self.caret_pos - 1);
+            let end = char_to_byte(&self.text, self.caret_pos);
+            self.text.drain(start..end);
+            self.caret_pos -= 1;
+            // A collapsed anchor is not a selection, but it still points at a
+            // character index; leaving it behind makes it point past the end.
+            self.selection_anchor = None;
+            self.shaped_result = None;
+        }
+    }
+
+    fn delete_forward(&mut self) {
+        if self.selection_range_sorted().is_some() {
+            self.save_for_undo();
+            self.delete_selection();
+        } else {
+            let len = self.text.chars().count();
+            if self.caret_pos < len {
+                self.save_for_undo();
+                let start = char_to_byte(&self.text, self.caret_pos);
+                let end = char_to_byte(&self.text, self.caret_pos + 1);
+                self.text.drain(start..end);
+                self.selection_anchor = None;
+                self.shaped_result = None;
+            }
         }
     }
 
@@ -701,34 +739,8 @@ impl ShapedPreviewState {
                             self.selection_anchor = Some(0);
                             self.caret_pos = self.text.chars().count();
                         }
-                        egui::Key::Backspace => {
-                            if self.selection_range_sorted().is_some() {
-                                self.save_for_undo();
-                                self.delete_selection();
-                            } else if self.caret_pos > 0 {
-                                self.save_for_undo();
-                                let start = char_to_byte(&self.text, self.caret_pos - 1);
-                                let end = char_to_byte(&self.text, self.caret_pos);
-                                self.text.drain(start..end);
-                                self.caret_pos -= 1;
-                                self.shaped_result = None;
-                            }
-                        }
-                        egui::Key::Delete => {
-                            if self.selection_range_sorted().is_some() {
-                                self.save_for_undo();
-                                self.delete_selection();
-                            } else {
-                                let len = self.text.chars().count();
-                                if self.caret_pos < len {
-                                    self.save_for_undo();
-                                    let start = char_to_byte(&self.text, self.caret_pos);
-                                    let end = char_to_byte(&self.text, self.caret_pos + 1);
-                                    self.text.drain(start..end);
-                                    self.shaped_result = None;
-                                }
-                            }
-                        }
+                        egui::Key::Backspace => self.backspace(),
+                        egui::Key::Delete => self.delete_forward(),
                         _ => {}
                     }
                 }
@@ -767,6 +779,56 @@ impl ShapedPreviewState {
 
 use crate::editor::caret::char_to_byte;
 use crate::editor::{key_to_hex_char, validate_hex_codepoint};
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Text with a collapsed selection anchor: shift-selecting and then
+    /// unselecting (or a click that left the anchor where the caret is) leaves
+    /// `selection_anchor == caret_pos`, which is not a selection.
+    fn state_with_collapsed_anchor(text: &str) -> ShapedPreviewState {
+        let mut state = ShapedPreviewState::new();
+        state.text = text.to_string();
+        state.caret_pos = text.chars().count();
+        state.selection_anchor = Some(state.caret_pos);
+        state
+    }
+
+    #[test]
+    fn backspace_past_a_collapsed_anchor_leaves_no_phantom_selection() {
+        // "F" + U+0303 COMBINING TILDE, deleting the combining mark.
+        let mut state = state_with_collapsed_anchor("F\u{303}");
+        state.backspace();
+        assert_eq!(state.text, "F");
+        assert_eq!(state.caret_pos, 1);
+        assert_eq!(state.selection_range_sorted(), None);
+        // This is what the status bar calls, and what used to panic with
+        // "range end index 2 out of range for slice of length 1".
+        assert_eq!(state.selection_codepoints_label(), None);
+    }
+
+    #[test]
+    fn forward_delete_past_a_collapsed_anchor_leaves_no_phantom_selection() {
+        let mut state = state_with_collapsed_anchor("F\u{303}");
+        state.caret_pos = 1;
+        state.selection_anchor = Some(1);
+        state.delete_forward();
+        assert_eq!(state.text, "F");
+        assert_eq!(state.selection_range_sorted(), None);
+        assert_eq!(state.selection_codepoints_label(), None);
+    }
+
+    #[test]
+    fn a_stale_selection_is_clamped_to_the_text() {
+        let mut state = ShapedPreviewState::new();
+        state.text = "F".to_string();
+        state.caret_pos = 0;
+        state.selection_anchor = Some(9);
+        assert_eq!(state.selection_range_sorted(), Some((0, 1)));
+        assert_eq!(state.selection_codepoints_label().as_deref(), Some("[0046]"));
+    }
+}
 
 fn committed_to_display(
     idx: usize,
