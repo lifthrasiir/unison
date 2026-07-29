@@ -2300,7 +2300,7 @@ map Ä
 glyph uni01DE
 ref a-upper-compressed
 ref dia-above:narrow 2 2
-ref mac-upper 2 0
+ref mac-above 2 0
 map Ǟ = uni01DE
 map Ë
 map Ḧ
@@ -2314,13 +2314,13 @@ map Ö
 glyph uni022A
 ref o-upper-compressed
 ref dia-above:narrow 2 2
-ref mac-upper 2 0
+ref mac-above 2 0
 map Ȫ = uni022A
 map Ü
 glyph uni01D5
 ref u-upper-compressed
 ref dia-above:narrow 2 2
-ref mac-upper 2 0
+ref mac-above 2 0
 map Ǖ = uni01D5
 glyph uni01D7
 ref u-upper-compressed
@@ -2346,7 +2346,7 @@ map ä
 glyph uni01DF
 ref a-lower:compressed
 ref dia-below:narrow 2 4
-ref mac-lower 2 2
+ref mac-below 2 2
 map ǟ = uni01DF
 map ë
 glyph uni1E27
@@ -2363,14 +2363,14 @@ map ö
 glyph uni022B
 ref o-lower:compressed
 ref dia-below:narrow 2 4
-ref mac-lower 2 2
+ref mac-below 2 2
 map ȫ = uni022B
 map ẗ
 map ü
 glyph uni01D6
 ref u-lower:compressed
 ref dia-below:narrow 2 4
-ref mac-lower 2 2
+ref mac-below 2 2
 map ǖ = uni01D6
 glyph uni01D8
 ref u-lower:compressed
@@ -2539,302 +2539,214 @@ map ȕ
 //--------------------------------------
 // with macron
 
-glyph uni0100
-ref a-upper
-ref mac-upper 2 1
-map Ā = uni0100
-glyph uni01E2
-ref a-e-upper
-ref mac-upper 2 1
-map Ǣ = uni01E2
-glyph uni1E06
-ref b-upper
-ref mac-bottom 2 14
-map Ḇ = uni1E06
-glyph uni1E0E
-ref d-upper
-ref mac-bottom 2 14
-map Ḏ = uni1E0E
-glyph uni0112
-ref e-upper
-ref mac-upper 2 1
-map Ē = uni0112
+map Ā
+map Ǣ
+map Ḇ
+map Ḏ
+map Ē
 glyph uni1E14
 ref e-upper-compressed
-ref mac-upper 2 2
+ref mac-above 2 2
 ref grave-above 2 0
 map Ḕ = uni1E14
 glyph uni1E16
 ref e-upper-compressed
-ref mac-upper 2 2
+ref mac-above 2 2
 ref acute-above 3 0
 map Ḗ = uni1E16
-glyph uni1E20
-ref g-upper
-ref mac-upper 2 1
-map Ḡ = uni1E20
-glyph uni012A
-ref i-upper
-ref mac-upper-sm 2 1
-map Ī = uni012A
-glyph uni1E34
-ref k-upper
-ref mac-bottom 2 14
-map Ḵ = uni1E34
-glyph uni1E3A
-ref l-upper
-ref mac-bottom 2 14
-map Ḻ = uni1E3A
-glyph uni1E48
-ref n-upper
-ref mac-bottom 2 14
-map Ṉ = uni1E48
-glyph uni014C
-ref o-upper
-ref mac-upper 2 1
-map Ō = uni014C
+map Ḡ
+map Ī
+map Ḵ
+map Ḻ
+map Ṉ
+map Ō
 glyph uni1E50
 ref o-upper-compressed
-ref mac-upper 2 2
+ref mac-above 2 2
 ref grave-above 2 0
 map Ṑ = uni1E50
 glyph uni1E52
 ref o-upper-compressed
-ref mac-upper 2 2
+ref mac-above 2 2
 ref acute-above 3 0
 map Ṓ = uni1E52
-glyph uni1E5E
-ref r-upper
-ref mac-bottom 2 14
-map Ṟ = uni1E5E
-glyph uni1E6E
-ref t-upper
-ref mac-bottom-sm 2 14
-map Ṯ = uni1E6E
-glyph uni016A
-ref u-upper
-ref mac-upper 2 1
-map Ū = uni016A
+map Ṟ
+map Ṯ // TODO: too wide
+map Ū
 glyph uni1E7A
 ref u-upper-compressed
-ref mac-upper 2 2
+ref mac-above 2 2
 ref dia-above:narrow 2 0
 map Ṻ = uni1E7A
-glyph uni0232
-ref y-upper
-ref mac-upper-sm 2 1
-map Ȳ = uni0232
-glyph uni1E94
-ref z-upper
-ref mac-bottom 2 14
-map Ẕ = uni1E94
+map Ȳ
+map Ẕ
 
-glyph uni0101
-ref a-lower
-ref mac-lower 2 3
-map ā = uni0101
-glyph uni01E3
-ref a-e-lower
-ref mac-lower 2 3
-map ǣ = uni01E3
-glyph uni1E07
-ref b-lower
-ref mac-bottom 2 14
-map ḇ = uni1E07
-glyph uni1E0F
-ref d-lower
-ref mac-bottom 2 14
-map ḏ = uni1E0F
-glyph uni0113
-ref e-lower
-ref mac-lower 2 3
-map ē = uni0113
+map ā
+map ǣ
+map ḇ
+map ḏ
+map ē
 glyph uni1E15
 ref e-lower:compressed
-ref mac-lower 2 4
+ref mac-below 2 4
 ref grave-below 2 2
 map ḕ = uni1E15
 glyph uni1E17
 ref e-lower:compressed
-ref mac-lower 2 4
+ref mac-below 2 4
 ref acute-below 3 2
 map ḗ = uni1E17
-glyph uni1E21
-ref g-lower
-ref mac-lower 2 3
-map ḡ = uni1E21
-glyph uni1E96
-ref h-lower
-ref mac-bottom 2 14
-map ẖ = uni1E96
-glyph uni012B
-ref i-lower:dotless
-ref mac-lower-sm 2 4
-map ī = uni012B
-glyph uni1E35
-ref k-lower
-ref mac-bottom 2 14
-map ḵ = uni1E35
-glyph uni1E3B
-ref l-lower
-ref mac-bottom-sm 3 14
-map ḻ = uni1E3B
-glyph uni1E49
-ref n-lower
-ref mac-bottom 2 14
-map ṉ = uni1E49
-glyph uni014D
-ref o-lower
-ref mac-lower 2 3
-map ō = uni014D
+map ḡ
+map ẖ
+map ī
+map ḵ
+map ḻ // TODO: too wide
+map ṉ
+map ō
 glyph uni1E51
 ref o-lower:compressed
-ref mac-lower 2 4
+ref mac-below 2 4
 ref grave-below 2 2
 map ṑ = uni1E51
 glyph uni1E53
 ref o-lower:compressed
-ref mac-lower 2 4
+ref mac-below 2 4
 ref acute-below 3 2
 map ṓ = uni1E53
-glyph uni1E5F
-ref r-lower
-ref mac-bottom 2 14
-map ṟ = uni1E5F
-glyph uni1E6F
-ref t-lower
-ref mac-bottom 2 14
-map ṯ = uni1E6F
-glyph uni016B
-ref u-lower
-ref mac-lower 2 3
-map ū = uni016B
+map ṟ
+map ṯ
+map ū
 glyph uni1E7B
 ref u-lower:compressed
-ref mac-lower 2 4
+ref mac-below 2 4
 ref dia-below:narrow 2 2
 map ṻ = uni1E7B
-glyph uni0233
-ref y-lower
-ref mac-lower 2 3
-map ȳ = uni0233
-glyph uni1E95
-ref z-lower
-ref mac-bottom 2 14
-map ẕ = uni1E95
+map ȳ
+map ẕ
 
 //--------------------------------------
-// with cedilla/comma
+// with cedilla
+//
+// normalization is no guide to the shape here: apart from S and T, every
+// precomposed letter decomposes to U+0327 combining cedilla even where the
+// language's convention is a comma below (see the comma section right after
+// this one). what is left here is what really wants a cedilla --- French,
+// Portuguese and Turkish ç, Turkish/Gagauz ş ţ, and the transliteration
+// letters ḑ ȩ ḩ.
 
-glyph uni00C7
-ref c-upper
-ref ced 4 13
-map Ç = uni00C7
-glyph uni1E08
-ref c-upper
-ref ced 4 13
-ref acute-above 3 0
-map Ḉ = uni1E08
-glyph uni1E10
-ref d-upper
-ref ced 4 13
-map Ḑ = uni1E10
-glyph uni0228
+map Ç
+map Ḉ
+map Ḑ
+map Ȩ
+// U+0306 combining breve has no anchored mark glyph, so this one cannot be
+// synthesized from its decomposition
+glyph e-upper-with-ced-below-breve-upper
 ref e-upper
-ref ced 4 13
-map Ȩ = uni0228
-glyph uni1E1C
-ref e-upper
-ref ced 4 13
+ref ced-below
 ref breve-upper 2 0
-map Ḝ = uni1E1C
-glyph uni0122
-ref g-upper
-ref ced 4 13
-map Ģ = uni0122
-glyph uni1E28
-ref h-upper
-ref ced 4 13
-map Ḩ = uni1E28
-glyph uni0136
-ref k-upper
-ref ced 4 13
-map Ķ = uni0136
-glyph uni013B
-ref l-upper
-ref ced 4 13
-map Ļ = uni013B
-glyph uni0145
-ref n-upper
-ref ced 4 13
-map Ņ = uni0145
-glyph uni0156
-ref r-upper
-ref ced 4 13
-map Ŗ = uni0156
-glyph uni015E
-ref s-upper
-ref ced 4 13
-map Ş = uni015E
-glyph uni0162
-ref t-upper
-ref ced 3 13
-map Ţ = uni0162
+map Ḝ = e-upper-with-ced-below-breve-upper
+map Ḩ
+map Ş
+map Ţ
 
-glyph uni00E7
-ref c-lower
-ref ced 4 13
-map ç = uni00E7
-glyph uni1E09
-ref c-lower
-ref ced 4 13
-ref acute-below 3 2
-map ḉ = uni1E09
-glyph uni1E11
-ref d-lower
-ref ced 4 13
-map ḑ = uni1E11
-glyph uni0229
+map ç
+map ḉ
+map ḑ
+map ȩ
+glyph e-lower-with-ced-below-breve-upper
 ref e-lower
-ref ced 4 13
-map ȩ = uni0229
-glyph uni1E1D
-ref e-lower
-ref ced 4 13
+ref ced-below
 ref breve-lower 2 2
-map ḝ = uni1E1D
-glyph uni0123
+map ḝ = e-lower-with-ced-below-breve-upper
+map ḩ
+map ş
+map ţ
+
+//--------------------------------------
+// with comma below
+//
+// Latvian ģ ķ ļ ņ ŗ are encoded as "letter with cedilla" but are drawn with a
+// comma; no language uses those five letters with a real cedilla, so the
+// choice can be made per glyph and needs no locale. lowercase ģ is the odd
+// one out: the descender leaves no room below, so the comma is turned and
+// placed above, exactly as U+0312 is.
+//
+// Romanian ș ț are the one pair unicode did encode separately (U+0218/U+021A,
+// added in 3.0 to disambiguate them from turkish ş ţ), so they decompose to
+// U+0326 and need no override.
+
+glyph g-upper-with-com-below
+ref g-upper
+ref com-below
+map Ģ = g-upper-with-com-below
+glyph k-upper-with-com-below
+ref k-upper
+ref com-below
+map Ķ = k-upper-with-com-below
+glyph l-upper-with-com-below
+ref l-upper
+ref com-below
+map Ļ = l-upper-with-com-below
+glyph n-upper-with-com-below
+ref n-upper
+ref com-below
+map Ņ = n-upper-with-com-below
+glyph r-upper-with-com-below
+ref r-upper
+ref com-below
+map Ŗ = r-upper-with-com-below
+map Ș
+map Ț
+
+glyph g-lower-with-com-below
 ref g-lower
-ref ced-inverted-lower 4 2
-map ģ = uni0123
-glyph uni1E29
-ref h-lower
-ref ced 4 13
-map ḩ = uni1E29
-glyph uni0137
+ref com-inverted-above
+map ģ = g-lower-with-com-below
+glyph k-lower-with-com-below
 ref k-lower
-ref ced 4 13
-map ķ = uni0137
-glyph uni013C
+ref com-below
+map ķ = k-lower-with-com-below
+glyph l-lower-with-com-below
 ref l-lower
-ref ced 4 13
-map ļ = uni013C
-glyph uni0146
+ref com-below
+map ļ = l-lower-with-com-below
+glyph n-lower-with-com-below
 ref n-lower
-ref ced 4 13
-map ņ = uni0146
-glyph uni0157
+ref com-below
+map ņ = n-lower-with-com-below
+glyph r-lower-with-com-below
 ref r-lower
-ref ced 4 13
-map ŗ = uni0157
-glyph uni015F
-ref s-lower
-ref ced 4 13
-map ş = uni015F
-glyph uni0163
-ref t-lower
-ref ced 4 13
-map ţ = uni0163
+ref com-below
+map ŗ = r-lower-with-com-below
+map ș
+map ț
+
+// the same five letters have to come out as a comma when the sequence arrives
+// decomposed as well. harfbuzz would recompose base + U+0327 into the
+// precomposed glyph above, but opentype does not require an engine to
+// normalize anything, so the substitution is spelled out.
+remap latvian-comma : (g-upper|k-upper|l-upper|n-upper|r-upper|k-lower|l-lower|n-lower|r-lower) : ced-below -> com-below
+remap latvian-comma : g-lower : ced-below -> com-inverted-above
+feature ccmp for DFLT : latvian-comma
+
+// the cedilla and the comma must never collapse into one shape
+assert distinct ced-below com-below com-inverted-above
+assert distinct uni015E uni0218
+assert distinct uni015F uni0219
+assert distinct uni0162 uni021A
+assert distinct uni0163 uni021B
+assert shape ģ : g-lower-with-com-below
+assert shape ķ : k-lower-with-com-below
+assert shape Ŗ : r-upper-with-com-below
+assert shape ş : uni015F
+assert shape ș : uni0219
+// a decomposed sequence is recomposed by the shaper whenever the precomposed
+// glyph exists---and for these letters it always does, even with a further
+// mark following, so harfbuzz never reaches the `latvian-comma` substitution.
+// it is there for the engines that do not normalize at all.
+assert shape ķ́ : k-lower-with-com-below : acute-above
+assert shape ģ́ : g-lower-with-com-below : acute-above
+assert shape ş́ : uni015F : acute-above
 
 //--------------------------------------
 // with ogonek
@@ -2858,7 +2770,7 @@ map Ǫ = uni01EA
 glyph uni01EC
 ref o-upper
 ref ogonek 4 13
-ref mac-upper 2 1
+ref mac-above 2 1
 map Ǭ = uni01EC
 glyph uni0172
 ref u-upper
@@ -2884,7 +2796,7 @@ map ǫ = uni01EB
 glyph uni01ED
 ref o-lower
 ref ogonek 4 13
-ref mac-lower 2 3
+ref mac-below 2 3
 map ǭ = uni01ED
 glyph uni0173
 ref u-lower
@@ -3564,7 +3476,7 @@ map Õ = uni00D5
 glyph uni022C
 ref o-upper-compressed
 ref tilde-upper 2 2
-ref mac-upper 2 0
+ref mac-above 2 0
 map Ȭ = uni022C
 glyph uni1E4C
 ref o-upper-compressed
@@ -3637,7 +3549,7 @@ map õ = uni00F5
 glyph uni022D
 ref o-lower:compressed
 ref tilde-lower 2 4
-ref mac-lower 2 2
+ref mac-below 2 2
 map ȭ = uni022D
 glyph uni1E4D
 ref o-lower:compressed
@@ -3689,7 +3601,7 @@ map Ȧ = uni0226
 glyph uni01E0
 ref a-upper-compressed
 ref dot-upper 4 2
-ref mac-upper 2 0
+ref mac-above 2 0
 map Ǡ = uni01E0
 glyph uni1EA0
 ref a-upper
@@ -3773,7 +3685,7 @@ map Ḷ = uni1E36
 glyph uni1E38
 ref l-upper
 ref dot-bottom 4 14
-ref mac-upper 2 1
+ref mac-above 2 1
 map Ḹ = uni1E38
 glyph uni013F
 ref l-upper
@@ -3802,7 +3714,7 @@ map Ȯ = uni022E
 glyph uni0230
 ref o-upper-compressed
 ref dot-upper 4 2
-ref mac-upper 2 0
+ref mac-above 2 0
 map Ȱ = uni0230
 glyph uni1ECC
 ref o-upper
@@ -3832,7 +3744,7 @@ map Ṛ = uni1E5A
 glyph uni1E5C
 ref r-upper
 ref dot-bottom 4 14
-ref mac-upper 2 1
+ref mac-above 2 1
 map Ṝ = uni1E5C
 glyph uni1E60
 ref s-upper
@@ -3903,7 +3815,7 @@ map ȧ = uni0227
 glyph uni01E1
 ref a-lower:compressed
 ref dot-lower 4 4
-ref mac-lower 2 2
+ref mac-below 2 2
 map ǡ = uni01E1
 glyph uni1EA1
 ref a-lower
@@ -3983,7 +3895,7 @@ map ḷ = uni1E37
 glyph uni1E39
 ref l-lower
 ref dot-bottom 4 14
-ref mac-upper 2 1
+ref mac-above 2 1
 map ḹ = uni1E39
 glyph uni0140
 ref l-lower-shift
@@ -4012,7 +3924,7 @@ map ȯ = uni022F
 glyph uni0231
 ref o-lower:compressed
 ref dot-lower 4 4
-ref mac-lower 2 2
+ref mac-below 2 2
 map ȱ = uni0231
 glyph uni1ECD
 ref o-lower
@@ -4042,7 +3954,7 @@ map ṛ = uni1E5B
 glyph uni1E5D
 ref r-lower
 ref dot-bottom 4 14
-ref mac-lower 2 3
+ref mac-below 2 3
 map ṝ = uni1E5D
 glyph uni1E61
 ref s-lower

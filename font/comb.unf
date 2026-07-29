@@ -163,49 +163,141 @@ glyph mac-wide 5 1
 glyph mac-narrow 4 1
 @@@@@@@@
 
-glyph mac-lower 5 1
-@@@@@@@@@@
+glyph mac-above 5 1 mark
+ref mac-wide
+anchor -above 2 0
+anchor +above 2 -2
 
-glyph mac-upper 5 1
-ref mac-lower 0 0
+glyph mac-above:narrow 4 1 mark
+ref mac-narrow
+anchor -above 1..2 0
+anchor +above 1..2 -2
 
-glyph mac-lower-sm 4 1
-@@@@@@@@
+glyph mac-below 5 1 mark
+ref mac-wide
+anchor -below 2 0
+anchor +below 2 2
 
-glyph mac-upper-sm 4 1
-ref mac-lower-sm 0 0
+glyph mac-below:narrow 4 1 mark
+ref mac-narrow
+anchor -below 1..2 0
+anchor +below 1..2 2
 
-glyph mac-bottom 5 1
-ref mac-lower 0 0
+map U+0304 = mac-above
+map U+0331 = mac-below
 
-glyph mac-bottom-sm 4 1
-ref mac-lower-sm 0 0
-
-glyph uni00AF
+glyph mac-above-spacing
 ref sp
-ref mac-lower 2 3
-map ¯ = uni00AF
+ref mac-wide 2 3
+map ¯ = mac-above-spacing
 
 //--------------------------------------
 // cedilla/comma
+//
+// Unicode's handling of cedilla vs. comma is quite unusual:
+// it encodes separate codepoints for combining cedilla and comma,
+// but precomposed characters almost always use cedilla in normalization.
+// (the only exceptions are S and T plus comma below, for disambiguation.)
+// therefore *some* cedilla combinations have to be rendered as comma
+// regardless of their decompositions.
 
-// intended to look like a comma as well
-// (the choice between cedilla and comma is ultimately a locale matter
-// that is hard to resolve within a single font anyway)
-glyph ced 2 3
+glyph ced 3 3
+..@@@@
+..\0@@
+@@@@0/
+
+glyph com 2 3
 @@@@
 \0@@
 @@0/
 
-glyph ced-inverted-lower 2 3
+glyph com-reversed 2 3
+@@@@
+@@0/
+\0@@
+
+glyph com-inverted 2 3
 /0@@
 @@0\
 @@@@
 
-glyph uni00B8
+glyph ced-above mark
+ref ced
+anchor -above 1 2
+anchor +above 1 -1
+
+glyph ced-above:wide mark
+ref ced
+anchor -above 1..2 2
+anchor +above 1..2 -1
+
+// the below marks hang three rows deep, but a base's +below anchor only
+// leaves two rows inside the em box.  so the attachment row is the mark's
+// *second* row: its top row is the stroke that meets the letter's own last
+// row, which is where these have always been drawn.
+glyph ced-below mark
+ref ced
+anchor -below 1 1
+anchor +below 1 4
+
+glyph ced-below:wide mark
+ref ced
+anchor -below 1..2 1
+anchor +below 1..2 4
+
+glyph com-above mark
+ref com
+anchor -above 0..1 2
+anchor +above 0..1 -1
+
+glyph com-above:narrow mark
+ref com
+anchor -above 1 2
+anchor +above 1 -1
+
+glyph com-reversed-above mark
+ref com-reversed
+anchor -above 0..1 2
+anchor +above 0..1 -1
+
+glyph com-reversed-above:narrow mark
+ref com-reversed
+anchor -above 1 2
+anchor +above 1 -1
+
+// U+0312 is the latvian ģ mark: an attached mark, not a floating accent, so
+// unlike the breathing marks above it sits flush with the letter (one row
+// lower) and follows the comma family's column instead of being centered.
+glyph com-inverted-above mark
+ref com-inverted
+anchor -above 0..1 1
+anchor +above 0..1 -1
+
+glyph com-inverted-above:narrow mark
+ref com-inverted
+anchor -above 0 1
+anchor +above 0 -1
+
+glyph com-below mark
+ref com
+anchor -below 0 1
+anchor +below 0 4
+
+glyph com-below:wide mark
+ref com
+anchor -below 0..1 1
+anchor +below 0..1 4
+
+map U+0312 = com-inverted-above
+map U+0313 = com-above
+map U+0314 = com-reversed-above
+map U+0326 = com-below
+map U+0327 = ced-below
+
+glyph ced-below-spacing
 ref sp
-ref ced 4 13
-map ¸ = uni00B8
+ref ced 3 13
+map ¸ = ced-below-spacing
 
 //--------------------------------------
 // ogonek

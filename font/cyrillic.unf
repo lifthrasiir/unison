@@ -1844,20 +1844,20 @@ map ѝ = uni045D
 
 glyph uni04E2
 ref cy-i-upper
-ref mac-upper 2 1
+ref mac-above 2 1
 map Ӣ = uni04E2
 glyph uni04EE
 ref cy-u-upper
-ref mac-upper 2 1
+ref mac-above 2 1
 map Ӯ = uni04EE
 
 glyph uni04E3
 ref cy-i-lower
-ref mac-lower 2 3
+ref mac-below 2 3
 map ӣ = uni04E3
 glyph uni04EF
 ref cy-u-lower
-ref mac-lower 2 3
+ref mac-below 2 3
 map ӯ = uni04EF
 
 //--------------------------------------
