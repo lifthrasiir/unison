@@ -555,8 +555,28 @@ walking an ever-deeper stack. `phase=update:central/editor` puts the *first* exc
 reach past the storm, so the originating frame is invisible — which is why the handler now records
 first-chance exceptions (below): the culprit is the exception, not the stack.
 
+A second capture (2026-07-29, on Alt-F4) got the culprit, because the exception recorder was in by
+then. The storm is preceded by **one** exception in our own image — `0xc0000006`
+(`STATUS_IN_PAGE_ERROR`) at `uniform+0x76ea0`, which `llvm-symbolizer --obj=uniform.exe 0x140076ea0`
+(RVA plus the `0x140000000` image base) resolves to `UniformApp::confirm_close_and_maybe_save`
+(`app/docs.rs`), the Alt-F4 save-confirmation dialog. Everything after it is the same 4-frame ntdll
+cycle, now explained: `KiUserExceptionDispatcher` has to unwind, unwinding reads `.pdata`/`.xdata`
+from another not-yet-resident page of the *same* image, that read faults the same way, and each
+nested dispatch does it again.
+
+So this is not recursion, and not a bug in the code at the faulting address — an in-page error on an
+already-mapped image page means Windows could not read the page back from the file. The suspect is
+therefore **where the `.exe` is being run from**: this is a cross-build (`cargo xb -r` on macOS,
+`cargo xrr` on Windows over the same repo path), so a 16 MB image is demand-paged over a shared
+folder, and rebuilding while an instance runs replaces the backing file under the live mapping —
+a share that cannot hold the image lock will not stop it. That also explains the shape of every
+report: the fault lands in *cold* code (a close dialog, a first-time editor path), never in the
+paths already resident. Confirm by copying `uniform.exe` + `uniform.pdb` to a local NTFS disk and
+running that copy; the `[... failed with 0x... ]` tail `fault_detail` now prints for `0xc0000006`
+names the paging `NTSTATUS` and settles it either way.
+
 **When the user reports another crash, ask for `uniform-stackmon.log` first — do not re-derive the
-static analysis.**
+static analysis.** Symbolize any `uniform+0xRVA` against the `.pdb` of that build before theorizing.
 
 `stackmon` is inert unless `UNIFORM_STACKMON=1`:
 

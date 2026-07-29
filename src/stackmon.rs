@@ -849,10 +849,14 @@ mod platform {
         code: AtomicU32,
         thread: AtomicU32,
         addr: AtomicU64,
-        /// `ExceptionInformation[0..2]`: for an access violation, the access
-        /// type and the address that could not be accessed.
+        /// `ExceptionInformation[0..3]`: for an access violation, the access
+        /// type and the address that could not be accessed; for an in-page
+        /// error, those two plus the `NTSTATUS` the paging I/O failed with --
+        /// which is the whole answer to *why* a page could not be read, and is
+        /// unrecoverable from the address alone.
         info0: AtomicU64,
         info1: AtomicU64,
+        info2: AtomicU64,
         /// Phase at the *first* sighting, as a `'static` str ptr/len.
         phase: AtomicUsize,
         phase_len: AtomicUsize,
@@ -877,6 +881,7 @@ mod platform {
                 addr: AtomicU64::new(0),
                 info0: AtomicU64::new(0),
                 info1: AtomicU64::new(0),
+                info2: AtomicU64::new(0),
                 phase: AtomicUsize::new(0),
                 phase_len: AtomicUsize::new(0),
                 reported: AtomicU64::new(0),
@@ -920,6 +925,8 @@ mod platform {
                 .store(if n > 0 { params[0] as u64 } else { 0 }, Ordering::Relaxed);
             slot.info1
                 .store(if n > 1 { params[1] as u64 } else { 0 }, Ordering::Relaxed);
+            slot.info2
+                .store(if n > 2 { params[2] as u64 } else { 0 }, Ordering::Relaxed);
             let phase = current_phase();
             slot.phase.store(phase.as_ptr() as usize, Ordering::Relaxed);
             slot.phase_len.store(phase.len(), Ordering::Relaxed);
@@ -969,7 +976,7 @@ mod platform {
                 describe(addr),
                 slot.thread.load(Ordering::Relaxed),
                 phase,
-                access_violation_detail(code, slot),
+                fault_detail(code, slot),
             ));
         }
         let dropped = EXC_DROPPED.swap(0, Ordering::Relaxed);
@@ -984,6 +991,7 @@ mod platform {
     fn exception_name(code: u32) -> &'static str {
         match code {
             0xC000_0005 => "access violation",
+            0xC000_0006 => "in-page error",
             0xC000_001D => "illegal instruction",
             0xC000_008C => "array bounds exceeded",
             0xC000_008E => "float divide by zero",
@@ -1000,8 +1008,16 @@ mod platform {
         }
     }
 
-    fn access_violation_detail(code: u32, slot: &ExcSlot) -> String {
-        if code != 0xC000_0005 {
+    /// The `[read of 0x...]` tail of an access-violation / in-page-error line.
+    ///
+    /// The two codes carry the same first two parameters; an in-page error adds
+    /// the `NTSTATUS` the paging read failed with, and *that* is the diagnosis.
+    /// An in-page error on a code address means Windows could not fault in a
+    /// page of an image that is already mapped, which is a property of where
+    /// the file lives (a share that hiccuped, a volume that went away, a file
+    /// rewritten under the running mapping), not of the code that touched it.
+    fn fault_detail(code: u32, slot: &ExcSlot) -> String {
+        if code != 0xC000_0005 && code != 0xC000_0006 {
             return String::new();
         }
         let kind = match slot.info0.load(Ordering::Relaxed) {
@@ -1010,10 +1026,34 @@ mod platform {
             8 => "execute (DEP)",
             _ => "?",
         };
+        let addr = slot.info1.load(Ordering::Relaxed);
+        if code == 0xC000_0005 {
+            return format!("  [{kind} of {addr:#018x}]");
+        }
+        let status = slot.info2.load(Ordering::Relaxed) as u32;
         format!(
-            "  [{kind} of {:#018x}]",
-            slot.info1.load(Ordering::Relaxed)
+            "  [{kind} of {addr:#018x} failed with {:#010x} ({})]",
+            status,
+            ntstatus_name(status),
         )
+    }
+
+    /// The paging-failure statuses worth naming, chosen for what they say about
+    /// the *storage* the image came from.
+    fn ntstatus_name(status: u32) -> &'static str {
+        match status {
+            0xC000_0009 => "bad initial PTE",
+            0xC000_0011 => "end of file (image truncated or rewritten)",
+            0xC000_0022 => "access denied",
+            0xC000_0056 => "delete pending",
+            0xC000_009C => "device data error",
+            0xC000_00C4 => "unexpected network error",
+            0xC000_00C9 => "network name deleted",
+            0xC000_0185 => "I/O device error",
+            0xC000_01E5 => "file invalid (backing file changed)",
+            0xC000_026E => "volume dismounted",
+            _ => "?",
+        }
     }
 
     unsafe extern "system" fn veh(info: *mut EXCEPTION_POINTERS) -> i32 {
