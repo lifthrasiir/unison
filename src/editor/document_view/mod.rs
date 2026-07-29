@@ -94,7 +94,13 @@ pub enum NavTarget {
     /// caret to `line`.
     Local { line: usize },
     /// The target is not in this document; only the host can find and open it.
+    /// If it is not in any other file either, the host searches instead.
     CrossFile(GotoGlyph),
+    /// The token clicked declares the name rather than referring to it, so
+    /// there is nothing to go to and the host lists its appearances. This is
+    /// where the "go to definition" gesture ends up whenever no definition can
+    /// be the answer — including anchors and feature tags, which have none.
+    Search(GotoGlyph),
 }
 
 /// One Ctrl/Cmd+click on a link, reported so the host can both carry out the

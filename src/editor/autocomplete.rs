@@ -321,7 +321,13 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             FieldRole::NamePartsDef => ctx(CompletionKind::NameParts),
             // Definitions of new names (and name-parts values without a `$`,
             // which the word check above already handled) get no completion.
-            FieldRole::GlyphDef | FieldRole::NamePartsValue | FieldRole::ColorDef => None,
+            // Remap groups and feature tags are declared by being written, so
+            // they are definitions too.
+            FieldRole::GlyphDef
+            | FieldRole::NamePartsValue
+            | FieldRole::ColorDef
+            | FieldRole::RemapGroupDef
+            | FieldRole::FeatureDef => None,
         };
     }
 

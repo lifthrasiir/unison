@@ -713,6 +713,9 @@ impl UniformApp {
                 // history indexes the same list, so it goes with them.
                 self.panes = Panes::new();
                 self.nav_history.clear();
+                // Its hits name files that are no longer the ones on screen.
+                self.search = None;
+                self.search_file_cache.clear();
                 self.sidebar.set_directory(&dir);
                 let (base_docs, parse_errors) = crate::render::ttf_builder::load_docs_from_directory_checked(&dir);
                 self.font_base_docs = base_docs;

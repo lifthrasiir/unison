@@ -2051,7 +2051,9 @@ fn following_a_link_reports_the_link_position_not_the_caret() {
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match nav.target {
         NavTarget::Local { line } => assert_eq!(line, def_line),
-        NavTarget::CrossFile(_) => panic!("`a` is defined in this document"),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("`a` is defined in this document")
+        }
     }
     // The editor carries the local jump out itself.
     assert_eq!(h.state.cursor.line, def_line);
@@ -2073,10 +2075,65 @@ fn a_link_to_another_file_is_handed_to_the_host() {
     assert_eq!(nav.from, Caret::new(ref_line, 4));
     match &nav.target {
         NavTarget::CrossFile(goto) => assert_eq!(goto.name, "elsewhere"),
-        NavTarget::Local { .. } => panic!("`elsewhere` is not in this document"),
+        NavTarget::Local { .. } | NavTarget::Search(_) => {
+            panic!("a reference is not a definition, and `elsewhere` is not in this document")
+        }
     }
     // Nothing moved: only the host can follow it.
     assert_ne!(h.state.cursor.line, ref_line + 1);
+}
+
+/// Ctrl/Cmd+clicking the *definition* of a name asks the host to list its
+/// appearances. Navigating would land on the line the click was already on, so
+/// the gesture means "find references" here rather than "go to definition" —
+/// and the editor must not move the caret itself.
+#[test]
+fn clicking_a_definition_asks_for_a_search() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(&link_doc("ref a 0 0"));
+    let def_line = text_line_at(&h, "glyph a");
+
+    h.click_text(text_line_at(&h, "glyph b"), 2);
+    let parked = h.state.cursor.line;
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(def_line, 6), Modifiers::COMMAND);
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    match &nav.target {
+        NavTarget::Search(goto) => assert_eq!(goto.name, "a"),
+        NavTarget::Local { .. } | NavTarget::CrossFile(_) => {
+            panic!("a definition has nowhere to go")
+        }
+    }
+    assert_eq!(h.state.cursor.line, parked, "the caret must not move");
+}
+
+/// An anchor is matched by name across glyphs and declared nowhere in
+/// particular, so a click on one can only ever search — and searches for the
+/// bare name, since `+above` and `-above` are two sides of one anchor.
+#[test]
+fn clicking_an_anchor_searches_for_it_without_its_sign() {
+    use crate::editor::doc_links::LinkTargetKind;
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(&link_doc("anchor +above 1 0"));
+    let anchor_line = text_line_at(&h, "anchor");
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(anchor_line, 9), Modifiers::COMMAND);
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    match &nav.target {
+        NavTarget::Search(goto) => {
+            assert_eq!(goto.name, "above");
+            assert_eq!(goto.kind, LinkTargetKind::Anchor);
+        }
+        NavTarget::Local { .. } | NavTarget::CrossFile(_) => {
+            panic!("an anchor has no definition to go to")
+        }
+    }
 }
 
 /// An ordinary click on a link is just a click — no jump, and nothing recorded.

@@ -25,6 +25,7 @@ mod menus;
 mod panels;
 mod panes;
 mod rename;
+mod search;
 mod zoom;
 
 use background::BackgroundTaskStatus;
@@ -32,6 +33,7 @@ use docs::OpenDocument;
 use history::{NavEntry, NavHistory, NavLoc};
 use menus::{EditTarget, MenuActions, NavAction};
 use panes::Panes;
+use search::SearchResults;
 use zoom::DEFAULT_PREVIEW_FONT_SIZE;
 
 type FontPair = (Vec<u8>, Vec<u8>);
@@ -59,6 +61,13 @@ pub struct UniformApp {
     /// Followed links, so they can be walked back and forward again. It spans
     /// files, which is why it lives here and not in an `EditorState`.
     nav_history: NavHistory,
+    /// The Search pane's contents: the last name a Ctrl/Cmd+click had nothing
+    /// to navigate to, and every place it appears. Spans files for the same
+    /// reason the history does.
+    search: Option<SearchResults>,
+    /// Source text of the files no pane is editing, keyed by modification
+    /// time, so repeat searches read nothing from disk.
+    search_file_cache: HashMap<PathBuf, (Option<std::time::SystemTime>, String)>,
     sidebar: Sidebar,
     escape_mode: bool,
     status_message: Option<(String, std::time::Instant)>,
@@ -216,6 +225,8 @@ impl UniformApp {
             open_documents: Vec::new(),
             panes: Panes::new(),
             nav_history: NavHistory::new(),
+            search: None,
+            search_file_cache: HashMap::new(),
             sidebar: Sidebar::new(),
             escape_mode: false,
             status_message: None,
@@ -287,9 +298,22 @@ impl UniformApp {
         let to = match nav.target {
             // The editor already moved its own caret; only the record is left.
             NavTarget::Local { line } => Some(NavLoc::new(from_doc, line, 0)),
-            NavTarget::CrossFile(goto) => self
-                .goto_glyph(ctx, &goto.name, &goto.kind)
-                .map(|(doc_idx, line)| NavLoc::new(doc_idx, line, 0)),
+            NavTarget::CrossFile(goto) => {
+                match self.goto_glyph(ctx, &goto.name, &goto.kind) {
+                    Some((doc_idx, line)) => Some(NavLoc::new(doc_idx, line, 0)),
+                    // Nothing declares the name, so there is no jump to make
+                    // or to record — list who writes it instead.
+                    None => {
+                        self.search_name(ctx, &goto.name, goto.kind);
+                        None
+                    }
+                }
+            }
+            // The token clicked is the declaration itself.
+            NavTarget::Search(goto) => {
+                self.search_name(ctx, &goto.name, goto.kind);
+                None
+            }
         };
         if let Some(to) = to {
             self.nav_history.push(NavEntry { from, to });
@@ -340,6 +364,8 @@ impl UniformApp {
                     LinkTargetKind::Color => doc.items.iter().any(|item| {
                         matches!(item, DocumentItem::Color { name: n, .. } if n == name)
                     }),
+                    // Neither is declared anywhere in particular.
+                    LinkTargetKind::Anchor | LinkTargetKind::Feature => false,
                 };
                 has_match.then(|| doc.path.clone())
             })
@@ -412,7 +438,7 @@ impl eframe::App for UniformApp {
         self.show_status_bar(ctx);
 
         crate::stackmon::phase("update:preview");
-        let (specimen_clicked_glyph, issues_click) = self.show_bottom_panel(ctx);
+        let bottom = self.show_bottom_panel(ctx);
 
         crate::stackmon::phase("update:central/editor");
         let (nav_request, rename_request, divider_closed_pane) =
@@ -435,8 +461,14 @@ impl eframe::App for UniformApp {
 
         // A specimen click is not a link in a document, so there is no position
         // to come back to and nothing to record.
-        if let Some(click) = specimen_clicked_glyph {
+        if let Some(click) = bottom.specimen_click {
             self.goto_glyph(ctx, &click.name, &click.kind);
+        }
+
+        // A search hit *is* a jump between two places in the source, so it is
+        // recorded — from wherever the caret was, since the pane is not a link.
+        if let Some(hit_idx) = bottom.search_click {
+            self.goto_search_hit(ctx, hit_idx);
         }
 
         // After the jump above, so a Go Back in the same frame as a click would
@@ -447,7 +479,7 @@ impl eframe::App for UniformApp {
             None => {}
         }
 
-        if let Some((path, line)) = issues_click {
+        if let Some((path, line)) = bottom.issue_click {
             self.open_file(path.clone());
             if let Some(idx) = self.open_documents.iter().position(|d| d.document.path == path) {
                 self.panes.show_document(idx);

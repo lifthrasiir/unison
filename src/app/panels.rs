@@ -4,9 +4,113 @@
 use super::*;
 use super::background::BackgroundTaskPhase;
 use super::docs::collect_effective_docs;
+use super::search::{SearchHit, SearchResults};
 
 pub(super) fn min_bottom_panel_height(screen_height: f32) -> f32 {
     270.0_f32.min(screen_height * 0.5)
+}
+
+pub(super) const SEARCH_TAB: usize = 3;
+
+/// What one frame of the bottom panel asked the host to do. Every case is a
+/// navigation the panel itself cannot carry out, so all three are dispatched
+/// after the frame's editors have run.
+#[derive(Default)]
+pub(super) struct BottomPanelResult {
+    pub specimen_click: Option<crate::specimen::SpecimenClick>,
+    /// `(file, docline index)` of a clicked diagnostic.
+    pub issue_click: Option<(PathBuf, usize)>,
+    /// Index into the current search results.
+    pub search_click: Option<usize>,
+}
+
+/// One result row's source line, with the token that matched picked out.
+///
+/// The whole line is shown for context, so without this a row of a long
+/// `remap` or `assert` line says nothing about *where* on it the name is — and
+/// a line naming the same glyph twice is two rows that would otherwise look
+/// identical. The span is the written token, backticks and an anchor's sign
+/// included, so what is highlighted is what the search actually matched.
+fn hit_text(ui: &egui::Ui, hit: &SearchHit) -> egui::text::LayoutJob {
+    let font = egui::FontId::new(16.0, egui::FontFamily::Proportional);
+    let plain = egui::TextFormat {
+        font_id: font.clone(),
+        color: ui.visuals().text_color(),
+        ..Default::default()
+    };
+    let matched = egui::TextFormat {
+        font_id: font,
+        color: ui.visuals().strong_text_color(),
+        background: ui.visuals().selection.bg_fill.gamma_multiply(0.5),
+        ..Default::default()
+    };
+
+    let chars: Vec<char> = hit.text.chars().collect();
+    let start = hit.highlight.0.min(chars.len());
+    let end = hit.highlight.1.clamp(start, chars.len());
+    let part = |range: std::ops::Range<usize>| chars[range].iter().collect::<String>();
+
+    let mut job = egui::text::LayoutJob::default();
+    job.append(&part(0..start), 0.0, plain.clone());
+    job.append(&part(start..end), 0.0, matched);
+    job.append(&part(end..chars.len()), 0.0, plain);
+    job
+}
+
+/// Rows of "where this name is written", in the diagnostics list's format: the
+/// source line on the left, the place it came from on the right.
+fn show_search_tab(
+    ui: &mut egui::Ui,
+    search: Option<&SearchResults>,
+    click: &mut Option<usize>,
+) {
+    let Some(search) = search else {
+        ui.centered_and_justified(|ui| {
+            ui.label("Ctrl/Cmd+click a name to list every place it is written");
+        });
+        return;
+    };
+
+    ui.label(
+        egui::RichText::new(search.title())
+            .size(16.0)
+            .color(ui.visuals().weak_text_color()),
+    );
+    if search.hits.is_empty() {
+        return;
+    }
+    ui.separator();
+
+    egui::ScrollArea::vertical().show(ui, |ui| {
+        for (hit_idx, hit) in search.hits.iter().enumerate() {
+            let file_name = hit
+                .path
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default();
+            let location = format!("{file_name}:{}", hit.file_line);
+
+            let row_id = ui.id().with(("search_row", hit_idx));
+            let resp = ui.horizontal(|ui| {
+                ui.label(hit_text(ui, hit));
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.label(
+                        egui::RichText::new(&location)
+                            .size(16.0)
+                            .color(ui.visuals().weak_text_color()),
+                    );
+                });
+            });
+
+            let click_resp = ui.interact(resp.response.rect, row_id, egui::Sense::click());
+            if click_resp.hovered() {
+                ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+            }
+            if click_resp.clicked() {
+                *click = Some(hit_idx);
+            }
+        }
+    });
 }
 
 fn show_issues_tab(
@@ -67,7 +171,7 @@ fn show_issues_tab(
 }
 
 impl UniformApp {
-    fn ensure_min_panel_height(&mut self, screen_height: f32) {
+    pub(super) fn ensure_min_panel_height(&mut self, screen_height: f32) {
         let min_h = min_bottom_panel_height(screen_height);
         if self.bottom_panel_height < min_h {
             self.bottom_panel_height = min_h;
@@ -196,17 +300,10 @@ impl UniformApp {
         });
     }
 
-    /// The bottom Preview/Specimen/Issues panel.  Returns any specimen glyph
-    /// click and any issue-row click for post-frame navigation.
-    pub(super) fn show_bottom_panel(
-        &mut self,
-        ctx: &egui::Context,
-    ) -> (
-        Option<crate::specimen::SpecimenClick>,
-        Option<(PathBuf, usize)>,
-    ) {
-        let mut specimen_clicked_glyph: Option<crate::specimen::SpecimenClick> = None;
-        let mut issues_click: Option<(PathBuf, usize)> = None;
+    /// The bottom Preview/Specimen/Issues/Search panel.  Returns the row
+    /// clicks the host has to carry out once this frame's editors have run.
+    pub(super) fn show_bottom_panel(&mut self, ctx: &egui::Context) -> BottomPanelResult {
+        let mut result = BottomPanelResult::default();
         let mut preview_rect: Option<egui::Rect> = None;
         let bottom_panel_expanded = self.bottom_panel_tab.is_some();
         if self.bottom_panel_height_override {
@@ -265,6 +362,21 @@ impl UniformApp {
                             self.bottom_panel_tab = None;
                         } else {
                             self.bottom_panel_tab = Some(2);
+                            self.ensure_min_panel_height(screen_h);
+                        }
+                    }
+                    let search_label = match &self.search {
+                        Some(s) if !s.hits.is_empty() => {
+                            format!("Search ({})", s.hits.len())
+                        }
+                        _ => "Search".to_string(),
+                    };
+                    let search_selected = self.bottom_panel_tab == Some(SEARCH_TAB);
+                    if ui.selectable_label(search_selected, search_label).clicked() {
+                        if search_selected {
+                            self.bottom_panel_tab = None;
+                        } else {
+                            self.bottom_panel_tab = Some(SEARCH_TAB);
                             self.ensure_min_panel_height(screen_h);
                         }
                     }
@@ -327,7 +439,7 @@ impl UniformApp {
                                 &all_docs, &self.name_parts, &self.font_name_to_gid, self.font_build_gen,
                             );
                         }
-                        specimen_clicked_glyph = self.specimen.show(
+                        result.specimen_click = self.specimen.show(
                             ui,
                             self.font_data.as_ref(),
                             self.font_data_gen,
@@ -336,14 +448,17 @@ impl UniformApp {
                     Some(2) => {
                         let mut all_issues: Vec<&Issue> = self.issues.iter().collect();
                         all_issues.extend(self.assert_issues.iter());
-                        show_issues_tab(ui, &all_issues, &mut issues_click);
+                        show_issues_tab(ui, &all_issues, &mut result.issue_click);
+                    }
+                    Some(SEARCH_TAB) => {
+                        show_search_tab(ui, self.search.as_ref(), &mut result.search_click);
                     }
                     _ => {}
                 }
             });
 
         self.preview_view_rect = preview_rect;
-        (specimen_clicked_glyph, issues_click)
+        result
     }
 
     /// One pane's contents: the editor for its document, or the placeholder.

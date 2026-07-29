@@ -184,6 +184,7 @@ pub(super) fn paint_document_area(
         let mut goto_glyph_name: Option<String> = None;
         let mut goto_glyph_kind: Option<LinkTargetKind> = None;
         let mut goto_link_pos: Option<Caret> = None;
+        let mut goto_is_def = false;
         let mut inline_panel_origin: Option<(f32, f32, f32)> = None; // (x, y, grid_display_width)
         let mut edit_grid_rect: Option<egui::Rect> = None;
 
@@ -372,7 +373,8 @@ pub(super) fn paint_document_area(
                                     goto_glyph_name =
                                         Some(link.target.clone());
                                     goto_glyph_kind =
-                                        Some(link.kind.clone());
+                                        Some(link.kind);
+                                    goto_is_def = link.is_def;
                                     goto_link_pos = Some(Caret::new(
                                         vl.doc_line,
                                         link.col_start,
@@ -720,13 +722,16 @@ pub(super) fn paint_document_area(
 
         // Ctrl/Cmd+click goto
         if let Some(ref target_name) = goto_glyph_name {
-            let kind = goto_glyph_kind.clone().unwrap_or(LinkTargetKind::Glyph);
+            let kind = goto_glyph_kind.unwrap_or(LinkTargetKind::Glyph);
             // The link's own position, so "go back" returns to the reference
             // rather than to the untouched caret.
             let from = goto_link_pos.unwrap_or(state.cursor);
-            let target = if let Some(line_idx) =
-                doc_links::find_link_target_in_doc(lines, target_name, &kind)
-            {
+            // A declaration would "navigate" to the line the click was already
+            // on, so it never looks for one — it asks for the search instead.
+            let local = (!goto_is_def)
+                .then(|| doc_links::find_link_target_in_doc(lines, target_name, &kind))
+                .flatten();
+            let target = if let Some(line_idx) = local {
                 state.mode = EditMode::Normal;
                 state.selection_anchor = None;
                 state.cursor = Caret::new(line_idx, 0);
@@ -737,7 +742,12 @@ pub(super) fn paint_document_area(
                 });
                 NavTarget::Local { line: line_idx }
             } else {
-                NavTarget::CrossFile(GotoGlyph { name: target_name.clone(), kind })
+                let goto = GotoGlyph { name: target_name.clone(), kind };
+                if goto_is_def {
+                    NavTarget::Search(goto)
+                } else {
+                    NavTarget::CrossFile(goto)
+                }
             };
             state.pending_nav = Some(NavRequest { from, target });
         }

@@ -32,6 +32,13 @@ pub(crate) enum FieldRole {
     ColorRef,
     /// `feature ... : GROUP` — the remap-group reference.
     RemapGroupRef,
+    /// `remap GROUP : ...` — the remap group's own name.  Several `remap`
+    /// lines share one group, so this is a definition in the sense that it is
+    /// not a reference: nothing else declares the group.
+    RemapGroupDef,
+    /// `feature TAG for ...` — the OpenType feature tag.  Like a remap group
+    /// it has no single declaration site, so every appearance is one of these.
+    FeatureDef,
 }
 
 #[derive(Clone, Debug)]
@@ -121,11 +128,20 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             }
         }
         "remap" => {
+            // The first operand names the group, not a glyph — the two live in
+            // different namespaces, so a glyph rename must not rewrite it.
+            let mut first = true;
             for span in rest {
                 let clean = span.value.trim_end_matches(':');
                 if !clean.is_empty() && clean != "->" && clean != ":" {
+                    let role = if first {
+                        FieldRole::RemapGroupDef
+                    } else {
+                        FieldRole::GlyphRef
+                    };
+                    first = false;
                     fields.push(LineField {
-                        role: FieldRole::GlyphRef,
+                        role,
                         token: clean.to_string(),
                         col_start: leading + span.raw_start,
                         col_end: leading + span.raw_start + clean.chars().count(),
@@ -134,10 +150,28 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             }
         }
         "feature" => {
-            if let Some(colon_pos) = rest.iter().position(|s| s.value == ":")
-                && let Some(group) = rest.get(colon_pos + 1)
+            if let Some(tag) = rest.first()
+                && !tag.value.is_empty()
+                && tag.value != "for"
             {
-                fields.push(field(FieldRole::RemapGroupRef, leading, group));
+                fields.push(field(FieldRole::FeatureDef, leading, tag));
+            }
+            // `: anchor NAME` is the mark-attachment variant, so what follows
+            // the colon there is an anchor name and not a remap group.
+            if let Some(colon_pos) = rest.iter().position(|s| s.value == ":") {
+                match rest.get(colon_pos + 1) {
+                    Some(kw) if kw.value == "anchor" => {
+                        if let Some(name) = rest.get(colon_pos + 2)
+                            && !name.value.is_empty()
+                        {
+                            fields.push(field(FieldRole::PointDef, leading, name));
+                        }
+                    }
+                    Some(group) if !group.value.is_empty() => {
+                        fields.push(field(FieldRole::RemapGroupRef, leading, group));
+                    }
+                    _ => {}
+                }
             }
         }
         "color" => {
@@ -249,7 +283,33 @@ mod tests {
         let fields = classify_line("remap liga : a -> b");
         let tokens: Vec<&str> = fields.iter().map(|f| f.token.as_str()).collect();
         assert_eq!(tokens, vec!["liga", "a", "b"]);
-        assert!(fields.iter().all(|f| f.role == FieldRole::GlyphRef));
+        // The group name is not a glyph name, however much it looks like one.
+        assert_eq!(fields[0].role, FieldRole::RemapGroupDef);
+        assert!(fields[1..].iter().all(|f| f.role == FieldRole::GlyphRef));
+    }
+
+    #[test]
+    fn feature_names_its_tag_and_its_group() {
+        assert_eq!(
+            roles("feature ljmo for hang : hangul-ljmo"),
+            vec![
+                (FieldRole::FeatureDef, "ljmo".to_string()),
+                (FieldRole::RemapGroupRef, "hangul-ljmo".to_string()),
+            ],
+        );
+    }
+
+    /// The mark-attachment variant names an anchor after the colon, not a
+    /// remap group — the `anchor` keyword is what tells the two apart.
+    #[test]
+    fn feature_anchor_variant_names_an_anchor() {
+        assert_eq!(
+            roles("feature abvm for hang : anchor above"),
+            vec![
+                (FieldRole::FeatureDef, "abvm".to_string()),
+                (FieldRole::PointDef, "above".to_string()),
+            ],
+        );
     }
 
     #[test]

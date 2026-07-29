@@ -89,7 +89,7 @@ Editor (feature `editor`):
   the small shared helpers; `background.rs` (build/derive/assert threads and applying their results),
   `docs.rs` (open/flush/save/export), `history.rs` (go back/forward, below), `menus.rs`,
   `panels.rs`, `panes.rs` (the split-editor model,
-  below), `rename.rs`, `zoom.rs`.
+  below), `rename.rs`, `search.rs` (the Search pane, below), `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode` (`Normal` text editing, `GlyphEdit` pixel painting,
   `LayerMove` ref/layer repositioning). `editor/ids.rs` — `EditorId`/`Slot`, the per-instance `egui`
   id namespace (see *The editor is a widget* below).
@@ -186,21 +186,66 @@ The history spans files, so it lives in `UniformApp`, not in an `EditorState`; l
 into `open_documents`, which is only ever appended to, so an index cannot come to mean a different
 file. Opening another folder clears that list and clears the history with it. The editor reports
 each followed link once, as `DocumentViewResult::nav` — a `NavTarget::Local` the editor already
-carried out itself, or a `NavTarget::CrossFile` only the host can resolve — so both cases are
-recorded through one path.
+carried out itself, a `NavTarget::CrossFile` only the host can resolve, or a `NavTarget::Search`
+(below) — so every case is recorded through one path.
 
 Positions are **not** rewritten when the document is edited under them, so a jump remembered across
 an insertion can come back a few lines off (navigation clamps, so it is stale, never invalid). Doing
 better needs anchors that every mutation updates: `UndoStack::push_lines` is nearly the choke point
 for line-count changes, but `reconcile.rs` and `rename.rs` bypass it, so it is not one edit yet.
 
+### `app/search.rs` — the Search pane
+
+The fourth bottom-panel tab, listing every place a name is written in the diagnostics list's format.
+It is **where a Ctrl/Cmd+click goes when "go to definition" cannot answer**, which is two situations
+that deliberately share one destination: the token clicked *is* the declaration
+(`NavTarget::Search`), or it refers to a name nothing declares (`NavTarget::CrossFile` that
+`goto_glyph` fails to resolve). So clicking `glyph foo`'s own name lists its uses, and clicking a
+`ref` with a typo in it lists everyone who shares the typo, instead of the click doing nothing.
+
+For that to work, `doc_links::extract_line_links` emits links for **definitions** too, flagged
+`is_def` — the flag is what stops the editor from "navigating" to the line the click was already on.
+Two `LinkTargetKind`s are search-only: `Anchor` and `Feature` have no declaration site at all (an
+anchor is matched by name across glyphs, a feature tag is declared once per target), so they never
+navigate. A *pattern* glyph name gets no definition link: it is not a name anything can refer to,
+and only the `$var`s inside it are.
+
+Matching goes through `line_fields` like everything else that reads names, which is what keeps the
+namespaces apart — a `remap` group named `liga` is not a hit for a glyph named `liga`. An anchor is
+listed through **both** signs, since `+above` and `-above` are two sides of one anchor.
+
+A hit is addressed by its **ordinal within its file**, not by its line number: opening a file
+canonicalizes its text, so the line a hit sits at on disk need not be the line it lands on in the
+editor. Canonicalization rewrites spacing and comments, never the order names appear in. The ordinal
+counts *occurrences*, not lines — a line naming the same glyph twice is two rows, and both ends have
+to agree on that or every later hit in the file lands one off.
+
+`match_spans` returns the written token's whole span, which the pane highlights so a long `remap` or
+`assert` row says where on it the name is. Two `contains(name)` pre-filters in front of it are what
+keep a search a click and not a wait — one per file, one per line — and they are sound because every
+kind's name occurs **literally** in the source (a name-parts name carries its own `$`, an anchor's
+sign only precedes it). The per-line one matters most: a font directory is mostly pixel rows, and
+classifying a line costs a tokenizing pass (`font/`: 9.9 ms → 1.7 ms). Unopened files are then
+served by `file_text`, cached on **mtime** — a closed file changes only from outside the editor,
+which is exactly what a generation counter would not see. Open documents are searched as they stand,
+unsaved edits included.
+
+Clicking a hit records a history entry whose `from` is the **caret** — unlike a link, the pane is
+not a position in a document, so the caret is the only place the user can be said to have left.
+
 ### `line_fields.rs` — where names live
 
 `LineField`/`FieldRole` is the *single* place that knows which tokens on a line name an entity
-(`GlyphDef`, `GlyphRef`, `NamePartsDef/Value`, `PointDef`, `ColorDef/Ref`, `RemapGroupRef`). Clickable
-links, rename detection, rename mutation and completion of existing tokens all consume it. **Adding a
-new directive form means describing it once here**, not in four features. (What completion offers
-*between* tokens is a separate concern and stays in `autocomplete.rs`.)
+(`GlyphDef`, `GlyphRef`, `NamePartsDef/Value`, `PointDef`, `ColorDef/Ref`, `RemapGroupDef/Ref`,
+`FeatureDef`). Clickable links, rename detection, rename mutation, completion of existing tokens and
+the Search pane all consume it. **Adding a new directive form means describing it once here**, not in
+five features. (What completion offers *between* tokens is a separate concern and stays in
+`autocomplete.rs`.)
+
+Two distinctions the roles draw are easy to lose: a `remap` line's first operand names the *group*,
+not a glyph (so a glyph rename must not rewrite it), and `feature ... : anchor NAME` names an anchor
+where the plain form names a remap group — the `anchor` keyword is the only thing telling them
+apart.
 
 ### Name patterns (`pattern.rs`)
 

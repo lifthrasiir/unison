@@ -8,14 +8,24 @@ pub(crate) struct LinkSpan {
     pub col_end: usize,
     pub target: String,
     pub kind: LinkTargetKind,
+    /// The token *is* the name's declaration rather than a use of it, so there
+    /// is nowhere for a Ctrl/Cmd+click to go. The host lists every appearance
+    /// instead — which is also what a reference whose target does not exist
+    /// falls back to, so the two arrive at the same place by different routes.
+    pub is_def: bool,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LinkTargetKind {
     Glyph,
     NameParts,
     Remap,
     Color,
+    /// An `anchor`/`point` name. Anchors are matched by name across glyphs and
+    /// are declared nowhere in particular, so these never navigate.
+    Anchor,
+    /// An OpenType feature tag, likewise declared nowhere in particular.
+    Feature,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -49,7 +59,7 @@ pub(crate) fn find_name_col_range_after_prefix(line: &str, prefix: &str) -> Opti
     Some((leading_chars + name_span.raw_start, leading_chars + name_span.raw_end))
 }
 
-fn scan_dollar_refs(text: &str, base_col: usize, out: &mut Vec<LinkSpan>) {
+pub(crate) fn scan_dollar_refs(text: &str, base_col: usize, out: &mut Vec<LinkSpan>) {
     let chars: Vec<char> = text.chars().collect();
     let mut i = 0;
     while i < chars.len() {
@@ -68,6 +78,7 @@ fn scan_dollar_refs(text: &str, base_col: usize, out: &mut Vec<LinkSpan>) {
                     col_end: base_col + i,
                     target: var_name,
                     kind: LinkTargetKind::NameParts,
+                    is_def: false,
                 });
             }
         } else {
@@ -95,9 +106,20 @@ fn extract_glyph_and_parts_links(name: &str, base_col: usize) -> Vec<LinkSpan> {
             col_end: base_col + name_char_len,
             target: name.to_string(),
             kind: LinkTargetKind::Glyph,
+            is_def: false,
         });
     }
     links
+}
+
+fn whole_field_link(f: &LineField, kind: LinkTargetKind, is_def: bool) -> LinkSpan {
+    LinkSpan {
+        col_start: f.col_start,
+        col_end: f.col_end,
+        target: f.token.clone(),
+        kind,
+        is_def,
+    }
 }
 
 pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
@@ -107,31 +129,49 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
             FieldRole::GlyphRef => {
                 links.extend(extract_glyph_and_parts_links(&f.token, f.col_start));
             }
-            // Definitions aren't links to themselves, but the `$var`s inside
-            // a pattern name are.
+            // A definition is not a link to itself, but it is still worth
+            // clicking: with nothing to go to, the click lists the name's uses.
+            // The `$var`s inside a pattern name stay ordinary references, and a
+            // pattern name as a whole is not a name anything can refer to, so
+            // only plain names get the definition link.
             FieldRole::GlyphDef => {
                 links.extend(extract_name_parts_vars(&f.token, f.col_start));
+                if !f.token.contains('$') && !f.token.contains('(') {
+                    links.push(whole_field_link(&f, LinkTargetKind::Glyph, true));
+                }
             }
             FieldRole::NamePartsValue => {
                 scan_dollar_refs(&f.token, f.col_start, &mut links);
             }
             FieldRole::ColorRef => {
-                links.push(LinkSpan {
-                    col_start: f.col_start,
-                    col_end: f.col_end,
-                    target: f.token,
-                    kind: LinkTargetKind::Color,
-                });
+                links.push(whole_field_link(&f, LinkTargetKind::Color, false));
             }
             FieldRole::RemapGroupRef => {
-                links.push(LinkSpan {
-                    col_start: f.col_start,
-                    col_end: f.col_end,
-                    target: f.token,
-                    kind: LinkTargetKind::Remap,
-                });
+                links.push(whole_field_link(&f, LinkTargetKind::Remap, false));
             }
-            FieldRole::NamePartsDef | FieldRole::PointDef | FieldRole::ColorDef => {}
+            FieldRole::NamePartsDef => {
+                links.push(whole_field_link(&f, LinkTargetKind::NameParts, true));
+            }
+            FieldRole::ColorDef => {
+                links.push(whole_field_link(&f, LinkTargetKind::Color, true));
+            }
+            FieldRole::RemapGroupDef => {
+                links.push(whole_field_link(&f, LinkTargetKind::Remap, true));
+            }
+            FieldRole::FeatureDef => {
+                links.push(whole_field_link(&f, LinkTargetKind::Feature, true));
+            }
+            // The `+`/`-` prefix says which side of the attachment this is, and
+            // both sides are the same anchor, so the link drops it.
+            FieldRole::PointDef => {
+                let mut link = whole_field_link(&f, LinkTargetKind::Anchor, true);
+                link.target = link
+                    .target
+                    .strip_prefix(['+', '-'])
+                    .unwrap_or(&link.target)
+                    .to_string();
+                links.push(link);
+            }
         }
     }
     links
@@ -215,8 +255,8 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
                     .to_string();
                 t
             }),
-            // Remap groups have no rename support.
-            FieldRole::RemapGroupRef => None,
+            // Remap groups and feature tags have no rename support.
+            FieldRole::RemapGroupRef | FieldRole::RemapGroupDef | FieldRole::FeatureDef => None,
         };
         if target.is_some() {
             return target;
@@ -287,6 +327,8 @@ pub fn find_link_target_in_doc(
             }
             None
         }
+        // Neither has a declaration site to go to; both only ever search.
+        LinkTargetKind::Anchor | LinkTargetKind::Feature => None,
     }
 }
 
@@ -338,9 +380,60 @@ mod rename_detection_tests {
     #[test]
     fn feature_for_script_links_remap_group() {
         let links = extract_line_links("feature ljmo for hang : hangul-ljmo");
+        // The group is a reference and navigates; the tag names nothing else,
+        // so it only ever searches.
+        assert_eq!(
+            links
+                .iter()
+                .map(|l| (l.target.as_str(), l.kind, l.is_def))
+                .collect::<Vec<_>>(),
+            vec![
+                ("ljmo", LinkTargetKind::Feature, true),
+                ("hangul-ljmo", LinkTargetKind::Remap, false),
+            ],
+        );
+    }
+
+    /// Every definition is clickable too — with nothing to go to, the click
+    /// asks for the name's appearances instead.
+    #[test]
+    fn definitions_are_links_marked_as_definitions() {
+        for (line, target, kind) in [
+            ("glyph foo 8 16", "foo", LinkTargetKind::Glyph),
+            ("name-parts $init = a b", "$init", LinkTargetKind::NameParts),
+            ("color red = #ff0000", "red", LinkTargetKind::Color),
+            ("remap liga : a -> b", "liga", LinkTargetKind::Remap),
+        ] {
+            let links = extract_line_links(line);
+            let found = links
+                .iter()
+                .find(|l| l.target == target)
+                .unwrap_or_else(|| panic!("no link for {target} in {line:?}"));
+            assert_eq!(found.kind, kind, "{line:?}");
+            assert!(found.is_def, "{line:?}");
+        }
+    }
+
+    /// An anchor is one anchor whichever sign it carries, so the link drops it.
+    #[test]
+    fn an_anchor_link_drops_its_sign() {
+        for line in ["anchor +above 4 1", "point -above 2 1"] {
+            let links = extract_line_links(line);
+            assert_eq!(links.len(), 1, "{line:?}");
+            assert_eq!(links[0].target, "above");
+            assert_eq!(links[0].kind, LinkTargetKind::Anchor);
+            assert!(links[0].is_def);
+        }
+    }
+
+    /// A pattern name is not a name anything can refer to, so only the `$var`s
+    /// inside it are links.
+    #[test]
+    fn a_pattern_glyph_definition_links_only_its_variables() {
+        let links = extract_line_links("glyph hangul-($init)-l 8 16");
         assert_eq!(links.len(), 1);
-        assert_eq!(links[0].target, "hangul-ljmo");
-        assert!(matches!(links[0].kind, LinkTargetKind::Remap));
+        assert_eq!(links[0].target, "$init");
+        assert!(!links[0].is_def);
     }
 
     #[test]
@@ -468,15 +561,23 @@ mod rename_detection_tests {
     #[test]
     fn color_links_value_name() {
         let links = extract_line_links("color light-red = red");
-        assert_eq!(links.len(), 1);
-        assert_eq!(links[0].target, "red");
-        assert!(matches!(links[0].kind, LinkTargetKind::Color));
+        assert_eq!(
+            links
+                .iter()
+                .map(|l| (l.target.as_str(), l.is_def))
+                .collect::<Vec<_>>(),
+            vec![("light-red", true), ("red", false)],
+        );
+        assert!(links.iter().all(|l| l.kind == LinkTargetKind::Color));
     }
 
     #[test]
     fn color_links_value_hex_no_link() {
+        // The hex value is not a name; only the color being defined is.
         let links = extract_line_links("color red = #ff0000");
-        assert!(links.is_empty());
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].target, "red");
+        assert!(links[0].is_def);
     }
 
     #[test]
