@@ -26,9 +26,10 @@ impl GridExtent {
     }
 }
 
-/// The horizontal band the glyph grids are drawn in. It stops short of the
-/// right edge so the inline tool panel always has room; a grid wider than the
-/// band is clipped to it and scrolled with `scroll`.
+/// The horizontal band the glyph grids are drawn in. It spans the editor's
+/// full width, except while a glyph is being edited — then it stops short of
+/// the right edge to leave the inline tool panel its room. A grid wider than
+/// the band is clipped to it and scrolled with `scroll`.
 #[derive(Clone, Debug)]
 pub(crate) struct GridStrip {
     /// Left edge in screen coordinates.
@@ -96,8 +97,9 @@ pub(super) fn visible_grid_rect(
     ))
 }
 
-/// Minimum room kept to the right of the grid band for the inline tool panel.
-pub(super) fn inline_panel_reserved_width(zoom: f32) -> f32 {
+/// Room kept to the right of the grid band for the inline tool panel. Only
+/// subtracted while a glyph is being edited, i.e. while the panel is shown.
+pub(crate) fn inline_panel_reserved_width(zoom: f32) -> f32 {
     INLINE_PANEL_GAP * zoom
         + crate::editor::glyph_widget::PALETTE_COLS as f32 * INLINE_PALETTE_CELL * zoom
 }

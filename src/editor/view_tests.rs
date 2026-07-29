@@ -1404,8 +1404,10 @@ fn wide_doc() -> String {
 }
 
 #[test]
-fn band_leaves_room_for_the_inline_tool_panel() {
-    let h = EditorHarness::new(&wide_doc());
+fn band_leaves_room_for_the_inline_tool_panel_while_editing() {
+    let mut h = EditorHarness::new(&wide_doc());
+    h.click_grid_cell(1, 0, 0);
+    h.frame();
     let snap = h.snap();
     let content_w = 90.0 * snap.grid_cell;
     assert!(
@@ -1420,6 +1422,28 @@ fn band_leaves_room_for_the_inline_tool_panel() {
         snap.strip.right() + panel_w <= 1000.0,
         "band right edge {} leaves no room for a {panel_w}pt panel",
         snap.strip.right()
+    );
+}
+
+/// Outside glyph editing there is no inline tool panel, so the band must not
+/// keep room for one: a grid that fits the editor's full width should not be
+/// scrolled off it just because a panel *might* appear later.
+#[test]
+fn band_uses_the_full_width_when_not_editing() {
+    let mut h = EditorHarness::new(&wide_doc());
+    let idle = h.snap().strip.clone();
+
+    h.click_grid_cell(1, 0, 0);
+    h.frame();
+    let editing = h.snap().strip.clone();
+
+    let reserved = crate::editor::document_view::inline_panel_reserved_width(1.0);
+    assert!(reserved > 0.0);
+    assert!(
+        (idle.w - editing.w - reserved).abs() < 0.01,
+        "idle band {} should be exactly {reserved} wider than the editing band {}",
+        idle.w,
+        editing.w
     );
 }
 

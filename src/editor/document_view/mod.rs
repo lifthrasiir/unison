@@ -47,7 +47,7 @@ pub(crate) use layout::{
     GridExtent, GridStrip, VLineKind, ViewCache, VisualLine, compute_grid_display_extent,
 };
 #[cfg(test)]
-pub(crate) use layout::gutter_line_number;
+pub(crate) use layout::{gutter_line_number, inline_panel_reserved_width};
 pub(crate) use scroll::{apply_scroll_physics, debounced_scroll_step, interceptor_scroll_step};
 
 pub(crate) const UNFILLED_OPACITY: f32 = 0.35;

@@ -75,13 +75,20 @@ pub(super) fn paint_document_area(
         let origin = egui::pos2(rect.min.x + gutter_width, rect.min.y);
         let sel = state.selection_range();
 
-        // Grid band: everything left of the space reserved for the inline
-        // tool panel. Grids wider than the band scroll inside it.
+        // Grid band: the full editor width, less the space the inline tool
+        // panel takes *while a glyph is being edited* — outside editing there
+        // is no panel, so reserving for one only narrows the band and scrolls
+        // grids that would otherwise fit. Grids wider than the band scroll
+        // inside it.
         let blocks = collect_grid_blocks(vlines, row_height, grid_cell);
         let mut strip = {
             let x = origin.x + LEFT_PAD;
-            let w = (rect.max.x - x - inline_panel_reserved_width(zoom_level as f32))
-                .max(grid_cell * 2.0);
+            let reserved = if inline_panel_edit_idx.is_some() {
+                inline_panel_reserved_width(zoom_level as f32)
+            } else {
+                0.0
+            };
+            let w = (rect.max.x - x - reserved).max(grid_cell * 2.0);
             let max_overflow = blocks
                 .iter()
                 .fold(0.0f32, |acc, b| acc.max(b.content_w - w));
