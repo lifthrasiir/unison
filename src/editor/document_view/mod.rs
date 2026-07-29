@@ -7,6 +7,7 @@ use crate::document::{
     DocLine, Document, DocumentItem, GlyphBody, GlyphPoint, NamePartsMap, PixelGrid,
 };
 use crate::document_io::{self, tokenize_with_spans};
+use crate::editor::anchor_shadow::{self, AnchorShadow};
 use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::{self, Caret};
 use crate::render::ttf_builder::ColorAliasMap;
@@ -212,6 +213,9 @@ fn resolve_view(
     }
     let composites =
         grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
+    let shadow = cache_key
+        .active_point
+        .and_then(|(item_idx, pi)| selected_anchor_shadow(doc, item_idx, pi, named_glyphs));
     let vlines = visual_lines::build_visual_lines(
         lines,
         doc,
@@ -227,18 +231,50 @@ fn resolve_view(
         font_id,
         meta,
         show_metrics,
+        shadow.as_ref(),
     );
     let source_offsets = source_line_offsets(lines);
     let data = std::sync::Arc::new(ViewData {
         composites,
         vlines,
         source_offsets,
+        shadow,
     });
     state.view_cache = Some(ViewCache {
         key: cache_key,
         data: std::sync::Arc::clone(&data),
     });
     data
+}
+
+/// The `(item, point index)` of the anchor layer the subglyph palette has
+/// selected, if the selected layer is an anchor at all — [`EditMode::LayerMove`]
+/// indexes refs first and points after them.
+fn active_point_layer(doc: &Document, mode: &EditMode) -> Option<(usize, usize)> {
+    let EditMode::LayerMove { item_idx, layer_idx } = mode else {
+        return None;
+    };
+    let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(*item_idx) else {
+        return None;
+    };
+    let pi = layer_idx.checked_sub(body.refs.len())?;
+    (pi < body.points.len()).then_some((*item_idx, pi))
+}
+
+/// The shadow of that anchor: every glyph carrying its counterpart, unioned.
+fn selected_anchor_shadow(
+    doc: &Document,
+    item_idx: usize,
+    pi: usize,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+) -> Option<(usize, AnchorShadow)> {
+    let Some(DocumentItem::Glyph { name, body }) = doc.items.get(item_idx) else {
+        return None;
+    };
+    let point = body.points.get(pi)?;
+    let self_name = name.display();
+    anchor_shadow::compute(Some(&self_name), point, body.scale, named_glyphs)
+        .map(|s| (item_idx, s))
 }
 
 /// The editor's frame loop. Reached through [`DocumentEditor::show`], which
@@ -303,6 +339,7 @@ fn show_document(
         font_gen,
         zoom_level,
         editing_item_idx,
+        active_point: active_point_layer(doc, &state.mode),
         show_metrics: env.show_metrics,
         wrap_width_bits: wrap_width.map(f32::to_bits),
         font_id: font_id.clone(),
@@ -406,6 +443,7 @@ fn show_document(
             env,
             vlines,
             composites,
+            view.shadow.as_ref(),
             source_offsets,
             &pal,
             row_height,

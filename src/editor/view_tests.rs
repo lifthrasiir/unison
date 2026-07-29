@@ -2244,3 +2244,99 @@ fn the_metric_box_is_clamped_to_the_ink_and_to_the_em_box() {
         );
     }
 }
+
+/// The horizontal extent of a glyph's drawn grid rows, as the snapshot has it.
+#[track_caller]
+fn grid_extent_x(h: &EditorHarness, grid_doc_line: usize) -> (i16, i16) {
+    h.snap()
+        .vlines
+        .iter()
+        .find_map(|vl| match vl.kind {
+            SnapKind::GridRow { left, right, .. } if vl.doc_line == grid_doc_line => {
+                Some((left, right))
+            }
+            _ => None,
+        })
+        .expect("a grid row for the glyph")
+}
+
+/// Selecting an `anchor` layer shadows every glyph that can attach there, and
+/// the drawn area grows to the shadow: a two-column mark otherwise shows none
+/// of the base it lands on, which is the whole point of looking at it.
+#[test]
+fn selecting_an_anchor_shadows_the_glyphs_that_attach_to_it() {
+    let source = "\
+font-meta height 16 ascent 14 descent 2
+
+glyph mark 2 1
+@@@@
+anchor -above 0 1
+
+glyph base 8 4
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+anchor +above 2 -1
+";
+    let mut h = EditorHarness::new(source);
+    let grid_line = 3;
+    assert_eq!(grid_extent_x(&h, grid_line), (0, 2), "the mark's own extent");
+
+    // The mark has no refs, so layer 0 is its `-above` anchor.
+    enter_layer_move(&mut h, grid_line, 2, 0);
+    h.frame();
+
+    // `base` is placed so its `+above` lands on the mark's `-above`: two
+    // columns left of the mark's origin, eight columns wide.
+    assert_eq!(grid_extent_x(&h, grid_line), (-2, 6));
+}
+
+/// The shadow is the *union* of every candidate, not just the first one found,
+/// and it is drawn only while the anchor layer is the selected one.
+#[test]
+fn the_anchor_shadow_unions_every_candidate_and_only_while_selected() {
+    let source = "\
+font-meta height 16 ascent 14 descent 2
+
+glyph mark 2 1
+@@@@
+anchor -above 0 1
+
+glyph left 4 2
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 -1
+
+glyph right 4 2
+@@@@@@@@
+@@@@@@@@
+anchor +above 0 -1
+";
+    let mut h = EditorHarness::new(source);
+    let grid_line = 3;
+    enter_layer_move(&mut h, grid_line, 2, 0);
+    h.frame();
+
+    // `left` reaches two columns left of the origin, `right` four to its
+    // right; the union spans both.
+    assert_eq!(grid_extent_x(&h, grid_line), (-2, 4));
+
+    // Back on the pixel layer the shadow is gone, and so is the room made
+    // for it.
+    let hover = h.grid_cell_pos(grid_line, 0, 0);
+    h.frame_with(
+        vec![
+            egui::Event::PointerMoved(hover),
+            egui::Event::MouseWheel {
+                unit: egui::MouseWheelUnit::Line,
+                delta: egui::vec2(0.0, 1.0),
+                modifiers: Modifiers::COMMAND,
+            },
+        ],
+        Modifiers::COMMAND,
+    );
+    h.frame();
+    assert!(matches!(h.state.mode, EditMode::GlyphEdit { .. }));
+    assert_eq!(grid_extent_x(&h, grid_line), (0, 2));
+}

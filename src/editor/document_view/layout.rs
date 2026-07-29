@@ -42,6 +42,17 @@ impl GridExtent {
             self.bottom = self.bottom.max(baseline);
         }
     }
+
+    /// Widen the drawn area so the whole anchor shadow fits in it. Same reason
+    /// as [`GridExtent::include_metrics`], and the same glyph is where it
+    /// bites: a two-row mark shows the bases it attaches to only if the rows
+    /// they occupy are drawn at all.
+    pub(crate) fn include_shadow(&mut self, s: &AnchorShadow) {
+        self.top = self.top.min(s.row);
+        self.left = self.left.min(s.col);
+        self.bottom = self.bottom.max(s.row + s.grid.height as i16);
+        self.right = self.right.max(s.col + s.grid.width as i16);
+    }
 }
 
 /// A glyph's metric box in grid coordinates — the em box as `left`, `top` and
@@ -329,6 +340,10 @@ pub(crate) struct ViewData {
     pub(crate) composites: HashMap<usize, GlyphComposite>,
     pub(crate) vlines: Vec<VisualLine>,
     pub(crate) source_offsets: Vec<usize>,
+    /// The shadow of the anchor layer currently selected, with the item it
+    /// belongs to. `None` whenever the selected layer is not an anchor (or no
+    /// glyph attaches there).
+    pub(crate) shadow: Option<(usize, AnchorShadow)>,
 }
 
 /// Inputs `ViewData` was computed from. `edit_gen` stands in for the document
@@ -341,6 +356,11 @@ pub(super) struct ViewCacheKey {
     pub(super) font_gen: u64,
     pub(super) zoom_level: u32,
     pub(super) editing_item_idx: Option<usize>,
+    /// The selected *anchor* layer as `(item, point index)`, which the shadow
+    /// and the extents that make room for it are derived from. Only anchors
+    /// are keyed on: cycling through ref layers changes nothing the view is
+    /// built from, and rebuilding it is O(document).
+    pub(super) active_point: Option<(usize, usize)>,
     pub(super) show_metrics: bool,
     pub(super) wrap_width_bits: Option<u32>,
     pub(super) font_id: egui::FontId,

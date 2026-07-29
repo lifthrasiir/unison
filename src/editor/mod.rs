@@ -1,3 +1,4 @@
+pub mod anchor_shadow;
 pub mod annotations;
 pub mod autocomplete;
 pub mod caret;

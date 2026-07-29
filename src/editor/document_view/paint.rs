@@ -25,6 +25,7 @@ pub(super) fn paint_document_area(
     env: EditorEnv<'_>,
     vlines: &[VisualLine],
     composites: &HashMap<usize, GlyphComposite>,
+    shadow: Option<&(usize, AnchorShadow)>,
     source_offsets: &[usize],
     pal: &Palette,
     row_height: f32,
@@ -479,6 +480,9 @@ pub(super) fn paint_document_area(
                         *extent,
                         metrics.as_ref(),
                         composites.get(item_idx),
+                        shadow
+                            .filter(|(idx, _)| idx == item_idx)
+                            .map(|(_, s)| s),
                         &state.mode,
                         grid_cell,
                         &pal,
@@ -628,6 +632,7 @@ pub(super) fn paint_document_area(
                 composites,
                 named_glyphs,
                 name_parts,
+                shadow.filter(|(idx, _)| *idx == edit_idx).map(|(_, s)| s),
                 click_pos,
                 zoom_level,
             );

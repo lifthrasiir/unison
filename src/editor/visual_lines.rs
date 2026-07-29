@@ -295,6 +295,7 @@ pub(crate) fn build_visual_lines(
     font_id: &egui::FontId,
     meta: crate::resolve::FontMeta,
     show_metrics: bool,
+    shadow: Option<&(usize, crate::editor::anchor_shadow::AnchorShadow)>,
 ) -> Vec<VisualLine> {
     let comment_color = pal.text_comment;
     let meta_color = pal.text_meta;
@@ -450,6 +451,8 @@ pub(crate) fn build_visual_lines(
                 let skip_grid = is_alias;
 
                 let is_editing = editing_item_idx == Some(item_idx);
+                // Only the glyph the anchor belongs to makes room for it.
+                let shadow = shadow.filter(|(idx, _)| *idx == item_idx).map(|(_, s)| s);
                 let max_ph = if is_editing {
                     preview_max_height(body, composites.get(&item_idx), named_glyphs, name_parts)
                 } else {
@@ -461,6 +464,9 @@ pub(crate) fn build_visual_lines(
                     let grid_doc_line = cur;
                     let (own_w, own_h, mut extent) =
                         compute_grid_display_extent(Some(grid), composites.get(&item_idx), &body.points);
+                    if let Some(s) = shadow {
+                        extent.include_shadow(s);
+                    }
                     let metrics = show_metrics.then(|| {
                         let m = glyph_metrics(
                             body,
@@ -509,6 +515,9 @@ pub(crate) fn build_visual_lines(
 
                     let (own_w, own_h, mut extent) =
                         compute_grid_display_extent(None, Some(comp), &body.points);
+                    if let Some(s) = shadow {
+                        extent.include_shadow(s);
+                    }
                     let metrics = show_metrics.then(|| {
                         let m = glyph_metrics(
                             body,

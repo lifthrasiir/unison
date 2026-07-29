@@ -73,6 +73,7 @@ pub(crate) fn draw_inline_tools_panel(
     composites: &HashMap<usize, GlyphComposite>,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    shadow: Option<&crate::editor::anchor_shadow::AnchorShadow>,
     click_pos: Option<egui::Pos2>,
     zoom_level: u32,
 ) -> InlineToolsResult {
@@ -336,10 +337,16 @@ pub(crate) fn draw_inline_tools_panel(
                     }
                 }
         } else if let Some(point) = body.points.get(layer_idx - num_refs) {
+            // How many glyphs the shadow behind the grid is made of — the label
+            // is the only place that says the dim shape is more than one glyph.
+            let label = match shadow {
+                Some(s) => format!("{} \u{00d7}{}", point.position, s.count),
+                None => point.position.clone(),
+            };
             painter.text(
                 egui::pos2(panel_x, label_y),
                 egui::Align2::LEFT_TOP,
-                &point.position,
+                &label,
                 egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
                 layer_color,
             );

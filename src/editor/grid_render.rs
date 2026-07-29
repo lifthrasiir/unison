@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::document::{Document, DocumentItem, NamePartsMap, PixelGrid};
 use crate::editor::EditMode;
+use crate::editor::anchor_shadow::AnchorShadow;
 use crate::editor::colors::Palette;
 use crate::editor::document_view::{GlyphMetrics, GridExtent, UNFILLED_OPACITY};
 use crate::editor::glyph_widget;
@@ -71,6 +72,7 @@ pub(crate) fn render_grid_row(
     extent: GridExtent,
     metrics: Option<&GlyphMetrics>,
     composite: Option<&GlyphComposite>,
+    shadow: Option<&AnchorShadow>,
     mode: &EditMode,
     grid_cell: f32,
     pal: &Palette,
@@ -110,6 +112,28 @@ pub(crate) fn render_grid_row(
             }
         }
         _ => (None, None),
+    };
+
+    // Under everything else: the shadow is what the selected anchor *could*
+    // carry, not part of this glyph.
+    let shadow = shadow.filter(|_| active_point.is_some());
+    if let Some(s) = shadow {
+        let layer_idx = match doc.items.get(item_idx) {
+            Some(DocumentItem::Glyph { body, .. }) => body.refs.len() + active_point.unwrap_or(0),
+            _ => 0,
+        };
+        let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer_idx);
+        draw_anchor_shadow(painter, x, y, row, extent, s, color, cs);
+    }
+    let shadow_inked = |dc: i16| -> bool {
+        shadow.is_some_and(|s| {
+            let (sr, sc) = (row - s.row, dc - s.col);
+            sr >= 0
+                && sr < s.grid.height as i16
+                && sc >= 0
+                && sc < s.grid.width as i16
+                && !s.grid.get(sr as u16, sc as u16).is_empty()
+        })
     };
 
     if let Some(comp) = composite {
@@ -235,10 +259,10 @@ pub(crate) fn render_grid_row(
                     base_color
                 };
                 glyph_widget::draw_pixel_cell_colored(painter, cell_rect, shape, color);
-            } else if !has_ref_pixel(dc) {
+            } else if !has_ref_pixel(dc) && !shadow_inked(dc) {
                 painter.rect_filled(cell_rect, 0.0, pal.grid_off);
             }
-        } else if !has_ref_pixel(dc) {
+        } else if !has_ref_pixel(dc) && !shadow_inked(dc) {
             painter.rect_filled(cell_rect, 0.0, pal.grid_ext_off);
         }
     }
@@ -330,6 +354,59 @@ pub(crate) fn render_grid_row(
 
     if let Some(m) = metrics {
         draw_metrics_box(painter, x, y, row, extent, m, grid_cell, pal);
+    }
+}
+
+/// How strongly the anchor shadow is drawn. Well under a real layer's opacity:
+/// it is context for the glyph being edited, and every candidate at once is a
+/// lot of ink — the union of a mark's bases covers most of the em box.
+const SHADOW_OPACITY: f32 = 0.3;
+
+/// One row of the anchor shadow, in the selected anchor's own layer colour so
+/// it reads as belonging to that anchor. Cells any candidate inks are drawn
+/// solid, sub-pixel-only ones at the usual unfilled opacity; the exact geometry
+/// comes from the shadow grid itself, custom details included.
+#[allow(clippy::too_many_arguments)]
+fn draw_anchor_shadow(
+    painter: &egui::Painter,
+    x: f32,
+    y: f32,
+    row: i16,
+    extent: GridExtent,
+    shadow: &AnchorShadow,
+    color: egui::Color32,
+    cs: f32,
+) {
+    let sr = row - shadow.row;
+    if sr < 0 || sr >= shadow.grid.height as i16 {
+        return;
+    }
+    for dc in extent.left..extent.right {
+        let sc = dc - shadow.col;
+        if sc < 0 || sc >= shadow.grid.width as i16 {
+            continue;
+        }
+        let shape = shadow.grid.get(sr as u16, sc as u16);
+        if shape.is_empty() {
+            continue;
+        }
+        let opacity = if shape.is_filled() {
+            SHADOW_OPACITY
+        } else {
+            SHADOW_OPACITY * UNFILLED_OPACITY
+        };
+        let cell_rect = egui::Rect::from_min_size(
+            egui::pos2(x + (dc - extent.left) as f32 * cs, y),
+            egui::vec2(cs, cs),
+        );
+        glyph_widget::draw_grid_cell_colored(
+            painter,
+            cell_rect,
+            &shadow.grid,
+            sr as u16,
+            sc as u16,
+            apply_opacity(color, opacity),
+        );
     }
 }
 

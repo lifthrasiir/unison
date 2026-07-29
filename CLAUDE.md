@@ -351,6 +351,27 @@ a `remap` is an **error**; leaving it unused is only the usual unused-glyph warn
 are stricter still: they need `ref` lines, since a pixel grid cannot be shared across expansions.
 For a deliberately blank glyph, `ref sp`.
 
+### The anchor shadow (`editor/anchor_shadow.rs`)
+
+Selecting an `anchor` layer in the subglyph palette draws every glyph that could attach there under
+the glyph being edited. Attachment is symmetric, so the two signs are **not** told apart: a `+above`
+shadows the marks carrying `-above` and a `-above` shadows the bases carrying `+above`, found the
+same way and subject to the same `size_matches` rule composition applies. What is drawn is the
+*union* of all of them — a cell is inked when any candidate inks it, and its geometry is the exact
+union of every candidate's, so edge cells routinely become `PX_CUSTOM` details.
+
+Placement mirrors composition exactly (`try_match_minus_plus`'s anchor delta, which is *not*
+scale-converted, plus `ref_effective_offset_scaled`'s scale-converted origin), so the shadow lands
+where the glyph really would. `GridExtent::include_shadow` then widens the drawn area to it, for the
+same reason `include_metrics` does: a two-row mark otherwise shows none of the base it lands on.
+The shadow is part of `ViewData`, so `ViewCacheKey` carries the selected *anchor* layer — ref layers
+are deliberately left out of the key, since cycling through them changes nothing the view is built
+from and rebuilding it is O(document).
+
+The union does not go through `PixelGrid::blit`: a shadow is every attachable glyph at once, so its
+cells overlap far more than a composite's, and `anchor_shadow::union_into` takes the two cases that
+dominate (destination already a full inked pixel, or the same shape twice) before the exact sweep.
+
 ### On-demand glyphs (`ref_composite.rs`)
 
 Names that are not defined anywhere but match a synthesizable shape are generated on demand and are
