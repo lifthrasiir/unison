@@ -18,7 +18,8 @@ use crate::document_io::{derive_document, parse_doclines};
 use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::Caret;
 use crate::editor::document_view::{
-    DocumentEditor, EditorEnv, GridStrip, LEFT_PAD, VLineKind, VisualLine, gutter_line_number,
+    DocumentEditor, EditorEnv, GlyphMetrics, GridStrip, LEFT_PAD, VLineKind, VisualLine,
+    gutter_line_number,
 };
 use crate::editor::ref_composite::{AlternativesIndex, ResolvedGlyph, resolve_named_glyphs_with_parts};
 use crate::editor::{EditorId, EditorState, Slot};
@@ -46,6 +47,7 @@ pub(crate) enum SnapKind {
         left: i16,
         #[allow(dead_code)]
         right: i16,
+        metrics: Option<GlyphMetrics>,
     },
 }
 
@@ -141,12 +143,14 @@ pub(crate) fn capture_snapshot(
                 item_idx,
                 row,
                 extent,
+                metrics,
                 ..
             } => SnapKind::GridRow {
                 item_idx: *item_idx,
                 row: *row,
                 left: extent.left,
                 right: extent.right,
+                metrics: *metrics,
             },
         };
         snaps.push(SnapLine {
@@ -181,6 +185,10 @@ pub(crate) struct EditorHarness {
     pub named_glyphs: HashMap<String, ResolvedGlyph>,
     pub alt_index: AlternativesIndex,
     pub name_parts: NamePartsMap,
+    pub meta: crate::resolve::FontMeta,
+    /// Off by default: the metric box widens the drawn grid, and every layout
+    /// assertion written before it existed expects the un-widened extents.
+    pub show_metrics: bool,
     pub zoom: u32,
     pub font_id: egui::FontId,
     time: f64,
@@ -204,6 +212,7 @@ pub(crate) struct Pane {
     pub named_glyphs: HashMap<String, ResolvedGlyph>,
     pub alt_index: AlternativesIndex,
     pub name_parts: NamePartsMap,
+    pub meta: crate::resolve::FontMeta,
 }
 
 impl Pane {
@@ -217,6 +226,7 @@ impl Pane {
             named_glyphs: HashMap::new(),
             alt_index: AlternativesIndex::default(),
             name_parts: NamePartsMap::new(),
+            meta: Default::default(),
         };
         pane.rebuild_derived();
         pane
@@ -226,6 +236,7 @@ impl Pane {
         let docs: Vec<&Document> = vec![&self.doc];
         let name_parts = collect_name_parts(&docs);
         let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        self.meta = crate::resolve::FontMeta::collect(&docs);
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
@@ -247,6 +258,8 @@ impl EditorHarness {
             named_glyphs: HashMap::new(),
             alt_index: AlternativesIndex::default(),
             name_parts: NamePartsMap::new(),
+            meta: Default::default(),
+            show_metrics: false,
             zoom: 1,
             font_id: egui::FontId::monospace(16.0),
             time: 0.0,
@@ -273,6 +286,7 @@ impl EditorHarness {
         let docs: Vec<&Document> = vec![&self.doc];
         let name_parts = collect_name_parts(&docs);
         let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+        self.meta = crate::resolve::FontMeta::collect(&docs);
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
@@ -308,6 +322,8 @@ impl EditorHarness {
                             name_parts: &self.name_parts,
                             alt_index: &self.alt_index,
                             color_aliases: &colors,
+                            meta: self.meta,
+                            show_metrics: self.show_metrics,
                             derived_gen: 0,
                             font_gen: 0,
                             zoom_level: self.zoom,
@@ -333,6 +349,8 @@ impl EditorHarness {
                                 name_parts: &self.name_parts,
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
+                                meta: self.meta,
+                                    show_metrics: self.show_metrics,
                                 derived_gen: 0,
                                 font_gen: 0,
                                 zoom_level: self.zoom,
@@ -352,6 +370,8 @@ impl EditorHarness {
                                 name_parts: &second.name_parts,
                                 alt_index: &second.alt_index,
                                 color_aliases: &colors,
+                                meta: second.meta,
+                                show_metrics: self.show_metrics,
                                 derived_gen: 0,
                                 font_gen: 0,
                                 zoom_level: self.zoom,
@@ -782,6 +802,30 @@ impl EditorHarness {
                 vl.doc_line == grid_doc_line && matches!(vl.kind, SnapKind::GridRow { .. })
             })
             .count()
+    }
+
+    /// The metric box the grid rows of `grid_doc_line` are drawn with, and the
+    /// row range those rows span. `None` when the overlay is off.
+    pub fn metrics_of(&self, grid_doc_line: usize) -> (Option<GlyphMetrics>, Vec<i16>) {
+        let mut metrics = None;
+        let mut rows = Vec::new();
+        for vl in &self.snap().vlines {
+            if vl.doc_line != grid_doc_line {
+                continue;
+            }
+            if let SnapKind::GridRow { row, metrics: m, .. } = &vl.kind {
+                metrics = *m;
+                rows.push(*row);
+            }
+        }
+        (metrics, rows)
+    }
+
+    /// Turn the metric overlay on (or off) and settle the view.
+    pub fn set_show_metrics(&mut self, on: bool) {
+        self.show_metrics = on;
+        self.frame();
+        self.frame();
     }
 
     /// Gutter number of the first visual line of a DocLine, as rendered.

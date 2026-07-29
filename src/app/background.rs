@@ -192,6 +192,9 @@ impl UniformApp {
                 &all_docs,
                 &name_parts,
             );
+        let font_meta = crate::resolve::FontMeta::collect(&all_docs);
+        drop(all_docs);
+        self.font_meta = font_meta;
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
@@ -233,7 +236,14 @@ impl UniformApp {
                     file_line: 1,
                 });
             }
-            let _ = tx.send((build_gen, named_glyphs, alt_index, name_parts, issues));
+            let _ = tx.send(DerivedDataMessage {
+                build_gen,
+                named_glyphs,
+                alt_index,
+                meta: resolution.meta,
+                name_parts,
+                issues,
+            });
             ctx.request_repaint();
         });
     }
@@ -361,17 +371,16 @@ impl UniformApp {
             self.derived_rebuild_at = None;
         }
 
-        if let Some((data_gen, named_glyphs, alt_index, name_parts, issues)) =
-            take_latest_derived_data(&self.derived_data_rx)
-        {
+        if let Some(data) = take_latest_derived_data(&self.derived_data_rx) {
             self.derived_inflight = false;
-            self.named_glyphs = named_glyphs;
-            self.alt_index = alt_index;
-            self.name_parts = name_parts;
-            self.named_glyphs_gen = data_gen;
+            self.named_glyphs = data.named_glyphs;
+            self.alt_index = data.alt_index;
+            self.name_parts = data.name_parts;
+            self.font_meta = data.meta;
+            self.named_glyphs_gen = data.build_gen;
             self.derived_gen = self.derived_gen.wrapping_add(1);
-            self.issues = issues;
-            self.issues_gen = data_gen;
+            self.issues = data.issues;
+            self.issues_gen = data.build_gen;
             let all_docs = self.collect_all_docs();
             let doc_refs: Vec<&Document> = all_docs.to_vec();
             self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);

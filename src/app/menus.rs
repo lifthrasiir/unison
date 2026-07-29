@@ -473,6 +473,15 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
+                    let mut metrics_btn = egui::Button::new("Show glyph metrics");
+                    if self.show_metrics {
+                        metrics_btn = metrics_btn.fill(ui.visuals().selection.bg_fill);
+                    }
+                    if ui.add(metrics_btn).clicked() {
+                        self.show_metrics = !self.show_metrics;
+                        ui.close_menu();
+                    }
+                    ui.separator();
                     // The zoom entries drive whichever surface has the focus, and are
                     // disabled outright when that is neither the editor nor the preview.
                     let zoom_target = self.focused_zoom_target();

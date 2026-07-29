@@ -3,7 +3,9 @@
 
 use std::collections::HashMap;
 
-use crate::document::{DocLine, Document, DocumentItem, GlyphPoint, NamePartsMap, PixelGrid};
+use crate::document::{
+    DocLine, Document, DocumentItem, GlyphBody, GlyphPoint, NamePartsMap, PixelGrid,
+};
 use crate::document_io::{self, tokenize_with_spans};
 use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::{self, Caret};
@@ -44,7 +46,8 @@ use scroll::{
 // `document_view::*`, whichever submodule they now live in.
 pub(crate) use changes::flush_document_changes;
 pub(crate) use layout::{
-    GridExtent, GridStrip, VLineKind, ViewCache, VisualLine, compute_grid_display_extent,
+    GlyphMetrics, GridExtent, GridStrip, VLineKind, ViewCache, VisualLine,
+    compute_grid_display_extent, glyph_metrics,
 };
 #[cfg(test)]
 pub(crate) use layout::{gutter_line_number, inline_panel_reserved_width};
@@ -120,6 +123,10 @@ pub struct EditorEnv<'a> {
     pub name_parts: &'a NamePartsMap,
     pub alt_index: &'a crate::editor::ref_composite::AlternativesIndex,
     pub color_aliases: &'a ColorAliasMap,
+    /// `font-meta`, for the baseline and the height of the metric box.
+    pub meta: crate::resolve::FontMeta,
+    /// Whether the metric-box overlay is switched on (View menu).
+    pub show_metrics: bool,
     /// Generation of the derived data above; bumping it invalidates the
     /// editor's per-frame view cache.
     pub derived_gen: u64,
@@ -187,6 +194,8 @@ fn resolve_view(
         name_parts,
         alt_index,
         color_aliases,
+        meta,
+        show_metrics,
         zoom_level,
         font_id,
         ..
@@ -216,6 +225,8 @@ fn resolve_view(
         wrap_width,
         ctx,
         font_id,
+        meta,
+        show_metrics,
     );
     let source_offsets = source_line_offsets(lines);
     let data = std::sync::Arc::new(ViewData {
@@ -292,6 +303,7 @@ fn show_document(
         font_gen,
         zoom_level,
         editing_item_idx,
+        show_metrics: env.show_metrics,
         wrap_width_bits: wrap_width.map(f32::to_bits),
         font_id: font_id.clone(),
         dark_mode: ui.ctx().theme() == egui::Theme::Dark,

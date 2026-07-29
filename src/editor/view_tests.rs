@@ -2091,3 +2091,156 @@ fn clicking_a_link_without_the_modifier_reports_nothing() {
     assert!(h.last_nav.is_none());
     assert_eq!(h.state.cursor, Caret::new(ref_line, 4));
 }
+
+// ---------------------------------------------------------------------------
+// Glyph metrics overlay
+// ---------------------------------------------------------------------------
+
+/// A combining mark, its metrics the way `font/comb.unf` writes them:
+/// `left -3` pushes the ink three columns left of the origin and `top 14`
+/// drops it onto the baseline, while `advance 0` makes it take no width.
+const MARK_DOC: &str = "\
+font-meta height 16 ascent 14 descent 2
+
+glyph dia-below 6 2 mark advance 0 left -3 top 14
+..............
+@@@@@@@@@@@@..
+
+map \u{0323} = dia-below
+";
+
+fn first_grid_line(h: &EditorHarness) -> usize {
+    h.lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Grid(_)))
+        .expect("the document has a pixel grid")
+}
+
+/// `left`/`top` move the ink, so the em box lands at `-left` / `-top`, and the
+/// drawn area grows to hold it: the two rows of ink sit at the *bottom* of a
+/// box that reaches fourteen rows above them.
+#[test]
+fn the_metric_box_is_the_em_box_placed_against_the_ink() {
+    let mut h = EditorHarness::new(MARK_DOC);
+    let grid_line = first_grid_line(&h);
+
+    let (before, rows_before) = h.metrics_of(grid_line);
+    assert!(before.is_none(), "the overlay is off by default");
+    assert_eq!(rows_before, vec![0, 1], "only the two ink rows are drawn");
+
+    h.set_show_metrics(true);
+    let (m, rows) = h.metrics_of(grid_line);
+    let m = m.expect("the overlay is on");
+
+    // `left -3` → origin at column 3; `advance 0` → the box has no width.
+    assert_eq!((m.left, m.right), (3, 3));
+    // `top 14` → the em box's top is fourteen rows above the ink, and its
+    // bottom is `font-meta height` below that.
+    assert_eq!((m.top, m.bottom), (-14, 2));
+    // Two rows of ink cannot reach the baseline, so it is left off.
+    assert_eq!(m.baseline, None);
+
+    assert_eq!(
+        rows.first().copied(),
+        Some(-14),
+        "the drawn area must reach the top of the metric box"
+    );
+    assert_eq!(rows.last().copied(), Some(1));
+}
+
+/// The baseline/ascent pair is drawn wherever there is room for both, and does
+/// *not* wait for the glyph to be mapped: a glyph is normally drawn before it
+/// is mapped, and metrics that only appear once a `map` line exists are metrics
+/// you cannot design against. Room means the glyph clears the ascent — at
+/// `ascent 14`, fifteen rows, since the two below it are the descent.
+#[test]
+fn the_baseline_needs_room_rather_than_a_mapping() {
+    for (height, expected) in [(14u16, None), (15u16, Some(14))] {
+        let source = format!(
+            "font-meta height 16 ascent 14 descent 2\n\nglyph a 4 {height}\n{}",
+            "@@......\n".repeat(height as usize),
+        );
+        let mut h = EditorHarness::new(&source);
+        h.set_show_metrics(true);
+        let grid_line = first_grid_line(&h);
+
+        let m = h.metrics_of(grid_line).0.expect("the overlay is on");
+        assert_eq!(
+            m.baseline, expected,
+            "a {height}-row glyph, with nothing mapping it"
+        );
+    }
+}
+
+/// A `scale N` glyph's grid is already in subcells (`document_io` multiplies the
+/// declared dimensions), but `left`/`top`/`advance` and everything out of
+/// `font-meta` are logical pixels, so the box has to scale them itself.
+#[test]
+fn the_metric_box_follows_the_glyph_scale() {
+    let source = format!(
+        "font-meta height 16 ascent 14 descent 2\n\n\
+         glyph big 4 16 scale 2 advance 3 left -1 top 2\n{}",
+        "@@..............\n".repeat(32),
+    );
+    let mut h = EditorHarness::new(&source);
+    h.set_show_metrics(true);
+    let grid_line = first_grid_line(&h);
+    let m = h.metrics_of(grid_line).0.expect("the overlay is on");
+
+    // Every logical figure doubled: origin at subcell 2, advance 6 subcells,
+    // box top two logical rows above the ink, em box 32 subcells tall.
+    assert_eq!((m.left, m.right), (2, 8));
+    assert_eq!((m.top, m.bottom), (-4, 28));
+    assert_eq!(m.baseline, Some(24));
+}
+
+/// An ordinary glyph with no metric flags: the box is the glyph's own area, so
+/// switching the overlay on must not resize anything.
+#[test]
+fn a_plain_glyph_keeps_its_extent_when_the_overlay_is_on() {
+    let source = "\
+font-meta height 16 ascent 14 descent 2
+
+glyph a 4 16
+".to_string()
+        + &"@@......\n".repeat(16);
+
+    let mut h = EditorHarness::new(&source);
+    let grid_line = first_grid_line(&h);
+    let (_, rows_off) = h.metrics_of(grid_line);
+
+    h.set_show_metrics(true);
+    let (m, rows_on) = h.metrics_of(grid_line);
+    let m = m.expect("the overlay is on");
+
+    assert_eq!((m.left, m.right, m.top, m.bottom), (0, 4, 0, 16));
+    assert_eq!(m.baseline, Some(14));
+    assert_eq!(rows_on, rows_off, "the drawn rows must not move");
+}
+
+/// The box never runs past the glyph's own raster, and never past
+/// `ascent + descent` either. Tying `bottom` to `font-meta height` alone showed
+/// a one-row glyph sixteen rows tall.
+#[test]
+fn the_metric_box_is_clamped_to_the_ink_and_to_the_em_box() {
+    for (rows, expected_bottom) in [(1u16, 1i16), (18u16, 16i16)] {
+        // `height` is deliberately not `ascent + descent` here: the clamp is
+        // the latter, and 20 would show through if it were not.
+        let source = format!(
+            "font-meta height 20 ascent 14 descent 2\n\nglyph a 4 {rows}\n{}",
+            "@@......\n".repeat(rows as usize),
+        );
+        let mut h = EditorHarness::new(&source);
+        h.set_show_metrics(true);
+        let grid_line = first_grid_line(&h);
+
+        let (m, drawn) = h.metrics_of(grid_line);
+        let m = m.expect("the overlay is on");
+        assert_eq!((m.top, m.bottom), (0, expected_bottom), "{rows}-row glyph");
+        assert_eq!(
+            drawn.len(),
+            rows.max(expected_bottom as u16) as usize,
+            "{rows}-row glyph must not be padded out to the em box"
+        );
+    }
+}

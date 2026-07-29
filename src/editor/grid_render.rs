@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::document::{Document, DocumentItem, NamePartsMap, PixelGrid};
 use crate::editor::EditMode;
 use crate::editor::colors::Palette;
-use crate::editor::document_view::{GridExtent, UNFILLED_OPACITY};
+use crate::editor::document_view::{GlyphMetrics, GridExtent, UNFILLED_OPACITY};
 use crate::editor::glyph_widget;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 
@@ -69,6 +69,7 @@ pub(crate) fn render_grid_row(
     own_width: u16,
     own_height: u16,
     extent: GridExtent,
+    metrics: Option<&GlyphMetrics>,
     composite: Option<&GlyphComposite>,
     mode: &EditMode,
     grid_cell: f32,
@@ -326,6 +327,164 @@ pub(crate) fn render_grid_row(
     draw_grid_lines_with_extent(
         painter, x, y, row, own_width, own_height, extent, grid, grid_cell, pal,
     );
+
+    if let Some(m) = metrics {
+        draw_metrics_box(painter, x, y, row, extent, m, grid_cell, pal);
+    }
+}
+
+/// Widths of the three strokes a metric line is made of, in points: a
+/// background-coloured band with a border-coloured stroke on either side.
+const METRICS_BAND: f32 = 1.0;
+const METRICS_EDGE: f32 = 1.0;
+/// Dash length on the baseline/ascent pair; the gap is the same.
+const METRICS_DASH: f32 = 3.0;
+
+/// How far each of the three strokes is inset from the metric line it marks —
+/// centres, so the whole stack occupies `0 .. 2 * EDGE + BAND` inside the box.
+///
+/// The stack is inset rather than centred on the line because the drawn area is
+/// widened to exactly the metric box (`GridExtent::include_metrics`), so a
+/// centred stack would lose its outer half to the clip on every flush edge —
+/// which is all four of them for a glyph with no metric flags.
+///
+/// Every width here is deliberately **not** scaled by the zoom level. The band
+/// is not a feature of the glyph, and at 6x zoom one that grew with the cells
+/// would read as another sub-pixel shape.
+const METRICS_STROKES: [(f32, f32); 3] = [
+    (METRICS_EDGE * 0.5, METRICS_EDGE),
+    (METRICS_EDGE + METRICS_BAND * 0.5, METRICS_BAND),
+    (METRICS_EDGE + METRICS_BAND + METRICS_EDGE * 0.5, METRICS_EDGE),
+];
+/// Index of the background band in [`METRICS_STROKES`] — the one the dashes go
+/// back over, and the one that must be laid down before either neighbour.
+const METRICS_BAND_IDX: usize = 1;
+
+/// Pull both ends of a span inward by `by`, collapsing to the midpoint when
+/// there is not enough room — an `advance 0` box has no room at all.
+fn inset_span(a: f32, b: f32, by: f32) -> (f32, f32) {
+    if b - a >= by * 2.0 {
+        (a + by, b - by)
+    } else {
+        let mid = (a + b) * 0.5;
+        (mid, mid)
+    }
+}
+
+/// The colour a metric line is drawn in. Same as an ordinary grid line: the box
+/// is told apart by its shape and its background core, not by a hue of its own.
+fn metrics_stroke_color(pal: &Palette) -> egui::Color32 {
+    pal.grid_on
+}
+
+/// The three strokes of one horizontal metric line, `sign` telling which way is
+/// into the shape the line bounds. Dashed for the baseline/ascent pair.
+fn metrics_hline(
+    painter: &egui::Painter,
+    x0: f32,
+    x1: f32,
+    y: f32,
+    sign: f32,
+    dashed: bool,
+    pal: &Palette,
+) {
+    if x1 <= x0 {
+        return;
+    }
+    for (i, (off, width)) in METRICS_STROKES.iter().enumerate() {
+        let ly = y + sign * off;
+        let color = if i == METRICS_BAND_IDX {
+            pal.grid_bg
+        } else {
+            metrics_stroke_color(pal)
+        };
+        painter.line_segment(
+            [egui::pos2(x0, ly), egui::pos2(x1, ly)],
+            egui::Stroke::new(*width, color),
+        );
+    }
+    if dashed {
+        let ly = y + sign * METRICS_STROKES[METRICS_BAND_IDX].0;
+        let mut t = x0;
+        while t < x1 {
+            let e = (t + METRICS_DASH).min(x1);
+            painter.line_segment(
+                [egui::pos2(t, ly), egui::pos2(e, ly)],
+                egui::Stroke::new(METRICS_BAND, metrics_stroke_color(pal)),
+            );
+            t += METRICS_DASH * 2.0;
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn draw_metrics_box(
+    painter: &egui::Painter,
+    x: f32,
+    y: f32,
+    row: i16,
+    extent: GridExtent,
+    m: &GlyphMetrics,
+    cs: f32,
+    pal: &Palette,
+) {
+    // The box spans many rows but is painted a row at a time, so each row draws
+    // the whole thing behind its own clip. Cheaper than working out which
+    // pieces fall in this row, and it keeps the geometry in one expression.
+    let row_rect =
+        egui::Rect::from_min_size(egui::pos2(x, y), egui::vec2(extent.display_width(cs), cs));
+    let clip = painter.clip_rect().intersect(row_rect);
+    if clip.width() <= 0.0 || clip.height() <= 0.0 {
+        return;
+    }
+    let p = painter.with_clip_rect(clip);
+
+    let gx = |c: i16| x + (c - extent.left) as f32 * cs;
+    let gy = |r: i16| y + (r - row) as f32 * cs;
+    let (x0, x1) = (gx(m.left), gx(m.right));
+    let (y0, y1) = (gy(m.top), gy(m.bottom));
+
+    // The baseline/ascent pair goes down first: its ascent line lands exactly on
+    // the big box's top edge whenever `height == ascent + descent`, and letting
+    // the big box paint over it is what settles that without special-casing
+    // either. `advance 0` (every combining mark) leaves the pair no width to run
+    // along, so it falls back to a cell's worth of tick centred on the box.
+    if let Some(baseline) = m.baseline {
+        let (hx0, hx1) = if x1 - x0 < cs {
+            let mid = (x0 + x1) * 0.5;
+            (mid - cs * 0.5, mid + cs * 0.5)
+        } else {
+            (x0, x1)
+        };
+        metrics_hline(&p, hx0, hx1, y0, 1.0, true, pal);
+        metrics_hline(&p, hx0, hx1, gy(baseline), -1.0, true, pal);
+    }
+
+    // Each of the three strokes is one closed rectangle, not four segments:
+    // drawn edge by edge, whichever of the two meeting at a corner comes second
+    // lays its background band over the other's border stroke and breaks it.
+    // Stacking whole rings also fixes the order between them — the background
+    // ring is complete before either border ring starts.
+    let ring = |off: f32, width: f32, color: egui::Color32| {
+        let (rx0, rx1) = inset_span(x0, x1, off);
+        let (ry0, ry1) = inset_span(y0, y1, off);
+        p.add(egui::Shape::closed_line(
+            vec![
+                egui::pos2(rx0, ry0),
+                egui::pos2(rx1, ry0),
+                egui::pos2(rx1, ry1),
+                egui::pos2(rx0, ry1),
+            ],
+            egui::Stroke::new(width, color),
+        ));
+    };
+    let (band_off, band_w) = METRICS_STROKES[METRICS_BAND_IDX];
+    ring(band_off, band_w, pal.grid_bg);
+    for (i, (off, width)) in METRICS_STROKES.iter().enumerate() {
+        if i != METRICS_BAND_IDX {
+            ring(*off, *width, metrics_stroke_color(pal));
+        }
+    }
 }
 
 pub(crate) fn draw_point_x_mark(

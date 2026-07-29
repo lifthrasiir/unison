@@ -311,6 +311,39 @@ blank margin before the origin and pulls `origin_*` back towards zero, so pullin
 own empty top rows (`ref X 0 -3`) stays metrically identical to placing that ink directly. Without
 it such a glyph grows a phantom bearing that the sample then pads its cell for.
 
+### The metrics overlay (View ▸ Show glyph metrics)
+
+The editor draws each glyph's metric box over its grid. `left`/`top` move the **ink**, so in grid
+coordinates the box sits at `-left` / `-top`; its width is `advance` (falling back to the resolved
+extent right of the origin) and its bottom is computed rather than written — hence no flag for it.
+Inside it, a second left/right-open box runs from the ascent line (the box's own top) down to the
+baseline at `-top + ascent`. `GridExtent::include_metrics` widens the drawn area to the box, which
+is what makes a two-row mark like `dia-below` show where on the line it actually lands.
+
+`bottom` is clamped **both ways**: `min(resolved height, -top + ascent + descent)`. The em box is
+the upper bound, but a glyph shorter than it has no cell below its own last row either — bound only
+by `font-meta height`, a one-row glyph was drawn as sixteen rows of grid.
+
+Everything the box takes from `left`/`top`/`advance`/`font-meta` is in **logical pixels**, while the
+grid of a `scale N` glyph is in subcells (`document_io` multiplies the declared dimensions but not
+the flags), so `glyph_metrics` scales the former group and nothing else — same split
+`ttf_builder::collect` works in.
+
+The baseline pair is drawn on **any glyph tall enough to reach it** (`resolved_h > ascent`; at
+`ascent 14`, fifteen rows), regardless of whether anything maps the glyph. Gating it on cmap/GSUB
+reachability was tried and reverted: a glyph is normally drawn before it is mapped, and a `flags`
+glyph is reached through its own `:mono`/`:color` variants and never mapped at all, so metrics that
+wait for a `map` line are metrics you cannot design against.
+
+Each metric line is three 1 px strokes — a `grid_bg` band between two `grid_on` ones, the baseline
+pair additionally dashed — **inset inward** and sized in points, the one thing in the editor that
+ignores the zoom level, because a band that grew with the cells would read as another sub-pixel
+shape. Insetting is load-bearing: the drawn area is widened to exactly the box, so a centred stack
+would lose its outer half to the clip on every flush edge. The outer box is drawn as three *closed
+rectangles* (background ring first, then both border rings), never as four edges: edge by edge,
+whichever of the two meeting at a corner comes second lays its background band over the other's
+border stroke and breaks it.
+
 A glyph needs a pixel grid or at least one `ref` to exist at all — `advance`/`left`/`top`/`point`
 do not make one buildable, and a contentless glyph never enters the resolution cache, so it is
 absent from cmap, from composites and from GSUB coverage. Referencing one from a `map`, a `ref` or

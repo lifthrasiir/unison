@@ -10,8 +10,8 @@ use crate::editor::doc_links;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 
 use super::document_view::{
-    GRID_CELL, GridExtent, INLINE_PALETTE_CELL, PREVIEW_SCALE, VLineKind, VisualLine,
-    compute_grid_display_extent,
+    GRID_CELL, GlyphMetrics, GridExtent, INLINE_PALETTE_CELL, PREVIEW_SCALE, VLineKind, VisualLine,
+    compute_grid_display_extent, glyph_metrics,
 };
 
 pub(crate) fn preview_max_height(
@@ -208,6 +208,7 @@ fn push_grid_vlines(
     own_w: u16,
     own_h: u16,
     mut extent: GridExtent,
+    metrics: Option<GlyphMetrics>,
     is_editing: bool,
     default_color: egui::Color32,
     zoom_level: u32,
@@ -230,6 +231,7 @@ fn push_grid_vlines(
                 own_height: own_h,
                 grid_doc_line,
                 extent,
+                metrics,
             },
             color: default_color,
             error_spans: Vec::new(),
@@ -291,6 +293,8 @@ pub(crate) fn build_visual_lines(
     wrap_width: Option<f32>,
     ctx: &egui::Context,
     font_id: &egui::FontId,
+    meta: crate::resolve::FontMeta,
+    show_metrics: bool,
 ) -> Vec<VisualLine> {
     let comment_color = pal.text_comment;
     let meta_color = pal.text_meta;
@@ -455,8 +459,19 @@ pub(crate) fn build_visual_lines(
                 // Pixel rows
                 if let Some(grid) = &body.pixels {
                     let grid_doc_line = cur;
-                    let (own_w, own_h, extent) =
+                    let (own_w, own_h, mut extent) =
                         compute_grid_display_extent(Some(grid), composites.get(&item_idx), &body.points);
+                    let metrics = show_metrics.then(|| {
+                        let m = glyph_metrics(
+                            body,
+                            composites.get(&item_idx),
+                            own_w,
+                            own_h,
+                            meta,
+                        );
+                        extent.include_metrics(&m);
+                        m
+                    });
                     push_grid_vlines(
                         &mut vlines,
                         item_idx,
@@ -464,6 +479,7 @@ pub(crate) fn build_visual_lines(
                         own_w,
                         own_h,
                         extent,
+                        metrics,
                         is_editing,
                         default_color,
                         zoom_level,
@@ -491,7 +507,19 @@ pub(crate) fn build_visual_lines(
                         font_id,
                     );
 
-                    let (own_w, own_h, extent) = compute_grid_display_extent(None, Some(comp), &body.points);
+                    let (own_w, own_h, mut extent) =
+                        compute_grid_display_extent(None, Some(comp), &body.points);
+                    let metrics = show_metrics.then(|| {
+                        let m = glyph_metrics(
+                            body,
+                            Some(comp),
+                            own_w,
+                            own_h,
+                            meta,
+                        );
+                        extent.include_metrics(&m);
+                        m
+                    });
                     push_grid_vlines(
                         &mut vlines,
                         item_idx,
@@ -499,6 +527,7 @@ pub(crate) fn build_visual_lines(
                         own_w,
                         own_h,
                         extent,
+                        metrics,
                         is_editing,
                         default_color,
                         zoom_level,

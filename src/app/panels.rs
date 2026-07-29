@@ -383,6 +383,8 @@ impl UniformApp {
             name_parts: &self.name_parts,
             alt_index: &self.alt_index,
             color_aliases: &self.color_aliases,
+            meta: self.font_meta,
+            show_metrics: self.show_metrics,
             derived_gen: self.derived_gen,
             font_gen: self.font_data_gen,
             zoom_level,

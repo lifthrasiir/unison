@@ -24,6 +24,91 @@ impl GridExtent {
     pub(crate) fn display_width(&self, grid_cell: f32) -> f32 {
         (self.right - self.left) as f32 * grid_cell
     }
+
+    /// Widen the drawn area so the whole metric box fits in it. A mark glyph
+    /// is where this bites: `dia-below` is two rows of ink, but its em box
+    /// reaches fourteen rows above them, and the box is the only thing that
+    /// says where on the line those two rows land.
+    pub(crate) fn include_metrics(&mut self, m: &GlyphMetrics) {
+        self.top = self.top.min(m.top);
+        self.left = self.left.min(m.left);
+        self.bottom = self.bottom.max(m.bottom);
+        self.right = self.right.max(m.right);
+        // The baseline is normally well inside the box, but a `top` that pushes
+        // the ink up can put it below `bottom`; drawn outside the extent it
+        // would simply be clipped away.
+        if let Some(baseline) = m.baseline {
+            self.top = self.top.min(baseline);
+            self.bottom = self.bottom.max(baseline);
+        }
+    }
+}
+
+/// A glyph's metric box in grid coordinates — the em box as `left`, `top` and
+/// `advance` place it relative to the drawn pixels.
+///
+/// `left`/`top` move the *ink*, not the box: `left -3` shifts the outline three
+/// columns left of the origin (`collect.rs::scale_glyph_contours`), so in the
+/// grid the origin sits three columns right of column 0. The box is therefore
+/// at `-left` / `-top`, and `bottom` follows from `font-meta height` — which is
+/// why it is computed and never written in a glyph header.
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub(crate) struct GlyphMetrics {
+    pub(crate) left: i16,
+    pub(crate) right: i16,
+    pub(crate) top: i16,
+    pub(crate) bottom: i16,
+    /// Baseline row, present only for a glyph tall enough to reach it (see
+    /// [`glyph_metrics`]).
+    pub(crate) baseline: Option<i16>,
+}
+
+/// The metric box of one glyph body. `own_w`/`own_h` are what
+/// [`compute_grid_display_extent`] reports for it.
+///
+/// **Units.** The grid is in subcells for a `scale N` glyph — `document_io`
+/// multiplies the declared dimensions by the scale — but `left`, `top`,
+/// `advance` and everything out of `font-meta` are logical pixels, exactly as
+/// `ttf_builder::collect` reads them. Everything from the latter group is
+/// scaled here; `own_w`/`own_h` and the composite's extent already are.
+pub(crate) fn glyph_metrics(
+    body: &GlyphBody,
+    composite: Option<&GlyphComposite>,
+    own_w: u16,
+    own_h: u16,
+    meta: crate::resolve::FontMeta,
+) -> GlyphMetrics {
+    let s = body.scale.max(1) as i16;
+    // The advance falls back to the resolved extent *right of the origin*;
+    // area a negative ref offset reaches is a bearing and does not count.
+    let (resolved_w, resolved_h) = match composite {
+        Some(comp) => (
+            (comp.width as i16 - comp.own_offset_col).max(own_w as i16),
+            (comp.height as i16 - comp.own_offset_row).max(own_h as i16),
+        ),
+        None => (own_w as i16, own_h as i16),
+    };
+    let left = -body.left.unwrap_or(0) * s;
+    let top = -body.top.unwrap_or(0) * s;
+    let ascent = meta.ascent() as i16 * s;
+    let em = ascent + meta.descent() as i16 * s;
+    GlyphMetrics {
+        left,
+        right: left + body.advance.map_or(resolved_w, |a| a as i16 * s),
+        top,
+        // Clamped both ways. The em box is the *upper* bound, but a glyph
+        // shorter than it has no cell below its own last row either, and
+        // padding one out to the full em height showed a one-row glyph as
+        // sixteen rows of grid.
+        bottom: resolved_h.min(top + em).max(top),
+        // Drawn wherever there is room for both lines, whatever the font maps.
+        // A glyph is normally drawn before it is mapped — and a `flags` glyph
+        // is reached through its own `:mono`/`:color` variants and never
+        // mapped at all — so metrics that wait for a `map` are metrics you
+        // cannot design against. Room means the glyph clears the ascent; the
+        // rows below it are the descent.
+        baseline: (resolved_h > ascent).then_some(top + ascent),
+    }
 }
 
 /// The horizontal band the glyph grids are drawn in. It spans the editor's
@@ -232,6 +317,8 @@ pub(crate) enum VLineKind {
         own_height: u16,
         grid_doc_line: usize,
         extent: GridExtent,
+        /// `None` when the metrics overlay is switched off.
+        metrics: Option<GlyphMetrics>,
     },
 }
 
@@ -254,6 +341,7 @@ pub(super) struct ViewCacheKey {
     pub(super) font_gen: u64,
     pub(super) zoom_level: u32,
     pub(super) editing_item_idx: Option<usize>,
+    pub(super) show_metrics: bool,
     pub(super) wrap_width_bits: Option<u32>,
     pub(super) font_id: egui::FontId,
     pub(super) dark_mode: bool,

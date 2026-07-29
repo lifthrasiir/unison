@@ -36,7 +36,16 @@ use zoom::DEFAULT_PREVIEW_FONT_SIZE;
 
 type FontPair = (Vec<u8>, Vec<u8>);
 type FontBuildMessage = (u64, Option<(FontPair, HashMap<String, u16>)>);
-type DerivedDataMessage = (u64, HashMap<String, ResolvedGlyph>, crate::editor::ref_composite::AlternativesIndex, NamePartsMap, Vec<Issue>);
+/// What one derived-data rebuild produces. A struct rather than a tuple
+/// because every consumer picks fields out of it by name.
+struct DerivedDataMessage {
+    build_gen: u64,
+    named_glyphs: HashMap<String, ResolvedGlyph>,
+    alt_index: crate::editor::ref_composite::AlternativesIndex,
+    name_parts: NamePartsMap,
+    meta: crate::resolve::FontMeta,
+    issues: Vec<Issue>,
+}
 type AssertResultMessage = Vec<Issue>;
 
 pub struct UniformApp {
@@ -68,6 +77,9 @@ pub struct UniformApp {
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
     color_aliases: crate::render::ttf_builder::ColorAliasMap,
+    font_meta: crate::resolve::FontMeta,
+    /// View menu: draw the metric box over every glyph grid.
+    show_metrics: bool,
     named_glyphs_gen: u64,
     // Bumped whenever named_glyphs/name_parts/alt_index/color_aliases are
     // replaced; keys the editor's per-frame view cache.
@@ -222,6 +234,8 @@ impl UniformApp {
             alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
             color_aliases: Default::default(),
+            font_meta: Default::default(),
+            show_metrics: true,
             named_glyphs_gen: u64::MAX,
             derived_gen: 0,
             derived_data_tx,

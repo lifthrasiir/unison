@@ -461,6 +461,7 @@ pub(super) fn paint_document_area(
                     own_height,
                     grid_doc_line,
                     extent,
+                    metrics,
                 } => {
                     let content_w = extent.display_width(grid_cell);
                     let grid_x = strip.grid_x(content_w);
@@ -476,6 +477,7 @@ pub(super) fn paint_document_area(
                         *own_width,
                         *own_height,
                         *extent,
+                        metrics.as_ref(),
                         composites.get(item_idx),
                         &state.mode,
                         grid_cell,
