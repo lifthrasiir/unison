@@ -2498,10 +2498,7 @@ map generate Ỳ
 
 map generate à
 map generate è
-glyph uni00EC
-ref i-lower:dotless
-ref grave-below 2 3
-map ì = uni00EC
+map generate ì
 map generate ò
 glyph uni1EDD
 ref o-horn-lower
@@ -2528,10 +2525,7 @@ map generate Ȕ
 
 map generate ȁ
 map generate ȅ
-glyph uni0209
-ref i-lower:dotless
-ref dgrave-above 1 3
-map ȉ = uni0209
+map generate ȉ
 map generate ȍ
 map generate ȑ
 map generate ȕ
@@ -2777,69 +2771,31 @@ glyph uni0104
 ref a-upper
 ref ogonek 6 13
 map Ą = uni0104
-glyph uni0118
-ref e-upper
-ref ogonek 4 13
-map Ę = uni0118
-glyph uni012E
-ref i-upper
-ref ogonek 3 13
-map Į = uni012E
-glyph uni01EA
-ref o-upper
-ref ogonek 4 13
-map Ǫ = uni01EA
-glyph uni01EC
-ref o-upper
-ref ogonek 4 13
-ref mac-above 2 1
-map Ǭ = uni01EC
-glyph uni0172
-ref u-upper
-ref ogonek 4 13
-map Ų = uni0172
+map generate Ę
+map generate Į
+map generate Ǫ
+map generate Ǭ
+map generate Ų
 
 glyph uni0105
 ref a-lower
 ref ogonek 6 13
 map ą = uni0105
-glyph uni0119
-ref e-lower
-ref ogonek 4 13
-map ę = uni0119
+map generate ę
 glyph uni012F
 ref i-lower
 ref ogonek 4 13
 map į = uni012F
-glyph uni01EB
-ref o-lower
-ref ogonek 4 13
-map ǫ = uni01EB
-glyph uni01ED
-ref o-lower
-ref ogonek 4 13
-ref mac-below 2 3
-map ǭ = uni01ED
-glyph uni0173
-ref u-lower
-ref ogonek 4 13
-map ų = uni0173
+map generate ǫ
+map generate ǭ
+map generate ų
 
 //--------------------------------------
 // with caron (hacek)
 
-glyph uni01CD
-ref a-upper
-ref caron-upper 2 0
-map Ǎ = uni01CD
-glyph uni010C
-ref c-upper
-ref caron-upper 2 0
-map Č = uni010C
-glyph uni010E
-ref d-upper
-ref caron-upper 2 0
-map Ď = uni010E
+map generate Ǎ
+map generate Č
+map generate Ď
 glyph uni01C4
 ref d-z-upper
 ref caron-upper 10 0
@@ -2848,73 +2804,31 @@ glyph uni01C5
 ref d-z-title
 ref caron-lower 10 2
 map ǅ = uni01C5
-glyph uni011A
-ref e-upper
-ref caron-upper 2 0
-map Ě = uni011A
-glyph uni01E6
-ref g-upper
-ref caron-upper 2 0
-map Ǧ = uni01E6
-glyph uni021E
-ref h-upper
-ref caron-upper 2 0
-map Ȟ = uni021E
-glyph uni01CF
-ref i-upper
-ref caron-upper 2 0
-map Ǐ = uni01CF
-glyph uni01E8
-ref k-upper
-ref caron-upper 2 0
-map Ǩ = uni01E8
+map generate Ě
+map generate Ǧ
+map generate Ȟ
+map generate Ǐ
+map generate Ǩ
 glyph uni013D
 ref l-upper
 ref caron-alt 4 2
 map Ľ = uni013D
-glyph uni0147
-ref n-upper
-ref caron-upper 2 0
-map Ň = uni0147
-glyph uni01D1
-ref o-upper
-ref caron-upper 2 0
-map Ǒ = uni01D1
-glyph uni0158
-ref r-upper
-ref caron-upper 2 0
-map Ř = uni0158
-glyph uni0160
-ref s-upper
-ref caron-upper 2 0
-map Š = uni0160
+map generate Ň
+map generate Ǒ
+map generate Ř
+map generate Š
 glyph uni1E66
 ref s-upper-compressed
 ref caron-upper 2 2
 ref dot-upper 3 0
 map Ṧ = uni1E66
-glyph uni0164
-ref t-upper
-ref caron-upper 2 0
-map Ť = uni0164
-glyph uni01D3
-ref u-upper
-ref caron-upper 2 0
-map Ǔ = uni01D3
-glyph uni017D
-ref z-upper
-ref caron-upper 2 0
-map Ž = uni017D
+map generate Ť
+map generate Ǔ
+map generate Ž
 //map Ǯ =
 
-glyph uni01CE
-ref a-lower
-ref caron-lower 2 2
-map ǎ = uni01CE
-glyph uni010D
-ref c-lower
-ref caron-lower 2 2
-map č = uni010D
+map generate ǎ
+map generate č
 glyph uni010F
 ref d-lower-narrow
 ref caron-alt 6 2
@@ -2923,22 +2837,13 @@ glyph uni01C6
 ref d-z-lower
 ref caron-lower 10 2
 map ǆ = uni01C6
-glyph uni011B
-ref e-lower
-ref caron-lower 2 2
-map ě = uni011B
-glyph uni01E7
-ref g-lower
-ref caron-lower 2 2
-map ǧ = uni01E7
+map generate ě
+map generate ǧ
 glyph uni021F
 ref h-lower:sm
 ref caron-lower 2 1
 map ȟ = uni021F
-glyph uni01D0
-ref i-lower:dotless
-ref caron-lower 2 3
-map ǐ = uni01D0
+map generate ǐ
 glyph uni01F0
 ref j-lower:dotless
 ref caron-lower 2 3
@@ -2951,22 +2856,10 @@ glyph uni013E
 ref l-lower-shift
 ref caron-alt 6 2
 map ľ = uni013E
-glyph uni0148
-ref n-lower
-ref caron-lower 2 2
-map ň = uni0148
-glyph uni01D2
-ref o-lower
-ref caron-lower 2 2
-map ǒ = uni01D2
-glyph uni0159
-ref r-lower
-ref caron-lower 2 2
-map ř = uni0159
-glyph uni0161
-ref s-lower
-ref caron-lower 2 2
-map š = uni0161
+map generate ň
+map generate ǒ
+map generate ř
+map generate š
 glyph uni1E67
 ref s-lower:compressed
 ref caron-lower 2 4
@@ -2976,23 +2869,14 @@ glyph uni0165
 ref t-lower
 ref caron-alt 6 2
 map ť = uni0165
-glyph uni01D4
-ref u-lower
-ref caron-lower 2 2
-map ǔ = uni01D4
-glyph uni017E
-ref z-lower
-ref caron-lower 2 2
-map ž = uni017E
+map generate ǔ
+map generate ž
 //map ǯ =
 
 //--------------------------------------
 // with circumflex
 
-glyph uni00C2
-ref a-upper
-ref circ-upper 2 0
-map Â = uni00C2
+map generate Â
 glyph uni1EA6
 ref a-upper-compressed
 ref circ-upper 2 2
@@ -3013,18 +2897,9 @@ ref a-upper-compressed
 ref circ-upper 2 2
 ref acute-above 4 0
 map Ấ = uni1EA4
-glyph uni0108
-ref c-upper
-ref circ-upper 2 0
-map Ĉ = uni0108
-glyph uni1E12
-ref d-upper
-ref circ-bottom 2 13
-map Ḓ = uni1E12
-glyph uni00CA
-ref e-upper
-ref circ-upper 2 0
-map Ê = uni00CA
+map generate Ĉ
+map generate Ḓ
+map generate Ê
 glyph uni1EC0
 ref e-upper-compressed
 ref circ-upper 2 2
@@ -3045,38 +2920,17 @@ ref e-upper-compressed
 ref circ-upper 2 2
 ref acute-above 4 0
 map Ế = uni1EBE
-glyph uni1E18
-ref e-upper
-ref circ-bottom 2 13
-map Ḙ = uni1E18
-glyph uni011C
-ref g-upper
-ref circ-upper 2 0
-map Ĝ = uni011C
-glyph uni0124
-ref h-upper
-ref circ-upper 2 0
-map Ĥ = uni0124
-glyph uni00CE
-ref i-upper
-ref circ-upper 2 0
-map Î = uni00CE
+map generate Ḙ
+map generate Ĝ
+map generate Ĥ
+map generate Î
 glyph uni0134
 ref j-upper
 ref circ-upper 2 0
 map Ĵ = uni0134
-glyph uni1E3C
-ref l-upper
-ref circ-bottom 2 13
-map Ḽ = uni1E3C
-glyph uni1E4A
-ref n-upper
-ref circ-bottom 2 13
-map Ṋ = uni1E4A
-glyph uni00D4
-ref o-upper
-ref circ-upper 2 0
-map Ô = uni00D4
+map generate Ḽ
+map generate Ṋ
+map generate Ô
 glyph uni1ED2
 ref o-upper-compressed
 ref circ-upper 2 2
@@ -3097,39 +2951,15 @@ ref o-upper-compressed
 ref circ-upper 2 2
 ref acute-above 4 0
 map Ố = uni1ED0
-glyph uni015C
-ref s-upper
-ref circ-upper 2 0
-map Ŝ = uni015C
-glyph uni1E70
-ref t-upper
-ref circ-bottom 2 13
-map Ṱ = uni1E70
-glyph uni00DB
-ref u-upper
-ref circ-upper 2 0
-map Û = uni00DB
-glyph uni1E76
-ref u-upper
-ref circ-bottom 2 13
-map Ṷ = uni1E76
-glyph uni0174
-ref w-upper
-ref circ-upper 2 0
-map Ŵ = uni0174
-glyph uni0176
-ref y-upper
-ref circ-upper 2 0
-map Ŷ = uni0176
-glyph uni1E90
-ref z-upper
-ref circ-upper 2 0
-map Ẑ = uni1E90
+map generate Ŝ
+map generate Ṱ
+map generate Û
+map generate Ṷ
+map generate Ŵ
+map generate Ŷ
+map generate Ẑ
 
-glyph uni00E2
-ref a-lower
-ref circ-lower 2 2
-map â = uni00E2
+map generate â
 glyph uni1EA7
 ref a-lower:compressed
 ref circ-lower 2 4
@@ -3150,18 +2980,9 @@ ref a-lower:compressed
 ref circ-lower 2 4
 ref acute-below 4 2
 map ấ = uni1EA5
-glyph uni0109
-ref c-lower
-ref circ-lower 2 2
-map ĉ = uni0109
-glyph uni1E13
-ref d-lower
-ref circ-bottom 2 13
-map ḓ = uni1E13
-glyph uni00EA
-ref e-lower
-ref circ-lower 2 2
-map ê = uni00EA
+map generate ĉ
+map generate ḓ
+map generate ê
 glyph uni1EC1
 ref e-lower:compressed
 ref circ-lower 2 4
@@ -3182,38 +3003,20 @@ ref e-lower:compressed
 ref circ-lower 2 4
 ref acute-below 4 2
 map ế = uni1EBF
-glyph uni1E19
-ref e-lower
-ref circ-bottom 2 13
-map ḙ = uni1E19
-glyph uni011D
-ref g-lower
-ref circ-lower 2 2
-map ĝ = uni011D
+map generate ḙ
+map generate ĝ
 glyph uni0125
 ref h-lower:sm
 ref circ-lower 2 1
 map ĥ = uni0125
-glyph uni00EE
-ref i-lower:dotless
-ref circ-lower 2 3
-map î = uni00EE
+map generate î
 glyph uni0135
 ref j-lower:dotless
 ref circ-lower 2 3
 map ĵ = uni0135
-glyph uni1E3D
-ref l-lower
-ref circ-bottom 2 13
-map ḽ = uni1E3D
-glyph uni1E4B
-ref n-lower
-ref circ-bottom 2 13
-map ṋ = uni1E4B
-glyph uni00F4
-ref o-lower
-ref circ-lower 2 2
-map ô = uni00F4
+map generate ḽ
+map generate ṋ
+map generate ô
 glyph uni1ED3
 ref o-lower:compressed
 ref circ-lower 2 4
@@ -3234,42 +3037,18 @@ ref o-lower:compressed
 ref circ-lower 2 4
 ref acute-below 4 2
 map ố = uni1ED1
-glyph uni015D
-ref s-lower
-ref circ-lower 2 2
-map ŝ = uni015D
-glyph uni1E71
-ref t-lower
-ref circ-bottom 2 13
-map ṱ = uni1E71
-glyph uni00FB
-ref u-lower
-ref circ-lower 2 2
-map û = uni00FB
-glyph uni1E77
-ref u-lower
-ref circ-bottom 2 13
-map ṷ = uni1E77
-glyph uni0175
-ref w-lower
-ref circ-lower 2 2
-map ŵ = uni0175
-glyph uni0177
-ref y-lower
-ref circ-lower 2 2
-map ŷ = uni0177
-glyph uni1E91
-ref z-lower
-ref circ-lower 2 2
-map ẑ = uni1E91
+map generate ŝ
+map generate ṱ
+map generate û
+map generate ṷ
+map generate ŵ
+map generate ŷ
+map generate ẑ
 
 //--------------------------------------
 // with breve
 
-glyph uni0102
-ref a-upper
-ref breve-upper 2 0
-map Ă = uni0102
+map generate Ă
 glyph uni1EB0
 ref a-upper-compressed
 ref breve-upper 2 2
@@ -3290,35 +3069,14 @@ ref a-upper-compressed
 ref breve-upper 2 2
 ref acute-above 4 0
 map Ắ = uni1EAE
-glyph uni0114
-ref e-upper
-ref breve-upper 2 0
-map Ĕ = uni0114
-glyph uni011E
-ref g-upper
-ref breve-upper 2 0
-map Ğ = uni011E
-glyph uni1E2A
-ref h-upper
-ref breve-bottom 2 14
-map Ḫ = uni1E2A
-glyph uni012C
-ref i-upper
-ref breve-upper 2 0
-map Ĭ = uni012C
-glyph uni014E
-ref o-upper
-ref breve-upper 2 0
-map Ŏ = uni014E
-glyph uni016C
-ref u-upper
-ref breve-upper 2 0
-map Ŭ = uni016C
+map generate Ĕ
+map generate Ğ
+map generate Ḫ
+map generate Ĭ
+map generate Ŏ
+map generate Ŭ
 
-glyph uni0103
-ref a-lower
-ref breve-lower 2 2
-map ă = uni0103
+map generate ă
 glyph uni1EB1
 ref a-lower:compressed
 ref breve-lower 2 4
@@ -3339,162 +3097,63 @@ ref a-lower:compressed
 ref breve-lower 2 4
 ref acute-below 4 2
 map ắ = uni1EAF
-glyph uni0115
-ref e-lower
-ref breve-lower 2 2
-map ĕ = uni0115
-glyph uni011F
-ref g-lower
-ref breve-lower 2 2
-map ğ = uni011F
-glyph uni1E2B
-ref h-lower
-ref breve-bottom 2 14
-map ḫ = uni1E2B
-glyph uni012D
-ref i-lower:dotless
-ref breve-lower 2 3
-map ĭ = uni012D
-glyph uni014F
-ref o-lower
-ref breve-lower 2 2
-map ŏ = uni014F
-glyph uni016D
-ref u-lower
-ref breve-lower 2 2
-map ŭ = uni016D
+map generate ĕ
+map generate ğ
+map generate ḫ
+map generate ĭ
+map generate ŏ
+map generate ŭ
 
 //--------------------------------------
 // with inverted breve (arch)
 
-glyph uni0202
-ref a-upper
-ref arch-upper 2 0
-map Ȃ = uni0202
-glyph uni0206
-ref e-upper
-ref arch-upper 2 0
-map Ȇ = uni0206
-glyph uni020A
-ref i-upper
-ref arch-upper 2 0
-map Ȋ = uni020A
-glyph uni020E
-ref o-upper
-ref arch-upper 2 0
-map Ȏ = uni020E
-glyph uni0212
-ref r-upper
-ref arch-upper 2 0
-map Ȓ = uni0212
-glyph uni0216
-ref u-upper
-ref arch-upper 2 0
-map Ȗ = uni0216
+map generate Ȃ
+map generate Ȇ
+map generate Ȋ
+map generate Ȏ
+map generate Ȓ
+map generate Ȗ
 
-glyph uni0203
-ref a-lower
-ref arch-lower 2 2
-map ȃ = uni0203
-glyph uni0207
-ref e-lower
-ref arch-lower 2 2
-map ȇ = uni0207
-glyph uni020B
-ref i-lower:dotless
-ref arch-lower 2 3
-map ȋ = uni020B
-glyph uni020F
-ref o-lower
-ref arch-lower 2 2
-map ȏ = uni020F
-glyph uni0213
-ref r-lower
-ref arch-lower 2 2
-map ȓ = uni0213
-glyph uni0217
-ref u-lower
-ref arch-lower 2 2
-map ȗ = uni0217
+map generate ȃ
+map generate ȇ
+map generate ȋ
+map generate ȏ
+map generate ȓ
+map generate ȗ
 
 //--------------------------------------
 // with ring
 
-glyph uni00C5
-ref a-upper
-ref ring-upper 3 0
-map Å = uni00C5
+map generate Å
 glyph uni01FA
 ref a-upper-compressed
 ref ring-upper 3 2
 ref acute-above 3 0
 map Ǻ = uni01FA
-glyph uni1E00
-ref a-upper
-ref ring-bottom 3 13
-map Ḁ = uni1E00
-glyph uni016E
-ref u-upper
-ref ring-upper 3 0
-map Ů = uni016E
+map generate Ḁ
+map generate Ů
 
-glyph uni00E5
-ref a-lower
-ref ring-lower 3 2
-map å = uni00E5
+map generate å
 glyph uni01FB
 ref a-lower:compressed
 ref ring-lower 3 4
 ref acute-below 3 2
 map ǻ = uni01FB
-glyph uni1E01
-ref a-lower
-ref ring-bottom 3 13
-map ḁ = uni1E01
-glyph uni016F
-ref u-lower
-ref ring-lower 3 2
-map ů = uni016F
-glyph uni1E98
-ref w-lower
-ref ring-lower 3 2
-map ẘ = uni1E98
-glyph uni1E99
-ref y-lower
-ref ring-lower 3 2
-map ẙ = uni1E99
+map generate ḁ
+map generate ů
+map generate ẘ
+map generate ẙ
 
 //--------------------------------------
 // with tilde
 
-glyph uni00C3
-ref a-upper
-ref tilde-upper 2 0
-map Ã = uni00C3
-glyph uni1EBC
-ref e-upper
-ref tilde-upper 2 0
-map Ẽ = uni1EBC
-glyph uni1E1A
-ref e-upper
-ref tilde-bottom 2 14
-map Ḛ = uni1E1A
-glyph uni0128
-ref i-upper
-ref tilde-upper 2 0
-map Ĩ = uni0128
-glyph uni1E2C
-ref i-upper
-ref tilde-bottom 1 14
-map Ḭ = uni1E2C
-glyph uni00D1
-ref n-upper
-ref tilde-upper 2 0
-map Ñ = uni00D1
-glyph uni00D5
-ref o-upper
-ref tilde-upper 2 0
-map Õ = uni00D5
+map generate Ã
+map generate Ẽ
+map generate Ḛ
+map generate Ĩ
+map generate Ḭ
+map generate Ñ
+map generate Õ
 glyph uni022C
 ref o-upper-compressed
 ref tilde-upper 2 2
@@ -3514,10 +3173,7 @@ glyph uni1EE0
 ref o-horn-upper
 ref tilde-upper 1 0
 map Ỡ = uni1EE0
-glyph uni0168
-ref u-upper
-ref tilde-upper 2 0
-map Ũ = uni0168
+map generate Ũ
 glyph uni1E78
 ref u-upper-compressed
 ref tilde-upper 2 2
@@ -3527,47 +3183,17 @@ glyph uni1EEE
 ref u-horn-upper
 ref tilde-upper 1 0
 map Ữ = uni1EEE
-glyph uni1E74
-ref u-upper
-ref tilde-bottom 2 14
-map Ṵ = uni1E74
-glyph uni1E7C
-ref v-upper
-ref tilde-upper 2 0
-map Ṽ = uni1E7C
-glyph uni1EF8
-ref y-upper
-ref tilde-upper 2 0
-map Ỹ = uni1EF8
+map generate Ṵ
+map generate Ṽ
+map generate Ỹ
 
-glyph uni00E3
-ref a-lower
-ref tilde-lower 2 2
-map ã = uni00E3
-glyph uni1EBD
-ref e-lower
-ref tilde-lower 2 2
-map ẽ = uni1EBD
-glyph uni1E1B
-ref e-lower
-ref tilde-bottom 2 14
-map ḛ = uni1E1B
-glyph uni0129
-ref i-lower:dotless
-ref tilde-lower 2 3
-map ĩ = uni0129
-glyph uni1E2D
-ref i-lower
-ref tilde-bottom 1 14
-map ḭ = uni1E2D
-glyph uni00F1
-ref n-lower
-ref tilde-lower 2 2
-map ñ = uni00F1
-glyph uni00F5
-ref o-lower
-ref tilde-lower 2 2
-map õ = uni00F5
+map generate ã
+map generate ẽ
+map generate ḛ
+map generate ĩ
+map generate ḭ
+map generate ñ
+map generate õ
 glyph uni022D
 ref o-lower:compressed
 ref tilde-lower 2 4
@@ -3587,10 +3213,7 @@ glyph uni1EE1
 ref o-horn-lower
 ref tilde-lower 1 2
 map ỡ = uni1EE1
-glyph uni0169
-ref u-lower
-ref tilde-lower 2 2
-map ũ = uni0169
+map generate ũ
 glyph uni1E79
 ref u-lower:compressed
 ref tilde-lower 2 4
@@ -3600,187 +3223,69 @@ glyph uni1EEF
 ref u-horn-lower
 ref tilde-lower 1 2
 map ữ = uni1EEF
-glyph uni1E75
-ref u-lower
-ref tilde-bottom 2 14
-map ṵ = uni1E75
-glyph uni1E7D
-ref v-lower
-ref tilde-lower 2 2
-map ṽ = uni1E7D
-glyph uni1EF9
-ref y-lower
-ref tilde-lower 2 2
-map ỹ = uni1EF9
+map generate ṵ
+map generate ṽ
+map generate ỹ
 
 //--------------------------------------
 // with dot
 
-glyph uni0226
-ref a-upper
-ref dot-upper 4 0
-map Ȧ = uni0226
+map generate Ȧ
 glyph uni01E0
 ref a-upper-compressed
 ref dot-upper 4 2
 ref mac-above 2 0
 map Ǡ = uni01E0
-glyph uni1EA0
-ref a-upper
-ref dot-bottom 4 14
-map Ạ = uni1EA0
-glyph uni1EAC
-ref a-upper
-ref dot-bottom 4 14
-ref circ-upper 2 0
-map Ậ = uni1EAC
-glyph uni1EB6
-ref a-upper
-ref dot-bottom 4 14
-ref breve-upper 2 0
-map Ặ = uni1EB6
-glyph uni1E02
-ref b-upper
-ref dot-upper 4 0
-map Ḃ = uni1E02
-glyph uni1E04
-ref b-upper
-ref dot-bottom 4 14
-map Ḅ = uni1E04
-glyph uni010A
-ref c-upper
-ref dot-upper 4 0
-map Ċ = uni010A
+map generate Ạ
+map generate Ậ
+map generate Ặ
+map generate Ḃ
+map generate Ḅ
+map generate Ċ
 glyph uni1E0A
 ref d-upper
 ref dot-upper 3 0
 map Ḋ = uni1E0A
-glyph uni1E0C
-ref d-upper
-ref dot-bottom 4 14
-map Ḍ = uni1E0C
-glyph uni0116
-ref e-upper
-ref dot-upper 4 0
-map Ė = uni0116
-glyph uni1EB8
-ref e-upper
-ref dot-bottom 4 14
-map Ẹ = uni1EB8
-glyph uni1EC6
-ref e-upper
-ref dot-bottom 4 14
-ref circ-upper 2 0
-map Ệ = uni1EC6
-glyph uni1E1E
-ref f-upper
-ref dot-upper 4 0
-map Ḟ = uni1E1E
-glyph uni0120
-ref g-upper
-ref dot-upper 4 0
-map Ġ = uni0120
-glyph uni1E22
-ref h-upper
-ref dot-upper 4 0
-map Ḣ = uni1E22
-glyph uni1E24
-ref h-upper
-ref dot-bottom 4 14
-map Ḥ = uni1E24
-glyph uni0130
-ref i-upper
-ref dot-upper 3 0
-map İ = uni0130
-glyph uni1ECA
-ref i-upper
-ref dot-bottom 3 14
-map Ị = uni1ECA
-glyph uni1E32
-ref k-upper
-ref dot-bottom 4 14
-map Ḳ = uni1E32
-glyph uni1E36
-ref l-upper
-ref dot-bottom 4 14
-map Ḷ = uni1E36
-glyph uni1E38
-ref l-upper
-ref dot-bottom 4 14
-ref mac-above 2 1
-map Ḹ = uni1E38
+map generate Ḍ
+map generate Ė
+map generate Ẹ
+map generate Ệ
+map generate Ḟ
+map generate Ġ
+map generate Ḣ
+map generate Ḥ
+map generate İ
+map generate Ị
+map generate Ḳ
+map generate Ḷ
+map generate Ḹ
 glyph uni013F
 ref l-upper
 ref dot-middle 5 7
 map Ŀ = uni013F
-glyph uni1E40
-ref m-upper
-ref dot-upper 4 0
-map Ṁ = uni1E40
-glyph uni1E42
-ref m-upper
-ref dot-bottom 4 14
-map Ṃ = uni1E42
-glyph uni1E44
-ref n-upper
-ref dot-upper 4 0
-map Ṅ = uni1E44
-glyph uni1E46
-ref n-upper
-ref dot-bottom 4 14
-map Ṇ = uni1E46
-glyph uni022E
-ref o-upper
-ref dot-upper 4 0
-map Ȯ = uni022E
+map generate Ṁ
+map generate Ṃ
+map generate Ṅ
+map generate Ṇ
+map generate Ȯ
 glyph uni0230
 ref o-upper-compressed
 ref dot-upper 4 2
 ref mac-above 2 0
 map Ȱ = uni0230
-glyph uni1ECC
-ref o-upper
-ref dot-bottom 4 14
-map Ọ = uni1ECC
-glyph uni1ED8
-ref o-upper
-ref dot-bottom 4 14
-ref circ-upper 2 0
-map Ộ = uni1ED8
+map generate Ọ
+map generate Ộ
 glyph uni1EE2
 ref o-horn-upper
 ref dot-bottom 3 14
 map Ợ = uni1EE2
-glyph uni1E56
-ref p-upper
-ref dot-upper 4 0
-map Ṗ = uni1E56
-glyph uni1E58
-ref r-upper
-ref dot-upper 4 0
-map Ṙ = uni1E58
-glyph uni1E5A
-ref r-upper
-ref dot-bottom 4 14
-map Ṛ = uni1E5A
-glyph uni1E5C
-ref r-upper
-ref dot-bottom 4 14
-ref mac-above 2 1
-map Ṝ = uni1E5C
-glyph uni1E60
-ref s-upper
-ref dot-upper 4 0
-map Ṡ = uni1E60
-glyph uni1E62
-ref s-upper
-ref dot-bottom 4 14
-map Ṣ = uni1E62
-glyph uni1E68
-ref s-upper
-ref dot-bottom 4 14
-ref dot-upper 4 0
-map Ṩ = uni1E68
+map generate Ṗ
+map generate Ṙ
+map generate Ṛ
+map generate Ṝ
+map generate Ṡ
+map generate Ṣ
+map generate Ṩ
 glyph uni1E6A
 ref t-upper
 ref dot-upper 3 0
@@ -3789,208 +3294,84 @@ glyph uni1E6C
 ref t-upper
 ref dot-bottom 3 14
 map Ṭ = uni1E6C
-glyph uni1EE4
-ref u-upper
-ref dot-bottom 4 14
-map Ụ = uni1EE4
+map generate Ụ
 glyph uni1EF0
 ref u-horn-upper
 ref dot-bottom 3 14
 map Ự = uni1EF0
-glyph uni1E7E
-ref v-upper
-ref dot-bottom 4 14
-map Ṿ = uni1E7E
-glyph uni1E86
-ref w-upper
-ref dot-upper 4 0
-map Ẇ = uni1E86
-glyph uni1E88
-ref w-upper
-ref dot-bottom 4 14
-map Ẉ = uni1E88
-glyph uni1E8A
-ref x-upper
-ref dot-upper 4 0
-map Ẋ = uni1E8A
+map generate Ṿ
+map generate Ẇ
+map generate Ẉ
+map generate Ẋ
 glyph uni1E8E
 ref y-upper
 ref dot-upper 3 1
 map Ẏ = uni1E8E
-glyph uni1EF4
-ref y-upper
-ref dot-bottom 3 14
-map Ỵ = uni1EF4
-glyph uni017B
-ref z-upper
-ref dot-upper 4 0
-map Ż = uni017B
-glyph uni1E92
-ref z-upper
-ref dot-bottom 4 14
-map Ẓ = uni1E92
+map generate Ỵ
+map generate Ż
+map generate Ẓ
 
-glyph uni0227
-ref a-lower
-ref dot-lower 4 2
-map ȧ = uni0227
+map generate ȧ
 glyph uni01E1
 ref a-lower:compressed
 ref dot-lower 4 4
 ref mac-below 2 2
 map ǡ = uni01E1
-glyph uni1EA1
-ref a-lower
-ref dot-bottom 4 14
-map ạ = uni1EA1
-glyph uni1EAD
-ref a-lower
-ref dot-bottom 4 14
-ref circ-lower 2 2
-map ậ = uni1EAD
-glyph uni1EB7
-ref a-lower
-ref dot-bottom 4 14
-ref breve-lower 2 2
-map ặ = uni1EB7
+map generate ạ
+map generate ậ
+map generate ặ
 glyph uni1E03
 ref b-lower
 ref dot-lower 4 2
 map ḃ = uni1E03
-glyph uni1E05
-ref b-lower
-ref dot-bottom 4 14
-map ḅ = uni1E05
-glyph uni010B
-ref c-lower
-ref dot-lower 4 2
-map ċ = uni010B
+map generate ḅ
+map generate ċ
 glyph uni1E0B
 ref d-lower
 ref dot-lower 3 2
 map ḋ = uni1E0B
-glyph uni1E0D
-ref d-lower
-ref dot-bottom 4 14
-map ḍ = uni1E0D
-glyph uni0117
-ref e-lower
-ref dot-lower 4 2
-map ė = uni0117
-glyph uni1EB9
-ref e-lower
-ref dot-bottom 4 14
-map ẹ = uni1EB9
-glyph uni1EC7
-ref e-lower
-ref dot-bottom 4 14
-ref circ-lower 2 2
-map ệ = uni1EC7
-glyph uni1E1F
-ref f-lower
-ref dot-upper 4 0
-map ḟ = uni1E1F
-glyph uni0121
-ref g-lower
-ref dot-lower 4 2
-map ġ = uni0121
+map generate ḍ
+map generate ė
+map generate ẹ
+map generate ệ
+map generate ḟ
+map generate ġ
 glyph uni1E23
 ref h-lower
 ref dot-lower 4 2
 map ḣ = uni1E23
-glyph uni1E25
-ref h-lower
-ref dot-bottom 4 14
-map ḥ = uni1E25
-glyph uni1ECB
-ref i-lower
-ref dot-bottom 3 14
-map ị = uni1ECB
-glyph uni1E33
-ref k-lower
-ref dot-bottom 4 14
-map ḳ = uni1E33
-glyph uni1E37
-ref l-lower
-ref dot-bottom 4 14
-map ḷ = uni1E37
-glyph uni1E39
-ref l-lower
-ref dot-bottom 4 14
-ref mac-above 2 1
-map ḹ = uni1E39
+map generate ḥ
+map generate ị
+map generate ḳ
+map generate ḷ
+map generate ḹ
 glyph uni0140
 ref l-lower-shift
 ref dot-middle 6 7
 map ŀ = uni0140
-glyph uni1E41
-ref m-lower
-ref dot-lower 4 2
-map ṁ = uni1E41
-glyph uni1E43
-ref m-lower
-ref dot-bottom 4 14
-map ṃ = uni1E43
-glyph uni1E45
-ref n-lower
-ref dot-lower 4 2
-map ṅ = uni1E45
-glyph uni1E47
-ref n-lower
-ref dot-bottom 4 14
-map ṇ = uni1E47
-glyph uni022F
-ref o-lower
-ref dot-lower 4 2
-map ȯ = uni022F
+map generate ṁ
+map generate ṃ
+map generate ṅ
+map generate ṇ
+map generate ȯ
 glyph uni0231
 ref o-lower:compressed
 ref dot-lower 4 4
 ref mac-below 2 2
 map ȱ = uni0231
-glyph uni1ECD
-ref o-lower
-ref dot-bottom 4 14
-map ọ = uni1ECD
-glyph uni1ED9
-ref o-lower
-ref dot-bottom 4 14
-ref circ-lower 2 2
-map ộ = uni1ED9
+map generate ọ
+map generate ộ
 glyph uni1EE3
 ref o-horn-lower
 ref dot-bottom 3 14
 map ợ = uni1EE3
-glyph uni1E57
-ref p-lower
-ref dot-lower 4 2
-map ṗ = uni1E57
-glyph uni1E59
-ref r-lower
-ref dot-lower 4 2
-map ṙ = uni1E59
-glyph uni1E5B
-ref r-lower
-ref dot-bottom 4 14
-map ṛ = uni1E5B
-glyph uni1E5D
-ref r-lower
-ref dot-bottom 4 14
-ref mac-below 2 3
-map ṝ = uni1E5D
-glyph uni1E61
-ref s-lower
-ref dot-lower 4 2
-map ṡ = uni1E61
-glyph uni1E63
-ref s-lower
-ref dot-bottom 4 14
-map ṣ = uni1E63
-glyph uni1E69
-ref s-lower
-ref dot-bottom 4 14
-ref dot-lower 4 2
-map ṩ = uni1E69
+map generate ṗ
+map generate ṙ
+map generate ṛ
+map generate ṝ
+map generate ṡ
+map generate ṣ
+map generate ṩ
 glyph uni1E9B
 ref long-s-lower
 ref dot-upper 4 0
@@ -3999,34 +3380,16 @@ glyph uni1E6B
 ref t-lower
 ref dot-upper 3 0
 map ṫ = uni1E6B
-glyph uni1E6D
-ref t-lower
-ref dot-bottom 4 14
-map ṭ = uni1E6D
-glyph uni1EE5
-ref u-lower
-ref dot-bottom 4 14
-map ụ = uni1EE5
+map generate ṭ
+map generate ụ
 glyph uni1EF1
 ref u-horn-lower
 ref dot-bottom 3 14
 map ự = uni1EF1
-glyph uni1E7F
-ref v-lower
-ref dot-bottom 4 14
-map ṿ = uni1E7F
-glyph uni1E87
-ref w-lower
-ref dot-lower 4 2
-map ẇ = uni1E87
-glyph uni1E89
-ref w-lower
-ref dot-bottom 4 14
-map ẉ = uni1E89
-glyph uni1E8B
-ref x-lower
-ref dot-lower 4 2
-map ẋ = uni1E8B
+map generate ṿ
+map generate ẇ
+map generate ẉ
+map generate ẋ
 glyph uni1E8F
 ref y-lower
 ref dot-lower 3 2
@@ -4035,81 +3398,42 @@ glyph uni1EF5
 ref y-lower
 ref dot-bottom 4 14
 map ỵ = uni1EF5
-glyph uni017C
-ref z-lower
-ref dot-lower 4 2
-map ż = uni017C
-glyph uni1E93
-ref z-lower
-ref dot-bottom 4 14
-map ẓ = uni1E93
+map generate ż
+map generate ẓ
 
 //--------------------------------------
 // with hook above
 
-glyph uni1EA2
-ref a-upper
-ref hook-upper 3 0
-map Ả = uni1EA2
-glyph uni1EBA
-ref e-upper
-ref hook-upper 3 0
-map Ẻ = uni1EBA
-glyph uni1EC8
-ref i-upper
-ref hook-upper 3 0
-map Ỉ = uni1EC8
-glyph uni1ECE
-ref o-upper
-ref hook-upper 3 0
-map Ỏ = uni1ECE
+map generate Ả
+map generate Ẻ
+map generate Ỉ
+map generate Ỏ
 glyph uni1EDE
 ref o-horn-upper
 ref hook-upper 2 0
 map Ở = uni1EDE
-glyph uni1EE6
-ref u-upper
-ref hook-upper 3 0
-map Ủ = uni1EE6
+map generate Ủ
 glyph uni1EEC
 ref u-horn-upper
 ref hook-upper 2 0
 map Ử = uni1EEC
-glyph uni1EF6
-ref y-upper
-ref hook-upper 3 0
-map Ỷ = uni1EF6
+map generate Ỷ
 
-glyph uni1EA3
-ref a-lower
-ref hook-lower 3 2
-map ả = uni1EA3
-glyph uni1EBB
-ref e-lower
-ref hook-lower 3 2
-map ẻ = uni1EBB
+map generate ả
+map generate ẻ
 glyph uni1EC9
 ref i-lower:dotless
 ref hook-lower 3 2
 map ỉ = uni1EC9
-glyph uni1ECF
-ref o-lower
-ref hook-lower 3 2
-map ỏ = uni1ECF
+map generate ỏ
 glyph uni1EDF
 ref o-horn-lower
 ref hook-lower 2 2
 map ở = uni1EDF
-glyph uni1EE7
-ref u-lower
-ref hook-lower 3 2
-map ủ = uni1EE7
+map generate ủ
 glyph uni1EED
 ref u-horn-lower
 ref hook-lower 2 2
 map ử = uni1EED
-glyph uni1EF7
-ref y-lower
-ref hook-lower 3 2
-map ỷ = uni1EF7
+map generate ỷ
 

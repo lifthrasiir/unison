@@ -307,6 +307,21 @@ glyph ogonek 2 3
 1<..
 \1@@
 
+// like the cedilla, the ogonek hangs three rows deep while a base's +below
+// anchor only reaches two rows into the em box, so the attachment row is the
+// mark's *second* row.
+glyph ogonek-below mark
+ref ogonek
+anchor -below 0 1
+anchor +below 0 4
+
+glyph ogonek-below:wide mark
+ref ogonek
+anchor -below 0..1 1
+anchor +below 0..1 4
+
+map U+0328 = ogonek-below
+
 //--------------------------------------
 // caron (hacek)
 
@@ -317,7 +332,21 @@ glyph caron-lower 5 2
 glyph caron-upper 5 2
 ref caron-lower 0 0
 
-// looks like a comma, used for czech and slovak
+glyph caron-above mark
+ref caron-lower
+anchor -above 2 1
+anchor +above 2 -1
+
+glyph caron-above:wide mark
+ref caron-lower
+anchor -above 1..2 1
+anchor +above 1..2 -1
+
+map U+030C = caron-above
+
+// looks like a comma, used for czech and slovak.  it is a positional variant
+// of the caron rather than a mark of its own: it has no anchors because it
+// hangs off the letter's right side, which no +above/+below anchor describes.
 glyph caron-alt 2 3
 @@@@
 \0@@
@@ -334,7 +363,28 @@ glyph circ-lower = circ
 
 glyph circ-upper = circ
 
-glyph circ-bottom = circ
+glyph circ-above mark
+ref circ
+anchor -above 2 1
+anchor +above 2 -1
+
+glyph circ-above:wide mark
+ref circ
+anchor -above 1..2 1
+anchor +above 1..2 -1
+
+glyph circ-below mark
+ref circ
+anchor -below 2 1
+anchor +below 2 3
+
+glyph circ-below:wide mark
+ref circ
+anchor -below 1..2 1
+anchor +below 1..2 3
+
+map U+0302 = circ-above
+map U+032D = circ-below
 
 //--------------------------------------
 // breve
@@ -347,7 +397,30 @@ glyph breve-lower = breve
 
 glyph breve-upper = breve
 
-glyph breve-bottom = breve
+glyph breve-above mark
+ref breve
+anchor -above 2 1
+anchor +above 2 -1
+
+glyph breve-above:wide mark
+ref breve
+anchor -above 1..2 1
+anchor +above 1..2 -1
+
+// unlike the circumflex below, the breve below opens away from the letter, so
+// its first row is the one that meets the base
+glyph breve-below mark
+ref breve
+anchor -below 2 0
+anchor +below 2 2
+
+glyph breve-below:wide mark
+ref breve
+anchor -below 1..2 0
+anchor +below 1..2 2
+
+map U+0306 = breve-above
+map U+032E = breve-below
 
 //--------------------------------------
 // inverted breve (arch)
@@ -356,9 +429,17 @@ glyph arch 5 2
 /0@@@@@@0\
 @@1/..\1@@
 
-glyph arch-lower = arch
+glyph arch-above mark
+ref arch
+anchor -above 2 1
+anchor +above 2 -1
 
-glyph arch-upper = arch
+glyph arch-above:wide mark
+ref arch
+anchor -above 1..2 1
+anchor +above 1..2 -1
+
+map U+0311 = arch-above
 
 //--------------------------------------
 // ring
@@ -372,7 +453,28 @@ glyph ring-lower = ring
 
 glyph ring-upper = ring
 
-glyph ring-bottom = ring
+glyph ring-above mark
+ref ring
+anchor -above 1 1
+anchor +above 1 -2
+
+glyph ring-above:wide mark
+ref ring
+anchor -above 1..2 1
+anchor +above 1..2 -2
+
+glyph ring-below mark
+ref ring
+anchor -below 1 1
+anchor +below 1 4
+
+glyph ring-below:wide mark
+ref ring
+anchor -below 1..2 1
+anchor +below 1..2 4
+
+map U+030A = ring-above
+map U+0325 = ring-below
 
 //--------------------------------------
 // tilde
@@ -385,7 +487,28 @@ glyph tilde-lower = comb-tilde
 
 glyph tilde-upper = comb-tilde
 
-glyph tilde-bottom = comb-tilde
+glyph tilde-above mark
+ref comb-tilde
+anchor -above 2 1
+anchor +above 2 -1
+
+glyph tilde-above:wide mark
+ref comb-tilde
+anchor -above 1..2 1
+anchor +above 1..2 -1
+
+glyph tilde-below mark
+ref comb-tilde
+anchor -below 2 0
+anchor +below 2 2
+
+glyph tilde-below:wide mark
+ref comb-tilde
+anchor -below 2..3 0
+anchor +below 2..3 2
+
+map U+0303 = tilde-above
+map U+0330 = tilde-below
 
 //--------------------------------------
 // dot
@@ -405,6 +528,29 @@ ref comb-dot
 glyph dot-middle 2 2
 ref comb-dot
 
+glyph dot-above mark
+ref comb-dot
+anchor -above 0 1
+anchor +above 0 -1
+
+glyph dot-above:wide mark
+ref comb-dot
+anchor -above 0..1 1
+anchor +above 0..1 -1
+
+glyph dot-below mark
+ref comb-dot
+anchor -below 0 0
+anchor +below 0 2
+
+glyph dot-below:wide mark
+ref comb-dot
+anchor -below 0..1 0
+anchor +below 0..1 2
+
+map U+0307 = dot-above
+map U+0323 = dot-below
+
 //--------------------------------------
 // hook above
 
@@ -416,6 +562,18 @@ glyph hook 3 3
 glyph hook-lower = hook
 
 glyph hook-upper = hook
+
+glyph hook-above mark
+ref hook
+anchor -above 1 1
+anchor +above 1 -2
+
+glyph hook-above:wide mark
+ref hook
+anchor -above 0..1 1
+anchor +above 0..1 -2
+
+map U+0309 = hook-above
 
 //--------------------------------------
 // tests
@@ -434,4 +592,22 @@ assert shape j̤ : j-lower:compressed : dia-below:narrow offset -6 14
 assert shape j̈̈ : j-lower:dotless : dia-above:narrow offset -5 3 : dia-above:narrow offset -5 1
 assert shape j̤̤ : j-lower:compressed : dia-below:narrow offset -6 14 : dia-below:narrow offset -6 16
 // TODO j + U+0308 + U+0324 and j + U+0324 + U+0308 (needs compressed+dotless variant)
+
+// marks that have no precomposed form on the base below, so the shaper really
+// does have to attach them through the anchors
+assert shape b̂ : b-lower : circ-above offset -6 1
+assert shape b̌ : b-lower : caron-above offset -6 1
+assert shape u̇ : u-lower : dot-above offset -4 2
+assert shape p̃ : p-lower : tilde-above offset -6 2
+assert shape b̨ : b-lower : ogonek-below offset -4 13
+assert shape f̊ : f-lower : ring-above offset -5 0
+assert shape m̉ : m-lower : hook-above offset -5 2
+assert shape m̭ : m-lower : circ-below offset -6 13
+assert shape m̮ : m-lower : breve-below offset -6 14
+assert shape m̑ : m-lower : arch-above offset -6 2
+assert shape m̥ : m-lower : ring-below offset -5 13
+assert shape m̰ : m-lower : tilde-below offset -6 14
+// a two-cell +above anchor picks the `:wide` alternative
+assert shape ı̂ : i-lower:dotless : circ-above:wide offset -6 3
+assert shape ı́ : i-lower:dotless : acute-above:wide offset -6 3
 

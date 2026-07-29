@@ -1777,10 +1777,7 @@ map generate Ё
 map generate Ӝ
 map generate Ӟ
 map generate Ӥ
-glyph uni0407
-ref cy-dotted-i-upper
-ref dia-above 1 0
-map Ї = uni0407
+map generate Ї
 map generate Ӧ
 map generate Ӱ
 map generate Ӵ
@@ -1821,81 +1818,33 @@ map generate ӳ
 //--------------------------------------
 // with grave accents
 
-glyph uni0400
-ref cy-ye-upper
-ref grave-above 2 0
-map Ѐ = uni0400
-glyph uni040D
-ref cy-i-upper
-ref grave-above 2 0
-map Ѝ = uni040D
+map generate Ѐ
+map generate Ѝ
 
-glyph uni0450
-ref cy-ye-lower
-ref grave-below 2 2
-map ѐ = uni0450
-glyph uni045D
-ref cy-i-lower
-ref grave-below 2 2
-map ѝ = uni045D
+map generate ѐ
+map generate ѝ
 
 //--------------------------------------
 // with macron
 
-glyph uni04E2
-ref cy-i-upper
-ref mac-above 2 1
-map Ӣ = uni04E2
-glyph uni04EE
-ref cy-u-upper
-ref mac-above 2 1
-map Ӯ = uni04EE
+map generate Ӣ
+map generate Ӯ
 
-glyph uni04E3
-ref cy-i-lower
-ref mac-below 2 3
-map ӣ = uni04E3
-glyph uni04EF
-ref cy-u-lower
-ref mac-below 2 3
-map ӯ = uni04EF
+map generate ӣ
+map generate ӯ
 
 //--------------------------------------
 // with breve
 
-glyph uni04D0
-ref cy-a-upper
-ref breve-upper 2 0
-map Ӑ = uni04D0
-glyph uni04D6
-ref cy-ye-upper
-ref breve-upper 2 0
-map Ӗ = uni04D6
-glyph uni0419
-ref cy-i-upper
-ref breve-upper 2 0
-map Й = uni0419
-glyph uni040E
-ref cy-u-upper
-ref breve-upper 2 0
-map Ў = uni040E
+map generate Ӑ
+map generate Ӗ
+map generate Й
+map generate Ў
 
-glyph uni04D1
-ref cy-a-lower
-ref breve-lower 2 2
-map ӑ = uni04D1
-glyph uni04D7
-ref cy-ye-lower
-ref breve-lower 2 2
-map ӗ = uni04D7
-glyph uni0439
-ref cy-i-lower
-ref breve-lower 2 2
-map й = uni0439
-glyph uni045E
-ref cy-u-lower
-ref breve-lower 2 2
-map ў = uni045E
+map generate ӑ
+map generate ӗ
+map generate й
+map generate ў
 
 //--------------------------------------
 // archaic cyrillic
