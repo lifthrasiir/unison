@@ -2672,7 +2672,7 @@ map ţ
 // placed above, exactly as U+0312 is.
 //
 // Romanian ș ț are the one pair unicode did encode separately (U+0218/U+021A,
-// added in 3.0 to disambiguate them from turkish ş ţ), so they decompose to
+// added in 3.0 to disambiguate them from Turkish ş ţ), so they decompose to
 // U+0326 and need no override.
 
 glyph g-upper-with-com-below
@@ -2721,10 +2721,10 @@ map ŗ = r-lower-with-com-below
 map ș
 map ț
 
-// Romanian used the turkish codepoints before U+0218/U+021A existed in unicode
+// Romanian used the Turkish codepoints before U+0218/U+021A existed in unicode
 // 3.0, and plenty of text still does, so under a Romanian language system the
 // legacy pair is drawn with the comma. this is the one place a locale really
-// is needed: the same ş must stay a cedilla for turkish.
+// is needed: the same ş must stay a cedilla for Turkish.
 remap romanian-comma : (uni015E|uni015F|uni0162|uni0163) -> (uni0218|uni0219|uni021A|uni021B)
 feature locl for latn/ROM latn/MOL : romanian-comma
 
@@ -2754,6 +2754,19 @@ assert shape ș : uni0219
 assert shape ķ́ : k-lower-with-com-below : acute-above
 assert shape ģ́ : g-lower-with-com-below : acute-above
 assert shape ş́ : uni015F : acute-above
+
+// the Romanian locale, and only it, redraws the legacy Turkish pair.  the
+// assertion names a BCP 47 language, not the `latn/ROM` the font declares, so
+// it pins that the shaper really does resolve the one to the other
+assert shape ş @ro : uni0219
+assert shape ţ @ro : uni021B
+assert shape ş @mo : uni0219
+assert shape ş @tr : uni015F
+assert shape ş @lv : uni015F
+assert shape ş : uni015F
+// Romanian must not lose what the default language system carries: this needs
+// `ccmp`, which an explicit language system replaces rather than extends
+assert shape j̈ @ro : j-lower:dotless : dia-above:narrow offset -5 3
 
 //--------------------------------------
 // with ogonek

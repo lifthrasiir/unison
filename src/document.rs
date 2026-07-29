@@ -787,10 +787,19 @@ pub enum DocumentItem {
         visibility: Option<LayerVisibility>,
         comment: Option<String>,
     },
-    /// `assert shape \`text\` [+feat] [-feat] : glyph1 [advance N] [offset X Y] : glyph2 ...`
+    /// `assert shape \`text\` [@lang] [+feat] [-feat] : glyph1 [advance N] [offset X Y] : glyph2 ...`
     AssertShape {
         text: String,
         features: Vec<ShapeFeatureFlag>,
+        /// BCP 47 language the text is shaped as, from an `@tag` token.
+        ///
+        /// Deliberately *not* the `script/LANG` notation a `feature` directive
+        /// uses: an assertion states the input a real client hands the shaper,
+        /// and the OpenType language system is what the shaper is supposed to
+        /// derive from it. Writing `@ROM` on both sides would make the two
+        /// agree by construction and stop the assertion from noticing that
+        /// Romanian does not resolve to the tag the font declared.
+        language: Option<String>,
         expected: Vec<ExpectedGlyph>,
         comment: Option<String>,
     },
@@ -1046,11 +1055,17 @@ impl DocumentItem {
         let first_colon = tokens.iter().position(|t| t == ":")?;
 
         let mut features = Vec::new();
+        let mut language = None;
         for tok in &tokens[1..first_colon] {
             if let Some(tag) = tok.strip_prefix('+') {
                 features.push(ShapeFeatureFlag { tag: tag.to_string(), enable: true });
             } else if let Some(tag) = tok.strip_prefix('-') {
                 features.push(ShapeFeatureFlag { tag: tag.to_string(), enable: false });
+            } else if let Some(tag) = tok.strip_prefix('@')
+                && !tag.is_empty()
+                && language.is_none()
+            {
+                language = Some(tag.to_string());
             }
         }
 
@@ -1099,7 +1114,7 @@ impl DocumentItem {
             return None;
         }
 
-        Some(DocumentItem::AssertShape { text, features, expected, comment })
+        Some(DocumentItem::AssertShape { text, features, language, expected, comment })
     }
 
     #[cfg(any(feature = "editor", test))]
@@ -1171,12 +1186,15 @@ impl DocumentItem {
                     serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::AssertShape { text, features, expected, comment } => {
+            DocumentItem::AssertShape { text, features, language, expected, comment } => {
                 let mut parts = vec![
                     "assert".to_string(),
                     "shape".to_string(),
                     quote_token(text),
                 ];
+                if let Some(lang) = language {
+                    parts.push(format!("@{lang}"));
+                }
                 for f in features {
                     let prefix = if f.enable { "+" } else { "-" };
                     parts.push(format!("{prefix}{}", f.tag));

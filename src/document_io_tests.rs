@@ -919,7 +919,7 @@ fn parse_assert_shape_basic() {
     let input = "assert shape `AB` : a-upper : b-upper\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 1);
-    if let DocumentItem::AssertShape { text, features, expected, comment } = &doc.items[0] {
+    if let DocumentItem::AssertShape { text, features, expected, comment, .. } = &doc.items[0] {
         assert_eq!(text, "AB");
         assert!(features.is_empty());
         assert_eq!(expected.len(), 2);
@@ -930,6 +930,44 @@ fn parse_assert_shape_basic() {
     } else {
         panic!("expected AssertShape");
     }
+}
+
+/// The language rides along with the feature flags, before the first `:`.
+/// Order between `@lang` and `+feat`/`-feat` is free on the way in;
+/// serializing normalizes it to language first.
+#[test]
+fn parse_assert_shape_with_language() {
+    let input = "assert shape `\u{15f}` +liga @ro : uni0219\n";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert_eq!(doc.items.len(), 1);
+    if let DocumentItem::AssertShape { language, features, expected, .. } = &doc.items[0] {
+        assert_eq!(language.as_deref(), Some("ro"));
+        assert_eq!(features.len(), 1, "the feature flag must survive beside it");
+        assert_eq!(expected[0].name, "uni0219");
+    } else {
+        panic!("expected AssertShape");
+    }
+    assert_eq!(
+        doc.items[0].serialize_line().unwrap(),
+        "assert shape \u{15f} @ro +liga : uni0219",
+    );
+}
+
+/// Without an `@tag` the directive must round-trip exactly as before, `@`
+/// included nowhere.
+#[test]
+fn assert_shape_without_a_language_is_unchanged() {
+    let input = "assert shape `AB` : a-upper : b-upper\n";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    if let DocumentItem::AssertShape { language, .. } = &doc.items[0] {
+        assert!(language.is_none());
+    } else {
+        panic!("expected AssertShape");
+    }
+    assert_eq!(
+        doc.items[0].serialize_line().unwrap(),
+        "assert shape AB : a-upper : b-upper",
+    );
 }
 
 #[test]

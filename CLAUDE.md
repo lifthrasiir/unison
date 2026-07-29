@@ -268,7 +268,11 @@ Appending to a line must go through `append_to_line` to stay in front of the com
   declared script, and each script's default into every language below it, merging per feature tag
   so an inherited tag and a redeclared one end up as one record. Left out, adding a single
   `locl for latn/ROM` silently costs all Latin text its `ccmp` — and every mark attachment with it.
-- `assert shape TEXT [+feat|-feat...] : GLYPH [advance N] [offset X Y] : GLYPH ...` — shaping assertion.
+- `assert shape TEXT [@lang] [+feat|-feat...] : GLYPH [advance N] [offset X Y] : GLYPH ...` —
+  shaping assertion. `@lang` is a **BCP 47** tag (`@ro`), not the `script/LANG` a `feature` takes:
+  an assertion states the input a real client hands the shaper, and the OpenType language system is
+  what the shaper must derive from it. Writing `@ROM` on both sides would make them agree by
+  construction and stop the assertion from noticing that Romanian never reaches the declared tag.
 - `assert same NAME...` / `assert distinct NAME...` — resolved-glyph equality assertions.
 - `exclude-from-sample NAME`
 - `assume unused NAME...` — suppresses the unused-glyph warning (accepts patterns).

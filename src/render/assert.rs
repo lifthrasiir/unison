@@ -27,10 +27,11 @@ fn shape_text(
     font_data: &[u8],
     text: &str,
     features: &[ShapeFeatureFlag],
+    language: Option<&str>,
 ) -> Vec<ShapedGlyph> {
     crate::script_run::split_script_runs(text)
         .iter()
-        .flat_map(|run| shape_run(font_data, &text[run.bytes.clone()], features))
+        .flat_map(|run| shape_run(font_data, &text[run.bytes.clone()], features, language))
         .collect()
 }
 
@@ -38,12 +39,21 @@ fn shape_run(
     font_data: &[u8],
     text: &str,
     features: &[ShapeFeatureFlag],
+    language: Option<&str>,
 ) -> Vec<ShapedGlyph> {
     let Some(face) = rustybuzz::Face::from_slice(font_data, 0) else {
         return Vec::new();
     };
     let mut buffer = rustybuzz::UnicodeBuffer::new();
     buffer.push_str(text);
+    // The shaper turns a BCP 47 language into an OpenType language system
+    // itself; an unparseable tag is left to the assertion to fail on, which
+    // says more than silently shaping language-neutral would.
+    if let Some(language) = language
+        && let Ok(language) = language.parse()
+    {
+        buffer.set_language(language);
+    }
 
     let hb_features: Vec<rustybuzz::Feature> = features
         .iter()
@@ -90,11 +100,21 @@ fn font_units_to_pixel(val: i32, height: u16) -> i32 {
 struct CollectedAssertion {
     text: String,
     features: Vec<ShapeFeatureFlag>,
+    language: Option<String>,
     expected: Vec<ExpectedGlyph>,
     comment: Option<String>,
     file: PathBuf,
     line: usize,
     file_line: usize,
+}
+
+/// How a failing assertion names itself: the text, then the language it was
+/// shaped as, so a Romanian-only failure is not mistaken for a general one.
+fn format_subject(assertion: &CollectedAssertion) -> String {
+    match &assertion.language {
+        Some(lang) => format!("`{}` @{lang}", assertion.text),
+        None => format!("`{}`", assertion.text),
+    }
 }
 
 fn format_comment_suffix(comment: &Option<String>) -> String {
@@ -108,11 +128,12 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     let mut result = Vec::new();
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            if let DocumentItem::AssertShape { text, features, expected, comment } = item {
+            if let DocumentItem::AssertShape { text, features, language, expected, comment } = item {
                 let (docline, file_line) = doc.item_lines(item_idx);
                 result.push(CollectedAssertion {
                     text: text.clone(),
                     features: features.clone(),
+                    language: language.clone(),
                     expected: expected.clone(),
                     comment: comment.clone(),
                     file: doc.path.clone(),
@@ -136,7 +157,12 @@ fn run_assertions_inner(
     let mut passed = 0;
 
     for assertion in &assertions {
-        let shaped = shape_text(font_data, &assertion.text, &assertion.features);
+        let shaped = shape_text(
+            font_data,
+            &assertion.text,
+            &assertion.features,
+            assertion.language.as_deref(),
+        );
 
         let got_names: Vec<&str> = shaped
             .iter()
@@ -154,8 +180,8 @@ fn run_assertions_inner(
             issues.push(Issue {
                 severity: Severity::Error,
                 message: format!(
-                    "assert shape `{}`{}: expected {} glyph(s) [{}], got {} [{}]",
-                    assertion.text,
+                    "assert shape {}{}: expected {} glyph(s) [{}], got {} [{}]",
+                    format_subject(assertion),
                     format_comment_suffix(&assertion.comment),
                     assertion.expected.len(),
                     expected_names.join(", "),
@@ -207,8 +233,8 @@ fn run_assertions_inner(
             issues.push(Issue {
                 severity: Severity::Error,
                 message: format!(
-                    "assert shape `{}`{}: {}",
-                    assertion.text,
+                    "assert shape {}{}: {}",
+                    format_subject(assertion),
                     format_comment_suffix(&assertion.comment),
                     mismatches.join("; "),
                 ),
