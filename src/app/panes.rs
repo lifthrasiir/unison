@@ -172,6 +172,29 @@ impl Panes {
         self.split_ratio = 0.5;
     }
 
+    /// The pane the focus would move to on `side`, if there is one. Moving is
+    /// a step, not a wrap: from the left pane there is nothing further left,
+    /// and a single pane has nowhere to go at all.
+    fn focus_target(&self, side: SplitSide) -> Option<usize> {
+        let target = match side {
+            SplitSide::Left => self.focus.checked_sub(1)?,
+            SplitSide::Right => self.focus + 1,
+        };
+        (target < self.list.len()).then_some(target)
+    }
+
+    /// Whether the focus can move one pane towards `side`.
+    pub(super) fn can_focus_side(&self, side: SplitSide) -> bool {
+        self.focus_target(side).is_some()
+    }
+
+    /// Moves the focus one pane towards `side`. No-op at that end of the split.
+    pub(super) fn focus_side(&mut self, side: SplitSide) {
+        if let Some(target) = self.focus_target(side) {
+            self.focus = target;
+        }
+    }
+
     /// Whether the two panes can be exchanged.
     pub(super) fn can_swap(&self) -> bool {
         self.list.len() == 2
@@ -238,6 +261,8 @@ pub(super) enum PaneAction {
     Close,
     Split(SplitSide),
     Swap,
+    /// Move the keyboard focus to the pane on that side.
+    Focus(SplitSide),
 }
 
 impl super::UniformApp {
@@ -271,6 +296,7 @@ impl super::UniformApp {
             PaneAction::Close => self.close_focused_pane(),
             PaneAction::Split(side) => self.split_focused_pane(side),
             PaneAction::Swap => self.swap_panes(),
+            PaneAction::Focus(side) => self.panes.focus_side(side),
         }
         true
     }
@@ -413,6 +439,36 @@ mod tests {
         assert_eq!(panes.get(1).unwrap().doc_idx, Some(3));
         assert_eq!(panes.focus(), 1, "focus follows document 3");
         assert!((panes.split_ratio - 0.7).abs() < 1e-6);
+    }
+
+    #[test]
+    fn the_focus_steps_between_panes_and_stops_at_the_ends() {
+        let mut panes = split_with(3, 4);
+        panes.set_focus(1);
+        assert!(panes.can_focus_side(SplitSide::Left));
+        assert!(!panes.can_focus_side(SplitSide::Right));
+        panes.focus_side(SplitSide::Left);
+        check_invariants(&panes);
+        assert_eq!(panes.focus(), 0);
+
+        // At the left end, moving further left does nothing.
+        assert!(!panes.can_focus_side(SplitSide::Left));
+        panes.focus_side(SplitSide::Left);
+        assert_eq!(panes.focus(), 0);
+
+        assert!(panes.can_focus_side(SplitSide::Right));
+        panes.focus_side(SplitSide::Right);
+        check_invariants(&panes);
+        assert_eq!(panes.focus(), 1);
+
+        // A single pane has nowhere to go in either direction.
+        let mut single = Panes::new();
+        single.show_document(0);
+        assert!(!single.can_focus_side(SplitSide::Left));
+        assert!(!single.can_focus_side(SplitSide::Right));
+        single.focus_side(SplitSide::Right);
+        check_invariants(&single);
+        assert_eq!(single.focus(), 0);
     }
 
     #[test]

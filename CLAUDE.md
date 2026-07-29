@@ -158,8 +158,9 @@ Two invariants make the single sidebar unambiguous, and `panes.rs`'s tests pin b
   line-by-line synchronization; that is deliberately not supported.
 
 The focus follows whichever editor egui reports as focused (`sync_pane_focus`, run right after the
-panes are laid out), and pane commands — Cmd/Ctrl+Alt+←/→ split, Cmd/Ctrl+Alt+X swap, Cmd/Ctrl+W
-close — are dispatched after that, so they act on the pane the focus is actually in this frame.
+panes are laid out), and pane commands — Cmd/Ctrl+Alt+←/→ split, Cmd/Ctrl+Alt+H/L move the focus one pane left/right
+(vim-keyed, since the arrows are taken and j/k stay free for a future horizontal split),
+Cmd/Ctrl+Alt+X swap, Cmd/Ctrl+W close — are dispatched after that, so they act on the pane the focus is actually in this frame.
 The swap chord is the exception to how accelerators are read: `egui-winit`'s `is_cut_command`
 ignores alt and *returns* after pushing `Event::Cut`, so Cmd/Ctrl+Alt+X never arrives as a key
 press at all. `intercept_swap_panes_chord` takes that event out of the queue at the top of the

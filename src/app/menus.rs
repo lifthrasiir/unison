@@ -420,6 +420,25 @@ impl UniformApp {
                             ui.close_menu();
                         }
                     }
+                    // Moving the focus is vim-keyed rather than arrow-keyed:
+                    // the arrows are taken by the splits above, and h/l leave
+                    // j/k free for a horizontal split should one ever land.
+                    for (side, label, key) in [
+                        (SplitSide::Left, "Focus editor pane left", "H"),
+                        (SplitSide::Right, "Focus editor pane right", "L"),
+                    ] {
+                        if ui
+                            .add_enabled(
+                                self.panes.can_focus_side(side),
+                                egui::Button::new(label)
+                                    .shortcut_text(format!("{mod_name}{alt_name}{key}")),
+                            )
+                            .clicked()
+                        {
+                            *pane_action = PaneAction::Focus(side);
+                            ui.close_menu();
+                        }
+                    }
                     if ui
                         .add_enabled(
                             self.panes.can_swap(),
@@ -609,6 +628,13 @@ impl UniformApp {
                     }
                     if i.key_pressed(egui::Key::ArrowRight) {
                         *pane_action = PaneAction::Split(SplitSide::Right);
+                    }
+                    // Moving the focus between panes, vim-style.
+                    if i.key_pressed(egui::Key::H) {
+                        *pane_action = PaneAction::Focus(SplitSide::Left);
+                    }
+                    if i.key_pressed(egui::Key::L) {
+                        *pane_action = PaneAction::Focus(SplitSide::Right);
                     }
                 }
             }
