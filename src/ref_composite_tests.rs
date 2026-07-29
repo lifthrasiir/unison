@@ -582,6 +582,58 @@ ref part
     assert!(path.contains(&(1.0, 1.0)));
 }
 
+/// An alternative that is itself a composite only enters the alternatives
+/// index once it has been resolved. If that merge is deferred to the end of the
+/// fixpoint round, every composite resolved later in the *same* round sees an
+/// index without it, and a ref whose anchors only size-match that alternative
+/// falls back to offset (0, 0) instead — which is what `i-upper` + `acute-above`
+/// used to do, silently, in the shipped font.
+#[test]
+fn alternative_resolved_in_the_same_round_is_visible_to_later_composites() {
+    use crate::document_io;
+
+    let input = "\
+glyph stroke 3 1 inline
+@@@@@@
+
+glyph mark-above mark
+ref stroke
+anchor -above 1 0
+
+glyph mark-above:wide mark
+ref stroke
+anchor -above 0..1 0
+
+glyph base 5 3
+..........
+..........
+@@@@@@@@@@
+anchor +above 2..3 1
+
+glyph combo
+ref base
+ref mark-above
+
+glyph combo-expected
+ref base
+ref mark-above:wide 2 1
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+
+    // `mark-above` is one cell wide against `base`'s two-cell `+above`, so only
+    // `mark-above:wide` can attach; both are composites, so both resolve in the
+    // same round as `combo` itself.
+    assert_eq!(
+        resolved["combo"].grid, resolved["combo-expected"].grid,
+        "the wide alternative should have been picked and anchored"
+    );
+    assert_ne!(
+        resolved["combo"].grid, resolved["base"].grid,
+        "the mark must not have collapsed onto the base at (0, 0)"
+    );
+}
+
 #[test]
 fn lookahead_selects_alternative_when_later_ref_consumes_forwarded_anchor() {
     use crate::document_io;

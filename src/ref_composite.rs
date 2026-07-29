@@ -951,20 +951,41 @@ pub fn resolve_expansion(
 
     // Built once and grown incrementally: a full rebuild clones every name
     // and anchor list in the cache, which is too expensive to repeat per
-    // fixpoint round. Entries resolved during a round are merged at round
-    // end, matching the visibility the per-round rebuild used to provide.
+    // fixpoint round.
     let mut alt_index = AlternativesIndex::build(&cache);
-    let mut progress = true;
-    while progress {
-        progress = false;
-        let mut new_entries: Vec<(String, Vec<GlyphPoint>)> = Vec::new();
-        pending.retain(|pg| {
+
+    // How many alternatives of each base name are still unresolved. A composite
+    // must not be derived while one of them is pending: the alternative would be
+    // missing from `alt_index`, so a ref whose anchors only size-match *that*
+    // alternative silently falls back to offset (0, 0) instead. `i-upper` +
+    // `acute-above` did exactly that — serving `i-upper`'s two-cell `+above` is
+    // the whole reason `acute-above:wide` exists.
+    let mut pending_alts: HashMap<String, usize> = HashMap::new();
+    for pg in &pending {
+        for prefix in alternative_prefixes(&pg.name) {
+            *pending_alts.entry(prefix.to_string()).or_default() += 1;
+        }
+    }
+
+    // Dropped for one round whenever that guard is what blocks every remaining
+    // glyph (a reference cycle running through an alternative), so resolution
+    // still terminates with the fallbacks it produced before.
+    let mut relaxed = false;
+    loop {
+        let mut progress = false;
+        for pg in std::mem::take(&mut pending) {
             if !pg
                 .refs
                 .iter()
                 .all(|r| resolve_ref_name_with_parts(&r.name, &cache, name_parts).is_some())
+                || (!relaxed
+                    && pg
+                        .refs
+                        .iter()
+                        .any(|r| r.offset.is_none() && pending_alts.contains_key(&r.name)))
             {
-                return true;
+                pending.push(pg);
+                continue;
             }
             let (effective_refs, anchors) =
                 derive_ref_offsets_with(
@@ -989,7 +1010,17 @@ pub fn resolve_expansion(
             );
             let (min_r, min_c) = (layout.min_r, layout.min_c);
             let grid = layout.to_grid(pg.pixels.as_ref(), pg.scale);
-            new_entries.push((pg.name.clone(), anchors.clone()));
+            for prefix in alternative_prefixes(&pg.name) {
+                if let Some(count) = pending_alts.get_mut(prefix) {
+                    *count -= 1;
+                    if *count == 0 {
+                        pending_alts.remove(prefix);
+                    }
+                }
+            }
+            // Merged right away rather than at round end: a composite later in
+            // the same round has to see the alternatives resolved before it.
+            alt_index.extend([(pg.name.clone(), anchors.clone())]);
             cache.insert(
                 pg.name.clone(),
                 ResolvedGlyph {
@@ -1002,9 +1033,17 @@ pub fn resolve_expansion(
                 },
             );
             progress = true;
-            false
-        });
-        alt_index.extend(new_entries);
+        }
+        if pending.is_empty() {
+            break;
+        }
+        if progress {
+            relaxed = false;
+        } else if relaxed {
+            break;
+        } else {
+            relaxed = true;
+        }
     }
 
     (cache, alt_index)
