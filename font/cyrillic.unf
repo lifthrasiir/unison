@@ -1772,51 +1772,51 @@ map я = cy-ya-lower
 //--------------------------------------
 // with diaeresis
 
-map Ӓ
-map Ё
-map Ӝ
-map Ӟ
-map Ӥ
+map generate Ӓ
+map generate Ё
+map generate Ӝ
+map generate Ӟ
+map generate Ӥ
 glyph uni0407
 ref cy-dotted-i-upper
 ref dia-above 1 0
 map Ї = uni0407
-map Ӧ
-map Ӱ
-map Ӵ
-map Ӭ
-map Ӹ
+map generate Ӧ
+map generate Ӱ
+map generate Ӵ
+map generate Ӭ
+map generate Ӹ
 
-map ӓ
-map ё
-map ӝ
-map ӟ
-map ӥ
+map generate ӓ
+map generate ё
+map generate ӝ
+map generate ӟ
+map generate ӥ
 glyph uni0457
 ref cy-dotless-dotted-i-lower
 ref dia-below 1 3
 map ї = uni0457
-map ӧ
-map ӱ
-map ӵ
-map ӭ
-map ӹ
+map generate ӧ
+map generate ӱ
+map generate ӵ
+map generate ӭ
+map generate ӹ
 
 //--------------------------------------
 // with acute accents
 
-map Ѓ
-map Ќ
+map generate Ѓ
+map generate Ќ
 
-map ѓ
-map ќ
+map generate ѓ
+map generate ќ
 
 //--------------------------------------
 // with double acute accents
 
-map Ӳ
+map generate Ӳ
 
-map ӳ
+map generate ӳ
 
 //--------------------------------------
 // with grave accents

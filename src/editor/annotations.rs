@@ -43,12 +43,15 @@ pub(crate) fn line_annotations(line: &str) -> Vec<InlineAnnotation> {
     out
 }
 
-/// `map CHAR = GLYPH` / `map CHAR`: spell out the codepoint of every literally
-/// written character. Tokens already in `U+XXXX` form annotate nothing.
+/// `map CHAR = GLYPH` / `map generate CHAR [= GLYPH]`: spell out the codepoint
+/// of every literally written character. Tokens already in `U+XXXX` form
+/// annotate nothing.
 fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> {
-    let char_span = match rest.len() {
-        1 => &rest[0],
-        3 if rest[1].value == "=" => &rest[0],
+    let generate = rest.first().is_some_and(|s| s.value == "generate");
+    let char_span = match (generate, rest.len()) {
+        (false, 3) if rest[1].value == "=" => &rest[0],
+        (true, 2) => &rest[1],
+        (true, 4) if rest[2].value == "=" => &rest[1],
         _ => return Vec::new(),
     };
 
@@ -334,7 +337,10 @@ mod tests {
 
     #[test]
     fn map_decomposed_form_is_annotated() {
-        assert_eq!(ann("map 가"), vec![(5, " U+AC00".to_string())]);
+        assert_eq!(ann("map generate 가"), vec![(14, " U+AC00".to_string())]);
+        assert_eq!(ann("map generate 가 = hangul-ga"), vec![(14, " U+AC00".to_string())]);
+        // The bare `map CHAR` form is gone; it is no longer a map at all.
+        assert!(ann("map 가").is_empty());
     }
 
     #[test]

@@ -2296,27 +2296,27 @@ map z = z-lower
 //--------------------------------------
 // with diaeresis
 
-map Ä
+map generate Ä
 glyph uni01DE
 ref a-upper-compressed
 ref dia-above:narrow 2 2
 ref mac-above 2 0
 map Ǟ = uni01DE
-map Ë
-map Ḧ
-map Ï
+map generate Ë
+map generate Ḧ
+map generate Ï
 glyph uni1E2E
 ref i-upper-compressed
 ref dia-above 1 2
 ref acute-above 3 0
 map Ḯ = uni1E2E
-map Ö
+map generate Ö
 glyph uni022A
 ref o-upper-compressed
 ref dia-above:narrow 2 2
 ref mac-above 2 0
 map Ȫ = uni022A
-map Ü
+map generate Ü
 glyph uni01D5
 ref u-upper-compressed
 ref dia-above:narrow 2 2
@@ -2337,36 +2337,36 @@ ref u-upper-compressed
 ref dia-above:narrow 2 2
 ref grave-above 2 0
 map Ǜ = uni01DB
-map Ṳ
-map Ẅ
-map Ẍ
-map Ÿ
+map generate Ṳ
+map generate Ẅ
+map generate Ẍ
+map generate Ÿ
 
-map ä
+map generate ä
 glyph uni01DF
 ref a-lower:compressed
 ref dia-below:narrow 2 4
 ref mac-below 2 2
 map ǟ = uni01DF
-map ë
+map generate ë
 glyph uni1E27
 ref h-lower:sm
 ref dia-below:narrow 2 1
 map ḧ = uni1E27
-map ï
+map generate ï
 glyph uni1E2F
 ref i-lower:dotless
 ref dia-below 1 4
 ref acute-below 3 2
 map ḯ = uni1E2F
-map ö
+map generate ö
 glyph uni022B
 ref o-lower:compressed
 ref dia-below:narrow 2 4
 ref mac-below 2 2
 map ȫ = uni022B
-map ẗ
-map ü
+map generate ẗ
+map generate ü
 glyph uni01D6
 ref u-lower:compressed
 ref dia-below:narrow 2 4
@@ -2387,61 +2387,61 @@ ref u-lower:compressed
 ref dia-below:narrow 2 4
 ref grave-below 2 2
 map ǜ = uni01DC
-map ṳ
-map ẅ
-map ẍ
-map ÿ
+map generate ṳ
+map generate ẅ
+map generate ẍ
+map generate ÿ
 
 //--------------------------------------
 // with acute accents
 
-map Á
-map Ǽ
-map Ć
-map É
-map Ǵ
-map Í
-map Ḱ
-map Ĺ
-map Ḿ
-map Ń
-map Ó
+map generate Á
+map generate Ǽ
+map generate Ć
+map generate É
+map generate Ǵ
+map generate Í
+map generate Ḱ
+map generate Ĺ
+map generate Ḿ
+map generate Ń
+map generate Ó
 glyph uni1EDA
 ref o-horn-upper
 ref acute-above 2 0
 map Ớ = uni1EDA
-map Ǿ
-map Ṕ
-map Ŕ
-map Ś
+map generate Ǿ
+map generate Ṕ
+map generate Ŕ
+map generate Ś
 glyph uni1E64
 ref s-upper-compressed
 ref acute-above 3 2
 ref dot-upper 3 0
 map Ṥ = uni1E64
-map Ú
+map generate Ú
 glyph uni1EE8
 ref u-horn-upper
 ref acute-above 2 0
 map Ứ = uni1EE8
-map Ẃ
-map Ý
-map Ź
+map generate Ẃ
+map generate Ý
+map generate Ź
 
-map á
-map ǽ
-map ć
-map é
-map ǵ
-map í
+map generate á
+map generate ǽ
+map generate ć
+map generate é
+map generate ǵ
+map generate í
 glyph uni1E31
 ref k-lower
 ref acute-below 3 2
 map ḱ = uni1E31
-map ĺ
-map ḿ
-map ń
-map ó
+map generate ĺ
+map generate ḿ
+map generate ń
+map generate ó
 glyph uni1EDB
 ref o-horn-lower
 ref acute-below 2 2
@@ -2450,100 +2450,100 @@ glyph uni01FF
 ref oe-lower
 ref acute-below 3 2
 map ǿ = uni01FF
-map ṕ
-map ŕ
-map ś
+map generate ṕ
+map generate ŕ
+map generate ś
 glyph uni1E65
 ref s-lower:compressed
 ref acute-below 3 4
 ref dot-lower 3 2
 map ṥ = uni1E65
-map ú
+map generate ú
 glyph uni1EE9
 ref u-horn-lower
 ref acute-below 2 2
 map ứ = uni1EE9
-map ẃ
-map ý
-map ź
+map generate ẃ
+map generate ý
+map generate ź
 
 //--------------------------------------
 // with double acute accents
 
-map Ő
-map Ű
+map generate Ő
+map generate Ű
 
-map ő
-map ű
+map generate ő
+map generate ű
 
 //--------------------------------------
 // with grave accents
 
-map À
-map È
-map Ì
-map Ǹ
-map Ò
+map generate À
+map generate È
+map generate Ì
+map generate Ǹ
+map generate Ò
 glyph uni1EDC
 ref o-horn-upper
 ref grave-above 1 0
 map Ờ = uni1EDC
-map Ù
+map generate Ù
 glyph uni1EEA
 ref u-horn-upper
 ref grave-above 1 0
 map Ừ = uni1EEA
-map Ẁ
-map Ỳ
+map generate Ẁ
+map generate Ỳ
 
-map à
-map è
+map generate à
+map generate è
 glyph uni00EC
 ref i-lower:dotless
 ref grave-below 2 3
 map ì = uni00EC
-map ò
+map generate ò
 glyph uni1EDD
 ref o-horn-lower
 ref grave-below 1 2
 map ờ = uni1EDD
-map ù
+map generate ù
 glyph uni1EEB
 ref u-horn-lower
 ref grave-below 1 2
 map ừ = uni1EEB
-map ǹ
-map ẁ
-map ỳ
+map generate ǹ
+map generate ẁ
+map generate ỳ
 
 //--------------------------------------
 // with double grave accents
 
-map Ȁ
-map Ȅ
-map Ȉ
-map Ȍ
-map Ȑ
-map Ȕ
+map generate Ȁ
+map generate Ȅ
+map generate Ȉ
+map generate Ȍ
+map generate Ȑ
+map generate Ȕ
 
-map ȁ
-map ȅ
+map generate ȁ
+map generate ȅ
 glyph uni0209
 ref i-lower:dotless
 ref dgrave-above 1 3
 map ȉ = uni0209
-map ȍ
-map ȑ
-map ȕ
+map generate ȍ
+map generate ȑ
+map generate ȕ
 
 //--------------------------------------
 // with macron
 
-map Ā
-map Ǣ
-map Ḇ
-map Ḏ
-map Ē
+map generate Ā
+map generate Ǣ
+map generate Ḇ
+map generate Ḏ
+map generate Ē
 glyph uni1E14
 ref e-upper-compressed
 ref mac-above 2 2
@@ -2554,12 +2554,12 @@ ref e-upper-compressed
 ref mac-above 2 2
 ref acute-above 3 0
 map Ḗ = uni1E16
-map Ḡ
-map Ī
-map Ḵ
-map Ḻ
-map Ṉ
-map Ō
+map generate Ḡ
+map generate Ī
+map generate Ḵ
+map generate Ḻ
+map generate Ṉ
+map generate Ō
 glyph uni1E50
 ref o-upper-compressed
 ref mac-above 2 2
@@ -2570,22 +2570,23 @@ ref o-upper-compressed
 ref mac-above 2 2
 ref acute-above 3 0
 map Ṓ = uni1E52
-map Ṟ
-map Ṯ // TODO: too wide
-map Ū
+map generate Ṟ
+map generate Ṯ // TODO: too wide
+
+map generate Ū
 glyph uni1E7A
 ref u-upper-compressed
 ref mac-above 2 2
 ref dia-above:narrow 2 0
 map Ṻ = uni1E7A
-map Ȳ
-map Ẕ
+map generate Ȳ
+map generate Ẕ
 
-map ā
-map ǣ
-map ḇ
-map ḏ
-map ē
+map generate ā
+map generate ǣ
+map generate ḇ
+map generate ḏ
+map generate ē
 glyph uni1E15
 ref e-lower:compressed
 ref mac-below 2 4
@@ -2596,13 +2597,14 @@ ref e-lower:compressed
 ref mac-below 2 4
 ref acute-below 3 2
 map ḗ = uni1E17
-map ḡ
-map ẖ
-map ī
-map ḵ
-map ḻ // TODO: too wide
-map ṉ
-map ō
+map generate ḡ
+map generate ẖ
+map generate ī
+map generate ḵ
+map generate ḻ // TODO: too wide
+
+map generate ṉ
+map generate ō
 glyph uni1E51
 ref o-lower:compressed
 ref mac-below 2 4
@@ -2613,16 +2615,16 @@ ref o-lower:compressed
 ref mac-below 2 4
 ref acute-below 3 2
 map ṓ = uni1E53
-map ṟ
-map ṯ
-map ū
+map generate ṟ
+map generate ṯ
+map generate ū
 glyph uni1E7B
 ref u-lower:compressed
 ref mac-below 2 4
 ref dia-below:narrow 2 2
 map ṻ = uni1E7B
-map ȳ
-map ẕ
+map generate ȳ
+map generate ẕ
 
 //--------------------------------------
 // with cedilla
@@ -2634,10 +2636,10 @@ map ẕ
 // Portuguese and Turkish ç, Turkish/Gagauz ş ţ, and the transliteration
 // letters ḑ ȩ ḩ.
 
-map Ç
-map Ḉ
-map Ḑ
-map Ȩ
+map generate Ç
+map generate Ḉ
+map generate Ḑ
+map generate Ȩ
 // U+0306 combining breve has no anchored mark glyph, so this one cannot be
 // synthesized from its decomposition
 glyph e-upper-with-ced-below-breve-upper
@@ -2645,22 +2647,22 @@ ref e-upper
 ref ced-below
 ref breve-upper 2 0
 map Ḝ = e-upper-with-ced-below-breve-upper
-map Ḩ
-map Ş
-map Ţ
+map generate Ḩ
+map generate Ş = s-upper-with-ced-below
+map generate Ţ = t-upper-with-ced-below
 
-map ç
-map ḉ
-map ḑ
-map ȩ
+map generate ç
+map generate ḉ
+map generate ḑ
+map generate ȩ
 glyph e-lower-with-ced-below-breve-upper
 ref e-lower
 ref ced-below
 ref breve-lower 2 2
 map ḝ = e-lower-with-ced-below-breve-upper
-map ḩ
-map ş
-map ţ
+map generate ḩ
+map generate ş = s-lower-with-ced-below
+map generate ţ = t-lower-with-ced-below
 
 //--------------------------------------
 // with comma below
@@ -2695,8 +2697,8 @@ glyph r-upper-with-com-below
 ref r-upper
 ref com-below
 map Ŗ = r-upper-with-com-below
-map Ș
-map Ț
+map generate Ș = s-upper-with-com-below
+map generate Ț = t-upper-with-com-below
 
 glyph g-lower-with-com-below
 ref g-lower
@@ -2718,14 +2720,14 @@ glyph r-lower-with-com-below
 ref r-lower
 ref com-below
 map ŗ = r-lower-with-com-below
-map ș
-map ț
+map generate ș = s-lower-with-com-below
+map generate ț = t-lower-with-com-below
 
 // Romanian used the Turkish codepoints before U+0218/U+021A existed in unicode
 // 3.0, and plenty of text still does, so under a Romanian language system the
 // legacy pair is drawn with the comma. this is the one place a locale really
 // is needed: the same ş must stay a cedilla for Turkish.
-remap romanian-comma : (uni015E|uni015F|uni0162|uni0163) -> (uni0218|uni0219|uni021A|uni021B)
+remap romanian-comma : (s|t**2)-(lower|upper)-with-ced-below -> (s|t**2)-(lower|upper)-with-com-below
 feature locl for latn/ROM latn/MOL : romanian-comma
 
 // the same five letters have to come out as a comma when the sequence arrives
@@ -2738,32 +2740,32 @@ feature ccmp for DFLT : latvian-comma
 
 // the cedilla and the comma must never collapse into one shape
 assert distinct ced-below com-below com-inverted-above
-assert distinct uni015E uni0218
-assert distinct uni015F uni0219
-assert distinct uni0162 uni021A
-assert distinct uni0163 uni021B
+assert distinct s-upper-with-ced-below s-upper-with-com-below
+assert distinct s-lower-with-ced-below s-lower-with-com-below
+assert distinct t-upper-with-ced-below t-upper-with-com-below
+assert distinct t-lower-with-ced-below t-lower-with-com-below
 assert shape ģ : g-lower-with-com-below
 assert shape ķ : k-lower-with-com-below
 assert shape Ŗ : r-upper-with-com-below
-assert shape ş : uni015F
-assert shape ș : uni0219
+assert shape ş : s-lower-with-ced-below
+assert shape ș : s-lower-with-com-below
 // a decomposed sequence is recomposed by the shaper whenever the precomposed
 // glyph exists---and for these letters it always does, even with a further
 // mark following, so harfbuzz never reaches the `latvian-comma` substitution.
 // it is there for the engines that do not normalize at all.
 assert shape ķ́ : k-lower-with-com-below : acute-above
 assert shape ģ́ : g-lower-with-com-below : acute-above
-assert shape ş́ : uni015F : acute-above
+assert shape ş́ : s-lower-with-ced-below : acute-above
 
 // the Romanian locale, and only it, redraws the legacy Turkish pair.  the
 // assertion names a BCP 47 language, not the `latn/ROM` the font declares, so
 // it pins that the shaper really does resolve the one to the other
-assert shape ş @ro : uni0219
-assert shape ţ @ro : uni021B
-assert shape ş @mo : uni0219
-assert shape ş @tr : uni015F
-assert shape ş @lv : uni015F
-assert shape ş : uni015F
+assert shape ş @ro : s-lower-with-com-below
+assert shape ţ @ro : t-lower-with-com-below
+assert shape ş @mo : s-lower-with-com-below
+assert shape ş @tr : s-lower-with-ced-below
+assert shape ş @lv : s-lower-with-ced-below
+assert shape ş : s-lower-with-ced-below
 // Romanian must not lose what the default language system carries: this needs
 // `ccmp`, which an explicit language system replaces rather than extends
 assert shape j̈ @ro : j-lower:dotless : dia-above:narrow offset -5 3

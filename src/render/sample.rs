@@ -421,9 +421,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     cmap.entry(cp).or_insert(glyph_name);
                 }
             }
-            DocumentItem::MapDecomposed { char_repr, .. } => {
-                if let Some(cp) = crate::render::ttf_builder::parse_map_char(char_repr) {
-                    cmap.entry(cp).or_insert_with(|| format!("uni{cp:04X}"));
+            DocumentItem::MapDecomposed { char_repr, glyph, .. } => {
+                let pairs = crate::render::ttf_builder::decomposed_map_pairs(
+                    char_repr,
+                    glyph.as_deref(),
+                );
+                for (cp, glyph_name) in pairs {
+                    cmap.entry(cp).or_insert(glyph_name);
                 }
             }
             _ => {}
@@ -1548,7 +1552,7 @@ anchor -above 1 1
 
 map a = a-lower
 map \u{0308} = dia-above
-map ä
+map generate ä
 ",
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");
@@ -1607,7 +1611,7 @@ anchor -above -3 3
 
 map a = a-lower
 map \u{0308} = dia-above
-map ä
+map generate ä
 ",
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");

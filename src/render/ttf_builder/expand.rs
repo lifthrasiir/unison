@@ -179,16 +179,18 @@ fn expand_decomposed_maps(
     use unicode_normalization::UnicodeNormalization;
 
     let mut decomposed_items: Vec<ExpandedItem> = Vec::new();
-    let pending: Vec<(String, Option<ItemRef>)> = all_items
+    let pending: Vec<(String, Option<String>, Option<ItemRef>)> = all_items
         .iter()
         .filter_map(|e| match &e.item {
-            DocumentItem::MapDecomposed { char_repr, .. } => Some((char_repr.clone(), e.origin)),
+            DocumentItem::MapDecomposed { char_repr, glyph, .. } => {
+                Some((char_repr.clone(), glyph.clone(), e.origin))
+            }
             _ => None,
         })
         .collect();
 
-    for (char_repr, origin) in pending {
-        let pairs = expand_map_pairs(&char_repr, "");
+    for (char_repr, glyph, origin) in pending {
+        let pairs = decomposed_map_pairs(&char_repr, glyph.as_deref());
         if pairs.is_empty() {
             diagnostics.push(Diagnostic::error(
                 origin,
@@ -197,7 +199,7 @@ fn expand_decomposed_maps(
             continue;
         }
 
-        for (cp, _) in pairs {
+        for (cp, composite_name) in pairs {
             let Some(ch) = char::from_u32(cp) else {
                 diagnostics.push(Diagnostic::error(
                     origin,
@@ -237,7 +239,6 @@ fn expand_decomposed_maps(
                 continue;
             }
 
-            let composite_name = format!("uni{cp:04X}");
             let refs: Vec<GlyphRef> = nfd
                 .iter()
                 .map(|c| GlyphRef {
@@ -519,6 +520,21 @@ pub(crate) fn parse_map_char(s: &str) -> Option<u32> {
             None
         }
     }
+}
+
+/// Codepoint/generated-glyph-name pairs for a `map generate CHAR [= GLYPH]`.
+///
+/// Without an explicit name each codepoint generates `uniXXXX`; with one, the
+/// name is a pattern expanded in lock-step with `char_repr`, exactly as a plain
+/// `map`'s target is.
+pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, String)> {
+    expand_map_pairs(char_repr, glyph.unwrap_or(""))
+        .into_iter()
+        .map(|(cp, name)| {
+            let name = if name.is_empty() { format!("uni{cp:04X}") } else { name };
+            (cp, name)
+        })
+        .collect()
 }
 
 pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String)> {

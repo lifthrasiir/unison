@@ -244,7 +244,11 @@ Appending to a line must go through `append_to_line` to stay in front of the com
 ### Directives
 
 - `font-meta height H ascent A descent D`
-- `map CHAR = GLYPH` — cmap mapping. Decomposable codepoints are validated and can synthesize a glyph.
+- `map CHAR = GLYPH` — cmap mapping.
+- `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from the character's Unicode
+  canonical decomposition, named `uniXXXX` unless `GLYPH` names it. `GLYPH` is a pattern expanded in
+  lock-step with `CHAR`, exactly as a plain `map`'s target is. The `generate` keyword is mandatory:
+  the older bare `map CHAR` was too easily misread as the plain form.
 - `name-parts $NAME = token1 token2 ...`
 - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
 - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]` — GSUB substitution.

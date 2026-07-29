@@ -194,11 +194,12 @@ map C = chain
 #[test]
 fn map_decomposed_roundtrips() {
     let input = "\
-map ä
+map generate ä
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    if let DocumentItem::MapDecomposed { char_repr, .. } = &doc.items[0] {
+    if let DocumentItem::MapDecomposed { char_repr, glyph, .. } = &doc.items[0] {
         assert_eq!(char_repr, "ä");
+        assert_eq!(glyph.as_deref(), None);
     } else {
         panic!("expected MapDecomposed, got {:?}", doc.items[0]);
     }
@@ -206,7 +207,26 @@ map ä
     let mut output = Vec::new();
     document_io::serialize_document(&doc, &mut output).unwrap();
     let output_str = String::from_utf8(output).unwrap();
-    assert!(output_str.contains("map ä"));
+    assert!(output_str.contains("map generate ä"));
+}
+
+#[test]
+fn map_decomposed_with_explicit_name_roundtrips() {
+    let input = "\
+map generate ä = a-dieresis
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    if let DocumentItem::MapDecomposed { char_repr, glyph, .. } = &doc.items[0] {
+        assert_eq!(char_repr, "ä");
+        assert_eq!(glyph.as_deref(), Some("a-dieresis"));
+    } else {
+        panic!("expected MapDecomposed, got {:?}", doc.items[0]);
+    }
+
+    let mut output = Vec::new();
+    document_io::serialize_document(&doc, &mut output).unwrap();
+    let output_str = String::from_utf8(output).unwrap();
+    assert!(output_str.contains("map generate ä = a-dieresis"));
 }
 
 #[test]
@@ -228,7 +248,7 @@ anchor -above 1 1
 
 map a = a-lower
 map \u{0308} = dia-above
-map ä
+map generate ä
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let docs: Vec<&Document> = vec![&doc];
@@ -242,6 +262,46 @@ map ä
     let cmap = font.cmap().unwrap();
     let gid = cmap.map_codepoint('ä');
     assert!(gid.is_some(), "ä should be mapped in cmap");
+}
+
+#[test]
+fn map_decomposed_explicit_name_names_the_generated_glyph() {
+    let input = "\
+font-meta height 16 ascent 12 descent 4
+
+glyph a-lower 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+
+glyph dia-above mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+
+map a = a-lower
+map \u{0308} = dia-above
+map generate ä = a-dieresis
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+
+    let (_, _, glyphs, _, _) = collect_glyph_data(&docs, false).expect("should collect");
+    assert!(
+        glyphs.iter().any(|g| g.name == "a-dieresis"),
+        "generated glyph should carry the declared name, got: {:?}",
+        glyphs.iter().map(|g| &g.name).collect::<Vec<_>>(),
+    );
+    assert!(
+        !glyphs.iter().any(|g| g.name == "uni00E4"),
+        "the default uniXXXX name should not also be emitted",
+    );
+
+    let bytes = build_font_from_documents(&docs).expect("font should build");
+    let font = read_fonts::FontRef::new(&bytes).unwrap();
+    assert!(font.cmap().unwrap().map_codepoint('ä').is_some(), "ä should be mapped");
 }
 
 #[test]
@@ -265,7 +325,7 @@ anchor +above 1 -1
 
 map a = a-lower
 map \u{0308} = dia-above
-map ä
+map generate ä
 
 feature ccmp for DFLT : anchor above
 feature ccmp for DFLT : anchor below

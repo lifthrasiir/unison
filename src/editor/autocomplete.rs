@@ -378,9 +378,12 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             }
         }
         "map" => {
+            // `map generate CHAR = NAME` *defines* NAME, so completing it from
+            // the existing glyph names would only ever suggest a collision.
             if let Some(eq_pos) = rest.iter().position(|s| s.value == "=")
                 && rest_token_idx.is_none()
                 && rest.len() == eq_pos + 1
+                && rest.first().is_none_or(|s| s.value != "generate")
             {
                 return ctx(CompletionKind::Glyph);
             }

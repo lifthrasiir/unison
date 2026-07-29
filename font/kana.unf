@@ -1322,7 +1322,7 @@ map ぁ = hiragana-xa
 map い = hiragana-i
 map ぃ = hiragana-xi
 map う = hiragana-u
-map ゔ
+map generate ゔ
 map ぅ = hiragana-xu
 map え = hiragana-e
 map ぇ = hiragana-xe
@@ -1330,41 +1330,41 @@ map お = hiragana-o
 map ぉ = hiragana-xo
 
 map か = hiragana-ka
-map が
+map generate が
 map ゕ = hiragana-xka
 map き = hiragana-ki
-map ぎ
+map generate ぎ
 map く = hiragana-ku
-map ぐ
+map generate ぐ
 map け = hiragana-ke
-map げ
+map generate げ
 map ゖ = hiragana-xke
 map こ = hiragana-ko
-map ご
+map generate ご
 map 𛄲 = hiragana-xko
 
 map さ = hiragana-sa
-map ざ
+map generate ざ
 map し = hiragana-shi
-map じ
+map generate じ
 map す = hiragana-su
-map ず
+map generate ず
 map せ = hiragana-se
-map ぜ
+map generate ぜ
 map そ = hiragana-so
-map ぞ
+map generate ぞ
 
 map た = hiragana-ta
-map だ
+map generate だ
 map ち = hiragana-chi
-map ぢ
+map generate ぢ
 map つ = hiragana-tsu
-map づ
+map generate づ
 map っ = hiragana-xtsu
 map て = hiragana-te
-map で
+map generate で
 map と = hiragana-to
-map ど
+map generate ど
 
 map な = hiragana-na
 map に = hiragana-ni
@@ -1373,20 +1373,20 @@ map ね = hiragana-ne
 map の = hiragana-no
 
 map は = hiragana-ha
-map ば
-map ぱ
+map generate ば
+map generate ぱ
 map ひ = hiragana-hi
-map び
-map ぴ
+map generate び
+map generate ぴ
 map ふ = hiragana-fu
-map ぶ
-map ぷ
+map generate ぶ
+map generate ぷ
 map へ = hiragana-he
-map べ
-map ぺ
+map generate べ
+map generate ぺ
 map ほ = hiragana-ho
-map ぼ
-map ぽ
+map generate ぼ
+map generate ぽ
 
 map ま = hiragana-ma
 map み = hiragana-mi
@@ -2717,7 +2717,7 @@ map ァ = katakana-xa
 map イ = katakana-i
 map ィ = katakana-xi
 map ウ = katakana-u
-map ヴ
+map generate ヴ
 map ゥ = katakana-xu
 map エ = katakana-e
 map ェ = katakana-xe
@@ -2726,41 +2726,41 @@ map オ = katakana-o
 map ォ = katakana-xo
 
 map カ = katakana-ka
-map ガ
+map generate ガ
 map ヵ = katakana-xka
 map キ = katakana-ki
-map ギ
+map generate ギ
 map ク = katakana-ku
-map グ
+map generate グ
 map ケ = katakana-ke
-map ゲ
+map generate ゲ
 map ヶ = katakana-xke
 map コ = katakana-ko
-map ゴ
+map generate ゴ
 map 𛅕 = katakana-xko
 
 map サ = katakana-sa
-map ザ
+map generate ザ
 map シ = katakana-shi
-map ジ
+map generate ジ
 map ス = katakana-su
-map ズ
+map generate ズ
 map セ = katakana-se
-map ゼ
+map generate ゼ
 map ソ = katakana-so
-map ゾ
+map generate ゾ
 
 map タ = katakana-ta
-map ダ
+map generate ダ
 map チ = katakana-chi
-map ヂ
+map generate ヂ
 map ツ = katakana-tsu
-map ヅ
+map generate ヅ
 map ッ = katakana-xtsu
 map テ = katakana-te
-map デ
+map generate デ
 map ト = katakana-to
-map ド
+map generate ド
 
 map ナ = katakana-na
 map ニ = katakana-ni
@@ -2769,20 +2769,20 @@ map ネ = katakana-ne
 map ノ = katakana-no
 
 map ハ = katakana-ha
-map バ
-map パ
+map generate バ
+map generate パ
 map ヒ = katakana-hi
-map ビ
-map ピ
+map generate ビ
+map generate ピ
 map フ = katakana-fu
-map ブ
-map プ
+map generate ブ
+map generate プ
 map ヘ = katakana-he
-map ベ
-map ペ
+map generate ベ
+map generate ペ
 map ホ = katakana-ho
-map ボ
-map ポ
+map generate ボ
+map generate ポ
 
 map マ = katakana-ma
 map ミ = katakana-mi
@@ -2806,17 +2806,17 @@ map レ = katakana-re
 map ロ = katakana-ro
 
 map ワ = katakana-wa
-map ヷ
+map generate ヷ
 map ヮ = katakana-xwa
 map ヰ = katakana-wi
-map ヸ
+map generate ヸ
 map 𛅤 = katakana-xwi
 map 𛄢 = katakana-wu
 map ヱ = katakana-we
-map ヹ
+map generate ヹ
 map 𛅥 = katakana-xwe
 map ヲ = katakana-wo
-map ヺ
+map generate ヺ
 map 𛅦 = katakana-xwo
 
 map ン = katakana-n

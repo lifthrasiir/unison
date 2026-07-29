@@ -624,8 +624,18 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                     comment_suffix(comment),
                 )?;
             }
-            DocumentItem::MapDecomposed { char_repr, comment } => {
-                writeln!(writer, "map {}{}", quote_token(char_repr), comment_suffix(comment))?;
+            DocumentItem::MapDecomposed { char_repr, glyph, comment } => {
+                let target = match glyph {
+                    Some(g) => format!(" = {}", quote_token(g)),
+                    None => String::new(),
+                };
+                writeln!(
+                    writer,
+                    "map generate {}{}{}",
+                    quote_token(char_repr),
+                    target,
+                    comment_suffix(comment),
+                )?;
             }
         }
     }
@@ -866,6 +876,10 @@ pub fn derive_document(
                         i += 1;
                     }
                     "map" => {
+                        // `map generate CHAR [= GLYPH]` is checked first, but only
+                        // in the arities the plain form cannot take: `map generate
+                        // = g` stays an ordinary (if nonsensical) `map`.
+                        let generate = tokens.len() >= 3 && tokens[1] == "generate";
                         if tokens.len() == 4 && tokens[2] == "=" {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
@@ -874,10 +888,11 @@ pub fn derive_document(
                                 comment,
                             });
                             i += 1;
-                        } else if tokens.len() == 2 {
+                        } else if generate && (tokens.len() == 3 || (tokens.len() == 5 && tokens[3] == "=")) {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::MapDecomposed {
-                                char_repr: tokens[1].clone(),
+                                char_repr: tokens[2].clone(),
+                                glyph: tokens.get(4).cloned(),
                                 comment,
                             });
                             i += 1;

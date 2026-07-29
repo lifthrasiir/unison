@@ -49,6 +49,9 @@ fn doc_may_reference(
             (RenameKind::Glyph, DocumentItem::Map { glyph, .. }) => {
                 if glyph == name { return true; }
             }
+            (RenameKind::Glyph, DocumentItem::MapDecomposed { glyph: Some(glyph), .. }) => {
+                if glyph == name { return true; }
+            }
             (RenameKind::Glyph, DocumentItem::Remap { .. }) => {
                 let mut all = item.remap_operands();
                 if all.any(|s| s == name) { return true; }

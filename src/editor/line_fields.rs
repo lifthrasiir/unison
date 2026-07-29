@@ -114,6 +114,10 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
         "map" => {
             if rest.len() == 3 && rest[1].value == "=" {
                 fields.push(field(FieldRole::GlyphRef, leading, &rest[2]));
+            } else if rest.len() == 4 && rest[0].value == "generate" && rest[2].value == "=" {
+                // `map generate CHAR = NAME` names a glyph that does not exist
+                // anywhere else, so this token *is* its definition.
+                fields.push(field(FieldRole::GlyphDef, leading, &rest[3]));
             }
         }
         "remap" => {

@@ -736,6 +736,38 @@ fn quote_roundtrip() {
 }
 
 #[test]
+fn parse_map_generate_forms() {
+    let input = "\
+map generate À // plain
+map generate Á = a-acute // named
+map generate = g
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, glyph, comment }
+            if char_repr == "À" && glyph.is_none() && comment.as_deref() == Some("plain")),
+        "got {:?}", doc.items[0],
+    );
+    assert!(
+        matches!(&doc.items[1], DocumentItem::MapDecomposed { char_repr, glyph, comment }
+            if char_repr == "Á" && glyph.as_deref() == Some("a-acute")
+                && comment.as_deref() == Some("named")),
+        "got {:?}", doc.items[1],
+    );
+    // `generate` in the plain form's own arity stays a plain `map`, so a glyph
+    // that happens to be called `generate` is still reachable.
+    assert!(
+        matches!(&doc.items[2], DocumentItem::Map { char_repr, glyph, .. }
+            if char_repr == "generate" && glyph == "g"),
+        "got {:?}", doc.items[2],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+#[test]
 fn parse_map_with_quoted_backtick() {
     // map ```` = bquot  →  map backtick-char to "bquot"
     let input = "map ```` = bquot\n";
@@ -1140,7 +1172,7 @@ fn comments_on_directives_round_trip() {
     let input = "\
 font-meta height 16 ascent 12 descent 4 // metrics
 map A = latin-a // the letter
-map U+00C0 // decomposed
+map generate U+00C0 // decomposed
 name-parts $x = a b // parts
 remap liga : a b -> ab // ligature
 feature liga for latn : liga // feature

@@ -984,7 +984,7 @@ assert distinct a b
 glyph a 2 1
 ..@@
 map U+0041 = a
-map A
+map generate A
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
@@ -1002,7 +1002,7 @@ map A
 glyph a 2 1
 ..@@
 map A = a
-map Ä
+map generate Ä
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
@@ -1023,7 +1023,7 @@ glyph dieresis 2 1
 @@..
 map A = a
 map U+0308 = dieresis
-map Ä
+map generate Ä
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);

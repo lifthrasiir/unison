@@ -34,6 +34,6 @@ map U+0308 = dieresis
 map S = stem
 
 // decomposes to U+0041 U+0308; U+0041 is mapped in base.unf
-map Ä
+map generate Ä
 // already in NFD, cannot be synthesized
-map Z
+map generate Z

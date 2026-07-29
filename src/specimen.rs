@@ -6,7 +6,7 @@ use skrifa::{FontRef, MetadataProvider};
 use crate::document::{Document, DocumentItem, NamePartsMap, expand_name_element, substitute_name_parts};
 use crate::editor::doc_links::LinkTargetKind;
 use crate::preview::rasterizer::GlyphCache;
-use crate::render::ttf_builder::{expand_map_pairs, parse_map_char};
+use crate::render::ttf_builder::{decomposed_map_pairs, expand_map_pairs};
 
 struct RemapEntry {
     label: String,
@@ -71,9 +71,9 @@ impl SpecimenState {
                             map.entry(cp).or_insert(glyph_name);
                         }
                     }
-                    DocumentItem::MapDecomposed { char_repr, .. } => {
-                        if let Some(cp) = parse_map_char(char_repr) {
-                            let name = format!("uni{cp:04X}");
+                    DocumentItem::MapDecomposed { char_repr, glyph, .. } => {
+                        let subst = glyph.as_ref().map(|g| substitute_name_parts(g, name_parts));
+                        for (cp, name) in decomposed_map_pairs(char_repr, subst.as_deref()) {
                             mapped_glyphs.insert(name.clone());
                             map.entry(cp).or_insert(name);
                         }

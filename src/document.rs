@@ -745,10 +745,12 @@ pub enum DocumentItem {
         glyph: String,
         comment: Option<String>,
     },
-    /// `map CHAR` — auto-decomposed cmap mapping. The glyph is synthesized from
-    /// the character's Unicode canonical decomposition.
+    /// `map generate CHAR [= GLYPH]` — auto-decomposed cmap mapping. The glyph
+    /// is synthesized from the character's Unicode canonical decomposition and
+    /// named `uniXXXX` unless `glyph` names it.
     MapDecomposed {
         char_repr: String,
+        glyph: Option<String>,
         comment: Option<String>,
     },
     /// `name-parts $NAME = token1 token2 $ref3 ...`
