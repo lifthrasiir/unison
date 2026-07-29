@@ -2721,6 +2721,13 @@ map ŗ = r-lower-with-com-below
 map ș
 map ț
 
+// Romanian used the turkish codepoints before U+0218/U+021A existed in unicode
+// 3.0, and plenty of text still does, so under a Romanian language system the
+// legacy pair is drawn with the comma. this is the one place a locale really
+// is needed: the same ş must stay a cedilla for turkish.
+remap romanian-comma : (uni015E|uni015F|uni0162|uni0163) -> (uni0218|uni0219|uni021A|uni021B)
+feature locl for latn/ROM latn/MOL : romanian-comma
+
 // the same five letters have to come out as a comma when the sequence arrives
 // decomposed as well. harfbuzz would recompose base + U+0327 into the
 // precomposed glyph above, but opentype does not require an engine to

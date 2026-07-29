@@ -252,11 +252,22 @@ Appending to a line must go through `append_to_line` to stay in front of the com
   The list lengths pick the lookup type: 1→1 single, 1→N (incl. 1→0) multiple, N→1 ligature.
   N→M and N→0 have no OpenType lookup type and are an **error** — `issues.rs` reports them rather
   than letting the builder emit something close-but-wrong.
-- `feature NAME for SCRIPT... : REMAP_GROUP` — OpenType feature, script-filtered. Directives sharing
-  a tag *and* a script are merged into one feature record (lookups accumulate in declaration order),
-  because a shaper only ever finds the first record for a tag. Same tag under different scripts
+- `feature NAME for TARGET... : REMAP_GROUP` — OpenType feature. A target is a script tag (`latn`,
+  `DFLT`) or a script narrowed to one language system, `script/LANG` (`latn/ROM`). The two are
+  written explicitly rather than told apart by their tag: the registries' one apparent collision is
+  inverted (`DFLT` is the default *script*, `dflt` the default *language*), and a language tag is
+  meaningless without its script (`SRB` lives under both `latn` and `cyrl`). Directives sharing a
+  tag *and* a target are merged into one feature record (lookups accumulate in declaration order),
+  because a shaper only ever finds the first record for a tag. Same tag under different targets
   stays separate.
-- `feature NAME for SCRIPT... : anchor ANCHOR_NAME` — anchor-driven (mark attachment) variant.
+- `feature NAME for TARGET... : anchor ANCHOR_NAME` — anchor-driven (mark attachment) variant.
+
+  **Both fallbacks are replacements, not extensions**, and `gsub.rs`'s `inherit_tags` exists for
+  exactly that: a shaper reads `DFLT` only when the script it wants has no record at all, and reads
+  a `LangSys` *instead of* its script's default. So the builder folds `DFLT`'s features into every
+  declared script, and each script's default into every language below it, merging per feature tag
+  so an inherited tag and a redeclared one end up as one record. Left out, adding a single
+  `locl for latn/ROM` silently costs all Latin text its `ccmp` — and every mark attachment with it.
 - `assert shape TEXT [+feat|-feat...] : GLYPH [advance N] [offset X Y] : GLYPH ...` — shaping assertion.
 - `assert same NAME...` / `assert distinct NAME...` — resolved-glyph equality assertions.
 - `exclude-from-sample NAME`

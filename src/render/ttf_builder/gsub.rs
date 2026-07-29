@@ -2,7 +2,7 @@
 //! individual lookup builders.
 
 use super::*;
-use super::tables::{build_script_records, make_tag};
+use super::tables::{ScriptFeatures, build_script_records, make_tag, parse_script_lang};
 
 pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData {
     let mut remap_sets: BTreeMap<String, Vec<ExpandedRemap>> = BTreeMap::new();
@@ -79,6 +79,27 @@ pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -
         remap_sets,
         features,
         anchor_features,
+    }
+}
+
+/// Prepend the tags of a broader scope (`DFLT`, or a script's default LangSys)
+/// to a narrower one that inherits from it, merging lookups where both declare
+/// the same feature tag. The broader scope goes first so declaration order
+/// survives; duplicate lookup indices are dropped, since a lookup listed twice
+/// in one feature record is applied twice.
+fn inherit_tags(tags: &mut Vec<(String, Vec<u16>)>, inherited: &[(String, Vec<u16>)]) {
+    let own = std::mem::replace(tags, inherited.to_vec());
+    for (feat_tag, lookup_indices) in own {
+        match tags.iter_mut().find(|(t, _)| *t == feat_tag) {
+            Some((_, indices)) => {
+                for idx in lookup_indices {
+                    if !indices.contains(&idx) {
+                        indices.push(idx);
+                    }
+                }
+            }
+            None => tags.push((feat_tag, lookup_indices)),
+        }
     }
 }
 
@@ -257,21 +278,24 @@ pub(super) fn build_gsub(
         }
     }
 
-    // One feature record per (script, tag). A shaper resolves a tag to the
-    // first record listed for the script and never looks further, so two
-    // `feature` directives sharing a tag *and* a script must contribute to one
-    // record — otherwise every group after the first is dead weight, and a font
-    // could only ever use as many remap groups as there are feature tags.
-    // Lookups accumulate in declaration order, which is also application order.
-    let mut per_script: BTreeMap<String, Vec<(String, Vec<u16>)>> = BTreeMap::new();
-    for (feat_tag, scripts, set_names) in &gsub_data.features {
+    // One feature record per (script, language, tag). A shaper resolves a tag
+    // to the first record listed for the language system and never looks
+    // further, so two `feature` directives sharing a tag *and* a target must
+    // contribute to one record — otherwise every group after the first is dead
+    // weight, and a font could only ever use as many remap groups as there are
+    // feature tags. Lookups accumulate in declaration order, which is also
+    // application order.
+    let mut per_script: BTreeMap<String, BTreeMap<Option<String>, Vec<(String, Vec<u16>)>>> =
+        BTreeMap::new();
+    for (feat_tag, targets, set_names) in &gsub_data.features {
         let lookup_indices: Vec<u16> = set_names
             .iter()
             .filter_map(|sn| set_to_lookup.get(sn).copied())
             .collect();
 
-        for script in scripts {
-            let tags = per_script.entry(script.clone()).or_default();
+        for target in targets {
+            let (script, lang) = parse_script_lang(target);
+            let tags = per_script.entry(script).or_default().entry(lang).or_default();
             match tags.iter_mut().find(|(t, _)| t == feat_tag) {
                 Some((_, indices)) => indices.extend(lookup_indices.iter().copied()),
                 None => tags.push((feat_tag.clone(), lookup_indices.clone())),
@@ -279,29 +303,64 @@ pub(super) fn build_gsub(
         }
     }
 
-    let mut feature_records: Vec<FeatureRecord> = Vec::new();
-    let mut record_of: HashMap<(String, Vec<u16>), u16> = HashMap::new();
-    // Collect which feature indices belong to which script tags
-    let mut script_feature_indices: BTreeMap<String, Vec<u16>> = BTreeMap::new();
-    for (script, tags) in per_script {
-        for (feat_tag, lookup_indices) in tags {
-            // Scripts that end up with the same tag and the same lookups share
-            // one record rather than duplicating it.
-            let feat_idx = *record_of
-                .entry((feat_tag.clone(), lookup_indices.clone()))
-                .or_insert_with(|| {
-                    let idx = feature_records.len() as u16;
-                    feature_records.push(FeatureRecord::new(
-                        make_tag(&feat_tag),
-                        Feature::new(None, lookup_indices),
-                    ));
-                    idx
-                });
-            script_feature_indices.entry(script.clone()).or_default().push(feat_idx);
+    // `DFLT` is what a shaper falls back to only when the script it asked for
+    // has no record at all, so declaring *any* feature for a real script makes
+    // that script stop seeing DFLT. Fold DFLT's features into every declared
+    // script, or adding one `locl for latn/ROM` would cost all Latin text its
+    // `ccmp` — every mark attachment with it.
+    if let Some(dflt_tags) = per_script.get("DFLT").and_then(|langs| langs.get(&None)).cloned() {
+        for (script, langs) in per_script.iter_mut() {
+            if script == "DFLT" {
+                continue;
+            }
+            // A script named only through a language (`latn/ROM` with no bare
+            // `latn`) still needs the default LangSys DFLT used to cover.
+            inherit_tags(langs.entry(None).or_default(), &dflt_tags);
         }
     }
 
-    let script_records = build_script_records(&script_feature_indices);
+    // An explicit language system likewise replaces the script's default rather
+    // than extending it, so fold that default into every language below it.
+    // Merging at tag level (and not later, at feature-record level) is what
+    // keeps `locl for latn/ROM` from producing a second `ccmp` record beside
+    // the inherited one, which the shaper would have to choose between.
+    for langs in per_script.values_mut() {
+        let Some(default_tags) = langs.get(&None).cloned() else { continue };
+        for (lang, tags) in langs.iter_mut() {
+            if lang.is_some() {
+                inherit_tags(tags, &default_tags);
+            }
+        }
+    }
+
+    let mut feature_records: Vec<FeatureRecord> = Vec::new();
+    let mut record_of: HashMap<(String, Vec<u16>), u16> = HashMap::new();
+    // Collect which feature indices belong to which language system
+    let mut script_features: BTreeMap<String, ScriptFeatures> = BTreeMap::new();
+    for (script, langs) in per_script {
+        for (lang, tags) in langs {
+            for (feat_tag, lookup_indices) in tags {
+                // Language systems that end up with the same tag and the same
+                // lookups share one record rather than duplicating it.
+                let feat_idx = *record_of
+                    .entry((feat_tag.clone(), lookup_indices.clone()))
+                    .or_insert_with(|| {
+                        let idx = feature_records.len() as u16;
+                        feature_records.push(FeatureRecord::new(
+                            make_tag(&feat_tag),
+                            Feature::new(None, lookup_indices),
+                        ));
+                        idx
+                    });
+                script_features
+                    .entry(script.clone())
+                    .or_default()
+                    .push(lang.as_deref(), feat_idx);
+            }
+        }
+    }
+
+    let script_records = build_script_records(&script_features);
 
     let script_list = ScriptList::new(script_records);
     let feature_list = FeatureList::new(feature_records);

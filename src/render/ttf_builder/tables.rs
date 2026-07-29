@@ -17,16 +17,72 @@ pub(super) fn make_tag(name: &str) -> Tag {
     Tag::new(&tag_arr)
 }
 
-/// Script records with one default LangSys per script, from a
-/// script-tag → feature-indices map.
-pub(super) fn build_script_records(script_feature_indices: &BTreeMap<String, Vec<u16>>) -> Vec<ScriptRecord> {
+/// The `for` target of a `feature` directive: an OpenType script tag,
+/// optionally narrowed to one language system under it.
+///
+/// The two registries are separate and their tags never collide as bytes —
+/// script tags are lowercase and language tags uppercase — but the one pair
+/// that looks like a collision is inverted (`DFLT` is the default *script*,
+/// `dflt` the default *language*), and a language tag means nothing without
+/// the script it hangs under (`SRB` exists below both `latn` and `cyrl`).
+/// So the two are written explicitly as `script/LANG` rather than guessed
+/// from the tag.
+pub(super) fn parse_script_lang(tok: &str) -> (String, Option<String>) {
+    match tok.split_once('/') {
+        Some((script, lang)) => (script.to_string(), Some(lang.to_string())),
+        None => (tok.to_string(), None),
+    }
+}
+
+/// Feature indices for one script: the default language system plus any
+/// explicit ones.
+#[derive(Default)]
+pub(super) struct ScriptFeatures {
+    /// Features of the default LangSys, i.e. what a bare `for latn` declares.
+    pub(super) default: Vec<u16>,
+    /// Features of each explicit LangSys, keyed by language tag.
+    pub(super) langs: BTreeMap<String, Vec<u16>>,
+}
+
+impl ScriptFeatures {
+    pub(super) fn push(&mut self, lang: Option<&str>, feat_idx: u16) {
+        match lang {
+            None => self.default.push(feat_idx),
+            Some(l) => self.langs.entry(l.to_string()).or_default().push(feat_idx),
+        }
+    }
+}
+
+/// Script records, each with its default LangSys and one record per explicit
+/// language system.
+///
+/// `langs` is expected to be complete: a shaper that resolves a language picks
+/// that LangSys *instead of* the default and never merges the two, so whatever
+/// the default carries has to be repeated there. `gsub::build_gsub` does that
+/// at feature-tag level, before the records exist, so a language that redefines
+/// a tag the default already has ends up with one merged record rather than two
+/// records the shaper would have to choose between.
+pub(super) fn build_script_records(script_features: &BTreeMap<String, ScriptFeatures>) -> Vec<ScriptRecord> {
     let mut script_records: Vec<ScriptRecord> = Vec::new();
-    for (script_tag, feat_indices) in script_feature_indices {
+    for (script_tag, features) in script_features {
         let lang_sys = LangSys {
             required_feature_index: 0xFFFF,
-            feature_indices: feat_indices.clone(),
+            feature_indices: features.default.clone(),
         };
-        let script = Script::new(Some(lang_sys), vec![]);
+        let lang_sys_records: Vec<LangSysRecord> = features
+            .langs
+            .iter()
+            .map(|(lang_tag, feat_indices)| {
+                LangSysRecord::new(
+                    make_tag(lang_tag),
+                    LangSys {
+                        required_feature_index: 0xFFFF,
+                        feature_indices: feat_indices.clone(),
+                    },
+                )
+            })
+            .collect();
+        let script = Script::new(Some(lang_sys), lang_sys_records);
         script_records.push(ScriptRecord::new(make_tag(script_tag), script));
     }
     script_records

@@ -34,7 +34,8 @@ use write_fonts::tables::hhea::Hhea;
 use write_fonts::tables::hmtx::{Hmtx, LongMetric};
 use write_fonts::tables::layout::{
     ChainedSequenceContext, ChainedSequenceContextFormat3, ClassDef, ClassDefFormat2,
-    ClassRangeRecord, CoverageTable, Feature, FeatureList, FeatureRecord, LangSys, Lookup,
+    ClassRangeRecord, CoverageTable, Feature, FeatureList, FeatureRecord, LangSys, LangSysRecord,
+    Lookup,
     LookupFlag, LookupList, Script, ScriptList, ScriptRecord, SequenceLookupRecord,
 };
 use write_fonts::tables::maxp::Maxp;

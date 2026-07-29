@@ -398,3 +398,139 @@ feature ccmp for DFLT : grp
         "an empty target must delete the glyph"
     );
 }
+
+/// `feature ... for latn/ROM` must reach Romanian and nothing else.
+///
+/// The shape of the bug this pins is a font-wide `locl`: declaring the feature
+/// for the bare script would turn Turkish `ş` into `ș` too, which is exactly
+/// the substitution a language system exists to avoid.
+#[test]
+fn a_language_system_only_applies_to_its_own_language() {
+    let input = "\
+glyph pix 1 1
+@@
+glyph s-cedilla = pix
+glyph s-comma = pix
+map U+015F = s-cedilla
+map U+0219 = s-comma
+remap romanian : s-cedilla -> s-comma
+feature locl for latn/ROM : romanian
+";
+    assert_eq!(
+        shape_glyph_names_in(input, "\u{15f}", Some("ro")),
+        vec!["s-comma".to_string()],
+        "Romanian must get the comma-below glyph"
+    );
+    assert_eq!(
+        shape_glyph_names_in(input, "\u{15f}", Some("tr")),
+        vec!["s-cedilla".to_string()],
+        "Turkish must keep the cedilla"
+    );
+    assert_eq!(
+        shape_glyph_names_in(input, "\u{15f}", None),
+        vec!["s-cedilla".to_string()],
+        "the default language system must keep the cedilla"
+    );
+}
+
+/// A shaper picks an explicit LangSys *instead of* the default one, so
+/// everything the default carries has to be repeated in it. Left out, adding a
+/// single `locl` for Romanian would silently disable `ccmp` — and with it every
+/// mark attachment — for Romanian alone.
+#[test]
+fn a_language_system_inherits_the_default_features() {
+    let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph s-cedilla = pix
+glyph s-comma = pix
+map U+0061 = a
+map U+0062 = b
+map U+015F = s-cedilla
+map U+0219 = s-comma
+remap always : a -> b
+remap romanian : s-cedilla -> s-comma
+feature ccmp for latn : always
+feature locl for latn/ROM : romanian
+";
+    assert_eq!(
+        shape_glyph_names_in(input, "a", Some("ro")),
+        vec!["b".to_string()],
+        "the script-wide ccmp must still apply under an explicit language"
+    );
+    assert_eq!(
+        shape_glyph_names_in(input, "a\u{15f}", Some("ro")),
+        vec!["b".to_string(), "s-comma".to_string()],
+        "both the inherited and the language's own feature must apply"
+    );
+}
+
+/// The inheritance merges per feature *tag*: a language redefining a tag the
+/// default already declares must end up with one record holding both sets of
+/// lookups, not two records the shaper would resolve to whichever came first.
+#[test]
+fn a_language_redefining_a_tag_merges_with_the_default() {
+    let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph s-cedilla = pix
+glyph s-comma = pix
+map U+0061 = a
+map U+0062 = b
+map U+015F = s-cedilla
+map U+0219 = s-comma
+remap always : a -> b
+remap romanian : s-cedilla -> s-comma
+feature ccmp for latn : always
+feature ccmp for latn/ROM : romanian
+";
+    assert_eq!(
+        shape_glyph_names_in(input, "a\u{15f}", Some("ro")),
+        vec!["b".to_string(), "s-comma".to_string()],
+        "both lookups must live under the one ccmp record Romanian resolves to"
+    );
+    assert_eq!(
+        shape_glyph_names_in(input, "a\u{15f}", Some("tr")),
+        vec!["b".to_string(), "s-cedilla".to_string()],
+        "the default record must be untouched by the language's addition"
+    );
+}
+
+/// `DFLT` is a fallback, not a wildcard: a shaper consults it only when the
+/// script it wants has no record of its own. Declaring one feature for a real
+/// script therefore used to make that script blind to everything under DFLT —
+/// adding a Romanian `locl` cost all Latin text its `ccmp`, and every mark
+/// attachment with it.
+#[test]
+fn declaring_a_script_does_not_hide_the_default_features() {
+    let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph s-cedilla = pix
+glyph s-comma = pix
+map U+0061 = a
+map U+0062 = b
+map U+015F = s-cedilla
+map U+0219 = s-comma
+remap always : a -> b
+remap romanian : s-cedilla -> s-comma
+feature ccmp for DFLT : always
+feature locl for latn/ROM : romanian
+";
+    assert_eq!(
+        shape_glyph_names_in(input, "a", None),
+        vec!["b".to_string()],
+        "Latin text must keep the DFLT ccmp even though latn is now declared"
+    );
+    assert_eq!(
+        shape_glyph_names_in(input, "a\u{15f}", Some("ro")),
+        vec!["b".to_string(), "s-comma".to_string()],
+        "Romanian must see the DFLT ccmp and its own locl"
+    );
+}

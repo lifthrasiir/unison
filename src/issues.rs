@@ -31,6 +31,39 @@ fn issue_at(doc: &Document, item_idx: usize, severity: Severity, message: String
     Issue { severity, message, file: doc.path.clone(), line, file_line }
 }
 
+/// Problems in a `feature ... for ...` target list.
+///
+/// A target is an OpenType script tag, optionally narrowed to one language
+/// system below it as `script/LANG`. Both registries use 4-byte tags, so a
+/// longer part would be silently truncated to something that resolves to
+/// nothing — worth an error rather than a font that quietly ignores the
+/// declaration.
+fn script_lang_issues(targets: &[String]) -> Vec<String> {
+    let mut issues = Vec::new();
+    for target in targets {
+        let mut parts = target.split('/');
+        let script = parts.next().unwrap_or("");
+        let lang = parts.next();
+        if parts.next().is_some() {
+            issues.push(format!(
+                "feature target '{target}' has more than one '/'; \
+                 write it as SCRIPT or SCRIPT/LANGUAGE",
+            ));
+            continue;
+        }
+        for (what, tag) in [("script", Some(script)), ("language", lang)] {
+            let Some(tag) = tag else { continue };
+            if tag.is_empty() || tag.len() > 4 || !tag.is_ascii() {
+                issues.push(format!(
+                    "feature target '{target}' has an invalid {what} tag '{tag}'; \
+                     OpenType tags are 1 to 4 ASCII characters",
+                ));
+            }
+        }
+    }
+    issues
+}
+
 pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
     collect_issues_with(docs, &Resolution::compute(docs))
 }
@@ -194,13 +227,21 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     }
                 }
                 DocumentItem::Feature {
-                    remap_group, ..
+                    scripts, remap_group, ..
                 } => {
                     if !remap_groups.contains(remap_group.as_str()) {
                         issues.push(issue_at(doc, item_idx, Severity::Error, format!(
                             "feature references undefined remap group '{}'",
                             remap_group,
                         )));
+                    }
+                    for issue in script_lang_issues(scripts) {
+                        issues.push(issue_at(doc, item_idx, Severity::Error, issue));
+                    }
+                }
+                DocumentItem::FeatureAnchor { scripts, .. } => {
+                    for issue in script_lang_issues(scripts) {
+                        issues.push(issue_at(doc, item_idx, Severity::Error, issue));
                     }
                 }
                 DocumentItem::NameParts { values, .. } => {

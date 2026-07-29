@@ -100,11 +100,21 @@ fn winding_at(contours: &[Vec<(i16, i16)>], x: f32, y: f32) -> i32 {
 /// "emitted and actually reachable by a shaper" — and every GSUB bug found
 /// so far lived exactly in that gap.
 fn shape_glyph_names(input: &str, text: &str) -> Vec<String> {
+    shape_glyph_names_in(input, text, None)
+}
+
+/// As [`shape_glyph_names`], but shaping under a BCP 47 language, which is
+/// what makes a shaper look for an explicit LangSys record instead of the
+/// script's default one.
+fn shape_glyph_names_in(input: &str, text: &str, language: Option<&str>) -> Vec<String> {
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let built = build_font_with_gid_map(&[&doc]).expect("font should build");
     let face = rustybuzz::Face::from_slice(&built.ttf, 0).expect("font should parse");
     let mut buffer = rustybuzz::UnicodeBuffer::new();
     buffer.push_str(text);
+    if let Some(language) = language {
+        buffer.set_language(language.parse().expect("valid BCP 47 language"));
+    }
     let out = rustybuzz::shape(&face, &[], buffer);
     out.glyph_infos()
         .iter()

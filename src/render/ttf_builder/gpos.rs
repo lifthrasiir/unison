@@ -2,7 +2,7 @@
 
 use super::*;
 use super::gsub::{build_single_subst_from_pairs, make_coverage};
-use super::tables::{build_script_records, make_tag};
+use super::tables::{ScriptFeatures, build_script_records, make_tag, parse_script_lang};
 
 pub(super) struct AnchorGposData {
     pub(super) gpos: Option<Gpos>,
@@ -347,7 +347,7 @@ pub(super) fn build_anchor_gpos(
     // Build GPOS table
     let gpos = if !gpos_lookups.is_empty() {
         let mut feature_records: Vec<FeatureRecord> = Vec::new();
-        let mut script_feature_indices: BTreeMap<String, Vec<u16>> = BTreeMap::new();
+        let mut script_features: BTreeMap<String, ScriptFeatures> = BTreeMap::new();
 
         // mark feature
         let mark_feat_idx = feature_records.len() as u16;
@@ -355,11 +355,9 @@ pub(super) fn build_anchor_gpos(
             Tag::new(b"mark"),
             Feature::new(None, gpos_lookup_indices.clone()),
         ));
-        for script in &all_scripts {
-            script_feature_indices
-                .entry(script.clone())
-                .or_default()
-                .push(mark_feat_idx);
+        for target in &all_scripts {
+            let (script, lang) = parse_script_lang(target);
+            script_features.entry(script).or_default().push(lang.as_deref(), mark_feat_idx);
         }
 
         // mkmk feature (if MarkMarkPos exists)
@@ -369,15 +367,13 @@ pub(super) fn build_anchor_gpos(
                 Tag::new(b"mkmk"),
                 Feature::new(None, vec![gpos_lookup_indices[1]]),
             ));
-            for script in &all_scripts {
-                script_feature_indices
-                    .entry(script.clone())
-                    .or_default()
-                    .push(mkmk_feat_idx);
+            for target in &all_scripts {
+                let (script, lang) = parse_script_lang(target);
+                script_features.entry(script).or_default().push(lang.as_deref(), mkmk_feat_idx);
             }
         }
 
-        let script_records = build_script_records(&script_feature_indices);
+        let script_records = build_script_records(&script_features);
 
         let script_list = ScriptList::new(script_records);
         let feature_list = FeatureList::new(feature_records);
