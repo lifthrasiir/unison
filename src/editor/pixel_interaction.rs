@@ -174,7 +174,7 @@ pub(crate) fn layer_doc_line(
     header_line + 1 + usize::from(body.pixels.is_some()) + layer_idx
 }
 
-/// Drag a `ref` or `point` layer by whole grid cells, rewriting its body line.
+/// Drag a `ref` or `anchor` layer by whole grid cells, rewriting its body line.
 ///
 /// Both layer kinds and both kinds of glyph (own pixel grid or ref-only) take
 /// the same path: nothing here may depend on the glyph having a grid of its

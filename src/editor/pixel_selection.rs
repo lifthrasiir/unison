@@ -931,7 +931,7 @@ pub(crate) fn handle_adjust_scale(
                         ));
                         continue;
                     }
-                    if tokens.first().is_some_and(|k| k == "point" || k == "anchor") {
+                    if tokens.first().is_some_and(|k| k == "anchor") {
                         new_lines.push(DocLine::Text(
                             rewrite_anchor_line(&tokens, old_scale, new_scale),
                         ));
@@ -1008,7 +1008,7 @@ fn rewrite_ref_line(tokens: &[String], old_scale: u8, new_scale: u8) -> String {
 }
 
 fn rewrite_anchor_line(tokens: &[String], old_scale: u8, new_scale: u8) -> String {
-    // anchor|point POSITION COL_RANGE ROW_RANGE
+    // anchor POSITION COL_RANGE ROW_RANGE
     if tokens.len() != 4 {
         return tokens.iter().map(|t| crate::document_io::quote_token(t)).collect::<Vec<_>>().join(" ");
     }

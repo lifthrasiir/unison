@@ -1,4 +1,4 @@
-//! Composite (`ref`) resolution: anchor/point alignment, the layer stack a
+//! Composite (`ref`) resolution: anchor alignment, the layer stack a
 //! glyph resolves to, and on-demand glyph synthesis.
 //!
 //! # Anchor exposure is opt-in
@@ -130,7 +130,7 @@ pub struct ResolvedGlyph {
     pub(crate) origin_row: i32,
     pub(crate) origin_col: i32,
     pub(crate) resolved_anchors: Vec<GlyphPoint>,
-    /// The glyph body's own declared anchor/point lines (not forwarded
+    /// The glyph body's own declared anchor lines (not forwarded
     /// from refs).  Used by look-ahead alternative selection.
     pub(crate) declared_anchors: Vec<GlyphPoint>,
     pub scale: u8,

@@ -586,7 +586,7 @@ pub struct GlyphPoint {
     pub col_end: i16,
     /// Inclusive end of the row range. Equal to `row` for single-cell anchors.
     pub row_end: i16,
-    /// Trailing `// …` comment of the `point`/`anchor` line, without its marker.
+    /// Trailing `// …` comment of the `anchor` line, without its marker.
     pub comment: Option<String>,
 }
 

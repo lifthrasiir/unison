@@ -1,4 +1,4 @@
-//! The *anchor shadow*: while an `anchor`/`point` layer is the one selected in
+//! The *anchor shadow*: while an `anchor` layer is the one selected in
 //! the subglyph palette, the editor draws every glyph that could attach at that
 //! anchor underneath the glyph being edited.
 //!

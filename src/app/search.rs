@@ -397,7 +397,7 @@ mod tests {
     #[test]
     fn an_anchor_is_found_through_both_signs() {
         assert_eq!(cols("anchor +above 4 1", "above", LinkTargetKind::Anchor), vec![7]);
-        assert_eq!(cols("point -above 2 1", "above", LinkTargetKind::Anchor), vec![6]);
+        assert_eq!(cols("anchor -above 2 1", "above", LinkTargetKind::Anchor), vec![7]);
         assert_eq!(
             cols("feature abvm for hang : anchor above", "above", LinkTargetKind::Anchor),
             vec![31],

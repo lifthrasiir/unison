@@ -70,19 +70,19 @@
 //!   filled, `..` empty, plus the sub-pixel shape codes in [`crate::pixel`]).
 //! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly] [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from
-//!   `point`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name.
-//! - `point POS COL ROW` (alias `anchor`) — an anchor for auto-ref alignment;
-//!   supports `+`/`-` prefixes and cell ranges.
+//!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name.
+//! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
+//!   prefixes and cell ranges.
 //! - `glyph NAME [flags...] = ALIAS` — a simple alias: one ref, no grid, and no
 //!   ref flags, so an alias that must forward its target's anchors is written
 //!   in block form with `ref TARGET inherit` instead.
 //! - `glyph NAME [flags...]` with no dimensions — a ref-only composite,
-//!   followed by `ref`/`point` lines.
+//!   followed by `ref`/`anchor` lines.
 //! - NAME accepts the patterns of [`crate::pattern`]; a block expands in
 //!   lock-step with its `ref` patterns.
 //!
 //! A glyph needs a pixel grid or at least one `ref` to exist at all.
-//! `advance`/`left`/`top`/`point` do not make one buildable, and a contentless
+//! `advance`/`left`/`top`/`anchor` do not make one buildable, and a contentless
 //! glyph never enters the resolution cache — so it is absent from cmap, from
 //! composites and from GSUB coverage, and referring to it from a `map`, `ref`
 //! or `remap` is an error (leaving it unused is only the usual warning).
@@ -1060,7 +1060,7 @@ pub fn derive_document(
                                 }
                         }
 
-                        // Collect ref and point lines
+                        // Collect ref and anchor lines
                         while let Some(DocLine::Text(t)) = lines.get(i) {
                             let (sub_text, sub_comment) = split_comment_owned(t.trim());
                             let sub_tokens = match tokenize_tokens(sub_text) {
@@ -1075,7 +1075,7 @@ pub fn derive_document(
                                 body.refs.push(parsed_ref);
                                 i += 1;
                                 continue;
-                            } else if sub_tokens.first().is_some_and(|t| t == "point" || t == "anchor") {
+                            } else if sub_tokens.first().is_some_and(|t| t == "anchor") {
                                 let point_parts = &sub_tokens[1..];
                                 if point_parts.len() == 3
                                     && let Some(pt) = parse_anchor_point(&point_parts[0], &point_parts[1], &point_parts[2], sub_comment) {

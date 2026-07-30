@@ -394,7 +394,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
                 return ctx(CompletionKind::Glyph);
             }
         }
-        "point" | "anchor" => {
+        "anchor" => {
             if rest_token_idx.is_none() {
                 return ctx(CompletionKind::Point);
             }
@@ -462,7 +462,6 @@ fn collect_candidates(
             let keywords = [
                 "glyph",
                 "ref",
-                "point",
                 "anchor",
                 "map",
                 "name-parts",
@@ -625,8 +624,8 @@ mod tests {
     }
 
     #[test]
-    fn detect_point_after_point() {
-        let ctx = detect_context("point +ab", 9).unwrap();
+    fn detect_point_after_anchor() {
+        let ctx = detect_context("anchor +ab", 10).unwrap();
         assert_eq!(ctx.kind, CompletionKind::Point);
         assert_eq!(ctx.prefix, "+ab");
     }

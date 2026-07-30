@@ -117,22 +117,6 @@ anchor -bar 5 7
 }
 
 #[test]
-fn legacy_point_parsed_as_single_cell_anchor() {
-    let input = "glyph foo 1 1\n@@\npoint +bar 3 5\n";
-    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
-        assert_eq!(body.points.len(), 1);
-        let p = &body.points[0];
-        assert_eq!(p.position, "+bar");
-        assert_eq!((p.col, p.col_end), (3, 3));
-        assert_eq!((p.row, p.row_end), (5, 5));
-        assert!(p.is_single_cell());
-    } else {
-        panic!("expected glyph");
-    }
-}
-
-#[test]
 fn parse_glyph_with_all_shapes() {
     let input = "glyph shapes 4 1\n..@@1\\1>\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
@@ -558,8 +542,8 @@ glyph alias = stem
 glyph comp
 ref stem
 ref wide 1 0
-point -join 0 0
-point +join 2 0
+anchor -join 0 0
+anchor +join 2 0
 
 glyph batch
 ref stem-(a|b)

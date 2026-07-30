@@ -216,8 +216,8 @@ glyph alias = stem
 glyph comp
 ref stem
 ref wide 1 0
-point -join 0 0
-point +join 2 0
+anchor -join 0 0
+anchor +join 2 0
 
 glyph sticky-empty sticky advance 0
 

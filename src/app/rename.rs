@@ -142,15 +142,6 @@ fn rename_in_line(
         return None;
     }
 
-    // Renaming an anchor also migrates the legacy `point` keyword.
-    if matches!(kind, RenameKind::Point) {
-        let trimmed = full.trim_start();
-        if trimmed.starts_with("point ") {
-            let leading = full.chars().count() - trimmed.chars().count();
-            reps.push((leading, leading + "point".len(), "anchor".to_string()));
-        }
-    }
-
     use crate::editor::caret::char_to_byte;
     reps.sort_by_key(|&(start, _, _)| std::cmp::Reverse(start));
     let mut out = full.to_string();
@@ -330,22 +321,22 @@ mod rename_tests {
     }
 
     #[test]
-    fn rename_point_plus() {
-        let lines = vec![t("point +above 4 1")];
+    fn rename_anchor_plus() {
+        let lines = vec![t("anchor +above 4 1")];
         let result = do_rename(&lines, "above", "top", &RenameKind::Point);
         assert_eq!(result, vec!["anchor +top 4 1"]);
     }
 
     #[test]
-    fn rename_point_minus() {
-        let lines = vec![t("point -above 2 1")];
+    fn rename_anchor_minus() {
+        let lines = vec![t("anchor -above 2 1")];
         let result = do_rename(&lines, "above", "top", &RenameKind::Point);
         assert_eq!(result, vec!["anchor -top 2 1"]);
     }
 
     #[test]
-    fn rename_point_both_variants() {
-        let lines = vec![t("point +above 4 1"), t("point -above 2 1")];
+    fn rename_anchor_both_variants() {
+        let lines = vec![t("anchor +above 4 1"), t("anchor -above 2 1")];
         let result = do_rename(&lines, "above", "top", &RenameKind::Point);
         assert_eq!(result, vec!["anchor +top 4 1", "anchor -top 2 1"]);
     }

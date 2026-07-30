@@ -89,7 +89,7 @@ glyph target 10 10
 ....................
 ....................
 ....................
-point -blah 5 5
+anchor -blah 5 5
 
 glyph container 12 12
 ........................
@@ -104,7 +104,7 @@ glyph container 12 12
 ........................
 ........................
 ........................
-point +blah 3 3
+anchor +blah 3 3
 ref target
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
@@ -136,11 +136,11 @@ fn auto_offsets_are_rederived_without_mutating_source_refs() {
     let input = "\
 glyph target 1 1
 @@
-point -join 0 0
+anchor -join 0 0
 
 glyph container 1 1
 ..
-point +join 3 0
+anchor +join 3 0
 ref target
 ";
     let mut doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
@@ -205,15 +205,15 @@ fn anchors_are_forwarded_transitively_and_publish_after_consume() {
     let input = "\
 glyph link 1 1
 @@
-point -join 0 0
-point +join 2 0
+anchor -join 0 0
+anchor +join 2 0
 
 glyph wrapped
 ref link inherit
 
 glyph chain 1 1
 ..
-point +join 0 0
+anchor +join 0 0
 ref wrapped
 ref wrapped
 ";
@@ -295,7 +295,7 @@ glyph inner 8 8
 ................
 ................
 ................
-point +center 4 4
+anchor +center 4 4
 
 glyph outer 12 12
 ........................
@@ -310,7 +310,7 @@ glyph outer 12 12
 ........................
 ........................
 ........................
-point -center 6 6
+anchor -center 6 6
 
 glyph combo-plus-first
 ref inner

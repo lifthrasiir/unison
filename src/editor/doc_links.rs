@@ -21,8 +21,8 @@ pub enum LinkTargetKind {
     NameParts,
     Remap,
     Color,
-    /// An `anchor`/`point` name. Anchors are matched by name across glyphs and
-    /// are declared nowhere in particular, so these never navigate.
+    /// An `anchor` name. Anchors are matched by name across glyphs and are
+    /// declared nowhere in particular, so these never navigate.
     Anchor,
     /// An OpenType feature tag, likewise declared nowhere in particular.
     Feature,
@@ -417,7 +417,7 @@ mod rename_detection_tests {
     /// An anchor is one anchor whichever sign it carries, so the link drops it.
     #[test]
     fn an_anchor_link_drops_its_sign() {
-        for line in ["anchor +above 4 1", "point -above 2 1"] {
+        for line in ["anchor +above 4 1", "anchor -above 2 1"] {
             let links = extract_line_links(line);
             assert_eq!(links.len(), 1, "{line:?}");
             assert_eq!(links[0].target, "above");
@@ -479,21 +479,21 @@ mod rename_detection_tests {
 
     #[test]
     fn point_plus() {
-        let t = find_renameable_at_caret("point +above 4 1", 6).unwrap();
+        let t = find_renameable_at_caret("anchor +above 4 1", 7).unwrap();
         assert_eq!(t.name, "above");
         assert_eq!(t.kind, RenameKind::Point);
     }
 
     #[test]
     fn point_minus() {
-        let t = find_renameable_at_caret("point -above 2 1", 7).unwrap();
+        let t = find_renameable_at_caret("anchor -above 2 1", 8).unwrap();
         assert_eq!(t.name, "above");
         assert_eq!(t.kind, RenameKind::Point);
     }
 
     #[test]
     fn point_on_coords() {
-        assert!(find_renameable_at_caret("point +above 4 1", 14).is_none());
+        assert!(find_renameable_at_caret("anchor +above 4 1", 15).is_none());
     }
 
     #[test]

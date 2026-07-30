@@ -317,7 +317,7 @@ pub(crate) fn build_visual_lines(
             comment_color
         } else if trimmed.starts_with("glyph ") || trimmed.starts_with("map ") {
             header_color
-        } else if trimmed.starts_with("ref ") || trimmed.starts_with("point ") {
+        } else if trimmed.starts_with("ref ") || trimmed.starts_with("anchor ") {
             ref_color
         } else if trimmed.starts_with("font-meta ") {
             meta_color

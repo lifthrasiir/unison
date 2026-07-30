@@ -33,7 +33,7 @@ pub(crate) enum FieldRole {
     NamePartsDef,
     /// A `name-parts` value token (may contain `$var` references).
     NamePartsValue,
-    /// `point`/`anchor` name, including its `+`/`-` prefix.
+    /// `anchor` name, including its `+`/`-` prefix.
     PointDef,
     /// `color NAME` — the defining name.
     ColorDef,
@@ -192,7 +192,7 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 }
             }
         }
-        "point" | "anchor" => {
+        "anchor" => {
             if let Some(name) = rest.first()
                 && !name.value.is_empty()
             {

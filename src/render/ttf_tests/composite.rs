@@ -161,14 +161,14 @@ fn ttf_offsets_use_transitively_forwarded_anchors_without_mutation() {
     let input = "\
 glyph link 1 1
 @@
-point -join 0 0
-point +join 2 0
+anchor -join 0 0
+anchor +join 2 0
 
 glyph wrapped
 ref link inherit
 
 glyph chain
-point +join 0 0
+anchor +join 0 0
 ref wrapped
 ref wrapped
 map C = chain

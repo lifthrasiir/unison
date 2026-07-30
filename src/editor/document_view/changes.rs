@@ -27,7 +27,7 @@ pub(super) fn apply_pending_rederive(
             state.view_cache = None;
             let on_ref_line = matches!(
                 lines.get(state.cursor.line),
-                Some(DocLine::Text(t)) if t.trim_start().starts_with("ref ") || t.trim_start().starts_with("point ")
+                Some(DocLine::Text(t)) if t.trim_start().starts_with("ref ") || t.trim_start().starts_with("anchor ")
             );
             let on_glyph_header = matches!(
                 lines.get(state.cursor.line),
