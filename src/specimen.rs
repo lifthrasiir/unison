@@ -232,8 +232,13 @@ impl SpecimenState {
         let inner = egui::ScrollArea::vertical()
             .id_salt("specimen_scroll")
             .show(ui, |ui| {
+                // Own the full width even though only `cols` boxes fit: the
+                // painter's clip rect is the allocated area, and a hovered cell
+                // deliberately overflows its neighbors, so a rect ending at
+                // `grid_width` would cut the rightmost column's overflow off.
+                // The slack to the right is filled with the same background.
                 let (response, painter) = ui.allocate_painter(
-                    egui::vec2(grid_width, total_height),
+                    egui::vec2(avail_width.max(grid_width), total_height),
                     egui::Sense::click(),
                 );
                 let origin = response.rect.min;
@@ -248,28 +253,39 @@ impl SpecimenState {
                 let vis_rect = egui::Rect::from_min_max(
                     egui::pos2(origin.x, origin.y + first_row as f32 * cell_h),
                     egui::pos2(
-                        origin.x + grid_width,
+                        response.rect.right(),
                         origin.y + last_row as f32 * cell_h,
                     ),
                 );
                 painter.rect_filled(vis_rect, 0.0, bg_color);
 
+                // A border stroke is centred on its line, so an outermost one
+                // sitting exactly on the allocated rect's edge loses half its
+                // width to the clip; inset those (and only those) inward.
+                let half = border_stroke.width / 2.0;
+                let clamp_x = |x: f32| {
+                    x.clamp(response.rect.left() + half, response.rect.right() - half)
+                };
+                let clamp_y = |y: f32| {
+                    y.clamp(response.rect.top() + half, response.rect.bottom() - half)
+                };
+                let line_right = clamp_x(origin.x + grid_width);
                 for col in 0..=cols {
-                    let x = origin.x + col as f32 * cell_w;
+                    let x = clamp_x(origin.x + col as f32 * cell_w);
                     painter.line_segment(
                         [
-                            egui::pos2(x, vis_rect.top()),
-                            egui::pos2(x, vis_rect.bottom()),
+                            egui::pos2(x, clamp_y(vis_rect.top())),
+                            egui::pos2(x, clamp_y(vis_rect.bottom())),
                         ],
                         border_stroke,
                     );
                 }
                 for row in first_row..=last_row {
-                    let y = origin.y + row as f32 * cell_h;
+                    let y = clamp_y(origin.y + row as f32 * cell_h);
                     painter.line_segment(
                         [
-                            egui::pos2(origin.x, y),
-                            egui::pos2(origin.x + grid_width, y),
+                            egui::pos2(clamp_x(origin.x), y),
+                            egui::pos2(line_right, y),
                         ],
                         border_stroke,
                     );
