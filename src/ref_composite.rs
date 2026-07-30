@@ -474,17 +474,61 @@ pub(crate) fn parse_ref_pattern(name: &str) -> Option<NamePattern> {
     NamePattern::parse_element(name).ok()
 }
 
+/// A problem found while deriving a composite's offsets and anchors. Carried
+/// as data rather than a formatted string so each consumer can attach the
+/// glyph name and provenance it knows about.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) enum DeriveIssue {
+    /// Two surviving anchors with the same name would both be exposed. The
+    /// composite exposes neither: a digraph must not pick one side's
+    /// attachment point silently. Declare the anchor explicitly instead.
+    DuplicateExposed { position: String },
+    /// A `-` anchor found more than one size-matching `+` anchor to attach
+    /// to. Nothing is attached or consumed.
+    AmbiguousAttachment { position: String, ref_name: String },
+}
+
+impl DeriveIssue {
+    pub(crate) fn message(&self, glyph: &str) -> String {
+        match self {
+            DeriveIssue::DuplicateExposed { position } => format!(
+                "glyph '{glyph}' would expose anchor '{position}' from more than one \
+                 source; it exposes neither — declare the anchor explicitly",
+            ),
+            DeriveIssue::AmbiguousAttachment { position, ref_name } => format!(
+                "glyph '{glyph}': ref '{ref_name}' finds more than one '{}{}' anchor \
+                 to attach its '{position}' to; nothing is attached",
+                "+",
+                position.strip_prefix('-').unwrap_or(position),
+            ),
+        }
+    }
+}
+
+/// An anchor in the derivation pool: the point (already translated into the
+/// composite's coordinates) and where it came from — `None` for the
+/// composite's own declared anchors, `Some(i)` for one published by ref `i`.
+type PoolAnchor = (GlyphPoint, Option<usize>);
+
 /// Derive effective ref offsets and the anchors exposed by the resulting
 /// composite without changing the source refs.  A target's `-name` anchors
 /// consume matching `+name` anchors that are already available, then the
-/// target's `+name` anchors are published for following refs.  Unconsumed
-/// minus anchors remain exposed so aliases/composites forward anchors from
-/// their targets.
+/// target's `+name` anchors are published for following refs.
 ///
-/// Ref order does not matter: when a target carries `-name` but no matching
-/// `+name` is available yet, resolution is deferred until a later ref
-/// publishes it.  Refs that remain unresolved after the fixpoint fall back
-/// to `(0, 0)`.
+/// What the composite *exposes* is opt-in: its own declared anchors, plus the
+/// surviving anchors (published `+`, unconsumed `-`) of refs marked
+/// `inherit`.  Attachment between sibling refs works regardless of the flag.
+/// If two survivors of the exposed set share a name, the composite exposes
+/// neither and a [`DeriveIssue::DuplicateExposed`] is reported; likewise a
+/// `-` anchor with more than one size-matching `+` candidate attaches to
+/// nothing and reports [`DeriveIssue::AmbiguousAttachment`].
+///
+/// Ref order does not matter: when a target carries `-name` and some other
+/// still-unresolved ref could yet publish `+name`, resolution is deferred
+/// until it does.  A minus anchor no remaining ref can satisfy does *not*
+/// defer — deferral would let explicit-offset sibling refs commit first and
+/// miss their consumption.  Refs that remain unresolved after the fixpoint
+/// fall back to `(0, 0)`.
 ///
 /// `lookup_alternatives` returns sorted alternative glyph names for a base
 /// name (e.g. for "foo" it returns ["foo:bar", "foo:baz"]).  When the
@@ -501,16 +545,17 @@ pub(crate) fn derive_ref_offsets_with(
     mut lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     mut lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
     mut lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
-) -> (Vec<GlyphRef>, Vec<GlyphPoint>) {
-    let mut exposed_minus: Vec<GlyphPoint> = declared_anchors
+) -> (Vec<GlyphRef>, Vec<PoolAnchor>, Vec<DeriveIssue>) {
+    let mut issues: Vec<DeriveIssue> = Vec::new();
+    let mut survived_minus: Vec<PoolAnchor> = declared_anchors
         .iter()
         .filter(|p| p.position.starts_with('-'))
-        .cloned()
+        .map(|p| (p.clone(), None))
         .collect();
-    let mut available_plus: Vec<GlyphPoint> = declared_anchors
+    let mut available_plus: Vec<PoolAnchor> = declared_anchors
         .iter()
         .filter(|p| p.position.starts_with('+'))
-        .cloned()
+        .map(|p| (p.clone(), None))
         .collect();
 
     let target_anchors_list: Vec<Option<Vec<GlyphPoint>>> = refs
@@ -553,47 +598,76 @@ pub(crate) fn derive_ref_offsets_with(
             if let Some(offset) = gref.offset {
                 commit_ref(
                     gref,
+                    i,
                     offset,
                     target_anchors,
                     &mut available_plus,
-                    &mut exposed_minus,
+                    &mut survived_minus,
+                    &mut issues,
                     &mut effective_refs[i],
                 );
                 progress = true;
                 continue;
             }
 
-            if let Some(offset) = try_match_minus_plus(target_anchors, &available_plus) {
-                commit_ref(
-                    gref,
-                    offset,
-                    target_anchors,
-                    &mut available_plus,
-                    &mut exposed_minus,
-                    &mut effective_refs[i],
-                );
-                progress = true;
-                continue;
+            match try_match_minus_plus(target_anchors, &available_plus) {
+                MatchOutcome::Unique(offset) => {
+                    commit_ref(
+                        gref,
+                        i,
+                        offset,
+                        target_anchors,
+                        &mut available_plus,
+                        &mut survived_minus,
+                        &mut issues,
+                        &mut effective_refs[i],
+                    );
+                    progress = true;
+                    continue;
+                }
+                MatchOutcome::Ambiguous => {
+                    // The attachment is ill-defined; commit unattached and be
+                    // loud (commit_ref reports it) rather than silently
+                    // swapping in an alternative or picking one candidate.
+                    commit_ref(
+                        gref,
+                        i,
+                        (0, 0),
+                        target_anchors,
+                        &mut available_plus,
+                        &mut survived_minus,
+                        &mut issues,
+                        &mut effective_refs[i],
+                    );
+                    progress = true;
+                    continue;
+                }
+                MatchOutcome::NoMatch => {}
             }
 
             // Try alternatives when primary doesn't size-match.
             let mut alt_matched = false;
             for (alt_name, alt_anchors) in &alternatives_list[i] {
-                if let Some(offset) = try_match_minus_plus(alt_anchors, &available_plus) {
+                if let MatchOutcome::Unique(offset) =
+                    try_match_minus_plus(alt_anchors, &available_plus)
+                {
                     let alt_gref = GlyphRef {
                         comment: None,
                         name: alt_name.clone(),
                         offset: None,
                         negated: gref.negated,
+                        inherit: gref.inherit,
                         fill: gref.fill.clone(),
                         visibility: gref.visibility,
                     };
                     commit_ref(
                         &alt_gref,
+                        i,
                         offset,
                         alt_anchors,
                         &mut available_plus,
-                        &mut exposed_minus,
+                        &mut survived_minus,
+                        &mut issues,
                         &mut effective_refs[i],
                     );
                     alt_matched = true;
@@ -605,14 +679,30 @@ pub(crate) fn derive_ref_offsets_with(
                 continue;
             }
 
-            // Defer if any candidate has minus anchors (might match later).
-            let has_minus = target_anchors
+            // Defer only while some other still-unresolved ref could publish a
+            // `+` this candidate's `-` might match. A minus nothing remaining
+            // can satisfy (a base's own `-center`, say) must not wait: waiting
+            // would let explicit-offset sibling refs commit first and miss the
+            // consumption of this ref's `+` anchors.
+            let wanted: Vec<&str> = target_anchors
                 .iter()
-                .any(|p| p.position.starts_with('-'))
-                || alternatives_list[i]
-                    .iter()
-                    .any(|(_, a)| a.iter().any(|p| p.position.starts_with('-')));
-            if has_minus {
+                .chain(alternatives_list[i].iter().flat_map(|(_, a)| a.iter()))
+                .filter_map(|p| p.position.strip_prefix('-'))
+                .collect();
+            let could_match_later = !wanted.is_empty()
+                && (0..n).any(|j| {
+                    j != i
+                        && effective_refs[j].is_none()
+                        && target_anchors_list[j]
+                            .iter()
+                            .flatten()
+                            .chain(
+                                alternatives_list[j].iter().flat_map(|(_, a)| a.iter()),
+                            )
+                            .filter_map(|p| p.position.strip_prefix('+'))
+                            .any(|base| wanted.contains(&base))
+                });
+            if could_match_later {
                 continue;
             }
 
@@ -631,24 +721,29 @@ pub(crate) fn derive_ref_offsets_with(
                     name: alt_name,
                     offset: None,
                     negated: gref.negated,
+                    inherit: gref.inherit,
                     fill: gref.fill.clone(),
                     visibility: gref.visibility,
                 };
                 commit_ref(
                     &alt_gref,
+                    i,
                     (0, 0),
                     alt_anchors,
                     &mut available_plus,
-                    &mut exposed_minus,
+                    &mut survived_minus,
+                    &mut issues,
                     &mut effective_refs[i],
                 );
             } else {
                 commit_ref(
                     gref,
+                    i,
                     (0, 0),
                     target_anchors,
                     &mut available_plus,
-                    &mut exposed_minus,
+                    &mut survived_minus,
+                    &mut issues,
                     &mut effective_refs[i],
                 );
             }
@@ -668,11 +763,15 @@ pub(crate) fn derive_ref_offsets_with(
             (gref.name.clone(), offset, target_anchors)
         } else {
             match try_match_minus_plus(target_anchors, &available_plus) {
-                Some(offset) => (gref.name.clone(), offset, target_anchors),
-                None => {
+                MatchOutcome::Unique(offset) => (gref.name.clone(), offset, target_anchors),
+                // Ambiguity is reported by commit_ref below; commit unattached.
+                MatchOutcome::Ambiguous => (gref.name.clone(), (0, 0), target_anchors),
+                MatchOutcome::NoMatch => {
                     let mut found = None;
                     for (alt_name, alt_anchors) in &alternatives_list[i] {
-                        if let Some(offset) = try_match_minus_plus(alt_anchors, &available_plus) {
+                        if let MatchOutcome::Unique(offset) =
+                            try_match_minus_plus(alt_anchors, &available_plus)
+                        {
                             found = Some((alt_name.clone(), offset, alt_anchors.as_slice()));
                             break;
                         }
@@ -695,22 +794,50 @@ pub(crate) fn derive_ref_offsets_with(
             name: resolved_name,
             offset: gref.offset,
             negated: gref.negated,
+            inherit: gref.inherit,
             fill: gref.fill.clone(),
             visibility: gref.visibility,
         };
         commit_ref(
             &resolved_gref,
+            i,
             offset,
             used_anchors,
             &mut available_plus,
-            &mut exposed_minus,
+            &mut survived_minus,
+            &mut issues,
             &mut effective_refs[i],
         );
     }
 
-    let effective_refs = effective_refs.into_iter().map(Option::unwrap).collect();
-    exposed_minus.extend(available_plus);
-    (effective_refs, exposed_minus)
+    let effective_refs: Vec<GlyphRef> =
+        effective_refs.into_iter().map(Option::unwrap).collect();
+
+    // Exposure is opt-in: declared anchors always pass, a ref's survivors only
+    // through its `inherit` flag. Survivors sharing a name are then dropped
+    // together — the composite must not pick one of them silently. Each
+    // exposed anchor keeps its source (`None` = declared, `Some(i)` = ref
+    // `i`), which is how the palette colors an inherited anchor like the
+    // subglyph it came from.
+    let mut exposed: Vec<PoolAnchor> = survived_minus
+        .into_iter()
+        .chain(available_plus)
+        .filter(|(_, source)| source.is_none_or(|i| refs[i].inherit))
+        .collect();
+    let mut duplicated: Vec<String> = Vec::new();
+    for (i, (p, _)) in exposed.iter().enumerate() {
+        if exposed[..i].iter().any(|(o, _)| o.position == p.position)
+            && !duplicated.contains(&p.position)
+        {
+            duplicated.push(p.position.clone());
+        }
+    }
+    for position in duplicated {
+        exposed.retain(|(p, _)| p.position != position);
+        issues.push(DeriveIssue::DuplicateExposed { position });
+    }
+
+    (effective_refs, exposed, issues)
 }
 
 /// Look-ahead alternative selection: when a ref at index `i` publishes
@@ -730,7 +857,7 @@ fn try_lookahead_alt<'a>(
     n: usize,
     target_anchors: &[GlyphPoint],
     target_declared_anchors: Option<&[GlyphPoint]>,
-    available_plus: &[GlyphPoint],
+    available_plus: &[PoolAnchor],
     alternatives: &'a [(String, Vec<GlyphPoint>)],
     effective_refs: &[Option<GlyphRef>],
     target_anchors_list: &[Option<Vec<GlyphPoint>>],
@@ -739,7 +866,7 @@ fn try_lookahead_alt<'a>(
     let plus_anchors: Vec<&GlyphPoint> = target_anchors
         .iter()
         .filter(|p| p.position.starts_with('+'))
-        .filter(|p| !available_plus.iter().any(|a| a.position == p.position))
+        .filter(|p| !available_plus.iter().any(|(a, _)| a.position == p.position))
         .filter(|p| !declared.iter().any(|o| o.position == p.position))
         .collect();
     if plus_anchors.is_empty() {
@@ -767,34 +894,62 @@ fn try_lookahead_alt<'a>(
     None
 }
 
+/// What matching a target's `-` anchors against the pool produced.
+enum MatchOutcome {
+    NoMatch,
+    Unique((i16, i16)),
+    /// The first `-` anchor with any candidate had more than one — the
+    /// attachment is ill-defined, and no other anchor is tried instead.
+    Ambiguous,
+}
+
 fn try_match_minus_plus(
     target_anchors: &[GlyphPoint],
-    available_plus: &[GlyphPoint],
-) -> Option<(i16, i16)> {
+    available_plus: &[PoolAnchor],
+) -> MatchOutcome {
     for minus in target_anchors
         .iter()
         .filter(|p| p.position.starts_with('-'))
     {
-        let base = minus.position.strip_prefix('-')?;
-        if let Some(plus) = available_plus
-            .iter()
-            .find(|p| p.position.strip_prefix('+') == Some(base) && p.size_matches(minus))
-        {
-            return Some((
-                saturating_i16(plus.col as i32 - minus.col as i32),
-                saturating_i16(plus.row as i32 - minus.row as i32),
-            ));
+        let Some(base) = minus.position.strip_prefix('-') else {
+            continue;
+        };
+        let mut candidates = available_plus.iter().filter(|(p, _)| {
+            p.position.strip_prefix('+') == Some(base) && p.size_matches(minus)
+        });
+        let Some((plus, _)) = candidates.next() else {
+            continue;
+        };
+        if candidates.next().is_some() {
+            return MatchOutcome::Ambiguous;
         }
+        return MatchOutcome::Unique((
+            saturating_i16(plus.col as i32 - minus.col as i32),
+            saturating_i16(plus.row as i32 - minus.row as i32),
+        ));
     }
-    None
+    MatchOutcome::NoMatch
+}
+
+fn translate_point(p: &GlyphPoint, off_col: i16, off_row: i16) -> GlyphPoint {
+    GlyphPoint {
+        comment: None,
+        position: p.position.clone(),
+        col: saturating_i16(p.col as i32 + off_col as i32),
+        row: saturating_i16(p.row as i32 + off_row as i32),
+        col_end: saturating_i16(p.col_end as i32 + off_col as i32),
+        row_end: saturating_i16(p.row_end as i32 + off_row as i32),
+    }
 }
 
 fn commit_ref(
     gref: &GlyphRef,
+    ref_idx: usize,
     offset: (i16, i16),
     target_anchors: &[GlyphPoint],
-    available_plus: &mut Vec<GlyphPoint>,
-    exposed_minus: &mut Vec<GlyphPoint>,
+    available_plus: &mut Vec<PoolAnchor>,
+    survived_minus: &mut Vec<PoolAnchor>,
+    issues: &mut Vec<DeriveIssue>,
     out: &mut Option<GlyphRef>,
 ) {
     let effective = GlyphRef {
@@ -802,6 +957,7 @@ fn commit_ref(
         name: gref.name.clone(),
         offset: Some(offset),
         negated: gref.negated,
+        inherit: gref.inherit,
         fill: gref.fill.clone(),
         visibility: gref.visibility,
     };
@@ -810,27 +966,9 @@ fn commit_ref(
 
     // Consume before publishing. In particular, a component carrying
     // both `-join` and `+join` must publish its outgoing anchor rather
-    // than immediately deleting it again.
-    let consumed_names: Vec<String> = target_anchors
-        .iter()
-        .filter(|p| p.position.starts_with('-'))
-        .filter_map(|minus| {
-            let base = minus.position.strip_prefix('-')?;
-            if available_plus.iter().any(|p| {
-                p.position.strip_prefix('+') == Some(base) && p.size_matches(minus)
-            }) {
-                Some(base.to_string())
-            } else {
-                None
-            }
-        })
-        .collect();
-    available_plus.retain(|p| {
-        !p.position
-            .strip_prefix('+')
-            .is_some_and(|base| consumed_names.iter().any(|n| n == base))
-    });
-
+    // than immediately deleting it again. Consumption needs a *unique*
+    // size-matching `+`: more than one means the attachment is ill-defined,
+    // so nothing is consumed (and nothing survives) — loudly.
     for minus in target_anchors
         .iter()
         .filter(|p| p.position.starts_with('-'))
@@ -838,37 +976,31 @@ fn commit_ref(
         let Some(base) = minus.position.strip_prefix('-') else {
             continue;
         };
-        if !consumed_names.iter().any(|n| n == base) {
-            exposed_minus.push(GlyphPoint {
-                comment: None,
+        let matching: Vec<usize> = available_plus
+            .iter()
+            .enumerate()
+            .filter(|(_, (p, _))| {
+                p.position.strip_prefix('+') == Some(base) && p.size_matches(minus)
+            })
+            .map(|(i, _)| i)
+            .collect();
+        match matching.len() {
+            0 => survived_minus
+                .push((translate_point(minus, off_col, off_row), Some(ref_idx))),
+            1 => {
+                available_plus.remove(matching[0]);
+            }
+            _ => issues.push(DeriveIssue::AmbiguousAttachment {
                 position: minus.position.clone(),
-                col: saturating_i16(minus.col as i32 + off_col as i32),
-                row: saturating_i16(minus.row as i32 + off_row as i32),
-                col_end: saturating_i16(minus.col_end as i32 + off_col as i32),
-                row_end: saturating_i16(minus.row_end as i32 + off_row as i32),
-            });
+                ref_name: gref.name.clone(),
+            }),
         }
     }
     for plus in target_anchors
         .iter()
         .filter(|p| p.position.starts_with('+'))
     {
-        let Some(base) = plus.position.strip_prefix('+') else {
-            continue;
-        };
-        if !available_plus
-            .iter()
-            .any(|p| p.position.strip_prefix('+') == Some(base))
-        {
-            available_plus.push(GlyphPoint {
-                comment: None,
-                position: plus.position.clone(),
-                col: saturating_i16(plus.col as i32 + off_col as i32),
-                row: saturating_i16(plus.row as i32 + off_row as i32),
-                col_end: saturating_i16(plus.col_end as i32 + off_col as i32),
-                row_end: saturating_i16(plus.row_end as i32 + off_row as i32),
-            });
-        }
+        available_plus.push((translate_point(plus, off_col, off_row), Some(ref_idx)));
     }
 
     *out = Some(effective);
@@ -987,7 +1119,7 @@ pub fn resolve_expansion(
                 pending.push(pg);
                 continue;
             }
-            let (effective_refs, anchors) =
+            let (effective_refs, exposed, _issues) =
                 derive_ref_offsets_with(
                     &pg.points,
                     &pg.refs,
@@ -1001,6 +1133,8 @@ pub fn resolve_expansion(
                             .map(|resolved| resolved.declared_anchors.clone())
                     },
                 );
+            let anchors: Vec<GlyphPoint> =
+                exposed.into_iter().map(|(p, _)| p).collect();
             let layout = resolve_composite_layout(
                 pg.pixels.as_ref(),
                 &effective_refs,
@@ -1056,6 +1190,12 @@ pub struct GlyphComposite {
     pub own_offset_row: i16,
     pub own_offset_col: i16,
     pub layers: Vec<CompositeLayer>,
+    /// Anchors the composite exposes through `inherit` refs rather than its
+    /// own `anchor` lines, with the source ref's index. The subglyph palette
+    /// lists them after the declared points, colored like the source
+    /// subglyph; they have no document line, so they cannot be moved or
+    /// renamed.
+    pub inherited_anchors: Vec<(GlyphPoint, usize)>,
 }
 
 #[cfg_attr(not(feature = "editor"), expect(dead_code))]
@@ -1360,7 +1500,7 @@ pub fn compute_composite(
         return None;
     }
 
-    let (effective_refs, _) = derive_ref_offsets_with(
+    let (effective_refs, exposed, _) = derive_ref_offsets_with(
         &body.points,
         &body.refs,
         |name| {
@@ -1373,6 +1513,10 @@ pub fn compute_composite(
                 .map(|resolved| resolved.declared_anchors.clone())
         },
     );
+    let inherited_anchors: Vec<(GlyphPoint, usize)> = exposed
+        .into_iter()
+        .filter_map(|(p, source)| source.map(|ref_idx| (p, ref_idx)))
+        .collect();
 
     let layout = resolve_composite_layout(
         body.pixels.as_ref(),
@@ -1417,6 +1561,7 @@ pub fn compute_composite(
         own_offset_row: saturating_i16(-min_r),
         own_offset_col: saturating_i16(-min_c),
         layers,
+        inherited_anchors,
     })
 }
 

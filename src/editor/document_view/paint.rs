@@ -697,8 +697,11 @@ pub(super) fn paint_document_area(
                     if let Some(step) = interceptor_scroll_step(ui.ctx(), state.id(), on_grid) {
                         if ctrl_held {
                             // Ctrl+wheel on grid: cycle layers (same as layer palette)
+                            let inherited_count = composites
+                                .get(&edit_idx)
+                                .map_or(0, |c| c.inherited_anchors.len());
                             crate::editor::inline_tools::cycle_layer_mode(
-                                state, body, edit_idx, step,
+                                state, body, edit_idx, inherited_count, step,
                             );
                         } else if matches!(state.mode, EditMode::GlyphEdit { item_idx, .. } if item_idx == edit_idx)
                         {

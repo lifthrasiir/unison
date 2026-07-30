@@ -44,6 +44,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
         name: "digit(0|1)".to_string(),
         offset: None,
         negated: false,
+        inherit: false,
         fill: None,
         visibility: None,
     }];
@@ -208,7 +209,7 @@ point -join 0 0
 point +join 2 0
 
 glyph wrapped
-ref link
+ref link inherit
 
 glyph chain 1 1
 ..
@@ -500,11 +501,11 @@ ref ($ab)-inner
 
     let b_refs = vec![
         GlyphRef {
-            comment: None, name: "enclosing".to_string(), offset: None, negated: false, fill: None, visibility: None },
+            comment: None, name: "enclosing".to_string(), offset: None, negated: false, inherit: false, fill: None, visibility: None },
         GlyphRef {
-            comment: None, name: "b-inner".to_string(), offset: None, negated: false, fill: None, visibility: None },
+            comment: None, name: "b-inner".to_string(), offset: None, negated: false, inherit: false, fill: None, visibility: None },
     ];
-    let (effective, _) = derive_ref_offsets_with(
+    let (effective, _, _) = derive_ref_offsets_with(
         &[],
         &b_refs,
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
@@ -643,14 +644,13 @@ glyph base:alt 2 2
 @@@@
 @@@@
 anchor +above 1 0
-anchor +below 1 1
 
 glyph base 2 4
 @@@@
 @@@@
 ....
 ....
-ref base:alt 0 2
+ref base:alt 0 2 inherit
 anchor +below 1 3
 
 glyph mark-above 2 1 mark
@@ -685,7 +685,7 @@ ref mark-below
         DocumentItem::Glyph { name, body } if name.display() == "combo-above" => Some(body),
         _ => None,
     }).unwrap();
-    let (effective, _) = derive_ref_offsets_with(
+    let (effective, _, _) = derive_ref_offsets_with(
         &above_body.points,
         &above_body.refs,
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
@@ -703,7 +703,7 @@ ref mark-below
         DocumentItem::Glyph { name, body } if name.display() == "combo-below" => Some(body),
         _ => None,
     }).unwrap();
-    let (effective, _) = derive_ref_offsets_with(
+    let (effective, _, _) = derive_ref_offsets_with(
         &below_body.points,
         &below_body.refs,
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
@@ -1241,4 +1241,278 @@ fn profile_resolve_name_expansion() {
     let t0 = std::time::Instant::now();
     let built = crate::render::build_font_from_documents(&refs);
     eprintln!("font build: {:?}, ok={}", t0.elapsed(), built.is_some());
+}
+
+/// Anchor inheritance is opt-in: a composite exposes only its own declared
+/// anchors plus the surviving anchors of refs marked `inherit`. Attachment
+/// *inside* the composite works regardless of the flag.
+#[test]
+fn anchor_exposure_requires_inherit() {
+    let input = "\
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 1 0
+anchor +below 1 3
+glyph mark 2 1 mark
+@@@@
+anchor -above 0 0
+anchor +above 0 -1
+glyph opaque
+ref base
+ref mark
+glyph transparent
+ref base inherit
+ref mark inherit
+";
+    let doc = crate::document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs = [&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, _alt) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+    // The mark attached in both composites (its -above consumed base's +above).
+    for name in ["opaque", "transparent"] {
+        let g = &resolved[name];
+        assert!(
+            !g.resolved_anchors.iter().any(|p| p.position == "-above"),
+            "{name}: consumed -above must not be exposed: {:?}",
+            g.resolved_anchors,
+        );
+    }
+
+    let opaque = &resolved["opaque"];
+    assert!(
+        opaque.resolved_anchors.is_empty(),
+        "no inherit, no declared anchors: nothing exposed, got {:?}",
+        opaque.resolved_anchors,
+    );
+
+    let transparent = &resolved["transparent"];
+    let positions: Vec<&str> =
+        transparent.resolved_anchors.iter().map(|p| p.position.as_str()).collect();
+    assert!(positions.contains(&"+below"), "base's +below survives: {positions:?}");
+    assert!(positions.contains(&"+above"), "mark's republished +above survives: {positions:?}");
+    let above = transparent
+        .resolved_anchors
+        .iter()
+        .find(|p| p.position == "+above")
+        .unwrap();
+    // mark's own +above (0, -1) translated by the attachment offset (1, 0).
+    assert_eq!((above.col, above.row), (1, -1), "the surviving +above is the mark's, moved");
+}
+
+/// Two inherit refs surviving with the same anchor name is an error, and the
+/// fallback acts as if that anchor did not exist at all — a digraph must not
+/// pick one side's attachment point silently.
+#[test]
+fn duplicate_exposed_anchors_are_dropped() {
+    let input = "\
+glyph half 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 1 0
+anchor +below 1 3
+glyph digraph
+ref half 0 0 inherit
+ref half 4 0 inherit
+";
+    let doc = crate::document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs = [&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, _alt) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+    let digraph = &resolved["digraph"];
+    assert!(
+        digraph.resolved_anchors.is_empty(),
+        "both +above and both +below collide; all must be dropped, got {:?}",
+        digraph.resolved_anchors,
+    );
+}
+
+/// A minus anchor no remaining ref can ever satisfy must not defer its ref:
+/// deferral would let explicit-offset sibling refs commit first, miss their
+/// consumption, and leave the base's occupied anchor exposed.
+#[test]
+fn unsatisfiable_minus_does_not_defer_commit_order() {
+    let input = "\
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor -center 1 1
+anchor +below 1 3
+glyph dot 1 1 mark
+@@
+anchor -below 0 0
+anchor +below 0 1
+glyph comp
+ref base inherit
+ref dot 1 3
+";
+    let doc = crate::document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs = [&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, _alt) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+    let comp = &resolved["comp"];
+    let positions: Vec<&str> =
+        comp.resolved_anchors.iter().map(|p| p.position.as_str()).collect();
+    assert!(
+        positions.contains(&"-center"),
+        "base's unsatisfiable -center is forwarded through inherit: {positions:?}"
+    );
+    assert!(
+        !positions.contains(&"+below"),
+        "base must commit before the explicit-offset dot so the dot consumes \
+         +below; it must not linger exposed: {positions:?}"
+    );
+}
+
+/// `map generate` composites stand in for their decomposition, so their
+/// synthesized refs inherit implicitly: the generated glyph exposes the
+/// surviving anchors exactly as the hand-written equivalent with `inherit`.
+#[test]
+fn map_generate_refs_inherit_implicitly() {
+    let input = "\
+glyph a-upper 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 1 0
+anchor +below 1 3
+glyph grave 2 1 mark
+@@@@
+anchor -above 0 0
+anchor +above 0 -1
+map A = a-upper
+map U+0300 = grave
+map generate \u{c0}
+";
+    let doc = crate::document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs = [&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, _alt) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+    let generated = resolved.get("uni00C0").expect("generated composite");
+    let positions: Vec<&str> =
+        generated.resolved_anchors.iter().map(|p| p.position.as_str()).collect();
+    assert!(positions.contains(&"+above"), "{positions:?}");
+    assert!(positions.contains(&"+below"), "{positions:?}");
+    assert!(!positions.contains(&"-above"), "{positions:?}");
+}
+
+/// The derive-level diagnostics carry which anchor collided and which ref
+/// attached ambiguously, so issues.rs can report them per glyph.
+#[test]
+fn derive_reports_duplicates_and_ambiguity() {
+    let anchored = |position: &str, col: i16, row: i16| GlyphPoint {
+        comment: None,
+        position: position.to_string(),
+        col,
+        row,
+        col_end: col,
+        row_end: row,
+    };
+    let lookup = |name: &str| -> Option<Vec<GlyphPoint>> {
+        match name {
+            "half" => Some(vec![anchored("+above", 1, 0)]),
+            "mark" => Some(vec![anchored("-above", 0, 0)]),
+            _ => None,
+        }
+    };
+    let inherit_ref = |name: &str, col: i16| GlyphRef {
+        comment: None,
+        name: name.to_string(),
+        offset: Some((col, 0)),
+        negated: false,
+        inherit: true,
+        fill: None,
+        visibility: None,
+    };
+
+    // Two inherited +above survive → both dropped, one issue.
+    let refs = vec![inherit_ref("half", 0), inherit_ref("half", 4)];
+    let (_, exposed, issues) =
+        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    assert!(exposed.is_empty(), "{exposed:?}");
+    assert_eq!(
+        issues,
+        vec![DeriveIssue::DuplicateExposed { position: "+above".into() }],
+    );
+
+    // A mark whose -above finds two +above candidates attaches to neither.
+    let refs = vec![
+        inherit_ref("half", 0),
+        inherit_ref("half", 4),
+        GlyphRef { offset: None, inherit: false, ..inherit_ref("mark", 0) },
+    ];
+    let (effective, _, issues) =
+        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    assert_eq!(effective[2].offset, Some((0, 0)), "unattached fallback");
+    assert!(
+        issues.contains(&DeriveIssue::AmbiguousAttachment {
+            position: "-above".into(),
+            ref_name: "mark".into(),
+        }),
+        "{issues:?}",
+    );
+}
+
+/// Manual migration helper: compares the current opt-in anchor exposure over
+/// `font/` against forward-everything (every ref forced `inherit`), listing
+/// the glyphs whose `+above`/`+below` disappeared.
+/// `cargo test -r probe_migration_worklist -- --ignored --nocapture`
+#[test]
+#[ignore]
+fn probe_migration_worklist() {
+    let docs =
+        crate::render::ttf_builder::load_docs_from_directory_checked(std::path::Path::new("font")).0;
+    let refs: Vec<&Document> = docs.iter().collect();
+    let name_parts = crate::document::collect_name_parts(&refs);
+    let (resolved, _alt) = resolve_named_glyphs_with_parts(&refs, &name_parts);
+
+    // The same font with every ref forced to inherit approximates the old
+    // forward-everything behavior.
+    let mut all_inherit: Vec<Document> = docs.clone();
+    for doc in &mut all_inherit {
+        for item in &mut doc.items {
+            if let DocumentItem::Glyph { body, .. } = item {
+                for r in &mut body.refs {
+                    r.inherit = true;
+                }
+            }
+        }
+    }
+    let refs2: Vec<&Document> = all_inherit.iter().collect();
+    let (resolved_old, _alt2) = resolve_named_glyphs_with_parts(&refs2, &name_parts);
+
+    for pos in ["-above", "-below", "+above", "+below"] {
+        let now = resolved.values().filter(|g| g.resolved_anchors.iter().any(|p| p.position == pos)).count();
+        let old = resolved_old.values().filter(|g| g.resolved_anchors.iter().any(|p| p.position == pos)).count();
+        eprintln!("{pos}: exposed by {now} glyphs (forward-everything: {old})");
+    }
+
+    let mut lost: Vec<&str> = Vec::new();
+    for (name, old) in &resolved_old {
+        let Some(new) = resolved.get(name) else { continue };
+        for pos in ["+above", "+below"] {
+            let had = old.resolved_anchors.iter().any(|p| p.position == pos);
+            let has = new.resolved_anchors.iter().any(|p| p.position == pos)
+                || new.declared_anchors.iter().any(|p| p.position == pos);
+            if had && !has {
+                lost.push(name);
+                break;
+            }
+        }
+    }
+    lost.sort();
+    lost.dedup();
+    eprintln!("== {} glyphs no longer expose a +above/+below they used to:", lost.len());
+    for n in &lost { eprintln!("  {n}"); }
 }

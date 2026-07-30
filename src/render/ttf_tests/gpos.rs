@@ -479,7 +479,7 @@ glyph dia-below mark 3 2
 anchor -below 1 1
 
 glyph dia-above mark
-ref dia-below
+ref dia-below inherit
 anchor -above 1 0
 
 map a = base-letter

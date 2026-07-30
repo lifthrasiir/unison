@@ -860,6 +860,9 @@ fn enter_layer_move(h: &mut EditorHarness, grid_doc_line: usize, item_idx: usize
 
     let hover = h.grid_cell_pos(grid_doc_line, 0, 0);
     for _ in 0..=layer_idx {
+        // Space the ticks past the coarse wheel cooldown, or every tick after
+        // the first is debounced away as one physical notch.
+        h.advance_time(0.1);
         h.frame_with(
             vec![
                 egui::Event::PointerMoved(hover),
@@ -2396,4 +2399,81 @@ anchor +above 0 -1
     h.frame();
     assert!(matches!(h.state.mode, EditMode::GlyphEdit { .. }));
     assert_eq!(grid_extent_x(&h, grid_line), (0, 2));
+}
+
+/// An anchor inherited through an `inherit` ref is a selectable layer like a
+/// declared point: it comes after the declared points in the cycle order, and
+/// selecting it draws the anchor shadow of the glyphs that could attach there.
+#[test]
+fn an_inherited_anchor_is_a_selectable_layer_with_a_shadow() {
+    let source = "\
+font-meta height 16 ascent 14 descent 2
+
+glyph base 4 2
+@@@@@@@@
+@@@@@@@@
+anchor +above 3 0
+
+glyph mark 2 1
+@@@@
+anchor -above 0 1
+
+glyph comp 4 2
+........
+........
+ref base inherit
+";
+    let mut h = EditorHarness::new(source);
+    let comp_grid_line = 11;
+    assert_eq!(grid_extent_x(&h, comp_grid_line), (0, 4), "comp's own extent");
+
+    // comp has one ref and no declared points, so layer 1 is the inherited
+    // `+above`.
+    enter_layer_move(&mut h, comp_grid_line, 6, 1);
+    assert!(
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: 6, layer_idx: 1 }),
+        "expected the inherited anchor layer, got {:?}",
+        h.state.mode
+    );
+    h.frame();
+
+    // `mark` shadows with its `-above` on the inherited `+above` at column 3,
+    // so it reaches one column past comp's own right edge.
+    assert_eq!(grid_extent_x(&h, comp_grid_line), (0, 5));
+}
+
+
+/// An inherited anchor outside the ink widens the drawn area exactly like a
+/// declared one — otherwise it is a palette layer with no visible mark.
+#[test]
+fn an_inherited_anchor_above_the_grid_widens_the_drawn_area() {
+    let source = "\
+font-meta height 16 ascent 14 descent 2
+
+glyph base 4 2
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 -2
+
+glyph comp 4 2
+........
+........
+ref base inherit
+";
+    let mut h = EditorHarness::new(source);
+    h.frame();
+    let comp_grid_line = 7;
+    let rows: Vec<i16> = h
+        .snap()
+        .vlines
+        .iter()
+        .filter_map(|vl| match vl.kind {
+            SnapKind::GridRow { row, .. } if vl.doc_line == comp_grid_line => Some(row),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        rows.contains(&-2),
+        "the drawn area must reach the inherited +above at row -2, got rows {rows:?}",
+    );
 }

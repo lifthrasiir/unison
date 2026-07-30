@@ -60,6 +60,23 @@ pub(crate) fn build_composites(
 }
 
 #[allow(clippy::too_many_arguments)]
+/// Color of the anchor layer `pi` (points-then-inherited index): a declared
+/// point is colored by its own layer index, an inherited anchor by the ref it
+/// came from.
+fn anchor_layer_color(
+    pal: &Palette,
+    body: &crate::document::GlyphBody,
+    composite: Option<&GlyphComposite>,
+    pi: usize,
+) -> egui::Color32 {
+    if let Some(ii) = pi.checked_sub(body.points.len())
+        && let Some((_, src_ref)) = composite.and_then(|c| c.inherited_anchors.get(ii))
+    {
+        return ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref);
+    }
+    ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, body.refs.len() + pi)
+}
+
 pub(crate) fn render_grid_row(
     painter: &egui::Painter,
     x: f32,
@@ -118,11 +135,12 @@ pub(crate) fn render_grid_row(
     // carry, not part of this glyph.
     let shadow = shadow.filter(|_| active_point.is_some());
     if let Some(s) = shadow {
-        let layer_idx = match doc.items.get(item_idx) {
-            Some(DocumentItem::Glyph { body, .. }) => body.refs.len() + active_point.unwrap_or(0),
-            _ => 0,
+        let color = match doc.items.get(item_idx) {
+            Some(DocumentItem::Glyph { body, .. }) => {
+                anchor_layer_color(pal, body, composite, active_point.unwrap_or(0))
+            }
+            _ => ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, 0),
         };
-        let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer_idx);
         draw_anchor_shadow(painter, x, y, row, extent, s, color, cs);
     }
     let shadow_inked = |dc: i16| -> bool {
@@ -306,24 +324,37 @@ pub(crate) fn render_grid_row(
         }
     }
 
-    // Draw anchor markers
+    // Draw anchor markers: the declared points first, then the anchors
+    // inherited through `inherit` refs, each in its source subglyph's color.
     if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) {
         let num_refs = body.refs.len();
-        for (pi, point) in body.points.iter().enumerate() {
+        let inherited = composite.map_or(&[][..], |c| c.inherited_anchors.as_slice());
+        let declared = body
+            .points
+            .iter()
+            .enumerate()
+            .map(|(pi, point)| {
+                let color =
+                    ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, num_refs + pi);
+                (pi, point, color)
+            });
+        let inherited = inherited.iter().enumerate().map(|(ii, (point, src_ref))| {
+            let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref);
+            (body.points.len() + ii, point, color)
+        });
+        for (pi, point, color) in declared.chain(inherited) {
             if row < point.row || row > point.row_end {
                 continue;
             }
             if point.col_end < extent.left || point.col >= extent.right {
                 continue;
             }
-            let layer_idx = num_refs + pi;
             let is_active_point = active_point == Some(pi);
             let opacity = if is_layer_mode && !is_active_point {
                 0.35
             } else {
                 1.0
             };
-            let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer_idx);
             let color = if opacity < 1.0 {
                 apply_opacity(color, opacity)
             } else {

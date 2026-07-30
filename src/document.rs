@@ -510,6 +510,12 @@ pub struct GlyphRef {
     /// `(col, row)` offset. `None` = auto-resolve from points (adjoin), defaulting to (0, 0).
     pub offset: Option<(i16, i16)>,
     pub negated: bool,
+    /// Whether the composite exposes this target's surviving anchors (the ones
+    /// not consumed inside the composite) as its own. Off by default: anchor
+    /// inheritance is opt-in, so a digraph or a circled letter does not leak
+    /// its components' attachment points. Attachment *inside* the composite
+    /// (a sibling ref consuming this target's `+` anchors) works regardless.
+    pub inherit: bool,
     pub fill: Option<RefFill>,
     pub visibility: Option<LayerVisibility>,
     /// Trailing `// …` comment of the `ref` line, without its marker.
@@ -543,6 +549,9 @@ impl GlyphRef {
         }
         if self.negated {
             parts.push("negated".into());
+        }
+        if self.inherit {
+            parts.push("inherit".into());
         }
         if let Some(ref fill) = self.fill {
             parts.push(format!("fill {}", quote_token(&fill.color)));
@@ -1307,10 +1316,10 @@ pub fn parse_glyph_name(s: &str) -> GlyphName {
 pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef], scale: u8) -> Result<Vec<DocumentItem>, String> {
     let name_pattern = NamePattern::parse(&name.display()).map_err(|e| e.to_string())?;
 
-    let mut parsed_refs: Vec<(NamePattern, Option<(i16, i16)>, bool, Option<RefFill>, Option<LayerVisibility>)> = Vec::new();
+    let mut parsed_refs: Vec<(NamePattern, &GlyphRef)> = Vec::new();
     for r in refs {
         let pattern = NamePattern::parse_segments(&r.name).map_err(|e| e.to_string())?;
-        parsed_refs.push((pattern, r.offset, r.negated, r.fill.clone(), r.visibility));
+        parsed_refs.push((pattern, r));
     }
 
     // The glyph-name pattern determines how many glyphs are declared. Each
@@ -1323,13 +1332,10 @@ pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef], scale: u8) -> Res
 
         let expanded_refs: Vec<GlyphRef> = parsed_refs
             .iter()
-            .map(|(pattern, offset, negated, fill, visibility)| GlyphRef {
+            .map(|(pattern, r)| GlyphRef {
                 comment: None,
                 name: pattern.get(i),
-                offset: *offset,
-                negated: *negated,
-                fill: fill.clone(),
-                visibility: *visibility,
+                ..(*r).clone()
             })
             .collect();
 
@@ -1402,6 +1408,7 @@ mod tests {
             name: name.to_string(),
             offset: None,
             negated: false,
+            inherit: false,
             fill: None,
             visibility: None,
         }

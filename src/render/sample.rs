@@ -186,6 +186,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     }
                 })
         },
+        |_, _| {},
     );
 
     fn ref_fill_info(

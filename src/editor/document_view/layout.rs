@@ -281,7 +281,15 @@ pub(crate) fn compute_grid_display_extent(
         )
     };
 
-    for pt in points {
+    // Anchors widen the drawn area whether declared or inherited: an anchor
+    // outside the ink (a `+above` two rows over the cap height, say) is
+    // otherwise a layer that exists in the palette but is invisible on the
+    // grid.
+    let inherited = composite
+        .map_or(&[][..], |c| c.inherited_anchors.as_slice())
+        .iter()
+        .map(|(p, _)| p);
+    for pt in points.iter().chain(inherited) {
         extent.top = extent.top.min(pt.row);
         extent.left = extent.left.min(pt.col);
         extent.bottom = extent.bottom.max(pt.row_end + 1);

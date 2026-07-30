@@ -165,7 +165,7 @@ point -join 0 0
 point +join 2 0
 
 glyph wrapped
-ref link
+ref link inherit
 
 glyph chain
 point +join 0 0

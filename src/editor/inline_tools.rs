@@ -25,9 +25,10 @@ pub(crate) fn cycle_layer_mode(
     state: &mut EditorState,
     body: &crate::document::GlyphBody,
     edit_idx: usize,
+    inherited_count: usize,
     step: i32,
 ) {
-    let layer_count = body.refs.len() + body.points.len();
+    let layer_count = body.refs.len() + body.points.len() + inherited_count;
     let total = 1 + layer_count as i32;
     let current = match &state.mode {
         EditMode::GlyphEdit { .. } | EditMode::PixelSelect { .. } => 0,
@@ -124,7 +125,8 @@ pub(crate) fn draw_inline_tools_panel(
         hover_on_preview_row,
     )
     {
-        cycle_layer_mode(state, body, edit_idx, step);
+        let inherited_count = composite.map_or(0, |c| c.inherited_anchors.len());
+        cycle_layer_mode(state, body, edit_idx, inherited_count, step);
     }
 
     // --- Row 0-1: 2x pixelated previews (composite + subglyphs) ---
@@ -301,6 +303,48 @@ pub(crate) fn draw_inline_tools_panel(
         px += point_size.x + 4.0 * zoom;
     }
 
+    // Anchors exposed through `inherit` refs: listed after the declared
+    // points and selectable like them (label, anchor shadow), but colored
+    // like the subglyph they come from, and not movable — they have no
+    // document line of their own.
+    let inherited: &[(crate::document::GlyphPoint, usize)] =
+        composite.map_or(&[], |c| &c.inherited_anchors);
+    let num_points = body.points.len();
+    for (ii, (_point, src_ref)) in inherited.iter().enumerate() {
+        let layer_idx = num_refs + num_points + ii;
+        let point_size = egui::vec2(palette_cell, palette_cell);
+        let point_rect = egui::Rect::from_min_size(egui::pos2(px, panel_y), point_size);
+
+        let is_active = matches!(
+            state.mode,
+            EditMode::LayerMove { item_idx, layer_idx: li } if item_idx == edit_idx && li == layer_idx
+        );
+
+        let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref);
+        painter.rect_filled(point_rect, 0.0, pal.grid_bg);
+        grid_render::draw_point_x_mark(painter, point_rect, color, pal.grid_bg);
+
+        if is_active {
+            painter.rect_stroke(
+                point_rect,
+                0.0,
+                egui::Stroke::new(2.0, color),
+                egui::epaint::StrokeKind::Outside,
+            );
+        }
+
+        if let Some(cp) = click_pos
+            && point_rect.contains(cp)
+        {
+            state.mode = EditMode::LayerMove {
+                item_idx: edit_idx,
+                layer_idx,
+            };
+        }
+
+        px += point_size.x + 4.0 * zoom;
+    }
+
     // --- Row 2+: Shape palette or point name ---
     if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
         let palette_y = panel_y + prh + 4.0;
@@ -349,6 +393,26 @@ pub(crate) fn draw_inline_tools_panel(
                 &label,
                 egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
                 layer_color,
+            );
+        } else if let Some((point, src_ref)) = composite.and_then(|c| {
+            c.inherited_anchors.get(layer_idx - num_refs - body.points.len())
+        }) {
+            // An inherited anchor names its source alongside the position, in
+            // the source subglyph's color.
+            let source = body
+                .refs
+                .get(*src_ref)
+                .map_or("", |gref| gref.name.as_str());
+            let label = match shadow {
+                Some(s) => format!("{} ({source}) \u{00d7}{}", point.position, s.count),
+                None => format!("{} ({source})", point.position),
+            };
+            painter.text(
+                egui::pos2(panel_x, label_y),
+                egui::Align2::LEFT_TOP,
+                &label,
+                egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
+                ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref),
             );
         }
     }

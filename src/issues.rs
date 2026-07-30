@@ -478,6 +478,71 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
+    // Anchor derivation problems: a composite that would expose the same
+    // anchor name from more than one source, and a `-` anchor with more than
+    // one `+` candidate to attach to. This runs an anchors-only pass through
+    // the same shared driver and the same derivation the font build uses
+    // (`glyph_cache`/`derive_ref_offsets_with`), so what is reported here is
+    // exactly what resolution dropped.
+    {
+        struct AnchorsOnly {
+            anchors: Vec<crate::document::GlyphPoint>,
+            w: u16,
+            h: u16,
+        }
+        impl AnchorsOnly {
+            fn new() -> Self {
+                Self { anchors: Vec::new(), w: 0, h: 0 }
+            }
+        }
+        impl crate::render::glyph_cache::CachedGlyphEntry for AnchorsOnly {
+            fn anchors(&self) -> &[crate::document::GlyphPoint] {
+                &self.anchors
+            }
+            fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
+                (&mut self.w, &mut self.h)
+            }
+            fn set_resolution(
+                &mut self,
+                anchors: Vec<crate::document::GlyphPoint>,
+                _scale: u8,
+            ) {
+                self.anchors = anchors;
+            }
+        }
+
+        let mut declared_anchors: HashMap<&str, &[crate::document::GlyphPoint]> =
+            HashMap::new();
+        let mut origin_of: HashMap<&str, Option<crate::resolve::ItemRef>> = HashMap::new();
+        for e in &expansion.items {
+            if let DocumentItem::Glyph { name: GlyphName(n), body } = &e.item {
+                declared_anchors.entry(n).or_insert(&body.points);
+                origin_of.entry(n).or_insert(e.origin);
+            }
+        }
+
+        let (mut cache, pending) = crate::render::glyph_cache::seed_cache(
+            expansion.items(),
+            |_| AnchorsOnly::new(),
+            AnchorsOnly::new,
+        );
+        let mut derive_issues: Vec<(String, crate::ref_composite::DeriveIssue)> = Vec::new();
+        crate::render::glyph_cache::resolve_pending(
+            &mut cache,
+            pending,
+            |name| declared_anchors.get(name).map(|pts| pts.to_vec()),
+            |_, _, _| AnchorsOnly::new(),
+            |name, issue| derive_issues.push((name.to_string(), issue)),
+        );
+        for (name, issue) in derive_issues {
+            issues.push(docset.to_issue(&Diagnostic::new(
+                Severity::Error,
+                origin_of.get(name.as_str()).copied().flatten(),
+                issue.message(&name),
+            )));
+        }
+    }
+
     issues.sort_by(|a, b| {
         a.severity
             .cmp(&b.severity)
@@ -523,6 +588,81 @@ mod tests {
             issues.iter().any(|i| i.severity == Severity::Error
                 && i.message.contains("unresolved ref")),
             "expected unresolved ref error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn duplicate_inherited_anchors_reported() {
+        let input = "\
+glyph half 2 2
+@@@@
+@@@@
+anchor +above 1 0
+glyph digraph
+ref half 0 0 inherit
+ref half 2 0 inherit
+map D = digraph
+map h = half
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("digraph")
+                && i.message.contains("'+above'")),
+            "expected duplicate exposed anchor error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn ambiguous_attachment_reported() {
+        let input = "\
+glyph half 2 2
+@@@@
+@@@@
+anchor +above 1 0
+glyph mark 2 1 mark
+@@@@
+anchor -above 0 0
+glyph combo
+ref half 0 0
+ref half 2 0
+ref mark
+map D = combo
+map h = half
+map m = mark
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("combo")
+                && i.message.contains("'mark'")
+                && i.message.contains("'-above'")),
+            "expected ambiguous attachment error, got: {issues:?}",
+        );
+    }
+
+    /// A digraph without `inherit` exposes nothing — that is the designed
+    /// fallback, not a problem to report.
+    #[test]
+    fn non_inherited_duplicates_are_quiet() {
+        let input = "\
+glyph half 2 2
+@@@@
+@@@@
+anchor +above 1 0
+glyph digraph
+ref half 0 0
+ref half 2 0
+map D = digraph
+map h = half
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.severity == Severity::Error),
+            "expected no errors, got: {issues:?}",
         );
     }
 

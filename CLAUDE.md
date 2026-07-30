@@ -294,7 +294,10 @@ Appending to a line must go through `append_to_line` to stay in front of the com
 - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from the character's Unicode
   canonical decomposition, named `uniXXXX` unless `GLYPH` names it. `GLYPH` is a pattern expanded in
   lock-step with `CHAR`, exactly as a plain `map`'s target is. The `generate` keyword is mandatory:
-  the older bare `map CHAR` was too easily misread as the plain form.
+  the older bare `map CHAR` was too easily misread as the plain form. The synthesized refs carry
+  `inherit` implicitly (the composite stands in for its decomposition, so it exposes the surviving
+  anchors — see *Anchor exposure is opt-in* under Glyph blocks); hand-rewriting one as a plain
+  `glyph` + `map` means deciding per ref whether to keep `inherit`.
 - `name-parts $NAME = token1 token2 ...`
 - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
 - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]` — GSUB substitution.
@@ -334,13 +337,30 @@ Appending to a line must go through `append_to_line` to stay in front of the com
 
 - With `W H`: pixel rows follow immediately, 2 chars per pixel (`@@` filled, `..` empty, plus
   sub-pixel shape codes).
-- `ref OTHER [COL ROW] [negated] [coloronly|monoonly] [fill COLOR]` — composite reference. Omitting
-  the offset auto-resolves from `point`s. `fill` takes a `#RRGGBB[AA]` literal or a `color` name.
+- `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly] [fill COLOR]` — composite reference.
+  Omitting the offset auto-resolves from `point`s. `fill` takes a `#RRGGBB[AA]` literal or a `color`
+  name.
 - `point POS COL ROW` (alias `anchor`) — anchor for auto-ref alignment; supports `+`/`-` prefixes
   and cell ranges.
-- `glyph NAME [flags...] = ALIAS` — simple alias (single ref, no grid).
+- `glyph NAME [flags...] = ALIAS` — simple alias (single ref, no grid; carries no ref flags, so an
+  alias that must forward its target's anchors is written in block form with `ref TARGET inherit`).
 - `glyph NAME [flags...]` with no dims — ref-only composite, followed by `ref`/`point` lines.
 - NAME supports the patterns above; blocks expand in lock-step with their `ref` patterns.
+
+**Anchor exposure is opt-in** (`derive_ref_offsets_with`). Inside a composite, a ref's `-name`
+anchors attach to a *unique* size-matching `+name` published by a sibling (or declared by the
+composite), consuming it; the ref's own `+` anchors are then published — all regardless of flags.
+What the composite *exposes* to the outside (GPOS base anchors, the anchor shadow, further
+composition) is only its own declared anchors plus the surviving anchors of refs marked `inherit`.
+So a digraph or a circled letter exposes nothing it did not say, and `glyph i-lower`'s
+`ref i-lower:dotless inherit` is what lets Ï build on it. `map generate` composites stand in for
+their decomposition, so their synthesized refs inherit implicitly — hand-rewriting one as a plain
+`glyph` + `map` means deciding per ref whether to keep `inherit`. Two rules are load-bearing and
+**loud** (`issues.rs` errors, via the anchors-only pass sharing `glyph_cache`'s driver): an exposed
+set containing the same anchor name twice exposes *neither* (declare it explicitly instead), and a
+`-` anchor with more than one size-matching `+` candidate attaches to *nothing*. A minus anchor no
+remaining ref can satisfy does not defer its ref — deferral would let explicit-offset siblings
+commit first and miss their consumption.
 
 A **negative `ref` offset is a bearing, not something to normalize away**: the glyph origin stays at
 (0, 0), the outline keeps its negative coordinates (negative lsb, or ink above the ascent), and the

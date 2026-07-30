@@ -289,6 +289,7 @@ mod tests {
             name: "part".into(),
             offset: Some((1, 0)),
             negated: false,
+            inherit: false,
             fill: None,
             visibility: None,
         };
@@ -304,6 +305,7 @@ mod tests {
     #[test]
     fn drag_starts_from_derived_composite_offset() {
         let composite = GlyphComposite {
+            inherited_anchors: Vec::new(),
             width: 4,
             height: 2,
             own_offset_row: 2,

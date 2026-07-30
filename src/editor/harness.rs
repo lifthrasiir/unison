@@ -292,6 +292,14 @@ impl EditorHarness {
         self.name_parts = name_parts;
     }
 
+    /// Advance the harness clock without running a frame. Successive wheel
+    /// ticks in the same direction are debounced on real time
+    /// (`COARSE_SCROLL_COOLDOWN`), so a test sending more than one must space
+    /// them out the way real ticks are.
+    pub fn advance_time(&mut self, seconds: f64) {
+        self.time += seconds;
+    }
+
     /// Run one frame of the real editor with the given input events.
     pub fn frame_with(&mut self, events: Vec<egui::Event>, modifiers: egui::Modifiers) {
         self.time += 1.0 / 60.0;

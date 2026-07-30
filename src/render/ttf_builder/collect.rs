@@ -15,7 +15,7 @@ fn derive_effective_refs(
     alt_index: &HashMap<String, Vec<(String, Vec<GlyphPoint>)>>,
     declared_anchors_map: &HashMap<String, Vec<GlyphPoint>>,
 ) -> (Vec<GlyphRef>, Vec<GlyphPoint>) {
-    crate::ref_composite::derive_ref_offsets_with(
+    let (effective_refs, anchors, _issues) = crate::ref_composite::derive_ref_offsets_with(
         points,
         refs,
         |name| {
@@ -30,7 +30,8 @@ fn derive_effective_refs(
         |name| {
             declared_anchors_map.get(name).cloned()
         },
-    )
+    );
+    (effective_refs, anchors.into_iter().map(|(p, _)| p).collect())
 }
 
 /// Scale pixel-space contours to font units, flipping y around the ascent
@@ -240,6 +241,7 @@ pub(super) fn collect_glyph_data_with_shared(
                     }
                 })
             },
+            |_, _| {},
         );
     }
 

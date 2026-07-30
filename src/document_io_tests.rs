@@ -947,6 +947,36 @@ fn ref_fill_negated_combined() {
 }
 
 #[test]
+fn ref_inherit_roundtrip() {
+    let input = "\
+glyph foo
+ref plain
+ref auto-inherit inherit
+ref offset-inherit 1 -2 inherit
+ref full 1 2 negated inherit fill #00ff00 coloronly
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+        panic!("expected Glyph");
+    };
+    assert_eq!(body.refs.len(), 4);
+    assert!(!body.refs[0].inherit);
+    assert!(body.refs[1].inherit);
+    assert_eq!(body.refs[1].offset, None);
+    assert!(body.refs[2].inherit);
+    assert_eq!(body.refs[2].offset, Some((1, -2)));
+    assert!(body.refs[3].inherit);
+    assert!(body.refs[3].negated);
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    let output_str = String::from_utf8(output).unwrap();
+    // Canonical order: negated, inherit, fill, visibility.
+    assert!(output_str.contains("ref auto-inherit inherit\n"), "{output_str}");
+    assert!(output_str.contains("ref offset-inherit 1 -2 inherit\n"), "{output_str}");
+    assert!(output_str.contains("ref full 1 2 negated inherit fill #00ff00 coloronly\n"), "{output_str}");
+}
+
+#[test]
 fn parse_assert_shape_basic() {
     let input = "assert shape `AB` : a-upper : b-upper\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();

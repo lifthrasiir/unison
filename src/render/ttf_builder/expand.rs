@@ -66,10 +66,7 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
                         .map(|r| GlyphRef {
                             comment: None,
                             name: substitute_name_parts(&r.name, name_parts),
-                            offset: r.offset,
-                            negated: r.negated,
-                            fill: r.fill.clone(),
-                            visibility: r.visibility,
+                            ..r.clone()
                         })
                         .collect();
                     match expand_glyph_block(&subst_name, &subst_refs, body.scale) {
@@ -246,6 +243,10 @@ fn expand_decomposed_maps(
                     name: cp_to_glyph[&(*c as u32)].clone(),
                     offset: None,
                     negated: false,
+                    // A generated composite stands in for its decomposition, so
+                    // forwarding the components' surviving anchors is the right
+                    // default — a hand-written replacement decides per ref.
+                    inherit: true,
                     fill: None,
                     visibility: None,
                 })
@@ -400,6 +401,7 @@ fn inject_on_demand_glyph_items(
                             name: r.name.clone(),
                             offset,
                             negated: r.negated,
+                            inherit: r.inherit,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::MonoOnly),
                         });
@@ -415,6 +417,7 @@ fn inject_on_demand_glyph_items(
                             name: r.name.clone(),
                             offset,
                             negated: r.negated,
+                            inherit: r.inherit,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::ColorOnly),
                         });

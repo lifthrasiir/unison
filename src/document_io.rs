@@ -216,8 +216,8 @@ fn parse_visibility(s: &str) -> Option<LayerVisibility> {
 /// - `ref NAME`
 /// - `ref NAME negated`
 /// - `ref NAME COL ROW [negated]`
-/// - Any of the above followed by `fill COLOR` and/or `coloronly`/`monoonly`
-///   (`fill` and visibility are independent; either can appear without the other)
+/// - Any of the above followed by `inherit`, `fill COLOR` and/or
+///   `coloronly`/`monoonly`, in any order (each is independent of the others)
 fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef> {
     if parts.is_empty() {
         return None;
@@ -226,6 +226,7 @@ fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef>
     let mut idx = 1;
     let mut offset: Option<(i16, i16)> = None;
     let mut negated = false;
+    let mut inherit = false;
     let mut fill: Option<RefFill> = None;
     let mut visibility: Option<LayerVisibility> = None;
 
@@ -241,6 +242,7 @@ fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef>
     while idx < parts.len() {
         match parts[idx].as_str() {
             "negated" => negated = true,
+            "inherit" => inherit = true,
             "fill" => {
                 idx += 1;
                 if idx >= parts.len() {
@@ -259,7 +261,7 @@ fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef>
         idx += 1;
     }
 
-    Some(GlyphRef { name, offset, negated, fill, visibility, comment })
+    Some(GlyphRef { name, offset, negated, inherit, fill, visibility, comment })
 }
 
 pub fn parse_document(path: &Path) -> Result<Document> {
@@ -946,6 +948,7 @@ pub fn derive_document(
                                 name: alias_name,
                                 offset: None,
                                 negated: false,
+                                inherit: false,
                                 fill: None,
                                 visibility: None,
                                 comment: None,

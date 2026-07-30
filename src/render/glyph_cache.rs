@@ -115,8 +115,8 @@ pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
 /// directly via `from_grid`, glyphs with refs (or pixels alongside refs)
 /// become pending, and sticky placeholder glyphs enter as `empty` entries
 /// that only carry anchors.
-pub(crate) fn seed_cache<V: CachedGlyphEntry>(
-    all_items: &[DocumentItem],
+pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
+    all_items: impl IntoIterator<Item = &'a DocumentItem>,
     mut from_grid: impl FnMut(&PixelGrid) -> V,
     mut empty: impl FnMut() -> V,
 ) -> (HashMap<String, V>, Vec<PendingGlyph>) {
@@ -164,6 +164,7 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
     mut pending: Vec<PendingGlyph>,
     mut declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     mut build: impl FnMut(&PendingGlyph, &[GlyphRef], &HashMap<String, V>) -> V,
+    mut on_issue: impl FnMut(&str, crate::ref_composite::DeriveIssue),
 ) {
     let mut progress = true;
     while progress {
@@ -180,20 +181,23 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
                 continue;
             }
             let pg = pending.swap_remove(i);
-            let (effective_refs, anchors) = crate::ref_composite::derive_ref_offsets_with(
+            let (effective_refs, anchors, issues) = crate::ref_composite::derive_ref_offsets_with(
                 &pg.points,
                 &pg.refs,
                 |name| resolve_cached(name, cache).map(|v| v.anchors().to_vec()),
                 |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
                 &mut declared_anchors,
             );
+            for issue in issues {
+                on_issue(&pg.name, issue);
+            }
             let mut entry = build(&pg, &effective_refs, cache);
             if let Some(grid) = &pg.pixels {
                 let (w, h) = entry.dims_mut();
                 *w = (*w).max(grid.width);
                 *h = (*h).max(grid.height);
             }
-            entry.set_resolution(anchors, pg.scale);
+            entry.set_resolution(anchors.into_iter().map(|(p, _)| p).collect(), pg.scale);
             cache.insert(pg.name.clone(), entry);
             progress = true;
         }
