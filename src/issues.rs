@@ -535,8 +535,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             |name, issue| derive_issues.push((name.to_string(), issue)),
         );
         for (name, issue) in derive_issues {
+            let severity = if issue.is_error() { Severity::Error } else { Severity::Warning };
             issues.push(docset.to_issue(&Diagnostic::new(
-                Severity::Error,
+                severity,
                 origin_of.get(name.as_str()).copied().flatten(),
                 issue.message(&name),
             )));
@@ -640,6 +641,39 @@ map m = mark
                 && i.message.contains("'mark'")
                 && i.message.contains("'-above'")),
             "expected ambiguous attachment error, got: {issues:?}",
+        );
+    }
+
+    /// A `-` anchor that name-matches a published `+` but size-mismatches it
+    /// is a near-miss (usually the wrong `:narrow`/`:wide` variant), reported
+    /// as a warning rather than silently not attaching.
+    #[test]
+    fn size_mismatched_attachment_reported() {
+        let input = "\
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 1..2 0
+glyph mark 2 1 mark
+@@@@
+anchor -above 0 0
+glyph combo
+ref base
+ref mark 1 2
+map D = combo
+map h = base
+map m = mark
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Warning
+                && i.message.contains("combo")
+                && i.message.contains("'mark'")
+                && i.message.contains("'-above'")),
+            "expected size-mismatch warning, got: {issues:?}",
         );
     }
 

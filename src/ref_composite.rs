@@ -486,6 +486,16 @@ pub(crate) enum DeriveIssue {
     /// A `-` anchor found more than one size-matching `+` anchor to attach
     /// to. Nothing is attached or consumed.
     AmbiguousAttachment { position: String, ref_name: String },
+    /// A `-` anchor found a same-name `+` of a different size (`(w, h)` in
+    /// cells) and therefore attached to nothing. A near-miss like this almost
+    /// always means the wrong `:narrow`/`:wide` variant — a `-` with no
+    /// same-name `+` at all is ordinary forwarding and stays quiet.
+    SizeMismatchedAttachment {
+        position: String,
+        ref_name: String,
+        minus: (u16, u16),
+        plus: (u16, u16),
+    },
 }
 
 impl DeriveIssue {
@@ -501,7 +511,24 @@ impl DeriveIssue {
                 "+",
                 position.strip_prefix('-').unwrap_or(position),
             ),
+            DeriveIssue::SizeMismatchedAttachment { position, ref_name, minus, plus } => {
+                format!(
+                    "glyph '{glyph}': ref '{ref_name}' has '{position}' ({}x{}) matching \
+                     a '+{}' only by name ({}x{}); not attached — check the other variants",
+                    minus.0,
+                    minus.1,
+                    position.strip_prefix('-').unwrap_or(position),
+                    plus.0,
+                    plus.1,
+                )
+            }
         }
+    }
+
+    /// Whether this finding invalidates the anchors involved (error) or only
+    /// flags a near-miss the composite still resolves around (warning).
+    pub(crate) fn is_error(&self) -> bool {
+        !matches!(self, DeriveIssue::SizeMismatchedAttachment { .. })
     }
 }
 
@@ -985,8 +1012,23 @@ fn commit_ref(
             .map(|(i, _)| i)
             .collect();
         match matching.len() {
-            0 => survived_minus
-                .push((translate_point(minus, off_col, off_row), Some(ref_idx))),
+            0 => {
+                // A same-name `+` of the wrong size is a near-miss worth
+                // flagging; no same-name `+` at all is plain forwarding.
+                if let Some((near, _)) = available_plus
+                    .iter()
+                    .find(|(p, _)| p.position.strip_prefix('+') == Some(base))
+                {
+                    issues.push(DeriveIssue::SizeMismatchedAttachment {
+                        position: minus.position.clone(),
+                        ref_name: gref.name.clone(),
+                        minus: (minus.width(), minus.height()),
+                        plus: (near.width(), near.height()),
+                    });
+                }
+                survived_minus
+                    .push((translate_point(minus, off_col, off_row), Some(ref_idx)));
+            }
             1 => {
                 available_plus.remove(matching[0]);
             }

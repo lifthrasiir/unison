@@ -1516,3 +1516,55 @@ fn probe_migration_worklist() {
     eprintln!("== {} glyphs no longer expose a +above/+below they used to:", lost.len());
     for n in &lost { eprintln!("  {n}"); }
 }
+
+/// A `-` anchor that finds a same-name `+` of a *different size* attaches to
+/// nothing, and that near-miss is reported: it almost always means the wrong
+/// `:narrow`/`:wide` variant was picked. A minus with no same-name `+` at all
+/// stays quiet — that is ordinary alias forwarding.
+#[test]
+fn derive_reports_size_mismatched_attachment() {
+    let anchored = |position: &str, col: i16, row: i16, w: i16| GlyphPoint {
+        comment: None,
+        position: position.to_string(),
+        col,
+        row,
+        col_end: col + w - 1,
+        row_end: row,
+    };
+    let lookup = |name: &str| -> Option<Vec<GlyphPoint>> {
+        match name {
+            "base" => Some(vec![anchored("+above", 1, 0, 2)]),
+            "mark" => Some(vec![anchored("-above", 0, 0, 1)]),
+            _ => None,
+        }
+    };
+    let gref = |name: &str, offset: Option<(i16, i16)>| GlyphRef {
+        comment: None,
+        name: name.to_string(),
+        offset,
+        negated: false,
+        inherit: false,
+        fill: None,
+        visibility: None,
+    };
+
+    // Explicit offset: the mark cannot consume the 2-cell +above.
+    let refs = vec![gref("base", None), gref("mark", Some((1, 2)))];
+    let (_, _, issues) =
+        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    assert!(
+        issues.contains(&DeriveIssue::SizeMismatchedAttachment {
+            position: "-above".into(),
+            ref_name: "mark".into(),
+            minus: (1, 1),
+            plus: (2, 1),
+        }),
+        "{issues:?}",
+    );
+
+    // No same-name + anywhere: plain forwarding, no warning.
+    let refs = vec![gref("mark", None)];
+    let (_, _, issues) =
+        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    assert!(issues.is_empty(), "{issues:?}");
+}
