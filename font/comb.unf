@@ -325,20 +325,17 @@ map U+0328 = ogonek-below
 //--------------------------------------
 // caron (hacek)
 
-glyph caron-lower 5 2
+glyph caron 5 2
 \01\../10/
 ..\0@@0/..
 
-glyph caron-upper 5 2
-ref caron-lower 0 0
-
 glyph caron-above mark
-ref caron-lower
+ref caron
 anchor -above 2 1
 anchor +above 2 -1
 
 glyph caron-above:wide mark
-ref caron-lower
+ref caron
 anchor -above 1..2 1
 anchor +above 1..2 -1
 
@@ -358,10 +355,6 @@ glyph caron-alt 2 3
 glyph circ 5 2
 ../0@@0\..
 /01/..\10\
-
-glyph circ-lower = circ
-
-glyph circ-upper = circ
 
 glyph circ-above mark
 ref circ
@@ -392,10 +385,6 @@ map U+032D = circ-below
 glyph breve 5 2
 @@1\../1@@
 \0@@@@@@0/
-
-glyph breve-lower = breve
-
-glyph breve-upper = breve
 
 glyph breve-above mark
 ref breve
@@ -449,10 +438,6 @@ glyph ring 3 3
 @@..@@
 \0@@0/
 
-glyph ring-lower = ring
-
-glyph ring-upper = ring
-
 glyph ring-above mark
 ref ring
 anchor -above 1 1
@@ -483,10 +468,6 @@ glyph comb-tilde 5 2
 /0@@1\../1
 1/..\1@@0/
 
-glyph tilde-lower = comb-tilde
-
-glyph tilde-upper = comb-tilde
-
 glyph tilde-above mark
 ref comb-tilde
 anchor -above 2 1
@@ -516,14 +497,6 @@ map U+0330 = tilde-below
 glyph comb-dot 2 2
 @@@@
 @@@@
-
-glyph dot-lower = comb-dot
-
-glyph dot-upper 2 2
-ref comb-dot
-
-glyph dot-bottom 2 2
-ref comb-dot
 
 glyph dot-middle 2 2
 ref comb-dot
@@ -558,10 +531,6 @@ glyph hook 3 3
 /1@@1\
 0/..@@
 ../10/
-
-glyph hook-lower = hook
-
-glyph hook-upper = hook
 
 glyph hook-above mark
 ref hook

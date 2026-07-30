@@ -22,7 +22,7 @@ glyph enclosing-circle 16 16
 ........\1H~h\....../h~H1/......
 ..........\h_H@@@@@@H_h/........
 ................................
-anchor +center 8 7..8
+anchor +center 8 7..8 // the lack of 1x1 anchor is intentional
 
 glyph enclosing-circle-sbg 16 16
 ................................
@@ -329,7 +329,7 @@ glyph enclosing-parens 16 16
 ......\01\............../10/....
 ................................
 ................................
-anchor +center 8 7..8
+anchor +center 8 7..8 // the lack of 1x1 anchor is intentional
 
 glyph enclosing-parens-sbg 16 16
 ................................
@@ -388,7 +388,7 @@ ref enclosing-parens
 ref ($a-z)-upper 4 0
 glyph ($a-z)-lower-in-parens
 ref enclosing-parens
-ref ($a-z)-lower 4 0
+ref ($a-z)-lower
 
 map 🄐|🄑|🄒|🄓|🄔|🄕|🄖|🄗|🄘|🄙|🄚|🄛|🄜|🄝|🄞|🄟|🄠|🄡|🄢|🄣|🄤|🄥|🄦|🄧|🄨|🄩 = ($a-z)-upper-in-parens
 map ⒜|⒝|⒞|⒟|⒠|⒡|⒢|⒣|⒤|⒥|⒦|⒧|⒨|⒩|⒪|⒫|⒬|⒭|⒮|⒯|⒰|⒱|⒲|⒳|⒴|⒵ = ($a-z)-lower-in-parens
