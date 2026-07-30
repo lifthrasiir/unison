@@ -716,6 +716,97 @@ ref mark-below
     );
 }
 
+/// `inherit` decides what a composite *exposes*; it must not decide *which
+/// form* of a glyph gets picked when a sibling ref needs an anchor. Choosing
+/// between `base` and `base:alt` is a question about `base:alt` — does it
+/// declare `+above`? — and `ttf_builder/gpos.rs` already answers it from
+/// `declared_anchors` plus the alternative index, never from the flag. The
+/// look-ahead used to read the primary's *exposed* set instead, so dropping
+/// `inherit` from `glyph i-lower`'s `ref i-lower:dotless` silently made every
+/// generated `ï í ì ī ǐ î ĭ ĩ` compose over the dotted form.
+#[test]
+fn lookahead_alternative_does_not_depend_on_inherit() {
+    use crate::document_io;
+
+    // Same font twice, differing only in the flag on `base`'s own ref.
+    let source = |inherit: &str| format!("\
+glyph base:alt 2 2
+@@@@
+@@@@
+anchor +above 1 0
+
+glyph base 2 4
+@@@@
+@@@@
+....
+....
+ref base:alt 0 2{inherit}
+anchor +below 1 3
+
+glyph mark-above 2 1 mark
+@@@@
+anchor -above 1 0
+
+glyph combo-above
+ref base
+ref mark-above
+");
+
+    let resolve = |inherit: &str| {
+        let doc = document_io::parse_document_from_str(
+            &source(inherit), "test.unf".into(),
+        ).unwrap();
+        let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+        let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
+        for item in &doc.items {
+            if let DocumentItem::Glyph { name, body } = item {
+                decl_anchors.entry(name.display()).or_insert_with(|| body.points.clone());
+            }
+        }
+        let body = doc.items.iter().find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "combo-above" => Some(body),
+            _ => None,
+        }).unwrap().clone();
+        let (effective, _, _) = derive_ref_offsets_with(
+            &body.points,
+            &body.refs,
+            |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
+            |name| alt_idx.get(name).to_vec(),
+            |name| decl_anchors.get(name).cloned(),
+        );
+        let base_exposes_above = resolved["base"]
+            .resolved_anchors
+            .iter()
+            .any(|p| p.position == "+above");
+        (effective, resolved["combo-above"].grid.clone(), base_exposes_above)
+    };
+
+    let (with_refs, with_grid, with_above) = resolve(" inherit");
+    let (without_refs, without_grid, without_above) = resolve("");
+
+    // The flag does its one job: only the `inherit` form forwards `+above`.
+    assert!(with_above, "`ref base:alt inherit` should expose +above");
+    assert!(!without_above, "a non-inherit ref should expose nothing");
+
+    // And nothing else. Both pick the alternative that declares `+above`.
+    for (label, effective) in [("inherit", &with_refs), ("no inherit", &without_refs)] {
+        assert_eq!(
+            effective[0].name, "base:alt",
+            "{label}: the mark's -above must pick the form declaring +above",
+        );
+        assert_eq!(
+            effective[1].name, "mark-above",
+            "{label}: the mark itself has no alternative to pick",
+        );
+    }
+    assert_eq!(
+        with_refs.iter().map(|r| r.offset).collect::<Vec<_>>(),
+        without_refs.iter().map(|r| r.offset).collect::<Vec<_>>(),
+        "attachment offsets must not depend on the flag",
+    );
+    assert_eq!(with_grid, without_grid, "the composed grid must not depend on the flag");
+}
+
 /// Ink flag of every *logical* pixel of an on-demand glyph's grid, as a
 /// `lh × lw` table. The flag is uniform across a logical pixel's subcells
 /// by construction, so reading the top-left subcell is enough; the helper

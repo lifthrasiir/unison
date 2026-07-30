@@ -555,6 +555,18 @@ assert shape i̤̤ : i-lower : dia-below offset -4 0 : dia-below offset -4 2
 assert shape ï̤ : uni00EF : dia-below offset -4 0
 assert shape ï̤ : uni00EF : dia-below offset -4 0
 
+// Every `map generate` i-composite stacks its own mark once more: the second
+// mark can only land on the `+above` the first one published, so a wrong
+// offset here means the generated glyph composed over dotted `i-lower`
+// instead of `i-lower:dotless`. `ï̈` above caught exactly that once.
+assert shape í́ : uni00ED : acute-above:wide offset -6 1
+assert shape ì̀ : uni00EC : grave-above:wide offset -6 1
+assert shape ī̄ : uni012B : mac-above:narrow offset -6 2
+assert shape ǐ̌ : uni01D0 : caron-above:wide offset -6 1
+assert shape î̂ : uni00EE : circ-above:wide offset -6 1
+assert shape ĭ̆ : uni012D : breve-above:wide offset -6 1
+assert shape ĩ̃ : uni0129 : tilde-above:wide offset -6 1
+
 // j + combining marks
 assert shape j̈ : j-lower:dotless : dia-above:narrow offset -5 3
 assert shape j̤ : j-lower:compressed : dia-below:narrow offset -6 14

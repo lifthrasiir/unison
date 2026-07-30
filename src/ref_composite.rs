@@ -11,10 +11,16 @@
 //! What the composite *exposes* to the outside — GPOS base anchors, the editor's
 //! anchor shadow, further composition — is only its own declared anchors plus
 //! the surviving anchors of refs marked `inherit`. So a digraph or a circled
-//! letter exposes nothing it did not say, and `glyph i-lower`'s
-//! `ref i-lower:dotless inherit` is what lets `Ï` build on it. `map generate`
-//! composites stand in for their decomposition, so their synthesized refs
-//! inherit implicitly.
+//! letter exposes nothing it did not say. `map generate` composites stand in
+//! for their decomposition, so their synthesized refs inherit implicitly.
+//!
+//! The flag governs *exposure only*. It must not decide which form of a glyph
+//! a sibling attaches to: that is a question about the alternative itself, and
+//! [`try_lookahead_alt`] answers it from declared anchors and the alternative
+//! index, exactly as `render/ttf_builder/gpos.rs` does. Reading the primary's
+//! exposed set there instead once made every generated `ï í ì ī ǐ î ĭ ĩ`
+//! compose over dotted `i-lower`, while shaping the decomposed input still
+//! substituted `i-lower:dotless` — one font, two answers.
 //!
 //! Two rules here are load-bearing and deliberately loud — [`crate::issues`]
 //! reports them as errors, through an anchors-only pass sharing
@@ -940,18 +946,24 @@ pub(crate) fn derive_ref_offsets_with(
     (effective_refs, exposed, issues)
 }
 
-/// Look-ahead alternative selection: when a ref at index `i` publishes
-/// `+anchor` that a subsequent unresolved ref would consume via `-anchor`,
-/// AND the ref's own declared points do NOT include that `+anchor` (it is
-/// only forwarded from the ref's own sub-refs), prefer an alternative that
-/// provides `+anchor` directly.
+/// Look-ahead alternative selection: when an unresolved sibling would consume
+/// `-anchor` and an alternative of the ref at index `i` declares the matching
+/// `+anchor` that the ref itself does *not* declare, prefer that alternative.
 ///
-/// This handles cases like `i-lower` (which forwards `+above` from
-/// `ref i-lower:dotless`) followed by `dia-above` (which needs `-above`):
+/// This handles cases like `i-lower` (whose `+above` lives on
+/// `i-lower:dotless`) followed by `dia-above` (which needs `-above`):
 /// `i-lower:dotless` should be used because it is the correct visual form
 /// when the above-anchor is consumed (the dot would conflict).  But when
 /// followed by `dia-below`, no substitution occurs because `i-lower` has
 /// `+below` as its own declared anchor.
+///
+/// The question is asked of the *alternative*, never of what the primary
+/// exposes: `inherit` decides what a glyph offers, not which form of it gets
+/// picked. `ttf_builder/gpos.rs`'s base-alternative selection reads
+/// `declared_anchors` plus the alternative index for the same reason, and the
+/// two must agree — otherwise a `map generate` composite and its typed
+/// decomposition render differently, which is what made every generated
+/// `ï í ì ī ǐ î ĭ ĩ` keep its dot once anchor inheritance became explicit.
 ///
 /// A second, size-driven trigger substitutes a *publisher* whose `+X`
 /// name-matches an unresolved sibling's `-X` but size-mismatches it, when an
@@ -972,14 +984,18 @@ fn try_lookahead_alt<'a>(
     let unresolved = |j: usize| j != i && effective_refs[j].is_none();
 
     if let Some(declared) = target_declared_anchors {
-        let plus_anchors: Vec<&GlyphPoint> = target_anchors
-            .iter()
-            .filter(|p| p.position.starts_with('+'))
-            .filter(|p| !available_plus.iter().any(|(a, _)| a.position == p.position))
-            .filter(|p| !declared.iter().any(|o| o.position == p.position))
-            .collect();
         for (alt_name, alt_anchors) in alternatives {
-            for plus in &plus_anchors {
+            for plus in alt_anchors.iter().filter(|p| p.position.starts_with('+')) {
+                // The primary declares it, so the primary *is* the right form:
+                // `i-lower` keeps its dot under `dia-below`.
+                if declared.iter().any(|o| o.position == plus.position) {
+                    continue;
+                }
+                // Already published — by the composite itself or by a sibling
+                // that committed earlier — so there is nothing to switch for.
+                if available_plus.iter().any(|(a, _)| a.position == plus.position) {
+                    continue;
+                }
                 let Some(base) = plus.position.strip_prefix('+') else {
                     continue;
                 };
@@ -992,7 +1008,7 @@ fn try_lookahead_alt<'a>(
                             .iter()
                             .any(|p| p.position == minus_name)
                 });
-                if needed && alt_anchors.iter().any(|a| a.position == plus.position) {
+                if needed {
                     return Some((alt_name.clone(), alt_anchors.as_slice()));
                 }
             }
