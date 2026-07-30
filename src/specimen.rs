@@ -24,8 +24,14 @@ pub struct SpecimenClick {
 pub struct SpecimenState {
     entries: Vec<(u32, String)>,
     remap_entries: Vec<RemapEntry>,
-    cached_gen: u64,
-    cached_font_data_gen: u64,
+    /// `(font_data_gen, derived_gen)` — the generations of the *two* background
+    /// results the rebuild reads, never the generation of the build *request*.
+    /// A remap-only glyph is listed only if `name_to_gid` knows its (name-part
+    /// expanded) name, so a rebuild keyed on the request would drop nearly all
+    /// of them whenever the specimen is opened while a build is in flight — or
+    /// at startup, where `name_parts` is empty until the first derive lands —
+    /// and would then never run again to fix it.
+    cached_gen: Option<(u64, u64)>,
     glyph_cache: GlyphCache,
     pub hover_status: Option<String>,
 }
@@ -35,15 +41,14 @@ impl SpecimenState {
         Self {
             entries: Vec::new(),
             remap_entries: Vec::new(),
-            cached_gen: u64::MAX,
-            cached_font_data_gen: u64::MAX,
+            cached_gen: None,
             glyph_cache: GlyphCache::new(),
             hover_status: None,
         }
     }
 
-    pub fn needs_rebuild(&self, font_gen: u64) -> bool {
-        self.cached_gen != font_gen
+    pub fn needs_rebuild(&self, font_data_gen: u64, derived_gen: u64) -> bool {
+        self.cached_gen != Some((font_data_gen, derived_gen))
     }
 
     pub fn rebuild_if_needed(
@@ -51,12 +56,13 @@ impl SpecimenState {
         docs: &[&Document],
         name_parts: &NamePartsMap,
         name_to_gid: &HashMap<String, u16>,
-        font_gen: u64,
+        font_data_gen: u64,
+        derived_gen: u64,
     ) {
-        if self.cached_gen == font_gen {
+        if !self.needs_rebuild(font_data_gen, derived_gen) {
             return;
         }
-        self.cached_gen = font_gen;
+        self.cached_gen = Some((font_data_gen, derived_gen));
 
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
         let mut mapped_glyphs: HashSet<String> = HashSet::new();
@@ -181,6 +187,11 @@ impl SpecimenState {
         self.remap_entries.append(&mut without_cp);
     }
 
+    #[cfg(test)]
+    fn remap_glyph_names(&self) -> Vec<&str> {
+        self.remap_entries.iter().map(|e| e.glyph_name.as_str()).collect()
+    }
+
     pub fn show(
         &mut self,
         ui: &mut egui::Ui,
@@ -188,7 +199,6 @@ impl SpecimenState {
         font_data_gen: u64,
     ) -> Option<SpecimenClick> {
         self.glyph_cache.invalidate_if_changed(font_data_gen);
-        self.cached_font_data_gen = font_data_gen;
         self.hover_status = None;
 
         let total_count = self.entries.len() + self.remap_entries.len();
@@ -291,7 +301,14 @@ impl SpecimenState {
                     );
                 }
 
-                let hovered_idx = hover_pointer.and_then(|pos| {
+                // `response.rect` is the *content* rect, which extends past the
+                // scroll viewport on both sides once the grid is scrolled, so
+                // it contains points that are over the editor above instead.
+                // `contains_pointer` respects the clip rect and the layer
+                // order, so the cell under the pointer is the one on screen.
+                let hovered_idx = hover_pointer
+                    .filter(|_| response.contains_pointer())
+                    .and_then(|pos| {
                     if !response.rect.contains(pos) {
                         return None;
                     }
@@ -758,4 +775,60 @@ fn raster_glyph_rect(
         egui::pos2(m.pen_x, m.baseline_y - m.ascent),
         egui::vec2(m.advance_w, m.ascent - m.descent),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn doc(src: &str) -> Document {
+        crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap()
+    }
+
+    const SRC: &str = "\
+font-meta height 16 ascent 14 descent 2
+name-parts $l = a b
+glyph sq 1 1
+@@
+glyph a-lig
+ref sq
+glyph b-lig
+ref sq
+map U+0061 = sq
+remap liga : sq -> ($l)-lig
+";
+
+    /// The gid map and `name_parts` arrive from *background* work, so the
+    /// specimen can be opened while both are still the previous build's (or,
+    /// at startup, empty). Keying its cache on the build request would then
+    /// freeze that half-built state in place forever.
+    #[test]
+    fn rebuilds_when_name_parts_and_gids_arrive_late() {
+        let d = doc(SRC);
+        let docs = [&d];
+        let name_parts = crate::document::collect_name_parts(&docs);
+        let gids: HashMap<String, u16> = [
+            ("sq".to_string(), 1u16),
+            ("a-lig".to_string(), 2),
+            ("b-lig".to_string(), 3),
+        ]
+        .into_iter()
+        .collect();
+
+        let mut state = SpecimenState::new();
+
+        // Frame 1: opened before the background build landed — no name parts,
+        // no gid map yet.
+        assert!(state.needs_rebuild(0, 0));
+        state.rebuild_if_needed(&docs, &NamePartsMap::new(), &HashMap::new(), 0, 0);
+        assert!(state.remap_glyph_names().is_empty());
+
+        // Frame 2: the build and the derived data have landed.
+        assert!(state.needs_rebuild(1, 1));
+        state.rebuild_if_needed(&docs, &name_parts, &gids, 1, 1);
+        assert_eq!(state.remap_glyph_names(), vec!["a-lig", "b-lig"]);
+
+        // Nothing new: the cache holds.
+        assert!(!state.needs_rebuild(1, 1));
+    }
 }

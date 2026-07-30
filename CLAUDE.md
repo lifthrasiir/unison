@@ -109,6 +109,13 @@ Editor (feature `editor`):
   `reconcile`, `undo`, `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`,
   `glyph_widget`, `grid_render`, `pixel_interaction`, `pixel_selection`, `harness`, `view_tests`.
 - `sidebar.rs` — `.unf` file list (open, rename, create). `specimen.rs` — specimen rendering.
+  Its cached cell list is keyed on `(font_data_gen, derived_gen)` — the generations of the two
+  *background results* it reads (the built font's `name_to_gid`, and `name_parts` from the derive) —
+  and **never** on `font_build_gen`, which is the build *request* and is bumped the instant a
+  document changes. A remap-only glyph is listed only when the gid map knows its name-part-expanded
+  name, so keying on the request cached a half-built list (at startup `name_parts` is still empty,
+  which drops nearly every remap-only glyph) and then never rebuilt to fix it — the specimen looked
+  frozen, and its remap cells drew a stale gid against fresh font bytes, i.e. the wrong glyph.
 - `edit_menu.rs`, `preview/` — bottom live-preview panel: rustybuzz shaping + platform rasterizer
   (`coretext.rs` on macOS, `directwrite.rs` on Windows).
 

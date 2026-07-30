@@ -440,13 +440,23 @@ impl UniformApp {
                         preview_rect = self.shaped_preview.last_rect();
                     }
                     Some(1) => {
-                        if self.specimen.needs_rebuild(self.font_build_gen) {
+                        // Keyed on what the rebuild actually reads (the built
+                        // font's gid map and the derived name parts), not on
+                        // `font_build_gen` — that is bumped the moment a doc
+                        // changes, so a specimen built on it would cache a
+                        // half-built state and never refresh. See
+                        // `SpecimenState::cached_gen`.
+                        if self.specimen.needs_rebuild(self.font_data_gen, self.derived_gen) {
                             let all_docs = collect_effective_docs(
                                 &self.open_documents,
                                 &self.font_base_docs,
                             );
                             self.specimen.rebuild_if_needed(
-                                &all_docs, &self.name_parts, &self.font_name_to_gid, self.font_build_gen,
+                                &all_docs,
+                                &self.name_parts,
+                                &self.font_name_to_gid,
+                                self.font_data_gen,
+                                self.derived_gen,
                             );
                         }
                         result.specimen_click = self.specimen.show(
