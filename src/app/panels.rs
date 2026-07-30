@@ -12,6 +12,10 @@ pub(super) fn min_bottom_panel_height(screen_height: f32) -> f32 {
 
 pub(super) const SEARCH_TAB: usize = 3;
 
+/// Shared by the panel itself and by `Sidebar::fit_panel_width`, which reaches
+/// into the panel's stored width under this id.
+pub(super) const SIDEBAR_PANEL_ID: &str = "sidebar";
+
 /// What one frame of the bottom panel asked the host to do. Every case is a
 /// navigation the panel itself cannot carry out, so all three are dispatched
 /// after the frame's editors have run.
@@ -181,7 +185,13 @@ impl UniformApp {
 
     pub(super) fn show_sidebar_panel(&mut self, ctx: &egui::Context, editor_focused: bool) {
         let mut sidebar_actions = Vec::new();
-        egui::SidePanel::left("sidebar")
+        // The sidebar fits itself to the file names until the user drags its
+        // edge, and the fit is re-applied *every* frame until then rather than
+        // once at startup: the UI font is the Unison bitmap font itself, which
+        // `apply_font` only installs once the first background build finishes,
+        // so the width measured on frame 1 is measured in the wrong font.
+        self.sidebar.fit_panel_width(ctx, SIDEBAR_PANEL_ID);
+        egui::SidePanel::left(SIDEBAR_PANEL_ID)
             .default_width(200.0)
             .show(ctx, |ui| {
                 let dirty_paths: Vec<&std::path::Path> = self.open_documents
