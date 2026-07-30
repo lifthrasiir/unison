@@ -76,7 +76,7 @@ For now, please see the bitmap glyph chart below.
 
 **Uniform** is a hybrid bitmap font editor designed primarily for Unison.
 
-![Uniform screenshot](data/uniform-20260719.png)
+![Uniform screenshot](doc/uniform-20260719.png)
 
 Uniform is in heavy development, even more so than Unison itself.
 There is no public release yet, but you can try the latest development version
