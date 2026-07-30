@@ -2,7 +2,7 @@
 // CJK squared symbols
 
 //--------------------------------------
-// unit symbols
+// latin letter symbols (mostly units)
 
 glyph narrow-micro 5 16
 ..........
@@ -174,6 +174,10 @@ ref narrow-a-lower 8 0
 glyph squared-db 16 16
 ref narrow-d-lower 3 0
 ref narrow-b-upper 8 0
+
+glyph squared-dj 16 16
+ref narrow-d-upper 2 0
+ref narrow-j-upper 8 0
 
 glyph squared-dl 16 16
 ref narrow-d-lower 3 0
@@ -671,6 +675,7 @@ map ㎤ = squared-cm3
 map ㏇ = squared-co
 map ㍲ = squared-da
 map ㏈ = squared-db
+map 🆐 = squared-dj
 map ㎗ = squared-dl
 map ㍷ = squared-dm
 map ㍸ = squared-dm2
