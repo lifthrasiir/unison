@@ -1,3 +1,23 @@
+//! Painting a glyph's pixel grid: the cells themselves, the anchor shadow under
+//! them, and the metrics overlay over them.
+//!
+//! # The metrics overlay (View ▸ Show glyph metrics)
+//!
+//! Each glyph's metric box is drawn over its grid.
+//! [`crate::editor::document_view::GlyphMetrics`] computes where it sits — and
+//! documents why `left`/`top` put it at `-left`/`-top`, why `bottom` is derived
+//! rather than written, and when the baseline pair exists at all. Inside the box,
+//! a second left/right-open box runs from the ascent line (the box's own top)
+//! down to the baseline, and `GridExtent::include_metrics` widens the drawn area
+//! to the whole box, which is what makes a two-row mark like `dia-below` show
+//! where on the line it actually lands.
+//!
+//! Each metric line is three 1 px strokes — a `grid_bg` band between two
+//! `grid_on` ones, the baseline pair additionally dashed. See
+//! [`METRICS_STROKES`] for why they are inset inward and sized in points rather
+//! than scaled with the zoom, and the ring comment in `draw_metrics_box` for why
+//! the outer box is drawn as three *closed rectangles* instead of four edges.
+
 use std::collections::HashMap;
 
 use crate::document::{Document, DocumentItem, NamePartsMap, PixelGrid};

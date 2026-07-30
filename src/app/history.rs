@@ -18,6 +18,19 @@
 //!   fwd   -> caret at B.to (the target that link led to), pos 2
 //! ```
 //!
+//! An entry's `from` is the **link's** own line and column, not the caret: a
+//! Ctrl+click deliberately leaves the caret where it was, so a `from` taken from
+//! the caret would point wherever the user last clicked
+//! (`view_tests.rs::following_a_link_reports_the_link_position_not_the_caret`
+//! pins this). A hit clicked in the Search pane is the opposite case and does
+//! record the caret — the pane is not a position in a document, so the caret is
+//! the only place the user can be said to have left.
+//!
+//! The editor reports each followed link exactly once, as
+//! `DocumentViewResult::nav`: a `NavTarget::Local` it already carried out itself,
+//! a `NavTarget::CrossFile` only the host can resolve, or a `NavTarget::Search`
+//! (see [`super::search`]). Every case is therefore recorded through one path.
+//!
 //! Positions are plain `(document, line, column)` triples and are **not**
 //! rewritten when the document is edited underneath them; see
 //! [`NavHistory`]'s note. Documents are identified by their index into
@@ -55,6 +68,11 @@ pub(super) struct NavEntry {
 /// already recorded here, so a jump remembered before such an edit can come
 /// back a few lines off. Navigation clamps to the document, so the position is
 /// always valid, just possibly stale.
+///
+/// Doing better needs anchors that every mutation updates, and there is no one
+/// place to update them from yet: `UndoStack::push_lines` is nearly the choke
+/// point for line-count changes, but `editor::reconcile` and `app::rename`
+/// bypass it.
 #[derive(Default)]
 pub(super) struct NavHistory {
     entries: Vec<NavEntry>,

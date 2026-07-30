@@ -5,6 +5,15 @@
 //! name it refers to is not declared anywhere. Both routes end here, so a typo
 //! in a `ref` lists the lines that share the typo rather than doing nothing.
 //!
+//! For the first route to exist at all, `doc_links::extract_line_links` emits
+//! links for **definitions** too, flagged `is_def` — that flag is what stops the
+//! editor from "navigating" to the line the click was already on. Two
+//! `LinkTargetKind`s are search-only and never navigate: `Anchor` and `Feature`
+//! have no declaration site (an anchor is matched by name across glyphs, a
+//! feature tag is declared once per target). A *pattern* glyph name gets no
+//! definition link either — it is not a name anything can refer to, and only the
+//! `$var`s inside it are.
+//!
 //! Matching goes through [`crate::editor::line_fields`] exactly as links and
 //! rename do, so what the search calls an appearance of a glyph name is what
 //! the editor calls one — a `remap` group that happens to read like a glyph
@@ -14,7 +23,11 @@
 //! number: opening a file canonicalizes its text, so the line a hit sits at on
 //! disk need not be the line it ends up at in the editor. Canonicalization
 //! rewrites spacing and comments, never the order names appear in, so the
-//! ordinal survives it. (Like the navigation history, nothing rewrites a
+//! ordinal survives it. The ordinal counts *occurrences*, not lines — a line
+//! naming the same glyph twice is two rows — and both ends have to agree on that
+//! or every later hit in the file lands one off. Open documents are searched as
+//! they stand, unsaved edits included; unopened ones through `file_text`.
+//! (Like the navigation history, nothing rewrites a
 //! recorded position when the document is edited underneath it; a stale
 //! search is re-run by clicking the name again.)
 
@@ -31,7 +44,11 @@ use crate::editor::line_fields::{FieldRole, classify_line};
 /// that can never match. Every kind's name occurs **literally** in the source
 /// — a name-parts name carries its own `$`, and an anchor's sign only ever
 /// precedes the name — so the filter cannot hide a hit. `search_name` leans on
-/// the same invariant one level up, per file.
+/// the same invariant one level up, per file. Together they are what keeps a
+/// search a click and not a wait; over `font/`, 9.9 ms → 1.7 ms.
+///
+/// The returned span is the written token as a whole, which the pane highlights
+/// so a long `remap` or `assert` row says where on it the name actually is.
 pub(super) fn match_spans(line: &str, name: &str, kind: LinkTargetKind) -> Vec<(usize, usize)> {
     if !line.contains(name) {
         return Vec::new();

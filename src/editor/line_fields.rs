@@ -10,6 +10,15 @@
 //! a new directive form only needs to be described once and every feature
 //! picks it up together.  (What completion offers *between* tokens is a
 //! different question and stays in `autocomplete`.)
+//!
+//! Keeping the roles apart is also what keeps the namespaces apart — a `remap`
+//! group named `liga` is not an appearance of a glyph named `liga`. Two of those
+//! distinctions are easy to lose:
+//!
+//! - a `remap` line's first operand names the *group*, not a glyph, so a glyph
+//!   rename must not rewrite it;
+//! - `feature ... : anchor NAME` names an anchor where the plain form names a
+//!   remap group, and the `anchor` keyword is the only thing telling them apart.
 
 use crate::document_io::{TokenSpan, tokenize_with_spans};
 

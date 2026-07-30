@@ -1,5 +1,27 @@
 //! GSUB generation: `remap` collection, lookup classification and the
 //! individual lookup builders.
+//!
+//! # Feature targets and scope fallback
+//!
+//! A `feature` target is written either as a script tag (`latn`, `DFLT`) or as a
+//! script narrowed to one language system (`latn/ROM`). The two forms are
+//! explicit rather than told apart by the tag itself, for two reasons: the
+//! registries' one apparent collision is inverted (`DFLT` is the default
+//! *script*, `dflt` the default *language*), and a language tag means nothing
+//! without its script (`SRB` lives under both `latn` and `cyrl`).
+//!
+//! Directives sharing a tag *and* a target become one feature record, lookups
+//! accumulating in declaration order, because a shaper only ever finds the first
+//! record for a tag. The same tag under different targets stays separate.
+//!
+//! **Both fallbacks are replacements, not extensions**, which is what
+//! [`inherit_tags`] is for: a shaper reads `DFLT` only when the script it wants
+//! has no record at all, and reads a `LangSys` *instead of* its script's
+//! default. So the builder folds `DFLT`'s features into every declared script
+//! and each script's default into every language below it, merging per feature
+//! tag so an inherited tag and a redeclared one end up as one record. Left out,
+//! adding a single `locl for latn/ROM` silently costs all Latin text its
+//! `ccmp` — and every mark attachment with it.
 
 use super::*;
 use super::tables::{ScriptFeatures, build_script_records, make_tag, parse_script_lang};

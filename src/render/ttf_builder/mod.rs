@@ -2,7 +2,23 @@
 //!
 //! [`build_font_from_documents`] and friends are the entry points; this module
 //! holds the shared vocabulary (the collected-glyph types and the build
-//! drivers) and delegates each stage to a submodule.
+//! drivers) and delegates each stage to a submodule: `expand` (pattern
+//! expansion, on-demand and decomposed-`map` item synthesis), `collect`
+//! (per-glyph refs, metrics, traced contours), `contours` (the contour cache and
+//! `CachedContours`), `color`, `gsub`, `gpos`, `hints`, `outlines`
+//! (glyf/metrics/cmap emission) and `tables` (final table assembly). The tests
+//! are in `render/ttf_tests/`.
+//!
+//! [`UNITS_PER_EM`] is 1024. The font is built twice — once reading the exact
+//! geometry, once keeping only the ink flag for a bitmap-style outline; see
+//! [`crate::ref_composite`] on `BitmapFill` for what a synthesized shape has to
+//! decide because of that.
+//!
+//! This module and [`crate::render::contour`] are where most of the fixes land,
+//! and the theme is always the same: sub-pixel and on-demand shapes seen through
+//! a *composite* rather than on their own (fractional on-demand glyphs, triangle
+//! subglyphs, an `xMax` underestimated when `coloronly`/`monoonly` layers mix,
+//! panics from multi-part shapes). Check contour output at composite level.
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::hash::{Hash, Hasher};

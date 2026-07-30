@@ -19,6 +19,28 @@
 //!   document would have to be kept in sync line by line; instead, opening a
 //!   file that is already on screen moves the focus to the pane showing it.
 //!
+//! Splitting is what could produce a second placeholder, so it is offered only
+//! from a single pane that has a document (`can_split`) — never from a
+//! placeholder, and never into a third pane.
+//!
+//! The focus follows whichever editor egui reports as focused
+//! (`UniformApp::sync_pane_focus`, run right after the panes are laid out), and
+//! the pane commands are dispatched after that so they act on the pane the focus
+//! is actually in this frame: Cmd/Ctrl+Alt+←/→ split, Cmd/Ctrl+Alt+H/L move the
+//! focus one pane left/right (vim-keyed, since the arrows are taken and j/k stay
+//! free for a future horizontal split), Cmd/Ctrl+Alt+X swap, Cmd/Ctrl+W close.
+//!
+//! The swap chord is the one exception to how accelerators are read:
+//! `egui-winit`'s `is_cut_command` ignores alt and *returns* after pushing
+//! `Event::Cut`, so Cmd/Ctrl+Alt+X never arrives as a key press at all.
+//! `UniformApp::intercept_swap_panes_chord` takes that event out of the queue at
+//! the top of the frame; left in, the focused editor cuts its selection instead.
+//!
+//! Dragging the divider onto either edge and releasing closes the pane it
+//! collapsed. The layout still clamps both panes to [`MIN_PANE_WIDTH`], so it is
+//! the shaded overlay — not the geometry — that tells the user the drop will
+//! close rather than resize.
+//!
 //! [`UniformApp::open_documents`]: super::UniformApp
 
 /// Which side of the split a new pane goes to.

@@ -1,3 +1,13 @@
+//! Sample generation: the sample HTML/PNG and the live HTML page.
+//!
+//! The sample draws glyphs from its *own* cache values, resolved through the
+//! driver shared with the TTF builder (`render/glyph_cache.rs`) — so the
+//! rules agree but the two pipelines are separate code. That is exactly where
+//! its bugs come from: "the font is right, the sample is wrong" (zero-width
+//! grids throwing off layout, remap-only glyphs missing, colour handling of
+//! indirectly mapped glyphs). When fixing a rendering bug, check the TTF *and*
+//! the sample.
+
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt::Write as FmtWrite;
 use std::io::{self, Write};

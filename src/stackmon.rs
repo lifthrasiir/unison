@@ -46,6 +46,67 @@
 //! | `UNIFORM_STACKMON_DUMP_PCT` | `40` | dump a backtrace past this % of the stack |
 //! | `UNIFORM_STACKMON_LOG` | `uniform-stackmon.log` | log file path |
 //! | `UNIFORM_STACKMON_QUIET` | unset | only log when the peak grows |
+//!
+//! # What the overflows turned out to be
+//!
+//! Answered as of 2026-07-30, and the answer is **environmental**: the `.exe`
+//! was being run straight off an SMB share.
+//!
+//! Static analysis (call-graph cycle detection over `src/`) found no unbounded
+//! recursion of ours, and `build.rs` already raises the Windows main stack to
+//! 8 MiB, so the crashes were exhausting 8 MiB. A first capture (2026-07-29, an
+//! idle window) explained how: of 8155 frames, exactly *one* was outside ntdll
+//! and the rest were a 4-frame, 3.9 KiB cycle repeated ~2000 times — an
+//! exception being raised, its dispatch faulting, and raising again. Not
+//! recursion. The growth decelerated (2.32 → 1.34 → 1.07 → 0.73 MiB per tick),
+//! which is the quadratic cost of each nested dispatch walking an ever-deeper
+//! stack, and no walk could reach past the storm to the frame that started it —
+//! which is why the handler records first-chance exceptions at all.
+//!
+//! With the recorder in, a second capture (2026-07-29, on Alt-F4) named the
+//! culprit: **one** exception in our own image, `0xc0000006`
+//! (`STATUS_IN_PAGE_ERROR`), in the Alt-F4 save-confirmation dialog. A fault on
+//! an already-mapped image page means Windows could not read that page back from
+//! the file, and a PE image is demand-paged from its file for the whole life of
+//! the process. Every report landed in *cold* code (that dialog; teardown glue in
+//! the 2026-07-30 capture) and never in resident paths, and needed no memory
+//! pressure at all. `KiUserExceptionDispatcher` then has to unwind, unwinding
+//! reads `.pdata`/`.xdata` from another not-yet-resident page of the same image,
+//! that read faults the same way, and each nested dispatch does it again.
+//!
+//! Reproduced 2026-07-30 by truncating the image in place while the app ran
+//! (`truncate -s 0 …/release/uniform.exe` on the server, then Alt-F4 ▸ Don't
+//! Save): overflow every time. Two things that repro settled:
+//!
+//! * The exception *code* is not the invariant — that run's storm ran on
+//!   `0xc0000005` raised inside `RtlVirtualUnwind` instead, i.e. the same storm
+//!   one step earlier, with unreadable `.pdata`/`.xdata` faulting the unwinder
+//!   itself. Match on the *shape*: one exception outside ntdll, then a 4–5 frame
+//!   ntdll cycle.
+//! * Deleting the file on the server cannot reproduce it, and neither can a
+//!   rebuild. POSIX `unlink` only drops the directory entry and `smbd` holds the
+//!   file open for the life of the image section; and `cargo` re-links
+//!   `deps/uniform-<hash>.exe` into the final path rather than writing it in
+//!   place, so a rebuild yields a new inode and the mapped one survives.
+//!
+//! What is left as the real-world trigger is loss of the SMB session backing the
+//! section (server sleep, `smbd` restart, network drop, `deadtime`), possibly a
+//! lease break after a rebuild — plausible, not verified. The fix is not in the
+//! code: run the `.exe` from a local disk, which is what `run-local.cmd` does.
+//! `fault_detail` prints the paging `NTSTATUS` for `0xc0000006`, which names the
+//! cause in one line.
+//!
+//! **On the next crash report, ask for `uniform-stackmon.log` first** — do not
+//! re-derive any of the above — and symbolize every `uniform+0xRVA` against that
+//! build's `.pdb` before theorizing: `llvm-symbolizer --obj=uniform.exe
+//! --demangle <RVA + 0x140000000>` works from macOS, and `cargo xb -r` re-links
+//! the same bytes from `deps/` when nothing changed, so even a truncated `.exe`
+//! can be restored without invalidating the symbols.
+//!
+//! **This module is scheduled to go.** The cause is environmental, so once
+//! `run-local.cmd` has been in use for a while with no overflow, it and its
+//! `phase()` markers are dead weight. It has not been observed silent yet, which
+//! is the only reason it is still here.
 
 // `collapse` and friends are only rendered by the Windows backend, but they
 // are pure logic and live outside it so `cargo test` reaches them on any host.

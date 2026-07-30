@@ -1,3 +1,95 @@
+//! Parser and serializer for the `.unf` font source format — and the reference
+//! for the format itself.
+//!
+//! Parsing is incremental at the line level: [`crate::document::DocLine`] is
+//! what the editor edits, and a pixel-only edit does not reparse the file. The
+//! editor canonicalizes every file through [`serialize_document`] when it opens
+//! it, so anything the model drops on the way in is something the user loses —
+//! comments included (below).
+//!
+//! # Tokens
+//!
+//! Whitespace-separated, with backtick quoting for tokens containing spaces:
+//! `` `foo bar` ``. A literal backtick is four backticks — two to escape, two
+//! to quote.
+//!
+//! `//` starts a comment on every line *except* pixel rows, where `//` is a
+//! legal pixel pair; see [`split_comment`] for the exact rule and why a pixel
+//! row must never reach it. Comments are dropped by
+//! [`tokenize_tokens`]/[`tokenize_with_spans`], so grammar, links, completion
+//! and rename never see comment prose, and every item carries its own comment
+//! (a `comment` field on the structured [`crate::document::DocumentItem`]
+//! variants, on `GlyphBody`/`GlyphRef`/`GlyphPoint`, inline in the raw text of
+//! `FontMeta`/`Directive`) so serializing does not lose it. Appending to a line
+//! goes through `append_to_line`, which keeps the insertion in front of the
+//! comment.
+//!
+//! # Directives
+//!
+//! - `font-meta height H ascent A descent D`
+//! - `map CHAR = GLYPH` — cmap mapping.
+//! - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from
+//!   the character's Unicode canonical decomposition, named `uniXXXX` unless
+//!   `GLYPH` names it. `GLYPH` is a pattern expanded in lock-step with `CHAR`,
+//!   exactly as a plain `map`'s target is. The `generate` keyword is mandatory:
+//!   the older bare `map CHAR` was too easily misread as the plain form. The
+//!   synthesized refs carry `inherit` implicitly, since the composite stands in
+//!   for its decomposition (see [`crate::ref_composite`] on anchor exposure) —
+//!   so hand-rewriting one as a plain `glyph` + `map` means deciding per ref
+//!   whether to keep `inherit`.
+//! - `name-parts $NAME = token1 token2 ...` — see [`crate::pattern`].
+//! - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
+//! - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]`
+//!   — GSUB substitution. Source and target are *lists* of glyph names in all
+//!   cases, and an empty target means removal. The list lengths pick the lookup
+//!   type: 1→1 single, 1→N (including 1→0) multiple, N→1 ligature. N→M and N→0
+//!   have no OpenType lookup type and are an error [`crate::issues`] reports,
+//!   rather than something the builder emits close-but-wrong.
+//! - `feature NAME for TARGET... : REMAP_GROUP` — OpenType feature. A target is
+//!   a script tag (`latn`, `DFLT`) or a script narrowed to one language system,
+//!   `script/LANG` (`latn/ROM`); see `render/ttf_builder/gsub.rs` for why the
+//!   two are written explicitly and how scope fallback works.
+//! - `feature NAME for TARGET... : anchor ANCHOR_NAME` — the anchor-driven
+//!   (mark attachment) variant.
+//! - `assert shape TEXT [@lang] [+feat|-feat...] : GLYPH [advance N] [offset X Y] : GLYPH ...`
+//!   — shaping assertion; `@lang` is a BCP 47 tag, see [`crate::render::assert`].
+//! - `assert same NAME...` / `assert distinct NAME...` — resolved-glyph
+//!   equality assertions.
+//! - `exclude-from-sample NAME`
+//! - `assume unused NAME...` — suppresses the unused-glyph warning (patterns
+//!   accepted).
+//!
+//! # Glyph blocks
+//!
+//! `glyph NAME [W H] [flags...]`, with flags `sticky`, `inline`, `mark`,
+//! `advance N`, `left N`, `top N` and `scale N` (the per-glyph sub-pixel detail
+//! resolution: the grid is N× finer, and `document_io` multiplies the declared
+//! dimensions by it but not the other flags).
+//!
+//! - With `W H`, pixel rows follow immediately, two characters per pixel (`@@`
+//!   filled, `..` empty, plus the sub-pixel shape codes in [`crate::pixel`]).
+//! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly] [fill COLOR]`
+//!   — a composite reference. Omitting the offset auto-resolves it from
+//!   `point`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name.
+//! - `point POS COL ROW` (alias `anchor`) — an anchor for auto-ref alignment;
+//!   supports `+`/`-` prefixes and cell ranges.
+//! - `glyph NAME [flags...] = ALIAS` — a simple alias: one ref, no grid, and no
+//!   ref flags, so an alias that must forward its target's anchors is written
+//!   in block form with `ref TARGET inherit` instead.
+//! - `glyph NAME [flags...]` with no dimensions — a ref-only composite,
+//!   followed by `ref`/`point` lines.
+//! - NAME accepts the patterns of [`crate::pattern`]; a block expands in
+//!   lock-step with its `ref` patterns.
+//!
+//! A glyph needs a pixel grid or at least one `ref` to exist at all.
+//! `advance`/`left`/`top`/`point` do not make one buildable, and a contentless
+//! glyph never enters the resolution cache — so it is absent from cmap, from
+//! composites and from GSUB coverage, and referring to it from a `map`, `ref`
+//! or `remap` is an error (leaving it unused is only the usual warning).
+//! Pattern glyphs are stricter still and need `ref` lines, since a pixel grid
+//! cannot be shared across expansions. For a deliberately blank glyph, use
+//! `ref sp`.
+
 use std::fmt;
 #[cfg(any(feature = "editor", test))]
 use std::io::Write;

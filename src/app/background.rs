@@ -1,5 +1,16 @@
 //! The background pipeline: font builds, derived-data resolution and shape
 //! assertions running off the UI thread, and how their results are applied.
+//!
+//! Rebuilds are debounced — 300 ms after an edit, 1000 ms after text input,
+//! since typing a glyph name produces a burst of states nobody wants built — and
+//! guarded against overlapping rebuild threads (`derived_inflight`): without
+//! that guard a resolve slower than the debounce period respawns another rebuild
+//! every period, which is how a slow resolve once snowballed into dozens of
+//! concurrent threads. Set `UNIFORM_PERF` for `[perf]` per-stage timings.
+//!
+//! Results carry the generation of the request that produced them, and consumers
+//! key their caches on the generation of the *result* they read, never of the
+//! request; [`crate::specimen`] is where getting that wrong shows.
 
 use super::*;
 use super::docs::shadowed_by_open;

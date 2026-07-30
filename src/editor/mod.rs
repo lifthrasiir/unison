@@ -1,3 +1,27 @@
+//! The document editor: [`EditorState`], [`EditMode`] and the widget that draws
+//! and edits one `.unf` file.
+//!
+//! # The editor is a widget
+//!
+//! An instance is `DocumentEditor { doc, lines, state, env }`, shown with
+//! `.show(ui)`, and those borrows are its *entire* state.
+//! [`document_view::EditorEnv`] is the borrowed, `Copy`, read-only side —
+//! resolved glyphs, name parts, alternatives, colour aliases, the two generation
+//! counters, zoom, font id — which any number of editors share. Constructing a
+//! second `DocumentEditor` over a second document and [`EditorState`] is all it
+//! takes to have two live editors in one frame; `view_tests.rs`'s
+//! `two_editors_do_not_share_view_state` drives exactly that through
+//! `EditorHarness::split`.
+//!
+//! What makes that work is [`ids`]: every id an editor uses — everything it parks
+//! in `ctx.data()`, every named area, panel and interaction — is salted by the
+//! instance's [`EditorId`], and [`Slot`] is the single inventory of those keys.
+//! Anything global in the editor beyond the two exceptions named there is a bug.
+//!
+//! What is genuinely per-*pane* stays with the host in `app/`: the zoom level,
+//! the panel sizes, the zoom-routing rects, and the per-window escape mode.
+//! Those are not editor state and do not belong in [`EditorState`].
+
 pub mod anchor_shadow;
 pub mod annotations;
 pub mod autocomplete;

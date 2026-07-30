@@ -1,3 +1,76 @@
+//! Composite (`ref`) resolution: anchor/point alignment, the layer stack a
+//! glyph resolves to, and on-demand glyph synthesis.
+//!
+//! # Anchor exposure is opt-in
+//!
+//! Inside a composite ([`derive_ref_offsets_with`]), a ref's `-name` anchors
+//! attach to a *unique* size-matching `+name` published by a sibling — or
+//! declared by the composite itself — consuming it; the ref's own `+` anchors
+//! are then published in turn. All of that happens regardless of flags.
+//!
+//! What the composite *exposes* to the outside — GPOS base anchors, the editor's
+//! anchor shadow, further composition — is only its own declared anchors plus
+//! the surviving anchors of refs marked `inherit`. So a digraph or a circled
+//! letter exposes nothing it did not say, and `glyph i-lower`'s
+//! `ref i-lower:dotless inherit` is what lets `Ï` build on it. `map generate`
+//! composites stand in for their decomposition, so their synthesized refs
+//! inherit implicitly.
+//!
+//! Two rules here are load-bearing and deliberately loud — [`crate::issues`]
+//! reports them as errors, through an anchors-only pass sharing
+//! `render/glyph_cache.rs`'s driver:
+//!
+//! - an exposed set containing the same anchor name twice exposes *neither*
+//!   (declare it on the composite explicitly instead);
+//! - a `-` anchor with more than one size-matching `+` candidate attaches to
+//!   *nothing*.
+//!
+//! # A negative `ref` offset is a bearing
+//!
+//! It is not something to normalize away. The glyph origin stays at (0, 0), the
+//! outline keeps its negative coordinates (a negative lsb, or ink above the
+//! ascent), and the advance still measures only the extent to the *right* of the
+//! origin. `left`/`top` are for shifting a glyph that has no such ref; they are
+//! not for undoing a negative offset.
+//!
+//! Every composite path has to agree on this, which is why `CachedContours` and
+//! `CachedGlyph` carry `origin_row`/`origin_col` — the logical coordinate of
+//! raster cell (0, 0) — beside their normalized grid: a parent adds a ref
+//! target's origin to the `ref` offset when placing it, or it silently loses
+//! whatever sits left of that origin. A bearing exists only where something is
+//! drawn, so `glyph_cache::trim_blank_before_origin` trims the
+//! blank margin before the origin and pulls `origin_*` back towards zero.
+//!
+//! # On-demand glyphs
+//!
+//! A name that nothing defines but that matches a synthesizable shape is
+//! generated on demand, and such a glyph is implicitly `inline`:
+//!
+//! - `WxH` — a filled rectangle (W, H nonzero).
+//! - `[-]A[pBrR]x[-]C[pDrR]` — a fractional rectangle, dimension `A + B/R`;
+//!   e.g. `1p2r3x4` is 1⅔ × 4. See [`parse_on_demand_glyph`] for the exact
+//!   constraints and for what a leading `-` aligns.
+//! - either of those with a `-ul`/`-ur`/`-dl`/`-dr` suffix — a right triangle.
+//! - either of those with a trailing `:ceil`/`:floor`/`:zero` — the
+//!   [`BitmapFill`] rule.
+//! - `X` where `X` is undefined but both `X:mono` and `X:color` exist — picks by
+//!   rendering mode ([`detect_color_mono_glyph`]).
+//!
+//! Any other `:`-suffix makes the name a non-match, so ordinary glyph names
+//! containing a colon fall through to normal lookup.
+//!
+//! The font is built twice — a vector build reading the geometry, and a bitmap
+//! build that keeps only the [`crate::pixel::PX_FULL`] ink flag and squares
+//! every lit cell off — so a synthesized shape has to decide which cells that
+//! second build lights. [`BitmapFill`] is that decision, made **per logical
+//! pixel** from the exact covered area. Two invariants hold it together and are
+//! easy to break: the rule applies uniformly across a logical pixel's subcells
+//! (see [`apply_bitmap_fill`]), and it moves no outline (see
+//! [`make_on_demand_grid`]). The ½ tie is real — it is every 45° triangle edge
+//! cell — so the area comparison stays exact through
+//! [`crate::detail::DetailRegion::area_exact`]; `area2` is the f64 test helper,
+//! not the production path.
+
 use std::collections::HashMap;
 
 use crate::document::{

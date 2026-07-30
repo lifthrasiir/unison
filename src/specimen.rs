@@ -1,3 +1,13 @@
+//! The specimen panel: every mapped character and every remap-only glyph of the
+//! built font, rasterized through the shared glyph cache.
+//!
+//! It draws the *built font bytes* against names the background pipeline
+//! resolved, so its cached cell list is keyed on the generations of those two
+//! background **results** — never on the build request, which is bumped the
+//! moment a document changes. `SpecimenState::cached_gen` carries the whole
+//! story; get that key wrong and a remap cell draws a stale gid against fresh
+//! font bytes, i.e. simply the wrong glyph.
+
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use skrifa::prelude::*;

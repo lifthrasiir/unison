@@ -1,3 +1,25 @@
+//! Cross-document validation: everything that can only be judged with all
+//! `.unf` files in hand.
+//!
+//! Missing and dangling refs, duplicate `map`s, unused glyphs, remap sanity.
+//! Resolution itself emits its diagnostics directly (see [`crate::resolve`]);
+//! this module is for what no single item's resolution can see. Both the build
+//! and the editor print the same report, `error:`/`warning:` prefixed and
+//! `file:line:` located, and a font with only warnings still builds — so the
+//! report is meant to be read, not just exit-coded.
+//!
+//! A few rules are worth knowing about because they are refusals rather than
+//! best-effort output:
+//!
+//! - a `remap` whose source and target lists are N→M or N→0 has no OpenType
+//!   lookup type at all, so it is an error here instead of something the builder
+//!   emits close-but-wrong;
+//! - referring to a contentless glyph — one with no pixel grid and no `ref`, see
+//!   [`crate::document_io`] — from a `map`, `ref` or `remap` is an error, since
+//!   such a glyph never enters the resolution cache;
+//! - the two anchor-exposure ambiguities in [`crate::ref_composite`] are errors,
+//!   reported through an anchors-only resolution pass.
+
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 

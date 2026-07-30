@@ -1,3 +1,21 @@
+//! Pixel shapes → outline contours.
+//!
+//! Tracing a single grid is [`track_contour`]; a composite is traced from all of
+//! its layers at once ([`track_contour_multi`], [`track_contour_multi_diff`]),
+//! because a cell two layers both touch has to be their geometric *union*, not
+//! two overlapping outlines.
+//!
+//! **Coordinate space.** The `track_contour_multi*` functions normalize their
+//! output to the bounding box of the layers they were given. The production
+//! callers want the layers' own space instead, so they use the `_at` variants —
+//! a negative `ref` offset is a bearing that has to survive tracing, see
+//! [`crate::ref_composite`].
+//!
+//! This is, with `ttf_builder`, where the bugs are: sub-pixel and on-demand
+//! shapes inside composites. Check contour output at *composite* level whenever
+//! shape codes, [`crate::detail::DetailRegion`] or on-demand synthesis change,
+//! and test the degenerate inputs (empty, 1×1, zero-extent) explicitly.
+
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use crate::document::PixelGrid;

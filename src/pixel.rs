@@ -1,3 +1,19 @@
+//! The pixel model: [`PixelShape`] shape codes, the `PX_*` catalog below, and
+//! the boolean operations and rescaling over a [`crate::document::PixelGrid`].
+//!
+//! A cell is one shape code plus an ink flag. The catalog covers the sub-pixel
+//! shapes a glyph can be drawn with — `PX_HALF*`, `PX_QUAD*`, `PX_SLANT*`,
+//! `PX_CONE*`, `PX_CORNER*`, `PX_HQUAD`/`PX_VQUAD`, `PX_DOT`, … — and each has
+//! its complement one `^ PX_SUBPIXEL` away, which is what lets a serialized
+//! character pair name either side of a diagonal.
+//!
+//! [`PX_CUSTOM`] is the one code with no fixed geometry: it is a sentinel
+//! meaning "this cell's geometry is a [`crate::detail::DetailRegion`] in the
+//! grid's detail table". It appears only in *derived* grids — composition,
+//! rescaling, on-demand synthesis, the anchor shadow — and is **never
+//! serialized**, so anything writing a document has to have re-encoded it as a
+//! catalog shape (or lost nothing by dropping it).
+
 use std::fmt;
 
 pub const PX_SUBPIXEL: u8 = 0x7f;

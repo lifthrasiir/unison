@@ -13,7 +13,13 @@
 //! Placement mirrors composition exactly — [`crate::ref_composite`]'s
 //! `try_match_minus_plus` (anchor delta, *not* scale-converted) plus
 //! `ref_effective_offset_scaled` (the target's origin, scale-converted) — so
-//! the shadow lands where the glyph really would.
+//! the shadow lands where the glyph really would. Candidates are subject to the
+//! same `size_matches` rule composition applies.
+//!
+//! The shadow is part of `ViewData`, so `ViewCacheKey` carries the selected
+//! *anchor* layer. Ref layers are deliberately left out of that key: cycling
+//! through them changes nothing the view is built from, and rebuilding it is
+//! O(document).
 
 use std::collections::HashMap;
 

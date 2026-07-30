@@ -9,6 +9,15 @@
 //! `show_document` publishes a [`ViewSnapshot`] of every frame's layout via
 //! `capture_snapshot` (compiled only under `cfg(test)`), which is what the
 //! query helpers here read.
+//!
+//! This is how editor behaviour is meant to be tested — scenarios go in
+//! `editor/view_tests.rs`. Refactoring "for testability" has repeatedly left the
+//! frame loop itself untested, and the regressions that matter are scenario-level
+//! (a grid demoted to text mid-header-edit, focus lost after a drag, a wheel tick
+//! reaching the wrong surface): invisible to anything below the loop.
+//!
+//! Gotcha the harness already handles: synthetic clicks need spacing in time, or
+//! egui reads two of them as a double-click.
 
 use std::collections::HashMap;
 use std::sync::Arc;

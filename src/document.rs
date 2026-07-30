@@ -1,3 +1,11 @@
+//! The `.unf` data model: [`Document`] and its [`DocumentItem`]s, [`DocLine`]
+//! (the line-level model the editor actually edits), [`PixelGrid`] and the glyph
+//! bodies hanging off them.
+//!
+//! The parser and serializer — and the reference for the surface syntax — are in
+//! [`crate::document_io`]. Name expansion lives in [`crate::pattern`], whose API
+//! this module re-exports for the legacy import paths that predate the split.
+
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 

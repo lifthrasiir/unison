@@ -1,3 +1,16 @@
+//! The `assert` directives: shaping assertions run against the built font, and
+//! resolved-glyph equality assertions.
+//!
+//! `assert shape` shapes its text with rustybuzz and compares the result glyph
+//! by glyph, so it is the font's own regression suite (`uniform test`, `make
+//! test`). Its `@lang` is a **BCP 47** tag (`@ro`), deliberately not the
+//! `script/LANG` language system a `feature` directive declares: an assertion
+//! states the input a real client hands the shaper, and deriving the OpenType
+//! language system from it is the shaper's job — part of what is under test.
+//! Writing `@ROM` on both sides would make the two agree by construction and
+//! stop the assertion from ever noticing that Romanian text never reaches the
+//! declared tag.
+
 use std::collections::HashMap;
 use std::path::PathBuf;
 

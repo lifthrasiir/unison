@@ -41,6 +41,17 @@
 //!   repeat.
 //! - [`NamePattern::parse_segments`] — a `ref` target inside a pattern glyph
 //!   block: groups only, no range or top-level list.
+//!
+//! The difference is visible on one string: `a*2|b` is `a`, `a`, `b` to
+//! [`parse_element`](NamePattern::parse_element) and the two verbatim names
+//! `a*2`, `b` to [`parse`](NamePattern::parse). Both readings are relied on, so
+//! the tests below pin each one.
+//!
+//! Expansion is capped at [`MAX_EXPANSION`] names.
+//!
+//! (This is the single expansion engine. It was consolidated out of two separate
+//! ones that had grown in `document.rs`, which still re-exports the API for the
+//! import paths predating the split.)
 
 use std::collections::HashMap;
 use std::fmt;
@@ -511,7 +522,9 @@ pub fn parse_name_element(s: &str, parts: &NamePartsMap) -> NamePattern {
 /// becomes `hangul-init-(g|gg|n)-l-f`.
 ///
 /// Also expands inline numeric ranges: `($0..9)` → `(0|1|...|9)`,
-/// `($#a0..af)` → `(a0|a1|...|af)`.
+/// `($#a0..af)` → `(a0|a1|...|af)`. Values are zero-padded to the width of the
+/// *start* token, so `($00..12)` yields `00`…`12` while `($0..11)` yields
+/// `0`…`11`.
 ///
 /// A reference may carry a `*N` repeat, which distributes over every
 /// substituted value — `($foo*2|bar)` becomes `(a*2|b*2|c*2|bar)` — so a
