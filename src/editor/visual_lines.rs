@@ -21,16 +21,22 @@ pub(crate) fn preview_max_height(
     name_parts: &NamePartsMap,
 ) -> u16 {
     let mut max_h: u16 = 0;
+    // The composite and the own grid are in this glyph's own `scale N`
+    // subcells; the preview row is measured in logical pixels.
+    let own_scale = body.scale.max(1) as u16;
     if let Some(comp) = composite {
-        max_h = max_h.max(comp.height);
+        max_h = max_h.max(comp.height / own_scale);
     } else if let Some(grid) = &body.pixels {
-        max_h = max_h.max(grid.height);
+        max_h = max_h.max(grid.height / own_scale);
     }
     for gref in &body.refs {
         if let Some(resolved) =
             ref_composite::resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts)
         {
-            max_h = max_h.max(resolved.grid.height);
+            // Logical height: a `scale N` glyph's grid counts subcells, and the
+            // preview row is measured in logical pixels like every other height
+            // here (see the thumbnail sizing in `inline_tools.rs`).
+            max_h = max_h.max(resolved.grid.height / resolved.scale.max(1) as u16);
         }
     }
     max_h

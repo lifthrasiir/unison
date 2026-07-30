@@ -1041,6 +1041,93 @@ fn click_ref_layer_thumbnail_selects_that_layer() {
     );
 }
 
+/// Regression test: a subglyph declared with `scale N` has a pixel grid that is
+/// N times finer than its logical size, and the inline tools panel used to size
+/// its thumbnail straight from that raw grid — so a `scale 2` subglyph was drawn
+/// twice as large as the glyph it is a part of.
+#[test]
+fn scaled_subglyph_thumbnail_is_not_oversized() {
+    let mut doc = String::from("glyph child 4 4 scale 2\n");
+    for r in 0..8 {
+        for c in 0..8 {
+            doc.push_str(if r < 4 && c < 4 { "@@" } else { ".." });
+        }
+        doc.push('\n');
+    }
+    doc.push('\n');
+    doc.push_str("glyph parent 8 4\n");
+    for _ in 0..4 {
+        for _ in 0..8 {
+            doc.push_str("..");
+        }
+        doc.push('\n');
+    }
+    doc.push_str("ref child 4 0\n");
+
+    let mut h = EditorHarness::new(&doc);
+    h.click_grid_cell(4, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "expected GlyphEdit for item_idx 2, got {:?}",
+        h.state.mode
+    );
+    for _ in 0..10 {
+        h.frame();
+    }
+
+    let rect = h.ref_thumbnail_rect(2, 0);
+    let expected = 4.0 * crate::editor::document_view::PREVIEW_SCALE * h.zoom as f32;
+    assert!(
+        (rect.height() - expected).abs() < 0.5,
+        "a 4-logical-row `scale 2` subglyph thumbnail should be {expected} tall, got {}",
+        rect.height()
+    );
+}
+
+/// The same in reverse: the glyph *being edited* carries the `scale N`, so its
+/// own composite preview (and with it the minimum thumbnail size every subglyph
+/// is padded to) has to be measured in logical pixels too.
+#[test]
+fn scaled_parent_preview_is_not_oversized() {
+    let mut doc = String::from("glyph child 4 4\n");
+    for r in 0..4 {
+        for c in 0..4 {
+            doc.push_str(if r < 2 && c < 2 { "@@" } else { ".." });
+        }
+        doc.push('\n');
+    }
+    doc.push('\n');
+    doc.push_str("glyph parent 8 4 scale 2\n");
+    for _ in 0..8 {
+        for _ in 0..16 {
+            doc.push_str("..");
+        }
+        doc.push('\n');
+    }
+    doc.push_str("ref child 4 0\n");
+
+    let mut h = EditorHarness::new(&doc);
+    h.click_grid_cell(4, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "expected GlyphEdit for item_idx 2, got {:?}",
+        h.state.mode
+    );
+    for _ in 0..10 {
+        h.frame();
+    }
+
+    // The thumbnail is padded up to the composite preview, which is 4 logical
+    // rows tall — 8 subcell rows must not read as 8 logical ones.
+    let rect = h.ref_thumbnail_rect(2, 0);
+    let expected = 4.0 * crate::editor::document_view::PREVIEW_SCALE * h.zoom as f32;
+    assert!(
+        (rect.height() - expected).abs() < 0.5,
+        "a `scale 2` glyph's 4-logical-row preview should be {expected} tall, got {}",
+        rect.height()
+    );
+}
+
 /// The subglyph menu ("Inline to pixels") used to be reachable only by
 /// right-clicking the ref thumbnail in the inline tools panel. Right-clicking
 /// the grid while that ref layer is the selected one must offer it too.

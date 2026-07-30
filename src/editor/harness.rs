@@ -746,10 +746,10 @@ impl EditorHarness {
         panic!("no text visual line covering doc line {line} col {col}");
     }
 
-    /// Screen position of the center of a ref-layer thumbnail in the inline
-    /// tools panel (only available once that panel has rendered a frame with
-    /// the glyph at `edit_idx` being edited).
-    pub fn ref_thumbnail_pos(&self, edit_idx: usize, ref_idx: usize) -> egui::Pos2 {
+    /// Screen rect of a ref-layer thumbnail in the inline tools panel (only
+    /// available once that panel has rendered a frame with the glyph at
+    /// `edit_idx` being edited).
+    pub fn ref_thumbnail_rect(&self, edit_idx: usize, ref_idx: usize) -> egui::Rect {
         let map = self
             .ctx
             .data(|d| {
@@ -757,7 +757,13 @@ impl EditorHarness {
             });
         map.and_then(|m| m.get(&(edit_idx, ref_idx)).copied())
             .expect("ref thumbnail rect not captured -- was the inline tools panel rendered?")
-            .center()
+    }
+
+    /// Screen position of the center of a ref-layer thumbnail in the inline
+    /// tools panel (only available once that panel has rendered a frame with
+    /// the glyph at `edit_idx` being edited).
+    pub fn ref_thumbnail_pos(&self, edit_idx: usize, ref_idx: usize) -> egui::Pos2 {
+        self.ref_thumbnail_rect(edit_idx, ref_idx).center()
     }
 
     /// Screen position of the center of a grid cell.

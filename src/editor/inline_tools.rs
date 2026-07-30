@@ -88,6 +88,7 @@ pub(crate) fn draw_inline_tools_panel(
     };
 
     let zoom = zoom_level as f32;
+    let ppp = ui.ctx().pixels_per_point();
     let preview_scale = PREVIEW_SCALE * zoom;
     let palette_cell = INLINE_PALETTE_CELL * zoom;
     let composite = composites.get(&edit_idx);
@@ -135,17 +136,14 @@ pub(crate) fn draw_inline_tools_panel(
     let is_pixel_mode =
         matches!(state.mode, EditMode::GlyphEdit { item_idx, .. } if item_idx == edit_idx);
 
-    // Full composite preview (always at exact preview_scale per pixel)
+    // Full composite preview (always at exact preview_scale per *logical*
+    // pixel — the composite and the own grid are both in this glyph's own
+    // `scale N` subcells).
+    let own_cell = preview_scale / body.scale.max(1) as f32;
     let full_preview_size = if let Some(comp) = composite {
-        egui::vec2(
-            comp.width as f32 * preview_scale,
-            comp.height as f32 * preview_scale,
-        )
+        egui::vec2(comp.width as f32 * own_cell, comp.height as f32 * own_cell)
     } else if let Some(grid) = &body.pixels {
-        egui::vec2(
-            grid.width as f32 * preview_scale,
-            grid.height as f32 * preview_scale,
-        )
+        egui::vec2(grid.width as f32 * own_cell, grid.height as f32 * own_cell)
     } else {
         egui::vec2(16.0 * zoom, 16.0 * zoom)
     };
@@ -160,6 +158,7 @@ pub(crate) fn draw_inline_tools_panel(
         named_glyphs,
         None,
         &pal,
+        ppp,
     );
     if is_pixel_mode {
         painter.rect_stroke(
@@ -189,10 +188,15 @@ pub(crate) fn draw_inline_tools_panel(
     for (ref_idx, gref) in body.refs.iter().enumerate() {
         let resolved =
             ref_composite::resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts);
+        // A `scale N` glyph's grid is N times finer than its logical size, so
+        // the thumbnail is sized from the logical extent and its subcells are
+        // drawn at a correspondingly smaller cell size — otherwise the subglyph
+        // shows up N times larger than the glyph it is a part of.
+        let ref_cell = resolved.map_or(preview_scale, |rg| preview_scale / rg.scale.max(1) as f32);
         let ref_size = if let Some(rg) = resolved {
             egui::vec2(
-                (rg.grid.width as f32 * preview_scale).max(pixel_preview_w),
-                (rg.grid.height as f32 * preview_scale).max(pixel_preview_h),
+                (rg.grid.width as f32 * ref_cell).max(pixel_preview_w),
+                (rg.grid.height as f32 * ref_cell).max(pixel_preview_h),
             )
         } else {
             egui::vec2(pixel_preview_w, pixel_preview_h)
@@ -219,20 +223,13 @@ pub(crate) fn draw_inline_tools_panel(
         let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, ref_idx);
         painter.rect_filled(ref_rect, 0.0, pal.grid_bg);
         if let Some(rg) = resolved {
-            for r in 0..rg.grid.height {
-                for c in 0..rg.grid.width {
-                    if rg.grid.get(r, c).is_filled() {
-                        let px_rect = egui::Rect::from_min_size(
-                            egui::pos2(
-                                ref_rect.min.x + c as f32 * preview_scale,
-                                ref_rect.min.y + r as f32 * preview_scale,
-                            ),
-                            egui::vec2(preview_scale, preview_scale),
-                        );
-                        painter.rect_filled(px_rect, 0.0, color);
-                    }
-                }
-            }
+            let geom = grid_render::PreviewGeom {
+                rect: ref_rect,
+                cell_w: ref_cell,
+                cell_h: ref_cell,
+                ppp,
+            };
+            grid_render::blit_preview(painter, &geom, &rg.grid, 0, 0, color);
         }
 
         if is_active {

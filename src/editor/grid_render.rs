@@ -8,31 +8,133 @@ use crate::editor::document_view::{GlyphMetrics, GridExtent, UNFILLED_OPACITY};
 use crate::editor::glyph_widget;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 
-#[allow(clippy::too_many_arguments)]
+/// Where a preview bitmap goes and how big one grid cell is on it.
+///
+/// A cell is *not* a logical pixel: a `scale N` glyph's grid counts subcells,
+/// so at [`PREVIEW_SCALE`](crate::editor::document_view::PREVIEW_SCALE) a cell
+/// is a fraction of a point wide and lands wherever it lands. `ppp` is what
+/// lets [`blit_preview`] resolve that against the device pixel grid.
+#[derive(Clone, Copy)]
+pub(crate) struct PreviewGeom {
+    pub(crate) rect: egui::Rect,
+    pub(crate) cell_w: f32,
+    pub(crate) cell_h: f32,
+    pub(crate) ppp: f32,
+}
+
+/// Per-cell coverage of the device pixels a cell axis spans: for cell `i`,
+/// the device pixel indices it touches (relative to `origin`) and how much of
+/// each it covers.
+fn axis_coverage(n: u16, off: i16, cell: f32, origin: f32, limit: usize) -> Vec<Vec<(usize, f32)>> {
+    (0..n)
+        .map(|i| {
+            let a = origin + (off as f32 + i as f32) * cell;
+            let b = a + cell;
+            let mut spans = Vec::new();
+            let first = a.floor() as i64;
+            let last = (b.ceil() as i64 - 1).max(first);
+            for d in first..=last {
+                let overlap = b.min(d as f32 + 1.0) - a.max(d as f32);
+                if overlap > 0.0 && d >= 0 && (d as usize) < limit {
+                    spans.push((d as usize, overlap));
+                }
+            }
+            spans
+        })
+        .collect()
+}
+
+/// Paint the filled cells of `grid` into `geom`, offset by `off_r`/`off_c`
+/// cells.
+///
+/// One `rect_filled` per cell only works while a cell is a whole number of
+/// device pixels. It is not for a `scale N` glyph, and a fractional cell rect
+/// is antialiased against its neighbour instead of tiling with it — which drew
+/// scaled subglyph thumbnails as a grid of seams, or dropped the cells thinner
+/// than a pixel entirely. So the cells are rasterized to per-device-pixel
+/// coverage first and emitted as a single mesh, merging horizontal runs of
+/// equal coverage: no seams, correct antialiasing, and fewer quads than the
+/// one-per-cell version it replaces.
 pub(crate) fn blit_preview(
     painter: &egui::Painter,
-    rect: egui::Rect,
+    geom: &PreviewGeom,
     grid: &PixelGrid,
     off_r: i16,
     off_c: i16,
     color: egui::Color32,
-    cell_w: f32,
-    cell_h: f32,
 ) {
+    let PreviewGeom {
+        rect,
+        cell_w,
+        cell_h,
+        ppp,
+    } = *geom;
+    if grid.width == 0 || grid.height == 0 || cell_w <= 0.0 || cell_h <= 0.0 || ppp <= 0.0 {
+        return;
+    }
+
+    // The destination in device pixels. Its origin is rounded, so a thumbnail
+    // whose rect starts mid-pixel still lays its cells on the pixel grid.
+    // Both edges are rounded, not the origin plus a rounded size: a thumbnail
+    // sized to its grid must not lose its last column to the two roundings
+    // disagreeing.
+    let x0 = (rect.min.x * ppp).round();
+    let y0 = (rect.min.y * ppp).round();
+    let dw_f = (rect.max.x * ppp).round() - x0;
+    let dh_f = (rect.max.y * ppp).round() - y0;
+    if dw_f < 1.0 || dh_f < 1.0 {
+        return;
+    }
+    let (dw, dh) = (dw_f as usize, dh_f as usize);
+
+    let cols = axis_coverage(grid.width, off_c, cell_w * ppp, 0.0, dw);
+    let rows = axis_coverage(grid.height, off_r, cell_h * ppp, 0.0, dh);
+
+    let mut cov = vec![0.0f32; dw * dh];
     for r in 0..grid.height {
+        let row_spans = &rows[r as usize];
+        if row_spans.is_empty() {
+            continue;
+        }
         for c in 0..grid.width {
-            if grid.get(r, c).is_filled() {
-                let dr = off_r as f32 + r as f32;
-                let dc = off_c as f32 + c as f32;
-                if dr >= 0.0 && dc >= 0.0 {
-                    let px_rect = egui::Rect::from_min_size(
-                        egui::pos2(rect.min.x + dc * cell_w, rect.min.y + dr * cell_h),
-                        egui::vec2(cell_w, cell_h),
-                    );
-                    painter.rect_filled(px_rect, 0.0, color);
+            if !grid.get(r, c).is_filled() {
+                continue;
+            }
+            for &(dy, wy) in row_spans {
+                let base = dy * dw;
+                for &(dx, wx) in &cols[c as usize] {
+                    cov[base + dx] += wy * wx;
                 }
             }
         }
+    }
+
+    let [cr, cg, cb, ca] = color.to_array();
+    let mut mesh = egui::Mesh::default();
+    for dy in 0..dh {
+        let mut dx = 0;
+        while dx < dw {
+            let alpha = ((cov[dy * dw + dx].clamp(0.0, 1.0) * ca as f32).round()) as u8;
+            if alpha == 0 {
+                dx += 1;
+                continue;
+            }
+            // Merge the run of equal coverage into one quad.
+            let start = dx;
+            while dx < dw
+                && ((cov[dy * dw + dx].clamp(0.0, 1.0) * ca as f32).round()) as u8 == alpha
+            {
+                dx += 1;
+            }
+            let quad = egui::Rect::from_min_max(
+                egui::pos2((x0 + start as f32) / ppp, (y0 + dy as f32) / ppp),
+                egui::pos2((x0 + dx as f32) / ppp, (y0 + dy as f32 + 1.0) / ppp),
+            );
+            mesh.add_colored_rect(quad, egui::Color32::from_rgba_unmultiplied(cr, cg, cb, alpha));
+        }
+    }
+    if !mesh.is_empty() {
+        painter.add(egui::Shape::mesh(mesh));
     }
 }
 
@@ -1147,3 +1249,62 @@ pub(crate) fn render_pixel_selection_overlay(
 
 // Text column<->x geometry lives in `annotations::AnnotatedText`, which
 // also accounts for inline annotations.
+
+#[cfg(test)]
+mod tests {
+    use super::axis_coverage;
+
+    fn total(spans: &[Vec<(usize, f32)>], device_px: usize) -> f32 {
+        spans
+            .iter()
+            .flatten()
+            .filter(|(d, _)| *d == device_px)
+            .map(|(_, w)| *w)
+            .sum()
+    }
+
+    /// Whole-device-pixel cells (a `scale 1` glyph at 2x on a 1x display) land
+    /// one per pixel, with nothing spilling into the neighbours.
+    #[test]
+    fn whole_pixel_cells_tile_one_to_one() {
+        let cov = axis_coverage(4, 0, 1.0, 0.0, 4);
+        for (i, spans) in cov.iter().enumerate() {
+            assert_eq!(spans.as_slice(), &[(i, 1.0)], "cell {i}");
+        }
+    }
+
+    /// The case that used to break: a `scale 2` glyph's cells are half a device
+    /// pixel wide, so no cell owns a pixel outright. Each must still contribute
+    /// its half — drawing them as fractional rects instead left seams, and the
+    /// cells that rounded away vanished.
+    #[test]
+    fn subpixel_cells_split_a_pixel_instead_of_vanishing() {
+        let cov = axis_coverage(4, 0, 0.5, 0.0, 2);
+        for (i, spans) in cov.iter().enumerate() {
+            assert!(!spans.is_empty(), "cell {i} covers nothing");
+        }
+        assert_eq!(cov[0], vec![(0, 0.5)]);
+        assert_eq!(cov[1], vec![(0, 0.5)]);
+        assert_eq!(total(&cov, 0), 1.0, "pixel 0 must end up fully covered");
+        assert_eq!(total(&cov, 1), 1.0, "pixel 1 must end up fully covered");
+    }
+
+    /// A cell straddling a pixel boundary covers both sides, and the two halves
+    /// still add up to exactly one cell — no gap at the seam, no double ink.
+    #[test]
+    fn a_straddling_cell_is_split_without_loss() {
+        let cov = axis_coverage(2, 0, 1.0, 0.5, 3);
+        assert_eq!(cov[0], vec![(0, 0.5), (1, 0.5)]);
+        assert_eq!(cov[1], vec![(1, 0.5), (2, 0.5)]);
+        assert_eq!(total(&cov, 1), 1.0, "the shared pixel is covered once");
+    }
+
+    /// Cells placed outside the destination are dropped, not wrapped around.
+    #[test]
+    fn cells_outside_the_destination_are_dropped() {
+        let cov = axis_coverage(3, -2, 1.0, 0.0, 3);
+        assert!(cov[0].is_empty());
+        assert!(cov[1].is_empty());
+        assert_eq!(cov[2], vec![(0, 1.0)]);
+    }
+}

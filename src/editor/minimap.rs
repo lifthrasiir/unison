@@ -5,7 +5,7 @@ use crate::editor::colors::Palette;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 
 use super::document_view::{VLineKind, VisualLine};
-use super::grid_render::{apply_opacity, blit_preview};
+use super::grid_render::{PreviewGeom, apply_opacity, blit_preview};
 
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn draw_minimap(
@@ -200,6 +200,7 @@ pub(crate) fn draw_minimap(
     None
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn draw_preview_bitmap(
     painter: &egui::Painter,
     rect: egui::Rect,
@@ -208,6 +209,7 @@ pub(crate) fn draw_preview_bitmap(
     _named_glyphs: &HashMap<String, ResolvedGlyph>,
     highlight_ref: Option<usize>,
     pal: &Palette,
+    ppp: f32,
 ) {
     painter.rect_filled(rect, 0.0, pal.grid_bg);
 
@@ -218,8 +220,12 @@ pub(crate) fn draw_preview_bitmap(
     } else {
         return;
     };
-    let cell_w = rect.width() / total_w;
-    let cell_h = rect.height() / total_h;
+    let geom = PreviewGeom {
+        rect,
+        cell_w: rect.width() / total_w,
+        cell_h: rect.height() / total_h,
+        ppp,
+    };
 
     if let Some(comp) = composite {
         let own_off_r = comp.own_offset_row;
@@ -240,13 +246,11 @@ pub(crate) fn draw_preview_bitmap(
                 let color = apply_opacity(color, opacity);
                 blit_preview(
                     painter,
-                    rect,
+                    &geom,
                     &layer.grid,
                     layer.offset_row,
                     layer.offset_col,
                     color,
-                    cell_w,
-                    cell_h,
                 );
             }
         };
@@ -256,13 +260,11 @@ pub(crate) fn draw_preview_bitmap(
             if let Some(grid) = &body.pixels {
                 blit_preview(
                     painter,
-                    rect,
+                    &geom,
                     grid,
                     own_off_r,
                     own_off_c,
                     apply_opacity(pal.grid_on, 0.4),
-                    cell_w,
-                    cell_h,
                 );
             }
             if let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == hi_ref) {
@@ -270,31 +272,20 @@ pub(crate) fn draw_preview_bitmap(
                     ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx);
                 blit_preview(
                     painter,
-                    rect,
+                    &geom,
                     &layer.grid,
                     layer.offset_row,
                     layer.offset_col,
                     color,
-                    cell_w,
-                    cell_h,
                 );
             }
         } else {
             render_layers(painter, None);
             if let Some(grid) = &body.pixels {
-                blit_preview(
-                    painter,
-                    rect,
-                    grid,
-                    own_off_r,
-                    own_off_c,
-                    pal.grid_on,
-                    cell_w,
-                    cell_h,
-                );
+                blit_preview(painter, &geom, grid, own_off_r, own_off_c, pal.grid_on);
             }
         }
     } else if let Some(grid) = &body.pixels {
-        blit_preview(painter, rect, grid, 0, 0, pal.grid_on, cell_w, cell_h);
+        blit_preview(painter, &geom, grid, 0, 0, pal.grid_on);
     }
 }
