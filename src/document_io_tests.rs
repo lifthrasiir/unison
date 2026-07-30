@@ -1346,3 +1346,16 @@ fn scale_header_dims() {
     let dims = glyph_header_dims(&["foo", "4", "2"]);
     assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 2, scale: 1 }));
 }
+
+/// `write_and_sync` stages every save as `.~name.unf`, a name that ends in
+/// `.unf` like any other. A directory read that catches a save in flight must
+/// not take it for a second copy of the document being saved — which is what
+/// the font builder, the sidebar list and the file watcher all rely on.
+#[test]
+fn the_save_staging_file_is_not_a_source_file() {
+    use std::path::Path;
+    assert!(is_source_file(Path::new("/f/num.unf")));
+    assert!(!is_source_file(Path::new("/f/.~num.unf")));
+    assert!(!is_source_file(Path::new("/f/num.ttf")));
+    assert!(!is_source_file(Path::new("/f/README")));
+}

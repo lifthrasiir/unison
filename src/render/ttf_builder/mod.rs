@@ -157,7 +157,7 @@ pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<(std:
     };
     for entry in entries.flatten() {
         let path = entry.path();
-        if path.extension().is_some_and(|e| e == "unf") {
+        if document_io::is_source_file(&path) {
             match document_io::parse_document(&path) {
                 Ok(doc) => docs.push(doc),
                 Err(e) => errors.push((path, e.to_string())),

@@ -31,19 +31,62 @@ pub struct OpenDocument {
     pub document: Document,
     pub lines: Vec<DocLine>,
     pub editor_state: EditorState,
+    /// Hash of the bytes this document last read from, or wrote to, disk.
+    /// The file watcher compares it against what is on disk to tell a real
+    /// external change from the echo of our own save; see [`super::watch`].
+    pub(super) disk_hash: Option<u64>,
+    /// The file changed on disk while this buffer had unsaved edits, and the
+    /// edits were kept. Saving over it asks first, and
+    /// [`super::UniformApp::reload_from_disk`] is the way to drop them.
+    pub(super) external_change: bool,
+    /// An external change was noticed while no pane was showing this document,
+    /// so its notice is still owed — a toast about a file the user cannot see
+    /// explains nothing. Spent the moment a pane shows it.
+    pub(super) owed_external_toast: bool,
 }
 
 impl OpenDocument {
     /// Flush pending line-level edits into the `Document` model, if any.
     pub(super) fn flush_pending_changes(&mut self) {
         if self.editor_state.has_pending_document_sync() {
-            crate::editor::document_view::flush_document_changes(
-                &mut self.lines,
-                &mut self.document,
-                &mut self.editor_state,
-            );
+            self.flush_pending_changes_forced();
         }
     }
+
+    /// Re-derive the `Document` from the lines whether or not the editor asked
+    /// for it. Used after the buffer is replaced from outside the editor, which
+    /// leaves no pending-sync request behind but every line changed.
+    pub(super) fn flush_pending_changes_forced(&mut self) {
+        crate::editor::document_view::flush_document_changes(
+            &mut self.lines,
+            &mut self.document,
+            &mut self.editor_state,
+        );
+    }
+}
+
+/// Parses source text into the pair the editor works on: parse, serialize to
+/// canonical text, and re-derive from the resulting doclines.
+///
+/// Pure CPU over a string, which is what lets the file watcher's scan thread
+/// run it: see [`super::watch`] for what runs where.
+pub(super) fn document_from_source(
+    content: &str,
+    path: PathBuf,
+) -> anyhow::Result<(Document, Vec<DocLine>)> {
+    let doc = document_io::parse_document_from_str(content, path.clone())?;
+    let mut buf = Vec::new();
+    document_io::serialize_document(&doc, &mut buf).ok();
+    let canonical = String::from_utf8(buf).unwrap_or_default();
+    let mut lines = document_io::parse_doclines(&canonical);
+    if lines.is_empty() {
+        lines.push(crate::document::DocLine::Text(String::new()));
+    }
+    let mut doc = doc;
+    if let Ok((fresh_doc, _)) = document_io::derive_document(&lines, path) {
+        doc = fresh_doc;
+    }
+    Ok((doc, lines))
 }
 
 /// Loads a file from disk into a fresh `OpenDocument`: parse, serialize to
@@ -54,18 +97,11 @@ pub(super) fn load_open_document(
     path: PathBuf,
     base_gen: Option<(u64, u64)>,
 ) -> anyhow::Result<OpenDocument> {
-    let doc = document_io::parse_document(&path)?;
-    let mut buf = Vec::new();
-    document_io::serialize_document(&doc, &mut buf).ok();
-    let canonical = String::from_utf8(buf).unwrap_or_default();
-    let mut lines = document_io::parse_doclines(&canonical);
-    if lines.is_empty() {
-        lines.push(crate::document::DocLine::Text(String::new()));
-    }
-    let mut doc = doc;
-    if let Ok((fresh_doc, _)) = document_io::derive_document(&lines, path.clone()) {
-        doc = fresh_doc;
-    }
+    // Read once and parse from those bytes, so the hash the watcher compares
+    // against is the hash of exactly what was parsed.
+    let bytes = std::fs::read(&path)?;
+    let content = String::from_utf8_lossy(&bytes).into_owned();
+    let (mut doc, lines) = document_from_source(&content, path)?;
     let (edit_gen, content_gen) = base_gen
         .map(|(e, c)| (e.wrapping_add(1), c.wrapping_add(1)))
         .unwrap_or((1, 1));
@@ -75,10 +111,155 @@ pub(super) fn load_open_document(
         document: doc,
         lines,
         editor_state: EditorState::new(),
+        disk_hash: Some(super::watch::hash_bytes(&bytes)),
+        external_change: false,
+        owed_external_toast: false,
     })
 }
 
+/// Replaces an open document's buffer with what is on disk, reading and
+/// parsing on the calling thread.
+///
+/// That makes it the user-driven reload (the sidebar command), where a click
+/// is already waiting on the filesystem. The file watcher must not block a
+/// frame on a read, so it has its scan thread produce the lines and calls
+/// [`apply_reloaded_lines`] with them; see [`super::watch`].
+pub(super) fn reload_open_document(open: &mut OpenDocument) -> anyhow::Result<()> {
+    let path = open.document.path.clone();
+    let bytes = std::fs::read(&path)?;
+    let content = String::from_utf8_lossy(&bytes).into_owned();
+    let (_, new_lines) = document_from_source(&content, path)?;
+    apply_reloaded_lines(open, new_lines, super::watch::hash_bytes(&bytes));
+    Ok(())
+}
+
+/// The application half of a reload: swap the buffer, record the undo entry,
+/// and take the file's hash as the buffer's own. `new_lines` are the canonical
+/// lines of what is on disk, and `hash` the hash of the bytes they came from.
+///
+/// The replacement is pushed onto the undo stack, so Cmd/Ctrl+Z walks back to
+/// what was on screen before the file changed — which is the only way to get
+/// it back once the buffer is gone. The stack is then marked saved, since the
+/// buffer now *is* the file; undoing past it correctly makes the document
+/// dirty again.
+///
+/// The caret is clamped rather than tracked: the new text has no relation to
+/// the old one, so there is no position to follow. Grid editing is left for
+/// the same reason — its `item_idx` refers to items that may no longer exist.
+pub(super) fn apply_reloaded_lines(
+    open: &mut OpenDocument,
+    new_lines: Vec<DocLine>,
+    hash: u64,
+) {
+    let caret_before = open.editor_state.cursor;
+    let old_lines = std::mem::replace(&mut open.lines, new_lines.clone());
+    if old_lines == open.lines {
+        // The canonical form is unchanged (a comment respaced, a trailing
+        // newline added). Nothing to record, but the hash still has to move on
+        // or the file reports itself changed on every event from now on.
+        open.disk_hash = Some(hash);
+        return;
+    }
+    let caret_after = crate::editor::caret::clamp(&open.lines, caret_before);
+    open.editor_state.undo.break_coalesce();
+    open.editor_state.undo.push_lines(
+        0,
+        old_lines,
+        new_lines,
+        caret_before,
+        caret_after,
+    );
+    open.editor_state.undo.mark_saved();
+
+    open.editor_state.reset_for_external_reload(caret_after);
+    open.flush_pending_changes_forced();
+
+    open.disk_hash = Some(hash);
+    open.external_change = false;
+    open.owed_external_toast = false;
+}
+
+pub(super) fn file_name_of(path: &std::path::Path) -> String {
+    path.file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_else(|| path.display().to_string())
+}
+
+/// Asks before writing over files that changed on disk after they were opened.
+/// Answering no cancels the save outright, so the version on disk survives.
+fn confirm_overwrite(names: &[String]) -> bool {
+    let description = if let [one] = names {
+        format!(
+            "{one} has changed on disk since it was opened here. \
+             Saving replaces the file on disk with your version."
+        )
+    } else {
+        format!(
+            "These files have changed on disk since they were opened here:\n\n{}\n\n\
+             Saving replaces them with your versions.",
+            names.join("\n"),
+        )
+    };
+    matches!(
+        rfd::MessageDialog::new()
+            .set_level(rfd::MessageLevel::Warning)
+            .set_title("Overwrite the file on disk?")
+            .set_description(description)
+            .set_buttons(rfd::MessageButtons::YesNo)
+            .show(),
+        rfd::MessageDialogResult::Yes,
+    )
+}
+
+/// Asks before throwing a buffer away for the file on disk.
+fn confirm_discard(name: &str) -> bool {
+    matches!(
+        rfd::MessageDialog::new()
+            .set_level(rfd::MessageLevel::Warning)
+            .set_title("Discard your changes?")
+            .set_description(format!(
+                "Reloading {name} from disk discards the unsaved changes in the editor. \
+                 They can still be recovered with Undo."
+            ))
+            .set_buttons(rfd::MessageButtons::YesNo)
+            .show(),
+        rfd::MessageDialogResult::Yes,
+    )
+}
+
+impl OpenDocument {
+    /// Records that `bytes` are now both the buffer and the file on disk.
+    pub(super) fn mark_written(&mut self, bytes: &[u8]) {
+        self.document.dirty = false;
+        self.editor_state.undo.mark_saved();
+        self.disk_hash = Some(super::watch::hash_bytes(bytes));
+        self.external_change = false;
+        self.owed_external_toast = false;
+    }
+}
+
 impl UniformApp {
+    /// The sidebar's "Reload from disk...": drops the buffer for the file, on
+    /// confirmation. The reload is an undo entry like any other external
+    /// change, so the discarded work is one Cmd/Ctrl+Z away.
+    pub(super) fn reload_from_disk(&mut self, path: &std::path::Path) {
+        let Some(idx) = self
+            .open_documents
+            .iter()
+            .position(|d| d.document.path == path)
+        else {
+            return;
+        };
+        let name = file_name_of(path);
+        if self.open_documents[idx].document.dirty && !confirm_discard(&name) {
+            return;
+        }
+        match reload_open_document(&mut self.open_documents[idx]) {
+            Ok(()) => self.set_status(format!("Reloaded {name} from disk")),
+            Err(e) => self.set_status(format!("Reload error: {e}")),
+        }
+    }
+
     fn flush_open_document(&mut self, idx: usize) {
         let Some(doc) = self.open_documents.get_mut(idx) else {
             return;
@@ -143,6 +324,20 @@ impl UniformApp {
     pub(super) fn save_all(&mut self) -> bool {
         for doc in &mut self.open_documents {
             doc.flush_pending_changes();
+        }
+        // One question for the whole batch rather than one per file: a save-all
+        // after a `git checkout` would otherwise be a queue of dialogs.
+        let overwritten: Vec<String> = self
+            .open_documents
+            .iter()
+            .filter(|d| d.document.dirty && d.external_change)
+            .map(|d| file_name_of(&d.document.path))
+            .collect();
+        if !overwritten.is_empty() && !confirm_overwrite(&overwritten) {
+            return false;
+        }
+
+        for doc in &mut self.open_documents {
             if !doc.document.dirty {
                 continue;
             }
@@ -156,8 +351,7 @@ impl UniformApp {
                     Some((format!("Save error: {e}"), std::time::Instant::now()));
                 return false;
             }
-            doc.document.dirty = false;
-            doc.editor_state.undo.mark_saved();
+            doc.mark_written(&buf);
         }
         true
     }
@@ -253,6 +447,11 @@ impl UniformApp {
         if let Some(idx) = self.active_doc_idx()
             && let Some(doc) = self.open_documents.get_mut(idx) {
                 doc.flush_pending_changes();
+                if doc.external_change
+                    && !confirm_overwrite(&[file_name_of(&doc.document.path)])
+                {
+                    return;
+                }
                 let mut buf = Vec::new();
                 let result = document_io::serialize_doclines(&doc.lines, &mut buf)
                     .and_then(|()| {
@@ -261,8 +460,7 @@ impl UniformApp {
                 let path_display = doc.document.path.display().to_string();
                 match result {
                     Ok(()) => {
-                        doc.document.dirty = false;
-                        doc.editor_state.undo.mark_saved();
+                        doc.mark_written(&buf);
                         self.status_message =
                             Some((format!("Saved {path_display}"), std::time::Instant::now()));
                     }
@@ -272,5 +470,113 @@ impl UniformApp {
                     }
                 }
             }
+    }
+}
+
+#[cfg(test)]
+mod reload_tests {
+    use super::*;
+
+    /// A directory of its own per test, removed when the test ends. The
+    /// documents here are written inline: `font/` is downstream data and no
+    /// test may read it.
+    struct TempDir(PathBuf);
+
+    impl TempDir {
+        fn new(tag: &str) -> Self {
+            let dir = std::env::temp_dir().join(format!(
+                "uniform-{tag}-{}-{:?}",
+                std::process::id(),
+                std::thread::current().id(),
+            ));
+            let _ = std::fs::remove_dir_all(&dir);
+            std::fs::create_dir_all(&dir).unwrap();
+            Self(dir)
+        }
+
+        fn write(&self, name: &str, content: &str) -> PathBuf {
+            let path = self.0.join(name);
+            std::fs::write(&path, content).unwrap();
+            path
+        }
+    }
+
+    impl Drop for TempDir {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+
+    fn text_of(open: &OpenDocument) -> String {
+        let mut buf = Vec::new();
+        document_io::serialize_doclines(&open.lines, &mut buf).unwrap();
+        String::from_utf8(buf).unwrap()
+    }
+
+    const BEFORE: &str = "glyph a 2 2\n@@@@\n@@@@\n";
+    const AFTER: &str = "glyph a 2 2\n....\n@@@@\n";
+
+    /// The whole of requirement 2: the buffer follows the file, the caret
+    /// survives, and the previous contents are one undo away — which is the
+    /// only place they exist once the buffer is gone.
+    #[test]
+    fn an_external_change_is_applied_as_an_undo_entry() {
+        let dir = TempDir::new("reload");
+        let path = dir.write("a.unf", BEFORE);
+        let mut open = load_open_document(path.clone(), None).unwrap();
+        assert!(!open.document.dirty);
+        let before_lines = open.lines.clone();
+
+        std::fs::write(&path, AFTER).unwrap();
+        reload_open_document(&mut open).unwrap();
+
+        assert_eq!(text_of(&open), AFTER);
+        assert!(!open.document.dirty, "the buffer is what is on disk");
+        assert_eq!(open.disk_hash, Some(super::super::watch::hash_bytes(&std::fs::read(&path).unwrap())));
+
+        assert!(open.editor_state.undo.can_undo());
+        open.editor_state.perform_undo(&mut open.lines);
+        assert_eq!(open.lines, before_lines);
+        // Back to text the file no longer holds, so the document is dirty
+        // again — and saving it is what would put it back on disk.
+        assert!(!open.editor_state.undo.is_at_saved());
+    }
+
+    /// A rewrite that canonicalizes to the same lines — here the header
+    /// respaced — must not leave an undo entry that undoes nothing. It does
+    /// have to move the hash on, or the file reports itself changed on every
+    /// event from then on.
+    #[test]
+    fn an_identical_rewrite_records_nothing_but_still_moves_the_hash() {
+        let dir = TempDir::new("reload-noop");
+        let path = dir.write("a.unf", BEFORE);
+        let mut open = load_open_document(path.clone(), None).unwrap();
+        let first_hash = open.disk_hash;
+
+        std::fs::write(&path, "glyph   a   2   2\n@@@@\n@@@@\n").unwrap();
+        reload_open_document(&mut open).unwrap();
+
+        assert!(!open.editor_state.undo.can_undo(), "nothing changed to undo");
+        assert_ne!(open.disk_hash, first_hash);
+        assert_eq!(open.disk_hash, Some(super::super::watch::hash_bytes(&std::fs::read(&path).unwrap())));
+    }
+
+    /// Saving is what makes the buffer and the file agree again, so it clears
+    /// the flag that would keep asking about overwriting.
+    #[test]
+    fn a_save_clears_the_external_change_flag() {
+        let dir = TempDir::new("reload-save");
+        let path = dir.write("a.unf", BEFORE);
+        let mut open = load_open_document(path, None).unwrap();
+        open.document.dirty = true;
+        open.external_change = true;
+        open.owed_external_toast = true;
+
+        open.mark_written(AFTER.as_bytes());
+
+        assert!(!open.document.dirty);
+        assert!(!open.external_change);
+        assert!(!open.owed_external_toast);
+        assert_eq!(open.disk_hash, Some(super::super::watch::hash_bytes(AFTER.as_bytes())));
     }
 }

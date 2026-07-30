@@ -38,6 +38,9 @@ core-foundation = "0.9"
 windows = { version = "0.58", features = [
     "Win32_Graphics_DirectWrite",
     "Win32_System_Com",
+    # app/watch.rs: GetDriveTypeW + DRIVE_REMOTE, to tell a network share from a local disk
+    "Win32_Storage_FileSystem",
+    "Win32_System_WindowsProgramming",
     # stackmon: thread sampling + stack walking for the stack-overflow monitor
     "Win32_System_Threading",
     "Win32_System_Diagnostics_Debug",

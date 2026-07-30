@@ -717,6 +717,7 @@ impl UniformApp {
                 self.search = None;
                 self.search_file_cache.clear();
                 self.sidebar.set_directory(&dir);
+                self.watch.set_directory(&dir, ctx);
                 let (base_docs, parse_errors) = crate::render::ttf_builder::load_docs_from_directory_checked(&dir);
                 self.font_base_docs = base_docs;
                 self.file_parse_errors = parse_errors;

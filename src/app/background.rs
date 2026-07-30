@@ -460,6 +460,9 @@ mod font_build_tests {
             document: Document::new("b.unf".into()),
             lines: Vec::new(),
             editor_state: EditorState::new(),
+            disk_hash: None,
+            external_change: false,
+            owed_external_toast: false,
         };
 
         let open = [open_b];

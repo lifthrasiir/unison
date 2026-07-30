@@ -26,6 +26,8 @@ mod panels;
 mod panes;
 mod rename;
 mod search;
+mod toast;
+mod watch;
 mod zoom;
 
 use background::BackgroundTaskStatus;
@@ -69,6 +71,15 @@ pub struct UniformApp {
     /// time, so repeat searches read nothing from disk.
     search_file_cache: HashMap<PathBuf, (Option<std::time::SystemTime>, String)>,
     sidebar: Sidebar,
+    /// The sidebar panel's rect as of the last frame. The file watcher holds a
+    /// listing refresh back while the pointer is over it, so that rows never
+    /// move under a click; see [`watch`].
+    sidebar_rect: egui::Rect,
+    /// The OS watch on the font directory, and the changes it has reported.
+    watch: watch::WatchState,
+    /// Notices that outlive one status-bar line — currently only "this file
+    /// changed on disk while you were editing it".
+    toasts: toast::Toasts,
     escape_mode: bool,
     status_message: Option<(String, std::time::Instant)>,
     font_base_docs: Vec<Document>,
@@ -228,6 +239,9 @@ impl UniformApp {
             search: None,
             search_file_cache: HashMap::new(),
             sidebar: Sidebar::new(),
+            sidebar_rect: egui::Rect::NOTHING,
+            watch: watch::WatchState::new(),
+            toasts: toast::Toasts::new(),
             escape_mode: false,
             status_message: None,
             font_base_docs,
@@ -276,6 +290,7 @@ impl UniformApp {
 
         if let Some(dir) = &font_dir {
             app.sidebar.set_directory(dir);
+            app.watch.set_directory(dir, &cc.egui_ctx);
         }
 
         app
@@ -411,6 +426,11 @@ impl eframe::App for UniformApp {
         self.handle_zoom_scroll(ctx);
         self.handle_zoom_keys(ctx);
 
+        // Before the pipeline: a reload steps the documents' generations, and
+        // this frame's rebuild scheduling should see them.
+        crate::stackmon::phase("update:file-watch");
+        self.pump_file_watch(ctx);
+
         crate::stackmon::phase("update:derived-data");
         self.pump_background_pipeline(ctx);
 
@@ -492,6 +512,9 @@ impl eframe::App for UniformApp {
         }
 
         self.apply_edit_menu_actions(ctx, edit_target, menu.take_edit_actions());
+
+        // Last, so the notices are over the panes rather than under them.
+        self.toasts.show(ctx);
 
         crate::stackmon::phase("update:end (egui tessellate/paint follows)");
         // Decide whether to close only after this frame's editor input has

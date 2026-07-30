@@ -262,6 +262,31 @@ impl EditorState {
         self.scroll_to_cursor = true;
     }
 
+    /// Puts the editor back to a plain caret after its buffer was replaced
+    /// wholesale from outside (a file that changed on disk).
+    ///
+    /// Everything dropped here indexes the *old* buffer: a grid-editing mode
+    /// names an item by index, a pixel selection names a grid by line, a rename
+    /// popup names a token that may be gone. `caret` is expected to be clamped
+    /// to the new lines already, since only the caller has them.
+    pub(crate) fn reset_for_external_reload(&mut self, caret: caret::Caret) {
+        self.mode = EditMode::Normal;
+        self.selection_anchor = None;
+        self.pixel_selection = None;
+        self.autocomplete = None;
+        self.popup = PopupState::None;
+        self.cursor = caret;
+        self.cursor_item = None;
+        self.view_cache = None;
+        self.pixel_paint_dirty = None;
+        self.pending_reparse_line = None;
+        self.last_reparse_line = None;
+        // The lines came from the serializer, so they are canonical already;
+        // reconciling them would only be a chance to move what was loaded.
+        self.skip_reconcile = true;
+        self.scroll_to_cursor = true;
+    }
+
     pub fn notify_zoom_change(&mut self, old_zoom: u32) {
         self.zoom_changed_from = Some(old_zoom);
     }

@@ -1131,6 +1131,24 @@ pub fn derive_document(
     Ok((doc, item_line_starts))
 }
 
+/// Whether a directory entry is one of a font project's source documents.
+///
+/// `.unf`, and not a dot-file. The second half is not cosmetic: `write_and_sync`
+/// below stages every save as `.~name.unf` — a name that ends in `.unf` like
+/// any other — so a directory read that catches a save in flight would
+/// otherwise parse the staging file as a second copy of the document being
+/// saved. Editors that leave their own dot-files behind are excluded with it.
+///
+/// The single answer for the question, shared by the directory loader, the
+/// sidebar's list and the file watcher, so they cannot disagree about what the
+/// project contains.
+pub fn is_source_file(path: &Path) -> bool {
+    path.extension().is_some_and(|e| e == "unf")
+        && path
+            .file_name()
+            .is_some_and(|name| !name.to_string_lossy().starts_with('.'))
+}
+
 // Write via temp file + rename to work around macOS SMB server silently
 // ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
 #[cfg(any(feature = "editor", test))]

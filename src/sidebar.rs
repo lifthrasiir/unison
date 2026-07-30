@@ -20,6 +20,22 @@ pub enum SidebarAction {
     OpenFile(PathBuf),
     FileRenamed { old: PathBuf, new: PathBuf },
     FileCreated(PathBuf),
+    /// Throw the buffer away and take the file on disk instead.
+    ReloadFromDisk(PathBuf),
+}
+
+/// How the host wants each row drawn, and which of them the row commands act
+/// on. Paths the host does not list here are simply files on disk.
+#[derive(Clone, Copy, Default)]
+pub struct SidebarFiles<'a> {
+    /// Files with unsaved edits, marked with a leading `*`.
+    pub dirty: &'a [&'a std::path::Path],
+    /// Files whose buffer is open, whether or not a pane is showing it.
+    pub open: &'a [&'a std::path::Path],
+    /// Files that changed on disk while their buffer had unsaved edits. Drawn
+    /// in the warning colour: the sidebar is the only place a file no pane is
+    /// showing can say so.
+    pub changed_on_disk: &'a [&'a std::path::Path],
 }
 
 pub struct Sidebar {
@@ -118,13 +134,29 @@ impl Sidebar {
         (widest + chrome).clamp(MIN_WIDTH, MAX_WIDTH)
     }
 
+    /// Takes a listing the host already has. The file watcher reads the
+    /// directory on its scan thread, so refreshing the panel after an external
+    /// change costs the UI thread no `read_dir` of its own — which over SMB is
+    /// a round trip nobody should pay for between two frames.
+    pub fn set_files(&mut self, files: Vec<PathBuf>) {
+        self.files = files;
+        self.files.retain(|path| crate::document_io::is_source_file(path));
+        Self::sort_files(&mut self.files);
+    }
+
+    /// Whether a rename or a new-file field is up. The listing must not be
+    /// re-read under one: the rename field is addressed by row index.
+    pub fn is_editing(&self) -> bool {
+        !matches!(self.edit_state, EditState::None)
+    }
+
     fn reload_files(&mut self) {
         self.files.clear();
         if let Some(dir) = &self.directory
             && let Ok(entries) = std::fs::read_dir(dir) {
                 for entry in entries.flatten() {
                     let path = entry.path();
-                    if path.extension().is_some_and(|e| e == "unf") {
+                    if crate::document_io::is_source_file(&path) {
                         self.files.push(path);
                     }
                 }
@@ -171,7 +203,7 @@ impl Sidebar {
         &mut self,
         ui: &mut egui::Ui,
         active_path: Option<&Path>,
-        dirty_paths: &[&Path],
+        files: SidebarFiles<'_>,
         editor_focused: bool,
     ) -> Vec<SidebarAction> {
         let mut actions = Vec::new();
@@ -251,16 +283,39 @@ impl Sidebar {
                     .unwrap_or_default();
 
                 let is_active = active_path == Some(path.as_path());
-                let is_dirty = dirty_paths.contains(&path.as_path());
+                let is_dirty = files.dirty.contains(&path.as_path());
+                let is_open = files.open.contains(&path.as_path());
+                let changed_on_disk = files.changed_on_disk.contains(&path.as_path());
 
                 let label = if is_dirty {
                     format!("* {name}")
                 } else {
-                    name
+                    name.clone()
+                };
+                // Colour rather than another marker: the panel's width is
+                // fitted to `"* {name}"`, so a wider prefix would truncate.
+                let label = if changed_on_disk {
+                    egui::RichText::new(label).color(ui.visuals().warn_fg_color)
+                } else {
+                    egui::RichText::new(label)
                 };
 
-                if ui.selectable_label(is_active, &label).clicked() {
-                    actions.push(SidebarAction::OpenFile(path));
+                let resp = ui.selectable_label(is_active, label);
+                if resp.clicked() {
+                    actions.push(SidebarAction::OpenFile(path.clone()));
+                }
+                if is_open {
+                    resp.context_menu(|ui| {
+                        let label = if is_dirty {
+                            "Reload from disk, discarding changes..."
+                        } else {
+                            "Reload from disk"
+                        };
+                        if ui.button(label).clicked() {
+                            actions.push(SidebarAction::ReloadFromDisk(path.clone()));
+                            ui.close_menu();
+                        }
+                    });
                 }
 
                 i += 1;
@@ -456,7 +511,7 @@ mod tests {
                 egui::SidePanel::left("sidebar")
                     .default_width(200.0)
                     .show(ctx, |ui| {
-                        sb.show(ui, None, &[], false);
+                        sb.show(ui, None, SidebarFiles::default(), false);
                     });
             });
         }
@@ -510,7 +565,7 @@ mod tests {
             ctx.run(raw, |ctx| {
                 sb.fit_panel_width(ctx, "sidebar");
                 egui::SidePanel::left("sidebar").show(ctx, |ui| {
-                    sb.show(ui, None, &[], false);
+                    sb.show(ui, None, SidebarFiles::default(), false);
                 });
             });
             egui::containers::panel::PanelState::load(&ctx, egui::Id::new("sidebar"))

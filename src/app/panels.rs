@@ -191,12 +191,21 @@ impl UniformApp {
         // `apply_font` only installs once the first background build finishes,
         // so the width measured on frame 1 is measured in the wrong font.
         self.sidebar.fit_panel_width(ctx, SIDEBAR_PANEL_ID);
-        egui::SidePanel::left(SIDEBAR_PANEL_ID)
+        let panel = egui::SidePanel::left(SIDEBAR_PANEL_ID)
             .default_width(200.0)
             .show(ctx, |ui| {
                 let dirty_paths: Vec<&std::path::Path> = self.open_documents
                     .iter()
                     .filter(|d| d.document.dirty)
+                    .map(|d| d.document.path.as_path())
+                    .collect();
+                let open_paths: Vec<&std::path::Path> = self.open_documents
+                    .iter()
+                    .map(|d| d.document.path.as_path())
+                    .collect();
+                let changed_paths: Vec<&std::path::Path> = self.open_documents
+                    .iter()
+                    .filter(|d| d.external_change)
                     .map(|d| d.document.path.as_path())
                     .collect();
                 // Field-level accesses so the `sidebar` borrow stays disjoint
@@ -206,8 +215,16 @@ impl UniformApp {
                     .active_doc_idx()
                     .and_then(|i| self.open_documents.get(i))
                     .map(|d| d.document.path.as_path());
-                sidebar_actions = self.sidebar.show(ui, active_path, &dirty_paths, editor_focused);
+                let files = crate::sidebar::SidebarFiles {
+                    dirty: &dirty_paths,
+                    open: &open_paths,
+                    changed_on_disk: &changed_paths,
+                };
+                sidebar_actions = self.sidebar.show(ui, active_path, files, editor_focused);
             });
+        // Kept for the file watcher: a listing refreshed while the pointer is
+        // over the panel would move rows out from under a click.
+        self.sidebar_rect = panel.response.rect;
 
         for action in sidebar_actions {
             match action {
@@ -234,6 +251,9 @@ impl UniformApp {
                 SidebarAction::FileCreated(path) => {
                     self.set_status(format!("Created {}", path.display()));
                     self.open_file(path);
+                }
+                SidebarAction::ReloadFromDisk(path) => {
+                    self.reload_from_disk(&path);
                 }
             }
         }

@@ -53,6 +53,7 @@ The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 | --- | --- |
 | `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app/background.rs`) |
 | `UNIFORM_UPDATE_GOLDEN=1` | Rewrite `testdata/*.golden` instead of comparing (`cargo test golden`) |
+| `UNIFORM_WATCH_POLL_MS` | Re-scan interval used when the font directory is on a network volume (default 10000; `app/watch.rs`) |
 | `UNIFORM_STACKMON*` | The stack-overflow monitor; full table in `stackmon.rs` |
 | `UNIFORM_PROFILE_RUNS` | Iteration count for the `ref_composite` profiling test |
 
@@ -91,7 +92,9 @@ Editor (feature `editor`):
 - `app/` — `UniformApp` eframe entry point. `mod.rs` (the struct and the `eframe::App` loop),
   `background.rs` (the debounced build/derive/assert threads and the generation rules their consumers
   must respect), `docs.rs`, `history.rs` (go back/forward), `menus.rs`, `panels.rs`, `panes.rs` (the
-  split-editor model and its two invariants), `rename.rs`, `search.rs` (the Search pane), `zoom.rs`.
+  split-editor model and its two invariants), `rename.rs`, `search.rs` (the Search pane),
+  `watch.rs` (the OS watch on the font directory and what an external change may do), `toast.rs`,
+  `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode`, and **the editor-is-a-widget model**; `editor/ids.rs`
   is the per-instance `egui` id namespace it rests on.
 - `editor/document_view/` — the editor widget: `DocumentEditor::show` and the `show_document` frame
@@ -129,6 +132,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
 | The anchor shadow | `editor/anchor_shadow.rs` |
+| Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
 | The Windows stack-overflow crashes | `stackmon.rs` |
 
