@@ -1,5 +1,12 @@
 [alias]
 xb = 'xbuild'
 xbuild = 'xwin build --target x86_64-pc-windows-msvc'
-xr = 'exec target\x86_64-pc-windows-msvc\debug\uniform.exe'
-xrr = 'exec target\x86_64-pc-windows-msvc\release\uniform.exe'
+# Both go through run-local.cmd, which copies the binary to a local disk and
+# runs the copy: the repo is on an SMB mount, and an image demand-paged over it
+# kills the process the moment the share cannot serve a cold page.
+#
+# `cmd /d /c` rather than the script directly: `cargo exec` spawns the program
+# through `CreateProcess`, which cannot execute a `.cmd` at all, and `cmd.exe`
+# is the interpreter for it. `/d` skips any registry AutoRun script.
+xr = 'exec cmd /d /c .cargo\\run-local.cmd debug'
+xrr = 'exec cmd /d /c .cargo\\run-local.cmd release'

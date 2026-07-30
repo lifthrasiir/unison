@@ -22,6 +22,13 @@ cargo xrr         # run the compiled release executable (only to be used by user
 cargo xr          # ditto, debug
 ```
 
+Both run aliases go through `run-local.cmd`, which copies `uniform.exe` + `uniform.pdb` to
+`%LOCALAPPDATA%\uniform\<profile>\` and runs *that* copy (working directory unchanged, so relative
+arguments still resolve). **Never run the binary from the repo path**: the repo is an SMB mount, a PE
+image is demand-paged from its file for the entire life of the process, and a cold page the share
+cannot serve takes the process down with a stack overflow in ntdll — see *Stack Overflow Monitor*
+below for the whole story.
+
 The `build`/`test` subcommands require native execution:
 
 ```sh
@@ -584,19 +591,44 @@ cycle, now explained: `KiUserExceptionDispatcher` has to unwind, unwinding reads
 from another not-yet-resident page of the *same* image, that read faults the same way, and each
 nested dispatch does it again.
 
-So this is not recursion, and not a bug in the code at the faulting address — an in-page error on an
-already-mapped image page means Windows could not read the page back from the file. The suspect is
-therefore **where the `.exe` is being run from**: this is a cross-build (`cargo xb -r` on macOS,
-`cargo xrr` on Windows over the same repo path), so a 16 MB image is demand-paged over a shared
-folder, and rebuilding while an instance runs replaces the backing file under the live mapping —
-a share that cannot hold the image lock will not stop it. That also explains the shape of every
-report: the fault lands in *cold* code (a close dialog, a first-time editor path), never in the
-paths already resident. Confirm by copying `uniform.exe` + `uniform.pdb` to a local NTFS disk and
-running that copy; the `[... failed with 0x... ]` tail `fault_detail` now prints for `0xc0000006`
-names the paging `NTSTATUS` and settles it either way.
+So this is not recursion, and not a bug in the code at the faulting address — a fault on an
+already-mapped image page means Windows could not read that page back from the file. **The `.exe` is
+run over SMB**: this is a cross-build (`cargo xb -r` on macOS, `cargo xrr` on Windows over the same
+repo path via a Samba mount), so a 16 MB image is demand-paged over the wire, and the PE image is
+*not* loaded up front — a cold page is read from the file the first time it is executed. That is why
+every report lands in cold code (the close dialog; teardown `drop_in_place`/`mpmc::list::Channel::drop`
+glue in the 2026-07-30 capture) and never in resident paths, and why it needs no memory pressure.
+
+**Reproduced 2026-07-30** by truncating the image in place while the app ran
+(`truncate -s 0 …/release/uniform.exe` on the server, then Alt-F4 ▸ Don't Save): overflow every time.
+Two things that repro settled:
+
+- The exception code is *not* the invariant — that run's storm ran on `0xc0000005`
+  (`read of 0xfffffffffffffffe`) raised **inside `RtlVirtualUnwind`** rather than `0xc0000006` in our
+  own code. Unreadable `.pdata`/`.xdata` makes the unwinder itself fault, which is the same storm from
+  one step earlier. Match on the *shape* (one exception outside ntdll, then a 4–5 frame ntdll cycle),
+  not on the code.
+- **Deleting the file on the server cannot reproduce it**, and neither can a rebuild. POSIX `unlink`
+  only drops the directory entry; `smbd` holds the file open for the life of the image section, so the
+  inode and its data stay readable. And `cargo` does not write the final path in place — it re-links
+  `deps/uniform-<hash>.exe` into it, so a rebuild yields a **new inode** (verified: 18356881 →
+  18356974) and the mapped one survives untouched.
+
+What is left as the real-world trigger is **loss of the SMB session backing the section** (server
+sleep, `smbd` restart, network drop, `deadtime`), possibly a lease break after a rebuild reopening by
+path onto the new inode — plausible, not verified. The fix is not in the code: run the `.exe` from a
+local NTFS disk. `fault_detail` now prints the paging `NTSTATUS` for `0xc0000006`
+(`[read of 0x… failed with 0x… (unexpected network error)]`), which names the cause in one line.
 
 **When the user reports another crash, ask for `uniform-stackmon.log` first — do not re-derive the
-static analysis.** Symbolize any `uniform+0xRVA` against the `.pdb` of that build before theorizing.
+static analysis.** Symbolize any `uniform+0xRVA` against the `.pdb` of that build before theorizing —
+`llvm-symbolizer --obj=uniform.exe --demangle <RVA + 0x140000000>` works from macOS, and `cargo xb -r`
+re-links the same bytes from `deps/` when nothing changed, so a truncated `.exe` can be restored
+without invalidating the symbols.
+
+**Ahead of deleting `stackmon`:** the cause above is environmental, so once `run-local.cmd` has been
+in use for a while with no overflow, this module and its `phase()` markers are dead weight and should
+go. It has not been observed silent yet, which is the only reason it is still here.
 
 `stackmon` is inert unless `UNIFORM_STACKMON=1`:
 
@@ -619,7 +651,14 @@ as `exception 0xc0000005 (access violation) x1234 (+600) at ... phase=...`, one 
 Recording runs at the fault point, on any thread, possibly under the heap lock: it is a fixed
 32-entry table of atomics with no allocation, no logging and no blocking, and the *watchdog* turns it
 into log lines. `log` carries a thread-local reentrancy guard for the same reason (a nested `log`
-would deadlock on its own non-reentrant mutex). Module load bases are logged as they appear
+would deadlock on its own non-reentrant mutex).
+
+Every multi-line report — the exception list, the module list, a backtrace *with its header* — goes
+out through `log_block`/`log_lines`, which takes the lock **once** and writes one buffer. Line by line
+it does not survive contact with the second thread: the watchdog ticks every 250 ms while the handler
+logs from the main thread, and the 2026-07-30 capture has a `used 4.45 MiB` line sitting between two
+frames of the overflow backtrace. Nothing is lost by buffering, since every walk already finishes
+before its first line is formatted. Module load bases are logged as they appear
 (`log_new_modules`), and an unsymbolized frame prints as `module+0xRVA` — with ASLR, a bare address
 is unusable after the fact.
 

@@ -207,13 +207,12 @@ fn spawn_watchdog() {
 
                 if peak >= NEXT_DUMP_AT.load(Ordering::Relaxed) {
                     NEXT_DUMP_AT.store(peak + DUMP_STEP, Ordering::Relaxed);
-                    log(&format!(
+                    platform::dump_main_thread_backtrace(&format!(
                         "!!! deep stack: {} ({}%) in phase {} -- backtrace of the main thread:",
                         human(peak),
                         percent(peak),
                         current_phase(),
                     ));
-                    platform::dump_main_thread_backtrace();
                 }
             }
         })
@@ -251,6 +250,24 @@ thread_local! {
 /// main thread unable to release it). That is why the stack walker collects
 /// bare addresses while suspended and only symbolizes and logs afterwards.
 pub(crate) fn log(msg: &str) {
+    log_lines(std::slice::from_ref(&msg));
+}
+
+/// Writes a whole report under **one** lock acquisition.
+///
+/// A multi-line report logged line by line is a multi-line report the other
+/// thread writes into: the watchdog ticks every 250 ms and the handler runs on
+/// the main thread, so a `used ...` line lands in the middle of a frame list
+/// and the report stops being readable (the 2026-07-30 capture has exactly
+/// that). Anything with more than one line therefore builds its lines first and
+/// emits them here. Nothing is lost by buffering: every walk already finishes
+/// before its first line is formatted.
+pub(crate) fn log_block(msgs: &[String]) {
+    let refs: Vec<&str> = msgs.iter().map(String::as_str).collect();
+    log_lines(&refs);
+}
+
+pub(crate) fn log_lines(msgs: &[&str]) {
     use std::io::Write;
     // `LOG` is a plain (non-reentrant) mutex, so a second `log` on a thread
     // that is already inside one would deadlock against itself. That is not
@@ -268,7 +285,12 @@ pub(crate) fn log(msg: &str) {
     }
     let _reentry = Guard;
 
-    eprintln!("[stackmon] {msg}");
+    let block: String = msgs
+        .iter()
+        .map(|m| format!("[stackmon] {m}\n"))
+        .collect::<Vec<_>>()
+        .concat();
+    eprint!("{block}");
     let mut guard = match LOG.lock() {
         Ok(g) => g,
         Err(p) => p.into_inner(),
@@ -283,7 +305,10 @@ pub(crate) fn log(msg: &str) {
             .ok();
     }
     if let Some(f) = guard.as_mut() {
-        let _ = writeln!(f, "{msg}");
+        // One `write_all`, so a concurrent writer cannot split the block even
+        // if it is holding a duplicate handle to the same file.
+        let _ = f.write_all(msgs.join("\n").as_bytes());
+        let _ = f.write_all(b"\n");
         let _ = f.flush();
     }
 }
@@ -382,7 +407,7 @@ fn collapse(pcs: &[u64]) -> Vec<Entry> {
 mod platform {
     use super::{
         ENABLED, Entry, HEAD_ENTRIES, STACK_HIGH, TAIL_ENTRIES, collapse, current_phase, human,
-        log,
+        log, log_block, log_lines,
     };
     use std::ffi::c_void;
     use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicUsize, Ordering};
@@ -527,7 +552,7 @@ mod platform {
         }
     }
 
-    pub(super) fn dump_main_thread_backtrace() {
+    pub(super) fn dump_main_thread_backtrace(header: &str) {
         // Everything that allocates or takes a lock happens outside the
         // suspend window: symbol init and the frame buffers up front,
         // symbolization and logging after the thread is running again. Only
@@ -537,28 +562,27 @@ mod platform {
         let mut pcs = vec![0u64; MAX_FRAMES];
         let mut sps = vec![0u64; MAX_FRAMES];
         match with_main_context(|ctx| collect_frames(ctx, &mut pcs, &mut sps)) {
-            Some(n) => report_frames(&pcs[..n], &sps[..n]),
-            None => log("  (could not capture the main thread context)"),
+            Some(n) => report_frames(header, &pcs[..n], &sps[..n]),
+            None => log_lines(&[header, "  (could not capture the main thread context)"]),
         }
     }
 
     /// Collects a backtrace from `ctx` and reports it, all on the current
     /// thread. Used by the exception handler, which already owns a context and
     /// must not suspend itself.
-    fn dump_own_context(ctx: &mut AlignedContext) {
+    fn dump_own_context(header: &str, ctx: &mut AlignedContext) {
         ensure_symbols();
         let mut pcs = vec![0u64; MAX_FRAMES];
         let mut sps = vec![0u64; MAX_FRAMES];
         let n = collect_frames(ctx, &mut pcs, &mut sps);
-        report_frames(&pcs[..n], &sps[..n]);
+        report_frames(header, &pcs[..n], &sps[..n]);
     }
 
     /// Logs one backtrace at startup so it is immediately obvious whether
     /// symbolization works at all, rather than finding out during a crash.
     pub(super) fn self_test() {
         log_new_modules();
-        log("self-test: backtrace of the main thread at init --");
-        dump_main_thread_backtrace();
+        dump_main_thread_backtrace("self-test: backtrace of the main thread at init --");
     }
 
     /// Logs every module loaded since the last call, as `base+size name`.
@@ -606,10 +630,9 @@ mod platform {
         if lines.is_empty() {
             return;
         }
-        log(&format!("modules loaded ({}):", lines.len()));
-        for line in lines {
-            log(&line);
-        }
+        let mut block = vec![format!("modules loaded ({}):", lines.len())];
+        block.extend(lines);
+        log_block(&block);
     }
 
     /// Initializes dbghelp. Called before any walk, never while the main
@@ -680,14 +703,18 @@ mod platform {
         }
     }
 
-    fn report_frames(pcs: &[u64], sps: &[u64]) {
+    /// `header` is emitted as part of the same block: logged separately, the
+    /// other thread's next line can land between it and its own frames.
+    fn report_frames(header: &str, pcs: &[u64], sps: &[u64]) {
+        let mut out = vec![header.to_string()];
         if pcs.is_empty() {
-            log("  (StackWalkEx produced no frames)");
+            out.push("  (StackWalkEx produced no frames)".to_string());
+            log_block(&out);
             return;
         }
 
         let entries = collapse(pcs);
-        log(&format!(
+        out.push(format!(
             "  {} frames, {} entries after folding repeats",
             pcs.len(),
             entries.len(),
@@ -703,18 +730,18 @@ mod platform {
             }
         };
 
-        let show = |e: &Entry| {
+        let show = |out: &mut Vec<String>, e: &Entry| {
             let first = e.depth - 1;
             if e.reps == 1 && e.period == 1 {
                 let size = bytes(first, first + 1)
                     .map(|b| format!("  [{}]", human(b)))
                     .unwrap_or_default();
-                log(&format!("  #{:<6} {}{}", e.depth, describe(pcs[first]), size));
+                out.push(format!("  #{:<6} {}{}", e.depth, describe(pcs[first]), size));
                 return;
             }
             let each = bytes(first, first + e.period);
             let total = bytes(first, first + e.frames());
-            log(&format!(
+            out.push(format!(
                 "  #{:<6} cycle of {} frame(s) x{}{}{}:",
                 e.depth,
                 e.period,
@@ -726,7 +753,7 @@ mod platform {
                     .unwrap_or_default(),
             ));
             for off in 0..e.period {
-                log(&format!("           | {}", describe(pcs[first + off])));
+                out.push(format!("           | {}", describe(pcs[first + off])));
             }
         };
 
@@ -734,20 +761,21 @@ mod platform {
         // matter; elide the middle rather than truncating the tail.
         if entries.len() <= HEAD_ENTRIES + TAIL_ENTRIES {
             for e in &entries {
-                show(e);
+                show(&mut out, e);
             }
         } else {
             for e in &entries[..HEAD_ENTRIES] {
-                show(e);
+                show(&mut out, e);
             }
-            log(&format!(
+            out.push(format!(
                 "       ... {} entries elided ...",
                 entries.len() - HEAD_ENTRIES - TAIL_ENTRIES,
             ));
             for e in &entries[entries.len() - TAIL_ENTRIES..] {
-                show(e);
+                show(&mut out, e);
             }
         }
+        log_block(&out);
     }
 
     /// Renders one address as `module!symbol+0xdisp (file:line)`.
@@ -942,6 +970,7 @@ mod platform {
     /// symbolizes and logs.
     pub(super) fn report_exceptions() {
         let used = EXC_USED.load(Ordering::Acquire).min(MAX_EXC);
+        let mut out: Vec<String> = Vec::new();
         for slot in &EXC[..used] {
             let count = slot.count.load(Ordering::Acquire);
             if count == 0 {
@@ -963,7 +992,7 @@ mod platform {
                     unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(p, len)) }
                 }
             };
-            log(&format!(
+            out.push(format!(
                 "exception {:#010x} ({}) x{}{} at {} thread {} phase={}{}",
                 code,
                 exception_name(code),
@@ -981,9 +1010,12 @@ mod platform {
         }
         let dropped = EXC_DROPPED.swap(0, Ordering::Relaxed);
         if dropped > 0 {
-            log(&format!(
+            out.push(format!(
                 "  ({dropped} exception(s) not recorded: more than {MAX_EXC} distinct sites)"
             ));
+        }
+        if !out.is_empty() {
+            log_block(&out);
         }
     }
 
@@ -1088,15 +1120,16 @@ mod platform {
             // Tells the watchdog not to suspend us mid-report.
             IN_VEH.store(true, Ordering::Release);
 
-            log("!!! STACK OVERFLOW on the main thread -- backtrace follows");
             // Flush here too: the watchdog may never get another tick, and the
             // exceptions recorded so far are the best evidence of *why* the
-            // stack grew.
+            // stack grew. They go out *before* the backtrace, which is the
+            // useless half when the stack is one exception-dispatch storm.
+            log("!!! STACK OVERFLOW on the main thread -- exceptions, then backtrace");
             report_exceptions();
             let ctxp = (*info).ContextRecord;
             if !ctxp.is_null() {
                 let mut ctx = AlignedContext(*ctxp);
-                dump_own_context(&mut ctx);
+                dump_own_context("  backtrace of the overflowed stack:", &mut ctx);
             }
 
             IN_VEH.store(false, Ordering::Release);
@@ -1136,8 +1169,8 @@ mod platform {
         None
     }
 
-    pub(super) fn dump_main_thread_backtrace() {
-        super::log("  (remote backtrace is only implemented on Windows)");
+    pub(super) fn dump_main_thread_backtrace(header: &str) {
+        super::log_lines(&[header, "  (remote backtrace is only implemented on Windows)"]);
     }
 }
 
