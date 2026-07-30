@@ -1568,3 +1568,159 @@ fn derive_reports_size_mismatched_attachment() {
         derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
     assert!(issues.is_empty(), "{issues:?}");
 }
+
+/// Size-based alternative selection still runs for offset-less refs — and it
+/// is exactly what the size-mismatch warning defers to: the uni1E2E shape
+/// (a narrow mark stacked on a wide mark's 2-cell `+above`) picks the
+/// `:wide` alternative and stays quiet, while the same refs pinned by
+/// explicit offsets cannot substitute and warn instead.
+#[test]
+fn offsetless_stacked_mark_picks_wide_alternative_without_warning() {
+    let input = "\
+glyph i-compressed 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 1..2 0
+
+glyph dia 4 1 mark
+@@@@@@@@
+anchor -above 1..2 0
+anchor +above 1..2 -1
+
+glyph acute 2 1 mark
+@@@@
+anchor -above 0 0
+anchor +above 0 -1
+
+glyph acute:wide 2 1 mark
+@@@@
+anchor -above 0..1 0
+anchor +above 0..1 -1
+
+glyph stacked
+ref i-compressed
+ref dia
+ref acute
+";
+    let doc = crate::document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs = [&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+    let body = doc.items.iter().find_map(|item| match item {
+        DocumentItem::Glyph { name, body } if name.display() == "stacked" => Some(body),
+        _ => None,
+    }).unwrap();
+    let derive = |refs: &[GlyphRef]| {
+        derive_ref_offsets_with(
+            &body.points,
+            refs,
+            |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
+            |name| alt_idx.get(name).to_vec(),
+            |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
+        )
+    };
+
+    // Offset-less: the narrow acute cannot consume dia's 2-cell +above, so
+    // the 2-cell `acute:wide` is substituted; everything attaches, no issue.
+    let (effective, _, issues) = derive(&body.refs);
+    assert_eq!(effective[2].name, "acute:wide");
+    assert!(issues.is_empty(), "{issues:?}");
+
+    // The same refs pinned by explicit offsets: no substitution is possible,
+    // and the near-miss is reported instead of passing in silence.
+    let pinned: Vec<GlyphRef> = body
+        .refs
+        .iter()
+        .enumerate()
+        .map(|(i, r)| GlyphRef { offset: Some((0, i as i16)), ..r.clone() })
+        .collect();
+    let (effective, _, issues) = derive(&pinned);
+    assert_eq!(effective[2].name, "acute", "explicit offsets never substitute");
+    assert!(
+        issues.iter().any(|i| matches!(
+            i,
+            DeriveIssue::SizeMismatchedAttachment { ref_name, .. } if ref_name == "acute"
+        )),
+        "{issues:?}",
+    );
+}
+
+/// Alternative selection also runs on the *publisher* side, by size: an
+/// offset-less ref whose declared `+X` name-matches but size-mismatches a
+/// sibling consumer's `-X` is substituted by an alternative whose `+X` fits.
+/// This is the `enclosing-circle:alt` case — the letters cannot adapt (there
+/// is no descender variant with a taller `-center`), so the circle must.
+#[test]
+fn publisher_alternative_is_selected_by_anchor_size() {
+    let input = "\
+glyph circle 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +center 2 1..2
+
+glyph circle:alt
+ref circle
+anchor +center 2 1
+
+glyph a-inner 2 2
+@@@@
+@@@@
+anchor -center 1 0..1
+
+glyph j-inner 2 2
+@@@@
+@@@@
+anchor -center 1 0
+
+glyph a-circled
+ref circle
+ref a-inner
+
+glyph j-circled
+ref circle
+ref j-inner
+
+glyph j-circled-reversed
+ref j-inner
+ref circle
+";
+    let doc = crate::document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs = [&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
+
+    let derive = |glyph: &str| {
+        let body = doc.items.iter().find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == glyph => Some(body),
+            _ => None,
+        }).unwrap();
+        derive_ref_offsets_with(
+            &body.points,
+            &body.refs,
+            |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
+            |name| alt_idx.get(name).to_vec(),
+            |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
+        )
+    };
+
+    // The 2-cell consumer matches the primary circle: no substitution.
+    let (effective, _, issues) = derive("a-circled");
+    assert_eq!(effective[0].name, "circle");
+    assert!(issues.is_empty(), "{issues:?}");
+
+    // The 1-cell consumer fits only circle:alt, whichever side comes first.
+    for glyph in ["j-circled", "j-circled-reversed"] {
+        let (effective, _, issues) = derive(glyph);
+        let circle_ref = effective.iter().find(|r| r.name.starts_with("circle")).unwrap();
+        assert_eq!(circle_ref.name, "circle:alt", "{glyph}");
+        assert!(issues.is_empty(), "{glyph}: {issues:?}");
+        // The consumer really attached: its offset aligns -center on (2, 1).
+        let inner = effective.iter().find(|r| r.name.ends_with("-inner")).unwrap();
+        assert_eq!(inner.offset, Some((1, 1)), "{glyph}");
+    }
+}

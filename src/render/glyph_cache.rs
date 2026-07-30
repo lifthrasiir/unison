@@ -166,17 +166,35 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
     mut build: impl FnMut(&PendingGlyph, &[GlyphRef], &HashMap<String, V>) -> V,
     mut on_issue: impl FnMut(&str, crate::ref_composite::DeriveIssue),
 ) {
-    let mut progress = true;
-    while progress {
-        progress = false;
-        let alt_index = build_alt_index(cache);
+    // How many alternatives of each base name are still unresolved. A
+    // composite must not be derived while an alternative of one of its
+    // offset-less refs is pending: that alternative would be missing from
+    // `alt_index`, so a substitution that only *it* can satisfy (by anchor
+    // size) silently falls through. Same guard, same relaxation for cycles,
+    // as `ref_composite::resolve_expansion` — the two fixpoints must not
+    // disagree about which alternative a composite gets.
+    let mut pending_alts: HashMap<String, usize> = HashMap::new();
+    for pg in &pending {
+        for prefix in crate::ref_composite::alternative_prefixes(&pg.name) {
+            *pending_alts.entry(prefix.to_string()).or_default() += 1;
+        }
+    }
+    let mut relaxed = false;
+    loop {
+        let mut progress = false;
+        let mut alt_index = build_alt_index(cache);
         let mut i = 0;
         while i < pending.len() {
-            if !pending[i]
+            let blocked = !pending[i]
                 .refs
                 .iter()
                 .all(|gref| resolve_cached(&gref.name, cache).is_some())
-            {
+                || (!relaxed
+                    && pending[i]
+                        .refs
+                        .iter()
+                        .any(|r| r.offset.is_none() && pending_alts.contains_key(&r.name)));
+            if blocked {
                 i += 1;
                 continue;
             }
@@ -191,15 +209,41 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
             for issue in issues {
                 on_issue(&pg.name, issue);
             }
+            let anchors: Vec<GlyphPoint> = anchors.into_iter().map(|(p, _)| p).collect();
             let mut entry = build(&pg, &effective_refs, cache);
             if let Some(grid) = &pg.pixels {
                 let (w, h) = entry.dims_mut();
                 *w = (*w).max(grid.width);
                 *h = (*h).max(grid.height);
             }
-            entry.set_resolution(anchors.into_iter().map(|(p, _)| p).collect(), pg.scale);
+            for prefix in crate::ref_composite::alternative_prefixes(&pg.name) {
+                if let Some(count) = pending_alts.get_mut(prefix) {
+                    *count -= 1;
+                    if *count == 0 {
+                        pending_alts.remove(prefix);
+                    }
+                }
+                // Merged right away rather than at round end: a composite
+                // later in the same round has to see this alternative.
+                let alts = alt_index.entry(prefix.to_string()).or_default();
+                match alts.binary_search_by(|(a, _)| a.as_str().cmp(&pg.name)) {
+                    Ok(pos) => alts[pos].1 = anchors.clone(),
+                    Err(pos) => alts.insert(pos, (pg.name.clone(), anchors.clone())),
+                }
+            }
+            entry.set_resolution(anchors, pg.scale);
             cache.insert(pg.name.clone(), entry);
             progress = true;
+        }
+        if pending.is_empty() {
+            break;
+        }
+        if progress {
+            relaxed = false;
+        } else if relaxed {
+            break;
+        } else {
+            relaxed = true;
         }
     }
 }

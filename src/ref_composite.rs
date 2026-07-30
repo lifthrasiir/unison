@@ -879,6 +879,13 @@ pub(crate) fn derive_ref_offsets_with(
 /// when the above-anchor is consumed (the dot would conflict).  But when
 /// followed by `dia-below`, no substitution occurs because `i-lower` has
 /// `+below` as its own declared anchor.
+///
+/// A second, size-driven trigger substitutes a *publisher* whose `+X`
+/// name-matches an unresolved sibling's `-X` but size-mismatches it, when an
+/// alternative's `+X` fits — the consumer side cannot adapt there, since its
+/// own alternatives were already tried and rejected. Both triggers scan every
+/// unresolved sibling, not just the following ones: a deferred consumer
+/// *earlier* in the ref list is still waiting on this publisher.
 fn try_lookahead_alt<'a>(
     i: usize,
     n: usize,
@@ -889,32 +896,71 @@ fn try_lookahead_alt<'a>(
     effective_refs: &[Option<GlyphRef>],
     target_anchors_list: &[Option<Vec<GlyphPoint>>],
 ) -> Option<(String, &'a [GlyphPoint])> {
-    let declared = target_declared_anchors?;
-    let plus_anchors: Vec<&GlyphPoint> = target_anchors
-        .iter()
-        .filter(|p| p.position.starts_with('+'))
-        .filter(|p| !available_plus.iter().any(|(a, _)| a.position == p.position))
-        .filter(|p| !declared.iter().any(|o| o.position == p.position))
-        .collect();
-    if plus_anchors.is_empty() {
-        return None;
+    let unresolved = |j: usize| j != i && effective_refs[j].is_none();
+
+    if let Some(declared) = target_declared_anchors {
+        let plus_anchors: Vec<&GlyphPoint> = target_anchors
+            .iter()
+            .filter(|p| p.position.starts_with('+'))
+            .filter(|p| !available_plus.iter().any(|(a, _)| a.position == p.position))
+            .filter(|p| !declared.iter().any(|o| o.position == p.position))
+            .collect();
+        for (alt_name, alt_anchors) in alternatives {
+            for plus in &plus_anchors {
+                let Some(base) = plus.position.strip_prefix('+') else {
+                    continue;
+                };
+                let minus_name = format!("-{base}");
+                let needed = (0..n).any(|j| {
+                    unresolved(j)
+                        && target_anchors_list[j]
+                            .as_deref()
+                            .unwrap_or(&[])
+                            .iter()
+                            .any(|p| p.position == minus_name)
+                });
+                if needed && alt_anchors.iter().any(|a| a.position == plus.position) {
+                    return Some((alt_name.clone(), alt_anchors.as_slice()));
+                }
+            }
+        }
     }
+
+    // Size-aware publisher substitution: a `+X` this ref would publish
+    // (declared or forwarded) name-matches an unresolved sibling's `-X` but
+    // size-mismatches it, and an alternative's `+X` fits that consumer. The
+    // consumer cannot adapt — its own alternatives were already tried — so
+    // the publisher must: `enclosing-circle:alt` exists exactly for the
+    // descenders whose `-center` is one cell, not two.
     for (alt_name, alt_anchors) in alternatives {
-        for plus in &plus_anchors {
-            let base = plus.position.strip_prefix('+')?;
+        for plus in target_anchors.iter().filter(|p| p.position.starts_with('+')) {
+            let Some(base) = plus.position.strip_prefix('+') else {
+                continue;
+            };
             let minus_name = format!("-{base}");
-            let needed_by_later = (i + 1..n).any(|j| {
-                effective_refs[j].is_none()
-                    && target_anchors_list[j]
-                        .as_deref()
-                        .unwrap_or(&[])
+            for j in (0..n).filter(|&j| unresolved(j)) {
+                for minus in target_anchors_list[j]
+                    .as_deref()
+                    .unwrap_or(&[])
+                    .iter()
+                    .filter(|p| p.position == minus_name)
+                {
+                    // The primary (or something already published) serves
+                    // this consumer: nothing to fix.
+                    if plus.size_matches(minus)
+                        || available_plus.iter().any(|(p, _)| {
+                            p.position == plus.position && p.size_matches(minus)
+                        })
+                    {
+                        continue;
+                    }
+                    if alt_anchors
                         .iter()
-                        .any(|p| p.position == minus_name)
-            });
-            if needed_by_later
-                && alt_anchors.iter().any(|a| a.position == plus.position)
-            {
-                return Some((alt_name.clone(), alt_anchors.as_slice()));
+                        .any(|a| a.position == plus.position && a.size_matches(minus))
+                    {
+                        return Some((alt_name.clone(), alt_anchors.as_slice()));
+                    }
+                }
             }
         }
     }

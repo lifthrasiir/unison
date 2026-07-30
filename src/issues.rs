@@ -677,6 +677,44 @@ map m = mark
         );
     }
 
+    /// The validation pass must resolve an alternative *before* any composite
+    /// that needs it for size-driven substitution — same guard as the
+    /// editor's `resolve_expansion` — or it reports a mismatch the real
+    /// resolution does not have.
+    #[test]
+    fn alternative_pending_in_same_round_still_substitutes() {
+        let input = "\
+glyph circle 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +center 2 1..2
+
+glyph circle:alt
+ref circle
+anchor +center 2 1
+
+glyph j-inner 2 2
+@@@@
+@@@@
+anchor -center 1 0
+
+glyph j-circled
+ref circle
+ref j-inner
+map j = j-circled
+map c = circle
+map i = j-inner
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("only by name")),
+            "circle:alt must be substituted, got: {issues:?}",
+        );
+    }
+
     /// A digraph without `inherit` exposes nothing — that is the designed
     /// fallback, not a problem to report.
     #[test]
