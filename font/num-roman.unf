@@ -1,77 +1,129 @@
 ////////////////////////////////////////
 // roman numerals
 
-glyph roman-1-upper = i-upper
-glyph roman-2-upper
-ref i-upper
-ref i-upper 8 0
-glyph roman-3-upper
-ref i-upper
-ref i-upper 8 0
-ref i-upper 16 0
-glyph roman-4-upper
-ref i-upper
-ref v-upper 8 0
-glyph roman-5-upper = v-upper
-glyph roman-6-upper
-ref v-upper
-ref roman-1-upper 8 0
-glyph roman-7-upper
-ref v-upper
-ref roman-2-upper 8 0
-glyph roman-8-upper
-ref v-upper
-ref roman-3-upper 8 0
-glyph roman-9-upper
-ref i-upper
-ref x-upper 8 0
-glyph roman-10-upper = x-upper
-glyph roman-11-upper
-ref x-upper
-ref roman-1-upper 8 0
-glyph roman-12-upper
-ref x-upper
-ref roman-2-upper 8 0
-glyph roman-50-upper = l-upper
-glyph roman-100-upper = c-upper
-glyph roman-500-upper = d-upper
-glyph roman-1000-upper = m-upper
+glyph roman-1-upper 16 16
+ref narrow-i-upper 6 0
 
-glyph roman-1-lower = i-lower
-glyph roman-2-lower
-ref i-lower
-ref i-lower 8 0
-glyph roman-3-lower
-ref i-lower
-ref i-lower 8 0
-ref i-lower 16 0
-glyph roman-4-lower
-ref i-lower
-ref v-lower 8 0
-glyph roman-5-lower = v-lower
-glyph roman-6-lower
-ref v-lower
-ref roman-1-lower 8 0
-glyph roman-7-lower
-ref v-lower
-ref roman-2-lower 8 0
-glyph roman-8-lower
-ref v-lower
-ref roman-3-lower 8 0
-glyph roman-9-lower
-ref i-lower
-ref x-lower 8 0
-glyph roman-10-lower = x-lower
-glyph roman-11-lower
-ref x-lower
-ref roman-1-lower 8 0
-glyph roman-12-lower
-ref x-lower
-ref roman-2-lower 8 0
-glyph roman-50-lower = l-lower
-glyph roman-100-lower = c-lower
-glyph roman-500-lower = d-lower
-glyph roman-1000-lower = m-lower
+glyph roman-2-upper 16 16
+ref narrow-i-upper 4 0
+ref narrow-i-upper 7 0
+
+glyph roman-3-upper 16 16
+ref narrow-i-upper 3 0
+ref narrow-i-upper 6 0
+ref narrow-i-upper 9 0
+
+glyph roman-4-upper 16 16
+ref narrow-i-upper 3 0
+ref narrow-v-upper 8 0
+
+glyph roman-5-upper 16 16
+ref narrow-v-upper 6 0
+
+glyph roman-6-upper 16 16
+ref narrow-v-upper 4 0
+ref narrow-i-upper 9 0
+
+glyph roman-7-upper 16 16
+ref narrow-v-upper 2 0
+ref narrow-i-upper 7 0
+ref narrow-i-upper 10 0
+
+glyph roman-8-upper 16 16
+ref narrow-v-upper 2 0
+ref narrow-i-upper 6 0
+ref narrow-i-upper 8 0
+ref narrow-i-upper 10 0
+
+glyph roman-9-upper 16 16
+ref narrow-i-upper 3 0
+ref narrow-x-upper 8 0
+
+glyph roman-10-upper 16 16
+ref narrow-x-upper 6 0
+
+glyph roman-11-upper 16 16
+ref narrow-x-upper 4 0
+ref narrow-i-upper 9 0
+
+glyph roman-12-upper 16 16
+ref narrow-x-upper 2 0
+ref narrow-i-upper 7 0
+ref narrow-i-upper 10 0
+
+glyph roman-50-upper 16 16
+ref narrow-l-upper 5 0
+
+glyph roman-100-upper 16 16
+ref narrow-c-upper 5 0
+
+glyph roman-500-upper 16 16
+ref narrow-d-upper 5 0
+
+glyph roman-1000-upper 16 16
+ref narrow-m-upper 6 0
+
+glyph roman-1-lower 16 16
+ref narrow-i-lower 5 0
+
+glyph roman-2-lower 16 16
+ref narrow-i-lower 3 0
+ref narrow-i-lower 7 0
+
+glyph roman-3-lower 16 16
+ref narrow-i-lower 1 0
+ref narrow-i-lower 5 0
+ref narrow-i-lower 9 0
+
+glyph roman-4-lower 16 16
+ref narrow-i-lower 2 0
+ref narrow-v-lower 8 0
+
+glyph roman-5-lower 16 16
+ref narrow-v-lower 6 0
+
+glyph roman-6-lower 16 16
+ref narrow-v-lower 4 0
+ref narrow-i-lower 8 0
+
+glyph roman-7-lower 16 16
+ref narrow-v-lower 2 0
+ref narrow-i-lower 6 0
+ref narrow-i-lower 9 0
+
+glyph roman-8-lower 16 16
+ref narrow-v-lower 1 0
+ref narrow-i-lower 5 0
+ref narrow-i-lower 8 0
+ref narrow-i-lower 11 0
+
+glyph roman-9-lower 16 16
+ref narrow-i-lower 2 0
+ref narrow-x-lower 8 0
+
+glyph roman-10-lower 16 16
+ref narrow-x-lower 5 0
+
+glyph roman-11-lower 16 16
+ref narrow-x-lower 3 0
+ref narrow-i-lower 7 0
+
+glyph roman-12-lower 16 16
+ref narrow-x-lower 2 0
+ref narrow-i-lower 6 0
+ref narrow-i-lower 9 0
+
+glyph roman-50-lower 16 16
+ref narrow-l-lower 5 0
+
+glyph roman-100-lower 16 16
+ref narrow-c-lower 5 0
+
+glyph roman-500-lower 16 16
+ref narrow-d-lower 5 0
+
+glyph roman-1000-lower 16 16
+ref narrow-m-lower 6 0
 
 map Ⅰ = roman-1-upper
 map Ⅱ = roman-2-upper
@@ -107,4 +159,3 @@ map ⅽ = roman-100-lower
 map ⅾ = roman-500-lower
 map ⅿ = roman-1000-lower
 
-// vim: ft=unison

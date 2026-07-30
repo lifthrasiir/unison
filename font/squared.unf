@@ -607,7 +607,7 @@ ref narrow-s-lower 3 0
 ref narrow-r-lower 8 0
 
 glyph squared-sv 16 16
-ref narrow-s-upper 3 0
+ref narrow-s-upper 2 0
 ref narrow-v-lower 8 0
 
 glyph squared-thz 16 16
