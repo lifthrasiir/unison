@@ -5,7 +5,7 @@ Unison font itself. egui/eframe GUI, Rust 2024 edition. Single binary `uniform` 
 GUI (default), `build`, and `test`.
 
 **This file is an index.** The reasoning behind each design — the `.unf` format, composition rules,
-the editor's structure, the crash post-mortem — lives in the module-level `//!` docs of the code that
+the editor's structure — lives in the module-level `//!` docs of the code that
 implements it; this file says which module that is. Keep it that way: when a new invariant is worth
 recording, put it next to the code and add at most a line here.
 
@@ -30,8 +30,8 @@ cargo xr          # ditto, debug
 Both run aliases go through `run-local.cmd`, which copies `uniform.exe` + `uniform.pdb` to
 `%LOCALAPPDATA%\uniform\<profile>\` and runs *that* copy (working directory unchanged, so relative
 arguments still resolve). **Never run the binary from the repo path** — the repo is an SMB mount and a
-PE image is demand-paged from its file for the life of the process; `stackmon.rs`'s module docs have
-the whole story.
+PE image is demand-paged from its file for the life of the process, so a cold code page that the
+share cannot serve kills the process; `run-local.cmd`'s comments have the whole story.
 
 The `build`/`test` subcommands require native execution:
 
@@ -54,7 +54,6 @@ The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 | `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app/background.rs`) |
 | `UNIFORM_UPDATE_GOLDEN=1` | Rewrite `testdata/*.golden` instead of comparing (`cargo test golden`) |
 | `UNIFORM_WATCH_POLL_MS` | Re-scan interval used when the font directory is on a network volume (default 10000; `app/watch.rs`) |
-| `UNIFORM_STACKMON*` | The stack-overflow monitor; full table in `stackmon.rs` |
 | `UNIFORM_PROFILE_RUNS` | Iteration count for the `ref_composite` profiling test |
 
 Cargo features: `editor` (default) pulls in eframe/egui/tiny-skia/notify/rfd/arboard. `--no-default-features`
@@ -84,7 +83,6 @@ Core (feature-independent):
   `assert.rs` (`assert` directives).
 - `render/ttf_builder/` — contours → TrueType, GSUB, cmap. `mod.rs` lists the stage submodules;
   `gsub.rs` documents feature targets and OpenType scope fallback. Tests in `render/ttf_tests/`.
-- `stackmon.rs` — stack-overflow watchdog and the post-mortem of the crashes it was written for.
 - `golden.rs` — `cfg(test)` golden snapshots over `testdata/`.
 
 Editor (feature `editor`):
@@ -134,7 +132,6 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | The anchor shadow | `editor/anchor_shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
-| The Windows stack-overflow crashes | `stackmon.rs` |
 
 ## Testing
 
@@ -200,13 +197,3 @@ docs carry the detail; this is the ranking.
    concurrent rebuild threads. `UNIFORM_PERF`, the rebuild guard in `app/background.rs`, memoized exact
    subtraction and the `PixelGrid::rescale` caches all exist because of that. Keep the caches keyed
    correctly when changing geometry.
-
-## Stack Overflow Monitor (`stackmon.rs`)
-
-Inert unless `UNIFORM_STACKMON=1`. It exists for a class of Windows main-thread stack overflows whose
-cause is now understood and **environmental** — the `.exe` was being demand-paged over SMB — so the
-module is scheduled for deletion once `run-local.cmd` has been in use long enough.
-
-**When the user reports another crash, ask for `uniform-stackmon.log` first**, read `stackmon.rs`'s
-module docs (captures, the storm's shape, how to symbolize an `uniform+0xRVA` from macOS), and do not
-re-derive any of it.

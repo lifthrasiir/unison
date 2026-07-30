@@ -12,7 +12,6 @@ mod ref_composite;
 mod preview;
 mod render;
 mod script_run;
-mod stackmon;
 #[cfg(feature = "editor")]
 mod editor;
 mod issues;
@@ -75,8 +74,6 @@ fn report_issues(docs: &[&document::Document]) {
 }
 
 fn main() {
-    stackmon::init();
-
     let args: Vec<String> = std::env::args().collect();
 
     // Build subcommand: uniform build --input DIR --output FILE [--output FILE ...]

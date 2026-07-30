@@ -6,7 +6,7 @@ rem demand-paged from its file for the whole life of the process. So a cold code
 rem page -- a dialog, a teardown path -- is read off the share the first time it
 rem runs, and if the share cannot serve it, exception dispatch cannot unwind,
 rem faults again, and the process dies of a stack overflow inside ntdll with the
-rem real cause nowhere on the stack. See CLAUDE.md, "Stack Overflow Monitor".
+rem real cause nowhere on the stack.
 rem
 rem Usage: run-local.cmd [release|debug] [args for uniform...]
 setlocal EnableExtensions
@@ -23,7 +23,7 @@ if not exist "%SRC%\uniform.exe" (
     exit /b 1
 )
 
-rem The .pdb comes along or stackmon backtraces lose their symbols; robocopy
+rem The .pdb comes along or panic backtraces lose their symbols; robocopy
 rem skips both when they are already current, so this is only slow after a
 rem rebuild. Overwriting a still-running copy fails here rather than corrupting
 rem it -- on NTFS the loader holds the image, which is the protection the share
@@ -45,6 +45,6 @@ goto collect
 
 :run
 rem No `cd`: the working directory stays the repo, so a relative font-directory
-rem argument and ./uniform-stackmon.log still land where they used to.
+rem argument still resolves the way it used to.
 "%DST%\uniform.exe"%ARGS%
 exit /b %ERRORLEVEL%

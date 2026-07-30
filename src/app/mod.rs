@@ -402,8 +402,6 @@ impl UniformApp {
 
 impl eframe::App for UniformApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        crate::stackmon::phase("update:begin");
-        crate::stackmon::probe();
         self.sync_window_title(ctx);
 
         let mut menu = MenuActions::default();
@@ -428,10 +426,8 @@ impl eframe::App for UniformApp {
 
         // Before the pipeline: a reload steps the documents' generations, and
         // this frame's rebuild scheduling should see them.
-        crate::stackmon::phase("update:file-watch");
         self.pump_file_watch(ctx);
 
-        crate::stackmon::phase("update:derived-data");
         self.pump_background_pipeline(ctx);
 
         let edit_target = if self.shaped_preview.is_focused() {
@@ -442,7 +438,6 @@ impl eframe::App for UniformApp {
         let editor_focused = self.active_doc()
             .is_some_and(|d| d.editor_state.is_active());
 
-        crate::stackmon::phase("update:menu_bar");
         self.show_menu_bar(ctx, &mut menu, edit_target, editor_focused);
         if menu.run_assert_all {
             self.run_shape_assertions(ctx, false);
@@ -451,16 +446,12 @@ impl eframe::App for UniformApp {
         }
         self.apply_file_menu_actions(ctx, &menu);
 
-        crate::stackmon::phase("update:sidebar");
         self.show_sidebar_panel(ctx, editor_focused);
 
-        crate::stackmon::phase("update:status");
         self.show_status_bar(ctx);
 
-        crate::stackmon::phase("update:preview");
         let bottom = self.show_bottom_panel(ctx);
 
-        crate::stackmon::phase("update:central/editor");
         let (nav_request, rename_request, divider_closed_pane) =
             self.show_editor_panel(ctx);
         // Now that this frame's editors have run, "the pane the focus is in"
@@ -516,7 +507,6 @@ impl eframe::App for UniformApp {
         // Last, so the notices are over the panes rather than under them.
         self.toasts.show(ctx);
 
-        crate::stackmon::phase("update:end (egui tessellate/paint follows)");
         // Decide whether to close only after this frame's editor input has
         // updated the source buffer and dirty state.
         if menu.exit && self.confirm_close_and_maybe_save() {

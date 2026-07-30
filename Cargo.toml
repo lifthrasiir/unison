@@ -41,10 +41,6 @@ windows = { version = "0.58", features = [
     # app/watch.rs: GetDriveTypeW + DRIVE_REMOTE, to tell a network share from a local disk
     "Win32_Storage_FileSystem",
     "Win32_System_WindowsProgramming",
-    # stackmon: thread sampling + stack walking for the stack-overflow monitor
-    "Win32_System_Threading",
-    "Win32_System_Diagnostics_Debug",
-    "Win32_System_Kernel",
     "implement",
 ] }
 windows-core = "0.58"
@@ -54,7 +50,7 @@ embed-resource = { version = "3", optional = true }
 
 [dev-dependencies]
 
-# Line tables only: enough for stackmon/panic backtraces to name functions and
+# Line tables only: enough for panic backtraces to name functions and
 # source lines, without the size and build-time cost of full debug info.
 [profile.release]
 debug = "line-tables-only"
