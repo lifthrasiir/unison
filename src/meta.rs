@@ -114,13 +114,77 @@ pub enum MetaEntry {
     Height(u16),
     Ascent(u16),
     Descent(u16),
+    /// A value on the pixel grid, scaled to font units by the same
+    /// `UNITS_PER_EM / height` the outlines are.
+    Pixels(PixelKey, i16),
     /// `head.fontRevision`, and the default for name ID 5.
     Revision(f64),
     /// `OS/2.achVendID`, and part of the derived unique ID.
     VendorId(String),
+    Weight(u16),
+    Width(u16),
+    FsType(u16),
+    /// `subscript-at`/`superscript-at`: x size, y size, x offset, y offset.
+    Script(ScriptKey, [i16; 4]),
+    /// `underline-at POS THICKNESS` and `strikeout-at SIZE POS` set two fields
+    /// each, so they are one entry rather than two.
+    UnderlineAt { position: i16, thickness: i16 },
+    StrikeoutAt { size: i16, position: i16 },
+    Panose([u8; 10]),
+    /// `caret-slope RISE RUN` — a ratio, so unlike everything else here it is
+    /// not on the pixel grid and is not scaled.
+    CaretSlope(i16, i16),
+    /// `head.created`/`head.modified`, as seconds since the 1904 epoch.
+    Created(i64),
+    Flag(StyleFlag),
     /// Any name record, however it was spelled.
     Name { id: u16, lang: u16, text: String },
 }
+
+/// The pixel-grid values, each `KEY N`, except `underline-at`/`strikeout-at`
+/// which take two.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum PixelKey {
+    LineGap,
+    XHeight,
+    CapHeight,
+    CaretOffset,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ScriptKey {
+    Subscript,
+    Superscript,
+}
+
+/// The valueless keys. Most are `OS/2.fsSelection` bits; `Bold` and `Italic`
+/// are also `head.macStyle` bits, and `FixedPitch` is `post.isFixedPitch`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum StyleFlag {
+    Italic,
+    Underscore,
+    Negative,
+    Outlined,
+    Shadow,
+    Strikeout,
+    Bold,
+    Oblique,
+    UseTypoMetrics,
+    FixedPitch,
+}
+
+pub const STYLE_FLAGS: &[(&str, StyleFlag)] = &[
+    ("italic", StyleFlag::Italic),
+    ("underscore", StyleFlag::Underscore),
+    ("negative", StyleFlag::Negative),
+    ("outlined", StyleFlag::Outlined),
+    ("shadow", StyleFlag::Shadow),
+    ("strikeout", StyleFlag::Strikeout),
+    ("bold", StyleFlag::Bold),
+    ("oblique", StyleFlag::Oblique),
+    ("use-typo-metrics", StyleFlag::UseTypoMetrics),
+    ("fixed-pitch", StyleFlag::FixedPitch),
+];
 
 impl MetaEntry {
     /// The slot this line assigns to, as duplicate detection sees it. Two
@@ -130,8 +194,30 @@ impl MetaEntry {
             Self::Height(_) => "height".to_string(),
             Self::Ascent(_) => "ascent".to_string(),
             Self::Descent(_) => "descent".to_string(),
+            Self::Pixels(k, _) => match k {
+                PixelKey::LineGap => "line-gap",
+                PixelKey::XHeight => "x-height",
+                PixelKey::CapHeight => "cap-height",
+                PixelKey::CaretOffset => "caret-offset",
+            }
+            .to_string(),
             Self::Revision(_) => "revision".to_string(),
             Self::VendorId(_) => "vendor-id".to_string(),
+            Self::Weight(_) => "weight".to_string(),
+            Self::Width(_) => "width".to_string(),
+            Self::FsType(_) => "fs-type".to_string(),
+            Self::Script(ScriptKey::Subscript, _) => "subscript-at".to_string(),
+            Self::Script(ScriptKey::Superscript, _) => "superscript-at".to_string(),
+            Self::UnderlineAt { .. } => "underline-at".to_string(),
+            Self::StrikeoutAt { .. } => "strikeout-at".to_string(),
+            Self::Panose(_) => "panose".to_string(),
+            Self::CaretSlope(..) => "caret-slope".to_string(),
+            Self::Created(_) => "created".to_string(),
+            Self::Flag(f) => STYLE_FLAGS
+                .iter()
+                .find(|(_, g)| g == f)
+                .map(|(k, _)| (*k).to_string())
+                .unwrap_or_default(),
             Self::Name { id, lang, .. } => format!("name {id} @{}", language_tag(*lang)),
         }
     }
@@ -147,6 +233,66 @@ impl MetaEntry {
             other => format!("`meta {}`", other.slot()),
         }
     }
+}
+
+/// Every key, sorted, for the unknown-key message.
+fn known_keys() -> String {
+    let mut known: Vec<&str> = vec![
+        "height", "ascent", "descent", "line-gap", "x-height", "cap-height",
+        "caret-offset", "caret-slope", "underline-at", "strikeout-at",
+        "subscript-at", "superscript-at", "weight", "width", "fs-type",
+        "panose", "created", "revision", "vendor-id", "name",
+    ];
+    known.extend(NAME_KEYS.iter().map(|(k, _)| *k));
+    known.extend(STYLE_FLAGS.iter().map(|(k, _)| *k));
+    known.sort_unstable();
+    known.join(", ")
+}
+
+/// Days since 1970-01-01 for a proleptic Gregorian date, by Howard Hinnant's
+/// `days_from_civil`.
+fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
+    let y = if m <= 2 { y - 1 } else { y };
+    let era = if y >= 0 { y } else { y - 399 } / 400;
+    let yoe = y - era * 400;
+    let mp = (m + 9) % 12;
+    let doy = (153 * mp + 2) / 5 + d - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146097 + doe - 719468
+}
+
+/// Days between the TrueType epoch (1904-01-01) and the Unix epoch.
+const DAYS_1904_TO_1970: i64 = 24107;
+
+/// `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SSZ`, to seconds since 1904-01-01.
+///
+/// Hand-parsed rather than pulled in with a date crate: it is one field in one
+/// fixed format, and `head.created` is a `LONGDATETIME` counted from 1904, so
+/// a general-purpose library would only be doing this same arithmetic.
+fn parse_timestamp(s: &str) -> Result<i64, String> {
+    let bad = || format!("`meta created` takes YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ, got `{s}`");
+    let (date, time) = match s.split_once('T') {
+        Some((d, t)) => (d, t.strip_suffix('Z').ok_or_else(bad)?),
+        None => (s, "00:00:00"),
+    };
+    let num = |x: &str, width: usize| -> Result<i64, String> {
+        if x.len() != width || !x.bytes().all(|b| b.is_ascii_digit()) {
+            return Err(bad());
+        }
+        x.parse().map_err(|_| bad())
+    };
+    let dp: Vec<&str> = date.split('-').collect();
+    let tp: Vec<&str> = time.split(':').collect();
+    if dp.len() != 3 || tp.len() != 3 {
+        return Err(bad());
+    }
+    let (y, mo, d) = (num(dp[0], 4)?, num(dp[1], 2)?, num(dp[2], 2)?);
+    let (h, mi, sec) = (num(tp[0], 2)?, num(tp[1], 2)?, num(tp[2], 2)?);
+    if !(1..=12).contains(&mo) || !(1..=31).contains(&d) || h > 23 || mi > 59 || sec > 60 {
+        return Err(bad());
+    }
+    let days = days_from_civil(y, mo, d) + DAYS_1904_TO_1970;
+    Ok(days * 86400 + h * 3600 + mi * 60 + sec)
 }
 
 /// Parse the text of a `meta` item — everything after the keyword, comment
@@ -180,10 +326,94 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
         }
     };
 
+    // Signed, because a position below the baseline is the normal case for
+    // `underline-at` and a negative `caret-offset` is legal.
+    let nums = |rest: &[String], want: usize| -> Result<Vec<i16>, String> {
+        if rest.len() != want {
+            return Err(format!(
+                "`meta {key}` takes exactly {want} value(s), got {}",
+                rest.len(),
+            ));
+        }
+        rest.iter()
+            .map(|v| {
+                v.parse::<i16>()
+                    .map_err(|_| format!("`meta {key}` takes numbers, got `{v}`"))
+            })
+            .collect()
+    };
+    let bounded = |rest: &[String], lo: u16, hi: u16| -> Result<u16, String> {
+        let v = one_number(rest)?;
+        if !(lo..=hi).contains(&v) {
+            return Err(format!("`meta {key}` must be {lo}..={hi}, got {v}"));
+        }
+        Ok(v)
+    };
+
+    if let Some(&(_, flag)) = STYLE_FLAGS.iter().find(|(k, _)| *k == key) {
+        if !rest.is_empty() {
+            return Err(format!("`meta {key}` is a flag and takes no value"));
+        }
+        return Ok(MetaEntry::Flag(flag));
+    }
+
     match key.as_str() {
         "height" => return Ok(MetaEntry::Height(one_number(rest)?)),
         "ascent" => return Ok(MetaEntry::Ascent(one_number(rest)?)),
         "descent" => return Ok(MetaEntry::Descent(one_number(rest)?)),
+        "line-gap" => return Ok(MetaEntry::Pixels(PixelKey::LineGap, nums(rest, 1)?[0])),
+        "x-height" => return Ok(MetaEntry::Pixels(PixelKey::XHeight, nums(rest, 1)?[0])),
+        "cap-height" => return Ok(MetaEntry::Pixels(PixelKey::CapHeight, nums(rest, 1)?[0])),
+        "caret-offset" => return Ok(MetaEntry::Pixels(PixelKey::CaretOffset, nums(rest, 1)?[0])),
+        "underline-at" => {
+            let v = nums(rest, 2)?;
+            return Ok(MetaEntry::UnderlineAt { position: v[0], thickness: v[1] });
+        }
+        "strikeout-at" => {
+            let v = nums(rest, 2)?;
+            return Ok(MetaEntry::StrikeoutAt { size: v[0], position: v[1] });
+        }
+        "caret-slope" => {
+            let v = nums(rest, 2)?;
+            if v[0] == 0 && v[1] == 0 {
+                return Err("`meta caret-slope` cannot be 0 0".to_string());
+            }
+            return Ok(MetaEntry::CaretSlope(v[0], v[1]));
+        }
+        "subscript-at" | "superscript-at" => {
+            let v = nums(rest, 4)?;
+            let which = if key == "subscript-at" { ScriptKey::Subscript } else { ScriptKey::Superscript };
+            return Ok(MetaEntry::Script(which, [v[0], v[1], v[2], v[3]]));
+        }
+        // usWeightClass and usWidthClass have defined ranges; a value outside
+        // them is ignored by consumers rather than clamped, so it is an error.
+        "weight" => return Ok(MetaEntry::Weight(bounded(rest, 1, 1000)?)),
+        "width" => return Ok(MetaEntry::Width(bounded(rest, 1, 9)?)),
+        "fs-type" => return Ok(MetaEntry::FsType(one_number(rest)?)),
+        "panose" => {
+            if rest.len() != 10 {
+                return Err(format!(
+                    "`meta panose` takes exactly 10 values, got {}",
+                    rest.len(),
+                ));
+            }
+            let mut out = [0u8; 10];
+            for (slot, v) in out.iter_mut().zip(rest) {
+                *slot = v
+                    .parse::<u8>()
+                    .map_err(|_| format!("`meta panose` takes 10 numbers 0..=255, got `{v}`"))?;
+            }
+            return Ok(MetaEntry::Panose(out));
+        }
+        "created" => {
+            let [v] = rest else {
+                return Err(format!(
+                    "`meta created` takes exactly 1 value, got {}",
+                    rest.len(),
+                ));
+            };
+            return parse_timestamp(v).map(MetaEntry::Created);
+        }
         "revision" => {
             let [v] = rest else {
                 return Err(format!(
@@ -231,13 +461,7 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
     } else if let Some(&(_, id)) = NAME_KEYS.iter().find(|(k, _)| *k == key) {
         (id, rest)
     } else {
-        let mut known: Vec<&str> = vec!["height", "ascent", "descent", "revision", "vendor-id", "name"];
-        known.extend(NAME_KEYS.iter().map(|(k, _)| *k));
-        known.sort_unstable();
-        return Err(format!(
-            "unknown `meta` key `{key}` (known keys: {})",
-            known.join(", "),
-        ));
+        return Err(format!("unknown `meta` key `{key}` (known keys: {})", known_keys()));
     };
 
     let (lang, rest) = match rest.split_first() {
@@ -308,6 +532,20 @@ pub struct FontMeta {
     pub metrics: FontMetrics,
     pub revision: Option<f64>,
     pub vendor_id: Option<String>,
+    /// Pixel-grid values, unscaled. The builder scales them, because only it
+    /// knows the scale the outlines were built at.
+    pub pixels: BTreeMap<PixelKey, i16>,
+    pub underline: Option<(i16, i16)>,
+    pub strikeout: Option<(i16, i16)>,
+    pub subscript: Option<[i16; 4]>,
+    pub superscript: Option<[i16; 4]>,
+    pub weight: Option<u16>,
+    pub width: Option<u16>,
+    pub fs_type: Option<u16>,
+    pub panose: Option<[u8; 10]>,
+    pub caret_slope: Option<(i16, i16)>,
+    pub created: Option<i64>,
+    pub flags: std::collections::BTreeSet<StyleFlag>,
     /// Declared name records, keyed by `(name ID, Windows language ID)`.
     pub names: BTreeMap<(u16, u16), String>,
     /// The last `meta` line that set anything, for error reporting.
@@ -339,6 +577,69 @@ impl FontMeta {
 
     pub fn vendor_id(&self) -> &str {
         self.vendor_id.as_deref().unwrap_or(DEFAULT_VENDOR_ID)
+    }
+
+    pub fn has(&self, flag: StyleFlag) -> bool {
+        self.flags.contains(&flag)
+    }
+
+    /// A declared pixel value, in pixels.
+    pub fn pixels(&self, key: PixelKey) -> Option<i16> {
+        self.pixels.get(&key).copied()
+    }
+
+    /// `OS/2.fsSelection`.
+    ///
+    /// REGULAR is set only when nothing else claims a style: the format
+    /// requires bit 6 to exclude bits 0, 1, 5 and 9, and a font asserting both
+    /// bold and regular is a familiar and very visible bug.
+    pub fn fs_selection(&self) -> u16 {
+        let mut bits = 0u16;
+        for (flag, bit) in [
+            (StyleFlag::Italic, 0),
+            (StyleFlag::Underscore, 1),
+            (StyleFlag::Negative, 2),
+            (StyleFlag::Outlined, 3),
+            (StyleFlag::Strikeout, 4),
+            (StyleFlag::Bold, 5),
+            (StyleFlag::UseTypoMetrics, 7),
+            (StyleFlag::Oblique, 9),
+        ] {
+            if self.has(flag) {
+                bits |= 1 << bit;
+            }
+        }
+        // `shadow` has no fsSelection bit; it lives in head.macStyle only.
+        //
+        // REGULAR excludes exactly ITALIC, BOLD and OBLIQUE. Not UNDERSCORE or
+        // STRIKEOUT: those decorate a font that is still regular.
+        const EXCLUSIVE: u16 = (1 << 0) | (1 << 5) | (1 << 9);
+        if bits & EXCLUSIVE == 0 {
+            bits |= 1 << 6; // REGULAR
+        }
+        bits
+    }
+
+    /// `head.macStyle`. Only the bits `meta` can state; the rest describe a
+    /// width or slant this font has no way to declare yet.
+    pub fn mac_style(&self) -> u16 {
+        let mut bits = 0u16;
+        if self.has(StyleFlag::Bold) {
+            bits |= 1 << 0;
+        }
+        if self.has(StyleFlag::Italic) {
+            bits |= 1 << 1;
+        }
+        if self.has(StyleFlag::Underscore) {
+            bits |= 1 << 2;
+        }
+        if self.has(StyleFlag::Outlined) {
+            bits |= 1 << 3;
+        }
+        if self.has(StyleFlag::Shadow) {
+            bits |= 1 << 4;
+        }
+        bits
     }
 
     /// A declared name record in the given language, falling back to en-US —
@@ -450,6 +751,26 @@ impl FontMeta {
                     MetaEntry::Height(v) => meta.metrics.height = Some(v),
                     MetaEntry::Ascent(v) => meta.metrics.ascent = Some(v),
                     MetaEntry::Descent(v) => meta.metrics.descent = Some(v),
+                    MetaEntry::Pixels(k, v) => {
+                        meta.pixels.insert(k, v);
+                    }
+                    MetaEntry::UnderlineAt { position, thickness } => {
+                        meta.underline = Some((position, thickness));
+                    }
+                    MetaEntry::StrikeoutAt { size, position } => {
+                        meta.strikeout = Some((size, position));
+                    }
+                    MetaEntry::Script(ScriptKey::Subscript, v) => meta.subscript = Some(v),
+                    MetaEntry::Script(ScriptKey::Superscript, v) => meta.superscript = Some(v),
+                    MetaEntry::Weight(v) => meta.weight = Some(v),
+                    MetaEntry::Width(v) => meta.width = Some(v),
+                    MetaEntry::FsType(v) => meta.fs_type = Some(v),
+                    MetaEntry::Panose(v) => meta.panose = Some(v),
+                    MetaEntry::CaretSlope(rise, run) => meta.caret_slope = Some((rise, run)),
+                    MetaEntry::Created(v) => meta.created = Some(v),
+                    MetaEntry::Flag(f) => {
+                        meta.flags.insert(f);
+                    }
                     MetaEntry::Revision(v) => meta.revision = Some(v),
                     MetaEntry::VendorId(v) => meta.vendor_id = Some(v),
                     MetaEntry::Name { id, lang, text } => {

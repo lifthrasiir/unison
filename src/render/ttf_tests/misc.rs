@@ -111,6 +111,117 @@ fn a_localized_family_becomes_its_own_name_record() {
     assert!(recs.contains(&(1, 0x0412, "유니슨".to_string())), "got {recs:?}");
 }
 
+/// `ulUnicodeRange` advertises what the font covers; Windows font fallback and
+/// font pickers read it. Leaving it zero says "covers nothing", which is what
+/// the builder used to emit.
+#[test]
+fn unicode_ranges_are_derived_from_the_cmap() {
+    let ttf = build_from(
+        "glyph a 1 1\n@@\n\
+         map A = a\nmap Γ = a\nmap Б = a\nmap 中 = a\n",
+    );
+    let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
+    let bits = [
+        os2.ul_unicode_range_1(),
+        os2.ul_unicode_range_2(),
+        os2.ul_unicode_range_3(),
+        os2.ul_unicode_range_4(),
+    ];
+    let is_set = |bit: u32| bits[(bit / 32) as usize] & (1 << (bit % 32)) != 0;
+    assert!(is_set(0), "Basic Latin");
+    assert!(is_set(7), "Greek and Coptic");
+    assert!(is_set(9), "Cyrillic");
+    assert!(is_set(59), "CJK Unified Ideographs");
+    assert!(!is_set(56), "Hangul Syllables is not covered here");
+}
+
+/// `ulCodePageRange` used to be hardcoded to Latin-1 regardless of coverage.
+#[test]
+fn code_page_ranges_are_derived_from_the_cmap() {
+    // Latin 1 needs printable ASCII plus its marker character.
+    let mut src = String::from("glyph a 1 1\n@@\n");
+    for cp in 0x20u32..=0x7E {
+        src.push_str(&format!("map U+{cp:04X} = a\n"));
+    }
+    src.push_str("map Þ = a\n");
+    let ttf = build_from(&src);
+    let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
+    assert_eq!(os2.ul_code_page_range_1().unwrap() & 1, 1, "Latin 1");
+
+    // Without the ASCII range there is no Latin 1 claim to make.
+    let ttf = build_from("glyph a 1 1\n@@\nmap Þ = a\n");
+    let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
+    assert_eq!(os2.ul_code_page_range_1().unwrap() & 1, 0, "no ASCII, no Latin 1");
+}
+
+/// `post.isFixedPitch` was hardcoded to 1 in a font whose advances are not all
+/// equal. It is a claim about the font, so it comes from `meta`.
+#[test]
+fn fixed_pitch_is_declared_rather_than_assumed() {
+    let ttf = build_from("glyph a 1 1\n@@\nmap A = a\n");
+    let post = read_fonts::FontRef::new(&ttf).unwrap().post().unwrap();
+    assert_eq!(post.is_fixed_pitch(), 0, "not claimed unless declared");
+
+    let ttf = build_from("meta fixed-pitch\nglyph a 1 1\n@@\nmap A = a\n");
+    let post = read_fonts::FontRef::new(&ttf).unwrap().post().unwrap();
+    assert_ne!(post.is_fixed_pitch(), 0);
+}
+
+/// A style flag has to reach both `OS/2.fsSelection` and `head.macStyle`, and
+/// it has to clear the REGULAR bit — a font claiming bold *and* regular is a
+/// classic and very visible bug.
+#[test]
+fn style_flags_reach_both_tables_and_clear_regular() {
+    let ttf = build_from("meta bold\nmeta italic\nglyph a 1 1\n@@\nmap A = a\n");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    let sel = font.os2().unwrap().fs_selection().bits();
+    assert_ne!(sel & 0x01, 0, "ITALIC");
+    assert_ne!(sel & 0x20, 0, "BOLD");
+    assert_eq!(sel & 0x40, 0, "REGULAR must be cleared");
+    assert_eq!(font.head().unwrap().mac_style().bits() & 0b11, 0b11, "bold|italic");
+
+    let ttf = build_from("glyph a 1 1\n@@\nmap A = a\n");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    assert_ne!(font.os2().unwrap().fs_selection().bits() & 0x40, 0, "REGULAR by default");
+    assert_eq!(font.head().unwrap().mac_style().bits(), 0);
+}
+
+/// Values that live on the pixel grid are declared in pixels and scaled by the
+/// same `UNITS_PER_EM / height` everything else uses.
+#[test]
+fn pixel_valued_metrics_are_scaled_to_font_units() {
+    let ttf = build_from(
+        "meta height 16\nmeta ascent 14\nmeta descent 2\n\
+         meta cap-height 10\nmeta x-height 7\nmeta line-gap 2\n\
+         meta underline-at -2 1\nmeta strikeout-at 1 5\n\
+         glyph a 1 1\n@@\nmap A = a\n",
+    );
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    let os2 = font.os2().unwrap();
+    // UNITS_PER_EM is 1024 over a 16px em, so one pixel is 64 units.
+    assert_eq!(os2.s_cap_height(), Some(640));
+    assert_eq!(os2.sx_height(), Some(448));
+    assert_eq!(os2.s_typo_line_gap(), 128);
+    assert_eq!(font.hhea().unwrap().line_gap().to_i16(), 128);
+    assert_eq!(os2.y_strikeout_size(), 64);
+    assert_eq!(os2.y_strikeout_position(), 320);
+    let post = font.post().unwrap();
+    assert_eq!(post.underline_position().to_i16(), -128);
+    assert_eq!(post.underline_thickness().to_i16(), 64);
+}
+
+#[test]
+fn weight_width_and_panose_are_declared() {
+    let ttf = build_from(
+        "meta weight 700\nmeta width 3\nmeta panose 2 11 6 9 2 2 2 2 2 4\n\
+         glyph a 1 1\n@@\nmap A = a\n",
+    );
+    let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
+    assert_eq!(os2.us_weight_class(), 700);
+    assert_eq!(os2.us_width_class(), 3);
+    assert_eq!(os2.panose_10(), &[2, 11, 6, 9, 2, 2, 2, 2, 2, 4][..]);
+}
+
 #[test]
 fn unmapped_empty_sticky_glyph_is_retained() {
     let doc = document_io::parse_document_from_str(

@@ -46,7 +46,7 @@ use write_fonts::tables::gsub::{
     ReverseChainSingleSubstFormat1, Sequence, SingleSubst, SingleSubstFormat2,
     SubstitutionChainContext, SubstitutionLookup,
 };
-use write_fonts::tables::head::{Flags, Head};
+use write_fonts::tables::head::{Flags, Head, MacStyle};
 use write_fonts::tables::hhea::Hhea;
 use write_fonts::tables::hmtx::{Hmtx, LongMetric};
 use write_fonts::tables::layout::{
@@ -61,7 +61,7 @@ use write_fonts::tables::os2::{Os2, SelectionFlags};
 use write_fonts::tables::post::Post;
 use write_fonts::FontBuilder;
 
-use write_fonts::types::{Fixed, GlyphId, GlyphId16, NameId, Tag};
+use write_fonts::types::{Fixed, GlyphId, GlyphId16, LongDateTime, NameId, Tag};
 
 use crate::document::*;
 use crate::document_io;
@@ -82,6 +82,7 @@ mod gpos;
 mod gsub;
 mod hints;
 mod outlines;
+mod os2_ranges;
 mod tables;
 
 pub use color::{

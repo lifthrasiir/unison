@@ -76,8 +76,9 @@ Core (feature-independent):
   a bearing**, and the on-demand name catalog with the `BitmapFill` rule.
 - `resolve.rs` — shared vocabulary for the resolution pipeline (`ItemRef` provenance, `Diagnostic`),
   so build/editor/validation cannot drift apart. Resolution emits issues directly.
-- `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which name IDs are
-  *declared*, *derived* and *computed*. Tests in `meta_tests.rs`.
+- `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which font fields are
+  *declared*, *derived* and *computed*. Tests in `meta_tests.rs`. Values on the pixel grid are
+  declared in pixels and scaled by the builder, like everything else in `.unf`.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
@@ -120,6 +121,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | --- | --- |
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
+| `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |

@@ -136,6 +136,64 @@ fn vendor_id_is_bounded_to_a_four_byte_tag() {
     assert!(parse_meta_entry("vendor-id `유니`").is_err());
 }
 
+/// `head.created` is a `LONGDATETIME`, counted from 1904-01-01 rather than from
+/// the Unix epoch — the offset is the whole reason this is parsed by hand.
+#[test]
+fn created_parses_to_seconds_since_1904() {
+    assert_eq!(parse_meta_entry("created 1904-01-01"), Ok(MetaEntry::Created(0)));
+    // 24107 days from 1904-01-01 to 1970-01-01.
+    assert_eq!(
+        parse_meta_entry("created 1970-01-01"),
+        Ok(MetaEntry::Created(24107 * 86400)),
+    );
+    assert_eq!(
+        parse_meta_entry("created 1970-01-01T00:01:02Z"),
+        Ok(MetaEntry::Created(24107 * 86400 + 62)),
+    );
+    // A leap year the century rule would get wrong if the arithmetic were naive.
+    assert_eq!(
+        parse_meta_entry("created 2000-03-01"),
+        Ok(MetaEntry::Created((24107 + 10957 + 60) * 86400)),
+    );
+    for bad in ["created 1970-1-1", "created 1970-13-01", "created x", "created 1970-01-01T00:00:00"] {
+        assert!(parse_meta_entry(bad).is_err(), "{bad} should not parse");
+    }
+}
+
+#[test]
+fn a_flag_takes_no_value() {
+    assert_eq!(parse_meta_entry("bold"), Ok(MetaEntry::Flag(StyleFlag::Bold)));
+    assert!(parse_meta_entry("bold 1").is_err());
+}
+
+/// REGULAR is mutually exclusive with the style bits, and `shadow` is a
+/// macStyle-only flag with no fsSelection bit to set.
+#[test]
+fn regular_is_cleared_by_any_style_claim() {
+    let plain = meta_of("");
+    assert_eq!(plain.fs_selection(), 1 << 6);
+    assert_eq!(plain.mac_style(), 0);
+
+    let bold = meta_of("meta bold\n");
+    assert_eq!(bold.fs_selection(), 1 << 5);
+    assert_eq!(bold.mac_style(), 1 << 0);
+
+    let shadow = meta_of("meta shadow\n");
+    assert_eq!(shadow.fs_selection(), 1 << 6, "shadow is not a style claim in OS/2");
+    assert_eq!(shadow.mac_style(), 1 << 4);
+}
+
+#[test]
+fn bounded_keys_reject_out_of_range_values() {
+    assert!(parse_meta_entry("weight 400").is_ok());
+    assert!(parse_meta_entry("weight 0").is_err());
+    assert!(parse_meta_entry("weight 1001").is_err());
+    assert!(parse_meta_entry("width 5").is_ok());
+    assert!(parse_meta_entry("width 10").is_err());
+    assert!(parse_meta_entry("panose 2 0 5 9 0 0 0 0 0").is_err(), "9 values");
+    assert!(parse_meta_entry("caret-slope 0 0").is_err());
+}
+
 #[test]
 fn revision_must_be_a_positive_number() {
     assert_eq!(parse_meta_entry("revision 1.5"), Ok(MetaEntry::Revision(1.5)));

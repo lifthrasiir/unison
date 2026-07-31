@@ -8,6 +8,14 @@ use super::outlines::{
     compute_global_bounds
 };
 
+/// `head.created`/`modified` when `meta created` says nothing.
+///
+/// A fixed value rather than the wall clock, so that building the same source
+/// twice produces the same bytes — a build that differs only in its timestamp
+/// makes every diff of a built font useless. 1904-01-01 is the epoch itself,
+/// which reads as "unstated" rather than as a wrong date.
+const DEFAULT_CREATED: i64 = 0;
+
 /// OpenType tag from a string, right-padded with spaces to 4 bytes.
 pub(super) fn make_tag(name: &str) -> Tag {
     let mut tag_arr = [b' '; 4];
@@ -141,9 +149,17 @@ pub(super) fn build_ttf(
         x_max_extent,
     } = compute_global_bounds(glyphs, &h_metrics, default_aw, ascender, descender);
 
+    // Every `meta` value on the pixel grid goes through the same scale the
+    // outlines did, so a declaration reads in the units the source is drawn in.
+    let px = |v: i16| (v as f32 * scale).round() as i16;
+    let px_of = |key: crate::meta::PixelKey| meta.pixels(key).map(px);
+
     // head
     let head = Head {
         font_revision: Fixed::from_f64(meta.revision()),
+        created: LongDateTime::new(meta.created.unwrap_or(DEFAULT_CREATED)),
+        modified: LongDateTime::new(meta.created.unwrap_or(DEFAULT_CREATED)),
+        mac_style: MacStyle::from_bits_truncate(meta.mac_style()),
         magic_number: 0x5F0F3CF5,
         flags: Flags::BASELINE_AT_Y_0
             | Flags::LSB_AT_X_0
@@ -163,14 +179,14 @@ pub(super) fn build_ttf(
     let hhea = Hhea {
         ascender: ascender.into(),
         descender: descender.into(),
-        line_gap: 0i16.into(),
+        line_gap: px_of(crate::meta::PixelKey::LineGap).unwrap_or(0).into(),
         advance_width_max: aw_max.into(),
         min_left_side_bearing: min_lsb.into(),
         min_right_side_bearing: min_rsb.into(),
         x_max_extent: x_max_extent.into(),
-        caret_slope_rise: 1,
-        caret_slope_run: 0,
-        caret_offset: 0,
+        caret_slope_rise: meta.caret_slope.map_or(1, |(rise, _)| rise),
+        caret_slope_run: meta.caret_slope.map_or(0, |(_, run)| run),
+        caret_offset: px_of(crate::meta::PixelKey::CaretOffset).unwrap_or(0),
         number_of_h_metrics: num_glyphs,
     };
 
@@ -216,36 +232,77 @@ pub(super) fn build_ttf(
 
     let max_context = compute_max_context(gsub_data);
 
+    // Coverage-derived, never declared: these describe the font that came out.
+    let mapped: std::collections::HashSet<u32> =
+        glyphs.iter().filter_map(|g| g.codepoint).collect();
+    let unicode_ranges = super::os2_ranges::unicode_ranges(mapped.iter().copied());
+    let code_pages = super::os2_ranges::code_page_ranges(&mapped);
+
+    // Sub/superscript and strikeout keep the conventional proportions of the em
+    // when undeclared, rather than being left at zero.
+    let em_frac = |num: i32| ((UNITS_PER_EM as i32) * num / 100) as i16;
+    let default_sub_sup = [em_frac(65), em_frac(70), 0, em_frac(20)];
+    let sub = meta.subscript.map(|v| v.map(px)).unwrap_or(default_sub_sup);
+    let sup = meta
+        .superscript
+        .map(|v| v.map(px))
+        .unwrap_or([default_sub_sup[0], default_sub_sup[1], 0, em_frac(48)]);
+    let strikeout = meta
+        .strikeout
+        .map(|(size, pos)| (px(size), px(pos)))
+        .unwrap_or((UNITS_PER_EM as i16 / 20, ascender / 3));
+
     let os2 = Os2 {
         x_avg_char_width: avg_width,
-        us_weight_class: 400,
-        us_width_class: 5,
+        us_weight_class: meta.weight.unwrap_or(400),
+        us_width_class: meta.width.unwrap_or(5),
+        fs_type: meta.fs_type.unwrap_or(0),
         s_typo_ascender: ascender,
         s_typo_descender: descender,
-        s_typo_line_gap: 0,
+        s_typo_line_gap: px_of(crate::meta::PixelKey::LineGap).unwrap_or(0),
         us_win_ascent: ascender as u16,
         us_win_descent: descender.unsigned_abs(),
-        fs_selection: SelectionFlags::REGULAR,
+        fs_selection: SelectionFlags::from_bits_truncate(meta.fs_selection()),
         us_first_char_index: first_cp.min(0xFFFF) as u16,
         us_last_char_index: last_cp.min(0xFFFF) as u16,
         ach_vend_id: vendor_tag(meta.vendor_id()),
-        panose_10: [2, 0, 5, 9, 0, 0, 0, 0, 0, 0],
-        sx_height: Some(ascender * 2 / 3),
-        s_cap_height: Some(ascender),
+        panose_10: meta.panose.unwrap_or([2, 0, 5, 9, 0, 0, 0, 0, 0, 0]),
+        sx_height: Some(px_of(crate::meta::PixelKey::XHeight).unwrap_or(ascender * 2 / 3)),
+        s_cap_height: Some(px_of(crate::meta::PixelKey::CapHeight).unwrap_or(ascender)),
+        y_subscript_x_size: sub[0],
+        y_subscript_y_size: sub[1],
+        y_subscript_x_offset: sub[2],
+        y_subscript_y_offset: sub[3],
+        y_superscript_x_size: sup[0],
+        y_superscript_y_size: sup[1],
+        y_superscript_x_offset: sup[2],
+        y_superscript_y_offset: sup[3],
+        y_strikeout_size: strikeout.0,
+        y_strikeout_position: strikeout.1,
         us_default_char: Some(0),
         us_break_char: Some(0x20),
         us_max_context: Some(max_context),
-        ul_code_page_range_1: Some(1),
-        ul_code_page_range_2: Some(0),
+        ul_unicode_range_1: unicode_ranges[0],
+        ul_unicode_range_2: unicode_ranges[1],
+        ul_unicode_range_3: unicode_ranges[2],
+        ul_unicode_range_4: unicode_ranges[3],
+        ul_code_page_range_1: Some(code_pages[0]),
+        ul_code_page_range_2: Some(code_pages[1]),
         ..Default::default()
     };
 
     // post
     let post = Post {
         version: write_fonts::types::Version16Dot16::new(3, 0),
-        underline_position: (descender / 2).into(),
-        underline_thickness: (UNITS_PER_EM as i16 / 20).into(),
-        is_fixed_pitch: 1,
+        underline_position: meta
+            .underline
+            .map_or(descender / 2, |(pos, _)| px(pos))
+            .into(),
+        underline_thickness: meta
+            .underline
+            .map_or(UNITS_PER_EM as i16 / 20, |(_, thick)| px(thick))
+            .into(),
+        is_fixed_pitch: u32::from(meta.has(crate::meta::StyleFlag::FixedPitch)),
         ..Default::default()
     };
 
