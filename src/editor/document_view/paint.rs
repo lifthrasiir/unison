@@ -570,7 +570,8 @@ pub(super) fn paint_document_area(
                     }
                     pixel_selection::handle_pixel_select_interaction(
                         ui, doc, lines, state, needs_rederive,
-                        *grid_doc_line, *item_idx, *row, *own_width, *own_height,
+                        *grid_doc_line, *item_idx, composites.get(item_idx),
+                        *row, *own_width, *own_height,
                         *extent, &strip, grid_x, grid_y, grid_cell,
                     );
 

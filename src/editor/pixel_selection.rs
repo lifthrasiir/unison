@@ -66,6 +66,9 @@ impl PixelSelection {
 enum SelectDrag {
     New { anchor_row: i16, anchor_col: i16 },
     Move { accum: egui::Vec2 },
+    /// Ctrl/Cmd + drag started outside the selection: everything the glyph
+    /// draws moves together (see [`shift_all_layers`]).
+    MoveAll { accum: egui::Vec2 },
 }
 
 /// The owning editor's slot for the in-progress selection drag.
@@ -86,6 +89,7 @@ pub(crate) fn handle_pixel_select_interaction(
     needs_rederive: &mut bool,
     grid_doc_line: usize,
     item_idx: usize,
+    composite: Option<&crate::editor::ref_composite::GlyphComposite>,
     pixel_row: i16,
     grid_width: u16,
     grid_height: u16,
@@ -148,6 +152,21 @@ pub(crate) fn handle_pixel_select_interaction(
             ui.data_mut(|d| {
                 d.insert_temp(sel_drag_id, SelectDrag::Move { accum: egui::Vec2::ZERO })
             });
+        } else if ui.input(|i| i.modifiers.command) {
+            // Ctrl/Cmd outside the selection: move every layer at once. Any
+            // selection is committed and dropped first — the grid slides out
+            // from under it, so keeping the rectangle would leave it framing
+            // pixels it never selected.
+            if let Some(sel) = state.pixel_selection.clone()
+                && sel.item_idx == item_idx
+            {
+                commit_and_clear(doc, lines, state, &sel);
+                *needs_rederive = true;
+            }
+            ui.data_mut(|d| {
+                d.insert_temp(sel_drag_id, SelectDrag::MoveAll { accum: egui::Vec2::ZERO })
+            });
+            ui.ctx().request_repaint();
         } else {
             // Commit existing floating selection before starting new one
             if let Some(sel) = state.pixel_selection.clone() {
@@ -200,6 +219,20 @@ pub(crate) fn handle_pixel_select_interaction(
                 float_pixels: None,
             });
             ui.ctx().request_repaint();
+        }
+        SelectDrag::MoveAll { mut accum } => {
+            accum += ui.input(|i| i.pointer.delta());
+            let dcol = (accum.x / grid_cell).round() as i16;
+            let drow = (accum.y / grid_cell).round() as i16;
+            if dcol != 0 || drow != 0 {
+                accum.x -= dcol as f32 * grid_cell;
+                accum.y -= drow as f32 * grid_cell;
+                if shift_all_layers(doc, lines, state, item_idx, composite, dcol, drow) {
+                    *needs_rederive = true;
+                    ui.ctx().request_repaint();
+                }
+            }
+            ui.data_mut(|d| d.insert_temp(sel_drag_id, SelectDrag::MoveAll { accum }));
         }
         SelectDrag::Move { mut accum } => {
             let drag_delta = ui.input(|i| i.pointer.delta());
@@ -282,6 +315,81 @@ pub(crate) fn handle_pixel_select_interaction(
             ui.ctx().request_repaint();
         }
     }
+}
+
+/// Move everything the glyph draws by `(dcol, drow)` whole cells: its own
+/// pixels, every `ref`, and every `anchor`.
+///
+/// The pixel grid keeps its size, so pixels pushed past an edge are dropped —
+/// undo is what brings them back.
+///
+/// A `ref` with no offset line moves from where the composite actually placed
+/// it and gains an explicit offset, exactly as dragging that single layer does.
+/// Letting it stay auto-placed instead — on the theory that it follows the
+/// anchors, which move too — leaves every ref that matched no anchor sitting
+/// still while the rest of the glyph slides out from under it.
+///
+/// Returns whether anything changed.
+pub(crate) fn shift_all_layers(
+    doc: &Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    item_idx: usize,
+    composite: Option<&crate::editor::ref_composite::GlyphComposite>,
+    dcol: i16,
+    drow: i16,
+) -> bool {
+    let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
+        return false;
+    };
+    let start = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
+    let end = doc
+        .item_line_starts
+        .get(item_idx + 1)
+        .copied()
+        .unwrap_or(lines.len());
+    if start >= end || end > lines.len() {
+        return false;
+    }
+
+    let old_lines: Vec<DocLine> = lines[start..end].to_vec();
+    let mut new_lines = old_lines.clone();
+    let mut put_text = |line: usize, text: String| {
+        if let Some(slot @ DocLine::Text(_)) = new_lines.get_mut(line - start) {
+            *slot = DocLine::Text(text);
+        }
+    };
+
+    for (i, gref) in body.refs.iter().enumerate() {
+        let (row, col) = composite
+            .and_then(|comp| super::pixel_interaction::layer_effective_offset(comp, i))
+            .unwrap_or_else(|| (gref.row(), gref.col()));
+        let line = super::pixel_interaction::layer_doc_line(body, start, i);
+        put_text(line, gref.format_line(Some((col + dcol, row + drow))));
+    }
+    for (pi, point) in body.points.iter().enumerate() {
+        let line =
+            super::pixel_interaction::layer_doc_line(body, start, body.refs.len() + pi);
+        put_text(line, point.shifted(dcol, drow).format_line());
+    }
+    // The glyph's own grid is the line right after the header.
+    if let Some(DocLine::Grid(grid)) = new_lines.get(1) {
+        new_lines[1] = DocLine::Grid(grid.shifted(dcol, drow));
+    }
+
+    if new_lines == old_lines {
+        return false;
+    }
+    state.undo.push_lines_replacing(
+        start,
+        old_lines,
+        new_lines.clone(),
+        state.cursor,
+        state.cursor,
+    );
+    lines.splice(start..end, new_lines);
+    state.skip_reconcile = true;
+    true
 }
 
 // ---------------------------------------------------------------------------

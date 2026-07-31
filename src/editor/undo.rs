@@ -186,6 +186,46 @@ impl UndoStack {
         self.position = self.entries.len();
     }
 
+    /// Replace a block of lines, folding into a preceding replacement of the
+    /// same block that this one continues (its `new` is exactly this one's
+    /// `old`). A drag rewrites its block once per whole-cell step; the whole
+    /// drag is one undo, the way the `Text` replace chain handles a `ref` drag.
+    pub fn push_lines_replacing(
+        &mut self,
+        at: usize,
+        old: Vec<DocLine>,
+        new: Vec<DocLine>,
+        caret_before: Caret,
+        caret_after: Caret,
+    ) {
+        if old == new {
+            return;
+        }
+        let old_for_merge = old.clone();
+        let new_for_merge = new.clone();
+
+        self.push_coalescing(
+            caret_before,
+            caret_after,
+            move |entry| {
+                let UndoOp::Lines {
+                    at: prev_at,
+                    new: prev_new,
+                    ..
+                } = &mut entry.op
+                else {
+                    return false;
+                };
+                if *prev_at != at || *prev_new != old_for_merge {
+                    return false;
+                }
+                *prev_new = new_for_merge.clone();
+                true
+            },
+            move || UndoOp::Lines { at, old, new },
+        );
+    }
+
     /// Record a structural change that is a *consequence* of the last user
     /// edit rather than an edit of its own — the grid resize/creation/demotion
     /// `reconcile` performs once the caret leaves a glyph header.

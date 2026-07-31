@@ -390,6 +390,29 @@ impl PixelGrid {
         self.map_coords(w, h, |r, c| (h - 1 - r, c), |s| s.flip_v(), |d| d.flip_v())
     }
 
+    /// A copy of this grid with its contents moved by `(dcol, drow)` whole
+    /// cells. The grid keeps its size, so whatever crosses an edge is dropped.
+    #[cfg(feature = "editor")]
+    pub fn shifted(&self, dcol: i16, drow: i16) -> Self {
+        let mut out = Self::new(self.width, self.height);
+        out.den = self.den;
+        for r in 0..self.height {
+            for c in 0..self.width {
+                let nr = r as i32 + drow as i32;
+                let nc = c as i32 + dcol as i32;
+                if nr < 0 || nc < 0 || nr >= self.height as i32 || nc >= self.width as i32 {
+                    continue;
+                }
+                let (nr, nc) = (nr as u16, nc as u16);
+                out.set(nr, nc, self.get(r, c));
+                if let Some(region) = self.details.get(&(r, c)) {
+                    out.details.insert((nr, nc), region.clone());
+                }
+            }
+        }
+        out
+    }
+
     #[cfg(feature = "editor")]
     pub fn rotate_cw(&self) -> Self {
         let (w, h) = (self.width, self.height);

@@ -574,6 +574,17 @@ impl EditorHarness {
         from: (i16, i16),
         to: (i16, i16),
     ) {
+        self.drag_grid_mod(grid_doc_line, from, to, egui::Modifiers::NONE);
+    }
+
+    /// Drag from one grid cell to another with modifiers held throughout.
+    pub fn drag_grid_mod(
+        &mut self,
+        grid_doc_line: usize,
+        from: (i16, i16),
+        to: (i16, i16),
+        modifiers: egui::Modifiers,
+    ) {
         let from_pos = self.grid_cell_pos(grid_doc_line, from.0, from.1);
         let to_pos = self.grid_cell_pos(grid_doc_line, to.0, to.1);
 
@@ -586,10 +597,10 @@ impl EditorHarness {
                     pos: from_pos,
                     button: egui::PointerButton::Primary,
                     pressed: true,
-                    modifiers: egui::Modifiers::NONE,
+                    modifiers,
                 },
             ],
-            egui::Modifiers::NONE,
+            modifiers,
         );
 
         // Move to destination over a few frames
@@ -602,7 +613,7 @@ impl EditorHarness {
             );
             self.frame_with(
                 vec![egui::Event::PointerMoved(pos)],
-                egui::Modifiers::NONE,
+                modifiers,
             );
         }
 
@@ -612,9 +623,9 @@ impl EditorHarness {
                 pos: to_pos,
                 button: egui::PointerButton::Primary,
                 pressed: false,
-                modifiers: egui::Modifiers::NONE,
+                modifiers,
             }],
-            egui::Modifiers::NONE,
+            modifiers,
         );
         self.frame();
     }

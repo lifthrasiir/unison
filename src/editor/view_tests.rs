@@ -1455,6 +1455,113 @@ fn undo_after_mode_change_commit_terminates() {
     assert!(grid.get(2, 0).is_empty());
 }
 
+/// A glyph with pixels, a ref placed by an explicit offset, a ref placed by
+/// anchor matching (at `2 1`, so a wrong base position shows up), and the
+/// anchor that places it — one of each thing a move-all touches.
+///
+/// Doc lines: 0/1 `part`, 2..4 `mark`, 5 header, 6 grid, 7/8 refs, 9 anchor.
+fn make_move_all_harness() -> EditorHarness {
+    let mut h = EditorHarness::new(
+        "glyph part 2 2\n@@..\n....\n\
+         glyph mark 2 2\n@@..\n....\nanchor -join 0 0\n\
+         glyph test 4 3\n@@@@@@..\n..@@@@..\n........\n\
+         ref part 1 0\nref mark\nanchor +join 2 1",
+    );
+    h.click_grid_cell(6, 0, 0);
+    h.key(Key::Backtick);
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        "should be in PixelSelect, got {:?}",
+        h.state.mode
+    );
+    h
+}
+
+#[test]
+fn cmd_drag_outside_selection_moves_all_layers() {
+    let mut h = make_move_all_harness();
+    // Empty bottom row, so nothing is selected there: Cmd+drag one cell right.
+    h.drag_grid_mod(6, (2, 0), (2, 1), Modifiers::COMMAND);
+
+    let grid = h.grid(6);
+    assert!(grid.get(0, 0).is_empty(), "pixels should have moved right");
+    assert!(grid.get(0, 1).is_filled());
+    assert!(grid.get(0, 2).is_filled());
+    assert!(grid.get(0, 3).is_filled());
+    assert!(grid.get(1, 1).is_empty());
+    assert!(grid.get(1, 2).is_filled());
+
+    assert_eq!(h.text(7).trim(), "ref part 2 0", "explicit ref offset shifts");
+    assert_eq!(
+        h.text(8).trim(),
+        "ref mark 3 1",
+        "an auto-placed ref moves from where the composite drew it (2 1)"
+    );
+    assert_eq!(h.text(9).trim(), "anchor +join 3 1", "anchor shifts");
+
+    assert!(
+        h.state.pixel_selection.is_none(),
+        "a move-all leaves no selection behind"
+    );
+}
+
+#[test]
+fn cmd_drag_moves_all_layers_down() {
+    let mut h = make_move_all_harness();
+    h.drag_grid_mod(6, (0, 3), (1, 3), Modifiers::COMMAND);
+
+    let grid = h.grid(6);
+    assert!(grid.get(0, 0).is_empty(), "top row should be vacated");
+    assert!(grid.get(1, 0).is_filled());
+    assert!(grid.get(2, 1).is_filled());
+
+    assert_eq!(h.text(7).trim(), "ref part 1 1");
+    assert_eq!(h.text(8).trim(), "ref mark 2 2");
+    assert_eq!(h.text(9).trim(), "anchor +join 2 2");
+}
+
+#[test]
+fn cmd_drag_over_selection_still_moves_only_selection() {
+    let mut h = make_move_all_harness();
+    h.drag_grid(6, (0, 0), (1, 1)); // select the top-left 2x2
+    h.drag_grid_mod(6, (0, 0), (0, 2), Modifiers::COMMAND);
+
+    let sel = h
+        .state
+        .pixel_selection
+        .as_ref()
+        .expect("selection should survive its own move");
+    assert!(sel.is_floating(), "dragging inside the selection moves it");
+    assert_eq!((sel.row, sel.col), (0, 2));
+
+    assert_eq!(h.text(7).trim(), "ref part 1 0", "layers must not move");
+    assert_eq!(h.text(8).trim(), "ref mark");
+    assert_eq!(h.text(9).trim(), "anchor +join 2 1");
+}
+
+#[test]
+fn undo_move_all_restores_every_layer_at_once() {
+    let mut h = make_move_all_harness();
+    h.drag_grid_mod(6, (2, 0), (2, 2), Modifiers::COMMAND); // two cells right
+
+    assert_eq!(h.text(7).trim(), "ref part 3 0");
+    assert_eq!(h.text(8).trim(), "ref mark 4 1");
+    assert_eq!(h.text(9).trim(), "anchor +join 4 1");
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+
+    let grid = h.grid(6);
+    assert!(grid.get(0, 0).is_filled(), "pixels should be back");
+    assert!(grid.get(0, 3).is_empty());
+    assert_eq!(h.text(7).trim(), "ref part 1 0");
+    assert_eq!(h.text(8).trim(), "ref mark", "undo restores the auto placement");
+    assert_eq!(h.text(9).trim(), "anchor +join 2 1");
+    assert!(
+        !h.state.undo.can_undo(),
+        "the whole drag should be a single undo entry"
+    );
+}
+
 #[test]
 fn copy_produces_correct_text() {
     let mut h = make_pixel_select_harness();

@@ -12,7 +12,12 @@ fn format_dragged_ref(gref: &crate::document::GlyphRef, col: i16, row: i16) -> S
     gref.format_line(Some((col, row)))
 }
 
-fn layer_effective_offset(composite: &GlyphComposite, ref_idx: usize) -> Option<(i16, i16)> {
+/// The `(row, col)` a ref is actually drawn at, offset line or not — what a
+/// drag has to continue from when the ref is auto-placed.
+pub(crate) fn layer_effective_offset(
+    composite: &GlyphComposite,
+    ref_idx: usize,
+) -> Option<(i16, i16)> {
     composite
         .layers
         .iter()
