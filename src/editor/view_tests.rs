@@ -1772,7 +1772,7 @@ fn band_leaves_room_for_the_inline_tool_panel_while_editing() {
         snap.strip.w
     );
     // The full inline tool panel still fits to the right of the band.
-    let panel_w = crate::editor::glyph_widget::PALETTE_COLS as f32
+    let panel_w = crate::editor::glyph_widget::palette_cols() as f32
         * crate::editor::document_view::INLINE_PALETTE_CELL;
     assert!(
         snap.strip.right() + panel_w <= 1000.0,
@@ -2924,6 +2924,22 @@ fn the_whole_palette_rotates_with_the_wheel() {
         selected_shape(&h),
         rotate_shape(palette_shapes()[cell], rotation as i32)
     );
+}
+
+/// The palette wraps at the slants, so the families added after them are only
+/// reachable if the second row is laid out and hit-tested at all.
+#[test]
+fn a_second_row_palette_cell_can_be_picked() {
+    use crate::editor::glyph_widget::{palette_row_col, palette_shapes, shape_orbit};
+    use crate::pixel::{PX_HOUSE2, PixelShape};
+
+    let mut h = palette_harness();
+    let (cell, _) = shape_orbit(PixelShape::new(PX_HOUSE2, true)).unwrap();
+    assert_eq!(palette_row_col(cell).0, 1, "cell {cell} should be on row 1");
+
+    h.click_at(h.palette_cell_pos(cell));
+    h.frame();
+    assert_eq!(selected_shape(&h), palette_shapes()[cell]);
 }
 
 #[test]

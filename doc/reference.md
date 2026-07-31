@@ -352,33 +352,34 @@ The catalog, unlit spelling first:
 | `/@` | `d@` | everything but the top-left one |
 | `@/` | `@P` | everything but the bottom-right one |
 
+The diamond and the four corner triangles tile the cell exactly, so the diamond can be enlarged by
+two corners at a time. Two opposite corners give a thick diagonal stroke, two adjacent ones a
+pentagon with one flat side; the complement of each is the pair of corners that was left out.
+
+| Unlit | Lit | Shape | Complement |
+| --- | --- | --- | --- |
+| `//` | `d/` | diamond + the bottom-left and top-right corners (a thick ↗ stroke) | `'.` / `~_` |
+| `\\` | `\b` | diamond + the top-left and bottom-right corners (a thick ↘ stroke) | `.'` / `_~` |
+| `0D` | `1D` | diamond + the two left corners: flat left edge, apex at the right | `.>` / `.)` |
+| `0v` | `1v` | diamond + the two top corners: flat top edge, apex at the bottom | `M0` / `M1` |
+| `C0` | `C1` | diamond + the two right corners: flat right edge, apex at the left | `<.` / `(.` |
+| `^0` | `^1` | diamond + the two bottom corners: flat bottom edge, apex at the top | `0W` / `1W` |
+
 The remaining shapes are the halves of a 2:1 slope, for strokes that lean rather than run at 45°.
 Each is a quarter-cell triangle with one leg along a full edge of the cell and its apex at the
-midpoint of the opposite edge:
+midpoint of the opposite edge; the complement of each is the trapezoid that makes up the rest of
+the cell.
 
-| Unlit | Lit | Leg | Apex |
-| --- | --- | --- | --- |
-| `v.` | `V.` | left edge | bottom center |
-| `v'` | `V'` | left edge | top center |
-| `` `v `` | `` `V `` | right edge | top center |
-| `.v` | `.V` | right edge | bottom center |
-| `\h` | `\H` | top edge | right center |
-| `h/` | `H/` | top edge | left center |
-| `h\` | `H\` | bottom edge | left center |
-| `/h` | `/H` | bottom edge | right center |
-
-and their complements — the trapezoids that make up the rest of the cell:
-
-| Unlit | Lit | Complement of |
-| --- | --- | --- |
-| `v\` | `V\` | `` `v `` |
-| `\v` | `\V` | `v.` |
-| `v/` | `V/` | `.v` |
-| `/v` | `/V` | `v'` |
-| `h~` | `H~` | `\h` |
-| `_h` | `_H` | `h\` |
-| `h_` | `H_` | `/h` |
-| `~h` | `~H` | `h/` |
+| Unlit | Lit | Leg | Apex | Complement |
+| --- | --- | --- | --- | --- |
+| `v.` | `V.` | left edge | bottom center | `\v` / `\V` |
+| `v'` | `V'` | left edge | top center | `/v` / `/V` |
+| `` `v `` | `` `V `` | right edge | top center | `v\` / `V\` |
+| `.v` | `.V` | right edge | bottom center | `v/` / `V/` |
+| `\h` | `\H` | top edge | right center | `h~` / `H~` |
+| `h/` | `H/` | top edge | left center | `~h` / `~H` |
+| `h\` | `H\` | bottom edge | left center | `_h` / `_H` |
+| `/h` | `/H` | bottom edge | right center | `h_` / `H_` |
 
 A shape and its complement divide one cell exactly between them, which is what lets two strokes meet
 inside a single cell without a seam or an overlap in the outline.

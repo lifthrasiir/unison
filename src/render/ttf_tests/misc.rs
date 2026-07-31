@@ -258,3 +258,44 @@ map D = colored
         );
     }
 }
+
+/// The DOT+two-corner shapes and their complements, traced alone in a single
+/// cell. The shape itself is one connected ring; the complement is the two
+/// corners left over, which are either disjoint (two rings) or meet at an
+/// edge midpoint, where the tracer walks through the pinch point as it does
+/// for the inverse cones. Either way the diamond stays a hole.
+#[test]
+fn dot_corner_shapes_and_their_complements_trace_as_expected() {
+    for (code, rings, points, covers_center) in [
+        ("d/", 1, 6, true),   // SLASH
+        ("\\b", 1, 6, true),  // BACKSLASH
+        ("1D", 1, 5, true),   // HOUSE1
+        ("1v", 1, 5, true),   // HOUSE2
+        ("C1", 1, 5, true),   // HOUSE3
+        ("^1", 1, 5, true),   // HOUSE4
+        // Two disjoint triangles: two rings.
+        ("~_", 2, 3, false), // INVSLASH
+        ("_~", 2, 3, false), // INVBACKSLASH
+        // Two triangles meeting at an edge midpoint: the tracer walks
+        // through the pinch point, as it does for the inverse cones.
+        (".)", 1, 5, false), // INVHOUSE1
+        ("M1", 1, 5, false), // INVHOUSE2
+        ("(.", 1, 5, false), // INVHOUSE3
+        ("1W", 1, 5, false), // INVHOUSE4
+    ] {
+        let src = format!(
+            "font-meta height 16 ascent 12 descent 4\n\nglyph t 1 1\n{code}\n\nmap A = t\n"
+        );
+        let doc = document_io::parse_document_from_str(&src, "test.unf".into()).unwrap();
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let glyph = glyphs.iter().find(|g| g.name == "t").unwrap();
+        assert_eq!(glyph.contours.len(), rings, "{code}: {:?}", glyph.contours);
+        for c in &glyph.contours {
+            assert_eq!(simplify_collinear(c).len(), points, "{code}: {c:?}");
+        }
+        // The cell is 64 units wide and its centre is the middle of the
+        // diamond: filled for the shape, a hole for the complement.
+        let centre = winding_at(&glyph.contours, 32.0, 736.0) != 0;
+        assert_eq!(centre, covers_center, "{code}: {:?}", glyph.contours);
+    }
+}

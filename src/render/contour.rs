@@ -1161,8 +1161,8 @@ mod tests {
         // The contour segments must form a graph where every vertex has even degree.
         use std::collections::BTreeMap;
 
-        let shape_ids: Vec<u8> = (1..=24)
-            .chain((1..=24).map(|s| s ^ PX_SUBPIXEL))
+        let shape_ids: Vec<u8> = (1..=30)
+            .chain((1..=30).map(|s| s ^ PX_SUBPIXEL))
             .collect();
 
         let mut failures: Vec<(u8, u8)> = Vec::new();

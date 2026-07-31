@@ -17,10 +17,10 @@ use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap};
 
 use crate::pixel::{
-    PX_ALMOSTFULL, PX_CONE1, PX_CONE2, PX_CONE3, PX_CONE4, PX_CORNER1, PX_CORNER2, PX_CORNER3,
-    PX_CORNER4, PX_DOT, PX_EMPTY, PX_HALF1, PX_HALF3, PX_HQUAD, PX_QUAD1, PX_QUAD2, PX_QUAD3,
-    PX_QUAD4, PX_SLANT1H, PX_SLANT1V, PX_SLANT2H, PX_SLANT2V, PX_SLANT3H, PX_SLANT3V, PX_SLANT4H,
-    PX_SLANT4V, PX_SUBPIXEL,
+    PX_ALMOSTFULL, PX_BACKSLASH, PX_CONE1, PX_CONE2, PX_CONE3, PX_CONE4, PX_CORNER1, PX_CORNER2,
+    PX_CORNER3, PX_CORNER4, PX_DOT, PX_EMPTY, PX_HALF1, PX_HALF3, PX_HOUSE1, PX_HOUSE2, PX_HOUSE3,
+    PX_HOUSE4, PX_HQUAD, PX_QUAD1, PX_QUAD2, PX_QUAD3, PX_QUAD4, PX_SLANT1H, PX_SLANT1V,
+    PX_SLANT2H, PX_SLANT2V, PX_SLANT3H, PX_SLANT3V, PX_SLANT4H, PX_SLANT4V, PX_SLASH, PX_SUBPIXEL,
 };
 
 /// Maximum lattice denominator, kept within `u8`.
@@ -39,7 +39,7 @@ pub struct DetailRegion {
 pub enum Classified {
     Empty,
     Full,
-    /// Exactly equal to catalog shape `id` (a plain `1..=24` id or a
+    /// Exactly equal to catalog shape `id` (a plain `1..=30` id or a
     /// complement id).
     Shape(u8),
     /// Not representable by a plain pixel code.
@@ -73,7 +73,7 @@ impl Frac64 {
 // Base shape catalog as lattice rings (den = 2)
 // ---------------------------------------------------------------------------
 
-/// Exact outlines of the 24 base catalog shapes on the half lattice.
+/// Exact outlines of the 30 base catalog shapes on the half lattice.
 /// Multi-part shapes (HQUAD) use one ring per part. Derived from the shape
 /// definitions in `pixel.rs` (`ADJACENCY_MAP` bits + gap segments).
 const fn base_shape_rings(id: u8) -> &'static [&'static [(u8, u8)]] {
@@ -102,6 +102,12 @@ const fn base_shape_rings(id: u8) -> &'static [&'static [(u8, u8)]] {
         PX_CORNER2 => &[&[(1, 0), (2, 0), (2, 1)]],
         PX_CORNER3 => &[&[(0, 0), (1, 0), (0, 1)]],
         PX_CORNER4 => &[&[(2, 1), (2, 2), (1, 2)]],
+        PX_SLASH => &[&[(1, 0), (2, 0), (2, 1), (1, 2), (0, 2), (0, 1)]],
+        PX_BACKSLASH => &[&[(0, 0), (1, 0), (2, 1), (2, 2), (1, 2), (0, 1)]],
+        PX_HOUSE1 => &[&[(0, 0), (1, 0), (2, 1), (1, 2), (0, 2)]],
+        PX_HOUSE2 => &[&[(0, 0), (2, 0), (2, 1), (1, 2), (0, 1)]],
+        PX_HOUSE3 => &[&[(1, 0), (2, 0), (2, 2), (1, 2), (0, 1)]],
+        PX_HOUSE4 => &[&[(1, 0), (2, 1), (2, 2), (0, 2), (0, 1)]],
         _ => &[],
     }
 }
@@ -112,7 +118,7 @@ fn shape_region_table() -> &'static [DetailRegion; 128] {
     TABLE.get_or_init(|| {
         let mut table: Vec<DetailRegion> = (0..128u8)
             .map(|id| {
-                if id == PX_EMPTY || id > 24 {
+                if id == PX_EMPTY || id > 30 {
                     DetailRegion::EMPTY // complements filled below
                 } else {
                     let rings = base_shape_rings(id);
@@ -129,7 +135,7 @@ fn shape_region_table() -> &'static [DetailRegion; 128] {
             })
             .collect();
         table[PX_ALMOSTFULL as usize] = DetailRegion::full().canonical();
-        for id in 103..PX_ALMOSTFULL {
+        for id in 97..PX_ALMOSTFULL {
             let base = (id ^ PX_SUBPIXEL) as usize;
             if !table[base].is_empty() {
                 table[id as usize] =
@@ -1091,6 +1097,43 @@ mod tests {
         assert_eq!(DetailRegion::from_shape(PX_CORNER1).area2(), 0.25);
         assert_eq!(DetailRegion::from_shape(PX_HQUAD).area2(), 1.0);
         assert_eq!(DetailRegion::from_shape(PX_DOT).area2(), 1.0);
+    }
+
+    /// The six DOT+two-corner shapes, with the two corners each is built from
+    /// and the two its complement is made of.
+    const DOT_CORNER_SHAPES: [(u8, (u8, u8), (u8, u8)); 6] = [
+        (PX_SLASH, (PX_CORNER1, PX_CORNER2), (PX_CORNER3, PX_CORNER4)),
+        (PX_BACKSLASH, (PX_CORNER3, PX_CORNER4), (PX_CORNER1, PX_CORNER2)),
+        (PX_HOUSE1, (PX_CORNER3, PX_CORNER1), (PX_CORNER2, PX_CORNER4)),
+        (PX_HOUSE2, (PX_CORNER3, PX_CORNER2), (PX_CORNER1, PX_CORNER4)),
+        (PX_HOUSE3, (PX_CORNER2, PX_CORNER4), (PX_CORNER3, PX_CORNER1)),
+        (PX_HOUSE4, (PX_CORNER1, PX_CORNER4), (PX_CORNER3, PX_CORNER2)),
+    ];
+
+    fn union_of(ids: &[u8]) -> DetailRegion {
+        ids.iter().fold(DetailRegion::EMPTY, |acc, &id| {
+            bool_op(&acc, &DetailRegion::from_shape(id), BoolOp::Union)
+        })
+    }
+
+    #[test]
+    fn dot_plus_two_corners_is_exactly_the_new_shape() {
+        for (id, (a, b), (c, d)) in DOT_CORNER_SHAPES {
+            assert_eq!(
+                union_of(&[PX_DOT, a, b]).classify(),
+                Classified::Shape(id),
+                "DOT+{a}+{b} should be shape {id}"
+            );
+            // 1/2 (the diamond) + two 1/8 corners.
+            assert_eq!(DetailRegion::from_shape(id).area2(), 1.5);
+            // ... and what is left over is exactly the other two corners.
+            assert_eq!(
+                union_of(&[c, d]).classify(),
+                Classified::Shape(id ^ PX_SUBPIXEL),
+                "the complement of {id} should be {c}+{d}"
+            );
+            assert_eq!(DetailRegion::from_shape(id ^ PX_SUBPIXEL).area2(), 0.5);
+        }
     }
 
     #[test]

@@ -99,7 +99,7 @@ pub(crate) fn draw_inline_tools_panel(
     let palette_rows = crate::editor::glyph_widget::palette_rows();
     let palette_height = palette_rows as f32 * palette_cell;
     let panel_total_height = prh + 4.0 + palette_height;
-    let palette_cols = crate::editor::glyph_widget::PALETTE_COLS;
+    let palette_cols = crate::editor::glyph_widget::palette_cols();
     let panel_width = palette_cols as f32 * palette_cell;
     let panel_rect = egui::Rect::from_min_size(
         egui::pos2(panel_x, panel_y),
@@ -440,7 +440,7 @@ fn draw_inline_palette(
     shift_held: bool,
 ) {
     use crate::editor::glyph_widget::{
-        PALETTE_COLS, draw_pixel_cell_colored, palette_row_col, palette_rows, palette_shapes,
+        draw_pixel_cell_colored, palette_cols, palette_row_col, palette_rows, palette_shapes,
         rotate_shape, shape_orbit, wheel_step_shape,
     };
 
@@ -450,7 +450,7 @@ fn draw_inline_palette(
 
     let palette_rect = egui::Rect::from_min_size(
         egui::pos2(x, y),
-        egui::vec2(PALETTE_COLS as f32 * cell, num_rows as f32 * cell),
+        egui::vec2(palette_cols() as f32 * cell, num_rows as f32 * cell),
     );
     let hover_on_palette = ui.input(|i| {
         i.pointer

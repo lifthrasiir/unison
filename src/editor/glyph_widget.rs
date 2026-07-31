@@ -80,16 +80,12 @@ pub fn draw_pixel_cell_colored(
         return;
     }
 
-    // Bowtie shapes need their two triangles drawn separately: the generic
-    // edge-chaining in `polygon_from_adjacency` closes the ring at the center
-    // pinch point and drops one triangle's outer corner.
-    if shape_id == pixel::PX_HQUAD || shape_id == pixel::PX_VQUAD {
-        let (q1, q2) = if shape_id == pixel::PX_HQUAD {
-            (pixel::PX_QUAD1, pixel::PX_QUAD3)
-        } else {
-            (pixel::PX_QUAD2, pixel::PX_QUAD4)
-        };
-        for &qid in &[q1, q2] {
+    // Disconnected shapes need their parts drawn separately: the generic
+    // edge-chaining in `polygon_from_adjacency` closes the ring at the first
+    // pinch point and drops whatever comes after it.
+    let parts = pixel::shape_parts(shape_id);
+    if !parts.is_empty() {
+        for &qid in parts {
             let (a, s) = pixel::adjacency(qid);
             let pts = build_shape_polygon(a, s, rect);
             if pts.len() >= 3 {
@@ -320,6 +316,21 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
         s.push(PixelShape::new(id, false));
     }
 
+    // Row 3 (12): DOT plus two corners — the diagonals and the houses, then
+    // their complements (the two corners that were left out).
+    for &id in &[PX_SLASH, PX_BACKSLASH] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_HOUSE2, PX_HOUSE3, PX_HOUSE4, PX_HOUSE1] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_INVSLASH, PX_INVBACKSLASH] {
+        s.push(PixelShape::new(id, true));
+    }
+    for &id in &[PX_INVHOUSE2, PX_INVHOUSE3, PX_INVHOUSE4, PX_INVHOUSE1] {
+        s.push(PixelShape::new(id, true));
+    }
+
     s
 }
 
@@ -327,9 +338,10 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
 /// 90°-rotation orbit of [`all_valid_shapes`], and the current rotation is
 /// remembered next to it (`EditorState::shape_rotation`) rather than being part
 /// of the selected shape. Every catalog shape is therefore reached as
-/// "representative + rotation", which is why the palette has 14 cells for 48
+/// "representative + rotation", which is why the palette has 18 cells for 60
 /// shapes: the orbits have periods 1 (`PX_ALMOSTFULL`, `PX_DOT`), 2
-/// (`PX_HQUAD`/`PX_VQUAD`) and 4 (everything else).
+/// (`PX_HQUAD`/`PX_VQUAD`, `PX_SLASH`/`PX_BACKSLASH` and their complements)
+/// and 4 (everything else).
 ///
 /// Orbits are derived from [`all_valid_shapes`] rather than spelled out, so the
 /// palette follows that list — adding a shape there adds it here, either as a
@@ -342,6 +354,9 @@ struct Orbits {
     /// Shape id (the fill bit ignored — rotation never touches it) →
     /// (representative index, clockwise steps from that representative).
     by_id: std::collections::HashMap<u8, (usize, u32)>,
+    /// First representative of the palette's second row; see
+    /// [`palette_row_break`].
+    row_break: usize,
 }
 
 fn orbits() -> &'static Orbits {
@@ -372,10 +387,16 @@ fn build_orbits() -> Orbits {
         periods.push(ids.len() as u32);
     }
 
+    let row_break = reps
+        .iter()
+        .position(|s| s.is_slant_pair())
+        .unwrap_or(reps.len());
+
     Orbits {
         reps,
         periods,
         by_id,
+        row_break,
     }
 }
 
@@ -441,14 +462,29 @@ pub fn wheel_step_shape(
     }
 }
 
-pub const PALETTE_COLS: usize = 14;
+/// The palette wraps into two rows, and the break is a *family* boundary
+/// rather than a column count: the whole-cell shapes (halves, corners, quads,
+/// cones) stay on the first row, and the second starts at the slants.
+fn palette_row_break() -> usize {
+    orbits().row_break
+}
+
+pub fn palette_cols() -> usize {
+    let brk = palette_row_break();
+    brk.max(palette_shapes().len() - brk)
+}
 
 pub fn palette_row_col(idx: usize) -> (usize, usize) {
-    (idx / PALETTE_COLS, idx % PALETTE_COLS)
+    let brk = palette_row_break();
+    if idx < brk { (0, idx) } else { (1, idx - brk) }
 }
 
 pub fn palette_rows() -> usize {
-    palette_shapes().len().div_ceil(PALETTE_COLS)
+    if palette_shapes().len() > palette_row_break() {
+        2
+    } else {
+        1
+    }
 }
 
 #[cfg(test)]
@@ -459,15 +495,22 @@ mod tests {
     #[test]
     fn palette_holds_one_cell_per_rotation_orbit() {
         let reps = palette_shapes();
-        assert_eq!(reps.len(), 14, "orbits: {reps:?}");
-        assert_eq!(reps.len(), PALETTE_COLS, "the palette is a single row");
-        // Periods: PX_ALMOSTFULL and PX_DOT are fixed, HQUAD/VQUAD alternate,
-        // the remaining eleven turn through four orientations.
+        assert_eq!(reps.len(), 18, "orbits: {reps:?}");
+        // Two rows: the whole-cell shapes, then the slants and the
+        // DOT+corner shapes.
+        assert_eq!(palette_rows(), 2);
+        assert_eq!(palette_cols(), 10);
+        assert_eq!(palette_row_col(9), (0, 9));
+        assert_eq!(palette_row_col(10), (1, 0));
+        assert!(reps[10].is_slant_pair(), "row 1 starts at the slants");
+        // Periods: PX_ALMOSTFULL and PX_DOT are fixed; HQUAD/VQUAD and the two
+        // diagonal pairs (SLASH/BACKSLASH, INVSLASH/INVBACKSLASH) alternate;
+        // the remaining thirteen turn through four orientations.
         let mut by_period = [0usize; 5];
         for idx in 0..reps.len() {
             by_period[orbit_period(idx) as usize] += 1;
         }
-        assert_eq!((by_period[1], by_period[2], by_period[4]), (2, 1, 11));
+        assert_eq!((by_period[1], by_period[2], by_period[4]), (2, 3, 13));
     }
 
     #[test]
@@ -480,8 +523,8 @@ mod tests {
                 "{shape:?} is not cell {idx} rotated {rot}×90°"
             );
         }
-        // ... and nothing outside the catalog sneaks in: 14 cells × their
-        // periods must be exactly the 48 shapes.
+        // ... and nothing outside the catalog sneaks in: 18 cells × their
+        // periods must be exactly the 60 shapes.
         let reached: std::collections::HashSet<u8> = (0..palette_shapes().len())
             .flat_map(|idx| (0..4).map(move |r| rotate_shape(palette_shapes()[idx], r).shape_id()))
             .collect();

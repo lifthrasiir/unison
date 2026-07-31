@@ -68,12 +68,32 @@ pub const PX_INVCORNER1: u8 = 21 ^ PX_SUBPIXEL;
 pub const PX_INVCORNER2: u8 = 22 ^ PX_SUBPIXEL;
 pub const PX_INVCORNER3: u8 = 23 ^ PX_SUBPIXEL;
 pub const PX_INVCORNER4: u8 = 24 ^ PX_SUBPIXEL;
+// `PX_DOT` plus two corner triangles: the diamond and the four corners tile
+// the cell exactly, so each of these is "everything but two corners", and its
+// complement is exactly the two corners that were left out. Two opposite
+// corners read as a thick diagonal stroke (`SLASH`/`BACKSLASH`); two adjacent
+// ones as a pentagon with a flat side and an apex opposite it (`HOUSE*`,
+// numbered by the apex direction: 1 right, 2 down, 3 left, 4 up, the same
+// convention as `PX_CONE*`).
+pub const PX_SLASH: u8 = 25; //              DOT + CORNER1 (BL) + CORNER2 (TR)
+pub const PX_BACKSLASH: u8 = 26; //          DOT + CORNER3 (TL) + CORNER4 (BR)
+pub const PX_HOUSE1: u8 = 27; //             DOT + CORNER3 (TL) + CORNER1 (BL)
+pub const PX_HOUSE2: u8 = 28; //             DOT + CORNER3 (TL) + CORNER2 (TR)
+pub const PX_HOUSE3: u8 = 29; //             DOT + CORNER2 (TR) + CORNER4 (BR)
+pub const PX_HOUSE4: u8 = 30; //             DOT + CORNER1 (BL) + CORNER4 (BR)
+pub const PX_INVSLASH: u8 = 25 ^ PX_SUBPIXEL; //     CORNER3 + CORNER4
+pub const PX_INVBACKSLASH: u8 = 26 ^ PX_SUBPIXEL; // CORNER1 + CORNER2
+pub const PX_INVHOUSE1: u8 = 27 ^ PX_SUBPIXEL; //    CORNER2 + CORNER4
+pub const PX_INVHOUSE2: u8 = 28 ^ PX_SUBPIXEL; //    CORNER1 + CORNER4
+pub const PX_INVHOUSE3: u8 = 29 ^ PX_SUBPIXEL; //    CORNER3 + CORNER1
+pub const PX_INVHOUSE4: u8 = 30 ^ PX_SUBPIXEL; //    CORNER3 + CORNER2
 /// Sentinel id: the pixel's geometry is a custom [`crate::detail::DetailRegion`]
 /// stored in the owning grid's detail table. Only ever appears in derived
 /// (resolved/composited) grids, never in document source grids, and is
-/// never serialized. Its complement id (102) is intentionally left unused:
+/// never serialized. It is kept last in the base range so the catalog can grow
+/// below it; its complement id (96) is intentionally left unused, because
 /// negation involving custom pixels is resolved eagerly into a new region.
-pub const PX_CUSTOM: u8 = 25;
+pub const PX_CUSTOM: u8 = 31;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct PixelShape(pub u8);
@@ -175,12 +195,13 @@ impl PixelShape {
     }
 }
 
-// Transform lookup tables: map shape_id → transformed shape_id for base shapes (0-24).
-// Complement shapes (id ≥ 103) use: transform(id ^ 127) ^ 127.
-// The fill bit (PX_FULL) passes through unchanged.
+// Transform lookup tables: map shape_id → transformed shape_id for base shapes (0-31).
+// Complement shapes (id ≥ 96) use: transform(id ^ 127) ^ 127.
+// The fill bit (PX_FULL) passes through unchanged. Index 31 is PX_CUSTOM,
+// which has no catalog geometry and maps to itself.
 #[rustfmt::skip]
 #[cfg(any(feature = "editor", test))]
-const MIRROR_H_TABLE: [u8; 25] = [
+const MIRROR_H_TABLE: [u8; 32] = [
     0,   // EMPTY → EMPTY
     125, // HALF1 (\ BL) → HALF4 (/ BR)
     126, // HALF3 (/ TL) → HALF2 (\ TR)
@@ -206,11 +227,18 @@ const MIRROR_H_TABLE: [u8; 25] = [
     23,  // CORNER2 (TR) → CORNER3 (TL)
     22,  // CORNER3 (TL) → CORNER2 (TR)
     21,  // CORNER4 (BR) → CORNER1 (BL)
+    26,  // SLASH → BACKSLASH
+    25,  // BACKSLASH → SLASH
+    29,  // HOUSE1 (right) → HOUSE3 (left)
+    28,  // HOUSE2 (down) → HOUSE2 (down)
+    27,  // HOUSE3 (left) → HOUSE1 (right)
+    30,  // HOUSE4 (up) → HOUSE4 (up)
+    31,  // CUSTOM → CUSTOM
 ];
 
 #[rustfmt::skip]
 #[cfg(any(feature = "editor", test))]
-const FLIP_V_TABLE: [u8; 25] = [
+const FLIP_V_TABLE: [u8; 32] = [
     0,   // EMPTY → EMPTY
     2,   // HALF1 (\ BL) → HALF3 (/ TL)
     1,   // HALF3 (/ TL) → HALF1 (\ BL)
@@ -236,11 +264,18 @@ const FLIP_V_TABLE: [u8; 25] = [
     24,  // CORNER2 (TR) → CORNER4 (BR)
     21,  // CORNER3 (TL) → CORNER1 (BL)
     22,  // CORNER4 (BR) → CORNER2 (TR)
+    26,  // SLASH → BACKSLASH
+    25,  // BACKSLASH → SLASH
+    27,  // HOUSE1 (right) → HOUSE1 (right)
+    30,  // HOUSE2 (down) → HOUSE4 (up)
+    29,  // HOUSE3 (left) → HOUSE3 (left)
+    28,  // HOUSE4 (up) → HOUSE2 (down)
+    31,  // CUSTOM → CUSTOM
 ];
 
 #[rustfmt::skip]
 #[cfg(any(feature = "editor", test))]
-const ROTATE_CW_TABLE: [u8; 25] = [
+const ROTATE_CW_TABLE: [u8; 32] = [
     0,   // EMPTY → EMPTY
     2,   // HALF1 (\ BL) → HALF3 (/ TL)
     126, // HALF3 (/ TL) → HALF2 (\ TR)
@@ -266,11 +301,18 @@ const ROTATE_CW_TABLE: [u8; 25] = [
     24,  // CORNER2 (TR) → CORNER4 (BR)
     22,  // CORNER3 (TL) → CORNER2 (TR)
     21,  // CORNER4 (BR) → CORNER1 (BL)
+    26,  // SLASH → BACKSLASH
+    25,  // BACKSLASH → SLASH
+    28,  // HOUSE1 (right) → HOUSE2 (down)
+    29,  // HOUSE2 (down) → HOUSE3 (left)
+    30,  // HOUSE3 (left) → HOUSE4 (up)
+    27,  // HOUSE4 (up) → HOUSE1 (right)
+    31,  // CUSTOM → CUSTOM
 ];
 
 #[rustfmt::skip]
 #[cfg(any(feature = "editor", test))]
-const ROTATE_CCW_TABLE: [u8; 25] = [
+const ROTATE_CCW_TABLE: [u8; 32] = [
     0,   // EMPTY → EMPTY
     125, // HALF1 (\ BL) → HALF4 (/ BR)
     1,   // HALF3 (/ TL) → HALF1 (\ BL)
@@ -296,11 +338,18 @@ const ROTATE_CCW_TABLE: [u8; 25] = [
     23,  // CORNER2 (TR) → CORNER3 (TL)
     21,  // CORNER3 (TL) → CORNER1 (BL)
     22,  // CORNER4 (BR) → CORNER2 (TR)
+    26,  // SLASH → BACKSLASH
+    25,  // BACKSLASH → SLASH
+    30,  // HOUSE1 (right) → HOUSE4 (up)
+    27,  // HOUSE2 (down) → HOUSE1 (right)
+    28,  // HOUSE3 (left) → HOUSE2 (down)
+    29,  // HOUSE4 (up) → HOUSE3 (left)
+    31,  // CUSTOM → CUSTOM
 ];
 
 #[rustfmt::skip]
 #[cfg(any(feature = "editor", test))]
-const ROTATE_180_TABLE: [u8; 25] = [
+const ROTATE_180_TABLE: [u8; 32] = [
     0,   // EMPTY → EMPTY
     126, // HALF1 (\ BL) → HALF2 (\ TR)
     125, // HALF3 (/ TL) → HALF4 (/ BR)
@@ -326,19 +375,26 @@ const ROTATE_180_TABLE: [u8; 25] = [
     21,  // CORNER2 (TR) → CORNER1 (BL)
     24,  // CORNER3 (TL) → CORNER4 (BR)
     23,  // CORNER4 (BR) → CORNER3 (TL)
+    25,  // SLASH → SLASH
+    26,  // BACKSLASH → BACKSLASH
+    29,  // HOUSE1 (right) → HOUSE3 (left)
+    30,  // HOUSE2 (down) → HOUSE4 (up)
+    27,  // HOUSE3 (left) → HOUSE1 (right)
+    28,  // HOUSE4 (up) → HOUSE2 (down)
+    31,  // CUSTOM → CUSTOM
 ];
 
 #[cfg(any(feature = "editor", test))]
-fn transform_shape(raw: u8, table: [u8; 25]) -> u8 {
+fn transform_shape(raw: u8, table: [u8; 32]) -> u8 {
     let fill = raw & PX_FULL;
     let id = raw & PX_SUBPIXEL;
-    let new_id = if id <= 24 {
+    let new_id = if id <= 31 {
         table[id as usize]
     } else if id == PX_ALMOSTFULL {
         PX_ALMOSTFULL
-    } else if id >= 103 {
+    } else if id >= 96 {
         let base = id ^ PX_SUBPIXEL;
-        if base <= 24 {
+        if base <= 31 {
             table[base as usize] ^ PX_SUBPIXEL
         } else {
             id
@@ -445,6 +501,38 @@ const ADJACENCY_MAP: &[(u8, u8, &[Seg])] = &[
     (PX_CORNER2, 0b01100000, &[(1.0, 0.5, 0.5, 0.0)]),
     (PX_CORNER3, 0b10000001, &[(0.5, 0.0, 0.0, 0.5)]),
     (PX_CORNER4, 0b00011000, &[(0.5, 1.0, 1.0, 0.5)]),
+    // DOT + two corners: the two diamond edges facing the corners that were
+    // left out are the only boundary away from the cell edges.
+    (
+        PX_SLASH,
+        0b01100110,
+        &[(1.0, 0.5, 0.5, 1.0), (0.0, 0.5, 0.5, 0.0)],
+    ),
+    (
+        PX_BACKSLASH,
+        0b10011001,
+        &[(0.5, 0.0, 1.0, 0.5), (0.5, 1.0, 0.0, 0.5)],
+    ),
+    (
+        PX_HOUSE1,
+        0b10000111,
+        &[(0.5, 0.0, 1.0, 0.5), (1.0, 0.5, 0.5, 1.0)],
+    ),
+    (
+        PX_HOUSE2,
+        0b11100001,
+        &[(1.0, 0.5, 0.5, 1.0), (0.5, 1.0, 0.0, 0.5)],
+    ),
+    (
+        PX_HOUSE3,
+        0b01111000,
+        &[(0.5, 1.0, 0.0, 0.5), (0.0, 0.5, 0.5, 0.0)],
+    ),
+    (
+        PX_HOUSE4,
+        0b00011110,
+        &[(0.5, 0.0, 1.0, 0.5), (0.0, 0.5, 0.5, 0.0)],
+    ),
 ];
 
 #[rustfmt::skip]
@@ -452,7 +540,7 @@ const ADJACENCY_BITS: [u8; 129] = [
     0x00, 0x0F, 0xC3, 0x03, 0xC0, 0x30, 0x0C, 0x07, // 0-7
     0x70, 0x83, 0x38, 0x0E, 0xE0, 0xC1, 0x1C, 0x00, // 8-15
     0x03, 0xC0, 0x30, 0x0C, 0x33, 0x06, 0x60, 0x81, // 16-23
-    0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 24-31
+    0x18, 0x66, 0x99, 0x87, 0xE1, 0x78, 0x1E, 0x00, // 24-31
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 32-39
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 40-47
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 48-55
@@ -461,7 +549,7 @@ const ADJACENCY_BITS: [u8; 129] = [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 72-79
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 80-87
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 88-95
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE7, // 96-103
+    0x00, 0xE1, 0x87, 0x1E, 0x78, 0x66, 0x99, 0xE7, // 96-103
     0x7E, 0x9F, 0xF9, 0xCC, 0xF3, 0xCF, 0x3F, 0xFC, // 104-111
     0xFF, 0xE3, 0x3E, 0x1F, 0xF1, 0xC7, 0x7C, 0x8F, // 112-119
     0xF8, 0xF3, 0xCF, 0x3F, 0xFC, 0x3C, 0xF0, 0xFF, // 120-127
@@ -471,9 +559,12 @@ const ADJACENCY_BITS: [u8; 129] = [
 pub fn adjacency(shape_id: u8) -> (u8, &'static [(f32, f32, f32, f32)]) {
     let idx = shape_id.min(128) as usize;
     let bits = ADJACENCY_BITS[idx];
-    let map_idx = if shape_id <= 24 {
+    // 0..=30 are the catalog shapes in `ADJACENCY_MAP` order; 97..=127 are
+    // their complements, which share the same gap segments. PX_CUSTOM (31)
+    // and its unused complement (96) have no catalog geometry.
+    let map_idx = if shape_id <= 30 {
         shape_id as usize
-    } else if shape_id >= 103 {
+    } else if shape_id >= 97 {
         (127 - shape_id.min(127)) as usize
     } else {
         return (bits, &[]);
@@ -528,14 +619,35 @@ const EC_Z: ShapeEdgeCoverage = ShapeEdgeCoverage {
 };
 #[cfg(any(feature = "editor", test))]
 const EC_F: ShapeEdgeCoverage = ShapeEdgeCoverage {
-    top: EdgeInterval { start: 0.0, end: 1.0 },
-    bottom: EdgeInterval { start: 0.0, end: 1.0 },
-    left: EdgeInterval { start: 0.0, end: 1.0 },
-    right: EdgeInterval { start: 0.0, end: 1.0 },
+    top: EdgeInterval {
+        start: 0.0,
+        end: 1.0,
+    },
+    bottom: EdgeInterval {
+        start: 0.0,
+        end: 1.0,
+    },
+    left: EdgeInterval {
+        start: 0.0,
+        end: 1.0,
+    },
+    right: EdgeInterval {
+        start: 0.0,
+        end: 1.0,
+    },
 };
 
 #[cfg(any(feature = "editor", test))]
-const fn ec(ts: f32, te: f32, bs: f32, be: f32, ls: f32, le: f32, rs: f32, re: f32) -> ShapeEdgeCoverage {
+const fn ec(
+    ts: f32,
+    te: f32,
+    bs: f32,
+    be: f32,
+    ls: f32,
+    le: f32,
+    rs: f32,
+    re: f32,
+) -> ShapeEdgeCoverage {
     ShapeEdgeCoverage {
         top: EdgeInterval { start: ts, end: te },
         bottom: EdgeInterval { start: bs, end: be },
@@ -573,6 +685,20 @@ const EDGE_COVERAGE_TABLE: [ShapeEdgeCoverage; 128] = {
     t[22] = ec(0.5,1.0, 0.0,0.0, 0.0,0.0, 0.0,0.5); // CORNER2
     t[23] = ec(0.0,0.5, 0.0,0.0, 0.0,0.5, 0.0,0.0); // CORNER3
     t[24] = ec(0.0,0.0, 0.5,1.0, 0.0,0.0, 0.5,1.0); // CORNER4
+    // DOT + two corners: the diamond touches no edge, so the coverage is
+    // exactly that of the two corners; the complement is the other two.
+    t[25] = ec(0.5,1.0, 0.0,0.5, 0.5,1.0, 0.0,0.5); // SLASH (CORNER1+CORNER2)
+    t[26] = ec(0.0,0.5, 0.5,1.0, 0.0,0.5, 0.5,1.0); // BACKSLASH (CORNER3+CORNER4)
+    t[27] = ec(0.0,0.5, 0.0,0.5, 0.0,1.0, 0.0,0.0); // HOUSE1 (CORNER3+CORNER1)
+    t[28] = ec(0.0,1.0, 0.0,0.0, 0.0,0.5, 0.0,0.5); // HOUSE2 (CORNER3+CORNER2)
+    t[29] = ec(0.5,1.0, 0.5,1.0, 0.0,0.0, 0.0,1.0); // HOUSE3 (CORNER2+CORNER4)
+    t[30] = ec(0.0,0.0, 0.0,1.0, 0.5,1.0, 0.5,1.0); // HOUSE4 (CORNER1+CORNER4)
+    t[97] = ec(0.0,1.0, 0.0,0.0, 0.0,0.5, 0.0,0.5); // INVHOUSE4 (CORNER3+CORNER2)
+    t[98] = ec(0.0,0.5, 0.0,0.5, 0.0,1.0, 0.0,0.0); // INVHOUSE3 (CORNER3+CORNER1)
+    t[99] = ec(0.0,0.0, 0.0,1.0, 0.5,1.0, 0.5,1.0); // INVHOUSE2 (CORNER1+CORNER4)
+    t[100] = ec(0.5,1.0, 0.5,1.0, 0.0,0.0, 0.0,1.0); // INVHOUSE1 (CORNER2+CORNER4)
+    t[101] = ec(0.5,1.0, 0.0,0.5, 0.5,1.0, 0.0,0.5); // INVBACKSLASH (CORNER1+CORNER2)
+    t[102] = ec(0.0,0.5, 0.5,1.0, 0.0,0.5, 0.5,1.0); // INVSLASH (CORNER3+CORNER4)
     t[103] = ec(0.0,1.0, 0.0,0.5, 0.0,1.0, 0.0,0.5); // INVCORNER4
     t[104] = ec(0.5,1.0, 0.0,1.0, 0.5,1.0, 0.0,1.0); // INVCORNER3
     t[105] = ec(0.0,0.5, 0.0,1.0, 0.0,1.0, 0.5,1.0); // INVCORNER2
@@ -807,6 +933,18 @@ const SHAPE_TO_CHARS: [[u8; 2]; 256] = {
     table[PX_INVQUAD1 as usize] = *b">0";
     table[PX_HALF4 as usize] = *b"/0";
     table[PX_HALF2 as usize] = *b"\\0";
+    table[PX_SLASH as usize] = *b"//";
+    table[PX_BACKSLASH as usize] = *b"\\\\";
+    table[PX_HOUSE1 as usize] = *b"0D";
+    table[PX_HOUSE2 as usize] = *b"0v";
+    table[PX_HOUSE3 as usize] = *b"C0";
+    table[PX_HOUSE4 as usize] = *b"^0";
+    table[PX_INVSLASH as usize] = *b"'.";
+    table[PX_INVBACKSLASH as usize] = *b".'";
+    table[PX_INVHOUSE1 as usize] = *b".>";
+    table[PX_INVHOUSE2 as usize] = *b"M0";
+    table[PX_INVHOUSE3 as usize] = *b"<.";
+    table[PX_INVHOUSE4 as usize] = *b"0W";
     table[PX_ALMOSTFULL as usize] = *b"88"; // unfilled almostfull — rare
 
     // Filled shapes (PX_FULL = 0x80, offset by 128)
@@ -858,6 +996,18 @@ const SHAPE_TO_CHARS: [[u8; 2]; 256] = {
     table[128 + PX_INVQUAD1 as usize] = *b">1";
     table[128 + PX_HALF4 as usize] = *b"/1";
     table[128 + PX_HALF2 as usize] = *b"\\1";
+    table[128 + PX_SLASH as usize] = *b"d/";
+    table[128 + PX_BACKSLASH as usize] = *b"\\b";
+    table[128 + PX_HOUSE1 as usize] = *b"1D";
+    table[128 + PX_HOUSE2 as usize] = *b"1v";
+    table[128 + PX_HOUSE3 as usize] = *b"C1";
+    table[128 + PX_HOUSE4 as usize] = *b"^1";
+    table[128 + PX_INVSLASH as usize] = *b"~_";
+    table[128 + PX_INVBACKSLASH as usize] = *b"_~";
+    table[128 + PX_INVHOUSE1 as usize] = *b".)";
+    table[128 + PX_INVHOUSE2 as usize] = *b"M1";
+    table[128 + PX_INVHOUSE3 as usize] = *b"(.";
+    table[128 + PX_INVHOUSE4 as usize] = *b"1W";
     table[128 + PX_ALMOSTFULL as usize] = *b"@@"; // the standard filled pixel
 
     table
@@ -872,7 +1022,9 @@ pub fn shape_to_chars(shape: PixelShape) -> [char; 2] {
 pub fn chars_to_shape(c1: char, c2: char) -> Option<PixelShape> {
     let b1 = c1 as u8;
     let b2 = c2 as u8;
-    SHAPE_TO_CHARS.iter().enumerate()
+    SHAPE_TO_CHARS
+        .iter()
+        .enumerate()
         .find(|&(_, &[a, b])| a == b1 && b == b2)
         .map(|(i, _)| PixelShape(i as u8))
 }
@@ -913,6 +1065,18 @@ const SHAPE_RASTERS: [u128; 128] = {
     r[ 22] = 0x000000000000200C0380F03E0; // CORNER2
     r[ 23] = 0x00000000000000100C0703C1F; // CORNER3
     r[ 24] = 0xF0380C0200000000000000000; // CORNER4
+    r[ 25] = 0x0FC7F3FDFFFFFFEFF3F8FC3E0; // SLASH        = DOT|CORNER1|CORNER2
+    r[ 26] = 0xFC3F8FF3FEFFDFF3FC7F0FC1F; // BACKSLASH    = DOT|CORNER3|CORNER4
+    r[ 27] = 0x0FC7F3FDFFFFDFF3FC7F0FC1F; // HOUSE1       = DOT|CORNER3|CORNER1
+    r[ 28] = 0x0C0783F1FEFFFFFFFFFFFFFFF; // HOUSE2       = DOT|CORNER3|CORNER2
+    r[ 29] = 0xFC3F8FF3FEFFFFEFF3F8FC3E0; // HOUSE3       = DOT|CORNER2|CORNER4
+    r[ 30] = 0xFFFFFFFFFFFFDFE3F0780C000; // HOUSE4       = DOT|CORNER1|CORNER4
+    r[ 97] = 0x000000000000201C0F87F3FFF; // INVHOUSE4    = CORNER3|CORNER2
+    r[ 98] = 0x03C0700C010000100C0703C1F; // INVHOUSE3    = CORNER3|CORNER1
+    r[ 99] = 0xF3F87C0E01000000000000000; // INVHOUSE2    = CORNER1|CORNER4
+    r[100] = 0xF0380C020000200C0380F03E0; // INVHOUSE1    = CORNER2|CORNER4
+    r[101] = 0x03C0700C0100200C0380F03E0; // INVBACKSLASH = CORNER1|CORNER2
+    r[102] = 0xF0380C02000000100C0703C1F; // INVSLASH     = CORNER3|CORNER4
     r[103] = 0x0FC7F3FDFFFFFFFFFFFFFFFFF; // INVCORNER4
     r[104] = 0xFFFFFFFFFFFFFFEFF3F8FC3E0; // INVCORNER3
     r[105] = 0xFFFFFFFFFFFFDFF3FC7F0FC1F; // INVCORNER2
@@ -943,13 +1107,21 @@ const SHAPE_RASTERS: [u128; 128] = {
 
 #[cfg(any(feature = "editor", test))]
 fn raster_to_shape_id(raster: u128) -> u8 {
-    if raster == 0 { return PX_EMPTY; }
-    if raster == FULL_RASTER { return PX_ALMOSTFULL; }
-    for i in 0u8..25 {
-        if SHAPE_RASTERS[i as usize] == raster { return i; }
+    if raster == 0 {
+        return PX_EMPTY;
     }
-    for i in 103u8..128 {
-        if SHAPE_RASTERS[i as usize] == raster { return i; }
+    if raster == FULL_RASTER {
+        return PX_ALMOSTFULL;
+    }
+    for i in 0u8..31 {
+        if SHAPE_RASTERS[i as usize] == raster {
+            return i;
+        }
+    }
+    for i in 97u8..128 {
+        if SHAPE_RASTERS[i as usize] == raster {
+            return i;
+        }
     }
     PX_DOT
 }
@@ -972,7 +1144,8 @@ pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
     if a.is_empty() || b.is_empty() {
         return a;
     }
-    let sr = SHAPE_RASTERS[a.shape_id() as usize] & (!SHAPE_RASTERS[b.shape_id() as usize] & FULL_RASTER);
+    let sr = SHAPE_RASTERS[a.shape_id() as usize]
+        & (!SHAPE_RASTERS[b.shape_id() as usize] & FULL_RASTER);
     let result_id = raster_to_shape_id(sr);
     if result_id == PX_EMPTY {
         PixelShape::EMPTY
@@ -984,6 +1157,26 @@ pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
 // ---------------------------------------------------------------------------
 // Multi-shape adjacency (union of overlapping subpixels within one pixel)
 // ---------------------------------------------------------------------------
+
+/// The catalog shapes a *disconnected* shape is made of, or an empty slice
+/// for the shapes that are one connected piece. [`polygon_from_adjacency`]
+/// chains a single ring, so anything that needs a faithful outline — clipping
+/// below, filling in the editor — has to ask for the parts and take them one
+/// at a time. The bowties meet at the cell center and the two-corner
+/// complements at a cell edge midpoint (or not at all).
+pub fn shape_parts(shape_id: u8) -> &'static [u8] {
+    match shape_id {
+        PX_HQUAD => &[PX_QUAD1, PX_QUAD3],
+        PX_VQUAD => &[PX_QUAD2, PX_QUAD4],
+        PX_INVSLASH => &[PX_CORNER3, PX_CORNER4],
+        PX_INVBACKSLASH => &[PX_CORNER1, PX_CORNER2],
+        PX_INVHOUSE1 => &[PX_CORNER2, PX_CORNER4],
+        PX_INVHOUSE2 => &[PX_CORNER1, PX_CORNER4],
+        PX_INVHOUSE3 => &[PX_CORNER3, PX_CORNER1],
+        PX_INVHOUSE4 => &[PX_CORNER3, PX_CORNER2],
+        _ => &[],
+    }
+}
 
 /// Compute adjacency bits and gap segments for the union of multiple shapes
 /// within a single pixel cell. Returns `(combined_adj_bits, gap_segments)`.
@@ -1001,13 +1194,20 @@ pub fn multi_shape_adjacency(shapes: &[u8]) -> (u8, Vec<Seg>) {
         _ => {}
     }
 
-    // Decompose multi-part shapes (HQUAD, VQUAD) into constituent quads
-    // so that each component has a faithful single polygon for clipping.
-    let expanded: Vec<u8> = shapes.iter().flat_map(|&s| match s {
-        PX_HQUAD => vec![PX_QUAD1, PX_QUAD3],
-        PX_VQUAD => vec![PX_QUAD2, PX_QUAD4],
-        _ => vec![s],
-    }).collect();
+    // Decompose multi-part shapes so that each component has a faithful
+    // single polygon for clipping.
+    let expanded: Vec<u8> = shapes
+        .iter()
+        .flat_map(|s| {
+            let parts = shape_parts(*s);
+            if parts.is_empty() {
+                std::slice::from_ref(s)
+            } else {
+                parts
+            }
+        })
+        .copied()
+        .collect();
     let shapes = &expanded[..];
 
     let mut combined_bits = 0u8;
@@ -1034,8 +1234,7 @@ pub fn multi_shape_adjacency(shapes: &[u8]) -> (u8, Vec<Seg>) {
                 if i == j || poly_j.len() < 3 {
                     continue;
                 }
-                intervals =
-                    subtract_covered_intervals(seg, outside_normal, &intervals, poly_j);
+                intervals = subtract_covered_intervals(seg, outside_normal, &intervals, poly_j);
                 if intervals.is_empty() {
                     break;
                 }
@@ -1129,9 +1328,11 @@ fn subtract_covered_intervals(
         let (px1, py1) = other_polygon[i];
         let (px2, py2) = other_polygon[(i + 1) % n];
         if let Some(t) = seg_intersect_t(x1, y1, x2, y2, px1, py1, px2, py2)
-            && t > 0.002 && t < 0.998 {
-                crossings.push(t);
-            }
+            && t > 0.002
+            && t < 0.998
+        {
+            crossings.push(t);
+        }
     }
     crossings.sort_by(|a, b| a.partial_cmp(b).unwrap());
     crossings.dedup_by(|a, b| (*a - *b).abs() < 0.002);
@@ -1234,23 +1435,37 @@ pub fn multi_shape_diff_adjacency(
 }
 
 fn closest_raster_shape(target: u128) -> u8 {
-    if target == 0 { return PX_EMPTY; }
-    if target == FULL_RASTER { return PX_ALMOSTFULL; }
-    for i in 0u8..25 {
-        if SHAPE_RASTERS[i as usize] == target { return i; }
+    if target == 0 {
+        return PX_EMPTY;
     }
-    for i in 103u8..128 {
-        if SHAPE_RASTERS[i as usize] == target { return i; }
+    if target == FULL_RASTER {
+        return PX_ALMOSTFULL;
+    }
+    for i in 0u8..31 {
+        if SHAPE_RASTERS[i as usize] == target {
+            return i;
+        }
+    }
+    for i in 97u8..128 {
+        if SHAPE_RASTERS[i as usize] == target {
+            return i;
+        }
     }
     let mut best = PX_ALMOSTFULL;
     let mut best_dist = u32::MAX;
-    for i in 1u8..25 {
+    for i in 1u8..31 {
         let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
-        if dist < best_dist { best_dist = dist; best = i; }
+        if dist < best_dist {
+            best_dist = dist;
+            best = i;
+        }
     }
-    for i in 103u8..128 {
+    for i in 97u8..128 {
         let dist = (target ^ SHAPE_RASTERS[i as usize]).count_ones();
-        if dist < best_dist { best_dist = dist; best = i; }
+        if dist < best_dist {
+            best_dist = dist;
+            best = i;
+        }
     }
     best
 }
@@ -1270,14 +1485,20 @@ mod tests {
                 continue;
             }
             let decoded = chars_to_shape(c1, c2).unwrap();
-            assert_eq!(shape, decoded, "roundtrip failed for raw={raw}, chars={c1}{c2}");
+            assert_eq!(
+                shape, decoded,
+                "roundtrip failed for raw={raw}, chars={c1}{c2}"
+            );
         }
     }
 
     #[test]
     fn common_shapes() {
         assert_eq!(shape_to_chars(PixelShape::EMPTY), ['.', '.']);
-        assert_eq!(shape_to_chars(PixelShape::new(PX_ALMOSTFULL, true)), ['@', '@']);
+        assert_eq!(
+            shape_to_chars(PixelShape::new(PX_ALMOSTFULL, true)),
+            ['@', '@']
+        );
         assert_eq!(chars_to_shape('.', '.'), Some(PixelShape::EMPTY));
         assert_eq!(
             chars_to_shape('@', '@'),
@@ -1394,10 +1615,7 @@ mod tests {
         let full = PixelShape::new(PX_ALMOSTFULL, true);
         let half1 = PixelShape(PX_HALF1);
         // Subtracting unfilled half1 from filled full → filled half2
-        assert_eq!(
-            shape_subtract(full, half1),
-            PixelShape::new(PX_HALF2, true),
-        );
+        assert_eq!(shape_subtract(full, half1), PixelShape::new(PX_HALF2, true),);
     }
 
     #[test]
@@ -1436,19 +1654,25 @@ mod tests {
         // SLANT1H (bottom-left triangle) + SLANT3H (upper-left triangle)
         // Union covers: a, h, g, f edges; gap goes via (0.25,0.5)
         let (bits, segs) = multi_shape_adjacency(&[PX_SLANT1H, PX_SLANT3H]);
-        assert_eq!(
-            bits,
-            adjacency(PX_SLANT1H).0 | adjacency(PX_SLANT3H).0,
-        );
+        assert_eq!(bits, adjacency(PX_SLANT1H).0 | adjacency(PX_SLANT3H).0,);
         // Should have 2 gap segments meeting at the intersection point
-        assert_eq!(segs.len(), 2, "expected 2 clipped gap segments, got {}", segs.len());
+        assert_eq!(
+            segs.len(),
+            2,
+            "expected 2 clipped gap segments, got {}",
+            segs.len()
+        );
         // Both segments should share the intersection point (0.25, 0.5)
-        let has_intersection = segs.iter().any(|&(x1, y1, _, _)| {
-            (x1 - 0.25).abs() < 0.01 && (y1 - 0.5).abs() < 0.01
-        }) || segs.iter().any(|&(_, _, x2, y2)| {
-            (x2 - 0.25).abs() < 0.01 && (y2 - 0.5).abs() < 0.01
-        });
-        assert!(has_intersection, "gap segs should meet at (0.25, 0.5): {segs:?}");
+        let has_intersection = segs
+            .iter()
+            .any(|&(x1, y1, _, _)| (x1 - 0.25).abs() < 0.01 && (y1 - 0.5).abs() < 0.01)
+            || segs
+                .iter()
+                .any(|&(_, _, x2, y2)| (x2 - 0.25).abs() < 0.01 && (y2 - 0.5).abs() < 0.01);
+        assert!(
+            has_intersection,
+            "gap segs should meet at (0.25, 0.5): {segs:?}"
+        );
     }
 
     #[test]
@@ -1462,7 +1686,11 @@ mod tests {
         assert_eq!(segs.len(), 2, "INVCONE1 segs");
 
         let poly = polygon_from_adjacency(bits, segs);
-        assert!(poly.len() >= 5, "INVCONE1 polygon should have >= 5 vertices, got {}", poly.len());
+        assert!(
+            poly.len() >= 5,
+            "INVCONE1 polygon should have >= 5 vertices, got {}",
+            poly.len()
+        );
     }
 
     #[test]
@@ -1495,9 +1723,17 @@ mod tests {
     fn invcone3_polygon_has_both_triangles() {
         let (bits, segs) = adjacency(PX_INVCONE3);
         let poly = polygon_from_adjacency(bits, segs);
-        assert!(poly.len() >= 7, "INVCONE3 should have >= 7 vertices, got {}", poly.len());
-        let has_top_right = poly.iter().any(|&(x, y)| (x - 1.0).abs() < 0.01 && y.abs() < 0.01);
-        let has_bottom_right = poly.iter().any(|&(x, y)| (x - 1.0).abs() < 0.01 && (y - 1.0).abs() < 0.01);
+        assert!(
+            poly.len() >= 7,
+            "INVCONE3 should have >= 7 vertices, got {}",
+            poly.len()
+        );
+        let has_top_right = poly
+            .iter()
+            .any(|&(x, y)| (x - 1.0).abs() < 0.01 && y.abs() < 0.01);
+        let has_bottom_right = poly
+            .iter()
+            .any(|&(x, y)| (x - 1.0).abs() < 0.01 && (y - 1.0).abs() < 0.01);
         assert!(has_top_right, "missing top-right corner (1,0)");
         assert!(has_bottom_right, "missing bottom-right corner (1,1)");
     }
@@ -1535,9 +1771,7 @@ mod tests {
                 for i in 0..n {
                     let (xi, yi) = polygon[i];
                     let (xj, yj) = polygon[j];
-                    if ((yi > py) != (yj > py))
-                        && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)
-                    {
+                    if ((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
                         inside = !inside;
                     }
                     j = i;
@@ -1562,9 +1796,18 @@ mod tests {
         let iv = |first: bool, second: bool| -> EdgeInterval {
             match (first, second) {
                 (false, false) => EdgeInterval::EMPTY,
-                (true, false) => EdgeInterval { start: 0.0, end: 0.5 },
-                (false, true) => EdgeInterval { start: 0.5, end: 1.0 },
-                (true, true) => EdgeInterval { start: 0.0, end: 1.0 },
+                (true, false) => EdgeInterval {
+                    start: 0.0,
+                    end: 0.5,
+                },
+                (false, true) => EdgeInterval {
+                    start: 0.5,
+                    end: 1.0,
+                },
+                (true, true) => EdgeInterval {
+                    start: 0.0,
+                    end: 1.0,
+                },
             }
         };
         //    a   b
@@ -1585,11 +1828,16 @@ mod tests {
     #[test]
     fn verify_adjacency_bits() {
         for &(shape, bits, _) in ADJACENCY_MAP {
-            assert_eq!(ADJACENCY_BITS[shape as usize], bits,
-                "ADJACENCY_BITS mismatch for base shape {shape}");
+            assert_eq!(
+                ADJACENCY_BITS[shape as usize], bits,
+                "ADJACENCY_BITS mismatch for base shape {shape}"
+            );
             let compl = shape ^ PX_SUBPIXEL;
-            assert_eq!(ADJACENCY_BITS[compl as usize], bits ^ 0xFF,
-                "ADJACENCY_BITS mismatch for complement shape {compl}");
+            assert_eq!(
+                ADJACENCY_BITS[compl as usize],
+                bits ^ 0xFF,
+                "ADJACENCY_BITS mismatch for complement shape {compl}"
+            );
         }
         assert_eq!(ADJACENCY_BITS[128], ADJACENCY_BITS[PX_ALMOSTFULL as usize]);
     }
@@ -1598,12 +1846,16 @@ mod tests {
     fn verify_adjacency_segs() {
         for &(shape, _, expected_segs) in ADJACENCY_MAP {
             let (_, segs) = adjacency(shape);
-            assert_eq!(segs, expected_segs,
-                "adjacency segs mismatch for base shape {shape}");
+            assert_eq!(
+                segs, expected_segs,
+                "adjacency segs mismatch for base shape {shape}"
+            );
             let compl = shape ^ PX_SUBPIXEL;
             let (_, csegs) = adjacency(compl);
-            assert_eq!(csegs, expected_segs,
-                "adjacency segs mismatch for complement shape {compl}");
+            assert_eq!(
+                csegs, expected_segs,
+                "adjacency segs mismatch for complement shape {compl}"
+            );
         }
     }
 
@@ -1613,25 +1865,49 @@ mod tests {
             let expected = compute_edge_coverage(i);
             let actual = &EDGE_COVERAGE_TABLE[i as usize];
             let close = |a: f32, b: f32| (a - b).abs() < 0.01;
-            assert!(close(actual.top.start, expected.top.start)
-                && close(actual.top.end, expected.top.end)
-                && close(actual.bottom.start, expected.bottom.start)
-                && close(actual.bottom.end, expected.bottom.end)
-                && close(actual.left.start, expected.left.start)
-                && close(actual.left.end, expected.left.end)
-                && close(actual.right.start, expected.right.start)
-                && close(actual.right.end, expected.right.end),
+            assert!(
+                close(actual.top.start, expected.top.start)
+                    && close(actual.top.end, expected.top.end)
+                    && close(actual.bottom.start, expected.bottom.start)
+                    && close(actual.bottom.end, expected.bottom.end)
+                    && close(actual.left.start, expected.left.start)
+                    && close(actual.left.end, expected.left.end)
+                    && close(actual.right.start, expected.right.start)
+                    && close(actual.right.end, expected.right.end),
                 "EDGE_COVERAGE mismatch for shape {i}: \
                 expected ({},{},{},{},{},{},{},{}) got ({},{},{},{},{},{},{},{})",
-                expected.top.start, expected.top.end,
-                expected.bottom.start, expected.bottom.end,
-                expected.left.start, expected.left.end,
-                expected.right.start, expected.right.end,
-                actual.top.start, actual.top.end,
-                actual.bottom.start, actual.bottom.end,
-                actual.left.start, actual.left.end,
-                actual.right.start, actual.right.end,
+                expected.top.start,
+                expected.top.end,
+                expected.bottom.start,
+                expected.bottom.end,
+                expected.left.start,
+                expected.left.end,
+                expected.right.start,
+                expected.right.end,
+                actual.top.start,
+                actual.top.end,
+                actual.bottom.start,
+                actual.bottom.end,
+                actual.left.start,
+                actual.left.end,
+                actual.right.start,
+                actual.right.end,
             );
+        }
+    }
+
+    /// The raster a shape's geometry demands. Complements are the bitwise
+    /// complement of their base rather than a rasterized outline, because
+    /// [`polygon_from_adjacency`] can only chain a *connected* boundary: the
+    /// two-corner complements (INVSLASH and friends) would lose a triangle.
+    /// PX_VQUAD and the inverse dot are the two whose stored raster predates
+    /// that rule: their parts meet only at points, and each holds the
+    /// (unfaithful) outline the chainer produced — as PX_HQUAD does.
+    fn expected_raster(s: u8) -> u128 {
+        if s >= 97 && s != PX_VQUAD && s != PX_DOT ^ PX_SUBPIXEL {
+            FULL_RASTER ^ rasterize_polygon(&build_unit_polygon(s ^ PX_SUBPIXEL))
+        } else {
+            rasterize_polygon(&build_unit_polygon(s))
         }
     }
 
@@ -1639,10 +1915,11 @@ mod tests {
     fn verify_rasters() {
         let valid = valid_shape_ids();
         for &s in &valid {
-            let polygon = build_unit_polygon(s);
-            let expected = rasterize_polygon(&polygon);
-            assert_eq!(SHAPE_RASTERS[s as usize], expected,
-                "SHAPE_RASTERS mismatch for shape {s}");
+            assert_eq!(
+                SHAPE_RASTERS[s as usize],
+                expected_raster(s),
+                "SHAPE_RASTERS mismatch for shape {s}"
+            );
         }
     }
 
@@ -1651,11 +1928,13 @@ mod tests {
         let valid = valid_shape_ids();
         let mut computed_rasters = [0u128; 128];
         for &s in &valid {
-            computed_rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
+            computed_rasters[s as usize] = expected_raster(s);
         }
         let mut raster_to_id = std::collections::HashMap::new();
         for &s in &valid {
-            raster_to_id.entry(computed_rasters[s as usize]).or_insert(s);
+            raster_to_id
+                .entry(computed_rasters[s as usize])
+                .or_insert(s);
         }
         raster_to_id.insert(0, PX_EMPTY);
         raster_to_id.insert(FULL_RASTER, PX_ALMOSTFULL);
@@ -1671,8 +1950,11 @@ mod tests {
                 } else if sb.is_empty() {
                     assert_eq!(shape_union(sa, sb), sa, "union({a},{b}) identity");
                 } else {
-                    assert_eq!(shape_union(sa, sb).shape_id(), expected,
-                        "union({a},{b}) mismatch");
+                    assert_eq!(
+                        shape_union(sa, sb).shape_id(),
+                        expected,
+                        "union({a},{b}) mismatch"
+                    );
                 }
             }
         }
@@ -1683,18 +1965,21 @@ mod tests {
         let valid = valid_shape_ids();
         let mut computed_rasters = [0u128; 128];
         for &s in &valid {
-            computed_rasters[s as usize] = rasterize_polygon(&build_unit_polygon(s));
+            computed_rasters[s as usize] = expected_raster(s);
         }
         let mut raster_to_id = std::collections::HashMap::new();
         for &s in &valid {
-            raster_to_id.entry(computed_rasters[s as usize]).or_insert(s);
+            raster_to_id
+                .entry(computed_rasters[s as usize])
+                .or_insert(s);
         }
         raster_to_id.insert(0, PX_EMPTY);
         raster_to_id.insert(FULL_RASTER, PX_ALMOSTFULL);
 
         for &a in &valid {
             for &b in &valid {
-                let sr = computed_rasters[a as usize] & (!computed_rasters[b as usize] & FULL_RASTER);
+                let sr =
+                    computed_rasters[a as usize] & (!computed_rasters[b as usize] & FULL_RASTER);
                 let expected = raster_to_id.get(&sr).copied().unwrap_or(PX_DOT);
                 let sa = PixelShape(a);
                 let sb = PixelShape(b);
@@ -1702,9 +1987,15 @@ mod tests {
                     continue; // early-return paths tested separately
                 }
                 let result = shape_subtract(sa, sb);
-                let result_id = if result.is_empty() { PX_EMPTY } else { result.shape_id() };
-                assert_eq!(result_id, expected,
-                    "subtract({a},{b}) mismatch: got {result_id}, expected {expected}");
+                let result_id = if result.is_empty() {
+                    PX_EMPTY
+                } else {
+                    result.shape_id()
+                };
+                assert_eq!(
+                    result_id, expected,
+                    "subtract({a},{b}) mismatch: got {result_id}, expected {expected}"
+                );
             }
         }
     }
@@ -1715,75 +2006,179 @@ mod tests {
         // Mirror H swaps: a↔b, c↔h, d↔g, e↔f
         // Flip V: new = (f,e,d,c,b,a,h,g) from original (a,b,c,d,e,f,g,h)
         // Rotate CW: new = (g,h,a,b,c,d,e,f) (shift right by 2)
-        fn adj(id: u8) -> u8 { ADJACENCY_BITS[id.min(128) as usize] }
+        fn adj(id: u8) -> u8 {
+            ADJACENCY_BITS[id.min(128) as usize]
+        }
         fn mirror_adj(bits: u8) -> u8 {
-            let a = (bits >> 7) & 1; let b = (bits >> 6) & 1;
-            let c = (bits >> 5) & 1; let d = (bits >> 4) & 1;
-            let e = (bits >> 3) & 1; let f = (bits >> 2) & 1;
-            let g = (bits >> 1) & 1; let h = bits & 1;
-            (b<<7)|(a<<6)|(h<<5)|(g<<4)|(f<<3)|(e<<2)|(d<<1)|c
+            let a = (bits >> 7) & 1;
+            let b = (bits >> 6) & 1;
+            let c = (bits >> 5) & 1;
+            let d = (bits >> 4) & 1;
+            let e = (bits >> 3) & 1;
+            let f = (bits >> 2) & 1;
+            let g = (bits >> 1) & 1;
+            let h = bits & 1;
+            (b << 7) | (a << 6) | (h << 5) | (g << 4) | (f << 3) | (e << 2) | (d << 1) | c
         }
         fn flip_adj(bits: u8) -> u8 {
-            let a = (bits >> 7) & 1; let b = (bits >> 6) & 1;
-            let c = (bits >> 5) & 1; let d = (bits >> 4) & 1;
-            let e = (bits >> 3) & 1; let f = (bits >> 2) & 1;
-            let g = (bits >> 1) & 1; let h = bits & 1;
-            (f<<7)|(e<<6)|(d<<5)|(c<<4)|(b<<3)|(a<<2)|(h<<1)|g
+            let a = (bits >> 7) & 1;
+            let b = (bits >> 6) & 1;
+            let c = (bits >> 5) & 1;
+            let d = (bits >> 4) & 1;
+            let e = (bits >> 3) & 1;
+            let f = (bits >> 2) & 1;
+            let g = (bits >> 1) & 1;
+            let h = bits & 1;
+            (f << 7) | (e << 6) | (d << 5) | (c << 4) | (b << 3) | (a << 2) | (h << 1) | g
         }
         fn rotate_cw_adj(bits: u8) -> u8 {
-            let a = (bits >> 7) & 1; let b = (bits >> 6) & 1;
-            let c = (bits >> 5) & 1; let d = (bits >> 4) & 1;
-            let e = (bits >> 3) & 1; let f = (bits >> 2) & 1;
-            let g = (bits >> 1) & 1; let h = bits & 1;
-            (g<<7)|(h<<6)|(a<<5)|(b<<4)|(c<<3)|(d<<2)|(e<<1)|f
+            let a = (bits >> 7) & 1;
+            let b = (bits >> 6) & 1;
+            let c = (bits >> 5) & 1;
+            let d = (bits >> 4) & 1;
+            let e = (bits >> 3) & 1;
+            let f = (bits >> 2) & 1;
+            let g = (bits >> 1) & 1;
+            let h = bits & 1;
+            (g << 7) | (h << 6) | (a << 5) | (b << 4) | (c << 3) | (d << 2) | (e << 1) | f
         }
 
-        let used_ids: Vec<u8> = (0..20).chain(108..128).collect();
+        // Every catalog id except PX_CUSTOM (31) and its unused complement (96).
+        let used_ids: Vec<u8> = (0..31).chain(97..128).collect();
         for &id in &used_ids {
             let bits = adj(id);
             let shape = PixelShape(id);
 
             let m_id = shape.mirror_h().shape_id();
-            assert_eq!(adj(m_id), mirror_adj(bits),
+            assert_eq!(
+                adj(m_id),
+                mirror_adj(bits),
                 "mirror_h adjacency mismatch for id={id}: got id={m_id} adj={:#010b}, expected adj={:#010b}",
-                adj(m_id), mirror_adj(bits));
+                adj(m_id),
+                mirror_adj(bits)
+            );
 
             let f_id = shape.flip_v().shape_id();
-            assert_eq!(adj(f_id), flip_adj(bits),
+            assert_eq!(
+                adj(f_id),
+                flip_adj(bits),
                 "flip_v adjacency mismatch for id={id}: got id={f_id} adj={:#010b}, expected adj={:#010b}",
-                adj(f_id), flip_adj(bits));
+                adj(f_id),
+                flip_adj(bits)
+            );
 
             let r_id = shape.rotate_cw().shape_id();
-            assert_eq!(adj(r_id), rotate_cw_adj(bits),
+            assert_eq!(
+                adj(r_id),
+                rotate_cw_adj(bits),
                 "rotate_cw adjacency mismatch for id={id}: got id={r_id} adj={:#010b}, expected adj={:#010b}",
-                adj(r_id), rotate_cw_adj(bits));
+                adj(r_id),
+                rotate_cw_adj(bits)
+            );
         }
     }
 
     #[test]
     fn transform_inverse_properties() {
-        let used_ids: Vec<u8> = (0..20).chain(108..128).collect();
+        // Every catalog id except PX_CUSTOM (31) and its unused complement (96).
+        let used_ids: Vec<u8> = (0..31).chain(97..128).collect();
         for &id in &used_ids {
             let shape = PixelShape(id | PX_FULL);
 
             // mirror_h is self-inverse
-            assert_eq!(shape.mirror_h().mirror_h(), shape, "mirror_h not involutory for id={id}");
+            assert_eq!(
+                shape.mirror_h().mirror_h(),
+                shape,
+                "mirror_h not involutory for id={id}"
+            );
 
             // flip_v is self-inverse
-            assert_eq!(shape.flip_v().flip_v(), shape, "flip_v not involutory for id={id}");
+            assert_eq!(
+                shape.flip_v().flip_v(),
+                shape,
+                "flip_v not involutory for id={id}"
+            );
 
             // rotate_180 is self-inverse
-            assert_eq!(shape.rotate_180().rotate_180(), shape, "rotate_180 not involutory for id={id}");
+            assert_eq!(
+                shape.rotate_180().rotate_180(),
+                shape,
+                "rotate_180 not involutory for id={id}"
+            );
 
             // rotate_cw and rotate_ccw are inverses
-            assert_eq!(shape.rotate_cw().rotate_ccw(), shape, "cw/ccw not inverse for id={id}");
-            assert_eq!(shape.rotate_ccw().rotate_cw(), shape, "ccw/cw not inverse for id={id}");
+            assert_eq!(
+                shape.rotate_cw().rotate_ccw(),
+                shape,
+                "cw/ccw not inverse for id={id}"
+            );
+            assert_eq!(
+                shape.rotate_ccw().rotate_cw(),
+                shape,
+                "ccw/cw not inverse for id={id}"
+            );
 
             // 4x rotate_cw = identity
-            assert_eq!(shape.rotate_cw().rotate_cw().rotate_cw().rotate_cw(), shape, "4x cw not identity for id={id}");
+            assert_eq!(
+                shape.rotate_cw().rotate_cw().rotate_cw().rotate_cw(),
+                shape,
+                "4x cw not identity for id={id}"
+            );
 
             // rotate_180 = rotate_cw twice
-            assert_eq!(shape.rotate_cw().rotate_cw(), shape.rotate_180(), "2x cw != 180 for id={id}");
+            assert_eq!(
+                shape.rotate_cw().rotate_cw(),
+                shape.rotate_180(),
+                "2x cw != 180 for id={id}"
+            );
+        }
+    }
+
+    /// Two corners make the complement, and the dot on top of it makes the
+    /// shape: both unions have to land on the catalog id rather than fall
+    /// back to PX_DOT. (A *single* corner over the dot still has no catalog
+    /// id, so it does not survive a union — build them the other way round.)
+    #[test]
+    fn dot_plus_two_corners_unions_to_the_new_shape() {
+        let cases = [
+            (PX_SLASH, (PX_CORNER1, PX_CORNER2), (PX_CORNER3, PX_CORNER4)),
+            (
+                PX_BACKSLASH,
+                (PX_CORNER3, PX_CORNER4),
+                (PX_CORNER1, PX_CORNER2),
+            ),
+            (
+                PX_HOUSE1,
+                (PX_CORNER3, PX_CORNER1),
+                (PX_CORNER2, PX_CORNER4),
+            ),
+            (
+                PX_HOUSE2,
+                (PX_CORNER3, PX_CORNER2),
+                (PX_CORNER1, PX_CORNER4),
+            ),
+            (
+                PX_HOUSE3,
+                (PX_CORNER2, PX_CORNER4),
+                (PX_CORNER3, PX_CORNER1),
+            ),
+            (
+                PX_HOUSE4,
+                (PX_CORNER1, PX_CORNER4),
+                (PX_CORNER3, PX_CORNER2),
+            ),
+        ];
+        let lit = |s| PixelShape::new(s, true);
+        for (id, (a, b), (c, d)) in cases {
+            let pair = shape_union(lit(a), lit(b));
+            let grown = shape_union(lit(PX_DOT), pair);
+            assert_eq!(grown, lit(id), "DOT+{a}+{b}");
+            // The two corners left over are the complement, and putting them
+            // back fills the cell.
+            let rest = shape_union(lit(c), lit(d));
+            assert_eq!(rest.shape_id(), id ^ PX_SUBPIXEL, "complement of {id}");
+            assert_eq!(shape_union(grown, rest), lit(PX_ALMOSTFULL));
+            assert_eq!(shape_subtract(lit(PX_ALMOSTFULL), rest), grown);
         }
     }
 
@@ -1809,7 +2204,8 @@ mod tests {
                 all_segs.push((seg[0], seg[1], seg[2], seg[3]));
             }
         }
-        let mut degree: std::collections::HashMap<(i32, i32), u32> = std::collections::HashMap::new();
+        let mut degree: std::collections::HashMap<(i32, i32), u32> =
+            std::collections::HashMap::new();
         let quantize = |v: f32| (v * 1200.0).round() as i32;
         for &(x1, y1, x2, y2) in &all_segs {
             *degree.entry((quantize(x1), quantize(y1))).or_default() += 1;
@@ -1819,5 +2215,4 @@ mod tests {
             assert!(d % 2 == 0, "odd degree {d} at ({}, {})", k.0, k.1);
         }
     }
-
 }

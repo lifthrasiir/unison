@@ -197,7 +197,7 @@ pub(super) fn visible_grid_rect(
 /// subtracted while a glyph is being edited, i.e. while the panel is shown.
 pub(crate) fn inline_panel_reserved_width(zoom: f32) -> f32 {
     INLINE_PANEL_GAP * zoom
-        + crate::editor::glyph_widget::PALETTE_COLS as f32 * INLINE_PALETTE_CELL * zoom
+        + crate::editor::glyph_widget::palette_cols() as f32 * INLINE_PALETTE_CELL * zoom
 }
 
 /// A run of consecutive grid rows belonging to one glyph, in scroll-area
