@@ -47,6 +47,12 @@ pub(crate) fn line_annotations(line: &str) -> Vec<InlineAnnotation> {
 /// of every literally written character. Tokens already in `U+XXXX` form
 /// annotate nothing.
 fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> {
+    // A `SLICE :` qualifier comes off first, exactly as the parser takes it
+    // off, so a qualified mapping is annotated like any other.
+    let rest = match rest {
+        [slice, colon, tail @ ..] if colon.value == ":" && slice.value != ":" => tail,
+        _ => rest,
+    };
     let generate = rest.first().is_some_and(|s| s.value == "generate");
     let char_span = match (generate, rest.len()) {
         (false, 3) if rest[1].value == "=" => &rest[0],
@@ -372,6 +378,22 @@ mod tests {
             ann("map U+0041|B = latin-(a|b)"),
             vec![(12, " U+0042".to_string())]
         );
+    }
+
+    /// A slice-qualified mapping is the same mapping, so it is annotated the
+    /// same way — the qualifier only shifts the column.
+    #[test]
+    fn slice_qualified_map_is_annotated() {
+        assert_eq!(
+            ann("map narrow : A = latin-a"),
+            vec![(14, " U+0041".to_string())]
+        );
+        assert_eq!(
+            ann("map narrow : generate 가"),
+            vec![(23, " U+AC00".to_string())]
+        );
+        // The colon being mapped is not a qualifier.
+        assert_eq!(ann("map : = colon"), vec![(5, " U+003A".to_string())]);
     }
 
     #[test]

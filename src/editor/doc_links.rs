@@ -26,6 +26,10 @@ pub enum LinkTargetKind {
     Anchor,
     /// An OpenType feature tag, likewise declared nowhere in particular.
     Feature,
+    /// A typeface id, declared by a `face` line.
+    Face,
+    /// A slice id, declared by a `slice` line.
+    Slice,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -161,6 +165,18 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
             FieldRole::FeatureDef => {
                 links.push(whole_field_link(&f, LinkTargetKind::Feature, true));
             }
+            FieldRole::FaceDef => {
+                links.push(whole_field_link(&f, LinkTargetKind::Face, true));
+            }
+            FieldRole::FaceRef => {
+                links.push(whole_field_link(&f, LinkTargetKind::Face, false));
+            }
+            FieldRole::SliceDef => {
+                links.push(whole_field_link(&f, LinkTargetKind::Slice, true));
+            }
+            FieldRole::SliceRef => {
+                links.push(whole_field_link(&f, LinkTargetKind::Slice, false));
+            }
             // The `+`/`-` prefix says which side of the attachment this is, and
             // both sides are the same anchor, so the link drops it.
             FieldRole::PointDef => {
@@ -255,8 +271,17 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
                     .to_string();
                 t
             }),
-            // Remap groups and feature tags have no rename support.
-            FieldRole::RemapGroupRef | FieldRole::RemapGroupDef | FieldRole::FeatureDef => None,
+            // Remap groups, feature tags, faces and slices have no rename
+            // support: their declaration is optional or their id reaches
+            // outside the source (a face id becomes a file name), so a rename
+            // that only rewrote the sources would be half a rename.
+            FieldRole::RemapGroupRef
+            | FieldRole::RemapGroupDef
+            | FieldRole::FeatureDef
+            | FieldRole::FaceDef
+            | FieldRole::FaceRef
+            | FieldRole::SliceDef
+            | FieldRole::SliceRef => None,
         };
         if target.is_some() {
             return target;
@@ -323,6 +348,21 @@ pub fn find_link_target_in_doc(
                         {
                             return Some(i);
                         }
+                }
+            }
+            None
+        }
+        LinkTargetKind::Face | LinkTargetKind::Slice => {
+            let keyword = if *kind == LinkTargetKind::Face { "face" } else { "slice" };
+            for (i, line) in lines.iter().enumerate() {
+                if let DocLine::Text(s) = line {
+                    let trimmed = s.trim();
+                    if let Ok(tokens) = tokenize_tokens(trimmed)
+                        && tokens.first().is_some_and(|t| t == keyword)
+                        && tokens.get(1).is_some_and(|t| t == name)
+                    {
+                        return Some(i);
+                    }
                 }
             }
             None
@@ -666,6 +706,78 @@ mod rename_detection_tests {
     #[test]
     fn assert_rename_not_in_comment() {
         assert!(find_renameable_at_caret("assert same foo bar // comment", 23).is_none());
+    }
+
+    /// A face declares its id and refers to the slices it includes; a slice
+    /// declares its id and refers to the ones it unions.
+    #[test]
+    fn face_and_slice_lines_link_both_ways() {
+        assert_eq!(
+            extract_line_links("face term : narrow")
+                .iter()
+                .map(|l| (l.target.as_str(), l.kind, l.is_def))
+                .collect::<Vec<_>>(),
+            vec![("term", LinkTargetKind::Face, true), ("narrow", LinkTargetKind::Slice, false)],
+        );
+        assert_eq!(
+            extract_line_links("slice both = narrow wide")
+                .iter()
+                .map(|l| (l.target.as_str(), l.kind, l.is_def))
+                .collect::<Vec<_>>(),
+            vec![
+                ("both", LinkTargetKind::Slice, true),
+                ("narrow", LinkTargetKind::Slice, false),
+                ("wide", LinkTargetKind::Slice, false),
+            ],
+        );
+    }
+
+    /// The qualifiers the new directives added are references too — a `map`
+    /// under a slice links to the slice as well as to its glyph.
+    #[test]
+    fn qualifiers_link_to_their_slice_or_face() {
+        for (line, target, kind) in [
+            ("map narrow : A = latin-a", "narrow", LinkTargetKind::Slice),
+            ("feature wide : liga for latn : eq-liga", "wide", LinkTargetKind::Slice),
+            ("meta term : family Unison Term", "term", LinkTargetKind::Face),
+            ("assert shape AB for narrow : a-b", "narrow", LinkTargetKind::Slice),
+        ] {
+            let links = extract_line_links(line);
+            let found = links
+                .iter()
+                .find(|l| l.target == target)
+                .unwrap_or_else(|| panic!("no link for {target} in {line:?}"));
+            assert_eq!(found.kind, kind, "{line:?}");
+            assert!(!found.is_def, "{line:?}");
+        }
+        // The glyph on a qualified `map` is still a link of its own.
+        assert!(
+            extract_line_links("map narrow : A = latin-a")
+                .iter()
+                .any(|l| l.target == "latin-a" && l.kind == LinkTargetKind::Glyph)
+        );
+    }
+
+    /// The declaration a qualifier points at is what a Ctrl/Cmd+click goes to.
+    #[test]
+    fn face_and_slice_declarations_are_found_in_a_document() {
+        let lines: Vec<DocLine> = ["slice narrow", "", "face term : narrow"]
+            .iter()
+            .map(|s| DocLine::Text(s.to_string()))
+            .collect();
+        assert_eq!(
+            find_link_target_in_doc(&lines, "narrow", &LinkTargetKind::Slice),
+            Some(0),
+        );
+        assert_eq!(
+            find_link_target_in_doc(&lines, "term", &LinkTargetKind::Face),
+            Some(2),
+        );
+        // The two ids live in different namespaces and never cross.
+        assert_eq!(
+            find_link_target_in_doc(&lines, "narrow", &LinkTargetKind::Face),
+            None,
+        );
     }
 
     #[test]

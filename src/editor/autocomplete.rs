@@ -325,11 +325,19 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             // which the word check above already handled) get no completion.
             // Remap groups and feature tags are declared by being written, so
             // they are definitions too.
+            // Face and slice ids are known across the whole directory while
+            // this source is one document, so completing them here would offer
+            // only the ids that happen to be declared in the file being
+            // edited — which is rarely the file that refers to them.
             FieldRole::GlyphDef
             | FieldRole::NamePartsValue
             | FieldRole::ColorDef
             | FieldRole::RemapGroupDef
-            | FieldRole::FeatureDef => None,
+            | FieldRole::FeatureDef
+            | FieldRole::FaceDef
+            | FieldRole::FaceRef
+            | FieldRole::SliceDef
+            | FieldRole::SliceRef => None,
         };
     }
 

@@ -2494,6 +2494,33 @@ fn clicking_an_anchor_searches_for_it_without_its_sign() {
     }
 }
 
+/// A `SLICE :` qualifier is a link of its own, and it does not swallow the
+/// links that follow it: the same line still names a glyph two tokens later.
+#[test]
+fn clicking_a_slice_qualifier_goes_to_the_slice() {
+    use crate::editor::document_view::NavTarget;
+
+    let doc = "slice narrow\nglyph a 2 2\n@@..\n..@@\nglyph b\nmap narrow : A = a\n";
+    let mut h = EditorHarness::new(doc);
+    let slice_line = text_line_at(&h, "slice narrow");
+    let glyph_line = text_line_at(&h, "glyph a");
+    let map_line = text_line_at(&h, "map narrow");
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(map_line, 6), Modifiers::COMMAND);
+    match &h.last_nav.as_ref().expect("no navigation reported").target {
+        NavTarget::Local { line } => assert_eq!(*line, slice_line),
+        _ => panic!("expected the slice declaration"),
+    }
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(map_line, 17), Modifiers::COMMAND);
+    match &h.last_nav.as_ref().expect("no navigation reported").target {
+        NavTarget::Local { line } => assert_eq!(*line, glyph_line),
+        _ => panic!("expected the glyph"),
+    }
+}
+
 /// An ordinary click on a link is just a click — no jump, and nothing recorded.
 #[test]
 fn clicking_a_link_without_the_modifier_reports_nothing() {

@@ -19,6 +19,11 @@
 //!   rename must not rewrite it;
 //! - `feature ... : anchor NAME` names an anchor where the plain form names a
 //!   remap group, and the `anchor` keyword is the only thing telling them apart.
+//!
+//! The `SLICE :` qualifier (and `meta`'s `FACE :` scope) is taken off before a
+//! directive's operands are read, the same way the parser takes it off — see
+//! [`split_qualifier`]. Doing it anywhere else would shift every arity check
+//! below by two and quietly stop a qualified line from naming anything.
 
 use crate::document_io::{TokenSpan, tokenize_with_spans};
 
@@ -49,6 +54,16 @@ pub(crate) enum FieldRole {
     /// `feature TAG for ...` — the OpenType feature tag.  Like a remap group
     /// it has no single declaration site, so every appearance is one of these.
     FeatureDef,
+    /// `face FACE ...` — the face's own declaration.
+    FaceDef,
+    /// A face reference: the `FACE :` scope on a `meta` line.
+    FaceRef,
+    /// `slice SLICE ...` — the slice's own declaration.
+    SliceDef,
+    /// A slice reference: the `SLICE :` qualifier on `map`/`feature`, the
+    /// slices a `face` includes, a `slice ... = ...` union, and the
+    /// `for SLICE...` of an `assert shape`.
+    SliceRef,
 }
 
 #[derive(Clone, Debug)]
@@ -88,6 +103,21 @@ fn field(role: FieldRole, leading: usize, span: &TokenSpan) -> LineField {
 pub(crate) fn is_remap_group_decl(rest: &[TokenSpan]) -> bool {
     rest.first().is_some_and(|s| s.value == "group")
         && rest.get(1).is_some_and(|s| s.value != ":" && !s.value.ends_with(':'))
+}
+
+/// Splits the optional leading `SLICE :` (or, on `meta`, `FACE :`) qualifier
+/// off a directive's operands.
+///
+/// Told apart exactly as [`crate::document::DocumentItem::split_slice_qualifier`]
+/// tells it apart — a *bare* `:` as the second token — so a `map : = colon`
+/// keeps its own colon and the classification cannot disagree with the parser
+/// about where the operands begin.
+fn split_qualifier(rest: &[TokenSpan]) -> (Option<&TokenSpan>, &[TokenSpan]) {
+    if rest.len() >= 2 && rest[1].value == ":" && rest[0].value != ":" {
+        (Some(&rest[0]), &rest[2..])
+    } else {
+        (None, rest)
+    }
 }
 
 pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
@@ -140,6 +170,14 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             }
         }
         "map" => {
+            // The `SLICE :` qualifier comes off first, so the arities below are
+            // the ones the unqualified form has always had.
+            let (slice, rest) = split_qualifier(rest);
+            if let Some(slice) = slice
+                && !slice.value.is_empty()
+            {
+                fields.push(field(FieldRole::SliceRef, leading, slice));
+            }
             if rest.len() == 3 && rest[1].value == "=" {
                 fields.push(field(FieldRole::GlyphRef, leading, &rest[2]));
             } else if rest.len() == 4 && rest[0].value == "generate" && rest[2].value == "=" {
@@ -188,6 +226,12 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             }
         }
         "feature" => {
+            let (slice, rest) = split_qualifier(rest);
+            if let Some(slice) = slice
+                && !slice.value.is_empty()
+            {
+                fields.push(field(FieldRole::SliceRef, leading, slice));
+            }
             if let Some(tag) = rest.first()
                 && !tag.value.is_empty()
                 && tag.value != "for"
@@ -219,6 +263,37 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 if !value.value.starts_with('#') && !value.value.is_empty() {
                     fields.push(field(FieldRole::ColorRef, leading, value));
                 }
+            }
+        }
+        // `face FACE [: SLICE...]` and `slice SLICE [= SLICE...]`. The
+        // separator differs because the two mean different things, and a
+        // malformed line names nothing rather than half of something.
+        "face" | "slice" => {
+            let is_face = keyword_span.value == "face";
+            let sep = if is_face { ":" } else { "=" };
+            if let Some(id) = rest.first()
+                && !id.value.is_empty()
+                && id.value != sep
+            {
+                let role = if is_face { FieldRole::FaceDef } else { FieldRole::SliceDef };
+                fields.push(field(role, leading, id));
+                if rest.get(1).is_some_and(|s| s.value == sep) {
+                    for span in &rest[2..] {
+                        if !span.value.is_empty() {
+                            fields.push(field(FieldRole::SliceRef, leading, span));
+                        }
+                    }
+                }
+            }
+        }
+        // `meta [FACE :] KEY VALUE...`. `*` is the explicit spelling of "every
+        // face" rather than a face anything could go to.
+        "meta" => {
+            if let (Some(scope), _) = split_qualifier(rest)
+                && !scope.value.is_empty()
+                && scope.value != "*"
+            {
+                fields.push(field(FieldRole::FaceRef, leading, scope));
             }
         }
         "anchor" => {
@@ -253,8 +328,17 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 }
             }
             Some("shape") => {
-                // assert shape TEXT [+feat]... : GLYPH1 ... : GLYPH2 ...
-                // Only the first token after each `:` is a glyph name.
+                // assert shape TEXT [+feat]... [for SLICE...] : GLYPH1 ... : GLYPH2 ...
+                // Only the first token after each `:` is a glyph name, and
+                // `for ...` runs to the first `:` — everything in it is a slice.
+                let head_end = rest.iter().position(|s| s.value == ":").unwrap_or(rest.len());
+                if let Some(for_pos) = rest[..head_end].iter().position(|s| s.value == "for") {
+                    for span in &rest[for_pos + 1..head_end] {
+                        if !span.value.is_empty() {
+                            fields.push(field(FieldRole::SliceRef, leading, span));
+                        }
+                    }
+                }
                 let mut after_colon = false;
                 for span in &rest[1..] {
                     if span.value == ":" {
@@ -427,6 +511,104 @@ mod tests {
         assert_eq!(
             roles("map `//` = solidus // the slash"),
             vec![(FieldRole::GlyphRef, "solidus".to_string())],
+        );
+    }
+
+    /// The `SLICE :` qualifier is a slice reference, and the operands after it
+    /// are read exactly as the unqualified form's are.
+    #[test]
+    fn map_slice_qualifier_keeps_the_glyph_name() {
+        assert_eq!(
+            roles("map narrow : A = latin-a"),
+            vec![
+                (FieldRole::SliceRef, "narrow".to_string()),
+                (FieldRole::GlyphRef, "latin-a".to_string()),
+            ],
+        );
+        assert_eq!(
+            roles("map narrow : generate 가 = hangul-ga"),
+            vec![
+                (FieldRole::SliceRef, "narrow".to_string()),
+                (FieldRole::GlyphDef, "hangul-ga".to_string()),
+            ],
+        );
+    }
+
+    /// `map : = colon` maps a colon; the qualifier needs a *bare* `:` in second
+    /// place, so the character being mapped is never mistaken for a slice.
+    #[test]
+    fn a_colon_being_mapped_is_not_a_qualifier() {
+        assert_eq!(
+            roles("map : = colon"),
+            vec![(FieldRole::GlyphRef, "colon".to_string())],
+        );
+    }
+
+    #[test]
+    fn feature_slice_qualifier_shifts_nothing_else() {
+        assert_eq!(
+            roles("feature wide : liga for latn : eq-liga"),
+            vec![
+                (FieldRole::SliceRef, "wide".to_string()),
+                (FieldRole::FeatureDef, "liga".to_string()),
+                (FieldRole::RemapGroupRef, "eq-liga".to_string()),
+            ],
+        );
+        assert_eq!(
+            roles("feature wide : abvm for hang : anchor above"),
+            vec![
+                (FieldRole::SliceRef, "wide".to_string()),
+                (FieldRole::FeatureDef, "abvm".to_string()),
+                (FieldRole::PointDef, "above".to_string()),
+            ],
+        );
+    }
+
+    #[test]
+    fn face_and_slice_declarations_name_faces_and_slices() {
+        assert_eq!(
+            roles("face term : narrow"),
+            vec![
+                (FieldRole::FaceDef, "term".to_string()),
+                (FieldRole::SliceRef, "narrow".to_string()),
+            ],
+        );
+        assert_eq!(roles("slice narrow"), vec![(FieldRole::SliceDef, "narrow".to_string())]);
+        assert_eq!(
+            roles("slice both = narrow wide"),
+            vec![
+                (FieldRole::SliceDef, "both".to_string()),
+                (FieldRole::SliceRef, "narrow".to_string()),
+                (FieldRole::SliceRef, "wide".to_string()),
+            ],
+        );
+        // The separators are not interchangeable: a `face` unions nothing and a
+        // `slice` includes nothing, so the wrong one names only the id.
+        assert_eq!(roles("face term = narrow"), vec![(FieldRole::FaceDef, "term".to_string())]);
+        assert_eq!(roles("slice both : narrow"), vec![(FieldRole::SliceDef, "both".to_string())]);
+    }
+
+    /// A `meta` scope names a face; a bare key and the `*` spelling name none.
+    #[test]
+    fn meta_scope_names_a_face() {
+        assert_eq!(
+            roles("meta term : family Unison Term"),
+            vec![(FieldRole::FaceRef, "term".to_string())],
+        );
+        assert!(roles("meta * : family Unison").is_empty());
+        assert!(roles("meta family Unison").is_empty());
+    }
+
+    #[test]
+    fn assert_shape_for_names_slices() {
+        assert_eq!(
+            roles("assert shape AB +liga for narrow wide : a-b : c"),
+            vec![
+                (FieldRole::SliceRef, "narrow".to_string()),
+                (FieldRole::SliceRef, "wide".to_string()),
+                (FieldRole::GlyphRef, "a-b".to_string()),
+                (FieldRole::GlyphRef, "c".to_string()),
+            ],
         );
     }
 

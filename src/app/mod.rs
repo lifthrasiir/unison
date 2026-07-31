@@ -392,6 +392,12 @@ impl UniformApp {
                     LinkTargetKind::Color => doc.items.iter().any(|item| {
                         matches!(item, DocumentItem::Color { name: n, .. } if n == name)
                     }),
+                    LinkTargetKind::Face => doc.items.iter().any(|item| {
+                        matches!(item, DocumentItem::Face { id, .. } if id == name)
+                    }),
+                    LinkTargetKind::Slice => doc.items.iter().any(|item| {
+                        matches!(item, DocumentItem::Slice { id, .. } if id == name)
+                    }),
                     // Neither is declared anywhere in particular.
                     LinkTargetKind::Anchor | LinkTargetKind::Feature => false,
                 };

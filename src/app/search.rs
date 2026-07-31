@@ -100,6 +100,16 @@ pub(super) fn match_spans(line: &str, name: &str, kind: LinkTargetKind) -> Vec<(
                     cols.push((f.col_start, f.col_end));
                 }
             }
+            LinkTargetKind::Face => {
+                if matches!(f.role, FieldRole::FaceDef | FieldRole::FaceRef) && f.token == name {
+                    cols.push((f.col_start, f.col_end));
+                }
+            }
+            LinkTargetKind::Slice => {
+                if matches!(f.role, FieldRole::SliceDef | FieldRole::SliceRef) && f.token == name {
+                    cols.push((f.col_start, f.col_end));
+                }
+            }
             // Attachment is symmetric, so `+above` and `-above` are the same
             // anchor and both are listed without distinction.
             LinkTargetKind::Anchor => {
@@ -176,6 +186,8 @@ impl SearchResults {
             LinkTargetKind::Remap => "remap group",
             LinkTargetKind::Feature => "feature",
             LinkTargetKind::Anchor => "anchor",
+            LinkTargetKind::Face => "face",
+            LinkTargetKind::Slice => "slice",
         };
         let n = self.hits.len();
         if n == 0 {
