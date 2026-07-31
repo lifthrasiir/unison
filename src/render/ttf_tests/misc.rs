@@ -199,6 +199,20 @@ fn default_panose_never_claims_monospace() {
     );
 }
 
+/// `head.flags` bit 4 tells a rasterizer the hinting may move the advance, so
+/// it must not use the linear advance and — with no `LTSH`/`hdmx` to consult —
+/// runs the hint program of every glyph to find one. Windows GDI is the engine
+/// that honors this. The grid-snap hints in `hints.rs` only `SHPIX` contour
+/// points and never touch a phantom point, so the claim was false and the work
+/// it asks for is wasted.
+#[test]
+fn head_does_not_claim_the_hints_alter_the_advance() {
+    let ttf = build_from("glyph a 2 2\n@@\n@@\nmap A = a\n");
+    let flags = read_fonts::FontRef::new(&ttf).unwrap().head().unwrap().flags().bits();
+    assert_eq!(flags & 0x0010, 0, "INSTRUCTIONS_MAY_ALTER_ADVANCE_WIDTH");
+    assert_eq!(flags, 0x0003, "baseline at y=0 and lsb at x=0 still hold");
+}
+
 /// A style flag has to reach both `OS/2.fsSelection` and `head.macStyle`, and
 /// it has to clear the REGULAR bit — a font claiming bold *and* regular is a
 /// classic and very visible bug.

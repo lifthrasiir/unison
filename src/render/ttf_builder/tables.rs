@@ -161,9 +161,13 @@ pub(super) fn build_ttf(
         modified: LongDateTime::new(meta.created.unwrap_or(DEFAULT_CREATED)),
         mac_style: MacStyle::from_bits_truncate(meta.mac_style()),
         magic_number: 0x5F0F3CF5,
-        flags: Flags::BASELINE_AT_Y_0
-            | Flags::LSB_AT_X_0
-            | Flags::INSTRUCTIONS_MAY_ALTER_ADVANCE_WIDTH,
+        // Not INSTRUCTIONS_MAY_ALTER_ADVANCE_WIDTH: the grid-snap hints in
+        // `hints.rs` only `SHPIX` contour points and never touch a phantom
+        // point, so the advance a rasterizer reads from `hmtx` always holds.
+        // Claiming otherwise costs — Windows GDI honors the bit by dropping the
+        // linear advance and, with no `LTSH`/`hdmx` here to consult, running
+        // every glyph's hint program just to recover a number it already had.
+        flags: Flags::BASELINE_AT_Y_0 | Flags::LSB_AT_X_0,
         units_per_em: UNITS_PER_EM,
         x_min,
         y_min,

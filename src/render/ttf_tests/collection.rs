@@ -101,6 +101,24 @@ fn table_offsets_are_four_byte_aligned() {
     }
 }
 
+/// Blobs are padded going in, so only the last one could leave the file short
+/// of a four-byte boundary — and the file length is what a checksum over the
+/// whole file walks.
+#[test]
+fn the_file_ends_on_a_four_byte_boundary() {
+    // The last blob is the last face's `name`, so the file length rides on the
+    // strings in it — a fixed pair of faces would only catch this by luck.
+    for n in 0..4 {
+        let designer = "D".repeat(n);
+        let src =
+            format!("meta designer `{designer}`\nmeta family `A`\nglyph a 1 1\n@@\nmap A = a\n");
+        for faces in [vec![font(&src)], vec![font(A), font(&src)]] {
+            let bytes = build_collection(&faces).unwrap();
+            assert_eq!(bytes.len() % 4, 0, "{} face(s), designer {n} long", faces.len());
+        }
+    }
+}
+
 #[test]
 fn a_single_face_collection_is_still_a_collection() {
     let bytes = build_collection(&[font(A)]).unwrap();
@@ -180,3 +198,4 @@ fn one_face_builds_the_same_font_either_way() {
     assert_eq!(faces.len(), 1);
     assert_eq!(faces[0].1, single, "the two build paths must agree byte for byte");
 }
+
