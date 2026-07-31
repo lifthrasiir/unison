@@ -50,12 +50,37 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
 }
 
 pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) -> Expansion {
+    expand_documents_for(docs, name_parts, &crate::faces::FaceSet::collect(docs))
+}
+
+/// Expand for one face: items qualified with a slice the face does not include
+/// are dropped here, so nothing downstream — cmap, GSUB, the glyph cache — ever
+/// sees a mapping that belongs to a different typeface.
+///
+/// Glyphs are never filtered. Every face draws from the same glyph set; what a
+/// slice changes is which character reaches which glyph.
+pub(crate) fn expand_documents_for(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    faces: &crate::faces::FaceSet,
+) -> Expansion {
+    let face = faces.primary();
     let mut all_items: Vec<ExpandedItem> = Vec::new();
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let origin = ItemRef::new(doc_idx, item_idx);
+            let slice = match item {
+                DocumentItem::Map { slice, .. }
+                | DocumentItem::MapDecomposed { slice, .. }
+                | DocumentItem::Feature { slice, .. }
+                | DocumentItem::FeatureAnchor { slice, .. } => slice.as_deref(),
+                _ => None,
+            };
+            if !face.includes(slice) {
+                continue;
+            }
             if let DocumentItem::Glyph { name, body } = item {
                 let name_str = substitute_name_parts(&name.display(), name_parts);
                 if is_name_pattern(&name_str) {
@@ -110,9 +135,10 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
                         origin: Some(origin),
                     });
                 }
-            } else if let DocumentItem::Map { char_repr, glyph, .. } = item {
+            } else if let DocumentItem::Map { slice, char_repr, glyph, .. } = item {
                 all_items.push(ExpandedItem {
                     item: DocumentItem::Map {
+                        slice: slice.clone(),
                         comment: None,
                         char_repr: char_repr.clone(),
                         glyph: substitute_name_parts(glyph, name_parts),
@@ -176,17 +202,17 @@ fn expand_decomposed_maps(
     use unicode_normalization::UnicodeNormalization;
 
     let mut decomposed_items: Vec<ExpandedItem> = Vec::new();
-    let pending: Vec<(String, Option<String>, Option<ItemRef>)> = all_items
+    let pending: Vec<(Option<String>, String, Option<String>, Option<ItemRef>)> = all_items
         .iter()
         .filter_map(|e| match &e.item {
-            DocumentItem::MapDecomposed { char_repr, glyph, .. } => {
-                Some((char_repr.clone(), glyph.clone(), e.origin))
+            DocumentItem::MapDecomposed { slice, char_repr, glyph, .. } => {
+                Some((slice.clone(), char_repr.clone(), glyph.clone(), e.origin))
             }
             _ => None,
         })
         .collect();
 
-    for (char_repr, glyph, origin) in pending {
+    for (slice, char_repr, glyph, origin) in pending {
         let pairs = decomposed_map_pairs(&char_repr, glyph.as_deref());
         if pairs.is_empty() {
             diagnostics.push(Diagnostic::error(
@@ -261,6 +287,7 @@ fn expand_decomposed_maps(
             });
             decomposed_items.push(ExpandedItem {
                 item: DocumentItem::Map {
+                    slice: slice.clone(),
                     comment: None,
                     char_repr: format!("U+{cp:04X}"),
                     glyph: composite_name,

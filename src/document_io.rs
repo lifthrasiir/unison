@@ -35,9 +35,15 @@
 //!   the name IDs derived from what is declared, and [`crate::issues`] for the
 //!   checks.
 //!
-//!   A face-scoped form, `meta FACE : KEY VALUE...`, is reserved for the
-//!   typeface split and is not accepted yet. It is told from the plain form by
-//!   the second token being a bare `:`, which no key or value can be.
+//!   A face-scoped form, `meta FACE : KEY VALUE...`, is reserved and not
+//!   accepted yet. It is told from the plain form the same way every other
+//!   qualifier is: by the second token being a bare `:`.
+//! - `face FACE [: SLICE...]` — one typeface in the output. `slice SLICE
+//!   [= SLICE...]` declares a slice, the `= ...` form being shorthand for
+//!   including those too, transitively. See [`crate::faces`] for the model, and
+//!   for the one rule that shapes how a split font is written: a character
+//!   whose mapping differs between faces must not be in the base slice at all,
+//!   because there is no override — every conflict is an error.
 //! - `map CHAR = GLYPH` — cmap mapping.
 //! - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from
 //!   the character's Unicode canonical decomposition, named `uniXXXX` unless
@@ -48,6 +54,18 @@
 //!   for its decomposition (see [`crate::ref_composite`] on anchor exposure) —
 //!   so hand-rewriting one as a plain `glyph` + `map` means deciding per ref
 //!   whether to keep `inherit`.
+//!
+//!   `map`, `feature` and `assert shape` may be scoped to a slice. `map` and
+//!   `feature` take a `SLICE :` qualifier in front of what they already said
+//!   (`map wide : ° = degree-wide`); `assert shape` takes `for SLICE...` before
+//!   its first `:`, since it already uses `:` as a separator. Unqualified means
+//!   the base slice, which every face includes — so every file written before
+//!   faces existed keeps its meaning exactly.
+//!
+//!   The qualifier is told from the body by the *second* token being a bare
+//!   `:`, which no name or value can be. That is what keeps `map : = colon` — a
+//!   perfectly good mapping of U+003A — from reading as a qualifier, while
+//!   `map wide : : = colon` still qualifies one.
 //! - `name-parts $NAME = token1 token2 ...` — see [`crate::pattern`].
 //! - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
 //! - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]`
@@ -69,8 +87,10 @@
 //!   two are written explicitly and how scope fallback works.
 //! - `feature NAME for TARGET... : anchor ANCHOR_NAME` — the anchor-driven
 //!   (mark attachment) variant.
-//! - `assert shape TEXT [@lang] [+feat|-feat...] : GLYPH [advance N] [offset X Y] : GLYPH ...`
+//! - `assert shape TEXT [@lang] [+feat|-feat...] [for SLICE...] : GLYPH [advance N] [offset X Y] : GLYPH ...`
 //!   — shaping assertion; `@lang` is a BCP 47 tag, see [`crate::render::assert`].
+//!   `for SLICE...` restricts it to faces including all of them; a combination
+//!   no face satisfies is an error, not an assertion that quietly never runs.
 //! - `assert same NAME...` / `assert distinct NAME...` — resolved-glyph
 //!   equality assertions.
 //! - `exclude-from-sample NAME`
@@ -233,6 +253,15 @@ pub fn comment_suffix(comment: &Option<String>) -> String {
 /// Quote a token for serialization. Wraps in backticks when the value is
 /// empty, starts with a backtick, or contains whitespace; internal backticks
 /// are doubled.
+/// `SLICE : ` in front of a directive body, or nothing for the base slice.
+#[cfg(any(feature = "editor", test))]
+pub fn slice_prefix(slice: &Option<String>) -> String {
+    match slice {
+        Some(s) => format!("{} : ", quote_token(s)),
+        None => String::new(),
+    }
+}
+
 pub fn quote_token(s: &str) -> String {
     if !s.is_empty() && !s.starts_with('`') && !s.contains(char::is_whitespace) {
         s.to_string()
@@ -712,7 +741,9 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Comment(text) => writeln!(writer, "//{text}")?,
             DocumentItem::Meta(text) => writeln!(writer, "meta {text}")?,
             DocumentItem::Directive(text) => writeln!(writer, "{text}")?,
-            item @ DocumentItem::NameParts { .. }
+            item @ DocumentItem::Face { .. }
+            | item @ DocumentItem::Slice { .. }
+            | item @ DocumentItem::NameParts { .. }
             | item @ DocumentItem::Remap { .. }
             | item @ DocumentItem::RemapGroup { .. }
             | item @ DocumentItem::Feature { .. }
@@ -728,23 +759,25 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Glyph { name, body } => {
                 serialize_glyph(writer, name, body)?;
             }
-            DocumentItem::Map { char_repr, glyph, comment } => {
+            DocumentItem::Map { slice, char_repr, glyph, comment } => {
                 writeln!(
                     writer,
-                    "map {} = {}{}",
+                    "map {}{} = {}{}",
+                    slice_prefix(slice),
                     quote_token(char_repr),
                     quote_token(glyph),
                     comment_suffix(comment),
                 )?;
             }
-            DocumentItem::MapDecomposed { char_repr, glyph, comment } => {
+            DocumentItem::MapDecomposed { slice, char_repr, glyph, comment } => {
                 let target = match glyph {
                     Some(g) => format!(" = {}", quote_token(g)),
                     None => String::new(),
                 };
                 writeln!(
                     writer,
-                    "map generate {}{}{}",
+                    "map {}generate {}{}{}",
+                    slice_prefix(slice),
                     quote_token(char_repr),
                     target,
                     comment_suffix(comment),
@@ -989,23 +1022,31 @@ pub fn derive_document(
                         i += 1;
                     }
                     "map" => {
+                        // An optional `SLICE :` qualifier comes off first, so
+                        // the arities below are the same ones the unqualified
+                        // form has always had. See
+                        // `DocumentItem::split_slice_qualifier` for why the
+                        // qualifier cannot be confused with `map : = colon`.
+                        let (slice, tokens) = DocumentItem::split_slice_qualifier(&tokens[1..]);
                         // `map generate CHAR [= GLYPH]` is checked first, but only
                         // in the arities the plain form cannot take: `map generate
                         // = g` stays an ordinary (if nonsensical) `map`.
-                        let generate = tokens.len() >= 3 && tokens[1] == "generate";
-                        if tokens.len() == 4 && tokens[2] == "=" {
+                        let generate = tokens.len() >= 2 && tokens[0] == "generate";
+                        if tokens.len() == 3 && tokens[1] == "=" {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
-                                char_repr: tokens[1].clone(),
-                                glyph: tokens[3].clone(),
+                                slice,
+                                char_repr: tokens[0].clone(),
+                                glyph: tokens[2].clone(),
                                 comment,
                             });
                             i += 1;
-                        } else if generate && (tokens.len() == 3 || (tokens.len() == 5 && tokens[3] == "=")) {
+                        } else if generate && (tokens.len() == 2 || (tokens.len() == 4 && tokens[2] == "=")) {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::MapDecomposed {
-                                char_repr: tokens[2].clone(),
-                                glyph: tokens.get(4).cloned(),
+                                slice,
+                                char_repr: tokens[1].clone(),
+                                glyph: tokens.get(3).cloned(),
                                 comment,
                             });
                             i += 1;
@@ -1111,7 +1152,7 @@ pub fn derive_document(
                         item_line_starts.push(header_idx);
                         doc.items.push(DocumentItem::Glyph { name, body });
                     }
-                    "name-parts" | "remap" | "feature" | "assert" => {
+                    "name-parts" | "remap" | "feature" | "assert" | "face" | "slice" => {
                         item_line_starts.push(i);
                         doc.items.push(DocumentItem::parse_directive(&tokens, comment));
                         i += 1;

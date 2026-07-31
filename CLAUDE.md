@@ -76,6 +76,9 @@ Core (feature-independent):
   a bearing**, and the on-demand name catalog with the `BitmapFill` rule.
 - `resolve.rs` — shared vocabulary for the resolution pipeline (`ItemRef` provenance, `Diagnostic`),
   so build/editor/validation cannot drift apart. Resolution emits issues directly.
+- `faces.rs` — `face`/`slice`: which typefaces the source describes and what each contains. Holds the
+  base-slice invariant (a character whose mapping varies must not be in the base) and the face-id
+  rules. Tests in `faces_tests.rs`.
 - `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which font fields are
   *declared*, *derived* and *computed*. Tests in `meta_tests.rs`. Values on the pixel grid are
   declared in pixels and scaled by the builder, like everything else in `.unf`.
@@ -121,6 +124,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | --- | --- |
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
+| Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
@@ -166,6 +170,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, with shared canonicalization helpers in its `mod.rs` |
 | `document_io.rs` | `document_io_tests.rs` |
 | `meta.rs` | `meta_tests.rs` |
+| `faces.rs` | `faces_tests.rs` |
 | `ref_composite.rs` | `ref_composite_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests.rs` (harness scenarios) |
 

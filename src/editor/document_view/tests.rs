@@ -74,6 +74,8 @@ fn assert_all_doc_lines_covered(input: &str) {
                 DocumentItem::BlankLine
                 | DocumentItem::Comment(_)
                 | DocumentItem::Directive(_)
+                | DocumentItem::Face { .. }
+                | DocumentItem::Slice { .. }
                 | DocumentItem::Meta(_)
                 | DocumentItem::Map { .. }
                 | DocumentItem::NameParts { .. }

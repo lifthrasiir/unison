@@ -20,7 +20,7 @@
 //! - the two anchor-exposure ambiguities in [`crate::ref_composite`] are errors,
 //!   reported through an anchors-only resolution pass.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use crate::document::{
@@ -121,6 +121,29 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let expansion = &resolution.expansion;
     let docset = DocSet::new(docs);
 
+    // The face/slice graph: bad ids, cycles and undeclared slices reached from
+    // a `face` line are reported by `FaceSet` itself.
+    let faces = &resolution.faces;
+    issues.extend(docset.to_issues(&faces.diagnostics));
+
+    // Emitting more than one face needs a collection, which the builder cannot
+    // write yet (`write-fonts` has no TTC support, and the output-path rules
+    // are not settled). Refused rather than silently building the first face:
+    // the source would look like it described two typefaces and ship one.
+    if faces.faces.len() > 1 {
+        let names: Vec<&str> = faces.faces.iter().map(|f| f.id.as_str()).collect();
+        issues.push(docset.to_issue(&Diagnostic::error(
+            faces.faces[1].origin,
+            format!(
+                "{} faces are declared (`{}`) but only one can be built yet; \
+                 the grammar is in place, the collection writer is not",
+                names.len(),
+                names.join("`, `"),
+            ),
+        )));
+    }
+
+
     // Resolution is the same expansion the font build performs, so the
     // problems it detects — unresolvable references, maps that cannot be
     // synthesized, on-demand names that resolve to nothing — are reported
@@ -137,6 +160,40 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             _ => None,
         })
         .collect();
+
+    for doc in docs {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            let referenced: Vec<&String> = match item {
+                DocumentItem::Map { slice: Some(s), .. }
+                | DocumentItem::MapDecomposed { slice: Some(s), .. }
+                | DocumentItem::Feature { slice: Some(s), .. }
+                | DocumentItem::FeatureAnchor { slice: Some(s), .. } => vec![s],
+                DocumentItem::AssertShape { slices, .. } => slices.iter().collect(),
+                DocumentItem::Slice { inherits, .. } => inherits.iter().collect(),
+                _ => Vec::new(),
+            };
+            for name in referenced {
+                if !faces.declared.contains_key(name) {
+                    issues.push(issue_at(doc, item_idx, Severity::Error, format!(
+                        "undeclared slice `{name}`",
+                    )));
+                }
+            }
+            // An assertion whose slice combination no face satisfies would
+            // never run, and a test that silently does not run is worse than
+            // one that fails.
+            if let DocumentItem::AssertShape { slices, .. } = item
+                && !slices.is_empty()
+                && faces.declared.keys().any(|k| slices.contains(k))
+                && !faces.faces.iter().any(|f| f.includes_all(slices))
+            {
+                issues.push(issue_at(doc, item_idx, Severity::Error, format!(
+                    "no face includes all of `{}`, so this assertion would never run",
+                    slices.join("`, `"),
+                )));
+            }
+        }
+    }
 
     let mut glyph_defs: HashMap<String, (PathBuf, usize)> = HashMap::new();
 
@@ -331,7 +388,12 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
-    let mut mapped_codepoints: HashMap<u32, (PathBuf, usize)> = HashMap::new();
+    // Every codepoint, by the slice that maps it. Two entries in one slice are
+    // the duplicate this has always warned about; two entries in *different*
+    // slices are only a problem for a face that includes both, which is the
+    // conflict the face split exists to make explicit.
+    let mut mapped_codepoints: HashMap<u32, BTreeMap<Option<String>, (PathBuf, usize, usize)>> =
+        HashMap::new();
     let mut mapped_glyphs: HashSet<String> = HashSet::new();
 
     for doc in docs {
@@ -339,7 +401,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             match item {
                 // Unresolvable refs, map targets and remap operands are all
                 // reported by the resolution pass above.
-                DocumentItem::Map { char_repr, glyph, .. } => {
+                DocumentItem::Map { slice, char_repr, glyph, .. } => {
                     let subst_glyph = substitute_name_parts(glyph, &name_parts);
                     let expanded_pairs =
                         crate::render::ttf_builder::expand_map_pairs(
@@ -347,9 +409,8 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         );
                     for (cp, target) in &expanded_pairs {
                         mapped_glyphs.insert(target.clone());
-                        if let Some((prev_file, prev_line)) =
-                            mapped_codepoints.get(cp)
-                        {
+                        let by_slice = mapped_codepoints.entry(*cp).or_default();
+                        if let Some((prev_file, _, prev_line)) = by_slice.get(slice) {
                             issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
                                 "duplicate codepoint mapping U+{:04X} (first at {}:{})",
                                 cp,
@@ -357,9 +418,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                                 prev_line,
                             )));
                         } else {
-                            let (_, file_line) = doc.item_lines(item_idx);
-                            mapped_codepoints
-                                .insert(*cp, (doc.path.clone(), file_line));
+                            let (line, file_line) = doc.item_lines(item_idx);
+                            by_slice.insert(
+                                slice.clone(),
+                                (doc.path.clone(), line, file_line),
+                            );
                         }
                     }
                 }
@@ -445,6 +508,56 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
 
         // Collect root names from map targets and remap references.
+    // Two slices of one face mapping the same character is the conflict the
+    // face split exists to surface. There is no override rule to fall back on
+    // — see `crate::faces` — so it is an error naming the face that reaches
+    // both, and the fix is to move the character out of whichever slice should
+    // not have had it.
+    //
+    // Sorted by codepoint: the report is a golden, and a HashMap would make its
+    // order depend on the hasher.
+    let mut conflicts: Vec<(u32, &BTreeMap<Option<String>, (PathBuf, usize, usize)>)> =
+        mapped_codepoints
+            .iter()
+            .filter(|(_, by_slice)| by_slice.len() > 1)
+            .map(|(cp, by_slice)| (*cp, by_slice))
+            .collect();
+    conflicts.sort_by_key(|(cp, _)| *cp);
+    for (cp, by_slice) in conflicts {
+        for face in &faces.faces {
+            let present: Vec<(&Option<String>, &(PathBuf, usize, usize))> = by_slice
+                .iter()
+                .filter(|(slice, _)| face.includes(slice.as_deref()))
+                .collect();
+            if present.len() < 2 {
+                continue;
+            }
+            let describe = |slice: &Option<String>| match slice {
+                Some(s) => format!("slice `{s}`"),
+                None => "the base slice".to_string(),
+            };
+            // Report against the later declaration, so the first one reads as
+            // the definition and the rest as the intrusions.
+            let (first_slice, (first_file, _, first_line)) = present[0];
+            for (slice, (file, line, file_line)) in &present[1..] {
+                issues.push(Issue {
+                    severity: Severity::Error,
+                    message: format!(
+                        "U+{cp:04X} is mapped in both {} and {}, and face `{}` includes both \
+                         (first at {}:{first_line})",
+                        describe(first_slice),
+                        describe(slice),
+                        face.label(),
+                        short_path(first_file),
+                    ),
+                    file: (*file).clone(),
+                    line: *line,
+                    file_line: *file_line,
+                });
+            }
+        }
+    }
+
         let mut root_names: HashSet<String> = mapped_glyphs;
         // .notdef is always required in TrueType fonts.
         root_names.insert(".notdef".to_string());

@@ -781,8 +781,27 @@ pub enum DocumentItem {
         name: GlyphName,
         body: GlyphBody,
     },
-    /// `map CHAR = GLYPH` — cmap mapping from a Unicode character to a glyph name.
+    /// `face FACE [: SLICE...]` — one typeface in the output. Declaration order
+    /// is the output order, which is user-visible: a consumer that does not
+    /// choose a face gets the first.
+    Face {
+        id: String,
+        slices: Vec<String>,
+        comment: Option<String>,
+    },
+    /// `slice SLICE [= SLICE...]` — a named group of cmap, feature and
+    /// assertion data. The `= ...` form is shorthand for including those
+    /// slices too, transitively; it is not a precedence mechanism.
+    Slice {
+        id: String,
+        inherits: Vec<String>,
+        comment: Option<String>,
+    },
+    /// `[SLICE :] map CHAR = GLYPH` — cmap mapping from a Unicode character to
+    /// a glyph name. `slice` is `None` for the base slice, which every face
+    /// includes.
     Map {
+        slice: Option<String>,
         char_repr: String,
         glyph: String,
         comment: Option<String>,
@@ -791,6 +810,7 @@ pub enum DocumentItem {
     /// is synthesized from the character's Unicode canonical decomposition and
     /// named `uniXXXX` unless `glyph` names it.
     MapDecomposed {
+        slice: Option<String>,
         char_repr: String,
         glyph: Option<String>,
         comment: Option<String>,
@@ -822,6 +842,7 @@ pub enum DocumentItem {
     },
     /// `feature NAME for SCRIPT... : REMAP_GROUP`
     Feature {
+        slice: Option<String>,
         name: String,
         scripts: Vec<String>,
         remap_group: String,
@@ -829,6 +850,7 @@ pub enum DocumentItem {
     },
     /// `feature NAME for SCRIPT... : anchor ANCHOR_NAME`
     FeatureAnchor {
+        slice: Option<String>,
         name: String,
         scripts: Vec<String>,
         anchor: String,
@@ -841,8 +863,12 @@ pub enum DocumentItem {
         visibility: Option<LayerVisibility>,
         comment: Option<String>,
     },
-    /// `assert shape \`text\` [@lang] [+feat] [-feat] : glyph1 [advance N] [offset X Y] : glyph2 ...`
+    /// `assert shape \`text\` [@lang] [+feat] [-feat] [for SLICE...] : glyph1 [advance N] [offset X Y] : glyph2 ...`
     AssertShape {
+        /// Slices a face must include for this assertion to apply to it. Empty
+        /// means every face. A combination no face satisfies is an error, not a
+        /// silently skipped assertion.
+        slices: Vec<String>,
         text: String,
         features: Vec<ShapeFeatureFlag>,
         /// BCP 47 language the text is shaped as, from an `@tag` token.
@@ -971,6 +997,14 @@ pub fn compute_docline_file_lines(lines: &[DocLine]) -> Vec<usize> {
 #[cfg(any(feature = "editor", test))]
 use crate::document_io::comment_suffix as serialize_comment_suffix;
 
+        /// `SLICE : ` in front of a directive body, or nothing for the base slice.
+        fn serialize_slice_prefix(slice: &Option<String>) -> String {
+            match slice {
+                Some(s) => format!("{} : ", crate::document_io::quote_token(s)),
+                None => String::new(),
+            }
+        }
+
 impl DocumentItem {
     /// Parse a structured directive from pre-tokenized tokens (the line's
     /// `// …` comment already split off and passed as `comment`).
@@ -1017,8 +1051,28 @@ impl DocumentItem {
                     return item;
                 }
             }
-            "feature" => {
+            "face" | "slice" => {
+                // `face F [: S...]` and `slice S [= S...]`. The separator
+                // differs because the two mean different things: a face
+                // *includes* slices, a slice *is* the union of others.
                 let rest = &tokens[1..];
+                let sep = if tokens[0] == "face" { ":" } else { "=" };
+                if let Some(id) = rest.first() {
+                    let refs: Vec<String> = match rest.get(1) {
+                        None => Vec::new(),
+                        Some(t) if t == sep && rest.len() > 2 => rest[2..].to_vec(),
+                        // Anything else is malformed; fall through to the raw
+                        // line rather than half-reading it.
+                        Some(_) => return Self::unrecognized(&tokens, comment),
+                    };
+                    if tokens[0] == "face" {
+                        return DocumentItem::Face { id: id.clone(), slices: refs, comment };
+                    }
+                    return DocumentItem::Slice { id: id.clone(), inherits: refs, comment };
+                }
+            }
+            "feature" => {
+                let (slice, rest) = Self::split_slice_qualifier(&tokens[1..]);
                 // feature NAME for SCRIPT... : REMAP_GROUP
                 // feature NAME for SCRIPT... : anchor ANCHOR_NAME
                 if let Some(for_pos) = rest.iter().position(|t| t == "for")
@@ -1028,6 +1082,7 @@ impl DocumentItem {
                                 && colon_pos + 2 < rest.len()
                             {
                                 return DocumentItem::FeatureAnchor {
+                                    slice,
                                     name: rest[0].clone(),
                                     scripts: rest[2..colon_pos].to_vec(),
                                     anchor: rest[colon_pos + 2].clone(),
@@ -1035,6 +1090,7 @@ impl DocumentItem {
                                 };
                             }
                             return DocumentItem::Feature {
+                                slice,
                                 name: rest[0].clone(),
                                 scripts: rest[2..colon_pos].to_vec(),
                                 remap_group: rest[colon_pos + 1].clone(),
@@ -1044,14 +1100,32 @@ impl DocumentItem {
             }
             _ => {}
         }
-        // Malformed: keep the line as raw text, comment included, so nothing
-        // is lost on the way back out.
+        Self::unrecognized(&tokens, comment)
+    }
+
+    /// Malformed: keep the line as raw text, comment included, so nothing is
+    /// lost on the way back out.
+    fn unrecognized(tokens: &[String], comment: Option<String>) -> DocumentItem {
         let quoted: Vec<String> = tokens.iter().map(|t| crate::document_io::quote_token(t)).collect();
         let comment = match comment {
             Some(c) => format!(" // {c}"),
             None => String::new(),
         };
         DocumentItem::Directive(format!("{}{}", quoted.join(" "), comment))
+    }
+
+    /// Split a leading `SLICE :` qualifier off a directive body.
+    ///
+    /// Told from the body by the *second* token being a bare `:`, which no name
+    /// or value can be. That is what keeps `map : = colon` — a perfectly good
+    /// mapping of U+003A — from reading as a qualifier, and it still allows
+    /// `map wide : : = colon` to qualify one.
+    pub(crate) fn split_slice_qualifier(tokens: &[String]) -> (Option<String>, &[String]) {
+        if tokens.len() >= 2 && tokens[1] == ":" && tokens[0] != ":" {
+            (Some(tokens[0].clone()), &tokens[2..])
+        } else {
+            (None, tokens)
+        }
     }
 
     fn parse_remap(tokens: &[String], comment: Option<String>) -> Option<DocumentItem> {
@@ -1159,7 +1233,15 @@ impl DocumentItem {
 
         let mut features = Vec::new();
         let mut language = None;
-        for tok in &tokens[1..first_colon] {
+        // `for SLICE...` runs to the first `:`, so everything after it in the
+        // pre-colon region is a slice name rather than another flag.
+        let head = &tokens[1..first_colon];
+        let for_pos = head.iter().position(|t| t == "for");
+        let slices: Vec<String> = match for_pos {
+            Some(i) => head[i + 1..].to_vec(),
+            None => Vec::new(),
+        };
+        for tok in &head[..for_pos.unwrap_or(head.len())] {
             if let Some(tag) = tok.strip_prefix('+') {
                 features.push(ShapeFeatureFlag { tag: tag.to_string(), enable: true });
             } else if let Some(tag) = tok.strip_prefix('-') {
@@ -1170,6 +1252,10 @@ impl DocumentItem {
             {
                 language = Some(tag.to_string());
             }
+        }
+        // `for` with nothing after it states a constraint it does not carry.
+        if for_pos.is_some() && slices.is_empty() {
+            return None;
         }
 
         let glyph_tokens = &tokens[first_colon + 1..];
@@ -1217,7 +1303,7 @@ impl DocumentItem {
             return None;
         }
 
-        Some(DocumentItem::AssertShape { text, features, language, expected, comment })
+        Some(DocumentItem::AssertShape { slices, text, features, language, expected, comment })
     }
 
     #[cfg(any(feature = "editor", test))]
@@ -1265,20 +1351,22 @@ impl DocumentItem {
                 }
                 Some(format!("{}{}", line, serialize_comment_suffix(comment)))
             }
-            DocumentItem::Feature { name, scripts, remap_group, comment } => {
+            DocumentItem::Feature { slice, name, scripts, remap_group, comment } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
-                    "feature {} for {} : {}{}",
+                    "feature {}{} for {} : {}{}",
+                    serialize_slice_prefix(slice),
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(remap_group),
                     serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::FeatureAnchor { name, scripts, anchor, comment } => {
+            DocumentItem::FeatureAnchor { slice, name, scripts, anchor, comment } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
-                    "feature {} for {} : anchor {}{}",
+                    "feature {}{} for {} : anchor {}{}",
+                    serialize_slice_prefix(slice),
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(anchor),
@@ -1299,7 +1387,23 @@ impl DocumentItem {
                     serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::AssertShape { text, features, language, expected, comment } => {
+            DocumentItem::Face { id, slices, comment } => {
+                let mut line = format!("face {}", quote_token(id));
+                if !slices.is_empty() {
+                    let q: Vec<String> = slices.iter().map(|s| quote_token(s)).collect();
+                    line.push_str(&format!(" : {}", q.join(" ")));
+                }
+                Some(format!("{line}{}", serialize_comment_suffix(comment)))
+            }
+            DocumentItem::Slice { id, inherits, comment } => {
+                let mut line = format!("slice {}", quote_token(id));
+                if !inherits.is_empty() {
+                    let q: Vec<String> = inherits.iter().map(|s| quote_token(s)).collect();
+                    line.push_str(&format!(" = {}", q.join(" ")));
+                }
+                Some(format!("{line}{}", serialize_comment_suffix(comment)))
+            }
+            DocumentItem::AssertShape { slices, text, features, language, expected, comment } => {
                 let mut parts = vec![
                     "assert".to_string(),
                     "shape".to_string(),
@@ -1311,6 +1415,10 @@ impl DocumentItem {
                 for f in features {
                     let prefix = if f.enable { "+" } else { "-" };
                     parts.push(format!("{prefix}{}", f.tag));
+                }
+                if !slices.is_empty() {
+                    parts.push("for".to_string());
+                    parts.extend(slices.iter().map(|s| quote_token(s)));
                 }
                 for (i, g) in expected.iter().enumerate() {
                     parts.push(":".to_string());

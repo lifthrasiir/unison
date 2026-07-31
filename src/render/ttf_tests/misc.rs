@@ -222,6 +222,42 @@ fn weight_width_and_panose_are_declared() {
     assert_eq!(os2.panose_10(), &[2, 11, 6, 9, 2, 2, 2, 2, 2, 4][..]);
 }
 
+/// The built cmap is the *face's* cmap: a mapping in a slice the face does not
+/// include must not reach it. Getting this wrong would silently ship one
+/// typeface with another's character mapping.
+#[test]
+fn a_slice_the_face_excludes_does_not_reach_the_cmap() {
+    let src = "\
+slice narrow
+slice wide
+glyph n 1 1
+@@
+glyph w 2 1
+@@@@
+map narrow : ° = n
+map wide : ° = w
+map A = n
+";
+    // Compared by advance rather than by glyph id: a glyph reachable from two
+    // codepoints gets one entry per codepoint, so equal ids would not mean what
+    // it looks like they mean. `n` is one pixel wide and `w` two, and one pixel
+    // is 64 units at the default 16-pixel em.
+    let advance_of = |ttf: &[u8], ch: char| -> u16 {
+        let font = read_fonts::FontRef::new(ttf).unwrap();
+        let gid = font.cmap().unwrap().map_codepoint(ch).expect("must be mapped");
+        font.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap()
+    };
+
+    let ttf = build_from(&format!("{src}face narrow : narrow\n"));
+    assert_eq!(advance_of(&ttf, '°'), 64, "the narrow face maps ° to the narrow glyph");
+    assert_eq!(advance_of(&ttf, 'A'), 64, "the base slice is in both faces");
+
+    // The same source with the other face selected picks the other glyph.
+    let ttf = build_from(&format!("{src}face wide : wide\n"));
+    assert_eq!(advance_of(&ttf, '°'), 128, "the wide face maps ° to the wide glyph");
+    assert_eq!(advance_of(&ttf, 'A'), 64);
+}
+
 #[test]
 fn unmapped_empty_sticky_glyph_is_retained() {
     let doc = document_io::parse_document_from_str(

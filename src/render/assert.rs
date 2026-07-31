@@ -141,7 +141,7 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     let mut result = Vec::new();
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            if let DocumentItem::AssertShape { text, features, language, expected, comment } = item {
+            if let DocumentItem::AssertShape { text, features, language, expected, comment, .. } = item {
                 let (docline, file_line) = doc.item_lines(item_idx);
                 result.push(CollectedAssertion {
                     text: text.clone(),

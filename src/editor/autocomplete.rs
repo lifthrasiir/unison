@@ -477,6 +477,8 @@ fn collect_candidates(
                 "remap",
                 "feature",
                 "meta",
+                "face",
+                "slice",
                 "exclude-from-sample",
                 "assume",
                 "color",

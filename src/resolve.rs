@@ -62,6 +62,7 @@ impl Diagnostic {
 /// around is the point of the type.
 pub struct Resolution {
     pub name_parts: crate::document::NamePartsMap,
+    pub faces: crate::faces::FaceSet,
     pub meta: crate::meta::FontMeta,
     pub expansion: crate::render::ttf_builder::Expansion,
 }
@@ -69,8 +70,15 @@ pub struct Resolution {
 impl Resolution {
     pub fn compute(docs: &[&Document]) -> Self {
         let name_parts = crate::document::collect_name_parts(docs);
-        let expansion = crate::render::ttf_builder::expand_documents(docs, &name_parts);
-        Self { name_parts, meta: crate::meta::FontMeta::collect(docs), expansion }
+        let faces = crate::faces::FaceSet::collect(docs);
+        let expansion =
+            crate::render::ttf_builder::expand_documents_for(docs, &name_parts, &faces);
+        Self {
+            name_parts,
+            faces,
+            meta: crate::meta::FontMeta::collect(docs),
+            expansion,
+        }
     }
 }
 

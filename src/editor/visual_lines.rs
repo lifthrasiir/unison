@@ -319,7 +319,10 @@ pub(crate) fn build_visual_lines(
             header_color
         } else if trimmed.starts_with("ref ") || trimmed.starts_with("anchor ") {
             ref_color
-        } else if trimmed.starts_with("meta ") {
+        } else if trimmed.starts_with("meta ")
+            || trimmed.starts_with("face ")
+            || trimmed.starts_with("slice ")
+        {
             meta_color
         } else if trimmed.starts_with("exclude-from-sample ")
             || trimmed.starts_with("assume unused ")
@@ -364,6 +367,8 @@ pub(crate) fn build_visual_lines(
             DocumentItem::BlankLine
             | DocumentItem::Comment(_)
             | DocumentItem::Directive(_)
+            | DocumentItem::Face { .. }
+            | DocumentItem::Slice { .. }
             | DocumentItem::Meta(_)
             | DocumentItem::Map { .. }
             | DocumentItem::NameParts { .. }

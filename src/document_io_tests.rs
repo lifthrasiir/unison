@@ -70,6 +70,70 @@ meta descent 2
     assert_eq!(String::from_utf8(output).unwrap(), input);
 }
 
+/// The face/slice grammar, through a parse/serialize round trip. A qualifier is
+/// `SLICE :` in front of what the line already said, so the unqualified form
+/// keeps parsing exactly as before.
+#[test]
+fn face_and_slice_grammar_roundtrips() {
+    let input = "\
+slice wide
+slice both = wide narrow
+face narrow
+face wide : wide // the ambiguous-wide one
+meta wide : family `Unison Wide`
+map wide : ° = degree-wide
+map wide : generate U+00C5 = aring-wide
+feature wide : liga for latn : ligatures
+assert shape AB for wide both : a : b
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[1], DocumentItem::Slice { id, inherits, .. }
+            if id == "both" && inherits == &["wide", "narrow"]),
+        "got {:?}", doc.items[1],
+    );
+    assert!(
+        matches!(&doc.items[3], DocumentItem::Face { id, slices, comment }
+            if id == "wide" && slices == &["wide"]
+                && comment.as_deref() == Some("the ambiguous-wide one")),
+        "got {:?}", doc.items[3],
+    );
+    assert!(
+        matches!(&doc.items[5], DocumentItem::Map { slice, char_repr, .. }
+            if slice.as_deref() == Some("wide") && char_repr == "°"),
+        "got {:?}", doc.items[5],
+    );
+    assert!(
+        matches!(&doc.items[8], DocumentItem::AssertShape { slices, .. }
+            if slices == &["wide", "both"]),
+        "got {:?}", doc.items[8],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+/// `map : = colon` maps U+003A and must not be read as a slice qualifier. The
+/// two are told apart by which token is the bare `:`.
+#[test]
+fn a_colon_being_mapped_is_not_a_slice_qualifier() {
+    let doc = parse_document_from_str("map : = colon\n", "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Map { slice, char_repr, glyph, .. }
+            if slice.is_none() && char_repr == ":" && glyph == "colon"),
+        "got {:?}", doc.items[0],
+    );
+
+    // ...and a slice-qualified mapping *of* a colon still works.
+    let doc = parse_document_from_str("map wide : : = colon\n", "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Map { slice, char_repr, .. }
+            if slice.as_deref() == Some("wide") && char_repr == ":"),
+        "got {:?}", doc.items[0],
+    );
+}
+
 #[test]
 fn roundtrip_simple() {
     let input = "\
@@ -764,12 +828,12 @@ map generate = g
 ";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert!(
-        matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, glyph, comment }
+        matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, glyph, comment, .. }
             if char_repr == "À" && glyph.is_none() && comment.as_deref() == Some("plain")),
         "got {:?}", doc.items[0],
     );
     assert!(
-        matches!(&doc.items[1], DocumentItem::MapDecomposed { char_repr, glyph, comment }
+        matches!(&doc.items[1], DocumentItem::MapDecomposed { char_repr, glyph, comment, .. }
             if char_repr == "Á" && glyph.as_deref() == Some("a-acute")
                 && comment.as_deref() == Some("named")),
         "got {:?}", doc.items[1],
@@ -1237,7 +1301,7 @@ anchor top 0 0 // where marks go
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
 
     assert!(
-        matches!(&doc.items[1], DocumentItem::Map { char_repr, glyph, comment }
+        matches!(&doc.items[1], DocumentItem::Map { char_repr, glyph, comment, .. }
             if char_repr == "A" && glyph == "latin-a" && comment.as_deref() == Some("the letter")),
         "got {:?}", doc.items[1],
     );
