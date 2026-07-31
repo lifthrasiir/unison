@@ -7,8 +7,17 @@ use super::*;
 use crate::document_io::parse_document_from_str;
 
 fn meta_of(src: &str) -> FontMeta {
+    meta_for(src, None)
+}
+
+fn meta_for(src: &str, face: Option<&str>) -> FontMeta {
     let doc = parse_document_from_str(src, "test.unf".into()).unwrap();
-    FontMeta::collect(&[&doc])
+    FontMeta::for_face(&[&doc], face)
+}
+
+/// The entry alone, for the many tests that do not care about the scope.
+fn entry(text: &str) -> Result<MetaEntry, String> {
+    parse_meta_entry(text).map(|(_, e)| e)
 }
 
 #[test]
@@ -32,7 +41,7 @@ fn a_quoted_name_is_one_value() {
     let m = meta_of("meta family `Unison Mono`\n");
     assert_eq!(m.family(), "Unison Mono");
     assert_eq!(
-        parse_meta_entry("family Unison Mono").unwrap_err(),
+        entry("family Unison Mono").unwrap_err(),
         "`meta family` takes exactly 1 value, got 2 — quote a value \
          containing spaces with backticks",
     );
@@ -42,8 +51,8 @@ fn a_quoted_name_is_one_value() {
 /// the same slot key — that is what makes declaring both a conflict.
 #[test]
 fn a_named_key_and_its_name_id_share_a_slot() {
-    let a = parse_meta_entry("family `Unison`").unwrap();
-    let b = parse_meta_entry("name 1 `Unison`").unwrap();
+    let a = entry("family `Unison`").unwrap();
+    let b = entry("name 1 `Unison`").unwrap();
     assert_eq!(a.slot(), b.slot());
     assert_eq!(a.slot(), "name 1 @en-US");
 }
@@ -55,14 +64,14 @@ fn a_language_tag_files_the_record_under_its_windows_id() {
     assert_eq!(m.names.get(&(1, 0x0412)).map(String::as_str), Some("유니슨"));
     // Two languages are two slots, so this is not a conflict.
     assert_ne!(
-        parse_meta_entry("family `a`").unwrap().slot(),
-        parse_meta_entry("family @ko-KR `a`").unwrap().slot(),
+        entry("family `a`").unwrap().slot(),
+        entry("family @ko-KR `a`").unwrap().slot(),
     );
 }
 
 #[test]
 fn an_unmapped_language_tag_is_rejected() {
-    let err = parse_meta_entry("family @xx-YY `a`").unwrap_err();
+    let err = entry("family @xx-YY `a`").unwrap_err();
     assert!(err.contains("unmapped language tag"), "got {err}");
 }
 
@@ -131,28 +140,28 @@ fn name_records_are_sorted_by_language_then_id() {
 
 #[test]
 fn vendor_id_is_bounded_to_a_four_byte_tag() {
-    assert!(parse_meta_entry("vendor-id UNSN").is_ok());
-    assert!(parse_meta_entry("vendor-id TOOLONG").is_err());
-    assert!(parse_meta_entry("vendor-id `유니`").is_err());
+    assert!(entry("vendor-id UNSN").is_ok());
+    assert!(entry("vendor-id TOOLONG").is_err());
+    assert!(entry("vendor-id `유니`").is_err());
 }
 
 /// `head.created` is a `LONGDATETIME`, counted from 1904-01-01 rather than from
 /// the Unix epoch — the offset is the whole reason this is parsed by hand.
 #[test]
 fn created_parses_to_seconds_since_1904() {
-    assert_eq!(parse_meta_entry("created 1904-01-01"), Ok(MetaEntry::Created(0)));
+    assert_eq!(entry("created 1904-01-01"), Ok(MetaEntry::Created(0)));
     // 24107 days from 1904-01-01 to 1970-01-01.
     assert_eq!(
-        parse_meta_entry("created 1970-01-01"),
+        entry("created 1970-01-01"),
         Ok(MetaEntry::Created(24107 * 86400)),
     );
     assert_eq!(
-        parse_meta_entry("created 1970-01-01T00:01:02Z"),
+        entry("created 1970-01-01T00:01:02Z"),
         Ok(MetaEntry::Created(24107 * 86400 + 62)),
     );
     // A leap year the century rule would get wrong if the arithmetic were naive.
     assert_eq!(
-        parse_meta_entry("created 2000-03-01"),
+        entry("created 2000-03-01"),
         Ok(MetaEntry::Created((24107 + 10957 + 60) * 86400)),
     );
     for bad in ["created 1970-1-1", "created 1970-13-01", "created x", "created 1970-01-01T00:00:00"] {
@@ -162,8 +171,8 @@ fn created_parses_to_seconds_since_1904() {
 
 #[test]
 fn a_flag_takes_no_value() {
-    assert_eq!(parse_meta_entry("bold"), Ok(MetaEntry::Flag(StyleFlag::Bold)));
-    assert!(parse_meta_entry("bold 1").is_err());
+    assert_eq!(entry("bold"), Ok(MetaEntry::Flag(StyleFlag::Bold)));
+    assert!(entry("bold 1").is_err());
 }
 
 /// REGULAR is mutually exclusive with the style bits, and `shadow` is a
@@ -185,19 +194,54 @@ fn regular_is_cleared_by_any_style_claim() {
 
 #[test]
 fn bounded_keys_reject_out_of_range_values() {
-    assert!(parse_meta_entry("weight 400").is_ok());
-    assert!(parse_meta_entry("weight 0").is_err());
-    assert!(parse_meta_entry("weight 1001").is_err());
-    assert!(parse_meta_entry("width 5").is_ok());
-    assert!(parse_meta_entry("width 10").is_err());
-    assert!(parse_meta_entry("panose 2 0 5 9 0 0 0 0 0").is_err(), "9 values");
-    assert!(parse_meta_entry("caret-slope 0 0").is_err());
+    assert!(entry("weight 400").is_ok());
+    assert!(entry("weight 0").is_err());
+    assert!(entry("weight 1001").is_err());
+    assert!(entry("width 5").is_ok());
+    assert!(entry("width 10").is_err());
+    assert!(entry("panose 2 0 5 9 0 0 0 0 0").is_err(), "9 values");
+    assert!(entry("caret-slope 0 0").is_err());
 }
 
 #[test]
 fn revision_must_be_a_positive_number() {
-    assert_eq!(parse_meta_entry("revision 1.5"), Ok(MetaEntry::Revision(1.5)));
-    assert!(parse_meta_entry("revision 0").is_err());
-    assert!(parse_meta_entry("revision -1").is_err());
-    assert!(parse_meta_entry("revision x").is_err());
+    assert_eq!(entry("revision 1.5"), Ok(MetaEntry::Revision(1.5)));
+    assert!(entry("revision 0").is_err());
+    assert!(entry("revision -1").is_err());
+    assert!(entry("revision x").is_err());
+}
+
+/// A bare key applies to every face; a face-scoped one applies to just that
+/// face. `*` is an explicit spelling of "every face", matching the way the
+/// scope was first written down.
+#[test]
+fn a_face_scoped_key_applies_to_that_face_only() {
+    let src = "face narrow\nface wide\n\
+               meta narrow : family `Unison`\n\
+               meta wide : family `Unison Wide`\n\
+               meta * : designer `Kang Seonghoon`\n";
+    assert_eq!(meta_for(src, Some("narrow")).family(), "Unison");
+    assert_eq!(meta_for(src, Some("wide")).family(), "Unison Wide");
+    for face in ["narrow", "wide"] {
+        assert_eq!(meta_for(src, Some(face)).name(9, LANG_EN_US), Some("Kang Seonghoon"));
+    }
+}
+
+#[test]
+fn a_scope_is_parsed_off_the_front() {
+    assert_eq!(parse_meta_entry("wide : family `x`").unwrap().0, Some("wide".to_string()));
+    assert_eq!(parse_meta_entry("* : family `x`").unwrap().0, None);
+    assert_eq!(parse_meta_entry("family `x`").unwrap().0, None);
+}
+
+/// The design metrics fix how a pixel grid maps onto the em, and every face
+/// shares one glyph set — so they cannot differ per face and saying so is an
+/// error rather than a value quietly ignored.
+#[test]
+fn the_design_metrics_cannot_be_face_scoped() {
+    for key in ["height 16", "ascent 14", "descent 2"] {
+        let err = parse_meta_entry(&format!("wide : {key}")).unwrap_err();
+        assert!(err.contains("every face"), "got {err}");
+    }
+    assert!(parse_meta_entry("wide : weight 700").is_ok());
 }

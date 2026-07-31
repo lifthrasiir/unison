@@ -333,38 +333,123 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     // For the latter, the distinction between "not declared" and "declared as
     // the default" is what decides whether to complain at all.
     {
-        // Key -> where it was first declared. A key set twice is an error even
-        // when the two values agree: `meta` has no precedence rule, by design,
-        // so there is no answer to give beyond "pick one".
-        let mut seen: HashMap<String, ItemRef> = HashMap::new();
+        // Slot -> scope -> where it was declared. A slot set twice in one
+        // scope is an outright duplicate; a slot set both bare and for a face
+        // gives *that face* two values, which is the same conflict a face
+        // including two slices that map one character has. There is no
+        // precedence rule in either place, by design.
+        let mut declared_meta: BTreeMap<String, BTreeMap<Option<String>, ItemRef>> =
+            BTreeMap::new();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
                 let DocumentItem::Meta(text) = item else { continue };
                 let here = ItemRef::new(doc_idx, item_idx);
-                match crate::meta::parse_meta_entry(text) {
-                    Ok(entry) => {
-                        if let Some(&first) = seen.get(&entry.slot()) {
-                            let (path, _, file_line) = docset.location(first);
-                            // Match the report's own `file:line:` prefix, which
-                            // is the file name rather than the whole path.
-                            let name = path
-                                .file_name()
-                                .map(|n| n.to_string_lossy().into_owned())
-                                .unwrap_or_else(|| path.display().to_string());
-                            issues.push(docset.to_issue(&Diagnostic::error(
-                                here,
-                                format!(
-                                    "{} is set more than once (also at {name}:{file_line})",
-                                    entry.describe_slot(),
-                                ),
-                            )));
-                        } else {
-                            seen.insert(entry.slot(), here);
-                        }
-                    }
+                let (scope, entry) = match crate::meta::parse_meta_entry(text) {
+                    Ok(parsed) => parsed,
                     Err(message) => {
                         issues.push(docset.to_issue(&Diagnostic::error(here, message)));
+                        continue;
                     }
+                };
+                if let Some(face) = &scope
+                    && !faces.faces.iter().any(|f| &f.id == face)
+                {
+                    issues.push(docset.to_issue(&Diagnostic::error(
+                        here,
+                        format!("`meta` is scoped to undeclared face `{face}`"),
+                    )));
+                    continue;
+                }
+                let by_scope = declared_meta.entry(entry.slot()).or_default();
+                if let Some(&first) = by_scope.get(&scope) {
+                    let (path, _, file_line) = docset.location(first);
+                    let name = path
+                        .file_name()
+                        .map(|n| n.to_string_lossy().into_owned())
+                        .unwrap_or_else(|| path.display().to_string());
+                    issues.push(docset.to_issue(&Diagnostic::error(
+                        here,
+                        format!(
+                            "{} is set more than once (also at {name}:{file_line})",
+                            entry.describe_slot(),
+                        ),
+                    )));
+                } else {
+                    by_scope.insert(scope, here);
+                }
+            }
+        }
+        for (slot, by_scope) in &declared_meta {
+            if by_scope.len() < 2 {
+                continue;
+            }
+            for face in &faces.faces {
+                let reaching: Vec<(&Option<String>, &ItemRef)> = by_scope
+                    .iter()
+                    .filter(|(scope, _)| match scope {
+                        None => true,
+                        Some(f) => *f == face.id,
+                    })
+                    .collect();
+                if reaching.len() < 2 {
+                    continue;
+                }
+                let (_, first) = reaching[0];
+                let (path, _, file_line) = docset.location(*first);
+                let name = path
+                    .file_name()
+                    .map(|n| n.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| path.display().to_string());
+                for (_, here) in &reaching[1..] {
+                    issues.push(docset.to_issue(&Diagnostic::error(
+                        **here,
+                        format!(
+                            "`meta {slot}` is set both for every face and for face `{}`, \
+                             so face `{}` has two values (the other at {name}:{file_line})",
+                            face.label(),
+                            face.label(),
+                        ),
+                    )));
+                }
+            }
+        }
+
+        // Two faces the OS cannot tell apart are two faces the user cannot pick
+        // between, and a duplicate PostScript name additionally breaks PDF
+        // embedding. Checked across faces because no single face can see it.
+        if faces.faces.len() > 1 {
+            let mut seen_full: HashMap<(String, String), &str> = HashMap::new();
+            let mut seen_ps: HashMap<String, &str> = HashMap::new();
+            for face in &faces.faces {
+                let id = if face.id.is_empty() { None } else { Some(face.id.as_str()) };
+                let m = crate::meta::FontMeta::for_face(docs, id);
+                let key = (m.family().to_string(), m.subfamily().to_string());
+                if let Some(prev) = seen_full.get(&key) {
+                    issues.push(docset.to_issue(&Diagnostic::error(
+                        face.origin,
+                        format!(
+                            "faces `{prev}` and `{}` both name themselves `{} {}`; \
+                             the OS files fonts by family and subfamily, so one would hide \
+                             the other",
+                            face.label(),
+                            key.0,
+                            key.1,
+                        ),
+                    )));
+                } else {
+                    seen_full.insert(key, face.label());
+                }
+                let ps = m.postscript_name();
+                if let Some(prev) = seen_ps.get(&ps) {
+                    issues.push(docset.to_issue(&Diagnostic::error(
+                        face.origin,
+                        format!(
+                            "faces `{prev}` and `{}` share the PostScript name `{ps}`",
+                            face.label(),
+                        ),
+                    )));
+                } else {
+                    seen_ps.insert(ps, face.label());
                 }
             }
         }

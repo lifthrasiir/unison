@@ -35,9 +35,10 @@
 //!   the name IDs derived from what is declared, and [`crate::issues`] for the
 //!   checks.
 //!
-//!   A face-scoped form, `meta FACE : KEY VALUE...`, is reserved and not
-//!   accepted yet. It is told from the plain form the same way every other
-//!   qualifier is: by the second token being a bare `:`.
+//!   `meta FACE : KEY VALUE...` scopes a key to one face, and `meta * : ...`
+//!   spells out the default of every face. The design metrics are every-face
+//!   only. A bare key and a face-scoped one for the same slot conflict, since
+//!   the bare one already reaches that face.
 //! - `face FACE [: SLICE...]` — one typeface in the output. `slice SLICE
 //!   [= SLICE...]` declares a slice, the `= ...` form being shorthand for
 //!   including those too, transitively. See [`crate::faces`] for the model, and

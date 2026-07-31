@@ -2,11 +2,16 @@
 //!
 //! # One key per line
 //!
-//! `meta KEY VALUE...` carries exactly one key. Keys are variadic — a metric
-//! takes one number, `panose` will take ten, a flag takes none — so two keys on
-//! one line could not be told apart without a separator. A face-scoped form,
-//! `meta FACE : KEY VALUE...`, is reserved for the typeface split; it is told
-//! from the plain form by the second token being a bare `:`.
+//! `meta [FACE :] KEY VALUE...` carries exactly one key. Keys are variadic — a
+//! metric takes one number, `panose` takes ten, a flag takes none — so two keys
+//! on one line could not be told apart without a separator.
+//!
+//! The optional scope is told from the key by the second token being a bare
+//! `:`, exactly as a slice qualifier is (see [`crate::faces`]). A bare key
+//! applies to every face; `* : KEY` is an explicit spelling of the same thing.
+//! The design metrics — `height`, `ascent`, `descent` — may only be stated for
+//! every face: they fix how the pixel grid maps onto the em, and every face
+//! draws from one glyph set.
 //!
 //! # Everything is single-assignment
 //!
@@ -16,6 +21,12 @@
 //! override mechanism, because a silent override is exactly how a font ends up
 //! shipping a value nobody meant to set. [`crate::issues`] reports the
 //! conflicts; this module only decides what a line *means*.
+//!
+//! Scopes do not soften that. A bare key reaches every face, so stating a key
+//! bare *and* for a face gives that face two values and is a conflict — the
+//! same shape as a face including two slices that map one character. A value
+//! that varies per face is stated once per face, never as a base plus an
+//! exception.
 //!
 //! # Declared, derived, and computed
 //!
@@ -301,16 +312,28 @@ fn parse_timestamp(s: &str) -> Result<i64, String> {
 /// `Err` carries a message ready to report; the caller supplies the position. A
 /// key that takes N values rejects N±1, because a `meta` value is invisible in
 /// the built font: a line quietly half-read is a mistake that ships.
-pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
+pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), String> {
     let tokens = crate::document_io::tokenize_tokens(text)
         .map_err(|e| format!("malformed `meta` line: {e}"))?;
+
+    // The scope comes off the front exactly as a slice qualifier does. `*` is
+    // an explicit spelling of "every face"; a bare key means the same thing.
+    let (scope, tokens) = match crate::document::DocumentItem::split_slice_qualifier(&tokens) {
+        (Some(face), rest) if face == "*" => (None, rest.to_vec()),
+        (Some(face), rest) => (Some(face), rest.to_vec()),
+        (None, rest) => (None, rest.to_vec()),
+    };
+
     let Some((key, rest)) = tokens.split_first() else {
         return Err("`meta` needs a key".to_string());
     };
 
-    if rest.first().is_some_and(|t| t == ":") {
+    // The design metrics fix how the pixel grid maps onto the em, and every
+    // face shares one glyph set — so they cannot differ per face.
+    if scope.is_some() && matches!(key.as_str(), "height" | "ascent" | "descent") {
         return Err(format!(
-            "face-scoped `meta` is not supported yet (`meta {key} : ...`)",
+            "`meta {key}` applies to every face and cannot be face-scoped: it fixes \
+             how the pixel grid maps onto the em, which the whole glyph set shares",
         ));
     }
 
@@ -354,42 +377,42 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
         if !rest.is_empty() {
             return Err(format!("`meta {key}` is a flag and takes no value"));
         }
-        return Ok(MetaEntry::Flag(flag));
+        return Ok((scope, MetaEntry::Flag(flag)));
     }
 
     match key.as_str() {
-        "height" => return Ok(MetaEntry::Height(one_number(rest)?)),
-        "ascent" => return Ok(MetaEntry::Ascent(one_number(rest)?)),
-        "descent" => return Ok(MetaEntry::Descent(one_number(rest)?)),
-        "line-gap" => return Ok(MetaEntry::Pixels(PixelKey::LineGap, nums(rest, 1)?[0])),
-        "x-height" => return Ok(MetaEntry::Pixels(PixelKey::XHeight, nums(rest, 1)?[0])),
-        "cap-height" => return Ok(MetaEntry::Pixels(PixelKey::CapHeight, nums(rest, 1)?[0])),
-        "caret-offset" => return Ok(MetaEntry::Pixels(PixelKey::CaretOffset, nums(rest, 1)?[0])),
+        "height" => return Ok((scope, MetaEntry::Height(one_number(rest)?))),
+        "ascent" => return Ok((scope, MetaEntry::Ascent(one_number(rest)?))),
+        "descent" => return Ok((scope, MetaEntry::Descent(one_number(rest)?))),
+        "line-gap" => return Ok((scope, MetaEntry::Pixels(PixelKey::LineGap, nums(rest, 1)?[0]))),
+        "x-height" => return Ok((scope, MetaEntry::Pixels(PixelKey::XHeight, nums(rest, 1)?[0]))),
+        "cap-height" => return Ok((scope, MetaEntry::Pixels(PixelKey::CapHeight, nums(rest, 1)?[0]))),
+        "caret-offset" => return Ok((scope, MetaEntry::Pixels(PixelKey::CaretOffset, nums(rest, 1)?[0]))),
         "underline-at" => {
             let v = nums(rest, 2)?;
-            return Ok(MetaEntry::UnderlineAt { position: v[0], thickness: v[1] });
+            return Ok((scope, MetaEntry::UnderlineAt { position: v[0], thickness: v[1] }));
         }
         "strikeout-at" => {
             let v = nums(rest, 2)?;
-            return Ok(MetaEntry::StrikeoutAt { size: v[0], position: v[1] });
+            return Ok((scope, MetaEntry::StrikeoutAt { size: v[0], position: v[1] }));
         }
         "caret-slope" => {
             let v = nums(rest, 2)?;
             if v[0] == 0 && v[1] == 0 {
                 return Err("`meta caret-slope` cannot be 0 0".to_string());
             }
-            return Ok(MetaEntry::CaretSlope(v[0], v[1]));
+            return Ok((scope, MetaEntry::CaretSlope(v[0], v[1])));
         }
         "subscript-at" | "superscript-at" => {
             let v = nums(rest, 4)?;
             let which = if key == "subscript-at" { ScriptKey::Subscript } else { ScriptKey::Superscript };
-            return Ok(MetaEntry::Script(which, [v[0], v[1], v[2], v[3]]));
+            return Ok((scope, MetaEntry::Script(which, [v[0], v[1], v[2], v[3]])));
         }
         // usWeightClass and usWidthClass have defined ranges; a value outside
         // them is ignored by consumers rather than clamped, so it is an error.
-        "weight" => return Ok(MetaEntry::Weight(bounded(rest, 1, 1000)?)),
-        "width" => return Ok(MetaEntry::Width(bounded(rest, 1, 9)?)),
-        "fs-type" => return Ok(MetaEntry::FsType(one_number(rest)?)),
+        "weight" => return Ok((scope, MetaEntry::Weight(bounded(rest, 1, 1000)?))),
+        "width" => return Ok((scope, MetaEntry::Width(bounded(rest, 1, 9)?))),
+        "fs-type" => return Ok((scope, MetaEntry::FsType(one_number(rest)?))),
         "panose" => {
             if rest.len() != 10 {
                 return Err(format!(
@@ -403,7 +426,7 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
                     .parse::<u8>()
                     .map_err(|_| format!("`meta panose` takes 10 numbers 0..=255, got `{v}`"))?;
             }
-            return Ok(MetaEntry::Panose(out));
+            return Ok((scope, MetaEntry::Panose(out)));
         }
         "created" => {
             let [v] = rest else {
@@ -412,7 +435,7 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
                     rest.len(),
                 ));
             };
-            return parse_timestamp(v).map(MetaEntry::Created);
+            return parse_timestamp(v).map(|t| (scope, MetaEntry::Created(t)));
         }
         "revision" => {
             let [v] = rest else {
@@ -427,7 +450,7 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
             if !n.is_finite() || n <= 0.0 {
                 return Err(format!("`meta revision` must be positive, got `{v}`"));
             }
-            return Ok(MetaEntry::Revision(n));
+            return Ok((scope, MetaEntry::Revision(n)));
         }
         "vendor-id" => {
             let [v] = rest else {
@@ -443,7 +466,7 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
                     "`meta vendor-id` takes 1 to 4 printable ASCII characters, got `{v}`",
                 ));
             }
-            return Ok(MetaEntry::VendorId(v.clone()));
+            return Ok((scope, MetaEntry::VendorId(v.clone())));
         }
         _ => {}
     }
@@ -481,7 +504,7 @@ pub fn parse_meta_entry(text: &str) -> Result<MetaEntry, String> {
     };
 
     match rest {
-        [text] => Ok(MetaEntry::Name { id, lang, text: text.clone() }),
+        [text] => Ok((scope, MetaEntry::Name { id, lang, text: text.clone() })),
         [] => Err(format!("`meta {key}` takes a value")),
         _ => Err(format!(
             "`meta {key}` takes exactly 1 value, got {} — quote a value \
@@ -740,12 +763,30 @@ impl FontMeta {
         records
     }
 
+    /// Collect for the implicit face — the one a source declaring no `face`
+    /// describes. Face-scoped entries never match it.
     pub fn collect(docs: &[&Document]) -> Self {
+        Self::for_face(docs, None)
+    }
+
+    /// Collect for one face: bare entries plus the ones scoped to it.
+    ///
+    /// `face` is the id, or `None` for the implicit face. A bare entry applies
+    /// to every face, which is why stating a key bare *and* for a face gives
+    /// that face two values — reported as a conflict by [`crate::issues`],
+    /// since there is no override rule here any more than there is in
+    /// [`crate::faces`].
+    pub fn for_face(docs: &[&Document], face: Option<&str>) -> Self {
         let mut meta = Self::default();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
                 let DocumentItem::Meta(s) = item else { continue };
-                let Ok(entry) = parse_meta_entry(s) else { continue };
+                let Ok((scope, entry)) = parse_meta_entry(s) else { continue };
+                if let Some(scope) = &scope
+                    && Some(scope.as_str()) != face
+                {
+                    continue;
+                }
                 meta.origin = Some(ItemRef::new(doc_idx, item_idx));
                 match entry {
                     MetaEntry::Height(v) => meta.metrics.height = Some(v),

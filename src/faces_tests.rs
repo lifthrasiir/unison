@@ -173,3 +173,47 @@ fn an_assertion_no_face_can_satisfy_is_an_error() {
         "expected a no-matching-face error, got {msgs:?}",
     );
 }
+
+/// `meta` obeys the same single-assignment rule slices do: a bare key reaches
+/// every face, so stating it bare *and* for a face gives that face two values
+/// with no rule to choose between them.
+#[test]
+fn a_bare_and_a_face_scoped_meta_key_conflict() {
+    let msgs = errors("face wide\nmeta family `Unison`\nmeta wide : family `Unison Wide`\n");
+    assert!(
+        msgs.iter().any(|m| m.contains("wide")),
+        "expected a per-face meta conflict, got {msgs:?}",
+    );
+
+    // Stating it once per face is the way to write it, and is not a conflict.
+    let msgs = errors(
+        "face narrow\nface wide\n\
+         meta narrow : family `Unison`\nmeta wide : family `Unison Wide`\n",
+    );
+    assert!(
+        !msgs.iter().any(|m| m.contains("name ID")),
+        "two faces stating their own family is fine, got {msgs:?}",
+    );
+}
+
+#[test]
+fn meta_for_an_undeclared_face_is_an_error() {
+    let msgs = errors("face wide\nmeta nosuch : family `x`\n");
+    assert!(
+        msgs.iter().any(|m| m.contains("nosuch")),
+        "expected an unknown-face error, got {msgs:?}",
+    );
+}
+
+/// Two faces the OS cannot tell apart are two faces the user cannot pick
+/// between; a duplicate PostScript name also breaks PDF embedding.
+#[test]
+fn two_faces_may_not_share_a_name() {
+    let msgs = errors(
+        "face a\nface b\nmeta a : family `Unison`\nmeta b : family `Unison`\n",
+    );
+    assert!(
+        msgs.iter().any(|m| m.contains("same") || m.contains("both")),
+        "expected a duplicate-name error, got {msgs:?}",
+    );
+}

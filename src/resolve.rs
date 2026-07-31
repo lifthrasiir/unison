@@ -71,12 +71,16 @@ impl Resolution {
     pub fn compute(docs: &[&Document]) -> Self {
         let name_parts = crate::document::collect_name_parts(docs);
         let faces = crate::faces::FaceSet::collect(docs);
+        // The face a single-face build emits; its metadata is what the tables
+        // are assembled from.
+        let primary_id = faces.primary().id.clone();
+        let primary = if primary_id.is_empty() { None } else { Some(primary_id.as_str()) };
         let expansion =
             crate::render::ttf_builder::expand_documents_for(docs, &name_parts, &faces);
         Self {
             name_parts,
             faces,
-            meta: crate::meta::FontMeta::collect(docs),
+            meta: crate::meta::FontMeta::for_face(docs, primary),
             expansion,
         }
     }
