@@ -686,7 +686,8 @@ position of the pass:
   lies to the left and has not yet reached what lies to the right. A rule chaining off a lookbehind
   therefore repeats over a run of any length, while a rule chaining off a lookahead cannot: it has
   to spell its context out in the glyphs the pass started with, and its reach is bounded by how many
-  rules are written. `font/arrow.unf` has one of each, next to each other.
+  rules are written. Turning the pass around with `reversed` swaps which side can chain, and
+  `font/arrow.unf` uses both — a lookbehind chain for `<===` and a reversed one for `===>`.
 
 Groups themselves are ordered by [`remap group`](#remap-group-group-declarations); every group is a
 separate pass, and the passes run in that order.

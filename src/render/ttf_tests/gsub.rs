@@ -636,3 +636,41 @@ feature ccmp for DFLT : grp
 ";
     assert_eq!(shape_glyph_names(input, "a"), vec!["b".to_string()]);
 }
+
+/// The point of a `reversed` group: it runs right to left, so its lookahead
+/// matches what the same lookup has *already* produced and the rule repeats
+/// leftward over a run of any length. The forward spelling of this needs one
+/// rule per run length.
+#[test]
+fn a_reversed_group_chains_leftward_without_a_bound() {
+    let input = "\
+glyph pix 1 1
+@@
+glyph eq = pix
+glyph gt = pix
+glyph eq-gt = pix
+glyph eq-cont = pix
+map U+003D = eq
+map U+003E = gt
+map U+0051 = eq-gt
+map U+0052 = eq-cont
+remap liga : eq gt -> eq-gt
+remap cont : eq -> eq-cont : eq-cont
+remap cont : eq -> eq-cont : eq-gt
+remap group cont reversed after liga
+feature calt for DFLT : liga
+feature calt for DFLT : cont
+";
+    for run in 1..=12 {
+        let text = format!("{}>", "=".repeat(run));
+        let mut expected = vec!["eq-cont".to_string(); run - 1];
+        expected.push("eq-gt".to_string());
+        assert_eq!(shape_glyph_names(input, &text), expected, "run of {run}");
+    }
+
+    // Without the ligature ahead of them, a run of `=` is left alone.
+    assert_eq!(
+        shape_glyph_names(input, "==="),
+        vec!["eq".to_string(), "eq".to_string(), "eq".to_string()],
+    );
+}

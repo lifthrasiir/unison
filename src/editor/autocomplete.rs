@@ -15,6 +15,7 @@ pub(crate) enum CompletionKind {
     Keyword,
     GlyphFlag,
     Color,
+    RemapGroup,
 }
 
 #[derive(Clone, Debug)]
@@ -315,7 +316,8 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
         }
         use crate::editor::line_fields::FieldRole;
         return match f.role {
-            FieldRole::GlyphRef | FieldRole::RemapGroupRef => ctx(CompletionKind::Glyph),
+            FieldRole::GlyphRef => ctx(CompletionKind::Glyph),
+            FieldRole::RemapGroupRef => ctx(CompletionKind::RemapGroup),
             FieldRole::ColorRef => ctx(CompletionKind::Color),
             FieldRole::PointDef => ctx(CompletionKind::Point),
             FieldRole::NamePartsDef => ctx(CompletionKind::NameParts),
@@ -400,7 +402,14 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             }
         }
         "remap" => {
-            if rest_token_idx.is_none() {
+            // On a declaration only `after`'s operand is a name at all; the
+            // rest of the line is keywords. A rule's operands are glyphs.
+            if crate::editor::line_fields::is_remap_group_decl(rest) {
+                let prev = rest.iter().rev().find(|s| s.raw_end <= adj_col);
+                if rest_token_idx.is_none() && prev.is_some_and(|s| s.value == "after") {
+                    return ctx(CompletionKind::RemapGroup);
+                }
+            } else if rest_token_idx.is_none() {
                 return ctx(CompletionKind::Glyph);
             }
         }
@@ -414,7 +423,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
                 && rest_token_idx.is_none()
                 && rest.len() == colon_pos + 1
             {
-                return ctx(CompletionKind::Glyph);
+                return ctx(CompletionKind::RemapGroup);
             }
         }
         "color" => {
@@ -532,6 +541,24 @@ fn collect_candidates(
                     kind: CompletionKind::GlyphFlag,
                 });
             }
+        }
+        CompletionKind::RemapGroup => {
+            // Doc-local, like the color names below: a group could in principle
+            // be spread over files, but every one of them is written where its
+            // rules are.
+            for item in &source.doc.items {
+                let name = match item {
+                    DocumentItem::Remap { feature, .. } => feature,
+                    DocumentItem::RemapGroup { name, .. } => name,
+                    _ => continue,
+                };
+                candidates.push(CompletionCandidate {
+                    label: name.clone(),
+                    kind: CompletionKind::RemapGroup,
+                });
+            }
+            candidates.sort_by(|a, b| a.label.cmp(&b.label));
+            candidates.dedup_by(|a, b| a.label == b.label);
         }
         CompletionKind::Color => {
             candidates.push(CompletionCandidate {
@@ -690,4 +717,43 @@ mod tests {
         assert_eq!(ctx.kind, CompletionKind::Keyword);
         assert_eq!(ctx.prefix, "col");
     }
+
+    /// Group names and glyph names are different namespaces, and completing one
+    /// with the other is worse than not completing at all.
+    #[test]
+    fn group_names_complete_where_a_group_is_named() {
+        // `after`'s operand, mid-token and at a fresh one.
+        let ctx = detect_context("remap group a after fl", 22).unwrap();
+        assert_eq!(ctx.kind, CompletionKind::RemapGroup);
+        assert_eq!(ctx.prefix, "fl");
+        assert_eq!(
+            detect_context("remap group a after ", 20).unwrap().kind,
+            CompletionKind::RemapGroup,
+        );
+        // And what a `feature` attaches.
+        assert_eq!(
+            detect_context("feature calt for DFLT : ", 24).unwrap().kind,
+            CompletionKind::RemapGroup,
+        );
+        assert_eq!(
+            detect_context("feature calt for DFLT : asc", 27).unwrap().kind,
+            CompletionKind::RemapGroup,
+        );
+    }
+
+    /// The declaration's own name is a definition, and a rule's operands are
+    /// still glyphs — including in a group that is named `group`.
+    #[test]
+    fn a_group_declaration_does_not_complete_glyphs() {
+        assert!(detect_context("remap group a reversed ", 23).is_none());
+        assert_eq!(
+            detect_context("remap group : ", 14).unwrap().kind,
+            CompletionKind::Glyph,
+        );
+        assert_eq!(
+            detect_context("remap grp : a -> ", 17).unwrap().kind,
+            CompletionKind::Glyph,
+        );
+    }
+
 }

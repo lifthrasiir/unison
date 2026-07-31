@@ -131,6 +131,7 @@ pub(super) fn show_autocomplete_popup(
                             crate::editor::autocomplete::CompletionKind::Keyword => "K",
                             crate::editor::autocomplete::CompletionKind::GlyphFlag => "F",
                             crate::editor::autocomplete::CompletionKind::Color => "C",
+                            crate::editor::autocomplete::CompletionKind::RemapGroup => "R",
                         };
                         let text = format!("{kind_char}  {}", candidate.label);
                         if ui.selectable_label(selected, &text).clicked() {

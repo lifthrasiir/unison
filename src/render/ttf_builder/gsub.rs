@@ -22,7 +22,9 @@
 //! * **Lookbehind is matched against rewritten glyphs, lookahead against
 //!   untouched ones**, since the pass has passed the former and not the latter.
 //!   A lookbehind chain repeats over a run of unbounded length; a lookahead
-//!   chain cannot, and has to enumerate its context instead.
+//!   chain cannot, and has to enumerate its context instead — unless the group
+//!   is `reversed`, which turns the pass around and with it which side of a
+//!   rule can chain (see [`build_reverse_chain_lookup`]).
 //!
 //! [`classify_remap_set`] is where the collapse happens: a group with any
 //! context becomes a single chain-context lookup whose subtables carry one
@@ -159,6 +161,7 @@ enum RemapSetKind {
     Multiple,
     Ligature,
     ChainContext,
+    Reverse,
 }
 
 /// The GSUB lookup type a single `remap` line needs, ignoring its context.
@@ -192,7 +195,16 @@ fn rule_kind_of(r: &ExpandedRemap) -> Option<RemapRuleKind> {
     )
 }
 
-fn classify_remap_set(remaps: &[ExpandedRemap]) -> RemapSetKind {
+fn classify_remap_set(remaps: &[ExpandedRemap], reversed: bool) -> RemapSetKind {
+    // `reversed` is the group's own decision and overrides the shape-based
+    // classification: the reverse lookup is the only one that runs right to
+    // left, and it cannot be reached any other way. Rules it cannot express
+    // (anything but 1 → 1) are an error `issues.rs` reports; here the offending
+    // rule is dropped rather than quietly rebuilt as something forward.
+    if reversed {
+        return RemapSetKind::Reverse;
+    }
+
     let has_context = remaps
         .iter()
         .any(|r| !r.lookbehind.is_empty() || !r.lookahead.is_empty());
@@ -236,7 +248,8 @@ pub(super) fn build_gsub(
     // attached with `feature` deliberately has no say in it.
     for setname in &gsub_data.groups.order {
         let Some(remaps) = gsub_data.remap_sets.get(setname) else { continue };
-        match classify_remap_set(remaps) {
+        let reversed = gsub_data.groups.info.get(setname).is_some_and(|i| i.reversed);
+        match classify_remap_set(remaps, reversed) {
             RemapSetKind::Single => {
                 let lookup = build_single_subst_lookup(remaps, name_to_gid);
                 set_to_lookup.insert(setname.clone(), lookups.len() as u16);
@@ -249,6 +262,16 @@ pub(super) fn build_gsub(
             }
             RemapSetKind::Ligature => {
                 let lookup = build_ligature_subst_lookup(remaps, name_to_gid);
+                set_to_lookup.insert(setname.clone(), lookups.len() as u16);
+                lookups.push(lookup);
+            }
+            RemapSetKind::Reverse => {
+                // Rules the reverse format cannot express are dropped (and
+                // reported); if that leaves nothing, the group is skipped
+                // entirely rather than emitting a lookup with no subtables.
+                let Some(lookup) = build_reverse_chain_lookup(remaps, name_to_gid) else {
+                    continue;
+                };
                 set_to_lookup.insert(setname.clone(), lookups.len() as u16);
                 lookups.push(lookup);
             }
@@ -476,6 +499,74 @@ fn build_single_subst_lookup(
         }
     }
     build_single_subst_from_pairs(&all_sources, &all_targets, name_to_gid)
+}
+
+/// A `reversed` group: one reverse chaining contextual single substitution,
+/// one subtable per rule.
+///
+/// This is the only lookup a shaper applies right to left, which is the whole
+/// point of it: at each position the glyphs *ahead* have already been through
+/// this same lookup, so a rule whose lookahead names its own output repeats
+/// leftward over a run of any length. A forward lookup can only do that with a
+/// lookbehind, and a run anchored on its right has nothing to chain off there.
+///
+/// The price is that the format substitutes one glyph for one glyph and nothing
+/// else — there is no reverse ligature — and that it may not be invoked as a
+/// nested lookup, so it cannot share a group with rules of other kinds.
+fn build_reverse_chain_lookup(
+    remaps: &[ExpandedRemap],
+    name_to_gid: &HashMap<String, GlyphId16>,
+) -> Option<SubstitutionLookup> {
+    let mut subtables: Vec<ReverseChainSingleSubstFormat1> = Vec::new();
+
+    for r in remaps {
+        // `substitute_glyph_ids` is indexed by coverage index, and a coverage
+        // table is sorted by glyph id — so the pairs have to be sorted by
+        // source before either array is written, not left in rule order.
+        let mut pairs: Vec<(GlyphId16, GlyphId16)> = r
+            .source
+            .iter()
+            .zip(r.target.iter())
+            .filter(|(src, tgt)| src.len() == 1 && tgt.len() == 1)
+            .filter_map(|(src, tgt)| {
+                Some((*name_to_gid.get(&src[0])?, *name_to_gid.get(&tgt[0])?))
+            })
+            .collect();
+        pairs.sort_by_key(|(src, _)| *src);
+        pairs.dedup_by_key(|(src, _)| *src);
+        if pairs.is_empty() {
+            continue;
+        }
+
+        let coverage = CoverageTable::format_1(pairs.iter().map(|(src, _)| *src).collect());
+        let substitutes: Vec<GlyphId16> = pairs.iter().map(|(_, tgt)| *tgt).collect();
+
+        // Backtrack runs outward from the input — nearest glyph first — the
+        // same way the chain-context builder above orders it.
+        let backtrack: Vec<CoverageTable> = r
+            .lookbehind
+            .iter()
+            .rev()
+            .map(|names| make_coverage(names, name_to_gid))
+            .collect();
+        let lookahead: Vec<CoverageTable> = r
+            .lookahead
+            .iter()
+            .map(|names| make_coverage(names, name_to_gid))
+            .collect();
+
+        subtables.push(ReverseChainSingleSubstFormat1::new(
+            coverage,
+            backtrack,
+            lookahead,
+            substitutes,
+        ));
+    }
+
+    if subtables.is_empty() {
+        return None;
+    }
+    Some(SubstitutionLookup::Reverse(Lookup::new(LookupFlag::empty(), subtables)))
 }
 
 /// The nested lookup a chain-context rule invokes at input position 0.

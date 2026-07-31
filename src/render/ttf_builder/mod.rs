@@ -42,8 +42,9 @@ use write_fonts::tables::glyf::{
 use read_fonts::tables::glyf::Anchor;
 use read_fonts::tables::glyf::CurvePoint;
 use write_fonts::tables::gsub::{
-    Gsub, Ligature, LigatureSet, LigatureSubstFormat1, MultipleSubstFormat1, Sequence, SingleSubst,
-    SingleSubstFormat2, SubstitutionChainContext, SubstitutionLookup,
+    Gsub, Ligature, LigatureSet, LigatureSubstFormat1, MultipleSubstFormat1,
+    ReverseChainSingleSubstFormat1, Sequence, SingleSubst, SingleSubstFormat2,
+    SubstitutionChainContext, SubstitutionLookup,
 };
 use write_fonts::tables::head::{Flags, Head};
 use write_fonts::tables::hhea::Hhea;

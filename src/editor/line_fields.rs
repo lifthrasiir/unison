@@ -79,6 +79,17 @@ fn field(role: FieldRole, leading: usize, span: &TokenSpan) -> LineField {
     }
 }
 
+/// Whether a `remap` line's tokens — the keyword already dropped — declare a
+/// group rather than state a rule.
+///
+/// Told apart the same way the parser tells them apart: a rule always writes a
+/// colon straight after its group name, so a group named `group` needs no
+/// special case. Completion asks this too, so the two cannot drift.
+pub(crate) fn is_remap_group_decl(rest: &[TokenSpan]) -> bool {
+    rest.first().is_some_and(|s| s.value == "group")
+        && rest.get(1).is_some_and(|s| s.value != ":" && !s.value.ends_with(':'))
+}
+
 pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
     let trimmed = line.trim_start();
     let leading = line.chars().count() - trimmed.chars().count();
@@ -138,15 +149,8 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             }
         }
         // `remap group NAME [reversed] [after GROUP]...` — a declaration, whose
-        // every name is a group name and none of them a glyph. Told from a rule
-        // the same way the parser tells them apart: a rule always has a colon
-        // right after its group name, including one named `group`.
-        "remap"
-            if rest.first().is_some_and(|s| s.value == "group")
-                && rest
-                    .get(1)
-                    .is_some_and(|s| s.value != ":" && !s.value.ends_with(':')) =>
-        {
+        // every name is a group name and none of them a glyph.
+        "remap" if is_remap_group_decl(rest) => {
             fields.push(field(FieldRole::RemapGroupDef, leading, &rest[1]));
             let mut i = 2;
             while i < rest.len() {

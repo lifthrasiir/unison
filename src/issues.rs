@@ -216,7 +216,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         }
                     }
                 }
-                DocumentItem::Remap { source, target, .. } => {
+                DocumentItem::Remap { feature, source, target, .. } => {
                     // OpenType has a lookup type for one-to-one, one-to-many
                     // (including one-to-nothing) and many-to-one, and nothing
                     // for the rest. The builder used to emit whatever was
@@ -228,6 +228,22 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                             "remap of {} glyph(s) to {} glyph(s) has no OpenType lookup type; \
                              a source of more than one glyph needs exactly one target",
                             source.len(), target.len(),
+                        )));
+                    }
+
+                    // The reverse lookup substitutes one glyph for one glyph
+                    // and has no ligature or multiple form at all, so a rule of
+                    // any other shape cannot be built here — and rebuilding the
+                    // group forward to accommodate it would silently take away
+                    // the very thing `reversed` was asked for.
+                    if groups.info.get(feature).is_some_and(|i| i.reversed)
+                        && (source.len() != 1 || target.len() != 1)
+                    {
+                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
+                            "remap group '{}' is reversed, so each of its rules must \
+                             substitute one glyph for one glyph; this one has {} source \
+                             glyph(s) and {} target glyph(s)",
+                            feature, source.len(), target.len(),
                         )));
                     }
                 }
@@ -1405,6 +1421,33 @@ assume unused orphan
         let issues = group_issues(
             "glyph pix 1 1\n@@\nglyph a = pix\nglyph b = pix\nmap A = a\nmap B = b\n\
              feature ccmp for DFLT : late\nremap late : a -> b\n",
+        );
+        assert!(issues.is_empty(), "got: {issues:?}");
+    }
+
+
+    #[test]
+    fn reversed_group_with_a_non_single_rule_reported() {
+        let issues = group_issues(
+            "glyph pix 1 1\n@@\nglyph a = pix\nglyph b = pix\nglyph c = pix\n\
+             map A = a\nmap B = b\nmap C = c\n\
+             remap x : a -> b\nremap x : a b -> c\nremap group x reversed\n",
+        );
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("reversed")
+                && i.message.contains("one glyph")),
+            "got: {issues:?}",
+        );
+    }
+
+    /// The same rule is perfectly fine in a group that is not reversed.
+    #[test]
+    fn a_ligature_is_only_rejected_when_the_group_is_reversed() {
+        let issues = group_issues(
+            "glyph pix 1 1\n@@\nglyph a = pix\nglyph b = pix\nglyph c = pix\n\
+             map A = a\nmap B = b\nmap C = c\n\
+             remap x : a b -> c\nremap group x\n",
         );
         assert!(issues.is_empty(), "got: {issues:?}");
     }
