@@ -120,6 +120,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
+| The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
 | Feature targets, `DFLT`/LangSys fallback | `render/ttf_builder/gsub.rs` |
 | `assert shape` and why `@lang` is BCP 47 | `render/assert.rs` |
 | Contour coordinate spaces | `render/contour.rs` |

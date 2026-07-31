@@ -160,6 +160,12 @@ pub struct EditorState {
     pub(crate) saved_scroll_frac: f32,
     zoom_changed_from: Option<u32>,
     pub(crate) grid_hover: bool,
+    /// Quarter turns the shape palette is currently rotated by (0..4).
+    ///
+    /// Remembered *beside* the selected shape rather than inside it: the wheel
+    /// rotates every cell of the palette at once, so switching shapes keeps the
+    /// orientation. See [`glyph_widget::palette_shapes`].
+    pub(crate) shape_rotation: u32,
     /// Horizontal scroll offset of the glyph grid strip, in pixels. Only
     /// grids wider than the strip use it, each clamped to its own overflow,
     /// so narrow grids stay put while a wide one scrolls.
@@ -211,6 +217,7 @@ impl EditorState {
             saved_scroll_frac: 0.0,
             zoom_changed_from: None,
             grid_hover: false,
+            shape_rotation: 0,
             grid_scroll_x: 0.0,
             pixel_selection: None,
             view_cache: None,

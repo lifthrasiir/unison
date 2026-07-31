@@ -206,6 +206,12 @@ pub(super) fn handle_document_keys(
             // Subpixel shape shortcuts in GlyphEdit mode
             if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
                 handle_shape_shortcuts(ui, selected_shape);
+                // The shortcuts name absolute orientations, so the palette
+                // follows them rather than the other way round.
+                crate::editor::glyph_widget::sync_rotation(
+                    *selected_shape,
+                    &mut state.shape_rotation,
+                );
             }
 
             if matches!(state.mode, EditMode::Normal)

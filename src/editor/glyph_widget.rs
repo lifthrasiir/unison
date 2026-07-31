@@ -323,20 +323,200 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
     s
 }
 
-pub const PALETTE_COLS: usize = 16;
+/// The palette is *rotation-invariant*: it lists one representative per
+/// 90°-rotation orbit of [`all_valid_shapes`], and the current rotation is
+/// remembered next to it (`EditorState::shape_rotation`) rather than being part
+/// of the selected shape. Every catalog shape is therefore reached as
+/// "representative + rotation", which is why the palette has 14 cells for 48
+/// shapes: the orbits have periods 1 (`PX_ALMOSTFULL`, `PX_DOT`), 2
+/// (`PX_HQUAD`/`PX_VQUAD`) and 4 (everything else).
+///
+/// Orbits are derived from [`all_valid_shapes`] rather than spelled out, so the
+/// palette follows that list — adding a shape there adds it here, either as a
+/// new representative or as a rotation of an existing one.
+struct Orbits {
+    /// Representatives, in `all_valid_shapes()` order.
+    reps: Vec<PixelShape>,
+    /// Number of distinct shapes each representative rotates through (1, 2, 4).
+    periods: Vec<u32>,
+    /// Shape id (the fill bit ignored — rotation never touches it) →
+    /// (representative index, clockwise steps from that representative).
+    by_id: std::collections::HashMap<u8, (usize, u32)>,
+}
+
+fn orbits() -> &'static Orbits {
+    static ORBITS: std::sync::LazyLock<Orbits> = std::sync::LazyLock::new(build_orbits);
+    &ORBITS
+}
+
+fn build_orbits() -> Orbits {
+    let mut reps: Vec<PixelShape> = Vec::new();
+    let mut periods: Vec<u32> = Vec::new();
+    let mut by_id: std::collections::HashMap<u8, (usize, u32)> = std::collections::HashMap::new();
+
+    for &shape in all_valid_shapes() {
+        if by_id.contains_key(&shape.shape_id()) {
+            continue;
+        }
+        let idx = reps.len();
+        let mut ids: Vec<u8> = Vec::new();
+        let mut cur = shape;
+        while !ids.contains(&cur.shape_id()) {
+            ids.push(cur.shape_id());
+            cur = cur.rotate_cw();
+        }
+        for (step, id) in ids.iter().enumerate() {
+            by_id.insert(*id, (idx, step as u32));
+        }
+        reps.push(shape);
+        periods.push(ids.len() as u32);
+    }
+
+    Orbits {
+        reps,
+        periods,
+        by_id,
+    }
+}
+
+/// One shape per rotation orbit: the cells of the shape palette.
+pub fn palette_shapes() -> &'static [PixelShape] {
+    &orbits().reps
+}
+
+/// Which palette cell a shape belongs to, and how many clockwise 90° steps
+/// separate it from that cell's representative. `None` for shapes outside the
+/// catalog (`PX_CUSTOM`, `PX_EMPTY`).
+pub fn shape_orbit(shape: PixelShape) -> Option<(usize, u32)> {
+    orbits().by_id.get(&shape.shape_id()).copied()
+}
+
+/// How many distinct shapes palette cell `idx` rotates through (1, 2 or 4).
+pub fn orbit_period(idx: usize) -> u32 {
+    orbits().periods.get(idx).copied().unwrap_or(1)
+}
+
+/// `shape` rotated `steps` × 90° clockwise (negative for counter-clockwise).
+/// The fill bit rides along untouched.
+pub fn rotate_shape(shape: PixelShape, steps: i32) -> PixelShape {
+    let mut out = shape;
+    for _ in 0..steps.rem_euclid(4) {
+        out = out.rotate_cw();
+    }
+    out
+}
+
+/// Adopt the rotation implied by a shape that was chosen by some other route —
+/// a keyboard shortcut or the slant re-paint toggle, both of which name an
+/// absolute orientation. The rotation only moves when it actually disagrees:
+/// for an orbit of period 1 or 2 the shape says nothing about the remaining
+/// quarter turns, and those are what the *other* palette cells rotate by.
+pub fn sync_rotation(shape: PixelShape, rotation: &mut u32) {
+    if let Some((idx, rot)) = shape_orbit(shape) {
+        let period = orbit_period(idx);
+        if *rotation % period != rot {
+            *rotation = rot;
+        }
+    }
+}
+
+/// One wheel notch over the palette or the grid: rotate the whole palette, or
+/// — with shift held — step to the neighbouring palette cell, keeping the
+/// rotation. Rotation and shape choice are orthogonal; this is the only place
+/// that moves either of them together.
+pub fn wheel_step_shape(
+    selected: &mut PixelShape,
+    rotation: &mut u32,
+    step: i32,
+    select_shape: bool,
+) {
+    if select_shape {
+        let reps = palette_shapes();
+        let cur = shape_orbit(*selected).map_or(0, |(idx, _)| idx);
+        let next = (cur as i32 + step).clamp(0, reps.len() as i32 - 1) as usize;
+        *selected = rotate_shape(reps[next], *rotation as i32);
+    } else {
+        *rotation = (*rotation as i32 + step).rem_euclid(4) as u32;
+        *selected = rotate_shape(*selected, step);
+    }
+}
+
+pub const PALETTE_COLS: usize = 14;
 
 pub fn palette_row_col(idx: usize) -> (usize, usize) {
     (idx / PALETTE_COLS, idx % PALETTE_COLS)
 }
 
 pub fn palette_rows() -> usize {
-    all_valid_shapes().len().div_ceil(PALETTE_COLS)
+    palette_shapes().len().div_ceil(PALETTE_COLS)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::pixel::*;
+
+    #[test]
+    fn palette_holds_one_cell_per_rotation_orbit() {
+        let reps = palette_shapes();
+        assert_eq!(reps.len(), 14, "orbits: {reps:?}");
+        assert_eq!(reps.len(), PALETTE_COLS, "the palette is a single row");
+        // Periods: PX_ALMOSTFULL and PX_DOT are fixed, HQUAD/VQUAD alternate,
+        // the remaining eleven turn through four orientations.
+        let mut by_period = [0usize; 5];
+        for idx in 0..reps.len() {
+            by_period[orbit_period(idx) as usize] += 1;
+        }
+        assert_eq!((by_period[1], by_period[2], by_period[4]), (2, 1, 11));
+    }
+
+    #[test]
+    fn every_catalog_shape_is_a_rotation_of_a_palette_cell() {
+        for &shape in all_valid_shapes() {
+            let (idx, rot) = shape_orbit(shape).expect("catalog shape has an orbit");
+            assert_eq!(
+                rotate_shape(palette_shapes()[idx], rot as i32).shape_id(),
+                shape.shape_id(),
+                "{shape:?} is not cell {idx} rotated {rot}×90°"
+            );
+        }
+        // ... and nothing outside the catalog sneaks in: 14 cells × their
+        // periods must be exactly the 48 shapes.
+        let reached: std::collections::HashSet<u8> = (0..palette_shapes().len())
+            .flat_map(|idx| (0..4).map(move |r| rotate_shape(palette_shapes()[idx], r).shape_id()))
+            .collect();
+        let catalog: std::collections::HashSet<u8> =
+            all_valid_shapes().iter().map(|s| s.shape_id()).collect();
+        assert_eq!(reached, catalog);
+    }
+
+    #[test]
+    fn rotation_survives_a_shape_change_and_vice_versa() {
+        let mut shape = PixelShape::new(PX_ALMOSTFULL, true);
+        let mut rot = 0;
+        // Two notches of plain wheel: rotation only.
+        wheel_step_shape(&mut shape, &mut rot, 1, false);
+        wheel_step_shape(&mut shape, &mut rot, 1, false);
+        assert_eq!(rot, 2);
+        // Shift+wheel picks another cell at the same rotation.
+        wheel_step_shape(&mut shape, &mut rot, 1, true);
+        assert_eq!(rot, 2, "the shape change must not disturb the rotation");
+        let (idx, _) = shape_orbit(shape).unwrap();
+        assert_eq!(shape, rotate_shape(palette_shapes()[idx], 2));
+    }
+
+    #[test]
+    fn an_absolute_shape_choice_adopts_its_own_rotation() {
+        let mut rot = 3;
+        // A period-4 shape pins the rotation...
+        let half3 = PixelShape::new(PX_HALF3, true);
+        sync_rotation(half3, &mut rot);
+        assert_eq!(rot, shape_orbit(half3).unwrap().1);
+        // ...while a rotation-invariant one leaves it alone.
+        let before = rot;
+        sync_rotation(PixelShape::new(PX_ALMOSTFULL, true), &mut rot);
+        assert_eq!(rot, before);
+    }
 
     fn poly(adj: u8, segs: &[(f32, f32, f32, f32)]) -> Vec<(f32, f32)> {
         let rect = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(1.0, 1.0));

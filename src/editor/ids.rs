@@ -169,6 +169,9 @@ pub(crate) enum Slot {
     /// Map of ref-thumbnail rects, published for `EditorHarness`.
     #[cfg(test)]
     TestRefRects,
+    /// Map of shape-palette cell rects, published for `EditorHarness`.
+    #[cfg(test)]
+    TestPaletteRects,
 }
 
 #[cfg(test)]

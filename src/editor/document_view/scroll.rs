@@ -40,10 +40,22 @@ pub(crate) fn debounced_scroll_step(ctx: &egui::Context) -> Option<i32> {
     let mut direction: Option<i32> = None;
     ctx.input(|i| {
         for event in &i.events {
-            if let egui::Event::MouseWheel { delta, .. } = event {
-                if delta.y > 0.0 {
+            if let egui::Event::MouseWheel {
+                delta, modifiers, ..
+            } = event
+            {
+                // Shift is a modifier here (shape selection, say), not a
+                // request for horizontal scrolling — but macOS already swaps
+                // the axis for us while it is held, so fold the two together
+                // rather than looking at `y` alone and missing every notch.
+                let dy = if modifiers.shift {
+                    delta.y + delta.x
+                } else {
+                    delta.y
+                };
+                if dy > 0.0 {
                     direction = Some(-1);
-                } else if delta.y < 0.0 {
+                } else if dy < 0.0 {
                     direction = Some(1);
                 }
             }

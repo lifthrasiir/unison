@@ -2830,3 +2830,117 @@ ref base inherit
         "the drawn area must reach the inherited +above at row -2, got rows {rows:?}",
     );
 }
+
+// ---------------------------------------------------------------------------
+// Shape palette: rotation and shape choice are orthogonal
+// ---------------------------------------------------------------------------
+
+fn selected_shape(h: &EditorHarness) -> crate::pixel::PixelShape {
+    match h.state.mode {
+        EditMode::GlyphEdit { selected_shape, .. } => selected_shape,
+        ref other => panic!("not editing pixels: {other:?}"),
+    }
+}
+
+/// A 4×2 glyph, entered in GlyphEdit mode with the pointer over its grid.
+fn palette_harness() -> EditorHarness {
+    let mut h = EditorHarness::new("glyph test 4 2\n........\n........\n");
+    h.click_grid_cell(1, 0, 0);
+    h.frame();
+    h
+}
+
+#[test]
+fn wheel_over_the_grid_rotates_the_selected_shape() {
+    use crate::editor::glyph_widget::rotate_shape;
+
+    let mut h = palette_harness();
+    // `f` picks HALF1 outright, so the starting orientation is known.
+    h.key(Key::F);
+    h.frame();
+    let start = selected_shape(&h);
+    assert_eq!(start.shape_id(), crate::pixel::PX_HALF1);
+    let start_rotation = h.state.shape_rotation;
+
+    let pos = h.grid_cell_pos(1, 0, 1);
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+
+    assert_eq!(
+        selected_shape(&h),
+        rotate_shape(start, 1),
+        "a wheel notch should turn the shape a quarter clockwise"
+    );
+    assert_eq!(h.state.shape_rotation, (start_rotation + 1) % 4);
+}
+
+#[test]
+fn shift_wheel_picks_another_shape_at_the_same_rotation() {
+    use crate::editor::glyph_widget::{palette_shapes, rotate_shape, shape_orbit};
+
+    let mut h = palette_harness();
+    h.key(Key::F);
+    h.frame();
+    let pos = h.grid_cell_pos(1, 0, 1);
+
+    // Rotate twice, then step to the neighbouring palette cell.
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+    let rotation = h.state.shape_rotation;
+    let before = shape_orbit(selected_shape(&h)).unwrap().0;
+
+    h.wheel_at_mod(pos, false, Modifiers::SHIFT);
+
+    let (cell, _) = shape_orbit(selected_shape(&h)).unwrap();
+    assert_eq!(cell, before + 1, "shift+wheel walks the palette");
+    assert_eq!(
+        h.state.shape_rotation, rotation,
+        "the rotation is remembered across a shape change"
+    );
+    assert_eq!(
+        selected_shape(&h),
+        rotate_shape(palette_shapes()[cell], rotation as i32),
+        "the new shape arrives already rotated"
+    );
+}
+
+#[test]
+fn the_whole_palette_rotates_with_the_wheel() {
+    use crate::editor::glyph_widget::{palette_shapes, rotate_shape};
+
+    let mut h = palette_harness();
+    let pos = h.grid_cell_pos(1, 0, 1);
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+    let rotation = h.state.shape_rotation;
+    assert_eq!(rotation, 1);
+
+    // Clicking a palette cell yields that cell *as drawn*, i.e. rotated —
+    // which is what makes the rotation visible in every cell, not just the
+    // preview under the cursor.
+    let cell = 3;
+    let click = h.palette_cell_pos(cell);
+    h.click_at(click);
+    h.frame();
+    assert_eq!(
+        selected_shape(&h),
+        rotate_shape(palette_shapes()[cell], rotation as i32)
+    );
+}
+
+#[test]
+fn a_shape_shortcut_pulls_the_palette_rotation_with_it() {
+    let mut h = palette_harness();
+    let pos = h.grid_cell_pos(1, 0, 1);
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+    h.wheel_at_mod(pos, false, Modifiers::NONE);
+
+    // `a` names PX_HALF3 absolutely; the palette adopts its orientation
+    // instead of leaving the two disagreeing.
+    h.key(Key::A);
+    h.frame();
+    let shape = selected_shape(&h);
+    assert_eq!(shape.shape_id(), crate::pixel::PX_HALF3);
+    assert_eq!(
+        h.state.shape_rotation,
+        crate::editor::glyph_widget::shape_orbit(shape).unwrap().1
+    );
+}

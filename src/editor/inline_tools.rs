@@ -353,6 +353,7 @@ pub(crate) fn draw_inline_tools_panel(
             panel_x,
             palette_y,
             selected_shape,
+            &mut state.shape_rotation,
             click_pos,
             palette_cell,
             &pal,
@@ -420,6 +421,10 @@ pub(crate) fn draw_inline_tools_panel(
     }
 }
 
+/// The shape palette: one cell per rotation orbit, every cell drawn at the
+/// editor's current rotation. A plain wheel notch turns the whole palette (and
+/// with it the shape under the cursor); shift+wheel walks the cells, which is
+/// why the rotation lives in [`EditorState`] and not in the selected shape.
 #[expect(clippy::too_many_arguments)]
 fn draw_inline_palette(
     ui: &egui::Ui,
@@ -428,16 +433,18 @@ fn draw_inline_palette(
     x: f32,
     y: f32,
     selected_shape: &mut pixel::PixelShape,
+    rotation: &mut u32,
     click_pos: Option<egui::Pos2>,
     cell_size: f32,
     pal: &Palette,
     shift_held: bool,
 ) {
     use crate::editor::glyph_widget::{
-        all_valid_shapes, draw_pixel_cell_colored, palette_row_col, palette_rows, PALETTE_COLS,
+        PALETTE_COLS, draw_pixel_cell_colored, palette_row_col, palette_rows, palette_shapes,
+        rotate_shape, shape_orbit, wheel_step_shape,
     };
 
-    let shapes = all_valid_shapes();
+    let shapes = palette_shapes();
     let cell = cell_size;
     let num_rows = palette_rows();
 
@@ -452,23 +459,26 @@ fn draw_inline_palette(
     });
     if let Some(step) =
         crate::editor::document_view::interceptor_scroll_step(ui.ctx(), editor, hover_on_palette)
-            && let Some(cur_idx) = shapes.iter().position(|s| s.shape_id() == selected_shape.shape_id()) {
-                let next = (cur_idx as i32 + step).clamp(0, shapes.len() as i32 - 1) as usize;
-                let next_shape = shapes[next];
-                *selected_shape = pixel::PixelShape::new(next_shape.shape_id(), next_shape.is_filled());
-            }
+    {
+        wheel_step_shape(selected_shape, rotation, step, shift_held);
+    }
     ui.ctx().data_mut(|d| {
         d.insert_temp(editor.key(Slot::ShapePaletteHover), hover_on_palette);
     });
 
-    for (i, shape) in shapes.iter().enumerate() {
+    let selected_cell = shape_orbit(*selected_shape).map(|(idx, _)| idx);
+    for (i, rep) in shapes.iter().enumerate() {
         let (row, col) = palette_row_col(i);
         let cell_rect = egui::Rect::from_min_size(
             egui::pos2(x + col as f32 * cell, y + row as f32 * cell),
             egui::vec2(cell, cell),
         );
 
-        let is_selected = shape.shape_id() == selected_shape.shape_id();
+        #[cfg(test)]
+        crate::editor::harness::capture_palette_rect(ui.ctx(), editor, i, cell_rect);
+
+        let shape = &rotate_shape(*rep, *rotation as i32);
+        let is_selected = selected_cell == Some(i);
         let bg = if is_selected {
             pal.shape_palette_selected_bg
         } else {
@@ -496,18 +506,8 @@ fn draw_inline_palette(
         if let Some(cp) = click_pos
             && cell_rect.contains(cp)
         {
-            if shape.is_slant_pair() && selected_shape.shape_id() == shape.shape_id() {
-                let pair = shape.slant_direction_pair();
-                *selected_shape = if shift_held { pair.with_fill_toggled() } else { pair };
-            } else if shape.is_slant_pair()
-                && selected_shape.shape_id() == shape.slant_direction_pair().shape_id()
-            {
-                let target = if shift_held { shape.with_fill_toggled() } else { *shape };
-                *selected_shape = target;
-            } else {
-                let new_fill = shape.is_filled() ^ (shift_held && !shape.is_empty());
-                *selected_shape = pixel::PixelShape::new(shape.shape_id(), new_fill);
-            }
+            let new_fill = shape.is_filled() ^ (shift_held && !shape.is_empty());
+            *selected_shape = pixel::PixelShape::new(shape.shape_id(), new_fill);
         }
     }
 }

@@ -697,6 +697,7 @@ pub(super) fn paint_document_area(
 
                 {
                     let ctrl_held = ui.input(|i| i.modifiers.command);
+                    let shift_held = ui.input(|i| i.modifiers.shift);
                     if let Some(step) = interceptor_scroll_step(ui.ctx(), state.id(), on_grid) {
                         if ctrl_held {
                             // Ctrl+wheel on grid: cycle layers (same as layer palette)
@@ -708,17 +709,16 @@ pub(super) fn paint_document_area(
                             );
                         } else if matches!(state.mode, EditMode::GlyphEdit { item_idx, .. } if item_idx == edit_idx)
                         {
-                            // Wheel on grid in pixel layer: cycle subpixel shapes
+                            // Wheel on grid in pixel layer: rotate the palette,
+                            // or with shift held pick another shape from it —
+                            // exactly as over the palette itself.
                             if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
-                                let shapes = crate::editor::glyph_widget::all_valid_shapes();
-                                if let Some(cur_idx) =
-                                    shapes.iter().position(|s| s.shape_id() == selected_shape.shape_id())
-                                {
-                                    let next_idx = (cur_idx as i32 + step)
-                                        .clamp(0, shapes.len() as i32 - 1)
-                                        as usize;
-                                    *selected_shape = shapes[next_idx];
-                                }
+                                crate::editor::glyph_widget::wheel_step_shape(
+                                    selected_shape,
+                                    &mut state.shape_rotation,
+                                    step,
+                                    shift_held,
+                                );
                             }
                         }
                     }

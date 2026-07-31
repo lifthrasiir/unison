@@ -119,6 +119,27 @@ pub(crate) fn capture_ref_rect(
     });
 }
 
+fn palette_rects_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestPaletteRects)
+}
+
+/// Called from `draw_inline_palette` (test builds only) to publish the
+/// on-screen rect of one shape-palette cell.
+pub(crate) fn capture_palette_rect(
+    ctx: &egui::Context,
+    editor: EditorId,
+    cell: usize,
+    rect: egui::Rect,
+) {
+    ctx.data_mut(|d| {
+        let mut map = d
+            .get_temp::<HashMap<usize, egui::Rect>>(palette_rects_id(editor))
+            .unwrap_or_default();
+        map.insert(cell, rect);
+        d.insert_temp(palette_rects_id(editor), map);
+    });
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -670,6 +691,11 @@ impl EditorHarness {
     /// longer than one frame, so a few idle frames are run first to let a
     /// preceding tick expire.
     pub fn alt_wheel_at(&mut self, pos: egui::Pos2, up: bool) {
+        self.wheel_at_mod(pos, up, egui::Modifiers::ALT);
+    }
+
+    /// One coarse wheel tick over a screen position with arbitrary modifiers.
+    pub fn wheel_at_mod(&mut self, pos: egui::Pos2, up: bool, modifiers: egui::Modifiers) {
         for _ in 0..5 {
             self.frame();
         }
@@ -680,10 +706,10 @@ impl EditorHarness {
                 egui::Event::MouseWheel {
                     unit: egui::MouseWheelUnit::Line,
                     delta: egui::vec2(0.0, dy),
-                    modifiers: egui::Modifiers::ALT,
+                    modifiers,
                 },
             ],
-            egui::Modifiers::ALT,
+            modifiers,
         );
         self.frame();
     }
@@ -784,6 +810,17 @@ impl EditorHarness {
     /// the glyph at `edit_idx` being edited).
     pub fn ref_thumbnail_pos(&self, edit_idx: usize, ref_idx: usize) -> egui::Pos2 {
         self.ref_thumbnail_rect(edit_idx, ref_idx).center()
+    }
+
+    /// Screen position of the center of shape-palette cell `cell` (available
+    /// once the inline tools panel has rendered a frame in GlyphEdit mode).
+    pub fn palette_cell_pos(&self, cell: usize) -> egui::Pos2 {
+        let map = self
+            .ctx
+            .data(|d| d.get_temp::<HashMap<usize, egui::Rect>>(palette_rects_id(self.state.id())));
+        map.and_then(|m| m.get(&cell).copied())
+            .expect("palette cell rect not captured -- was the shape palette rendered?")
+            .center()
     }
 
     /// Screen position of the center of a grid cell.
