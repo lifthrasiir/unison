@@ -1,10 +1,12 @@
 # Unison
 
 **Unison** is a pan-Unicode hybrid bitmap monospace font in development.
+It currently comes with two varieties, **Unison Regular** for the normal usages,
+and **Unison Term** for terminal emulators which expect non-CJK-specific symbols to be half-width.
 
-* Download: [TTF](https://lifthrasiir.github.io/unison/unison.ttf), [WOFF2](https://lifthrasiir.github.io/unison/unison.woff2)
-* [Glyph samples](https://lifthrasiir.github.io/unison/sample.html)
-* [Live sample](https://lifthrasiir.github.io/unison/live.html)
+* Download: [TTC](https://lifthrasiir.github.io/unison/unison.ttc), [Regular WOFF2](https://lifthrasiir.github.io/unison/unison-regular.woff2), [Term WOFF2](https://lifthrasiir.github.io/unison/unison-term.woff2)
+* [Glyph samples](https://lifthrasiir.github.io/unison/sample.html) for Regular
+* [Live sample](https://lifthrasiir.github.io/unison/live.html) for Regular
 
 ## Pan-What?
 

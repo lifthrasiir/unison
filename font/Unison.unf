@@ -1,16 +1,25 @@
 // Unison font.
 // also see LICENSE.txt and README.md in the parent directory.
 
-meta family `Unison`
-meta subfamily `Regular`
 meta designer `Kang Seonghoon`
 meta copyright `The author of Unison, Kang Seonghoon, disclaims copyright to the font data. For jurisdictions where authors cannot disclaim their copyright, it is distributed under CC0 1.0 Universal.`
 meta license `Public domain where the author can disclaim copyright; otherwise CC0 1.0 Universal.`
-meta license-url `https://creativecommons.org/publicdomain/zero/1.0/`
+meta license-url https://creativecommons.org/publicdomain/zero/1.0/
 // Not literally true — half-width and full-width cells are two advances — but
 // terminal font pickers filter on it, and every CJK monospace font claims it
 // for the same reason. Dropping it would hide Unison from those lists.
 meta fixed-pitch
+
+face regular : wide
+meta regular : family Unison
+meta regular : subfamily Regular
+
+face term : narrow
+meta term : family `Unison Term`
+meta term : subfamily Regular
+
+slice narrow
+slice wide
 
 // these are the bare minimum glyphs required for an OpenType font.
 

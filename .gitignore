@@ -3,6 +3,9 @@ target
 live.html
 sample.html
 sample.png
+unison.ttc
 unison.ttf
+unison-*.ttf
 unison.woff2
+unison-*.woff2
 *.log
