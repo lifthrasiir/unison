@@ -32,6 +32,9 @@ pub(super) fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Optio
                             RenameKind::NameParts => "Rename name-parts",
                             RenameKind::Point => "Rename point",
                             RenameKind::Color => "Rename color",
+                            RenameKind::Face => "Rename face",
+                            RenameKind::Slice => "Rename slice",
+                            RenameKind::RemapGroup => "Rename remap group",
                         },
                         _ => "Rename",
                     };

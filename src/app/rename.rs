@@ -1,4 +1,15 @@
-//! Renaming a glyph, name-parts variable or point across every open document.
+//! Renaming a name across every open document — and across the unopened files
+//! that mention it, which [`doc_may_reference`] finds and opens first.
+//!
+//! Every kind in [`crate::editor::doc_links::RenameKind`] is renamed the same
+//! way: the line classification says which tokens are that kind's name, and
+//! this file splices over exactly those. So the two halves cannot disagree
+//! about, say, whether a `remap` line's first operand is a glyph.
+//!
+//! `doc_may_reference` is the one place that has to be kept in step by hand:
+//! it decides which *unopened* files to load, from parsed items rather than
+//! from the classification, and a kind missing an arm there renames only the
+//! files that happen to be open.
 
 use super::*;
 use super::docs::{load_open_document, shadowed_by_open};
@@ -81,10 +92,55 @@ fn doc_may_reference(
                     return true;
                 }
             }
+            (RenameKind::Face, DocumentItem::Face { id, .. }) => {
+                if id == name { return true; }
+            }
+            // A `meta` line keeps its text unparsed, so its `FACE :` scope is
+            // read the one way every other consumer reads a name: through the
+            // line classification, keyword and all.
+            (RenameKind::Face, DocumentItem::Meta(text)) => {
+                if meta_scope_is(text, name) { return true; }
+            }
+            (RenameKind::Slice, DocumentItem::Slice { id, inherits, .. }) => {
+                if id == name || inherits.iter().any(|s| s == name) { return true; }
+            }
+            (RenameKind::Slice, DocumentItem::Face { slices, .. }) => {
+                if slices.iter().any(|s| s == name) { return true; }
+            }
+            (
+                RenameKind::Slice,
+                DocumentItem::Map { slice: Some(slice), .. }
+                | DocumentItem::MapDecomposed { slice: Some(slice), .. }
+                | DocumentItem::Feature { slice: Some(slice), .. }
+                | DocumentItem::FeatureAnchor { slice: Some(slice), .. },
+            ) => {
+                if slice == name { return true; }
+            }
+            (RenameKind::Slice, DocumentItem::AssertShape { slices, .. }) => {
+                if slices.iter().any(|s| s == name) { return true; }
+            }
+            (RenameKind::RemapGroup, DocumentItem::Remap { feature, .. }) => {
+                if feature == name { return true; }
+            }
+            (RenameKind::RemapGroup, DocumentItem::RemapGroup { name: n, after, .. }) => {
+                if n == name || after.iter().any(|g| g == name) { return true; }
+            }
+            (RenameKind::RemapGroup, DocumentItem::Feature { remap_group, .. }) => {
+                if remap_group == name { return true; }
+            }
             _ => {}
         }
     }
     false
+}
+
+/// Whether a `meta` item's text — everything after the keyword — is scoped to
+/// the face `name`.
+fn meta_scope_is(text: &str, name: &str) -> bool {
+    use crate::editor::line_fields::{FieldRole, classify_line};
+    classify_line(&format!("meta {text}"))
+        .iter()
+        .any(|f| f.role == FieldRole::FaceRef && f.token == name)
 }
 
 /// Applies a rename to one line by splicing new text over the classified
@@ -127,6 +183,23 @@ fn rename_in_line(
                 (bare == old_name).then(|| format!("{prefix}{new_name}"))
             }
             (RenameKind::Color, FieldRole::ColorDef | FieldRole::ColorRef)
+                if f.token == old_name =>
+            {
+                Some(crate::document_io::quote_token(new_name))
+            }
+            (RenameKind::Face, FieldRole::FaceDef | FieldRole::FaceRef)
+                if f.token == old_name =>
+            {
+                Some(crate::document_io::quote_token(new_name))
+            }
+            // The classification already stripped a rule's structural `:` off
+            // the token *and* off its span, so the colon stays put.
+            (RenameKind::RemapGroup, FieldRole::RemapGroupDef | FieldRole::RemapGroupRef)
+                if f.token == old_name =>
+            {
+                Some(crate::document_io::quote_token(new_name))
+            }
+            (RenameKind::Slice, FieldRole::SliceDef | FieldRole::SliceRef)
                 if f.token == old_name =>
             {
                 Some(crate::document_io::quote_token(new_name))
@@ -357,6 +430,125 @@ mod rename_tests {
         assert_eq!(result, vec!["assert shape AB : quux : b-upper"]);
     }
 
+    /// A slice id is one id wherever it is written: the declaration, a
+    /// qualifier, a face's include list and a union all move together.
+    #[test]
+    fn rename_slice_everywhere_it_appears() {
+        let lines = vec![
+            t("slice narrow"),
+            t("slice both = narrow wide"),
+            t("face term : narrow"),
+            t("map narrow : A = latin-a"),
+            t("feature narrow : liga for latn : eq-liga"),
+            t("assert shape AB for narrow : a-b"),
+        ];
+        let result = do_rename(&lines, "narrow", "compact", &RenameKind::Slice);
+        assert_eq!(
+            result,
+            vec![
+                "slice compact",
+                "slice both = compact wide",
+                "face term : compact",
+                "map compact : A = latin-a",
+                "feature compact : liga for latn : eq-liga",
+                "assert shape AB for compact : a-b",
+            ],
+        );
+    }
+
+    /// Faces and slices are different namespaces, and a `meta` scope is a face.
+    #[test]
+    fn rename_face_leaves_slices_alone() {
+        let lines = vec![
+            t("face term : narrow"),
+            t("meta term : family Unison Term"),
+            t("slice term"),
+            t("map term : A = latin-a"),
+        ];
+        let result = do_rename(&lines, "term", "console", &RenameKind::Face);
+        assert_eq!(
+            result,
+            vec![
+                "face console : narrow",
+                "meta console : family Unison Term",
+                // The slice named `term` is a different name entirely.
+                "slice term",
+                "map term : A = latin-a",
+            ],
+        );
+    }
+
+    /// A remap group is named by every rule that writes into it and by every
+    /// `feature` and `after` that points at it; the rule's `:` stays put
+    /// whether or not it was written tight against the name.
+    #[test]
+    fn rename_remap_group_everywhere_it_appears() {
+        let lines = vec![
+            t("remap group liga reversed after flag"),
+            t("remap liga : a -> b"),
+            t("remap liga: c -> d"),
+            t("remap group other after liga"),
+            t("feature dlig for latn : liga"),
+        ];
+        let result = do_rename(&lines, "liga", "eq-liga", &RenameKind::RemapGroup);
+        assert_eq!(
+            result,
+            vec![
+                "remap group eq-liga reversed after flag",
+                "remap eq-liga : a -> b",
+                "remap eq-liga: c -> d",
+                "remap group other after eq-liga",
+                "feature dlig for latn : eq-liga",
+            ],
+        );
+    }
+
+    /// A group and a glyph may share a spelling; renaming one leaves the other
+    /// alone, in both directions.
+    #[test]
+    fn rename_remap_group_is_not_a_glyph_rename() {
+        let lines = vec![t("remap liga : liga -> b")];
+        assert_eq!(
+            do_rename(&lines, "liga", "eq-liga", &RenameKind::RemapGroup),
+            vec!["remap eq-liga : liga -> b"],
+        );
+        assert_eq!(
+            do_rename(&lines, "liga", "l-i-g-a", &RenameKind::Glyph),
+            vec!["remap liga : l-i-g-a -> b"],
+        );
+    }
+
+    /// The file list a rename opens comes from the parsed items, so a kind
+    /// that only appears in an unopened file still gets rewritten.
+    #[test]
+    fn unopened_files_naming_the_target_are_found() {
+        let items = |src: &str| {
+            crate::document_io::parse_document_from_str(src, std::path::PathBuf::from("t.unf"))
+                .unwrap()
+                .items
+        };
+
+        for (src, kind) in [
+            ("map narrow : A = latin-a\n", RenameKind::Slice),
+            ("face term : narrow\n", RenameKind::Slice),
+            ("assert shape AB for narrow : a-b\n", RenameKind::Slice),
+            ("meta term : family Unison\n", RenameKind::Face),
+            ("feature dlig for latn : liga\n", RenameKind::RemapGroup),
+            ("remap liga : a -> b\n", RenameKind::RemapGroup),
+            ("remap group other after liga\n", RenameKind::RemapGroup),
+        ] {
+            let name = match kind {
+                RenameKind::Slice => "narrow",
+                RenameKind::Face => "term",
+                _ => "liga",
+            };
+            assert!(
+                doc_may_reference(&items(src), name, &kind),
+                "{src:?} does not look like it names {name}",
+            );
+        }
+    }
+
     #[test]
     fn rename_preserves_irregular_spacing() {
         let lines = vec![t("  remap liga :  foo   ->  bar")];
@@ -537,6 +729,9 @@ impl UniformApp {
                 RenameKind::NameParts => "name-parts",
                 RenameKind::Point => "point",
                 RenameKind::Color => "color",
+                RenameKind::Face => "face",
+                RenameKind::Slice => "slice",
+                RenameKind::RemapGroup => "remap group",
             };
             self.set_status(format!(
                 "Renamed {} '{}' → '{}' ({} file{})",

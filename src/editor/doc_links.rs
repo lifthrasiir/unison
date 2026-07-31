@@ -38,6 +38,9 @@ pub enum RenameKind {
     NameParts,
     Point,
     Color,
+    Face,
+    Slice,
+    RemapGroup,
 }
 
 #[derive(Clone, Debug)]
@@ -271,17 +274,26 @@ pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameT
                     .to_string();
                 t
             }),
-            // Remap groups, feature tags, faces and slices have no rename
-            // support: their declaration is optional or their id reaches
-            // outside the source (a face id becomes a file name), so a rename
-            // that only rewrote the sources would be half a rename.
-            FieldRole::RemapGroupRef
-            | FieldRole::RemapGroupDef
-            | FieldRole::FeatureDef
-            | FieldRole::FaceDef
-            | FieldRole::FaceRef
-            | FieldRole::SliceDef
-            | FieldRole::SliceRef => None,
+            // A face or slice id is renamed from either end: the declaration
+            // and every qualifier that names it are the same id, and unlike a
+            // remap group the declaration is mandatory, so there is a name to
+            // rename rather than a spelling that happens to recur.
+            FieldRole::FaceDef | FieldRole::FaceRef => {
+                whole_field_rename(&f, col, RenameKind::Face)
+            }
+            FieldRole::SliceDef | FieldRole::SliceRef => {
+                whole_field_rename(&f, col, RenameKind::Slice)
+            }
+            // A remap group has no single declaration site — every `remap`
+            // line that writes a rule names it — so a rename rewrites every
+            // appearance and there is no "the" definition to start from. The
+            // name never leaves the source, so that is the whole rename.
+            FieldRole::RemapGroupDef | FieldRole::RemapGroupRef => {
+                whole_field_rename(&f, col, RenameKind::RemapGroup)
+            }
+            // A feature tag is a registered OpenType tag rather than a name of
+            // this font's choosing, so renaming one is retyping it.
+            FieldRole::FeatureDef => None,
         };
         if target.is_some() {
             return target;
@@ -710,6 +722,33 @@ mod rename_detection_tests {
 
     /// A face declares its id and refers to the slices it includes; a slice
     /// declares its id and refers to the ones it unions.
+    /// F2 works from either end of a face, slice or remap-group id — the
+    /// declaration and every use are the same name.
+    #[test]
+    fn faces_slices_and_remap_groups_are_renameable() {
+        for (line, col, name, kind) in [
+            ("face term : narrow", 6, "term", RenameKind::Face),
+            ("face term : narrow", 13, "narrow", RenameKind::Slice),
+            ("slice both = narrow wide", 7, "both", RenameKind::Slice),
+            ("meta term : family Unison", 6, "term", RenameKind::Face),
+            ("map narrow : A = latin-a", 6, "narrow", RenameKind::Slice),
+            ("assert shape AB for narrow : a-b", 22, "narrow", RenameKind::Slice),
+            ("remap liga : a -> b", 7, "liga", RenameKind::RemapGroup),
+            ("remap group liga after flag", 13, "liga", RenameKind::RemapGroup),
+            ("remap group liga after flag", 24, "flag", RenameKind::RemapGroup),
+            ("feature dlig for latn : liga", 25, "liga", RenameKind::RemapGroup),
+        ] {
+            let t = find_renameable_at_caret(line, col)
+                .unwrap_or_else(|| panic!("nothing renameable at {col} in {line:?}"));
+            assert_eq!(t.name, name, "{line:?}");
+            assert_eq!(t.kind, kind, "{line:?}");
+        }
+        // An OpenType tag is not this font's name to change.
+        assert!(find_renameable_at_caret("feature dlig for latn : liga", 9).is_none());
+        // `*` is "every face", not a face.
+        assert!(find_renameable_at_caret("meta * : family Unison", 5).is_none());
+    }
+
     #[test]
     fn face_and_slice_lines_link_both_ways() {
         assert_eq!(

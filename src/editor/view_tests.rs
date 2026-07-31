@@ -2184,6 +2184,26 @@ fn rename_popup_confirm_restores_editor_focus() {
     assert!(h.editor_has_focus(), "focus must return to the editor");
 }
 
+/// F2 on a slice qualifier opens the rename popup for the *slice*, not for
+/// whatever the rest of the line names.
+#[test]
+fn rename_popup_opens_for_a_slice_qualifier() {
+    use crate::editor::PopupState;
+    use crate::editor::doc_links::RenameKind;
+
+    let mut h = EditorHarness::new("glyph a 2 1\n@@..\nmap narrow : A = a\n");
+    h.click_text(2, 6);
+    h.key(Key::F2);
+    h.frame();
+    match &h.state.popup {
+        PopupState::Rename { original_name, kind, .. } => {
+            assert_eq!(original_name, "narrow");
+            assert_eq!(*kind, RenameKind::Slice);
+        }
+        PopupState::None => panic!("F2 opened no rename popup"),
+    }
+}
+
 /// Clicking elsewhere in the document also cancels the rename popup, and the
 /// click keeps its usual effect: the caret moves to where it landed and the
 /// editor has focus again.
