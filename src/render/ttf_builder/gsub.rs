@@ -395,9 +395,13 @@ pub(super) fn compute_max_context(gsub_data: &GsubData) -> u16 {
     let mut max_ctx: u16 = 1;
     for remaps in gsub_data.remap_sets.values() {
         for r in remaps {
+            let lb_len = r.lookbehind.len() as u16;
             let input_len = r.source.first().map_or(1, |seq| seq.len()) as u16;
             let la_len = r.lookahead.len() as u16;
-            let ctx = input_len + la_len;
+            // A chaining lookup's context is the whole sequence it has to look
+            // at, backtrack included — a client that buffers `usMaxContext`
+            // glyphs around an edit needs the lookbehind to fit in it too.
+            let ctx = lb_len + input_len + la_len;
             max_ctx = max_ctx.max(ctx);
         }
     }

@@ -534,3 +534,50 @@ feature locl for latn/ROM : romanian
         "Romanian must see the DFLT ccmp and its own locl"
     );
 }
+
+/// `usMaxContext` is the longest sequence a lookup can match, and for a
+/// chaining lookup the spec counts the backtrack too. Leaving lookbehind out
+/// under-reports it, which is exactly what a client that pre-buffers
+/// `usMaxContext` glyphs around an edit would get wrong.
+#[test]
+fn max_context_counts_the_lookbehind() {
+    fn max_context_of(input: &str) -> u16 {
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let built = build_font_with_gid_map(&[&doc]).expect("font should build");
+        let font = read_fonts::FontRef::new(&built.ttf).unwrap();
+        font.os2().unwrap().us_max_context().unwrap()
+    }
+
+    let head = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph c = pix
+glyph d = pix
+glyph e = pix
+map U+0061 = a
+map U+0062 = b
+map U+0063 = c
+map U+0064 = d
+map U+0065 = e
+";
+
+    assert_eq!(
+        max_context_of(&format!("{head}remap grp : a b -> c\nfeature ccmp for DFLT : grp\n")),
+        2,
+        "a plain ligature matches its own source and nothing more"
+    );
+    assert_eq!(
+        max_context_of(&format!("{head}remap grp : a : b -> c\nfeature ccmp for DFLT : grp\n")),
+        2,
+        "one glyph of lookbehind plus a one-glyph source"
+    );
+    assert_eq!(
+        max_context_of(&format!(
+            "{head}remap grp : a b : c -> d : e\nfeature ccmp for DFLT : grp\n"
+        )),
+        4,
+        "two of lookbehind, one source, one of lookahead"
+    );
+}
