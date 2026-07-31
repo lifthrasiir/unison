@@ -432,7 +432,7 @@ mod tests {
 
     #[test]
     fn unknown_keyword_has_no_fields() {
-        assert!(roles("font-meta height 16 ascent 12 descent 4").is_empty());
+        assert!(roles("meta height 16").is_empty());
         assert!(roles("// comment").is_empty());
         assert!(roles("").is_empty());
     }

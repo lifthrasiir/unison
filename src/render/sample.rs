@@ -1507,7 +1507,9 @@ mod tests {
         // `|_| Vec::new()` as `lookup_alternatives`.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph stem 2 2
 @@@@
@@ -1547,7 +1549,9 @@ map A = container
         // skipped when collecting sample data.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph a-lower 4 4
 @@@@@@@@
@@ -1588,7 +1592,9 @@ map generate ä
         // base instead of anchoring it on top, inflating the advance.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph a-lower 16 16
 ................................
@@ -1653,7 +1659,9 @@ map generate ä
         // width/height in sample rendering.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part 2 2
 @@@@
@@ -1714,7 +1722,9 @@ map A = test-a
         // idea of the glyph disagreed with the font the builder emitted.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part 2 2
 @@@@
@@ -1742,7 +1752,9 @@ map A = shifted
         // not become a bearing and must not pad the sample cell.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph padded 2 4
 ....
@@ -1804,7 +1816,9 @@ map A = raised
         // Without rescaling, the sub-pixel grid bleeds out at 3x size.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph container 8 16
 ................
@@ -1840,7 +1854,9 @@ map A = container
         // fits within the 8×16 cell.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph slant 8 16
 ref 4x-5p1r3-dl 0 10
@@ -1859,7 +1875,9 @@ map A = slant
         // sextant-1234-dl: triangle + rect, both fractional scale=3
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph combo 8 16
 ref 8x10p2r3-dl
@@ -1880,7 +1898,9 @@ map A = combo
         // where the -dl part internally uses fractional scale=3 refs.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part-off 8 16 inline
 glyph part-on 8 16 inline
@@ -1905,7 +1925,9 @@ map A = final-1
         // have its width/height and components normalized to scale=1.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph diag 8 16 scale 3
 ref 8x5p1r3-dr 0 16
@@ -1927,7 +1949,9 @@ map A = diag
         // scale>1 components, not integer-truncated ones.
         let d = parse(
             "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph diag 8 16 scale 3
 ref 8x5p1r3-dr 0 16

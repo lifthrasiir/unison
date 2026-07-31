@@ -1,4 +1,4 @@
-//! Assorted builder tests: the build digest, `font-meta` handling, `map`
+//! Assorted builder tests: the build digest, `meta` handling, `map`
 //! expansion helpers and the `maxp` limits.
 
 use super::*;
@@ -6,7 +6,9 @@ use super::*;
 #[test]
 fn ttf_build_digest_is_deterministic() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 2 2
 @@@@
@@ -58,9 +60,9 @@ fn unmapped_empty_sticky_glyph_is_retained() {
 }
 
 #[test]
-fn font_meta_height_zero_returns_none() {
+fn meta_height_zero_returns_none() {
     let doc = document_io::parse_document_from_str(
-        "font-meta height 0 ascent 0 descent 0\nglyph a 1 1\n@@\nmap A = a\n",
+        "meta height 0\nmeta ascent 0\nmeta descent 0\nglyph a 1 1\n@@\nmap A = a\n",
         "test.unf".into(),
     ).unwrap();
     let result = build_font_from_documents(&[&doc]);
@@ -188,7 +190,9 @@ fn maxp_limits_cover_the_emitted_outlines() {
         .collect();
     let input = format!(
         "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 // diagonal edges gain intermediate points when the glyph is emitted with
 // grid-snap hints, so a component carries more points than the parent's own
@@ -284,7 +288,7 @@ fn dot_corner_shapes_and_their_complements_trace_as_expected() {
         ("1W", 1, 5, false), // INVHOUSE4
     ] {
         let src = format!(
-            "font-meta height 16 ascent 12 descent 4\n\nglyph t 1 1\n{code}\n\nmap A = t\n"
+            "meta height 16\nmeta ascent 12\nmeta descent 4\n\nglyph t 1 1\n{code}\n\nmap A = t\n"
         );
         let doc = document_io::parse_document_from_str(&src, "test.unf".into()).unwrap();
         let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();

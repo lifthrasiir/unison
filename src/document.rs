@@ -774,7 +774,9 @@ pub enum DocumentItem {
     Comment(String),
     BlankLine,
     Directive(String),
-    FontMeta(String),
+    /// `meta [FACE :] KEY VALUE...` — one key per line. Holds the text after
+    /// the keyword, comment included, so serializing is lossless.
+    Meta(String),
     Glyph {
         name: GlyphName,
         body: GlyphBody,

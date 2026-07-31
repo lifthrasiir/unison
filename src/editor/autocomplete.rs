@@ -476,7 +476,7 @@ fn collect_candidates(
                 "name-parts",
                 "remap",
                 "feature",
-                "font-meta",
+                "meta",
                 "exclude-from-sample",
                 "assume",
                 "color",

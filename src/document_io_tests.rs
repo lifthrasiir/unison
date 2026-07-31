@@ -43,11 +43,40 @@ fn header_dims_match_derive_for_valued_flags() {
     }
 }
 
+/// `meta` carries one key per line, so the round-trip has to keep each line
+/// separate — and keep its comment, like every other item.
+#[test]
+fn meta_roundtrip_one_key_per_line() {
+    let input = "\
+meta height 16
+meta ascent 14 // the interesting one
+meta descent 2
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert_eq!(doc.items.len(), 3);
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Meta(t) if t == "height 16"),
+        "expected a Meta item, got {:?}",
+        doc.items[0],
+    );
+    assert!(
+        matches!(&doc.items[1], DocumentItem::Meta(t) if t == "ascent 14 // the interesting one"),
+        "the trailing comment must survive parsing, got {:?}",
+        doc.items[1],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
 #[test]
 fn roundtrip_simple() {
     let input = "\
 // test comment
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph test-glyph 4 3
 ....@@..
@@ -60,8 +89,8 @@ ref test-glyph 2 0
 exclude-from-sample U+AD00
 ";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    // comment, font-meta, blank, glyph, blank, glyph, blank, directive = 8
-    assert_eq!(doc.items.len(), 8);
+    // comment, 3x meta, blank, glyph, blank, glyph, blank, directive = 10
+    assert_eq!(doc.items.len(), 10);
 
     let mut output = Vec::new();
     serialize_document(&doc, &mut output).unwrap();
@@ -264,7 +293,9 @@ fn docline_roundtrip(input: &str) {
 fn docline_roundtrip_simple() {
     let input = "\
 // test comment
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph test-glyph 4 3
 ....@@..
@@ -279,13 +310,14 @@ exclude-from-sample U+AD00
     docline_roundtrip(input);
 
     let lines = parse_doclines(input);
-    // comment, font-meta, blank, glyph-header, Grid, blank, glyph-header, ref, blank, directive
-    assert_eq!(lines.len(), 10);
+    // comment, 3x meta, blank, glyph-header, Grid, blank, glyph-header, ref, blank, directive
+    assert_eq!(lines.len(), 12);
     assert!(matches!(lines[0], DocLine::Text(ref s) if s.starts_with("//")));
-    assert!(matches!(lines[3], DocLine::Text(ref s) if s.starts_with("glyph test-glyph")));
-    assert!(matches!(lines[4], DocLine::Grid(_)));
-    assert!(matches!(lines[6], DocLine::Text(ref s) if s.starts_with("glyph U+0041")));
-    assert!(matches!(lines[7], DocLine::Text(ref s) if s.starts_with("ref ")));
+    assert!(matches!(lines[1], DocLine::Text(ref s) if s.starts_with("meta ")));
+    assert!(matches!(lines[5], DocLine::Text(ref s) if s.starts_with("glyph test-glyph")));
+    assert!(matches!(lines[6], DocLine::Grid(_)));
+    assert!(matches!(lines[8], DocLine::Text(ref s) if s.starts_with("glyph U+0041")));
+    assert!(matches!(lines[9], DocLine::Text(ref s) if s.starts_with("ref ")));
 }
 
 #[test]
@@ -350,8 +382,8 @@ fn assert_derive_equivalent(input: &str) {
             (DocumentItem::Comment(a), DocumentItem::Comment(b)) => {
                 assert_eq!(a, b, "comment mismatch at item {idx}");
             }
-            (DocumentItem::FontMeta(a), DocumentItem::FontMeta(b)) => {
-                assert_eq!(a, b, "font-meta mismatch at item {idx}");
+            (DocumentItem::Meta(a), DocumentItem::Meta(b)) => {
+                assert_eq!(a, b, "meta mismatch at item {idx}");
             }
             (DocumentItem::Directive(a), DocumentItem::Directive(b)) => {
                 assert_eq!(a, b, "directive mismatch at item {idx}");
@@ -425,7 +457,9 @@ fn derive_equivalent_simple() {
     assert_derive_equivalent(
         "\
 // test comment
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph test-glyph 4 3
 ....@@..
@@ -525,7 +559,9 @@ fn derive_glyph_with_dims_no_grid_docline() {
 #[test]
 fn docline_roundtrip_all_directive_types() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 // a comment
 name-parts $base = stem wide
@@ -1184,7 +1220,7 @@ fn comment_is_one_unquotable_token_at_the_end_of_the_line() {
 #[test]
 fn comments_on_directives_round_trip() {
     let input = "\
-font-meta height 16 ascent 12 descent 4 // metrics
+meta height 16 // metrics
 map A = latin-a // the letter
 map generate U+00C0 // decomposed
 name-parts $x = a b // parts

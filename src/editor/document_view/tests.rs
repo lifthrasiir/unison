@@ -74,7 +74,7 @@ fn assert_all_doc_lines_covered(input: &str) {
                 DocumentItem::BlankLine
                 | DocumentItem::Comment(_)
                 | DocumentItem::Directive(_)
-                | DocumentItem::FontMeta(_)
+                | DocumentItem::Meta(_)
                 | DocumentItem::Map { .. }
                 | DocumentItem::NameParts { .. }
                 | DocumentItem::Remap { .. }
@@ -200,7 +200,9 @@ fn all_lines_covered_ref_only_single_ref_at_origin() {
 fn all_lines_covered_all_directive_types() {
     assert_all_doc_lines_covered(
         "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 // comment
 name-parts $base = stem wide

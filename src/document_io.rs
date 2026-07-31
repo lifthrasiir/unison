@@ -20,13 +20,22 @@
 //! and rename never see comment prose, and every item carries its own comment
 //! (a `comment` field on the structured [`crate::document::DocumentItem`]
 //! variants, on `GlyphBody`/`GlyphRef`/`GlyphPoint`, inline in the raw text of
-//! `FontMeta`/`Directive`) so serializing does not lose it. Appending to a line
+//! `Meta`/`Directive`) so serializing does not lose it. Appending to a line
 //! goes through `append_to_line`, which keeps the insertion in front of the
 //! comment.
 //!
 //! # Directives
 //!
-//! - `font-meta height H ascent A descent D`
+//! - `meta KEY VALUE...` — font metadata, **one key per line**. Keys are
+//!   variadic (a metric takes one number, `panose` takes ten, a flag takes
+//!   none), which is why they do not share a line: with no separator, two keys
+//!   on one line could not be told apart. Declaring the same key twice is an
+//!   error even when the two values agree — see [`crate::resolve::MetaEntry`]
+//!   for the key set and [`crate::issues`] for the checks.
+//!
+//!   A face-scoped form, `meta FACE : KEY VALUE...`, is reserved for the
+//!   typeface split and is not accepted yet. It is told from the plain form by
+//!   the second token being a bare `:`, which no key or value can be.
 //! - `map CHAR = GLYPH` — cmap mapping.
 //! - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from
 //!   the character's Unicode canonical decomposition, named `uniXXXX` unless
@@ -531,7 +540,7 @@ pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> 
 /// This tokenizes the text into `DocLine`s (validating pixel rows strictly
 /// along the way, via [`parse_pixel_rows`]) and then feeds them through
 /// [`derive_document`], which is the single implementation of the
-/// item-level `.unf` grammar (comments, font-meta, directives, glyphs, refs)
+/// item-level `.unf` grammar (comments, meta, directives, glyphs, refs)
 /// shared with the `DocLine`-based editor path.
 pub fn parse_document_from_str(content: &str, path: std::path::PathBuf) -> Result<Document> {
     let lines = tokenize_strict(content)?;
@@ -541,7 +550,7 @@ pub fn parse_document_from_str(content: &str, path: std::path::PathBuf) -> Resul
 
 /// Tokenize `.unf` source text into `DocLine`s, strictly validating any
 /// pixel rows that follow a `glyph NAME W H [OFF_ROW OFF_COL]` header (see
-/// [`parse_pixel_rows`]). All other lines (comments, font-meta, directives,
+/// [`parse_pixel_rows`]). All other lines (comments, meta, directives,
 /// ref lines, alias/ref-only glyph headers) are passed through as-is; their
 /// grammar is interpreted later by [`derive_document`].
 fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
@@ -699,7 +708,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
         match item {
             DocumentItem::BlankLine => writeln!(writer)?,
             DocumentItem::Comment(text) => writeln!(writer, "//{text}")?,
-            DocumentItem::FontMeta(text) => writeln!(writer, "font-meta {text}")?,
+            DocumentItem::Meta(text) => writeln!(writer, "meta {text}")?,
             DocumentItem::Directive(text) => writeln!(writer, "{text}")?,
             item @ DocumentItem::NameParts { .. }
             | item @ DocumentItem::Remap { .. }
@@ -959,11 +968,11 @@ pub fn derive_document(
                 }
 
                 match tokens[0].as_str() {
-                    "font-meta" => {
+                    "meta" => {
                         item_line_starts.push(i);
                         let rest: Vec<String> = tokens[1..].iter().map(|t| quote_token(t)).collect();
                         let text = rest.join(" ");
-                        doc.items.push(DocumentItem::FontMeta(format!(
+                        doc.items.push(DocumentItem::Meta(format!(
                             "{}{comment_raw}",
                             text.trim_end(),
                         )));

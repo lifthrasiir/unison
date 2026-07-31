@@ -4,7 +4,7 @@
 //
 // See src/golden.rs.
 //
-// testdata/ is one font project, so `font-meta` stays in latin.unf and this
+// testdata/ is one font project, so `meta` stays in latin.unf and this
 // file must not declare a second, conflicting one.
 
 name-parts $digit = 0 1 2 3

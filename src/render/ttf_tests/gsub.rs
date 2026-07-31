@@ -5,7 +5,9 @@ use super::*;
 #[test]
 fn gsub_tables_generated_for_hangul() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph init-g 6 8
 @@@@@@@@@@@@

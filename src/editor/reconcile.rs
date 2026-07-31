@@ -133,7 +133,7 @@ mod tests {
         assert_eq!(parse_glyph_header_dims("glyph foo 8 16"), Some((8, 16)));
         assert_eq!(parse_glyph_header_dims("glyph foo 8 16 sticky"), Some((8, 16)));
         assert_eq!(parse_glyph_header_dims("glyph U+0041 = test"), None);
-        assert_eq!(parse_glyph_header_dims("font-meta height 16"), None);
+        assert_eq!(parse_glyph_header_dims("meta height 16"), None);
         assert_eq!(parse_glyph_header_dims("// comment"), None);
         assert_eq!(parse_glyph_header_dims("glyph composite"), None);
     }

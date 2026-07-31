@@ -6,7 +6,9 @@ use super::*;
 #[test]
 fn ttf_build_selects_alternative_glyph_by_anchor_size() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph enclosing 16 16
 ................................
@@ -98,7 +100,9 @@ map a = combo
 #[test]
 fn gpos_mark_base_from_anchor_feature() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base-letter 4 4
 @@@@@@@@
@@ -148,7 +152,9 @@ feature ccmp for DFLT : anchor above
 #[test]
 fn gpos_mark_to_mark_from_anchor_feature() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base-letter 4 4
 @@@@@@@@
@@ -218,7 +224,9 @@ feature ccmp for DFLT : anchor above
 #[test]
 fn gpos_ccmp_generated_for_alternative() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 4 4
 @@@@@@@@
@@ -278,7 +286,9 @@ feature ccmp for DFLT : anchor above
 #[test]
 fn anchor_ccmp_base_and_mark_substitution() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph dia 2 1
 @@@@
@@ -464,7 +474,9 @@ feature ccmp for DFLT : anchor below
 #[test]
 fn gpos_mark_classification_uses_declared_not_forwarded_anchors() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base-letter 4 4
 @@@@@@@@
@@ -548,7 +560,9 @@ feature ccmp for DFLT : anchor above
 #[test]
 fn mark_class_compaction_keeps_base_record_slots_consistent() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base-letter 4 4
 @@@@@@@@

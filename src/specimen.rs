@@ -796,7 +796,9 @@ mod tests {
     }
 
     const SRC: &str = "\
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 name-parts $l = a b
 glyph sq 1 1
 @@

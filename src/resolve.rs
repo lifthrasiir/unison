@@ -54,19 +54,98 @@ impl Diagnostic {
     }
 }
 
-/// The `font-meta` values a document set declares.
+/// One parsed `meta` line.
+///
+/// The variant *is* the key, so a key that parses is a key that some consumer
+/// handles — adding a key without wiring it up does not compile. [`FontMeta`]
+/// and [`crate::issues`] both go through [`parse_meta_entry`] rather than
+/// walking the tokens themselves, so what counts as a valid line is decided in
+/// exactly one place.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum MetaEntry {
+    Height(u16),
+    Ascent(u16),
+    Descent(u16),
+}
+
+impl MetaEntry {
+    /// The key as written. Duplicate detection groups by this, so two spellings
+    /// of one key would have to collapse here.
+    pub fn key(&self) -> &'static str {
+        match self {
+            Self::Height(_) => "height",
+            Self::Ascent(_) => "ascent",
+            Self::Descent(_) => "descent",
+        }
+    }
+}
+
+/// Every `meta` key, for error messages and completion.
+pub const META_KEYS: &[&str] = &["height", "ascent", "descent"];
+
+/// Parse the text of a `meta` item — everything after the keyword, comment
+/// included, exactly as [`crate::document::DocumentItem::Meta`] stores it.
+///
+/// `Err` carries a message ready to be reported; the caller supplies the
+/// position. A key that takes N values rejects N±1, because a `meta` value is
+/// invisible in the built font: a line that is quietly half-read is a line
+/// whose mistake ships.
+pub fn parse_meta_entry(text: &str) -> std::result::Result<MetaEntry, String> {
+    let tokens = crate::document_io::tokenize_tokens(text)
+        .map_err(|e| format!("malformed `meta` line: {e}"))?;
+    let Some((key, values)) = tokens.split_first() else {
+        return Err("`meta` needs a key".to_string());
+    };
+
+    if values.first().is_some_and(|t| t == ":") {
+        return Err(format!(
+            "face-scoped `meta` is not supported yet (`meta {key} : ...`)",
+        ));
+    }
+
+    // Every key so far takes one u16; the shape below is what makes adding a
+    // wider key (`panose`, a flag, a string) a local change.
+    let one_metric = |values: &[String]| -> std::result::Result<u16, String> {
+        match values {
+            [v] => v.parse::<u16>().map_err(|_| {
+                format!("`meta {key}` takes a number, got `{v}`")
+            }),
+            _ => Err(format!(
+                "`meta {key}` takes exactly 1 value, got {}",
+                values.len(),
+            )),
+        }
+    };
+
+    match key.as_str() {
+        "height" => Ok(MetaEntry::Height(one_metric(values)?)),
+        "ascent" => Ok(MetaEntry::Ascent(one_metric(values)?)),
+        "descent" => Ok(MetaEntry::Descent(one_metric(values)?)),
+        _ => Err(format!(
+            "unknown `meta` key `{key}` (known keys: {})",
+            META_KEYS.join(", "),
+        )),
+    }
+}
+
+/// The `meta` values a document set declares.
 ///
 /// Each field records whether it was actually declared, because validation has
 /// to tell "not stated" apart from "stated as the default"; every other
 /// consumer just wants the effective number and reads it through the
 /// accessors. This used to be parsed three times — by the font build, the
 /// sample renderer and the validator — with three slightly different loops.
+///
+/// Malformed and duplicate lines are *not* reported here: this runs on every
+/// editor frame, while reporting belongs to [`crate::issues`]. Both sides share
+/// [`parse_meta_entry`], so they cannot disagree about what a line means; a line
+/// that fails to parse is simply skipped, leaving the default in place.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct FontMeta {
     pub height: Option<u16>,
     pub ascent: Option<u16>,
     pub descent: Option<u16>,
-    /// The last `font-meta` line that set anything, for error reporting.
+    /// The last `meta` line that set anything, for error reporting.
     pub origin: Option<ItemRef>,
 }
 
@@ -91,20 +170,15 @@ impl FontMeta {
         let mut meta = Self::default();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
-                let DocumentItem::FontMeta(s) = item else {
+                let DocumentItem::Meta(s) = item else {
                     continue;
                 };
+                let Ok(entry) = parse_meta_entry(s) else { continue };
                 meta.origin = Some(ItemRef::new(doc_idx, item_idx));
-                let mut iter = s.split_whitespace();
-                while let Some(key) = iter.next() {
-                    let Some(val) = iter.next() else { break };
-                    let Ok(v) = val.parse::<u16>() else { continue };
-                    match key {
-                        "height" => meta.height = Some(v),
-                        "ascent" => meta.ascent = Some(v),
-                        "descent" => meta.descent = Some(v),
-                        _ => {}
-                    }
+                match entry {
+                    MetaEntry::Height(v) => meta.height = Some(v),
+                    MetaEntry::Ascent(v) => meta.ascent = Some(v),
+                    MetaEntry::Descent(v) => meta.descent = Some(v),
                 }
             }
         }

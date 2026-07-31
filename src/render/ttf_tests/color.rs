@@ -6,7 +6,9 @@ use super::*;
 #[test]
 fn colr_cpal_tables_built_for_colored_glyphs() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 color red = #ff0000
 color blue = #0000ff
@@ -46,7 +48,9 @@ map A = combo
 #[test]
 fn coloronly_layer_excluded_from_fallback() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 2 2
 @@@@
@@ -83,7 +87,9 @@ map A = combo
 #[test]
 fn coloronly_white_fill_excluded_from_fallback() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph card-blank 4 4
 @@@@@@@@
@@ -125,7 +131,7 @@ map A = combo
     // card-blank is a border shape (1 or 2 contours), card-fill is inner fill
     // If card-fill leaked, there would be extra contours
     let card_blank_doc = document_io::parse_document_from_str(
-        "font-meta height 16 ascent 12 descent 4\nglyph card-blank 4 4\n@@@@@@@@\n@@....@@\n@@....@@\n@@@@@@@@\nmap B = card-blank\n",
+        "meta height 16\nmeta ascent 12\nmeta descent 4\nglyph card-blank 4 4\n@@@@@@@@\n@@....@@\n@@....@@\n@@@@@@@@\nmap B = card-blank\n",
         "test2.unf".into()
     ).unwrap();
     let (_, _, blank_data, _, _) = collect_glyph_data(&[&card_blank_doc], false).unwrap();
@@ -142,7 +148,9 @@ map A = combo
 #[test]
 fn coloronly_with_pattern_expansion() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 name-parts $suit = spade heart
 
@@ -202,7 +210,9 @@ map B = card-heart
 #[test]
 fn colr_foreground_layers_are_merged_into_one() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 color red = #ff0000
 
@@ -245,7 +255,9 @@ map A = combo
 #[test]
 fn colr_layer_glyph_lsb_matches_its_own_bbox() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 color red = #ff0000
 
@@ -298,7 +310,9 @@ map A = combo
 #[test]
 fn color_layers_built_for_remap_only_glyphs() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base-a 8 8
 @@@@@@@@@@@@@@@@
@@ -389,7 +403,9 @@ feature ccmp for DFLT : sub
 #[test]
 fn negated_ref_subtracts_in_synthesized_color_mono_glyph() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 4 4
 @@@@@@@@
@@ -430,7 +446,9 @@ map A = flag
 #[test]
 fn color_mono_combined_glyph_preserves_advance_across_scales() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part-left 16 16
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -492,7 +510,9 @@ map X = test-xy
 #[test]
 fn colr_base_glyph_bbox_covers_color_layers() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph frame-left 4 4
 ..@@@@@@

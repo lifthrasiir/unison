@@ -61,7 +61,7 @@ impl GridExtent {
 /// `left`/`top` move the *ink*, not the box: `left -3` shifts the outline three
 /// columns left of the origin (`collect.rs::scale_glyph_contours`), so in the
 /// grid the origin sits three columns right of column 0. The box is therefore
-/// at `-left` / `-top`, and `bottom` follows from `font-meta height` — which is
+/// at `-left` / `-top`, and `bottom` follows from `meta height` — which is
 /// why it is computed and never written in a glyph header.
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub(crate) struct GlyphMetrics {
@@ -79,7 +79,7 @@ pub(crate) struct GlyphMetrics {
 ///
 /// **Units.** The grid is in subcells for a `scale N` glyph — `document_io`
 /// multiplies the declared dimensions by the scale — but `left`, `top`,
-/// `advance` and everything out of `font-meta` are logical pixels, exactly as
+/// `advance` and everything out of `meta` are logical pixels, exactly as
 /// `ttf_builder::collect` reads them. Everything from the latter group is
 /// scaled here; `own_w`/`own_h` and the composite's extent already are.
 pub(crate) fn glyph_metrics(

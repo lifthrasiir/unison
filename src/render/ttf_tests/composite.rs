@@ -232,7 +232,9 @@ map generate ä = a-dieresis
 #[test]
 fn map_decomposed_generates_composite_glyph() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph a-lower 4 4
 @@@@@@@@
@@ -267,7 +269,9 @@ map generate ä
 #[test]
 fn map_decomposed_explicit_name_names_the_generated_glyph() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph a-lower 4 4
 @@@@@@@@
@@ -307,7 +311,9 @@ map generate ä = a-dieresis
 #[test]
 fn map_decomposed_forwards_mark_anchors() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph a-lower 4 4
 @@@@@@@@
@@ -388,7 +394,9 @@ feature ccmp for DFLT : anchor below
 #[test]
 fn composite_y_offset_is_negative_dy_not_ascent_relative() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 2 2
 @@@@
@@ -445,7 +453,9 @@ fn layers_have_subpixel_conflicts_checks_pixels_not_just_bbox() {
 #[test]
 fn non_conflicting_overlapping_bbox_refs_keep_composite_representation() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph partA 2 2
 @@..
@@ -480,7 +490,9 @@ map C = combo
 #[test]
 fn declared_dims_with_empty_grid_keeps_advance_and_composite() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 4 4
 @@@@@@@@
@@ -513,7 +525,9 @@ map B = combo
 #[test]
 fn composite_ref_compensates_for_childs_own_left_offset() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph child 2 2 left 5
 @@@@
@@ -545,7 +559,9 @@ map B = parent
 #[test]
 fn negated_ref_subtracts_in_fallback_contours() {
     let input = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 4 4
 @@@@@@@@
@@ -585,7 +601,9 @@ map A = combo
 #[test]
 fn scaled_glyph_has_same_advance_as_unscaled() {
     let input_unscaled = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 4 3
 @@@@@@@@
@@ -595,7 +613,9 @@ glyph base 4 3
 map A = base
 ";
     let input_scaled = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph base 4 3 scale 2
 @@@@@@@@@@@@@@@@
@@ -626,7 +646,9 @@ map A = base
 fn smooth_mosaic_sextant_traces_as_a_convex_polygon() {
     let doc = document_io::parse_document_from_str(
         "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph sextant-13-dr 8 16
 ref 4x10p2r3-dr
@@ -667,7 +689,9 @@ map A = sextant-13-dr
 fn touching_detail_refs_merge_into_one_outline() {
     let doc = document_io::parse_document_from_str(
         "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph sextant-1234-dr 8 16
 ref 8x10p2r3-dr
@@ -690,7 +714,9 @@ map A = sextant-1234-dr
 #[test]
 fn scaled_composite_matches_unscaled() {
     let input_unscaled = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part 2 3
 @@@@
@@ -706,7 +732,9 @@ map A = combo
     // Same composite but the parent is at scale 2.
     // The refs point at scale-1 parts; offsets are doubled.
     let input_scaled = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part 2 3
 @@@@
@@ -740,7 +768,9 @@ map A = combo
 fn scaled_composite_with_own_pixels_matches_unscaled() {
     // Parent has own pixels AND refs
     let input_unscaled = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part 2 3
 @@@@
@@ -756,7 +786,9 @@ ref part 0 2
 map A = combo
 ";
     let input_scaled = "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph part 2 3
 @@@@
@@ -800,7 +832,9 @@ fn composites_do_not_reference_empty_glyphs() {
     let solid_rows = "@@@@@@@@@@@@@@@@\n".repeat(16);
     let input = format!(
         "\
-font-meta height 16 ascent 12 descent 4
+meta height 16
+meta ascent 12
+meta descent 4
 
 glyph blank 8 16 sticky
 

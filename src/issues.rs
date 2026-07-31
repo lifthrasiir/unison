@@ -28,7 +28,7 @@ use crate::document::{
     find_invalid_inline_ranges, is_name_pattern, substitute_name_parts,
 };
 use crate::pattern::NamePattern;
-use crate::resolve::{Diagnostic, DocSet, Resolution};
+use crate::resolve::{Diagnostic, DocSet, ItemRef, Resolution};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Severity {
@@ -51,6 +51,25 @@ pub struct Issue {
 fn issue_at(doc: &Document, item_idx: usize, severity: Severity, message: String) -> Issue {
     let (line, file_line) = doc.item_lines(item_idx);
     Issue { severity, message, file: doc.path.clone(), line, file_line }
+}
+
+/// Spell out the `meta` lines a legacy `font-meta` line becomes, so the error
+/// is something to paste rather than something to look up. Falls back to the
+/// bare keyword when the old line is too malformed to split into pairs.
+fn legacy_font_meta_replacement(text: &str) -> String {
+    let Ok(tokens) = crate::document_io::tokenize_tokens(text) else {
+        return "`meta KEY VALUE`".to_string();
+    };
+    let pairs: Vec<String> = tokens[1..]
+        .chunks(2)
+        .filter(|c| c.len() == 2)
+        .map(|c| format!("`meta {} {}`", c[0], c[1]))
+        .collect();
+    if pairs.is_empty() {
+        "`meta KEY VALUE`".to_string()
+    } else {
+        pairs.join(" + ")
+    }
 }
 
 /// Problems in a `feature ... for ...` target list.
@@ -252,10 +271,47 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
-    // font-meta validation. Only the effective numbers matter to the font
-    // build; here the distinction between "not declared" and "declared as the
-    // default" is what decides whether to complain at all.
+    // `meta` validation. Two passes over different things: each line on its own
+    // (does it parse, is its key already taken), then the effective numbers.
+    // For the latter, the distinction between "not declared" and "declared as
+    // the default" is what decides whether to complain at all.
     {
+        // Key -> where it was first declared. A key set twice is an error even
+        // when the two values agree: `meta` has no precedence rule, by design,
+        // so there is no answer to give beyond "pick one".
+        let mut seen: HashMap<&'static str, ItemRef> = HashMap::new();
+        for (doc_idx, doc) in docs.iter().enumerate() {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                let DocumentItem::Meta(text) = item else { continue };
+                let here = ItemRef::new(doc_idx, item_idx);
+                match crate::resolve::parse_meta_entry(text) {
+                    Ok(entry) => {
+                        if let Some(&first) = seen.get(entry.key()) {
+                            let (path, _, file_line) = docset.location(first);
+                            // Match the report's own `file:line:` prefix, which
+                            // is the file name rather than the whole path.
+                            let name = path
+                                .file_name()
+                                .map(|n| n.to_string_lossy().into_owned())
+                                .unwrap_or_else(|| path.display().to_string());
+                            issues.push(docset.to_issue(&Diagnostic::error(
+                                here,
+                                format!(
+                                    "`meta {}` is declared more than once (also at {name}:{file_line})",
+                                    entry.key(),
+                                ),
+                            )));
+                        } else {
+                            seen.insert(entry.key(), here);
+                        }
+                    }
+                    Err(message) => {
+                        issues.push(docset.to_issue(&Diagnostic::error(here, message)));
+                    }
+                }
+            }
+        }
+
         let meta = &resolution.meta;
         let origin = meta.origin;
         if let (Some(h), Some(a), Some(d)) = (meta.height, meta.ascent, meta.descent)
@@ -264,13 +320,13 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             issues.push(docset.to_issue(&Diagnostic::new(
                 Severity::Warning,
                 origin,
-                format!("font-meta ascent ({a}) + descent ({d}) != height ({h})"),
+                format!("meta ascent ({a}) + descent ({d}) != height ({h})"),
             )));
         }
         if meta.height == Some(0) {
             issues.push(docset.to_issue(&Diagnostic::error(
                 origin,
-                "font-meta height is 0",
+                "meta height is 0",
             )));
         }
     }
@@ -336,7 +392,18 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     }
                 }
                 DocumentItem::Directive(text) => {
-                    if classify_directive(text) == Directive::Unrecognized {
+                    // `font-meta` became `meta`, one key per line. This is an
+                    // error, not the usual unrecognized-directive warning: the
+                    // font builds through warnings, and it would build with
+                    // default metrics while the file plainly states others.
+                    if text.trim_start().starts_with("font-meta") {
+                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
+                            "`font-meta` was replaced by `meta`, one key per line \
+                             (`{}` becomes {})",
+                            text.trim(),
+                            legacy_font_meta_replacement(text),
+                        )));
+                    } else if classify_directive(text) == Directive::Unrecognized {
                         issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
                             "unrecognized directive '{}'", text.trim(),
                         )));
@@ -857,7 +924,7 @@ map A = foo
         );
     }
 
-    // `testdata/` declares a single consistent `font-meta` because it has to
+    // `testdata/` declares a single consistent `meta` because it has to
     // stay a coherent project, so the broken variants are covered here.
 
     #[test]
@@ -1084,26 +1151,95 @@ remap liga : ok -> present-($ab)
     }
 
     #[test]
-    fn font_meta_ascent_plus_descent_must_equal_height() {
-        let input = "font-meta height 16 ascent 12 descent 3\n";
+    fn meta_ascent_plus_descent_must_equal_height() {
+        let input = "meta height 16\nmeta ascent 12\nmeta descent 3\n";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
             issues.iter().any(|i| i.severity == Severity::Warning
                 && i.message.contains("!= height")),
-            "expected font-meta mismatch warning, got: {issues:?}",
+            "expected meta metric mismatch warning, got: {issues:?}",
         );
     }
 
     #[test]
-    fn font_meta_zero_height_reported() {
-        let input = "font-meta height 0 ascent 0 descent 0\n";
+    fn meta_zero_height_reported() {
+        let input = "meta height 0\nmeta ascent 0\nmeta descent 0\n";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
             issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("font-meta height is 0")),
+                && i.message.contains("meta height is 0")),
             "expected zero-height error, got: {issues:?}",
+        );
+    }
+
+    /// An unknown key is the whole reason `meta` exists as a checked directive:
+    /// the value it carries is invisible in the built font, so a typo that is
+    /// merely ignored is a typo that ships.
+    #[test]
+    fn meta_unknown_key_is_error() {
+        let input = "meta famliy 16\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("famliy")),
+            "expected unknown-key error, got: {issues:?}",
+        );
+    }
+
+    /// Every kind of conflict is an error, and two `meta` lines setting the
+    /// same key are a conflict even when they agree.
+    #[test]
+    fn meta_duplicate_key_is_error() {
+        let input = "meta height 16\nmeta height 16\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("height")
+                && i.message.contains("more than once")),
+            "expected duplicate-key error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn meta_wrong_arity_is_error() {
+        for input in ["meta height\n", "meta height 16 12\n"] {
+            let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+            let issues = collect_issues(&[&doc]);
+            assert!(
+                issues.iter().any(|i| i.severity == Severity::Error),
+                "expected an arity error for {input:?}, got: {issues:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn meta_non_numeric_metric_is_error() {
+        let input = "meta height sixteen\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error),
+            "expected a non-numeric error, got: {issues:?}",
+        );
+    }
+
+    /// `font-meta` became `meta`. A leftover line must not fall through to the
+    /// generic "unrecognized directive" *warning*: the font would then build
+    /// with default metrics, silently ignoring the metrics the file states.
+    #[test]
+    fn legacy_font_meta_is_error() {
+        let input = "font-meta height 16 ascent 12 descent 4\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("font-meta")
+                && i.message.contains("meta")),
+            "expected a migration error, got: {issues:?}",
         );
     }
 

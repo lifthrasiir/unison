@@ -2208,9 +2208,11 @@ fn rename_popup_click_cancels_and_moves_the_caret() {
 // Alt + wheel over the editor bumps the number at the caret
 // ---------------------------------------------------------------------------
 
-/// `font-meta` puts several numbers on one plain text line, so the caret can
-/// be placed on them by character column.
-const NUMBER_DOC: &str = "font-meta height 16 ascent 12 descent 0\nglyph sp 2 2\n....\n....\n";
+/// `meta` puts one number on a plain text line, so the caret can be placed on
+/// it by character column. The trailing comment is what a selection can run
+/// into, which is the case `alt_wheel_ignores_a_selection_that_is_not_a_number`
+/// needs; `descent 0` on its own line is the lower bound case.
+const NUMBER_DOC: &str = "meta height 16 // and a comment\nmeta ascent 12\nmeta descent 0\nglyph sp 2 2\n....\n....\n";
 
 /// Alt + wheel bumps the number the caret sits in, and it does so with the
 /// *pointer* anywhere over the editor — the gesture is anchored to the caret,
@@ -2218,19 +2220,19 @@ const NUMBER_DOC: &str = "font-meta height 16 ascent 12 descent 0\nglyph sp 2 2\
 #[test]
 fn alt_wheel_increments_the_number_at_the_caret() {
     let mut h = EditorHarness::new(NUMBER_DOC);
-    h.click_text(0, 18); // between the digits of "16"
+    h.click_text(0, 13); // between the digits of "16"
     let elsewhere = h.text_pos(1, 2);
 
     h.alt_wheel_at(elsewhere, true);
-    assert_eq!(h.text(0), "font-meta height 17 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 17 // and a comment");
     // The bumped number is left selected, so the next tick repeats on it.
-    assert_eq!(h.cursor(), Caret { line: 0, col: 19 });
-    assert_eq!(h.state.selection_anchor, Some(Caret { line: 0, col: 17 }));
+    assert_eq!(h.cursor(), Caret { line: 0, col: 14 });
+    assert_eq!(h.state.selection_anchor, Some(Caret { line: 0, col: 12 }));
 
     h.alt_wheel_at(elsewhere, false);
-    assert_eq!(h.text(0), "font-meta height 16 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 16 // and a comment");
     h.alt_wheel_at(elsewhere, false);
-    assert_eq!(h.text(0), "font-meta height 15 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 15 // and a comment");
 }
 
 /// The caret only has to be *adjacent* to a digit run: at its right edge the
@@ -2238,20 +2240,20 @@ fn alt_wheel_increments_the_number_at_the_caret() {
 #[test]
 fn alt_wheel_takes_the_digits_before_the_caret() {
     let mut h = EditorHarness::new(NUMBER_DOC);
-    h.click_text(0, 19); // right after "16"
+    h.click_text(0, 14); // right after "16"
     let pos = h.text_pos(0, 0);
     h.alt_wheel_at(pos, true);
-    assert_eq!(h.text(0), "font-meta height 17 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 17 // and a comment");
 }
 
 /// With no digit anywhere around the caret the gesture does nothing at all.
 #[test]
 fn alt_wheel_away_from_any_digit_does_nothing() {
     let mut h = EditorHarness::new(NUMBER_DOC);
-    h.click_text(0, 3); // inside "font-meta"
+    h.click_text(0, 3); // inside "meta"
     let pos = h.text_pos(0, 3);
     h.alt_wheel_at(pos, true);
-    assert_eq!(h.text(0), "font-meta height 16 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 16 // and a comment");
     assert_eq!(h.state.selection_anchor, None);
 }
 
@@ -2260,13 +2262,13 @@ fn alt_wheel_away_from_any_digit_does_nothing() {
 #[test]
 fn alt_wheel_ignores_a_selection_that_is_not_a_number() {
     let mut h = EditorHarness::new(NUMBER_DOC);
-    h.click_text(0, 17);
+    h.click_text(0, 12);
     for _ in 0..4 {
-        h.key_mod(Key::ArrowRight, Modifiers::SHIFT); // "16 a"
+        h.key_mod(Key::ArrowRight, Modifiers::SHIFT); // "16 /"
     }
     let pos = h.text_pos(0, 0);
     h.alt_wheel_at(pos, true);
-    assert_eq!(h.text(0), "font-meta height 16 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 16 // and a comment");
 }
 
 /// A selection of one number padded with spaces is a number: the digits move
@@ -2274,25 +2276,25 @@ fn alt_wheel_ignores_a_selection_that_is_not_a_number() {
 #[test]
 fn alt_wheel_accepts_a_number_selection_with_surrounding_space() {
     let mut h = EditorHarness::new(NUMBER_DOC);
-    h.click_text(0, 16); // the space before "16"
+    h.click_text(0, 11); // the space before "16"
     for _ in 0..3 {
         h.key_mod(Key::ArrowRight, Modifiers::SHIFT);
     }
     let pos = h.text_pos(0, 0);
     h.alt_wheel_at(pos, true);
-    assert_eq!(h.text(0), "font-meta height 17 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 17 // and a comment");
 }
 
 /// Numbers are non-negative: wheeling down at zero leaves it at zero.
 #[test]
 fn alt_wheel_down_at_zero_stays_at_zero() {
     let mut h = EditorHarness::new(NUMBER_DOC);
-    h.click_text(0, 38); // the "0" of "descent 0"
+    h.click_text(2, 13); // the "0" of "descent 0"
     let pos = h.text_pos(0, 0);
     h.alt_wheel_at(pos, false);
-    assert_eq!(h.text(0), "font-meta height 16 ascent 12 descent 0");
+    assert_eq!(h.text(2), "meta descent 0");
     h.alt_wheel_at(pos, true);
-    assert_eq!(h.text(0), "font-meta height 16 ascent 12 descent 1");
+    assert_eq!(h.text(2), "meta descent 1");
 }
 
 /// A run of ticks is one edit: the numbers scroll past several values, and a
@@ -2301,18 +2303,18 @@ fn alt_wheel_down_at_zero_stays_at_zero() {
 #[test]
 fn alt_wheel_ticks_coalesce_into_one_undo() {
     let mut h = EditorHarness::new(NUMBER_DOC);
-    h.click_text(0, 18);
+    h.click_text(0, 13);
     let pos = h.text_pos(0, 0);
     for _ in 0..3 {
         h.alt_wheel_at(pos, true);
     }
-    assert_eq!(h.text(0), "font-meta height 19 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 19 // and a comment");
 
     h.key_mod(Key::Z, Modifiers::COMMAND);
-    assert_eq!(h.text(0), "font-meta height 16 ascent 12 descent 0");
-    assert_eq!(h.cursor(), Caret { line: 0, col: 18 }, "back to the pre-gesture caret");
+    assert_eq!(h.text(0), "meta height 16 // and a comment");
+    assert_eq!(h.cursor(), Caret { line: 0, col: 13 }, "back to the pre-gesture caret");
     h.key_mod(Key::Z, Modifiers::COMMAND);
-    assert_eq!(h.text(0), "font-meta height 16 ascent 12 descent 0", "nothing left to undo");
+    assert_eq!(h.text(0), "meta height 16 // and a comment", "nothing left to undo");
 }
 
 /// The wheel notch belongs to the number, not to the view. egui spreads one
@@ -2320,9 +2322,9 @@ fn alt_wheel_ticks_coalesce_into_one_undo() {
 /// frame left the rest of the notch to scroll the document under the caret.
 #[test]
 fn alt_wheel_does_not_also_scroll_the_view() {
-    let src = format!("font-meta height 16 ascent 12 descent 0\n{}", tall_doc());
+    let src = format!("meta height 16\n{}", tall_doc());
     let mut h = EditorHarness::new(&src);
-    h.click_text(0, 18);
+    h.click_text(0, 13);
     let pos = h.text_pos(0, 2);
     assert_eq!(h.scroll_y(), 0.0);
 
@@ -2331,7 +2333,7 @@ fn alt_wheel_does_not_also_scroll_the_view() {
     for _ in 0..20 {
         h.frame();
     }
-    assert_eq!(h.text(0), "font-meta height 15 ascent 12 descent 0");
+    assert_eq!(h.text(0), "meta height 15");
     assert!(h.scroll_y() < 0.01, "the view scrolled too: y = {}", h.scroll_y());
 }
 
@@ -2339,9 +2341,9 @@ fn alt_wheel_does_not_also_scroll_the_view() {
 /// an ordinary wheel scrolls the view as before.
 #[test]
 fn a_plain_wheel_still_scrolls_after_an_alt_gesture() {
-    let src = format!("font-meta height 16 ascent 12 descent 0\n{}", tall_doc());
+    let src = format!("meta height 16\n{}", tall_doc());
     let mut h = EditorHarness::new(&src);
-    h.click_text(0, 18);
+    h.click_text(0, 13);
     let pos = h.text_pos(0, 2);
 
     h.alt_wheel_at(pos, false);
@@ -2513,7 +2515,9 @@ fn clicking_a_link_without_the_modifier_reports_nothing() {
 /// `left -3` pushes the ink three columns left of the origin and `top 14`
 /// drops it onto the baseline, while `advance 0` makes it take no width.
 const MARK_DOC: &str = "\
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph dia-below 6 2 mark advance 0 left -3 top 14
 ..............
@@ -2548,7 +2552,7 @@ fn the_metric_box_is_the_em_box_placed_against_the_ink() {
     // `left -3` → origin at column 3; `advance 0` → the box has no width.
     assert_eq!((m.left, m.right), (3, 3));
     // `top 14` → the em box's top is fourteen rows above the ink, and its
-    // bottom is `font-meta height` below that.
+    // bottom is `meta height` below that.
     assert_eq!((m.top, m.bottom), (-14, 2));
     // Two rows of ink cannot reach the baseline, so it is left off.
     assert_eq!(m.baseline, None);
@@ -2570,7 +2574,7 @@ fn the_metric_box_is_the_em_box_placed_against_the_ink() {
 fn the_baseline_needs_room_rather_than_a_mapping() {
     for (height, expected) in [(14u16, None), (15u16, Some(14))] {
         let source = format!(
-            "font-meta height 16 ascent 14 descent 2\n\nglyph a 4 {height}\n{}",
+            "meta height 16\nmeta ascent 14\nmeta descent 2\n\nglyph a 4 {height}\n{}",
             "@@......\n".repeat(height as usize),
         );
         let mut h = EditorHarness::new(&source);
@@ -2587,11 +2591,11 @@ fn the_baseline_needs_room_rather_than_a_mapping() {
 
 /// A `scale N` glyph's grid is already in subcells (`document_io` multiplies the
 /// declared dimensions), but `left`/`top`/`advance` and everything out of
-/// `font-meta` are logical pixels, so the box has to scale them itself.
+/// `meta` are logical pixels, so the box has to scale them itself.
 #[test]
 fn the_metric_box_follows_the_glyph_scale() {
     let source = format!(
-        "font-meta height 16 ascent 14 descent 2\n\n\
+        "meta height 16\nmeta ascent 14\nmeta descent 2\n\n\
          glyph big 4 16 scale 2 advance 3 left -1 top 2\n{}",
         "@@..............\n".repeat(32),
     );
@@ -2612,7 +2616,9 @@ fn the_metric_box_follows_the_glyph_scale() {
 #[test]
 fn a_plain_glyph_keeps_its_extent_when_the_overlay_is_on() {
     let source = "\
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph a 4 16
 ".to_string()
@@ -2632,7 +2638,7 @@ glyph a 4 16
 }
 
 /// The box never runs past the glyph's own raster, and never past
-/// `ascent + descent` either. Tying `bottom` to `font-meta height` alone showed
+/// `ascent + descent` either. Tying `bottom` to `meta height` alone showed
 /// a one-row glyph sixteen rows tall.
 #[test]
 fn the_metric_box_is_clamped_to_the_ink_and_to_the_em_box() {
@@ -2640,7 +2646,7 @@ fn the_metric_box_is_clamped_to_the_ink_and_to_the_em_box() {
         // `height` is deliberately not `ascent + descent` here: the clamp is
         // the latter, and 20 would show through if it were not.
         let source = format!(
-            "font-meta height 20 ascent 14 descent 2\n\nglyph a 4 {rows}\n{}",
+            "meta height 20\nmeta ascent 14\nmeta descent 2\n\nglyph a 4 {rows}\n{}",
             "@@......\n".repeat(rows as usize),
         );
         let mut h = EditorHarness::new(&source);
@@ -2679,7 +2685,9 @@ fn grid_extent_x(h: &EditorHarness, grid_doc_line: usize) -> (i16, i16) {
 #[test]
 fn selecting_an_anchor_shadows_the_glyphs_that_attach_to_it() {
     let source = "\
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph mark 2 1
 @@@@
@@ -2693,11 +2701,11 @@ glyph base 8 4
 anchor +above 2 -1
 ";
     let mut h = EditorHarness::new(source);
-    let grid_line = 3;
+    let grid_line = 5;
     assert_eq!(grid_extent_x(&h, grid_line), (0, 2), "the mark's own extent");
 
     // The mark has no refs, so layer 0 is its `-above` anchor.
-    enter_layer_move(&mut h, grid_line, 2, 0);
+    enter_layer_move(&mut h, grid_line, 4, 0);
     h.frame();
 
     // `base` is placed so its `+above` lands on the mark's `-above`: two
@@ -2710,7 +2718,9 @@ anchor +above 2 -1
 #[test]
 fn the_anchor_shadow_unions_every_candidate_and_only_while_selected() {
     let source = "\
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph mark 2 1
 @@@@
@@ -2727,8 +2737,8 @@ glyph right 4 2
 anchor +above 0 -1
 ";
     let mut h = EditorHarness::new(source);
-    let grid_line = 3;
-    enter_layer_move(&mut h, grid_line, 2, 0);
+    let grid_line = 5;
+    enter_layer_move(&mut h, grid_line, 4, 0);
     h.frame();
 
     // `left` reaches two columns left of the origin, `right` four to its
@@ -2760,7 +2770,9 @@ anchor +above 0 -1
 #[test]
 fn an_inherited_anchor_is_a_selectable_layer_with_a_shadow() {
     let source = "\
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph base 4 2
 @@@@@@@@
@@ -2777,14 +2789,14 @@ glyph comp 4 2
 ref base inherit
 ";
     let mut h = EditorHarness::new(source);
-    let comp_grid_line = 11;
+    let comp_grid_line = 13;
     assert_eq!(grid_extent_x(&h, comp_grid_line), (0, 4), "comp's own extent");
 
     // comp has one ref and no declared points, so layer 1 is the inherited
     // `+above`.
-    enter_layer_move(&mut h, comp_grid_line, 6, 1);
+    enter_layer_move(&mut h, comp_grid_line, 8, 1);
     assert!(
-        matches!(h.state.mode, EditMode::LayerMove { item_idx: 6, layer_idx: 1 }),
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: 8, layer_idx: 1 }),
         "expected the inherited anchor layer, got {:?}",
         h.state.mode
     );
@@ -2801,7 +2813,9 @@ ref base inherit
 #[test]
 fn an_inherited_anchor_above_the_grid_widens_the_drawn_area() {
     let source = "\
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph base 4 2
 @@@@@@@@
@@ -2815,7 +2829,7 @@ ref base inherit
 ";
     let mut h = EditorHarness::new(source);
     h.frame();
-    let comp_grid_line = 7;
+    let comp_grid_line = 9;
     let rows: Vec<i16> = h
         .snap()
         .vlines

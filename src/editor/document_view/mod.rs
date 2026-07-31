@@ -130,7 +130,7 @@ pub struct EditorEnv<'a> {
     pub name_parts: &'a NamePartsMap,
     pub alt_index: &'a crate::editor::ref_composite::AlternativesIndex,
     pub color_aliases: &'a ColorAliasMap,
-    /// `font-meta`, for the baseline and the height of the metric box.
+    /// `meta`, for the baseline and the height of the metric box.
     pub meta: crate::resolve::FontMeta,
     /// Whether the metric-box overlay is switched on (View menu).
     pub show_metrics: bool,

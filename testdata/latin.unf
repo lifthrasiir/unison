@@ -1,6 +1,8 @@
 // Latin glyphs - test file
 
-font-meta height 16 ascent 14 descent 2
+meta height 16
+meta ascent 14
+meta descent 2
 
 glyph sp 8 16
 ................
