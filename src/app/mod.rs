@@ -49,6 +49,9 @@ struct DerivedDataMessage {
     name_parts: NamePartsMap,
     meta: crate::meta::FontMetrics,
     issues: Vec<Issue>,
+    /// Every face the source declares, in declaration order, for the face
+    /// picker. Resolution already collects them, so nothing else has to.
+    face_ids: Vec<String>,
 }
 type AssertResultMessage = Vec<Issue>;
 
@@ -93,6 +96,13 @@ pub struct UniformApp {
     font_build_tx: mpsc::Sender<FontBuildMessage>,
     font_build_gen: u64,
     contour_cache: SharedContourCache,
+    /// Which face the editor builds. The editor never builds a collection —
+    /// one face at a time — so this picks the one the preview, the specimen
+    /// and the UI font itself are drawn with. Empty means the primary face,
+    /// which is also what an id no longer declared falls back to.
+    selected_face: String,
+    /// Face ids as of the last derived-data rebuild; what the picker offers.
+    face_ids: Vec<String>,
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
@@ -255,6 +265,8 @@ impl UniformApp {
             font_build_tx,
             font_build_gen: 0,
             contour_cache,
+            selected_face: String::new(),
+            face_ids: Vec::new(),
             named_glyphs: HashMap::new(),
             alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
@@ -406,7 +418,16 @@ impl eframe::App for UniformApp {
         self.sync_window_title(ctx);
 
         let mut menu = MenuActions::default();
+        // Collected here and acted on below: switching a face rebuilds the
+        // font, and that must not run while the input lock is held.
+        let mut face_step = 0isize;
         ctx.input(|i| {
+            if i.key_pressed(egui::Key::F11) {
+                face_step = 1;
+            }
+            if i.key_pressed(egui::Key::F10) {
+                face_step = -1;
+            }
             if i.key_pressed(egui::Key::F12) {
                 self.escape_mode = !self.escape_mode;
                 menu.escape_toggled = true;
@@ -419,6 +440,10 @@ impl eframe::App for UniformApp {
                 }
             }
         });
+
+        if face_step != 0 {
+            self.step_face(face_step, ctx);
+        }
 
         self.intercept_hex_codepoint_input(ctx);
         self.intercept_swap_panes_chord(ctx, &mut menu);

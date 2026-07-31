@@ -182,16 +182,57 @@ impl UniformApp {
         let tx = self.font_build_tx.clone();
         let ctx = ctx.clone();
         let cache = self.contour_cache.clone();
+        let face = self.selected_face.clone();
         std::thread::spawn(move || {
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
-            let pair = crate::render::build_font_pair_cached(&refs, &cache);
+            let face_id = (!face.is_empty()).then_some(face.as_str());
+            let pair = crate::render::build_font_pair_cached_for(&refs, &cache, face_id);
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] font build (background): {:?}", t0.elapsed());
             }
             let _ = tx.send((build_gen, pair));
             ctx.request_repaint();
         });
+    }
+
+    /// Move the selection `delta` faces along the declared order, wrapping.
+    /// F11 and F10 in [`crate::app::UniformApp::update`].
+    pub(super) fn step_face(&mut self, delta: isize, ctx: &egui::Context) {
+        let current = self.selected_face().to_string();
+        if let Some(next) = step_face_id(&self.face_ids, &current, delta) {
+            self.set_selected_face(next, ctx);
+        }
+    }
+
+    /// The face the built font actually reflects: the selection, or the
+    /// primary face when nothing is selected or the selection names a face the
+    /// source no longer declares. Mirrors the fallback in
+    /// [`crate::render::build_font_pair_cached_for`], so the picker cannot show
+    /// a face the preview is not drawn with.
+    pub(super) fn selected_face(&self) -> &str {
+        if self.face_ids.iter().any(|id| *id == self.selected_face) {
+            &self.selected_face
+        } else {
+            self.face_ids.first().map(String::as_str).unwrap_or("")
+        }
+    }
+
+    /// Switch which face the editor builds, and rebuild the font at once —
+    /// the debounce exists to absorb keystrokes, and a picked face is a single
+    /// deliberate act with nothing to absorb.
+    ///
+    /// The generation is bumped because every consumer of the built font keys
+    /// its cache on it: without that the preview would keep shaping with the
+    /// old face's cmap.
+    pub(super) fn set_selected_face(&mut self, face: String, ctx: &egui::Context) {
+        if self.selected_face == face {
+            return;
+        }
+        self.selected_face = face;
+        self.font_build_gen = self.font_build_gen.wrapping_add(1);
+        self.font_rebuild_at = None;
+        self.rebuild_font(ctx);
     }
 
     pub(super) fn rebuild_named_glyphs_sync(&mut self) {
@@ -230,6 +271,8 @@ impl UniformApp {
             // Validation only reads names and diagnostics, so it runs before
             // the expansion is consumed by the glyph cache.
             let mut issues = crate::issues::collect_issues_with(&refs, &resolution);
+            let face_ids: Vec<String> =
+                resolution.faces.faces.iter().map(|f| f.id.clone()).collect();
             let name_parts = resolution.name_parts;
             let (named_glyphs, alt_index) = crate::editor::ref_composite::resolve_expansion(
                 resolution.expansion,
@@ -254,6 +297,7 @@ impl UniformApp {
                 meta: resolution.meta.metrics,
                 name_parts,
                 issues,
+                face_ids,
             });
             ctx.request_repaint();
         });
@@ -392,6 +436,10 @@ impl UniformApp {
             self.derived_gen = self.derived_gen.wrapping_add(1);
             self.issues = data.issues;
             self.issues_gen = data.build_gen;
+            self.face_ids = data.face_ids;
+            // The selection is not silently rewritten when its face goes away:
+            // the build falls back to the primary on its own, and an edit that
+            // briefly breaks a `face` line must not lose the choice.
             let all_docs = self.collect_all_docs();
             let doc_refs: Vec<&Document> = all_docs.to_vec();
             self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);
@@ -420,10 +468,53 @@ impl UniformApp {
     }
 }
 
+/// The face `delta` steps along `faces` from `current`, wrapping at both ends,
+/// or `None` when there is nowhere to go. An unrecognized `current` — the
+/// selection outlives the `face` line it named — steps from the primary.
+pub(super) fn step_face_id(faces: &[String], current: &str, delta: isize) -> Option<String> {
+    let n = faces.len() as isize;
+    if n < 2 {
+        return None;
+    }
+    let idx = faces.iter().position(|f| f == current).unwrap_or(0) as isize;
+    Some(faces[(idx + delta).rem_euclid(n) as usize].clone())
+}
+
 #[cfg(test)]
 mod font_build_tests {
     use super::*;
     use crate::app::docs::{OpenDocument, collect_effective_docs};
+
+    fn ids(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
+
+    /// F11/F10 walk the declared order and wrap, so the pair is enough to reach
+    /// every face of a two-face source with either key.
+    #[test]
+    fn stepping_a_face_wraps_around_the_declared_order() {
+        let faces = ids(&["regular", "term", "mono"]);
+        assert_eq!(step_face_id(&faces, "regular", 1).unwrap(), "term");
+        assert_eq!(step_face_id(&faces, "mono", 1).unwrap(), "regular");
+        assert_eq!(step_face_id(&faces, "regular", -1).unwrap(), "mono");
+        assert_eq!(step_face_id(&faces, "term", -1).unwrap(), "regular");
+    }
+
+    /// A stale selection — the `face` line it named was just edited away —
+    /// steps from the primary rather than doing nothing.
+    #[test]
+    fn stepping_from_an_unknown_face_starts_at_the_primary() {
+        let faces = ids(&["regular", "term"]);
+        assert_eq!(step_face_id(&faces, "gone", 1).unwrap(), "term");
+    }
+
+    /// Nothing to step through: a single-face source (and the implicit face of
+    /// a source declaring none) has no second face to reach.
+    #[test]
+    fn stepping_a_single_face_source_does_nothing() {
+        assert_eq!(step_face_id(&ids(&["regular"]), "regular", 1), None);
+        assert_eq!(step_face_id(&[], "", 1), None);
+    }
 
     #[test]
     fn stale_background_font_cannot_replace_current_result() {

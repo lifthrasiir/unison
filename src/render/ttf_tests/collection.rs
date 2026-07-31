@@ -199,3 +199,38 @@ fn one_face_builds_the_same_font_either_way() {
     assert_eq!(faces[0].1, single, "the two build paths must agree byte for byte");
 }
 
+
+/// The editor builds one face at a time — never a collection — so which face
+/// its preview shows has to be selectable; a two-face source is otherwise stuck
+/// on the first one forever. An unknown id falls back to the primary rather
+/// than failing the build, since the selection outlives an edit that removes
+/// the face it named.
+#[test]
+#[cfg(feature = "editor")]
+fn the_editor_font_pair_follows_the_requested_face() {
+    let src = "\
+slice narrow
+slice wide
+glyph n 1 1
+@@
+glyph w 2 1
+@@@@
+map narrow : ° = n
+map wide : ° = w
+face narrow : narrow
+face wide : wide
+";
+    let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let cache = crate::render::new_contour_cache();
+    let advance_of = |face: Option<&str>, ch: char| -> u16 {
+        let ((_, vector), _) =
+            crate::render::build_font_pair_cached_for(&[&doc], &cache, face).unwrap();
+        let f = read_fonts::FontRef::new(&vector).unwrap();
+        let gid = f.cmap().unwrap().map_codepoint(ch).unwrap();
+        f.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap()
+    };
+    assert_eq!(advance_of(None, '°'), 64, "the primary face");
+    assert_eq!(advance_of(Some("narrow"), '°'), 64);
+    assert_eq!(advance_of(Some("wide"), '°'), 128);
+    assert_eq!(advance_of(Some("gone"), '°'), 64, "unknown id falls back");
+}

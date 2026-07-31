@@ -92,6 +92,21 @@ fn take_swap_cut_event(events: &mut Vec<egui::Event>, modifiers: egui::Modifiers
     events.len() != before
 }
 
+/// The key annotation the View menu's row for face `id` carries, given which
+/// face is selected. The keys move the selection, so the row they annotate
+/// moves with it; with two faces they both land on the same row.
+fn face_shortcut(faces: &[String], current: &str, id: &str) -> &'static str {
+    let reaches = |delta: isize| {
+        super::background::step_face_id(faces, current, delta).as_deref() == Some(id)
+    };
+    match (reaches(1), reaches(-1)) {
+        (true, true) => "F10/F11",
+        (true, false) => "F11",
+        (false, true) => "F10",
+        (false, false) => "",
+    }
+}
+
 impl UniformApp {
     /// The top menu bar plus its global keyboard accelerators; every request
     /// lands in `menu` for dispatch after the panels.
@@ -500,6 +515,35 @@ impl UniformApp {
                         self.show_metrics = !self.show_metrics;
                         ui.close_menu();
                     }
+                    // A source with one face has nothing to pick, and its face
+                    // id is the empty implicit one — unnameable in a menu.
+                    if self.face_ids.len() > 1 {
+                        ui.separator();
+                        ui.menu_button("Face", |ui| {
+                            // The keys annotate the faces they actually reach,
+                            // so the annotation moves with the selection rather
+                            // than sitting on a fixed "next/previous" entry.
+                            // With exactly two faces both keys reach the same
+                            // one, and it says so.
+                            let current = self.selected_face().to_string();
+                            for id in self.face_ids.clone() {
+                                let selected = current == id;
+                                let mut btn = egui::Button::new(&id);
+                                if selected {
+                                    btn = btn.fill(ui.visuals().selection.bg_fill);
+                                }
+                                let keys = face_shortcut(&self.face_ids, &current, &id);
+                                if !keys.is_empty() {
+                                    btn = btn.shortcut_text(keys);
+                                }
+                                if ui.add(btn).clicked() {
+                                    let ctx = ui.ctx().clone();
+                                    self.set_selected_face(id, &ctx);
+                                    ui.close_menu();
+                                }
+                            }
+                        });
+                    }
                     ui.separator();
                     // The zoom entries drive whichever surface has the focus, and are
                     // disabled outright when that is neither the editor nor the preview.
@@ -721,6 +765,9 @@ impl UniformApp {
                 let (base_docs, parse_errors) = crate::render::ttf_builder::load_docs_from_directory_checked(&dir);
                 self.font_base_docs = base_docs;
                 self.file_parse_errors = parse_errors;
+                // The faces of the old folder mean nothing in the new one.
+                self.selected_face.clear();
+                self.face_ids.clear();
                 let refs: Vec<&Document> = self.font_base_docs.iter().collect();
                 self.contour_cache.lock().unwrap().clear();
                 match crate::render::build_font_pair_cached(&refs, &self.contour_cache) {
@@ -888,5 +935,35 @@ mod shortcut_tests {
         let mut events = vec![egui::Event::Copy, egui::Event::Paste("x".into())];
         assert!(!take_swap_cut_event(&mut events, mods(true, true, false)));
         assert_eq!(events.len(), 2);
+    }
+}
+
+#[cfg(test)]
+mod face_menu_tests {
+    use super::*;
+
+    fn ids(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
+
+    /// The View menu annotates the faces the keys reach, so the annotation has
+    /// to follow the selection around the list.
+    #[test]
+    fn the_key_annotations_follow_the_selection() {
+        let faces = ids(&["a", "b", "c"]);
+        assert_eq!(face_shortcut(&faces, "a", "b"), "F11");
+        assert_eq!(face_shortcut(&faces, "a", "c"), "F10");
+        assert_eq!(face_shortcut(&faces, "a", "a"), "");
+        assert_eq!(face_shortcut(&faces, "b", "c"), "F11");
+        assert_eq!(face_shortcut(&faces, "b", "a"), "F10");
+    }
+
+    /// With two faces both keys reach the same one, and the row says so rather
+    /// than claiming only one of them works.
+    #[test]
+    fn two_faces_carry_both_keys_on_the_other_row() {
+        let faces = ids(&["a", "b"]);
+        assert_eq!(face_shortcut(&faces, "a", "b"), "F10/F11");
+        assert_eq!(face_shortcut(&faces, "a", "a"), "");
     }
 }

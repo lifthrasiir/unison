@@ -149,6 +149,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | The anchor shadow | `editor/anchor_shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
+| Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
 
 ## Testing
 

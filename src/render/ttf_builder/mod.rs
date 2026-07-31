@@ -103,7 +103,7 @@ pub(crate) use gsub::remap_rule_kind;
 
 use collect::collect_glyph_data_cached;
 #[cfg(feature = "editor")]
-use collect::{collect_glyph_data_with_shared, compute_shared_font_input};
+use collect::collect_glyph_data_with_shared;
 use tables::build_ttf;
 
 pub const UNITS_PER_EM: u16 = 1024;
@@ -194,7 +194,25 @@ pub fn build_font_pair_cached(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
 ) -> Option<((Vec<u8>, Vec<u8>), HashMap<String, u16>)> {
-    let shared = compute_shared_font_input(docs)?;
+    build_font_pair_cached_for(docs, shared_cache, None)
+}
+
+/// The editor's font pair for one named face, or for the primary face when
+/// `face_id` is `None` or names a face the source no longer declares — the
+/// editor's selection outlives the edit that deletes the `face` line, and a
+/// preview that goes blank until it is re-picked would be worse than one that
+/// falls back.
+#[cfg(feature = "editor")]
+pub fn build_font_pair_cached_for(
+    docs: &[&Document],
+    shared_cache: &SharedContourCache,
+    face_id: Option<&str>,
+) -> Option<((Vec<u8>, Vec<u8>), HashMap<String, u16>)> {
+    let faces = crate::faces::FaceSet::collect(docs);
+    let face = face_id
+        .and_then(|id| faces.faces.iter().find(|f| f.id == id))
+        .unwrap_or_else(|| faces.primary());
+    let shared = collect::compute_shared_font_input_for(docs, face)?;
 
     let mut cc = shared_cache.lock().unwrap();
     cc.begin_generation();

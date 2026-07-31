@@ -447,6 +447,30 @@ impl UniformApp {
                             }
                             ui.separator();
                             self.shaped_preview.show_engine_combo(ui);
+                            // Only a multi-face source has a choice to offer;
+                            // see `UniformApp::set_selected_face`.
+                            if self.face_ids.len() > 1 {
+                                ui.separator();
+                                ui.label("Face:");
+                                let current = self.selected_face().to_string();
+                                let mut picked: Option<String> = None;
+                                egui::ComboBox::from_id_salt("preview_face")
+                                    .selected_text(&current)
+                                    .show_ui(ui, |ui| {
+                                        for id in &self.face_ids {
+                                            if ui
+                                                .selectable_label(*id == current, id)
+                                                .clicked()
+                                            {
+                                                picked = Some(id.clone());
+                                            }
+                                        }
+                                    });
+                                if let Some(id) = picked {
+                                    let ctx = ui.ctx().clone();
+                                    self.set_selected_face(id, &ctx);
+                                }
+                            }
                             ui.separator();
                             ui.checkbox(&mut self.shaped_preview.color_font, "Color");
                         });
