@@ -7,7 +7,7 @@ glyph (p|q) 2 1
 glyph pat-($digit) 2 1
 ..@@
 
-glyph U+2802..2800 2 1
+glyph uni($#2802..2800) 2 1
 @@..
 
 glyph stem 2 2

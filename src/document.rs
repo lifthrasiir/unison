@@ -1454,7 +1454,8 @@ impl DocumentItem {
 // through `crate::document`.
 pub use crate::pattern::{
     MAX_EXPANSION, NamePartsMap, NamePattern, expand_name_element, find_invalid_inline_ranges,
-    has_top_level_pipe, is_name_pattern, parse_name_element, split_top_level_pipes,
+    has_top_level_pipe, is_name_pattern, is_valid_glyph_name, parse_name_element,
+    split_top_level_pipes,
     substitute_name_parts,
 };
 
@@ -1913,21 +1914,20 @@ mod tests {
         assert!(result.is_err());
     }
 
+    /// An oversized inline range is reported by `find_invalid_inline_ranges`,
+    /// against the range itself rather than the whole pattern.
     #[test]
-    fn expand_glyph_block_rejects_overflowing_codepoint_range() {
-        let result = expand_glyph_block(
-            &GlyphName("U+00000000..FFFFFFFF".to_string()),
-            &[pattern_ref("base")],
-            1,
+    fn an_oversized_inline_range_is_reported() {
+        assert_eq!(
+            find_invalid_inline_ranges("uni($#00000000..FFFFFFFF)"),
+            vec!["$#00000000..FFFFFFFF".to_string()],
         );
-
-        assert!(result.is_err());
     }
 
     #[test]
-    fn expand_glyph_block_expands_lowercase_codepoint_range() {
+    fn expand_glyph_block_expands_a_hex_range() {
         let items = expand_glyph_block(
-            &GlyphName("u+2800..2801".to_string()),
+            &GlyphName(substitute_name_parts("uni($#2800..2801)", &NamePartsMap::new())),
             &[pattern_ref("base")],
             1,
         )
@@ -1940,7 +1940,7 @@ mod tests {
             })
             .collect();
 
-        assert_eq!(names, vec!["U+2800".to_string(), "U+2801".to_string()]);
+        assert_eq!(names, vec!["uni2800".to_string(), "uni2801".to_string()]);
     }
 
     #[test]

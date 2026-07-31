@@ -124,6 +124,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Topic | Read |
 | --- | --- |
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
+| What characters a name may contain | `document_io.rs` (`# Names`), `pattern.rs` |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |

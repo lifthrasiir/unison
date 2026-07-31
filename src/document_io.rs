@@ -7,6 +7,22 @@
 //! it, so anything the model drops on the way in is something the user loses —
 //! comments included (below).
 //!
+//! # Names
+//!
+//! A glyph name is letters, digits, `-`, `.`, `_` and `:` — the last for a
+//! variant suffix (`a-lower:compressed`). Every character the pattern syntax
+//! uses (`(`, `)`, `|`, `$`, `*`, `#`) is excluded, so a pattern that failed to
+//! expand cannot reach the font as a name that merely looks odd. The rule is
+//! checked against *expanded* names by [`crate::issues`]; see
+//! [`crate::document::is_valid_glyph_name`].
+//!
+//! Face and slice ids are narrower still — no `:`, and a face id additionally
+//! becomes a file name, so it may not start with `.`; see [`crate::faces`].
+//!
+//! There is no `U+XXXX` glyph-name form. A range of hex-named glyphs is
+//! `uni($#XXXX..YYYY)`, which is what `($#…)` was added for; `U+XXXX` remains a
+//! *character* spelling on the left of a `map`, which is a different context.
+//!
 //! # Tokens
 //!
 //! Whitespace-separated, with backtick quoting for tokens containing spaces:

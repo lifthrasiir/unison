@@ -147,7 +147,7 @@ glyph test-glyph 4 3
 ..@@@@..
 @@@@@@@@
 
-glyph U+0041
+glyph uni0041
 ref test-glyph 2 0
 
 exclude-from-sample U+AD00
@@ -251,11 +251,11 @@ fn parse_glyph_without_pixel_rows() {
 
 #[test]
 fn roundtrip_alias() {
-    let input = "glyph U+0041 = test-glyph\n";
+    let input = "glyph uni0041 = test-glyph\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 1);
     if let DocumentItem::Glyph { name, body } = &doc.items[0] {
-        assert_eq!(name.display(), "U+0041");
+        assert_eq!(name.display(), "uni0041");
         assert!(body.pixels.is_none());
         assert_eq!(body.refs.len(), 1);
         assert_eq!(body.refs[0].name, "test-glyph");
@@ -268,7 +268,7 @@ fn roundtrip_alias() {
     let mut output = Vec::new();
     serialize_document(&doc, &mut output).unwrap();
     let output_str = String::from_utf8(output).unwrap();
-    assert_eq!(output_str, "glyph U+0041 = test-glyph\n");
+    assert_eq!(output_str, "glyph uni0041 = test-glyph\n");
 }
 
 #[test]
@@ -366,7 +366,7 @@ glyph test-glyph 4 3
 ..@@@@..
 @@@@@@@@
 
-glyph U+0041
+glyph uni0041
 ref test-glyph 2 0
 
 exclude-from-sample U+AD00
@@ -380,14 +380,14 @@ exclude-from-sample U+AD00
     assert!(matches!(lines[1], DocLine::Text(ref s) if s.starts_with("meta ")));
     assert!(matches!(lines[5], DocLine::Text(ref s) if s.starts_with("glyph test-glyph")));
     assert!(matches!(lines[6], DocLine::Grid(_)));
-    assert!(matches!(lines[8], DocLine::Text(ref s) if s.starts_with("glyph U+0041")));
+    assert!(matches!(lines[8], DocLine::Text(ref s) if s.starts_with("glyph uni0041")));
     assert!(matches!(lines[9], DocLine::Text(ref s) if s.starts_with("ref ")));
 }
 
 #[test]
 fn docline_roundtrip_alias() {
-    docline_roundtrip("glyph U+0041 = test-glyph\n");
-    let lines = parse_doclines("glyph U+0041 = test-glyph\n");
+    docline_roundtrip("glyph uni0041 = test-glyph\n");
+    let lines = parse_doclines("glyph uni0041 = test-glyph\n");
     assert_eq!(lines.len(), 1);
     assert!(matches!(lines[0], DocLine::Text(_)));
 }
@@ -530,7 +530,7 @@ glyph test-glyph 4 3
 ..@@@@..
 @@@@@@@@
 
-glyph U+0041
+glyph uni0041
 ref test-glyph 2 0
 
 exclude-from-sample U+AD00
@@ -540,7 +540,7 @@ exclude-from-sample U+AD00
 
 #[test]
 fn derive_equivalent_alias() {
-    assert_derive_equivalent("glyph U+0041 = test-glyph\n");
+    assert_derive_equivalent("glyph uni0041 = test-glyph\n");
 }
 
 

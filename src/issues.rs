@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 
 use crate::document::{
     Directive, Document, DocumentItem, GlyphName, classify_directive, expand_name_element,
-    find_invalid_inline_ranges, is_name_pattern, substitute_name_parts,
+    find_invalid_inline_ranges, is_name_pattern, is_valid_glyph_name, substitute_name_parts,
 };
 use crate::pattern::NamePattern;
 use crate::resolve::{Diagnostic, DocSet, ItemRef, Resolution};
@@ -175,6 +175,34 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     slices.join("`, `"),
                 )));
             }
+        }
+    }
+
+    // Names the font will actually carry, checked once against the charset.
+    // Against the *expanded* names, so a pattern that produced something odd is
+    // caught the same way a hand-written name would be.
+    {
+        let mut bad: Vec<(&String, Option<ItemRef>)> = expansion
+            .items
+            .iter()
+            .filter_map(|e| match &e.item {
+                DocumentItem::Glyph { name: GlyphName(n), .. } if !is_valid_glyph_name(n) => {
+                    Some((n, e.origin))
+                }
+                _ => None,
+            })
+            .collect();
+        // One report per name, at the line that defined it. A pattern that
+        // expands to many bad names would otherwise bury the file.
+        bad.sort_by(|a, b| a.0.cmp(b.0));
+        bad.dedup_by(|a, b| a.0 == b.0);
+        for (name, origin) in bad {
+            issues.push(docset.to_issue(&Diagnostic::error(
+                origin,
+                format!(
+                    "glyph name `{name}` may only contain letters, digits, `-`, `.`, `_` and `:`",
+                ),
+            )));
         }
     }
 

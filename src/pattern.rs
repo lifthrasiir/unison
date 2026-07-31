@@ -2,7 +2,6 @@
 //!
 //! A *name pattern* is a compact notation for a list of glyph names:
 //!
-//! - `U+XXXX..YYYY` — a codepoint range, one `U+NNNN` name per codepoint;
 //! - `(a|b|c)` — an alternation group spliced into the surrounding literal
 //!   text (`foo-(a|b)` → `foo-a`, `foo-b`);
 //! - `a*N` — inside a group, repeats one alternative N times;
@@ -87,8 +86,6 @@ enum Segment {
 enum Kind {
     /// A name with no pattern syntax, kept verbatim.
     Single(String),
-    /// `U+XXXX..YYYY`: names are generated from the codepoint, never stored.
-    Range { start: u32 },
     /// Top-level `a|b|c` list (block names only): branches taken verbatim.
     List(Vec<String>),
     /// Literal text interleaved with alternation groups.
@@ -115,9 +112,6 @@ impl NamePattern {
     /// arguments, runtime ref lookups).  A top-level `|` or `*` without any
     /// parentheses wraps the whole string into one alternation group.
     pub fn parse_element(s: &str) -> Result<Self, NamePatternError> {
-        if let Some(range) = parse_codepoint_range(s) {
-            return range;
-        }
         if s.chars().count() <= 1 || (!s.contains('(') && !s.contains('|') && !s.contains('*')) {
             return Ok(Self::single(s.to_string()));
         }
@@ -128,13 +122,9 @@ impl NamePattern {
         }
     }
 
-    /// Parses a glyph block name: a codepoint range, a top-level verbatim
-    /// `name1|name2` list, alternation groups, or a bare `foo*N` repeat.
+    /// Parses a glyph block name: a top-level verbatim `name1|name2` list,
+    /// alternation groups, or a bare `foo*N` repeat.
     pub fn parse(s: &str) -> Result<Self, NamePatternError> {
-        if let Some(range) = parse_codepoint_range(s) {
-            return range;
-        }
-
         if has_top_level_pipe(s) {
             let names: Vec<String> = split_top_level_pipes(s)
                 .into_iter()
@@ -219,10 +209,6 @@ impl NamePattern {
     pub fn get(&self, i: usize) -> String {
         match &self.kind {
             Kind::Single(name) => name.clone(),
-            Kind::Range { start } => {
-                let cp = start + (i % self.len) as u32;
-                format!("U+{cp:04X}")
-            }
             Kind::List(names) => names[i % names.len()].clone(),
             Kind::Segments(segments) => {
                 let mut out = String::new();
@@ -314,28 +300,6 @@ impl IntoIterator for NamePattern {
 /// the LCM of the individual lengths.
 pub fn combined_len<'a>(patterns: impl IntoIterator<Item = &'a NamePattern>) -> usize {
     patterns.into_iter().fold(1, |acc, p| lcm(acc, p.len()))
-}
-
-/// `U+XXXX..YYYY` / `u+XXXX..YYYY`; `None` when `s` is not range-shaped.
-fn parse_codepoint_range(s: &str) -> Option<Result<NamePattern, NamePatternError>> {
-    let hex_rest = s.strip_prefix("U+").or_else(|| s.strip_prefix("u+"))?;
-    let (start_hex, end_hex) = hex_rest.split_once("..")?;
-    Some((|| {
-        let start = u32::from_str_radix(start_hex, 16)
-            .map_err(|_| NamePatternError::Syntax(format!("bad range start: {start_hex}")))?;
-        let end = u32::from_str_radix(end_hex, 16)
-            .map_err(|_| NamePatternError::Syntax(format!("bad range end: {end_hex}")))?;
-        if end < start {
-            return Err(NamePatternError::Syntax("range end < start".into()));
-        }
-        let count = u64::from(end) - u64::from(start) + 1;
-        if count > MAX_EXPANSION as u64 {
-            return Err(NamePatternError::TooManyExpansions(
-                usize::try_from(count).unwrap_or(usize::MAX),
-            ));
-        }
-        Ok(NamePattern { kind: Kind::Range { start }, len: count as usize })
-    })())
 }
 
 /// Splits `(...)` group content on `|`, applying `a*N` per-alternative
@@ -683,6 +647,23 @@ fn try_expand_inline_range(chars: &[char], start: usize) -> Option<(usize, Vec<S
     Some((i, parts))
 }
 
+/// Whether `name` is a legal glyph name.
+///
+/// Letters, digits, `-`, `.`, `_`, and `:` — the last because a glyph name may
+/// carry a variant suffix (`a-lower:compressed`). Deliberately narrower than
+/// "any token": every character the pattern syntax uses (`(`, `)`, `|`, `$`,
+/// `*`, `#`) is excluded, so a pattern that failed to expand cannot reach the
+/// font as a name that merely looks odd. Face ids are narrower still, since
+/// they become file names — see `crate::faces::is_valid_face_id`.
+///
+/// Checked against *expanded* names, so how one was written does not matter.
+pub fn is_valid_glyph_name(name: &str) -> bool {
+    !name.is_empty()
+        && name
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_' | ':'))
+}
+
 /// Check a string for invalid inline numeric ranges (`$end..start` where
 /// end < start, or ranges exceeding `MAX_EXPANSION`). Returns descriptions
 /// of each invalid range found.
@@ -721,23 +702,50 @@ mod tests {
         NamePattern::parse(s).unwrap().into_vec()
     }
 
+    /// The `U+XXXX..YYYY` form is gone. `uni($#XXXX..YYYY)` says the same thing
+    /// and produces names inside the name charset — but `$#` is substituted
+    /// textually *before* this layer, so what reaches it is the group.
+    /// The charset every expanded name has to fit. `_` is in it because the
+    /// jamo names use it (`hangul-init-_c-l-f`), `:` because of variant
+    /// suffixes, and the pattern metacharacters are out so that a pattern which
+    /// failed to expand cannot pass for a name.
     #[test]
-    fn element_expands_codepoint_ranges() {
-        assert_eq!(element("U+2800..2802"), vec!["U+2800", "U+2801", "U+2802"]);
-        assert_eq!(element("u+00fe..0100"), vec!["U+00FE", "U+00FF", "U+0100"]);
+    fn glyph_name_charset_admits_what_the_font_uses() {
+        for good in ["a", "a-lower:compressed", "hangul-init-_c-l-f", "uni0041", ".notdef", "num.1"] {
+            assert!(is_valid_glyph_name(good), "{good} should be valid");
+        }
+        for bad in ["", "U+0041", "a b", "pat-($digit)", "a|b", "x*2", "$var", "한글", "a/b"] {
+            assert!(!is_valid_glyph_name(bad), "{bad} should be rejected");
+        }
     }
 
     #[test]
-    fn element_rejects_invalid_or_oversized_ranges() {
-        assert!(matches!(
-            NamePattern::parse_element("U+2802..2800"),
-            Err(NamePatternError::Syntax(_)),
-        ));
-        assert!(matches!(
-            NamePattern::parse_element("U+00000000..FFFFFFFF"),
-            Err(NamePatternError::TooManyExpansions(_)),
-        ));
+    fn element_expands_hex_ranges() {
+        let parts = NamePartsMap::new();
+        let expanded = substitute_name_parts("uni($#2800..2802)", &parts);
+        assert_eq!(element(&expanded), vec!["uni2800", "uni2801", "uni2802"]);
+        assert_eq!(
+            element("U+2800..2802"),
+            vec!["U+2800..2802"],
+            "`U+…` is now one verbatim name, not a range",
+        );
     }
+
+    /// A backwards or oversized `$#` range is left verbatim by substitution and
+    /// caught by `find_invalid_inline_ranges`, which names the range rather than
+    /// the whole pattern. This layer only sees whatever substitution produced.
+    #[test]
+    fn an_unsubstituted_inline_range_stays_verbatim() {
+        let parts = NamePartsMap::new();
+        for bad in ["uni($#2802..2800)", "uni($#00000000..FFFFFFFF)"] {
+            assert_eq!(substitute_name_parts(bad, &parts), bad, "left for the checker");
+        }
+        assert!(
+            !crate::document::find_invalid_inline_ranges("uni($#2802..2800)").is_empty(),
+            "the backwards range must be reported",
+        );
+    }
+
 
     #[test]
     fn element_rejects_oversized_repeat_before_materializing_it() {
@@ -808,9 +816,10 @@ mod tests {
 
     #[test]
     fn range_len_is_available_without_materializing() {
-        let p = NamePattern::parse("U+0000..FFFF").unwrap();
+        let parts = NamePartsMap::new();
+        let p = NamePattern::parse(&substitute_name_parts("uni($#0000..FFFF)", &parts)).unwrap();
         assert_eq!(p.len(), 0x10000);
-        assert_eq!(p.get(0x41), "U+0041");
+        assert_eq!(p.get(0x41), "uni0041");
     }
 
     #[test]

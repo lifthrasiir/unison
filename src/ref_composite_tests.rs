@@ -249,7 +249,7 @@ ref stem-(a|b)
 glyph pair-(a|b)
 ref $base
 
-glyph U+2800..2801
+glyph uni(2800|2801)
 ref $base
 
 glyph pipe-a|pipe-b
@@ -265,8 +265,8 @@ ref $base
         "via-pattern",
         "pair-a",
         "pair-b",
-        "U+2800",
-        "U+2801",
+        "uni2800",
+        "uni2801",
         "pipe-a",
         "pipe-b",
     ] {
