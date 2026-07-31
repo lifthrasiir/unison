@@ -273,3 +273,130 @@ fn expand_slice(
 #[cfg(test)]
 #[path = "faces_tests.rs"]
 mod tests;
+
+// ---------------------------------------------------------------------------
+// Output paths
+// ---------------------------------------------------------------------------
+
+/// What a single `--output` argument resolves to.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum OutputPlan {
+    /// One file holding every face, in declaration order.
+    Collection(std::path::PathBuf),
+    /// One file per face, paired with the face id that named it.
+    PerFace(Vec<(String, std::path::PathBuf)>),
+}
+
+/// Resolve one `--output` template against the declared faces.
+///
+/// The format comes from the extension, and whether the file holds one face or
+/// all of them comes from whether the path has a `%`. Every combination is
+/// either meaningful or an error — nothing is silently reinterpreted, because
+/// the failure mode of guessing here is a file that looks right and holds the
+/// wrong typeface.
+///
+/// | path | 1 face | 2+ faces |
+/// | --- | --- | --- |
+/// | `unison.ttf` | the font | error: which one? |
+/// | `unison-%.ttf` | error: nothing to vary | one file per face |
+/// | `unison.ttc` | a one-face collection | the collection |
+/// | `unison-%.ttc` | error | error: a collection per face is not a thing |
+/// | `unison.woff2` | the font | error: browsers cannot select a face from a collection |
+///
+/// `%%` is a literal `%`.
+pub fn plan_output(
+    template: &std::path::Path,
+    faces: &[Face],
+) -> Result<OutputPlan, String> {
+    let text = template.to_string_lossy().into_owned();
+    let is_ttc = template
+        .extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| e.eq_ignore_ascii_case("ttc"));
+
+    // Count `%` placeholders, treating `%%` as an escaped literal.
+    let mut placeholders = 0usize;
+    let mut chars = text.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '%' {
+            if chars.peek() == Some(&'%') {
+                chars.next();
+            } else {
+                placeholders += 1;
+            }
+        }
+    }
+
+    if placeholders > 0 && is_ttc {
+        return Err(format!(
+            "`{text}` names a collection per face, which is not a thing: \
+             drop the `%` for one collection, or the `.ttc` for one file per face",
+        ));
+    }
+    if placeholders > 1 {
+        return Err(format!("`{text}` has more than one `%`"));
+    }
+
+    if is_ttc {
+        return Ok(OutputPlan::Collection(template.to_path_buf()));
+    }
+
+    if placeholders == 0 {
+        if faces.len() > 1 {
+            let ext = template
+                .extension()
+                .and_then(|e| e.to_str())
+                .unwrap_or("ttf")
+                .to_ascii_lowercase();
+            let hint = if ext == "woff2" {
+                "a WOFF2 collection cannot be used from CSS — a browser has no way to \
+                 select a face — so write one file per face"
+            } else {
+                "use `.ttc` for one file, or a `%` in the path for one file per face"
+            };
+            return Err(format!(
+                "`{text}` names one file but {} faces are declared; {hint}",
+                faces.len(),
+            ));
+        }
+        return Ok(OutputPlan::PerFace(vec![(
+            faces[0].id.clone(),
+            std::path::PathBuf::from(unescape_percent(&text)),
+        )]));
+    }
+
+    if faces.len() == 1 && faces[0].id.is_empty() {
+        return Err(format!(
+            "`{text}` has a `%` but no face is declared, so there is no id to put there",
+        ));
+    }
+    Ok(OutputPlan::PerFace(
+        faces
+            .iter()
+            .map(|f| (f.id.clone(), std::path::PathBuf::from(substitute(&text, &f.id))))
+            .collect(),
+    ))
+}
+
+fn unescape_percent(text: &str) -> String {
+    text.replace("%%", "%")
+}
+
+/// Replace the single unescaped `%` with `id`, and `%%` with a literal `%`.
+fn substitute(text: &str, id: &str) -> String {
+    let mut out = String::with_capacity(text.len() + id.len());
+    let mut chars = text.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '%' {
+            if chars.peek() == Some(&'%') {
+                chars.next();
+                out.push('%');
+            } else {
+                out.push_str(id);
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}

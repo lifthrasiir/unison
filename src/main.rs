@@ -140,29 +140,69 @@ fn main() {
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
         report_issues(&refs);
-        let Some(font_bytes) = render::build_font_from_documents(&refs) else {
+        let faces = faces::FaceSet::collect(&refs);
+        let Some(built) = render::build_faces(&refs) else {
             eprintln!("Font build failed");
             std::process::exit(1);
         };
+        // The primary face is what the sample and preview outputs below show;
+        // they are one document, not one per typeface.
+        let font_bytes = built[0].1.clone();
 
-        let mut woff2_bytes: Option<Vec<u8>> = None;
-        for output in &output_files {
-            let ext = output.extension().and_then(|e| e.to_str()).unwrap_or("ttf");
-            let data = match ext {
-                "woff2" => {
-                    if woff2_bytes.is_none() {
-                        match render::ttf_to_woff2(&font_bytes) {
-                            Ok(b) => woff2_bytes = Some(b),
-                            Err(e) => {
-                                eprintln!("{e}");
-                                std::process::exit(1);
-                            }
+        // Every `--output` is planned before anything is written, so a wrong
+        // combination fails before it has half-produced a set of files.
+        let plans: Vec<faces::OutputPlan> = output_files
+            .iter()
+            .map(|o| match faces::plan_output(o, &faces.faces) {
+                Ok(plan) => plan,
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    std::process::exit(1);
+                }
+            })
+            .collect();
+
+        let mut writes: Vec<(std::path::PathBuf, Vec<u8>)> = Vec::new();
+        for plan in plans {
+            match plan {
+                faces::OutputPlan::Collection(path) => {
+                    let fonts: Vec<Vec<u8>> = built.iter().map(|(_, b)| b.clone()).collect();
+                    match render::build_collection(&fonts) {
+                        Ok(bytes) => writes.push((path, bytes)),
+                        Err(e) => {
+                            eprintln!("error: {e}");
+                            std::process::exit(1);
                         }
                     }
-                    woff2_bytes.as_ref().unwrap().as_slice()
                 }
-                _ => &font_bytes,
-            };
+                faces::OutputPlan::PerFace(targets) => {
+                    for (face_id, path) in targets {
+                        let Some((_, ttf)) = built.iter().find(|(id, _)| *id == face_id) else {
+                            eprintln!("error: no built face `{face_id}`");
+                            std::process::exit(1);
+                        };
+                        let is_woff2 = path
+                            .extension()
+                            .and_then(|e| e.to_str())
+                            .is_some_and(|e| e.eq_ignore_ascii_case("woff2"));
+                        let bytes = if is_woff2 {
+                            match render::ttf_to_woff2(ttf) {
+                                Ok(b) => b,
+                                Err(e) => {
+                                    eprintln!("{e}");
+                                    std::process::exit(1);
+                                }
+                            }
+                        } else {
+                            ttf.clone()
+                        };
+                        writes.push((path, bytes));
+                    }
+                }
+            }
+        }
+
+        for (output, data) in &writes {
             match std::fs::write(output, data) {
                 Ok(()) => {
                     eprintln!(
@@ -208,7 +248,15 @@ fn main() {
                 eprintln!("Failed to create {}: {e}", path.display());
                 std::process::exit(1);
             });
-            let result = if let Some(ref w2) = woff2_bytes {
+            // The live page embeds whichever WOFF2 the outputs produced, so
+            // that it shows the same bytes a browser would load; with none it
+            // falls back to the primary face's TTF.
+            let woff2_written = writes.iter().find(|(p, _)| {
+                p.extension()
+                    .and_then(|e| e.to_str())
+                    .is_some_and(|e| e.eq_ignore_ascii_case("woff2"))
+            });
+            let result = if let Some((_, w2)) = woff2_written {
                 render::sample::write_live_html_woff2(&mut f, &refs, &font_bytes, w2, data_dir.as_deref())
             } else {
                 render::sample::write_live_html(&mut f, &refs, &font_bytes, data_dir.as_deref())

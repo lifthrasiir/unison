@@ -49,8 +49,28 @@ pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsM
         .collect()
 }
 
+pub(crate) fn collect_expanded_items_for(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    face: &crate::faces::Face,
+) -> Vec<DocumentItem> {
+    expand_for(docs, name_parts, face)
+        .items
+        .into_iter()
+        .map(|e| e.item)
+        .collect()
+}
+
 pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) -> Expansion {
     expand_documents_for(docs, name_parts, &crate::faces::FaceSet::collect(docs))
+}
+
+pub(crate) fn expand_documents_for(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    faces: &crate::faces::FaceSet,
+) -> Expansion {
+    expand_for(docs, name_parts, faces.primary())
 }
 
 /// Expand for one face: items qualified with a slice the face does not include
@@ -59,12 +79,11 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
 ///
 /// Glyphs are never filtered. Every face draws from the same glyph set; what a
 /// slice changes is which character reaches which glyph.
-pub(crate) fn expand_documents_for(
+pub(crate) fn expand_for(
     docs: &[&Document],
     name_parts: &NamePartsMap,
-    faces: &crate::faces::FaceSet,
+    face: &crate::faces::Face,
 ) -> Expansion {
-    let face = faces.primary();
     let mut all_items: Vec<ExpandedItem> = Vec::new();
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
 

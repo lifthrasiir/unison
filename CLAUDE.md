@@ -36,7 +36,7 @@ share cannot serve kills the process; `run-local.cmd`'s comments have the whole 
 The `build`/`test` subcommands require native execution:
 
 ```sh
-cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] \
+cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf] [-o unison.ttc] \
     [--sample-html F] [--sample-png F] [--live-html F] [-d data]
 cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
 ```
@@ -77,8 +77,9 @@ Core (feature-independent):
 - `resolve.rs` — shared vocabulary for the resolution pipeline (`ItemRef` provenance, `Diagnostic`),
   so build/editor/validation cannot drift apart. Resolution emits issues directly.
 - `faces.rs` — `face`/`slice`: which typefaces the source describes and what each contains. Holds the
-  base-slice invariant (a character whose mapping varies must not be in the base) and the face-id
-  rules. Tests in `faces_tests.rs`.
+  base-slice invariant (a character whose mapping varies must not be in the base), the face-id rules,
+  and `plan_output` — the table of which `--output` path means one file, one per face, or a
+  collection. Tests in `faces_tests.rs`.
 - `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which font fields are
   *declared*, *derived* and *computed*. Tests in `meta_tests.rs`. Values on the pixel grid are
   declared in pixels and scaled by the builder, like everything else in `.unf`.
@@ -125,6 +126,8 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
+| `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |
+| Writing a TTC, and why `glyf` is not shared yet | `render/ttf_builder/collection.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
@@ -167,7 +170,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 
 | Module | Tests |
 | --- | --- |
-| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, with shared canonicalization helpers in its `mod.rs` |
+| `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, `collection`, with shared canonicalization helpers in its `mod.rs` |
 | `document_io.rs` | `document_io_tests.rs` |
 | `meta.rs` | `meta_tests.rs` |
 | `faces.rs` | `faces_tests.rs` |

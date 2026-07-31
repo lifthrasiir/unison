@@ -75,6 +75,7 @@ use crate::render::glyph_cache::{
 };
 
 mod collect;
+mod collection;
 mod color;
 mod contours;
 mod expand;
@@ -94,7 +95,8 @@ pub use contours::ContourCache;
 #[cfg(feature = "editor")]
 pub use contours::{SharedContourCache, new_contour_cache};
 pub(crate) use expand::{
-    Expansion, collect_expanded_items, decomposed_map_pairs, expand_documents, expand_documents_for,
+    Expansion, collect_expanded_items, collect_expanded_items_for, decomposed_map_pairs,
+    expand_documents, expand_documents_for,
     expand_map_pairs, parse_map_char
 };
 pub(crate) use gsub::remap_rule_kind;
@@ -224,6 +226,35 @@ pub fn build_font_pair_cached(
     });
 
     Some(((bitmap, vector), name_to_gid))
+}
+
+/// Build every declared face, in declaration order, as `(face id, TTF bytes)`.
+///
+/// A source declaring no `face` yields one entry with an empty id — the same
+/// font `build_font_from_documents` returns, so the two paths cannot drift.
+pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
+    let faces = crate::faces::FaceSet::collect(docs);
+    let mut out = Vec::new();
+    for face in &faces.faces {
+        let shared = collect::compute_shared_font_input_for(docs, face)?;
+        let (meta, scale, glyph_data, gsub_data, palette) =
+            collect::collect_glyph_data_with_shared(&shared, false, None)?;
+        let ascender = (meta.ascent() as f32 * scale).round() as i16;
+        let descender = -((meta.descent() as f32 * scale).round() as i16);
+        let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) { meta.height() } else { 0 };
+        out.push((
+            face.id.clone(),
+            tables::build_ttf(
+                ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, &meta,
+            ),
+        ));
+    }
+    Some(out)
+}
+
+/// Assemble already-built faces into a TrueType Collection.
+pub fn build_collection(fonts: &[Vec<u8>]) -> Result<Vec<u8>, String> {
+    collection::build_collection(fonts)
 }
 
 /// Build result containing the TTF bytes, GID→name map, and the pixel

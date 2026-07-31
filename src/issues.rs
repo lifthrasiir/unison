@@ -126,23 +126,6 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let faces = &resolution.faces;
     issues.extend(docset.to_issues(&faces.diagnostics));
 
-    // Emitting more than one face needs a collection, which the builder cannot
-    // write yet (`write-fonts` has no TTC support, and the output-path rules
-    // are not settled). Refused rather than silently building the first face:
-    // the source would look like it described two typefaces and ship one.
-    if faces.faces.len() > 1 {
-        let names: Vec<&str> = faces.faces.iter().map(|f| f.id.as_str()).collect();
-        issues.push(docset.to_issue(&Diagnostic::error(
-            faces.faces[1].origin,
-            format!(
-                "{} faces are declared (`{}`) but only one can be built yet; \
-                 the grammar is in place, the collection writer is not",
-                names.len(),
-                names.join("`, `"),
-            ),
-        )));
-    }
-
 
     // Resolution is the same expansion the font build performs, so the
     // problems it detects — unresolvable references, maps that cannot be

@@ -133,21 +133,31 @@ pub(super) struct SharedFontInput {
 }
 
 pub(super) fn compute_shared_font_input(docs: &[&Document]) -> Option<SharedFontInput> {
+    compute_shared_font_input_for(docs, crate::faces::FaceSet::collect(docs).primary())
+}
+
+/// The shared input for one face: its metadata, and an expansion with every
+/// slice the face does not include already dropped.
+pub(super) fn compute_shared_font_input_for(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+) -> Option<SharedFontInput> {
     if docs.is_empty() {
         return None;
     }
 
-    let meta = FontMeta::collect(docs);
+    let face_id = if face.id.is_empty() { None } else { Some(face.id.as_str()) };
+    let meta = FontMeta::for_face(docs, face_id);
 
     if meta.height() == 0 {
-        eprintln!("error: font-meta height must be > 0");
+        eprintln!("error: `meta height` must be > 0");
         return None;
     }
 
     let scale = UNITS_PER_EM as f32 / meta.height() as f32;
 
     let name_parts = collect_name_parts(docs);
-    let all_items = collect_expanded_items(docs, &name_parts);
+    let all_items = collect_expanded_items_for(docs, &name_parts, face);
 
     let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &all_items {

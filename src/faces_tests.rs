@@ -217,3 +217,63 @@ fn two_faces_may_not_share_a_name() {
         "expected a duplicate-name error, got {msgs:?}",
     );
 }
+
+// ---------------------------------------------------------------------------
+// Output paths
+// ---------------------------------------------------------------------------
+
+fn plan(path: &str, src: &str) -> Result<OutputPlan, String> {
+    plan_output(std::path::Path::new(path), &faces_of(src).faces)
+}
+
+const ONE: &str = "";
+const TWO: &str = "face narrow\nface wide\n";
+
+/// Every combination of "has a `%`" and "is a `.ttc`" against "how many faces"
+/// is either meaningful or an error. Guessing would produce a file that looks
+/// right and holds the wrong typeface.
+#[test]
+fn output_paths_resolve_by_extension_and_placeholder() {
+    assert_eq!(
+        plan("unison.ttf", ONE),
+        Ok(OutputPlan::PerFace(vec![(String::new(), "unison.ttf".into())])),
+    );
+    assert_eq!(
+        plan("unison-%.ttf", TWO),
+        Ok(OutputPlan::PerFace(vec![
+            ("narrow".to_string(), "unison-narrow.ttf".into()),
+            ("wide".to_string(), "unison-wide.ttf".into()),
+        ])),
+    );
+    assert_eq!(plan("unison.ttc", TWO), Ok(OutputPlan::Collection("unison.ttc".into())));
+    assert_eq!(plan("unison.ttc", ONE), Ok(OutputPlan::Collection("unison.ttc".into())));
+
+    // One file cannot hold two faces unless it is a collection.
+    let err = plan("unison.ttf", TWO).unwrap_err();
+    assert!(err.contains("`.ttc`"), "got {err}");
+
+    // ...and a WOFF2 says why a collection is not the answer there.
+    let err = plan("unison.woff2", TWO).unwrap_err();
+    assert!(err.contains("browser"), "got {err}");
+
+    // A `%` with nothing to vary, and a collection per face, are both nonsense.
+    assert!(plan("unison-%.ttf", ONE).is_err());
+    assert!(plan("unison-%.ttc", TWO).is_err());
+    assert!(plan("a-%-%.ttf", TWO).is_err());
+}
+
+/// `%%` is a literal `%`, in both the substituted and the plain form.
+#[test]
+fn a_doubled_percent_is_a_literal_one() {
+    assert_eq!(
+        plan("100%%-%.ttf", TWO),
+        Ok(OutputPlan::PerFace(vec![
+            ("narrow".to_string(), "100%-narrow.ttf".into()),
+            ("wide".to_string(), "100%-wide.ttf".into()),
+        ])),
+    );
+    assert_eq!(
+        plan("100%%.ttf", ONE),
+        Ok(OutputPlan::PerFace(vec![(String::new(), "100%.ttf".into())])),
+    );
+}
