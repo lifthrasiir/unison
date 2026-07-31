@@ -277,3 +277,46 @@ fn a_doubled_percent_is_a_literal_one() {
         Ok(OutputPlan::PerFace(vec![(String::new(), "100%.ttf".into())])),
     );
 }
+
+/// A slice nothing is qualified to gives its faces nothing, which during a
+/// migration is exactly what a typo looks like. Mirrors the "remap group is
+/// declared but has no rules" warning.
+#[test]
+fn a_slice_with_no_content_is_warned_about() {
+    let warnings = |src: &str| -> Vec<String> {
+        let doc = parse_document_from_str(src, "test.unf".into()).unwrap();
+        collect_issues(&[&doc])
+            .into_iter()
+            .filter(|i| i.severity == Severity::Warning && i.message.contains("slice"))
+            .map(|i| i.message)
+            .collect()
+    };
+
+    let msgs = warnings("slice narrow\nslice wide\nglyph a 1 1\n@@\nmap wide : A = a\n");
+    assert!(
+        msgs.iter().any(|m| m.contains("narrow")),
+        "expected a warning for the empty slice, got {msgs:?}",
+    );
+    assert!(
+        !msgs.iter().any(|m| m.contains("`wide`")),
+        "a slice carrying a map is not empty, got {msgs:?}",
+    );
+}
+
+/// A slice that exists only to compose others is not empty — its content comes
+/// from what it inherits, which is the whole point of the shorthand.
+#[test]
+fn a_composing_slice_is_not_reported_as_empty() {
+    let doc = parse_document_from_str(
+        "slice narrow\nslice wide\nslice both = narrow wide\n\
+         glyph a 1 1\n@@\nmap narrow : A = a\nmap wide : B = a\n",
+        "test.unf".into(),
+    )
+    .unwrap();
+    let msgs: Vec<String> = collect_issues(&[&doc])
+        .into_iter()
+        .filter(|i| i.message.contains("slice") && i.message.contains("both"))
+        .map(|i| i.message)
+        .collect();
+    assert!(msgs.is_empty(), "got {msgs:?}");
+}

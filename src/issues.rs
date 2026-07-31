@@ -178,6 +178,62 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
+    // A slice nothing is qualified to gives every face that includes it
+    // nothing. Mirrors the "remap group is declared but has no rules" warning,
+    // and matters most mid-migration: moving characters out of the base into
+    // two slices is exactly where a typo leaves one of them empty.
+    //
+    // Content is counted transitively, so a slice that exists only to compose
+    // others (`slice both = narrow wide`) is not empty when they are not.
+    {
+        let mut has_own: HashSet<&str> = HashSet::new();
+        for doc in docs {
+            for item in &doc.items {
+                match item {
+                    DocumentItem::Map { slice: Some(s), .. }
+                    | DocumentItem::MapDecomposed { slice: Some(s), .. }
+                    | DocumentItem::Feature { slice: Some(s), .. }
+                    | DocumentItem::FeatureAnchor { slice: Some(s), .. } => {
+                        has_own.insert(s.as_str());
+                    }
+                    DocumentItem::AssertShape { slices, .. } => {
+                        has_own.extend(slices.iter().map(String::as_str));
+                    }
+                    _ => {}
+                }
+            }
+        }
+        // Reachability over `inherits`, bounded by the number of slices, so a
+        // cycle (reported elsewhere) cannot spin here.
+        for (name, (_, origin)) in &faces.declared {
+            let mut seen: HashSet<&str> = HashSet::new();
+            let mut stack = vec![name.as_str()];
+            let mut found = false;
+            while let Some(cur) = stack.pop() {
+                if !seen.insert(cur) {
+                    continue;
+                }
+                if has_own.contains(cur) {
+                    found = true;
+                    break;
+                }
+                if let Some((inherits, _)) = faces.declared.get(cur) {
+                    stack.extend(inherits.iter().map(String::as_str));
+                }
+            }
+            if !found {
+                issues.push(docset.to_issue(&Diagnostic::new(
+                    Severity::Warning,
+                    Some(*origin),
+                    format!(
+                        "slice `{name}` is declared but nothing is qualified to it, \
+                         so every face including it gets nothing from it",
+                    ),
+                )));
+            }
+        }
+    }
+
     // Names the font will actually carry, checked once against the charset.
     // Against the *expanded* names, so a pattern that produced something odd is
     // caught the same way a hand-written name would be.
