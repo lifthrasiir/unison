@@ -47,6 +47,10 @@ pub struct Sidebar {
     /// on. Reloads after a rename or a new file leave it as it is: they must
     /// not undo a width the user dragged to.
     auto_width: bool,
+    /// Where the file list's vertical scroll bar landed last frame. Only the
+    /// test that pins it to the panel's edge reads it.
+    #[cfg(test)]
+    last_scroll_bar_rect: Option<egui::Rect>,
 }
 
 impl Sidebar {
@@ -56,6 +60,8 @@ impl Sidebar {
             directory: None,
             edit_state: EditState::None,
             auto_width: true,
+            #[cfg(test)]
+            last_scroll_bar_rect: None,
         }
     }
 
@@ -225,7 +231,11 @@ impl Sidebar {
                 }
         }
 
-        egui::ScrollArea::vertical().show(ui, |ui| {
+        // Horizontal auto-shrink off: a scroll area of labels is only as wide as
+        // its widest label, and the scroll bar sits at the *area's* right edge —
+        // so a panel wider than the names would draw the bar next to the longest
+        // name instead of at the panel's edge.
+        let scroll_out = egui::ScrollArea::vertical().auto_shrink([false, true]).show(ui, |ui| {
             if show_empty_label {
                 ui.label("No .unf files found");
             }
@@ -366,6 +376,15 @@ impl Sidebar {
                 self.edit_state = EditState::None;
             }
         });
+        #[cfg(test)]
+        {
+            // `id.with(1)` is the vertical scroll bar's interaction id.
+            self.last_scroll_bar_rect = ui
+                .ctx()
+                .read_response(scroll_out.id.with(1))
+                .map(|r| r.rect);
+        }
+        let _ = scroll_out;
 
         actions
     }
@@ -546,6 +565,37 @@ mod tests {
         assert!((narrow_w - narrow_want).abs() < 1.0, "{narrow_w} vs {narrow_want}");
         assert!((wide_w - wide_want).abs() < 1.0, "{wide_w} vs {wide_want}");
         assert!(wide_w > narrow_w + 50.0, "{wide_w} vs {narrow_w}");
+    }
+
+    /// A panel wider than its file names must still keep the scroll bar at its
+    /// right edge: a scroll area shrinks to its content, which would park the
+    /// bar next to the longest name with empty panel to its right.
+    #[test]
+    fn the_scroll_bar_stays_at_the_panel_edge_when_the_panel_is_wider() {
+        let names: Vec<String> = (0..80).map(|i| format!("f{i:02}.unf")).collect();
+        let mut sb = sidebar_with(&names.iter().map(String::as_str).collect::<Vec<_>>());
+        // A width the fit would never ask for: the names are all short.
+        sb.auto_width = false;
+        let ctx = egui::Context::default();
+        let mut panel_right = 0.0;
+        for _ in 0..3 {
+            ctx.run(input(), |ctx| {
+                let resp = egui::SidePanel::left("sidebar")
+                    .default_width(360.0)
+                    .show(ctx, |ui| {
+                        sb.show(ui, None, SidebarFiles::default(), false);
+                    });
+                panel_right = resp.response.rect.right();
+            });
+        }
+
+        let bar = sb.last_scroll_bar_rect.expect("scroll bar shown");
+        // Slack for the panel frame's inner margin, which the bar sits inside.
+        assert!(
+            (bar.right() - panel_right).abs() < 12.0,
+            "scroll bar at {} but the panel ends at {panel_right}",
+            bar.right()
+        );
     }
 
     /// Dragging the panel edge takes the width over from the fit and keeps it:
