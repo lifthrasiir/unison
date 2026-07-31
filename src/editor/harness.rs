@@ -215,7 +215,7 @@ pub(crate) struct EditorHarness {
     pub named_glyphs: HashMap<String, ResolvedGlyph>,
     pub alt_index: AlternativesIndex,
     pub name_parts: NamePartsMap,
-    pub meta: crate::resolve::FontMeta,
+    pub meta: crate::meta::FontMetrics,
     /// Off by default: the metric box widens the drawn grid, and every layout
     /// assertion written before it existed expects the un-widened extents.
     pub show_metrics: bool,
@@ -242,7 +242,7 @@ pub(crate) struct Pane {
     pub named_glyphs: HashMap<String, ResolvedGlyph>,
     pub alt_index: AlternativesIndex,
     pub name_parts: NamePartsMap,
-    pub meta: crate::resolve::FontMeta,
+    pub meta: crate::meta::FontMetrics,
 }
 
 impl Pane {
@@ -266,7 +266,7 @@ impl Pane {
         let docs: Vec<&Document> = vec![&self.doc];
         let name_parts = collect_name_parts(&docs);
         let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
-        self.meta = crate::resolve::FontMeta::collect(&docs);
+        self.meta = crate::meta::FontMeta::collect(&docs).metrics;
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
@@ -316,7 +316,7 @@ impl EditorHarness {
         let docs: Vec<&Document> = vec![&self.doc];
         let name_parts = collect_name_parts(&docs);
         let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
-        self.meta = crate::resolve::FontMeta::collect(&docs);
+        self.meta = crate::meta::FontMeta::collect(&docs).metrics;
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;

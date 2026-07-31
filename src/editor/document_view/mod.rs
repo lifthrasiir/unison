@@ -131,7 +131,7 @@ pub struct EditorEnv<'a> {
     pub alt_index: &'a crate::editor::ref_composite::AlternativesIndex,
     pub color_aliases: &'a ColorAliasMap,
     /// `meta`, for the baseline and the height of the metric box.
-    pub meta: crate::resolve::FontMeta,
+    pub meta: crate::meta::FontMetrics,
     /// Whether the metric-box overlay is switched on (View menu).
     pub show_metrics: bool,
     /// Generation of the derived data above; bumping it invalidates the

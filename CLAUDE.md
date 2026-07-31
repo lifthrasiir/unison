@@ -76,6 +76,8 @@ Core (feature-independent):
   a bearing**, and the on-demand name catalog with the `BitmapFill` rule.
 - `resolve.rs` — shared vocabulary for the resolution pipeline (`ItemRef` provenance, `Diagnostic`),
   so build/editor/validation cannot drift apart. Resolution emits issues directly.
+- `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which name IDs are
+  *declared*, *derived* and *computed*. Tests in `meta_tests.rs`.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
@@ -117,6 +119,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Topic | Read |
 | --- | --- |
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
+| `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
@@ -160,6 +163,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | --- | --- |
 | `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, with shared canonicalization helpers in its `mod.rs` |
 | `document_io.rs` | `document_io_tests.rs` |
+| `meta.rs` | `meta_tests.rs` |
 | `ref_composite.rs` | `ref_composite_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests.rs` (harness scenarios) |
 

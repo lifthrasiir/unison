@@ -299,7 +299,7 @@ pub(crate) fn build_visual_lines(
     wrap_width: Option<f32>,
     ctx: &egui::Context,
     font_id: &egui::FontId,
-    meta: crate::resolve::FontMeta,
+    meta: crate::meta::FontMetrics,
     show_metrics: bool,
     shadow: Option<&(usize, crate::editor::anchor_shadow::AnchorShadow)>,
 ) -> Vec<VisualLine> {

@@ -26,12 +26,14 @@
 //!
 //! # Directives
 //!
-//! - `meta KEY VALUE...` — font metadata, **one key per line**. Keys are
+//! - `meta KEY [@LANG] VALUE...` — font metadata, **one key per line**. Keys are
 //!   variadic (a metric takes one number, `panose` takes ten, a flag takes
 //!   none), which is why they do not share a line: with no separator, two keys
-//!   on one line could not be told apart. Declaring the same key twice is an
-//!   error even when the two values agree — see [`crate::resolve::MetaEntry`]
-//!   for the key set and [`crate::issues`] for the checks.
+//!   on one line could not be told apart. Declaring the same slot twice is an
+//!   error even when the two values agree, and `family` and `name 1` are one
+//!   slot — see [`crate::meta`] for the key set, the `@LANG` language slot and
+//!   the name IDs derived from what is declared, and [`crate::issues`] for the
+//!   checks.
 //!
 //!   A face-scoped form, `meta FACE : KEY VALUE...`, is reserved for the
 //!   typeface split and is not accepted yet. It is told from the plain form by

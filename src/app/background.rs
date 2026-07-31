@@ -203,9 +203,9 @@ impl UniformApp {
                 &all_docs,
                 &name_parts,
             );
-        let font_meta = crate::resolve::FontMeta::collect(&all_docs);
+        let font_meta = crate::meta::FontMeta::collect(&all_docs);
         drop(all_docs);
-        self.font_meta = font_meta;
+        self.font_meta = font_meta.metrics;
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
@@ -251,7 +251,7 @@ impl UniformApp {
                 build_gen,
                 named_glyphs,
                 alt_index,
-                meta: resolution.meta,
+                meta: resolution.meta.metrics,
                 name_parts,
                 issues,
             });

@@ -45,6 +45,72 @@ map D = alias
     assert!(!canon_a.is_empty(), "should produce glyphs");
 }
 
+/// Read every platform-3 name record out of a built font as
+/// `(name ID, language ID, string)`.
+fn name_records(bytes: &[u8]) -> Vec<(u16, u16, String)> {
+    let font = read_fonts::FontRef::new(bytes).unwrap();
+    let name = font.name().unwrap();
+    name.name_record()
+        .iter()
+        .map(|rec| {
+            let s = rec.string(name.string_data()).unwrap().chars().collect::<String>();
+            (rec.name_id.get().to_u16(), rec.language_id(), s)
+        })
+        .collect()
+}
+
+fn build_from(src: &str) -> Vec<u8> {
+    let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    build_font_from_documents(&[&doc]).expect("expected a font")
+}
+
+/// The name table is what the OS files the font under, so it has to come from
+/// the source rather than from a constant in the builder — a hardcoded family
+/// name is a font that installs under the wrong name.
+#[test]
+fn declared_metadata_reaches_the_name_table() {
+    let ttf = build_from(
+        "meta family `Unison`\n\
+         meta subfamily `Bold`\n\
+         meta revision 1.25\n\
+         meta vendor-id UNSN\n\
+         meta copyright `May you do good and not evil.`\n\
+         meta license-url `https://example.invalid/license`\n\
+         glyph a 1 1\n@@\nmap A = a\n",
+    );
+    let recs = name_records(&ttf);
+    let get = |id: u16| {
+        recs.iter()
+            .find(|&&(i, lang, _)| i == id && lang == 0x0409)
+            .map(|(_, _, s)| s.as_str())
+    };
+    assert_eq!(get(0), Some("May you do good and not evil."));
+    assert_eq!(get(1), Some("Unison"));
+    assert_eq!(get(2), Some("Bold"));
+    assert_eq!(get(14), Some("https://example.invalid/license"));
+    // Derived, not declared.
+    assert_eq!(get(4), Some("Unison Bold"));
+    assert_eq!(get(5), Some("Version 1.250"));
+    assert_eq!(get(6), Some("Unison-Bold"));
+    assert_eq!(get(3), Some("Version 1.250;UNSN;Unison-Bold"));
+
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    assert_eq!(font.head().unwrap().font_revision().to_f32(), 1.25);
+    assert_eq!(font.os2().unwrap().ach_vend_id(), read_fonts::types::Tag::new(b"UNSN"));
+}
+
+/// A localized record is filed under its own language ID and sits alongside
+/// the en-US one rather than replacing it.
+#[test]
+fn a_localized_family_becomes_its_own_name_record() {
+    let ttf = build_from(
+        "meta family `Unison`\nmeta family @ko-KR `유니슨`\nglyph a 1 1\n@@\nmap A = a\n",
+    );
+    let recs = name_records(&ttf);
+    assert!(recs.contains(&(1, 0x0409, "Unison".to_string())), "got {recs:?}");
+    assert!(recs.contains(&(1, 0x0412, "유니슨".to_string())), "got {recs:?}");
+}
+
 #[test]
 fn unmapped_empty_sticky_glyph_is_retained() {
     let doc = document_io::parse_document_from_str(

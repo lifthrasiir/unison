@@ -15,6 +15,7 @@ mod script_run;
 #[cfg(feature = "editor")]
 mod editor;
 mod issues;
+mod meta;
 mod resolve;
 #[cfg(test)]
 mod golden;

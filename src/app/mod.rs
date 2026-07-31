@@ -47,7 +47,7 @@ struct DerivedDataMessage {
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
-    meta: crate::resolve::FontMeta,
+    meta: crate::meta::FontMetrics,
     issues: Vec<Issue>,
 }
 type AssertResultMessage = Vec<Issue>;
@@ -97,7 +97,7 @@ pub struct UniformApp {
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
     color_aliases: crate::render::ttf_builder::ColorAliasMap,
-    font_meta: crate::resolve::FontMeta,
+    font_meta: crate::meta::FontMetrics,
     /// View menu: draw the metric box over every glyph grid.
     show_metrics: bool,
     named_glyphs_gen: u64,

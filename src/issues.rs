@@ -279,14 +279,14 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         // Key -> where it was first declared. A key set twice is an error even
         // when the two values agree: `meta` has no precedence rule, by design,
         // so there is no answer to give beyond "pick one".
-        let mut seen: HashMap<&'static str, ItemRef> = HashMap::new();
+        let mut seen: HashMap<String, ItemRef> = HashMap::new();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
                 let DocumentItem::Meta(text) = item else { continue };
                 let here = ItemRef::new(doc_idx, item_idx);
-                match crate::resolve::parse_meta_entry(text) {
+                match crate::meta::parse_meta_entry(text) {
                     Ok(entry) => {
-                        if let Some(&first) = seen.get(entry.key()) {
+                        if let Some(&first) = seen.get(&entry.slot()) {
                             let (path, _, file_line) = docset.location(first);
                             // Match the report's own `file:line:` prefix, which
                             // is the file name rather than the whole path.
@@ -297,12 +297,12 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                             issues.push(docset.to_issue(&Diagnostic::error(
                                 here,
                                 format!(
-                                    "`meta {}` is declared more than once (also at {name}:{file_line})",
-                                    entry.key(),
+                                    "{} is set more than once (also at {name}:{file_line})",
+                                    entry.describe_slot(),
                                 ),
                             )));
                         } else {
-                            seen.insert(entry.key(), here);
+                            seen.insert(entry.slot(), here);
                         }
                     }
                     Err(message) => {
@@ -314,7 +314,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
         let meta = &resolution.meta;
         let origin = meta.origin;
-        if let (Some(h), Some(a), Some(d)) = (meta.height, meta.ascent, meta.descent)
+        if let (Some(h), Some(a), Some(d)) = (meta.metrics.height, meta.metrics.ascent, meta.metrics.descent)
             && a + d != h
         {
             issues.push(docset.to_issue(&Diagnostic::new(
@@ -323,7 +323,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 format!("meta ascent ({a}) + descent ({d}) != height ({h})"),
             )));
         }
-        if meta.height == Some(0) {
+        if meta.metrics.height == Some(0) {
             issues.push(docset.to_issue(&Diagnostic::error(
                 origin,
                 "meta height is 0",

@@ -66,7 +66,8 @@ use write_fonts::types::{Fixed, GlyphId, GlyphId16, NameId, Tag};
 use crate::document::*;
 use crate::document_io;
 use crate::issues::Severity;
-use crate::resolve::{Diagnostic, FontMeta, ItemRef};
+use crate::meta::FontMeta;
+use crate::resolve::{Diagnostic, ItemRef};
 use crate::pixel::{PX_ALMOSTFULL, PX_CUSTOM, PX_SUBPIXEL, PixelShape};
 use crate::render::contour::{track_contour, track_contour_multi_at, track_contour_multi_diff_at};
 use crate::render::glyph_cache::{
@@ -214,8 +215,8 @@ pub fn build_font_pair_cached(
     };
 
     let (bitmap, vector) = std::thread::scope(|s| {
-        let bh = s.spawn(|| build_ttf(b_ascender, b_descender, &b_glyphs, 0, &b_gsub, &b_palette, b_scale, b_meta.ascent()));
-        let vector = build_ttf(v_ascender, v_descender, &v_glyphs, v_hint_ppem, &v_gsub, &v_palette, v_scale, v_meta.ascent());
+        let bh = s.spawn(|| build_ttf(b_ascender, b_descender, &b_glyphs, 0, &b_gsub, &b_palette, b_scale, &b_meta));
+        let vector = build_ttf(v_ascender, v_descender, &v_glyphs, v_hint_ppem, &v_gsub, &v_palette, v_scale, &v_meta);
         let bitmap = bh.join().unwrap();
         (bitmap, vector)
     });
@@ -247,7 +248,7 @@ pub fn build_font_with_gid_map(docs: &[&Document]) -> Option<FontWithGidMap> {
         }
     }
 
-    let ttf = build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent());
+    let ttf = build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, &meta);
     Some(FontWithGidMap { ttf, gid_to_name, height: meta.height() })
 }
 
@@ -262,7 +263,7 @@ fn build_font_from_documents_inner(docs: &[&Document], bitmap: bool, contour_cac
     } else {
         0
     };
-    Some(build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, meta.ascent()))
+    Some(build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, &meta))
 }
 
 /// Resolve all documents' glyph items (expanding name patterns, following

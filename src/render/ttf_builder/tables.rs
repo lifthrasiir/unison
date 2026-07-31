@@ -96,7 +96,7 @@ pub(super) fn build_ttf(
     gsub_data: &GsubData,
     palette: &[Rgba],
     scale: f32,
-    pixel_ascent: u16,
+    meta: &FontMeta,
 ) -> Vec<u8> {
     let mut num_glyphs = u16::try_from(glyphs.len() + 1).expect("glyph count checked earlier"); // +1 for .notdef
 
@@ -143,7 +143,7 @@ pub(super) fn build_ttf(
 
     // head
     let head = Head {
-        font_revision: Fixed::from_f64(1.0),
+        font_revision: Fixed::from_f64(meta.revision()),
         magic_number: 0x5F0F3CF5,
         flags: Flags::BASELINE_AT_Y_0
             | Flags::LSB_AT_X_0
@@ -202,7 +202,7 @@ pub(super) fn build_ttf(
     let cmap = Cmap::from_mappings(cmap_mappings).unwrap();
 
     // name
-    let name = build_name_table();
+    let name = build_name_table(meta);
 
     // os2
     let avg_width = if glyphs.is_empty() {
@@ -228,7 +228,7 @@ pub(super) fn build_ttf(
         fs_selection: SelectionFlags::REGULAR,
         us_first_char_index: first_cp.min(0xFFFF) as u16,
         us_last_char_index: last_cp.min(0xFFFF) as u16,
-        ach_vend_id: Tag::new(b"UNIF"),
+        ach_vend_id: vendor_tag(meta.vendor_id()),
         panose_10: [2, 0, 5, 9, 0, 0, 0, 0, 0, 0],
         sx_height: Some(ascender * 2 / 3),
         s_cap_height: Some(ascender),
@@ -256,7 +256,7 @@ pub(super) fn build_ttf(
         gsub_data,
         &name_to_gid,
         scale,
-        pixel_ascent,
+        meta.ascent(),
     );
     merge_anchor_feature_lookups(&mut gsub, std::mem::take(&mut anchor_data.feature_lookups));
 
@@ -330,26 +330,34 @@ pub(super) fn build_ttf(
     builder.build()
 }
 
-fn build_name_table() -> Name {
-    let entries: &[(u16, &str)] = &[
-        (0, "Uniform Font"),
-        (1, "Uniform"),
-        (2, "Regular"),
-        (3, "Uniform-Regular"),
-        (4, "Uniform Regular"),
-        (5, "Version 1.0"),
-        (6, "Uniform-Regular"),
-    ];
+/// `OS/2.achVendID` is a 4-byte tag; `meta` bounds the value to 1-4 printable
+/// ASCII characters, so padding is all that is left to do here.
+fn vendor_tag(id: &str) -> Tag {
+    let mut bytes = [b' '; 4];
+    for (i, &b) in id.as_bytes().iter().enumerate().take(4) {
+        bytes[i] = b;
+    }
+    Tag::new(&bytes)
+}
 
-    let records: Vec<NameRecord> = entries
-        .iter()
-        .map(|&(name_id, text)| {
+/// The name table, from what `meta` declares plus what [`FontMeta::name_records`]
+/// derives.
+///
+/// Windows platform records only (platform 3, encoding 1). Platform 1 (Mac)
+/// records are optional in practice and carry no language slot worth having,
+/// and platform 0 records cannot be localized at all — so a `@LANG` on a `meta`
+/// line would have nowhere to go outside platform 3.
+fn build_name_table(meta: &FontMeta) -> Name {
+    let records: Vec<NameRecord> = meta
+        .name_records()
+        .into_iter()
+        .map(|(name_id, language_id, text)| {
             NameRecord::new(
                 3, // Windows
                 1, // Unicode BMP
-                0x0409,
+                language_id,
                 NameId::new(name_id),
-                String::from(text).into(),
+                text.into(),
             )
         })
         .collect();

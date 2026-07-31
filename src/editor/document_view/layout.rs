@@ -87,7 +87,7 @@ pub(crate) fn glyph_metrics(
     composite: Option<&GlyphComposite>,
     own_w: u16,
     own_h: u16,
-    meta: crate::resolve::FontMeta,
+    meta: crate::meta::FontMetrics,
 ) -> GlyphMetrics {
     let s = body.scale.max(1) as i16;
     // The advance falls back to the resolved extent *right of the origin*;

@@ -67,7 +67,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         return None;
     }
 
-    let meta = crate::resolve::FontMeta::collect(docs);
+    let meta = crate::meta::FontMeta::collect(docs);
     let (height, ascent, descent) = (meta.height(), meta.ascent(), meta.descent());
     if height == 0 {
         return None;
