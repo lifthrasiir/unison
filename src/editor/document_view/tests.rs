@@ -78,6 +78,7 @@ fn assert_all_doc_lines_covered(input: &str) {
                 | DocumentItem::Map { .. }
                 | DocumentItem::NameParts { .. }
                 | DocumentItem::Remap { .. }
+                | DocumentItem::RemapGroup { .. }
                 | DocumentItem::Feature { .. }
                 | DocumentItem::FeatureAnchor { .. }
                 | DocumentItem::MapDecomposed { .. }

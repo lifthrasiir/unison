@@ -808,6 +808,16 @@ pub enum DocumentItem {
         lookahead: Vec<String>,
         comment: Option<String>,
     },
+    /// `remap group NAME [reversed] [after GROUP]...` — declares a remap group
+    /// and the properties that belong to the lookup as a whole rather than to
+    /// any one rule. Optional: a group with no declaration is unreversed and
+    /// unconstrained, ordered where its first rule appears.
+    RemapGroup {
+        name: String,
+        reversed: bool,
+        after: Vec<String>,
+        comment: Option<String>,
+    },
     /// `feature NAME for SCRIPT... : REMAP_GROUP`
     Feature {
         name: String,
@@ -995,7 +1005,13 @@ impl DocumentItem {
                 }
             }
             "remap" => {
+                // A rule always has a colon before its arrow, so the two forms
+                // never compete — even for a group that is literally named
+                // `group`, whose rules read `remap group : a -> b`.
                 if let Some(item) = Self::parse_remap(&tokens[1..], comment.clone()) {
+                    return item;
+                }
+                if let Some(item) = Self::parse_remap_group(&tokens[1..], comment.clone()) {
                     return item;
                 }
             }
@@ -1051,6 +1067,12 @@ impl DocumentItem {
             (first.trim_end_matches(':').to_string(), 1)
         } else {
             let fc = colon_positions.iter().copied().find(|&p| p < arrow_pos)?;
+            // Only the group name may precede that colon. Everything between
+            // the two used to be skipped over silently, so a typo in the group
+            // name half of the line built a rule nobody had written.
+            if fc != 1 {
+                return None;
+            }
             (first.clone(), fc + 1)
         };
 
@@ -1086,6 +1108,43 @@ impl DocumentItem {
             lookahead,
             comment,
         })
+    }
+
+    /// `group NAME [reversed] [after GROUP]...`, the tokens after `remap`.
+    /// Every flag is checked rather than skipped: a line that half-parses would
+    /// silently lose an ordering constraint, which shows up only as a
+    /// mis-shaped glyph much later.
+    fn parse_remap_group(tokens: &[String], comment: Option<String>) -> Option<DocumentItem> {
+        if tokens.first()? != "group" {
+            return None;
+        }
+        let name = tokens.get(1)?.clone();
+        if name == "reversed" || name == "after" {
+            return None;
+        }
+
+        let mut reversed = false;
+        let mut after: Vec<String> = Vec::new();
+        let mut i = 2;
+        while i < tokens.len() {
+            match tokens[i].as_str() {
+                "reversed" if !reversed => {
+                    reversed = true;
+                    i += 1;
+                }
+                "after" => {
+                    let target = tokens.get(i + 1)?;
+                    if target == "reversed" || target == "after" || after.contains(target) {
+                        return None;
+                    }
+                    after.push(target.clone());
+                    i += 2;
+                }
+                _ => return None,
+            }
+        }
+
+        Some(DocumentItem::RemapGroup { name, reversed, after, comment })
     }
 
     fn parse_assert_shape(tokens: &[String], comment: Option<String>) -> Option<DocumentItem> {
@@ -1194,6 +1253,16 @@ impl DocumentItem {
                 }
                 Some(format!("{}{}", parts.join(" "), serialize_comment_suffix(comment)))
             }
+            DocumentItem::RemapGroup { name, reversed, after, comment } => {
+                let mut line = format!("remap group {}", quote_token(name));
+                if *reversed {
+                    line.push_str(" reversed");
+                }
+                for target in after {
+                    line.push_str(&format!(" after {}", quote_token(target)));
+                }
+                Some(format!("{}{}", line, serialize_comment_suffix(comment)))
+            }
             DocumentItem::Feature { name, scripts, remap_group, comment } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
@@ -1278,6 +1347,128 @@ pub use crate::pattern::{
     has_top_level_pipe, is_name_pattern, parse_name_element, split_top_level_pipes,
     substitute_name_parts,
 };
+
+// ---------------------------------------------------------------------------
+// Remap group ordering
+// ---------------------------------------------------------------------------
+
+/// What a `remap group` declaration says about the lookup as a whole.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct RemapGroupInfo {
+    pub reversed: bool,
+    pub after: Vec<String>,
+    /// False for a group that only ever appeared as a rule's group name.
+    pub declared: bool,
+    /// False for a group that has a declaration and no rules, which builds no
+    /// lookup at all.
+    pub has_rules: bool,
+}
+
+/// The order every remap group's lookup is built in, and what went wrong
+/// working it out. Both the builder and [`crate::issues`] read this, so the
+/// order the font is built with and the order the report complains about
+/// cannot drift apart.
+#[derive(Clone, Debug, Default)]
+pub struct RemapGroupOrder {
+    /// Groups in lookup order. Every group named anywhere appears exactly once,
+    /// including those tangled in a cycle.
+    pub order: Vec<String>,
+    pub info: HashMap<String, RemapGroupInfo>,
+    /// `after` targets that name no group, as (group, missing target).
+    pub unknown_after: Vec<(String, String)>,
+    /// Groups whose `after` constraints could not all be honoured because they
+    /// form a cycle, in source order. Their relative order falls back to that.
+    pub cycle: Vec<String>,
+    /// Groups declared by more than one `remap group` line.
+    pub duplicate_decls: Vec<String>,
+}
+
+/// Order remap groups by source position, then let `after` move them.
+///
+/// The sort is a stable topological one: among the groups whose constraints are
+/// already satisfied it always takes the earliest in source order, so adding an
+/// `after` to one group leaves every unrelated group exactly where it was. That
+/// stability is the whole point — without it the lookup indices of a font would
+/// shuffle on an unrelated edit.
+pub fn remap_group_order(docs: &[&Document]) -> RemapGroupOrder {
+    let mut out = RemapGroupOrder::default();
+    let mut index: HashMap<String, usize> = HashMap::new();
+
+    let see = |name: &str, out: &mut RemapGroupOrder, index: &mut HashMap<String, usize>| {
+        if !index.contains_key(name) {
+            index.insert(name.to_string(), out.order.len());
+            out.order.push(name.to_string());
+            out.info.insert(name.to_string(), RemapGroupInfo::default());
+        }
+    };
+
+    for doc in docs {
+        for item in &doc.items {
+            match item {
+                DocumentItem::Remap { feature, .. } => {
+                    see(feature, &mut out, &mut index);
+                    out.info.get_mut(feature).expect("just inserted").has_rules = true;
+                }
+                DocumentItem::RemapGroup { name, reversed, after, .. } => {
+                    see(name, &mut out, &mut index);
+                    let info = out.info.get_mut(name).expect("just inserted");
+                    if info.declared {
+                        out.duplicate_decls.push(name.clone());
+                    } else {
+                        info.declared = true;
+                        info.reversed = *reversed;
+                        info.after = after.clone();
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    // An `after` may name a group declared further down, so the targets can
+    // only be resolved once every group is known.
+    let source_order = std::mem::take(&mut out.order);
+    let mut deps: Vec<Vec<usize>> = vec![Vec::new(); source_order.len()];
+    for (i, name) in source_order.iter().enumerate() {
+        for target in &out.info[name].after.clone() {
+            match index.get(target) {
+                Some(&t) if t != i => deps[i].push(t),
+                // Naming itself is a one-node cycle; leaving the edge out would
+                // quietly turn it into a no-op instead.
+                Some(_) => deps[i].push(i),
+                None => out.unknown_after.push((name.clone(), target.clone())),
+            }
+        }
+    }
+
+    let mut emitted = vec![false; source_order.len()];
+    let mut order = Vec::with_capacity(source_order.len());
+    while order.len() < source_order.len() {
+        let ready = (0..source_order.len())
+            .find(|&i| !emitted[i] && deps[i].iter().all(|&d| emitted[d]));
+        match ready {
+            Some(i) => {
+                emitted[i] = true;
+                order.push(source_order[i].clone());
+            }
+            // Nothing is ready and something is left: the rest is one or more
+            // cycles. Emit them in source order so the font still builds, and
+            // let the report name them.
+            None => {
+                for i in 0..source_order.len() {
+                    if !emitted[i] {
+                        emitted[i] = true;
+                        out.cycle.push(source_order[i].clone());
+                        order.push(source_order[i].clone());
+                    }
+                }
+            }
+        }
+    }
+
+    out.order = order;
+    out
+}
 
 // ---------------------------------------------------------------------------
 // Name-parts collection
@@ -1464,6 +1655,108 @@ mod tests {
         // must still be reported rather than silently accepted.
         assert_eq!(classify_directive("assert bogus"), Directive::Unrecognized);
         assert_eq!(classify_directive("whatever"), Directive::Unrecognized);
+    }
+
+    /// The group name is the only thing allowed before a rule's first colon.
+    /// Anything else used to be dropped on the floor: `remap a b : c -> d`
+    /// parsed as group `a` with source `c`, and `b` simply vanished.
+    #[test]
+    fn remap_rejects_stray_tokens_before_the_first_colon() {
+        fn parse(line: &str) -> DocumentItem {
+            let tokens: Vec<String> = line.split_whitespace().map(str::to_string).collect();
+            DocumentItem::parse_directive(&tokens, None)
+        }
+
+        assert!(
+            matches!(parse("remap grp : a -> b"), DocumentItem::Remap { .. }),
+            "the plain form still parses"
+        );
+        assert!(
+            matches!(parse("remap grp: a -> b"), DocumentItem::Remap { .. }),
+            "and so does the attached-colon spelling"
+        );
+        assert_eq!(
+            parse("remap grp stray : a -> b"),
+            DocumentItem::Directive("remap grp stray : a -> b".to_string()),
+            "a stray token must make the line unrecognized, not disappear"
+        );
+    }
+
+    fn group_order(text: &str) -> RemapGroupOrder {
+        let doc = crate::document_io::parse_document_from_str(text, "test.unf".into()).unwrap();
+        remap_group_order(&[&doc])
+    }
+
+    #[test]
+    fn groups_default_to_the_order_their_first_rule_appears() {
+        let o = group_order("remap b : x -> y\nremap a : x -> y\nremap b : y -> x\n");
+        assert_eq!(o.order, vec!["b".to_string(), "a".to_string()]);
+        assert!(o.cycle.is_empty() && o.unknown_after.is_empty());
+    }
+
+    /// The whole reason for a *stable* topological sort: constraining one pair
+    /// must not shuffle the groups that said nothing.
+    #[test]
+    fn after_moves_only_what_it_names() {
+        let o = group_order(
+            "remap a : x -> y\nremap b : x -> y\nremap c : x -> y\nremap d : x -> y\n\
+             remap group a after c\n",
+        );
+        assert_eq!(
+            o.order,
+            vec!["b".to_string(), "c".to_string(), "a".to_string(), "d".to_string()],
+            "a lands right after c; b and d keep their places"
+        );
+    }
+
+    #[test]
+    fn after_chains_transitively() {
+        let o = group_order(
+            "remap a : x -> y\nremap b : x -> y\nremap c : x -> y\n\
+             remap group a after b\nremap group b after c\n",
+        );
+        assert_eq!(o.order, vec!["c".to_string(), "b".to_string(), "a".to_string()]);
+    }
+
+    #[test]
+    fn a_cycle_falls_back_to_source_order_and_is_reported() {
+        let o = group_order(
+            "remap a : x -> y\nremap b : x -> y\n\
+             remap group a after b\nremap group b after a\n",
+        );
+        assert_eq!(o.order, vec!["a".to_string(), "b".to_string()]);
+        assert_eq!(o.cycle, vec!["a".to_string(), "b".to_string()]);
+    }
+
+    /// A group naming itself is a cycle of one; dropping the edge as a no-op
+    /// would let a plainly wrong line pass unremarked.
+    #[test]
+    fn a_group_after_itself_is_a_cycle() {
+        let o = group_order("remap a : x -> y\nremap group a after a\n");
+        assert_eq!(o.cycle, vec!["a".to_string()]);
+    }
+
+    #[test]
+    fn unknown_after_targets_are_reported_and_ignored() {
+        let o = group_order("remap a : x -> y\nremap group a after nope\n");
+        assert_eq!(o.order, vec!["a".to_string()]);
+        assert_eq!(o.unknown_after, vec![("a".to_string(), "nope".to_string())]);
+        assert!(o.cycle.is_empty());
+    }
+
+    #[test]
+    fn a_declaration_alone_places_and_describes_a_group() {
+        let o = group_order("remap group early reversed\nremap late : x -> y\n");
+        assert_eq!(o.order, vec!["early".to_string(), "late".to_string()]);
+        assert!(o.info["early"].reversed && o.info["early"].declared);
+        assert!(!o.info["late"].reversed && !o.info["late"].declared);
+    }
+
+    #[test]
+    fn a_second_declaration_is_reported_and_does_not_win() {
+        let o = group_order("remap group a reversed\nremap group a\n");
+        assert_eq!(o.duplicate_decls, vec!["a".to_string()]);
+        assert!(o.info["a"].reversed, "the first declaration stands");
     }
 
     #[test]

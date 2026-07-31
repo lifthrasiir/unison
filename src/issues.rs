@@ -120,7 +120,42 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         .collect();
 
     let mut glyph_defs: HashMap<String, (PathBuf, usize)> = HashMap::new();
-    let mut remap_groups: HashSet<String> = HashSet::new();
+
+    // Groups are collected up front rather than as the scan reaches them: a
+    // `feature` line may precede every rule of the group it attaches, and a
+    // declaration may follow them.
+    let groups = crate::document::remap_group_order(docs);
+    let mut remap_group_issues: Vec<(String, Severity, String)> = Vec::new();
+    for (group, target) in &groups.unknown_after {
+        remap_group_issues.push((group.clone(), Severity::Error, format!(
+            "remap group '{}' is ordered after undefined group '{}'", group, target,
+        )));
+    }
+    if !groups.cycle.is_empty() {
+        let names = groups.cycle.join("', '");
+        for group in &groups.cycle {
+            remap_group_issues.push((group.clone(), Severity::Error, format!(
+                "remap group '{}' is in an ordering cycle with '{}'; \
+                 the groups fall back to source order",
+                group, names,
+            )));
+        }
+    }
+    for group in &groups.duplicate_decls {
+        remap_group_issues.push((group.clone(), Severity::Error, format!(
+            "remap group '{}' is declared more than once", group,
+        )));
+    }
+    // Over `order`, not over `info`: a HashMap would make the report's wording
+    // stable but its order not.
+    for group in &groups.order {
+        let info = &groups.info[group];
+        if info.declared && !info.has_rules {
+            remap_group_issues.push((group.clone(), Severity::Warning, format!(
+                "remap group '{}' is declared but has no rules", group,
+            )));
+        }
+    }
 
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -171,9 +206,17 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         )));
                     }
                 }
-                DocumentItem::Remap { feature, source, target, .. } => {
-                    remap_groups.insert(feature.clone());
-
+                DocumentItem::RemapGroup { name, .. } => {
+                    // Every group-level problem is reported here, on the line
+                    // that declares the group — the constraint is written here
+                    // even where its effect is felt somewhere else entirely.
+                    for (group, severity, message) in &remap_group_issues {
+                        if group == name {
+                            issues.push(issue_at(doc, item_idx, severity.clone(), message.clone()));
+                        }
+                    }
+                }
+                DocumentItem::Remap { source, target, .. } => {
                     // OpenType has a lookup type for one-to-one, one-to-many
                     // (including one-to-nothing) and many-to-one, and nothing
                     // for the rest. The builder used to emit whatever was
@@ -251,7 +294,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 DocumentItem::Feature {
                     scripts, remap_group, ..
                 } => {
-                    if !remap_groups.contains(remap_group.as_str()) {
+                    if !groups.info.contains_key(remap_group.as_str()) {
                         issues.push(issue_at(doc, item_idx, Severity::Error, format!(
                             "feature references undefined remap group '{}'",
                             remap_group,
@@ -1293,6 +1336,77 @@ assume unused orphan
             !issues.iter().any(|i| i.message.contains("unrecognized directive")),
             "assume unused should not be flagged as unrecognized: {issues:?}",
         );
+    }
+
+
+    fn group_issues(text: &str) -> Vec<Issue> {
+        let doc = document_io::parse_document_from_str(text, "test.unf".into()).unwrap();
+        collect_issues(&[&doc])
+            .into_iter()
+            .filter(|i| i.message.contains("remap group"))
+            .collect()
+    }
+
+    #[test]
+    fn remap_group_ordering_cycle_reported() {
+        let issues = group_issues(
+            "glyph pix 1 1\n@@\nglyph a = pix\nmap A = a\n\
+             remap x : a -> a\nremap y : a -> a\n\
+             remap group x after y\nremap group y after x\n",
+        );
+        assert_eq!(issues.len(), 2, "one per declaration, got: {issues:?}");
+        assert!(
+            issues.iter().all(|i| i.severity == Severity::Error
+                && i.message.contains("ordering cycle")),
+            "got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn remap_group_after_undefined_group_reported() {
+        let issues = group_issues(
+            "glyph pix 1 1\n@@\nglyph a = pix\nmap A = a\n\
+             remap x : a -> a\nremap group x after nope\n",
+        );
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("undefined group 'nope'")),
+            "got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn remap_group_declared_twice_reported() {
+        let issues = group_issues(
+            "glyph pix 1 1\n@@\nglyph a = pix\nmap A = a\n\
+             remap x : a -> a\nremap group x\nremap group x\n",
+        );
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("declared more than once")),
+            "got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn remap_group_without_rules_reported() {
+        let issues = group_issues("remap group lonely\n");
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Warning
+                && i.message.contains("has no rules")),
+            "got: {issues:?}",
+        );
+    }
+
+    /// A `feature` may be written above every rule of the group it attaches;
+    /// the check used to depend on scan order and would call that undefined.
+    #[test]
+    fn feature_may_precede_the_rules_of_its_group() {
+        let issues = group_issues(
+            "glyph pix 1 1\n@@\nglyph a = pix\nglyph b = pix\nmap A = a\nmap B = b\n\
+             feature ccmp for DFLT : late\nremap late : a -> b\n",
+        );
+        assert!(issues.is_empty(), "got: {issues:?}");
     }
 
 }

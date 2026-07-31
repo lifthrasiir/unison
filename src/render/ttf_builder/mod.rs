@@ -143,6 +143,9 @@ struct ExpandedRemap {
 #[derive(Clone)]
 struct GsubData {
     remap_sets: BTreeMap<String, Vec<ExpandedRemap>>,
+    /// Lookup order and per-group properties. `remap_sets` is keyed by name and
+    /// so says nothing about order; this is the only thing that does.
+    groups: crate::document::RemapGroupOrder,
     /// (feature_tag, scripts, remap_set_names)
     features: Vec<(String, Vec<String>, Vec<String>)>,
     /// Anchor-based feature declarations: (feature_tag, scripts, anchor_name)

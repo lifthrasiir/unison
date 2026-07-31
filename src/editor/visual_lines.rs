@@ -368,6 +368,7 @@ pub(crate) fn build_visual_lines(
             | DocumentItem::Map { .. }
             | DocumentItem::NameParts { .. }
             | DocumentItem::Remap { .. }
+            | DocumentItem::RemapGroup { .. }
             | DocumentItem::Feature { .. }
             | DocumentItem::FeatureAnchor { .. }
             | DocumentItem::MapDecomposed { .. }

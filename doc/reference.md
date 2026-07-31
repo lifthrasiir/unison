@@ -668,7 +668,58 @@ remap flag-tag : black-flag-($a-z|$0..9) : tag-($a-z|$0..9) -> black-flag-($a-z|
 Every operand is a name pattern, and all positions in one rule expand together, cycling
 independently — the rule count is the least common multiple of the individual expansions.
 
-Rules in the same group become lookups in the order they are declared.
+#### A group is one lookup
+
+**One group becomes one GSUB lookup, and a lookup is one left-to-right pass over the glyph
+sequence.** The rules of a group are that lookup's *subtables*, in declaration order. This is the
+single most consequential thing to know about writing them, because of what it implies at each
+position of the pass:
+
+* **The first matching rule wins.** The shaper walks the group's rules in order and stops at the
+  first one that matches, then advances past the glyphs that rule consumed. No later rule of the
+  same group gets a say at that position. So a longer rule has to be declared *before* a shorter one
+  that is its prefix — `lt eq gt -> …` above `lt eq -> …`, or `<=>` shapes as `<=` followed by a
+  bare `>`.
+* **A rule never sees another rule's output at the same position.** Re-substituting something a
+  group already produced takes a *second* group: passes are the unit of re-entry, subtables are not.
+* **Lookbehind sees substituted glyphs; lookahead does not.** The pass has already rewritten what
+  lies to the left and has not yet reached what lies to the right. A rule chaining off a lookbehind
+  therefore repeats over a run of any length, while a rule chaining off a lookahead cannot: it has
+  to spell its context out in the glyphs the pass started with, and its reach is bounded by how many
+  rules are written. `font/arrow.unf` has one of each, next to each other.
+
+Groups themselves are ordered by [`remap group`](#remap-group-group-declarations); every group is a
+separate pass, and the passes run in that order.
+
+### `remap group`: Group declarations
+
+```
+remap group NAME [reversed] [after GROUP]...
+```
+
+Declares a remap group and carries what belongs to the lookup as a whole rather than to any one
+rule. It is optional: a group that is never declared is unreversed and unconstrained, and takes its
+place in the order where its first rule appears.
+
+A rule always writes a colon straight after its group name, and a declaration never does, which is
+what tells the two apart — so a group named `group` needs no special spelling, and its rules read
+`remap group : a -> b` as usual.
+
+**Order.** Groups run in source order — file by file in filename order, and within a file in the
+order the group is first seen — except where `after` moves one. `after` is repeatable and may name
+any group; the result is a topological sort that keeps source order wherever the constraints leave
+it free, so declaring `after` on one group never disturbs the rest. A cycle, or an `after` naming a
+group that does not exist, is an error.
+
+Where a group is attached with `feature` has nothing to do with when it runs. The two questions —
+*when does this pass happen* and *what tag and script is it reachable under* — are answered in
+different places on purpose.
+
+**`reversed`** builds the group as a reverse chaining contextual single substitution: the pass runs
+right to left instead of left to right. That inverts the rule about context above — a `reversed`
+group's *lookahead* is matched against glyphs the pass has already rewritten, and so chains over a
+run of any length, while its lookbehind cannot. OpenType allows only a single substitution to be
+made this way, so every rule in a `reversed` group must be 1 → 1.
 
 ## Validation Commands
 

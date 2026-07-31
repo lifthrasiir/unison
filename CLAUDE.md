@@ -122,6 +122,8 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
 | Feature targets, `DFLT`/LangSys fallback | `render/ttf_builder/gsub.rs` |
+| A remap group is one lookup: rule order is match priority | `render/ttf_builder/gsub.rs` |
+| Lookup order, `remap group` and its stable toposort | `document.rs` (`remap_group_order`) |
 | `assert shape` and why `@lang` is BCP 47 | `render/assert.rs` |
 | Contour coordinate spaces | `render/contour.rs` |
 | The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |

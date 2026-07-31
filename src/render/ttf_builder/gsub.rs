@@ -1,6 +1,34 @@
 //! GSUB generation: `remap` collection, lookup classification and the
 //! individual lookup builders.
 //!
+//! # A remap group is one lookup
+//!
+//! Every group becomes exactly one lookup, and a lookup is one left-to-right
+//! pass over the glyph sequence; the group's rules are that lookup's subtables,
+//! in declaration order. Nothing in OpenType forces this — a rule could equally
+//! be given a lookup of its own — but collapsing the group keeps the pass count
+//! down, and the resulting subtable order is a useful tool in its own right.
+//! What it costs is that three things become order-dependent, and all three have
+//! produced bugs:
+//!
+//! * **The first matching subtable wins.** The shaper tries them in order and
+//!   returns on the first success, then advances past the input that rule
+//!   consumed (rustybuzz `SubstLookup::apply`). A rule whose source is a prefix
+//!   of a longer rule's source must therefore come *after* it, or the short one
+//!   eats the prefix and the long one never fires.
+//! * **No subtable sees another's output at the same position.** Re-entry is a
+//!   property of passes, not of subtables, so re-substituting what the group
+//!   produced needs a second group.
+//! * **Lookbehind is matched against rewritten glyphs, lookahead against
+//!   untouched ones**, since the pass has passed the former and not the latter.
+//!   A lookbehind chain repeats over a run of unbounded length; a lookahead
+//!   chain cannot, and has to enumerate its context instead.
+//!
+//! [`classify_remap_set`] is where the collapse happens: a group with any
+//! context becomes a single chain-context lookup whose subtables carry one
+//! nested helper lookup each, which is also how rules of different types come to
+//! coexist in one group at all.
+//!
 //! # Feature targets and scope fallback
 //!
 //! A `feature` target is written either as a script tag (`latn`, `DFLT`) or as a
@@ -99,6 +127,7 @@ pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -
 
     GsubData {
         remap_sets,
+        groups: crate::document::remap_group_order(docs),
         features,
         anchor_features,
     }
@@ -201,23 +230,11 @@ pub(super) fn build_gsub(
     let mut lookups: Vec<SubstitutionLookup> = Vec::new();
     let mut set_to_lookup: HashMap<String, u16> = HashMap::new();
 
-    // Build lookups in feature declaration order so that lookup indices
-    // respect the intended application order (e.g. ljmo < vjmo < tjmo).
-    let mut ordered_sets: Vec<&String> = Vec::new();
-    for (_, _, set_names) in &gsub_data.features {
-        for sn in set_names {
-            if !ordered_sets.contains(&sn) {
-                ordered_sets.push(sn);
-            }
-        }
-    }
-    for setname in gsub_data.remap_sets.keys() {
-        if !ordered_sets.contains(&setname) {
-            ordered_sets.push(setname);
-        }
-    }
-
-    for &setname in &ordered_sets {
+    // Lookup index order is application order — a shaper runs the lookups of a
+    // stage sorted by index, across features — so this is where "which pass
+    // happens first" is decided, and it belongs to the groups. Where a group is
+    // attached with `feature` deliberately has no say in it.
+    for setname in &gsub_data.groups.order {
         let Some(remaps) = gsub_data.remap_sets.get(setname) else { continue };
         match classify_remap_set(remaps) {
             RemapSetKind::Single => {

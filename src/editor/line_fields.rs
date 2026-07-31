@@ -41,9 +41,10 @@ pub(crate) enum FieldRole {
     ColorRef,
     /// `feature ... : GROUP` — the remap-group reference.
     RemapGroupRef,
-    /// `remap GROUP : ...` — the remap group's own name.  Several `remap`
-    /// lines share one group, so this is a definition in the sense that it is
-    /// not a reference: nothing else declares the group.
+    /// `remap GROUP : ...` and `remap group GROUP ...` — the remap group's own
+    /// name.  Several `remap` lines share one group and the declaration is
+    /// optional, so this is a definition in the sense that it is not a
+    /// reference, not in the sense of a unique site.
     RemapGroupDef,
     /// `feature TAG for ...` — the OpenType feature tag.  Like a remap group
     /// it has no single declaration site, so every appearance is one of these.
@@ -134,6 +135,30 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 // `map generate CHAR = NAME` names a glyph that does not exist
                 // anywhere else, so this token *is* its definition.
                 fields.push(field(FieldRole::GlyphDef, leading, &rest[3]));
+            }
+        }
+        // `remap group NAME [reversed] [after GROUP]...` — a declaration, whose
+        // every name is a group name and none of them a glyph. Told from a rule
+        // the same way the parser tells them apart: a rule always has a colon
+        // right after its group name, including one named `group`.
+        "remap"
+            if rest.first().is_some_and(|s| s.value == "group")
+                && rest
+                    .get(1)
+                    .is_some_and(|s| s.value != ":" && !s.value.ends_with(':')) =>
+        {
+            fields.push(field(FieldRole::RemapGroupDef, leading, &rest[1]));
+            let mut i = 2;
+            while i < rest.len() {
+                if rest[i].value == "after"
+                    && let Some(target) = rest.get(i + 1)
+                    && !target.value.is_empty()
+                {
+                    fields.push(field(FieldRole::RemapGroupRef, leading, target));
+                    i += 2;
+                } else {
+                    i += 1;
+                }
             }
         }
         "remap" => {
@@ -295,6 +320,42 @@ mod tests {
         // The group name is not a glyph name, however much it looks like one.
         assert_eq!(fields[0].role, FieldRole::RemapGroupDef);
         assert!(fields[1..].iter().all(|f| f.role == FieldRole::GlyphRef));
+    }
+
+    /// Every name on a group declaration is a group name. A glyph rename that
+    /// rewrote `after flag` here would silently move a lookup.
+    #[test]
+    fn remap_group_declaration_names_only_groups() {
+        assert_eq!(
+            roles("remap group ascii-arrow reversed after eq-liga after flag"),
+            vec![
+                (FieldRole::RemapGroupDef, "ascii-arrow".to_string()),
+                (FieldRole::RemapGroupRef, "eq-liga".to_string()),
+                (FieldRole::RemapGroupRef, "flag".to_string()),
+            ],
+        );
+    }
+
+    /// A group named `group` still writes rules the ordinary way, and the
+    /// colon after the group name is what says so.
+    #[test]
+    fn a_group_named_group_still_parses_as_a_rule() {
+        assert_eq!(
+            roles("remap group : a -> b"),
+            vec![
+                (FieldRole::RemapGroupDef, "group".to_string()),
+                (FieldRole::GlyphRef, "a".to_string()),
+                (FieldRole::GlyphRef, "b".to_string()),
+            ],
+        );
+        assert_eq!(
+            roles("remap group: a -> b"),
+            vec![
+                (FieldRole::RemapGroupDef, "group".to_string()),
+                (FieldRole::GlyphRef, "a".to_string()),
+                (FieldRole::GlyphRef, "b".to_string()),
+            ],
+        );
     }
 
     #[test]

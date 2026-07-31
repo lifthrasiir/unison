@@ -375,6 +375,7 @@ impl UniformApp {
                     }),
                     LinkTargetKind::Remap => doc.items.iter().any(|item| {
                         matches!(item, DocumentItem::Remap { feature: f, .. } if f == name)
+                            || matches!(item, DocumentItem::RemapGroup { name: n, .. } if n == name)
                     }),
                     LinkTargetKind::Color => doc.items.iter().any(|item| {
                         matches!(item, DocumentItem::Color { name: n, .. } if n == name)

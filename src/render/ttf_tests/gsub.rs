@@ -581,3 +581,58 @@ map U+0065 = e
         "two of lookbehind, one source, one of lookahead"
     );
 }
+
+/// Lookup index order is application order, and it belongs to the groups: the
+/// pass that runs first is the group whose rules come first, whatever order the
+/// `feature` lines that attach them happen to be in.
+#[test]
+fn group_order_and_not_feature_order_decides_which_pass_runs_first() {
+    let head = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+glyph c = pix
+map U+0061 = a
+map U+0062 = b
+map U+0063 = c
+";
+    // `first` turns a into b, `second` turns b into c. Chaining a all the way
+    // to c can only happen if `first` runs first.
+    let rules = "remap first : a -> b\nremap second : b -> c\n";
+    let features_reversed = "\
+feature ccmp for DFLT : second
+feature ccmp for DFLT : first
+";
+    assert_eq!(
+        shape_glyph_names(&format!("{head}{rules}{features_reversed}"), "a"),
+        vec!["c".to_string()],
+        "the rules put `first` first; the feature lines must not override that"
+    );
+
+    // And `after` is what actually moves a group.
+    let moved = "remap group first after second\n";
+    assert_eq!(
+        shape_glyph_names(&format!("{head}{rules}{moved}{features_reversed}"), "a"),
+        vec!["b".to_string()],
+        "with `first` moved after `second`, nothing is left to turn b into c"
+    );
+}
+
+/// A `reversed` group is not built yet, but declaring one must not silently
+/// change what the group does in the meantime.
+#[test]
+fn a_bare_group_declaration_changes_nothing() {
+    let input = "\
+glyph pix 1 1
+@@
+glyph a = pix
+glyph b = pix
+map U+0061 = a
+map U+0062 = b
+remap grp : a -> b
+remap group grp
+feature ccmp for DFLT : grp
+";
+    assert_eq!(shape_glyph_names(input, "a"), vec!["b".to_string()]);
+}

@@ -44,7 +44,14 @@
 //!   cases, and an empty target means removal. The list lengths pick the lookup
 //!   type: 1→1 single, 1→N (including 1→0) multiple, N→1 ligature. N→M and N→0
 //!   have no OpenType lookup type and are an error [`crate::issues`] reports,
-//!   rather than something the builder emits close-but-wrong.
+//!   rather than something the builder emits close-but-wrong. Rules of one
+//!   group are subtables of one lookup, so their order is match priority; see
+//!   `render/ttf_builder/gsub.rs`.
+//! - `remap group NAME [reversed] [after GROUP]...` — declares a remap group,
+//!   carrying what belongs to the lookup rather than to a rule. Optional: an
+//!   undeclared group is unreversed and unconstrained, ordered where its first
+//!   rule appears. It is told from a rule by the absence of a colon, so a group
+//!   named `group` still writes its rules as `remap group : a -> b`.
 //! - `feature NAME for TARGET... : REMAP_GROUP` — OpenType feature. A target is
 //!   a script tag (`latn`, `DFLT`) or a script narrowed to one language system,
 //!   `script/LANG` (`latn/ROM`); see `render/ttf_builder/gsub.rs` for why the
@@ -696,6 +703,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Directive(text) => writeln!(writer, "{text}")?,
             item @ DocumentItem::NameParts { .. }
             | item @ DocumentItem::Remap { .. }
+            | item @ DocumentItem::RemapGroup { .. }
             | item @ DocumentItem::Feature { .. }
             | item @ DocumentItem::FeatureAnchor { .. }
             | item @ DocumentItem::Color { .. }
