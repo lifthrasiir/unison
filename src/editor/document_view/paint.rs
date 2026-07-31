@@ -51,7 +51,8 @@ pub(super) fn paint_document_area(
 
         let wid = response.id;
         state.canvas_id = Some(wid);
-        if response.clicked() || response.drag_started() {
+        if response.clicked() || response.drag_started() || std::mem::take(&mut state.pending_focus)
+        {
             ui.memory_mut(|m| m.request_focus(wid));
         }
         let has_focus = ui.memory(|m| m.has_focus(wid));

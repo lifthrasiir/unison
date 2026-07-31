@@ -2461,6 +2461,25 @@ fn a_link_to_another_file_is_handed_to_the_host() {
     assert_ne!(h.state.cursor.line, ref_line + 1);
 }
 
+/// A jump the *host* carries out — a cross-file link, a search hit, an issue
+/// click — moves the caret while egui's focus still sits wherever the gesture
+/// started. The caret only paints while the editor has focus, so a jump that
+/// left focus behind moved an invisible caret.
+#[test]
+fn a_host_jump_takes_focus_so_the_caret_shows() {
+    let mut h = EditorHarness::new(&tall_doc());
+    h.blur();
+    assert!(!h.editor_has_focus(), "precondition: focus is elsewhere");
+
+    h.state.goto_line(100);
+    h.frame();
+
+    assert!(
+        h.editor_has_focus(),
+        "a host-driven jump must take focus back, or its caret is invisible"
+    );
+}
+
 /// Ctrl/Cmd+clicking the *definition* of a name asks the host to list its
 /// appearances. Navigating would land on the line the click was already on, so
 /// the gesture means "find references" here rather than "go to definition" —

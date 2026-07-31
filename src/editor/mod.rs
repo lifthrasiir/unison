@@ -155,6 +155,13 @@ pub struct EditorState {
     /// Id of the editor canvas widget, republished every frame so a popup
     /// that closes can hand keyboard focus back to it.
     pub(crate) canvas_id: Option<egui::Id>,
+    /// Set when the caret was moved from outside the editor; the next frame
+    /// takes the keyboard focus back. The caret only paints while the widget
+    /// has focus, so a host-driven jump that skipped this would move a caret
+    /// nobody can see — and `canvas_id` is still `None` for a document the
+    /// host jumped into before it was ever drawn, so the host cannot ask
+    /// egui directly.
+    pub(crate) pending_focus: bool,
     pub(crate) autocomplete: Option<autocomplete::AutocompleteState>,
     scroll_to_cursor: bool,
     pub(crate) saved_scroll_frac: f32,
@@ -212,6 +219,7 @@ impl EditorState {
             document_sync_requested: false,
             popup: PopupState::None,
             canvas_id: None,
+            pending_focus: false,
             autocomplete: None,
             scroll_to_cursor: false,
             saved_scroll_frac: 0.0,
@@ -268,6 +276,7 @@ impl EditorState {
         self.selection_anchor = None;
         self.cursor = caret::Caret::new(line, 0);
         self.scroll_to_cursor = true;
+        self.pending_focus = true;
     }
 
     /// Moves the caret to a remembered position, clamped to the document as it
@@ -278,6 +287,7 @@ impl EditorState {
         self.selection_anchor = None;
         self.cursor = caret::clamp(lines, caret::Caret::new(line, col));
         self.scroll_to_cursor = true;
+        self.pending_focus = true;
     }
 
     /// Puts the editor back to a plain caret after its buffer was replaced
