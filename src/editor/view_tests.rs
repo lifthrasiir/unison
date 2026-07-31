@@ -1159,6 +1159,73 @@ fn right_click_grid_in_layer_move_offers_subglyph_menu() {
     );
 }
 
+/// Like [`composite_doc`], but `parent` references `child` twice, so the layer
+/// palette holds three slots: the pixel grid and two subglyphs.
+///
+/// DocLines: 0 header child, 1 grid child, 2 blank, 3 header parent,
+///           4 grid parent, 5 "ref child 4 0", 6 "ref child 0 2".
+fn two_ref_doc() -> String {
+    let mut s = composite_doc();
+    s.push_str("ref child 0 2\n");
+    s
+}
+
+/// The palette keys are absolute selections, not mode-local ones: `1` and
+/// `` ` `` switch to the pixel grid (slot 1) from *any* layer, and `2`..`9`
+/// pick the 2nd..9th palette slot — the subglyph layers — from any mode.
+#[test]
+fn digit_keys_select_palette_slots_from_any_mode() {
+    let mut h = EditorHarness::new(&two_ref_doc());
+    h.click_grid_cell(4, 0, 0); // GlyphEdit on `parent`
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "should be in GlyphEdit, got {:?}",
+        h.state.mode
+    );
+
+    // GlyphEdit → subglyph layers.
+    h.key(Key::Num2);
+    assert!(
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 0 }),
+        "`2` should select the first subglyph layer, got {:?}",
+        h.state.mode
+    );
+    h.key(Key::Num3);
+    assert!(
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 1 }),
+        "`3` should select the second subglyph layer, got {:?}",
+        h.state.mode
+    );
+
+    // A slot past the last layer is a no-op.
+    h.key(Key::Num4);
+    assert!(
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 1 }),
+        "`4` has no layer to select and must leave the mode alone, got {:?}",
+        h.state.mode
+    );
+
+    // LayerMove → pixel grid, in either detail mode.
+    h.key(Key::Backtick);
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        "`` ` `` should switch to the pixel grid in PixelSelect, got {:?}",
+        h.state.mode
+    );
+    h.key(Key::Num3);
+    assert!(
+        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 1 }),
+        "`3` should select a layer from PixelSelect too, got {:?}",
+        h.state.mode
+    );
+    h.key(Key::Num1);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "`1` should switch to the pixel grid in GlyphEdit, got {:?}",
+        h.state.mode
+    );
+}
+
 /// Choosing a subglyph menu item leaves the pointer over the menu, and egui's
 /// menu takes the click; the editor must still hold keyboard focus afterwards,
 /// or the very next keystroke (`` ` ``, `1`, …) goes nowhere.

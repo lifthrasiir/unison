@@ -14,6 +14,7 @@ pub(super) fn handle_document_keys(
     state: &mut EditorState,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    composites: &HashMap<usize, GlyphComposite>,
     prev_cursor: Caret,
     needs_rederive: &mut bool,
 ) {
@@ -83,34 +84,11 @@ pub(super) fn handle_document_keys(
                 }
             }
 
-            // Backtick: GlyphEdit → PixelSelect
-            if let EditMode::GlyphEdit { item_idx, .. } = &state.mode {
-                if ui.input(|i| {
-                    i.key_pressed(egui::Key::Backtick)
-                        && !i.modifiers.command
-                        && !i.modifiers.alt
-                }) {
-                    state.mode = EditMode::PixelSelect {
-                        item_idx: *item_idx,
-                    };
-                }
-            }
+            // Backtick / 1..9: pick a layer palette slot outright
+            handle_palette_shortcuts(ui, doc, composites, state);
 
             // PixelSelect key handling
-            if let EditMode::PixelSelect { item_idx } = state.mode {
-                // 1: back to GlyphEdit
-                if ui.input(|i| {
-                    i.key_pressed(egui::Key::Num1)
-                        && !i.modifiers.command
-                        && !i.modifiers.alt
-                }) {
-                    // Reconciliation will commit any floating selection
-                    state.mode = EditMode::GlyphEdit {
-                        item_idx,
-                        selected_shape: pixel::PixelShape::new(pixel::PX_ALMOSTFULL, true),
-                    };
-                }
-
+            if matches!(state.mode, EditMode::PixelSelect { .. }) {
                 // Delete/Backspace: delete selection
                 if ui.input(|i| {
                     (i.key_pressed(egui::Key::Delete) || i.key_pressed(egui::Key::Backspace))
@@ -273,6 +251,83 @@ pub(super) fn handle_document_keys(
         if state.autocomplete.is_some() && state.cursor != prev_cursor && !*needs_rederive {
             crate::editor::autocomplete::update_after_edit(lines, state);
         }
+    }
+}
+
+/// `` ` `` and `1`..`9` select a slot of the layer palette (the inline tools
+/// preview row) directly, whatever the current mode is: slot 1 is the glyph's
+/// own pixel grid, slots 2.. are its subglyph layers in palette order (refs,
+/// then points, then inherited anchors).  `1` and `` ` `` both switch *to* the
+/// pixel grid and only differ in which detail mode they land in, so neither
+/// depends on a pixel grid being selected already.
+///
+/// A slot with no layer behind it is a no-op — the mode is left alone rather
+/// than clamped onto the last layer, since a mistyped digit should not move
+/// the selection somewhere unrelated.
+fn handle_palette_shortcuts(
+    ui: &egui::Ui,
+    doc: &Document,
+    composites: &HashMap<usize, GlyphComposite>,
+    state: &mut EditorState,
+) {
+    const DIGITS: [egui::Key; 9] = [
+        egui::Key::Num1,
+        egui::Key::Num2,
+        egui::Key::Num3,
+        egui::Key::Num4,
+        egui::Key::Num5,
+        egui::Key::Num6,
+        egui::Key::Num7,
+        egui::Key::Num8,
+        egui::Key::Num9,
+    ];
+
+    let Some(item_idx) = state.mode.edit_item_idx() else {
+        return;
+    };
+
+    // `` ` `` wins if both arrive in the same frame; it is the only key that
+    // asks for PixelSelect.
+    let to_pixel_select = ui.input(|i| {
+        i.key_pressed(egui::Key::Backtick) && !i.modifiers.command && !i.modifiers.alt
+    });
+    if to_pixel_select {
+        // Reconciliation will commit any floating selection.
+        state.mode = EditMode::PixelSelect { item_idx };
+        return;
+    }
+
+    let slot = ui.input(|i| {
+        if i.modifiers.command || i.modifiers.alt {
+            return None;
+        }
+        DIGITS.iter().position(|&k| i.key_pressed(k))
+    });
+    let Some(slot) = slot else { return };
+
+    if slot == 0 {
+        if !matches!(state.mode, EditMode::GlyphEdit { .. }) {
+            state.mode = EditMode::GlyphEdit {
+                item_idx,
+                selected_shape: pixel::PixelShape::new(pixel::PX_ALMOSTFULL, true),
+            };
+        }
+        return;
+    }
+
+    let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) else {
+        return;
+    };
+    let inherited = composites
+        .get(&item_idx)
+        .map_or(0, |c| c.inherited_anchors.len());
+    let layer_count = body.refs.len() + body.points.len() + inherited;
+    let layer_idx = slot - 1;
+    if layer_idx < layer_count {
+        state.mode = EditMode::LayerMove {
+            item_idx,
+            layer_idx,
+        };
     }
 }
 

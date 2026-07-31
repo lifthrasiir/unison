@@ -110,6 +110,17 @@ impl EditMode {
             _ => None,
         }
     }
+
+    /// The glyph item being edited in *any* grid mode, layer moving included.
+    /// This is the one the layer palette (and its keyboard shortcuts) acts on.
+    pub fn edit_item_idx(&self) -> Option<usize> {
+        match self {
+            EditMode::GlyphEdit { item_idx, .. }
+            | EditMode::PixelSelect { item_idx }
+            | EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
+            EditMode::Normal => None,
+        }
+    }
 }
 
 pub enum PopupState {

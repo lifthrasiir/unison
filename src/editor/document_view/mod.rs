@@ -485,7 +485,8 @@ fn show_document(
 
     let prev_cursor = state.cursor;
     handle_document_keys(
-        ui, doc, lines, state, named_glyphs, name_parts, prev_cursor, &mut needs_rederive,
+        ui, doc, lines, state, named_glyphs, name_parts, composites, prev_cursor,
+        &mut needs_rederive,
     );
 
     if let Some(bump) = number_bump {
