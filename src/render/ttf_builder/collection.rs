@@ -15,14 +15,13 @@
 //! are stored once and pointed at twice. [`build_collection`] therefore dedups
 //! by content, which needs no knowledge of what a table means.
 //!
-//! **This does not yet make `glyf` shared.** Sharing `glyf` means sharing the
-//! glyph ID space, and the collector still orders glyphs per face — the glyph
-//! list is built while walking that face's `map` directives, so two faces with
-//! different cmaps produce different glyph orders and therefore different
-//! `glyf` bytes. Until the glyph order is made face-independent, a collection
-//! dedups `head`, `hhea`, `maxp`, `post`, `OS/2` and the like, and stores one
-//! `glyf` per face. The size win described for the ambiguous-width split needs
-//! that other change, not this one.
+//! Content dedup only pays off because the glyph store is built once, for the
+//! union of every slice, in an order no single face's cmap decided — see
+//! [`super::build_faces`]. With a per-face glyph order the two `glyf` tables
+//! would differ from the first differing glyph onward and nothing would be
+//! shared. With it, two faces of the ambiguous-width split share everything
+//! except `cmap` and `name`: measured over `font/` with a two-face overlay,
+//! 1.29 MB against 2.56 MB for the same two faces as separate files.
 //!
 //! # checkSumAdjustment
 //!

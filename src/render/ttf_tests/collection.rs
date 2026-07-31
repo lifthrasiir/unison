@@ -110,3 +110,73 @@ fn a_single_face_collection_is_still_a_collection() {
     assert_eq!(ttc.len(), 1);
     assert!(build_collection(&[]).is_err());
 }
+
+/// The size argument for a collection: two faces that differ only in which
+/// glyph a few characters reach must share the glyph store outright. That needs
+/// the glyph order to be independent of any one face's cmap — with a per-face
+/// order the tables differ byte-wise everywhere after the first difference, and
+/// content dedup can do nothing.
+#[test]
+fn faces_differing_only_in_cmap_share_the_glyph_store() {
+    let src = "\
+slice narrow
+slice wide
+glyph n 1 1
+@@
+glyph w 2 1
+@@@@
+glyph other 1 1
+..
+map A = n
+map B = other
+map narrow : ° = n
+map wide : ° = w
+face narrow : narrow
+face wide : wide
+";
+    let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let built = crate::render::ttf_builder::build_faces(&[&doc]).unwrap();
+    assert_eq!(built.len(), 2);
+    let bytes = build_collection(&built.iter().map(|(_, b)| b.clone()).collect::<Vec<_>>()).unwrap();
+
+    let read_fonts::FileRef::Collection(ttc) = read_fonts::FileRef::new(&bytes).unwrap() else {
+        panic!("expected a collection");
+    };
+    let offset_of = |i: u32, tag: &[u8; 4]| -> u32 {
+        ttc.get(i)
+            .unwrap()
+            .table_directory()
+            .table_records()
+            .iter()
+            .find(|r| r.tag() == read_fonts::types::Tag::new(tag))
+            .unwrap()
+            .offset()
+    };
+    for tag in [b"glyf", b"loca", b"hmtx", b"maxp"] {
+        assert_eq!(offset_of(0, tag), offset_of(1, tag), "{}", std::str::from_utf8(tag).unwrap());
+    }
+    assert_ne!(offset_of(0, b"cmap"), offset_of(1, b"cmap"), "the cmaps differ");
+
+    // And each face still maps ° to its own glyph — sharing the store must not
+    // have merged the two typefaces.
+    let advance_of = |i: u32, ch: char| -> u16 {
+        let f = ttc.get(i).unwrap();
+        let gid = f.cmap().unwrap().map_codepoint(ch).unwrap();
+        f.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap()
+    };
+    assert_eq!(advance_of(0, '°'), 64, "narrow");
+    assert_eq!(advance_of(1, '°'), 128, "wide");
+    assert_eq!(advance_of(0, 'A'), 64);
+}
+
+/// The single-face path and the multi-face path are separate code, and a source
+/// with one face must get the same font from either — otherwise `build` and the
+/// editor's preview would slowly drift apart.
+#[test]
+fn one_face_builds_the_same_font_either_way() {
+    let doc = document_io::parse_document_from_str(A, "test.unf".into()).unwrap();
+    let single = build_font_from_documents(&[&doc]).unwrap();
+    let faces = crate::render::ttf_builder::build_faces(&[&doc]).unwrap();
+    assert_eq!(faces.len(), 1);
+    assert_eq!(faces[0].1, single, "the two build paths must agree byte for byte");
+}

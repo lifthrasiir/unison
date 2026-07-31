@@ -61,10 +61,11 @@ pub(super) fn build_glyph_outlines(
         let glyph_id = GlyphId::new((i + 1) as u32);
         let glyph_id16 = GlyphId16::new((i + 1) as u16);
 
-        if let Some(cp) = g.codepoint
-            && let Some(ch) = char::from_u32(cp) {
+        for &cp in &g.codepoints {
+            if let Some(ch) = char::from_u32(cp) {
                 out.cmap_mappings.push((ch, glyph_id));
             }
+        }
 
         out.name_to_gid.entry(g.name.clone()).or_insert(glyph_id16);
     }

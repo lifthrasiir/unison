@@ -110,7 +110,7 @@ pub(super) fn build_ttf(
 
     let default_aw = glyphs
         .iter()
-        .find(|g| g.codepoint == Some(0x20))
+        .find(|g| g.codepoints.contains(&0x20))
         .or(glyphs.first())
         .map(|g| g.advance_width)
         .unwrap_or(UNITS_PER_EM / 2);
@@ -227,14 +227,14 @@ pub(super) fn build_ttf(
         let total: u32 = glyphs.iter().map(|g| g.advance_width as u32).sum();
         (total / glyphs.len() as u32) as i16
     };
-    let first_cp = glyphs.iter().filter_map(|g| g.codepoint).min().unwrap_or(0x20);
-    let last_cp = glyphs.iter().filter_map(|g| g.codepoint).max().unwrap_or(0x7E);
+    let first_cp = glyphs.iter().flat_map(|g| &g.codepoints).min().copied().unwrap_or(0x20);
+    let last_cp = glyphs.iter().flat_map(|g| &g.codepoints).max().copied().unwrap_or(0x7E);
 
     let max_context = compute_max_context(gsub_data);
 
     // Coverage-derived, never declared: these describe the font that came out.
     let mapped: std::collections::HashSet<u32> =
-        glyphs.iter().filter_map(|g| g.codepoint).collect();
+        glyphs.iter().flat_map(|g| &g.codepoints).copied().collect();
     let unicode_ranges = super::os2_ranges::unicode_ranges(mapped.iter().copied());
     let code_pages = super::os2_ranges::code_page_ranges(&mapped);
 

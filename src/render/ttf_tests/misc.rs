@@ -258,6 +258,24 @@ map A = n
     assert_eq!(advance_of(&ttf, 'A'), 64);
 }
 
+/// One glyph is one glyph however many characters reach it. The collector used
+/// to emit an entry per `(codepoint, glyph)` pair, so a glyph mapped twice was
+/// stored twice — and, worse, the glyph order then depended on the cmap, which
+/// is what stopped two faces from sharing `glyf`.
+#[test]
+fn a_glyph_mapped_from_two_codepoints_gets_one_gid() {
+    let ttf = build_from("glyph sp 1 1\n..\nmap U+0020 = sp\nmap U+00A0 = sp\nmap A = sp\n");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    let cmap = font.cmap().unwrap();
+    let a = cmap.map_codepoint(' ').unwrap();
+    let b = cmap.map_codepoint('\u{00A0}').unwrap();
+    let c = cmap.map_codepoint('A').unwrap();
+    assert_eq!(a, b);
+    assert_eq!(a, c);
+    // .notdef plus the one glyph.
+    assert_eq!(font.maxp().unwrap().num_glyphs(), 2);
+}
+
 #[test]
 fn unmapped_empty_sticky_glyph_is_retained() {
     let doc = document_io::parse_document_from_str(
@@ -267,7 +285,7 @@ fn unmapped_empty_sticky_glyph_is_retained() {
     .unwrap();
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let keep = glyphs.iter().find(|glyph| glyph.name == "keep").unwrap();
-    assert_eq!(keep.codepoint, None);
+    assert!(keep.codepoints.is_empty());
     assert_eq!(keep.advance_width, 0);
     assert!(keep.contours.is_empty());
 }

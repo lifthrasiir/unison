@@ -108,15 +108,22 @@ use tables::build_ttf;
 
 pub const UNITS_PER_EM: u16 = 1024;
 
+#[derive(Clone)]
 struct CompositeRef {
     component_name: String,
     x_offset: i16,
     y_offset: i16,
 }
 
+#[derive(Clone)]
 struct CollectedGlyph {
     name: String,
-    codepoint: Option<u32>,
+    /// Every character that reaches this glyph *in the face being built*, in
+    /// order. One glyph is one glyph however many characters reach it: an entry
+    /// per `(codepoint, glyph)` pair would store the outline once per character
+    /// and, worse, would make the glyph order depend on the cmap — which is
+    /// what stops two faces of a collection from sharing the glyph store.
+    codepoints: Vec<u32>,
     advance_width: u16,
     contours: Vec<Vec<(i16, i16)>>,
     composite_refs: Vec<CompositeRef>,
@@ -131,6 +138,7 @@ struct CollectedGlyph {
     top_offset: i16,
 }
 
+#[derive(Clone)]
 struct CollectedColorLayer {
     contours: Vec<Vec<(i16, i16)>>,
     palette_index: u16,
@@ -234,18 +242,52 @@ pub fn build_font_pair_cached(
 /// font `build_font_from_documents` returns, so the two paths cannot drift.
 pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
     let faces = crate::faces::FaceSet::collect(docs);
+
+    // The glyph store is built once, for a synthetic face that includes every
+    // declared slice — so it is the union of what any face can reach, in an
+    // order no single face's cmap decided. That is what lets the faces of a
+    // collection share `glyf`, `loca`, `hmtx` and `maxp`: identical bytes are
+    // stored once, and bytes are only identical if the glyph order is.
+    let union_face = crate::faces::Face {
+        id: String::new(),
+        slices: faces.declared.keys().cloned().collect(),
+        origin: None,
+    };
+    let union_input = collect::compute_shared_font_input_for(docs, &union_face)?;
+    let (_, _, union_glyphs, _, _) =
+        collect::collect_glyph_data_with_shared(&union_input, false, None)?;
+
     let mut out = Vec::new();
     for face in &faces.faces {
+        // Collected again for this face, for its own `meta`, its own GSUB, and
+        // above all its own cmap. Only the *codepoints* are taken from it; the
+        // glyphs, and therefore every glyph id, come from the shared store.
         let shared = collect::compute_shared_font_input_for(docs, face)?;
-        let (meta, scale, glyph_data, gsub_data, palette) =
+        let (meta, scale, face_glyphs, gsub_data, palette) =
             collect::collect_glyph_data_with_shared(&shared, false, None)?;
+
+        let mut per_name: HashMap<&str, &[u32]> = HashMap::new();
+        for g in &face_glyphs {
+            if !g.codepoints.is_empty() {
+                per_name.insert(g.name.as_str(), g.codepoints.as_slice());
+            }
+        }
+        let glyphs: Vec<CollectedGlyph> = union_glyphs
+            .iter()
+            .map(|g| {
+                let mut g = g.clone();
+                g.codepoints = per_name.get(g.name.as_str()).map(|c| c.to_vec()).unwrap_or_default();
+                g
+            })
+            .collect();
+
         let ascender = (meta.ascent() as f32 * scale).round() as i16;
         let descender = -((meta.descent() as f32 * scale).round() as i16);
         let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) { meta.height() } else { 0 };
         out.push((
             face.id.clone(),
             tables::build_ttf(
-                ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, &meta,
+                ascender, descender, &glyphs, hint_ppem, &gsub_data, &palette, scale, &meta,
             ),
         ));
     }

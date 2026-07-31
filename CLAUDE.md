@@ -127,7 +127,8 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |
-| Writing a TTC, and why `glyf` is not shared yet | `render/ttf_builder/collection.rs` |
+| Writing a TTC, and what the faces of one share | `render/ttf_builder/collection.rs` |
+| Why the glyph order is face-independent | `render/ttf_builder/collect.rs`, `build_faces` in `mod.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |

@@ -120,7 +120,7 @@ feature tjmo for hang : hangul-tjmo
         );
     }
 
-    let non_cmap_count = glyph_data.iter().filter(|g| g.codepoint.is_none()).count();
+    let non_cmap_count = glyph_data.iter().filter(|g| g.codepoints.is_empty()).count();
     assert!(
         non_cmap_count > 0,
         "remap-referenced non-cmap glyphs should be included"

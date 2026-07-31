@@ -296,7 +296,7 @@ pub(super) fn collect_glyph_data_with_shared(
             seen_names.insert(glyph_name.clone());
             glyph_data.push(CollectedGlyph {
                 name: glyph_name.clone(),
-                codepoint: Some(*cp),
+                codepoints: vec![*cp],
                 advance_width,
                 contours: font_contours,
                 composite_refs,
@@ -310,8 +310,41 @@ pub(super) fn collect_glyph_data_with_shared(
         }
     }
 
-    glyph_data.sort_by_key(|g| g.codepoint);
-    glyph_data.dedup_by_key(|g| g.codepoint);
+    // One entry per glyph *name*, carrying every character that reaches it.
+    //
+    // The order is `(lowest codepoint, name)`, and both halves matter. Sorting
+    // by codepoint keeps the runs that make a format 4 cmap compact. Falling
+    // back to the name makes the order total, so it does not depend on the
+    // order the maps happened to be walked in — which is what lets two faces
+    // of a collection share `glyf`, `loca` and `hmtx`. Unmapped glyphs sort
+    // last, by name.
+    {
+        let mut by_name: HashMap<String, usize> = HashMap::new();
+        let mut merged: Vec<CollectedGlyph> = Vec::with_capacity(glyph_data.len());
+        for glyph in glyph_data {
+            match by_name.get(&glyph.name) {
+                Some(&i) => {
+                    let existing: &mut CollectedGlyph = &mut merged[i];
+                    existing.codepoints.extend(glyph.codepoints);
+                }
+                None => {
+                    by_name.insert(glyph.name.clone(), merged.len());
+                    merged.push(glyph);
+                }
+            }
+        }
+        for glyph in &mut merged {
+            glyph.codepoints.sort_unstable();
+            glyph.codepoints.dedup();
+        }
+        merged.sort_by(|a, b| {
+            let key = |g: &CollectedGlyph| {
+                (g.codepoints.first().copied().unwrap_or(u32::MAX), g.name.clone())
+            };
+            key(a).cmp(&key(b))
+        });
+        glyph_data = merged;
+    }
 
     let mut remap_referenced: HashSet<&str> = HashSet::new();
     for remaps in gsub_data.remap_sets.values() {
@@ -447,7 +480,7 @@ pub(super) fn collect_glyph_data_with_shared(
 
         glyph_data.push(CollectedGlyph {
             name: glyph_name.clone(),
-            codepoint: None,
+            codepoints: Vec::new(),
             advance_width,
             contours: font_contours,
             composite_refs,
@@ -475,7 +508,7 @@ pub(super) fn collect_glyph_data_with_shared(
                 let advance_width = (resolved.width as f32 * comp_glyph_scale).round() as u16;
                 component_extras.push(CollectedGlyph {
                     name: cr.component_name.clone(),
-                    codepoint: None,
+                    codepoints: Vec::new(),
                     advance_width,
                     contours: font_contours,
                     composite_refs: Vec::new(),

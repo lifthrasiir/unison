@@ -68,11 +68,11 @@ fn canonicalize_contour(c: &[(i16, i16)]) -> Vec<(i16, i16)> {
     rotated
 }
 
-fn canonicalize_glyph(g: &CollectedGlyph) -> (Option<u32>, u16, Vec<Vec<(i16, i16)>>) {
+fn canonicalize_glyph(g: &CollectedGlyph) -> (Vec<u32>, u16, Vec<Vec<(i16, i16)>>) {
     let mut contours: Vec<Vec<(i16, i16)>> =
         g.contours.iter().map(|c| canonicalize_contour(c)).collect();
     contours.sort();
-    (g.codepoint, g.advance_width, contours)
+    (g.codepoints.clone(), g.advance_width, contours)
 }
 
 /// Nonzero winding number of `contours` at `(x, y)`, in font units.
