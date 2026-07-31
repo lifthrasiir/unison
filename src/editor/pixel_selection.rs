@@ -333,10 +333,15 @@ pub(crate) fn commit_floating(
     }
 
     let before = sel.to_snapshot();
+    // `mode_before` is the mode the restored selection needs, not the mode the
+    // editor happens to be in: a commit is usually *caused* by leaving
+    // PixelSelect (`reconcile`), and undoing into that new mode would hand a
+    // floating selection back to a mode that cannot hold one — `reconcile`
+    // would commit it again, one fresh undo entry per undo, forever.
     state.undo.push_pixel_selection(
         grid_doc_line,
         changes,
-        state.mode.clone(),
+        EditMode::PixelSelect { item_idx: sel.item_idx },
         state.mode.clone(),
         Some(before),
         None,

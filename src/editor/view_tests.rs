@@ -1297,6 +1297,32 @@ fn delete_floating_discards_no_merge() {
 }
 
 #[test]
+fn undo_after_mode_change_commit_terminates() {
+    // Move a selection (floating), then leave PixelSelect: reconcile commits
+    // the float. Undoing that commit must not restore a floating selection
+    // into a mode that cannot hold one — reconcile would commit it again,
+    // pushing a fresh entry for every undo, and the stack would never drain.
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 1));
+    h.drag_grid(1, (0, 0), (2, 0)); // move down -> floating
+    h.key(Key::Num1); // back to GlyphEdit; reconcile commits the float
+    assert!(h.state.pixel_selection.is_none());
+
+    for _ in 0..10 {
+        h.key_mod(Key::Z, Modifiers::COMMAND);
+    }
+    assert!(
+        !h.state.undo.can_undo(),
+        "undo must drain instead of regenerating entries"
+    );
+
+    let grid = h.grid(1);
+    assert!(grid.get(0, 0).is_filled(), "grid should be back to its original state");
+    assert!(grid.get(0, 1).is_filled());
+    assert!(grid.get(2, 0).is_empty());
+}
+
+#[test]
 fn copy_produces_correct_text() {
     let mut h = make_pixel_select_harness();
     h.drag_grid(1, (0, 0), (1, 1));
