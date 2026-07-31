@@ -641,8 +641,9 @@ pub(super) fn paint_document_area(
             if panel_result.click_consumed {
                 click_result = None;
             }
-            if let Some(ref_idx) = panel_result.inline_ref
-                && inline_ref_to_pixels(
+            if let Some(ref_idx) = panel_result.inline_ref {
+                refocus_after_menu(ui, wid);
+                if inline_ref_to_pixels(
                     lines,
                     doc,
                     state,
@@ -653,6 +654,7 @@ pub(super) fn paint_document_area(
                 ) {
                     *needs_rederive = true;
                 }
+            }
         }
 
         // Layer move drag handling (refs and points)
@@ -893,8 +895,9 @@ pub(super) fn paint_document_area(
             response.context_menu(|ui| {
                 inline = inline_tools::subglyph_context_menu(ui);
             });
-            if inline
-                && inline_ref_to_pixels(
+            if inline {
+                refocus_after_menu(ui, wid);
+                if inline_ref_to_pixels(
                     lines,
                     doc,
                     state,
@@ -902,11 +905,12 @@ pub(super) fn paint_document_area(
                     ref_idx,
                     named_glyphs,
                     name_parts,
-                )
-            {
-                *needs_rederive = true;
+                ) {
+                    *needs_rederive = true;
+                }
             }
         } else if ctx_mode_normal {
+        let mut acted = false;
         response.context_menu(|ui| {
             let caps = crate::edit_menu::EditMenuCaps {
                 can_undo: state.undo.can_undo(),
@@ -915,11 +919,23 @@ pub(super) fn paint_document_area(
                 can_edit: ctx_mode_normal,
             };
             let action = crate::edit_menu::show_edit_menu_items(ui, &caps, false);
+            acted |= action != crate::edit_menu::EditAction::None;
             if apply_edit_action_to_editor(action, lines, state, ui.ctx()) {
                 *needs_rederive = true;
             }
         });
+        if acted {
+            refocus_after_menu(ui, wid);
         }
+        }
+}
+
+/// Clicking a context-menu item hands egui's keyboard focus to that menu
+/// button, and the menu is gone by the next frame — so the editor is left with
+/// no focus and swallows the very next keystroke. Any menu item that acts on
+/// this editor has to take focus back.
+fn refocus_after_menu(ui: &egui::Ui, wid: egui::Id) {
+    ui.memory_mut(|m| m.request_focus(wid));
 }
 
 #[allow(clippy::too_many_arguments)]

@@ -1159,6 +1159,72 @@ fn right_click_grid_in_layer_move_offers_subglyph_menu() {
     );
 }
 
+/// Choosing a subglyph menu item leaves the pointer over the menu, and egui's
+/// menu takes the click; the editor must still hold keyboard focus afterwards,
+/// or the very next keystroke (`` ` ``, `1`, …) goes nowhere.
+#[test]
+fn subglyph_menu_on_grid_keeps_editor_focus() {
+    let mut h = EditorHarness::new(&composite_doc());
+    enter_layer_move(&mut h, 4, 2, 0);
+
+    let cell = h.grid_cell_pos(4, 0, 0);
+    h.right_click_at(cell);
+    h.frame();
+
+    let item = cell + egui::vec2(24.0, 14.0);
+    h.move_pointer(item);
+    h.click_at(item);
+    h.frame();
+
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "inlining should land in GlyphEdit, got {:?}",
+        h.state.mode
+    );
+    assert!(
+        h.editor_has_focus(),
+        "the editor must keep focus after the context menu closes"
+    );
+    h.key(Key::Backtick);
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        "Backtick right after inlining should enter PixelSelect, got {:?}",
+        h.state.mode
+    );
+}
+
+/// The same, entered from the ref thumbnail in the inline tools panel.
+#[test]
+fn subglyph_menu_on_thumbnail_keeps_editor_focus() {
+    let mut h = EditorHarness::new(&composite_doc());
+    enter_layer_move(&mut h, 4, 2, 0);
+
+    let thumb = h.ref_thumbnail_rect(2, 0).center();
+    h.right_click_at(thumb);
+    h.frame();
+
+    let item = thumb + egui::vec2(24.0, 14.0);
+    h.move_pointer(item);
+    h.click_at(item);
+    h.frame();
+
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 2, .. }),
+        "inlining should land in GlyphEdit, got {:?}",
+        h.state.mode
+    );
+    assert!(
+        h.editor_has_focus(),
+        "the editor must keep focus after the context menu closes"
+    );
+    h.key(Key::Backtick);
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        "Backtick right after inlining should enter PixelSelect, got {:?}",
+        h.state.mode
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Pixel selection mode tests
 // ---------------------------------------------------------------------------
