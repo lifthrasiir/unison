@@ -17,13 +17,15 @@ author, not a scoping mechanism. Files whose name begins with a dot are skipped,
 without the `.unf` extension.
 
 ```sh
-uniform build -i font/ -o unison.ttf     # build the font
+uniform build -i font/ -o unison.ttc     # build the typefaces
 uniform test -i font/                    # run the `assert` directives
 uniform font/                            # open the editor
 ```
 
-Order matters in only two places: `font-meta` and `color`, where a later definition wins over an
-earlier one. Everything else is order-independent. Glyph names must be unique across the whole
+Order matters in only two places: `color`, where a later definition wins over an earlier one, and
+`face`, whose declaration order is the order the typefaces appear in the output. Everything else is
+order-independent — `meta` in particular has no last-wins rule at all, because setting the same
+thing twice is an error rather than an override. Glyph names must be unique across the whole
 project; if two files define the same name, the first definition wins, the second is ignored, and
 the report says so along with where the first one is.
 
@@ -35,13 +37,91 @@ A glyph only reaches the output font if something asks for it: a `map`, a `ref` 
 is itself reachable, a `remap` operand, or the `sticky` flag. Unreachable glyphs are dropped and
 reported as unused.
 
-### Glyph Metrics
+### Typefaces and Slices
 
-Everything in a `.unf` file is measured in pixels, and the pixel grid is what defines the em. The
-`font-meta` line gives the em height in pixels and how that height splits around the baseline:
+One project can describe more than one typeface. A **face** is one typeface in the output — a
+standalone font file, or one font inside a collection. A **slice** is a named group of character
+mappings, features and assertions that a face may include:
 
 ```
-font-meta height 16 ascent 14 descent 2
+slice narrow
+slice wide
+
+face regular : wide
+face term : narrow
+```
+
+Slices deliberately do not contain glyphs. Every face draws from the same glyph set; what differs
+between two faces is which character reaches which glyph. That is what lets a collection store one
+copy of the outlines and give each face its own `cmap`.
+
+An unnameable **base slice** is in every face. Everything written without a qualifier belongs to it,
+which is why a project with no `face` line at all still describes exactly one typeface and builds
+the way it always did.
+
+**Nothing overrides anything.** No face may include two slices that map the same character, and no
+slice may re-state a mapping the base already has. Both are errors, and there is no precedence rule
+to appeal to. The consequence is worth stating plainly, because it shapes how a split project is
+written:
+
+> A character whose mapping differs between faces must not be in the base slice at all.
+
+So splitting a font by East Asian ambiguous width means *moving* those characters out of the base
+into two slices, one per face — not adding an exception on top of a default. That is more work up
+front and much less guessing later: which characters vary is visible in the source instead of being
+the emergent result of a precedence rule.
+
+`slice A = B C` is shorthand for "A also includes B and C", transitively. It is not a precedence
+mechanism either; a conflict reached through it is the same error as any other, and a cycle is
+reported whether or not any face uses it.
+
+Faces appear in the output in declaration order. That is user-visible: a consumer that does not
+choose a face gets the first one, and the sample and preview outputs show it too.
+
+A face id ends up in a file name, so it is bounded more tightly than other names — see
+[Identifier](#identifier).
+
+### Output Files
+
+The extension of an `--output` path picks the format, and whether the path contains a `%` picks
+whether one file holds one face or all of them. `%%` is a literal `%`.
+
+| Path | One face | Two or more |
+| --- | --- | --- |
+| `output.ttf` | the font | error: which one? |
+| `output-%.ttf` | error: nothing to vary | one file per face |
+| `output.ttc` | a one-face collection | the collection |
+| `output-%.ttc` | error | error: a collection per face is not a thing |
+| `output.woff2` | the font | error, see below |
+
+Every combination is either meaningful or an error; nothing is silently reinterpreted, because the
+failure mode of guessing here is a file that looks right and holds the wrong typeface. All of a
+build's outputs are planned before any is written, so a wrong combination fails before it has
+half-produced a set of files.
+
+A collection stores each table once and points every face that uses it at the same offset. Since the
+glyph store is shared, two faces of a width split differ only in `cmap` and `name`, and one `.ttc`
+is about half the size of the same two faces written separately.
+
+WOFF2 has no such option: a browser cannot select a face inside a collection, so a multi-face
+`.woff2` is refused and the web form is one file per face.
+
+```sh
+uniform build -i font/ -o unison.ttc -o unison-%.woff2
+```
+
+(You can still make a WOFF2 version of the TTC file with the stock `woff2_compress` if you wish.
+Uniform only prevents you from doing so without knowing what you are actually doing.)
+
+### Glyph Metrics
+
+Everything in a `.unf` file is measured in pixels, and the pixel grid is what defines the em. `meta`
+gives the em height in pixels and how that height splits around the baseline:
+
+```
+meta height 16
+meta ascent 14
+meta descent 2
 ```
 
 With this, the top edge of row 0 is 14 pixels above the baseline, the top edge of row 14 is the
@@ -201,6 +281,26 @@ A `.unf` file is a sequence of lines. Each line is one directive, one glyph head
 `anchor` line belonging to the glyph header above it, one row of pixels, a comment, or blank.
 Indentation is not significant, and no line continues onto the next.
 
+### Identifier
+
+A glyph name is made of letters, digits, `-`, `.`, `_` and `:`. The colon marks an
+[alternative form](#alternative-glyphs); the rest is ordinary. The Unison's own convention is
+`snake-case` but is by no means mandatory.
+
+What the set leaves out is the point of it. Every character the [name pattern](#name-pattern) syntax
+uses — `(`, `)`, `|`, `$`, `*`, `#` — is excluded, so a pattern that failed to expand cannot reach
+the font as a name that merely looks odd. The rule is checked against *expanded* names, so how one
+was written does not matter.
+
+Slice ids use the same set without `:`. Face ids are narrower still, because `--output output-%.ttf`
+puts one in a path: no `:`, no leading `.`, and never `.` or `..`. Two face ids that differ only in
+case are rejected as well, since the file names they produce would collide on a case-insensitive
+file system.
+
+There is no `U+XXXX` glyph-name form. A range of hex-named glyphs is written `uni($#XXXX..YYYY)`,
+which is partly what the inline hexadecimal range was added for. `U+XXXX` remains a *character*
+spelling on the left of a `map`, which is a different context and unaffected.
+
 ### Quoting
 
 Tokens are separated by whitespace. A token that has to contain a space, or that has to be empty, is
@@ -238,7 +338,6 @@ targets, `map` and `remap` operands, and `assume unused`.
 
 | Form | Expands to |
 | --- | --- |
-| `U+XXXX..YYYY` | one `U+NNNN` name per codepoint in the range |
 | `(a\|b\|c)` | the group spliced into the surrounding text: `foo-(a\|b)` → `foo-a`, `foo-b` |
 | `a*N` | inside a group, that one alternative repeated N times |
 | `(...**N)` | at the very end of a group, each alternative repeated N times |
@@ -389,21 +488,197 @@ a later row of the wrong length, or one containing an unknown pair, is an error 
 *first* row that does not parse is read as "this glyph has no rows", which usually surfaces a few
 lines further down as unrecognized directives — check the declared width when that happens.
 
+## Typeface Commands
+
+### `face`: Typeface definition
+
+```
+face FACE [: SLICE...]
+```
+
+Declares one typeface in the output, including the named slices on top of the base slice every face
+gets. A project that declares no face describes exactly one, with the base slice alone.
+
+```
+face regular : wide
+face term : narrow
+```
+
+Faces are emitted in declaration order, so the first one is what a consumer that does not choose
+gets, and what `--sample-html`, `--sample-png` and `--live-html` show.
+
+Every face needs a name of its own: two faces producing the same family and subfamily would hide
+each other in the system font list, and two sharing a PostScript name break PDF embedding. Both are
+errors. Since a bare `meta family` reaches every face, the way to write this is one declaration per
+face — see [`meta`](#meta-primary-font-metadata).
+
+A face id becomes a file name through the `%` in an `--output` path, so it is bounded more tightly
+than other names; see [Identifier](#identifier) and [Output Files](#output-files).
+
+### `slice`: Slice definition
+
+```
+slice SLICE [= SUBSLICE...]
+```
+
+Declares a slice, optionally as the union of others. `map`, `feature` and `assert shape` may then be
+qualified to it, and a `face` may include it.
+
+```
+slice narrow
+slice wide
+slice both = narrow wide
+```
+
+The `= ...` form is shorthand for "also includes these, transitively". It carries no precedence:
+if a face ends up including two slices that map the same character, that is the same error whether
+the two arrived directly or through a union. A cycle among slices is reported whether or not any
+face reaches it, because it is a problem with the declarations rather than with any face.
+
+A slice that nothing is qualified to gives every face including it nothing, and is reported as a
+warning. Content counts transitively, so `both` above is not empty as long as `narrow` or `wide` is
+not. The warning exists for the middle of a migration, where a mistyped slice name is otherwise
+indistinguishable from a slice not yet filled in.
+
 ## Metadata Commands
 
-### `font-meta`: Primary font metadata
+### `meta`: Primary font metadata
 
 ```
-font-meta height H ascent A descent D
+meta [FACE :] KEY VALUE...
 ```
 
-Sets the em height in pixels and its split around the baseline. The three keywords may be given in
-any order and in separate `font-meta` lines; the last value for each wins. Defaults are height 16,
-ascent 14, descent 2.
+Sets one metadata value. Exactly one key per line: keys take anywhere from zero to ten values, so
+two on a line could not be told apart without a separator.
+
+An optional scope comes first. A bare key applies to every face, and `* : KEY` spells that out;
+`FACE : KEY` applies to one face. The scope is recognized by the second token being a bare `:`,
+which no key or value can be.
+
+**Setting the same thing twice is an error**, even when the two values agree, and even through two
+spellings — `family` and `name 1` are one slot. Scopes do not soften this: a bare key already
+reaches every face, so stating a key bare *and* for a face gives that face two values, which is the
+same conflict as a face including two slices that map one character. A value that varies per face is
+stated once per face:
+
+```
+face regular : wide
+face term : narrow
+
+meta designer `Kang Seonghoon`
+meta regular : family `Unison`
+meta term : family `Unison Term`
+```
+
+#### Design metrics
+
+These may only be set for every face. They fix how the pixel grid maps onto the em, and every face
+draws from one glyph set, so they cannot differ between faces.
+
+| Key | Meaning |
+| --- | --- |
+| `height N` | Em height in pixels. Default 16. |
+| `ascent N` | Pixels above the baseline. Default 14. |
+| `descent N` | Pixels below it. Default 2. |
 
 `ascent + descent` should equal `height`; a mismatch is a warning, and a height of 0 is an error.
 Keeping the em height a divisor of 1024 lets the builder emit exact hinting for the pixel size, so
 16, 8 and 32 behave better than 20.
+
+#### Values on the pixel grid
+
+Declared in pixels and scaled by the same `1024 / height` as everything else, so they read in the
+units the source is drawn in. All accept a negative number where the field allows one.
+
+| Key | Meaning |
+| --- | --- |
+| `line-gap N` | Leading between lines. |
+| `x-height N`, `cap-height N` | Defaults derive from the ascent. |
+| `underline-at POS THICKNESS` | Position is relative to the baseline, so it is normally negative. |
+| `strikeout-at SIZE POS` | Thickness and height above the baseline. |
+| `subscript-at XSIZE YSIZE XOFF YOFF` | Size and offset of subscript text. |
+| `superscript-at XSIZE YSIZE XOFF YOFF` | The same for superscripts. |
+| `caret-offset N` | Horizontal shift of the text cursor. |
+
+`caret-slope RISE RUN` is the one exception: it is a ratio, not a length, and is not scaled. `0 0` is
+rejected.
+
+#### Identity and classification
+
+| Key | Meaning |
+| --- | --- |
+| `revision N` | Font revision as a decimal. Also the default for the version string. |
+| `vendor-id TAG` | One to four printable ASCII characters. |
+| `weight N` | 1 to 1000. Default 400. |
+| `width N` | 1 to 9. Default 5. |
+| `fs-type N` | Embedding permissions. |
+| `panose A B C D E F G H I J` | Ten numbers. |
+| `created DATE` | `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SSZ`. Fixed rather than the wall clock, so that building the same source twice produces the same bytes. |
+
+A value outside a declared range is an error rather than something clamped, because a consumer
+ignores it instead of correcting it.
+
+#### Style flags
+
+Written with no value at all.
+
+| Flag | Effect |
+| --- | --- |
+| `bold`, `italic` | Both a style bit and a Mac style bit. |
+| `oblique` | |
+| `underscore`, `negative`, `outlined`, `strikeout` | Decorations. |
+| `shadow` | Mac style only; there is no matching style bit. |
+| `use-typo-metrics` | Prefer the typographic metrics over the Windows ones. |
+| `fixed-pitch` | Claims every glyph has the same advance. |
+
+The regular bit is set only when nothing else claims a style. It excludes exactly `bold`, `italic`
+and `oblique` — not the decorations, which leave a font regular — and a font asserting both bold and
+regular is a familiar and very visible bug.
+
+`fixed-pitch` is a claim about the font, not something measured from it. Unison sets it despite
+having half- and full-width cells, because terminal font pickers filter on it and every CJK
+monospace font claims it for the same reason.
+
+#### Name records
+
+| Key | Name ID | Key | Name ID |
+| --- | --- | --- | --- |
+| `copyright` | 0 | `vendor-url` | 11 |
+| `family` | 1 | `designer-url` | 12 |
+| `subfamily` | 2 | `license` | 13 |
+| `version-text` | 5 | `license-url` | 14 |
+| `trademark` | 7 | `family-text` | 16 |
+| `manufacturer` | 8 | `subfamily-text` | 17 |
+| `designer` | 9 | `sample-text` | 19 |
+| `description` | 10 | | |
+
+`name ID VALUE` reaches any ID, including one with no keyword. A keyword and its numeric form are
+the same slot.
+
+Every name key takes an optional `@LANG` **BCP 47** tag before its value, which files the record
+under that language:
+
+```
+meta family `Unison`
+meta family @ko-KR `유니슨`
+```
+
+Only Windows-platform records are emitted, so `@LANG` is the only way to localize at all; the tag is
+mapped to the language ID such a record is keyed by, and a tag with no mapping is an error rather
+than a silently dropped record. A name asked for in a language that has none falls back to en-US, so
+everything derived from the family has one definition even in a localized font.
+
+#### Derived and computed
+
+Name IDs 3 (unique ID), 4 (full name), 5 (version string) and 6 (PostScript name) are built from
+family, subfamily and revision when they are not declared. Declaring one wins. They are emitted for
+en-US only: a PostScript name is required to be English, and a localized one is not a thing. The
+derived PostScript name is filtered to the restricted character set that format allows; it only has
+to be valid, not a pretty transliteration of an exotic family name.
+
+Coverage-derived fields are never declared, because they describe the font that came out rather than
+an intent: the Unicode and code page ranges come from the `cmap`, the first and last character index
+and the average character width from the glyphs, and the default and break characters are fixed.
 
 ### `exclude-from-sample`: Exclude a codepoint range from sample.html
 
@@ -420,6 +695,9 @@ Its use is bulk coverage that would swamp the page, such as most of the Hangul s
 ```
 exclude-from-sample U+AD00..D699
 ```
+
+The sample page shows the first declared face, so this concerns that face alone. It is not slice-
+qualified, and nothing about it reaches any output but the sample.
 
 ## Non-Glyph Definition Commands
 
@@ -464,8 +742,12 @@ whose name still contains a `$`.
 ### `feature`: OpenType feature definition
 
 ```
-feature NAME for SCRIPT[/LANGSYS]... : REMAP_GROUP
+feature [SLICE :] NAME for SCRIPT[/LANGSYS]... : REMAP_GROUP
 ```
+
+Unqualified, the feature belongs to the base slice and is therefore in every face. A `SLICE :`
+qualifier restricts it to the faces that include that slice, which is how one typeface gets a
+substitution another does not.
 
 Attaches every `remap` in the named group to an OpenType feature, under one or more targets:
 
@@ -481,8 +763,10 @@ The group name is arbitrary and links the two directives; it has no meaning in t
 ### `feature ... anchor`: Anchor definition for OpenType feature
 
 ```
-feature NAME for SCRIPT[/LANGSYS]... : anchor ANCHOR_NAME
+feature [SLICE :] NAME for SCRIPT[/LANGSYS]... : anchor ANCHOR_NAME
 ```
+
+The `SLICE :` qualifier works exactly as it does on the substitution form.
 
 Declares that the named anchor participates in mark attachment under this feature, which is what
 turns `+above`/`-above` pairs into a GPOS mark-to-base (and mark-to-mark) subtable:
@@ -598,8 +882,24 @@ Anchors declared on a glyph are always its own; anchors arriving through a ref a
 ### `map`: Map characters to glyphs
 
 ```
-map CHAR = GLYPH
+map [SLICE :] CHAR = GLYPH
 ```
+
+Unqualified, the mapping belongs to the base slice and is in every face. A `SLICE :` qualifier puts
+it in that slice instead, which is how two faces map one character to different glyphs:
+
+```
+map wide : ← = arrow-r2l
+map narrow : ← = arrow-r2l-half
+```
+
+Since the base slice is in every face, a character mapped this way must not *also* be mapped in the
+base — that would give a face two mappings for it, and there is no rule to choose between them. See
+[Typefaces and Slices](#typefaces-and-slices).
+
+The qualifier is told from the mapping by the second token being a bare `:`, which no character
+spelling can be. `map : = colon` therefore still maps U+003A, and `map wide : : = colon` still
+qualifies one.
 
 Maps a character to a glyph in the font's `cmap`. `CHAR` is written as the character itself, as
 `U+NNNN`, or as a `U+XXXX..YYYY` range; several characters may be listed with `|`. `GLYPH` is a name
@@ -616,8 +916,10 @@ Mapping the same codepoint twice is reported, as is mapping to a glyph that does
 ### `map generate`: Map characters to synthesized glyphs
 
 ```
-map generate CHAR [= GLYPH]
+map [SLICE :] generate CHAR [= GLYPH]
 ```
+
+The `SLICE :` qualifier works exactly as it does on the plain form.
 
 Builds a composite from the character's Unicode canonical decomposition and maps the character to
 it. Each component of the decomposition must itself be mapped somewhere in the project; the
@@ -727,8 +1029,15 @@ made this way, so every rule in a `reversed` group must be 1 → 1.
 ### `assert shape`: Shaping assertions
 
 ```
-assert shape TEXT [@lang] [+feat|-feat...] : GLYPH [advance N] [offset X Y] : GLYPH ...
+assert shape TEXT [@lang] [+feat|-feat...] [for SLICE...] : GLYPH [advance N] [offset X Y] : GLYPH ...
 ```
+
+`for SLICE...` restricts the assertion to faces that include all of the named slices; without it the
+assertion applies to every face. It is written `for ...` rather than as a leading qualifier because
+the directive already uses `:` as a separator.
+
+A combination no face satisfies is an error, not an assertion that quietly never runs. A test that
+silently does not run is worse than one that fails.
 
 Shapes `TEXT` against the built font and compares the result glyph by glyph. This is the font's own
 regression suite; `uniform test -i font/` (or `make test`) runs every one of them and exits nonzero
