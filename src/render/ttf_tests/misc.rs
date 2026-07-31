@@ -167,6 +167,38 @@ fn fixed_pitch_is_declared_rather_than_assumed() {
     assert_ne!(post.is_fixed_pitch(), 0);
 }
 
+/// The default PANOSE claimed `bProportion = 9` (Monospaced) unconditionally.
+/// Windows GDI takes that claim literally and lays every glyph out on one cell
+/// — the font preview and Notepad drew a 0.5em space at roughly 1.9em. It is a
+/// claim about the design, so an undeclared PANOSE must not make it.
+///
+/// It is deliberately *not* tied to `meta fixed-pitch`. That flag is
+/// `post.isFixedPitch` alone, which Windows tolerates on a font whose advances
+/// differ (`font/Unison.unf` declares it so terminal font pickers list a font
+/// with two cell widths); PANOSE 9 is what GDI acts on. A font that really
+/// wants the PANOSE claim declares the whole `meta panose`.
+#[test]
+fn default_panose_never_claims_monospace() {
+    let panose = |src: &str| {
+        let ttf = build_from(src);
+        read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap().panose_10()[3]
+    };
+    assert_ne!(panose("glyph a 1 1\n@@\nmap A = a\n"), 9);
+    assert_ne!(panose("meta fixed-pitch\nglyph a 1 1\n@@\nmap A = a\n"), 9, "`fixed-pitch` is post");
+
+    // A declared PANOSE is the whole PANOSE, monospace claim included.
+    let ttf = build_from(
+        "meta fixed-pitch\nmeta panose 2 11 6 9 2 2 2 2 2 4\nglyph a 1 1\n@@\nmap A = a\n",
+    );
+    let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
+    assert_eq!(os2.panose_10(), &[2, 11, 6, 9, 2, 2, 2, 2, 2, 4][..]);
+    assert_ne!(
+        read_fonts::FontRef::new(&ttf).unwrap().post().unwrap().is_fixed_pitch(),
+        0,
+        "and it does not disturb `fixed-pitch`"
+    );
+}
+
 /// A style flag has to reach both `OS/2.fsSelection` and `head.macStyle`, and
 /// it has to clear the REGULAR bit — a font claiming bold *and* regular is a
 /// classic and very visible bug.

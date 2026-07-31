@@ -266,7 +266,13 @@ pub(super) fn build_ttf(
         us_first_char_index: first_cp.min(0xFFFF) as u16,
         us_last_char_index: last_cp.min(0xFFFF) as u16,
         ach_vend_id: vendor_tag(meta.vendor_id()),
-        panose_10: meta.panose.unwrap_or([2, 0, 5, 9, 0, 0, 0, 0, 0, 0]),
+        // bProportion (index 3) is 3 = Modern, never 9 = Monospaced: Windows
+        // GDI acts on a PANOSE monospace claim by laying every glyph out on one
+        // cell, which is wrong for any font whose advances are not all equal —
+        // including one that declares `meta fixed-pitch` for the sake of
+        // terminal font pickers. A font that wants the claim declares the whole
+        // `meta panose`.
+        panose_10: meta.panose.unwrap_or([2, 0, 5, 3, 0, 0, 0, 0, 0, 0]),
         sx_height: Some(px_of(crate::meta::PixelKey::XHeight).unwrap_or(ascender * 2 / 3)),
         s_cap_height: Some(px_of(crate::meta::PixelKey::CapHeight).unwrap_or(ascender)),
         y_subscript_x_size: sub[0],
