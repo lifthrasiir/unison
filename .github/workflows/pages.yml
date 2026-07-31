@@ -42,7 +42,7 @@ jobs:
       - name: Prepare pages directory
         run: |
           mkdir _site
-          cp index.html live.html sample.html sample.png unison.ttf unison.woff2 _site/
+          cp index.html live.html sample.html sample.png unison.ttc unison-*.woff2 _site/
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
