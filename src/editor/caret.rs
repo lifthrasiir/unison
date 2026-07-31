@@ -137,10 +137,10 @@ pub fn move_word_left(lines: &[DocLine], c: Caret) -> Caret {
     };
     let chars: Vec<char> = s.chars().collect();
     let mut i = c.col;
-    while i > 0 && !is_word_char(chars[i - 1]) {
+    while i > 0 && chars[i - 1].is_whitespace() {
         i -= 1;
     }
-    while i > 0 && is_word_char(chars[i - 1]) {
+    while i > 0 && !chars[i - 1].is_whitespace() {
         i -= 1;
     }
     Caret {
@@ -168,10 +168,10 @@ pub fn move_word_right(lines: &[DocLine], c: Caret) -> Caret {
     };
     let chars: Vec<char> = s.chars().collect();
     let mut i = c.col;
-    while i < chars.len() && is_word_char(chars[i]) {
+    while i < chars.len() && !chars[i].is_whitespace() {
         i += 1;
     }
-    while i < chars.len() && !is_word_char(chars[i]) {
+    while i < chars.len() && chars[i].is_whitespace() {
         i += 1;
     }
     Caret {
@@ -484,6 +484,26 @@ mod tests {
     fn move_word_right_on_grid() {
         let lines = vec![text("ab"), grid(2, 2), text("cd")];
         assert_eq!(move_word_right(&lines, Caret::new(1, 0)), Caret::new(2, 0));
+    }
+
+    #[test]
+    fn move_word_stops_at_every_whitespace_separated_token() {
+        // "remap foo : # = xxx": punctuation runs are words of their own.
+        let lines = vec![text("remap foo : # = xxx")];
+        assert_eq!(move_word_right(&lines, Caret::new(0, 6)), Caret::new(0, 10));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 10)), Caret::new(0, 12));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 12)), Caret::new(0, 14));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 14)), Caret::new(0, 16));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 16)), Caret::new(0, 14));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 14)), Caret::new(0, 12));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 12)), Caret::new(0, 10));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 10)), Caret::new(0, 6));
+    }
+
+    #[test]
+    fn move_word_right_inside_whitespace_stops_at_token() {
+        let lines = vec![text("ab   cd")];
+        assert_eq!(move_word_right(&lines, Caret::new(0, 3)), Caret::new(0, 5));
     }
 
     #[test]
