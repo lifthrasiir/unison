@@ -136,6 +136,8 @@ pub(crate) enum Slot {
     RenamePopup,
     /// Area id of the autocomplete popup.
     AutocompletePopup,
+    /// Area id of the Ctrl+K code point popup.
+    CodepointPopup,
     /// Area id of the error tooltip.
     ErrorTooltip,
 

@@ -126,7 +126,6 @@ pub struct UniformApp {
     derived_inflight: bool,
     last_export_path: Option<PathBuf>,
     close_confirmed: bool,
-    hex_input: Option<String>,
     bottom_panel_height: f32,
     bottom_panel_height_override: bool,
     bottom_panel_tab: Option<usize>,
@@ -281,7 +280,6 @@ impl UniformApp {
             derived_inflight: false,
             last_export_path: None,
             close_confirmed: false,
-            hex_input: None,
             bottom_panel_height: 0.0,
             bottom_panel_height_override: false,
             bottom_panel_tab: None,
@@ -451,7 +449,6 @@ impl eframe::App for UniformApp {
             self.step_face(face_step, ctx);
         }
 
-        self.intercept_hex_codepoint_input(ctx);
         self.intercept_swap_panes_chord(ctx, &mut menu);
         self.handle_zoom_scroll(ctx);
         self.handle_zoom_keys(ctx);
@@ -576,56 +573,6 @@ impl UniformApp {
         }
     }
 
-    /// Alt + hex digit codepoint input: buffers hex digits while Alt is held
-    /// and injects the decoded character as a text event on release.
-    fn intercept_hex_codepoint_input(&mut self, ctx: &egui::Context) {
-        let mut hex_char_to_inject: Option<char> = None;
-        let hex_input = &mut self.hex_input;
-        ctx.input_mut(|input| {
-            let alt_held = input.modifiers.alt;
-            input.events.retain(|event| {
-                match event {
-                    egui::Event::Key {
-                        key, pressed: true, modifiers, ..
-                    } if modifiers.alt && !modifiers.command && !modifiers.ctrl => {
-                        if let Some(hex) = key_to_hex_char(*key) {
-                            let buf = hex_input.get_or_insert_with(String::new);
-                            if buf.len() < 6 {
-                                buf.push(hex);
-                            }
-                            return false;
-                        }
-                        if hex_input.is_some() {
-                            *hex_input = None;
-                            return false;
-                        }
-                        true
-                    }
-                    egui::Event::Key {
-                        key: _, pressed: false, modifiers, ..
-                    } if !alt_held && hex_input.is_some() => {
-                        let _ = modifiers;
-                        if let Some(hex_str) = hex_input.take()
-                            && let Some(ch) = validate_hex_codepoint(&hex_str) {
-                                hex_char_to_inject = Some(ch);
-                            }
-                        true
-                    }
-                    egui::Event::Text(_) if hex_input.is_some() => false,
-                    _ => true,
-                }
-            });
-            if !alt_held && hex_input.is_some()
-                && let Some(hex_str) = hex_input.take()
-                    && let Some(ch) = validate_hex_codepoint(&hex_str) {
-                        hex_char_to_inject = Some(ch);
-                    }
-            if let Some(ch) = hex_char_to_inject {
-                input.events.push(egui::Event::Text(ch.to_string()));
-            }
-        });
-    }
-
     /// Runs a document mutation on the active document and flushes the line
     /// buffer back into the `Document` when it reports a change.
     fn with_active_doc_flush(&mut self, f: impl FnOnce(&mut OpenDocument) -> bool) {
@@ -641,4 +588,3 @@ impl UniformApp {
     }
 }
 
-use crate::editor::{key_to_hex_char, validate_hex_codepoint};

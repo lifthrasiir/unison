@@ -38,7 +38,9 @@ use keys::handle_document_keys;
 use layout::{ViewCacheKey, ViewData};
 use number_scroll::{apply_number_bump, detect_number_bump, swallow_wheel_delta};
 use paint::paint_document_area;
-use popups::{show_autocomplete_popup, show_error_tooltip, show_rename_popup};
+use popups::{
+    show_autocomplete_popup, show_codepoint_popup, show_error_tooltip, show_rename_popup,
+};
 use scroll::{
     handle_page_scroll, lock_scroll_gesture_zone, resolve_scroll_target, scroll_cursor_into_view,
 };
@@ -494,6 +496,7 @@ fn show_document(
     }
 
     let rename_result = show_rename_popup(ui, state);
+    needs_rederive |= show_codepoint_popup(ui, lines, state);
     show_autocomplete_popup(ui, lines, state, &mut needs_rederive);
     show_error_tooltip(ui, state, &pal);
     scroll_cursor_into_view(

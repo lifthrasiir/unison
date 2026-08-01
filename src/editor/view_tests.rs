@@ -2200,8 +2200,169 @@ fn rename_popup_opens_for_a_slice_qualifier() {
             assert_eq!(original_name, "narrow");
             assert_eq!(*kind, RenameKind::Slice);
         }
-        PopupState::None => panic!("F2 opened no rename popup"),
+        other => panic!("F2 opened no rename popup: {other:?}"),
     }
+}
+
+// ---------------------------------------------------------------------------
+// Ctrl+K: the code point popup
+// ---------------------------------------------------------------------------
+
+/// Ctrl+K opens the code point popup, whose text field takes focus just like
+/// the rename popup's.  Nothing is inserted until it is confirmed.
+#[test]
+fn codepoint_popup_opens_on_ctrl_k() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    assert!(h.editor_has_focus());
+
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert!(
+        matches!(h.state.popup, PopupState::Codepoint(_)),
+        "Ctrl+K opened no code point popup: {:?}",
+        h.state.popup
+    );
+    assert!(!h.editor_has_focus(), "the popup's text field takes focus");
+    assert_eq!(h.text(0), "meta name Test");
+}
+
+/// While the hex digits are being typed the decoded character shows as the
+/// editor's preedit — the popup drives the same preview an IME would — and
+/// the document itself is untouched.
+#[test]
+fn codepoint_popup_previews_as_preedit() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+
+    h.type_text("41");
+    assert_eq!(h.state.preedit, "A", "the preview should track the digits");
+    assert_eq!(h.text(0), "meta name Test", "nothing committed yet");
+
+    h.type_text("0");
+    assert_eq!(h.state.preedit, "\u{410}", "U+0410 CYRILLIC CAPITAL LETTER A");
+    assert_eq!(h.text(0), "meta name Test");
+}
+
+/// Enter commits the preedit at the caret, exactly as an IME commit would,
+/// and hands focus back to the editor.
+#[test]
+fn codepoint_popup_enter_commits_the_preedit() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2603");
+    h.key(Key::Enter);
+    h.frame();
+
+    assert_eq!(h.text(0), "meta name Test\u{2603}");
+    assert_eq!(h.cursor(), Caret { line: 0, col: 15 });
+    assert!(h.state.preedit.is_empty(), "the preedit is consumed by the commit");
+    assert!(matches!(h.state.popup, PopupState::None));
+    assert!(h.editor_has_focus(), "focus must return to the editor");
+}
+
+/// Escape rolls the preedit back: no text, no leftover preview, focus back in
+/// the editor with the caret where it was.
+#[test]
+fn codepoint_popup_escape_rolls_back() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    let caret = h.cursor();
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2603");
+    assert_eq!(h.state.preedit, "\u{2603}");
+
+    h.key(Key::Escape);
+    h.frame();
+    assert_eq!(h.text(0), "meta name Test");
+    assert!(h.state.preedit.is_empty(), "the preview must not survive a cancel");
+    assert!(matches!(h.state.popup, PopupState::None));
+    assert_eq!(h.cursor(), caret);
+    assert!(h.editor_has_focus());
+}
+
+/// A code point that decodes to nothing — a lone surrogate, or no digits at
+/// all — previews as nothing and commits nothing.
+#[test]
+fn codepoint_popup_rejects_a_surrogate() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("D800");
+    assert_eq!(h.state.preedit, "", "a surrogate is not a character");
+
+    h.key(Key::Enter);
+    h.frame();
+    assert_eq!(h.text(0), "meta name Test");
+    assert!(matches!(h.state.popup, PopupState::None));
+}
+
+/// Non-hex characters never reach the field, so a stray keystroke cannot
+/// silently turn `2603` into something else.
+#[test]
+fn codepoint_popup_keeps_only_hex_digits() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+
+    h.type_text("2x6g0 3");
+    assert_eq!(h.state.preedit, "\u{2603}");
+    h.key(Key::Enter);
+    h.frame();
+    assert_eq!(h.text(0), "meta name Test\u{2603}");
+}
+
+/// Typed digits replace a selection, like any other insertion.
+#[test]
+fn codepoint_popup_commit_replaces_the_selection() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 10);
+    h.key_mod(Key::End, Modifiers::SHIFT);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("41");
+    h.key(Key::Enter);
+    h.frame();
+    assert_eq!(h.text(0), "meta name A");
+}
+
+/// The status bar reads the popup's label off the editor state: the code
+/// point as typed, plus the Unicode name that tells the user they got the
+/// one they meant.
+#[test]
+fn codepoint_popup_reports_the_unicode_name() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+"));
+
+    h.type_text("41");
+    assert_eq!(
+        h.state.codepoint_status().as_deref(),
+        Some("U+0041  LATIN CAPITAL LETTER A")
+    );
+
+    h.type_text("0000");
+    assert_eq!(
+        h.state.codepoint_status().as_deref(),
+        Some("U+410000  (not a code point)")
+    );
 }
 
 /// Clicking elsewhere in the document also cancels the rename popup, and the

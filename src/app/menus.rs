@@ -34,6 +34,7 @@ pub(super) struct MenuActions {
     open_folder: bool,
     rename_file: bool,
     rename_symbol: bool,
+    type_codepoint: bool,
     export: bool,
     export_new: bool,
     pub(super) exit: bool,
@@ -125,6 +126,7 @@ impl UniformApp {
         let menu_open_folder = &mut menu.open_folder;
         let menu_rename = &mut menu.rename_file;
         let menu_rename_symbol = &mut menu.rename_symbol;
+        let menu_type_codepoint = &mut menu.type_codepoint;
         let menu_export = &mut menu.export;
         let menu_export_new = &mut menu.export_new;
         let menu_exit = &mut menu.exit;
@@ -258,6 +260,13 @@ impl UniformApp {
                         .clicked()
                     {
                         *menu_rename_symbol = true;
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add_enabled(editor_focused, egui::Button::new("Type code point...").shortcut_text("Ctrl+K"))
+                        .clicked()
+                    {
+                        *menu_type_codepoint = true;
                         ui.close_menu();
                     }
                     let in_grid_edit = self.in_grid_edit();
@@ -805,6 +814,11 @@ impl UniformApp {
         if menu.rename_symbol
             && let Some(doc) = self.active_doc_mut() {
                 doc.editor_state.start_rename_at_cursor(&doc.lines);
+            }
+
+        if menu.type_codepoint
+            && let Some(doc) = self.active_doc_mut() {
+                doc.editor_state.start_codepoint_entry();
             }
 
         if menu.escape_toggled {

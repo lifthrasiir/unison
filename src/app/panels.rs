@@ -270,9 +270,16 @@ impl UniformApp {
                     );
                 }
 
-                if let Some(hex) = &self.hex_input {
+                // An open code point popup outranks everything else here: its
+                // Unicode name is what stops a mistyped code point from being
+                // committed unnoticed, so it must not be crowded out.
+                let codepoint_status = self
+                    .shaped_preview
+                    .codepoint_status()
+                    .or_else(|| self.active_doc()?.editor_state.codepoint_status());
+                if let Some(label) = codepoint_status {
                     ui.label(
-                        egui::RichText::new(format!("U+{hex}"))
+                        egui::RichText::new(label)
                             .color(egui::Color32::from_rgb(100, 200, 255))
                             .strong(),
                     );

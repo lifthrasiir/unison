@@ -2,18 +2,23 @@
 
 use super::*;
 
-/// A foreground popup area anchored just below `state`'s caret (whose screen
-/// position and row height the paint loop stores per frame).
-fn caret_anchored_area(ctx: &egui::Context, state: &EditorState, slot: Slot) -> egui::Area {
+/// Just below `state`'s caret, whose screen position and row height the paint
+/// loop stores per frame — where every caret-anchored popup goes.
+pub(crate) fn caret_anchor_pos(ctx: &egui::Context, state: &EditorState) -> egui::Pos2 {
     let stored_pos: Option<egui::Pos2> =
         ctx.data(|d| d.get_temp(state.key(Slot::CursorScreenPos)));
     let stored_rh: f32 = ctx.data(|d| {
         d.get_temp(state.key(Slot::CursorRowHeight)).unwrap_or(16.0)
     });
     let pos = stored_pos.unwrap_or(egui::pos2(100.0, 100.0));
+    egui::pos2(pos.x, pos.y + stored_rh + 2.0)
+}
+
+/// A foreground popup area at that anchor.
+fn caret_anchored_area(ctx: &egui::Context, state: &EditorState, slot: Slot) -> egui::Area {
     egui::Area::new(state.key(slot))
         .order(egui::Order::Foreground)
-        .fixed_pos(egui::pos2(pos.x, pos.y + stored_rh + 2.0))
+        .fixed_pos(caret_anchor_pos(ctx, state))
 }
 
 /// The rename popup; returns the confirmed rename, if any.
@@ -92,6 +97,57 @@ pub(super) fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Optio
         }
     }
     rename_result
+}
+
+/// The Ctrl+K code point popup. While it is open the decoded character is the
+/// editor's preedit, so confirming it is literally an IME commit at the caret;
+/// returns whether the document changed.
+pub(super) fn show_codepoint_popup(
+    ui: &egui::Ui,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+) -> bool {
+    use crate::editor::codepoint_popup::CodepointOutcome;
+
+    if !matches!(state.popup, PopupState::Codepoint(_)) {
+        return false;
+    }
+    let area_id = state.key(Slot::CodepointPopup);
+    let pos = caret_anchor_pos(ui.ctx(), state);
+
+    let PopupState::Codepoint(popup) = &mut state.popup else {
+        unreachable!("checked just above")
+    };
+    let outcome = popup.show(ui.ctx(), area_id, pos);
+    // Republished every frame: the digits may have changed, and the host's
+    // preedit is the only preview there is.
+    state.preedit = popup.preedit();
+
+    let mut changed = false;
+    match outcome {
+        CodepointOutcome::Open => {}
+        CodepointOutcome::Commit(text) => {
+            state.popup = PopupState::None;
+            state.preedit.clear();
+            restore_editor_focus(ui, state);
+            if !text.is_empty() {
+                crate::editor::doc_input::delete_selection_if_any(lines, state);
+                state.cursor = crate::editor::editing::insert_str(
+                    lines,
+                    &mut state.undo,
+                    state.cursor,
+                    &text,
+                );
+                changed = true;
+            }
+        }
+        CodepointOutcome::Cancel => {
+            state.popup = PopupState::None;
+            state.preedit.clear();
+            restore_editor_focus(ui, state);
+        }
+    }
+    changed
 }
 
 /// Hands keyboard focus back to the editor canvas after a popup closes, so

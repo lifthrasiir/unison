@@ -21,7 +21,10 @@ pub struct ShapedPreviewState {
     shaped_result: Option<ShapedResult>,
     last_error: Option<String>,
     preedit: String,
-    hex_input: Option<String>,
+    /// The Ctrl+K code point popup, and the screen position it was opened at.
+    /// The anchor is frozen on open so the popup does not walk sideways as
+    /// the preedit it drives grows.
+    codepoint: Option<(CodepointPopup, egui::Pos2)>,
     undo_stack: Vec<UndoSnapshot>,
     redo_stack: Vec<UndoSnapshot>,
     last_edit_time: std::time::Instant,
@@ -52,7 +55,7 @@ impl ShapedPreviewState {
             shaped_result: None,
             last_error: None,
             preedit: String::new(),
-            hex_input: None,
+            codepoint: None,
             undo_stack: Vec::new(),
             redo_stack: Vec::new(),
             last_edit_time: std::time::Instant::now() - std::time::Duration::from_secs(10),
@@ -445,18 +448,19 @@ impl ShapedPreviewState {
             });
         }
 
+        let display_caret = self.caret_pos + self.preedit.chars().count();
+        let caret_x_now = origin_x
+            + self
+                .shaped_result
+                .as_ref()
+                .map_or(0.0, |r| cluster::caret_x(&r.clusters, display_caret));
+        // Where a caret-anchored popup would go: just under the caret.
+        let caret_screen = egui::pos2(caret_x_now, baseline_y + 6.0);
+
         if focus {
-            self.handle_input(ui);
-            let display_caret = self.caret_pos + self.preedit.chars().count();
+            self.handle_input(ui, caret_screen);
             let ime_rect = egui::Rect::from_min_size(
-                egui::pos2(
-                    origin_x
-                        + self
-                            .shaped_result
-                            .as_ref()
-                            .map_or(0.0, |r| cluster::caret_x(&r.clusters, display_caret)),
-                    baseline_y - px_size,
-                ),
+                egui::pos2(caret_x_now, baseline_y - px_size),
                 egui::vec2(16.0, px_size + 4.0),
             );
             ui.ctx().output_mut(|o| o.ime = Some(egui::output::IMEOutput {
@@ -464,6 +468,10 @@ impl ShapedPreviewState {
                 cursor_rect: ime_rect,
             }));
         }
+
+        // Outside the focus check: while the popup is open it, not the
+        // preview, holds the keyboard.
+        self.show_codepoint_popup(ui);
 
         if response.clicked()
             && let Some(pos) = response.interact_pointer_pos() {
@@ -587,21 +595,6 @@ impl ShapedPreviewState {
                     egui::Stroke::new(1.5, caret_color),
                 );
 
-                if let Some(hex) = &self.hex_input {
-                    let hex_label = format!("U+{hex}");
-                    let hex_galley = ui.painter().layout_no_wrap(
-                        hex_label,
-                        egui::FontId::proportional(14.0),
-                        caret_color,
-                    );
-                    let hex_rect = egui::Rect::from_min_size(
-                        egui::pos2(caret_x_pos, baseline_y + 6.0),
-                        hex_galley.size(),
-                    );
-                    painter.rect_filled(hex_rect, 2.0, widget_bg);
-                    painter.rect_stroke(hex_rect, 2.0, widget_stroke, egui::epaint::StrokeKind::Outside);
-                    painter.galley(hex_rect.min, hex_galley, caret_color);
-                }
             }
         }
 
@@ -622,7 +615,35 @@ impl ShapedPreviewState {
         });
     }
 
-    fn handle_input(&mut self, ui: &egui::Ui) {
+    /// Drives the Ctrl+K code point popup, if one is open. Like the editor's,
+    /// it previews through the preedit and commits like an IME would.
+    fn show_codepoint_popup(&mut self, ui: &egui::Ui) {
+        let Some((popup, anchor)) = &mut self.codepoint else { return };
+        let outcome = popup.show(ui.ctx(), ui.id().with("codepoint_popup"), *anchor);
+        self.preedit = popup.preedit();
+        match outcome {
+            CodepointOutcome::Open => {}
+            CodepointOutcome::Commit(text) => {
+                self.codepoint = None;
+                self.preedit.clear();
+                if !text.is_empty() {
+                    self.insert_at_caret(&text);
+                }
+            }
+            CodepointOutcome::Cancel => {
+                self.codepoint = None;
+                self.preedit.clear();
+            }
+        }
+    }
+
+    /// The status-bar line while a code point is being typed: the code point
+    /// and its Unicode name. `None` when the popup is closed.
+    pub fn codepoint_status(&self) -> Option<String> {
+        self.codepoint.as_ref().map(|(p, _)| p.status_label())
+    }
+
+    fn handle_input(&mut self, ui: &egui::Ui, caret_screen: egui::Pos2) {
         let undo_pressed =
             ui.input(|i| i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::Z));
         let redo_pressed = ui.input(|i| {
@@ -639,7 +660,6 @@ impl ShapedPreviewState {
             return;
         }
 
-        let mut hex_char_to_inject: Option<char> = None;
         let events = ui.input(|i| i.events.clone());
         for event in &events {
             match event {
@@ -650,9 +670,6 @@ impl ShapedPreviewState {
                     self.preedit.clear();
                     self.insert_at_caret(s);
                 }
-                egui::Event::Text(t) if self.hex_input.is_some() => {
-                    let _ = t;
-                }
                 egui::Event::Text(t) => {
                     self.insert_at_caret(t);
                 }
@@ -662,18 +679,16 @@ impl ShapedPreviewState {
                     modifiers,
                     ..
                 } => {
-                    if modifiers.alt && !modifiers.command && !modifiers.ctrl {
-                        if let Some(hex) = key_to_hex_char(*key) {
-                            let buf = self.hex_input.get_or_insert_with(String::new);
-                            if buf.len() < 6 {
-                                buf.push(hex);
-                            }
-                            continue;
-                        }
-                        if self.hex_input.is_some() {
-                            self.hex_input = None;
-                            continue;
-                        }
+                    // Ctrl+K: type a character by its code point. See
+                    // `crate::editor::codepoint_popup` for why not Alt.
+                    if *key == egui::Key::K
+                        && modifiers.ctrl
+                        && !modifiers.command
+                        && !modifiers.alt
+                        && self.codepoint.is_none()
+                    {
+                        self.codepoint = Some((CodepointPopup::default(), caret_screen));
+                        continue;
                     }
 
                     let cmd = modifiers.command;
@@ -744,17 +759,6 @@ impl ShapedPreviewState {
                         _ => {}
                     }
                 }
-                egui::Event::Key {
-                    pressed: false,
-                    ..
-                } => {
-                    let alt_held = ui.input(|i| i.modifiers.alt);
-                    if !alt_held && self.hex_input.is_some()
-                        && let Some(hex_str) = self.hex_input.take()
-                            && let Some(ch) = validate_hex_codepoint(&hex_str) {
-                                hex_char_to_inject = Some(ch);
-                            }
-                }
                 egui::Event::Copy => self.apply_edit_action(EditAction::Copy, ui.ctx()),
                 egui::Event::Cut => self.apply_edit_action(EditAction::Cut, ui.ctx()),
                 egui::Event::Paste(s) => {
@@ -763,22 +767,11 @@ impl ShapedPreviewState {
                 _ => {}
             }
         }
-
-        if let Some(ch) = hex_char_to_inject {
-            self.insert_at_caret(&ch.to_string());
-        }
-
-        let alt_held = ui.input(|i| i.modifiers.alt);
-        if !alt_held && self.hex_input.is_some()
-            && let Some(hex_str) = self.hex_input.take()
-                && let Some(ch) = validate_hex_codepoint(&hex_str) {
-                    self.insert_at_caret(&ch.to_string());
-                }
     }
 }
 
 use crate::editor::caret::char_to_byte;
-use crate::editor::{key_to_hex_char, validate_hex_codepoint};
+use crate::editor::codepoint_popup::{CodepointOutcome, CodepointPopup};
 
 #[cfg(test)]
 mod tests {

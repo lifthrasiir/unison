@@ -106,7 +106,7 @@ Editor (feature `editor`):
   loop behind it (most churn in the editor). `mod.rs` is the loop and the view cache; `layout.rs`
   (grid extents/strips, the visual-line model, `GlyphMetrics`), `paint.rs`, `scroll.rs`, `keys.rs`,
   `popups.rs`, `changes.rs`.
-- `editor/` others — `anchor_shadow`, `caret`, `visual_lines`, `line_fields` (**the single place that
+- `editor/` others — `anchor_shadow`, `caret`, `codepoint_popup`, `visual_lines`, `line_fields` (**the single place that
   knows where names live** on a line), `doc_links`, `doc_input`, `editing`, `reconcile`, `undo`,
   `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`, `glyph_widget`, `grid_render`
   (grid painting and the metrics overlay), `pixel_interaction`, `pixel_selection`, `harness`,
@@ -144,6 +144,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Split panes, their invariants and key chords | `app/panes.rs` |
 | Go back / go forward | `app/history.rs` |
 | The Search pane, and where a click goes with no definition | `app/search.rs` |
+| Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
 | The anchor shadow | `editor/anchor_shadow.rs` |

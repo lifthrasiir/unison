@@ -26,6 +26,7 @@ pub mod anchor_shadow;
 pub mod annotations;
 pub mod autocomplete;
 pub mod caret;
+pub mod codepoint_popup;
 pub mod colors;
 pub mod doc_input;
 pub mod doc_links;
@@ -54,35 +55,6 @@ use crate::pixel::PixelShape;
 use doc_links::RenameKind;
 pub use ids::EditorId;
 pub(crate) use ids::Slot;
-
-/// Maps a hex-digit key press to its character, for Alt+hex Unicode entry.
-pub(crate) fn key_to_hex_char(key: egui::Key) -> Option<char> {
-    match key {
-        egui::Key::Num0 => Some('0'),
-        egui::Key::Num1 => Some('1'),
-        egui::Key::Num2 => Some('2'),
-        egui::Key::Num3 => Some('3'),
-        egui::Key::Num4 => Some('4'),
-        egui::Key::Num5 => Some('5'),
-        egui::Key::Num6 => Some('6'),
-        egui::Key::Num7 => Some('7'),
-        egui::Key::Num8 => Some('8'),
-        egui::Key::Num9 => Some('9'),
-        egui::Key::A => Some('A'),
-        egui::Key::B => Some('B'),
-        egui::Key::C => Some('C'),
-        egui::Key::D => Some('D'),
-        egui::Key::E => Some('E'),
-        egui::Key::F => Some('F'),
-        _ => None,
-    }
-}
-
-/// Parses an accumulated hex string into a scalar value, rejecting
-/// surrogates and out-of-range codepoints.
-pub(crate) fn validate_hex_codepoint(hex: &str) -> Option<char> {
-    u32::from_str_radix(hex, 16).ok().and_then(char::from_u32)
-}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum EditMode {
@@ -123,6 +95,7 @@ impl EditMode {
     }
 }
 
+#[derive(Debug)]
 pub enum PopupState {
     None,
     Rename {
@@ -131,6 +104,8 @@ pub enum PopupState {
         kind: RenameKind,
         focus_set: bool,
     },
+    /// Ctrl+K code point entry. See [`codepoint_popup`].
+    Codepoint(codepoint_popup::CodepointPopup),
 }
 
 pub struct EditorState {
@@ -368,6 +343,27 @@ impl EditorState {
                     focus_set: false,
                 };
             }
+    }
+
+    /// Opens the Ctrl+K code point popup at the caret. Like a rename, it only
+    /// makes sense over document text, and only one popup is open at a time.
+    pub fn start_codepoint_entry(&mut self) {
+        if !matches!(self.mode, EditMode::Normal) {
+            return;
+        }
+        if !matches!(self.popup, PopupState::None) {
+            return;
+        }
+        self.popup = PopupState::Codepoint(Default::default());
+    }
+
+    /// The status-bar line for an open code point popup — the code point being
+    /// typed and its Unicode name. `None` when no such popup is open.
+    pub fn codepoint_status(&self) -> Option<String> {
+        match &self.popup {
+            PopupState::Codepoint(p) => Some(p.status_label()),
+            _ => None,
+        }
     }
 
     /// Undoes one entry and restores caret/selection state; returns whether

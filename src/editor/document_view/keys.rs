@@ -27,8 +27,9 @@ pub(super) fn handle_document_keys(
 
         if matches!(ac_result, crate::editor::autocomplete::HandleResult::NotConsumed) {
             if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
-                if matches!(state.popup, PopupState::Rename { .. }) {
+                if !matches!(state.popup, PopupState::None) {
                     state.popup = PopupState::None;
+                    state.preedit.clear();
                 } else if !matches!(state.mode, EditMode::Normal) {
                     state.mode = EditMode::Normal;
                 }
@@ -48,9 +49,24 @@ pub(super) fn handle_document_keys(
                         };
                     }
 
+            // Ctrl+K: type a character by its code point. Ctrl, not Alt: on
+            // macOS an Option+letter chord is a dead key that never reaches
+            // the app at all. See `crate::editor::codepoint_popup`.
+            if matches!(state.mode, EditMode::Normal)
+                && matches!(state.popup, PopupState::None)
+                && ui.input(|i| {
+                    i.modifiers.ctrl
+                        && !i.modifiers.command
+                        && !i.modifiers.alt
+                        && i.key_pressed(egui::Key::K)
+                })
+            {
+                state.start_codepoint_entry();
+            }
+
             // Undo/redo in GlyphEdit/LayerMove modes (Normal mode handles it via doc_input::handle_keys)
             if !matches!(state.mode, EditMode::Normal)
-                && !matches!(state.popup, PopupState::Rename { .. })
+                && matches!(state.popup, PopupState::None)
             {
                 let undo_pressed = ui.input(|i| {
                     i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::Z)
@@ -215,7 +231,7 @@ pub(super) fn handle_document_keys(
             }
 
             if matches!(state.mode, EditMode::Normal)
-                && !matches!(state.popup, PopupState::Rename { .. })
+                && matches!(state.popup, PopupState::None)
             {
                 let text_changed = doc_input::handle_keys(ui, lines, state);
                 *needs_rederive |= text_changed;

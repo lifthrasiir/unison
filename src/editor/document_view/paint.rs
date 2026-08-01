@@ -404,8 +404,11 @@ pub(super) fn paint_document_area(
                             origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, local_col);
                         let cy = origin.y + y;
 
-                        if has_focus {
-                            if !state.preedit.is_empty() {
+                        // The preedit paints whether or not the canvas is
+                        // focused: the Ctrl+K code point popup owns the
+                        // keyboard while previewing through it.
+                        if !state.preedit.is_empty() {
+                            {
                                 let preedit_w = ui.fonts(|f| {
                                     f.layout_no_wrap(
                                         state.preedit.clone(),
@@ -432,8 +435,18 @@ pub(super) fn paint_document_area(
                                     font_id.clone(),
                                     fg_color,
                                 );
-                                cursor_screen = Some(egui::pos2(cx + preedit_w, cy));
-                            } else {
+                                // An IME's candidate window follows its
+                                // preedit, but the popup that anchors here
+                                // must not walk sideways as digits are typed,
+                                // so an unfocused canvas keeps the caret.
+                                cursor_screen = Some(if has_focus {
+                                    egui::pos2(cx + preedit_w, cy)
+                                } else {
+                                    egui::pos2(cx, cy)
+                                });
+                            }
+                        } else if has_focus {
+                            {
                                 painter.line_segment(
                                     [egui::pos2(cx, cy), egui::pos2(cx, cy + h)],
                                     egui::Stroke::new(2.0, cursor_color),
