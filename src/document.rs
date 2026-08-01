@@ -347,6 +347,38 @@ impl PixelGrid {
         out
     }
 
+    /// Replace every custom detail with the closest catalog shape
+    /// ([`DetailRegion::nearest_shape`]), leaving a grid that `.unf` can spell.
+    ///
+    /// A grid on its way back into a document must go through this: the format
+    /// writes one shape code per cell and has no syntax for exact geometry, so
+    /// a `PX_CUSTOM` cell would serialize as the unknown-code `??`. Only the
+    /// editor needs it — resolution and the builder consume grids in memory,
+    /// where the exact regions are the point.
+    #[cfg(feature = "editor")]
+    pub fn snap_details_to_catalog(&mut self) {
+        if self.details.is_empty() && self.den == 1 {
+            return;
+        }
+        for r in 0..self.height {
+            for c in 0..self.width {
+                if self.get(r, c).shape_id() != PX_CUSTOM {
+                    continue;
+                }
+                let filled = self.get(r, c).is_filled();
+                let id = self.region_at(r, c).nearest_shape();
+                let shape = if id == crate::pixel::PX_EMPTY {
+                    PixelShape::EMPTY
+                } else {
+                    PixelShape::new(id, filled)
+                };
+                self.set(r, c, shape);
+            }
+        }
+        self.details.clear();
+        self.den = 1;
+    }
+
     pub fn is_all_empty(&self) -> bool {
         self.pixels.iter().all(|s| s.is_empty())
     }
@@ -2081,6 +2113,54 @@ mod tests {
         assert_eq!(serialized_lines[file_lines[0]], "glyph a 2 2");
         assert_eq!(serialized_lines[file_lines[2]], "glyph b 1 1");
         assert_eq!(serialized_lines[file_lines[4]], "map A = b");
+    }
+
+    #[test]
+    fn snap_details_keeps_straight_edges_straight() {
+        // The top half of a logical pixel at scale 2, rescaled to scale 3:
+        // the middle row of cells is half covered by a rectangle no shape
+        // code can spell. Snapping must round it to a full cell rather than
+        // break the straight edge into a row of triangles.
+        let full = PixelShape::new(PX_ALMOSTFULL, true);
+        let mut g = PixelGrid::new(2, 2);
+        g.set(0, 0, full);
+        g.set(0, 1, full);
+
+        let mut r = g.rescale(2, 3);
+        assert!(!r.details.is_empty(), "the exact rescale keeps the geometry");
+        r.snap_details_to_catalog();
+        assert!(r.details.is_empty());
+        assert_eq!(r.den, 1);
+        for col in 0..3 {
+            assert_eq!(r.get(0, col), full, "row 0 col {col}");
+            assert_eq!(r.get(1, col), full, "row 1 col {col}");
+            assert_eq!(r.get(2, col).shape_id(), crate::pixel::PX_EMPTY, "row 2 col {col}");
+        }
+    }
+
+    #[test]
+    fn snap_details_keeps_diagonals_diagonal() {
+        // Same rescale over a diagonal: the cells the diagonal crosses do
+        // have a diagonal boundary, so they keep a diagonal shape code
+        // instead of rounding to a staircase of full cells.
+        let mut g = PixelGrid::new(2, 2);
+        g.set(0, 1, PixelShape::new(crate::pixel::PX_HALF1, true));
+
+        let exact = g.rescale(2, 3);
+        let mut r = exact.clone();
+        r.snap_details_to_catalog();
+        assert!(r.details.is_empty());
+        let rows: Vec<String> = (0..3)
+            .map(|row| {
+                (0..3)
+                    .map(|col| {
+                        crate::pixel::shape_to_chars(r.get(row, col)).iter().collect::<String>()
+                    })
+                    .collect()
+            })
+            .collect();
+        assert_eq!(rows, ["..\\bb.", "....\\b", "......"]);
+        assert_eq!(exact.get(0, 1).shape_id(), PX_CUSTOM, "this cell needed snapping");
     }
 
     #[test]

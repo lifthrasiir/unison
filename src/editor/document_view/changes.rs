@@ -224,11 +224,15 @@ pub(super) fn inline_ref_to_pixels(
 
     let parent_scale = body.scale;
     let ref_scale = resolved.scale.max(1);
-    let scaled_ref_grid = if ref_scale == parent_scale {
-        std::borrow::Cow::Borrowed(&resolved.grid)
+    // Flattening writes the ref's pixels into the file, so its exact regions
+    // have to land back on the shape catalog first — `merge_ref_pixels` works
+    // on shape codes and would read a `PX_CUSTOM` cell as empty.
+    let mut scaled_ref_grid = if ref_scale == parent_scale {
+        resolved.grid.clone()
     } else {
-        std::borrow::Cow::Owned(resolved.grid.rescale(ref_scale, parent_scale))
+        resolved.grid.rescale(ref_scale, parent_scale)
     };
+    scaled_ref_grid.snap_details_to_catalog();
     let ps = parent_scale as i32;
     let rs = ref_scale as i32;
     let eff_row = gref.row() as i32 + resolved.origin_row * ps / rs;

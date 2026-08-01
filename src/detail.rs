@@ -799,6 +799,99 @@ impl DetailRegion {
         Classified::Custom(canon)
     }
 
+    /// Directions of the region's boundary edges that run through the cell's
+    /// interior, each reduced and sign-normalized. Edges lying along a cell
+    /// border are left out: they bound the cell, not the shape.
+    #[cfg(feature = "editor")]
+    fn interior_edge_dirs(&self) -> std::collections::BTreeSet<(i8, i8)> {
+        let den = self.den;
+        let mut dirs = std::collections::BTreeSet::new();
+        for ring in &self.rings {
+            for (i, &(x0, y0)) in ring.iter().enumerate() {
+                let (x1, y1) = ring[(i + 1) % ring.len()];
+                let on_border = (x0 == 0 && x1 == 0)
+                    || (x0 == den && x1 == den)
+                    || (y0 == 0 && y1 == 0)
+                    || (y0 == den && y1 == den);
+                if on_border {
+                    continue;
+                }
+                let (mut dx, mut dy) = (x1 as i32 - x0 as i32, y1 as i32 - y0 as i32);
+                let g = gcd(dx.unsigned_abs() as u64, dy.unsigned_abs() as u64).max(1) as i32;
+                dx /= g;
+                dy /= g;
+                // A direction and its reverse are the same line direction.
+                if (dx, dy) < (-dx, -dy) {
+                    dx = -dx;
+                    dy = -dy;
+                }
+                dirs.insert((dx as i8, dy as i8));
+            }
+        }
+        dirs
+    }
+
+    /// The catalog id that best stands in for this region.
+    ///
+    /// This is a *lossy* fallback and belongs only where an exact region has
+    /// nowhere to go: `.unf` stores a cell as one of the plain shape codes,
+    /// with no syntax for arbitrary geometry, so an editor operation that
+    /// writes a grid back into a document (rescaling a glyph, say) has to land
+    /// on the catalog. Resolution and the builder keep the exact region.
+    ///
+    /// The choice minimizes symmetric-difference area, but only among shapes
+    /// that invent no edge direction the region does not already have. Every
+    /// catalog shape is bounded by diagonals, so an axis-aligned region — the
+    /// half-cell rectangles a scale change produces — is left to round to
+    /// empty or full rather than turn a straight edge into a row of triangles,
+    /// while diagonal geometry still lands on the diagonal shape that fits it.
+    /// Remaining ties go to the larger area (so a half-covered cell inks, as
+    /// `BitmapFill::Round` has it) and then to the lower id, for determinism.
+    #[cfg(feature = "editor")]
+    pub fn nearest_shape(&self) -> u8 {
+        use std::sync::Mutex;
+        static CACHE: Mutex<Option<HashMap<DetailRegion, u8>>> = Mutex::new(None);
+        let canon = self.canonical();
+        if let Some(&hit) = CACHE.lock().unwrap().get_or_insert_with(HashMap::new).get(&canon) {
+            return hit;
+        }
+
+        // Symmetric-difference area as an exact fraction: |a−b| + |b−a|.
+        let diff_area = |a: &DetailRegion, b: &DetailRegion| -> (i128, i128) {
+            let (n1, d1) = bool_op(a, b, BoolOp::Subtract).area_exact();
+            let (n2, d2) = bool_op(b, a, BoolOp::Subtract).area_exact();
+            (n1 as i128 * d2 as i128 + n2 as i128 * d1 as i128, d1 as i128 * d2 as i128)
+        };
+        let area = |r: &DetailRegion| -> (i128, i128) {
+            let (n, d) = r.area_exact();
+            (n as i128, d as i128)
+        };
+        let dirs = canon.interior_edge_dirs();
+
+        // Seed with the two shapes every region can fall back to.
+        let mut best_id = PX_EMPTY;
+        let mut best = (diff_area(&canon, &DetailRegion::EMPTY), (0i128, 1i128));
+        for (id, region) in shape_region_table().iter().enumerate() {
+            if region.is_empty() {
+                continue; // PX_EMPTY (the seed above) and the unused ids
+            }
+            if !region.interior_edge_dirs().is_subset(&dirs) {
+                continue;
+            }
+            let key = (diff_area(&canon, region), area(region));
+            let better = key.0.0 * best.0.1 < best.0.0 * key.0.1
+                || (key.0.0 * best.0.1 == best.0.0 * key.0.1
+                    && key.1.0 * best.1.1 > best.1.0 * key.1.1);
+            if better {
+                best = key;
+                best_id = id as u8;
+            }
+        }
+
+        CACHE.lock().unwrap().get_or_insert_with(HashMap::new).insert(canon, best_id);
+        best_id
+    }
+
     /// Complement within the unit square.
     #[cfg(any(feature = "editor", test))]
     pub fn complement(&self) -> DetailRegion {

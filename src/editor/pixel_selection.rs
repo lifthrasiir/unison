@@ -1033,7 +1033,13 @@ pub(crate) fn handle_adjust_scale(
                 new_lines.push(DocLine::Text(rewrite_scale_in_header(t, new_scale)));
             }
             DocLine::Grid(grid) => {
-                new_lines.push(DocLine::Grid(grid.rescale(old_scale, new_scale)));
+                // The exact rescale can land on geometry no shape code
+                // spells (scale 2 → 3 halves every source cell across a
+                // destination cell); those cells have to be snapped back
+                // onto the catalog before they reach the file.
+                let mut rescaled = grid.rescale(old_scale, new_scale);
+                rescaled.snap_details_to_catalog();
+                new_lines.push(DocLine::Grid(rescaled));
             }
             DocLine::Text(t) => {
                 let trimmed = t.trim();
@@ -1568,6 +1574,43 @@ glyph foo 2 2
         assert!(grid.get(1, 1).is_filled());
         // Top-right 2×2 block should be empty
         assert!(grid.get(0, 2).is_empty());
+    }
+
+    #[test]
+    fn adjust_scale_leaves_no_custom_details() {
+        // Scale 2 → 3 halves every source cell across a destination cell, so
+        // the exact rescale produces regions no shape code can spell. `.unf`
+        // has no syntax for those (they serialized as `??`), so the grid the
+        // editor writes back must carry plain codes only.
+        let source = "\
+glyph foo 1 1 scale 2
+@@..
+....
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert_eq!(can_adjust_scale(&doc, &lines, &state), Some(2));
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 3));
+
+        let grid = lines[1].as_grid().unwrap();
+        assert_eq!((grid.width, grid.height), (3, 3));
+        assert!(grid.details.is_empty(), "details left: {:?}", grid.details);
+        for row in 0..grid.height {
+            for col in 0..grid.width {
+                let shape = grid.get(row, col);
+                assert_ne!(
+                    shape.shape_id(),
+                    crate::pixel::PX_CUSTOM,
+                    "cell ({row}, {col}) is a custom detail"
+                );
+                let [c1, c2] = crate::pixel::shape_to_chars(shape);
+                assert!(
+                    (c1, c2) != ('?', '?'),
+                    "cell ({row}, {col}) serializes as ??"
+                );
+            }
+        }
     }
 
     #[test]

@@ -134,6 +134,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
+| Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document.rs` (`snap_details_to_catalog`) |
 | The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
 | Feature targets, `DFLT`/LangSys fallback | `render/ttf_builder/gsub.rs` |
 | A remap group is one lookup: rule order is match priority | `render/ttf_builder/gsub.rs` |
