@@ -680,10 +680,11 @@ impl ShapedPreviewState {
                     ..
                 } => {
                     // Ctrl+K: type a character by its code point. See
-                    // `crate::editor::codepoint_popup` for why not Alt.
+                    // `crate::editor::codepoint_popup` for why not Alt, and
+                    // why Cmd is excluded through `mac_cmd` and not `command`.
                     if *key == egui::Key::K
                         && modifiers.ctrl
-                        && !modifiers.command
+                        && !modifiers.mac_cmd
                         && !modifiers.alt
                         && self.codepoint.is_none()
                     {

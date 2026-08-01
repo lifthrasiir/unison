@@ -2229,6 +2229,45 @@ fn codepoint_popup_opens_on_ctrl_k() {
     assert_eq!(h.text(0), "meta name Test");
 }
 
+/// On Windows and Linux the backend sets `command` to the same value as `ctrl`
+/// (only macOS keeps them apart), so the chord must be recognized with both
+/// flags set.  Rejecting `command` there is what made Ctrl+K a no-op.
+#[test]
+fn codepoint_popup_opens_on_ctrl_k_with_command_alias() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+
+    // What winit reports for Ctrl+K off the Mac.
+    let win_ctrl = Modifiers { ctrl: true, command: true, ..Default::default() };
+    h.key_mod(Key::K, win_ctrl);
+    h.frame();
+    assert!(
+        matches!(h.state.popup, PopupState::Codepoint(_)),
+        "Ctrl+K opened no code point popup: {:?}",
+        h.state.popup
+    );
+}
+
+/// Cmd+K on macOS (`mac_cmd` + `command`, no `ctrl`) is not the chord.
+#[test]
+fn codepoint_popup_ignores_mac_cmd_k() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+
+    let mac_cmd = Modifiers { mac_cmd: true, command: true, ..Default::default() };
+    h.key_mod(Key::K, mac_cmd);
+    h.frame();
+    assert!(
+        matches!(h.state.popup, PopupState::None),
+        "Cmd+K must not open the code point popup: {:?}",
+        h.state.popup
+    );
+}
+
 /// While the hex digits are being typed the decoded character shows as the
 /// editor's preedit — the popup drives the same preview an IME would — and
 /// the document itself is untouched.

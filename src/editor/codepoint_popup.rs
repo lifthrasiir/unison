@@ -22,6 +22,11 @@
 //! consumes the keystroke into a pending composition and winit never emits a
 //! `KeyboardInput` event for it at all. The chord was also invisible while
 //! being typed. Nothing here uses Alt.
+//!
+//! Both hosts detect the chord as `ctrl && !mac_cmd && !alt`. Excluding Cmd
+//! has to go through `mac_cmd`: egui sets `Modifiers::command` to `ctrl` on
+//! every platform but macOS, so a `!command` test silently rejects every
+//! Ctrl+K on Windows and Linux.
 
 /// The state of one open code point popup: the digits typed so far, and
 /// whether its text field has been given focus yet (the first frame does it,

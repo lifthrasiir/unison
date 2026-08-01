@@ -52,11 +52,13 @@ pub(super) fn handle_document_keys(
             // Ctrl+K: type a character by its code point. Ctrl, not Alt: on
             // macOS an Option+letter chord is a dead key that never reaches
             // the app at all. See `crate::editor::codepoint_popup`.
+            // Exclude Cmd+K via `mac_cmd`, never via `command` — off the Mac
+            // `command` mirrors `ctrl`, so testing it rejects every Ctrl+K.
             if matches!(state.mode, EditMode::Normal)
                 && matches!(state.popup, PopupState::None)
                 && ui.input(|i| {
                     i.modifiers.ctrl
-                        && !i.modifiers.command
+                        && !i.modifiers.mac_cmd
                         && !i.modifiers.alt
                         && i.key_pressed(egui::Key::K)
                 })
