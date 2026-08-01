@@ -56,13 +56,26 @@ pub(super) fn build_glyph_outlines(
     // .notdef (empty glyph)
     out.glyf_builder.add_glyph(&Glyph::Empty).unwrap();
 
+    // A cmap maps each character once, so the same character claimed by two
+    // glyphs has to be resolved here rather than left for the table writer to
+    // reject: `Cmap::from_mappings` fails on the conflict, and this stage has no
+    // way to report anything. Validation already calls the source mistakes that
+    // get here errors (a character mapped in both the base slice and an included
+    // slice, a character mapped twice), so the build's job is only to stay alive
+    // and deterministic long enough for that report to be read — a panic here
+    // kills the editor's background build thread and takes the diagnostic with
+    // it. First glyph in collection order wins, which is source order.
+    let mut mapped: HashSet<char> = HashSet::new();
+
     // Pass 1: build name→GID mapping and cmap
     for (i, g) in glyphs.iter().enumerate() {
         let glyph_id = GlyphId::new((i + 1) as u32);
         let glyph_id16 = GlyphId16::new((i + 1) as u16);
 
         for &cp in &g.codepoints {
-            if let Some(ch) = char::from_u32(cp) {
+            if let Some(ch) = char::from_u32(cp)
+                && mapped.insert(ch)
+            {
                 out.cmap_mappings.push((ch, glyph_id));
             }
         }

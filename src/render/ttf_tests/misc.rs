@@ -304,6 +304,32 @@ map A = n
     assert_eq!(advance_of(&ttf, 'A'), 64);
 }
 
+/// A character mapped in both the base slice and an included slice is an
+/// `issues.rs` error, but the builder still has to survive it: this used to
+/// `unwrap()` a `CmapConflict` deep in the table stage, and the panic killed
+/// the background build thread — so the editor's build stalled for good and the
+/// diagnostic that explains the mistake never reached the user.
+#[test]
+fn a_conflicting_cmap_entry_does_not_panic_the_build() {
+    let ttf = build_from(
+        "\
+slice wide
+glyph b 1 1
+@@
+glyph w 2 1
+@@@@
+map • = b
+map wide : • = w
+face regular : wide
+",
+    );
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    // The winner is the first-collected glyph, so the cmap stays deterministic
+    // rather than depending on which document happened to be parsed first.
+    let gid = font.cmap().unwrap().map_codepoint('•').expect("must still be mapped");
+    assert_eq!(font.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap(), 64);
+}
+
 /// One glyph is one glyph however many characters reach it. The collector used
 /// to emit an entry per `(codepoint, glyph)` pair, so a glyph mapped twice was
 /// stored twice — and, worse, the glyph order then depended on the cmap, which

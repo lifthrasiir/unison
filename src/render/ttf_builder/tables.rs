@@ -219,7 +219,9 @@ pub(super) fn build_ttf(
     };
 
     // cmap
-    let cmap = Cmap::from_mappings(cmap_mappings).unwrap();
+    // Cannot fail: `build_glyph_outlines` already resolved characters claimed by
+    // more than one glyph, which is the only thing `from_mappings` rejects.
+    let cmap = Cmap::from_mappings(cmap_mappings).expect("cmap mappings deduplicated by character");
 
     // name
     let name = build_name_table(meta);
