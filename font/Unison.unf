@@ -18,8 +18,8 @@ face term : narrow
 meta term : family `Unison Term`
 meta term : subfamily Regular
 
-slice narrow
-slice wide
+slice narrow // EAW=Ambiguous is narrow (typical in non-CJK, for terminals)
+slice wide // EAW=Ambiguous is wide (typical in CJK)
 
 // these are the bare minimum glyphs required for an OpenType font.
 
