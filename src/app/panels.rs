@@ -269,11 +269,9 @@ impl UniformApp {
                     .codepoint_status()
                     .or_else(|| self.active_doc()?.editor_state.codepoint_status());
                 if let Some(label) = codepoint_status {
-                    ui.label(
-                        egui::RichText::new(label)
-                            .color(egui::Color32::from_rgb(100, 200, 255))
-                            .strong(),
-                    );
+                    // Plain text color: it reads as the status line's own text,
+                    // like every other message that shares this slot.
+                    ui.label(label);
                 } else if self.shaped_preview.is_focused()
                     && let Some(label) = self.shaped_preview.selection_codepoints_label()
                 {

@@ -487,7 +487,7 @@ impl ShapedPreviewState {
 
         // Outside the focus check: while the popup is open it, not the
         // preview, holds the keyboard.
-        self.show_codepoint_popup(ui);
+        self.show_codepoint_popup(ui, response.id);
 
         if response.clicked()
             && let Some(pos) = response.interact_pointer_pos()
@@ -627,7 +627,7 @@ impl ShapedPreviewState {
 
     /// Drives the Ctrl+K code point popup, if one is open. Like the editor's,
     /// it previews through the preedit and commits like an IME would.
-    fn show_codepoint_popup(&mut self, ui: &egui::Ui) {
+    fn show_codepoint_popup(&mut self, ui: &egui::Ui, host: egui::Id) {
         let Some((popup, anchor)) = &mut self.codepoint else {
             return;
         };
@@ -638,6 +638,7 @@ impl ShapedPreviewState {
             CodepointOutcome::Commit(text) => {
                 self.codepoint = None;
                 self.preedit.clear();
+                restore_host_focus(ui.ctx(), host);
                 if !text.is_empty() {
                     self.insert_at_caret(&text);
                 }
@@ -645,6 +646,7 @@ impl ShapedPreviewState {
             CodepointOutcome::Cancel => {
                 self.codepoint = None;
                 self.preedit.clear();
+                restore_host_focus(ui.ctx(), host);
             }
         }
     }
@@ -782,7 +784,7 @@ impl ShapedPreviewState {
 }
 
 use crate::editor::caret::char_to_byte;
-use crate::editor::codepoint_popup::{CodepointOutcome, CodepointPopup};
+use crate::editor::codepoint_popup::{CodepointOutcome, CodepointPopup, restore_host_focus};
 
 fn committed_to_display(
     idx: usize,
@@ -847,6 +849,63 @@ mod tests {
         assert_eq!(state.text, "F");
         assert_eq!(state.selection_range_sorted(), None);
         assert_eq!(state.selection_codepoints_label(), None);
+    }
+
+    /// Drives one frame of just the code point popup, as `show` does, with
+    /// `events` delivered to it. The rest of `show` needs a built font; the
+    /// popup does not, so the focus handoff can be tested on its own.
+    fn popup_frame(
+        ctx: &egui::Context,
+        state: &mut ShapedPreviewState,
+        host: egui::Id,
+        events: Vec<egui::Event>,
+    ) {
+        let input = egui::RawInput {
+            events,
+            ..Default::default()
+        };
+        let _ = ctx.run(input, |ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                state.show_codepoint_popup(ui, host);
+            });
+        });
+    }
+
+    fn key_press(key: egui::Key) -> egui::Event {
+        egui::Event::Key {
+            key,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers::default(),
+        }
+    }
+
+    /// Closing the popup must hand the keyboard back to the preview field, the
+    /// way it goes back to the editor canvas: otherwise typing after Escape or
+    /// Enter goes nowhere at all.
+    #[test]
+    fn closing_the_codepoint_popup_returns_focus_to_the_preview() {
+        for (label, closing_key) in [("cancel", egui::Key::Escape), ("commit", egui::Key::Enter)] {
+            let ctx = egui::Context::default();
+            let host = egui::Id::new("preview_field");
+            let mut state = ShapedPreviewState::new();
+            state.codepoint = Some((CodepointPopup::default(), egui::pos2(10.0, 10.0)));
+
+            // Two frames to open: the first lays the field out, the second
+            // gives it focus.
+            popup_frame(&ctx, &mut state, host, vec![]);
+            popup_frame(&ctx, &mut state, host, vec![]);
+            assert!(state.codepoint.is_some(), "{label}: popup should be open");
+
+            popup_frame(&ctx, &mut state, host, vec![key_press(closing_key)]);
+            assert!(state.codepoint.is_none(), "{label}: popup should be closed");
+            assert_eq!(
+                ctx.memory(|m| m.focused()),
+                Some(host),
+                "{label}: the preview field should hold the keyboard again"
+            );
+        }
     }
 
     #[test]

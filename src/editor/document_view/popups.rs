@@ -158,16 +158,12 @@ pub(super) fn show_codepoint_popup(
 }
 
 /// Hands keyboard focus back to the editor canvas after a popup closes, so
-/// typing continues in the document instead of going nowhere.  A widget that
-/// already claimed focus this frame (the canvas itself when the popup was
-/// dismissed by clicking into the document, or a panel outside the editor)
-/// keeps it.
+/// typing continues in the document instead of going nowhere. The shaped
+/// preview does the same with its own field; the rule itself lives in
+/// [`crate::editor::codepoint_popup::restore_host_focus`].
 fn restore_editor_focus(ui: &egui::Ui, state: &EditorState) {
     let Some(wid) = state.canvas_id else { return };
-    let focused = ui.ctx().memory(|m| m.focused());
-    if focused.is_none_or(|id| id == wid) {
-        ui.memory_mut(|m| m.request_focus(wid));
-    }
+    crate::editor::codepoint_popup::restore_host_focus(ui.ctx(), wid);
 }
 
 pub(super) fn show_autocomplete_popup(

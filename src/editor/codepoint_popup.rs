@@ -58,6 +58,19 @@ pub(crate) fn validate_hex_codepoint(hex: &str) -> Option<char> {
     u32::from_str_radix(hex, 16).ok().and_then(char::from_u32)
 }
 
+/// Hands keyboard focus back to `host` after the popup closes, so typing
+/// continues where it was going before Ctrl+K instead of going nowhere. The
+/// popup's text field surrenders focus to no one, so without this every host
+/// is left unfocused. A widget that already claimed focus this frame (the host
+/// itself when the popup was dismissed by clicking back into it, or something
+/// outside it) keeps it.
+pub(crate) fn restore_host_focus(ctx: &egui::Context, host: egui::Id) {
+    let focused = ctx.memory(|m| m.focused());
+    if focused.is_none_or(|id| id == host) {
+        ctx.memory_mut(|m| m.request_focus(host));
+    }
+}
+
 impl CodepointPopup {
     /// The character the digits currently name, if they name one.
     pub(crate) fn character(&self) -> Option<char> {
