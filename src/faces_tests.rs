@@ -336,3 +336,91 @@ fn a_composing_slice_is_not_reported_as_empty() {
         .collect();
     assert!(msgs.is_empty(), "got {msgs:?}");
 }
+
+// ---------------------------------------------------------------------------
+// Slice-scoped `name-parts`; see `crate::document::SliceNameParts`.
+// ---------------------------------------------------------------------------
+
+/// A binding stands for one name part in one slice. A list would be an
+/// alternation the slices no longer control, so it is rejected rather than
+/// quietly multiplying the names the qualified line produces.
+#[test]
+fn a_slice_scoped_name_part_takes_exactly_one_value() {
+    let msgs = errors(
+        "slice wide\nglyph a 1 1\n@@\n\
+         name-parts wide : $x = one two\nmap wide : A = a\n",
+    );
+    assert!(
+        msgs.iter().any(|m| m.contains("exactly one value")),
+        "got {msgs:?}",
+    );
+
+    let msgs = errors(
+        "slice wide\nglyph a 1 1\n@@\n\
+         name-parts wide : $x = ``\nmap wide : A = a\n",
+    );
+    assert!(
+        !msgs.iter().any(|m| m.contains("exactly one value")),
+        "an empty value is still one value, got {msgs:?}",
+    );
+}
+
+/// Unqualified plus scoped would be a default and an override, and the face
+/// model has no precedence rule anywhere else either.
+#[test]
+fn a_name_part_is_bound_unqualified_or_per_slice_but_not_both() {
+    let msgs = errors(
+        "slice wide\nglyph a 1 1\n@@\n\
+         name-parts $x = plain\nname-parts wide : $x = wide\nmap wide : A = a\n",
+    );
+    assert!(
+        msgs.iter().any(|m| m.contains("not an override")),
+        "got {msgs:?}",
+    );
+
+    let msgs = errors(
+        "slice wide\nglyph a 1 1\n@@\n\
+         name-parts wide : $x = one\nname-parts wide : $x = two\nmap wide : A = a\n",
+    );
+    assert!(
+        msgs.iter().any(|m| m.contains("already bound")),
+        "two bindings for one slice are the same conflict, got {msgs:?}",
+    );
+}
+
+/// A scoped binding substitutes nothing outside a slice-qualified line, and
+/// what is left behind is a `$` in a glyph name. The author hears why.
+#[test]
+fn using_a_scoped_name_part_unqualified_names_the_reason() {
+    let msgs = errors(
+        "slice wide\nname-parts wide : $x = -half\n\
+         glyph a($x) 1 1\n@@\nmap wide : A = a($x)\n",
+    );
+    assert!(
+        msgs.iter().any(|m| m.contains("bound per slice")),
+        "got {msgs:?}",
+    );
+
+    // The same for a line stated for a slice the part is not bound in: a
+    // qualifier is not a blanket permission to use every scoped binding.
+    let msgs = errors(
+        "slice wide\nslice narrow\nname-parts wide : $x = -half\n\
+         glyph a 1 1\n@@\nmap wide|narrow : A = a($x)\n",
+    );
+    assert!(
+        msgs.iter()
+            .any(|m| m.contains("not for slice `narrow`") && m.contains("$x")),
+        "got {msgs:?}",
+    );
+}
+
+/// Listing a slice twice would state the line twice for it, which is a
+/// duplicate mapping however it was meant.
+#[test]
+fn a_slice_listed_twice_in_one_qualifier_is_an_error() {
+    let msgs = errors("slice wide\nglyph a 1 1\n@@\nmap wide|wide : A = a\n");
+    assert!(
+        msgs.iter().any(|m| m.contains("listed twice")),
+        "got {msgs:?}",
+    );
+}

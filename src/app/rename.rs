@@ -171,24 +171,8 @@ fn doc_may_reference(
                     return true;
                 }
             }
-            (
-                RenameKind::Slice,
-                DocumentItem::Map {
-                    slice: Some(slice), ..
-                }
-                | DocumentItem::MapDecomposed {
-                    slice: Some(slice), ..
-                }
-                | DocumentItem::Feature {
-                    slice: Some(slice), ..
-                }
-                | DocumentItem::FeatureAnchor {
-                    slice: Some(slice), ..
-                },
-            ) => {
-                if slice == name {
-                    return true;
-                }
+            (RenameKind::Slice, item) if item.slice_qualifier().iter().any(|s| s == name) => {
+                return true;
             }
             (RenameKind::Slice, DocumentItem::AssertShape { slices, .. }) => {
                 if slices.iter().any(|s| s == name) {
@@ -551,6 +535,8 @@ mod rename_tests {
             t("slice both = narrow wide"),
             t("face term : narrow"),
             t("map narrow : A = latin-a"),
+            t("map wide|narrow : B = latin-b($half)"),
+            t("name-parts narrow : $half = -half"),
             t("feature narrow : liga for latn : eq-liga"),
             t("assert shape AB for narrow : a-b"),
         ];
@@ -562,6 +548,9 @@ mod rename_tests {
                 "slice both = compact wide",
                 "face term : compact",
                 "map compact : A = latin-a",
+                // One slice of a list renames on its own.
+                "map wide|compact : B = latin-b($half)",
+                "name-parts compact : $half = -half",
                 "feature compact : liga for latn : eq-liga",
                 "assert shape AB for compact : a-b",
             ],

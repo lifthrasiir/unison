@@ -72,18 +72,27 @@
 //!   so hand-rewriting one as a plain `glyph` + `map` means deciding per ref
 //!   whether to keep `inherit`.
 //!
-//!   `map`, `feature` and `assert shape` may be scoped to a slice. `map` and
-//!   `feature` take a `SLICE :` qualifier in front of what they already said
-//!   (`map wide : ° = degree-wide`); `assert shape` takes `for SLICE...` before
-//!   its first `:`, since it already uses `:` as a separator. Unqualified means
-//!   the base slice, which every face includes — so every file written before
-//!   faces existed keeps its meaning exactly.
+//!   `map`, `feature`, `name-parts` and `assert shape` may be scoped to a
+//!   slice. The first three take a `SLICE :` qualifier in front of what they
+//!   already said (`map wide : ° = degree-wide`); `assert shape` takes
+//!   `for SLICE...` before its first `:`, since it already uses `:` as a
+//!   separator. Unqualified means the base slice, which every face includes —
+//!   so every file written before faces existed keeps its meaning exactly.
 //!
 //!   The qualifier is told from the body by the *second* token being a bare
 //!   `:`, which no name or value can be. That is what keeps `map : = colon` — a
 //!   perfectly good mapping of U+003A — from reading as a qualifier, while
 //!   `map wide : : = colon` still qualifies one.
-//! - `name-parts $NAME = token1 token2 ...` — see [`crate::pattern`].
+//!
+//!   A qualifier may list slices — `map wide|narrow : ⁂ = triple-star($half)` —
+//!   which states the line once *per* slice. `for SLICE...` on an assertion
+//!   means the opposite (a face including *all* of them), because the two
+//!   answer different questions.
+//! - `name-parts [SLICE[|SLICE...] :] $NAME = token1 token2 ...` — see
+//!   [`crate::pattern`]. A slice-scoped binding takes exactly one value and
+//!   applies only to lines stated for that slice, which is how a name that
+//!   differs between slices by a suffix is written once instead of once per
+//!   slice; see [`crate::document::SliceNameParts`].
 //! - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
 //! - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]`
 //!   — GSUB substitution. Source and target are *lists* of glyph names in all
@@ -275,13 +284,14 @@ pub fn comment_suffix(comment: &Option<String>) -> String {
 /// Quote a token for serialization. Wraps in backticks when the value is
 /// empty, starts with a backtick, or contains whitespace; internal backticks
 /// are doubled.
-/// `SLICE : ` in front of a directive body, or nothing for the base slice.
+/// `SLICE[|SLICE...] : ` in front of a directive body, or nothing for the base
+/// slice.
 #[cfg(any(feature = "editor", test))]
-pub fn slice_prefix(slice: &Option<String>) -> String {
-    match slice {
-        Some(s) => format!("{} : ", quote_token(s)),
-        None => String::new(),
+pub fn slice_prefix(slices: &[String]) -> String {
+    if slices.is_empty() {
+        return String::new();
     }
+    format!("{} : ", quote_token(&slices.join("|")))
 }
 
 pub fn quote_token(s: &str) -> String {
@@ -824,7 +834,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 )?;
             }
             DocumentItem::Map {
-                slice,
+                slices,
                 char_repr,
                 glyph,
                 comment,
@@ -832,14 +842,14 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 writeln!(
                     writer,
                     "map {}{} = {}{}",
-                    slice_prefix(slice),
+                    slice_prefix(slices),
                     quote_token(char_repr),
                     quote_token(glyph),
                     comment_suffix(comment),
                 )?;
             }
             DocumentItem::MapDecomposed {
-                slice,
+                slices,
                 char_repr,
                 glyph,
                 comment,
@@ -851,7 +861,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 writeln!(
                     writer,
                     "map {}generate {}{}{}",
-                    slice_prefix(slice),
+                    slice_prefix(slices),
                     quote_token(char_repr),
                     target,
                     comment_suffix(comment),
@@ -1097,7 +1107,7 @@ pub fn derive_document(
                         // form has always had. See
                         // `DocumentItem::split_slice_qualifier` for why the
                         // qualifier cannot be confused with `map : = colon`.
-                        let (slice, tokens) = DocumentItem::split_slice_qualifier(&tokens[1..]);
+                        let (slices, tokens) = DocumentItem::split_slice_qualifier(&tokens[1..]);
                         // `map generate CHAR [= GLYPH]` is checked first, but only
                         // in the arities the plain form cannot take: `map generate
                         // = g` stays an ordinary (if nonsensical) `map`.
@@ -1105,7 +1115,7 @@ pub fn derive_document(
                         if tokens.len() == 3 && tokens[1] == "=" {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
-                                slice,
+                                slices,
                                 char_repr: tokens[0].clone(),
                                 glyph: tokens[2].clone(),
                                 comment,
@@ -1116,7 +1126,7 @@ pub fn derive_document(
                         {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::MapDecomposed {
-                                slice,
+                                slices,
                                 char_repr: tokens[1].clone(),
                                 glyph: tokens.get(3).cloned(),
                                 comment,

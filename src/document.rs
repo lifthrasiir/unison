@@ -849,11 +849,13 @@ pub enum DocumentItem {
         inherits: Vec<String>,
         comment: Option<String>,
     },
-    /// `[SLICE :] map CHAR = GLYPH` — cmap mapping from a Unicode character to
-    /// a glyph name. `slice` is `None` for the base slice, which every face
-    /// includes.
+    /// `[SLICE[|SLICE...] :] map CHAR = GLYPH` — cmap mapping from a Unicode
+    /// character to a glyph name. `slices` is empty for the base slice, which
+    /// every face includes; more than one means the line is stated once per
+    /// slice, each with that slice's [`NameParts`](DocumentItem::NameParts)
+    /// bindings in force.
     Map {
-        slice: Option<String>,
+        slices: Vec<String>,
         char_repr: String,
         glyph: String,
         comment: Option<String>,
@@ -862,13 +864,17 @@ pub enum DocumentItem {
     /// is synthesized from the character's Unicode canonical decomposition and
     /// named `uniXXXX` unless `glyph` names it.
     MapDecomposed {
-        slice: Option<String>,
+        slices: Vec<String>,
         char_repr: String,
         glyph: Option<String>,
         comment: Option<String>,
     },
-    /// `name-parts $NAME = token1 token2 $ref3 ...`
+    /// `[SLICE[|SLICE...] :] name-parts $NAME = token1 token2 $ref3 ...`
+    ///
+    /// A slice-scoped binding takes exactly one value and is what makes a
+    /// slice-varying name writable once: see [`SliceNameParts`].
     NameParts {
+        slices: Vec<String>,
         name: String,
         values: Vec<String>,
         comment: Option<String>,
@@ -894,7 +900,7 @@ pub enum DocumentItem {
     },
     /// `feature NAME for SCRIPT... : REMAP_GROUP`
     Feature {
-        slice: Option<String>,
+        slices: Vec<String>,
         name: String,
         scripts: Vec<String>,
         remap_group: String,
@@ -902,7 +908,7 @@ pub enum DocumentItem {
     },
     /// `feature NAME for SCRIPT... : anchor ANCHOR_NAME`
     FeatureAnchor {
-        slice: Option<String>,
+        slices: Vec<String>,
         name: String,
         scripts: Vec<String>,
         anchor: String,
@@ -1058,11 +1064,9 @@ pub fn compute_docline_file_lines(lines: &[DocLine]) -> Vec<usize> {
 use crate::document_io::comment_suffix as serialize_comment_suffix;
 
 /// `SLICE : ` in front of a directive body, or nothing for the base slice.
-fn serialize_slice_prefix(slice: &Option<String>) -> String {
-    match slice {
-        Some(s) => format!("{} : ", crate::document_io::quote_token(s)),
-        None => String::new(),
-    }
+#[cfg(any(feature = "editor", test))]
+fn serialize_slice_prefix(slices: &[String]) -> String {
+    crate::document_io::slice_prefix(slices)
 }
 
 impl DocumentItem {
@@ -1075,9 +1079,10 @@ impl DocumentItem {
         }
         match tokens[0].as_str() {
             "name-parts" => {
-                let rest = &tokens[1..];
+                let (slices, rest) = Self::split_slice_qualifier(&tokens[1..]);
                 if rest.len() >= 3 && rest[1] == "=" {
                     return DocumentItem::NameParts {
+                        slices,
                         name: rest[0].clone(),
                         values: rest[2..].to_vec(),
                         comment,
@@ -1146,7 +1151,7 @@ impl DocumentItem {
                 }
             }
             "feature" => {
-                let (slice, rest) = Self::split_slice_qualifier(&tokens[1..]);
+                let (slices, rest) = Self::split_slice_qualifier(&tokens[1..]);
                 // feature NAME for SCRIPT... : REMAP_GROUP
                 // feature NAME for SCRIPT... : anchor ANCHOR_NAME
                 if let Some(for_pos) = rest.iter().position(|t| t == "for")
@@ -1159,7 +1164,7 @@ impl DocumentItem {
                         && colon_pos + 2 < rest.len()
                     {
                         return DocumentItem::FeatureAnchor {
-                            slice,
+                            slices,
                             name: rest[0].clone(),
                             scripts: rest[2..colon_pos].to_vec(),
                             anchor: rest[colon_pos + 2].clone(),
@@ -1167,7 +1172,7 @@ impl DocumentItem {
                         };
                     }
                     return DocumentItem::Feature {
-                        slice,
+                        slices,
                         name: rest[0].clone(),
                         scripts: rest[2..colon_pos].to_vec(),
                         remap_group: rest[colon_pos + 1].clone(),
@@ -1194,17 +1199,48 @@ impl DocumentItem {
         DocumentItem::Directive(format!("{}{}", quoted.join(" "), comment))
     }
 
-    /// Split a leading `SLICE :` qualifier off a directive body.
+    /// Split a leading `SLICE[|SLICE...] :` qualifier off a directive body.
     ///
     /// Told from the body by the *second* token being a bare `:`, which no name
     /// or value can be. That is what keeps `map : = colon` — a perfectly good
     /// mapping of U+003A — from reading as a qualifier, and it still allows
     /// `map wide : : = colon` to qualify one.
-    pub(crate) fn split_slice_qualifier(tokens: &[String]) -> (Option<String>, &[String]) {
+    ///
+    /// The qualifier is *one* token: a slice id may not contain `|`, so
+    /// `wide|narrow` is unambiguously a list of two. Listing slices states the
+    /// line once per slice rather than once — the slices are an outer loop
+    /// around name expansion, not another alternation group folded into it; see
+    /// [`crate::pattern`].
+    pub(crate) fn split_slice_qualifier(tokens: &[String]) -> (Vec<String>, &[String]) {
+        match Self::split_qualifier_token(tokens) {
+            (Some(q), rest) => (q.split('|').map(str::to_string).collect(), rest),
+            (None, rest) => (Vec::new(), rest),
+        }
+    }
+
+    /// The qualifier as the single token it is written as. `meta FACE :` reads
+    /// it this way: a face scope is one id, never a list.
+    pub(crate) fn split_qualifier_token(tokens: &[String]) -> (Option<String>, &[String]) {
         if tokens.len() >= 2 && tokens[1] == ":" && tokens[0] != ":" {
             (Some(tokens[0].clone()), &tokens[2..])
         } else {
             (None, tokens)
+        }
+    }
+
+    /// The slices this item is qualified with; empty for the base slice and for
+    /// every item that takes no qualifier.
+    ///
+    /// `assert shape` is deliberately not here: its `for SLICE...` list means
+    /// *all of these*, while a qualifier means *each of these*.
+    pub fn slice_qualifier(&self) -> &[String] {
+        match self {
+            DocumentItem::Map { slices, .. }
+            | DocumentItem::MapDecomposed { slices, .. }
+            | DocumentItem::Feature { slices, .. }
+            | DocumentItem::FeatureAnchor { slices, .. }
+            | DocumentItem::NameParts { slices, .. } => slices,
+            _ => &[],
         }
     }
 
@@ -1416,13 +1452,15 @@ impl DocumentItem {
         use crate::document_io::quote_token;
         match self {
             DocumentItem::NameParts {
+                slices,
                 name,
                 values,
                 comment,
             } => {
                 let qvals: Vec<String> = values.iter().map(|v| quote_token(v)).collect();
                 Some(format!(
-                    "name-parts {} = {}{}",
+                    "name-parts {}{} = {}{}",
+                    serialize_slice_prefix(slices),
                     quote_token(name),
                     qvals.join(" "),
                     serialize_comment_suffix(comment),
@@ -1470,7 +1508,7 @@ impl DocumentItem {
                 Some(format!("{}{}", line, serialize_comment_suffix(comment)))
             }
             DocumentItem::Feature {
-                slice,
+                slices,
                 name,
                 scripts,
                 remap_group,
@@ -1479,7 +1517,7 @@ impl DocumentItem {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
                     "feature {}{} for {} : {}{}",
-                    serialize_slice_prefix(slice),
+                    serialize_slice_prefix(slices),
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(remap_group),
@@ -1487,7 +1525,7 @@ impl DocumentItem {
                 ))
             }
             DocumentItem::FeatureAnchor {
-                slice,
+                slices,
                 name,
                 scripts,
                 anchor,
@@ -1496,7 +1534,7 @@ impl DocumentItem {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
                     "feature {}{} for {} : anchor {}{}",
-                    serialize_slice_prefix(slice),
+                    serialize_slice_prefix(slices),
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(anchor),
@@ -1747,50 +1785,145 @@ pub fn remap_group_order(docs: &[&Document]) -> RemapGroupOrder {
 // Name-parts collection
 // ---------------------------------------------------------------------------
 
+/// Decode one `name-parts` right-hand side against the parts defined so far.
+///
+/// A `$ref` is spliced in; anything else is split on `|`, with `` `` `` (and
+/// the empty token) standing for the empty string and a trailing `*N`
+/// repeating the value. A reference or repeat that would blow past
+/// [`MAX_EXPANSION`] is kept verbatim rather than materialized.
+pub(crate) fn resolve_name_part_values(values: &[String], defined: &NamePartsMap) -> Vec<String> {
+    let mut resolved = Vec::new();
+    for token in values {
+        if token.starts_with('$') {
+            if let Some(referenced) = defined.get(token.as_str()) {
+                if referenced.len() > MAX_EXPANSION.saturating_sub(resolved.len()) {
+                    resolved.push(token.clone());
+                } else {
+                    resolved.extend(referenced.iter().cloned());
+                }
+            } else {
+                resolved.push(token.clone());
+            }
+        } else {
+            for part in token.split('|') {
+                if part.is_empty() || part == "``" {
+                    resolved.push(String::new());
+                } else if let Some((name_part, rep_str)) = part.rsplit_once('*') {
+                    if let Ok(rep) = rep_str.parse::<usize>() {
+                        if rep > MAX_EXPANSION.saturating_sub(resolved.len()) {
+                            resolved.push(part.to_string());
+                        } else {
+                            for _ in 0..rep {
+                                resolved.push(name_part.to_string());
+                            }
+                        }
+                    } else {
+                        resolved.push(part.to_string());
+                    }
+                } else {
+                    resolved.push(part.to_string());
+                }
+            }
+        }
+    }
+    resolved
+}
+
+/// The unqualified name parts: what every context that is not scoped to a
+/// slice — a glyph name, a `ref` target, a `remap` operand — substitutes with.
 pub fn collect_name_parts(docs: &[&Document]) -> NamePartsMap {
     let mut map = NamePartsMap::new();
     for doc in docs {
         for item in &doc.items {
-            if let DocumentItem::NameParts { name, values, .. } = item {
-                let mut resolved = Vec::new();
-                for token in values {
-                    if token.starts_with('$') {
-                        if let Some(referenced) = map.get(token.as_str()) {
-                            if referenced.len() > MAX_EXPANSION.saturating_sub(resolved.len()) {
-                                resolved.push(token.clone());
-                            } else {
-                                resolved.extend(referenced.iter().cloned());
-                            }
-                        } else {
-                            resolved.push(token.clone());
-                        }
-                    } else {
-                        for part in token.split('|') {
-                            if part.is_empty() || part == "``" {
-                                resolved.push(String::new());
-                            } else if let Some((name_part, rep_str)) = part.rsplit_once('*') {
-                                if let Ok(rep) = rep_str.parse::<usize>() {
-                                    if rep > MAX_EXPANSION.saturating_sub(resolved.len()) {
-                                        resolved.push(part.to_string());
-                                    } else {
-                                        for _ in 0..rep {
-                                            resolved.push(name_part.to_string());
-                                        }
-                                    }
-                                } else {
-                                    resolved.push(part.to_string());
-                                }
-                            } else {
-                                resolved.push(part.to_string());
-                            }
-                        }
-                    }
-                }
+            if let DocumentItem::NameParts {
+                slices,
+                name,
+                values,
+                ..
+            } = item
+                && slices.is_empty()
+            {
+                let resolved = resolve_name_part_values(values, &map);
                 map.insert(name.clone(), resolved);
             }
         }
     }
     map
+}
+
+/// Name parts as seen from each slice.
+///
+/// `name-parts wide : $half = ` `` ` / `name-parts narrow : $half = -half`
+/// binds one name to a different value per slice, which is what lets a
+/// slice-varying glyph name be written once:
+///
+/// ```text
+/// map wide|narrow : ⁂ = triple-star($half)
+/// ```
+///
+/// The slices of that qualifier are an *outer loop*: the line is stated once
+/// per slice, each time with that slice's bindings in force, and only then does
+/// the ordinary cyclic name expansion run. Folding the slices into the
+/// expansion as one more alternation group would zip them against the codepoint
+/// list instead, which is not what the line says.
+///
+/// A name is bound either unqualified or per slice, never both — an
+/// unqualified binding a slice overrode would be a precedence rule, and
+/// [`crate::faces`] has none. [`crate::issues`] reports the violation; here the
+/// scoped binding simply wins for its own slice.
+#[derive(Clone, Debug, Default)]
+pub struct SliceNameParts {
+    base: NamePartsMap,
+    /// Per slice, the base map with that slice's own bindings applied. Only
+    /// slices that bind something are in here.
+    per_slice: HashMap<String, NamePartsMap>,
+}
+
+impl SliceNameParts {
+    /// Built on top of an already-computed unqualified map, since every
+    /// consumer of the expansion has one. Nothing is cloned when the source
+    /// binds nothing per slice.
+    pub fn with_base(docs: &[&Document], base: NamePartsMap) -> Self {
+        let mut per_slice: HashMap<String, NamePartsMap> = HashMap::new();
+        for doc in docs {
+            for item in &doc.items {
+                if let DocumentItem::NameParts {
+                    slices,
+                    name,
+                    values,
+                    ..
+                } = item
+                {
+                    for slice in slices {
+                        let map = per_slice
+                            .entry(slice.clone())
+                            .or_insert_with(|| base.clone());
+                        // Resolved against the *base* parts: a scoped binding
+                        // is one value, not a place to build a list up from
+                        // other scoped ones.
+                        let resolved = resolve_name_part_values(values, &base);
+                        map.insert(name.clone(), resolved);
+                    }
+                }
+            }
+        }
+        Self { base, per_slice }
+    }
+
+    /// The bindings in force inside `slice`, falling back to the unqualified
+    /// ones. `None` is the base slice.
+    pub fn for_slice(&self, slice: Option<&str>) -> &NamePartsMap {
+        match slice.and_then(|s| self.per_slice.get(s)) {
+            Some(map) => map,
+            None => &self.base,
+        }
+    }
+
+    /// Whether any slice binds `name` (`$`-prefixed), for diagnostics that want
+    /// to tell "undefined" from "defined, but not here".
+    pub fn is_slice_scoped(&self, name: &str) -> bool {
+        !self.base.contains_key(name) && self.per_slice.values().any(|m| m.contains_key(name))
+    }
 }
 
 pub fn parse_glyph_name(s: &str) -> GlyphName {
@@ -2051,6 +2184,7 @@ mod tests {
     fn collect_name_parts_decodes_empty_alternative() {
         let mut doc = Document::new("test.unf".into());
         doc.items.push(DocumentItem::NameParts {
+            slices: Vec::new(),
             comment: None,
             name: "$part".to_string(),
             values: vec!["``|a".to_string()],
@@ -2068,6 +2202,7 @@ mod tests {
         let mut doc = Document::new("test.unf".into());
         let oversized = format!("b*{}", MAX_EXPANSION);
         doc.items.push(DocumentItem::NameParts {
+            slices: Vec::new(),
             comment: None,
             name: "$part".to_string(),
             values: vec!["a".to_string(), oversized.clone()],

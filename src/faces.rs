@@ -36,6 +36,19 @@
 //! It is not a precedence mechanism either; a conflict reached through it is
 //! the same error as any other.
 //!
+//! # Saying it once for several slices
+//!
+//! Two slices that map the same characters to differently *named* glyphs
+//! (`triple-star` and `triple-star-half`) would otherwise be written twice,
+//! line for line. `map wide|narrow : ⁂ = triple-star($half)` states the line
+//! once per slice instead, with `$half` bound per slice by a slice-scoped
+//! `name-parts` — so the naming scheme lives in the source that uses it rather
+//! than anywhere in Uniform. See [`crate::document::SliceNameParts`].
+//!
+//! This is not an override either: a name part is bound unqualified or per
+//! slice, never both, and an exception is written by leaving that slice off the
+//! qualifier and stating it on its own line.
+//!
 //! # Face ids are file names
 //!
 //! `--output unison-%.ttf` puts a face id in a path, so ids are bounded more

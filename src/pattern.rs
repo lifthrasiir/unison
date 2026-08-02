@@ -18,6 +18,14 @@
 //! alternative to the `i`-th name.  This cyclic indexing is what lets remap
 //! operands and `ref` targets expand in lock-step with a glyph-name pattern.
 //!
+//! A slice qualifier listing several slices (`map wide|narrow : ...`) is *not*
+//! part of this.  The slices are an outer loop — the line is stated once per
+//! slice, with that slice's [name parts](crate::document::SliceNameParts) in
+//! force, and each statement then expands on its own.  Folding them in as one
+//! more group would zip them against the codepoint list instead: two slices
+//! against ten codepoints would produce ten names alternating between the two,
+//! which is not what the line says.
+//!
 //! [`NamePattern`] is the parsed form.  It knows its [`len`](NamePattern::len)
 //! without materializing anything and yields individual names via
 //! [`get`](NamePattern::get), so consumers that combine several patterns

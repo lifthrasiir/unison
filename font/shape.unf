@@ -321,23 +321,14 @@ glyph black-circle-8-half 8 16
 .....\_h@@h_/...
 ................
 
-map wide : ⋅ = black-circle-1
-map wide : ∙ = black-circle-2
-map wide : 🞄 = black-circle-3
-map wide : • = black-circle-4
-map wide : ⦁ = black-circle-5
-map wide : ⚫ = black-circle-6
-map wide : ● = black-circle-7
-map wide : ⬤ = black-circle-8
-
-map narrow : ⋅ = black-circle-1-half
-map narrow : ∙ = black-circle-2-half
-map narrow : 🞄 = black-circle-3-half
-map narrow : • = black-circle-4-half
-map narrow : ⦁ = black-circle-5-half
-map narrow : ⚫ = black-circle-6-half
-map narrow : ● = black-circle-7-half
-map narrow : ⬤ = black-circle-8-half
+map wide|narrow : ⋅ = black-circle-1($-half)
+map wide|narrow : ∙ = black-circle-2($-half)
+map wide|narrow : 🞄 = black-circle-3($-half)
+map wide|narrow : • = black-circle-4($-half)
+map wide|narrow : ⦁ = black-circle-5($-half)
+map wide|narrow : ⚫ = black-circle-6($-half)
+map wide|narrow : ● = black-circle-7($-half)
+map wide|narrow : ⬤ = black-circle-8($-half)
 
 remap deemojify-wide : black-circle-6 vs-text -> black-circle-6-inside
 remap deemojify-narrow : black-circle-6-half vs-text -> black-circle-6-half-inside
@@ -464,15 +455,11 @@ glyph white-circle-7-half 8 16
 ................
 ................
 
-map wide : ⚬ = white-circle-5
-map wide : ⚪ = white-circle-6
-map wide : ○ = white-circle-7
+map wide|narrow : ⚬ = white-circle-5($-half)
+map wide|narrow : ⚪ = white-circle-6($-half)
+map wide|narrow : ○ = white-circle-7($-half)
 // map U+2858 = white-circle-7w1
 // map U+1F785..1F789 = white-circle-7w($2..6)
-
-map narrow : ⚬ = white-circle-5-half
-map narrow : ⚪ = white-circle-6-half
-map narrow : ○ = white-circle-7-half
 
 remap deemojify-wide : white-circle-6 vs-text -> white-circle-6-border
 remap deemojify-narrow : white-circle-6-half vs-text -> white-circle-6-half-border
@@ -956,23 +943,14 @@ glyph black-square-8-half-aux 8 16
 glyph black-square-8-half
 ref black-square-8-half-aux fill emoji-black
 
-map wide : 🞌 = black-square-1
-map wide : ⬝ = black-square-2
-map wide : 🞍 = black-square-3
-map wide : ▪ = black-square-4
-map wide : ◾ = black-square-5
-map wide : ◼ = black-square-6
-map wide : ■ = black-square-7
-map wide : ⬛ = black-square-8
-
-map narrow : 🞌 = black-square-1-half
-map narrow : ⬝ = black-square-2-half
-map narrow : 🞍 = black-square-3-half
-map narrow : ▪ = black-square-4-half
-map narrow : ◾ = black-square-5-half
-map narrow : ◼ = black-square-6-half
-map narrow : ■ = black-square-7-half
-map narrow : ⬛ = black-square-8-half
+map wide|narrow : 🞌 = black-square-1($-half)
+map wide|narrow : ⬝ = black-square-2($-half)
+map wide|narrow : 🞍 = black-square-3($-half)
+map wide|narrow : ▪ = black-square-4($-half)
+map wide|narrow : ◾ = black-square-5($-half)
+map wide|narrow : ◼ = black-square-6($-half)
+map wide|narrow : ■ = black-square-7($-half)
+map wide|narrow : ⬛ = black-square-8($-half)
 
 //--------------------------------------
 // white squares
@@ -1589,31 +1567,18 @@ glyph white-square-8-half 8 16
 ................
 ................
 
-map wide : ⬞ = white-square-2
-map wide : ▫ = white-square-4
-map wide : ◽ = white-square-5
-map wide : ◻ = white-square-6
-map wide : □ = white-square-7
-map wide : 🞎 = white-square-7w1
-map wide : 🞏 = white-square-7w2
-map wide : 🞐 = white-square-7w3
-map wide : 🞑 = white-square-7w4
-map wide : 🞒 = white-square-7w5
-map wide : 🞓 = white-square-7w6
-map wide : ⬜ = white-square-8
-
-map narrow : ⬞ = white-square-2-half
-map narrow : ▫ = white-square-4-half
-map narrow : ◽ = white-square-5-half
-map narrow : ◻ = white-square-6-half
-map narrow : □ = white-square-7-half
-map narrow : 🞎 = white-square-7w1-half
-map narrow : 🞏 = white-square-7w2-half
-map narrow : 🞐 = white-square-7w3-half
-map narrow : 🞑 = white-square-7w4-half
-map narrow : 🞒 = white-square-7w5-half
-map narrow : 🞓 = white-square-7w6-half
-map narrow : ⬜ = white-square-8-half
+map wide|narrow : ⬞ = white-square-2($-half)
+map wide|narrow : ▫ = white-square-4($-half)
+map wide|narrow : ◽ = white-square-5($-half)
+map wide|narrow : ◻ = white-square-6($-half)
+map wide|narrow : □ = white-square-7($-half)
+map wide|narrow : 🞎 = white-square-7w1($-half)
+map wide|narrow : 🞏 = white-square-7w2($-half)
+map wide|narrow : 🞐 = white-square-7w3($-half)
+map wide|narrow : 🞑 = white-square-7w4($-half)
+map wide|narrow : 🞒 = white-square-7w5($-half)
+map wide|narrow : 🞓 = white-square-7w6($-half)
+map wide|narrow : ⬜ = white-square-8($-half)
 
 //--------------------------------------
 // colored squares

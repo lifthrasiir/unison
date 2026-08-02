@@ -85,6 +85,51 @@ fn legacy_font_meta_replacement(text: &str) -> String {
 /// longer part would be silently truncated to something that resolves to
 /// nothing — worth an error rather than a font that quietly ignores the
 /// declaration.
+/// The first `$part` in `name` that `parts` does not bind but some slice does.
+///
+/// A slice-scoped binding substitutes nothing where it does not apply, and what
+/// is left behind — a `$` in a glyph name, a `ref` to nothing — says nothing
+/// about why. This is what lets the report say it.
+fn unbound_scoped_part(
+    name: &str,
+    parts: &crate::pattern::NamePartsMap,
+    scoped: &crate::document::SliceNameParts,
+) -> Option<String> {
+    if !name.contains('$') {
+        return None;
+    }
+    name.match_indices('$').find_map(|(at, _)| {
+        let end = name[at + 1..]
+            .find(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+            .map_or(name.len(), |i| at + 1 + i);
+        let part = &name[at..end];
+        (!parts.contains_key(part) && scoped.is_slice_scoped(part)).then(|| part.to_string())
+    })
+}
+
+/// The names written on one item, for a check that works on the source text
+/// rather than on what expansion made of it.
+fn written_names(item: &DocumentItem) -> Vec<&str> {
+    let mut names: Vec<&str> = Vec::new();
+    match item {
+        DocumentItem::Glyph { name, body } => {
+            names.push(name.0.as_str());
+            names.extend(body.refs.iter().map(|r| r.name.as_str()));
+        }
+        DocumentItem::GlyphAlias { name, target, .. } => {
+            names.push(name.0.as_str());
+            names.push(target.as_str());
+        }
+        DocumentItem::Map { glyph, .. } => names.push(glyph.as_str()),
+        DocumentItem::MapDecomposed { glyph, .. } => {
+            names.extend(glyph.as_deref());
+        }
+        DocumentItem::Remap { .. } => names.extend(item.remap_operands().map(String::as_str)),
+        _ => {}
+    }
+    names
+}
+
 fn script_lang_issues(targets: &[String]) -> Vec<String> {
     let mut issues = Vec::new();
     for target in targets {
@@ -124,6 +169,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let mut issues = Vec::new();
 
     let name_parts = &resolution.name_parts;
+    // Validation expands a slice-qualified line the way the build does: once
+    // per slice, with that slice's bindings.
+    let scoped_parts = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
     let expansion = &resolution.expansion;
     let docset = DocSet::new(docs);
 
@@ -195,13 +243,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let referenced: Vec<&String> = match item {
-                DocumentItem::Map { slice: Some(s), .. }
-                | DocumentItem::MapDecomposed { slice: Some(s), .. }
-                | DocumentItem::Feature { slice: Some(s), .. }
-                | DocumentItem::FeatureAnchor { slice: Some(s), .. } => vec![s],
                 DocumentItem::AssertShape { slices, .. } => slices.iter().collect(),
                 DocumentItem::Slice { inherits, .. } => inherits.iter().collect(),
-                _ => Vec::new(),
+                item => item.slice_qualifier().iter().collect(),
             };
             for name in referenced {
                 if !faces.declared.contains_key(name) {
@@ -210,6 +254,75 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         item_idx,
                         Severity::Error,
                         format!("undeclared slice `{name}`",),
+                    ));
+                }
+            }
+            // The same slice twice in one qualifier would state the line twice
+            // for it, which is a duplicate mapping and never what was meant.
+            let qualifier = item.slice_qualifier();
+            for (i, name) in qualifier.iter().enumerate() {
+                if qualifier[..i].contains(name) {
+                    issues.push(issue_at(
+                        doc,
+                        item_idx,
+                        Severity::Error,
+                        format!("slice `{name}` is listed twice in this qualifier"),
+                    ));
+                }
+            }
+            // A name part bound per slice reaches only the lines stated for
+            // that slice. Checked against what was written, because what it
+            // fails as downstream — an odd glyph name, a `ref` to nothing —
+            // never mentions the binding.
+            {
+                let stated: Vec<Option<&str>> = if qualifier.is_empty() {
+                    vec![None]
+                } else {
+                    qualifier.iter().map(|s| Some(s.as_str())).collect()
+                };
+                let mut reported: Vec<String> = Vec::new();
+                for slice in stated {
+                    let parts = scoped_parts.for_slice(slice);
+                    for name in written_names(item) {
+                        let Some(part) = unbound_scoped_part(name, parts, &scoped_parts) else {
+                            continue;
+                        };
+                        if reported.contains(&part) {
+                            continue;
+                        }
+                        let where_ = match slice {
+                            Some(s) => format!("slice `{s}`"),
+                            None => "the base slice".to_string(),
+                        };
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!(
+                                "name part `{part}` is bound per slice and not for {where_}, \
+                                 so it substitutes nothing here",
+                            ),
+                        ));
+                        reported.push(part);
+                    }
+                }
+            }
+            // A slice-scoped binding stands for one name part in one slice, so
+            // it is one value. A list would go back to being an alternation
+            // that the slices no longer control.
+            if let DocumentItem::NameParts { slices, values, .. } = item
+                && !slices.is_empty()
+            {
+                let resolved = crate::document::resolve_name_part_values(values, name_parts);
+                if resolved.len() != 1 {
+                    issues.push(issue_at(
+                        doc,
+                        item_idx,
+                        Severity::Error,
+                        format!(
+                            "a slice-scoped `name-parts` takes exactly one value, not {}",
+                            resolved.len(),
+                        ),
                     ));
                 }
             }
@@ -234,6 +347,59 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
+    // A name part is bound unqualified or per slice, never both: an
+    // unqualified binding that a slice overrode would be a precedence rule,
+    // and `crate::faces` has none. Two bindings for one slice are the same
+    // conflict a slice deeper in.
+    {
+        let mut seen: HashMap<(&str, Option<&str>), ()> = HashMap::new();
+        for doc in docs {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                let DocumentItem::NameParts { slices, name, .. } = item else {
+                    continue;
+                };
+                let stated: Vec<Option<&str>> = if slices.is_empty() {
+                    vec![None]
+                } else {
+                    slices.iter().map(|s| Some(s.as_str())).collect()
+                };
+                for slice in stated {
+                    if seen.insert((name.as_str(), slice), ()).is_some() {
+                        let where_ = match slice {
+                            Some(s) => format!("slice `{s}`"),
+                            None => "no slice".to_string(),
+                        };
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!("name part `{name}` is already bound for {where_}"),
+                        ));
+                    }
+                    // The unqualified binding is the one that would be
+                    // overridden, so it is what the conflict is reported
+                    // against — whichever line came second.
+                    let other = if slice.is_none() {
+                        seen.keys().any(|(n, s)| n == &name.as_str() && s.is_some())
+                    } else {
+                        seen.contains_key(&(name.as_str(), None))
+                    };
+                    if other {
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!(
+                                "name part `{name}` is bound both unqualified and per slice; \
+                                 a slice-scoped binding is not an override",
+                            ),
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
     // A slice nothing is qualified to gives every face that includes it
     // nothing. Mirrors the "remap group is declared but has no rules" warning,
     // and matters most mid-migration: moving characters out of the base into
@@ -246,11 +412,13 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         for doc in docs {
             for item in &doc.items {
                 match item {
-                    DocumentItem::Map { slice: Some(s), .. }
-                    | DocumentItem::MapDecomposed { slice: Some(s), .. }
-                    | DocumentItem::Feature { slice: Some(s), .. }
-                    | DocumentItem::FeatureAnchor { slice: Some(s), .. } => {
-                        has_own.insert(s.as_str());
+                    // `name-parts` is deliberately not counted: a binding is
+                    // how a slice spells a name, not something a face gets.
+                    DocumentItem::Map { slices, .. }
+                    | DocumentItem::MapDecomposed { slices, .. }
+                    | DocumentItem::Feature { slices, .. }
+                    | DocumentItem::FeatureAnchor { slices, .. } => {
+                        has_own.extend(slices.iter().map(String::as_str));
                     }
                     DocumentItem::AssertShape { slices, .. } => {
                         has_own.extend(slices.iter().map(String::as_str));
@@ -667,39 +835,49 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 // Unresolvable refs, map targets and remap operands are all
                 // reported by the resolution pass above.
                 DocumentItem::Map {
-                    slice,
+                    slices,
                     char_repr,
                     glyph,
                     ..
                 } => {
-                    let subst_glyph = substitute_name_parts(glyph, name_parts);
-                    let expanded_pairs =
-                        crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
-                    for (cp, target) in &expanded_pairs {
-                        mapped_glyphs.insert(target.clone());
-                        let by_slice = mapped_codepoints.entry(*cp).or_default();
-                        if let Some(prev) = by_slice.get(slice) {
-                            issues.push(issue_at(
-                                doc,
-                                item_idx,
-                                Severity::Warning,
-                                format!(
-                                    "duplicate codepoint mapping U+{:04X} (first at {}:{})",
-                                    cp,
-                                    short_path(&prev.file),
-                                    prev.file_line,
-                                ),
-                            ));
-                        } else {
-                            let (line, file_line) = doc.item_lines(item_idx);
-                            by_slice.insert(
-                                slice.clone(),
-                                MapSite {
-                                    file: doc.path.clone(),
-                                    line,
-                                    file_line,
-                                },
-                            );
+                    // Once per slice the line is stated for, with that slice's
+                    // name parts — exactly as the build expands it.
+                    let stated: Vec<Option<String>> = if slices.is_empty() {
+                        vec![None]
+                    } else {
+                        slices.iter().cloned().map(Some).collect()
+                    };
+                    for slice in stated {
+                        let subst_glyph =
+                            substitute_name_parts(glyph, scoped_parts.for_slice(slice.as_deref()));
+                        let expanded_pairs =
+                            crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
+                        for (cp, target) in &expanded_pairs {
+                            mapped_glyphs.insert(target.clone());
+                            let by_slice = mapped_codepoints.entry(*cp).or_default();
+                            if let Some(prev) = by_slice.get(&slice) {
+                                issues.push(issue_at(
+                                    doc,
+                                    item_idx,
+                                    Severity::Warning,
+                                    format!(
+                                        "duplicate codepoint mapping U+{:04X} (first at {}:{})",
+                                        cp,
+                                        short_path(&prev.file),
+                                        prev.file_line,
+                                    ),
+                                ));
+                            } else {
+                                let (line, file_line) = doc.item_lines(item_idx);
+                                by_slice.insert(
+                                    slice.clone(),
+                                    MapSite {
+                                        file: doc.path.clone(),
+                                        line,
+                                        file_line,
+                                    },
+                                );
+                            }
                         }
                     }
                 }

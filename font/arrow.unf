@@ -1264,68 +1264,38 @@ glyph arrow-u2d2r-half 8 16
 ................
 ref arrow-head-l2r 2 9
 
-map wide : ← = arrow-r2l
-map wide : ↑ = arrow-d2u
-map wide : → = arrow-l2r
-map wide : ↓ = arrow-u2d
-map wide : ↔ = arrow-horiz
-map wide : ↕ = arrow-vert
+map wide|narrow : ← = arrow-r2l($-half)
+map wide|narrow : ↑ = arrow-d2u($-half)
+map wide|narrow : → = arrow-l2r($-half)
+map wide|narrow : ↓ = arrow-u2d($-half)
+map wide|narrow : ↔ = arrow-horiz($-half)
+map wide|narrow : ↕ = arrow-vert($-half)
 
-map narrow : ← = arrow-r2l-half
-map narrow : ↑ = arrow-d2u-half
-map narrow : → = arrow-l2r-half
-map narrow : ↓ = arrow-u2d-half
-map narrow : ↔ = arrow-horiz-half
-map narrow : ↕ = arrow-vert-half
+map wide|narrow : ↖ = arrow-rd2lu($-half)
+map wide|narrow : ↗ = arrow-ld2ru($-half)
+map wide|narrow : ↘ = arrow-lu2rd($-half)
+map wide|narrow : ↙ = arrow-ru2ld($-half)
 
-map wide : ↖ = arrow-rd2lu
-map wide : ↗ = arrow-ld2ru
-map wide : ↘ = arrow-lu2rd
-map wide : ↙ = arrow-ru2ld
-
-map narrow : ↖ = arrow-rd2lu-half
-map narrow : ↗ = arrow-ld2ru-half
-map narrow : ↘ = arrow-lu2rd-half
-map narrow : ↙ = arrow-ru2ld-half
-
-map wide : ↚ = arrow-r2l-stroked
-map wide : ↛ = arrow-l2r-stroked
-map wide : ↮ = arrow-horiz-stroked
+map wide|narrow : ↚ = arrow-r2l-stroked($-half)
+map wide|narrow : ↛ = arrow-l2r-stroked($-half)
+map wide|narrow : ↮ = arrow-horiz-stroked($-half)
 //map ↜
 //map ↝
 
-map narrow : ↚ = arrow-r2l-stroked-half
-map narrow : ↛ = arrow-l2r-stroked-half
-map narrow : ↮ = arrow-horiz-stroked-half
+map wide|narrow : ↞ = arrow-r2l-r2l($-half)
+map wide|narrow : ↟ = arrow-d2u-d2u($-half)
+map wide|narrow : ↠ = arrow-l2r-l2r($-half)
+map wide|narrow : ↡ = arrow-u2d-u2d($-half)
 
-map wide : ↞ = arrow-r2l-r2l
-map wide : ↟ = arrow-d2u-d2u
-map wide : ↠ = arrow-l2r-l2r
-map wide : ↡ = arrow-u2d-u2d
+map wide|narrow : ↢ = arrow-r2l-tail($-half)
+map wide|narrow : ↣ = arrow-l2r-tail($-half)
 
-map narrow : ↞ = arrow-r2l-r2l-half
-map narrow : ↟ = arrow-d2u-d2u-half
-map narrow : ↠ = arrow-l2r-l2r-half
-map narrow : ↡ = arrow-u2d-u2d-half
+map wide|narrow : ↤ = arrow-r2l-from-bar($-half)
+map wide|narrow : ↥ = arrow-d2u-from-bar($-half)
+map wide|narrow : ↦ = arrow-l2r-from-bar($-half)
+map wide|narrow : ↧ = arrow-u2d-from-bar($-half)
 
-map wide : ↢ = arrow-r2l-tail
-map wide : ↣ = arrow-l2r-tail
-
-map narrow : ↢ = arrow-r2l-tail-half
-map narrow : ↣ = arrow-l2r-tail-half
-
-map wide : ↤ = arrow-r2l-from-bar
-map wide : ↥ = arrow-d2u-from-bar
-map wide : ↦ = arrow-l2r-from-bar
-map wide : ↧ = arrow-u2d-from-bar
-
-map narrow : ↤ = arrow-r2l-from-bar-half
-map narrow : ↥ = arrow-d2u-from-bar-half
-map narrow : ↦ = arrow-l2r-from-bar-half
-map narrow : ↧ = arrow-u2d-from-bar-half
-
-map wide : ↨ = arrow-vert-base
-map narrow : ↨ = arrow-vert-base-half
+map wide|narrow : ↨ = arrow-vert-base($-half)
 
 //map ↩ =
 //map ↪ =
@@ -1336,15 +1306,10 @@ map narrow : ↨ = arrow-vert-base-half
 //map ↭ =
 //map ↯ =
 
-map wide : ↰ = arrow-d2u2l
-map wide : ↱ = arrow-d2u2r
-map wide : ↲ = arrow-u2d2l
-map wide : ↳ = arrow-u2d2r
-
-map narrow : ↰ = arrow-d2u2l-half
-map narrow : ↱ = arrow-d2u2r-half
-map narrow : ↲ = arrow-u2d2l-half
-map narrow : ↳ = arrow-u2d2r-half
+map wide|narrow : ↰ = arrow-d2u2l($-half)
+map wide|narrow : ↱ = arrow-d2u2r($-half)
+map wide|narrow : ↲ = arrow-u2d2l($-half)
+map wide|narrow : ↳ = arrow-u2d2r($-half)
 
 //map ↴ =
 //map ↵ =
@@ -1355,23 +1320,14 @@ map narrow : ↳ = arrow-u2d2r-half
 //map ↺ =
 //map ↻ =
 
-map wide : ↼ = rharpoon-r2l
-map wide : ↽ = lharpoon-r2l
-map wide : ↾ = rharpoon-d2u
-map wide : ↿ = lharpoon-d2u
-map wide : ⇀ = lharpoon-l2r
-map wide : ⇁ = rharpoon-l2r
-map wide : ⇂ = lharpoon-u2d
-map wide : ⇃ = rharpoon-u2d
-
-map narrow : ↼ = rharpoon-r2l-half
-map narrow : ↽ = lharpoon-r2l-half
-map narrow : ↾ = rharpoon-d2u-half
-map narrow : ↿ = lharpoon-d2u-half
-map narrow : ⇀ = lharpoon-l2r-half
-map narrow : ⇁ = rharpoon-l2r-half
-map narrow : ⇂ = lharpoon-u2d-half
-map narrow : ⇃ = rharpoon-u2d-half
+map wide|narrow : ↼ = rharpoon-r2l($-half)
+map wide|narrow : ↽ = lharpoon-r2l($-half)
+map wide|narrow : ↾ = rharpoon-d2u($-half)
+map wide|narrow : ↿ = lharpoon-d2u($-half)
+map wide|narrow : ⇀ = lharpoon-l2r($-half)
+map wide|narrow : ⇁ = rharpoon-l2r($-half)
+map wide|narrow : ⇂ = lharpoon-u2d($-half)
+map wide|narrow : ⇃ = rharpoon-u2d($-half)
 
 //map ⇄ =
 //map ⇅ =
@@ -1827,29 +1783,17 @@ glyph arrow-ru2ld-double-half 8 16
 ................
 ................
 
-map wide : ⇐ = arrow-r2l-double
-map wide : ⇑ = arrow-d2u-double
-map wide : ⇒ = arrow-l2r-double
-map wide : ⇓ = arrow-u2d-double
-map wide : ⇔ = arrow-horiz-double
-map wide : ⇕ = arrow-vert-double
+map wide|narrow : ⇐ = arrow-r2l-double($-half)
+map wide|narrow : ⇑ = arrow-d2u-double($-half)
+map wide|narrow : ⇒ = arrow-l2r-double($-half)
+map wide|narrow : ⇓ = arrow-u2d-double($-half)
+map wide|narrow : ⇔ = arrow-horiz-double($-half)
+map wide|narrow : ⇕ = arrow-vert-double($-half)
 
-map narrow : ⇐ = arrow-r2l-double-half
-map narrow : ⇑ = arrow-d2u-double-half
-map narrow : ⇒ = arrow-l2r-double-half
-map narrow : ⇓ = arrow-u2d-double-half
-map narrow : ⇔ = arrow-horiz-double-half
-map narrow : ⇕ = arrow-vert-double-half
-
-map wide : ⇖ = arrow-rd2lu-double
-map wide : ⇗ = arrow-ld2ru-double
-map wide : ⇘ = arrow-lu2rd-double
-map wide : ⇙ = arrow-ru2ld-double
-
-map narrow : ⇖ = arrow-rd2lu-double-half
-map narrow : ⇗ = arrow-ld2ru-double-half
-map narrow : ⇘ = arrow-lu2rd-double-half
-map narrow : ⇙ = arrow-ru2ld-double-half
+map wide|narrow : ⇖ = arrow-rd2lu-double($-half)
+map wide|narrow : ⇗ = arrow-ld2ru-double($-half)
+map wide|narrow : ⇘ = arrow-lu2rd-double($-half)
+map wide|narrow : ⇙ = arrow-ru2ld-double($-half)
 
 //map ⇍ = arrow-r2l-double arrow-horiz-stroke@>>
 //map ⇏ = arrow-l2r-double arrow-horiz-stroke@<<

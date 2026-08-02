@@ -78,18 +78,23 @@ pub(crate) fn expand_for(
     // `all_items` is the canonical one, so nothing downstream — the glyph
     // cache, the cmap, the on-demand injector — ever sees an alias.
     let aliases = crate::alias::AliasMap::collect(docs, name_parts);
+    // Slice-scoped `name-parts`, so a qualified line substitutes with the
+    // bindings of the slice it is being stated for. Empty (and free) unless the
+    // source binds something per slice.
+    let scoped = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let origin = ItemRef::new(doc_idx, item_idx);
-            let slice = match item {
-                DocumentItem::Map { slice, .. }
-                | DocumentItem::MapDecomposed { slice, .. }
-                | DocumentItem::Feature { slice, .. }
-                | DocumentItem::FeatureAnchor { slice, .. } => slice.as_deref(),
-                _ => None,
+            // A qualifier lists the slices the line is stated for, one at a
+            // time; the face keeps the ones it includes. An unqualified line is
+            // the base slice, which every face includes.
+            let mut slices: Vec<Option<&str>> = match item.slice_qualifier() {
+                [] => vec![None],
+                qual => qual.iter().map(|s| Some(s.as_str())).collect(),
             };
-            if !face.includes(slice) {
+            slices.retain(|s| face.includes(*s));
+            if slices.is_empty() {
                 continue;
             }
             // An alias declares no glyph. It has already been folded into
@@ -160,27 +165,46 @@ pub(crate) fn expand_for(
                         origin: Some(origin),
                     });
                 }
-            } else if let DocumentItem::Map {
-                slice,
-                char_repr,
-                glyph,
-                ..
-            } = item
-            {
-                all_items.push(ExpandedItem {
-                    item: DocumentItem::Map {
-                        slice: slice.clone(),
-                        comment: None,
-                        char_repr: char_repr.clone(),
-                        glyph: substitute_name_parts(glyph, name_parts),
-                    },
-                    origin: Some(origin),
-                });
             } else {
-                all_items.push(ExpandedItem {
-                    item: item.clone(),
-                    origin: Some(origin),
-                });
+                // Everything else is emitted once per slice it is stated for,
+                // each with that slice's name parts. Downstream never sees a
+                // multi-slice item: `slices` here is one slice or none.
+                for slice in &slices {
+                    let parts = scoped.for_slice(*slice);
+                    let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
+                    let item = match item {
+                        DocumentItem::Map {
+                            char_repr, glyph, ..
+                        } => DocumentItem::Map {
+                            slices: one,
+                            comment: None,
+                            char_repr: char_repr.clone(),
+                            glyph: substitute_name_parts(glyph, parts),
+                        },
+                        DocumentItem::MapDecomposed {
+                            char_repr, glyph, ..
+                        } => DocumentItem::MapDecomposed {
+                            slices: one,
+                            comment: None,
+                            char_repr: char_repr.clone(),
+                            glyph: glyph.as_ref().map(|g| substitute_name_parts(g, parts)),
+                        },
+                        DocumentItem::Feature { .. } | DocumentItem::FeatureAnchor { .. } => {
+                            let mut item = item.clone();
+                            match &mut item {
+                                DocumentItem::Feature { slices, .. }
+                                | DocumentItem::FeatureAnchor { slices, .. } => *slices = one,
+                                _ => unreachable!(),
+                            }
+                            item
+                        }
+                        other => other.clone(),
+                    };
+                    all_items.push(ExpandedItem {
+                        item,
+                        origin: Some(origin),
+                    });
+                }
             }
         }
     }
@@ -257,7 +281,7 @@ pub(crate) fn expand_for(
 /// A `map decomposed` directive waiting to be expanded, lifted out of
 /// `all_items` so the expansion can push back into it.
 struct PendingDecomposition {
-    slice: Option<String>,
+    slices: Vec<String>,
     char_repr: String,
     glyph: Option<String>,
     origin: Option<ItemRef>,
@@ -277,12 +301,12 @@ fn expand_decomposed_maps(
         .iter()
         .filter_map(|e| match &e.item {
             DocumentItem::MapDecomposed {
-                slice,
+                slices,
                 char_repr,
                 glyph,
                 ..
             } => Some(PendingDecomposition {
-                slice: slice.clone(),
+                slices: slices.clone(),
                 char_repr: char_repr.clone(),
                 glyph: glyph.clone(),
                 origin: e.origin,
@@ -292,7 +316,7 @@ fn expand_decomposed_maps(
         .collect();
 
     for PendingDecomposition {
-        slice,
+        slices,
         char_repr,
         glyph,
         origin,
@@ -377,7 +401,7 @@ fn expand_decomposed_maps(
             });
             decomposed_items.push(ExpandedItem {
                 item: DocumentItem::Map {
-                    slice: slice.clone(),
+                    slices: slices.clone(),
                     comment: None,
                     char_repr: format!("U+{cp:04X}"),
                     glyph: composite_name,

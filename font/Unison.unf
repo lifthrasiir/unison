@@ -18,8 +18,19 @@ face term : narrow
 meta term : family `Unison Term`
 meta term : subfamily Regular
 
+// being a monospace font, Unison has to deal with East Asian Width,
+// a category that determines whether the character is half-width, full-width or ambiguous.
+// the handling of EAW=Ambiguous is especially annoying because
+// CJK and non-CJK environments generally expect different behaviors.
+// these slices essentially represent each environment.
 slice narrow // EAW=Ambiguous is narrow (typical in non-CJK, for terminals)
 slice wide // EAW=Ambiguous is wide (typical in CJK)
+
+// by convention, most environment-dependent glyphs are named so that
+// the narrow version is named after the wide version plus `-half`.
+// this special name-parts definition simplifies this naming convention.
+name-parts wide : $-half = ``
+name-parts narrow : $-half = -half
 
 // these are the bare minimum glyphs required for an OpenType font.
 

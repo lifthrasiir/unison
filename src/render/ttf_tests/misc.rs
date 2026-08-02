@@ -361,6 +361,47 @@ map A = n
     assert_eq!(advance_of(&ttf, 'A'), 64);
 }
 
+/// A slice-qualified line may name several slices, and a slice-scoped
+/// `name-parts` gives each of them its own spelling of the target — which is
+/// how a naming scheme that differs by one suffix is written once instead of
+/// once per slice. The slices are an outer loop: `⓪|①` below expands against
+/// the codepoints in each slice separately, not zipped against them.
+#[test]
+fn a_slice_scoped_name_part_states_one_map_per_slice() {
+    let src = "\
+slice narrow
+slice wide
+name-parts wide : $half = ``
+name-parts narrow : $half = -half
+glyph w 2 1
+@@@@
+glyph w-half 1 1
+@@
+glyph z 2 1
+@@@@
+glyph z-half 1 1
+@@
+map wide|narrow : ⓪|① = (w|z)($half)
+";
+    let advance_of = |ttf: &[u8], ch: char| -> u16 {
+        let font = read_fonts::FontRef::new(ttf).unwrap();
+        let gid = font
+            .cmap()
+            .unwrap()
+            .map_codepoint(ch)
+            .expect("must be mapped");
+        font.hmtx().unwrap().advance(gid).unwrap()
+    };
+
+    let ttf = build_from(&format!("{src}face wide : wide\n"));
+    assert_eq!(advance_of(&ttf, '⓪'), 128, "the wide face gets `w`");
+    assert_eq!(advance_of(&ttf, '①'), 128, "...and `z`");
+
+    let ttf = build_from(&format!("{src}face term : narrow\n"));
+    assert_eq!(advance_of(&ttf, '⓪'), 64, "the narrow face gets `w-half`");
+    assert_eq!(advance_of(&ttf, '①'), 64, "...and `z-half`");
+}
+
 /// A character mapped in both the base slice and an included slice is an
 /// `issues.rs` error, but the builder still has to survive it: this used to
 /// `unwrap()` a `CmapConflict` deep in the table stage, and the panic killed

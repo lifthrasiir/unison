@@ -122,6 +122,36 @@ fn split_qualifier(rest: &[TokenSpan]) -> (Option<&TokenSpan>, &[TokenSpan]) {
     }
 }
 
+/// Push one `SliceRef` per slice of a `SLICE[|SLICE...] :` qualifier, each with
+/// its own columns — so a link, a hover or an F2 lands on the slice under the
+/// caret rather than on the whole list.
+///
+/// A quoted token is left whole: its raw span no longer lines up with its
+/// value, and a slice id never needs quoting anyway.
+fn push_slice_refs(fields: &mut Vec<LineField>, leading: usize, span: &TokenSpan) {
+    if span.value.is_empty() {
+        return;
+    }
+    let unquoted = span.raw_end - span.raw_start == span.value.chars().count();
+    if !span.value.contains('|') || !unquoted {
+        fields.push(field(FieldRole::SliceRef, leading, span));
+        return;
+    }
+    let mut at = span.raw_start;
+    for part in span.value.split('|') {
+        let len = part.chars().count();
+        if !part.is_empty() {
+            fields.push(LineField {
+                role: FieldRole::SliceRef,
+                token: part.to_string(),
+                col_start: leading + at,
+                col_end: leading + at + len,
+            });
+        }
+        at += len + 1; // the `|` itself
+    }
+}
+
 pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
     let trimmed = line.trim_start();
     let leading = line.chars().count() - trimmed.chars().count();
@@ -164,6 +194,10 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             }
         }
         "name-parts" => {
+            let (slice, rest) = split_qualifier(rest);
+            if let Some(slice) = slice {
+                push_slice_refs(&mut fields, leading, slice);
+            }
             if rest.len() >= 3 && rest[1].value == "=" {
                 fields.push(field(FieldRole::NamePartsDef, leading, &rest[0]));
                 for span in &rest[2..] {
@@ -175,10 +209,8 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             // The `SLICE :` qualifier comes off first, so the arities below are
             // the ones the unqualified form has always had.
             let (slice, rest) = split_qualifier(rest);
-            if let Some(slice) = slice
-                && !slice.value.is_empty()
-            {
-                fields.push(field(FieldRole::SliceRef, leading, slice));
+            if let Some(slice) = slice {
+                push_slice_refs(&mut fields, leading, slice);
             }
             if rest.len() == 3 && rest[1].value == "=" {
                 fields.push(field(FieldRole::GlyphRef, leading, &rest[2]));
@@ -229,10 +261,8 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
         }
         "feature" => {
             let (slice, rest) = split_qualifier(rest);
-            if let Some(slice) = slice
-                && !slice.value.is_empty()
-            {
-                fields.push(field(FieldRole::SliceRef, leading, slice));
+            if let Some(slice) = slice {
+                push_slice_refs(&mut fields, leading, slice);
             }
             if let Some(tag) = rest.first()
                 && !tag.value.is_empty()
@@ -539,6 +569,33 @@ mod tests {
             vec![
                 (FieldRole::SliceRef, "narrow".to_string()),
                 (FieldRole::GlyphDef, "hangul-ga".to_string()),
+            ],
+        );
+    }
+
+    /// A listed qualifier is one field per slice, each with its own columns —
+    /// otherwise a link or an F2 would act on `wide|narrow` as if that were one
+    /// id. `name-parts` takes the same qualifier.
+    #[test]
+    fn each_slice_of_a_listed_qualifier_is_its_own_field() {
+        let fields = classify_line("map wide|narrow : A = latin-a");
+        assert_eq!(
+            fields
+                .iter()
+                .map(|f| (f.role, f.token.as_str(), f.col_start, f.col_end))
+                .collect::<Vec<_>>(),
+            vec![
+                (FieldRole::SliceRef, "wide", 4, 8),
+                (FieldRole::SliceRef, "narrow", 9, 15),
+                (FieldRole::GlyphRef, "latin-a", 22, 29),
+            ],
+        );
+        assert_eq!(
+            roles("name-parts narrow : $half = -half"),
+            vec![
+                (FieldRole::SliceRef, "narrow".to_string()),
+                (FieldRole::NamePartsDef, "$half".to_string()),
+                (FieldRole::NamePartsValue, "-half".to_string()),
             ],
         );
     }

@@ -417,13 +417,8 @@ glyph mayan-19-half
 ref mayan-15-half
 ref mayan-4-half 0 -9
 
-map wide : 𝋠|𝋡|𝋢|𝋣|𝋤 = mayan-($0..4)
-map wide : 𝋥|𝋦|𝋧|𝋨|𝋩 = mayan-($5..9)
-map wide : 𝋪|𝋫|𝋬|𝋭|𝋮 = mayan-($10..14)
-map wide : 𝋯|𝋰|𝋱|𝋲|𝋳 = mayan-($15..19)
-
-map narrow : 𝋠|𝋡|𝋢|𝋣|𝋤 = mayan-($0..4)-half
-map narrow : 𝋥|𝋦|𝋧|𝋨|𝋩 = mayan-($5..9)-half
-map narrow : 𝋪|𝋫|𝋬|𝋭|𝋮 = mayan-($10..14)-half
-map narrow : 𝋯|𝋰|𝋱|𝋲|𝋳 = mayan-($15..19)-half
+map wide|narrow : 𝋠|𝋡|𝋢|𝋣|𝋤 = mayan-($0..4)($-half)
+map wide|narrow : 𝋥|𝋦|𝋧|𝋨|𝋩 = mayan-($5..9)($-half)
+map wide|narrow : 𝋪|𝋫|𝋬|𝋭|𝋮 = mayan-($10..14)($-half)
+map wide|narrow : 𝋯|𝋰|𝋱|𝋲|𝋳 = mayan-($15..19)($-half)
 

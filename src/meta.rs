@@ -365,7 +365,7 @@ pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), Strin
 
     // The scope comes off the front exactly as a slice qualifier does. `*` is
     // an explicit spelling of "every face"; a bare key means the same thing.
-    let (scope, tokens) = match crate::document::DocumentItem::split_slice_qualifier(&tokens) {
+    let (scope, tokens) = match crate::document::DocumentItem::split_qualifier_token(&tokens) {
         (Some(face), rest) if face == "*" => (None, rest.to_vec()),
         (Some(face), rest) => (Some(face), rest.to_vec()),
         (None, rest) => (None, rest.to_vec()),

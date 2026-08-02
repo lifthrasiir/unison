@@ -957,8 +957,7 @@ glyph cup 8 16
 ................
 
 map ∁ = complement
-map wide : ∅ = empty-set
-map narrow : ∅ = empty-set-half
+map wide|narrow : ∅ = empty-set($-half)
 
 map ⊂ = subset-of
 map ⊆ = subset-of-eq

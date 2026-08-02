@@ -1080,11 +1080,9 @@ glyph reference-mark-half 8 16
 
 map * = star
 map ⁑ = double-star
-map wide : ⁂ = triple-star
-map narrow : ⁂ = triple-star-half
+map wide|narrow : ⁂ = triple-star($-half)
 
-map wide : ※ = reference-mark
-map narrow : ※ = reference-mark-half
+map wide|narrow : ※ = reference-mark($-half)
 
 //--------------------------------------
 // exclamation and question marks
@@ -1596,10 +1594,8 @@ glyph permyriad-half 8 16
 ................
 
 map % = percent
-map wide : ‰ = permille
-map wide : ‱ = permyriad
-map narrow : ‰ = permille-half
-map narrow : ‱ = permyriad-half
+map wide|narrow : ‰ = permille($-half)
+map wide|narrow : ‱ = permyriad($-half)
 
 //--------------------------------------
 // general symbols

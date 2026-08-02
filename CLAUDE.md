@@ -135,6 +135,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Why the glyph order is face-independent | `render/ttf_builder/collect.rs`, `build_faces` in `mod.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
+| Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |

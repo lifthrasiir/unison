@@ -121,8 +121,8 @@ assert shape AB for wide both : a : b
         doc.items[3],
     );
     assert!(
-        matches!(&doc.items[5], DocumentItem::Map { slice, char_repr, .. }
-            if slice.as_deref() == Some("wide") && char_repr == "°"),
+        matches!(&doc.items[5], DocumentItem::Map { slices, char_repr, .. }
+            if slices == &["wide"] && char_repr == "°"),
         "got {:?}",
         doc.items[5],
     );
@@ -144,8 +144,8 @@ assert shape AB for wide both : a : b
 fn a_colon_being_mapped_is_not_a_slice_qualifier() {
     let doc = parse_document_from_str("map : = colon\n", "test.unf".into()).unwrap();
     assert!(
-        matches!(&doc.items[0], DocumentItem::Map { slice, char_repr, glyph, .. }
-            if slice.is_none() && char_repr == ":" && glyph == "colon"),
+        matches!(&doc.items[0], DocumentItem::Map { slices, char_repr, glyph, .. }
+            if slices.is_empty() && char_repr == ":" && glyph == "colon"),
         "got {:?}",
         doc.items[0],
     );
@@ -153,11 +153,47 @@ fn a_colon_being_mapped_is_not_a_slice_qualifier() {
     // ...and a slice-qualified mapping *of* a colon still works.
     let doc = parse_document_from_str("map wide : : = colon\n", "test.unf".into()).unwrap();
     assert!(
-        matches!(&doc.items[0], DocumentItem::Map { slice, char_repr, .. }
-            if slice.as_deref() == Some("wide") && char_repr == ":"),
+        matches!(&doc.items[0], DocumentItem::Map { slices, char_repr, .. }
+            if slices == &["wide"] && char_repr == ":"),
         "got {:?}",
         doc.items[0],
     );
+}
+
+/// A qualifier may list slices, and `name-parts` takes one too. Both are the
+/// same single token the parser already looked for, so `wide|narrow` round-trips
+/// as written rather than being re-spelled on the way out.
+#[test]
+fn a_slice_list_qualifier_roundtrips() {
+    let input = "\
+name-parts wide : $half = ``
+name-parts narrow : $half = -half
+map wide|narrow : ⁂ = triple-star($half)
+feature wide|narrow : ccmp for DFLT : deemojify
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[1], DocumentItem::NameParts { slices, name, values, .. }
+            if slices == &["narrow"] && name == "$half" && values == &["-half"]),
+        "got {:?}",
+        doc.items[1],
+    );
+    assert!(
+        matches!(&doc.items[2], DocumentItem::Map { slices, glyph, .. }
+            if slices == &["wide", "narrow"] && glyph == "triple-star($half)"),
+        "got {:?}",
+        doc.items[2],
+    );
+    assert!(
+        matches!(&doc.items[3], DocumentItem::Feature { slices, .. }
+            if slices == &["wide", "narrow"]),
+        "got {:?}",
+        doc.items[3],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
 }
 
 #[test]
