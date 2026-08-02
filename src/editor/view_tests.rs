@@ -2178,6 +2178,61 @@ fn scrollbar_drag_passing_over_the_grid_does_not_paint() {
     }
 }
 
+/// Regression test: a menu drawn over the grid closes on the press, and the
+/// grid — which reads the raw pointer state rather than a click — took the
+/// still-held button on the following frame for a paint stroke, filling the
+/// cell the menu entry had covered. Painting must follow only a gesture that
+/// began on the grid itself.
+#[test]
+fn clicking_a_menu_over_the_grid_does_not_paint() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.click_grid_cell(1, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
+        "expected GlyphEdit, got {:?}",
+        h.state.mode
+    );
+    h.frame();
+
+    let cell = h.grid_cell_pos(1, 2, 3);
+    assert!(h.grid(1).get(2, 3).is_empty(), "cell (2, 3) starts empty");
+
+    // A menu covering that cell, then a click on the entry over it: the menu
+    // closes on the press, and the button comes up a frame later — by then
+    // nothing is between the pointer and the grid.
+    h.menu_overlay = Some(egui::Rect::from_center_size(cell, egui::vec2(120.0, 60.0)));
+    h.frame();
+    h.press_at(cell);
+    h.menu_overlay = None;
+    h.frame();
+    h.release_at(cell);
+    h.frame();
+
+    assert!(
+        h.grid(1).get(2, 3).is_empty(),
+        "clicking a menu entry must not paint the cell underneath it"
+    );
+}
+
+/// The other half of [`clicking_a_menu_over_the_grid_does_not_paint`]: a press
+/// that does land on the grid still paints on the very frame it arrives.
+#[test]
+fn a_press_starting_on_the_grid_paints() {
+    let mut h = EditorHarness::new(&sample_doc());
+    h.click_grid_cell(1, 0, 0);
+    h.frame();
+
+    let cell = h.grid_cell_pos(1, 2, 3);
+    h.press_at(cell);
+    h.release_at(cell);
+    h.frame();
+
+    assert!(
+        !h.grid(1).get(2, 3).is_empty(),
+        "a press on the grid should paint the cell under it"
+    );
+}
+
 #[test]
 fn scrollbar_only_shows_for_the_glyph_being_edited() {
     let mut h = EditorHarness::new(&wide_doc());

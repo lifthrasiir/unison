@@ -25,6 +25,58 @@ pub(crate) fn layer_effective_offset(
         .map(|layer| (layer.logical_offset_row, layer.logical_offset_col))
 }
 
+/// Did the in-flight pointer gesture start on this glyph's grid?
+///
+/// Painting reads the raw button state rather than a click, so without this it
+/// follows any held button that happens to hover a cell — and a menu drawn over
+/// the grid closes on the *press*, leaving the button down over the cell the
+/// entry covered for the frames that follow. The answer therefore has to be
+/// latched when the button goes down: by the next frame the menu is gone and
+/// nothing distinguishes it from a stroke that began on the grid.
+///
+/// Two things make a press a grid press: it landed inside the drawn grid (of
+/// the band, not under a scrollbar), *and* nothing was drawn above the editor
+/// there — a popup covering the grid owns its own layer.
+#[allow(clippy::too_many_arguments)]
+fn grid_gesture(
+    ui: &egui::Ui,
+    state: &EditorState,
+    pixel_row: i16,
+    extent: GridExtent,
+    strip: &super::document_view::GridStrip,
+    grid_x: f32,
+    grid_y: f32,
+    grid_cell: f32,
+) -> bool {
+    let gesture_id = state.key(Slot::GridPaintGesture);
+    if !ui.input(|i| i.pointer.any_down()) {
+        ui.data_mut(|d| d.remove::<bool>(gesture_id));
+        return false;
+    }
+    if ui.input(|i| i.pointer.any_pressed())
+        && let Some(origin) = ui.input(|i| i.pointer.press_origin())
+    {
+        // `grid_y` is this row's top edge; the rows above and below it belong
+        // to the same grid, and a stroke may start on any of them.
+        let grid_top = grid_y - (pixel_row - extent.top) as f32 * grid_cell;
+        let grid_rect = egui::Rect::from_min_size(
+            egui::pos2(grid_x, grid_top),
+            egui::vec2(
+                extent.display_width(grid_cell),
+                (extent.bottom - extent.top) as f32 * grid_cell,
+            ),
+        )
+        .intersect(ui.clip_rect());
+        if grid_rect.contains(origin)
+            && strip.accepts_pointer(origin)
+            && ui.ctx().layer_id_at(origin) == Some(ui.layer_id())
+        {
+            ui.data_mut(|d| d.insert_temp(gesture_id, true));
+        }
+    }
+    ui.data(|d| d.get_temp::<bool>(gesture_id).unwrap_or(false))
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn handle_pixel_painting(
     ui: &egui::Ui,
@@ -53,8 +105,12 @@ pub(crate) fn handle_pixel_painting(
         if state.suppress_grid_click && !ui.input(|i| i.pointer.primary_down()) {
             state.suppress_grid_click = false;
         }
-        let primary = !state.suppress_grid_click && ui.input(|i| i.pointer.primary_down());
-        let secondary = ui.input(|i| i.pointer.secondary_down());
+        let on_grid_gesture = grid_gesture(
+            ui, state, pixel_row, extent, strip, grid_x, grid_y, grid_cell,
+        );
+        let primary =
+            on_grid_gesture && !state.suppress_grid_click && ui.input(|i| i.pointer.primary_down());
+        let secondary = on_grid_gesture && ui.input(|i| i.pointer.secondary_down());
         let shift_held = ui.input(|i| i.modifiers.shift);
 
         let slant_last_id = state.key(Slot::SlantToggleLastCell);

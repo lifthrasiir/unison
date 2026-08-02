@@ -256,6 +256,10 @@ pub(crate) struct EditorHarness {
     /// The navigation request the primary editor reported on the most recent
     /// frame that produced one — what the host would act on and record.
     pub last_nav: Option<crate::editor::document_view::NavRequest>,
+    /// While set, a menu-like `egui::Area` is drawn above the editor over this
+    /// rect, so a test can send a click that lands on a popup covering the
+    /// grid instead of on the grid itself.
+    pub menu_overlay: Option<egui::Rect>,
     /// A second editor drawn beside the primary one in the *same* context and
     /// the same frame. Only [`EditorHarness::split`] creates it; every other
     /// test keeps the single-pane layout untouched.
@@ -325,6 +329,7 @@ impl EditorHarness {
             snapshot: None,
             last_copied_text: None,
             last_nav: None,
+            menu_overlay: None,
             second: None,
         };
         h.rebuild_derived();
@@ -376,7 +381,16 @@ impl EditorHarness {
         let prev_second_gen = self.second.as_ref().map(|p| p.doc.edit_gen);
         let ctx = self.ctx.clone();
         let mut nav_result = None;
+        let menu_overlay = self.menu_overlay;
         let full_output = ctx.run(raw, |cx| {
+            if let Some(rect) = menu_overlay {
+                egui::Area::new(egui::Id::new("test_menu_overlay"))
+                    .order(egui::Order::Foreground)
+                    .fixed_pos(rect.min)
+                    .show(cx, |ui| {
+                        ui.allocate_response(rect.size(), egui::Sense::click());
+                    });
+            }
             egui::CentralPanel::default().show(cx, |ui| {
                 let colors = crate::render::ttf_builder::ColorAliasMap::default();
                 let Some(second) = &mut self.second else {

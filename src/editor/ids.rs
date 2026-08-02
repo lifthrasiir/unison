@@ -152,6 +152,9 @@ pub(crate) enum Slot {
     /// Last cell a slant shape was painted into, so dragging along a run of
     /// cells does not re-toggle the slant direction within one cell.
     SlantToggleLastCell,
+    /// Latched at press time: did the in-flight pointer gesture start on the
+    /// glyph grid itself? Painting follows only such a gesture.
+    GridPaintGesture,
     /// Sub-cell remainder of an in-progress layer-move drag.
     LayerDragAccum,
     /// The in-progress pixel-selection drag (new selection, or moving one).
