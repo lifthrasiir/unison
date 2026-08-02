@@ -140,6 +140,32 @@ pub(crate) fn capture_palette_rect(
     });
 }
 
+fn color_spans_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestColorSpans)
+}
+
+/// Called from the document paint loop (test builds only) to publish the
+/// color-token backgrounds one visual line painted, in absolute document
+/// columns clipped to that line. A token a soft wrap moved onto a later
+/// segment still gets one, so a test can tell "drawn elsewhere" from "dropped".
+pub(crate) fn capture_color_spans(
+    ctx: &egui::Context,
+    editor: EditorId,
+    doc_line: usize,
+    spans: &[(usize, usize)],
+) {
+    if spans.is_empty() {
+        return;
+    }
+    ctx.data_mut(|d| {
+        let mut all = d
+            .get_temp::<Vec<(usize, usize, usize)>>(color_spans_id(editor))
+            .unwrap_or_default();
+        all.extend(spans.iter().map(|(s, e)| (doc_line, *s, *e)));
+        d.insert_temp(color_spans_id(editor), all);
+    });
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -201,6 +227,8 @@ pub(crate) fn capture_snapshot(
         vlines: snaps,
     };
     ctx.data_mut(|d| d.insert_temp(snapshot_id(editor), Arc::new(snapshot)));
+    // The paint loop appends to this as it goes, so the frame starts clean.
+    ctx.data_mut(|d| d.insert_temp(color_spans_id(editor), Vec::<(usize, usize, usize)>::new()));
 }
 
 // ---------------------------------------------------------------------------
@@ -790,6 +818,14 @@ impl EditorHarness {
             }
         }
         panic!("no text visual line covering doc line {line} col {col}");
+    }
+
+    /// The color-token backgrounds the last frame painted, as `(doc_line,
+    /// col_start, col_end)` in absolute document columns.
+    pub fn color_backgrounds(&self) -> Vec<(usize, usize, usize)> {
+        self.ctx
+            .data(|d| d.get_temp::<Vec<(usize, usize, usize)>>(color_spans_id(self.state.id())))
+            .unwrap_or_default()
     }
 
     /// Screen rect of a ref-layer thumbnail in the inline tools panel (only

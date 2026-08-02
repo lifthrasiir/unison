@@ -264,10 +264,20 @@ pub(super) fn paint_document_area(
                     );
 
                     // Color background for color tokens in color/ref-fill lines
-                    paint_color_backgrounds(
-                        &painter, ui, &font_id, &atext, vl.col_offset,
+                    let color_spans = paint_color_backgrounds(
+                        &painter, ui, &font_id, &atext,
+                        doc_line_text(lines, vl, text), vl.col_offset,
                         origin.x + LEFT_PAD, origin.y + y, h, color_aliases,
                     );
+                    #[cfg(test)]
+                    crate::editor::harness::capture_color_spans(
+                        ui.ctx(),
+                        state.id(),
+                        vl.doc_line,
+                        &color_spans,
+                    );
+                    #[cfg(not(test))]
+                    let _ = color_spans;
 
                     if !vl.error_spans.is_empty() {
                         let error_color = pal.error;
@@ -303,7 +313,20 @@ pub(super) fn paint_document_area(
                     }
 
                     if cmd_held {
-                        let links = doc_links::extract_line_links(text);
+                        // Off the whole line, not this segment: a name cut by
+                        // the wrap would otherwise name only its own half.
+                        let links =
+                            doc_links::extract_line_links(doc_line_text(lines, vl, text));
+                        // Where a link falls on *this* segment, clipped to it —
+                        // `None` for one that lies entirely on another segment.
+                        let seg_len = text.chars().count();
+                        let seg_span = |link: &LinkSpan| {
+                            let lo = vl.col_offset;
+                            let hi = lo + seg_len;
+                            let s = link.col_start.clamp(lo, hi) - lo;
+                            let e = link.col_end.clamp(lo, hi) - lo;
+                            (s < e).then_some((s, e))
+                        };
                         if !links.is_empty() {
                             let link_color = pal.link;
                             let name_y0 = origin.y + y;
@@ -316,10 +339,9 @@ pub(super) fn paint_document_area(
                                 }
                                 let mut best: Option<&LinkSpan> = None;
                                 for link in &links {
-                                    let adj_start =
-                                        link.col_start.saturating_sub(vl.col_offset);
-                                    let adj_end =
-                                        link.col_end.saturating_sub(vl.col_offset);
+                                    let Some((adj_start, adj_end)) = seg_span(link) else {
+                                        continue;
+                                    };
                                     let lx0 =
                                         origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, adj_start);
                                     let lx1 =
@@ -336,11 +358,9 @@ pub(super) fn paint_document_area(
                                 best
                             });
 
-                            if let Some(link) = hovered_link {
-                                let adj_start =
-                                    link.col_start.saturating_sub(vl.col_offset);
-                                let adj_end =
-                                    link.col_end.saturating_sub(vl.col_offset);
+                            if let Some(link) = hovered_link
+                                && let Some((adj_start, adj_end)) = seg_span(link)
+                            {
                                 let lx0 = origin.x
                                     + LEFT_PAD
                                     + atext.x_pos(ui, &font_id, adj_start);
@@ -1092,24 +1112,40 @@ fn contrast_text_color(bg: egui::Color32) -> egui::Color32 {
     }
 }
 
+/// The whole document line a visual line came from — a soft wrap makes the
+/// visual line's own text a *segment* of it, and anything that parses the line
+/// (links, color tokens) has to read all of it: half a line classifies as
+/// different fields entirely. Falls back to the segment when the line is not
+/// text, which cannot happen for a `VLineKind::Text`.
+fn doc_line_text<'a>(lines: &'a [DocLine], vl: &VisualLine, segment: &'a str) -> &'a str {
+    match lines.get(vl.doc_line) {
+        Some(DocLine::Text(s)) => s.as_str(),
+        _ => segment,
+    }
+}
+
+/// Paints the color swatches `line` calls for onto the segment `atext` draws,
+/// and returns the spans it painted in absolute document columns. A swatch
+/// whose token the wrap put on another segment belongs to that segment.
 #[allow(clippy::too_many_arguments)]
 fn paint_color_backgrounds(
     painter: &egui::Painter,
     ui: &egui::Ui,
     font_id: &egui::FontId,
     atext: &AnnotatedText<'_>,
+    line: &str,
     col_offset: usize,
     base_x: f32,
     base_y: f32,
     row_h: f32,
     aliases: &ColorAliasMap,
-) {
+) -> Vec<(usize, usize)> {
     let text = atext.text();
-    let trimmed = text.trim_start();
-    let leading = text.chars().count() - trimmed.chars().count();
+    let trimmed = line.trim_start();
+    let leading = line.chars().count() - trimmed.chars().count();
     let spans = match tokenize_with_spans(trimmed) {
         Ok(s) if !s.is_empty() => s,
-        _ => return,
+        _ => return Vec::new(),
     };
     let keyword = spans[0].value.as_str();
     let rest = &spans[1..];
@@ -1143,9 +1179,17 @@ fn paint_color_backgrounds(
         _ => {}
     }
 
+    let seg_len = text.chars().count();
+    let mut painted = Vec::new();
     for (col_start, col_end, bg_color) in &color_spans {
-        let adj_start = col_start.saturating_sub(col_offset);
-        let adj_end = col_end.saturating_sub(col_offset);
+        // Clipped to this segment: a token the wrap put wholly on another one
+        // has nothing to draw here.
+        let adj_start = (*col_start).clamp(col_offset, col_offset + seg_len) - col_offset;
+        let adj_end = (*col_end).clamp(col_offset, col_offset + seg_len) - col_offset;
+        if adj_start >= adj_end {
+            continue;
+        }
+        painted.push((col_offset + adj_start, col_offset + adj_end));
         let x0 = base_x + atext.x_pos(ui, font_id, adj_start);
         let x1 = base_x + atext.x_pos(ui, font_id, adj_end);
         let rect = egui::Rect::from_min_size(
@@ -1163,4 +1207,5 @@ fn paint_color_backgrounds(
             fg,
         );
     }
+    painted
 }

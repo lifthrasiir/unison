@@ -2773,6 +2773,89 @@ fn clicking_a_link_without_the_modifier_reports_nothing() {
     assert_eq!(h.state.cursor, Caret::new(ref_line, 4));
 }
 
+/// A soft wrap is a drawing decision, not a change to the line: a name split
+/// across one still links to the whole name, from either half. Reading the
+/// links off the wrapped *segment* used to hand the host whatever half was
+/// clicked — and the half that no longer started with `ref` linked nothing.
+#[test]
+fn a_link_split_by_a_soft_wrap_still_names_the_whole_symbol() {
+    use crate::editor::document_view::NavTarget;
+
+    // Long enough to wrap at any plausible editor width.
+    let long: String = std::iter::repeat_n("very-long-glyph-name", 12)
+        .collect::<Vec<_>>()
+        .join("-");
+    let mut h = EditorHarness::new(&link_doc(&format!("ref {long} 0 0")));
+    let ref_line = text_line_at(&h, "ref ");
+
+    let wrap_col = h
+        .snap()
+        .vlines
+        .iter()
+        .filter(|vl| vl.doc_line == ref_line)
+        .filter_map(|vl| match &vl.kind {
+            SnapKind::Text { col_offset, .. } => Some(*col_offset),
+            SnapKind::GridRow { .. } => None,
+        })
+        .find(|c| *c > 0)
+        .expect("the line must wrap for this test to mean anything");
+    let name_start = 4;
+    let name_end = name_start + long.chars().count();
+    assert!(
+        name_start < wrap_col && wrap_col < name_end,
+        "the wrap must fall inside the name, not between tokens",
+    );
+
+    // Both halves of the name are the same link, and both name it in full.
+    for col in [wrap_col - 2, wrap_col + 2] {
+        h.last_nav = None;
+        h.click_at_mod(h.text_pos(ref_line, col), Modifiers::COMMAND);
+        let nav = h
+            .last_nav
+            .as_ref()
+            .unwrap_or_else(|| panic!("no navigation reported for a click at col {col}"));
+        match &nav.target {
+            NavTarget::CrossFile(goto) => assert_eq!(goto.name, long, "at col {col}"),
+            NavTarget::Local { .. } | NavTarget::Search(_) => {
+                panic!("`{long}` is not in this document")
+            }
+        }
+    }
+}
+
+/// The same goes for a color swatch: a `fill` pushed onto a later segment by a
+/// soft wrap is still a `ref` line's fill, and still paints its swatch. Read
+/// off the segment alone, the tail no longer starts with `ref` and the token
+/// simply vanished.
+#[test]
+fn a_color_token_pushed_past_a_soft_wrap_still_paints_its_swatch() {
+    const FILL: &str = "#00ff00";
+    let long: String = std::iter::repeat_n("very-long-glyph-name", 12)
+        .collect::<Vec<_>>()
+        .join("-");
+    let line = format!("ref {long} 0 0 fill {FILL}");
+    let mut h = EditorHarness::new(&link_doc(&line));
+    let ref_line = text_line_at(&h, "ref ");
+    h.frame();
+
+    let wrapped = h
+        .snap()
+        .vlines
+        .iter()
+        .filter(|vl| vl.doc_line == ref_line)
+        .filter(|vl| matches!(vl.kind, SnapKind::Text { col_offset, .. } if col_offset > 0))
+        .count();
+    assert!(wrapped > 0, "the line must wrap for this test to mean anything");
+
+    let col_start = line.chars().count() - FILL.len();
+    assert!(
+        h.color_backgrounds()
+            .contains(&(ref_line, col_start, col_start + FILL.len())),
+        "no swatch for the fill at col {col_start}: {:?}",
+        h.color_backgrounds(),
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Glyph metrics overlay
 // ---------------------------------------------------------------------------

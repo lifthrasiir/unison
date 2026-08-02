@@ -174,6 +174,10 @@ pub(crate) enum Slot {
     /// Map of shape-palette cell rects, published for `EditorHarness`.
     #[cfg(test)]
     TestPaletteRects,
+    /// Color-token backgrounds painted this frame, published for
+    /// `EditorHarness`.
+    #[cfg(test)]
+    TestColorSpans,
 }
 
 #[cfg(test)]
