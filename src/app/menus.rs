@@ -768,12 +768,11 @@ impl UniformApp {
                 self.nav_history.clear();
                 // Its hits name files that are no longer the ones on screen.
                 self.search = None;
-                self.search_file_cache.clear();
                 self.sidebar.set_directory(&dir);
                 self.watch.set_directory(&dir, ctx);
-                let (base_docs, parse_errors) = crate::render::ttf_builder::load_docs_from_directory_checked(&dir);
-                self.font_base_docs = base_docs;
-                self.file_parse_errors = parse_errors;
+                let (base_docs, parse_errors, sources) =
+                    crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+                self.install_font_snapshot(base_docs, parse_errors, sources);
                 // The faces of the old folder mean nothing in the new one.
                 self.selected_face.clear();
                 self.face_ids.clear();

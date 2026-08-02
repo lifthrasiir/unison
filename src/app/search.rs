@@ -25,11 +25,16 @@
 //! rewrites spacing and comments, never the order names appear in, so the
 //! ordinal survives it. The ordinal counts *occurrences*, not lines — a line
 //! naming the same glyph twice is two rows — and both ends have to agree on that
-//! or every later hit in the file lands one off. Open documents are searched as
-//! they stand, unsaved edits included; unopened ones through `file_text`.
-//! (Like the navigation history, nothing rewrites a
-//! recorded position when the document is edited underneath it; a stale
-//! search is re-run by clicking the name again.)
+//! or every later hit in the file lands one off. (Like the navigation history,
+//! nothing rewrites a recorded position when the document is edited underneath
+//! it; a stale search is re-run by clicking the name again.)
+//!
+//! Open documents are searched as they stand, unsaved edits included; unopened
+//! ones come from the
+//! directory snapshot's [`super::docs::FontSource`], never from disk — the
+//! click is on the UI thread, and the font directory is routinely a network
+//! volume where one `stat` per file is already a stall. That also makes the
+//! search agree with navigation, which has always read the same snapshot.
 
 use super::*;
 use crate::editor::doc_links::{LinkSpan, scan_dollar_refs};
@@ -203,70 +208,45 @@ impl SearchResults {
     }
 }
 
-impl UniformApp {
-    /// The on-disk text of a file no pane is editing, cached until its
-    /// modification time moves.
-    ///
-    /// A search runs on a click, so it must not wait on a directory's worth of
-    /// I/O each time. The mtime is what keeps the cache honest: a closed file
-    /// changes only from outside the editor, and that is exactly what a
-    /// generation counter would not see.
-    fn file_text(&mut self, path: &std::path::Path) -> Option<&str> {
-        let mtime = std::fs::metadata(path).and_then(|m| m.modified()).ok();
-        let stale = mtime.is_none()
-            || self
-                .search_file_cache
-                .get(path)
-                .is_none_or(|(cached, _)| *cached != mtime);
-        if stale {
-            let text = std::fs::read_to_string(path).ok()?;
-            self.search_file_cache
-                .insert(path.to_path_buf(), (mtime, text));
-        }
-        self.search_file_cache.get(path).map(|(_, t)| t.as_str())
-    }
+/// Where one searched file's text comes from.
+pub(super) enum SearchText<'a> {
+    /// An open buffer, unsaved edits included, with the document that maps a
+    /// docline back to a file line.
+    Buffer(&'a [DocLine], &'a Document),
+    /// The directory snapshot's source text.
+    Source(&'a str),
+}
 
-    /// Lists every appearance of `name` and reveals the Search pane.
-    ///
-    /// Open documents are searched as they stand, including unsaved edits; the
-    /// rest come from [`file_text`], which serves them from memory after the
-    /// first search. Both pre-filter on the literal name before tokenizing
-    /// anything, per file and again per line.
-    pub(super) fn search_name(
-        &mut self,
-        ctx: &egui::Context,
-        name: &str,
-        kind: LinkTargetKind,
-    ) {
-        let paths: Vec<PathBuf> = self
-            .collect_all_docs()
-            .iter()
-            .map(|doc| doc.path.clone())
-            .collect();
-
-        let mut hits: Vec<SearchHit> = Vec::new();
-        let mut file_count = 0usize;
-        for path in paths {
-            let before = hits.len();
-            if let Some(doc) = self
-                .open_documents
-                .iter()
-                .find(|d| d.document.path == path)
-            {
+/// Every appearance of `name`, over files already in memory.
+///
+/// Kept free of the application and of the filesystem both, which is the point:
+/// a search runs on a click, and the click must not wait on a network volume.
+/// See [`super::docs::FontSource`] for where the text of an unopened file comes
+/// from and how it stays current.
+pub(super) fn collect_hits(
+    files: &[(PathBuf, SearchText<'_>)],
+    name: &str,
+    kind: LinkTargetKind,
+) -> (Vec<SearchHit>, usize) {
+    let mut hits: Vec<SearchHit> = Vec::new();
+    let mut file_count = 0usize;
+    for (path, text) in files {
+        let before = hits.len();
+        match text {
+            SearchText::Buffer(lines, doc) => {
                 for (ordinal, (line_idx, span)) in
-                    hits_in_doclines(&doc.lines, name, kind).into_iter().enumerate()
+                    hits_in_doclines(lines, name, kind).into_iter().enumerate()
                 {
                     hits.push(hit(
-                        &path,
+                        path,
                         ordinal,
-                        doc.document.docline_file_line(line_idx),
-                        doc.lines[line_idx].as_text().unwrap_or_default(),
+                        doc.docline_file_line(line_idx),
+                        lines[line_idx].as_text().unwrap_or_default(),
                         span,
                     ));
                 }
-            } else if let Some(content) = self.file_text(&path)
-                && content.contains(name)
-            {
+            }
+            SearchText::Source(content) if content.contains(name) => {
                 // Enumerated over occurrences, not over lines: a line naming
                 // the same glyph twice is two rows, and the ordinal has to
                 // agree with `hits_in_doclines` once the file opens.
@@ -280,13 +260,53 @@ impl UniformApp {
                     })
                     .collect();
                 for (ordinal, (line_idx, text, span)) in found.into_iter().enumerate() {
-                    hits.push(hit(&path, ordinal, line_idx + 1, text, span));
+                    hits.push(hit(path, ordinal, line_idx + 1, text, span));
                 }
             }
-            if hits.len() > before {
-                file_count += 1;
-            }
+            SearchText::Source(_) => {}
         }
+        if hits.len() > before {
+            file_count += 1;
+        }
+    }
+    (hits, file_count)
+}
+
+impl UniformApp {
+    /// Lists every appearance of `name` and reveals the Search pane.
+    ///
+    /// Open documents are searched as they stand, including unsaved edits; the
+    /// rest come from the directory snapshot's sources, so the whole search is
+    /// memory-only — a click never waits on the filesystem, which on a network
+    /// volume is what made it a stall rather than a search. Both pre-filter on
+    /// the literal name before tokenizing anything, per file and again per line.
+    pub(super) fn search_name(
+        &mut self,
+        ctx: &egui::Context,
+        name: &str,
+        kind: LinkTargetKind,
+    ) {
+        let paths: Vec<PathBuf> = self
+            .collect_all_docs()
+            .iter()
+            .map(|doc| doc.path.clone())
+            .collect();
+
+        // A path here is either an open document or a snapshot document, and
+        // the snapshot's sources cover the latter; a path in neither has no
+        // text to search and is skipped rather than read.
+        let files: Vec<(PathBuf, SearchText<'_>)> = paths
+            .into_iter()
+            .filter_map(|path| {
+                let text = match self.open_documents.iter().find(|d| d.document.path == path) {
+                    Some(doc) => SearchText::Buffer(&doc.lines, &doc.document),
+                    None => SearchText::Source(&self.font_sources.get(&path)?.text),
+                };
+                Some((path, text))
+            })
+            .collect();
+        let (hits, file_count) = collect_hits(&files, name, kind);
+        drop(files);
 
         self.search = Some(SearchResults {
             name: name.to_string(),
@@ -348,6 +368,33 @@ impl UniformApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The point of the snapshot sources: a file no pane is editing is searched
+    /// without the filesystem being consulted at all. The path here exists
+    /// nowhere on disk, so any hit can only have come from memory.
+    #[test]
+    fn an_unopened_file_is_searched_from_the_snapshot_source() {
+        let path = PathBuf::from("/nonexistent/never-read.unf");
+        let source = "glyph foo 8 16\nref bar 0 0\n";
+        let files = vec![(path.clone(), SearchText::Source(source))];
+        let (hits, file_count) = collect_hits(&files, "bar", LinkTargetKind::Glyph);
+        assert_eq!(file_count, 1);
+        assert_eq!(hits.len(), 1);
+        assert_eq!(hits[0].path, path);
+        assert_eq!(hits[0].file_line, 2);
+        assert_eq!(hits[0].text, "ref bar 0 0");
+    }
+
+    /// A path the snapshot has no source for contributes nothing rather than
+    /// sending the search back to disk for it.
+    #[test]
+    fn a_file_with_no_source_contributes_no_hits() {
+        let files: Vec<(PathBuf, SearchText)> = Vec::new();
+        let (hits, file_count) = collect_hits(&files, "bar", LinkTargetKind::Glyph);
+        assert!(hits.is_empty());
+        assert_eq!(file_count, 0);
+    }
+
 
     /// Start columns only; the spans' ends are pinned separately, by the
     /// highlight tests.

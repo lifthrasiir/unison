@@ -299,8 +299,10 @@ pub(super) enum ScanOutcome {
 /// One scan's worth of work, all of it done off the UI thread.
 pub(super) struct ScanResult {
     files: Vec<ScannedFile>,
-    /// The re-parsed directory snapshot and its parse errors.
-    snapshot: Option<(Vec<Document>, Vec<(PathBuf, String)>)>,
+    /// The re-parsed directory snapshot, its parse errors, and the bytes it was
+    /// parsed from — the UI thread keeps those, so nothing reads these files
+    /// again to search or open them.
+    snapshot: Option<crate::render::ttf_builder::LoadedDir>,
     /// The `.unf` files the directory holds, so refreshing the sidebar costs
     /// the UI thread no `read_dir` of its own.
     listing: Option<Vec<PathBuf>>,
@@ -474,7 +476,7 @@ fn run_scan(request: ScanRequest) -> ScanResult {
 
     let (snapshot, listing) = match request.dir {
         Some(dir) => {
-            let parsed = crate::render::ttf_builder::load_docs_from_directory_checked(&dir);
+            let parsed = crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
             let mut listing: Vec<PathBuf> = std::fs::read_dir(&dir)
                 .into_iter()
                 .flatten()
@@ -517,8 +519,8 @@ impl super::UniformApp {
     /// results go to the queue [`Self::apply_watch_changes`] drains.
     fn collect_scan_result(&mut self) {
         let Some(result) = self.watch.take_scan_result() else { return };
-        if let Some((docs, errors)) = result.snapshot {
-            self.apply_directory_snapshot(docs, errors);
+        if let Some((docs, errors, sources)) = result.snapshot {
+            self.apply_directory_snapshot(docs, errors, sources);
         }
         if let Some(listing) = result.listing {
             self.watch.hold_listing(listing);
@@ -639,6 +641,7 @@ impl super::UniformApp {
         &mut self,
         mut docs: Vec<Document>,
         errors: Vec<(PathBuf, String)>,
+        sources: Vec<(PathBuf, Vec<u8>)>,
     ) {
         for doc in &mut docs {
             let (edit_gen, content_gen) = self
@@ -650,10 +653,7 @@ impl super::UniformApp {
             doc.edit_gen = edit_gen.wrapping_add(1);
             doc.content_gen = content_gen.wrapping_add(1);
         }
-        self.font_base_docs = docs;
-        self.file_parse_errors = errors;
-        // Files came or went, so cached searches over them are stale.
-        self.search_file_cache.clear();
+        self.install_font_snapshot(docs, errors, sources);
     }
 
     /// Says what a change to a file no pane was showing did, now that a pane
@@ -774,8 +774,13 @@ mod tests {
 
         // The snapshot and the file list come from the same scan, so applying
         // them costs the UI thread no filesystem access of its own.
-        let (docs, _errors) = result.snapshot.expect("snapshot");
+        let (docs, _errors, sources) = result.snapshot.expect("snapshot");
         assert_eq!(docs.len(), 2);
+        // Every snapshot document's source comes back with it, so a later
+        // search or open of one reads nothing.
+        let mut sourced: Vec<&Path> = sources.iter().map(|(p, _)| p.as_path()).collect();
+        sourced.sort();
+        assert_eq!(sourced, [changed.as_path(), same.as_path()]);
         let listing: Vec<&Path> = result
             .listing
             .as_deref()

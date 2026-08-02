@@ -150,7 +150,7 @@ use std::fmt;
 use std::io::Write;
 use std::path::Path;
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Result, bail};
 
 use crate::document::*;
 use crate::pixel::chars_to_shape;
@@ -418,12 +418,6 @@ fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef>
     }
 
     Some(GlyphRef { name, offset, negated, inherit, fill, visibility, comment })
-}
-
-pub fn parse_document(path: &Path) -> Result<Document> {
-    let content =
-        std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
-    parse_document_from_str(&content, path.to_path_buf())
 }
 
 /// Parse a range token like `3` (single value) or `3..5` (inclusive range).

@@ -166,23 +166,60 @@ struct GsubData {
     anchor_features: Vec<(String, Vec<String>, String)>,
 }
 
-pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<(std::path::PathBuf, String)>) {
+/// A file that failed to parse, and why.
+pub type ParseError = (std::path::PathBuf, String);
+/// The bytes one document was parsed from.
+pub type DocSource = (std::path::PathBuf, Vec<u8>);
+/// A directory's `.unf` files as loaded: what parsed, what did not, and the
+/// bytes behind what did.
+pub type LoadedDir = (Vec<Document>, Vec<ParseError>, Vec<DocSource>);
+
+pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<ParseError>) {
+    let (docs, errors, _) = load_docs_from_directory_with_sources(dir);
+    (docs, errors)
+}
+
+/// The same load, keeping the bytes each document was parsed from.
+///
+/// The editor holds on to them: a directory snapshot is the only complete
+/// picture of the font it has, and every consumer that would otherwise read
+/// those files a second time (the search pane, opening a file into a pane) is
+/// on a click's critical path. On a network volume — where this editor is
+/// routinely used — one `stat` per file is already a visible stall, so those
+/// consumers go to memory instead. The caller keeps the sources for exactly as
+/// long as it keeps the documents; nothing else refreshes them.
+pub fn load_docs_from_directory_with_sources(dir: &Path) -> LoadedDir {
     let mut docs = Vec::new();
     let mut errors = Vec::new();
+    let mut sources = Vec::new();
     let Ok(entries) = std::fs::read_dir(dir) else {
-        return (docs, errors);
+        return (docs, errors, sources);
     };
     for entry in entries.flatten() {
         let path = entry.path();
-        if document_io::is_source_file(&path) {
-            match document_io::parse_document(&path) {
-                Ok(doc) => docs.push(doc),
-                Err(e) => errors.push((path, e.to_string())),
+        if !document_io::is_source_file(&path) {
+            continue;
+        }
+        let bytes = match std::fs::read(&path) {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                errors.push((path, format!("reading: {e}")));
+                continue;
             }
+        };
+        let content = String::from_utf8_lossy(&bytes);
+        match document_io::parse_document_from_str(&content, path.clone()) {
+            Ok(doc) => {
+                docs.push(doc);
+                sources.push((path, bytes));
+            }
+            // A file that does not parse contributes no document, so nothing
+            // can search or open it either; its bytes are not kept.
+            Err(e) => errors.push((path, e.to_string())),
         }
     }
     docs.sort_by(|a, b| a.path.cmp(&b.path));
-    (docs, errors)
+    (docs, errors, sources)
 }
 
 pub fn build_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {

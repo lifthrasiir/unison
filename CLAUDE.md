@@ -145,6 +145,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Split panes, their invariants and key chords | `app/panes.rs` |
 | Go back / go forward | `app/history.rs` |
 | The Search pane, and where a click goes with no definition | `app/search.rs` |
+| Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |
 | Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |

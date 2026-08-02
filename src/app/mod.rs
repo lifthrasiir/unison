@@ -70,9 +70,6 @@ pub struct UniformApp {
     /// to navigate to, and every place it appears. Spans files for the same
     /// reason the history does.
     search: Option<SearchResults>,
-    /// Source text of the files no pane is editing, keyed by modification
-    /// time, so repeat searches read nothing from disk.
-    search_file_cache: HashMap<PathBuf, (Option<std::time::SystemTime>, String)>,
     sidebar: Sidebar,
     /// The sidebar panel's rect as of the last frame. The file watcher holds a
     /// listing refresh back while the pointer is over it, so that rows never
@@ -86,6 +83,12 @@ pub struct UniformApp {
     escape_mode: bool,
     status_message: Option<(String, std::time::Instant)>,
     font_base_docs: Vec<Document>,
+    /// The text each snapshot document was parsed from, and the hash of the
+    /// bytes it came from. Written only where `font_base_docs` is, by
+    /// [`UniformApp::install_font_snapshot`], so the two can never disagree
+    /// about what the directory holds. This is what keeps a Ctrl/Cmd+click off
+    /// the filesystem; see [`docs::FontSource`].
+    font_sources: HashMap<PathBuf, docs::FontSource>,
     font_data: Option<FontPair>,
     font_name_to_gid: HashMap<String, u16>,
     font_applied: Option<bool>,
@@ -220,10 +223,11 @@ impl UniformApp {
         // grab them for `pixels_per_point` scaling.
         cc.egui_ctx.options_mut(|o| o.zoom_with_keyboard = false);
 
-        let (font_base_docs, file_parse_errors) = font_dir
+        let (font_base_docs, file_parse_errors, font_sources) = font_dir
             .as_ref()
-            .map(|d| crate::render::ttf_builder::load_docs_from_directory_checked(d))
+            .map(|d| crate::render::ttf_builder::load_docs_from_directory_with_sources(d))
             .unwrap_or_default();
+        let font_sources = docs::font_sources_from(font_sources);
 
         let contour_cache = crate::render::new_contour_cache();
         let (font_data, font_name_to_gid) = if font_base_docs.is_empty() {
@@ -246,7 +250,6 @@ impl UniformApp {
             panes: Panes::new(),
             nav_history: NavHistory::new(),
             search: None,
-            search_file_cache: HashMap::new(),
             sidebar: Sidebar::new(),
             sidebar_rect: egui::Rect::NOTHING,
             watch: watch::WatchState::new(),
@@ -254,6 +257,7 @@ impl UniformApp {
             escape_mode: false,
             status_message: None,
             font_base_docs,
+            font_sources,
             font_data,
             font_name_to_gid,
             font_applied: None,

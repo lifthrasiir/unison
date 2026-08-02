@@ -27,6 +27,37 @@ pub(super) fn collect_effective_docs<'a>(
     all_docs
 }
 
+/// One directory-snapshot file as it was read: the text it was parsed from and
+/// the hash of the bytes behind that text.
+///
+/// Kept so that the two things a Ctrl/Cmd+click does — listing every appearance
+/// of a name, and opening the file that declares it — read no files at all. The
+/// snapshot is refreshed by the watcher's scan thread, which is where the
+/// editor's file I/O belongs (see [`super::watch`]); serving a click from it
+/// trades a read on the UI thread for text that can be as stale as the snapshot
+/// the rest of the editor already works from. When it *is* stale, the next scan
+/// finds the hash it recorded no longer matches disk and reloads, which is the
+/// same path an external edit takes anyway.
+pub(super) struct FontSource {
+    pub(super) text: String,
+    pub(super) hash: u64,
+}
+
+pub(super) fn font_sources_from(
+    sources: Vec<(PathBuf, Vec<u8>)>,
+) -> HashMap<PathBuf, FontSource> {
+    sources
+        .into_iter()
+        .map(|(path, bytes)| {
+            let source = FontSource {
+                text: String::from_utf8_lossy(&bytes).into_owned(),
+                hash: super::watch::hash_bytes(&bytes),
+            };
+            (path, source)
+        })
+        .collect()
+}
+
 pub struct OpenDocument {
     pub document: Document,
     pub lines: Vec<DocLine>,
@@ -101,7 +132,20 @@ pub(super) fn load_open_document(
     // against is the hash of exactly what was parsed.
     let bytes = std::fs::read(&path)?;
     let content = String::from_utf8_lossy(&bytes).into_owned();
-    let (mut doc, lines) = document_from_source(&content, path)?;
+    open_document_from_text(&content, super::watch::hash_bytes(&bytes), path, base_gen)
+}
+
+/// The half of [`load_open_document`] that does not touch the filesystem, for
+/// text already in hand — the directory snapshot's [`FontSource`]. `hash` must
+/// be the hash of the bytes `content` was decoded from, since that is what the
+/// watcher compares against disk.
+pub(super) fn open_document_from_text(
+    content: &str,
+    hash: u64,
+    path: PathBuf,
+    base_gen: Option<(u64, u64)>,
+) -> anyhow::Result<OpenDocument> {
+    let (mut doc, lines) = document_from_source(content, path)?;
     let (edit_gen, content_gen) = base_gen
         .map(|(e, c)| (e.wrapping_add(1), c.wrapping_add(1)))
         .unwrap_or((1, 1));
@@ -111,7 +155,7 @@ pub(super) fn load_open_document(
         document: doc,
         lines,
         editor_state: EditorState::new(),
-        disk_hash: Some(super::watch::hash_bytes(&bytes)),
+        disk_hash: Some(hash),
         external_change: false,
         owed_external_toast: false,
     })
@@ -292,14 +336,22 @@ impl UniformApp {
         }
 
         // Replacing the directory snapshot with an opened file is a new
-        // source revision even when the path is unchanged. The file may have
-        // changed on disk since the folder was loaded.
+        // source revision even when the path is unchanged.
         let base_gen = self
             .font_base_docs
             .iter()
             .find(|base| base.path == path)
             .map(|b| (b.edit_gen, b.content_gen));
-        match load_open_document(path.clone(), base_gen) {
+        // Opening is on the critical path of a Ctrl/Cmd+click, so a file the
+        // snapshot already holds is parsed from memory rather than read again;
+        // see [`FontSource`] for what that costs.
+        let loaded = match self.font_sources.get(&path) {
+            Some(source) => {
+                open_document_from_text(&source.text, source.hash, path.clone(), base_gen)
+            }
+            None => load_open_document(path.clone(), base_gen),
+        };
+        match loaded {
             Ok(open_doc) => {
                 self.open_documents.push(open_doc);
                 self.panes.show_document(self.open_documents.len() - 1);
@@ -309,6 +361,23 @@ impl UniformApp {
                 self.set_status(format!("Error: {e}"));
             }
         }
+    }
+
+    /// Installs a directory snapshot — the parsed documents, the files that
+    /// failed to parse, and the text the documents were parsed from.
+    ///
+    /// The only way `font_base_docs` is replaced, so that [`FontSource`] cannot
+    /// outlive the documents it belongs to: a search served from a source the
+    /// snapshot no longer agrees with would report lines that are not there.
+    pub(super) fn install_font_snapshot(
+        &mut self,
+        docs: Vec<Document>,
+        errors: Vec<(PathBuf, String)>,
+        sources: Vec<(PathBuf, Vec<u8>)>,
+    ) {
+        self.font_base_docs = docs;
+        self.file_parse_errors = errors;
+        self.font_sources = font_sources_from(sources);
     }
 
     pub(super) fn collect_all_docs(&self) -> Vec<&Document> {
