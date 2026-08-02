@@ -120,6 +120,9 @@ pub struct EditorState {
     cursor_source_line: usize,
     pub(crate) active: bool,
     pub(crate) preedit: String,
+    /// Which keys the IME owns while it composes; see
+    /// [`doc_input::ImeKeyGuard`].
+    pub(crate) ime_guard: doc_input::ImeKeyGuard,
     pub(crate) undo: undo::UndoStack,
     pub(crate) suppress_grid_click: bool,
     pub(crate) skip_reconcile: bool,
@@ -186,6 +189,7 @@ impl EditorState {
             cursor_source_line: 1,
             active: false,
             preedit: String::new(),
+            ime_guard: Default::default(),
             undo: undo::UndoStack::new(),
             suppress_grid_click: false,
             skip_reconcile: false,

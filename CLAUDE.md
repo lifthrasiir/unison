@@ -116,7 +116,8 @@ Editor (feature `editor`):
 - `sidebar.rs` — `.unf` file list (open, rename, create). `specimen.rs` — specimen rendering; its
   cache-key rule is documented there and is easy to get wrong.
 - `edit_menu.rs`, `preview/` — bottom live-preview panel: rustybuzz shaping + platform rasterizer
-  (`coretext.rs` on macOS, `directwrite.rs` on Windows).
+  (`coretext.rs` on macOS, `directwrite.rs` on Windows). `preview/widget.rs` is a multi-line text
+  field that runs on the *editor's* text model and key handler; only its layout is its own.
 
 `font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files
 plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
@@ -150,6 +151,8 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | The Search pane, and where a click goes with no definition | `app/search.rs` |
 | Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |
 | Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
+| The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
+| Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
 | The anchor shadow | `editor/anchor_shadow.rs` |
