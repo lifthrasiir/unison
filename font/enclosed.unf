@@ -60,6 +60,42 @@ glyph enclosing-circle-bg 16 16
 ........\h_H@@@@@@@@@@H_h/......
 ................................
 
+glyph enclosing-circle-half 8 16
+................
+...../~h@@h~\...
+..../v1/..\1v\..
+...vV/......\Vv.
+../vV'......`Vv\
+..@@..........@@
+..@@..........@@
+..@@..........@@
+..@@..........@@
+..@@..........@@
+..@@..........@@
+..\vV........Vv/
+..`vV\....../Vv'
+....\v1\../1v/..
+.....\_h@@h_/...
+................
+
+glyph enclosing-circle-bg-half 8 16
+................
+.../~h@@@@h~\...
+../v1/....\1v\..
+.vV/........\Vv.
+/vV'........`Vv\
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+\vV..........Vv/
+`vV\......../Vv'
+..\v1\..../1v/..
+...\_h@@@@h_/...
+................
+
 // used for dingbat "sans-serif" digits
 glyph enclosing-small-circle 16 16
 ................................
@@ -91,23 +127,51 @@ ref enclosing-circle-bg
 ref 5-4x10 4 3
 ref 0-4x10 9 3
 
-map ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ($0..9)-circled
-map ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = 1($0..9)-circled
-map ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = 2($0..9)-circled
-map ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = 3($0..9)-circled
-map ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = 4($0..9)-circled
-map ㊿ = 50-circled
+glyph ($0..9)-circled-half
+ref enclosing-circle-half
+ref ($0..9)-3x8 3 4
+glyph ($1..4**10)($0..9)-circled-half
+ref enclosing-circle-bg-half
+ref ($1..4**10)-3x8 1 4
+ref ($0..9)-3x8 4 4
+glyph 50-circled-half
+ref enclosing-circle-bg-half
+ref 5-3x8 1 4
+ref 0-3x8 4 4
+
+map wide : ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ($0..9)-circled
+map wide : ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = 1($0..9)-circled
+map wide : ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = 2($0..9)-circled
+map wide : ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = 3($0..9)-circled
+map wide : ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = 4($0..9)-circled
+map wide : ㊿ = 50-circled
+
+map narrow : ⓪|①|②|③|④|⑤|⑥|⑦|⑧|⑨ = ($0..9)-circled-half
+map narrow : ⑩|⑪|⑫|⑬|⑭|⑮|⑯|⑰|⑱|⑲ = 1($0..9)-circled-half
+map narrow : ⑳|㉑|㉒|㉓|㉔|㉕|㉖|㉗|㉘|㉙ = 2($0..9)-circled-half
+map narrow : ㉚|㉛|㉜|㉝|㉞|㉟|㊱|㊲|㊳|㊴ = 3($0..9)-circled-half
+map narrow : ㊵|㊶|㊷|㊸|㊹|㊺|㊻|㊼|㊽|㊾ = 4($0..9)-circled-half
+map narrow : ㊿ = 50-circled-half
 
 glyph ($a-z)-upper-circled
 ref enclosing-circle
 ref ($a-z)-upper 4 0
-
 glyph ($a-z)-lower-circled
 ref enclosing-circle
 ref ($a-z)-lower
 
-map Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ($a-z)-upper-circled
-map ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|ⓕ|ⓖ|ⓗ|ⓘ|ⓙ|ⓚ|ⓛ|ⓜ|ⓝ|ⓞ|ⓟ|ⓠ|ⓡ|ⓢ|ⓣ|ⓤ|ⓥ|ⓦ|ⓧ|ⓨ|ⓩ = ($a-z)-lower-circled
+glyph ($a-z)-upper-circled-half
+ref enclosing-circle-bg-half
+ref narrow-($a-z)-upper 1 0
+glyph ($a-z)-lower-circled-half
+ref enclosing-circle-bg-half
+ref narrow-($a-z)-lower 1 0
+
+map wide : Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ($a-z)-upper-circled
+map wide : ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|ⓕ|ⓖ|ⓗ|ⓘ|ⓙ|ⓚ|ⓛ|ⓜ|ⓝ|ⓞ|ⓟ|ⓠ|ⓡ|ⓢ|ⓣ|ⓤ|ⓥ|ⓦ|ⓧ|ⓨ|ⓩ = ($a-z)-lower-circled
+
+map narrow : Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ($a-z)-upper-circled-half
+map narrow : ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|ⓕ|ⓖ|ⓗ|ⓘ|ⓙ|ⓚ|ⓛ|ⓜ|ⓝ|ⓞ|ⓟ|ⓠ|ⓡ|ⓢ|ⓣ|ⓤ|ⓥ|ⓦ|ⓧ|ⓨ|ⓩ = ($a-z)-lower-circled-half
 
 glyph ($0..10)-circled-sm
 ref enclosing-small-circle
@@ -117,13 +181,24 @@ map 🄋|➀|➁|➂|➃|➄|➅|➆|➇|➈|➉ = ($0..10)-circled-sm
 glyph hangul-($hangul-init-lex)-circled
 ref enclosing-circle-sbg
 ref hangul-($hangul-init-lex)-half 4 0
-map ㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|㉨|㉩|㉪|㉫|㉬|㉭ = hangul-($hangul-init-lex)-circled
-
 glyph hangul-($hangul-init-lex)a-circled
 ref enclosing-circle-bg
 ref hangul-($hangul-init-lex)-half 3 0
-ref hangul-a-half-narrow 8 0
-map ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = hangul-($hangul-init-lex)a-circled
+ref hangul-a-half-narrow 10 0
+
+glyph hangul-($hangul-init-lex)-circled-half
+ref enclosing-circle-bg-half
+ref hangul-($hangul-init-lex)-half-narrow 2 0
+glyph hangul-($hangul-init-lex)a-circled-half
+ref enclosing-circle-bg-half
+ref hangul-($hangul-init-lex)-half-narrow 1 0
+ref hangul-a-half-narrower 4 0
+
+map wide : ㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|㉨|㉩|㉪|㉫|㉬|㉭ = hangul-($hangul-init-lex)-circled
+map wide : ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = hangul-($hangul-init-lex)a-circled
+
+map narrow : ㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|㉨|㉩|㉪|㉫|㉬|㉭ = hangul-($hangul-init-lex)-circled-half
+map narrow : ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = hangul-($hangul-init-lex)a-circled-half
 
 glyph katakana-($kana-lex)-circled
 ref enclosing-circle
@@ -187,17 +262,45 @@ glyph enclosing-square-bg 16 16
 ..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ................................
 
+glyph enclosing-square-half 8 16
+................
+@@@@@@@@@@@@@@@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@@@@@@@@@@@@@@@
+................
+
 glyph ($a-z)-upper-squared 16 16
 ref enclosing-square
 ref ($a-z)-upper 4 0
 
-map 🄰|🄱|🄲|🄳|🄴|🄵|🄶|🄷|🄸|🄹|🄺|🄻|🄼|🄽|🄾|🄿|🅀|🅁|🅂|🅃|🅄|🅅|🅆|🅇|🅈|🅉 = ($a-z)-upper-squared
+glyph ($a-z)-upper-squared-half 8 16
+ref enclosing-square-half
+ref narrow-($a-z)-upper 1 0
+
+map wide : 🄰|🄱|🄲|🄳|🄴|🄵|🄶|🄷|🄸|🄹|🄺|🄻|🄼|🄽|🄾|🄿|🅀|🅁|🅂|🅃|🅄|🅅|🅆|🅇|🅈|🅉 = ($a-z)-upper-squared
+map narrow : 🄰|🄱|🄲|🄳|🄴|🄵|🄶|🄷|🄸|🄹|🄺|🄻|🄼|🄽|🄾|🄿|🅀|🅁|🅂|🅃|🅄|🅅|🅆|🅇|🅈|🅉 = ($a-z)-upper-squared-half
 
 glyph d-lower-squared 16 16
 ref enclosing-square
 ref d-lower 4 0
 
-map 🆥 = d-lower-squared
+glyph d-lower-squared-half 8 16
+ref enclosing-square-half
+ref narrow-d-lower 1 0
+
+map wide : 🆥 = d-lower-squared
+map narrow : 🆥 = d-lower-squared-half
 
 glyph hv-squared
 ref enclosing-square-sbg
@@ -549,6 +652,24 @@ glyph enclosing-black-square 16 16
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
 
+glyph enclosing-black-square-half 8 16
+................
+../0@@@@@@@@@@0\
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..@@@@@@@@@@@@@@
+..\0@@@@@@@@@@0/
+................
+
 glyph enclosing-black-square-sbg 16 16
 ................................
 ../0@@@@@@@@@@@@@@@@@@@@@@@@0\..
@@ -571,7 +692,12 @@ glyph ($a-z)-upper-squared-black 16 16
 ref enclosing-black-square
 ref ($a-z)-upper 4 0 negated
 
-map 🅰|🅱|🅲|🅳|🅴|🅵|🅶|🅷|🅸|🅹|🅺|🅻|🅼|🅽|🅾|🅿|🆀|🆁|🆂|🆃|🆄|🆅|🆆|🆇|🆈|🆉 = ($a-z)-upper-squared-black
+glyph ($a-z)-upper-squared-black-half 8 16
+ref enclosing-black-square-half
+ref narrow-($a-z)-upper 2 0 negated
+
+map wide : 🅰|🅱|🅲|🅳|🅴|🅵|🅶|🅷|🅸|🅹|🅺|🅻|🅼|🅽|🅾|🅿|🆀|🆁|🆂|🆃|🆄|🆅|🆆|🆇|🆈|🆉 = ($a-z)-upper-squared-black
+map narrow : 🅰|🅱|🅲|🅳|🅴|🅵|🅶|🅷|🅸|🅹|🅺|🅻|🅼|🅽|🅾|🅿|🆀|🆁|🆂|🆃|🆄|🆅|🆆|🆇|🆈|🆉 = ($a-z)-upper-squared-black-half
 
 glyph p-upper-squared-black-crossed 16 16
 ................................
@@ -644,12 +770,36 @@ glyph enclosing-circle-in-black-square 16 16
 ....@@@@@@@@@@@@@@@@@@@@@@@@@@..
 ................................
 
+glyph enclosing-circle-in-black-square-half 8 16
+................
+@@@@@@@@@@@@@@@@
+@@@P/......\9@@@
+@@v'........`v@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@v..........v@@
+@@@b\....../d@@@
+@@@@@@@@@@@@@@@@
+................
+
 glyph ($1..8)0-circled-in-black-square
 ref enclosing-circle-in-black-square
 ref ($1..8)-4x10 4 3
 ref 0-4x10 9 3
 
-map ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ($1..8)0-circled-in-black-square
+glyph ($1..8)0-circled-in-black-square-half 8 16
+ref enclosing-circle-in-black-square-half
+ref ($1..8)-3x8 1 4
+ref 0-3x8 4 4
+
+map wide : ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ($1..8)0-circled-in-black-square
+map narrow : ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ($1..8)0-circled-in-black-square-half
 
 //--------------------------------------
 // doubly circled letters
@@ -722,6 +872,24 @@ glyph enclosing-parens-bg 16 16
 ................................
 ................................
 
+glyph enclosing-parens-half 8 16
+................
+................
+.vV/........\Vv.
+/Vv'........`vV\
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+@@............@@
+\Vv..........vV/
+`vV\......../Vv'
+................
+................
+
 glyph ($1..9)-in-parens
 ref enclosing-parens
 ref ($1..9) 4 0
@@ -734,9 +902,28 @@ ref enclosing-parens-bg
 ref 2-4x10 4 3
 ref 0-4x10 9 3
 
-map ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ($1..9)-in-parens
-map ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = 1($0..9)-in-parens
-map ⒇ = 20-in-parens
+glyph 1-in-parens-half
+ref enclosing-parens-half
+ref narrow-1 2 0
+glyph ($2..9)-in-parens-half
+ref enclosing-parens-half
+ref narrow-($2..9) 1 0
+glyph 1($0..9)-in-parens-half
+ref enclosing-parens-half
+ref 1-3x8 1 4
+ref ($0..9)-3x8 4 4
+glyph 20-in-parens-half
+ref enclosing-parens-half
+ref 2-3x8 1 4
+ref 0-3x8 4 4
+
+map wide : ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ($1..9)-in-parens
+map wide : ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = 1($0..9)-in-parens
+map wide : ⒇ = 20-in-parens
+
+map narrow : ⑴|⑵|⑶|⑷|⑸|⑹|⑺|⑻|⑼ = ($1..9)-in-parens-half
+map narrow : ⑽|⑾|⑿|⒀|⒁|⒂|⒃|⒄|⒅|⒆ = 1($0..9)-in-parens-half
+map narrow : ⒇ = 20-in-parens-half
 
 glyph ($a-z)-upper-in-parens
 ref enclosing-parens
@@ -745,19 +932,40 @@ glyph ($a-z)-lower-in-parens
 ref enclosing-parens
 ref ($a-z)-lower
 
-map 🄐|🄑|🄒|🄓|🄔|🄕|🄖|🄗|🄘|🄙|🄚|🄛|🄜|🄝|🄞|🄟|🄠|🄡|🄢|🄣|🄤|🄥|🄦|🄧|🄨|🄩 = ($a-z)-upper-in-parens
-map ⒜|⒝|⒞|⒟|⒠|⒡|⒢|⒣|⒤|⒥|⒦|⒧|⒨|⒩|⒪|⒫|⒬|⒭|⒮|⒯|⒰|⒱|⒲|⒳|⒴|⒵ = ($a-z)-lower-in-parens
+glyph ($a-z)-upper-in-parens-half
+ref enclosing-parens-half
+ref narrow-($a-z)-upper 1 0
+glyph ($a-z)-lower-in-parens-half
+ref enclosing-parens-half
+ref narrow-($a-z)-lower 1 0
+
+map wide : 🄐|🄑|🄒|🄓|🄔|🄕|🄖|🄗|🄘|🄙|🄚|🄛|🄜|🄝|🄞|🄟|🄠|🄡|🄢|🄣|🄤|🄥|🄦|🄧|🄨|🄩 = ($a-z)-upper-in-parens
+map wide : ⒜|⒝|⒞|⒟|⒠|⒡|⒢|⒣|⒤|⒥|⒦|⒧|⒨|⒩|⒪|⒫|⒬|⒭|⒮|⒯|⒰|⒱|⒲|⒳|⒴|⒵ = ($a-z)-lower-in-parens
+
+map narrow : 🄐|🄑|🄒|🄓|🄔|🄕|🄖|🄗|🄘|🄙|🄚|🄛|🄜|🄝|🄞|🄟|🄠|🄡|🄢|🄣|🄤|🄥|🄦|🄧|🄨|🄩 = ($a-z)-upper-in-parens-half
+map narrow : ⒜|⒝|⒞|⒟|⒠|⒡|⒢|⒣|⒤|⒥|⒦|⒧|⒨|⒩|⒪|⒫|⒬|⒭|⒮|⒯|⒰|⒱|⒲|⒳|⒴|⒵ = ($a-z)-lower-in-parens-half
 
 glyph hangul-($hangul-init-lex)-in-parens
 ref enclosing-parens-sbg
 ref hangul-($hangul-init-lex)-half 4 0
-map ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = hangul-($hangul-init-lex)-in-parens
-
 glyph hangul-($hangul-init-lex)a-in-parens
 ref enclosing-parens-bg
 ref hangul-($hangul-init-lex)-half 3 0
-ref hangul-a-half-narrow 8 0
-map ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = hangul-($hangul-init-lex)a-in-parens
+ref hangul-a-half-narrow 10 0
+
+glyph hangul-($hangul-init-lex)-in-parens-half
+ref enclosing-parens-half
+ref hangul-($hangul-init-lex)-half-narrow 2 0
+glyph hangul-($hangul-init-lex)a-in-parens-half
+ref enclosing-parens-half
+ref hangul-($hangul-init-lex)-half-narrow 1 0
+ref hangul-a-half-narrower 4 0
+
+map wide : ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = hangul-($hangul-init-lex)-in-parens
+map wide : ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = hangul-($hangul-init-lex)a-in-parens
+
+map narrow : ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = hangul-($hangul-init-lex)-in-parens-half
+map narrow : ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = hangul-($hangul-init-lex)a-in-parens-half
 
 //--------------------------------------
 // with full stop or comma
@@ -816,6 +1024,60 @@ glyph enclosing-comma 16 16
 ................................
 ................................
 
+glyph enclosing-full-stop-half 8 16
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+............@@..
+............@@..
+............@@..
+................
+................
+................
+
+glyph enclosing-full-stop-bg-half 8 16
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+..............@@
+..............@@
+................
+................
+................
+................
+
+glyph enclosing-comma-half 8 16
+................
+................
+................
+................
+................
+................
+................
+................
+................
+................
+............@@..
+............@@..
+.........../@@..
+..........@@0/..
+................
+................
+
 glyph ($0..9)-and-full-stop
 ref enclosing-full-stop
 ref ($0..9) 2 0
@@ -828,13 +1090,34 @@ ref enclosing-full-stop-bg
 ref 2-4x10 2 3
 ref 0-4x10 7 3
 
+glyph ($0..9)-and-full-stop-half
+ref enclosing-full-stop-half
+ref narrow-($0..9) 0 0
+glyph 1($0..9)-and-full-stop-half
+ref enclosing-full-stop-bg-half
+ref 1-3x8 0 4
+ref ($0..9)-3x8 3 4
+glyph 20-and-full-stop-half
+ref enclosing-full-stop-bg-half
+ref 2-3x8 0 4
+ref 0-3x8 3 4
+
 glyph ($0..9)-and-comma
 ref enclosing-comma
 ref ($0..9) 2 0
 
-map 🄀|⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = ($0..9)-and-full-stop
-map ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = 1($0..9)-and-full-stop
-map ⒛ = 20-and-full-stop
+glyph ($0..9)-and-comma-half
+ref enclosing-comma-half
+ref narrow-($0..9) 0 0
 
-map 🄁|🄂|🄃|🄄|🄅|🄆|🄇|🄈|🄉|🄊 = ($0..9)-and-comma
+map wide : 🄀|⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = ($0..9)-and-full-stop
+map wide : ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = 1($0..9)-and-full-stop
+map wide : ⒛ = 20-and-full-stop
+
+map narrow : 🄀|⒈|⒉|⒊|⒋|⒌|⒍|⒎|⒏|⒐ = ($0..9)-and-full-stop-half
+map narrow : ⒑|⒒|⒓|⒔|⒕|⒖|⒗|⒘|⒙|⒚ = 1($0..9)-and-full-stop-half
+map narrow : ⒛ = 20-and-full-stop-half
+
+map wide : 🄁|🄂|🄃|🄄|🄅|🄆|🄇|🄈|🄉|🄊 = ($0..9)-and-comma
+map narrow : 🄁|🄂|🄃|🄄|🄅|🄆|🄇|🄈|🄉|🄊 = ($0..9)-and-comma-half
 
