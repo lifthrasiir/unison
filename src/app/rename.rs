@@ -61,6 +61,16 @@ fn doc_may_reference(
                     return true;
                 }
             }
+            (
+                RenameKind::Glyph,
+                DocumentItem::GlyphAlias {
+                    name: gn, target, ..
+                },
+            ) => {
+                if gn.0 == name || target == name {
+                    return true;
+                }
+            }
             (RenameKind::Glyph, DocumentItem::Map { glyph, .. }) => {
                 if glyph == name {
                     return true;
@@ -102,6 +112,16 @@ fn doc_may_reference(
                     return true;
                 }
                 if body.refs.iter().any(|r| r.name.contains(name)) {
+                    return true;
+                }
+            }
+            (
+                RenameKind::NameParts,
+                DocumentItem::GlyphAlias {
+                    name: gn, target, ..
+                },
+            ) => {
+                if gn.0.contains(name) || target.contains(name) {
                     return true;
                 }
             }
@@ -419,7 +439,10 @@ mod rename_tests {
     }
 
     #[test]
-    fn rename_glyph_alias_after_flags() {
+    /// The line no longer parses — an alias takes no flags — but a rename
+    /// sweeps the text, and leaving a half-migrated line behind would be worse
+    /// than renaming through it.
+    fn rename_glyph_alias_survives_stray_flags() {
         let lines = vec![t("glyph new-name advance 8 = foo")];
         let result = do_rename(&lines, "foo", "bar", &RenameKind::Glyph);
         assert_eq!(result, vec!["glyph new-name advance 8 = bar"]);

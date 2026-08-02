@@ -239,10 +239,14 @@ fn duplicate_feature_tags_merge_into_one_record() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph c = pix
-glyph d = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph c
+ref pix
+glyph d
+ref pix
 map A = a
 map C = c
 remap first : a -> b
@@ -264,10 +268,14 @@ fn same_feature_tag_under_different_scripts_stays_separate() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph c = pix
-glyph d = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph c
+ref pix
+glyph d
+ref pix
 map A = a
 map C = c
 remap first : a -> b
@@ -300,11 +308,16 @@ fn ligature_rule_survives_in_a_contextual_group() {
     let input = "\
 glyph pix 1 1
 @@
-glyph base = pix
-glyph t-a = pix
-glyph t-b = pix
-glyph base-a = pix
-glyph cont-b = pix
+glyph base
+ref pix
+glyph t-a
+ref pix
+glyph t-b
+ref pix
+glyph base-a
+ref pix
+glyph cont-b
+ref pix
 map U+0042 = base
 map U+0061 = t-a
 map U+0062 = t-b
@@ -328,10 +341,14 @@ fn contextual_rule_with_a_multi_glyph_source_ligates() {
     let input = "\
 glyph pix 1 1
 @@
-glyph mark = pix
-glyph a = pix
-glyph b = pix
-glyph ab = pix
+glyph mark
+ref pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph ab
+ref pix
 map U+004D = mark
 map U+0061 = a
 map U+0062 = b
@@ -358,11 +375,16 @@ fn single_and_multi_glyph_sources_coexist_in_one_group() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph ab = pix
-glyph c = pix
-glyph d = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph ab
+ref pix
+glyph c
+ref pix
+glyph d
+ref pix
 map U+0061 = a
 map U+0062 = b
 map U+0058 = ab
@@ -386,9 +408,12 @@ fn a_multi_glyph_target_expands() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph c = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph c
+ref pix
 map U+0061 = a
 map U+0042 = b
 map U+0043 = c
@@ -409,8 +434,10 @@ fn an_empty_target_removes_the_glyph() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
+glyph a
+ref pix
+glyph b
+ref pix
 map U+0061 = a
 map U+0062 = b
 remap grp : a ->
@@ -433,8 +460,10 @@ fn a_language_system_only_applies_to_its_own_language() {
     let input = "\
 glyph pix 1 1
 @@
-glyph s-cedilla = pix
-glyph s-comma = pix
+glyph s-cedilla
+ref pix
+glyph s-comma
+ref pix
 map U+015F = s-cedilla
 map U+0219 = s-comma
 remap romanian : s-cedilla -> s-comma
@@ -466,10 +495,14 @@ fn a_language_system_inherits_the_default_features() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph s-cedilla = pix
-glyph s-comma = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph s-cedilla
+ref pix
+glyph s-comma
+ref pix
 map U+0061 = a
 map U+0062 = b
 map U+015F = s-cedilla
@@ -499,10 +532,14 @@ fn a_language_redefining_a_tag_merges_with_the_default() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph s-cedilla = pix
-glyph s-comma = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph s-cedilla
+ref pix
+glyph s-comma
+ref pix
 map U+0061 = a
 map U+0062 = b
 map U+015F = s-cedilla
@@ -534,10 +571,14 @@ fn declaring_a_script_does_not_hide_the_default_features() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph s-cedilla = pix
-glyph s-comma = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph s-cedilla
+ref pix
+glyph s-comma
+ref pix
 map U+0061 = a
 map U+0062 = b
 map U+015F = s-cedilla
@@ -575,11 +616,16 @@ fn max_context_counts_the_lookbehind() {
     let head = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph c = pix
-glyph d = pix
-glyph e = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph c
+ref pix
+glyph d
+ref pix
+glyph e
+ref pix
 map U+0061 = a
 map U+0062 = b
 map U+0063 = c
@@ -618,9 +664,12 @@ fn group_order_and_not_feature_order_decides_which_pass_runs_first() {
     let head = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
-glyph c = pix
+glyph a
+ref pix
+glyph b
+ref pix
+glyph c
+ref pix
 map U+0061 = a
 map U+0062 = b
 map U+0063 = c
@@ -654,8 +703,10 @@ fn a_bare_group_declaration_changes_nothing() {
     let input = "\
 glyph pix 1 1
 @@
-glyph a = pix
-glyph b = pix
+glyph a
+ref pix
+glyph b
+ref pix
 map U+0061 = a
 map U+0062 = b
 remap grp : a -> b
@@ -674,10 +725,14 @@ fn a_reversed_group_chains_leftward_without_a_bound() {
     let input = "\
 glyph pix 1 1
 @@
-glyph eq = pix
-glyph gt = pix
-glyph eq-gt = pix
-glyph eq-cont = pix
+glyph eq
+ref pix
+glyph gt
+ref pix
+glyph eq-gt
+ref pix
+glyph eq-cont
+ref pix
 map U+003D = eq
 map U+003E = gt
 map U+0051 = eq-gt

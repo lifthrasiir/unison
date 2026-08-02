@@ -395,22 +395,10 @@ pub(crate) fn build_visual_lines(
                 }
                 line_idx = item_start + 1;
             }
-            DocumentItem::Glyph { name, body } => {
-                // Header line
-                let header_line = item_start;
-                let is_alias = body.is_simple_alias()
-                    && matches!(
-                        lines.get(header_line),
-                        Some(DocLine::Text(s)) if {
-                            let tokens = crate::document_io::tokenize_tokens(s.trim())
-                                .unwrap_or_default();
-                            tokens.len() >= 4
-                                && tokens[0] == "glyph"
-                                && tokens[2..].iter().any(|t| t == "=")
-                        }
-                    );
-
-                if let Some(DocLine::Text(s)) = lines.get(header_line) {
+            // An alias declares no glyph, so it is one text line with no grid,
+            // no refs and nothing to preview — only its target is checked.
+            DocumentItem::GlyphAlias { name, target, .. } => {
+                if let Some(DocLine::Text(s)) = lines.get(item_start) {
                     let mut error_spans = Vec::new();
 
                     let name_str = name.display();
@@ -422,29 +410,53 @@ pub(crate) fn build_visual_lines(
                         error_spans.push((range.0, range.1, e.to_string()));
                     }
 
-                    if is_alias
-                        && !ref_composite::is_ref_valid(
-                            &body.refs[0].name,
-                            named_glyphs,
-                            name_parts,
-                        )
+                    if !ref_composite::is_ref_valid(target, named_glyphs, name_parts)
                         && let Some(eq_byte) = s.trim().find(" = ")
                     {
                         let trimmed = s.trim_start();
                         let leading_c = s.chars().count() - trimmed.chars().count();
                         let eq_prefix_c = trimmed[..eq_byte + 3].chars().count();
-                        let alias_c = trimmed[eq_byte + 3..]
+                        let target_c = trimmed[eq_byte + 3..]
                             .split_whitespace()
                             .next()
                             .map_or(0, |t| t.chars().count());
-                        if alias_c > 0 {
+                        if target_c > 0 {
                             let cs = leading_c + eq_prefix_c;
                             error_spans.push((
                                 cs,
-                                cs + alias_c,
-                                format!("undefined glyph: {}", body.refs[0].name),
+                                cs + target_c,
+                                format!("undefined glyph: {target}"),
                             ));
                         }
+                    }
+
+                    push_wrapped_text_vlines(
+                        &mut vlines,
+                        s,
+                        item_start,
+                        color_for_text(s),
+                        error_spans,
+                        wrap_width,
+                        ctx,
+                        font_id,
+                    );
+                }
+                line_idx = item_start + 1;
+            }
+            DocumentItem::Glyph { name, body } => {
+                // Header line
+                let header_line = item_start;
+
+                if let Some(DocLine::Text(s)) = lines.get(header_line) {
+                    let mut error_spans = Vec::new();
+
+                    let name_str = name.display();
+                    if is_name_pattern(&name_str)
+                        && let Err(e) = NamePattern::parse(&name_str)
+                        && let Some(range) =
+                            doc_links::find_name_col_range_after_prefix(s, "glyph ")
+                    {
+                        error_spans.push((range.0, range.1, e.to_string()));
                     }
 
                     push_wrapped_text_vlines(
@@ -460,7 +472,6 @@ pub(crate) fn build_visual_lines(
                 }
 
                 let mut cur = header_line + 1;
-                let skip_grid = is_alias;
 
                 let is_editing = editing_item_idx == Some(item_idx);
                 // Only the glyph the anchor belongs to makes room for it.
@@ -506,7 +517,7 @@ pub(crate) fn build_visual_lines(
                 let has_composite = composites.contains_key(&item_idx);
 
                 // Ref-only glyph with composite
-                if !skip_grid && body.pixels.is_none() && has_composite {
+                if body.pixels.is_none() && has_composite {
                     let comp = &composites[&item_idx];
 
                     let first_ref_line = cur;
@@ -546,7 +557,7 @@ pub(crate) fn build_visual_lines(
                         max_ph,
                     );
                     vlines.extend(ref_vlines);
-                } else if !is_alias {
+                } else {
                     let mut ref_vlines = build_ref_vlines(
                         lines,
                         &body.refs,

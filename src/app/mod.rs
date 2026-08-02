@@ -380,12 +380,20 @@ impl UniformApp {
         use crate::document::{DocumentItem, GlyphName};
         use crate::editor::doc_links::find_link_target_in_doc;
 
-        let target_path = {
-            let all_docs = self.collect_all_docs();
-            all_docs.iter().find_map(|doc| {
-                let has_match = match kind {
+        let target_path =
+            {
+                let all_docs = self.collect_all_docs();
+                all_docs.iter().find_map(|doc| {
+                    let has_match = match kind {
+                    // An alias line defines the name it declares as much as a
+                    // glyph block does — it is where "go to definition" has to
+                    // land for a `ref` to an alias.
                     LinkTargetKind::Glyph => doc.items.iter().any(|item| {
                         matches!(item, DocumentItem::Glyph { name: GlyphName(n), .. } if n == name)
+                            || matches!(
+                                item,
+                                DocumentItem::GlyphAlias { name: GlyphName(n), .. } if n == name
+                            )
                     }),
                     LinkTargetKind::NameParts => doc.items.iter().any(|item| {
                         matches!(item, DocumentItem::NameParts { name: n, .. } if n == name)
@@ -406,9 +414,9 @@ impl UniformApp {
                     // Neither is declared anywhere in particular.
                     LinkTargetKind::Anchor | LinkTargetKind::Feature => false,
                 };
-                has_match.then(|| doc.path.clone())
-            })
-        };
+                    has_match.then(|| doc.path.clone())
+                })
+            };
 
         let path = target_path?;
 

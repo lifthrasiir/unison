@@ -83,19 +83,15 @@ fn assert_all_doc_lines_covered(input: &str) {
                 | DocumentItem::Color { .. }
                 | DocumentItem::AssertShape { .. }
                 | DocumentItem::AssertSame { .. }
-                | DocumentItem::AssertDistinct { .. } => start + 1,
+                | DocumentItem::AssertDistinct { .. }
+                | DocumentItem::GlyphAlias { .. } => start + 1,
                 DocumentItem::Glyph { body, .. } => {
-                    let is_alias = body.is_simple_alias();
-                    if is_alias {
-                        start + 1
-                    } else {
-                        // One past the glyph's last layer line.
-                        pixel_interaction::layer_doc_line(
-                            body,
-                            start,
-                            body.refs.len() + body.points.len(),
-                        )
-                    }
+                    // One past the glyph's last layer line.
+                    pixel_interaction::layer_doc_line(
+                        body,
+                        start,
+                        body.refs.len() + body.points.len(),
+                    )
                 }
             }
         })

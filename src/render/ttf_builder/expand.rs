@@ -19,6 +19,12 @@ pub(crate) struct ExpandedItem {
 pub(crate) struct Expansion {
     pub items: Vec<ExpandedItem>,
     pub diagnostics: Vec<Diagnostic>,
+    /// The glyph aliases the source declares. The items above are already
+    /// canonicalized against it and carry no alias declarations at all; this is
+    /// here for the consumers that do not go through the item list — GSUB,
+    /// `assert shape`, validation — and for the editor, which has to recognize
+    /// an alias name written in the text. See [`crate::alias`].
+    pub aliases: crate::alias::AliasMap,
 }
 
 impl Expansion {
@@ -39,31 +45,9 @@ enum RefKind {
 }
 
 /// Collect all items from `docs` with name-part patterns substituted and
-/// expanded, and `map-decomposed` directives turned into synthesized
-/// composite glyphs + `map` entries via NFD decomposition.
-pub(crate) fn collect_expanded_items(
-    docs: &[&Document],
-    name_parts: &NamePartsMap,
-) -> Vec<DocumentItem> {
-    expand_documents(docs, name_parts)
-        .items
-        .into_iter()
-        .map(|e| e.item)
-        .collect()
-}
-
-pub(crate) fn collect_expanded_items_for(
-    docs: &[&Document],
-    name_parts: &NamePartsMap,
-    face: &crate::faces::Face,
-) -> Vec<DocumentItem> {
-    expand_for(docs, name_parts, face)
-        .items
-        .into_iter()
-        .map(|e| e.item)
-        .collect()
-}
-
+/// expanded, `map-decomposed` directives turned into synthesized composite
+/// glyphs + `map` entries via NFD decomposition, and every glyph-name
+/// reference canonicalized against the declared aliases.
 pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) -> Expansion {
     expand_documents_for(docs, name_parts, &crate::faces::FaceSet::collect(docs))
 }
@@ -90,6 +74,11 @@ pub(crate) fn expand_for(
     let mut all_items: Vec<ExpandedItem> = Vec::new();
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
 
+    // Collected before anything is expanded: from here on every glyph name in
+    // `all_items` is the canonical one, so nothing downstream — the glyph
+    // cache, the cmap, the on-demand injector — ever sees an alias.
+    let aliases = crate::alias::AliasMap::collect(docs, name_parts);
+
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let origin = ItemRef::new(doc_idx, item_idx);
@@ -101,6 +90,11 @@ pub(crate) fn expand_for(
                 _ => None,
             };
             if !face.includes(slice) {
+                continue;
+            }
+            // An alias declares no glyph. It has already been folded into
+            // `aliases`, and the references that named it are rewritten below.
+            if matches!(item, DocumentItem::GlyphAlias { .. }) {
                 continue;
             }
             if let DocumentItem::Glyph { name, body } = item {
@@ -191,6 +185,20 @@ pub(crate) fn expand_for(
         }
     }
 
+    // Every `ref` now points at the glyph it actually names. A `map` target is
+    // not rewritten in place: it is a pattern that `expand_map_pairs` unrolls
+    // per codepoint, so its canonicalization happens where the concrete names
+    // appear — `AliasMap::canonicalize_pairs`, at each of those call sites.
+    if !aliases.is_empty() {
+        for e in &mut all_items {
+            if let DocumentItem::Glyph { body, .. } = &mut e.item {
+                for gref in &mut body.refs {
+                    aliases.canonicalize(&mut gref.name);
+                }
+            }
+        }
+    }
+
     // Expanding a `map` is not free (the font has ranges thousands of
     // codepoints wide), and three later steps need the result, so it happens
     // exactly once here.
@@ -207,7 +215,8 @@ pub(crate) fn expand_for(
         else {
             continue;
         };
-        let pairs = expand_map_pairs(char_repr, glyph);
+        let mut pairs = expand_map_pairs(char_repr, glyph);
+        aliases.canonicalize_pairs(&mut pairs);
         if pairs.is_empty() {
             diagnostics.push(Diagnostic::error(
                 e.origin,
@@ -230,11 +239,18 @@ pub(crate) fn expand_for(
     }
 
     expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
-    inject_on_demand_glyph_items(&mut all_items, map_targets, name_parts, &mut diagnostics);
+    inject_on_demand_glyph_items(
+        &mut all_items,
+        map_targets,
+        name_parts,
+        &aliases,
+        &mut diagnostics,
+    );
 
     Expansion {
         items: all_items,
         diagnostics,
+        aliases,
     }
 }
 
@@ -282,6 +298,8 @@ fn expand_decomposed_maps(
         origin,
     } in pending
     {
+        // The synthesized composite's *name* is not canonicalized — it is a
+        // glyph this expansion is about to define, not a reference to one.
         let pairs = decomposed_map_pairs(&char_repr, glyph.as_deref());
         if pairs.is_empty() {
             diagnostics.push(Diagnostic::error(
@@ -381,6 +399,7 @@ fn inject_on_demand_glyph_items(
     all_items: &mut Vec<ExpandedItem>,
     map_targets: Vec<(String, Option<ItemRef>, String)>,
     name_parts: &NamePartsMap,
+    aliases: &crate::alias::AliasMap,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let mut defined: HashSet<String> = HashSet::new();
@@ -434,7 +453,13 @@ fn inject_on_demand_glyph_items(
                     // says nothing. Expanding with the same helper the builder
                     // uses is what keeps the two from drifting apart: rules
                     // whose glyphs have no id are dropped there without a word.
-                    for name in expand_name_element(token, name_parts) {
+                    // Canonicalized for the same reason GSUB canonicalizes
+                    // them: a remap naming an alias names its target, and
+                    // reporting the alias as undefined would be reporting a
+                    // rule the builder resolves perfectly well.
+                    let mut names = expand_name_element(token, name_parts);
+                    aliases.canonicalize_all(&mut names);
+                    for name in names {
                         consider(&name, e.origin, RefKind::Remap);
                     }
                 }

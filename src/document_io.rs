@@ -128,9 +128,11 @@
 //!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges.
-//! - `glyph NAME [flags...] = ALIAS` — a simple alias: one ref, no grid, and no
-//!   ref flags, so an alias that must forward its target's anchors is written
-//!   in block form with `ref TARGET inherit` instead.
+//! - `glyph NAME = TARGET` — an alias: a second *name* for `TARGET`, sharing
+//!   its glyph id rather than declaring a glyph of its own. It takes no flags
+//!   and has no body; a glyph that needs either — including one that must
+//!   forward its target's anchors — is written in block form with a
+//!   `ref TARGET [inherit]` line. See [`crate::alias`].
 //! - `glyph NAME [flags...]` with no dimensions — a ref-only composite,
 //!   followed by `ref`/`anchor` lines.
 //! - NAME accepts the patterns of [`crate::pattern`]; a block expands in
@@ -666,10 +668,20 @@ fn validate_glyph_header<S: AsRef<str>>(parts: &[S], line_no: usize) -> Result<(
     }
     let rest = &parts[1..];
 
-    // glyph NAME = ALIAS
+    // glyph NAME = TARGET — an alias, which is a name and nothing else. The
+    // flags used to be accepted here because the form built a real glyph; it
+    // no longer does, so a flag on one is a mistake worth naming.
     if let Some(eq_pos) = rest.iter().position(|p| p.as_ref() == "=") {
-        // Validate tokens before '=' are valid flags
-        validate_glyph_flags(&rest[..eq_pos], line_no)?;
+        if eq_pos != 0 {
+            let flags: Vec<&str> = rest[..eq_pos].iter().map(|s| s.as_ref()).collect();
+            bail!(
+                "line {}: `glyph NAME = TARGET` is an alias for one glyph and takes no flags \
+                 (found `{}`); write `glyph NAME {}` with a `ref TARGET` line instead",
+                line_no + 1,
+                flags.join(" "),
+                flags.join(" "),
+            );
+        }
         if eq_pos + 1 != rest.len() - 1 {
             if eq_pos + 1 >= rest.len() {
                 bail!("line {}: missing alias target after '='", line_no + 1);
@@ -798,6 +810,19 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Glyph { name, body } => {
                 serialize_glyph(writer, name, body)?;
             }
+            DocumentItem::GlyphAlias {
+                name,
+                target,
+                comment,
+            } => {
+                writeln!(
+                    writer,
+                    "glyph {} = {}{}",
+                    quote_token(&name.display()),
+                    quote_token(target),
+                    comment_suffix(comment),
+                )?;
+            }
             DocumentItem::Map {
                 slice,
                 char_repr,
@@ -882,16 +907,6 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
     let qname = quote_token(&name.display());
 
     let hcomment = comment_suffix(&body.comment);
-
-    // Simple alias: glyph NAME [flags] = ALIAS
-    if body.is_simple_alias() {
-        writeln!(
-            writer,
-            "glyph {qname}{flags} = {}{hcomment}",
-            quote_token(&body.refs[0].name),
-        )?;
-        return Ok(());
-    }
 
     if let Some(grid) = &body.pixels {
         let s = body.scale as u16;
@@ -1125,21 +1140,26 @@ pub fn derive_document(
                         let name = parse_glyph_name(&parts[0]);
 
                         let rest_parts = &parts[1..];
-                        let (alias, flag_parts) =
-                            if let Some(eq_pos) = rest_parts.iter().position(|p| p == "=") {
-                                let alias = if eq_pos + 1 < rest_parts.len() {
-                                    Some(rest_parts[eq_pos + 1].clone())
-                                } else {
-                                    None
-                                };
-                                (alias, &rest_parts[..eq_pos])
-                            } else {
-                                (None, rest_parts)
-                            };
+
+                        // `glyph NAME = TARGET` is an alias: a name for a
+                        // glyph, with no body of its own. Flags before the `=`
+                        // are rejected by `validate_glyph_header`; the lenient
+                        // `DocLine` path drops them the same way.
+                        if let Some(eq_pos) = rest_parts.iter().position(|p| p == "=")
+                            && let Some(target) = rest_parts.get(eq_pos + 1)
+                        {
+                            item_line_starts.push(header_idx);
+                            doc.items.push(DocumentItem::GlyphAlias {
+                                name,
+                                target: target.clone(),
+                                comment,
+                            });
+                            continue;
+                        }
 
                         let mut body = GlyphBody::new();
                         body.comment = comment;
-                        let flags = parse_glyph_flag_parts(flag_parts);
+                        let flags = parse_glyph_flag_parts(rest_parts);
                         body.sticky = flags.sticky;
                         body.inline = flags.inline;
                         body.mark = flags.mark;
@@ -1152,21 +1172,6 @@ pub fn derive_document(
                             flags.width.and_then(|w| w.checked_mul(scale)),
                             flags.height.and_then(|h| h.checked_mul(scale)),
                         );
-
-                        if let Some(alias_name) = alias {
-                            body.refs.push(GlyphRef {
-                                name: alias_name,
-                                offset: None,
-                                negated: false,
-                                inherit: false,
-                                fill: None,
-                                visibility: None,
-                                comment: None,
-                            });
-                            item_line_starts.push(header_idx);
-                            doc.items.push(DocumentItem::Glyph { name, body });
-                            continue;
-                        }
 
                         if let (Some(w), Some(h)) = (width, height) {
                             if let Some(DocLine::Grid(g)) = lines.get(i)

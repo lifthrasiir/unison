@@ -138,6 +138,7 @@ pub(super) struct SharedFontInput {
     declared_anchors_map: HashMap<String, Vec<GlyphPoint>>,
     gsub_data: GsubData,
     color_aliases: ColorAliasMap,
+    glyph_aliases: crate::alias::AliasMap,
     glyph_meta: GlyphMetaMap,
     inline_glyphs: HashSet<String>,
     glyph_bodies: Vec<(String, GlyphBody)>,
@@ -172,7 +173,9 @@ pub(super) fn compute_shared_font_input_for(
     let scale = UNITS_PER_EM as f32 / meta.height() as f32;
 
     let name_parts = collect_name_parts(docs);
-    let all_items = collect_expanded_items_for(docs, &name_parts, face);
+    let expansion = super::expand::expand_for(docs, &name_parts, face);
+    let glyph_aliases = expansion.aliases;
+    let all_items: Vec<DocumentItem> = expansion.items.into_iter().map(|e| e.item).collect();
 
     let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &all_items {
@@ -187,7 +190,10 @@ pub(super) fn compute_shared_font_input_for(
         }
     }
 
-    let gsub_data = collect_gsub_data(docs, &name_parts);
+    // GSUB expands `remap` patterns straight from the documents rather than
+    // from `all_items`, so it is one of the two places that has to
+    // canonicalize aliases for itself.
+    let gsub_data = collect_gsub_data(docs, &name_parts, &glyph_aliases);
     let color_aliases = collect_color_aliases(docs);
 
     let mut glyph_meta: GlyphMetaMap = HashMap::new();
@@ -226,6 +232,7 @@ pub(super) fn compute_shared_font_input_for(
         declared_anchors_map,
         gsub_data,
         color_aliases,
+        glyph_aliases,
         glyph_meta,
         inline_glyphs,
         glyph_bodies,
@@ -305,7 +312,10 @@ pub(super) fn collect_glyph_data_with_shared(
             continue;
         };
 
-        let pairs = expand_map_pairs(char_repr, glyph);
+        // Canonicalized, so a character mapped through an alias reaches the
+        // target's `CollectedGlyph` and the two names share one glyph id.
+        let mut pairs = expand_map_pairs(char_repr, glyph);
+        shared.glyph_aliases.canonicalize_pairs(&mut pairs);
         for (cp, glyph_name) in &pairs {
             let Some(resolved) = cache.get(glyph_name.as_str()) else {
                 continue;

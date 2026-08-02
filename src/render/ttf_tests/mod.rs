@@ -12,6 +12,7 @@ use super::tables::glyph_bounds;
 use super::*;
 use read_fonts::TableProvider;
 
+mod alias;
 mod color;
 mod composite;
 mod gpos;

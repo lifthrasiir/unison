@@ -760,26 +760,6 @@ impl GlyphBody {
             comment: None,
         }
     }
-
-    /// True if this body is a simple alias (`glyph NAME = ALIAS`): no pixel
-    /// data, exactly one ref, with no positional offset.
-    #[cfg(any(feature = "editor", test))]
-    pub fn is_simple_alias(&self) -> bool {
-        self.pixels.is_none()
-            && self.refs.len() == 1
-            && self.refs[0].offset.is_none()
-            && !self.refs[0].negated
-            && self.refs[0].fill.is_none()
-            && self.refs[0].visibility.is_none()
-            && self.points.is_empty()
-            && !self.sticky
-            && !self.inline
-            && !self.mark
-            && self.advance.is_none()
-            && self.left.is_none()
-            && self.top.is_none()
-            && self.scale == 1
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -844,6 +824,14 @@ pub enum DocumentItem {
     Glyph {
         name: GlyphName,
         body: GlyphBody,
+    },
+    /// `glyph NAME = TARGET` — a second name for one glyph, not a second
+    /// glyph: both names end up on the same glyph id. Takes no flags, and both
+    /// sides expand as name patterns in lock-step. See [`crate::alias`].
+    GlyphAlias {
+        name: GlyphName,
+        target: String,
+        comment: Option<String>,
     },
     /// `face FACE [: SLICE...]` — one typeface in the output. Declaration order
     /// is the output order, which is user-visible: a consumer that does not

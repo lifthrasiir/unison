@@ -1,3 +1,4 @@
+mod alias;
 #[cfg(feature = "editor")]
 mod app;
 mod detail;

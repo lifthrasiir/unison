@@ -139,8 +139,14 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     // any of it.
     issues.extend(docset.to_issues(&expansion.diagnostics));
 
+    // Duplicate alias declarations and alias cycles; see `crate::alias`.
+    let aliases = &expansion.aliases;
+    issues.extend(docset.to_issues(&aliases.diagnostics));
+
     // Every glyph the font will actually contain, including synthesized
-    // on-demand and decomposed-map glyphs.
+    // on-demand and decomposed-map glyphs. Aliases are deliberately absent:
+    // they are names, not glyphs, and the expansion has already rewritten
+    // every reference to them.
     let all_glyph_names: HashSet<String> = expansion
         .items()
         .filter_map(|item| match item {
@@ -150,6 +156,41 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             _ => None,
         })
         .collect();
+
+    // What an alias names has to exist, and the name has to be free. Neither
+    // is visible to the alias collection itself, which runs before the glyph
+    // set is known.
+    for decl in aliases.decls() {
+        if all_glyph_names.contains(&decl.name) {
+            issues.push(docset.to_issue(&Diagnostic::error(
+                decl.origin,
+                format!(
+                    "`{}` is both a glyph and an alias; an alias is another name for a glyph, \
+                     not a second definition of one",
+                    decl.name,
+                ),
+            )));
+        }
+        // `resolved_target` is `None` for an alias in a cycle, which has
+        // already been reported and would only produce a second, misleading
+        // complaint about a target that is really itself. An on-demand name
+        // (`a8x16`, `x:color`) is only synthesized where it is referenced, so
+        // an unreferenced alias to one is not a missing glyph.
+        let Some(target) = aliases.resolved_target(&decl.name) else {
+            continue;
+        };
+        if !all_glyph_names.contains(target)
+            && crate::ref_composite::parse_on_demand_glyph(target).is_none()
+        {
+            issues.push(docset.to_issue(&Diagnostic::error(
+                decl.origin,
+                format!(
+                    "glyph alias `{}` names undefined glyph `{target}`",
+                    decl.name
+                ),
+            )));
+        }
+    }
 
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -735,29 +776,40 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         let mut name_to_item: HashMap<String, usize> = HashMap::new();
         // item_refs[i]: ref target names (expanded) for item i
         let mut item_refs: Vec<Vec<String>> = Vec::new();
-        // item_location[i]: (doc_idx, item_idx, raw_name) for reporting
-        let mut item_location: Vec<(usize, usize, &str)> = Vec::new();
+        // item_location[i]: (doc_idx, item_idx, raw_name, is_alias) for reporting
+        let mut item_location: Vec<(usize, usize, &str, bool)> = Vec::new();
 
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
-                if let DocumentItem::Glyph {
-                    name: GlyphName(n),
-                    body,
-                } = item
-                {
-                    let idx = item_refs.len();
-                    item_location.push((doc_idx, item_idx, n));
-
-                    for en in expand_name_element(n, name_parts) {
-                        name_to_item.entry(en).or_insert(idx);
+                // An alias is a node of this graph like any glyph: it is
+                // reachable from what names it and it keeps its target
+                // reachable in turn, so `map x = A` where `glyph A = B` leaves
+                // neither the alias nor `B` looking unused.
+                let (name, refs, is_alias) = match item {
+                    DocumentItem::Glyph {
+                        name: GlyphName(n),
+                        body,
+                    } => {
+                        let mut refs = Vec::new();
+                        for gref in &body.refs {
+                            refs.extend(expand_name_element(&gref.name, name_parts));
+                        }
+                        (n, refs, false)
                     }
+                    DocumentItem::GlyphAlias {
+                        name: GlyphName(n),
+                        target,
+                        ..
+                    } => (n, expand_name_element(target, name_parts), true),
+                    _ => continue,
+                };
 
-                    let mut refs = Vec::new();
-                    for gref in &body.refs {
-                        refs.extend(expand_name_element(&gref.name, name_parts));
-                    }
-                    item_refs.push(refs);
+                let idx = item_refs.len();
+                item_location.push((doc_idx, item_idx, name, is_alias));
+                for en in expand_name_element(name, name_parts) {
+                    name_to_item.entry(en).or_insert(idx);
                 }
+                item_refs.push(refs);
             }
         }
 
@@ -903,13 +955,14 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         // Report unreachable items.
         for (idx, &reached) in reachable_items.iter().enumerate() {
             if !reached {
-                let (doc_idx, doc_item_idx, name) = item_location[idx];
+                let (doc_idx, doc_item_idx, name, is_alias) = item_location[idx];
                 let doc = docs[doc_idx];
+                let what = if is_alias { "glyph alias" } else { "glyph" };
                 issues.push(issue_at(
                     doc,
                     doc_item_idx,
                     Severity::Warning,
-                    format!("glyph '{}' is unused", name,),
+                    format!("{what} '{}' is unused", name,),
                 ));
             }
         }
@@ -1385,6 +1438,129 @@ assume unused blank
         assert!(
             !issues.iter().any(|i| i.severity == Severity::Error),
             "an unused contentless glyph must not be an error, got: {issues:?}",
+        );
+    }
+
+    // ------------------------------------------------------------------
+    // Glyph aliases (`glyph NAME = TARGET`); see `crate::alias`.
+    // ------------------------------------------------------------------
+
+    fn issues_for(input: &str) -> Vec<Issue> {
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        collect_issues(&[&doc])
+    }
+
+    fn has(issues: &[Issue], severity: Severity, needle: &str) -> bool {
+        issues
+            .iter()
+            .any(|i| i.severity == severity && i.message.contains(needle))
+    }
+
+    #[test]
+    fn an_alias_to_an_undefined_glyph_is_an_error() {
+        let issues = issues_for(
+            "\
+glyph pix 1 1
+@@
+glyph a = nope
+map A = pix
+map B = a
+",
+        );
+        assert!(
+            has(&issues, Severity::Error, "names undefined glyph `nope`"),
+            "{issues:?}",
+        );
+    }
+
+    /// An alias is a second name for a glyph, so a name that is both is two
+    /// answers to one question — and the expansion would silently keep the
+    /// glyph and drop the alias.
+    #[test]
+    fn a_name_that_is_both_a_glyph_and_an_alias_is_an_error() {
+        let issues = issues_for(
+            "\
+glyph pix 1 1
+@@
+glyph a 1 1
+@@
+glyph a = pix
+map A = a
+",
+        );
+        assert!(
+            has(&issues, Severity::Error, "both a glyph and an alias"),
+            "{issues:?}",
+        );
+    }
+
+    #[test]
+    fn an_alias_cycle_is_an_error() {
+        let issues = issues_for(
+            "\
+glyph pix 1 1
+@@
+glyph a = b
+glyph b = a
+map A = pix
+",
+        );
+        assert!(has(&issues, Severity::Error, "is in a cycle"), "{issues:?}");
+    }
+
+    #[test]
+    fn a_duplicate_alias_is_an_error() {
+        let issues = issues_for(
+            "\
+glyph pix 1 1
+@@
+glyph other 1 1
+..
+glyph a = pix
+glyph a = other
+map A = a
+",
+        );
+        assert!(
+            has(&issues, Severity::Error, "declared more than once"),
+            "{issues:?}",
+        );
+    }
+
+    /// An alias nothing names is dead source, reported like an unused glyph —
+    /// but named as what it is, since the fix is to delete a line rather than
+    /// to find a home for a drawing.
+    #[test]
+    fn an_unused_alias_is_a_warning() {
+        let issues = issues_for(
+            "\
+glyph pix 1 1
+@@
+glyph a = pix
+map A = pix
+",
+        );
+        assert!(
+            has(&issues, Severity::Warning, "glyph alias 'a' is unused"),
+            "{issues:?}",
+        );
+    }
+
+    /// The alias is a node of the reachability walk: naming it must keep both
+    /// it and its target alive.
+    #[test]
+    fn a_used_alias_keeps_its_target_used() {
+        let issues = issues_for(
+            "\
+glyph pix 1 1
+@@
+glyph a = pix
+map A = a
+",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("unused")),
+            "neither the alias nor its target is unused, got: {issues:?}",
         );
     }
 

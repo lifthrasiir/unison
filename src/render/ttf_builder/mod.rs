@@ -92,8 +92,8 @@ pub use contours::ContourCache;
 #[cfg(feature = "editor")]
 pub use contours::{SharedContourCache, new_contour_cache};
 pub(crate) use expand::{
-    Expansion, collect_expanded_items, collect_expanded_items_for, decomposed_map_pairs,
-    expand_documents, expand_documents_for, expand_map_pairs, parse_map_char,
+    Expansion, decomposed_map_pairs, expand_documents, expand_documents_for, expand_map_pairs,
+    parse_map_char,
 };
 pub(crate) use gsub::remap_rule_kind;
 

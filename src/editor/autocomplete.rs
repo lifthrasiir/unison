@@ -369,6 +369,11 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             {
                 return ctx(CompletionKind::Glyph);
             }
+            // An alias takes no flags, so a line with an `=` gets none offered
+            // however it is being edited.
+            if rest.iter().any(|s| s.value == "=") {
+                return None;
+            }
             // After dims, offer glyph flags
             if rest.len() >= 2 {
                 let has_dims = rest.iter().any(|s| s.value.parse::<u16>().is_ok());
@@ -495,14 +500,17 @@ fn collect_candidates(
             // Also add raw glyph names from current document that may not be
             // resolved yet (e.g. pattern names).
             for item in &source.doc.items {
-                if let DocumentItem::Glyph { name, .. } = item {
-                    let n = name.display();
-                    if !source.named_glyphs.contains_key(&n) {
-                        candidates.push(CompletionCandidate {
-                            label: n,
-                            kind: CompletionKind::Glyph,
-                        });
+                let name = match item {
+                    DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. } => {
+                        name.display()
                     }
+                    _ => continue,
+                };
+                if !source.named_glyphs.contains_key(&name) {
+                    candidates.push(CompletionCandidate {
+                        label: name,
+                        kind: CompletionKind::Glyph,
+                    });
                 }
             }
             candidates.sort_by(|a, b| a.label.cmp(&b.label));

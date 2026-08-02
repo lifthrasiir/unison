@@ -1,0 +1,317 @@
+//! `glyph NAME = TARGET` — glyph aliases.
+//!
+//! An alias is a **second name for one glyph**, not a second glyph. `glyph A =
+//! B` says that `A` and `B` are the same thing, so everything that names `A` —
+//! a `map`, a `ref`, a `remap` operand, an assertion — is treated as if it had
+//! named `B`, and the font ends up with one glyph carrying one glyph id.
+//!
+//! It used to mean `glyph A` + `ref B`: a distinct glyph whose only content was
+//! a full-size reference to another. That is a different font — two glyph ids
+//! with identical outlines — and in every remaining use in `font/` it was the
+//! alias that was meant. The old form also accepted the glyph flags (`sticky`,
+//! `advance N`, …), which only made sense for a real glyph; they are a parse
+//! error now, and a glyph that needs any of them is written in block form with
+//! `ref TARGET` instead.
+//!
+//! # How the rest of the pipeline sees it
+//!
+//! [`AliasMap::collect`] is the only place that reads
+//! [`DocumentItem::GlyphAlias`]. It resolves chains (`A = B`, `B = C` means `A`
+//! is `C`) once, up front, so every consumer needs a single `canonicalize`
+//! call and never a loop. From there, expansion
+//! ([`crate::render::ttf_builder::expand_for`]) rewrites every glyph-name
+//! reference to its canonical name and drops the alias items, so the glyph
+//! cache, the cmap, GSUB and the sample never learn that aliases exist.
+//!
+//! The two consumers that do not go through expansion — GSUB, which expands
+//! `remap` patterns straight from the documents, and `assert shape`, which
+//! compares against the built font's glyph names — canonicalize with the same
+//! map.
+//!
+//! One deliberate exception: [`crate::ref_composite::resolve_expansion`] adds
+//! the alias names back into the resolved-glyph map after resolution finishes.
+//! The editor validates the names it finds *in the text* against that map, and
+//! a `ref A` the build resolves perfectly well must not be underlined as
+//! undefined. They are added after the alternatives index is built, so an alias
+//! never becomes an `x:alt` alternative of anything.
+//!
+//! # What is an error
+//!
+//! Declaring one alias name twice, and an alias cycle, are reported here. That
+//! the target exists, that the name is not also a `glyph` block, and that the
+//! alias is used at all are reported by [`crate::issues`], which is where the
+//! full glyph set is known.
+
+use std::collections::HashMap;
+
+use crate::document::{Document, DocumentItem, NamePartsMap, substitute_name_parts};
+use crate::pattern::NamePattern;
+use crate::resolve::{Diagnostic, ItemRef};
+
+/// One `glyph NAME = TARGET` after name-part substitution and pattern
+/// expansion, still pointing at whatever it was written as.
+pub struct AliasDecl {
+    pub name: String,
+    /// The target as written, before chains are followed.
+    pub target: String,
+    pub origin: Option<ItemRef>,
+}
+
+/// Every glyph alias a document set declares, with chains already followed.
+#[derive(Default)]
+pub struct AliasMap {
+    /// Alias name → the canonical glyph name it stands for. Never contains a
+    /// key that is also a value: chains are collapsed at construction.
+    map: HashMap<String, String>,
+    /// The declarations as written, in source order — what validation and the
+    /// unused-glyph walk report against.
+    decls: Vec<AliasDecl>,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+impl AliasMap {
+    pub fn collect(docs: &[&Document], name_parts: &NamePartsMap) -> Self {
+        let mut decls: Vec<AliasDecl> = Vec::new();
+        let mut diagnostics: Vec<Diagnostic> = Vec::new();
+        let mut seen: HashMap<String, Option<ItemRef>> = HashMap::new();
+
+        for (doc_idx, doc) in docs.iter().enumerate() {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                let DocumentItem::GlyphAlias { name, target, .. } = item else {
+                    continue;
+                };
+                let origin = Some(ItemRef::new(doc_idx, item_idx));
+                for (name, target) in expand_alias(
+                    &name.display(),
+                    target,
+                    name_parts,
+                    origin,
+                    &mut diagnostics,
+                ) {
+                    if seen.contains_key(&name) {
+                        diagnostics.push(Diagnostic::error(
+                            origin,
+                            format!("glyph alias `{name}` is declared more than once"),
+                        ));
+                        continue;
+                    }
+                    seen.insert(name.clone(), origin);
+                    decls.push(AliasDecl {
+                        name,
+                        target,
+                        origin,
+                    });
+                }
+            }
+        }
+
+        // Follow chains. Bounded by the number of aliases, so a cycle stops at
+        // the first name it revisits rather than spinning.
+        let direct: HashMap<&str, &str> = decls
+            .iter()
+            .map(|d| (d.name.as_str(), d.target.as_str()))
+            .collect();
+        let mut map: HashMap<String, String> = HashMap::new();
+        for decl in &decls {
+            let mut cur = decl.target.as_str();
+            let mut steps = 0usize;
+            let mut cycle = cur == decl.name;
+            while let Some(&next) = direct.get(cur) {
+                if next == decl.name || steps > direct.len() {
+                    cycle = true;
+                    break;
+                }
+                cur = next;
+                steps += 1;
+            }
+            if cycle {
+                diagnostics.push(Diagnostic::error(
+                    decl.origin,
+                    format!(
+                        "glyph alias `{}` is in a cycle, so it names no glyph",
+                        decl.name,
+                    ),
+                ));
+                continue;
+            }
+            map.insert(decl.name.clone(), cur.to_string());
+        }
+
+        Self {
+            map,
+            decls,
+            diagnostics,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.map.is_empty()
+    }
+
+    /// Rewrite `name` in place when it is an alias. A no-op — and no
+    /// allocation — for the overwhelmingly common non-alias name.
+    pub fn canonicalize(&self, name: &mut String) {
+        if self.map.is_empty() {
+            return;
+        }
+        if let Some(target) = self.map.get(name.as_str()) {
+            name.clone_from(target);
+        }
+    }
+
+    pub fn canonicalize_all(&self, names: &mut [String]) {
+        if self.map.is_empty() {
+            return;
+        }
+        for name in names {
+            self.canonicalize(name);
+        }
+    }
+
+    /// Canonicalize the glyph names of `(codepoint, glyph)` pairs.
+    ///
+    /// A `map` target stays a pattern in the expanded item list — a range map
+    /// is thousands of codepoints wide, and materializing it into the item
+    /// would cost more than every consumer re-expanding it does. So this is
+    /// where a mapped alias is resolved: at each `expand_map_pairs` call site,
+    /// on the concrete names it produced.
+    pub fn canonicalize_pairs(&self, pairs: &mut [(u32, String)]) {
+        if self.map.is_empty() {
+            return;
+        }
+        for (_, name) in pairs {
+            self.canonicalize(name);
+        }
+    }
+
+    /// The declarations as written, in source order.
+    pub fn decls(&self) -> &[AliasDecl] {
+        &self.decls
+    }
+
+    /// What `name` resolves to when it is a declared alias that resolved at
+    /// all — `None` both for an ordinary glyph name and for an alias dropped
+    /// because it is in a cycle.
+    pub fn resolved_target(&self, name: &str) -> Option<&str> {
+        self.map.get(name).map(|t| t.as_str())
+    }
+
+    /// Alias name → canonical target, for the consumers that need to add the
+    /// alias names back (the editor's resolved-glyph map).
+    pub fn entries(&self) -> impl Iterator<Item = (&String, &String)> {
+        self.map.iter()
+    }
+}
+
+/// Expand one alias declaration's name and target in lock-step, the way a
+/// glyph block expands against its `ref` lines: the name pattern decides how
+/// many aliases are declared and the target pattern is consumed cyclically.
+fn expand_alias(
+    name: &str,
+    target: &str,
+    name_parts: &NamePartsMap,
+    origin: Option<ItemRef>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Vec<(String, String)> {
+    let name = substitute_name_parts(name, name_parts);
+    let target = substitute_name_parts(target, name_parts);
+
+    if !crate::document::is_name_pattern(&name) && !crate::document::is_name_pattern(&target) {
+        return vec![(name, target)];
+    }
+
+    let name_pattern = match NamePattern::parse(&name) {
+        Ok(p) => p,
+        Err(e) => {
+            diagnostics.push(Diagnostic::error(origin, e.to_string()));
+            return Vec::new();
+        }
+    };
+    let target_pattern = match NamePattern::parse_segments(&target) {
+        Ok(p) => p,
+        Err(e) => {
+            diagnostics.push(Diagnostic::error(origin, e.to_string()));
+            return Vec::new();
+        }
+    };
+    (0..name_pattern.len())
+        .map(|i| (name_pattern.get(i), target_pattern.get(i)))
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::document_io::parse_document_from_str;
+
+    fn collect(src: &str) -> AliasMap {
+        let doc = parse_document_from_str(src, "t.unf".into()).unwrap();
+        let docs = vec![&doc];
+        let name_parts = crate::document::collect_name_parts(&docs);
+        AliasMap::collect(&docs, &name_parts)
+    }
+
+    /// The glyph a name stands for, as every consumer sees it: the name itself
+    /// unless it is an alias that resolved.
+    fn canonical<'a>(aliases: &'a AliasMap, name: &'a str) -> &'a str {
+        aliases.resolved_target(name).unwrap_or(name)
+    }
+
+    #[test]
+    fn plain_alias() {
+        let aliases = collect("glyph a = b\n");
+        assert_eq!(canonical(&aliases, "a"), "b");
+        assert_eq!(canonical(&aliases, "b"), "b");
+        assert!(aliases.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn chain_collapses_to_the_end() {
+        let aliases = collect("glyph a = b\nglyph b = c\n");
+        assert_eq!(canonical(&aliases, "a"), "c");
+        assert_eq!(canonical(&aliases, "b"), "c");
+        assert!(aliases.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn cycle_is_an_error_and_resolves_to_nothing() {
+        let aliases = collect("glyph a = b\nglyph b = a\n");
+        assert_eq!(aliases.diagnostics.len(), 2);
+        assert!(aliases.diagnostics[0].message.contains("cycle"));
+        // Neither name is rewritten, so the reference is reported where it is
+        // written rather than silently pointing somewhere arbitrary.
+        assert_eq!(canonical(&aliases, "a"), "a");
+        assert_eq!(canonical(&aliases, "b"), "b");
+    }
+
+    #[test]
+    fn self_alias_is_a_cycle() {
+        let aliases = collect("glyph a = a\n");
+        assert_eq!(aliases.diagnostics.len(), 1);
+        assert_eq!(canonical(&aliases, "a"), "a");
+    }
+
+    #[test]
+    fn duplicate_declaration_is_an_error() {
+        let aliases = collect("glyph a = b\nglyph a = c\n");
+        assert_eq!(aliases.diagnostics.len(), 1);
+        assert!(aliases.diagnostics[0].message.contains("more than once"));
+        assert_eq!(canonical(&aliases, "a"), "b");
+    }
+
+    #[test]
+    fn patterns_expand_in_lock_step() {
+        let aliases = collect("glyph x-(a|b|c) = y-(a|b|c)-f\n");
+        assert_eq!(canonical(&aliases, "x-a"), "y-a-f");
+        assert_eq!(canonical(&aliases, "x-b"), "y-b-f");
+        assert_eq!(canonical(&aliases, "x-c"), "y-c-f");
+        assert!(aliases.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn name_parts_are_substituted_on_both_sides() {
+        let aliases = collect("name-parts $v = a b\nglyph x-($v) = y-($v)\n");
+        assert_eq!(canonical(&aliases, "x-a"), "y-a");
+        assert_eq!(canonical(&aliases, "x-b"), "y-b");
+    }
+}

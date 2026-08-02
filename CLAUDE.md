@@ -66,6 +66,8 @@ Core (feature-independent):
 
 - `document.rs` / `document_io.rs` — the `.unf` data model, parser and serializer. **`document_io.rs`
   is the format reference**: tokens, comments, every directive, glyph blocks and their flags.
+- `alias.rs` — `glyph NAME = TARGET`: a second *name* for a glyph, sharing its glyph id. Holds the
+  chain/cycle rules and the list of which pipeline stages canonicalize where.
 - `pattern.rs` — `NamePattern`, the single name-expansion engine. The same syntax parses differently
   per context on purpose; its module docs spell the three contexts out.
 - `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
@@ -132,6 +134,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Why the glyph order is face-independent | `render/ttf_builder/collect.rs`, `build_faces` in `mod.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
+| `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document.rs` (`snap_details_to_catalog`) |

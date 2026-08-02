@@ -76,7 +76,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let name_parts = collect_name_parts(docs);
     let color_aliases = collect_color_aliases(docs);
 
-    let all_items = crate::render::ttf_builder::collect_expanded_items(docs, &name_parts);
+    let expansion = crate::render::ttf_builder::expand_documents(docs, &name_parts);
+    let glyph_aliases = expansion.aliases;
+    let all_items: Vec<DocumentItem> = expansion.items.into_iter().map(|e| e.item).collect();
 
     // Build contour cache for named glyphs
     struct CachedGlyph {
@@ -462,7 +464,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             DocumentItem::Map {
                 char_repr, glyph, ..
             } => {
-                let pairs = expand_map_pairs(char_repr, glyph);
+                let mut pairs = expand_map_pairs(char_repr, glyph);
+                glyph_aliases.canonicalize_pairs(&mut pairs);
                 for (cp, glyph_name) in pairs {
                     cmap.entry(cp).or_insert(glyph_name);
                 }

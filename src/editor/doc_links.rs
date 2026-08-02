@@ -431,7 +431,10 @@ mod rename_detection_tests {
     }
 
     #[test]
-    fn glyph_alias_target_after_flags() {
+    /// Flags before the `=` no longer parse (an alias takes none), but the
+    /// editor reads the line as text and must keep working on one being typed
+    /// or half-migrated.
+    fn glyph_alias_target_survives_stray_flags() {
         let t = find_renameable_at_caret("glyph foo advance 8 = bar", 23).unwrap();
         assert_eq!(t.name, "bar");
         assert_eq!(t.kind, RenameKind::Glyph);

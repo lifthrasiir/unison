@@ -122,6 +122,7 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> egui::Color32 {
     )
 }
 
+#[derive(Clone)]
 pub struct ResolvedGlyph {
     pub grid: PixelGrid,
     /// Logical coordinate represented by raster cell `(0, 0)`. Keeping this
@@ -1276,6 +1277,8 @@ pub fn resolve_expansion(
     // is quadratic over the whole font (~18k glyphs).
     let mut pending_names: std::collections::HashSet<String> = std::collections::HashSet::new();
 
+    let aliases = expansion.aliases;
+
     // The expansion is consumed, not borrowed: it already owns a full copy of
     // every glyph body, and cloning it a second time into `pending` cost more
     // than sharing the expansion saved.
@@ -1409,6 +1412,21 @@ pub fn resolve_expansion(
             break;
         } else {
             relaxed = true;
+        }
+    }
+
+    // Alias names, added last. The expansion resolved every *reference* to its
+    // canonical target, so nothing above needed them; what needs them is the
+    // editor, which checks the names it finds in the text against this map and
+    // would otherwise underline a perfectly good `ref` to an alias. Added
+    // after `alt_index` is built, so an alias named `x:alt` never becomes an
+    // alternative of `x`.
+    for (name, target) in aliases.entries() {
+        if cache.contains_key(name) {
+            continue;
+        }
+        if let Some(resolved) = cache.get(target).cloned() {
+            cache.insert(name.clone(), resolved);
         }
     }
 

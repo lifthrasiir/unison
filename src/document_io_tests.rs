@@ -280,15 +280,11 @@ fn roundtrip_alias() {
     let input = "glyph uni0041 = test-glyph\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 1);
-    if let DocumentItem::Glyph { name, body } = &doc.items[0] {
+    if let DocumentItem::GlyphAlias { name, target, .. } = &doc.items[0] {
         assert_eq!(name.display(), "uni0041");
-        assert!(body.pixels.is_none());
-        assert_eq!(body.refs.len(), 1);
-        assert_eq!(body.refs[0].name, "test-glyph");
-        assert_eq!(body.refs[0].row(), 0);
-        assert_eq!(body.refs[0].col(), 0);
+        assert_eq!(target, "test-glyph");
     } else {
-        panic!("expected glyph");
+        panic!("expected glyph alias");
     }
 
     let mut output = Vec::new();
@@ -305,7 +301,6 @@ fn explicit_zero_ref_roundtrips_as_explicit() {
         panic!("expected glyph");
     };
     assert_eq!(body.refs[0].offset, Some((0, 0)));
-    assert!(!body.is_simple_alias());
 
     let mut output = Vec::new();
     serialize_document(&doc, &mut output).unwrap();
@@ -554,6 +549,21 @@ fn assert_derive_equivalent(input: &str) {
                     );
                 }
             }
+            (
+                DocumentItem::GlyphAlias {
+                    name: n1,
+                    target: t1,
+                    ..
+                },
+                DocumentItem::GlyphAlias {
+                    name: n2,
+                    target: t2,
+                    ..
+                },
+            ) => {
+                assert_eq!(n1.display(), n2.display(), "name mismatch at item {idx}");
+                assert_eq!(t1, t2, "alias target mismatch at item {idx}");
+            }
             _ => panic!(
                 "item kind mismatch at item {idx}: {:?} vs {:?}",
                 std::mem::discriminant(old_item),
@@ -736,12 +746,28 @@ fn strict_parse_accepts_valid_glyph_headers() {
         "glyph foo left -1\n",
         "glyph foo 2 1 sticky advance 5 left -1\n..@@\n",
         "glyph foo = bar\n",
-        "glyph foo sticky = bar\n",
     ] {
         assert!(
             parse_document_from_str(input, "test.unf".into()).is_ok(),
             "should accept: {input:?}"
         );
+    }
+}
+
+/// An alias is a name for a glyph and nothing else, so the flags a real glyph
+/// takes are a mistake on one — silently dropping them would build a font that
+/// does not say what the file says.
+#[test]
+fn strict_parse_rejects_flags_on_an_alias() {
+    for input in [
+        "glyph foo sticky = bar\n",
+        "glyph foo advance 5 = bar\n",
+        "glyph foo 2 1 = bar\n",
+    ] {
+        let err = parse_document_from_str(input, "test.unf".into())
+            .expect_err(&format!("should reject: {input:?}"))
+            .to_string();
+        assert!(err.contains("takes no flags"), "unexpected error: {err}");
     }
 }
 

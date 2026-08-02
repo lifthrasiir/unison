@@ -161,6 +161,12 @@ fn format_comment_suffix(comment: &Option<String>) -> String {
 }
 
 fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
+    // An assertion names glyphs to compare against the *built* font's names,
+    // and an alias has no name of its own there — so writing one is the same
+    // as writing its target. See [`crate::alias`].
+    let name_parts = collect_name_parts(docs);
+    let aliases = crate::alias::AliasMap::collect(docs, &name_parts);
+
     let mut result = Vec::new();
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -174,12 +180,16 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
             } = item
             {
                 let (docline, file_line) = doc.item_lines(item_idx);
+                let mut expected = expected.clone();
+                for e in &mut expected {
+                    aliases.canonicalize(&mut e.name);
+                }
                 result.push(CollectedAssertion {
                     slices: slices.clone(),
                     text: text.clone(),
                     features: features.clone(),
                     language: language.clone(),
-                    expected: expected.clone(),
+                    expected,
                     comment: comment.clone(),
                     file: doc.path.clone(),
                     line: docline,
@@ -824,13 +834,17 @@ assert distinct a b
     }
 
     #[test]
-    fn assert_same_alias_matches_original() {
+    fn assert_same_ref_copy_matches_original() {
+        // A `ref` copy, not `glyph b = a`: an alias is the *same* glyph, so
+        // asserting it same as its target would hold by construction and
+        // check nothing.
         let input = "\
 glyph a 2 2
 @@@@
 ..@@
 
-glyph b = a
+glyph b
+ref a
 
 assert same a b
 ";

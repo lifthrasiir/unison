@@ -56,7 +56,11 @@
 use super::tables::{ScriptFeatures, build_script_records, make_tag, parse_script_lang};
 use super::*;
 
-pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData {
+pub(super) fn collect_gsub_data(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    aliases: &crate::alias::AliasMap,
+) -> GsubData {
     let mut remap_sets: BTreeMap<String, Vec<ExpandedRemap>> = BTreeMap::new();
     let mut features: Vec<(String, Vec<String>, Vec<String>)> = Vec::new();
     let mut anchor_features: Vec<(String, Vec<String>, String)> = Vec::new();
@@ -90,21 +94,31 @@ pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -
                     let mut source_seqs = Vec::with_capacity(entry_count);
                     let mut target_seqs = Vec::with_capacity(entry_count);
                     for i in 0..entry_count {
-                        let seq: Vec<String> =
+                        let mut seq: Vec<String> =
                             source_patterns.iter().map(|pos| pos.get(i)).collect();
+                        aliases.canonicalize_all(&mut seq);
                         source_seqs.push(seq);
-                        let tseq: Vec<String> =
+                        let mut tseq: Vec<String> =
                             target_patterns.iter().map(|pos| pos.get(i)).collect();
+                        aliases.canonicalize_all(&mut tseq);
                         target_seqs.push(tseq);
                     }
 
                     let lb: Vec<Vec<String>> = lookbehind
                         .iter()
-                        .map(|s| expand_name_element(s, name_parts))
+                        .map(|s| {
+                            let mut names = expand_name_element(s, name_parts);
+                            aliases.canonicalize_all(&mut names);
+                            names
+                        })
                         .collect();
                     let la: Vec<Vec<String>> = lookahead
                         .iter()
-                        .map(|s| expand_name_element(s, name_parts))
+                        .map(|s| {
+                            let mut names = expand_name_element(s, name_parts);
+                            aliases.canonicalize_all(&mut names);
+                            names
+                        })
                         .collect();
 
                     remap_sets

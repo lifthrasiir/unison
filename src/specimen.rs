@@ -76,6 +76,11 @@ impl SpecimenState {
         }
         self.cached_gen = Some((font_data_gen, derived_gen));
 
+        // `name_to_gid` comes from the built font, which knows a glyph only by
+        // its canonical name, so a character mapped through an alias has to be
+        // asked for under that name.
+        let aliases = crate::alias::AliasMap::collect(docs, name_parts);
+
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
         let mut mapped_glyphs: HashSet<String> = HashSet::new();
         for doc in docs {
@@ -85,7 +90,8 @@ impl SpecimenState {
                         char_repr, glyph, ..
                     } => {
                         let subst_glyph = substitute_name_parts(glyph, name_parts);
-                        let pairs = expand_map_pairs(char_repr, &subst_glyph);
+                        let mut pairs = expand_map_pairs(char_repr, &subst_glyph);
+                        aliases.canonicalize_pairs(&mut pairs);
                         for (cp, glyph_name) in pairs {
                             mapped_glyphs.insert(glyph_name.clone());
                             map.entry(cp).or_insert(glyph_name);
