@@ -1,0 +1,28 @@
+////////////////////////////////////////
+// emoji support
+
+//remap group emojify
+//remap group emojify-wide
+//remap group emojify-narrow
+
+//remap group deemojify
+remap group deemojify-wide
+remap group deemojify-narrow
+
+//feature ccmp for DFLT : emojify
+//feature wide : ccmp for DFLT : emojify-wide
+//feature narrow : ccmp for DFLT : emojify-narrow
+
+//feature ccmp for DFLT : deemojify
+feature wide : ccmp for DFLT : deemojify-wide
+feature narrow : ccmp for DFLT : deemojify-narrow
+
+glyph vs-text advance 0
+ref sp
+
+glyph vs-emoji advance 0
+ref sp
+
+map U+FE0E = vs-text
+map U+FE0F = vs-emoji
+
