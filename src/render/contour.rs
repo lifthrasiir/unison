@@ -18,6 +18,13 @@
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
+/// A cell's outline data as [`pixel::multi_shape_adjacency`] computes it: the
+/// adjacency bitmask plus the gap segments interior to the cell.
+struct CellEdges {
+    adj: u8,
+    gaps: Vec<(f32, f32, f32, f32)>,
+}
+
 use crate::document::PixelGrid;
 use crate::pixel::{self, PX_ALMOSTFULL, PX_EMPTY, PX_SUBPIXEL, PixelShape};
 
@@ -213,8 +220,7 @@ fn trace_custom_pixel(
     let x = (i % stride) as f32;
     let latf = lat as f32;
 
-    for side in 0..4 {
-        let n = neighbor_idx[side];
+    for (side, &n) in neighbor_idx.iter().enumerate() {
         let cov_s = side_cov(i, side);
         let cov_n = side_cov(n, side ^ 2);
         if intervals_intersect(&cov_s, &cov_n) && !visited.contains(&n) {
@@ -767,7 +773,7 @@ pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<V
     }
 
     // Cache for multi-shape gap segments, keyed by shape bitmask
-    let mut gap_cache: HashMap<u128, (u8, Vec<(f32, f32, f32, f32)>)> = HashMap::new();
+    let mut gap_cache: HashMap<u128, CellEdges> = HashMap::new();
 
     let mut paths = Vec::new();
     let mut visited = HashSet::new();
@@ -795,9 +801,10 @@ pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<V
                 } else {
                     let entry = gap_cache.entry(smask).or_insert_with(|| {
                         let ids = bitmask_to_ids(smask);
-                        pixel::multi_shape_adjacency(&ids)
+                        let (adj, gaps) = pixel::multi_shape_adjacency(&ids);
+                        CellEdges { adj, gaps }
                     });
-                    (entry.0, std::borrow::Cow::Borrowed(entry.1.as_slice()))
+                    (entry.adj, std::borrow::Cow::Borrowed(entry.gaps.as_slice()))
                 };
 
                 expand_pixel(
@@ -883,21 +890,22 @@ pub fn track_contour_multi_diff(
 
     // Pre-compute per-pixel adjacency.
     let mut adj_data: Vec<u8> = vec![0; total];
-    let mut diff_cache: HashMap<(u128, u128), (u8, Vec<(f32, f32, f32, f32)>)> = HashMap::new();
+    let mut diff_cache: HashMap<(u128, u128), CellEdges> = HashMap::new();
 
     for i in 0..total {
         if pos_masks[i] != 0 {
             let key = (pos_masks[i], neg_masks[i]);
-            let (bits, _) = diff_cache.entry(key).or_insert_with(|| {
+            let entry = diff_cache.entry(key).or_insert_with(|| {
                 let pos_ids = bitmask_to_ids(pos_masks[i]);
-                if neg_masks[i] == 0 {
+                let (adj, gaps) = if neg_masks[i] == 0 {
                     pixel::multi_shape_adjacency(&pos_ids)
                 } else {
                     let neg_ids = bitmask_to_ids(neg_masks[i]);
                     pixel::multi_shape_diff_adjacency(&pos_ids, &neg_ids)
-                }
+                };
+                CellEdges { adj, gaps }
             });
-            adj_data[i] = *bits;
+            adj_data[i] = entry.adj;
         }
     }
 
@@ -925,7 +933,7 @@ pub fn track_contour_multi_diff(
 
                 let key = (pos_masks[i], neg_masks[i]);
                 let entry = diff_cache.get(&key).unwrap();
-                let (pixel_adj, gap_segs) = (entry.0, entry.1.as_slice());
+                let (pixel_adj, gap_segs) = (entry.adj, entry.gaps.as_slice());
 
                 expand_pixel(
                     i,
@@ -1235,7 +1243,7 @@ mod tests {
 
                 // Layer 1
                 let sid1 = s1 & PX_SUBPIXEL;
-                let idx = 1 * stride + 0;
+                let idx = stride; // row 1, column 0
                 single_shape[idx] = sid1;
                 shape_masks[idx] |= 1u128 << sid1;
 

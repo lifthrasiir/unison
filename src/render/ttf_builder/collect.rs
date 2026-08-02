@@ -5,6 +5,17 @@ use super::contours::CachedContours;
 use super::gsub::collect_gsub_data;
 use super::*;
 
+/// The explicit `advance`/`left`/`top` flags one glyph declares, in pixels as
+/// written in the source; each is `None` when the glyph does not declare it.
+#[derive(Clone, Copy)]
+pub(super) struct GlyphMeta {
+    advance: Option<u16>,
+    left: Option<i16>,
+    top: Option<i16>,
+}
+
+pub(super) type GlyphMetaMap = HashMap<String, GlyphMeta>;
+
 /// [`derive_ref_offsets_with`](crate::ref_composite::derive_ref_offsets_with)
 /// wired to the contour cache: anchors and alternatives are looked up from
 /// `cache`/`alt_index`, declared anchors from `declared_anchors_map`.
@@ -55,36 +66,36 @@ fn scale_glyph_contours(
 /// Advance width, left offset, and top offset in font units, from explicit
 /// `advance`/`left`/`top` flags when present, else the resolved raster width.
 fn resolve_glyph_metrics(
-    glyph_meta: &HashMap<String, (Option<u16>, Option<i16>, Option<i16>)>,
+    glyph_meta: &GlyphMetaMap,
     name: &str,
     resolved_width: u16,
     scale: f32,
     base_scale: f32,
 ) -> (u16, i16, i16) {
-    let advance_width = match glyph_meta.get(name) {
-        Some(&(Some(adv), _, _)) => (adv as f32 * base_scale).round() as u16,
-        _ => (resolved_width as f32 * scale).round() as u16,
+    let meta = glyph_meta.get(name);
+    let advance_width = match meta.and_then(|m| m.advance) {
+        Some(adv) => (adv as f32 * base_scale).round() as u16,
+        None => (resolved_width as f32 * scale).round() as u16,
     };
-    let left_offset = match glyph_meta.get(name) {
-        Some(&(_, Some(left), _)) => (left as f32 * base_scale).round() as i16,
-        _ => 0,
-    };
-    let top_offset = match glyph_meta.get(name) {
-        Some(&(_, _, Some(top))) => (top as f32 * base_scale).round() as i16,
-        _ => 0,
-    };
+    let left_offset = meta
+        .and_then(|m| m.left)
+        .map_or(0, |left| (left as f32 * base_scale).round() as i16);
+    let top_offset = meta
+        .and_then(|m| m.top)
+        .map_or(0, |top| (top as f32 * base_scale).round() as i16);
     (advance_width, left_offset, top_offset)
 }
 
 /// Composite references for a resolved glyph in font units, or empty when
 /// the glyph is forced inline.  Compensates for each component glyph's own
 /// left/top offset so that the shift doesn't propagate into parent composites.
+#[expect(clippy::too_many_arguments)]
 fn build_composite_refs(
     resolved: &CachedContours,
     inline: bool,
     left_offset: i16,
     top_offset: i16,
-    glyph_meta: &HashMap<String, (Option<u16>, Option<i16>, Option<i16>)>,
+    glyph_meta: &GlyphMetaMap,
     scale: f32,
     base_scale: f32,
     inline_glyphs: &HashSet<String>,
@@ -104,13 +115,13 @@ fn build_composite_refs(
     comps
         .iter()
         .map(|(name, dx, dy)| {
-            let (comp_left, comp_top) = match glyph_meta.get(name.as_str()) {
-                Some(&(_, left, top)) => (
-                    left.map_or(0, |l| (l as f32 * base_scale).round() as i16),
-                    top.map_or(0, |t| (t as f32 * base_scale).round() as i16),
-                ),
-                None => (0, 0),
-            };
+            let comp_meta = glyph_meta.get(name.as_str());
+            let comp_left = comp_meta
+                .and_then(|m| m.left)
+                .map_or(0, |l| (l as f32 * base_scale).round() as i16);
+            let comp_top = comp_meta
+                .and_then(|m| m.top)
+                .map_or(0, |t| (t as f32 * base_scale).round() as i16);
             CompositeRef {
                 component_name: name.clone(),
                 x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16 - comp_left,
@@ -127,7 +138,7 @@ pub(super) struct SharedFontInput {
     declared_anchors_map: HashMap<String, Vec<GlyphPoint>>,
     gsub_data: GsubData,
     color_aliases: ColorAliasMap,
-    glyph_meta: HashMap<String, (Option<u16>, Option<i16>, Option<i16>)>,
+    glyph_meta: GlyphMetaMap,
     inline_glyphs: HashSet<String>,
     glyph_bodies: Vec<(String, GlyphBody)>,
 }
@@ -179,7 +190,7 @@ pub(super) fn compute_shared_font_input_for(
     let gsub_data = collect_gsub_data(docs, &name_parts);
     let color_aliases = collect_color_aliases(docs);
 
-    let mut glyph_meta: HashMap<String, (Option<u16>, Option<i16>, Option<i16>)> = HashMap::new();
+    let mut glyph_meta: GlyphMetaMap = HashMap::new();
     let mut inline_glyphs: HashSet<String> = HashSet::new();
     let mut glyph_bodies: Vec<(String, GlyphBody)> = Vec::new();
     let mut seen_bodies: HashSet<String> = HashSet::new();
@@ -190,7 +201,14 @@ pub(super) fn compute_shared_font_input_for(
         } = item
         {
             if body.advance.is_some() || body.left.is_some() || body.top.is_some() {
-                glyph_meta.insert(n.clone(), (body.advance, body.left, body.top));
+                glyph_meta.insert(
+                    n.clone(),
+                    GlyphMeta {
+                        advance: body.advance,
+                        left: body.left,
+                        top: body.top,
+                    },
+                );
             }
             if body.inline {
                 inline_glyphs.insert(n.clone());
@@ -295,7 +313,7 @@ pub(super) fn collect_glyph_data_with_shared(
 
             let glyph_scale = scale / resolved.scale as f32;
             let (advance_width, left_offset, top_offset) =
-                resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
+                resolve_glyph_metrics(glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
             let font_contours = scale_glyph_contours(
                 &resolved.contours,
                 glyph_scale,
@@ -308,7 +326,7 @@ pub(super) fn collect_glyph_data_with_shared(
                 inline_glyphs.contains(glyph_name.as_str()),
                 left_offset,
                 top_offset,
-                &glyph_meta,
+                glyph_meta,
                 glyph_scale,
                 scale,
                 inline_glyphs,
@@ -499,7 +517,7 @@ pub(super) fn collect_glyph_data_with_shared(
         let resolved = cache.get(glyph_name.as_str()).unwrap_or(&empty_cached);
         let glyph_scale = scale / resolved.scale as f32;
         let (advance_width, left_offset, top_offset) =
-            resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
+            resolve_glyph_metrics(glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
         let font_contours = scale_glyph_contours(
             &resolved.contours,
             glyph_scale,
@@ -512,7 +530,7 @@ pub(super) fn collect_glyph_data_with_shared(
             inline_glyphs.contains(glyph_name.as_str()),
             left_offset,
             top_offset,
-            &glyph_meta,
+            glyph_meta,
             glyph_scale,
             scale,
             inline_glyphs,
@@ -609,19 +627,18 @@ pub(super) fn collect_glyph_data_with_shared(
             &body.refs,
             &cache,
             &color_alt_index,
-            &declared_anchors_map,
+            declared_anchors_map,
         );
 
         let color_glyph_scale = scale / body.scale as f32;
         let color_ascent = meta.ascent() * body.scale as u16;
-        let left_offset = match glyph_meta.get(&g.name) {
-            Some(&(_, Some(left), _)) => (left as f32 * scale).round() as i16,
-            _ => 0,
-        };
-        let top_offset = match glyph_meta.get(&g.name) {
-            Some(&(_, _, Some(top))) => (top as f32 * scale).round() as i16,
-            _ => 0,
-        };
+        let g_meta = glyph_meta.get(&g.name);
+        let left_offset = g_meta
+            .and_then(|m| m.left)
+            .map_or(0, |left| (left as f32 * scale).round() as i16);
+        let top_offset = g_meta
+            .and_then(|m| m.top)
+            .map_or(0, |top| (top as f32 * scale).round() as i16);
 
         // A `negated` ref draws nothing of its own — it only removes area from
         // the layers under it.  This path splits a composite into per-layer
@@ -652,7 +669,7 @@ pub(super) fn collect_glyph_data_with_shared(
         let ref_vis: Vec<LayerVisibility> = (0..effective_refs.len())
             .map(|ri| {
                 let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
-                effective_visibility(orig_ref.visibility, orig_ref.fill.as_ref(), &color_aliases)
+                effective_visibility(orig_ref.visibility, orig_ref.fill.as_ref(), color_aliases)
             })
             .collect();
         // Negated layers drawn after ref `from` (all of them, for own pixels),
@@ -761,7 +778,7 @@ pub(super) fn collect_glyph_data_with_shared(
                 fg_contours.extend(layer_contours);
             } else {
                 let f = fill.unwrap();
-                let palette_index = if let Some(rgba) = resolve_fill_rgba(f, &color_aliases) {
+                let palette_index = if let Some(rgba) = resolve_fill_rgba(f, color_aliases) {
                     *color_to_index.entry(rgba.clone()).or_insert_with(|| {
                         let idx = palette_colors.len() as u16;
                         palette_colors.push(rgba);

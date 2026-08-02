@@ -375,6 +375,15 @@ impl SpecimenState {
                     },
                 }
                 let mut deferred_hover: Option<DeferredHover> = None;
+                let style = CellStyle {
+                    cell_w,
+                    cell_h,
+                    px_size,
+                    label_font: &label_font,
+                    label_color,
+                    raster_font,
+                    ctx: ui.ctx(),
+                };
 
                 for row in first_row..last_row {
                     for col in 0..cols {
@@ -387,9 +396,6 @@ impl SpecimenState {
                             origin.x + col as f32 * cell_w,
                             origin.y + row as f32 * cell_h,
                         );
-                        let cell_rect =
-                            egui::Rect::from_min_size(cell_min, egui::vec2(cell_w, cell_h));
-
                         if idx < cmap_count {
                             let (cp, glyph_name) = &self.entries[idx];
                             let cp = *cp;
@@ -401,21 +407,7 @@ impl SpecimenState {
                                 });
                                 continue;
                             }
-                            self.draw_cell(
-                                &painter,
-                                cell_min,
-                                cell_rect,
-                                cell_w,
-                                cell_h,
-                                cp,
-                                px_size,
-                                false,
-                                &label_font,
-                                label_color,
-                                glyph_color,
-                                raster_font,
-                                ui.ctx(),
-                            );
+                            self.draw_cell(&painter, cell_min, cp, false, glyph_color, &style);
                         } else {
                             let ri = idx - cmap_count;
                             if is_hovered {
@@ -428,17 +420,10 @@ impl SpecimenState {
                             self.draw_remap_cell(
                                 &painter,
                                 cell_min,
-                                cell_rect,
-                                cell_w,
-                                cell_h,
                                 ri,
-                                px_size,
                                 false,
-                                &label_font,
-                                label_color,
                                 glyph_color,
-                                raster_font,
-                                ui.ctx(),
+                                &style,
                             );
                         }
                     }
@@ -447,34 +432,21 @@ impl SpecimenState {
                 if let Some(hover) = &deferred_hover {
                     match hover {
                         DeferredHover::Cmap { cell_min, cp, .. } => {
-                            let cell_rect =
-                                egui::Rect::from_min_size(*cell_min, egui::vec2(cell_w, cell_h));
-                            painter.rect_filled(cell_rect, 0.0, egui::Color32::BLACK);
-                            if let Some(gr) = self.compute_glyph_rect(
-                                *cell_min,
-                                cell_w,
-                                cell_h,
-                                *cp,
-                                px_size,
-                                raster_font,
-                                ui.ctx(),
-                            ) {
+                            painter.rect_filled(
+                                style.cell_rect(*cell_min),
+                                0.0,
+                                egui::Color32::BLACK,
+                            );
+                            if let Some(gr) = self.compute_glyph_rect(*cell_min, *cp, &style) {
                                 painter.rect_filled(gr.expand(4.0), 0.0, egui::Color32::BLACK);
                             }
                             self.draw_cell(
                                 &painter,
                                 *cell_min,
-                                cell_rect,
-                                cell_w,
-                                cell_h,
                                 *cp,
-                                px_size,
                                 true,
-                                &label_font,
-                                label_color,
                                 egui::Color32::WHITE,
-                                raster_font,
-                                ui.ctx(),
+                                &style,
                             );
                         }
                         DeferredHover::Remap {
@@ -482,18 +454,12 @@ impl SpecimenState {
                             remap_idx,
                         } => {
                             let ri = *remap_idx;
-                            let cell_rect =
-                                egui::Rect::from_min_size(*cell_min, egui::vec2(cell_w, cell_h));
-                            painter.rect_filled(cell_rect, 0.0, egui::Color32::BLACK);
-                            if let Some(gr) = self.compute_remap_glyph_rect(
-                                *cell_min,
-                                cell_w,
-                                cell_h,
-                                ri,
-                                px_size,
-                                raster_font,
-                                ui.ctx(),
-                            ) {
+                            painter.rect_filled(
+                                style.cell_rect(*cell_min),
+                                0.0,
+                                egui::Color32::BLACK,
+                            );
+                            if let Some(gr) = self.compute_remap_glyph_rect(*cell_min, ri, &style) {
                                 painter.rect_filled(gr.expand(4.0), 0.0, egui::Color32::BLACK);
                             }
                             // Expand black background for the label too.
@@ -514,17 +480,10 @@ impl SpecimenState {
                             self.draw_remap_cell(
                                 &painter,
                                 *cell_min,
-                                cell_rect,
-                                cell_w,
-                                cell_h,
                                 ri,
-                                px_size,
                                 true,
-                                &label_font,
-                                label_color,
                                 egui::Color32::WHITE,
-                                raster_font,
-                                ui.ctx(),
+                                &style,
                             );
                         }
                     }
@@ -602,32 +561,28 @@ impl SpecimenState {
         &mut self,
         painter: &egui::Painter,
         cell_min: egui::Pos2,
-        cell_rect: egui::Rect,
-        cell_w: f32,
-        cell_h: f32,
         cp: u32,
-        px_size: f32,
         is_hovered: bool,
-        label_font: &egui::FontId,
-        label_color: egui::Color32,
         glyph_color: egui::Color32,
-        raster_font: Option<&Vec<u8>>,
-        ctx: &egui::Context,
+        style: &CellStyle<'_>,
     ) {
+        let cell_rect = style.cell_rect(cell_min);
+        let px_size = style.px_size;
+        let ctx = style.ctx;
         let hex = format!("{cp:04X}");
-        let label_galley = painter.layout_no_wrap(hex, label_font.clone(), label_color);
+        let label_galley = painter.layout_no_wrap(hex, style.label_font.clone(), style.label_color);
         painter.galley(
             egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
             label_galley,
-            label_color,
+            style.label_color,
         );
 
         let Some(ch) = char::from_u32(cp) else { return };
-        let center = cell_center(cell_min, cell_w, cell_h);
+        let center = style.cell_center(cell_min);
 
         let mut drawn_via_rasterizer = false;
 
-        if let Some(font_bytes) = raster_font
+        if let Some(font_bytes) = style.raster_font
             && let Ok(font) = FontRef::new(font_bytes)
             && let Some(gid) = font.charmap().map(ch)
         {
@@ -658,33 +613,28 @@ impl SpecimenState {
         &mut self,
         painter: &egui::Painter,
         cell_min: egui::Pos2,
-        cell_rect: egui::Rect,
-        cell_w: f32,
-        cell_h: f32,
         remap_idx: usize,
-        px_size: f32,
         is_hovered: bool,
-        label_font: &egui::FontId,
-        label_color: egui::Color32,
         glyph_color: egui::Color32,
-        raster_font: Option<&Vec<u8>>,
-        ctx: &egui::Context,
+        style: &CellStyle<'_>,
     ) {
+        let cell_rect = style.cell_rect(cell_min);
         let entry = &self.remap_entries[remap_idx];
         let gid = entry.gid;
         let label_text = entry.label.clone();
 
-        let label_galley = painter.layout_no_wrap(label_text, label_font.clone(), label_color);
+        let label_galley =
+            painter.layout_no_wrap(label_text, style.label_font.clone(), style.label_color);
         cell_painter(painter, cell_rect, is_hovered).galley(
             egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
             label_galley,
-            label_color,
+            style.label_color,
         );
 
-        if let Some(font_bytes) = raster_font
+        if let Some(font_bytes) = style.raster_font
             && let Ok(font) = FontRef::new(font_bytes)
         {
-            let center = cell_center(cell_min, cell_w, cell_h);
+            let center = style.cell_center(cell_min);
             self.draw_rasterized_glyph(
                 painter,
                 cell_rect,
@@ -692,10 +642,10 @@ impl SpecimenState {
                 &font,
                 font_bytes,
                 skrifa::GlyphId::new(gid as u32),
-                px_size,
+                style.px_size,
                 is_hovered,
                 glyph_color,
-                ctx,
+                style.ctx,
             );
         }
     }
@@ -750,24 +700,21 @@ impl SpecimenState {
     fn compute_glyph_rect(
         &mut self,
         cell_min: egui::Pos2,
-        cell_w: f32,
-        cell_h: f32,
         cp: u32,
-        px_size: f32,
-        raster_font: Option<&Vec<u8>>,
-        ctx: &egui::Context,
+        style: &CellStyle<'_>,
     ) -> Option<egui::Rect> {
         let ch = char::from_u32(cp)?;
-        let center = cell_center(cell_min, cell_w, cell_h);
+        let center = style.cell_center(cell_min);
 
-        if let Some(font_bytes) = raster_font
+        if let Some(font_bytes) = style.raster_font
             && let Ok(font) = FontRef::new(font_bytes)
             && let Some(gid) = font.charmap().map(ch)
         {
-            return Some(raster_glyph_rect(&font, gid, px_size, center));
+            return Some(raster_glyph_rect(&font, gid, style.px_size, center));
         }
 
-        let glyph_font = crate::app::uniform_font_id(ctx, px_size);
+        let ctx = style.ctx;
+        let glyph_font = crate::app::uniform_font_id(ctx, style.px_size);
         let galley =
             ctx.fonts(|f| f.layout_no_wrap(ch.to_string(), glyph_font, egui::Color32::WHITE));
         let size = galley.size();
@@ -780,20 +727,16 @@ impl SpecimenState {
     fn compute_remap_glyph_rect(
         &self,
         cell_min: egui::Pos2,
-        cell_w: f32,
-        cell_h: f32,
         remap_idx: usize,
-        px_size: f32,
-        raster_font: Option<&Vec<u8>>,
-        _ctx: &egui::Context,
+        style: &CellStyle<'_>,
     ) -> Option<egui::Rect> {
         let gid = self.remap_entries[remap_idx].gid;
-        let font = FontRef::new(raster_font?).ok()?;
+        let font = FontRef::new(style.raster_font?).ok()?;
         Some(raster_glyph_rect(
             &font,
             skrifa::GlyphId::new(gid as u32),
-            px_size,
-            cell_center(cell_min, cell_w, cell_h),
+            style.px_size,
+            style.cell_center(cell_min),
         ))
     }
 }
@@ -802,6 +745,28 @@ impl SpecimenState {
 /// below center to leave room for the codepoint label.
 fn cell_center(cell_min: egui::Pos2, cell_w: f32, cell_h: f32) -> (f32, f32) {
     (cell_min.x + cell_w / 2.0, cell_min.y + cell_h / 2.0 + 8.0)
+}
+
+/// Everything a specimen cell is drawn with that is the same for every cell of
+/// one grid: cell size, glyph size, label style and the font to raster from.
+struct CellStyle<'a> {
+    cell_w: f32,
+    cell_h: f32,
+    px_size: f32,
+    label_font: &'a egui::FontId,
+    label_color: egui::Color32,
+    raster_font: Option<&'a Vec<u8>>,
+    ctx: &'a egui::Context,
+}
+
+impl CellStyle<'_> {
+    fn cell_rect(&self, cell_min: egui::Pos2) -> egui::Rect {
+        egui::Rect::from_min_size(cell_min, egui::vec2(self.cell_w, self.cell_h))
+    }
+
+    fn cell_center(&self, cell_min: egui::Pos2) -> (f32, f32) {
+        cell_center(cell_min, self.cell_w, self.cell_h)
+    }
 }
 
 /// A painter that clips to the cell unless the cell is hovered (hovered

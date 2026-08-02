@@ -36,6 +36,20 @@ fn anchor_font_units(
     (x, y)
 }
 
+/// A base (or mark2) glyph with one attachment anchor per mark class, in font
+/// units; `None` where the glyph offers no anchor for that class.
+struct AnchoredGlyph {
+    gid: GlyphId16,
+    anchors: Vec<Option<(i16, i16)>>,
+}
+
+/// The `source`/`target` glyph names of one ccmp anchor group, in step.
+#[derive(Default)]
+struct CcmpGroup {
+    sources: Vec<String>,
+    targets: Vec<String>,
+}
+
 pub(super) fn build_anchor_gpos(
     glyphs: &[CollectedGlyph],
     gsub_data: &GsubData,
@@ -81,8 +95,8 @@ pub(super) fn build_anchor_gpos(
     // Classify glyphs: mark glyphs have `-anchor` anchors, base glyphs have `+anchor`.
     // For mark-to-mark: a mark glyph with `+anchor` serves as mark2 (the base mark).
     let mut mark_gids: Vec<(GlyphId16, u16, i16, i16)> = Vec::new(); // (gid, class, x, y)
-    let mut base_gids: Vec<(GlyphId16, Vec<Option<(i16, i16)>>)> = Vec::new();
-    let mut mark2_gids: Vec<(GlyphId16, Vec<Option<(i16, i16)>>)> = Vec::new();
+    let mut base_gids: Vec<AnchoredGlyph> = Vec::new();
+    let mut mark2_gids: Vec<AnchoredGlyph> = Vec::new();
 
     // Collect all mark glyph GIDs for ccmp/GDEF
     let mut mark_gid_set: HashSet<GlyphId16> = HashSet::new();
@@ -151,7 +165,10 @@ pub(super) fn build_anchor_gpos(
                 }
             }
             if has_any {
-                mark2_gids.push((gid, plus_anchors));
+                mark2_gids.push(AnchoredGlyph {
+                    gid,
+                    anchors: plus_anchors,
+                });
             }
         } else {
             // Base glyphs: look for `+anchor` anchors (direct or via alternatives).
@@ -216,11 +233,17 @@ pub(super) fn build_anchor_gpos(
             }
 
             if has_own {
-                base_gids.push((gid, own_plus));
+                base_gids.push(AnchoredGlyph {
+                    gid,
+                    anchors: own_plus,
+                });
             }
             for (alt_name, alt_anchors) in &alt_plus_map {
                 if let Some(&alt_gid) = name_to_gid.get(alt_name.as_str()) {
-                    base_gids.push((alt_gid, alt_anchors.clone()));
+                    base_gids.push(AnchoredGlyph {
+                        gid: alt_gid,
+                        anchors: alt_anchors.clone(),
+                    });
                 }
             }
         }
@@ -244,19 +267,17 @@ pub(super) fn build_anchor_gpos(
         for entry in &mut mark_gids {
             entry.1 = class_remap[&entry.1];
         }
-        for (_, anchors) in &mut base_gids {
-            let compacted: Vec<Option<(i16, i16)>> = used_classes
+        for entry in &mut base_gids {
+            entry.anchors = used_classes
                 .iter()
-                .map(|&old_class| anchors.get(old_class as usize).copied().flatten())
+                .map(|&old_class| entry.anchors.get(old_class as usize).copied().flatten())
                 .collect();
-            *anchors = compacted;
         }
-        for (_, anchors) in &mut mark2_gids {
-            let compacted: Vec<Option<(i16, i16)>> = used_classes
+        for entry in &mut mark2_gids {
+            entry.anchors = used_classes
                 .iter()
-                .map(|&old_class| anchors.get(old_class as usize).copied().flatten())
+                .map(|&old_class| entry.anchors.get(old_class as usize).copied().flatten())
                 .collect();
-            *anchors = compacted;
         }
         let _ = compact_num_classes; // used implicitly via compacted vectors
     }
@@ -264,10 +285,10 @@ pub(super) fn build_anchor_gpos(
     // Sort by GID for coverage tables
     mark_gids.sort_by_key(|&(gid, _, _, _)| gid);
     mark_gids.dedup_by_key(|entry| entry.0);
-    base_gids.sort_by_key(|&(gid, _)| gid);
-    base_gids.dedup_by_key(|entry| entry.0);
-    mark2_gids.sort_by_key(|&(gid, _)| gid);
-    mark2_gids.dedup_by_key(|entry| entry.0);
+    base_gids.sort_by_key(|entry| entry.gid);
+    base_gids.dedup_by_key(|entry| entry.gid);
+    mark2_gids.sort_by_key(|entry| entry.gid);
+    mark2_gids.dedup_by_key(|entry| entry.gid);
 
     // Build GPOS lookups
     let mut gpos_lookups: Vec<PositionLookup> = Vec::new();
@@ -278,7 +299,7 @@ pub(super) fn build_anchor_gpos(
         let mark_coverage =
             CoverageTable::format_1(mark_gids.iter().map(|&(gid, _, _, _)| gid).collect());
         let base_coverage =
-            CoverageTable::format_1(base_gids.iter().map(|&(gid, _)| gid).collect());
+            CoverageTable::format_1(base_gids.iter().map(|entry| entry.gid).collect());
         let mark_array = MarkArray::new(
             mark_gids
                 .iter()
@@ -288,9 +309,10 @@ pub(super) fn build_anchor_gpos(
         let base_array = BaseArray::new(
             base_gids
                 .iter()
-                .map(|(_, anchors)| {
+                .map(|entry| {
                     BaseRecord::new(
-                        anchors
+                        entry
+                            .anchors
                             .iter()
                             .map(|opt| opt.map(|(x, y)| AnchorTable::format_1(x, y)))
                             .collect(),
@@ -316,7 +338,7 @@ pub(super) fn build_anchor_gpos(
         let mark1_coverage =
             CoverageTable::format_1(mark_gids.iter().map(|&(gid, _, _, _)| gid).collect());
         let mark2_coverage =
-            CoverageTable::format_1(mark2_gids.iter().map(|&(gid, _)| gid).collect());
+            CoverageTable::format_1(mark2_gids.iter().map(|entry| entry.gid).collect());
         let mark1_array = MarkArray::new(
             mark_gids
                 .iter()
@@ -326,9 +348,10 @@ pub(super) fn build_anchor_gpos(
         let mark2_array = Mark2Array::new(
             mark2_gids
                 .iter()
-                .map(|(_, anchors)| {
+                .map(|entry| {
                     Mark2Record::new(
-                        anchors
+                        entry
+                            .anchors
                             .iter()
                             .map(|opt| opt.map(|(x, y)| AnchorTable::format_1(x, y)))
                             .collect(),
@@ -432,8 +455,7 @@ pub(super) fn build_anchor_gpos(
     let mut feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)> = Vec::new();
     if !ccmp_entries.is_empty() {
         // Group entries by feature tag, then by anchor within each tag.
-        let mut tag_groups: BTreeMap<String, BTreeMap<String, (Vec<String>, Vec<String>)>> =
-            BTreeMap::new();
+        let mut tag_groups: BTreeMap<String, BTreeMap<String, CcmpGroup>> = BTreeMap::new();
         for (source, target, anchor_name) in &ccmp_entries {
             let (tag, _) = anchor_to_feature
                 .get(anchor_name)
@@ -444,9 +466,9 @@ pub(super) fn build_anchor_gpos(
                 .or_default()
                 .entry(anchor_name.clone())
                 .or_default();
-            if !group.0.contains(source) {
-                group.0.push(source.clone());
-                group.1.push(target.clone());
+            if !group.sources.contains(source) {
+                group.sources.push(source.clone());
+                group.targets.push(target.clone());
             }
         }
 
@@ -466,7 +488,7 @@ pub(super) fn build_anchor_gpos(
                 });
 
             let mut lookups: Vec<SubstitutionLookup> = Vec::new();
-            for (anchor_name, (sources, targets)) in anchor_groups {
+            for (anchor_name, CcmpGroup { sources, targets }) in anchor_groups {
                 let minus_name = format!("-{anchor_name}");
                 let mark_coverage = CoverageTable::format_1({
                     let mut gids: Vec<GlyphId16> = glyphs

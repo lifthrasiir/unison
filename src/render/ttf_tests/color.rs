@@ -216,7 +216,7 @@ map B = card-heart
             .filter(|l| l.palette_index != 0xFFFF)
             .collect();
         assert!(
-            non_fg.len() >= 1,
+            !non_fg.is_empty(),
             "{name}: should have at least one non-fg color layer (white fill), got {}",
             non_fg.len()
         );

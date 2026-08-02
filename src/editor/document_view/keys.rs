@@ -157,10 +157,10 @@ pub(super) fn handle_document_keys(
                     pixel_selection::handle_delete_selection(doc, lines, state);
                     *needs_rederive = true;
                 }
-                if let Some(text) = sel_paste_text {
-                    if pixel_selection::paste_selection(doc, lines, state, &text) {
-                        *needs_rederive = true;
-                    }
+                if let Some(text) = sel_paste_text
+                    && pixel_selection::paste_selection(doc, lines, state, &text)
+                {
+                    *needs_rederive = true;
                 }
             }
 
@@ -169,17 +169,17 @@ pub(super) fn handle_document_keys(
                 let mut paste_text: Option<String> = None;
                 ui.input(|input| {
                     for event in &input.events {
-                        if let egui::Event::Paste(text) = event {
-                            if !text.is_empty() {
-                                paste_text = Some(text.clone());
-                            }
+                        if let egui::Event::Paste(text) = event
+                            && !text.is_empty()
+                        {
+                            paste_text = Some(text.clone());
                         }
                     }
                 });
-                if let Some(text) = paste_text {
-                    if pixel_selection::paste_selection(doc, lines, state, &text) {
-                        *needs_rederive = true;
-                    }
+                if let Some(text) = paste_text
+                    && pixel_selection::paste_selection(doc, lines, state, &text)
+                {
+                    *needs_rederive = true;
                 }
             }
 
@@ -216,12 +216,11 @@ pub(super) fn handle_document_keys(
                         None
                     }
                 });
-                if let Some(t) = transform {
-                    if pixel_selection::can_transform(doc, state, t) {
-                        if pixel_selection::handle_transform_selection(doc, lines, state, t) {
-                            *needs_rederive = true;
-                        }
-                    }
+                if let Some(t) = transform
+                    && pixel_selection::can_transform(doc, state, t)
+                    && pixel_selection::handle_transform_selection(doc, lines, state, t)
+                {
+                    *needs_rederive = true;
                 }
             }
 

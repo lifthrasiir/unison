@@ -784,6 +784,32 @@ impl ShapedPreviewState {
 use crate::editor::caret::char_to_byte;
 use crate::editor::codepoint_popup::{CodepointOutcome, CodepointPopup};
 
+fn committed_to_display(
+    idx: usize,
+    preedit_range: Option<(usize, usize)>,
+    preedit_len: usize,
+) -> usize {
+    match preedit_range {
+        Some((ps, _)) if idx >= ps => idx + preedit_len,
+        _ => idx,
+    }
+}
+
+fn display_to_committed(idx: usize, preedit_range: Option<(usize, usize)>) -> usize {
+    match preedit_range {
+        Some((ps, pe)) => {
+            if idx <= ps {
+                idx
+            } else if idx < pe {
+                ps
+            } else {
+                idx - (pe - ps)
+            }
+        }
+        None => idx,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -834,31 +860,5 @@ mod tests {
             state.selection_codepoints_label().as_deref(),
             Some("[0046]")
         );
-    }
-}
-
-fn committed_to_display(
-    idx: usize,
-    preedit_range: Option<(usize, usize)>,
-    preedit_len: usize,
-) -> usize {
-    match preedit_range {
-        Some((ps, _)) if idx >= ps => idx + preedit_len,
-        _ => idx,
-    }
-}
-
-fn display_to_committed(idx: usize, preedit_range: Option<(usize, usize)>) -> usize {
-    match preedit_range {
-        Some((ps, pe)) => {
-            if idx <= ps {
-                idx
-            } else if idx < pe {
-                ps
-            } else {
-                idx - (pe - ps)
-            }
-        }
-        None => idx,
     }
 }

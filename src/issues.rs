@@ -346,7 +346,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     // Duplicate detection needs the *defining* line of each
                     // expanded name, which the expansion does not retain, so
                     // it expands names (not bodies) once more here.
-                    let name_str = substitute_name_parts(n, &name_parts);
+                    let name_str = substitute_name_parts(n, name_parts);
                     let expanded: Vec<String> = if is_name_pattern(&name_str) {
                         // A pattern that fails to expand is already reported
                         // by the resolution pass.
@@ -605,12 +605,19 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
+    /// Where one codepoint was mapped: the file, the `DocLine` index and the
+    /// 1-based file line, as [`Issue`] wants them.
+    struct MapSite {
+        file: PathBuf,
+        line: usize,
+        file_line: usize,
+    }
+
     // Every codepoint, by the slice that maps it. Two entries in one slice are
     // the duplicate this has always warned about; two entries in *different*
     // slices are only a problem for a face that includes both, which is the
     // conflict the face split exists to make explicit.
-    let mut mapped_codepoints: HashMap<u32, BTreeMap<Option<String>, (PathBuf, usize, usize)>> =
-        HashMap::new();
+    let mut mapped_codepoints: HashMap<u32, BTreeMap<Option<String>, MapSite>> = HashMap::new();
     let mut mapped_glyphs: HashSet<String> = HashSet::new();
 
     for doc in docs {
@@ -624,13 +631,13 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     glyph,
                     ..
                 } => {
-                    let subst_glyph = substitute_name_parts(glyph, &name_parts);
+                    let subst_glyph = substitute_name_parts(glyph, name_parts);
                     let expanded_pairs =
                         crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
                     for (cp, target) in &expanded_pairs {
                         mapped_glyphs.insert(target.clone());
                         let by_slice = mapped_codepoints.entry(*cp).or_default();
-                        if let Some((prev_file, _, prev_line)) = by_slice.get(slice) {
+                        if let Some(prev) = by_slice.get(slice) {
                             issues.push(issue_at(
                                 doc,
                                 item_idx,
@@ -638,13 +645,20 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                                 format!(
                                     "duplicate codepoint mapping U+{:04X} (first at {}:{})",
                                     cp,
-                                    short_path(prev_file),
-                                    prev_line,
+                                    short_path(&prev.file),
+                                    prev.file_line,
                                 ),
                             ));
                         } else {
                             let (line, file_line) = doc.item_lines(item_idx);
-                            by_slice.insert(slice.clone(), (doc.path.clone(), line, file_line));
+                            by_slice.insert(
+                                slice.clone(),
+                                MapSite {
+                                    file: doc.path.clone(),
+                                    line,
+                                    file_line,
+                                },
+                            );
                         }
                     }
                 }
@@ -756,16 +770,15 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         //
         // Sorted by codepoint: the report is a golden, and a HashMap would make its
         // order depend on the hasher.
-        let mut conflicts: Vec<(u32, &BTreeMap<Option<String>, (PathBuf, usize, usize)>)> =
-            mapped_codepoints
-                .iter()
-                .filter(|(_, by_slice)| by_slice.len() > 1)
-                .map(|(cp, by_slice)| (*cp, by_slice))
-                .collect();
+        let mut conflicts: Vec<(u32, &BTreeMap<Option<String>, MapSite>)> = mapped_codepoints
+            .iter()
+            .filter(|(_, by_slice)| by_slice.len() > 1)
+            .map(|(cp, by_slice)| (*cp, by_slice))
+            .collect();
         conflicts.sort_by_key(|(cp, _)| *cp);
         for (cp, by_slice) in conflicts {
             for face in &faces.faces {
-                let present: Vec<(&Option<String>, &(PathBuf, usize, usize))> = by_slice
+                let present: Vec<(&Option<String>, &MapSite)> = by_slice
                     .iter()
                     .filter(|(slice, _)| face.includes(slice.as_deref()))
                     .collect();
@@ -778,21 +791,22 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 };
                 // Report against the later declaration, so the first one reads as
                 // the definition and the rest as the intrusions.
-                let (first_slice, (first_file, _, first_line)) = present[0];
-                for (slice, (file, line, file_line)) in &present[1..] {
+                let (first_slice, first) = present[0];
+                for (slice, site) in &present[1..] {
                     issues.push(Issue {
                         severity: Severity::Error,
                         message: format!(
                             "U+{cp:04X} is mapped in both {} and {}, and face `{}` includes both \
-                         (first at {}:{first_line})",
+                         (first at {}:{})",
                             describe(first_slice),
                             describe(slice),
                             face.label(),
-                            short_path(first_file),
+                            short_path(&first.file),
+                            first.file_line,
                         ),
-                        file: (*file).clone(),
-                        line: *line,
-                        file_line: *file_line,
+                        file: site.file.clone(),
+                        line: site.line,
+                        file_line: site.file_line,
                     });
                 }
             }
@@ -845,20 +859,20 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
         // Seed with root names.
         for name in &root_names {
-            if let Some(&idx) = name_to_item.get(name.as_str()) {
-                if !reachable_items[idx] {
-                    reachable_items[idx] = true;
-                    queue.push(idx);
-                }
+            if let Some(&idx) = name_to_item.get(name.as_str())
+                && !reachable_items[idx]
+            {
+                reachable_items[idx] = true;
+                queue.push(idx);
             }
             // Alternatives of root names are also roots.
             if let Some(alts) = alt_names.get(name.as_str()) {
                 for &alt in alts {
-                    if let Some(&idx) = name_to_item.get(alt) {
-                        if !reachable_items[idx] {
-                            reachable_items[idx] = true;
-                            queue.push(idx);
-                        }
+                    if let Some(&idx) = name_to_item.get(alt)
+                        && !reachable_items[idx]
+                    {
+                        reachable_items[idx] = true;
+                        queue.push(idx);
                     }
                 }
             }
@@ -866,20 +880,20 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
         while let Some(item_idx) = queue.pop() {
             for ref_name in &item_refs[item_idx] {
-                if let Some(&target_item) = name_to_item.get(ref_name.as_str()) {
-                    if !reachable_items[target_item] {
-                        reachable_items[target_item] = true;
-                        queue.push(target_item);
-                    }
+                if let Some(&target_item) = name_to_item.get(ref_name.as_str())
+                    && !reachable_items[target_item]
+                {
+                    reachable_items[target_item] = true;
+                    queue.push(target_item);
                 }
                 // Alternatives of ref targets are also reachable.
                 if let Some(alts) = alt_names.get(ref_name.as_str()) {
                     for &alt in alts {
-                        if let Some(&alt_item) = name_to_item.get(alt) {
-                            if !reachable_items[alt_item] {
-                                reachable_items[alt_item] = true;
-                                queue.push(alt_item);
-                            }
+                        if let Some(&alt_item) = name_to_item.get(alt)
+                            && !reachable_items[alt_item]
+                        {
+                            reachable_items[alt_item] = true;
+                            queue.push(alt_item);
                         }
                     }
                 }
@@ -915,7 +929,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 } = item
                     && body.points.iter().any(|p| p.position.starts_with('-'))
                 {
-                    let resolved_name = substitute_name_parts(n, &name_parts);
+                    let resolved_name = substitute_name_parts(n, name_parts);
                     let (line, file_line) = doc.item_lines(item_idx);
                     // Find all base prefixes (foo:bar:quux is alt for "foo" and "foo:bar")
                     for prefix in crate::ref_composite::alternative_prefixes(&resolved_name) {
@@ -944,7 +958,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     body,
                 } = item
                 {
-                    let resolved_name = substitute_name_parts(n, &name_parts);
+                    let resolved_name = substitute_name_parts(n, name_parts);
                     for pt in &body.points {
                         if pt.position.starts_with('-') {
                             glyph_points_map

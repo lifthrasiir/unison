@@ -122,7 +122,7 @@ impl<'a> DocSet<'a> {
         (doc.path.clone(), line, file_line)
     }
 
-    pub fn to_issue(&self, d: &Diagnostic) -> Issue {
+    pub fn to_issue(self, d: &Diagnostic) -> Issue {
         let (file, line, file_line) = match d.origin {
             Some(r) => self.location(r),
             None => (
@@ -143,7 +143,7 @@ impl<'a> DocSet<'a> {
         }
     }
 
-    pub fn to_issues(&self, diags: &[Diagnostic]) -> Vec<Issue> {
+    pub fn to_issues(self, diags: &[Diagnostic]) -> Vec<Issue> {
         diags.iter().map(|d| self.to_issue(d)).collect()
     }
 }

@@ -256,7 +256,7 @@ pub(super) fn paint_document_area(
                 &painter,
                 &grid_painter,
                 ui,
-                &font_id,
+                font_id,
                 vl,
                 origin,
                 y,
@@ -274,7 +274,7 @@ pub(super) fn paint_document_area(
                 atext.paint(
                     &painter,
                     ui,
-                    &font_id,
+                    font_id,
                     egui::pos2(origin.x + LEFT_PAD, origin.y + y),
                     vl.color,
                     vl.comment_col.map(|c| (c, pal.text_comment)),
@@ -284,7 +284,7 @@ pub(super) fn paint_document_area(
                 let color_spans = paint_color_backgrounds(
                     &painter,
                     ui,
-                    &font_id,
+                    font_id,
                     &atext,
                     doc_line_text(lines, vl, text),
                     vl.col_offset,
@@ -308,8 +308,8 @@ pub(super) fn paint_document_area(
                     for (col_start, col_end, _msg) in &vl.error_spans {
                         let col_start = *col_start;
                         let col_end = *col_end;
-                        let x0 = atext.x_pos(ui, &font_id, col_start);
-                        let x1 = atext.x_pos(ui, &font_id, col_end);
+                        let x0 = atext.x_pos(ui, font_id, col_start);
+                        let x1 = atext.x_pos(ui, font_id, col_end);
                         let name_text: String = text
                             .chars()
                             .skip(col_start)
@@ -365,9 +365,8 @@ pub(super) fn paint_document_area(
                                 let Some((adj_start, adj_end)) = seg_span(link) else {
                                     continue;
                                 };
-                                let lx0 =
-                                    origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, adj_start);
-                                let lx1 = origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, adj_end);
+                                let lx0 = origin.x + LEFT_PAD + atext.x_pos(ui, font_id, adj_start);
+                                let lx1 = origin.x + LEFT_PAD + atext.x_pos(ui, font_id, adj_end);
                                 if hp.x >= lx0 && hp.x < lx1 {
                                     let span_len = link.col_end - link.col_start;
                                     if best.is_none_or(|b| span_len < b.col_end - b.col_start) {
@@ -381,8 +380,8 @@ pub(super) fn paint_document_area(
                         if let Some(link) = hovered_link
                             && let Some((adj_start, adj_end)) = seg_span(link)
                         {
-                            let lx0 = origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, adj_start);
-                            let lx1 = origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, adj_end);
+                            let lx0 = origin.x + LEFT_PAD + atext.x_pos(ui, font_id, adj_start);
+                            let lx1 = origin.x + LEFT_PAD + atext.x_pos(ui, font_id, adj_end);
                             let link_text: String = text
                                 .chars()
                                 .skip(adj_start)
@@ -420,7 +419,7 @@ pub(super) fn paint_document_area(
                     && cp.y < origin.y + y + h
                 {
                     let rel_x = (cp.x - origin.x - LEFT_PAD).max(0.0);
-                    let col = vl.col_offset + atext.x_to_col(ui, &font_id, rel_x);
+                    let col = vl.col_offset + atext.x_to_col(ui, font_id, rel_x);
                     click_result = Some(ClickTarget::Text(Caret::new(vl.doc_line, col)));
                 }
 
@@ -432,7 +431,7 @@ pub(super) fn paint_document_area(
                     && state.cursor.col <= vl.col_offset + text_char_count
                 {
                     let local_col = state.cursor.col - vl.col_offset;
-                    let cx = origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, local_col);
+                    let cx = origin.x + LEFT_PAD + atext.x_pos(ui, font_id, local_col);
                     let cy = origin.y + y;
 
                     // The preedit paints whether or not the canvas is
@@ -491,7 +490,7 @@ pub(super) fn paint_document_area(
                     // Check if caret is inside an error span
                     for (s, e, msg) in &vl.error_spans {
                         if local_col >= *s && local_col < *e {
-                            let span_x = origin.x + LEFT_PAD + atext.x_pos(ui, &font_id, *s);
+                            let span_x = origin.x + LEFT_PAD + atext.x_pos(ui, font_id, *s);
                             error_tooltip = Some((egui::pos2(span_x, cy + h + 2.0), msg.clone()));
                             break;
                         }
@@ -526,7 +525,7 @@ pub(super) fn paint_document_area(
                     shadow.filter(|(idx, _)| idx == item_idx).map(|(_, s)| s),
                     &state.mode,
                     grid_cell,
-                    &pal,
+                    pal,
                 );
 
                 grid_render::handle_grid_hover_preview(
@@ -615,7 +614,7 @@ pub(super) fn paint_document_area(
                         *extent,
                         grid_cell,
                         sel,
-                        &pal,
+                        pal,
                     );
                 }
                 pixel_selection::handle_pixel_select_interaction(
@@ -673,14 +672,14 @@ pub(super) fn paint_document_area(
             composites,
             &strip,
             grid_cell,
-            &pal,
+            pal,
         );
 
         y += h;
     }
 
     draw_grid_hscrollbars(
-        ui, &painter, state, &strip, &blocks, &hbars, zoom_level, &pal,
+        ui, &painter, state, &strip, &blocks, &hbars, zoom_level, pal,
     );
     auto_scroll_grid_on_drag(ui, state, &strip, &blocks, origin, zoom_level);
 

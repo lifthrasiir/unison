@@ -151,18 +151,26 @@ pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -
 /// the same feature tag. The broader scope goes first so declaration order
 /// survives; duplicate lookup indices are dropped, since a lookup listed twice
 /// in one feature record is applied twice.
-fn inherit_tags(tags: &mut Vec<(String, Vec<u16>)>, inherited: &[(String, Vec<u16>)]) {
+/// One feature tag with the lookup indices declared for it, before a language
+/// system's tags become `FeatureRecord`s.
+#[derive(Clone)]
+struct TagLookups {
+    tag: String,
+    lookups: Vec<u16>,
+}
+
+fn inherit_tags(tags: &mut Vec<TagLookups>, inherited: &[TagLookups]) {
     let own = std::mem::replace(tags, inherited.to_vec());
-    for (feat_tag, lookup_indices) in own {
-        match tags.iter_mut().find(|(t, _)| *t == feat_tag) {
-            Some((_, indices)) => {
-                for idx in lookup_indices {
-                    if !indices.contains(&idx) {
-                        indices.push(idx);
+    for entry in own {
+        match tags.iter_mut().find(|t| t.tag == entry.tag) {
+            Some(existing) => {
+                for idx in entry.lookups {
+                    if !existing.lookups.contains(&idx) {
+                        existing.lookups.push(idx);
                     }
                 }
             }
-            None => tags.push((feat_tag, lookup_indices)),
+            None => tags.push(entry),
         }
     }
 }
@@ -364,7 +372,7 @@ pub(super) fn build_gsub(
     // weight, and a font could only ever use as many remap groups as there are
     // feature tags. Lookups accumulate in declaration order, which is also
     // application order.
-    let mut per_script: BTreeMap<String, BTreeMap<Option<String>, Vec<(String, Vec<u16>)>>> =
+    let mut per_script: BTreeMap<String, BTreeMap<Option<String>, Vec<TagLookups>>> =
         BTreeMap::new();
     for (feat_tag, targets, set_names) in &gsub_data.features {
         let lookup_indices: Vec<u16> = set_names
@@ -379,9 +387,12 @@ pub(super) fn build_gsub(
                 .or_default()
                 .entry(lang)
                 .or_default();
-            match tags.iter_mut().find(|(t, _)| t == feat_tag) {
-                Some((_, indices)) => indices.extend(lookup_indices.iter().copied()),
-                None => tags.push((feat_tag.clone(), lookup_indices.clone())),
+            match tags.iter_mut().find(|t| &t.tag == feat_tag) {
+                Some(existing) => existing.lookups.extend(lookup_indices.iter().copied()),
+                None => tags.push(TagLookups {
+                    tag: feat_tag.clone(),
+                    lookups: lookup_indices.clone(),
+                }),
             }
         }
     }
@@ -428,7 +439,11 @@ pub(super) fn build_gsub(
     let mut script_features: BTreeMap<String, ScriptFeatures> = BTreeMap::new();
     for (script, langs) in per_script {
         for (lang, tags) in langs {
-            for (feat_tag, lookup_indices) in tags {
+            for TagLookups {
+                tag: feat_tag,
+                lookups: lookup_indices,
+            } in tags
+            {
                 // Language systems that end up with the same tag and the same
                 // lookups share one record rather than duplicating it.
                 let feat_idx = *record_of

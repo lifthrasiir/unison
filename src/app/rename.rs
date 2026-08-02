@@ -185,10 +185,10 @@ fn doc_may_reference(
                     return true;
                 }
             }
-            (RenameKind::RemapGroup, DocumentItem::Feature { remap_group, .. }) => {
-                if remap_group == name {
-                    return true;
-                }
+            (RenameKind::RemapGroup, DocumentItem::Feature { remap_group, .. })
+                if remap_group == name =>
+            {
+                return true;
             }
             _ => {}
         }
@@ -205,6 +205,15 @@ fn meta_scope_is(text: &str, name: &str) -> bool {
         .any(|f| f.role == FieldRole::FaceRef && f.token == name)
 }
 
+/// One replacement `rename_in_line` made, in character columns of the *old*
+/// line: `[start, end)` became `new_len` characters.  Ascending by `start`.
+#[derive(Clone, Copy)]
+struct RenameSpan {
+    start: usize,
+    end: usize,
+    new_len: usize,
+}
+
 /// Applies a rename to one line by splicing new text over the classified
 /// name fields (`crate::editor::line_fields`).  Detection and mutation share
 /// the classification, so whatever the rename popup identified is exactly
@@ -214,7 +223,7 @@ fn rename_in_line(
     old_name: &str,
     new_name: &str,
     kind: &crate::editor::doc_links::RenameKind,
-) -> Option<(String, Vec<(usize, usize, usize)>)> {
+) -> Option<(String, Vec<RenameSpan>)> {
     use crate::editor::doc_links::RenameKind;
     use crate::editor::line_fields::{FieldRole, classify_line};
 
@@ -282,7 +291,11 @@ fn rename_in_line(
     for (start, end, replacement) in reps {
         let byte_start = char_to_byte(&out, start);
         let byte_end = char_to_byte(&out, end);
-        spans.push((start, end, replacement.chars().count()));
+        spans.push(RenameSpan {
+            start,
+            end,
+            new_len: replacement.chars().count(),
+        });
         out.replace_range(byte_start..byte_end, &replacement);
     }
     spans.reverse(); // back to ascending order
@@ -290,13 +303,18 @@ fn rename_in_line(
 }
 
 /// Maps a caret column across the replacements one `rename_in_line` made,
-/// given as ascending `(char start, char end, new char length)` spans.  A
+/// given as ascending [`RenameSpan`]s.  A
 /// caret anywhere on a rewritten token lands just *after* the new text, so
 /// the user sees the symbol they renamed; everything further right shifts
 /// with it.
-fn shift_caret_col(col: usize, spans: &[(usize, usize, usize)]) -> usize {
+fn shift_caret_col(col: usize, spans: &[RenameSpan]) -> usize {
     let mut delta: isize = 0;
-    for &(start, end, new_len) in spans {
+    for &RenameSpan {
+        start,
+        end,
+        new_len,
+    } in spans
+    {
         if start <= col && col <= end {
             return (start as isize + delta) as usize + new_len;
         }

@@ -208,6 +208,8 @@ fn anchor_layer_color(
     ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, body.refs.len() + pi)
 }
 
+// Painting parameters, each independent of the others.
+#[expect(clippy::too_many_arguments)]
 pub(crate) fn render_grid_row(
     painter: &egui::Painter,
     x: f32,
@@ -1189,6 +1191,8 @@ pub(crate) fn handle_grid_hover_preview(
     }
 }
 
+// Painting parameters, each independent of the others.
+#[expect(clippy::too_many_arguments)]
 pub(crate) fn render_pixel_selection_overlay(
     painter: &egui::Painter,
     x: f32,

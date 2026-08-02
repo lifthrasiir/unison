@@ -5,6 +5,9 @@
 
 use super::*;
 
+/// Traced contours of one glyph, in the tracer's own float coordinates.
+type TracedContours = Vec<Vec<(f32, f32)>>;
+
 #[derive(Clone)]
 struct CacheEntry<T> {
     value: T,
@@ -13,7 +16,7 @@ struct CacheEntry<T> {
 
 #[derive(Default, Clone)]
 pub struct ContourCache {
-    entries: HashMap<u64, CacheEntry<Vec<Vec<(f32, f32)>>>>,
+    entries: HashMap<u64, CacheEntry<TracedContours>>,
     composite_entries: HashMap<u64, CacheEntry<CachedContours>>,
     gen_id: u64,
 }
@@ -241,17 +244,17 @@ impl CachedContours {
 
         let result = Self::from_components_inner(own_pixels, refs, cache, bitmap, parent_scale);
 
-        if let Some(ref val) = result {
-            if let Some(cc) = cc {
-                let cur_gen = cc.gen_id;
-                cc.composite_entries.insert(
-                    comp_key,
-                    CacheEntry {
-                        value: val.clone(),
-                        gen_id: cur_gen,
-                    },
-                );
-            }
+        if let Some(ref val) = result
+            && let Some(cc) = cc
+        {
+            let cur_gen = cc.gen_id;
+            cc.composite_entries.insert(
+                comp_key,
+                CacheEntry {
+                    value: val.clone(),
+                    gen_id: cur_gen,
+                },
+            );
         }
 
         result

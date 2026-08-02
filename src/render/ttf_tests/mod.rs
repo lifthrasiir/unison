@@ -68,11 +68,24 @@ fn canonicalize_contour(c: &[(i16, i16)]) -> Vec<(i16, i16)> {
     rotated
 }
 
-fn canonicalize_glyph(g: &CollectedGlyph) -> (Vec<u32>, u16, Vec<Vec<(i16, i16)>>) {
+/// A glyph reduced to what two builds of the same source must agree on, in an
+/// order-independent form.
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
+struct CanonicalGlyph {
+    codepoints: Vec<u32>,
+    advance_width: u16,
+    contours: Vec<Vec<(i16, i16)>>,
+}
+
+fn canonicalize_glyph(g: &CollectedGlyph) -> CanonicalGlyph {
     let mut contours: Vec<Vec<(i16, i16)>> =
         g.contours.iter().map(|c| canonicalize_contour(c)).collect();
     contours.sort();
-    (g.codepoints.clone(), g.advance_width, contours)
+    CanonicalGlyph {
+        codepoints: g.codepoints.clone(),
+        advance_width: g.advance_width,
+        contours,
+    }
 }
 
 /// Nonzero winding number of `contours` at `(x, y)`, in font units.

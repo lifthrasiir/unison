@@ -170,6 +170,17 @@ pub type DocSource = (std::path::PathBuf, Vec<u8>);
 /// bytes behind what did.
 pub type LoadedDir = (Vec<Document>, Vec<ParseError>, Vec<DocSource>);
 
+/// The editor's build product for one face.
+#[cfg(feature = "editor")]
+pub struct BuiltFontPair {
+    /// The bitmap face's TTF: hinted to the pixel grid.
+    pub bitmap: Vec<u8>,
+    /// The vector face's TTF.
+    pub vector: Vec<u8>,
+    /// Glyph name → GID in the vector face.
+    pub name_to_gid: HashMap<String, u16>,
+}
+
 pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<ParseError>) {
     let (docs, errors, _) = load_docs_from_directory_with_sources(dir);
     (docs, errors)
@@ -226,7 +237,7 @@ pub fn build_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {
 pub fn build_font_pair_cached(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
-) -> Option<((Vec<u8>, Vec<u8>), HashMap<String, u16>)> {
+) -> Option<BuiltFontPair> {
     build_font_pair_cached_for(docs, shared_cache, None)
 }
 
@@ -240,7 +251,7 @@ pub fn build_font_pair_cached_for(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
     face_id: Option<&str>,
-) -> Option<((Vec<u8>, Vec<u8>), HashMap<String, u16>)> {
+) -> Option<BuiltFontPair> {
     let faces = crate::faces::FaceSet::collect(docs);
     let face = face_id
         .and_then(|id| faces.faces.iter().find(|f| f.id == id))
@@ -304,7 +315,11 @@ pub fn build_font_pair_cached_for(
         (bitmap, vector)
     });
 
-    Some(((bitmap, vector), name_to_gid))
+    Some(BuiltFontPair {
+        bitmap,
+        vector,
+        name_to_gid,
+    })
 }
 
 /// Build every declared face, in declaration order, as `(face id, TTF bytes)`.

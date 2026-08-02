@@ -410,7 +410,7 @@ fn sweep(edges: &[SweepEdge], filled: &dyn Fn(bool, bool) -> bool) -> Vec<Trap> 
                 xs.push((e.x_at(ym), e.x_at(ya), e.x_at(yb), e.operand));
             }
         }
-        xs.sort_by(|p, q| p.0.cmp(&q.0));
+        xs.sort_by_key(|p| p.0);
 
         let mut in_a = false;
         let mut in_b = false;
@@ -819,14 +819,14 @@ impl DetailRegion {
         if canon.is_empty() {
             return Classified::Empty;
         }
-        if canon.den <= 2 {
-            if let Some(&id) = classify_index().get(&canon) {
-                return if id == PX_ALMOSTFULL {
-                    Classified::Full
-                } else {
-                    Classified::Shape(id)
-                };
-            }
+        if canon.den <= 2
+            && let Some(&id) = classify_index().get(&canon)
+        {
+            return if id == PX_ALMOSTFULL {
+                Classified::Full
+            } else {
+                Classified::Shape(id)
+            };
         }
         Classified::Custom(canon)
     }
@@ -1249,6 +1249,7 @@ mod tests {
 
     /// The six DOT+two-corner shapes, with the two corners each is built from
     /// and the two its complement is made of.
+    #[expect(clippy::type_complexity)]
     const DOT_CORNER_SHAPES: [(u8, (u8, u8), (u8, u8)); 6] = [
         (PX_SLASH, (PX_CORNER1, PX_CORNER2), (PX_CORNER3, PX_CORNER4)),
         (

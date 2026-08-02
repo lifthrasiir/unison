@@ -172,7 +172,7 @@ fn restore_editor_focus(ui: &egui::Ui, state: &EditorState) {
 
 pub(super) fn show_autocomplete_popup(
     ui: &egui::Ui,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut EditorState,
     needs_rederive: &mut bool,
 ) {

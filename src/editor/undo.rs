@@ -363,6 +363,8 @@ impl UndoStack {
         self.position = self.entries.len();
     }
 
+    // Three before/after pairs; a struct per pair would read worse at the call site.
+    #[expect(clippy::too_many_arguments)]
     pub fn push_pixel_selection(
         &mut self,
         line: usize,

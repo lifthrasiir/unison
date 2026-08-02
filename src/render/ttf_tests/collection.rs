@@ -199,7 +199,7 @@ face wide : wide
     let advance_of = |i: u32, ch: char| -> u16 {
         let f = ttc.get(i).unwrap();
         let gid = f.cmap().unwrap().map_codepoint(ch).unwrap();
-        f.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap()
+        f.hmtx().unwrap().advance(gid).unwrap()
     };
     assert_eq!(advance_of(0, '°'), 64, "narrow");
     assert_eq!(advance_of(1, '°'), 128, "wide");
@@ -244,11 +244,10 @@ face wide : wide
     let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
     let cache = crate::render::new_contour_cache();
     let advance_of = |face: Option<&str>, ch: char| -> u16 {
-        let ((_, vector), _) =
-            crate::render::build_font_pair_cached_for(&[&doc], &cache, face).unwrap();
-        let f = read_fonts::FontRef::new(&vector).unwrap();
+        let built = crate::render::build_font_pair_cached_for(&[&doc], &cache, face).unwrap();
+        let f = read_fonts::FontRef::new(&built.vector).unwrap();
         let gid = f.cmap().unwrap().map_codepoint(ch).unwrap();
-        f.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap()
+        f.hmtx().unwrap().advance(gid).unwrap()
     };
     assert_eq!(advance_of(None, '°'), 64, "the primary face");
     assert_eq!(advance_of(Some("narrow"), '°'), 64);

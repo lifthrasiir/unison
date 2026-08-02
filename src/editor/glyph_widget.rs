@@ -275,13 +275,13 @@ pub fn all_valid_shapes() -> &'static [PixelShape] {
 
 fn build_all_valid_shapes() -> Vec<PixelShape> {
     use pixel::*;
-    let mut s = Vec::new();
-
     // Row 0 (16): almostfull, dot, hquad, vquad, halves, corners, invcorners
-    s.push(PixelShape::new(PX_ALMOSTFULL, true));
-    s.push(PixelShape::new(PX_DOT, false));
-    s.push(PixelShape::new(PX_HQUAD, true));
-    s.push(PixelShape::new(PX_VQUAD, true));
+    let mut s = vec![
+        PixelShape::new(PX_ALMOSTFULL, true),
+        PixelShape::new(PX_DOT, false),
+        PixelShape::new(PX_HQUAD, true),
+        PixelShape::new(PX_VQUAD, true),
+    ];
     for &id in &[PX_HALF3, PX_HALF2, PX_HALF4, PX_HALF1] {
         s.push(PixelShape::new(id, true));
     }

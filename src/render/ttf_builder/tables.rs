@@ -97,6 +97,8 @@ pub(super) fn build_script_records(
     script_records
 }
 
+// The font tables' inputs, gathered from unrelated stages.
+#[expect(clippy::too_many_arguments)]
 pub(super) fn build_ttf(
     ascender: i16,
     descender: i16,

@@ -159,11 +159,11 @@ pub(crate) fn handle_pixel_painting(
             }
         }
     }
-    if let Some(toggled) = slant_toggle {
-        if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
-            *selected_shape = toggled;
-            crate::editor::glyph_widget::sync_rotation(toggled, &mut state.shape_rotation);
-        }
+    if let Some(toggled) = slant_toggle
+        && let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode
+    {
+        *selected_shape = toggled;
+        crate::editor::glyph_widget::sync_rotation(toggled, &mut state.shape_rotation);
     }
 }
 

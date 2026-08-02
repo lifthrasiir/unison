@@ -61,15 +61,15 @@ impl BackgroundTaskStatus {
 
     fn gc(&mut self) {
         let expire = std::time::Duration::from_secs(10);
-        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.build {
-            if at.elapsed() >= expire {
-                self.build = None;
-            }
+        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.build
+            && at.elapsed() >= expire
+        {
+            self.build = None;
         }
-        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.test {
-            if at.elapsed() >= expire {
-                self.test = None;
-            }
+        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.test
+            && at.elapsed() >= expire
+        {
+            self.test = None;
         }
     }
 }
@@ -77,7 +77,7 @@ impl BackgroundTaskStatus {
 fn take_current_font_build(
     rx: &mpsc::Receiver<FontBuildMessage>,
     current_gen: u64,
-) -> Option<Option<(FontPair, HashMap<String, u16>)>> {
+) -> Option<Option<crate::render::BuiltFontPair>> {
     let mut received = None;
     while let Ok((build_gen, result)) = rx.try_recv() {
         if build_gen == current_gen {
@@ -224,7 +224,7 @@ impl UniformApp {
     /// [`crate::render::build_font_pair_cached_for`], so the picker cannot show
     /// a face the preview is not drawn with.
     pub(super) fn selected_face(&self) -> &str {
-        if self.face_ids.iter().any(|id| *id == self.selected_face) {
+        if self.face_ids.contains(&self.selected_face) {
             &self.selected_face
         } else {
             self.face_ids.first().map(String::as_str).unwrap_or("")
@@ -407,9 +407,9 @@ impl UniformApp {
         if let Some(result) = take_current_font_build(&self.font_build_rx, self.font_build_gen) {
             self.bg_tasks.finish_build();
             match result {
-                Some((pair, gid_map)) => {
-                    self.font_data = Some(pair);
-                    self.font_name_to_gid = gid_map;
+                Some(built) => {
+                    self.font_data = Some((built.bitmap, built.vector));
+                    self.font_name_to_gid = built.name_to_gid;
                 }
                 None => {
                     self.font_data = None;
@@ -531,19 +531,21 @@ mod font_build_tests {
     #[test]
     fn stale_background_font_cannot_replace_current_result() {
         let (tx, rx) = mpsc::channel();
-        let m2: HashMap<String, u16> = HashMap::new();
-        let m1: HashMap<String, u16> = HashMap::new();
-        tx.send((2, Some(((vec![2], vec![20]), m2.clone()))))
-            .unwrap();
-        tx.send((1, Some(((vec![1], vec![10]), m1)))).unwrap();
+        let built = |n: u8| crate::render::BuiltFontPair {
+            bitmap: vec![n],
+            vector: vec![n * 10],
+            name_to_gid: HashMap::new(),
+        };
+        tx.send((2, Some(built(2)))).unwrap();
+        tx.send((1, Some(built(1)))).unwrap();
 
         let result = take_current_font_build(&rx, 2);
         assert!(result.is_some());
         let inner = result.unwrap();
         assert!(inner.is_some());
-        let ((bitmap, vector), _map) = inner.unwrap();
-        assert_eq!(bitmap, vec![2]);
-        assert_eq!(vector, vec![20]);
+        let inner = inner.unwrap();
+        assert_eq!(inner.bitmap, vec![2]);
+        assert_eq!(inner.vector, vec![20]);
     }
 
     #[test]

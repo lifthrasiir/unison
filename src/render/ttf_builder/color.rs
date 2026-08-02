@@ -81,13 +81,12 @@ pub fn effective_visibility(
     if let Some(vis) = ref_visibility {
         return vis;
     }
-    if let Some(fill) = fill {
-        if !fill.color.starts_with('#')
-            && fill.color != "fg"
-            && let Some((_, Some(vis))) = color_aliases.get(&fill.color)
-        {
-            return *vis;
-        }
+    if let Some(fill) = fill
+        && !fill.color.starts_with('#')
+        && fill.color != "fg"
+        && let Some((_, Some(vis))) = color_aliases.get(&fill.color)
+    {
+        return *vis;
     }
     LayerVisibility::Both
 }

@@ -540,7 +540,7 @@ mod tests {
         let ctx = egui::Context::default();
         let mut desired = 0.0;
         for _ in 0..frames {
-            ctx.run(input(), |ctx| {
+            let _ = ctx.run(input(), |ctx| {
                 sb.fit_panel_width(ctx, "sidebar");
                 desired = sb.desired_width(ctx);
                 egui::SidePanel::left("sidebar")
@@ -601,7 +601,7 @@ mod tests {
         let ctx = egui::Context::default();
         let mut panel_right = 0.0;
         for _ in 0..3 {
-            ctx.run(input(), |ctx| {
+            let _ = ctx.run(input(), |ctx| {
                 let resp = egui::SidePanel::left("sidebar")
                     .default_width(360.0)
                     .show(ctx, |ui| {
@@ -634,7 +634,7 @@ mod tests {
             if let Some(p) = pointer {
                 raw.events.insert(0, egui::Event::PointerMoved(p));
             }
-            ctx.run(raw, |ctx| {
+            let _ = ctx.run(raw, |ctx| {
                 sb.fit_panel_width(ctx, "sidebar");
                 egui::SidePanel::left("sidebar").show(ctx, |ui| {
                     sb.show(ui, None, SidebarFiles::default(), false);

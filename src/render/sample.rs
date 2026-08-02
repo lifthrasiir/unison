@@ -524,8 +524,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             sample_glyphs.insert(
                 glyph_name.clone(),
                 SampleGlyph {
-                    width: (cached.width + s as u16 - 1) / s as u16,
-                    _height: (cached.height + s as u16 - 1) / s as u16,
+                    width: cached.width.div_ceil(s as u16),
+                    _height: cached.height.div_ceil(s as u16),
                     components: cached.components.clone(),
                     origin_row: cached.origin_row.div_euclid(s as i32) as i16,
                     origin_col: cached.origin_col.div_euclid(s as i32) as i16,
@@ -1005,7 +1005,7 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
         let y = (max_height + 1) * r + row_offsets[r as usize] + 1;
         let x = label_width + 1 + left;
 
-        let (dw, dh, col_off, row_off) = sample_display_metrics(sg, data.height as u16);
+        let (dw, dh, col_off, row_off) = sample_display_metrics(sg, data.height);
 
         // Clear glyph area to white
         for dy in 0..dh.min(max_height as u16) as u32 {
@@ -1034,6 +1034,8 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
     encode_rgba_png(w, &pixels, img_width, img_height)
 }
 
+// Destination surface plus the glyph and its colors.
+#[expect(clippy::too_many_arguments)]
 fn render_glyph_bitmap_rgba(
     pixels: &mut [u8],
     stride: usize,
@@ -2123,7 +2125,7 @@ map A = diag
         let y_start: f32 = d_attr
             .strip_prefix('M')
             .unwrap()
-            .split(|c: char| c == 'l' || c == 'h' || c == 'v')
+            .split(['l', 'h', 'v'])
             .next()
             .unwrap()
             .split_whitespace()

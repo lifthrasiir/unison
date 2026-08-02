@@ -697,15 +697,15 @@ pub fn find_invalid_inline_ranges(s: &str) -> Vec<String> {
     let chars: Vec<char> = s.chars().collect();
     let mut i = 0;
     while i < chars.len() {
-        if chars[i] == '$' {
-            if let Some((end_pos, values)) = try_expand_inline_range(&chars, i) {
-                if values.is_empty() {
-                    let orig: String = chars[i..end_pos].iter().collect();
-                    errors.push(orig);
-                }
-                i = end_pos;
-                continue;
+        if chars[i] == '$'
+            && let Some((end_pos, values)) = try_expand_inline_range(&chars, i)
+        {
+            if values.is_empty() {
+                let orig: String = chars[i..end_pos].iter().collect();
+                errors.push(orig);
             }
+            i = end_pos;
+            continue;
         }
         i += 1;
     }

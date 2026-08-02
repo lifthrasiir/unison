@@ -307,13 +307,11 @@ impl UniformApp {
                         )
                         .clicked()
                     {
-                        if let Some(d) = self.active_doc_mut() {
-                            if let crate::editor::EditMode::GlyphEdit { item_idx, .. } =
+                        if let Some(d) = self.active_doc_mut()
+                            && let crate::editor::EditMode::GlyphEdit { item_idx, .. } =
                                 d.editor_state.mode
-                            {
-                                d.editor_state.mode =
-                                    crate::editor::EditMode::PixelSelect { item_idx };
-                            }
+                        {
+                            d.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx };
                         }
                         ui.close_menu();
                     }
@@ -324,18 +322,17 @@ impl UniformApp {
                         )
                         .clicked()
                     {
-                        if let Some(d) = self.active_doc_mut() {
-                            if let crate::editor::EditMode::PixelSelect { item_idx } =
+                        if let Some(d) = self.active_doc_mut()
+                            && let crate::editor::EditMode::PixelSelect { item_idx } =
                                 d.editor_state.mode
-                            {
-                                d.editor_state.mode = crate::editor::EditMode::GlyphEdit {
-                                    item_idx,
-                                    selected_shape: crate::pixel::PixelShape::new(
-                                        crate::pixel::PX_ALMOSTFULL,
-                                        true,
-                                    ),
-                                };
-                            }
+                        {
+                            d.editor_state.mode = crate::editor::EditMode::GlyphEdit {
+                                item_idx,
+                                selected_shape: crate::pixel::PixelShape::new(
+                                    crate::pixel::PX_ALMOSTFULL,
+                                    true,
+                                ),
+                            };
                         }
                         ui.close_menu();
                     }
@@ -763,10 +760,12 @@ impl UniformApp {
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::N) {
                 *menu_new_file = true;
             }
-            if i.modifiers.command && i.modifiers.shift && i.key_pressed(egui::Key::O) {
-                if !self.in_grid_edit() {
-                    *menu_open_folder = true;
-                }
+            if i.modifiers.command
+                && i.modifiers.shift
+                && i.key_pressed(egui::Key::O)
+                && !self.in_grid_edit()
+            {
+                *menu_open_folder = true;
             }
             if i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::S) {
                 *ctrl_s_pressed = true;
@@ -890,9 +889,9 @@ impl UniformApp {
             let refs: Vec<&Document> = self.font_base_docs.iter().collect();
             self.contour_cache.lock().unwrap().clear();
             match crate::render::build_font_pair_cached(&refs, &self.contour_cache) {
-                Some((pair, gid_map)) => {
-                    self.font_data = Some(pair);
-                    self.font_name_to_gid = gid_map;
+                Some(built) => {
+                    self.font_data = Some((built.bitmap, built.vector));
+                    self.font_name_to_gid = built.name_to_gid;
                 }
                 None => {
                     self.font_data = None;

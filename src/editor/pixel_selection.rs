@@ -27,10 +27,10 @@ impl PixelSelection {
 
     pub fn grid_doc_line(&self, doc: &Document) -> Option<usize> {
         let start = doc.item_line_starts.get(self.item_idx)?;
-        if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(self.item_idx) {
-            if body.pixels.is_some() {
-                return Some(start + 1);
-            }
+        if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(self.item_idx)
+            && body.pixels.is_some()
+        {
+            return Some(start + 1);
         }
         None
     }
@@ -186,11 +186,12 @@ pub(crate) fn handle_pixel_select_interaction(
             ui.ctx().request_repaint();
         } else {
             // Commit existing floating selection before starting new one
-            if let Some(sel) = state.pixel_selection.clone() {
-                if sel.item_idx == item_idx && sel.is_floating() {
-                    commit_floating(doc, lines, state, &sel);
-                    *needs_rederive = true;
-                }
+            if let Some(sel) = state.pixel_selection.clone()
+                && sel.item_idx == item_idx
+                && sel.is_floating()
+            {
+                commit_floating(doc, lines, state, &sel);
+                *needs_rederive = true;
             }
             state.pixel_selection = Some(PixelSelection {
                 item_idx,
@@ -419,7 +420,7 @@ pub(crate) fn shift_all_layers(
 
 pub(crate) fn commit_floating(
     doc: &Document,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut EditorState,
     sel: &PixelSelection,
 ) {
@@ -483,7 +484,7 @@ pub(crate) fn commit_floating(
 
 pub(crate) fn commit_and_clear(
     doc: &Document,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut EditorState,
     sel: &PixelSelection,
 ) {
@@ -493,7 +494,7 @@ pub(crate) fn commit_and_clear(
 
 pub(crate) fn handle_delete_selection(
     doc: &Document,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut EditorState,
 ) {
     let Some(sel) = state.pixel_selection.clone() else {
@@ -605,7 +606,7 @@ pub(crate) fn parse_pixel_rect(text: &str) -> Option<PixelGrid> {
         return None;
     }
     let first_len = row_texts[0].chars().count();
-    if first_len == 0 || first_len % 2 != 0 {
+    if first_len == 0 || !first_len.is_multiple_of(2) {
         return None;
     }
     let width = first_len / 2;
@@ -630,7 +631,7 @@ pub(crate) fn parse_pixel_rect(text: &str) -> Option<PixelGrid> {
 
 pub(crate) fn paste_selection(
     doc: &Document,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut EditorState,
     clipboard_text: &str,
 ) -> bool {
@@ -653,19 +654,19 @@ pub(crate) fn paste_selection(
     }
 
     // Size check against current selection
-    if let Some(sel) = &state.pixel_selection {
-        if sel.item_idx == item_idx
-            && (clip_grid.width < sel.width || clip_grid.height < sel.height)
-        {
-            return false;
-        }
+    if let Some(sel) = &state.pixel_selection
+        && sel.item_idx == item_idx
+        && (clip_grid.width < sel.width || clip_grid.height < sel.height)
+    {
+        return false;
     }
 
     // Commit existing floating selection
-    if let Some(sel) = state.pixel_selection.clone() {
-        if sel.item_idx == item_idx && sel.is_floating() {
-            commit_floating(doc, lines, state, &sel);
-        }
+    if let Some(sel) = state.pixel_selection.clone()
+        && sel.item_idx == item_idx
+        && sel.is_floating()
+    {
+        commit_floating(doc, lines, state, &sel);
     }
 
     let before = state
@@ -831,7 +832,7 @@ pub(crate) fn can_transform(
 
 pub(crate) fn handle_transform_selection(
     doc: &Document,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut EditorState,
     transform: SelectionTransform,
 ) -> bool {
@@ -1199,7 +1200,7 @@ fn scale_range_token(tok: &str, old_scale: u8, new_scale: u8) -> String {
 // Reconciliation — called once per frame at the top of show_document
 // ---------------------------------------------------------------------------
 
-pub(crate) fn reconcile(doc: &Document, lines: &mut Vec<DocLine>, state: &mut EditorState) -> bool {
+pub(crate) fn reconcile(doc: &Document, lines: &mut [DocLine], state: &mut EditorState) -> bool {
     let sel = match &state.pixel_selection {
         Some(s) => s.clone(),
         None => return false,

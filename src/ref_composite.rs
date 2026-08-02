@@ -205,9 +205,16 @@ fn parse_uint_no_leading_zero(s: &str) -> Option<u8> {
     s.parse().ok()
 }
 
+/// One parsed dimension of an on-demand rectangle name: `[-]A[pBrR]`.
+struct RectDim {
+    negated: bool,
+    base: u8,
+    /// `(frac, scale)` of the `pBrR` part, absent for a plain `A`.
+    detail: Option<(u8, u8)>,
+}
+
 /// Parse one dimension: `[-]A[pBrR]`.
-/// Returns `(negated, base, Option<(frac, scale)>)`.
-fn parse_rect_dim(s: &str) -> Option<(bool, u8, Option<(u8, u8)>)> {
+fn parse_rect_dim(s: &str) -> Option<RectDim> {
     let (neg, s) = if let Some(rest) = s.strip_prefix('-') {
         (true, rest)
     } else {
@@ -220,10 +227,18 @@ fn parse_rect_dim(s: &str) -> Option<(bool, u8, Option<(u8, u8)>)> {
         let base = parse_uint_no_leading_zero(base_str)?;
         let frac = parse_uint_no_leading_zero(frac_str)?;
         let scale = parse_uint_no_leading_zero(scale_str)?;
-        Some((neg, base, Some((frac, scale))))
+        Some(RectDim {
+            negated: neg,
+            base,
+            detail: Some((frac, scale)),
+        })
     } else {
         let base = parse_uint_no_leading_zero(s)?;
-        Some((neg, base, None))
+        Some(RectDim {
+            negated: neg,
+            base,
+            detail: None,
+        })
     }
 }
 
@@ -263,8 +278,16 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
         (name, None)
     };
     let (w_str, h_str) = name.split_once('x')?;
-    let (neg_w, w, w_detail) = parse_rect_dim(w_str)?;
-    let (neg_h, h, h_detail) = parse_rect_dim(h_str)?;
+    let RectDim {
+        negated: neg_w,
+        base: w,
+        detail: w_detail,
+    } = parse_rect_dim(w_str)?;
+    let RectDim {
+        negated: neg_h,
+        base: h,
+        detail: h_detail,
+    } = parse_rect_dim(h_str)?;
 
     match (w_detail, h_detail) {
         (None, None) => {
@@ -463,8 +486,8 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
     let s = rect.scale.max(1) as u16;
     let rect_w = rect.w as u16 * s + rect.w_frac as u16;
     let rect_h = rect.h as u16 * s + rect.h_frac as u16;
-    let extent_w = (rect_w + s - 1) / s;
-    let extent_h = (rect_h + s - 1) / s;
+    let extent_w = rect_w.div_ceil(s);
+    let extent_h = rect_h.div_ceil(s);
     let grid_w = extent_w * s;
     let grid_h = extent_h * s;
     let off_c = if rect.neg_w { grid_w - rect_w } else { 0 };
@@ -515,7 +538,7 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
                 (c as i64 + 1, r as i64 + 1),
             ] {
                 let cr = (hx2 - hx1) * (py - hy1) - (hy2 - hy1) * (px - hx1);
-                match (cr * inside_sign as i64).signum() {
+                match (cr * inside_sign).signum() {
                     1 => inside += 1,
                     -1 => outside += 1,
                     _ => {}
@@ -991,6 +1014,7 @@ pub(crate) fn derive_ref_offsets_with(
 /// own alternatives were already tried and rejected. Both triggers scan every
 /// unresolved sibling, not just the following ones: a deferred consumer
 /// *earlier* in the ref list is still waiting on this publisher.
+#[expect(clippy::too_many_arguments)]
 fn try_lookahead_alt<'a>(
     i: usize,
     n: usize,
@@ -1130,6 +1154,7 @@ fn translate_point(p: &GlyphPoint, off_col: i16, off_row: i16) -> GlyphPoint {
     }
 }
 
+#[expect(clippy::too_many_arguments)]
 fn commit_ref(
     gref: &GlyphRef,
     ref_idx: usize,

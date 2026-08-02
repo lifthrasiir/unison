@@ -637,7 +637,9 @@ const EC_F: ShapeEdgeCoverage = ShapeEdgeCoverage {
     },
 };
 
+// Eight edge coordinates: naming them individually is the point.
 #[cfg(any(feature = "editor", test))]
+#[expect(clippy::too_many_arguments)]
 const fn ec(
     ts: f32,
     te: f32,
@@ -1266,7 +1268,7 @@ pub fn multi_shape_adjacency(shapes: &[u8]) -> (u8, Vec<Seg>) {
             (x2.to_bits(), y2.to_bits(), x1.to_bits(), y1.to_bits())
         }
     };
-    combined_segs.sort_by(|a, b| seg_key(a).cmp(&seg_key(b)));
+    combined_segs.sort_by_key(|a| seg_key(a));
     combined_segs.dedup_by(|a, b| seg_key(a) == seg_key(b));
 
     (combined_bits, combined_segs)
@@ -1366,6 +1368,8 @@ fn subtract_covered_intervals(
 
 /// Parameter `t` along segment A where it intersects segment B.
 /// Returns `None` if segments are parallel or don't intersect.
+// Two segments as eight coordinates; a point type here would only add noise.
+#[expect(clippy::too_many_arguments)]
 fn seg_intersect_t(
     ax1: f32,
     ay1: f32,

@@ -179,10 +179,10 @@ fn flush_pixel_change(
 ) {
     state.skip_reconcile = false;
 
-    if let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) {
-        if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get_mut(item_idx) {
-            body.pixels = Some(grid.clone());
-        }
+    if let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line)
+        && let Some(DocumentItem::Glyph { body, .. }) = doc.items.get_mut(item_idx)
+    {
+        body.pixels = Some(grid.clone());
     }
     doc.docline_file_lines = crate::document::compute_docline_file_lines(lines);
     doc.pixel_gen += 1;

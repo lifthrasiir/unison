@@ -39,7 +39,7 @@ use search::SearchResults;
 use zoom::DEFAULT_PREVIEW_FONT_SIZE;
 
 type FontPair = (Vec<u8>, Vec<u8>);
-type FontBuildMessage = (u64, Option<(FontPair, HashMap<String, u16>)>);
+type FontBuildMessage = (u64, Option<crate::render::BuiltFontPair>);
 /// What one derived-data rebuild produces. A struct rather than a tuple
 /// because every consumer picks fields out of it by name.
 struct DerivedDataMessage {
@@ -238,7 +238,7 @@ impl UniformApp {
         } else {
             let refs: Vec<&Document> = font_base_docs.iter().collect();
             match crate::render::build_font_pair_cached(&refs, &contour_cache) {
-                Some((pair, map)) => (Some(pair), map),
+                Some(built) => (Some((built.bitmap, built.vector)), built.name_to_gid),
                 None => (None, HashMap::new()),
             }
         };

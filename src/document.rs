@@ -1097,10 +1097,10 @@ impl DocumentItem {
                 }
             }
             "assert" => {
-                if tokens.get(1).is_some_and(|t| t == "shape") {
-                    if let Some(item) = Self::parse_assert_shape(&tokens[2..], comment.clone()) {
-                        return item;
-                    }
+                if tokens.get(1).is_some_and(|t| t == "shape")
+                    && let Some(item) = Self::parse_assert_shape(&tokens[2..], comment.clone())
+                {
+                    return item;
                 }
                 match tokens.get(1).map(|s| s.as_str()) {
                     Some("same") if tokens.len() >= 4 => {
@@ -1141,7 +1141,7 @@ impl DocumentItem {
                         Some(t) if t == sep && rest.len() > 2 => rest[2..].to_vec(),
                         // Anything else is malformed; fall through to the raw
                         // line rather than half-reading it.
-                        Some(_) => return Self::unrecognized(&tokens, comment),
+                        Some(_) => return Self::unrecognized(tokens, comment),
                     };
                     if tokens[0] == "face" {
                         return DocumentItem::Face {
@@ -1189,7 +1189,7 @@ impl DocumentItem {
             }
             _ => {}
         }
-        Self::unrecognized(&tokens, comment)
+        Self::unrecognized(tokens, comment)
     }
 
     /// Malformed: keep the line as raw text, comment included, so nothing is

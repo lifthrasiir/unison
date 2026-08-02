@@ -61,6 +61,8 @@ pub(crate) fn subglyph_context_menu(ui: &mut egui::Ui) -> bool {
     false
 }
 
+// Painting parameters plus the resolution tables the tools read.
+#[expect(clippy::too_many_arguments)]
 pub(crate) fn draw_inline_tools_panel(
     ui: &egui::Ui,
     painter: &egui::Painter,

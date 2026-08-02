@@ -238,6 +238,15 @@ pub(crate) fn expand_for(
     }
 }
 
+/// A `map decomposed` directive waiting to be expanded, lifted out of
+/// `all_items` so the expansion can push back into it.
+struct PendingDecomposition {
+    slice: Option<String>,
+    char_repr: String,
+    glyph: Option<String>,
+    origin: Option<ItemRef>,
+}
+
 /// Turn `map <decomposable codepoint>` into a synthesized composite glyph plus
 /// a plain `map` to it, reporting the characters that cannot be synthesized.
 fn expand_decomposed_maps(
@@ -248,7 +257,7 @@ fn expand_decomposed_maps(
     use unicode_normalization::UnicodeNormalization;
 
     let mut decomposed_items: Vec<ExpandedItem> = Vec::new();
-    let pending: Vec<(Option<String>, String, Option<String>, Option<ItemRef>)> = all_items
+    let pending: Vec<PendingDecomposition> = all_items
         .iter()
         .filter_map(|e| match &e.item {
             DocumentItem::MapDecomposed {
@@ -256,12 +265,23 @@ fn expand_decomposed_maps(
                 char_repr,
                 glyph,
                 ..
-            } => Some((slice.clone(), char_repr.clone(), glyph.clone(), e.origin)),
+            } => Some(PendingDecomposition {
+                slice: slice.clone(),
+                char_repr: char_repr.clone(),
+                glyph: glyph.clone(),
+                origin: e.origin,
+            }),
             _ => None,
         })
         .collect();
 
-    for (slice, char_repr, glyph, origin) in pending {
+    for PendingDecomposition {
+        slice,
+        char_repr,
+        glyph,
+        origin,
+    } in pending
+    {
         let pairs = decomposed_map_pairs(&char_repr, glyph.as_deref());
         if pairs.is_empty() {
             diagnostics.push(Diagnostic::error(

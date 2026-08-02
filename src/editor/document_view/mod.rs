@@ -197,6 +197,8 @@ impl<'a> DocumentEditor<'a> {
 
 /// The cached-or-rebuilt derived view (composites, visual lines, source
 /// offsets) for the current document revision and view parameters.
+// The frame's entire input; grouping it would only move the list elsewhere.
+#[expect(clippy::too_many_arguments)]
 fn resolve_view(
     ctx: &egui::Context,
     doc: &Document,

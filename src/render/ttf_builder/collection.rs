@@ -91,7 +91,7 @@ pub(crate) fn build_collection(fonts: &[Vec<u8>]) -> Result<Vec<u8>, String> {
             let offset = match seen.get(data.as_slice()) {
                 Some(&off) => off,
                 None => {
-                    while blobs.len() % 4 != 0 {
+                    while !blobs.len().is_multiple_of(4) {
                         blobs.push(0);
                     }
                     let off = (blob_base + blobs.len()) as u32;
@@ -145,7 +145,7 @@ pub(crate) fn build_collection(fonts: &[Vec<u8>]) -> Result<Vec<u8>, String> {
     // Blobs are padded going in, so only the last one can leave the file short
     // of a four-byte boundary. A checksum over the whole file walks it in
     // `u32`s, so the file has to end on one.
-    while out.len() % 4 != 0 {
+    while !out.len().is_multiple_of(4) {
         out.push(0);
     }
     Ok(out)

@@ -340,10 +340,7 @@ map A = n
             .unwrap()
             .map_codepoint(ch)
             .expect("must be mapped");
-        font.hmtx()
-            .unwrap()
-            .advance(gid.try_into().unwrap())
-            .unwrap()
+        font.hmtx().unwrap().advance(gid).unwrap()
     };
 
     let ttf = build_from(&format!("{src}face narrow : narrow\n"));
@@ -391,13 +388,7 @@ face regular : wide
         .unwrap()
         .map_codepoint('•')
         .expect("must still be mapped");
-    assert_eq!(
-        font.hmtx()
-            .unwrap()
-            .advance(gid.try_into().unwrap())
-            .unwrap(),
-        64
-    );
+    assert_eq!(font.hmtx().unwrap().advance(gid).unwrap(), 64);
 }
 
 /// One glyph is one glyph however many characters reach it. The collector used
