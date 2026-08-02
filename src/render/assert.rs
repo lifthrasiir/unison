@@ -10,6 +10,12 @@
 //! Writing `@ROM` on both sides would make the two agree by construction and
 //! stop the assertion from ever noticing that Romanian text never reaches the
 //! declared tag.
+//!
+//! `for SLICE...` is likewise part of the assertion, not a label: an unqualified
+//! assertion is shaped against the primary face, and a slice-scoped one against
+//! *every* face that includes those slices, each from its own build. A face has
+//! its own cmap and its own GSUB, so shaping `for narrow` against the primary
+//! face would test the wrong font and quietly agree with itself.
 
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -111,6 +117,7 @@ fn font_units_to_pixel(val: i32, height: u16) -> i32 {
 }
 
 struct CollectedAssertion {
+    slices: Vec<String>,
     text: String,
     features: Vec<ShapeFeatureFlag>,
     language: Option<String>,
@@ -123,11 +130,17 @@ struct CollectedAssertion {
 
 /// How a failing assertion names itself: the text, then the language it was
 /// shaped as, so a Romanian-only failure is not mistaken for a general one.
-fn format_subject(assertion: &CollectedAssertion) -> String {
-    match &assertion.language {
+fn format_subject(assertion: &CollectedAssertion, face_id: &str) -> String {
+    let mut s = match &assertion.language {
         Some(lang) => format!("`{}` @{lang}", assertion.text),
         None => format!("`{}`", assertion.text),
+    };
+    // Only a slice-scoped assertion runs on more than the primary face, so
+    // naming the face is what tells two failures of the same line apart.
+    if !assertion.slices.is_empty() {
+        s.push_str(&format!(" [{}]", if face_id.is_empty() { "<default>" } else { face_id }));
     }
+    s
 }
 
 fn format_comment_suffix(comment: &Option<String>) -> String {
@@ -141,9 +154,10 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     let mut result = Vec::new();
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            if let DocumentItem::AssertShape { text, features, language, expected, comment, .. } = item {
+            if let DocumentItem::AssertShape { slices, text, features, language, expected, comment } = item {
                 let (docline, file_line) = doc.item_lines(item_idx);
                 result.push(CollectedAssertion {
+                    slices: slices.clone(),
                     text: text.clone(),
                     features: features.clone(),
                     language: language.clone(),
@@ -159,106 +173,159 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     result
 }
 
+/// Run every assertion, each against the face(s) its `for SLICE...` names.
+///
+/// `font_data`/`gid_to_name`/`height` describe the **primary** face, which is
+/// what an unqualified assertion means. A slice-scoped one is a statement about
+/// the faces that include those slices, so it is shaped against each of them —
+/// with its own build, since a face has its own cmap and its own GSUB and thus
+/// its own glyph ids. Those builds are on demand: a source whose assertions are
+/// all unqualified pays for nothing extra.
 fn run_assertions_inner(
     assertions: Vec<CollectedAssertion>,
+    docs: &[&Document],
     font_data: &[u8],
     gid_to_name: &HashMap<u16, String>,
     height: u16,
 ) -> AssertShapeResult {
-    let total = assertions.len();
+    let mut total = 0;
     let mut issues = Vec::new();
     let mut passed = 0;
 
+    let faces = crate::faces::FaceSet::collect(docs);
+    let mut face_fonts: HashMap<String, Option<crate::render::FontWithGidMap>> = HashMap::new();
+
     for assertion in &assertions {
-        let shaped = shape_text(
-            font_data,
-            &assertion.text,
-            &assertion.features,
-            assertion.language.as_deref(),
-        );
-
-        let got_names: Vec<&str> = shaped
-            .iter()
-            .map(|g| {
-                gid_to_name
-                    .get(&g.glyph_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("???")
-            })
-            .collect();
-
-        let expected_names: Vec<&str> = assertion.expected.iter().map(|e| e.name.as_str()).collect();
-
-        if shaped.len() != assertion.expected.len() {
-            issues.push(Issue {
-                severity: Severity::Error,
-                message: format!(
-                    "assert shape {}{}: expected {} glyph(s) [{}], got {} [{}]",
-                    format_subject(assertion),
-                    format_comment_suffix(&assertion.comment),
-                    assertion.expected.len(),
-                    expected_names.join(", "),
-                    shaped.len(),
-                    got_names.join(", "),
-                ),
-                file: assertion.file.clone(),
-                line: assertion.line,
-                file_line: assertion.file_line,
-            });
+        if assertion.slices.is_empty() {
+            total += 1;
+            match check_assertion(assertion, "", font_data, gid_to_name, height) {
+                Some(issue) => issues.push(issue),
+                None => passed += 1,
+            }
             continue;
         }
 
-        let mut ok = true;
-        let mut mismatches = Vec::new();
-
-        for (i, (got, exp)) in shaped.iter().zip(assertion.expected.iter()).enumerate() {
-            let got_name = gid_to_name
-                .get(&got.glyph_id)
-                .map(|s| s.as_str())
-                .unwrap_or("???");
-
-            if got_name != exp.name {
-                mismatches.push(format!("[{}] name: expected {}, got {}", i, exp.name, got_name));
-                ok = false;
+        // An assertion no face satisfies is reported by `issues.rs`; here it
+        // simply contributes nothing to run.
+        for face in faces.faces.iter().filter(|f| f.includes_all(&assertion.slices)) {
+            if !face_fonts.contains_key(&face.id) {
+                let built = crate::render::build_font_with_gid_map_for(docs, face);
+                face_fonts.insert(face.id.clone(), built);
             }
-            if let Some(adv) = exp.advance {
-                if got.x_advance != adv {
-                    mismatches.push(format!("[{}] advance: expected {}, got {}", i, adv, got.x_advance));
-                    ok = false;
-                }
+            total += 1;
+            let Some(built) = face_fonts.get(&face.id).and_then(|b| b.as_ref()) else {
+                issues.push(Issue {
+                    severity: Severity::Error,
+                    message: format!(
+                        "assert shape {}: face failed to build",
+                        format_subject(assertion, &face.id),
+                    ),
+                    file: assertion.file.clone(),
+                    line: assertion.line,
+                    file_line: assertion.file_line,
+                });
+                continue;
+            };
+            match check_assertion(
+                assertion,
+                &face.id,
+                &built.ttf,
+                &built.gid_to_name,
+                built.height,
+            ) {
+                Some(issue) => issues.push(issue),
+                None => passed += 1,
             }
-            if let Some((exp_px, exp_py)) = exp.offset {
-                let got_px = font_units_to_pixel(got.x_offset, height);
-                let got_py = font_units_to_pixel(-got.y_offset, height);
-                if got_px != exp_px || got_py != exp_py {
-                    mismatches.push(format!(
-                        "[{}] offset: expected ({}, {}), got ({}, {})",
-                        i, exp_px, exp_py, got_px, got_py,
-                    ));
-                    ok = false;
-                }
-            }
-        }
-
-        if ok {
-            passed += 1;
-        } else {
-            issues.push(Issue {
-                severity: Severity::Error,
-                message: format!(
-                    "assert shape {}{}: {}",
-                    format_subject(assertion),
-                    format_comment_suffix(&assertion.comment),
-                    mismatches.join("; "),
-                ),
-                file: assertion.file.clone(),
-                line: assertion.line,
-                file_line: assertion.file_line,
-            });
         }
     }
 
     AssertShapeResult { issues, total, passed }
+}
+
+/// Shape one assertion against one built face; `None` means it passed.
+fn check_assertion(
+    assertion: &CollectedAssertion,
+    face_id: &str,
+    font_data: &[u8],
+    gid_to_name: &HashMap<u16, String>,
+    height: u16,
+) -> Option<Issue> {
+    let shaped = shape_text(
+        font_data,
+        &assertion.text,
+        &assertion.features,
+        assertion.language.as_deref(),
+    );
+
+    let issue = |message: String| Issue {
+        severity: Severity::Error,
+        message,
+        file: assertion.file.clone(),
+        line: assertion.line,
+        file_line: assertion.file_line,
+    };
+
+    let got_names: Vec<&str> = shaped
+        .iter()
+        .map(|g| {
+            gid_to_name
+                .get(&g.glyph_id)
+                .map(|s| s.as_str())
+                .unwrap_or("???")
+        })
+        .collect();
+
+    let expected_names: Vec<&str> = assertion.expected.iter().map(|e| e.name.as_str()).collect();
+
+    if shaped.len() != assertion.expected.len() {
+        return Some(issue(format!(
+            "assert shape {}{}: expected {} glyph(s) [{}], got {} [{}]",
+            format_subject(assertion, face_id),
+            format_comment_suffix(&assertion.comment),
+            assertion.expected.len(),
+            expected_names.join(", "),
+            shaped.len(),
+            got_names.join(", "),
+        )));
+    }
+
+    let mut mismatches = Vec::new();
+
+    for (i, (got, exp)) in shaped.iter().zip(assertion.expected.iter()).enumerate() {
+        let got_name = gid_to_name
+            .get(&got.glyph_id)
+            .map(|s| s.as_str())
+            .unwrap_or("???");
+
+        if got_name != exp.name {
+            mismatches.push(format!("[{}] name: expected {}, got {}", i, exp.name, got_name));
+        }
+        if let Some(adv) = exp.advance
+            && got.x_advance != adv
+        {
+            mismatches.push(format!("[{}] advance: expected {}, got {}", i, adv, got.x_advance));
+        }
+        if let Some((exp_px, exp_py)) = exp.offset {
+            let got_px = font_units_to_pixel(got.x_offset, height);
+            let got_py = font_units_to_pixel(-got.y_offset, height);
+            if got_px != exp_px || got_py != exp_py {
+                mismatches.push(format!(
+                    "[{}] offset: expected ({}, {}), got ({}, {})",
+                    i, exp_px, exp_py, got_px, got_py,
+                ));
+            }
+        }
+    }
+
+    if mismatches.is_empty() {
+        return None;
+    }
+    Some(issue(format!(
+        "assert shape {}{}: {}",
+        format_subject(assertion, face_id),
+        format_comment_suffix(&assertion.comment),
+        mismatches.join("; "),
+    )))
 }
 
 /// Run all shape assertions from all documents.
@@ -268,18 +335,22 @@ pub fn run_assertions(
     gid_to_name: &HashMap<u16, String>,
     height: u16,
 ) -> AssertShapeResult {
-    run_assertions_inner(collect_assertions(docs), font_data, gid_to_name, height)
+    run_assertions_inner(collect_assertions(docs), docs, font_data, gid_to_name, height)
 }
 
 /// Run shape assertions only from the specified subset of documents.
+///
+/// `docs` is still the *whole* source: which faces exist, and what each of them
+/// contains, is a property of the font, not of the file being edited.
 #[cfg(feature = "editor")]
 pub fn run_assertions_for_files(
     test_docs: &[&Document],
+    docs: &[&Document],
     font_data: &[u8],
     gid_to_name: &HashMap<u16, String>,
     height: u16,
 ) -> AssertShapeResult {
-    run_assertions_inner(collect_assertions(test_docs), font_data, gid_to_name, height)
+    run_assertions_inner(collect_assertions(test_docs), docs, font_data, gid_to_name, height)
 }
 
 // ---------------------------------------------------------------------------
@@ -532,6 +603,65 @@ mod tests {
     use crate::document::collect_name_parts;
     use crate::document_io;
     use crate::ref_composite;
+
+    /// A two-face source where `A` is a different glyph in each face, so an
+    /// assertion running against the wrong face is visible as a name mismatch.
+    const TWO_FACES: &str = "\
+meta height 2
+meta ascent 2
+meta descent 0
+
+slice wide
+slice narrow
+face regular : wide
+face term : narrow
+
+glyph a-wide 2 2
+@@@@
+@@@@
+
+glyph a-narrow 1 2
+@@
+@@
+
+map wide : A = a-wide
+map narrow : A = a-narrow
+";
+
+    fn shape_assert(input: &str) -> AssertShapeResult {
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let docs = vec![&doc];
+        let built = crate::render::build_font_with_gid_map(&docs).unwrap();
+        run_assertions(&docs, &built.ttf, &built.gid_to_name, built.height)
+    }
+
+    /// `for SLICE` picks the face the assertion is shaped against. Without it,
+    /// every assertion silently runs against the primary face, so a `for narrow`
+    /// assertion would test `regular` and report the wide glyph.
+    #[test]
+    fn assert_shape_runs_against_the_face_its_slice_names() {
+        let result = shape_assert(&format!("{TWO_FACES}\nassert shape A for narrow : a-narrow\n"));
+        assert_eq!(result.total, 1);
+        assert_eq!(result.passed, 1, "{:?}", result.issues[0].message);
+    }
+
+    /// The primary face is still what an unqualified assertion means.
+    #[test]
+    fn assert_shape_without_a_slice_uses_the_primary_face() {
+        let result = shape_assert(&format!("{TWO_FACES}\nassert shape A : a-wide\n"));
+        assert_eq!(result.total, 1);
+        assert_eq!(result.passed, 1);
+    }
+
+    /// A slice-scoped assertion that is wrong for its face must still fail —
+    /// otherwise the fix above would just make every such assertion pass.
+    #[test]
+    fn assert_shape_for_a_slice_still_fails_when_wrong() {
+        let result = shape_assert(&format!("{TWO_FACES}\nassert shape A for narrow : a-wide\n"));
+        assert_eq!(result.total, 1);
+        assert_eq!(result.passed, 0);
+        assert!(result.issues[0].message.contains("term"), "{}", result.issues[0].message);
+    }
 
     fn resolve_and_assert(input: &str) -> AssertShapeResult {
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();

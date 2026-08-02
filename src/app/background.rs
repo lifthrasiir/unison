@@ -145,7 +145,7 @@ impl UniformApp {
                     let test_docs: Vec<&Document> = all_docs.iter()
                         .filter(|d| &d.path == path)
                         .collect();
-                    crate::render::assert::run_assertions_for_files(&test_docs, &built.ttf, &built.gid_to_name, built.height)
+                    crate::render::assert::run_assertions_for_files(&test_docs, &refs, &built.ttf, &built.gid_to_name, built.height)
                 } else {
                     crate::render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height)
                 };

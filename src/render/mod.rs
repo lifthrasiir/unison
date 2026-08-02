@@ -4,7 +4,10 @@ pub(crate) mod glyph_cache;
 pub mod sample;
 pub mod ttf_builder;
 
-pub use ttf_builder::{build_collection, build_faces, build_font_from_documents, build_font_with_gid_map};
+pub use ttf_builder::{
+    FontWithGidMap, build_collection, build_faces, build_font_from_documents,
+    build_font_with_gid_map, build_font_with_gid_map_for,
+};
 #[cfg(feature = "editor")]
 pub use ttf_builder::{
     SharedContourCache, build_font_pair_cached, build_font_pair_cached_for, new_contour_cache,

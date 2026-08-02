@@ -365,7 +365,23 @@ pub struct FontWithGidMap {
 /// Build the font and return the TTF bytes together with a GID→glyph-name map
 /// and the pixel em-height.
 pub fn build_font_with_gid_map(docs: &[&Document]) -> Option<FontWithGidMap> {
-    let (meta, scale, glyph_data, gsub_data, palette) = collect_glyph_data_cached(docs, false, None)?;
+    build_with_gid_map(collect_glyph_data_cached(docs, false, None)?)
+}
+
+/// The same, for one named face rather than the primary one. The glyph order is
+/// that face's own — unlike [`build_faces`], nothing here is shared between
+/// faces, so the returned GID→name map is only valid for these bytes.
+pub fn build_font_with_gid_map_for(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+) -> Option<FontWithGidMap> {
+    let shared = collect::compute_shared_font_input_for(docs, face)?;
+    build_with_gid_map(collect::collect_glyph_data_with_shared(&shared, false, None)?)
+}
+
+fn build_with_gid_map(
+    (meta, scale, glyph_data, gsub_data, palette): CollectedFontData,
+) -> Option<FontWithGidMap> {
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
     let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) { meta.height() } else { 0 };
