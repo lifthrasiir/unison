@@ -65,7 +65,10 @@ fn slice_inheritance_is_transitive() {
 /// face reaches it — adding a `face` line should not be what surfaces one.
 #[test]
 fn an_inheritance_cycle_is_an_error_even_unused() {
-    for src in ["slice a = b\nslice b = a\nface f : a\n", "slice a = b\nslice b = a\n"] {
+    for src in [
+        "slice a = b\nslice b = a\nface f : a\n",
+        "slice a = b\nslice b = a\n",
+    ] {
         let msgs = errors(src);
         assert!(
             msgs.iter().any(|m| m.contains("cycle")),
@@ -105,15 +108,19 @@ fn referring_to_an_undeclared_slice_is_an_error() {
 /// would collide on a case-insensitive file system.
 #[test]
 fn face_ids_are_bounded_and_case_insensitively_unique() {
-    for bad in ["face .hidden\n", "face ..\n", "face a/b\n", "face `a b`\n", "face a%b\n"] {
-        assert!(
-            !errors(bad).is_empty(),
-            "expected {bad:?} to be rejected",
-        );
+    for bad in [
+        "face .hidden\n",
+        "face ..\n",
+        "face a/b\n",
+        "face `a b`\n",
+        "face a%b\n",
+    ] {
+        assert!(!errors(bad).is_empty(), "expected {bad:?} to be rejected",);
     }
     let msgs = errors("face Narrow\nface narrow\n");
     assert!(
-        msgs.iter().any(|m| m.contains("more than once") || m.contains("case")),
+        msgs.iter()
+            .any(|m| m.contains("more than once") || m.contains("case")),
         "expected a case-insensitive collision error, got {msgs:?}",
     );
 }
@@ -154,9 +161,7 @@ face wide : wide
 /// mapping varies per face out of the base entirely.
 #[test]
 fn a_slice_cannot_restate_a_base_mapping() {
-    let msgs = errors(
-        "slice wide\nglyph a 1 1\n@@\nmap ° = a\nmap wide : ° = a\nface f : wide\n",
-    );
+    let msgs = errors("slice wide\nglyph a 1 1\n@@\nmap ° = a\nmap wide : ° = a\nface f : wide\n");
     assert!(!msgs.is_empty(), "expected a conflict, got none");
 }
 
@@ -209,11 +214,10 @@ fn meta_for_an_undeclared_face_is_an_error() {
 /// between; a duplicate PostScript name also breaks PDF embedding.
 #[test]
 fn two_faces_may_not_share_a_name() {
-    let msgs = errors(
-        "face a\nface b\nmeta a : family `Unison`\nmeta b : family `Unison`\n",
-    );
+    let msgs = errors("face a\nface b\nmeta a : family `Unison`\nmeta b : family `Unison`\n");
     assert!(
-        msgs.iter().any(|m| m.contains("same") || m.contains("both")),
+        msgs.iter()
+            .any(|m| m.contains("same") || m.contains("both")),
         "expected a duplicate-name error, got {msgs:?}",
     );
 }
@@ -236,7 +240,10 @@ const TWO: &str = "face narrow\nface wide\n";
 fn output_paths_resolve_by_extension_and_placeholder() {
     assert_eq!(
         plan("unison.ttf", ONE),
-        Ok(OutputPlan::PerFace(vec![(String::new(), "unison.ttf".into())])),
+        Ok(OutputPlan::PerFace(vec![(
+            String::new(),
+            "unison.ttf".into()
+        )])),
     );
     assert_eq!(
         plan("unison-%.ttf", TWO),
@@ -245,8 +252,14 @@ fn output_paths_resolve_by_extension_and_placeholder() {
             ("wide".to_string(), "unison-wide.ttf".into()),
         ])),
     );
-    assert_eq!(plan("unison.ttc", TWO), Ok(OutputPlan::Collection("unison.ttc".into())));
-    assert_eq!(plan("unison.ttc", ONE), Ok(OutputPlan::Collection("unison.ttc".into())));
+    assert_eq!(
+        plan("unison.ttc", TWO),
+        Ok(OutputPlan::Collection("unison.ttc".into()))
+    );
+    assert_eq!(
+        plan("unison.ttc", ONE),
+        Ok(OutputPlan::Collection("unison.ttc".into()))
+    );
 
     // One file cannot hold two faces unless it is a collection.
     let err = plan("unison.ttf", TWO).unwrap_err();
@@ -274,7 +287,10 @@ fn a_doubled_percent_is_a_literal_one() {
     );
     assert_eq!(
         plan("100%%.ttf", ONE),
-        Ok(OutputPlan::PerFace(vec![(String::new(), "100%.ttf".into())])),
+        Ok(OutputPlan::PerFace(vec![(
+            String::new(),
+            "100%.ttf".into()
+        )])),
     );
 }
 

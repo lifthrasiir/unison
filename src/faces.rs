@@ -76,7 +76,11 @@ impl Face {
 
     /// How the face is named in a diagnostic.
     pub fn label(&self) -> &str {
-        if self.id.is_empty() { "<the font>" } else { &self.id }
+        if self.id.is_empty() {
+            "<the font>"
+        } else {
+            &self.id
+        }
     }
 }
 
@@ -90,13 +94,17 @@ pub fn is_valid_face_id(id: &str) -> bool {
         && id != "."
         && id != ".."
         && !id.starts_with('.')
-        && id.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_'))
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_'))
 }
 
 /// Slice ids never become file names, so they only have to be names.
 pub fn is_valid_slice_id(id: &str) -> bool {
     !id.is_empty()
-        && id.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_'))
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '.' | '_'))
 }
 
 /// Every face the source declares, plus the slice declarations behind them.
@@ -159,8 +167,9 @@ impl FaceSet {
                             ));
                             continue;
                         }
-                        if let Some((prev, _, _)) =
-                            face_decls.iter().find(|(f, _, _)| f.eq_ignore_ascii_case(id))
+                        if let Some((prev, _, _)) = face_decls
+                            .iter()
+                            .find(|(f, _, _)| f.eq_ignore_ascii_case(id))
                         {
                             diagnostics.push(Diagnostic::error(
                                 here,
@@ -190,8 +199,19 @@ impl FaceSet {
             let mut resolved = BTreeSet::new();
             let mut visiting: Vec<String> = Vec::new();
             let mut cycle_only = Vec::new();
-            expand_slice(&declared, name, &mut resolved, &mut visiting, *origin, &mut cycle_only);
-            diagnostics.extend(cycle_only.into_iter().filter(|d| d.message.contains("cycle")));
+            expand_slice(
+                &declared,
+                name,
+                &mut resolved,
+                &mut visiting,
+                *origin,
+                &mut cycle_only,
+            );
+            diagnostics.extend(
+                cycle_only
+                    .into_iter()
+                    .filter(|d| d.message.contains("cycle")),
+            );
         }
 
         // Expand inheritance per face. Done here rather than once per slice so
@@ -211,16 +231,28 @@ impl FaceSet {
                     &mut diagnostics,
                 );
             }
-            faces.push(Face { id: id.clone(), slices: resolved, origin: Some(*origin) });
+            faces.push(Face {
+                id: id.clone(),
+                slices: resolved,
+                origin: Some(*origin),
+            });
         }
 
         if faces.is_empty() {
             // No `face` line: one face carrying the base slice, which is what
             // every `.unf` written before faces existed describes.
-            faces.push(Face { id: String::new(), slices: BTreeSet::new(), origin: None });
+            faces.push(Face {
+                id: String::new(),
+                slices: BTreeSet::new(),
+                origin: None,
+            });
         }
 
-        Self { faces, declared, diagnostics }
+        Self {
+            faces,
+            declared,
+            diagnostics,
+        }
     }
 }
 
@@ -304,10 +336,7 @@ pub enum OutputPlan {
 /// | `unison.woff2` | the font | error: browsers cannot select a face from a collection |
 ///
 /// `%%` is a literal `%`.
-pub fn plan_output(
-    template: &std::path::Path,
-    faces: &[Face],
-) -> Result<OutputPlan, String> {
+pub fn plan_output(template: &std::path::Path, faces: &[Face]) -> Result<OutputPlan, String> {
     let text = template.to_string_lossy().into_owned();
     let is_ttc = template
         .extension()
@@ -373,7 +402,12 @@ pub fn plan_output(
     Ok(OutputPlan::PerFace(
         faces
             .iter()
-            .map(|f| (f.id.clone(), std::path::PathBuf::from(substitute(&text, &f.id))))
+            .map(|f| {
+                (
+                    f.id.clone(),
+                    std::path::PathBuf::from(substitute(&text, &f.id)),
+                )
+            })
             .collect(),
     ))
 }

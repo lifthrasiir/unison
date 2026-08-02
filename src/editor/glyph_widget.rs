@@ -38,9 +38,7 @@ fn draw_detail_region(
     for ring in &region.rings {
         let pts: Vec<egui::Pos2> = ring
             .iter()
-            .map(|&(x, y)| {
-                egui::pos2(o.x + x as f32 / den * w, o.y + y as f32 / den * h)
-            })
+            .map(|&(x, y)| egui::pos2(o.x + x as f32 / den * w, o.y + y as f32 / den * h))
             .collect();
         if pts.len() < 3 {
             continue;
@@ -52,7 +50,11 @@ fn draw_detail_region(
             for tri in &triangulate(poly) {
                 let base = mesh.vertices.len() as u32;
                 for &p in tri {
-                    mesh.vertices.push(egui::epaint::Vertex { pos: p, uv: white_uv, color });
+                    mesh.vertices.push(egui::epaint::Vertex {
+                        pos: p,
+                        uv: white_uv,
+                        color,
+                    });
                 }
                 mesh.indices.extend_from_slice(&[base, base + 1, base + 2]);
             }
@@ -94,7 +96,11 @@ pub fn draw_pixel_cell_colored(
                 for tri in &triangulate(&pts) {
                     let base = mesh.vertices.len() as u32;
                     for &p in tri {
-                        mesh.vertices.push(egui::epaint::Vertex { pos: p, uv: white_uv, color });
+                        mesh.vertices.push(egui::epaint::Vertex {
+                            pos: p,
+                            uv: white_uv,
+                            color,
+                        });
                     }
                     mesh.indices.extend_from_slice(&[base, base + 1, base + 2]);
                 }
@@ -141,9 +147,7 @@ fn split_at_pinch_points(points: &[egui::Pos2]) -> Vec<Vec<egui::Pos2>> {
     let eps = 0.01;
     for i in 0..n {
         for j in i + 2..n {
-            if (points[i].x - points[j].x).abs() < eps
-                && (points[i].y - points[j].y).abs() < eps
-            {
+            if (points[i].x - points[j].x).abs() < eps && (points[i].y - points[j].y).abs() < eps {
                 let sub_a: Vec<_> = points[i..j].to_vec();
                 let mut sub_b: Vec<_> = points[j..].to_vec();
                 sub_b.extend_from_slice(&points[..i]);
@@ -264,7 +268,8 @@ fn point_in_tri(p: egui::Pos2, a: egui::Pos2, b: egui::Pos2, c: egui::Pos2) -> b
 }
 
 pub fn all_valid_shapes() -> &'static [PixelShape] {
-    static SHAPES: std::sync::LazyLock<Vec<PixelShape>> = std::sync::LazyLock::new(build_all_valid_shapes);
+    static SHAPES: std::sync::LazyLock<Vec<PixelShape>> =
+        std::sync::LazyLock::new(build_all_valid_shapes);
     &SHAPES
 }
 
@@ -303,13 +308,23 @@ fn build_all_valid_shapes() -> Vec<PixelShape> {
 
     // Row 2 (16): halfslant H (filled), slant H (unfilled),
     //             halfslant V (filled), slant V (unfilled)
-    for &id in &[PX_HALFSLANT3H, PX_HALFSLANT2H, PX_HALFSLANT4H, PX_HALFSLANT1H] {
+    for &id in &[
+        PX_HALFSLANT3H,
+        PX_HALFSLANT2H,
+        PX_HALFSLANT4H,
+        PX_HALFSLANT1H,
+    ] {
         s.push(PixelShape::new(id, true));
     }
     for &id in &[PX_SLANT3H, PX_SLANT2H, PX_SLANT4H, PX_SLANT1H] {
         s.push(PixelShape::new(id, false));
     }
-    for &id in &[PX_HALFSLANT3V, PX_HALFSLANT2V, PX_HALFSLANT4V, PX_HALFSLANT1V] {
+    for &id in &[
+        PX_HALFSLANT3V,
+        PX_HALFSLANT2V,
+        PX_HALFSLANT4V,
+        PX_HALFSLANT1V,
+    ] {
         s.push(PixelShape::new(id, true));
     }
     for &id in &[PX_SLANT3V, PX_SLANT2V, PX_SLANT4V, PX_SLANT1V] {
@@ -718,7 +733,7 @@ mod tests {
 #[cfg(test)]
 mod dot_render_tests {
     use super::*;
-    use crate::pixel::{adjacency, PX_DOT};
+    use crate::pixel::{PX_DOT, adjacency};
 
     /// PX_DOT must render as the same edge-midpoint diamond the font builder
     /// emits (`detail.rs::base_shape_rings`), not as a circle.

@@ -63,7 +63,10 @@ fn zoom_target_at(
     if preview_rect.is_some_and(|r| r.contains(pos)) {
         return ZoomTarget::Preview;
     }
-    match pane_rects.iter().position(|r| r.is_some_and(|r| r.contains(pos))) {
+    match pane_rects
+        .iter()
+        .position(|r| r.is_some_and(|r| r.contains(pos)))
+    {
         Some(idx) => ZoomTarget::Editor(idx),
         None => ZoomTarget::None,
     }
@@ -114,7 +117,10 @@ impl UniformApp {
     pub(super) fn focused_zoom_target(&self) -> ZoomTarget {
         if self.bottom_panel_tab == Some(0) && self.shaped_preview.is_focused() {
             ZoomTarget::Preview
-        } else if self.active_doc().is_some_and(|d| d.editor_state.is_active()) {
+        } else if self
+            .active_doc()
+            .is_some_and(|d| d.editor_state.is_active())
+        {
             ZoomTarget::Editor(self.panes.focus())
         } else {
             ZoomTarget::None
@@ -129,8 +135,7 @@ impl UniformApp {
         if !ctx.input(|i| i.modifiers.command) {
             return;
         }
-        let pane_rects: Vec<Option<egui::Rect>> =
-            self.panes.iter().map(|p| p.view_rect).collect();
+        let pane_rects: Vec<Option<egui::Rect>> = self.panes.iter().map(|p| p.view_rect).collect();
         let target = zoom_target_at(
             ctx.input(|i| i.pointer.latest_pos()),
             &pane_rects,

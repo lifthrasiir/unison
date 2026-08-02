@@ -20,12 +20,15 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::document::{Document, DocumentItem, ExpectedGlyph, ShapeFeatureFlag, collect_name_parts, substitute_name_parts};
+use crate::document::{
+    Document, DocumentItem, ExpectedGlyph, ShapeFeatureFlag, collect_name_parts,
+    substitute_name_parts,
+};
 use crate::issues::{Issue, Severity};
+use crate::pixel::PX_SUBPIXEL;
 use crate::ref_composite::ResolvedGlyph;
 use crate::render::contour::track_contour;
 use crate::render::ttf_builder::UNITS_PER_EM;
-use crate::pixel::PX_SUBPIXEL;
 
 pub struct AssertShapeResult {
     pub issues: Vec<Issue>,
@@ -138,7 +141,14 @@ fn format_subject(assertion: &CollectedAssertion, face_id: &str) -> String {
     // Only a slice-scoped assertion runs on more than the primary face, so
     // naming the face is what tells two failures of the same line apart.
     if !assertion.slices.is_empty() {
-        s.push_str(&format!(" [{}]", if face_id.is_empty() { "<default>" } else { face_id }));
+        s.push_str(&format!(
+            " [{}]",
+            if face_id.is_empty() {
+                "<default>"
+            } else {
+                face_id
+            }
+        ));
     }
     s
 }
@@ -154,7 +164,15 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     let mut result = Vec::new();
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            if let DocumentItem::AssertShape { slices, text, features, language, expected, comment } = item {
+            if let DocumentItem::AssertShape {
+                slices,
+                text,
+                features,
+                language,
+                expected,
+                comment,
+            } = item
+            {
                 let (docline, file_line) = doc.item_lines(item_idx);
                 result.push(CollectedAssertion {
                     slices: slices.clone(),
@@ -207,7 +225,11 @@ fn run_assertions_inner(
 
         // An assertion no face satisfies is reported by `issues.rs`; here it
         // simply contributes nothing to run.
-        for face in faces.faces.iter().filter(|f| f.includes_all(&assertion.slices)) {
+        for face in faces
+            .faces
+            .iter()
+            .filter(|f| f.includes_all(&assertion.slices))
+        {
             if !face_fonts.contains_key(&face.id) {
                 let built = crate::render::build_font_with_gid_map_for(docs, face);
                 face_fonts.insert(face.id.clone(), built);
@@ -239,7 +261,11 @@ fn run_assertions_inner(
         }
     }
 
-    AssertShapeResult { issues, total, passed }
+    AssertShapeResult {
+        issues,
+        total,
+        passed,
+    }
 }
 
 /// Shape one assertion against one built face; `None` means it passed.
@@ -298,12 +324,18 @@ fn check_assertion(
             .unwrap_or("???");
 
         if got_name != exp.name {
-            mismatches.push(format!("[{}] name: expected {}, got {}", i, exp.name, got_name));
+            mismatches.push(format!(
+                "[{}] name: expected {}, got {}",
+                i, exp.name, got_name
+            ));
         }
         if let Some(adv) = exp.advance
             && got.x_advance != adv
         {
-            mismatches.push(format!("[{}] advance: expected {}, got {}", i, adv, got.x_advance));
+            mismatches.push(format!(
+                "[{}] advance: expected {}, got {}",
+                i, adv, got.x_advance
+            ));
         }
         if let Some((exp_px, exp_py)) = exp.offset {
             let got_px = font_units_to_pixel(got.x_offset, height);
@@ -335,7 +367,13 @@ pub fn run_assertions(
     gid_to_name: &HashMap<u16, String>,
     height: u16,
 ) -> AssertShapeResult {
-    run_assertions_inner(collect_assertions(docs), docs, font_data, gid_to_name, height)
+    run_assertions_inner(
+        collect_assertions(docs),
+        docs,
+        font_data,
+        gid_to_name,
+        height,
+    )
 }
 
 /// Run shape assertions only from the specified subset of documents.
@@ -350,7 +388,13 @@ pub fn run_assertions_for_files(
     gid_to_name: &HashMap<u16, String>,
     height: u16,
 ) -> AssertShapeResult {
-    run_assertions_inner(collect_assertions(test_docs), docs, font_data, gid_to_name, height)
+    run_assertions_inner(
+        collect_assertions(test_docs),
+        docs,
+        font_data,
+        gid_to_name,
+        height,
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -367,7 +411,11 @@ fn glyph_lattice_denom(g: &ResolvedGlyph) -> i64 {
     2 * g.grid.den.max(1) as i64 * g.scale.max(1) as i64
 }
 
-fn canonicalize_contours(grid: &crate::document::PixelGrid, scale: u8, q: i64) -> CanonicalContours {
+fn canonicalize_contours(
+    grid: &crate::document::PixelGrid,
+    scale: u8,
+    q: i64,
+) -> CanonicalContours {
     let raw = track_contour(grid, PX_SUBPIXEL);
     let s = scale.max(1) as f64;
     let mut contours: Vec<Vec<(i64, i64)>> = raw
@@ -376,8 +424,10 @@ fn canonicalize_contours(grid: &crate::document::PixelGrid, scale: u8, q: i64) -
             let quantized: Vec<(i64, i64)> = path
                 .iter()
                 .map(|&(x, y)| {
-                    ((x as f64 / s * q as f64).round() as i64,
-                     (y as f64 / s * q as f64).round() as i64)
+                    (
+                        (x as f64 / s * q as f64).round() as i64,
+                        (y as f64 / s * q as f64).round() as i64,
+                    )
                 })
                 .collect();
             let simplified = simplify_collinear(&quantized);
@@ -415,12 +465,7 @@ fn rotate_to_min(mut pts: Vec<(i64, i64)>) -> Vec<(i64, i64)> {
     if pts.is_empty() {
         return pts;
     }
-    let min_idx = pts
-        .iter()
-        .enumerate()
-        .min_by_key(|&(_, p)| *p)
-        .unwrap()
-        .0;
+    let min_idx = pts.iter().enumerate().min_by_key(|&(_, p)| *p).unwrap().0;
     pts.rotate_left(min_idx);
     pts
 }
@@ -476,7 +521,11 @@ fn run_same_distinct_inner(
     let mut passed = 0;
 
     for assertion in &assertions {
-        let keyword = if assertion.is_same { "same" } else { "distinct" };
+        let keyword = if assertion.is_same {
+            "same"
+        } else {
+            "distinct"
+        };
 
         let mut missing = Vec::new();
         let mut glyphs: Vec<(&str, &ResolvedGlyph)> = Vec::new();
@@ -523,14 +572,10 @@ fn run_same_distinct_inner(
                 if dims != ref_dims {
                     mismatches.push(format!(
                         "'{}' ({}x{}) vs '{}' ({}x{}): different dimensions",
-                        name, dims.0, dims.1,
-                        ref_name, ref_dims.0, ref_dims.1,
+                        name, dims.0, dims.1, ref_name, ref_dims.0, ref_dims.1,
                     ));
                 } else if contours != ref_contours {
-                    mismatches.push(format!(
-                        "'{}' vs '{}': different contours",
-                        name, ref_name,
-                    ));
+                    mismatches.push(format!("'{}' vs '{}': different contours", name, ref_name,));
                 }
             }
             if mismatches.is_empty() {
@@ -577,7 +622,11 @@ fn run_same_distinct_inner(
         }
     }
 
-    AssertShapeResult { issues, total, passed }
+    AssertShapeResult {
+        issues,
+        total,
+        passed,
+    }
 }
 
 /// Run all same/distinct assertions from all documents.
@@ -640,7 +689,9 @@ map narrow : A = a-narrow
     /// assertion would test `regular` and report the wide glyph.
     #[test]
     fn assert_shape_runs_against_the_face_its_slice_names() {
-        let result = shape_assert(&format!("{TWO_FACES}\nassert shape A for narrow : a-narrow\n"));
+        let result = shape_assert(&format!(
+            "{TWO_FACES}\nassert shape A for narrow : a-narrow\n"
+        ));
         assert_eq!(result.total, 1);
         assert_eq!(result.passed, 1, "{:?}", result.issues[0].message);
     }
@@ -657,10 +708,16 @@ map narrow : A = a-narrow
     /// otherwise the fix above would just make every such assertion pass.
     #[test]
     fn assert_shape_for_a_slice_still_fails_when_wrong() {
-        let result = shape_assert(&format!("{TWO_FACES}\nassert shape A for narrow : a-wide\n"));
+        let result = shape_assert(&format!(
+            "{TWO_FACES}\nassert shape A for narrow : a-wide\n"
+        ));
         assert_eq!(result.total, 1);
         assert_eq!(result.passed, 0);
-        assert!(result.issues[0].message.contains("term"), "{}", result.issues[0].message);
+        assert!(
+            result.issues[0].message.contains("term"),
+            "{}",
+            result.issues[0].message
+        );
     }
 
     fn resolve_and_assert(input: &str) -> AssertShapeResult {
@@ -925,8 +982,11 @@ ref 4x16
 assert same tiled simple
 ";
         let result = resolve_and_assert(input);
-        assert_eq!(result.passed, 1, "fractional-tiled rect should match simple rect: {:?}",
-            result.issues);
+        assert_eq!(
+            result.passed, 1,
+            "fractional-tiled rect should match simple rect: {:?}",
+            result.issues
+        );
     }
 
     #[test]
@@ -946,7 +1006,10 @@ glyph b 2 2 scale 2
 assert same a b
 ";
         let result = resolve_and_assert(input);
-        assert_eq!(result.passed, 1, "different scales, same shape: {:?}",
-            result.issues);
+        assert_eq!(
+            result.passed, 1,
+            "different scales, same shape: {:?}",
+            result.issues
+        );
     }
 }

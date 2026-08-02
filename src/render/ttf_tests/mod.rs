@@ -4,12 +4,12 @@
 //! these still reach that module's private items. This file holds the shared
 //! helpers; the tests themselves are grouped by subject in the submodules.
 
-use super::*;
 use super::contours::layers_have_subpixel_conflicts;
 use super::gpos::build_anchor_gpos;
 use super::gsub::build_gsub;
 use super::hints::generate_grid_snap_hints;
 use super::tables::glyph_bounds;
+use super::*;
 use read_fonts::TableProvider;
 
 mod color;
@@ -149,9 +149,11 @@ fn recomputed_maxp(bytes: &[u8]) -> HashMap<&'static str, u16> {
         }
         match loca.get_glyf(gid, glyf).unwrap() {
             None => (0, 0, 0),
-            Some(read_fonts::tables::glyf::Glyph::Simple(s)) => {
-                (s.num_points() as u32, s.end_pts_of_contours().len() as u32, 0)
-            }
+            Some(read_fonts::tables::glyf::Glyph::Simple(s)) => (
+                s.num_points() as u32,
+                s.end_pts_of_contours().len() as u32,
+                0,
+            ),
             Some(read_fonts::tables::glyf::Glyph::Composite(c)) => {
                 seen.push(gid.to_u32());
                 let (mut p, mut n, mut d) = (0, 0, 0);

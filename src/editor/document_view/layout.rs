@@ -219,7 +219,10 @@ pub(super) fn collect_grid_blocks(
     let mut y = 0.0f32;
     for vl in vlines {
         let h = vl.height(row_height, grid_cell);
-        if let VLineKind::GridRow { item_idx, extent, .. } = &vl.kind {
+        if let VLineKind::GridRow {
+            item_idx, extent, ..
+        } = &vl.kind
+        {
             let content_w = extent.display_width(grid_cell);
             match blocks.last_mut() {
                 Some(b) if b.item_idx == *item_idx && (b.y1 - y).abs() < 0.5 => {

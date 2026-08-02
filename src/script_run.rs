@@ -49,7 +49,10 @@ pub fn split_script_runs(text: &str) -> Vec<ScriptRun> {
         let ext = ch.script_extension();
         let merged = current.intersection(ext);
         if merged.is_empty() {
-            runs.push(ScriptRun { bytes: start..byte_idx, char_start });
+            runs.push(ScriptRun {
+                bytes: start..byte_idx,
+                char_start,
+            });
             start = byte_idx;
             char_start = char_idx;
             // Unassigned characters have an empty extension and so never merge;
@@ -59,7 +62,10 @@ pub fn split_script_runs(text: &str) -> Vec<ScriptRun> {
             current = merged;
         }
     }
-    runs.push(ScriptRun { bytes: start..text.len(), char_start });
+    runs.push(ScriptRun {
+        bytes: start..text.len(),
+        char_start,
+    });
 
     runs
 }

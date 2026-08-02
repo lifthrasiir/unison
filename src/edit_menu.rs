@@ -65,10 +65,7 @@ pub fn show_edit_menu_items(
         format!("{mod_name}Y")
     };
     if ui
-        .add_enabled(
-            caps.can_redo && caps.can_edit,
-            btn!("Redo", redo_shortcut),
-        )
+        .add_enabled(caps.can_redo && caps.can_edit, btn!("Redo", redo_shortcut))
         .clicked()
     {
         action = EditAction::Redo;

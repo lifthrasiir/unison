@@ -15,8 +15,8 @@ use crate::editor::ref_composite::ResolvedGlyph;
 use crate::issues::{Issue, collect_issues};
 use crate::preview::widget::ShapedPreviewState;
 use crate::render::SharedContourCache;
-use crate::specimen::SpecimenState;
 use crate::sidebar::{Sidebar, SidebarAction};
+use crate::specimen::SpecimenState;
 
 mod background;
 mod docs;
@@ -178,11 +178,13 @@ impl UniformApp {
     }
 
     fn active_doc(&self) -> Option<&OpenDocument> {
-        self.active_doc_idx().and_then(|i| self.open_documents.get(i))
+        self.active_doc_idx()
+            .and_then(|i| self.open_documents.get(i))
     }
 
     fn active_doc_mut(&mut self) -> Option<&mut OpenDocument> {
-        self.active_doc_idx().and_then(|i| self.open_documents.get_mut(i))
+        self.active_doc_idx()
+            .and_then(|i| self.open_documents.get_mut(i))
     }
 
     /// The document shown by pane `idx`, if that pane has one.
@@ -210,12 +212,13 @@ impl UniformApp {
     }
 
     fn in_grid_edit(&self) -> bool {
-        self.active_doc()
-            .is_some_and(|d| matches!(
+        self.active_doc().is_some_and(|d| {
+            matches!(
                 d.editor_state.mode,
                 crate::editor::EditMode::GlyphEdit { .. }
                     | crate::editor::EditMode::PixelSelect { .. }
-            ))
+            )
+        })
     }
 
     pub fn new(cc: &eframe::CreationContext<'_>, font_dir: Option<PathBuf>) -> Self {
@@ -411,7 +414,10 @@ impl UniformApp {
 
         self.open_file(path.clone());
 
-        let idx = self.open_documents.iter().position(|d| d.document.path == path)?;
+        let idx = self
+            .open_documents
+            .iter()
+            .position(|d| d.document.path == path)?;
         self.panes.show_document(idx);
 
         let doc = &mut self.open_documents[idx];
@@ -468,7 +474,8 @@ impl eframe::App for UniformApp {
         } else {
             EditTarget::Editor
         };
-        let editor_focused = self.active_doc()
+        let editor_focused = self
+            .active_doc()
             .is_some_and(|d| d.editor_state.is_active());
 
         self.show_menu_bar(ctx, &mut menu, edit_target, editor_focused);
@@ -485,8 +492,7 @@ impl eframe::App for UniformApp {
 
         let bottom = self.show_bottom_panel(ctx);
 
-        let (nav_request, rename_request, divider_closed_pane) =
-            self.show_editor_panel(ctx);
+        let (nav_request, rename_request, divider_closed_pane) = self.show_editor_panel(ctx);
         // Now that this frame's editors have run, "the pane the focus is in"
         // is up to date — everything below acts on that pane.
         self.sync_pane_focus();
@@ -525,7 +531,11 @@ impl eframe::App for UniformApp {
 
         if let Some((path, line)) = bottom.issue_click {
             self.open_file(path.clone());
-            if let Some(idx) = self.open_documents.iter().position(|d| d.document.path == path) {
+            if let Some(idx) = self
+                .open_documents
+                .iter()
+                .position(|d| d.document.path == path)
+            {
                 self.panes.show_document(idx);
                 self.open_documents[idx].editor_state.goto_line(line);
             }
@@ -591,4 +601,3 @@ impl UniformApp {
         }
     }
 }
-

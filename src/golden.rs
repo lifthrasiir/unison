@@ -132,8 +132,11 @@ fn format_resolved(
             }
             g.grid.den.hash(&mut h);
             format!("{:?}", g.grid.details).hash(&mut h);
-            let mut anchors: Vec<&str> =
-                g.declared_anchors.iter().map(|p| p.position.as_str()).collect();
+            let mut anchors: Vec<&str> = g
+                .declared_anchors
+                .iter()
+                .map(|p| p.position.as_str())
+                .collect();
             anchors.sort();
             format!(
                 "{name}\t{}x{}\ts{}\t{:016x}\t{}",
@@ -155,8 +158,7 @@ fn resolved_glyphs_over_testdata_match_golden() {
     let docs = load_docs(&testdata_dir());
     let refs: Vec<&Document> = docs.iter().collect();
     let name_parts = crate::document::collect_name_parts(&refs);
-    let (resolved, _) =
-        crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
+    let (resolved, _) = crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
     if let Err(e) = check_golden("testdata-resolved.golden", &format_resolved(&resolved)) {
         panic!("{e}");
     }
@@ -174,6 +176,3 @@ fn issues_over_testdata_match_golden() {
         panic!("{e}");
     }
 }
-
-
-

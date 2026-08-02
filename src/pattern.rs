@@ -105,7 +105,10 @@ pub struct NamePattern {
 
 impl NamePattern {
     fn single(name: String) -> Self {
-        NamePattern { kind: Kind::Single(name), len: 1 }
+        NamePattern {
+            kind: Kind::Single(name),
+            len: 1,
+        }
     }
 
     /// Parses a single name element (`map`/`remap` operands, `assume unused`
@@ -134,7 +137,10 @@ impl NamePattern {
             if len > MAX_EXPANSION {
                 return Err(NamePatternError::TooManyExpansions(len));
             }
-            return Ok(NamePattern { kind: Kind::List(names), len });
+            return Ok(NamePattern {
+                kind: Kind::List(names),
+                len,
+            });
         }
 
         Self::parse_segments(s)
@@ -147,7 +153,10 @@ impl NamePattern {
         if !s.contains('(') && has_bare_repeat(s) {
             let alts = parse_alt_content(s)?;
             let len = alts.len();
-            return Ok(NamePattern { kind: Kind::Segments(vec![Segment::Alts(alts)]), len });
+            return Ok(NamePattern {
+                kind: Kind::Segments(vec![Segment::Alts(alts)]),
+                len,
+            });
         }
         Self::from_segments(s)
     }
@@ -191,7 +200,10 @@ impl NamePattern {
             segments.push(Segment::Literal(s[lit_start..].to_string()));
         }
 
-        Ok(NamePattern { kind: Kind::Segments(segments), len })
+        Ok(NamePattern {
+            kind: Kind::Segments(segments),
+            len,
+        })
     }
 
     /// The number of names this pattern denotes.  Always at least 1.
@@ -224,7 +236,10 @@ impl NamePattern {
     }
 
     pub fn iter(&self) -> Iter<'_> {
-        Iter { pattern: self, i: 0 }
+        Iter {
+            pattern: self,
+            i: 0,
+        }
     }
 
     pub fn into_vec(self) -> Vec<String> {
@@ -292,7 +307,10 @@ impl IntoIterator for NamePattern {
     type Item = String;
     type IntoIter = IntoIter;
     fn into_iter(self) -> IntoIter {
-        IntoIter { pattern: self, i: 0 }
+        IntoIter {
+            pattern: self,
+            i: 0,
+        }
     }
 }
 
@@ -563,7 +581,11 @@ fn parse_repeat_suffix(chars: &[char], pos: usize) -> (Option<(usize, usize)>, u
     if pos >= chars.len() || chars[pos] != '*' {
         return (None, pos);
     }
-    let stars = if pos + 1 < chars.len() && chars[pos + 1] == '*' { 2 } else { 1 };
+    let stars = if pos + 1 < chars.len() && chars[pos + 1] == '*' {
+        2
+    } else {
+        1
+    };
     let digits_start = pos + stars;
     let mut end = digits_start;
     while end < chars.len() && chars[end].is_ascii_digit() {
@@ -711,10 +733,27 @@ mod tests {
     /// failed to expand cannot pass for a name.
     #[test]
     fn glyph_name_charset_admits_what_the_font_uses() {
-        for good in ["a", "a-lower:compressed", "hangul-init-_c-l-f", "uni0041", ".notdef", "num.1"] {
+        for good in [
+            "a",
+            "a-lower:compressed",
+            "hangul-init-_c-l-f",
+            "uni0041",
+            ".notdef",
+            "num.1",
+        ] {
             assert!(is_valid_glyph_name(good), "{good} should be valid");
         }
-        for bad in ["", "U+0041", "a b", "pat-($digit)", "a|b", "x*2", "$var", "한글", "a/b"] {
+        for bad in [
+            "",
+            "U+0041",
+            "a b",
+            "pat-($digit)",
+            "a|b",
+            "x*2",
+            "$var",
+            "한글",
+            "a/b",
+        ] {
             assert!(!is_valid_glyph_name(bad), "{bad} should be rejected");
         }
     }
@@ -738,14 +777,17 @@ mod tests {
     fn an_unsubstituted_inline_range_stays_verbatim() {
         let parts = NamePartsMap::new();
         for bad in ["uni($#2802..2800)", "uni($#00000000..FFFFFFFF)"] {
-            assert_eq!(substitute_name_parts(bad, &parts), bad, "left for the checker");
+            assert_eq!(
+                substitute_name_parts(bad, &parts),
+                bad,
+                "left for the checker"
+            );
         }
         assert!(
             !crate::document::find_invalid_inline_ranges("uni($#2802..2800)").is_empty(),
             "the backwards range must be reported",
         );
     }
-
 
     #[test]
     fn element_rejects_oversized_repeat_before_materializing_it() {
@@ -802,7 +844,9 @@ mod tests {
     fn block_groups_combine_by_lcm() {
         assert_eq!(
             block("out-(a|b)-(1|2|3)"),
-            vec!["out-a-1", "out-b-2", "out-a-3", "out-b-1", "out-a-2", "out-b-3"],
+            vec![
+                "out-a-1", "out-b-2", "out-a-3", "out-b-1", "out-a-2", "out-b-3"
+            ],
         );
     }
 
@@ -868,28 +912,19 @@ mod tests {
     #[test]
     fn inline_range_hex() {
         let parts = NamePartsMap::new();
-        assert_eq!(
-            substitute_name_parts("($#a..f)", &parts),
-            "(a|b|c|d|e|f)",
-        );
+        assert_eq!(substitute_name_parts("($#a..f)", &parts), "(a|b|c|d|e|f)",);
     }
 
     #[test]
     fn inline_range_hex_zero_padded() {
         let parts = NamePartsMap::new();
-        assert_eq!(
-            substitute_name_parts("($#0a..0c)", &parts),
-            "(0a|0b|0c)",
-        );
+        assert_eq!(substitute_name_parts("($#0a..0c)", &parts), "(0a|0b|0c)",);
     }
 
     #[test]
     fn inline_range_reversed_leaves_as_is() {
         let parts = NamePartsMap::new();
-        assert_eq!(
-            substitute_name_parts("($3..2)", &parts),
-            "($3..2)",
-        );
+        assert_eq!(substitute_name_parts("($3..2)", &parts), "($3..2)",);
     }
 
     #[test]
@@ -903,10 +938,7 @@ mod tests {
 
     #[test]
     fn inline_range_find_invalid() {
-        assert_eq!(
-            find_invalid_inline_ranges("($3..2)"),
-            vec!["$3..2"],
-        );
+        assert_eq!(find_invalid_inline_ranges("($3..2)"), vec!["$3..2"],);
         assert!(find_invalid_inline_ranges("($0..9)").is_empty());
     }
 
@@ -937,9 +969,10 @@ mod tests {
     fn name_part_repeat_distributes_over_every_value() {
         let parts = abc_parts();
         // `*N` right after a name-part repeats *each* value, not just the last.
-        assert_eq!(element(&substitute_name_parts("($foo*2)", &parts)), vec![
-            "a", "a", "b", "b", "c", "c"
-        ]);
+        assert_eq!(
+            element(&substitute_name_parts("($foo*2)", &parts)),
+            vec!["a", "a", "b", "b", "c", "c"]
+        );
         // Same when other alternatives follow, where the repeat can no longer
         // be read as a whole-group multiplier.
         assert_eq!(
@@ -959,9 +992,10 @@ mod tests {
             substitute_name_parts("($#0a..0c*2)", &parts),
             "(0a*2|0b*2|0c*2)",
         );
-        assert_eq!(element(&substitute_name_parts("($0..2*2|z)", &parts)), vec![
-            "0", "0", "1", "1", "2", "2", "z"
-        ]);
+        assert_eq!(
+            element(&substitute_name_parts("($0..2*2|z)", &parts)),
+            vec!["0", "0", "1", "1", "2", "2", "z"]
+        );
     }
 
     #[test]
@@ -995,15 +1029,9 @@ mod tests {
             "$foo".to_string(),
             vec!["a".to_string(), "b".to_string(), "c".to_string()],
         );
-        assert_eq!(
-            substitute_name_parts("($foo**3)", &parts),
-            "(a|b|c**3)",
-        );
+        assert_eq!(substitute_name_parts("($foo**3)", &parts), "(a|b|c**3)",);
         // Without suffix, normal expansion.
-        assert_eq!(
-            substitute_name_parts("($foo)", &parts),
-            "(a|b|c)",
-        );
+        assert_eq!(substitute_name_parts("($foo)", &parts), "(a|b|c)",);
         // Unknown var keeps suffix verbatim.
         assert_eq!(
             substitute_name_parts("($bar**2)", &NamePartsMap::new()),

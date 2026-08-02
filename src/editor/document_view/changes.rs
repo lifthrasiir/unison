@@ -139,18 +139,21 @@ pub(crate) fn flush_document_changes(
     state.clear_document_sync_request();
 }
 
-pub(super) fn rederive(
-    lines: &[DocLine],
-    doc: &mut Document,
-    is_at_saved: bool,
-) {
+pub(super) fn rederive(lines: &[DocLine], doc: &mut Document, is_at_saved: bool) {
     match crate::document_io::derive_document(lines, doc.path.clone()) {
         Ok((new_doc, _)) => {
-            let items_changed = !doc.items.iter().filter(|i| i.affects_font())
+            let items_changed = !doc
+                .items
+                .iter()
+                .filter(|i| i.affects_font())
                 .eq(new_doc.items.iter().filter(|i| i.affects_font()));
             let next_gen = doc.edit_gen + 1;
             let pixel_gen = doc.pixel_gen;
-            let content_gen = if items_changed { doc.content_gen + 1 } else { doc.content_gen };
+            let content_gen = if items_changed {
+                doc.content_gen + 1
+            } else {
+                doc.content_gen
+            };
             *doc = new_doc;
             doc.dirty = !is_at_saved;
             doc.edit_gen = next_gen;
@@ -210,14 +213,11 @@ pub(super) fn inline_ref_to_pixels(
     let has_grid = body.pixels.is_some();
 
     let gref = &body.refs[ref_idx];
-    let resolved = match ref_composite::resolve_ref_name_with_parts(
-        &gref.name,
-        named_glyphs,
-        name_parts,
-    ) {
-        Some(r) => r,
-        None => return false,
-    };
+    let resolved =
+        match ref_composite::resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
+            Some(r) => r,
+            None => return false,
+        };
 
     let item_start = doc.item_line_starts[edit_idx];
     let grid_line_idx = item_start + 1;
@@ -256,7 +256,9 @@ pub(super) fn inline_ref_to_pixels(
 
         let caret = state.cursor;
         state.undo.break_coalesce();
-        state.undo.push_lines(grid_line_idx, old_lines, new_lines, caret, caret);
+        state
+            .undo
+            .push_lines(grid_line_idx, old_lines, new_lines, caret, caret);
     } else {
         let header_text = match &lines[item_start] {
             DocLine::Text(s) => s.clone(),
@@ -268,8 +270,13 @@ pub(super) fn inline_ref_to_pixels(
         };
         let has_dims = parse_glyph_header_dims(&tokens).is_some();
         let (w, h) = parse_glyph_header_dims(&tokens).unwrap_or_else(|| {
-            let (_min_r, _min_c, max_r, max_c) =
-                ref_composite::composite_bounds(None, &body.refs, named_glyphs, name_parts, body.scale);
+            let (_min_r, _min_c, max_r, max_c) = ref_composite::composite_bounds(
+                None,
+                &body.refs,
+                named_glyphs,
+                name_parts,
+                body.scale,
+            );
             let w = (max_c).max(0) as u16;
             let h = (max_r).max(0) as u16;
             (w, h)
@@ -280,9 +287,12 @@ pub(super) fn inline_ref_to_pixels(
 
         let body_line_count = body.refs.len() + body.points.len();
         let undo_start = if has_dims { grid_line_idx } else { item_start };
-        let old_line_count = if has_dims { body_line_count } else { 1 + body_line_count };
-        let old_lines: Vec<DocLine> =
-            lines[undo_start..undo_start + old_line_count].to_vec();
+        let old_line_count = if has_dims {
+            body_line_count
+        } else {
+            1 + body_line_count
+        };
+        let old_lines: Vec<DocLine> = lines[undo_start..undo_start + old_line_count].to_vec();
 
         if !has_dims {
             let new_header = document_io::append_to_line(&header_text, &format!("{w} {h}"));
@@ -295,14 +305,18 @@ pub(super) fn inline_ref_to_pixels(
         let ref_text_line_idx = grid_line_idx + 1 + ref_idx;
         lines.remove(ref_text_line_idx);
 
-        let new_line_count = if has_dims { 1 + body.refs.len() - 1 + body.points.len() }
-            else { 1 + 1 + body.refs.len() - 1 + body.points.len() };
-        let new_lines: Vec<DocLine> =
-            lines[undo_start..undo_start + new_line_count].to_vec();
+        let new_line_count = if has_dims {
+            1 + body.refs.len() - 1 + body.points.len()
+        } else {
+            1 + 1 + body.refs.len() - 1 + body.points.len()
+        };
+        let new_lines: Vec<DocLine> = lines[undo_start..undo_start + new_line_count].to_vec();
 
         let caret = state.cursor;
         state.undo.break_coalesce();
-        state.undo.push_lines(undo_start, old_lines, new_lines, caret, caret);
+        state
+            .undo
+            .push_lines(undo_start, old_lines, new_lines, caret, caret);
     }
 
     state.mode = EditMode::GlyphEdit {

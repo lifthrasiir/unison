@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use crate::document::{
     DocLine, Document, DocumentItem, GlyphBody, GlyphRef, NamePartsMap, is_name_pattern,
 };
-use crate::pattern::NamePattern;
 use crate::editor::annotations::{self, InlineAnnotation};
 use crate::editor::colors::Palette;
 use crate::editor::doc_links;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
+use crate::pattern::NamePattern;
 
 use super::document_view::{
     GRID_CELL, GlyphMetrics, GridExtent, INLINE_PALETTE_CELL, PREVIEW_SCALE, VLineKind, VisualLine,
@@ -474,19 +474,16 @@ pub(crate) fn build_visual_lines(
                 // Pixel rows
                 if let Some(grid) = &body.pixels {
                     let grid_doc_line = cur;
-                    let (own_w, own_h, mut extent) =
-                        compute_grid_display_extent(Some(grid), composites.get(&item_idx), &body.points);
+                    let (own_w, own_h, mut extent) = compute_grid_display_extent(
+                        Some(grid),
+                        composites.get(&item_idx),
+                        &body.points,
+                    );
                     if let Some(s) = shadow {
                         extent.include_shadow(s);
                     }
                     let metrics = show_metrics.then(|| {
-                        let m = glyph_metrics(
-                            body,
-                            composites.get(&item_idx),
-                            own_w,
-                            own_h,
-                            meta,
-                        );
+                        let m = glyph_metrics(body, composites.get(&item_idx), own_w, own_h, meta);
                         extent.include_metrics(&m);
                         m
                     });
@@ -531,13 +528,7 @@ pub(crate) fn build_visual_lines(
                         extent.include_shadow(s);
                     }
                     let metrics = show_metrics.then(|| {
-                        let m = glyph_metrics(
-                            body,
-                            Some(comp),
-                            own_w,
-                            own_h,
-                            meta,
-                        );
+                        let m = glyph_metrics(body, Some(comp), own_w, own_h, meta);
                         extent.include_metrics(&m);
                         m
                     });

@@ -32,10 +32,7 @@ pub(crate) trait CachedGlyphEntry {
 /// Looks up `name` in the cache, falling back to the first expansion of a
 /// pattern name (`digit(0|1)` resolves via `digit0` when the pattern string
 /// itself is not a cache key).
-pub(crate) fn resolve_cached<'a, V>(
-    name: &str,
-    cache: &'a HashMap<String, V>,
-) -> Option<&'a V> {
+pub(crate) fn resolve_cached<'a, V>(name: &str, cache: &'a HashMap<String, V>) -> Option<&'a V> {
     if let Some(cached) = cache.get(name) {
         return Some(cached);
     }
@@ -125,11 +122,16 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
 
     for item in all_items {
         let (cache_key, body) = match item {
-            DocumentItem::Glyph { name: GlyphName(n), body } => (n.clone(), body),
+            DocumentItem::Glyph {
+                name: GlyphName(n),
+                body,
+            } => (n.clone(), body),
             _ => continue,
         };
         if !cache_key.is_empty() && !cache.contains_key(&cache_key) {
-            if let Some(ref pixels) = body.pixels && body.refs.is_empty() {
+            if let Some(ref pixels) = body.pixels
+                && body.refs.is_empty()
+            {
                 let mut cached = from_grid(pixels);
                 cached.set_resolution(body.points.clone(), body.scale);
                 cache.insert(cache_key, cached);

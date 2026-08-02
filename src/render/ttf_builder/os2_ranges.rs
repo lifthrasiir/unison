@@ -218,54 +218,105 @@ pub(super) fn code_page_ranges(codepoints: &std::collections::HashSet<u32>) -> [
     let mut bits: u64 = 0;
     let mut set = |bit: u32| bits |= 1u64 << bit;
 
-    if has('Þ') && has_ascii { set(0); }                       // Latin 1
+    if has('Þ') && has_ascii {
+        set(0);
+    } // Latin 1
     if has('Ľ') && has_ascii {
-        set(1);                                                 // Latin 2: Eastern Europe
-        if has_lineart { set(58); }                             // Latin 2
+        set(1); // Latin 2: Eastern Europe
+        if has_lineart {
+            set(58);
+        } // Latin 2
     }
     if has('Б') {
-        set(2);                                                 // Cyrillic
-        if has('Ѕ') && has_lineart { set(57); }                 // IBM Cyrillic
-        if has('╜') && has_lineart { set(49); }                 // MS-DOS Russian
+        set(2); // Cyrillic
+        if has('Ѕ') && has_lineart {
+            set(57);
+        } // IBM Cyrillic
+        if has('╜') && has_lineart {
+            set(49);
+        } // MS-DOS Russian
     }
     if has('Ά') {
-        set(3);                                                 // Greek
-        if has_lineart && has('½') { set(48); }                 // IBM Greek
-        if has_lineart && has_root { set(60); }                 // Greek, former 437 G
+        set(3); // Greek
+        if has_lineart && has('½') {
+            set(48);
+        } // IBM Greek
+        if has_lineart && has_root {
+            set(60);
+        } // Greek, former 437 G
     }
     if has('İ') && has_ascii {
-        set(4);                                                 // Turkish
-        if has_lineart { set(56); }                             // IBM Turkish
+        set(4); // Turkish
+        if has_lineart {
+            set(56);
+        } // IBM Turkish
     }
     if has('א') {
-        set(5);                                                 // Hebrew
-        if has_lineart && has_root { set(53); }                 // Hebrew
+        set(5); // Hebrew
+        if has_lineart && has_root {
+            set(53);
+        } // Hebrew
     }
     if has('ر') {
-        set(6);                                                 // Arabic
-        if has_root { set(51); }                                // Arabic
-        if has_lineart { set(61); }                             // Arabic; ASMO 708
+        set(6); // Arabic
+        if has_root {
+            set(51);
+        } // Arabic
+        if has_lineart {
+            set(61);
+        } // Arabic; ASMO 708
     }
     if has('ŗ') && has_ascii {
-        set(7);                                                 // Windows Baltic
-        if has_lineart { set(59); }                             // MS-DOS Baltic
+        set(7); // Windows Baltic
+        if has_lineart {
+            set(59);
+        } // MS-DOS Baltic
     }
-    if has('₫') && has_ascii { set(8); }                        // Vietnamese
-    if has('ๅ') { set(16); }                                    // Thai
-    if has('エ') { set(17); }                                    // JIS/Japan
-    if has('ㄅ') { set(18); }                                    // Chinese: Simplified
-    if has('ㄱ') { set(19); }                                    // Korean Wansung
-    if has('央') { set(20); }                                    // Chinese: Traditional
-    if has('곴') { set(21); }                                    // Korean Johab
-    if has('♥') && has_ascii { set(30); }                        // OEM
-    if has('þ') && has_ascii && has_lineart { set(54); }        // MS-DOS Icelandic
-    if has('╚') && has_ascii { set(62); set(63); }              // WE/Latin 1, US
+    if has('₫') && has_ascii {
+        set(8);
+    } // Vietnamese
+    if has('ๅ') {
+        set(16);
+    } // Thai
+    if has('エ') {
+        set(17);
+    } // JIS/Japan
+    if has('ㄅ') {
+        set(18);
+    } // Chinese: Simplified
+    if has('ㄱ') {
+        set(19);
+    } // Korean Wansung
+    if has('央') {
+        set(20);
+    } // Chinese: Traditional
+    if has('곴') {
+        set(21);
+    } // Korean Johab
+    if has('♥') && has_ascii {
+        set(30);
+    } // OEM
+    if has('þ') && has_ascii && has_lineart {
+        set(54);
+    } // MS-DOS Icelandic
+    if has('╚') && has_ascii {
+        set(62);
+        set(63);
+    } // WE/Latin 1, US
     if has_ascii && has_lineart && has_root {
-        if has('Å') { set(50); }                                // MS-DOS Nordic
-        if has('é') { set(52); }                                // MS-DOS Canadian French
-        if has('õ') { set(55); }                                // MS-DOS Portuguese
+        if has('Å') {
+            set(50);
+        } // MS-DOS Nordic
+        if has('é') {
+            set(52);
+        } // MS-DOS Canadian French
+        if has('õ') {
+            set(55);
+        } // MS-DOS Portuguese
     }
-    if has_ascii && has('‰') && has('∑') { set(29); }           // Macintosh (US Roman)
+    if has_ascii && has('‰') && has('∑') {
+        set(29);
+    } // Macintosh (US Roman)
 
     [bits as u32, (bits >> 32) as u32]
 }

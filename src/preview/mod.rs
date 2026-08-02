@@ -1,6 +1,6 @@
 pub mod cluster;
-pub mod rustybuzz;
 pub mod rasterizer;
+pub mod rustybuzz;
 pub mod widget;
 
 #[cfg(target_os = "macos")]
@@ -153,7 +153,10 @@ mod tests {
     fn shape_recording(text: &str) -> (Vec<String>, Vec<usize>) {
         let backend = RecordingBackend(RefCell::new(Vec::new()));
         let glyphs = shape_text(&backend, &[], text, 1024, &[]).unwrap();
-        (backend.0.into_inner(), glyphs.iter().map(|g| g.cluster).collect())
+        (
+            backend.0.into_inner(),
+            glyphs.iter().map(|g| g.cluster).collect(),
+        )
     }
 
     #[test]
@@ -178,7 +181,12 @@ mod tests {
 
     #[test]
     fn features_are_clipped_and_rebased_per_run() {
-        let feature = Feature { tag: *b"liga", value: 1, start: 1, end: 3 };
+        let feature = Feature {
+            tag: *b"liga",
+            value: 1,
+            start: 1,
+            end: 3,
+        };
         // Whole-text range 1..3 covers the tail of run 0 and the head of run 1.
         assert_eq!(
             clip_feature(&feature, 0, 2).map(|f| (f.start, f.end)),
@@ -194,7 +202,12 @@ mod tests {
 
     #[test]
     fn whole_text_feature_range_survives_clipping() {
-        let feature = Feature { tag: *b"kern", value: 1, start: 0, end: usize::MAX };
+        let feature = Feature {
+            tag: *b"kern",
+            value: 1,
+            start: 0,
+            end: usize::MAX,
+        };
         assert_eq!(
             clip_feature(&feature, 2, 2).map(|f| (f.start, f.end)),
             Some((0, 2)),

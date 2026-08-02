@@ -150,7 +150,10 @@ pub(crate) fn blit_preview(
                 egui::pos2((x0 + start as f32) / ppp, (y0 + dy as f32) / ppp),
                 egui::pos2((x0 + dx as f32) / ppp, (y0 + dy as f32 + 1.0) / ppp),
             );
-            mesh.add_colored_rect(quad, egui::Color32::from_rgba_unmultiplied(cr, cg, cb, alpha));
+            mesh.add_colored_rect(
+                quad,
+                egui::Color32::from_rgba_unmultiplied(cr, cg, cb, alpha),
+            );
         }
     }
     if !mesh.is_empty() {
@@ -173,7 +176,13 @@ pub(crate) fn build_composites(
     let mut composites = HashMap::new();
     for (idx, item) in doc.items.iter().enumerate() {
         if let DocumentItem::Glyph { body, .. } = item
-            && let Some(comp) = ref_composite::compute_composite(body, named_glyphs, name_parts, alt_index, color_aliases)
+            && let Some(comp) = ref_composite::compute_composite(
+                body,
+                named_glyphs,
+                name_parts,
+                alt_index,
+                color_aliases,
+            )
         {
             composites.insert(idx, comp);
         }
@@ -239,17 +248,13 @@ pub(crate) fn render_grid_row(
         EditMode::LayerMove {
             item_idx: eidx,
             layer_idx,
-        } if *eidx == item_idx => {
-            match doc.items.get(item_idx) {
-                Some(DocumentItem::Glyph { body, .. }) if *layer_idx < body.refs.len() => {
-                    (Some(*layer_idx), None)
-                }
-                Some(DocumentItem::Glyph { body, .. }) => {
-                    (None, Some(*layer_idx - body.refs.len()))
-                }
-                _ => (None, None),
+        } if *eidx == item_idx => match doc.items.get(item_idx) {
+            Some(DocumentItem::Glyph { body, .. }) if *layer_idx < body.refs.len() => {
+                (Some(*layer_idx), None)
             }
-        }
+            Some(DocumentItem::Glyph { body, .. }) => (None, Some(*layer_idx - body.refs.len())),
+            _ => (None, None),
+        },
         _ => (None, None),
     };
 
@@ -281,9 +286,9 @@ pub(crate) fn render_grid_row(
             if Some(layer.ref_idx) == active_ref {
                 continue;
             }
-            let color = layer.fill_color.unwrap_or_else(||
+            let color = layer.fill_color.unwrap_or_else(|| {
                 ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx)
-            );
+            });
             let opacity = if is_layer_mode { 0.35 } else { 1.0 };
             let color = if opacity < 1.0 {
                 apply_opacity(color, opacity)
@@ -411,9 +416,9 @@ pub(crate) fn render_grid_row(
         && let Some(comp) = composite
         && let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == active)
     {
-        let color = layer.fill_color.unwrap_or_else(||
+        let color = layer.fill_color.unwrap_or_else(|| {
             ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, layer.ref_idx)
-        );
+        });
         for dc in extent.left..extent.right {
             let lr_in_layer = comp.own_offset_row + row - layer.offset_row;
             let lc_in_layer = comp.own_offset_col + dc - layer.offset_col;
@@ -451,15 +456,10 @@ pub(crate) fn render_grid_row(
     if let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(item_idx) {
         let num_refs = body.refs.len();
         let inherited = composite.map_or(&[][..], |c| c.inherited_anchors.as_slice());
-        let declared = body
-            .points
-            .iter()
-            .enumerate()
-            .map(|(pi, point)| {
-                let color =
-                    ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, num_refs + pi);
-                (pi, point, color)
-            });
+        let declared = body.points.iter().enumerate().map(|(pi, point)| {
+            let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, num_refs + pi);
+            (pi, point, color)
+        });
         let inherited = inherited.iter().enumerate().map(|(ii, (point, src_ref))| {
             let color = ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, *src_ref);
             (body.points.len() + ii, point, color)
@@ -584,7 +584,10 @@ const METRICS_DASH: f32 = 3.0;
 const METRICS_STROKES: [(f32, f32); 3] = [
     (METRICS_EDGE * 0.5, METRICS_EDGE),
     (METRICS_EDGE + METRICS_BAND * 0.5, METRICS_BAND),
-    (METRICS_EDGE + METRICS_BAND + METRICS_EDGE * 0.5, METRICS_EDGE),
+    (
+        METRICS_EDGE + METRICS_BAND + METRICS_EDGE * 0.5,
+        METRICS_EDGE,
+    ),
 ];
 /// Index of the background band in [`METRICS_STROKES`] — the one the dashes go
 /// back over, and the one that must be laid down before either neighbour.

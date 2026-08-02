@@ -158,7 +158,11 @@ impl Palette {
     }
 
     pub fn for_theme(dark_mode: bool) -> Self {
-        if dark_mode { Self::dark() } else { Self::light() }
+        if dark_mode {
+            Self::dark()
+        } else {
+            Self::light()
+        }
     }
 
     /// The palette is cached under a context-global id on purpose: it is

@@ -75,7 +75,11 @@ pub(super) struct Pane {
 
 impl Pane {
     fn placeholder(zoom_level: u32) -> Self {
-        Self { doc_idx: None, zoom_level, view_rect: None }
+        Self {
+            doc_idx: None,
+            zoom_level,
+            view_rect: None,
+        }
     }
 }
 

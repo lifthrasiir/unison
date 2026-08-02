@@ -63,7 +63,10 @@ pub(crate) fn find_name_col_range_after_prefix(line: &str, prefix: &str) -> Opti
     if name_span.value.is_empty() {
         return None;
     }
-    Some((leading_chars + name_span.raw_start, leading_chars + name_span.raw_end))
+    Some((
+        leading_chars + name_span.raw_start,
+        leading_chars + name_span.raw_end,
+    ))
 }
 
 pub(crate) fn scan_dollar_refs(text: &str, base_col: usize, out: &mut Vec<LinkSpan>) {
@@ -314,10 +317,10 @@ pub fn find_link_target_in_doc(
                     let trimmed = s.trim();
                     if let Ok(tokens) = tokenize_tokens(trimmed)
                         && tokens.first().is_some_and(|t| t == "glyph")
-                            && tokens.get(1).is_some_and(|t| t == name)
-                        {
-                            return Some(i);
-                        }
+                        && tokens.get(1).is_some_and(|t| t == name)
+                    {
+                        return Some(i);
+                    }
                 }
             }
             None
@@ -328,10 +331,10 @@ pub fn find_link_target_in_doc(
                     let trimmed = s.trim();
                     if let Ok(tokens) = tokenize_tokens(trimmed)
                         && tokens.first().is_some_and(|t| t == "name-parts")
-                            && tokens.get(1).is_some_and(|t| t == name)
-                        {
-                            return Some(i);
-                        }
+                        && tokens.get(1).is_some_and(|t| t == name)
+                    {
+                        return Some(i);
+                    }
                 }
             }
             None
@@ -342,10 +345,11 @@ pub fn find_link_target_in_doc(
                     let trimmed = s.trim();
                     if let Ok(tokens) = tokenize_tokens(trimmed)
                         && tokens.first().is_some_and(|t| t == "remap")
-                            && let Some(first) = tokens.get(1)
-                                && (first == name || first.trim_end_matches(':') == name) {
-                                    return Some(i);
-                                }
+                        && let Some(first) = tokens.get(1)
+                        && (first == name || first.trim_end_matches(':') == name)
+                    {
+                        return Some(i);
+                    }
                 }
             }
             None
@@ -356,16 +360,20 @@ pub fn find_link_target_in_doc(
                     let trimmed = s.trim();
                     if let Ok(tokens) = tokenize_tokens(trimmed)
                         && tokens.first().is_some_and(|t| t == "color")
-                            && tokens.get(1).is_some_and(|t| t == name)
-                        {
-                            return Some(i);
-                        }
+                        && tokens.get(1).is_some_and(|t| t == name)
+                    {
+                        return Some(i);
+                    }
                 }
             }
             None
         }
         LinkTargetKind::Face | LinkTargetKind::Slice => {
-            let keyword = if *kind == LinkTargetKind::Face { "face" } else { "slice" };
+            let keyword = if *kind == LinkTargetKind::Face {
+                "face"
+            } else {
+                "slice"
+            };
             for (i, line) in lines.iter().enumerate() {
                 if let DocLine::Text(s) = line {
                     let trimmed = s.trim();
@@ -636,28 +644,52 @@ mod rename_detection_tests {
     fn ref_fill_links_color_name() {
         let links = extract_line_links("ref foo 0 0 fill red");
         // Should have glyph link for 'foo' AND color link for 'red'
-        assert!(links.iter().any(|l| l.target == "red" && matches!(l.kind, LinkTargetKind::Color)));
-        assert!(links.iter().any(|l| l.target == "foo" && matches!(l.kind, LinkTargetKind::Glyph)));
+        assert!(
+            links
+                .iter()
+                .any(|l| l.target == "red" && matches!(l.kind, LinkTargetKind::Color))
+        );
+        assert!(
+            links
+                .iter()
+                .any(|l| l.target == "foo" && matches!(l.kind, LinkTargetKind::Glyph))
+        );
     }
 
     #[test]
     fn ref_fill_links_fg_no_color_link() {
         let links = extract_line_links("ref foo 0 0 fill fg");
-        assert!(!links.iter().any(|l| matches!(l.kind, LinkTargetKind::Color)));
+        assert!(
+            !links
+                .iter()
+                .any(|l| matches!(l.kind, LinkTargetKind::Color))
+        );
     }
 
     #[test]
     fn ref_fill_links_hex_no_color_link() {
         let links = extract_line_links("ref foo 0 0 fill #ff0000");
-        assert!(!links.iter().any(|l| matches!(l.kind, LinkTargetKind::Color)));
+        assert!(
+            !links
+                .iter()
+                .any(|l| matches!(l.kind, LinkTargetKind::Color))
+        );
     }
 
     #[test]
     fn assert_same_links_glyph_names() {
         let links = extract_line_links("assert same foo bar");
         assert_eq!(links.len(), 2);
-        assert!(links.iter().any(|l| l.target == "foo" && matches!(l.kind, LinkTargetKind::Glyph)));
-        assert!(links.iter().any(|l| l.target == "bar" && matches!(l.kind, LinkTargetKind::Glyph)));
+        assert!(
+            links
+                .iter()
+                .any(|l| l.target == "foo" && matches!(l.kind, LinkTargetKind::Glyph))
+        );
+        assert!(
+            links
+                .iter()
+                .any(|l| l.target == "bar" && matches!(l.kind, LinkTargetKind::Glyph))
+        );
     }
 
     #[test]
@@ -672,7 +704,8 @@ mod rename_detection_tests {
     #[test]
     fn assert_same_comment_not_linked() {
         let links = extract_line_links("assert same foo bar // not a glyph");
-        let glyph_names: Vec<&str> = links.iter()
+        let glyph_names: Vec<&str> = links
+            .iter()
             .filter(|l| matches!(l.kind, LinkTargetKind::Glyph))
             .map(|l| l.target.as_str())
             .collect();
@@ -684,8 +717,16 @@ mod rename_detection_tests {
     #[test]
     fn assert_shape_links_glyph_names() {
         let links = extract_line_links("assert shape AB : a-upper : b-upper");
-        assert!(links.iter().any(|l| l.target == "a-upper" && matches!(l.kind, LinkTargetKind::Glyph)));
-        assert!(links.iter().any(|l| l.target == "b-upper" && matches!(l.kind, LinkTargetKind::Glyph)));
+        assert!(
+            links
+                .iter()
+                .any(|l| l.target == "a-upper" && matches!(l.kind, LinkTargetKind::Glyph))
+        );
+        assert!(
+            links
+                .iter()
+                .any(|l| l.target == "b-upper" && matches!(l.kind, LinkTargetKind::Glyph))
+        );
     }
 
     #[test]
@@ -732,11 +773,31 @@ mod rename_detection_tests {
             ("slice both = narrow wide", 7, "both", RenameKind::Slice),
             ("meta term : family Unison", 6, "term", RenameKind::Face),
             ("map narrow : A = latin-a", 6, "narrow", RenameKind::Slice),
-            ("assert shape AB for narrow : a-b", 22, "narrow", RenameKind::Slice),
+            (
+                "assert shape AB for narrow : a-b",
+                22,
+                "narrow",
+                RenameKind::Slice,
+            ),
             ("remap liga : a -> b", 7, "liga", RenameKind::RemapGroup),
-            ("remap group liga after flag", 13, "liga", RenameKind::RemapGroup),
-            ("remap group liga after flag", 24, "flag", RenameKind::RemapGroup),
-            ("feature dlig for latn : liga", 25, "liga", RenameKind::RemapGroup),
+            (
+                "remap group liga after flag",
+                13,
+                "liga",
+                RenameKind::RemapGroup,
+            ),
+            (
+                "remap group liga after flag",
+                24,
+                "flag",
+                RenameKind::RemapGroup,
+            ),
+            (
+                "feature dlig for latn : liga",
+                25,
+                "liga",
+                RenameKind::RemapGroup,
+            ),
         ] {
             let t = find_renameable_at_caret(line, col)
                 .unwrap_or_else(|| panic!("nothing renameable at {col} in {line:?}"));
@@ -756,7 +817,10 @@ mod rename_detection_tests {
                 .iter()
                 .map(|l| (l.target.as_str(), l.kind, l.is_def))
                 .collect::<Vec<_>>(),
-            vec![("term", LinkTargetKind::Face, true), ("narrow", LinkTargetKind::Slice, false)],
+            vec![
+                ("term", LinkTargetKind::Face, true),
+                ("narrow", LinkTargetKind::Slice, false)
+            ],
         );
         assert_eq!(
             extract_line_links("slice both = narrow wide")
@@ -777,9 +841,21 @@ mod rename_detection_tests {
     fn qualifiers_link_to_their_slice_or_face() {
         for (line, target, kind) in [
             ("map narrow : A = latin-a", "narrow", LinkTargetKind::Slice),
-            ("feature wide : liga for latn : eq-liga", "wide", LinkTargetKind::Slice),
-            ("meta term : family Unison Term", "term", LinkTargetKind::Face),
-            ("assert shape AB for narrow : a-b", "narrow", LinkTargetKind::Slice),
+            (
+                "feature wide : liga for latn : eq-liga",
+                "wide",
+                LinkTargetKind::Slice,
+            ),
+            (
+                "meta term : family Unison Term",
+                "term",
+                LinkTargetKind::Face,
+            ),
+            (
+                "assert shape AB for narrow : a-b",
+                "narrow",
+                LinkTargetKind::Slice,
+            ),
         ] {
             let links = extract_line_links(line);
             let found = links

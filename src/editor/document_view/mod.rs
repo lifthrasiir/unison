@@ -10,7 +10,6 @@ use crate::document_io::{self, tokenize_with_spans};
 use crate::editor::anchor_shadow::{self, AnchorShadow};
 use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::{self, Caret};
-use crate::render::ttf_builder::ColorAliasMap;
 use crate::editor::doc_input;
 use crate::editor::doc_links::{self, LinkSpan, LinkTargetKind, RenameKind};
 use crate::editor::grid_render;
@@ -22,6 +21,7 @@ use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 use crate::editor::visual_lines;
 use crate::editor::{EditMode, EditorState, PopupState, Slot};
 use crate::pixel;
+use crate::render::ttf_builder::ColorAliasMap;
 
 mod changes;
 mod keys;
@@ -167,13 +167,23 @@ impl<'a> DocumentEditor<'a> {
         state: &'a mut EditorState,
         env: EditorEnv<'a>,
     ) -> Self {
-        Self { doc, lines, state, env }
+        Self {
+            doc,
+            lines,
+            state,
+            env,
+        }
     }
 
     /// Renders this editor into `ui` and reports the actions only the host can
     /// carry out (following a link into another file, applying a rename).
     pub fn show(self, ui: &mut egui::Ui) -> DocumentViewResult {
-        let Self { doc, lines, state, env } = self;
+        let Self {
+            doc,
+            lines,
+            state,
+            env,
+        } = self;
         // Salt every *auto-generated* id inside — the canvas widget, the
         // scroll area, each interaction rect — with this editor's namespace.
         // The explicitly-named ids (areas, panels, temp slots) carry the same
@@ -262,7 +272,11 @@ fn resolve_view(
 /// lives on the composite, which does not exist yet when the view cache key
 /// is built, and an out-of-range index merely selects no anchor downstream.
 fn active_point_layer(doc: &Document, mode: &EditMode) -> Option<(usize, usize)> {
-    let EditMode::LayerMove { item_idx, layer_idx } = mode else {
+    let EditMode::LayerMove {
+        item_idx,
+        layer_idx,
+    } = mode
+    else {
         return None;
     };
     let Some(DocumentItem::Glyph { body, .. }) = doc.items.get(*item_idx) else {
@@ -293,8 +307,7 @@ fn selected_anchor_shadow(
             .map(|(p, _)| p)
     })?;
     let self_name = name.display();
-    anchor_shadow::compute(Some(&self_name), point, body.scale, named_glyphs)
-        .map(|s| (item_idx, s))
+    anchor_shadow::compute(Some(&self_name), point, body.scale, named_glyphs).map(|s| (item_idx, s))
 }
 
 /// The editor's frame loop. Reached through [`DocumentEditor::show`], which
@@ -436,7 +449,14 @@ fn show_document(
     let mut scroll_area_builder = egui::ScrollArea::vertical().auto_shrink([false, false]);
 
     handle_page_scroll(
-        ui, lines, state, vlines, row_height, grid_cell, prev_scroll_y, prev_viewport_h,
+        ui,
+        lines,
+        state,
+        vlines,
+        row_height,
+        grid_cell,
+        prev_scroll_y,
+        prev_viewport_h,
     );
 
     if let Some(target) = resolve_scroll_target(
@@ -487,7 +507,14 @@ fn show_document(
 
     let prev_cursor = state.cursor;
     handle_document_keys(
-        ui, doc, lines, state, named_glyphs, name_parts, composites, prev_cursor,
+        ui,
+        doc,
+        lines,
+        state,
+        named_glyphs,
+        name_parts,
+        composites,
+        prev_cursor,
         &mut needs_rederive,
     );
 
@@ -518,5 +545,8 @@ fn show_document(
         .map(|&off| off + 1)
         .unwrap_or(1);
 
-    DocumentViewResult { nav: state.pending_nav.take(), rename: rename_result }
+    DocumentViewResult {
+        nav: state.pending_nav.take(),
+        rename: rename_result,
+    }
 }

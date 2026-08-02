@@ -102,7 +102,9 @@ fn field(role: FieldRole, leading: usize, span: &TokenSpan) -> LineField {
 /// special case. Completion asks this too, so the two cannot drift.
 pub(crate) fn is_remap_group_decl(rest: &[TokenSpan]) -> bool {
     rest.first().is_some_and(|s| s.value == "group")
-        && rest.get(1).is_some_and(|s| s.value != ":" && !s.value.ends_with(':'))
+        && rest
+            .get(1)
+            .is_some_and(|s| s.value != ":" && !s.value.ends_with(':'))
 }
 
 /// Splits the optional leading `SLICE :` (or, on `meta`, `FACE :`) qualifier
@@ -275,7 +277,11 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 && !id.value.is_empty()
                 && id.value != sep
             {
-                let role = if is_face { FieldRole::FaceDef } else { FieldRole::SliceDef };
+                let role = if is_face {
+                    FieldRole::FaceDef
+                } else {
+                    FieldRole::SliceDef
+                };
                 fields.push(field(role, leading, id));
                 if rest.get(1).is_some_and(|s| s.value == sep) {
                     for span in &rest[2..] {
@@ -331,7 +337,10 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 // assert shape TEXT [+feat]... [for SLICE...] : GLYPH1 ... : GLYPH2 ...
                 // Only the first token after each `:` is a glyph name, and
                 // `for ...` runs to the first `:` — everything in it is a slice.
-                let head_end = rest.iter().position(|s| s.value == ":").unwrap_or(rest.len());
+                let head_end = rest
+                    .iter()
+                    .position(|s| s.value == ":")
+                    .unwrap_or(rest.len());
                 if let Some(for_pos) = rest[..head_end].iter().position(|s| s.value == "for") {
                     for span in &rest[for_pos + 1..head_end] {
                         if !span.value.is_empty() {
@@ -573,7 +582,10 @@ mod tests {
                 (FieldRole::SliceRef, "narrow".to_string()),
             ],
         );
-        assert_eq!(roles("slice narrow"), vec![(FieldRole::SliceDef, "narrow".to_string())]);
+        assert_eq!(
+            roles("slice narrow"),
+            vec![(FieldRole::SliceDef, "narrow".to_string())]
+        );
         assert_eq!(
             roles("slice both = narrow wide"),
             vec![
@@ -584,8 +596,14 @@ mod tests {
         );
         // The separators are not interchangeable: a `face` unions nothing and a
         // `slice` includes nothing, so the wrong one names only the id.
-        assert_eq!(roles("face term = narrow"), vec![(FieldRole::FaceDef, "term".to_string())]);
-        assert_eq!(roles("slice both : narrow"), vec![(FieldRole::SliceDef, "both".to_string())]);
+        assert_eq!(
+            roles("face term = narrow"),
+            vec![(FieldRole::FaceDef, "term".to_string())]
+        );
+        assert_eq!(
+            roles("slice both : narrow"),
+            vec![(FieldRole::SliceDef, "both".to_string())]
+        );
     }
 
     /// A `meta` scope names a face; a bare key and the `*` spelling name none.

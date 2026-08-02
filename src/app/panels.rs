@@ -1,10 +1,10 @@
 //! The surrounding panels: sidebar, status bar, bottom preview panel, editor
 //! panel and the issues tab.
 
-use super::*;
 use super::background::BackgroundTaskPhase;
 use super::docs::collect_effective_docs;
 use super::search::{SearchHit, SearchResults};
+use super::*;
 
 pub(super) fn min_bottom_panel_height(screen_height: f32) -> f32 {
     270.0_f32.min(screen_height * 0.5)
@@ -63,11 +63,7 @@ fn hit_text(ui: &egui::Ui, hit: &SearchHit) -> egui::text::LayoutJob {
 
 /// Rows of "where this name is written", in the diagnostics list's format: the
 /// source line on the left, the place it came from on the right.
-fn show_search_tab(
-    ui: &mut egui::Ui,
-    search: Option<&SearchResults>,
-    click: &mut Option<usize>,
-) {
+fn show_search_tab(ui: &mut egui::Ui, search: Option<&SearchResults>, click: &mut Option<usize>) {
     let Some(search) = search else {
         ui.centered_and_justified(|ui| {
             ui.label("Ctrl/Cmd+click a name to list every place it is written");
@@ -117,11 +113,7 @@ fn show_search_tab(
     });
 }
 
-fn show_issues_tab(
-    ui: &mut egui::Ui,
-    issues: &[&Issue],
-    click: &mut Option<(PathBuf, usize)>,
-) {
+fn show_issues_tab(ui: &mut egui::Ui, issues: &[&Issue], click: &mut Option<(PathBuf, usize)>) {
     if issues.is_empty() {
         ui.centered_and_justified(|ui| {
             ui.label("No issues");
@@ -159,11 +151,7 @@ fn show_issues_tab(
                 });
             });
 
-            let click_resp = ui.interact(
-                resp.response.rect,
-                row_id,
-                egui::Sense::click(),
-            );
+            let click_resp = ui.interact(resp.response.rect, row_id, egui::Sense::click());
             if click_resp.hovered() {
                 ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
             }
@@ -194,16 +182,19 @@ impl UniformApp {
         let panel = egui::SidePanel::left(SIDEBAR_PANEL_ID)
             .default_width(200.0)
             .show(ctx, |ui| {
-                let dirty_paths: Vec<&std::path::Path> = self.open_documents
+                let dirty_paths: Vec<&std::path::Path> = self
+                    .open_documents
                     .iter()
                     .filter(|d| d.document.dirty)
                     .map(|d| d.document.path.as_path())
                     .collect();
-                let open_paths: Vec<&std::path::Path> = self.open_documents
+                let open_paths: Vec<&std::path::Path> = self
+                    .open_documents
                     .iter()
                     .map(|d| d.document.path.as_path())
                     .collect();
-                let changed_paths: Vec<&std::path::Path> = self.open_documents
+                let changed_paths: Vec<&std::path::Path> = self
+                    .open_documents
                     .iter()
                     .filter(|d| d.external_change)
                     .map(|d| d.document.path.as_path())
@@ -284,16 +275,16 @@ impl UniformApp {
                             .strong(),
                     );
                 } else if self.shaped_preview.is_focused()
-                    && let Some(label) = self.shaped_preview.selection_codepoints_label() {
-                        ui.label(label);
-                    }
-                else if let Some(status) = &self.specimen.hover_status {
+                    && let Some(label) = self.shaped_preview.selection_codepoints_label()
+                {
+                    ui.label(label);
+                } else if let Some(status) = &self.specimen.hover_status {
                     ui.label(status);
+                } else if let Some((msg, time)) = &self.status_message
+                    && time.elapsed().as_secs() < 5
+                {
+                    ui.label(msg);
                 }
-                else if let Some((msg, time)) = &self.status_message
-                    && time.elapsed().as_secs() < 5 {
-                        ui.label(msg);
-                    }
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     // The zoom level is per pane, so the one shown is the
@@ -303,17 +294,22 @@ impl UniformApp {
                         ui.label(format!("{zoom_level}x"));
                     }
                     if let Some(idx) = self.active_doc_idx()
-                        && let Some(doc) = self.open_documents.get(idx) {
-                            let name = doc
-                                .document
-                                .path
-                                .file_name()
-                                .map(|n| n.to_string_lossy().to_string())
-                                .unwrap_or_default();
-                            let line = doc.editor_state.cursor_source_line();
-                            let dirty = if doc.document.dirty { " [modified]" } else { "" };
-                            ui.label(format!("{name}:{line}{dirty}"));
-                        }
+                        && let Some(doc) = self.open_documents.get(idx)
+                    {
+                        let name = doc
+                            .document
+                            .path
+                            .file_name()
+                            .map(|n| n.to_string_lossy().to_string())
+                            .unwrap_or_default();
+                        let line = doc.editor_state.cursor_source_line();
+                        let dirty = if doc.document.dirty {
+                            " [modified]"
+                        } else {
+                            ""
+                        };
+                        ui.label(format!("{name}:{line}{dirty}"));
+                    }
                     for (label, phase) in [
                         ("Build", &self.bg_tasks.build),
                         ("Test", &self.bg_tasks.test),
@@ -322,11 +318,17 @@ impl UniformApp {
                             let (text, color) = match phase {
                                 BackgroundTaskPhase::Running(start) => {
                                     let secs = start.elapsed().as_secs_f64();
-                                    (format!("{label} {secs:.1}s"), egui::Color32::from_rgb(100, 180, 255))
+                                    (
+                                        format!("{label} {secs:.1}s"),
+                                        egui::Color32::from_rgb(100, 180, 255),
+                                    )
                                 }
                                 BackgroundTaskPhase::Finished(_, dur) => {
                                     let secs = dur.as_secs_f64();
-                                    (format!("{label} {secs:.1}s"), egui::Color32::from_rgb(100, 200, 100))
+                                    (
+                                        format!("{label} {secs:.1}s"),
+                                        egui::Color32::from_rgb(100, 200, 100),
+                                    )
                                 }
                             };
                             ui.label(egui::RichText::new(format!("{{{text}}}")).color(color));
@@ -356,177 +358,183 @@ impl UniformApp {
                 }
             }
         }
-        let mut bottom_panel = egui::TopBottomPanel::bottom("bottom_panel")
-            .resizable(bottom_panel_expanded);
+        let mut bottom_panel =
+            egui::TopBottomPanel::bottom("bottom_panel").resizable(bottom_panel_expanded);
         if bottom_panel_expanded {
             bottom_panel = bottom_panel
                 .default_height(self.bottom_panel_height)
                 .min_height(100.0);
         }
         bottom_panel.show(ctx, |ui| {
-                if bottom_panel_expanded {
-                    self.bottom_panel_height = ui.available_height();
-                }
-                ui.horizontal(|ui| {
-                    let screen_h = ui.ctx().input(|i| i.screen_rect.height());
-                    for (idx, label) in [(0, "Preview"), (1, "Specimen")] {
-                        let selected = self.bottom_panel_tab == Some(idx);
-                        if ui.selectable_label(selected, label).clicked() {
-                            if selected {
-                                self.bottom_panel_tab = None;
-                            } else {
-                                self.bottom_panel_tab = Some(idx);
-                                self.ensure_min_panel_height(screen_h);
-                            }
+            if bottom_panel_expanded {
+                self.bottom_panel_height = ui.available_height();
+            }
+            ui.horizontal(|ui| {
+                let screen_h = ui.ctx().input(|i| i.screen_rect.height());
+                for (idx, label) in [(0, "Preview"), (1, "Specimen")] {
+                    let selected = self.bottom_panel_tab == Some(idx);
+                    if ui.selectable_label(selected, label).clicked() {
+                        if selected {
+                            self.bottom_panel_tab = None;
+                        } else {
+                            self.bottom_panel_tab = Some(idx);
+                            self.ensure_min_panel_height(screen_h);
                         }
                     }
-                    let total_issues = self.issues.len() + self.assert_issues.len();
-                    let issues_label = if total_issues == 0 {
-                        "Issues".to_string()
+                }
+                let total_issues = self.issues.len() + self.assert_issues.len();
+                let issues_label = if total_issues == 0 {
+                    "Issues".to_string()
+                } else {
+                    let errors = self
+                        .issues
+                        .iter()
+                        .chain(self.assert_issues.iter())
+                        .filter(|i| i.severity == crate::issues::Severity::Error)
+                        .count();
+                    let warnings = total_issues - errors;
+                    let mut parts = Vec::new();
+                    if errors > 0 {
+                        parts.push(format!(
+                            "{errors} error{}",
+                            if errors == 1 { "" } else { "s" }
+                        ));
+                    }
+                    if warnings > 0 {
+                        parts.push(format!(
+                            "{warnings} warning{}",
+                            if warnings == 1 { "" } else { "s" }
+                        ));
+                    }
+                    format!("Issues ({})", parts.join(", "))
+                };
+                let issues_selected = self.bottom_panel_tab == Some(2);
+                if ui.selectable_label(issues_selected, issues_label).clicked() {
+                    if issues_selected {
+                        self.bottom_panel_tab = None;
                     } else {
-                        let errors = self.issues.iter().chain(self.assert_issues.iter())
-                            .filter(|i| i.severity == crate::issues::Severity::Error)
-                            .count();
-                        let warnings = total_issues - errors;
-                        let mut parts = Vec::new();
-                        if errors > 0 { parts.push(format!("{errors} error{}", if errors == 1 { "" } else { "s" })); }
-                        if warnings > 0 { parts.push(format!("{warnings} warning{}", if warnings == 1 { "" } else { "s" })); }
-                        format!("Issues ({})", parts.join(", "))
-                    };
-                    let issues_selected = self.bottom_panel_tab == Some(2);
-                    if ui.selectable_label(issues_selected, issues_label).clicked() {
-                        if issues_selected {
-                            self.bottom_panel_tab = None;
-                        } else {
-                            self.bottom_panel_tab = Some(2);
-                            self.ensure_min_panel_height(screen_h);
-                        }
+                        self.bottom_panel_tab = Some(2);
+                        self.ensure_min_panel_height(screen_h);
                     }
-                    let search_label = match &self.search {
-                        Some(s) if !s.hits.is_empty() => {
-                            format!("Search ({})", s.hits.len())
-                        }
-                        _ => "Search".to_string(),
-                    };
-                    let search_selected = self.bottom_panel_tab == Some(SEARCH_TAB);
-                    if ui.selectable_label(search_selected, search_label).clicked() {
-                        if search_selected {
-                            self.bottom_panel_tab = None;
-                        } else {
-                            self.bottom_panel_tab = Some(SEARCH_TAB);
-                            self.ensure_min_panel_height(screen_h);
-                        }
+                }
+                let search_label = match &self.search {
+                    Some(s) if !s.hits.is_empty() => {
+                        format!("Search ({})", s.hits.len())
                     }
-                });
-                if self.bottom_panel_tab != Some(1) {
-                    self.specimen.hover_status = None;
+                    _ => "Search".to_string(),
+                };
+                let search_selected = self.bottom_panel_tab == Some(SEARCH_TAB);
+                if ui.selectable_label(search_selected, search_label).clicked() {
+                    if search_selected {
+                        self.bottom_panel_tab = None;
+                    } else {
+                        self.bottom_panel_tab = Some(SEARCH_TAB);
+                        self.ensure_min_panel_height(screen_h);
+                    }
                 }
-                if self.bottom_panel_tab.is_none() {
-                    return;
-                }
-                ui.separator();
-                match self.bottom_panel_tab {
-                    Some(0) => {
-                        ui.horizontal(|ui| {
-                            ui.label("Font size:");
-                            let slider_resp = ui.add(
-                                egui::Slider::new(
-                                    &mut self.preview_font_size_slider,
-                                    16.0..=128.0,
-                                )
+            });
+            if self.bottom_panel_tab != Some(1) {
+                self.specimen.hover_status = None;
+            }
+            if self.bottom_panel_tab.is_none() {
+                return;
+            }
+            ui.separator();
+            match self.bottom_panel_tab {
+                Some(0) => {
+                    ui.horizontal(|ui| {
+                        ui.label("Font size:");
+                        let slider_resp = ui.add(
+                            egui::Slider::new(&mut self.preview_font_size_slider, 16.0..=128.0)
                                 .show_value(false)
                                 .step_by(16.0)
                                 .fixed_decimals(0),
-                            );
-                            if slider_resp.changed() {
-                                self.preview_font_size = self.preview_font_size_slider;
-                            }
-                            let drag_resp = ui.add(
-                                egui::DragValue::new(&mut self.preview_font_size)
-                                    .range(16.0..=128.0)
-                                    .suffix("px")
-                                    .fixed_decimals(0)
-                                    .speed(1.0),
-                            );
-                            if drag_resp.changed() {
-                                self.preview_font_size_slider =
-                                    (self.preview_font_size / 16.0).round() * 16.0;
-                            }
-                            ui.separator();
-                            self.shaped_preview.show_engine_combo(ui);
-                            // Only a multi-face source has a choice to offer;
-                            // see `UniformApp::set_selected_face`.
-                            if self.face_ids.len() > 1 {
-                                ui.separator();
-                                ui.label("Face:");
-                                let current = self.selected_face().to_string();
-                                let mut picked: Option<String> = None;
-                                egui::ComboBox::from_id_salt("preview_face")
-                                    .selected_text(&current)
-                                    .show_ui(ui, |ui| {
-                                        for id in &self.face_ids {
-                                            if ui
-                                                .selectable_label(*id == current, id)
-                                                .clicked()
-                                            {
-                                                picked = Some(id.clone());
-                                            }
-                                        }
-                                    });
-                                if let Some(id) = picked {
-                                    let ctx = ui.ctx().clone();
-                                    self.set_selected_face(id, &ctx);
-                                }
-                            }
-                            ui.separator();
-                            ui.checkbox(&mut self.shaped_preview.color_font, "Color");
-                        });
-                        ui.separator();
-                        self.shaped_preview.show(
-                            ui,
-                            self.font_data.as_ref(),
-                            self.font_data_gen,
-                            self.preview_font_size,
                         );
-                        preview_rect = self.shaped_preview.last_rect();
-                    }
-                    Some(1) => {
-                        // Keyed on what the rebuild actually reads (the built
-                        // font's gid map and the derived name parts), not on
-                        // `font_build_gen` — that is bumped the moment a doc
-                        // changes, so a specimen built on it would cache a
-                        // half-built state and never refresh. See
-                        // `SpecimenState::cached_gen`.
-                        if self.specimen.needs_rebuild(self.font_data_gen, self.derived_gen) {
-                            let all_docs = collect_effective_docs(
-                                &self.open_documents,
-                                &self.font_base_docs,
-                            );
-                            self.specimen.rebuild_if_needed(
-                                &all_docs,
-                                &self.name_parts,
-                                &self.font_name_to_gid,
-                                self.font_data_gen,
-                                self.derived_gen,
-                            );
+                        if slider_resp.changed() {
+                            self.preview_font_size = self.preview_font_size_slider;
                         }
-                        result.specimen_click = self.specimen.show(
-                            ui,
-                            self.font_data.as_ref(),
+                        let drag_resp = ui.add(
+                            egui::DragValue::new(&mut self.preview_font_size)
+                                .range(16.0..=128.0)
+                                .suffix("px")
+                                .fixed_decimals(0)
+                                .speed(1.0),
+                        );
+                        if drag_resp.changed() {
+                            self.preview_font_size_slider =
+                                (self.preview_font_size / 16.0).round() * 16.0;
+                        }
+                        ui.separator();
+                        self.shaped_preview.show_engine_combo(ui);
+                        // Only a multi-face source has a choice to offer;
+                        // see `UniformApp::set_selected_face`.
+                        if self.face_ids.len() > 1 {
+                            ui.separator();
+                            ui.label("Face:");
+                            let current = self.selected_face().to_string();
+                            let mut picked: Option<String> = None;
+                            egui::ComboBox::from_id_salt("preview_face")
+                                .selected_text(&current)
+                                .show_ui(ui, |ui| {
+                                    for id in &self.face_ids {
+                                        if ui.selectable_label(*id == current, id).clicked() {
+                                            picked = Some(id.clone());
+                                        }
+                                    }
+                                });
+                            if let Some(id) = picked {
+                                let ctx = ui.ctx().clone();
+                                self.set_selected_face(id, &ctx);
+                            }
+                        }
+                        ui.separator();
+                        ui.checkbox(&mut self.shaped_preview.color_font, "Color");
+                    });
+                    ui.separator();
+                    self.shaped_preview.show(
+                        ui,
+                        self.font_data.as_ref(),
+                        self.font_data_gen,
+                        self.preview_font_size,
+                    );
+                    preview_rect = self.shaped_preview.last_rect();
+                }
+                Some(1) => {
+                    // Keyed on what the rebuild actually reads (the built
+                    // font's gid map and the derived name parts), not on
+                    // `font_build_gen` — that is bumped the moment a doc
+                    // changes, so a specimen built on it would cache a
+                    // half-built state and never refresh. See
+                    // `SpecimenState::cached_gen`.
+                    if self
+                        .specimen
+                        .needs_rebuild(self.font_data_gen, self.derived_gen)
+                    {
+                        let all_docs =
+                            collect_effective_docs(&self.open_documents, &self.font_base_docs);
+                        self.specimen.rebuild_if_needed(
+                            &all_docs,
+                            &self.name_parts,
+                            &self.font_name_to_gid,
                             self.font_data_gen,
+                            self.derived_gen,
                         );
                     }
-                    Some(2) => {
-                        let mut all_issues: Vec<&Issue> = self.issues.iter().collect();
-                        all_issues.extend(self.assert_issues.iter());
-                        show_issues_tab(ui, &all_issues, &mut result.issue_click);
-                    }
-                    Some(SEARCH_TAB) => {
-                        show_search_tab(ui, self.search.as_ref(), &mut result.search_click);
-                    }
-                    _ => {}
+                    result.specimen_click =
+                        self.specimen
+                            .show(ui, self.font_data.as_ref(), self.font_data_gen);
                 }
-            });
+                Some(2) => {
+                    let mut all_issues: Vec<&Issue> = self.issues.iter().collect();
+                    all_issues.extend(self.assert_issues.iter());
+                    show_issues_tab(ui, &all_issues, &mut result.issue_click);
+                }
+                Some(SEARCH_TAB) => {
+                    show_search_tab(ui, self.search.as_ref(), &mut result.search_click);
+                }
+                _ => {}
+            }
+        });
 
         self.preview_view_rect = preview_rect;
         result
@@ -610,8 +618,7 @@ impl UniformApp {
         let mut pane_rects = [None, None];
         egui::CentralPanel::default().show(ctx, |ui| {
             if !self.panes.is_split() {
-                pane_rects[0] =
-                    self.show_pane(ui, 0, &mut nav_request, &mut rename_request);
+                pane_rects[0] = self.show_pane(ui, 0, &mut nav_request, &mut rename_request);
                 return;
             }
 
@@ -621,11 +628,8 @@ impl UniformApp {
             divider_closed_pane = drag.closed;
 
             for (idx, rect) in [(0, left), (1, right)] {
-                let mut child = ui.new_child(
-                    egui::UiBuilder::new()
-                        .max_rect(rect)
-                        .layout(*ui.layout()),
-                );
+                let mut child =
+                    ui.new_child(egui::UiBuilder::new().max_rect(rect).layout(*ui.layout()));
                 child.set_clip_rect(rect);
                 pane_rects[idx] =
                     self.show_pane(&mut child, idx, &mut nav_request, &mut rename_request);
@@ -736,10 +740,7 @@ fn split_layout(full: egui::Rect, ratio: f32) -> (egui::Rect, egui::Rect, egui::
         egui::pos2(left.right(), full.top()),
         egui::vec2(DIVIDER_WIDTH, full.height()),
     );
-    let right = egui::Rect::from_min_max(
-        egui::pos2(divider.right(), full.top()),
-        full.max,
-    );
+    let right = egui::Rect::from_min_max(egui::pos2(divider.right(), full.top()), full.max);
     (left, divider, right)
 }
 

@@ -12,8 +12,8 @@
 //! key their caches on the generation of the *result* they read, never of the
 //! request; [`crate::specimen`] is where getting that wrong shows.
 
-use super::*;
 use super::docs::shadowed_by_open;
+use super::*;
 
 pub(super) enum BackgroundTaskPhase {
     Running(std::time::Instant),
@@ -27,7 +27,10 @@ pub(super) struct BackgroundTaskStatus {
 
 impl BackgroundTaskStatus {
     pub(super) fn new() -> Self {
-        Self { build: None, test: None }
+        Self {
+            build: None,
+            test: None,
+        }
     }
 
     fn start_build(&mut self) {
@@ -84,9 +87,7 @@ fn take_current_font_build(
     received
 }
 
-fn take_latest_derived_data(
-    rx: &mpsc::Receiver<DerivedDataMessage>,
-) -> Option<DerivedDataMessage> {
+fn take_latest_derived_data(rx: &mpsc::Receiver<DerivedDataMessage>) -> Option<DerivedDataMessage> {
     let mut received = None;
     while let Ok(msg) = rx.try_recv() {
         received = Some(msg);
@@ -123,11 +124,15 @@ impl UniformApp {
         }
         self.assert_running = true;
         self.bg_tasks.start_test();
-        self.status_message = Some(("Running shape assertions...".to_string(), std::time::Instant::now()));
+        self.status_message = Some((
+            "Running shape assertions...".to_string(),
+            std::time::Instant::now(),
+        ));
 
         let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
         let active_path = if current_file_only {
-            self.active_doc_idx().map(|i| self.open_documents[i].document.path.clone())
+            self.active_doc_idx()
+                .map(|i| self.open_documents[i].document.path.clone())
         } else {
             None
         };
@@ -136,18 +141,27 @@ impl UniformApp {
         std::thread::spawn(move || {
             let refs: Vec<&Document> = all_docs.iter().collect();
             let name_parts = crate::document::collect_name_parts(&refs);
-            let (resolved, _) = crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
+            let (resolved, _) =
+                crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
 
-            let mut result = if let Some(built) =
-                crate::render::build_font_with_gid_map(&refs)
-            {
+            let mut result = if let Some(built) = crate::render::build_font_with_gid_map(&refs) {
                 let assert_result = if let Some(path) = &active_path {
-                    let test_docs: Vec<&Document> = all_docs.iter()
-                        .filter(|d| &d.path == path)
-                        .collect();
-                    crate::render::assert::run_assertions_for_files(&test_docs, &refs, &built.ttf, &built.gid_to_name, built.height)
+                    let test_docs: Vec<&Document> =
+                        all_docs.iter().filter(|d| &d.path == path).collect();
+                    crate::render::assert::run_assertions_for_files(
+                        &test_docs,
+                        &refs,
+                        &built.ttf,
+                        &built.gid_to_name,
+                        built.height,
+                    )
                 } else {
-                    crate::render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height)
+                    crate::render::assert::run_assertions(
+                        &refs,
+                        &built.ttf,
+                        &built.gid_to_name,
+                        built.height,
+                    )
                 };
                 assert_result.issues
             } else {
@@ -161,9 +175,8 @@ impl UniformApp {
             };
 
             let sd_result = if let Some(path) = &active_path {
-                let test_docs: Vec<&Document> = all_docs.iter()
-                    .filter(|d| &d.path == path)
-                    .collect();
+                let test_docs: Vec<&Document> =
+                    all_docs.iter().filter(|d| &d.path == path).collect();
                 crate::render::assert::run_same_distinct_assertions_for_files(&test_docs, &resolved)
             } else {
                 crate::render::assert::run_same_distinct_assertions(&refs, &resolved)
@@ -240,10 +253,7 @@ impl UniformApp {
         let all_docs = self.collect_all_docs();
         let name_parts = crate::document::collect_name_parts(&all_docs);
         let (named_glyphs, alt_index) =
-            crate::editor::ref_composite::resolve_named_glyphs_with_parts(
-                &all_docs,
-                &name_parts,
-            );
+            crate::editor::ref_composite::resolve_named_glyphs_with_parts(&all_docs, &name_parts);
         let font_meta = crate::meta::FontMeta::collect(&all_docs);
         drop(all_docs);
         self.font_meta = font_meta.metrics;
@@ -271,24 +281,29 @@ impl UniformApp {
             // Validation only reads names and diagnostics, so it runs before
             // the expansion is consumed by the glyph cache.
             let mut issues = crate::issues::collect_issues_with(&refs, &resolution);
-            let face_ids: Vec<String> =
-                resolution.faces.faces.iter().map(|f| f.id.clone()).collect();
+            let face_ids: Vec<String> = resolution
+                .faces
+                .faces
+                .iter()
+                .map(|f| f.id.clone())
+                .collect();
             let name_parts = resolution.name_parts;
-            let (named_glyphs, alt_index) = crate::editor::ref_composite::resolve_expansion(
-                resolution.expansion,
-                &name_parts,
-            );
+            let (named_glyphs, alt_index) =
+                crate::editor::ref_composite::resolve_expansion(resolution.expansion, &name_parts);
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] resolve (derived thread): {:?}", t0.elapsed());
             }
             for (path, msg) in &file_parse_errors {
-                issues.insert(0, Issue {
-                    severity: crate::issues::Severity::Error,
-                    message: msg.clone(),
-                    file: path.clone(),
-                    line: 0,
-                    file_line: 1,
-                });
+                issues.insert(
+                    0,
+                    Issue {
+                        severity: crate::issues::Severity::Error,
+                        message: msg.clone(),
+                        file: path.clone(),
+                        line: 0,
+                        file_line: 1,
+                    },
+                );
             }
             let _ = tx.send(DerivedDataMessage {
                 build_gen,
@@ -320,31 +335,28 @@ impl UniformApp {
             .cloned()
             .unwrap_or_default();
 
-        let (mut bitmap_list, mut vector_list) = if let Some((bitmap_ttf, vector_ttf)) = &self.font_data {
-            fonts.font_data.insert(
-                "uniform_bitmap".into(),
-                egui::FontData::from_owned(bitmap_ttf.clone()).into(),
-            );
-            fonts.font_data.insert(
-                "uniform_vector".into(),
-                egui::FontData::from_owned(vector_ttf.clone()).into(),
-            );
-            (
-                vec!["uniform_bitmap".to_string()],
-                vec!["uniform_vector".to_string()],
-            )
-        } else {
-            (Vec::new(), Vec::new())
-        };
+        let (mut bitmap_list, mut vector_list) =
+            if let Some((bitmap_ttf, vector_ttf)) = &self.font_data {
+                fonts.font_data.insert(
+                    "uniform_bitmap".into(),
+                    egui::FontData::from_owned(bitmap_ttf.clone()).into(),
+                );
+                fonts.font_data.insert(
+                    "uniform_vector".into(),
+                    egui::FontData::from_owned(vector_ttf.clone()).into(),
+                );
+                (
+                    vec!["uniform_bitmap".to_string()],
+                    vec!["uniform_vector".to_string()],
+                )
+            } else {
+                (Vec::new(), Vec::new())
+            };
         bitmap_list.extend(system_fonts.clone());
         vector_list.extend(system_fonts.clone());
 
-        fonts
-            .families
-            .insert(bitmap_family, bitmap_list.clone());
-        fonts
-            .families
-            .insert(vector_family, vector_list);
+        fonts.families.insert(bitmap_family, bitmap_list.clone());
+        fonts.families.insert(vector_family, vector_list);
 
         if want_custom {
             fonts
@@ -370,29 +382,29 @@ impl UniformApp {
     /// Schedules debounced font/derived-data rebuilds and drains the three
     /// background channels (font build, derived data, shape assertions).
     pub(super) fn pump_background_pipeline(&mut self, ctx: &egui::Context) {
-        let any_pixel_painting = self.open_documents.iter()
+        let any_pixel_painting = self
+            .open_documents
+            .iter()
             .any(|d| d.editor_state.suppress_font_rebuild);
         let font_gen = self.current_font_gen();
         if font_gen != self.last_font_gen && !any_pixel_painting {
             self.last_font_gen = font_gen;
             self.font_build_gen = self.font_build_gen.wrapping_add(1);
-            let had_text_input = ctx.input(|i| {
-                i.events.iter().any(|e| matches!(e, egui::Event::Text(_)))
-            });
+            let had_text_input =
+                ctx.input(|i| i.events.iter().any(|e| matches!(e, egui::Event::Text(_))));
             let debounce_ms = if had_text_input { 1000 } else { 300 };
             self.font_rebuild_at =
                 Some(std::time::Instant::now() + std::time::Duration::from_millis(debounce_ms));
             ctx.request_repaint_after(std::time::Duration::from_millis(debounce_ms));
         }
         if let Some(at) = self.font_rebuild_at
-            && std::time::Instant::now() >= at {
-                self.rebuild_font(ctx);
-                self.font_rebuild_at = None;
-            }
-
-        if let Some(result) =
-            take_current_font_build(&self.font_build_rx, self.font_build_gen)
+            && std::time::Instant::now() >= at
         {
+            self.rebuild_font(ctx);
+            self.font_rebuild_at = None;
+        }
+
+        if let Some(result) = take_current_font_build(&self.font_build_rx, self.font_build_gen) {
             self.bg_tasks.finish_build();
             match result {
                 Some((pair, gid_map)) => {
@@ -521,7 +533,8 @@ mod font_build_tests {
         let (tx, rx) = mpsc::channel();
         let m2: HashMap<String, u16> = HashMap::new();
         let m1: HashMap<String, u16> = HashMap::new();
-        tx.send((2, Some(((vec![2], vec![20]), m2.clone())))).unwrap();
+        tx.send((2, Some(((vec![2], vec![20]), m2.clone()))))
+            .unwrap();
         tx.send((1, Some(((vec![1], vec![10]), m1)))).unwrap();
 
         let result = take_current_font_build(&rx, 2);
@@ -560,7 +573,9 @@ mod font_build_tests {
         let base = [base_b, base_a];
         let docs = collect_effective_docs(&open, &base);
         assert_eq!(
-            docs.iter().map(|doc| doc.path.as_path()).collect::<Vec<_>>(),
+            docs.iter()
+                .map(|doc| doc.path.as_path())
+                .collect::<Vec<_>>(),
             [std::path::Path::new("a.unf"), std::path::Path::new("b.unf")],
         );
         assert_eq!(docs.len(), 2, "the base copy of b.unf must be replaced");

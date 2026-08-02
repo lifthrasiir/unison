@@ -31,11 +31,20 @@ impl ShaperBackend for CoreTextBackend {
 
         let cf_string = CFString::new(text);
         let mut attr_string = CFMutableAttributedString::new();
-        attr_string.replace_str(&cf_string, CFRange { location: 0, length: 0 });
+        attr_string.replace_str(
+            &cf_string,
+            CFRange {
+                location: 0,
+                length: 0,
+            },
+        );
         let len = attr_string.char_len();
         unsafe {
             attr_string.set_attribute(
-                CFRange { location: 0, length: len },
+                CFRange {
+                    location: 0,
+                    length: len,
+                },
                 kCTFontAttributeName,
                 &ct_font,
             );

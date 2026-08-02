@@ -60,8 +60,14 @@ fn a_named_key_and_its_name_id_share_a_slot() {
 #[test]
 fn a_language_tag_files_the_record_under_its_windows_id() {
     let m = meta_of("meta family `Unison`\nmeta family @ko-KR `유니슨`\n");
-    assert_eq!(m.names.get(&(1, LANG_EN_US)).map(String::as_str), Some("Unison"));
-    assert_eq!(m.names.get(&(1, 0x0412)).map(String::as_str), Some("유니슨"));
+    assert_eq!(
+        m.names.get(&(1, LANG_EN_US)).map(String::as_str),
+        Some("Unison")
+    );
+    assert_eq!(
+        m.names.get(&(1, 0x0412)).map(String::as_str),
+        Some("유니슨")
+    );
     // Two languages are two slots, so this is not a conflict.
     assert_ne!(
         entry("family `a`").unwrap().slot(),
@@ -87,7 +93,11 @@ fn a_missing_localization_falls_back_to_en_us() {
 fn name_ids_3_4_5_6_are_derived_when_absent() {
     let m = meta_of("meta family `Unison`\nmeta revision 1.25\n");
     assert_eq!(m.version_text(), "Version 1.250");
-    assert_eq!(m.full_name(), "Unison", "Regular is dropped from the full name");
+    assert_eq!(
+        m.full_name(),
+        "Unison",
+        "Regular is dropped from the full name"
+    );
     assert_eq!(m.postscript_name(), "Unison");
     assert_eq!(m.unique_id(), "Version 1.250;NONE;Unison");
 
@@ -164,7 +174,12 @@ fn created_parses_to_seconds_since_1904() {
         entry("created 2000-03-01"),
         Ok(MetaEntry::Created((24107 + 10957 + 60) * 86400)),
     );
-    for bad in ["created 1970-1-1", "created 1970-13-01", "created x", "created 1970-01-01T00:00:00"] {
+    for bad in [
+        "created 1970-1-1",
+        "created 1970-13-01",
+        "created x",
+        "created 1970-01-01T00:00:00",
+    ] {
         assert!(parse_meta_entry(bad).is_err(), "{bad} should not parse");
     }
 }
@@ -188,7 +203,11 @@ fn regular_is_cleared_by_any_style_claim() {
     assert_eq!(bold.mac_style(), 1 << 0);
 
     let shadow = meta_of("meta shadow\n");
-    assert_eq!(shadow.fs_selection(), 1 << 6, "shadow is not a style claim in OS/2");
+    assert_eq!(
+        shadow.fs_selection(),
+        1 << 6,
+        "shadow is not a style claim in OS/2"
+    );
     assert_eq!(shadow.mac_style(), 1 << 4);
 }
 
@@ -223,13 +242,19 @@ fn a_face_scoped_key_applies_to_that_face_only() {
     assert_eq!(meta_for(src, Some("narrow")).family(), "Unison");
     assert_eq!(meta_for(src, Some("wide")).family(), "Unison Wide");
     for face in ["narrow", "wide"] {
-        assert_eq!(meta_for(src, Some(face)).name(9, LANG_EN_US), Some("Kang Seonghoon"));
+        assert_eq!(
+            meta_for(src, Some(face)).name(9, LANG_EN_US),
+            Some("Kang Seonghoon")
+        );
     }
 }
 
 #[test]
 fn a_scope_is_parsed_off_the_front() {
-    assert_eq!(parse_meta_entry("wide : family `x`").unwrap().0, Some("wide".to_string()));
+    assert_eq!(
+        parse_meta_entry("wide : family `x`").unwrap().0,
+        Some("wide".to_string())
+    );
     assert_eq!(parse_meta_entry("* : family `x`").unwrap().0, None);
     assert_eq!(parse_meta_entry("family `x`").unwrap().0, None);
 }

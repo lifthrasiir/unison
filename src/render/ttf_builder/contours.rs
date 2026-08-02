@@ -33,7 +33,7 @@ impl ContourCache {
     }
 
     pub fn evict_stale(&mut self) {
-        let cur_gen =self.gen_id;
+        let cur_gen = self.gen_id;
         self.entries.retain(|_, e| e.gen_id == cur_gen);
         self.composite_entries.retain(|_, e| e.gen_id == cur_gen);
     }
@@ -65,13 +65,19 @@ fn cached_track_contour(
     bitmap: bool,
 ) -> Vec<Vec<(f32, f32)>> {
     let key = hash_grid_for_cache(grid, bitmap);
-    let cur_gen =cache.gen_id;
+    let cur_gen = cache.gen_id;
     if let Some(entry) = cache.entries.get_mut(&key) {
         entry.gen_id = cur_gen;
         return entry.value.clone();
     }
     let contours = track_contour(grid, PX_SUBPIXEL);
-    cache.entries.insert(key, CacheEntry { value: contours.clone(), gen_id: cur_gen });
+    cache.entries.insert(
+        key,
+        CacheEntry {
+            value: contours.clone(),
+            gen_id: cur_gen,
+        },
+    );
     contours
 }
 
@@ -238,7 +244,13 @@ impl CachedContours {
         if let Some(ref val) = result {
             if let Some(cc) = cc {
                 let cur_gen = cc.gen_id;
-                cc.composite_entries.insert(comp_key, CacheEntry { value: val.clone(), gen_id: cur_gen });
+                cc.composite_entries.insert(
+                    comp_key,
+                    CacheEntry {
+                        value: val.clone(),
+                        gen_id: cur_gen,
+                    },
+                );
             }
         }
 
@@ -261,14 +273,21 @@ impl CachedContours {
         // reaches left of / above its origin starts that much before the
         // `ref` offset, and dropping that is how the left column of a nested
         // negative-offset composite used to disappear.
-        let ref_scaled: Vec<Option<(PixelGrid, i32, i32)>> = refs.iter().map(|gref| {
-            let cached = resolve_cached_ref(&gref.name, cache)?;
-            let ref_grid = cached.grid.as_ref()?;
-            let rs = cached.scale.max(1);
-            let grid = if rs == ps { ref_grid.clone() } else { ref_grid.rescale(rs, ps) };
-            let (row, col) = cached.placed_at(gref.row() as i32, gref.col() as i32, ps);
-            Some((grid, row, col))
-        }).collect();
+        let ref_scaled: Vec<Option<(PixelGrid, i32, i32)>> = refs
+            .iter()
+            .map(|gref| {
+                let cached = resolve_cached_ref(&gref.name, cache)?;
+                let ref_grid = cached.grid.as_ref()?;
+                let rs = cached.scale.max(1);
+                let grid = if rs == ps {
+                    ref_grid.clone()
+                } else {
+                    ref_grid.rescale(rs, ps)
+                };
+                let (row, col) = cached.placed_at(gref.row() as i32, gref.col() as i32, ps);
+                Some((grid, row, col))
+            })
+            .collect();
 
         if has_negated {
             // Collect layers with negation flags and trace contours via
@@ -351,10 +370,8 @@ impl CachedContours {
         if needs_multi {
             // Use track_contour_multi to correctly union overlapping subpixels.
             let contours = if bitmap {
-                let bitmap_grids: Vec<PixelGrid> = layers
-                    .iter()
-                    .map(|(g, _, _)| to_bitmap_grid(g))
-                    .collect();
+                let bitmap_grids: Vec<PixelGrid> =
+                    layers.iter().map(|(g, _, _)| to_bitmap_grid(g)).collect();
                 let bitmap_layers: Vec<(&PixelGrid, i32, i32)> = bitmap_grids
                     .iter()
                     .zip(layers.iter())
@@ -391,10 +408,14 @@ impl CachedContours {
             // composite format; the contours above serve as a fallback
             // for inline glyphs.
             let composite_components = if own_pixels.is_none() {
-                Some(refs.iter().filter_map(|gref| {
-                    resolve_cached_ref(&gref.name, cache)?;
-                    Some((gref.name.clone(), gref.col() as f32, gref.row() as f32))
-                }).collect())
+                Some(
+                    refs.iter()
+                        .filter_map(|gref| {
+                            resolve_cached_ref(&gref.name, cache)?;
+                            Some((gref.name.clone(), gref.col() as f32, gref.row() as f32))
+                        })
+                        .collect(),
+                )
             } else {
                 None
             };
@@ -435,8 +456,10 @@ impl CachedContours {
             let dy = gref.row() as f32;
             components.push((gref.name.clone(), dx, dy));
             for contour in &cached.contours {
-                let translated: Vec<(f32, f32)> =
-                    contour.iter().map(|&(x, y)| (x * scale_f + dx, y * scale_f + dy)).collect();
+                let translated: Vec<(f32, f32)> = contour
+                    .iter()
+                    .map(|&(x, y)| (x * scale_f + dx, y * scale_f + dy))
+                    .collect();
                 all_contours.push(translated);
             }
             // Extend by the ref's *declared* extent, not its raster grid: a
@@ -505,7 +528,10 @@ pub(super) fn layers_have_subpixel_conflicts(layers: &[(&PixelGrid, i32, i32)]) 
             let overlap_c1 = (c1 + g1.width as i32).min(c2 + g2.width as i32);
             for r in overlap_r0..overlap_r1 {
                 for c in overlap_c0..overlap_c1 {
-                    let (p1, p2) = (((r - r1) as u16, (c - c1) as u16), ((r - r2) as u16, (c - c2) as u16));
+                    let (p1, p2) = (
+                        ((r - r1) as u16, (c - c1) as u16),
+                        ((r - r2) as u16, (c - c2) as u16),
+                    );
                     let s1 = g1.get(p1.0, p1.1);
                     let s2 = g2.get(p2.0, p2.1);
                     if s1.is_empty() || s2.is_empty() {

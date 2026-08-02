@@ -491,9 +491,18 @@ mod tests {
         // "remap foo : # = xxx": punctuation runs are words of their own.
         let lines = vec![text("remap foo : # = xxx")];
         assert_eq!(move_word_right(&lines, Caret::new(0, 6)), Caret::new(0, 10));
-        assert_eq!(move_word_right(&lines, Caret::new(0, 10)), Caret::new(0, 12));
-        assert_eq!(move_word_right(&lines, Caret::new(0, 12)), Caret::new(0, 14));
-        assert_eq!(move_word_right(&lines, Caret::new(0, 14)), Caret::new(0, 16));
+        assert_eq!(
+            move_word_right(&lines, Caret::new(0, 10)),
+            Caret::new(0, 12)
+        );
+        assert_eq!(
+            move_word_right(&lines, Caret::new(0, 12)),
+            Caret::new(0, 14)
+        );
+        assert_eq!(
+            move_word_right(&lines, Caret::new(0, 14)),
+            Caret::new(0, 16)
+        );
         assert_eq!(move_word_left(&lines, Caret::new(0, 16)), Caret::new(0, 14));
         assert_eq!(move_word_left(&lines, Caret::new(0, 14)), Caret::new(0, 12));
         assert_eq!(move_word_left(&lines, Caret::new(0, 12)), Caret::new(0, 10));

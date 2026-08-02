@@ -11,8 +11,8 @@
 //! from the classification, and a kind missing an arm there renames only the
 //! files that happen to be open.
 
-use super::*;
 use super::docs::{load_open_document, shadowed_by_open};
+use super::*;
 
 /// Apply rename in place, returning the old text values of changed lines
 /// (as `(line_index, old_text)` pairs) so callers can build undo entries
@@ -54,79 +54,141 @@ fn doc_may_reference(
     for item in items {
         match (kind, item) {
             (RenameKind::Glyph, DocumentItem::Glyph { name: gn, body }) => {
-                if gn.0 == name { return true; }
-                if body.refs.iter().any(|r| r.name == name) { return true; }
+                if gn.0 == name {
+                    return true;
+                }
+                if body.refs.iter().any(|r| r.name == name) {
+                    return true;
+                }
             }
             (RenameKind::Glyph, DocumentItem::Map { glyph, .. }) => {
-                if glyph == name { return true; }
+                if glyph == name {
+                    return true;
+                }
             }
-            (RenameKind::Glyph, DocumentItem::MapDecomposed { glyph: Some(glyph), .. }) => {
-                if glyph == name { return true; }
+            (
+                RenameKind::Glyph,
+                DocumentItem::MapDecomposed {
+                    glyph: Some(glyph), ..
+                },
+            ) => {
+                if glyph == name {
+                    return true;
+                }
             }
             (RenameKind::Glyph, DocumentItem::Remap { .. }) => {
                 let mut all = item.remap_operands();
-                if all.any(|s| s == name) { return true; }
+                if all.any(|s| s == name) {
+                    return true;
+                }
             }
             (RenameKind::Glyph, DocumentItem::Directive(s)) => {
-                if s.contains(name) { return true; }
+                if s.contains(name) {
+                    return true;
+                }
             }
-            (RenameKind::NameParts, DocumentItem::NameParts { name: n, values, .. }) => {
-                if n == name || values.iter().any(|v| v == name) { return true; }
+            (
+                RenameKind::NameParts,
+                DocumentItem::NameParts {
+                    name: n, values, ..
+                },
+            ) => {
+                if n == name || values.iter().any(|v| v == name) {
+                    return true;
+                }
             }
             (RenameKind::NameParts, DocumentItem::Glyph { name: gn, body }) => {
-                if gn.0.contains(name) { return true; }
-                if body.refs.iter().any(|r| r.name.contains(name)) { return true; }
+                if gn.0.contains(name) {
+                    return true;
+                }
+                if body.refs.iter().any(|r| r.name.contains(name)) {
+                    return true;
+                }
             }
             (RenameKind::Point, DocumentItem::Glyph { body, .. }) => {
                 let stripped = name.trim_start_matches(['+', '-']);
                 if body.points.iter().any(|p| {
                     let ps = p.position.trim_start_matches(['+', '-']);
                     ps == stripped
-                }) { return true; }
+                }) {
+                    return true;
+                }
             }
             (RenameKind::Color, DocumentItem::Color { name: n, .. }) => {
-                if n == name { return true; }
+                if n == name {
+                    return true;
+                }
             }
             (RenameKind::Color, DocumentItem::Glyph { body, .. }) => {
-                if body.refs.iter().any(|r| r.fill.as_ref().is_some_and(|f| f.color == name)) {
+                if body
+                    .refs
+                    .iter()
+                    .any(|r| r.fill.as_ref().is_some_and(|f| f.color == name))
+                {
                     return true;
                 }
             }
             (RenameKind::Face, DocumentItem::Face { id, .. }) => {
-                if id == name { return true; }
+                if id == name {
+                    return true;
+                }
             }
             // A `meta` line keeps its text unparsed, so its `FACE :` scope is
             // read the one way every other consumer reads a name: through the
             // line classification, keyword and all.
             (RenameKind::Face, DocumentItem::Meta(text)) => {
-                if meta_scope_is(text, name) { return true; }
+                if meta_scope_is(text, name) {
+                    return true;
+                }
             }
             (RenameKind::Slice, DocumentItem::Slice { id, inherits, .. }) => {
-                if id == name || inherits.iter().any(|s| s == name) { return true; }
+                if id == name || inherits.iter().any(|s| s == name) {
+                    return true;
+                }
             }
             (RenameKind::Slice, DocumentItem::Face { slices, .. }) => {
-                if slices.iter().any(|s| s == name) { return true; }
+                if slices.iter().any(|s| s == name) {
+                    return true;
+                }
             }
             (
                 RenameKind::Slice,
-                DocumentItem::Map { slice: Some(slice), .. }
-                | DocumentItem::MapDecomposed { slice: Some(slice), .. }
-                | DocumentItem::Feature { slice: Some(slice), .. }
-                | DocumentItem::FeatureAnchor { slice: Some(slice), .. },
+                DocumentItem::Map {
+                    slice: Some(slice), ..
+                }
+                | DocumentItem::MapDecomposed {
+                    slice: Some(slice), ..
+                }
+                | DocumentItem::Feature {
+                    slice: Some(slice), ..
+                }
+                | DocumentItem::FeatureAnchor {
+                    slice: Some(slice), ..
+                },
             ) => {
-                if slice == name { return true; }
+                if slice == name {
+                    return true;
+                }
             }
             (RenameKind::Slice, DocumentItem::AssertShape { slices, .. }) => {
-                if slices.iter().any(|s| s == name) { return true; }
+                if slices.iter().any(|s| s == name) {
+                    return true;
+                }
             }
             (RenameKind::RemapGroup, DocumentItem::Remap { feature, .. }) => {
-                if feature == name { return true; }
+                if feature == name {
+                    return true;
+                }
             }
             (RenameKind::RemapGroup, DocumentItem::RemapGroup { name: n, after, .. }) => {
-                if n == name || after.iter().any(|g| g == name) { return true; }
+                if n == name || after.iter().any(|g| g == name) {
+                    return true;
+                }
             }
             (RenameKind::RemapGroup, DocumentItem::Feature { remap_group, .. }) => {
-                if remap_group == name { return true; }
+                if remap_group == name {
+                    return true;
+                }
             }
             _ => {}
         }
@@ -187,9 +249,7 @@ fn rename_in_line(
             {
                 Some(crate::document_io::quote_token(new_name))
             }
-            (RenameKind::Face, FieldRole::FaceDef | FieldRole::FaceRef)
-                if f.token == old_name =>
-            {
+            (RenameKind::Face, FieldRole::FaceDef | FieldRole::FaceRef) if f.token == old_name => {
                 Some(crate::document_io::quote_token(new_name))
             }
             // The classification already stripped a rule's structural `:` off
@@ -264,7 +324,9 @@ fn replace_dollar_var(text: &str, old_var: &str, new_var: &str) -> String {
                 // Check that the next char is NOT alphanumeric/dash/underscore (word boundary)
                 let next_idx = i + old_chars.len();
                 let at_boundary = next_idx >= chars.len()
-                    || !(chars[next_idx].is_alphanumeric() || chars[next_idx] == '-' || chars[next_idx] == '_');
+                    || !(chars[next_idx].is_alphanumeric()
+                        || chars[next_idx] == '-'
+                        || chars[next_idx] == '_');
                 if at_boundary {
                     result.push_str(new_var);
                     i += old_chars.len();
@@ -284,13 +346,22 @@ mod rename_tests {
     use crate::document::DocLine;
     use crate::editor::doc_links::RenameKind;
 
-    fn t(s: &str) -> DocLine { DocLine::Text(s.to_string()) }
+    fn t(s: &str) -> DocLine {
+        DocLine::Text(s.to_string())
+    }
 
     fn do_rename(lines: &[DocLine], old: &str, new: &str, kind: &RenameKind) -> Vec<String> {
         let mut lines = lines.to_vec();
         rename_in_place(&mut lines, old, new, kind, None);
-        lines.into_iter()
-            .filter_map(|l| if let DocLine::Text(s) = l { Some(s) } else { None })
+        lines
+            .into_iter()
+            .filter_map(|l| {
+                if let DocLine::Text(s) = l {
+                    Some(s)
+                } else {
+                    None
+                }
+            })
             .collect()
     }
 
@@ -558,11 +629,7 @@ mod rename_tests {
 
     #[test]
     fn rename_leaves_unrelated_lines() {
-        let lines = vec![
-            t("glyph foo 8 16"),
-            t("ref baz 0 0"),
-            t("map X = foo"),
-        ];
+        let lines = vec![t("glyph foo 8 16"), t("ref baz 0 0"), t("map X = foo")];
         let result = do_rename(&lines, "foo", "bar", &RenameKind::Glyph);
         assert_eq!(result, vec!["glyph bar 8 16", "ref baz 0 0", "map X = bar"]);
     }
@@ -575,7 +642,9 @@ mod rename_caret_tests {
     use crate::editor::caret::Caret;
     use crate::editor::doc_links::RenameKind;
 
-    fn t(s: &str) -> DocLine { DocLine::Text(s.to_string()) }
+    fn t(s: &str) -> DocLine {
+        DocLine::Text(s.to_string())
+    }
 
     fn caret_after(lines: &[DocLine], caret: Caret, old: &str, new: &str) -> Caret {
         let mut lines = lines.to_vec();
@@ -644,7 +713,9 @@ impl UniformApp {
         // First pass: check which unopened files would be affected and open them.
         // Uses already-parsed font_base_docs (in memory) to avoid disk I/O
         // for the check; affected files are loaded in parallel.
-        let to_open: Vec<PathBuf> = self.font_base_docs.iter()
+        let to_open: Vec<PathBuf> = self
+            .font_base_docs
+            .iter()
             .filter(|base| {
                 !shadowed_by_open(&self.open_documents, &base.path)
                     && doc_may_reference(&base.items, &action.old_name, &action.kind)
@@ -655,13 +726,21 @@ impl UniformApp {
         if !to_open.is_empty() {
             let base_docs = &self.font_base_docs;
             let loaded: Vec<_> = std::thread::scope(|s| {
-                let handles: Vec<_> = to_open.iter().map(|path| {
-                    let path = path.clone();
-                    let base_gen = base_docs.iter().find(|b| b.path == path)
-                        .map(|b| (b.edit_gen, b.content_gen));
-                    s.spawn(move || load_open_document(path, base_gen).ok())
-                }).collect();
-                handles.into_iter().filter_map(|h| h.join().ok().flatten()).collect()
+                let handles: Vec<_> = to_open
+                    .iter()
+                    .map(|path| {
+                        let path = path.clone();
+                        let base_gen = base_docs
+                            .iter()
+                            .find(|b| b.path == path)
+                            .map(|b| (b.edit_gen, b.content_gen));
+                        s.spawn(move || load_open_document(path, base_gen).ok())
+                    })
+                    .collect();
+                handles
+                    .into_iter()
+                    .filter_map(|h| h.join().ok().flatten())
+                    .collect()
             });
             for open_doc in loaded {
                 self.open_documents.push(open_doc);
@@ -681,25 +760,30 @@ impl UniformApp {
             );
             if !changed_text.is_empty() {
                 doc.editor_state.undo.break_coalesce();
-                let ops: Vec<_> = changed_text.iter().map(|(idx, old_text)| {
-                    let new_text = match &doc.lines[*idx] {
-                        DocLine::Text(s) => s.clone(),
-                        _ => unreachable!(),
-                    };
-                    crate::editor::undo::UndoOp::Lines {
-                        at: *idx,
-                        old: vec![DocLine::Text(old_text.clone())],
-                        new: vec![DocLine::Text(new_text)],
-                    }
-                }).collect();
-                doc.editor_state.undo.push_compound(
-                    ops,
-                    cursor_before,
-                    doc.editor_state.cursor,
-                );
+                let ops: Vec<_> = changed_text
+                    .iter()
+                    .map(|(idx, old_text)| {
+                        let new_text = match &doc.lines[*idx] {
+                            DocLine::Text(s) => s.clone(),
+                            _ => unreachable!(),
+                        };
+                        crate::editor::undo::UndoOp::Lines {
+                            at: *idx,
+                            old: vec![DocLine::Text(old_text.clone())],
+                            new: vec![DocLine::Text(new_text)],
+                        }
+                    })
+                    .collect();
+                doc.editor_state
+                    .undo
+                    .push_compound(ops, cursor_before, doc.editor_state.cursor);
                 match crate::document_io::derive_document(&doc.lines, doc.document.path.clone()) {
                     Ok((new_doc, _)) => {
-                        let items_changed = !doc.document.items.iter().filter(|i| i.affects_font())
+                        let items_changed = !doc
+                            .document
+                            .items
+                            .iter()
+                            .filter(|i| i.affects_font())
                             .eq(new_doc.items.iter().filter(|i| i.affects_font()));
                         let next_gen = doc.document.edit_gen + 1;
                         let pixel_gen = doc.document.pixel_gen;

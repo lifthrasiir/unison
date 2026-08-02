@@ -27,7 +27,10 @@ pub struct ItemRef {
 
 impl ItemRef {
     pub fn new(doc: usize, item: usize) -> Self {
-        Self { doc: doc as u32, item: item as u32 }
+        Self {
+            doc: doc as u32,
+            item: item as u32,
+        }
     }
 }
 
@@ -50,7 +53,11 @@ impl Diagnostic {
     }
 
     pub fn new(severity: Severity, origin: Option<ItemRef>, message: String) -> Self {
-        Self { severity, origin, message }
+        Self {
+            severity,
+            origin,
+            message,
+        }
     }
 }
 
@@ -74,9 +81,12 @@ impl Resolution {
         // The face a single-face build emits; its metadata is what the tables
         // are assembled from.
         let primary_id = faces.primary().id.clone();
-        let primary = if primary_id.is_empty() { None } else { Some(primary_id.as_str()) };
-        let expansion =
-            crate::render::ttf_builder::expand_documents_for(docs, &name_parts, &faces);
+        let primary = if primary_id.is_empty() {
+            None
+        } else {
+            Some(primary_id.as_str())
+        };
+        let expansion = crate::render::ttf_builder::expand_documents_for(docs, &name_parts, &faces);
         Self {
             name_parts,
             faces,
@@ -116,7 +126,10 @@ impl<'a> DocSet<'a> {
         let (file, line, file_line) = match d.origin {
             Some(r) => self.location(r),
             None => (
-                self.docs.first().map(|d| d.path.clone()).unwrap_or_default(),
+                self.docs
+                    .first()
+                    .map(|d| d.path.clone())
+                    .unwrap_or_default(),
                 0,
                 1,
             ),

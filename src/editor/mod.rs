@@ -34,11 +34,11 @@ pub mod document_view;
 pub mod editing;
 pub mod glyph_widget;
 pub mod grid_render;
-pub mod ids;
-pub mod line_fields;
 #[cfg(test)]
 pub(crate) mod harness;
+pub mod ids;
 pub mod inline_tools;
+pub mod line_fields;
 pub mod minimap;
 pub mod pixel_interaction;
 pub mod pixel_selection;
@@ -333,16 +333,15 @@ impl EditorState {
             return;
         }
         if let Some(DocLine::Text(line_text)) = lines.get(self.cursor.line)
-            && let Some(target) =
-                doc_links::find_renameable_at_caret(line_text, self.cursor.col)
-            {
-                self.popup = PopupState::Rename {
-                    original_name: target.name.clone(),
-                    new_name: target.name,
-                    kind: target.kind,
-                    focus_set: false,
-                };
-            }
+            && let Some(target) = doc_links::find_renameable_at_caret(line_text, self.cursor.col)
+        {
+            self.popup = PopupState::Rename {
+                original_name: target.name.clone(),
+                new_name: target.name,
+                kind: target.kind,
+                focus_set: false,
+            };
+        }
     }
 
     /// Opens the Ctrl+K code point popup at the caret. Like a rename, it only
@@ -428,7 +427,7 @@ impl EditorState {
             EditAction::Paste => {
                 if let Ok(mut clip) = arboard::Clipboard::new()
                     && let Ok(text_to_paste) = clip.get_text()
-                        && !text_to_paste.is_empty()
+                    && !text_to_paste.is_empty()
                 {
                     doc_input::paste_text(
                         lines,
@@ -453,8 +452,7 @@ impl EditorState {
             EditAction::SelectAll => {
                 self.selection_anchor = Some(caret::Caret::zero());
                 let last = lines.len().saturating_sub(1);
-                self.cursor =
-                    caret::Caret::new(last, caret::line_char_len(lines, last));
+                self.cursor = caret::Caret::new(last, caret::line_char_len(lines, last));
                 false
             }
         };

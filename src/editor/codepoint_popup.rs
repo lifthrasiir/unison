@@ -113,8 +113,8 @@ impl CodepointPopup {
                                 // still push a digit off the end. The filter
                                 // below is the only thing that bounds the
                                 // field, and it counts digits.
-                                let te = egui::TextEdit::singleline(&mut self.hex)
-                                    .desired_width(180.0);
+                                let te =
+                                    egui::TextEdit::singleline(&mut self.hex).desired_width(180.0);
                                 ui.add(te)
                             })
                             .inner;
@@ -162,12 +162,18 @@ mod tests {
     use super::*;
 
     fn with_hex(hex: &str) -> CodepointPopup {
-        CodepointPopup { hex: hex.to_string(), focus_set: true }
+        CodepointPopup {
+            hex: hex.to_string(),
+            focus_set: true,
+        }
     }
 
     #[test]
     fn a_named_code_point_reports_its_name() {
-        assert_eq!(with_hex("41").status_label(), "U+0041  LATIN CAPITAL LETTER A");
+        assert_eq!(
+            with_hex("41").status_label(),
+            "U+0041  LATIN CAPITAL LETTER A"
+        );
         assert_eq!(with_hex("2603").status_label(), "U+2603  SNOWMAN");
     }
 
@@ -189,7 +195,10 @@ mod tests {
             assert_eq!(p.character(), None, "{hex} should name no character");
             assert_eq!(p.preedit(), "");
         }
-        assert_eq!(with_hex("D800").status_label(), "U+D800  (not a code point)");
+        assert_eq!(
+            with_hex("D800").status_label(),
+            "U+D800  (not a code point)"
+        );
         assert_eq!(with_hex("").status_label(), "U+");
     }
 

@@ -1,6 +1,6 @@
 use crate::document::{DocLine, PixelGrid};
-use crate::editor::caret::{char_to_byte, Caret};
 use crate::editor::EditMode;
+use crate::editor::caret::{Caret, char_to_byte};
 use crate::pixel::PixelShape;
 
 const COALESCE_MS: u128 = 800;
@@ -96,9 +96,10 @@ impl UndoStack {
     fn truncate_and_invalidate(&mut self) {
         self.entries.truncate(self.position);
         if let Some(sp) = self.saved_position
-            && sp > self.position {
-                self.saved_position = None;
-            }
+            && sp > self.position
+        {
+            self.saved_position = None;
+        }
     }
 
     pub fn break_coalesce(&mut self) {
@@ -146,7 +147,8 @@ impl UndoStack {
                 }
                 // Backspace: old is the deleted char, new is empty,
                 // col is where the char was (before current cursor)
-                if !old_for_merge.is_empty() && new_for_merge.is_empty()
+                if !old_for_merge.is_empty()
+                    && new_for_merge.is_empty()
                     && col + old_for_merge.chars().count() == *prev_col
                 {
                     let mut merged_old = old_for_merge.clone();
@@ -165,7 +167,12 @@ impl UndoStack {
                 }
                 false
             },
-            move || UndoOp::Text { line, col, old, new },
+            move || UndoOp::Text {
+                line,
+                col,
+                old,
+                new,
+            },
         );
     }
 
@@ -258,7 +265,9 @@ impl UndoStack {
             UndoOp::Compound(ops) => ops.push(op),
             other => {
                 let prev = std::mem::replace(other, UndoOp::Compound(Vec::new()));
-                let UndoOp::Compound(ops) = other else { unreachable!() };
+                let UndoOp::Compound(ops) = other else {
+                    unreachable!()
+                };
                 ops.push(prev);
                 ops.push(op);
             }
@@ -266,12 +275,7 @@ impl UndoStack {
         entry.caret_after = caret_after;
     }
 
-    pub fn push_compound(
-        &mut self,
-        ops: Vec<UndoOp>,
-        caret_before: Caret,
-        caret_after: Caret,
-    ) {
+    pub fn push_compound(&mut self, ops: Vec<UndoOp>, caret_before: Caret, caret_after: Caret) {
         self.truncate_and_invalidate();
         self.entries.push(UndoEntry {
             op: UndoOp::Compound(ops),
@@ -299,7 +303,11 @@ impl UndoStack {
             caret_before,
             caret_after,
             move |entry| {
-                let UndoOp::Pixels { line: prev_line, changes } = &mut entry.op else {
+                let UndoOp::Pixels {
+                    line: prev_line,
+                    changes,
+                } = &mut entry.op
+                else {
                     return false;
                 };
                 if *prev_line != line {
@@ -337,12 +345,14 @@ impl UndoStack {
         let elapsed = now.duration_since(self.last_push_time).as_millis();
         self.last_push_time = now;
 
-        if elapsed < COALESCE_MS && self.position > 0
+        if elapsed < COALESCE_MS
+            && self.position > 0
             && let Some(entry) = self.entries.get_mut(self.position - 1)
-                && try_merge(entry) {
-                    entry.caret_after = caret_after;
-                    return;
-                }
+            && try_merge(entry)
+        {
+            entry.caret_after = caret_after;
+            return;
+        }
 
         self.truncate_and_invalidate();
         self.entries.push(UndoEntry {
@@ -493,7 +503,12 @@ fn apply_op(
     sel: &mut Option<SelectionUndoCtx>,
 ) {
     match op {
-        UndoOp::Text { line, col, old, new } => {
+        UndoOp::Text {
+            line,
+            col,
+            old,
+            new,
+        } => {
             let (remove, insert) = match dir {
                 Direction::Undo => (new, old),
                 Direction::Redo => (old, new),
@@ -569,9 +584,15 @@ mod tests {
     use super::*;
     use crate::document::PixelGrid;
 
-    fn text(s: &str) -> DocLine { DocLine::Text(s.to_string()) }
-    fn grid(w: u16, h: u16) -> DocLine { DocLine::Grid(PixelGrid::new(w, h)) }
-    fn c(line: usize, col: usize) -> Caret { Caret::new(line, col) }
+    fn text(s: &str) -> DocLine {
+        DocLine::Text(s.to_string())
+    }
+    fn grid(w: u16, h: u16) -> DocLine {
+        DocLine::Grid(PixelGrid::new(w, h))
+    }
+    fn c(line: usize, col: usize) -> Caret {
+        Caret::new(line, col)
+    }
 
     #[test]
     fn text_undo_redo() {
@@ -687,7 +708,17 @@ mod tests {
         let old = PixelShape::EMPTY;
         let new = PixelShape::new(0, true);
 
-        undo.push_pixel(1, PixelChange { row: 0, col: 1, old, new }, c(1, 0), c(1, 0));
+        undo.push_pixel(
+            1,
+            PixelChange {
+                row: 0,
+                col: 1,
+                old,
+                new,
+            },
+            c(1, 0),
+            c(1, 0),
+        );
         if let DocLine::Grid(g) = &mut lines[1] {
             g.set(0, 1, new);
         }
@@ -714,8 +745,28 @@ mod tests {
         let s2 = PixelShape::new(0, true);
         let s3 = PixelShape(1);
 
-        undo.push_pixel(0, PixelChange { row: 0, col: 0, old: s1, new: s2 }, c(0, 0), c(0, 0));
-        undo.push_pixel(0, PixelChange { row: 0, col: 0, old: s2, new: s3 }, c(0, 0), c(0, 0));
+        undo.push_pixel(
+            0,
+            PixelChange {
+                row: 0,
+                col: 0,
+                old: s1,
+                new: s2,
+            },
+            c(0, 0),
+            c(0, 0),
+        );
+        undo.push_pixel(
+            0,
+            PixelChange {
+                row: 0,
+                col: 0,
+                old: s2,
+                new: s3,
+            },
+            c(0, 0),
+            c(0, 0),
+        );
 
         // Should have coalesced into one entry
         assert_eq!(undo.position, 1);
@@ -859,7 +910,17 @@ mod tests {
         let s0 = PixelShape::EMPTY;
         let s1 = PixelShape::new(0, true);
 
-        undo.push_pixel(0, PixelChange { row: 0, col: 0, old: s0, new: s1 }, c(0, 0), c(0, 0));
+        undo.push_pixel(
+            0,
+            PixelChange {
+                row: 0,
+                col: 0,
+                old: s0,
+                new: s1,
+            },
+            c(0, 0),
+            c(0, 0),
+        );
         assert!(!undo.is_at_saved());
 
         undo.undo(&mut lines);
@@ -1022,8 +1083,28 @@ mod tests {
         let s1 = PixelShape::new(0, true);
         let s2 = PixelShape(1);
 
-        undo.push_pixel(0, PixelChange { row: 0, col: 0, old: s0, new: s1 }, c(0, 0), c(0, 0));
-        undo.push_pixel(0, PixelChange { row: 0, col: 1, old: s0, new: s2 }, c(0, 0), c(0, 0));
+        undo.push_pixel(
+            0,
+            PixelChange {
+                row: 0,
+                col: 0,
+                old: s0,
+                new: s1,
+            },
+            c(0, 0),
+            c(0, 0),
+        );
+        undo.push_pixel(
+            0,
+            PixelChange {
+                row: 0,
+                col: 1,
+                old: s0,
+                new: s2,
+            },
+            c(0, 0),
+            c(0, 0),
+        );
         assert_eq!(undo.position, 1);
 
         undo.undo(&mut lines);
@@ -1042,8 +1123,20 @@ mod tests {
         undo.break_coalesce();
         let s0 = PixelShape::EMPTY;
         let s1 = PixelShape::new(0, true);
-        undo.push_pixel(1, PixelChange { row: 0, col: 0, old: s0, new: s1 }, c(1, 0), c(1, 0));
-        if let DocLine::Grid(g) = &mut lines[1] { g.set(0, 0, s1); }
+        undo.push_pixel(
+            1,
+            PixelChange {
+                row: 0,
+                col: 0,
+                old: s0,
+                new: s1,
+            },
+            c(1, 0),
+            c(1, 0),
+        );
+        if let DocLine::Grid(g) = &mut lines[1] {
+            g.set(0, 0, s1);
+        }
 
         undo.push_lines(3, vec![], vec![text("extra")], c(2, 5), c(3, 0));
         lines.push(text("extra"));
@@ -1119,8 +1212,17 @@ mod tests {
 
         undo.push_compound(
             vec![
-                UndoOp::Text { line: 0, col: 2, old: "".into(), new: "X".into() },
-                UndoOp::Lines { at: 1, old: vec![text("cd")], new: vec![text("c"), text("d")] },
+                UndoOp::Text {
+                    line: 0,
+                    col: 2,
+                    old: "".into(),
+                    new: "X".into(),
+                },
+                UndoOp::Lines {
+                    at: 1,
+                    old: vec![text("cd")],
+                    new: vec![text("c"), text("d")],
+                },
             ],
             c(0, 2),
             c(1, 1),
@@ -1146,7 +1248,17 @@ mod tests {
 
         // push_pixel with old == new is a no-op
         let s = PixelShape::EMPTY;
-        undo.push_pixel(0, PixelChange { row: 0, col: 0, old: s, new: s }, c(0, 0), c(0, 0));
+        undo.push_pixel(
+            0,
+            PixelChange {
+                row: 0,
+                col: 0,
+                old: s,
+                new: s,
+            },
+            c(0, 0),
+            c(0, 0),
+        );
         assert!(undo.is_at_saved());
     }
 }

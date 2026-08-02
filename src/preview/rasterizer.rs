@@ -51,17 +51,15 @@ impl GlyphCache {
         };
         let key = (glyph_id, (px_size * 4.0) as u32, color_key);
 
-        self.cache
-            .entry(key)
-            .or_insert_with(|| {
-                if color {
-                    let [r, g, b, _] = text_color.to_array();
-                    rasterize_color_glyph(ctx, font_data, glyph_id, px_size, [r, g, b, 255])
-                        .or_else(|| rasterize_glyph(ctx, font_data, glyph_id, px_size, false))
-                } else {
-                    rasterize_glyph(ctx, font_data, glyph_id, px_size, false)
-                }
-            });
+        self.cache.entry(key).or_insert_with(|| {
+            if color {
+                let [r, g, b, _] = text_color.to_array();
+                rasterize_color_glyph(ctx, font_data, glyph_id, px_size, [r, g, b, 255])
+                    .or_else(|| rasterize_glyph(ctx, font_data, glyph_id, px_size, false))
+            } else {
+                rasterize_glyph(ctx, font_data, glyph_id, px_size, false)
+            }
+        });
 
         self.cache.get(&key).and_then(|v| v.as_ref())
     }
@@ -75,13 +73,11 @@ struct SkiaPen {
 
 impl OutlinePen for SkiaPen {
     fn move_to(&mut self, x: f32, y: f32) {
-        self.builder
-            .move_to(x, self.offset_y + y * self.scale_y);
+        self.builder.move_to(x, self.offset_y + y * self.scale_y);
     }
 
     fn line_to(&mut self, x: f32, y: f32) {
-        self.builder
-            .line_to(x, self.offset_y + y * self.scale_y);
+        self.builder.line_to(x, self.offset_y + y * self.scale_y);
     }
 
     fn quad_to(&mut self, cx0: f32, cy0: f32, x: f32, y: f32) {
@@ -109,11 +105,7 @@ impl OutlinePen for SkiaPen {
     }
 }
 
-fn draw_outline_to_path(
-    font: &FontRef<'_>,
-    gid: GlyphId,
-    px_size: f32,
-) -> Option<tiny_skia::Path> {
+fn draw_outline_to_path(font: &FontRef<'_>, gid: GlyphId, px_size: f32) -> Option<tiny_skia::Path> {
     let outlines = font.outline_glyphs();
     let outline = outlines.get(gid)?;
     let settings = DrawSettings::unhinted(Size::new(px_size), LocationRef::default());
@@ -154,7 +146,13 @@ fn raster_canvas(font: &FontRef, gid: GlyphId, px_size: f32) -> Option<RasterCan
     let bearing_y = bounds.y_max;
     let pixmap = tiny_skia::Pixmap::new(w, h)?;
     let transform = tiny_skia::Transform::from_translate(-bearing_x + pad, bearing_y + pad);
-    Some(RasterCanvas { pixmap, transform, bearing_x, bearing_y, pad })
+    Some(RasterCanvas {
+        pixmap,
+        transform,
+        bearing_x,
+        bearing_y,
+        pad,
+    })
 }
 
 fn rasterize_glyph(
@@ -169,8 +167,13 @@ fn rasterize_glyph(
     let gid = GlyphId::new(glyph_id as u32);
     let path = draw_outline_to_path(&font, gid, px_size)?;
 
-    let RasterCanvas { mut pixmap, transform, bearing_x, bearing_y, pad } =
-        raster_canvas(&font, gid, px_size)?;
+    let RasterCanvas {
+        mut pixmap,
+        transform,
+        bearing_x,
+        bearing_y,
+        pad,
+    } = raster_canvas(&font, gid, px_size)?;
     let (w, h) = (pixmap.width(), pixmap.height());
 
     let paint = tiny_skia::Paint {
@@ -234,7 +237,13 @@ impl ColorPainter for ColrPainter<'_> {
         _brush_transform: Option<Transform>,
         brush: Brush<'_>,
     ) {
-        let Brush::Solid { palette_index, alpha } = brush else { return };
+        let Brush::Solid {
+            palette_index,
+            alpha,
+        } = brush
+        else {
+            return;
+        };
 
         let [r, g, b, a] = if palette_index == 0xFFFF {
             self.fg_color
@@ -251,9 +260,12 @@ impl ColorPainter for ColrPainter<'_> {
         };
 
         let paint = tiny_skia::Paint {
-            shader: tiny_skia::Shader::SolidColor(
-                tiny_skia::Color::from_rgba8(r, g, b, effective_a),
-            ),
+            shader: tiny_skia::Shader::SolidColor(tiny_skia::Color::from_rgba8(
+                r,
+                g,
+                b,
+                effective_a,
+            )),
             anti_alias: true,
             blend_mode: tiny_skia::BlendMode::SourceOver,
             ..Default::default()
@@ -284,8 +296,13 @@ fn rasterize_color_glyph(
 
     let color_glyph: ColorGlyph<'_> = font.color_glyphs().get(gid)?;
 
-    let RasterCanvas { mut pixmap, transform, bearing_x, bearing_y, pad } =
-        raster_canvas(&font, gid, px_size)?;
+    let RasterCanvas {
+        mut pixmap,
+        transform,
+        bearing_x,
+        bearing_y,
+        pad,
+    } = raster_canvas(&font, gid, px_size)?;
     let (w, h) = (pixmap.width(), pixmap.height());
 
     let palette: Vec<[u8; 4]> = font
@@ -328,8 +345,13 @@ fn rasterize_color_glyph(
     let image = egui::ColorImage::from_rgba_unmultiplied([w as usize, h as usize], &rgba);
 
     let texture = ctx.load_texture(
-        format!("glyph_{glyph_id}_{}c{:02x}{:02x}{:02x}", (px_size * 4.0) as u32,
-            fg_color[0], fg_color[1], fg_color[2]),
+        format!(
+            "glyph_{glyph_id}_{}c{:02x}{:02x}{:02x}",
+            (px_size * 4.0) as u32,
+            fg_color[0],
+            fg_color[1],
+            fg_color[2]
+        ),
         image,
         egui::TextureOptions::LINEAR,
     );

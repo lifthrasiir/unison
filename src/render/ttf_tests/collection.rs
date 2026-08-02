@@ -34,7 +34,11 @@ fn a_collection_reads_back_as_its_faces_in_order() {
                 .unwrap()
         })
         .collect();
-    assert_eq!(families, ["A", "B"], "declaration order is the output order");
+    assert_eq!(
+        families,
+        ["A", "B"],
+        "declaration order is the output order"
+    );
 }
 
 /// Identical tables are stored once and pointed at twice. That is what sharing
@@ -114,7 +118,12 @@ fn the_file_ends_on_a_four_byte_boundary() {
             format!("meta designer `{designer}`\nmeta family `A`\nglyph a 1 1\n@@\nmap A = a\n");
         for faces in [vec![font(&src)], vec![font(A), font(&src)]] {
             let bytes = build_collection(&faces).unwrap();
-            assert_eq!(bytes.len() % 4, 0, "{} face(s), designer {n} long", faces.len());
+            assert_eq!(
+                bytes.len() % 4,
+                0,
+                "{} face(s), designer {n} long",
+                faces.len()
+            );
         }
     }
 }
@@ -155,7 +164,8 @@ face wide : wide
     let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
     let built = crate::render::ttf_builder::build_faces(&[&doc]).unwrap();
     assert_eq!(built.len(), 2);
-    let bytes = build_collection(&built.iter().map(|(_, b)| b.clone()).collect::<Vec<_>>()).unwrap();
+    let bytes =
+        build_collection(&built.iter().map(|(_, b)| b.clone()).collect::<Vec<_>>()).unwrap();
 
     let read_fonts::FileRef::Collection(ttc) = read_fonts::FileRef::new(&bytes).unwrap() else {
         panic!("expected a collection");
@@ -171,9 +181,18 @@ face wide : wide
             .offset()
     };
     for tag in [b"glyf", b"loca", b"hmtx", b"maxp"] {
-        assert_eq!(offset_of(0, tag), offset_of(1, tag), "{}", std::str::from_utf8(tag).unwrap());
+        assert_eq!(
+            offset_of(0, tag),
+            offset_of(1, tag),
+            "{}",
+            std::str::from_utf8(tag).unwrap()
+        );
     }
-    assert_ne!(offset_of(0, b"cmap"), offset_of(1, b"cmap"), "the cmaps differ");
+    assert_ne!(
+        offset_of(0, b"cmap"),
+        offset_of(1, b"cmap"),
+        "the cmaps differ"
+    );
 
     // And each face still maps ° to its own glyph — sharing the store must not
     // have merged the two typefaces.
@@ -196,9 +215,11 @@ fn one_face_builds_the_same_font_either_way() {
     let single = build_font_from_documents(&[&doc]).unwrap();
     let faces = crate::render::ttf_builder::build_faces(&[&doc]).unwrap();
     assert_eq!(faces.len(), 1);
-    assert_eq!(faces[0].1, single, "the two build paths must agree byte for byte");
+    assert_eq!(
+        faces[0].1, single,
+        "the two build paths must agree byte for byte"
+    );
 }
-
 
 /// The editor builds one face at a time — never a collection — so which face
 /// its preview shows has to be selectable; a two-face source is otherwise stuck

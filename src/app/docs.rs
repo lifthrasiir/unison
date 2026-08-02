@@ -43,9 +43,7 @@ pub(super) struct FontSource {
     pub(super) hash: u64,
 }
 
-pub(super) fn font_sources_from(
-    sources: Vec<(PathBuf, Vec<u8>)>,
-) -> HashMap<PathBuf, FontSource> {
+pub(super) fn font_sources_from(sources: Vec<(PathBuf, Vec<u8>)>) -> HashMap<PathBuf, FontSource> {
     sources
         .into_iter()
         .map(|(path, bytes)| {
@@ -190,11 +188,7 @@ pub(super) fn reload_open_document(open: &mut OpenDocument) -> anyhow::Result<()
 /// The caret is clamped rather than tracked: the new text has no relation to
 /// the old one, so there is no position to follow. Grid editing is left for
 /// the same reason — its `item_idx` refers to items that may no longer exist.
-pub(super) fn apply_reloaded_lines(
-    open: &mut OpenDocument,
-    new_lines: Vec<DocLine>,
-    hash: u64,
-) {
+pub(super) fn apply_reloaded_lines(open: &mut OpenDocument, new_lines: Vec<DocLine>, hash: u64) {
     let caret_before = open.editor_state.cursor;
     let old_lines = std::mem::replace(&mut open.lines, new_lines.clone());
     if old_lines == open.lines {
@@ -206,13 +200,9 @@ pub(super) fn apply_reloaded_lines(
     }
     let caret_after = crate::editor::caret::clamp(&open.lines, caret_before);
     open.editor_state.undo.break_coalesce();
-    open.editor_state.undo.push_lines(
-        0,
-        old_lines,
-        new_lines,
-        caret_before,
-        caret_after,
-    );
+    open.editor_state
+        .undo
+        .push_lines(0, old_lines, new_lines, caret_before, caret_after);
     open.editor_state.undo.mark_saved();
 
     open.editor_state.reset_for_external_reload(caret_after);
@@ -385,9 +375,9 @@ impl UniformApp {
     }
 
     fn has_unsaved_changes(&self) -> bool {
-        self.open_documents.iter().any(|d| {
-            d.document.dirty || d.editor_state.has_pending_document_sync()
-        })
+        self.open_documents
+            .iter()
+            .any(|d| d.document.dirty || d.editor_state.has_pending_document_sync())
     }
 
     pub(super) fn save_all(&mut self) -> bool {
@@ -412,12 +402,9 @@ impl UniformApp {
             }
             let mut buf = Vec::new();
             if let Err(e) = document_io::serialize_doclines(&doc.lines, &mut buf)
-                .and_then(|()| {
-                    document_io::write_and_sync(&doc.document.path, &buf)
-                })
+                .and_then(|()| document_io::write_and_sync(&doc.document.path, &buf))
             {
-                self.status_message =
-                    Some((format!("Save error: {e}"), std::time::Instant::now()));
+                self.status_message = Some((format!("Save error: {e}"), std::time::Instant::now()));
                 return false;
             }
             doc.mark_written(&buf);
@@ -446,12 +433,8 @@ impl UniformApp {
             .show();
 
         match &result {
-            rfd::MessageDialogResult::Yes => {
-                self.save_all()
-            }
-            rfd::MessageDialogResult::Custom(s) if s == save => {
-                self.save_all()
-            }
+            rfd::MessageDialogResult::Yes => self.save_all(),
+            rfd::MessageDialogResult::Custom(s) if s == save => self.save_all(),
             rfd::MessageDialogResult::No => true,
             rfd::MessageDialogResult::Custom(s) if s == dont_save => true,
             _ => false,
@@ -514,31 +497,28 @@ impl UniformApp {
 
     pub(super) fn save_active(&mut self) {
         if let Some(idx) = self.active_doc_idx()
-            && let Some(doc) = self.open_documents.get_mut(idx) {
-                doc.flush_pending_changes();
-                if doc.external_change
-                    && !confirm_overwrite(&[file_name_of(&doc.document.path)])
-                {
-                    return;
+            && let Some(doc) = self.open_documents.get_mut(idx)
+        {
+            doc.flush_pending_changes();
+            if doc.external_change && !confirm_overwrite(&[file_name_of(&doc.document.path)]) {
+                return;
+            }
+            let mut buf = Vec::new();
+            let result = document_io::serialize_doclines(&doc.lines, &mut buf)
+                .and_then(|()| document_io::write_and_sync(&doc.document.path, &buf));
+            let path_display = doc.document.path.display().to_string();
+            match result {
+                Ok(()) => {
+                    doc.mark_written(&buf);
+                    self.status_message =
+                        Some((format!("Saved {path_display}"), std::time::Instant::now()));
                 }
-                let mut buf = Vec::new();
-                let result = document_io::serialize_doclines(&doc.lines, &mut buf)
-                    .and_then(|()| {
-                        document_io::write_and_sync(&doc.document.path, &buf)
-                    });
-                let path_display = doc.document.path.display().to_string();
-                match result {
-                    Ok(()) => {
-                        doc.mark_written(&buf);
-                        self.status_message =
-                            Some((format!("Saved {path_display}"), std::time::Instant::now()));
-                    }
-                    Err(e) => {
-                        self.status_message =
-                            Some((format!("Save error: {e}"), std::time::Instant::now()));
-                    }
+                Err(e) => {
+                    self.status_message =
+                        Some((format!("Save error: {e}"), std::time::Instant::now()));
                 }
             }
+        }
     }
 }
 
@@ -601,7 +581,12 @@ mod reload_tests {
 
         assert_eq!(text_of(&open), AFTER);
         assert!(!open.document.dirty, "the buffer is what is on disk");
-        assert_eq!(open.disk_hash, Some(super::super::watch::hash_bytes(&std::fs::read(&path).unwrap())));
+        assert_eq!(
+            open.disk_hash,
+            Some(super::super::watch::hash_bytes(
+                &std::fs::read(&path).unwrap()
+            ))
+        );
 
         assert!(open.editor_state.undo.can_undo());
         open.editor_state.perform_undo(&mut open.lines);
@@ -625,9 +610,17 @@ mod reload_tests {
         std::fs::write(&path, "glyph   a   2   2\n@@@@\n@@@@\n").unwrap();
         reload_open_document(&mut open).unwrap();
 
-        assert!(!open.editor_state.undo.can_undo(), "nothing changed to undo");
+        assert!(
+            !open.editor_state.undo.can_undo(),
+            "nothing changed to undo"
+        );
         assert_ne!(open.disk_hash, first_hash);
-        assert_eq!(open.disk_hash, Some(super::super::watch::hash_bytes(&std::fs::read(&path).unwrap())));
+        assert_eq!(
+            open.disk_hash,
+            Some(super::super::watch::hash_bytes(
+                &std::fs::read(&path).unwrap()
+            ))
+        );
     }
 
     /// Saving is what makes the buffer and the file agree again, so it clears
@@ -646,6 +639,9 @@ mod reload_tests {
         assert!(!open.document.dirty);
         assert!(!open.external_change);
         assert!(!open.owed_external_toast);
-        assert_eq!(open.disk_hash, Some(super::super::watch::hash_bytes(AFTER.as_bytes())));
+        assert_eq!(
+            open.disk_hash,
+            Some(super::super::watch::hash_bytes(AFTER.as_bytes()))
+        );
     }
 }

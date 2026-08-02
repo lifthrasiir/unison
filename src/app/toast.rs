@@ -45,7 +45,10 @@ impl Toasts {
             existing.born = Instant::now();
             return;
         }
-        self.items.push(Toast { text, born: Instant::now() });
+        self.items.push(Toast {
+            text,
+            born: Instant::now(),
+        });
     }
 
     #[cfg(test)]

@@ -1,12 +1,12 @@
 //! The menu bar and the actions it produces.
 
-use super::*;
 use super::panels::min_bottom_panel_height;
 use super::panes::{PaneAction, SplitSide};
 use super::zoom::{
     DEFAULT_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE, MAX_ZOOM_LEVEL, MIN_PREVIEW_FONT_SIZE,
-    MIN_ZOOM_LEVEL, ZoomTarget, preview_font_step, zoom_step
+    MIN_ZOOM_LEVEL, ZoomTarget, preview_font_step, zoom_step,
 };
+use super::*;
 
 #[derive(Clone, Copy, PartialEq)]
 pub(super) enum EditTarget {
@@ -120,7 +120,11 @@ impl UniformApp {
     ) {
         let theme_before = ctx.options(|o| o.theme_preference);
         let (mod_name, shift_name) = crate::edit_menu::platform_shortcut_names();
-        let exit_shortcut = if cfg!(target_os = "macos") { "⌘Q" } else { "Alt+F4" };
+        let exit_shortcut = if cfg!(target_os = "macos") {
+            "⌘Q"
+        } else {
+            "Alt+F4"
+        };
 
         let menu_new_file = &mut menu.new_file;
         let menu_open_folder = &mut menu.open_folder;
@@ -146,26 +150,41 @@ impl UniformApp {
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
-                    if ui.add(egui::Button::new("New file...").shortcut_text(format!("{mod_name}N"))).clicked() {
+                    if ui
+                        .add(egui::Button::new("New file...").shortcut_text(format!("{mod_name}N")))
+                        .clicked()
+                    {
                         *menu_new_file = true;
                         ui.close_menu();
                     }
                     ui.separator();
-                    if ui.add(egui::Button::new("Open folder...").shortcut_text(format!("{mod_name}{shift_name}O"))).clicked() {
+                    if ui
+                        .add(
+                            egui::Button::new("Open folder...")
+                                .shortcut_text(format!("{mod_name}{shift_name}O")),
+                        )
+                        .clicked()
+                    {
                         *menu_open_folder = true;
                         ui.close_menu();
                     }
                     ui.separator();
                     let has_active = self.active_doc_idx().is_some();
                     if ui
-                        .add_enabled(has_active, egui::Button::new("Save").shortcut_text(format!("{mod_name}S")))
+                        .add_enabled(
+                            has_active,
+                            egui::Button::new("Save").shortcut_text(format!("{mod_name}S")),
+                        )
                         .clicked()
                     {
                         *ctrl_s_pressed = true;
                         ui.close_menu();
                     }
                     if ui
-                        .add(egui::Button::new("Save all").shortcut_text(format!("{mod_name}{shift_name}S")))
+                        .add(
+                            egui::Button::new("Save all")
+                                .shortcut_text(format!("{mod_name}{shift_name}S")),
+                        )
                         .clicked()
                     {
                         *ctrl_shift_s_pressed = true;
@@ -173,7 +192,10 @@ impl UniformApp {
                     }
                     ui.separator();
                     if ui
-                        .add_enabled(has_active && !editor_focused, egui::Button::new("Rename file...").shortcut_text("F2"))
+                        .add_enabled(
+                            has_active && !editor_focused,
+                            egui::Button::new("Rename file...").shortcut_text("F2"),
+                        )
                         .clicked()
                     {
                         *menu_rename = true;
@@ -193,8 +215,7 @@ impl UniformApp {
                     if ui
                         .add_enabled(
                             self.last_export_path.is_some(),
-                            egui::Button::new(export_label)
-                                .shortcut_text(format!("{mod_name}E")),
+                            egui::Button::new(export_label).shortcut_text(format!("{mod_name}E")),
                         )
                         .clicked()
                     {
@@ -212,7 +233,10 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
-                    if ui.add(egui::Button::new("Exit").shortcut_text(exit_shortcut)).clicked() {
+                    if ui
+                        .add(egui::Button::new("Exit").shortcut_text(exit_shortcut))
+                        .clicked()
+                    {
                         *menu_exit = true;
                         ui.close_menu();
                     }
@@ -220,16 +244,15 @@ impl UniformApp {
                 ui.menu_button("Edit", |ui| {
                     let caps = match edit_target {
                         EditTarget::Preview => self.shaped_preview.edit_menu_caps(),
-                        EditTarget::Editor => {
-                            self.active_doc()
-                                .map(|d| d.editor_state.edit_menu_caps())
-                                .unwrap_or(EditMenuCaps {
-                                    can_undo: false,
-                                    can_redo: false,
-                                    has_selection: false,
-                                    can_edit: false,
-                                })
-                        }
+                        EditTarget::Editor => self
+                            .active_doc()
+                            .map(|d| d.editor_state.edit_menu_caps())
+                            .unwrap_or(EditMenuCaps {
+                                can_undo: false,
+                                can_redo: false,
+                                has_selection: false,
+                                can_edit: false,
+                            }),
                     };
                     *edit_action = crate::edit_menu::show_edit_menu_items(ui, &caps, true);
                     ui.separator();
@@ -256,14 +279,20 @@ impl UniformApp {
                     }
                     ui.separator();
                     if ui
-                        .add_enabled(editor_focused, egui::Button::new("Rename symbol...").shortcut_text("F2"))
+                        .add_enabled(
+                            editor_focused,
+                            egui::Button::new("Rename symbol...").shortcut_text("F2"),
+                        )
                         .clicked()
                     {
                         *menu_rename_symbol = true;
                         ui.close_menu();
                     }
                     if ui
-                        .add_enabled(editor_focused, egui::Button::new("Type code point...").shortcut_text("Ctrl+K"))
+                        .add_enabled(
+                            editor_focused,
+                            egui::Button::new("Type code point...").shortcut_text("Ctrl+K"),
+                        )
                         .clicked()
                     {
                         *menu_type_codepoint = true;
@@ -272,26 +301,38 @@ impl UniformApp {
                     let in_grid_edit = self.in_grid_edit();
                     ui.separator();
                     if ui
-                        .add_enabled(in_grid_edit, egui::Button::new("Selection mode").shortcut_text("`"))
+                        .add_enabled(
+                            in_grid_edit,
+                            egui::Button::new("Selection mode").shortcut_text("`"),
+                        )
                         .clicked()
                     {
                         if let Some(d) = self.active_doc_mut() {
-                            if let crate::editor::EditMode::GlyphEdit { item_idx, .. } = d.editor_state.mode {
-                                d.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx };
+                            if let crate::editor::EditMode::GlyphEdit { item_idx, .. } =
+                                d.editor_state.mode
+                            {
+                                d.editor_state.mode =
+                                    crate::editor::EditMode::PixelSelect { item_idx };
                             }
                         }
                         ui.close_menu();
                     }
                     if ui
-                        .add_enabled(in_grid_edit, egui::Button::new("Drawing mode").shortcut_text("1"))
+                        .add_enabled(
+                            in_grid_edit,
+                            egui::Button::new("Drawing mode").shortcut_text("1"),
+                        )
                         .clicked()
                     {
                         if let Some(d) = self.active_doc_mut() {
-                            if let crate::editor::EditMode::PixelSelect { item_idx } = d.editor_state.mode {
+                            if let crate::editor::EditMode::PixelSelect { item_idx } =
+                                d.editor_state.mode
+                            {
                                 d.editor_state.mode = crate::editor::EditMode::GlyphEdit {
                                     item_idx,
                                     selected_shape: crate::pixel::PixelShape::new(
-                                        crate::pixel::PX_ALMOSTFULL, true,
+                                        crate::pixel::PX_ALMOSTFULL,
+                                        true,
                                     ),
                                 };
                             }
@@ -299,12 +340,13 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
-                    let current_scale = self.active_doc()
-                        .and_then(|d| {
-                            crate::editor::pixel_selection::can_adjust_scale(
-                                &d.document, &d.lines, &d.editor_state,
-                            )
-                        });
+                    let current_scale = self.active_doc().and_then(|d| {
+                        crate::editor::pixel_selection::can_adjust_scale(
+                            &d.document,
+                            &d.lines,
+                            &d.editor_state,
+                        )
+                    });
                     ui.add_enabled_ui(current_scale.is_some(), |ui| {
                         ui.menu_button("Adjust scale", |ui| {
                             for s in 1u8..=10 {
@@ -313,10 +355,10 @@ impl UniformApp {
                                 } else {
                                     format!("{s}")
                                 };
-                                if ui.add_enabled(
-                                    current_scale != Some(s),
-                                    egui::Button::new(label),
-                                ).clicked() {
+                                if ui
+                                    .add_enabled(current_scale != Some(s), egui::Button::new(label))
+                                    .clicked()
+                                {
                                     *scale_action = Some(s);
                                     ui.close_menu();
                                 }
@@ -328,97 +370,143 @@ impl UniformApp {
                     let (mod_name, _) = crate::edit_menu::platform_shortcut_names();
                     let active_doc = self.active_doc();
                     let in_grid_mode = self.in_grid_edit();
-                    let has_sel = active_doc.is_some_and(|d|
-                        d.editor_state.pixel_selection.is_some()
-                    );
+                    let has_sel =
+                        active_doc.is_some_and(|d| d.editor_state.pixel_selection.is_some());
 
-                    use crate::editor::pixel_selection::{can_transform, SelectionTransform};
+                    use crate::editor::pixel_selection::{SelectionTransform, can_transform};
 
                     let can_do = |t: SelectionTransform| -> bool {
-                        if !in_grid_mode { return false; }
+                        if !in_grid_mode {
+                            return false;
+                        }
                         if let Some(d) = active_doc {
                             return can_transform(&d.document, &d.editor_state, t);
                         }
                         false
                     };
 
-                    if ui.add_enabled(
-                        has_sel,
-                        egui::Button::new("Cancel selection").shortcut_text("Esc"),
-                    ).clicked() {
+                    if ui
+                        .add_enabled(
+                            has_sel,
+                            egui::Button::new("Cancel selection").shortcut_text("Esc"),
+                        )
+                        .clicked()
+                    {
                         *sel_menu_action = Some(SelMenuAction::Cancel);
                         ui.close_menu();
                     }
 
                     ui.separator();
 
-                    if ui.add_enabled(
-                        can_do(SelectionTransform::MirrorH),
-                        egui::Button::new("Mirror selection").shortcut_text(format!("{mod_name}M")),
-                    ).clicked() {
-                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::MirrorH));
+                    if ui
+                        .add_enabled(
+                            can_do(SelectionTransform::MirrorH),
+                            egui::Button::new("Mirror selection")
+                                .shortcut_text(format!("{mod_name}M")),
+                        )
+                        .clicked()
+                    {
+                        *sel_menu_action =
+                            Some(SelMenuAction::Transform(SelectionTransform::MirrorH));
                         ui.close_menu();
                     }
-                    if ui.add_enabled(
-                        can_do(SelectionTransform::FlipV),
-                        egui::Button::new("Flip selection").shortcut_text(format!("{mod_name}I")),
-                    ).clicked() {
-                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::FlipV));
+                    if ui
+                        .add_enabled(
+                            can_do(SelectionTransform::FlipV),
+                            egui::Button::new("Flip selection")
+                                .shortcut_text(format!("{mod_name}I")),
+                        )
+                        .clicked()
+                    {
+                        *sel_menu_action =
+                            Some(SelMenuAction::Transform(SelectionTransform::FlipV));
                         ui.close_menu();
                     }
                     ui.menu_button("Rotate selection", |ui| {
-                        if ui.add_enabled(
-                            can_do(SelectionTransform::RotateCCW),
-                            egui::Button::new("Counterclockwise").shortcut_text(format!("{mod_name}J")),
-                        ).clicked() {
-                            *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCCW));
+                        if ui
+                            .add_enabled(
+                                can_do(SelectionTransform::RotateCCW),
+                                egui::Button::new("Counterclockwise")
+                                    .shortcut_text(format!("{mod_name}J")),
+                            )
+                            .clicked()
+                        {
+                            *sel_menu_action =
+                                Some(SelMenuAction::Transform(SelectionTransform::RotateCCW));
                             ui.close_menu();
                         }
-                        if ui.add_enabled(
-                            can_do(SelectionTransform::Rotate180),
-                            egui::Button::new("180 degrees").shortcut_text(format!("{mod_name}K")),
-                        ).clicked() {
-                            *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Rotate180));
+                        if ui
+                            .add_enabled(
+                                can_do(SelectionTransform::Rotate180),
+                                egui::Button::new("180 degrees")
+                                    .shortcut_text(format!("{mod_name}K")),
+                            )
+                            .clicked()
+                        {
+                            *sel_menu_action =
+                                Some(SelMenuAction::Transform(SelectionTransform::Rotate180));
                             ui.close_menu();
                         }
-                        if ui.add_enabled(
-                            can_do(SelectionTransform::RotateCW),
-                            egui::Button::new("Clockwise").shortcut_text(format!("{mod_name}L")),
-                        ).clicked() {
-                            *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::RotateCW));
+                        if ui
+                            .add_enabled(
+                                can_do(SelectionTransform::RotateCW),
+                                egui::Button::new("Clockwise")
+                                    .shortcut_text(format!("{mod_name}L")),
+                            )
+                            .clicked()
+                        {
+                            *sel_menu_action =
+                                Some(SelMenuAction::Transform(SelectionTransform::RotateCW));
                             ui.close_menu();
                         }
                     });
 
                     ui.separator();
 
-                    if ui.add_enabled(
-                        can_do(SelectionTransform::Opposite),
-                        egui::Button::new("Opposite subglyphs").shortcut_text(format!("{mod_name}O")),
-                    ).clicked() {
-                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::Opposite));
+                    if ui
+                        .add_enabled(
+                            can_do(SelectionTransform::Opposite),
+                            egui::Button::new("Opposite subglyphs")
+                                .shortcut_text(format!("{mod_name}O")),
+                        )
+                        .clicked()
+                    {
+                        *sel_menu_action =
+                            Some(SelMenuAction::Transform(SelectionTransform::Opposite));
                         ui.close_menu();
                     }
-                    if ui.add_enabled(
-                        can_do(SelectionTransform::OppositeBitmap),
-                        egui::Button::new("Opposite bitmap").shortcut_text(format!("{mod_name}\u{21e7}O")),
-                    ).clicked() {
-                        *sel_menu_action = Some(SelMenuAction::Transform(SelectionTransform::OppositeBitmap));
+                    if ui
+                        .add_enabled(
+                            can_do(SelectionTransform::OppositeBitmap),
+                            egui::Button::new("Opposite bitmap")
+                                .shortcut_text(format!("{mod_name}\u{21e7}O")),
+                        )
+                        .clicked()
+                    {
+                        *sel_menu_action =
+                            Some(SelMenuAction::Transform(SelectionTransform::OppositeBitmap));
                         ui.close_menu();
                     }
                 });
                 ui.menu_button("Font", |ui| {
-                    if ui.add_enabled(
-                        !self.assert_running && self.active_doc_idx().is_some(),
-                        egui::Button::new("Run assertions (current file)").shortcut_text("F6"),
-                    ).clicked() {
+                    if ui
+                        .add_enabled(
+                            !self.assert_running && self.active_doc_idx().is_some(),
+                            egui::Button::new("Run assertions (current file)").shortcut_text("F6"),
+                        )
+                        .clicked()
+                    {
                         *run_assert_file = true;
                         ui.close_menu();
                     }
-                    if ui.add_enabled(
-                        !self.assert_running,
-                        egui::Button::new("Run assertions (all files)").shortcut_text(format!("{mod_name}F6")),
-                    ).clicked() {
+                    if ui
+                        .add_enabled(
+                            !self.assert_running,
+                            egui::Button::new("Run assertions (all files)")
+                                .shortcut_text(format!("{mod_name}F6")),
+                        )
+                        .clicked()
+                    {
                         *run_assert_all = true;
                         ui.close_menu();
                     }
@@ -427,7 +515,11 @@ impl UniformApp {
                     // Splitting is only offered from a single pane that has a
                     // document: from a placeholder it would leave two of them,
                     // and there is no third pane.
-                    let alt_name = if cfg!(target_os = "macos") { "\u{2325}" } else { "Alt+" };
+                    let alt_name = if cfg!(target_os = "macos") {
+                        "\u{2325}"
+                    } else {
+                        "Alt+"
+                    };
                     for (side, label, key) in [
                         (SplitSide::Left, "Split editor left", "\u{2190}"),
                         (SplitSide::Right, "Split editor right", "\u{2192}"),
@@ -486,7 +578,10 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
-                    if ui.add(egui::Button::new("Close panes").shortcut_text(format!("{mod_name}`"))).clicked() {
+                    if ui
+                        .add(egui::Button::new("Close panes").shortcut_text(format!("{mod_name}`")))
+                        .clicked()
+                    {
                         self.bottom_panel_tab = None;
                         ui.close_menu();
                     }
@@ -505,12 +600,18 @@ impl UniformApp {
                     }
                     ui.separator();
                     let (font_label, preview_family) = if self.escape_mode {
-                        ("Use dogfooded font", egui::FontFamily::Name("UniformBitmap".into()))
+                        (
+                            "Use dogfooded font",
+                            egui::FontFamily::Name("UniformBitmap".into()),
+                        )
                     } else {
                         ("Use system font", egui::FontFamily::Name("System".into()))
                     };
                     let label = egui::RichText::new(font_label).family(preview_family);
-                    if ui.add(egui::Button::new(label).shortcut_text("F12")).clicked() {
+                    if ui
+                        .add(egui::Button::new(label).shortcut_text("F12"))
+                        .clicked()
+                    {
                         self.escape_mode = !self.escape_mode;
                         *escape_toggled = true;
                         ui.close_menu();
@@ -571,10 +672,13 @@ impl UniformApp {
                         ),
                         ZoomTarget::None => (false, false, false),
                     };
-                    if ui.add_enabled(
-                        can_in,
-                        egui::Button::new("Zoom in").shortcut_text(format!("{mod_name}=")),
-                    ).clicked() {
+                    if ui
+                        .add_enabled(
+                            can_in,
+                            egui::Button::new("Zoom in").shortcut_text(format!("{mod_name}=")),
+                        )
+                        .clicked()
+                    {
                         match zoom_target {
                             ZoomTarget::Editor(idx) => {
                                 self.set_pane_zoom_level(idx, zoom_step(editor_zoom, 1));
@@ -587,10 +691,13 @@ impl UniformApp {
                         }
                         ui.close_menu();
                     }
-                    if ui.add_enabled(
-                        can_out,
-                        egui::Button::new("Zoom out").shortcut_text(format!("{mod_name}-")),
-                    ).clicked() {
+                    if ui
+                        .add_enabled(
+                            can_out,
+                            egui::Button::new("Zoom out").shortcut_text(format!("{mod_name}-")),
+                        )
+                        .clicked()
+                    {
                         match zoom_target {
                             ZoomTarget::Editor(idx) => {
                                 self.set_pane_zoom_level(idx, zoom_step(editor_zoom, -1));
@@ -603,10 +710,13 @@ impl UniformApp {
                         }
                         ui.close_menu();
                     }
-                    if ui.add_enabled(
-                        can_reset,
-                        egui::Button::new("Reset zoom").shortcut_text(format!("{mod_name}0")),
-                    ).clicked() {
+                    if ui
+                        .add_enabled(
+                            can_reset,
+                            egui::Button::new("Reset zoom").shortcut_text(format!("{mod_name}0")),
+                        )
+                        .clicked()
+                    {
                         match zoom_target {
                             ZoomTarget::Editor(idx) => {
                                 self.set_pane_zoom_level(idx, 1);
@@ -758,67 +868,71 @@ impl UniformApp {
 
         if menu.open_folder
             && let Some(dir) = rfd::FileDialog::new().pick_folder()
-            && self.confirm_close_and_maybe_save() {
-                self.font_dir = Some(dir.clone());
-                self.open_documents.clear();
-                // The pane layout is not carried across folders: its documents
-                // are gone, and pane indices would dangle. The navigation
-                // history indexes the same list, so it goes with them.
-                self.panes = Panes::new();
-                self.nav_history.clear();
-                // Its hits name files that are no longer the ones on screen.
-                self.search = None;
-                self.sidebar.set_directory(&dir);
-                self.watch.set_directory(&dir, ctx);
-                let (base_docs, parse_errors, sources) =
-                    crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
-                self.install_font_snapshot(base_docs, parse_errors, sources);
-                // The faces of the old folder mean nothing in the new one.
-                self.selected_face.clear();
-                self.face_ids.clear();
-                let refs: Vec<&Document> = self.font_base_docs.iter().collect();
-                self.contour_cache.lock().unwrap().clear();
-                match crate::render::build_font_pair_cached(&refs, &self.contour_cache) {
-                    Some((pair, gid_map)) => {
-                        self.font_data = Some(pair);
-                        self.font_name_to_gid = gid_map;
-                    }
-                    None => {
-                        self.font_data = None;
-                        self.font_name_to_gid.clear();
-                    }
+            && self.confirm_close_and_maybe_save()
+        {
+            self.font_dir = Some(dir.clone());
+            self.open_documents.clear();
+            // The pane layout is not carried across folders: its documents
+            // are gone, and pane indices would dangle. The navigation
+            // history indexes the same list, so it goes with them.
+            self.panes = Panes::new();
+            self.nav_history.clear();
+            // Its hits name files that are no longer the ones on screen.
+            self.search = None;
+            self.sidebar.set_directory(&dir);
+            self.watch.set_directory(&dir, ctx);
+            let (base_docs, parse_errors, sources) =
+                crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+            self.install_font_snapshot(base_docs, parse_errors, sources);
+            // The faces of the old folder mean nothing in the new one.
+            self.selected_face.clear();
+            self.face_ids.clear();
+            let refs: Vec<&Document> = self.font_base_docs.iter().collect();
+            self.contour_cache.lock().unwrap().clear();
+            match crate::render::build_font_pair_cached(&refs, &self.contour_cache) {
+                Some((pair, gid_map)) => {
+                    self.font_data = Some(pair);
+                    self.font_name_to_gid = gid_map;
                 }
-                self.font_build_gen = self.font_build_gen.wrapping_add(1);
-                self.font_data_gen = self.font_build_gen;
-                self.font_applied = None;
-                self.shaped_preview.invalidate_font(self.font_data_gen);
-                self.font_rebuild_at = None;
-                self.last_font_gen = self.current_font_gen();
-                self.rebuild_named_glyphs_sync();
-                self.named_glyphs_gen = self.font_build_gen;
-                {
-                    let all_docs = self.collect_all_docs();
-                    self.issues = collect_issues(&all_docs);
+                None => {
+                    self.font_data = None;
+                    self.font_name_to_gid.clear();
                 }
-                self.issues_gen = self.font_build_gen;
-                self.set_status(format!("Opened folder {}", dir.display()));
             }
+            self.font_build_gen = self.font_build_gen.wrapping_add(1);
+            self.font_data_gen = self.font_build_gen;
+            self.font_applied = None;
+            self.shaped_preview.invalidate_font(self.font_data_gen);
+            self.font_rebuild_at = None;
+            self.last_font_gen = self.current_font_gen();
+            self.rebuild_named_glyphs_sync();
+            self.named_glyphs_gen = self.font_build_gen;
+            {
+                let all_docs = self.collect_all_docs();
+                self.issues = collect_issues(&all_docs);
+            }
+            self.issues_gen = self.font_build_gen;
+            self.set_status(format!("Opened folder {}", dir.display()));
+        }
 
         if menu.rename_file
-            && let Some(doc) = self.active_doc() {
-                let path = doc.document.path.clone();
-                self.sidebar.start_rename(&path);
-            }
+            && let Some(doc) = self.active_doc()
+        {
+            let path = doc.document.path.clone();
+            self.sidebar.start_rename(&path);
+        }
 
         if menu.rename_symbol
-            && let Some(doc) = self.active_doc_mut() {
-                doc.editor_state.start_rename_at_cursor(&doc.lines);
-            }
+            && let Some(doc) = self.active_doc_mut()
+        {
+            doc.editor_state.start_rename_at_cursor(&doc.lines);
+        }
 
         if menu.type_codepoint
-            && let Some(doc) = self.active_doc_mut() {
-                doc.editor_state.start_codepoint_entry();
-            }
+            && let Some(doc) = self.active_doc_mut()
+        {
+            doc.editor_state.start_codepoint_entry();
+        }
 
         if menu.escape_toggled {
             self.font_applied = None;
@@ -828,10 +942,9 @@ impl UniformApp {
         if menu.save {
             self.save_active();
         }
-        if menu.save_all
-            && self.save_all() {
-                self.set_status("Saved all files".to_string());
-            }
+        if menu.save_all && self.save_all() {
+            self.set_status("Saved all files".to_string());
+        }
 
         if menu.export {
             if let Some(path) = self.last_export_path.clone() {
@@ -858,15 +971,13 @@ impl UniformApp {
         if actions.edit_action != EditAction::None {
             match edit_target {
                 EditTarget::Preview => {
-                    self.shaped_preview.apply_edit_action(actions.edit_action, ctx);
+                    self.shaped_preview
+                        .apply_edit_action(actions.edit_action, ctx);
                 }
                 EditTarget::Editor => {
                     self.with_active_doc_flush(|doc| {
-                        doc.editor_state.apply_edit_action(
-                            actions.edit_action,
-                            &mut doc.lines,
-                            ctx,
-                        )
+                        doc.editor_state
+                            .apply_edit_action(actions.edit_action, &mut doc.lines, ctx)
                     });
                 }
             }
@@ -918,7 +1029,13 @@ mod shortcut_tests {
     use super::*;
 
     fn mods(command: bool, alt: bool, shift: bool) -> egui::Modifiers {
-        egui::Modifiers { alt, ctrl: command, shift, mac_cmd: command, command }
+        egui::Modifiers {
+            alt,
+            ctrl: command,
+            shift,
+            mac_cmd: command,
+            command,
+        }
     }
 
     /// The swap chord arrives as a cut, so it must be taken *and* removed:

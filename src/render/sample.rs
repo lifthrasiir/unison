@@ -76,8 +76,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let name_parts = collect_name_parts(docs);
     let color_aliases = collect_color_aliases(docs);
 
-    let all_items =
-        crate::render::ttf_builder::collect_expanded_items(docs, &name_parts);
+    let all_items = crate::render::ttf_builder::collect_expanded_items(docs, &name_parts);
 
     // Build contour cache for named glyphs
     struct CachedGlyph {
@@ -168,10 +167,17 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     let mut glyph_offsets: HashMap<String, (i16, i16)> = HashMap::new();
     for item in &all_items {
-        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
-            glyph_declared_anchors.entry(n.clone()).or_insert_with(|| body.points.clone());
+        if let DocumentItem::Glyph {
+            name: GlyphName(n),
+            body,
+        } = item
+        {
+            glyph_declared_anchors
+                .entry(n.clone())
+                .or_insert_with(|| body.points.clone());
             if body.left.is_some() || body.top.is_some() {
-                glyph_offsets.entry(n.clone())
+                glyph_offsets
+                    .entry(n.clone())
                     .or_insert((body.left.unwrap_or(0), body.top.unwrap_or(0)));
             }
         }
@@ -187,14 +193,20 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         pending,
         |name| glyph_declared_anchors.get(name).cloned(),
         |pg, effective_refs, cache| {
-            composite_glyph(pg.pixels.as_ref(), effective_refs, cache, &color_aliases, pg.scale)
-                .unwrap_or_else(|| {
-                    if let Some(grid) = &pg.pixels {
-                        CachedGlyph::from_grid(grid)
-                    } else {
-                        CachedGlyph::empty()
-                    }
-                })
+            composite_glyph(
+                pg.pixels.as_ref(),
+                effective_refs,
+                cache,
+                &color_aliases,
+                pg.scale,
+            )
+            .unwrap_or_else(|| {
+                if let Some(grid) = &pg.pixels {
+                    CachedGlyph::from_grid(grid)
+                } else {
+                    CachedGlyph::empty()
+                }
+            })
         },
         |_, _| {},
     );
@@ -203,7 +215,10 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         gref: &GlyphRef,
         color_aliases: &ColorAliasMap,
     ) -> (Option<Rgba>, LayerVisibility) {
-        let rgba = gref.fill.as_ref().and_then(|f| resolve_fill_rgba(f, color_aliases));
+        let rgba = gref
+            .fill
+            .as_ref()
+            .and_then(|f| resolve_fill_rgba(f, color_aliases));
         let vis = effective_visibility(gref.visibility, gref.fill.as_ref(), color_aliases);
         (rgba, vis)
     }
@@ -212,7 +227,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         let ref_grid = cached.grid.as_ref()?;
         let rs = cached.scale.max(1);
         let ps = parent_scale.max(1);
-        Some(if rs == ps { ref_grid.clone() } else { ref_grid.rescale(rs, ps) })
+        Some(if rs == ps {
+            ref_grid.clone()
+        } else {
+            ref_grid.rescale(rs, ps)
+        })
     }
 
     fn composite_glyph(
@@ -234,12 +253,15 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         // Each ref grid is placed where it logically sits: a target that
         // itself reaches left of / above its origin starts that much before
         // the `ref` offset.
-        let ref_scaled: Vec<Option<(PixelGrid, i32, i32)>> = refs.iter().map(|gref| {
-            let cached = resolve_cached_ref(&gref.name, cache)?;
-            let grid = rescale_ref_grid(cached, ps)?;
-            let (row, col) = cached.placed_at(gref.row() as i32, gref.col() as i32, ps);
-            Some((grid, row, col))
-        }).collect();
+        let ref_scaled: Vec<Option<(PixelGrid, i32, i32)>> = refs
+            .iter()
+            .map(|gref| {
+                let cached = resolve_cached_ref(&gref.name, cache)?;
+                let grid = rescale_ref_grid(cached, ps)?;
+                let (row, col) = cached.placed_at(gref.row() as i32, gref.col() as i32, ps);
+                Some((grid, row, col))
+            })
+            .collect();
 
         if has_negated || own_pixels.is_some() {
             let (min_r, min_c, raster_w, raster_h) = crate::render::contour::layer_bounds(
@@ -274,7 +296,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             }
 
             for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
-                let Some(cached) = resolve_cached_ref(&gref.name, cache) else { continue };
+                let Some(cached) = resolve_cached_ref(&gref.name, cache) else {
+                    continue;
+                };
                 let (off_r, off_c) = (gref.row() as i32, gref.col() as i32);
                 let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
                 if let Some((sg, row, col)) = sg {
@@ -299,7 +323,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         grid: scaled_grid,
                         negated: comp.negated ^ gref.negated,
                         fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                        visibility: if gref.fill.is_some() || gref.visibility.is_some() { fill_vis } else { comp.visibility },
+                        visibility: if gref.fill.is_some() || gref.visibility.is_some() {
+                            fill_vis
+                        } else {
+                            comp.visibility
+                        },
                     });
                 }
             }
@@ -345,8 +373,10 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             let rs = cached.scale.max(1);
             let rsf = ps as f32 / rs as f32;
             for contour in &cached.contours {
-                let translated: Vec<(f32, f32)> =
-                    contour.iter().map(|&(x, y)| (x * rsf + dx, y * rsf + dy)).collect();
+                let translated: Vec<(f32, f32)> = contour
+                    .iter()
+                    .map(|&(x, y)| (x * rsf + dx, y * rsf + dy))
+                    .collect();
                 all_contours.push(translated);
             }
             // Extend by the ref's *declared* extent, not its raster grid: a
@@ -374,10 +404,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     grid: scaled_grid,
                     negated: comp.negated,
                     fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                    visibility: if gref.fill.is_some() || gref.visibility.is_some() { fill_vis } else { comp.visibility },
+                    visibility: if gref.fill.is_some() || gref.visibility.is_some() {
+                        fill_vis
+                    } else {
+                        comp.visibility
+                    },
                 });
             }
-
         }
         let (max_width, max_height) = (max_width.max(0), max_height.max(0));
 
@@ -426,17 +459,19 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
     for item in &all_items {
         match item {
-            DocumentItem::Map { char_repr, glyph, .. } => {
+            DocumentItem::Map {
+                char_repr, glyph, ..
+            } => {
                 let pairs = expand_map_pairs(char_repr, glyph);
                 for (cp, glyph_name) in pairs {
                     cmap.entry(cp).or_insert(glyph_name);
                 }
             }
-            DocumentItem::MapDecomposed { char_repr, glyph, .. } => {
-                let pairs = crate::render::ttf_builder::decomposed_map_pairs(
-                    char_repr,
-                    glyph.as_deref(),
-                );
+            DocumentItem::MapDecomposed {
+                char_repr, glyph, ..
+            } => {
+                let pairs =
+                    crate::render::ttf_builder::decomposed_map_pairs(char_repr, glyph.as_deref());
                 for (cp, glyph_name) in pairs {
                     cmap.entry(cp).or_insert(glyph_name);
                 }
@@ -450,18 +485,19 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     for item in &all_items {
         if let DocumentItem::Directive(s) = item
             && let crate::document::Directive::ExcludeFromSample(rest) =
-                crate::document::classify_directive(s) {
-                for tok in rest.split_whitespace() {
-                    if let Some(cp) = crate::render::ttf_builder::parse_map_char(tok) {
+                crate::document::classify_directive(s)
+        {
+            for tok in rest.split_whitespace() {
+                if let Some(cp) = crate::render::ttf_builder::parse_map_char(tok) {
+                    excluded.insert(cp);
+                } else {
+                    let pairs = expand_map_pairs(tok, "");
+                    for (cp, _) in pairs {
                         excluded.insert(cp);
-                    } else {
-                        let pairs = expand_map_pairs(tok, "");
-                        for (cp, _) in pairs {
-                            excluded.insert(cp);
-                        }
                     }
                 }
             }
+        }
     }
 
     // Collect features
@@ -469,9 +505,10 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut seen_features: HashSet<String> = HashSet::new();
     for item in &all_items {
         if let DocumentItem::Feature { name, .. } = item
-            && seen_features.insert(name.clone()) {
-                features.push(name.clone());
-            }
+            && seen_features.insert(name.clone())
+        {
+            features.push(name.clone());
+        }
     }
 
     // Build sample glyphs from cache.  Components are kept at their
@@ -484,16 +521,19 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         if let Some(cached) = cache.get(glyph_name) {
             let (left, top) = glyph_offsets.get(glyph_name).copied().unwrap_or((0, 0));
             let s = cached.scale.max(1);
-            sample_glyphs.insert(glyph_name.clone(), SampleGlyph {
-                width: (cached.width + s as u16 - 1) / s as u16,
-                _height: (cached.height + s as u16 - 1) / s as u16,
-                components: cached.components.clone(),
-                origin_row: cached.origin_row.div_euclid(s as i32) as i16,
-                origin_col: cached.origin_col.div_euclid(s as i32) as i16,
-                left,
-                top,
-                scale: s,
-            });
+            sample_glyphs.insert(
+                glyph_name.clone(),
+                SampleGlyph {
+                    width: (cached.width + s as u16 - 1) / s as u16,
+                    _height: (cached.height + s as u16 - 1) / s as u16,
+                    components: cached.components.clone(),
+                    origin_row: cached.origin_row.div_euclid(s as i32) as i16,
+                    origin_col: cached.origin_col.div_euclid(s as i32) as i16,
+                    left,
+                    top,
+                    scale: s,
+                },
+            );
         }
     }
 
@@ -563,16 +603,17 @@ impl SampleGlyph {
             return self.components.clone();
         }
         let sf = s as f32;
-        self.components.iter().map(|c| {
-            SampleComponent {
+        self.components
+            .iter()
+            .map(|c| SampleComponent {
                 row: (c.row as f32 / sf).round() as i32,
                 col: (c.col as f32 / sf).round() as i32,
                 grid: c.grid.rescale(s, 1),
                 negated: c.negated,
                 fill_rgba: c.fill_rgba.clone(),
                 visibility: c.visibility,
-            }
-        }).collect()
+            })
+            .collect()
     }
 }
 
@@ -677,22 +718,30 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         excluded_run = false;
 
         let title = html_escape(&char_name_str(cp));
-        write!(w, "<a href='#u{cp:x}'><span id='sm-u{cp:x}' title='{title}'>")?;
+        write!(
+            w,
+            "<a href='#u{cp:x}'><span id='sm-u{cp:x}' title='{title}'>"
+        )?;
         if let Some(sg) = data.glyphs.get(glyph_name) {
             let (display_w, display_h, col_off, row_off) = sample_display_metrics(sg, data.height);
             let norm = sg.normalized_components();
-            let shifted: Vec<SampleComponent> = norm.iter()
+            let shifted: Vec<SampleComponent> = norm
+                .iter()
                 .filter(|c| c.visibility != LayerVisibility::ColorOnly)
                 .map(|c| {
                     let mut c2 = c.clone();
                     c2.col += col_off as i32;
                     c2.row += row_off as i32;
                     c2
-                }).collect();
+                })
+                .collect();
             let combined = composite_components(display_w, display_h, &shifted);
             let contours = track_contour_fullpixel(&combined);
             let path = contours_to_svg_path(&contours, 1.0, 0.0, 0.0);
-            write!(w, "<svg viewBox=\"0 0 {display_w} {display_h}\" width=\"{display_w}\" height=\"{display_h}\"><path d='{path}'/></svg>")?;
+            write!(
+                w,
+                "<svg viewBox=\"0 0 {display_w} {display_h}\" width=\"{display_w}\" height=\"{display_h}\"><path d='{path}'/></svg>"
+            )?;
         }
         write!(w, "</span></a>")?;
     }
@@ -721,7 +770,10 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
             let sh = display_h as u32 * 5;
             let gs = sg.scale.max(1) as f32;
             let comp_svg_scale = svg_scale / gs;
-            write!(w, "<svg viewBox=\"0 0 {vw} {vh}\" width=\"{sw}\" height=\"{sh}\">")?;
+            write!(
+                w,
+                "<svg viewBox=\"0 0 {vw} {vh}\" width=\"{sw}\" height=\"{sh}\">"
+            )?;
             for comp in &sg.components {
                 if comp.visibility == LayerVisibility::MonoOnly {
                     continue;
@@ -734,8 +786,11 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
                     if comp.negated {
                         write!(w, "<path class='c' d='{path}' fill='#000'/>")?;
                     } else if let Some(ref rgba) = comp.fill_rgba {
-                        write!(w, "<path class='c' d='{path}' fill='#{:02x}{:02x}{:02x}'/>"
-                            , rgba.r, rgba.g, rgba.b)?;
+                        write!(
+                            w,
+                            "<path class='c' d='{path}' fill='#{:02x}{:02x}{:02x}'/>",
+                            rgba.r, rgba.g, rgba.b
+                        )?;
                     } else {
                         let color = path_hash_color(&path);
                         write!(w, "<path d='{path}' fill='#{color:06x}'/>")?;
@@ -826,7 +881,10 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
     }
     let nrows = (row + 1) as u32;
     if nrows == 0 {
-        return Err(io::Error::new(io::ErrorKind::InvalidData, "no glyph positions"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "no glyph positions",
+        ));
     }
 
     let label_width: u32 = 8 * 8 + 1;
@@ -847,14 +905,26 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
 
     // Draw grid lines
     for row_idx in 0..nrows {
-        let prev_offset = if row_idx > 0 { row_offsets[row_idx as usize - 1] } else { 0 };
+        let prev_offset = if row_idx > 0 {
+            row_offsets[row_idx as usize - 1]
+        } else {
+            0
+        };
         let offset = row_offsets[row_idx as usize];
 
         for extra_y in prev_offset..offset {
             let y = (max_height + 1) * row_idx + extra_y;
             if y < img_height {
                 for x in label_width..img_width {
-                    set_pixel(&mut pixels, stride, x as usize, y as usize, 0x80, 0x80, 0x80);
+                    set_pixel(
+                        &mut pixels,
+                        stride,
+                        x as usize,
+                        y as usize,
+                        0x80,
+                        0x80,
+                        0x80,
+                    );
                 }
             }
         }
@@ -862,7 +932,15 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
         let y = (max_height + 1) * row_idx + offset;
         if y < img_height {
             for x in label_width..img_width {
-                set_pixel(&mut pixels, stride, x as usize, y as usize, 0x80, 0x80, 0x80);
+                set_pixel(
+                    &mut pixels,
+                    stride,
+                    x as usize,
+                    y as usize,
+                    0x80,
+                    0x80,
+                    0x80,
+                );
             }
         }
 
@@ -871,25 +949,34 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
         for (char_idx, ch) in label.chars().enumerate() {
             let cp = ch as u32;
             if let Some(glyph_name) = data.cmap.get(&cp)
-                && let Some(sg) = data.glyphs.get(glyph_name) {
-                    render_glyph_bitmap_rgba(
-                        &mut pixels,
-                        stride,
-                        img_height as usize,
-                        (char_idx as u32 * 8) as i32,
-                        label_y as i32,
-                        sg,
-                        [0x80, 0x80, 0x80],
-                        false,
-                    );
-                }
+                && let Some(sg) = data.glyphs.get(glyph_name)
+            {
+                render_glyph_bitmap_rgba(
+                    &mut pixels,
+                    stride,
+                    img_height as usize,
+                    (char_idx as u32 * 8) as i32,
+                    label_y as i32,
+                    sg,
+                    [0x80, 0x80, 0x80],
+                    false,
+                );
+            }
         }
     }
     // Bottom border
     {
         let y = img_height - 1;
         for x in label_width..img_width {
-            set_pixel(&mut pixels, stride, x as usize, y as usize, 0x80, 0x80, 0x80);
+            set_pixel(
+                &mut pixels,
+                stride,
+                x as usize,
+                y as usize,
+                0x80,
+                0x80,
+                0x80,
+            );
         }
     }
 
@@ -909,8 +996,12 @@ pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()>
 
     // Render each glyph
     for (&cp, glyph_name) in &data.cmap {
-        let Some(&(r, left)) = positions.get(&cp) else { continue };
-        let Some(sg) = data.glyphs.get(glyph_name) else { continue };
+        let Some(&(r, left)) = positions.get(&cp) else {
+            continue;
+        };
+        let Some(sg) = data.glyphs.get(glyph_name) else {
+            continue;
+        };
         let y = (max_height + 1) * r + row_offsets[r as usize] + 1;
         let x = label_width + 1 + left;
 
@@ -1044,15 +1135,23 @@ fn write_live_html_inner(
     let features = if data.features.is_empty() {
         "inherit".to_string()
     } else {
-        data.features.iter().map(|f| format!("'{f}'")).collect::<Vec<_>>().join(",")
+        data.features
+            .iter()
+            .map(|f| format!("'{f}'"))
+            .collect::<Vec<_>>()
+            .join(",")
     };
 
     let has_udhr = data_dir.is_some_and(|d| d.join("udhr-article1.json").exists());
     let has_confusables = data_dir.is_some_and(|d| {
         std::fs::read_dir(d)
-            .map(|entries| entries.filter_map(|e| e.ok()).any(|e| {
-                e.file_name().to_str().is_some_and(|n| n.starts_with("confusables") && n.ends_with(".txt"))
-            }))
+            .map(|entries| {
+                entries.filter_map(|e| e.ok()).any(|e| {
+                    e.file_name()
+                        .to_str()
+                        .is_some_and(|n| n.starts_with("confusables") && n.ends_with(".txt"))
+                })
+            })
             .unwrap_or(false)
     });
     // CLDR subdivision containment, e.g. `cldr-subdivisions-48.2.0.json`; the version is part of
@@ -1060,9 +1159,9 @@ fn write_live_html_inner(
     let subdivisions_path = data_dir.and_then(|d| {
         std::fs::read_dir(d).ok().and_then(|entries| {
             entries.filter_map(|e| e.ok()).map(|e| e.path()).find(|p| {
-                p.file_name().and_then(|n| n.to_str()).is_some_and(|n| {
-                    n.starts_with("cldr-subdivisions-") && n.ends_with(".json")
-                })
+                p.file_name()
+                    .and_then(|n| n.to_str())
+                    .is_some_and(|n| n.starts_with("cldr-subdivisions-") && n.ends_with(".json"))
             })
         })
     });
@@ -1085,13 +1184,19 @@ Please note that this is in development and subject to change.
 Load: ")?;
 
     let mut links: Vec<(&str, &str)> = Vec::new();
-    if has_udhr { links.push(("udhr", "UDHR")); }
-    if has_confusables { links.push(("confus", "Confusables")); }
+    if has_udhr {
+        links.push(("udhr", "UDHR"));
+    }
+    if has_confusables {
+        links.push(("confus", "Confusables"));
+    }
     links.push(("hangul", "All Hangul"));
     links.push(("flags", "All Flags"));
     links.push(("all", "All Glyphs"));
     for (i, (id, label)) in links.iter().enumerate() {
-        if i > 0 { write!(w, ", ")?; }
+        if i > 0 {
+            write!(w, ", ")?;
+        }
         write!(w, "<a href='#{id}'>{label}</a>")?;
     }
 
@@ -1100,7 +1205,9 @@ Load: ")?;
 </pre><pre id=edit>")?;
 
     // Logo
-    write!(w, r#"
+    write!(
+        w,
+        r#"
 888     888          d8b
 888     888          Y8P
 888     888
@@ -1109,7 +1216,8 @@ Load: ")?;
 888     888 888  888 888 "Y8888b. 888  888 888  888
 Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
  "Y88888P"  888  888 888  88888P'  "Y88P"  888  888
-"#)?;
+"#
+    )?;
 
     // UDHR section
     if has_udhr {
@@ -1128,10 +1236,13 @@ Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
     write_live_flags(w, subdivisions_path.as_deref())?;
 
     // All Glyphs section
-    write!(w, "</pre><pre id=all class=hide>\n\
+    write!(
+        w,
+        "</pre><pre id=all class=hide>\n\
 \u{250c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2510}\n\
 \u{2502}All Supported Glyphs\u{2502}\n\
-\u{2514}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2518}\n")?;
+\u{2514}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2518}\n"
+    )?;
 
     let mut chars = String::new();
     let mut prev_block: Option<u32> = None;
@@ -1210,10 +1321,13 @@ fn write_live_udhr(
 
     let udhr_title = "Article 1 of Universal Declaration of Human Rights";
     let border: String = std::iter::repeat_n('\u{2500}', udhr_title.len()).collect();
-    write!(w, "</pre><pre id=udhr class=hide>\n\
+    write!(
+        w,
+        "</pre><pre id=udhr class=hide>\n\
 \u{250c}{border}\u{2510}\n\
 \u{2502}{udhr_title}\u{2502}\n\
-\u{2514}{border}\u{2518}\n\n")?;
+\u{2514}{border}\u{2518}\n\n"
+    )?;
 
     let selected_set: HashSet<usize> = selected_indices.iter().copied().collect();
 
@@ -1248,9 +1362,9 @@ fn write_live_confusables(
     let confusables_path = std::fs::read_dir(data_dir)?
         .filter_map(|e| e.ok())
         .find(|e| {
-            e.file_name().to_str().is_some_and(|n| {
-                n.starts_with("confusables") && n.ends_with(".txt")
-            })
+            e.file_name()
+                .to_str()
+                .is_some_and(|n| n.starts_with("confusables") && n.ends_with(".txt"))
         })
         .map(|e| e.path())
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "confusables file not found"))?;
@@ -1283,7 +1397,10 @@ fn write_live_confusables(
         if source_cps.is_empty() || target_cps.is_empty() {
             continue;
         }
-        groups.entry(target_cps.clone()).or_default().push(source_cps);
+        groups
+            .entry(target_cps.clone())
+            .or_default()
+            .push(source_cps);
     }
 
     // Build equivalence groups: target + all sources that map to it
@@ -1340,10 +1457,13 @@ fn write_live_confusables(
         }
     }
 
-    write!(w, "</pre><pre id=confus class=hide>\n\
+    write!(
+        w,
+        "</pre><pre id=confus class=hide>\n\
 \u{250c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2510}\n\
 \u{2502}Confusables\u{2502}\n\
-\u{2514}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2518}\n\n")?;
+\u{2514}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2518}\n\n"
+    )?;
 
     for group in &merged {
         for (i, member) in group.members.iter().enumerate() {
@@ -1351,15 +1471,9 @@ fn write_live_confusables(
                 write!(w, " ")?;
             }
             // Build title with each codepoint's name
-            let title_parts: Vec<String> = member
-                .iter()
-                .map(|&cp| char_name_str(cp))
-                .collect();
+            let title_parts: Vec<String> = member.iter().map(|&cp| char_name_str(cp)).collect();
             let title = html_escape(&title_parts.join("\n"));
-            let text: String = member
-                .iter()
-                .filter_map(|&cp| char::from_u32(cp))
-                .collect();
+            let text: String = member.iter().filter_map(|&cp| char::from_u32(cp)).collect();
             write!(w, "<span title='{title}'>{}</span>", html_escape(&text))?;
         }
         writeln!(w)?;
@@ -1373,7 +1487,9 @@ fn write_live_confusables(
 // ---------------------------------------------------------------------------
 
 fn write_live_hangul(w: &mut dyn Write) -> io::Result<()> {
-    write!(w, "</pre><pre id=hangul class=hide>\n\
+    write!(
+        w,
+        "</pre><pre id=hangul class=hide>\n\
 \u{250c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2510}\n\
 \u{2502}All Hangul Syllables\u{2502}\n\
 \u{2502} (Modern + Ancient) \u{2502}\n\
@@ -1386,7 +1502,8 @@ v(b,[[0x1160,0x117e],[0x119e],[0x11a1],[0x11a3,0x11a4]]);\
 v(c,[[0x11a8,0x11c2]]);\
 for(i=0;i&lt;a.length;++i,p.push('\\n'))for(j=0;j&lt;b.length;++j,p.push('\\n'))for(k=0;k&lt;c.length;++k)p.push(a[i]+b[j]+c[k]);\
 this.parentNode.replaceChild(document.createTextNode(p.join('')),this);\
-return!1\">Render!</a></span></div>\n")?;
+return!1\">Render!</a></span></div>\n"
+    )?;
 
     Ok(())
 }
@@ -1414,10 +1531,13 @@ fn subdivision_flag_seq(code: &str) -> Option<String> {
 }
 
 fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::Result<()> {
-    write!(w, "</pre><pre id=flags class=hide>\n\
+    write!(
+        w,
+        "</pre><pre id=flags class=hide>\n\
 \u{250c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2510}\n\
 \u{2502}All Flags\u{2502}\n\
-\u{2514}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2518}\n\n")?;
+\u{2514}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2518}\n\n"
+    )?;
 
     // Every regional indicator pair, 26 per line.
     let mut line = String::new();
@@ -1430,7 +1550,9 @@ fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::
         writeln!(w, "{line}")?;
     }
 
-    let Some(path) = subdivisions_path else { return Ok(()) };
+    let Some(path) = subdivisions_path else {
+        return Ok(());
+    };
 
     #[derive(serde::Deserialize)]
     struct SubdivisionFile {
@@ -1443,7 +1565,10 @@ fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::
 
     writeln!(w)?;
     for (region, codes) in &parsed.subdivisions {
-        let seqs: Vec<String> = codes.iter().filter_map(|c| subdivision_flag_seq(c)).collect();
+        let seqs: Vec<String> = codes
+            .iter()
+            .filter_map(|c| subdivision_flag_seq(c))
+            .collect();
         if seqs.is_empty() {
             continue;
         }
@@ -1531,7 +1656,10 @@ map A = container
 ",
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");
-        let container = data.glyphs.get("container").expect("container glyph present");
+        let container = data
+            .glyphs
+            .get("container")
+            .expect("container glyph present");
         // stem (1-wide -join) doesn't size-match +join (2-wide), so stem:wide
         // (2-wide -join) must be selected instead, placed at offset col=3.
         // Total width becomes max(6, 3 + 4) = 7; without alternative
@@ -1633,7 +1761,10 @@ map generate ä
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");
 
-        let mark = data.glyphs.get("dia-above").expect("mark should be in sample glyphs");
+        let mark = data
+            .glyphs
+            .get("dia-above")
+            .expect("mark should be in sample glyphs");
         assert_eq!(
             mark.width, 0,
             "a `0 H mark` glyph whose ref sits at a negative column must keep width 0"
@@ -1678,7 +1809,10 @@ map A = test-a
 ",
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");
-        let g = data.glyphs.get("test-a").expect("test-a should be in sample glyphs");
+        let g = data
+            .glyphs
+            .get("test-a")
+            .expect("test-a should be in sample glyphs");
         assert_eq!(
             g.width, 4,
             "expanded glyph should retain its declared width despite an empty own grid"
@@ -1739,7 +1873,10 @@ map A = shifted
 ",
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");
-        let g = data.glyphs.get("shifted").expect("shifted should be in sample glyphs");
+        let g = data
+            .glyphs
+            .get("shifted")
+            .expect("shifted should be in sample glyphs");
         assert_eq!((g.origin_col, g.width), (-1, 2));
         let (display_w, _, col_off, _) = sample_display_metrics(g, data.height);
         assert_eq!((display_w, col_off), (3, 1));
@@ -1773,7 +1910,10 @@ map A = raised
 ",
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");
-        let g = data.glyphs.get("raised").expect("raised should be in sample glyphs");
+        let g = data
+            .glyphs
+            .get("raised")
+            .expect("raised should be in sample glyphs");
         assert_eq!((g.origin_row, g.origin_col), (0, 0));
         assert_eq!(sample_display_metrics(g, data.height), (2, 16, 0, 0));
     }
@@ -1843,8 +1983,14 @@ map A = container
 ",
         );
         let data = collect_sample_data(&[&d]).expect("sample data should build");
-        let g = data.glyphs.get("container").expect("container glyph present");
-        assert_eq!(g.width, 8, "width must match parent, not inflated by sub-pixel ref");
+        let g = data
+            .glyphs
+            .get("container")
+            .expect("container glyph present");
+        assert_eq!(
+            g.width, 8,
+            "width must match parent, not inflated by sub-pixel ref"
+        );
     }
 
     #[test]
@@ -1974,11 +2120,17 @@ map A = diag
         let path_start = svg.split("<path").nth(1).unwrap();
         let d_attr = path_start.split("d='").nth(1).unwrap();
         let d_attr = &d_attr[..d_attr.find('\'').unwrap()];
-        let y_start: f32 = d_attr.strip_prefix('M').unwrap()
+        let y_start: f32 = d_attr
+            .strip_prefix('M')
+            .unwrap()
             .split(|c: char| c == 'l' || c == 'h' || c == 'v')
-            .next().unwrap()
-            .split_whitespace().nth(1).unwrap()
-            .parse().unwrap();
+            .next()
+            .unwrap()
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .parse()
+            .unwrap();
         let expected = 16.0 / 3.0 * 2.0; // 10.666...
         assert!(
             (y_start - expected).abs() < 0.01,
@@ -1994,7 +2146,10 @@ map A = diag
             assert!(
                 bottom <= max_h && right <= max_w,
                 "{label} component {i} overflows: row={} h={} col={} w={} (bottom={bottom}, right={right})",
-                comp.row, comp.grid.height, comp.col, comp.grid.width,
+                comp.row,
+                comp.grid.height,
+                comp.col,
+                comp.grid.width,
             );
         }
     }

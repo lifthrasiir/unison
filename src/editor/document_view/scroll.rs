@@ -1,9 +1,9 @@
 //! Scrolling: wheel/page handling, physics, grid horizontal scrollbars and
 //! drag auto-scroll.
 
+use super::layout::{GridBlock, GridStrip, VLineKind, VisualLine, doc_line_to_y};
 use super::*;
 use crate::editor::EditorId;
-use super::layout::{GridBlock, GridStrip, VLineKind, VisualLine, doc_line_to_y};
 
 const COARSE_SCROLL_COOLDOWN: f64 = 0.05;
 
@@ -134,8 +134,7 @@ pub(super) fn lock_scroll_gesture_zone(ui: &mut egui::Ui, state: &EditorState) {
                 Some((t, was_on)) if now - t < SCROLL_GESTURE_GRACE => was_on,
                 _ => currently_on,
             };
-            ui.ctx()
-                .data_mut(|d| d.insert_temp(gesture_id, (now, on)));
+            ui.ctx().data_mut(|d| d.insert_temp(gesture_id, (now, on)));
             on
         } else {
             ui.ctx()
@@ -209,9 +208,7 @@ pub(super) fn handle_page_scroll(
     for i in 0..vlines.len() {
         let top = vline_y[i];
         let h = vlines[i].height(row_height, grid_cell);
-        if top >= prev_scroll_y - eps
-            && top + h <= prev_scroll_y + prev_viewport_h + eps
-        {
+        if top >= prev_scroll_y - eps && top + h <= prev_scroll_y + prev_viewport_h + eps {
             if first_vis.is_none() {
                 first_vis = Some(i);
             }
@@ -305,8 +302,7 @@ pub(super) fn resolve_scroll_target(
                 let old_doc_y = prev_scroll_y + pvo;
                 Some((old_doc_y * scale - pvo).max(0.0))
             } else {
-                let new_caret_y =
-                    doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
+                let new_caret_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
                 let old_caret_y = new_caret_y / scale;
                 let visual_offset = (old_caret_y - prev_scroll_y).max(0.0);
                 Some((new_caret_y - visual_offset).max(0.0))
@@ -432,7 +428,12 @@ pub(super) fn draw_grid_hscrollbars(
         dragging |= resp.is_pointer_button_down_on() || resp.dragged();
 
         let scroll = state.grid_scroll_x.min(overflow);
-        let thumb_x = bar.min.x + if travel > 0.5 { travel * scroll / overflow } else { 0.0 };
+        let thumb_x = bar.min.x
+            + if travel > 0.5 {
+                travel * scroll / overflow
+            } else {
+                0.0
+            };
 
         // A press outside the thumb jumps to that position first; the drag
         // then continues from there.
@@ -459,7 +460,12 @@ pub(super) fn draw_grid_hscrollbars(
         painter.rect_filled(*bar, radius, pal.hscroll_track);
         let thumb = egui::Rect::from_min_size(
             egui::pos2(
-                bar.min.x + if travel > 0.5 { travel * new_scroll / overflow } else { 0.0 },
+                bar.min.x
+                    + if travel > 0.5 {
+                        travel * new_scroll / overflow
+                    } else {
+                        0.0
+                    },
                 bar.min.y,
             ),
             egui::vec2(thumb_w, bar.height()),
@@ -524,8 +530,7 @@ pub(super) fn auto_scroll_grid_on_drag(
 
     let dt = ui.input(|i| i.stable_dt).min(0.1);
     let overflow = strip.overflow(block.content_w);
-    let next =
-        (state.grid_scroll_x + ratio * HSCROLL_AUTO_SPEED * zoom * dt).clamp(0.0, overflow);
+    let next = (state.grid_scroll_x + ratio * HSCROLL_AUTO_SPEED * zoom * dt).clamp(0.0, overflow);
     if (next - state.grid_scroll_x).abs() > 0.01 {
         state.grid_scroll_x = next;
     }

@@ -12,16 +12,37 @@ use super::*;
 fn header_dims_match_derive_for_valued_flags() {
     // Valued flags may precede W H; their argument is not a dimension.
     let dims = glyph_header_dims(&["foo", "advance", "0", "4", "3"]);
-    assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3, scale: 1 }));
+    assert_eq!(
+        dims,
+        Some(GlyphHeaderDims {
+            width: 4,
+            height: 3,
+            scale: 1
+        })
+    );
 
     let dims = glyph_header_dims(&["foo", "left", "2", "3"]);
     assert_eq!(dims, None, "width 3 without height is not a grid header");
 
     let dims = glyph_header_dims(&["foo", "4", "3", "advance", "0"]);
-    assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3, scale: 1 }));
+    assert_eq!(
+        dims,
+        Some(GlyphHeaderDims {
+            width: 4,
+            height: 3,
+            scale: 1
+        })
+    );
 
     let dims = glyph_header_dims(&["foo", "sticky", "4", "3"]);
-    assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 3, scale: 1 }));
+    assert_eq!(
+        dims,
+        Some(GlyphHeaderDims {
+            width: 4,
+            height: 3,
+            scale: 1
+        })
+    );
 
     // Cross-check against derive_document on the same headers.
     for (header, expected) in [
@@ -37,8 +58,7 @@ fn header_dims_match_derive_for_valued_flags() {
         let derived = body.pixels.as_ref().map(|g| (g.width, g.height));
         assert_eq!(derived, expected, "derive mismatch for {header:?}");
         let tokens = tokenize_tokens(header).unwrap();
-        let dims = glyph_header_dims(&tokens[1..])
-            .map(|d| (d.width, d.height));
+        let dims = glyph_header_dims(&tokens[1..]).map(|d| (d.width, d.height));
         assert_eq!(dims, expected, "glyph_header_dims mismatch for {header:?}");
     }
 }
@@ -90,23 +110,27 @@ assert shape AB for wide both : a : b
     assert!(
         matches!(&doc.items[1], DocumentItem::Slice { id, inherits, .. }
             if id == "both" && inherits == &["wide", "narrow"]),
-        "got {:?}", doc.items[1],
+        "got {:?}",
+        doc.items[1],
     );
     assert!(
         matches!(&doc.items[3], DocumentItem::Face { id, slices, comment }
             if id == "wide" && slices == &["wide"]
                 && comment.as_deref() == Some("the ambiguous-wide one")),
-        "got {:?}", doc.items[3],
+        "got {:?}",
+        doc.items[3],
     );
     assert!(
         matches!(&doc.items[5], DocumentItem::Map { slice, char_repr, .. }
             if slice.as_deref() == Some("wide") && char_repr == "°"),
-        "got {:?}", doc.items[5],
+        "got {:?}",
+        doc.items[5],
     );
     assert!(
         matches!(&doc.items[8], DocumentItem::AssertShape { slices, .. }
             if slices == &["wide", "both"]),
-        "got {:?}", doc.items[8],
+        "got {:?}",
+        doc.items[8],
     );
 
     let mut output = Vec::new();
@@ -122,7 +146,8 @@ fn a_colon_being_mapped_is_not_a_slice_qualifier() {
     assert!(
         matches!(&doc.items[0], DocumentItem::Map { slice, char_repr, glyph, .. }
             if slice.is_none() && char_repr == ":" && glyph == "colon"),
-        "got {:?}", doc.items[0],
+        "got {:?}",
+        doc.items[0],
     );
 
     // ...and a slice-qualified mapping *of* a colon still works.
@@ -130,7 +155,8 @@ fn a_colon_being_mapped_is_not_a_slice_qualifier() {
     assert!(
         matches!(&doc.items[0], DocumentItem::Map { slice, char_repr, .. }
             if slice.as_deref() == Some("wide") && char_repr == ":"),
-        "got {:?}", doc.items[0],
+        "got {:?}",
+        doc.items[0],
     );
 }
 
@@ -340,7 +366,6 @@ fn malformed_ref_is_not_reinterpreted_as_auto_ref() {
     }
 }
 
-
 // -----------------------------------------------------------------------
 // DocLine round-trip tests
 // -----------------------------------------------------------------------
@@ -392,7 +417,6 @@ fn docline_roundtrip_alias() {
     assert!(matches!(lines[0], DocLine::Text(_)));
 }
 
-
 #[test]
 fn docline_roundtrip_ref_only_glyph() {
     let input = "\
@@ -438,9 +462,7 @@ fn assert_derive_equivalent(input: &str) {
     );
     assert_eq!(starts.len(), new_doc.items.len());
 
-    for (idx, (old_item, new_item)) in
-        old_doc.items.iter().zip(new_doc.items.iter()).enumerate()
-    {
+    for (idx, (old_item, new_item)) in old_doc.items.iter().zip(new_doc.items.iter()).enumerate() {
         match (old_item, new_item) {
             (DocumentItem::BlankLine, DocumentItem::BlankLine) => {}
             (DocumentItem::Comment(a), DocumentItem::Comment(b)) => {
@@ -453,15 +475,37 @@ fn assert_derive_equivalent(input: &str) {
                 assert_eq!(a, b, "directive mismatch at item {idx}");
             }
             (
-                DocumentItem::NameParts { name: n1, values: v1, .. },
-                DocumentItem::NameParts { name: n2, values: v2, .. },
+                DocumentItem::NameParts {
+                    name: n1,
+                    values: v1,
+                    ..
+                },
+                DocumentItem::NameParts {
+                    name: n2,
+                    values: v2,
+                    ..
+                },
             ) => {
                 assert_eq!(n1, n2, "name-parts name mismatch at item {idx}");
                 assert_eq!(v1, v2, "name-parts values mismatch at item {idx}");
             }
             (
-                DocumentItem::Remap { feature: f1, lookbehind: lb1, source: s1, target: t1, lookahead: la1, .. },
-                DocumentItem::Remap { feature: f2, lookbehind: lb2, source: s2, target: t2, lookahead: la2, .. },
+                DocumentItem::Remap {
+                    feature: f1,
+                    lookbehind: lb1,
+                    source: s1,
+                    target: t1,
+                    lookahead: la1,
+                    ..
+                },
+                DocumentItem::Remap {
+                    feature: f2,
+                    lookbehind: lb2,
+                    source: s2,
+                    target: t2,
+                    lookahead: la2,
+                    ..
+                },
             ) => {
                 assert_eq!(f1, f2, "remap feature mismatch at item {idx}");
                 assert_eq!(lb1, lb2, "remap lookbehind mismatch at item {idx}");
@@ -470,32 +514,29 @@ fn assert_derive_equivalent(input: &str) {
                 assert_eq!(la1, la2, "remap lookahead mismatch at item {idx}");
             }
             (
-                DocumentItem::Feature { name: n1, scripts: s1, remap_group: r1, .. },
-                DocumentItem::Feature { name: n2, scripts: s2, remap_group: r2, .. },
+                DocumentItem::Feature {
+                    name: n1,
+                    scripts: s1,
+                    remap_group: r1,
+                    ..
+                },
+                DocumentItem::Feature {
+                    name: n2,
+                    scripts: s2,
+                    remap_group: r2,
+                    ..
+                },
             ) => {
                 assert_eq!(n1, n2, "feature name mismatch at item {idx}");
                 assert_eq!(s1, s2, "feature scripts mismatch at item {idx}");
                 assert_eq!(r1, r2, "feature remap_group mismatch at item {idx}");
             }
             (
-                DocumentItem::Glyph {
-                    name: n1,
-                    body: b1,
-                },
-                DocumentItem::Glyph {
-                    name: n2,
-                    body: b2,
-                },
+                DocumentItem::Glyph { name: n1, body: b1 },
+                DocumentItem::Glyph { name: n2, body: b2 },
             ) => {
-                assert_eq!(
-                    n1.display(),
-                    n2.display(),
-                    "name mismatch at item {idx}"
-                );
-                assert_eq!(
-                    b1.pixels, b2.pixels,
-                    "pixels mismatch at item {idx}"
-                );
+                assert_eq!(n1.display(), n2.display(), "name mismatch at item {idx}");
+                assert_eq!(b1.pixels, b2.pixels, "pixels mismatch at item {idx}");
                 assert_eq!(
                     b1.refs.len(),
                     b2.refs.len(),
@@ -503,8 +544,14 @@ fn assert_derive_equivalent(input: &str) {
                 );
                 for (ri, (r1, r2)) in b1.refs.iter().zip(b2.refs.iter()).enumerate() {
                     assert_eq!(r1.name, r2.name, "ref name mismatch at item {idx} ref {ri}");
-                    assert_eq!(r1.offset, r2.offset, "ref offset mismatch at item {idx} ref {ri}");
-                    assert_eq!(r1.negated, r2.negated, "ref negation mismatch at item {idx} ref {ri}");
+                    assert_eq!(
+                        r1.offset, r2.offset,
+                        "ref offset mismatch at item {idx} ref {ri}"
+                    );
+                    assert_eq!(
+                        r1.negated, r2.negated,
+                        "ref negation mismatch at item {idx} ref {ri}"
+                    );
                 }
             }
             _ => panic!(
@@ -542,7 +589,6 @@ exclude-from-sample U+AD00
 fn derive_equivalent_alias() {
     assert_derive_equivalent("glyph uni0041 = test-glyph\n");
 }
-
 
 #[test]
 fn derive_equivalent_mixed_refs() {
@@ -773,10 +819,7 @@ fn tokenize_mixed() {
 
 #[test]
 fn tokenize_multiple_quoted() {
-    assert_eq!(
-        tokenize_tokens("`` `a` ````").unwrap(),
-        vec!["", "a", "`"],
-    );
+    assert_eq!(tokenize_tokens("`` `a` ````").unwrap(), vec!["", "a", "`"],);
 }
 
 #[test]
@@ -830,20 +873,23 @@ map generate = g
     assert!(
         matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, glyph, comment, .. }
             if char_repr == "À" && glyph.is_none() && comment.as_deref() == Some("plain")),
-        "got {:?}", doc.items[0],
+        "got {:?}",
+        doc.items[0],
     );
     assert!(
         matches!(&doc.items[1], DocumentItem::MapDecomposed { char_repr, glyph, comment, .. }
             if char_repr == "Á" && glyph.as_deref() == Some("a-acute")
                 && comment.as_deref() == Some("named")),
-        "got {:?}", doc.items[1],
+        "got {:?}",
+        doc.items[1],
     );
     // `generate` in the plain form's own arity stays a plain `map`, so a glyph
     // that happens to be called `generate` is still reachable.
     assert!(
         matches!(&doc.items[2], DocumentItem::Map { char_repr, glyph, .. }
             if char_repr == "generate" && glyph == "g"),
-        "got {:?}", doc.items[2],
+        "got {:?}",
+        doc.items[2],
     );
 
     let mut output = Vec::new();
@@ -856,7 +902,10 @@ fn parse_map_with_quoted_backtick() {
     // map ```` = bquot  →  map backtick-char to "bquot"
     let input = "map ```` = bquot\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    if let DocumentItem::Map { char_repr, glyph, .. } = &doc.items[0] {
+    if let DocumentItem::Map {
+        char_repr, glyph, ..
+    } = &doc.items[0]
+    {
         assert_eq!(char_repr, "`");
         assert_eq!(glyph, "bquot");
     } else {
@@ -921,14 +970,26 @@ fn roundtrip_color_directive() {
     let input = "color red = #ff0000\ncolor blue = #0000ffcc coloronly\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 2);
-    if let DocumentItem::Color { name, value, visibility, .. } = &doc.items[0] {
+    if let DocumentItem::Color {
+        name,
+        value,
+        visibility,
+        ..
+    } = &doc.items[0]
+    {
         assert_eq!(name, "red");
         assert_eq!(value, "#ff0000");
         assert!(visibility.is_none());
     } else {
         panic!("expected Color");
     }
-    if let DocumentItem::Color { name, value, visibility, .. } = &doc.items[1] {
+    if let DocumentItem::Color {
+        name,
+        value,
+        visibility,
+        ..
+    } = &doc.items[1]
+    {
         assert_eq!(name, "blue");
         assert_eq!(value, "#0000ffcc");
         assert_eq!(*visibility, Some(LayerVisibility::ColorOnly));
@@ -1055,9 +1116,18 @@ ref full 1 2 negated inherit fill #00ff00 coloronly
     serialize_document(&doc, &mut output).unwrap();
     let output_str = String::from_utf8(output).unwrap();
     // Canonical order: negated, inherit, fill, visibility.
-    assert!(output_str.contains("ref auto-inherit inherit\n"), "{output_str}");
-    assert!(output_str.contains("ref offset-inherit 1 -2 inherit\n"), "{output_str}");
-    assert!(output_str.contains("ref full 1 2 negated inherit fill #00ff00 coloronly\n"), "{output_str}");
+    assert!(
+        output_str.contains("ref auto-inherit inherit\n"),
+        "{output_str}"
+    );
+    assert!(
+        output_str.contains("ref offset-inherit 1 -2 inherit\n"),
+        "{output_str}"
+    );
+    assert!(
+        output_str.contains("ref full 1 2 negated inherit fill #00ff00 coloronly\n"),
+        "{output_str}"
+    );
 }
 
 #[test]
@@ -1065,7 +1135,14 @@ fn parse_assert_shape_basic() {
     let input = "assert shape `AB` : a-upper : b-upper\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 1);
-    if let DocumentItem::AssertShape { text, features, expected, comment, .. } = &doc.items[0] {
+    if let DocumentItem::AssertShape {
+        text,
+        features,
+        expected,
+        comment,
+        ..
+    } = &doc.items[0]
+    {
         assert_eq!(text, "AB");
         assert!(features.is_empty());
         assert_eq!(expected.len(), 2);
@@ -1086,7 +1163,13 @@ fn parse_assert_shape_with_language() {
     let input = "assert shape `\u{15f}` +liga @ro : uni0219\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 1);
-    if let DocumentItem::AssertShape { language, features, expected, .. } = &doc.items[0] {
+    if let DocumentItem::AssertShape {
+        language,
+        features,
+        expected,
+        ..
+    } = &doc.items[0]
+    {
         assert_eq!(language.as_deref(), Some("ro"));
         assert_eq!(features.len(), 1, "the feature flag must survive beside it");
         assert_eq!(expected[0].name, "uni0219");
@@ -1121,7 +1204,13 @@ fn parse_assert_shape_with_features_and_props() {
     let input = "assert shape `fi` +liga -frac : fi-lig advance 512 : x offset 10 20\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert_eq!(doc.items.len(), 1);
-    if let DocumentItem::AssertShape { text, features, expected, .. } = &doc.items[0] {
+    if let DocumentItem::AssertShape {
+        text,
+        features,
+        expected,
+        ..
+    } = &doc.items[0]
+    {
         assert_eq!(text, "fi");
         assert_eq!(features.len(), 2);
         assert_eq!(features[0].tag, "liga");
@@ -1145,7 +1234,10 @@ fn roundtrip_assert_shape() {
     let mut output = Vec::new();
     serialize_document(&doc, &mut output).unwrap();
     let output_str = String::from_utf8(output).unwrap();
-    assert_eq!(output_str, "assert shape AB +liga : a-upper advance 512 : b-upper offset 10 20\n");
+    assert_eq!(
+        output_str,
+        "assert shape AB +liga : a-upper advance 512 : b-upper offset 10 20\n"
+    );
 }
 
 #[test]
@@ -1274,7 +1366,10 @@ fn comment_is_one_unquotable_token_at_the_end_of_the_line() {
     assert_eq!(split_comment("http://x y"), ("http://x y", None));
 
     // The tokenizers drop the comment for callers that only want tokens.
-    assert_eq!(tokenize_tokens("map A = a // hi").unwrap(), vec!["map", "A", "=", "a"]);
+    assert_eq!(
+        tokenize_tokens("map A = a // hi").unwrap(),
+        vec!["map", "A", "=", "a"]
+    );
     let spans = tokenize_with_spans("map A = a // hi").unwrap();
     assert_eq!(spans.len(), 4);
 }
@@ -1303,35 +1398,41 @@ anchor top 0 0 // where marks go
     assert!(
         matches!(&doc.items[1], DocumentItem::Map { char_repr, glyph, comment, .. }
             if char_repr == "A" && glyph == "latin-a" && comment.as_deref() == Some("the letter")),
-        "got {:?}", doc.items[1],
+        "got {:?}",
+        doc.items[1],
     );
     assert!(
         matches!(&doc.items[2], DocumentItem::MapDecomposed { char_repr, .. }
             if char_repr == "U+00C0"),
-        "got {:?}", doc.items[2],
+        "got {:?}",
+        doc.items[2],
     );
     assert!(
         matches!(&doc.items[3], DocumentItem::NameParts { values, comment, .. }
             if values == &["a".to_string(), "b".to_string()]
                 && comment.as_deref() == Some("parts")),
-        "got {:?}", doc.items[3],
+        "got {:?}",
+        doc.items[3],
     );
     assert!(
         matches!(&doc.items[4], DocumentItem::Remap { source, target, comment, .. }
             if source == &["a".to_string(), "b".to_string()]
                 && target == &["ab".to_string()]
                 && comment.as_deref() == Some("ligature")),
-        "got {:?}", doc.items[4],
+        "got {:?}",
+        doc.items[4],
     );
     assert!(
         matches!(&doc.items[5], DocumentItem::Feature { remap_group, comment, .. }
             if remap_group == "liga" && comment.as_deref() == Some("feature")),
-        "got {:?}", doc.items[5],
+        "got {:?}",
+        doc.items[5],
     );
     assert!(
         matches!(&doc.items[6], DocumentItem::Color { value, comment, .. }
             if value == "#ff0000" && comment.as_deref() == Some("brand")),
-        "got {:?}", doc.items[6],
+        "got {:?}",
+        doc.items[6],
     );
     let DocumentItem::Glyph { body, .. } = &doc.items[9] else {
         panic!("expected Glyph, got {:?}", doc.items[9]);
@@ -1351,8 +1452,12 @@ anchor top 0 0 // where marks go
 fn comment_is_not_a_directive_argument() {
     let input = "exclude-from-sample foo // not interesting\nassume unused bar // deliberate\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    let DocumentItem::Directive(a) = &doc.items[0] else { panic!() };
-    let DocumentItem::Directive(b) = &doc.items[1] else { panic!() };
+    let DocumentItem::Directive(a) = &doc.items[0] else {
+        panic!()
+    };
+    let DocumentItem::Directive(b) = &doc.items[1] else {
+        panic!()
+    };
     assert_eq!(
         crate::document::classify_directive(a),
         crate::document::Directive::ExcludeFromSample("foo"),
@@ -1375,7 +1480,11 @@ fn appending_to_a_line_keeps_the_comment_last() {
     let appended = append_to_line("glyph foo // a note", "4 2");
     assert_eq!(
         glyph_header_dims(&tokenize_tokens(&appended).unwrap()[1..]),
-        Some(GlyphHeaderDims { width: 4, height: 2, scale: 1 }),
+        Some(GlyphHeaderDims {
+            width: 4,
+            height: 2,
+            scale: 1
+        }),
     );
 }
 
@@ -1384,7 +1493,9 @@ fn appending_to_a_line_keeps_the_comment_last() {
 fn pixel_rows_are_never_comments() {
     let input = "glyph slash 2 1\n0//1\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    let DocumentItem::Glyph { body, .. } = &doc.items[0] else { panic!() };
+    let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+        panic!()
+    };
     let grid = body.pixels.as_ref().unwrap();
     assert_eq!(grid.get(0, 0), chars_to_shape('0', '/').unwrap());
     let mut output = Vec::new();
@@ -1408,7 +1519,9 @@ glyph flag 10 5 scale 2
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    let DocumentItem::Glyph { body, .. } = &doc.items[0] else { panic!() };
+    let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+        panic!()
+    };
     assert_eq!(body.scale, 2);
     let grid = body.pixels.as_ref().unwrap();
     assert_eq!((grid.width, grid.height), (20, 10));
@@ -1422,13 +1535,34 @@ glyph flag 10 5 scale 2
 #[test]
 fn scale_header_dims() {
     let dims = glyph_header_dims(&["foo", "10", "5", "scale", "2"]);
-    assert_eq!(dims, Some(GlyphHeaderDims { width: 20, height: 10, scale: 2 }));
+    assert_eq!(
+        dims,
+        Some(GlyphHeaderDims {
+            width: 20,
+            height: 10,
+            scale: 2
+        })
+    );
 
     let dims = glyph_header_dims(&["foo", "scale", "3", "4", "2"]);
-    assert_eq!(dims, Some(GlyphHeaderDims { width: 12, height: 6, scale: 3 }));
+    assert_eq!(
+        dims,
+        Some(GlyphHeaderDims {
+            width: 12,
+            height: 6,
+            scale: 3
+        })
+    );
 
     let dims = glyph_header_dims(&["foo", "4", "2"]);
-    assert_eq!(dims, Some(GlyphHeaderDims { width: 4, height: 2, scale: 1 }));
+    assert_eq!(
+        dims,
+        Some(GlyphHeaderDims {
+            width: 4,
+            height: 2,
+            scale: 1
+        })
+    );
 }
 
 /// `write_and_sync` stages every save as `.~name.unf`, a name that ends in
@@ -1456,7 +1590,8 @@ remap ordered : a -> b
     assert!(
         matches!(&doc.items[0], DocumentItem::RemapGroup { name, reversed, after, comment }
             if name == "plain" && !*reversed && after.is_empty() && comment.is_none()),
-        "got {:?}", doc.items[0],
+        "got {:?}",
+        doc.items[0],
     );
     assert!(
         matches!(&doc.items[1], DocumentItem::RemapGroup { name, reversed, after, comment }
@@ -1464,10 +1599,15 @@ remap ordered : a -> b
                 && *reversed
                 && after == &["first".to_string(), "second".to_string()]
                 && comment.as_deref() == Some("ordering")),
-        "got {:?}", doc.items[1],
+        "got {:?}",
+        doc.items[1],
     );
     // A rule is still a rule; the colon is what separates the two forms.
-    assert!(matches!(&doc.items[2], DocumentItem::Remap { .. }), "got {:?}", doc.items[2]);
+    assert!(
+        matches!(&doc.items[2], DocumentItem::Remap { .. }),
+        "got {:?}",
+        doc.items[2]
+    );
 
     let mut output = Vec::new();
     serialize_document(&doc, &mut output).unwrap();
@@ -1496,17 +1636,18 @@ fn a_group_named_group_is_not_a_declaration() {
 #[test]
 fn malformed_remap_group_declarations_stay_unrecognized() {
     for line in [
-        "remap group",                        // no name
-        "remap group foo bogus",              // unknown flag
-        "remap group foo after",              // `after` with no operand
-        "remap group foo reversed reversed",  // repeated flag
-        "remap group foo after bar after bar",// repeated edge
-        "remap group after bar",              // name is a keyword
+        "remap group",                         // no name
+        "remap group foo bogus",               // unknown flag
+        "remap group foo after",               // `after` with no operand
+        "remap group foo reversed reversed",   // repeated flag
+        "remap group foo after bar after bar", // repeated edge
+        "remap group after bar",               // name is a keyword
     ] {
         let doc = parse_document_from_str(&format!("{line}\n"), "test.unf".into()).unwrap();
         assert!(
             matches!(&doc.items[0], DocumentItem::Directive(_)),
-            "{line:?} should not parse, got {:?}", doc.items[0],
+            "{line:?} should not parse, got {:?}",
+            doc.items[0],
         );
     }
 }

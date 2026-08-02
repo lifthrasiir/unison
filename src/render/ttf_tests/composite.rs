@@ -184,10 +184,14 @@ map C = chain
     assert_eq!(xs.iter().copied().min(), Some(0));
     assert_eq!(xs.iter().copied().max(), Some(192));
 
-    let chain_body = doc.items.iter().find_map(|item| match item {
-        DocumentItem::Glyph { name, body } if name.display() == "chain" => Some(body),
-        _ => None,
-    }).unwrap();
+    let chain_body = doc
+        .items
+        .iter()
+        .find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "chain" => Some(body),
+            _ => None,
+        })
+        .unwrap();
     assert!(chain_body.refs.iter().all(|gref| gref.offset.is_none()));
 }
 
@@ -197,7 +201,10 @@ fn map_decomposed_roundtrips() {
 map generate ä
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    if let DocumentItem::MapDecomposed { char_repr, glyph, .. } = &doc.items[0] {
+    if let DocumentItem::MapDecomposed {
+        char_repr, glyph, ..
+    } = &doc.items[0]
+    {
         assert_eq!(char_repr, "ä");
         assert_eq!(glyph.as_deref(), None);
     } else {
@@ -216,7 +223,10 @@ fn map_decomposed_with_explicit_name_roundtrips() {
 map generate ä = a-dieresis
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    if let DocumentItem::MapDecomposed { char_repr, glyph, .. } = &doc.items[0] {
+    if let DocumentItem::MapDecomposed {
+        char_repr, glyph, ..
+    } = &doc.items[0]
+    {
         assert_eq!(char_repr, "ä");
         assert_eq!(glyph.as_deref(), Some("a-dieresis"));
     } else {
@@ -305,7 +315,10 @@ map generate ä = a-dieresis
 
     let bytes = build_font_from_documents(&docs).expect("font should build");
     let font = read_fonts::FontRef::new(&bytes).unwrap();
-    assert!(font.cmap().unwrap().map_codepoint('ä').is_some(), "ä should be mapped");
+    assert!(
+        font.cmap().unwrap().map_codepoint('ä').is_some(),
+        "ä should be mapped"
+    );
 }
 
 #[test]
@@ -339,32 +352,36 @@ feature ccmp for DFLT : anchor below
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let docs: Vec<&Document> = vec![&doc];
 
-    let (_, _, glyphs, _, _) =
-        collect_glyph_data(&docs, false).expect("should collect");
+    let (_, _, glyphs, _, _) = collect_glyph_data(&docs, false).expect("should collect");
 
     let composite = glyphs.iter().find(|g| g.name == "uni00E4").unwrap();
-    let has_plus_above = composite.resolved_anchors.iter()
+    let has_plus_above = composite
+        .resolved_anchors
+        .iter()
         .any(|p| p.position == "+above");
-    let has_plus_below = composite.resolved_anchors.iter()
+    let has_plus_below = composite
+        .resolved_anchors
+        .iter()
         .any(|p| p.position == "+below");
-    assert!(has_plus_above,
+    assert!(
+        has_plus_above,
         "uni00E4 should forward +above from dia-above; anchors: {:?}",
-        composite.resolved_anchors);
-    assert!(has_plus_below,
+        composite.resolved_anchors
+    );
+    assert!(
+        has_plus_below,
         "uni00E4 should forward +below from a-lower; anchors: {:?}",
-        composite.resolved_anchors);
+        composite.resolved_anchors
+    );
 
     // Verify that the composite is registered as a base in GPOS
-    let (meta, scale, glyphs, gsub_data, _) =
-        collect_glyph_data(&docs, false).unwrap();
+    let (meta, scale, glyphs, gsub_data, _) = collect_glyph_data(&docs, false).unwrap();
     let name_to_gid: HashMap<String, GlyphId16> = glyphs
         .iter()
         .enumerate()
         .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
         .collect();
-    let anchor_data = build_anchor_gpos(
-        &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent(),
-    );
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
     assert!(anchor_data.gpos.is_some(), "GPOS should exist");
 
     // Check that uni00E4 is in the MarkBasePos base coverage
@@ -376,15 +393,18 @@ feature ccmp for DFLT : anchor below
         if let PositionLookup::MarkToBase(ref lk) = *lookup.as_ref() {
             for sub in &lk.subtables {
                 if let CoverageTable::Format1(ref cov) = *sub.base_coverage
-                    && cov.glyph_array.contains(&composite_gid) {
-                        found_in_base_coverage = true;
-                    }
+                    && cov.glyph_array.contains(&composite_gid)
+                {
+                    found_in_base_coverage = true;
+                }
             }
         }
     }
-    assert!(found_in_base_coverage,
+    assert!(
+        found_in_base_coverage,
         "uni00E4 (gid {:?}) should be in MarkBasePos base coverage",
-        composite_gid);
+        composite_gid
+    );
 }
 
 /// Regression test: a composite glyph's component `y_offset` must be
@@ -411,7 +431,11 @@ map B = comp
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let (_, scale, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let comp = glyphs.iter().find(|g| g.name == "comp").unwrap();
-    assert_eq!(comp.composite_refs.len(), 1, "comp should keep its composite representation");
+    assert_eq!(
+        comp.composite_refs.len(),
+        1,
+        "comp should keep its composite representation"
+    );
     let dy = 3.0f32;
     let expected_y = (-dy * scale).round() as i16;
     assert_eq!(
@@ -477,7 +501,8 @@ map C = combo
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let combo = glyphs.iter().find(|g| g.name == "combo").unwrap();
     assert_eq!(
-        combo.composite_refs.len(), 2,
+        combo.composite_refs.len(),
+        2,
         "non-conflicting overlapping-bbox refs should stay as 2 composite components"
     );
 }
@@ -510,9 +535,13 @@ map B = combo
     let (_, scale, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let combo = glyphs.iter().find(|g| g.name == "combo").unwrap();
     let expected_advance = (16.0f32 * scale).round() as u16;
-    assert_eq!(combo.advance_width, expected_advance, "advance should come from declared width");
     assert_eq!(
-        combo.composite_refs.len(), 1,
+        combo.advance_width, expected_advance,
+        "advance should come from declared width"
+    );
+    assert_eq!(
+        combo.composite_refs.len(),
+        1,
         "an all-empty own grid must not force flattening of the composite"
     );
 }
@@ -662,7 +691,12 @@ map A = sextant-13-dr
     .unwrap();
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let glyph = glyphs.iter().find(|g| g.name == "sextant-13-dr").unwrap();
-    assert_eq!(glyph.contours.len(), 1, "single outline: {:?}", glyph.contours);
+    assert_eq!(
+        glyph.contours.len(),
+        1,
+        "single outline: {:?}",
+        glyph.contours
+    );
     let contour = &glyph.contours[0];
     assert_eq!(contour.len(), 5, "no staircase: {contour:?}");
     // Every turn must go the same way for a convex polygon.
@@ -705,8 +739,10 @@ map A = sextant-1234-dr
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let glyph = glyphs.iter().find(|g| g.name == "sextant-1234-dr").unwrap();
     assert_eq!(
-        glyph.contours.len(), 1,
-        "triangle and rectangle must union: {:?}", glyph.contours,
+        glyph.contours.len(),
+        1,
+        "triangle and rectangle must union: {:?}",
+        glyph.contours,
     );
     assert_eq!(glyph.contours[0].len(), 4, "{:?}", glyph.contours[0]);
 }
@@ -758,10 +794,7 @@ map A = combo
         "advance: unscaled {} vs scaled {}",
         g1[0].advance_width, g2[0].advance_width
     );
-    assert_eq!(
-        g1[0].contours, g2[0].contours,
-        "contours should match"
-    );
+    assert_eq!(g1[0].contours, g2[0].contours, "contours should match");
 }
 
 #[test]
@@ -817,10 +850,7 @@ map A = combo
         "advance: unscaled {} vs scaled {}",
         g1[0].advance_width, g2[0].advance_width
     );
-    assert_eq!(
-        g1[0].contours, g2[0].contours,
-        "contours should match"
-    );
+    assert_eq!(g1[0].contours, g2[0].contours, "contours should match");
 }
 
 /// A `ref` to a contentless glyph (the `ref sp` placeholder idiom) must not
@@ -899,8 +929,7 @@ map D = nested
     // ...while `mixed` stays a composite, minus the blank layer.
     let mixed = cmap.map_codepoint('C').expect("mapped");
     let solid = cmap.map_codepoint('A').expect("mapped");
-    let Some(read_fonts::tables::glyf::Glyph::Composite(c)) =
-        loca.get_glyf(mixed, &glyf).unwrap()
+    let Some(read_fonts::tables::glyf::Glyph::Composite(c)) = loca.get_glyf(mixed, &glyf).unwrap()
     else {
         panic!("mixed should stay a composite");
     };

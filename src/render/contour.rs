@@ -55,12 +55,19 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
         let cov = region.edge_coverage();
         let scale = lat / cov.den.max(1) as i64;
         let cnv = |list: &[(u8, u8)]| -> Vec<(i64, i64)> {
-            list.iter().map(|&(a, b)| (a as i64 * scale, b as i64 * scale)).collect()
+            list.iter()
+                .map(|&(a, b)| (a as i64 * scale, b as i64 * scale))
+                .collect()
         };
         custom.insert(
             idx,
             CustomCell {
-                cov: [cnv(&cov.top), cnv(&cov.right), cnv(&cov.bottom), cnv(&cov.left)],
+                cov: [
+                    cnv(&cov.top),
+                    cnv(&cov.right),
+                    cnv(&cov.bottom),
+                    cnv(&cov.left),
+                ],
                 interior: region.interior_segments(),
             },
         );
@@ -90,16 +97,23 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
                 visited.insert(i);
 
                 // top, right, bottom, left (guarded by the sentinel border).
-                let neighbor_idx =
-                    [i.wrapping_sub(stride), i + 1, i + stride, i.wrapping_sub(1)];
+                let neighbor_idx = [i.wrapping_sub(stride), i + 1, i + stride, i.wrapping_sub(1)];
                 let custom_involved = !custom.is_empty()
                     && (custom.contains_key(&i)
                         || neighbor_idx.iter().any(|n| custom.contains_key(n)));
 
                 if custom_involved {
                     trace_custom_pixel(
-                        i, stride, &data, mask, &custom, lat, neighbor_idx, &visited,
-                        &mut unsure, &mut segs,
+                        i,
+                        stride,
+                        &data,
+                        mask,
+                        &custom,
+                        lat,
+                        neighbor_idx,
+                        &visited,
+                        &mut unsure,
+                        &mut segs,
                     );
                     continue;
                 }
@@ -110,8 +124,7 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
                 let (left_adj, _) = pixel::adjacency(data[i.wrapping_sub(1)] & mask);
                 let (right_adj, _) = pixel::adjacency(data[i + 1] & mask);
 
-                let connected =
-                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
+                let connected = connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
 
                 if (connected & 0b11000000) != 0 && !visited.contains(&(i - stride)) {
                     unsure.push(i - stride);
@@ -356,11 +369,12 @@ fn trace_closed_paths(
     paths: &mut Vec<Vec<(f32, f32)>>,
 ) {
     let to_key = |x: f32, y: f32| -> (i64, i64) {
-        ((x * key_scale).round() as i64, (y * key_scale).round() as i64)
+        (
+            (x * key_scale).round() as i64,
+            (y * key_scale).round() as i64,
+        )
     };
-    let from_key = |x: i64, y: i64| -> (f32, f32) {
-        (x as f32 / key_scale, y as f32 / key_scale)
-    };
+    let from_key = |x: i64, y: i64| -> (f32, f32) { (x as f32 / key_scale, y as f32 / key_scale) };
     let mut px_to_segs: BTreeMap<(i64, i64), Vec<(i64, i64)>> = BTreeMap::new();
     for (x1, y1, x2, y2) in segs {
         let k1 = to_key(*x1, *y1);
@@ -597,7 +611,9 @@ fn merge_layers_exact(
 /// Whether any layer carries custom detail geometry, which the shape-id
 /// bitmask tracers cannot represent.
 fn layers_have_detail(layers: &[(&PixelGrid, i32, i32, bool)]) -> bool {
-    layers.iter().any(|&(grid, _, _, _)| !grid.details.is_empty())
+    layers
+        .iter()
+        .any(|&(grid, _, _, _)| !grid.details.is_empty())
 }
 
 /// One step of the flood fill shared by [`track_contour_multi`] and
@@ -662,10 +678,7 @@ fn to_layer_space(contours: &mut [Vec<(f32, f32)>], min_r: i32, min_c: i32) {
 
 /// [`track_contour_multi`] with the result in the layers' own coordinate
 /// space rather than normalized to the bounding box origin.
-pub fn track_contour_multi_at(
-    layers: &[(&PixelGrid, i32, i32)],
-    mask: u8,
-) -> Vec<Vec<(f32, f32)>> {
+pub fn track_contour_multi_at(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<Vec<(f32, f32)>> {
     let (min_r, min_c, _, _) = layer_bounds(layers.iter().copied());
     let mut contours = track_contour_multi(layers, mask);
     to_layer_space(&mut contours, min_r, min_c);
@@ -693,10 +706,7 @@ pub fn track_contour_multi_diff_at(
 ///
 /// Shape combinations are cached by bitmask so each unique set of overlapping
 /// shapes is computed only once.
-pub fn track_contour_multi(
-    layers: &[(&PixelGrid, i32, i32)],
-    mask: u8,
-) -> Vec<Vec<(f32, f32)>> {
+pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<Vec<(f32, f32)>> {
     if layers.is_empty() {
         return Vec::new();
     }
@@ -791,8 +801,14 @@ pub fn track_contour_multi(
                 };
 
                 expand_pixel(
-                    i, stride, pixel_adj, gap_segs.as_ref(), &adj_data,
-                    &visited, &mut unsure, &mut segs,
+                    i,
+                    stride,
+                    pixel_adj,
+                    gap_segs.as_ref(),
+                    &adj_data,
+                    &visited,
+                    &mut unsure,
+                    &mut segs,
                 );
             }
 
@@ -824,8 +840,7 @@ pub fn track_contour_multi_diff(
         return track_contour_multi(&plain, mask);
     }
 
-    let (min_r, min_c, width, height) =
-        layer_bounds(layers.iter().map(|&(g, r, c, _)| (g, r, c)));
+    let (min_r, min_c, width, height) = layer_bounds(layers.iter().map(|&(g, r, c, _)| (g, r, c)));
     if width == 0 || height == 0 {
         return Vec::new();
     }
@@ -844,7 +859,11 @@ pub fn track_contour_multi_diff(
     for &(grid, row_off, col_off, negated) in layers {
         let off_r = (row_off - min_r) as usize;
         let off_c = (col_off - min_c) as usize;
-        let target = if negated { &mut neg_masks } else { &mut pos_masks };
+        let target = if negated {
+            &mut neg_masks
+        } else {
+            &mut pos_masks
+        };
         for r in 0..grid.height as usize {
             for c in 0..grid.width as usize {
                 let sid = grid.get(r as u16, c as u16).shape_id() & mask;
@@ -909,8 +928,14 @@ pub fn track_contour_multi_diff(
                 let (pixel_adj, gap_segs) = (entry.0, entry.1.as_slice());
 
                 expand_pixel(
-                    i, stride, pixel_adj, gap_segs, &adj_data,
-                    &visited, &mut unsure, &mut segs,
+                    i,
+                    stride,
+                    pixel_adj,
+                    gap_segs,
+                    &adj_data,
+                    &visited,
+                    &mut unsure,
+                    &mut segs,
                 );
             }
 
@@ -957,15 +982,10 @@ fn fix_winding(paths: &mut [Vec<(f32, f32)>]) {
                 let x = (x1 + x2 * 1023.0) / 1024.0;
                 let y = (y1 + y2 * 1023.0) / 1024.0;
 
-                if path_j
-                    .iter()
-                    .enumerate()
-                    .all(|(m, &(px, py))| {
-                        let (px0, py0) =
-                            path_j[if m == 0 { path_j.len() - 1 } else { m - 1 }];
-                        !inside(px0, py0, x, y, px, py)
-                    })
-                {
+                if path_j.iter().enumerate().all(|(m, &(px, py))| {
+                    let (px0, py0) = path_j[if m == 0 { path_j.len() - 1 } else { m - 1 }];
+                    !inside(px0, py0, x, y, px, py)
+                }) {
                     wn += winding_number(x, y, path_j);
                     found = true;
                     break;
@@ -1050,13 +1070,29 @@ mod tests {
         let grid_a = make_grid(1, 1, &[PX_SLANT1H | PX_FULL]);
         let grid_b = make_grid(1, 1, &[PX_SLANT3H | PX_FULL]);
         let paths = track_contour_multi(&[(&grid_a, 0, 0), (&grid_b, 0, 0)], PX_SUBPIXEL);
-        assert_eq!(paths.len(), 1, "expected one closed contour for overlapping slants");
+        assert_eq!(
+            paths.len(),
+            1,
+            "expected one closed contour for overlapping slants"
+        );
         // The union covers edges a,h,g,f and has interior gap segments
         let path = &paths[0];
-        assert!(path.len() >= 4, "path should have at least 4 vertices: {:?}", path);
+        assert!(
+            path.len() >= 4,
+            "path should have at least 4 vertices: {:?}",
+            path
+        );
         // Should contain the corner points of the union shape
-        assert!(path.contains(&(0.0, 0.0)), "should contain (0,0): {:?}", path);
-        assert!(path.contains(&(0.0, 1.0)), "should contain (0,1): {:?}", path);
+        assert!(
+            path.contains(&(0.0, 0.0)),
+            "should contain (0,0): {:?}",
+            path
+        );
+        assert!(
+            path.contains(&(0.0, 1.0)),
+            "should contain (0,1): {:?}",
+            path
+        );
     }
 
     #[test]
@@ -1064,11 +1100,12 @@ mod tests {
         // Two full pixels at different positions
         let grid_a = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
         let grid_b = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
-        let paths = track_contour_multi(
-            &[(&grid_a, 0, 0), (&grid_b, 0, 1)],
-            PX_SUBPIXEL,
+        let paths = track_contour_multi(&[(&grid_a, 0, 0), (&grid_b, 0, 1)], PX_SUBPIXEL);
+        assert_eq!(
+            paths.len(),
+            1,
+            "two adjacent full pixels should produce one contour"
         );
-        assert_eq!(paths.len(), 1, "two adjacent full pixels should produce one contour");
         let path = &paths[0];
         assert!(path.contains(&(0.0, 0.0)));
         assert!(path.contains(&(2.0, 0.0)));
@@ -1082,10 +1119,8 @@ mod tests {
         // Full pixel minus bottom-left triangle → top-right triangle.
         let full = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
         let half = make_grid(1, 1, &[PX_HALF1 | PX_FULL]);
-        let paths = track_contour_multi_diff(
-            &[(&full, 0, 0, false), (&half, 0, 0, true)],
-            PX_SUBPIXEL,
-        );
+        let paths =
+            track_contour_multi_diff(&[(&full, 0, 0, false), (&half, 0, 0, true)], PX_SUBPIXEL);
         assert_eq!(paths.len(), 1, "should produce one contour");
         let path = &paths[0];
         // The result is the top-right triangle: (0,0)→(1,0)→(1,1)→(0,0).
@@ -1104,11 +1139,13 @@ mod tests {
         // so they form two separate contours).
         let full = make_grid(2, 1, &[PX_ALMOSTFULL | PX_FULL, PX_ALMOSTFULL | PX_FULL]);
         let half = make_grid(1, 1, &[PX_HALF1 | PX_FULL]);
-        let paths = track_contour_multi_diff(
-            &[(&full, 0, 0, false), (&half, 0, 1, true)],
-            PX_SUBPIXEL,
+        let paths =
+            track_contour_multi_diff(&[(&full, 0, 0, false), (&half, 0, 1, true)], PX_SUBPIXEL);
+        assert_eq!(
+            paths.len(),
+            2,
+            "full square + triangle share only a point: {paths:?}"
         );
-        assert_eq!(paths.len(), 2, "full square + triangle share only a point: {paths:?}");
         // Neither contour should be grid-like (excessive vertices).
         for path in &paths {
             assert!(path.len() <= 5, "contour has too many vertices: {path:?}");
@@ -1121,10 +1158,7 @@ mod tests {
         // track_contour_multi.
         let grid = make_grid(2, 1, &[PX_ALMOSTFULL | PX_FULL, PX_ALMOSTFULL | PX_FULL]);
         let paths_multi = track_contour_multi(&[(&grid, 0, 0)], PX_SUBPIXEL);
-        let paths_diff = track_contour_multi_diff(
-            &[(&grid, 0, 0, false)],
-            PX_SUBPIXEL,
-        );
+        let paths_diff = track_contour_multi_diff(&[(&grid, 0, 0, false)], PX_SUBPIXEL);
         assert_eq!(paths_multi.len(), paths_diff.len());
         assert_eq!(paths_multi[0].len(), paths_diff[0].len());
     }
@@ -1134,10 +1168,27 @@ mod tests {
         // Gap-segment intersection points can land at 1/8, 1/6, 1/12 etc. of a
         // pixel. These must not collide when quantized into integer keys.
         let pts = [(1.0 / 8.0, 0.0), (1.0 / 6.0, 0.0), (1.0 / 12.0, 0.0)];
-        let keys: Vec<(i64, i64)> = pts.iter().map(|&(x, y)| ((x * MULTI_KEY_SCALE).round() as i64, (y * MULTI_KEY_SCALE).round() as i64)).collect();
-        assert_ne!(keys[0], keys[1], "1/8 and 1/6 must map to distinct keys: {keys:?}");
-        assert_ne!(keys[0], keys[2], "1/8 and 1/12 must map to distinct keys: {keys:?}");
-        assert_ne!(keys[1], keys[2], "1/6 and 1/12 must map to distinct keys: {keys:?}");
+        let keys: Vec<(i64, i64)> = pts
+            .iter()
+            .map(|&(x, y)| {
+                (
+                    (x * MULTI_KEY_SCALE).round() as i64,
+                    (y * MULTI_KEY_SCALE).round() as i64,
+                )
+            })
+            .collect();
+        assert_ne!(
+            keys[0], keys[1],
+            "1/8 and 1/6 must map to distinct keys: {keys:?}"
+        );
+        assert_ne!(
+            keys[0], keys[2],
+            "1/8 and 1/12 must map to distinct keys: {keys:?}"
+        );
+        assert_ne!(
+            keys[1], keys[2],
+            "1/6 and 1/12 must map to distinct keys: {keys:?}"
+        );
     }
 
     #[test]
@@ -1148,7 +1199,10 @@ mod tests {
             (1.0 / 6.0, 5.0 / 6.0),
             (1.0 / 12.0, 7.0 / 12.0),
         ] {
-            let (kx, ky) = ((x * MULTI_KEY_SCALE).round() as i64, (y * MULTI_KEY_SCALE).round() as i64);
+            let (kx, ky) = (
+                (x * MULTI_KEY_SCALE).round() as i64,
+                (y * MULTI_KEY_SCALE).round() as i64,
+            );
             let (rx, ry) = (kx as f32 / MULTI_KEY_SCALE, ky as f32 / MULTI_KEY_SCALE);
             assert!((rx - x).abs() <= tolerance, "x round-trip off: {x} -> {rx}");
             assert!((ry - y).abs() <= tolerance, "y round-trip off: {y} -> {ry}");
@@ -1161,9 +1215,7 @@ mod tests {
         // The contour segments must form a graph where every vertex has even degree.
         use std::collections::BTreeMap;
 
-        let shape_ids: Vec<u8> = (1..=30)
-            .chain((1..=30).map(|s| s ^ PX_SUBPIXEL))
-            .collect();
+        let shape_ids: Vec<u8> = (1..=30).chain((1..=30).map(|s| s ^ PX_SUBPIXEL)).collect();
 
         let mut failures: Vec<(u8, u8)> = Vec::new();
 
@@ -1225,8 +1277,7 @@ mod tests {
                 let left_adj = adj_data[idx.wrapping_sub(1)];
                 let right_adj = adj_data[idx + 1];
 
-                let connected =
-                    connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
+                let connected = connected_bits(pixel_adj, top_adj, right_adj, bottom_adj, left_adj);
                 let disconnected = connected ^ 0xFF;
 
                 if disconnected == 0 {
@@ -1238,7 +1289,10 @@ mod tests {
 
                 // Check degree parity
                 let to_key = |x: f32, y: f32| -> (i64, i64) {
-                    ((x * MULTI_KEY_SCALE).round() as i64, (y * MULTI_KEY_SCALE).round() as i64)
+                    (
+                        (x * MULTI_KEY_SCALE).round() as i64,
+                        (y * MULTI_KEY_SCALE).round() as i64,
+                    )
                 };
                 let mut degree: BTreeMap<(i64, i64), usize> = BTreeMap::new();
                 for &(x1, y1, x2, y2) in &segs {
@@ -1279,7 +1333,10 @@ mod tests {
         // The three refs of `sextant-13-dr` (U+1FB43), rescaled to the
         // parent's scale 1: a 1:8/3-slope triangle plus two rectangles.
         let tri = grid_of("4x10p2r3-dr").rescale(3, 1);
-        assert!(!tri.details.is_empty(), "the 8:3 slope needs custom details");
+        assert!(
+            !tri.details.is_empty(),
+            "the 8:3 slope needs custom details"
+        );
         let right = grid_of("4x16");
         let bottom = grid_of("8x-5p1r3").rescale(3, 1);
 

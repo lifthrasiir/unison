@@ -234,12 +234,18 @@ mod tests {
     /// anchors coincide.
     #[test]
     fn either_sign_finds_the_other_side() {
-        let marks = named(vec![("acute", glyph(PX_ALMOSTFULL, true, point("-above", 0, 0)))]);
+        let marks = named(vec![(
+            "acute",
+            glyph(PX_ALMOSTFULL, true, point("-above", 0, 0)),
+        )]);
         let shadow = compute(Some("a"), &point("+above", 3, 5), 1, &marks).unwrap();
         assert_eq!((shadow.col, shadow.row), (3, 5));
         assert_eq!(shadow.count, 1);
 
-        let bases = named(vec![("a", glyph(PX_ALMOSTFULL, true, point("+above", 2, 1)))]);
+        let bases = named(vec![(
+            "a",
+            glyph(PX_ALMOSTFULL, true, point("+above", 2, 1)),
+        )]);
         let shadow = compute(Some("acute"), &point("-above", 0, 0), 1, &bases).unwrap();
         // The base is placed so its `+above` lands on our `-above` at (0, 0).
         assert_eq!((shadow.col, shadow.row), (-2, -1));
@@ -258,7 +264,10 @@ mod tests {
         assert_eq!((shadow.grid.width, shadow.grid.height), (1, 1));
         let cell = shadow.grid.get(0, 0);
         assert_eq!(cell.shape_id(), PX_ALMOSTFULL);
-        assert!(cell.is_filled(), "ink from either candidate lights the cell");
+        assert!(
+            cell.is_filled(),
+            "ink from either candidate lights the cell"
+        );
     }
 
     /// Candidates that do not size-match are not attachable, so they are not

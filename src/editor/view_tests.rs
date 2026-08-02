@@ -36,8 +36,17 @@ fn assert_view_consistent(h: &EditorHarness) {
         prev_doc_line = vl.doc_line;
         covered[vl.doc_line] = true;
         match (&vl.kind, &h.lines[vl.doc_line]) {
-            (SnapKind::Text { text, col_offset, .. }, DocLine::Text(s)) => {
-                let seg: String = s.chars().skip(*col_offset).take(text.chars().count()).collect();
+            (
+                SnapKind::Text {
+                    text, col_offset, ..
+                },
+                DocLine::Text(s),
+            ) => {
+                let seg: String = s
+                    .chars()
+                    .skip(*col_offset)
+                    .take(text.chars().count())
+                    .collect();
                 assert_eq!(
                     text, &seg,
                     "text visual line differs from DocLine {} content",
@@ -165,7 +174,11 @@ fn header_height_edit_resizes_grid_when_caret_leaves_line() {
 
     // Grid hasn't changed yet — resize is deferred while the caret is on the
     // header line.
-    assert_eq!(h.grid_row_count(1), 16, "grid is still 16 rows while deferred");
+    assert_eq!(
+        h.grid_row_count(1),
+        16,
+        "grid is still 16 rows while deferred"
+    );
     assert_eq!(h.gutter_of(3), Some(19), "gutter hasn't changed yet");
 
     // Move the caret off the header line — now the grid resizes.
@@ -185,7 +198,10 @@ fn header_height_edit_resizes_grid_when_caret_leaves_line() {
     assert_eq!(h.lines, original_lines);
     assert_eq!(h.text(0), "glyph foo 16 16");
     assert_eq!(h.grid_row_count(1), 16);
-    assert!(!h.grid(1).get(12, 12).is_empty(), "truncated pixel restored");
+    assert!(
+        !h.grid(1).get(12, 12).is_empty(),
+        "truncated pixel restored"
+    );
     assert_eq!(h.gutter_of(3), Some(19));
     assert_eq!(h.gutter_numbers(), (1..=21).collect::<Vec<_>>());
 }
@@ -210,16 +226,26 @@ fn header_dimension_edit_undoes_in_one_step() {
     assert_eq!((h.grid(1).width, h.grid(1).height), (18, 16));
 
     cmd_z(&mut h);
-    assert_eq!(h.text(0), "glyph foo 16 16", "header text restored by one undo");
+    assert_eq!(
+        h.text(0),
+        "glyph foo 16 16",
+        "header text restored by one undo"
+    );
     assert_eq!(h.lines, original_lines, "grid restored by the same undo");
     assert_eq!(h.grid_row_count(1), 16);
-    assert!(!h.state.undo.can_undo(), "no leftover undo entry for the resize");
+    assert!(
+        !h.state.undo.can_undo(),
+        "no leftover undo entry for the resize"
+    );
 
     // Redo has to bring both sides back in one step too.
     h.key_mod(Key::Z, Modifiers::COMMAND | Modifiers::SHIFT);
     assert_eq!(h.text(0), "glyph foo 18 16");
     assert_eq!((h.grid(1).width, h.grid(1).height), (18, 16));
-    assert!(!h.state.undo.can_redo(), "no leftover redo entry for the resize");
+    assert!(
+        !h.state.undo.can_redo(),
+        "no leftover redo entry for the resize"
+    );
 }
 
 /// Same as above, but the deferred resize is flushed by the editor losing
@@ -260,7 +286,11 @@ fn header_height_edit_resizes_grid_on_grid_click() {
         matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
         "expected GlyphEdit for item_idx 0"
     );
-    assert_eq!(h.grid(1).height, 8, "header edit applied on entering the grid");
+    assert_eq!(
+        h.grid(1).height,
+        8,
+        "header edit applied on entering the grid"
+    );
     assert_eq!(h.grid_row_count(1), 8);
     assert_eq!(h.gutter_of(3), Some(11));
 }
@@ -452,8 +482,14 @@ fn copy_paste_preserves_grid_content() {
     h.key_mod(Key::ArrowDown, Modifiers::SHIFT);
     h.copy();
     let copied = h.last_copied_text.clone().unwrap();
-    assert!(copied.contains("@@......"), "grid row 0 should be in clipboard");
-    assert!(copied.contains("......@@"), "grid row 1 should be in clipboard");
+    assert!(
+        copied.contains("@@......"),
+        "grid row 0 should be in clipboard"
+    );
+    assert!(
+        copied.contains("......@@"),
+        "grid row 1 should be in clipboard"
+    );
 
     // Paste into the blank line (line 2)
     h.key(Key::ArrowDown);
@@ -674,7 +710,10 @@ fn view_cache_reused_when_idle_and_rebuilt_on_edit() {
     h.frame();
     h.frame();
     let ptr_idle = h.state.view_cache.as_ref().expect("cache kept").data_ptr();
-    assert_eq!(ptr_before, ptr_idle, "idle frames must reuse the cached view");
+    assert_eq!(
+        ptr_before, ptr_idle,
+        "idle frames must reuse the cached view"
+    );
 
     h.click_text(0, 6);
     h.type_text("X");
@@ -724,7 +763,10 @@ fn scroll_position_survives_zoom_change_across_documents() {
     h.frame();
 
     let scroll_y_z1 = h.scroll_y();
-    assert!(scroll_y_z1 > 100.0, "should have scrolled down; y = {scroll_y_z1}");
+    assert!(
+        scroll_y_z1 > 100.0,
+        "should have scrolled down; y = {scroll_y_z1}"
+    );
 
     // --- simulate switching to another document ---
     let mut stashed = std::mem::replace(&mut h.state, crate::editor::EditorState::new());
@@ -775,7 +817,10 @@ fn two_editors_do_not_share_view_state() {
     let first_y = h.scroll_y();
     let second_state = &h.second.as_ref().unwrap().state;
     let second_y = h.scroll_y_of(second_state);
-    assert!(first_y > 100.0, "first pane should have scrolled; y = {first_y}");
+    assert!(
+        first_y > 100.0,
+        "first pane should have scrolled; y = {first_y}"
+    );
     assert!(
         second_y < 1.0,
         "second pane must stay at the top; y = {second_y} (first = {first_y})"
@@ -808,7 +853,10 @@ fn two_editors_do_not_share_view_state() {
         egui::pos2(snap.origin_x + 2.0, vl.y + vl.height * 0.5)
     };
     h.click_at(second_pos);
-    assert_eq!(h.state.cursor, first_cursor, "click leaked into the first pane");
+    assert_eq!(
+        h.state.cursor, first_cursor,
+        "click leaked into the first pane"
+    );
 }
 
 // -- subglyph layer interactions ---------------------------------------------
@@ -844,7 +892,12 @@ fn composite_doc() -> String {
 /// DocLine is `grid_doc_line`) to enter `GlyphEdit`, then Ctrl+wheel over the
 /// grid to step onto the wanted layer, exactly as the app's layer palette does.
 #[track_caller]
-fn enter_layer_move(h: &mut EditorHarness, grid_doc_line: usize, item_idx: usize, layer_idx: usize) {
+fn enter_layer_move(
+    h: &mut EditorHarness,
+    grid_doc_line: usize,
+    item_idx: usize,
+    layer_idx: usize,
+) {
     h.click_grid_cell(grid_doc_line, 0, 0);
     assert!(
         matches!(h.state.mode, EditMode::GlyphEdit { item_idx: i, .. } if i == item_idx),
@@ -955,7 +1008,10 @@ fn drag_layer_move_on_grid_survives_leaving_the_grid_columns() {
     assert!(
         matches!(
             h.state.mode,
-            EditMode::LayerMove { item_idx: 2, layer_idx: 0 }
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 0
+            }
         ),
         "the drag should not have kicked the editor out of LayerMove, got {:?}",
         h.state.mode
@@ -1034,7 +1090,10 @@ fn click_ref_layer_thumbnail_selects_that_layer() {
     assert!(
         matches!(
             h.state.mode,
-            EditMode::LayerMove { item_idx: 2, layer_idx: 0 }
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 0
+            }
         ),
         "clicking the ref-layer thumbnail should select that layer, got {:?}",
         h.state.mode
@@ -1186,13 +1245,25 @@ fn digit_keys_select_palette_slots_from_any_mode() {
     // GlyphEdit → subglyph layers.
     h.key(Key::Num2);
     assert!(
-        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 0 }),
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 0
+            }
+        ),
         "`2` should select the first subglyph layer, got {:?}",
         h.state.mode
     );
     h.key(Key::Num3);
     assert!(
-        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 1 }),
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 1
+            }
+        ),
         "`3` should select the second subglyph layer, got {:?}",
         h.state.mode
     );
@@ -1200,7 +1271,13 @@ fn digit_keys_select_palette_slots_from_any_mode() {
     // A slot past the last layer is a no-op.
     h.key(Key::Num4);
     assert!(
-        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 1 }),
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 1
+            }
+        ),
         "`4` has no layer to select and must leave the mode alone, got {:?}",
         h.state.mode
     );
@@ -1214,7 +1291,13 @@ fn digit_keys_select_palette_slots_from_any_mode() {
     );
     h.key(Key::Num3);
     assert!(
-        matches!(h.state.mode, EditMode::LayerMove { item_idx: 2, layer_idx: 1 }),
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 2,
+                layer_idx: 1
+            }
+        ),
         "`3` should select a layer from PixelSelect too, got {:?}",
         h.state.mode
     );
@@ -1335,7 +1418,11 @@ fn escape_exits_pixel_select() {
 fn drag_creates_grounded_selection() {
     let mut h = make_pixel_select_harness();
     h.drag_grid(1, (0, 0), (1, 1));
-    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    let sel = h
+        .state
+        .pixel_selection
+        .as_ref()
+        .expect("should have selection");
     assert_eq!((sel.row, sel.col, sel.width, sel.height), (0, 0, 2, 2));
     assert!(!sel.is_floating());
 }
@@ -1349,11 +1436,18 @@ fn move_selection_makes_floating_and_clears_grid() {
     // Now drag from inside the selection to move it
     h.drag_grid(1, (0, 0), (0, 2));
 
-    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    let sel = h
+        .state
+        .pixel_selection
+        .as_ref()
+        .expect("should have selection");
     assert!(sel.is_floating());
     // The original position (0,0)-(1,1) in grid should be cleared
     let grid = h.grid(1);
-    assert!(grid.get(0, 0).is_empty(), "original cell should be empty after move");
+    assert!(
+        grid.get(0, 0).is_empty(),
+        "original cell should be empty after move"
+    );
     assert!(grid.get(0, 1).is_empty());
 }
 
@@ -1368,13 +1462,24 @@ fn undo_move_restores_grid_and_grounded_state() {
 
     // Undo
     h.key_mod(Key::Z, Modifiers::COMMAND);
-    let sel = h.state.pixel_selection.as_ref().expect("should have selection after undo");
+    let sel = h
+        .state
+        .pixel_selection
+        .as_ref()
+        .expect("should have selection after undo");
     assert!(!sel.is_floating(), "should be grounded after undo");
-    assert_eq!((sel.row, sel.col), (0, 0), "should be back at original position");
+    assert_eq!(
+        (sel.row, sel.col),
+        (0, 0),
+        "should be back at original position"
+    );
 
     // Grid should be restored
     let grid = h.grid(1);
-    assert!(grid.get(0, 0).is_filled(), "grid should be restored after undo");
+    assert!(
+        grid.get(0, 0).is_filled(),
+        "grid should be restored after undo"
+    );
 }
 
 #[test]
@@ -1388,13 +1493,22 @@ fn mode_change_commits_floating_selection() {
 
     // Switch to GlyphEdit (commits)
     h.key(Key::Num1);
-    assert!(h.state.pixel_selection.is_none(), "selection should be cleared");
+    assert!(
+        h.state.pixel_selection.is_none(),
+        "selection should be cleared"
+    );
 
     // The moved pixels should be merged into the grid at new position
     let grid = h.grid(1);
-    assert!(grid.get(2, 0).is_filled(), "moved pixel should be merged at new position");
+    assert!(
+        grid.get(2, 0).is_filled(),
+        "moved pixel should be merged at new position"
+    );
     // Original position should be empty
-    assert!(grid.get(0, 0).is_empty(), "original position should be empty");
+    assert!(
+        grid.get(0, 0).is_empty(),
+        "original position should be empty"
+    );
 }
 
 #[test]
@@ -1426,7 +1540,10 @@ fn delete_floating_discards_no_merge() {
     // Original was cleared during float, and floating was discarded, so both are empty
     assert!(grid.get(0, 0).is_empty());
     assert!(grid.get(0, 1).is_empty());
-    assert!(grid.get(2, 0).is_empty(), "floating pixels should not merge on delete");
+    assert!(
+        grid.get(2, 0).is_empty(),
+        "floating pixels should not merge on delete"
+    );
 }
 
 #[test]
@@ -1450,7 +1567,10 @@ fn undo_after_mode_change_commit_terminates() {
     );
 
     let grid = h.grid(1);
-    assert!(grid.get(0, 0).is_filled(), "grid should be back to its original state");
+    assert!(
+        grid.get(0, 0).is_filled(),
+        "grid should be back to its original state"
+    );
     assert!(grid.get(0, 1).is_filled());
     assert!(grid.get(2, 0).is_empty());
 }
@@ -1491,7 +1611,11 @@ fn cmd_drag_outside_selection_moves_all_layers() {
     assert!(grid.get(1, 1).is_empty());
     assert!(grid.get(1, 2).is_filled());
 
-    assert_eq!(h.text(7).trim(), "ref part 2 0", "explicit ref offset shifts");
+    assert_eq!(
+        h.text(7).trim(),
+        "ref part 2 0",
+        "explicit ref offset shifts"
+    );
     assert_eq!(
         h.text(8).trim(),
         "ref mark 3 1",
@@ -1554,7 +1678,11 @@ fn undo_move_all_restores_every_layer_at_once() {
     assert!(grid.get(0, 0).is_filled(), "pixels should be back");
     assert!(grid.get(0, 3).is_empty());
     assert_eq!(h.text(7).trim(), "ref part 1 0");
-    assert_eq!(h.text(8).trim(), "ref mark", "undo restores the auto placement");
+    assert_eq!(
+        h.text(8).trim(),
+        "ref mark",
+        "undo restores the auto placement"
+    );
     assert_eq!(h.text(9).trim(), "anchor +join 2 1");
     assert!(
         !h.state.undo.can_undo(),
@@ -1569,10 +1697,15 @@ fn copy_produces_correct_text() {
 
     // Copy (uses Event::Copy, same as Cmd+C)
     h.copy();
-    let copied = h.last_copied_text.as_ref().expect("should have copied text");
-    assert_eq!(copied, "@@@@\n..@@", "copied text should match grid content");
+    let copied = h
+        .last_copied_text
+        .as_ref()
+        .expect("should have copied text");
+    assert_eq!(
+        copied, "@@@@\n..@@",
+        "copied text should match grid content"
+    );
 }
-
 
 #[test]
 fn paste_in_pixel_select_creates_floating() {
@@ -1583,7 +1716,11 @@ fn paste_in_pixel_select_creates_floating() {
         matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
         "should stay in PixelSelect"
     );
-    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    let sel = h
+        .state
+        .pixel_selection
+        .as_ref()
+        .expect("should have selection");
     assert!(sel.is_floating());
     assert_eq!((sel.width, sel.height), (2, 2));
 }
@@ -1599,7 +1736,11 @@ fn paste_in_glyph_edit_switches_to_pixel_select() {
         matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
         "paste should switch to PixelSelect"
     );
-    let sel = h.state.pixel_selection.as_ref().expect("should have selection");
+    let sel = h
+        .state
+        .pixel_selection
+        .as_ref()
+        .expect("should have selection");
     assert!(sel.is_floating());
 }
 
@@ -1658,7 +1799,10 @@ fn paste_too_small_for_selection_fails() {
     });
 
     let ok = pixel_selection::paste_selection(&doc, &mut lines, &mut state, "@@\n@@");
-    assert!(!ok, "paste should fail when clipboard is smaller than selection");
+    assert!(
+        !ok,
+        "paste should fail when clipboard is smaller than selection"
+    );
 }
 
 #[test]
@@ -1669,7 +1813,10 @@ fn right_click_cancels_selection() {
 
     let pos = h.grid_cell_pos(1, 0, 0);
     h.right_click_at(pos);
-    assert!(h.state.pixel_selection.is_none(), "right click should cancel selection");
+    assert!(
+        h.state.pixel_selection.is_none(),
+        "right click should cancel selection"
+    );
 }
 
 #[test]
@@ -1680,7 +1827,10 @@ fn blur_commits_floating() {
 
     assert!(h.state.pixel_selection.as_ref().unwrap().is_floating());
     h.blur();
-    assert!(h.state.pixel_selection.is_none(), "blur should commit and clear");
+    assert!(
+        h.state.pixel_selection.is_none(),
+        "blur should commit and clear"
+    );
 
     // Pixel should be merged at new position
     let grid = h.grid(1);
@@ -1979,7 +2129,10 @@ fn scrollbar_of_an_overlong_grid_is_pulled_into_view() {
         .map(|vl| vl.y + vl.height)
         .fold(f32::MIN, f32::max);
 
-    assert!(block_bottom > 2400.0, "the grid should overflow the viewport");
+    assert!(
+        block_bottom > 2400.0,
+        "the grid should overflow the viewport"
+    );
     assert!(
         bar.max.y <= 2400.0 && bar.min.y >= 0.0,
         "the scrollbar must be pulled back into view, got {bar:?}"
@@ -2109,7 +2262,9 @@ fn inline_comment_is_highlighted_from_its_marker() {
     let h = EditorHarness::new("glyph slash 2 1 // a note\n0//1\n");
     assert_view_consistent(&h);
     match &h.snap().vlines[0].kind {
-        SnapKind::Text { text, comment_col, .. } => {
+        SnapKind::Text {
+            text, comment_col, ..
+        } => {
             assert_eq!(*comment_col, Some(text.find("//").unwrap()));
         }
         other => panic!("expected a text visual line, got {other:?}"),
@@ -2142,7 +2297,10 @@ fn typing_a_comment_on_a_header_keeps_the_grid() {
     assert_view_consistent(&h);
     let grid = h.grid(1);
     assert_eq!((grid.width, grid.height), (4, 2));
-    assert!(!grid.get(0, 0).is_empty(), "pixels survived the header edit");
+    assert!(
+        !grid.get(0, 0).is_empty(),
+        "pixels survived the header edit"
+    );
     match &h.snap().vlines[0].kind {
         SnapKind::Text { comment_col, .. } => assert_eq!(*comment_col, Some(14)),
         other => panic!("expected a text visual line, got {other:?}"),
@@ -2196,7 +2354,11 @@ fn rename_popup_opens_for_a_slice_qualifier() {
     h.key(Key::F2);
     h.frame();
     match &h.state.popup {
-        PopupState::Rename { original_name, kind, .. } => {
+        PopupState::Rename {
+            original_name,
+            kind,
+            ..
+        } => {
             assert_eq!(original_name, "narrow");
             assert_eq!(*kind, RenameKind::Slice);
         }
@@ -2240,7 +2402,11 @@ fn codepoint_popup_opens_on_ctrl_k_with_command_alias() {
     h.click_text(0, 14);
 
     // What winit reports for Ctrl+K off the Mac.
-    let win_ctrl = Modifiers { ctrl: true, command: true, ..Default::default() };
+    let win_ctrl = Modifiers {
+        ctrl: true,
+        command: true,
+        ..Default::default()
+    };
     h.key_mod(Key::K, win_ctrl);
     h.frame();
     assert!(
@@ -2258,7 +2424,11 @@ fn codepoint_popup_ignores_mac_cmd_k() {
     let mut h = EditorHarness::new("meta name Test\n");
     h.click_text(0, 14);
 
-    let mac_cmd = Modifiers { mac_cmd: true, command: true, ..Default::default() };
+    let mac_cmd = Modifiers {
+        mac_cmd: true,
+        command: true,
+        ..Default::default()
+    };
     h.key_mod(Key::K, mac_cmd);
     h.frame();
     assert!(
@@ -2283,7 +2453,10 @@ fn codepoint_popup_previews_as_preedit() {
     assert_eq!(h.text(0), "meta name Test", "nothing committed yet");
 
     h.type_text("0");
-    assert_eq!(h.state.preedit, "\u{410}", "U+0410 CYRILLIC CAPITAL LETTER A");
+    assert_eq!(
+        h.state.preedit, "\u{410}",
+        "U+0410 CYRILLIC CAPITAL LETTER A"
+    );
     assert_eq!(h.text(0), "meta name Test");
 }
 
@@ -2303,7 +2476,10 @@ fn codepoint_popup_enter_commits_the_preedit() {
 
     assert_eq!(h.text(0), "meta name Test\u{2603}");
     assert_eq!(h.cursor(), Caret { line: 0, col: 15 });
-    assert!(h.state.preedit.is_empty(), "the preedit is consumed by the commit");
+    assert!(
+        h.state.preedit.is_empty(),
+        "the preedit is consumed by the commit"
+    );
     assert!(matches!(h.state.popup, PopupState::None));
     assert!(h.editor_has_focus(), "focus must return to the editor");
 }
@@ -2325,7 +2501,10 @@ fn codepoint_popup_escape_rolls_back() {
     h.key(Key::Escape);
     h.frame();
     assert_eq!(h.text(0), "meta name Test");
-    assert!(h.state.preedit.is_empty(), "the preview must not survive a cancel");
+    assert!(
+        h.state.preedit.is_empty(),
+        "the preview must not survive a cancel"
+    );
     assert!(matches!(h.state.popup, PopupState::None));
     assert_eq!(h.cursor(), caret);
     assert!(h.editor_has_focus());
@@ -2432,7 +2611,8 @@ fn rename_popup_click_cancels_and_moves_the_caret() {
 /// it by character column. The trailing comment is what a selection can run
 /// into, which is the case `alt_wheel_ignores_a_selection_that_is_not_a_number`
 /// needs; `descent 0` on its own line is the lower bound case.
-const NUMBER_DOC: &str = "meta height 16 // and a comment\nmeta ascent 12\nmeta descent 0\nglyph sp 2 2\n....\n....\n";
+const NUMBER_DOC: &str =
+    "meta height 16 // and a comment\nmeta ascent 12\nmeta descent 0\nglyph sp 2 2\n....\n....\n";
 
 /// Alt + wheel bumps the number the caret sits in, and it does so with the
 /// *pointer* anywhere over the editor — the gesture is anchored to the caret,
@@ -2532,9 +2712,17 @@ fn alt_wheel_ticks_coalesce_into_one_undo() {
 
     h.key_mod(Key::Z, Modifiers::COMMAND);
     assert_eq!(h.text(0), "meta height 16 // and a comment");
-    assert_eq!(h.cursor(), Caret { line: 0, col: 13 }, "back to the pre-gesture caret");
+    assert_eq!(
+        h.cursor(),
+        Caret { line: 0, col: 13 },
+        "back to the pre-gesture caret"
+    );
     h.key_mod(Key::Z, Modifiers::COMMAND);
-    assert_eq!(h.text(0), "meta height 16 // and a comment", "nothing left to undo");
+    assert_eq!(
+        h.text(0),
+        "meta height 16 // and a comment",
+        "nothing left to undo"
+    );
 }
 
 /// The wheel notch belongs to the number, not to the view. egui spreads one
@@ -2554,7 +2742,11 @@ fn alt_wheel_does_not_also_scroll_the_view() {
         h.frame();
     }
     assert_eq!(h.text(0), "meta height 15");
-    assert!(h.scroll_y() < 0.01, "the view scrolled too: y = {}", h.scroll_y());
+    assert!(
+        h.scroll_y() < 0.01,
+        "the view scrolled too: y = {}",
+        h.scroll_y()
+    );
 }
 
 /// Swallowing the notch must not latch: once the gesture's delta has drained,
@@ -2586,7 +2778,11 @@ fn a_plain_wheel_still_scrolls_after_an_alt_gesture() {
     for _ in 0..20 {
         h.frame();
     }
-    assert!(h.scroll_y() > 1.0, "the view no longer scrolls; y = {}", h.scroll_y());
+    assert!(
+        h.scroll_y() > 1.0,
+        "the view no longer scrolls; y = {}",
+        h.scroll_y()
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -2845,7 +3041,10 @@ fn a_color_token_pushed_past_a_soft_wrap_still_paints_its_swatch() {
         .filter(|vl| vl.doc_line == ref_line)
         .filter(|vl| matches!(vl.kind, SnapKind::Text { col_offset, .. } if col_offset > 0))
         .count();
-    assert!(wrapped > 0, "the line must wrap for this test to mean anything");
+    assert!(
+        wrapped > 0,
+        "the line must wrap for this test to mean anything"
+    );
 
     let col_start = line.chars().count() - FILL.len();
     assert!(
@@ -2970,7 +3169,8 @@ meta ascent 14
 meta descent 2
 
 glyph a 4 16
-".to_string()
+"
+    .to_string()
         + &"@@......\n".repeat(16);
 
     let mut h = EditorHarness::new(&source);
@@ -3051,7 +3251,11 @@ anchor +above 2 -1
 ";
     let mut h = EditorHarness::new(source);
     let grid_line = 5;
-    assert_eq!(grid_extent_x(&h, grid_line), (0, 2), "the mark's own extent");
+    assert_eq!(
+        grid_extent_x(&h, grid_line),
+        (0, 2),
+        "the mark's own extent"
+    );
 
     // The mark has no refs, so layer 0 is its `-above` anchor.
     enter_layer_move(&mut h, grid_line, 4, 0);
@@ -3139,13 +3343,23 @@ ref base inherit
 ";
     let mut h = EditorHarness::new(source);
     let comp_grid_line = 13;
-    assert_eq!(grid_extent_x(&h, comp_grid_line), (0, 4), "comp's own extent");
+    assert_eq!(
+        grid_extent_x(&h, comp_grid_line),
+        (0, 4),
+        "comp's own extent"
+    );
 
     // comp has one ref and no declared points, so layer 1 is the inherited
     // `+above`.
     enter_layer_move(&mut h, comp_grid_line, 8, 1);
     assert!(
-        matches!(h.state.mode, EditMode::LayerMove { item_idx: 8, layer_idx: 1 }),
+        matches!(
+            h.state.mode,
+            EditMode::LayerMove {
+                item_idx: 8,
+                layer_idx: 1
+            }
+        ),
         "expected the inherited anchor layer, got {:?}",
         h.state.mode
     );
@@ -3155,7 +3369,6 @@ ref base inherit
     // so it reaches one column past comp's own right edge.
     assert_eq!(grid_extent_x(&h, comp_grid_line), (0, 5));
 }
-
 
 /// An inherited anchor outside the ink widens the drawn area exactly like a
 /// declared one — otherwise it is a palette layer with no visible mark.

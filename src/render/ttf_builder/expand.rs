@@ -41,7 +41,10 @@ enum RefKind {
 /// Collect all items from `docs` with name-part patterns substituted and
 /// expanded, and `map-decomposed` directives turned into synthesized
 /// composite glyphs + `map` entries via NFD decomposition.
-pub(crate) fn collect_expanded_items(docs: &[&Document], name_parts: &NamePartsMap) -> Vec<DocumentItem> {
+pub(crate) fn collect_expanded_items(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+) -> Vec<DocumentItem> {
     expand_documents(docs, name_parts)
         .items
         .into_iter()
@@ -130,7 +133,10 @@ pub(crate) fn expand_for(
                         }
                         Ok(expanded) => {
                             for mut item in expanded {
-                                if let DocumentItem::Glyph { body: ref mut b, .. } = item {
+                                if let DocumentItem::Glyph {
+                                    body: ref mut b, ..
+                                } = item
+                                {
                                     b.pixels = body.pixels.clone();
                                     b.points = body.points.clone();
                                     b.sticky = body.sticky;
@@ -139,7 +145,10 @@ pub(crate) fn expand_for(
                                     b.top = body.top;
                                     b.scale = body.scale;
                                 }
-                                all_items.push(ExpandedItem { item, origin: Some(origin) });
+                                all_items.push(ExpandedItem {
+                                    item,
+                                    origin: Some(origin),
+                                });
                             }
                         }
                         Err(e) => diagnostics.push(Diagnostic::error(origin, e)),
@@ -150,11 +159,20 @@ pub(crate) fn expand_for(
                         gref.name = substitute_name_parts(&gref.name, name_parts);
                     }
                     all_items.push(ExpandedItem {
-                        item: DocumentItem::Glyph { name: GlyphName(name_str), body },
+                        item: DocumentItem::Glyph {
+                            name: GlyphName(name_str),
+                            body,
+                        },
                         origin: Some(origin),
                     });
                 }
-            } else if let DocumentItem::Map { slice, char_repr, glyph, .. } = item {
+            } else if let DocumentItem::Map {
+                slice,
+                char_repr,
+                glyph,
+                ..
+            } = item
+            {
                 all_items.push(ExpandedItem {
                     item: DocumentItem::Map {
                         slice: slice.clone(),
@@ -165,7 +183,10 @@ pub(crate) fn expand_for(
                     origin: Some(origin),
                 });
             } else {
-                all_items.push(ExpandedItem { item: item.clone(), origin: Some(origin) });
+                all_items.push(ExpandedItem {
+                    item: item.clone(),
+                    origin: Some(origin),
+                });
             }
         }
     }
@@ -180,7 +201,10 @@ pub(crate) fn expand_for(
     let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
     let mut map_targets: Vec<(String, Option<ItemRef>, String)> = Vec::new();
     for e in &all_items {
-        let DocumentItem::Map { char_repr, glyph, .. } = &e.item else {
+        let DocumentItem::Map {
+            char_repr, glyph, ..
+        } = &e.item
+        else {
             continue;
         };
         let pairs = expand_map_pairs(char_repr, glyph);
@@ -208,7 +232,10 @@ pub(crate) fn expand_for(
     expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
     inject_on_demand_glyph_items(&mut all_items, map_targets, name_parts, &mut diagnostics);
 
-    Expansion { items: all_items, diagnostics }
+    Expansion {
+        items: all_items,
+        diagnostics,
+    }
 }
 
 /// Turn `map <decomposable codepoint>` into a synthesized composite glyph plus
@@ -224,9 +251,12 @@ fn expand_decomposed_maps(
     let pending: Vec<(Option<String>, String, Option<String>, Option<ItemRef>)> = all_items
         .iter()
         .filter_map(|e| match &e.item {
-            DocumentItem::MapDecomposed { slice, char_repr, glyph, .. } => {
-                Some((slice.clone(), char_repr.clone(), glyph.clone(), e.origin))
-            }
+            DocumentItem::MapDecomposed {
+                slice,
+                char_repr,
+                glyph,
+                ..
+            } => Some((slice.clone(), char_repr.clone(), glyph.clone(), e.origin)),
             _ => None,
         })
         .collect();
@@ -300,7 +330,10 @@ fn expand_decomposed_maps(
             decomposed_items.push(ExpandedItem {
                 item: DocumentItem::Glyph {
                     name: GlyphName(composite_name.clone()),
-                    body: GlyphBody { refs, ..GlyphBody::new() },
+                    body: GlyphBody {
+                        refs,
+                        ..GlyphBody::new()
+                    },
                 },
                 origin,
             });
@@ -334,7 +367,11 @@ fn inject_on_demand_glyph_items(
     let mut glyph_bodies: HashMap<String, GlyphBody> = HashMap::new();
 
     for e in all_items.iter() {
-        if let DocumentItem::Glyph { name: GlyphName(n), body } = &e.item {
+        if let DocumentItem::Glyph {
+            name: GlyphName(n),
+            body,
+        } = &e.item
+        {
             defined.insert(n.clone());
             glyph_bodies.insert(n.clone(), body.clone());
         }
@@ -440,7 +477,9 @@ fn inject_on_demand_glyph_items(
                         let offset = if mono_s == combined_s {
                             r.offset
                         } else {
-                            r.offset.map(|(row, col)| (row * combined_s / mono_s, col * combined_s / mono_s))
+                            r.offset.map(|(row, col)| {
+                                (row * combined_s / mono_s, col * combined_s / mono_s)
+                            })
                         };
                         refs.push(GlyphRef {
                             comment: None,
@@ -456,7 +495,9 @@ fn inject_on_demand_glyph_items(
                         let offset = if color_s == combined_s {
                             r.offset
                         } else {
-                            r.offset.map(|(row, col)| (row * combined_s / color_s, col * combined_s / color_s))
+                            r.offset.map(|(row, col)| {
+                                (row * combined_s / color_s, col * combined_s / color_s)
+                            })
                         };
                         refs.push(GlyphRef {
                             comment: None,
@@ -474,16 +515,32 @@ fn inject_on_demand_glyph_items(
 
                     let pixels = match (&mono_body.pixels, &color_body.pixels) {
                         (Some(mg), Some(cg)) => {
-                            let mg2 = if mono_s == combined_s { mg.clone() } else { mg.rescale(mono_s as u8, combined_scale) };
-                            let cg2 = if color_s == combined_s { cg.clone() } else { cg.rescale(color_s as u8, combined_scale) };
-                            Some(if mg2.width >= cg2.width && mg2.height >= cg2.height { mg2 } else { cg2 })
+                            let mg2 = if mono_s == combined_s {
+                                mg.clone()
+                            } else {
+                                mg.rescale(mono_s as u8, combined_scale)
+                            };
+                            let cg2 = if color_s == combined_s {
+                                cg.clone()
+                            } else {
+                                cg.rescale(color_s as u8, combined_scale)
+                            };
+                            Some(if mg2.width >= cg2.width && mg2.height >= cg2.height {
+                                mg2
+                            } else {
+                                cg2
+                            })
                         }
-                        (None, Some(cg)) => {
-                            Some(if color_s == combined_s { cg.clone() } else { cg.rescale(color_s as u8, combined_scale) })
-                        }
-                        (Some(mg), None) => {
-                            Some(if mono_s == combined_s { mg.clone() } else { mg.rescale(mono_s as u8, combined_scale) })
-                        }
+                        (None, Some(cg)) => Some(if color_s == combined_s {
+                            cg.clone()
+                        } else {
+                            cg.rescale(color_s as u8, combined_scale)
+                        }),
+                        (Some(mg), None) => Some(if mono_s == combined_s {
+                            mg.clone()
+                        } else {
+                            mg.rescale(mono_s as u8, combined_scale)
+                        }),
                         (None, None) => None,
                     };
 
@@ -529,7 +586,11 @@ fn inject_on_demand_glyph_items(
         // right there. `advance`/`left`/`top`/`point` do not make a glyph
         // buildable, so the fix is always to add a pixel grid or a `ref`.
         const EMPTY: &str = "has neither a pixel grid nor a ref, so it is not built";
-        let (severity, message) = match (unresolved.contains(&name), contentless.contains(&name), kind) {
+        let (severity, message) = match (
+            unresolved.contains(&name),
+            contentless.contains(&name),
+            kind,
+        ) {
             (false, false, _) => continue,
             (true, _, RefKind::Ref) => (Severity::Error, format!("unresolved ref '{name}'")),
             (true, _, RefKind::Map(char_repr)) => (
@@ -540,10 +601,7 @@ fn inject_on_demand_glyph_items(
                 Severity::Warning,
                 format!("remap references undefined glyph '{name}'"),
             ),
-            (false, true, RefKind::Ref) => (
-                Severity::Error,
-                format!("ref '{name}' {EMPTY}"),
-            ),
+            (false, true, RefKind::Ref) => (Severity::Error, format!("ref '{name}' {EMPTY}")),
             (false, true, RefKind::Map(char_repr)) => (
                 Severity::Error,
                 format!("map '{char_repr}' targets glyph '{name}', which {EMPTY}"),
@@ -580,7 +638,11 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
     expand_map_pairs(char_repr, glyph.unwrap_or(""))
         .into_iter()
         .map(|(cp, name)| {
-            let name = if name.is_empty() { format!("uni{cp:04X}") } else { name };
+            let name = if name.is_empty() {
+                format!("uni{cp:04X}")
+            } else {
+                name
+            };
             (cp, name)
         })
         .collect()
@@ -588,29 +650,32 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
 
 pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String)> {
     // Range: U+XXXX..YYYY or u+XXXX..YYYY
-    if let Some(hex_rest) = char_repr.strip_prefix("U+").or_else(|| char_repr.strip_prefix("u+"))
+    if let Some(hex_rest) = char_repr
+        .strip_prefix("U+")
+        .or_else(|| char_repr.strip_prefix("u+"))
         && let Some((start_hex, end_hex)) = hex_rest.split_once("..")
-            && let (Ok(start), Ok(end)) = (
-                u32::from_str_radix(start_hex, 16),
-                u32::from_str_radix(end_hex, 16),
-            ) {
-                if end < start {
-                    return vec![];
-                }
-                let count64 = u64::from(end) - u64::from(start) + 1;
-                if count64 > MAX_EXPANSION as u64 {
-                    return vec![];
-                }
-                let count = count64 as usize;
-                let glyph_names = expand_glyph_pattern(glyph, count);
-                return (0..count)
-                    .zip(glyph_names.iter().cycle())
-                    .filter_map(|(i, name)| {
-                        let cp = start + i as u32;
-                        char::from_u32(cp).map(|_| (cp, name.clone()))
-                    })
-                    .collect();
-            }
+        && let (Ok(start), Ok(end)) = (
+            u32::from_str_radix(start_hex, 16),
+            u32::from_str_radix(end_hex, 16),
+        )
+    {
+        if end < start {
+            return vec![];
+        }
+        let count64 = u64::from(end) - u64::from(start) + 1;
+        if count64 > MAX_EXPANSION as u64 {
+            return vec![];
+        }
+        let count = count64 as usize;
+        let glyph_names = expand_glyph_pattern(glyph, count);
+        return (0..count)
+            .zip(glyph_names.iter().cycle())
+            .filter_map(|(i, name)| {
+                let cp = start + i as u32;
+                char::from_u32(cp).map(|_| (cp, name.clone()))
+            })
+            .collect();
+    }
 
     // Multi-char with pipe (depth-aware)
     // Filter empty parts so a bare "|" (the pipe character) falls through to single-char.
@@ -643,7 +708,13 @@ pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String
     // Single char — still expand the glyph pattern
     if let Some(cp) = parse_map_char(char_repr) {
         let names = expand_glyph_pattern(glyph, 1);
-        vec![(cp, names.into_iter().next().unwrap_or_else(|| glyph.to_string()))]
+        vec![(
+            cp,
+            names
+                .into_iter()
+                .next()
+                .unwrap_or_else(|| glyph.to_string()),
+        )]
     } else {
         vec![]
     }

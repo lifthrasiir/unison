@@ -2,9 +2,7 @@ use std::collections::HashMap;
 
 use crate::document::{Document, DocumentItem, NamePartsMap};
 use crate::editor::colors::Palette;
-use crate::editor::document_view::{
-    INLINE_PALETTE_CELL, PREVIEW_SCALE, UNFILLED_OPACITY,
-};
+use crate::editor::document_view::{INLINE_PALETTE_CELL, PREVIEW_SCALE, UNFILLED_OPACITY};
 use crate::editor::grid_render;
 use crate::editor::minimap;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
@@ -124,8 +122,7 @@ pub(crate) fn draw_inline_tools_panel(
         ui.ctx(),
         editor,
         hover_on_preview_row,
-    )
-    {
+    ) {
         let inherited_count = composite.map_or(0, |c| c.inherited_anchors.len());
         cycle_layer_mode(state, body, edit_idx, inherited_count, step);
     }
@@ -207,13 +204,7 @@ pub(crate) fn draw_inline_tools_panel(
         // Publish this thumbnail's rect for the in-crate GUI test harness, so
         // tests can click it without hand-replicating the layout math above.
         #[cfg(test)]
-        crate::editor::harness::capture_ref_rect(
-            ui.ctx(),
-            state.id(),
-            edit_idx,
-            ref_idx,
-            ref_rect,
-        );
+        crate::editor::harness::capture_ref_rect(ui.ctx(), state.id(), edit_idx, ref_idx, ref_rect);
 
         let is_active = matches!(
             state.mode,
@@ -366,18 +357,19 @@ pub(crate) fn draw_inline_tools_panel(
         if *layer_idx < num_refs {
             // Show the resolved alternative name if it differs from the source ref.
             if let Some(comp) = composite
-                && let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == *layer_idx) {
-                    let source_name = &body.refs[*layer_idx].name;
-                    if layer.resolved_name != *source_name {
-                        painter.text(
-                            egui::pos2(panel_x, label_y),
-                            egui::Align2::LEFT_TOP,
-                            &layer.resolved_name,
-                            egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
-                            layer_color,
-                        );
-                    }
+                && let Some(layer) = comp.layers.iter().find(|l| l.ref_idx == *layer_idx)
+            {
+                let source_name = &body.refs[*layer_idx].name;
+                if layer.resolved_name != *source_name {
+                    painter.text(
+                        egui::pos2(panel_x, label_y),
+                        egui::Align2::LEFT_TOP,
+                        &layer.resolved_name,
+                        egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
+                        layer_color,
+                    );
                 }
+            }
         } else if let Some(point) = body.points.get(layer_idx - num_refs) {
             // How many glyphs the shadow behind the grid is made of — the label
             // is the only place that says the dim shape is more than one glyph.
@@ -393,7 +385,8 @@ pub(crate) fn draw_inline_tools_panel(
                 layer_color,
             );
         } else if let Some((point, src_ref)) = composite.and_then(|c| {
-            c.inherited_anchors.get(layer_idx - num_refs - body.points.len())
+            c.inherited_anchors
+                .get(layer_idx - num_refs - body.points.len())
         }) {
             // An inherited anchor names its source alongside the position, in
             // the source subglyph's color.

@@ -64,9 +64,7 @@ pub(super) fn match_spans(line: &str, name: &str, kind: LinkTargetKind) -> Vec<(
             // A name-parts variable appears *inside* other tokens, so the
             // column is the `$var`'s own, not the token's.
             LinkTargetKind::NameParts => match f.role {
-                FieldRole::NamePartsDef if f.token == name => {
-                    cols.push((f.col_start, f.col_end))
-                }
+                FieldRole::NamePartsDef if f.token == name => cols.push((f.col_start, f.col_end)),
                 FieldRole::GlyphDef | FieldRole::GlyphRef | FieldRole::NamePartsValue => {
                     let mut spans: Vec<LinkSpan> = Vec::new();
                     scan_dollar_refs(&f.token, f.col_start, &mut spans);
@@ -80,16 +78,12 @@ pub(super) fn match_spans(line: &str, name: &str, kind: LinkTargetKind) -> Vec<(
                 _ => {}
             },
             LinkTargetKind::Glyph => {
-                if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef)
-                    && f.token == name
-                {
+                if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef) && f.token == name {
                     cols.push((f.col_start, f.col_end));
                 }
             }
             LinkTargetKind::Color => {
-                if matches!(f.role, FieldRole::ColorDef | FieldRole::ColorRef)
-                    && f.token == name
-                {
+                if matches!(f.role, FieldRole::ColorDef | FieldRole::ColorRef) && f.token == name {
                     cols.push((f.col_start, f.col_end));
                 }
             }
@@ -163,14 +157,23 @@ pub(super) struct SearchHit {
 
 /// Builds one hit from a matched line, moving the span into the trimmed text
 /// the pane displays.
-fn hit(path: &std::path::Path, ordinal: usize, file_line: usize, line: &str, span: (usize, usize)) -> SearchHit {
+fn hit(
+    path: &std::path::Path,
+    ordinal: usize,
+    file_line: usize,
+    line: &str,
+    span: (usize, usize),
+) -> SearchHit {
     let leading = line.chars().count() - line.trim_start().chars().count();
     SearchHit {
         path: path.to_path_buf(),
         ordinal,
         file_line,
         text: line.trim().to_string(),
-        highlight: (span.0.saturating_sub(leading), span.1.saturating_sub(leading)),
+        highlight: (
+            span.0.saturating_sub(leading),
+            span.1.saturating_sub(leading),
+        ),
     }
 }
 
@@ -280,12 +283,7 @@ impl UniformApp {
     /// memory-only — a click never waits on the filesystem, which on a network
     /// volume is what made it a stall rather than a search. Both pre-filter on
     /// the literal name before tokenizing anything, per file and again per line.
-    pub(super) fn search_name(
-        &mut self,
-        ctx: &egui::Context,
-        name: &str,
-        kind: LinkTargetKind,
-    ) {
+    pub(super) fn search_name(&mut self, ctx: &egui::Context, name: &str, kind: LinkTargetKind) {
         let paths: Vec<PathBuf> = self
             .collect_all_docs()
             .iter()
@@ -326,7 +324,9 @@ impl UniformApp {
     /// left, which is the only position the user actually departed from.
     pub(super) fn goto_search_hit(&mut self, ctx: &egui::Context, hit_idx: usize) {
         let Some(search) = &self.search else { return };
-        let Some(hit) = search.hits.get(hit_idx) else { return };
+        let Some(hit) = search.hits.get(hit_idx) else {
+            return;
+        };
         let (path, ordinal) = (hit.path.clone(), hit.ordinal);
         let (name, kind) = (search.name.clone(), search.kind);
 
@@ -350,8 +350,7 @@ impl UniformApp {
         self.panes.show_document(idx);
 
         let doc = &mut self.open_documents[idx];
-        let Some(&(line, (col, _))) = hits_in_doclines(&doc.lines, &name, kind).get(ordinal)
-        else {
+        let Some(&(line, (col, _))) = hits_in_doclines(&doc.lines, &name, kind).get(ordinal) else {
             return;
         };
         doc.editor_state.goto_caret(&doc.lines, line, col);
@@ -395,19 +394,27 @@ mod tests {
         assert_eq!(file_count, 0);
     }
 
-
     /// Start columns only; the spans' ends are pinned separately, by the
     /// highlight tests.
     fn cols(line: &str, name: &str, kind: LinkTargetKind) -> Vec<usize> {
-        match_spans(line, name, kind).into_iter().map(|(s, _)| s).collect()
+        match_spans(line, name, kind)
+            .into_iter()
+            .map(|(s, _)| s)
+            .collect()
     }
 
     #[test]
     fn glyph_name_is_found_where_it_is_defined_and_used() {
-        assert_eq!(cols("glyph foo 8 16", "foo", LinkTargetKind::Glyph), vec![6]);
+        assert_eq!(
+            cols("glyph foo 8 16", "foo", LinkTargetKind::Glyph),
+            vec![6]
+        );
         assert_eq!(cols("ref foo 0 0", "foo", LinkTargetKind::Glyph), vec![4]);
         assert_eq!(cols("map A = foo", "foo", LinkTargetKind::Glyph), vec![8]);
-        assert_eq!(cols("glyph bar = foo", "foo", LinkTargetKind::Glyph), vec![12]);
+        assert_eq!(
+            cols("glyph bar = foo", "foo", LinkTargetKind::Glyph),
+            vec![12]
+        );
         assert_eq!(
             cols("remap liga : foo -> bar", "foo", LinkTargetKind::Glyph),
             vec![13],
@@ -430,7 +437,10 @@ mod tests {
     #[test]
     fn a_remap_group_is_not_a_glyph_name() {
         assert!(cols("remap foo : a -> b", "foo", LinkTargetKind::Glyph).is_empty());
-        assert_eq!(cols("remap foo : a -> b", "foo", LinkTargetKind::Remap), vec![6]);
+        assert_eq!(
+            cols("remap foo : a -> b", "foo", LinkTargetKind::Remap),
+            vec![6]
+        );
         assert_eq!(
             cols("feature liga for latn : foo", "foo", LinkTargetKind::Remap),
             vec![24],
@@ -444,21 +454,42 @@ mod tests {
             vec![8],
         );
         assert_eq!(
-            cols("feature ccmp for cyrl/SRB : g", "ccmp", LinkTargetKind::Feature),
+            cols(
+                "feature ccmp for cyrl/SRB : g",
+                "ccmp",
+                LinkTargetKind::Feature
+            ),
             vec![8],
         );
         // The group it points at is not the tag.
-        assert!(cols("feature liga for latn : ccmp", "ccmp", LinkTargetKind::Feature).is_empty());
+        assert!(
+            cols(
+                "feature liga for latn : ccmp",
+                "ccmp",
+                LinkTargetKind::Feature
+            )
+            .is_empty()
+        );
     }
 
     /// Both signs of an anchor are the same anchor, and the anchor-driven
     /// `feature` variant names one too.
     #[test]
     fn an_anchor_is_found_through_both_signs() {
-        assert_eq!(cols("anchor +above 4 1", "above", LinkTargetKind::Anchor), vec![7]);
-        assert_eq!(cols("anchor -above 2 1", "above", LinkTargetKind::Anchor), vec![7]);
         assert_eq!(
-            cols("feature abvm for hang : anchor above", "above", LinkTargetKind::Anchor),
+            cols("anchor +above 4 1", "above", LinkTargetKind::Anchor),
+            vec![7]
+        );
+        assert_eq!(
+            cols("anchor -above 2 1", "above", LinkTargetKind::Anchor),
+            vec![7]
+        );
+        assert_eq!(
+            cols(
+                "feature abvm for hang : anchor above",
+                "above",
+                LinkTargetKind::Anchor
+            ),
             vec![31],
         );
     }
@@ -466,15 +497,27 @@ mod tests {
     #[test]
     fn a_name_parts_variable_is_found_inside_the_names_it_builds() {
         assert_eq!(
-            cols("name-parts $init = a b c", "$init", LinkTargetKind::NameParts),
+            cols(
+                "name-parts $init = a b c",
+                "$init",
+                LinkTargetKind::NameParts
+            ),
             vec![11],
         );
         assert_eq!(
-            cols("name-parts $combo = $init $final", "$init", LinkTargetKind::NameParts),
+            cols(
+                "name-parts $combo = $init $final",
+                "$init",
+                LinkTargetKind::NameParts
+            ),
             vec![20],
         );
         assert_eq!(
-            cols("glyph hangul-($init)-l 8 16", "$init", LinkTargetKind::NameParts),
+            cols(
+                "glyph hangul-($init)-l 8 16",
+                "$init",
+                LinkTargetKind::NameParts
+            ),
             vec![14],
         );
         assert_eq!(
@@ -482,12 +525,22 @@ mod tests {
             vec![11],
         );
         // No partial matches: `$initial` is a different variable.
-        assert!(cols("ref hangul-$initial 0 0", "$init", LinkTargetKind::NameParts).is_empty());
+        assert!(
+            cols(
+                "ref hangul-$initial 0 0",
+                "$init",
+                LinkTargetKind::NameParts
+            )
+            .is_empty()
+        );
     }
 
     #[test]
     fn a_color_is_found_at_its_definition_and_its_uses() {
-        assert_eq!(cols("color red = #ff0000", "red", LinkTargetKind::Color), vec![6]);
+        assert_eq!(
+            cols("color red = #ff0000", "red", LinkTargetKind::Color),
+            vec![6]
+        );
         assert_eq!(
             cols("color light-red = red", "red", LinkTargetKind::Color),
             vec![18],
@@ -522,9 +575,24 @@ mod tests {
     #[test]
     fn the_highlight_covers_the_token_as_written() {
         for (line, name, kind, expected) in [
-            ("anchor +above 4 1", "above", LinkTargetKind::Anchor, "+above"),
-            ("ref `foo bar` 0 0", "foo bar", LinkTargetKind::Glyph, "`foo bar`"),
-            ("glyph x-$init 2 2", "$init", LinkTargetKind::NameParts, "$init"),
+            (
+                "anchor +above 4 1",
+                "above",
+                LinkTargetKind::Anchor,
+                "+above",
+            ),
+            (
+                "ref `foo bar` 0 0",
+                "foo bar",
+                LinkTargetKind::Glyph,
+                "`foo bar`",
+            ),
+            (
+                "glyph x-$init 2 2",
+                "$init",
+                LinkTargetKind::NameParts,
+                "$init",
+            ),
         ] {
             let span = *match_spans(line, name, kind)
                 .first()
@@ -564,4 +632,3 @@ mod tests {
         );
     }
 }
-

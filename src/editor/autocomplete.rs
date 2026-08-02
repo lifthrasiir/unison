@@ -80,10 +80,7 @@ pub(crate) fn trigger(
     });
 }
 
-pub(crate) fn update_after_edit(
-    lines: &[DocLine],
-    state: &mut super::EditorState,
-) {
+pub(crate) fn update_after_edit(lines: &[DocLine], state: &mut super::EditorState) {
     let ac = match &state.autocomplete {
         Some(ac) => ac,
         None => return,
@@ -149,9 +146,8 @@ pub(crate) fn handle_keys(
     }
 
     let escape = ui.input(|i| i.key_pressed(egui::Key::Escape));
-    let up = ui.input(|i| {
-        i.key_pressed(egui::Key::ArrowUp) && !i.modifiers.shift && !i.modifiers.command
-    });
+    let up = ui
+        .input(|i| i.key_pressed(egui::Key::ArrowUp) && !i.modifiers.shift && !i.modifiers.command);
     let down = ui.input(|i| {
         i.key_pressed(egui::Key::ArrowDown) && !i.modifiers.shift && !i.modifiers.command
     });
@@ -233,10 +229,7 @@ pub(crate) fn apply_completion(lines: &mut [DocLine], state: &mut super::EditorS
     state.selection_anchor = None;
 }
 
-fn filter_candidates(
-    all: &[CompletionCandidate],
-    prefix: &str,
-) -> Vec<CompletionCandidate> {
+fn filter_candidates(all: &[CompletionCandidate], prefix: &str) -> Vec<CompletionCandidate> {
     all.iter()
         .filter(|c| c.label.starts_with(prefix))
         .cloned()
@@ -364,10 +357,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             }
         }
         "assume" => {
-            if rest.first().is_some_and(|s| s.value == "unused")
-                && rest.len() == 1
-                && past_last
-            {
+            if rest.first().is_some_and(|s| s.value == "unused") && rest.len() == 1 && past_last {
                 return ctx(CompletionKind::Glyph);
             }
         }
@@ -456,10 +446,7 @@ fn keyword_len(trimmed: &str) -> usize {
 
 /// Find which rest-token index the cursor falls within.
 /// Returns None if the cursor is between/after tokens (not inside any).
-fn find_rest_token_at(
-    rest: &[crate::document_io::TokenSpan],
-    adj_col: usize,
-) -> Option<usize> {
+fn find_rest_token_at(rest: &[crate::document_io::TokenSpan], adj_col: usize) -> Option<usize> {
     for (i, span) in rest.iter().enumerate() {
         if adj_col >= span.raw_start && adj_col <= span.raw_end {
             return Some(i);
@@ -746,7 +733,9 @@ mod tests {
             CompletionKind::RemapGroup,
         );
         assert_eq!(
-            detect_context("feature calt for DFLT : asc", 27).unwrap().kind,
+            detect_context("feature calt for DFLT : asc", 27)
+                .unwrap()
+                .kind,
             CompletionKind::RemapGroup,
         );
     }
@@ -765,5 +754,4 @@ mod tests {
             CompletionKind::Glyph,
         );
     }
-
 }

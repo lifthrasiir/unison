@@ -79,12 +79,7 @@ fn grid_snap_hints_multi_cell_diagonal() {
 #[test]
 fn grid_snap_hints_no_diagonals() {
     // Pure rectangle — no diagonals, no hints.
-    let mut contours = vec![vec![
-        (0i16, 896),
-        (64, 896),
-        (64, 832),
-        (0, 832),
-    ]];
+    let mut contours = vec![vec![(0i16, 896), (64, 896), (64, 832), (0, 832)]];
     let instructions = generate_grid_snap_hints(&mut contours, 16);
     assert!(instructions.is_empty());
     assert_eq!(contours[0].len(), 4, "no points should be added");

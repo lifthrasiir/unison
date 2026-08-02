@@ -38,8 +38,24 @@ map A = combo
     assert!(!palette.is_empty(), "palette should have colors");
     assert_eq!(palette.len(), 2, "palette should have 2 unique colors");
     // Verify deterministic sort (blue < red)
-    assert_eq!(palette[0], Rgba { r: 0, g: 0, b: 255, a: 255 });
-    assert_eq!(palette[1], Rgba { r: 255, g: 0, b: 0, a: 255 });
+    assert_eq!(
+        palette[0],
+        Rgba {
+            r: 0,
+            g: 0,
+            b: 255,
+            a: 255
+        }
+    );
+    assert_eq!(
+        palette[1],
+        Rgba {
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 255
+        }
+    );
 
     let font = build_font_from_documents(&[&doc]);
     assert!(font.is_some(), "font with COLR should build successfully");
@@ -113,13 +129,12 @@ map A = combo
     let (_, _, glyph_data, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let combo = glyph_data.iter().find(|g| g.name == "combo").unwrap();
 
-    assert!(
-        !combo.color_layers.is_empty(),
-        "should have color layers"
-    );
+    assert!(!combo.color_layers.is_empty(), "should have color layers");
 
     // The white fill layer should exist in color_layers
-    let white_layers: Vec<_> = combo.color_layers.iter()
+    let white_layers: Vec<_> = combo
+        .color_layers
+        .iter()
         .filter(|l| l.palette_index != 0xFFFF)
         .collect();
     assert!(
@@ -138,10 +153,12 @@ map A = combo
     let blank = blank_data.iter().find(|g| g.name == "card-blank").unwrap();
 
     assert_eq!(
-        combo.contours.len(), blank.contours.len(),
+        combo.contours.len(),
+        blank.contours.len(),
         "fallback contours should match card-blank only (coloronly card-fill excluded). \
          combo has {} contours, card-blank has {}",
-        combo.contours.len(), blank.contours.len()
+        combo.contours.len(),
+        blank.contours.len()
     );
 }
 
@@ -193,7 +210,9 @@ map B = card-heart
         );
 
         // Check that there IS a non-foreground (white) layer in color_layers
-        let non_fg: Vec<_> = g.color_layers.iter()
+        let non_fg: Vec<_> = g
+            .color_layers
+            .iter()
             .filter(|l| l.palette_index != 0xFFFF)
             .collect();
         assert!(
@@ -239,14 +258,27 @@ map A = combo
     let (_, _, glyph_data, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let combo = glyph_data.iter().find(|g| g.name == "combo").unwrap();
     assert_eq!(
-        combo.color_layers.len(), 2,
+        combo.color_layers.len(),
+        2,
         "own pixels + fg-filled ref should merge into ONE foreground layer, plus one red layer"
     );
-    let fg_layers: Vec<_> = combo.color_layers.iter().filter(|l| l.palette_index == 0xFFFF).collect();
-    assert_eq!(fg_layers.len(), 1, "there should be exactly one foreground layer");
+    let fg_layers: Vec<_> = combo
+        .color_layers
+        .iter()
+        .filter(|l| l.palette_index == 0xFFFF)
+        .collect();
+    assert_eq!(
+        fg_layers.len(),
+        1,
+        "there should be exactly one foreground layer"
+    );
     // The single foreground layer should contain contours from BOTH
     // own pixels (base) and the fg-filled ref (overlay1): 2 contours.
-    assert_eq!(fg_layers[0].contours.len(), 2, "foreground layer should merge own+fg-ref contours");
+    assert_eq!(
+        fg_layers[0].contours.len(),
+        2,
+        "foreground layer should merge own+fg-ref contours"
+    );
 }
 
 /// Regression test: each COLR layer glyph's hmtx left-side-bearing must
@@ -277,7 +309,10 @@ map A = combo
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let font_data = build_font_from_documents(&[&doc]);
-    assert!(font_data.is_some(), "font with COLR should build successfully");
+    assert!(
+        font_data.is_some(),
+        "font with COLR should build successfully"
+    );
     let bytes = font_data.unwrap();
     let font = read_fonts::FontRef::new(&bytes).unwrap();
 
@@ -292,19 +327,29 @@ map A = combo
     let mut found_nonzero_lsb = false;
     for gid in 0..maxp.num_glyphs() {
         let gid = GlyphId::new(gid as u32);
-        let Ok(Some(glyph)) = loca.get_glyf(gid, &glyf) else { continue };
-        let read_fonts::tables::glyf::Glyph::Simple(sg) = glyph else { continue };
+        let Ok(Some(glyph)) = loca.get_glyf(gid, &glyf) else {
+            continue;
+        };
+        let read_fonts::tables::glyf::Glyph::Simple(sg) = glyph else {
+            continue;
+        };
         if sg.number_of_contours() == 0 {
             continue;
         }
         let x_min = sg.x_min();
         let lsb = hmtx.h_metrics()[gid.to_u32() as usize].side_bearing();
         if x_min > 0 {
-            assert_eq!(lsb, x_min, "LSB must match this layer glyph's own bbox x_min");
+            assert_eq!(
+                lsb, x_min,
+                "LSB must match this layer glyph's own bbox x_min"
+            );
             found_nonzero_lsb = true;
         }
     }
-    assert!(found_nonzero_lsb, "expected at least one COLR layer glyph with a nonzero x_min");
+    assert!(
+        found_nonzero_lsb,
+        "expected at least one COLR layer glyph with a nonzero x_min"
+    );
 }
 
 #[test]
@@ -366,9 +411,10 @@ feature ccmp for DFLT : sub
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let (_, _, glyphs, _, palette) = collect_glyph_data(&[&doc], false).unwrap();
-    let combined = glyphs.iter().find(|g| g.name == "combined").expect(
-        "combined glyph should be in glyph_data as a remap-referenced extra glyph"
-    );
+    let combined = glyphs
+        .iter()
+        .find(|g| g.name == "combined")
+        .expect("combined glyph should be in glyph_data as a remap-referenced extra glyph");
     assert!(
         !combined.color_layers.is_empty(),
         "remap-only glyph with fill refs must have COLR layers"
@@ -378,14 +424,26 @@ feature ccmp for DFLT : sub
         "palette must contain at least the #FF0000 color"
     );
     assert!(
-        combined.color_layers.iter().all(|cl| !cl.contours.is_empty()),
+        combined
+            .color_layers
+            .iter()
+            .all(|cl| !cl.contours.is_empty()),
         "every color layer should have contours"
     );
-    let has_colored = combined.color_layers.iter().any(|cl| cl.palette_index != 0xFFFF);
-    assert!(has_colored, "at least one layer must reference a palette color");
+    let has_colored = combined
+        .color_layers
+        .iter()
+        .any(|cl| cl.palette_index != 0xFFFF);
+    assert!(
+        has_colored,
+        "at least one layer must reference a palette color"
+    );
 
     let fallback_non_empty = !combined.contours.is_empty();
-    assert!(fallback_non_empty, "fallback contours (monoonly layer) should be present");
+    assert!(
+        fallback_non_empty,
+        "fallback contours (monoonly layer) should be present"
+    );
 
     let color_layer_count = combined.color_layers.len();
     assert_eq!(
@@ -545,9 +603,7 @@ map A = test-flag
     let hmtx = font.hmtx().unwrap();
 
     let cmap = font.cmap().unwrap();
-    let gid = cmap
-        .map_codepoint('A')
-        .expect("A should be mapped");
+    let gid = cmap.map_codepoint('A').expect("A should be mapped");
     let advance = hmtx.advance(gid).unwrap();
     let glyph = loca.get_glyf(gid, &glyf).unwrap().unwrap();
     let simple = match glyph {

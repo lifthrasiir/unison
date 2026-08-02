@@ -26,21 +26,20 @@ use std::path::Path;
 #[cfg(feature = "editor")]
 use std::sync::{Arc, Mutex};
 
+use read_fonts::tables::glyf::Anchor;
+use read_fonts::tables::glyf::CurvePoint;
+use write_fonts::FontBuilder;
 use write_fonts::tables::cmap::Cmap;
 use write_fonts::tables::colr::{BaseGlyph, Colr, Layer as ColrLayer};
 use write_fonts::tables::cpal::{ColorRecord, Cpal};
 use write_fonts::tables::gdef::{Gdef, MarkGlyphSets};
-use write_fonts::tables::gpos::{
-    AnchorTable, BaseArray, BaseRecord, Gpos, Mark2Array, Mark2Record,
-    MarkArray, MarkBasePosFormat1, MarkMarkPosFormat1, MarkRecord,
-    PositionLookup, PositionLookupList,
-};
 use write_fonts::tables::glyf::{
-    Bbox, Component, ComponentFlags, CompositeGlyph, Contour, Glyph, GlyfLocaBuilder,
-    SimpleGlyph
+    Bbox, Component, ComponentFlags, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph, SimpleGlyph,
 };
-use read_fonts::tables::glyf::Anchor;
-use read_fonts::tables::glyf::CurvePoint;
+use write_fonts::tables::gpos::{
+    AnchorTable, BaseArray, BaseRecord, Gpos, Mark2Array, Mark2Record, MarkArray,
+    MarkBasePosFormat1, MarkMarkPosFormat1, MarkRecord, PositionLookup, PositionLookupList,
+};
 use write_fonts::tables::gsub::{
     Gsub, Ligature, LigatureSet, LigatureSubstFormat1, MultipleSubstFormat1,
     ReverseChainSingleSubstFormat1, Sequence, SingleSubst, SingleSubstFormat2,
@@ -52,14 +51,12 @@ use write_fonts::tables::hmtx::{Hmtx, LongMetric};
 use write_fonts::tables::layout::{
     ChainedSequenceContext, ChainedSequenceContextFormat3, ClassDef, ClassDefFormat2,
     ClassRangeRecord, CoverageTable, Feature, FeatureList, FeatureRecord, LangSys, LangSysRecord,
-    Lookup,
-    LookupFlag, LookupList, Script, ScriptList, ScriptRecord, SequenceLookupRecord,
+    Lookup, LookupFlag, LookupList, Script, ScriptList, ScriptRecord, SequenceLookupRecord,
 };
 use write_fonts::tables::maxp::Maxp;
 use write_fonts::tables::name::{Name, NameRecord};
 use write_fonts::tables::os2::{Os2, SelectionFlags};
 use write_fonts::tables::post::Post;
-use write_fonts::FontBuilder;
 
 use write_fonts::types::{Fixed, GlyphId, GlyphId16, LongDateTime, NameId, Tag};
 
@@ -67,12 +64,12 @@ use crate::document::*;
 use crate::document_io;
 use crate::issues::Severity;
 use crate::meta::FontMeta;
-use crate::resolve::{Diagnostic, ItemRef};
 use crate::pixel::{PX_ALMOSTFULL, PX_CUSTOM, PX_SUBPIXEL, PixelShape};
 use crate::render::contour::{track_contour, track_contour_multi_at, track_contour_multi_diff_at};
 use crate::render::glyph_cache::{
     build_alt_index as build_cached_alternatives, resolve_cached as resolve_cached_ref,
 };
+use crate::resolve::{Diagnostic, ItemRef};
 
 mod collect;
 mod collection;
@@ -82,22 +79,21 @@ mod expand;
 mod gpos;
 mod gsub;
 mod hints;
-mod outlines;
 mod os2_ranges;
+mod outlines;
 mod tables;
 
-pub use color::{
-    ColorAliasMap, Rgba, collect_color_aliases, effective_visibility, resolve_fill_rgba
-};
 #[cfg(any(feature = "editor", test))]
 pub use color::parse_hex_color;
+pub use color::{
+    ColorAliasMap, Rgba, collect_color_aliases, effective_visibility, resolve_fill_rgba,
+};
 pub use contours::ContourCache;
 #[cfg(feature = "editor")]
 pub use contours::{SharedContourCache, new_contour_cache};
 pub(crate) use expand::{
     Expansion, collect_expanded_items, collect_expanded_items_for, decomposed_map_pairs,
-    expand_documents, expand_documents_for,
-    expand_map_pairs, parse_map_char
+    expand_documents, expand_documents_for, expand_map_pairs, parse_map_char,
 };
 pub(crate) use gsub::remap_rule_kind;
 
@@ -282,8 +278,28 @@ pub fn build_font_pair_cached_for(
     };
 
     let (bitmap, vector) = std::thread::scope(|s| {
-        let bh = s.spawn(|| build_ttf(b_ascender, b_descender, &b_glyphs, 0, &b_gsub, &b_palette, b_scale, &b_meta));
-        let vector = build_ttf(v_ascender, v_descender, &v_glyphs, v_hint_ppem, &v_gsub, &v_palette, v_scale, &v_meta);
+        let bh = s.spawn(|| {
+            build_ttf(
+                b_ascender,
+                b_descender,
+                &b_glyphs,
+                0,
+                &b_gsub,
+                &b_palette,
+                b_scale,
+                &b_meta,
+            )
+        });
+        let vector = build_ttf(
+            v_ascender,
+            v_descender,
+            &v_glyphs,
+            v_hint_ppem,
+            &v_gsub,
+            &v_palette,
+            v_scale,
+            &v_meta,
+        );
         let bitmap = bh.join().unwrap();
         (bitmap, vector)
     });
@@ -331,14 +347,21 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
             .iter()
             .map(|g| {
                 let mut g = g.clone();
-                g.codepoints = per_name.get(g.name.as_str()).map(|c| c.to_vec()).unwrap_or_default();
+                g.codepoints = per_name
+                    .get(g.name.as_str())
+                    .map(|c| c.to_vec())
+                    .unwrap_or_default();
                 g
             })
             .collect();
 
         let ascender = (meta.ascent() as f32 * scale).round() as i16;
         let descender = -((meta.descent() as f32 * scale).round() as i16);
-        let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) { meta.height() } else { 0 };
+        let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) {
+            meta.height()
+        } else {
+            0
+        };
         out.push((
             face.id.clone(),
             tables::build_ttf(
@@ -376,7 +399,9 @@ pub fn build_font_with_gid_map_for(
     face: &crate::faces::Face,
 ) -> Option<FontWithGidMap> {
     let shared = collect::compute_shared_font_input_for(docs, face)?;
-    build_with_gid_map(collect::collect_glyph_data_with_shared(&shared, false, None)?)
+    build_with_gid_map(collect::collect_glyph_data_with_shared(
+        &shared, false, None,
+    )?)
 }
 
 fn build_with_gid_map(
@@ -384,7 +409,11 @@ fn build_with_gid_map(
 ) -> Option<FontWithGidMap> {
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
-    let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) { meta.height() } else { 0 };
+    let hint_ppem = if UNITS_PER_EM.is_multiple_of(meta.height()) {
+        meta.height()
+    } else {
+        0
+    };
 
     let mut gid_to_name: HashMap<u16, String> = HashMap::new();
     let mut seen = std::collections::HashSet::new();
@@ -394,12 +423,30 @@ fn build_with_gid_map(
         }
     }
 
-    let ttf = build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, &meta);
-    Some(FontWithGidMap { ttf, gid_to_name, height: meta.height() })
+    let ttf = build_ttf(
+        ascender,
+        descender,
+        &glyph_data,
+        hint_ppem,
+        &gsub_data,
+        &palette,
+        scale,
+        &meta,
+    );
+    Some(FontWithGidMap {
+        ttf,
+        gid_to_name,
+        height: meta.height(),
+    })
 }
 
-fn build_font_from_documents_inner(docs: &[&Document], bitmap: bool, contour_cache: Option<&mut ContourCache>) -> Option<Vec<u8>> {
-    let (meta, scale, glyph_data, gsub_data, palette) = collect_glyph_data_cached(docs, bitmap, contour_cache)?;
+fn build_font_from_documents_inner(
+    docs: &[&Document],
+    bitmap: bool,
+    contour_cache: Option<&mut ContourCache>,
+) -> Option<Vec<u8>> {
+    let (meta, scale, glyph_data, gsub_data, palette) =
+        collect_glyph_data_cached(docs, bitmap, contour_cache)?;
 
     let ascender = (meta.ascent() as f32 * scale).round() as i16;
     let descender = -((meta.descent() as f32 * scale).round() as i16);
@@ -409,7 +456,16 @@ fn build_font_from_documents_inner(docs: &[&Document], bitmap: bool, contour_cac
     } else {
         0
     };
-    Some(build_ttf(ascender, descender, &glyph_data, hint_ppem, &gsub_data, &palette, scale, &meta))
+    Some(build_ttf(
+        ascender,
+        descender,
+        &glyph_data,
+        hint_ppem,
+        &gsub_data,
+        &palette,
+        scale,
+        &meta,
+    ))
 }
 
 /// Resolve all documents' glyph items (expanding name patterns, following

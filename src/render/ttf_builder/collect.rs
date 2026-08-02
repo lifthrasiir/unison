@@ -1,9 +1,9 @@
 //! Gathering resolved glyph data for one build flavor: composite refs,
 //! metrics and traced contours per glyph.
 
-use super::*;
 use super::contours::CachedContours;
 use super::gsub::collect_gsub_data;
+use super::*;
 
 /// [`derive_ref_offsets_with`](crate::ref_composite::derive_ref_offsets_with)
 /// wired to the contour cache: anchors and alternatives are looked up from
@@ -18,20 +18,14 @@ fn derive_effective_refs(
     let (effective_refs, anchors, _issues) = crate::ref_composite::derive_ref_offsets_with(
         points,
         refs,
-        |name| {
-            resolve_cached_ref(name, cache)
-                .map(|resolved| resolved.anchors.clone())
-        },
-        |name| {
-            alt_index
-                .get(name)
-                .map_or_else(Vec::new, |v| v.clone())
-        },
-        |name| {
-            declared_anchors_map.get(name).cloned()
-        },
+        |name| resolve_cached_ref(name, cache).map(|resolved| resolved.anchors.clone()),
+        |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
+        |name| declared_anchors_map.get(name).cloned(),
     );
-    (effective_refs, anchors.into_iter().map(|(p, _)| p).collect())
+    (
+        effective_refs,
+        anchors.into_iter().map(|(p, _)| p).collect(),
+    )
 }
 
 /// Scale pixel-space contours to font units, flipping y around the ascent
@@ -101,23 +95,29 @@ fn build_composite_refs(
     let Some(comps) = &resolved.composite_components else {
         return Vec::new();
     };
-    if comps.iter().any(|(name, _, _)| inline_glyphs.contains(name.as_str())) {
+    if comps
+        .iter()
+        .any(|(name, _, _)| inline_glyphs.contains(name.as_str()))
+    {
         return Vec::new();
     }
-    comps.iter().map(|(name, dx, dy)| {
-        let (comp_left, comp_top) = match glyph_meta.get(name.as_str()) {
-            Some(&(_, left, top)) => (
-                left.map_or(0, |l| (l as f32 * base_scale).round() as i16),
-                top.map_or(0, |t| (t as f32 * base_scale).round() as i16),
-            ),
-            None => (0, 0),
-        };
-        CompositeRef {
-            component_name: name.clone(),
-            x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16 - comp_left,
-            y_offset: (-*dy * scale).round() as i16 - top_offset + comp_top,
-        }
-    }).collect()
+    comps
+        .iter()
+        .map(|(name, dx, dy)| {
+            let (comp_left, comp_top) = match glyph_meta.get(name.as_str()) {
+                Some(&(_, left, top)) => (
+                    left.map_or(0, |l| (l as f32 * base_scale).round() as i16),
+                    top.map_or(0, |t| (t as f32 * base_scale).round() as i16),
+                ),
+                None => (0, 0),
+            };
+            CompositeRef {
+                component_name: name.clone(),
+                x_offset: ((*dx + left_offset as f32 / scale) * scale).round() as i16 - comp_left,
+                y_offset: (-*dy * scale).round() as i16 - top_offset + comp_top,
+            }
+        })
+        .collect()
 }
 
 pub(super) struct SharedFontInput {
@@ -146,7 +146,11 @@ pub(super) fn compute_shared_font_input_for(
         return None;
     }
 
-    let face_id = if face.id.is_empty() { None } else { Some(face.id.as_str()) };
+    let face_id = if face.id.is_empty() {
+        None
+    } else {
+        Some(face.id.as_str())
+    };
     let meta = FontMeta::for_face(docs, face_id);
 
     if meta.height() == 0 {
@@ -161,8 +165,14 @@ pub(super) fn compute_shared_font_input_for(
 
     let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &all_items {
-        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
-            declared_anchors_map.entry(n.clone()).or_insert_with(|| body.points.clone());
+        if let DocumentItem::Glyph {
+            name: GlyphName(n),
+            body,
+        } = item
+        {
+            declared_anchors_map
+                .entry(n.clone())
+                .or_insert_with(|| body.points.clone());
         }
     }
 
@@ -174,7 +184,11 @@ pub(super) fn compute_shared_font_input_for(
     let mut glyph_bodies: Vec<(String, GlyphBody)> = Vec::new();
     let mut seen_bodies: HashSet<String> = HashSet::new();
     for item in &all_items {
-        if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+        if let DocumentItem::Glyph {
+            name: GlyphName(n),
+            body,
+        } = item
+        {
             if body.advance.is_some() || body.left.is_some() || body.top.is_some() {
                 glyph_meta.insert(n.clone(), (body.advance, body.left, body.top));
             }
@@ -200,7 +214,11 @@ pub(super) fn compute_shared_font_input_for(
     })
 }
 
-pub(super) fn collect_glyph_data_cached(docs: &[&Document], bitmap: bool, contour_cache: Option<&mut ContourCache>) -> Option<CollectedFontData> {
+pub(super) fn collect_glyph_data_cached(
+    docs: &[&Document],
+    bitmap: bool,
+    contour_cache: Option<&mut ContourCache>,
+) -> Option<CollectedFontData> {
     let shared = compute_shared_font_input(docs)?;
     collect_glyph_data_with_shared(&shared, bitmap, contour_cache)
 }
@@ -255,25 +273,36 @@ pub(super) fn collect_glyph_data_with_shared(
         );
     }
 
-    let glyph_bodies_map: HashMap<&str, &GlyphBody> = glyph_bodies.iter()
-        .map(|(n, b)| (n.as_str(), b))
-        .collect();
+    let glyph_bodies_map: HashMap<&str, &GlyphBody> =
+        glyph_bodies.iter().map(|(n, b)| (n.as_str(), b)).collect();
 
     let mut glyph_data: Vec<CollectedGlyph> = Vec::new();
     let mut seen_names: HashSet<String> = HashSet::new();
 
     for item in all_items {
-        let DocumentItem::Map { char_repr, glyph, .. } = item else { continue };
+        let DocumentItem::Map {
+            char_repr, glyph, ..
+        } = item
+        else {
+            continue;
+        };
 
         let pairs = expand_map_pairs(char_repr, glyph);
         for (cp, glyph_name) in &pairs {
-            let Some(resolved) = cache.get(glyph_name.as_str()) else { continue };
+            let Some(resolved) = cache.get(glyph_name.as_str()) else {
+                continue;
+            };
 
             let glyph_scale = scale / resolved.scale as f32;
             let (advance_width, left_offset, top_offset) =
                 resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
-            let font_contours =
-                scale_glyph_contours(&resolved.contours, glyph_scale, meta.ascent() * resolved.scale as u16, left_offset, top_offset);
+            let font_contours = scale_glyph_contours(
+                &resolved.contours,
+                glyph_scale,
+                meta.ascent() * resolved.scale as u16,
+                left_offset,
+                top_offset,
+            );
             let composite_refs = build_composite_refs(
                 resolved,
                 inline_glyphs.contains(glyph_name.as_str()),
@@ -285,11 +314,15 @@ pub(super) fn collect_glyph_data_with_shared(
                 inline_glyphs,
             );
 
-            let is_mark = glyph_bodies_map.get(glyph_name.as_str()).is_some_and(|b| b.mark);
-            let glyph_anchors = cache.get(glyph_name.as_str())
+            let is_mark = glyph_bodies_map
+                .get(glyph_name.as_str())
+                .is_some_and(|b| b.mark);
+            let glyph_anchors = cache
+                .get(glyph_name.as_str())
                 .map(|c| c.anchors.clone())
                 .unwrap_or_default();
-            let declared_anchors = glyph_bodies_map.get(glyph_name.as_str())
+            let declared_anchors = glyph_bodies_map
+                .get(glyph_name.as_str())
                 .map(|b| b.points.clone())
                 .unwrap_or_default();
 
@@ -339,7 +372,10 @@ pub(super) fn collect_glyph_data_with_shared(
         }
         merged.sort_by(|a, b| {
             let key = |g: &CollectedGlyph| {
-                (g.codepoints.first().copied().unwrap_or(u32::MAX), g.name.clone())
+                (
+                    g.codepoints.first().copied().unwrap_or(u32::MAX),
+                    g.name.clone(),
+                )
             };
             key(a).cmp(&key(b))
         });
@@ -406,7 +442,10 @@ pub(super) fn collect_glyph_data_with_shared(
             if !seen_names.contains(base_name) {
                 continue;
             }
-            let declared = glyph_bodies_map.get(base_name.as_str()).map(|b| &b.points[..]).unwrap_or(&[]);
+            let declared = glyph_bodies_map
+                .get(base_name.as_str())
+                .map(|b| &b.points[..])
+                .unwrap_or(&[]);
             for anchor_name in &anchor_names {
                 let plus_name = format!("+{anchor_name}");
                 if declared.iter().any(|p| p.position == plus_name) {
@@ -434,15 +473,19 @@ pub(super) fn collect_glyph_data_with_shared(
             };
             for anchor_name in &anchor_names {
                 let minus_name = format!("-{anchor_name}");
-                let Some(mark_minus) = mark_body.points.iter().find(|p| p.position == minus_name) else { continue };
+                let Some(mark_minus) = mark_body.points.iter().find(|p| p.position == minus_name)
+                else {
+                    continue;
+                };
                 for (alt_name, alt_anchors) in alts {
                     if seen_names.contains(alt_name) || extra_name_set.contains(alt_name) {
                         continue;
                     }
                     if let Some(alt_minus) = alt_anchors.iter().find(|p| p.position == minus_name)
-                        && !alt_minus.size_matches(mark_minus) {
-                            extra_name_set.insert(alt_name.clone());
-                        }
+                        && !alt_minus.size_matches(mark_minus)
+                    {
+                        extra_name_set.insert(alt_name.clone());
+                    }
                 }
             }
         }
@@ -457,8 +500,13 @@ pub(super) fn collect_glyph_data_with_shared(
         let glyph_scale = scale / resolved.scale as f32;
         let (advance_width, left_offset, top_offset) =
             resolve_glyph_metrics(&glyph_meta, glyph_name, resolved.width, glyph_scale, scale);
-        let font_contours =
-            scale_glyph_contours(&resolved.contours, glyph_scale, meta.ascent() * resolved.scale as u16, left_offset, top_offset);
+        let font_contours = scale_glyph_contours(
+            &resolved.contours,
+            glyph_scale,
+            meta.ascent() * resolved.scale as u16,
+            left_offset,
+            top_offset,
+        );
         let composite_refs = build_composite_refs(
             resolved,
             inline_glyphs.contains(glyph_name.as_str()),
@@ -470,11 +518,15 @@ pub(super) fn collect_glyph_data_with_shared(
             inline_glyphs,
         );
 
-        let is_mark = glyph_bodies_map.get(glyph_name.as_str()).is_some_and(|b| b.mark);
-        let glyph_anchors = cache.get(glyph_name.as_str())
+        let is_mark = glyph_bodies_map
+            .get(glyph_name.as_str())
+            .is_some_and(|b| b.mark);
+        let glyph_anchors = cache
+            .get(glyph_name.as_str())
             .map(|c| c.anchors.clone())
             .unwrap_or_default();
-        let declared_anchors = glyph_bodies_map.get(glyph_name.as_str())
+        let declared_anchors = glyph_bodies_map
+            .get(glyph_name.as_str())
             .map(|b| b.points.clone())
             .unwrap_or_default();
 
@@ -501,10 +553,17 @@ pub(super) fn collect_glyph_data_with_shared(
             if !all_names.contains(&cr.component_name) {
                 all_names.insert(cr.component_name.clone());
                 let empty_cached = CachedContours::empty();
-                let resolved = cache.get(cr.component_name.as_str()).unwrap_or(&empty_cached);
+                let resolved = cache
+                    .get(cr.component_name.as_str())
+                    .unwrap_or(&empty_cached);
                 let comp_glyph_scale = scale / resolved.scale as f32;
-                let font_contours =
-                    scale_glyph_contours(&resolved.contours, comp_glyph_scale, meta.ascent() * resolved.scale as u16, 0, 0);
+                let font_contours = scale_glyph_contours(
+                    &resolved.contours,
+                    comp_glyph_scale,
+                    meta.ascent() * resolved.scale as u16,
+                    0,
+                    0,
+                );
                 let advance_width = (resolved.width as f32 * comp_glyph_scale).round() as u16;
                 component_extras.push(CollectedGlyph {
                     name: cr.component_name.clone(),
@@ -534,14 +593,24 @@ pub(super) fn collect_glyph_data_with_shared(
     // Build per-glyph color layers
     let color_alt_index = build_cached_alternatives(&cache);
     for g in &mut glyph_data {
-        let Some(body) = glyph_bodies_map.get(g.name.as_str()) else { continue };
-        let has_fill_or_vis = body.refs.iter().any(|r| r.fill.is_some() || r.visibility.is_some());
+        let Some(body) = glyph_bodies_map.get(g.name.as_str()) else {
+            continue;
+        };
+        let has_fill_or_vis = body
+            .refs
+            .iter()
+            .any(|r| r.fill.is_some() || r.visibility.is_some());
         if !has_fill_or_vis {
             continue;
         }
 
         let (effective_refs, _) = derive_effective_refs(
-            &body.points, &body.refs, &cache, &color_alt_index, &declared_anchors_map);
+            &body.points,
+            &body.refs,
+            &cache,
+            &color_alt_index,
+            &declared_anchors_map,
+        );
 
         let color_glyph_scale = scale / body.scale as f32;
         let color_ascent = meta.ascent() * body.scale as u16;
@@ -568,7 +637,11 @@ pub(super) fn collect_glyph_data_with_shared(
                     let ref_cached = resolve_cached_ref(&eref.name, &cache)?;
                     let grid = ref_cached.grid.as_ref()?;
                     let (rs, ps) = (ref_cached.scale.max(1), body.scale.max(1));
-                    let scaled = if rs == ps { grid.clone() } else { grid.rescale(rs, ps) };
+                    let scaled = if rs == ps {
+                        grid.clone()
+                    } else {
+                        grid.rescale(rs, ps)
+                    };
                     let (row, col) = ref_cached.placed_at(eref.row() as i32, eref.col() as i32, ps);
                     Some((scaled, row, col))
                 })
@@ -594,27 +667,42 @@ pub(super) fn collect_glyph_data_with_shared(
         // Trace one positive layer minus the negated layers that follow it.
         // `None` when nothing cuts this layer, so a layer no negation reaches
         // keeps its own exactly traced contours instead of being re-traced.
-        let cut_contours = |grid: &PixelGrid, row: i32, col: i32, negs: Vec<(&PixelGrid, i32, i32, bool)>| {
-            if negs.is_empty() {
-                return None;
-            }
-            let mut layers = vec![(grid, row, col, false)];
-            layers.extend(negs);
-            Some(track_contour_multi_diff_at(&layers, PX_SUBPIXEL))
-        };
+        let cut_contours =
+            |grid: &PixelGrid, row: i32, col: i32, negs: Vec<(&PixelGrid, i32, i32, bool)>| {
+                if negs.is_empty() {
+                    return None;
+                }
+                let mut layers = vec![(grid, row, col, false)];
+                layers.extend(negs);
+                Some(track_contour_multi_diff_at(&layers, PX_SUBPIXEL))
+            };
 
         // Collect foreground contours (own pixels + refs without fill or with fill=fg)
         // and separate color layers (refs with non-fg fill).
         let mut fg_contours: Vec<Vec<(i16, i16)>> = Vec::new();
 
         if let Some(ref own_grid) = body.pixels
-            && !own_grid.is_all_empty() {
-                let c = has_negated
-                    .then(|| cut_contours(own_grid, 0, 0, negated_after(None, LayerVisibility::MonoOnly)))
-                    .flatten()
-                    .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
-                fg_contours.extend(scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset));
-            }
+            && !own_grid.is_all_empty()
+        {
+            let c = has_negated
+                .then(|| {
+                    cut_contours(
+                        own_grid,
+                        0,
+                        0,
+                        negated_after(None, LayerVisibility::MonoOnly),
+                    )
+                })
+                .flatten()
+                .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
+            fg_contours.extend(scale_glyph_contours(
+                &c,
+                color_glyph_scale,
+                color_ascent,
+                left_offset,
+                top_offset,
+            ));
+        }
 
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
@@ -624,7 +712,9 @@ pub(super) fn collect_glyph_data_with_shared(
                 continue;
             }
 
-            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else { continue };
+            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else {
+                continue;
+            };
             let dx = eref.col() as f32;
             let dy = eref.row() as f32;
             let rsf = body.scale as f32 / ref_cached.scale.max(1) as f32;
@@ -632,7 +722,12 @@ pub(super) fn collect_glyph_data_with_shared(
             let cut = has_negated
                 .then(|| {
                     let (grid, row, col) = ref_layers[ri].as_ref()?;
-                    cut_contours(grid, *row, *col, negated_after(Some(ri), LayerVisibility::MonoOnly))
+                    cut_contours(
+                        grid,
+                        *row,
+                        *col,
+                        negated_after(Some(ri), LayerVisibility::MonoOnly),
+                    )
                 })
                 .flatten();
             let layer_contours: Vec<Vec<(i16, i16)>> = if let Some(c) = cut {
@@ -645,8 +740,11 @@ pub(super) fn collect_glyph_data_with_shared(
                         c.iter()
                             .map(|&(x, y)| {
                                 (
-                                    ((x * rsf + dx) * color_glyph_scale).round() as i16 + left_offset,
-                                    ((color_ascent as f32 - (y * rsf + dy)) * color_glyph_scale).round() as i16 - top_offset,
+                                    ((x * rsf + dx) * color_glyph_scale).round() as i16
+                                        + left_offset,
+                                    ((color_ascent as f32 - (y * rsf + dy)) * color_glyph_scale)
+                                        .round() as i16
+                                        - top_offset,
                                 )
                             })
                             .collect()
@@ -680,22 +778,39 @@ pub(super) fn collect_glyph_data_with_shared(
         }
 
         if !fg_contours.is_empty() {
-            g.color_layers.insert(0, CollectedColorLayer {
-                contours: fg_contours,
-                palette_index: 0xFFFF,
-            });
+            g.color_layers.insert(
+                0,
+                CollectedColorLayer {
+                    contours: fg_contours,
+                    palette_index: 0xFFFF,
+                },
+            );
         }
 
         // Rebuild fallback contours: only non-coloronly layers
         let mut fallback_contours: Vec<Vec<(i16, i16)>> = Vec::new();
         if let Some(ref own_grid) = body.pixels
-            && !own_grid.is_all_empty() {
-                let c = has_negated
-                    .then(|| cut_contours(own_grid, 0, 0, negated_after(None, LayerVisibility::ColorOnly)))
-                    .flatten()
-                    .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
-                fallback_contours.extend(scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset));
-            }
+            && !own_grid.is_all_empty()
+        {
+            let c = has_negated
+                .then(|| {
+                    cut_contours(
+                        own_grid,
+                        0,
+                        0,
+                        negated_after(None, LayerVisibility::ColorOnly),
+                    )
+                })
+                .flatten()
+                .unwrap_or_else(|| track_contour(own_grid, PX_SUBPIXEL));
+            fallback_contours.extend(scale_glyph_contours(
+                &c,
+                color_glyph_scale,
+                color_ascent,
+                left_offset,
+                top_offset,
+            ));
+        }
         for (ri, eref) in effective_refs.iter().enumerate() {
             let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
             let vis = ref_vis[ri];
@@ -705,14 +820,27 @@ pub(super) fn collect_glyph_data_with_shared(
             let cut = has_negated
                 .then(|| {
                     let (grid, row, col) = ref_layers[ri].as_ref()?;
-                    cut_contours(grid, *row, *col, negated_after(Some(ri), LayerVisibility::ColorOnly))
+                    cut_contours(
+                        grid,
+                        *row,
+                        *col,
+                        negated_after(Some(ri), LayerVisibility::ColorOnly),
+                    )
                 })
                 .flatten();
             if let Some(c) = cut {
-                fallback_contours.extend(scale_glyph_contours(&c, color_glyph_scale, color_ascent, left_offset, top_offset));
+                fallback_contours.extend(scale_glyph_contours(
+                    &c,
+                    color_glyph_scale,
+                    color_ascent,
+                    left_offset,
+                    top_offset,
+                ));
                 continue;
             }
-            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else { continue };
+            let Some(ref_cached) = resolve_cached_ref(&eref.name, &cache) else {
+                continue;
+            };
             let dx = eref.col() as f32;
             let dy = eref.row() as f32;
             let fb_rsf = body.scale as f32 / ref_cached.scale.max(1) as f32;
@@ -721,11 +849,14 @@ pub(super) fn collect_glyph_data_with_shared(
                     c.iter()
                         .map(|&(x, y)| {
                             (
-                                ((x * fb_rsf + dx) * color_glyph_scale).round() as i16 + left_offset,
-                                ((color_ascent as f32 - (y * fb_rsf + dy)) * color_glyph_scale).round() as i16 - top_offset,
+                                ((x * fb_rsf + dx) * color_glyph_scale).round() as i16
+                                    + left_offset,
+                                ((color_ascent as f32 - (y * fb_rsf + dy)) * color_glyph_scale)
+                                    .round() as i16
+                                    - top_offset,
                             )
                         })
-                        .collect()
+                        .collect(),
                 );
             }
         }
@@ -738,7 +869,9 @@ pub(super) fn collect_glyph_data_with_shared(
         let mut sorted_colors: Vec<Rgba> = palette_colors.clone();
         sorted_colors.sort();
         sorted_colors.dedup();
-        let old_to_new: HashMap<u16, u16> = palette_colors.iter().enumerate()
+        let old_to_new: HashMap<u16, u16> = palette_colors
+            .iter()
+            .enumerate()
             .map(|(old_idx, rgba)| {
                 let new_idx = sorted_colors.iter().position(|c| c == rgba).unwrap() as u16;
                 (old_idx as u16, new_idx)
@@ -765,5 +898,11 @@ pub(super) fn collect_glyph_data_with_shared(
         return None;
     }
 
-    Some((meta.clone(), scale, glyph_data, gsub_data.clone(), palette_colors))
+    Some((
+        meta.clone(),
+        scale,
+        glyph_data,
+        gsub_data.clone(),
+        palette_colors,
+    ))
 }

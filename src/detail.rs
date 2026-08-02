@@ -182,7 +182,12 @@ pub fn subtract_classified(a: &DetailRegion, b: &DetailRegion) -> Classified {
     type PairCache = HashMap<(DetailRegion, DetailRegion), Classified>;
     static CACHE: Mutex<Option<PairCache>> = Mutex::new(None);
     let key = (a.clone(), b.clone());
-    if let Some(hit) = CACHE.lock().unwrap().get_or_insert_with(HashMap::new).get(&key) {
+    if let Some(hit) = CACHE
+        .lock()
+        .unwrap()
+        .get_or_insert_with(HashMap::new)
+        .get(&key)
+    {
         return hit.clone();
     }
     let result = bool_op(a, b, BoolOp::Subtract).classify();
@@ -279,7 +284,11 @@ fn gcd(mut a: u64, mut b: u64) -> u64 {
 pub fn lcm_den(a: u8, b: u8) -> Option<u8> {
     let (a, b) = (a.max(1) as u64, b.max(1) as u64);
     let l = a / gcd(a, b) * b;
-    if l <= MAX_DEN as u64 { Some(l as u8) } else { None }
+    if l <= MAX_DEN as u64 {
+        Some(l as u8)
+    } else {
+        None
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -305,13 +314,22 @@ impl SweepEdge {
             return None;
         }
         let (p, q) = if a.1 < b.1 { (a, b) } else { (b, a) };
-        Some(Self { x1: p.0, y1: p.1, x2: q.0, y2: q.1, operand })
+        Some(Self {
+            x1: p.0,
+            y1: p.1,
+            x2: q.0,
+            y2: q.1,
+            operand,
+        })
     }
 
     /// x coordinate at height `y` (`y1 <= y <= y2`).
     fn x_at(&self, y: Frac) -> Frac {
-        self.x1
-            .add(y.sub(self.y1).mul(self.x2.sub(self.x1)).div(self.y2.sub(self.y1)))
+        self.x1.add(
+            y.sub(self.y1)
+                .mul(self.x2.sub(self.x1))
+                .div(self.y2.sub(self.y1)),
+        )
     }
 }
 
@@ -366,13 +384,12 @@ fn sweep(edges: &[SweepEdge], filled: &dyn Fn(bool, bool) -> bool) -> Vec<Trap> 
             }
             // From a.x1 + (y - a.y1)·adx/ady = b.x1 + (y - b.y1)·bdx/bdy,
             // multiplied through by ady·bdy:
-            let lhs = b
-                .x1
-                .sub(a.x1)
-                .mul(ady)
-                .mul(bdy)
-                .add(a.y1.mul(adx).mul(bdy))
-                .sub(b.y1.mul(bdx).mul(ady));
+            let lhs =
+                b.x1.sub(a.x1)
+                    .mul(ady)
+                    .mul(bdy)
+                    .add(a.y1.mul(adx).mul(bdy))
+                    .sub(b.y1.mul(bdx).mul(ady));
             let y = lhs.div(denom);
             if y > lo && y < hi {
                 ys.push(y);
@@ -526,7 +543,12 @@ fn traps_to_rings(traps: &[Trap]) -> (u8, Vec<Vec<(u8, u8)>>) {
     for ring in rings {
         let snapped: Vec<(i64, i64)> = ring
             .iter()
-            .map(|&(x, y)| (x.round_to_den(den).clamp(0, den), y.round_to_den(den).clamp(0, den)))
+            .map(|&(x, y)| {
+                (
+                    x.round_to_den(den).clamp(0, den),
+                    y.round_to_den(den).clamp(0, den),
+                )
+            })
             .collect();
         // Clean up again in lattice space (rounding may introduce new
         // degeneracies when the exact lcm exceeded MAX_DEN).
@@ -606,11 +628,10 @@ fn simplify_exact(ring: Vec<FPoint>) -> Vec<FPoint> {
         let q = ring[i];
         let r = ring[(i + 1) % n];
         // cross = (q - p) × (r - p), exact.
-        let cross = q
-            .0
-            .sub(p.0)
-            .mul(r.1.sub(p.1))
-            .sub(q.1.sub(p.1).mul(r.0.sub(p.0)));
+        let cross =
+            q.0.sub(p.0)
+                .mul(r.1.sub(p.1))
+                .sub(q.1.sub(p.1).mul(r.0.sub(p.0)));
         if !cross.is_zero() {
             out.push(q);
         }
@@ -660,7 +681,10 @@ fn lattice_ring_area2(ring: &[(i64, i64)]) -> i64 {
 // ---------------------------------------------------------------------------
 
 impl DetailRegion {
-    pub const EMPTY: DetailRegion = DetailRegion { den: 1, rings: Vec::new() };
+    pub const EMPTY: DetailRegion = DetailRegion {
+        den: 1,
+        rings: Vec::new(),
+    };
 
     pub fn full() -> DetailRegion {
         DetailRegion {
@@ -691,8 +715,7 @@ impl DetailRegion {
     pub fn area_exact(&self) -> (i64, i64) {
         let mut a = 0i64;
         for ring in &self.rings {
-            let ring: Vec<(i64, i64)> =
-                ring.iter().map(|&(x, y)| (x as i64, y as i64)).collect();
+            let ring: Vec<(i64, i64)> = ring.iter().map(|&(x, y)| (x as i64, y as i64)).collect();
             a += lattice_ring_area2(&ring);
         }
         (a.abs(), 2 * self.den as i64 * self.den as i64)
@@ -733,14 +756,23 @@ impl DetailRegion {
                 .iter()
                 .map(|&(x, y)| {
                     (
-                        Frac::new(x as i64, self.den as i64).round_to_den(d).clamp(0, d),
-                        Frac::new(y as i64, self.den as i64).round_to_den(d).clamp(0, d),
+                        Frac::new(x as i64, self.den as i64)
+                            .round_to_den(d)
+                            .clamp(0, d),
+                        Frac::new(y as i64, self.den as i64)
+                            .round_to_den(d)
+                            .clamp(0, d),
                     )
                 })
                 .collect();
             let snapped = simplify_lattice(dedup_cyclic(snapped));
             if snapped.len() >= 3 && lattice_ring_area2(&snapped) != 0 {
-                rings.push(snapped.into_iter().map(|(x, y)| (x as u8, y as u8)).collect());
+                rings.push(
+                    snapped
+                        .into_iter()
+                        .map(|(x, y)| (x as u8, y as u8))
+                        .collect(),
+                );
             }
         }
         DetailRegion { den, rings }
@@ -852,7 +884,12 @@ impl DetailRegion {
         use std::sync::Mutex;
         static CACHE: Mutex<Option<HashMap<DetailRegion, u8>>> = Mutex::new(None);
         let canon = self.canonical();
-        if let Some(&hit) = CACHE.lock().unwrap().get_or_insert_with(HashMap::new).get(&canon) {
+        if let Some(&hit) = CACHE
+            .lock()
+            .unwrap()
+            .get_or_insert_with(HashMap::new)
+            .get(&canon)
+        {
             return hit;
         }
 
@@ -860,7 +897,10 @@ impl DetailRegion {
         let diff_area = |a: &DetailRegion, b: &DetailRegion| -> (i128, i128) {
             let (n1, d1) = bool_op(a, b, BoolOp::Subtract).area_exact();
             let (n2, d2) = bool_op(b, a, BoolOp::Subtract).area_exact();
-            (n1 as i128 * d2 as i128 + n2 as i128 * d1 as i128, d1 as i128 * d2 as i128)
+            (
+                n1 as i128 * d2 as i128 + n2 as i128 * d1 as i128,
+                d1 as i128 * d2 as i128,
+            )
         };
         let area = |r: &DetailRegion| -> (i128, i128) {
             let (n, d) = r.area_exact();
@@ -888,7 +928,11 @@ impl DetailRegion {
             }
         }
 
-        CACHE.lock().unwrap().get_or_insert_with(HashMap::new).insert(canon, best_id);
+        CACHE
+            .lock()
+            .unwrap()
+            .get_or_insert_with(HashMap::new)
+            .insert(canon, best_id);
         best_id
     }
 
@@ -1025,7 +1069,10 @@ pub fn clip_polygon_to_cell(pts: &[(Frac64, Frac64)]) -> DetailRegion {
     let mut edges = Vec::new();
     let n = pts.len();
     for i in 0..n {
-        let a = (Frac::new(pts[i].0.n, pts[i].0.d), Frac::new(pts[i].1.n, pts[i].1.d));
+        let a = (
+            Frac::new(pts[i].0.n, pts[i].0.d),
+            Frac::new(pts[i].1.n, pts[i].1.d),
+        );
         let b = (
             Frac::new(pts[(i + 1) % n].0.n, pts[(i + 1) % n].0.d),
             Frac::new(pts[(i + 1) % n].1.n, pts[(i + 1) % n].1.d),
@@ -1110,7 +1157,10 @@ impl DetailRegion {
     /// filled side of each boundary edge is determined by its direction).
     pub fn edge_coverage(&self) -> EdgeCoverageExact {
         let d = self.den as i64;
-        let mut cov = EdgeCoverageExact { den: self.den, ..Default::default() };
+        let mut cov = EdgeCoverageExact {
+            den: self.den,
+            ..Default::default()
+        };
         for ring in &self.rings {
             let n = ring.len();
             for i in 0..n {
@@ -1154,7 +1204,12 @@ impl DetailRegion {
                     || (x1 == 0 && x2 == 0)
                     || (x1 == d && x2 == d);
                 if !on_boundary {
-                    segs.push((x1 as f32 / df, y1 as f32 / df, x2 as f32 / df, y2 as f32 / df));
+                    segs.push((
+                        x1 as f32 / df,
+                        y1 as f32 / df,
+                        x2 as f32 / df,
+                        y2 as f32 / df,
+                    ));
                 }
             }
         }
@@ -1196,11 +1251,31 @@ mod tests {
     /// and the two its complement is made of.
     const DOT_CORNER_SHAPES: [(u8, (u8, u8), (u8, u8)); 6] = [
         (PX_SLASH, (PX_CORNER1, PX_CORNER2), (PX_CORNER3, PX_CORNER4)),
-        (PX_BACKSLASH, (PX_CORNER3, PX_CORNER4), (PX_CORNER1, PX_CORNER2)),
-        (PX_HOUSE1, (PX_CORNER3, PX_CORNER1), (PX_CORNER2, PX_CORNER4)),
-        (PX_HOUSE2, (PX_CORNER3, PX_CORNER2), (PX_CORNER1, PX_CORNER4)),
-        (PX_HOUSE3, (PX_CORNER2, PX_CORNER4), (PX_CORNER3, PX_CORNER1)),
-        (PX_HOUSE4, (PX_CORNER1, PX_CORNER4), (PX_CORNER3, PX_CORNER2)),
+        (
+            PX_BACKSLASH,
+            (PX_CORNER3, PX_CORNER4),
+            (PX_CORNER1, PX_CORNER2),
+        ),
+        (
+            PX_HOUSE1,
+            (PX_CORNER3, PX_CORNER1),
+            (PX_CORNER2, PX_CORNER4),
+        ),
+        (
+            PX_HOUSE2,
+            (PX_CORNER3, PX_CORNER2),
+            (PX_CORNER1, PX_CORNER4),
+        ),
+        (
+            PX_HOUSE3,
+            (PX_CORNER2, PX_CORNER4),
+            (PX_CORNER3, PX_CORNER1),
+        ),
+        (
+            PX_HOUSE4,
+            (PX_CORNER1, PX_CORNER4),
+            (PX_CORNER3, PX_CORNER2),
+        ),
     ];
 
     fn union_of(ids: &[u8]) -> DetailRegion {
@@ -1264,9 +1339,17 @@ mod tests {
                 continue;
             }
             let u = bool_op(&a, &b, BoolOp::Union);
-            assert_eq!(u.classify(), Classified::Full, "shape {id} ∪ complement != full");
+            assert_eq!(
+                u.classify(),
+                Classified::Full,
+                "shape {id} ∪ complement != full"
+            );
             let i = bool_op(&a, &b, BoolOp::Intersect);
-            assert_eq!(i.classify(), Classified::Empty, "shape {id} ∩ complement != empty");
+            assert_eq!(
+                i.classify(),
+                Classified::Empty,
+                "shape {id} ∩ complement != empty"
+            );
         }
     }
 
@@ -1326,8 +1409,14 @@ mod tests {
         assert!(matches!(tri.classify(), Classified::Custom(_)));
         assert_eq!(tri.canonical().area2(), 1.0 / 3.0);
         let comp = tri.complement();
-        assert_eq!(bool_op(&tri, &comp, BoolOp::Union).classify(), Classified::Full);
-        assert_eq!(bool_op(&tri, &comp, BoolOp::Intersect).classify(), Classified::Empty);
+        assert_eq!(
+            bool_op(&tri, &comp, BoolOp::Union).classify(),
+            Classified::Full
+        );
+        assert_eq!(
+            bool_op(&tri, &comp, BoolOp::Intersect).classify(),
+            Classified::Empty
+        );
     }
 
     #[test]
@@ -1430,15 +1519,37 @@ mod tests {
             let table = crate::pixel::edge_coverage(id);
             let den = exact.den as f32;
             let to_f = |list: &[(u8, u8)]| -> Vec<(f32, f32)> {
-                list.iter().map(|&(a, b)| (a as f32 / den, b as f32 / den)).collect()
+                list.iter()
+                    .map(|&(a, b)| (a as f32 / den, b as f32 / den))
+                    .collect()
             };
             let from_iv = |iv: &crate::pixel::EdgeInterval| -> Vec<(f32, f32)> {
-                if iv.is_empty() { Vec::new() } else { vec![(iv.start, iv.end)] }
+                if iv.is_empty() {
+                    Vec::new()
+                } else {
+                    vec![(iv.start, iv.end)]
+                }
             };
-            assert_eq!(to_f(&exact.top), from_iv(&table.top), "top coverage of id {id}");
-            assert_eq!(to_f(&exact.bottom), from_iv(&table.bottom), "bottom coverage of id {id}");
-            assert_eq!(to_f(&exact.left), from_iv(&table.left), "left coverage of id {id}");
-            assert_eq!(to_f(&exact.right), from_iv(&table.right), "right coverage of id {id}");
+            assert_eq!(
+                to_f(&exact.top),
+                from_iv(&table.top),
+                "top coverage of id {id}"
+            );
+            assert_eq!(
+                to_f(&exact.bottom),
+                from_iv(&table.bottom),
+                "bottom coverage of id {id}"
+            );
+            assert_eq!(
+                to_f(&exact.left),
+                from_iv(&table.left),
+                "left coverage of id {id}"
+            );
+            assert_eq!(
+                to_f(&exact.right),
+                from_iv(&table.right),
+                "right coverage of id {id}"
+            );
         }
     }
 

@@ -191,7 +191,10 @@ mod tests {
         assert_ne!(a, b);
         assert_ne!(a.key(Slot::ScrollY), b.key(Slot::ScrollY));
         assert_ne!(a.key(Slot::ScrollY), a.key(Slot::ViewportH));
-        assert_ne!(a.keyed(Slot::GridHscrollBar, 0), a.keyed(Slot::GridHscrollBar, 1));
+        assert_ne!(
+            a.keyed(Slot::GridHscrollBar, 0),
+            a.keyed(Slot::GridHscrollBar, 1)
+        );
     }
 
     #[test]

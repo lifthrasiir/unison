@@ -110,7 +110,11 @@ feature tjmo for hang : hangul-tjmo
 
     assert_eq!(gsub_data.features.len(), 3, "ljmo/vjmo/tjmo features");
     assert_eq!(
-        gsub_data.features.iter().map(|(n, _, _)| n.as_str()).collect::<Vec<_>>(),
+        gsub_data
+            .features
+            .iter()
+            .map(|(n, _, _)| n.as_str())
+            .collect::<Vec<_>>(),
         ["ljmo", "vjmo", "tjmo"],
     );
     for (_, scripts, _) in &gsub_data.features {
@@ -120,7 +124,10 @@ feature tjmo for hang : hangul-tjmo
         );
     }
 
-    let non_cmap_count = glyph_data.iter().filter(|g| g.codepoints.is_empty()).count();
+    let non_cmap_count = glyph_data
+        .iter()
+        .filter(|g| g.codepoints.is_empty())
+        .count();
     assert!(
         non_cmap_count > 0,
         "remap-referenced non-cmap glyphs should be included"
@@ -128,12 +135,18 @@ feature tjmo for hang : hangul-tjmo
 
     let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
     for (i, g) in glyph_data.iter().enumerate() {
-        name_to_gid.entry(g.name.clone()).or_insert(GlyphId16::new((i + 1) as u16));
+        name_to_gid
+            .entry(g.name.clone())
+            .or_insert(GlyphId16::new((i + 1) as u16));
     }
     let gsub = build_gsub(&gsub_data, &name_to_gid);
     assert!(gsub.is_some(), "GSUB table should be generated");
     let gsub = gsub.unwrap();
-    let hang_found = gsub.script_list.script_records.iter().any(|r| r.script_tag == Tag::new(b"hang"));
+    let hang_found = gsub
+        .script_list
+        .script_records
+        .iter()
+        .any(|r| r.script_tag == Tag::new(b"hang"));
     assert!(hang_found, "GSUB ScriptList should contain 'hang' script");
 
     let font = build_font_from_documents(&doc_refs);
@@ -159,11 +172,16 @@ feature liga for latn : ligset
 
     let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
     for (i, g) in glyph_data.iter().enumerate() {
-        name_to_gid.entry(g.name.clone()).or_insert(GlyphId16::new((i + 1) as u16));
+        name_to_gid
+            .entry(g.name.clone())
+            .or_insert(GlyphId16::new((i + 1) as u16));
     }
 
     let gsub = build_gsub(&gsub_data, &name_to_gid);
-    assert!(gsub.is_some(), "GSUB should be generated for ligature remap");
+    assert!(
+        gsub.is_some(),
+        "GSUB should be generated for ligature remap"
+    );
 }
 
 #[test]
@@ -188,7 +206,8 @@ feature feat for arab : set2
     let (_, _, _glyph_data, gsub_data, _) = collect_glyph_data(&[&doc], false).unwrap();
 
     assert_eq!(
-        gsub_data.features.len(), 2,
+        gsub_data.features.len(),
+        2,
         "same tag + different scripts = separate feature entries"
     );
 }
@@ -260,11 +279,14 @@ feature ccmp for hang : second
     let (_, _, glyph_data, gsub_data, _) = collect_glyph_data(&[&doc], false).unwrap();
     let mut name_to_gid: HashMap<String, GlyphId16> = HashMap::new();
     for (i, g) in glyph_data.iter().enumerate() {
-        name_to_gid.entry(g.name.clone()).or_insert(GlyphId16::new((i + 1) as u16));
+        name_to_gid
+            .entry(g.name.clone())
+            .or_insert(GlyphId16::new((i + 1) as u16));
     }
     let gsub = build_gsub(&gsub_data, &name_to_gid).expect("GSUB");
     assert_eq!(
-        gsub.feature_list.feature_records.len(), 2,
+        gsub.feature_list.feature_records.len(),
+        2,
         "different scripts must keep their own feature records"
     );
 }
@@ -566,12 +588,16 @@ map U+0065 = e
 ";
 
     assert_eq!(
-        max_context_of(&format!("{head}remap grp : a b -> c\nfeature ccmp for DFLT : grp\n")),
+        max_context_of(&format!(
+            "{head}remap grp : a b -> c\nfeature ccmp for DFLT : grp\n"
+        )),
         2,
         "a plain ligature matches its own source and nothing more"
     );
     assert_eq!(
-        max_context_of(&format!("{head}remap grp : a : b -> c\nfeature ccmp for DFLT : grp\n")),
+        max_context_of(&format!(
+            "{head}remap grp : a : b -> c\nfeature ccmp for DFLT : grp\n"
+        )),
         2,
         "one glyph of lookbehind plus a one-glyph source"
     );

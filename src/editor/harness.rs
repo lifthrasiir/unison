@@ -30,7 +30,9 @@ use crate::editor::document_view::{
     DocumentEditor, EditorEnv, GlyphMetrics, GridStrip, LEFT_PAD, VLineKind, VisualLine,
     gutter_line_number,
 };
-use crate::editor::ref_composite::{AlternativesIndex, ResolvedGlyph, resolve_named_glyphs_with_parts};
+use crate::editor::ref_composite::{
+    AlternativesIndex, ResolvedGlyph, resolve_named_glyphs_with_parts,
+};
 use crate::editor::{EditorId, EditorState, Slot};
 
 // ---------------------------------------------------------------------------
@@ -87,8 +89,7 @@ pub(crate) struct ViewSnapshot {
 impl ViewSnapshot {
     /// Screen x of column `left` for a grid row of `left..right`.
     pub fn grid_row_x(&self, left: i16, right: i16) -> f32 {
-        self.strip
-            .grid_x((right - left) as f32 * self.grid_cell)
+        self.strip.grid_x((right - left) as f32 * self.grid_cell)
     }
 }
 
@@ -416,7 +417,7 @@ impl EditorHarness {
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
                                 meta: self.meta,
-                                    show_metrics: self.show_metrics,
+                                show_metrics: self.show_metrics,
                                 derived_gen: 0,
                                 font_gen: 0,
                                 zoom_level: self.zoom,
@@ -617,12 +618,7 @@ impl EditorHarness {
     }
 
     /// Drag from one grid cell to another (primary button).
-    pub fn drag_grid(
-        &mut self,
-        grid_doc_line: usize,
-        from: (i16, i16),
-        to: (i16, i16),
-    ) {
+    pub fn drag_grid(&mut self, grid_doc_line: usize, from: (i16, i16), to: (i16, i16)) {
         self.drag_grid_mod(grid_doc_line, from, to, egui::Modifiers::NONE);
     }
 
@@ -660,10 +656,7 @@ impl EditorHarness {
                 from_pos.x + (to_pos.x - from_pos.x) * t,
                 from_pos.y + (to_pos.y - from_pos.y) * t,
             );
-            self.frame_with(
-                vec![egui::Event::PointerMoved(pos)],
-                modifiers,
-            );
+            self.frame_with(vec![egui::Event::PointerMoved(pos)], modifiers);
         }
 
         // Release
@@ -832,11 +825,9 @@ impl EditorHarness {
     /// available once that panel has rendered a frame with the glyph at
     /// `edit_idx` being edited).
     pub fn ref_thumbnail_rect(&self, edit_idx: usize, ref_idx: usize) -> egui::Rect {
-        let map = self
-            .ctx
-            .data(|d| {
-                d.get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id(self.state.id()))
-            });
+        let map = self.ctx.data(|d| {
+            d.get_temp::<HashMap<(usize, usize), egui::Rect>>(ref_rects_id(self.state.id()))
+        });
         map.and_then(|m| m.get(&(edit_idx, ref_idx)).copied())
             .expect("ref thumbnail rect not captured -- was the inline tools panel rendered?")
     }
@@ -866,7 +857,12 @@ impl EditorHarness {
             if vl.doc_line != grid_doc_line {
                 continue;
             }
-            if let SnapKind::GridRow { row: r, left, right, .. } = &vl.kind
+            if let SnapKind::GridRow {
+                row: r,
+                left,
+                right,
+                ..
+            } = &vl.kind
                 && *r == row
             {
                 let x = snap.grid_row_x(*left, *right)
@@ -920,7 +916,10 @@ impl EditorHarness {
             if vl.doc_line != grid_doc_line {
                 continue;
             }
-            if let SnapKind::GridRow { row, metrics: m, .. } = &vl.kind {
+            if let SnapKind::GridRow {
+                row, metrics: m, ..
+            } = &vl.kind
+            {
                 metrics = *m;
                 rows.push(*row);
             }
@@ -946,7 +945,11 @@ impl EditorHarness {
 
     /// All rendered gutter numbers in visual order.
     pub fn gutter_numbers(&self) -> Vec<usize> {
-        self.snap().vlines.iter().filter_map(|vl| vl.gutter).collect()
+        self.snap()
+            .vlines
+            .iter()
+            .filter_map(|vl| vl.gutter)
+            .collect()
     }
 
     /// Whether the editor canvas widget currently holds keyboard focus.
@@ -976,7 +979,10 @@ impl EditorHarness {
     /// Layout snapshot of the secondary pane created by
     /// [`EditorHarness::split`].
     pub fn second_snap(&self) -> Arc<ViewSnapshot> {
-        let second = self.second.as_ref().expect("no secondary pane; call split()");
+        let second = self
+            .second
+            .as_ref()
+            .expect("no secondary pane; call split()");
         self.snapshot_of(&second.state)
             .expect("secondary pane published no snapshot")
     }

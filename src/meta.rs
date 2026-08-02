@@ -66,13 +66,34 @@ pub const LANG_EN_US: u16 = 0x0409;
 /// be used here. An unlisted tag is an error, so the failure mode of this list
 /// being short is a clear message, not a wrong font.
 pub const WINDOWS_LANGUAGES: &[(&str, u16)] = &[
-    ("ar-SA", 0x0401), ("cs-CZ", 0x0405), ("da-DK", 0x0406), ("de-DE", 0x0407),
-    ("el-GR", 0x0408), ("en-GB", 0x0809), ("en-US", 0x0409), ("es-ES", 0x0C0A),
-    ("fi-FI", 0x040B), ("fr-FR", 0x040C), ("he-IL", 0x040D), ("hu-HU", 0x040E),
-    ("it-IT", 0x0410), ("ja-JP", 0x0411), ("ko-KR", 0x0412), ("nb-NO", 0x0414),
-    ("nl-NL", 0x0413), ("pl-PL", 0x0415), ("pt-BR", 0x0416), ("pt-PT", 0x0816),
-    ("ru-RU", 0x0419), ("sv-SE", 0x041D), ("th-TH", 0x041E), ("tr-TR", 0x041F),
-    ("uk-UA", 0x0422), ("vi-VN", 0x042A), ("zh-CN", 0x0804), ("zh-HK", 0x0C04),
+    ("ar-SA", 0x0401),
+    ("cs-CZ", 0x0405),
+    ("da-DK", 0x0406),
+    ("de-DE", 0x0407),
+    ("el-GR", 0x0408),
+    ("en-GB", 0x0809),
+    ("en-US", 0x0409),
+    ("es-ES", 0x0C0A),
+    ("fi-FI", 0x040B),
+    ("fr-FR", 0x040C),
+    ("he-IL", 0x040D),
+    ("hu-HU", 0x040E),
+    ("it-IT", 0x0410),
+    ("ja-JP", 0x0411),
+    ("ko-KR", 0x0412),
+    ("nb-NO", 0x0414),
+    ("nl-NL", 0x0413),
+    ("pl-PL", 0x0415),
+    ("pt-BR", 0x0416),
+    ("pt-PT", 0x0816),
+    ("ru-RU", 0x0419),
+    ("sv-SE", 0x041D),
+    ("th-TH", 0x041E),
+    ("tr-TR", 0x041F),
+    ("uk-UA", 0x0422),
+    ("vi-VN", 0x042A),
+    ("zh-CN", 0x0804),
+    ("zh-HK", 0x0C04),
     ("zh-TW", 0x0404),
 ];
 
@@ -139,8 +160,14 @@ pub enum MetaEntry {
     Script(ScriptKey, [i16; 4]),
     /// `underline-at POS THICKNESS` and `strikeout-at SIZE POS` set two fields
     /// each, so they are one entry rather than two.
-    UnderlineAt { position: i16, thickness: i16 },
-    StrikeoutAt { size: i16, position: i16 },
+    UnderlineAt {
+        position: i16,
+        thickness: i16,
+    },
+    StrikeoutAt {
+        size: i16,
+        position: i16,
+    },
     Panose([u8; 10]),
     /// `caret-slope RISE RUN` — a ratio, so unlike everything else here it is
     /// not on the pixel grid and is not scaled.
@@ -149,7 +176,11 @@ pub enum MetaEntry {
     Created(i64),
     Flag(StyleFlag),
     /// Any name record, however it was spelled.
-    Name { id: u16, lang: u16, text: String },
+    Name {
+        id: u16,
+        lang: u16,
+        text: String,
+    },
 }
 
 /// The pixel-grid values, each `KEY N`, except `underline-at`/`strikeout-at`
@@ -249,10 +280,26 @@ impl MetaEntry {
 /// Every key, sorted, for the unknown-key message.
 fn known_keys() -> String {
     let mut known: Vec<&str> = vec![
-        "height", "ascent", "descent", "line-gap", "x-height", "cap-height",
-        "caret-offset", "caret-slope", "underline-at", "strikeout-at",
-        "subscript-at", "superscript-at", "weight", "width", "fs-type",
-        "panose", "created", "revision", "vendor-id", "name",
+        "height",
+        "ascent",
+        "descent",
+        "line-gap",
+        "x-height",
+        "cap-height",
+        "caret-offset",
+        "caret-slope",
+        "underline-at",
+        "strikeout-at",
+        "subscript-at",
+        "superscript-at",
+        "weight",
+        "width",
+        "fs-type",
+        "panose",
+        "created",
+        "revision",
+        "vendor-id",
+        "name",
     ];
     known.extend(NAME_KEYS.iter().map(|(k, _)| *k));
     known.extend(STYLE_FLAGS.iter().map(|(k, _)| *k));
@@ -384,17 +431,49 @@ pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), Strin
         "height" => return Ok((scope, MetaEntry::Height(one_number(rest)?))),
         "ascent" => return Ok((scope, MetaEntry::Ascent(one_number(rest)?))),
         "descent" => return Ok((scope, MetaEntry::Descent(one_number(rest)?))),
-        "line-gap" => return Ok((scope, MetaEntry::Pixels(PixelKey::LineGap, nums(rest, 1)?[0]))),
-        "x-height" => return Ok((scope, MetaEntry::Pixels(PixelKey::XHeight, nums(rest, 1)?[0]))),
-        "cap-height" => return Ok((scope, MetaEntry::Pixels(PixelKey::CapHeight, nums(rest, 1)?[0]))),
-        "caret-offset" => return Ok((scope, MetaEntry::Pixels(PixelKey::CaretOffset, nums(rest, 1)?[0]))),
+        "line-gap" => {
+            return Ok((
+                scope,
+                MetaEntry::Pixels(PixelKey::LineGap, nums(rest, 1)?[0]),
+            ));
+        }
+        "x-height" => {
+            return Ok((
+                scope,
+                MetaEntry::Pixels(PixelKey::XHeight, nums(rest, 1)?[0]),
+            ));
+        }
+        "cap-height" => {
+            return Ok((
+                scope,
+                MetaEntry::Pixels(PixelKey::CapHeight, nums(rest, 1)?[0]),
+            ));
+        }
+        "caret-offset" => {
+            return Ok((
+                scope,
+                MetaEntry::Pixels(PixelKey::CaretOffset, nums(rest, 1)?[0]),
+            ));
+        }
         "underline-at" => {
             let v = nums(rest, 2)?;
-            return Ok((scope, MetaEntry::UnderlineAt { position: v[0], thickness: v[1] }));
+            return Ok((
+                scope,
+                MetaEntry::UnderlineAt {
+                    position: v[0],
+                    thickness: v[1],
+                },
+            ));
         }
         "strikeout-at" => {
             let v = nums(rest, 2)?;
-            return Ok((scope, MetaEntry::StrikeoutAt { size: v[0], position: v[1] }));
+            return Ok((
+                scope,
+                MetaEntry::StrikeoutAt {
+                    size: v[0],
+                    position: v[1],
+                },
+            ));
         }
         "caret-slope" => {
             let v = nums(rest, 2)?;
@@ -405,7 +484,11 @@ pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), Strin
         }
         "subscript-at" | "superscript-at" => {
             let v = nums(rest, 4)?;
-            let which = if key == "subscript-at" { ScriptKey::Subscript } else { ScriptKey::Superscript };
+            let which = if key == "subscript-at" {
+                ScriptKey::Subscript
+            } else {
+                ScriptKey::Superscript
+            };
             return Ok((scope, MetaEntry::Script(which, [v[0], v[1], v[2], v[3]])));
         }
         // usWeightClass and usWidthClass have defined ranges; a value outside
@@ -484,7 +567,10 @@ pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), Strin
     } else if let Some(&(_, id)) = NAME_KEYS.iter().find(|(k, _)| *k == key) {
         (id, rest)
     } else {
-        return Err(format!("unknown `meta` key `{key}` (known keys: {})", known_keys()));
+        return Err(format!(
+            "unknown `meta` key `{key}` (known keys: {})",
+            known_keys()
+        ));
     };
 
     let (lang, rest) = match rest.split_first() {
@@ -495,7 +581,11 @@ pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), Strin
                     "`meta {key}` has an unmapped language tag `@{tag}`; \
                      platform 3 name records are keyed by Windows language ID, \
                      and only these tags are mapped: {}",
-                    WINDOWS_LANGUAGES.iter().map(|(t, _)| *t).collect::<Vec<_>>().join(", "),
+                    WINDOWS_LANGUAGES
+                        .iter()
+                        .map(|(t, _)| *t)
+                        .collect::<Vec<_>>()
+                        .join(", "),
                 ));
             };
             (lang, tail)
@@ -504,7 +594,14 @@ pub fn parse_meta_entry(text: &str) -> Result<(Option<String>, MetaEntry), Strin
     };
 
     match rest {
-        [text] => Ok((scope, MetaEntry::Name { id, lang, text: text.clone() })),
+        [text] => Ok((
+            scope,
+            MetaEntry::Name {
+                id,
+                lang,
+                text: text.clone(),
+            },
+        )),
         [] => Err(format!("`meta {key}` takes a value")),
         _ => Err(format!(
             "`meta {key}` takes exactly 1 value, got {} — quote a value \
@@ -716,7 +813,8 @@ impl FontMeta {
         let filtered: String = raw
             .chars()
             .filter(|c| {
-                c.is_ascii_graphic() && !matches!(c, '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>' | '/' | '%')
+                c.is_ascii_graphic()
+                    && !matches!(c, '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>' | '/' | '%')
             })
             .take(63)
             .collect();
@@ -729,14 +827,16 @@ impl FontMeta {
 
     /// name ID 3, in the conventional `version;vendor;psname` shape.
     pub fn unique_id(&self) -> String {
-        self.name(3, LANG_EN_US).map(str::to_string).unwrap_or_else(|| {
-            format!(
-                "{};{};{}",
-                self.version_text(),
-                self.vendor_id(),
-                self.postscript_name(),
-            )
-        })
+        self.name(3, LANG_EN_US)
+            .map(str::to_string)
+            .unwrap_or_else(|| {
+                format!(
+                    "{};{};{}",
+                    self.version_text(),
+                    self.vendor_id(),
+                    self.postscript_name(),
+                )
+            })
     }
 
     /// Every name record the font should carry: what was declared, plus the
@@ -749,12 +849,18 @@ impl FontMeta {
     /// makes the table byte-stable across builds.
     pub fn name_records(&self) -> Vec<(u16, u16, String)> {
         let mut out: BTreeMap<(u16, u16), String> = self.names.clone();
-        out.entry((1, LANG_EN_US)).or_insert_with(|| self.family().to_string());
-        out.entry((2, LANG_EN_US)).or_insert_with(|| self.subfamily().to_string());
-        out.entry((3, LANG_EN_US)).or_insert_with(|| self.unique_id());
-        out.entry((4, LANG_EN_US)).or_insert_with(|| self.full_name());
-        out.entry((5, LANG_EN_US)).or_insert_with(|| self.version_text());
-        out.entry((6, LANG_EN_US)).or_insert_with(|| self.postscript_name());
+        out.entry((1, LANG_EN_US))
+            .or_insert_with(|| self.family().to_string());
+        out.entry((2, LANG_EN_US))
+            .or_insert_with(|| self.subfamily().to_string());
+        out.entry((3, LANG_EN_US))
+            .or_insert_with(|| self.unique_id());
+        out.entry((4, LANG_EN_US))
+            .or_insert_with(|| self.full_name());
+        out.entry((5, LANG_EN_US))
+            .or_insert_with(|| self.version_text());
+        out.entry((6, LANG_EN_US))
+            .or_insert_with(|| self.postscript_name());
         let mut records: Vec<(u16, u16, String)> = out
             .into_iter()
             .map(|((id, lang), text)| (id, lang, text))
@@ -780,8 +886,12 @@ impl FontMeta {
         let mut meta = Self::default();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
-                let DocumentItem::Meta(s) = item else { continue };
-                let Ok((scope, entry)) = parse_meta_entry(s) else { continue };
+                let DocumentItem::Meta(s) = item else {
+                    continue;
+                };
+                let Ok((scope, entry)) = parse_meta_entry(s) else {
+                    continue;
+                };
                 if let Some(scope) = &scope
                     && Some(scope.as_str()) != face
                 {
@@ -795,7 +905,10 @@ impl FontMeta {
                     MetaEntry::Pixels(k, v) => {
                         meta.pixels.insert(k, v);
                     }
-                    MetaEntry::UnderlineAt { position, thickness } => {
+                    MetaEntry::UnderlineAt {
+                        position,
+                        thickness,
+                    } => {
                         meta.underline = Some((position, thickness));
                     }
                     MetaEntry::StrikeoutAt { size, position } => {

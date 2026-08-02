@@ -186,7 +186,10 @@ mod tests {
         assert!(h.can_go_forward());
 
         h.push(entry(40, 400));
-        assert!(!h.can_go_forward(), "entries after the rewind point are gone");
+        assert!(
+            !h.can_go_forward(),
+            "entries after the rewind point are gone"
+        );
         assert_eq!(h.go_back(), Some(NavLoc::new(0, 40, 4)));
         assert_eq!(h.go_back(), Some(NavLoc::new(0, 10, 4)));
         assert_eq!(h.go_back(), None);

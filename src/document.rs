@@ -129,7 +129,10 @@ impl PixelGrid {
     pub fn region_at(&self, row: u16, col: u16) -> DetailRegion {
         let shape = self.get(row, col);
         if shape.shape_id() == PX_CUSTOM {
-            self.details.get(&(row, col)).cloned().unwrap_or(DetailRegion::EMPTY)
+            self.details
+                .get(&(row, col))
+                .cloned()
+                .unwrap_or(DetailRegion::EMPTY)
         } else {
             DetailRegion::from_shape(shape.shape_id())
         }
@@ -139,20 +142,19 @@ impl PixelGrid {
         if new_width == self.width && new_height == self.height {
             return;
         }
-        let mut new_pixels =
-            vec![PixelShape::EMPTY; new_width as usize * new_height as usize];
+        let mut new_pixels = vec![PixelShape::EMPTY; new_width as usize * new_height as usize];
         let copy_w = self.width.min(new_width) as usize;
         let copy_h = self.height.min(new_height) as usize;
         for r in 0..copy_h {
             for c in 0..copy_w {
-                new_pixels[r * new_width as usize + c] =
-                    self.pixels[r * self.width as usize + c];
+                new_pixels[r * new_width as usize + c] = self.pixels[r * self.width as usize + c];
             }
         }
         self.width = new_width;
         self.height = new_height;
         self.pixels = new_pixels;
-        self.details.retain(|&(r, c), _| r < new_height && c < new_width);
+        self.details
+            .retain(|&(r, c), _| r < new_height && c < new_width);
     }
 
     /// Exact geometric rescale between two pixel-subdivision scales. Every
@@ -203,12 +205,9 @@ impl PixelGrid {
         if map.len() > 4096 {
             map.clear();
         }
-        map.entry(key).or_default().push((
-            self.clone(),
-            old_scale,
-            new_scale,
-            out.clone(),
-        ));
+        map.entry(key)
+            .or_default()
+            .push((self.clone(), old_scale, new_scale, out.clone()));
         out
     }
 
@@ -247,10 +246,18 @@ impl PixelGrid {
                 // [c·old/new, (c+1)·old/new) × [r·old/new, (r+1)·old/new).
                 let sc0 = (c as i64 * old_s).div_euclid(new_s);
                 let sc1 = ((c as i64 + 1) * old_s).div_euclid(new_s)
-                    + if ((c as i64 + 1) * old_s).rem_euclid(new_s) != 0 { 1 } else { 0 };
+                    + if ((c as i64 + 1) * old_s).rem_euclid(new_s) != 0 {
+                        1
+                    } else {
+                        0
+                    };
                 let sr0 = (r as i64 * old_s).div_euclid(new_s);
                 let sr1 = ((r as i64 + 1) * old_s).div_euclid(new_s)
-                    + if ((r as i64 + 1) * old_s).rem_euclid(new_s) != 0 { 1 } else { 0 };
+                    + if ((r as i64 + 1) * old_s).rem_euclid(new_s) != 0 {
+                        1
+                    } else {
+                        0
+                    };
 
                 // Fast path: all overlapping source pixels are uniformly
                 // full or uniformly empty — no geometry needed.
@@ -413,7 +420,13 @@ impl PixelGrid {
     #[cfg(feature = "editor")]
     pub fn mirror_h(&self) -> Self {
         let (w, h) = (self.width, self.height);
-        self.map_coords(w, h, |r, c| (r, w - 1 - c), |s| s.mirror_h(), |d| d.mirror_h())
+        self.map_coords(
+            w,
+            h,
+            |r, c| (r, w - 1 - c),
+            |s| s.mirror_h(),
+            |d| d.mirror_h(),
+        )
     }
 
     #[cfg(feature = "editor")]
@@ -448,19 +461,37 @@ impl PixelGrid {
     #[cfg(feature = "editor")]
     pub fn rotate_cw(&self) -> Self {
         let (w, h) = (self.width, self.height);
-        self.map_coords(h, w, |r, c| (c, h - 1 - r), |s| s.rotate_cw(), |d| d.rotate_cw())
+        self.map_coords(
+            h,
+            w,
+            |r, c| (c, h - 1 - r),
+            |s| s.rotate_cw(),
+            |d| d.rotate_cw(),
+        )
     }
 
     #[cfg(feature = "editor")]
     pub fn rotate_ccw(&self) -> Self {
         let (w, h) = (self.width, self.height);
-        self.map_coords(h, w, |r, c| (w - 1 - c, r), |s| s.rotate_ccw(), |d| d.rotate_ccw())
+        self.map_coords(
+            h,
+            w,
+            |r, c| (w - 1 - c, r),
+            |s| s.rotate_ccw(),
+            |d| d.rotate_ccw(),
+        )
     }
 
     #[cfg(feature = "editor")]
     pub fn rotate_180(&self) -> Self {
         let (w, h) = (self.width, self.height);
-        self.map_coords(w, h, |r, c| (h - 1 - r, w - 1 - c), |s| s.rotate_180(), |d| d.rotate_180())
+        self.map_coords(
+            w,
+            h,
+            |r, c| (h - 1 - r, w - 1 - c),
+            |s| s.rotate_180(),
+            |d| d.rotate_180(),
+        )
     }
 
     #[cfg(feature = "editor")]
@@ -545,7 +576,8 @@ impl PixelGrid {
                         self.apply_classified(
                             dr as u16,
                             dc as u16,
-                            detail::bool_op(&cur_region, &src_region, detail::BoolOp::Union).classify(),
+                            detail::bool_op(&cur_region, &src_region, detail::BoolOp::Union)
+                                .classify(),
                             current.is_filled() || shape.is_filled(),
                         );
                     }
@@ -933,9 +965,13 @@ impl DocumentItem {
     /// subtly wrong — a forgotten `lookahead` silently narrows a check.
     pub fn remap_operands(&self) -> impl Iterator<Item = &String> {
         let lists: [&[String]; 4] = match self {
-            DocumentItem::Remap { source, target, lookbehind, lookahead, .. } => {
-                [source, target, lookbehind, lookahead]
-            }
+            DocumentItem::Remap {
+                source,
+                target,
+                lookbehind,
+                lookahead,
+                ..
+            } => [source, target, lookbehind, lookahead],
             _ => [&[], &[], &[], &[]],
         };
         lists.into_iter().flatten()
@@ -999,7 +1035,11 @@ impl Document {
 
     /// 1-based line of `docline_idx` in the serialized file.
     pub fn docline_file_line(&self, docline_idx: usize) -> usize {
-        self.docline_file_lines.get(docline_idx).copied().unwrap_or(docline_idx) + 1
+        self.docline_file_lines
+            .get(docline_idx)
+            .copied()
+            .unwrap_or(docline_idx)
+            + 1
     }
 
     /// `(docline, 1-based file line)` of item `item_idx`'s defining header.
@@ -1029,13 +1069,13 @@ pub fn compute_docline_file_lines(lines: &[DocLine]) -> Vec<usize> {
 #[cfg(any(feature = "editor", test))]
 use crate::document_io::comment_suffix as serialize_comment_suffix;
 
-        /// `SLICE : ` in front of a directive body, or nothing for the base slice.
-        fn serialize_slice_prefix(slice: &Option<String>) -> String {
-            match slice {
-                Some(s) => format!("{} : ", crate::document_io::quote_token(s)),
-                None => String::new(),
-            }
-        }
+/// `SLICE : ` in front of a directive body, or nothing for the base slice.
+fn serialize_slice_prefix(slice: &Option<String>) -> String {
+    match slice {
+        Some(s) => format!("{} : ", crate::document_io::quote_token(s)),
+        None => String::new(),
+    }
+}
 
 impl DocumentItem {
     /// Parse a structured directive from pre-tokenized tokens (the line's
@@ -1064,10 +1104,16 @@ impl DocumentItem {
                 }
                 match tokens.get(1).map(|s| s.as_str()) {
                     Some("same") if tokens.len() >= 4 => {
-                        return DocumentItem::AssertSame { names: tokens[2..].to_vec(), comment };
+                        return DocumentItem::AssertSame {
+                            names: tokens[2..].to_vec(),
+                            comment,
+                        };
                     }
                     Some("distinct") if tokens.len() >= 4 => {
-                        return DocumentItem::AssertDistinct { names: tokens[2..].to_vec(), comment };
+                        return DocumentItem::AssertDistinct {
+                            names: tokens[2..].to_vec(),
+                            comment,
+                        };
                     }
                     _ => {}
                 }
@@ -1098,9 +1144,17 @@ impl DocumentItem {
                         Some(_) => return Self::unrecognized(&tokens, comment),
                     };
                     if tokens[0] == "face" {
-                        return DocumentItem::Face { id: id.clone(), slices: refs, comment };
+                        return DocumentItem::Face {
+                            id: id.clone(),
+                            slices: refs,
+                            comment,
+                        };
                     }
-                    return DocumentItem::Slice { id: id.clone(), inherits: refs, comment };
+                    return DocumentItem::Slice {
+                        id: id.clone(),
+                        inherits: refs,
+                        comment,
+                    };
                 }
             }
             "feature" => {
@@ -1109,26 +1163,29 @@ impl DocumentItem {
                 // feature NAME for SCRIPT... : anchor ANCHOR_NAME
                 if let Some(for_pos) = rest.iter().position(|t| t == "for")
                     && let Some(colon_pos) = rest.iter().position(|t| t == ":")
-                        && for_pos == 1 && colon_pos > 2 && colon_pos + 1 < rest.len() {
-                            if rest.get(colon_pos + 1).is_some_and(|t| t == "anchor")
-                                && colon_pos + 2 < rest.len()
-                            {
-                                return DocumentItem::FeatureAnchor {
-                                    slice,
-                                    name: rest[0].clone(),
-                                    scripts: rest[2..colon_pos].to_vec(),
-                                    anchor: rest[colon_pos + 2].clone(),
-                                    comment,
-                                };
-                            }
-                            return DocumentItem::Feature {
-                                slice,
-                                name: rest[0].clone(),
-                                scripts: rest[2..colon_pos].to_vec(),
-                                remap_group: rest[colon_pos + 1].clone(),
-                                comment,
-                            };
-                        }
+                    && for_pos == 1
+                    && colon_pos > 2
+                    && colon_pos + 1 < rest.len()
+                {
+                    if rest.get(colon_pos + 1).is_some_and(|t| t == "anchor")
+                        && colon_pos + 2 < rest.len()
+                    {
+                        return DocumentItem::FeatureAnchor {
+                            slice,
+                            name: rest[0].clone(),
+                            scripts: rest[2..colon_pos].to_vec(),
+                            anchor: rest[colon_pos + 2].clone(),
+                            comment,
+                        };
+                    }
+                    return DocumentItem::Feature {
+                        slice,
+                        name: rest[0].clone(),
+                        scripts: rest[2..colon_pos].to_vec(),
+                        remap_group: rest[colon_pos + 1].clone(),
+                        comment,
+                    };
+                }
             }
             _ => {}
         }
@@ -1138,7 +1195,10 @@ impl DocumentItem {
     /// Malformed: keep the line as raw text, comment included, so nothing is
     /// lost on the way back out.
     fn unrecognized(tokens: &[String], comment: Option<String>) -> DocumentItem {
-        let quoted: Vec<String> = tokens.iter().map(|t| crate::document_io::quote_token(t)).collect();
+        let quoted: Vec<String> = tokens
+            .iter()
+            .map(|t| crate::document_io::quote_token(t))
+            .collect();
         let comment = match comment {
             Some(c) => format!(" // {c}"),
             None => String::new(),
@@ -1186,7 +1246,8 @@ impl DocumentItem {
 
         let last_colon_before_arrow = colon_positions
             .iter()
-            .copied().rfind(|&p| p >= first_colon_after_feature && p < arrow_pos);
+            .copied()
+            .rfind(|&p| p >= first_colon_after_feature && p < arrow_pos);
 
         let (lookbehind, source_start) = if let Some(lc) = last_colon_before_arrow {
             let lb: Vec<String> = tokens[first_colon_after_feature..lc].to_vec();
@@ -1252,7 +1313,12 @@ impl DocumentItem {
             }
         }
 
-        Some(DocumentItem::RemapGroup { name, reversed, after, comment })
+        Some(DocumentItem::RemapGroup {
+            name,
+            reversed,
+            after,
+            comment,
+        })
     }
 
     fn parse_assert_shape(tokens: &[String], comment: Option<String>) -> Option<DocumentItem> {
@@ -1275,9 +1341,15 @@ impl DocumentItem {
         };
         for tok in &head[..for_pos.unwrap_or(head.len())] {
             if let Some(tag) = tok.strip_prefix('+') {
-                features.push(ShapeFeatureFlag { tag: tag.to_string(), enable: true });
+                features.push(ShapeFeatureFlag {
+                    tag: tag.to_string(),
+                    enable: true,
+                });
             } else if let Some(tag) = tok.strip_prefix('-') {
-                features.push(ShapeFeatureFlag { tag: tag.to_string(), enable: false });
+                features.push(ShapeFeatureFlag {
+                    tag: tag.to_string(),
+                    enable: false,
+                });
             } else if let Some(tag) = tok.strip_prefix('@')
                 && !tag.is_empty()
                 && language.is_none()
@@ -1325,24 +1397,41 @@ impl DocumentItem {
                         }
                         i += 3;
                     }
-                    _ => { i += 1; }
+                    _ => {
+                        i += 1;
+                    }
                 }
             }
-            expected.push(ExpectedGlyph { name, advance, offset });
+            expected.push(ExpectedGlyph {
+                name,
+                advance,
+                offset,
+            });
         }
 
         if expected.is_empty() {
             return None;
         }
 
-        Some(DocumentItem::AssertShape { slices, text, features, language, expected, comment })
+        Some(DocumentItem::AssertShape {
+            slices,
+            text,
+            features,
+            language,
+            expected,
+            comment,
+        })
     }
 
     #[cfg(any(feature = "editor", test))]
     pub fn serialize_line(&self) -> Option<String> {
         use crate::document_io::quote_token;
         match self {
-            DocumentItem::NameParts { name, values, comment } => {
+            DocumentItem::NameParts {
+                name,
+                values,
+                comment,
+            } => {
                 let qvals: Vec<String> = values.iter().map(|v| quote_token(v)).collect();
                 Some(format!(
                     "name-parts {} = {}{}",
@@ -1371,9 +1460,18 @@ impl DocumentItem {
                     let la: Vec<String> = lookahead.iter().map(|s| quote_token(s)).collect();
                     parts.push(format!(": {}", la.join(" ")));
                 }
-                Some(format!("{}{}", parts.join(" "), serialize_comment_suffix(comment)))
+                Some(format!(
+                    "{}{}",
+                    parts.join(" "),
+                    serialize_comment_suffix(comment)
+                ))
             }
-            DocumentItem::RemapGroup { name, reversed, after, comment } => {
+            DocumentItem::RemapGroup {
+                name,
+                reversed,
+                after,
+                comment,
+            } => {
                 let mut line = format!("remap group {}", quote_token(name));
                 if *reversed {
                     line.push_str(" reversed");
@@ -1383,7 +1481,13 @@ impl DocumentItem {
                 }
                 Some(format!("{}{}", line, serialize_comment_suffix(comment)))
             }
-            DocumentItem::Feature { slice, name, scripts, remap_group, comment } => {
+            DocumentItem::Feature {
+                slice,
+                name,
+                scripts,
+                remap_group,
+                comment,
+            } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
                     "feature {}{} for {} : {}{}",
@@ -1394,7 +1498,13 @@ impl DocumentItem {
                     serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::FeatureAnchor { slice, name, scripts, anchor, comment } => {
+            DocumentItem::FeatureAnchor {
+                slice,
+                name,
+                scripts,
+                anchor,
+                comment,
+            } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
                 Some(format!(
                     "feature {}{} for {} : anchor {}{}",
@@ -1405,7 +1515,12 @@ impl DocumentItem {
                     serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::Color { name, value, visibility, comment } => {
+            DocumentItem::Color {
+                name,
+                value,
+                visibility,
+                comment,
+            } => {
                 let vis = match visibility {
                     Some(LayerVisibility::ColorOnly) => " coloronly",
                     Some(LayerVisibility::MonoOnly) => " monoonly",
@@ -1419,7 +1534,11 @@ impl DocumentItem {
                     serialize_comment_suffix(comment),
                 ))
             }
-            DocumentItem::Face { id, slices, comment } => {
+            DocumentItem::Face {
+                id,
+                slices,
+                comment,
+            } => {
                 let mut line = format!("face {}", quote_token(id));
                 if !slices.is_empty() {
                     let q: Vec<String> = slices.iter().map(|s| quote_token(s)).collect();
@@ -1427,7 +1546,11 @@ impl DocumentItem {
                 }
                 Some(format!("{line}{}", serialize_comment_suffix(comment)))
             }
-            DocumentItem::Slice { id, inherits, comment } => {
+            DocumentItem::Slice {
+                id,
+                inherits,
+                comment,
+            } => {
                 let mut line = format!("slice {}", quote_token(id));
                 if !inherits.is_empty() {
                     let q: Vec<String> = inherits.iter().map(|s| quote_token(s)).collect();
@@ -1435,12 +1558,15 @@ impl DocumentItem {
                 }
                 Some(format!("{line}{}", serialize_comment_suffix(comment)))
             }
-            DocumentItem::AssertShape { slices, text, features, language, expected, comment } => {
-                let mut parts = vec![
-                    "assert".to_string(),
-                    "shape".to_string(),
-                    quote_token(text),
-                ];
+            DocumentItem::AssertShape {
+                slices,
+                text,
+                features,
+                language,
+                expected,
+                comment,
+            } => {
+                let mut parts = vec!["assert".to_string(), "shape".to_string(), quote_token(text)];
                 if let Some(lang) = language {
                     parts.push(format!("@{lang}"));
                 }
@@ -1466,15 +1592,27 @@ impl DocumentItem {
                     }
                     let _ = i;
                 }
-                Some(format!("{}{}", parts.join(" "), serialize_comment_suffix(comment)))
+                Some(format!(
+                    "{}{}",
+                    parts.join(" "),
+                    serialize_comment_suffix(comment)
+                ))
             }
             DocumentItem::AssertSame { names, comment } => {
                 let qnames: Vec<String> = names.iter().map(|n| quote_token(n)).collect();
-                Some(format!("assert same {}{}", qnames.join(" "), serialize_comment_suffix(comment)))
+                Some(format!(
+                    "assert same {}{}",
+                    qnames.join(" "),
+                    serialize_comment_suffix(comment)
+                ))
             }
             DocumentItem::AssertDistinct { names, comment } => {
                 let qnames: Vec<String> = names.iter().map(|n| quote_token(n)).collect();
-                Some(format!("assert distinct {}{}", qnames.join(" "), serialize_comment_suffix(comment)))
+                Some(format!(
+                    "assert distinct {}{}",
+                    qnames.join(" "),
+                    serialize_comment_suffix(comment)
+                ))
             }
             _ => None,
         }
@@ -1487,8 +1625,7 @@ impl DocumentItem {
 pub use crate::pattern::{
     MAX_EXPANSION, NamePartsMap, NamePattern, expand_name_element, find_invalid_inline_ranges,
     has_top_level_pipe, is_name_pattern, is_valid_glyph_name, parse_name_element,
-    split_top_level_pipes,
-    substitute_name_parts,
+    split_top_level_pipes, substitute_name_parts,
 };
 
 // ---------------------------------------------------------------------------
@@ -1552,7 +1689,12 @@ pub fn remap_group_order(docs: &[&Document]) -> RemapGroupOrder {
                     see(feature, &mut out, &mut index);
                     out.info.get_mut(feature).expect("just inserted").has_rules = true;
                 }
-                DocumentItem::RemapGroup { name, reversed, after, .. } => {
+                DocumentItem::RemapGroup {
+                    name,
+                    reversed,
+                    after,
+                    ..
+                } => {
                     see(name, &mut out, &mut index);
                     let info = out.info.get_mut(name).expect("just inserted");
                     if info.declared {
@@ -1587,8 +1729,8 @@ pub fn remap_group_order(docs: &[&Document]) -> RemapGroupOrder {
     let mut emitted = vec![false; source_order.len()];
     let mut order = Vec::with_capacity(source_order.len());
     while order.len() < source_order.len() {
-        let ready = (0..source_order.len())
-            .find(|&i| !emitted[i] && deps[i].iter().all(|&d| emitted[d]));
+        let ready =
+            (0..source_order.len()).find(|&i| !emitted[i] && deps[i].iter().all(|&d| emitted[d]));
         match ready {
             Some(i) => {
                 emitted[i] = true;
@@ -1678,7 +1820,11 @@ pub fn parse_glyph_name(s: &str) -> GlyphName {
 /// already-pattern-named item, and `.unf` content never combines a
 /// pattern name with pixel data on the same glyph (patterns are only
 /// used for ref/composite batches).
-pub fn expand_glyph_block(name: &GlyphName, refs: &[GlyphRef], scale: u8) -> Result<Vec<DocumentItem>, String> {
+pub fn expand_glyph_block(
+    name: &GlyphName,
+    refs: &[GlyphRef],
+    scale: u8,
+) -> Result<Vec<DocumentItem>, String> {
     let name_pattern = NamePattern::parse(&name.display()).map_err(|e| e.to_string())?;
 
     let mut parsed_refs: Vec<(NamePattern, &GlyphRef)> = Vec::new();
@@ -1793,7 +1939,10 @@ mod tests {
         assert_eq!(classify_directive("   "), Directive::Empty);
         // No arguments means no match: `assume unused` alone says nothing.
         assert_eq!(classify_directive("assume unused"), Directive::Unrecognized);
-        assert_eq!(classify_directive("assume something"), Directive::Unrecognized);
+        assert_eq!(
+            classify_directive("assume something"),
+            Directive::Unrecognized
+        );
         // Malformed forms of directives that normally parse into typed items
         // must still be reported rather than silently accepted.
         assert_eq!(classify_directive("assert bogus"), Directive::Unrecognized);
@@ -1847,7 +1996,12 @@ mod tests {
         );
         assert_eq!(
             o.order,
-            vec!["b".to_string(), "c".to_string(), "a".to_string(), "d".to_string()],
+            vec![
+                "b".to_string(),
+                "c".to_string(),
+                "a".to_string(),
+                "d".to_string()
+            ],
             "a lands right after c; b and d keep their places"
         );
     }
@@ -1858,7 +2012,10 @@ mod tests {
             "remap a : x -> y\nremap b : x -> y\nremap c : x -> y\n\
              remap group a after b\nremap group b after c\n",
         );
-        assert_eq!(o.order, vec!["c".to_string(), "b".to_string(), "a".to_string()]);
+        assert_eq!(
+            o.order,
+            vec!["c".to_string(), "b".to_string(), "a".to_string()]
+        );
     }
 
     #[test]
@@ -1929,19 +2086,13 @@ mod tests {
         });
 
         let parts = collect_name_parts(&[&doc]);
-        assert_eq!(
-            parts.get("$part"),
-            Some(&vec!["a".to_string(), oversized]),
-        );
+        assert_eq!(parts.get("$part"), Some(&vec!["a".to_string(), oversized]),);
     }
 
     #[test]
     fn expand_glyph_block_rejects_zero_repeat_without_panicking() {
-        let result = expand_glyph_block(
-            &GlyphName("glyph*0".to_string()),
-            &[pattern_ref("base")],
-            1,
-        );
+        let result =
+            expand_glyph_block(&GlyphName("glyph*0".to_string()), &[pattern_ref("base")], 1);
 
         assert!(result.is_err());
     }
@@ -1959,7 +2110,10 @@ mod tests {
     #[test]
     fn expand_glyph_block_expands_a_hex_range() {
         let items = expand_glyph_block(
-            &GlyphName(substitute_name_parts("uni($#2800..2801)", &NamePartsMap::new())),
+            &GlyphName(substitute_name_parts(
+                "uni($#2800..2801)",
+                &NamePartsMap::new(),
+            )),
             &[pattern_ref("base")],
             1,
         )
@@ -1988,9 +2142,7 @@ mod tests {
         let expanded: Vec<(String, String)> = items
             .into_iter()
             .map(|item| match item {
-                DocumentItem::Glyph { name, body } => {
-                    (name.display(), body.refs[0].name.clone())
-                }
+                DocumentItem::Glyph { name, body } => (name.display(), body.refs[0].name.clone()),
                 _ => unreachable!(),
             })
             .collect();
@@ -2021,10 +2173,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec![
-                "out-a", "out-a", "out-a",
-                "out-b", "out-b", "out-b",
-            ],
+            vec!["out-a", "out-a", "out-a", "out-b", "out-b", "out-b",],
         );
     }
 
@@ -2047,8 +2196,7 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "out-a", "out-a", "out-a", "out-a", "out-a", "out-a",
-                "out-b", "out-b", "out-b",
+                "out-a", "out-a", "out-a", "out-a", "out-a", "out-a", "out-b", "out-b", "out-b",
             ],
         );
     }
@@ -2127,14 +2275,21 @@ mod tests {
         g.set(0, 1, full);
 
         let mut r = g.rescale(2, 3);
-        assert!(!r.details.is_empty(), "the exact rescale keeps the geometry");
+        assert!(
+            !r.details.is_empty(),
+            "the exact rescale keeps the geometry"
+        );
         r.snap_details_to_catalog();
         assert!(r.details.is_empty());
         assert_eq!(r.den, 1);
         for col in 0..3 {
             assert_eq!(r.get(0, col), full, "row 0 col {col}");
             assert_eq!(r.get(1, col), full, "row 1 col {col}");
-            assert_eq!(r.get(2, col).shape_id(), crate::pixel::PX_EMPTY, "row 2 col {col}");
+            assert_eq!(
+                r.get(2, col).shape_id(),
+                crate::pixel::PX_EMPTY,
+                "row 2 col {col}"
+            );
         }
     }
 
@@ -2154,13 +2309,19 @@ mod tests {
             .map(|row| {
                 (0..3)
                     .map(|col| {
-                        crate::pixel::shape_to_chars(r.get(row, col)).iter().collect::<String>()
+                        crate::pixel::shape_to_chars(r.get(row, col))
+                            .iter()
+                            .collect::<String>()
                     })
                     .collect()
             })
             .collect();
         assert_eq!(rows, ["..\\bb.", "....\\b", "......"]);
-        assert_eq!(exact.get(0, 1).shape_id(), PX_CUSTOM, "this cell needed snapping");
+        assert_eq!(
+            exact.get(0, 1).shape_id(),
+            PX_CUSTOM,
+            "this cell needed snapping"
+        );
     }
 
     #[test]
@@ -2191,8 +2352,16 @@ mod tests {
         // 4×4 grid at scale 2, rescale to scale 1 → 2×2
         let mut g = PixelGrid::new(4, 4);
         let full = PixelShape::new(PX_ALMOSTFULL, true);
-        for r in 0..2 { for c in 0..2 { g.set(r, c, full); } }
-        for r in 2..4 { for c in 2..4 { g.set(r, c, full); } }
+        for r in 0..2 {
+            for c in 0..2 {
+                g.set(r, c, full);
+            }
+        }
+        for r in 2..4 {
+            for c in 2..4 {
+                g.set(r, c, full);
+            }
+        }
 
         let r = g.rescale(2, 1);
         assert_eq!((r.width, r.height), (2, 2));
@@ -2207,7 +2376,11 @@ mod tests {
         // 6×3 grid at scale 3, rescale to scale 2 → 4×2
         let mut g = PixelGrid::new(6, 3);
         let full = PixelShape::new(PX_ALMOSTFULL, true);
-        for r in 0..3 { for c in 0..3 { g.set(r, c, full); } }
+        for r in 0..3 {
+            for c in 0..3 {
+                g.set(r, c, full);
+            }
+        }
 
         let r = g.rescale(3, 2);
         assert_eq!((r.width, r.height), (4, 2));
@@ -2238,11 +2411,7 @@ mod tests {
                 } else {
                     crate::pixel::PX_EMPTY
                 };
-                assert_eq!(
-                    r.get(row, col).shape_id(),
-                    expected,
-                    "cell ({row}, {col})"
-                );
+                assert_eq!(r.get(row, col).shape_id(), expected, "cell ({row}, {col})");
             }
         }
     }
@@ -2256,7 +2425,11 @@ mod tests {
         // contour tracer must produce a single clean rectangle outline.
         let mut g = PixelGrid::new(3, 3);
         let full = PixelShape::new(PX_ALMOSTFULL, true);
-        for r in 0..3 { for c in 0..2 { g.set(r, c, full); } }
+        for r in 0..3 {
+            for c in 0..2 {
+                g.set(r, c, full);
+            }
+        }
 
         let out = g.rescale(3, 2);
         assert_eq!((out.width, out.height), (2, 2));
@@ -2268,16 +2441,22 @@ mod tests {
         assert_eq!(d.den, 3);
         assert_eq!(d.area2(), 2.0 / 3.0);
 
-        let paths =
-            crate::render::contour::track_contour(&out, crate::pixel::PX_SUBPIXEL);
+        let paths = crate::render::contour::track_contour(&out, crate::pixel::PX_SUBPIXEL);
         assert_eq!(paths.len(), 1, "one rectangle outline, got {paths:?}");
         let mut pts = paths[0].clone();
         pts.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        let expected = [(0.0f32, 0.0f32), (0.0, 2.0), (4.0 / 3.0, 0.0), (4.0 / 3.0, 2.0)];
+        let expected = [
+            (0.0f32, 0.0f32),
+            (0.0, 2.0),
+            (4.0 / 3.0, 0.0),
+            (4.0 / 3.0, 2.0),
+        ];
         assert_eq!(pts.len(), 4, "rectangle has 4 corners: {pts:?}");
         for (p, e) in pts.iter().zip(expected.iter()) {
-            assert!((p.0 - e.0).abs() < 1e-5 && (p.1 - e.1).abs() < 1e-5,
-                "vertex {p:?} != {e:?} in {pts:?}");
+            assert!(
+                (p.0 - e.0).abs() < 1e-5 && (p.1 - e.1).abs() < 1e-5,
+                "vertex {p:?} != {e:?} in {pts:?}"
+            );
         }
     }
 

@@ -357,7 +357,10 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
 
 /// Detect an on-demand color/mono glyph: name X is not defined, but both
 /// X:mono and X:color exist.  X itself must not contain `:mono` or `:color`.
-pub fn detect_color_mono_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> Option<OnDemandGlyph> {
+pub fn detect_color_mono_glyph(
+    name: &str,
+    has_glyph: impl Fn(&str) -> bool,
+) -> Option<OnDemandGlyph> {
     if name.contains(":mono") || name.contains(":color") {
         return None;
     }
@@ -471,7 +474,11 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
     let Some(corner) = rect.corner else {
         for r in off_r..(off_r + rect_h) {
             for c in off_c..(off_c + rect_w) {
-                grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+                grid.set(
+                    r,
+                    c,
+                    crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
+                );
             }
         }
         apply_bitmap_fill(&mut grid, s, rect.fill);
@@ -517,7 +524,11 @@ pub fn make_on_demand_grid(rect: &OnDemandRect) -> PixelGrid {
             if outside == 0 {
                 // Fully inside the triangle (the pixel is already within
                 // the leg bounding box).
-                grid.set(r, c, crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true));
+                grid.set(
+                    r,
+                    c,
+                    crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
+                );
                 continue;
             }
             if inside == 0 {
@@ -590,7 +601,12 @@ impl DeriveIssue {
                 "+",
                 position.strip_prefix('-').unwrap_or(position),
             ),
-            DeriveIssue::SizeMismatchedAttachment { position, ref_name, minus, plus } => {
+            DeriveIssue::SizeMismatchedAttachment {
+                position,
+                ref_name,
+                minus,
+                plus,
+            } => {
                 format!(
                     "glyph '{glyph}': ref '{ref_name}' has '{position}' ({}x{}) matching \
                      a '+{}' only by name ({}x{}); not attached — check the other variants",
@@ -664,10 +680,8 @@ pub(crate) fn derive_ref_offsets_with(
         .map(|p| (p.clone(), None))
         .collect();
 
-    let target_anchors_list: Vec<Option<Vec<GlyphPoint>>> = refs
-        .iter()
-        .map(|gref| lookup_anchors(&gref.name))
-        .collect();
+    let target_anchors_list: Vec<Option<Vec<GlyphPoint>>> =
+        refs.iter().map(|gref| lookup_anchors(&gref.name)).collect();
 
     let target_declared_anchors_list: Vec<Option<Vec<GlyphPoint>>> = refs
         .iter()
@@ -802,9 +816,7 @@ pub(crate) fn derive_ref_offsets_with(
                         && target_anchors_list[j]
                             .iter()
                             .flatten()
-                            .chain(
-                                alternatives_list[j].iter().flat_map(|(_, a)| a.iter()),
-                            )
+                            .chain(alternatives_list[j].iter().flat_map(|(_, a)| a.iter()))
                             .filter_map(|p| p.position.strip_prefix('+'))
                             .any(|base| wanted.contains(&base))
                 });
@@ -816,10 +828,14 @@ pub(crate) fn derive_ref_offsets_with(
             // that a subsequent unresolved ref would consume via -anchor,
             // prefer an alternative that provides +anchor directly.
             let alt_found = try_lookahead_alt(
-                i, n, target_anchors,
+                i,
+                n,
+                target_anchors,
                 target_declared_anchors_list[i].as_deref(),
                 &available_plus,
-                &alternatives_list[i], &effective_refs, &target_anchors_list,
+                &alternatives_list[i],
+                &effective_refs,
+                &target_anchors_list,
             );
             if let Some((alt_name, alt_anchors)) = alt_found {
                 let alt_gref = GlyphRef {
@@ -884,13 +900,18 @@ pub(crate) fn derive_ref_offsets_with(
                     }
                     if found.is_none()
                         && let Some((alt_name, alt_anchors)) = try_lookahead_alt(
-                            i, n, target_anchors,
+                            i,
+                            n,
+                            target_anchors,
                             target_declared_anchors_list[i].as_deref(),
                             &available_plus,
-                            &alternatives_list[i], &effective_refs, &target_anchors_list,
-                        ) {
-                            found = Some((alt_name.clone(), (0, 0), alt_anchors));
-                        }
+                            &alternatives_list[i],
+                            &effective_refs,
+                            &target_anchors_list,
+                        )
+                    {
+                        found = Some((alt_name.clone(), (0, 0), alt_anchors));
+                    }
                     found.unwrap_or_else(|| (gref.name.clone(), (0, 0), target_anchors))
                 }
             }
@@ -916,8 +937,7 @@ pub(crate) fn derive_ref_offsets_with(
         );
     }
 
-    let effective_refs: Vec<GlyphRef> =
-        effective_refs.into_iter().map(Option::unwrap).collect();
+    let effective_refs: Vec<GlyphRef> = effective_refs.into_iter().map(Option::unwrap).collect();
 
     // Exposure is opt-in: declared anchors always pass, a ref's survivors only
     // through its `inherit` flag. Survivors sharing a name are then dropped
@@ -993,7 +1013,10 @@ fn try_lookahead_alt<'a>(
                 }
                 // Already published — by the composite itself or by a sibling
                 // that committed earlier — so there is nothing to switch for.
-                if available_plus.iter().any(|(a, _)| a.position == plus.position) {
+                if available_plus
+                    .iter()
+                    .any(|(a, _)| a.position == plus.position)
+                {
                     continue;
                 }
                 let Some(base) = plus.position.strip_prefix('+') else {
@@ -1022,7 +1045,10 @@ fn try_lookahead_alt<'a>(
     // the publisher must: `enclosing-circle:alt` exists exactly for the
     // descenders whose `-center` is one cell, not two.
     for (alt_name, alt_anchors) in alternatives {
-        for plus in target_anchors.iter().filter(|p| p.position.starts_with('+')) {
+        for plus in target_anchors
+            .iter()
+            .filter(|p| p.position.starts_with('+'))
+        {
             let Some(base) = plus.position.strip_prefix('+') else {
                 continue;
             };
@@ -1037,9 +1063,9 @@ fn try_lookahead_alt<'a>(
                     // The primary (or something already published) serves
                     // this consumer: nothing to fix.
                     if plus.size_matches(minus)
-                        || available_plus.iter().any(|(p, _)| {
-                            p.position == plus.position && p.size_matches(minus)
-                        })
+                        || available_plus
+                            .iter()
+                            .any(|(p, _)| p.position == plus.position && p.size_matches(minus))
                     {
                         continue;
                     }
@@ -1076,9 +1102,9 @@ fn try_match_minus_plus(
         let Some(base) = minus.position.strip_prefix('-') else {
             continue;
         };
-        let mut candidates = available_plus.iter().filter(|(p, _)| {
-            p.position.strip_prefix('+') == Some(base) && p.size_matches(minus)
-        });
+        let mut candidates = available_plus
+            .iter()
+            .filter(|(p, _)| p.position.strip_prefix('+') == Some(base) && p.size_matches(minus));
         let Some((plus, _)) = candidates.next() else {
             continue;
         };
@@ -1161,8 +1187,7 @@ fn commit_ref(
                         plus: (near.width(), near.height()),
                     });
                 }
-                survived_minus
-                    .push((translate_point(minus, off_col, off_row), Some(ref_idx)));
+                survived_minus.push((translate_point(minus, off_col, off_row), Some(ref_idx)));
             }
             1 => {
                 available_plus.remove(matching[0]);
@@ -1185,7 +1210,10 @@ fn commit_ref(
 
 /// Detect any on-demand glyph for `name`: first tries WxH rect, then
 /// color/mono composite (checking whether X:mono and X:color exist).
-pub fn detect_on_demand_glyph(name: &str, has_glyph: impl Fn(&str) -> bool) -> Option<OnDemandGlyph> {
+pub fn detect_on_demand_glyph(
+    name: &str,
+    has_glyph: impl Fn(&str) -> bool,
+) -> Option<OnDemandGlyph> {
     parse_on_demand_glyph(name).or_else(|| detect_color_mono_glyph(name, has_glyph))
 }
 
@@ -1227,7 +1255,11 @@ pub fn resolve_expansion(
     // every glyph body, and cloning it a second time into `pending` cost more
     // than sharing the expansion saved.
     for expanded in expansion.items {
-        let DocumentItem::Glyph { name: GlyphName(key), body } = expanded.item else {
+        let DocumentItem::Glyph {
+            name: GlyphName(key),
+            body,
+        } = expanded.item
+        else {
             continue;
         };
         // First definition wins, matching the font build.
@@ -1296,22 +1328,20 @@ pub fn resolve_expansion(
                 pending.push(pg);
                 continue;
             }
-            let (effective_refs, exposed, _issues) =
-                derive_ref_offsets_with(
-                    &pg.points,
-                    &pg.refs,
-                    |name| {
-                        resolve_ref_name_with_parts(name, &cache, name_parts)
-                            .map(|resolved| resolved.resolved_anchors.clone())
-                    },
-                    |name| alt_index.get(name).to_vec(),
-                    |name| {
-                        resolve_ref_name_with_parts(name, &cache, name_parts)
-                            .map(|resolved| resolved.declared_anchors.clone())
-                    },
-                );
-            let anchors: Vec<GlyphPoint> =
-                exposed.into_iter().map(|(p, _)| p).collect();
+            let (effective_refs, exposed, _issues) = derive_ref_offsets_with(
+                &pg.points,
+                &pg.refs,
+                |name| {
+                    resolve_ref_name_with_parts(name, &cache, name_parts)
+                        .map(|resolved| resolved.resolved_anchors.clone())
+                },
+                |name| alt_index.get(name).to_vec(),
+                |name| {
+                    resolve_ref_name_with_parts(name, &cache, name_parts)
+                        .map(|resolved| resolved.declared_anchors.clone())
+                },
+            );
+            let anchors: Vec<GlyphPoint> = exposed.into_iter().map(|(p, _)| p).collect();
             let layout = resolve_composite_layout(
                 pg.pixels.as_ref(),
                 &effective_refs,
@@ -1463,10 +1493,9 @@ pub fn is_ref_valid(
 /// Iterator over the base prefixes an alternative name registers under:
 /// `foo:bar:baz` yields `foo:bar`, then `foo`.
 pub(crate) fn alternative_prefixes(name: &str) -> impl Iterator<Item = &str> {
-    std::iter::successors(
-        name.rfind(':').map(|p| &name[..p]),
-        |prefix| prefix.rfind(':').map(|p| &prefix[..p]),
-    )
+    std::iter::successors(name.rfind(':').map(|p| &name[..p]), |prefix| {
+        prefix.rfind(':').map(|p| &prefix[..p])
+    })
 }
 
 /// Pre-built index mapping each base name to its sorted alternatives.
@@ -1597,10 +1626,22 @@ fn resolve_composite_layout<'a>(
             max_r = max_r.max(raster_row + scaled_h);
             max_c = max_c.max(raster_col + scaled_w);
         }
-        layers.push(ResolvedLayer { ref_idx, gref, resolved, raster_row, raster_col });
+        layers.push(ResolvedLayer {
+            ref_idx,
+            gref,
+            resolved,
+            raster_row,
+            raster_col,
+        });
     }
 
-    CompositeLayout { layers, min_r, min_c, max_r, max_c }
+    CompositeLayout {
+        layers,
+        min_r,
+        min_c,
+        max_r,
+        max_c,
+    }
 }
 
 impl CompositeLayout<'_> {
@@ -1659,10 +1700,14 @@ fn resolve_fill_display_color(
     }
     if fill.color.starts_with('#') {
         let rgba = crate::render::ttf_builder::parse_hex_color(&fill.color)?;
-        return Some(egui::Color32::from_rgba_unmultiplied(rgba.r, rgba.g, rgba.b, rgba.a));
+        return Some(egui::Color32::from_rgba_unmultiplied(
+            rgba.r, rgba.g, rgba.b, rgba.a,
+        ));
     }
     let (rgba, _) = aliases.get(&fill.color)?;
-    Some(egui::Color32::from_rgba_unmultiplied(rgba.r, rgba.g, rgba.b, rgba.a))
+    Some(egui::Color32::from_rgba_unmultiplied(
+        rgba.r, rgba.g, rgba.b, rgba.a,
+    ))
 }
 
 #[cfg(any(feature = "editor", test))]
@@ -1712,7 +1757,10 @@ pub fn compute_composite(
         let scaled_grid = ref_grid_scaled(&layer.resolved.grid, layer.resolved.scale, body.scale);
         let orig_ref = &body.refs[layer.ref_idx.min(body.refs.len() - 1)];
         #[cfg(feature = "editor")]
-        let fill_color = orig_ref.fill.as_ref().and_then(|f| resolve_fill_display_color(f, color_aliases));
+        let fill_color = orig_ref
+            .fill
+            .as_ref()
+            .and_then(|f| resolve_fill_display_color(f, color_aliases));
         #[cfg(not(feature = "editor"))]
         {
             let _ = color_aliases;
@@ -1750,8 +1798,14 @@ fn composite_to_grid(
     name_parts: &NamePartsMap,
     parent_scale: u8,
 ) -> PixelGrid {
-    resolve_composite_layout(own_pixels.as_ref(), refs, named_glyphs, name_parts, parent_scale)
-        .to_grid(own_pixels.as_ref(), parent_scale)
+    resolve_composite_layout(
+        own_pixels.as_ref(),
+        refs,
+        named_glyphs,
+        name_parts,
+        parent_scale,
+    )
+    .to_grid(own_pixels.as_ref(), parent_scale)
 }
 
 #[cfg(test)]

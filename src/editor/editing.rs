@@ -61,8 +61,7 @@ pub fn insert_newline(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Car
     // welded together. Enter at the end of the header opens the new line
     // below the grid instead of splitting the pair (which would orphan the
     // grid and demote its pixels to text).
-    if caret.col >= t.chars().count()
-        && matches!(lines.get(caret.line + 1), Some(DocLine::Grid(_)))
+    if caret.col >= t.chars().count() && matches!(lines.get(caret.line + 1), Some(DocLine::Grid(_)))
     {
         let at = caret.line + 2;
         let new_caret = Caret::new(at, 0);
@@ -325,10 +324,7 @@ mod tests {
         let mut lines = vec![text("glyph foo 2 2"), grid(2, 2)];
         let mut undo = UndoStack::new();
         let caret = insert_newline(&mut lines, &mut undo, c(0, 9));
-        assert_eq!(
-            lines,
-            vec![text("glyph foo"), text(" 2 2"), grid(2, 2)]
-        );
+        assert_eq!(lines, vec![text("glyph foo"), text(" 2 2"), grid(2, 2)]);
         assert_eq!(caret, c(1, 0));
     }
 

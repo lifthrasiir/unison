@@ -191,8 +191,7 @@ impl DirWatcher {
             // file do not touch it.
             let listing = !matches!(
                 event.kind,
-                EventKind::Modify(notify::event::ModifyKind::Data(_))
-                    | EventKind::Access(_)
+                EventKind::Modify(notify::event::ModifyKind::Data(_)) | EventKind::Access(_)
             );
             let mut sent = false;
             for path in event.paths {
@@ -218,7 +217,10 @@ impl DirWatcher {
             Box::new(notify::PollWatcher::new(handler, config).ok()?)
         };
         watcher.watch(dir, RecursiveMode::NonRecursive).ok()?;
-        Some(Self { _watcher: watcher, rx })
+        Some(Self {
+            _watcher: watcher,
+            rx,
+        })
     }
 }
 
@@ -471,7 +473,11 @@ fn run_scan(request: ScanRequest) -> ScanResult {
             Ok((_, lines)) => ScanOutcome::Parsed(lines),
             Err(e) => ScanOutcome::Failed(e.to_string()),
         };
-        files.push(ScannedFile { path, hash, outcome });
+        files.push(ScannedFile {
+            path,
+            hash,
+            outcome,
+        });
     }
 
     let (snapshot, listing) = match request.dir {
@@ -490,7 +496,11 @@ fn run_scan(request: ScanRequest) -> ScanResult {
         None => (None, None),
     };
 
-    ScanResult { files, snapshot, listing }
+    ScanResult {
+        files,
+        snapshot,
+        listing,
+    }
 }
 
 impl super::UniformApp {
@@ -518,7 +528,9 @@ impl super::UniformApp {
     /// Takes a finished scan: the snapshot lands right away, the per-file
     /// results go to the queue [`Self::apply_watch_changes`] drains.
     fn collect_scan_result(&mut self) {
-        let Some(result) = self.watch.take_scan_result() else { return };
+        let Some(result) = self.watch.take_scan_result() else {
+            return;
+        };
         if let Some((docs, errors, sources)) = result.snapshot {
             self.apply_directory_snapshot(docs, errors, sources);
         }
@@ -563,8 +575,7 @@ impl super::UniformApp {
                 // been saved from this editor while the scan was in flight,
                 // which makes those bytes ours after all.
                 unchanged: doc.disk_hash == Some(file.hash),
-                dirty: doc.document.dirty
-                    || doc.editor_state.has_pending_document_sync(),
+                dirty: doc.document.dirty || doc.editor_state.has_pending_document_sync(),
                 displayed: self.panes.pane_showing(idx).is_some(),
                 pointer_over: self.pointer_over_document(ctx, idx),
             };
@@ -705,7 +716,12 @@ mod tests {
     use super::*;
 
     fn status(unchanged: bool, dirty: bool, displayed: bool, pointer_over: bool) -> FileStatus {
-        FileStatus { unchanged, dirty, displayed, pointer_over }
+        FileStatus {
+            unchanged,
+            dirty,
+            displayed,
+            pointer_over,
+        }
     }
 
     /// Our own save comes back as an event; it must not be read as a change,
@@ -724,21 +740,42 @@ mod tests {
 
     #[test]
     fn a_clean_document_is_reloaded_unless_the_pointer_is_on_it() {
-        assert_eq!(classify(status(false, false, true, false)), ChangeAction::Reload);
-        assert_eq!(classify(status(false, false, false, false)), ChangeAction::Reload);
-        assert_eq!(classify(status(false, false, true, true)), ChangeAction::Defer);
+        assert_eq!(
+            classify(status(false, false, true, false)),
+            ChangeAction::Reload
+        );
+        assert_eq!(
+            classify(status(false, false, false, false)),
+            ChangeAction::Reload
+        );
+        assert_eq!(
+            classify(status(false, false, true, true)),
+            ChangeAction::Defer
+        );
         // Not displayed: there is no surface the pointer could be over, so a
         // stale `pointer_over` must not hold the reload back forever.
-        assert_eq!(classify(status(false, false, false, true)), ChangeAction::Reload);
+        assert_eq!(
+            classify(status(false, false, false, true)),
+            ChangeAction::Reload
+        );
     }
 
     /// Unsaved edits are never dropped, and the warning is not deferred: it
     /// moves nothing on screen.
     #[test]
     fn a_dirty_document_is_kept_and_warned_about() {
-        assert_eq!(classify(status(false, true, true, true)), ChangeAction::WarnNow);
-        assert_eq!(classify(status(false, true, true, false)), ChangeAction::WarnNow);
-        assert_eq!(classify(status(false, true, false, false)), ChangeAction::WarnLater);
+        assert_eq!(
+            classify(status(false, true, true, true)),
+            ChangeAction::WarnNow
+        );
+        assert_eq!(
+            classify(status(false, true, true, false)),
+            ChangeAction::WarnNow
+        );
+        assert_eq!(
+            classify(status(false, true, false, false)),
+            ChangeAction::WarnLater
+        );
     }
 
     /// The scan is the whole point of the background thread: it must skip a
@@ -768,7 +805,11 @@ mod tests {
         });
 
         let scanned: Vec<&Path> = result.files.iter().map(|f| f.path.as_path()).collect();
-        assert_eq!(scanned, [changed.as_path()], "unchanged files must not be parsed");
+        assert_eq!(
+            scanned,
+            [changed.as_path()],
+            "unchanged files must not be parsed"
+        );
         assert!(matches!(result.files[0].outcome, ScanOutcome::Parsed(_)));
         assert_eq!(result.files[0].hash, hash_bytes(source.as_bytes()));
 
@@ -851,5 +892,4 @@ mod tests {
 
         let _ = std::fs::remove_dir_all(&dir);
     }
-
 }

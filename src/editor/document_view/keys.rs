@@ -21,11 +21,17 @@ pub(super) fn handle_document_keys(
     if state.active {
         // Autocomplete key handling takes priority
         let ac_result = crate::editor::autocomplete::handle_keys(ui, lines, state);
-        if matches!(ac_result, crate::editor::autocomplete::HandleResult::TextChanged) {
+        if matches!(
+            ac_result,
+            crate::editor::autocomplete::HandleResult::TextChanged
+        ) {
             *needs_rederive = true;
         }
 
-        if matches!(ac_result, crate::editor::autocomplete::HandleResult::NotConsumed) {
+        if matches!(
+            ac_result,
+            crate::editor::autocomplete::HandleResult::NotConsumed
+        ) {
             if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
                 if !matches!(state.popup, PopupState::None) {
                     state.popup = PopupState::None;
@@ -40,14 +46,16 @@ pub(super) fn handle_document_keys(
                 && matches!(state.popup, PopupState::None)
                 && ui.input(|i| i.key_pressed(egui::Key::F2))
                 && let Some(DocLine::Text(line_text)) = lines.get(state.cursor.line)
-                    && let Some(target) = doc_links::find_renameable_at_caret(line_text, state.cursor.col) {
-                        state.popup = PopupState::Rename {
-                            original_name: target.name.clone(),
-                            new_name: target.name,
-                            kind: target.kind,
-                            focus_set: false,
-                        };
-                    }
+                && let Some(target) =
+                    doc_links::find_renameable_at_caret(line_text, state.cursor.col)
+            {
+                state.popup = PopupState::Rename {
+                    original_name: target.name.clone(),
+                    new_name: target.name,
+                    kind: target.kind,
+                    focus_set: false,
+                };
+            }
 
             // Ctrl+K: type a character by its code point. Ctrl, not Alt: on
             // macOS an Option+letter chord is a dead key that never reaches
@@ -67,9 +75,7 @@ pub(super) fn handle_document_keys(
             }
 
             // Undo/redo in GlyphEdit/LayerMove modes (Normal mode handles it via doc_input::handle_keys)
-            if !matches!(state.mode, EditMode::Normal)
-                && matches!(state.popup, PopupState::None)
-            {
+            if !matches!(state.mode, EditMode::Normal) && matches!(state.popup, PopupState::None) {
                 let undo_pressed = ui.input(|i| {
                     i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::Z)
                 });
@@ -212,9 +218,7 @@ pub(super) fn handle_document_keys(
                 });
                 if let Some(t) = transform {
                     if pixel_selection::can_transform(doc, state, t) {
-                        if pixel_selection::handle_transform_selection(
-                            doc, lines, state, t,
-                        ) {
+                        if pixel_selection::handle_transform_selection(doc, lines, state, t) {
                             *needs_rederive = true;
                         }
                     }
@@ -232,9 +236,7 @@ pub(super) fn handle_document_keys(
                 );
             }
 
-            if matches!(state.mode, EditMode::Normal)
-                && matches!(state.popup, PopupState::None)
-            {
+            if matches!(state.mode, EditMode::Normal) && matches!(state.popup, PopupState::None) {
                 let text_changed = doc_input::handle_keys(ui, lines, state);
                 *needs_rederive |= text_changed;
 
@@ -268,9 +270,10 @@ pub(super) fn handle_document_keys(
 
         // Dismiss autocomplete when cursor moves inappropriately
         if let Some(ac) = &state.autocomplete
-            && (state.cursor.line != ac.line || state.cursor.col < ac.replace_start) {
-                state.autocomplete = None;
-            }
+            && (state.cursor.line != ac.line || state.cursor.col < ac.replace_start)
+        {
+            state.autocomplete = None;
+        }
         // Also re-filter if cursor moved within the token but no text changed
         if state.autocomplete.is_some() && state.cursor != prev_cursor && !*needs_rederive {
             crate::editor::autocomplete::update_after_edit(lines, state);
@@ -312,9 +315,8 @@ fn handle_palette_shortcuts(
 
     // `` ` `` wins if both arrive in the same frame; it is the only key that
     // asks for PixelSelect.
-    let to_pixel_select = ui.input(|i| {
-        i.key_pressed(egui::Key::Backtick) && !i.modifiers.command && !i.modifiers.alt
-    });
+    let to_pixel_select = ui
+        .input(|i| i.key_pressed(egui::Key::Backtick) && !i.modifiers.command && !i.modifiers.alt);
     if to_pixel_select {
         // Reconciliation will commit any floating selection.
         state.mode = EditMode::PixelSelect { item_idx };
@@ -362,36 +364,96 @@ fn handle_shape_shortcuts(ui: &egui::Ui, selected_shape: &mut pixel::PixelShape)
     const MAPPINGS: &[(egui::Key, &[PixelShape])] = &[
         (egui::Key::Num1, &[PixelShape(PX_ALMOSTFULL | PX_FULL)]),
         // asdf: halves → halfslant H (w2:h1, 3/4) → halfslant V (w1:h2, 3/4)
-        (egui::Key::F, &[
-            PixelShape(PX_HALF1 | PX_FULL),
-            PixelShape(PX_HALFSLANT1H | PX_FULL),
-            PixelShape(PX_HALFSLANT1V | PX_FULL),
-        ]),
-        (egui::Key::S, &[
-            PixelShape(PX_HALF2 | PX_FULL),
-            PixelShape(PX_HALFSLANT2H | PX_FULL),
-            PixelShape(PX_HALFSLANT2V | PX_FULL),
-        ]),
-        (egui::Key::A, &[
-            PixelShape(PX_HALF3 | PX_FULL),
-            PixelShape(PX_HALFSLANT3H | PX_FULL),
-            PixelShape(PX_HALFSLANT3V | PX_FULL),
-        ]),
-        (egui::Key::D, &[
-            PixelShape(PX_HALF4 | PX_FULL),
-            PixelShape(PX_HALFSLANT4H | PX_FULL),
-            PixelShape(PX_HALFSLANT4V | PX_FULL),
-        ]),
+        (
+            egui::Key::F,
+            &[
+                PixelShape(PX_HALF1 | PX_FULL),
+                PixelShape(PX_HALFSLANT1H | PX_FULL),
+                PixelShape(PX_HALFSLANT1V | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::S,
+            &[
+                PixelShape(PX_HALF2 | PX_FULL),
+                PixelShape(PX_HALFSLANT2H | PX_FULL),
+                PixelShape(PX_HALFSLANT2V | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::A,
+            &[
+                PixelShape(PX_HALF3 | PX_FULL),
+                PixelShape(PX_HALFSLANT3H | PX_FULL),
+                PixelShape(PX_HALFSLANT3V | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::D,
+            &[
+                PixelShape(PX_HALF4 | PX_FULL),
+                PixelShape(PX_HALFSLANT4H | PX_FULL),
+                PixelShape(PX_HALFSLANT4V | PX_FULL),
+            ],
+        ),
         // qwer: quad → cone
-        (egui::Key::R, &[PixelShape(PX_QUAD1 | PX_FULL), PixelShape(PX_CONE1 | PX_FULL)]),
-        (egui::Key::Q, &[PixelShape(PX_QUAD2 | PX_FULL), PixelShape(PX_CONE2 | PX_FULL)]),
-        (egui::Key::W, &[PixelShape(PX_QUAD3 | PX_FULL), PixelShape(PX_CONE3 | PX_FULL)]),
-        (egui::Key::E, &[PixelShape(PX_QUAD4 | PX_FULL), PixelShape(PX_CONE4 | PX_FULL)]),
+        (
+            egui::Key::R,
+            &[
+                PixelShape(PX_QUAD1 | PX_FULL),
+                PixelShape(PX_CONE1 | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::Q,
+            &[
+                PixelShape(PX_QUAD2 | PX_FULL),
+                PixelShape(PX_CONE2 | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::W,
+            &[
+                PixelShape(PX_QUAD3 | PX_FULL),
+                PixelShape(PX_CONE3 | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::E,
+            &[
+                PixelShape(PX_QUAD4 | PX_FULL),
+                PixelShape(PX_CONE4 | PX_FULL),
+            ],
+        ),
         // zxcv: invquad → invcone
-        (egui::Key::V, &[PixelShape(PX_INVQUAD1 | PX_FULL), PixelShape(PX_INVCONE1 | PX_FULL)]),
-        (egui::Key::Z, &[PixelShape(PX_INVQUAD2 | PX_FULL), PixelShape(PX_INVCONE2 | PX_FULL)]),
-        (egui::Key::X, &[PixelShape(PX_INVQUAD3 | PX_FULL), PixelShape(PX_INVCONE3 | PX_FULL)]),
-        (egui::Key::C, &[PixelShape(PX_INVQUAD4 | PX_FULL), PixelShape(PX_INVCONE4 | PX_FULL)]),
+        (
+            egui::Key::V,
+            &[
+                PixelShape(PX_INVQUAD1 | PX_FULL),
+                PixelShape(PX_INVCONE1 | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::Z,
+            &[
+                PixelShape(PX_INVQUAD2 | PX_FULL),
+                PixelShape(PX_INVCONE2 | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::X,
+            &[
+                PixelShape(PX_INVQUAD3 | PX_FULL),
+                PixelShape(PX_INVCONE3 | PX_FULL),
+            ],
+        ),
+        (
+            egui::Key::C,
+            &[
+                PixelShape(PX_INVQUAD4 | PX_FULL),
+                PixelShape(PX_INVCONE4 | PX_FULL),
+            ],
+        ),
     ];
 
     for &(key, cycle) in MAPPINGS {
@@ -401,8 +463,7 @@ fn handle_shape_shortcuts(ui: &egui::Ui, selected_shape: &mut pixel::PixelShape)
             } else {
                 let cur_pos = cycle.iter().position(|s| {
                     *s == *selected_shape
-                        || (s.is_slant_pair()
-                            && *selected_shape == s.slant_direction_pair())
+                        || (s.is_slant_pair() && *selected_shape == s.slant_direction_pair())
                 });
                 *selected_shape = match cur_pos {
                     Some(i) => cycle[(i + 1) % cycle.len()],

@@ -78,20 +78,22 @@ impl ShapedPreviewState {
     pub fn invalidate_font(&mut self, font_gen: u64) {
         self.glyph_cache.invalidate_if_changed(font_gen);
         if let Some(ref result) = self.shaped_result
-            && result.font_gen != font_gen {
-                self.shaped_result = None;
-            }
+            && result.font_gen != font_gen
+        {
+            self.shaped_result = None;
+        }
     }
 
     fn ensure_shaped(&mut self, font_data: &[u8], font_gen: u64, px_size: f32) {
         let params_match = self.shaped_result.as_ref().is_some_and(|r| {
-            r.font_gen == font_gen
-                && r.backend_idx == self.selected_backend
-                && r.px_size == px_size
+            r.font_gen == font_gen && r.backend_idx == self.selected_backend && r.px_size == px_size
         });
         if params_match
             && self.preedit.is_empty()
-            && self.shaped_result.as_ref().is_some_and(|r| r.text == self.text)
+            && self
+                .shaped_result
+                .as_ref()
+                .is_some_and(|r| r.text == self.text)
         {
             return;
         }
@@ -107,11 +109,17 @@ impl ShapedPreviewState {
                 self.preedit,
                 &self.text[byte_pos..]
             );
-            (display, Some((self.caret_pos, self.caret_pos + preedit_len)))
+            (
+                display,
+                Some((self.caret_pos, self.caret_pos + preedit_len)),
+            )
         };
 
         if params_match
-            && self.shaped_result.as_ref().is_some_and(|r| r.text == display_text)
+            && self
+                .shaped_result
+                .as_ref()
+                .is_some_and(|r| r.text == display_text)
         {
             return;
         }
@@ -178,11 +186,7 @@ impl ShapedPreviewState {
         let len = self.text.chars().count();
         let lo = anchor.min(self.caret_pos).min(len);
         let hi = anchor.max(self.caret_pos).min(len);
-        if lo == hi {
-            None
-        } else {
-            Some((lo, hi))
-        }
+        if lo == hi { None } else { Some((lo, hi)) }
     }
 
     pub fn selection_codepoints_label(&self) -> Option<String> {
@@ -315,15 +319,16 @@ impl ShapedPreviewState {
             EditAction::Paste => {
                 if let Ok(mut clip) = arboard::Clipboard::new()
                     && let Ok(text) = clip.get_text()
-                        && !text.is_empty() {
-                            self.save_for_undo();
-                            self.delete_selection();
-                            let byte_pos = char_to_byte(&self.text, self.caret_pos);
-                            let clean: String = text.replace(['\n', '\r'], "");
-                            self.text.insert_str(byte_pos, &clean);
-                            self.caret_pos += clean.chars().count();
-                            self.shaped_result = None;
-                        }
+                    && !text.is_empty()
+                {
+                    self.save_for_undo();
+                    self.delete_selection();
+                    let byte_pos = char_to_byte(&self.text, self.caret_pos);
+                    let clean: String = text.replace(['\n', '\r'], "");
+                    self.text.insert_str(byte_pos, &clean);
+                    self.caret_pos += clean.chars().count();
+                    self.shaped_result = None;
+                }
             }
             EditAction::Delete => {
                 if self.selection_range_sorted().is_some() {
@@ -425,7 +430,13 @@ impl ShapedPreviewState {
         let rect = response.rect;
         self.last_rect = Some(rect);
 
-        painter.rect(rect, 2.0, widget_bg, widget_stroke, egui::epaint::StrokeKind::Inside);
+        painter.rect(
+            rect,
+            2.0,
+            widget_bg,
+            widget_stroke,
+            egui::epaint::StrokeKind::Inside,
+        );
 
         let origin_x = rect.left() + 16.0;
         let baseline_y = rect.top() + px_size + 8.0;
@@ -439,12 +450,15 @@ impl ShapedPreviewState {
 
         if focus {
             ui.memory_mut(|m| {
-                m.set_focus_lock_filter(response.id, egui::EventFilter {
-                    horizontal_arrows: true,
-                    vertical_arrows: true,
-                    escape: false,
-                    tab: true,
-                });
+                m.set_focus_lock_filter(
+                    response.id,
+                    egui::EventFilter {
+                        horizontal_arrows: true,
+                        vertical_arrows: true,
+                        escape: false,
+                        tab: true,
+                    },
+                );
             });
         }
 
@@ -463,10 +477,12 @@ impl ShapedPreviewState {
                 egui::pos2(caret_x_now, baseline_y - px_size),
                 egui::vec2(16.0, px_size + 4.0),
             );
-            ui.ctx().output_mut(|o| o.ime = Some(egui::output::IMEOutput {
-                rect: ime_rect,
-                cursor_rect: ime_rect,
-            }));
+            ui.ctx().output_mut(|o| {
+                o.ime = Some(egui::output::IMEOutput {
+                    rect: ime_rect,
+                    cursor_rect: ime_rect,
+                })
+            });
         }
 
         // Outside the focus check: while the popup is open it, not the
@@ -474,27 +490,29 @@ impl ShapedPreviewState {
         self.show_codepoint_popup(ui);
 
         if response.clicked()
-            && let Some(pos) = response.interact_pointer_pos() {
-                let click_x = pos.x - origin_x;
-                if let Some(ref result) = self.shaped_result {
-                    let display_idx = cluster::char_idx_from_x(&result.clusters, click_x);
-                    self.caret_pos = display_to_committed(display_idx, result.preedit_char_range);
-                    self.selection_anchor = None;
-                }
+            && let Some(pos) = response.interact_pointer_pos()
+        {
+            let click_x = pos.x - origin_x;
+            if let Some(ref result) = self.shaped_result {
+                let display_idx = cluster::char_idx_from_x(&result.clusters, click_x);
+                self.caret_pos = display_to_committed(display_idx, result.preedit_char_range);
+                self.selection_anchor = None;
             }
+        }
 
         if response.dragged()
-            && let Some(pos) = response.interact_pointer_pos() {
-                let click_x = pos.x - origin_x;
-                if let Some(ref result) = self.shaped_result {
-                    let display_idx = cluster::char_idx_from_x(&result.clusters, click_x);
-                    let committed_idx = display_to_committed(display_idx, result.preedit_char_range);
-                    if self.selection_anchor.is_none() {
-                        self.selection_anchor = Some(self.caret_pos);
-                    }
-                    self.caret_pos = committed_idx;
+            && let Some(pos) = response.interact_pointer_pos()
+        {
+            let click_x = pos.x - origin_x;
+            if let Some(ref result) = self.shaped_result {
+                let display_idx = cluster::char_idx_from_x(&result.clusters, click_x);
+                let committed_idx = display_to_committed(display_idx, result.preedit_char_range);
+                if self.selection_anchor.is_none() {
+                    self.selection_anchor = Some(self.caret_pos);
                 }
+                self.caret_pos = committed_idx;
             }
+        }
 
         let text_color = if ui.visuals().dark_mode {
             egui::Color32::WHITE
@@ -504,9 +522,7 @@ impl ShapedPreviewState {
 
         if let Some(ref result) = self.shaped_result {
             let preedit_range = result.preedit_char_range;
-            let preedit_len = preedit_range
-                .map(|(ps, pe)| pe - ps)
-                .unwrap_or(0);
+            let preedit_len = preedit_range.map(|(ps, pe)| pe - ps).unwrap_or(0);
 
             if let Some((sel_lo, sel_hi)) = self.selection_range_sorted() {
                 let d_lo = committed_to_display(sel_lo, preedit_range, preedit_len);
@@ -517,11 +533,7 @@ impl ShapedPreviewState {
                     egui::pos2(sel_x0, baseline_y - px_size),
                     egui::pos2(sel_x1, baseline_y + 4.0),
                 );
-                painter.rect_filled(
-                    sel_rect,
-                    0.0,
-                    ui.visuals().selection.bg_fill,
-                );
+                painter.rect_filled(sel_rect, 0.0, ui.visuals().selection.bg_fill);
             }
 
             if let Some((ps, pe)) = preedit_range {
@@ -584,8 +596,7 @@ impl ShapedPreviewState {
             if focus {
                 let display_caret_pos =
                     committed_to_display(self.caret_pos, preedit_range, preedit_len);
-                let caret_x_pos =
-                    origin_x + cluster::caret_x(&result.clusters, display_caret_pos);
+                let caret_x_pos = origin_x + cluster::caret_x(&result.clusters, display_caret_pos);
                 let caret_color = ui.visuals().text_color();
                 painter.line_segment(
                     [
@@ -594,7 +605,6 @@ impl ShapedPreviewState {
                     ],
                     egui::Stroke::new(1.5, caret_color),
                 );
-
             }
         }
 
@@ -618,7 +628,9 @@ impl ShapedPreviewState {
     /// Drives the Ctrl+K code point popup, if one is open. Like the editor's,
     /// it previews through the preedit and commits like an IME would.
     fn show_codepoint_popup(&mut self, ui: &egui::Ui) {
-        let Some((popup, anchor)) = &mut self.codepoint else { return };
+        let Some((popup, anchor)) = &mut self.codepoint else {
+            return;
+        };
         let outcome = popup.show(ui.ctx(), ui.id().with("codepoint_popup"), *anchor);
         self.preedit = popup.preedit();
         match outcome {
@@ -699,12 +711,11 @@ impl ShapedPreviewState {
                         egui::Key::Z if cmd => {}
                         egui::Key::Y if cmd => {}
                         egui::Key::ArrowLeft => {
-                            if !shift
-                                && let Some((lo, _)) = self.selection_range_sorted() {
-                                    self.caret_pos = lo;
-                                    self.selection_anchor = None;
-                                    continue;
-                                }
+                            if !shift && let Some((lo, _)) = self.selection_range_sorted() {
+                                self.caret_pos = lo;
+                                self.selection_anchor = None;
+                                continue;
+                            }
                             if shift && self.selection_anchor.is_none() {
                                 self.selection_anchor = Some(self.caret_pos);
                             }
@@ -717,12 +728,11 @@ impl ShapedPreviewState {
                         }
                         egui::Key::ArrowRight => {
                             let len = self.text.chars().count();
-                            if !shift
-                                && let Some((_, hi)) = self.selection_range_sorted() {
-                                    self.caret_pos = hi;
-                                    self.selection_anchor = None;
-                                    continue;
-                                }
+                            if !shift && let Some((_, hi)) = self.selection_range_sorted() {
+                                self.caret_pos = hi;
+                                self.selection_anchor = None;
+                                continue;
+                            }
                             if shift && self.selection_anchor.is_none() {
                                 self.selection_anchor = Some(self.caret_pos);
                             }
@@ -820,7 +830,10 @@ mod tests {
         state.caret_pos = 0;
         state.selection_anchor = Some(9);
         assert_eq!(state.selection_range_sorted(), Some((0, 1)));
-        assert_eq!(state.selection_codepoints_label().as_deref(), Some("[0046]"));
+        assert_eq!(
+            state.selection_codepoints_label().as_deref(),
+            Some("[0046]")
+        );
     }
 }
 

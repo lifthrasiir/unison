@@ -136,7 +136,11 @@ pub(crate) fn build_collection(fonts: &[Vec<u8>]) -> Result<Vec<u8>, String> {
         }
     }
 
-    debug_assert_eq!(out.len(), blob_base, "directories must end where blobs begin");
+    debug_assert_eq!(
+        out.len(),
+        blob_base,
+        "directories must end where blobs begin"
+    );
     out.extend_from_slice(&blobs);
     // Blobs are padded going in, so only the last one can leave the file short
     // of a four-byte boundary. A checksum over the whole file walks it in

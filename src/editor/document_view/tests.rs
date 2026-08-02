@@ -2,8 +2,8 @@
 //!
 //! Scenario-level GUI tests live in [`crate::editor::view_tests`].
 
-use super::*;
 use super::changes::{defer_document_changes, flush_document_changes};
+use super::*;
 use crate::document_io::{derive_document, parse_doclines};
 use crate::edit_menu::EditAction;
 
@@ -41,11 +41,7 @@ fn external_edit_action_can_be_flushed_immediately() {
     state.selection_anchor = Some(Caret::new(0, 2));
     state.cursor = Caret::new(0, 3);
 
-    assert!(state.apply_edit_action(
-        EditAction::Delete,
-        &mut lines,
-        &egui::Context::default(),
-    ));
+    assert!(state.apply_edit_action(EditAction::Delete, &mut lines, &egui::Context::default(),));
     flush_document_changes(&mut lines, &mut doc, &mut state);
 
     assert_eq!(lines, vec![DocLine::Text("//bc".into())]);

@@ -3,23 +3,23 @@ mod app;
 mod detail;
 mod document;
 mod document_io;
-mod pattern;
 #[cfg(feature = "editor")]
 mod edit_menu;
-mod pixel;
-mod ref_composite;
-#[cfg(feature = "editor")]
-mod preview;
-mod render;
-mod script_run;
 #[cfg(feature = "editor")]
 mod editor;
-mod issues;
 mod faces;
-mod meta;
-mod resolve;
 #[cfg(test)]
 mod golden;
+mod issues;
+mod meta;
+mod pattern;
+mod pixel;
+#[cfg(feature = "editor")]
+mod preview;
+mod ref_composite;
+mod render;
+mod resolve;
+mod script_run;
 #[cfg(feature = "editor")]
 mod sidebar;
 #[cfg(feature = "editor")]
@@ -125,11 +125,15 @@ fn main() {
         }
 
         let Some(input) = input_dir else {
-            eprintln!("Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...]");
+            eprintln!(
+                "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...]"
+            );
             std::process::exit(1);
         };
         if output_files.is_empty() {
-            eprintln!("Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...]");
+            eprintln!(
+                "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...]"
+            );
             std::process::exit(1);
         }
 
@@ -257,7 +261,13 @@ fn main() {
                     .is_some_and(|e| e.eq_ignore_ascii_case("woff2"))
             });
             let result = if let Some((_, w2)) = woff2_written {
-                render::sample::write_live_html_woff2(&mut f, &refs, &font_bytes, w2, data_dir.as_deref())
+                render::sample::write_live_html_woff2(
+                    &mut f,
+                    &refs,
+                    &font_bytes,
+                    w2,
+                    data_dir.as_deref(),
+                )
             } else {
                 render::sample::write_live_html(&mut f, &refs, &font_bytes, data_dir.as_deref())
             };
@@ -310,7 +320,8 @@ fn main() {
         let name_parts = document::collect_name_parts(&refs);
         let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
 
-        let shape_result = render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height);
+        let shape_result =
+            render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height);
         let sd_result = render::assert::run_same_distinct_assertions(&refs, &resolved);
 
         let total = shape_result.total + sd_result.total;
@@ -322,7 +333,9 @@ fn main() {
         }
 
         for issue in shape_result.issues.iter().chain(sd_result.issues.iter()) {
-            let file_name = issue.file.file_name()
+            let file_name = issue
+                .file
+                .file_name()
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_default();
             eprintln!("FAIL {}:{}: {}", file_name, issue.file_line, issue.message);

@@ -18,7 +18,10 @@ enum EditState {
 
 pub enum SidebarAction {
     OpenFile(PathBuf),
-    FileRenamed { old: PathBuf, new: PathBuf },
+    FileRenamed {
+        old: PathBuf,
+        new: PathBuf,
+    },
     FileCreated(PathBuf),
     /// Throw the buffer away and take the file on disk instead.
     ReloadFromDisk(PathBuf),
@@ -146,7 +149,8 @@ impl Sidebar {
     /// a round trip nobody should pay for between two frames.
     pub fn set_files(&mut self, files: Vec<PathBuf>) {
         self.files = files;
-        self.files.retain(|path| crate::document_io::is_source_file(path));
+        self.files
+            .retain(|path| crate::document_io::is_source_file(path));
         Self::sort_files(&mut self.files);
     }
 
@@ -159,14 +163,15 @@ impl Sidebar {
     fn reload_files(&mut self) {
         self.files.clear();
         if let Some(dir) = &self.directory
-            && let Ok(entries) = std::fs::read_dir(dir) {
-                for entry in entries.flatten() {
-                    let path = entry.path();
-                    if crate::document_io::is_source_file(&path) {
-                        self.files.push(path);
-                    }
+            && let Ok(entries) = std::fs::read_dir(dir)
+        {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if crate::document_io::is_source_file(&path) {
+                    self.files.push(path);
                 }
             }
+        }
         // Sort by the name without its extension: every file here is `.unf`, so
         // the extension only makes `num-roman.unf` sort before `num.unf` (`-` <
         // `.`) — an ordering nothing on screen explains.
@@ -225,28 +230,33 @@ impl Sidebar {
 
         if matches!(self.edit_state, EditState::None) && !editor_focused {
             let f2 = ui.input(|i| i.key_pressed(egui::Key::F2));
-            if f2 && ui.rect_contains_pointer(ui.max_rect())
-                && let Some(active) = active_path {
-                    self.start_rename(active);
-                }
+            if f2
+                && ui.rect_contains_pointer(ui.max_rect())
+                && let Some(active) = active_path
+            {
+                self.start_rename(active);
+            }
         }
 
         // Horizontal auto-shrink off: a scroll area of labels is only as wide as
         // its widest label, and the scroll bar sits at the *area's* right edge —
         // so a panel wider than the names would draw the bar next to the longest
         // name instead of at the panel's edge.
-        let scroll_out = egui::ScrollArea::vertical().auto_shrink([false, true]).show(ui, |ui| {
-            if show_empty_label {
-                ui.label("No .unf files found");
-            }
+        let scroll_out = egui::ScrollArea::vertical()
+            .auto_shrink([false, true])
+            .show(ui, |ui| {
+                if show_empty_label {
+                    ui.label("No .unf files found");
+                }
 
-            let mut cancel_edit = false;
-            let mut i = 0;
-            while i < self.files.len() {
-                let path = self.files[i].clone();
+                let mut cancel_edit = false;
+                let mut i = 0;
+                while i < self.files.len() {
+                    let path = self.files[i].clone();
 
-                if let EditState::Renaming { index, .. } = &self.edit_state
-                    && *index == i {
+                    if let EditState::Renaming { index, .. } = &self.edit_state
+                        && *index == i
+                    {
                         let result = self.show_edit_field(ui);
                         match result {
                             EditFieldResult::Pending => {}
@@ -275,7 +285,9 @@ impl Sidebar {
                                             continue;
                                         }
                                         Err(e) => {
-                                            self.set_edit_error(&format!("Failed to rename file: {e}"));
+                                            self.set_edit_error(&format!(
+                                                "Failed to rename file: {e}"
+                                            ));
                                         }
                                     }
                                 }
@@ -287,95 +299,97 @@ impl Sidebar {
                         continue;
                     }
 
-                let name = path
-                    .file_name()
-                    .map(|n| n.to_string_lossy().to_string())
-                    .unwrap_or_default();
+                    let name = path
+                        .file_name()
+                        .map(|n| n.to_string_lossy().to_string())
+                        .unwrap_or_default();
 
-                let is_active = active_path == Some(path.as_path());
-                let is_dirty = files.dirty.contains(&path.as_path());
-                let is_open = files.open.contains(&path.as_path());
-                let changed_on_disk = files.changed_on_disk.contains(&path.as_path());
+                    let is_active = active_path == Some(path.as_path());
+                    let is_dirty = files.dirty.contains(&path.as_path());
+                    let is_open = files.open.contains(&path.as_path());
+                    let changed_on_disk = files.changed_on_disk.contains(&path.as_path());
 
-                let label = if is_dirty {
-                    format!("* {name}")
-                } else {
-                    name.clone()
-                };
-                // Colour rather than another marker: the panel's width is
-                // fitted to `"* {name}"`, so a wider prefix would truncate.
-                let label = if changed_on_disk {
-                    egui::RichText::new(label).color(ui.visuals().warn_fg_color)
-                } else {
-                    egui::RichText::new(label)
-                };
+                    let label = if is_dirty {
+                        format!("* {name}")
+                    } else {
+                        name.clone()
+                    };
+                    // Colour rather than another marker: the panel's width is
+                    // fitted to `"* {name}"`, so a wider prefix would truncate.
+                    let label = if changed_on_disk {
+                        egui::RichText::new(label).color(ui.visuals().warn_fg_color)
+                    } else {
+                        egui::RichText::new(label)
+                    };
 
-                let resp = ui.selectable_label(is_active, label);
-                if resp.clicked() {
-                    actions.push(SidebarAction::OpenFile(path.clone()));
-                }
-                if is_open {
-                    resp.context_menu(|ui| {
-                        let label = if is_dirty {
-                            "Reload from disk, discarding changes..."
-                        } else {
-                            "Reload from disk"
-                        };
-                        if ui.button(label).clicked() {
-                            actions.push(SidebarAction::ReloadFromDisk(path.clone()));
-                            ui.close_menu();
-                        }
-                    });
-                }
-
-                i += 1;
-            }
-
-            if matches!(self.edit_state, EditState::NewFile { .. }) {
-                let result = self.show_edit_field(ui);
-                match result {
-                    EditFieldResult::Pending => {}
-                    EditFieldResult::Cancel => cancel_edit = true,
-                    EditFieldResult::Confirm(raw_name) => {
-                        if let (Some(new_name), Some(dir)) =
-                            (Self::sanitize_filename(&raw_name), self.directory.clone())
-                        {
-                            let new_path = dir.join(&new_name);
-                            if new_path.exists() {
-                                self.set_edit_error("A file with that name already exists.");
+                    let resp = ui.selectable_label(is_active, label);
+                    if resp.clicked() {
+                        actions.push(SidebarAction::OpenFile(path.clone()));
+                    }
+                    if is_open {
+                        resp.context_menu(|ui| {
+                            let label = if is_dirty {
+                                "Reload from disk, discarding changes..."
                             } else {
-                                match std::fs::write(&new_path, "") {
-                                    Ok(()) => {
-                                        actions.push(SidebarAction::FileCreated(new_path));
-                                        cancel_edit = true;
-                                        self.reload_files();
-                                    }
-                                    Err(e) => {
-                                        self.set_edit_error(&format!("Failed to create file: {e}"));
+                                "Reload from disk"
+                            };
+                            if ui.button(label).clicked() {
+                                actions.push(SidebarAction::ReloadFromDisk(path.clone()));
+                                ui.close_menu();
+                            }
+                        });
+                    }
+
+                    i += 1;
+                }
+
+                if matches!(self.edit_state, EditState::NewFile { .. }) {
+                    let result = self.show_edit_field(ui);
+                    match result {
+                        EditFieldResult::Pending => {}
+                        EditFieldResult::Cancel => cancel_edit = true,
+                        EditFieldResult::Confirm(raw_name) => {
+                            if let (Some(new_name), Some(dir)) =
+                                (Self::sanitize_filename(&raw_name), self.directory.clone())
+                            {
+                                let new_path = dir.join(&new_name);
+                                if new_path.exists() {
+                                    self.set_edit_error("A file with that name already exists.");
+                                } else {
+                                    match std::fs::write(&new_path, "") {
+                                        Ok(()) => {
+                                            actions.push(SidebarAction::FileCreated(new_path));
+                                            cancel_edit = true;
+                                            self.reload_files();
+                                        }
+                                        Err(e) => {
+                                            self.set_edit_error(&format!(
+                                                "Failed to create file: {e}"
+                                            ));
+                                        }
                                     }
                                 }
+                            } else {
+                                self.set_edit_error("Invalid file name.");
                             }
-                        } else {
-                            self.set_edit_error("Invalid file name.");
                         }
                     }
                 }
-            }
 
-            if matches!(self.edit_state, EditState::None) {
-                let remaining = ui.available_size();
-                if remaining.y > 0.0 {
-                    let r = ui.allocate_response(remaining, egui::Sense::click());
-                    if r.double_clicked() {
-                        self.start_new_file();
+                if matches!(self.edit_state, EditState::None) {
+                    let remaining = ui.available_size();
+                    if remaining.y > 0.0 {
+                        let r = ui.allocate_response(remaining, egui::Sense::click());
+                        if r.double_clicked() {
+                            self.start_new_file();
+                        }
                     }
                 }
-            }
 
-            if cancel_edit {
-                self.edit_state = EditState::None;
-            }
-        });
+                if cancel_edit {
+                    self.edit_state = EditState::None;
+                }
+            });
         #[cfg(test)]
         {
             // `id.with(1)` is the vertical scroll bar's interaction id.
@@ -397,8 +411,12 @@ impl Sidebar {
             .set_buttons(rfd::MessageButtons::Ok)
             .show();
         match &mut self.edit_state {
-            EditState::Renaming { error, focus_set, .. }
-            | EditState::NewFile { error, focus_set, .. } => {
+            EditState::Renaming {
+                error, focus_set, ..
+            }
+            | EditState::NewFile {
+                error, focus_set, ..
+            } => {
                 *error = true;
                 *focus_set = false;
             }
@@ -454,9 +472,7 @@ impl Sidebar {
         } else {
             egui::Stroke::new(1.0, ui.visuals().widgets.active.bg_stroke.color)
         };
-        let frame = egui::Frame::NONE
-            .inner_margin(2.0)
-            .stroke(stroke);
+        let frame = egui::Frame::NONE.inner_margin(2.0).stroke(stroke);
 
         let mut result = EditFieldResult::Pending;
 
@@ -548,7 +564,10 @@ mod tests {
             .map(PathBuf::from)
             .collect();
         Sidebar::sort_files(&mut files);
-        let names: Vec<_> = files.iter().map(|p| p.to_string_lossy().to_string()).collect();
+        let names: Vec<_> = files
+            .iter()
+            .map(|p| p.to_string_lossy().to_string())
+            .collect();
         // With the extension in the key, `num-roman` would sort before `num`.
         assert_eq!(names, ["latin.unf", "num.unf", "num-roman.unf", "numx.unf"]);
     }
@@ -562,7 +581,10 @@ mod tests {
 
         // Every frame re-applies the fit, so the width survives the frame in
         // which the panel stores its content rect.
-        assert!((narrow_w - narrow_want).abs() < 1.0, "{narrow_w} vs {narrow_want}");
+        assert!(
+            (narrow_w - narrow_want).abs() < 1.0,
+            "{narrow_w} vs {narrow_want}"
+        );
         assert!((wide_w - wide_want).abs() < 1.0, "{wide_w} vs {wide_want}");
         assert!(wide_w > narrow_w + 50.0, "{wide_w} vs {narrow_w}");
     }
@@ -636,7 +658,10 @@ mod tests {
         frame(vec![press(fitted, true)], Some(edge(fitted)));
         frame(vec![], Some(edge(300.0)));
         let dragged = frame(vec![], Some(edge(320.0)));
-        assert!((dragged - 320.0).abs() < 2.0, "drag did not move the edge: {dragged}");
+        assert!(
+            (dragged - 320.0).abs() < 2.0,
+            "drag did not move the edge: {dragged}"
+        );
 
         frame(vec![press(320.0, false)], Some(edge(320.0)));
         // Two short names are ~60 px of content: neither the fit nor the panel

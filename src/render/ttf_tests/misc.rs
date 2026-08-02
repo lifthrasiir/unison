@@ -41,7 +41,10 @@ map D = alias
     let mut canon_b: Vec<_> = glyph_data_b.iter().map(canonicalize_glyph).collect();
     canon_a.sort();
     canon_b.sort();
-    assert_eq!(canon_a, canon_b, "canonicalized glyph data should be deterministic");
+    assert_eq!(
+        canon_a, canon_b,
+        "canonicalized glyph data should be deterministic"
+    );
     assert!(!canon_a.is_empty(), "should produce glyphs");
 }
 
@@ -53,7 +56,11 @@ fn name_records(bytes: &[u8]) -> Vec<(u16, u16, String)> {
     name.name_record()
         .iter()
         .map(|rec| {
-            let s = rec.string(name.string_data()).unwrap().chars().collect::<String>();
+            let s = rec
+                .string(name.string_data())
+                .unwrap()
+                .chars()
+                .collect::<String>();
             (rec.name_id.get().to_u16(), rec.language_id(), s)
         })
         .collect()
@@ -96,7 +103,10 @@ fn declared_metadata_reaches_the_name_table() {
 
     let font = read_fonts::FontRef::new(&ttf).unwrap();
     assert_eq!(font.head().unwrap().font_revision().to_f32(), 1.25);
-    assert_eq!(font.os2().unwrap().ach_vend_id(), read_fonts::types::Tag::new(b"UNSN"));
+    assert_eq!(
+        font.os2().unwrap().ach_vend_id(),
+        read_fonts::types::Tag::new(b"UNSN")
+    );
 }
 
 /// A localized record is filed under its own language ID and sits alongside
@@ -107,8 +117,14 @@ fn a_localized_family_becomes_its_own_name_record() {
         "meta family `Unison`\nmeta family @ko-KR `유니슨`\nglyph a 1 1\n@@\nmap A = a\n",
     );
     let recs = name_records(&ttf);
-    assert!(recs.contains(&(1, 0x0409, "Unison".to_string())), "got {recs:?}");
-    assert!(recs.contains(&(1, 0x0412, "유니슨".to_string())), "got {recs:?}");
+    assert!(
+        recs.contains(&(1, 0x0409, "Unison".to_string())),
+        "got {recs:?}"
+    );
+    assert!(
+        recs.contains(&(1, 0x0412, "유니슨".to_string())),
+        "got {recs:?}"
+    );
 }
 
 /// `ulUnicodeRange` advertises what the font covers; Windows font fallback and
@@ -151,7 +167,11 @@ fn code_page_ranges_are_derived_from_the_cmap() {
     // Without the ASCII range there is no Latin 1 claim to make.
     let ttf = build_from("glyph a 1 1\n@@\nmap Þ = a\n");
     let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
-    assert_eq!(os2.ul_code_page_range_1().unwrap() & 1, 0, "no ASCII, no Latin 1");
+    assert_eq!(
+        os2.ul_code_page_range_1().unwrap() & 1,
+        0,
+        "no ASCII, no Latin 1"
+    );
 }
 
 /// `post.isFixedPitch` was hardcoded to 1 in a font whose advances are not all
@@ -181,10 +201,18 @@ fn fixed_pitch_is_declared_rather_than_assumed() {
 fn default_panose_never_claims_monospace() {
     let panose = |src: &str| {
         let ttf = build_from(src);
-        read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap().panose_10()[3]
+        read_fonts::FontRef::new(&ttf)
+            .unwrap()
+            .os2()
+            .unwrap()
+            .panose_10()[3]
     };
     assert_ne!(panose("glyph a 1 1\n@@\nmap A = a\n"), 9);
-    assert_ne!(panose("meta fixed-pitch\nglyph a 1 1\n@@\nmap A = a\n"), 9, "`fixed-pitch` is post");
+    assert_ne!(
+        panose("meta fixed-pitch\nglyph a 1 1\n@@\nmap A = a\n"),
+        9,
+        "`fixed-pitch` is post"
+    );
 
     // A declared PANOSE is the whole PANOSE, monospace claim included.
     let ttf = build_from(
@@ -193,7 +221,11 @@ fn default_panose_never_claims_monospace() {
     let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
     assert_eq!(os2.panose_10(), &[2, 11, 6, 9, 2, 2, 2, 2, 2, 4][..]);
     assert_ne!(
-        read_fonts::FontRef::new(&ttf).unwrap().post().unwrap().is_fixed_pitch(),
+        read_fonts::FontRef::new(&ttf)
+            .unwrap()
+            .post()
+            .unwrap()
+            .is_fixed_pitch(),
         0,
         "and it does not disturb `fixed-pitch`"
     );
@@ -208,7 +240,12 @@ fn default_panose_never_claims_monospace() {
 #[test]
 fn head_does_not_claim_the_hints_alter_the_advance() {
     let ttf = build_from("glyph a 2 2\n@@\n@@\nmap A = a\n");
-    let flags = read_fonts::FontRef::new(&ttf).unwrap().head().unwrap().flags().bits();
+    let flags = read_fonts::FontRef::new(&ttf)
+        .unwrap()
+        .head()
+        .unwrap()
+        .flags()
+        .bits();
     assert_eq!(flags & 0x0010, 0, "INSTRUCTIONS_MAY_ALTER_ADVANCE_WIDTH");
     assert_eq!(flags, 0x0003, "baseline at y=0 and lsb at x=0 still hold");
 }
@@ -224,11 +261,19 @@ fn style_flags_reach_both_tables_and_clear_regular() {
     assert_ne!(sel & 0x01, 0, "ITALIC");
     assert_ne!(sel & 0x20, 0, "BOLD");
     assert_eq!(sel & 0x40, 0, "REGULAR must be cleared");
-    assert_eq!(font.head().unwrap().mac_style().bits() & 0b11, 0b11, "bold|italic");
+    assert_eq!(
+        font.head().unwrap().mac_style().bits() & 0b11,
+        0b11,
+        "bold|italic"
+    );
 
     let ttf = build_from("glyph a 1 1\n@@\nmap A = a\n");
     let font = read_fonts::FontRef::new(&ttf).unwrap();
-    assert_ne!(font.os2().unwrap().fs_selection().bits() & 0x40, 0, "REGULAR by default");
+    assert_ne!(
+        font.os2().unwrap().fs_selection().bits() & 0x40,
+        0,
+        "REGULAR by default"
+    );
     assert_eq!(font.head().unwrap().mac_style().bits(), 0);
 }
 
@@ -290,17 +335,32 @@ map A = n
     // is 64 units at the default 16-pixel em.
     let advance_of = |ttf: &[u8], ch: char| -> u16 {
         let font = read_fonts::FontRef::new(ttf).unwrap();
-        let gid = font.cmap().unwrap().map_codepoint(ch).expect("must be mapped");
-        font.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap()
+        let gid = font
+            .cmap()
+            .unwrap()
+            .map_codepoint(ch)
+            .expect("must be mapped");
+        font.hmtx()
+            .unwrap()
+            .advance(gid.try_into().unwrap())
+            .unwrap()
     };
 
     let ttf = build_from(&format!("{src}face narrow : narrow\n"));
-    assert_eq!(advance_of(&ttf, '°'), 64, "the narrow face maps ° to the narrow glyph");
+    assert_eq!(
+        advance_of(&ttf, '°'),
+        64,
+        "the narrow face maps ° to the narrow glyph"
+    );
     assert_eq!(advance_of(&ttf, 'A'), 64, "the base slice is in both faces");
 
     // The same source with the other face selected picks the other glyph.
     let ttf = build_from(&format!("{src}face wide : wide\n"));
-    assert_eq!(advance_of(&ttf, '°'), 128, "the wide face maps ° to the wide glyph");
+    assert_eq!(
+        advance_of(&ttf, '°'),
+        128,
+        "the wide face maps ° to the wide glyph"
+    );
     assert_eq!(advance_of(&ttf, 'A'), 64);
 }
 
@@ -326,8 +386,18 @@ face regular : wide
     let font = read_fonts::FontRef::new(&ttf).unwrap();
     // The winner is the first-collected glyph, so the cmap stays deterministic
     // rather than depending on which document happened to be parsed first.
-    let gid = font.cmap().unwrap().map_codepoint('•').expect("must still be mapped");
-    assert_eq!(font.hmtx().unwrap().advance(gid.try_into().unwrap()).unwrap(), 64);
+    let gid = font
+        .cmap()
+        .unwrap()
+        .map_codepoint('•')
+        .expect("must still be mapped");
+    assert_eq!(
+        font.hmtx()
+            .unwrap()
+            .advance(gid.try_into().unwrap())
+            .unwrap(),
+        64
+    );
 }
 
 /// One glyph is one glyph however many characters reach it. The collector used
@@ -350,11 +420,9 @@ fn a_glyph_mapped_from_two_codepoints_gets_one_gid() {
 
 #[test]
 fn unmapped_empty_sticky_glyph_is_retained() {
-    let doc = document_io::parse_document_from_str(
-        "glyph keep sticky advance 0\n",
-        "test.unf".into(),
-    )
-    .unwrap();
+    let doc =
+        document_io::parse_document_from_str("glyph keep sticky advance 0\n", "test.unf".into())
+            .unwrap();
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let keep = glyphs.iter().find(|glyph| glyph.name == "keep").unwrap();
     assert!(keep.codepoints.is_empty());
@@ -367,7 +435,8 @@ fn meta_height_zero_returns_none() {
     let doc = document_io::parse_document_from_str(
         "meta height 0\nmeta ascent 0\nmeta descent 0\nglyph a 1 1\n@@\nmap A = a\n",
         "test.unf".into(),
-    ).unwrap();
+    )
+    .unwrap();
     let result = build_font_from_documents(&[&doc]);
     assert!(result.is_none(), "height 0 should reject build");
 }
@@ -441,7 +510,10 @@ anchor -above 1 1
     let mut output = Vec::new();
     document_io::serialize_document(&doc, &mut output).unwrap();
     let output_str = String::from_utf8(output).unwrap();
-    assert!(output_str.contains("mark"), "mark flag should be serialized");
+    assert!(
+        output_str.contains("mark"),
+        "mark flag should be serialized"
+    );
 
     let doc2 = document_io::parse_document_from_str(&output_str, "test.unf".into()).unwrap();
     if let DocumentItem::Glyph { body, .. } = &doc2.items[0] {
@@ -455,7 +527,13 @@ fn feature_anchor_roundtrips() {
 feature ccmp for DFLT latn : anchor above
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    if let DocumentItem::FeatureAnchor { name, scripts, anchor, .. } = &doc.items[0] {
+    if let DocumentItem::FeatureAnchor {
+        name,
+        scripts,
+        anchor,
+        ..
+    } = &doc.items[0]
+    {
         assert_eq!(name, "ccmp");
         assert_eq!(scripts, &["DFLT", "latn"]);
         assert_eq!(anchor, "above");
@@ -546,22 +624,29 @@ map D = colored
         ("maxPoints", maxp.max_points().unwrap()),
         ("maxContours", maxp.max_contours().unwrap()),
         ("maxCompositePoints", maxp.max_composite_points().unwrap()),
-        ("maxCompositeContours", maxp.max_composite_contours().unwrap()),
-        ("maxComponentElements", maxp.max_component_elements().unwrap()),
+        (
+            "maxCompositeContours",
+            maxp.max_composite_contours().unwrap(),
+        ),
+        (
+            "maxComponentElements",
+            maxp.max_component_elements().unwrap(),
+        ),
         ("maxComponentDepth", maxp.max_component_depth().unwrap()),
     ]);
 
     // The fixture has to actually exercise each limit, or the comparison
     // below would pass on a font that never nests or never colors.
-    assert_eq!(want["maxComponentDepth"], 3, "fixture should nest three deep");
+    assert_eq!(
+        want["maxComponentDepth"], 3,
+        "fixture should nest three deep"
+    );
 
     for key in got.keys() {
         assert_eq!(
-            got[key],
-            want[key],
+            got[key], want[key],
             "maxp {key}: stored {} but the outlines need {}",
-            got[key],
-            want[key],
+            got[key], want[key],
         );
     }
 }
@@ -574,12 +659,12 @@ map D = colored
 #[test]
 fn dot_corner_shapes_and_their_complements_trace_as_expected() {
     for (code, rings, points, covers_center) in [
-        ("d/", 1, 6, true),   // SLASH
-        ("\\b", 1, 6, true),  // BACKSLASH
-        ("1D", 1, 5, true),   // HOUSE1
-        ("1v", 1, 5, true),   // HOUSE2
-        ("C1", 1, 5, true),   // HOUSE3
-        ("^1", 1, 5, true),   // HOUSE4
+        ("d/", 1, 6, true),  // SLASH
+        ("\\b", 1, 6, true), // BACKSLASH
+        ("1D", 1, 5, true),  // HOUSE1
+        ("1v", 1, 5, true),  // HOUSE2
+        ("C1", 1, 5, true),  // HOUSE3
+        ("^1", 1, 5, true),  // HOUSE4
         // Two disjoint triangles: two rings.
         ("~_", 2, 3, false), // INVSLASH
         ("_~", 2, 3, false), // INVBACKSLASH

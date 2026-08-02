@@ -56,7 +56,14 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
         ..GlyphBody::new()
     };
     let empty_parts = NamePartsMap::new();
-    let composite = compute_composite(&body, &cache, &empty_parts, &AlternativesIndex::default(), &Default::default()).expect("has refs");
+    let composite = compute_composite(
+        &body,
+        &cache,
+        &empty_parts,
+        &AlternativesIndex::default(),
+        &Default::default(),
+    )
+    .expect("has refs");
     assert_eq!(
         composite.layers.len(),
         1,
@@ -154,10 +161,17 @@ ref target
         .find_map(|item| match item {
             DocumentItem::Glyph { name, body } if name.display() == "container" => Some(body),
             _ => None,
-    })
-    .unwrap();
+        })
+        .unwrap();
     assert_eq!(container_body.refs[0].offset, None);
-    let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
+    let composite = compute_composite(
+        container_body,
+        &resolved,
+        &name_parts,
+        &_alt_idx,
+        &Default::default(),
+    )
+    .unwrap();
     assert_eq!(
         (
             composite.layers[0].offset_row - composite.own_offset_row,
@@ -185,10 +199,17 @@ ref target
         .find_map(|item| match item {
             DocumentItem::Glyph { name, body } if name.display() == "container" => Some(body),
             _ => None,
-    })
-    .unwrap();
+        })
+        .unwrap();
     assert_eq!(container_body.refs[0].offset, None);
-    let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
+    let composite = compute_composite(
+        container_body,
+        &resolved,
+        &name_parts,
+        &_alt_idx,
+        &Default::default(),
+    )
+    .unwrap();
     assert_eq!(
         (
             composite.layers[0].offset_row - composite.own_offset_row,
@@ -407,7 +428,14 @@ ref stem
             _ => None,
         })
         .unwrap();
-    let composite = compute_composite(container_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
+    let composite = compute_composite(
+        container_body,
+        &resolved,
+        &name_parts,
+        &_alt_idx,
+        &Default::default(),
+    )
+    .unwrap();
     assert_eq!(composite.layers[0].resolved_name, "stem:wide");
 }
 
@@ -450,7 +478,14 @@ ref base
             _ => None,
         })
         .unwrap();
-    let composite = compute_composite(host_body, &resolved, &name_parts, &_alt_idx, &Default::default()).unwrap();
+    let composite = compute_composite(
+        host_body,
+        &resolved,
+        &name_parts,
+        &_alt_idx,
+        &Default::default(),
+    )
+    .unwrap();
     // base:aaa comes before base:zzz alphabetically.
     assert_eq!(composite.layers[0].resolved_name, "base:aaa");
 }
@@ -501,9 +536,23 @@ ref ($ab)-inner
 
     let b_refs = vec![
         GlyphRef {
-            comment: None, name: "enclosing".to_string(), offset: None, negated: false, inherit: false, fill: None, visibility: None },
+            comment: None,
+            name: "enclosing".to_string(),
+            offset: None,
+            negated: false,
+            inherit: false,
+            fill: None,
+            visibility: None,
+        },
         GlyphRef {
-            comment: None, name: "b-inner".to_string(), offset: None, negated: false, inherit: false, fill: None, visibility: None },
+            comment: None,
+            name: "b-inner".to_string(),
+            offset: None,
+            negated: false,
+            inherit: false,
+            fill: None,
+            visibility: None,
+        },
     ];
     let (effective, _, _) = derive_ref_offsets_with(
         &[],
@@ -540,11 +589,12 @@ ref overlay
     let (resolved, _) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
     let base = &resolved["base"].grid;
     let overlay = &resolved["overlay"].grid;
-    let contours = track_contour_multi(
-        &[(base, 0, 0), (overlay, 0, 0)],
-        PX_SUBPIXEL,
+    let contours = track_contour_multi(&[(base, 0, 0), (overlay, 0, 0)], PX_SUBPIXEL);
+    assert_eq!(
+        contours.len(),
+        1,
+        "complement halves should form one full-pixel contour"
     );
-    assert_eq!(contours.len(), 1, "complement halves should form one full-pixel contour");
     let path = &contours[0];
     assert!(path.contains(&(0.0, 0.0)));
     assert!(path.contains(&(1.0, 0.0)));
@@ -573,10 +623,7 @@ ref part
 
     // The own grid has HALF1 at (0,0), the ref has HALF2 at (0,0).
     // track_contour_multi should trace the union as a full pixel.
-    let contours = track_contour_multi(
-        &[(host_grid, 0, 0), (part_grid, 0, 0)],
-        PX_SUBPIXEL,
-    );
+    let contours = track_contour_multi(&[(host_grid, 0, 0), (part_grid, 0, 0)], PX_SUBPIXEL);
     assert_eq!(contours.len(), 1);
     let path = &contours[0];
     assert!(path.contains(&(0.0, 0.0)));
@@ -675,16 +722,22 @@ ref mark-below
     let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &doc.items {
         if let DocumentItem::Glyph { name, body } = item {
-            decl_anchors.entry(name.display()).or_insert_with(|| body.points.clone());
+            decl_anchors
+                .entry(name.display())
+                .or_insert_with(|| body.points.clone());
         }
     }
 
     // combo-above: base + mark-above → should substitute base:alt
     // because base's own points lack +above (forwarded from ref base:alt)
-    let above_body = doc.items.iter().find_map(|item| match item {
-        DocumentItem::Glyph { name, body } if name.display() == "combo-above" => Some(body),
-        _ => None,
-    }).unwrap();
+    let above_body = doc
+        .items
+        .iter()
+        .find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "combo-above" => Some(body),
+            _ => None,
+        })
+        .unwrap();
     let (effective, _, _) = derive_ref_offsets_with(
         &above_body.points,
         &above_body.refs,
@@ -699,10 +752,14 @@ ref mark-below
 
     // combo-below: base + mark-below → should NOT substitute
     // because base's own points include +below
-    let below_body = doc.items.iter().find_map(|item| match item {
-        DocumentItem::Glyph { name, body } if name.display() == "combo-below" => Some(body),
-        _ => None,
-    }).unwrap();
+    let below_body = doc
+        .items
+        .iter()
+        .find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "combo-below" => Some(body),
+            _ => None,
+        })
+        .unwrap();
     let (effective, _, _) = derive_ref_offsets_with(
         &below_body.points,
         &below_body.refs,
@@ -729,7 +786,9 @@ fn lookahead_alternative_does_not_depend_on_inherit() {
     use crate::document_io;
 
     // Same font twice, differing only in the flag on `base`'s own ref.
-    let source = |inherit: &str| format!("\
+    let source = |inherit: &str| {
+        format!(
+            "\
 glyph base:alt 2 2
 @@@@
 @@@@
@@ -750,23 +809,31 @@ anchor -above 1 0
 glyph combo-above
 ref base
 ref mark-above
-");
+"
+        )
+    };
 
     let resolve = |inherit: &str| {
-        let doc = document_io::parse_document_from_str(
-            &source(inherit), "test.unf".into(),
-        ).unwrap();
+        let doc =
+            document_io::parse_document_from_str(&source(inherit), "test.unf".into()).unwrap();
         let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
         let mut decl_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
         for item in &doc.items {
             if let DocumentItem::Glyph { name, body } = item {
-                decl_anchors.entry(name.display()).or_insert_with(|| body.points.clone());
+                decl_anchors
+                    .entry(name.display())
+                    .or_insert_with(|| body.points.clone());
             }
         }
-        let body = doc.items.iter().find_map(|item| match item {
-            DocumentItem::Glyph { name, body } if name.display() == "combo-above" => Some(body),
-            _ => None,
-        }).unwrap().clone();
+        let body = doc
+            .items
+            .iter()
+            .find_map(|item| match item {
+                DocumentItem::Glyph { name, body } if name.display() == "combo-above" => Some(body),
+                _ => None,
+            })
+            .unwrap()
+            .clone();
         let (effective, _, _) = derive_ref_offsets_with(
             &body.points,
             &body.refs,
@@ -778,7 +845,11 @@ ref mark-above
             .resolved_anchors
             .iter()
             .any(|p| p.position == "+above");
-        (effective, resolved["combo-above"].grid.clone(), base_exposes_above)
+        (
+            effective,
+            resolved["combo-above"].grid.clone(),
+            base_exposes_above,
+        )
     };
 
     let (with_refs, with_grid, with_above) = resolve(" inherit");
@@ -804,7 +875,10 @@ ref mark-above
         without_refs.iter().map(|r| r.offset).collect::<Vec<_>>(),
         "attachment offsets must not depend on the flag",
     );
-    assert_eq!(with_grid, without_grid, "the composed grid must not depend on the flag");
+    assert_eq!(
+        with_grid, without_grid,
+        "the composed grid must not depend on the flag"
+    );
 }
 
 /// Ink flag of every *logical* pixel of an on-demand glyph's grid, as a
@@ -825,7 +899,8 @@ fn logical_fill(name: &str) -> Vec<Vec<bool>> {
                     for dr in 0..s {
                         for dc in 0..s {
                             assert_eq!(
-                                grid.get(lr * s + dr, lc * s + dc).is_filled(), want,
+                                grid.get(lr * s + dr, lc * s + dc).is_filled(),
+                                want,
                                 "{name}: ink flag not uniform across logical pixel ({lr},{lc})"
                             );
                         }
@@ -848,7 +923,10 @@ fn on_demand_bitmap_fill_rounds_coverage_half_up() {
     assert_eq!(fill.len(), 6);
     for (lr, row) in fill.iter().enumerate() {
         let want = lr < 5;
-        assert!(row.iter().all(|f| *f == want), "row {lr}: {row:?}, expected all {want}");
+        assert!(
+            row.iter().all(|f| *f == want),
+            "row {lr}: {row:?}, expected all {want}"
+        );
     }
 
     // 4x-0p2r3 is a single ⅔-covered row: ⅔ ≥ ½, so it lights up.
@@ -876,7 +954,10 @@ fn on_demand_bitmap_fill_rounds_triangle_edge_cells() {
     // 9x6-ul: the 2:3 slope leaves edge cells on both sides of ½.
     assert_eq!(count_filled("9x6-ul"), 27);
     // 2x2-ul: one full pixel plus two half pixels.
-    assert_eq!(logical_fill("2x2-ul"), vec![vec![true, true], vec![true, false]]);
+    assert_eq!(
+        logical_fill("2x2-ul"),
+        vec![vec![true, true], vec![true, false]]
+    );
 }
 
 #[test]
@@ -912,7 +993,8 @@ fn on_demand_bitmap_fill_survives_rescale_to_any_parent_scale() {
                 for dr in 0..s {
                     for dc in 0..s {
                         assert_eq!(
-                            out.get(lr * s + dr, lc * s + dc).is_filled(), lr < 5,
+                            out.get(lr * s + dr, lc * s + dc).is_filled(),
+                            lr < 5,
                             "scale {parent_scale}: logical pixel ({lr},{lc}) subcell ({dr},{dc})"
                         );
                     }
@@ -935,15 +1017,21 @@ fn on_demand_bitmap_fill_leaves_geometry_alone() {
             panic!("{name} must parse");
         };
         let grid = make_on_demand_grid(&rect);
-        assert_eq!((grid.width, grid.height), (base.width, base.height), "{name}");
+        assert_eq!(
+            (grid.width, grid.height),
+            (base.width, base.height),
+            "{name}"
+        );
         for r in 0..grid.height {
             for c in 0..grid.width {
                 assert_eq!(
-                    grid.get(r, c).shape_id(), base.get(r, c).shape_id(),
+                    grid.get(r, c).shape_id(),
+                    base.get(r, c).shape_id(),
                     "{name}: geometry changed at ({r},{c})"
                 );
                 assert_eq!(
-                    grid.region_at(r, c), base.region_at(r, c),
+                    grid.region_at(r, c),
+                    base.region_at(r, c),
                     "{name}: detail region changed at ({r},{c})"
                 );
             }
@@ -977,7 +1065,13 @@ fn parse_on_demand_bitmap_fill_suffix() {
 
 fn simple_rect(w: u8, h: u8) -> OnDemandGlyph {
     OnDemandGlyph::Rect(OnDemandRect {
-        w, h, w_frac: 0, h_frac: 0, scale: 1, neg_w: false, neg_h: false,
+        w,
+        h,
+        w_frac: 0,
+        h_frac: 0,
+        scale: 1,
+        neg_w: false,
+        neg_h: false,
         corner: None,
         fill: BitmapFill::Round,
     })
@@ -985,7 +1079,13 @@ fn simple_rect(w: u8, h: u8) -> OnDemandGlyph {
 
 fn frac_rect(w: u8, h: u8, wf: u8, hf: u8, s: u8, nw: bool, nh: bool) -> OnDemandGlyph {
     OnDemandGlyph::Rect(OnDemandRect {
-        w, h, w_frac: wf, h_frac: hf, scale: s, neg_w: nw, neg_h: nh,
+        w,
+        h,
+        w_frac: wf,
+        h_frac: hf,
+        scale: s,
+        neg_w: nw,
+        neg_h: nh,
         corner: None,
         fill: BitmapFill::Round,
     })
@@ -1051,7 +1151,10 @@ fn on_demand_triangle_third_slope_traces_cleanly() {
     };
     let grid = make_on_demand_grid(&rect);
     assert_eq!((grid.width, grid.height), (3, 1));
-    assert!(!grid.details.is_empty(), "1:3 slope requires custom details");
+    assert!(
+        !grid.details.is_empty(),
+        "1:3 slope requires custom details"
+    );
 
     let paths = crate::render::contour::track_contour(&grid, crate::pixel::PX_SUBPIXEL);
     assert_eq!(paths.len(), 1, "single outline, got {paths:?}");
@@ -1137,10 +1240,14 @@ fn on_demand_fractional_rect_resolved() {
     for r in 0..12 {
         for c in 0..6 {
             assert_eq!(
-                resolved.grid.get(r, c).shape_id() != crate::pixel::PX_EMPTY, c < 5,
+                resolved.grid.get(r, c).shape_id() != crate::pixel::PX_EMPTY,
+                c < 5,
                 "pixel ({r},{c}) geometry"
             );
-            assert!(resolved.grid.get(r, c).is_filled(), "pixel ({r},{c}) should be inked");
+            assert!(
+                resolved.grid.get(r, c).is_filled(),
+                "pixel ({r},{c}) should be inked"
+            );
         }
     }
 }
@@ -1171,16 +1278,18 @@ fn on_demand_fractional_rect_neg_anchoring() {
             // and round up, but logical row 0 holds only subrow 2 — ⅓ —
             // and stays dark.
             assert_eq!(
-                resolved.grid.get(r, c).is_filled(), r >= 3,
+                resolved.grid.get(r, c).is_filled(),
+                r >= 3,
                 "pixel ({r},{c}) fill={} expected={}",
-                resolved.grid.get(r, c).is_filled(), r >= 3,
+                resolved.grid.get(r, c).is_filled(),
+                r >= 3,
             );
         }
     }
 }
 
 fn make_doc(text: &str) -> Document {
-    use crate::document_io::{parse_doclines, derive_document};
+    use crate::document_io::{derive_document, parse_doclines};
     let lines = parse_doclines(text);
     let (doc, _) = derive_document(&lines, std::path::PathBuf::new()).unwrap();
     doc
@@ -1209,15 +1318,23 @@ fn on_demand_glyph_composite_resolves() {
     let name_parts = NamePartsMap::new();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
-    assert!(cache.contains_key("3x2"), "on-demand glyph 3x2 missing from cache");
-    assert!(cache.contains_key("composite"), "composite glyph missing from cache");
+    assert!(
+        cache.contains_key("3x2"),
+        "on-demand glyph 3x2 missing from cache"
+    );
+    assert!(
+        cache.contains_key("composite"),
+        "composite glyph missing from cache"
+    );
     let comp = &cache["composite"];
     assert_eq!(comp.grid.width, 3);
     assert_eq!(comp.grid.height, 2);
     for r in 0..2 {
         for c in 0..3 {
-            assert!(comp.grid.get(r, c).is_filled(),
-                "composite pixel ({r},{c}) should be filled");
+            assert!(
+                comp.grid.get(r, c).is_filled(),
+                "composite pixel ({r},{c}) should be filled"
+            );
         }
     }
 }
@@ -1233,10 +1350,16 @@ fn on_demand_glyph_resolves_in_multi_ref_composite() {
     let name_parts = NamePartsMap::new();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
-    assert!(cache.contains_key("3x2"), "on-demand 3x2 should be in cache");
+    assert!(
+        cache.contains_key("3x2"),
+        "on-demand 3x2 should be in cache"
+    );
     assert!(cache.contains_key("comp"), "comp should resolve");
     let comp = &cache["comp"];
-    assert!(comp.grid.width >= 5, "composite width should span base(2) + 3x2 at col 2");
+    assert!(
+        comp.grid.width >= 5,
+        "composite width should span base(2) + 3x2 at col 2"
+    );
 }
 
 #[test]
@@ -1265,7 +1388,10 @@ fn color_mono_on_demand_glyph_created() {
     let name_parts = NamePartsMap::new();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
-    assert!(cache.contains_key("test"), "color/mono on-demand glyph 'test' should be synthesized");
+    assert!(
+        cache.contains_key("test"),
+        "color/mono on-demand glyph 'test' should be synthesized"
+    );
     let resolved = &cache["test"];
     assert_eq!(resolved.grid.width, 2);
     assert_eq!(resolved.grid.height, 2);
@@ -1303,7 +1429,10 @@ fn color_mono_on_demand_not_created_when_only_mono_exists() {
     let name_parts = NamePartsMap::new();
     let (cache, _) = resolve_named_glyphs_with_parts(&[&doc], &name_parts);
 
-    assert!(!cache.contains_key("test"), "should not synthesize when only :mono exists");
+    assert!(
+        !cache.contains_key("test"),
+        "should not synthesize when only :mono exists"
+    );
 }
 
 /// Manual profiling harness:
@@ -1316,7 +1445,8 @@ fn color_mono_on_demand_not_created_when_only_mono_exists() {
 #[ignore]
 fn profile_resolve_name_expansion() {
     let docs =
-        crate::render::ttf_builder::load_docs_from_directory_checked(std::path::Path::new("font")).0;
+        crate::render::ttf_builder::load_docs_from_directory_checked(std::path::Path::new("font"))
+            .0;
     assert!(!docs.is_empty(), "font/ not found; run from repo root");
     let refs: Vec<&Document> = docs.iter().collect();
     let name_parts = crate::document::collect_name_parts(&refs);
@@ -1327,7 +1457,11 @@ fn profile_resolve_name_expansion() {
     for run in 0..runs {
         let t0 = std::time::Instant::now();
         let (resolved, _alt) = resolve_named_glyphs_with_parts(&refs, &name_parts);
-        eprintln!("run {run}: resolve {:?}, {} glyphs", t0.elapsed(), resolved.len());
+        eprintln!(
+            "run {run}: resolve {:?}, {} glyphs",
+            t0.elapsed(),
+            resolved.len()
+        );
     }
     let t0 = std::time::Instant::now();
     let built = crate::render::build_font_from_documents(&refs);
@@ -1381,17 +1515,30 @@ ref mark inherit
     );
 
     let transparent = &resolved["transparent"];
-    let positions: Vec<&str> =
-        transparent.resolved_anchors.iter().map(|p| p.position.as_str()).collect();
-    assert!(positions.contains(&"+below"), "base's +below survives: {positions:?}");
-    assert!(positions.contains(&"+above"), "mark's republished +above survives: {positions:?}");
+    let positions: Vec<&str> = transparent
+        .resolved_anchors
+        .iter()
+        .map(|p| p.position.as_str())
+        .collect();
+    assert!(
+        positions.contains(&"+below"),
+        "base's +below survives: {positions:?}"
+    );
+    assert!(
+        positions.contains(&"+above"),
+        "mark's republished +above survives: {positions:?}"
+    );
     let above = transparent
         .resolved_anchors
         .iter()
         .find(|p| p.position == "+above")
         .unwrap();
     // mark's own +above (0, -1) translated by the attachment offset (1, 0).
-    assert_eq!((above.col, above.row), (1, -1), "the surviving +above is the mark's, moved");
+    assert_eq!(
+        (above.col, above.row),
+        (1, -1),
+        "the surviving +above is the mark's, moved"
+    );
 }
 
 /// Two inherit refs surviving with the same anchor name is an error, and the
@@ -1451,8 +1598,11 @@ ref dot 1 3
     let (resolved, _alt) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
     let comp = &resolved["comp"];
-    let positions: Vec<&str> =
-        comp.resolved_anchors.iter().map(|p| p.position.as_str()).collect();
+    let positions: Vec<&str> = comp
+        .resolved_anchors
+        .iter()
+        .map(|p| p.position.as_str())
+        .collect();
     assert!(
         positions.contains(&"-center"),
         "base's unsatisfiable -center is forwarded through inherit: {positions:?}"
@@ -1491,8 +1641,11 @@ map generate \u{c0}
     let (resolved, _alt) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
     let generated = resolved.get("uni00C0").expect("generated composite");
-    let positions: Vec<&str> =
-        generated.resolved_anchors.iter().map(|p| p.position.as_str()).collect();
+    let positions: Vec<&str> = generated
+        .resolved_anchors
+        .iter()
+        .map(|p| p.position.as_str())
+        .collect();
     assert!(positions.contains(&"+above"), "{positions:?}");
     assert!(positions.contains(&"+below"), "{positions:?}");
     assert!(!positions.contains(&"-above"), "{positions:?}");
@@ -1529,19 +1682,24 @@ fn derive_reports_duplicates_and_ambiguity() {
 
     // Two inherited +above survive → both dropped, one issue.
     let refs = vec![inherit_ref("half", 0), inherit_ref("half", 4)];
-    let (_, exposed, issues) =
-        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (_, exposed, issues) = derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
     assert!(exposed.is_empty(), "{exposed:?}");
     assert_eq!(
         issues,
-        vec![DeriveIssue::DuplicateExposed { position: "+above".into() }],
+        vec![DeriveIssue::DuplicateExposed {
+            position: "+above".into()
+        }],
     );
 
     // A mark whose -above finds two +above candidates attaches to neither.
     let refs = vec![
         inherit_ref("half", 0),
         inherit_ref("half", 4),
-        GlyphRef { offset: None, inherit: false, ..inherit_ref("mark", 0) },
+        GlyphRef {
+            offset: None,
+            inherit: false,
+            ..inherit_ref("mark", 0)
+        },
     ];
     let (effective, _, issues) =
         derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
@@ -1563,7 +1721,8 @@ fn derive_reports_duplicates_and_ambiguity() {
 #[ignore]
 fn probe_migration_worklist() {
     let docs =
-        crate::render::ttf_builder::load_docs_from_directory_checked(std::path::Path::new("font")).0;
+        crate::render::ttf_builder::load_docs_from_directory_checked(std::path::Path::new("font"))
+            .0;
     let refs: Vec<&Document> = docs.iter().collect();
     let name_parts = crate::document::collect_name_parts(&refs);
     let (resolved, _alt) = resolve_named_glyphs_with_parts(&refs, &name_parts);
@@ -1584,14 +1743,22 @@ fn probe_migration_worklist() {
     let (resolved_old, _alt2) = resolve_named_glyphs_with_parts(&refs2, &name_parts);
 
     for pos in ["-above", "-below", "+above", "+below"] {
-        let now = resolved.values().filter(|g| g.resolved_anchors.iter().any(|p| p.position == pos)).count();
-        let old = resolved_old.values().filter(|g| g.resolved_anchors.iter().any(|p| p.position == pos)).count();
+        let now = resolved
+            .values()
+            .filter(|g| g.resolved_anchors.iter().any(|p| p.position == pos))
+            .count();
+        let old = resolved_old
+            .values()
+            .filter(|g| g.resolved_anchors.iter().any(|p| p.position == pos))
+            .count();
         eprintln!("{pos}: exposed by {now} glyphs (forward-everything: {old})");
     }
 
     let mut lost: Vec<&str> = Vec::new();
     for (name, old) in &resolved_old {
-        let Some(new) = resolved.get(name) else { continue };
+        let Some(new) = resolved.get(name) else {
+            continue;
+        };
         for pos in ["+above", "+below"] {
             let had = old.resolved_anchors.iter().any(|p| p.position == pos);
             let has = new.resolved_anchors.iter().any(|p| p.position == pos)
@@ -1604,8 +1771,13 @@ fn probe_migration_worklist() {
     }
     lost.sort();
     lost.dedup();
-    eprintln!("== {} glyphs no longer expose a +above/+below they used to:", lost.len());
-    for n in &lost { eprintln!("  {n}"); }
+    eprintln!(
+        "== {} glyphs no longer expose a +above/+below they used to:",
+        lost.len()
+    );
+    for n in &lost {
+        eprintln!("  {n}");
+    }
 }
 
 /// A `-` anchor that finds a same-name `+` of a *different size* attaches to
@@ -1641,8 +1813,7 @@ fn derive_reports_size_mismatched_attachment() {
 
     // Explicit offset: the mark cannot consume the 2-cell +above.
     let refs = vec![gref("base", None), gref("mark", Some((1, 2)))];
-    let (_, _, issues) =
-        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (_, _, issues) = derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
     assert!(
         issues.contains(&DeriveIssue::SizeMismatchedAttachment {
             position: "-above".into(),
@@ -1655,8 +1826,7 @@ fn derive_reports_size_mismatched_attachment() {
 
     // No same-name + anywhere: plain forwarding, no warning.
     let refs = vec![gref("mark", None)];
-    let (_, _, issues) =
-        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (_, _, issues) = derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
     assert!(issues.is_empty(), "{issues:?}");
 }
 
@@ -1700,10 +1870,14 @@ ref acute
     let name_parts = crate::document::collect_name_parts(&docs);
     let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
-    let body = doc.items.iter().find_map(|item| match item {
-        DocumentItem::Glyph { name, body } if name.display() == "stacked" => Some(body),
-        _ => None,
-    }).unwrap();
+    let body = doc
+        .items
+        .iter()
+        .find_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.display() == "stacked" => Some(body),
+            _ => None,
+        })
+        .unwrap();
     let derive = |refs: &[GlyphRef]| {
         derive_ref_offsets_with(
             &body.points,
@@ -1726,10 +1900,16 @@ ref acute
         .refs
         .iter()
         .enumerate()
-        .map(|(i, r)| GlyphRef { offset: Some((0, i as i16)), ..r.clone() })
+        .map(|(i, r)| GlyphRef {
+            offset: Some((0, i as i16)),
+            ..r.clone()
+        })
         .collect();
     let (effective, _, issues) = derive(&pinned);
-    assert_eq!(effective[2].name, "acute", "explicit offsets never substitute");
+    assert_eq!(
+        effective[2].name, "acute",
+        "explicit offsets never substitute"
+    );
     assert!(
         issues.iter().any(|i| matches!(
             i,
@@ -1786,10 +1966,14 @@ ref circle
     let (resolved, alt_idx) = resolve_named_glyphs_with_parts(&docs, &name_parts);
 
     let derive = |glyph: &str| {
-        let body = doc.items.iter().find_map(|item| match item {
-            DocumentItem::Glyph { name, body } if name.display() == glyph => Some(body),
-            _ => None,
-        }).unwrap();
+        let body = doc
+            .items
+            .iter()
+            .find_map(|item| match item {
+                DocumentItem::Glyph { name, body } if name.display() == glyph => Some(body),
+                _ => None,
+            })
+            .unwrap();
         derive_ref_offsets_with(
             &body.points,
             &body.refs,
@@ -1807,11 +1991,17 @@ ref circle
     // The 1-cell consumer fits only circle:alt, whichever side comes first.
     for glyph in ["j-circled", "j-circled-reversed"] {
         let (effective, _, issues) = derive(glyph);
-        let circle_ref = effective.iter().find(|r| r.name.starts_with("circle")).unwrap();
+        let circle_ref = effective
+            .iter()
+            .find(|r| r.name.starts_with("circle"))
+            .unwrap();
         assert_eq!(circle_ref.name, "circle:alt", "{glyph}");
         assert!(issues.is_empty(), "{glyph}: {issues:?}");
         // The consumer really attached: its offset aligns -center on (2, 1).
-        let inner = effective.iter().find(|r| r.name.ends_with("-inner")).unwrap();
+        let inner = effective
+            .iter()
+            .find(|r| r.name.ends_with("-inner"))
+            .unwrap();
         assert_eq!(inner.offset, Some((1, 1)), "{glyph}");
     }
 }

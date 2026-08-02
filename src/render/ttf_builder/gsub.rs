@@ -53,8 +53,8 @@
 //! adding a single `locl for latn/ROM` silently costs all Latin text its
 //! `ccmp` — and every mark attachment with it.
 
-use super::*;
 use super::tables::{ScriptFeatures, build_script_records, make_tag, parse_script_lang};
+use super::*;
 
 pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -> GsubData {
     let mut remap_sets: BTreeMap<String, Vec<ExpandedRemap>> = BTreeMap::new();
@@ -107,19 +107,30 @@ pub(super) fn collect_gsub_data(docs: &[&Document], name_parts: &NamePartsMap) -
                         .map(|s| expand_name_element(s, name_parts))
                         .collect();
 
-                    remap_sets.entry(feature.clone()).or_default().push(
-                        ExpandedRemap {
+                    remap_sets
+                        .entry(feature.clone())
+                        .or_default()
+                        .push(ExpandedRemap {
                             lookbehind: lb,
                             source: source_seqs,
                             target: target_seqs,
                             lookahead: la,
-                        },
-                    );
+                        });
                 }
-                DocumentItem::Feature { name, scripts, remap_group, .. } => {
+                DocumentItem::Feature {
+                    name,
+                    scripts,
+                    remap_group,
+                    ..
+                } => {
                     features.push((name.clone(), scripts.clone(), vec![remap_group.clone()]));
                 }
-                DocumentItem::FeatureAnchor { name, scripts, anchor, .. } => {
+                DocumentItem::FeatureAnchor {
+                    name,
+                    scripts,
+                    anchor,
+                    ..
+                } => {
                     anchor_features.push((name.clone(), scripts.clone(), anchor.clone()));
                 }
                 _ => {}
@@ -247,8 +258,14 @@ pub(super) fn build_gsub(
     // happens first" is decided, and it belongs to the groups. Where a group is
     // attached with `feature` deliberately has no say in it.
     for setname in &gsub_data.groups.order {
-        let Some(remaps) = gsub_data.remap_sets.get(setname) else { continue };
-        let reversed = gsub_data.groups.info.get(setname).is_some_and(|i| i.reversed);
+        let Some(remaps) = gsub_data.remap_sets.get(setname) else {
+            continue;
+        };
+        let reversed = gsub_data
+            .groups
+            .info
+            .get(setname)
+            .is_some_and(|i| i.reversed);
         match classify_remap_set(remaps, reversed) {
             RemapSetKind::Single => {
                 let lookup = build_single_subst_lookup(remaps, name_to_gid);
@@ -302,7 +319,9 @@ pub(super) fn build_gsub(
                     let input_len = r.source.first().map_or(1, |seq| seq.len());
                     let input: Vec<CoverageTable> = (0..input_len)
                         .map(|pos| {
-                            let names: Vec<String> = r.source.iter()
+                            let names: Vec<String> = r
+                                .source
+                                .iter()
                                 .filter_map(|seq| seq.get(pos).cloned())
                                 .collect();
                             make_coverage(&names, name_to_gid)
@@ -318,14 +337,12 @@ pub(super) fn build_gsub(
                     let slr = SequenceLookupRecord::new(0, helper_idx);
 
                     let mut sc = SubstitutionChainContext::default();
-                    *sc = ChainedSequenceContext::Format3(
-                        ChainedSequenceContextFormat3::new(
-                            backtrack,
-                            input,
-                            lookahead,
-                            vec![slr],
-                        ),
-                    );
+                    *sc = ChainedSequenceContext::Format3(ChainedSequenceContextFormat3::new(
+                        backtrack,
+                        input,
+                        lookahead,
+                        vec![slr],
+                    ));
                     chain_subtables.push(sc);
                 }
 
@@ -357,7 +374,11 @@ pub(super) fn build_gsub(
 
         for target in targets {
             let (script, lang) = parse_script_lang(target);
-            let tags = per_script.entry(script).or_default().entry(lang).or_default();
+            let tags = per_script
+                .entry(script)
+                .or_default()
+                .entry(lang)
+                .or_default();
             match tags.iter_mut().find(|(t, _)| t == feat_tag) {
                 Some((_, indices)) => indices.extend(lookup_indices.iter().copied()),
                 None => tags.push((feat_tag.clone(), lookup_indices.clone())),
@@ -370,7 +391,11 @@ pub(super) fn build_gsub(
     // that script stop seeing DFLT. Fold DFLT's features into every declared
     // script, or adding one `locl for latn/ROM` would cost all Latin text its
     // `ccmp` — every mark attachment with it.
-    if let Some(dflt_tags) = per_script.get("DFLT").and_then(|langs| langs.get(&None)).cloned() {
+    if let Some(dflt_tags) = per_script
+        .get("DFLT")
+        .and_then(|langs| langs.get(&None))
+        .cloned()
+    {
         for (script, langs) in per_script.iter_mut() {
             if script == "DFLT" {
                 continue;
@@ -387,7 +412,9 @@ pub(super) fn build_gsub(
     // keeps `locl for latn/ROM` from producing a second `ccmp` record beside
     // the inherited one, which the shaper would have to choose between.
     for langs in per_script.values_mut() {
-        let Some(default_tags) = langs.get(&None).cloned() else { continue };
+        let Some(default_tags) = langs.get(&None).cloned() else {
+            continue;
+        };
         for (lang, tags) in langs.iter_mut() {
             if lang.is_some() {
                 inherit_tags(tags, &default_tags);
@@ -448,7 +475,10 @@ pub(super) fn compute_max_context(gsub_data: &GsubData) -> u16 {
     max_ctx
 }
 
-pub(super) fn make_coverage(names: &[String], name_to_gid: &HashMap<String, GlyphId16>) -> CoverageTable {
+pub(super) fn make_coverage(
+    names: &[String],
+    name_to_gid: &HashMap<String, GlyphId16>,
+) -> CoverageTable {
     let mut gids: Vec<GlyphId16> = names
         .iter()
         .filter_map(|n| name_to_gid.get(n).copied())
@@ -528,9 +558,7 @@ fn build_reverse_chain_lookup(
             .iter()
             .zip(r.target.iter())
             .filter(|(src, tgt)| src.len() == 1 && tgt.len() == 1)
-            .filter_map(|(src, tgt)| {
-                Some((*name_to_gid.get(&src[0])?, *name_to_gid.get(&tgt[0])?))
-            })
+            .filter_map(|(src, tgt)| Some((*name_to_gid.get(&src[0])?, *name_to_gid.get(&tgt[0])?)))
             .collect();
         pairs.sort_by_key(|(src, _)| *src);
         pairs.dedup_by_key(|(src, _)| *src);
@@ -566,7 +594,10 @@ fn build_reverse_chain_lookup(
     if subtables.is_empty() {
         return None;
     }
-    Some(SubstitutionLookup::Reverse(Lookup::new(LookupFlag::empty(), subtables)))
+    Some(SubstitutionLookup::Reverse(Lookup::new(
+        LookupFlag::empty(),
+        subtables,
+    )))
 }
 
 /// The nested lookup a chain-context rule invokes at input position 0.
@@ -578,7 +609,11 @@ fn build_chain_helper(
     match rule_kind_of(r)? {
         RemapRuleKind::Single => {
             let first_targets: Vec<String> = r.target.iter().map(|seq| seq[0].clone()).collect();
-            Some(build_single_subst_from_pairs(&first_sources, &first_targets, name_to_gid))
+            Some(build_single_subst_from_pairs(
+                &first_sources,
+                &first_targets,
+                name_to_gid,
+            ))
         }
         RemapRuleKind::Multiple => Some(build_multiple_subst_from_pairs(
             &first_sources,
@@ -693,6 +728,9 @@ fn build_ligature_subst_lookup(
 
     SubstitutionLookup::Ligature(Lookup::new(
         LookupFlag::empty(),
-        vec![LigatureSubstFormat1::new(coverage, ligature_sets.into_iter().collect())],
+        vec![LigatureSubstFormat1::new(
+            coverage,
+            ligature_sets.into_iter().collect(),
+        )],
     ))
 }

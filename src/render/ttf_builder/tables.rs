@@ -1,12 +1,11 @@
 //! Assembly of the final font: the non-layout OpenType tables.
 
-use super::*;
 use super::gpos::{build_anchor_gpos, merge_anchor_feature_lookups};
 use super::gsub::{build_gsub, compute_max_context};
 use super::outlines::{
-    GlobalBounds, OutlineBuild, add_color_layer_glyphs, build_glyph_outlines,
-    compute_global_bounds
+    GlobalBounds, OutlineBuild, add_color_layer_glyphs, build_glyph_outlines, compute_global_bounds,
 };
+use super::*;
 
 /// `head.created`/`modified` when `meta created` says nothing.
 ///
@@ -70,7 +69,9 @@ impl ScriptFeatures {
 /// at feature-tag level, before the records exist, so a language that redefines
 /// a tag the default already has ends up with one merged record rather than two
 /// records the shaper would have to choose between.
-pub(super) fn build_script_records(script_features: &BTreeMap<String, ScriptFeatures>) -> Vec<ScriptRecord> {
+pub(super) fn build_script_records(
+    script_features: &BTreeMap<String, ScriptFeatures>,
+) -> Vec<ScriptRecord> {
     let mut script_records: Vec<ScriptRecord> = Vec::new();
     for (script_tag, features) in script_features {
         let lang_sys = LangSys {
@@ -233,8 +234,18 @@ pub(super) fn build_ttf(
         let total: u32 = glyphs.iter().map(|g| g.advance_width as u32).sum();
         (total / glyphs.len() as u32) as i16
     };
-    let first_cp = glyphs.iter().flat_map(|g| &g.codepoints).min().copied().unwrap_or(0x20);
-    let last_cp = glyphs.iter().flat_map(|g| &g.codepoints).max().copied().unwrap_or(0x7E);
+    let first_cp = glyphs
+        .iter()
+        .flat_map(|g| &g.codepoints)
+        .min()
+        .copied()
+        .unwrap_or(0x20);
+    let last_cp = glyphs
+        .iter()
+        .flat_map(|g| &g.codepoints)
+        .max()
+        .copied()
+        .unwrap_or(0x7E);
 
     let max_context = compute_max_context(gsub_data);
 
@@ -249,10 +260,12 @@ pub(super) fn build_ttf(
     let em_frac = |num: i32| ((UNITS_PER_EM as i32) * num / 100) as i16;
     let default_sub_sup = [em_frac(65), em_frac(70), 0, em_frac(20)];
     let sub = meta.subscript.map(|v| v.map(px)).unwrap_or(default_sub_sup);
-    let sup = meta
-        .superscript
-        .map(|v| v.map(px))
-        .unwrap_or([default_sub_sup[0], default_sub_sup[1], 0, em_frac(48)]);
+    let sup = meta.superscript.map(|v| v.map(px)).unwrap_or([
+        default_sub_sup[0],
+        default_sub_sup[1],
+        0,
+        em_frac(48),
+    ]);
     let strikeout = meta
         .strikeout
         .map(|(size, pos)| (px(size), px(pos)))
@@ -320,13 +333,7 @@ pub(super) fn build_ttf(
 
     let mut gsub = build_gsub(gsub_data, &name_to_gid);
 
-    let mut anchor_data = build_anchor_gpos(
-        glyphs,
-        gsub_data,
-        &name_to_gid,
-        scale,
-        meta.ascent(),
-    );
+    let mut anchor_data = build_anchor_gpos(glyphs, gsub_data, &name_to_gid, scale, meta.ascent());
     merge_anchor_feature_lookups(&mut gsub, std::mem::take(&mut anchor_data.feature_lookups));
 
     let mut builder = FontBuilder::new();
@@ -366,8 +373,7 @@ pub(super) fn build_ttf(
     if has_gsub || has_gpos {
         let mut gdef = anchor_data.gdef;
         if !anchor_data.mark_glyph_sets.is_empty() {
-            gdef.mark_glyph_sets_def =
-                Some(MarkGlyphSets::new(anchor_data.mark_glyph_sets)).into();
+            gdef.mark_glyph_sets_def = Some(MarkGlyphSets::new(anchor_data.mark_glyph_sets)).into();
         }
         builder.add_table(&gdef).unwrap();
     }
@@ -386,13 +392,7 @@ pub(super) fn build_ttf(
             .map(|c| ColorRecord::new(c.b, c.g, c.r, c.a))
             .collect();
         let num_entries = color_records.len() as u16;
-        let cpal = Cpal::new(
-            num_entries,
-            1,
-            num_entries,
-            Some(color_records),
-            vec![0],
-        );
+        let cpal = Cpal::new(num_entries, 1, num_entries, Some(color_records), vec![0]);
         builder.add_table(&cpal).unwrap();
     }
 

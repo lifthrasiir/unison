@@ -16,54 +16,51 @@ pub fn parse_glyph_header_dims(s: &str) -> Option<(u16, u16)> {
     Some((dims.width, dims.height))
 }
 
-pub fn reconcile(
-    lines: &mut Vec<DocLine>,
-    undo: &mut UndoStack,
-    caret: Caret,
-) -> Option<Caret> {
+pub fn reconcile(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> Option<Caret> {
     // Pass A: header/grid mismatch — resize or create
     for i in 0..lines.len() {
         if let DocLine::Text(t) = &lines[i]
-            && let Some((w, h)) = parse_glyph_header_dims(t) {
-                match lines.get(i + 1) {
-                    Some(DocLine::Grid(g)) if g.width == w && g.height == h => {
-                        // Dimensions match — nothing to do
-                    }
-                    Some(DocLine::Grid(g)) => {
-                        // Resize
-                        let old_grid = g.clone();
-                        let mut resized = old_grid.clone();
-                        resized.resize(w, h);
-                        undo.break_coalesce();
-                        undo.push_derived_lines(
-                            i + 1,
-                            vec![DocLine::Grid(old_grid)],
-                            vec![DocLine::Grid(resized.clone())],
-                            caret,
-                            caret,
-                        );
-                        undo.break_coalesce();
-                        lines[i + 1] = DocLine::Grid(resized);
-                        return Some(caret);
-                    }
-                    _ => {
-                        // No grid follows — insert empty
-                        let empty = PixelGrid::new(w, h);
-                        let caret_after = caret_after_splice(caret, i + 1, 0, 1);
-                        undo.break_coalesce();
-                        undo.push_derived_lines(
-                            i + 1,
-                            vec![],
-                            vec![DocLine::Grid(empty.clone())],
-                            caret,
-                            caret_after,
-                        );
-                        undo.break_coalesce();
-                        lines.insert(i + 1, DocLine::Grid(empty));
-                        return Some(caret_after);
-                    }
+            && let Some((w, h)) = parse_glyph_header_dims(t)
+        {
+            match lines.get(i + 1) {
+                Some(DocLine::Grid(g)) if g.width == w && g.height == h => {
+                    // Dimensions match — nothing to do
+                }
+                Some(DocLine::Grid(g)) => {
+                    // Resize
+                    let old_grid = g.clone();
+                    let mut resized = old_grid.clone();
+                    resized.resize(w, h);
+                    undo.break_coalesce();
+                    undo.push_derived_lines(
+                        i + 1,
+                        vec![DocLine::Grid(old_grid)],
+                        vec![DocLine::Grid(resized.clone())],
+                        caret,
+                        caret,
+                    );
+                    undo.break_coalesce();
+                    lines[i + 1] = DocLine::Grid(resized);
+                    return Some(caret);
+                }
+                _ => {
+                    // No grid follows — insert empty
+                    let empty = PixelGrid::new(w, h);
+                    let caret_after = caret_after_splice(caret, i + 1, 0, 1);
+                    undo.break_coalesce();
+                    undo.push_derived_lines(
+                        i + 1,
+                        vec![],
+                        vec![DocLine::Grid(empty.clone())],
+                        caret,
+                        caret_after,
+                    );
+                    undo.break_coalesce();
+                    lines.insert(i + 1, DocLine::Grid(empty));
+                    return Some(caret_after);
                 }
             }
+        }
     }
 
     // Pass B: orphaned grid demotion
@@ -79,7 +76,13 @@ pub fn reconcile(
                     .collect();
                 let caret_after = caret_after_splice(caret, i, 1, rows.len());
                 undo.break_coalesce();
-                undo.push_derived_lines(i, vec![lines[i].clone()], rows.clone(), caret, caret_after);
+                undo.push_derived_lines(
+                    i,
+                    vec![lines[i].clone()],
+                    rows.clone(),
+                    caret,
+                    caret_after,
+                );
                 undo.break_coalesce();
                 lines.splice(i..=i, rows);
                 return Some(caret_after);
@@ -124,14 +127,23 @@ mod tests {
     use super::*;
     use crate::pixel::PixelShape;
 
-    fn text(s: &str) -> DocLine { DocLine::Text(s.to_string()) }
-    fn grid(w: u16, h: u16) -> DocLine { DocLine::Grid(PixelGrid::new(w, h)) }
-    fn c(line: usize, col: usize) -> Caret { Caret::new(line, col) }
+    fn text(s: &str) -> DocLine {
+        DocLine::Text(s.to_string())
+    }
+    fn grid(w: u16, h: u16) -> DocLine {
+        DocLine::Grid(PixelGrid::new(w, h))
+    }
+    fn c(line: usize, col: usize) -> Caret {
+        Caret::new(line, col)
+    }
 
     #[test]
     fn parse_header_dims_basic() {
         assert_eq!(parse_glyph_header_dims("glyph foo 8 16"), Some((8, 16)));
-        assert_eq!(parse_glyph_header_dims("glyph foo 8 16 sticky"), Some((8, 16)));
+        assert_eq!(
+            parse_glyph_header_dims("glyph foo 8 16 sticky"),
+            Some((8, 16))
+        );
         assert_eq!(parse_glyph_header_dims("glyph uni0041 = test"), None);
         assert_eq!(parse_glyph_header_dims("meta height 16"), None);
         assert_eq!(parse_glyph_header_dims("// comment"), None);

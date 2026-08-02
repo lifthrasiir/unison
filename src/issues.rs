@@ -50,7 +50,13 @@ pub struct Issue {
 /// An issue anchored at item `item_idx`'s defining line in `doc`.
 fn issue_at(doc: &Document, item_idx: usize, severity: Severity, message: String) -> Issue {
     let (line, file_line) = doc.item_lines(item_idx);
-    Issue { severity, message, file: doc.path.clone(), line, file_line }
+    Issue {
+        severity,
+        message,
+        file: doc.path.clone(),
+        line,
+        file_line,
+    }
 }
 
 /// Spell out the `meta` lines a legacy `font-meta` line becomes, so the error
@@ -126,7 +132,6 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let faces = &resolution.faces;
     issues.extend(docset.to_issues(&faces.diagnostics));
 
-
     // Resolution is the same expansion the font build performs, so the
     // problems it detects — unresolvable references, maps that cannot be
     // synthesized, on-demand names that resolve to nothing — are reported
@@ -139,7 +144,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let all_glyph_names: HashSet<String> = expansion
         .items()
         .filter_map(|item| match item {
-            DocumentItem::Glyph { name: GlyphName(n), .. } => Some(n.clone()),
+            DocumentItem::Glyph {
+                name: GlyphName(n), ..
+            } => Some(n.clone()),
             _ => None,
         })
         .collect();
@@ -157,9 +164,12 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             };
             for name in referenced {
                 if !faces.declared.contains_key(name) {
-                    issues.push(issue_at(doc, item_idx, Severity::Error, format!(
-                        "undeclared slice `{name}`",
-                    )));
+                    issues.push(issue_at(
+                        doc,
+                        item_idx,
+                        Severity::Error,
+                        format!("undeclared slice `{name}`",),
+                    ));
                 }
             }
             // An assertion whose slice combination no face satisfies would
@@ -170,10 +180,15 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 && faces.declared.keys().any(|k| slices.contains(k))
                 && !faces.faces.iter().any(|f| f.includes_all(slices))
             {
-                issues.push(issue_at(doc, item_idx, Severity::Error, format!(
-                    "no face includes all of `{}`, so this assertion would never run",
-                    slices.join("`, `"),
-                )));
+                issues.push(issue_at(
+                    doc,
+                    item_idx,
+                    Severity::Error,
+                    format!(
+                        "no face includes all of `{}`, so this assertion would never run",
+                        slices.join("`, `"),
+                    ),
+                ));
             }
         }
     }
@@ -242,9 +257,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             .items
             .iter()
             .filter_map(|e| match &e.item {
-                DocumentItem::Glyph { name: GlyphName(n), .. } if !is_valid_glyph_name(n) => {
-                    Some((n, e.origin))
-                }
+                DocumentItem::Glyph {
+                    name: GlyphName(n), ..
+                } if !is_valid_glyph_name(n) => Some((n, e.origin)),
                 _ => None,
             })
             .collect();
@@ -270,45 +285,63 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let groups = crate::document::remap_group_order(docs);
     let mut remap_group_issues: Vec<(String, Severity, String)> = Vec::new();
     for (group, target) in &groups.unknown_after {
-        remap_group_issues.push((group.clone(), Severity::Error, format!(
-            "remap group '{}' is ordered after undefined group '{}'", group, target,
-        )));
+        remap_group_issues.push((
+            group.clone(),
+            Severity::Error,
+            format!(
+                "remap group '{}' is ordered after undefined group '{}'",
+                group, target,
+            ),
+        ));
     }
     if !groups.cycle.is_empty() {
         let names = groups.cycle.join("', '");
         for group in &groups.cycle {
-            remap_group_issues.push((group.clone(), Severity::Error, format!(
-                "remap group '{}' is in an ordering cycle with '{}'; \
+            remap_group_issues.push((
+                group.clone(),
+                Severity::Error,
+                format!(
+                    "remap group '{}' is in an ordering cycle with '{}'; \
                  the groups fall back to source order",
-                group, names,
-            )));
+                    group, names,
+                ),
+            ));
         }
     }
     for group in &groups.duplicate_decls {
-        remap_group_issues.push((group.clone(), Severity::Error, format!(
-            "remap group '{}' is declared more than once", group,
-        )));
+        remap_group_issues.push((
+            group.clone(),
+            Severity::Error,
+            format!("remap group '{}' is declared more than once", group,),
+        ));
     }
     // Over `order`, not over `info`: a HashMap would make the report's wording
     // stable but its order not.
     for group in &groups.order {
         let info = &groups.info[group];
         if info.declared && !info.has_rules {
-            remap_group_issues.push((group.clone(), Severity::Warning, format!(
-                "remap group '{}' is declared but has no rules", group,
-            )));
+            remap_group_issues.push((
+                group.clone(),
+                Severity::Warning,
+                format!("remap group '{}' is declared but has no rules", group,),
+            ));
         }
     }
 
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             match item {
-                DocumentItem::Glyph { name: GlyphName(n), body } => {
+                DocumentItem::Glyph {
+                    name: GlyphName(n),
+                    body,
+                } => {
                     for bad in find_invalid_inline_ranges(n) {
-                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
-                            "invalid inline range '{}' (end < start or too large)",
-                            bad,
-                        )));
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!("invalid inline range '{}' (end < start or too large)", bad,),
+                        ));
                     }
                     // Duplicate detection needs the *defining* line of each
                     // expanded name, which the expansion does not retain, so
@@ -325,12 +358,17 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     };
                     for en in expanded {
                         if let Some((prev_file, prev_line)) = glyph_defs.get(en.as_str()) {
-                            issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
-                                "duplicate glyph '{}' (first defined at {}:{})",
-                                en,
-                                short_path(prev_file),
-                                prev_line,
-                            )));
+                            issues.push(issue_at(
+                                doc,
+                                item_idx,
+                                Severity::Warning,
+                                format!(
+                                    "duplicate glyph '{}' (first defined at {}:{})",
+                                    en,
+                                    short_path(prev_file),
+                                    prev_line,
+                                ),
+                            ));
                         } else {
                             let (_, file_line) = doc.item_lines(item_idx);
                             glyph_defs.insert(en, (doc.path.clone(), file_line));
@@ -344,9 +382,12 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         && body.left.is_none()
                         && body.points.is_empty()
                     {
-                        issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
-                            "glyph '{}' has no content", n,
-                        )));
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Warning,
+                            format!("glyph '{}' has no content", n,),
+                        ));
                     }
                 }
                 DocumentItem::RemapGroup { name, .. } => {
@@ -359,19 +400,30 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         }
                     }
                 }
-                DocumentItem::Remap { feature, source, target, .. } => {
+                DocumentItem::Remap {
+                    feature,
+                    source,
+                    target,
+                    ..
+                } => {
                     // OpenType has a lookup type for one-to-one, one-to-many
                     // (including one-to-nothing) and many-to-one, and nothing
                     // for the rest. The builder used to emit whatever was
                     // closest and lose the difference in silence.
-                    if crate::render::ttf_builder::remap_rule_kind(
-                        source.len(), target.len(),
-                    ).is_none() {
-                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
-                            "remap of {} glyph(s) to {} glyph(s) has no OpenType lookup type; \
+                    if crate::render::ttf_builder::remap_rule_kind(source.len(), target.len())
+                        .is_none()
+                    {
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!(
+                                "remap of {} glyph(s) to {} glyph(s) has no OpenType lookup type; \
                              a source of more than one glyph needs exactly one target",
-                            source.len(), target.len(),
-                        )));
+                                source.len(),
+                                target.len(),
+                            ),
+                        ));
                     }
 
                     // The reverse lookup substitutes one glyph for one glyph
@@ -382,12 +434,19 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     if groups.info.get(feature).is_some_and(|i| i.reversed)
                         && (source.len() != 1 || target.len() != 1)
                     {
-                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
-                            "remap group '{}' is reversed, so each of its rules must \
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!(
+                                "remap group '{}' is reversed, so each of its rules must \
                              substitute one glyph for one glyph; this one has {} source \
                              glyph(s) and {} target glyph(s)",
-                            feature, source.len(), target.len(),
-                        )));
+                                feature,
+                                source.len(),
+                                target.len(),
+                            ),
+                        ));
                     }
                 }
                 _ => {}
@@ -409,7 +468,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             BTreeMap::new();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
-                let DocumentItem::Meta(text) = item else { continue };
+                let DocumentItem::Meta(text) = item else {
+                    continue;
+                };
                 let here = ItemRef::new(doc_idx, item_idx);
                 let (scope, entry) = match crate::meta::parse_meta_entry(text) {
                     Ok(parsed) => parsed,
@@ -488,7 +549,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             let mut seen_full: HashMap<(String, String), &str> = HashMap::new();
             let mut seen_ps: HashMap<String, &str> = HashMap::new();
             for face in &faces.faces {
-                let id = if face.id.is_empty() { None } else { Some(face.id.as_str()) };
+                let id = if face.id.is_empty() {
+                    None
+                } else {
+                    Some(face.id.as_str())
+                };
                 let m = crate::meta::FontMeta::for_face(docs, id);
                 let key = (m.family().to_string(), m.subfamily().to_string());
                 if let Some(prev) = seen_full.get(&key) {
@@ -523,8 +588,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
         let meta = &resolution.meta;
         let origin = meta.origin;
-        if let (Some(h), Some(a), Some(d)) = (meta.metrics.height, meta.metrics.ascent, meta.metrics.descent)
-            && a + d != h
+        if let (Some(h), Some(a), Some(d)) = (
+            meta.metrics.height,
+            meta.metrics.ascent,
+            meta.metrics.descent,
+        ) && a + d != h
         {
             issues.push(docset.to_issue(&Diagnostic::new(
                 Severity::Warning,
@@ -533,10 +601,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             )));
         }
         if meta.metrics.height == Some(0) {
-            issues.push(docset.to_issue(&Diagnostic::error(
-                origin,
-                "meta height is 0",
-            )));
+            issues.push(docset.to_issue(&Diagnostic::error(origin, "meta height is 0")));
         }
     }
 
@@ -553,39 +618,48 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             match item {
                 // Unresolvable refs, map targets and remap operands are all
                 // reported by the resolution pass above.
-                DocumentItem::Map { slice, char_repr, glyph, .. } => {
+                DocumentItem::Map {
+                    slice,
+                    char_repr,
+                    glyph,
+                    ..
+                } => {
                     let subst_glyph = substitute_name_parts(glyph, &name_parts);
                     let expanded_pairs =
-                        crate::render::ttf_builder::expand_map_pairs(
-                            char_repr, &subst_glyph,
-                        );
+                        crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
                     for (cp, target) in &expanded_pairs {
                         mapped_glyphs.insert(target.clone());
                         let by_slice = mapped_codepoints.entry(*cp).or_default();
                         if let Some((prev_file, _, prev_line)) = by_slice.get(slice) {
-                            issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
-                                "duplicate codepoint mapping U+{:04X} (first at {}:{})",
-                                cp,
-                                short_path(prev_file),
-                                prev_line,
-                            )));
+                            issues.push(issue_at(
+                                doc,
+                                item_idx,
+                                Severity::Warning,
+                                format!(
+                                    "duplicate codepoint mapping U+{:04X} (first at {}:{})",
+                                    cp,
+                                    short_path(prev_file),
+                                    prev_line,
+                                ),
+                            ));
                         } else {
                             let (line, file_line) = doc.item_lines(item_idx);
-                            by_slice.insert(
-                                slice.clone(),
-                                (doc.path.clone(), line, file_line),
-                            );
+                            by_slice.insert(slice.clone(), (doc.path.clone(), line, file_line));
                         }
                     }
                 }
                 DocumentItem::Feature {
-                    scripts, remap_group, ..
+                    scripts,
+                    remap_group,
+                    ..
                 } => {
                     if !groups.info.contains_key(remap_group.as_str()) {
-                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
-                            "feature references undefined remap group '{}'",
-                            remap_group,
-                        )));
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!("feature references undefined remap group '{}'", remap_group,),
+                        ));
                     }
                     for issue in script_lang_issues(scripts) {
                         issues.push(issue_at(doc, item_idx, Severity::Error, issue));
@@ -599,10 +673,12 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 DocumentItem::NameParts { values, .. } => {
                     for val in values {
                         if val.starts_with('$') && !name_parts.contains_key(val.as_str()) {
-                            issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
-                                "undefined name-parts reference '{}'",
-                                val,
-                            )));
+                            issues.push(issue_at(
+                                doc,
+                                item_idx,
+                                Severity::Warning,
+                                format!("undefined name-parts reference '{}'", val,),
+                            ));
                         }
                     }
                 }
@@ -612,16 +688,24 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     // font builds through warnings, and it would build with
                     // default metrics while the file plainly states others.
                     if text.trim_start().starts_with("font-meta") {
-                        issues.push(issue_at(doc, item_idx, Severity::Error, format!(
-                            "`font-meta` was replaced by `meta`, one key per line \
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!(
+                                "`font-meta` was replaced by `meta`, one key per line \
                              (`{}` becomes {})",
-                            text.trim(),
-                            legacy_font_meta_replacement(text),
-                        )));
+                                text.trim(),
+                                legacy_font_meta_replacement(text),
+                            ),
+                        ));
                     } else if classify_directive(text) == Directive::Unrecognized {
-                        issues.push(issue_at(doc, item_idx, Severity::Warning, format!(
-                            "unrecognized directive '{}'", text.trim(),
-                        )));
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Warning,
+                            format!("unrecognized directive '{}'", text.trim(),),
+                        ));
                     }
                 }
                 _ => {}
@@ -642,7 +726,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
-                if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+                if let DocumentItem::Glyph {
+                    name: GlyphName(n),
+                    body,
+                } = item
+                {
                     let idx = item_refs.len();
                     item_location.push((doc_idx, item_idx, n));
 
@@ -660,55 +748,55 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
 
         // Collect root names from map targets and remap references.
-    // Two slices of one face mapping the same character is the conflict the
-    // face split exists to surface. There is no override rule to fall back on
-    // — see `crate::faces` — so it is an error naming the face that reaches
-    // both, and the fix is to move the character out of whichever slice should
-    // not have had it.
-    //
-    // Sorted by codepoint: the report is a golden, and a HashMap would make its
-    // order depend on the hasher.
-    let mut conflicts: Vec<(u32, &BTreeMap<Option<String>, (PathBuf, usize, usize)>)> =
-        mapped_codepoints
-            .iter()
-            .filter(|(_, by_slice)| by_slice.len() > 1)
-            .map(|(cp, by_slice)| (*cp, by_slice))
-            .collect();
-    conflicts.sort_by_key(|(cp, _)| *cp);
-    for (cp, by_slice) in conflicts {
-        for face in &faces.faces {
-            let present: Vec<(&Option<String>, &(PathBuf, usize, usize))> = by_slice
+        // Two slices of one face mapping the same character is the conflict the
+        // face split exists to surface. There is no override rule to fall back on
+        // — see `crate::faces` — so it is an error naming the face that reaches
+        // both, and the fix is to move the character out of whichever slice should
+        // not have had it.
+        //
+        // Sorted by codepoint: the report is a golden, and a HashMap would make its
+        // order depend on the hasher.
+        let mut conflicts: Vec<(u32, &BTreeMap<Option<String>, (PathBuf, usize, usize)>)> =
+            mapped_codepoints
                 .iter()
-                .filter(|(slice, _)| face.includes(slice.as_deref()))
+                .filter(|(_, by_slice)| by_slice.len() > 1)
+                .map(|(cp, by_slice)| (*cp, by_slice))
                 .collect();
-            if present.len() < 2 {
-                continue;
-            }
-            let describe = |slice: &Option<String>| match slice {
-                Some(s) => format!("slice `{s}`"),
-                None => "the base slice".to_string(),
-            };
-            // Report against the later declaration, so the first one reads as
-            // the definition and the rest as the intrusions.
-            let (first_slice, (first_file, _, first_line)) = present[0];
-            for (slice, (file, line, file_line)) in &present[1..] {
-                issues.push(Issue {
-                    severity: Severity::Error,
-                    message: format!(
-                        "U+{cp:04X} is mapped in both {} and {}, and face `{}` includes both \
+        conflicts.sort_by_key(|(cp, _)| *cp);
+        for (cp, by_slice) in conflicts {
+            for face in &faces.faces {
+                let present: Vec<(&Option<String>, &(PathBuf, usize, usize))> = by_slice
+                    .iter()
+                    .filter(|(slice, _)| face.includes(slice.as_deref()))
+                    .collect();
+                if present.len() < 2 {
+                    continue;
+                }
+                let describe = |slice: &Option<String>| match slice {
+                    Some(s) => format!("slice `{s}`"),
+                    None => "the base slice".to_string(),
+                };
+                // Report against the later declaration, so the first one reads as
+                // the definition and the rest as the intrusions.
+                let (first_slice, (first_file, _, first_line)) = present[0];
+                for (slice, (file, line, file_line)) in &present[1..] {
+                    issues.push(Issue {
+                        severity: Severity::Error,
+                        message: format!(
+                            "U+{cp:04X} is mapped in both {} and {}, and face `{}` includes both \
                          (first at {}:{first_line})",
-                        describe(first_slice),
-                        describe(slice),
-                        face.label(),
-                        short_path(first_file),
-                    ),
-                    file: (*file).clone(),
-                    line: *line,
-                    file_line: *file_line,
-                });
+                            describe(first_slice),
+                            describe(slice),
+                            face.label(),
+                            short_path(first_file),
+                        ),
+                        file: (*file).clone(),
+                        line: *line,
+                        file_line: *file_line,
+                    });
+                }
             }
         }
-    }
 
         let mut root_names: HashSet<String> = mapped_glyphs;
         // .notdef is always required in TrueType fonts.
@@ -722,7 +810,10 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                             root_names.extend(expand_name_element(token, name_parts));
                         }
                     }
-                    DocumentItem::Glyph { name: GlyphName(n), body } => {
+                    DocumentItem::Glyph {
+                        name: GlyphName(n),
+                        body,
+                    } => {
                         if body.sticky || body.mark {
                             root_names.extend(expand_name_element(n, name_parts));
                         }
@@ -800,9 +891,12 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             if !reached {
                 let (doc_idx, doc_item_idx, name) = item_location[idx];
                 let doc = docs[doc_idx];
-                issues.push(issue_at(doc, doc_item_idx, Severity::Warning, format!(
-                    "glyph '{}' is unused", name,
-                )));
+                issues.push(issue_at(
+                    doc,
+                    doc_item_idx,
+                    Severity::Warning,
+                    format!("glyph '{}' is unused", name,),
+                ));
             }
         }
     }
@@ -811,26 +905,33 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     // For base "foo", if "foo" and "foo:bar" both have a `-name` anchor with
     // the same dimensions, warn that they are ambiguous (the first alphabetically wins).
     {
-        let mut bases_to_alts: HashMap<String, Vec<(String, PathBuf, usize, usize)>> = HashMap::new();
+        let mut bases_to_alts: HashMap<String, Vec<(String, PathBuf, usize, usize)>> =
+            HashMap::new();
         for doc in docs {
             for (item_idx, item) in doc.items.iter().enumerate() {
-                if let DocumentItem::Glyph { name: GlyphName(n), body } = item
-                    && body.points.iter().any(|p| p.position.starts_with('-')) {
-                        let resolved_name = substitute_name_parts(n, &name_parts);
-                        let (line, file_line) = doc.item_lines(item_idx);
-                        // Find all base prefixes (foo:bar:quux is alt for "foo" and "foo:bar")
-                        for prefix in crate::ref_composite::alternative_prefixes(&resolved_name) {
-                            bases_to_alts
-                                .entry(prefix.to_string())
-                                .or_default()
-                                .push((resolved_name.clone(), doc.path.clone(), line, file_line));
-                        }
-                        // Also register as the base itself
-                        bases_to_alts
-                            .entry(resolved_name.clone())
-                            .or_default()
-                            .push((resolved_name.clone(), doc.path.clone(), line, file_line));
+                if let DocumentItem::Glyph {
+                    name: GlyphName(n),
+                    body,
+                } = item
+                    && body.points.iter().any(|p| p.position.starts_with('-'))
+                {
+                    let resolved_name = substitute_name_parts(n, &name_parts);
+                    let (line, file_line) = doc.item_lines(item_idx);
+                    // Find all base prefixes (foo:bar:quux is alt for "foo" and "foo:bar")
+                    for prefix in crate::ref_composite::alternative_prefixes(&resolved_name) {
+                        bases_to_alts.entry(prefix.to_string()).or_default().push((
+                            resolved_name.clone(),
+                            doc.path.clone(),
+                            line,
+                            file_line,
+                        ));
                     }
+                    // Also register as the base itself
+                    bases_to_alts
+                        .entry(resolved_name.clone())
+                        .or_default()
+                        .push((resolved_name.clone(), doc.path.clone(), line, file_line));
+                }
             }
         }
 
@@ -838,7 +939,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         let mut glyph_points_map: HashMap<String, Vec<(String, u16, u16)>> = HashMap::new();
         for doc in docs {
             for item in &doc.items {
-                if let DocumentItem::Glyph { name: GlyphName(n), body } = item {
+                if let DocumentItem::Glyph {
+                    name: GlyphName(n),
+                    body,
+                } = item
+                {
                     let resolved_name = substitute_name_parts(n, &name_parts);
                     for pt in &body.points {
                         if pt.position.starts_with('-') {
@@ -873,7 +978,9 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     let mut sorted_names: Vec<&str> = names.to_vec();
                     sorted_names.sort();
                     for &dup in &sorted_names[1..] {
-                        if let Some((_, file, line, file_line)) = alts.iter().find(|(n, _, _, _)| n == dup) {
+                        if let Some((_, file, line, file_line)) =
+                            alts.iter().find(|(n, _, _, _)| n == dup)
+                        {
                             issues.push(Issue {
                                 severity: Severity::Warning,
                                 message: format!(
@@ -905,7 +1012,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
         impl AnchorsOnly {
             fn new() -> Self {
-                Self { anchors: Vec::new(), w: 0, h: 0 }
+                Self {
+                    anchors: Vec::new(),
+                    w: 0,
+                    h: 0,
+                }
             }
         }
         impl crate::render::glyph_cache::CachedGlyphEntry for AnchorsOnly {
@@ -915,20 +1026,19 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
                 (&mut self.w, &mut self.h)
             }
-            fn set_resolution(
-                &mut self,
-                anchors: Vec<crate::document::GlyphPoint>,
-                _scale: u8,
-            ) {
+            fn set_resolution(&mut self, anchors: Vec<crate::document::GlyphPoint>, _scale: u8) {
                 self.anchors = anchors;
             }
         }
 
-        let mut declared_anchors: HashMap<&str, &[crate::document::GlyphPoint]> =
-            HashMap::new();
+        let mut declared_anchors: HashMap<&str, &[crate::document::GlyphPoint]> = HashMap::new();
         let mut origin_of: HashMap<&str, Option<crate::resolve::ItemRef>> = HashMap::new();
         for e in &expansion.items {
-            if let DocumentItem::Glyph { name: GlyphName(n), body } = &e.item {
+            if let DocumentItem::Glyph {
+                name: GlyphName(n),
+                body,
+            } = &e.item
+            {
                 declared_anchors.entry(n).or_insert(&body.points);
                 origin_of.entry(n).or_insert(e.origin);
             }
@@ -948,7 +1058,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             |name, issue| derive_issues.push((name.to_string(), issue)),
         );
         for (name, issue) in derive_issues {
-            let severity = if issue.is_error() { Severity::Error } else { Severity::Warning };
+            let severity = if issue.is_error() {
+                Severity::Error
+            } else {
+                Severity::Warning
+            };
             issues.push(docset.to_issue(&Diagnostic::new(
                 severity,
                 origin_of.get(name.as_str()).copied().flatten(),
@@ -999,8 +1113,9 @@ mod tests {
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("unresolved ref")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error && i.message.contains("unresolved ref")),
             "expected unresolved ref error, got: {issues:?}",
         );
     }
@@ -1168,8 +1283,9 @@ map h = half
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("nonexistent")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error && i.message.contains("nonexistent")),
             "expected undefined map target error, got: {issues:?}",
         );
     }
@@ -1183,10 +1299,7 @@ map A = foo
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
-        assert!(
-            issues.is_empty(),
-            "expected no issues, got: {issues:?}",
-        );
+        assert!(issues.is_empty(), "expected no issues, got: {issues:?}",);
     }
 
     // `testdata/` declares a single consistent `meta` because it has to
@@ -1280,8 +1393,10 @@ map A|B = pat-($ab)
             let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
             let issues = collect_issues(&[&doc]);
             assert!(
-                issues.iter().any(|i| i.severity == Severity::Error
-                    && i.message.contains("defines no glyphs")),
+                issues
+                    .iter()
+                    .any(|i| i.severity == Severity::Error
+                        && i.message.contains("defines no glyphs")),
                 "an empty pattern glyph must be an error (body {body:?}), got: {issues:?}",
             );
         }
@@ -1308,8 +1423,10 @@ feature liga for DFLT : liga
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("no OpenType lookup type")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error
+                    && i.message.contains("no OpenType lookup type")),
             "a 2-to-2 remap must be an error, got: {issues:?}",
         );
     }
@@ -1329,8 +1446,10 @@ feature liga for DFLT : liga
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("no OpenType lookup type")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error
+                    && i.message.contains("no OpenType lookup type")),
             "deleting a multi-glyph sequence must be an error, got: {issues:?}",
         );
     }
@@ -1361,7 +1480,9 @@ feature liga for DFLT : g4
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            !issues.iter().any(|i| i.message.contains("no OpenType lookup type")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("no OpenType lookup type")),
             "expressible remaps must be quiet, got: {issues:?}",
         );
     }
@@ -1421,8 +1542,9 @@ remap liga : ok -> present-($ab)
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Warning
-                && i.message.contains("!= height")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Warning && i.message.contains("!= height")),
             "expected meta metric mismatch warning, got: {issues:?}",
         );
     }
@@ -1433,8 +1555,9 @@ remap liga : ok -> present-($ab)
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("meta height is 0")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error && i.message.contains("meta height is 0")),
             "expected zero-height error, got: {issues:?}",
         );
     }
@@ -1448,8 +1571,9 @@ remap liga : ok -> present-($ab)
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("famliy")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error && i.message.contains("famliy")),
             "expected unknown-key error, got: {issues:?}",
         );
     }
@@ -1529,8 +1653,10 @@ anchor -join 0 0
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Warning
-                && i.message.contains("same anchor dimensions")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Warning
+                    && i.message.contains("same anchor dimensions")),
             "expected duplicate alternative anchor warning, got: {issues:?}",
         );
     }
@@ -1553,7 +1679,9 @@ glyph orphan 2 1
             "expected unused glyph warning, got: {issues:?}",
         );
         assert!(
-            !issues.iter().any(|i| i.message.contains("glyph 'used' is unused")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("glyph 'used' is unused")),
             "mapped glyph should not be reported as unused",
         );
     }
@@ -1592,11 +1720,15 @@ ref a 0 0
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.message.contains("glyph 'a' is unused")),
+            issues
+                .iter()
+                .any(|i| i.message.contains("glyph 'a' is unused")),
             "mutual ref cluster should be unused: {issues:?}",
         );
         assert!(
-            issues.iter().any(|i| i.message.contains("glyph 'b' is unused")),
+            issues
+                .iter()
+                .any(|i| i.message.contains("glyph 'b' is unused")),
             "mutual ref cluster should be unused: {issues:?}",
         );
     }
@@ -1616,7 +1748,9 @@ remap liga : base -> alt
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            !issues.iter().any(|i| i.message.contains("glyph 'alt' is unused")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("glyph 'alt' is unused")),
             "remap target should count as used: {issues:?}",
         );
     }
@@ -1634,7 +1768,9 @@ glyph stem:wide 2 1
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            !issues.iter().any(|i| i.message.contains("glyph 'stem:wide' is unused")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("glyph 'stem:wide' is unused")),
             "alternative of used base should not be unused: {issues:?}",
         );
     }
@@ -1666,7 +1802,9 @@ assert distinct a b
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            !issues.iter().any(|i| i.message.contains("unrecognized directive")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("unrecognized directive")),
             "assert same/distinct should not be flagged as unrecognized: {issues:?}",
         );
     }
@@ -1722,8 +1860,10 @@ map generate Ä
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            !issues.iter().any(|i| i.message.contains("decomposition")
-                || i.message.contains("unmapped codepoint")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("decomposition")
+                    || i.message.contains("unmapped codepoint")),
             "fully mapped decomposition should be accepted, got: {issues:?}",
         );
     }
@@ -1742,19 +1882,24 @@ assume unused orphan
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            !issues.iter().any(|i| i.message.contains("glyph 'orphan' is unused")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("glyph 'orphan' is unused")),
             "assume unused should suppress warning: {issues:?}",
         );
         assert!(
-            issues.iter().any(|i| i.message.contains("glyph 'other' is unused")),
+            issues
+                .iter()
+                .any(|i| i.message.contains("glyph 'other' is unused")),
             "non-assumed glyph should still be reported: {issues:?}",
         );
         assert!(
-            !issues.iter().any(|i| i.message.contains("unrecognized directive")),
+            !issues
+                .iter()
+                .any(|i| i.message.contains("unrecognized directive")),
             "assume unused should not be flagged as unrecognized: {issues:?}",
         );
     }
-
 
     fn group_issues(text: &str) -> Vec<Issue> {
         let doc = document_io::parse_document_from_str(text, "test.unf".into()).unwrap();
@@ -1773,8 +1918,9 @@ assume unused orphan
         );
         assert_eq!(issues.len(), 2, "one per declaration, got: {issues:?}");
         assert!(
-            issues.iter().all(|i| i.severity == Severity::Error
-                && i.message.contains("ordering cycle")),
+            issues
+                .iter()
+                .all(|i| i.severity == Severity::Error && i.message.contains("ordering cycle")),
             "got: {issues:?}",
         );
     }
@@ -1786,8 +1932,10 @@ assume unused orphan
              remap x : a -> a\nremap group x after nope\n",
         );
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("undefined group 'nope'")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error
+                    && i.message.contains("undefined group 'nope'")),
             "got: {issues:?}",
         );
     }
@@ -1799,8 +1947,10 @@ assume unused orphan
              remap x : a -> a\nremap group x\nremap group x\n",
         );
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Error
-                && i.message.contains("declared more than once")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error
+                    && i.message.contains("declared more than once")),
             "got: {issues:?}",
         );
     }
@@ -1809,8 +1959,9 @@ assume unused orphan
     fn remap_group_without_rules_reported() {
         let issues = group_issues("remap group lonely\n");
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Warning
-                && i.message.contains("has no rules")),
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Warning && i.message.contains("has no rules")),
             "got: {issues:?}",
         );
     }
@@ -1825,7 +1976,6 @@ assume unused orphan
         );
         assert!(issues.is_empty(), "got: {issues:?}");
     }
-
 
     #[test]
     fn reversed_group_with_a_non_single_rule_reported() {
@@ -1852,5 +2002,4 @@ assume unused orphan
         );
         assert!(issues.is_empty(), "got: {issues:?}");
     }
-
 }

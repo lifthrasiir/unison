@@ -1,8 +1,8 @@
 //! GPOS/GDEF generation from `anchor` features (mark attachment).
 
-use super::*;
 use super::gsub::{build_single_subst_from_pairs, make_coverage};
 use super::tables::{ScriptFeatures, build_script_records, make_tag, parse_script_lang};
+use super::*;
 
 pub(super) struct AnchorGposData {
     pub(super) gpos: Option<Gpos>,
@@ -111,12 +111,15 @@ pub(super) fn build_anchor_gpos(
     // Map anchor_name → (feature_tag, scripts) from the declarations.
     let mut anchor_to_feature: HashMap<String, (String, Vec<String>)> = HashMap::new();
     for (tag, scripts, anchor_name) in &gsub_data.anchor_features {
-        anchor_to_feature.entry(anchor_name.clone())
+        anchor_to_feature
+            .entry(anchor_name.clone())
             .or_insert_with(|| (tag.clone(), scripts.clone()));
     }
 
     for g in glyphs {
-        let Some(&gid) = name_to_gid.get(&g.name) else { continue };
+        let Some(&gid) = name_to_gid.get(&g.name) else {
+            continue;
+        };
         let loff = g.left_offset;
         let toff = g.top_offset;
 
@@ -180,21 +183,31 @@ pub(super) fn build_anchor_gpos(
                                 .or_insert_with(|| vec![None; num_classes as usize]);
                             entry[class] = Some((x, y));
 
-                            if !ccmp_entries.iter().any(|(s, _, a)| s == &g.name && a == anchor_name) {
-                                ccmp_entries.push((g.name.clone(), alt_name.clone(), anchor_name.clone()));
+                            if !ccmp_entries
+                                .iter()
+                                .any(|(s, _, a)| s == &g.name && a == anchor_name)
+                            {
+                                ccmp_entries.push((
+                                    g.name.clone(),
+                                    alt_name.clone(),
+                                    anchor_name.clone(),
+                                ));
                             }
                             alt_found = true;
                             break;
                         }
                     }
                     if !alt_found
-                        && let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
-                            let class = anchor_class_map[anchor_name] as usize;
-                            let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
-                            own_plus[class] = Some((x, y));
-                            has_own = true;
-                        }
-                } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
+                        && let Some(pt) =
+                            g.resolved_anchors.iter().find(|p| p.position == plus_name)
+                    {
+                        let class = anchor_class_map[anchor_name] as usize;
+                        let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
+                        own_plus[class] = Some((x, y));
+                        has_own = true;
+                    }
+                } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name)
+                {
                     let class = anchor_class_map[anchor_name] as usize;
                     let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
                     own_plus[class] = Some((x, y));
@@ -262,18 +275,14 @@ pub(super) fn build_anchor_gpos(
 
     // MarkBasePos (lookup type 4)
     if !mark_gids.is_empty() && !base_gids.is_empty() {
-        let mark_coverage = CoverageTable::format_1(
-            mark_gids.iter().map(|&(gid, _, _, _)| gid).collect(),
-        );
-        let base_coverage = CoverageTable::format_1(
-            base_gids.iter().map(|&(gid, _)| gid).collect(),
-        );
+        let mark_coverage =
+            CoverageTable::format_1(mark_gids.iter().map(|&(gid, _, _, _)| gid).collect());
+        let base_coverage =
+            CoverageTable::format_1(base_gids.iter().map(|&(gid, _)| gid).collect());
         let mark_array = MarkArray::new(
             mark_gids
                 .iter()
-                .map(|&(_, class, x, y)| {
-                    MarkRecord::new(class, AnchorTable::format_1(x, y))
-                })
+                .map(|&(_, class, x, y)| MarkRecord::new(class, AnchorTable::format_1(x, y)))
                 .collect(),
         );
         let base_array = BaseArray::new(
@@ -304,18 +313,14 @@ pub(super) fn build_anchor_gpos(
 
     // MarkMarkPos (lookup type 6)
     if !mark_gids.is_empty() && !mark2_gids.is_empty() {
-        let mark1_coverage = CoverageTable::format_1(
-            mark_gids.iter().map(|&(gid, _, _, _)| gid).collect(),
-        );
-        let mark2_coverage = CoverageTable::format_1(
-            mark2_gids.iter().map(|&(gid, _)| gid).collect(),
-        );
+        let mark1_coverage =
+            CoverageTable::format_1(mark_gids.iter().map(|&(gid, _, _, _)| gid).collect());
+        let mark2_coverage =
+            CoverageTable::format_1(mark2_gids.iter().map(|&(gid, _)| gid).collect());
         let mark1_array = MarkArray::new(
             mark_gids
                 .iter()
-                .map(|&(_, class, x, y)| {
-                    MarkRecord::new(class, AnchorTable::format_1(x, y))
-                })
+                .map(|&(_, class, x, y)| MarkRecord::new(class, AnchorTable::format_1(x, y)))
                 .collect(),
         );
         let mark2_array = Mark2Array::new(
@@ -357,7 +362,10 @@ pub(super) fn build_anchor_gpos(
         ));
         for target in &all_scripts {
             let (script, lang) = parse_script_lang(target);
-            script_features.entry(script).or_default().push(lang.as_deref(), mark_feat_idx);
+            script_features
+                .entry(script)
+                .or_default()
+                .push(lang.as_deref(), mark_feat_idx);
         }
 
         // mkmk feature (if MarkMarkPos exists)
@@ -369,7 +377,10 @@ pub(super) fn build_anchor_gpos(
             ));
             for target in &all_scripts {
                 let (script, lang) = parse_script_lang(target);
-                script_features.entry(script).or_default().push(lang.as_deref(), mkmk_feat_idx);
+                script_features
+                    .entry(script)
+                    .or_default()
+                    .push(lang.as_deref(), mkmk_feat_idx);
             }
         }
 
@@ -421,13 +432,18 @@ pub(super) fn build_anchor_gpos(
     let mut feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)> = Vec::new();
     if !ccmp_entries.is_empty() {
         // Group entries by feature tag, then by anchor within each tag.
-        let mut tag_groups: BTreeMap<String, BTreeMap<String, (Vec<String>, Vec<String>)>> = BTreeMap::new();
+        let mut tag_groups: BTreeMap<String, BTreeMap<String, (Vec<String>, Vec<String>)>> =
+            BTreeMap::new();
         for (source, target, anchor_name) in &ccmp_entries {
-            let (tag, _) = anchor_to_feature.get(anchor_name)
+            let (tag, _) = anchor_to_feature
+                .get(anchor_name)
                 .cloned()
                 .unwrap_or_else(|| ("ccmp".to_string(), vec!["DFLT".to_string()]));
-            let group = tag_groups.entry(tag).or_default()
-                .entry(anchor_name.clone()).or_default();
+            let group = tag_groups
+                .entry(tag)
+                .or_default()
+                .entry(anchor_name.clone())
+                .or_default();
             if !group.0.contains(source) {
                 group.0.push(source.clone());
                 group.1.push(target.clone());
@@ -435,12 +451,19 @@ pub(super) fn build_anchor_gpos(
         }
 
         for (tag, anchor_groups) in &tag_groups {
-            let scripts: Vec<String> = gsub_data.anchor_features.iter()
+            let scripts: Vec<String> = gsub_data
+                .anchor_features
+                .iter()
                 .filter(|(t, _, _)| t == tag)
                 .flat_map(|(_, s, _)| s.clone())
                 .collect::<Vec<_>>()
                 .into_iter()
-                .fold(Vec::new(), |mut acc, s| { if !acc.contains(&s) { acc.push(s); } acc });
+                .fold(Vec::new(), |mut acc, s| {
+                    if !acc.contains(&s) {
+                        acc.push(s);
+                    }
+                    acc
+                });
 
             let mut lookups: Vec<SubstitutionLookup> = Vec::new();
             for (anchor_name, (sources, targets)) in anchor_groups {
@@ -448,7 +471,9 @@ pub(super) fn build_anchor_gpos(
                 let mark_coverage = CoverageTable::format_1({
                     let mut gids: Vec<GlyphId16> = glyphs
                         .iter()
-                        .filter(|g| g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name))
+                        .filter(|g| {
+                            g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name)
+                        })
                         .filter_map(|g| name_to_gid.get(&g.name).copied())
                         .collect();
                     gids.sort();
@@ -462,17 +487,15 @@ pub(super) fn build_anchor_gpos(
 
                 let source_coverage = make_coverage(sources, name_to_gid);
                 let mut sc = SubstitutionChainContext::default();
-                *sc = ChainedSequenceContext::Format3(
-                    ChainedSequenceContextFormat3::new(
-                        vec![],
-                        vec![source_coverage],
-                        vec![mark_coverage],
-                        vec![SequenceLookupRecord {
-                            sequence_index: 0,
-                            lookup_list_index: subst_idx as u16,
-                        }],
-                    ),
-                );
+                *sc = ChainedSequenceContext::Format3(ChainedSequenceContextFormat3::new(
+                    vec![],
+                    vec![source_coverage],
+                    vec![mark_coverage],
+                    vec![SequenceLookupRecord {
+                        sequence_index: 0,
+                        lookup_list_index: subst_idx as u16,
+                    }],
+                ));
                 lookups.push(SubstitutionLookup::ChainContextual(Lookup::new(
                     LookupFlag::empty(),
                     vec![sc],
@@ -500,7 +523,9 @@ pub(super) fn build_anchor_gpos(
         let mark_alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = {
             let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
             for g in glyphs {
-                if !g.mark { continue; }
+                if !g.mark {
+                    continue;
+                }
                 let mut prefix = g.name.as_str();
                 while let Some(colon_pos) = prefix.rfind(':') {
                     prefix = &prefix[..colon_pos];
@@ -523,7 +548,8 @@ pub(super) fn build_anchor_gpos(
             // plus their alternatives.  Registered in GDEF MarkGlyphSets
             // so that USE_MARK_FILTERING_SET on mark-subst lookups causes
             // marks of OTHER anchor classes to be skipped during backtrack.
-            let mut filtering_gids: Vec<GlyphId16> = glyphs.iter()
+            let mut filtering_gids: Vec<GlyphId16> = glyphs
+                .iter()
                 .filter(|g| g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name))
                 .filter_map(|g| name_to_gid.get(&g.name).copied())
                 .collect();
@@ -539,14 +565,28 @@ pub(super) fn build_anchor_gpos(
 
             // Collect marks that have alternatives with different `-X` sizes.
             for g in glyphs {
-                if !g.mark { continue; }
-                let Some(&mark_gid) = name_to_gid.get(&g.name) else { continue };
-                let Some(mark_minus) = g.declared_anchors.iter().find(|p| p.position == minus_name) else { continue };
-                let Some(alts) = mark_alt_index.get(&g.name) else { continue };
+                if !g.mark {
+                    continue;
+                }
+                let Some(&mark_gid) = name_to_gid.get(&g.name) else {
+                    continue;
+                };
+                let Some(mark_minus) = g.declared_anchors.iter().find(|p| p.position == minus_name)
+                else {
+                    continue;
+                };
+                let Some(alts) = mark_alt_index.get(&g.name) else {
+                    continue;
+                };
 
                 for (alt_name, alt_declared) in alts {
-                    let Some(&_alt_gid) = name_to_gid.get(alt_name.as_str()) else { continue };
-                    let Some(alt_minus) = alt_declared.iter().find(|p| p.position == minus_name) else { continue };
+                    let Some(&_alt_gid) = name_to_gid.get(alt_name.as_str()) else {
+                        continue;
+                    };
+                    let Some(alt_minus) = alt_declared.iter().find(|p| p.position == minus_name)
+                    else {
+                        continue;
+                    };
                     if alt_minus.size_matches(mark_minus) {
                         continue; // same size, no substitution needed
                     }
@@ -557,14 +597,24 @@ pub(super) fn build_anchor_gpos(
                     // should be substituted based on the first mark's anchor.
                     let mut backtrack_gids: Vec<GlyphId16> = Vec::new();
                     for base in glyphs {
-                        let Some(&base_gid) = name_to_gid.get(&base.name) else { continue };
-                        let plus_pt = base.declared_anchors.iter()
+                        let Some(&base_gid) = name_to_gid.get(&base.name) else {
+                            continue;
+                        };
+                        let plus_pt = base
+                            .declared_anchors
+                            .iter()
                             .find(|p| p.position == plus_name)
-                            .or_else(|| base.resolved_anchors.iter().find(|p| p.position == plus_name));
+                            .or_else(|| {
+                                base.resolved_anchors
+                                    .iter()
+                                    .find(|p| p.position == plus_name)
+                            });
                         if let Some(pt) = plus_pt
-                            && pt.size_matches(alt_minus) && !pt.size_matches(mark_minus) {
-                                backtrack_gids.push(base_gid);
-                            }
+                            && pt.size_matches(alt_minus)
+                            && !pt.size_matches(mark_minus)
+                        {
+                            backtrack_gids.push(base_gid);
+                        }
                     }
                     if backtrack_gids.is_empty() {
                         continue;
@@ -574,24 +624,38 @@ pub(super) fn build_anchor_gpos(
 
                     #[cfg(test)]
                     {
-                        let bt_names: Vec<String> = backtrack_gids.iter()
+                        let bt_names: Vec<String> = backtrack_gids
+                            .iter()
                             .filter_map(|gid| {
-                                glyphs.iter().find(|g| name_to_gid.get(&g.name) == Some(gid))
+                                glyphs
+                                    .iter()
+                                    .find(|g| name_to_gid.get(&g.name) == Some(gid))
                                     .map(|g| g.name.clone())
                             })
                             .collect();
                         mark_subst_entries.push((
-                            g.name.clone(), alt_name.clone(), anchor_name.clone(), bt_names,
+                            g.name.clone(),
+                            alt_name.clone(),
+                            anchor_name.clone(),
+                            bt_names,
                         ));
                     }
 
-                    let (tag, _) = anchor_to_feature.get(anchor_name.as_str())
+                    let (tag, _) = anchor_to_feature
+                        .get(anchor_name.as_str())
                         .cloned()
                         .unwrap_or_else(|| ("ccmp".to_string(), vec!["DFLT".to_string()]));
-                    let scripts: Vec<String> = gsub_data.anchor_features.iter()
+                    let scripts: Vec<String> = gsub_data
+                        .anchor_features
+                        .iter()
                         .filter(|(t, _, _)| *t == tag)
                         .flat_map(|(_, s, _)| s.clone())
-                        .fold(Vec::new(), |mut acc, s| { if !acc.contains(&s) { acc.push(s); } acc });
+                        .fold(Vec::new(), |mut acc, s| {
+                            if !acc.contains(&s) {
+                                acc.push(s);
+                            }
+                            acc
+                        });
 
                     // Find or create the feature_lookups entry for this tag.
                     let entry = feature_lookups.iter_mut().find(|(t, _, _)| *t == tag);
@@ -613,22 +677,17 @@ pub(super) fn build_anchor_gpos(
                     let backtrack_coverage = CoverageTable::format_1(backtrack_gids);
                     let input_coverage = CoverageTable::format_1(vec![mark_gid]);
                     let mut sc = SubstitutionChainContext::default();
-                    *sc = ChainedSequenceContext::Format3(
-                        ChainedSequenceContextFormat3::new(
-                            vec![backtrack_coverage],
-                            vec![input_coverage],
-                            vec![],
-                            vec![SequenceLookupRecord {
-                                sequence_index: 0,
-                                lookup_list_index: subst_idx as u16,
-                            }],
-                        ),
-                    );
+                    *sc = ChainedSequenceContext::Format3(ChainedSequenceContextFormat3::new(
+                        vec![backtrack_coverage],
+                        vec![input_coverage],
+                        vec![],
+                        vec![SequenceLookupRecord {
+                            sequence_index: 0,
+                            lookup_list_index: subst_idx as u16,
+                        }],
+                    ));
                     let chain_lookup = if let Some(set_idx) = filtering_set_idx {
-                        let mut lk = Lookup::new(
-                            LookupFlag::USE_MARK_FILTERING_SET,
-                            vec![sc],
-                        );
+                        let mut lk = Lookup::new(LookupFlag::USE_MARK_FILTERING_SET, vec![sc]);
                         lk.mark_filtering_set = Some(set_idx);
                         lk
                     } else {

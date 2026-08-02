@@ -203,7 +203,12 @@ pub(super) fn apply_number_bump(
     state: &mut EditorState,
     bump: NumberBump,
 ) -> bool {
-    let NumberBump { line, start, end, text } = bump;
+    let NumberBump {
+        line,
+        start,
+        end,
+        text,
+    } = bump;
     let anchor = Caret::new(line, start);
     state.cursor = crate::editor::editing::replace_in_line(
         lines,

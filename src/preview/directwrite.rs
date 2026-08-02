@@ -14,9 +14,9 @@ impl ShaperBackend for DirectWriteBackend {
         upm: u16,
         features: &[Feature],
     ) -> Result<Vec<ShapedGlyph>, ShapeError> {
-        use windows::core::PCWSTR;
         use windows::Win32::Foundation::BOOL;
         use windows::Win32::Graphics::DirectWrite::*;
+        use windows::core::PCWSTR;
 
         unsafe {
             let factory: IDWriteFactory5 =
@@ -47,16 +47,13 @@ impl ShaperBackend for DirectWriteBackend {
                 )
                 .map_err(err)?;
 
-            let analyzer: IDWriteTextAnalyzer =
-                factory.CreateTextAnalyzer().map_err(err)?;
+            let analyzer: IDWriteTextAnalyzer = factory.CreateTextAnalyzer().map_err(err)?;
 
             let utf16: Vec<u16> = text.encode_utf16().collect();
             let text_len = utf16.len() as u32;
 
             if text_len == 0 {
-                factory
-                    .UnregisterFontFileLoader(&font_file_loader)
-                    .ok();
+                factory.UnregisterFontFileLoader(&font_file_loader).ok();
                 return Ok(Vec::new());
             }
 
@@ -67,8 +64,7 @@ impl ShaperBackend for DirectWriteBackend {
                 .AnalyzeScript(&source, 0, text_len, &sink)
                 .map_err(err)?;
 
-            let sink_impl: &TextAnalysisSink =
-                sink.as_impl();
+            let sink_impl: &TextAnalysisSink = sink.as_impl();
             let script_runs: Vec<ScriptRun> = sink_impl
                 .runs
                 .borrow()
@@ -101,8 +97,7 @@ impl ShaperBackend for DirectWriteBackend {
 
                 let max_glyphs = (len as u32 * 3 / 2 + 16).max(len as u32 + 1);
                 let mut cluster_map = vec![0u16; len];
-                let mut text_props =
-                    vec![DWRITE_SHAPING_TEXT_PROPERTIES::default(); len];
+                let mut text_props = vec![DWRITE_SHAPING_TEXT_PROPERTIES::default(); len];
                 let mut glyph_indices = vec![0u16; max_glyphs as usize];
                 let mut glyph_props =
                     vec![DWRITE_SHAPING_GLYPH_PROPERTIES::default(); max_glyphs as usize];
@@ -110,8 +105,7 @@ impl ShaperBackend for DirectWriteBackend {
 
                 let feature_ptrs: Vec<*const DWRITE_TYPOGRAPHIC_FEATURES> =
                     dw_features.iter().map(|f| f as *const _).collect();
-                let feature_range_lengths: Vec<u32> =
-                    vec![len as u32; dw_features.len()];
+                let feature_range_lengths: Vec<u32> = vec![len as u32; dw_features.len()];
 
                 let (feat_opt, feat_range_opt, feat_count) = if dw_features.is_empty() {
                     (None, None, 0u32)
@@ -150,8 +144,7 @@ impl ShaperBackend for DirectWriteBackend {
                 glyph_props.truncate(glyph_count);
 
                 let mut advances = vec![0.0f32; glyph_count];
-                let mut offsets =
-                    vec![DWRITE_GLYPH_OFFSET::default(); glyph_count];
+                let mut offsets = vec![DWRITE_GLYPH_OFFSET::default(); glyph_count];
 
                 analyzer
                     .GetGlyphPlacements(
@@ -200,9 +193,7 @@ impl ShaperBackend for DirectWriteBackend {
                 }
             }
 
-            factory
-                .UnregisterFontFileLoader(&font_file_loader)
-                .ok();
+            factory.UnregisterFontFileLoader(&font_file_loader).ok();
 
             Ok(all_glyphs)
         }
@@ -224,9 +215,9 @@ struct ScriptRun {
 }
 
 use std::cell::RefCell;
+use windows::Win32::Graphics::DirectWrite::*;
 use windows::core::implement;
 use windows_core::AsImpl;
-use windows::Win32::Graphics::DirectWrite::*;
 
 #[implement(IDWriteTextAnalysisSource)]
 struct TextAnalysisSource {

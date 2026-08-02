@@ -36,7 +36,13 @@ pub fn collect_color_aliases(docs: &[&Document]) -> ColorAliasMap {
     let mut map = ColorAliasMap::new();
     for doc in docs {
         for item in &doc.items {
-            if let DocumentItem::Color { name, value, visibility, .. } = item {
+            if let DocumentItem::Color {
+                name,
+                value,
+                visibility,
+                ..
+            } = item
+            {
                 let resolved = resolve_color_value(value, &map);
                 if let Some(rgba) = resolved {
                     map.insert(name.clone(), (rgba, *visibility));
@@ -57,10 +63,7 @@ fn resolve_color_value(value: &str, aliases: &ColorAliasMap) -> Option<Rgba> {
     }
 }
 
-pub fn resolve_fill_rgba(
-    fill: &RefFill,
-    color_aliases: &ColorAliasMap,
-) -> Option<Rgba> {
+pub fn resolve_fill_rgba(fill: &RefFill, color_aliases: &ColorAliasMap) -> Option<Rgba> {
     if fill.color == "fg" {
         return None;
     }
@@ -79,10 +82,12 @@ pub fn effective_visibility(
         return vis;
     }
     if let Some(fill) = fill {
-        if !fill.color.starts_with('#') && fill.color != "fg"
-            && let Some((_, Some(vis))) = color_aliases.get(&fill.color) {
-                return *vis;
-            }
+        if !fill.color.starts_with('#')
+            && fill.color != "fg"
+            && let Some((_, Some(vis))) = color_aliases.get(&fill.color)
+        {
+            return *vis;
+        }
     }
     LayerVisibility::Both
 }

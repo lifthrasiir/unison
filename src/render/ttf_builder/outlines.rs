@@ -1,9 +1,9 @@
 //! Pass over the collected glyphs that emits glyf outlines, metrics, cmap
 //! entries and the color layer glyphs.
 
-use super::*;
 use super::hints::generate_grid_snap_hints;
 use super::tables::glyph_bounds;
+use super::*;
 
 /// glyf/loca input plus everything accumulated while adding glyph outlines:
 /// metrics, cmap mappings, name→GID assignments and the `maxp` counters.
@@ -40,7 +40,10 @@ pub(super) fn build_glyph_outlines(
 ) -> OutlineBuild {
     let mut out = OutlineBuild {
         glyf_builder: GlyfLocaBuilder::new(),
-        h_metrics: vec![LongMetric { advance: default_aw, side_bearing: 0 }],
+        h_metrics: vec![LongMetric {
+            advance: default_aw,
+            side_bearing: 0,
+        }],
         cmap_mappings: Vec::new(),
         name_to_gid: HashMap::new(),
         max_points: 0,
@@ -126,7 +129,10 @@ pub(super) fn build_glyph_outlines(
     // Pass 2: build glyph outlines, recording what each one turned into so
     // that pass 3 can size the `maxp` composite limits.
     let mut emitted: Vec<Emitted> = Vec::with_capacity(glyphs.len() + 1);
-    emitted.push(Emitted::Simple { points: 0, contours: 0 }); // .notdef
+    emitted.push(Emitted::Simple {
+        points: 0,
+        contours: 0,
+    }); // .notdef
     for g in glyphs.iter() {
         let live_refs: Vec<&CompositeRef> = g
             .composite_refs
@@ -134,7 +140,9 @@ pub(super) fn build_glyph_outlines(
             .filter(|cr| !empty_glyphs.contains(cr.component_name.as_str()))
             .collect();
         let is_composite = !live_refs.is_empty()
-            && g.composite_refs.iter().all(|cr| out.name_to_gid.contains_key(&cr.component_name));
+            && g.composite_refs
+                .iter()
+                .all(|cr| out.name_to_gid.contains_key(&cr.component_name));
 
         if is_composite {
             let mut comp_glyph: Option<CompositeGlyph> = None;
@@ -142,7 +150,10 @@ pub(super) fn build_glyph_outlines(
                 let comp_gid = out.name_to_gid[&cr.component_name];
                 let component = Component::new(
                     comp_gid,
-                    Anchor::Offset { x: cr.x_offset, y: cr.y_offset },
+                    Anchor::Offset {
+                        x: cr.x_offset,
+                        y: cr.y_offset,
+                    },
                     read_fonts::tables::glyf::Transform::default(),
                     ComponentFlags {
                         round_xy_to_grid: true,
@@ -151,17 +162,24 @@ pub(super) fn build_glyph_outlines(
                     },
                 );
                 let (gx0, gy0, gx1, gy1) = glyph_bounds(&g.contours);
-                let bbox = Bbox { x_min: gx0, y_min: gy0, x_max: gx1, y_max: gy1 };
+                let bbox = Bbox {
+                    x_min: gx0,
+                    y_min: gy0,
+                    x_max: gx1,
+                    y_max: gy1,
+                };
                 match comp_glyph.as_mut() {
                     None => comp_glyph = Some(CompositeGlyph::new(component, bbox)),
                     Some(cg) => cg.add_component(component, bbox),
                 }
             }
             let cg = comp_glyph.unwrap();
-            out.max_component_elements =
-                out.max_component_elements.max(live_refs.len() as u16);
+            out.max_component_elements = out.max_component_elements.max(live_refs.len() as u16);
             emitted.push(Emitted::Composite(
-                live_refs.iter().map(|cr| out.name_to_gid[&cr.component_name]).collect(),
+                live_refs
+                    .iter()
+                    .map(|cr| out.name_to_gid[&cr.component_name])
+                    .collect(),
             ));
 
             let (gx0, ..) = glyph_bounds(&g.contours);
@@ -173,7 +191,10 @@ pub(super) fn build_glyph_outlines(
 
             out.glyf_builder.add_glyph(&cg).unwrap();
         } else if g.contours.is_empty() {
-            emitted.push(Emitted::Simple { points: 0, contours: 0 });
+            emitted.push(Emitted::Simple {
+                points: 0,
+                contours: 0,
+            });
             out.glyf_builder.add_glyph(&Glyph::Empty).unwrap();
             out.h_metrics.push(LongMetric {
                 advance: g.advance_width,
@@ -190,10 +211,8 @@ pub(super) fn build_glyph_outlines(
             let contours: Vec<Contour> = hinted_contours
                 .iter()
                 .map(|c| {
-                    let points: Vec<CurvePoint> = c
-                        .iter()
-                        .map(|&(x, y)| CurvePoint::on_curve(x, y))
-                        .collect();
+                    let points: Vec<CurvePoint> =
+                        c.iter().map(|&(x, y)| CurvePoint::on_curve(x, y)).collect();
                     Contour::from(points)
                 })
                 .collect();
@@ -262,7 +281,9 @@ pub(super) fn build_glyph_outlines(
     loop {
         let mut changed = false;
         for (i, e) in emitted.iter().enumerate() {
-            let Emitted::Composite(comps) = e else { continue };
+            let Emitted::Composite(comps) = e else {
+                continue;
+            };
             if totals[i].is_some() {
                 continue;
             }
@@ -287,10 +308,15 @@ pub(super) fn build_glyph_outlines(
         if !matches!(e, Emitted::Composite(_)) {
             continue;
         }
-        let Some((points, contours, depth)) = totals[i] else { continue };
-        out.max_composite_points = out.max_composite_points.max(points.min(u16::MAX as u32) as u16);
-        out.max_composite_contours =
-            out.max_composite_contours.max(contours.min(u16::MAX as u32) as u16);
+        let Some((points, contours, depth)) = totals[i] else {
+            continue;
+        };
+        out.max_composite_points = out
+            .max_composite_points
+            .max(points.min(u16::MAX as u32) as u16);
+        out.max_composite_contours = out
+            .max_composite_contours
+            .max(contours.min(u16::MAX as u32) as u16);
         out.max_component_depth = out.max_component_depth.max(depth);
     }
 
@@ -329,10 +355,8 @@ pub(super) fn add_color_layer_glyphs(
                     .contours
                     .iter()
                     .map(|c| {
-                        let points: Vec<CurvePoint> = c
-                            .iter()
-                            .map(|&(x, y)| CurvePoint::on_curve(x, y))
-                            .collect();
+                        let points: Vec<CurvePoint> =
+                            c.iter().map(|&(x, y)| CurvePoint::on_curve(x, y)).collect();
                         Contour::from(points)
                     })
                     .collect();
@@ -341,8 +365,9 @@ pub(super) fn add_color_layer_glyphs(
                 // foreground layer is often the largest outline in the font,
                 // its pieces being inlined on-demand refs that exist nowhere
                 // else.
-                out.max_points =
-                    out.max_points.max(contours.iter().map(|c| c.len()).sum::<usize>() as u16);
+                out.max_points = out
+                    .max_points
+                    .max(contours.iter().map(|c| c.len()).sum::<usize>() as u16);
                 out.max_contours = out.max_contours.max(contours.len() as u16);
 
                 let mut sg = SimpleGlyph {

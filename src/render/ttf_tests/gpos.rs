@@ -85,7 +85,9 @@ map a = combo
     );
     // The inner glyph is 8px wide. With offset col=4, leftmost contour x ≥ 4.
     // Without offset, leftmost contour x = 0.
-    let min_x: i16 = combo.contours.iter()
+    let min_x: i16 = combo
+        .contours
+        .iter()
         .flat_map(|c| c.iter().map(|&(x, _)| x))
         .min()
         .unwrap();
@@ -128,11 +130,20 @@ feature ccmp for DFLT : anchor above
     let (_, _, glyph_data, gsub_data, _) = collect_glyph_data(&docs, false).unwrap();
     let dia_glyph = glyph_data.iter().find(|g| g.name == "dia").unwrap();
     assert!(dia_glyph.mark, "dia should be marked");
-    assert!(!dia_glyph.resolved_anchors.is_empty(), "dia should have anchors");
-    assert!(!gsub_data.anchor_features.is_empty(), "anchor features should be collected");
+    assert!(
+        !dia_glyph.resolved_anchors.is_empty(),
+        "dia should have anchors"
+    );
+    assert!(
+        !gsub_data.anchor_features.is_empty(),
+        "anchor features should be collected"
+    );
 
     let base_glyph = glyph_data.iter().find(|g| g.name == "base-letter").unwrap();
-    assert!(!base_glyph.resolved_anchors.is_empty(), "base-letter should have anchors");
+    assert!(
+        !base_glyph.resolved_anchors.is_empty(),
+        "base-letter should have anchors"
+    );
 
     let font_data = build_font_from_documents(&docs);
     assert!(font_data.is_some(), "font should build successfully");
@@ -186,22 +197,23 @@ feature ccmp for DFLT : anchor above
         .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
         .collect();
 
-    let anchor_data = build_anchor_gpos(
-        &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent(),
-    );
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
 
     assert!(anchor_data.gpos.is_some(), "GPOS should exist");
     let gpos = anchor_data.gpos.unwrap();
 
     let lookups = &gpos.lookup_list.lookups;
-    assert!(lookups.len() >= 2, "should have MarkBasePos and MarkMarkPos lookups");
+    assert!(
+        lookups.len() >= 2,
+        "should have MarkBasePos and MarkMarkPos lookups"
+    );
 
-    let has_mark_to_base = lookups.iter().any(|l| {
-        matches!(l.as_ref(), PositionLookup::MarkToBase(_))
-    });
-    let has_mark_to_mark = lookups.iter().any(|l| {
-        matches!(l.as_ref(), PositionLookup::MarkToMark(_))
-    });
+    let has_mark_to_base = lookups
+        .iter()
+        .any(|l| matches!(l.as_ref(), PositionLookup::MarkToBase(_)));
+    let has_mark_to_mark = lookups
+        .iter()
+        .any(|l| matches!(l.as_ref(), PositionLookup::MarkToMark(_)));
     assert!(has_mark_to_base, "MarkBasePos lookup should exist");
     assert!(has_mark_to_mark, "MarkMarkPos lookup should exist");
 
@@ -212,13 +224,19 @@ feature ccmp for DFLT : anchor above
     let font = read_fonts::FontRef::new(&bytes).unwrap();
     let gpos_table = font.gpos().expect("GPOS table should be present");
     let feature_list = gpos_table.feature_list().expect("feature list");
-    let feature_tags: Vec<_> = feature_list.feature_records().iter()
+    let feature_tags: Vec<_> = feature_list
+        .feature_records()
+        .iter()
         .map(|r| r.feature_tag())
         .collect();
-    assert!(feature_tags.iter().any(|t| *t == Tag::new(b"mark")),
-        "mark feature should exist");
-    assert!(feature_tags.iter().any(|t| *t == Tag::new(b"mkmk")),
-        "mkmk feature should exist");
+    assert!(
+        feature_tags.iter().any(|t| *t == Tag::new(b"mark")),
+        "mark feature should exist"
+    );
+    assert!(
+        feature_tags.iter().any(|t| *t == Tag::new(b"mkmk")),
+        "mkmk feature should exist"
+    );
 }
 
 #[test]
@@ -409,60 +427,100 @@ feature ccmp for DFLT : anchor below
         .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
         .collect();
 
-    let anchor_data = build_anchor_gpos(
-        &glyphs, &gsub_data, &name_to_gid, scale, meta.ascent(),
-    );
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
 
     // --- Base substitution ------------------------------------------------
 
     // ii + dia-above: ii lacks own +above → substituted to ii:dotless
-    assert!(anchor_data.base_subst_entries.iter()
-        .any(|(s, t, a)| s == "ii" && t == "ii:dotless" && a == "above"),
-        "ii should be substituted to ii:dotless for anchor above");
+    assert!(
+        anchor_data
+            .base_subst_entries
+            .iter()
+            .any(|(s, t, a)| s == "ii" && t == "ii:dotless" && a == "above"),
+        "ii should be substituted to ii:dotless for anchor above"
+    );
     // ii + dia-below: ii has own +below → NOT substituted
-    assert!(!anchor_data.base_subst_entries.iter()
-        .any(|(s, _, a)| s == "ii" && a == "below"),
-        "ii must not be substituted for anchor below (has own +below)");
+    assert!(
+        !anchor_data
+            .base_subst_entries
+            .iter()
+            .any(|(s, _, a)| s == "ii" && a == "below"),
+        "ii must not be substituted for anchor below (has own +below)"
+    );
 
     // jj + dia-above: jj lacks own +above → substituted to jj:dotless
-    assert!(anchor_data.base_subst_entries.iter()
-        .any(|(s, t, a)| s == "jj" && t == "jj:dotless" && a == "above"),
-        "jj should be substituted to jj:dotless for anchor above");
+    assert!(
+        anchor_data
+            .base_subst_entries
+            .iter()
+            .any(|(s, t, a)| s == "jj" && t == "jj:dotless" && a == "above"),
+        "jj should be substituted to jj:dotless for anchor above"
+    );
     // jj + dia-below: jj lacks own +below → substituted to jj:compressed
-    assert!(anchor_data.base_subst_entries.iter()
-        .any(|(s, t, a)| s == "jj" && t == "jj:compressed" && a == "below"),
-        "jj should be substituted to jj:compressed for anchor below");
+    assert!(
+        anchor_data
+            .base_subst_entries
+            .iter()
+            .any(|(s, t, a)| s == "jj" && t == "jj:compressed" && a == "below"),
+        "jj should be substituted to jj:compressed for anchor below"
+    );
 
     // kk: has own +above and +below → NOT substituted for either
-    assert!(!anchor_data.base_subst_entries.iter().any(|(s, _, _)| s == "kk"),
-        "kk should not have any base substitution");
+    assert!(
+        !anchor_data
+            .base_subst_entries
+            .iter()
+            .any(|(s, _, _)| s == "kk"),
+        "kk should not have any base substitution"
+    );
 
     // --- Mark substitution ------------------------------------------------
 
     // dia-above → dia-above:wide after bases with 2-cell +above
-    let da_entry = anchor_data.mark_subst_entries.iter()
+    let da_entry = anchor_data
+        .mark_subst_entries
+        .iter()
         .find(|(m, alt, a, _)| m == "dia-above" && alt == "dia-above:wide" && a == "above");
-    assert!(da_entry.is_some(), "dia-above should be substituted to dia-above:wide");
+    assert!(
+        da_entry.is_some(),
+        "dia-above should be substituted to dia-above:wide"
+    );
     let da_bases = &da_entry.unwrap().3;
-    assert!(da_bases.contains(&"ii:dotless".to_string()),
-        "ii:dotless (2-cell +above) should trigger dia-above:wide");
-    assert!(!da_bases.contains(&"kk".to_string()),
-        "kk (1-cell +above) must not trigger dia-above:wide");
+    assert!(
+        da_bases.contains(&"ii:dotless".to_string()),
+        "ii:dotless (2-cell +above) should trigger dia-above:wide"
+    );
+    assert!(
+        !da_bases.contains(&"kk".to_string()),
+        "kk (1-cell +above) must not trigger dia-above:wide"
+    );
 
     // dia-below → dia-below:wide after bases with 2-cell +below
-    let db_entry = anchor_data.mark_subst_entries.iter()
+    let db_entry = anchor_data
+        .mark_subst_entries
+        .iter()
         .find(|(m, alt, a, _)| m == "dia-below" && alt == "dia-below:wide" && a == "below");
-    assert!(db_entry.is_some(), "dia-below should be substituted to dia-below:wide");
+    assert!(
+        db_entry.is_some(),
+        "dia-below should be substituted to dia-below:wide"
+    );
     let db_bases = &db_entry.unwrap().3;
-    assert!(db_bases.contains(&"ii".to_string()),
-        "ii (2-cell +below) should trigger dia-below:wide");
-    assert!(!db_bases.contains(&"kk".to_string()),
-        "kk (1-cell +below) must not trigger dia-below:wide");
+    assert!(
+        db_bases.contains(&"ii".to_string()),
+        "ii (2-cell +below) should trigger dia-below:wide"
+    );
+    assert!(
+        !db_bases.contains(&"kk".to_string()),
+        "kk (1-cell +below) must not trigger dia-below:wide"
+    );
 
     // --- GPOS exists ------------------------------------------------------
 
     assert!(anchor_data.gpos.is_some(), "GPOS should exist");
-    assert!(!anchor_data.feature_lookups.is_empty(), "feature lookups should exist");
+    assert!(
+        !anchor_data.feature_lookups.is_empty(),
+        "feature lookups should exist"
+    );
 }
 
 /// Regression test: GPOS mark classification must use a mark glyph's
@@ -510,12 +568,27 @@ feature ccmp for DFLT : anchor above
     // from its ref (that forwarding is correct and NOT the bug), but
     // its *declared* anchors must only contain its own -above.
     let dia_above = glyphs.iter().find(|g| g.name == "dia-above").unwrap();
-    assert!(dia_above.resolved_anchors.iter().any(|p| p.position == "-below"),
-        "dia-above should forward -below from dia-below via the ref");
-    assert!(dia_above.declared_anchors.iter().any(|p| p.position == "-above"),
-        "dia-above should have its own declared -above anchor");
-    assert!(!dia_above.declared_anchors.iter().any(|p| p.position == "-below"),
-        "dia-above's declared anchors must not include the forwarded -below");
+    assert!(
+        dia_above
+            .resolved_anchors
+            .iter()
+            .any(|p| p.position == "-below"),
+        "dia-above should forward -below from dia-below via the ref"
+    );
+    assert!(
+        dia_above
+            .declared_anchors
+            .iter()
+            .any(|p| p.position == "-above"),
+        "dia-above should have its own declared -above anchor"
+    );
+    assert!(
+        !dia_above
+            .declared_anchors
+            .iter()
+            .any(|p| p.position == "-below"),
+        "dia-above's declared anchors must not include the forwarded -below"
+    );
 
     let name_to_gid: HashMap<String, GlyphId16> = glyphs
         .iter()
@@ -530,8 +603,12 @@ feature ccmp for DFLT : anchor above
     for lookup in &gpos.lookup_list.lookups {
         if let PositionLookup::MarkToBase(lk) = lookup.as_ref() {
             for sub in &lk.subtables {
-                let CoverageTable::Format1(cov) = &*sub.mark_coverage else { continue };
-                let Some(idx) = cov.glyph_array.iter().position(|&g| g == dia_above_gid) else { continue };
+                let CoverageTable::Format1(cov) = &*sub.mark_coverage else {
+                    continue;
+                };
+                let Some(idx) = cov.glyph_array.iter().position(|&g| g == dia_above_gid) else {
+                    continue;
+                };
                 let record = &sub.mark_array.mark_records[idx];
                 let AnchorTable::Format1(anchor) = &*record.mark_anchor else {
                     panic!("expected AnchorFormat1");
@@ -540,11 +617,15 @@ feature ccmp for DFLT : anchor above
                 // x = 1*64 = 64, y = (12-0)*64 = 768.
                 // The forwarded -below anchor (col=1,row=1) would give
                 // y = (12-1)*64 = 704 instead — that's the bug.
-                assert_eq!(anchor.x_coordinate, 64,
-                    "x should come from dia-above's own -above anchor");
-                assert_eq!(anchor.y_coordinate, 768,
+                assert_eq!(
+                    anchor.x_coordinate, 64,
+                    "x should come from dia-above's own -above anchor"
+                );
+                assert_eq!(
+                    anchor.y_coordinate, 768,
                     "dia-above must be positioned using its OWN -above anchor (y=768), \
-                     not the forwarded -below anchor from dia-below (which would give y=704)");
+                     not the forwarded -below anchor from dia-below (which would give y=704)"
+                );
                 found = true;
             }
         }
@@ -611,21 +692,38 @@ feature ccmp for DFLT : anchor above
     for lookup in &gpos.lookup_list.lookups {
         if let PositionLookup::MarkToBase(lk) = lookup.as_ref() {
             for sub in &lk.subtables {
-                let CoverageTable::Format1(mark_cov) = &*sub.mark_coverage else { continue };
-                let CoverageTable::Format1(base_cov) = &*sub.base_coverage else { continue };
-                assert_eq!(base_cov.glyph_array.len(), 1, "expected a single base glyph");
+                let CoverageTable::Format1(mark_cov) = &*sub.mark_coverage else {
+                    continue;
+                };
+                let CoverageTable::Format1(base_cov) = &*sub.base_coverage else {
+                    continue;
+                };
+                assert_eq!(
+                    base_cov.glyph_array.len(),
+                    1,
+                    "expected a single base glyph"
+                );
 
                 // Only 2 of the 3 declared classes (below, above) are
                 // actually used by any mark ("middle" is unused), so
                 // classes must be compacted down to 2 slots.
                 let base_record = &sub.base_array.base_records[0];
                 assert_eq!(
-                    base_record.base_anchors.len(), 2,
+                    base_record.base_anchors.len(),
+                    2,
                     "base record anchor slots must match the compacted class count, not the declared count"
                 );
 
-                let below_idx = mark_cov.glyph_array.iter().position(|&g| g == dia_below_gid).unwrap();
-                let above_idx = mark_cov.glyph_array.iter().position(|&g| g == dia_above_gid).unwrap();
+                let below_idx = mark_cov
+                    .glyph_array
+                    .iter()
+                    .position(|&g| g == dia_below_gid)
+                    .unwrap();
+                let above_idx = mark_cov
+                    .glyph_array
+                    .iter()
+                    .position(|&g| g == dia_above_gid)
+                    .unwrap();
                 let below_class = sub.mark_array.mark_records[below_idx].mark_class;
                 let above_class = sub.mark_array.mark_records[above_idx].mark_class;
 
@@ -635,8 +733,16 @@ feature ccmp for DFLT : anchor above
 
                 // Each mark's class must resolve to a present (non-null)
                 // anchor on the base record.
-                assert!(base_record.base_anchors[below_class as usize].as_ref().is_some());
-                assert!(base_record.base_anchors[above_class as usize].as_ref().is_some());
+                assert!(
+                    base_record.base_anchors[below_class as usize]
+                        .as_ref()
+                        .is_some()
+                );
+                assert!(
+                    base_record.base_anchors[above_class as usize]
+                        .as_ref()
+                        .is_some()
+                );
 
                 checked = true;
             }

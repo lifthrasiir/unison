@@ -1,6 +1,6 @@
 use crate::document::DocLine;
-use crate::editor::{EditorState, Slot};
 use crate::editor::caret::{self, Caret};
+use crate::editor::{EditorState, Slot};
 
 pub(crate) fn handle_keys(
     ui: &egui::Ui,

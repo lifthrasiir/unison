@@ -64,11 +64,18 @@ impl PixelSelection {
 
 #[derive(Clone, Debug)]
 enum SelectDrag {
-    New { anchor_row: i16, anchor_col: i16 },
-    Move { accum: egui::Vec2 },
+    New {
+        anchor_row: i16,
+        anchor_col: i16,
+    },
+    Move {
+        accum: egui::Vec2,
+    },
     /// Ctrl/Cmd + drag started outside the selection: everything the glyph
     /// draws moves together (see [`shift_all_layers`]).
-    MoveAll { accum: egui::Vec2 },
+    MoveAll {
+        accum: egui::Vec2,
+    },
 }
 
 /// The owning editor's slot for the in-progress selection drag.
@@ -150,7 +157,12 @@ pub(crate) fn handle_pixel_select_interaction(
         if inside {
             // Start move drag
             ui.data_mut(|d| {
-                d.insert_temp(sel_drag_id, SelectDrag::Move { accum: egui::Vec2::ZERO })
+                d.insert_temp(
+                    sel_drag_id,
+                    SelectDrag::Move {
+                        accum: egui::Vec2::ZERO,
+                    },
+                )
             });
         } else if ui.input(|i| i.modifiers.command) {
             // Ctrl/Cmd outside the selection: move every layer at once. Any
@@ -164,7 +176,12 @@ pub(crate) fn handle_pixel_select_interaction(
                 *needs_rederive = true;
             }
             ui.data_mut(|d| {
-                d.insert_temp(sel_drag_id, SelectDrag::MoveAll { accum: egui::Vec2::ZERO })
+                d.insert_temp(
+                    sel_drag_id,
+                    SelectDrag::MoveAll {
+                        accum: egui::Vec2::ZERO,
+                    },
+                )
             });
             ui.ctx().request_repaint();
         } else {
@@ -275,7 +292,12 @@ pub(crate) fn handle_pixel_select_interaction(
             let mut pixel_changes = Vec::new();
             if !sel.is_floating() {
                 let Some(extracted) = extract_grounded_to_float(
-                    lines, grid_doc_line, &sel, grid_width, grid_height, &mut pixel_changes,
+                    lines,
+                    grid_doc_line,
+                    &sel,
+                    grid_width,
+                    grid_height,
+                    &mut pixel_changes,
                 ) else {
                     return;
                 };
@@ -368,8 +390,7 @@ pub(crate) fn shift_all_layers(
         put_text(line, gref.format_line(Some((col + dcol, row + drow))));
     }
     for (pi, point) in body.points.iter().enumerate() {
-        let line =
-            super::pixel_interaction::layer_doc_line(body, start, body.refs.len() + pi);
+        let line = super::pixel_interaction::layer_doc_line(body, start, body.refs.len() + pi);
         put_text(line, point.shifted(dcol, drow).format_line());
     }
     // The glyph's own grid is the line right after the header.
@@ -449,7 +470,9 @@ pub(crate) fn commit_floating(
     state.undo.push_pixel_selection(
         grid_doc_line,
         changes,
-        EditMode::PixelSelect { item_idx: sel.item_idx },
+        EditMode::PixelSelect {
+            item_idx: sel.item_idx,
+        },
         state.mode.clone(),
         Some(before),
         None,
@@ -557,11 +580,7 @@ pub(crate) fn copy_selection(
                 };
                 let gr = sel.row + r as i16;
                 let gc = sel.col + c as i16;
-                if gr >= 0
-                    && gc >= 0
-                    && (gr as u16) < grid.height
-                    && (gc as u16) < grid.width
-                {
+                if gr >= 0 && gc >= 0 && (gr as u16) < grid.height && (gc as u16) < grid.width {
                     grid.get(gr as u16, gc as u16)
                 } else {
                     PixelShape::EMPTY
@@ -847,7 +866,12 @@ pub(crate) fn handle_transform_selection(
         } else {
             // Extract pixels from grid (grounded → floating)
             let Some(extracted) = extract_grounded_to_float(
-                lines, grid_doc_line, &sel, grid_width, grid_height, &mut pixel_changes,
+                lines,
+                grid_doc_line,
+                &sel,
+                grid_width,
+                grid_height,
+                &mut pixel_changes,
             ) else {
                 return false;
             };
@@ -906,7 +930,12 @@ pub(crate) fn handle_transform_selection(
                 let old = old_grid.get(r, c);
                 let new = transformed.get(r, c);
                 if old != new {
-                    changes.push(undo::PixelChange { row: r, col: c, old, new });
+                    changes.push(undo::PixelChange {
+                        row: r,
+                        col: c,
+                        old,
+                        new,
+                    });
                 }
             }
         }
@@ -1045,15 +1074,15 @@ pub(crate) fn handle_adjust_scale(
                 let trimmed = t.trim();
                 if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed) {
                     if tokens.first().is_some_and(|k| k == "ref") {
-                        new_lines.push(DocLine::Text(
-                            rewrite_ref_line(&tokens, old_scale, new_scale),
-                        ));
+                        new_lines.push(DocLine::Text(rewrite_ref_line(
+                            &tokens, old_scale, new_scale,
+                        )));
                         continue;
                     }
                     if tokens.first().is_some_and(|k| k == "anchor") {
-                        new_lines.push(DocLine::Text(
-                            rewrite_anchor_line(&tokens, old_scale, new_scale),
-                        ));
+                        new_lines.push(DocLine::Text(rewrite_anchor_line(
+                            &tokens, old_scale, new_scale,
+                        )));
                         continue;
                     }
                 }
@@ -1064,7 +1093,9 @@ pub(crate) fn handle_adjust_scale(
 
     let cursor = state.cursor;
     state.undo.break_coalesce();
-    state.undo.push_lines(start, old_lines, new_lines.clone(), cursor, cursor);
+    state
+        .undo
+        .push_lines(start, old_lines, new_lines.clone(), cursor, cursor);
     state.undo.break_coalesce();
     lines.splice(start..end, new_lines);
     state.skip_reconcile = true;
@@ -1102,7 +1133,11 @@ fn rewrite_scale_in_header(header: &str, new_scale: u8) -> String {
 fn rewrite_ref_line(tokens: &[String], old_scale: u8, new_scale: u8) -> String {
     // ref NAME [COL ROW] [negated] [fill COLOR] [coloronly|monoonly]
     if tokens.len() < 2 {
-        return tokens.iter().map(|t| crate::document_io::quote_token(t)).collect::<Vec<_>>().join(" ");
+        return tokens
+            .iter()
+            .map(|t| crate::document_io::quote_token(t))
+            .collect::<Vec<_>>()
+            .join(" ");
     }
     let mut out = vec![
         "ref".to_string(),
@@ -1129,7 +1164,11 @@ fn rewrite_ref_line(tokens: &[String], old_scale: u8, new_scale: u8) -> String {
 fn rewrite_anchor_line(tokens: &[String], old_scale: u8, new_scale: u8) -> String {
     // anchor POSITION COL_RANGE ROW_RANGE
     if tokens.len() != 4 {
-        return tokens.iter().map(|t| crate::document_io::quote_token(t)).collect::<Vec<_>>().join(" ");
+        return tokens
+            .iter()
+            .map(|t| crate::document_io::quote_token(t))
+            .collect::<Vec<_>>()
+            .join(" ");
     }
     let keyword = &tokens[0];
     let position = crate::document_io::quote_token(&tokens[1]);
@@ -1160,11 +1199,7 @@ fn scale_range_token(tok: &str, old_scale: u8, new_scale: u8) -> String {
 // Reconciliation — called once per frame at the top of show_document
 // ---------------------------------------------------------------------------
 
-pub(crate) fn reconcile(
-    doc: &Document,
-    lines: &mut Vec<DocLine>,
-    state: &mut EditorState,
-) -> bool {
+pub(crate) fn reconcile(doc: &Document, lines: &mut Vec<DocLine>, state: &mut EditorState) -> bool {
     let sel = match &state.pixel_selection {
         Some(s) => s.clone(),
         None => return false,
@@ -1391,12 +1426,13 @@ mod tests {
         let mut state = EditorState::new();
         state.mode = EditMode::PixelSelect { item_idx: 0 };
 
-        let changed = handle_transform_selection(
-            &doc, &mut lines, &mut state, SelectionTransform::MirrorH,
-        );
+        let changed =
+            handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::MirrorH);
         assert!(changed);
 
-        let DocLine::Grid(grid) = &lines[1] else { panic!("expected grid") };
+        let DocLine::Grid(grid) = &lines[1] else {
+            panic!("expected grid")
+        };
         assert!(grid.get(0, 0).is_empty());
         assert!(grid.get(0, 1).is_filled());
         assert!(grid.get(0, 2).is_filled());
@@ -1417,7 +1453,9 @@ mod tests {
 
         handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::FlipV);
 
-        let DocLine::Grid(grid) = &lines[1] else { panic!("expected grid") };
+        let DocLine::Grid(grid) = &lines[1] else {
+            panic!("expected grid")
+        };
         assert!(grid.get(0, 0).is_empty());
         assert!(grid.get(0, 1).is_empty());
         assert!(grid.get(0, 2).is_empty());
@@ -1438,7 +1476,9 @@ mod tests {
 
         handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::Rotate180);
 
-        let DocLine::Grid(grid) = &lines[1] else { panic!("expected grid") };
+        let DocLine::Grid(grid) = &lines[1] else {
+            panic!("expected grid")
+        };
         assert!(grid.get(0, 0).is_empty());
         assert!(grid.get(0, 1).is_empty());
         assert!(grid.get(0, 2).is_empty());

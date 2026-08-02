@@ -13,7 +13,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use skrifa::prelude::*;
 use skrifa::{FontRef, MetadataProvider};
 
-use crate::document::{Document, DocumentItem, NamePartsMap, expand_name_element, substitute_name_parts};
+use crate::document::{
+    Document, DocumentItem, NamePartsMap, expand_name_element, substitute_name_parts,
+};
 use crate::editor::doc_links::LinkTargetKind;
 use crate::preview::rasterizer::GlyphCache;
 use crate::render::ttf_builder::{decomposed_map_pairs, expand_map_pairs};
@@ -79,7 +81,9 @@ impl SpecimenState {
         for doc in docs {
             for item in &doc.items {
                 match item {
-                    DocumentItem::Map { char_repr, glyph, .. } => {
+                    DocumentItem::Map {
+                        char_repr, glyph, ..
+                    } => {
                         let subst_glyph = substitute_name_parts(glyph, name_parts);
                         let pairs = expand_map_pairs(char_repr, &subst_glyph);
                         for (cp, glyph_name) in pairs {
@@ -87,7 +91,9 @@ impl SpecimenState {
                             map.entry(cp).or_insert(glyph_name);
                         }
                     }
-                    DocumentItem::MapDecomposed { char_repr, glyph, .. } => {
+                    DocumentItem::MapDecomposed {
+                        char_repr, glyph, ..
+                    } => {
                         let subst = glyph.as_ref().map(|g| substitute_name_parts(g, name_parts));
                         for (cp, name) in decomposed_map_pairs(char_repr, subst.as_deref()) {
                             mapped_glyphs.insert(name.clone());
@@ -119,37 +125,57 @@ impl SpecimenState {
         // feature name for each remap-only glyph (first seen wins).
         let mut glyph_feature: HashMap<String, String> = HashMap::new();
 
-
         for doc in docs {
             for item in &doc.items {
-                if let DocumentItem::Remap { feature, source, target, lookbehind, lookahead, .. } = item {
-                    let tgt_expanded: Vec<Vec<String>> = target.iter()
+                if let DocumentItem::Remap {
+                    feature,
+                    source,
+                    target,
+                    lookbehind,
+                    lookahead,
+                    ..
+                } = item
+                {
+                    let tgt_expanded: Vec<Vec<String>> = target
+                        .iter()
                         .map(|s| expand_name_element(s, name_parts))
                         .collect();
-                    let src_expanded: Vec<Vec<String>> = source.iter()
+                    let src_expanded: Vec<Vec<String>> = source
+                        .iter()
                         .map(|s| expand_name_element(s, name_parts))
                         .collect();
 
-                    let max_len = src_expanded.iter().chain(tgt_expanded.iter())
-                        .map(|v| v.len()).max().unwrap_or(1);
+                    let max_len = src_expanded
+                        .iter()
+                        .chain(tgt_expanded.iter())
+                        .map(|v| v.len())
+                        .max()
+                        .unwrap_or(1);
 
                     let has_context = !lookbehind.is_empty() || !lookahead.is_empty();
 
                     for i in 0..max_len {
-                        let tgt: Vec<String> = tgt_expanded.iter()
+                        let tgt: Vec<String> = tgt_expanded
+                            .iter()
                             .map(|v| v[i % v.len()].clone())
                             .collect();
                         for name in &tgt {
                             if !mapped_glyphs.contains(name) {
                                 remap_only.insert(name.clone());
-                                glyph_feature.entry(name.clone()).or_insert_with(|| feature.clone());
+                                glyph_feature
+                                    .entry(name.clone())
+                                    .or_insert_with(|| feature.clone());
                             }
                         }
                         if !has_context {
-                            let src: Vec<String> = src_expanded.iter()
+                            let src: Vec<String> = src_expanded
+                                .iter()
                                 .map(|v| v[i % v.len()].clone())
                                 .collect();
-                            ligature_rules.push(RemapRule { source: src, target: tgt });
+                            ligature_rules.push(RemapRule {
+                                source: src,
+                                target: tgt,
+                            });
                         }
                     }
                 }
@@ -161,7 +187,9 @@ impl SpecimenState {
         let mut without_cp: Vec<RemapEntry> = Vec::new();
 
         for glyph_name in remap_only {
-            let Some(&gid) = name_to_gid.get(&glyph_name) else { continue };
+            let Some(&gid) = name_to_gid.get(&glyph_name) else {
+                continue;
+            };
             let feature = glyph_feature.get(&glyph_name).cloned().unwrap_or_default();
 
             // Find a context-free remap rule where this glyph appears in
@@ -170,19 +198,30 @@ impl SpecimenState {
                 if !rule.target.contains(&glyph_name) {
                     return None;
                 }
-                rule.source.iter()
+                rule.source
+                    .iter()
                     .map(|s| glyph_to_cp.get(s.as_str()).copied())
                     .collect::<Option<Vec<u32>>>()
             });
 
             let label = if let Some(ref cps) = cp_seq {
-                let hex = cps.iter().map(|cp| format!("{cp:04X}")).collect::<Vec<_>>().join("+");
+                let hex = cps
+                    .iter()
+                    .map(|cp| format!("{cp:04X}"))
+                    .collect::<Vec<_>>()
+                    .join("+");
                 format!("{hex} ({glyph_name})")
             } else {
                 glyph_name.clone()
             };
 
-            let entry = RemapEntry { label, glyph_name, feature, gid, cp_sequence: cp_seq.clone() };
+            let entry = RemapEntry {
+                label,
+                glyph_name,
+                feature,
+                gid,
+                cp_sequence: cp_seq.clone(),
+            };
             if cp_seq.is_some() {
                 with_cp.push(entry);
             } else {
@@ -199,7 +238,10 @@ impl SpecimenState {
 
     #[cfg(test)]
     fn remap_glyph_names(&self) -> Vec<&str> {
-        self.remap_entries.iter().map(|e| e.glyph_name.as_str()).collect()
+        self.remap_entries
+            .iter()
+            .map(|e| e.glyph_name.as_str())
+            .collect()
     }
 
     pub fn show(
@@ -264,18 +306,13 @@ impl SpecimenState {
                 let origin = response.rect.min;
 
                 let clip = painter.clip_rect();
-                let first_row =
-                    ((clip.top() - origin.y) / cell_h).floor().max(0.0) as usize;
-                let last_row =
-                    ((clip.bottom() - origin.y) / cell_h).ceil().max(0.0) as usize;
+                let first_row = ((clip.top() - origin.y) / cell_h).floor().max(0.0) as usize;
+                let last_row = ((clip.bottom() - origin.y) / cell_h).ceil().max(0.0) as usize;
                 let last_row = last_row.min(num_rows);
 
                 let vis_rect = egui::Rect::from_min_max(
                     egui::pos2(origin.x, origin.y + first_row as f32 * cell_h),
-                    egui::pos2(
-                        response.rect.right(),
-                        origin.y + last_row as f32 * cell_h,
-                    ),
+                    egui::pos2(response.rect.right(), origin.y + last_row as f32 * cell_h),
                 );
                 painter.rect_filled(vis_rect, 0.0, bg_color);
 
@@ -283,12 +320,10 @@ impl SpecimenState {
                 // sitting exactly on the allocated rect's edge loses half its
                 // width to the clip; inset those (and only those) inward.
                 let half = border_stroke.width / 2.0;
-                let clamp_x = |x: f32| {
-                    x.clamp(response.rect.left() + half, response.rect.right() - half)
-                };
-                let clamp_y = |y: f32| {
-                    y.clamp(response.rect.top() + half, response.rect.bottom() - half)
-                };
+                let clamp_x =
+                    |x: f32| x.clamp(response.rect.left() + half, response.rect.right() - half);
+                let clamp_y =
+                    |y: f32| y.clamp(response.rect.top() + half, response.rect.bottom() - half);
                 let line_right = clamp_x(origin.x + grid_width);
                 for col in 0..=cols {
                     let x = clamp_x(origin.x + col as f32 * cell_w);
@@ -303,10 +338,7 @@ impl SpecimenState {
                 for row in first_row..=last_row {
                     let y = clamp_y(origin.y + row as f32 * cell_h);
                     painter.line_segment(
-                        [
-                            egui::pos2(clamp_x(origin.x), y),
-                            egui::pos2(line_right, y),
-                        ],
+                        [egui::pos2(clamp_x(origin.x), y), egui::pos2(line_right, y)],
                         border_stroke,
                     );
                 }
@@ -319,21 +351,17 @@ impl SpecimenState {
                 let hovered_idx = hover_pointer
                     .filter(|_| response.contains_pointer())
                     .and_then(|pos| {
-                    if !response.rect.contains(pos) {
-                        return None;
-                    }
-                    let col = ((pos.x - origin.x) / cell_w).floor() as usize;
-                    let row = ((pos.y - origin.y) / cell_h).floor() as usize;
-                    if col >= cols {
-                        return None;
-                    }
-                    let idx = row * cols + col;
-                    if idx < total_count {
-                        Some(idx)
-                    } else {
-                        None
-                    }
-                });
+                        if !response.rect.contains(pos) {
+                            return None;
+                        }
+                        let col = ((pos.x - origin.x) / cell_w).floor() as usize;
+                        let row = ((pos.y - origin.y) / cell_h).floor() as usize;
+                        if col >= cols {
+                            return None;
+                        }
+                        let idx = row * cols + col;
+                        if idx < total_count { Some(idx) } else { None }
+                    });
 
                 enum DeferredHover {
                     Cmap {
@@ -359,10 +387,8 @@ impl SpecimenState {
                             origin.x + col as f32 * cell_w,
                             origin.y + row as f32 * cell_h,
                         );
-                        let cell_rect = egui::Rect::from_min_size(
-                            cell_min,
-                            egui::vec2(cell_w, cell_h),
-                        );
+                        let cell_rect =
+                            egui::Rect::from_min_size(cell_min, egui::vec2(cell_w, cell_h));
 
                         if idx < cmap_count {
                             let (cp, glyph_name) = &self.entries[idx];
@@ -376,10 +402,19 @@ impl SpecimenState {
                                 continue;
                             }
                             self.draw_cell(
-                                &painter, cell_min, cell_rect,
-                                cell_w, cell_h, cp, px_size, false,
-                                &label_font, label_color, glyph_color,
-                                raster_font, ui.ctx(),
+                                &painter,
+                                cell_min,
+                                cell_rect,
+                                cell_w,
+                                cell_h,
+                                cp,
+                                px_size,
+                                false,
+                                &label_font,
+                                label_color,
+                                glyph_color,
+                                raster_font,
+                                ui.ctx(),
                             );
                         } else {
                             let ri = idx - cmap_count;
@@ -391,10 +426,19 @@ impl SpecimenState {
                                 continue;
                             }
                             self.draw_remap_cell(
-                                &painter, cell_min, cell_rect,
-                                cell_w, cell_h, ri, px_size, false,
-                                &label_font, label_color, glyph_color,
-                                raster_font, ui.ctx(),
+                                &painter,
+                                cell_min,
+                                cell_rect,
+                                cell_w,
+                                cell_h,
+                                ri,
+                                px_size,
+                                false,
+                                &label_font,
+                                label_color,
+                                glyph_color,
+                                raster_font,
+                                ui.ctx(),
                             );
                         }
                     }
@@ -403,33 +447,52 @@ impl SpecimenState {
                 if let Some(hover) = &deferred_hover {
                     match hover {
                         DeferredHover::Cmap { cell_min, cp, .. } => {
-                            let cell_rect = egui::Rect::from_min_size(
-                                *cell_min, egui::vec2(cell_w, cell_h),
-                            );
+                            let cell_rect =
+                                egui::Rect::from_min_size(*cell_min, egui::vec2(cell_w, cell_h));
                             painter.rect_filled(cell_rect, 0.0, egui::Color32::BLACK);
                             if let Some(gr) = self.compute_glyph_rect(
-                                *cell_min, cell_w, cell_h, *cp, px_size,
-                                raster_font, ui.ctx(),
+                                *cell_min,
+                                cell_w,
+                                cell_h,
+                                *cp,
+                                px_size,
+                                raster_font,
+                                ui.ctx(),
                             ) {
                                 painter.rect_filled(gr.expand(4.0), 0.0, egui::Color32::BLACK);
                             }
                             self.draw_cell(
-                                &painter, *cell_min, cell_rect,
-                                cell_w, cell_h, *cp, px_size, true,
-                                &label_font, label_color,
+                                &painter,
+                                *cell_min,
+                                cell_rect,
+                                cell_w,
+                                cell_h,
+                                *cp,
+                                px_size,
+                                true,
+                                &label_font,
+                                label_color,
                                 egui::Color32::WHITE,
-                                raster_font, ui.ctx(),
+                                raster_font,
+                                ui.ctx(),
                             );
                         }
-                        DeferredHover::Remap { cell_min, remap_idx } => {
+                        DeferredHover::Remap {
+                            cell_min,
+                            remap_idx,
+                        } => {
                             let ri = *remap_idx;
-                            let cell_rect = egui::Rect::from_min_size(
-                                *cell_min, egui::vec2(cell_w, cell_h),
-                            );
+                            let cell_rect =
+                                egui::Rect::from_min_size(*cell_min, egui::vec2(cell_w, cell_h));
                             painter.rect_filled(cell_rect, 0.0, egui::Color32::BLACK);
                             if let Some(gr) = self.compute_remap_glyph_rect(
-                                *cell_min, cell_w, cell_h, ri, px_size,
-                                raster_font, ui.ctx(),
+                                *cell_min,
+                                cell_w,
+                                cell_h,
+                                ri,
+                                px_size,
+                                raster_font,
+                                ui.ctx(),
                             ) {
                                 painter.rect_filled(gr.expand(4.0), 0.0, egui::Color32::BLACK);
                             }
@@ -449,38 +512,45 @@ impl SpecimenState {
                                 painter.rect_filled(label_bg, 0.0, egui::Color32::BLACK);
                             }
                             self.draw_remap_cell(
-                                &painter, *cell_min, cell_rect,
-                                cell_w, cell_h, ri, px_size, true,
-                                &label_font, label_color,
+                                &painter,
+                                *cell_min,
+                                cell_rect,
+                                cell_w,
+                                cell_h,
+                                ri,
+                                px_size,
+                                true,
+                                &label_font,
+                                label_color,
                                 egui::Color32::WHITE,
-                                raster_font, ui.ctx(),
+                                raster_font,
+                                ui.ctx(),
                             );
                         }
                     }
                 }
 
                 if response.clicked()
-                    && let Some(pos) = response.interact_pointer_pos() {
-                        let col =
-                            ((pos.x - origin.x) / cell_w).floor() as usize;
-                        let row =
-                            ((pos.y - origin.y) / cell_h).floor() as usize;
-                        let idx = row * cols + col;
-                        if col < cols && idx < total_count {
-                            if idx < cmap_count {
-                                clicked = Some(SpecimenClick {
-                                    name: self.entries[idx].1.clone(),
-                                    kind: LinkTargetKind::Glyph,
-                                });
-                            } else {
-                                let entry = &self.remap_entries[idx - cmap_count];
-                                clicked = Some(SpecimenClick {
-                                    name: entry.feature.clone(),
-                                    kind: LinkTargetKind::Remap,
-                                });
-                            }
+                    && let Some(pos) = response.interact_pointer_pos()
+                {
+                    let col = ((pos.x - origin.x) / cell_w).floor() as usize;
+                    let row = ((pos.y - origin.y) / cell_h).floor() as usize;
+                    let idx = row * cols + col;
+                    if col < cols && idx < total_count {
+                        if idx < cmap_count {
+                            clicked = Some(SpecimenClick {
+                                name: self.entries[idx].1.clone(),
+                                kind: LinkTargetKind::Glyph,
+                            });
+                        } else {
+                            let entry = &self.remap_entries[idx - cmap_count];
+                            clicked = Some(SpecimenClick {
+                                name: entry.feature.clone(),
+                                kind: LinkTargetKind::Remap,
+                            });
                         }
                     }
+                }
 
                 if let Some(hover) = deferred_hover {
                     match hover {
@@ -495,29 +565,29 @@ impl SpecimenState {
                                 "U+{:04X} {} {} ({})",
                                 cp, char_str, char_name, glyph_name,
                             ));
-                            if ctrl_c
-                                && let Some(ch) = ch {
-                                    ui.ctx().copy_text(ch.to_string());
-                                }
+                            if ctrl_c && let Some(ch) = ch {
+                                ui.ctx().copy_text(ch.to_string());
+                            }
                         }
                         DeferredHover::Remap { remap_idx, .. } => {
                             let entry = &self.remap_entries[remap_idx];
                             if let Some(ref cps) = entry.cp_sequence {
-                                let parts: Vec<String> = cps.iter().map(|cp| {
-                                    let ch = char::from_u32(*cp);
-                                    let char_name = ch
-                                        .and_then(unicode_names2::name)
-                                        .map(|n| n.to_string())
-                                        .unwrap_or_else(|| "<unknown>".to_string());
-                                    format!("U+{cp:04X} {char_name}")
-                                }).collect();
-                                self.hover_status = Some(format!(
-                                    "{} ({})", parts.join(" + "), entry.glyph_name,
-                                ));
+                                let parts: Vec<String> = cps
+                                    .iter()
+                                    .map(|cp| {
+                                        let ch = char::from_u32(*cp);
+                                        let char_name = ch
+                                            .and_then(unicode_names2::name)
+                                            .map(|n| n.to_string())
+                                            .unwrap_or_else(|| "<unknown>".to_string());
+                                        format!("U+{cp:04X} {char_name}")
+                                    })
+                                    .collect();
+                                self.hover_status =
+                                    Some(format!("{} ({})", parts.join(" + "), entry.glyph_name,));
                             } else {
-                                self.hover_status = Some(format!(
-                                    "{} (remap-only)", entry.glyph_name,
-                                ));
+                                self.hover_status =
+                                    Some(format!("{} (remap-only)", entry.glyph_name,));
                             }
                         }
                     }
@@ -545,11 +615,7 @@ impl SpecimenState {
         ctx: &egui::Context,
     ) {
         let hex = format!("{cp:04X}");
-        let label_galley = painter.layout_no_wrap(
-            hex,
-            label_font.clone(),
-            label_color,
-        );
+        let label_galley = painter.layout_no_wrap(hex, label_font.clone(), label_color);
         painter.galley(
             egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
             label_galley,
@@ -566,23 +632,24 @@ impl SpecimenState {
             && let Some(gid) = font.charmap().map(ch)
         {
             drawn_via_rasterizer = self.draw_rasterized_glyph(
-                painter, cell_rect, center, &font, font_bytes, gid, px_size,
-                is_hovered, glyph_color, ctx,
+                painter,
+                cell_rect,
+                center,
+                &font,
+                font_bytes,
+                gid,
+                px_size,
+                is_hovered,
+                glyph_color,
+                ctx,
             );
         }
 
         if !drawn_via_rasterizer {
             let glyph_font = crate::app::uniform_font_id(ctx, px_size);
-            let glyph_galley = painter.layout_no_wrap(
-                ch.to_string(),
-                glyph_font,
-                glyph_color,
-            );
+            let glyph_galley = painter.layout_no_wrap(ch.to_string(), glyph_font, glyph_color);
             let glyph_size = glyph_galley.size();
-            let pos = egui::pos2(
-                center.0 - glyph_size.x / 2.0,
-                center.1 - glyph_size.y / 2.0,
-            );
+            let pos = egui::pos2(center.0 - glyph_size.x / 2.0, center.1 - glyph_size.y / 2.0);
             cell_painter(painter, cell_rect, is_hovered).galley(pos, glyph_galley, glyph_color);
         }
     }
@@ -607,11 +674,7 @@ impl SpecimenState {
         let gid = entry.gid;
         let label_text = entry.label.clone();
 
-        let label_galley = painter.layout_no_wrap(
-            label_text,
-            label_font.clone(),
-            label_color,
-        );
+        let label_galley = painter.layout_no_wrap(label_text, label_font.clone(), label_color);
         cell_painter(painter, cell_rect, is_hovered).galley(
             egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
             label_galley,
@@ -623,9 +686,16 @@ impl SpecimenState {
         {
             let center = cell_center(cell_min, cell_w, cell_h);
             self.draw_rasterized_glyph(
-                painter, cell_rect, center, &font, font_bytes,
-                skrifa::GlyphId::new(gid as u32), px_size,
-                is_hovered, glyph_color, ctx,
+                painter,
+                cell_rect,
+                center,
+                &font,
+                font_bytes,
+                skrifa::GlyphId::new(gid as u32),
+                px_size,
+                is_hovered,
+                glyph_color,
+                ctx,
             );
         }
     }
@@ -698,7 +768,8 @@ impl SpecimenState {
         }
 
         let glyph_font = crate::app::uniform_font_id(ctx, px_size);
-        let galley = ctx.fonts(|f| f.layout_no_wrap(ch.to_string(), glyph_font, egui::Color32::WHITE));
+        let galley =
+            ctx.fonts(|f| f.layout_no_wrap(ch.to_string(), glyph_font, egui::Color32::WHITE));
         let size = galley.size();
         Some(egui::Rect::from_min_size(
             egui::pos2(center.0 - size.x / 2.0, center.1 - size.y / 2.0),

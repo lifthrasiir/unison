@@ -279,7 +279,11 @@ impl<'a> AnnotatedText<'a> {
             let base = if run.is_annotation { dim } else { color };
             let run_end = run.display_start + run.text.len();
             let commented = |c: egui::Color32| {
-                if run.is_annotation { c.gamma_multiply(ANNOTATION_OPACITY) } else { c }
+                if run.is_annotation {
+                    c.gamma_multiply(ANNOTATION_OPACITY)
+                } else {
+                    c
+                }
             };
             // A run straddling the comment boundary is drawn in two pieces so
             // the split lands exactly on the `//`.
@@ -344,7 +348,10 @@ mod tests {
     #[test]
     fn map_decomposed_form_is_annotated() {
         assert_eq!(ann("map generate 가"), vec![(14, " U+AC00".to_string())]);
-        assert_eq!(ann("map generate 가 = hangul-ga"), vec![(14, " U+AC00".to_string())]);
+        assert_eq!(
+            ann("map generate 가 = hangul-ga"),
+            vec![(14, " U+AC00".to_string())]
+        );
         // The bare `map CHAR` form is gone; it is no longer a map at all.
         assert!(ann("map 가").is_empty());
     }

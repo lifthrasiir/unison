@@ -76,10 +76,9 @@ pub(crate) fn handle_pixel_painting(
             {
                 let col = gc as u16;
                 let row = pixel_row as u16;
-                let last_cell: Option<(u16, u16)> =
-                    ui.data(|d| d.get_temp(slant_last_id));
-                let on_same_slant_cell = selected_shape.is_slant_pair()
-                    && last_cell == Some((row, col));
+                let last_cell: Option<(u16, u16)> = ui.data(|d| d.get_temp(slant_last_id));
+                let on_same_slant_cell =
+                    selected_shape.is_slant_pair() && last_cell == Some((row, col));
                 let new_shape = if secondary {
                     pixel::PixelShape::EMPTY
                 } else if shift_held && !selected_shape.is_empty() {
@@ -120,35 +119,37 @@ pub(crate) fn handle_pixel_painting(
                     if let Some(DocLine::Text(header_text)) = lines.get(header_line) {
                         let trimmed = header_text.trim();
                         if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed)
-                            && tokens.first().is_some_and(|t| t == "glyph") && tokens.len() == 2 {
-                                let new_header = crate::document_io::append_to_line(
-                                    trimmed,
-                                    &format!("{grid_width} {grid_height}"),
-                                );
-                                let mut new_grid = PixelGrid::new(grid_width, grid_height);
-                                new_grid.set(row, col, new_shape);
+                            && tokens.first().is_some_and(|t| t == "glyph")
+                            && tokens.len() == 2
+                        {
+                            let new_header = crate::document_io::append_to_line(
+                                trimmed,
+                                &format!("{grid_width} {grid_height}"),
+                            );
+                            let mut new_grid = PixelGrid::new(grid_width, grid_height);
+                            new_grid.set(row, col, new_shape);
 
-                                let old_header = header_text.clone();
-                                state.undo.break_coalesce();
-                                state.undo.push_lines(
-                                    header_line,
-                                    vec![DocLine::Text(old_header)],
-                                    vec![
-                                        DocLine::Text(new_header.clone()),
-                                        DocLine::Grid(new_grid.clone()),
-                                    ],
-                                    state.cursor,
-                                    state.cursor,
-                                );
-                                state.undo.break_coalesce();
+                            let old_header = header_text.clone();
+                            state.undo.break_coalesce();
+                            state.undo.push_lines(
+                                header_line,
+                                vec![DocLine::Text(old_header)],
+                                vec![
+                                    DocLine::Text(new_header.clone()),
+                                    DocLine::Grid(new_grid.clone()),
+                                ],
+                                state.cursor,
+                                state.cursor,
+                            );
+                            state.undo.break_coalesce();
 
-                                lines[header_line] = DocLine::Text(new_header);
-                                lines.insert(header_line + 1, DocLine::Grid(new_grid));
-                                state.skip_reconcile = true;
-                                *needs_rederive = true;
-                                ui.ctx().request_repaint();
-                                painted = true;
-                            }
+                            lines[header_line] = DocLine::Text(new_header);
+                            lines.insert(header_line + 1, DocLine::Grid(new_grid));
+                            state.skip_reconcile = true;
+                            *needs_rederive = true;
+                            ui.ctx().request_repaint();
+                            painted = true;
+                        }
                     }
                 }
                 if painted && !secondary && new_shape.is_slant_pair() {

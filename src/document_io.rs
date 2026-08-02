@@ -172,7 +172,10 @@ use crate::pixel::shape_to_chars;
 ///   of input, otherwise an error is returned.
 /// - Outside of quotes, backticks are ordinary characters.
 pub fn tokenize_tokens(line: &str) -> std::result::Result<Vec<String>, String> {
-    Ok(tokenize_with_spans(line)?.into_iter().map(|t| t.value).collect())
+    Ok(tokenize_with_spans(line)?
+        .into_iter()
+        .map(|t| t.value)
+        .collect())
 }
 
 /// Split a line into its command text and its trailing `// …` comment
@@ -342,7 +345,11 @@ pub fn tokenize_with_spans(line: &str) -> std::result::Result<Vec<TokenSpan>, St
                     i += 1;
                 }
             }
-            tokens.push(TokenSpan { value, raw_start, raw_end: i });
+            tokens.push(TokenSpan {
+                value,
+                raw_start,
+                raw_end: i,
+            });
         } else {
             while i < chars.len() && !chars[i].is_whitespace() {
                 i += 1;
@@ -404,7 +411,9 @@ fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef>
                 if idx >= parts.len() {
                     return None;
                 }
-                fill = Some(RefFill { color: parts[idx].clone() });
+                fill = Some(RefFill {
+                    color: parts[idx].clone(),
+                });
             }
             s => {
                 if let Some(vis) = parse_visibility(s) {
@@ -417,7 +426,15 @@ fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef>
         idx += 1;
     }
 
-    Some(GlyphRef { name, offset, negated, inherit, fill, visibility, comment })
+    Some(GlyphRef {
+        name,
+        offset,
+        negated,
+        inherit,
+        fill,
+        visibility,
+        comment,
+    })
 }
 
 /// Parse a range token like `3` (single value) or `3..5` (inclusive range).
@@ -444,7 +461,14 @@ fn parse_anchor_point(
 ) -> Option<GlyphPoint> {
     let (col, col_end) = parse_range_token(col_tok)?;
     let (row, row_end) = parse_range_token(row_tok)?;
-    Some(GlyphPoint { position: position.to_string(), col, row, col_end, row_end, comment })
+    Some(GlyphPoint {
+        position: position.to_string(),
+        col,
+        row,
+        col_end,
+        row_end,
+        comment,
+    })
 }
 
 /// Parsed dimensions of a `glyph NAME W H [OFF_ROW OFF_COL]` header, i.e. a
@@ -483,8 +507,9 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
     parse_glyph_flag_parts_impl(flag_parts, &mut |_| {})
 }
 
-const GLYPH_FLAG_KEYWORDS: [&str; 7] =
-    ["sticky", "inline", "mark", "advance", "left", "top", "scale"];
+const GLYPH_FLAG_KEYWORDS: [&str; 7] = [
+    "sticky", "inline", "mark", "advance", "left", "top", "scale",
+];
 
 /// The one walker behind both the lenient parse and the strict validation.
 /// `err` receives a message for each malformed token; the lenient caller
@@ -527,24 +552,25 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
             }
             other => {
                 if flags.width.is_none()
-                    && let Ok(w) = other.parse::<u16>() {
-                        flags.width = Some(w);
-                        fp += 1;
-                        if fp < flag_parts.len() {
-                            let next = flag_parts[fp].as_ref();
-                            if let Ok(h) = next.parse::<u16>() {
-                                flags.height = Some(h);
-                            } else if GLYPH_FLAG_KEYWORDS.contains(&next) {
-                                // A flag keyword right after a lone width:
-                                // no height given, keyword handled next round.
-                                continue;
-                            } else {
-                                err(format!("expected height after width, got '{next}'"));
-                            }
+                    && let Ok(w) = other.parse::<u16>()
+                {
+                    flags.width = Some(w);
+                    fp += 1;
+                    if fp < flag_parts.len() {
+                        let next = flag_parts[fp].as_ref();
+                        if let Ok(h) = next.parse::<u16>() {
+                            flags.height = Some(h);
+                        } else if GLYPH_FLAG_KEYWORDS.contains(&next) {
+                            // A flag keyword right after a lone width:
+                            // no height given, keyword handled next round.
+                            continue;
+                        } else {
+                            err(format!("expected height after width, got '{next}'"));
                         }
-                        fp += 1;
-                        continue;
                     }
+                    fp += 1;
+                    continue;
+                }
                 err(format!("unrecognized glyph header token '{other}'"));
             }
         }
@@ -610,8 +636,8 @@ fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
             continue;
         }
 
-        let tokens = tokenize_tokens(trimmed)
-            .map_err(|e| anyhow::anyhow!("line {}: {}", line_no + 1, e))?;
+        let tokens =
+            tokenize_tokens(trimmed).map_err(|e| anyhow::anyhow!("line {}: {}", line_no + 1, e))?;
 
         if tokens.first().is_some_and(|t| t == "glyph") {
             let parts = &tokens[1..];
@@ -681,7 +707,9 @@ fn is_pixel_row_next(
     lines: &mut std::iter::Peekable<std::iter::Enumerate<std::str::Lines<'_>>>,
     width: u16,
 ) -> bool {
-    let Some(&(_, line)) = lines.peek() else { return false };
+    let Some(&(_, line)) = lines.peek() else {
+        return false;
+    };
     let chars: Vec<char> = line.chars().collect();
     let expected_len = width as usize * 2;
     if chars.len() != expected_len {
@@ -770,7 +798,12 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Glyph { name, body } => {
                 serialize_glyph(writer, name, body)?;
             }
-            DocumentItem::Map { slice, char_repr, glyph, comment } => {
+            DocumentItem::Map {
+                slice,
+                char_repr,
+                glyph,
+                comment,
+            } => {
                 writeln!(
                     writer,
                     "map {}{} = {}{}",
@@ -780,7 +813,12 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                     comment_suffix(comment),
                 )?;
             }
-            DocumentItem::MapDecomposed { slice, char_repr, glyph, comment } => {
+            DocumentItem::MapDecomposed {
+                slice,
+                char_repr,
+                glyph,
+                comment,
+            } => {
                 let target = match glyph {
                     Some(g) => format!(" = {}", quote_token(g)),
                     None => String::new(),
@@ -857,7 +895,12 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
 
     if let Some(grid) = &body.pixels {
         let s = body.scale as u16;
-        writeln!(writer, "glyph {qname} {} {}{flags}{hcomment}", grid.width / s, grid.height / s)?;
+        writeln!(
+            writer,
+            "glyph {qname} {} {}{flags}{hcomment}",
+            grid.width / s,
+            grid.height / s
+        )?;
         if !grid.is_all_empty() {
             for row in 0..grid.height {
                 writeln!(writer, "{}", encode_grid_row(grid, row))?;
@@ -885,15 +928,13 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
     while let Some(line) = iter.next() {
         let trimmed = line.trim();
 
-        let is_glyph = tokenize_tokens(trimmed)
-            .ok()
-            .and_then(|tokens| {
-                if tokens.first().is_some_and(|t| t == "glyph") {
-                    glyph_header_dims(&tokens[1..])
-                } else {
-                    None
-                }
-            });
+        let is_glyph = tokenize_tokens(trimmed).ok().and_then(|tokens| {
+            if tokens.first().is_some_and(|t| t == "glyph") {
+                glyph_header_dims(&tokens[1..])
+            } else {
+                None
+            }
+        });
 
         if let Some(dims) = is_glyph {
             lines.push(DocLine::Text(line.to_string()));
@@ -904,9 +945,8 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
                 let is_pixel = iter.peek().is_some_and(|peek_line| {
                     let chars: Vec<char> = peek_line.chars().collect();
                     chars.len() == width as usize * 2
-                        && (0..width as usize).all(|col| {
-                            chars_to_shape(chars[col * 2], chars[col * 2 + 1]).is_some()
-                        })
+                        && (0..width as usize)
+                            .all(|col| chars_to_shape(chars[col * 2], chars[col * 2 + 1]).is_some())
                 });
                 if !is_pixel {
                     break;
@@ -916,9 +956,10 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
                     for col in 0..width as usize {
                         let idx = col * 2;
                         if idx + 1 < chars.len()
-                            && let Some(shape) = chars_to_shape(chars[idx], chars[idx + 1]) {
-                                grid.set(row, col as u16, shape);
-                            }
+                            && let Some(shape) = chars_to_shape(chars[idx], chars[idx + 1])
+                        {
+                            grid.set(row, col as u16, shape);
+                        }
                     }
                 }
             }
@@ -1002,8 +1043,7 @@ pub fn derive_document(
                     .as_deref()
                     .map(|c| format!(" // {c}"))
                     .unwrap_or_default();
-                let tokens = tokenize_tokens(body_text)
-                    .map_err(DeriveError)?;
+                let tokens = tokenize_tokens(body_text).map_err(DeriveError)?;
                 if tokens.is_empty() {
                     item_line_starts.push(i);
                     // A comment-only line never reaches here: it was taken by
@@ -1016,7 +1056,8 @@ pub fn derive_document(
                 match tokens[0].as_str() {
                     "meta" => {
                         item_line_starts.push(i);
-                        let rest: Vec<String> = tokens[1..].iter().map(|t| quote_token(t)).collect();
+                        let rest: Vec<String> =
+                            tokens[1..].iter().map(|t| quote_token(t)).collect();
                         let text = rest.join(" ");
                         doc.items.push(DocumentItem::Meta(format!(
                             "{}{comment_raw}",
@@ -1026,10 +1067,13 @@ pub fn derive_document(
                     }
                     "exclude-from-sample" | "assume" => {
                         item_line_starts.push(i);
-                        let rest: Vec<String> = tokens[1..].iter().map(|t| quote_token(t)).collect();
+                        let rest: Vec<String> =
+                            tokens[1..].iter().map(|t| quote_token(t)).collect();
                         let text = format!("{} {}", tokens[0], rest.join(" "));
-                        doc.items
-                            .push(DocumentItem::Directive(format!("{}{comment_raw}", text.trim_end())));
+                        doc.items.push(DocumentItem::Directive(format!(
+                            "{}{comment_raw}",
+                            text.trim_end()
+                        )));
                         i += 1;
                     }
                     "map" => {
@@ -1052,7 +1096,9 @@ pub fn derive_document(
                                 comment,
                             });
                             i += 1;
-                        } else if generate && (tokens.len() == 2 || (tokens.len() == 4 && tokens[2] == "=")) {
+                        } else if generate
+                            && (tokens.len() == 2 || (tokens.len() == 4 && tokens[2] == "="))
+                        {
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::MapDecomposed {
                                 slice,
@@ -1079,16 +1125,17 @@ pub fn derive_document(
                         let name = parse_glyph_name(&parts[0]);
 
                         let rest_parts = &parts[1..];
-                        let (alias, flag_parts) = if let Some(eq_pos) = rest_parts.iter().position(|p| p == "=") {
-                            let alias = if eq_pos + 1 < rest_parts.len() {
-                                Some(rest_parts[eq_pos + 1].clone())
+                        let (alias, flag_parts) =
+                            if let Some(eq_pos) = rest_parts.iter().position(|p| p == "=") {
+                                let alias = if eq_pos + 1 < rest_parts.len() {
+                                    Some(rest_parts[eq_pos + 1].clone())
+                                } else {
+                                    None
+                                };
+                                (alias, &rest_parts[..eq_pos])
                             } else {
-                                None
+                                (None, rest_parts)
                             };
-                            (alias, &rest_parts[..eq_pos])
-                        } else {
-                            (None, rest_parts)
-                        };
 
                         let mut body = GlyphBody::new();
                         body.comment = comment;
@@ -1123,12 +1170,14 @@ pub fn derive_document(
 
                         if let (Some(w), Some(h)) = (width, height) {
                             if let Some(DocLine::Grid(g)) = lines.get(i)
-                                && g.width == w && g.height == h {
-                                    body.pixels = Some(g.clone());
-                                    i += 1;
-                                } else {
-                                    body.pixels = Some(PixelGrid::new(w, h));
-                                }
+                                && g.width == w
+                                && g.height == h
+                            {
+                                body.pixels = Some(g.clone());
+                                i += 1;
+                            } else {
+                                body.pixels = Some(PixelGrid::new(w, h));
+                            }
                         }
 
                         // Collect ref and anchor lines
@@ -1149,11 +1198,17 @@ pub fn derive_document(
                             } else if sub_tokens.first().is_some_and(|t| t == "anchor") {
                                 let point_parts = &sub_tokens[1..];
                                 if point_parts.len() == 3
-                                    && let Some(pt) = parse_anchor_point(&point_parts[0], &point_parts[1], &point_parts[2], sub_comment) {
-                                        body.points.push(pt);
-                                        i += 1;
-                                        continue;
-                                    }
+                                    && let Some(pt) = parse_anchor_point(
+                                        &point_parts[0],
+                                        &point_parts[1],
+                                        &point_parts[2],
+                                        sub_comment,
+                                    )
+                                {
+                                    body.points.push(pt);
+                                    i += 1;
+                                    continue;
+                                }
                                 break;
                             } else {
                                 break;
@@ -1165,7 +1220,8 @@ pub fn derive_document(
                     }
                     "name-parts" | "remap" | "feature" | "assert" | "face" | "slice" => {
                         item_line_starts.push(i);
-                        doc.items.push(DocumentItem::parse_directive(&tokens, comment));
+                        doc.items
+                            .push(DocumentItem::parse_directive(&tokens, comment));
                         i += 1;
                     }
                     "color" => {
@@ -1227,16 +1283,11 @@ pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
     let dir = path.parent().unwrap_or(Path::new("."));
     let tmp_path = dir.join(format!(
         ".~{}",
-        path.file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
+        path.file_name().unwrap_or_default().to_string_lossy()
     ));
-    let mut f = std::fs::File::create(&tmp_path)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    f.write_all(data)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    f.sync_all()
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    let mut f = std::fs::File::create(&tmp_path).map_err(|e| anyhow::anyhow!("{e}"))?;
+    f.write_all(data).map_err(|e| anyhow::anyhow!("{e}"))?;
+    f.sync_all().map_err(|e| anyhow::anyhow!("{e}"))?;
     drop(f);
     if let Err(e) = std::fs::rename(&tmp_path, path) {
         let _ = std::fs::remove_file(&tmp_path);

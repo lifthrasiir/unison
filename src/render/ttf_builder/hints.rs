@@ -1,8 +1,8 @@
 //! TrueType hinting: grid-snap hints that make diagonals rasterize as clean
 //! staircases at the bitmap PPEM.
 
-use super::*;
 use super::contours::{contour_signed_area, gcd};
+use super::*;
 
 /// Add midpoints on diagonal contour edges and generate TrueType instructions
 /// that snap those midpoints to the pixel grid at `hint_ppem`.
@@ -77,9 +77,7 @@ pub(super) fn generate_grid_snap_hints(
                 let mx = (seg_a.0 + seg_b.0) / 2;
                 let my = (seg_a.1 + seg_b.1) / 2;
 
-                if (mx == seg_a.0 && my == seg_a.1)
-                    || (mx == seg_b.0 && my == seg_b.1)
-                {
+                if (mx == seg_a.0 && my == seg_a.1) || (mx == seg_b.0 && my == seg_b.1) {
                     if si + 1 < seg_count {
                         contour.push((seg_starts[si + 1].0 as i16, seg_starts[si + 1].1 as i16));
                     }
@@ -123,10 +121,7 @@ pub(super) fn generate_grid_snap_hints(
     encode_grid_snap_instructions(&deltas, hint_ppem)
 }
 
-fn encode_grid_snap_instructions(
-    deltas: &[(u16, i16, i16)],
-    hint_ppem: u16,
-) -> Vec<u8> {
+fn encode_grid_snap_instructions(deltas: &[(u16, i16, i16)], hint_ppem: u16) -> Vec<u8> {
     let mut code = Vec::new();
 
     // PUSHB hint_ppem; MPPEM; EQ; IF
