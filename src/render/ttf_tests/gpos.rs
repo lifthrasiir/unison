@@ -633,6 +633,98 @@ feature ccmp for DFLT : anchor above
     assert!(found, "dia-above should appear in a MarkBasePos mark array");
 }
 
+/// Regression test: a mark glyph that declares *no* `-anchor` of its own
+/// must still be classified, from what `inherit` forwarded. A composite
+/// mark built purely out of ref'd marks (a merged accent pair, say) used
+/// to be dropped from the mark-to-base coverage entirely — it stayed a
+/// GDEF mark with nowhere to attach, so it rendered at the origin.
+///
+/// The companion rule lives in
+/// `gpos_mark_classification_uses_declared_not_forwarded_anchors`:
+/// declared anchors win when there are any. Only the gap falls back.
+#[test]
+fn gpos_mark_classification_falls_back_to_inherited_anchors() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph base-letter 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 2 0
+
+glyph dia-plain mark 3 2
+@@@@@@
+@@@@@@
+anchor -above 1 1
+anchor +above 1 0
+
+glyph dia-merged mark
+ref dia-plain inherit
+
+map a = base-letter
+map \u{0308} = dia-plain
+map \u{0344} = dia-merged
+
+feature ccmp for DFLT : anchor above
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect");
+
+    // Setup sanity: dia-merged declares nothing and gets -above only
+    // through the `inherit` ref.
+    let merged = glyphs.iter().find(|g| g.name == "dia-merged").unwrap();
+    assert!(
+        merged.declared_anchors.is_empty(),
+        "dia-merged declares no anchors of its own"
+    );
+    assert!(
+        merged.resolved_anchors.iter().any(|p| p.position == "-above"),
+        "dia-merged should forward -above from dia-plain via the `inherit` ref"
+    );
+
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+    let gpos = anchor_data.gpos.expect("GPOS should exist");
+    let merged_gid = *name_to_gid.get("dia-merged").unwrap();
+
+    let mut found = false;
+    for lookup in &gpos.lookup_list.lookups {
+        if let PositionLookup::MarkToBase(lk) = lookup.as_ref() {
+            for sub in &lk.subtables {
+                let CoverageTable::Format1(cov) = &*sub.mark_coverage else {
+                    continue;
+                };
+                let Some(idx) = cov.glyph_array.iter().position(|&g| g == merged_gid) else {
+                    continue;
+                };
+                let record = &sub.mark_array.mark_records[idx];
+                let AnchorTable::Format1(anchor) = &*record.mark_anchor else {
+                    panic!("expected AnchorFormat1");
+                };
+                // Inherited from dia-plain's -above at col=1,row=1:
+                // x = 1*64 = 64, y = (12-1)*64 = 704.
+                assert_eq!(anchor.x_coordinate, 64);
+                assert_eq!(anchor.y_coordinate, 704);
+                found = true;
+            }
+        }
+    }
+    assert!(
+        found,
+        "dia-merged must appear in a MarkBasePos mark array through its inherited -above"
+    );
+}
+
 /// Regression test: when the used anchor classes are non-contiguous
 /// (e.g. classes {0, 2} because the middle anchor class has no marks
 /// using it), they must be compacted to contiguous 0-based indices so

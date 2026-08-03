@@ -140,12 +140,25 @@ pub(super) fn build_anchor_gpos(
         if g.mark {
             mark_gid_set.insert(gid);
 
-            // Mark glyphs: look for `-anchor` anchors in declared_anchors only
-            // (not forwarded anchors from refs) to determine mark class.
-            for anchor_name in anchor_names.iter() {
-                let minus_name = format!("-{anchor_name}");
-                if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == minus_name) {
-                    let class = anchor_class_map[anchor_name];
+            // Mark glyphs: a `-anchor` decides the mark class, and a mark gets
+            // exactly one. Declared anchors are consulted first, because the
+            // forwarded set may also carry an unrelated `-anchor` from a ref
+            // (`dia-above` refs `dia-below`) and the loop below takes whichever
+            // anchor name comes first — an order that means nothing here.
+            // A mark that declares none of them falls back to what `inherit`
+            // forwarded, so a mark composed purely out of ref'd marks (a merged
+            // accent pair, say) still attaches instead of silently dropping out
+            // of the coverage. `resolved_anchors` is already the exposed set, so
+            // that fallback respects `inherit` on its own.
+            for source in [&g.declared_anchors, &g.resolved_anchors] {
+                let found = anchor_names.iter().find_map(|anchor_name| {
+                    let minus_name = format!("-{anchor_name}");
+                    source
+                        .iter()
+                        .find(|p| p.position == minus_name)
+                        .map(|pt| (anchor_class_map[anchor_name], pt))
+                });
+                if let Some((class, pt)) = found {
                     let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
                     mark_gids.push((gid, class, x, y));
                     break;
