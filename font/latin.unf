@@ -835,8 +835,8 @@ glyph t-upper 8 16
 ................
 ................
 ................
-anchor +above 4 1
-anchor +below 4 14
+anchor +above 3..4 1
+anchor +below 3..4 14
 anchor -center 4 7..8
 
 glyph thorn-upper 8 16
@@ -3336,11 +3336,11 @@ map generate Ṣ
 map generate Ṩ
 glyph uni1E6A
 ref t-upper inherit
-ref dot-above 3 0 inherit
+ref dot-above inherit
 map Ṫ = uni1E6A
 glyph uni1E6C
 ref t-upper inherit
-ref dot-below 3 14 inherit
+ref dot-below inherit
 map Ṭ = uni1E6C
 map generate Ụ
 glyph uni1EF0

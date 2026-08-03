@@ -8,6 +8,15 @@
 //! declared by the composite itself — consuming it; the ref's own `+` anchors
 //! are then published in turn. All of that happens regardless of flags.
 //!
+//! Several `-` anchors on one ref are **alternatives**, not several
+//! attachments: they are how one combining mark reaches more than one anchor
+//! system (`gr-psili` joins a Greek `+gr-above` or a plain `+above`). The
+//! first with a candidate wins and the rest retire silently, taking their
+//! `+` partners with them — a mark publishes only the system it joined. A `+`
+//! with no `-` of the same name is a base's hosting point and is never
+//! retired, which is why `s-upper` still offers `+above` to Ṩ's second mark
+//! after `+below` was taken.
+//!
 //! What the composite *exposes* to the outside — GPOS base anchors, the editor's
 //! anchor shadow, further composition — is only its own declared anchors plus
 //! the surviving anchors of refs marked `inherit`. So a digraph or a circled
@@ -659,7 +668,9 @@ type PoolAnchor = (GlyphPoint, Option<usize>);
 /// Derive effective ref offsets and the anchors exposed by the resulting
 /// composite without changing the source refs.  A target's `-name` anchors
 /// consume matching `+name` anchors that are already available, then the
-/// target's `+name` anchors are published for following refs.
+/// target's `+name` anchors are published for following refs.  A target's
+/// several `-name` anchors are alternative ways in, so only the first with a
+/// candidate is used; see the module docs for what the rest take with them.
 ///
 /// What the composite *exposes* is opt-in: its own declared anchors, plus the
 /// surviving anchors (published `+`, unconsumed `-`) of refs marked
@@ -1183,10 +1194,19 @@ fn commit_ref(
     // than immediately deleting it again. Consumption needs a *unique*
     // size-matching `+`: more than one means the attachment is ill-defined,
     // so nothing is consumed (and nothing survives) — loudly.
-    for minus in target_anchors
+    //
+    // Several `-` anchors are *alternatives*, not several attachments: one
+    // mark that can adjoin to more than one anchor system (`gr-psili` joins
+    // either a Greek `+gr-above` or a plain `+above`). The first one with a
+    // candidate decides — the very order `try_match_minus_plus` derived the
+    // offset from — and the rest retire without a trace: no survivor, and no
+    // near-miss warning against a `+` this ref was never going to use.
+    let minus_anchors: Vec<&GlyphPoint> = target_anchors
         .iter()
         .filter(|p| p.position.starts_with('-'))
-    {
+        .collect();
+    let mut joined: Option<&str> = None;
+    for minus in &minus_anchors {
         let Some(base) = minus.position.strip_prefix('-') else {
             continue;
         };
@@ -1198,36 +1218,58 @@ fn commit_ref(
             })
             .map(|(i, _)| i)
             .collect();
-        match matching.len() {
-            0 => {
-                // A same-name `+` of the wrong size is a near-miss worth
-                // flagging; no same-name `+` at all is plain forwarding.
-                if let Some((near, _)) = available_plus
-                    .iter()
-                    .find(|(p, _)| p.position.strip_prefix('+') == Some(base))
-                {
-                    issues.push(DeriveIssue::SizeMismatchedAttachment {
-                        position: minus.position.clone(),
-                        ref_name: gref.name.clone(),
-                        minus: (minus.width(), minus.height()),
-                        plus: (near.width(), near.height()),
-                    });
-                }
-                survived_minus.push((translate_point(minus, off_col, off_row), Some(ref_idx)));
-            }
-            1 => {
-                available_plus.remove(matching[0]);
-            }
-            _ => issues.push(DeriveIssue::AmbiguousAttachment {
+        if matching.is_empty() {
+            continue;
+        }
+        joined = Some(base);
+        if matching.len() == 1 {
+            available_plus.remove(matching[0]);
+        } else {
+            issues.push(DeriveIssue::AmbiguousAttachment {
                 position: minus.position.clone(),
                 ref_name: gref.name.clone(),
-            }),
+            });
+        }
+        break;
+    }
+    if joined.is_none() {
+        for minus in &minus_anchors {
+            let Some(base) = minus.position.strip_prefix('-') else {
+                continue;
+            };
+            // A same-name `+` of the wrong size is a near-miss worth
+            // flagging; no same-name `+` at all is plain forwarding.
+            if let Some((near, _)) = available_plus
+                .iter()
+                .find(|(p, _)| p.position.strip_prefix('+') == Some(base))
+            {
+                issues.push(DeriveIssue::SizeMismatchedAttachment {
+                    position: minus.position.clone(),
+                    ref_name: gref.name.clone(),
+                    minus: (minus.width(), minus.height()),
+                    plus: (near.width(), near.height()),
+                });
+            }
+            survived_minus.push((translate_point(minus, off_col, off_row), Some(ref_idx)));
         }
     }
     for plus in target_anchors
         .iter()
         .filter(|p| p.position.starts_with('+'))
     {
+        // A `+` whose `-` partner retired goes with it: having joined one
+        // system, the mark offers the next mark only that same system. A `+`
+        // with no `-` partner at all is a base's hosting point, untouched —
+        // `s-upper` keeps offering `+above` after `+below` was taken.
+        if let Some(joined) = joined
+            && let Some(base) = plus.position.strip_prefix('+')
+            && base != joined
+            && minus_anchors
+                .iter()
+                .any(|m| m.position.strip_prefix('-') == Some(base))
+        {
+            continue;
+        }
         available_plus.push((translate_point(plus, off_col, off_row), Some(ref_idx)));
     }
 

@@ -1830,6 +1830,68 @@ fn derive_reports_size_mismatched_attachment() {
     assert!(issues.is_empty(), "{issues:?}");
 }
 
+/// Several `-` anchors on one ref target are *alternatives*, not several
+/// attachments: one combining mark that can adjoin to more than one anchor
+/// system. Attaching through one retires the rest — they neither survive as
+/// exposed anchors nor warn about a same-name `+` of another size — and their
+/// `+` partners go with them, so the mark publishes only the system it
+/// actually joined.
+///
+/// `gr-psili` over a Greek capital is the case: it declares `-gr-above` and
+/// forwards `-above` from `com-above:narrow`, while the capital publishes a
+/// 1-cell `+gr-above` and a 2-cell `+above`. It joins the Greek system; the
+/// leftover 1-cell `-above` used to survive, warn against the capital's
+/// 2-cell `+above`, and publish a second `+above` that collided with it.
+#[test]
+fn attaching_through_one_minus_retires_the_other_alternatives() {
+    let anchored = |position: &str, col: i16, row: i16, w: i16| GlyphPoint {
+        comment: None,
+        position: position.to_string(),
+        col,
+        row,
+        col_end: col + w - 1,
+        row_end: row,
+    };
+    let lookup = |name: &str| -> Option<Vec<GlyphPoint>> {
+        match name {
+            "cap" => Some(vec![
+                anchored("+above", 3, 1, 2),
+                anchored("+gr-above", 0, 3, 1),
+            ]),
+            "psili" => Some(vec![
+                anchored("-gr-above", 1, 1, 1),
+                anchored("+gr-above", 1, -1, 1),
+                anchored("-above", 1, 2, 1),
+                anchored("+above", 1, -1, 1),
+            ]),
+            _ => None,
+        }
+    };
+    let gref = |name: &str| GlyphRef {
+        comment: None,
+        name: name.to_string(),
+        offset: None,
+        negated: false,
+        inherit: true,
+        fill: None,
+        visibility: None,
+    };
+
+    let refs = vec![gref("cap"), gref("psili")];
+    let (effective, exposed, issues) =
+        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+
+    // Joined through -gr-above: offset = plus(0,3) - minus(1,1).
+    assert_eq!(effective[1].offset, Some((-1, 2)));
+    assert!(issues.is_empty(), "{issues:?}");
+
+    let mut positions: Vec<&str> = exposed.iter().map(|(p, _)| p.position.as_str()).collect();
+    positions.sort_unstable();
+    // The capital's untouched +above, and the Greek system psili published.
+    // Not psili's -above (retired), and so not a second +above either.
+    assert_eq!(positions, vec!["+above", "+gr-above"]);
+}
+
 /// Size-based alternative selection still runs for offset-less refs — and it
 /// is exactly what the size-mismatch warning defers to: the uni1E2E shape
 /// (a narrow mark stacked on a wide mark's 2-cell `+above`) picks the
