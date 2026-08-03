@@ -1111,7 +1111,7 @@ map ω = gr-omega-lower
 feature ccmp for grek : anchor gr-above
 feature ccmp for grek : anchor gr-below
 
-name-parts $gr-comb = tonos varia dialytika
+name-parts $gr-comb = tonos varia dialytika psili dasia perispomeni
 name-parts $gr-vowel = alpha epsilon eta iota omicron upsilon omega
 
 remap gr-comb : gr-($gr-lex)-upper : acute-above -> gr-tonos
@@ -1126,8 +1126,25 @@ remap gr-comb : gr-($gr-lex)-upper : dia-above -> gr-dialytika
 remap gr-comb : gr-($gr-lex)-lower : dia-above -> gr-dialytika
 remap gr-comb : gr-($gr-comb) : dia-above -> gr-dialytika
 
+remap gr-comb : gr-($gr-lex)-upper : com-above -> gr-psili
+remap gr-comb : gr-($gr-lex)-lower : com-above -> gr-psili
+remap gr-comb : gr-($gr-comb) : com-above -> gr-psili
+
+remap gr-comb : gr-($gr-lex)-upper : com-reversed-above -> gr-dasia
+remap gr-comb : gr-($gr-lex)-lower : com-reversed-above -> gr-dasia
+remap gr-comb : gr-($gr-comb) : com-reversed-above -> gr-dasia
+
 remap gr-merge : gr-dialytika(|:wide) gr-tonos -> gr-dialytika-tonos
 remap gr-merge : gr-dialytika(|:wide) gr-varia -> gr-dialytika-varia
+remap gr-merge : gr-dialytika(|:wide) gr-perispomeni -> gr-dialytika-perispomeni
+
+remap gr-merge : gr-psili(|:wide) gr-tonos -> gr-psili-tonos
+remap gr-merge : gr-psili(|:wide) gr-varia -> gr-psili-varia
+remap gr-merge : gr-psili(|:wide) gr-perispomeni -> gr-psili-perispomeni
+
+remap gr-merge : gr-dasia(|:wide) gr-tonos -> gr-dasia-tonos
+remap gr-merge : gr-dasia(|:wide) gr-varia -> gr-dasia-varia
+remap gr-merge : gr-dasia(|:wide) gr-perispomeni -> gr-dasia-perispomeni
 
 remap group gr-merge after gr-comb
 feature ccmp for grek : gr-comb
@@ -1247,12 +1264,16 @@ map ϋ = gr-upsilon-lower-with-dialytika
 
 glyph gr-dialytika-tonos mark
 ref dia-wide
-ref gr-tonos 2 -1 inherit
+ref gr-tonos 2 -1
+anchor -above 3 0
+anchor +above 3 -2
+anchor +gr-above 3 -2
 
 glyph gr-dialytika-tonos:wide mark
 ref dia-wide 0 0
 ref gr-tonos0 2 -1
-anchor -gr-above 2..3 0
+anchor -above 2..3 0
+anchor +above 2..3 -2
 anchor +gr-above 2..3 -2
 
 glyph gr-(iota|upsilon)-lower-with-dialytika-tonos
@@ -1267,12 +1288,16 @@ map ΰ|ΰ = gr-upsilon-lower-with-dialytika-tonos
 
 glyph gr-dialytika-varia mark
 ref dia-wide
-ref gr-varia 1 -1 inherit
+ref gr-varia 1 -1
+anchor -above 2 0
+anchor +above 2 -2
+anchor +gr-above 2 -2
 
 glyph gr-dialytika-varia:wide mark
 ref dia-wide 0 0
 ref gr-varia0 1 -1
-anchor -gr-above 2..3 0
+anchor -above 2..3 0
+anchor +above 2..3 -2
 anchor +gr-above 2..3 -2
 
 glyph gr-(iota|upsilon)-lower-with-dialytika-varia
@@ -1357,4 +1382,534 @@ map ὑ = gr-upsilon-lower-with-dasia
 map ὡ = gr-omega-lower-with-dasia
 map ῥ = gr-rho-lower-with-dasia
 
+//--------------------------------------
+// with perispomeni
+
+glyph gr-perispomeni0 4 2
+/0@b\./1
+1/.\9@0/
+
+assert distinct gr-perispomeni comb-tilde // distinguished by width
+
+glyph gr-perispomeni mark advance 0
+ref gr-perispomeni0
+anchor -above 2 1
+anchor +above 2 -1
+anchor +gr-above 2 -1
+
+glyph gr-perispomeni:wide mark
+ref gr-perispomeni0
+anchor -above 1..2 1
+anchor +above 1..2 -1
+anchor +gr-above 1..2 -1
+
+map U+0342 = gr-perispomeni
+
+name-parts $gr-peri = alpha eta iota upsilon omega
+
+glyph gr-($gr-peri)-lower-with-perispomeni
+ref gr-($gr-peri)-lower
+ref gr-perispomeni
+
+map ᾶ = gr-alpha-lower-with-perispomeni
+map ῆ = gr-eta-lower-with-perispomeni
+map ῖ = gr-iota-lower-with-perispomeni
+map ῦ = gr-upsilon-lower-with-perispomeni
+map ῶ = gr-omega-lower-with-perispomeni
+
+assert shape ᾶ : gr-alpha-lower-with-perispomeni
+assert shape Β͂ : gr-beta-upper : gr-perispomeni offset -6 0
+
+//--------------------------------------
+// with dialytika + perispomeni
+
+glyph gr-dialytika-perispomeni mark
+ref dia-wide 0 0
+ref gr-perispomeni0 1 -2
+anchor -above 3 0
+anchor +above 3 -3
+anchor +gr-above 3 -3
+
+glyph gr-dialytika-perispomeni:wide mark
+ref dia-wide 0 0
+ref gr-perispomeni0 1 -2
+anchor -above 2..3 0
+anchor +above 2..3 -3
+anchor +gr-above 2..3 -3
+
+glyph gr-(iota|upsilon)-lower-with-dialytika-perispomeni
+ref gr-(iota|upsilon)-lower
+ref gr-dialytika-perispomeni
+
+map ῗ = gr-iota-lower-with-dialytika-perispomeni
+map ῧ = gr-upsilon-lower-with-dialytika-perispomeni
+
+assert shape ῗ : gr-iota-lower-with-dialytika-perispomeni
+assert shape Β̈͂ : gr-beta-upper : gr-dialytika-perispomeni offset -7 1
+
+//--------------------------------------
+// with a breathing mark and an accent (side by side)
+
+glyph gr-psili-varia mark advance 0
+ref com 0 0
+ref gr-varia0 2 0
+anchor -gr-above 2 1
+anchor +gr-above 2 -1
+
+glyph gr-psili-varia:wide mark
+ref com 0 0
+ref gr-varia0 2 0
+anchor -gr-above 2..3 1
+anchor +gr-above 2..3 -1
+
+glyph gr-psili-tonos mark advance 0
+ref com 0 0
+ref gr-tonos0 2 0
+anchor -gr-above 2 1
+anchor +gr-above 2 -1
+
+glyph gr-psili-tonos:wide mark
+ref com 0 0
+ref gr-tonos0 2 0
+anchor -gr-above 2..3 1
+anchor +gr-above 2..3 -1
+
+glyph gr-psili-perispomeni mark advance 0
+ref com 0 0
+ref gr-perispomeni0 2 0
+anchor -gr-above 3 1
+anchor +gr-above 3 -1
+
+glyph gr-psili-perispomeni:wide mark
+ref com 0 0
+ref gr-perispomeni0 2 0
+anchor -gr-above 2..3 1
+anchor +gr-above 2..3 -1
+
+glyph gr-dasia-varia mark advance 0
+ref com-reversed 0 0
+ref gr-varia0 2 0
+anchor -gr-above 2 1
+anchor +gr-above 2 -1
+
+glyph gr-dasia-varia:wide mark
+ref com-reversed 0 0
+ref gr-varia0 2 0
+anchor -gr-above 2..3 1
+anchor +gr-above 2..3 -1
+
+glyph gr-dasia-tonos mark advance 0
+ref com-reversed 0 0
+ref gr-tonos0 2 0
+anchor -gr-above 2 1
+anchor +gr-above 2 -1
+
+glyph gr-dasia-tonos:wide mark
+ref com-reversed 0 0
+ref gr-tonos0 2 0
+anchor -gr-above 2..3 1
+anchor +gr-above 2..3 -1
+
+glyph gr-dasia-perispomeni mark advance 0
+ref com-reversed 0 0
+ref gr-perispomeni0 2 0
+anchor -gr-above 3 1
+anchor +gr-above 3 -1
+
+glyph gr-dasia-perispomeni:wide mark
+ref com-reversed 0 0
+ref gr-perispomeni0 2 0
+anchor -gr-above 2..3 1
+anchor +gr-above 2..3 -1
+
+name-parts $gr-psili-varia = alpha epsilon eta iota omicron omega
+glyph gr-($gr-psili-varia)-upper-with-psili-varia
+ref gr-($gr-psili-varia)-upper
+ref gr-psili-varia
+glyph gr-($gr-psili-varia)-upper-with-psili-tonos
+ref gr-($gr-psili-varia)-upper
+ref gr-psili-tonos
+
+name-parts $gr-psili-peri = alpha eta iota omega
+glyph gr-($gr-psili-peri)-upper-with-psili-perispomeni
+ref gr-($gr-psili-peri)-upper
+ref gr-psili-perispomeni
+
+glyph gr-($gr-vowel)-upper-with-dasia-varia
+ref gr-($gr-vowel)-upper
+ref gr-dasia-varia
+
+glyph gr-($gr-vowel)-upper-with-dasia-tonos
+ref gr-($gr-vowel)-upper
+ref gr-dasia-tonos
+
+glyph gr-($gr-peri)-upper-with-dasia-perispomeni
+ref gr-($gr-peri)-upper
+ref gr-dasia-perispomeni
+
+glyph gr-($gr-vowel)-lower-with-psili-varia
+ref gr-($gr-vowel)-lower
+ref gr-psili-varia
+
+glyph gr-($gr-vowel)-lower-with-psili-tonos
+ref gr-($gr-vowel)-lower
+ref gr-psili-tonos
+
+glyph gr-($gr-peri)-lower-with-psili-perispomeni
+ref gr-($gr-peri)-lower
+ref gr-psili-perispomeni
+
+glyph gr-($gr-vowel)-lower-with-dasia-varia
+ref gr-($gr-vowel)-lower
+ref gr-dasia-varia
+
+glyph gr-($gr-vowel)-lower-with-dasia-tonos
+ref gr-($gr-vowel)-lower
+ref gr-dasia-tonos
+
+glyph gr-($gr-peri)-lower-with-dasia-perispomeni
+ref gr-($gr-peri)-lower
+ref gr-dasia-perispomeni
+
+map Ἂ = gr-alpha-upper-with-psili-varia
+map Ἒ = gr-epsilon-upper-with-psili-varia
+map Ἢ = gr-eta-upper-with-psili-varia
+map Ἲ = gr-iota-upper-with-psili-varia
+map Ὂ = gr-omicron-upper-with-psili-varia
+map Ὢ = gr-omega-upper-with-psili-varia
+
+map Ἄ = gr-alpha-upper-with-psili-tonos
+map Ἔ = gr-epsilon-upper-with-psili-tonos
+map Ἤ = gr-eta-upper-with-psili-tonos
+map Ἴ = gr-iota-upper-with-psili-tonos
+map Ὄ = gr-omicron-upper-with-psili-tonos
+map Ὤ = gr-omega-upper-with-psili-tonos
+
+map Ἆ = gr-alpha-upper-with-psili-perispomeni
+map Ἦ = gr-eta-upper-with-psili-perispomeni
+map Ἶ = gr-iota-upper-with-psili-perispomeni
+map Ὦ = gr-omega-upper-with-psili-perispomeni
+
+map Ἃ = gr-alpha-upper-with-dasia-varia
+map Ἓ = gr-epsilon-upper-with-dasia-varia
+map Ἣ = gr-eta-upper-with-dasia-varia
+map Ἳ = gr-iota-upper-with-dasia-varia
+map Ὃ = gr-omicron-upper-with-dasia-varia
+map Ὓ = gr-upsilon-upper-with-dasia-varia
+map Ὣ = gr-omega-upper-with-dasia-varia
+
+map Ἅ = gr-alpha-upper-with-dasia-tonos
+map Ἕ = gr-epsilon-upper-with-dasia-tonos
+map Ἥ = gr-eta-upper-with-dasia-tonos
+map Ἵ = gr-iota-upper-with-dasia-tonos
+map Ὅ = gr-omicron-upper-with-dasia-tonos
+map Ὕ = gr-upsilon-upper-with-dasia-tonos
+map Ὥ = gr-omega-upper-with-dasia-tonos
+
+map Ἇ = gr-alpha-upper-with-dasia-perispomeni
+map Ἧ = gr-eta-upper-with-dasia-perispomeni
+map Ἷ = gr-iota-upper-with-dasia-perispomeni
+map Ὗ = gr-upsilon-upper-with-dasia-perispomeni
+map Ὧ = gr-omega-upper-with-dasia-perispomeni
+
+map ἂ = gr-alpha-lower-with-psili-varia
+map ἒ = gr-epsilon-lower-with-psili-varia
+map ἢ = gr-eta-lower-with-psili-varia
+map ἲ = gr-iota-lower-with-psili-varia
+map ὂ = gr-omicron-lower-with-psili-varia
+map ὒ = gr-upsilon-lower-with-psili-varia
+map ὢ = gr-omega-lower-with-psili-varia
+
+map ἄ = gr-alpha-lower-with-psili-tonos
+map ἔ = gr-epsilon-lower-with-psili-tonos
+map ἤ = gr-eta-lower-with-psili-tonos
+map ἴ = gr-iota-lower-with-psili-tonos
+map ὄ = gr-omicron-lower-with-psili-tonos
+map ὔ = gr-upsilon-lower-with-psili-tonos
+map ὤ = gr-omega-lower-with-psili-tonos
+
+map ἆ = gr-alpha-lower-with-psili-perispomeni
+map ἦ = gr-eta-lower-with-psili-perispomeni
+map ἶ = gr-iota-lower-with-psili-perispomeni
+map ὖ = gr-upsilon-lower-with-psili-perispomeni
+map ὦ = gr-omega-lower-with-psili-perispomeni
+
+map ἃ = gr-alpha-lower-with-dasia-varia
+map ἓ = gr-epsilon-lower-with-dasia-varia
+map ἣ = gr-eta-lower-with-dasia-varia
+map ἳ = gr-iota-lower-with-dasia-varia
+map ὃ = gr-omicron-lower-with-dasia-varia
+map ὓ = gr-upsilon-lower-with-dasia-varia
+map ὣ = gr-omega-lower-with-dasia-varia
+
+map ἅ = gr-alpha-lower-with-dasia-tonos
+map ἕ = gr-epsilon-lower-with-dasia-tonos
+map ἥ = gr-eta-lower-with-dasia-tonos
+map ἵ = gr-iota-lower-with-dasia-tonos
+map ὅ = gr-omicron-lower-with-dasia-tonos
+map ὕ = gr-upsilon-lower-with-dasia-tonos
+map ὥ = gr-omega-lower-with-dasia-tonos
+
+map ἇ = gr-alpha-lower-with-dasia-perispomeni
+map ἧ = gr-eta-lower-with-dasia-perispomeni
+map ἷ = gr-iota-lower-with-dasia-perispomeni
+map ὗ = gr-upsilon-lower-with-dasia-perispomeni
+map ὧ = gr-omega-lower-with-dasia-perispomeni
+
+assert shape ἆ : gr-alpha-lower-with-psili-perispomeni
+assert shape Β̓ : gr-beta-upper : gr-psili offset -10 2
+assert shape Β̔ : gr-beta-upper : gr-dasia offset -10 2
+assert shape Β̓́ : gr-beta-upper : gr-psili-tonos offset -11 2
+assert shape Β̔̀ : gr-beta-upper : gr-dasia-varia offset -11 2
+assert shape Β̔͂ : gr-beta-upper : gr-dasia-perispomeni offset -12 2
+
+//--------------------------------------
+// with ypogegrammeni/prosgegrammeni
+
+glyph gr-ypogegrammeni0 2 2
+@@..
+\0@@
+
+glyph gr-ypogegrammeni mark advance 0
+ref gr-ypogegrammeni0
+anchor -gr-below 0 0
+anchor +gr-below 0 2
+
+glyph gr-ypogegrammeni:wide mark
+ref gr-ypogegrammeni0
+anchor -gr-below 0..1 0
+anchor +gr-below 0..1 2
+
+map U+0345 = gr-ypogegrammeni
+
+name-parts $gr-ypo = alpha eta omega
+
+glyph gr-($gr-ypo)-upper-with-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-psili-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-psili
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-dasia-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-dasia
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-psili-varia-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-psili-varia
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-psili-tonos-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-psili-tonos
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-psili-perispomeni-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-psili-perispomeni
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-dasia-varia-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-dasia-varia
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-dasia-tonos-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-dasia-tonos
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-upper-with-dasia-perispomeni-prosgegrammeni advance 8
+ref gr-($gr-ypo)-upper
+ref gr-dasia-perispomeni
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-varia-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-varia
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-tonos-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-tonos
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-perispomeni-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-perispomeni
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-psili-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-psili
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-dasia-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-dasia
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-psili-varia-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-psili-varia
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-psili-tonos-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-psili-tonos
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-psili-perispomeni-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-psili-perispomeni
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-dasia-varia-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-dasia-varia
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-dasia-tonos-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-dasia-tonos
+ref gr-ypogegrammeni
+
+glyph gr-($gr-ypo)-lower-with-dasia-perispomeni-ypogegrammeni
+ref gr-($gr-ypo)-lower
+ref gr-dasia-perispomeni
+ref gr-ypogegrammeni
+
+map ᾼ = gr-alpha-upper-with-prosgegrammeni
+map ῌ = gr-eta-upper-with-prosgegrammeni
+map ῼ = gr-omega-upper-with-prosgegrammeni
+
+map ᾈ = gr-alpha-upper-with-psili-prosgegrammeni
+map ᾘ = gr-eta-upper-with-psili-prosgegrammeni
+map ᾨ = gr-omega-upper-with-psili-prosgegrammeni
+
+map ᾉ = gr-alpha-upper-with-dasia-prosgegrammeni
+map ᾙ = gr-eta-upper-with-dasia-prosgegrammeni
+map ᾩ = gr-omega-upper-with-dasia-prosgegrammeni
+
+map ᾊ = gr-alpha-upper-with-psili-varia-prosgegrammeni
+map ᾚ = gr-eta-upper-with-psili-varia-prosgegrammeni
+map ᾪ = gr-omega-upper-with-psili-varia-prosgegrammeni
+
+map ᾌ = gr-alpha-upper-with-psili-tonos-prosgegrammeni
+map ᾜ = gr-eta-upper-with-psili-tonos-prosgegrammeni
+map ᾬ = gr-omega-upper-with-psili-tonos-prosgegrammeni
+
+map ᾎ = gr-alpha-upper-with-psili-perispomeni-prosgegrammeni
+map ᾞ = gr-eta-upper-with-psili-perispomeni-prosgegrammeni
+map ᾮ = gr-omega-upper-with-psili-perispomeni-prosgegrammeni
+
+map ᾋ = gr-alpha-upper-with-dasia-varia-prosgegrammeni
+map ᾛ = gr-eta-upper-with-dasia-varia-prosgegrammeni
+map ᾫ = gr-omega-upper-with-dasia-varia-prosgegrammeni
+
+map ᾍ = gr-alpha-upper-with-dasia-tonos-prosgegrammeni
+map ᾝ = gr-eta-upper-with-dasia-tonos-prosgegrammeni
+map ᾭ = gr-omega-upper-with-dasia-tonos-prosgegrammeni
+
+map ᾏ = gr-alpha-upper-with-dasia-perispomeni-prosgegrammeni
+map ᾟ = gr-eta-upper-with-dasia-perispomeni-prosgegrammeni
+map ᾯ = gr-omega-upper-with-dasia-perispomeni-prosgegrammeni
+
+map ᾳ = gr-alpha-lower-with-ypogegrammeni
+map ῃ = gr-eta-lower-with-ypogegrammeni
+map ῳ = gr-omega-lower-with-ypogegrammeni
+
+map ᾲ = gr-alpha-lower-with-varia-ypogegrammeni
+map ῂ = gr-eta-lower-with-varia-ypogegrammeni
+map ῲ = gr-omega-lower-with-varia-ypogegrammeni
+
+map ᾴ = gr-alpha-lower-with-tonos-ypogegrammeni
+map ῄ = gr-eta-lower-with-tonos-ypogegrammeni
+map ῴ = gr-omega-lower-with-tonos-ypogegrammeni
+
+map ᾷ = gr-alpha-lower-with-perispomeni-ypogegrammeni
+map ῇ = gr-eta-lower-with-perispomeni-ypogegrammeni
+map ῷ = gr-omega-lower-with-perispomeni-ypogegrammeni
+
+map ᾀ = gr-alpha-lower-with-psili-ypogegrammeni
+map ᾐ = gr-eta-lower-with-psili-ypogegrammeni
+map ᾠ = gr-omega-lower-with-psili-ypogegrammeni
+
+map ᾁ = gr-alpha-lower-with-dasia-ypogegrammeni
+map ᾑ = gr-eta-lower-with-dasia-ypogegrammeni
+map ᾡ = gr-omega-lower-with-dasia-ypogegrammeni
+
+map ᾂ = gr-alpha-lower-with-psili-varia-ypogegrammeni
+map ᾒ = gr-eta-lower-with-psili-varia-ypogegrammeni
+map ᾢ = gr-omega-lower-with-psili-varia-ypogegrammeni
+
+map ᾄ = gr-alpha-lower-with-psili-tonos-ypogegrammeni
+map ᾔ = gr-eta-lower-with-psili-tonos-ypogegrammeni
+map ᾤ = gr-omega-lower-with-psili-tonos-ypogegrammeni
+
+map ᾆ = gr-alpha-lower-with-psili-perispomeni-ypogegrammeni
+map ᾖ = gr-eta-lower-with-psili-perispomeni-ypogegrammeni
+map ᾦ = gr-omega-lower-with-psili-perispomeni-ypogegrammeni
+
+map ᾃ = gr-alpha-lower-with-dasia-varia-ypogegrammeni
+map ᾓ = gr-eta-lower-with-dasia-varia-ypogegrammeni
+map ᾣ = gr-omega-lower-with-dasia-varia-ypogegrammeni
+
+map ᾅ = gr-alpha-lower-with-dasia-tonos-ypogegrammeni
+map ᾕ = gr-eta-lower-with-dasia-tonos-ypogegrammeni
+map ᾥ = gr-omega-lower-with-dasia-tonos-ypogegrammeni
+
+map ᾇ = gr-alpha-lower-with-dasia-perispomeni-ypogegrammeni
+map ᾗ = gr-eta-lower-with-dasia-perispomeni-ypogegrammeni
+map ᾧ = gr-omega-lower-with-dasia-perispomeni-ypogegrammeni
+
+assert shape ᾳ : gr-alpha-lower-with-ypogegrammeni
+assert shape ᾷ : gr-alpha-lower-with-perispomeni-ypogegrammeni
+assert shape ᾼ : gr-alpha-upper-with-prosgegrammeni
+assert shape ᾏ : gr-alpha-upper-with-dasia-perispomeni-prosgegrammeni
+assert shape Βͅ : gr-beta-upper : gr-ypogegrammeni offset 1 12
+
+//--------------------------------------
+// with vrachy (breve above) or macron
+
+glyph gr-(alpha|iota|upsilon)-upper-with-breve
+ref gr-(alpha|iota|upsilon)-upper
+ref breve-above
+glyph gr-(alpha|iota|upsilon)-lower-with-breve
+ref gr-(alpha|iota|upsilon)-lower
+ref breve-above
+
+glyph gr-(alpha|iota|upsilon)-upper-with-macron
+ref gr-(alpha|iota|upsilon)-upper
+ref mac-above
+glyph gr-(alpha|iota|upsilon)-lower-with-macron
+ref gr-(alpha|iota|upsilon)-lower
+ref mac-above
+
+map Ᾰ = gr-alpha-upper-with-breve
+map Ῐ = gr-iota-upper-with-breve
+map Ῠ = gr-upsilon-upper-with-breve
+
+map Ᾱ = gr-alpha-upper-with-macron
+map Ῑ = gr-iota-upper-with-macron
+map Ῡ = gr-upsilon-upper-with-macron
+
+map ᾰ = gr-alpha-lower-with-breve
+map ῐ = gr-iota-lower-with-breve
+map ῠ = gr-upsilon-lower-with-breve
+
+map ᾱ = gr-alpha-lower-with-macron
+map ῑ = gr-iota-lower-with-macron
+map ῡ = gr-upsilon-lower-with-macron
+
+assert shape ᾰ : gr-alpha-lower-with-breve
+assert shape Ᾱ : gr-alpha-upper-with-macron
 
