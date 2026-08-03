@@ -5,6 +5,8 @@
 // latin with a presence of subtle serifs.
 // also, prefer asymmetric corners if possible.
 
+name-parts $gr-lex = alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega
+
 glyph gr-alpha-upper 8 16
 ................
 ................
@@ -22,7 +24,7 @@ glyph gr-alpha-upper 8 16
 ................
 ................
 ................
-ref gr-lambda-upper
+ref gr-lambda-upper inherit
 
 glyph gr-beta-upper 8 16
 ................
@@ -32,7 +34,7 @@ glyph gr-beta-upper 8 16
 ....@@@@....@@@@
 ....@@@@....@@@@
 ....@@@@....@@@@
-....@@@@@@@@@@0<
+....@@@@@@@@@@2<
 ....@@@@....@@@@
 ....@@@@....@@@@
 ....@@@@....@@@@
@@ -41,6 +43,10 @@ glyph gr-beta-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-gamma-upper 8 16
 ................
@@ -59,6 +65,10 @@ glyph gr-gamma-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 4 12
 
 glyph gr-delta-upper 8 16
 ................
@@ -77,7 +87,7 @@ glyph gr-delta-upper 8 16
 ................
 ................
 ................
-ref gr-lambda-upper
+ref gr-lambda-upper inherit
 
 glyph gr-epsilon-upper 8 16
 ................
@@ -96,7 +106,9 @@ glyph gr-epsilon-upper 8 16
 ................
 ................
 ................
-ref e-upper
+ref e-upper inherit
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-zeta-upper 8 16
 ................
@@ -115,25 +127,14 @@ glyph gr-zeta-upper 8 16
 ................
 ................
 ................
-ref z-upper
+ref z-upper inherit
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-eta-upper 8 16
-................
-................
-................
-..@@@@......@@@@
-..@@@@......@@@@
-..@@@@......@@@@
-..@@@@......@@@@
-..@@@@@@@@@@@@@@
-..@@@@@@@@@@@@@@
-..@@@@......@@@@
-..@@@@......@@@@
-..@@@@......@@@@
-..@@@@......@@@@
-................
-................
-................
+ref h-upper inherit
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-theta-upper 8 16
 ................
@@ -152,7 +153,7 @@ glyph gr-theta-upper 8 16
 ................
 ................
 ................
-ref gr-omicron-upper
+ref gr-omicron-upper inherit
 
 glyph gr-iota-upper 8 16
 ................
@@ -171,6 +172,10 @@ glyph gr-iota-upper 8 16
 ................
 ................
 ................
+anchor +above 3..4 1
+anchor +below 3..4 14
+anchor +gr-above 0 3
+anchor +gr-below 7 12
 
 glyph gr-kappa-upper 8 16
 ................
@@ -189,7 +194,9 @@ glyph gr-kappa-upper 8 16
 ................
 ................
 ................
-ref k-upper
+ref k-upper inherit
+anchor +gr-above -2 3
+anchor +gr-below 9 12
 
 glyph gr-lambda-upper 8 16
 ................
@@ -208,6 +215,10 @@ glyph gr-lambda-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above 1 3
+anchor +gr-below 9 12
 
 glyph gr-mu-upper 8 16
 ................
@@ -226,6 +237,10 @@ glyph gr-mu-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-nu-upper 8 16
 ................
@@ -244,6 +259,10 @@ glyph gr-nu-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-xi-upper 8 16
 ................
@@ -262,6 +281,10 @@ glyph gr-xi-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-omicron-upper 8 16
 ................
@@ -280,6 +303,10 @@ glyph gr-omicron-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above 0 3
+anchor +gr-below 8 12
 
 glyph gr-pi-upper 8 16
 ................
@@ -298,6 +325,10 @@ glyph gr-pi-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 8 12
 
 glyph gr-rho-upper 8 16
 ................
@@ -316,6 +347,10 @@ glyph gr-rho-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 6 12
 
 glyph gr-sigma-upper 8 16
 ................
@@ -334,6 +369,10 @@ glyph gr-sigma-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 9 12
 
 glyph gr-tau-upper 8 16
 ................
@@ -352,7 +391,9 @@ glyph gr-tau-upper 8 16
 ................
 ................
 ................
-ref t-upper
+ref t-upper inherit
+anchor +gr-above -1 3
+anchor +gr-below 7 12
 
 glyph gr-upsilon-upper 8 16
 ................
@@ -371,7 +412,9 @@ glyph gr-upsilon-upper 8 16
 ................
 ................
 ................
-ref y-upper
+ref y-upper inherit
+anchor +gr-above -2 3
+anchor +gr-below 7 12
 
 glyph gr-phi-upper 8 16
 ................
@@ -390,6 +433,10 @@ glyph gr-phi-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above 0 3
+anchor +gr-below 8 12
 
 glyph gr-chi-upper 8 16
 ................
@@ -408,6 +455,10 @@ glyph gr-chi-upper 8 16
 ................
 ................
 ................
+anchor +above 3..4 1
+anchor +below 3..4 14
+anchor +gr-above -2 3
+anchor +gr-below 9 12
 
 glyph gr-psi-upper 8 16
 ................
@@ -426,6 +477,10 @@ glyph gr-psi-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above -1 3
+anchor +gr-below 7 12
 
 glyph gr-omega-upper 8 16
 ................
@@ -444,6 +499,10 @@ glyph gr-omega-upper 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above 0 3
+anchor +gr-below 9 12
 
 glyph gr-alpha-lower 8 16
 ................
@@ -462,6 +521,10 @@ glyph gr-alpha-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-beta-lower 8 16
 ................
@@ -471,7 +534,7 @@ glyph gr-beta-lower 8 16
 ..@@@@......@@@@
 ..@@@@......@@@@
 ..@@@@......@@@@
-..@@@@@@@@@@@@0<
+..@@@@@@@@@@@@2<
 ..@@@@......@@@@
 ..@@@@......@@@@
 ..@@@@......@@@@
@@ -480,6 +543,10 @@ glyph gr-beta-lower 8 16
 ..@@@@..........
 ..@@@@..........
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above 4 1
+anchor +gr-below 4 14
 
 glyph gr-gamma-lower 8 16
 ................
@@ -498,6 +565,10 @@ glyph gr-gamma-lower 8 16
 ........@@@@....
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-delta-lower 8 16
 ................
@@ -516,6 +587,10 @@ glyph gr-delta-lower 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above 4 1
+anchor +gr-below 4 14
 
 glyph gr-epsilon-lower 8 16
 ................
@@ -534,6 +609,10 @@ glyph gr-epsilon-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-zeta-lower 8 16
 ................
@@ -552,6 +631,10 @@ glyph gr-zeta-lower 8 16
 ............@@@@
 ........../1@@0/
 ................
+anchor +above 4 2
+anchor +below 4 14
+anchor +gr-above 4 2
+anchor +gr-below 4 14
 
 glyph gr-eta-lower 8 16
 ................
@@ -570,6 +653,10 @@ glyph gr-eta-lower 8 16
 ............@@@@
 ............@@@@
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-theta-lower 8 16
 ................
@@ -588,6 +675,10 @@ glyph gr-theta-lower 8 16
 ................
 ................
 ................
+anchor +above 4 1
+anchor +below 4 14
+anchor +gr-above 4 1
+anchor +gr-below 4 14
 
 glyph gr-iota-lower 8 16
 ................
@@ -606,6 +697,10 @@ glyph gr-iota-lower 8 16
 ................
 ................
 ................
+anchor +above 3..4 3
+anchor +below 4 14
+anchor +gr-above 3..4 3
+anchor +gr-below 4 14
 
 glyph gr-kappa-lower 8 16
 ................
@@ -624,6 +719,10 @@ glyph gr-kappa-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-lambda-lower 8 16
 ................
@@ -633,15 +732,19 @@ glyph gr-lambda-lower 8 16
 ..`v@@V\........
 ....\V@@v.......
 ....`v@@V\......
-......@@@@v.....
-......@@@@V\....
+......\V@@v.....
+....../V@@V\....
 .....v@@@@@@v...
-..../V@@P0@@V\..
+..../V@@P2@@V\..
 ...v@@V/..\V@@v.
 ../V@@v'..`v@@V\
 ................
 ................
 ................
+anchor +above 4 2
+anchor +below 4 14
+anchor +gr-above 4 2
+anchor +gr-below 4 14
 
 glyph gr-mu-lower 8 16
 ................
@@ -660,6 +763,10 @@ glyph gr-mu-lower 8 16
 ..@@@@..........
 ..@@@@..........
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-nu-lower 8 16
 ................
@@ -678,6 +785,10 @@ glyph gr-nu-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-xi-lower 8 16
 ................
@@ -696,6 +807,10 @@ glyph gr-xi-lower 8 16
 ............@@@@
 ........../1@@0/
 ................
+anchor +above 4 2
+anchor +below 4 14
+anchor +gr-above 4 2
+anchor +gr-below 4 14
 
 glyph gr-omicron-lower 8 16
 ................
@@ -716,6 +831,8 @@ glyph gr-omicron-lower 8 16
 ................
 anchor +above 4 3
 anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-pi-lower 8 16
 ................
@@ -734,6 +851,10 @@ glyph gr-pi-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-rho-lower 8 16
 ................
@@ -752,6 +873,10 @@ glyph gr-rho-lower 8 16
 ..@@@@..........
 ..@@@@..........
 ..@@@@..........
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-sigma-lower 8 16
 ................
@@ -770,6 +895,10 @@ glyph gr-sigma-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-sigma-final-lower 8 16
 ................
@@ -788,6 +917,10 @@ glyph gr-sigma-final-lower 8 16
 ............@@@@
 ........../1@@0/
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-tau-lower 8 16
 ................
@@ -806,6 +939,10 @@ glyph gr-tau-lower 8 16
 ................
 ................
 ................
+anchor +above 3..4 3
+anchor +below 3..4 14
+anchor +gr-above 3..4 3
+anchor +gr-below 3..4 14
 
 glyph gr-upsilon-lower 8 16
 ................
@@ -824,6 +961,10 @@ glyph gr-upsilon-lower 8 16
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 glyph gr-phi-lower 8 16
 ................
@@ -842,6 +983,10 @@ glyph gr-phi-lower 8 16
 ........@@......
 ........@@......
 ................
+anchor +above 4 1
+anchor +below 4 16
+anchor +gr-above 4 1
+anchor +gr-below 4 16
 
 glyph gr-chi-lower 8 16
 ................
@@ -860,6 +1005,10 @@ glyph gr-chi-lower 8 16
 ..../1@@@@1\/01/
 ../1@@0/\0@@1/..
 ................
+anchor +above 4 3
+anchor +below 4 16
+anchor +gr-above 4 3
+anchor +gr-below 4 16
 
 glyph gr-psi-lower 8 16
 ................
@@ -878,6 +1027,10 @@ glyph gr-psi-lower 8 16
 ........@@......
 ........@@......
 ................
+anchor +above 4 1
+anchor +below 4 16
+anchor +gr-above 4 1
+anchor +gr-below 4 16
 
 glyph gr-omega-lower 8 16
 ................
@@ -892,10 +1045,14 @@ glyph gr-omega-lower 8 16
 ..@@@@..@@..@@@@
 ..@@@@..@@..@@@@
 ..@@@@@@@@@@@@@@
-..\0@@@@P0@@@@0/
+..\0@@@@P2@@@@0/
 ................
 ................
 ................
+anchor +above 4 3
+anchor +below 4 14
+anchor +gr-above 4 3
+anchor +gr-below 4 14
 
 map Α = gr-alpha-upper
 map Β = gr-beta-upper
@@ -948,9 +1105,256 @@ map χ = gr-chi-lower
 map ψ = gr-psi-lower
 map ω = gr-omega-lower
 
-glyph uni03CC
-ref gr-omicron-lower
-ref acute-below 3 2
-map ό = uni03CC
+//--------------------------------------
+// combining characters
 
-// vim: ft=unison
+feature ccmp for grek : anchor gr-above
+feature ccmp for grek : anchor gr-below
+
+name-parts $gr-comb = tonos varia dialytika
+name-parts $gr-vowel = alpha epsilon eta iota omicron upsilon omega
+
+remap gr-comb : gr-($gr-lex)-upper : acute-above -> gr-tonos
+remap gr-comb : gr-($gr-lex)-lower : acute-above -> gr-tonos
+remap gr-comb : gr-($gr-comb) : acute-above -> gr-tonos
+
+remap gr-comb : gr-($gr-lex)-upper : grave-above -> gr-varia
+remap gr-comb : gr-($gr-lex)-lower : grave-above -> gr-varia
+remap gr-comb : gr-($gr-comb) : grave-above -> gr-varia
+
+remap gr-comb : gr-($gr-lex)-upper : dia-above -> gr-dialytika
+remap gr-comb : gr-($gr-lex)-lower : dia-above -> gr-dialytika
+remap gr-comb : gr-($gr-comb) : dia-above -> gr-dialytika
+
+remap gr-merge : gr-dialytika(|:wide) gr-tonos -> gr-dialytika-tonos
+remap gr-merge : gr-dialytika(|:wide) gr-varia -> gr-dialytika-varia
+
+remap group gr-merge after gr-comb
+feature ccmp for grek : gr-comb
+feature ccmp for grek : gr-merge
+
+//--------------------------------------
+// with tonos/oxia (not distinguished)
+
+glyph gr-tonos0 3 3
+../VV'
+.vV/..
+/Vv'..
+
+glyph gr-tonos mark advance 0
+ref gr-tonos0
+anchor -gr-above 1 1
+anchor +gr-above 1 -1
+
+glyph gr-tonos:wide mark advance 0
+ref gr-tonos0
+anchor -gr-above 0..1 1
+anchor +gr-above 1 -1
+
+glyph gr-($gr-vowel)-upper-with-tonos
+ref gr-($gr-vowel)-upper
+ref gr-tonos
+glyph gr-($gr-vowel)-lower-with-tonos
+ref gr-($gr-vowel)-lower
+ref gr-tonos
+
+map Ά|Ά = gr-alpha-upper-with-tonos
+map Έ|Έ = gr-epsilon-upper-with-tonos
+map Ή|Ή = gr-eta-upper-with-tonos
+map Ί|Ί = gr-iota-upper-with-tonos
+map Ό|Ό = gr-omicron-upper-with-tonos
+map Ύ|Ύ = gr-upsilon-upper-with-tonos
+map Ώ|Ώ = gr-omega-upper-with-tonos
+
+map ά|ά = gr-alpha-lower-with-tonos
+map έ|έ = gr-epsilon-lower-with-tonos
+map ή|ή = gr-eta-lower-with-tonos
+map ί|ί = gr-iota-lower-with-tonos
+map ό|ό = gr-omicron-lower-with-tonos
+map ύ|ύ = gr-upsilon-lower-with-tonos
+map ώ|ώ = gr-omega-lower-with-tonos
+
+assert shape Ά : gr-alpha-upper-with-tonos
+assert shape Β́ : gr-beta-upper : gr-tonos offset -10 2
+
+//--------------------------------------
+// with varia
+
+glyph gr-varia0 3 3
+`VV\..
+..\Vv.
+..`vV\
+
+glyph gr-varia mark advance 0
+ref gr-varia0
+anchor -gr-above 1 1
+anchor +gr-above 1 -1
+
+glyph gr-varia:wide mark advance 0
+ref gr-varia0
+anchor -gr-above 1..2 1
+anchor +gr-above 1 -1
+
+glyph gr-($gr-vowel)-upper-with-varia
+ref gr-($gr-vowel)-upper
+ref gr-varia
+glyph gr-($gr-vowel)-lower-with-varia
+ref gr-($gr-vowel)-lower
+ref gr-varia
+
+map Ὰ = gr-alpha-upper-with-varia
+map Ὲ = gr-epsilon-upper-with-varia
+map Ὴ = gr-eta-upper-with-varia
+map Ὶ = gr-iota-upper-with-varia
+map Ὸ = gr-omicron-upper-with-varia
+map Ὺ = gr-upsilon-upper-with-varia
+map Ὼ = gr-omega-upper-with-varia
+
+map ὰ = gr-alpha-lower-with-varia
+map ὲ = gr-epsilon-lower-with-varia
+map ὴ = gr-eta-lower-with-varia
+map ὶ = gr-iota-lower-with-varia
+map ὸ = gr-omicron-lower-with-varia
+map ὺ = gr-upsilon-lower-with-varia
+map ὼ = gr-omega-lower-with-varia
+
+//--------------------------------------
+// with dialytika
+
+glyph gr-dialytika mark
+ref dia-above:narrow inherit
+anchor +gr-above 2 -1
+
+glyph gr-dialytika:wide mark
+ref dia-above inherit
+anchor +gr-above 2..3 -1
+
+glyph gr-(iota|upsilon)-upper-with-dialytika
+ref gr-(iota|upsilon)-upper
+ref gr-dialytika
+glyph gr-(iota|upsilon)-lower-with-dialytika
+ref gr-(iota|upsilon)-lower
+ref gr-dialytika
+
+map Ϊ = gr-iota-upper-with-dialytika
+map Ϋ = gr-upsilon-upper-with-dialytika
+
+map ϊ = gr-iota-lower-with-dialytika
+map ϋ = gr-upsilon-lower-with-dialytika
+
+//--------------------------------------
+// with dialytika + tonos
+
+glyph gr-dialytika-tonos mark
+ref dia-wide
+ref gr-tonos 2 -1 inherit
+
+glyph gr-dialytika-tonos:wide mark
+ref dia-wide 0 0
+ref gr-tonos0 2 -1
+anchor -gr-above 2..3 0
+anchor +gr-above 2..3 -2
+
+glyph gr-(iota|upsilon)-lower-with-dialytika-tonos
+ref gr-(iota|upsilon)-lower
+ref gr-dialytika-tonos
+
+map ΐ|ΐ = gr-iota-lower-with-dialytika-tonos
+map ΰ|ΰ = gr-upsilon-lower-with-dialytika-tonos
+
+//--------------------------------------
+// with dialytika + varia
+
+glyph gr-dialytika-varia mark
+ref dia-wide
+ref gr-varia 1 -1 inherit
+
+glyph gr-dialytika-varia:wide mark
+ref dia-wide 0 0
+ref gr-varia0 1 -1
+anchor -gr-above 2..3 0
+anchor +gr-above 2..3 -2
+
+glyph gr-(iota|upsilon)-lower-with-dialytika-varia
+ref gr-(iota|upsilon)-lower
+ref gr-dialytika-varia
+
+map ῒ = gr-iota-lower-with-dialytika-varia
+map ῢ = gr-upsilon-lower-with-dialytika-varia
+
+//--------------------------------------
+// with psili
+
+glyph gr-psili mark
+ref com-above:narrow inherit
+anchor -gr-above 1 1
+anchor +gr-above 1 -1
+
+glyph gr-psili:wide mark
+ref com-above inherit
+anchor -gr-above 0..1 1
+anchor +gr-above 0..1 -1
+
+glyph gr-($gr-vowel)-upper-with-psili
+ref gr-($gr-vowel)-upper
+ref gr-psili
+glyph gr-($gr-vowel|rho)-lower-with-psili
+ref gr-($gr-vowel|rho)-lower
+ref gr-psili
+
+map Ἀ = gr-alpha-upper-with-psili
+map Ἐ = gr-epsilon-upper-with-psili
+map Ἠ = gr-eta-upper-with-psili
+map Ἰ = gr-iota-upper-with-psili
+map Ὀ = gr-omicron-upper-with-psili
+//map ὘ = gr-upsilon-upper-with-psili
+map Ὠ = gr-omega-upper-with-psili
+
+map ἀ = gr-alpha-lower-with-psili
+map ἐ = gr-epsilon-lower-with-psili
+map ἠ = gr-eta-lower-with-psili
+map ἰ = gr-iota-lower-with-psili
+map ὀ = gr-omicron-lower-with-psili
+map ὐ = gr-upsilon-lower-with-psili
+map ὠ = gr-omega-lower-with-psili
+map ῤ = gr-rho-lower-with-psili
+
+//--------------------------------------
+// with dasia
+
+glyph gr-dasia mark
+ref com-reversed-above:narrow inherit
+anchor -gr-above 1 1
+anchor +gr-above 1 -1
+
+glyph gr-dasia:wide mark
+ref com-reversed-above inherit
+anchor -gr-above 0..1 1
+anchor +gr-above 0..1 -1
+
+glyph gr-($gr-vowel|rho)-upper-with-dasia
+ref gr-($gr-vowel|rho)-upper
+ref gr-dasia
+glyph gr-($gr-vowel|rho)-lower-with-dasia
+ref gr-($gr-vowel|rho)-lower
+ref gr-dasia
+
+map Ἁ = gr-alpha-upper-with-dasia
+map Ἑ = gr-epsilon-upper-with-dasia
+map Ἡ = gr-eta-upper-with-dasia
+map Ἱ = gr-iota-upper-with-dasia
+map Ὁ = gr-omicron-upper-with-dasia
+map Ὑ = gr-upsilon-upper-with-dasia
+map Ὡ = gr-omega-upper-with-dasia
+map Ῥ = gr-rho-upper-with-dasia
+
+map ἁ = gr-alpha-lower-with-dasia
+map ἑ = gr-epsilon-lower-with-dasia
+map ἡ = gr-eta-lower-with-dasia
+map ἱ = gr-iota-lower-with-dasia
+map ὁ = gr-omicron-lower-with-dasia
+map ὑ = gr-upsilon-lower-with-dasia
+map ὡ = gr-omega-lower-with-dasia
+map ῥ = gr-rho-lower-with-dasia
+
+
