@@ -139,6 +139,12 @@ pub(crate) fn expand_for(
                                     b.pixels = body.pixels.clone();
                                     b.points = body.points.clone();
                                     b.sticky = body.sticky;
+                                    // `mark` and `inline` are invisible in the
+                                    // outline, so dropping one here builds a
+                                    // clean font that behaves wrong: a mark
+                                    // that is not a mark never reaches GPOS.
+                                    b.inline = body.inline;
+                                    b.mark = body.mark;
                                     b.advance = body.advance;
                                     b.left = body.left;
                                     b.top = body.top;

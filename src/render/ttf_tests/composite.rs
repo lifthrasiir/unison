@@ -38,6 +38,50 @@ map B = via-pattern
     }
 }
 
+/// A pattern glyph block's flags belong to every glyph it expands to. `mark`
+/// and `inline` are the two that are invisible in the outline, so losing them
+/// costs nothing at build time and everything afterwards: a mark that is not a
+/// mark keeps its anchors and composes fine, but GPOS never registers it, so a
+/// shaped sequence leaves it sitting at the pen with no attachment at all.
+#[test]
+fn pattern_glyph_expansions_keep_the_mark_and_inline_flags() {
+    let input = "\
+glyph base 2 2
+@@@@
+@@@@
+anchor +top 0 0
+
+glyph dot 1 1
+@@
+
+glyph acc-(one|two) mark advance 0
+ref dot
+anchor -top 0 0
+map B = acc-one
+map C = acc-two
+
+glyph part-(one|two) inline
+ref dot
+
+glyph combo
+ref base
+ref part-one 1 1
+map A = combo
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+
+    for name in ["acc-one", "acc-two"] {
+        let glyph = glyphs.iter().find(|g| g.name == name).unwrap();
+        assert!(glyph.mark, "{name} lost the `mark` flag on expansion");
+    }
+    let combo = glyphs.iter().find(|g| g.name == "combo").unwrap();
+    assert!(
+        combo.composite_refs.is_empty(),
+        "an `inline` expansion was still referenced as a component"
+    );
+}
+
 /// Negative ref offsets are *bearings*, not something to normalize away:
 /// the outline keeps its negative coordinates (so the glyph gets a
 /// negative lsb / a rise above the ascent) and the advance measures only
