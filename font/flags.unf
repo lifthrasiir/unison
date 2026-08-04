@@ -80,10 +80,6 @@ feature ccmp for DFLT : regional-indicator
 //--------------------------------------
 // tags
 
-// tags are invisible but have to be assigned distinct glyphs for the GSUB rules
-glyph tag-($a-z|$0..9|cancel) advance 0
-ref sp
-
 glyph black-flag:mono 16 16
 ..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
 ..@@@@@@@@@@@@@@@@@@@@@@@@@@@@..
@@ -197,9 +193,6 @@ glyph black-flag-wide 24 16
 ..@@@@..........................................
 
 map 🏴 = black-flag
-map U+E0030..E0039 = tag-($0..9)
-map U+E0061..E007A = tag-($a-z)
-map U+E007F = tag-cancel
 
 remap flag-tag : black-flag tag-($a-z|$0..9) -> black-flag-($a-z|$0..9)
 remap flag-tag : black-flag-($a-z|$0..9) : tag-($a-z|$0..9) -> black-flag-($a-z|$0..9)-cont

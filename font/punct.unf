@@ -1,6 +1,14 @@
 ////////////////////////////////////////
 // punctuations
 
+glyph sp 8 16 sticky
+
+glyph wsp 16 16 sticky
+
+map U+0020 = sp
+map U+00A0 = sp
+map U+3000 = wsp
+
 //--------------------------------------
 // dashes
 

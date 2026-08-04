@@ -17,12 +17,3 @@ remap group deemojify-narrow
 feature wide : ccmp for DFLT : deemojify-wide
 feature narrow : ccmp for DFLT : deemojify-narrow
 
-glyph vs($1..16) advance 0
-ref sp
-
-map U+FE00..FE0F = vs($1..16)
-
-// convenience alias
-glyph vs-text = vs15
-//glyph vs-emoji = vs16
-
