@@ -135,7 +135,24 @@ pub(crate) enum HandleResult {
     TextChanged,
 }
 
+/// A bare Ctrl chord on a letter key. `ctrl` and not `command`: off the Mac
+/// `command` mirrors `ctrl`, so testing `command` would reject every Ctrl
+/// chord, and `mac_cmd` is what rules the Cmd variant out on the Mac.
+fn ctrl_letter(i: &egui::InputState, key: egui::Key) -> bool {
+    i.modifiers.ctrl
+        && !i.modifiers.mac_cmd
+        && !i.modifiers.alt
+        && !i.modifiers.shift
+        && i.key_pressed(key)
+}
+
 /// Handles autocomplete-specific key events.
+///
+/// Ctrl+J and Ctrl+K duplicate Down and Up while the popup is open. Ctrl+J is
+/// also what opens it (see `document_view::keys`): opening the popup is the
+/// step down from a virtual item before the first candidate, and there is no
+/// way back onto it — Ctrl+K on the first candidate is a no-op, not a dismissal.
+/// Ctrl+K therefore never reaches the code-point popup while this one is up.
 pub(crate) fn handle_keys(
     ui: &egui::Ui,
     lines: &mut [DocLine],
@@ -146,10 +163,13 @@ pub(crate) fn handle_keys(
     }
 
     let escape = ui.input(|i| i.key_pressed(egui::Key::Escape));
-    let up = ui
-        .input(|i| i.key_pressed(egui::Key::ArrowUp) && !i.modifiers.shift && !i.modifiers.command);
+    let up = ui.input(|i| {
+        (i.key_pressed(egui::Key::ArrowUp) && !i.modifiers.shift && !i.modifiers.command)
+            || ctrl_letter(i, egui::Key::K)
+    });
     let down = ui.input(|i| {
-        i.key_pressed(egui::Key::ArrowDown) && !i.modifiers.shift && !i.modifiers.command
+        (i.key_pressed(egui::Key::ArrowDown) && !i.modifiers.shift && !i.modifiers.command)
+            || ctrl_letter(i, egui::Key::J)
     });
     let accept = ui.input(|i| i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Tab));
 

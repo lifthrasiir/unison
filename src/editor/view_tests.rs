@@ -523,8 +523,12 @@ fn ac_doc() -> String {
         .to_string()
 }
 
-fn ctrl_space(h: &mut EditorHarness) {
-    h.key_mod(Key::Space, Modifiers::CTRL);
+fn ctrl_j(h: &mut EditorHarness) {
+    h.key_mod(Key::J, Modifiers::CTRL);
+}
+
+fn ctrl_k(h: &mut EditorHarness) {
+    h.key_mod(Key::K, Modifiers::CTRL);
 }
 
 #[test]
@@ -533,7 +537,7 @@ fn autocomplete_trigger_and_dismiss() {
     h.click_text(5, 4);
     assert!(h.state.autocomplete.is_none());
 
-    ctrl_space(&mut h);
+    ctrl_j(&mut h);
     assert!(h.state.autocomplete.is_some());
     let ac = h.state.autocomplete.as_ref().unwrap();
     assert!(ac.candidates.len() >= 2);
@@ -546,7 +550,7 @@ fn autocomplete_trigger_and_dismiss() {
 fn autocomplete_accept_inserts_text() {
     let mut h = EditorHarness::new(&ac_doc());
     h.click_text(5, 4);
-    ctrl_space(&mut h);
+    ctrl_j(&mut h);
 
     let ac = h.state.autocomplete.as_ref().unwrap();
     let first_label = ac.candidates[0].label.clone();
@@ -560,7 +564,7 @@ fn autocomplete_accept_inserts_text() {
 fn autocomplete_filters_as_you_type() {
     let mut h = EditorHarness::new(&ac_doc());
     h.click_text(5, 4);
-    ctrl_space(&mut h);
+    ctrl_j(&mut h);
     let initial_count = h.state.autocomplete.as_ref().unwrap().candidates.len();
 
     h.type_text("al");
@@ -575,7 +579,7 @@ fn autocomplete_keyword_on_empty_line() {
     // DocLines: 0=header, 1=grid, 2=blank
     let mut h = EditorHarness::new("glyph alpha 2 2\n@@@@\n@@..\n\n");
     h.click_text(2, 0);
-    ctrl_space(&mut h);
+    ctrl_j(&mut h);
     if let Some(ac) = &h.state.autocomplete {
         assert!(ac.candidates.iter().any(|c| c.label == "glyph"));
         assert!(ac.candidates.iter().any(|c| c.label == "ref"));
@@ -589,12 +593,53 @@ fn autocomplete_undo_after_accept() {
     let mut h = EditorHarness::new(&ac_doc());
     h.click_text(5, 4);
     let original_text = h.text(5).to_string();
-    ctrl_space(&mut h);
+    ctrl_j(&mut h);
     h.key(Key::Enter);
     assert_ne!(h.text(5), original_text);
 
     h.key_mod(Key::Z, Modifiers::COMMAND);
     assert_eq!(h.text(5), original_text);
+}
+
+/// Ctrl+J/Ctrl+K walk the open popup like Down/Up. The trigger itself is the
+/// first step down from a virtual item before the list, so the popup opens on
+/// item 0 and Ctrl+K there stays put rather than closing it — there is nothing
+/// above to step back to. Ctrl+K must not reach the code-point popup either.
+#[test]
+fn autocomplete_ctrl_j_k_navigate() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+
+    ctrl_j(&mut h);
+    assert!(h.state.autocomplete.as_ref().unwrap().candidates.len() >= 2);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+
+    // Nothing above item 0, and the popup survives.
+    ctrl_k(&mut h);
+    assert!(h.state.autocomplete.is_some());
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+    assert!(matches!(h.state.popup, crate::editor::PopupState::None));
+
+    ctrl_j(&mut h);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 1);
+    ctrl_k(&mut h);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+
+    // Arrow keys keep working alongside them.
+    h.key(Key::ArrowDown);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 1);
+    h.key(Key::ArrowUp);
+    assert_eq!(h.state.autocomplete.as_ref().unwrap().selected, 0);
+}
+
+/// Ctrl+K with no popup open still starts code-point entry.
+#[test]
+fn ctrl_k_without_autocomplete_opens_codepoint_entry() {
+    let mut h = EditorHarness::new(&ac_doc());
+    h.click_text(5, 4);
+    ctrl_k(&mut h);
+    assert!(h.state.autocomplete.is_none());
+    assert!(!matches!(h.state.popup, crate::editor::PopupState::None));
 }
 
 // -- visual line <-> logical line reconciliation --------------------------

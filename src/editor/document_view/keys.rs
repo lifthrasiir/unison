@@ -246,13 +246,21 @@ pub(super) fn handle_document_keys(
             }
         }
 
-        // Ctrl+Space (or Cmd+Space on macOS) to trigger autocomplete
+        // Ctrl+J (or Cmd+Period on macOS) to trigger autocomplete. The same
+        // Ctrl+J walks the list once the popup is open — opening it *is* the
+        // first step down — so the popup's own handler claims the key first
+        // and this only ever sees the press that opens it.
+        // Exclude Cmd+J via `mac_cmd`, never via `command`: off the Mac
+        // `command` mirrors `ctrl`, which would reject every Ctrl+J.
         let trigger_ac = ui.input(|i| {
-            let ctrl_space = i.modifiers.ctrl && i.key_pressed(egui::Key::Space);
+            let ctrl_j = i.modifiers.ctrl
+                && !i.modifiers.mac_cmd
+                && !i.modifiers.alt
+                && i.key_pressed(egui::Key::J);
             let cmd_period = cfg!(target_os = "macos")
                 && i.modifiers.command
                 && i.key_pressed(egui::Key::Period);
-            ctrl_space || cmd_period
+            ctrl_j || cmd_period
         });
         if trigger_ac
             && state.autocomplete.is_none()
