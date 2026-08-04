@@ -1165,6 +1165,37 @@ glyph sm-q-bold 5 5
 \0@@@@@@0/
 ....\1@@@@
 
+// sm-*-4x5 are designed to fit and fill 4x5
+// harmonizes with numeric sm-*-4x5
+
+glyph sm-a-4x5 4 5
+/0@@@@0\
+@@....@@
+@@@@@@@@
+@@....@@
+@@....@@
+
+glyph sm-j-4x5 4 5
+....@@@@
+......@@
+......@@
+@@....@@
+\0@@@@0/
+
+glyph sm-k-4x5 4 5
+@@./d@1/
+@@d@1/..
+@@1<....
+@@9@1\..
+@@.\9@1\
+
+glyph sm-q-4x5 4 5
+/0@@@@0\
+@@....@@
+@@....@@
+\0@@@@0/
+....\1@@
+
 // sm-*-4x6 are designed to fit (and fill) 4x6
 // they are generic in that there is little room left for
 // miniscule-majuscule distinction

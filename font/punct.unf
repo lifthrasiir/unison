@@ -76,6 +76,8 @@ glyph dash-double 16 16
 ................................
 ................................
 
+glyph dash-double-half = dash
+
 glyph hline 8 16
 ................
 ................
@@ -111,6 +113,8 @@ glyph hline-double 16 16
 ................................
 ................................
 ................................
+
+glyph hline-double-half = hline
 
 glyph oline 8 16
 ................
@@ -192,11 +196,11 @@ map ‐ = hyphen
 map ‑ = hyphen
 map ‒ = hyphen-short
 map – = dash
-map — = dash-double
-map ― = hline-double
+map wide|narrow : — = dash-double($-half)
+map wide|narrow : ― = hline-double($-half)
 map ‾ = oline
 map ⁃ = hyphen
-map ⎯ = hline-double
+map wide|narrow : ⎯ = hline-double($-half)
 map ‗ = uuline
 
 map ~ = tilde

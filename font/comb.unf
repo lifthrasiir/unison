@@ -89,7 +89,7 @@ map ´ = acute-above-spacing
 //--------------------------------------
 // double acute accents
 
-glyph dacute-above mark
+glyph dacute-above mark left -3 advance 0
 ref acute-right 0 0
 ref acute-right 3 0
 anchor -above 3 1

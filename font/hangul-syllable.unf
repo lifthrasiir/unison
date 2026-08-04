@@ -6598,8 +6598,10 @@ name-parts $temp-init = $hangul-modern-init
 
 // representative glyphs
 glyph hangul-init-($hangul-init) = hangul-init-($hangul-init)-l-f
-glyph hangul-med-($hangul-med) = hangul-med-($hangul-med)-f
-glyph hangul-fin-($hangul-fin) = hangul-fin-($hangul-fin)-w
+glyph hangul-med-($hangul-med) advance 0
+ref hangul-med-($hangul-med)-f -16 0
+glyph hangul-fin-($hangul-fin) advance 0
+ref hangul-fin-($hangul-fin)-w -16 0
 
 // combining jamo variants
 glyph hangul-init- sticky
@@ -6616,7 +6618,7 @@ glyph hangul-init-comb-($hangul-init)-t-nof sticky
 ref hangul-init-($hangul-init)-t-nof
 glyph hangul-init-comb-($hangul-init)-t-f sticky
 ref hangul-init-($hangul-init)-t-f
-glyph hangul-med- sticky
+glyph hangul-med- sticky advance 0
 ref wsp
 glyph hangul-med-comb--(nof|f) sticky advance 0
 ref wsp

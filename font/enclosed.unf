@@ -176,16 +176,8 @@ ref enclosing-circle-bg
 ref hangul-($hangul-init-lex)-half 3 0
 ref hangul-a-half-narrow 10 0
 
-glyph hangul-($hangul-init-lex)-circled-half
-ref enclosing-circle-bg-half
-ref hangul-($hangul-init-lex)-half-narrow 2 0
-glyph hangul-($hangul-init-lex)a-circled-half
-ref enclosing-circle-bg-half
-ref hangul-($hangul-init-lex)-half-narrow 1 0
-ref hangul-a-half-narrower 4 0
-
-map wide|narrow : ㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|㉨|㉩|㉪|㉫|㉬|㉭ = hangul-($hangul-init-lex)-circled($-half)
-map wide|narrow : ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = hangul-($hangul-init-lex)a-circled($-half)
+map ㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|㉨|㉩|㉪|㉫|㉬|㉭ = hangul-($hangul-init-lex)-circled
+map ㉮|㉯|㉰|㉱|㉲|㉳|㉴|㉵|㉶|㉷|㉸|㉹|㉺|㉻ = hangul-($hangul-init-lex)a-circled
 
 glyph katakana-($kana-lex)-circled
 ref enclosing-circle
@@ -597,14 +589,14 @@ glyph 1($0..9)-circled-black
 ref enclosing-black-circle-bg
 ref 1-4x10 4 3 negated
 ref ($0..9)-4x10 9 3 negated
-glyph 20-cirlced-black
+glyph 20-circled-black
 ref enclosing-black-circle-bg
 ref 2-4x10 4 3 negated
 ref 0-4x10 9 3 negated
 
 map ⓿|❶|❷|❸|❹|❺|❻|❼|❽|❾ = ($0..9)-circled-black
 map ❿|⓫|⓬|⓭|⓮|⓯|⓰|⓱|⓲|⓳ = 1($0..9)-circled-black
-map ⓴ = 20-cirlced-black
+map ⓴ = 20-circled-black
 
 glyph ($0..10)-circled-black-sm
 ref enclosing-small-black-circle
@@ -929,16 +921,8 @@ ref enclosing-parens-bg
 ref hangul-($hangul-init-lex)-half 3 0
 ref hangul-a-half-narrow 10 0
 
-glyph hangul-($hangul-init-lex)-in-parens-half
-ref enclosing-parens-half
-ref hangul-($hangul-init-lex)-half-narrow 2 0
-glyph hangul-($hangul-init-lex)a-in-parens-half
-ref enclosing-parens-half
-ref hangul-($hangul-init-lex)-half-narrow 1 0
-ref hangul-a-half-narrower 4 0
-
-map wide|narrow : ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = hangul-($hangul-init-lex)-in-parens($-half)
-map wide|narrow : ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = hangul-($hangul-init-lex)a-in-parens($-half)
+map ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = hangul-($hangul-init-lex)-in-parens
+map ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = hangul-($hangul-init-lex)a-in-parens
 
 //--------------------------------------
 // with full stop or comma
