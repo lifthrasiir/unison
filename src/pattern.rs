@@ -54,7 +54,12 @@
 //! `a*2`, `b` to [`parse`](NamePattern::parse). Both readings are relied on, so
 //! the tests below pin each one.
 //!
-//! Expansion is capped at [`MAX_EXPANSION`] names.
+//! A `name-parts` right-hand side is expanded the same way, one token at a
+//! time, so a value may be written as a pattern
+//! (`crate::document::resolve_name_part_values`).
+//!
+//! Expansion is capped at [`MAX_EXPANSION`] names — for a `name-parts` binding
+//! too, which is an error when its own values go over it.
 //!
 //! (This is the single expansion engine. It was consolidated out of two separate
 //! ones that had grown in `document.rs`, which still re-exports the API for the

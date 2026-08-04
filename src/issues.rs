@@ -903,7 +903,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         issues.push(issue_at(doc, item_idx, Severity::Error, issue));
                     }
                 }
-                DocumentItem::NameParts { values, .. } => {
+                DocumentItem::NameParts { name, values, .. } => {
                     for val in values {
                         if val.starts_with('$') && !name_parts.contains_key(val.as_str()) {
                             issues.push(issue_at(
@@ -913,6 +913,18 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                                 format!("undefined name-parts reference '{}'", val,),
                             ));
                         }
+                    }
+                    // A value is a pattern, so a binding can fail to expand on
+                    // its own — before any glyph line refers to it.
+                    if let Err(msg) =
+                        crate::document::try_resolve_name_part_values(values, name_parts)
+                    {
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!("name part `{name}`: {msg}"),
+                        ));
                     }
                 }
                 DocumentItem::Directive(text) => {
@@ -1768,6 +1780,24 @@ map A|B = pat-($ab)
                 "an empty pattern glyph must be an error (body {body:?}), got: {issues:?}",
             );
         }
+    }
+
+    /// A `name-parts` value is a pattern, so the declaration itself can be
+    /// over the expansion limit — before any glyph line refers to it.
+    #[test]
+    fn an_oversized_name_parts_binding_is_an_error() {
+        let input = format!(
+            "name-parts $many = x($1..{})\n",
+            crate::pattern::MAX_EXPANSION + 1
+        );
+        let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error && i.message.contains("name part `$many`")),
+            "an oversized binding must be an error, got: {issues:?}",
+        );
     }
 
     #[test]

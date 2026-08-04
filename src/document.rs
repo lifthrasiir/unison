@@ -1787,46 +1787,65 @@ pub fn remap_group_order(docs: &[&Document]) -> RemapGroupOrder {
 
 /// Decode one `name-parts` right-hand side against the parts defined so far.
 ///
-/// A `$ref` is spliced in; anything else is split on `|`, with `` `` `` (and
-/// the empty token) standing for the empty string and a trailing `*N`
-/// repeating the value. A reference or repeat that would blow past
-/// [`MAX_EXPANSION`] is kept verbatim rather than materialized.
+/// Every value token is a name pattern in its own right, expanded exactly as a
+/// glyph name would be: `$ref`s and inline ranges are substituted (including
+/// inside a group), then alternation groups and `*N` repeats expand. So
+/// `name-parts $foo = bar($1..3)` binds the same three values as
+/// `name-parts $foo = bar1 bar2 bar3`, and the tokens of a line concatenate in
+/// order. `` `` `` (and the empty token) stands for the empty string.
+///
+/// A whole binding is capped at [`MAX_EXPANSION`] values like any other
+/// expansion — over the cap, or on a malformed pattern, the tokens are kept
+/// verbatim and [`crate::issues`] reports the error against the line.
 pub(crate) fn resolve_name_part_values(values: &[String], defined: &NamePartsMap) -> Vec<String> {
-    let mut resolved = Vec::new();
+    try_resolve_name_part_values(values, defined).unwrap_or_else(|_| values.to_vec())
+}
+
+/// [`resolve_name_part_values`], reporting why a binding does not expand.
+pub(crate) fn try_resolve_name_part_values(
+    values: &[String],
+    defined: &NamePartsMap,
+) -> Result<Vec<String>, String> {
+    let mut resolved: Vec<String> = Vec::new();
+    let push = |resolved: &mut Vec<String>, names: Vec<String>| {
+        let total = resolved.len() + names.len();
+        if total > MAX_EXPANSION {
+            return Err(format!(
+                "`name-parts` expands to {total} values or more (max {MAX_EXPANSION})"
+            ));
+        }
+        resolved.extend(names);
+        Ok(())
+    };
     for token in values {
-        if token.starts_with('$') {
-            if let Some(referenced) = defined.get(token.as_str()) {
-                if referenced.len() > MAX_EXPANSION.saturating_sub(resolved.len()) {
-                    resolved.push(token.clone());
-                } else {
-                    resolved.extend(referenced.iter().cloned());
-                }
-            } else {
-                resolved.push(token.clone());
+        // A bare `$ref` is spliced as it stands: its values are already
+        // expanded, and round-tripping them through the pattern parser would
+        // only give the characters in them a second meaning.
+        if let Some(referenced) = defined.get(token.as_str()) {
+            push(&mut resolved, referenced.clone())?;
+            continue;
+        }
+        for part in split_top_level_pipes(token) {
+            // A lone `` `` `` is already the empty token by the time the
+            // tokenizer is done; it survives literally only when glued to more
+            // text (`` ``|a ``).
+            if part.is_empty() || part == "``" {
+                push(&mut resolved, vec![String::new()])?;
+                continue;
             }
-        } else {
-            for part in token.split('|') {
-                if part.is_empty() || part == "``" {
-                    resolved.push(String::new());
-                } else if let Some((name_part, rep_str)) = part.rsplit_once('*') {
-                    if let Ok(rep) = rep_str.parse::<usize>() {
-                        if rep > MAX_EXPANSION.saturating_sub(resolved.len()) {
-                            resolved.push(part.to_string());
-                        } else {
-                            for _ in 0..rep {
-                                resolved.push(name_part.to_string());
-                            }
-                        }
-                    } else {
-                        resolved.push(part.to_string());
-                    }
-                } else {
-                    resolved.push(part.to_string());
-                }
+            // An oversized or reversed range expands to nothing rather than
+            // failing to parse, so it is checked before the pattern is.
+            if let Some(bad) = find_invalid_inline_ranges(part).into_iter().next() {
+                return Err(format!(
+                    "invalid inline range '{bad}' (end < start or too large)"
+                ));
             }
+            let substituted = substitute_name_parts(part, defined);
+            let pattern = NamePattern::parse_element(&substituted).map_err(|e| e.to_string())?;
+            push(&mut resolved, pattern.into_vec())?;
         }
     }
-    resolved
+    Ok(resolved)
 }
 
 /// The unqualified name parts: what every context that is not scoped to a
@@ -2208,8 +2227,64 @@ mod tests {
             values: vec!["a".to_string(), oversized.clone()],
         });
 
+        assert!(
+            try_resolve_name_part_values(
+                &["a".to_string(), oversized.clone()],
+                &NamePartsMap::new()
+            )
+            .is_err(),
+            "a binding over the expansion limit is an error",
+        );
         let parts = collect_name_parts(&[&doc]);
         assert_eq!(parts.get("$part"), Some(&vec!["a".to_string(), oversized]),);
+    }
+
+    /// A value is a name pattern like any other: groups, inline ranges and
+    /// `$ref`s nested inside them expand, so `bar-($1..3)` states exactly what
+    /// `bar1 bar2 bar3` states.
+    #[test]
+    fn name_part_values_expand_patterns() {
+        let mut defined = NamePartsMap::new();
+        defined.insert("$ab".to_string(), vec!["a".to_string(), "b".to_string()]);
+
+        let resolve = |values: &[&str]| {
+            resolve_name_part_values(
+                &values.iter().map(|s| s.to_string()).collect::<Vec<_>>(),
+                &defined,
+            )
+        };
+
+        assert_eq!(resolve(&["bar($1..3)"]), ["bar1", "bar2", "bar3"]);
+        assert_eq!(resolve(&["bar-($1..3)"]), ["bar-1", "bar-2", "bar-3"]);
+        assert_eq!(resolve(&["x-($ab)"]), ["x-a", "x-b"]);
+        assert_eq!(resolve(&["x-($ab)-y", "z"]), ["x-a-y", "x-b-y", "z"]);
+        assert_eq!(resolve(&["($#0e..10)"]), ["0e", "0f", "10"]);
+        // Plain values, `|` lists, `$ref` splices and `*N` repeats are what
+        // they always were.
+        assert_eq!(
+            resolve(&["a", "b|c", "$ab", "d*2"]),
+            ["a", "b", "c", "a", "b", "d", "d"]
+        );
+    }
+
+    /// The cap applies to the declaration itself, not only to the names a
+    /// glyph line later builds out of it.
+    #[test]
+    fn a_name_part_value_over_the_expansion_limit_is_an_error() {
+        let over = format!("x-($1..{})", MAX_EXPANSION + 1);
+        let one = std::slice::from_ref(&over);
+        assert!(try_resolve_name_part_values(one, &NamePartsMap::new()).is_err());
+        assert_eq!(
+            resolve_name_part_values(one, &NamePartsMap::new()),
+            [over.clone()]
+        );
+
+        let half = format!("x-($1..{})", MAX_EXPANSION / 2 + 1);
+        assert!(
+            try_resolve_name_part_values(&[half.clone(), half.clone()], &NamePartsMap::new())
+                .is_err(),
+            "the limit is cumulative over the whole binding",
+        );
     }
 
     #[test]

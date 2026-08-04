@@ -89,7 +89,10 @@
 //!   means the opposite (a face including *all* of them), because the two
 //!   answer different questions.
 //! - `name-parts [SLICE[|SLICE...] :] $NAME = token1 token2 ...` — see
-//!   [`crate::pattern`]. A slice-scoped binding takes exactly one value and
+//!   [`crate::pattern`]. Each token is itself a name pattern, so
+//!   `$foo = bar($1..3)` binds what `$foo = bar1 bar2 bar3` binds
+//!   (`resolve_name_part_values` in [`crate::document`]).
+//!   A slice-scoped binding takes exactly one value and
 //!   applies only to lines stated for that slice, which is how a name that
 //!   differs between slices by a suffix is written once instead of once per
 //!   slice; see [`crate::document::SliceNameParts`].
