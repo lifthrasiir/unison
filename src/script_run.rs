@@ -15,6 +15,12 @@
 //! run instead of forming runs of their own. (Chrome and Firefox additionally
 //! keep a paired-bracket stack so that `(` and `)` around a run agree; that is
 //! more machinery than this preview needs.)
+//!
+//! Private-use and unassigned characters have *empty* Script_Extensions, so
+//! intersection alone would give every one of them a run of its own and no GSUB
+//! rule spanning two of them could ever fire. A PUA-encoded script is still
+//! a script; such characters are tracked as one `Unknown` run that groups with
+//! itself and with Common / Inherited, but never merges with a real script.
 
 use std::ops::Range;
 
@@ -40,27 +46,53 @@ pub fn split_script_runs(text: &str) -> Vec<ScriptRun> {
         return runs;
     }
 
-    // Identity for intersection: `new_common()`, which intersects everything.
-    let mut current = ScriptExtension::default();
+    /// What the run built so far is compatible with.
+    enum RunScript {
+        /// Only Common/Inherited so far; adopts whatever comes next.
+        Any,
+        /// Intersection of the Script_Extensions seen so far.
+        Known(ScriptExtension),
+        /// Private-use or unassigned characters, which carry no scripts.
+        Unknown,
+    }
+
+    let mut current = RunScript::Any;
     let mut start = 0;
     let mut char_start = 0;
 
     for (char_idx, (byte_idx, ch)) in text.char_indices().enumerate() {
         let ext = ch.script_extension();
-        let merged = current.intersection(ext);
-        if merged.is_empty() {
-            runs.push(ScriptRun {
-                bytes: start..byte_idx,
-                char_start,
-            });
-            start = byte_idx;
-            char_start = char_idx;
-            // Unassigned characters have an empty extension and so never merge;
-            // each one becomes its own run, which is harmless.
-            current = ext;
-        } else {
-            current = merged;
-        }
+        let next = match (&current, ext.is_empty()) {
+            // Private use / unassigned: joins an `Any` or `Unknown` run.
+            (RunScript::Any | RunScript::Unknown, true) => Some(RunScript::Unknown),
+            // Common and Inherited stay inside an unknown run, like everywhere else.
+            (RunScript::Unknown, false) if ext.is_common() || ext.is_inherited() => {
+                Some(RunScript::Unknown)
+            }
+            (RunScript::Any, false) => Some(RunScript::Known(ext)),
+            (RunScript::Known(cur), false) => {
+                let merged = cur.intersection(ext);
+                (!merged.is_empty()).then_some(RunScript::Known(merged))
+            }
+            // Known ↔ Unknown never merge in either direction.
+            (RunScript::Known(_), true) | (RunScript::Unknown, false) => None,
+        };
+        current = match next {
+            Some(next) => next,
+            None => {
+                runs.push(ScriptRun {
+                    bytes: start..byte_idx,
+                    char_start,
+                });
+                start = byte_idx;
+                char_start = char_idx;
+                if ext.is_empty() {
+                    RunScript::Unknown
+                } else {
+                    RunScript::Known(ext)
+                }
+            }
+        };
     }
     runs.push(ScriptRun {
         bytes: start..text.len(),
@@ -129,6 +161,19 @@ mod tests {
     fn combining_marks_stay_with_their_base() {
         // U+0308 is Inherited.
         assert_eq!(runs_of("i\u{0308}가"), vec!["i\u{0308}", "가"]);
+    }
+
+    #[test]
+    fn private_use_stays_one_run() {
+        // A PUA-encoded script (here sitelen pona in Plane 15) has no assigned
+        // Script_Extensions, but its characters still have to reach the shaper
+        // as one buffer or no GSUB rule between them can ever fire.
+        assert_eq!(
+            runs_of("\u{F194D}\u{F1997}\u{F1998}"),
+            vec!["\u{F194D}\u{F1997}\u{F1998}"]
+        );
+        // Private use must still not merge with a real script.
+        assert_eq!(runs_of("\u{F194D}가"), vec!["\u{F194D}", "가"]);
     }
 
     #[test]
