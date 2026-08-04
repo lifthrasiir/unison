@@ -634,8 +634,16 @@ fn build_chain_helper(
     r: &ExpandedRemap,
     name_to_gid: &HashMap<String, GlyphId16>,
 ) -> Option<SubstitutionLookup> {
-    let first_sources: Vec<String> = r.source.iter().map(|seq| seq[0].clone()).collect();
-    match rule_kind_of(r)? {
+    // The kind comes first: a rule with no source at all has no lookup type,
+    // and indexing its source sequences before asking used to panic instead of
+    // dropping it.
+    let kind = rule_kind_of(r)?;
+    let first_sources: Vec<String> = r
+        .source
+        .iter()
+        .filter_map(|seq| seq.first().cloned())
+        .collect();
+    match kind {
         RemapRuleKind::Single => {
             let first_targets: Vec<String> = r.target.iter().map(|seq| seq[0].clone()).collect();
             Some(build_single_subst_from_pairs(

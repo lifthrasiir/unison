@@ -299,6 +299,7 @@ pub(super) enum ScanOutcome {
 }
 
 /// One scan's worth of work, all of it done off the UI thread.
+#[derive(Default)]
 pub(super) struct ScanResult {
     files: Vec<ScannedFile>,
     /// The re-parsed directory snapshot, its parse errors, and the bytes it was
@@ -422,9 +423,11 @@ impl WatchState {
         let tx = self.scan_tx.clone();
         let ctx = ctx.clone();
         std::thread::spawn(move || {
-            let result = run_scan(request);
-            let _ = tx.send(result);
-            ctx.request_repaint();
+            // An empty result is "nothing changed", which is the safe reading
+            // if the scan dies: `scanning` clears and the next event scans
+            // again, instead of the watch going silent for the whole session.
+            let mut slot = super::background::ResultSlot::new(tx, ctx, ScanResult::default());
+            slot.set(run_scan(request));
         });
     }
 

@@ -757,3 +757,32 @@ feature calt for DFLT : cont
         vec!["eq".to_string(), "eq".to_string(), "eq".to_string()],
     );
 }
+
+/// A rule with no source at all — `remap grp : -> b`, which is what a line
+/// half-typed in the editor looks like — has no lookup type, so it is dropped
+/// and reported by `issues.rs`. The builder used to index its (empty) source
+/// sequence before asking what kind of rule it was, and panicked.
+#[test]
+fn a_sourceless_rule_is_dropped_rather_than_panicking() {
+    let head = "\
+glyph pix 1 1
+@@
+glyph a
+ref pix
+glyph b
+ref pix
+map U+0061 = a
+map U+0062 = b
+";
+    // No context: the set classifies as chain-context because no rule in it has
+    // a usable kind.
+    let bare = format!("{head}remap grp : -> b\nfeature ccmp for DFLT : grp\n");
+    assert_eq!(shape_glyph_names(&bare, "ab"), vec!["a", "b"]);
+
+    // With context, and alongside a rule that does build: the good rule must
+    // still apply.
+    let mixed = format!(
+        "{head}remap grp : a : -> b\nremap grp : a -> b : b\nfeature ccmp for DFLT : grp\n"
+    );
+    assert_eq!(shape_glyph_names(&mixed, "ab"), vec!["b", "b"]);
+}

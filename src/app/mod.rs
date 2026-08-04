@@ -53,6 +53,10 @@ struct DerivedDataMessage {
     /// picker. Resolution already collects them, so nothing else has to.
     face_ids: Vec<String>,
 }
+/// `None` is a rebuild that died on the way (see `background::ResultSlot`); the
+/// UI only has to stop waiting for it, since keeping the previous derived data
+/// is better than replacing it with nothing.
+type DerivedDataResult = Option<DerivedDataMessage>;
 type AssertResultMessage = Vec<Issue>;
 
 pub struct UniformApp {
@@ -117,8 +121,8 @@ pub struct UniformApp {
     // Bumped whenever named_glyphs/name_parts/alt_index/color_aliases are
     // replaced; keys the editor's per-frame view cache.
     derived_gen: u64,
-    derived_data_tx: mpsc::Sender<DerivedDataMessage>,
-    derived_data_rx: mpsc::Receiver<DerivedDataMessage>,
+    derived_data_tx: mpsc::Sender<DerivedDataResult>,
+    derived_data_rx: mpsc::Receiver<DerivedDataResult>,
     derived_rebuild_at: Option<std::time::Instant>,
     /// A derived-data rebuild thread is currently running. Without this
     /// guard the scheduler below respawns a rebuild every debounce period

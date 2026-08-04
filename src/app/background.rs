@@ -15,6 +15,46 @@
 use super::docs::shadowed_by_open;
 use super::*;
 
+/// A background thread's result, sent when the thread ends — *however* it ends.
+///
+/// A panicking worker used to leave the UI waiting for a message that would
+/// never arrive, and every one of these threads latches a flag while it runs:
+/// `derived_inflight` stayed set so no later resolve was ever started,
+/// `assert_running` stayed set so "Running shape assertions…" never cleared and
+/// the run could not even be retried, and the same for the watcher's `scanning`.
+/// One panic deep in the builder therefore froze a whole part of the editor
+/// until it was restarted. The value the slot is created with is what the UI
+/// receives if the thread unwinds; the worker overwrites it with the real
+/// result on the way out.
+pub(super) struct ResultSlot<T> {
+    tx: mpsc::Sender<T>,
+    ctx: egui::Context,
+    value: Option<T>,
+}
+
+impl<T> ResultSlot<T> {
+    pub(super) fn new(tx: mpsc::Sender<T>, ctx: egui::Context, on_panic: T) -> Self {
+        Self {
+            tx,
+            ctx,
+            value: Some(on_panic),
+        }
+    }
+
+    pub(super) fn set(&mut self, value: T) {
+        self.value = Some(value);
+    }
+}
+
+impl<T> Drop for ResultSlot<T> {
+    fn drop(&mut self) {
+        if let Some(value) = self.value.take() {
+            let _ = self.tx.send(value);
+        }
+        self.ctx.request_repaint();
+    }
+}
+
 pub(super) enum BackgroundTaskPhase {
     Running(std::time::Instant),
     Finished(std::time::Instant, std::time::Duration),
@@ -87,7 +127,7 @@ fn take_current_font_build(
     received
 }
 
-fn take_latest_derived_data(rx: &mpsc::Receiver<DerivedDataMessage>) -> Option<DerivedDataMessage> {
+fn take_latest_derived_data(rx: &mpsc::Receiver<DerivedDataResult>) -> Option<DerivedDataResult> {
     let mut received = None;
     while let Ok(msg) = rx.try_recv() {
         received = Some(msg);
@@ -139,6 +179,17 @@ impl UniformApp {
         let tx = self.assert_tx.clone();
         let ctx = ctx.clone();
         std::thread::spawn(move || {
+            let mut slot = ResultSlot::new(
+                tx,
+                ctx,
+                vec![Issue {
+                    severity: crate::issues::Severity::Error,
+                    message: "Shape assertions failed to run (internal error)".to_string(),
+                    file: std::path::PathBuf::new(),
+                    line: 0,
+                    file_line: 0,
+                }],
+            );
             let refs: Vec<&Document> = all_docs.iter().collect();
             let name_parts = crate::document::collect_name_parts(&refs);
             let (resolved, _) =
@@ -183,8 +234,7 @@ impl UniformApp {
             };
             result.extend(sd_result.issues);
 
-            let _ = tx.send(result);
-            ctx.request_repaint();
+            slot.set(result);
         });
     }
 
@@ -197,6 +247,7 @@ impl UniformApp {
         let cache = self.contour_cache.clone();
         let face = self.selected_face.clone();
         std::thread::spawn(move || {
+            let mut slot = ResultSlot::new(tx, ctx, (build_gen, None));
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
             let face_id = (!face.is_empty()).then_some(face.as_str());
@@ -204,8 +255,7 @@ impl UniformApp {
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] font build (background): {:?}", t0.elapsed());
             }
-            let _ = tx.send((build_gen, pair));
-            ctx.request_repaint();
+            slot.set((build_gen, pair));
         });
     }
 
@@ -273,6 +323,7 @@ impl UniformApp {
         let tx = self.derived_data_tx.clone();
         let ctx = ctx.clone();
         std::thread::spawn(move || {
+            let mut slot = ResultSlot::new(tx, ctx, None);
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
             // One resolution feeds both the glyph cache and validation; they
@@ -305,7 +356,7 @@ impl UniformApp {
                     },
                 );
             }
-            let _ = tx.send(DerivedDataMessage {
+            slot.set(Some(DerivedDataMessage {
                 build_gen,
                 named_glyphs,
                 alt_index,
@@ -313,8 +364,7 @@ impl UniformApp {
                 name_parts,
                 issues,
                 face_ids,
-            });
-            ctx.request_repaint();
+            }));
         });
     }
 
@@ -438,23 +488,35 @@ impl UniformApp {
             self.derived_rebuild_at = None;
         }
 
-        if let Some(data) = take_latest_derived_data(&self.derived_data_rx) {
+        if let Some(result) = take_latest_derived_data(&self.derived_data_rx) {
             self.derived_inflight = false;
-            self.named_glyphs = data.named_glyphs;
-            self.alt_index = data.alt_index;
-            self.name_parts = data.name_parts;
-            self.font_meta = data.meta;
-            self.named_glyphs_gen = data.build_gen;
-            self.derived_gen = self.derived_gen.wrapping_add(1);
-            self.issues = data.issues;
-            self.issues_gen = data.build_gen;
-            self.face_ids = data.face_ids;
-            // The selection is not silently rewritten when its face goes away:
-            // the build falls back to the primary on its own, and an edit that
-            // briefly breaks a `face` line must not lose the choice.
-            let all_docs = self.collect_all_docs();
-            let doc_refs: Vec<&Document> = all_docs.to_vec();
-            self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);
+            // A rebuild that died carries nothing: the flag is cleared either
+            // way, but the previous derived data stays — a stale view of the
+            // font beats none — and the next edit schedules another rebuild.
+            if result.is_none() {
+                self.status_message = Some((
+                    "Resolving the font sources failed (internal error).".to_string(),
+                    std::time::Instant::now(),
+                ));
+            }
+            if let Some(data) = result {
+                self.named_glyphs = data.named_glyphs;
+                self.alt_index = data.alt_index;
+                self.name_parts = data.name_parts;
+                self.font_meta = data.meta;
+                self.named_glyphs_gen = data.build_gen;
+                self.derived_gen = self.derived_gen.wrapping_add(1);
+                self.issues = data.issues;
+                self.issues_gen = data.build_gen;
+                self.face_ids = data.face_ids;
+                // The selection is not silently rewritten when its face goes
+                // away: the build falls back to the primary on its own, and an
+                // edit that briefly breaks a `face` line must not lose the
+                // choice.
+                let all_docs = self.collect_all_docs();
+                let doc_refs: Vec<&Document> = all_docs.to_vec();
+                self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);
+            }
         }
 
         if let Ok(assert_issues) = self.assert_rx.try_recv() {
@@ -581,5 +643,40 @@ mod font_build_tests {
             [std::path::Path::new("a.unf"), std::path::Path::new("b.unf")],
         );
         assert_eq!(docs.len(), 2, "the base copy of b.unf must be replaced");
+    }
+
+    /// A worker that unwinds still delivers a result, so the flag the UI
+    /// latched while it ran is cleared. Without this the editor's resolve, its
+    /// shape-assertion run or its file watch stops for the rest of the session
+    /// after a single panic deep in the builder.
+    #[test]
+    fn a_panicking_worker_still_sends_its_fallback() {
+        let (tx, rx) = mpsc::channel::<&'static str>();
+        let ctx = egui::Context::default();
+
+        let hook = std::panic::take_hook();
+        std::panic::set_hook(Box::new(|_| {}));
+        let panicking = std::thread::spawn({
+            let tx = tx.clone();
+            let ctx = ctx.clone();
+            move || {
+                let mut slot = ResultSlot::new(tx, ctx, "died");
+                if std::hint::black_box(true) {
+                    panic!("deep in the builder");
+                }
+                slot.set("finished");
+            }
+        });
+        assert!(panicking.join().is_err());
+        std::panic::set_hook(hook);
+        assert_eq!(rx.try_recv(), Ok("died"));
+
+        std::thread::spawn(move || {
+            let mut slot = ResultSlot::new(tx, ctx, "died");
+            slot.set("finished");
+        })
+        .join()
+        .unwrap();
+        assert_eq!(rx.try_recv(), Ok("finished"), "the real result wins");
     }
 }
