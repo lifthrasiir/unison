@@ -1,5 +1,8 @@
 ////////////////////////////////////////
 // unified canadian aboriginal syllabics
+//
+// this is wide only, because there is no reaonable way
+// to shove every UCAS glyph into the 8x16 grid.
 
 glyph ca-dot 2 2
 /11\
@@ -1525,90 +1528,90 @@ glyph ca-s-carrier-dental 8 16
 ................
 ................
 
-map ᐜ = ca-ai
-map ᐝ = ca-w-y-cree
-map ᐞ = ca-glottal-stop
-map ᐟ = ca-acute-final
-map ᐠ = ca-grave-final
-map ᐡ = ca-ring-d-final
-map ᐢ = ca-ring-u-final
-map ᐣ = ca-ring-r-final
-map ᐤ = ca-ring-final
-map ᐥ = ca-dacute-final
-map ᐦ = ca-dpipe-final
-map ᐧ = ca-cdot-final
-map ᐨ = ca-cdash-final
-map ᐩ = ca-plus-final
-map ᐪ = ca-tee-final
-map ᑉ = ca-p
-map ᑊ = ca-p-west-cree
-map ᑋ = ca-h-carrier
-map ᑦ = ca-t
-map ᒃ = ca-k
-map ᒄ = ca-kw
-map ᒡ = ca-c
-map ᒢ = ca-th-sayisi
-map ᒻ = ca-m
-map ᒼ = ca-m-west-cree
-map ᒽ = ca-mh
-map ᒾ = ca-m-athapascan
-map ᒿ = ca-m-sayisi
-map ᓐ = ca-n
-map ᓑ = ca-ng-carrier
-map ᓒ = ca-nh
-map ᓪ = ca-l
-map ᓫ = ca-l-west-cree
-map ᓬ = ca-l-medial
-map ᔅ = ca-s
-map ᔆ = ca-s-athapascan
-map ᔇ = ca-sw
-map ᔈ = ca-s-blackfoot
-map ᔉ = ca-sk-moose-cree
-map ᔊ = ca-skw-naskapi
-map ᔋ = ca-s-w-naskapi
-map ᔥ = ca-sh
-map ᔾ = ca-y
-map ᔿ = ca-y-bible-cree
-map ᕀ = ca-y-west-cree
-map ᕁ = ca-yi-sayisi
-map ᕐ = ca-r
-map ᕑ = ca-r-west-cree
-map ᕒ = ca-r-medial
-map ᕝ = ca-f
-map ᕪ = ca-th
-map ᕯ = ca-tth
-map ᕻ = ca-h-nunavik
-map ᕼ = ca-h-nunavut
-map ᕽ = ca-hk
-map ᖅ = ca-q
-map ᖕ = ca-ng
-map ᖖ = ca-nng
-map ᖟ = ca-th-woods-cree
-map ᖦ = ca-lh
-map ᖮ = ca-th-th-cree
-map ᖯ = ca-b-aivilik
-map ᗮ = ca-p-carrier
-map ᘁ = ca-kk-carrier
-map ᙆ = ca-z-carrier
-map ᙇ = ca-z-carrier-initial
-map ᙚ = ca-sh-carrier
-map ᙾ = ca-th-woods-cree-final
-map ᙿ = ca-w-blackfoot
-map ᣔ = ca-p-ojibway
-map ᣕ = ca-t-ojibway
-map ᣖ = ca-k-ojibway
-map ᣗ = ca-c-ojibway
-map ᣘ = ca-m-ojibway
-map ᣙ = ca-n-ojibway
-map ᣚ = ca-s-ojibway
-map ᣛ = ca-sh-ojibway
-map ᣜ = ca-w-eastern
-map ᣝ = ca-w-western
-map ᣞ = ca-small-ring-final
-map ᣟ = ca-odot-final
-map ᣳ = ca-l-beaver-dene
-map ᣴ = ca-r-beaver-dene
-map ᣵ = ca-s-carrier-dental
+map wide : ᐜ = ca-ai
+map wide : ᐝ = ca-w-y-cree
+map wide : ᐞ = ca-glottal-stop
+map wide : ᐟ = ca-acute-final
+map wide : ᐠ = ca-grave-final
+map wide : ᐡ = ca-ring-d-final
+map wide : ᐢ = ca-ring-u-final
+map wide : ᐣ = ca-ring-r-final
+map wide : ᐤ = ca-ring-final
+map wide : ᐥ = ca-dacute-final
+map wide : ᐦ = ca-dpipe-final
+map wide : ᐧ = ca-cdot-final
+map wide : ᐨ = ca-cdash-final
+map wide : ᐩ = ca-plus-final
+map wide : ᐪ = ca-tee-final
+map wide : ᑉ = ca-p
+map wide : ᑊ = ca-p-west-cree
+map wide : ᑋ = ca-h-carrier
+map wide : ᑦ = ca-t
+map wide : ᒃ = ca-k
+map wide : ᒄ = ca-kw
+map wide : ᒡ = ca-c
+map wide : ᒢ = ca-th-sayisi
+map wide : ᒻ = ca-m
+map wide : ᒼ = ca-m-west-cree
+map wide : ᒽ = ca-mh
+map wide : ᒾ = ca-m-athapascan
+map wide : ᒿ = ca-m-sayisi
+map wide : ᓐ = ca-n
+map wide : ᓑ = ca-ng-carrier
+map wide : ᓒ = ca-nh
+map wide : ᓪ = ca-l
+map wide : ᓫ = ca-l-west-cree
+map wide : ᓬ = ca-l-medial
+map wide : ᔅ = ca-s
+map wide : ᔆ = ca-s-athapascan
+map wide : ᔇ = ca-sw
+map wide : ᔈ = ca-s-blackfoot
+map wide : ᔉ = ca-sk-moose-cree
+map wide : ᔊ = ca-skw-naskapi
+map wide : ᔋ = ca-s-w-naskapi
+map wide : ᔥ = ca-sh
+map wide : ᔾ = ca-y
+map wide : ᔿ = ca-y-bible-cree
+map wide : ᕀ = ca-y-west-cree
+map wide : ᕁ = ca-yi-sayisi
+map wide : ᕐ = ca-r
+map wide : ᕑ = ca-r-west-cree
+map wide : ᕒ = ca-r-medial
+map wide : ᕝ = ca-f
+map wide : ᕪ = ca-th
+map wide : ᕯ = ca-tth
+map wide : ᕻ = ca-h-nunavik
+map wide : ᕼ = ca-h-nunavut
+map wide : ᕽ = ca-hk
+map wide : ᖅ = ca-q
+map wide : ᖕ = ca-ng
+map wide : ᖖ = ca-nng
+map wide : ᖟ = ca-th-woods-cree
+map wide : ᖦ = ca-lh
+map wide : ᖮ = ca-th-th-cree
+map wide : ᖯ = ca-b-aivilik
+map wide : ᗮ = ca-p-carrier
+map wide : ᘁ = ca-kk-carrier
+map wide : ᙆ = ca-z-carrier
+map wide : ᙇ = ca-z-carrier-initial
+map wide : ᙚ = ca-sh-carrier
+map wide : ᙾ = ca-th-woods-cree-final
+map wide : ᙿ = ca-w-blackfoot
+map wide : ᣔ = ca-p-ojibway
+map wide : ᣕ = ca-t-ojibway
+map wide : ᣖ = ca-k-ojibway
+map wide : ᣗ = ca-c-ojibway
+map wide : ᣘ = ca-m-ojibway
+map wide : ᣙ = ca-n-ojibway
+map wide : ᣚ = ca-s-ojibway
+map wide : ᣛ = ca-sh-ojibway
+map wide : ᣜ = ca-w-eastern
+map wide : ᣝ = ca-w-western
+map wide : ᣞ = ca-small-ring-final
+map wide : ᣟ = ca-odot-final
+map wide : ᣳ = ca-l-beaver-dene
+map wide : ᣴ = ca-r-beaver-dene
+map wide : ᣵ = ca-s-carrier-dental
 
 //--------------------------------------
 // vowels
@@ -1850,44 +1853,44 @@ glyph ca-an advance 16
 ref ca-a
 ref ca-grave-left 14 4
 
-map ᐁ = ca-e
-map ᐌ = ca-we
-map ᐍ = ca-we-west-cree
-map ᐫ = ca-en
+map wide : ᐁ = ca-e
+map wide : ᐌ = ca-we
+map wide : ᐍ = ca-we-west-cree
+map wide : ᐫ = ca-en
 
-map ᐃ = ca-i
-map ᐂ = ca-aai
-map ᐄ = ca-ii
-map ᐎ = ca-wi
-map ᐏ = ca-wi-west-cree
-map ᐐ = ca-wii
-map ᐑ = ca-wii-west-cree
-map ᐬ = ca-in
+map wide : ᐃ = ca-i
+map wide : ᐂ = ca-aai
+map wide : ᐄ = ca-ii
+map wide : ᐎ = ca-wi
+map wide : ᐏ = ca-wi-west-cree
+map wide : ᐐ = ca-wii
+map wide : ᐑ = ca-wii-west-cree
+map wide : ᐬ = ca-in
 
-map ᐅ = ca-o
-map ᢰ = ca-oy
-map ᐆ = ca-oo
-map ᐇ = ca-oo-y-cree
-map ᐈ = ca-ee-carrier
-map ᐉ = ca-i-carrier
-map ᐒ = ca-wo
-map ᐓ = ca-wo-west-cree
-map ᐔ = ca-woo
-map ᐕ = ca-woo-west-cree
-map ᐖ = ca-woo-naskapi
-map ᐭ = ca-on
+map wide : ᐅ = ca-o
+map wide : ᢰ = ca-oy
+map wide : ᐆ = ca-oo
+map wide : ᐇ = ca-oo-y-cree
+map wide : ᐈ = ca-ee-carrier
+map wide : ᐉ = ca-i-carrier
+map wide : ᐒ = ca-wo
+map wide : ᐓ = ca-wo-west-cree
+map wide : ᐔ = ca-woo
+map wide : ᐕ = ca-woo-west-cree
+map wide : ᐖ = ca-woo-naskapi
+map wide : ᐭ = ca-on
 
-map ᐊ = ca-a
-map ᢱ = ca-ay
-map ᢲ = ca-aay
-map ᢳ = ca-way
-map ᐋ = ca-aa
-map ᐗ = ca-wa
-map ᐘ = ca-wa-west-cree
-map ᐙ = ca-waa
-map ᐚ = ca-waa-west-cree
-map ᐛ = ca-waa-naskapi
-map ᐮ = ca-an
+map wide : ᐊ = ca-a
+map wide : ᢱ = ca-ay
+map wide : ᢲ = ca-aay
+map wide : ᢳ = ca-way
+map wide : ᐋ = ca-aa
+map wide : ᐗ = ca-wa
+map wide : ᐘ = ca-wa-west-cree
+map wide : ᐙ = ca-waa
+map wide : ᐚ = ca-waa-west-cree
+map wide : ᐛ = ca-waa-naskapi
+map wide : ᐮ = ca-an
 
 //--------------------------------------
 // p + vowels
@@ -2124,39 +2127,39 @@ ref ca-pa
 ref ca-dot 9 2
 ref ca-dot 4 4
 
-map ᐯ = ca-pe
-map ᐺ = ca-pwe
-map ᐻ = ca-pwe-west-cree
+map wide : ᐯ = ca-pe
+map wide : ᐺ = ca-pwe
+map wide : ᐻ = ca-pwe-west-cree
 
-map ᐱ = ca-pi
-map ᐰ = ca-paai
-map ᐲ = ca-pii
-map ᐼ = ca-pwi
-map ᐽ = ca-pwi-west-cree
-map ᐾ = ca-pwii
-map ᐿ = ca-pwii-west-cree
+map wide : ᐱ = ca-pi
+map wide : ᐰ = ca-paai
+map wide : ᐲ = ca-pii
+map wide : ᐼ = ca-pwi
+map wide : ᐽ = ca-pwi-west-cree
+map wide : ᐾ = ca-pwii
+map wide : ᐿ = ca-pwii-west-cree
 
-map ᐳ = ca-po
-map ᢴ = ca-poy
-map ᢶ = ca-pwoy
-map ᐴ = ca-poo
-map ᐵ = ca-poo-y-cree
-map ᐶ = ca-hee-carrier
-map ᐷ = ca-hi-carrier
-map ᑀ = ca-pwo
-map ᑁ = ca-pwo-west-cree
-map ᑂ = ca-pwoo
-map ᑃ = ca-pwoo-west-cree
+map wide : ᐳ = ca-po
+map wide : ᢴ = ca-poy
+map wide : ᢶ = ca-pwoy
+map wide : ᐴ = ca-poo
+map wide : ᐵ = ca-poo-y-cree
+map wide : ᐶ = ca-hee-carrier
+map wide : ᐷ = ca-hi-carrier
+map wide : ᑀ = ca-pwo
+map wide : ᑁ = ca-pwo-west-cree
+map wide : ᑂ = ca-pwoo
+map wide : ᑃ = ca-pwoo-west-cree
 
-map ᐸ = ca-pa
-map ᢵ = ca-pay
-map ᐹ = ca-paa
-map ᑄ = ca-pwa
-map ᑅ = ca-pwa-west-cree
-map ᑆ = ca-pwaa
-map ᑇ = ca-pwaa-west-cree
-map ᑈ = ca-pwaa-y-cree
-map ᔌ = ca-spwa-naskapi
+map wide : ᐸ = ca-pa
+map wide : ᢵ = ca-pay
+map wide : ᐹ = ca-paa
+map wide : ᑄ = ca-pwa
+map wide : ᑅ = ca-pwa-west-cree
+map wide : ᑆ = ca-pwaa
+map wide : ᑇ = ca-pwaa-west-cree
+map wide : ᑈ = ca-pwaa-y-cree
+map wide : ᔌ = ca-spwa-naskapi
 
 //--------------------------------------
 // t + vowels
@@ -2439,41 +2442,41 @@ glyph ca-stwa-naskapi 16 16
 ref ca-s-w-naskapi -1 0
 ref ca-ta0 6 4
 
-map ᑌ = ca-te
-map ᑗ = ca-twe
-map ᑘ = ca-twe-west-cree
-map ᑧ = ca-tte
+map wide : ᑌ = ca-te
+map wide : ᑗ = ca-twe
+map wide : ᑘ = ca-twe-west-cree
+map wide : ᑧ = ca-tte
 
-map ᑎ = ca-ti
-map ᑍ = ca-taai
-map ᑏ = ca-tii
-map ᑙ = ca-twi
-map ᑚ = ca-twi-west-cree
-map ᑛ = ca-twii
-map ᑜ = ca-twii-west-cree
-map ᑨ = ca-tti
+map wide : ᑎ = ca-ti
+map wide : ᑍ = ca-taai
+map wide : ᑏ = ca-tii
+map wide : ᑙ = ca-twi
+map wide : ᑚ = ca-twi-west-cree
+map wide : ᑛ = ca-twii
+map wide : ᑜ = ca-twii-west-cree
+map wide : ᑨ = ca-tti
 
-map ᑐ = ca-to
-map ᑑ = ca-too
-map ᑒ = ca-too-y-cree
-map ᑓ = ca-dee-carrier
-map ᑔ = ca-di-carrier
-map ᑝ = ca-two
-map ᑞ = ca-two-west-cree
-map ᑟ = ca-twoo
-map ᑠ = ca-twoo-west-cree
-map ᑩ = ca-tto
+map wide : ᑐ = ca-to
+map wide : ᑑ = ca-too
+map wide : ᑒ = ca-too-y-cree
+map wide : ᑓ = ca-dee-carrier
+map wide : ᑔ = ca-di-carrier
+map wide : ᑝ = ca-two
+map wide : ᑞ = ca-two-west-cree
+map wide : ᑟ = ca-twoo
+map wide : ᑠ = ca-twoo-west-cree
+map wide : ᑩ = ca-tto
 
-map ᑕ = ca-ta
-map ᢷ = ca-tay
-map ᑖ = ca-taa
-map ᑡ = ca-twa
-map ᑢ = ca-twa-west-cree
-map ᑣ = ca-twaa
-map ᑤ = ca-twaa-west-cree
-map ᑥ = ca-twaa-naskapi
-map ᑪ = ca-tta
-map ᔍ = ca-stwa-naskapi
+map wide : ᑕ = ca-ta
+map wide : ᢷ = ca-tay
+map wide : ᑖ = ca-taa
+map wide : ᑡ = ca-twa
+map wide : ᑢ = ca-twa-west-cree
+map wide : ᑣ = ca-twaa
+map wide : ᑤ = ca-twaa-west-cree
+map wide : ᑥ = ca-twaa-naskapi
+map wide : ᑪ = ca-tta
+map wide : ᔍ = ca-stwa-naskapi
 
 //--------------------------------------
 // k + vowels
@@ -2753,48 +2756,48 @@ glyph ca-skwa-naskapi 16 16
 ref ca-s-w-naskapi -1 0
 ref ca-ka0 6 3
 
-map ᑫ = ca-ke
-map ᑴ = ca-kwe
-map ᑵ = ca-kwe-west-cree
-map ᒅ = ca-keh-south-slavey
-map ᙯ = ca-qai
+map wide : ᑫ = ca-ke
+map wide : ᑴ = ca-kwe
+map wide : ᑵ = ca-kwe-west-cree
+map wide : ᒅ = ca-keh-south-slavey
+map wide : ᙯ = ca-qai
 
-map ᑭ = ca-ki
-map ᕿ = ca-qi
-map ᑬ = ca-kaai
-map ᕾ = ca-qaai
-map ᑮ = ca-kii
-map ᖀ = ca-qii
-map ᑶ = ca-kwi
-map ᑷ = ca-kwi-west-cree
-map ᑸ = ca-kwii
-map ᑹ = ca-kwii-west-cree
-map ᒆ = ca-kih-south-slavey
+map wide : ᑭ = ca-ki
+map wide : ᕿ = ca-qi
+map wide : ᑬ = ca-kaai
+map wide : ᕾ = ca-qaai
+map wide : ᑮ = ca-kii
+map wide : ᖀ = ca-qii
+map wide : ᑶ = ca-kwi
+map wide : ᑷ = ca-kwi-west-cree
+map wide : ᑸ = ca-kwii
+map wide : ᑹ = ca-kwii-west-cree
+map wide : ᒆ = ca-kih-south-slavey
 
-map ᑯ = ca-ko
-map ᖁ = ca-qo
-map ᑰ = ca-koo
-map ᖂ = ca-qoo
-map ᑱ = ca-koo-y-cree
-map ᑺ = ca-kwo
-map ᑻ = ca-kwo-west-cree
-map ᑼ = ca-kwoo
-map ᑽ = ca-kwoo-west-cree
-map ᒇ = ca-koh-south-slavey
+map wide : ᑯ = ca-ko
+map wide : ᖁ = ca-qo
+map wide : ᑰ = ca-koo
+map wide : ᖂ = ca-qoo
+map wide : ᑱ = ca-koo-y-cree
+map wide : ᑺ = ca-kwo
+map wide : ᑻ = ca-kwo-west-cree
+map wide : ᑼ = ca-kwoo
+map wide : ᑽ = ca-kwoo-west-cree
+map wide : ᒇ = ca-koh-south-slavey
 
-map ᑲ = ca-ka
-map ᖃ = ca-qa
-map ᢸ = ca-kay
-map ᢹ = ca-kway
-map ᑳ = ca-kaa
-map ᖄ = ca-qaa
-map ᑾ = ca-kwa
-map ᑿ = ca-kwa-west-cree
-map ᒀ = ca-kwaa
-map ᒁ = ca-kwaa-west-cree
-map ᒂ = ca-kwaa-naskapi
-map ᒈ = ca-kah-south-slavey
-map ᔎ = ca-skwa-naskapi
+map wide : ᑲ = ca-ka
+map wide : ᖃ = ca-qa
+map wide : ᢸ = ca-kay
+map wide : ᢹ = ca-kway
+map wide : ᑳ = ca-kaa
+map wide : ᖄ = ca-qaa
+map wide : ᑾ = ca-kwa
+map wide : ᑿ = ca-kwa-west-cree
+map wide : ᒀ = ca-kwaa
+map wide : ᒁ = ca-kwaa-west-cree
+map wide : ᒂ = ca-kwaa-naskapi
+map wide : ᒈ = ca-kah-south-slavey
+map wide : ᔎ = ca-skwa-naskapi
 
 //--------------------------------------
 // c + vowels
@@ -3017,48 +3020,48 @@ glyph ca-scwa-naskapi 16 16
 ref ca-s-w-naskapi -1 0
 ref ca-ca0 6 3
 
-map ᒉ = ca-ce
-map ᙰ = ca-ngai
-map ᒒ = ca-cwe
-map ᒓ = ca-cwe-west-cree
+map wide : ᒉ = ca-ce
+map wide : ᙰ = ca-ngai
+map wide : ᒒ = ca-cwe
+map wide : ᒓ = ca-cwe-west-cree
 
-map ᒋ = ca-ci
-map ᖏ = ca-ngi
-map ᙱ = ca-nngi
-map ᒊ = ca-caai
-map ᖎ = ca-ngaai
-map ᒌ = ca-cii
-map ᖐ = ca-ngii
-map ᙲ = ca-nngii
-map ᒔ = ca-cwi
-map ᒕ = ca-cwi-west-cree
-map ᒖ = ca-cwii
-map ᒗ = ca-cwii-west-cree
+map wide : ᒋ = ca-ci
+map wide : ᖏ = ca-ngi
+map wide : ᙱ = ca-nngi
+map wide : ᒊ = ca-caai
+map wide : ᖎ = ca-ngaai
+map wide : ᒌ = ca-cii
+map wide : ᖐ = ca-ngii
+map wide : ᙲ = ca-nngii
+map wide : ᒔ = ca-cwi
+map wide : ᒕ = ca-cwi-west-cree
+map wide : ᒖ = ca-cwii
+map wide : ᒗ = ca-cwii-west-cree
 
-map ᒍ = ca-co
-map ᖑ = ca-ngo
-map ᙳ = ca-nngo
-map ᒎ = ca-coo
-map ᖒ = ca-ngoo
-map ᙴ = ca-nngoo
-map ᒏ = ca-coo-y-cree
-map ᒘ = ca-cwo
-map ᒙ = ca-cwo-west-cree
-map ᒚ = ca-cwoo
-map ᒛ = ca-cwoo-west-cree
+map wide : ᒍ = ca-co
+map wide : ᖑ = ca-ngo
+map wide : ᙳ = ca-nngo
+map wide : ᒎ = ca-coo
+map wide : ᖒ = ca-ngoo
+map wide : ᙴ = ca-nngoo
+map wide : ᒏ = ca-coo-y-cree
+map wide : ᒘ = ca-cwo
+map wide : ᒙ = ca-cwo-west-cree
+map wide : ᒚ = ca-cwoo
+map wide : ᒛ = ca-cwoo-west-cree
 
-map ᒐ = ca-ca
-map ᖓ = ca-nga
-map ᙵ = ca-nnga
-map ᒑ = ca-caa
-map ᖔ = ca-ngaa
-map ᙶ = ca-nngaa
-map ᒜ = ca-cwa
-map ᒝ = ca-cwa-west-cree
-map ᒞ = ca-cwaa
-map ᒟ = ca-cwaa-west-cree
-map ᒠ = ca-cwaa-naskapi
-map ᔏ = ca-scwa-naskapi
+map wide : ᒐ = ca-ca
+map wide : ᖓ = ca-nga
+map wide : ᙵ = ca-nnga
+map wide : ᒑ = ca-caa
+map wide : ᖔ = ca-ngaa
+map wide : ᙶ = ca-nngaa
+map wide : ᒜ = ca-cwa
+map wide : ᒝ = ca-cwa-west-cree
+map wide : ᒞ = ca-cwaa
+map wide : ᒟ = ca-cwaa-west-cree
+map wide : ᒠ = ca-cwaa-naskapi
+map wide : ᔏ = ca-scwa-naskapi
 
 //--------------------------------------
 // m + vowels
@@ -3227,34 +3230,34 @@ ref ca-ma
 ref ca-dot 1 5
 ref ca-dot 1 9
 
-map ᒣ = ca-me
-map ᒬ = ca-mwe
-map ᒭ = ca-mwe-west-mree
+map wide : ᒣ = ca-me
+map wide : ᒬ = ca-mwe
+map wide : ᒭ = ca-mwe-west-mree
 
-map ᒥ = ca-mi
-map ᒤ = ca-maai
-map ᒦ = ca-mii
-map ᒮ = ca-mwi
-map ᒯ = ca-mwi-west-mree
-map ᒰ = ca-mwii
-map ᒱ = ca-mwii-west-mree
+map wide : ᒥ = ca-mi
+map wide : ᒤ = ca-maai
+map wide : ᒦ = ca-mii
+map wide : ᒮ = ca-mwi
+map wide : ᒯ = ca-mwi-west-mree
+map wide : ᒰ = ca-mwii
+map wide : ᒱ = ca-mwii-west-mree
 
-map ᒧ = ca-mo
-map ᒨ = ca-moo
-map ᒩ = ca-moo-y-mree
-map ᒲ = ca-mwo
-map ᒳ = ca-mwo-west-mree
-map ᒴ = ca-mwoo
-map ᒵ = ca-mwoo-west-mree
+map wide : ᒧ = ca-mo
+map wide : ᒨ = ca-moo
+map wide : ᒩ = ca-moo-y-mree
+map wide : ᒲ = ca-mwo
+map wide : ᒳ = ca-mwo-west-mree
+map wide : ᒴ = ca-mwoo
+map wide : ᒵ = ca-mwoo-west-mree
 
-map ᒪ = ca-ma
-map ᢺ = ca-may
-map ᒫ = ca-maa
-map ᒶ = ca-mwa
-map ᒷ = ca-mwa-west-mree
-map ᒸ = ca-mwaa
-map ᒹ = ca-mwaa-west-mree
-map ᒺ = ca-mwaa-naskapi
+map wide : ᒪ = ca-ma
+map wide : ᢺ = ca-may
+map wide : ᒫ = ca-maa
+map wide : ᒶ = ca-mwa
+map wide : ᒷ = ca-mwa-west-mree
+map wide : ᒸ = ca-mwaa
+map wide : ᒹ = ca-mwaa-west-mree
+map wide : ᒺ = ca-mwaa-naskapi
 
 //--------------------------------------
 // n + vowels
@@ -3427,35 +3430,35 @@ ref ca-na
 ref ca-dot 4 3
 ref ca-dot 7 3
 
-map ᓀ = ca-ne
-map ᓉ = ca-nwe
-map ᓊ = ca-nwe-west-cree
+map wide : ᓀ = ca-ne
+map wide : ᓉ = ca-nwe
+map wide : ᓊ = ca-nwe-west-cree
 
-map ᓂ = ca-ni
-map ᓁ = ca-naai
-map ᓃ = ca-nii
-map ᣆ = ca-nwi
-map ᣇ = ca-nwi-ojibway
-map ᣈ = ca-nwii
-map ᣉ = ca-nwii-ojibway
+map wide : ᓂ = ca-ni
+map wide : ᓁ = ca-naai
+map wide : ᓃ = ca-nii
+map wide : ᣆ = ca-nwi
+map wide : ᣇ = ca-nwi-ojibway
+map wide : ᣈ = ca-nwii
+map wide : ᣉ = ca-nwii-ojibway
 
-map ᓄ = ca-no
-map ᢻ = ca-noy
-map ᓅ = ca-noo
-map ᓆ = ca-noo-y-cree
-map ᣊ = ca-nwo
-map ᣋ = ca-nwo-ojibway
-map ᣌ = ca-nwoo
-map ᣍ = ca-nwoo-ojibway
+map wide : ᓄ = ca-no
+map wide : ᢻ = ca-noy
+map wide : ᓅ = ca-noo
+map wide : ᓆ = ca-noo-y-cree
+map wide : ᣊ = ca-nwo
+map wide : ᣋ = ca-nwo-ojibway
+map wide : ᣌ = ca-nwoo
+map wide : ᣍ = ca-nwoo-ojibway
 
-map ᓇ = ca-na
-map ᢼ = ca-nay
-map ᓈ = ca-naa
-map ᓋ = ca-nwa
-map ᓌ = ca-nwa-west-cree
-map ᓍ = ca-nwaa
-map ᓎ = ca-nwaa-west-cree
-map ᓏ = ca-nwaa-naskapi
+map wide : ᓇ = ca-na
+map wide : ᢼ = ca-nay
+map wide : ᓈ = ca-naa
+map wide : ᓋ = ca-nwa
+map wide : ᓌ = ca-nwa-west-cree
+map wide : ᓍ = ca-nwaa
+map wide : ᓎ = ca-nwaa-west-cree
+map wide : ᓏ = ca-nwaa-naskapi
 
 //--------------------------------------
 // l + vowels
@@ -3619,33 +3622,33 @@ ref ca-la
 ref ca-dot-tall 11 8
 ref ca-dot 5 3
 
-map ᓓ = ca-le
-map ᓜ = ca-lwe
-map ᓝ = ca-lwe-west-cree
+map wide : ᓓ = ca-le
+map wide : ᓜ = ca-lwe
+map wide : ᓝ = ca-lwe-west-cree
 
-map ᓕ = ca-li
-map ᓔ = ca-laai
-map ᓖ = ca-lii
-map ᓞ = ca-lwi
-map ᓟ = ca-lwi-west-cree
-map ᓠ = ca-lwii
-map ᓡ = ca-lwii-west-cree
+map wide : ᓕ = ca-li
+map wide : ᓔ = ca-laai
+map wide : ᓖ = ca-lii
+map wide : ᓞ = ca-lwi
+map wide : ᓟ = ca-lwi-west-cree
+map wide : ᓠ = ca-lwii
+map wide : ᓡ = ca-lwii-west-cree
 
-map ᓗ = ca-lo
-map ᓘ = ca-loo
-map ᓙ = ca-loo-y-cree
-map ᓢ = ca-lwo
-map ᓣ = ca-lwo-west-cree
-map ᓤ = ca-lwoo
-map ᓥ = ca-lwoo-west-cree
+map wide : ᓗ = ca-lo
+map wide : ᓘ = ca-loo
+map wide : ᓙ = ca-loo-y-cree
+map wide : ᓢ = ca-lwo
+map wide : ᓣ = ca-lwo-west-cree
+map wide : ᓤ = ca-lwoo
+map wide : ᓥ = ca-lwoo-west-cree
 
-map ᓚ = ca-la
-map ᢽ = ca-lay
-map ᓛ = ca-laa
-map ᓦ = ca-lwa
-map ᓧ = ca-lwa-west-cree
-map ᓨ = ca-lwaa
-map ᓩ = ca-lwaa-west-cree
+map wide : ᓚ = ca-la
+map wide : ᢽ = ca-lay
+map wide : ᓛ = ca-laa
+map wide : ᓦ = ca-lwa
+map wide : ᓧ = ca-lwa-west-cree
+map wide : ᓨ = ca-lwaa
+map wide : ᓩ = ca-lwaa-west-cree
 
 //--------------------------------------
 // s + vowels
@@ -3818,35 +3821,35 @@ ref ca-sa
 ref ca-dot 2 6
 ref ca-dot 2 9
 
-map ᓭ = ca-se
-map ᓶ = ca-swe
-map ᓷ = ca-swe-west-cree
+map wide : ᓭ = ca-se
+map wide : ᓶ = ca-swe
+map wide : ᓷ = ca-swe-west-cree
 
-map ᓯ = ca-si
-map ᓮ = ca-saai
-map ᓰ = ca-sii
-map ᓸ = ca-swi
-map ᓹ = ca-swi-west-cree
-map ᓺ = ca-swii
-map ᓻ = ca-swii-west-cree
+map wide : ᓯ = ca-si
+map wide : ᓮ = ca-saai
+map wide : ᓰ = ca-sii
+map wide : ᓸ = ca-swi
+map wide : ᓹ = ca-swi-west-cree
+map wide : ᓺ = ca-swii
+map wide : ᓻ = ca-swii-west-cree
 
-map ᓱ = ca-so
-map ᢾ = ca-soy
-map ᓲ = ca-soo
-map ᓳ = ca-soo-y-cree
-map ᓼ = ca-swo
-map ᓽ = ca-swo-west-cree
-map ᓾ = ca-swoo
-map ᓿ = ca-swoo-west-cree
+map wide : ᓱ = ca-so
+map wide : ᢾ = ca-soy
+map wide : ᓲ = ca-soo
+map wide : ᓳ = ca-soo-y-cree
+map wide : ᓼ = ca-swo
+map wide : ᓽ = ca-swo-west-cree
+map wide : ᓾ = ca-swoo
+map wide : ᓿ = ca-swoo-west-cree
 
-map ᓴ = ca-sa
-map ᢿ = ca-say
-map ᓵ = ca-saa
-map ᔀ = ca-swa
-map ᔁ = ca-swa-west-cree
-map ᔂ = ca-swaa
-map ᔃ = ca-swaa-west-cree
-map ᔄ = ca-swaa-saskapi
+map wide : ᓴ = ca-sa
+map wide : ᢿ = ca-say
+map wide : ᓵ = ca-saa
+map wide : ᔀ = ca-swa
+map wide : ᔁ = ca-swa-west-cree
+map wide : ᔂ = ca-swaa
+map wide : ᔃ = ca-swaa-west-cree
+map wide : ᔄ = ca-swaa-saskapi
 
 //--------------------------------------
 // sh + vowels
@@ -4010,33 +4013,33 @@ ref ca-sha
 ref ca-dot 7 5
 ref ca-dot-tall 14 9
 
-map ᔐ = ca-she
-map ᔗ = ca-shwe
-map ᔘ = ca-shwe-west-cree
+map wide : ᔐ = ca-she
+map wide : ᔗ = ca-shwe
+map wide : ᔘ = ca-shwe-west-cree
 
-map ᔑ = ca-shi
-map ᔒ = ca-shii
-map ᔙ = ca-shwi
-map ᔚ = ca-shwi-west-cree
-map ᔛ = ca-shwii
-map ᔜ = ca-shwii-west-cree
+map wide : ᔑ = ca-shi
+map wide : ᔒ = ca-shii
+map wide : ᔙ = ca-shwi
+map wide : ᔚ = ca-shwi-west-cree
+map wide : ᔛ = ca-shwii
+map wide : ᔜ = ca-shwii-west-cree
 
-map ᔓ = ca-sho
-map ᣀ = ca-shoy
-map ᔔ = ca-shoo
-map ᔝ = ca-shwo
-map ᔞ = ca-shwo-west-cree
-map ᔟ = ca-shwoo
-map ᔠ = ca-shwoo-west-cree
-map ᣂ = ca-shwoy
+map wide : ᔓ = ca-sho
+map wide : ᣀ = ca-shoy
+map wide : ᔔ = ca-shoo
+map wide : ᔝ = ca-shwo
+map wide : ᔞ = ca-shwo-west-cree
+map wide : ᔟ = ca-shwoo
+map wide : ᔠ = ca-shwoo-west-cree
+map wide : ᣂ = ca-shwoy
 
-map ᔕ = ca-sha
-map ᣁ = ca-shay
-map ᔖ = ca-shaa
-map ᔡ = ca-shwa
-map ᔢ = ca-shwa-west-cree
-map ᔣ = ca-shwaa
-map ᔤ = ca-shwaa-west-cree
+map wide : ᔕ = ca-sha
+map wide : ᣁ = ca-shay
+map wide : ᔖ = ca-shaa
+map wide : ᔡ = ca-shwa
+map wide : ᔢ = ca-shwa-west-cree
+map wide : ᔣ = ca-shwaa
+map wide : ᔤ = ca-shwaa-west-cree
 
 //--------------------------------------
 // y + vowels
@@ -4209,35 +4212,35 @@ ref ca-ya
 ref ca-dot 2 5
 ref ca-dot 2 9
 
-map ᔦ = ca-ye
-map ᔯ = ca-ywe
-map ᔰ = ca-ywe-west-cree
+map wide : ᔦ = ca-ye
+map wide : ᔯ = ca-ywe
+map wide : ᔰ = ca-ywe-west-cree
 
-map ᔨ = ca-yi
-map ᔧ = ca-yaai
-map ᔱ = ca-ywi
-map ᔲ = ca-ywi-west-cree
-map ᔩ = ca-yii
-map ᔳ = ca-ywii
-map ᔴ = ca-ywii-west-cree
+map wide : ᔨ = ca-yi
+map wide : ᔧ = ca-yaai
+map wide : ᔱ = ca-ywi
+map wide : ᔲ = ca-ywi-west-cree
+map wide : ᔩ = ca-yii
+map wide : ᔳ = ca-ywii
+map wide : ᔴ = ca-ywii-west-cree
 
-map ᔪ = ca-yo
-map ᣃ = ca-yoy
-map ᔵ = ca-ywo
-map ᔶ = ca-ywo-west-cree
-map ᔫ = ca-yoo
-map ᔬ = ca-yoo-y-cree
-map ᔷ = ca-ywoo
-map ᔸ = ca-ywoo-west-cree
+map wide : ᔪ = ca-yo
+map wide : ᣃ = ca-yoy
+map wide : ᔵ = ca-ywo
+map wide : ᔶ = ca-ywo-west-cree
+map wide : ᔫ = ca-yoo
+map wide : ᔬ = ca-yoo-y-cree
+map wide : ᔷ = ca-ywoo
+map wide : ᔸ = ca-ywoo-west-cree
 
-map ᔭ = ca-ya
-map ᣄ = ca-yay
-map ᔹ = ca-ywa
-map ᔺ = ca-ywa-west-cree
-map ᔮ = ca-yaa
-map ᔻ = ca-ywaa
-map ᔼ = ca-ywaa-west-cree
-map ᔽ = ca-ywaa-naskapi
+map wide : ᔭ = ca-ya
+map wide : ᣄ = ca-yay
+map wide : ᔹ = ca-ywa
+map wide : ᔺ = ca-ywa-west-cree
+map wide : ᔮ = ca-yaa
+map wide : ᔻ = ca-ywaa
+map wide : ᔼ = ca-ywaa-west-cree
+map wide : ᔽ = ca-ywaa-naskapi
 
 //--------------------------------------
 // r + vowels
@@ -4454,33 +4457,33 @@ glyph ca-laa-west-cree
 ref ca-la-west-cree
 ref ca-dot 9 0
 
-map ᕂ = ca-re
-map ᕃ = ca-re-r-cree
-map ᣎ = ca-rwee
-map ᣠ = ca-rwe-r-cree
-map ᕄ = ca-le-west-cree
+map wide : ᕂ = ca-re
+map wide : ᕃ = ca-re-r-cree
+map wide : ᣎ = ca-rwee
+map wide : ᣠ = ca-rwe-r-cree
+map wide : ᕄ = ca-le-west-cree
 
-map ᕆ = ca-ri
-map ᕅ = ca-raai
-map ᣏ = ca-rwi
-map ᕇ = ca-rii
-map ᣐ = ca-rwii
+map wide : ᕆ = ca-ri
+map wide : ᕅ = ca-raai
+map wide : ᣏ = ca-rwi
+map wide : ᕇ = ca-rii
+map wide : ᣐ = ca-rwii
 
-map ᕈ = ca-ro
-map ᕉ = ca-roo
-map ᣑ = ca-rwo
-map ᣒ = ca-rwoo
-map ᕊ = ca-lo-west-cree
-map ᣡ = ca-loo-west-cree
+map wide : ᕈ = ca-ro
+map wide : ᕉ = ca-roo
+map wide : ᣑ = ca-rwo
+map wide : ᣒ = ca-rwoo
+map wide : ᕊ = ca-lo-west-cree
+map wide : ᣡ = ca-loo-west-cree
 
-map ᕋ = ca-ra
-map ᣅ = ca-ray
-map ᕌ = ca-raa
-map ᣓ = ca-rwa
-map ᕎ = ca-rwaa
-map ᕏ = ca-rwaa-west-cree
-map ᕍ = ca-la-west-cree
-map ᣢ = ca-laa-west-cree
+map wide : ᕋ = ca-ra
+map wide : ᣅ = ca-ray
+map wide : ᕌ = ca-raa
+map wide : ᣓ = ca-rwa
+map wide : ᕎ = ca-rwaa
+map wide : ᕏ = ca-rwaa-west-cree
+map wide : ᕍ = ca-la-west-cree
+map wide : ᣢ = ca-laa-west-cree
 
 //--------------------------------------
 // f + vowels
@@ -4628,19 +4631,19 @@ glyph ca-fwaa-west-cree 16 16
 ref ca-fa
 ref ca-dot 10 1
 
-map ᕓ = ca-fe
+map wide : ᕓ = ca-fe
 
-map ᕕ = ca-fi
-map ᕔ = ca-faai
-map ᕖ = ca-fii
+map wide : ᕕ = ca-fi
+map wide : ᕔ = ca-faai
+map wide : ᕖ = ca-fii
 
-map ᕗ = ca-fo
-map ᕘ = ca-foo
+map wide : ᕗ = ca-fo
+map wide : ᕘ = ca-foo
 
-map ᕙ = ca-fa
-map ᕚ = ca-faa
-map ᕛ = ca-fwaa
-map ᕜ = ca-fwaa-west-cree
+map wide : ᕙ = ca-fa
+map wide : ᕚ = ca-faa
+map wide : ᕛ = ca-fwaa
+map wide : ᕜ = ca-fwaa-west-cree
 
 //--------------------------------------
 // th + vowels
@@ -4787,23 +4790,23 @@ ref ca-tha
 ref ca-dot 7 1
 ref ca-dot 14 7
 
-map ᕞ = ca-the
-map ᣣ = ca-thwe
-map ᕟ = ca-the-n-cree
+map wide : ᕞ = ca-the
+map wide : ᣣ = ca-thwe
+map wide : ᕟ = ca-the-n-cree
 
-map ᕠ = ca-thi
-map ᕢ = ca-thii
-map ᕡ = ca-thi-n-cree
-map ᕣ = ca-thii-n-cree
+map wide : ᕠ = ca-thi
+map wide : ᕢ = ca-thii
+map wide : ᕡ = ca-thi-n-cree
+map wide : ᕣ = ca-thii-n-cree
 
-map ᕤ = ca-tho
-map ᕥ = ca-thoo
+map wide : ᕤ = ca-tho
+map wide : ᕥ = ca-thoo
 
-map ᕦ = ca-tha
-map ᣤ = ca-thwa
-map ᕧ = ca-thaa
-map ᕨ = ca-thwaa
-map ᕩ = ca-thwaa-west-cree
+map wide : ᕦ = ca-tha
+map wide : ᣤ = ca-thwa
+map wide : ᕧ = ca-thaa
+map wide : ᕨ = ca-thwaa
+map wide : ᕩ = ca-thwaa-west-cree
 
 //--------------------------------------
 // tth + vowels
@@ -4896,16 +4899,16 @@ glyph ca-tthaa
 ref ca-ttha
 ref ca-dot 8 1
 
-map ᕫ = ca-tthe
-map ᣥ = ca-tthwe
+map wide : ᕫ = ca-tthe
+map wide : ᣥ = ca-tthwe
 
-map ᕬ = ca-tthi
+map wide : ᕬ = ca-tthi
 
-map ᕭ = ca-ttho
-map ᣦ = ca-tthoo
+map wide : ᕭ = ca-ttho
+map wide : ᣦ = ca-tthoo
 
-map ᕮ = ca-ttha
-map ᣧ = ca-tthaa
+map wide : ᕮ = ca-ttha
+map wide : ᣧ = ca-tthaa
 
 //--------------------------------------
 // ty + vowels
@@ -4986,10 +4989,10 @@ glyph ca-tya 16 16
 ................................
 ref ca-ta
 
-map ᕰ = ca-tye
-map ᕱ = ca-tyi
-map ᕲ = ca-tyo
-map ᕳ = ca-tya
+map wide : ᕰ = ca-tye
+map wide : ᕱ = ca-tyi
+map wide : ᕲ = ca-tyo
+map wide : ᕳ = ca-tya
 
 //--------------------------------------
 // nunavik h + vowels
@@ -5078,16 +5081,16 @@ glyph ca-haa-nunavik
 ref ca-ha-nunavik
 ref ca-dot 6 0
 
-map ᕴ = ca-he-nunavik
+map wide : ᕴ = ca-he-nunavik
 
-map ᕵ = ca-hi-nunavik
-map ᕶ = ca-hii-nunavik
+map wide : ᕵ = ca-hi-nunavik
+map wide : ᕶ = ca-hii-nunavik
 
-map ᕷ = ca-ho-nunavik
-map ᕸ = ca-hoo-nunavik
+map wide : ᕷ = ca-ho-nunavik
+map wide : ᕸ = ca-hoo-nunavik
 
-map ᕹ = ca-ha-nunavik
-map ᕺ = ca-haa-nunavik
+map wide : ᕹ = ca-ha-nunavik
+map wide : ᕺ = ca-haa-nunavik
 
 //--------------------------------------
 // tlh + vowels
@@ -5176,15 +5179,15 @@ glyph ca-tlha 16 16
 ................................
 ref ca-ka
 
-map ᖆ = ca-tlhe
-map ᣨ = ca-tlhwe
+map wide : ᖆ = ca-tlhe
+map wide : ᣨ = ca-tlhwe
 
-map ᖇ = ca-tlhi
+map wide : ᖇ = ca-tlhi
 
-map ᖈ = ca-tlho
-map ᣩ = ca-tlhoo
+map wide : ᖈ = ca-tlho
+map wide : ᣩ = ca-tlhoo
 
-map ᖉ = ca-tlha
+map wide : ᖉ = ca-tlha
 
 //--------------------------------------
 // west-cree rV + vowels
@@ -5261,10 +5264,10 @@ glyph ca-ra-west-cree 16 16
 ................................
 ................................
 
-map ᖊ = ca-re-west-cree
-map ᖋ = ca-ri-west-cree
-map ᖌ = ca-ro-west-cree
-map ᖍ = ca-ra-west-cree
+map wide : ᖊ = ca-re-west-cree
+map wide : ᖋ = ca-ri-west-cree
+map wide : ᖌ = ca-ro-west-cree
+map wide : ᖍ = ca-ra-west-cree
 
 //--------------------------------------
 // sayisi sh + vowels
@@ -5349,15 +5352,15 @@ glyph ca-sha-sayisi 16 16
 ................................
 ................................
 
-map ᖗ = ca-she-sayisi
-map ᣪ = ca-shwe-sayisi
+map wide : ᖗ = ca-she-sayisi
+map wide : ᣪ = ca-shwe-sayisi
 
-map ᖘ = ca-shi-sayisi
+map wide : ᖘ = ca-shi-sayisi
 
-map ᖙ = ca-sho-sayisi
-map ᣫ = ca-shoo-sayisi
+map wide : ᖙ = ca-sho-sayisi
+map wide : ᣫ = ca-shoo-sayisi
 
-map ᖚ = ca-sha-sayisi
+map wide : ᖚ = ca-sha-sayisi
 
 //--------------------------------------
 // woods-cree th + vowels
@@ -5438,10 +5441,10 @@ glyph ca-tha-woods-cree 16 16
 ................................
 ref ca-na
 
-map ᖛ = ca-the-woods-cree
-map ᖜ = ca-thi-woods-cree
-map ᖝ = ca-tho-woods-cree
-map ᖞ = ca-tha-woods-cree
+map wide : ᖛ = ca-the-woods-cree
+map wide : ᖜ = ca-thi-woods-cree
+map wide : ᖝ = ca-tho-woods-cree
+map wide : ᖞ = ca-tha-woods-cree
 
 //--------------------------------------
 // lh + vowels
@@ -5515,14 +5518,14 @@ glyph ca-lhaa
 ref ca-lha
 ref ca-dot 6 0
 
-map ᖠ = ca-lhi
-map ᖡ = ca-lhii
+map wide : ᖠ = ca-lhi
+map wide : ᖡ = ca-lhii
 
-map ᖢ = ca-lho
-map ᖣ = ca-lhoo
+map wide : ᖢ = ca-lho
+map wide : ᖣ = ca-lhoo
 
-map ᖤ = ca-lha
-map ᖥ = ca-lhaa
+map wide : ᖤ = ca-lha
+map wide : ᖥ = ca-lhaa
 
 //--------------------------------------
 // th-cree th / woods-cree thw + vowels
@@ -5793,23 +5796,23 @@ glyph ca-thwaa-woods-cree 16 16
 ................................
 ref ca-ywaa-west-cree
 
-map ᖧ = ca-the-th-cree
-map ᙷ = ca-thwee-woods-cree
+map wide : ᖧ = ca-the-th-cree
+map wide : ᙷ = ca-thwee-woods-cree
 
-map ᖨ = ca-thi-th-cree
-map ᙸ = ca-thwi-woods-cree
-map ᖩ = ca-thii-th-cree
-map ᙹ = ca-thwii-woods-cree
+map wide : ᖨ = ca-thi-th-cree
+map wide : ᙸ = ca-thwi-woods-cree
+map wide : ᖩ = ca-thii-th-cree
+map wide : ᙹ = ca-thwii-woods-cree
 
-map ᖪ = ca-tho-th-cree
-map ᙺ = ca-thwo-woods-cree
-map ᖫ = ca-thoo-th-cree
-map ᙻ = ca-thwoo-woods-cree
+map wide : ᖪ = ca-tho-th-cree
+map wide : ᙺ = ca-thwo-woods-cree
+map wide : ᖫ = ca-thoo-th-cree
+map wide : ᙻ = ca-thwoo-woods-cree
 
-map ᖬ = ca-tha-th-cree
-map ᙼ = ca-thwa-woods-cree
-map ᖭ = ca-thaa-th-cree
-map ᙽ = ca-thwaa-woods-cree
+map wide : ᖬ = ca-tha-th-cree
+map wide : ᙼ = ca-thwa-woods-cree
+map wide : ᖭ = ca-thaa-th-cree
+map wide : ᙽ = ca-thwaa-woods-cree
 
 //--------------------------------------
 // blackfoot vowels
@@ -5886,10 +5889,10 @@ glyph ca-a-blackfoot 16 16
 ................................
 ................................
 
-map ᖰ = ca-e-blackfoot
-map ᖱ = ca-i-blackfoot
-map ᖲ = ca-o-blackfoot
-map ᖳ = ca-a-blackfoot
+map wide : ᖰ = ca-e-blackfoot
+map wide : ᖱ = ca-i-blackfoot
+map wide : ᖲ = ca-o-blackfoot
+map wide : ᖳ = ca-a-blackfoot
 
 //--------------------------------------
 // blackfoot w + vowels
@@ -5966,10 +5969,10 @@ glyph ca-wa-blackfoot 16 16
 ................................
 ................................
 
-map ᖴ = ca-we-blackfoot
-map ᖵ = ca-wi-blackfoot
-map ᖶ = ca-wo-blackfoot
-map ᖷ = ca-wa-blackfoot
+map wide : ᖴ = ca-we-blackfoot
+map wide : ᖵ = ca-wi-blackfoot
+map wide : ᖶ = ca-wo-blackfoot
+map wide : ᖷ = ca-wa-blackfoot
 
 //--------------------------------------
 // blackfoot n + vowels
@@ -6046,10 +6049,10 @@ glyph ca-na-blackfoot 16 16
 ................................
 ................................
 
-map ᖸ = ca-ne-blackfoot
-map ᖹ = ca-ni-blackfoot
-map ᖺ = ca-no-blackfoot
-map ᖻ = ca-na-blackfoot
+map wide : ᖸ = ca-ne-blackfoot
+map wide : ᖹ = ca-ni-blackfoot
+map wide : ᖺ = ca-no-blackfoot
+map wide : ᖻ = ca-na-blackfoot
 
 //--------------------------------------
 // blackfoot k + vowels
@@ -6126,10 +6129,10 @@ glyph ca-ka-blackfoot 16 16
 ................................
 ................................
 
-map ᖼ = ca-ke-blackfoot
-map ᖽ = ca-ki-blackfoot
-map ᖾ = ca-ko-blackfoot
-map ᖿ = ca-ka-blackfoot
+map wide : ᖼ = ca-ke-blackfoot
+map wide : ᖽ = ca-ki-blackfoot
+map wide : ᖾ = ca-ko-blackfoot
+map wide : ᖿ = ca-ka-blackfoot
 
 //--------------------------------------
 // sayisi h + vowels
@@ -6210,14 +6213,14 @@ glyph ca-ha-sayisi 16 16
 ................................
 ................................
 
-map ᗀ = ca-he-sayisi
+map wide : ᗀ = ca-he-sayisi
 
-map ᗁ = ca-hi-sayisi
+map wide : ᗁ = ca-hi-sayisi
 
-map ᗂ = ca-ho-sayisi
-map ᣬ = ca-hoo-sayisi
+map wide : ᗂ = ca-ho-sayisi
+map wide : ᣬ = ca-hoo-sayisi
 
-map ᗃ = ca-ha-sayisi
+map wide : ᗃ = ca-ha-sayisi
 
 //--------------------------------------
 // carrier gh + vowels
@@ -6330,15 +6333,15 @@ glyph ca-gha-carrier 16 16
 ................................
 ................................
 
-map ᗄ = ca-ghu-carrier
+map wide : ᗄ = ca-ghu-carrier
 
-map ᗅ = ca-gho-carrier
+map wide : ᗅ = ca-gho-carrier
 
-map ᗆ = ca-ghe-carrier
-map ᗇ = ca-ghee-carrier
-map ᗈ = ca-ghi-carrier
+map wide : ᗆ = ca-ghe-carrier
+map wide : ᗇ = ca-ghee-carrier
+map wide : ᗈ = ca-ghi-carrier
 
-map ᗉ = ca-gha-carrier
+map wide : ᗉ = ca-gha-carrier
 
 //--------------------------------------
 // carrier r + vowels
@@ -6453,15 +6456,15 @@ glyph ca-ra-carrier 16 16
 ................................
 ................................
 
-map ᗊ = ca-ru-carrier
+map wide : ᗊ = ca-ru-carrier
 
-map ᗋ = ca-ro-carrier
+map wide : ᗋ = ca-ro-carrier
 
-map ᗌ = ca-re-carrier
-map ᗍ = ca-ree-carrier
-map ᗎ = ca-ri-carrier
+map wide : ᗌ = ca-re-carrier
+map wide : ᗍ = ca-ree-carrier
+map wide : ᗎ = ca-ri-carrier
 
-map ᗏ = ca-ra-carrier
+map wide : ᗏ = ca-ra-carrier
 
 //--------------------------------------
 // carrier w + vowels
@@ -6576,15 +6579,15 @@ glyph ca-wa-carrier 16 16
 ................................
 ................................
 
-map ᗐ = ca-wu-carrier
+map wide : ᗐ = ca-wu-carrier
 
-map ᗑ = ca-wo-carrier
+map wide : ᗑ = ca-wo-carrier
 
-map ᗒ = ca-we-carrier
-map ᗓ = ca-wee-carrier
-map ᗔ = ca-wi-carrier
+map wide : ᗒ = ca-we-carrier
+map wide : ᗓ = ca-wee-carrier
+map wide : ᗔ = ca-wi-carrier
 
-map ᗕ = ca-wa-carrier
+map wide : ᗕ = ca-wa-carrier
 
 //--------------------------------------
 // carrier hw + vowels
@@ -6703,15 +6706,15 @@ glyph ca-hwa-carrier 16 16
 ................................
 ref ca-wa-carrier
 
-map ᗖ = ca-hwu-carrier
+map wide : ᗖ = ca-hwu-carrier
 
-map ᗗ = ca-hwo-carrier
+map wide : ᗗ = ca-hwo-carrier
 
-map ᗘ = ca-hwe-carrier
-map ᗙ = ca-hwee-carrier
-map ᗚ = ca-hwi-carrier
+map wide : ᗘ = ca-hwe-carrier
+map wide : ᗙ = ca-hwee-carrier
+map wide : ᗚ = ca-hwi-carrier
 
-map ᗛ = ca-hwa-carrier
+map wide : ᗛ = ca-hwa-carrier
 
 //--------------------------------------
 // carrier th + vowels
@@ -6811,15 +6814,15 @@ glyph ca-tha-carrier 16 16
 ................................
 ................................
 
-map ᗜ = ca-thu-carrier
+map wide : ᗜ = ca-thu-carrier
 
-map ᗝ = ca-tho-carrier
+map wide : ᗝ = ca-tho-carrier
 
-map ᗞ = ca-the-carrier
-map ᗟ = ca-thee-carrier
-map ᗠ = ca-thi-carrier
+map wide : ᗞ = ca-the-carrier
+map wide : ᗟ = ca-thee-carrier
+map wide : ᗠ = ca-thi-carrier
 
-map ᗡ = ca-tha-carrier
+map wide : ᗡ = ca-tha-carrier
 
 //--------------------------------------
 // carrier tt + vowels
@@ -6919,15 +6922,15 @@ glyph ca-tta-carrier 16 16
 ................................
 ................................
 
-map ᗢ = ca-ttu-carrier
+map wide : ᗢ = ca-ttu-carrier
 
-map ᗣ = ca-tto-carrier
+map wide : ᗣ = ca-tto-carrier
 
-map ᗤ = ca-tte-carrier
-map ᗥ = ca-ttee-carrier
-map ᗦ = ca-tti-carrier
+map wide : ᗤ = ca-tte-carrier
+map wide : ᗥ = ca-ttee-carrier
+map wide : ᗦ = ca-tti-carrier
 
-map ᗧ = ca-tta-carrier
+map wide : ᗧ = ca-tta-carrier
 
 //--------------------------------------
 // carrier p + vowels
@@ -7027,15 +7030,15 @@ glyph ca-pa-carrier 16 16
 ................................
 ................................
 
-map ᗨ = ca-pu-carrier
+map wide : ᗨ = ca-pu-carrier
 
-map ᗩ = ca-po-carrier
+map wide : ᗩ = ca-po-carrier
 
-map ᗪ = ca-pe-carrier
-map ᗫ = ca-pee-carrier
-map ᗬ = ca-pi-carrier
+map wide : ᗪ = ca-pe-carrier
+map wide : ᗫ = ca-pee-carrier
+map wide : ᗬ = ca-pi-carrier
 
-map ᗭ = ca-pa-carrier
+map wide : ᗭ = ca-pa-carrier
 
 //--------------------------------------
 // carrier g + vowels
@@ -7166,19 +7169,19 @@ glyph ca-gwa-carrier
 ref ca-ga-carrier
 ref ca-dot-tall 14 7
 
-map ᗯ = ca-gu-carrier
-map ᣭ = ca-gwu-carrier
+map wide : ᗯ = ca-gu-carrier
+map wide : ᣭ = ca-gwu-carrier
 
-map ᗰ = ca-go-carrier
+map wide : ᗰ = ca-go-carrier
 
-map ᗱ = ca-ge-carrier
-map ᗲ = ca-gee-carrier
-map ᗳ = ca-gi-carrier
-map ᣮ = ca-gee-carrier-dene
+map wide : ᗱ = ca-ge-carrier
+map wide : ᗲ = ca-gee-carrier
+map wide : ᗳ = ca-gi-carrier
+map wide : ᣮ = ca-gee-carrier-dene
 
-map ᗴ = ca-ga-carrier
-map ᣯ = ca-gaa-carrier
-map ᣰ = ca-gwa-carrier
+map wide : ᗴ = ca-ga-carrier
+map wide : ᣯ = ca-gaa-carrier
+map wide : ᣰ = ca-gwa-carrier
 
 //--------------------------------------
 // carrier kh + vowels
@@ -7297,15 +7300,15 @@ glyph ca-kha-carrier 16 16
 ................................
 ref ca-ga-carrier
 
-map ᗵ = ca-khu-carrier
+map wide : ᗵ = ca-khu-carrier
 
-map ᗶ = ca-kho-carrier
+map wide : ᗶ = ca-kho-carrier
 
-map ᗷ = ca-khe-carrier
-map ᗸ = ca-khee-carrier
-map ᗹ = ca-khi-carrier
+map wide : ᗷ = ca-khe-carrier
+map wide : ᗸ = ca-khee-carrier
+map wide : ᗹ = ca-khi-carrier
 
-map ᗺ = ca-kha-carrier
+map wide : ᗺ = ca-kha-carrier
 
 //--------------------------------------
 // carrier kk + vowels
@@ -7424,15 +7427,15 @@ glyph ca-kka-carrier 16 16
 ................................
 ref ca-ga-carrier
 
-map ᗻ = ca-kku-carrier
+map wide : ᗻ = ca-kku-carrier
 
-map ᗼ = ca-kko-carrier
+map wide : ᗼ = ca-kko-carrier
 
-map ᗽ = ca-kke-carrier
-map ᗾ = ca-kkee-carrier
-map ᗿ = ca-kki-carrier
+map wide : ᗽ = ca-kke-carrier
+map wide : ᗾ = ca-kkee-carrier
+map wide : ᗿ = ca-kki-carrier
 
-map ᘀ = ca-kka-carrier
+map wide : ᘀ = ca-kka-carrier
 
 //--------------------------------------
 // carrier n + vowels
@@ -7532,15 +7535,15 @@ glyph ca-na-carrier 16 16
 ................................
 ................................
 
-map ᘂ = ca-nu-carrier
+map wide : ᘂ = ca-nu-carrier
 
-map ᘃ = ca-no-carrier
+map wide : ᘃ = ca-no-carrier
 
-map ᘄ = ca-ne-carrier
-map ᘅ = ca-nee-carrier
-map ᘆ = ca-ni-carrier
+map wide : ᘄ = ca-ne-carrier
+map wide : ᘅ = ca-nee-carrier
+map wide : ᘆ = ca-ni-carrier
 
-map ᘇ = ca-na-carrier
+map wide : ᘇ = ca-na-carrier
 
 //--------------------------------------
 // carrier m + vowels
@@ -7655,15 +7658,15 @@ glyph ca-ma-carrier 16 16
 ................................
 ................................
 
-map ᘈ = ca-mu-carrier
+map wide : ᘈ = ca-mu-carrier
 
-map ᘉ = ca-mo-carrier
+map wide : ᘉ = ca-mo-carrier
 
-map ᘊ = ca-me-carrier
-map ᘋ = ca-mee-carrier
-map ᘌ = ca-mi-carrier
+map wide : ᘊ = ca-me-carrier
+map wide : ᘋ = ca-mee-carrier
+map wide : ᘌ = ca-mi-carrier
 
-map ᘍ = ca-ma-carrier
+map wide : ᘍ = ca-ma-carrier
 
 //--------------------------------------
 // carrier y + vowels
@@ -7778,15 +7781,15 @@ glyph ca-ya-carrier 16 16
 ................................
 ................................
 
-map ᘎ = ca-yu-carrier
+map wide : ᘎ = ca-yu-carrier
 
-map ᘏ = ca-yo-carrier
+map wide : ᘏ = ca-yo-carrier
 
-map ᘐ = ca-ye-carrier
-map ᘑ = ca-yee-carrier
-map ᘒ = ca-yi-carrier
+map wide : ᘐ = ca-ye-carrier
+map wide : ᘑ = ca-yee-carrier
+map wide : ᘒ = ca-yi-carrier
 
-map ᘓ = ca-ya-carrier
+map wide : ᘓ = ca-ya-carrier
 
 //--------------------------------------
 // carrier/sayisi j + vowels
@@ -7945,19 +7948,19 @@ glyph ca-jaa-carrier
 ref ca-ja-carrier
 ref ca-dot 14 7
 
-map ᘔ = ca-ju-carrier
-map ᘕ = ca-ju-sayisi
-map ᣱ = ca-juu-sayisi
+map wide : ᘔ = ca-ju-carrier
+map wide : ᘕ = ca-ju-sayisi
+map wide : ᣱ = ca-juu-sayisi
 
-map ᘖ = ca-jo-carrier
+map wide : ᘖ = ca-jo-carrier
 
-map ᘗ = ca-je-carrier
-map ᘘ = ca-jee-carrier
-map ᘙ = ca-ji-carrier
-map ᘚ = ca-ji-sayisi
+map wide : ᘗ = ca-je-carrier
+map wide : ᘘ = ca-jee-carrier
+map wide : ᘙ = ca-ji-carrier
+map wide : ᘚ = ca-ji-sayisi
 
-map ᘛ = ca-ja-carrier
-map ᣲ = ca-jaa-carrier
+map wide : ᘛ = ca-ja-carrier
+map wide : ᣲ = ca-jaa-carrier
 
 //--------------------------------------
 // carrier jj + vowels
@@ -8072,15 +8075,15 @@ glyph ca-jja-carrier 16 16
 ................................
 ................................
 
-map ᘜ = ca-jju-carrier
+map wide : ᘜ = ca-jju-carrier
 
-map ᘝ = ca-jjo-carrier
+map wide : ᘝ = ca-jjo-carrier
 
-map ᘞ = ca-jje-carrier
-map ᘟ = ca-jjee-carrier
-map ᘠ = ca-jji-carrier
+map wide : ᘞ = ca-jje-carrier
+map wide : ᘟ = ca-jjee-carrier
+map wide : ᘠ = ca-jji-carrier
 
-map ᘡ = ca-jja-carrier
+map wide : ᘡ = ca-jja-carrier
 
 //--------------------------------------
 // carrier l + vowels
@@ -8180,15 +8183,15 @@ glyph ca-la-carrier 16 16
 ................................
 ................................
 
-map ᘢ = ca-lu-carrier
+map wide : ᘢ = ca-lu-carrier
 
-map ᘣ = ca-lo-carrier
+map wide : ᘣ = ca-lo-carrier
 
-map ᘤ = ca-le-carrier
-map ᘥ = ca-lee-carrier
-map ᘦ = ca-li-carrier
+map wide : ᘤ = ca-le-carrier
+map wide : ᘥ = ca-lee-carrier
+map wide : ᘦ = ca-li-carrier
 
-map ᘧ = ca-la-carrier
+map wide : ᘧ = ca-la-carrier
 
 //--------------------------------------
 // carrier dl + vowels
@@ -8306,15 +8309,15 @@ glyph ca-dla-carrier 16 16
 ................................
 ref ca-la-carrier
 
-map ᘨ = ca-dlu-carrier
+map wide : ᘨ = ca-dlu-carrier
 
-map ᘩ = ca-dlo-carrier
+map wide : ᘩ = ca-dlo-carrier
 
-map ᘪ = ca-dle-carrier
-map ᘫ = ca-dlee-carrier
-map ᘬ = ca-dli-carrier
+map wide : ᘪ = ca-dle-carrier
+map wide : ᘫ = ca-dlee-carrier
+map wide : ᘬ = ca-dli-carrier
 
-map ᘭ = ca-dla-carrier
+map wide : ᘭ = ca-dla-carrier
 
 //--------------------------------------
 // carrier lh + vowels
@@ -8414,15 +8417,15 @@ glyph ca-lha-carrier 16 16
 ................................
 ................................
 
-map ᘮ = ca-lhu-carrier
+map wide : ᘮ = ca-lhu-carrier
 
-map ᘯ = ca-lho-carrier
+map wide : ᘯ = ca-lho-carrier
 
-map ᘰ = ca-lhe-carrier
-map ᘱ = ca-lhee-carrier
-map ᘲ = ca-lhi-carrier
+map wide : ᘰ = ca-lhe-carrier
+map wide : ᘱ = ca-lhee-carrier
+map wide : ᘲ = ca-lhi-carrier
 
-map ᘳ = ca-lha-carrier
+map wide : ᘳ = ca-lha-carrier
 
 //--------------------------------------
 // carrier tlh + vowels
@@ -8541,15 +8544,15 @@ glyph ca-tlha-carrier 16 16
 ................................
 ref ca-lha-carrier
 
-map ᘴ = ca-tlhu-carrier
+map wide : ᘴ = ca-tlhu-carrier
 
-map ᘵ = ca-tlho-carrier
+map wide : ᘵ = ca-tlho-carrier
 
-map ᘶ = ca-tlhe-carrier
-map ᘷ = ca-tlhee-carrier
-map ᘸ = ca-tlhi-carrier
+map wide : ᘶ = ca-tlhe-carrier
+map wide : ᘷ = ca-tlhee-carrier
+map wide : ᘸ = ca-tlhi-carrier
 
-map ᘹ = ca-tlha-carrier
+map wide : ᘹ = ca-tlha-carrier
 
 //--------------------------------------
 // carrier tl + vowels
@@ -8649,15 +8652,15 @@ glyph ca-tla-carrier 16 16
 ................................
 ................................
 
-map ᘺ = ca-tlu-carrier
+map wide : ᘺ = ca-tlu-carrier
 
-map ᘻ = ca-tlo-carrier
+map wide : ᘻ = ca-tlo-carrier
 
-map ᘼ = ca-tle-carrier
-map ᘽ = ca-tlee-carrier
-map ᘾ = ca-tli-carrier
+map wide : ᘼ = ca-tle-carrier
+map wide : ᘽ = ca-tlee-carrier
+map wide : ᘾ = ca-tli-carrier
 
-map ᘿ = ca-tla-carrier
+map wide : ᘿ = ca-tla-carrier
 
 //--------------------------------------
 // carrier z + vowels
@@ -8757,15 +8760,15 @@ glyph ca-za-carrier 16 16
 ................................
 ................................
 
-map ᙀ = ca-zu-carrier
+map wide : ᙀ = ca-zu-carrier
 
-map ᙁ = ca-zo-carrier
+map wide : ᙁ = ca-zo-carrier
 
-map ᙂ = ca-ze-carrier
-map ᙃ = ca-zee-carrier
-map ᙄ = ca-zi-carrier
+map wide : ᙂ = ca-ze-carrier
+map wide : ᙃ = ca-zee-carrier
+map wide : ᙄ = ca-zi-carrier
 
-map ᙅ = ca-za-carrier
+map wide : ᙅ = ca-za-carrier
 
 //--------------------------------------
 // carrier dz + vowels
@@ -8865,15 +8868,15 @@ glyph ca-dza-carrier 16 16
 ................................
 ................................
 
-map ᙈ = ca-dzu-carrier
+map wide : ᙈ = ca-dzu-carrier
 
-map ᙉ = ca-dzo-carrier
+map wide : ᙉ = ca-dzo-carrier
 
-map ᙊ = ca-dze-carrier
-map ᙋ = ca-dzee-carrier
-map ᙌ = ca-dzi-carrier
+map wide : ᙊ = ca-dze-carrier
+map wide : ᙋ = ca-dzee-carrier
+map wide : ᙌ = ca-dzi-carrier
 
-map ᙍ = ca-dza-carrier
+map wide : ᙍ = ca-dza-carrier
 
 //--------------------------------------
 // carrier s + vowels
@@ -8988,15 +8991,15 @@ glyph ca-sa-carrier 16 16
 ................................
 ................................
 
-map ᙎ = ca-su-carrier
+map wide : ᙎ = ca-su-carrier
 
-map ᙏ = ca-so-carrier
+map wide : ᙏ = ca-so-carrier
 
-map ᙐ = ca-se-carrier
-map ᙑ = ca-see-carrier
-map ᙒ = ca-si-carrier
+map wide : ᙐ = ca-se-carrier
+map wide : ᙑ = ca-see-carrier
+map wide : ᙒ = ca-si-carrier
 
-map ᙓ = ca-sa-carrier
+map wide : ᙓ = ca-sa-carrier
 
 //--------------------------------------
 // carrier sh + vowels
@@ -9115,15 +9118,15 @@ glyph ca-sha-carrier 16 16
 ................................
 ref ca-sa-carrier
 
-map ᙔ = ca-shu-carrier
+map wide : ᙔ = ca-shu-carrier
 
-map ᙕ = ca-sho-carrier
+map wide : ᙕ = ca-sho-carrier
 
-map ᙖ = ca-she-carrier
-map ᙗ = ca-shee-carrier
-map ᙘ = ca-shi-carrier
+map wide : ᙖ = ca-she-carrier
+map wide : ᙗ = ca-shee-carrier
+map wide : ᙘ = ca-shi-carrier
 
-map ᙙ = ca-sha-carrier
+map wide : ᙙ = ca-sha-carrier
 
 //--------------------------------------
 // carrier ts + vowels
@@ -9242,15 +9245,15 @@ glyph ca-tsa-carrier 16 16
 ................................
 ref ca-sha-carrier
 
-map ᙛ = ca-tsu-carrier
+map wide : ᙛ = ca-tsu-carrier
 
-map ᙜ = ca-tso-carrier
+map wide : ᙜ = ca-tso-carrier
 
-map ᙝ = ca-tse-carrier
-map ᙞ = ca-tsee-carrier
-map ᙟ = ca-tsi-carrier
+map wide : ᙝ = ca-tse-carrier
+map wide : ᙞ = ca-tsee-carrier
+map wide : ᙟ = ca-tsi-carrier
 
-map ᙠ = ca-tsa-carrier
+map wide : ᙠ = ca-tsa-carrier
 
 //--------------------------------------
 // carrier ch + vowels
@@ -9369,15 +9372,15 @@ glyph ca-cha-carrier 16 16
 ................................
 ref ca-sa-carrier
 
-map ᙡ = ca-chu-carrier
+map wide : ᙡ = ca-chu-carrier
 
-map ᙢ = ca-cho-carrier
+map wide : ᙢ = ca-cho-carrier
 
-map ᙣ = ca-che-carrier
-map ᙤ = ca-chee-carrier
-map ᙥ = ca-chi-carrier
+map wide : ᙣ = ca-che-carrier
+map wide : ᙤ = ca-chee-carrier
+map wide : ᙥ = ca-chi-carrier
 
-map ᙦ = ca-cha-carrier
+map wide : ᙦ = ca-cha-carrier
 
 //--------------------------------------
 // carrier tts + vowels
@@ -9496,15 +9499,15 @@ glyph ca-ttsa-carrier 16 16
 ................................
 ref ca-sa-carrier
 
-map ᙧ = ca-ttsu-carrier
+map wide : ᙧ = ca-ttsu-carrier
 
-map ᙨ = ca-ttso-carrier
+map wide : ᙨ = ca-ttso-carrier
 
-map ᙩ = ca-ttse-carrier
-map ᙪ = ca-ttsee-carrier
-map ᙫ = ca-ttsi-carrier
+map wide : ᙩ = ca-ttse-carrier
+map wide : ᙪ = ca-ttsee-carrier
+map wide : ᙫ = ca-ttsi-carrier
 
-map ᙬ = ca-ttsa-carrier
+map wide : ᙬ = ca-ttsa-carrier
 
 //--------------------------------------
 // nattilik h + vowels
@@ -9623,14 +9626,14 @@ glyph ca-haa-nattilik 16 16
 ................................
 ref ca-saa
 
-map 𑪰 = ca-hi-nattilik
-map 𑪱 = ca-hii-nattilik
+map wide : 𑪰 = ca-hi-nattilik
+map wide : 𑪱 = ca-hii-nattilik
 
-map 𑪲 = ca-ho-nattilik
-map 𑪳 = ca-hoo-nattilik
+map wide : 𑪲 = ca-ho-nattilik
+map wide : 𑪳 = ca-hoo-nattilik
 
-map 𑪴 = ca-ha-nattilik
-map 𑪵 = ca-haa-nattilik
+map wide : 𑪴 = ca-ha-nattilik
+map wide : 𑪵 = ca-haa-nattilik
 
 //--------------------------------------
 // nattilik shr + vowels
@@ -9749,14 +9752,14 @@ glyph ca-shraa-nattilik 16 16
 ................................
 ref ca-saa
 
-map 𑪶 = ca-shri-nattilik
-map 𑪷 = ca-shrii-nattilik
+map wide : 𑪶 = ca-shri-nattilik
+map wide : 𑪷 = ca-shrii-nattilik
 
-map 𑪸 = ca-shro-nattilik
-map 𑪹 = ca-shroo-nattilik
+map wide : 𑪸 = ca-shro-nattilik
+map wide : 𑪹 = ca-shroo-nattilik
 
-map 𑪺 = ca-shra-nattilik
-map 𑪻 = ca-shraa-nattilik
+map wide : 𑪺 = ca-shra-nattilik
+map wide : 𑪻 = ca-shraa-nattilik
 
 //--------------------------------------
 // sp + vowels
@@ -9833,10 +9836,10 @@ glyph ca-spa 16 16
 ................................
 ................................
 
-map 𑪼 = ca-spe
-map 𑪽 = ca-spi
-map 𑪾 = ca-spo
-map 𑪿 = ca-spa
+map wide : 𑪼 = ca-spe
+map wide : 𑪽 = ca-spi
+map wide : 𑪾 = ca-spo
+map wide : 𑪿 = ca-spa
 
 //--------------------------------------
 // punctuations
@@ -9895,8 +9898,8 @@ glyph ca-chi-sign 8 16
 ................
 ................
 
-map ᐀ = ca-hyphen
-map ᙮ = ca-full-stop
+map wide : ᐀ = ca-hyphen
+map wide : ᙮ = ca-full-stop
 
-map ᙭ = ca-chi-sign
+map wide : ᙭ = ca-chi-sign
 
