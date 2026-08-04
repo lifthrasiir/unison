@@ -3240,6 +3240,7 @@ dependencies = [
  "eframe",
  "egui",
  "embed-resource",
+ "icu_properties",
  "libc",
  "notify",
  "png 0.18.1",

@@ -2660,8 +2660,8 @@ fn codepoint_popup_commit_replaces_the_selection() {
 }
 
 /// The status bar reads the popup's label off the editor state: the code
-/// point as typed, plus the Unicode name that tells the user they got the
-/// one they meant.
+/// point as typed, plus the Unicode name and properties that tell the user
+/// they got the one they meant.
 #[test]
 fn codepoint_popup_reports_the_unicode_name() {
     let mut h = EditorHarness::new("meta name Test\n");
@@ -2673,7 +2673,7 @@ fn codepoint_popup_reports_the_unicode_name() {
     h.type_text("41");
     assert_eq!(
         h.state.codepoint_status().as_deref(),
-        Some("U+0041  LATIN CAPITAL LETTER A")
+        Some("U+0041  LATIN CAPITAL LETTER A {gc=Lu eaw=Na}")
     );
 
     h.type_text("0000");
@@ -2702,10 +2702,16 @@ fn codepoint_popup_predicts_the_next_code_point() {
     // With one code point recorded the step is assumed to be one.
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
-    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+2601  CLOUD"));
+    assert_eq!(
+        h.state.codepoint_status().as_deref(),
+        Some("U+2601  CLOUD {gc=So eaw=N}")
+    );
     // Typing replaces the pre-selected guess rather than appending to it.
     h.type_text("2604");
-    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+2604  COMET"));
+    assert_eq!(
+        h.state.codepoint_status().as_deref(),
+        Some("U+2604  COMET {gc=So eaw=N}")
+    );
     h.key(Key::Enter);
     h.frame();
 
@@ -2714,7 +2720,7 @@ fn codepoint_popup_predicts_the_next_code_point() {
     h.frame();
     assert_eq!(
         h.state.codepoint_status().as_deref(),
-        Some("U+2608  THUNDERSTORM")
+        Some("U+2608  THUNDERSTORM {gc=So eaw=N}")
     );
     h.key(Key::Enter);
     h.frame();
@@ -2740,7 +2746,10 @@ fn codepoint_popup_cancel_does_not_move_the_prediction() {
 
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
-    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+2601  CLOUD"));
+    assert_eq!(
+        h.state.codepoint_status().as_deref(),
+        Some("U+2601  CLOUD {gc=So eaw=N}")
+    );
 }
 
 /// A prediction that would land outside the code space puts the popup back to

@@ -25,6 +25,8 @@ mod script_run;
 mod sidebar;
 #[cfg(feature = "editor")]
 mod specimen;
+#[cfg(feature = "editor")]
+mod ucd;
 
 #[cfg(target_os = "windows")]
 extern crate windows_core;

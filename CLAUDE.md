@@ -152,6 +152,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | The Search pane, and where a click goes with no definition | `app/search.rs` |
 | Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |
 | Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
+| The `{gc=… ccc=… eaw=…}` group after a character name, and the pinned UCD version | `ucd.rs` |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |

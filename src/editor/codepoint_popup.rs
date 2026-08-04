@@ -144,16 +144,21 @@ impl CodepointPopup {
         self.character().map(String::from).unwrap_or_default()
     }
 
-    /// The status-bar line: the code point as typed, and its Unicode name so
-    /// a wrong digit is visible before it is committed.
+    /// The status-bar line: the code point as typed, its Unicode name and its
+    /// properties ([`crate::ucd::property_summary`]), so a wrong digit is
+    /// visible before it is committed. Digits that name no character get the
+    /// name slot alone — there are no properties to report for a non-character.
     pub(crate) fn status_label(&self) -> String {
         if self.hex.is_empty() {
             return "U+".to_string();
         }
         let name = match self.character() {
-            Some(ch) => unicode_names2::name(ch)
-                .map(|n| n.to_string())
-                .unwrap_or_else(|| "(unnamed)".to_string()),
+            Some(ch) => {
+                let name = unicode_names2::name(ch)
+                    .map(|n| n.to_string())
+                    .unwrap_or_else(|| "(unnamed)".to_string());
+                format!("{name} {}", crate::ucd::property_summary(ch))
+            }
             None => "(not a code point)".to_string(),
         };
         format!("U+{:0>4}  {name}", self.hex)
@@ -259,17 +264,26 @@ mod tests {
     fn a_named_code_point_reports_its_name() {
         assert_eq!(
             with_hex("41").status_label(),
-            "U+0041  LATIN CAPITAL LETTER A"
+            "U+0041  LATIN CAPITAL LETTER A {gc=Lu eaw=Na}"
         );
-        assert_eq!(with_hex("2603").status_label(), "U+2603  SNOWMAN");
+        assert_eq!(
+            with_hex("2603").status_label(),
+            "U+2603  SNOWMAN {gc=So eaw=N}"
+        );
     }
 
     /// Short input is padded to the conventional four digits, but a code point
     /// that genuinely needs five or six keeps them.
     #[test]
     fn the_code_point_is_padded_to_four_digits_but_not_truncated() {
-        assert_eq!(with_hex("A").status_label(), "U+000A  (unnamed)");
-        assert_eq!(with_hex("1F600").status_label(), "U+1F600  GRINNING FACE");
+        assert_eq!(
+            with_hex("A").status_label(),
+            "U+000A  (unnamed) {gc=Cc eaw=N}"
+        );
+        assert_eq!(
+            with_hex("1F600").status_label(),
+            "U+1F600  GRINNING FACE {gc=So eaw=W}"
+        );
     }
 
     /// The two ways a hex string names nothing: a surrogate, and past the end
@@ -341,6 +355,9 @@ mod tests {
     /// gets a status line, so the field never goes blank mid-typing.
     #[test]
     fn an_unnamed_code_point_still_gets_a_label() {
-        assert_eq!(with_hex("E000").status_label(), "U+E000  (unnamed)");
+        assert_eq!(
+            with_hex("E000").status_label(),
+            "U+E000  (unnamed) {gc=Co eaw=A}"
+        );
     }
 }

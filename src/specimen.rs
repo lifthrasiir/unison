@@ -526,9 +526,14 @@ impl SpecimenState {
                                 .and_then(unicode_names2::name)
                                 .map(|n| n.to_string())
                                 .unwrap_or_else(|| "<unknown>".to_string());
+                            // Same brace group as the Ctrl+K popup, so one
+                            // character reads identically in either place.
+                            let props = ch
+                                .map(|c| format!(" {}", crate::ucd::property_summary(c)))
+                                .unwrap_or_default();
                             self.hover_status = Some(format!(
-                                "U+{:04X} {} {} ({})",
-                                cp, char_str, char_name, glyph_name,
+                                "U+{:04X} {} {}{} ({})",
+                                cp, char_str, char_name, props, glyph_name,
                             ));
                             if ctrl_c && let Some(ch) = ch {
                                 ui.ctx().copy_text(ch.to_string());
