@@ -130,6 +130,9 @@ pub struct EditorState {
     pub(crate) last_reparse_line: Option<usize>,
     document_sync_requested: bool,
     pub(crate) popup: PopupState,
+    /// What the next Ctrl+K popup opens with, extrapolated from the last two
+    /// code points committed *in this buffer*. See [`codepoint_popup`].
+    pub(crate) codepoint_prediction: codepoint_popup::CodepointPrediction,
     /// Id of the editor canvas widget, republished every frame so a popup
     /// that closes can hand keyboard focus back to it.
     pub(crate) canvas_id: Option<egui::Id>,
@@ -197,6 +200,7 @@ impl EditorState {
             last_reparse_line: None,
             document_sync_requested: false,
             popup: PopupState::None,
+            codepoint_prediction: Default::default(),
             canvas_id: None,
             pending_focus: false,
             autocomplete: None,
@@ -357,7 +361,9 @@ impl EditorState {
         if !matches!(self.popup, PopupState::None) {
             return;
         }
-        self.popup = PopupState::Codepoint(Default::default());
+        self.popup = PopupState::Codepoint(codepoint_popup::CodepointPopup::seeded(
+            self.codepoint_prediction.predicted(),
+        ));
     }
 
     /// The status-bar line for an open code point popup — the code point being

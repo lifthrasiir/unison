@@ -141,7 +141,8 @@ pub(super) fn show_codepoint_popup(
             state.popup = PopupState::None;
             state.preedit.clear();
             restore_editor_focus(ui, state);
-            if !text.is_empty() {
+            if let Some(ch) = text.chars().next() {
+                state.codepoint_prediction.record(ch);
                 crate::editor::doc_input::delete_selection_if_any(lines, state);
                 state.cursor =
                     crate::editor::editing::insert_str(lines, &mut state.undo, state.cursor, &text);

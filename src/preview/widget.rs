@@ -56,6 +56,10 @@ pub struct ShapedPreviewState {
     /// The anchor is frozen on open so the popup does not walk sideways as
     /// the preedit it drives grows.
     codepoint: Option<(CodepointPopup, egui::Pos2)>,
+    /// What the next Ctrl+K popup opens with, extrapolated from the last two
+    /// code points committed here. This field is the preview's own, so typing
+    /// a run of code points into it does not disturb the editor's sequence.
+    codepoint_prediction: CodepointPrediction,
     has_focus: bool,
     last_rect: Option<egui::Rect>,
     /// Set when the caret moved or the text changed, so the next frame scrolls
@@ -97,6 +101,7 @@ impl ShapedPreviewState {
             preedit: String::new(),
             ime_guard: Default::default(),
             codepoint: None,
+            codepoint_prediction: Default::default(),
             has_focus: false,
             last_rect: None,
             scroll_to_caret: false,
@@ -801,7 +806,8 @@ impl ShapedPreviewState {
                 self.codepoint = None;
                 self.preedit.clear();
                 restore_host_focus(ui.ctx(), host);
-                if !text.is_empty() {
+                if let Some(ch) = text.chars().next() {
+                    self.codepoint_prediction.record(ch);
                     self.insert_at_caret(&text);
                 }
             }
@@ -850,7 +856,8 @@ impl ShapedPreviewState {
                     && i.key_pressed(egui::Key::K)
             })
         {
-            self.codepoint = Some((CodepointPopup::default(), caret_screen));
+            let seed = self.codepoint_prediction.predicted();
+            self.codepoint = Some((CodepointPopup::seeded(seed), caret_screen));
             return;
         }
 
@@ -897,7 +904,9 @@ impl ShapedPreviewState {
     }
 }
 
-use crate::editor::codepoint_popup::{CodepointOutcome, CodepointPopup, restore_host_focus};
+use crate::editor::codepoint_popup::{
+    CodepointOutcome, CodepointPopup, CodepointPrediction, restore_host_focus,
+};
 
 fn committed_to_display(col: usize, preedit_range: Option<(usize, usize)>) -> usize {
     match preedit_range {

@@ -17,6 +17,11 @@
 //! - [`CodepointPopup::status_label`] names the code point, and the status bar
 //!   shows that name while the digits are being typed.
 //!
+//! The field does not open empty once anything has been typed through it:
+//! [`CodepointPrediction`] extrapolates the next code point from the last two
+//! committed, and the popup opens on that guess with it selected, so Enter
+//! takes it and any digit replaces it.
+//!
 //! The predecessor was Alt (Option on macOS) held down over hex keys. It could
 //! not survive macOS: with an IME allowed, `Option+E` is a dead key, so AppKit
 //! consumes the keystroke into a pending composition and winit never emits a
@@ -30,11 +35,55 @@
 
 /// The state of one open code point popup: the digits typed so far, and
 /// whether its text field has been given focus yet (the first frame does it,
-/// exactly as the rename popup does).
+/// exactly as the rename popup does, selecting whatever is in the field so a
+/// seeded guess is replaced by the first keystroke).
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct CodepointPopup {
     hex: String,
     focus_set: bool,
+}
+
+/// The guess the *next* popup opens with. Entering code points is usually
+/// walking a block, so the last two committed values `a`, `b` are extrapolated
+/// to `b + (b - a)` — one popup's worth of state, kept by the host beside the
+/// buffer it types into, not globally.
+///
+/// Three rules keep the guess from ever being noise:
+///
+/// - with nothing committed yet there is no guess, so the field starts empty;
+/// - with one value committed the step is assumed to be `1`, which is the
+///   common case (`a = b - 1`);
+/// - a guess that is not a code point — past `U+10FFFF`, a surrogate, below
+///   zero — resets the whole thing to the initial state rather than being
+///   clamped, since a sequence that ran off the end says nothing about what is
+///   typed next.
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct CodepointPrediction {
+    /// The code point committed before [`Self::last`]; `None` until two have
+    /// been.
+    prev: Option<u32>,
+    last: Option<u32>,
+}
+
+impl CodepointPrediction {
+    /// What the next code point is guessed to be, if anything.
+    pub(crate) fn predicted(&self) -> Option<char> {
+        let b = i64::from(self.last?);
+        let a = self.prev.map_or(b - 1, i64::from);
+        // `char::from_u32` is the whole range check: it rejects surrogates and
+        // anything past U+10FFFF, and `try_from` rejects a negative step.
+        u32::try_from(b + (b - a)).ok().and_then(char::from_u32)
+    }
+
+    /// Records a committed code point. Only a commit moves the sequence on: a
+    /// cancelled popup leaves the next one seeded exactly as this one was.
+    pub(crate) fn record(&mut self, ch: char) {
+        self.prev = self.last;
+        self.last = Some(ch as u32);
+        if self.predicted().is_none() {
+            *self = Self::default();
+        }
+    }
 }
 
 /// What one frame of the popup asks its host to do.
@@ -72,6 +121,17 @@ pub(crate) fn restore_host_focus(ctx: &egui::Context, host: egui::Id) {
 }
 
 impl CodepointPopup {
+    /// A popup pre-filled with `seed`, the guess from
+    /// [`CodepointPrediction::predicted`]. `None` opens it empty.
+    pub(crate) fn seeded(seed: Option<char>) -> Self {
+        Self {
+            hex: seed
+                .map(|ch| format!("{:04X}", ch as u32))
+                .unwrap_or_default(),
+            focus_set: false,
+        }
+    }
+
     /// The character the digits currently name, if they name one.
     pub(crate) fn character(&self) -> Option<char> {
         validate_hex_codepoint(&self.hex)
@@ -149,6 +209,20 @@ impl CodepointPopup {
 
                         if !self.focus_set {
                             resp.request_focus();
+                            // Select what is there, so a seeded guess is
+                            // replaced by the first digit typed instead of
+                            // being appended to. Harmless on an empty field.
+                            if let Some(mut te_state) =
+                                egui::TextEdit::load_state(ui.ctx(), resp.id)
+                            {
+                                te_state.cursor.set_char_range(Some(
+                                    egui::text::CCursorRange::two(
+                                        egui::text::CCursor::new(0),
+                                        egui::text::CCursor::new(self.hex.chars().count()),
+                                    ),
+                                ));
+                                te_state.store(ui.ctx(), resp.id);
+                            }
                             self.focus_set = true;
                         }
                         if resp.lost_focus() {
@@ -213,6 +287,54 @@ mod tests {
             "U+D800  (not a code point)"
         );
         assert_eq!(with_hex("").status_label(), "U+");
+    }
+
+    fn after(committed: &[char]) -> Option<char> {
+        let mut p = CodepointPrediction::default();
+        for &ch in committed {
+            p.record(ch);
+        }
+        p.predicted()
+    }
+
+    /// Nothing committed guesses nothing; one value assumes a step of one; two
+    /// extrapolate the step between them.
+    #[test]
+    fn the_prediction_extrapolates_the_last_two_commits() {
+        assert_eq!(after(&[]), None);
+        assert_eq!(after(&['\u{2600}']), Some('\u{2601}'));
+        assert_eq!(after(&['\u{2600}', '\u{2604}']), Some('\u{2608}'));
+        // Only the last two count, and the step may run backwards.
+        assert_eq!(after(&['\u{41}', '\u{2610}', '\u{2608}']), Some('\u{2600}'));
+    }
+
+    /// A seeded popup starts on its guess, padded the way the status line pads
+    /// it, and an unseeded one starts empty.
+    #[test]
+    fn a_seeded_popup_starts_on_its_guess() {
+        assert_eq!(CodepointPopup::seeded(Some('\u{2601}')).hex, "2601");
+        assert_eq!(CodepointPopup::seeded(Some('\u{41}')).hex, "0041");
+        assert_eq!(CodepointPopup::seeded(Some('\u{1F600}')).hex, "1F600");
+        assert_eq!(CodepointPopup::seeded(None).hex, "");
+    }
+
+    /// The three ways a guess can fail to be a code point all put the state
+    /// back to guessing nothing, rather than clamping to a nearby value.
+    #[test]
+    fn an_impossible_prediction_resets_the_state() {
+        // Into the surrogate block.
+        assert_eq!(after(&['\u{D7F0}', '\u{D7F8}']), None);
+        // Past the last code point.
+        assert_eq!(after(&['\u{10F000}', '\u{10FF00}']), None);
+        // Below zero.
+        assert_eq!(after(&['\u{10}', '\u{5}']), None);
+        // And the reset is a real reset: the next commit starts over at
+        // step one instead of extrapolating from the dropped pair.
+        let mut p = CodepointPrediction::default();
+        for ch in ['\u{10}', '\u{5}', '\u{2600}'] {
+            p.record(ch);
+        }
+        assert_eq!(p.predicted(), Some('\u{2601}'));
     }
 
     /// A code point with no name at all — a private-use character — still

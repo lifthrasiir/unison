@@ -2683,6 +2683,86 @@ fn codepoint_popup_reports_the_unicode_name() {
     );
 }
 
+/// Two commits in a row set an arithmetic step, and the third popup opens with
+/// the next term of that sequence already filled in — and pre-selected, so the
+/// first keystroke replaces it instead of appending to it.
+#[test]
+fn codepoint_popup_predicts_the_next_code_point() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+
+    // The first popup guesses nothing.
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+"));
+    h.type_text("2600");
+    h.key(Key::Enter);
+    h.frame();
+
+    // With one code point recorded the step is assumed to be one.
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+2601  CLOUD"));
+    // Typing replaces the pre-selected guess rather than appending to it.
+    h.type_text("2604");
+    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+2604  COMET"));
+    h.key(Key::Enter);
+    h.frame();
+
+    // U+2600 then U+2604: the step is four.
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(
+        h.state.codepoint_status().as_deref(),
+        Some("U+2608  THUNDERSTORM")
+    );
+    h.key(Key::Enter);
+    h.frame();
+    assert_eq!(h.text(0), "meta name Test\u{2600}\u{2604}\u{2608}");
+}
+
+/// A cancelled popup records nothing, so the guess it was seeded with is still
+/// the guess the next one gets.
+#[test]
+fn codepoint_popup_cancel_does_not_move_the_prediction() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2600");
+    h.key(Key::Enter);
+    h.frame();
+
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.key(Key::Escape);
+    h.frame();
+
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+2601  CLOUD"));
+}
+
+/// A prediction that would land outside the code space puts the popup back to
+/// guessing nothing at all.
+#[test]
+fn codepoint_popup_drops_a_prediction_off_the_end() {
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    for hex in ["10F000", "10FF00"] {
+        h.key_mod(Key::K, Modifiers::CTRL);
+        h.frame();
+        h.type_text(hex);
+        h.key(Key::Enter);
+        h.frame();
+    }
+
+    // The next term would be U+110E00, past the last code point.
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+"));
+}
+
 /// Clicking elsewhere in the document also cancels the rename popup, and the
 /// click keeps its usual effect: the caret moves to where it landed and the
 /// editor has focus again.

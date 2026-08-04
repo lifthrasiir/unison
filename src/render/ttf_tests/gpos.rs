@@ -684,7 +684,10 @@ feature ccmp for DFLT : anchor above
         "dia-merged declares no anchors of its own"
     );
     assert!(
-        merged.resolved_anchors.iter().any(|p| p.position == "-above"),
+        merged
+            .resolved_anchors
+            .iter()
+            .any(|p| p.position == "-above"),
         "dia-merged should forward -above from dia-plain via the `inherit` ref"
     );
 
