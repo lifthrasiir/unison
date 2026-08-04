@@ -22,6 +22,14 @@
 //!   for its contents — so a list never reorders under a click and a document
 //!   never scrolls out from under a drag.
 //!
+//! A postponement is not silent. As long as something is held back, a sticky
+//! toast ([`HELD_CHANGES_TOAST`]) says what is waiting; without it the editor
+//! shows a document that is no longer what is on disk and gives no sign of it,
+//! for as long as the pointer happens to rest there. Clicking that toast is the
+//! user saying "now" — [`WatchState::force_apply`], which is exactly the
+//! pointer check waived for one apply, since the pointer is demonstrably on the
+//! toast rather than on anything the change would disturb.
+//!
 //! [`classify`] is that policy, as one pure function; everything around it is
 //! plumbing.
 //!
@@ -251,6 +259,9 @@ pub(super) struct FileStatus {
     pub(super) displayed: bool,
     /// The pointer is over the pane showing it.
     pub(super) pointer_over: bool,
+    /// The user asked for the held changes now, by clicking the notice. The
+    /// pointer is on that notice, so what it is nominally over means nothing.
+    pub(super) forced: bool,
 }
 
 /// The whole external-change policy. See the module docs.
@@ -267,7 +278,7 @@ pub(super) fn classify(status: FileStatus) -> ChangeAction {
             ChangeAction::WarnLater
         };
     }
-    if status.displayed && status.pointer_over {
+    if status.displayed && status.pointer_over && !status.forced {
         ChangeAction::Defer
     } else {
         ChangeAction::Reload
@@ -347,6 +358,9 @@ pub(super) struct WatchState {
     held: Vec<ScannedFile>,
     /// A file list not applied yet, because the pointer is over the sidebar.
     held_listing: Option<Vec<PathBuf>>,
+    /// The user clicked the held-changes notice: apply what is held on this
+    /// frame whatever the pointer is on. Cleared by the apply it authorizes.
+    force_apply: bool,
 }
 
 impl WatchState {
@@ -362,6 +376,7 @@ impl WatchState {
             scanning: false,
             held: Vec::new(),
             held_listing: None,
+            force_apply: false,
         }
     }
 
@@ -375,6 +390,7 @@ impl WatchState {
         self.settle_at = None;
         self.held.clear();
         self.held_listing = None;
+        self.force_apply = false;
         // A scan of the previous directory may still be running; its result is
         // about files that are no longer on screen, so it is dropped on
         // arrival rather than waited for.
@@ -454,7 +470,36 @@ impl WatchState {
     fn has_held(&self) -> bool {
         !self.held.is_empty() || self.held_listing.is_some()
     }
+
+    /// What the sticky notice should say, or `None` when nothing is waiting.
+    /// Names the files when it can: "something changed" is not actionable, and
+    /// the user is usually holding the pointer over one of them.
+    fn held_notice(&self) -> Option<String> {
+        let names: Vec<&str> = self
+            .held
+            .iter()
+            .map(|f| {
+                f.path
+                    .file_name()
+                    .map(|n| n.to_str().unwrap_or("a file"))
+                    .unwrap_or("a file")
+            })
+            .collect();
+        let what = match (names.as_slice(), self.held_listing.is_some()) {
+            ([], false) => return None,
+            ([], true) => "The file list changed on disk".to_string(),
+            ([one], _) => format!("{one} changed on disk"),
+            (many, _) => format!("{} files changed on disk", many.len()),
+        };
+        Some(format!(
+            "{what}. Click here to reload now — otherwise it happens on its own \
+             once the pointer leaves."
+        ))
+    }
 }
+
+/// The sticky toast that says a scanned change is waiting for the pointer.
+pub(super) const HELD_CHANGES_TOAST: &str = "watch_held_changes";
 
 /// The scan itself. Runs on its own thread; touches no application state.
 fn run_scan(request: ScanRequest) -> ScanResult {
@@ -523,9 +568,25 @@ impl super::UniformApp {
         self.apply_watch_changes(ctx);
         self.maybe_start_scan(ctx);
 
+        // Put up (or take down) the notice after the apply, so a change that
+        // went through this frame never flashes one.
+        let notice = self.watch.held_notice();
+        self.toasts.set_sticky(HELD_CHANGES_TOAST, notice);
+
         if self.watch.has_held() {
             ctx.request_repaint_after(std::time::Duration::from_millis(RETRY_MS));
         }
+    }
+
+    /// The held-changes notice was clicked: apply what is waiting on the next
+    /// frame, pointer or no pointer.
+    ///
+    /// Not applied on the spot because the click is found where the toasts are
+    /// drawn — after this frame's panes have already been laid out and painted
+    /// from the buffers a reload would replace.
+    pub(super) fn apply_held_watch_changes(&mut self, ctx: &egui::Context) {
+        self.watch.force_apply = true;
+        ctx.request_repaint();
     }
 
     /// Takes a finished scan: the snapshot lands right away, the per-file
@@ -548,10 +609,14 @@ impl super::UniformApp {
     /// Applies whatever the pointer now allows. No filesystem access: every
     /// held change carries the bytes' hash and its parsed lines already.
     fn apply_watch_changes(&mut self, ctx: &egui::Context) {
+        let forced = std::mem::take(&mut self.watch.force_apply);
+
         if let Some(listing) = self.watch.held_listing.take() {
             // A rename field addresses rows by index, and a list refreshed
-            // under the pointer moves rows out from under a click.
-            if self.sidebar.is_editing() || self.pointer_over_sidebar(ctx) {
+            // under the pointer moves rows out from under a click. A rename in
+            // progress holds the list back even when the user asked for the
+            // refresh now: the row it is editing would change under it.
+            if self.sidebar.is_editing() || (!forced && self.pointer_over_sidebar(ctx)) {
                 self.watch.held_listing = Some(listing);
             } else {
                 self.sidebar.set_files(listing);
@@ -581,6 +646,7 @@ impl super::UniformApp {
                 dirty: doc.document.dirty || doc.editor_state.has_pending_document_sync(),
                 displayed: self.panes.pane_showing(idx).is_some(),
                 pointer_over: self.pointer_over_document(ctx, idx),
+                forced,
             };
             match classify(status) {
                 ChangeAction::Ignore => {}
@@ -724,6 +790,7 @@ mod tests {
             dirty,
             displayed,
             pointer_over,
+            forced: false,
         }
     }
 
@@ -761,6 +828,74 @@ mod tests {
             classify(status(false, false, false, true)),
             ChangeAction::Reload
         );
+    }
+
+    /// Clicking the notice is the user asking for the reload now, so the
+    /// pointer check that held it back is waived — the pointer is on the
+    /// notice, not on anything the reload disturbs.
+    #[test]
+    fn a_forced_change_is_applied_under_the_pointer() {
+        let forced = FileStatus {
+            forced: true,
+            ..status(false, false, true, true)
+        };
+        assert_eq!(classify(forced), ChangeAction::Reload);
+        // It waives the pointer, nothing else: unchanged bytes are still
+        // nothing, and unsaved edits are still kept.
+        assert_eq!(
+            classify(FileStatus {
+                forced: true,
+                ..status(true, false, true, true)
+            }),
+            ChangeAction::Ignore,
+        );
+        assert_eq!(
+            classify(FileStatus {
+                forced: true,
+                ..status(false, true, true, true)
+            }),
+            ChangeAction::WarnNow,
+        );
+    }
+
+    /// A held change must say so, by name, and the notice must go away by
+    /// itself once nothing is held — it is the only sign the user gets that
+    /// the document on screen is not what is on disk.
+    #[test]
+    fn what_is_held_back_is_named_in_the_notice() {
+        let mut watch = WatchState::new();
+        assert_eq!(watch.held_notice(), None);
+
+        watch.hold(ScannedFile {
+            path: PathBuf::from("/font/num.unf"),
+            hash: 0,
+            outcome: ScanOutcome::Parsed(Vec::new()),
+        });
+        let one = watch.held_notice().expect("a held change says so");
+        assert!(one.starts_with("num.unf changed on disk."), "{one}");
+        assert!(one.contains("Click here"), "{one}");
+
+        watch.hold(ScannedFile {
+            path: PathBuf::from("/font/latin.unf"),
+            hash: 0,
+            outcome: ScanOutcome::Parsed(Vec::new()),
+        });
+        assert!(
+            watch.held_notice().unwrap().starts_with("2 files changed"),
+            "{:?}",
+            watch.held_notice(),
+        );
+
+        watch.held.clear();
+        watch.hold_listing(Vec::new());
+        assert!(
+            watch.held_notice().unwrap().starts_with("The file list"),
+            "{:?}",
+            watch.held_notice(),
+        );
+
+        watch.held_listing = None;
+        assert_eq!(watch.held_notice(), None);
     }
 
     /// Unsaved edits are never dropped, and the warning is not deferred: it

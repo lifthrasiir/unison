@@ -81,8 +81,8 @@ pub struct UniformApp {
     sidebar_rect: egui::Rect,
     /// The OS watch on the font directory, and the changes it has reported.
     watch: watch::WatchState,
-    /// Notices that outlive one status-bar line — currently only "this file
-    /// changed on disk while you were editing it".
+    /// Notices that outlive one status-bar line: what an external change did,
+    /// and the sticky one saying what it is still waiting to do.
     toasts: toast::Toasts,
     escape_mode: bool,
     status_message: Option<(String, std::time::Instant)>,
@@ -560,7 +560,9 @@ impl eframe::App for UniformApp {
         self.apply_edit_menu_actions(ctx, edit_target, menu.take_edit_actions());
 
         // Last, so the notices are over the panes rather than under them.
-        self.toasts.show(ctx);
+        if self.toasts.show(ctx) == Some(watch::HELD_CHANGES_TOAST) {
+            self.apply_held_watch_changes(ctx);
+        }
 
         // Decide whether to close only after this frame's editor input has
         // updated the source buffer and dirty state.

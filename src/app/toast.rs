@@ -11,6 +11,18 @@
 //! under them, and the area they are anchored to is
 //! `Context::available_rect` — what is left after the panels, which is exactly
 //! the editor area.
+//!
+//! # Sticky toasts
+//!
+//! A notice about something that *happened* can expire, because the thing it
+//! reports is already done. A notice about something the editor is **holding
+//! back** cannot: it stands for a state that is still true, and a timeout would
+//! leave the user with a postponed change and no sign of it. So a sticky toast
+//! ([`Toasts::set_sticky`]) has no TTL at all — its owner puts it up and takes
+//! it down, keyed by a `&'static str`, and a click on it comes back out of
+//! [`Toasts::show`] as that key rather than merely dismissing it. The only one
+//! today is the watch's "a change is waiting for the pointer to leave"; see
+//! [`super::watch`].
 
 use std::time::{Duration, Instant};
 
@@ -26,6 +38,9 @@ const WIDTH: f32 = 340.0;
 struct Toast {
     text: String,
     born: Instant,
+    /// Set on a sticky toast: it never expires, and a click on it reports this
+    /// key to the caller instead of dismissing it.
+    key: Option<&'static str>,
 }
 
 pub(super) struct Toasts {
@@ -48,7 +63,28 @@ impl Toasts {
         self.items.push(Toast {
             text,
             born: Instant::now(),
+            key: None,
         });
+    }
+
+    /// Puts up (or takes down, with `None`) the sticky notice named `key`.
+    ///
+    /// Called every frame by whoever owns the state it reports, so the notice
+    /// is on screen exactly while that state holds. Re-stating the same text
+    /// leaves the toast alone rather than restarting it — a sticky toast has no
+    /// lifetime to restart, and rebuilding it would flicker.
+    pub(super) fn set_sticky(&mut self, key: &'static str, text: Option<String>) {
+        let existing = self.items.iter_mut().find(|t| t.key == Some(key));
+        match (existing, text) {
+            (Some(toast), Some(text)) => toast.text = text,
+            (Some(_), None) => self.items.retain(|t| t.key != Some(key)),
+            (None, Some(text)) => self.items.push(Toast {
+                text,
+                born: Instant::now(),
+                key: Some(key),
+            }),
+            (None, None) => {}
+        }
     }
 
     #[cfg(test)]
@@ -56,12 +92,26 @@ impl Toasts {
         self.items.iter().map(|t| t.text.as_str()).collect()
     }
 
-    pub(super) fn show(&mut self, ctx: &egui::Context) {
-        self.items.retain(|t| t.born.elapsed() < TOAST_TTL);
+    /// Drops the notices whose time is up. A sticky one has none.
+    fn expire(&mut self) {
+        self.items
+            .retain(|t| t.key.is_some() || t.born.elapsed() < TOAST_TTL);
+    }
+
+    /// Draws the notices and reports the key of a sticky one that was clicked;
+    /// a click on an ordinary notice only dismisses it.
+    pub(super) fn show(&mut self, ctx: &egui::Context) -> Option<&'static str> {
+        self.expire();
         if self.items.is_empty() {
-            return;
+            return None;
         }
-        ctx.request_repaint_after(Duration::from_millis(100));
+        // Only for the ones that age: a sticky toast has nothing to animate,
+        // and asking for a frame every 100ms forever would spin the CPU for as
+        // long as it is up. What it waits on (the pointer leaving) already
+        // keeps frames coming; see [`super::watch`].
+        if self.items.iter().any(|t| t.key.is_none()) {
+            ctx.request_repaint_after(Duration::from_millis(100));
+        }
 
         let area = ctx.available_rect();
         let mut dismissed = None;
@@ -73,7 +123,7 @@ impl Toasts {
                 ui.set_max_width(WIDTH);
                 for (idx, toast) in self.items.iter().enumerate() {
                     let remaining = TOAST_TTL.saturating_sub(toast.born.elapsed());
-                    let alpha = if remaining < FADE {
+                    let alpha = if toast.key.is_none() && remaining < FADE {
                         remaining.as_secs_f32() / FADE.as_secs_f32()
                     } else {
                         1.0
@@ -111,8 +161,15 @@ impl Toasts {
                     }
                 }
             });
-        if let Some(idx) = dismissed {
-            self.items.remove(idx);
+        let idx = dismissed?;
+        match self.items[idx].key {
+            // Its owner takes it down once the state it reports is gone —
+            // removing it here would say the work was done before it was.
+            Some(key) => Some(key),
+            None => {
+                self.items.remove(idx);
+                None
+            }
         }
     }
 }
@@ -132,5 +189,28 @@ mod tests {
             toasts.texts(),
             ["num.unf changed on disk", "latin.unf changed on disk"],
         );
+    }
+
+    /// A sticky notice stands for a state that is still true, so no timeout may
+    /// take it away — only its owner, by stating that the state is gone.
+    #[test]
+    fn a_sticky_notice_outlives_the_timeout_and_only_its_owner_removes_it() {
+        let mut toasts = Toasts::new();
+        toasts.push("transient");
+        toasts.set_sticky("held", Some("a change is waiting".into()));
+        for item in &mut toasts.items {
+            item.born = Instant::now() - TOAST_TTL - Duration::from_secs(1);
+        }
+
+        toasts.expire();
+        assert_eq!(toasts.texts(), ["a change is waiting"]);
+
+        // Restating it updates the text in place, so the notice can follow the
+        // state it reports without flickering.
+        toasts.set_sticky("held", Some("two changes are waiting".into()));
+        assert_eq!(toasts.texts(), ["two changes are waiting"]);
+
+        toasts.set_sticky("held", None);
+        assert!(toasts.texts().is_empty());
     }
 }
