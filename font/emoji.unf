@@ -5,15 +5,11 @@
 //remap group emojify-wide
 //remap group emojify-narrow
 
-//remap group deemojify
-remap group deemojify-wide
-remap group deemojify-narrow
+remap group deemojify
 
 //feature ccmp for DFLT : emojify
 //feature wide : ccmp for DFLT : emojify-wide
 //feature narrow : ccmp for DFLT : emojify-narrow
 
-//feature ccmp for DFLT : deemojify
-feature wide : ccmp for DFLT : deemojify-wide
-feature narrow : ccmp for DFLT : deemojify-narrow
+feature ccmp for DFLT : deemojify
 
