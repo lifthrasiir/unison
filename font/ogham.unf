@@ -1,5 +1,7 @@
 ////////////////////////////////////////
 // ogham
+//
+// this is wide only because of unusual shaping requirements.
 
 glyph ogham-begin 8 16
 ................
@@ -575,34 +577,34 @@ glyph ogham-peith 8 16
 ................
 ref ogham-sp
 
-map ᚛ = ogham-begin
-map U+1680 = ogham-sp
-map ᚜ = ogham-end
+map wide : ᚛ = ogham-begin
+map wide : U+1680 = ogham-sp
+map wide : ᚜ = ogham-end
 
-map ᚁ = ogham-beith
-map ᚂ = ogham-luis
-map ᚃ = ogham-fearn
-map ᚄ = ogham-sail
-map ᚅ = ogham-nion
-map ᚆ = ogham-uath
-map ᚇ = ogham-dair
-map ᚈ = ogham-tinne
-map ᚉ = ogham-coll
-map ᚊ = ogham-ceirt
-map ᚋ = ogham-muin
-map ᚌ = ogham-gort
-map ᚍ = ogham-ngeadal
-map ᚎ = ogham-straif
-map ᚏ = ogham-ruis
-map ᚐ = ogham-ailm
-map ᚑ = ogham-onn
-map ᚒ = ogham-ur
-map ᚓ = ogham-eadhadh
-map ᚔ = ogham-iodhadh
-map ᚕ = ogham-eabhadh
-map ᚖ = ogham-or
-map ᚗ = ogham-uilleann
-map ᚘ = ogham-ifin
-map ᚙ = ogham-eamhancholl
-map ᚚ = ogham-peith
+map wide : ᚁ = ogham-beith
+map wide : ᚂ = ogham-luis
+map wide : ᚃ = ogham-fearn
+map wide : ᚄ = ogham-sail
+map wide : ᚅ = ogham-nion
+map wide : ᚆ = ogham-uath
+map wide : ᚇ = ogham-dair
+map wide : ᚈ = ogham-tinne
+map wide : ᚉ = ogham-coll
+map wide : ᚊ = ogham-ceirt
+map wide : ᚋ = ogham-muin
+map wide : ᚌ = ogham-gort
+map wide : ᚍ = ogham-ngeadal
+map wide : ᚎ = ogham-straif
+map wide : ᚏ = ogham-ruis
+map wide : ᚐ = ogham-ailm
+map wide : ᚑ = ogham-onn
+map wide : ᚒ = ogham-ur
+map wide : ᚓ = ogham-eadhadh
+map wide : ᚔ = ogham-iodhadh
+map wide : ᚕ = ogham-eabhadh
+map wide : ᚖ = ogham-or
+map wide : ᚗ = ogham-uilleann
+map wide : ᚘ = ogham-ifin
+map wide : ᚙ = ogham-eamhancholl
+map wide : ᚚ = ogham-peith
 
