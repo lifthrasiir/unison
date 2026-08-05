@@ -1560,11 +1560,11 @@ glyph hy-men-xeh-lower 16 16
 ................@@@@............
 ................................
 
-map ﬓ = hy-men-now-lower
-map ﬔ = hy-men-ech-lower
-map ﬕ = hy-men-ini-lower
-map ﬖ = hy-vew-now-lower
-map ﬗ = hy-men-xeh-lower
+map wide : ﬓ = hy-men-now-lower
+map wide : ﬔ = hy-men-ech-lower
+map wide : ﬕ = hy-men-ini-lower
+map wide : ﬖ = hy-vew-now-lower
+map wide : ﬗ = hy-men-xeh-lower
 
 //--------------------------------------
 // punctuations
@@ -1667,7 +1667,7 @@ glyph hy-dram 8 16
 ................
 ................
 
-map ֍ = hy-eternity-cw
-map ֎ = hy-eternity-ccw
+map wide : ֍ = hy-eternity-cw
+map wide : ֎ = hy-eternity-ccw
 map ֏ = hy-dram
 

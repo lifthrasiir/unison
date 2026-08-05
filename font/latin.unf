@@ -131,9 +131,49 @@ glyph d-z-upper 16 16
 ref d-upper 0 0
 ref z-upper 8 0 inherit
 
+glyph d-z-upper-half 8 16
+................
+................
+................
+@@@@@@0\@@@@@@@@
+@@....@@......@@
+@@....@@.....vV/
+@@....@@..../Vv'
+@@....@@...vV/..
+@@....@@../Vv'..
+@@....@@.vV/....
+@@....@@/Vv'....
+@@....@@@@......
+@@@@@@0/@@@@@@@@
+................
+................
+................
+anchor +above 5..6 1
+anchor +below 5..6 14
+
 glyph d-z-title 16 16
 ref d-upper 0 0
 ref z-lower 8 0 inherit
+
+glyph d-z-title-half 8 16
+................
+................
+................
+@@@@@@0\........
+@@....@@........
+@@....@@@@@@@@@@
+@@....@@.....vV/
+@@....@@..../Vv'
+@@....@@...vV/..
+@@....@@../Vv'..
+@@....@@.vV/....
+@@....@@/Vv'....
+@@@@@@0/@@@@@@@@
+................
+................
+................
+anchor +above 5..6 3
+anchor +below 5..6 14
 
 glyph eth-upper 8 16
 ................
@@ -1174,6 +1214,26 @@ glyph d-lower-narrow 8 16
 glyph d-z-lower 16 16
 ref d-lower 0 0
 ref z-lower 8 0 inherit
+
+glyph d-z-lower-half 8 16
+................
+................
+................
+......@@........
+......@@........
+......@@@@@@@@@@
+/0@@@@@@.....vV/
+@@....@@..../Vv'
+@@....@@...vV/..
+@@....@@../Vv'..
+@@....@@.vV/....
+@@....@@/Vv'....
+\0@@@@@@@@@@@@@@
+................
+................
+................
+anchor +above 5..6 3
+anchor +below 5..6 14
 
 glyph eth-lower 8 16
 ................
@@ -2251,8 +2311,8 @@ map Æ = a-e-upper
 map B = b-upper
 map C = c-upper
 map D = d-upper
-map Ǳ = d-z-upper
-map ǲ = d-z-title
+map wide|narrow : Ǳ = d-z-upper($-half)
+map wide|narrow : ǲ = d-z-title($-half)
 map Ð = eth-upper
 map Đ = d-bar-upper
 map Ɖ = african-d-upper
@@ -2297,7 +2357,7 @@ map æ = a-e-lower
 map b = b-lower
 map c = c-lower
 map d = d-lower
-map ǳ = d-z-lower
+map wide|narrow : ǳ = d-z-lower($-half)
 map ð = eth-lower
 map đ = d-bar-lower
 map ɖ = d-tail-lower
@@ -2847,11 +2907,17 @@ map generate Ď
 glyph uni01C4
 ref d-z-upper inherit
 ref caron-above inherit
-map Ǆ = uni01C4
+glyph uni01C4-half advance 8
+ref d-z-upper-half inherit
+ref caron-above inherit
+map wide|narrow : Ǆ = uni01C4($-half)
 glyph uni01C5
 ref d-z-title inherit
 ref caron-above inherit
-map ǅ = uni01C5
+glyph uni01C5-half advance 8
+ref d-z-title-half inherit
+ref caron-above inherit
+map wide|narrow : ǅ = uni01C5($-half)
 map generate Ě
 map generate Ǧ
 map generate Ȟ
@@ -2884,7 +2950,10 @@ map ď = uni010F
 glyph uni01C6
 ref d-z-lower inherit
 ref caron-above inherit
-map ǆ = uni01C6
+glyph uni01C6-half advance 8
+ref d-z-lower-half inherit
+ref caron-above inherit
+map wide|narrow : ǆ = uni01C6($-half)
 map generate ě
 map generate ǧ
 glyph uni021F

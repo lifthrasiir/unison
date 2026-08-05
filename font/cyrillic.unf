@@ -2056,15 +2056,15 @@ glyph cy-multiocular-o 17 16 advance 16
 
 map Ꙩ = cy-monocular-o-upper
 map Ꙫ = cy-binocular-o-upper
-map Ꙭ = cy-double-monocular-o-upper
-map Ꚙ = cy-double-o-upper
+map wide : Ꙭ = cy-double-monocular-o-upper
+map wide : Ꚙ = cy-double-o-upper
 map Ꚛ = cy-crossed-o-upper
 
 map ꙩ = cy-monocular-o-lower
 map ꙫ = cy-binocular-o-lower
-map ꙭ = cy-double-monocular-o-lower
-map ꚙ = cy-double-o-lower
+map wide : ꙭ = cy-double-monocular-o-lower
+map wide : ꚙ = cy-double-o-lower
 map ꚛ = cy-crossed-o-lower
 
-map ꙮ = cy-multiocular-o
+map wide : ꙮ = cy-multiocular-o
 

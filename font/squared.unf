@@ -675,7 +675,7 @@ map ㎤ = squared-cm3
 map ㏇ = squared-co
 map ㍲ = squared-da
 map ㏈ = squared-db
-map 🆐 = squared-dj
+map wide : 🆐 = squared-dj // EAW=A for some reason!
 map ㎗ = squared-dl
 map ㍷ = squared-dm
 map ㍸ = squared-dm2

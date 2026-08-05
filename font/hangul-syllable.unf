@@ -6716,6 +6716,9 @@ glyph hangul-tone-1 8 16
 ................
 ................
 
+glyph hangul-tone-1-half 16 16
+ref hangul-tone-1 8 0
+
 glyph hangul-tone-2 8 16
 ................
 ................
@@ -6734,10 +6737,18 @@ glyph hangul-tone-2 8 16
 ................
 ................
 
-map U+302E = hangul-tone-1
-map U+302F = hangul-tone-2
+glyph hangul-tone-2-half 16 16
+ref hangul-tone-2 8 0
+
+// U+302E/F are EAW=W, which value is not supported by the glyph at all.
+// since only the Term face is sensitive to EAW, follow it only in Term.
+// this also means that hangul-tone-*-half is double-width (!).
+map wide|narrow : U+302E = hangul-tone-1($-half)
+map wide|narrow : U+302F = hangul-tone-2($-half)
 
 // Tone marks reorder before the syllable; must not be affected by a
 // preceding run of a different script (script segmentation).
-assert shape 각〯 : hangul-tone-2 : hangul-ac01
-assert shape `ひ 각〯` : hiragana-hi : sp : hangul-tone-2 : hangul-ac01
+assert shape 각〯 for wide : hangul-tone-2 : hangul-ac01
+assert shape 각〯 for narrow : hangul-tone-2-half : hangul-ac01
+assert shape `ひ 각〯` for wide : hiragana-hi : sp : hangul-tone-2 : hangul-ac01
+assert shape `ひ 각〯` for narrow : hiragana-hi : sp : hangul-tone-2-half : hangul-ac01
