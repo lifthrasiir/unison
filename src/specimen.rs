@@ -68,6 +68,7 @@ impl SpecimenState {
         docs: &[&Document],
         name_parts: &NamePartsMap,
         name_to_gid: &HashMap<String, u16>,
+        face_id: Option<&str>,
         font_data_gen: u64,
         derived_gen: u64,
     ) {
@@ -81,32 +82,53 @@ impl SpecimenState {
         // asked for under that name.
         let aliases = crate::alias::AliasMap::collect(docs, name_parts);
 
+        // The specimen draws one face's font bytes, so it has to read the
+        // source the way `expand_for` did when building them: a slice-qualified
+        // line is stated once per slice the face includes, with *that slice's*
+        // name parts in force. Substituting a `map wide|narrow : … = f($-half)`
+        // with the unqualified parts leaves `$-half` in the glyph name, which
+        // then names no glyph — no gid to draw, and nothing for a click to
+        // link to.
+        let faces = crate::faces::FaceSet::collect(docs);
+        let face = face_id
+            .and_then(|id| faces.faces.iter().find(|f| f.id == id))
+            .unwrap_or_else(|| faces.primary());
+        let scoped = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
+
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
         let mut mapped_glyphs: HashSet<String> = HashSet::new();
         for doc in docs {
             for item in &doc.items {
-                match item {
-                    DocumentItem::Map {
-                        char_repr, glyph, ..
-                    } => {
-                        let subst_glyph = substitute_name_parts(glyph, name_parts);
-                        let mut pairs = expand_map_pairs(char_repr, &subst_glyph);
-                        aliases.canonicalize_pairs(&mut pairs);
-                        for (cp, glyph_name) in pairs {
-                            mapped_glyphs.insert(glyph_name.clone());
-                            map.entry(cp).or_insert(glyph_name);
+                let mut slices: Vec<Option<&str>> = match item.slice_qualifier() {
+                    [] => vec![None],
+                    qual => qual.iter().map(|s| Some(s.as_str())).collect(),
+                };
+                slices.retain(|s| face.includes(*s));
+                for slice in slices {
+                    let parts = scoped.for_slice(slice);
+                    match item {
+                        DocumentItem::Map {
+                            char_repr, glyph, ..
+                        } => {
+                            let subst_glyph = substitute_name_parts(glyph, parts);
+                            let mut pairs = expand_map_pairs(char_repr, &subst_glyph);
+                            aliases.canonicalize_pairs(&mut pairs);
+                            for (cp, glyph_name) in pairs {
+                                mapped_glyphs.insert(glyph_name.clone());
+                                map.entry(cp).or_insert(glyph_name);
+                            }
                         }
-                    }
-                    DocumentItem::MapDecomposed {
-                        char_repr, glyph, ..
-                    } => {
-                        let subst = glyph.as_ref().map(|g| substitute_name_parts(g, name_parts));
-                        for (cp, name) in decomposed_map_pairs(char_repr, subst.as_deref()) {
-                            mapped_glyphs.insert(name.clone());
-                            map.entry(cp).or_insert(name);
+                        DocumentItem::MapDecomposed {
+                            char_repr, glyph, ..
+                        } => {
+                            let subst = glyph.as_ref().map(|g| substitute_name_parts(g, parts));
+                            for (cp, name) in decomposed_map_pairs(char_repr, subst.as_deref()) {
+                                mapped_glyphs.insert(name.clone());
+                                map.entry(cp).or_insert(name);
+                            }
                         }
+                        _ => {}
                     }
-                    _ => {}
                 }
             }
         }
@@ -142,6 +164,8 @@ impl SpecimenState {
                     ..
                 } = item
                 {
+                    // `remap` takes no slice qualifier, so the unqualified name
+                    // parts are the only ones in force here.
                     let tgt_expanded: Vec<Vec<String>> = target
                         .iter()
                         .map(|s| expand_name_element(s, name_parts))
@@ -240,6 +264,14 @@ impl SpecimenState {
         with_cp.sort_by(|a, b| a.cp_sequence.cmp(&b.cp_sequence));
         self.remap_entries = with_cp;
         self.remap_entries.append(&mut without_cp);
+    }
+
+    #[cfg(test)]
+    fn glyph_for_cp(&self, cp: u32) -> Option<&str> {
+        self.entries
+            .iter()
+            .find(|(c, _)| *c == cp)
+            .map(|(_, n)| n.as_str())
     }
 
     #[cfg(test)]
@@ -879,15 +911,54 @@ remap liga : sq -> ($l)-lig
         // Frame 1: opened before the background build landed — no name parts,
         // no gid map yet.
         assert!(state.needs_rebuild(0, 0));
-        state.rebuild_if_needed(&docs, &NamePartsMap::new(), &HashMap::new(), 0, 0);
+        state.rebuild_if_needed(&docs, &NamePartsMap::new(), &HashMap::new(), None, 0, 0);
         assert!(state.remap_glyph_names().is_empty());
 
         // Frame 2: the build and the derived data have landed.
         assert!(state.needs_rebuild(1, 1));
-        state.rebuild_if_needed(&docs, &name_parts, &gids, 1, 1);
+        state.rebuild_if_needed(&docs, &name_parts, &gids, None, 1, 1);
         assert_eq!(state.remap_glyph_names(), vec!["a-lig", "b-lig"]);
 
         // Nothing new: the cache holds.
         assert!(!state.needs_rebuild(1, 1));
+    }
+
+    const SLICED_SRC: &str = "\
+meta height 16
+meta ascent 14
+meta descent 2
+face regular : wide
+face term : narrow
+slice narrow
+slice wide
+name-parts wide : $-half = ``
+name-parts narrow : $-half = -half
+glyph star 1 1
+@@
+glyph star-half 1 1
+@@
+map wide|narrow : U+2042 = star($-half)
+";
+
+    /// A slice-qualified `map` substitutes with *that slice's* name parts, so
+    /// the specimen has to expand it per slice like the builder does — and pick
+    /// the slice the face it is drawing actually includes. Expanding it with the
+    /// unqualified parts left `$-half` verbatim in the glyph name, which then
+    /// matched no glyph and made the cell unclickable.
+    #[test]
+    fn slice_scoped_name_parts_expand_per_face() {
+        let d = doc(SLICED_SRC);
+        let docs = [&d];
+        let name_parts = crate::document::collect_name_parts(&docs);
+        let gids: HashMap<String, u16> = [("star".to_string(), 1u16), ("star-half".to_string(), 2)]
+            .into_iter()
+            .collect();
+
+        let mut state = SpecimenState::new();
+        state.rebuild_if_needed(&docs, &name_parts, &gids, Some("regular"), 1, 1);
+        assert_eq!(state.glyph_for_cp(0x2042), Some("star"));
+
+        state.rebuild_if_needed(&docs, &name_parts, &gids, Some("term"), 2, 1);
+        assert_eq!(state.glyph_for_cp(0x2042), Some("star-half"));
     }
 }

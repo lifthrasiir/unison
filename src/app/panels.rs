@@ -510,10 +510,14 @@ impl UniformApp {
                     {
                         let all_docs =
                             collect_effective_docs(&self.open_documents, &self.font_base_docs);
+                        // The face the built font bytes are for; a
+                        // slice-qualified `map` reads differently per face.
+                        let face = self.selected_face().to_string();
                         self.specimen.rebuild_if_needed(
                             &all_docs,
                             &self.name_parts,
                             &self.font_name_to_gid,
+                            (!face.is_empty()).then_some(face.as_str()),
                             self.font_data_gen,
                             self.derived_gen,
                         );
