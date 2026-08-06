@@ -329,7 +329,7 @@ impl SpecimenState {
 
         let cmap_count = self.entries.len();
 
-        let inner = egui::ScrollArea::vertical()
+        egui::ScrollArea::vertical()
             .id_salt("specimen_scroll")
             .show(ui, |ui| {
                 // Own the full width even though only `cols` boxes fit: the
@@ -595,7 +595,6 @@ impl SpecimenState {
                     }
                 }
             });
-        let _ = inner;
 
         clicked
     }

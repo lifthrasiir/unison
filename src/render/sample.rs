@@ -369,7 +369,6 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
         for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
             let cached = resolve_cached_ref(&gref.name, cache)?;
-            let (_, sg_row, sg_col) = sg.as_ref()?;
             let dx = gref.col() as f32;
             let dy = gref.row() as f32;
             let rs = cached.scale.max(1);
@@ -388,8 +387,10 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             let scaled_h = (cached.height as f32 * rsf).round() as i32;
             max_width = max_width.max(gref.col() as i32 + scaled_w);
             max_height = max_height.max(gref.row() as i32 + scaled_h);
-            min_r = min_r.min(*sg_row);
-            min_c = min_c.min(*sg_col);
+            if let Some((_, row, col)) = sg {
+                min_r = min_r.min(*row);
+                min_c = min_c.min(*col);
+            }
 
             let off_r = gref.row() as i32;
             let off_c = gref.col() as i32;
@@ -1784,6 +1785,44 @@ map generate ä
         assert_eq!(
             composite.width, 16,
             "the mark should be absorbed into the base advance, not appended after it"
+        );
+    }
+
+    #[test]
+    fn sample_composite_survives_gridless_ref() {
+        // A ref to a glyph with no raster grid (a `sticky` placeholder, or a
+        // composite that fell back to empty) used to abort the *whole*
+        // composite in the simple no-own-pixels branch (`sg.as_ref()?`),
+        // rendering it empty — while the TTF builder skips just that ref's
+        // grid and keeps the rest (`from_components_inner`).
+        let d = parse(
+            "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph placeholder sticky
+
+glyph part 2 2
+@@@@
+@@@@
+
+glyph combo
+ref placeholder
+ref part
+
+map A = combo
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("combo").expect("combo should be present");
+        assert_eq!(
+            g.width, 2,
+            "the real ref must survive a grid-less sibling ref"
+        );
+        assert!(
+            !g.components.is_empty(),
+            "the real ref's components must be kept"
         );
     }
 

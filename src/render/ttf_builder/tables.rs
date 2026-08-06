@@ -389,10 +389,16 @@ pub(super) fn build_ttf(
         );
         builder.add_table(&colr).unwrap();
 
-        let color_records: Vec<ColorRecord> = palette
+        let mut color_records: Vec<ColorRecord> = palette
             .iter()
             .map(|c| ColorRecord::new(c.b, c.g, c.r, c.a))
             .collect();
+        // CPAL requires at least one palette entry. Every layer at the `fg`
+        // index (0xFFFF) — e.g. when the only fill's color alias never
+        // resolved — would otherwise write an empty, invalid CPAL.
+        if color_records.is_empty() {
+            color_records.push(ColorRecord::new(0, 0, 0, 255));
+        }
         let num_entries = color_records.len() as u16;
         let cpal = Cpal::new(num_entries, 1, num_entries, Some(color_records), vec![0]);
         builder.add_table(&cpal).unwrap();

@@ -211,19 +211,14 @@ impl FaceSet {
         for (name, (_, origin)) in &declared {
             let mut resolved = BTreeSet::new();
             let mut visiting: Vec<String> = Vec::new();
-            let mut cycle_only = Vec::new();
             expand_slice(
                 &declared,
                 name,
                 &mut resolved,
                 &mut visiting,
                 *origin,
-                &mut cycle_only,
-            );
-            diagnostics.extend(
-                cycle_only
-                    .into_iter()
-                    .filter(|d| d.message.contains("cycle")),
+                ReportUndeclared::No,
+                &mut diagnostics,
             );
         }
 
@@ -241,6 +236,7 @@ impl FaceSet {
                     &mut resolved,
                     &mut visiting,
                     *origin,
+                    ReportUndeclared::Yes,
                     &mut diagnostics,
                 );
             }
@@ -269,6 +265,15 @@ impl FaceSet {
     }
 }
 
+/// Whether [`expand_slice`] reports a reference to an undeclared slice.
+/// The per-declaration cycle sweep suppresses those — `issues` reports them
+/// against the line that names them, a better position than here.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ReportUndeclared {
+    Yes,
+    No,
+}
+
 /// Depth-first expansion with cycle detection.
 ///
 /// A slice is inserted into `resolved` only after its parents are, so a name
@@ -284,6 +289,7 @@ fn expand_slice(
     resolved: &mut BTreeSet<String>,
     visiting: &mut Vec<String>,
     origin: ItemRef,
+    report_undeclared: ReportUndeclared,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     if resolved.contains(name) {
@@ -301,15 +307,25 @@ fn expand_slice(
     let Some((inherits, _)) = declared.get(name) else {
         // Reported here rather than at the referring line when it is a `face`
         // that reached it; `issues` catches the direct references.
-        diagnostics.push(Diagnostic::error(
-            origin,
-            format!("undeclared slice `{name}`"),
-        ));
+        if report_undeclared == ReportUndeclared::Yes {
+            diagnostics.push(Diagnostic::error(
+                origin,
+                format!("undeclared slice `{name}`"),
+            ));
+        }
         return;
     };
     visiting.push(name.to_string());
     for parent in inherits {
-        expand_slice(declared, parent, resolved, visiting, origin, diagnostics);
+        expand_slice(
+            declared,
+            parent,
+            resolved,
+            visiting,
+            origin,
+            report_undeclared,
+            diagnostics,
+        );
     }
     visiting.pop();
     resolved.insert(name.to_string());

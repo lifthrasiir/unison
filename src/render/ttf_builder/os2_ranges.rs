@@ -191,6 +191,12 @@ pub(super) const UNICODE_RANGE_BITS: &[(u8, u32, u32)] = &[
 pub(super) fn unicode_ranges(codepoints: impl Iterator<Item = u32>) -> [u32; 4] {
     let mut out = [0u32; 4];
     for cp in codepoints {
+        // Bit 57 (Non-Plane 0) means "at least one supplementary character".
+        // The table only carries the surrogate range D800..DFFF for it, which
+        // a Unicode cmap never maps, so the plane test has to be direct.
+        if cp > 0xFFFF {
+            out[1] |= 1 << (57 - 32);
+        }
         for &(bit, start, end) in UNICODE_RANGE_BITS {
             if (start..=end).contains(&cp) {
                 out[(bit / 32) as usize] |= 1 << (bit % 32);

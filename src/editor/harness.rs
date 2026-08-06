@@ -167,6 +167,17 @@ pub(crate) fn capture_color_spans(
     });
 }
 
+fn edit_border_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestEditBorder)
+}
+
+/// Called from the document paint loop (test builds only) to publish the
+/// edit-mode border rect it painted, so a test can tell "painted somewhere
+/// off-screen" from "not painted at all".
+pub(crate) fn capture_edit_border(ctx: &egui::Context, editor: EditorId, rect: egui::Rect) {
+    ctx.data_mut(|d| d.insert_temp(edit_border_id(editor), Some(rect)));
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -230,6 +241,7 @@ pub(crate) fn capture_snapshot(
     ctx.data_mut(|d| d.insert_temp(snapshot_id(editor), Arc::new(snapshot)));
     // The paint loop appends to this as it goes, so the frame starts clean.
     ctx.data_mut(|d| d.insert_temp(color_spans_id(editor), Vec::<(usize, usize, usize)>::new()));
+    ctx.data_mut(|d| d.insert_temp(edit_border_id(editor), None::<egui::Rect>));
 }
 
 // ---------------------------------------------------------------------------
@@ -833,6 +845,13 @@ impl EditorHarness {
         self.ctx
             .data(|d| d.get_temp::<Vec<(usize, usize, usize)>>(color_spans_id(self.state.id())))
             .unwrap_or_default()
+    }
+
+    /// The edit-mode border rect the last frame painted, if any.
+    pub fn edit_border_rect(&self) -> Option<egui::Rect> {
+        self.ctx
+            .data(|d| d.get_temp::<Option<egui::Rect>>(edit_border_id(self.state.id())))
+            .flatten()
     }
 
     /// Screen rect of a ref-layer thumbnail in the inline tools panel (only

@@ -84,3 +84,21 @@ fn grid_snap_hints_no_diagonals() {
     assert!(instructions.is_empty());
     assert_eq!(contours[0].len(), 4, "no points should be added");
 }
+
+/// A diagonal whose endpoints are not on the half-scale lattice (custom
+/// sub-pixel details produce these) cannot be split exactly: the truncated
+/// "grid" points and midpoints land off the segment, bending the outline at
+/// every PPEM, not just the hinted one. Such edges must be left alone.
+#[test]
+fn grid_snap_hints_skip_off_lattice_diagonals() {
+    // 85 is not a multiple of half_scale (32 at 16 ppem with 1024 UPM); the
+    // midpoint the old code inserted, (42, 832), is not on the edge.
+    let original = vec![(0i16, 896), (85, 768), (0, 768)];
+    let mut contours = vec![original.clone()];
+    let instructions = generate_grid_snap_hints(&mut contours, 16);
+    assert_eq!(
+        contours[0], original,
+        "off-lattice diagonal must not be split"
+    );
+    assert!(instructions.is_empty());
+}

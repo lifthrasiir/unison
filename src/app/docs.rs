@@ -105,7 +105,7 @@ pub(super) fn document_from_source(
 ) -> anyhow::Result<(Document, Vec<DocLine>)> {
     let doc = document_io::parse_document_from_str(content, path.clone())?;
     let mut buf = Vec::new();
-    document_io::serialize_document(&doc, &mut buf).ok();
+    document_io::serialize_document(&doc, &mut buf).expect("writing to a Vec cannot fail");
     let canonical = String::from_utf8(buf).unwrap_or_default();
     let mut lines = document_io::parse_doclines(&canonical);
     if lines.is_empty() {

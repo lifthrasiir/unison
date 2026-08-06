@@ -845,3 +845,78 @@ feature ccmp for DFLT : anchor above
     }
     assert!(checked, "expected a MarkBasePos subtable to inspect");
 }
+
+/// An anchor feature whose tag already has a feature record in GSUB (a
+/// `remap` with the same tag creates one) used to merge its lookups into
+/// that record without registering its own scripts — in any script the
+/// remap did not already cover, the merged lookups never applied.
+#[test]
+fn merging_into_an_existing_feature_record_registers_its_new_scripts() {
+    use crate::render::ttf_builder::gpos::merge_anchor_feature_lookups;
+
+    // A GSUB as a remap would leave it: a 'ccmp' feature registered for
+    // DFLT only.
+    let dflt_lang_sys = LangSys {
+        required_feature_index: 0xFFFF,
+        feature_indices: vec![0],
+    };
+    let existing = Gsub::new(
+        ScriptList::new(vec![ScriptRecord::new(
+            Tag::new(b"DFLT"),
+            Script::new(Some(dflt_lang_sys), vec![]),
+        )]),
+        FeatureList::new(vec![FeatureRecord::new(
+            Tag::new(b"ccmp"),
+            Feature::new(None, vec![]),
+        )]),
+        LookupList::new(vec![]),
+    );
+    let mut gsub = Some(existing);
+
+    // One anchor chain lookup scoped to 'hang'.
+    let mut sc = SubstitutionChainContext::default();
+    *sc = ChainedSequenceContext::Format3(ChainedSequenceContextFormat3::new(
+        vec![],
+        vec![],
+        vec![],
+        vec![],
+    ));
+    let chain = SubstitutionLookup::ChainContextual(Lookup::new(LookupFlag::empty(), vec![sc]));
+    merge_anchor_feature_lookups(
+        &mut gsub,
+        vec![("ccmp".to_string(), vec!["hang".to_string()], vec![chain])],
+    );
+
+    let gsub = gsub.unwrap();
+    // The lookups landed in the existing record...
+    assert_eq!(gsub.feature_list.feature_records.len(), 1);
+    assert_eq!(
+        gsub.feature_list.feature_records[0]
+            .feature
+            .lookup_list_indices,
+        vec![0u16]
+    );
+    // ...and 'hang' must still be registered to reach them.
+    let hang = gsub
+        .script_list
+        .script_records
+        .iter()
+        .find(|r| r.script_tag == Tag::new(b"hang"))
+        .expect("'hang' must be registered even when the feature record already existed");
+    let Some(ref ls) = *hang.script.default_lang_sys else {
+        panic!("'hang' should carry a default LangSys");
+    };
+    assert!(ls.feature_indices.contains(&0));
+    // Registration must keep the script list sorted — the shaper
+    // binary-searches it, and 'hang' appended after 'DFLT' would otherwise
+    // work while hiding any record it displaced.
+    let tags: Vec<_> = gsub
+        .script_list
+        .script_records
+        .iter()
+        .map(|r| r.script_tag)
+        .collect();
+    let mut sorted = tags.clone();
+    sorted.sort();
+    assert_eq!(tags, sorted, "script records must stay sorted by tag");
+}

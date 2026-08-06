@@ -66,7 +66,7 @@ mod tests {
         assert_eq!(property_summary('한'), "{gc=Lo eaw=W}");
         assert_eq!(property_summary('ﾊ'), "{gc=Lo eaw=H}");
         assert_eq!(property_summary('Ａ'), "{gc=Lu eaw=F}");
-        // U+2160 ROMAN NUMERAL ONE — Ambiguous, the class PLAN.md's A1 is about.
+        // U+2160 ROMAN NUMERAL ONE — East_Asian_Width Ambiguous.
         assert_eq!(property_summary('\u{2160}'), "{gc=Nl eaw=A}");
         assert_eq!(property_summary('\u{2190}'), "{gc=Sm eaw=A}");
     }

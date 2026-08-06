@@ -367,6 +367,10 @@ impl UniformApp {
             self.nav_history.go_back()
         };
         let Some(loc) = target else { return };
+        // Unreachable in practice: `open_documents` is only appended to, and
+        // the one thing that clears it (opening another folder) clears this
+        // history with it. Kept as a safety net; consuming the history step
+        // is acceptable for a state that cannot legitimately arise.
         if self.open_documents.get(loc.doc_idx).is_none() {
             return;
         }

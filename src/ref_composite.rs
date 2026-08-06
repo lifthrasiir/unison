@@ -1840,7 +1840,7 @@ pub fn compute_composite(
     let mut layers = Vec::new();
     for layer in &layout.layers {
         let scaled_grid = ref_grid_scaled(&layer.resolved.grid, layer.resolved.scale, body.scale);
-        let orig_ref = &body.refs[layer.ref_idx.min(body.refs.len() - 1)];
+        let orig_ref = &body.refs[layer.ref_idx];
         #[cfg(feature = "editor")]
         let fill_color = orig_ref
             .fill

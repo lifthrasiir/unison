@@ -248,10 +248,10 @@ fn apply_event(
                                 *changed = true;
                             }
                         } else {
-                            let new_c =
+                            let (new_c, deleted) =
                                 crate::editor::editing::backspace(te.lines, te.undo, *te.cursor);
-                            *changed = new_c != *te.cursor;
                             *te.cursor = new_c;
+                            *changed = deleted;
                         }
                     }
                     egui::Key::Delete => {
@@ -269,7 +269,7 @@ fn apply_event(
                             let (new_c, deleted) =
                                 crate::editor::editing::delete(te.lines, te.undo, *te.cursor);
                             *te.cursor = new_c;
-                            *changed = deleted || new_c != *te.cursor;
+                            *changed = deleted;
                         }
                     }
                     egui::Key::Enter => {

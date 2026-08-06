@@ -3725,3 +3725,48 @@ fn a_shape_shortcut_pulls_the_palette_rotation_with_it() {
         crate::editor::glyph_widget::shape_orbit(shape).unwrap().1
     );
 }
+
+// -- edit border under scroll -------------------------------------------------
+
+/// The edit-mode border spans the whole glyph but used to be drawn only from
+/// the grid's *top* row. With that row scrolled above the viewport (culled),
+/// the border vanished even though most of the glyph was still on screen.
+#[test]
+fn edit_border_survives_the_top_grid_row_being_culled() {
+    let mut source = String::from("glyph tall 16 300\n");
+    for _ in 0..300 {
+        source.push_str("@@..............................\n");
+    }
+    source.push_str("\nglyph small 2 2\n@@@@\n@@@@\n");
+    let mut h = EditorHarness::new(&source);
+    h.state.mode = EditMode::GlyphEdit {
+        item_idx: 0,
+        selected_shape: crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
+    };
+    h.frame();
+    let full_border = h
+        .edit_border_rect()
+        .expect("border must be painted with the whole grid in view");
+
+    // Scroll to the end of the document: the tall grid's top rows are culled,
+    // its bottom rows still visible. The caret move drops back to Normal
+    // mode, so re-enter GlyphEdit once the scroll has settled.
+    h.state.goto_line(6);
+    h.frame();
+    h.frame();
+    assert!(h.scroll_y() > 1000.0, "expected a scroll; y={}", h.scroll_y());
+    h.state.mode = EditMode::GlyphEdit {
+        item_idx: 0,
+        selected_shape: crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
+    };
+    h.frame();
+    assert!(h.scroll_y() > 1000.0, "scroll must survive; y={}", h.scroll_y());
+
+    let border = h
+        .edit_border_rect()
+        .expect("border must still be painted when the grid's top row is culled");
+    // The border still describes the whole glyph — its top is above the
+    // viewport, and its size is unchanged.
+    assert!(border.min.y < 0.0, "border top should be off-screen: {border:?}");
+    assert_eq!(border.size(), full_border.size());
+}

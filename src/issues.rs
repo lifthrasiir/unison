@@ -801,7 +801,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             meta.metrics.height,
             meta.metrics.ascent,
             meta.metrics.descent,
-        ) && a + d != h
+        ) && a as u32 + d as u32 != h as u32
         {
             issues.push(docset.to_issue(&Diagnostic::new(
                 Severity::Warning,
@@ -1328,6 +1328,70 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
+    // A `color` alias or a `ref ... fill` naming a color nothing declares
+    // falls back to `fg` in the build without a word. Aliases resolve in
+    // document order, earlier declarations only (see
+    // `render::ttf_builder::color::collect_color_aliases`); asking that same
+    // collection which names made it into the map mirrors the build exactly.
+    {
+        let color_aliases = crate::render::ttf_builder::collect_color_aliases(docs);
+        for doc in docs {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                match item {
+                    DocumentItem::Color { name, value, .. } => {
+                        if !color_aliases.contains_key(name) {
+                            let why = if value.starts_with('#') {
+                                format!("invalid color value `{value}`")
+                            } else if color_aliases.contains_key(value) {
+                                format!(
+                                    "`{value}` is declared later, and color aliases resolve \
+                                     in document order"
+                                )
+                            } else {
+                                format!("undeclared color `{value}`")
+                            };
+                            issues.push(issue_at(
+                                doc,
+                                item_idx,
+                                Severity::Warning,
+                                format!("color `{name}` never resolves: {why}"),
+                            ));
+                        }
+                    }
+                    DocumentItem::Glyph { body, .. } => {
+                        for gref in &body.refs {
+                            let Some(fill) = &gref.fill else { continue };
+                            let c = &fill.color;
+                            if c == "fg" {
+                                continue;
+                            }
+                            if c.starts_with('#') {
+                                if crate::render::ttf_builder::parse_hex_color(c).is_none() {
+                                    issues.push(issue_at(
+                                        doc,
+                                        item_idx,
+                                        Severity::Warning,
+                                        format!("invalid fill color `{c}`"),
+                                    ));
+                                }
+                            } else if !color_aliases.contains_key(c.as_str()) {
+                                issues.push(issue_at(
+                                    doc,
+                                    item_idx,
+                                    Severity::Warning,
+                                    format!(
+                                        "fill names undeclared color `{c}`; it renders as `fg`"
+                                    ),
+                                ));
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
     issues.sort_by(|a, b| {
         a.severity
             .cmp(&b.severity)
@@ -1644,6 +1708,43 @@ assume unused blank
         issues
             .iter()
             .any(|i| i.severity == severity && i.message.contains(needle))
+    }
+
+    /// A `fill` naming a color that no `color` line declares silently fell
+    /// back to `fg` in the build; it has to be reported here instead.
+    #[test]
+    fn a_fill_naming_an_undeclared_color_is_a_warning() {
+        let issues = issues_for(
+            "glyph a 1 1\n@@\n\nglyph b\nref a fill missing\n\nmap A = b\n",
+        );
+        assert!(
+            has(&issues, Severity::Warning, "undeclared color `missing`"),
+            "{issues:?}"
+        );
+    }
+
+    /// `color` aliases resolve in document order (see
+    /// `render::ttf_builder::color::collect_color_aliases`), so a value naming
+    /// a color declared later never resolves — silently, before this check.
+    #[test]
+    fn a_color_alias_used_before_its_declaration_is_a_warning() {
+        let issues = issues_for("color x = y\ncolor y = #ff0000\n");
+        assert!(
+            has(&issues, Severity::Warning, "color `x`"),
+            "{issues:?}"
+        );
+    }
+
+    #[test]
+    fn declared_color_uses_are_quiet() {
+        let issues = issues_for(
+            "color red = #ff0000\ncolor also-red = red\n\nglyph a 1 1\n@@\n\n\
+             glyph b\nref a fill also-red\n\nmap A = b\n",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("color")),
+            "{issues:?}"
+        );
     }
 
     #[test]
@@ -2181,6 +2282,29 @@ glyph stem:wide 2 1
         assert!(
             !issues.iter().any(|i| i.message.contains("is unused")),
             "sticky glyph should not be unused: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn ref_to_bodiless_sticky_glyph_not_reported_unbuilt() {
+        // A dimension-less `glyph NAME sticky` is a placeholder that *is*
+        // built (an empty anchor-carrying entry, see `glyph_cache::seed_cache`)
+        // and is exempt from the "has no content" warning above; the
+        // expansion's "is not built" error must exempt it the same way.
+        let input = "\
+glyph keep sticky
+anchor +join 0 0
+
+glyph user 2 1
+@@..
+ref keep
+map A = user
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            !issues.iter().any(|i| i.message.contains("not built")),
+            "sticky placeholder is built; a ref to it is fine: {issues:?}",
         );
     }
 

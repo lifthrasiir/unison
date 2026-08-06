@@ -76,13 +76,21 @@ impl ShaperBackend for DirectWriteBackend {
                 })
                 .collect();
 
-            let dw_features: Vec<DWRITE_TYPOGRAPHIC_FEATURES> = features
+            // The feature values live in their own Vec so the pointers stored
+            // in `dw_features` stay valid for the GetGlyphs/GetGlyphPlacements
+            // calls below; a `&DWRITE_FONT_FEATURE { .. }` temporary inside the
+            // map would be freed as soon as the closure returned.
+            let feature_values: Vec<DWRITE_FONT_FEATURE> = features
                 .iter()
-                .map(|f| DWRITE_TYPOGRAPHIC_FEATURES {
-                    features: &DWRITE_FONT_FEATURE {
-                        nameTag: DWRITE_FONT_FEATURE_TAG(u32::from_le_bytes(f.tag)),
-                        parameter: f.value,
-                    } as *const _ as *mut _,
+                .map(|f| DWRITE_FONT_FEATURE {
+                    nameTag: DWRITE_FONT_FEATURE_TAG(u32::from_le_bytes(f.tag)),
+                    parameter: f.value,
+                })
+                .collect();
+            let dw_features: Vec<DWRITE_TYPOGRAPHIC_FEATURES> = feature_values
+                .iter()
+                .map(|v| DWRITE_TYPOGRAPHIC_FEATURES {
+                    features: v as *const _ as *mut _,
                     featureCount: 1,
                 })
                 .collect();

@@ -204,6 +204,12 @@ pub(super) fn paint_document_area(
     let vis_top = clip.min.y - origin.y;
     let vis_bottom = clip.max.y - origin.y;
 
+    // The edit and grid-caret borders span the whole glyph but are drawn once,
+    // from the first *visible* grid row of their item — the top row may well be
+    // scrolled out of view (culled), and drawing only from it lost the border.
+    let mut edit_border_drawn = false;
+    let mut grid_caret_drawn = false;
+
     let mut y = 0.0f32;
     for vl in vlines {
         let h = vl.height(row_height, grid_cell);
@@ -636,15 +642,21 @@ pub(super) fn paint_document_area(
                     grid_cell,
                 );
 
-                // Grid caret
+                // Grid caret. Drawn once, from the first visible row of the
+                // grid — the top row may be culled by the scroll position, and
+                // the border spans the whole glyph regardless of which row
+                // computes it (`grid_y` is this row's y, `row` rows below the
+                // glyph's own row 0).
                 if matches!(state.mode, EditMode::Normal)
                     && state.cursor.line == *grid_doc_line
-                    && *row == extent.top
+                    && !grid_caret_drawn
                     && has_focus
                 {
+                    grid_caret_drawn = true;
                     let own_x = grid_x + (-extent.left) as f32 * grid_cell;
+                    let own_y = grid_y - *row as f32 * grid_cell;
                     let border_rect = egui::Rect::from_min_size(
-                        egui::pos2(own_x, grid_y + (-extent.top) as f32 * grid_cell),
+                        egui::pos2(own_x, own_y),
                         egui::vec2(
                             *own_width as f32 * grid_cell,
                             *own_height as f32 * grid_cell,
@@ -656,24 +668,31 @@ pub(super) fn paint_document_area(
                         egui::Stroke::new(2.0, pal.grid_border),
                         egui::epaint::StrokeKind::Outside,
                     );
-                    cursor_screen =
-                        Some(egui::pos2(own_x, grid_y + (-extent.top) as f32 * grid_cell));
+                    cursor_screen = Some(egui::pos2(own_x, own_y));
                 }
             }
         }
 
-        draw_edit_border(
-            &grid_painter,
-            &state.mode,
-            vl,
-            doc,
-            origin,
-            y,
-            composites,
-            &strip,
-            grid_cell,
-            pal,
-        );
+        if !edit_border_drawn
+            && let Some(border_rect) = draw_edit_border(
+                &grid_painter,
+                &state.mode,
+                vl,
+                doc,
+                origin,
+                y,
+                composites,
+                &strip,
+                grid_cell,
+                pal,
+            )
+        {
+            edit_border_drawn = true;
+            #[cfg(test)]
+            crate::editor::harness::capture_edit_border(ui.ctx(), state.id(), border_rect);
+            #[cfg(not(test))]
+            let _ = border_rect;
+        }
 
         y += h;
     }
@@ -1078,13 +1097,13 @@ fn draw_edit_border(
     strip: &GridStrip,
     grid_cell: f32,
     pal: &Palette,
-) {
+) -> Option<egui::Rect> {
     let editing_idx = match mode {
         EditMode::GlyphEdit { item_idx, .. } => Some(*item_idx),
         EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
-        _ => return,
+        _ => return None,
     };
-    let Some(eidx) = editing_idx else { return };
+    let eidx = editing_idx?;
 
     match &vl.kind {
         VLineKind::GridRow {
@@ -1094,11 +1113,14 @@ fn draw_edit_border(
             own_height,
             extent,
             ..
-        } if *item_idx == eidx && *row == 0 => {
+        } if *item_idx == eidx => {
             let own_x =
                 strip.grid_x(extent.display_width(grid_cell)) + (-extent.left) as f32 * grid_cell;
+            // `y` belongs to whichever row of the item is being painted (the
+            // first visible one — the caller draws once per frame); the
+            // border top is the glyph's own row 0, `row` rows above it.
             let border_rect = egui::Rect::from_min_size(
-                egui::pos2(own_x, origin.y + y),
+                egui::pos2(own_x, origin.y + y - *row as f32 * grid_cell),
                 egui::vec2(
                     *own_width as f32 * grid_cell,
                     *own_height as f32 * grid_cell,
@@ -1110,8 +1132,9 @@ fn draw_edit_border(
                 egui::Stroke::new(2.0, pal.cursor_border),
                 egui::epaint::StrokeKind::Outside,
             );
+            Some(border_rect)
         }
-        _ => {}
+        _ => None,
     }
 }
 

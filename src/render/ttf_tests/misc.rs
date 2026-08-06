@@ -149,6 +149,22 @@ fn unicode_ranges_are_derived_from_the_cmap() {
     assert!(is_set(9), "Cyrillic");
     assert!(is_set(59), "CJK Unified Ideographs");
     assert!(!is_set(56), "Hangul Syllables is not covered here");
+    assert!(!is_set(57), "no supplementary-plane character here");
+}
+
+/// Bit 57 (Non-Plane 0) means "at least one character beyond the BMP". The
+/// generated block table only carries the surrogate range D800..DFFF for it,
+/// which no Unicode cmap ever maps — a supplementary codepoint has to set the
+/// bit directly.
+#[test]
+fn supplementary_codepoint_sets_non_plane_0_bit() {
+    let ttf = build_from("glyph a 1 1\n@@\nmap U+1F1E6 = a\n");
+    let os2 = read_fonts::FontRef::new(&ttf).unwrap().os2().unwrap();
+    assert_ne!(
+        os2.ul_unicode_range_2() & (1 << (57 - 32)),
+        0,
+        "U+1F1E6 is beyond the BMP, so Non-Plane 0 must be set"
+    );
 }
 
 /// `ulCodePageRange` used to be hardcoded to Latin-1 regardless of coverage.

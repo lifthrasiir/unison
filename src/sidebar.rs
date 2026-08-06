@@ -280,7 +280,15 @@ impl Sidebar {
                                                 old: path,
                                                 new: new_path,
                                             });
-                                            cancel_edit = true;
+                                            // Cleared *now*, not at loop end: the
+                                            // loop re-visits this index over the
+                                            // reloaded list, and a still-set
+                                            // Renaming state re-draws the edit
+                                            // field there — a second widget under
+                                            // the same id, one whose confirm would
+                                            // act on whatever file sorted onto
+                                            // this index.
+                                            self.edit_state = EditState::None;
                                             self.reload_files();
                                             continue;
                                         }
@@ -555,6 +563,73 @@ mod tests {
             .rect
             .width();
         (stored, desired)
+    }
+
+    /// Confirming a rename must end the edit within the same frame's row loop.
+    /// The loop re-visits the confirmed row's index over the reloaded list, so
+    /// a Renaming state left behind used to draw a second edit field there —
+    /// same widget id, same frame — over whatever file sorted onto that index
+    /// (here b.unf, since z.unf sorts last). Whether its confirm re-fires is
+    /// up to egui's frame-level focus bookkeeping, which is not ours to rely
+    /// on; this pins the whole exchange to one rename and an ended edit.
+    #[test]
+    fn confirming_a_rename_ends_the_edit_before_the_next_row() {
+        let dir = std::env::temp_dir().join(format!(
+            "uniform-sidebar-rename-{}-{:?}",
+            std::process::id(),
+            std::thread::current().id(),
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        for name in ["a.unf", "b.unf", "c.unf"] {
+            std::fs::write(dir.join(name), "").unwrap();
+        }
+
+        let mut sb = Sidebar::new();
+        sb.set_directory(&dir);
+        sb.start_rename(&dir.join("a.unf"));
+        if let EditState::Renaming { text, .. } = &mut sb.edit_state {
+            *text = "z.unf".to_string();
+        } else {
+            panic!("rename did not start");
+        }
+
+        let ctx = egui::Context::default();
+        let mut frame = |events: Vec<egui::Event>| {
+            let mut raw = input();
+            raw.events = events;
+            let mut actions = Vec::new();
+            let _ = ctx.run(raw, |ctx| {
+                egui::SidePanel::left("sidebar").show(ctx, |ui| {
+                    actions = sb.show(ui, None, SidebarFiles::default(), false);
+                });
+            });
+            actions
+        };
+
+        // Frame 1 draws the field and gives it the focus; frame 2's Enter
+        // confirms it.
+        assert!(frame(vec![]).is_empty());
+        let actions = frame(vec![egui::Event::Key {
+            key: egui::Key::Enter,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: Default::default(),
+        }]);
+
+        let renames: Vec<_> = actions
+            .iter()
+            .filter_map(|a| match a {
+                SidebarAction::FileRenamed { old, new } => Some((old.clone(), new.clone())),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(renames, [(dir.join("a.unf"), dir.join("z.unf"))]);
+        assert!(!sb.is_editing());
+        assert!(dir.join("z.unf").exists());
+        assert!(dir.join("b.unf").exists(), "b.unf was renamed over");
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]

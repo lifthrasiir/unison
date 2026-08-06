@@ -261,25 +261,44 @@ fn build_ref_vlines(
     font_id: &egui::FontId,
 ) -> Vec<VisualLine> {
     let mut ref_vlines = Vec::new();
-    for r in refs {
-        if let Some(DocLine::Text(s)) = lines.get(*cur) {
-            let mut error_spans = Vec::new();
-            if !ref_composite::is_ref_valid(&r.name, named_glyphs, name_parts)
-                && let Some(range) = doc_links::find_name_col_range_after_prefix(s, "ref ")
-            {
-                error_spans.push((range.0, range.1, format!("undefined glyph: {}", r.name)));
+    // The parser lets `ref` and `anchor` lines interleave, so the nth body
+    // line is not necessarily the nth ref. Walk the body lines by their first
+    // token (the same scan `pixel_interaction::layer_doc_line` does), pairing
+    // each `ref` line with the next ref in order, until every ref has been
+    // seen; interleaved `anchor` lines are pushed as plain text on the way,
+    // and trailing anchors are left for the caller's catch-up loop as before.
+    let mut refs_in_order = refs.iter();
+    let mut next_ref = refs_in_order.next();
+    while next_ref.is_some() {
+        let Some(DocLine::Text(s)) = lines.get(*cur) else {
+            break;
+        };
+        let mut error_spans = Vec::new();
+        match s.split_whitespace().next() {
+            Some("ref") => {
+                let r = next_ref.expect("loop guard");
+                next_ref = refs_in_order.next();
+                if !ref_composite::is_ref_valid(&r.name, named_glyphs, name_parts)
+                    && let Some(range) = doc_links::find_name_col_range_after_prefix(s, "ref ")
+                {
+                    error_spans.push((range.0, range.1, format!("undefined glyph: {}", r.name)));
+                }
             }
-            push_wrapped_text_vlines(
-                &mut ref_vlines,
-                s,
-                *cur,
-                color_for_text(s),
-                error_spans,
-                wrap_width,
-                ctx,
-                font_id,
-            );
+            Some("anchor") => {}
+            // The lines no longer match the parsed body; stop and let the
+            // caller's catch-up loop display the rest.
+            _ => break,
         }
+        push_wrapped_text_vlines(
+            &mut ref_vlines,
+            s,
+            *cur,
+            color_for_text(s),
+            error_spans,
+            wrap_width,
+            ctx,
+            font_id,
+        );
         *cur += 1;
     }
     ref_vlines
@@ -664,6 +683,55 @@ mod tests {
                 "the annotation must land on exactly one segment (w={w})"
             );
         }
+    }
+
+    /// The parser lets `anchor` lines interleave with `ref` lines, so pairing
+    /// the nth body line with the nth ref mis-attributes the undefined-ref
+    /// check: the ref past the interleaved anchor lost its error span.
+    #[test]
+    fn interleaved_anchor_lines_do_not_derail_undefined_ref_spans() {
+        let ctx = test_ctx();
+        let font_id = egui::FontId::monospace(16.0);
+        let lines = vec![
+            DocLine::Text("ref alpha".into()),
+            DocLine::Text("anchor + 0 0".into()),
+            DocLine::Text("ref beta".into()),
+        ];
+        let gref = |name: &str| GlyphRef {
+            name: name.into(),
+            offset: None,
+            negated: false,
+            inherit: false,
+            fill: None,
+            visibility: None,
+            comment: None,
+        };
+        let refs = vec![gref("alpha"), gref("beta")];
+        // No glyphs defined at all: every ref line must carry an error span.
+        let named_glyphs = HashMap::new();
+        let name_parts = NamePartsMap::default();
+        let mut cur = 0usize;
+        let vlines = build_ref_vlines(
+            &lines,
+            &refs,
+            &mut cur,
+            &named_glyphs,
+            &name_parts,
+            &|_| egui::Color32::WHITE,
+            None,
+            &ctx,
+            &font_id,
+        );
+        assert_eq!(cur, 3, "the scan must reach past the interleaved anchor");
+        assert_eq!(vlines.len(), 3);
+        assert_eq!(vlines[0].error_spans.len(), 1, "ref alpha is undefined");
+        assert!(vlines[0].error_spans[0].2.contains("alpha"));
+        assert!(
+            vlines[1].error_spans.is_empty(),
+            "the anchor line is not a ref"
+        );
+        assert_eq!(vlines[2].error_spans.len(), 1, "ref beta is undefined");
+        assert!(vlines[2].error_spans[0].2.contains("beta"));
     }
 
     /// The unannotated line wraps exactly as before the annotation feature.

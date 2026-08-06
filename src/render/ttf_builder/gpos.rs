@@ -785,47 +785,72 @@ pub(super) fn merge_anchor_feature_lookups(
 
         let feat_tag = make_tag(&feature_tag);
 
-        // Try to merge into an existing feature record with the same tag
-        // to avoid duplicate feature entries (which some shapers ignore).
-        let existing_feat = gsub
+        // Merge into an existing feature record with the same tag to avoid
+        // duplicate feature entries (which some shapers ignore), creating one
+        // otherwise.
+        let existing_idx = gsub
             .feature_list
             .feature_records
-            .iter_mut()
-            .find(|fr| fr.feature_tag == feat_tag);
+            .iter()
+            .position(|fr| fr.feature_tag == feat_tag);
 
-        if let Some(fr) = existing_feat {
-            fr.feature.lookup_list_indices.extend(chain_indices);
+        let feat_idx = if let Some(idx) = existing_idx {
+            gsub.feature_list.feature_records[idx]
+                .feature
+                .lookup_list_indices
+                .extend(chain_indices);
+            idx as u16
         } else {
-            let feat_idx = gsub.feature_list.feature_records.len() as u16;
             gsub.feature_list.feature_records.push(FeatureRecord::new(
                 feat_tag,
                 Feature::new(None, chain_indices),
             ));
+            (gsub.feature_list.feature_records.len() - 1) as u16
+        };
 
-            for script in &scripts {
-                let script_tag = make_tag(script);
+        // Every script the feature names has to reach that record — also when
+        // the record already existed: a `remap` with the same tag registers
+        // only its own scripts, and the merged lookups would otherwise never
+        // apply in the ones it did not cover.
+        for script in &scripts {
+            let script_tag = make_tag(script);
 
-                let existing = gsub
-                    .script_list
-                    .script_records
-                    .iter_mut()
-                    .find(|sr| sr.script_tag == script_tag);
+            let existing = gsub
+                .script_list
+                .script_records
+                .iter_mut()
+                .find(|sr| sr.script_tag == script_tag);
 
-                if let Some(sr) = existing {
-                    if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
+            if let Some(sr) = existing {
+                if let Some(ref mut default_ls) = *sr.script.default_lang_sys {
+                    if !default_ls.feature_indices.contains(&feat_idx) {
                         default_ls.feature_indices.push(feat_idx);
                     }
                 } else {
-                    let lang_sys = LangSys {
+                    sr.script.default_lang_sys = Some(LangSys {
                         required_feature_index: 0xFFFF,
                         feature_indices: vec![feat_idx],
-                    };
-                    let script_obj = Script::new(Some(lang_sys), vec![]);
-                    gsub.script_list
-                        .script_records
-                        .push(ScriptRecord::new(script_tag, script_obj));
+                    })
+                    .into();
                 }
+            } else {
+                let lang_sys = LangSys {
+                    required_feature_index: 0xFFFF,
+                    feature_indices: vec![feat_idx],
+                };
+                let script_obj = Script::new(Some(lang_sys), vec![]);
+                gsub.script_list
+                    .script_records
+                    .push(ScriptRecord::new(script_tag, script_obj));
             }
         }
+
+        // ScriptRecords must stay sorted by tag: the shaper binary-searches
+        // them, and one appended out of order (`build_script_records` emits
+        // them sorted) makes records around it unfindable — 'latn' vanishing
+        // took its ROM/MOL LangSys, and the `locl` substitutions, with it.
+        gsub.script_list
+            .script_records
+            .sort_by_key(|sr| sr.script_tag);
     }
 }

@@ -181,6 +181,10 @@ pub(crate) enum Slot {
     /// `EditorHarness`.
     #[cfg(test)]
     TestColorSpans,
+    /// The edit-mode border rect painted this frame, published for
+    /// `EditorHarness`.
+    #[cfg(test)]
+    TestEditBorder,
 }
 
 #[cfg(test)]

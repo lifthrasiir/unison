@@ -387,11 +387,12 @@ pub(crate) fn shift_all_layers(
         let (row, col) = composite
             .and_then(|comp| super::pixel_interaction::layer_effective_offset(comp, i))
             .unwrap_or_else(|| (gref.row(), gref.col()));
-        let line = super::pixel_interaction::layer_doc_line(body, start, i);
+        let line = super::pixel_interaction::layer_doc_line(lines, body, start, i);
         put_text(line, gref.format_line(Some((col + dcol, row + drow))));
     }
     for (pi, point) in body.points.iter().enumerate() {
-        let line = super::pixel_interaction::layer_doc_line(body, start, body.refs.len() + pi);
+        let line =
+            super::pixel_interaction::layer_doc_line(lines, body, start, body.refs.len() + pi);
         put_text(line, point.shifted(dcol, drow).format_line());
     }
     // The glyph's own grid is the line right after the header.
@@ -1057,10 +1058,22 @@ pub(crate) fn handle_adjust_scale(
     let old_lines: Vec<DocLine> = lines[start..end].to_vec();
     let mut new_lines: Vec<DocLine> = Vec::with_capacity(old_lines.len());
 
+    // Rewrites are rebuilt from tokens, and the tokenizer drops the trailing
+    // `// …` comment — split it off first and put it back after.
+    let split_with_comment = |t: &str| {
+        let (body, comment) = crate::document_io::split_comment(t.trim());
+        let suffix = comment.map(|c| format!(" {c}")).unwrap_or_default();
+        (body.trim_end().to_string(), suffix)
+    };
+
     for (i, line) in old_lines.iter().enumerate() {
         match line {
             DocLine::Text(t) if i == 0 => {
-                new_lines.push(DocLine::Text(rewrite_scale_in_header(t, new_scale)));
+                let (body_text, suffix) = split_with_comment(t);
+                new_lines.push(DocLine::Text(format!(
+                    "{}{suffix}",
+                    rewrite_scale_in_header(&body_text, new_scale)
+                )));
             }
             DocLine::Grid(grid) => {
                 // The exact rescale can land on geometry no shape code
@@ -1072,17 +1085,19 @@ pub(crate) fn handle_adjust_scale(
                 new_lines.push(DocLine::Grid(rescaled));
             }
             DocLine::Text(t) => {
-                let trimmed = t.trim();
-                if let Ok(tokens) = crate::document_io::tokenize_tokens(trimmed) {
+                let (body_text, suffix) = split_with_comment(t);
+                if let Ok(tokens) = crate::document_io::tokenize_tokens(&body_text) {
                     if tokens.first().is_some_and(|k| k == "ref") {
-                        new_lines.push(DocLine::Text(rewrite_ref_line(
-                            &tokens, old_scale, new_scale,
+                        new_lines.push(DocLine::Text(format!(
+                            "{}{suffix}",
+                            rewrite_ref_line(&tokens, old_scale, new_scale)
                         )));
                         continue;
                     }
                     if tokens.first().is_some_and(|k| k == "anchor") {
-                        new_lines.push(DocLine::Text(rewrite_anchor_line(
-                            &tokens, old_scale, new_scale,
+                        new_lines.push(DocLine::Text(format!(
+                            "{}{suffix}",
+                            rewrite_anchor_line(&tokens, old_scale, new_scale)
                         )));
                         continue;
                     }
@@ -1671,6 +1686,33 @@ ref bar 2 4
         // ref line should have scaled offsets: 2*2/1=4, 4*2/1=8
         let ref_text = lines[2].as_text().unwrap();
         assert_eq!(ref_text.trim(), "ref bar 4 8");
+    }
+
+    /// `tokenize_tokens` drops the trailing `// …` comment, so a rewrite built
+    /// from its tokens alone silently erases comments on every line the scale
+    /// adjustment touches. They are data the user wrote; keep them.
+    #[test]
+    fn adjust_scale_keeps_trailing_comments() {
+        let source = "\
+glyph foo 2 2 // header note
+@@..
+..@@
+ref bar 1 1 // keep me
+anchor -a 0 0 // and me
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 2));
+
+        let header = lines[0].as_text().unwrap();
+        assert!(header.contains("scale 2"), "header: {header}");
+        assert!(header.ends_with("// header note"), "header: {header}");
+        assert_eq!(lines[2].as_text().unwrap().trim(), "ref bar 2 2 // keep me");
+        assert_eq!(
+            lines[3].as_text().unwrap().trim(),
+            "anchor -a 0..1 0..1 // and me"
+        );
     }
 
     #[test]

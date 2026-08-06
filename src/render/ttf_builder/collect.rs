@@ -144,6 +144,7 @@ pub(super) struct SharedFontInput {
     glyph_bodies: Vec<(String, GlyphBody)>,
 }
 
+#[cfg(any(feature = "editor", test))]
 pub(super) fn compute_shared_font_input(docs: &[&Document]) -> Option<SharedFontInput> {
     compute_shared_font_input_for(docs, crate::faces::FaceSet::collect(docs).primary())
 }
@@ -239,6 +240,7 @@ pub(super) fn compute_shared_font_input_for(
     })
 }
 
+#[cfg(any(feature = "editor", test))]
 pub(super) fn collect_glyph_data_cached(
     docs: &[&Document],
     bitmap: bool,
@@ -678,7 +680,7 @@ pub(super) fn collect_glyph_data_with_shared(
         };
         let ref_vis: Vec<LayerVisibility> = (0..effective_refs.len())
             .map(|ri| {
-                let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
+                let orig_ref = &body.refs[ri];
                 effective_visibility(orig_ref.visibility, orig_ref.fill.as_ref(), color_aliases)
             })
             .collect();
@@ -687,7 +689,7 @@ pub(super) fn collect_glyph_data_with_shared(
         let negated_after = |from: Option<usize>, skip: LayerVisibility| {
             let start = from.map_or(0, |i| i + 1);
             (start..ref_layers.len())
-                .filter(|&j| body.refs[j.min(body.refs.len() - 1)].negated && ref_vis[j] != skip)
+                .filter(|&j| body.refs[j].negated && ref_vis[j] != skip)
                 .filter_map(|j| ref_layers[j].as_ref().map(|(g, r, c)| (g, *r, *c, true)))
                 .collect::<Vec<_>>()
         };
@@ -732,7 +734,7 @@ pub(super) fn collect_glyph_data_with_shared(
         }
 
         for (ri, eref) in effective_refs.iter().enumerate() {
-            let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
+            let orig_ref = &body.refs[ri];
             let fill = orig_ref.fill.as_ref();
             let vis = ref_vis[ri];
             if vis == LayerVisibility::MonoOnly || orig_ref.negated {
@@ -839,7 +841,7 @@ pub(super) fn collect_glyph_data_with_shared(
             ));
         }
         for (ri, eref) in effective_refs.iter().enumerate() {
-            let orig_ref = &body.refs[ri.min(body.refs.len() - 1)];
+            let orig_ref = &body.refs[ri];
             let vis = ref_vis[ri];
             if vis == LayerVisibility::ColorOnly || orig_ref.negated {
                 continue;

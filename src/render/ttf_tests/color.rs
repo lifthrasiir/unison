@@ -61,6 +61,36 @@ map A = combo
     assert!(font.is_some(), "font with COLR should build successfully");
 }
 
+/// A fill whose color alias never resolves leaves every layer at the `fg`
+/// palette index (0xFFFF). CPAL requires at least one palette entry, so the
+/// build has to pad the palette rather than write an empty (invalid) CPAL.
+#[test]
+fn an_all_fg_color_font_still_writes_a_valid_cpal() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph base 2 2
+@@@@
+@@@@
+
+glyph combo
+ref base fill missing
+
+map A = combo
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let bytes = build_font_from_documents(&[&doc]).expect("font should build");
+    let font = read_fonts::FontRef::new(&bytes).unwrap();
+    let cpal = font.cpal().expect("CPAL should be present");
+    assert!(
+        cpal.num_palette_entries() >= 1,
+        "CPAL must not be empty: {} entries",
+        cpal.num_palette_entries()
+    );
+}
+
 #[test]
 fn coloronly_layer_excluded_from_fallback() {
     let input = "\

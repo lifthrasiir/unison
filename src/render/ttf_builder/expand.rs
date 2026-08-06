@@ -453,10 +453,13 @@ fn inject_on_demand_glyph_items(
     // A glyph with neither a pixel grid nor a ref never enters the resolution
     // cache (see `glyph_cache::seed_cache`), so it is not built and every use
     // of it — cmap entry, composite component, GSUB coverage — is dropped. It
-    // is as unusable as an undefined name, and reported the same way.
+    // is as unusable as an undefined name, and reported the same way. The one
+    // exception is a `sticky` placeholder, which `seed_cache` does build as an
+    // empty anchor-carrying entry (and `issues.rs` likewise exempts from its
+    // "has no content" warning).
     let contentless: HashSet<String> = glyph_bodies
         .iter()
-        .filter(|(_, body)| body.pixels.is_none() && body.refs.is_empty())
+        .filter(|(_, body)| body.pixels.is_none() && body.refs.is_empty() && !body.sticky)
         .map(|(name, _)| name.clone())
         .collect();
 

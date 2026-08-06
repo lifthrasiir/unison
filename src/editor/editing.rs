@@ -89,15 +89,17 @@ pub fn insert_newline(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Car
     new_caret
 }
 
-pub fn backspace(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> Caret {
+/// Like [`delete`], reports whether anything was actually removed — moving
+/// the caret onto a grid is not an edit and must not trigger a rederive.
+pub fn backspace(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -> (Caret, bool) {
     // Grid line with no selection: no-op
     if matches!(lines.get(caret.line), Some(DocLine::Grid(_))) {
-        return caret;
+        return (caret, false);
     }
 
     if caret.col > 0 {
         let DocLine::Text(t) = &mut lines[caret.line] else {
-            return caret;
+            return (caret, false);
         };
         let b0 = char_to_byte(t, caret.col - 1);
         let b1 = char_to_byte(t, caret.col);
@@ -112,18 +114,18 @@ pub fn backspace(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
             new_caret,
         );
         t.replace_range(b0..b1, "");
-        return new_caret;
+        return (new_caret, true);
     }
 
     // col == 0, need to join with previous line or move onto grid
     if caret.line == 0 {
-        return caret;
+        return (caret, false);
     }
 
     match &lines[caret.line - 1] {
         DocLine::Grid(_) => {
             // Just move caret onto the grid (select it), no edit
-            Caret::new(caret.line - 1, 0)
+            (Caret::new(caret.line - 1, 0), false)
         }
         DocLine::Text(prev) => {
             let join_col = prev.chars().count();
@@ -134,7 +136,7 @@ pub fn backspace(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
             let new_caret = Caret::new(caret.line - 1, join_col);
             undo.push_lines(caret.line - 1, old, new.clone(), caret, new_caret);
             lines.splice(caret.line - 1..=caret.line, new);
-            new_caret
+            (new_caret, true)
         }
     }
 }
@@ -341,45 +343,51 @@ mod tests {
     fn backspace_within_text() {
         let mut lines = vec![text("abc")];
         let mut undo = UndoStack::new();
-        let caret = backspace(&mut lines, &mut undo, c(0, 2));
+        let (caret, deleted) = backspace(&mut lines, &mut undo, c(0, 2));
         assert_eq!(lines[0], text("ac"));
         assert_eq!(caret, c(0, 1));
+        assert!(deleted);
     }
 
     #[test]
     fn backspace_joins_text_lines() {
         let mut lines = vec![text("ab"), text("cd")];
         let mut undo = UndoStack::new();
-        let caret = backspace(&mut lines, &mut undo, c(1, 0));
+        let (caret, deleted) = backspace(&mut lines, &mut undo, c(1, 0));
         assert_eq!(lines, vec![text("abcd")]);
         assert_eq!(caret, c(0, 2));
+        assert!(deleted);
     }
 
     #[test]
     fn backspace_before_grid_selects_grid() {
         let mut lines = vec![text("ab"), grid(2, 2), text("cd")];
         let mut undo = UndoStack::new();
-        let caret = backspace(&mut lines, &mut undo, c(2, 0));
-        // Should just move caret to grid, not delete anything
+        let (caret, deleted) = backspace(&mut lines, &mut undo, c(2, 0));
+        // Should just move caret to grid, not delete anything — and report
+        // that nothing was deleted, so no rederive is scheduled for it.
         assert_eq!(caret, c(1, 0));
         assert_eq!(lines.len(), 3);
+        assert!(!deleted);
     }
 
     #[test]
     fn backspace_on_grid_is_noop() {
         let mut lines = vec![text("ab"), grid(2, 2), text("cd")];
         let mut undo = UndoStack::new();
-        let caret = backspace(&mut lines, &mut undo, c(1, 0));
+        let (caret, deleted) = backspace(&mut lines, &mut undo, c(1, 0));
         assert_eq!(caret, c(1, 0));
         assert_eq!(lines.len(), 3);
+        assert!(!deleted);
     }
 
     #[test]
     fn backspace_at_start_is_noop() {
         let mut lines = vec![text("ab")];
         let mut undo = UndoStack::new();
-        let caret = backspace(&mut lines, &mut undo, c(0, 0));
+        let (caret, deleted) = backspace(&mut lines, &mut undo, c(0, 0));
         assert_eq!(caret, c(0, 0));
+        assert!(!deleted);
     }
 
     #[test]

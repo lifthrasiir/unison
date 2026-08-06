@@ -83,7 +83,6 @@ mod os2_ranges;
 mod outlines;
 mod tables;
 
-#[cfg(any(feature = "editor", test))]
 pub use color::parse_hex_color;
 pub use color::{
     ColorAliasMap, Rgba, collect_color_aliases, effective_visibility, resolve_fill_rgba,
@@ -97,6 +96,7 @@ pub(crate) use expand::{
 };
 pub(crate) use gsub::remap_rule_kind;
 
+#[cfg(any(feature = "editor", test))]
 use collect::collect_glyph_data_cached;
 #[cfg(feature = "editor")]
 use collect::collect_glyph_data_with_shared;
@@ -229,6 +229,7 @@ pub fn load_docs_from_directory_with_sources(dir: &Path) -> LoadedDir {
     (docs, errors, sources)
 }
 
+#[cfg(any(feature = "editor", test))]
 pub fn build_font_from_documents(docs: &[&Document]) -> Option<Vec<u8>> {
     build_font_from_documents_inner(docs, false, None)
 }
@@ -488,6 +489,7 @@ fn build_with_gid_map(
     })
 }
 
+#[cfg(any(feature = "editor", test))]
 fn build_font_from_documents_inner(
     docs: &[&Document],
     bitmap: bool,
@@ -516,6 +518,10 @@ fn build_font_from_documents_inner(
     ))
 }
 
+/// Everything needed to assemble the font tables for one build flavor:
+/// font metadata, pixel→unit scale, glyphs, GSUB inputs, and color palette.
+type CollectedFontData = (FontMeta, f32, Vec<CollectedGlyph>, GsubData, Vec<Rgba>);
+
 /// Resolve all documents' glyph items (expanding name patterns, following
 /// refs, tracking contours) into the flat, codepoint-sorted glyph list that
 /// [`build_font_from_documents`] then hands to [`build_ttf`]. Split out so
@@ -523,10 +529,6 @@ fn build_font_from_documents_inner(
 /// directly (e.g. to canonicalize away the non-deterministic contour
 /// point/rotation order that `track_contour` can produce — see
 /// `tests::ttf_build_digest_real_files_is_stable`).
-/// Everything needed to assemble the font tables for one build flavor:
-/// font metadata, pixel→unit scale, glyphs, GSUB inputs, and color palette.
-type CollectedFontData = (FontMeta, f32, Vec<CollectedGlyph>, GsubData, Vec<Rgba>);
-
 #[cfg(test)]
 fn collect_glyph_data(docs: &[&Document], bitmap: bool) -> Option<CollectedFontData> {
     collect_glyph_data_cached(docs, bitmap, None)

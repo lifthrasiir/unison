@@ -2,7 +2,7 @@
 //!
 //! Scenario-level GUI tests live in [`crate::editor::view_tests`].
 
-use super::changes::{defer_document_changes, flush_document_changes};
+use super::changes::{self, defer_document_changes, flush_document_changes};
 use super::*;
 use crate::document_io::{derive_document, parse_doclines};
 use crate::edit_menu::EditAction;
@@ -55,6 +55,60 @@ fn external_edit_action_can_be_flushed_immediately() {
     assert!(!state.take_document_sync_request());
 }
 
+/// The parser accepts `ref` and `anchor` lines in any order, so a body's
+/// layer-to-line mapping cannot assume refs come first: flattening ref 0 of a
+/// glyph whose source states an anchor first must remove the *ref* line.
+#[test]
+fn inline_flatten_removes_the_ref_line_not_an_interleaved_anchor() {
+    let mut lines = parse_doclines(
+        "glyph stem 2 2\n\
+         @@..\n\
+         ..@@\n\
+         \n\
+         glyph comp 2 2\n\
+         ....\n\
+         ....\n\
+         anchor -a 0 0\n\
+         ref stem 0 0\n",
+    );
+    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let name_parts = crate::document::collect_name_parts(&[&doc]);
+    let (named, _alt) =
+        ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+    let mut state = EditorState::new();
+    let comp_idx = doc
+        .items
+        .iter()
+        .position(|i| matches!(i, DocumentItem::Glyph { name, .. } if name.display() == "comp"))
+        .unwrap();
+
+    assert!(changes::inline_ref_to_pixels(
+        &mut lines,
+        &doc,
+        &mut state,
+        comp_idx,
+        0,
+        &named,
+        &name_parts,
+    ));
+
+    let texts: Vec<&str> = lines
+        .iter()
+        .filter_map(|l| match l {
+            DocLine::Text(t) => Some(t.as_str()),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        texts.contains(&"anchor -a 0 0"),
+        "the anchor line was removed instead of the ref line: {texts:?}"
+    );
+    assert!(
+        !texts.iter().any(|t| t.trim_start().starts_with("ref stem")),
+        "the ref line survived flattening: {texts:?}"
+    );
+}
+
 fn assert_all_doc_lines_covered(input: &str) {
     let lines = parse_doclines(input);
     let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
@@ -88,6 +142,7 @@ fn assert_all_doc_lines_covered(input: &str) {
                 DocumentItem::Glyph { body, .. } => {
                     // One past the glyph's last layer line.
                     pixel_interaction::layer_doc_line(
+                        &lines,
                         body,
                         start,
                         body.refs.len() + body.points.len(),

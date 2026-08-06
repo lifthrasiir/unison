@@ -225,16 +225,44 @@ pub(crate) fn handle_pixel_painting(
 
 /// DocLine index of the body line backing layer `layer_idx`.
 ///
-/// Layer indices run over the refs first and the points after, in exactly the
-/// order the body lines follow the `glyph` header — with the glyph's single
-/// `DocLine::Grid` in between when it owns a pixel grid. So one formula covers
-/// both layer kinds, and both kinds of glyph.
+/// Layer indices run over the refs first and the points after, but the *lines*
+/// need not: the parser accepts `ref` and `anchor` lines in any order, so the
+/// n-th layer's line is found by scanning the body block (which starts after
+/// the header and the glyph's single `DocLine::Grid`, when it owns one) for
+/// the n-th line of that layer's kind. `layer_idx == refs + points` addresses
+/// one past the block's last line. Falls back to plain offset arithmetic when
+/// `lines` no longer matches `body` (a transient edit mid-frame).
 pub(crate) fn layer_doc_line(
+    lines: &[DocLine],
     body: &crate::document::GlyphBody,
     header_line: usize,
     layer_idx: usize,
 ) -> usize {
-    header_line + 1 + usize::from(body.pixels.is_some()) + layer_idx
+    let base = header_line + 1 + usize::from(body.pixels.is_some());
+    let total = body.refs.len() + body.points.len();
+    let (want_ref, ordinal) = if layer_idx < body.refs.len() {
+        (true, layer_idx)
+    } else {
+        (false, layer_idx - body.refs.len())
+    };
+    let mut seen = 0usize;
+    for i in 0..total {
+        let is_ref = match lines.get(base + i) {
+            Some(DocLine::Text(t)) => match t.split_whitespace().next() {
+                Some("ref") => true,
+                Some("anchor") => false,
+                _ => return base + layer_idx,
+            },
+            _ => return base + layer_idx,
+        };
+        if is_ref == want_ref && layer_idx < total {
+            if seen == ordinal {
+                return base + i;
+            }
+            seen += 1;
+        }
+    }
+    base + total
 }
 
 /// Drag a `ref` or `anchor` layer by whole grid cells, rewriting its body line.
@@ -286,7 +314,7 @@ pub(crate) fn handle_layer_drag(
     };
 
     let header_line = item_line_starts.get(item_idx).copied().unwrap_or(0);
-    let layer_line = layer_doc_line(body, header_line, layer_idx);
+    let layer_line = layer_doc_line(lines, body, header_line, layer_idx);
 
     if let Some(DocLine::Text(old_text)) = lines.get(layer_line)
         && *old_text != new_text

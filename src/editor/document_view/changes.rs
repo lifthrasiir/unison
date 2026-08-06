@@ -248,7 +248,10 @@ pub(super) fn inline_ref_to_pixels(
             merge_ref_pixels(grid, &scaled_ref_grid, eff_row, eff_col, negated);
         }
 
-        let ref_text_line_idx = grid_line_idx + 1 + ref_idx;
+        // Scanned, not computed from `ref_idx`: an `anchor` line may sit
+        // between the ref lines (see `layer_doc_line`).
+        let ref_text_line_idx =
+            pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
         lines.remove(ref_text_line_idx);
 
         let new_lines: Vec<DocLine> =
@@ -298,12 +301,15 @@ pub(super) fn inline_ref_to_pixels(
             let new_header = document_io::append_to_line(&header_text, &format!("{w} {h}"));
             lines[item_start] = DocLine::Text(new_header);
         }
+        // Scanned before the grid is inserted (`body.pixels` is still `None`
+        // here, matching `lines`), then shifted past the insertion.
+        let ref_text_line_idx =
+            pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
         let mut grid = PixelGrid::new(w, h);
         merge_ref_pixels(&mut grid, &scaled_ref_grid, eff_row, eff_col, negated);
         lines.insert(grid_line_idx, DocLine::Grid(grid));
 
-        let ref_text_line_idx = grid_line_idx + 1 + ref_idx;
-        lines.remove(ref_text_line_idx);
+        lines.remove(ref_text_line_idx + 1);
 
         let new_line_count = if has_dims {
             1 + body.refs.len() - 1 + body.points.len()

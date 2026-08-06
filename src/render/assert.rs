@@ -481,9 +481,26 @@ fn rotate_to_min(mut pts: Vec<(i64, i64)>) -> Vec<(i64, i64)> {
     pts
 }
 
-fn glyph_logical_dims(g: &ResolvedGlyph) -> (u16, u16) {
-    let s = g.scale.max(1) as u16;
-    (g.grid.width / s, g.grid.height / s)
+/// Logical dimensions as exact reduced rationals `(numerator, denominator)`,
+/// one per axis. A composite's raster size need not be a multiple of its
+/// scale, and integer division would collapse sizes that differ by less than
+/// one scale unit (9/4 vs 8/4 both "2"), letting `assert distinct` call two
+/// such glyphs the same.
+fn glyph_logical_dims(g: &ResolvedGlyph) -> ((u32, u32), (u32, u32)) {
+    let s = g.scale.max(1) as u32;
+    let reduce = |n: u32| {
+        let d = crate::pattern::gcd(n as usize, s as usize).max(1) as u32;
+        (n / d, s / d)
+    };
+    (reduce(g.grid.width as u32), reduce(g.grid.height as u32))
+}
+
+fn fmt_dim((n, d): (u32, u32)) -> String {
+    if d == 1 {
+        n.to_string()
+    } else {
+        format!("{n}/{d}")
+    }
 }
 
 struct SameDistinctAssertion {
@@ -567,7 +584,7 @@ fn run_same_distinct_inner(
         let q = glyphs.iter().fold(1i64, |acc, (_, g)| {
             crate::pattern::lcm(acc as usize, glyph_lattice_denom(g) as usize) as i64
         });
-        let entries: Vec<(&str, (u16, u16), CanonicalContours)> = glyphs
+        let entries: Vec<(&str, ((u32, u32), (u32, u32)), CanonicalContours)> = glyphs
             .iter()
             .map(|(name, g)| {
                 let dims = glyph_logical_dims(g);
@@ -583,7 +600,12 @@ fn run_same_distinct_inner(
                 if dims != ref_dims {
                     mismatches.push(format!(
                         "'{}' ({}x{}) vs '{}' ({}x{}): different dimensions",
-                        name, dims.0, dims.1, ref_name, ref_dims.0, ref_dims.1,
+                        name,
+                        fmt_dim(dims.0),
+                        fmt_dim(dims.1),
+                        ref_name,
+                        fmt_dim(ref_dims.0),
+                        fmt_dim(ref_dims.1),
                     ));
                 } else if contours != ref_contours {
                     mismatches.push(format!("'{}' vs '{}': different contours", name, ref_name,));
@@ -977,6 +999,35 @@ assert distinct a b c
         assert_eq!(result.total, 1);
         assert_eq!(result.passed, 0);
         assert!(result.issues[0].message.contains("'a' and 'c'"));
+    }
+
+    /// Raster widths 9 and 8 at scale 4 are logically 9/4 vs 2. Integer
+    /// division used to call both "2", so two blank glyphs of those widths
+    /// compared equal and `assert distinct` wrongly failed on them.
+    #[test]
+    fn assert_distinct_sees_a_sub_scale_width_difference() {
+        use crate::document::PixelGrid;
+        let make = |w: u16| ResolvedGlyph {
+            grid: PixelGrid::new(w, 8),
+            origin_row: 0,
+            origin_col: 0,
+            resolved_anchors: vec![],
+            declared_anchors: vec![],
+            scale: 4,
+        };
+        let mut resolved = HashMap::new();
+        resolved.insert("a".to_string(), make(9));
+        resolved.insert("b".to_string(), make(8));
+        let assertion = SameDistinctAssertion {
+            is_same: false,
+            names: vec!["a".to_string(), "b".to_string()],
+            comment: None,
+            file: "test.unf".into(),
+            line: 1,
+            file_line: 1,
+        };
+        let result = run_same_distinct_inner(vec![assertion], &resolved);
+        assert_eq!(result.passed, 1, "{:?}", result.issues);
     }
 
     #[test]

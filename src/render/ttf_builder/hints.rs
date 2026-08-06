@@ -41,6 +41,19 @@ pub(super) fn generate_grid_snap_hints(
                 continue;
             }
 
+            // Only edges on the half-scale lattice split exactly; anything
+            // else (custom sub-pixel detail coordinates) would get truncated
+            // split points and midpoints *off* the segment, bending the
+            // outline at every PPEM. Leave such edges alone — the hints are
+            // for pixel-art diagonals.
+            if ax % half_scale != 0
+                || ay % half_scale != 0
+                || dx % half_scale != 0
+                || dy % half_scale != 0
+            {
+                continue;
+            }
+
             // Work in half-scale units to find grid-aligned intermediate points.
             // Grid points sit at multiples of `scale` (= even half-scale units).
             let h_dx = dx / half_scale;

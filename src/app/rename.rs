@@ -97,13 +97,28 @@ fn doc_may_reference(
                     return true;
                 }
             }
+            (RenameKind::Glyph, DocumentItem::AssertShape { expected, .. }) => {
+                if expected.iter().any(|e| e.name == name) {
+                    return true;
+                }
+            }
+            (
+                RenameKind::Glyph,
+                DocumentItem::AssertSame { names, .. } | DocumentItem::AssertDistinct { names, .. },
+            ) => {
+                if names.iter().any(|n| n == name) {
+                    return true;
+                }
+            }
             (
                 RenameKind::NameParts,
                 DocumentItem::NameParts {
                     name: n, values, ..
                 },
             ) => {
-                if n == name || values.iter().any(|v| v == name) {
+                // Values embed a `$var` inside larger tokens too, so the test
+                // is substring, not equality.
+                if n == name || values.iter().any(|v| v.contains(name)) {
                     return true;
                 }
             }
@@ -112,6 +127,30 @@ fn doc_may_reference(
                     return true;
                 }
                 if body.refs.iter().any(|r| r.name.contains(name)) {
+                    return true;
+                }
+            }
+            // A `$var` is embedded inside larger glyph-name tokens, so every
+            // item that names glyphs can carry one. Substring only opens the
+            // file; the boundary-checked rewrite is `rename_in_line`'s.
+            (RenameKind::NameParts, DocumentItem::Map { glyph, .. }) => {
+                if glyph.contains(name) {
+                    return true;
+                }
+            }
+            (
+                RenameKind::NameParts,
+                DocumentItem::MapDecomposed {
+                    glyph: Some(glyph), ..
+                },
+            ) => {
+                if glyph.contains(name) {
+                    return true;
+                }
+            }
+            (RenameKind::NameParts, DocumentItem::Remap { .. }) => {
+                let mut all = item.remap_operands();
+                if all.any(|s| s.contains(name)) {
                     return true;
                 }
             }
@@ -134,8 +173,16 @@ fn doc_may_reference(
                     return true;
                 }
             }
-            (RenameKind::Color, DocumentItem::Color { name: n, .. }) => {
-                if n == name {
+            // An anchor-driven `feature` names an anchor without any glyph in
+            // the file having to carry that point.
+            (RenameKind::Point, DocumentItem::FeatureAnchor { anchor, .. }) => {
+                if anchor.trim_start_matches(['+', '-']) == name.trim_start_matches(['+', '-']) {
+                    return true;
+                }
+            }
+            // A color alias's value is a reference to the color it points at.
+            (RenameKind::Color, DocumentItem::Color { name: n, value, .. }) => {
+                if n == name || value == name {
                     return true;
                 }
             }
@@ -637,10 +684,25 @@ mod rename_tests {
             ("feature dlig for latn : liga\n", RenameKind::RemapGroup),
             ("remap liga : a -> b\n", RenameKind::RemapGroup),
             ("remap group other after liga\n", RenameKind::RemapGroup),
+            // Assert directives name glyphs through their own items, not
+            // through `Directive`, so the glyph arm has to look inside them.
+            ("assert same liga other\n", RenameKind::Glyph),
+            ("assert distinct other liga\n", RenameKind::Glyph),
+            ("assert shape AB : liga : other\n", RenameKind::Glyph),
+            // An anchor-driven feature names an anchor with no glyph carrying
+            // that point anywhere in the file.
+            ("feature abvm for hang : anchor liga\n", RenameKind::Point),
+            // A color alias references the color it points at.
+            ("color light = liga\n", RenameKind::Color),
+            // Name patterns embed a `$var` inside larger tokens.
+            ("map A = latin-$init\n", RenameKind::NameParts),
+            ("remap x : a-$init -> b\n", RenameKind::NameParts),
+            ("name-parts $combo = x-$init\n", RenameKind::NameParts),
         ] {
             let name = match kind {
                 RenameKind::Slice => "narrow",
                 RenameKind::Face => "term",
+                RenameKind::NameParts => "$init",
                 _ => "liga",
             };
             assert!(

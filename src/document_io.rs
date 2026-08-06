@@ -946,8 +946,10 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
     Ok(())
 }
 
-/// Convert old `= ..` range format to standard `glyph`/`ref` format.
-/// `glyph NAME = ..\n\tbody1 ..\n\tbody2` becomes `glyph NAME\nref body1 0 0\nref body2 0 0`.
+/// Lenient counterpart of [`tokenize_strict`], for text the editor is in the
+/// middle of typing: a malformed header or pixel row becomes an ordinary
+/// `Text` line instead of an error, and a short grid is padded rather than
+/// rejected. The strict path stays the one behind [`parse_document_from_str`].
 #[cfg(any(feature = "editor", test))]
 pub fn parse_doclines(content: &str) -> Vec<DocLine> {
     let mut lines = Vec::new();

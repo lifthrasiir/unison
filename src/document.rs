@@ -138,6 +138,7 @@ impl PixelGrid {
         }
     }
 
+    #[cfg(feature = "editor")]
     pub fn resize(&mut self, new_width: u16, new_height: u16) {
         if new_width == self.width && new_height == self.height {
             return;

@@ -217,6 +217,14 @@ pub(crate) fn apply_completion(lines: &mut [DocLine], state: &mut super::EditorS
         return;
     }
 
+    // The caret moves freely while the popup is open (arrows, Home, a click)
+    // and only an *edit* re-checks it against the popup; accepting with the
+    // caret off the popup's line or before the prefix would splice the
+    // candidate into text it never completed, so it just closes the popup.
+    if state.cursor.line != ac.line || state.cursor.col < ac.replace_start {
+        return;
+    }
+
     let candidate = &ac.candidates[ac.selected].label;
     let line_idx = state.cursor.line;
     let DocLine::Text(text) = &lines[line_idx] else {
@@ -741,6 +749,45 @@ mod tests {
         let ctx = detect_context("col", 3).unwrap();
         assert_eq!(ctx.kind, CompletionKind::Keyword);
         assert_eq!(ctx.prefix, "col");
+    }
+
+    /// The caret can move while the popup is open (arrows, Home, a click) —
+    /// only an edit re-checks it. Accepting with the caret before the prefix
+    /// (or on another line) must close the popup untouched, not splice the
+    /// candidate around the moved caret.
+    #[test]
+    fn accepting_with_the_caret_moved_away_only_closes_the_popup() {
+        let popup = |line: usize, replace_start: usize| AutocompleteState {
+            candidates: vec![CompletionCandidate {
+                label: "latin-a".into(),
+                kind: CompletionKind::Glyph,
+            }],
+            selected: 0,
+            scroll_offset: 0,
+            replace_start,
+            line,
+            all_candidates: Vec::new(),
+        };
+
+        // Caret moved back before the prefix being completed.
+        let mut lines = vec![DocLine::Text("ref lat".into())];
+        let mut state = crate::editor::EditorState::new();
+        state.cursor = Caret::new(0, 2);
+        state.autocomplete = Some(popup(0, 4));
+        apply_completion(&mut lines, &mut state);
+        assert_eq!(lines[0], DocLine::Text("ref lat".into()));
+        assert!(state.autocomplete.is_none());
+        assert_eq!(state.cursor, Caret::new(0, 2));
+
+        // Caret moved to a different line.
+        let mut lines = vec![DocLine::Text("ref lat".into()), DocLine::Text("x".into())];
+        let mut state = crate::editor::EditorState::new();
+        state.cursor = Caret::new(1, 0);
+        state.autocomplete = Some(popup(0, 4));
+        apply_completion(&mut lines, &mut state);
+        assert_eq!(lines[0], DocLine::Text("ref lat".into()));
+        assert_eq!(lines[1], DocLine::Text("x".into()));
+        assert!(state.autocomplete.is_none());
     }
 
     /// Group names and glyph names are different namespaces, and completing one
