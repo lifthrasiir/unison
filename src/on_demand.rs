@@ -3,10 +3,10 @@
 //! A name that no `glyph` block defines but that matches a synthesizable shape
 //! is generated on the spot, and such a glyph is implicitly `inline`:
 //!
-//! - `[-]W[pArR]x[-]H[pBrR]` — the **declared box**: a filled rectangle, each
-//!   dimension either a whole number of cells or `A + B/R`; e.g. `1p2r3x4` is
-//!   1⅔ × 4. See [`parse_on_demand_glyph`] for the exact constraints and for
-//!   what a leading `-` aligns.
+//! - `[-|_]W[pArR]x[-|_]H[pBrR]` — the **declared box**: a filled rectangle,
+//!   each dimension either a whole number of cells or `A + B/R`; e.g. `1p2r3x4`
+//!   is 1⅔ × 4. See [`parse_on_demand_glyph`] for the exact constraints and
+//!   [`BoxAlign`] for what a leading `-` or `_` aligns.
 //! - the box with a `-ul`/`-ur`/`-dl`/`-dr` suffix — a right triangle.
 //! - the box with `-circle` — the ellipse inscribed in it.
 //! - the box with `-polyN[.MMM|rK][-cwR|-ccwR]` — a regular N-gon or a star
@@ -27,9 +27,9 @@
 //! Whatever the shape, the synthesized grid is `ceil(W) × ceil(H)` logical
 //! pixels: the box fixes the glyph's extent, and the shape only decides which
 //! part of it is inked. A fractional dimension does not fill its last cell, and
-//! a leading `-` on that dimension is what says the leftover gap falls at the
-//! near end instead of the far one — the box is anchored to integer
-//! coordinates the same way for every shape.
+//! the sign on that dimension is what says where the leftover gap falls — at
+//! the far end (no sign), at the near end (`-`) or split between the two (`_`).
+//! The box is anchored to integer coordinates the same way for every shape.
 //!
 //! # Circles and polygons live in a square box first
 //!
@@ -198,6 +198,22 @@ pub enum BitmapFill {
     Zero,
 }
 
+/// Where a fractional dimension's leftover — the part of the last cell the box
+/// does not fill — sits on its axis.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+pub enum BoxAlign {
+    /// No sign: the box is flush against the near edge (left/top) and the
+    /// whole leftover falls at the far end.
+    #[default]
+    Near,
+    /// `-`: flush against the far edge (right/bottom).
+    Far,
+    /// `_`: centered, the leftover split between the two ends. An odd leftover
+    /// cannot be halved on the subpixel lattice, so the near side takes the
+    /// smaller half.
+    Center,
+}
+
 /// The declared box plus the shape drawn in it — everything a name says.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct OnDemandBox {
@@ -206,8 +222,8 @@ pub struct OnDemandBox {
     pub w_frac: u8,
     pub h_frac: u8,
     pub scale: u8,
-    pub neg_w: bool,
-    pub neg_h: bool,
+    pub align_w: BoxAlign,
+    pub align_h: BoxAlign,
     pub shape: OnDemandShape,
     /// From the `:ceil`/`:floor`/`:zero` name suffix; [`BitmapFill::Round`]
     /// when absent.
@@ -254,25 +270,26 @@ fn take_milli(s: &str) -> Option<(u16, &str)> {
     Some((v, rest))
 }
 
-/// One parsed dimension of the declared box: `[-]A[pBrR]`.
+/// One parsed dimension of the declared box: `[-|_]A[pBrR]`.
 struct BoxDim {
-    negated: bool,
+    align: BoxAlign,
     base: u8,
     /// `(frac, scale)` of the `pBrR` part, absent for a plain `A`.
     detail: Option<(u8, u8)>,
 }
 
 fn take_box_dim(s: &str) -> Option<(BoxDim, &str)> {
-    let (negated, s) = match s.strip_prefix('-') {
-        Some(rest) => (true, rest),
-        None => (false, s),
+    let (align, s) = match s.as_bytes().first() {
+        Some(b'-') => (BoxAlign::Far, &s[1..]),
+        Some(b'_') => (BoxAlign::Center, &s[1..]),
+        _ => (BoxAlign::Near, s),
     };
     let (base, s) = take_uint(s)?;
     let base = u8::try_from(base).ok()?;
     let Some(s) = s.strip_prefix('p') else {
         return Some((
             BoxDim {
-                negated,
+                align,
                 base,
                 detail: None,
             },
@@ -284,7 +301,7 @@ fn take_box_dim(s: &str) -> Option<(BoxDim, &str)> {
     let (scale, s) = take_uint(s)?;
     Some((
         BoxDim {
-            negated,
+            align,
             base,
             detail: Some((u8::try_from(frac).ok()?, u8::try_from(scale).ok()?)),
         },
@@ -418,7 +435,7 @@ fn take_shape(s: &str) -> Option<(OnDemandShape, &str)> {
 ///
 /// ```text
 /// name  := dim 'x' dim [ '-' shape ] [ ':' fill ]
-/// dim   := ['-'] uint [ 'p' uint 'r' uint ]
+/// dim   := ['-' | '_'] uint [ 'p' uint 'r' uint ]
 /// shape := 'ul' | 'ur' | 'dl' | 'dr' | 'circle'
 ///        | 'poly' uint [ '.' digit{1,3} | 'r' uint ] [ ('-cw' | '-ccw') angle ]
 /// angle := uint [ '.' digit{1,3} ]            -- degrees, below 360
@@ -426,10 +443,11 @@ fn take_shape(s: &str) -> Option<(OnDemandShape, &str)> {
 /// ```
 ///
 /// The declared box: a plain `WxH` must have both dimensions nonzero and takes
-/// no minus sign. The fractional form `A[pBrR]` needs `R >= 2` on both sides
-/// (and the same R when both are fractional), `0 <= B,D < R`, and a positive
-/// total on each axis; a leading `-` there flushes the ink against the far
-/// edge of the cell the fraction does not fill.
+/// no alignment sign. The fractional form `A[pBrR]` needs `R >= 2` on both
+/// sides (and the same R when both are fractional), `0 <= B,D < R`, and a
+/// positive total on each axis; a leading `-` there flushes the ink against
+/// the far edge of the cell the fraction does not fill, and a leading `_`
+/// centers it on that axis instead ([`BoxAlign`]).
 ///
 /// Nothing is optional beyond what the grammar says and nothing may follow it:
 /// a name is either matched in full or is not an on-demand name at all, which
@@ -459,19 +477,19 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
     };
 
     let BoxDim {
-        negated: neg_w,
+        align: align_w,
         base: w,
         detail: w_detail,
     } = w_dim;
     let BoxDim {
-        negated: neg_h,
+        align: align_h,
         base: h,
         detail: h_detail,
     } = h_dim;
 
     // The whole-cell form has no leftover to place, so it takes no sign.
     if w_detail.is_none() && h_detail.is_none() {
-        if w == 0 || h == 0 || neg_w || neg_h {
+        if w == 0 || h == 0 || align_w != BoxAlign::Near || align_h != BoxAlign::Near {
             return None;
         }
         return Some(OnDemandGlyph::Shape(OnDemandBox {
@@ -480,8 +498,8 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
             w_frac: 0,
             h_frac: 0,
             scale: 1,
-            neg_w: false,
-            neg_h: false,
+            align_w: BoxAlign::Near,
+            align_h: BoxAlign::Near,
             shape,
             fill,
         }));
@@ -509,8 +527,8 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
         w_frac,
         h_frac,
         scale,
-        neg_w,
-        neg_h,
+        align_w,
+        align_h,
         shape,
         fill,
     }))
@@ -1038,6 +1056,20 @@ pub fn make_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
     }
 }
 
+/// Where the box starts on an axis whose extent leaves `gap` subcells over.
+///
+/// [`BoxAlign::Center`] rounds down, so an odd `gap` leaves the extra subcell
+/// at the far end. Nothing here can do better: the box sits on the subpixel
+/// lattice the name itself declares, and a true half-subcell offset would need
+/// a finer one than `1/R`.
+fn align_offset(align: BoxAlign, gap: u16) -> u16 {
+    match align {
+        BoxAlign::Near => 0,
+        BoxAlign::Far => gap,
+        BoxAlign::Center => gap / 2,
+    }
+}
+
 fn build_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
     let s = spec.scale.max(1) as u16;
     let rect_w = spec.w as u16 * s + spec.w_frac as u16;
@@ -1046,8 +1078,8 @@ fn build_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
     let extent_h = rect_h.div_ceil(s);
     let grid_w = extent_w * s;
     let grid_h = extent_h * s;
-    let off_c = if spec.neg_w { grid_w - rect_w } else { 0 };
-    let off_r = if spec.neg_h { grid_h - rect_h } else { 0 };
+    let off_c = align_offset(spec.align_w, grid_w - rect_w);
+    let off_r = align_offset(spec.align_h, grid_h - rect_h);
 
     let mut grid = PixelGrid::new(grid_w, grid_h);
     match spec.shape {

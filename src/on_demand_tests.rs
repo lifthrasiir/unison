@@ -197,22 +197,22 @@ fn simple_rect(w: u8, h: u8) -> OnDemandGlyph {
         w_frac: 0,
         h_frac: 0,
         scale: 1,
-        neg_w: false,
-        neg_h: false,
+        align_w: BoxAlign::Near,
+        align_h: BoxAlign::Near,
         shape: OnDemandShape::Rect,
         fill: BitmapFill::Round,
     })
 }
 
-fn frac_rect(w: u8, h: u8, wf: u8, hf: u8, s: u8, nw: bool, nh: bool) -> OnDemandGlyph {
+fn frac_rect(w: u8, h: u8, wf: u8, hf: u8, s: u8, aw: BoxAlign, ah: BoxAlign) -> OnDemandGlyph {
     OnDemandGlyph::Shape(OnDemandBox {
         w,
         h,
         w_frac: wf,
         h_frac: hf,
         scale: s,
-        neg_w: nw,
-        neg_h: nh,
+        align_w: aw,
+        align_h: ah,
         shape: OnDemandShape::Rect,
         fill: BitmapFill::Round,
     })
@@ -315,23 +315,31 @@ fn parse_on_demand_glyph_rejects_invalid() {
 fn parse_on_demand_glyph_fractional() {
     assert_eq!(
         parse_on_demand_glyph("1p2r3x4p0r3"),
-        Some(frac_rect(1, 4, 2, 0, 3, false, false)),
+        Some(frac_rect(1, 4, 2, 0, 3, BoxAlign::Near, BoxAlign::Near)),
     );
     assert_eq!(
         parse_on_demand_glyph("1p2r3x4"),
-        Some(frac_rect(1, 4, 2, 0, 3, false, false)),
+        Some(frac_rect(1, 4, 2, 0, 3, BoxAlign::Near, BoxAlign::Near)),
     );
     assert_eq!(
         parse_on_demand_glyph("3x1p1r2"),
-        Some(frac_rect(3, 1, 0, 1, 2, false, false)),
+        Some(frac_rect(3, 1, 0, 1, 2, BoxAlign::Near, BoxAlign::Near)),
     );
     assert_eq!(
         parse_on_demand_glyph("-1p2r3x-4p1r3"),
-        Some(frac_rect(1, 4, 2, 1, 3, true, true)),
+        Some(frac_rect(1, 4, 2, 1, 3, BoxAlign::Far, BoxAlign::Far)),
+    );
+    assert_eq!(
+        parse_on_demand_glyph("_1p2r3x-4p1r3"),
+        Some(frac_rect(1, 4, 2, 1, 3, BoxAlign::Center, BoxAlign::Far)),
+    );
+    assert_eq!(
+        parse_on_demand_glyph("1p2r3x_4p1r3"),
+        Some(frac_rect(1, 4, 2, 1, 3, BoxAlign::Near, BoxAlign::Center)),
     );
     assert_eq!(
         parse_on_demand_glyph("0p1r3x1p0r3"),
-        Some(frac_rect(0, 1, 1, 0, 3, false, false)),
+        Some(frac_rect(0, 1, 1, 0, 3, BoxAlign::Near, BoxAlign::Near)),
     );
 }
 
@@ -349,6 +357,50 @@ fn parse_on_demand_glyph_fractional_rejects_invalid() {
     assert_eq!(parse_on_demand_glyph("0p0r3x1p0r3"), None);
     // neg without frac (simple format)
     assert_eq!(parse_on_demand_glyph("-3x5"), None);
+    // ditto for the centering sign
+    assert_eq!(parse_on_demand_glyph("_3x5"), None);
+    assert_eq!(parse_on_demand_glyph("3x_5"), None);
+}
+
+#[test]
+fn on_demand_centered_axis_splits_the_leftover() {
+    // 1½ cells wide on a quarter lattice: the box is 6 subcells inside an
+    // 8-subcell extent, so centering puts one leftover subcell on each side.
+    // The ink flags are decided per *logical* pixel, so the empty subcells are
+    // told apart by their geometry rather than by `is_empty`.
+    let grid = make_on_demand_grid(&shape_of("_1p2r4x_1p2r4"));
+    let clear = |r: u16, c: u16| grid.get(r, c).shape_id() == crate::pixel::PX_EMPTY;
+    assert_eq!((grid.width, grid.height), (8, 8));
+    for i in 0..8u16 {
+        assert!(clear(0, i), "row 0 col {i} must be clear");
+        assert!(clear(7, i), "row 7 col {i} must be clear");
+        assert!(clear(i, 0), "col 0 row {i} must be clear");
+        assert!(clear(i, 7), "col 7 row {i} must be clear");
+    }
+    for r in 1..7u16 {
+        for c in 1..7u16 {
+            assert_eq!(
+                grid.get(r, c).shape_id(),
+                crate::pixel::PX_ALMOSTFULL,
+                "({r},{c}) must be inked"
+            );
+        }
+    }
+}
+
+#[test]
+fn on_demand_centered_axis_mixes_with_the_other_signs() {
+    // An odd leftover cannot be split evenly; the extra subcell goes to the
+    // far side, and the two ends stay distinguishable from `-`/no sign.
+    let off_of = |name: &str| {
+        let grid = make_on_demand_grid(&shape_of(name));
+        (0..grid.width)
+            .position(|c| grid.get(0, c).shape_id() != crate::pixel::PX_EMPTY)
+            .unwrap()
+    };
+    assert_eq!(off_of("3p1r4x1"), 0);
+    assert_eq!(off_of("-3p1r4x1"), 3);
+    assert_eq!(off_of("_3p1r4x1"), 1);
 }
 
 
