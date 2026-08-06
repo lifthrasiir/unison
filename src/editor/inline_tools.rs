@@ -469,9 +469,6 @@ fn draw_inline_palette(
             egui::vec2(cell, cell),
         );
 
-        #[cfg(test)]
-        crate::editor::harness::capture_palette_rect(ui.ctx(), editor, i, cell_rect);
-
         let shape = &rotate_shape(*rep, *rotation as i32);
         let is_selected = selected_cell == Some(i);
         let bg = if is_selected {
@@ -481,7 +478,25 @@ fn draw_inline_palette(
         };
         painter.rect_filled(cell_rect, 1.0, bg);
         let apply_shift = shift_held && !shape.is_empty();
-        let display_filled = shape.is_filled() ^ apply_shift;
+        // The fill is per-cell palette data, *except* on the selected cell,
+        // which shows the selection's own fill — that is what makes clicking it
+        // again (see below) visibly alternate between solid and dimmed.
+        let cell_filled = if is_selected {
+            selected_shape.is_filled()
+        } else {
+            shape.is_filled()
+        };
+        let display_filled = cell_filled ^ apply_shift;
+
+        #[cfg(test)]
+        crate::editor::harness::capture_palette_rect(
+            ui.ctx(),
+            editor,
+            i,
+            cell_rect,
+            display_filled,
+        );
+
         let px_color = if display_filled {
             pal.pixel_filled
         } else {
@@ -501,7 +516,15 @@ fn draw_inline_palette(
         if let Some(cp) = click_pos
             && cell_rect.contains(cp)
         {
-            let new_fill = shape.is_filled() ^ (shift_held && !shape.is_empty());
+            // Clicking the cell that is already selected flips the fill instead
+            // of re-selecting it: a shape and its complement are then one click
+            // apart, without holding shift. Any other cell arrives with the
+            // fill the palette draws it with (shift inverts that, as on the grid).
+            let new_fill = if selected_shape.shape_id() == shape.shape_id() {
+                !selected_shape.is_filled()
+            } else {
+                shape.is_filled() ^ (shift_held && !shape.is_empty())
+            };
             *selected_shape = pixel::PixelShape::new(shape.shape_id(), new_fill);
         }
     }

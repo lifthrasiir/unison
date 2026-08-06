@@ -73,8 +73,7 @@ fn inline_flatten_removes_the_ref_line_not_an_interleaved_anchor() {
     );
     let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
     let name_parts = crate::document::collect_name_parts(&[&doc]);
-    let (named, _alt) =
-        ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+    let (named, _alt) = ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
     let mut state = EditorState::new();
     let comp_idx = doc
         .items

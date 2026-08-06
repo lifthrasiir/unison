@@ -250,8 +250,7 @@ pub(super) fn inline_ref_to_pixels(
 
         // Scanned, not computed from `ref_idx`: an `anchor` line may sit
         // between the ref lines (see `layer_doc_line`).
-        let ref_text_line_idx =
-            pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
+        let ref_text_line_idx = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
         lines.remove(ref_text_line_idx);
 
         let new_lines: Vec<DocLine> =
@@ -303,8 +302,7 @@ pub(super) fn inline_ref_to_pixels(
         }
         // Scanned before the grid is inserted (`body.pixels` is still `None`
         // here, matching `lines`), then shifted past the insertion.
-        let ref_text_line_idx =
-            pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
+        let ref_text_line_idx = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
         let mut grid = PixelGrid::new(w, h);
         merge_ref_pixels(&mut grid, &scaled_ref_grid, eff_row, eff_col, negated);
         lines.insert(grid_line_idx, DocLine::Grid(grid));

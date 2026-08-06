@@ -3707,6 +3707,78 @@ fn a_second_row_palette_cell_can_be_picked() {
     assert_eq!(selected_shape(&h), palette_shapes()[cell]);
 }
 
+/// Clicking the cell that is already selected is not a no-op: it flips the
+/// fill, so the shape and its complement are one click apart.
+#[test]
+fn clicking_the_selected_palette_cell_toggles_the_fill() {
+    use crate::editor::glyph_widget::shape_orbit;
+
+    let mut h = palette_harness();
+    let (cell, _) = shape_orbit(selected_shape(&h)).unwrap();
+    let click = h.palette_cell_pos(cell);
+
+    let before = selected_shape(&h);
+    h.click_at(click);
+    h.frame();
+    assert_eq!(
+        selected_shape(&h),
+        before.with_fill_toggled(),
+        "re-clicking the selected cell flips the fill"
+    );
+
+    h.click_at(click);
+    h.frame();
+    assert_eq!(selected_shape(&h), before, "and flips it back");
+}
+
+/// The selected cell shows the fill the selection actually carries, so the
+/// toggling is visible: click the same cell and it alternates between the solid
+/// and the dimmed drawing. Every other cell keeps the palette's own fill.
+#[test]
+fn the_selected_palette_cell_is_drawn_with_the_selections_fill() {
+    use crate::editor::glyph_widget::{palette_shapes, shape_orbit};
+
+    let mut h = palette_harness();
+    let (cell, _) = shape_orbit(selected_shape(&h)).unwrap();
+    let other = if cell == 0 { 2 } else { 0 };
+    let other_filled = palette_shapes()[other].is_filled();
+    let click = h.palette_cell_pos(cell);
+
+    assert!(h.palette_cell_filled(cell), "starts out filled");
+
+    h.click_at(click);
+    h.frame();
+    assert!(!selected_shape(&h).is_filled());
+    assert!(
+        !h.palette_cell_filled(cell),
+        "the selected cell follows the selection into unfilled"
+    );
+    assert_eq!(
+        h.palette_cell_filled(other),
+        other_filled,
+        "an unselected cell keeps the palette's own fill"
+    );
+
+    h.click_at(click);
+    h.frame();
+    assert!(h.palette_cell_filled(cell), "and back to filled");
+}
+
+/// Only the *selected* cell toggles; picking a different one still yields that
+/// cell's own fill, unchanged from the palette.
+#[test]
+fn clicking_another_palette_cell_takes_its_own_fill() {
+    use crate::editor::glyph_widget::palette_shapes;
+
+    let mut h = palette_harness();
+    let cell = 1; // PX_DOT, the one unfilled representative on row 0
+    assert!(!palette_shapes()[cell].is_filled());
+
+    h.click_at(h.palette_cell_pos(cell));
+    h.frame();
+    assert_eq!(selected_shape(&h), palette_shapes()[cell]);
+}
+
 #[test]
 fn a_shape_shortcut_pulls_the_palette_rotation_with_it() {
     let mut h = palette_harness();
@@ -3754,19 +3826,30 @@ fn edit_border_survives_the_top_grid_row_being_culled() {
     h.state.goto_line(6);
     h.frame();
     h.frame();
-    assert!(h.scroll_y() > 1000.0, "expected a scroll; y={}", h.scroll_y());
+    assert!(
+        h.scroll_y() > 1000.0,
+        "expected a scroll; y={}",
+        h.scroll_y()
+    );
     h.state.mode = EditMode::GlyphEdit {
         item_idx: 0,
         selected_shape: crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
     };
     h.frame();
-    assert!(h.scroll_y() > 1000.0, "scroll must survive; y={}", h.scroll_y());
+    assert!(
+        h.scroll_y() > 1000.0,
+        "scroll must survive; y={}",
+        h.scroll_y()
+    );
 
     let border = h
         .edit_border_rect()
         .expect("border must still be painted when the grid's top row is culled");
     // The border still describes the whole glyph — its top is above the
     // viewport, and its size is unchanged.
-    assert!(border.min.y < 0.0, "border top should be off-screen: {border:?}");
+    assert!(
+        border.min.y < 0.0,
+        "border top should be off-screen: {border:?}"
+    );
     assert_eq!(border.size(), full_border.size());
 }

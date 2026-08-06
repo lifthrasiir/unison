@@ -125,18 +125,20 @@ fn palette_rects_id(editor: EditorId) -> egui::Id {
 }
 
 /// Called from `draw_inline_palette` (test builds only) to publish the
-/// on-screen rect of one shape-palette cell.
+/// on-screen rect of one shape-palette cell, together with the fill it was
+/// drawn with (filled = the solid colour, unfilled = the dimmed one).
 pub(crate) fn capture_palette_rect(
     ctx: &egui::Context,
     editor: EditorId,
     cell: usize,
     rect: egui::Rect,
+    filled: bool,
 ) {
     ctx.data_mut(|d| {
         let mut map = d
-            .get_temp::<HashMap<usize, egui::Rect>>(palette_rects_id(editor))
+            .get_temp::<HashMap<usize, (egui::Rect, bool)>>(palette_rects_id(editor))
             .unwrap_or_default();
-        map.insert(cell, rect);
+        map.insert(cell, (rect, filled));
         d.insert_temp(palette_rects_id(editor), map);
     });
 }
@@ -875,12 +877,20 @@ impl EditorHarness {
     /// Screen position of the center of shape-palette cell `cell` (available
     /// once the inline tools panel has rendered a frame in GlyphEdit mode).
     pub fn palette_cell_pos(&self, cell: usize) -> egui::Pos2 {
-        let map = self
-            .ctx
-            .data(|d| d.get_temp::<HashMap<usize, egui::Rect>>(palette_rects_id(self.state.id())));
+        self.palette_cell_draw(cell).0.center()
+    }
+
+    /// Whether shape-palette cell `cell` was drawn filled on the last frame.
+    pub fn palette_cell_filled(&self, cell: usize) -> bool {
+        self.palette_cell_draw(cell).1
+    }
+
+    fn palette_cell_draw(&self, cell: usize) -> (egui::Rect, bool) {
+        let map = self.ctx.data(|d| {
+            d.get_temp::<HashMap<usize, (egui::Rect, bool)>>(palette_rects_id(self.state.id()))
+        });
         map.and_then(|m| m.get(&cell).copied())
             .expect("palette cell rect not captured -- was the shape palette rendered?")
-            .center()
     }
 
     /// Screen position of the center of a grid cell.

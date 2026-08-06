@@ -1714,9 +1714,7 @@ assume unused blank
     /// back to `fg` in the build; it has to be reported here instead.
     #[test]
     fn a_fill_naming_an_undeclared_color_is_a_warning() {
-        let issues = issues_for(
-            "glyph a 1 1\n@@\n\nglyph b\nref a fill missing\n\nmap A = b\n",
-        );
+        let issues = issues_for("glyph a 1 1\n@@\n\nglyph b\nref a fill missing\n\nmap A = b\n");
         assert!(
             has(&issues, Severity::Warning, "undeclared color `missing`"),
             "{issues:?}"
@@ -1729,10 +1727,7 @@ assume unused blank
     #[test]
     fn a_color_alias_used_before_its_declaration_is_a_warning() {
         let issues = issues_for("color x = y\ncolor y = #ff0000\n");
-        assert!(
-            has(&issues, Severity::Warning, "color `x`"),
-            "{issues:?}"
-        );
+        assert!(has(&issues, Severity::Warning, "color `x`"), "{issues:?}");
     }
 
     #[test]
