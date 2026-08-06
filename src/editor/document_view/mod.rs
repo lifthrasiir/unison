@@ -28,7 +28,7 @@ mod keys;
 mod layout;
 mod number_scroll;
 mod paint;
-mod popups;
+pub(super) mod popups;
 mod scroll;
 #[cfg(test)]
 mod tests;

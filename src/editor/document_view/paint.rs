@@ -490,7 +490,12 @@ pub(super) fn paint_document_area(
                             cursor_screen = Some(egui::pos2(cx, cy));
                         }
                     } else {
-                        cursor_screen = Some(egui::pos2(origin.x + LEFT_PAD, origin.y + y));
+                        // No caret is painted without focus, but the caret's
+                        // column is still where a popup belongs: the Ctrl+K
+                        // popup takes focus away and opens before anything is
+                        // typed, so falling back to the start of the line put
+                        // it at the left margin until the first digit decoded.
+                        cursor_screen = Some(egui::pos2(cx, cy));
                     }
 
                     // Check if caret is inside an error span

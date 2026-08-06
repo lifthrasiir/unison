@@ -2538,6 +2538,38 @@ fn codepoint_popup_ignores_mac_cmd_k() {
     );
 }
 
+/// The popup is anchored under the caret from the frame it opens, not only
+/// once the digits decode to something.  The canvas is unfocused while the
+/// popup owns the keyboard, and an empty preedit used to fall back to the
+/// start of the line, which put the popup at the left margin until the first
+/// valid digit jumped it back to the caret.
+#[test]
+fn codepoint_popup_anchors_at_the_caret_while_still_empty() {
+    use crate::editor::document_view::popups::caret_anchor_pos;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    let caret_x = h.text_pos(0, 14).x;
+
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    assert_eq!(h.state.preedit, "", "no digits typed yet");
+    let empty_x = caret_anchor_pos(&h.ctx, &h.state).x;
+    assert!(
+        (empty_x - caret_x).abs() < 2.0,
+        "empty popup anchored at {empty_x}, not at the caret {caret_x}"
+    );
+
+    // And it stays there once the digits do decode.
+    h.type_text("41");
+    h.frame();
+    let filled_x = caret_anchor_pos(&h.ctx, &h.state).x;
+    assert!(
+        (filled_x - caret_x).abs() < 2.0,
+        "popup with a preedit anchored at {filled_x}, not at the caret {caret_x}"
+    );
+}
+
 /// While the hex digits are being typed the decoded character shows as the
 /// editor's preedit — the popup drives the same preview an IME would — and
 /// the document itself is untouched.
