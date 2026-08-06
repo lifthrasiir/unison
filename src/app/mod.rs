@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
-use std::sync::mpsc;
+use std::sync::{Arc, mpsc};
 
 use crate::document::{DocLine, Document, NamePartsMap};
 use crate::document_io;
@@ -110,7 +110,10 @@ pub struct UniformApp {
     selected_face: String,
     /// Face ids as of the last derived-data rebuild; what the picker offers.
     face_ids: Vec<String>,
-    named_glyphs: HashMap<String, ResolvedGlyph>,
+    /// Behind an `Arc` only so a background run can share it: resolving the
+    /// whole font takes about as long as building it, and the shape-assertion
+    /// thread needs exactly the map the derived-data thread just produced.
+    named_glyphs: Arc<HashMap<String, ResolvedGlyph>>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
     color_aliases: crate::render::ttf_builder::ColorAliasMap,
@@ -277,7 +280,7 @@ impl UniformApp {
             contour_cache,
             selected_face: String::new(),
             face_ids: Vec::new(),
-            named_glyphs: HashMap::new(),
+            named_glyphs: Arc::default(),
             alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
             color_aliases: Default::default(),

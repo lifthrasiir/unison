@@ -315,16 +315,15 @@ fn main() {
         let refs: Vec<&document::Document> = docs.iter().collect();
         report_issues(&refs);
 
-        let Some(built) = render::build_font_with_gid_map(&refs) else {
-            eprintln!("Font build failed");
-            std::process::exit(1);
-        };
-
         let name_parts = document::collect_name_parts(&refs);
         let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
 
-        let shape_result =
-            render::assert::run_assertions(&refs, &built.ttf, &built.gid_to_name, built.height);
+        // One build per face the assertions actually reach — including the
+        // primary one, which used to be built here and then a second time as
+        // itself when a `for SLICE` assertion named it.
+        let shape_result = render::assert::run_assertions(&refs, &mut |face| {
+            render::build_font_with_gid_map_for(&refs, face)
+        });
         let sd_result = render::assert::run_same_distinct_assertions(&refs, &resolved);
 
         let total = shape_result.total + sd_result.total;

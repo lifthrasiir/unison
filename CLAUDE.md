@@ -145,6 +145,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | A remap group is one lookup: rule order is match priority | `render/ttf_builder/gsub.rs` |
 | Lookup order, `remap group` and its stable toposort | `document.rs` (`remap_group_order`) |
 | `assert shape` and why `@lang` is BCP 47 | `render/assert.rs` |
+| What a test run builds (lazily, once per face), and how the editor's stays fast | `render/assert.rs` (`run_assertions_inner`), `app/background.rs` (`run_shape_assertions`) |
 | Contour coordinate spaces | `render/contour.rs` |
 | The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |
 | Split panes, their invariants and key chords | `app/panes.rs` |

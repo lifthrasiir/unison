@@ -117,9 +117,9 @@ assert shape `A` : b
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let docs = vec![&doc];
-    let built = build_font_with_gid_map(&docs).unwrap();
-    let result =
-        crate::render::assert::run_assertions(&docs, &built.ttf, &built.gid_to_name, built.height);
+    let result = crate::render::assert::run_assertions(&docs, &mut |face| {
+        crate::render::build_font_with_gid_map_for(&docs, face)
+    });
     assert_eq!(result.total, 1);
     assert_eq!(result.passed, 1, "{:?}", result.issues);
 }

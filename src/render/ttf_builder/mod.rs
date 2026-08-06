@@ -400,8 +400,15 @@ pub struct FontWithGidMap {
     pub height: u16,
 }
 
-/// Build the font and return the TTF bytes together with a GID→glyph-name map
-/// and the pixel em-height.
+/// Build the primary face and return the TTF bytes together with a GID→glyph-name
+/// map and the pixel em-height.
+///
+/// Test-only: shipping code names the face it wants. The assertion runner used
+/// to take the primary face's build as a parameter and then build the *same*
+/// face again by name whenever a `for SLICE` assertion reached it; it now asks
+/// for faces one by one through [`build_font_with_gid_map_for`], so no caller
+/// outside the tests still means "just the primary one".
+#[cfg(test)]
 pub fn build_font_with_gid_map(docs: &[&Document]) -> Option<FontWithGidMap> {
     build_with_gid_map(collect_glyph_data_cached(docs, false, None)?)
 }
@@ -417,6 +424,32 @@ pub fn build_font_with_gid_map_for(
     build_with_gid_map(collect::collect_glyph_data_with_shared(
         &shared, false, None,
     )?)
+}
+
+/// The same again, tracing contours through the editor's shared cache.
+///
+/// Contour tracing is ~90% of a face build, and the editor has already paid for
+/// most of it: its own font build fills the very same cache with the vector
+/// variant of every glyph. Running the assertions off it turns a full second of
+/// rebuilding into a lookup.
+///
+/// Unlike [`build_font_pair_cached_for`] this neither begins a generation nor
+/// evicts: a face built only to check an assertion must not age out the entries
+/// the *displayed* font is built from, nor push its own into the set that
+/// build's next eviction pass keeps. It only reads what is there and adds what
+/// is missing.
+#[cfg(feature = "editor")]
+pub fn build_font_with_gid_map_for_cached(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    shared_cache: &SharedContourCache,
+) -> Option<FontWithGidMap> {
+    let shared = collect::compute_shared_font_input_for(docs, face)?;
+    let data = {
+        let mut cc = shared_cache.lock().unwrap();
+        collect::collect_glyph_data_with_shared(&shared, false, Some(&mut cc))?
+    };
+    build_with_gid_map(data)
 }
 
 fn build_with_gid_map(

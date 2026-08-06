@@ -201,56 +201,76 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     result
 }
 
+/// Builds one face on demand. Every caller has its own way to get there — the
+/// CLI builds from scratch, the editor goes through its warm contour cache — and
+/// the runner only cares that it is asked for a face at most once.
+pub type FaceBuilder<'a> =
+    &'a mut dyn FnMut(&crate::faces::Face) -> Option<crate::render::FontWithGidMap>;
+
 /// Run every assertion, each against the face(s) its `for SLICE...` names.
 ///
-/// `font_data`/`gid_to_name`/`height` describe the **primary** face, which is
-/// what an unqualified assertion means. A slice-scoped one is a statement about
-/// the faces that include those slices, so it is shaped against each of them —
-/// with its own build, since a face has its own cmap and its own GSUB and thus
-/// its own glyph ids. Those builds are on demand: a source whose assertions are
-/// all unqualified pays for nothing extra.
+/// An unqualified assertion means the primary face; a slice-scoped one is a
+/// statement about the faces that include those slices, so it is shaped against
+/// each of them — with its own build, since a face has its own cmap and its own
+/// GSUB and thus its own glyph ids.
+///
+/// Every build goes through `build_face`, memoized here by face id, and nothing
+/// is built until an assertion actually needs it. **A source, or a file, with no
+/// shape assertions therefore builds no font at all** — which is the difference
+/// between the editor's per-file test finishing instantly and its costing three
+/// full builds.
 fn run_assertions_inner(
     assertions: Vec<CollectedAssertion>,
     docs: &[&Document],
-    font_data: &[u8],
-    gid_to_name: &HashMap<u16, String>,
-    height: u16,
+    build_face: FaceBuilder<'_>,
 ) -> AssertShapeResult {
     let mut total = 0;
     let mut issues = Vec::new();
     let mut passed = 0;
 
+    if assertions.is_empty() {
+        return AssertShapeResult {
+            issues,
+            total,
+            passed,
+        };
+    }
+
     let faces = crate::faces::FaceSet::collect(docs);
     let mut face_fonts: HashMap<String, Option<crate::render::FontWithGidMap>> = HashMap::new();
 
     for assertion in &assertions {
-        if assertion.slices.is_empty() {
-            total += 1;
-            match check_assertion(assertion, "", font_data, gid_to_name, height) {
-                Some(issue) => issues.push(issue),
-                None => passed += 1,
-            }
-            continue;
-        }
-
         // An assertion no face satisfies is reported by `issues.rs`; here it
         // simply contributes nothing to run.
-        for face in faces
-            .faces
-            .iter()
-            .filter(|f| f.includes_all(&assertion.slices))
-        {
+        let targets: Vec<&crate::faces::Face> = if assertion.slices.is_empty() {
+            vec![faces.primary()]
+        } else {
+            faces
+                .faces
+                .iter()
+                .filter(|f| f.includes_all(&assertion.slices))
+                .collect()
+        };
+
+        for face in targets {
             if !face_fonts.contains_key(&face.id) {
-                let built = crate::render::build_font_with_gid_map_for(docs, face);
+                let built = build_face(face);
                 face_fonts.insert(face.id.clone(), built);
             }
+            // An unqualified assertion names no face and is reported without
+            // one, even though it ran against the primary face's build.
+            let label = if assertion.slices.is_empty() {
+                ""
+            } else {
+                face.id.as_str()
+            };
             total += 1;
             let Some(built) = face_fonts.get(&face.id).and_then(|b| b.as_ref()) else {
                 issues.push(Issue {
                     severity: Severity::Error,
                     message: format!(
                         "assert shape {}: face failed to build",
-                        format_subject(assertion, &face.id),
+                        format_subject(assertion, label),
                     ),
                     file: assertion.file.clone(),
                     line: assertion.line,
@@ -260,7 +280,7 @@ fn run_assertions_inner(
             };
             match check_assertion(
                 assertion,
-                &face.id,
+                label,
                 &built.ttf,
                 &built.gid_to_name,
                 built.height,
@@ -371,19 +391,8 @@ fn check_assertion(
 }
 
 /// Run all shape assertions from all documents.
-pub fn run_assertions(
-    docs: &[&Document],
-    font_data: &[u8],
-    gid_to_name: &HashMap<u16, String>,
-    height: u16,
-) -> AssertShapeResult {
-    run_assertions_inner(
-        collect_assertions(docs),
-        docs,
-        font_data,
-        gid_to_name,
-        height,
-    )
+pub fn run_assertions(docs: &[&Document], build_face: FaceBuilder<'_>) -> AssertShapeResult {
+    run_assertions_inner(collect_assertions(docs), docs, build_face)
 }
 
 /// Run shape assertions only from the specified subset of documents.
@@ -394,17 +403,9 @@ pub fn run_assertions(
 pub fn run_assertions_for_files(
     test_docs: &[&Document],
     docs: &[&Document],
-    font_data: &[u8],
-    gid_to_name: &HashMap<u16, String>,
-    height: u16,
+    build_face: FaceBuilder<'_>,
 ) -> AssertShapeResult {
-    run_assertions_inner(
-        collect_assertions(test_docs),
-        docs,
-        font_data,
-        gid_to_name,
-        height,
-    )
+    run_assertions_inner(collect_assertions(test_docs), docs, build_face)
 }
 
 // ---------------------------------------------------------------------------
@@ -647,6 +648,23 @@ pub fn run_same_distinct_assertions(
     run_same_distinct_inner(collect_same_distinct_assertions(docs), resolved)
 }
 
+/// Whether any of `docs` states an `assert same` or `assert distinct`.
+///
+/// These need every glyph resolved, which costs about as much as a font build,
+/// so a caller that would have to compute that resolution asks first. Scanning
+/// the items is free next to it.
+#[cfg(feature = "editor")]
+pub fn has_same_distinct_assertions(docs: &[&Document]) -> bool {
+    docs.iter().any(|doc| {
+        doc.items.iter().any(|item| {
+            matches!(
+                item,
+                DocumentItem::AssertSame { .. } | DocumentItem::AssertDistinct { .. }
+            )
+        })
+    })
+}
+
 /// Run same/distinct assertions only from the specified subset of documents.
 #[cfg(feature = "editor")]
 pub fn run_same_distinct_assertions_for_files(
@@ -688,10 +706,62 @@ map narrow : A = a-narrow
 ";
 
     fn shape_assert(input: &str) -> AssertShapeResult {
+        shape_assert_counting_builds(input).0
+    }
+
+    /// The same, also reporting which faces were built and how many times. A
+    /// face build is the whole cost of running the assertions, so what gets
+    /// built is the thing worth asserting about.
+    fn shape_assert_counting_builds(input: &str) -> (AssertShapeResult, Vec<String>) {
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let docs = vec![&doc];
-        let built = crate::render::build_font_with_gid_map(&docs).unwrap();
-        run_assertions(&docs, &built.ttf, &built.gid_to_name, built.height)
+        let mut built_faces = Vec::new();
+        let result = run_assertions(&docs, &mut |face| {
+            built_faces.push(face.id.clone());
+            crate::render::build_font_with_gid_map_for(&docs, face)
+        });
+        (result, built_faces)
+    }
+
+    /// A source with no `assert shape` at all builds nothing. The editor runs
+    /// the assertions of one file at a time, and most files state none; it used
+    /// to build the whole font anyway before finding that out.
+    #[test]
+    fn no_shape_assertion_builds_no_face() {
+        let (result, built) = shape_assert_counting_builds(TWO_FACES);
+        assert_eq!(result.total, 0);
+        assert!(built.is_empty(), "built {built:?}");
+    }
+
+    /// The primary face is built once even when both an unqualified assertion
+    /// and one scoped to a slice it contains ask for it. The unqualified one
+    /// used to arrive as a separate pre-built font, so `regular` was built
+    /// twice — a second full build for nothing.
+    #[test]
+    fn the_primary_face_is_built_once_for_qualified_and_unqualified_assertions() {
+        let (result, built) = shape_assert_counting_builds(&format!(
+            "{TWO_FACES}\n\
+             assert shape A : a-wide\n\
+             assert shape A for wide : a-wide\n\
+             assert shape A for wide : a-wide\n"
+        ));
+        assert_eq!(result.total, 3);
+        assert_eq!(result.passed, 3, "{:?}", result.issues);
+        assert_eq!(built, vec!["regular".to_string()]);
+    }
+
+    /// Each face is built at most once however many assertions reach it.
+    #[test]
+    fn each_face_is_built_at_most_once() {
+        let (result, mut built) = shape_assert_counting_builds(&format!(
+            "{TWO_FACES}\n\
+             assert shape A for wide : a-wide\n\
+             assert shape A for narrow : a-narrow\n\
+             assert shape A for narrow : a-narrow\n"
+        ));
+        assert_eq!(result.passed, 3, "{:?}", result.issues);
+        built.sort();
+        assert_eq!(built, vec!["regular".to_string(), "term".to_string()]);
     }
 
     /// `for SLICE` picks the face the assertion is shaped against. Without it,

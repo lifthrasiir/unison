@@ -176,6 +176,16 @@ impl UniformApp {
         } else {
             None
         };
+        // The derived-data thread has already resolved every glyph of exactly
+        // these sources; when its result is current there is nothing to redo.
+        // `named_glyphs_gen` is the build generation it was resolved from, so
+        // this is the same check every other consumer of the derived data makes.
+        let resolved =
+            (self.named_glyphs_gen == self.font_build_gen).then(|| Arc::clone(&self.named_glyphs));
+        // Shared with the font build, and warm from it: the vector contours a
+        // face build needs are mostly the ones the displayed font was traced
+        // from. See `build_font_with_gid_map_for_cached`.
+        let cache = self.contour_cache.clone();
         let tx = self.assert_tx.clone();
         let ctx = ctx.clone();
         std::thread::spawn(move || {
@@ -191,48 +201,41 @@ impl UniformApp {
                 }],
             );
             let refs: Vec<&Document> = all_docs.iter().collect();
-            let name_parts = crate::document::collect_name_parts(&refs);
-            let (resolved, _) =
-                crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
-
-            let mut result = if let Some(built) = crate::render::build_font_with_gid_map(&refs) {
-                let assert_result = if let Some(path) = &active_path {
-                    let test_docs: Vec<&Document> =
-                        all_docs.iter().filter(|d| &d.path == path).collect();
-                    crate::render::assert::run_assertions_for_files(
-                        &test_docs,
-                        &refs,
-                        &built.ttf,
-                        &built.gid_to_name,
-                        built.height,
-                    )
-                } else {
-                    crate::render::assert::run_assertions(
-                        &refs,
-                        &built.ttf,
-                        &built.gid_to_name,
-                        built.height,
-                    )
-                };
-                assert_result.issues
-            } else {
-                vec![Issue {
-                    severity: crate::issues::Severity::Error,
-                    message: "Font build failed — cannot run shape assertions".to_string(),
-                    file: std::path::PathBuf::new(),
-                    line: 0,
-                    file_line: 0,
-                }]
+            // Which files the assertions are *read* from; which faces exist and
+            // what each contains stays a property of the whole source.
+            let test_docs: Vec<&Document> = match &active_path {
+                Some(path) => all_docs.iter().filter(|d| &d.path == path).collect(),
+                None => refs.clone(),
             };
 
-            let sd_result = if let Some(path) = &active_path {
-                let test_docs: Vec<&Document> =
-                    all_docs.iter().filter(|d| &d.path == path).collect();
-                crate::render::assert::run_same_distinct_assertions_for_files(&test_docs, &resolved)
-            } else {
-                crate::render::assert::run_same_distinct_assertions(&refs, &resolved)
-            };
-            result.extend(sd_result.issues);
+            let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
+            let shape_result =
+                crate::render::assert::run_assertions_for_files(&test_docs, &refs, &mut |face| {
+                    crate::render::build_font_with_gid_map_for_cached(&refs, face, &cache)
+                });
+            let mut result = shape_result.issues;
+            if let Some(t0) = perf_t0 {
+                eprintln!("[perf] shape assertions: {:?}", t0.elapsed());
+            }
+
+            // Resolution is as expensive as a font build, so it is neither done
+            // when nothing asks for it nor redone when the editor already has it.
+            if crate::render::assert::has_same_distinct_assertions(&test_docs) {
+                let perf_t1 = perf_log_enabled().then(std::time::Instant::now);
+                let resolved = resolved.unwrap_or_else(|| {
+                    let name_parts = crate::document::collect_name_parts(&refs);
+                    Arc::new(
+                        crate::ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts).0,
+                    )
+                });
+                let sd_result = crate::render::assert::run_same_distinct_assertions_for_files(
+                    &test_docs, &resolved,
+                );
+                result.extend(sd_result.issues);
+                if let Some(t1) = perf_t1 {
+                    eprintln!("[perf] same/distinct assertions: {:?}", t1.elapsed());
+                }
+            }
 
             slot.set(result);
         });
@@ -307,7 +310,7 @@ impl UniformApp {
         let font_meta = crate::meta::FontMeta::collect(&all_docs);
         drop(all_docs);
         self.font_meta = font_meta.metrics;
-        self.named_glyphs = named_glyphs;
+        self.named_glyphs = std::sync::Arc::new(named_glyphs);
         self.alt_index = alt_index;
         self.name_parts = name_parts;
         self.derived_gen = self.derived_gen.wrapping_add(1);
@@ -500,7 +503,7 @@ impl UniformApp {
                 ));
             }
             if let Some(data) = result {
-                self.named_glyphs = data.named_glyphs;
+                self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
                 self.alt_index = data.alt_index;
                 self.name_parts = data.name_parts;
                 self.font_meta = data.meta;
