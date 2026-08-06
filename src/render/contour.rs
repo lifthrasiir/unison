@@ -1330,10 +1330,10 @@ mod tests {
     /// and leave a whole-pixel staircase.
     #[test]
     fn multi_layer_keeps_custom_detail_geometry() {
-        use crate::ref_composite::{OnDemandGlyph, make_on_demand_grid, parse_on_demand_glyph};
+        use crate::on_demand::{OnDemandGlyph, make_on_demand_grid, parse_on_demand_glyph};
 
         let grid_of = |name: &str| {
-            let Some(OnDemandGlyph::Rect(rect)) = parse_on_demand_glyph(name) else {
+            let Some(OnDemandGlyph::Shape(rect)) = parse_on_demand_glyph(name) else {
                 panic!("{name} must parse");
             };
             make_on_demand_grid(&rect)

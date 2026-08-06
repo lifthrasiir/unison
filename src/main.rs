@@ -13,6 +13,7 @@ mod faces;
 mod golden;
 mod issues;
 mod meta;
+mod on_demand;
 mod pattern;
 mod pixel;
 #[cfg(feature = "editor")]

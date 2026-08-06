@@ -228,7 +228,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             continue;
         };
         if !all_glyph_names.contains(target)
-            && crate::ref_composite::parse_on_demand_glyph(target).is_none()
+            && crate::on_demand::parse_on_demand_glyph(target).is_none()
         {
             issues.push(docset.to_issue(&Diagnostic::error(
                 decl.origin,

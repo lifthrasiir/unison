@@ -11,7 +11,7 @@
 //!
 //! [`UNITS_PER_EM`] is 1024. The font is built twice — once reading the exact
 //! geometry, once keeping only the ink flag for a bitmap-style outline; see
-//! [`crate::ref_composite`] on `BitmapFill` for what a synthesized shape has to
+//! [`crate::on_demand`] on `BitmapFill` for what a synthesized shape has to
 //! decide because of that.
 //!
 //! This module and [`crate::render::contour`] are where most of the fixes land,

@@ -1103,12 +1103,24 @@ for documentation, for a test, or as raw material for something else.
 ## On-demand Glyphs
 
 Some shapes are not worth a `glyph` block. A `ref` (or a `map`, or a `remap` operand) may name a
-glyph that nothing defines, and if the name describes a rectangle or a triangle, it is synthesized
-on the spot. Such a glyph is implicitly `inline`.
+glyph that nothing defines, and if the name describes one of the shapes below, it is synthesized on
+the spot. Such a glyph is implicitly `inline`.
 
-The only colon suffixes recognized here are `:ceil`, `:floor` and `:zero`. A name carrying any other
-one is not an on-demand name at all, so ordinary glyph names with colons in them — every alternative
-form — fall through to the normal lookup.
+Every such name has the same skeleton — a **declared box**, an optional shape word, an optional
+bitmap rule:
+
+```
+[-]W[pArR]x[-]H[pBrR] [ -ul | -ur | -dl | -dr | -circle | -polyN… ] [ :ceil | :floor | :zero ]
+```
+
+It is read strictly left to right and has to match in full: exactly one shape word, at most one
+colon suffix, nothing else and nothing left over. `16x16-circle-ul` and `16x16-poly5-dr` name no
+shape at all, and neither does a name carrying any other colon suffix — which is what keeps ordinary
+glyph names with `-` or `:` in them, every alternative form included, falling through to the normal
+lookup.
+
+Whatever the shape, the synthesized glyph is `ceil(W) × ceil(H)` pixels: the box fixes the size, and
+the shape only decides what part of it is inked.
 
 ### `[-]W[pArR]x[-]H[pBrR][-ul/ur/dl/dr]`: Sized rectangle and triangle
 
@@ -1139,6 +1151,56 @@ Adding `-ul`, `-ur`, `-dl` or `-dr` makes the shape a right triangle with legs o
 the right angle at the named corner of the bounding rectangle (upper left, upper right, down left,
 down right).
 
+### `-circle`: Inscribed circle and ellipse
+
+`-circle` draws the circle inscribed in the declared box, sharing its center:
+
+```
+ref 16x16-circle
+```
+
+When the two sides differ, the shape is worked out in an auxiliary *square* box of side
+`min(|W|, |H|)` — again sharing the center — and then carried onto the real box by the affine
+transform that takes the auxiliary box to it. So `2x1-circle` is the ellipse that fills 2 × 1
+exactly. A fractional or negatively signed dimension anchors the box exactly as it does for a
+rectangle, so `-6p1r2x14-circle` is an ellipse flush against the right edge of a 7-cell grid.
+
+A circle has no orientation, so `-cw`/`-ccw` do not attach to it.
+
+### `-polyN[.MMM|rK][-cwR|-ccwR]`: Regular polygon and star
+
+`-polyN` draws the regular N-gon inscribed in that same circle — outer points on the circle, center
+shared, and by default one outer point at the top of the box:
+
+```
+ref 16x16-poly6          # a hexagon, point up
+ref 16x16-poly3-cw180    # a triangle, point down
+ref 16x16-poly5r2        # a pentagram
+```
+
+`.MMM` turns it into a concave 2N-gon by pulling the inner points towards the center. It is a
+decimal fraction of one to three digits, `0.000` through `0.999`, measuring how far in from the
+edges of the N-gon the inner points sit. `.000` — the default, and what you get by leaving it out —
+leaves them on the edges, which is the plain N-gon; note that even then the inner points are nearer
+the center than the outer ones, by a factor of `cos(pi/N)`. The closer to `1.0`, the sharper the
+points.
+
+`rK` instead picks the inner radius of the `{N/K}` star polygon, for `0 < K <= N/2`. K need not be
+coprime with N (`poly6r2` is a valid hexagram) and is unrelated to any denominator in W or H.
+`poly5r2` is the pentagram, near enough `poly5.528` to be indistinguishable but not equal to it: an
+`rK` radius is irrational and no decimal spells it. `polyNr1` is the plain N-gon, and `rK` with
+`2K = N` sends every inner point to the center, so the shape has no width and holds no ink.
+
+`-cwR` and `-ccwR` turn the shape R degrees clockwise or counterclockwise about the shared center,
+where R is below 360 and may carry up to three decimals (`-cw22.5`). The rotation happens in the
+square auxiliary box, *before* the stretch onto a non-square declared box — so a rotated polygon in
+a wide box is a stretched rotated polygon, not a rotated stretched one.
+
+Several spellings mean the same shape, and they are treated as such: `poly6`, `poly6.000`,
+`poly6r1`, `poly6-cw60` and `poly6-ccw60` all denote the plain hexagon, and a rotation is always
+folded into the shape's own N-fold symmetry. (They remain distinct glyph *names*; it is the shape
+that is shared.)
+
 #### Bitmap Control
 
 The font is built twice, and a synthesized shape has to decide which cells the bitmap build lights.
@@ -1155,6 +1217,10 @@ on the name chooses the rule:
 None of these moves an outline. The geometry is identical in all four cases; only the bitmap flavor
 of the font differs. Whole-pixel shapes cover every pixel completely and so come out the same under
 every rule but `:zero`.
+
+All four apply to every shape above, and they are where a circle or a polygon really needs them: a
+curve grazes a great many pixels, and which of those the bitmap build lights is exactly this
+choice.
 
 ### Colored Variant Synthesis (`:mono`, `:color`)
 

@@ -521,15 +521,15 @@ fn inject_on_demand_glyph_items(
     let mut unresolved: HashSet<String> = HashSet::new();
 
     for (name, origin) in unique {
-        use crate::ref_composite::{OnDemandGlyph, detect_on_demand_glyph};
+        use crate::on_demand::{OnDemandGlyph, detect_on_demand_glyph};
         match detect_on_demand_glyph(&name, |n| defined.contains(n)) {
-            Some(OnDemandGlyph::Rect(rect)) => {
-                let grid = crate::ref_composite::make_on_demand_grid(&rect);
+            Some(OnDemandGlyph::Shape(spec)) => {
+                let grid = crate::on_demand::make_on_demand_grid(&spec);
                 all_items.push(ExpandedItem {
                     item: DocumentItem::Glyph {
                         name: GlyphName(name),
                         body: GlyphBody {
-                            scale: rect.scale,
+                            scale: spec.scale,
                             pixels: Some(grid),
                             inline: true,
                             ..GlyphBody::new()

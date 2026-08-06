@@ -73,9 +73,12 @@ Core (feature-independent):
 - `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
 - `detail.rs` — `DetailRegion`: exact per-pixel sub-pixel geometry on a `1/den` lattice, combined by
   an exact-rational trapezoid sweep. This is what makes composition exact instead of code-approximate.
-- `ref_composite.rs` — composite (`ref`) resolution and on-demand glyph synthesis. Its module docs
-  hold three things nothing else records: **anchor exposure is opt-in**, a **negative `ref` offset is
-  a bearing**, and the on-demand name catalog with the `BitmapFill` rule.
+- `ref_composite.rs` — composite (`ref`) resolution. Its module docs hold two things nothing else
+  records: **anchor exposure is opt-in** and a **negative `ref` offset is a bearing**.
+- `on_demand.rs` — the names nothing defines but that describe a shape (`WxH`, triangles, `-circle`,
+  `-polyN`) and the geometry each stands for. Holds the grammar, the `BitmapFill` rule, why polygon
+  names are *normalized*, and the two lattices a curve is cut on (`POLY_Q`, `REGION_DEN`) — the
+  latter is not freely choosable. Tests in `on_demand_tests.rs`.
 - `resolve.rs` — shared vocabulary for the resolution pipeline (`ItemRef` provenance, `Diagnostic`),
   so build/editor/validation cannot drift apart. Resolution emits issues directly.
 - `faces.rs` — `face`/`slice`: which typefaces the source describes and what each contains. Holds the
@@ -137,7 +140,8 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
-| Anchor exposure, bearings, on-demand glyphs, `BitmapFill` | `ref_composite.rs` |
+| Anchor exposure and bearings | `ref_composite.rs` |
+| On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document.rs` (`snap_details_to_catalog`) |
 | The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
@@ -190,6 +194,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | `meta.rs` | `meta_tests.rs` |
 | `faces.rs` | `faces_tests.rs` |
 | `ref_composite.rs` | `ref_composite_tests.rs` |
+| `on_demand.rs` | `on_demand_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests.rs` (harness scenarios) |
 
 Keep a source file at roughly 2000 lines or under; split by stage (as `ttf_builder/` and
