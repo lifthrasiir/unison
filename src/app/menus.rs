@@ -596,6 +596,34 @@ impl UniformApp {
                         }
                     }
                     ui.separator();
+                    // A source with one face has nothing to pick, and its face
+                    // id is the empty implicit one — unnameable in a menu.
+                    if self.face_ids.len() > 1 {
+                        ui.menu_button("Face", |ui| {
+                            // The keys annotate the faces they actually reach,
+                            // so the annotation moves with the selection rather
+                            // than sitting on a fixed "next/previous" entry.
+                            // With exactly two faces both keys reach the same
+                            // one, and it says so.
+                            let current = self.selected_face().to_string();
+                            for id in self.face_ids.clone() {
+                                let selected = current == id;
+                                let mut btn = egui::Button::new(&id);
+                                if selected {
+                                    btn = btn.fill(ui.visuals().selection.bg_fill);
+                                }
+                                let keys = face_shortcut(&self.face_ids, &current, &id);
+                                if !keys.is_empty() {
+                                    btn = btn.shortcut_text(keys);
+                                }
+                                if ui.add(btn).clicked() {
+                                    let ctx = ui.ctx().clone();
+                                    self.set_selected_face(id, &ctx);
+                                    ui.close_menu();
+                                }
+                            }
+                        });
+                    }
                     let (font_label, preview_family) = if self.escape_mode {
                         (
                             "Use dogfooded font",
@@ -621,35 +649,6 @@ impl UniformApp {
                     if ui.add(metrics_btn).clicked() {
                         self.show_metrics = !self.show_metrics;
                         ui.close_menu();
-                    }
-                    // A source with one face has nothing to pick, and its face
-                    // id is the empty implicit one — unnameable in a menu.
-                    if self.face_ids.len() > 1 {
-                        ui.separator();
-                        ui.menu_button("Face", |ui| {
-                            // The keys annotate the faces they actually reach,
-                            // so the annotation moves with the selection rather
-                            // than sitting on a fixed "next/previous" entry.
-                            // With exactly two faces both keys reach the same
-                            // one, and it says so.
-                            let current = self.selected_face().to_string();
-                            for id in self.face_ids.clone() {
-                                let selected = current == id;
-                                let mut btn = egui::Button::new(&id);
-                                if selected {
-                                    btn = btn.fill(ui.visuals().selection.bg_fill);
-                                }
-                                let keys = face_shortcut(&self.face_ids, &current, &id);
-                                if !keys.is_empty() {
-                                    btn = btn.shortcut_text(keys);
-                                }
-                                if ui.add(btn).clicked() {
-                                    let ctx = ui.ctx().clone();
-                                    self.set_selected_face(id, &ctx);
-                                    ui.close_menu();
-                                }
-                            }
-                        });
                     }
                     ui.separator();
                     // The zoom entries drive whichever surface has the focus, and are
