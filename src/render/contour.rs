@@ -535,8 +535,11 @@ pub(crate) fn layer_bounds<'a>(
     (min_r, min_c, width, height)
 }
 
-/// Merge positioned layers into a single grid with exact per-cell geometry:
-/// positive layers unioned, negated layers subtracted.
+/// Merge positioned layers into a single grid with exact per-cell geometry,
+/// applying them **in order** — each positive layer unioned onto what is there,
+/// each negated one subtracted from it — exactly as [`PixelGrid::blit`] stacks
+/// the same refs. A later positive layer therefore restores area an earlier
+/// negation took away.
 ///
 /// The bitmask tracers below identify a cell by its shape id alone, so every
 /// `PX_CUSTOM` cell looks alike to them (and carries no adjacency at all).
@@ -557,10 +560,9 @@ fn merge_layers_exact(
     for r in 0..height as i32 {
         for c in 0..width as i32 {
             let mut single: Option<PixelShape> = None;
-            let mut multiple = false;
+            let mut untouched = true;
             let mut filled = false;
-            let mut pos: Option<DetailRegion> = None;
-            let mut neg: Option<DetailRegion> = None;
+            let mut acc: Option<DetailRegion> = None;
 
             for &(grid, row_off, col_off, negated) in layers {
                 let lr = r + min_r - row_off;
@@ -574,41 +576,37 @@ fn merge_layers_exact(
                 }
                 let region = grid.region_at(lr as u16, lc as u16);
                 if negated {
-                    neg = Some(match neg {
-                        None => region,
-                        Some(acc) => bool_op(&acc, &region, BoolOp::Union),
-                    });
+                    // Subtracting from nothing leaves nothing, and leaves the
+                    // cell eligible for the verbatim-shape path below.
+                    acc = acc.map(|a| bool_op(&a, &region, BoolOp::Subtract));
+                    untouched &= acc.is_none();
                     continue;
                 }
                 filled |= shape.is_filled();
                 if single.is_some() {
-                    multiple = true;
+                    untouched = false;
                 } else {
                     single = Some(shape);
                 }
-                pos = Some(match pos {
+                acc = Some(match acc {
                     None => region,
-                    Some(acc) => bool_op(&acc, &region, BoolOp::Union),
+                    Some(a) => bool_op(&a, &region, BoolOp::Union),
                 });
             }
 
-            let Some(pos) = pos else { continue };
-            // A lone positive catalog cell keeps its own shape id verbatim,
+            let Some(acc) = acc else { continue };
+            // A cell only one layer ever wrote keeps its own shape id verbatim,
             // which avoids re-classifying geometry that is already exact.
             // Custom cells must go through `set_detail` so their region is
             // carried over into the merged grid.
             let plain_single = single
-                .filter(|_| !multiple && neg.is_none())
+                .filter(|_| untouched)
                 .filter(|s| s.shape_id() & mask != pixel::PX_CUSTOM);
             if let Some(shape) = plain_single {
                 out.set(r as u16, c as u16, shape);
                 continue;
             }
-            let region = match neg {
-                Some(neg) => bool_op(&pos, &neg, BoolOp::Subtract),
-                None => pos.canonical(),
-            };
-            out.set_detail(r as u16, c as u16, &region, filled);
+            out.set_detail(r as u16, c as u16, &acc.canonical(), filled);
         }
     }
     out
@@ -620,6 +618,17 @@ fn layers_have_detail(layers: &[(&PixelGrid, i32, i32, bool)]) -> bool {
     layers
         .iter()
         .any(|&(grid, _, _, _)| !grid.details.is_empty())
+}
+
+/// Whether a positive layer follows a negated one, in which case the stack has
+/// to be applied in order. The bitmask tracer collapses the layers into one
+/// positive and one negative set, which is only the same thing when every
+/// negation comes last — otherwise it drops what a later layer drew back.
+fn layers_need_order(layers: &[(&PixelGrid, i32, i32, bool)]) -> bool {
+    match layers.iter().position(|&(_, _, _, negated)| negated) {
+        Some(first) => layers[first..].iter().any(|&(_, _, _, neg)| !neg),
+        None => false,
+    }
 }
 
 /// One step of the flood fill shared by [`track_contour_multi`] and
@@ -852,7 +861,7 @@ pub fn track_contour_multi_diff(
         return Vec::new();
     }
 
-    if layers_have_detail(layers) {
+    if layers_have_detail(layers) || layers_need_order(layers) {
         let merged = merge_layers_exact(layers, mask, min_r, min_c, width, height);
         return track_contour(&merged, mask);
     }
@@ -1169,6 +1178,55 @@ mod tests {
         let paths_diff = track_contour_multi_diff(&[(&grid, 0, 0, false)], PX_SUBPIXEL);
         assert_eq!(paths_multi.len(), paths_diff.len());
         assert_eq!(paths_multi[0].len(), paths_diff[0].len());
+    }
+
+    /// A `ref` stack is applied in order, exactly as `PixelGrid::blit` does
+    /// it: a positive layer after a negated one puts its area *back*.  Tracing
+    /// `(union of positives) - (union of negatives)` instead silently drops
+    /// whatever the later layer restored -- the taegeuk in `font/flags.unf`
+    /// lost a half-lobe to it.
+    #[test]
+    fn diff_positive_after_negated_is_restored() {
+        let two = make_grid(2, 1, &[PX_ALMOSTFULL | PX_FULL, PX_ALMOSTFULL | PX_FULL]);
+        let one = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
+        // full 2x1, erase the left cell, then draw it again.
+        let paths = track_contour_multi_diff(
+            &[(&two, 0, 0, false), (&one, 0, 0, true), (&one, 0, 0, false)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(paths.len(), 1, "expected one contour, got {paths:?}");
+        let path = &paths[0];
+        assert!(
+            path.contains(&(0.0, 0.0)) && path.contains(&(2.0, 1.0)),
+            "the re-drawn cell must survive the earlier negation: {path:?}",
+        );
+    }
+
+    /// The same, on layers carrying sub-pixel detail, which take the exact
+    /// merge path rather than the shape-id bitmask one.
+    #[test]
+    fn diff_positive_after_negated_is_restored_with_detail() {
+        use crate::detail::DetailRegion;
+        let mut one = make_grid(1, 1, &[PX_EMPTY]);
+        // A third-of-a-pixel wide box, as an explicit region rather than a
+        // catalog shape id, so `layers_have_detail` picks the exact path.
+        let region = DetailRegion {
+            den: 3,
+            rings: vec![vec![(0, 0), (1, 0), (1, 3), (0, 3)]],
+        };
+        one.set_detail(0, 0, &region, true);
+        let full = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
+        let paths = track_contour_multi_diff(
+            &[(&full, 0, 0, false), (&one, 0, 0, true), (&one, 0, 0, false)],
+            PX_SUBPIXEL,
+        );
+        assert_eq!(paths.len(), 1, "expected one contour, got {paths:?}");
+        let xs: Vec<f32> = paths[0].iter().map(|p| p.0).collect();
+        assert!(
+            xs.contains(&0.0) && xs.contains(&1.0),
+            "the re-drawn half must survive the earlier negation: {:?}",
+            paths[0],
+        );
     }
 
     #[test]

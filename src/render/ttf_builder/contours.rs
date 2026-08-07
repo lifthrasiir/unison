@@ -294,8 +294,8 @@ impl CachedContours {
 
         if has_negated {
             // Collect layers with negation flags and trace contours via
-            // track_contour_multi_diff, which computes the geometric difference
-            // (positive union minus negative union) per pixel.
+            // track_contour_multi_diff, which applies the stack in `ref` order
+            // per pixel, unioning positives and subtracting negations.
             let mut diff_layers: Vec<(&PixelGrid, i32, i32, bool)> = Vec::new();
             if let Some(grid) = own_pixels {
                 diff_layers.push((grid, 0, 0, false));

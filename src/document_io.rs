@@ -137,7 +137,9 @@
 //!   filled, `..` empty, plus the sub-pixel shape codes in [`crate::pixel`]).
 //! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly] [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from
-//!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name.
+//!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
+//!   stack in source order and `negated` subtracts from what is already there,
+//!   so a later ref draws back over an earlier negation.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges.
 //! - `glyph NAME = TARGET` — an alias: a second *name* for `TARGET`, sharing
