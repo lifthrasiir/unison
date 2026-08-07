@@ -121,6 +121,45 @@ const fn base_shape_rings(id: u8) -> &'static [&'static [(u8, u8)]] {
     }
 }
 
+/// Probe points per axis for [`DetailRegion::sample_mask`]. 8×8 fits a `u64`
+/// and keeps every catalog shape on a mask of its own, which is what makes
+/// `nearest_shape` an identity there (`sample_masks_are_distinct`).
+///
+/// It is deliberately not wider. Quantization costs ±½ probe per row, so a
+/// `k/den` cut can round to the wrong side of ½ — a 3/7-covered cell inks
+/// where the exact area would not. That is the accepted price of sampling: the
+/// result is a suggestion the editor hands a human, not a computed value.
+#[cfg(feature = "editor")]
+const SAMPLE_K: i64 = 8;
+
+/// What `nearest_shape` needs of a catalog id, precomputed: neither the probe
+/// mask nor the edge-direction set depends on the region being matched.
+#[cfg(feature = "editor")]
+struct SnapCandidate {
+    mask: u64,
+    dirs: std::collections::BTreeSet<(i8, i8)>,
+}
+
+/// The [`SnapCandidate`] of every catalog id, `None` for `PX_EMPTY` and the
+/// unused ids, built once.
+#[cfg(feature = "editor")]
+fn shape_snap_table() -> &'static [Option<SnapCandidate>; 128] {
+    static TABLE: std::sync::OnceLock<Box<[Option<SnapCandidate>; 128]>> =
+        std::sync::OnceLock::new();
+    TABLE.get_or_init(|| {
+        let table: Vec<Option<SnapCandidate>> = shape_region_table()
+            .iter()
+            .map(|region| {
+                (!region.is_empty()).then(|| SnapCandidate {
+                    mask: region.sample_mask(),
+                    dirs: region.interior_edge_dirs(),
+                })
+            })
+            .collect();
+        Box::new(table.try_into().ok().unwrap())
+    })
+}
+
 /// Canonical regions of all 128 catalog ids, built once.
 fn shape_region_table() -> &'static [DetailRegion; 128] {
     static TABLE: std::sync::OnceLock<Box<[DetailRegion; 128]>> = std::sync::OnceLock::new();
@@ -960,28 +999,49 @@ impl DetailRegion {
         shape_region_table()[(shape_id & PX_SUBPIXEL) as usize].clone()
     }
 
-    /// Exact filled area as `(num, den)` in unit-square terms, so a full cell
-    /// is `1/1`. Only meaningful for canonical regions (sweep-derived rings:
-    /// outer rings and holes are wound oppositely, so the signed shoelace sum
-    /// is the even-odd area).
+    /// Exact filled area, counted in `1/(2·den²)` of the unit square — so a
+    /// full cell is `2·den²` — for any `den` this region's own lattice divides.
+    /// Only meaningful for canonical regions (sweep-derived rings: outer rings
+    /// and holes are wound oppositely, so the signed shoelace sum is the
+    /// even-odd area).
     ///
-    /// Staying on the lattice matters when the result is compared against a
-    /// threshold — half a cell is exactly the tie `BitmapFill::Round` has to
-    /// resolve, and a float would leave it to chance.
-    pub fn area_exact(&self) -> (i64, i64) {
+    /// The caller picks the lattice, rather than getting a `(num, den)` pair
+    /// back, because the only thing anyone wants of area here is a *threshold*:
+    /// [`crate::on_demand::BitmapFill`] adds up the subcells of a logical pixel
+    /// and asks whether the total clears zero, half or full. Measured on one
+    /// shared `den` those areas are plain integers that add, which keeps the
+    /// whole path free of fraction arithmetic while staying exact — and exact
+    /// is the point, since half a cell is precisely the tie `Round` resolves
+    /// and a float would leave it to chance.
+    ///
+    /// Nothing needs area as a magnitude. [`DetailRegion::nearest_shape`] once
+    /// did, and moving it to probe sampling is what shrank this to a threshold.
+    ///
+    /// Panics in debug if `den` is not a multiple of `self.den`.
+    pub fn area_units_on(&self, den: u8) -> i64 {
+        debug_assert!(
+            den != 0 && den.is_multiple_of(self.den),
+            "den {den} is not a multiple of the region's own {}",
+            self.den
+        );
+        let k = (den / self.den) as i64;
         let mut a = 0i64;
         for ring in &self.rings {
             let ring: Vec<(i64, i64)> = ring.iter().map(|&(x, y)| (x as i64, y as i64)).collect();
             a += lattice_ring_area2(&ring);
         }
-        (a.abs(), 2 * self.den as i64 * self.den as i64)
+        a.abs() * k * k
+    }
+
+    /// A full cell in the units [`area_units_on`](Self::area_units_on) counts.
+    pub fn area_units_full(den: u8) -> i64 {
+        2 * den as i64 * den as i64
     }
 
     /// Twice the filled area in unit-square terms (test/diagnostic helper).
     #[cfg(test)]
     pub fn area2(&self) -> f64 {
-        let (n, d) = self.area_exact();
-        2.0 * n as f64 / d as f64
+        self.area_units_on(self.den) as f64 / (self.den as f64 * self.den as f64)
     }
 
     /// Re-derive the region through the sweep engine. The output ring set is
@@ -1109,6 +1169,53 @@ impl DetailRegion {
         dirs
     }
 
+    /// Which of the [`SAMPLE_K`]² probe points fall inside the region, as bit
+    /// `j * SAMPLE_K + i` for the probe in column `i` of row `j`.
+    ///
+    /// The probes sit at `((5i+1)/5K, (5j+2)/5K)`: one per subcell, offset so
+    /// that a probe can never land *on* a catalog edge. Every catalog shape is
+    /// bounded by lines `x = p/2`, `y = p/2` or `x ± y = p/2`, and a probe on
+    /// one of those would need `2(5i+1)`, `2(5j+2)`, `2(5i+5j+3)` or
+    /// `2(5i−5j−1)` to be a multiple of 5 — none of which is ever ≡ 0 (mod 5).
+    /// That matters because a probe exactly on an edge falls to whatever the
+    /// crossing test's tie rule says, and with *every* catalog shape bounded by
+    /// diagonals the resulting bias would be systematic rather than incidental.
+    ///
+    /// Probes are counted even-odd, matching how rings define the filled set.
+    #[cfg(feature = "editor")]
+    fn sample_mask(&self) -> u64 {
+        let d = self.den as i64;
+        let s = 5 * SAMPLE_K; // probes and rings meet on the `5K·den` lattice
+        let mut mask = 0u64;
+        for j in 0..SAMPLE_K {
+            let py = (5 * j + 2) * d;
+            for i in 0..SAMPLE_K {
+                let px = (5 * i + 1) * d;
+                let mut inside = false;
+                for ring in &self.rings {
+                    let n = ring.len();
+                    for k in 0..n {
+                        let (x0, y0) = (ring[k].0 as i64 * s, ring[k].1 as i64 * s);
+                        let (x1, y1) = (ring[(k + 1) % n].0 as i64 * s, ring[(k + 1) % n].1 as i64 * s);
+                        if (y0 > py) == (y1 > py) {
+                            continue; // the +x ray from the probe misses this edge
+                        }
+                        // `px < x0 + (py−y0)(x1−x0)/(y1−y0)`, cleared of the
+                        // division so the test stays in exact integers.
+                        let (lhs, rhs) = ((px - x0) * (y1 - y0), (py - y0) * (x1 - x0));
+                        if if y1 > y0 { lhs < rhs } else { lhs > rhs } {
+                            inside = !inside;
+                        }
+                    }
+                }
+                if inside {
+                    mask |= 1 << (j * SAMPLE_K + i);
+                }
+            }
+        }
+        mask
+    }
+
     /// The catalog id that best stands in for this region.
     ///
     /// This is a *lossy* fallback and belongs only where an exact region has
@@ -1117,13 +1224,19 @@ impl DetailRegion {
     /// writes a grid back into a document (rescaling a glyph, say) has to land
     /// on the catalog. Resolution and the builder keep the exact region.
     ///
-    /// The choice minimizes symmetric-difference area, but only among shapes
-    /// that invent no edge direction the region does not already have. Every
-    /// catalog shape is bounded by diagonals, so an axis-aligned region — the
-    /// half-cell rectangles a scale change produces — is left to round to
-    /// empty or full rather than turn a straight edge into a row of triangles,
-    /// while diagonal geometry still lands on the diagonal shape that fits it.
-    /// Remaining ties go to the larger area (so a half-covered cell inks, as
+    /// The choice is the shape whose [`sample_mask`](Self::sample_mask) differs
+    /// in the fewest probes — a quantized symmetric difference. Sampling rather
+    /// than an exact area is deliberate: the answer is a suggestion a human
+    /// then edits, and probe masks are precomputable per catalog id, which
+    /// turns 128 boolean sweeps per query into 128 `popcount`s.
+    ///
+    /// Candidates are restricted to shapes that invent no edge direction the
+    /// region does not already have. Every catalog shape is bounded by
+    /// diagonals, so an axis-aligned region — the half-cell rectangles a scale
+    /// change produces — is left to round to empty or full rather than turn a
+    /// straight edge into a row of triangles, while diagonal geometry still
+    /// lands on the diagonal shape that fits it. Remaining ties go to the
+    /// shape covering more probes (so a half-covered cell inks, as
     /// `BitmapFill::Round` has it) and then to the lower id, for determinism.
     #[cfg(feature = "editor")]
     pub fn nearest_shape(&self) -> u8 {
@@ -1139,36 +1252,21 @@ impl DetailRegion {
             return hit;
         }
 
-        // Symmetric-difference area as an exact fraction: |a−b| + |b−a|.
-        let diff_area = |a: &DetailRegion, b: &DetailRegion| -> (i128, i128) {
-            let (n1, d1) = bool_op(a, b, BoolOp::Subtract).area_exact();
-            let (n2, d2) = bool_op(b, a, BoolOp::Subtract).area_exact();
-            (
-                n1 as i128 * d2 as i128 + n2 as i128 * d1 as i128,
-                d1 as i128 * d2 as i128,
-            )
-        };
-        let area = |r: &DetailRegion| -> (i128, i128) {
-            let (n, d) = r.area_exact();
-            (n as i128, d as i128)
-        };
+        let mask = canon.sample_mask();
         let dirs = canon.interior_edge_dirs();
 
-        // Seed with the two shapes every region can fall back to.
+        // Seed with `PX_EMPTY`, the fallback available to every region.
         let mut best_id = PX_EMPTY;
-        let mut best = (diff_area(&canon, &DetailRegion::EMPTY), (0i128, 1i128));
-        for (id, region) in shape_region_table().iter().enumerate() {
-            if region.is_empty() {
+        let mut best = (mask.count_ones(), 0u32);
+        for (id, shape) in shape_snap_table().iter().enumerate() {
+            let Some(shape) = shape else {
                 continue; // PX_EMPTY (the seed above) and the unused ids
-            }
-            if !region.interior_edge_dirs().is_subset(&dirs) {
+            };
+            if !shape.dirs.is_subset(&dirs) {
                 continue;
             }
-            let key = (diff_area(&canon, region), area(region));
-            let better = key.0.0 * best.0.1 < best.0.0 * key.0.1
-                || (key.0.0 * best.0.1 == best.0.0 * key.0.1
-                    && key.1.0 * best.1.1 > best.1.0 * key.1.1);
-            if better {
+            let key = ((mask ^ shape.mask).count_ones(), shape.mask.count_ones());
+            if key.0 < best.0 || (key.0 == best.0 && key.1 > best.1) {
                 best = key;
                 best_id = id as u8;
             }
@@ -1474,6 +1572,61 @@ mod tests {
         for e in &edges {
             for v in [e.x1, e.y1, e.x2, e.y2] {
                 assert!(v.abs() <= MAX_SWEEP_COORD, "{v} outside the budget");
+            }
+        }
+    }
+
+    /// `nearest_shape` picks by probe mask, so two catalog shapes sharing a
+    /// mask would be indistinguishable and the lower id would swallow the
+    /// other. Nothing guarantees `SAMPLE_K` is fine enough for that but this.
+    #[cfg(feature = "editor")]
+    #[test]
+    fn sample_masks_are_distinct() {
+        let mut seen: HashMap<u64, usize> = HashMap::new();
+        for (id, region) in shape_region_table().iter().enumerate() {
+            if region.is_empty() {
+                continue;
+            }
+            let mask = region.sample_mask();
+            assert_ne!(mask, 0, "id {id} covers no probe at all");
+            if let Some(prev) = seen.insert(mask, id) {
+                panic!("ids {prev} and {id} share a probe mask");
+            }
+        }
+    }
+
+    /// The catalog is a fixed point of the snapping: a cell already spelled by
+    /// a shape code must survive a rescale round-trip unchanged.
+    #[cfg(feature = "editor")]
+    #[test]
+    fn nearest_shape_is_identity_on_the_catalog() {
+        for (id, region) in shape_region_table().iter().enumerate() {
+            if region.is_empty() {
+                continue;
+            }
+            assert_eq!(region.canonical().nearest_shape(), id as u8, "id {id}");
+        }
+    }
+
+    /// Probes never sit on a catalog edge — the property `sample_mask`'s
+    /// `(5i+1, 5j+2)` offsets exist for. On the edge, the crossing test's tie
+    /// rule would decide, and since every catalog shape is diagonal-bounded
+    /// the bias would be systematic.
+    #[cfg(feature = "editor")]
+    #[test]
+    fn probes_avoid_every_catalog_edge_line() {
+        for j in 0..SAMPLE_K {
+            for i in 0..SAMPLE_K {
+                // Probe (x, y) = ((5i+1)/5K, (5j+2)/5K). A catalog edge lies on
+                // some x, y, x+y or x−y = p/2, i.e. 2·numerator = p·5K.
+                let (u, v) = (5 * i + 1, 5 * j + 2);
+                for n in [u, v, u + v, u - v] {
+                    assert_ne!(
+                        (2 * n).rem_euclid(5),
+                        0,
+                        "probe ({i}, {j}) lies on a half-lattice line"
+                    );
+                }
             }
         }
     }
@@ -1805,3 +1958,4 @@ mod tests {
         assert_eq!(pts, [(0.0, 0.0), (1.0, 1.0)]);
     }
 }
+

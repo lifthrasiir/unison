@@ -95,8 +95,10 @@
 //! (see [`apply_bitmap_fill`]), and it moves no outline (see
 //! [`make_on_demand_grid`]). The ½ tie is real — it is every 45° triangle edge
 //! cell — so the area comparison stays exact through
-//! [`crate::detail::DetailRegion::area_exact`]; `area2` is the f64 test helper,
-//! not the production path.
+//! [`crate::detail::DetailRegion::area_units_on`], which measures every subcell
+//! of a logical pixel on one shared lattice so the total is an integer sum
+//! rather than a running fraction. `area2` is the f64 test helper, not the
+//! production path.
 
 use std::collections::HashMap;
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
@@ -565,6 +567,12 @@ fn apply_bitmap_fill(grid: &mut PixelGrid, s: u16, fill: BitmapFill) {
     if s == 0 {
         return;
     }
+    // One lattice for every subcell area below. A cell is either a catalog
+    // shape (den 2) or a custom detail, and `PixelGrid::den` is kept as the lcm
+    // of the details it holds, so this is divisible by both.
+    let Some(lat) = crate::detail::lcm_den(2, grid.den) else {
+        return; // unreachable in practice: `set_detail` never stores a den this wide
+    };
     for lr in 0..grid.height / s {
         for lc in 0..grid.width / s {
             // Uniformly full or uniformly empty logical pixels — every pixel
@@ -589,28 +597,22 @@ fn apply_bitmap_fill(grid: &mut PixelGrid, s: u16, fill: BitmapFill) {
             } else if all_full {
                 fill != BitmapFill::Zero
             } else {
-                // Exact covered area of the logical pixel, as `num/den` in
-                // subcell units; a fully covered pixel is `s²`.
-                let (mut num, mut den) = (0i128, 1i128);
+                // Exact covered area of the logical pixel, measured on `lat`
+                // and so a plain integer sum: a fully covered pixel is `s²`
+                // cells' worth.
+                let mut area = 0i64;
                 for dr in 0..s {
                     for dc in 0..s {
-                        let (n, d) = grid.region_at(lr * s + dr, lc * s + dc).area_exact();
-                        let (n, d) = (n as i128, d as i128);
-                        num = num * d + n * den;
-                        den *= d;
-                        let g = crate::math::gcd_i128(num, den);
-                        if g > 1 {
-                            num /= g;
-                            den /= g;
-                        }
+                        area += grid.region_at(lr * s + dr, lc * s + dc).area_units_on(lat);
                     }
                 }
-                let full = den * (s as i128) * (s as i128);
+                let full =
+                    crate::detail::DetailRegion::area_units_full(lat) * (s as i64) * (s as i64);
                 match fill {
                     BitmapFill::Zero => false,
-                    BitmapFill::Ceil => num > 0,
-                    BitmapFill::Floor => num >= full,
-                    BitmapFill::Round => 2 * num >= full,
+                    BitmapFill::Ceil => area > 0,
+                    BitmapFill::Floor => area >= full,
+                    BitmapFill::Round => 2 * area >= full,
                 }
             };
             for dr in 0..s {

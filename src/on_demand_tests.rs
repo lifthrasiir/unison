@@ -805,7 +805,7 @@ fn curve_regions_survive_boolean_ops() {
         for b in &regions {
             for op in [BoolOp::Union, BoolOp::Intersect, BoolOp::Subtract] {
                 let out = crate::detail::bool_op(a, b, op);
-                assert!(out.area_exact().0 >= 0);
+                assert!(out.area_units_on(out.den) >= 0);
             }
         }
     }
