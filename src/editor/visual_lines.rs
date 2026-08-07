@@ -31,7 +31,7 @@ pub(crate) fn preview_max_height(
     }
     for gref in &body.refs {
         if let Some(resolved) =
-            ref_composite::resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts)
+            ref_composite::resolve_ref_name_for_view(&gref.name, named_glyphs, name_parts)
         {
             // Logical height: a `scale N` glyph's grid counts subcells, and the
             // preview row is measured in logical pixels like every other height

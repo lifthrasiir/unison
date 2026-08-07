@@ -950,6 +950,7 @@ pub fn resolve_expansion(
                 &cache,
                 name_parts,
                 pg.scale,
+                false,
             );
             let (min_r, min_c) = (layout.min_r, layout.min_c);
             let grid = layout.to_grid(pg.pixels.as_ref(), pg.scale);
@@ -1060,10 +1061,80 @@ pub struct CompositeLayer {
     pub fill_color: Option<egui::Color32>,
 }
 
+/// A synthesized on-demand shape, memoized per name.
+///
+/// [`resolve_ref_name_for_view`] hands out borrows into a map it does not
+/// own, so a glyph synthesized during the lookup needs a home that outlives the
+/// call. One name is synthesized once and kept for the process: the set of
+/// on-demand names a session mentions is small (a handful per font, plus the
+/// intermediate names a ref typed character by character passes through), each
+/// entry is one small grid, and the alternative — handing back an owned value —
+/// would change every call site of the lookup and of the layout beneath it.
+/// The grids themselves are already memoized in [`crate::on_demand`].
+fn synthesized_on_demand(name: &str) -> Option<&'static ResolvedGlyph> {
+    use std::sync::{Mutex, OnceLock};
+    static CACHE: OnceLock<Mutex<HashMap<String, &'static ResolvedGlyph>>> = OnceLock::new();
+    let cache = CACHE.get_or_init(Mutex::default);
+    if let Some(resolved) = cache.lock().unwrap().get(name) {
+        return Some(resolved);
+    }
+    // Only the self-contained shapes: the color/mono pair of
+    // [`crate::on_demand::detect_on_demand_glyph`] is synthesized from two
+    // glyph bodies, which is the expansion's job and not a lookup's.
+    let spec = match crate::on_demand::parse_on_demand_glyph(name)? {
+        crate::on_demand::OnDemandGlyph::Shape(spec) => spec,
+        crate::on_demand::OnDemandGlyph::ColorMono { .. } => return None,
+    };
+    let resolved: &'static ResolvedGlyph = Box::leak(Box::new(ResolvedGlyph {
+        grid: crate::on_demand::make_on_demand_grid(&spec),
+        origin_row: 0,
+        origin_col: 0,
+        resolved_anchors: Vec::new(),
+        declared_anchors: Vec::new(),
+        scale: spec.scale,
+    }));
+    cache.lock().unwrap().insert(name.to_string(), resolved);
+    Some(resolved)
+}
+
+/// Resolve a ref name against the resolved-glyph map: the name as written, then
+/// with its name parts substituted, then the first expansion of the pattern it
+/// may be.
 pub fn resolve_ref_name_with_parts<'a>(
     name: &str,
     named_glyphs: &'a HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+) -> Option<&'a ResolvedGlyph> {
+    lookup_ref_name(name, named_glyphs, name_parts, false)
+}
+
+/// The same lookup, plus on-demand synthesis for a name the map does not have.
+///
+/// The expansion injects exactly this glyph
+/// ([`crate::render::ttf_builder::expand_documents`]), so the map holds it after
+/// the next resolve — but that resolve walks the whole font and waits behind the
+/// editor's debounce, so until it lands an on-demand ref is the one kind that
+/// draws nothing while every other ref draws the moment it is typed. Only the
+/// *view* uses this: [`resolve_expansion`] is what produces those injected
+/// entries and must keep composing from them alone, or a composite would resolve
+/// from one of the two and the font build from the other.
+///
+/// A defined glyph still wins — the map is consulted first, in every form, just
+/// as injection only fires for names the sources leave undefined.
+#[cfg(any(feature = "editor", test))]
+pub fn resolve_ref_name_for_view<'a>(
+    name: &str,
+    named_glyphs: &'a HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> Option<&'a ResolvedGlyph> {
+    lookup_ref_name(name, named_glyphs, name_parts, true)
+}
+
+fn lookup_ref_name<'a>(
+    name: &str,
+    named_glyphs: &'a HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+    synthesize: bool,
 ) -> Option<&'a ResolvedGlyph> {
     if let Some(resolved) = named_glyphs.get(name) {
         return Some(resolved);
@@ -1072,10 +1143,18 @@ pub fn resolve_ref_name_with_parts<'a>(
     if let Some(resolved) = named_glyphs.get(&subst) {
         return Some(resolved);
     }
-    if let Some(expanded) = parse_ref_pattern(&subst) {
-        return named_glyphs.get(&expanded.get(0));
+    let expanded = parse_ref_pattern(&subst).map(|pattern| pattern.get(0));
+    if let Some(expanded) = &expanded
+        && let Some(resolved) = named_glyphs.get(expanded)
+    {
+        return Some(resolved);
     }
-    None
+    if !synthesize {
+        return None;
+    }
+    synthesized_on_demand(name)
+        .or_else(|| synthesized_on_demand(&subst))
+        .or_else(|| expanded.as_deref().and_then(synthesized_on_demand))
 }
 
 /// Check that a ref name resolves to valid glyphs. For pattern refs, ALL
@@ -1100,9 +1179,9 @@ pub fn is_ref_valid(
         return true;
     }
     if let Some(expanded) = parse_ref_pattern(&subst) {
-        return expanded
-            .iter()
-            .all(|n| named_glyphs.contains_key(&n) || crate::on_demand::parse_on_demand_glyph(&n).is_some());
+        return expanded.iter().all(|n| {
+            named_glyphs.contains_key(&n) || crate::on_demand::parse_on_demand_glyph(&n).is_some()
+        });
     }
     false
 }
@@ -1215,6 +1294,10 @@ fn resolve_composite_layout<'a>(
     named_glyphs: &'a HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     parent_scale: u8,
+    // `synthesize`: make up an on-demand target the map does not have yet. The
+    // view sets it; `resolve_expansion`, which is what puts those targets in
+    // the map, does not.
+    synthesize: bool,
 ) -> CompositeLayout<'a> {
     let mut min_r: i32 = 0;
     let mut min_c: i32 = 0;
@@ -1229,7 +1312,7 @@ fn resolve_composite_layout<'a>(
     let ps = parent_scale as i32;
     let mut layers = Vec::new();
     for (ref_idx, gref) in refs.iter().enumerate() {
-        let Some(resolved) = resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts)
+        let Some(resolved) = lookup_ref_name(&gref.name, named_glyphs, name_parts, synthesize)
         else {
             continue;
         };
@@ -1294,7 +1377,7 @@ impl CompositeLayout<'_> {
 
 /// Bounding box (min_row, min_col, max_row, max_col) of a composite made of
 /// `own_pixels` (if any) plus `refs`, each resolved against `named_glyphs`
-/// via [`resolve_ref_name_with_parts`] (which falls back to pattern expansion
+/// via [`resolve_ref_name_for_view`] (which falls back to pattern expansion
 /// when a ref name isn't a direct cache key).
 #[cfg(any(feature = "editor", test))]
 pub(crate) fn composite_bounds(
@@ -1304,7 +1387,15 @@ pub(crate) fn composite_bounds(
     name_parts: &NamePartsMap,
     parent_scale: u8,
 ) -> (i32, i32, i32, i32) {
-    resolve_composite_layout(own_pixels, refs, named_glyphs, name_parts, parent_scale).bounds()
+    resolve_composite_layout(
+        own_pixels,
+        refs,
+        named_glyphs,
+        name_parts,
+        parent_scale,
+        true,
+    )
+    .bounds()
 }
 
 #[cfg(feature = "editor")]
@@ -1343,12 +1434,12 @@ pub fn compute_composite(
         &body.points,
         &body.refs,
         |name| {
-            resolve_ref_name_with_parts(name, named_glyphs, name_parts)
+            resolve_ref_name_for_view(name, named_glyphs, name_parts)
                 .map(|resolved| resolved.resolved_anchors.clone())
         },
         |name| alt_index.get(name).to_vec(),
         |name| {
-            resolve_ref_name_with_parts(name, named_glyphs, name_parts)
+            resolve_ref_name_for_view(name, named_glyphs, name_parts)
                 .map(|resolved| resolved.declared_anchors.clone())
         },
     );
@@ -1363,6 +1454,7 @@ pub fn compute_composite(
         named_glyphs,
         name_parts,
         body.scale,
+        true,
     );
     let (min_r, min_c, max_r, max_c) = layout.bounds();
 
@@ -1421,6 +1513,7 @@ fn composite_to_grid(
         named_glyphs,
         name_parts,
         parent_scale,
+        true,
     )
     .to_grid(own_pixels.as_ref(), parent_scale)
 }

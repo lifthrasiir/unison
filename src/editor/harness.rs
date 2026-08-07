@@ -18,6 +18,12 @@
 //!
 //! Gotcha the harness already handles: synthetic clicks need spacing in time, or
 //! egui reads two of them as a double-click.
+//!
+//! What it papers over: resolution. Every frame that rederives the document
+//! re-resolves the whole document set synchronously, so the resolved glyphs a
+//! scenario reads are always current. The app's are not — they come from a
+//! debounced background thread ([`crate::app::UniformApp`]), so anything about
+//! *when* a shape becomes visible has to be tested below this harness.
 
 use std::collections::HashMap;
 use std::sync::Arc;

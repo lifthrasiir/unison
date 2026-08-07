@@ -146,6 +146,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure and bearings | `ref_composite.rs` |
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
+| Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite.rs` (`resolve_ref_name_for_view`) |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document.rs` (`snap_details_to_catalog`) |
 | Why the exact sweep carries no rational arithmetic, and the width budget that bounds it | `detail.rs` (`Frac`, `MAX_SWEEP_COORD`) |

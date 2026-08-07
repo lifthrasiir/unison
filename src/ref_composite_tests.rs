@@ -81,6 +81,55 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
     );
 }
 
+/// An on-demand ref must draw from the frame it is typed in.
+///
+/// The editor's composite lookup reads the resolved-glyph map the derived
+/// thread produces, and an on-demand name only enters that map when the whole
+/// font is expanded again — a second or more over `font/`, behind a 1 s
+/// debounce, and the request that would carry it is often queued behind the
+/// resolve already running. Every other ref renders at once because its target
+/// is already in the map; this one used to be the only kind that visibly
+/// lagged. The lookup therefore synthesizes it here, from a map that does not
+/// have it yet.
+#[test]
+fn on_demand_ref_composites_before_the_next_resolve() {
+    let cache: HashMap<String, ResolvedGlyph> = HashMap::new();
+    let refs = vec![GlyphRef {
+        comment: None,
+        name: "4x2".to_string(),
+        offset: None,
+        negated: false,
+        inherit: false,
+        fill: None,
+        visibility: None,
+    }];
+    let body = GlyphBody {
+        refs: refs.clone(),
+        ..GlyphBody::new()
+    };
+    let empty_parts = NamePartsMap::new();
+    let composite = compute_composite(
+        &body,
+        &cache,
+        &empty_parts,
+        &AlternativesIndex::default(),
+        &Default::default(),
+    )
+    .expect("has refs");
+    assert_eq!(
+        composite.layers.len(),
+        1,
+        "the on-demand ref should be a layer without waiting for a resolve"
+    );
+    assert_eq!((composite.width, composite.height), (4, 2));
+    assert!(composite.any_layer_filled_at(0, 0));
+    assert!(composite.any_layer_filled_at(1, 3));
+
+    // The flattened form the thumbnails and the grid renderer share must agree.
+    let grid = composite_to_grid(&None, &refs, &cache, &empty_parts, 1);
+    assert!(grid.get(0, 0).is_filled());
+}
+
 #[test]
 fn adjoin_resolves_offset_from_points() {
     use crate::document_io;

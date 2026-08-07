@@ -214,7 +214,7 @@ pub(super) fn inline_ref_to_pixels(
 
     let gref = &body.refs[ref_idx];
     let resolved =
-        match ref_composite::resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts) {
+        match ref_composite::resolve_ref_name_for_view(&gref.name, named_glyphs, name_parts) {
             Some(r) => r,
             None => return false,
         };

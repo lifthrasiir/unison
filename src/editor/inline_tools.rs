@@ -186,7 +186,7 @@ pub(crate) fn draw_inline_tools_panel(
     let mut inline_ref_action: Option<usize> = None;
     for (ref_idx, gref) in body.refs.iter().enumerate() {
         let resolved =
-            ref_composite::resolve_ref_name_with_parts(&gref.name, named_glyphs, name_parts);
+            ref_composite::resolve_ref_name_for_view(&gref.name, named_glyphs, name_parts);
         // A `scale N` glyph's grid is N times finer than its logical size, so
         // the thumbnail is sized from the logical extent and its subcells are
         // drawn at a correspondingly smaller cell size — otherwise the subglyph
