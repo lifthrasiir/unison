@@ -778,3 +778,35 @@ fn a_curved_outline_stitches_across_cell_borders() {
         assert_eq!(paths.len(), 1, "{name}: {} outlines", paths.len());
     }
 }
+
+/// Boolean ops over the sub-pixel geometry a curve cuts must stay exact.
+///
+/// A curve cell sits on the `1/51` lattice of `REGION_DEN`, far finer than the
+/// 2 or 4 of a catalog shape, and cutting two of them against each other is
+/// what first pushed the sweep's arithmetic out of range: the intermediates
+/// wrapped, `Frac`'s ordering stopped being an ordering, and the next sort
+/// died with "comparison function does not correctly implement a total order".
+/// The sweep is bounded by construction now (`detail::MAX_SWEEP_COORD`); this
+/// is the case that has to keep passing for that to mean anything.
+#[test]
+fn curve_regions_survive_boolean_ops() {
+    use crate::detail::{BoolOp, DetailRegion};
+
+    let mut regions: Vec<DetailRegion> = Vec::new();
+    for name in ["9x16-circle", "5p1r2x8-circle", "16x16-poly5r2"] {
+        let grid = make_on_demand_grid(&shape_of(name));
+        // Every fifth outline cell: enough shapes to cross-cut each other in
+        // every direction without the pair loop below turning quadratic on a
+        // whole outline.
+        regions.extend(grid.details.values().step_by(5).cloned());
+    }
+
+    for a in &regions {
+        for b in &regions {
+            for op in [BoolOp::Union, BoolOp::Intersect, BoolOp::Subtract] {
+                let out = crate::detail::bool_op(a, b, op);
+                assert!(out.area_exact().0 >= 0);
+            }
+        }
+    }
+}

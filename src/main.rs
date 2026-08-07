@@ -12,6 +12,7 @@ mod faces;
 #[cfg(test)]
 mod golden;
 mod issues;
+mod math;
 mod meta;
 mod on_demand;
 mod pattern;

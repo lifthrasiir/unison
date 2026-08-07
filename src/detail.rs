@@ -9,12 +9,21 @@
 //! makes storage insensitive to ring orientation.
 //!
 //! Regions are combined through a y-slab trapezoid sweep carried out in
-//! exact rational arithmetic; stitching and collinear simplification also
+//! exact integer arithmetic; stitching and collinear simplification also
 //! run exactly, so only genuinely off-lattice vertices (crossing points of
 //! diagonal edges) are snapped to the output lattice at the very end.
+//!
+//! "Exact" here is a bounded claim, not a hopeful one: the sweep's input is
+//! integers on one lattice, every value it derives is computed in one step
+//! from those integers rather than by chaining rational operations, and
+//! [`MAX_SWEEP_COORD`] carries the width budget that says an `i128` holds all
+//! of it. [`Frac`] explains why a chained fixed-width rational cannot work at
+//! any width, which is the bug this shape exists to rule out.
 
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap};
+
+use crate::math::{gcd_i128, gcd_u64, lcm_u64};
 
 use crate::pixel::{
     PX_ALMOSTFULL, PX_BACKSLASH, PX_CONE1, PX_CONE2, PX_CONE3, PX_CONE4, PX_CORNER1, PX_CORNER2,
@@ -204,57 +213,74 @@ pub fn subtract_classified(a: &DetailRegion, b: &DetailRegion) -> Classified {
 // Exact rational scalar (internal)
 // ---------------------------------------------------------------------------
 
-/// Rational number `n / d`, `d > 0`, always kept reduced (so the derived
-/// `PartialEq`/`Hash` are structural equality of the value).
+/// Exact rational in **sweep units**: the real coordinate is `n / (d * scale)`
+/// for the scale [`normalize_input`] chose. Always reduced and `d > 0`, so the
+/// derived `PartialEq`/`Hash`/`Ord` are equality and order of the value.
+///
+/// # Why this type has no arithmetic
+///
+/// A fixed-width rational overflows as soon as you *chain* operations on it:
+/// each `a/b op c/d` multiplies the denominators, so the width grows with the
+/// number of operations rather than with the size of the input, and no width
+/// is enough — `i64` fell over here the day a curve raised the lattice
+/// denominator from 4 to 51, and `i128` would only have moved the day.
+///
+/// So this type carries no `add`/`sub`/`mul`/`div`. Every derived value the
+/// sweep needs — a crossing height, an x at a height — is computed *in one
+/// step from the integer input* by [`crossing_height`] and [`x_at`], as a
+/// determinant would be. The width is then a function of the input alone, and
+/// [`MAX_SWEEP_COORD`] states the bound that makes it fit. The remaining
+/// operations are comparison and rounding onto the output lattice, and their
+/// widths are bounded in the same breath.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 struct Frac {
-    n: i64,
-    d: i64,
+    n: i128,
+    d: i128,
 }
 
 impl Frac {
-    fn new(n: i64, d: i64) -> Self {
+    fn new(n: i128, d: i128) -> Self {
         debug_assert!(d != 0);
         let (n, d) = if d < 0 { (-n, -d) } else { (n, d) };
-        let g = gcd(n.unsigned_abs(), d as u64).max(1) as i64;
-        Self { n: n / g, d: d / g }
+        if n == 0 {
+            return Self { n: 0, d: 1 };
+        }
+        if d == 1 {
+            return Self { n, d };
+        }
+        let g = gcd_i128(n, d);
+        // A 128-bit division is a call into a software routine, and a gcd of
+        // 1 is the common case; skipping it there is worth the branch.
+        if g == 1 {
+            Self { n, d }
+        } else {
+            Self { n: n / g, d: d / g }
+        }
     }
 
     fn from_int(n: i64) -> Self {
-        Self { n, d: 1 }
+        Self { n: n as i128, d: 1 }
     }
 
-    fn add(self, o: Self) -> Self {
-        Self::new(self.n * o.d + o.n * self.d, self.d * o.d)
+    /// The real value as `n / d`, given the sweep scale.
+    fn to_real(self, scale: i64) -> (i128, i128) {
+        let d = self.d * scale as i128;
+        let g = gcd_i128(self.n, d);
+        if g == 1 {
+            (self.n, d)
+        } else {
+            (self.n / g, d / g)
+        }
     }
 
-    fn sub(self, o: Self) -> Self {
-        Self::new(self.n * o.d - o.n * self.d, self.d * o.d)
-    }
-
-    fn mul(self, o: Self) -> Self {
-        Self::new(self.n * o.n, self.d * o.d)
-    }
-
-    fn div(self, o: Self) -> Self {
-        debug_assert!(o.n != 0);
-        Self::new(self.n * o.d, self.d * o.n)
-    }
-
-    fn mid(self, o: Self) -> Self {
-        self.add(o).div(Frac::from_int(2))
-    }
-
-    fn is_zero(self) -> bool {
-        self.n == 0
-    }
-
-    /// Round to the nearest multiple of `1/den`.
-    fn round_to_den(self, den: i64) -> i64 {
-        let num = self.n * den;
-        let q = num.div_euclid(self.d);
-        let r = num.rem_euclid(self.d);
-        if 2 * r >= self.d { q + 1 } else { q }
+    /// Round the real value to the nearest multiple of `1/den`, halves up.
+    fn round_to_den(self, den: i64, scale: i64) -> i64 {
+        let (n, d) = self.to_real(scale);
+        let num = n * den as i128;
+        let q = num.div_euclid(d);
+        let r = num.rem_euclid(d);
+        let q = if 2 * r >= d { q + 1 } else { q };
+        q as i64
     }
 }
 
@@ -266,28 +292,20 @@ impl PartialOrd for Frac {
 
 impl Ord for Frac {
     fn cmp(&self, other: &Self) -> Ordering {
+        if self.d == other.d {
+            return self.n.cmp(&other.n);
+        }
+        // Bounded by the budget in [`MAX_SWEEP_COORD`]: at most 2^68 * 2^52.
         (self.n * other.d).cmp(&(other.n * self.d))
     }
-}
-
-fn gcd(mut a: u64, mut b: u64) -> u64 {
-    while b != 0 {
-        let t = a % b;
-        a = b;
-        b = t;
-    }
-    a
 }
 
 /// Least common multiple of two lattice denominators, or `None` when it
 /// exceeds [`MAX_DEN`] (callers should then snap to a chosen denominator).
 pub fn lcm_den(a: u8, b: u8) -> Option<u8> {
-    let (a, b) = (a.max(1) as u64, b.max(1) as u64);
-    let l = a / gcd(a, b) * b;
-    if l <= MAX_DEN as u64 {
-        Some(l as u8)
-    } else {
-        None
+    match lcm_u64(a.max(1) as u64, b.max(1) as u64) {
+        Some(l) if l <= MAX_DEN as u64 => Some(l as u8),
+        _ => None,
     }
 }
 
@@ -297,56 +315,281 @@ pub fn lcm_den(a: u8, b: u8) -> Option<u8> {
 
 type FPoint = (Frac, Frac);
 
+/// Bound on a sweep input coordinate, in sweep units.
+///
+/// # The width proof
+///
+/// The sweep's input is integer points on one lattice ([`normalize_input`]),
+/// with every coordinate at most `C = MAX_SWEEP_COORD` in magnitude. Every
+/// value the sweep derives is then bounded by `C` alone — not by how many
+/// edges, slabs or operations there are:
+///
+/// | value | form | bound |
+/// | --- | --- | --- |
+/// | edge delta `dx`, `dy` | difference | `2C` |
+/// | `det` of two deltas | 2x2 | `8C²` |
+/// | crossing height `y` | [`crossing_height`] | `24C³ / 8C²` |
+/// | `x` on an edge at `y` | [`x_at`] | `16C⁴ / 16C³` |
+/// | comparing two such `x` | [`Frac::cmp`] | `256C⁷` |
+///
+/// With `C = 2^16` the widest of those is `2^120`, which leaves seven bits in
+/// an `i128`. That is the whole reason `C` is what it is: it is read off the
+/// last row, not measured on a corpus. Raising it costs seven bits per bit.
+///
+/// The one predicate that would *not* have been bounded this way is testing
+/// three derived points for collinearity — a 3x3 determinant over `16C⁴`
+/// entries is `C^11`, hopeless at any width. [`Line`] removes the need for it.
+const MAX_SWEEP_COORD: i64 = 1 << 16;
+
 /// A non-horizontal edge normalized to point downward, tagged with the
-/// operand (0 or 1) it belongs to.
+/// operand (0 or 1) it belongs to. Coordinates are integers in sweep units.
 #[derive(Clone, Copy, Debug)]
 struct SweepEdge {
-    x1: Frac,
-    y1: Frac,
-    x2: Frac,
-    y2: Frac,
+    x1: i64,
+    y1: i64,
+    x2: i64,
+    y2: i64,
     operand: u8,
 }
 
-impl SweepEdge {
-    fn new(a: FPoint, b: FPoint, operand: u8) -> Option<Self> {
-        if a.1 == b.1 {
-            return None;
+/// The line a ring segment lies on, as a reduced `a·x + b·y + c = 0` over
+/// integers in sweep units, sign-normalized so that equality of the triple is
+/// equality of the line.
+///
+/// This is what replaces a collinearity *test* on derived points. Every
+/// segment the sweep emits lies either on an input edge or on a slab boundary,
+/// so its line is known exactly, from the integers, before any crossing is
+/// computed — and two segments are collinear exactly when their lines are
+/// equal. Two collinear input edges (a common border of the two operands, say)
+/// normalize to the same triple, so this merges as much as the old 3x3
+/// determinant did, at a width bounded by the input rather than by `C^11`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct Line {
+    a: i128,
+    b: i128,
+    c: i128,
+}
+
+impl Line {
+    fn new(a: i128, b: i128, c: i128) -> Self {
+        let g = gcd_i128(gcd_i128(a, b), c).max(1);
+        let (a, b, c) = (a / g, b / g, c / g);
+        // Canonical sign: the first nonzero coefficient is positive.
+        let neg = if a != 0 {
+            a < 0
+        } else if b != 0 {
+            b < 0
+        } else {
+            c < 0
+        };
+        if neg {
+            Self {
+                a: -a,
+                b: -b,
+                c: -c,
+            }
+        } else {
+            Self { a, b, c }
         }
-        let (p, q) = if a.1 < b.1 { (a, b) } else { (b, a) };
-        Some(Self {
-            x1: p.0,
-            y1: p.1,
-            x2: q.0,
-            y2: q.1,
-            operand,
-        })
     }
 
-    /// x coordinate at height `y` (`y1 <= y <= y2`).
-    fn x_at(&self, y: Frac) -> Frac {
-        self.x1.add(
-            y.sub(self.y1)
-                .mul(self.x2.sub(self.x1))
-                .div(self.y2.sub(self.y1)),
-        )
+    /// The line an edge lies on. Bounded by `2C` and `4C²`.
+    fn of_edge(e: &SweepEdge) -> Self {
+        let (a, b) = ((e.y2 - e.y1) as i128, (e.x1 - e.x2) as i128);
+        Self::new(a, b, -(a * e.x1 as i128 + b * e.y1 as i128))
+    }
+
+    /// The horizontal line `y = h`. Input edges are never horizontal, so this
+    /// can never collide with [`Line::of_edge`].
+    fn horizontal(h: Frac) -> Self {
+        Self::new(0, h.d, -h.n)
     }
 }
 
-fn ring_sweep_edges(ring: &[(u8, u8)], den: i64, operand: u8, out: &mut Vec<SweepEdge>) {
-    let n = ring.len();
-    for i in 0..n {
-        let (x1, y1) = ring[i];
-        let (x2, y2) = ring[(i + 1) % n];
-        let a = (Frac::new(x1 as i64, den), Frac::new(y1 as i64, den));
-        let b = (Frac::new(x2 as i64, den), Frac::new(y2 as i64, den));
-        if let Some(e) = SweepEdge::new(a, b, operand) {
-            out.push(e);
+/// A sweep input point in real units, exact as `n/d` per axis, before
+/// [`normalize_input`] puts it on the integer lattice.
+#[derive(Clone, Copy, Debug)]
+struct RatPoint {
+    x: (i64, i64),
+    y: (i64, i64),
+}
+
+impl RatPoint {
+    fn new(x: (i64, i64), y: (i64, i64)) -> Self {
+        debug_assert!(x.1 > 0 && y.1 > 0);
+        Self { x, y }
+    }
+
+    fn lattice(x: i64, y: i64, den: i64) -> Self {
+        Self::new((x, den), (y, den))
+    }
+}
+
+/// Put the input polygons on one integer lattice, so that everything after
+/// this point is integer arithmetic with the budget of [`MAX_SWEEP_COORD`].
+///
+/// The scale is the lcm of the input denominators whenever that is within
+/// budget, which is every case the callers in this file actually produce: the
+/// widest is `lcm(den_a, den_b) <= 255² = 65025`, just inside `2^16`. When a
+/// caller does come in finer than the budget, coordinates are rounded onto the
+/// finest lattice that fits instead. That is not a silent loss of exactness:
+/// the sweep's *output* is snapped to a denominator of at most
+/// [`MAX_DEN`] = 255, so a lattice of at least `2^16/3` is already more than
+/// eight bits finer than anything the result can express.
+fn normalize_input(input: &SweepInput) -> (i64, Vec<SweepEdge>) {
+    let mut scale: u64 = 1;
+    let mut extent: i64 = 1;
+    for p in &input.pts {
+        for (n, d) in [p.x, p.y] {
+            scale = lcm_u64(scale, d as u64).unwrap_or(u64::MAX);
+            extent = extent.max((n.abs() + d - 1) / d);
+        }
+    }
+    let cap = (MAX_SWEEP_COORD / extent).max(1) as u64;
+    let scale = scale.min(cap) as i64;
+
+    let to_lattice = |(n, d): (i64, i64)| -> i64 {
+        // The lattice was built as the lcm of these denominators, so unless it
+        // had to be capped this is an exact multiply and no division runs.
+        if scale % d == 0 {
+            return n * (scale / d);
+        }
+        let num = n as i128 * scale as i128;
+        let d = d as i128;
+        let q = num.div_euclid(d);
+        let r = num.rem_euclid(d);
+        (if 2 * r >= d { q + 1 } else { q }) as i64
+    };
+
+    let mut edges = Vec::new();
+    for &(start, end, operand) in &input.rings {
+        let ring = &input.pts[start..end];
+        let n = ring.len();
+        for i in 0..n {
+            let p = ring[i];
+            let q = ring[(i + 1) % n];
+            let (ax, ay) = (to_lattice(p.x), to_lattice(p.y));
+            let (bx, by) = (to_lattice(q.x), to_lattice(q.y));
+            if ay == by {
+                continue; // horizontal edges carry no parity
+            }
+            let (p, q) = if ay < by {
+                ((ax, ay), (bx, by))
+            } else {
+                ((bx, by), (ax, ay))
+            };
+            debug_assert!(
+                p.0.abs().max(q.0.abs()).max(q.1.abs()) <= MAX_SWEEP_COORD,
+                "sweep input outside the width budget"
+            );
+            edges.push(SweepEdge {
+                x1: p.0,
+                y1: p.1,
+                x2: q.0,
+                y2: q.1,
+                operand,
+            });
+        }
+    }
+    (scale, edges)
+}
+
+/// The rings of a sweep's input, in one flat buffer.
+#[derive(Default)]
+struct SweepInput {
+    pts: Vec<RatPoint>,
+    /// `(start, end, operand)` into `pts`, one entry per ring.
+    rings: Vec<(usize, usize, u8)>,
+}
+
+impl SweepInput {
+    fn push_ring(&mut self, operand: u8, pts: impl IntoIterator<Item = RatPoint>) {
+        let start = self.pts.len();
+        self.pts.extend(pts);
+        if self.pts.len() - start >= 3 {
+            self.rings.push((start, self.pts.len(), operand));
+        } else {
+            self.pts.truncate(start);
+        }
+    }
+
+    /// The rings of a lattice region, tagged with an operand.
+    fn push_region(&mut self, region: &DetailRegion, operand: u8) {
+        let den = region.den.max(1) as i64;
+        for ring in &region.rings {
+            self.push_ring(
+                operand,
+                ring.iter()
+                    .map(|&(x, y)| RatPoint::lattice(x as i64, y as i64, den)),
+            );
+        }
+    }
+
+    /// The unit square as the clipping operand of a transforming sweep.
+    fn push_unit(&mut self, operand: u8) {
+        self.push_region(&DetailRegion::full(), operand);
+    }
+
+    /// `region` mapped onto the rectangle `[x0, x0+w] x [y0, y0+h]`.
+    ///
+    /// The mapped coordinate is written out as a single fraction,
+    /// `(x0.n·den·w.d + p·w.n·x0.d) / (x0.d·den·w.d)`, rather than assembled
+    /// from rational adds and multiplies. Chaining is what a fixed width
+    /// cannot afford (see [`Frac`]); a closed form over the caller's integers,
+    /// each at most a `u8` lattice denominator or a scale ratio, is bounded by
+    /// the input.
+    fn push_transformed(
+        &mut self,
+        region: &DetailRegion,
+        x0: Frac64,
+        y0: Frac64,
+        w: Frac64,
+        h: Frac64,
+    ) {
+        let den = region.den.max(1) as i64;
+        let map = |p: i64, o: Frac64, s: Frac64| -> (i64, i64) {
+            (o.n * den * s.d + p * s.n * o.d, o.d * den * s.d)
+        };
+        for ring in &region.rings {
+            self.push_ring(
+                0,
+                ring.iter()
+                    .map(|&(px, py)| RatPoint::new(map(px as i64, x0, w), map(py as i64, y0, h))),
+            );
         }
     }
 }
 
-/// One filled x-interval of a y-slab, with exact corner coordinates.
+/// Height at which two edges cross, or `None` when they are parallel.
+///
+/// Written as the determinant it is rather than as a chain of rational steps:
+/// with `u = b1 - a1`, the crossing is at `t = (u x bd) / (ad x bd)` along `a`,
+/// so `y = a1y + t·ady` is one fraction built from the integer input in a
+/// single step. Bounded by `24C³ / 8C²`.
+fn crossing_height(a: &SweepEdge, b: &SweepEdge) -> Option<Frac> {
+    let (adx, ady) = ((a.x2 - a.x1) as i128, (a.y2 - a.y1) as i128);
+    let (bdx, bdy) = ((b.x2 - b.x1) as i128, (b.y2 - b.y1) as i128);
+    let det = adx * bdy - ady * bdx;
+    if det == 0 {
+        return None;
+    }
+    let (ux, uy) = ((b.x1 - a.x1) as i128, (b.y1 - a.y1) as i128);
+    let t_num = ux * bdy - uy * bdx;
+    Some(Frac::new(a.y1 as i128 * det + t_num * ady, det))
+}
+
+/// x coordinate where `e` meets height `y`, which must lie within its span.
+///
+/// `x = e.x1 + (y - e.y1)·edx/edy`, put over `edy·y.d` in one step so that the
+/// result is bounded by `16C⁴ / 16C³` however `y` was obtained.
+fn x_at(e: &SweepEdge, y: Frac) -> Frac {
+    let (edx, edy) = ((e.x2 - e.x1) as i128, (e.y2 - e.y1) as i128);
+    let num = e.x1 as i128 * edy * y.d + (y.n - e.y1 as i128 * y.d) * edx;
+    Frac::new(num, edy * y.d)
+}
+
+/// One filled x-interval of a y-slab, with exact corner coordinates and the
+/// lines its two sides lie on.
 #[derive(Clone, Debug)]
 struct Trap {
     y_top: Frac,
@@ -355,6 +598,8 @@ struct Trap {
     xl_bot: Frac,
     xr_top: Frac,
     xr_bot: Frac,
+    left: Line,
+    right: Line,
 }
 
 /// Sweep the plane and keep the set where `filled(in_a, in_b)` holds, with
@@ -363,35 +608,20 @@ fn sweep(edges: &[SweepEdge], filled: &dyn Fn(bool, bool) -> bool) -> Vec<Trap> 
     // Slab cut heights: every endpoint plus every pairwise crossing height.
     let mut ys: Vec<Frac> = Vec::new();
     for e in edges {
-        ys.push(e.y1);
-        ys.push(e.y2);
+        ys.push(Frac::from_int(e.y1));
+        ys.push(Frac::from_int(e.y2));
     }
     for (i, a) in edges.iter().enumerate() {
         for b in &edges[i + 1..] {
-            let lo = a.y1.max(b.y1);
-            let hi = a.y2.min(b.y2);
+            let lo = Frac::from_int(a.y1.max(b.y1));
+            let hi = Frac::from_int(a.y2.min(b.y2));
             if lo >= hi {
                 continue;
             }
-            // Solve x_a(y) = x_b(y); both are linear in y.
-            let adx = a.x2.sub(a.x1);
-            let ady = a.y2.sub(a.y1);
-            let bdx = b.x2.sub(b.x1);
-            let bdy = b.y2.sub(b.y1);
-            let denom = adx.mul(bdy).sub(bdx.mul(ady));
-            if denom.is_zero() {
-                continue; // parallel
-            }
-            // From a.x1 + (y - a.y1)·adx/ady = b.x1 + (y - b.y1)·bdx/bdy,
-            // multiplied through by ady·bdy:
-            let lhs =
-                b.x1.sub(a.x1)
-                    .mul(ady)
-                    .mul(bdy)
-                    .add(a.y1.mul(adx).mul(bdy))
-                    .sub(b.y1.mul(bdx).mul(ady));
-            let y = lhs.div(denom);
-            if y > lo && y < hi {
+            if let Some(y) = crossing_height(a, b)
+                && y > lo
+                && y < hi
+            {
                 ys.push(y);
             }
         }
@@ -399,23 +629,30 @@ fn sweep(edges: &[SweepEdge], filled: &dyn Fn(bool, bool) -> bool) -> Vec<Trap> 
     ys.sort();
     ys.dedup();
 
+    // One line per edge, not one per edge per slab.
+    let lines: Vec<Line> = edges.iter().map(Line::of_edge).collect();
+
     let mut traps: Vec<Trap> = Vec::new();
     for w in ys.windows(2) {
         let (ya, yb) = (w[0], w[1]);
-        let ym = ya.mid(yb);
-        // (x at mid, x at top, x at bottom, operand) for edges spanning the slab.
-        let mut xs: Vec<(Frac, Frac, Frac, u8)> = Vec::new();
-        for e in edges {
-            if e.y1 <= ya && e.y2 >= yb {
-                xs.push((e.x_at(ym), e.x_at(ya), e.x_at(yb), e.operand));
+        // Every crossing is a slab boundary, so within a slab the spanning
+        // edges keep one left-to-right order and `(x at ya, x at yb)` is it.
+        // Ordering by the x at the slab's *midpoint* would read the same, but
+        // the midpoint is the one value in this file built from two derived
+        // heights at once — that product is what put the arithmetic outside
+        // any input-shaped bound, and nothing needs it.
+        let mut xs: Vec<(Frac, Frac, u8, Line)> = Vec::new();
+        for (e, &line) in edges.iter().zip(&lines) {
+            if Frac::from_int(e.y1) <= ya && Frac::from_int(e.y2) >= yb {
+                xs.push((x_at(e, ya), x_at(e, yb), e.operand, line));
             }
         }
-        xs.sort_by_key(|p| p.0);
+        xs.sort_by(|p, q| p.0.cmp(&q.0).then_with(|| p.1.cmp(&q.1)));
 
         let mut in_a = false;
         let mut in_b = false;
-        let mut run_start: Option<(Frac, Frac)> = None;
-        for &(_, x_top, x_bot, operand) in &xs {
+        let mut run_start: Option<(Frac, Frac, Line)> = None;
+        for &(x_top, x_bot, operand, line) in &xs {
             let was = filled(in_a, in_b);
             if operand == 0 {
                 in_a = !in_a;
@@ -424,9 +661,9 @@ fn sweep(edges: &[SweepEdge], filled: &dyn Fn(bool, bool) -> bool) -> Vec<Trap> 
             }
             let now = filled(in_a, in_b);
             if !was && now {
-                run_start = Some((x_top, x_bot));
+                run_start = Some((x_top, x_bot, line));
             } else if was && !now {
-                let (xl_top, xl_bot) = run_start.take().expect("run must be open");
+                let (xl_top, xl_bot, left) = run_start.take().expect("run must be open");
                 if !(xl_top == x_top && xl_bot == x_bot) {
                     traps.push(Trap {
                         y_top: ya,
@@ -435,6 +672,8 @@ fn sweep(edges: &[SweepEdge], filled: &dyn Fn(bool, bool) -> bool) -> Vec<Trap> 
                         xl_bot,
                         xr_top: x_top,
                         xr_bot: x_bot,
+                        left,
+                        right: line,
                     });
                 }
             }
@@ -457,8 +696,8 @@ fn sweep(edges: &[SweepEdge], filled: &dyn Fn(bool, bool) -> bool) -> Vec<Trap> 
 /// still exact. The output lattice denominator is chosen as the lcm of the
 /// remaining vertices' denominators, so the result is exact whenever that
 /// lcm fits [`MAX_DEN`]; otherwise vertices are snapped to a 255 lattice.
-fn traps_to_rings(traps: &[Trap]) -> (u8, Vec<Vec<(u8, u8)>>) {
-    let mut side_segs: Vec<(FPoint, FPoint)> = Vec::new();
+fn traps_to_rings(traps: &[Trap], scale: i64) -> (u8, Vec<Vec<(u8, u8)>>) {
+    let mut side_segs: Vec<(FPoint, FPoint, Line)> = Vec::new();
     // y → x → signed breakpoint delta for horizontal borders at that height.
     let mut horiz: BTreeMap<Frac, BTreeMap<Frac, i64>> = BTreeMap::new();
     let mut add_horiz = |y: Frac, xa: Frac, xb: Frac, dir: i64| {
@@ -483,16 +722,17 @@ fn traps_to_rings(traps: &[Trap]) -> (u8, Vec<Vec<(u8, u8)>>) {
         add_horiz(t.y_top, lt.0, rt.0, 1);
         add_horiz(t.y_bot, rb.0, lb.0, -1);
         if rt != rb {
-            side_segs.push((rt, rb));
+            side_segs.push((rt, rb, t.right));
         }
         if lb != lt {
-            side_segs.push((lb, lt));
+            side_segs.push((lb, lt, t.left));
         }
     }
 
     // Resolve horizontal borders into net directed segments.
-    let mut segs: Vec<(FPoint, FPoint)> = Vec::new();
+    let mut segs: Vec<(FPoint, FPoint, Line)> = Vec::new();
     for (y, row) in &horiz {
+        let line = Line::horizontal(*y);
         let mut level = 0i64;
         let mut start: Option<(Frac, i64)> = None; // (x, direction sign)
         for (&x, &delta) in row {
@@ -508,9 +748,9 @@ fn traps_to_rings(traps: &[Trap]) -> (u8, Vec<Vec<(u8, u8)>>) {
             } else if was != 0 && now != was {
                 let (sx, sdir) = start.take().expect("open horizontal run");
                 if sdir > 0 {
-                    segs.push(((sx, *y), (x, *y)));
+                    segs.push(((sx, *y), (x, *y), line));
                 } else {
-                    segs.push(((x, *y), (sx, *y)));
+                    segs.push(((x, *y), (sx, *y), line));
                 }
                 if now != 0 {
                     start = Some((x, now));
@@ -522,18 +762,16 @@ fn traps_to_rings(traps: &[Trap]) -> (u8, Vec<Vec<(u8, u8)>>) {
     }
     segs.extend(side_segs);
 
-    let rings: Vec<Vec<FPoint>> = link_rings(segs).into_iter().map(simplify_exact).collect();
+    let rings: Vec<Vec<FPoint>> = link_rings(segs).into_iter().map(drop_collinear).collect();
 
     // Pick the smallest lattice that represents every remaining vertex
     // exactly, clamped to MAX_DEN (beyond which vertices get rounded).
     let mut den: u64 = 1;
     for ring in &rings {
         for &(x, y) in ring {
-            for d in [x.d as u64, y.d as u64] {
-                den = den / gcd(den, d) * d;
-                if den > MAX_DEN as u64 {
-                    den = MAX_DEN as u64;
-                }
+            for v in [x, y] {
+                let d = v.to_real(scale).1 as u64;
+                den = lcm_u64(den, d).unwrap_or(u64::MAX).min(MAX_DEN as u64);
             }
         }
     }
@@ -545,8 +783,8 @@ fn traps_to_rings(traps: &[Trap]) -> (u8, Vec<Vec<(u8, u8)>>) {
             .iter()
             .map(|&(x, y)| {
                 (
-                    x.round_to_den(den).clamp(0, den),
-                    y.round_to_den(den).clamp(0, den),
+                    x.round_to_den(den, scale).clamp(0, den),
+                    y.round_to_den(den, scale).clamp(0, den),
                 )
             })
             .collect();
@@ -566,50 +804,67 @@ fn traps_to_rings(traps: &[Trap]) -> (u8, Vec<Vec<(u8, u8)>>) {
 }
 
 /// Link directed segments into closed rings, cancelling exact opposite
-/// pairs first (shared borders of adjacent trapezoids).
-fn link_rings(segs: Vec<(FPoint, FPoint)>) -> Vec<Vec<FPoint>> {
-    let mut counter: HashMap<(FPoint, FPoint), i32> = HashMap::new();
-    for (a, b) in segs {
+/// pairs first (shared borders of adjacent trapezoids). Each ring vertex is
+/// returned with the line of the segment *leaving* it, for [`drop_collinear`].
+///
+/// Vertices are interned to ids first. The ids are handed out in sorted order,
+/// so an id comparison is a coordinate comparison and the linking order — which
+/// decides where a ring starts, and so the exact ring this returns — is
+/// unchanged; what it buys is that the cancellation map hashes an 8-byte pair
+/// instead of four 128-bit rationals.
+fn link_rings(segs: Vec<(FPoint, FPoint, Line)>) -> Vec<Vec<(FPoint, Line)>> {
+    let mut points: Vec<FPoint> = Vec::with_capacity(segs.len() * 2);
+    for (a, b, _) in &segs {
+        points.push(*a);
+        points.push(*b);
+    }
+    points.sort();
+    points.dedup();
+    let id = |p: &FPoint| -> u32 { points.binary_search(p).expect("interned point") as u32 };
+
+    let mut counter: HashMap<(u32, u32), (i32, Line)> = HashMap::new();
+    for (a, b, line) in &segs {
+        let (a, b) = (id(a), id(b));
         if a == b {
             continue;
         }
-        if let Some(c) = counter.get_mut(&(b, a)) {
+        if let Some((c, _)) = counter.get_mut(&(b, a)) {
             *c -= 1;
             if *c == 0 {
                 counter.remove(&(b, a));
             }
             continue;
         }
-        *counter.entry((a, b)).or_insert(0) += 1;
+        counter.entry((a, b)).or_insert((0, *line)).0 += 1;
     }
-    let mut by_start: BTreeMap<FPoint, Vec<FPoint>> = BTreeMap::new();
-    for ((a, b), c) in counter {
+    let mut by_start: BTreeMap<u32, Vec<(u32, Line)>> = BTreeMap::new();
+    for ((a, b), (c, line)) in counter {
         debug_assert!(c > 0);
         for _ in 0..c {
-            by_start.entry(a).or_default().push(b);
+            by_start.entry(a).or_default().push((b, line));
         }
     }
     for list in by_start.values_mut() {
-        list.sort();
+        list.sort_by_key(|p| p.0);
     }
 
     let mut rings = Vec::new();
     while let Some((&start, _)) = by_start.first_key_value() {
-        let mut ring = vec![start];
+        let mut ring: Vec<(FPoint, Line)> = Vec::new();
         let mut cur = start;
         loop {
             let Some(nexts) = by_start.get_mut(&cur) else {
                 debug_assert!(false, "open chain in ring linking");
                 break;
             };
-            let next = nexts.pop().expect("empty successor list");
+            let (next, line) = nexts.pop().expect("empty successor list");
             if nexts.is_empty() {
                 by_start.remove(&cur);
             }
+            ring.push((points[cur as usize], line));
             if next == start {
                 break;
             }
-            ring.push(next);
             cur = next;
         }
         if ring.len() >= 3 {
@@ -619,21 +874,22 @@ fn link_rings(segs: Vec<(FPoint, FPoint)>) -> Vec<Vec<FPoint>> {
     rings
 }
 
-/// Remove exactly-collinear intermediate vertices (exact arithmetic).
-fn simplify_exact(ring: Vec<FPoint>) -> Vec<FPoint> {
+/// Drop vertices whose two incident segments lie on the same line.
+///
+/// This is the collinearity test, done symbolically: the sweep knows the line
+/// of every segment it emits ([`Line`]), so three consecutive vertices are
+/// collinear exactly when the two segments meeting at the middle one share a
+/// line. The alternative — a cross product of three derived points — is the
+/// one predicate in this file whose width is cubic in already-derived values,
+/// and no fixed integer width bounds it. See [`MAX_SWEEP_COORD`].
+fn drop_collinear(ring: Vec<(FPoint, Line)>) -> Vec<FPoint> {
     let n = ring.len();
     let mut out: Vec<FPoint> = Vec::with_capacity(n);
     for i in 0..n {
-        let p = ring[(i + n - 1) % n];
-        let q = ring[i];
-        let r = ring[(i + 1) % n];
-        // cross = (q - p) × (r - p), exact.
-        let cross =
-            q.0.sub(p.0)
-                .mul(r.1.sub(p.1))
-                .sub(q.1.sub(p.1).mul(r.0.sub(p.0)));
-        if !cross.is_zero() {
-            out.push(q);
+        let incoming = ring[(i + n - 1) % n].1;
+        let (vertex, outgoing) = ring[i];
+        if incoming != outgoing {
+            out.push(vertex);
         }
     }
     out
@@ -733,12 +989,11 @@ impl DetailRegion {
     /// canonical form: two regions describing the same set produce identical
     /// rings.
     fn resweep(&self) -> DetailRegion {
-        let mut edges = Vec::new();
-        for ring in &self.rings {
-            ring_sweep_edges(ring, self.den as i64, 0, &mut edges);
-        }
+        let mut input = SweepInput::default();
+        input.push_region(self, 0);
+        let (scale, edges) = normalize_input(&input);
         let traps = sweep(&edges, &|a, _| a);
-        let (den, rings) = traps_to_rings(&traps);
+        let (den, rings) = traps_to_rings(&traps, scale);
         DetailRegion { den, rings }
     }
 
@@ -750,21 +1005,12 @@ impl DetailRegion {
             return self.clone();
         }
         let d = den as i64;
+        let src = self.den.max(1) as i64;
+        // Nearest multiple of 1/d to k/src, halves up.
+        let snap = |k: u8| -> i64 { (2 * k as i64 * d + src).div_euclid(2 * src).clamp(0, d) };
         let mut rings = Vec::new();
         for ring in &self.rings {
-            let snapped: Vec<(i64, i64)> = ring
-                .iter()
-                .map(|&(x, y)| {
-                    (
-                        Frac::new(x as i64, self.den as i64)
-                            .round_to_den(d)
-                            .clamp(0, d),
-                        Frac::new(y as i64, self.den as i64)
-                            .round_to_den(d)
-                            .clamp(0, d),
-                    )
-                })
-                .collect();
+            let snapped: Vec<(i64, i64)> = ring.iter().map(|&(x, y)| (snap(x), snap(y))).collect();
             let snapped = simplify_lattice(dedup_cyclic(snapped));
             if snapped.len() >= 3 && lattice_ring_area2(&snapped) != 0 {
                 rings.push(
@@ -786,8 +1032,8 @@ impl DetailRegion {
         let mut g = region.den as u64;
         for ring in &region.rings {
             for &(x, y) in ring {
-                g = gcd(g, x as u64);
-                g = gcd(g, y as u64);
+                g = gcd_u64(g, x as u64);
+                g = gcd_u64(g, y as u64);
             }
         }
         if g > 1 {
@@ -849,7 +1095,7 @@ impl DetailRegion {
                     continue;
                 }
                 let (mut dx, mut dy) = (x1 as i32 - x0 as i32, y1 as i32 - y0 as i32);
-                let g = gcd(dx.unsigned_abs() as u64, dy.unsigned_abs() as u64).max(1) as i32;
+                let g = gcd_u64(dx.unsigned_abs() as u64, dy.unsigned_abs() as u64).max(1) as i32;
                 dx /= g;
                 dy /= g;
                 // A direction and its reverse are the same line direction.
@@ -987,36 +1233,24 @@ impl DetailRegion {
     /// lattice is chosen automatically (exact up to [`MAX_DEN`]).
     #[cfg(test)]
     pub fn transform_into(&self, x0: Frac64, y0: Frac64, w: Frac64, h: Frac64) -> DetailRegion {
-        let den = self.den as i64;
-        let fx0 = Frac::new(x0.n, x0.d);
-        let fy0 = Frac::new(y0.n, y0.d);
-        let fw = Frac::new(w.n, w.d);
-        let fh = Frac::new(h.n, h.d);
-        let mut edges = Vec::new();
-        for ring in &self.rings {
-            let n = ring.len();
-            for i in 0..n {
-                let map = |p: (u8, u8)| {
-                    (
-                        fx0.add(Frac::new(p.0 as i64, den).mul(fw)),
-                        fy0.add(Frac::new(p.1 as i64, den).mul(fh)),
-                    )
-                };
-                if let Some(e) = SweepEdge::new(map(ring[i]), map(ring[(i + 1) % n]), 0) {
-                    edges.push(e);
-                }
-            }
-        }
-        let unit = DetailRegion::full();
-        for ring in &unit.rings {
-            ring_sweep_edges(ring, unit.den as i64, 1, &mut edges);
-        }
+        let mut input = SweepInput::default();
+        input.push_transformed(self, x0, y0, w, h);
+        input.push_unit(1);
+        let (scale, edges) = normalize_input(&input);
         let traps = sweep(&edges, &|a, b| a && b);
-        let (den, rings) = traps_to_rings(&traps);
+        let (den, rings) = traps_to_rings(&traps, scale);
         DetailRegion { den, rings }
     }
 }
 
+/// One piece of a transforming sweep: `region` mapped onto the rectangle
+/// `[x0, x0+w] x [y0, y0+h]`, as exact rational input points.
+///
+/// The mapped coordinate is written out as a single fraction,
+/// `(x0.n·den·w.d + p·w.n·x0.d) / (x0.d·den·w.d)`, rather than assembled from
+/// rational adds and multiplies. Chaining is what a fixed width cannot afford
+/// (see [`Frac`]); a closed form over the caller's integers, each at most a
+/// `u8` lattice denominator or a scale ratio, is bounded by the input.
 /// Union of transformed pieces with mutually disjoint interiors, clipped to
 /// the unit pixel, in one sweep. Each piece is `region` mapped exactly like
 /// [`DetailRegion::transform_into`] with origin `(x0, y0)` and scale
@@ -1028,34 +1262,14 @@ impl DetailRegion {
 pub fn union_disjoint_transformed(
     pieces: &[(DetailRegion, Frac64, Frac64, Frac64, Frac64)],
 ) -> DetailRegion {
-    let mut edges = Vec::new();
+    let mut input = SweepInput::default();
     for (region, x0, y0, w, h) in pieces {
-        let den = region.den as i64;
-        let fx0 = Frac::new(x0.n, x0.d);
-        let fy0 = Frac::new(y0.n, y0.d);
-        let fw = Frac::new(w.n, w.d);
-        let fh = Frac::new(h.n, h.d);
-        for ring in &region.rings {
-            let n = ring.len();
-            for i in 0..n {
-                let map = |p: (u8, u8)| {
-                    (
-                        fx0.add(Frac::new(p.0 as i64, den).mul(fw)),
-                        fy0.add(Frac::new(p.1 as i64, den).mul(fh)),
-                    )
-                };
-                if let Some(e) = SweepEdge::new(map(ring[i]), map(ring[(i + 1) % n]), 0) {
-                    edges.push(e);
-                }
-            }
-        }
+        input.push_transformed(region, *x0, *y0, *w, *h);
     }
-    let unit = DetailRegion::full();
-    for ring in &unit.rings {
-        ring_sweep_edges(ring, unit.den as i64, 1, &mut edges);
-    }
+    input.push_unit(1);
+    let (scale, edges) = normalize_input(&input);
     let traps = sweep(&edges, &|a, b| a && b);
-    let (den, rings) = traps_to_rings(&traps);
+    let (den, rings) = traps_to_rings(&traps, scale);
     DetailRegion { den, rings }
 }
 
@@ -1066,27 +1280,16 @@ pub fn clip_polygon_to_cell(pts: &[(Frac64, Frac64)]) -> DetailRegion {
     if pts.len() < 3 {
         return DetailRegion::EMPTY;
     }
-    let mut edges = Vec::new();
-    let n = pts.len();
-    for i in 0..n {
-        let a = (
-            Frac::new(pts[i].0.n, pts[i].0.d),
-            Frac::new(pts[i].1.n, pts[i].1.d),
-        );
-        let b = (
-            Frac::new(pts[(i + 1) % n].0.n, pts[(i + 1) % n].0.d),
-            Frac::new(pts[(i + 1) % n].1.n, pts[(i + 1) % n].1.d),
-        );
-        if let Some(e) = SweepEdge::new(a, b, 0) {
-            edges.push(e);
-        }
-    }
-    let unit = DetailRegion::full();
-    for ring in &unit.rings {
-        ring_sweep_edges(ring, unit.den as i64, 1, &mut edges);
-    }
+    let mut input = SweepInput::default();
+    input.push_ring(
+        0,
+        pts.iter()
+            .map(|&(x, y)| RatPoint::new((x.n, x.d), (y.n, y.d))),
+    );
+    input.push_unit(1);
+    let (scale, edges) = normalize_input(&input);
     let traps = sweep(&edges, &|a, b| a && b);
-    let (den, rings) = traps_to_rings(&traps);
+    let (den, rings) = traps_to_rings(&traps, scale);
     DetailRegion { den, rings }
 }
 
@@ -1122,15 +1325,12 @@ pub fn bool_op(a: &DetailRegion, b: &DetailRegion, op: BoolOp) -> DetailRegion {
         BoolOp::Intersect => |x, y| x && y,
     };
 
-    let mut edges = Vec::new();
-    for ring in &a.rings {
-        ring_sweep_edges(ring, a.den as i64, 0, &mut edges);
-    }
-    for ring in &b.rings {
-        ring_sweep_edges(ring, b.den as i64, 1, &mut edges);
-    }
+    let mut input = SweepInput::default();
+    input.push_region(a, 0);
+    input.push_region(b, 1);
+    let (scale, edges) = normalize_input(&input);
     let traps = sweep(&edges, &|x, y| filled(x, y));
-    let (den, rings) = traps_to_rings(&traps);
+    let (den, rings) = traps_to_rings(&traps, scale);
     DetailRegion { den, rings }
 }
 
@@ -1236,6 +1436,47 @@ fn merge_intervals(list: &mut Vec<(u8, u8)>) {
 mod tests {
     use super::*;
     use crate::pixel::PX_HALF2;
+
+    /// The sweep's width proof rests on every input coordinate fitting
+    /// [`MAX_SWEEP_COORD`]; the lcm of two `u8` lattices always does, and a
+    /// caller that comes in finer is rounded onto the finest lattice that
+    /// does rather than being allowed to overflow the budget.
+    #[test]
+    fn sweep_input_stays_inside_the_width_budget() {
+        // The widest pair of lattice denominators two regions can carry.
+        let a = DetailRegion {
+            den: 255,
+            rings: vec![vec![(0, 0), (255, 0), (255, 255)]],
+        };
+        let b = DetailRegion {
+            den: 254,
+            rings: vec![vec![(0, 254), (254, 254), (0, 0)]],
+        };
+        let mut input = SweepInput::default();
+        input.push_region(&a, 0);
+        input.push_region(&b, 1);
+        let (scale, edges) = normalize_input(&input);
+        assert_eq!(scale, 255 * 254, "an exact common lattice was available");
+        for e in &edges {
+            for v in [e.x1, e.y1, e.x2, e.y2] {
+                assert!(v.abs() <= MAX_SWEEP_COORD, "{v} outside the budget");
+            }
+        }
+
+        // A caller finer than the budget: coordinates get rounded onto the
+        // finest lattice that fits, and none of them escapes it.
+        let far = |n: i64| RatPoint::new((n, 65_521), (n, 65_519));
+        let mut input = SweepInput::default();
+        input.push_ring(0, [far(0), far(65_521 * 3), far(65_519)]);
+        let (scale, edges) = normalize_input(&input);
+        assert!(scale < 65_521 * 65_519, "the lcm had to be capped");
+        assert!(!edges.is_empty());
+        for e in &edges {
+            for v in [e.x1, e.y1, e.x2, e.y2] {
+                assert!(v.abs() <= MAX_SWEEP_COORD, "{v} outside the budget");
+            }
+        }
+    }
 
     #[test]
     fn from_shape_areas() {

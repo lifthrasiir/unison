@@ -321,18 +321,8 @@ fn normalize_rotation(n: u8, milli_deg: u32, ccw: bool) -> (u32, u32) {
         return (0, 1);
     }
     let den = TURN * n as u64;
-    let g = gcd_u64(num, den);
+    let g = crate::math::gcd_u64(num, den);
     ((num / g) as u32, (den / g) as u32)
-}
-
-fn gcd_u64(a: u64, b: u64) -> u64 {
-    let (mut a, mut b) = (a, b);
-    while b != 0 {
-        let t = a % b;
-        a = b;
-        b = t;
-    }
-    a
 }
 
 /// Take a shape word, which must run to the end of the name or to the `:` of
@@ -608,7 +598,7 @@ fn apply_bitmap_fill(grid: &mut PixelGrid, s: u16, fill: BitmapFill) {
                         let (n, d) = (n as i128, d as i128);
                         num = num * d + n * den;
                         den *= d;
-                        let g = gcd_i128(num.abs(), den);
+                        let g = crate::math::gcd_i128(num, den);
                         if g > 1 {
                             num /= g;
                             den /= g;
@@ -630,16 +620,6 @@ fn apply_bitmap_fill(grid: &mut PixelGrid, s: u16, fill: BitmapFill) {
             }
         }
     }
-}
-
-fn gcd_i128(a: i128, b: i128) -> i128 {
-    let (mut a, mut b) = (a, b);
-    while b != 0 {
-        let t = a % b;
-        a = b;
-        b = t;
-    }
-    a
 }
 
 // ---------------------------------------------------------------------------

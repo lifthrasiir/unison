@@ -72,7 +72,9 @@ Core (feature-independent):
   per context on purpose; its module docs spell the three contexts out.
 - `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
 - `detail.rs` — `DetailRegion`: exact per-pixel sub-pixel geometry on a `1/den` lattice, combined by
-  an exact-rational trapezoid sweep. This is what makes composition exact instead of code-approximate.
+  an exact trapezoid sweep. This is what makes composition exact instead of code-approximate. The
+  sweep's arithmetic is bounded by construction (`MAX_SWEEP_COORD` carries the width budget); read
+  `Frac` before adding arithmetic to it.
 - `ref_composite.rs` — composite (`ref`) resolution. Its module docs hold two things nothing else
   records: **anchor exposure is opt-in** and a **negative `ref` offset is a bearing**.
 - `on_demand.rs` — the names nothing defines but that describe a shape (`WxH`, triangles, `-circle`,
@@ -88,6 +90,8 @@ Core (feature-independent):
 - `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which font fields are
   *declared*, *derived* and *computed*. Tests in `meta_tests.rs`. Values on the pixel grid are
   declared in pixels and scaled by the builder, like everything else in `.unf`.
+- `math.rs` — the one gcd/lcm of the geometry code (binary GCD). A helper more than one module
+  wants lives here rather than being re-derived per module.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
@@ -144,6 +148,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document.rs` (`snap_details_to_catalog`) |
+| Why the exact sweep carries no rational arithmetic, and the width budget that bounds it | `detail.rs` (`Frac`, `MAX_SWEEP_COORD`) |
 | The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
 | Feature targets, `DFLT`/LangSys fallback | `render/ttf_builder/gsub.rs` |
 | A remap group is one lookup: rule order is match priority | `render/ttf_builder/gsub.rs` |
