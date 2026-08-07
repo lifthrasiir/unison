@@ -486,8 +486,6 @@ feature ccmp for DFLT : sub
 /// The same thing one level up: an on-demand `X` synthesized from `X:mono`
 /// and `X:color` flattens both bodies' refs into one glyph with visibility
 /// flags, which is exactly what pushes it onto the color-layer path.
-/// `font/flags.unf` had to route `X:mono` through an extra indirection
-/// glyph to keep its negated refs working.
 #[test]
 fn negated_ref_subtracts_in_synthesized_color_mono_glyph() {
     let input = "\
@@ -528,6 +526,49 @@ map A = flag
         winding_at(&flag.contours, 2.0 * s, (12.0 - 2.0) * s),
         0,
         "the negated ref in X:mono should punch a hole in the synthesized X"
+    );
+}
+
+/// `X:color` may be an alias (`glyph X:color = Y:color`), and the on-demand
+/// `X` has to be synthesized from it all the same: an alias is a second name
+/// for a glyph, so the pair `X:mono`/`X:color` is complete whether the color
+/// half is written out or aliased.
+#[test]
+fn color_mono_glyph_is_synthesized_when_the_color_half_is_an_alias() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph flag-a:mono
+ref base
+
+glyph flag-a:color
+ref base fill #ff0000
+
+glyph flag-b:mono
+ref base
+
+glyph flag-b:color = flag-a:color
+
+map A = flag-a
+map B = flag-b
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    let b = glyphs
+        .iter()
+        .find(|g| g.name == "flag-b")
+        .expect("flag-b should be synthesized from flag-b:mono and the aliased flag-b:color");
+    assert!(
+        !b.contours.is_empty(),
+        "the synthesized flag-b should carry the aliased color half's contours"
     );
 }
 

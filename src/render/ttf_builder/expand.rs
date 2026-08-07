@@ -520,9 +520,18 @@ fn inject_on_demand_glyph_items(
     };
     let mut unresolved: HashSet<String> = HashSet::new();
 
+    // The alias items are gone from `all_items` by now, so `defined` holds
+    // only the glyphs themselves. A half of a color/mono pair may well be
+    // stated as an alias (`glyph X:color = Y:color`) — it is a second name for
+    // a glyph, so the pair is complete — and both the existence check and the
+    // body lookup have to see through it.
+    fn canonical<'a>(aliases: &'a crate::alias::AliasMap, n: &'a str) -> &'a str {
+        aliases.resolved_target(n).unwrap_or(n)
+    }
+
     for (name, origin) in unique {
         use crate::on_demand::{OnDemandGlyph, detect_on_demand_glyph};
-        match detect_on_demand_glyph(&name, |n| defined.contains(n)) {
+        match detect_on_demand_glyph(&name, |n| defined.contains(canonical(aliases, n))) {
             Some(OnDemandGlyph::Shape(spec)) => {
                 let grid = crate::on_demand::make_on_demand_grid(&spec);
                 all_items.push(ExpandedItem {
@@ -539,8 +548,8 @@ fn inject_on_demand_glyph_items(
                 });
             }
             Some(OnDemandGlyph::ColorMono { mono, color }) => {
-                let mono_body = glyph_bodies.get(&mono);
-                let color_body = glyph_bodies.get(&color);
+                let mono_body = glyph_bodies.get(canonical(aliases, &mono));
+                let color_body = glyph_bodies.get(canonical(aliases, &color));
                 if let (Some(mono_body), Some(color_body)) = (mono_body, color_body) {
                     let mono_s = mono_body.scale.max(1);
                     let color_s = color_body.scale.max(1);

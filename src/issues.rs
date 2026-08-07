@@ -1087,11 +1087,18 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
 
         // Build alternative lookup: base name -> list of "base:variant" names.
+        // Alias names belong here too: `glyph x:color = y:color` is what makes
+        // the color/mono pair of `x` complete, so it is used by every use of
+        // `x` — and it is absent from `all_glyph_names`, which holds glyphs.
         let mut alt_names: HashMap<&str, Vec<&str>> = HashMap::new();
-        for name in all_glyph_names.iter() {
+        let alt_candidates = all_glyph_names
+            .iter()
+            .map(|n| n.as_str())
+            .chain(aliases.decls().iter().map(|d| d.name.as_str()));
+        for name in alt_candidates {
             if let Some(colon_pos) = name.find(':') {
                 let base = &name[..colon_pos];
-                alt_names.entry(base).or_default().push(name.as_str());
+                alt_names.entry(base).or_default().push(name);
             }
         }
 
@@ -1847,6 +1854,32 @@ map A = a
         assert!(
             !issues.iter().any(|i| i.message.contains("unused")),
             "neither the alias nor its target is unused, got: {issues:?}",
+        );
+    }
+
+    /// An alias standing in for one half of a color/mono pair is used by the
+    /// name that pair synthesizes, exactly as a written-out `x:color` would be:
+    /// alternatives of a root name are roots, and an alias is one of them.
+    #[test]
+    fn an_alias_used_as_a_color_mono_half_is_not_unused() {
+        let issues = issues_for(
+            "\
+glyph pix 1 1
+@@
+glyph y:mono
+ref pix
+glyph y:color
+ref pix fill #ff0000
+glyph x:mono
+ref pix
+glyph x:color = y:color
+map X = x
+map Y = y
+",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("unused")),
+            "the aliased color half is used by the synthesized `x`, got: {issues:?}",
         );
     }
 
