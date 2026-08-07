@@ -210,9 +210,9 @@ pub enum BoxAlign {
     Near,
     /// `-`: flush against the far edge (right/bottom).
     Far,
-    /// `_`: centered, the leftover split between the two ends. An odd leftover
-    /// cannot be halved on the subpixel lattice, so the near side takes the
-    /// smaller half.
+    /// `_`: centered, the leftover split evenly between the two ends — exactly
+    /// halfway between what no sign and `-` give, including when that puts the
+    /// box half a subcell in ([`center_multiplier`]).
     Center,
 }
 
@@ -1040,10 +1040,9 @@ pub fn make_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
 
 /// Where the box starts on an axis whose extent leaves `gap` subcells over.
 ///
-/// [`BoxAlign::Center`] rounds down, so an odd `gap` leaves the extra subcell
-/// at the far end. Nothing here can do better: the box sits on the subpixel
-/// lattice the name itself declares, and a true half-subcell offset would need
-/// a finer one than `1/R`.
+/// [`BoxAlign::Center`] halves the gap exactly. An odd `gap` therefore starts
+/// the box mid-subcell, which the declared `1/R` lattice cannot express — see
+/// [`center_multiplier`] for the finer lattice the build then runs on.
 fn align_offset(align: BoxAlign, gap: u16) -> u16 {
     match align {
         BoxAlign::Near => 0,
@@ -1052,14 +1051,48 @@ fn align_offset(align: BoxAlign, gap: u16) -> u16 {
     }
 }
 
+/// Widest grid, in subcells, the doubled-lattice centering below will build.
+/// Well under the sweep's coordinate budget, and far past any real name.
+const MAX_FINE_EXTENT: u16 = 4096;
+
+/// How many fine subcells the build puts in one declared subcell.
+///
+/// A centered axis whose leftover gap is an odd number of subcells wants the
+/// box half a subcell in, which the declared `1/R` lattice cannot express. So
+/// the whole shape is drawn on a `1/2R` lattice instead and folded back down
+/// by [`PixelGrid::rescale`], which turns the half-subcell edges into
+/// sub-pixel geometry — the same thing the file format stores for any other
+/// off-lattice edge. Anything else builds on the declared lattice as written;
+/// so does a name too large for the doubled one to stay within
+/// [`MAX_FINE_EXTENT`] and a `u8` scale, which then rounds as it always did.
+fn center_multiplier(spec: &OnDemandBox, s: u16, gap_w: u16, gap_h: u16) -> u16 {
+    let odd = |align, gap: u16| align == BoxAlign::Center && gap % 2 == 1;
+    if !odd(spec.align_w, gap_w) && !odd(spec.align_h, gap_h) {
+        return 1;
+    }
+    let extent_w = (gap_w + spec.w as u16 * s + spec.w_frac as u16) / s;
+    let extent_h = (gap_h + spec.h as u16 * s + spec.h_frac as u16) / s;
+    let fits = 2 * s <= u8::MAX as u16
+        && extent_w.max(extent_h).saturating_mul(2 * s) <= MAX_FINE_EXTENT;
+    if fits { 2 } else { 1 }
+}
+
 fn build_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
     let s = spec.scale.max(1) as u16;
-    let rect_w = spec.w as u16 * s + spec.w_frac as u16;
-    let rect_h = spec.h as u16 * s + spec.h_frac as u16;
-    let extent_w = rect_w.div_ceil(s);
-    let extent_h = rect_h.div_ceil(s);
-    let grid_w = extent_w * s;
-    let grid_h = extent_h * s;
+    let extent_w = (spec.w as u16 * s + spec.w_frac as u16).div_ceil(s);
+    let extent_h = (spec.h as u16 * s + spec.h_frac as u16).div_ceil(s);
+    let m = center_multiplier(
+        spec,
+        s,
+        extent_w * s - (spec.w as u16 * s + spec.w_frac as u16),
+        extent_h * s - (spec.h as u16 * s + spec.h_frac as u16),
+    );
+    // Everything from here on is in fine subcells, `m` of them per declared one.
+    let fine = s * m;
+    let rect_w = (spec.w as u16 * s + spec.w_frac as u16) * m;
+    let rect_h = (spec.h as u16 * s + spec.h_frac as u16) * m;
+    let grid_w = extent_w * fine;
+    let grid_h = extent_h * fine;
     let off_c = align_offset(spec.align_w, grid_w - rect_w);
     let off_r = align_offset(spec.align_h, grid_h - rect_h);
 
@@ -1076,6 +1109,9 @@ fn build_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
         OnDemandShape::Circle | OnDemandShape::Poly(_) => {
             draw_curved_shape(&mut grid, &spec.shape, off_r, off_c, rect_w, rect_h)
         }
+    }
+    if m != 1 {
+        grid = grid.rescale(fine as u8, s as u8);
     }
     apply_bitmap_fill(&mut grid, s, spec.fill);
     grid

@@ -390,8 +390,8 @@ fn on_demand_centered_axis_splits_the_leftover() {
 
 #[test]
 fn on_demand_centered_axis_mixes_with_the_other_signs() {
-    // An odd leftover cannot be split evenly; the extra subcell goes to the
-    // far side, and the two ends stay distinguishable from `-`/no sign.
+    // The first inked subcell of each sign, on a 3-subcell leftover. `_` sits
+    // between the two ends; the half-subcell it starts inside still counts.
     let off_of = |name: &str| {
         let grid = make_on_demand_grid(&shape_of(name));
         (0..grid.width)
@@ -401,6 +401,39 @@ fn on_demand_centered_axis_mixes_with_the_other_signs() {
     assert_eq!(off_of("3p1r4x1"), 0);
     assert_eq!(off_of("-3p1r4x1"), 3);
     assert_eq!(off_of("_3p1r4x1"), 1);
+}
+
+/// `_` must land exactly halfway between where no sign and `-` land, and an
+/// odd leftover is no excuse: the box then starts on a half-subcell, which the
+/// two boundary cells carry as sub-pixel geometry.
+#[test]
+fn on_demand_centered_axis_halves_an_odd_leftover() {
+    let full = crate::detail::DetailRegion::full().canonical().area2();
+    let row0 = |name: &str| {
+        let grid = make_on_demand_grid(&shape_of(name));
+        (0..grid.width)
+            .map(|c| grid.region_at(0, c).canonical().area2() / full)
+            .collect::<Vec<_>>()
+    };
+    // 3¼ × 1 on a quarter lattice: 13 subcells of ink in a 16-subcell extent,
+    // so the 3-subcell leftover splits into 1½ subcells at each end.
+    let mut near = vec![1.0; 16];
+    near[13..].fill(0.0);
+    let mut far = vec![1.0; 16];
+    far[..3].fill(0.0);
+    let mut center = vec![1.0; 16];
+    center[0] = 0.0;
+    center[1] = 0.5;
+    center[14] = 0.5;
+    center[15] = 0.0;
+    assert_eq!(row0("3p1r4x1"), near);
+    assert_eq!(row0("-3p1r4x1"), far);
+    assert_eq!(row0("_3p1r4x1"), center);
+
+    // A 1-subcell leftover is the case that used to collapse onto no sign.
+    let grid_of = |name: &str| make_on_demand_grid(&shape_of(name));
+    assert_ne!(grid_of("_2p2r3x_2p2r3"), grid_of("2p2r3x2p2r3"));
+    assert_ne!(grid_of("_2p2r3x_2p2r3"), grid_of("-2p2r3x-2p2r3"));
 }
 
 
