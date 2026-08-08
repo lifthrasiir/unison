@@ -57,7 +57,9 @@
 //!   properties.
 //! - **`prop block` is a label, not a rule.** It records which area of the
 //!   Private Use planes a source has claimed and for what, so the claim is
-//!   written down beside the characters; nothing reads it yet.
+//!   written down beside the characters. [`BlockMap`] is what reads it: a stated
+//!   block is one more block of the code space, overriding whatever UCD block
+//!   its area falls in.
 //!
 //! Nothing in the built font depends on any of this: `prop` describes
 //! characters for the human reading the editor and the sample, and the TTF is
@@ -65,6 +67,8 @@
 //! [`crate::issues`]; this module only records what was written.
 
 use std::collections::BTreeMap;
+#[cfg(feature = "editor")]
+use std::sync::OnceLock;
 
 use crate::document::{Document, DocumentItem};
 use crate::render::ttf_builder::expand_map_pairs;
@@ -238,6 +242,109 @@ pub fn format_block_range(start: u32, end: u32) -> String {
     }
 }
 
+/// `Blocks.txt` of the pinned UCD version, bundled rather than read from
+/// `data/` at run time: the editor groups the specimen by block, and a panel
+/// that silently loses its headings when the working directory is elsewhere is
+/// worse than 11 KB in the binary. Keep the version in step with the
+/// `icu_properties` pin ([`tests::data_is_unicode_17`]).
+#[cfg(feature = "editor")]
+const BLOCKS_TXT: &str = include_str!("../data/Blocks-17.0.0.txt");
+
+/// One block of the code space: an inclusive range with a name.
+#[cfg(feature = "editor")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct BlockInfo<'a> {
+    pub start: u32,
+    pub end: u32,
+    pub name: &'a str,
+    /// Whether a `prop block` line is what says so, rather than the UCD. The
+    /// difference matters where the UCD says nothing useful: what a font put in
+    /// a Private Use area is known only inside a stated block.
+    pub stated: bool,
+}
+
+/// The UCD blocks, parsed once. Sorted and non-overlapping by construction of
+/// the file, so a lookup is a binary search.
+#[cfg(feature = "editor")]
+fn ucd_blocks() -> &'static [(u32, u32, &'static str)] {
+    static BLOCKS: OnceLock<Vec<(u32, u32, &'static str)>> = OnceLock::new();
+    BLOCKS.get_or_init(|| {
+        let mut out = Vec::new();
+        for line in BLOCKS_TXT.lines() {
+            let line = line.split('#').next().unwrap_or("").trim();
+            let Some((range, name)) = line.split_once(';') else {
+                continue;
+            };
+            if let Some((start, end)) = parse_block_range(&format!("U+{}", range.trim())) {
+                out.push((start, end, name.trim()));
+            }
+        }
+        out.sort_by_key(|b| b.0);
+        out
+    })
+}
+
+/// Which block every code point belongs to: the UCD's blocks with the source's
+/// own `prop block` claims laid over them.
+///
+/// A stated block wins over the UCD block it sits inside — that is the whole
+/// point of stating one, since the UCD calls the entire area "Private Use Area"
+/// and says nothing about what a font put there. Two stated blocks that overlap
+/// are resolved last-wins, in source order, like every other `prop` field.
+#[cfg(feature = "editor")]
+#[derive(Clone, Debug, Default)]
+pub struct BlockMap {
+    /// `prop block` claims in source order; searched back to front.
+    stated: Vec<(u32, u32, String)>,
+}
+
+#[cfg(feature = "editor")]
+impl BlockMap {
+    pub fn collect(docs: &[&Document]) -> Self {
+        let mut stated = Vec::new();
+        for doc in docs {
+            for item in &doc.items {
+                if let DocumentItem::PropBlock {
+                    name, start, end, ..
+                } = item
+                {
+                    stated.push((*start, *end, name.clone()));
+                }
+            }
+        }
+        Self { stated }
+    }
+
+    /// The block `cp` belongs to, or `None` for a code point no block covers
+    /// (the UCD leaves gaps between blocks).
+    pub fn block_of(&self, cp: u32) -> Option<BlockInfo<'_>> {
+        if let Some((start, end, name)) = self
+            .stated
+            .iter()
+            .rev()
+            .find(|(start, end, _)| (*start..=*end).contains(&cp))
+        {
+            return Some(BlockInfo {
+                start: *start,
+                end: *end,
+                name,
+                stated: true,
+            });
+        }
+        let blocks = ucd_blocks();
+        let idx = blocks
+            .partition_point(|(start, _, _)| *start <= cp)
+            .checked_sub(1)?;
+        let (start, end, name) = blocks[idx];
+        (cp <= end).then_some(BlockInfo {
+            start,
+            end,
+            name,
+            stated: false,
+        })
+    }
+}
+
 #[cfg(feature = "editor")]
 fn base_properties(ch: char) -> (&'static str, u8, &'static str) {
     use icu_properties::CodePointMapData;
@@ -277,6 +384,39 @@ fn format_properties(gc: &str, ccc: u8, eaw: &str) -> String {
 pub(crate) fn property_summary(ch: char) -> String {
     let (gc, ccc, eaw) = base_properties(ch);
     format_properties(gc, ccc, eaw)
+}
+
+/// Whether the UCD gives `cp` a character at all — `gc` other than `Cn`.
+///
+/// A surrogate code point is `Cs` rather than `Cn`, but it is not a `char` and
+/// nothing can draw it, so it counts as unassigned here. This is what keeps the
+/// specimen's "show undeclared characters" from filling a block's permanent
+/// holes and its unused tail with cells.
+#[cfg(feature = "editor")]
+pub(crate) fn is_assigned(cp: u32) -> bool {
+    use icu_properties::CodePointMapData;
+    use icu_properties::props::GeneralCategory;
+
+    char::from_u32(cp).is_some_and(|ch| {
+        CodePointMapData::<GeneralCategory>::new().get(ch) != GeneralCategory::Unassigned
+    })
+}
+
+/// Whether `cp` is a Private Use code point (`gc=Co`).
+///
+/// The UCD assigns every one of the 137,468 of them, and says nothing else about
+/// any: which of them exist is a thing only a font and its `prop` lines know.
+/// That is why the specimen fills a Private Use block from what the source
+/// states rather than from [`is_assigned`], which would call the whole plane
+/// present.
+#[cfg(feature = "editor")]
+pub(crate) fn is_private_use(cp: u32) -> bool {
+    use icu_properties::CodePointMapData;
+    use icu_properties::props::GeneralCategory;
+
+    char::from_u32(cp).is_some_and(|ch| {
+        CodePointMapData::<GeneralCategory>::new().get(ch) == GeneralCategory::PrivateUse
+    })
 }
 
 #[cfg(test)]
@@ -396,6 +536,71 @@ mod tests {
         // `ccc` alone still reports the real `gc`/`eaw` beside it.
         let p = props("prop U+E000 ccc 230\n");
         assert_eq!(p.property_summary('\u{E000}'), "{gc=Co ccc=230 eaw=A}");
+    }
+
+    #[cfg(feature = "editor")]
+    fn blocks(src: &str) -> BlockMap {
+        let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
+        BlockMap::collect(&[&doc])
+    }
+
+    #[cfg(feature = "editor")]
+    #[test]
+    fn the_bundled_blocks_file_covers_the_code_space_it_should() {
+        let m = BlockMap::default();
+        let b = m.block_of(0x41).unwrap();
+        assert_eq!((b.start, b.end, b.name), (0x0000, 0x007F, "Basic Latin"));
+        let b = m.block_of(0xAC00).unwrap();
+        assert_eq!(b.name, "Hangul Syllables");
+        // The last code point of the last block, and the block boundaries
+        // around a gap the UCD leaves unassigned to any block.
+        assert_eq!(
+            m.block_of(0x10FFFF).unwrap().name,
+            "Supplementary Private Use Area-B"
+        );
+        assert_eq!(m.block_of(0x2FE0), None);
+        assert_eq!(m.block_of(0x2FDF).unwrap().name, "Kangxi Radicals");
+    }
+
+    /// The point of `prop block`: the UCD calls all of U+F0000..FFFFD "Private
+    /// Use Area", so only the source can say what a font put in there.
+    #[cfg(feature = "editor")]
+    #[test]
+    fn a_stated_block_overrides_the_ucd_one_for_its_range_only() {
+        let m = blocks("prop block `Unison Symbols` = U+F0000..F00FF\n");
+        let b = m.block_of(0xF0010).unwrap();
+        assert_eq!(
+            (b.start, b.end, b.name),
+            (0xF0000, 0xF00FF, "Unison Symbols")
+        );
+        // One past the claim is the plain UCD block again.
+        assert_eq!(
+            m.block_of(0xF0100).unwrap().name,
+            "Supplementary Private Use Area-A"
+        );
+        // And a claim changes nothing outside the Private Use planes.
+        assert_eq!(m.block_of(0x41).unwrap().name, "Basic Latin");
+
+        // Two claims over one code point: the later line wins.
+        let m = blocks(concat!(
+            "prop block `First` = U+E000..E0FF\n",
+            "prop block `Second` = U+E080..E0FF\n",
+        ));
+        assert_eq!(m.block_of(0xE000).unwrap().name, "First");
+        assert_eq!(m.block_of(0xE080).unwrap().name, "Second");
+    }
+
+    #[cfg(feature = "editor")]
+    #[test]
+    fn only_assigned_code_points_count_as_assigned() {
+        assert!(is_assigned(0x41));
+        // U+0378: a permanent hole inside Basic Greek.
+        assert!(!is_assigned(0x378));
+        // A surrogate is not a `char`, and a noncharacter is `Cn`.
+        assert!(!is_assigned(0xD800));
+        assert!(!is_assigned(0xFFFE));
+        // Private Use is `Co` — assigned, whether a `prop` line names it or not.
+        assert!(is_assigned(0xE000));
     }
 
     #[test]

@@ -96,7 +96,8 @@ Core (feature-independent):
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `ucd.rs` — the character properties shown beside a character name, and the `prop` directives a
   source states them with (`CharProps`). Nothing in the font depends on them; the status bars and the
-  `sample.html` tooltips do.
+  `sample.html` tooltips do. Also `BlockMap`: the bundled `Blocks.txt` with the source's own
+  `prop block` claims over it.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
   `glyph_cache.rs` (the composite-resolution driver `ttf_builder` and `sample` share), `sample.rs`,
   `assert.rs` (`assert` directives).
@@ -124,13 +125,16 @@ Editor (feature `editor`):
   (grid painting and the metrics overlay), `pixel_interaction`, `pixel_selection`, `harness`,
   `view_tests`.
 - `sidebar.rs` — `.unf` file list (open, rename, create). `specimen.rs` — specimen rendering; its
-  cache-key rule is documented there and is easy to get wrong.
+  three cache keys (documents, `SpecimenOptions`, column count) are documented there and are easy to
+  get wrong.
 - `edit_menu.rs`, `preview/` — bottom live-preview panel: rustybuzz shaping + platform rasterizer
   (`coretext.rs` on macOS, `directwrite.rs` on Windows). `preview/widget.rs` is a multi-line text
   field that runs on the *editor's* text model and key handler; only its layout is its own.
 
 `font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files
-plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
+plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text) read at build time
+through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compiled *into* the binary
+(`include_str!` from `ucd.rs`) because the editor needs it with no `-d` in sight.
 
 ### Where a given design is written down
 
@@ -168,6 +172,8 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
 | The `{gc=… ccc=… eaw=…}` group after a character name, and the pinned UCD version | `ucd.rs` |
 | `prop`: naming Private Use characters the UCD says nothing about, and what reads it | `ucd.rs` (`CharProps`) |
+| Which block a code point is in, and how `prop block` overrides the UCD | `ucd.rs` (`BlockMap`) |
+| The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |

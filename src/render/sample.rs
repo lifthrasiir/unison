@@ -485,25 +485,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }
     }
 
-    // Collect exclude-from-sample
-    let mut excluded: BTreeSet<u32> = BTreeSet::new();
-    for item in &all_items {
-        if let DocumentItem::Directive(s) = item
-            && let crate::document::Directive::ExcludeFromSample(rest) =
-                crate::document::classify_directive(s)
-        {
-            for tok in rest.split_whitespace() {
-                if let Some(cp) = crate::render::ttf_builder::parse_map_char(tok) {
-                    excluded.insert(cp);
-                } else {
-                    let pairs = expand_map_pairs(tok, "");
-                    for (cp, _) in pairs {
-                        excluded.insert(cp);
-                    }
-                }
-            }
-        }
-    }
+    let excluded: BTreeSet<u32> = crate::document::excluded_from_sample(all_items.iter());
 
     // Collect features
     let mut features: Vec<String> = Vec::new();

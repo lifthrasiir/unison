@@ -726,8 +726,10 @@ prop U+F0000 = `UNISON LOGO`           // one name, properties untouched
 Both parts are optional individually, but a line that states neither a name nor a property says
 nothing and is rejected.
 
-`prop block` records that an area of the codespace is claimed and for what. Nothing derives anything
-from it yet; it is written down so the claim sits beside the characters that fill it.
+`prop block` records that an area of the codespace is claimed and for what. It is one more block of
+the codespace, overriding whatever UCD block its area falls in — the UCD calls all of a Private Use
+plane one block, so only the source can say what a font put there. The editor's specimen panel is
+what reads it, to group its cells and head each group with a block name.
 
 None of this reaches the font. The built TTF is byte-identical with or without `prop` — the
 directive describes characters for the person reading the editor's status bar and the `sample.html`
@@ -742,6 +744,10 @@ exclude-from-sample U+XXXX[..YYYY]
 Drops the given codepoints from the generated sample page. Several arguments may appear on one line,
 each either a single character, a `U+NNNN` codepoint, or a range. This affects nothing but the
 sample; the characters are still mapped in the font.
+
+The editor's specimen panel reads the same set, but only while it is showing undeclared characters:
+there it hides a whole displayed row whose every character is excluded, and keeps any row with one
+character that is not. A run of hidden rows leaves an ellipsis row in its place.
 
 Its use is bulk coverage that would swamp the page, such as most of the Hangul syllables:
 

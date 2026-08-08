@@ -814,6 +814,35 @@ pub fn classify_directive(text: &str) -> Directive<'_> {
     Directive::Unrecognized
 }
 
+/// Every code point the `exclude-from-sample` lines of `items` name.
+///
+/// An argument is either a single character spelling `parse_map_char` reads or a
+/// pattern `expand_map_pairs` expands, which is what makes
+/// `exclude-from-sample U+AC00..D7A3` one line rather than 11,172. Both the
+/// `sample.html` writer and the specimen panel ask this, so "excluded" means the
+/// same set of characters in either place.
+pub fn excluded_from_sample<'a>(
+    items: impl IntoIterator<Item = &'a DocumentItem>,
+) -> std::collections::BTreeSet<u32> {
+    let mut excluded = std::collections::BTreeSet::new();
+    for item in items {
+        if let DocumentItem::Directive(s) = item
+            && let Directive::ExcludeFromSample(rest) = classify_directive(s)
+        {
+            for tok in rest.split_whitespace() {
+                if let Some(cp) = crate::render::ttf_builder::parse_map_char(tok) {
+                    excluded.insert(cp);
+                } else {
+                    for (cp, _) in crate::render::ttf_builder::expand_map_pairs(tok, "") {
+                        excluded.insert(cp);
+                    }
+                }
+            }
+        }
+    }
+    excluded
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum DocumentItem {
     Comment(String),
