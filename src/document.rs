@@ -915,6 +915,26 @@ pub enum DocumentItem {
         anchor: String,
         comment: Option<String>,
     },
+    /// `prop block NAME = U+XXXX[..YYYY]` — a named area of the code space the
+    /// source has claimed. Recorded so the claim is written down next to the
+    /// characters that fill it; nothing derives anything from it yet.
+    PropBlock {
+        name: String,
+        start: u32,
+        end: u32,
+        comment: Option<String>,
+    },
+    /// `prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW]` — Unicode character
+    /// properties a source states for characters the UCD leaves blank (Private
+    /// Use, mostly). `char_repr` is the same character spelling a
+    /// [`Map`](DocumentItem::Map) takes and `name` the pattern expanded against
+    /// it, so one line states a whole range. See [`crate::ucd`].
+    PropChar {
+        char_repr: String,
+        name: Option<String>,
+        values: crate::ucd::CharPropValues,
+        comment: Option<String>,
+    },
     /// `color NAME = #xxxxxx[xx]|COLORNAME [coloronly|monoonly]`
     Color {
         name: String,
@@ -1112,6 +1132,11 @@ impl DocumentItem {
                     _ => {}
                 }
             }
+            "prop" => {
+                if let Some(item) = Self::parse_prop(&tokens[1..], comment.clone()) {
+                    return item;
+                }
+            }
             "remap" => {
                 // A rule always has a colon before its arrow, so the two forms
                 // never compete — even for a group that is literally named
@@ -1184,6 +1209,64 @@ impl DocumentItem {
             _ => {}
         }
         Self::unrecognized(tokens, comment)
+    }
+
+    /// `prop ...`, in either of its two forms — the tokens after the keyword.
+    ///
+    /// `None` for anything malformed, which the caller keeps as raw text and
+    /// [`crate::issues`] reports. The two forms are told apart by the first
+    /// token being `block`, which no character spelling can be (a name is one
+    /// character or a `U+…` form), so a block never shadows a character.
+    ///
+    /// The property keywords may come in any order and any subset; a keyword
+    /// with no value, an unknown one, or a `ccc` that is not a `u8` makes the
+    /// whole line malformed rather than half-read.
+    fn parse_prop(tokens: &[String], comment: Option<String>) -> Option<DocumentItem> {
+        if tokens.first().is_some_and(|t| t == "block") {
+            if tokens.len() != 4 || tokens[2] != "=" {
+                return None;
+            }
+            let (start, end) = crate::ucd::parse_block_range(&tokens[3])?;
+            return Some(DocumentItem::PropBlock {
+                name: tokens[1].clone(),
+                start,
+                end,
+                comment,
+            });
+        }
+
+        let char_repr = tokens.first()?.clone();
+        let mut idx = 1;
+        // `= NAME` is optional, and so is every property — but a line that
+        // states neither is not a `prop` line at all.
+        let name = if tokens.get(idx).is_some_and(|t| t == "=") {
+            idx += 2;
+            Some(tokens.get(idx - 1)?.clone())
+        } else {
+            None
+        };
+
+        let mut values = crate::ucd::CharPropValues::default();
+        while idx < tokens.len() {
+            let value = tokens.get(idx + 1)?;
+            match tokens[idx].as_str() {
+                "gc" => values.gc = Some(value.clone()),
+                "ccc" => values.ccc = Some(value.parse().ok()?),
+                "eaw" => values.eaw = Some(value.clone()),
+                _ => return None,
+            }
+            idx += 2;
+        }
+        if name.is_none() && values.is_empty() {
+            return None;
+        }
+
+        Some(DocumentItem::PropChar {
+            char_repr,
+            name,
+            values,
+            comment,
+        })
     }
 
     /// Malformed: keep the line as raw text, comment included, so nothing is
@@ -1541,6 +1624,40 @@ impl DocumentItem {
                     quote_token(anchor),
                     serialize_comment_suffix(comment),
                 ))
+            }
+            DocumentItem::PropBlock {
+                name,
+                start,
+                end,
+                comment,
+            } => Some(format!(
+                "prop block {} = {}{}",
+                quote_token(name),
+                crate::ucd::format_block_range(*start, *end),
+                serialize_comment_suffix(comment),
+            )),
+            DocumentItem::PropChar {
+                char_repr,
+                name,
+                values,
+                comment,
+            } => {
+                let mut line = format!("prop {}", quote_token(char_repr));
+                if let Some(name) = name {
+                    line.push_str(&format!(" = {}", quote_token(name)));
+                }
+                // Written in the order the brace group shows them, whatever
+                // order the source stated them in.
+                if let Some(gc) = &values.gc {
+                    line.push_str(&format!(" gc {}", quote_token(gc)));
+                }
+                if let Some(ccc) = values.ccc {
+                    line.push_str(&format!(" ccc {ccc}"));
+                }
+                if let Some(eaw) = &values.eaw {
+                    line.push_str(&format!(" eaw {}", quote_token(eaw)));
+                }
+                Some(format!("{line}{}", serialize_comment_suffix(comment)))
             }
             DocumentItem::Color {
                 name,

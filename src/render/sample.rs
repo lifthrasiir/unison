@@ -22,6 +22,7 @@ use crate::render::ttf_builder::{
     ColorAliasMap, Rgba, collect_color_aliases, effective_visibility, expand_map_pairs,
     resolve_fill_rgba,
 };
+use crate::ucd::CharProps;
 
 #[derive(Clone)]
 struct SampleComponent {
@@ -672,11 +673,14 @@ fn html_escape(s: &str) -> String {
     out
 }
 
-fn char_name_str(cp: u32) -> String {
+/// The tooltip text for one code point: `U+XXXX NAME (c)`.
+///
+/// The name comes from [`CharProps`], not from `unicode_names2` directly, so a
+/// Private Use character the source named with a `prop` line reads as that name
+/// here rather than as a bare code point.
+fn char_name_str(cp: u32, char_props: &CharProps) -> String {
     if let Some(ch) = char::from_u32(cp) {
-        let name = unicode_names2::name(ch)
-            .map(|n| n.to_string())
-            .unwrap_or_default();
+        let name = char_props.name(cp).unwrap_or_default();
         if name.is_empty() {
             format!("U+{cp:04X} ({ch})")
         } else {
@@ -695,6 +699,7 @@ pub fn write_sample_html(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()
     let Some(data) = collect_sample_data(docs) else {
         return Err(io::Error::new(io::ErrorKind::InvalidData, "no glyph data"));
     };
+    let char_props = CharProps::collect(docs);
 
     let svg_scale: f32 = 2.0;
 
@@ -721,7 +726,7 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         }
         excluded_run = false;
 
-        let title = html_escape(&char_name_str(cp));
+        let title = html_escape(&char_name_str(cp, &char_props));
         write!(
             w,
             "<a href='#u{cp:x}'><span id='sm-u{cp:x}' title='{title}'>"
@@ -764,7 +769,7 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         }
         excluded_run = false;
 
-        let title = html_escape(&char_name_str(cp));
+        let title = html_escape(&char_name_str(cp, &char_props));
         write!(w, "<span id='u{cp:x}' title='{title}'>")?;
         if let Some(sg) = data.glyphs.get(glyph_name) {
             let (display_w, display_h, col_off, row_off) = sample_display_metrics(sg, data.height);
@@ -1130,6 +1135,7 @@ fn write_live_html_inner(
     let Some(data) = collect_sample_data(docs) else {
         return Err(io::Error::new(io::ErrorKind::InvalidData, "no glyph data"));
     };
+    let char_props = CharProps::collect(docs);
 
     let (font_mime, font_data) = if let Some(w2) = woff2_bytes {
         ("font/woff2", w2)
@@ -1232,7 +1238,7 @@ Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
 
     // Confusables section
     if has_confusables {
-        write_live_confusables(w, data_dir.unwrap(), &data.cmap)?;
+        write_live_confusables(w, data_dir.unwrap(), &data.cmap, &char_props)?;
     }
 
     // Hangul section
@@ -1364,6 +1370,7 @@ fn write_live_confusables(
     w: &mut dyn Write,
     data_dir: &Path,
     cmap: &BTreeMap<u32, String>,
+    char_props: &CharProps,
 ) -> io::Result<()> {
     let confusables_path = std::fs::read_dir(data_dir)?
         .filter_map(|e| e.ok())
@@ -1477,7 +1484,10 @@ fn write_live_confusables(
                 write!(w, " ")?;
             }
             // Build title with each codepoint's name
-            let title_parts: Vec<String> = member.iter().map(|&cp| char_name_str(cp)).collect();
+            let title_parts: Vec<String> = member
+                .iter()
+                .map(|&cp| char_name_str(cp, char_props))
+                .collect();
             let title = html_escape(&title_parts.join("\n"));
             let text: String = member.iter().filter_map(|&cp| char::from_u32(cp)).collect();
             write!(w, "<span title='{title}'>{}</span>", html_escape(&text))?;

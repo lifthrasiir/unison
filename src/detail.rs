@@ -1196,7 +1196,10 @@ impl DetailRegion {
                     let n = ring.len();
                     for k in 0..n {
                         let (x0, y0) = (ring[k].0 as i64 * s, ring[k].1 as i64 * s);
-                        let (x1, y1) = (ring[(k + 1) % n].0 as i64 * s, ring[(k + 1) % n].1 as i64 * s);
+                        let (x1, y1) = (
+                            ring[(k + 1) % n].0 as i64 * s,
+                            ring[(k + 1) % n].1 as i64 * s,
+                        );
                         if (y0 > py) == (y1 > py) {
                             continue; // the +x ray from the probe misses this edge
                         }
@@ -1958,4 +1961,3 @@ mod tests {
         assert_eq!(pts, [(0.0, 0.0), (1.0, 1.0)]);
     }
 }
-

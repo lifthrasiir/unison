@@ -44,3 +44,7 @@ ref 0-4x10 28 1 fill #000080
 map U+F800 = logo-and-version
 map U+F801 = logo
 
+prop block `Apple Compatibility` = U+F800..F8FF
+prop U+F800 = `FONT IDENTIFIER` gc So
+prop U+F801 = `UNISON LOGO` gc So
+

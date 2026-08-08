@@ -2700,17 +2700,26 @@ fn codepoint_popup_reports_the_unicode_name() {
     h.click_text(0, 14);
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
-    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+"));
+    assert_eq!(
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
+        Some("U+")
+    );
 
     h.type_text("41");
     assert_eq!(
-        h.state.codepoint_status().as_deref(),
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
         Some("U+0041  LATIN CAPITAL LETTER A {gc=Lu eaw=Na}")
     );
 
     h.type_text("0000");
     assert_eq!(
-        h.state.codepoint_status().as_deref(),
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
         Some("U+410000  (not a code point)")
     );
 }
@@ -2726,7 +2735,12 @@ fn codepoint_popup_predicts_the_next_code_point() {
     // The first popup guesses nothing.
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
-    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+"));
+    assert_eq!(
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
+        Some("U+")
+    );
     h.type_text("2600");
     h.key(Key::Enter);
     h.frame();
@@ -2735,13 +2749,17 @@ fn codepoint_popup_predicts_the_next_code_point() {
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
     assert_eq!(
-        h.state.codepoint_status().as_deref(),
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
         Some("U+2601  CLOUD {gc=So eaw=N}")
     );
     // Typing replaces the pre-selected guess rather than appending to it.
     h.type_text("2604");
     assert_eq!(
-        h.state.codepoint_status().as_deref(),
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
         Some("U+2604  COMET {gc=So eaw=N}")
     );
     h.key(Key::Enter);
@@ -2751,7 +2769,9 @@ fn codepoint_popup_predicts_the_next_code_point() {
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
     assert_eq!(
-        h.state.codepoint_status().as_deref(),
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
         Some("U+2608  THUNDERSTORM {gc=So eaw=N}")
     );
     h.key(Key::Enter);
@@ -2779,7 +2799,9 @@ fn codepoint_popup_cancel_does_not_move_the_prediction() {
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
     assert_eq!(
-        h.state.codepoint_status().as_deref(),
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
         Some("U+2601  CLOUD {gc=So eaw=N}")
     );
 }
@@ -2801,7 +2823,12 @@ fn codepoint_popup_drops_a_prediction_off_the_end() {
     // The next term would be U+110E00, past the last code point.
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
-    assert_eq!(h.state.codepoint_status().as_deref(), Some("U+"));
+    assert_eq!(
+        h.state
+            .codepoint_status(&crate::ucd::CharProps::default())
+            .as_deref(),
+        Some("U+")
+    );
 }
 
 /// Clicking elsewhere in the document also cancels the rename popup, and the

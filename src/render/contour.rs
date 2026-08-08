@@ -1217,7 +1217,11 @@ mod tests {
         one.set_detail(0, 0, &region, true);
         let full = make_grid(1, 1, &[PX_ALMOSTFULL | PX_FULL]);
         let paths = track_contour_multi_diff(
-            &[(&full, 0, 0, false), (&one, 0, 0, true), (&one, 0, 0, false)],
+            &[
+                (&full, 0, 0, false),
+                (&one, 0, 0, true),
+                (&one, 0, 0, false),
+            ],
             PX_SUBPIXEL,
         );
         assert_eq!(paths.len(), 1, "expected one contour, got {paths:?}");

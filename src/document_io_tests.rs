@@ -1713,3 +1713,79 @@ fn malformed_remap_group_declarations_stay_unrecognized() {
         );
     }
 }
+
+/// The two `prop` forms survive a round trip, comment included. The property
+/// keywords come back in the brace-group order whatever order they were
+/// written in, which is the one canonicalization this line has.
+#[test]
+fn roundtrip_prop_directives() {
+    let input = "\
+prop block `Unison Symbols` = U+F0000..F00FF
+prop U+F0000 = `UNISON LOGO` gc So eaw W // the mark
+prop U+F0010..F001F eaw W gc So ccc 230
+prop 한 = `HANGUL SYLLABLE HAN`
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert_eq!(doc.items.len(), 4);
+
+    let DocumentItem::PropBlock {
+        name, start, end, ..
+    } = &doc.items[0]
+    else {
+        panic!("expected PropBlock, got {:?}", doc.items[0]);
+    };
+    assert_eq!(
+        (name.as_str(), *start, *end),
+        ("Unison Symbols", 0xF0000, 0xF00FF)
+    );
+
+    let DocumentItem::PropChar {
+        char_repr,
+        name,
+        values,
+        comment,
+    } = &doc.items[1]
+    else {
+        panic!("expected PropChar, got {:?}", doc.items[1]);
+    };
+    assert_eq!(char_repr, "U+F0000");
+    assert_eq!(name.as_deref(), Some("UNISON LOGO"));
+    assert_eq!(values.gc.as_deref(), Some("So"));
+    assert_eq!(values.eaw.as_deref(), Some("W"));
+    assert_eq!(values.ccc, None);
+    assert_eq!(comment.as_deref(), Some("the mark"));
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(
+        String::from_utf8(output).unwrap(),
+        "\
+prop block `Unison Symbols` = U+F0000..F00FF
+prop U+F0000 = `UNISON LOGO` gc So eaw W // the mark
+prop U+F0010..F001F gc So ccc 230 eaw W
+prop 한 = `HANGUL SYLLABLE HAN`
+",
+    );
+}
+
+/// A `prop` line that states nothing, names an unknown keyword or carries a
+/// non-numeric `ccc` is kept verbatim rather than half-read — the same
+/// treatment every other malformed directive gets.
+#[test]
+fn malformed_prop_lines_stay_raw_text() {
+    for line in [
+        "prop U+F0000",
+        "prop U+F0000 = X bidi L",
+        "prop U+F0000 ccc high",
+        "prop U+F0000 gc",
+        "prop block X = notarange",
+        "prop block X U+F0000",
+    ] {
+        let doc = parse_document_from_str(&format!("{line}\n"), "test.unf".into()).unwrap();
+        assert!(
+            matches!(&doc.items[0], DocumentItem::Directive(t) if t == line),
+            "expected `{line}` to stay raw, got {:?}",
+            doc.items[0],
+        );
+    }
+}

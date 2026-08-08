@@ -397,6 +397,8 @@ pub(crate) fn build_visual_lines(
             | DocumentItem::FeatureAnchor { .. }
             | DocumentItem::MapDecomposed { .. }
             | DocumentItem::Color { .. }
+            | DocumentItem::PropBlock { .. }
+            | DocumentItem::PropChar { .. }
             | DocumentItem::AssertShape { .. }
             | DocumentItem::AssertSame { .. }
             | DocumentItem::AssertDistinct { .. } => {

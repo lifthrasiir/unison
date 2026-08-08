@@ -436,7 +436,6 @@ fn on_demand_centered_axis_halves_an_odd_leftover() {
     assert_ne!(grid_of("_2p2r3x_2p2r3"), grid_of("-2p2r3x-2p2r3"));
 }
 
-
 // ---------------------------------------------------------------------------
 // Circles and polygons
 // ---------------------------------------------------------------------------
@@ -625,7 +624,11 @@ fn curved_shapes_cover_the_area_their_definition_says() {
 
     // A star with inner radius rho has area N·r·rho·sin(pi/N).
     for (name, n, rho) in [
-        ("16x16-poly5r2", 5.0, 1.0 / ((1.0 + 5f64.sqrt()) / 2.0).powi(2)),
+        (
+            "16x16-poly5r2",
+            5.0,
+            1.0 / ((1.0 + 5f64.sqrt()) / 2.0).powi(2),
+        ),
         (
             "16x16-poly6.500",
             6.0,
@@ -662,7 +665,10 @@ fn a_circle_reaches_every_edge_of_its_box_and_no_corner() {
     let grid = make_on_demand_grid(&shape_of("16x16-circle"));
     // Tangent to all four edges at the midpoints.
     for (r, c) in [(0u16, 8u16), (15, 8), (8, 0), (8, 15)] {
-        assert!(!grid.get(r, c).is_empty(), "({r},{c}) should hold the curve");
+        assert!(
+            !grid.get(r, c).is_empty(),
+            "({r},{c}) should hold the curve"
+        );
     }
     // The corners are outside.
     for (r, c) in [(0u16, 0u16), (0, 15), (15, 0), (15, 15)] {

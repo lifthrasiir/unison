@@ -1399,6 +1399,8 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
+    check_props(docs, &mut issues);
+
     issues.sort_by(|a, b| {
         a.severity
             .cmp(&b.severity)
@@ -1406,6 +1408,88 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             .then_with(|| a.line.cmp(&b.line))
     });
     issues
+}
+
+/// `prop` lines: the property values have to be the ones the UCD uses, and a
+/// line has to actually cover a character.
+///
+/// A wrong `gc`/`eaw` is an error rather than a warning even though nothing in
+/// the font depends on it: the whole point of the line is to be *read*, and a
+/// value the UCD does not use is one no reader can check against anything.
+fn check_props(docs: &[&Document], issues: &mut Vec<Issue>) {
+    for doc in docs {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            match item {
+                DocumentItem::PropChar {
+                    char_repr, values, ..
+                } => {
+                    if let Some(gc) = &values.gc
+                        && !crate::ucd::GENERAL_CATEGORIES.contains(&gc.as_str())
+                    {
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!(
+                                "`gc {gc}` is not a General_Category short name (Lu, Ll, Lo, Mn, \
+                                 So, …)"
+                            ),
+                        ));
+                    }
+                    if let Some(eaw) = &values.eaw
+                        && !crate::ucd::EAST_ASIAN_WIDTHS.contains(&eaw.as_str())
+                    {
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!(
+                                "`eaw {eaw}` is not an East_Asian_Width short name \
+                                 (N, Na, A, W, F, H)"
+                            ),
+                        ));
+                    }
+                    // The same expansion `CharProps` performs, so a line that
+                    // states nothing there says so here rather than being
+                    // quietly absent from every status bar.
+                    let pairs = crate::render::ttf_builder::expand_map_pairs(char_repr, "");
+                    if pairs.is_empty() {
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!("prop `{char_repr}` names no character"),
+                        ));
+                    }
+                    for (cp, _) in pairs {
+                        if char::from_u32(cp).is_none() {
+                            issues.push(issue_at(
+                                doc,
+                                item_idx,
+                                Severity::Error,
+                                format!(
+                                    "prop `{char_repr}`: U+{cp:04X} is not a valid Unicode \
+                                     scalar value"
+                                ),
+                            ));
+                            break;
+                        }
+                    }
+                }
+                DocumentItem::PropBlock { name, end, .. } => {
+                    if *end > 0x10FFFF {
+                        issues.push(issue_at(
+                            doc,
+                            item_idx,
+                            Severity::Error,
+                            format!("prop block `{name}` ends past U+10FFFF"),
+                        ));
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
 }
 
 impl PartialOrd for Severity {
@@ -2551,5 +2635,42 @@ assume unused orphan
              remap x : a b -> c\nremap group x\n",
         );
         assert!(issues.is_empty(), "got: {issues:?}");
+    }
+
+    /// A property value the UCD does not use is an error: the line exists to be
+    /// read, and a value nothing can be checked against is worse than silence.
+    #[test]
+    fn prop_property_values_are_checked_against_the_ucd_short_names() {
+        let src = "prop U+E000 = `X` gc Xx eaw WW\nprop U+E001 gc So eaw W\n";
+        let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        let msgs: Vec<&str> = issues.iter().map(|i| i.message.as_str()).collect();
+        assert!(
+            msgs.iter()
+                .any(|m| m.contains("`gc Xx` is not a General_Category")),
+            "{msgs:?}",
+        );
+        assert!(
+            msgs.iter()
+                .any(|m| m.contains("`eaw WW` is not an East_Asian_Width")),
+            "{msgs:?}",
+        );
+        // The well-formed line draws no complaint of its own.
+        assert!(!msgs.iter().any(|m| m.contains("U+E001")), "{msgs:?}");
+    }
+
+    /// A character spelling that covers nothing — a backwards range — would
+    /// otherwise be a line that quietly never applies to anything.
+    #[test]
+    fn a_prop_line_that_names_no_character_is_an_error() {
+        let src = "prop U+E00F..E000 gc So\n";
+        let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues
+                .iter()
+                .any(|i| i.severity == Severity::Error && i.message.contains("names no character")),
+            "{issues:?}",
+        );
     }
 }

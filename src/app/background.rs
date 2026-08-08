@@ -308,11 +308,13 @@ impl UniformApp {
         let (named_glyphs, alt_index) =
             crate::editor::ref_composite::resolve_named_glyphs_with_parts(&all_docs, &name_parts);
         let font_meta = crate::meta::FontMeta::collect(&all_docs);
+        let char_props = crate::ucd::CharProps::collect(&all_docs);
         drop(all_docs);
         self.font_meta = font_meta.metrics;
         self.named_glyphs = std::sync::Arc::new(named_glyphs);
         self.alt_index = alt_index;
         self.name_parts = name_parts;
+        self.char_props = char_props;
         self.derived_gen = self.derived_gen.wrapping_add(1);
         if let Some(t0) = perf_t0 {
             eprintln!("[perf] resolve (sync, main thread): {:?}", t0.elapsed());
@@ -335,6 +337,7 @@ impl UniformApp {
             // Validation only reads names and diagnostics, so it runs before
             // the expansion is consumed by the glyph cache.
             let mut issues = crate::issues::collect_issues_with(&refs, &resolution);
+            let char_props = crate::ucd::CharProps::collect(&refs);
             let face_ids: Vec<String> = resolution
                 .faces
                 .faces
@@ -365,6 +368,7 @@ impl UniformApp {
                 alt_index,
                 meta: resolution.meta.metrics,
                 name_parts,
+                char_props,
                 issues,
                 face_ids,
             }));
@@ -506,6 +510,7 @@ impl UniformApp {
                 self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
                 self.alt_index = data.alt_index;
                 self.name_parts = data.name_parts;
+                self.char_props = data.char_props;
                 self.font_meta = data.meta;
                 self.named_glyphs_gen = data.build_gen;
                 self.derived_gen = self.derived_gen.wrapping_add(1);

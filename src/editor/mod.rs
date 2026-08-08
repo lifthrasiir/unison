@@ -368,9 +368,12 @@ impl EditorState {
 
     /// The status-bar line for an open code point popup — the code point being
     /// typed and its Unicode name. `None` when no such popup is open.
-    pub fn codepoint_status(&self) -> Option<String> {
+    ///
+    /// `char_props` carries what the source's `prop` lines state; the host owns
+    /// it because it spans every open document, not this one.
+    pub fn codepoint_status(&self, char_props: &crate::ucd::CharProps) -> Option<String> {
         match &self.popup {
-            PopupState::Codepoint(p) => Some(p.status_label()),
+            PopupState::Codepoint(p) => Some(p.status_label(char_props)),
             _ => None,
         }
     }

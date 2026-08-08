@@ -316,7 +316,11 @@ fn take_box_dim(s: &str) -> Option<(BoxDim, &str)> {
 fn normalize_rotation(n: u8, milli_deg: u32, ccw: bool) -> (u32, u32) {
     const TURN: u64 = 360_000; // milli-degrees in a full turn
     let written = milli_deg as u64 % TURN;
-    let cw = if ccw { (TURN - written) % TURN } else { written };
+    let cw = if ccw {
+        (TURN - written) % TURN
+    } else {
+        written
+    };
     // cw/TURN turns, taken modulo the 1/n-turn symmetry period.
     let num = cw * n as u64 % TURN;
     if num == 0 {
@@ -765,7 +769,12 @@ fn subdivide_at_cell_borders(pts: &[(i64, i64)]) -> Vec<(i64, i64)> {
 /// an endpoint, so the "intersection" is that endpoint; the interpolation is
 /// only a guard for the rounding slop of a crossing that landed a lattice step
 /// off its border, and it reads the same from either side of the border.
-fn clip_half_plane(ring: &[(i64, i64)], vertical: bool, bound: i64, keep_ge: bool) -> Vec<(i64, i64)> {
+fn clip_half_plane(
+    ring: &[(i64, i64)],
+    vertical: bool,
+    bound: i64,
+    keep_ge: bool,
+) -> Vec<(i64, i64)> {
     let coord = |p: (i64, i64)| if vertical { p.0 } else { p.1 };
     let inside = |p: (i64, i64)| {
         if keep_ge {
@@ -999,12 +1008,7 @@ fn draw_triangle(
             }
             let local: Vec<(Frac64, Frac64)> = tri
                 .iter()
-                .map(|&(tx, ty)| {
-                    (
-                        Frac64::new(tx - c as i64, 1),
-                        Frac64::new(ty - r as i64, 1),
-                    )
-                })
+                .map(|&(tx, ty)| (Frac64::new(tx - c as i64, 1), Frac64::new(ty - r as i64, 1)))
                 .collect();
             grid.set_detail(r, c, &clip_polygon_to_cell(&local), true);
         }
@@ -1072,8 +1076,8 @@ fn center_multiplier(spec: &OnDemandBox, s: u16, gap_w: u16, gap_h: u16) -> u16 
     }
     let extent_w = (gap_w + spec.w as u16 * s + spec.w_frac as u16) / s;
     let extent_h = (gap_h + spec.h as u16 * s + spec.h_frac as u16) / s;
-    let fits = 2 * s <= u8::MAX as u16
-        && extent_w.max(extent_h).saturating_mul(2 * s) <= MAX_FINE_EXTENT;
+    let fits =
+        2 * s <= u8::MAX as u16 && extent_w.max(extent_h).saturating_mul(2 * s) <= MAX_FINE_EXTENT;
     if fits { 2 } else { 1 }
 }
 
@@ -1105,7 +1109,9 @@ fn build_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
                 }
             }
         }
-        OnDemandShape::Tri(corner) => draw_triangle(&mut grid, corner, off_r, off_c, rect_w, rect_h),
+        OnDemandShape::Tri(corner) => {
+            draw_triangle(&mut grid, corner, off_r, off_c, rect_w, rect_h)
+        }
         OnDemandShape::Circle | OnDemandShape::Poly(_) => {
             draw_curved_shape(&mut grid, &spec.shape, off_r, off_c, rect_w, rect_h)
         }

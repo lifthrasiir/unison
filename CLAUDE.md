@@ -94,6 +94,9 @@ Core (feature-independent):
   wants lives here rather than being re-derived per module.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
+- `ucd.rs` — the character properties shown beside a character name, and the `prop` directives a
+  source states them with (`CharProps`). Nothing in the font depends on them; the status bars and the
+  `sample.html` tooltips do.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
   `glyph_cache.rs` (the composite-resolution driver `ttf_builder` and `sample` share), `sample.rs`,
   `assert.rs` (`assert` directives).
@@ -164,6 +167,7 @@ plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text).
 | Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |
 | Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
 | The `{gc=… ccc=… eaw=…}` group after a character name, and the pinned UCD version | `ucd.rs` |
+| `prop`: naming Private Use characters the UCD says nothing about, and what reads it | `ucd.rs` (`CharProps`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |

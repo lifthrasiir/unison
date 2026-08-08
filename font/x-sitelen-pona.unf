@@ -13,6 +13,8 @@ name-parts $tok-rare = apeja isipin kamalawala kapesi kiki kokosila melome mijom
 
 name-parts $tok-all = $tok-tier1 $tok-tier2 $tok-tier3 $tok-rare
 
+prop block `Sitelen Pona` = U+F1900..F19FF
+
 glyph tok-a 16 16
 ................................
 ................................
@@ -3321,6 +3323,25 @@ map 󱦹 = tok-wuwojiti // rare
 
 map 󱦺 = tok-yupekosi // rare
 
+prop U+F1900..F1908 = `SITELEN PONA IDEOGRAPH (A|AKESI|ALA|ALASA|ALE|ANPA|ANTE|ANU|AWEN)`
+prop U+F1909..F190B = `SITELEN PONA IDEOGRAPH (E|EN|ESUN)`
+prop U+F190C..F190F = `SITELEN PONA IDEOGRAPH (IJO|IKE|ILO|INSA)`
+prop U+F1910..F1913 = `SITELEN PONA IDEOGRAPH (JAKI|JAN|JELO|JO)`
+prop U+F1914..F1920 = `SITELEN PONA IDEOGRAPH (KALA|KALAMA|KAMA|KASI|KEN|KEPEKEN|KILI|KIWEN|KO|KON|KULE|KULUPU|KUTE)`
+prop U+F1921..F192F = `SITELEN PONA IDEOGRAPH (LA|LAPE|LASO|LAWA|LEN|LETE|LI|LILI|LINJA|LIPU|LOJE|LON|LUKA|LUKIN|LUPA)`
+prop U+F1930..F193C = `SITELEN PONA IDEOGRAPH (MA|MAMA|MANI|MELI|MI|MIJE|MOKU|MOLI|MONSI|MU|MUN|MUSI|MUTE)`
+prop U+F193D..F1943 = `SITELEN PONA IDEOGRAPH (NANPA|NASA|NASIN|NENA|NI|NIMI|NOKA)`
+prop U+F1944..F1947 = `SITELEN PONA IDEOGRAPH (O|OLIN|ONA|OPEN)`
+prop U+F1948..F1955 = `SITELEN PONA IDEOGRAPH (PAKALA|PALI|PALISA|PAN|PANA|PI|PILIN|PIMEJA|PINI|PIPI|POKA|POKI|PONA|PU)`
+prop U+F1956..F1966 = `SITELEN PONA IDEOGRAPH (SAMA|SELI|SELO|SEME|SEWI|SIJELO|SIKE|SIN|SINA|SINPIN|SITELEN|SONA|SOWELI|SULI|SUNO|SUPA|SUWI)`
+prop U+F1967..F196E = `SITELEN PONA IDEOGRAPH (TAN|TASO|TAWA|TELO|TENPO|TOKI|TOMO|TU)`
+prop U+F196F..F1971 = `SITELEN PONA IDEOGRAPH (UNPA|UTA|UTALA)`
+prop U+F1972..F1977 = `SITELEN PONA IDEOGRAPH (WALO|WAN|WASO|WAWA|WEKA|WILE)`
+prop U+F1978..F198C = `SITELEN PONA IDEOGRAPH (NAMAKO|KIN|OKO|KIPISI|LEKO|MONSUTA|TONSI|JASIMA|KIJETESANTAKALU|SOKO|MESO|EPIKU|KOKOSILA|LANPAN|N|MISIKEKE|KU|LEFTWARDS NI|UPWARDS NI|RIGHTWARDS NI|ALTERNATE SEWI)`
+prop U+F19A0..F19BA = `SITELEN PONA IDEOGRAPH (PAKE|APEJA|MAJUNA|POWE|LINLUWI|KIKI|SU|ISIPIN|KAMALAWALA|KAPESI|MELOME|MIJOMI|MISA|NIMISIN|NJA|OKE|OMEKAPO|PUWA|SAN|TAKI|TE|TO|UNU|USAWI|WA|WUWOJITI|YUPEKOSI)`
+prop U+F1900..F198C gc Lo eaw W
+prop U+F19A0..F19BA gc Lo eaw W
+
 //--------------------------------------
 // elongated elements
 
@@ -3426,6 +3447,13 @@ map 󱦑 = tok-cart-end
 map U+F1997 = tok-long-start
 map U+F1998 = tok-long-end
 
+prop U+F1990 = `SITELEN PONA START OF CARTOUCHE` gc So eaw W
+prop U+F1991 = `SITELEN PONA END OF CARTOUCHE` gc So eaw W
+prop U+F1995 = `SITELEN PONA STACKING JOINER` gc Cf
+prop U+F1996 = `SITELEN PONA SCALING JOINER` gc Cf
+prop U+F1997 = `SITELEN PONA START OF LONG GLYPH` gc Cf
+prop U+F1998 = `SITELEN PONA END OF LONG GLYPH` gc Cf
+
 feature ccmp for DFLT : tok-long
 feature ccmp for DFLT : tok-long-pi
 
@@ -3445,18 +3473,25 @@ assert shape 󱤑󱥍󱦗󱥺󱤢󱦘 : tok-jan : tok-long-pi : tok-oko : tok-lo
 //--------------------------------------
 // compatibility
 
-glyph tok-cart-cont-compat sticky left -16 advance 0
+glyph tok-cart-cont-compat sticky advance 0 left -16
 ref tok-cart-cont
 
 glyph tok-long-pi-compat sticky
 ref tok-long-pi
 
-glyph tok-long-pi-cont-compat sticky left -16 advance 0
+glyph tok-long-pi-cont-compat sticky advance 0 left -16
 ref tok-long-pi-cont
 
 map U+F1992 = tok-cart-cont-compat
 map U+F1993 = tok-long-pi-compat
 map U+F1994 = tok-long-pi-cont-compat
+
+prop U+F1992 = `SITELEN PONA COMBINING CARTOUCHE EXTENSION` gc Mn
+prop U+F1993 = `SITELEN PONA START OF LONG PI` gc So eaw W
+prop U+F1994 = `SITELEN PONA COMBINING LONG PI EXTENSION` gc Mn
+prop U+F1999 = `SITELEN PONA COMBINING LONG GLYPH EXTENSION` gc Mn
+prop U+F199A = `SITELEN PONA START OF REVERSE LONG GLYPH` gc Cf
+prop U+F199B = `SITELEN PONA END OF REVERSE LONG GLYPH` gc Cf
 
 // compatibility characters do not mess with format characters
 assert shape 󱤑󱦓󱥺󱤢󱦘 : tok-jan : tok-long-pi-compat : tok-oko : tok-lape : tok-long-end
@@ -3539,6 +3574,10 @@ d@@@@@@@@@@@@@@@@@@b......../@@@@@@@@@@@@@@@@@@b......../@88@@@@@@@@@@@@@@@b....
 map 󱦜 = tok-middot
 map 󱦝 = tok-colon
 map U+F199E = tok-tally-1
+
+prop U+F199C = `SITELEN PONA MIDDLE DOT` gc So eaw W
+prop U+F199D = `SITELEN PONA COLON` gc So eaw W
+prop U+F199E = `SITELEN PONA COMBINING TALLY MARK` gc Mn
 
 feature ccmp for DFLT : tok-tally
 feature ccmp for DFLT : tok-tally-extra

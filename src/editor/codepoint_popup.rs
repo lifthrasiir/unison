@@ -145,19 +145,24 @@ impl CodepointPopup {
     }
 
     /// The status-bar line: the code point as typed, its Unicode name and its
-    /// properties ([`crate::ucd::property_summary`]), so a wrong digit is
-    /// visible before it is committed. Digits that name no character get the
-    /// name slot alone — there are no properties to report for a non-character.
-    pub(crate) fn status_label(&self) -> String {
+    /// properties ([`crate::ucd::CharProps::property_summary`]), so a wrong
+    /// digit is visible before it is committed. Digits that name no character
+    /// get the name slot alone — there are no properties to report for a
+    /// non-character.
+    ///
+    /// `char_props` is what the source's `prop` lines state, so a Private Use
+    /// character this font defines is named here as the font names it rather
+    /// than as `(unnamed)`.
+    pub(crate) fn status_label(&self, char_props: &crate::ucd::CharProps) -> String {
         if self.hex.is_empty() {
             return "U+".to_string();
         }
         let name = match self.character() {
             Some(ch) => {
-                let name = unicode_names2::name(ch)
-                    .map(|n| n.to_string())
+                let name = char_props
+                    .name(ch as u32)
                     .unwrap_or_else(|| "(unnamed)".to_string());
-                format!("{name} {}", crate::ucd::property_summary(ch))
+                format!("{name} {}", char_props.property_summary(ch))
             }
             None => "(not a code point)".to_string(),
         };
@@ -252,6 +257,7 @@ impl CodepointPopup {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ucd::CharProps;
 
     fn with_hex(hex: &str) -> CodepointPopup {
         CodepointPopup {
@@ -263,11 +269,11 @@ mod tests {
     #[test]
     fn a_named_code_point_reports_its_name() {
         assert_eq!(
-            with_hex("41").status_label(),
+            with_hex("41").status_label(&CharProps::default()),
             "U+0041  LATIN CAPITAL LETTER A {gc=Lu eaw=Na}"
         );
         assert_eq!(
-            with_hex("2603").status_label(),
+            with_hex("2603").status_label(&CharProps::default()),
             "U+2603  SNOWMAN {gc=So eaw=N}"
         );
     }
@@ -277,11 +283,11 @@ mod tests {
     #[test]
     fn the_code_point_is_padded_to_four_digits_but_not_truncated() {
         assert_eq!(
-            with_hex("A").status_label(),
+            with_hex("A").status_label(&CharProps::default()),
             "U+000A  (unnamed) {gc=Cc eaw=N}"
         );
         assert_eq!(
-            with_hex("1F600").status_label(),
+            with_hex("1F600").status_label(&CharProps::default()),
             "U+1F600  GRINNING FACE {gc=So eaw=W}"
         );
     }
@@ -297,10 +303,10 @@ mod tests {
             assert_eq!(p.preedit(), "");
         }
         assert_eq!(
-            with_hex("D800").status_label(),
+            with_hex("D800").status_label(&CharProps::default()),
             "U+D800  (not a code point)"
         );
-        assert_eq!(with_hex("").status_label(), "U+");
+        assert_eq!(with_hex("").status_label(&CharProps::default()), "U+");
     }
 
     fn after(committed: &[char]) -> Option<char> {
@@ -356,8 +362,24 @@ mod tests {
     #[test]
     fn an_unnamed_code_point_still_gets_a_label() {
         assert_eq!(
-            with_hex("E000").status_label(),
+            with_hex("E000").status_label(&CharProps::default()),
             "U+E000  (unnamed) {gc=Co eaw=A}"
+        );
+    }
+
+    /// …and one the source named through a `prop` line reads as that name,
+    /// with the properties the same line stated.
+    #[test]
+    fn a_prop_line_names_a_private_use_code_point() {
+        let doc = crate::document_io::parse_document_from_str(
+            "prop U+E000 = `UNISON LOGO` gc So eaw W\n",
+            "t.unf".into(),
+        )
+        .unwrap();
+        let props = CharProps::collect(&[&doc]);
+        assert_eq!(
+            with_hex("E000").status_label(&props),
+            "U+E000  UNISON LOGO {gc=So eaw=W}"
         );
     }
 }

@@ -45,6 +45,11 @@ pub struct SpecimenState {
     /// and would then never run again to fix it.
     cached_gen: Option<(u64, u64)>,
     glyph_cache: GlyphCache,
+    /// The `prop` lines of the source, as of the last rebuild. The hover status
+    /// names a character through these, so a Private Use character the source
+    /// named reads as that name here too — one rebuild behind an edit, like
+    /// every other thing the specimen shows.
+    char_props: crate::ucd::CharProps,
     pub hover_status: Option<String>,
 }
 
@@ -55,6 +60,7 @@ impl SpecimenState {
             remap_entries: Vec::new(),
             cached_gen: None,
             glyph_cache: GlyphCache::new(),
+            char_props: crate::ucd::CharProps::default(),
             hover_status: None,
         }
     }
@@ -76,6 +82,7 @@ impl SpecimenState {
             return;
         }
         self.cached_gen = Some((font_data_gen, derived_gen));
+        self.char_props = crate::ucd::CharProps::collect(docs);
 
         // `name_to_gid` comes from the built font, which knows a glyph only by
         // its canonical name, so a character mapped through an alias has to be
@@ -554,14 +561,14 @@ impl SpecimenState {
                         DeferredHover::Cmap { cp, glyph_name, .. } => {
                             let ch = char::from_u32(cp);
                             let char_str = ch.map(|c| c.to_string()).unwrap_or_default();
-                            let char_name = ch
-                                .and_then(unicode_names2::name)
-                                .map(|n| n.to_string())
+                            let char_name = self
+                                .char_props
+                                .name(cp)
                                 .unwrap_or_else(|| "<unknown>".to_string());
                             // Same brace group as the Ctrl+K popup, so one
                             // character reads identically in either place.
                             let props = ch
-                                .map(|c| format!(" {}", crate::ucd::property_summary(c)))
+                                .map(|c| format!(" {}", self.char_props.property_summary(c)))
                                 .unwrap_or_default();
                             self.hover_status = Some(format!(
                                 "U+{:04X} {} {}{} ({})",
@@ -577,10 +584,9 @@ impl SpecimenState {
                                 let parts: Vec<String> = cps
                                     .iter()
                                     .map(|cp| {
-                                        let ch = char::from_u32(*cp);
-                                        let char_name = ch
-                                            .and_then(unicode_names2::name)
-                                            .map(|n| n.to_string())
+                                        let char_name = self
+                                            .char_props
+                                            .name(*cp)
                                             .unwrap_or_else(|| "<unknown>".to_string());
                                         format!("U+{cp:04X} {char_name}")
                                     })
@@ -920,6 +926,34 @@ remap liga : sq -> ($l)-lig
 
         // Nothing new: the cache holds.
         assert!(!state.needs_rebuild(1, 1));
+    }
+
+    /// The `prop` lines reach the hover status through the same rebuild as
+    /// everything else — one generation behind an edit, never stale after it.
+    #[test]
+    fn a_rebuild_picks_up_the_prop_lines() {
+        let d = doc(concat!(
+            "meta height 16\n",
+            "meta ascent 14\n",
+            "meta descent 2\n",
+            "glyph logo 1 1\n",
+            "@@\n",
+            "map U+E000 = logo\n",
+            "prop U+E000 = `UNISON LOGO` gc So eaw W\n",
+        ));
+        let docs = [&d];
+        let mut state = SpecimenState::new();
+        assert_eq!(state.char_props.name(0xE000), None);
+
+        state.rebuild_if_needed(&docs, &NamePartsMap::new(), &HashMap::new(), None, 1, 1);
+        assert_eq!(
+            state.char_props.name(0xE000).as_deref(),
+            Some("UNISON LOGO")
+        );
+        assert_eq!(
+            state.char_props.property_summary('\u{E000}'),
+            "{gc=So eaw=W}"
+        );
     }
 
     const SLICED_SRC: &str = "\

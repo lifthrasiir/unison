@@ -97,6 +97,15 @@
 //!   differs between slices by a suffix is written once instead of once per
 //!   slice; see [`crate::document::SliceNameParts`].
 //! - `color NAME = #RRGGBB[AA] [coloronly|monoonly]` — named palette entry.
+//! - `prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW]` — Unicode character
+//!   properties the source states itself, for the Private Use characters the
+//!   UCD has nothing to say about. `CHAR` is the same character spelling a
+//!   `map` takes (one character, a `U+XXXX..YYYY` range or a `|` list) and
+//!   `NAME` is a pattern expanded against it in lock-step, so one line names a
+//!   whole range. Each property is independent and optional: what a line does
+//!   not state, it does not change. See [`crate::ucd`].
+//! - `prop block NAME = U+XXXX[..YYYY]` — records that an area of the code
+//!   space is claimed, and for what. Nothing derives anything from it yet.
 //! - `remap FEATURE : [LOOKBEHIND... :] SOURCE... -> TARGET... [: LOOKAHEAD...]`
 //!   — GSUB substitution. Source and target are *lists* of glyph names in all
 //!   cases, and an empty target means removal. The list lengths pick the lookup
@@ -815,6 +824,8 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             | item @ DocumentItem::Feature { .. }
             | item @ DocumentItem::FeatureAnchor { .. }
             | item @ DocumentItem::Color { .. }
+            | item @ DocumentItem::PropBlock { .. }
+            | item @ DocumentItem::PropChar { .. }
             | item @ DocumentItem::AssertShape { .. }
             | item @ DocumentItem::AssertSame { .. }
             | item @ DocumentItem::AssertDistinct { .. } => {
@@ -1240,7 +1251,7 @@ pub fn derive_document(
                         item_line_starts.push(header_idx);
                         doc.items.push(DocumentItem::Glyph { name, body });
                     }
-                    "name-parts" | "remap" | "feature" | "assert" | "face" | "slice" => {
+                    "name-parts" | "remap" | "feature" | "assert" | "face" | "slice" | "prop" => {
                         item_line_starts.push(i);
                         doc.items
                             .push(DocumentItem::parse_directive(&tokens, comment));

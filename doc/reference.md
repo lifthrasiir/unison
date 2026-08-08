@@ -334,7 +334,7 @@ having a comment.
 ### Name Pattern
 
 A name pattern is a compact way to write a list of glyph names. It appears in glyph headers, `ref`
-targets, `map` and `remap` operands, and `assume unused`.
+targets, `map` and `remap` operands, `assume unused`, and the character name of a `prop`.
 
 | Form | Expands to |
 | --- | --- |
@@ -362,8 +362,8 @@ contexts:
 
 * In a **glyph header**, a top-level `a|b` — one outside any parentheses — is a list of two verbatim
   names, taken as written and not expanded further. `a*2` there is a name containing an asterisk.
-* In a **`map` or `remap` operand**, or an `assume unused` argument, the whole string behaves as if
-  it were parenthesized, so `a*2|b` means `a`, `a`, `b`.
+* In a **`map` or `remap` operand**, an `assume unused` argument, or a **`prop` name**, the whole
+  string behaves as if it were parenthesized, so `a*2|b` means `a`, `a`, `b`.
 * In a **`ref` target** inside a pattern glyph block, only parenthesized groups and a bare `foo*N`
   repeat are recognized; a top-level `a|b` with no group and no repeat stays one literal name.
 
@@ -679,6 +679,59 @@ to be valid, not a pretty transliteration of an exotic family name.
 Coverage-derived fields are never declared, because they describe the font that came out rather than
 an intent: the Unicode and code page ranges come from the `cmap`, the first and last character index
 and the average character width from the glyphs, and the default and break characters are fixed.
+
+### `prop`: Character properties the UCD does not have
+
+```
+prop CHAR [= NAME] [gc GC] [ccc N] [eaw EAW]
+prop block NAME = U+XXXX[..YYYY]
+```
+
+States what a character *is*, for characters the Unicode Character Database says nothing useful
+about — the Private Use areas, where a name and properties exist only because a font decided so.
+The UCD gives every one of them the same answer (no name, `{gc=Co eaw=A}`), so without this the
+editor and the sample can only show a bare codepoint:
+
+```
+prop block `Unison Symbols` = U+F0000..F00FF
+prop U+F0000 = `UNISON LOGO` gc So eaw W
+prop U+F0010..F001F = `UNISON BOX DRAWING-($#F0010..F001F)` gc So eaw W
+prop U+F0020|U+F0021 = `UNISON (ALPHA|BETA)`
+```
+
+`CHAR` is the same character spelling `map` takes: one literal character, `U+XXXX`, an inclusive
+`U+XXXX..YYYY` range, or a `|` list of those. `NAME` is a name pattern expanded against it in
+lock-step, exactly as a `map`'s glyph name is — which is what states a whole range in one line.
+`($#…)` names each codepoint of a range after itself; a list pairs one name to one character; a
+single name over a range is that name for every character in it. The expanded name is then
+upper-cased (ASCII only, so other scripts pass through as written), since `($#…)` produces the
+lower-case hex a *glyph* name wants and a character name is upper case.
+
+`gc` is a General_Category short name (`Lu`, `Lo`, `Mn`, `So`, …), `eaw` an East_Asian_Width short
+name (`N`, `Na`, `A`, `W`, `F`, `H`), and `ccc` a canonical combining class number. A `gc` or `eaw`
+outside those sets is an error: the line exists to be read, and a value nothing can be checked
+against is worse than none. A `ccc` that is not a number in 0–255 makes the line malformed, as an
+unknown keyword or a keyword without a value does; a malformed line is kept verbatim and reported as
+an unrecognized directive rather than half-read.
+
+Each property is independent, and **a line changes only what it states**. Where several lines cover
+one character, each field comes from the last line that states it, so the properties of an area and
+the name of one character in it are written separately:
+
+```
+prop U+F0000..F0FFF gc So eaw W        // the whole area, no names
+prop U+F0000 = `UNISON LOGO`           // one name, properties untouched
+```
+
+Both parts are optional individually, but a line that states neither a name nor a property says
+nothing and is rejected.
+
+`prop block` records that an area of the codespace is claimed and for what. Nothing derives anything
+from it yet; it is written down so the claim sits beside the characters that fill it.
+
+None of this reaches the font. The built TTF is byte-identical with or without `prop` — the
+directive describes characters for the person reading the editor's status bar and the `sample.html`
+tooltips, which is where a stated name and the `{gc=… ccc=… eaw=…}` group beside it come from.
 
 ### `exclude-from-sample`: Exclude a codepoint range from sample.html
 

@@ -821,8 +821,10 @@ impl ShapedPreviewState {
 
     /// The status-bar line while a code point is being typed: the code point
     /// and its Unicode name. `None` when the popup is closed.
-    pub fn codepoint_status(&self) -> Option<String> {
-        self.codepoint.as_ref().map(|(p, _)| p.status_label())
+    pub fn codepoint_status(&self, char_props: &crate::ucd::CharProps) -> Option<String> {
+        self.codepoint
+            .as_ref()
+            .map(|(p, _)| p.status_label(char_props))
     }
 
     /// `rows_per_page` is how many lines the field currently shows, which is

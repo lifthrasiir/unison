@@ -134,6 +134,8 @@ fn assert_all_doc_lines_covered(input: &str) {
                 | DocumentItem::FeatureAnchor { .. }
                 | DocumentItem::MapDecomposed { .. }
                 | DocumentItem::Color { .. }
+                | DocumentItem::PropBlock { .. }
+                | DocumentItem::PropChar { .. }
                 | DocumentItem::AssertShape { .. }
                 | DocumentItem::AssertSame { .. }
                 | DocumentItem::AssertDistinct { .. }

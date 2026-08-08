@@ -47,6 +47,7 @@ struct DerivedDataMessage {
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
+    char_props: crate::ucd::CharProps,
     meta: crate::meta::FontMetrics,
     issues: Vec<Issue>,
     /// Every face the source declares, in declaration order, for the face
@@ -116,6 +117,11 @@ pub struct UniformApp {
     named_glyphs: Arc<HashMap<String, ResolvedGlyph>>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
+    /// What the source's `prop` lines state about characters the UCD leaves
+    /// blank. Rebuilt with the rest of the derived data, so the status bar
+    /// picks a new `prop` line up a debounce later rather than instantly —
+    /// which is all a character name needs.
+    char_props: crate::ucd::CharProps,
     color_aliases: crate::render::ttf_builder::ColorAliasMap,
     font_meta: crate::meta::FontMetrics,
     /// View menu: draw the metric box over every glyph grid.
@@ -283,6 +289,7 @@ impl UniformApp {
             named_glyphs: Arc::default(),
             alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
+            char_props: Default::default(),
             color_aliases: Default::default(),
             font_meta: Default::default(),
             show_metrics: true,

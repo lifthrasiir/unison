@@ -266,8 +266,12 @@ impl UniformApp {
                 // committed unnoticed, so it must not be crowded out.
                 let codepoint_status = self
                     .shaped_preview
-                    .codepoint_status()
-                    .or_else(|| self.active_doc()?.editor_state.codepoint_status());
+                    .codepoint_status(&self.char_props)
+                    .or_else(|| {
+                        self.active_doc()?
+                            .editor_state
+                            .codepoint_status(&self.char_props)
+                    });
                 if let Some(label) = codepoint_status {
                     // Plain text color: it reads as the status line's own text,
                     // like every other message that shares this slot.
