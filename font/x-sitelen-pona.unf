@@ -270,7 +270,7 @@ ref 1x8-dr 7 4
 ref 1x8-ul 8 4
 
 glyph tok-ijo 16 16
-ref white-circle-6-border
+ref white-circle-6:mono
 
 glyph tok-ike 16 16
 ................................
