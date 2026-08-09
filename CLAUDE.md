@@ -92,6 +92,9 @@ Core (feature-independent):
   declared in pixels and scaled by the builder, like everything else in `.unf`.
 - `math.rs` — the one gcd/lcm of the geometry code (binary GCD). A helper more than one module
   wants lives here rather than being re-derived per module.
+- `cancel.rs` — `CancelToken`: how a background stage is told its result is no longer wanted, and
+  what a cancelled stage is allowed to return. Only the editor cancels; every other caller passes
+  `CancelToken::never()`.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `ucd.rs` — the character properties shown beside a character name, and the `prop` directives a
@@ -182,6 +185,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The anchor shadow | `editor/anchor_shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
+| One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
 
 ## Testing

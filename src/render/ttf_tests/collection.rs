@@ -244,7 +244,13 @@ face wide : wide
     let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
     let cache = crate::render::new_contour_cache();
     let advance_of = |face: Option<&str>, ch: char| -> u16 {
-        let built = crate::render::build_font_pair_cached_for(&[&doc], &cache, face).unwrap();
+        let built = crate::render::build_font_pair_cached_for(
+            &[&doc],
+            &cache,
+            face,
+            &crate::cancel::CancelToken::never(),
+        )
+        .unwrap();
         let f = read_fonts::FontRef::new(&built.vector).unwrap();
         let gid = f.cmap().unwrap().map_codepoint(ch).unwrap();
         f.hmtx().unwrap().advance(gid).unwrap()

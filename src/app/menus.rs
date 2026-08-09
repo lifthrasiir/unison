@@ -886,6 +886,13 @@ impl UniformApp {
             self.selected_face.clear();
             self.face_ids.clear();
             let refs: Vec<&Document> = self.font_base_docs.iter().collect();
+            // Both background stages are still working on the folder that just
+            // went away. Nothing they produce is wanted, and the font build in
+            // particular holds the contour cache this thread is about to clear
+            // and then build through — so it would be waited on rather than
+            // merely wasted.
+            self.font_cancel.cancel();
+            self.derived_cancel.cancel();
             self.contour_cache.lock().unwrap().clear();
             match crate::render::build_font_pair_cached(&refs, &self.contour_cache) {
                 Some(built) => {

@@ -209,6 +209,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         &all_items,
         CachedGlyph::from_grid,
         CachedGlyph::empty,
+        &crate::cancel::CancelToken::never(),
     );
     crate::render::glyph_cache::resolve_pending(
         &mut cache,
@@ -232,6 +233,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             })
         },
         |_, _| {},
+        &crate::cancel::CancelToken::never(),
     );
 
     fn ref_fill_info(

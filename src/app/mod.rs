@@ -39,7 +39,20 @@ use search::SearchResults;
 use zoom::DEFAULT_PREVIEW_FONT_SIZE;
 
 type FontPair = (Vec<u8>, Vec<u8>);
-type FontBuildMessage = (u64, Option<crate::render::BuiltFontPair>);
+/// How one font-build thread ended.
+///
+/// `Cancelled` is not an error and not a result: the build was told mid-flight
+/// that its document set had been superseded, so it stopped and produced
+/// nothing. It is reported anyway — rather than the thread just going quiet —
+/// because the scheduler starts at most one build at a time and needs to know
+/// the slot is free. See [`crate::cancel`].
+enum FontBuildOutcome {
+    /// The build ran to the end; `None` is a document set no font comes out of,
+    /// or a worker that died on the way (see `background::ResultSlot`).
+    Done(Option<crate::render::BuiltFontPair>),
+    Cancelled,
+}
+type FontBuildMessage = (u64, FontBuildOutcome);
 /// What one derived-data rebuild produces. A struct rather than a tuple
 /// because every consumer picks fields out of it by name.
 struct DerivedDataMessage {
@@ -54,10 +67,16 @@ struct DerivedDataMessage {
     /// picker. Resolution already collects them, so nothing else has to.
     face_ids: Vec<String>,
 }
-/// `None` is a rebuild that died on the way (see `background::ResultSlot`); the
-/// UI only has to stop waiting for it, since keeping the previous derived data
-/// is better than replacing it with nothing.
-type DerivedDataResult = Option<DerivedDataMessage>;
+/// How one derived-data thread ended. `Failed` is a rebuild that died on the
+/// way (see `background::ResultSlot`) and `Cancelled` one that was superseded
+/// mid-resolve; both leave the previous derived data in place, since a stale
+/// view of the font beats none, but only the first is worth telling the user
+/// about.
+enum DerivedDataResult {
+    Done(Box<DerivedDataMessage>),
+    Failed,
+    Cancelled,
+}
 type AssertResultMessage = Vec<Issue>;
 
 pub struct UniformApp {
@@ -103,6 +122,17 @@ pub struct UniformApp {
     font_build_rx: mpsc::Receiver<FontBuildMessage>,
     font_build_tx: mpsc::Sender<FontBuildMessage>,
     font_build_gen: u64,
+    /// A font-build thread is running. At most one ever is: a second build
+    /// would only queue behind the first on `contour_cache`, and it is that
+    /// queue — one full build per click, each finishing long after its own
+    /// edit was superseded — that made a burst of pixel edits take seconds to
+    /// show. A build arriving while one runs cancels it and re-arms
+    /// `font_rebuild_at` instead.
+    font_build_inflight: bool,
+    /// Cancels the in-flight font build. Replaced, never reset, when the next
+    /// build starts, so a build can never inherit its predecessor's
+    /// cancellation.
+    font_cancel: crate::cancel::CancelToken,
     contour_cache: SharedContourCache,
     /// Which face the editor builds. The editor never builds a collection —
     /// one face at a time — so this picks the one the preview, the specimen
@@ -139,7 +169,14 @@ pub struct UniformApp {
     /// longer than the debounce, that snowballs into dozens of concurrent
     /// resolve threads starving each other (observed: 2s resolves stretching
     /// past 20s under the pile-up).
-    derived_inflight: bool,
+    /// The build generation the in-flight derived-data rebuild is resolving,
+    /// or `None` when none is running. The generation is what makes it
+    /// cancellable: a rebuild already resolving the current sources is left
+    /// alone, and only one resolving superseded ones is stopped.
+    derived_inflight: Option<u64>,
+    /// Cancels the in-flight derived-data rebuild; replaced per rebuild, like
+    /// `font_cancel`.
+    derived_cancel: crate::cancel::CancelToken,
     last_export_path: Option<PathBuf>,
     close_confirmed: bool,
     bottom_panel_height: f32,
@@ -283,6 +320,8 @@ impl UniformApp {
             font_build_rx,
             font_build_tx,
             font_build_gen: 0,
+            font_build_inflight: false,
+            font_cancel: crate::cancel::CancelToken::never(),
             contour_cache,
             selected_face: String::new(),
             face_ids: Vec::new(),
@@ -298,7 +337,8 @@ impl UniformApp {
             derived_data_tx,
             derived_data_rx,
             derived_rebuild_at: None,
-            derived_inflight: false,
+            derived_inflight: None,
+            derived_cancel: crate::cancel::CancelToken::never(),
             last_export_path: None,
             close_confirmed: false,
             bottom_panel_height: 0.0,

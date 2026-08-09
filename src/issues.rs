@@ -1312,6 +1312,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             expansion.items(),
             |_, _| AnchorsOnly::new(),
             AnchorsOnly::new,
+            &crate::cancel::CancelToken::never(),
         );
         let mut derive_issues: Vec<(String, crate::ref_composite::DeriveIssue)> = Vec::new();
         crate::render::glyph_cache::resolve_pending(
@@ -1320,6 +1321,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             |name| declared_anchors.get(name).map(|pts| pts.to_vec()),
             |_, _, _| AnchorsOnly::new(),
             |name, issue| derive_issues.push((name.to_string(), issue)),
+            &crate::cancel::CancelToken::never(),
         );
         for (name, issue) in derive_issues {
             let severity = if issue.is_error() {

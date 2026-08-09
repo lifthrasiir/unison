@@ -739,3 +739,42 @@ fn dot_corner_shapes_and_their_complements_trace_as_expected() {
         assert_eq!(centre, covers_center, "{code}: {:?}", glyph.contours);
     }
 }
+
+/// A cancelled font build produces nothing at all — not a partial font, and
+/// not one the editor could mistake for current.
+///
+/// The editor cancels a build the moment its document set is superseded, so
+/// this is the ordinary outcome of clicking pixels quickly; without it, each
+/// click's build ran to the end and the next one queued behind it on the
+/// contour cache.
+#[test]
+fn a_cancelled_build_produces_no_font() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph a 2 2
+@@
+.@
+
+map A = a
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let cache = crate::render::new_contour_cache();
+
+    let cancel = crate::cancel::CancelToken::new();
+    cancel.cancel();
+    assert!(
+        build_font_pair_cached_for(&[&doc], &cache, None, &cancel).is_none(),
+        "a cancelled build must not hand back a font"
+    );
+
+    // And the shared cache survives it: an aborted build skips `evict_stale`,
+    // which is a cache holding more than it needs, never a broken one. The
+    // build that replaces it has to succeed against that same cache.
+    let built =
+        build_font_pair_cached_for(&[&doc], &cache, None, &crate::cancel::CancelToken::never())
+            .expect("the replacing build still succeeds on the cache the cancelled one left");
+    assert!(!built.bitmap.is_empty() && !built.vector.is_empty());
+}

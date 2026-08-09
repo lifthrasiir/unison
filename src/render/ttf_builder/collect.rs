@@ -4,6 +4,7 @@
 use super::contours::CachedContours;
 use super::gsub::collect_gsub_data;
 use super::*;
+use crate::render::glyph_cache::CANCEL_STRIDE;
 
 /// The explicit `advance`/`left`/`top` flags one glyph declares, in pixels as
 /// written in the source; each is `None` when the glyph does not declare it.
@@ -145,17 +146,25 @@ pub(super) struct SharedFontInput {
 }
 
 #[cfg(any(feature = "editor", test))]
-pub(super) fn compute_shared_font_input(docs: &[&Document]) -> Option<SharedFontInput> {
-    compute_shared_font_input_for(docs, crate::faces::FaceSet::collect(docs).primary())
+pub(super) fn compute_shared_font_input(
+    docs: &[&Document],
+    cancel: &crate::cancel::CancelToken,
+) -> Option<SharedFontInput> {
+    compute_shared_font_input_for(docs, crate::faces::FaceSet::collect(docs).primary(), cancel)
 }
 
 /// The shared input for one face: its metadata, and an expansion with every
 /// slice the face does not include already dropped.
+///
+/// A cancelled run returns `None`, like any other input that cannot produce a
+/// font: name expansion is the one stage here big enough to be worth aborting,
+/// so the token is checked around it rather than inside it.
 pub(super) fn compute_shared_font_input_for(
     docs: &[&Document],
     face: &crate::faces::Face,
+    cancel: &crate::cancel::CancelToken,
 ) -> Option<SharedFontInput> {
-    if docs.is_empty() {
+    if docs.is_empty() || cancel.is_cancelled() {
         return None;
     }
 
@@ -175,6 +184,9 @@ pub(super) fn compute_shared_font_input_for(
 
     let name_parts = collect_name_parts(docs);
     let expansion = super::expand::expand_for(docs, &name_parts, face);
+    if cancel.is_cancelled() {
+        return None;
+    }
     let glyph_aliases = expansion.aliases;
     let all_items: Vec<DocumentItem> = expansion.items.into_iter().map(|e| e.item).collect();
 
@@ -246,14 +258,24 @@ pub(super) fn collect_glyph_data_cached(
     bitmap: bool,
     contour_cache: Option<&mut ContourCache>,
 ) -> Option<CollectedFontData> {
-    let shared = compute_shared_font_input(docs)?;
-    collect_glyph_data_with_shared(&shared, bitmap, contour_cache)
+    let never = crate::cancel::CancelToken::never();
+    let shared = compute_shared_font_input(docs, &never)?;
+    collect_glyph_data_with_shared(&shared, bitmap, contour_cache, &never)
 }
 
+/// Trace and collect every glyph of one build flavor.
+///
+/// This is where a face build spends nearly all of its time, so it is also
+/// where cancellation has to bite: the token is checked around each stage and
+/// inside the per-glyph loops, and a cancelled run returns `None` — the same
+/// "no font came out of this" the collector already returns for input it cannot
+/// build. Nothing downstream distinguishes the two, and nothing needs to: the
+/// only caller that cancels is the one that stopped wanting the result.
 pub(super) fn collect_glyph_data_with_shared(
     shared: &SharedFontInput,
     bitmap: bool,
     mut contour_cache: Option<&mut ContourCache>,
+    cancel: &crate::cancel::CancelToken,
 ) -> Option<CollectedFontData> {
     let meta = &shared.meta;
     let scale = shared.scale;
@@ -281,6 +303,7 @@ pub(super) fn collect_glyph_data_with_shared(
                 }
             },
             CachedContours::empty,
+            cancel,
         )
     };
     {
@@ -308,7 +331,11 @@ pub(super) fn collect_glyph_data_with_shared(
                 })
             },
             |_, _| {},
+            cancel,
         );
+    }
+    if cancel.is_cancelled() {
+        return None;
     }
 
     let glyph_bodies_map: HashMap<&str, &GlyphBody> =
@@ -317,7 +344,10 @@ pub(super) fn collect_glyph_data_with_shared(
     let mut glyph_data: Vec<CollectedGlyph> = Vec::new();
     let mut seen_names: HashSet<String> = HashSet::new();
 
-    for item in all_items {
+    for (i, item) in all_items.iter().enumerate() {
+        if i.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
+            return None;
+        }
         let DocumentItem::Map {
             char_repr, glyph, ..
         } = item
@@ -535,7 +565,10 @@ pub(super) fn collect_glyph_data_with_shared(
     let mut extra_names: Vec<String> = extra_name_set.into_iter().collect();
     extra_names.sort();
 
-    for glyph_name in &extra_names {
+    for (i, glyph_name) in extra_names.iter().enumerate() {
+        if i.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
+            return None;
+        }
         let empty_cached = CachedContours::empty();
         let resolved = cache.get(glyph_name.as_str()).unwrap_or(&empty_cached);
         let glyph_scale = scale / resolved.scale as f32;

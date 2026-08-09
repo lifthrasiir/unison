@@ -259,7 +259,12 @@ pub fn build_font_pair_cached(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
 ) -> Option<BuiltFontPair> {
-    build_font_pair_cached_for(docs, shared_cache, None)
+    build_font_pair_cached_for(
+        docs,
+        shared_cache,
+        None,
+        &crate::cancel::CancelToken::never(),
+    )
 }
 
 /// The editor's font pair for one named face, or for the primary face when
@@ -272,18 +277,26 @@ pub fn build_font_pair_cached_for(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
     face_id: Option<&str>,
+    cancel: &crate::cancel::CancelToken,
 ) -> Option<BuiltFontPair> {
     let faces = crate::faces::FaceSet::collect(docs);
     let face = face_id
         .and_then(|id| faces.faces.iter().find(|f| f.id == id))
         .unwrap_or_else(|| faces.primary());
-    let shared = collect::compute_shared_font_input_for(docs, face)?;
+    let shared = collect::compute_shared_font_input_for(docs, face, cancel)?;
 
+    // The lock is held across both flavors, so a build that gives up here also
+    // frees the cache for the build that replaces it. Bailing between
+    // `begin_generation` and `evict_stale` is safe by construction: the
+    // generation counter only ever moves forward and entries are pruned by the
+    // next *completed* build, which refreshes everything it still reads. An
+    // aborted build therefore leaves the cache holding more than it needs, and
+    // nothing else.
     let mut cc = shared_cache.lock().unwrap();
     cc.begin_generation();
 
-    let bitmap_data = collect_glyph_data_with_shared(&shared, true, Some(&mut cc))?;
-    let vector_data = collect_glyph_data_with_shared(&shared, false, Some(&mut cc))?;
+    let bitmap_data = collect_glyph_data_with_shared(&shared, true, Some(&mut cc), cancel)?;
+    let vector_data = collect_glyph_data_with_shared(&shared, false, Some(&mut cc), cancel)?;
 
     cc.evict_stale();
     drop(cc);
@@ -360,18 +373,19 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
         slices: faces.declared.keys().cloned().collect(),
         origin: None,
     };
-    let union_input = collect::compute_shared_font_input_for(docs, &union_face)?;
+    let never = crate::cancel::CancelToken::never();
+    let union_input = collect::compute_shared_font_input_for(docs, &union_face, &never)?;
     let (_, _, union_glyphs, _, _) =
-        collect::collect_glyph_data_with_shared(&union_input, false, None)?;
+        collect::collect_glyph_data_with_shared(&union_input, false, None, &never)?;
 
     let mut out = Vec::new();
     for face in &faces.faces {
         // Collected again for this face, for its own `meta`, its own GSUB, and
         // above all its own cmap. Only the *codepoints* are taken from it; the
         // glyphs, and therefore every glyph id, come from the shared store.
-        let shared = collect::compute_shared_font_input_for(docs, face)?;
+        let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
         let (meta, scale, face_glyphs, gsub_data, palette) =
-            collect::collect_glyph_data_with_shared(&shared, false, None)?;
+            collect::collect_glyph_data_with_shared(&shared, false, None, &never)?;
 
         let mut per_name: HashMap<&str, &[u32]> = HashMap::new();
         for g in &face_glyphs {
@@ -441,9 +455,10 @@ pub fn build_font_with_gid_map_for(
     docs: &[&Document],
     face: &crate::faces::Face,
 ) -> Option<FontWithGidMap> {
-    let shared = collect::compute_shared_font_input_for(docs, face)?;
+    let never = crate::cancel::CancelToken::never();
+    let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
     build_with_gid_map(collect::collect_glyph_data_with_shared(
-        &shared, false, None,
+        &shared, false, None, &never,
     )?)
 }
 
@@ -465,10 +480,11 @@ pub fn build_font_with_gid_map_for_cached(
     face: &crate::faces::Face,
     shared_cache: &SharedContourCache,
 ) -> Option<FontWithGidMap> {
-    let shared = collect::compute_shared_font_input_for(docs, face)?;
+    let never = crate::cancel::CancelToken::never();
+    let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
     let data = {
         let mut cc = shared_cache.lock().unwrap();
-        collect::collect_glyph_data_with_shared(&shared, false, Some(&mut cc))?
+        collect::collect_glyph_data_with_shared(&shared, false, Some(&mut cc), &never)?
     };
     build_with_gid_map(data)
 }

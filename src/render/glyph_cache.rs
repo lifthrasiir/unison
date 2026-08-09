@@ -13,6 +13,13 @@ use std::collections::HashMap;
 
 use crate::document::{DocumentItem, GlyphName, GlyphPoint, GlyphRef, PixelGrid};
 
+/// How many glyphs pass between two cancellation checks. A check is a relaxed
+/// atomic load, so this is not about the cost of checking but about not calling
+/// it per *trivial* item: over ~18k glyphs a stride of 64 bounds the work an
+/// aborted build still does at well under a frame, while leaving the hot loops
+/// looking the way they did.
+pub(crate) const CANCEL_STRIDE: usize = 64;
+
 /// A glyph waiting for all of its refs to resolve.
 pub(crate) struct PendingGlyph {
     pub name: String,
@@ -117,15 +124,23 @@ pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
 /// directly via `from_grid` (which is told whether the glyph is `refonly`),
 /// glyphs with refs (or pixels alongside refs) become pending, and sticky
 /// placeholder glyphs enter as `empty` entries that only carry anchors.
+///
+/// `from_grid` is where the font build traces contours, so `cancel` is checked
+/// every [`CANCEL_STRIDE`] items; a cancelled seeding returns whatever it had
+/// built so far, which the caller discards along with everything downstream.
 pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
     all_items: impl IntoIterator<Item = &'a DocumentItem>,
     mut from_grid: impl FnMut(&PixelGrid, bool) -> V,
     mut empty: impl FnMut() -> V,
+    cancel: &crate::cancel::CancelToken,
 ) -> (HashMap<String, V>, Vec<PendingGlyph>) {
     let mut cache: HashMap<String, V> = HashMap::new();
     let mut pending: Vec<PendingGlyph> = Vec::new();
 
-    for item in all_items {
+    for (i, item) in all_items.into_iter().enumerate() {
+        if i.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
+            break;
+        }
         let (cache_key, body) = match item {
             DocumentItem::Glyph {
                 name: GlyphName(n),
@@ -167,12 +182,20 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
 /// resolved anchors and the declaring scale are recorded) and inserts it.
 /// Glyphs whose refs never resolve are dropped, matching how missing refs
 /// are reported elsewhere.
+///
+/// `build` is the composite tracer, which is most of a font build's cost, so
+/// `cancel` is checked both per round and every [`CANCEL_STRIDE`] glyphs within
+/// one. Returning early leaves the cache holding whatever resolved so far —
+/// indistinguishable, to everything downstream, from a source whose remaining
+/// composites never resolved. That is a state the pipeline already handles, and
+/// the caller throws the result away regardless.
 pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
     cache: &mut HashMap<String, V>,
     mut pending: Vec<PendingGlyph>,
     mut declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     mut build: impl FnMut(&PendingGlyph, &[GlyphRef], &HashMap<String, V>) -> V,
     mut on_issue: impl FnMut(&str, crate::ref_composite::DeriveIssue),
+    cancel: &crate::cancel::CancelToken,
 ) {
     // How many alternatives of each base name are still unresolved. A
     // composite must not be derived while an alternative of one of its
@@ -188,11 +211,22 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
         }
     }
     let mut relaxed = false;
+    // Counts inner-loop steps, not resolved glyphs: a round that resolves
+    // nothing still walks every pending glyph, and that walk has to be
+    // interruptible too.
+    let mut steps = 0usize;
     loop {
+        if cancel.is_cancelled() {
+            return;
+        }
         let mut progress = false;
         let mut alt_index = build_alt_index(cache);
         let mut i = 0;
         while i < pending.len() {
+            steps += 1;
+            if steps.is_multiple_of(CANCEL_STRIDE) && cancel.is_cancelled() {
+                return;
+            }
             let blocked = !pending[i]
                 .refs
                 .iter()
@@ -253,5 +287,145 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
         } else {
             relaxed = true;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::cancel::CancelToken;
+    use crate::document::GlyphPoint;
+
+    /// The smallest thing the driver can cache: enough to be a
+    /// `CachedGlyphEntry`, nothing more.
+    #[derive(Default)]
+    struct Counted {
+        width: u16,
+        height: u16,
+        anchors: Vec<GlyphPoint>,
+    }
+
+    impl CachedGlyphEntry for Counted {
+        fn anchors(&self) -> &[GlyphPoint] {
+            &self.anchors
+        }
+        fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
+            (&mut self.width, &mut self.height)
+        }
+        fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, _scale: u8) {
+            self.anchors = anchors;
+        }
+    }
+
+    /// `n` glyphs, each a one-pixel grid, plus `n` composites referencing the
+    /// first of them. Big enough that a stop after the first composite is
+    /// visible against [`CANCEL_STRIDE`].
+    fn source(n: usize) -> crate::document::Document {
+        let mut src = String::from("glyph base 1 1\n@\n");
+        for i in 0..n {
+            src.push_str(&format!("glyph plain{i} 1 1\n@\n"));
+        }
+        for i in 0..n {
+            src.push_str(&format!("glyph comp{i}\nref base 0 0\n"));
+        }
+        crate::document_io::parse_document_from_str(&src, "cancel.unf".into()).unwrap()
+    }
+
+    const N: usize = CANCEL_STRIDE * 8;
+
+    /// Cancelling mid-seed stops tracing: without the check, `from_grid` runs
+    /// once per glyph however stale the build already is, and on a real font
+    /// that is the bulk of a build nobody will read.
+    #[test]
+    fn cancelling_mid_seed_stops_before_the_last_glyph() {
+        let doc = source(N);
+        let cancel = CancelToken::new();
+        let mut traced = 0usize;
+
+        let (cache, _pending) = seed_cache(
+            &doc.items,
+            |_, _| {
+                traced += 1;
+                cancel.cancel();
+                Counted::default()
+            },
+            Counted::default,
+            &cancel,
+        );
+
+        assert!(
+            traced < N,
+            "seeding traced all {N} grids despite being cancelled at the first"
+        );
+        assert!(
+            cache.len() <= CANCEL_STRIDE,
+            "seeding ran {} glyphs past the cancel, more than one stride",
+            cache.len()
+        );
+    }
+
+    /// The same for the fixpoint loop, which is where composites — the
+    /// expensive half — are built.
+    #[test]
+    fn cancelling_mid_resolve_stops_before_the_last_composite() {
+        let doc = source(N);
+        let cancel = CancelToken::new();
+        let never = CancelToken::never();
+        let (mut cache, pending) = seed_cache(
+            &doc.items,
+            |_, _| Counted::default(),
+            Counted::default,
+            &never,
+        );
+        assert_eq!(pending.len(), N, "every composite starts out pending");
+
+        let mut built = 0usize;
+        resolve_pending(
+            &mut cache,
+            pending,
+            |_| None,
+            |_, _, _| {
+                built += 1;
+                cancel.cancel();
+                Counted::default()
+            },
+            |_, _| {},
+            &cancel,
+        );
+
+        assert!(
+            built < N,
+            "the fixpoint loop built all {N} composites despite being cancelled at the first"
+        );
+        assert!(
+            built <= CANCEL_STRIDE,
+            "the loop ran {built} composites past the cancel, more than one stride"
+        );
+    }
+
+    /// A `never` token changes nothing: the same source resolves completely.
+    #[test]
+    fn an_uncancelled_resolve_still_builds_everything() {
+        let doc = source(N);
+        let never = CancelToken::never();
+        let (mut cache, pending) = seed_cache(
+            &doc.items,
+            |_, _| Counted::default(),
+            Counted::default,
+            &never,
+        );
+        let mut built = 0usize;
+        resolve_pending(
+            &mut cache,
+            pending,
+            |_| None,
+            |_, _, _| {
+                built += 1;
+                Counted::default()
+            },
+            |_, _| {},
+            &never,
+        );
+        assert_eq!(built, N);
     }
 }

@@ -3,10 +3,33 @@
 //!
 //! Rebuilds are debounced — 300 ms after an edit, 1000 ms after text input,
 //! since typing a glyph name produces a burst of states nobody wants built — and
-//! guarded against overlapping rebuild threads (`derived_inflight`): without
-//! that guard a resolve slower than the debounce period respawns another rebuild
-//! every period, which is how a slow resolve once snowballed into dozens of
-//! concurrent threads. Set `UNIFORM_PERF` for `[perf]` per-stage timings.
+//! guarded against overlapping rebuild threads (`font_build_inflight`,
+//! `derived_inflight`): without that guard a stage slower than the debounce
+//! period respawns another every period, which is how a slow resolve once
+//! snowballed into dozens of concurrent threads. Set `UNIFORM_PERF` for
+//! `[perf]` per-stage timings.
+//!
+//! # At most one of each stage, and it can be told to stop
+//!
+//! The guard alone only moves the pile-up: a second build does not overlap the
+//! first, it *queues behind* it on the shared contour cache, so a burst of
+//! pixel clicks still meant the last edit's font appearing several full builds
+//! later. So each stage also holds a [`CancelToken`](crate::cancel::CancelToken),
+//! and the scheduler follows one rule:
+//!
+//! - a request arriving while the stage is idle starts it;
+//! - a request arriving while it runs **cancels** what runs and re-arms itself,
+//!   so the pump starts the new one as soon as the slot frees.
+//!
+//! There is therefore never a queue to drain, only ever one obsolete stage
+//! being wound down. A cancelled stage reports back like any other — the slot
+//! has to be freed however it ended — but carries `Cancelled` rather than a
+//! result, because "nothing came out of this" and "this font is empty" must not
+//! look alike: the second blanks the display.
+//!
+//! Cancelling the font build is unconditional (a new generation supersedes it
+//! by definition); cancelling the resolve is not, since a resolve already
+//! running against the current generation is exactly the one wanted.
 //!
 //! Results carry the generation of the request that produced them, and consumers
 //! key their caches on the generation of the *result* they read, never of the
@@ -114,17 +137,27 @@ impl BackgroundTaskStatus {
     }
 }
 
+/// Drains the font-build channel, reporting whether any thread ended (so the
+/// scheduler can free the slot) and, separately, the one result worth applying.
+///
+/// A cancelled build is a thread that ended with nothing, and a build for a
+/// superseded generation is a result nobody may apply — the two are dropped by
+/// the same filter, which is why cancelling needs no special case here.
 fn take_current_font_build(
     rx: &mpsc::Receiver<FontBuildMessage>,
     current_gen: u64,
-) -> Option<Option<crate::render::BuiltFontPair>> {
+) -> (bool, Option<Option<crate::render::BuiltFontPair>>) {
+    let mut ended = false;
     let mut received = None;
-    while let Ok((build_gen, result)) = rx.try_recv() {
-        if build_gen == current_gen {
+    while let Ok((build_gen, outcome)) = rx.try_recv() {
+        ended = true;
+        if let FontBuildOutcome::Done(result) = outcome
+            && build_gen == current_gen
+        {
             received = Some(result);
         }
     }
-    received
+    (ended, received)
 }
 
 fn take_latest_derived_data(rx: &mpsc::Receiver<DerivedDataResult>) -> Option<DerivedDataResult> {
@@ -241,7 +274,21 @@ impl UniformApp {
         });
     }
 
+    /// Start a font build for the current generation, or — when one is already
+    /// running — cancel that one and leave the request armed for the pump to
+    /// retry once the slot frees.
+    ///
+    /// Waiting for the running build rather than spawning alongside it is the
+    /// point: two builds do not overlap, they serialize on the contour cache,
+    /// and the second one's wait is the whole latency this avoids.
     fn rebuild_font(&mut self, ctx: &egui::Context) {
+        if self.font_build_inflight {
+            self.font_cancel.cancel();
+            self.font_rebuild_at = Some(std::time::Instant::now());
+            ctx.request_repaint_after(std::time::Duration::from_millis(30));
+            return;
+        }
+
         self.bg_tasks.start_build();
         let build_gen = self.font_build_gen;
         let owned_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
@@ -249,16 +296,27 @@ impl UniformApp {
         let ctx = ctx.clone();
         let cache = self.contour_cache.clone();
         let face = self.selected_face.clone();
+        let cancel = crate::cancel::CancelToken::new();
+        self.font_cancel = cancel.clone();
+        self.font_build_inflight = true;
         std::thread::spawn(move || {
-            let mut slot = ResultSlot::new(tx, ctx, (build_gen, None));
+            let mut slot = ResultSlot::new(tx, ctx, (build_gen, FontBuildOutcome::Done(None)));
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
             let face_id = (!face.is_empty()).then_some(face.as_str());
-            let pair = crate::render::build_font_pair_cached_for(&refs, &cache, face_id);
+            let pair = crate::render::build_font_pair_cached_for(&refs, &cache, face_id, &cancel);
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] font build (background): {:?}", t0.elapsed());
             }
-            slot.set((build_gen, pair));
+            // A cancelled build returns `None` like a failed one; only the
+            // token tells the two apart, and only so a cancellation does not
+            // blank the displayed font.
+            let outcome = if cancel.is_cancelled() {
+                FontBuildOutcome::Cancelled
+            } else {
+                FontBuildOutcome::Done(pair)
+            };
+            slot.set((build_gen, outcome));
         });
     }
 
@@ -321,19 +379,26 @@ impl UniformApp {
         }
     }
 
-    fn rebuild_derived_data(&self, ctx: &egui::Context) {
+    fn rebuild_derived_data(&mut self, ctx: &egui::Context) {
         let build_gen = self.font_build_gen;
         let owned_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
         let file_parse_errors = self.file_parse_errors.clone();
         let tx = self.derived_data_tx.clone();
         let ctx = ctx.clone();
+        let cancel = crate::cancel::CancelToken::new();
+        self.derived_cancel = cancel.clone();
+        self.derived_inflight = Some(build_gen);
         std::thread::spawn(move || {
-            let mut slot = ResultSlot::new(tx, ctx, None);
+            let mut slot = ResultSlot::new(tx, ctx, DerivedDataResult::Failed);
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
             let refs: Vec<&Document> = owned_docs.iter().collect();
             // One resolution feeds both the glyph cache and validation; they
             // used to expand the whole document set independently.
-            let resolution = crate::resolve::Resolution::compute(&refs);
+            let Some(resolution) = crate::resolve::Resolution::compute_cancellable(&refs, &cancel)
+            else {
+                slot.set(DerivedDataResult::Cancelled);
+                return;
+            };
             // Validation only reads names and diagnostics, so it runs before
             // the expansion is consumed by the glyph cache.
             let mut issues = crate::issues::collect_issues_with(&refs, &resolution);
@@ -345,10 +410,19 @@ impl UniformApp {
                 .map(|f| f.id.clone())
                 .collect();
             let name_parts = resolution.name_parts;
-            let (named_glyphs, alt_index) =
-                crate::editor::ref_composite::resolve_expansion(resolution.expansion, &name_parts);
+            let (named_glyphs, alt_index) = crate::editor::ref_composite::resolve_expansion(
+                resolution.expansion,
+                &name_parts,
+                &cancel,
+            );
             if let Some(t0) = perf_t0 {
                 eprintln!("[perf] resolve (derived thread): {:?}", t0.elapsed());
+            }
+            // Resolution stops where it was interrupted, so what it holds is a
+            // partial font; it is discarded rather than published.
+            if cancel.is_cancelled() {
+                slot.set(DerivedDataResult::Cancelled);
+                return;
             }
             for (path, msg) in &file_parse_errors {
                 issues.insert(
@@ -362,7 +436,7 @@ impl UniformApp {
                     },
                 );
             }
-            slot.set(Some(DerivedDataMessage {
+            slot.set(DerivedDataResult::Done(Box::new(DerivedDataMessage {
                 build_gen,
                 named_glyphs,
                 alt_index,
@@ -371,7 +445,7 @@ impl UniformApp {
                 char_props,
                 issues,
                 face_ids,
-            }));
+            })));
         });
     }
 
@@ -444,24 +518,15 @@ impl UniformApp {
             .iter()
             .any(|d| d.editor_state.suppress_font_rebuild);
         let font_gen = self.current_font_gen();
-        if font_gen != self.last_font_gen && !any_pixel_painting {
-            self.last_font_gen = font_gen;
-            self.font_build_gen = self.font_build_gen.wrapping_add(1);
-            let had_text_input =
-                ctx.input(|i| i.events.iter().any(|e| matches!(e, egui::Event::Text(_))));
-            let debounce_ms = if had_text_input { 1000 } else { 300 };
-            self.font_rebuild_at =
-                Some(std::time::Instant::now() + std::time::Duration::from_millis(debounce_ms));
-            ctx.request_repaint_after(std::time::Duration::from_millis(debounce_ms));
+        // Drained before anything is scheduled, so a build that just ended
+        // frees its slot for a request armed in this very frame rather than in
+        // the next one.
+        let (build_ended, build_result) =
+            take_current_font_build(&self.font_build_rx, self.font_build_gen);
+        if build_ended {
+            self.font_build_inflight = false;
         }
-        if let Some(at) = self.font_rebuild_at
-            && std::time::Instant::now() >= at
-        {
-            self.rebuild_font(ctx);
-            self.font_rebuild_at = None;
-        }
-
-        if let Some(result) = take_current_font_build(&self.font_build_rx, self.font_build_gen) {
+        if let Some(result) = build_result {
             self.bg_tasks.finish_build();
             match result {
                 Some(built) => {
@@ -478,52 +543,98 @@ impl UniformApp {
             self.shaped_preview.invalidate_font(self.font_data_gen);
         }
 
-        if self.font_build_gen != self.named_glyphs_gen
-            && self.derived_rebuild_at.is_none()
-            && !self.derived_inflight
-        {
-            self.derived_rebuild_at =
-                Some(std::time::Instant::now() + std::time::Duration::from_millis(300));
-            ctx.request_repaint_after(std::time::Duration::from_millis(300));
+        if font_gen != self.last_font_gen && !any_pixel_painting {
+            self.last_font_gen = font_gen;
+            self.font_build_gen = self.font_build_gen.wrapping_add(1);
+            // Whatever is building is building a document set that no longer
+            // exists. Told now rather than when the debounce expires, it has
+            // the whole debounce period to notice and get out of the way.
+            self.font_cancel.cancel();
+            let had_text_input =
+                ctx.input(|i| i.events.iter().any(|e| matches!(e, egui::Event::Text(_))));
+            let debounce_ms = if had_text_input { 1000 } else { 300 };
+            self.font_rebuild_at =
+                Some(std::time::Instant::now() + std::time::Duration::from_millis(debounce_ms));
+            ctx.request_repaint_after(std::time::Duration::from_millis(debounce_ms));
         }
-        if let Some(at) = self.derived_rebuild_at
+        if let Some(at) = self.font_rebuild_at
             && std::time::Instant::now() >= at
-            && !self.derived_inflight
         {
-            self.rebuild_derived_data(ctx);
-            self.derived_inflight = true;
-            self.derived_rebuild_at = None;
+            // Cleared first: `rebuild_font` re-arms it itself when it has to
+            // wait for the build it just cancelled.
+            self.font_rebuild_at = None;
+            self.rebuild_font(ctx);
         }
 
         if let Some(result) = take_latest_derived_data(&self.derived_data_rx) {
-            self.derived_inflight = false;
-            // A rebuild that died carries nothing: the flag is cleared either
-            // way, but the previous derived data stays — a stale view of the
-            // font beats none — and the next edit schedules another rebuild.
-            if result.is_none() {
-                self.status_message = Some((
-                    "Resolving the font sources failed (internal error).".to_string(),
-                    std::time::Instant::now(),
-                ));
+            self.derived_inflight = None;
+            match result {
+                // The previous derived data stays in both non-`Done` cases — a
+                // stale view of the font beats none — but only a rebuild that
+                // *died* is something the user should hear about; one that was
+                // cancelled is about to be replaced by design.
+                DerivedDataResult::Failed => {
+                    self.status_message = Some((
+                        "Resolving the font sources failed (internal error).".to_string(),
+                        std::time::Instant::now(),
+                    ));
+                }
+                DerivedDataResult::Cancelled => {}
+                DerivedDataResult::Done(data) => {
+                    let data = *data;
+                    self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
+                    self.alt_index = data.alt_index;
+                    self.name_parts = data.name_parts;
+                    self.char_props = data.char_props;
+                    self.font_meta = data.meta;
+                    self.named_glyphs_gen = data.build_gen;
+                    self.derived_gen = self.derived_gen.wrapping_add(1);
+                    self.issues = data.issues;
+                    self.issues_gen = data.build_gen;
+                    self.face_ids = data.face_ids;
+                    // The selection is not silently rewritten when its face
+                    // goes away: the build falls back to the primary on its
+                    // own, and an edit that briefly breaks a `face` line must
+                    // not lose the choice.
+                    let all_docs = self.collect_all_docs();
+                    let doc_refs: Vec<&Document> = all_docs.to_vec();
+                    self.color_aliases =
+                        crate::render::ttf_builder::collect_color_aliases(&doc_refs);
+                }
             }
-            if let Some(data) = result {
-                self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
-                self.alt_index = data.alt_index;
-                self.name_parts = data.name_parts;
-                self.char_props = data.char_props;
-                self.font_meta = data.meta;
-                self.named_glyphs_gen = data.build_gen;
-                self.derived_gen = self.derived_gen.wrapping_add(1);
-                self.issues = data.issues;
-                self.issues_gen = data.build_gen;
-                self.face_ids = data.face_ids;
-                // The selection is not silently rewritten when its face goes
-                // away: the build falls back to the primary on its own, and an
-                // edit that briefly breaks a `face` line must not lose the
-                // choice.
-                let all_docs = self.collect_all_docs();
-                let doc_refs: Vec<&Document> = all_docs.to_vec();
-                self.color_aliases = crate::render::ttf_builder::collect_color_aliases(&doc_refs);
+        }
+
+        // Unlike the font build, a resolve in flight may already be the one
+        // wanted: it is cancelled only when the generation it started from has
+        // been superseded, and a new one is armed only when none in flight will
+        // deliver the current generation.
+        if self.font_build_gen != self.named_glyphs_gen {
+            if self
+                .derived_inflight
+                .is_some_and(|g| g != self.font_build_gen)
+            {
+                self.derived_cancel.cancel();
+            }
+            if self.derived_rebuild_at.is_none()
+                && self.derived_inflight != Some(self.font_build_gen)
+            {
+                self.derived_rebuild_at =
+                    Some(std::time::Instant::now() + std::time::Duration::from_millis(300));
+                ctx.request_repaint_after(std::time::Duration::from_millis(300));
+            }
+        }
+        if let Some(at) = self.derived_rebuild_at
+            && std::time::Instant::now() >= at
+        {
+            if self.derived_inflight.is_some() {
+                // Waiting on the cancelled resolve rather than starting a
+                // second one: two concurrent resolves of an 18k-glyph font
+                // starve each other, which is what the guard has always been
+                // for.
+                ctx.request_repaint_after(std::time::Duration::from_millis(30));
+            } else {
+                self.derived_rebuild_at = None;
+                self.rebuild_derived_data(ctx);
             }
         }
 
@@ -606,26 +717,41 @@ mod font_build_tests {
             vector: vec![n * 10],
             name_to_gid: HashMap::new(),
         };
-        tx.send((2, Some(built(2)))).unwrap();
-        tx.send((1, Some(built(1)))).unwrap();
+        tx.send((2, FontBuildOutcome::Done(Some(built(2)))))
+            .unwrap();
+        tx.send((1, FontBuildOutcome::Done(Some(built(1)))))
+            .unwrap();
 
-        let result = take_current_font_build(&rx, 2);
-        assert!(result.is_some());
-        let inner = result.unwrap();
-        assert!(inner.is_some());
-        let inner = inner.unwrap();
+        let (ended, result) = take_current_font_build(&rx, 2);
+        assert!(ended, "both threads ended, so the build slot is free");
+        let inner = result.expect("the current generation's build is applied");
+        let inner = inner.expect("that build produced a font");
         assert_eq!(inner.bitmap, vec![2]);
         assert_eq!(inner.vector, vec![20]);
+    }
+
+    /// A cancelled build frees the slot the scheduler waits on, but is never
+    /// applied — not even when it happens to carry the current generation,
+    /// which is the case a `Done(None)` of the same generation would blank the
+    /// displayed font for.
+    #[test]
+    fn a_cancelled_build_frees_the_slot_without_replacing_the_font() {
+        let (tx, rx) = mpsc::channel::<FontBuildMessage>();
+        tx.send((4, FontBuildOutcome::Cancelled)).unwrap();
+
+        let (ended, result) = take_current_font_build(&rx, 4);
+        assert!(ended);
+        assert!(result.is_none(), "nothing to apply from a cancelled build");
     }
 
     #[test]
     fn current_failed_build_clears_previous_font() {
         let (tx, rx) = mpsc::channel();
-        tx.send((3, None)).unwrap();
+        tx.send((3, FontBuildOutcome::Done(None))).unwrap();
 
-        let result = take_current_font_build(&rx, 3);
-        assert!(result.is_some());
-        assert!(result.unwrap().is_none());
+        let (ended, result) = take_current_font_build(&rx, 3);
+        assert!(ended);
+        assert!(result.expect("a current result, applied").is_none());
     }
 
     #[test]

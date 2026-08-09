@@ -831,7 +831,7 @@ pub fn resolve_named_glyphs_with_parts(
     name_parts: &NamePartsMap,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
     let expansion = crate::render::ttf_builder::expand_documents(docs, name_parts);
-    resolve_expansion(expansion, name_parts)
+    resolve_expansion(expansion, name_parts, &crate::cancel::CancelToken::never())
 }
 
 /// Compose every glyph in an already-expanded document set.
@@ -841,9 +841,16 @@ pub fn resolve_named_glyphs_with_parts(
 /// so this function starts from the same glyph set the font build sees. It
 /// used to redo all of that itself, which is how the editor and the built
 /// font could disagree about which glyphs exist.
+///
+/// A cancelled run returns what it had resolved so far rather than an error:
+/// the shape of that result — some composites resolved, the rest absent — is
+/// one the pipeline already produces for a source whose refs do not resolve, so
+/// no consumer needs a new case for it. The caller that cancelled discards it
+/// whole; see [`crate::cancel`].
 pub fn resolve_expansion(
     expansion: crate::render::ttf_builder::Expansion,
     name_parts: &NamePartsMap,
+    cancel: &crate::cancel::CancelToken,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
     let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
 
@@ -865,7 +872,11 @@ pub fn resolve_expansion(
     // The expansion is consumed, not borrowed: it already owns a full copy of
     // every glyph body, and cloning it a second time into `pending` cost more
     // than sharing the expansion saved.
-    for expanded in expansion.items {
+    for (i, expanded) in expansion.items.into_iter().enumerate() {
+        if i.is_multiple_of(crate::render::glyph_cache::CANCEL_STRIDE) && cancel.is_cancelled() {
+            let alt_index = AlternativesIndex::build(&cache);
+            return (cache, alt_index);
+        }
         let DocumentItem::Glyph {
             name: GlyphName(key),
             body,
@@ -923,9 +934,21 @@ pub fn resolve_expansion(
     // glyph (a reference cycle running through an alternative), so resolution
     // still terminates with the fallbacks it produced before.
     let mut relaxed = false;
+    // Inner-loop steps rather than resolved glyphs, so a round that resolves
+    // nothing is interruptible too.
+    let mut steps = 0usize;
     loop {
+        if cancel.is_cancelled() {
+            return (cache, alt_index);
+        }
         let mut progress = false;
         for pg in std::mem::take(&mut pending) {
+            steps += 1;
+            if steps.is_multiple_of(crate::render::glyph_cache::CANCEL_STRIDE)
+                && cancel.is_cancelled()
+            {
+                return (cache, alt_index);
+            }
             if !pg
                 .refs
                 .iter()

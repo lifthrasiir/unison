@@ -76,6 +76,22 @@ pub struct Resolution {
 
 impl Resolution {
     pub fn compute(docs: &[&Document]) -> Self {
+        Self::compute_cancellable(docs, &crate::cancel::CancelToken::never())
+            .expect("a `never` token cannot cancel")
+    }
+
+    /// The same, abortable at each stage boundary. The stages here are coarse —
+    /// expansion is the expensive one and does not report progress — so this
+    /// gives up between them rather than within, which is enough: the editor's
+    /// derived-data rebuild is cancelled to stop it *blocking the next one*,
+    /// and one stage is the granularity that costs.
+    pub fn compute_cancellable(
+        docs: &[&Document],
+        cancel: &crate::cancel::CancelToken,
+    ) -> Option<Self> {
+        if cancel.is_cancelled() {
+            return None;
+        }
         let name_parts = crate::document::collect_name_parts(docs);
         let faces = crate::faces::FaceSet::collect(docs);
         // The face a single-face build emits; its metadata is what the tables
@@ -86,13 +102,19 @@ impl Resolution {
         } else {
             Some(primary_id.as_str())
         };
+        if cancel.is_cancelled() {
+            return None;
+        }
         let expansion = crate::render::ttf_builder::expand_documents_for(docs, &name_parts, &faces);
-        Self {
+        if cancel.is_cancelled() {
+            return None;
+        }
+        Some(Self {
             name_parts,
             faces,
             meta: crate::meta::FontMeta::for_face(docs, primary),
             expansion,
-        }
+        })
     }
 }
 
