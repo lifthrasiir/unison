@@ -658,6 +658,18 @@ impl EditorHarness {
         self.click_at(pos);
     }
 
+    /// Click the center of a grid cell with modifiers held.
+    pub fn click_grid_cell_mod(
+        &mut self,
+        grid_doc_line: usize,
+        row: i16,
+        col: i16,
+        modifiers: egui::Modifiers,
+    ) {
+        let pos = self.grid_cell_pos(grid_doc_line, row, col);
+        self.click_at_mod(pos, modifiers);
+    }
+
     /// Drag from one grid cell to another (primary button).
     pub fn drag_grid(&mut self, grid_doc_line: usize, from: (i16, i16), to: (i16, i16)) {
         self.drag_grid_mod(grid_doc_line, from, to, egui::Modifiers::NONE);

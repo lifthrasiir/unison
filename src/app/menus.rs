@@ -254,7 +254,7 @@ impl UniformApp {
                         EditTarget::Preview => self.shaped_preview.edit_menu_caps(),
                         EditTarget::Editor => self
                             .active_doc()
-                            .map(|d| d.editor_state.edit_menu_caps())
+                            .map(|d| d.editor_state.edit_menu_caps(&d.document))
                             .unwrap_or(EditMenuCaps {
                                 can_undo: false,
                                 can_redo: false,
@@ -996,8 +996,12 @@ impl UniformApp {
                 }
                 EditTarget::Editor => {
                     self.with_active_doc_flush(|doc| {
-                        doc.editor_state
-                            .apply_edit_action(actions.edit_action, &mut doc.lines, ctx)
+                        doc.editor_state.apply_edit_action(
+                            actions.edit_action,
+                            &doc.document,
+                            &mut doc.lines,
+                            ctx,
+                        )
                     });
                 }
             }

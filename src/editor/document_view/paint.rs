@@ -1008,7 +1008,7 @@ pub(super) fn paint_document_area(
             };
             let action = crate::edit_menu::show_edit_menu_items(ui, &caps, false);
             acted |= action != crate::edit_menu::EditAction::None;
-            if apply_edit_action_to_editor(action, lines, state, ui.ctx()) {
+            if apply_edit_action_to_editor(action, doc, lines, state, ui.ctx()) {
                 *needs_rederive = true;
             }
         });

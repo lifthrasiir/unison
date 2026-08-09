@@ -185,6 +185,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a line the grammar cannot read does not fail the derive | `document_io.rs` (`derive_document`) |
 | Why a menu action has to hand the keyboard back to the editor | `editor/mod.rs` (`refocus`), `editor/document_view/paint.rs` (`refocus_after_menu`) |
 | A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`), `app/docs.rs` (`commit_floating_selection`) |
+| Copy/Cut/Delete with nothing framed, and the corner a shift-click extends from | `editor/pixel_selection.rs` (`effective_selection`, `select_all`), `editor/mod.rs` (`pixel_select_anchor`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |

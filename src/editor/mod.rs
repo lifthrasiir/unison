@@ -49,7 +49,7 @@ pub mod undo;
 mod view_tests;
 pub mod visual_lines;
 
-use crate::document::DocLine;
+use crate::document::{DocLine, Document};
 use crate::edit_menu::EditMenuCaps;
 use crate::pixel::PixelShape;
 use doc_links::RenameKind;
@@ -159,6 +159,16 @@ pub struct EditorState {
     /// so narrow grids stay put while a wide one scrolls.
     pub(crate) grid_scroll_x: f32,
     pub(crate) pixel_selection: Option<pixel_selection::PixelSelection>,
+    /// The cell a pixel selection was *started* from, kept beside the rectangle
+    /// the way `selection_anchor` is kept beside the text caret.
+    ///
+    /// The rectangle is normalized (origin + size), so it no longer records
+    /// which corner the user pinned; a drag upward-left and one downward-right
+    /// produce the same rectangle. Shift-click has to extend from the pinned
+    /// corner, so that corner is remembered here instead of being re-derived.
+    /// `None` means "no pinned corner" — a moved or pasted selection — and
+    /// extension then falls back to the rectangle's top-left.
+    pub(crate) pixel_select_anchor: Option<(i16, i16)>,
     /// Cached per-frame view data (composites, visual lines, source offsets);
     /// rebuilt only when the document or layout inputs change.
     pub(crate) view_cache: Option<document_view::ViewCache>,
@@ -211,6 +221,7 @@ impl EditorState {
             shape_rotation: 0,
             grid_scroll_x: 0.0,
             pixel_selection: None,
+            pixel_select_anchor: None,
             view_cache: None,
             pixel_paint_dirty: None,
             suppress_font_rebuild: false,
@@ -245,12 +256,26 @@ impl EditorState {
         self.cursor_source_line
     }
 
-    pub fn edit_menu_caps(&self) -> EditMenuCaps {
+    /// What the Edit menu may offer for this editor.
+    ///
+    /// In a pixel mode the menu acts on the glyph's grid rather than on the
+    /// document text, so "has a selection" means the pixel selection — or, with
+    /// nothing framed, the implicit whole grid that the keys act on
+    /// (`pixel_selection::effective_selection`). A menu that stayed disabled
+    /// there would be a second, worse answer to the same question the keyboard
+    /// already answers.
+    pub fn edit_menu_caps(&self, doc: &Document) -> EditMenuCaps {
+        let has_selection = if self.mode.pixel_edit_item_idx().is_some() {
+            pixel_selection::effective_selection(doc, self).is_some()
+        } else {
+            self.selection_range().is_some()
+        };
         EditMenuCaps {
             can_undo: self.undo.can_undo(),
             can_redo: self.undo.can_redo(),
-            has_selection: self.selection_range().is_some(),
-            can_edit: matches!(self.mode, EditMode::Normal),
+            has_selection,
+            can_edit: matches!(self.mode, EditMode::Normal)
+                || self.mode.pixel_edit_item_idx().is_some(),
         }
     }
 
@@ -297,6 +322,7 @@ impl EditorState {
         self.mode = EditMode::Normal;
         self.selection_anchor = None;
         self.pixel_selection = None;
+        self.pixel_select_anchor = None;
         self.autocomplete = None;
         self.popup = PopupState::None;
         self.cursor = caret;
@@ -395,7 +421,11 @@ impl EditorState {
     /// anything changed.  The single implementation behind both the raw
     /// Cmd+Z path and the Edit-menu action.
     pub fn perform_undo(&mut self, lines: &mut Vec<DocLine>) -> bool {
-        if let Some(c) = self.undo.undo(lines) {
+        let sel_ctx = Some(undo::SelectionUndoCtx {
+            mode: &mut self.mode,
+            pixel_selection: &mut self.pixel_selection,
+        });
+        if let Some(c) = self.undo.undo_with_sel(lines, sel_ctx) {
             self.cursor = caret::clamp(lines, c);
             self.selection_anchor = None;
             self.skip_reconcile = true;
@@ -406,7 +436,11 @@ impl EditorState {
     }
 
     pub fn perform_redo(&mut self, lines: &mut Vec<DocLine>) -> bool {
-        if let Some(c) = self.undo.redo(lines) {
+        let sel_ctx = Some(undo::SelectionUndoCtx {
+            mode: &mut self.mode,
+            pixel_selection: &mut self.pixel_selection,
+        });
+        if let Some(c) = self.undo.redo_with_sel(lines, sel_ctx) {
             self.cursor = caret::clamp(lines, c);
             self.selection_anchor = None;
             self.skip_reconcile = true;
@@ -416,13 +450,27 @@ impl EditorState {
         }
     }
 
+    /// Runs an Edit-menu action against this editor.
+    ///
+    /// In a pixel mode it is routed to the pixel grid, so a menu item does
+    /// exactly what its keyboard shortcut does; `doc` is what the pixel paths
+    /// need to find the grid behind the mode's item index.
     pub fn apply_edit_action(
         &mut self,
         action: crate::edit_menu::EditAction,
+        doc: &Document,
         lines: &mut Vec<DocLine>,
         ctx: &egui::Context,
     ) -> bool {
         use crate::edit_menu::EditAction;
+        if self.mode.pixel_edit_item_idx().is_some()
+            && let Some(changed) = self.apply_pixel_edit_action(action, doc, lines, ctx)
+        {
+            if changed {
+                self.request_document_sync();
+            }
+            return changed;
+        }
         let changed = match action {
             EditAction::None => false,
             EditAction::Undo => self.perform_undo(lines),
@@ -487,5 +535,54 @@ impl EditorState {
             self.request_document_sync();
         }
         changed
+    }
+
+    /// The pixel-grid reading of an Edit-menu action, or `None` for the actions
+    /// that mean the same thing in every mode and fall through to the text
+    /// path (nothing, undo, redo).
+    fn apply_pixel_edit_action(
+        &mut self,
+        action: crate::edit_menu::EditAction,
+        doc: &Document,
+        lines: &mut [DocLine],
+        ctx: &egui::Context,
+    ) -> Option<bool> {
+        use crate::edit_menu::EditAction;
+        match action {
+            EditAction::None | EditAction::Undo | EditAction::Redo => None,
+            EditAction::Copy => {
+                if let Some(sel) = pixel_selection::effective_selection(doc, self)
+                    && let Some(text) = pixel_selection::copy_selection(doc, lines, &sel)
+                {
+                    ctx.copy_text(text);
+                }
+                Some(false)
+            }
+            EditAction::Cut => {
+                let Some(sel) = pixel_selection::effective_selection(doc, self) else {
+                    return Some(false);
+                };
+                if let Some(text) = pixel_selection::copy_selection(doc, lines, &sel) {
+                    ctx.copy_text(text);
+                }
+                pixel_selection::handle_delete_selection(doc, lines, self);
+                Some(true)
+            }
+            EditAction::Delete => {
+                pixel_selection::handle_delete_selection(doc, lines, self);
+                Some(true)
+            }
+            EditAction::Paste => {
+                let text = arboard::Clipboard::new()
+                    .ok()
+                    .and_then(|mut clip| clip.get_text().ok())
+                    .filter(|t| !t.is_empty());
+                match text {
+                    Some(text) => Some(pixel_selection::paste_selection(doc, lines, self, &text)),
+                    None => Some(false),
+                }
+            }
+            EditAction::SelectAll => Some(pixel_selection::select_all(doc, lines, self)),
+        }
     }
 }

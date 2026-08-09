@@ -58,6 +58,121 @@ impl PixelSelection {
     }
 }
 
+/// The rectangle two corner cells span, as a grounded selection.
+fn selection_between(item_idx: usize, a: (i16, i16), b: (i16, i16)) -> PixelSelection {
+    let (r0, r1) = (a.0.min(b.0), a.0.max(b.0));
+    let (c0, c1) = (a.1.min(b.1), a.1.max(b.1));
+    PixelSelection {
+        item_idx,
+        row: r0,
+        col: c0,
+        width: (c1 - c0 + 1) as u16,
+        height: (r1 - r0 + 1) as u16,
+        float_pixels: None,
+    }
+}
+
+/// The glyph's pixel grid dimensions, if it has one.
+fn grid_dims(doc: &Document, item_idx: usize) -> Option<(u16, u16)> {
+    match doc.items.get(item_idx) {
+        Some(DocumentItem::Glyph { body, .. }) => {
+            let pixels = body.pixels.as_ref()?;
+            Some((pixels.width, pixels.height))
+        }
+        _ => None,
+    }
+}
+
+/// A grounded selection covering the whole of `item_idx`'s pixel grid.
+fn whole_grid_selection(doc: &Document, item_idx: usize) -> Option<PixelSelection> {
+    let (width, height) = grid_dims(doc, item_idx)?;
+    if width == 0 || height == 0 {
+        return None;
+    }
+    Some(PixelSelection {
+        item_idx,
+        row: 0,
+        col: 0,
+        width,
+        height,
+        float_pixels: None,
+    })
+}
+
+/// The selection Copy/Cut/Delete act on.
+///
+/// In either pixel mode, no selection means the whole grid: the mode is
+/// already "the user is working on this grid", so a clipboard key with nothing
+/// framed has no other sensible target, and the transforms have read it that
+/// way from the start (see [`handle_transform_selection`]). It is the same
+/// rectangle [`select_all`] would have made, so `Ctrl+A` followed by `Ctrl+C`
+/// and a bare `Ctrl+C` do the same thing.
+///
+/// Returns `None` outside a pixel mode, and for a glyph with no grid of its
+/// own — a ref-only glyph has no pixels to take.
+pub(crate) fn effective_selection(doc: &Document, state: &EditorState) -> Option<PixelSelection> {
+    let item_idx = state.mode.pixel_edit_item_idx()?;
+    match &state.pixel_selection {
+        Some(sel) if sel.item_idx == item_idx => Some(sel.clone()),
+        _ => whole_grid_selection(doc, item_idx),
+    }
+}
+
+/// `Ctrl+A` in a pixel mode: frame the whole grid.
+///
+/// Selecting pixels is what `PixelSelect` mode *is*, so this enters it from
+/// the drawing mode rather than inventing a selection the drawing mode could
+/// not show — the same move [`paste_selection`] makes.
+pub(crate) fn select_all(doc: &Document, lines: &mut [DocLine], state: &mut EditorState) -> bool {
+    let Some(item_idx) = state.mode.pixel_edit_item_idx() else {
+        return false;
+    };
+    let Some(new_sel) = whole_grid_selection(doc, item_idx) else {
+        return false;
+    };
+
+    // A floating selection is dropped back onto the grid first: the new
+    // rectangle frames grid cells, and the float's pixels have to be among
+    // them rather than left hovering over the selection that now contains them.
+    if let Some(sel) = state.pixel_selection.clone()
+        && sel.item_idx == item_idx
+        && sel.is_floating()
+    {
+        commit_floating(doc, lines, state, &sel);
+    }
+
+    let current = state
+        .pixel_selection
+        .as_ref()
+        .filter(|s| s.item_idx == item_idx);
+    // Already the whole grid, in the mode that shows it: nothing to record.
+    if current == Some(&new_sel)
+        && matches!(state.mode, EditMode::PixelSelect { item_idx: i } if i == item_idx)
+    {
+        return false;
+    }
+    let before = current.map(|s| s.to_snapshot());
+
+    let grid_doc_line = new_sel.grid_doc_line(doc).unwrap_or(0);
+    let mode_before = state.mode.clone();
+    state.mode = EditMode::PixelSelect { item_idx };
+    let after = new_sel.to_snapshot();
+    state.pixel_selection = Some(new_sel);
+    state.pixel_select_anchor = Some((0, 0));
+
+    state.undo.push_pixel_selection(
+        grid_doc_line,
+        Vec::new(),
+        mode_before,
+        state.mode.clone(),
+        before,
+        Some(after),
+        state.cursor,
+        state.cursor,
+    );
+    true
+}
+
 // ---------------------------------------------------------------------------
 // Drag state stored in the owning editor's egui temp slot
 // ---------------------------------------------------------------------------
@@ -149,10 +264,44 @@ pub(crate) fn handle_pixel_select_interaction(
     let hover_row = pixel_row;
 
     if primary_pressed {
+        let shift = ui.input(|i| i.modifiers.shift && !i.modifiers.command && !i.modifiers.alt);
         let inside = state
             .pixel_selection
             .as_ref()
             .is_some_and(|s| s.item_idx == item_idx && s.contains(hover_row, hover_col));
+
+        // Shift extends the existing selection, and is tested before `inside`:
+        // the whole point is to be able to pull an edge *inward*, which lands
+        // the pointer inside the rectangle, where a plain press starts a move.
+        if shift
+            && let Some(sel) = state.pixel_selection.clone()
+            && sel.item_idx == item_idx
+        {
+            // Extension frames grid cells, so a float has to be put down first.
+            if sel.is_floating() {
+                commit_floating(doc, lines, state, &sel);
+                *needs_rederive = true;
+            }
+            let anchor = state
+                .pixel_select_anchor
+                .filter(|_| !sel.is_floating())
+                .unwrap_or((sel.row, sel.col));
+            state.pixel_selection =
+                Some(selection_between(item_idx, anchor, (hover_row, hover_col)));
+            state.pixel_select_anchor = Some(anchor);
+            // Keep dragging from the same pinned corner.
+            ui.data_mut(|d| {
+                d.insert_temp(
+                    sel_drag_id,
+                    SelectDrag::New {
+                        anchor_row: anchor.0,
+                        anchor_col: anchor.1,
+                    },
+                )
+            });
+            ui.ctx().request_repaint();
+            return;
+        }
 
         if inside {
             // Start move drag
@@ -201,6 +350,7 @@ pub(crate) fn handle_pixel_select_interaction(
                 height: 1,
                 float_pixels: None,
             });
+            state.pixel_select_anchor = Some((hover_row, hover_col));
             ui.data_mut(|d| {
                 d.insert_temp(
                     sel_drag_id,
@@ -224,18 +374,12 @@ pub(crate) fn handle_pixel_select_interaction(
             anchor_row,
             anchor_col,
         } => {
-            let r0 = anchor_row.min(hover_row);
-            let r1 = anchor_row.max(hover_row);
-            let c0 = anchor_col.min(hover_col);
-            let c1 = anchor_col.max(hover_col);
-            state.pixel_selection = Some(PixelSelection {
+            state.pixel_selection = Some(selection_between(
                 item_idx,
-                row: r0,
-                col: c0,
-                width: (c1 - c0 + 1) as u16,
-                height: (r1 - r0 + 1) as u16,
-                float_pixels: None,
-            });
+                (anchor_row, anchor_col),
+                (hover_row, hover_col),
+            ));
+            state.pixel_select_anchor = Some((anchor_row, anchor_col));
             ui.ctx().request_repaint();
         }
         SelectDrag::MoveAll { mut accum } => {
@@ -288,6 +432,10 @@ pub(crate) fn handle_pixel_select_interaction(
 
             let before_snap = sel.to_snapshot();
             let mode_before = state.mode.clone();
+            // The rectangle no longer sits where it was drawn, so the corner it
+            // was pinned by means nothing; a later shift-click extends from the
+            // rectangle itself.
+            state.pixel_select_anchor = None;
 
             // First move: extract pixels from grid
             let mut pixel_changes = Vec::new();
@@ -491,14 +639,17 @@ pub(crate) fn commit_and_clear(
 ) {
     commit_floating(doc, lines, state, sel);
     state.pixel_selection = None;
+    state.pixel_select_anchor = None;
 }
 
+/// Delete/Cut: clear the framed pixels, or — with nothing framed — the whole
+/// grid (see [`effective_selection`]).
 pub(crate) fn handle_delete_selection(
     doc: &Document,
     lines: &mut [DocLine],
     state: &mut EditorState,
 ) {
-    let Some(sel) = state.pixel_selection.clone() else {
+    let Some(sel) = effective_selection(doc, state) else {
         return;
     };
     let Some(grid_doc_line) = sel.grid_doc_line(doc) else {
@@ -522,6 +673,7 @@ pub(crate) fn handle_delete_selection(
         // Fill grounded selection with empty
         let Some(DocLine::Grid(grid)) = lines.get(grid_doc_line) else {
             state.pixel_selection = None;
+            state.pixel_select_anchor = None;
             return;
         };
         let mut changes = Vec::new();
@@ -552,6 +704,7 @@ pub(crate) fn handle_delete_selection(
             .push_pixel_batch(grid_doc_line, changes, state.cursor, state.cursor);
     }
     state.pixel_selection = None;
+    state.pixel_select_anchor = None;
 }
 
 // ---------------------------------------------------------------------------

@@ -111,14 +111,31 @@ pub(super) fn handle_document_keys(
             // Backtick / 1..9: pick a layer palette slot outright
             handle_palette_shortcuts(ui, doc, composites, state);
 
-            // PixelSelect key handling
-            if matches!(state.mode, EditMode::PixelSelect { .. }) {
+            // Select-all / clipboard for the pixel grid, in *both* pixel modes:
+            // the grid is what the user is working on in either, and with
+            // nothing framed all of it is the target
+            // (`pixel_selection::effective_selection`).
+            if matches!(
+                state.mode,
+                EditMode::GlyphEdit { .. } | EditMode::PixelSelect { .. }
+            ) {
+                // Ctrl/Cmd+A: frame the whole grid. Nothing else claims it
+                // here — `doc_input::handle_keys`, which selects the document
+                // text, only runs in Normal mode.
+                if ui.input(|i| {
+                    i.modifiers.command
+                        && !i.modifiers.shift
+                        && !i.modifiers.alt
+                        && i.key_pressed(egui::Key::A)
+                }) {
+                    pixel_selection::select_all(doc, lines, state);
+                }
+
                 // Delete/Backspace: delete selection
                 if ui.input(|i| {
                     (i.key_pressed(egui::Key::Delete) || i.key_pressed(egui::Key::Backspace))
                         && !i.modifiers.command
-                }) && state.pixel_selection.is_some()
-                {
+                }) {
                     pixel_selection::handle_delete_selection(doc, lines, state);
                     *needs_rederive = true;
                 }
@@ -127,17 +144,18 @@ pub(super) fn handle_document_keys(
                 let mut sel_clipboard_out: Option<String> = None;
                 let mut sel_do_cut = false;
                 let mut sel_paste_text: Option<String> = None;
+                let effective = pixel_selection::effective_selection(doc, state);
                 ui.input(|input| {
                     for event in &input.events {
                         match event {
                             egui::Event::Copy => {
-                                if let Some(sel) = &state.pixel_selection {
+                                if let Some(sel) = &effective {
                                     sel_clipboard_out =
                                         pixel_selection::copy_selection(doc, lines, sel);
                                 }
                             }
                             egui::Event::Cut => {
-                                if let Some(sel) = &state.pixel_selection {
+                                if let Some(sel) = &effective {
                                     sel_clipboard_out =
                                         pixel_selection::copy_selection(doc, lines, sel);
                                     sel_do_cut = true;
@@ -158,25 +176,6 @@ pub(super) fn handle_document_keys(
                     *needs_rederive = true;
                 }
                 if let Some(text) = sel_paste_text
-                    && pixel_selection::paste_selection(doc, lines, state, &text)
-                {
-                    *needs_rederive = true;
-                }
-            }
-
-            // Paste in GlyphEdit mode: check for pixel grid paste
-            if matches!(state.mode, EditMode::GlyphEdit { .. }) {
-                let mut paste_text: Option<String> = None;
-                ui.input(|input| {
-                    for event in &input.events {
-                        if let egui::Event::Paste(text) = event
-                            && !text.is_empty()
-                        {
-                            paste_text = Some(text.clone());
-                        }
-                    }
-                });
-                if let Some(text) = paste_text
                     && pixel_selection::paste_selection(doc, lines, state, &text)
                 {
                     *needs_rederive = true;

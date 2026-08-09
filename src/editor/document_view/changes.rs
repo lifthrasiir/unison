@@ -375,9 +375,10 @@ fn parse_glyph_header_dims(tokens: &[String]) -> Option<(u16, u16)> {
 
 pub fn apply_edit_action_to_editor(
     action: crate::edit_menu::EditAction,
+    doc: &Document,
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
     ctx: &egui::Context,
 ) -> bool {
-    state.apply_edit_action(action, lines, ctx)
+    state.apply_edit_action(action, doc, lines, ctx)
 }
