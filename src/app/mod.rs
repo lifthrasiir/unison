@@ -26,6 +26,7 @@ mod panels;
 mod panes;
 mod rename;
 mod search;
+mod settings;
 mod toast;
 mod watch;
 mod zoom;
@@ -36,7 +37,7 @@ use history::{NavEntry, NavHistory, NavLoc};
 use menus::{EditTarget, MenuActions, NavAction};
 use panes::Panes;
 use search::SearchResults;
-use zoom::DEFAULT_PREVIEW_FONT_SIZE;
+use settings::Settings;
 
 type FontPair = (Vec<u8>, Vec<u8>);
 /// How one font-build thread ended.
@@ -80,6 +81,16 @@ enum DerivedDataResult {
 type AssertResultMessage = Vec<Issue>;
 
 pub struct UniformApp {
+    /// What the last run left behind, and what this one will leave. Held for
+    /// the whole run rather than only read at startup, because the per-
+    /// directory face memory has to survive switching directories — the choice
+    /// is recorded when it is made, not when the application quits.
+    settings: Settings,
+    /// A face id restored from the settings that no resolve has confirmed yet.
+    /// Taken by the first derived-data result to arrive, which is the earliest
+    /// point at which the directory's faces are known; an id the directory no
+    /// longer declares is dropped there rather than selected.
+    pending_face: Option<String>,
     font_dir: Option<PathBuf>,
     last_title: String,
     open_documents: Vec<OpenDocument>,
@@ -280,6 +291,22 @@ impl UniformApp {
         // grab them for `pixels_per_point` scaling.
         cc.egui_ctx.options_mut(|o| o.zoom_with_keyboard = false);
 
+        let mut settings = cc
+            .storage
+            .and_then(|s| eframe::get_value::<Settings>(s, eframe::APP_KEY))
+            .unwrap_or_default();
+        settings.clamp();
+
+        // The argument wins over the remembered directory, and a remembered
+        // one that has since been moved or deleted is simply not there.
+        let font_dir = font_dir.or_else(|| {
+            settings
+                .font_dir
+                .as_ref()
+                .filter(|d| d.is_dir())
+                .map(PathBuf::from)
+        });
+
         let (font_base_docs, file_parse_errors, font_sources) = font_dir
             .as_ref()
             .map(|d| crate::render::ttf_builder::load_docs_from_directory_with_sources(d))
@@ -300,18 +327,40 @@ impl UniformApp {
         let (font_build_tx, font_build_rx) = mpsc::channel();
         let (derived_data_tx, derived_data_rx) = mpsc::channel();
         let (assert_tx, assert_rx) = mpsc::channel();
+
+        let zoom_level = settings.zoom_level;
+        let show_metrics = settings.show_metrics;
+        let escape_mode = settings.escape_mode;
+        let bottom_panel_tab = settings.bottom_panel_tab;
+        let preview_font_size = settings.preview_font_size;
+
+        let mut shaped_preview = ShapedPreviewState::new();
+        shaped_preview.set_text(&settings.preview_text);
+        shaped_preview.color_font = settings.preview_color_font;
+        shaped_preview.select_backend_named(&settings.preview_backend);
+        let mut specimen = SpecimenState::new();
+        specimen.options = settings.specimen;
+        // Applied once the first resolve says which faces this directory has;
+        // see `background.rs`. Nothing can be checked against them yet.
+        let pending_face = font_dir
+            .as_deref()
+            .and_then(|d| settings.face_for(d))
+            .map(str::to_string);
+
         let mut app = Self {
+            settings,
+            pending_face,
             font_dir: font_dir.clone(),
             last_title: String::new(),
             open_documents: Vec::new(),
-            panes: Panes::new(),
+            panes: Panes::new_with_zoom(zoom_level),
             nav_history: NavHistory::new(),
             search: None,
             sidebar: Sidebar::new(),
             sidebar_rect: egui::Rect::NOTHING,
             watch: watch::WatchState::new(),
             toasts: toast::Toasts::new(),
-            escape_mode: false,
+            escape_mode,
             status_message: None,
             font_base_docs,
             font_sources,
@@ -335,7 +384,7 @@ impl UniformApp {
             char_props: Default::default(),
             color_aliases: Default::default(),
             font_meta: Default::default(),
-            show_metrics: true,
+            show_metrics,
             menu_open: false,
             named_glyphs_gen: u64::MAX,
             derived_gen: 0,
@@ -348,12 +397,12 @@ impl UniformApp {
             close_confirmed: false,
             bottom_panel_height: 0.0,
             bottom_panel_height_override: false,
-            bottom_panel_tab: None,
-            preview_font_size: DEFAULT_PREVIEW_FONT_SIZE,
-            preview_font_size_slider: DEFAULT_PREVIEW_FONT_SIZE,
+            bottom_panel_tab,
+            preview_font_size,
+            preview_font_size_slider: (preview_font_size / 16.0).round() * 16.0,
             preview_view_rect: None,
-            shaped_preview: ShapedPreviewState::new(),
-            specimen: SpecimenState::new(),
+            shaped_preview,
+            specimen,
             issues: Vec::new(),
             issues_gen: u64::MAX,
             file_parse_errors,
@@ -499,6 +548,10 @@ impl UniformApp {
 }
 
 impl eframe::App for UniformApp {
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        self.save_settings(storage);
+    }
+
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.sync_window_title(ctx);
 

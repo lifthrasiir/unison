@@ -887,8 +887,10 @@ impl UniformApp {
             self.open_documents.clear();
             // The pane layout is not carried across folders: its documents
             // are gone, and pane indices would dangle. The navigation
-            // history indexes the same list, so it goes with them.
-            self.panes = Panes::new();
+            // history indexes the same list, so it goes with them. The zoom
+            // level is a view preference rather than part of that layout, so
+            // it does carry.
+            self.panes = Panes::new_with_zoom(self.panes.focused().zoom_level);
             self.nav_history.clear();
             // Its hits name files that are no longer the ones on screen.
             self.search = None;
@@ -897,9 +899,12 @@ impl UniformApp {
             let (base_docs, parse_errors, sources) =
                 crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
             self.install_font_snapshot(base_docs, parse_errors, sources);
-            // The faces of the old folder mean nothing in the new one.
+            // The faces of the old folder mean nothing in the new one; what
+            // this folder's own last face was is applied once a resolve says
+            // it still exists, exactly as at startup.
             self.selected_face.clear();
             self.face_ids.clear();
+            self.pending_face = self.settings.face_for(&dir).map(str::to_string);
             let refs: Vec<&Document> = self.font_base_docs.iter().collect();
             // Both background stages are still working on the folder that just
             // went away. Nothing they produce is wanted, and the font build in

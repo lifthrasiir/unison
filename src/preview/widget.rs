@@ -113,10 +113,6 @@ impl ShapedPreviewState {
     }
 
     /// The whole preview text, lines joined by `\n`.
-    #[allow(
-        dead_code,
-        reason = "the field's text API; only the tests read it today"
-    )]
     pub fn text(&self) -> String {
         self.lines
             .iter()
@@ -127,10 +123,6 @@ impl ShapedPreviewState {
 
     /// Replaces the text outright, putting the caret at its end. Undo history
     /// is dropped: this is not an edit the user made.
-    #[allow(
-        dead_code,
-        reason = "the field's text API; only the tests write it today"
-    )]
     pub fn set_text(&mut self, text: &str) {
         self.lines = text
             .split('\n')
@@ -248,6 +240,27 @@ impl ShapedPreviewState {
             px_size,
             lines: out,
         });
+    }
+
+    /// The name of the backend currently shaping, for the settings to save.
+    /// A name rather than `selected_backend` itself, because which backends
+    /// exist is platform-dependent: the index a Mac writes means a different
+    /// engine on Windows.
+    pub fn selected_backend_name(&self) -> &str {
+        self.backends
+            .get(self.selected_backend)
+            .map(|b| b.name())
+            .unwrap_or("")
+    }
+
+    /// Selects the backend called `name`, leaving the current one alone if no
+    /// backend goes by it — which is the case for a name saved on another
+    /// platform, and for the empty name of settings that never had one.
+    pub fn select_backend_named(&mut self, name: &str) {
+        if let Some(idx) = self.backends.iter().position(|b| b.name() == name) {
+            self.selected_backend = idx;
+            self.shaped = None;
+        }
     }
 
     pub fn show_engine_combo(&mut self, ui: &mut egui::Ui) {

@@ -114,6 +114,7 @@ Editor (feature `editor`):
   `background.rs` (the debounced build/derive/assert threads and the generation rules their consumers
   must respect), `docs.rs`, `history.rs` (go back/forward), `menus.rs`, `panels.rs`, `panes.rs` (the
   split-editor model and its two invariants), `rename.rs`, `search.rs` (the Search pane),
+  `settings.rs` (what survives between runs, and what egui persists instead),
   `watch.rs` (the OS watch on the font directory and what an external change may do), `toast.rs`,
   `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode`, and **the editor-is-a-widget model**; `editor/ids.rs`
@@ -195,6 +196,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
 | One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
+| What survives between runs, what egui persists on its own, and why there is no session restore | `app/settings.rs` |
+| Where the settings file lives, and the app id that decides it | `app/settings.rs`, `main.rs` (`with_app_id`) |
 
 ## Testing
 

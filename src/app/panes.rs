@@ -96,10 +96,20 @@ pub(super) struct Panes {
 }
 
 impl Panes {
-    /// A single placeholder pane, the state the application starts in.
+    /// A single placeholder pane at the base zoom level. Every caller in the
+    /// application has a zoom level to start from — the settings' at startup,
+    /// the outgoing pane's across an Open Folder — so only the tests, which
+    /// are not about zoom, want this one.
+    #[cfg(test)]
     pub(super) fn new() -> Self {
+        Self::new_with_zoom(1)
+    }
+
+    /// A single placeholder pane at `zoom_level`, the state the application
+    /// starts in.
+    pub(super) fn new_with_zoom(zoom_level: u32) -> Self {
         Self {
-            list: vec![Pane::placeholder(1)],
+            list: vec![Pane::placeholder(zoom_level)],
             focus: 0,
             split_ratio: 0.5,
         }

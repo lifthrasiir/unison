@@ -353,6 +353,12 @@ impl UniformApp {
         if self.selected_face == face {
             return;
         }
+        // Recorded against the directory the moment it is chosen, not at
+        // save time, so that switching directories does not lose the choice
+        // made in the one being left.
+        if let Some(dir) = self.font_dir.clone() {
+            self.settings.remember_face(&dir, &face);
+        }
         self.selected_face = face;
         self.font_build_gen = self.font_build_gen.wrapping_add(1);
         self.font_rebuild_at = None;
@@ -592,6 +598,16 @@ impl UniformApp {
                     self.issues = data.issues;
                     self.issues_gen = data.build_gen;
                     self.face_ids = data.face_ids;
+                    // The first moment a face id restored from the settings
+                    // can be checked against what this directory declares. An
+                    // id it no longer has is dropped rather than selected —
+                    // the source is edited between runs, and a face can go
+                    // away.
+                    if let Some(face) = self.pending_face.take()
+                        && self.face_ids.contains(&face)
+                    {
+                        self.set_selected_face(face, ctx);
+                    }
                     // The selection is not silently rewritten when its face
                     // goes away: the build falls back to the primary on its
                     // own, and an edit that briefly breaks a `face` line must

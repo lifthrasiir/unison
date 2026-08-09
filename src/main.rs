@@ -365,7 +365,13 @@ fn main() {
         let options = eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
                 .with_inner_size([1200.0, 800.0])
-                .with_title("Uniform"),
+                .with_title("Uniform")
+                // Both the directory the settings live in (see
+                // `app/settings.rs`) and, on Wayland, the id a compositor
+                // matches against a `.desktop` entry — which is why it is in
+                // reverse-DNS form rather than just "Uniform". Changing it
+                // orphans every setting saved under the old one.
+                .with_app_id("org.mearie.Uniform"),
             ..Default::default()
         };
 

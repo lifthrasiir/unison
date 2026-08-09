@@ -65,9 +65,11 @@ pub struct SpecimenClick {
 /// three toggles of the grid's context menu.
 ///
 /// Plain `Copy` fields, and the whole struct is the cache key of everything
-/// derived from it, so persisting them later is a matter of round-tripping one
-/// value; nothing persists them today.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+/// derived from it, so it round-trips through the settings as one value; see
+/// `app/settings.rs`. `serde(default)` is what lets a toggle be added here
+/// without a saved file from an older build failing to parse.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(default)]
 pub struct SpecimenOptions {
     /// List every character of every block that has at least one mapped
     /// character, not just the mapped ones, so a hole in the coverage is a
