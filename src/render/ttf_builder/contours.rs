@@ -271,6 +271,25 @@ impl CachedContours {
         let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
         let ps = parent_scale.max(1);
 
+        // Extent of the refs measured by their *declared* dimensions rather
+        // than by the raster they light: a `refonly` target, or one with an
+        // all-empty own grid, is wider than the cells its own refs fill, and
+        // that declared width is what it is worth to a parent.  The simple
+        // path below extends by this directly; the two raster paths take it as
+        // a floor, so the same composite does not get a different advance
+        // depending on whether its layers happen to conflict at the subpixel
+        // level (which is what routes it away from the simple path).
+        let declared_extent = |axis: fn(&CachedContours) -> u16, at: fn(&GlyphRef) -> i16| {
+            refs.iter()
+                .filter_map(|gref| {
+                    let cached = resolve_cached_ref(&gref.name, cache)?;
+                    let scale_f = ps as f32 / cached.scale.max(1) as f32;
+                    Some(at(gref) as i32 + (axis(cached) as f32 * scale_f).round() as i32)
+                })
+                .max()
+                .unwrap_or(0)
+        };
+
         // Pre-rescale ref grids so their raster resolution matches the parent,
         // and place each one where it logically sits: a target that itself
         // reaches left of / above its origin starts that much before the
@@ -348,8 +367,12 @@ impl CachedContours {
             );
 
             return Some(Self {
-                width: (min_c + raster_w as i32).max(0) as u16,
-                height: (min_r + raster_h as i32).max(0) as u16,
+                width: (min_c + raster_w as i32)
+                    .max(declared_extent(|c| c.width, |g| g.col()))
+                    .max(0) as u16,
+                height: (min_r + raster_h as i32)
+                    .max(declared_extent(|c| c.height, |g| g.row()))
+                    .max(0) as u16,
                 contours,
                 anchors: Vec::new(),
                 grid: Some(result),
@@ -431,8 +454,12 @@ impl CachedContours {
             );
 
             return Some(Self {
-                width: (min_c + raster_w).max(0) as u16,
-                height: (min_r + raster_h).max(0) as u16,
+                width: (min_c + raster_w)
+                    .max(declared_extent(|c| c.width, |g| g.col()))
+                    .max(0) as u16,
+                height: (min_r + raster_h)
+                    .max(declared_extent(|c| c.height, |g| g.row()))
+                    .max(0) as u16,
                 contours,
                 anchors: Vec::new(),
                 grid: Some(result),
