@@ -109,7 +109,8 @@ pub(super) fn build_ttf(
     scale: f32,
     meta: &FontMeta,
 ) -> Vec<u8> {
-    let mut num_glyphs = u16::try_from(glyphs.len() + 1).expect("glyph count checked earlier"); // +1 for .notdef
+    // `.notdef` is `glyphs[0]`, so the collected count is already the GID count.
+    let mut num_glyphs = u16::try_from(glyphs.len()).expect("glyph count checked earlier");
 
     let default_aw = glyphs
         .iter()
@@ -118,7 +119,7 @@ pub(super) fn build_ttf(
         .map(|g| g.advance_width)
         .unwrap_or(UNITS_PER_EM / 2);
 
-    let mut outlines = build_glyph_outlines(glyphs, hint_ppem, default_aw);
+    let mut outlines = build_glyph_outlines(glyphs, hint_ppem);
     let (colr_base_glyphs, colr_layers) =
         add_color_layer_glyphs(glyphs, &mut outlines, &mut num_glyphs);
     let has_color = !colr_base_glyphs.is_empty();
@@ -230,11 +231,14 @@ pub(super) fn build_ttf(
     let name = build_name_table(meta);
 
     // os2
-    let avg_width = if glyphs.is_empty() {
+    // Over the real glyphs only: `.notdef` is a reserved slot, not a character
+    // whose width belongs in the average.
+    let real_glyphs = glyphs.split_first().map_or(&[][..], |(_, rest)| rest);
+    let avg_width = if real_glyphs.is_empty() {
         default_aw as i16
     } else {
-        let total: u32 = glyphs.iter().map(|g| g.advance_width as u32).sum();
-        (total / glyphs.len() as u32) as i16
+        let total: u32 = real_glyphs.iter().map(|g| g.advance_width as u32).sum();
+        (total / real_glyphs.len() as u32) as i16
     };
     let first_cp = glyphs
         .iter()

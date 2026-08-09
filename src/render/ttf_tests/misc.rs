@@ -466,6 +466,63 @@ fn a_glyph_mapped_from_two_codepoints_gets_one_gid() {
     assert_eq!(font.maxp().unwrap().num_glyphs(), 2);
 }
 
+/// TrueType reserves GID 0 for `.notdef`, the glyph a renderer draws for a
+/// character the font does not cover, so a `.notdef` the source draws has to
+/// land *there*. It used to be collected like any other name — which meant an
+/// unmapped, unreferenced `.notdef` was dropped as unused while GID 0 stayed
+/// the builder's hardcoded blank, and the drawn tofu never reached the font.
+#[test]
+fn source_notdef_becomes_gid_zero() {
+    let ttf = build_from("glyph .notdef 2 2\n@@@@\n@@@@\nglyph a 2 2\n@@..\n..@@\nmap A = a\n");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    // `.notdef` occupies the reserved slot rather than adding one of its own.
+    assert_eq!(font.maxp().unwrap().num_glyphs(), 2);
+    let glyf = font.glyf().unwrap();
+    let loca = font.loca(None).unwrap();
+    assert!(
+        loca.get_glyf(GlyphId::new(0), &glyf).unwrap().is_some(),
+        "GID 0 must carry the outline the source drew for .notdef",
+    );
+    // ... and the mapped glyph still follows it rather than being displaced.
+    assert_eq!(font.cmap().unwrap().map_codepoint('A').unwrap().to_u32(), 1);
+    assert!(loca.get_glyf(GlyphId::new(1), &glyf).unwrap().is_some());
+}
+
+/// The other half of the same rule: with no `.notdef` in the source, GID 0 is
+/// still reserved and still blank, and no glyph is shifted off it.
+#[test]
+fn absent_notdef_leaves_gid_zero_blank() {
+    let ttf = build_from("glyph a 2 2\n@@..\n..@@\nmap A = a\n");
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    assert_eq!(font.maxp().unwrap().num_glyphs(), 2);
+    let glyf = font.glyf().unwrap();
+    let loca = font.loca(None).unwrap();
+    assert!(
+        loca.get_glyf(GlyphId::new(0), &glyf).unwrap().is_none(),
+        "GID 0 stays blank when the source draws no .notdef",
+    );
+    assert_eq!(font.cmap().unwrap().map_codepoint('A').unwrap().to_u32(), 1);
+}
+
+/// `.notdef` is kept without being asked for: nothing maps or refs it, so the
+/// ordinary retention rules would drop it before it ever reached GID 0.
+#[test]
+fn notdef_is_kept_although_nothing_names_it() {
+    let doc = document_io::parse_document_from_str(
+        "glyph .notdef 2 2\n@@@@\n@@@@\nglyph a 2 2\n@@..\n..@@\nmap A = a\n",
+        "test.unf".into(),
+    )
+    .unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    assert_eq!(
+        glyphs.first().map(|g| g.name.as_str()),
+        Some(".notdef"),
+        "`.notdef` is collected, and first: {:?}",
+        glyphs.iter().map(|g| &g.name).collect::<Vec<_>>(),
+    );
+    assert!(!glyphs[0].contours.is_empty(), "with its own outline");
+}
+
 #[test]
 fn unmapped_empty_sticky_glyph_is_retained() {
     let doc =

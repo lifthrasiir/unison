@@ -39,7 +39,7 @@ map B = b
         "the glyph keeps the target's name",
     );
     // .notdef plus exactly one real glyph.
-    assert_eq!(built.gid_to_name.len(), 1, "{:?}", built.gid_to_name);
+    assert_eq!(built.gid_to_name.len(), 2, "{:?}", built.gid_to_name);
 }
 
 #[test]
@@ -56,7 +56,8 @@ map C = c
     );
     let gids = gids_for(&built, "AC");
     assert_eq!(gids[0], gids[1]);
-    assert_eq!(built.gid_to_name.len(), 1);
+    // .notdef plus exactly one real glyph.
+    assert_eq!(built.gid_to_name.len(), 2, "{:?}", built.gid_to_name);
 }
 
 #[test]
@@ -77,8 +78,8 @@ map P = pair
         built.gid_to_name.get(&gids[0]).map(String::as_str),
         Some("pair"),
     );
-    // `a` (referenced), `pair` (mapped) — and no third glyph for `b`.
-    assert_eq!(built.gid_to_name.len(), 2, "{:?}", built.gid_to_name);
+    // .notdef, `a` (referenced) and `pair` (mapped) — no glyph of its own for `b`.
+    assert_eq!(built.gid_to_name.len(), 3, "{:?}", built.gid_to_name);
 }
 
 /// GSUB expands `remap` patterns straight from the documents rather than from

@@ -706,8 +706,9 @@ map A = base
     let (_, _, glyphs1, _, _) = collect_glyph_data(&[&doc1], false).unwrap();
     let (_, _, glyphs2, _, _) = collect_glyph_data(&[&doc2], false).unwrap();
 
-    assert_eq!(glyphs1[0].advance_width, glyphs2[0].advance_width);
-    assert!(!glyphs2[0].contours.is_empty());
+    // `glyphs[0]` is the reserved `.notdef` slot; `base` is the one after it.
+    assert_eq!(glyphs1[1].advance_width, glyphs2[1].advance_width);
+    assert!(!glyphs2[1].contours.is_empty());
 }
 
 /// U+1FB43 and its seven siblings: a smooth-mosaic sextant built from an

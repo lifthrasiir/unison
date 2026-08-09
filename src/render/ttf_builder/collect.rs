@@ -485,11 +485,14 @@ pub(super) fn collect_glyph_data_with_shared(
         .map(|n| n.to_string())
         .collect();
     for item in all_items {
+        // `.notdef` is kept without being asked for: it is what a renderer
+        // draws for a character the font does not cover, so nothing in the
+        // source ever names it, and the ordinary rules would drop it.
         if let DocumentItem::Glyph {
             name: GlyphName(name),
             body,
         } = item
-            && body.sticky
+            && (body.sticky || name == NOTDEF)
             && !seen_names.contains(name)
         {
             extra_name_set.insert(name.clone());
@@ -963,8 +966,45 @@ pub(super) fn collect_glyph_data_with_shared(
         }
     }
 
-    // .notdef takes one GID slot, so usable glyph count is u16::MAX - 1 = 65534.
-    const MAX_GLYPHS: usize = u16::MAX as usize - 1;
+    // TrueType reserves GID 0 for `.notdef`, so the collected order *is* the
+    // GID order only once `.notdef` sits at its head. A source that draws one
+    // has it moved there; a source that does not gets an empty stand-in, so
+    // that every later stage can say "GID = index" with no special case.
+    //
+    // The stand-in carries the same advance the blank GID 0 used to be given
+    // by hand — the space glyph's, since that is the width a missing-character
+    // box is expected to occupy.
+    match glyph_data.iter().position(|g| g.name == NOTDEF) {
+        Some(i) => {
+            let notdef = glyph_data.remove(i);
+            glyph_data.insert(0, notdef);
+        }
+        None => {
+            let advance_width = glyph_data
+                .iter()
+                .find(|g| g.codepoints.contains(&0x20))
+                .or(glyph_data.first())
+                .map_or(UNITS_PER_EM / 2, |g| g.advance_width);
+            glyph_data.insert(
+                0,
+                CollectedGlyph {
+                    name: NOTDEF.to_string(),
+                    codepoints: Vec::new(),
+                    advance_width,
+                    contours: Vec::new(),
+                    composite_refs: Vec::new(),
+                    color_layers: Vec::new(),
+                    mark: false,
+                    resolved_anchors: Vec::new(),
+                    declared_anchors: Vec::new(),
+                    left_offset: 0,
+                    top_offset: 0,
+                },
+            );
+        }
+    }
+
+    const MAX_GLYPHS: usize = u16::MAX as usize;
     if glyph_data.len() > MAX_GLYPHS {
         eprintln!(
             "error: too many glyphs ({}, max {})",

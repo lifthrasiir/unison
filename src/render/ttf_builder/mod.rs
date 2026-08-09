@@ -124,6 +124,12 @@ use tables::build_ttf;
 
 pub const UNITS_PER_EM: u16 = 1024;
 
+/// The glyph TrueType reserves GID 0 for, drawn for any character the font does
+/// not cover. `collect` puts it at the head of the collected glyphs — moving
+/// the one the source draws there, or inserting an empty stand-in — so from
+/// there on a glyph's GID is simply its index.
+pub(crate) const NOTDEF: &str = ".notdef";
+
 #[derive(Clone)]
 struct CompositeRef {
     component_name: String,
@@ -306,7 +312,7 @@ pub fn build_font_pair_cached_for(
 
     let mut name_to_gid: HashMap<String, u16> = HashMap::new();
     for (i, g) in v_glyphs.iter().enumerate() {
-        name_to_gid.entry(g.name.clone()).or_insert((i + 1) as u16);
+        name_to_gid.entry(g.name.clone()).or_insert(i as u16);
     }
 
     let b_scale = UNITS_PER_EM as f32 / b_meta.height() as f32;
@@ -504,7 +510,7 @@ fn build_with_gid_map(
     let mut seen = std::collections::HashSet::new();
     for (i, g) in glyph_data.iter().enumerate() {
         if seen.insert(g.name.clone()) {
-            gid_to_name.insert((i + 1) as u16, g.name.clone());
+            gid_to_name.insert(i as u16, g.name.clone());
         }
     }
 

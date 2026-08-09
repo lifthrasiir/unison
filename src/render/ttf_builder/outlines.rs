@@ -29,21 +29,18 @@ enum Emitted {
     Composite(Vec<GlyphId16>),
 }
 
-/// Passes 1 and 2 of the build: assign GIDs (`.notdef` first), collect cmap
-/// mappings, and add every glyph's outline (TrueType composite, empty, or
-/// hinted simple glyph) with its horizontal metric.  Pass 3 then sizes the
-/// composite `maxp` limits from what pass 2 emitted.
-pub(super) fn build_glyph_outlines(
-    glyphs: &[CollectedGlyph],
-    hint_ppem: u16,
-    default_aw: u16,
-) -> OutlineBuild {
+/// Passes 1 and 2 of the build: assign GIDs, collect cmap mappings, and add
+/// every glyph's outline (TrueType composite, empty, or hinted simple glyph)
+/// with its horizontal metric.  Pass 3 then sizes the composite `maxp` limits
+/// from what pass 2 emitted.
+///
+/// A glyph's GID is its index in `glyphs`, with no offset: [`collect`] has
+/// already put [`NOTDEF`] at index 0, so GID 0 is emitted by the ordinary loop
+/// and carries whatever outline the source drew for it.
+pub(super) fn build_glyph_outlines(glyphs: &[CollectedGlyph], hint_ppem: u16) -> OutlineBuild {
     let mut out = OutlineBuild {
         glyf_builder: GlyfLocaBuilder::new(),
-        h_metrics: vec![LongMetric {
-            advance: default_aw,
-            side_bearing: 0,
-        }],
+        h_metrics: Vec::new(),
         cmap_mappings: Vec::new(),
         name_to_gid: HashMap::new(),
         max_points: 0,
@@ -55,9 +52,6 @@ pub(super) fn build_glyph_outlines(
         max_component_elements: 0,
         max_component_depth: 0,
     };
-
-    // .notdef (empty glyph)
-    out.glyf_builder.add_glyph(&Glyph::Empty).unwrap();
 
     // A cmap maps each character once, so the same character claimed by two
     // glyphs has to be resolved here rather than left for the table writer to
@@ -72,8 +66,8 @@ pub(super) fn build_glyph_outlines(
 
     // Pass 1: build name→GID mapping and cmap
     for (i, g) in glyphs.iter().enumerate() {
-        let glyph_id = GlyphId::new((i + 1) as u32);
-        let glyph_id16 = GlyphId16::new((i + 1) as u16);
+        let glyph_id = GlyphId::new(i as u32);
+        let glyph_id16 = GlyphId16::new(i as u16);
 
         for &cp in &g.codepoints {
             if let Some(ch) = char::from_u32(cp)
@@ -103,7 +97,7 @@ pub(super) fn build_glyph_outlines(
         for (i, g) in glyphs.iter().enumerate() {
             // Duplicate names resolve to the first occurrence's GID; only that
             // one describes what a component reference actually points at.
-            if out.name_to_gid.get(&g.name) != Some(&GlyphId16::new((i + 1) as u16))
+            if out.name_to_gid.get(&g.name) != Some(&GlyphId16::new(i as u16))
                 || empty_glyphs.contains(g.name.as_str())
                 || !g.contours.is_empty()
             {
@@ -128,11 +122,7 @@ pub(super) fn build_glyph_outlines(
 
     // Pass 2: build glyph outlines, recording what each one turned into so
     // that pass 3 can size the `maxp` composite limits.
-    let mut emitted: Vec<Emitted> = Vec::with_capacity(glyphs.len() + 1);
-    emitted.push(Emitted::Simple {
-        points: 0,
-        contours: 0,
-    }); // .notdef
+    let mut emitted: Vec<Emitted> = Vec::with_capacity(glyphs.len());
     for g in glyphs.iter() {
         let live_refs: Vec<&CompositeRef> = g
             .composite_refs
@@ -337,7 +327,7 @@ pub(super) fn add_color_layer_glyphs(
         if g.color_layers.is_empty() {
             continue;
         }
-        let base_gid = GlyphId16::new((i + 1) as u16);
+        let base_gid = GlyphId16::new(i as u16);
         let first_layer_index = colr_layers.len() as u16;
 
         for cl in &g.color_layers {
@@ -431,7 +421,7 @@ pub(super) fn compute_global_bounds(
     };
 
     for (i, g) in glyphs.iter().enumerate() {
-        let m = &h_metrics[i + 1];
+        let m = &h_metrics[i];
         b.aw_max = b.aw_max.max(m.advance);
         if !g.contours.is_empty() {
             let (gx0, gy0, gx1, gy1) = glyph_bounds(&g.contours);
