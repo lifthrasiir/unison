@@ -511,6 +511,130 @@ fn copy_paste_preserves_grid_content() {
     assert_eq!(h.text(2), "");
 }
 
+/// A multi-line paste whose last line lands on a grid-owning header must not
+/// bring a grid of its own along: `parse_doclines` gives every dimensioned
+/// header a grid, and that fresh empty one used to be spliced in *between* the
+/// header and the real grid — orphaning the pixel art (demoted to raw text)
+/// and leaving the glyph with an empty bitmap.
+#[test]
+fn multiline_paste_at_a_grid_header_keeps_the_existing_grid() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+    let original_lines = h.lines.clone();
+
+    h.click_text(0, 0); // start of "glyph foo 4 4"
+    h.paste("// x\n");
+
+    assert_eq!(h.text(0), "// x");
+    assert_eq!(h.text(1), "glyph foo 4 4");
+    let grid = h.grid(2);
+    assert_eq!((grid.width, grid.height), (4, 4));
+    assert!(grid.get(2, 2).is_filled(), "pixel art must survive");
+    assert_eq!(h.grid_row_count(2), 4, "and stay a graphical grid");
+    assert_eq!(h.text(3), "");
+    assert_eq!(h.text(4), "glyph bar 4 2");
+    assert_eq!(h.grid_row_count(5), 2);
+    assert_eq!(h.cursor(), Caret::new(1, 0));
+    assert_view_consistent(&h);
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+    assert_view_consistent(&h);
+}
+
+/// A pasted header that does *not* land on an existing grid still gets one of
+/// its own — the rule above drops the synthesized grid only where a real one is
+/// waiting for that header.
+#[test]
+fn multiline_paste_of_a_header_still_creates_its_grid() {
+    let mut h = EditorHarness::new("// head\n\nglyph bar 4 2\n@@......\n......@@\n");
+    h.click_text(1, 0);
+    h.paste("glyph foo 2 1\n// tail");
+
+    assert_eq!(h.text(1), "glyph foo 2 1");
+    let grid = h.grid(2);
+    assert_eq!((grid.width, grid.height), (2, 1));
+    assert_eq!(h.grid_row_count(2), 1);
+    assert_eq!(h.text(3), "// tail");
+    assert_eq!(h.text(4), "glyph bar 4 2");
+    assert_eq!(h.grid_row_count(5), 2);
+    assert_view_consistent(&h);
+}
+
+/// Nor does it drop a pasted grid that carries pixels: pasting a whole glyph
+/// over a header keeps the *pasted* bitmap, rather than re-attaching the old
+/// grid to the new header.
+#[test]
+fn multiline_paste_of_a_glyph_with_pixels_keeps_the_pasted_bitmap() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+
+    h.click_text(0, 0);
+    h.key_mod(Key::End, Modifiers::SHIFT); // select the whole header line
+    h.paste("glyph foo 4 4\n@@@@@@@@\n@@@@@@@@\n@@@@@@@@\n@@@@@@@@");
+
+    assert_eq!(h.text(0), "glyph foo 4 4");
+    let grid = h.grid(1);
+    assert_eq!((grid.width, grid.height), (4, 4));
+    for r in 0..4 {
+        for c in 0..4 {
+            assert!(grid.get(r, c).is_filled(), "pasted pixel {r},{c} survives");
+        }
+    }
+    assert_eq!(h.grid_row_count(1), 4);
+    assert_view_consistent(&h);
+}
+
+/// Cmd+X with no selection cuts the caret's line. On a grid-owning header the
+/// line range used to stop *at* the grid line, so the grid was deleted with the
+/// header while only the header text reached the clipboard: the pixel art was
+/// gone and unpasteable. The whole glyph block goes, pixel rows included.
+#[test]
+fn line_cut_on_a_grid_header_takes_the_pixels_along() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+    let original_lines = h.lines.clone();
+
+    h.click_text(0, 4);
+    assert!(h.state.selection_range().is_none());
+    h.cut();
+
+    let copied = h.last_copied_text.clone().expect("cut copies something");
+    assert_eq!(
+        copied, "glyph foo 4 4\n@@......\n..@@....\n....@@..\n......@@\n",
+        "the clipboard must carry the header and its pixel rows"
+    );
+    assert_eq!(h.text(0), "");
+    assert_eq!(h.text(1), "glyph bar 4 2");
+    assert_eq!(h.grid_row_count(2), 2);
+    assert_view_consistent(&h);
+
+    // What was cut pastes back as the same glyph.
+    h.paste(&copied);
+    assert_eq!(h.text(0), "glyph foo 4 4");
+    let grid = h.grid(1);
+    assert_eq!((grid.width, grid.height), (4, 4));
+    assert!(grid.get(2, 2).is_filled());
+    assert_eq!(h.grid_row_count(1), 4);
+    assert_view_consistent(&h);
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+}
+
+/// Cmd+C with no selection on a grid-owning header copies the block too, so
+/// copy and cut put the same thing on the clipboard.
+#[test]
+fn line_copy_on_a_grid_header_includes_the_pixels() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+    h.click_text(0, 0);
+    h.copy();
+    assert_eq!(
+        h.last_copied_text.as_deref(),
+        Some("glyph foo 4 4\n@@......\n..@@....\n....@@..\n......@@\n")
+    );
+    // Copy changes nothing.
+    assert_eq!(h.grid_row_count(1), 4);
+    assert_view_consistent(&h);
+}
+
 // -- autocomplete -----------------------------------------------------------
 
 /// DocLines: 0=glyph alpha header, 1=Grid(2x2), 2=glyph beta header,
@@ -744,6 +868,99 @@ fn valued_flag_before_dims_creates_matching_grid() {
     assert_eq!(h.text(4), "glyph bar 4 2");
     assert_eq!(h.grid(5).height, 2);
     assert_eq!(h.grid_row_count(5), 2);
+    assert_view_consistent(&h);
+}
+
+/// A ref-only glyph draws its composite as a grid on the first `ref` line. That
+/// grid must survive editing the ref name: the first keystroke used to reparse
+/// straight away, and a half-typed name resolves to nothing, so the graphical
+/// grid collapsed to text rows. Worse, the deferral that follows kept it
+/// collapsed even after the name was typed back in full.
+#[test]
+fn editing_a_ref_line_keeps_the_composite_grid() {
+    // DocLines: 0 header base, 1 grid 4x4, 2 blank, 3 "glyph comp", 4 "ref base"
+    let src = "glyph base 4 4\n@@......\n..@@....\n....@@..\n......@@\n\nglyph comp\nref base\n";
+    let mut h = EditorHarness::new(src);
+    assert_eq!(h.grid_row_count(4), 4, "the composite renders as a grid");
+
+    h.click_text(4, 8); // end of "ref base"
+    h.key(Key::Backspace); // "ref bas" — resolves to nothing
+    assert_eq!(
+        h.grid_row_count(4),
+        4,
+        "a half-typed ref name must not collapse the composite grid"
+    );
+
+    h.type_text("e"); // back to "ref base"
+    assert_eq!(h.text(4), "ref base");
+    assert_eq!(h.grid_row_count(4), 4);
+
+    h.key(Key::ArrowUp); // leave the line -> flush
+    assert_eq!(h.grid_row_count(4), 4);
+    assert_view_consistent(&h);
+}
+
+/// Leaving a genuinely undefined ref behind still takes effect — the deferral
+/// holds the last good rendering, it does not freeze the view.
+#[test]
+fn leaving_a_broken_ref_line_updates_the_composite() {
+    let src = "glyph base 4 4\n@@......\n..@@....\n....@@..\n......@@\n\nglyph comp\nref base\n";
+    let mut h = EditorHarness::new(src);
+
+    h.click_text(4, 8);
+    h.type_text("x"); // "ref basex"
+    h.key(Key::ArrowUp);
+
+    assert_eq!(h.text(4), "ref basex");
+    assert!(
+        h.grid_row_count(4) < 4,
+        "an undefined ref has no composite to draw"
+    );
+    assert_view_consistent(&h);
+}
+
+/// An unterminated quote anywhere in the file used to abort `derive_document`
+/// wholesale, leaving the view built from the *previous* item structure over the
+/// new lines: grid rows were painted onto text lines and the real grid line got
+/// no visual line at all. A line the grammar cannot read is one opaque text
+/// item, so the structure keeps matching the buffer.
+#[test]
+fn an_unparseable_line_does_not_misattribute_the_view() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+
+    h.click_text(2, 0); // the blank line between the two glyphs
+    h.paste("`oops\nmore");
+
+    assert_eq!(h.text(2), "`oops");
+    assert_eq!(h.text(3), "more");
+    assert_eq!(h.text(4), "glyph bar 4 2");
+    // Both glyphs still render as grids, on their own lines.
+    assert_eq!(h.grid_row_count(1), 4);
+    assert_eq!(h.grid_row_count(5), 2);
+    assert_view_consistent(&h);
+
+    // And the document still holds both glyphs.
+    let glyphs = h
+        .doc
+        .items
+        .iter()
+        .filter(|i| matches!(i, crate::document::DocumentItem::Glyph { .. }))
+        .count();
+    assert_eq!(glyphs, 2);
+}
+
+/// Typing a quote character into a header, on the way to a quoted name, is one
+/// unparseable line while it is open. It must not shift the view around either.
+#[test]
+fn an_unparseable_header_line_does_not_misattribute_the_view() {
+    let mut h = EditorHarness::new(&two_glyph_doc());
+
+    h.click_text(3, 0); // "glyph bar 4 2"
+    h.type_text("`");
+    h.key(Key::ArrowUp); // leave the line -> flush
+
+    assert_eq!(h.text(3), "`glyph bar 4 2");
+    assert_eq!(h.grid_row_count(1), 4, "the other glyph is untouched");
     assert_view_consistent(&h);
 }
 

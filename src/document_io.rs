@@ -1106,7 +1106,21 @@ pub fn derive_document(
                     .as_deref()
                     .map(|c| format!(" // {c}"))
                     .unwrap_or_default();
-                let tokens = tokenize_tokens(body_text).map_err(DeriveError)?;
+                // A line the tokenizer cannot read at all — in practice an
+                // unterminated `` ` `` quote, usually one the author is halfway
+                // through typing — is kept as one opaque text item rather than
+                // failing the whole derive. The editor builds its visual lines
+                // from this item list against the same buffer, so a derive that
+                // bails leaves the *previous* structure in place and every grid
+                // after the bad line is drawn on the wrong line. `issues.rs`
+                // reports it as an unrecognized directive; the strict CLI path
+                // (`tokenize_strict`) still rejects the file outright.
+                let Ok(tokens) = tokenize_tokens(body_text) else {
+                    item_line_starts.push(i);
+                    doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                    i += 1;
+                    continue;
+                };
                 if tokens.is_empty() {
                     item_line_starts.push(i);
                     // A comment-only line never reaches here: it was taken by
@@ -1181,8 +1195,14 @@ pub fn derive_document(
                         i += 1;
 
                         let parts = &tokens[1..];
+                        // A bare `glyph`, which is what a header being typed
+                        // from scratch looks like for a keystroke or two. Same
+                        // reasoning as the unreadable line above: one opaque
+                        // item, not a failed derive.
                         if parts.is_empty() {
-                            return Err(DeriveError("empty glyph name".into()));
+                            item_line_starts.push(header_idx);
+                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            continue;
                         }
 
                         let name = parse_glyph_name(&parts[0]);

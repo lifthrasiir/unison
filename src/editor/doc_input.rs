@@ -564,7 +564,20 @@ pub(crate) fn paste_text(
     content.push_str(&last_clean);
     content.push_str(&suffix);
 
-    let new = crate::document_io::parse_doclines(&content);
+    let mut new = crate::document_io::parse_doclines(&content);
+
+    // `parse_doclines` hands every dimensioned header a grid of its own, empty
+    // when the text carried no pixel rows. If the paste *ends* on a header
+    // whose grid is already in the buffer — it sits just past the replaced
+    // range — that fresh empty grid would be spliced in between the two,
+    // orphaning the real one: its pixels were demoted to raw text and the glyph
+    // was left blank. Drop it and let the existing grid stay with its header;
+    // `reconcile` resizes it if the pasted dimensions differ.
+    if matches!(new.last(), Some(DocLine::Grid(g)) if g.is_all_empty())
+        && matches!(lines.get(hi.line + 1), Some(DocLine::Grid(_)))
+    {
+        new.pop();
+    }
 
     let caret_after = match new.last() {
         Some(DocLine::Grid(_)) => Caret::new(lo.line + new.len() - 1, 0),
@@ -588,10 +601,22 @@ fn copy_range(te: &TextEdit<'_>) -> (Caret, Caret) {
 
 fn current_line_range(lines: &[DocLine], cursor: Caret) -> (Caret, Caret) {
     let lo = Caret::new(cursor.line, 0);
-    let hi = if cursor.line + 1 < lines.len() {
-        Caret::new(cursor.line + 1, 0)
+    // A text line with a grid under it is that grid's header, and the two are
+    // one block: the line-wise range covers the grid as well, so a cut takes
+    // the whole glyph and the clipboard carries its pixel rows. Stopping *at*
+    // the grid line instead deleted the grid along with the header while
+    // copying only the header text — the pixel art was gone and unpasteable.
+    let end_line = if matches!(lines.get(cursor.line), Some(DocLine::Text(_)))
+        && matches!(lines.get(cursor.line + 1), Some(DocLine::Grid(_)))
+    {
+        cursor.line + 1
     } else {
-        Caret::new(cursor.line, caret::line_char_len(lines, cursor.line))
+        cursor.line
+    };
+    let hi = if end_line + 1 < lines.len() {
+        Caret::new(end_line + 1, 0)
+    } else {
+        Caret::new(end_line, caret::line_char_len(lines, end_line))
     };
     (lo, hi)
 }

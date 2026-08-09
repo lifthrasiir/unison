@@ -46,11 +46,16 @@ pub(super) fn apply_pending_rederive(
             // would attribute grids and headers to the wrong lines.
             let structure_stable = doc.docline_file_lines.len() == lines.len();
 
+            // A `ref` line is deferred from its *first* keystroke, exactly like
+            // a header: a half-typed glyph name resolves to nothing, and for a
+            // ref-only glyph the composite is the only grid there is — reparsing
+            // mid-edit collapsed it to bare text rows. Waiting for the caret to
+            // leave keeps the last resolved shape on screen; it used to reparse
+            // once and then defer, so the collapse also outlived typing the name
+            // back in full.
             let defer = structure_stable
                 && matches!(state.mode, EditMode::Normal)
-                && ((on_ref_line && state.last_reparse_line == Some(state.cursor.line))
-                    || on_glyph_header
-                    || owns_grid);
+                && (on_ref_line || on_glyph_header || owns_grid);
 
             if defer {
                 defer_document_changes(doc, state);
