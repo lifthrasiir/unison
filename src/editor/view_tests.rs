@@ -3913,7 +3913,6 @@ fn edit_border_survives_the_top_grid_row_being_culled() {
     assert_eq!(border.size(), full_border.size());
 }
 
-
 /// Clicking a menu-bar item hands egui's keyboard focus to that button, and the
 /// editor is left with none: every key after it — Ctrl+V included — goes
 /// nowhere until the user clicks back into the grid. An action dispatched from
@@ -3953,4 +3952,37 @@ fn a_menu_action_leaves_the_editor_ready_for_keys() {
         "paste should switch to PixelSelect, mode = {:?}",
         h.state.mode
     );
+}
+
+/// A menu-bar click takes the editor's keyboard focus (see
+/// [`crate::editor::EditorState::refocus`]) before any of the menu's entries
+/// can run, and an unfocused editor commits its floating selection away. The
+/// selection is what the Selection menu acts on, so it has to survive the trip
+/// into the menu — otherwise every entry there is greyed out by the time the
+/// user reaches it. `blur_commits_floating` covers the other side: a focus loss
+/// with no menu open still commits.
+#[test]
+fn a_floating_selection_survives_the_menu_that_acts_on_it() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 0)); // select a single cell
+    h.drag_grid(1, (0, 0), (2, 0)); // and float it down to row 2
+    assert!(h.state.pixel_selection.as_ref().unwrap().is_floating());
+
+    // Opening a menu over the editor: the focus goes to the menu button.
+    h.menu_open = true;
+    h.blur();
+    assert!(
+        h.state
+            .pixel_selection
+            .as_ref()
+            .is_some_and(|s| s.is_floating()),
+        "the selection the menu acts on should still be there"
+    );
+
+    // Once the menu is gone, an editor that never got the focus back commits
+    // it as any other unfocused editor does.
+    h.menu_open = false;
+    h.frame();
+    assert!(h.state.pixel_selection.is_none(), "menu closed: commit");
+    assert!(h.grid(1).get(2, 0).is_filled());
 }

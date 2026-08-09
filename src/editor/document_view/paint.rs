@@ -43,6 +43,7 @@ pub(super) fn paint_document_area(
         color_aliases,
         zoom_level,
         font_id,
+        menu_open,
         ..
     } = env;
     let avail_w = ui.available_width();
@@ -57,7 +58,7 @@ pub(super) fn paint_document_area(
     let has_focus = ui.memory(|m| m.has_focus(wid));
     state.active = has_focus;
 
-    *needs_rederive |= pixel_selection::reconcile(doc, lines, state);
+    *needs_rederive |= pixel_selection::reconcile(doc, lines, state, menu_open);
 
     if has_focus {
         ui.memory_mut(|m| {

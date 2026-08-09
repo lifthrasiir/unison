@@ -268,6 +268,9 @@ pub(crate) struct EditorHarness {
     /// Off by default: the metric box widens the drawn grid, and every layout
     /// assertion written before it existed expects the un-widened extents.
     pub show_metrics: bool,
+    /// Stands in for a menu-bar menu being open over the editor, which is the
+    /// one kind of focus loss a pixel selection survives.
+    pub menu_open: bool,
     pub zoom: u32,
     pub font_id: egui::FontId,
     time: f64,
@@ -343,6 +346,7 @@ impl EditorHarness {
             name_parts: NamePartsMap::new(),
             meta: Default::default(),
             show_metrics: false,
+            menu_open: false,
             zoom: 1,
             font_id: egui::FontId::monospace(16.0),
             time: 0.0,
@@ -425,6 +429,7 @@ impl EditorHarness {
                             color_aliases: &colors,
                             meta: self.meta,
                             show_metrics: self.show_metrics,
+                            menu_open: self.menu_open,
                             derived_gen: 0,
                             font_gen: 0,
                             zoom_level: self.zoom,
@@ -452,6 +457,7 @@ impl EditorHarness {
                                 color_aliases: &colors,
                                 meta: self.meta,
                                 show_metrics: self.show_metrics,
+                                menu_open: self.menu_open,
                                 derived_gen: 0,
                                 font_gen: 0,
                                 zoom_level: self.zoom,
@@ -473,6 +479,7 @@ impl EditorHarness {
                                 color_aliases: &colors,
                                 meta: second.meta,
                                 show_metrics: self.show_metrics,
+                                menu_open: self.menu_open,
                                 derived_gen: 0,
                                 font_gen: 0,
                                 zoom_level: self.zoom,

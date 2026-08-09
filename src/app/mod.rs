@@ -156,6 +156,10 @@ pub struct UniformApp {
     font_meta: crate::meta::FontMetrics,
     /// View menu: draw the metric box over every glyph grid.
     show_metrics: bool,
+    /// A menu-bar menu is showing its contents this frame. Set while the menu
+    /// bar is drawn, so the editors below it — drawn later in the same frame —
+    /// can tell "a menu has the keyboard" from a real loss of focus.
+    menu_open: bool,
     named_glyphs_gen: u64,
     // Bumped whenever named_glyphs/name_parts/alt_index/color_aliases are
     // replaced; keys the editor's per-frame view cache.
@@ -332,6 +336,7 @@ impl UniformApp {
             color_aliases: Default::default(),
             font_meta: Default::default(),
             show_metrics: true,
+            menu_open: false,
             named_glyphs_gen: u64::MAX,
             derived_gen: 0,
             derived_data_tx,

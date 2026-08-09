@@ -1215,7 +1215,22 @@ fn scale_range_token(tok: &str, old_scale: u8, new_scale: u8) -> String {
 // Reconciliation — called once per frame at the top of show_document
 // ---------------------------------------------------------------------------
 
-pub(crate) fn reconcile(doc: &Document, lines: &mut [DocLine], state: &mut EditorState) -> bool {
+/// Commits and drops a selection the editor is no longer holding: one whose
+/// mode moved on, or one in an editor that lost the keyboard.
+///
+/// `menu_open` is the exception to the second rule. Clicking a menu-bar button
+/// hands egui's focus to that button (see [`EditorState::refocus`]), so an
+/// editor with a selection goes unfocused the moment the user opens a menu —
+/// and committing there would clear the very selection the Selection menu is
+/// about to act on, leaving every one of its entries greyed out the next
+/// frame. A menu is a temporary overlay over this editor, not another surface
+/// taking over, so the selection waits for it.
+pub(crate) fn reconcile(
+    doc: &Document,
+    lines: &mut [DocLine],
+    state: &mut EditorState,
+    menu_open: bool,
+) -> bool {
     let sel = match &state.pixel_selection {
         Some(s) => s.clone(),
         None => return false,
@@ -1224,7 +1239,7 @@ pub(crate) fn reconcile(doc: &Document, lines: &mut [DocLine], state: &mut Edito
         &state.mode,
         EditMode::PixelSelect { item_idx } if *item_idx == sel.item_idx
     );
-    if !matches_mode || !state.active {
+    if !matches_mode || !(state.active || menu_open) {
         commit_and_clear(doc, lines, state, &sel);
         true
     } else {

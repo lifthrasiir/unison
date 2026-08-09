@@ -77,9 +77,37 @@ pub struct OpenDocument {
 impl OpenDocument {
     /// Flush pending line-level edits into the `Document` model, if any.
     pub(super) fn flush_pending_changes(&mut self) {
-        if self.editor_state.has_pending_document_sync() {
+        if self.commit_floating_selection() || self.editor_state.has_pending_document_sync() {
             self.flush_pending_changes_forced();
         }
+    }
+
+    /// Lands a floating pixel selection in the line buffer, reporting whether
+    /// there was one.
+    ///
+    /// A floating selection is the one edit that lives in [`EditorState`]
+    /// rather than in `lines`, so whoever takes the buffer for the document's
+    /// real content — a save, a pane closing over it — has to land it first or
+    /// write a file without the pixels the user is holding. Losing the keyboard
+    /// commits it too (`pixel_selection::reconcile`), which is exactly the
+    /// problem: without this, the same edit saved or not depending on where the
+    /// focus happened to be.
+    fn commit_floating_selection(&mut self) -> bool {
+        let Some(sel) = self
+            .editor_state
+            .pixel_selection
+            .clone()
+            .filter(|s| s.is_floating())
+        else {
+            return false;
+        };
+        crate::editor::pixel_selection::commit_and_clear(
+            &self.document,
+            &mut self.lines,
+            &mut self.editor_state,
+            &sel,
+        );
+        true
     }
 
     /// Re-derive the `Document` from the lines whether or not the editor asked
@@ -564,6 +592,46 @@ mod reload_tests {
 
     const BEFORE: &str = "glyph a 2 2\n@@@@\n@@@@\n";
     const AFTER: &str = "glyph a 2 2\n....\n@@@@\n";
+
+    /// A floating pixel selection lives in `EditorState`, not in the line
+    /// buffer, so anything that takes the buffer for the document's real
+    /// content has to land it first. Until it did, whether a save wrote those
+    /// pixels came down to where the keyboard focus happened to be — an
+    /// unfocused editor commits, a focused one does not — so the same edit
+    /// saved differently depending on the mode it was made in.
+    #[test]
+    fn a_floating_selection_is_landed_before_the_buffer_is_read() {
+        use crate::editor::pixel_selection::PixelSelection;
+
+        let dir = TempDir::new("float-flush");
+        let path = dir.write("a.unf", "glyph a 2 2\n....\n....\n");
+        let mut open = load_open_document(path, None).unwrap();
+
+        let mut float = crate::document::PixelGrid::new(1, 1);
+        float.set(
+            0,
+            0,
+            crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
+        );
+        open.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx: 0 };
+        open.editor_state.pixel_selection = Some(PixelSelection {
+            item_idx: 0,
+            row: 1,
+            col: 0,
+            width: 1,
+            height: 1,
+            float_pixels: Some(float),
+        });
+
+        open.flush_pending_changes();
+
+        assert!(
+            open.editor_state.pixel_selection.is_none(),
+            "the float should have been committed, not left pending"
+        );
+        assert_eq!(text_of(&open), "glyph a 2 2\n....\n@@..\n");
+        assert!(open.document.dirty, "the committed pixels are unsaved");
+    }
 
     /// The whole of requirement 2: the buffer follows the file, the caret
     /// survives, and the previous contents are one undo away — which is the

@@ -585,6 +585,7 @@ impl UniformApp {
             color_aliases: &self.color_aliases,
             meta: self.font_meta,
             show_metrics: self.show_metrics,
+            menu_open: self.menu_open,
             derived_gen: self.derived_gen,
             font_gen: self.font_data_gen,
             zoom_level,

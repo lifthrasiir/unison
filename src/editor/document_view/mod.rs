@@ -136,6 +136,10 @@ pub struct EditorEnv<'a> {
     pub meta: crate::meta::FontMetrics,
     /// Whether the metric-box overlay is switched on (View menu).
     pub show_metrics: bool,
+    /// A menu is open over the editor, so the keyboard focus it just lost went
+    /// to a menu button rather than to another surface. A floating pixel
+    /// selection survives that: the menu is how the user acts *on* it.
+    pub menu_open: bool,
     /// Generation of the derived data above; bumping it invalidates the
     /// editor's per-frame view cache.
     pub derived_gen: u64,

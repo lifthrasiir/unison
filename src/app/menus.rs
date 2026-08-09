@@ -147,9 +147,16 @@ impl UniformApp {
 
         use crate::edit_menu::EditMenuCaps;
 
+        // Whether any of the bar's menus is showing its contents this frame.
+        // `menu_button` returns `Some` inner exactly then — including on the
+        // frame the button was clicked, which is the frame that matters: the
+        // click takes the keyboard focus away from the editor, and the editor
+        // is drawn *after* this panel. See `UniformApp::menu_open`.
+        let mut any_menu_open = false;
+
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
-                ui.menu_button("File", |ui| {
+                let file_open = ui.menu_button("File", |ui| {
                     if ui
                         .add(egui::Button::new("New file...").shortcut_text(format!("{mod_name}N")))
                         .clicked()
@@ -241,7 +248,8 @@ impl UniformApp {
                         ui.close_menu();
                     }
                 });
-                ui.menu_button("Edit", |ui| {
+                any_menu_open |= file_open.inner.is_some();
+                let edit_open = ui.menu_button("Edit", |ui| {
                     let caps = match edit_target {
                         EditTarget::Preview => self.shaped_preview.edit_menu_caps(),
                         EditTarget::Editor => self
@@ -365,7 +373,8 @@ impl UniformApp {
                         });
                     });
                 });
-                ui.menu_button("Selection", |ui| {
+                any_menu_open |= edit_open.inner.is_some();
+                let sel_open = ui.menu_button("Selection", |ui| {
                     let (mod_name, _) = crate::edit_menu::platform_shortcut_names();
                     let active_doc = self.active_doc();
                     let in_grid_mode = self.in_grid_edit();
@@ -487,7 +496,8 @@ impl UniformApp {
                         ui.close_menu();
                     }
                 });
-                ui.menu_button("Font", |ui| {
+                any_menu_open |= sel_open.inner.is_some();
+                let font_open = ui.menu_button("Font", |ui| {
                     if ui
                         .add_enabled(
                             !self.assert_running && self.active_doc_idx().is_some(),
@@ -510,7 +520,8 @@ impl UniformApp {
                         ui.close_menu();
                     }
                 });
-                ui.menu_button("View", |ui| {
+                any_menu_open |= font_open.inner.is_some();
+                let view_open = ui.menu_button("View", |ui| {
                     // Splitting is only offered from a single pane that has a
                     // document: from a placeholder it would leave two of them,
                     // and there is no third pane.
@@ -751,8 +762,10 @@ impl UniformApp {
                         }
                     });
                 });
+                any_menu_open |= view_open.inner.is_some();
             });
         });
+        self.menu_open = any_menu_open;
         if ctx.options(|o| o.theme_preference) != theme_before {
             self.font_applied = None;
         }
