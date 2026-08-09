@@ -180,6 +180,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which block a code point is in, and how `prop block` overrides the UCD | `ucd.rs` (`BlockMap`) |
 | The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
+| Why a menu action has to hand the keyboard back to the editor | `editor/mod.rs` (`refocus`), `editor/document_view/paint.rs` (`refocus_after_menu`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |

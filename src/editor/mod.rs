@@ -254,6 +254,19 @@ impl EditorState {
         }
     }
 
+    /// Takes the keyboard focus back on the next frame.
+    ///
+    /// Clicking a menu-bar button hands egui's focus to *that button*, and the
+    /// editor is left with none: every key it handles — Ctrl+V, the pixel
+    /// transforms, Escape — then goes nowhere until the user clicks back into
+    /// the document. Since the button stays on screen, egui's dead-man's switch
+    /// never fires and the focus is never returned on its own. Any host action
+    /// dispatched from a menu that acts on this editor has to call this, the way
+    /// `refocus_after_menu` does for the editor's own context menus.
+    pub(crate) fn refocus(&mut self) {
+        self.pending_focus = true;
+    }
+
     pub fn goto_line(&mut self, line: usize) {
         self.mode = EditMode::Normal;
         self.selection_anchor = None;

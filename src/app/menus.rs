@@ -312,6 +312,7 @@ impl UniformApp {
                                 d.editor_state.mode
                         {
                             d.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx };
+                            d.editor_state.refocus();
                         }
                         ui.close_menu();
                     }
@@ -333,6 +334,7 @@ impl UniformApp {
                                     true,
                                 ),
                             };
+                            d.editor_state.refocus();
                         }
                         ui.close_menu();
                     }
@@ -991,6 +993,7 @@ impl UniformApp {
         if let Some(action) = actions.sel_menu_action {
             match action {
                 SelMenuAction::Cancel => {
+                    self.refocus_active_editor();
                     if let Some(doc) = self.active_doc_mut() {
                         if let Some(sel) = doc.editor_state.pixel_selection.clone() {
                             crate::editor::pixel_selection::commit_and_clear(

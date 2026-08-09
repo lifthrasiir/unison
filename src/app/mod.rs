@@ -655,9 +655,21 @@ impl UniformApp {
         }
     }
 
+    /// Hands the keyboard back to the active editor, which a menu-bar click
+    /// took away. See [`crate::editor::EditorState::refocus`].
+    fn refocus_active_editor(&mut self) {
+        if let Some(doc) = self.active_doc_mut() {
+            doc.editor_state.refocus();
+        }
+    }
+
     /// Runs a document mutation on the active document and flushes the line
     /// buffer back into the `Document` when it reports a change.
+    ///
+    /// Every caller is a menu item acting on the active editor, so the focus
+    /// the menu took goes back whether or not the mutation changed anything.
     fn with_active_doc_flush(&mut self, f: impl FnOnce(&mut OpenDocument) -> bool) {
+        self.refocus_active_editor();
         if let Some(doc) = self.active_doc_mut()
             && f(doc)
         {

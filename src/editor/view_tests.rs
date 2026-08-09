@@ -3912,3 +3912,45 @@ fn edit_border_survives_the_top_grid_row_being_culled() {
     );
     assert_eq!(border.size(), full_border.size());
 }
+
+
+/// Clicking a menu-bar item hands egui's keyboard focus to that button, and the
+/// editor is left with none: every key after it — Ctrl+V included — goes
+/// nowhere until the user clicks back into the grid. An action dispatched from
+/// a menu therefore has to hand the focus back, or the document it just changed
+/// takes no keyboard input at all.
+#[test]
+fn a_menu_action_leaves_the_editor_ready_for_keys() {
+    use crate::editor::pixel_selection;
+
+    let mut h = EditorHarness::new("glyph test 4 3\n@@@@@@..\n..@@@@..\n........");
+    h.click_grid_cell(1, 0, 0);
+    assert!(matches!(h.state.mode, EditMode::GlyphEdit { .. }));
+    assert!(h.editor_has_focus());
+
+    // Opening the menu takes the focus away.
+    h.blur();
+    assert!(!h.editor_has_focus());
+
+    // What Edit ▸ Adjust scale does to the document.
+    assert!(pixel_selection::handle_adjust_scale(
+        &h.doc,
+        &mut h.lines,
+        &mut h.state,
+        2
+    ));
+    crate::editor::document_view::flush_document_changes(&mut h.lines, &mut h.doc, &mut h.state);
+    h.state.refocus();
+    h.frame();
+
+    assert!(
+        h.editor_has_focus(),
+        "the editor should have the keyboard back"
+    );
+    h.paste("@@\n@@");
+    assert!(
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        "paste should switch to PixelSelect, mode = {:?}",
+        h.state.mode
+    );
+}
