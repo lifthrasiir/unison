@@ -1265,58 +1265,51 @@ ref dotted-circle-7-aux2 negated
 ref dotted-circle-7-aux3 negated
 
 glyph dotted-circle-7-aux1 13 13 scale 2
-ref 6p5r10x-1p3r10-dl:zero 0 9
-ref 6p7r14x-0p6r14-dl:zero 0 11 negated
-ref 6p5r10x1p3r10-ul:zero 0 13
-ref 6p7r14x0p6r14-ul:zero 0 13 negated
-ref -6p5r10x-1p3r10-dr:zero 12 9
-ref -6p7r14x-0p6r14-dr:zero 12 11 negated
-ref -6p5r10x1p3r10-ur:zero 12 13
-ref -6p7r14x0p6r14-ur:zero 12 13 negated
-ref -1p3r10x6p5r10-ur:zero 9 0
-ref -0p6r14x6p7r14-ur:zero 11 0 negated
-ref 1p3r10x6p5r10-ul:zero 13 0
-ref 0p6r14x6p7r14-ul:zero 13 0 negated
-ref -1p3r10x-6p5r10-dr:zero 9 12
-ref -0p6r14x-6p7r14-dr:zero 11 12 negated
-ref 1p3r10x-6p5r10-dl:zero 13 12
-ref 0p6r14x-6p7r14-dl:zero 13 12 negated
+ref 6p7r14x-1p8r14-dl:zero 0 9
+ref 6p1r2x-0p1r2-dl:zero 0 11 negated
+ref 6p7r14x1p8r14-ul:zero 0 13
+ref 6p1r2x0p1r2-ul:zero 0 13 negated
+ref -6p7r14x-1p8r14-dr:zero 12 9
+ref -6p1r2x-0p1r2-dr:zero 12 11 negated
+ref -6p7r14x1p8r14-ur:zero 12 13
+ref -6p1r2x0p1r2-ur:zero 12 13 negated
+ref -1p8r14x6p7r14-ur:zero 9 0
+ref -0p1r2x6p1r2-ur:zero 11 0 negated
+ref 1p8r14x6p7r14-ul:zero 13 0
+ref 0p1r2x6p1r2-ul:zero 13 0 negated
+ref -1p8r14x-6p7r14-dr:zero 9 12
+ref -0p1r2x-6p1r2-dr:zero 11 12 negated
+ref 1p8r14x-6p7r14-dl:zero 13 12
+ref 0p1r2x-6p1r2-dl:zero 13 12 negated
 
 glyph dotted-circle-7-aux2 13 13 scale 2
-ref 6p5r10x-3p2r10-dl:zero 0 5
-ref 6p5r10x-2p2r10-dl:zero 0 7 negated
-ref 6p5r10x3p2r10-ul:zero 0 13
-ref 6p5r10x2p2r10-ul:zero 0 13 negated
-ref -6p5r10x-3p2r10-dr:zero 12 5
-ref -6p5r10x-2p2r10-dr:zero 12 7 negated
-ref -6p5r10x3p2r10-ur:zero 12 13
-ref -6p5r10x2p2r10-ur:zero 12 13 negated
-ref -3p2r10x6p5r10-ur:zero 5 0
-ref -2p2r10x6p5r10-ur:zero 7 0 negated
-ref 3p2r10x6p5r10-ul:zero 13 0
-ref 2p2r10x6p5r10-ul:zero 13 0 negated
-ref -3p2r10x-6p5r10-dr:zero 5 12
-ref -2p2r10x-6p5r10-dr:zero 7 12 negated
-ref 3p2r10x-6p5r10-dl:zero 13 12
-ref 2p2r10x-6p5r10-dl:zero 13 12 negated
+ref 6p1r2x4-dl:zero 0 5
+ref 6p5r10x-2p7r10-dl:zero 0 7 negated
+ref 6p1r2x4-ul:zero 0 13
+ref 6p5r10x2p7r10-ul:zero 0 13 negated
+ref -6p1r2x4-dr:zero 12 5
+ref -6p5r10x-2p7r10-dr:zero 12 7 negated
+ref -6p1r2x4-ur:zero 12 13
+ref -6p5r10x2p7r10-ur:zero 12 13 negated
+ref 4x6p1r2-ur:zero 5 0
+ref -2p7r10x6p5r10-ur:zero 7 0 negated
+ref 4x6p1r2-ul:zero 13 0
+ref 2p7r10x6p5r10-ul:zero 13 0 negated
+ref 4x-6p1r2-dr:zero 5 12
+ref -2p7r10x-6p5r10-dr:zero 7 12 negated
+ref 4x-6p1r2-dl:zero 13 12
+ref 2p7r10x-6p5r10-dl:zero 13 12 negated
 
 glyph dotted-circle-7-aux3 13 13 scale 2
-ref 6p5r10x-5p7r10-dl:zero 0 1
-ref 6p3r6x-4p2r6-dl:zero 0 3 negated
-ref 6p5r10x5p7r10-ul:zero 0 13
-ref 6p3r6x4p2r6-ul:zero 0 13 negated
-ref -6p5r10x-5p7r10-dr:zero 12 1
-ref -6p3r6x-4p2r6-dr:zero 12 3 negated
-ref -6p5r10x5p7r10-ur:zero 12 13
-ref -6p3r6x4p2r6-ur:zero 12 13 negated
-ref -5p7r10x6p5r10-ur:zero 1 0
-ref -4p2r6x6p3r6-ur:zero 3 0 negated
-ref 5p7r10x6p5r10-ul:zero 13 0
-ref 4p2r6x6p3r6-ul:zero 13 0 negated
-ref -5p7r10x-6p5r10-dr:zero 1 12
-ref -4p2r6x-6p3r6-dr:zero 3 12 negated
-ref 5p7r10x-6p5r10-dl:zero 13 12
-ref 4p2r6x-6p3r6-dl:zero 13 12 negated
+ref 13x13
+ref 6p9r18x-5p10r18-dl:zero 0 1 negated
+ref -5p10r18x6p9r18-ur:zero 1 0 negated
+ref -6p9r18x-5p10r18-dr:zero 12 1 negated
+ref -5p10r18x6p9r18-ul:zero 12 0 negated
+ref 6p9r18x-5p10r18-ul:zero 0 12 negated
+ref -5p10r18x-6p9r18-dr:zero 1 12 negated
+ref -6p9r18x-5p10r18-ur:zero 12 12 negated
+ref -5p10r18x-6p9r18-dl:zero 12 12 negated
 
 glyph vhatched-circle-7 16 16
 ................................
