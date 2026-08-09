@@ -118,6 +118,48 @@ fn is_word_char(ch: char) -> bool {
     ch.is_alphanumeric() || ch == '_'
 }
 
+/// Forward scan of `egui`'s word-boundary rule (`text_cursor_state::
+/// next_word_boundary_char_index`), so Ctrl+Left/Right here move exactly like
+/// they do in a plain `TextEdit` — notably `-` separates words and `_` does not.
+/// One character is always consumed; after that the scan runs while the
+/// word/non-word class keeps matching the *second* character's. The one
+/// deliberate difference is `is_word_char` above: `egui`'s is ASCII-only, ours
+/// is not, so a Hangul or Cyrillic run counts as a word.
+///
+/// Both scans stop at the end of the line; the callers handle line crossings.
+fn next_word_boundary(chars: &[char], mut index: usize) -> usize {
+    if index >= chars.len() {
+        return index;
+    }
+    index += 1;
+    if index < chars.len() {
+        let class = is_word_char(chars[index]);
+        index += 1;
+        while index < chars.len() && is_word_char(chars[index]) == class {
+            index += 1;
+        }
+    }
+    index
+}
+
+/// Mirror image of [`next_word_boundary`], equivalent to running it over the
+/// reversed line as `egui` does.
+fn prev_word_boundary(chars: &[char], index: usize) -> usize {
+    let mut index = index.min(chars.len());
+    if index == 0 {
+        return 0;
+    }
+    index -= 1;
+    if index > 0 {
+        let class = is_word_char(chars[index - 1]);
+        index -= 1;
+        while index > 0 && is_word_char(chars[index - 1]) == class {
+            index -= 1;
+        }
+    }
+    index
+}
+
 pub fn move_word_left(lines: &[DocLine], c: Caret) -> Caret {
     if c.col == 0 {
         if c.line == 0 {
@@ -136,16 +178,9 @@ pub fn move_word_left(lines: &[DocLine], c: Caret) -> Caret {
         };
     };
     let chars: Vec<char> = s.chars().collect();
-    let mut i = c.col;
-    while i > 0 && chars[i - 1].is_whitespace() {
-        i -= 1;
-    }
-    while i > 0 && !chars[i - 1].is_whitespace() {
-        i -= 1;
-    }
     Caret {
         line: c.line,
-        col: i,
+        col: prev_word_boundary(&chars, c.col),
     }
 }
 
@@ -167,16 +202,9 @@ pub fn move_word_right(lines: &[DocLine], c: Caret) -> Caret {
         };
     };
     let chars: Vec<char> = s.chars().collect();
-    let mut i = c.col;
-    while i < chars.len() && !chars[i].is_whitespace() {
-        i += 1;
-    }
-    while i < chars.len() && chars[i].is_whitespace() {
-        i += 1;
-    }
     Caret {
         line: c.line,
-        col: i,
+        col: next_word_boundary(&chars, c.col),
     }
 }
 
@@ -470,8 +498,9 @@ mod tests {
     #[test]
     fn move_word_right_basic() {
         let lines = vec![text("hello world")];
-        assert_eq!(move_word_right(&lines, Caret::new(0, 0)), Caret::new(0, 6));
-        assert_eq!(move_word_right(&lines, Caret::new(0, 6)), Caret::new(0, 11));
+        // Like a `TextEdit`, the caret lands at the *end* of the word it crossed.
+        assert_eq!(move_word_right(&lines, Caret::new(0, 0)), Caret::new(0, 5));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 5)), Caret::new(0, 11));
     }
 
     #[test]
@@ -487,26 +516,45 @@ mod tests {
     }
 
     #[test]
-    fn move_word_stops_at_every_whitespace_separated_token() {
-        // "remap foo : # = xxx": punctuation runs are words of their own.
+    fn move_word_crosses_a_punctuation_run_in_one_step() {
+        // "remap foo : # = xxx": a `TextEdit` treats the whole " : # = " run as
+        // one non-word stretch rather than stopping at each token.
         let lines = vec![text("remap foo : # = xxx")];
-        assert_eq!(move_word_right(&lines, Caret::new(0, 6)), Caret::new(0, 10));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 6)), Caret::new(0, 9));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 9)), Caret::new(0, 16));
+        assert_eq!(
+            move_word_right(&lines, Caret::new(0, 16)),
+            Caret::new(0, 19)
+        );
+        assert_eq!(move_word_left(&lines, Caret::new(0, 19)), Caret::new(0, 16));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 16)), Caret::new(0, 9));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 9)), Caret::new(0, 6));
+    }
+
+    #[test]
+    fn move_word_treats_hyphen_as_separator() {
+        // Same rule as an egui `TextEdit`: only alphanumerics and `_` are word
+        // characters, so `-` splits a name but `_` does not.
+        let lines = vec![text("uni-form_x ab")];
+        assert_eq!(move_word_right(&lines, Caret::new(0, 0)), Caret::new(0, 3));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 3)), Caret::new(0, 10));
         assert_eq!(
             move_word_right(&lines, Caret::new(0, 10)),
-            Caret::new(0, 12)
+            Caret::new(0, 13)
         );
-        assert_eq!(
-            move_word_right(&lines, Caret::new(0, 12)),
-            Caret::new(0, 14)
-        );
-        assert_eq!(
-            move_word_right(&lines, Caret::new(0, 14)),
-            Caret::new(0, 16)
-        );
-        assert_eq!(move_word_left(&lines, Caret::new(0, 16)), Caret::new(0, 14));
-        assert_eq!(move_word_left(&lines, Caret::new(0, 14)), Caret::new(0, 12));
-        assert_eq!(move_word_left(&lines, Caret::new(0, 12)), Caret::new(0, 10));
-        assert_eq!(move_word_left(&lines, Caret::new(0, 10)), Caret::new(0, 6));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 13)), Caret::new(0, 11));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 11)), Caret::new(0, 4));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 4)), Caret::new(0, 0));
+    }
+
+    #[test]
+    fn move_word_keeps_non_ascii_letters_as_word_chars() {
+        // egui's own predicate is ASCII-only; ours is not, so a Hangul run is a
+        // word and does not merge with the punctuation around it.
+        let lines = vec![text("map 가나 : x")];
+        assert_eq!(move_word_right(&lines, Caret::new(0, 0)), Caret::new(0, 3));
+        assert_eq!(move_word_right(&lines, Caret::new(0, 3)), Caret::new(0, 6));
+        assert_eq!(move_word_left(&lines, Caret::new(0, 6)), Caret::new(0, 4));
     }
 
     #[test]
