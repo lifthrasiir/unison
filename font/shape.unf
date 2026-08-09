@@ -510,6 +510,26 @@ glyph white-circle-7w6 16 16 refonly scale 2
 ref 13x13-circle:zero 4 2
 ref _7p1r3x_7p1r3-circle:zero 9 7 negated
 
+glyph white-circle-8 16 16 refonly
+............@@@@@@@@@@..........
+........@@@@..........@@@@......
+......@@..................@@....
+....@@......................@@..
+....@@......................@@..
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+..@@..........................@@
+....@@......................@@..
+....@@......................@@..
+......@@..................@@....
+........@@@@..........@@@@......
+............@@@@@@@@@@..........
+................................
+ref 15x15-circle:zero 1 0
+ref 13x13-circle:zero 2 1 negated
+
 map ∘ = white-circle-2 // ring operator
 map ◦ = white-circle-4 // white bullet
 map ⚬ = white-circle-5
@@ -517,6 +537,7 @@ map ⚪ = white-circle-6
 map ○ = white-circle-7
 map ⭘ = white-circle-7w1
 map 🞅|🞆|🞇|🞈|🞉 = white-circle-7w($2..6)
+map ◯ = white-circle-8
 
 remap deemojify : white-circle-6 vs-text -> white-circle-6:mono
 
@@ -4923,7 +4944,7 @@ glyph black-star-4 16 16 refonly
 ................................
 ................................
 ................................
-ref 7x7-poly5r2:zero 5 4
+ref 7x7-poly5r2:zero 5 5
 
 // for legibility, white-star-7 is not a strict subset of black-star-7
 glyph white-star-7 16 16 refonly
