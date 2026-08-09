@@ -259,6 +259,86 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         })
     }
 
+    /// The layers a `ref` contributes to its parent's flat layer list.
+    ///
+    /// A composite that subtracts is **not** a list of independent layers: its
+    /// negated parts subtract from its own earlier parts and from nothing
+    /// else. Spliced into the parent's list they go on erasing whatever the
+    /// parent drew under them; and under a negated `ref`, flipping each part
+    /// in turn (`comp.negated ^ gref.negated`) re-adds the target's holes as
+    /// ink the parent never had — a difference of differences is neither.
+    /// The target's resolved raster grid already holds that difference, so it
+    /// stands in as one layer. Its `refonly` parts travel on separately: no
+    /// raster carries them (the vector pass blanks them out), and they are the
+    /// bitmap face's ink.
+    ///
+    /// `placed` is the target's grid rescaled to the parent and put where it
+    /// logically sits, as computed for the raster pass.
+    fn push_ref_components(
+        out: &mut Vec<SampleComponent>,
+        gref: &GlyphRef,
+        cached: &CachedGlyph,
+        placed: Option<&(PixelGrid, i32, i32)>,
+        fill_rgba: Option<Rgba>,
+        fill_vis: LayerVisibility,
+        parent_scale: u8,
+    ) {
+        let ps = parent_scale.max(1);
+        let rs = cached.scale.max(1);
+        let rsf = ps as f32 / rs as f32;
+        let (off_r, off_c) = (gref.row() as i32, gref.col() as i32);
+        let overridden = gref.fill.is_some() || gref.visibility.is_some();
+
+        let translated = |comp: &SampleComponent| SampleComponent {
+            row: (comp.row as f32 * rsf).round() as i32 + off_r,
+            col: (comp.col as f32 * rsf).round() as i32 + off_c,
+            grid: if rs == ps {
+                comp.grid.clone()
+            } else {
+                comp.grid.rescale(rs, ps)
+            },
+            negated: comp.negated ^ gref.negated,
+            fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
+            visibility: if overridden { fill_vis } else { comp.visibility },
+            refonly: comp.refonly,
+        };
+
+        let subtracts = cached.components.iter().any(|c| c.negated);
+        if let (true, Some((grid, row, col))) = (subtracts, placed) {
+            // One colour for the whole group: a difference has no per-part
+            // colouring left to hand out, so only a fill the parts already
+            // agree on (or the `ref`'s own) survives.
+            let mut parts = cached.components.iter().filter(|c| !c.refonly);
+            let first = parts.next().map(|c| (c.fill_rgba.clone(), c.visibility));
+            let agreed = first.filter(|(rgba, vis)| {
+                parts.all(|c| c.fill_rgba == *rgba && c.visibility == *vis)
+            });
+            out.push(SampleComponent {
+                row: *row,
+                col: *col,
+                grid: grid.clone(),
+                negated: gref.negated,
+                fill_rgba: fill_rgba
+                    .clone()
+                    .or_else(|| agreed.as_ref().and_then(|(rgba, _)| rgba.clone())),
+                visibility: match (overridden, &agreed) {
+                    (true, _) => fill_vis,
+                    (false, Some((_, vis))) => *vis,
+                    (false, None) => LayerVisibility::Both,
+                },
+                refonly: false,
+            });
+            for comp in cached.components.iter().filter(|c| c.refonly) {
+                out.push(translated(comp));
+            }
+            return;
+        }
+
+        for comp in &cached.components {
+            out.push(translated(comp));
+        }
+    }
+
     fn composite_glyph(
         own_pixels: Option<&PixelGrid>,
         refonly: bool,
@@ -333,7 +413,6 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 let Some(cached) = resolve_cached_ref(&gref.name, cache) else {
                     continue;
                 };
-                let (off_r, off_c) = (gref.row() as i32, gref.col() as i32);
                 let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
                 if let Some((sg, row, col)) = sg {
                     result.blit(sg, row - min_r, col - min_c, gref.negated);
@@ -343,28 +422,15 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         contour_layers.push((sg, *row, *col));
                     }
                 }
-                let rs = cached.scale.max(1);
-                let rsf = ps as f32 / rs as f32;
-                for comp in &cached.components {
-                    let scaled_grid = if rs == ps {
-                        comp.grid.clone()
-                    } else {
-                        comp.grid.rescale(rs, ps)
-                    };
-                    components.push(SampleComponent {
-                        row: (comp.row as f32 * rsf).round() as i32 + off_r,
-                        col: (comp.col as f32 * rsf).round() as i32 + off_c,
-                        grid: scaled_grid,
-                        negated: comp.negated ^ gref.negated,
-                        fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                        visibility: if gref.fill.is_some() || gref.visibility.is_some() {
-                            fill_vis
-                        } else {
-                            comp.visibility
-                        },
-                        refonly: comp.refonly,
-                    });
-                }
+                push_ref_components(
+                    &mut components,
+                    gref,
+                    cached,
+                    sg.as_ref(),
+                    fill_rgba,
+                    fill_vis,
+                    ps,
+                );
             }
 
             let contours = if has_negated {
@@ -425,29 +491,16 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 min_c = min_c.min(*col);
             }
 
-            let off_r = gref.row() as i32;
-            let off_c = gref.col() as i32;
             let (fill_rgba, fill_vis) = ref_fill_info(gref, color_aliases);
-            for comp in &cached.components {
-                let scaled_grid = if rs == ps {
-                    comp.grid.clone()
-                } else {
-                    comp.grid.rescale(rs, ps)
-                };
-                components.push(SampleComponent {
-                    row: (comp.row as f32 * rsf).round() as i32 + off_r,
-                    col: (comp.col as f32 * rsf).round() as i32 + off_c,
-                    grid: scaled_grid,
-                    negated: comp.negated,
-                    fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-                    visibility: if gref.fill.is_some() || gref.visibility.is_some() {
-                        fill_vis
-                    } else {
-                        comp.visibility
-                    },
-                    refonly: comp.refonly,
-                });
-            }
+            push_ref_components(
+                &mut components,
+                gref,
+                cached,
+                sg.as_ref(),
+                fill_rgba,
+                fill_vis,
+                ps,
+            );
         }
         let (max_width, max_height) = (max_width.max(0), max_height.max(0));
 
@@ -1855,6 +1908,137 @@ map A = combo
             !g.components.is_empty(),
             "the real ref's components must be kept"
         );
+    }
+
+    /// A composite that subtracts is not a list of independent layers, so its
+    /// parts must not be spliced into a parent's flat layer list: the child's
+    /// negated part would go on erasing the parent's own ink under it.
+    #[test]
+    fn sample_nested_negation_does_not_erase_the_parent() {
+        let d = parse(
+            "\
+meta height 3
+meta ascent 3
+meta descent 0
+
+glyph box 3 3
+@@@@@@
+@@@@@@
+@@@@@@
+
+glyph dot 1 1
+@@
+
+glyph ring
+ref box
+ref dot 1 1 negated
+
+glyph combo
+ref box
+ref ring
+
+map A = combo
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let comps = data.glyphs["combo"].normalized_components();
+        let bitmap = composite_components(3, 3, &comps);
+        assert!(
+            bitmap.get(1, 1).is_filled(),
+            "the ring's hole must not punch through the parent's own solid layer"
+        );
+    }
+
+    /// A negated `ref` subtracts the target's *result*. Flipping each of the
+    /// target's layers instead turns its holes into ink the parent never had.
+    #[test]
+    fn sample_negated_ref_subtracts_the_composed_target() {
+        let d = parse(
+            "\
+meta height 3
+meta ascent 3
+meta descent 0
+
+glyph box 3 3
+@@@@@@
+@@@@@@
+@@@@@@
+
+glyph dot 1 1
+@@
+
+glyph ring
+ref box
+ref dot 1 2 negated
+
+glyph top 3 2
+@@@@@@
+@@@@@@
+
+glyph combo
+ref top
+ref ring negated
+
+map A = combo
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let comps = data.glyphs["combo"].normalized_components();
+        let bitmap = composite_components(3, 3, &comps);
+        for r in 0..3u16 {
+            for c in 0..3u16 {
+                assert!(
+                    !bitmap.get(r, c).is_filled(),
+                    "({r}, {c}): subtracting a superset must leave nothing; \
+                     the target's hole is not ink"
+                );
+            }
+        }
+    }
+
+    /// U+25CC: a `refonly` grid whose glyph also refs a composite that
+    /// subtracts. The bitmap ink is the glyph's own layer and the ref's
+    /// internal negation has no business erasing it.
+    #[test]
+    fn sample_refonly_bitmap_survives_a_negating_ref() {
+        let d = parse(
+            "\
+meta height 3
+meta ascent 3
+meta descent 0
+
+glyph box 3 3
+@@@@@@
+@@@@@@
+@@@@@@
+
+glyph dot 1 1
+@@
+
+glyph ring
+ref box
+ref dot 1 1 negated
+
+glyph g refonly 3 3
+@@@@@@
+@@@@@@
+@@@@@@
+ref ring
+
+map A = g
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let comps = data.glyphs["g"].normalized_components();
+        let bitmap = composite_components(3, 3, &comps);
+        for r in 0..3u16 {
+            for c in 0..3u16 {
+                assert!(
+                    bitmap.get(r, c).is_filled(),
+                    "({r}, {c}): the refonly grid is the bitmap face's ink"
+                );
+            }
+        }
     }
 
     /// The sample draws small glyphs from the ink flags (the bitmap face) and
