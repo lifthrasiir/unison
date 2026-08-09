@@ -781,11 +781,45 @@ fn strict_parse_accepts_valid_glyph_headers() {
         "glyph foo advance 5\n",
         "glyph foo left -1\n",
         "glyph foo 2 1 sticky advance 5 left -1\n..@@\n",
+        "glyph foo 2 1 refonly\n..@@\n",
+        "glyph foo refonly 2 1\n..@@\n",
         "glyph foo = bar\n",
     ] {
         assert!(
             parse_document_from_str(input, "test.unf".into()).is_ok(),
             "should accept: {input:?}"
+        );
+    }
+}
+
+/// `refonly` says the grid that follows is bitmap ink only, so a header
+/// carrying it still owns a pixel grid — reconciliation and the document model
+/// have to agree about that, whichever side of `W H` the flag sits on.
+#[test]
+fn refonly_header_owns_its_pixel_grid_and_round_trips() {
+    for input in [
+        "glyph foo 2 1 refonly\n..@@\n",
+        "glyph foo refonly 2 1\n..@@\n",
+    ] {
+        let tokens = tokenize_tokens(input.lines().next().unwrap()).unwrap();
+        assert_eq!(
+            glyph_header_dims(&tokens[1..]).map(|d| (d.width, d.height)),
+            Some((2, 1)),
+            "refonly header should still own a grid: {input:?}"
+        );
+
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+            panic!("expected a glyph item, got {:?}", doc.items[0]);
+        };
+        assert!(body.refonly, "refonly should reach the body: {input:?}");
+        assert!(body.pixels.is_some(), "the grid is still parsed: {input:?}");
+
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "glyph foo 2 1 refonly\n..@@\n",
         );
     }
 }
@@ -798,6 +832,7 @@ fn strict_parse_rejects_flags_on_an_alias() {
     for input in [
         "glyph foo sticky = bar\n",
         "glyph foo advance 5 = bar\n",
+        "glyph foo refonly = bar\n",
         "glyph foo 2 1 = bar\n",
     ] {
         let err = parse_document_from_str(input, "test.unf".into())

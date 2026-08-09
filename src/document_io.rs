@@ -138,12 +138,18 @@
 //! # Glyph blocks
 //!
 //! `glyph NAME [W H] [flags...]`, with flags `sticky`, `inline`, `mark`,
-//! `advance N`, `left N`, `top N` and `scale N` (the per-glyph sub-pixel detail
-//! resolution: the grid is N× finer, and `document_io` multiplies the declared
-//! dimensions by it but not the other flags).
+//! `refonly`, `advance N`, `left N`, `top N` and `scale N` (the per-glyph
+//! sub-pixel detail resolution: the grid is N× finer, and `document_io`
+//! multiplies the declared dimensions by it but not the other flags).
 //!
 //! - With `W H`, pixel rows follow immediately, two characters per pixel (`@@`
 //!   filled, `..` empty, plus the sub-pixel shape codes in [`crate::pixel`]).
+//! - `refonly` makes that grid **bitmap ink only**: the vector build of the
+//!   font ignores its geometry and draws the glyph from its `ref`s alone, while
+//!   the bitmap build reads the grid as always. The grid still declares the
+//!   glyph's dimensions in both. With refs to on-demand `:zero` shapes — which
+//!   are the mirror case, geometry that lights no pixel — the two faces become
+//!   fully independent drawings. See [`crate::render::ttf_builder`].
 //! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly] [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from
 //!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
@@ -512,6 +518,7 @@ pub struct GlyphHeaderFlags {
     pub sticky: bool,
     pub inline: bool,
     pub mark: bool,
+    pub refonly: bool,
     pub advance: Option<u16>,
     pub left: Option<i16>,
     pub top: Option<i16>,
@@ -524,8 +531,8 @@ pub struct GlyphHeaderFlags {
 /// name, with any `= ALIAS` part already stripped).
 ///
 /// This is the single implementation of the header flag grammar: keyword
-/// flags (`sticky`, `inline`, `mark`), valued flags (`advance N`, `left N`,
-/// `top N`) and the `W H` dimension pair may appear in any order. It is
+/// flags (`sticky`, `inline`, `mark`, `refonly`), valued flags (`advance N`,
+/// `left N`, `top N`) and the `W H` dimension pair may appear in any order. It is
 /// shared by `derive_document` and [`glyph_header_dims`] so that the
 /// document model and grid reconciliation can never disagree about whether
 /// a header owns a pixel grid.
@@ -533,8 +540,8 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
     parse_glyph_flag_parts_impl(flag_parts, &mut |_| {})
 }
 
-const GLYPH_FLAG_KEYWORDS: [&str; 7] = [
-    "sticky", "inline", "mark", "advance", "left", "top", "scale",
+const GLYPH_FLAG_KEYWORDS: [&str; 8] = [
+    "sticky", "inline", "mark", "refonly", "advance", "left", "top", "scale",
 ];
 
 /// The one walker behind both the lenient parse and the strict validation.
@@ -551,6 +558,7 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
             "sticky" => flags.sticky = true,
             "inline" => flags.inline = true,
             "mark" => flags.mark = true,
+            "refonly" => flags.refonly = true,
             "advance" => {
                 fp += 1;
                 flags.advance = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
@@ -912,6 +920,9 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     if body.mark {
         flags.push_str(" mark");
     }
+    if body.refonly {
+        flags.push_str(" refonly");
+    }
     if let Some(adv) = body.advance {
         flags.push_str(&format!(" advance {adv}"));
     }
@@ -1191,6 +1202,7 @@ pub fn derive_document(
                         body.sticky = flags.sticky;
                         body.inline = flags.inline;
                         body.mark = flags.mark;
+                        body.refonly = flags.refonly;
                         body.advance = flags.advance;
                         body.left = flags.left;
                         body.top = flags.top;

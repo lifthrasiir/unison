@@ -32,6 +32,12 @@ struct SampleComponent {
     negated: bool,
     fill_rgba: Option<Rgba>,
     visibility: LayerVisibility,
+    /// From a `refonly` glyph's own grid: ink for the small (full-pixel)
+    /// renderings, invisible to the large (sub-pixel) ones — the sample's two
+    /// drawing modes are the font's two faces, and the flag splits them here
+    /// the same way. Carried up through composition, so a parent's layer list
+    /// keeps the distinction.
+    refonly: bool,
 }
 
 struct SampleGlyph {
@@ -116,14 +122,26 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             }
         }
 
-        fn from_grid(grid: &PixelGrid) -> Self {
-            let contours = track_contour(grid, PX_SUBPIXEL);
+        /// `refonly`: the grid is the glyph's bitmap and not its outline, so it
+        /// stays a component (the full-pixel renderings draw those) but
+        /// contributes no contour, and the raster grid a parent composes
+        /// against is a blank of the same size.
+        fn from_grid(grid: &PixelGrid, refonly: bool) -> Self {
+            let contours = if refonly {
+                Vec::new()
+            } else {
+                track_contour(grid, PX_SUBPIXEL)
+            };
             Self {
                 width: grid.width,
                 height: grid.height,
                 contours,
                 anchors: Vec::new(),
-                grid: Some(grid.clone()),
+                grid: Some(if refonly {
+                    PixelGrid::new(grid.width, grid.height)
+                } else {
+                    grid.clone()
+                }),
                 origin_row: 0,
                 origin_col: 0,
                 components: vec![SampleComponent {
@@ -133,6 +151,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     negated: false,
                     fill_rgba: None,
                     visibility: LayerVisibility::Both,
+                    refonly,
                 }],
                 scale: 1,
             }
@@ -198,6 +217,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         |pg, effective_refs, cache| {
             composite_glyph(
                 pg.pixels.as_ref(),
+                pg.refonly,
                 effective_refs,
                 cache,
                 &color_aliases,
@@ -205,7 +225,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             )
             .unwrap_or_else(|| {
                 if let Some(grid) = &pg.pixels {
-                    CachedGlyph::from_grid(grid)
+                    CachedGlyph::from_grid(grid, pg.refonly)
                 } else {
                     CachedGlyph::empty()
                 }
@@ -239,6 +259,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
     fn composite_glyph(
         own_pixels: Option<&PixelGrid>,
+        refonly: bool,
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedGlyph>,
         color_aliases: &ColorAliasMap,
@@ -251,6 +272,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         // declared dims are re-applied by the caller.  Mirrors
         // `CachedContours::from_components_inner`.
         let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
+        // A `refonly` grid still bounds the glyph and still draws in the
+        // full-pixel renderings, but it is not part of the outline — so it is
+        // kept out of every layer a contour (or a parent's raster) is traced
+        // from, exactly as in the TTF builder's vector pass.
+        let own_outline = own_pixels.filter(|_| !refonly);
         let ps = parent_scale.max(1);
 
         // Each ref grid is placed where it logically sits: a target that
@@ -282,7 +308,6 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             let mut diff_layers: Vec<(&PixelGrid, i32, i32, bool)> = Vec::new();
 
             if let Some(grid) = own_pixels {
-                result.blit(grid, -min_r, -min_c, false);
                 components.push(SampleComponent {
                     row: 0,
                     col: 0,
@@ -290,7 +315,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     negated: false,
                     fill_rgba: None,
                     visibility: LayerVisibility::Both,
+                    refonly,
                 });
+            }
+            if let Some(grid) = own_outline {
+                result.blit(grid, -min_r, -min_c, false);
                 if has_negated {
                     diff_layers.push((grid, 0, 0, false));
                 } else {
@@ -331,6 +360,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                         } else {
                             comp.visibility
                         },
+                        refonly: comp.refonly,
                     });
                 }
             }
@@ -413,6 +443,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     } else {
                         comp.visibility
                     },
+                    refonly: comp.refonly,
                 });
             }
         }
@@ -599,6 +630,7 @@ impl SampleGlyph {
                 negated: c.negated,
                 fill_rgba: c.fill_rgba.clone(),
                 visibility: c.visibility,
+                refonly: c.refonly,
             })
             .collect()
     }
@@ -767,6 +799,11 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
             )?;
             for comp in &sg.components {
                 if comp.visibility == LayerVisibility::MonoOnly {
+                    continue;
+                }
+                // The scaled specimen draws the sub-pixel geometry, i.e. the
+                // vector face; a `refonly` layer has none.
+                if comp.refonly {
                     continue;
                 }
                 let contours = track_contour(&comp.grid, PX_SUBPIXEL);
@@ -1815,6 +1852,61 @@ map A = combo
         assert!(
             !g.components.is_empty(),
             "the real ref's components must be kept"
+        );
+    }
+
+    /// The sample draws small glyphs from the ink flags (the bitmap face) and
+    /// large ones from the sub-pixel geometry (the vector face), so a
+    /// `refonly` grid has to appear in the first and not in the second — the
+    /// same split the TTF builder's two passes make.
+    #[test]
+    fn sample_refonly_grid_is_bitmap_ink_only() {
+        let d = parse(
+            "\
+meta height 4
+meta ascent 4
+meta descent 0
+
+glyph g refonly 2 2
+@@..
+@@..
+ref 2x1:zero 0 1
+
+map A = g
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        let g = data.glyphs.get("g").expect("g should be present");
+        let comps = g.normalized_components();
+
+        // Small (full-pixel) rendering: the grid's own ink, and nothing from
+        // the `:zero` ref, which lights no pixel.
+        let bitmap = composite_components(2, 4, &comps);
+        assert!(
+            bitmap.get(0, 0).is_filled() && bitmap.get(1, 0).is_filled(),
+            "the refonly grid is what the bitmap face draws"
+        );
+        assert!(
+            !bitmap.get(1, 1).is_filled(),
+            "`:zero` contributes no bitmap ink"
+        );
+
+        // Large (sub-pixel) rendering: the ref's geometry only.
+        let vector: Vec<&SampleComponent> = comps.iter().filter(|c| !c.refonly).collect();
+        assert!(
+            vector
+                .iter()
+                .all(|c| c.grid.get(1, 0).is_empty() || !c.grid.get(1, 0).is_filled()),
+            "no vector layer may carry the refonly grid's ink"
+        );
+        let vector_ink = vector.iter().any(|c| {
+            (0..c.grid.height).any(|r| (0..c.grid.width).any(|x| !c.grid.get(r, x).is_empty()))
+        });
+        assert!(vector_ink, "the `:zero` ref still has a vector outline");
+        assert_eq!(
+            comps.iter().filter(|c| c.refonly).count(),
+            1,
+            "the own grid is the one refonly layer"
         );
     }
 

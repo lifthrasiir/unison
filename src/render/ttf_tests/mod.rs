@@ -19,6 +19,7 @@ mod gpos;
 mod gsub;
 mod hints;
 mod misc;
+mod refonly;
 
 /// Rotate a contour so it starts at its lexicographically-smallest point.
 /// `render::contour::track_contour` traces contours via `HashMap`

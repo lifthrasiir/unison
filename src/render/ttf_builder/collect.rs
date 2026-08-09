@@ -269,7 +269,17 @@ pub(super) fn collect_glyph_data_with_shared(
         let cc = &mut contour_cache;
         crate::render::glyph_cache::seed_cache(
             all_items,
-            |pixels| CachedContours::from_grid(pixels, bitmap, cc.as_deref_mut()),
+            |pixels, refonly| {
+                // A `refonly` grid is ink for the bitmap build and geometry for
+                // nobody: the vector build keeps only the dimensions it
+                // declares, so a blank grid of the same size stands in.
+                if refonly && !bitmap {
+                    let blank = PixelGrid::new(pixels.width, pixels.height);
+                    CachedContours::from_grid(&blank, bitmap, cc.as_deref_mut())
+                } else {
+                    CachedContours::from_grid(pixels, bitmap, cc.as_deref_mut())
+                }
+            },
             CachedContours::empty,
         )
     };
@@ -280,20 +290,21 @@ pub(super) fn collect_glyph_data_with_shared(
             pending,
             |name| declared_anchors_map.get(name).cloned(),
             |pg, effective_refs, cache| {
+                // The vector build resolves a `refonly` glyph from its refs
+                // alone; `resolve_pending` re-applies the grid's dimensions
+                // afterwards, so the advance is unaffected.
+                let own = pg.pixels.as_ref().filter(|_| bitmap || !pg.refonly);
                 CachedContours::from_components(
-                    pg.pixels.as_ref(),
+                    own,
                     effective_refs,
                     cache,
                     bitmap,
                     cc.as_deref_mut(),
                     pg.scale,
                 )
-                .unwrap_or_else(|| {
-                    if let Some(grid) = &pg.pixels {
-                        CachedContours::from_grid(grid, bitmap, cc.as_deref_mut())
-                    } else {
-                        CachedContours::empty()
-                    }
+                .unwrap_or_else(|| match own {
+                    Some(grid) => CachedContours::from_grid(grid, bitmap, cc.as_deref_mut()),
+                    None => CachedContours::empty(),
                 })
             },
             |_, _| {},
@@ -659,6 +670,9 @@ pub(super) fn collect_glyph_data_with_shared(
         // of their own.  Cutting is per pass: a monoonly negation cannot reach
         // the coloronly layers, which are not present when it is drawn.
         let has_negated = body.refs.iter().any(|r| r.negated);
+        // Same rule as the outline path above: a `refonly` grid is ink for the
+        // bitmap build and geometry for nobody.
+        let own_pixels = body.pixels.as_ref().filter(|_| bitmap || !body.refonly);
         let ref_layers: Vec<Option<(PixelGrid, i32, i32)>> = if has_negated {
             effective_refs
                 .iter()
@@ -710,7 +724,7 @@ pub(super) fn collect_glyph_data_with_shared(
         // and separate color layers (refs with non-fg fill).
         let mut fg_contours: Vec<Vec<(i16, i16)>> = Vec::new();
 
-        if let Some(ref own_grid) = body.pixels
+        if let Some(own_grid) = own_pixels
             && !own_grid.is_all_empty()
         {
             let c = has_negated
@@ -818,7 +832,7 @@ pub(super) fn collect_glyph_data_with_shared(
 
         // Rebuild fallback contours: only non-coloronly layers
         let mut fallback_contours: Vec<Vec<(i16, i16)>> = Vec::new();
-        if let Some(ref own_grid) = body.pixels
+        if let Some(own_grid) = own_pixels
             && !own_grid.is_all_empty()
         {
             let c = has_negated

@@ -1310,7 +1310,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
         let (mut cache, pending) = crate::render::glyph_cache::seed_cache(
             expansion.items(),
-            |_| AnchorsOnly::new(),
+            |_, _| AnchorsOnly::new(),
             AnchorsOnly::new,
         );
         let mut derive_issues: Vec<(String, crate::ref_composite::DeriveIssue)> = Vec::new();

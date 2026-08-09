@@ -737,6 +737,11 @@ pub struct GlyphBody {
     pub sticky: bool,
     pub inline: bool,
     pub mark: bool,
+    /// `refonly`: the pixel grid is bitmap ink only. The vector build of the
+    /// font ignores its geometry and resolves the glyph from its `ref`s alone,
+    /// so the two faces can describe different shapes; see
+    /// [`crate::render::ttf_builder`].
+    pub refonly: bool,
     pub advance: Option<u16>,
     pub left: Option<i16>,
     pub top: Option<i16>,
@@ -754,6 +759,7 @@ impl GlyphBody {
             sticky: false,
             inline: false,
             mark: false,
+            refonly: false,
             advance: None,
             left: None,
             top: None,

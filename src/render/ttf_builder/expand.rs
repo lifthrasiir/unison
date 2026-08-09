@@ -139,12 +139,16 @@ pub(crate) fn expand_for(
                                     b.pixels = body.pixels.clone();
                                     b.points = body.points.clone();
                                     b.sticky = body.sticky;
-                                    // `mark` and `inline` are invisible in the
-                                    // outline, so dropping one here builds a
-                                    // clean font that behaves wrong: a mark
-                                    // that is not a mark never reaches GPOS.
+                                    // `mark`, `inline` and `refonly` are
+                                    // invisible in the outline of one build, so
+                                    // dropping one here builds a clean font
+                                    // that behaves wrong: a mark that is not a
+                                    // mark never reaches GPOS, and a lost
+                                    // `refonly` puts the grid back into the
+                                    // vector face.
                                     b.inline = body.inline;
                                     b.mark = body.mark;
+                                    b.refonly = body.refonly;
                                     b.advance = body.advance;
                                     b.left = body.left;
                                     b.top = body.top;
@@ -600,7 +604,10 @@ fn inject_on_demand_glyph_items(
                     points.extend_from_slice(&mono_body.points);
                     points.extend_from_slice(&color_body.points);
 
-                    let pixels = match (&mono_body.pixels, &color_body.pixels) {
+                    // `refonly` travels with the grid that was picked: it says
+                    // what that grid is for, so it cannot be read off the other
+                    // half.
+                    let (pixels, refonly) = match (&mono_body.pixels, &color_body.pixels) {
                         (Some(mg), Some(cg)) => {
                             let mg2 = if mono_s == combined_s {
                                 mg.clone()
@@ -612,23 +619,29 @@ fn inject_on_demand_glyph_items(
                             } else {
                                 cg.rescale(color_s as u8, combined_scale)
                             };
-                            Some(if mg2.width >= cg2.width && mg2.height >= cg2.height {
-                                mg2
+                            if mg2.width >= cg2.width && mg2.height >= cg2.height {
+                                (Some(mg2), mono_body.refonly)
                             } else {
-                                cg2
-                            })
+                                (Some(cg2), color_body.refonly)
+                            }
                         }
-                        (None, Some(cg)) => Some(if color_s == combined_s {
-                            cg.clone()
-                        } else {
-                            cg.rescale(color_s as u8, combined_scale)
-                        }),
-                        (Some(mg), None) => Some(if mono_s == combined_s {
-                            mg.clone()
-                        } else {
-                            mg.rescale(mono_s as u8, combined_scale)
-                        }),
-                        (None, None) => None,
+                        (None, Some(cg)) => (
+                            Some(if color_s == combined_s {
+                                cg.clone()
+                            } else {
+                                cg.rescale(color_s as u8, combined_scale)
+                            }),
+                            color_body.refonly,
+                        ),
+                        (Some(mg), None) => (
+                            Some(if mono_s == combined_s {
+                                mg.clone()
+                            } else {
+                                mg.rescale(mono_s as u8, combined_scale)
+                            }),
+                            mono_body.refonly,
+                        ),
+                        (None, None) => (None, false),
                     };
 
                     all_items.push(ExpandedItem {
@@ -638,6 +651,7 @@ fn inject_on_demand_glyph_items(
                                 refs,
                                 points,
                                 pixels,
+                                refonly,
                                 scale: combined_scale,
                                 advance: mono_body.advance.or(color_body.advance),
                                 left: mono_body.left.or(color_body.left),

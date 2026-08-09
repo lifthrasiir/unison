@@ -108,6 +108,15 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> egui::Color32 {
     )
 }
 
+/// One glyph resolved against its refs, as the editor and the `assert`
+/// directives see it.
+///
+/// This is deliberately the *source* view: a `refonly` glyph's own pixel grid
+/// is part of `grid` here even though the vector build of the font ignores it
+/// (see [`crate::render::ttf_builder`]). The editor has to draw the grid it
+/// lets you edit, and `assert same`/`distinct` compare what the file says; the
+/// two faces only diverge where they are actually built, in `ttf_builder` and
+/// `render/sample.rs`.
 #[derive(Clone)]
 pub struct ResolvedGlyph {
     pub grid: PixelGrid,

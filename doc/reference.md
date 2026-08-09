@@ -865,6 +865,9 @@ Flags may appear in any order, before or after the dimensions:
   `acute-left`) are declared this way.
 * `mark` — the glyph is a combining mark: it goes into the GDEF mark class, and its `-name` anchors
   become mark attachment points.
+* `refonly` — the pixel grid is bitmap ink and nothing else: the outline build ignores its geometry
+  and draws the glyph from its `ref` lines alone, while the bitmap build reads the grid as always.
+  See [Grid-Only-For-Bitmap Glyphs](#grid-only-for-bitmap-glyphs).
 * `advance N`, `left N`, `top N` — metrics overrides; see [Glyph Metrics](#glyph-metrics).
 * `scale N` — the glyph's grid is N times finer in both directions. `W` and `H` stay in whole
   pixels, and the rows that follow are `W × N` cells wide and `H × N` tall. Use it when a shape
@@ -879,6 +882,38 @@ referring to it from a `map`, `ref` or `remap` is an error. For a deliberately b
 A glyph whose name is a pattern is expanded into one glyph per name, in lock-step with the patterns
 in its `ref` lines. Such a glyph cannot carry a pixel grid — a grid cannot be shared across
 expansions — so it must be built from refs.
+
+#### Grid-Only-For-Bitmap Glyphs
+
+Ordinarily the two builds draw the same shapes and differ only in how finely: the grid *is* the
+drawing, and the bitmap build squares off whatever the geometry says (see
+[Pixel Grid](#pixel-grid)). The `refonly` flag breaks that tie on purpose. The grid becomes bitmap
+ink and nothing else: the outline build never reads its geometry and resolves the glyph from its
+`ref` lines alone.
+
+Paired with refs to `:zero` on-demand shapes — which are the mirror case, geometry that lights no
+pixel (see [Bitmap Control](#bitmap-control)) — the two builds become independent drawings of one
+glyph, each written where it belongs:
+
+```
+glyph tri refonly 4 4
+........
+....@@@@
+..@@@@@@
+@@@@@@@@
+ref 4x4-dr:zero 0 0
+```
+
+The outline build draws the exact triangle; the bitmap build draws the staircase written above, and
+nothing rounds anything. That staircase is deliberately not one the rules of
+[Bitmap Control](#bitmap-control) can produce: the default rule and `:ceil` both keep the lone apex
+pixel (every cell the 45° hypotenuse cuts is covered exactly half, so the tie goes to lit), and
+`:floor` drops the bottom-left step instead. Reach for `refonly` when the small-size rendering you
+want is not one the geometry rounds to.
+
+The grid still declares the glyph's dimensions in both builds, so suppressing the outline never
+changes an advance. `refonly` on a glyph with no refs is legal and means exactly what it says: a
+glyph with a bitmap and no outline.
 
 ### `glyph`: Glyph alias
 
@@ -1271,7 +1306,9 @@ on the name chooses the rule:
 * `:ceil` — any coverage at all lights the pixel.
 * `:floor` — only a fully covered pixel is lit.
 * `:zero` — nothing is ever lit: the shape exists for the outline build alone and contributes no
-  bitmap ink.
+  bitmap ink. Together with a `refonly` grid, which is the opposite (ink with no geometry), this is
+  what lets one glyph carry two unrelated drawings; see
+  [Grid-Only-For-Bitmap Glyphs](#grid-only-for-bitmap-glyphs).
 
 None of these moves an outline. The geometry is identical in all four cases; only the bitmap flavor
 of the font differs. Whole-pixel shapes cover every pixel completely and so come out the same under

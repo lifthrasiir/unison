@@ -20,6 +20,11 @@ pub(crate) struct PendingGlyph {
     pub refs: Vec<GlyphRef>,
     pub points: Vec<GlyphPoint>,
     pub scale: u8,
+    /// `refonly`: `pixels` is bitmap ink and nothing else. What that means for
+    /// a cache value is the *consumer's* decision — this driver only carries
+    /// the flag — but every consumer that draws an outline has to make it, or
+    /// the grid reappears in a face that must not have it.
+    pub refonly: bool,
 }
 
 /// A cache value the shared resolution driver can operate on.
@@ -109,12 +114,12 @@ pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
 }
 
 /// Seeds the cache from expanded document items: pixel-only glyphs enter
-/// directly via `from_grid`, glyphs with refs (or pixels alongside refs)
-/// become pending, and sticky placeholder glyphs enter as `empty` entries
-/// that only carry anchors.
+/// directly via `from_grid` (which is told whether the glyph is `refonly`),
+/// glyphs with refs (or pixels alongside refs) become pending, and sticky
+/// placeholder glyphs enter as `empty` entries that only carry anchors.
 pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
     all_items: impl IntoIterator<Item = &'a DocumentItem>,
-    mut from_grid: impl FnMut(&PixelGrid) -> V,
+    mut from_grid: impl FnMut(&PixelGrid, bool) -> V,
     mut empty: impl FnMut() -> V,
 ) -> (HashMap<String, V>, Vec<PendingGlyph>) {
     let mut cache: HashMap<String, V> = HashMap::new();
@@ -132,7 +137,7 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
             if let Some(ref pixels) = body.pixels
                 && body.refs.is_empty()
             {
-                let mut cached = from_grid(pixels);
+                let mut cached = from_grid(pixels, body.refonly);
                 cached.set_resolution(body.points.clone(), body.scale);
                 cache.insert(cache_key, cached);
             } else if body.pixels.is_some() || !body.refs.is_empty() {
@@ -142,6 +147,7 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
                     refs: body.refs.clone(),
                     points: body.points.clone(),
                     scale: body.scale,
+                    refonly: body.refonly,
                 });
             } else if body.sticky {
                 let mut cached = empty();
