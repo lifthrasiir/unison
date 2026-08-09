@@ -1,10 +1,17 @@
-//! Alt + wheel over the editor: step the number at the caret up or down.
+//! Alt + wheel — or Alt + Up/Down — over the editor: step the number at the
+//! caret up or down.
 //!
 //! The gesture is anchored to the *caret*, not to what the pointer is over —
 //! the pointer only has to be somewhere over this editor, which is what makes
 //! the wheel reach a number the mouse is nowhere near. The wheel step itself
 //! is [`debounced_scroll_step`], the same one coarse tick the zoom handler
-//! reads, so one physical notch is one increment on every input device.
+//! reads, so one physical notch is one increment on every input device. Alt +
+//! Up/Down is the keyboard spelling of the same thing, one press per step, and
+//! needs no pointer at all.
+//!
+//! Either input is claimed only once a number is actually in hand: with the
+//! caret nowhere near a digit the wheel scrolls and the arrows move the caret,
+//! exactly as they would with no Alt held.
 //!
 //! Numbers are non-negative integers of unbounded width, so the arithmetic is
 //! done on the digit *string* (`[0-8]9*$` carries on increment, `[1-9]0*$` on
@@ -22,6 +29,10 @@ pub(super) struct NumberBump {
     end: usize,
     /// The stepped digits.
     text: String,
+    /// Whether the wheel drove this step, and so has a notch still draining
+    /// that [`swallow_wheel_delta`] has to keep away from the scroll area. A
+    /// key press has nothing to drain.
+    pub(super) from_wheel: bool,
 }
 
 /// The digit run the caret is *in or next to*, as character columns. `None`
@@ -100,12 +111,16 @@ fn step_digits(digits: &str, delta: i32) -> String {
     String::from_utf8(d).expect("digits stay ASCII")
 }
 
-/// Reads this frame's Alt + wheel gesture, if it lands on a number.
+/// Reads this frame's Alt + wheel or Alt + Up/Down gesture, if it lands on a
+/// number.
 ///
-/// Runs *before* the scroll area, so a gesture that resolves to a number can
-/// take the wheel delta away from it — otherwise the view would scroll as
-/// well. A gesture that resolves to nothing is left untouched and scrolls as
-/// usual.
+/// Runs *before* the scroll area and before [`handle_document_keys`], so a
+/// gesture that resolves to a number can take its input away from them —
+/// otherwise the view would scroll, or the caret would change line, as well. A
+/// gesture that resolves to nothing is left untouched and scrolls or moves the
+/// caret as usual.
+///
+/// [`handle_document_keys`]: super::keys::handle_document_keys
 pub(super) fn detect_number_bump(
     ui: &egui::Ui,
     lines: &[DocLine],
@@ -126,13 +141,22 @@ pub(super) fn detect_number_bump(
     if !modifiers_ok {
         return None;
     }
-    // Any point over *this* editor qualifies; a wheel over the other pane is
-    // that pane's gesture, not this one's.
-    let over_editor = ui
-        .input(|i| i.pointer.hover_pos())
-        .is_some_and(|p| editor_rect.contains(p));
-    if !over_editor {
-        return None;
+    // Which input is asking. An arrow goes wherever the keyboard focus is,
+    // which `state.active` already settled; a wheel has to be over *this*
+    // editor, since a wheel over the other pane is that pane's gesture. Any
+    // point over it qualifies — the caret is what the gesture is anchored to.
+    let key = ui.input(|i| {
+        [egui::Key::ArrowUp, egui::Key::ArrowDown]
+            .into_iter()
+            .find(|&k| i.key_pressed(k))
+    });
+    if key.is_none() {
+        let over_editor = ui
+            .input(|i| i.pointer.hover_pos())
+            .is_some_and(|p| editor_rect.contains(p));
+        if !over_editor {
+            return None;
+        }
     }
 
     let line = state.cursor.line;
@@ -149,15 +173,27 @@ pub(super) fn detect_number_bump(
         _ => digits_around(text, state.cursor.col)?,
     };
 
-    // Only now, with a number in hand, is the wheel this gesture's to take.
-    let step = debounced_scroll_step(ui.ctx())?;
-    let delta = if step < 0 { 1 } else { -1 };
+    // Only now, with a number in hand, is the input this gesture's to take.
+    let delta = match key {
+        // Consuming the press is what keeps the caret from also moving a line.
+        Some(k) => {
+            if !ui.input_mut(|i| i.consume_key(egui::Modifiers::ALT, k)) {
+                return None;
+            }
+            if k == egui::Key::ArrowUp { 1 } else { -1 }
+        }
+        None => {
+            let step = debounced_scroll_step(ui.ctx())?;
+            if step < 0 { 1 } else { -1 }
+        }
+    };
     let digits: String = text.chars().take(end).skip(start).collect();
     Some(NumberBump {
         line,
         start,
         end,
         text: step_digits(&digits, delta),
+        from_wheel: key.is_none(),
     })
 }
 
@@ -208,6 +244,7 @@ pub(super) fn apply_number_bump(
         start,
         end,
         text,
+        from_wheel: _,
     } = bump;
     let anchor = Caret::new(line, start);
     state.cursor = crate::editor::editing::replace_in_line(

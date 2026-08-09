@@ -3100,6 +3100,37 @@ fn alt_wheel_increments_the_number_at_the_caret() {
     assert_eq!(h.text(0), "meta height 15 // and a comment");
 }
 
+/// Alt + Up/Down is the keyboard spelling of the same gesture: Up steps the
+/// number up, Down steps it down, and the caret stays on the line instead of
+/// moving as a bare arrow would.
+#[test]
+fn alt_arrows_step_the_number_at_the_caret() {
+    let mut h = EditorHarness::new(NUMBER_DOC);
+    h.click_text(0, 13); // between the digits of "16"
+
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.text(0), "meta height 17 // and a comment");
+    assert_eq!(h.cursor(), Caret { line: 0, col: 14 });
+    assert_eq!(h.state.selection_anchor, Some(Caret { line: 0, col: 12 }));
+
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(0), "meta height 16 // and a comment");
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(0), "meta height 15 // and a comment");
+    assert_eq!(h.cursor().line, 0, "the caret never left the line");
+}
+
+/// With no number to step, Alt + Up/Down keeps the arrow's usual meaning and
+/// moves the caret.
+#[test]
+fn alt_arrows_away_from_a_digit_still_move_the_caret() {
+    let mut h = EditorHarness::new(NUMBER_DOC);
+    h.click_text(1, 3); // inside "meta" on the second line
+    h.key_mod(Key::ArrowDown, Modifiers::ALT);
+    assert_eq!(h.text(1), "meta ascent 12");
+    assert_eq!(h.cursor(), Caret { line: 2, col: 3 });
+}
+
 /// The caret only has to be *adjacent* to a digit run: at its right edge the
 /// preceding digits are what gets bumped.
 #[test]

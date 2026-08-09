@@ -412,12 +412,17 @@ fn show_document(
     // derived document cannot remain stale.
     let mut needs_rederive = state.take_document_sync_request();
 
-    // Alt + wheel steps the number at the caret. Resolved here, before the
-    // scroll area sees the wheel — a gesture that lands on a number takes the
-    // delta with it — but written back below with the frame's other edits, so
-    // the view being painted still matches `lines`.
+    // Alt + wheel, or Alt + Up/Down, steps the number at the caret. Resolved
+    // here, before the scroll area sees the wheel and before the key handler
+    // sees the arrow — a gesture that lands on a number takes its input with
+    // it — but written back below with the frame's other edits, so the view
+    // being painted still matches `lines`.
     let number_bump = detect_number_bump(ui, lines, state, ui.max_rect());
-    swallow_wheel_delta(ui, state, number_bump.is_some());
+    swallow_wheel_delta(
+        ui,
+        state,
+        number_bump.as_ref().is_some_and(|b| b.from_wheel),
+    );
 
     let scroll_y_id = state.key(Slot::ScrollY);
     let viewport_h_id = state.key(Slot::ViewportH);
