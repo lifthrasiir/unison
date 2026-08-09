@@ -59,7 +59,9 @@
 //!   Private Use planes a source has claimed and for what, so the claim is
 //!   written down beside the characters. [`BlockMap`] is what reads it: a stated
 //!   block is one more block of the code space, overriding whatever UCD block
-//!   its area falls in.
+//!   its area falls in. What it does not do is populate that area — which
+//!   Private Use characters exist is what the per-character lines say, one at a
+//!   time ([`CharProps::is_assigned`]).
 //!
 //! Nothing in the built font depends on any of this: `prop` describes
 //! characters for the human reading the editor and the sample, and the TTF is
@@ -191,6 +193,30 @@ impl CharProps {
             .map(|n| n.to_string())
     }
 
+    /// Whether *this source* gives `cp` a character: its general category, the
+    /// `prop` overrides applied, is anything other than `Cn`.
+    ///
+    /// Private Use is where the source's word replaces the UCD's rather than
+    /// merely overriding it. The UCD assigns all 137,468 Private Use code
+    /// points `Co` and describes none, which says they are available, not that
+    /// any of them is a character; so there, a `prop` line is the only thing
+    /// that can assign one, and a code point still `Cn` afterwards is one the
+    /// source has no character for — inside a `prop block` claim as much as
+    /// outside one, since a claim names an area without populating it.
+    #[cfg(feature = "editor")]
+    pub fn is_assigned(&self, cp: u32) -> bool {
+        let stated = self.stated(cp);
+        if let Some(gc) = stated.and_then(|s| s.values.gc.as_deref()) {
+            return gc != "Cn";
+        }
+        if is_private_use(cp) {
+            // A `prop` line with no `gc` of its own still states the character;
+            // its category then comes from the UCD, i.e. `Co`.
+            return stated.is_some();
+        }
+        is_assigned(cp)
+    }
+
     /// The brace group for `ch`, e.g. `{gc=Lo eaw=W}`, with any `prop`
     /// overrides applied. See [`property_summary`] for the shape of it.
     #[cfg(feature = "editor")]
@@ -257,10 +283,6 @@ pub struct BlockInfo<'a> {
     pub start: u32,
     pub end: u32,
     pub name: &'a str,
-    /// Whether a `prop block` line is what says so, rather than the UCD. The
-    /// difference matters where the UCD says nothing useful: what a font put in
-    /// a Private Use area is known only inside a stated block.
-    pub stated: bool,
 }
 
 /// The UCD blocks, parsed once. Sorted and non-overlapping by construction of
@@ -328,7 +350,6 @@ impl BlockMap {
                 start: *start,
                 end: *end,
                 name,
-                stated: true,
             });
         }
         let blocks = ucd_blocks();
@@ -336,12 +357,7 @@ impl BlockMap {
             .partition_point(|(start, _, _)| *start <= cp)
             .checked_sub(1)?;
         let (start, end, name) = blocks[idx];
-        (cp <= end).then_some(BlockInfo {
-            start,
-            end,
-            name,
-            stated: false,
-        })
+        (cp <= end).then_some(BlockInfo { start, end, name })
     }
 }
 

@@ -178,6 +178,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The `{gc=… ccc=… eaw=…}` group after a character name, and the pinned UCD version | `ucd.rs` |
 | `prop`: naming Private Use characters the UCD says nothing about, and what reads it | `ucd.rs` (`CharProps`) |
 | Which block a code point is in, and how `prop block` overrides the UCD | `ucd.rs` (`BlockMap`) |
+| Which Private Use characters exist (`prop` replaces the UCD there), and the block coverage counting them | `ucd.rs` (`CharProps::is_assigned`), `specimen.rs` |
 | The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste onto it | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |

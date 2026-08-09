@@ -20,7 +20,9 @@
 //!    Keyed additionally on [`SpecimenOptions`], since "show undeclared
 //!    characters" fills every block that has a mapped character out to its whole
 //!    range: a few hundred cells become a few hundred thousand, which is not
-//!    work for a frame.
+//!    work for a frame. The heading's coverage fraction walks the same ranges
+//!    either way — counting a block's characters costs one pass, where giving
+//!    each of them a cell costs a `CharEntry`.
 //! 3. **Which row each cell is on** — [`GridLayout`]. Keyed additionally on the
 //!    column count, since a row is only hidden when *every* character on it is
 //!    excluded from the sample, and that depends on where the row happens to
@@ -82,8 +84,11 @@ impl Default for SpecimenOptions {
     fn default() -> Self {
         Self {
             show_undeclared: false,
-            show_metric_marks: true,
-            group_by_block: false,
+            // The headings are what makes a grid of a few thousand cells
+            // navigable, so the grid opens grouped; the metric marks are a
+            // detail to switch on for one look rather than the resting state.
+            show_metric_marks: false,
+            group_by_block: true,
         }
     }
 }
@@ -111,9 +116,21 @@ struct Section {
     /// `None` only for the single unheaded section a grid with
     /// [`SpecimenOptions::group_by_block`] off consists of.
     heading: Option<String>,
+    /// `(declared, total)` — how much of the block the source covers, drawn at
+    /// the right end of the heading. `None` for a section that is not a block,
+    /// so there is nothing to be a fraction of.
+    coverage: Option<(usize, usize)>,
     /// Range into [`SpecimenState::items`].
     start: usize,
     len: usize,
+}
+
+/// One block's worth of cells on its way to becoming a [`Section`] — the
+/// heading it would get, and what the grid draws under it.
+struct Group {
+    heading: Option<String>,
+    coverage: Option<(usize, usize)>,
+    cps: Vec<u32>,
 }
 
 /// Which cells sit on which row, for one column count. See the module docs for
@@ -146,7 +163,11 @@ const ELLIPSIS_H: f32 = 18.0;
 const PX_SIZE: f32 = 48.0;
 
 const LABEL_COLOR: egui::Color32 = egui::Color32::from_gray(180);
-const UNDECLARED_LABEL_COLOR: egui::Color32 = egui::Color32::from_gray(215);
+const DIM_LABEL_COLOR: egui::Color32 = egui::Color32::from_gray(215);
+/// How much of a glyph is left when its cell is dimmed. Only the UI-font
+/// fallback needs it; the font's own glyph is never drawn in a dimmed cell,
+/// there being nothing to draw.
+const DIM_ALPHA: f32 = 0.35;
 /// A heading row is drawn against the grid's own white background rather than
 /// the app theme's, so its colors are fixed too.
 const HEADING_BG: egui::Color32 = egui::Color32::from_gray(128);
@@ -474,35 +495,57 @@ impl SpecimenState {
         // point in no block at all — the UCD leaves gaps between them — goes
         // into one section at the end rather than having a range invented for
         // it, and is never filled.
-        let mut by_block: BTreeMap<(u32, u32), (String, bool, Vec<u32>)> = BTreeMap::new();
+        let mut by_block: BTreeMap<(u32, u32), (String, Vec<u32>)> = BTreeMap::new();
         let mut no_block: Vec<u32> = Vec::new();
         for &cp in self.declared.keys() {
             match self.blocks.block_of(cp) {
                 Some(b) => by_block
                     .entry((b.start, b.end))
-                    .or_insert_with(|| (b.name.to_string(), b.stated, Vec::new()))
-                    .2
+                    .or_insert_with(|| (b.name.to_string(), Vec::new()))
+                    .1
                     .push(cp),
                 None => no_block.push(cp),
             }
         }
 
-        let mut groups: Vec<(Option<String>, Vec<u32>)> = Vec::new();
-        for ((start, end), (name, stated, cps)) in by_block {
+        let mut groups: Vec<Group> = Vec::new();
+        for ((start, end), (name, cps)) in by_block {
+            // The coverage is a count of *characters*, not of cells, so it
+            // reads the same whether or not the grid is filled — and a block
+            // with a glyph on a code point it has no character for states none
+            // at all, the fraction being one that would read over 100%.
+            let coverage = cps
+                .iter()
+                .all(|&cp| self.char_props.is_assigned(cp))
+                .then(|| (cps.len(), self.block_total(start, end)));
             let cps = if self.options.show_undeclared {
-                self.fill_block(start, end, stated)
+                self.block_members(start, end).collect()
             } else {
                 cps
             };
             let range = format_block_range(start, end);
-            groups.push((Some(format!("{name}  {range}")), cps));
+            groups.push(Group {
+                heading: Some(format!("{name}  {range}")),
+                coverage,
+                cps,
+            });
         }
         if !no_block.is_empty() {
-            groups.push((Some("No Block".to_string()), no_block));
+            groups.push(Group {
+                heading: Some("No Block".to_string()),
+                // A code point in no block has no range to be a fraction of.
+                coverage: None,
+                cps: no_block,
+            });
         }
 
         let grouped = self.options.group_by_block;
-        for (heading, cps) in groups {
+        for Group {
+            heading,
+            coverage,
+            cps,
+        } in groups
+        {
             let start = self.items.len();
             for cp in cps {
                 let glyph_name = self.declared.get(&cp).cloned();
@@ -513,6 +556,7 @@ impl SpecimenState {
                 let len = self.items.len() - start;
                 self.sections.push(Section {
                     heading,
+                    coverage,
                     start,
                     len,
                 });
@@ -528,50 +572,52 @@ impl SpecimenState {
         if !grouped {
             self.sections.push(Section {
                 heading: None,
+                coverage: None,
                 start: 0,
                 len: self.items.len(),
             });
         } else if self.items.len() > remap_start {
             self.sections.push(Section {
                 heading: Some("Remaps".to_string()),
+                coverage: None,
                 start: remap_start,
                 len: self.items.len() - remap_start,
             });
         }
     }
 
-    /// Every code point of one block worth a cell: the ones the source maps or
-    /// a `prop` line covers, plus every assigned one — a block's permanent holes
-    /// and its unassigned tail are not holes in the *font*, so they get no cell.
-    ///
-    /// A Private Use code point is the exception, and `stated` — whether a
-    /// `prop block` line is what named this block — is what decides it. The UCD
-    /// assigns all 137,468 of them and says nothing about any, so filling from
-    /// `is_assigned` alone would answer "where are this font's holes?" with
-    /// 65,536 empty cells per Private Use plane. Inside an area the source
-    /// claimed with `prop block`, on the other hand, the claim *is* the
-    /// statement of what should be there, and a gap in it is exactly the hole
-    /// worth seeing.
-    ///
-    /// Code points a nested `prop block` claims belong to that block's own
-    /// section, not to this one.
-    fn fill_block(&self, start: u32, end: u32, stated: bool) -> Vec<u32> {
-        (start..=end)
-            // Both bounds, not just the start: a `prop block` claim at the very
-            // beginning of a Private Use plane shares its start with the UCD
-            // block it overrides, and comparing starts alone would then fill the
-            // claimed code points into both sections.
-            .filter(|&cp| {
-                self.blocks
-                    .block_of(cp)
-                    .is_some_and(|b| (b.start, b.end) == (start, end))
-            })
-            .filter(|&cp| {
-                self.declared.contains_key(&cp)
-                    || self.char_props.stated(cp).is_some()
-                    || (crate::ucd::is_assigned(cp) && (stated || !crate::ucd::is_private_use(cp)))
-            })
-            .collect()
+    /// Every code point of one block, minus the ones a nested `prop block`
+    /// claims — those belong to that block's own section.
+    fn block_range(&self, start: u32, end: u32) -> impl Iterator<Item = u32> + '_ {
+        // Both bounds, not just the start: a `prop block` claim at the very
+        // beginning of a Private Use plane shares its start with the UCD block
+        // it overrides, and comparing starts alone would then fill the claimed
+        // code points into both sections.
+        (start..=end).filter(move |&cp| {
+            self.blocks
+                .block_of(cp)
+                .is_some_and(|b| (b.start, b.end) == (start, end))
+        })
+    }
+
+    /// Every character of one block — the ones a filled grid gives a cell to:
+    /// every one the source has ([`crate::ucd::CharProps::is_assigned`], which
+    /// is the `prop` lines inside Private Use and the UCD outside it), plus the
+    /// ones it draws. A block's permanent holes and its unassigned tail are not
+    /// holes in the *font*, so they get no cell.
+    fn block_members(&self, start: u32, end: u32) -> impl Iterator<Item = u32> + '_ {
+        self.block_range(start, end)
+            .filter(move |&cp| self.declared.contains_key(&cp) || self.char_props.is_assigned(cp))
+    }
+
+    /// How many characters a block has — the denominator of the coverage its
+    /// heading states, and the one thing there that is *not* a count of cells:
+    /// a code point the source draws without stating is a cell but not a
+    /// character.
+    fn block_total(&self, start: u32, end: u32) -> usize {
+        self.block_range(start, end)
+            .filter(|&cp| self.char_props.is_assigned(cp))
+            .count()
     }
 
     /// Step 3: which cells sit on which row, for `cols` columns.
@@ -652,7 +698,14 @@ impl SpecimenState {
             .iter()
             .map(|row| match row {
                 Row::Heading(si) => {
-                    format!("# {}", self.sections[*si].heading.as_deref().unwrap_or(""))
+                    // `show` lays the coverage out at the right edge of the
+                    // grid; two spaces is only this summary's way of saying so.
+                    let sec = &self.sections[*si];
+                    let cov = sec
+                        .coverage
+                        .map(|c| format!("  {}", format_coverage(c)))
+                        .unwrap_or_default();
+                    format!("# {}{cov}", sec.heading.as_deref().unwrap_or(""))
                 }
                 Row::Ellipsis => "\u{2026}".to_string(),
                 Row::Cells { start, len } => self.items[*start..*start + *len]
@@ -809,7 +862,7 @@ impl SpecimenState {
                     px_size: PX_SIZE,
                     label_font: &label_font,
                     label_color: LABEL_COLOR,
-                    undeclared_label_color: UNDECLARED_LABEL_COLOR,
+                    dim_label_color: DIM_LABEL_COLOR,
                     show_metric_marks: self.options.show_metric_marks,
                     raster_font,
                     ctx: ui.ctx(),
@@ -832,6 +885,19 @@ impl SpecimenState {
                                 painter.layout_no_wrap(text, label_font.clone(), HEADING_FG);
                             let ty = y0 + (HEADING_H - galley.size().y) / 2.0;
                             painter.galley(egui::pos2(origin.x + 4.0, ty), galley, HEADING_FG);
+                            // The coverage sits at the far end of the grid, not
+                            // of the allocated rect: the slack to the right of
+                            // the last column is not part of the grid to read.
+                            if let Some(cov) = self.sections[section_idx].coverage {
+                                let galley = painter.layout_no_wrap(
+                                    format_coverage(cov),
+                                    label_font.clone(),
+                                    HEADING_FG,
+                                );
+                                let x = origin.x + grid_width - 4.0 - galley.size().x;
+                                let ty = y0 + (HEADING_H - galley.size().y) / 2.0;
+                                painter.galley(egui::pos2(x, ty), galley, HEADING_FG);
+                            }
                         }
                         Row::Ellipsis => {
                             let galley = painter.layout_no_wrap(
@@ -1055,11 +1121,21 @@ impl SpecimenState {
         let cell_rect = style.cell_rect(cell_min);
         let px_size = style.px_size;
         let ctx = style.ctx;
+
+        let font = style.raster_font.and_then(|b| FontRef::new(b).ok());
+        // Whether the *built font* has anything to show here, which is what
+        // dims the cell. Before the first build there is no font to ask, so
+        // what the source says stands in for it.
+        let has_metrics = match &font {
+            Some(font) => cp_has_metrics(font, cp),
+            None => declared,
+        };
+
         let hex = format!("{cp:04X}");
-        let label_color = if declared {
+        let label_color = if has_metrics {
             style.label_color
         } else {
-            style.undeclared_label_color
+            style.dim_label_color
         };
         let label_galley = painter.layout_no_wrap(hex, style.label_font.clone(), label_color);
         painter.galley(
@@ -1074,14 +1150,14 @@ impl SpecimenState {
         let mut drawn_via_rasterizer = false;
 
         if let Some(font_bytes) = style.raster_font
-            && let Ok(font) = FontRef::new(font_bytes)
+            && let Some(font) = &font
             && let Some(gid) = font.charmap().map(ch)
         {
             drawn_via_rasterizer = self.draw_rasterized_glyph(
                 painter,
                 cell_rect,
                 center,
-                &font,
+                font,
                 font_bytes,
                 gid,
                 is_hovered,
@@ -1094,12 +1170,19 @@ impl SpecimenState {
         // a reasonable stand-in for a glyph the build has not caught up with —
         // but for a character the source declares nothing about it would read
         // as coverage the font does not have, so an undeclared cell stays empty.
+        // It is the font's glyph, not this one, that the cell claims to show,
+        // so a dimmed cell dims it too.
         if !drawn_via_rasterizer && declared {
+            let color = if has_metrics {
+                glyph_color
+            } else {
+                glyph_color.gamma_multiply(DIM_ALPHA)
+            };
             let glyph_font = crate::app::uniform_font_id(ctx, px_size);
-            let glyph_galley = painter.layout_no_wrap(ch.to_string(), glyph_font, glyph_color);
+            let glyph_galley = painter.layout_no_wrap(ch.to_string(), glyph_font, color);
             let glyph_size = glyph_galley.size();
             let pos = egui::pos2(center.0 - glyph_size.x / 2.0, center.1 - glyph_size.y / 2.0);
-            cell_painter(painter, cell_rect, is_hovered).galley(pos, glyph_galley, glyph_color);
+            cell_painter(painter, cell_rect, is_hovered).galley(pos, glyph_galley, color);
         }
     }
 
@@ -1234,6 +1317,34 @@ impl SpecimenState {
     }
 }
 
+/// `12 / 128 (9.4%)` — how much of a block the source covers.
+fn format_coverage((declared, total): (usize, usize)) -> String {
+    let pct = if total == 0 {
+        0.0
+    } else {
+        declared as f32 * 100.0 / total as f32
+    };
+    format!("{declared} / {total} ({pct:.1}%)")
+}
+
+/// Whether the built font has metrics for `cp` — an advance to occupy, or an
+/// outline to draw. False for a character the font has no glyph for at all
+/// (undeclared, or `map`ped to a glyph that does not exist) and for one whose
+/// glyph is an empty grid.
+///
+/// A blank glyph *with* an advance — a space — has metrics: it is a character
+/// the font has, and the cell says so.
+fn cp_has_metrics(font: &FontRef, cp: u32) -> bool {
+    let Some(gid) = char::from_u32(cp).and_then(|ch| font.charmap().map(ch)) else {
+        return false;
+    };
+    let metrics = font.glyph_metrics(Size::unscaled(), LocationRef::default());
+    metrics.advance_width(gid).is_some_and(|w| w > 0.0)
+        || metrics
+            .bounds(gid)
+            .is_some_and(|b| b.x_max > b.x_min && b.y_max > b.y_min)
+}
+
 /// The glyph anchor point of a specimen cell: horizontally centered, nudged
 /// below center to leave room for the codepoint label.
 fn cell_center(cell_min: egui::Pos2) -> (f32, f32) {
@@ -1247,9 +1358,11 @@ struct CellStyle<'a> {
     px_size: f32,
     label_font: &'a egui::FontId,
     label_color: egui::Color32,
-    /// The label color of a character the source declares nothing about: dimmer,
-    /// since the cell is there to show the *hole*, not the character.
-    undeclared_label_color: egui::Color32,
+    /// The label color of a cell the built font has no metrics for — an empty
+    /// glyph, a `map` to a glyph that does not exist, or a character the source
+    /// declares nothing about. Dimmer, since such a cell is there to show the
+    /// *hole*, not the character.
+    dim_label_color: egui::Color32,
     show_metric_marks: bool,
     raster_font: Option<&'a Vec<u8>>,
     ctx: &'a egui::Context,
@@ -1492,17 +1605,56 @@ map U+2200 = sq
     #[test]
     fn grouping_gives_each_block_a_heading_row() {
         let mut state = state(BLOCKS_SRC);
+        state.options.group_by_block = false;
         assert_eq!(state.row_summaries(2), vec!["0041 0042", "2200"]);
 
         state.options.group_by_block = true;
         assert_eq!(
             state.row_summaries(2),
             vec![
-                "# Basic Latin  U+0000..007F",
+                "# Basic Latin  U+0000..007F  2 / 128 (1.6%)",
                 "0041 0042",
-                "# Mathematical Operators  U+2200..22FF",
+                "# Mathematical Operators  U+2200..22FF  1 / 256 (0.4%)",
                 "2200",
             ]
+        );
+    }
+
+    /// The grid opens grouped by block and without the metric marks: the
+    /// headings are what makes a few thousand cells readable, and the marks are
+    /// a detail to turn on for one look, not the resting state.
+    #[test]
+    fn the_grid_opens_grouped_and_unmarked() {
+        let options = SpecimenOptions::default();
+        assert!(options.group_by_block);
+        assert!(!options.show_metric_marks);
+        assert!(!options.show_undeclared);
+    }
+
+    /// A heading's coverage counts the block's *characters*, not its cells:
+    /// the count is the same whether or not the grid is filled, and a block's
+    /// permanent holes are in neither side of the fraction.
+    #[test]
+    fn a_heading_states_its_block_coverage() {
+        // Greek and Coptic (U+0370..03FF) is 144 code points with 9 permanent
+        // holes, so 135 characters.
+        let mut state = state(concat!(
+            "meta height 16\n",
+            "meta ascent 14\n",
+            "meta descent 2\n",
+            "glyph sq 1 1\n",
+            "@@\n",
+            "map U+0370..0372 = sq\n",
+        ));
+        let heading = |s: &mut SpecimenState| s.row_summaries(8)[0].clone();
+        assert_eq!(
+            heading(&mut state),
+            "# Greek and Coptic  U+0370..03FF  3 / 135 (2.2%)"
+        );
+        state.options.show_undeclared = true;
+        assert_eq!(
+            heading(&mut state),
+            "# Greek and Coptic  U+0370..03FF  3 / 135 (2.2%)"
         );
     }
 
@@ -1519,13 +1671,16 @@ map U+2200 = sq
             .collect();
         state.rebuild_if_needed(&docs, &name_parts, &gids, None, 1, 1);
 
+        state.options.group_by_block = false;
         assert_eq!(state.row_summaries(4), vec!["0061 a-lig b-lig"]);
         state.options.group_by_block = true;
         assert_eq!(
             state.row_summaries(4),
             vec![
-                "# Basic Latin  U+0000..007F",
+                "# Basic Latin  U+0000..007F  1 / 128 (0.8%)",
                 "0061",
+                // The remaps have no block, so there is nothing to be a
+                // fraction of.
                 "# Remaps",
                 "a-lig b-lig",
             ]
@@ -1546,18 +1701,89 @@ map U+2200 = sq
             "map U+F0000 = logo\n",
         ));
         state.options.group_by_block = true;
+        // U+F0000 is drawn but no `prop` line states it, so it is a character
+        // the block does not have — see
+        // `a_block_whose_glyphs_outrun_its_characters_states_no_coverage`.
         assert_eq!(
             state.row_summaries(4),
             vec!["# Unison Symbols  U+F0000..F000F", "F0000"]
         );
     }
 
-    /// Filling a Private Use area from `is_assigned` would call all 65,536 code
-    /// points of a plane present, since the UCD assigns every one of them and
-    /// says nothing about any. Only a `prop block` claim, or a `prop` line, is a
-    /// statement that a Private Use character should be there.
+    /// Inside Private Use the `prop` lines are the UCD: the UCD's own `Co` says
+    /// only that the code point is *available*, so a `prop block` claim names an
+    /// area and the `prop` lines in it say which of its characters exist. The
+    /// coverage counts those, not the claim's whole range.
     #[test]
-    fn filling_stops_at_the_edge_of_a_claimed_private_use_area() {
+    fn a_private_use_block_counts_the_characters_its_prop_lines_state() {
+        let mut state = state(concat!(
+            "meta height 16\n",
+            "meta ascent 14\n",
+            "meta descent 2\n",
+            "glyph logo 1 1\n",
+            "@@\n",
+            "prop block `Unison Symbols` = U+F0000..F000F\n",
+            "prop U+F0000 = `UNISON ONE`\n",
+            "prop U+F0001 = `UNISON TWO`\n",
+            "prop U+F0002 = `UNISON THREE`\n",
+            "map U+F0000 = logo\n",
+        ));
+        state.options.group_by_block = true;
+        assert_eq!(
+            state.row_summaries(4)[0],
+            "# Unison Symbols  U+F0000..F000F  1 / 3 (33.3%)"
+        );
+        // Filling shows the stated characters, not the claimed range.
+        state.options.show_undeclared = true;
+        assert_eq!(state.cell_cps(), vec![0xF0000, 0xF0001, 0xF0002]);
+    }
+
+    /// A character the source draws but states no `prop` for is not one of the
+    /// block's characters, so counting it would put the coverage over 100%.
+    /// Rather than a fraction that cannot be read, such a block states none —
+    /// which is the same rule outside Private Use, where a `map` onto one of a
+    /// block's permanent holes is the way to get there.
+    #[test]
+    fn a_block_whose_glyphs_outrun_its_characters_states_no_coverage() {
+        let mut state = state(concat!(
+            "meta height 16\n",
+            "meta ascent 14\n",
+            "meta descent 2\n",
+            "glyph logo 1 1\n",
+            "@@\n",
+            "prop block `Unison Symbols` = U+F0000..F000F\n",
+            "prop U+F0000 = `UNISON ONE`\n",
+            // Drawn, but nothing says this character exists.
+            "map U+F0001 = logo\n",
+            // U+0378 is a permanent hole of Greek and Coptic.
+            "map U+0370 = logo\n",
+            "map U+0378 = logo\n",
+        ));
+        state.options.group_by_block = true;
+        let headings: Vec<String> = state
+            .row_summaries(4)
+            .into_iter()
+            .filter(|r| r.starts_with('#'))
+            .collect();
+        assert_eq!(
+            headings,
+            vec![
+                "# Greek and Coptic  U+0370..03FF",
+                "# Unison Symbols  U+F0000..F000F",
+            ]
+        );
+    }
+
+    /// Filling a block puts a cell on every character it *has*, and the UCD
+    /// says which those are — except in Private Use, where it assigns all
+    /// 137,468 code points and describes none. There, only the source speaks:
+    /// a `map` or a `prop` line is what makes a Private Use character exist,
+    /// and a `prop block` claim names an area without populating it. Filling
+    /// from the claim instead used to put 256 mostly-empty cells on the grid
+    /// per claimed block, which is exactly the unassigned bulk that filling
+    /// leaves out everywhere else.
+    #[test]
+    fn filling_never_invents_a_private_use_character() {
         let mut state = state(concat!(
             "meta height 16\n",
             "meta ascent 14\n",
@@ -1573,11 +1799,7 @@ map U+2200 = sq
             "prop U+F1001 = `UNISON SPARE`\n",
         ));
         state.options.show_undeclared = true;
-        // The claimed area fills, holes and all; the plane around it does not.
-        assert_eq!(
-            state.cell_cps(),
-            vec![0xF0000, 0xF0001, 0xF0002, 0xF0003, 0xF1000, 0xF1001]
-        );
+        assert_eq!(state.cell_cps(), vec![0xF0000, 0xF1000, 0xF1001]);
     }
 
     /// "Show undeclared characters" fills every block that has a mapped
@@ -1628,6 +1850,7 @@ map U+2200 = sq
         // hiding exists to make a filled grid readable, and the grid is not
         // filled here.
         let mut state = state(src);
+        state.options.group_by_block = false;
         state.options.show_undeclared = false;
         assert_eq!(state.row_summaries(2), vec!["0041"]);
 
@@ -1686,7 +1909,10 @@ map U+2200 = sq
         let rows = state.row_summaries(8);
         assert_eq!(
             &rows[rows.len() - 2..],
-            ["# Mathematical Operators  U+2200..22FF", "\u{2026}"]
+            [
+                "# Mathematical Operators  U+2200..22FF  1 / 256 (0.4%)",
+                "\u{2026}"
+            ]
         );
     }
 
@@ -1704,6 +1930,36 @@ map U+2200 = sq
             .collect();
         assert!(by_cp[&0x41]);
         assert!(!by_cp[&0x40]);
+    }
+
+    /// A cell is dimmed when the built font draws nothing for it — an empty
+    /// grid, a `map` to a glyph that does not exist, or a character the source
+    /// declares nothing about. A blank glyph with an advance is *not* one of
+    /// those: a space is a character the font has.
+    #[test]
+    fn a_cell_with_no_metrics_is_the_one_the_font_draws_nothing_for() {
+        let d = doc(concat!(
+            "meta height 16\n",
+            "meta ascent 14\n",
+            "meta descent 2\n",
+            "glyph sq 1 1\n",
+            "@@\n",
+            "glyph sp 8 16\n",
+            "glyph nothing 0 0\n",
+            "map U+0041 = sq\n",
+            "map U+0020 = sp\n",
+            "map U+0042 = nothing\n",
+            "map U+0043 = absent\n",
+        ));
+        let bytes = crate::render::ttf_builder::build_font_from_documents(&[&d]).unwrap();
+        let font = FontRef::new(&bytes).unwrap();
+        assert!(cp_has_metrics(&font, 0x41));
+        // A space is blank, but it is a character with a width.
+        assert!(cp_has_metrics(&font, 0x20));
+        // An empty grid, a `map` to nothing, and an undeclared character.
+        assert!(!cp_has_metrics(&font, 0x42));
+        assert!(!cp_has_metrics(&font, 0x43));
+        assert!(!cp_has_metrics(&font, 0x44));
     }
 
     /// A slice-qualified `map` substitutes with *that slice's* name parts, so
