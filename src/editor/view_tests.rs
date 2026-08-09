@@ -2941,9 +2941,10 @@ fn codepoint_popup_reports_the_unicode_name() {
     );
 }
 
-/// Two commits in a row set an arithmetic step, and the third popup opens with
-/// the next term of that sequence already filled in — and pre-selected, so the
-/// first keystroke replaces it instead of appending to it.
+/// Every popup after the first opens on the code point *after* the last one
+/// committed — and pre-selected, so the first keystroke replaces it instead of
+/// appending to it. A commit that jumped elsewhere does not make the next guess
+/// jump too.
 #[test]
 fn codepoint_popup_predicts_the_next_code_point() {
     let mut h = EditorHarness::new("meta name Test\n");
@@ -2962,7 +2963,7 @@ fn codepoint_popup_predicts_the_next_code_point() {
     h.key(Key::Enter);
     h.frame();
 
-    // With one code point recorded the step is assumed to be one.
+    // With one code point recorded the guess is the one after it.
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
     assert_eq!(
@@ -2982,18 +2983,19 @@ fn codepoint_popup_predicts_the_next_code_point() {
     h.key(Key::Enter);
     h.frame();
 
-    // U+2600 then U+2604: the step is four.
+    // The jump from U+2600 to U+2604 is not extrapolated: the next guess is
+    // still just one past the last commit.
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
     assert_eq!(
         h.state
             .codepoint_status(&crate::ucd::CharProps::default())
             .as_deref(),
-        Some("U+2608  THUNDERSTORM {gc=So eaw=N}")
+        Some("U+2605  BLACK STAR {gc=So eaw=A}")
     );
     h.key(Key::Enter);
     h.frame();
-    assert_eq!(h.text(0), "meta name Test\u{2600}\u{2604}\u{2608}");
+    assert_eq!(h.text(0), "meta name Test\u{2600}\u{2604}\u{2605}");
 }
 
 /// A cancelled popup records nothing, so the guess it was seeded with is still
@@ -3029,15 +3031,13 @@ fn codepoint_popup_cancel_does_not_move_the_prediction() {
 fn codepoint_popup_drops_a_prediction_off_the_end() {
     let mut h = EditorHarness::new("meta name Test\n");
     h.click_text(0, 14);
-    for hex in ["10F000", "10FF00"] {
-        h.key_mod(Key::K, Modifiers::CTRL);
-        h.frame();
-        h.type_text(hex);
-        h.key(Key::Enter);
-        h.frame();
-    }
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("10FFFF");
+    h.key(Key::Enter);
+    h.frame();
 
-    // The next term would be U+110E00, past the last code point.
+    // The next code point would be U+110000, past the last one there is.
     h.key_mod(Key::K, Modifiers::CTRL);
     h.frame();
     assert_eq!(

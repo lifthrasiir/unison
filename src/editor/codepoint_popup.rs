@@ -18,9 +18,9 @@
 //!   shows that name while the digits are being typed.
 //!
 //! The field does not open empty once anything has been typed through it:
-//! [`CodepointPrediction`] extrapolates the next code point from the last two
-//! committed, and the popup opens on that guess with it selected, so Enter
-//! takes it and any digit replaces it.
+//! [`CodepointPrediction`] offers the code point after the last one committed,
+//! and the popup opens on that guess with it selected, so Enter takes it and
+//! any digit replaces it.
 //!
 //! The predecessor was Alt (Option on macOS) held down over hex keys. It could
 //! not survive macOS: with an IME allowed, `Option+E` is a dead key, so AppKit
@@ -44,45 +44,36 @@ pub struct CodepointPopup {
 }
 
 /// The guess the *next* popup opens with. Entering code points is usually
-/// walking a block, so the last two committed values `a`, `b` are extrapolated
-/// to `b + (b - a)` — one popup's worth of state, kept by the host beside the
-/// buffer it types into, not globally.
+/// walking a block, so the guess is simply the one after the last committed —
+/// one popup's worth of state, kept by the host beside the buffer it types
+/// into, not globally.
 ///
-/// Three rules keep the guess from ever being noise:
+/// The guess is deliberately not extrapolated from a longer history: a step
+/// inferred from two earlier commits is right often enough to be trusted and
+/// wrong often enough to mislead, and a wrong seed costs more than an empty
+/// field. Two rules follow:
 ///
 /// - with nothing committed yet there is no guess, so the field starts empty;
-/// - with one value committed the step is assumed to be `1`, which is the
-///   common case (`a = b - 1`);
-/// - a guess that is not a code point — past `U+10FFFF`, a surrogate, below
-///   zero — resets the whole thing to the initial state rather than being
-///   clamped, since a sequence that ran off the end says nothing about what is
-///   typed next.
+/// - a successor that is not a code point — a surrogate, or past `U+10FFFF` —
+///   is no guess either, so the field starts empty rather than skipping to a
+///   nearby value.
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct CodepointPrediction {
-    /// The code point committed before [`Self::last`]; `None` until two have
-    /// been.
-    prev: Option<u32>,
     last: Option<u32>,
 }
 
 impl CodepointPrediction {
     /// What the next code point is guessed to be, if anything.
     pub(crate) fn predicted(&self) -> Option<char> {
-        let b = i64::from(self.last?);
-        let a = self.prev.map_or(b - 1, i64::from);
         // `char::from_u32` is the whole range check: it rejects surrogates and
-        // anything past U+10FFFF, and `try_from` rejects a negative step.
-        u32::try_from(b + (b - a)).ok().and_then(char::from_u32)
+        // anything past U+10FFFF.
+        char::from_u32(self.last? + 1)
     }
 
     /// Records a committed code point. Only a commit moves the sequence on: a
     /// cancelled popup leaves the next one seeded exactly as this one was.
     pub(crate) fn record(&mut self, ch: char) {
-        self.prev = self.last;
         self.last = Some(ch as u32);
-        if self.predicted().is_none() {
-            *self = Self::default();
-        }
     }
 }
 
@@ -317,15 +308,14 @@ mod tests {
         p.predicted()
     }
 
-    /// Nothing committed guesses nothing; one value assumes a step of one; two
-    /// extrapolate the step between them.
+    /// Nothing committed guesses nothing; otherwise the guess is always the
+    /// code point after the last one committed, however that one was reached.
     #[test]
-    fn the_prediction_extrapolates_the_last_two_commits() {
+    fn the_prediction_is_the_code_point_after_the_last_commit() {
         assert_eq!(after(&[]), None);
         assert_eq!(after(&['\u{2600}']), Some('\u{2601}'));
-        assert_eq!(after(&['\u{2600}', '\u{2604}']), Some('\u{2608}'));
-        // Only the last two count, and the step may run backwards.
-        assert_eq!(after(&['\u{41}', '\u{2610}', '\u{2608}']), Some('\u{2600}'));
+        assert_eq!(after(&['\u{2600}', '\u{2604}']), Some('\u{2605}'));
+        assert_eq!(after(&['\u{41}', '\u{2610}', '\u{2608}']), Some('\u{2609}'));
     }
 
     /// A seeded popup starts on its guess, padded the way the status line pads
@@ -338,23 +328,15 @@ mod tests {
         assert_eq!(CodepointPopup::seeded(None).hex, "");
     }
 
-    /// The three ways a guess can fail to be a code point all put the state
-    /// back to guessing nothing, rather than clamping to a nearby value.
+    /// The two ways the next code point is not one: the last one before the
+    /// surrogate block, and the last one there is. Both guess nothing rather
+    /// than skipping to a nearby value.
     #[test]
-    fn an_impossible_prediction_resets_the_state() {
-        // Into the surrogate block.
-        assert_eq!(after(&['\u{D7F0}', '\u{D7F8}']), None);
-        // Past the last code point.
-        assert_eq!(after(&['\u{10F000}', '\u{10FF00}']), None);
-        // Below zero.
-        assert_eq!(after(&['\u{10}', '\u{5}']), None);
-        // And the reset is a real reset: the next commit starts over at
-        // step one instead of extrapolating from the dropped pair.
-        let mut p = CodepointPrediction::default();
-        for ch in ['\u{10}', '\u{5}', '\u{2600}'] {
-            p.record(ch);
-        }
-        assert_eq!(p.predicted(), Some('\u{2601}'));
+    fn an_impossible_prediction_guesses_nothing() {
+        assert_eq!(after(&['\u{D7FF}']), None);
+        assert_eq!(after(&['\u{10FFFF}']), None);
+        // Guessing nothing once says nothing about the next commit.
+        assert_eq!(after(&['\u{10FFFF}', '\u{2600}']), Some('\u{2601}'));
     }
 
     /// A code point with no name at all — a private-use character — still
