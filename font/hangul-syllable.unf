@@ -7,7 +7,8 @@
 // and assigned a correct advance to get those glyphs overlaid.
 // (16px for initials, 0px for medials and finals)
 // since their advances should be separately recorded from representatives,
-// both sets of glyphs are marked sticky.
+// both sets are glyphs of their own; the `hangul-[lvt]jmo` remaps below name
+// them, which is what keeps them in the font.
 
 name-parts $hangul-modern-init = g gg n d dd r m b bb s ss 0 j jj c k t p h
 name-parts $hangul-ancient-init-1 = ng nn nd nb dg rn rr rh l mb w bg bn bd bs bsg bsd bsb bss bsj bj bc bt bp v vv sg sn sd sr sm sb sbg sss s0 sj sc sk st sp sh _s _ss s_ ss_ z 0g 0d 0m 0b 0s 0z 00 0j 0c 0t 0p q j0 _j _jj j_ jj_ ck ch _c c_ pb f hh x gd ns nj nh dr
@@ -6604,33 +6605,33 @@ glyph hangul-fin-($hangul-fin) advance 0
 ref hangul-fin-($hangul-fin)-w -16 0
 
 // combining jamo variants
-glyph hangul-init- sticky
+glyph hangul-init-
 ref wsp
-glyph hangul-init-comb-($hangul-init)-l-nof sticky
+glyph hangul-init-comb-($hangul-init)-l-nof
 ref hangul-init-($hangul-init)-l-nof
-glyph hangul-init-comb-($hangul-init)-l-f sticky
+glyph hangul-init-comb-($hangul-init)-l-f
 ref hangul-init-($hangul-init)-l-f
-glyph hangul-init-comb-($hangul-init)-tl-nof sticky
+glyph hangul-init-comb-($hangul-init)-tl-nof
 ref hangul-init-($hangul-init)-tl-nof
-glyph hangul-init-comb-($hangul-init)-tl-f sticky
+glyph hangul-init-comb-($hangul-init)-tl-f
 ref hangul-init-($hangul-init)-tl-f
-glyph hangul-init-comb-($hangul-init)-t-nof sticky
+glyph hangul-init-comb-($hangul-init)-t-nof
 ref hangul-init-($hangul-init)-t-nof
-glyph hangul-init-comb-($hangul-init)-t-f sticky
+glyph hangul-init-comb-($hangul-init)-t-f
 ref hangul-init-($hangul-init)-t-f
-glyph hangul-med- sticky advance 0
+glyph hangul-med- advance 0
 ref wsp
-glyph hangul-med-comb--(nof|f) sticky advance 0
+glyph hangul-med-comb--(nof|f) advance 0
 ref wsp
-glyph hangul-med-comb-($hangul-med)-nof sticky advance 0
+glyph hangul-med-comb-($hangul-med)-nof advance 0
 ref hangul-med-($hangul-med)-nof -16 0
-glyph hangul-med-comb-($hangul-med)-f sticky advance 0
+glyph hangul-med-comb-($hangul-med)-f advance 0
 ref hangul-med-($hangul-med)-f -16 0
-glyph hangul-fin-comb-($hangul-fin)-l sticky advance 0
+glyph hangul-fin-comb-($hangul-fin)-l advance 0
 ref hangul-fin-($hangul-fin)-l -16 0
-glyph hangul-fin-comb-($hangul-fin)-w sticky advance 0
+glyph hangul-fin-comb-($hangul-fin)-w advance 0
 ref hangul-fin-($hangul-fin)-w -16 0
-glyph hangul-fin-comb-($hangul-fin)-r sticky advance 0
+glyph hangul-fin-comb-($hangul-fin)-r advance 0
 ref hangul-fin-($hangul-fin)-r -16 0
 
 // fillers are spacing but should be different for the purpose of GSUB

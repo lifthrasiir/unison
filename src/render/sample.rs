@@ -1821,7 +1821,7 @@ map generate ä
 
     #[test]
     fn sample_composite_survives_gridless_ref() {
-        // A ref to a glyph with no raster grid (a `sticky` placeholder, or a
+        // A ref to a glyph with no raster grid (a `keep` placeholder, or a
         // composite that fell back to empty) used to abort the *whole*
         // composite in the simple no-own-pixels branch (`sg.as_ref()?`),
         // rendering it empty — while the TTF builder skips just that ref's
@@ -1832,7 +1832,7 @@ meta height 16
 meta ascent 12
 meta descent 4
 
-glyph placeholder sticky
+glyph placeholder keep
 
 glyph part 2 2
 @@@@

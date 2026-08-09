@@ -272,7 +272,7 @@ ref wide 1 0
 anchor -join 0 0
 anchor +join 2 0
 
-glyph sticky-empty sticky advance 0
+glyph keep-empty keep advance 0
 
 map A = stem
 map B = wide

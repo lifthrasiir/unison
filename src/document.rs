@@ -734,7 +734,7 @@ pub struct GlyphBody {
     pub pixels: Option<PixelGrid>,
     pub refs: Vec<GlyphRef>,
     pub points: Vec<GlyphPoint>,
-    pub sticky: bool,
+    pub keep: bool,
     pub inline: bool,
     pub mark: bool,
     /// `refonly`: the pixel grid is bitmap ink only. The vector build of the
@@ -756,7 +756,7 @@ impl GlyphBody {
             pixels: None,
             refs: Vec::new(),
             points: Vec::new(),
-            sticky: false,
+            keep: false,
             inline: false,
             mark: false,
             refonly: false,

@@ -34,8 +34,13 @@ with `file:line:` locations. Warnings do not stop the build, so a font that buil
 necessarily a font without complaints — read the report.
 
 A glyph only reaches the output font if something asks for it: a `map`, a `ref` from a glyph that
-is itself reachable, a `remap` operand, or the `sticky` flag. Unreachable glyphs are dropped and
+is itself reachable, a `remap` operand, or the `keep` flag. Unreachable glyphs are dropped and
 reported as unused.
+
+The one glyph nothing has to ask for is `.notdef`, which is what a renderer draws for a character
+the font does not cover. TrueType reserves the font's first glyph slot for it, so a project that
+defines `glyph .notdef` gets that drawing there — kept as if it said `keep`, since nothing in the
+source is ever going to name it. A project that defines none gets a blank glyph in that slot.
 
 ### Typefaces and Slices
 
@@ -214,7 +219,7 @@ glyphs whose attachment anchor lives only on an alternative. The two paths are m
 precomposed glyph and its decomposed input should shape to the same picture.
 
 Alternatives are pulled into the font automatically when a feature needs them, so they do not have
-to be mapped or marked `sticky` to survive.
+to be mapped or marked `keep` to survive.
 
 ### Anchor Inheritance
 
@@ -397,7 +402,7 @@ glyph a-upper 8 16
 ```
 
 If every cell is empty the rows may be omitted entirely, which is how a blank glyph like
-`glyph sp 8 16 sticky` is written.
+`glyph sp 8 16` is written.
 
 Every other character pair names a *sub-pixel shape*: a piece of the cell, described exactly, that
 the outline build traces as geometry. Each shape has two spellings, differing in whether the cell is
@@ -858,8 +863,10 @@ refs — the grid is drawn at offset (0, 0) and the refs on top of it.
 
 Flags may appear in any order, before or after the dimensions:
 
-* `sticky` — keep the glyph in the font even though nothing maps or references it, and do not warn
-  about it being unused. Placeholder and spacing glyphs need this.
+* `keep` — put the glyph in the font whether or not anything asks for it, and do not warn about it
+  being unused. A glyph that is mapped, named in a `remap` or used as a component is kept anyway, so
+  this is for one that is reached by none of those and still has to exist. It is also the only way
+  to declare a glyph with no body at all — see below.
 * `inline` — never emit the glyph as a TrueType composite component; users of it get its contours
   copied in. Small shared fragments that are not glyphs in their own right (`dia-narrow`,
   `acute-left`) are declared this way.
@@ -878,6 +885,17 @@ A glyph needs a pixel grid or at least one `ref` to exist at all. `advance`, `le
 `anchor` do not make one buildable, and a glyph with none of the two never enters the font:
 referring to it from a `map`, `ref` or `remap` is an error. For a deliberately blank glyph, use
 `ref sp`, or declare dimensions and omit the rows.
+
+`keep` is the exception. A glyph with the flag and no body at all is built as an empty outline that
+carries nothing but its `anchor`s, and referring to it is fine:
+
+```
+glyph join-point keep
+anchor +join 4 8
+```
+
+This is a placeholder: something for other glyphs to attach to, or a name to hold a slot in a
+`remap`, without any drawing of its own.
 
 A glyph whose name is a pattern is expanded into one glyph per name, in lock-step with the patterns
 in its `ref` lines. Such a glyph cannot carry a pixel grid — a grid cannot be shared across
@@ -1190,8 +1208,8 @@ Silences the unused-glyph warning for the named glyphs, which accept name patter
 assume unused placeholder-(8|16)
 ```
 
-Unlike `sticky`, this does not keep the glyph in the font; it only says that its absence is
-intentional. Use `sticky` for a glyph that must be present, and `assume unused` for one that exists
+Unlike `keep`, this does not keep the glyph in the font; it only says that its absence is
+intentional. Use `keep` for a glyph that must be present, and `assume unused` for one that exists
 for documentation, for a test, or as raw material for something else.
 
 ## On-demand Glyphs

@@ -137,7 +137,7 @@
 //!
 //! # Glyph blocks
 //!
-//! `glyph NAME [W H] [flags...]`, with flags `sticky`, `inline`, `mark`,
+//! `glyph NAME [W H] [flags...]`, with flags `keep`, `inline`, `mark`,
 //! `refonly`, `advance N`, `left N`, `top N` and `scale N` (the per-glyph
 //! sub-pixel detail resolution: the grid is N× finer, and `document_io`
 //! multiplies the declared dimensions by it but not the other flags).
@@ -150,6 +150,15 @@
 //!   glyph's dimensions in both. With refs to on-demand `:zero` shapes — which
 //!   are the mirror case, geometry that lights no pixel — the two faces become
 //!   fully independent drawings. See [`crate::render::ttf_builder`].
+//! - `keep` puts the glyph in the font whether or not anything reaches it. A
+//!   glyph normally survives only by being mapped, named in a `remap`, or used
+//!   as a composite component, and one nothing reaches is dropped and warned
+//!   about as unused; `keep` says the glyph is wanted anyway, and silences that
+//!   warning. It is also the one way to write a glyph with **no body at all**
+//!   (no grid, no `ref`): such a glyph is built as an empty outline carrying
+//!   only its `anchor`s, where a contentless glyph without `keep` is not built
+//!   and every use of it is an error. `.notdef` is kept without saying so —
+//!   see [`crate::render::ttf_builder`].
 //! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly] [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from
 //!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
@@ -515,7 +524,7 @@ pub struct GlyphHeaderDims {
 /// Glyph header flags/dimensions, as parsed by [`parse_glyph_flag_parts`].
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct GlyphHeaderFlags {
-    pub sticky: bool,
+    pub keep: bool,
     pub inline: bool,
     pub mark: bool,
     pub refonly: bool,
@@ -531,7 +540,7 @@ pub struct GlyphHeaderFlags {
 /// name, with any `= ALIAS` part already stripped).
 ///
 /// This is the single implementation of the header flag grammar: keyword
-/// flags (`sticky`, `inline`, `mark`, `refonly`), valued flags (`advance N`,
+/// flags (`keep`, `inline`, `mark`, `refonly`), valued flags (`advance N`,
 /// `left N`, `top N`) and the `W H` dimension pair may appear in any order. It is
 /// shared by `derive_document` and [`glyph_header_dims`] so that the
 /// document model and grid reconciliation can never disagree about whether
@@ -541,7 +550,7 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
 }
 
 const GLYPH_FLAG_KEYWORDS: [&str; 8] = [
-    "sticky", "inline", "mark", "refonly", "advance", "left", "top", "scale",
+    "keep", "inline", "mark", "refonly", "advance", "left", "top", "scale",
 ];
 
 /// The one walker behind both the lenient parse and the strict validation.
@@ -555,7 +564,7 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
     let mut fp = 0;
     while fp < flag_parts.len() {
         match flag_parts[fp].as_ref() {
-            "sticky" => flags.sticky = true,
+            "keep" => flags.keep = true,
             "inline" => flags.inline = true,
             "mark" => flags.mark = true,
             "refonly" => flags.refonly = true,
@@ -618,7 +627,7 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
 /// dimensions.
 ///
 /// Returns `None` for ref-only headers (`glyph NAME`) or simple aliases
-/// (`glyph NAME = ALIAS`). Handles keyword flags like `sticky`, `advance N`,
+/// (`glyph NAME = ALIAS`). Handles keyword flags like `keep`, `advance N`,
 /// `left N` appearing before or after `W H`.
 pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> {
     if parts.is_empty() {
@@ -911,8 +920,8 @@ pub fn encode_grid_row(grid: &PixelGrid, row: u16) -> String {
 #[cfg(any(feature = "editor", test))]
 fn format_glyph_flags(body: &GlyphBody) -> String {
     let mut flags = String::new();
-    if body.sticky {
-        flags.push_str(" sticky");
+    if body.keep {
+        flags.push_str(" keep");
     }
     if body.inline {
         flags.push_str(" inline");
@@ -1199,7 +1208,7 @@ pub fn derive_document(
                         let mut body = GlyphBody::new();
                         body.comment = comment;
                         let flags = parse_glyph_flag_parts(rest_parts);
-                        body.sticky = flags.sticky;
+                        body.keep = flags.keep;
                         body.inline = flags.inline;
                         body.mark = flags.mark;
                         body.refonly = flags.refonly;

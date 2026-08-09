@@ -493,7 +493,7 @@ pub type NamePartsMap = HashMap<String, Vec<String>>;
 /// substituted, then the resulting pattern expanded.
 ///
 /// This is the one operation `remap` operands, `assume unused` arguments and
-/// sticky/mark roots all need, and it is what the GSUB builder applies to
+/// `keep`/`mark` roots all need, and it is what the GSUB builder applies to
 /// remap operands — validation has to expand them exactly the same way or it
 /// checks names the font never looks up. A name whose pattern does not expand
 /// is returned as-is; the malformed pattern is reported elsewhere.

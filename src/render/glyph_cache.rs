@@ -122,8 +122,8 @@ pub(crate) fn build_alt_index<V: CachedGlyphEntry>(
 
 /// Seeds the cache from expanded document items: pixel-only glyphs enter
 /// directly via `from_grid` (which is told whether the glyph is `refonly`),
-/// glyphs with refs (or pixels alongside refs) become pending, and sticky
-/// placeholder glyphs enter as `empty` entries that only carry anchors.
+/// glyphs with refs (or pixels alongside refs) become pending, and bodiless
+/// `keep` placeholders enter as `empty` entries that only carry anchors.
 ///
 /// `from_grid` is where the font build traces contours, so `cancel` is checked
 /// every [`CANCEL_STRIDE`] items; a cancelled seeding returns whatever it had
@@ -164,7 +164,7 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
                     scale: body.scale,
                     refonly: body.refonly,
                 });
-            } else if body.sticky {
+            } else if body.keep {
                 let mut cached = empty();
                 cached.set_resolution(body.points.clone(), 1);
                 cache.insert(cache_key, cached);

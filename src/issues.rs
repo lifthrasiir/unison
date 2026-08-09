@@ -586,7 +586,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
                     if body.pixels.is_none()
                         && body.refs.is_empty()
-                        && !body.sticky
+                        && !body.keep
                         && body.advance.is_none()
                         && body.left.is_none()
                         && body.points.is_empty()
@@ -1070,7 +1070,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         name: GlyphName(n),
                         body,
                     } => {
-                        if body.sticky || body.mark {
+                        if body.keep || body.mark {
                             root_names.extend(expand_name_element(n, name_parts));
                         }
                     }
@@ -2388,37 +2388,59 @@ glyph stem:wide 2 1
         );
     }
 
+    /// `keep` says the glyph is wanted whether or not anything reaches it, so
+    /// the unused warning — which exists to find glyphs nothing reaches — must
+    /// stay quiet for one, whether it has a body or not.
     #[test]
-    fn sticky_glyph_not_reported_unused() {
-        let input = "glyph keep sticky advance 0\n";
+    fn kept_glyph_not_reported_unused() {
+        for input in [
+            "glyph held keep advance 0\n",
+            "glyph held 2 1 keep\n@@..\n",
+            "glyph held keep\nanchor +join 0 0\n",
+        ] {
+            let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+            let issues = collect_issues(&[&doc]);
+            assert!(
+                !issues.iter().any(|i| i.message.contains("is unused")),
+                "a kept glyph is never unused, for {input:?}: {issues:?}",
+            );
+        }
+    }
+
+    /// `.notdef` is kept without saying `keep`: it is the glyph a renderer
+    /// draws for an uncovered character, so nothing in the source names it and
+    /// the unused warning would fire on every font that draws one.
+    #[test]
+    fn notdef_not_reported_unused_without_keep() {
+        let input = "glyph .notdef 2 1\n@@..\nglyph a 2 1\n..@@\nmap A = a\n";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
             !issues.iter().any(|i| i.message.contains("is unused")),
-            "sticky glyph should not be unused: {issues:?}",
+            ".notdef is kept automatically: {issues:?}",
         );
     }
 
     #[test]
-    fn ref_to_bodiless_sticky_glyph_not_reported_unbuilt() {
-        // A dimension-less `glyph NAME sticky` is a placeholder that *is*
+    fn ref_to_bodiless_kept_glyph_not_reported_unbuilt() {
+        // A dimension-less `glyph NAME keep` is a placeholder that *is*
         // built (an empty anchor-carrying entry, see `glyph_cache::seed_cache`)
         // and is exempt from the "has no content" warning above; the
         // expansion's "is not built" error must exempt it the same way.
         let input = "\
-glyph keep sticky
+glyph held keep
 anchor +join 0 0
 
 glyph user 2 1
 @@..
-ref keep
+ref held
 map A = user
 ";
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
             !issues.iter().any(|i| i.message.contains("not built")),
-            "sticky placeholder is built; a ref to it is fine: {issues:?}",
+            "keep placeholder is built; a ref to it is fine: {issues:?}",
         );
     }
 

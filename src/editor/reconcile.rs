@@ -141,7 +141,7 @@ mod tests {
     fn parse_header_dims_basic() {
         assert_eq!(parse_glyph_header_dims("glyph foo 8 16"), Some((8, 16)));
         assert_eq!(
-            parse_glyph_header_dims("glyph foo 8 16 sticky"),
+            parse_glyph_header_dims("glyph foo 8 16 keep"),
             Some((8, 16))
         );
         assert_eq!(parse_glyph_header_dims("glyph uni0041 = test"), None);

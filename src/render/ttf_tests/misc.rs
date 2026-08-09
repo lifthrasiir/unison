@@ -524,15 +524,15 @@ fn notdef_is_kept_although_nothing_names_it() {
 }
 
 #[test]
-fn unmapped_empty_sticky_glyph_is_retained() {
+fn unmapped_empty_kept_glyph_is_retained() {
     let doc =
-        document_io::parse_document_from_str("glyph keep sticky advance 0\n", "test.unf".into())
+        document_io::parse_document_from_str("glyph held keep advance 0\n", "test.unf".into())
             .unwrap();
     let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
-    let keep = glyphs.iter().find(|glyph| glyph.name == "keep").unwrap();
-    assert!(keep.codepoints.is_empty());
-    assert_eq!(keep.advance_width, 0);
-    assert!(keep.contours.is_empty());
+    let held = glyphs.iter().find(|glyph| glyph.name == "held").unwrap();
+    assert!(held.codepoints.is_empty());
+    assert_eq!(held.advance_width, 0);
+    assert!(held.contours.is_empty());
 }
 
 #[test]

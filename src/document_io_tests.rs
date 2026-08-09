@@ -34,7 +34,7 @@ fn header_dims_match_derive_for_valued_flags() {
         })
     );
 
-    let dims = glyph_header_dims(&["foo", "sticky", "4", "3"]);
+    let dims = glyph_header_dims(&["foo", "keep", "4", "3"]);
     assert_eq!(
         dims,
         Some(GlyphHeaderDims {
@@ -740,7 +740,7 @@ anchor +join 2 0
 glyph batch
 ref stem-(a|b)
 
-glyph sticky-empty sticky advance 0
+glyph keep-empty keep advance 0
 
 map A = stem
 map B = wide
@@ -776,11 +776,11 @@ fn strict_parse_accepts_valid_glyph_headers() {
     for input in [
         "glyph foo\n",
         "glyph foo 2 1\n..@@\n",
-        "glyph foo sticky\n",
-        "glyph foo 2 1 sticky\n..@@\n",
+        "glyph foo keep\n",
+        "glyph foo 2 1 keep\n..@@\n",
         "glyph foo advance 5\n",
         "glyph foo left -1\n",
-        "glyph foo 2 1 sticky advance 5 left -1\n..@@\n",
+        "glyph foo 2 1 keep advance 5 left -1\n..@@\n",
         "glyph foo 2 1 refonly\n..@@\n",
         "glyph foo refonly 2 1\n..@@\n",
         "glyph foo = bar\n",
@@ -830,7 +830,7 @@ fn refonly_header_owns_its_pixel_grid_and_round_trips() {
 #[test]
 fn strict_parse_rejects_flags_on_an_alias() {
     for input in [
-        "glyph foo sticky = bar\n",
+        "glyph foo keep = bar\n",
         "glyph foo advance 5 = bar\n",
         "glyph foo refonly = bar\n",
         "glyph foo 2 1 = bar\n",

@@ -8,7 +8,7 @@
 //! It used to mean `glyph A` + `ref B`: a distinct glyph whose only content was
 //! a full-size reference to another. That is a different font — two glyph ids
 //! with identical outlines — and in every remaining use in `font/` it was the
-//! alias that was meant. The old form also accepted the glyph flags (`sticky`,
+//! alias that was meant. The old form also accepted the glyph flags (`keep`,
 //! `advance N`, …), which only made sense for a real glyph; they are a parse
 //! error now, and a glyph that needs any of them is written in block form with
 //! `ref TARGET` instead.

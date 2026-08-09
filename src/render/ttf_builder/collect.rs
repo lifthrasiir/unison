@@ -492,7 +492,7 @@ pub(super) fn collect_glyph_data_with_shared(
             name: GlyphName(name),
             body,
         } = item
-            && (body.sticky || name == NOTDEF)
+            && (body.keep || name == NOTDEF)
             && !seen_names.contains(name)
         {
             extra_name_set.insert(name.clone());

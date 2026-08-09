@@ -911,7 +911,7 @@ meta height 16
 meta ascent 12
 meta descent 4
 
-glyph blank 8 16 sticky
+glyph blank 8 16 keep
 
 glyph solid 8 16
 {solid_rows}

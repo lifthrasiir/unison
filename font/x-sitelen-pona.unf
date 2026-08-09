@@ -3473,13 +3473,13 @@ assert shape 󱤑󱥍󱦗󱥺󱤢󱦘 : tok-jan : tok-long-pi : tok-oko : tok-lo
 //--------------------------------------
 // compatibility
 
-glyph tok-cart-cont-compat sticky advance 0 left -16
+glyph tok-cart-cont-compat advance 0 left -16
 ref tok-cart-cont
 
-glyph tok-long-pi-compat sticky
+glyph tok-long-pi-compat
 ref tok-long-pi
 
-glyph tok-long-pi-cont-compat sticky advance 0 left -16
+glyph tok-long-pi-cont-compat advance 0 left -16
 ref tok-long-pi-cont
 
 map U+F1992 = tok-cart-cont-compat
