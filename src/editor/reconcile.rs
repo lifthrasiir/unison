@@ -71,9 +71,19 @@ pub fn reconcile(lines: &mut Vec<DocLine>, undo: &mut UndoStack, caret: Caret) -
                     if parse_glyph_header_dims(t).is_some());
 
             if !valid_header {
-                let rows: Vec<DocLine> = (0..g.height)
-                    .map(|r| DocLine::Text(encode_grid_row(g, r)))
-                    .collect();
+                // An all-empty grid was never text in the file: the parser
+                // hands every dimensioned header a grid of its own, empty when
+                // no pixel rows followed it, and the serializer writes none
+                // back. Demoting one would *create* rows of blank pixel text
+                // that nothing ever wrote — when a `glyph foo 16 16` with only
+                // `ref` lines loses its dimensions, the grid just goes away.
+                let rows: Vec<DocLine> = if g.is_all_empty() {
+                    Vec::new()
+                } else {
+                    (0..g.height)
+                        .map(|r| DocLine::Text(encode_grid_row(g, r)))
+                        .collect()
+                };
                 let caret_after = caret_after_splice(caret, i, 1, rows.len());
                 undo.break_coalesce();
                 undo.push_derived_lines(
@@ -282,6 +292,24 @@ mod tests {
         let redo_caret = undo.redo(&mut lines).unwrap();
         assert_eq!(redo_caret, c(3, 4));
         assert_eq!(lines[3], text("// caret stays here"));
+    }
+
+    #[test]
+    fn reconcile_drops_orphan_empty_grid() {
+        // `glyph foo 4 4` / `ref bar` after the dimensions were deleted: the
+        // empty grid the parser attached to the header must disappear, not
+        // demote to four rows of blank pixel text.
+        let mut lines = vec![text("glyph foo"), grid(4, 4), text("ref bar")];
+        let mut undo = UndoStack::new();
+
+        let caret_after = reconcile(&mut lines, &mut undo, c(2, 3)).unwrap();
+        assert_eq!(lines, vec![text("glyph foo"), text("ref bar")]);
+        assert_eq!(caret_after, c(1, 3));
+        assert!(reconcile(&mut lines, &mut undo, caret_after).is_none());
+
+        let undo_caret = undo.undo(&mut lines).unwrap();
+        assert_eq!(undo_caret, c(2, 3));
+        assert_eq!(lines, vec![text("glyph foo"), grid(4, 4), text("ref bar")]);
     }
 
     #[test]

@@ -846,6 +846,34 @@ fn enter_mid_header_demotes_grid_immediately_and_locally() {
     assert_view_consistent(&h);
 }
 
+/// Deleting the dimensions off a `glyph foo 16 16` whose body is only a `ref`
+/// must not conjure pixel rows: the grid the parser attached to the header was
+/// empty and never text in the file, so it goes away with the dimensions.
+#[test]
+fn deleting_dims_of_ref_only_glyph_drops_the_empty_grid() {
+    let mut h = EditorHarness::new("glyph foo 16 16\nref bar\n\nglyph bar 4 2\n@@......\n......@@\n");
+    let original_lines = h.lines.clone();
+    assert!(matches!(h.lines[1], DocLine::Grid(_)));
+
+    h.click_text(0, 15); // end of "glyph foo 16 16"
+    for _ in 0..6 {
+        h.key(Key::Backspace);
+    }
+    // The caret leaves the header, so the deferred reconcile runs.
+    h.click_text(2, 7);
+
+    assert_eq!(h.text(0), "glyph foo");
+    assert_eq!(h.text(1), "ref bar");
+    assert_eq!(h.text(2), "");
+    assert_eq!(h.text(3), "glyph bar 4 2");
+    assert_eq!(h.grid(4).height, 2);
+    assert_view_consistent(&h);
+
+    undo_all(&mut h);
+    assert_eq!(h.lines, original_lines);
+    assert_view_consistent(&h);
+}
+
 /// A header with a valued flag before the dimensions (`advance 0 4 3`) must
 /// produce a 4x3 grid that the document model accepts. Reconciliation and
 /// derivation used to parse the dimensions differently (0x4 vs 4x3), leaving
