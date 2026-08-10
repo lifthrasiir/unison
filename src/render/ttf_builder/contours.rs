@@ -272,7 +272,7 @@ impl CachedContours {
         let ps = parent_scale.max(1);
 
         // Extent of the refs measured by their *declared* dimensions rather
-        // than by the raster they light: a `refonly` target, or one with an
+        // than by the raster they light: a `desync` target, or one with an
         // all-empty own grid, is wider than the cells its own refs fill, and
         // that declared width is what it is worth to a parent.  The simple
         // path below extends by this directly; the two raster paths take it as

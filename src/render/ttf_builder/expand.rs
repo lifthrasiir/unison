@@ -139,16 +139,16 @@ pub(crate) fn expand_for(
                                     b.pixels = body.pixels.clone();
                                     b.points = body.points.clone();
                                     b.keep = body.keep;
-                                    // `mark`, `inline` and `refonly` are
+                                    // `mark`, `inline` and `desync` are
                                     // invisible in the outline of one build, so
                                     // dropping one here builds a clean font
                                     // that behaves wrong: a mark that is not a
                                     // mark never reaches GPOS, and a lost
-                                    // `refonly` puts the grid back into the
+                                    // `desync` puts the grid back into the
                                     // vector face.
                                     b.inline = body.inline;
                                     b.mark = body.mark;
-                                    b.refonly = body.refonly;
+                                    b.desync = body.desync;
                                     b.advance = body.advance;
                                     b.left = body.left;
                                     b.top = body.top;
@@ -607,10 +607,10 @@ fn inject_on_demand_glyph_items(
                     points.extend_from_slice(&mono_body.points);
                     points.extend_from_slice(&color_body.points);
 
-                    // `refonly` travels with the grid that was picked: it says
+                    // `desync` travels with the grid that was picked: it says
                     // what that grid is for, so it cannot be read off the other
                     // half.
-                    let (pixels, refonly) = match (&mono_body.pixels, &color_body.pixels) {
+                    let (pixels, desync) = match (&mono_body.pixels, &color_body.pixels) {
                         (Some(mg), Some(cg)) => {
                             let mg2 = if mono_s == combined_s {
                                 mg.clone()
@@ -623,9 +623,9 @@ fn inject_on_demand_glyph_items(
                                 cg.rescale(color_s as u8, combined_scale)
                             };
                             if mg2.width >= cg2.width && mg2.height >= cg2.height {
-                                (Some(mg2), mono_body.refonly)
+                                (Some(mg2), mono_body.desync)
                             } else {
-                                (Some(cg2), color_body.refonly)
+                                (Some(cg2), color_body.desync)
                             }
                         }
                         (None, Some(cg)) => (
@@ -634,7 +634,7 @@ fn inject_on_demand_glyph_items(
                             } else {
                                 cg.rescale(color_s as u8, combined_scale)
                             }),
-                            color_body.refonly,
+                            color_body.desync,
                         ),
                         (Some(mg), None) => (
                             Some(if mono_s == combined_s {
@@ -642,7 +642,7 @@ fn inject_on_demand_glyph_items(
                             } else {
                                 mg.rescale(mono_s as u8, combined_scale)
                             }),
-                            mono_body.refonly,
+                            mono_body.desync,
                         ),
                         (None, None) => (None, false),
                     };
@@ -654,7 +654,7 @@ fn inject_on_demand_glyph_items(
                                 refs,
                                 points,
                                 pixels,
-                                refonly,
+                                desync,
                                 scale: combined_scale,
                                 advance: mono_body.advance.or(color_body.advance),
                                 left: mono_body.left.or(color_body.left),

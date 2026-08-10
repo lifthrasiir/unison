@@ -32,12 +32,12 @@ struct SampleComponent {
     negated: bool,
     fill_rgba: Option<Rgba>,
     visibility: LayerVisibility,
-    /// From a `refonly` glyph's own grid: ink for the small (full-pixel)
+    /// From a `desync` glyph's own grid: ink for the small (full-pixel)
     /// renderings, invisible to the large (sub-pixel) ones — the sample's two
     /// drawing modes are the font's two faces, and the flag splits them here
     /// the same way. Carried up through composition, so a parent's layer list
     /// keeps the distinction.
-    refonly: bool,
+    desync: bool,
 }
 
 struct SampleGlyph {
@@ -122,12 +122,12 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             }
         }
 
-        /// `refonly`: the grid is the glyph's bitmap and not its outline, so it
+        /// `desync`: the grid is the glyph's bitmap and not its outline, so it
         /// stays a component (the full-pixel renderings draw those) but
         /// contributes no contour, and the raster grid a parent composes
         /// against is a blank of the same size.
-        fn from_grid(grid: &PixelGrid, refonly: bool) -> Self {
-            let contours = if refonly {
+        fn from_grid(grid: &PixelGrid, desync: bool) -> Self {
+            let contours = if desync {
                 Vec::new()
             } else {
                 track_contour(grid, PX_SUBPIXEL)
@@ -137,7 +137,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 height: grid.height,
                 contours,
                 anchors: Vec::new(),
-                grid: Some(if refonly {
+                grid: Some(if desync {
                     PixelGrid::new(grid.width, grid.height)
                 } else {
                     grid.clone()
@@ -151,7 +151,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     negated: false,
                     fill_rgba: None,
                     visibility: LayerVisibility::Both,
-                    refonly,
+                    desync,
                 }],
                 scale: 1,
             }
@@ -218,7 +218,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         |pg, effective_refs, cache| {
             composite_glyph(
                 pg.pixels.as_ref(),
-                pg.refonly,
+                pg.desync,
                 effective_refs,
                 cache,
                 &color_aliases,
@@ -226,7 +226,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             )
             .unwrap_or_else(|| {
                 if let Some(grid) = &pg.pixels {
-                    CachedGlyph::from_grid(grid, pg.refonly)
+                    CachedGlyph::from_grid(grid, pg.desync)
                 } else {
                     CachedGlyph::empty()
                 }
@@ -268,7 +268,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     /// in turn (`comp.negated ^ gref.negated`) re-adds the target's holes as
     /// ink the parent never had — a difference of differences is neither.
     /// The target's resolved raster grid already holds that difference, so it
-    /// stands in as one layer. Its `refonly` parts travel on separately: no
+    /// stands in as one layer. Its `desync` parts travel on separately: no
     /// raster carries them (the vector pass blanks them out), and they are the
     /// bitmap face's ink.
     ///
@@ -300,7 +300,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             negated: comp.negated ^ gref.negated,
             fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
             visibility: if overridden { fill_vis } else { comp.visibility },
-            refonly: comp.refonly,
+            desync: comp.desync,
         };
 
         let subtracts = cached.components.iter().any(|c| c.negated);
@@ -308,7 +308,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             // One colour for the whole group: a difference has no per-part
             // colouring left to hand out, so only a fill the parts already
             // agree on (or the `ref`'s own) survives.
-            let mut parts = cached.components.iter().filter(|c| !c.refonly);
+            let mut parts = cached.components.iter().filter(|c| !c.desync);
             let first = parts.next().map(|c| (c.fill_rgba.clone(), c.visibility));
             let agreed = first.filter(|(rgba, vis)| {
                 parts.all(|c| c.fill_rgba == *rgba && c.visibility == *vis)
@@ -326,9 +326,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     (false, Some((_, vis))) => *vis,
                     (false, None) => LayerVisibility::Both,
                 },
-                refonly: false,
+                desync: false,
             });
-            for comp in cached.components.iter().filter(|c| c.refonly) {
+            for comp in cached.components.iter().filter(|c| c.desync) {
                 out.push(translated(comp));
             }
             return;
@@ -341,7 +341,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
     fn composite_glyph(
         own_pixels: Option<&PixelGrid>,
-        refonly: bool,
+        desync: bool,
         refs: &[GlyphRef],
         cache: &HashMap<String, CachedGlyph>,
         color_aliases: &ColorAliasMap,
@@ -354,11 +354,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         // declared dims are re-applied by the caller.  Mirrors
         // `CachedContours::from_components_inner`.
         let own_pixels = own_pixels.filter(|g| !g.is_all_empty());
-        // A `refonly` grid still bounds the glyph and still draws in the
+        // A `desync` grid still bounds the glyph and still draws in the
         // full-pixel renderings, but it is not part of the outline — so it is
         // kept out of every layer a contour (or a parent's raster) is traced
         // from, exactly as in the TTF builder's vector pass.
-        let own_outline = own_pixels.filter(|_| !refonly);
+        let own_outline = own_pixels.filter(|_| !desync);
         let ps = parent_scale.max(1);
 
         // Each ref grid is placed where it logically sits: a target that
@@ -397,7 +397,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     negated: false,
                     fill_rgba: None,
                     visibility: LayerVisibility::Both,
-                    refonly,
+                    desync,
                 });
             }
             if let Some(grid) = own_outline {
@@ -685,7 +685,7 @@ impl SampleGlyph {
                 negated: c.negated,
                 fill_rgba: c.fill_rgba.clone(),
                 visibility: c.visibility,
-                refonly: c.refonly,
+                desync: c.desync,
             })
             .collect()
     }
@@ -857,8 +857,8 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
                     continue;
                 }
                 // The scaled specimen draws the sub-pixel geometry, i.e. the
-                // vector face; a `refonly` layer has none.
-                if comp.refonly {
+                // vector face; a `desync` layer has none.
+                if comp.desync {
                     continue;
                 }
                 let contours = track_contour(&comp.grid, PX_SUBPIXEL);
@@ -1996,11 +1996,11 @@ map A = combo
         }
     }
 
-    /// U+25CC: a `refonly` grid whose glyph also refs a composite that
+    /// U+25CC: a `desync` grid whose glyph also refs a composite that
     /// subtracts. The bitmap ink is the glyph's own layer and the ref's
     /// internal negation has no business erasing it.
     #[test]
-    fn sample_refonly_bitmap_survives_a_negating_ref() {
+    fn sample_desync_bitmap_survives_a_negating_ref() {
         let d = parse(
             "\
 meta height 3
@@ -2019,7 +2019,7 @@ glyph ring
 ref box
 ref dot 1 1 negated
 
-glyph g refonly 3 3
+glyph g desync 3 3
 @@@@@@
 @@@@@@
 @@@@@@
@@ -2035,7 +2035,7 @@ map A = g
             for c in 0..3u16 {
                 assert!(
                     bitmap.get(r, c).is_filled(),
-                    "({r}, {c}): the refonly grid is the bitmap face's ink"
+                    "({r}, {c}): the desync grid is the bitmap face's ink"
                 );
             }
         }
@@ -2043,17 +2043,17 @@ map A = g
 
     /// The sample draws small glyphs from the ink flags (the bitmap face) and
     /// large ones from the sub-pixel geometry (the vector face), so a
-    /// `refonly` grid has to appear in the first and not in the second — the
+    /// `desync` grid has to appear in the first and not in the second — the
     /// same split the TTF builder's two passes make.
     #[test]
-    fn sample_refonly_grid_is_bitmap_ink_only() {
+    fn sample_desync_grid_is_bitmap_ink_only() {
         let d = parse(
             "\
 meta height 4
 meta ascent 4
 meta descent 0
 
-glyph g refonly 2 2
+glyph g desync 2 2
 @@..
 @@..
 ref 2x1:zero 0 1
@@ -2070,7 +2070,7 @@ map A = g
         let bitmap = composite_components(2, 4, &comps);
         assert!(
             bitmap.get(0, 0).is_filled() && bitmap.get(1, 0).is_filled(),
-            "the refonly grid is what the bitmap face draws"
+            "the desync grid is what the bitmap face draws"
         );
         assert!(
             !bitmap.get(1, 1).is_filled(),
@@ -2078,21 +2078,21 @@ map A = g
         );
 
         // Large (sub-pixel) rendering: the ref's geometry only.
-        let vector: Vec<&SampleComponent> = comps.iter().filter(|c| !c.refonly).collect();
+        let vector: Vec<&SampleComponent> = comps.iter().filter(|c| !c.desync).collect();
         assert!(
             vector
                 .iter()
                 .all(|c| c.grid.get(1, 0).is_empty() || !c.grid.get(1, 0).is_filled()),
-            "no vector layer may carry the refonly grid's ink"
+            "no vector layer may carry the desync grid's ink"
         );
         let vector_ink = vector.iter().any(|c| {
             (0..c.grid.height).any(|r| (0..c.grid.width).any(|x| !c.grid.get(r, x).is_empty()))
         });
         assert!(vector_ink, "the `:zero` ref still has a vector outline");
         assert_eq!(
-            comps.iter().filter(|c| c.refonly).count(),
+            comps.iter().filter(|c| c.desync).count(),
             1,
-            "the own grid is the one refonly layer"
+            "the own grid is the one desync layer"
         );
     }
 

@@ -1,4 +1,4 @@
-//! Tests for the `refonly` glyph flag: a pixel grid that is bitmap ink only.
+//! Tests for the `desync` glyph flag: a pixel grid that is bitmap ink only.
 //!
 //! The font is built twice from the same source (see `ttf_builder`'s module
 //! docs), so the flag is only meaningful as a *difference* between the two
@@ -28,13 +28,13 @@ fn contours_of(input: &str, bitmap: bool, name: &str) -> Vec<Vec<(i16, i16)>> {
 /// the assertion is against what each build *should* have produced rather
 /// than against a hard-coded outline.
 #[test]
-fn refonly_grid_draws_the_bitmap_face_only() {
+fn desync_grid_draws_the_bitmap_face_only() {
     let input = "\
 meta height 4
 meta ascent 4
 meta descent 0
 
-glyph both refonly 2 2
+glyph both desync 2 2
 @@..
 @@..
 ref 2x1:zero 0 0
@@ -55,11 +55,11 @@ map C = pixels-half
     assert!(!vector_refs.is_empty(), "`2x1:zero` has a vector outline");
     assert_eq!(
         vector_both, vector_refs,
-        "the vector build must resolve a refonly glyph from its refs alone"
+        "the vector build must resolve a desync glyph from its refs alone"
     );
     assert_ne!(
         vector_both, vector_pixels,
-        "the refonly grid must not reach the vector build"
+        "the desync grid must not reach the vector build"
     );
 
     let bitmap_both = contours_of(input, true, "both");
@@ -72,21 +72,21 @@ map C = pixels-half
     assert!(!bitmap_pixels.is_empty(), "the grid is lit");
     assert_eq!(
         bitmap_both, bitmap_pixels,
-        "the bitmap build must draw the refonly grid"
+        "the bitmap build must draw the desync grid"
     );
 }
 
-/// A refonly glyph with no refs at all is blank in the vector build. Its
+/// A desync glyph with no refs at all is blank in the vector build. Its
 /// declared dimensions are still its dimensions — the grid is what says how
 /// wide the glyph is, whichever build reads it.
 #[test]
-fn refonly_glyph_without_refs_is_blank_in_the_vector_build() {
+fn desync_glyph_without_refs_is_blank_in_the_vector_build() {
     let input = "\
 meta height 4
 meta ascent 4
 meta descent 0
 
-glyph blank refonly 2 2
+glyph blank desync 2 2
 @@@@
 @@@@
 map A = blank
@@ -122,18 +122,18 @@ map B = plain
     );
 }
 
-/// A parent referencing a refonly glyph sees the same two faces: the refonly
+/// A parent referencing a desync glyph sees the same two faces: the desync
 /// grid is absent from its vector outline and present in its bitmap one. The
 /// parent has own pixels here on purpose, since that is the path that
 /// composes ref *grids* rather than translating their contours.
 #[test]
-fn a_ref_to_a_refonly_glyph_carries_the_same_split() {
+fn a_ref_to_a_desync_glyph_carries_the_same_split() {
     let input = "\
 meta height 4
 meta ascent 4
 meta descent 0
 
-glyph inner refonly 2 2
+glyph inner desync 2 2
 @@..
 @@..
 ref 2x1:zero 0 1
@@ -153,22 +153,22 @@ map B = outer-vector
     assert_eq!(
         contours_of(input, false, "outer"),
         contours_of(input, false, "outer-vector"),
-        "the refonly grid must not reach the parent's vector outline"
+        "the desync grid must not reach the parent's vector outline"
     );
     let bitmap_outer = contours_of(input, true, "outer");
     assert_ne!(
         bitmap_outer,
         contours_of(input, true, "outer-vector"),
-        "the parent's bitmap must include the refonly grid"
+        "the parent's bitmap must include the desync grid"
     );
     assert!(!bitmap_outer.is_empty());
 }
 
 /// A pattern glyph block's flags belong to every glyph it expands to, and
-/// `refonly` is invisible in the bitmap face — dropping it there builds a
+/// `desync` is invisible in the bitmap face — dropping it there builds a
 /// clean font whose vector face silently regains the grid.
 #[test]
-fn pattern_glyph_expansions_keep_the_refonly_flag() {
+fn pattern_glyph_expansions_keep_the_desync_flag() {
     let input = "\
 meta height 4
 meta ascent 4
@@ -177,7 +177,7 @@ meta descent 0
 glyph dot 1 1
 @@
 
-glyph p-(a|b) refonly 2 2
+glyph p-(a|b) desync 2 2
 @@..
 @@..
 ref dot 0 0
@@ -208,7 +208,7 @@ map B = p-b
         assert_eq!(
             inside,
             expect_grid,
-            "the refonly grid should {} the {} build",
+            "the desync grid should {} the {} build",
             if expect_grid { "reach" } else { "stay out of" },
             if bitmap { "bitmap" } else { "vector" }
         );

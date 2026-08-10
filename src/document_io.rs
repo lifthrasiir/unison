@@ -148,13 +148,13 @@
 //! # Glyph blocks
 //!
 //! `glyph NAME [W H] [flags...]`, with flags `keep`, `inline`, `mark`,
-//! `refonly`, `advance N`, `left N`, `top N` and `scale N` (the per-glyph
+//! `desync`, `advance N`, `left N`, `top N` and `scale N` (the per-glyph
 //! sub-pixel detail resolution: the grid is N× finer, and `document_io`
 //! multiplies the declared dimensions by it but not the other flags).
 //!
 //! - With `W H`, pixel rows follow immediately, two characters per pixel (`@@`
 //!   filled, `..` empty, plus the sub-pixel shape codes in [`crate::pixel`]).
-//! - `refonly` makes that grid **bitmap ink only**: the vector build of the
+//! - `desync` makes that grid **bitmap ink only**: the vector build of the
 //!   font ignores its geometry and draws the glyph from its `ref`s alone, while
 //!   the bitmap build reads the grid as always. The grid still declares the
 //!   glyph's dimensions in both. With refs to on-demand `:zero` shapes — which
@@ -549,7 +549,7 @@ pub struct GlyphHeaderFlags {
     pub keep: bool,
     pub inline: bool,
     pub mark: bool,
-    pub refonly: bool,
+    pub desync: bool,
     pub advance: Option<u16>,
     pub left: Option<i16>,
     pub top: Option<i16>,
@@ -562,7 +562,7 @@ pub struct GlyphHeaderFlags {
 /// name, with any `= ALIAS` part already stripped).
 ///
 /// This is the single implementation of the header flag grammar: keyword
-/// flags (`keep`, `inline`, `mark`, `refonly`), valued flags (`advance N`,
+/// flags (`keep`, `inline`, `mark`, `desync`), valued flags (`advance N`,
 /// `left N`, `top N`) and the `W H` dimension pair may appear in any order. It is
 /// shared by `derive_document` and [`glyph_header_dims`] so that the
 /// document model and grid reconciliation can never disagree about whether
@@ -572,7 +572,7 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
 }
 
 const GLYPH_FLAG_KEYWORDS: [&str; 8] = [
-    "keep", "inline", "mark", "refonly", "advance", "left", "top", "scale",
+    "keep", "inline", "mark", "desync", "advance", "left", "top", "scale",
 ];
 
 /// The one walker behind both the lenient parse and the strict validation.
@@ -589,7 +589,7 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
             "keep" => flags.keep = true,
             "inline" => flags.inline = true,
             "mark" => flags.mark = true,
-            "refonly" => flags.refonly = true,
+            "desync" => flags.desync = true,
             "advance" => {
                 fp += 1;
                 flags.advance = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
@@ -953,8 +953,8 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     if body.mark {
         flags.push_str(" mark");
     }
-    if body.refonly {
-        flags.push_str(" refonly");
+    if body.desync {
+        flags.push_str(" desync");
     }
     if let Some(adv) = body.advance {
         flags.push_str(&format!(" advance {adv}"));
@@ -1278,7 +1278,7 @@ pub fn derive_document(
                         body.keep = flags.keep;
                         body.inline = flags.inline;
                         body.mark = flags.mark;
-                        body.refonly = flags.refonly;
+                        body.desync = flags.desync;
                         body.advance = flags.advance;
                         body.left = flags.left;
                         body.top = flags.top;

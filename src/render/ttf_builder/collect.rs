@@ -291,11 +291,11 @@ pub(super) fn collect_glyph_data_with_shared(
         let cc = &mut contour_cache;
         crate::render::glyph_cache::seed_cache(
             all_items,
-            |pixels, refonly| {
-                // A `refonly` grid is ink for the bitmap build and geometry for
+            |pixels, desync| {
+                // A `desync` grid is ink for the bitmap build and geometry for
                 // nobody: the vector build keeps only the dimensions it
                 // declares, so a blank grid of the same size stands in.
-                if refonly && !bitmap {
+                if desync && !bitmap {
                     let blank = PixelGrid::new(pixels.width, pixels.height);
                     CachedContours::from_grid(&blank, bitmap, cc.as_deref_mut())
                 } else {
@@ -313,10 +313,10 @@ pub(super) fn collect_glyph_data_with_shared(
             pending,
             |name| declared_anchors_map.get(name).cloned(),
             |pg, effective_refs, cache| {
-                // The vector build resolves a `refonly` glyph from its refs
+                // The vector build resolves a `desync` glyph from its refs
                 // alone; `resolve_pending` re-applies the grid's dimensions
                 // afterwards, so the advance is unaffected.
-                let own = pg.pixels.as_ref().filter(|_| bitmap || !pg.refonly);
+                let own = pg.pixels.as_ref().filter(|_| bitmap || !pg.desync);
                 CachedContours::from_components(
                     own,
                     effective_refs,
@@ -706,9 +706,9 @@ pub(super) fn collect_glyph_data_with_shared(
         // of their own.  Cutting is per pass: a monoonly negation cannot reach
         // the coloronly layers, which are not present when it is drawn.
         let has_negated = body.refs.iter().any(|r| r.negated);
-        // Same rule as the outline path above: a `refonly` grid is ink for the
+        // Same rule as the outline path above: a `desync` grid is ink for the
         // bitmap build and geometry for nobody.
-        let own_pixels = body.pixels.as_ref().filter(|_| bitmap || !body.refonly);
+        let own_pixels = body.pixels.as_ref().filter(|_| bitmap || !body.desync);
         let ref_layers: Vec<Option<(PixelGrid, i32, i32)>> = if has_negated {
             effective_refs
                 .iter()

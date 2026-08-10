@@ -911,7 +911,7 @@ Flags may appear in any order, before or after the dimensions:
   `acute-left`) are declared this way.
 * `mark` — the glyph is a combining mark: it goes into the GDEF mark class, and its `-name` anchors
   become mark attachment points.
-* `refonly` — the pixel grid is bitmap ink and nothing else: the outline build ignores its geometry
+* `desync` — the pixel grid is bitmap ink and nothing else: the outline build ignores its geometry
   and draws the glyph from its `ref` lines alone, while the bitmap build reads the grid as always.
   See [Grid-Only-For-Bitmap Glyphs](#grid-only-for-bitmap-glyphs).
 * `advance N`, `left N`, `top N` — metrics overrides; see [Glyph Metrics](#glyph-metrics).
@@ -947,7 +947,7 @@ expansions — so it must be built from refs.
 
 Ordinarily the two builds draw the same shapes and differ only in how finely: the grid *is* the
 drawing, and the bitmap build squares off whatever the geometry says (see
-[Pixel Grid](#pixel-grid)). The `refonly` flag breaks that tie on purpose. The grid becomes bitmap
+[Pixel Grid](#pixel-grid)). The `desync` flag breaks that tie on purpose. The grid becomes bitmap
 ink and nothing else: the outline build never reads its geometry and resolves the glyph from its
 `ref` lines alone.
 
@@ -956,7 +956,7 @@ pixel (see [Bitmap Control](#bitmap-control)) — the two builds become independ
 glyph, each written where it belongs:
 
 ```
-glyph tri refonly 4 4
+glyph tri desync 4 4
 ........
 ....@@@@
 ..@@@@@@
@@ -968,11 +968,11 @@ The outline build draws the exact triangle; the bitmap build draws the staircase
 nothing rounds anything. That staircase is deliberately not one the rules of
 [Bitmap Control](#bitmap-control) can produce: the default rule and `:ceil` both keep the lone apex
 pixel (every cell the 45° hypotenuse cuts is covered exactly half, so the tie goes to lit), and
-`:floor` drops the bottom-left step instead. Reach for `refonly` when the small-size rendering you
+`:floor` drops the bottom-left step instead. Reach for `desync` when the small-size rendering you
 want is not one the geometry rounds to.
 
 The grid still declares the glyph's dimensions in both builds, so suppressing the outline never
-changes an advance. `refonly` on a glyph with no refs is legal and means exactly what it says: a
+changes an advance. `desync` on a glyph with no refs is legal and means exactly what it says: a
 glyph with a bitmap and no outline.
 
 ### `glyph`: Glyph alias
@@ -1371,7 +1371,7 @@ on the name chooses the rule:
 * `:ceil` — any coverage at all lights the pixel.
 * `:floor` — only a fully covered pixel is lit.
 * `:zero` — nothing is ever lit: the shape exists for the outline build alone and contributes no
-  bitmap ink. Together with a `refonly` grid, which is the opposite (ink with no geometry), this is
+  bitmap ink. Together with a `desync` grid, which is the opposite (ink with no geometry), this is
   what lets one glyph carry two unrelated drawings; see
   [Grid-Only-For-Bitmap Glyphs](#grid-only-for-bitmap-glyphs).
 

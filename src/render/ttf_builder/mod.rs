@@ -14,11 +14,11 @@
 //! [`crate::on_demand`] on `BitmapFill` for what a synthesized shape has to
 //! decide because of that.
 //!
-//! # `refonly`: a grid the vector build does not read
+//! # `desync`: a grid the vector build does not read
 //!
 //! Normally the two builds draw the same shapes and differ only in how finely:
 //! the grid is the drawing, and the bitmap build squares off whatever the
-//! geometry says. A glyph flagged `refonly` breaks that tie deliberately — its
+//! geometry says. A glyph flagged `desync` breaks that tie deliberately — its
 //! own pixel grid is ink for the bitmap build and geometry for nobody, so the
 //! vector build resolves it from its `ref`s alone. Together with a ref to an
 //! on-demand `:zero` shape, which is the mirror case (geometry that lights no

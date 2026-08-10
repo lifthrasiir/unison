@@ -159,7 +159,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure and bearings | `ref_composite.rs` |
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
-| `glyph … refonly`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite.rs` (`ResolvedGlyph`) |
+| `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite.rs` (`ResolvedGlyph`) |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite.rs` (`resolve_ref_name_for_view`) |
 | Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |

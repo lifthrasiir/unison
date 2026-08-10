@@ -985,13 +985,13 @@ map D = nested
 /// A composite is at least as wide as the refs it is built from, whichever of
 /// the three paths in `CachedContours::from_components_inner` built it. A ref
 /// whose declared grid is wider than the raster its own refs light — a
-/// `refonly` glyph, or one whose own grid is all empty — still carries that
+/// `desync` glyph, or one whose own grid is all empty — still carries that
 /// declared extent, and the parent's advance must not depend on whether its
 /// layers happened to conflict at the subpixel level (which is what picks a
 /// raster path over the simple contour-translation one).
 ///
 /// U+25CE `◎` = `white-circle-in-white-circle-7` came out one pixel narrow
-/// this way: two `refonly` rings whose subpixel cells conflict.
+/// this way: two `desync` rings whose subpixel cells conflict.
 #[test]
 fn composite_advance_follows_the_refs_declared_extent() {
     let input = "\
@@ -999,7 +999,7 @@ meta height 4
 meta ascent 4
 meta descent 0
 
-glyph wide refonly 4 1
+glyph wide desync 4 1
 @@@@@@@@
 ref 1x1 0 0
 
