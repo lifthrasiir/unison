@@ -346,7 +346,10 @@ pub(super) fn paint_document_area(
                 if cmd_held {
                     // Off the whole line, not this segment: a name cut by
                     // the wrap would otherwise name only its own half.
-                    let links = doc_links::extract_line_links(doc_line_text(lines, vl, text));
+                    let links = doc_links::extract_line_links(
+                        doc_line_text(lines, vl, text),
+                        crate::document::at_base_at_line(lines, vl.doc_line).as_deref(),
+                    );
                     // Where a link falls on *this* segment, clipped to it —
                     // `None` for one that lies entirely on another segment.
                     let seg_len = text.chars().count();

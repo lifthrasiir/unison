@@ -380,7 +380,11 @@ impl EditorState {
             return;
         }
         if let Some(DocLine::Text(line_text)) = lines.get(self.cursor.line)
-            && let Some(target) = doc_links::find_renameable_at_caret(line_text, self.cursor.col)
+            && let Some(target) = doc_links::find_renameable_at_caret(
+                line_text,
+                self.cursor.col,
+                crate::document::at_base_at_line(lines, self.cursor.line).as_deref(),
+            )
         {
             self.popup = PopupState::Rename {
                 original_name: target.name.clone(),

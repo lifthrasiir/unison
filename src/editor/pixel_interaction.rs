@@ -376,6 +376,7 @@ mod tests {
     #[test]
     fn dragged_ref_at_origin_stays_explicit() {
         let normal = GlyphRef {
+            raw_name: None,
             comment: None,
             name: "part".into(),
             offset: Some((1, 0)),
@@ -387,6 +388,7 @@ mod tests {
         assert_eq!(format_dragged_ref(&normal, 0, 0), "ref part 0 0");
 
         let negated = GlyphRef {
+            raw_name: None,
             negated: true,
             ..normal
         };

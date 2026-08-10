@@ -54,8 +54,35 @@ use crate::editor::line_fields::{FieldRole, classify_line};
 ///
 /// The returned span is the written token as a whole, which the pane highlights
 /// so a long `remap` or `assert` row says where on it the name actually is.
-pub(super) fn match_spans(line: &str, name: &str, kind: LinkTargetKind) -> Vec<(usize, usize)> {
-    if !line.contains(name) {
+/// Whether `text` could write a glyph name with a leading `@`.
+///
+/// A name token always begins after whitespace or a backtick, and `@` is a name
+/// character in first position only, so that is the whole test — and it is what
+/// keeps the literal-name filters below from hiding an `@` hit. Pixel rows,
+/// where `@@` is the full-ink code, contain neither, so the cheap rejection
+/// that makes a search a click and not a wait still rejects them.
+pub(super) fn may_write_an_at_name(text: &str) -> bool {
+    text.char_indices().any(|(i, c)| {
+        c == '@'
+            && text[..i]
+                .chars()
+                .next_back()
+                .is_some_and(|p| p.is_whitespace() || p == '`')
+    })
+}
+
+/// `at_base` is the `@` base in force on this line — see
+/// [`crate::document::at_base_at_line`] for the rule, which the walkers below
+/// carry along as they go rather than re-deriving per line.
+pub(super) fn match_spans(
+    line: &str,
+    name: &str,
+    kind: LinkTargetKind,
+    at_base: Option<&str>,
+) -> Vec<(usize, usize)> {
+    let at_possible =
+        kind == LinkTargetKind::Glyph && at_base.is_some() && may_write_an_at_name(line);
+    if !line.contains(name) && !at_possible {
         return Vec::new();
     }
     let mut cols = Vec::new();
@@ -78,7 +105,9 @@ pub(super) fn match_spans(line: &str, name: &str, kind: LinkTargetKind) -> Vec<(
                 _ => {}
             },
             LinkTargetKind::Glyph => {
-                if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef) && f.token == name {
+                if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef)
+                    && crate::document::expand_at_name(&f.token, at_base) == name
+                {
                     cols.push((f.col_start, f.col_end));
                 }
             }
@@ -132,11 +161,31 @@ fn hits_in_doclines(
     kind: LinkTargetKind,
 ) -> Vec<(usize, (usize, usize))> {
     let mut hits = Vec::new();
+    let mut at_base: Option<String> = None;
     for (i, line) in lines.iter().enumerate() {
         let DocLine::Text(text) = line else { continue };
-        hits.extend(match_spans(text, name, kind).into_iter().map(|s| (i, s)));
+        hits.extend(
+            match_spans(text, name, kind, at_base.as_deref())
+                .into_iter()
+                .map(|s| (i, s)),
+        );
+        // After matching, never before: a header's own `@` stands for the base
+        // that was already in force, exactly as the parser reads it.
+        advance_at_base(&mut at_base, text);
     }
     hits
+}
+
+/// Carry the `@` base across one source line, as
+/// `document_io::derive_document` does while it walks the file.
+pub(super) fn advance_at_base(at_base: &mut Option<String>, line: &str) {
+    if let Ok(tokens) = crate::document_io::tokenize_tokens(line.trim())
+        && tokens.first().is_some_and(|t| t == "glyph")
+        && let Some(name) = tokens.get(1)
+        && let Some(base) = crate::document::at_base_from_glyph_name(name)
+    {
+        *at_base = Some(base);
+    }
 }
 
 /// One listed appearance.
@@ -249,19 +298,23 @@ pub(super) fn collect_hits(
                     ));
                 }
             }
-            SearchText::Source(content) if content.contains(name) => {
+            SearchText::Source(content)
+                if content.contains(name)
+                    || (kind == LinkTargetKind::Glyph && may_write_an_at_name(content)) =>
+            {
                 // Enumerated over occurrences, not over lines: a line naming
                 // the same glyph twice is two rows, and the ordinal has to
                 // agree with `hits_in_doclines` once the file opens.
-                let found: Vec<_> = content
-                    .lines()
-                    .enumerate()
-                    .flat_map(|(i, text)| {
-                        match_spans(text, name, kind)
+                let mut at_base: Option<String> = None;
+                let mut found: Vec<(usize, &str, (usize, usize))> = Vec::new();
+                for (i, text) in content.lines().enumerate() {
+                    found.extend(
+                        match_spans(text, name, kind, at_base.as_deref())
                             .into_iter()
-                            .map(move |s| (i, text, s))
-                    })
-                    .collect();
+                            .map(|s| (i, text, s)),
+                    );
+                    advance_at_base(&mut at_base, text);
+                }
                 for (ordinal, (line_idx, text, span)) in found.into_iter().enumerate() {
                     hits.push(hit(path, ordinal, line_idx + 1, text, span));
                 }
@@ -397,7 +450,7 @@ mod tests {
     /// Start columns only; the spans' ends are pinned separately, by the
     /// highlight tests.
     fn cols(line: &str, name: &str, kind: LinkTargetKind) -> Vec<usize> {
-        match_spans(line, name, kind)
+        match_spans(line, name, kind, None)
             .into_iter()
             .map(|(s, _)| s)
             .collect()
@@ -563,7 +616,7 @@ mod tests {
     #[test]
     fn the_highlight_follows_the_trimmed_text() {
         let line = "    ref foo 0 0";
-        let span = match_spans(line, "foo", LinkTargetKind::Glyph)[0];
+        let span = match_spans(line, "foo", LinkTargetKind::Glyph, None)[0];
         let h = hit(std::path::Path::new("a.unf"), 0, 3, line, span);
         assert_eq!(h.text, "ref foo 0 0");
         assert_eq!(&h.text[h.highlight.0..h.highlight.1], "foo");
@@ -594,7 +647,7 @@ mod tests {
                 "$init",
             ),
         ] {
-            let span = *match_spans(line, name, kind)
+            let span = *match_spans(line, name, kind, None)
                 .first()
                 .unwrap_or_else(|| panic!("no match in {line:?}"));
             let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
@@ -606,7 +659,7 @@ mod tests {
     #[test]
     fn each_row_highlights_its_own_occurrence() {
         let line = "glyph foo = foo";
-        let spans = match_spans(line, "foo", LinkTargetKind::Glyph);
+        let spans = match_spans(line, "foo", LinkTargetKind::Glyph, None);
         assert_eq!(spans.len(), 2);
         let hits: Vec<_> = spans
             .into_iter()
@@ -630,5 +683,38 @@ mod tests {
             hits_in_doclines(&lines, "foo", LinkTargetKind::Glyph),
             vec![(0, (6, 9)), (2, (4, 7)), (3, (8, 11))],
         );
+    }
+
+    /// A glyph written with `@` is an appearance of the name it expands to, so
+    /// the Search pane lists it beside the full-name ones. The literal filters
+    /// in front cannot hide it: `may_write_an_at_name` is what lets an `@` line
+    /// through, and a pixel row — where `@@` is the full-ink code — still does
+    /// not pay for a tokenizing pass.
+    #[test]
+    fn an_at_name_is_an_appearance_of_what_it_expands_to() {
+        let path = PathBuf::from("/nonexistent/never-read.unf");
+        let source = "glyph foo\nref @-bar\nglyph @-bar\nmap A = foo-bar\n";
+        let files = vec![(path, SearchText::Source(source))];
+        let (hits, _) = collect_hits(&files, "foo-bar", LinkTargetKind::Glyph);
+        assert_eq!(
+            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
+            vec!["ref @-bar", "glyph @-bar", "map A = foo-bar"],
+        );
+        // And the base itself is not one of its own family's appearances.
+        let files = vec![(PathBuf::from("x.unf"), SearchText::Source(source))];
+        let (hits, _) = collect_hits(&files, "foo", LinkTargetKind::Glyph);
+        assert_eq!(
+            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
+            vec!["glyph foo"],
+        );
+    }
+
+    #[test]
+    fn only_a_token_start_counts_as_an_at_name() {
+        assert!(may_write_an_at_name("ref @-bar"));
+        assert!(may_write_an_at_name("glyph `@ odd`"));
+        // A pixel row is all shape codes, and `@@` is one of them.
+        assert!(!may_write_an_at_name("@@..@@.."));
+        assert!(!may_write_an_at_name("glyph foo"));
     }
 }

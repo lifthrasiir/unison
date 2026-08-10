@@ -16,6 +16,16 @@
 //! checked against *expanded* names by [`crate::issues`]; see
 //! [`crate::document::is_valid_glyph_name`].
 //!
+//! A `glyph` header and a `ref` target may also start with `@`, which stands
+//! for the last glyph name declared *without* one — see
+//! [`crate::document::expand_at_name`] for the rule and what it is for. `@` is
+//! a name character in first position only, and only in those two places: a
+//! `map`, `remap` or `assert` names a glyph in full. The substitution is
+//! textual and happens before anything else reads the name, so what the rest of
+//! the pipeline sees is an ordinary name; the written form is kept beside it
+//! (`GlyphBody::raw_name`, `GlyphAlias::raw_name`/`raw_target`,
+//! `GlyphRef::raw_name`) so [`serialize_document`] puts back what was written.
+//!
 //! Face and slice ids are narrower still — no `:`, and a face id additionally
 //! becomes a file name, so it may not start with `.`; see [`crate::faces`].
 //!
@@ -175,6 +185,10 @@
 //!   followed by `ref`/`anchor` lines.
 //! - NAME accepts the patterns of [`crate::pattern`]; a block expands in
 //!   lock-step with its `ref` patterns.
+//! - NAME and a `ref` target may start with `@`, the enclosing base glyph's
+//!   name, which is how a glyph's helpers are named after it without repeating
+//!   it: `glyph foo` / `ref @-bar` / `glyph @-bar` builds `foo` out of
+//!   `foo-bar`. See [`crate::document::expand_at_name`].
 //!
 //! A glyph needs a pixel grid or at least one `ref` to exist at all.
 //! `advance`/`left`/`top`/`anchor` do not make one buildable, and a contentless
@@ -422,11 +436,18 @@ fn parse_visibility(s: &str) -> Option<LayerVisibility> {
 /// - `ref NAME COL ROW [negated]`
 /// - Any of the above followed by `inherit`, `fill COLOR` and/or
 ///   `coloronly`/`monoonly`, in any order (each is independent of the others)
-fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef> {
+///
+/// `base` is the `@` base in force — the last glyph name declared without one.
+fn parse_ref_line(
+    parts: &[String],
+    comment: Option<String>,
+    base: Option<&str>,
+) -> Option<GlyphRef> {
     if parts.is_empty() {
         return None;
     }
-    let name = parts[0].clone();
+    let name = crate::document::expand_at_name(&parts[0], base);
+    let raw_name = crate::document::written_form(&parts[0], &name);
     let mut idx = 1;
     let mut offset: Option<(i16, i16)> = None;
     let mut negated = false;
@@ -469,6 +490,7 @@ fn parse_ref_line(parts: &[String], comment: Option<String>) -> Option<GlyphRef>
 
     Some(GlyphRef {
         name,
+        raw_name,
         offset,
         negated,
         inherit,
@@ -856,13 +878,15 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::GlyphAlias {
                 name,
                 target,
+                raw_name,
+                raw_target,
                 comment,
             } => {
                 writeln!(
                     writer,
                     "glyph {} = {}{}",
-                    quote_token(&name.display()),
-                    quote_token(target),
+                    quote_token(raw_name.as_deref().unwrap_or(&name.0)),
+                    quote_token(raw_target.as_deref().unwrap_or(target)),
                     comment_suffix(comment),
                 )?;
             }
@@ -950,7 +974,7 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
 #[cfg(any(feature = "editor", test))]
 fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -> Result<()> {
     let flags = format_glyph_flags(body);
-    let qname = quote_token(&name.display());
+    let qname = quote_token(body.raw_name.as_deref().unwrap_or(&name.0));
 
     let hcomment = comment_suffix(&body.comment);
 
@@ -1074,6 +1098,10 @@ pub fn derive_document(
     let mut doc = Document::new(path);
     let mut item_line_starts: Vec<usize> = Vec::new();
     let mut i = 0;
+    // The `@` base: the last glyph name declared without one. Scoped to the
+    // file, and carried across the lines between two glyph blocks, so a helper
+    // glyph keeps expanding against its base however far below it is written.
+    let mut at_base: Option<String> = None;
 
     while i < lines.len() {
         match &lines[i] {
@@ -1205,7 +1233,19 @@ pub fn derive_document(
                             continue;
                         }
 
-                        let name = parse_glyph_name(&parts[0]);
+                        // The header's own `@` expands against the base that
+                        // was already in force, and only a header written
+                        // *without* one becomes the next base — which is what
+                        // makes `glyph @-bar` / `ref @-baz` name `foo-baz`
+                        // rather than `foo-bar-baz`.
+                        let written = parts[0].clone();
+                        let expanded =
+                            crate::document::expand_at_name(&written, at_base.as_deref());
+                        let raw_name = crate::document::written_form(&written, &expanded);
+                        if let Some(base) = crate::document::at_base_from_glyph_name(&written) {
+                            at_base = Some(base);
+                        }
+                        let name = parse_glyph_name(&expanded);
 
                         let rest_parts = &parts[1..];
 
@@ -1217,9 +1257,15 @@ pub fn derive_document(
                             && let Some(target) = rest_parts.get(eq_pos + 1)
                         {
                             item_line_starts.push(header_idx);
+                            let expanded_target =
+                                crate::document::expand_at_name(target, at_base.as_deref());
+                            let raw_target =
+                                crate::document::written_form(target, &expanded_target);
                             doc.items.push(DocumentItem::GlyphAlias {
                                 name,
-                                target: target.clone(),
+                                target: expanded_target,
+                                raw_name,
+                                raw_target,
                                 comment,
                             });
                             continue;
@@ -1227,6 +1273,7 @@ pub fn derive_document(
 
                         let mut body = GlyphBody::new();
                         body.comment = comment;
+                        body.raw_name = raw_name;
                         let flags = parse_glyph_flag_parts(rest_parts);
                         body.keep = flags.keep;
                         body.inline = flags.inline;
@@ -1262,7 +1309,11 @@ pub fn derive_document(
                                 Err(_) => break,
                             };
                             if sub_tokens.first().is_some_and(|t| t == "ref") {
-                                let parsed_ref = parse_ref_line(&sub_tokens[1..], sub_comment);
+                                let parsed_ref = parse_ref_line(
+                                    &sub_tokens[1..],
+                                    sub_comment,
+                                    at_base.as_deref(),
+                                );
                                 let Some(parsed_ref) = parsed_ref else {
                                     break;
                                 };

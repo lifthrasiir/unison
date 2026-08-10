@@ -306,6 +306,45 @@ There is no `U+XXXX` glyph-name form. A range of hex-named glyphs is written `un
 which is partly what the inline hexadecimal range was added for. `U+XXXX` remains a *character*
 spelling on the left of a `map`, which is a different context and unaffected.
 
+### Auxiliary Glyph Name
+
+A glyph name may start with `@`, which stands for the name of the last glyph declared *without* one.
+It is a shorthand for naming a glyph's helpers after the glyph they belong to:
+
+```
+glyph foo         // the base
+ref @-bar         // → foo-bar
+glyph @-bar       // → foo-bar
+ref @-baz         // → foo-baz
+glyph @-baz       // → foo-baz
+```
+
+A header written with `@` is itself a helper and does **not** become the base, so a run of them all
+hang off the same glyph rather than nesting: `@-baz` above is `foo-baz`, not `foo-bar-baz`. The
+point is that a family of auxiliary glyphs can be named systematically without the base's name being
+repeated on every line — and renaming the base renames the whole family with it.
+
+The base is the declared name with its `:variant` suffix taken off, so a variant's helpers hang off
+the glyph and not off the variant:
+
+```
+glyph foo:mono
+ref @-bar:mono    // → foo-bar:mono
+```
+
+`@` is a name character in the first position only, and only in two places: a `glyph` header
+(including both sides of an [alias](#glyph-glyph-alias)) and a `ref` target. Everywhere else — a
+`map`, a `remap`, an `assert` — a glyph is named in full. A full name is of course still writable in
+those two places as well; `@` is a shorthand, not a mode.
+
+The substitution is textual and happens before anything else reads the name, so a base that is a
+[name pattern](#name-pattern) carries through: under `glyph a($1..3)`, `ref @-b` is `a($1..3)-b`.
+Written as `@`, a name is *stored* as `@`: the editor re-serializes files it opens, and what it
+writes back is the `@` form, not what the `@` currently resolves to.
+
+Above the first plain `glyph` header there is nothing for `@` to stand for. Such a name is left as
+written and reported as an error rather than being resolved to a guess.
+
 ### Quoting
 
 Tokens are separated by whitespace. A token that has to contain a space, or that has to be empty, is
@@ -901,6 +940,9 @@ A glyph whose name is a pattern is expanded into one glyph per name, in lock-ste
 in its `ref` lines. Such a glyph cannot carry a pixel grid — a grid cannot be shared across
 expansions — so it must be built from refs.
 
+`NAME` may start with `@`, which stands for the last glyph declared without one — see
+[Auxiliary Glyph Name](#auxiliary-glyph-name).
+
 #### Grid-Only-For-Bitmap Glyphs
 
 Ordinarily the two builds draw the same shapes and differ only in how finely: the grid *is* the
@@ -943,6 +985,10 @@ Shorthand for a glyph consisting of one ref at offset (0, 0) with no flags of it
 carries no `inherit`, an alias exposes none of its target's anchors; write the block form with
 `ref TARGET inherit` when it should.
 
+Both `NAME` and `TARGET` may start with `@` (see
+[Auxiliary Glyph Name](#auxiliary-glyph-name)); as with any header, an alias whose own name carries
+one does not become the base.
+
 ### `ref`: Subglyph use
 
 ```
@@ -954,7 +1000,8 @@ with X rightward and Y downward. Omit it and the offset is derived from anchors 
 [Anchor Adjoinment](#anchor-adjoinment)); a negative offset is a bearing and is preserved as one.
 
 The target may be a name pattern, and it may be an on-demand name that no `glyph` defines (see
-[On-demand Glyphs](#on-demand-glyphs)).
+[On-demand Glyphs](#on-demand-glyphs)). It may also start with `@`, the enclosing base glyph's name
+(see [Auxiliary Glyph Name](#auxiliary-glyph-name)).
 
 Flags:
 

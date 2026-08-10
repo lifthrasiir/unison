@@ -41,6 +41,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
     );
 
     let refs = vec![GlyphRef {
+        raw_name: None,
         comment: None,
         name: "digit(0|1)".to_string(),
         offset: None,
@@ -95,6 +96,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
 fn on_demand_ref_composites_before_the_next_resolve() {
     let cache: HashMap<String, ResolvedGlyph> = HashMap::new();
     let refs = vec![GlyphRef {
+        raw_name: None,
         comment: None,
         name: "4x2".to_string(),
         offset: None,
@@ -586,6 +588,7 @@ ref ($ab)-inner
 
     let b_refs = vec![
         GlyphRef {
+            raw_name: None,
             comment: None,
             name: "enclosing".to_string(),
             offset: None,
@@ -595,6 +598,7 @@ ref ($ab)-inner
             visibility: None,
         },
         GlyphRef {
+            raw_name: None,
             comment: None,
             name: "b-inner".to_string(),
             offset: None,
@@ -1380,6 +1384,7 @@ fn derive_reports_duplicates_and_ambiguity() {
         }
     };
     let inherit_ref = |name: &str, col: i16| GlyphRef {
+        raw_name: None,
         comment: None,
         name: name.to_string(),
         offset: Some((col, 0)),
@@ -1405,6 +1410,7 @@ fn derive_reports_duplicates_and_ambiguity() {
         inherit_ref("half", 0),
         inherit_ref("half", 4),
         GlyphRef {
+            raw_name: None,
             offset: None,
             inherit: false,
             ..inherit_ref("mark", 0)
@@ -1511,6 +1517,7 @@ fn derive_reports_size_mismatched_attachment() {
         }
     };
     let gref = |name: &str, offset: Option<(i16, i16)>| GlyphRef {
+        raw_name: None,
         comment: None,
         name: name.to_string(),
         offset,
@@ -1577,6 +1584,7 @@ fn attaching_through_one_minus_retires_the_other_alternatives() {
         }
     };
     let gref = |name: &str| GlyphRef {
+        raw_name: None,
         comment: None,
         name: name.to_string(),
         offset: None,
@@ -1672,6 +1680,7 @@ ref acute
         .iter()
         .enumerate()
         .map(|(i, r)| GlyphRef {
+            raw_name: None,
             offset: Some((0, i as i16)),
             ..r.clone()
         })

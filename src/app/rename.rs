@@ -29,9 +29,17 @@ fn rename_in_place(
 ) -> Vec<(usize, String)> {
     let mut changed = Vec::new();
     let mut caret = caret;
+    let mut at_base: Option<String> = None;
     for (i, line) in lines.iter_mut().enumerate() {
         let DocLine::Text(s) = line else { continue };
-        if let Some((t, spans)) = rename_in_line(s, old_name, new_name, kind) {
+        // The base as it stands *before* this rename touches anything: an `@`
+        // is matched against the name the glyph has now, not the one it is
+        // about to get. Taken from the header line itself only after that line
+        // has been rewritten, for the same reason the parser reads it that way.
+        let line_base = at_base.clone();
+        super::search::advance_at_base(&mut at_base, s);
+        if let Some((t, spans)) = rename_in_line(s, old_name, new_name, kind, line_base.as_deref())
+        {
             if let Some(c) = caret.as_deref_mut()
                 && c.line == i
             {
@@ -256,6 +264,22 @@ fn meta_scope_is(text: &str, name: &str) -> bool {
         .any(|f| f.role == FieldRole::FaceRef && f.token == name)
 }
 
+/// What a glyph token becomes when the glyph it names is renamed to `new_name`.
+///
+/// A token written with `@` keeps its `@` whenever the new name is still in the
+/// base's family — renaming `foo-bar` to `foo-qux` leaves `@-qux`, so the
+/// helper goes on following its base. A new name outside the family has no `@`
+/// spelling, so it is written out in full.
+fn renamed_glyph_token(token: &str, new_name: &str, at_base: Option<&str>) -> String {
+    match (token.starts_with('@'), at_base) {
+        (true, Some(base)) => match new_name.strip_prefix(base) {
+            Some(rest) => format!("@{rest}"),
+            None => new_name.to_string(),
+        },
+        _ => new_name.to_string(),
+    }
+}
+
 /// One replacement `rename_in_line` made, in character columns of the *old*
 /// line: `[start, end)` became `new_len` characters.  Ascending by `start`.
 #[derive(Clone, Copy)]
@@ -274,6 +298,7 @@ fn rename_in_line(
     old_name: &str,
     new_name: &str,
     kind: &crate::editor::doc_links::RenameKind,
+    at_base: Option<&str>,
 ) -> Option<(String, Vec<RenameSpan>)> {
     use crate::editor::doc_links::RenameKind;
     use crate::editor::line_fields::{FieldRole, classify_line};
@@ -283,9 +308,11 @@ fn rename_in_line(
     for f in classify_line(full) {
         let rep = match (kind, f.role) {
             (RenameKind::Glyph, FieldRole::GlyphDef | FieldRole::GlyphRef)
-                if f.token == old_name =>
+                if crate::document::expand_at_name(&f.token, at_base) == old_name =>
             {
-                Some(crate::document_io::quote_token(new_name))
+                Some(crate::document_io::quote_token(&renamed_glyph_token(
+                    &f.token, new_name, at_base,
+                )))
             }
             (
                 RenameKind::NameParts,
@@ -724,6 +751,39 @@ mod rename_tests {
         let lines = vec![t("glyph foo 8 16"), t("ref baz 0 0"), t("map X = foo")];
         let result = do_rename(&lines, "foo", "bar", &RenameKind::Glyph);
         assert_eq!(result, vec!["glyph bar 8 16", "ref baz 0 0", "map X = bar"]);
+    }
+    /// A glyph written as `@-bar` is an appearance of `foo-bar`, so a rename
+    /// started anywhere rewrites it — and keeps the `@` whenever the new name
+    /// is still in the base's family, so the helper goes on following its base.
+    #[test]
+    fn rename_reaches_a_glyph_written_with_an_at() {
+        let lines = vec![
+            t("glyph foo"),
+            t("ref @-bar"),
+            t("glyph @-bar"),
+            t("map A = foo-bar"),
+        ];
+        assert_eq!(
+            do_rename(&lines, "foo-bar", "foo-qux", &RenameKind::Glyph),
+            vec!["glyph foo", "ref @-qux", "glyph @-qux", "map A = foo-qux"],
+        );
+        // Out of the family there is no `@` spelling left, so the name is
+        // written out rather than quietly pointing somewhere else.
+        assert_eq!(
+            do_rename(&lines, "foo-bar", "zap", &RenameKind::Glyph),
+            vec!["glyph foo", "ref zap", "glyph zap", "map A = zap"],
+        );
+    }
+
+    /// Renaming the base leaves every `@` alone: they follow it by
+    /// construction, and rewriting them would freeze today's name into the file.
+    #[test]
+    fn renaming_the_base_leaves_its_at_names_alone() {
+        let lines = vec![t("glyph foo"), t("ref @-bar"), t("glyph @-bar")];
+        assert_eq!(
+            do_rename(&lines, "foo", "qux", &RenameKind::Glyph),
+            vec!["glyph qux", "ref @-bar", "glyph @-bar"],
+        );
     }
 }
 

@@ -334,8 +334,7 @@ map U+1D369..1D371 = rod-($1..9)0
 glyph tally-1 16 16
 ref 1x10-dr 7 3
 ref 1x10-ul 8 3
-
-glyph tally-1-half 8 16
+glyph @-half 8 16
 ref 1x10-dr 3 3
 ref 1x10-ul 4 3
 
@@ -364,8 +363,7 @@ ref 1x10-dr 8 3
 ref 1x10-ul 9 3
 ref 1x10-dr 10 3
 ref 1x10-ul 11 3
-
-glyph tally-5-half 10 16 left -1 advance 8
+glyph @-half 10 16 advance 8 left -1
 ....................
 ....................
 ....................

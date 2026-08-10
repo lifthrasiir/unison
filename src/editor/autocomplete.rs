@@ -60,7 +60,7 @@ pub(crate) fn trigger(
         None => return,
     };
 
-    let all_candidates = collect_candidates(&ctx, source);
+    let all_candidates = collect_candidates(&ctx, source, &at_context(lines, state.cursor.line));
     if all_candidates.is_empty() {
         return;
     }
@@ -255,6 +255,38 @@ pub(crate) fn apply_completion(lines: &mut [DocLine], state: &mut super::EditorS
     lines[line_idx] = DocLine::Text(new_line);
     state.cursor = new_cursor;
     state.selection_anchor = None;
+}
+
+/// The `@` base in force where the caret is, for the glyph completion below.
+///
+/// Kept as an `Option<String>` rather than looked up per candidate so the whole
+/// list is rewritten from one answer: a mid-list disagreement would offer two
+/// spellings of the same glyph.
+fn at_context(lines: &[DocLine], line: usize) -> Option<String> {
+    crate::document::at_base_at_line(lines, line)
+}
+
+/// Restate a glyph candidate list in the `@` spelling the author is typing.
+///
+/// Typing `@` is typing the base glyph's name, so from that keystroke on the
+/// popup behaves as though the base had been spelled out: only names in the
+/// base's family survive, and each is offered as the `@` form — so accepting
+/// one writes `@-bar`, not `foo-bar`, and the helper keeps following its base.
+/// The base itself becomes a bare `@`.
+fn rewrite_as_at_names(
+    candidates: Vec<CompletionCandidate>,
+    base: &str,
+) -> Vec<CompletionCandidate> {
+    candidates
+        .into_iter()
+        .filter_map(|c| {
+            let rest = c.label.strip_prefix(base)?;
+            Some(CompletionCandidate {
+                label: format!("@{rest}"),
+                kind: c.kind,
+            })
+        })
+        .collect()
 }
 
 fn filter_candidates(all: &[CompletionCandidate], prefix: &str) -> Vec<CompletionCandidate> {
@@ -491,6 +523,7 @@ fn find_rest_token_at(rest: &[crate::document_io::TokenSpan], adj_col: usize) ->
 fn collect_candidates(
     ctx: &CompletionContext,
     source: &CompletionSource,
+    at_base: &Option<String>,
 ) -> Vec<CompletionCandidate> {
     let mut candidates = Vec::new();
 
@@ -543,6 +576,11 @@ fn collect_candidates(
             }
             candidates.sort_by(|a, b| a.label.cmp(&b.label));
             candidates.dedup_by(|a, b| a.label == b.label);
+            if ctx.prefix.starts_with('@')
+                && let Some(base) = at_base
+            {
+                candidates = rewrite_as_at_names(candidates, base);
+            }
         }
         CompletionKind::NameParts => {
             for name in source.name_parts.keys() {
@@ -828,5 +866,61 @@ mod tests {
             detect_context("remap grp : a -> ", 17).unwrap().kind,
             CompletionKind::Glyph,
         );
+    }
+
+    /// Typing `@` is typing the base glyph's name: the popup narrows to that
+    /// glyph's family and offers each of them in the `@` spelling, so accepting
+    /// one keeps the helper following its base instead of freezing today's
+    /// name into the file.
+    #[test]
+    fn typing_at_completes_the_base_glyphs_family() {
+        let src = "glyph foo\nref @-b\nglyph @-bar\nglyph @-baz\nglyph other\n";
+        let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
+        let lines = crate::document_io::parse_doclines(src);
+        let named_glyphs = HashMap::new();
+        let name_parts = NamePartsMap::new();
+        let source = CompletionSource {
+            named_glyphs: &named_glyphs,
+            name_parts: &name_parts,
+            doc: &doc,
+        };
+
+        // The `ref` line sits inside `glyph foo`, so that is what `@` means.
+        let at_base = at_context(&lines, 1);
+        assert_eq!(at_base.as_deref(), Some("foo"));
+
+        let ctx = detect_context("ref @-b", 7).unwrap();
+        assert_eq!(ctx.kind, CompletionKind::Glyph);
+        assert_eq!(ctx.prefix, "@-b");
+        let all = collect_candidates(&ctx, &source, &at_base);
+        let labels: Vec<&str> = all.iter().map(|c| c.label.as_str()).collect();
+        assert_eq!(labels, vec!["@", "@-bar", "@-baz"]);
+        let shown: Vec<String> = filter_candidates(&all, &ctx.prefix)
+            .into_iter()
+            .map(|c| c.label)
+            .collect();
+        assert_eq!(shown, vec!["@-bar", "@-baz"]);
+
+        // Without the `@` the same context offers the full names, unchanged.
+        let ctx = detect_context("ref fo", 6).unwrap();
+        let all = collect_candidates(&ctx, &source, &at_base);
+        let labels: Vec<&str> = all.iter().map(|c| c.label.as_str()).collect();
+        assert_eq!(labels, vec!["foo", "foo-bar", "foo-baz", "other"]);
+    }
+
+    /// A header's own `@` stands for the base that was already in force, so the
+    /// line being edited never counts as its own base — the same rule the
+    /// parser walks the file by.
+    #[test]
+    fn a_helper_header_is_not_its_own_base() {
+        let lines = crate::document_io::parse_doclines("glyph foo\nglyph @-bar\nref @-baz\n");
+        assert_eq!(at_context(&lines, 1).as_deref(), Some("foo"));
+        assert_eq!(at_context(&lines, 2).as_deref(), Some("foo"));
+        assert_eq!(at_context(&lines, 0), None);
+
+        // And the completion agrees with the parser about the `:variant`
+        // suffix not being part of the base.
+        let lines = crate::document_io::parse_doclines("glyph foo:mono\nref @-bar\n");
+        assert_eq!(at_context(&lines, 1).as_deref(), Some("foo"));
     }
 }

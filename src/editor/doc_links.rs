@@ -103,7 +103,11 @@ fn extract_name_parts_vars(name: &str, base_col: usize) -> Vec<LinkSpan> {
     links
 }
 
-fn extract_glyph_and_parts_links(name: &str, base_col: usize) -> Vec<LinkSpan> {
+fn extract_glyph_and_parts_links(
+    name: &str,
+    base_col: usize,
+    at_base: Option<&str>,
+) -> Vec<LinkSpan> {
     let mut links = Vec::new();
     let has_dollar = name.contains('$');
     if has_dollar {
@@ -114,7 +118,9 @@ fn extract_glyph_and_parts_links(name: &str, base_col: usize) -> Vec<LinkSpan> {
         links.push(LinkSpan {
             col_start: base_col,
             col_end: base_col + name_char_len,
-            target: name.to_string(),
+            // The link goes where the *glyph* is, so an `@` name links to what
+            // it expands to and not to a name nothing declares.
+            target: crate::document::expand_at_name(name, at_base),
             kind: LinkTargetKind::Glyph,
             is_def: false,
         });
@@ -132,12 +138,19 @@ fn whole_field_link(f: &LineField, kind: LinkTargetKind, is_def: bool) -> LinkSp
     }
 }
 
-pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
+/// `at_base` is the `@` base in force on this line — see
+/// [`crate::document::at_base_at_line`], which is what every caller computes it
+/// with.
+pub(crate) fn extract_line_links(line: &str, at_base: Option<&str>) -> Vec<LinkSpan> {
     let mut links = Vec::new();
     for f in classify_line(line) {
         match f.role {
             FieldRole::GlyphRef => {
-                links.extend(extract_glyph_and_parts_links(&f.token, f.col_start));
+                links.extend(extract_glyph_and_parts_links(
+                    &f.token,
+                    f.col_start,
+                    at_base,
+                ));
             }
             // A definition is not a link to itself, but it is still worth
             // clicking: with nothing to go to, the click lists the name's uses.
@@ -147,7 +160,9 @@ pub(crate) fn extract_line_links(line: &str) -> Vec<LinkSpan> {
             FieldRole::GlyphDef => {
                 links.extend(extract_name_parts_vars(&f.token, f.col_start));
                 if !f.token.contains('$') && !f.token.contains('(') {
-                    links.push(whole_field_link(&f, LinkTargetKind::Glyph, true));
+                    let mut link = whole_field_link(&f, LinkTargetKind::Glyph, true);
+                    link.target = crate::document::expand_at_name(&link.target, at_base);
+                    links.push(link);
                 }
             }
             FieldRole::NamePartsValue => {
@@ -233,13 +248,15 @@ fn scan_dollar_ref_at(text: &str, base_col: usize, col: usize) -> Option<RenameT
 
 /// A glyph-name field is renameable as a whole when it is a plain name;
 /// pattern names are only renameable at the `$var` under the caret.
-fn glyph_rename_at(field: &LineField, col: usize) -> Option<RenameTarget> {
+fn glyph_rename_at(field: &LineField, col: usize, at_base: Option<&str>) -> Option<RenameTarget> {
     if let Some(t) = scan_dollar_ref_at(&field.token, field.col_start, col) {
         return Some(t);
     }
     if field.contains_col(col) && !field.token.contains('$') && !field.token.contains('(') {
         return Some(RenameTarget {
-            name: field.token.clone(),
+            // The glyph being renamed is the one the name resolves to, so an
+            // `@` token renames `foo-bar` and not a glyph spelled `@-bar`.
+            name: crate::document::expand_at_name(&field.token, at_base),
             kind: RenameKind::Glyph,
             col_start: field.col_start,
             col_end: field.col_end,
@@ -260,10 +277,14 @@ fn whole_field_rename(field: &LineField, col: usize, kind: RenameKind) -> Option
     })
 }
 
-pub(crate) fn find_renameable_at_caret(line: &str, col: usize) -> Option<RenameTarget> {
+pub(crate) fn find_renameable_at_caret(
+    line: &str,
+    col: usize,
+    at_base: Option<&str>,
+) -> Option<RenameTarget> {
     for f in classify_line(line) {
         let target = match f.role {
-            FieldRole::GlyphDef | FieldRole::GlyphRef => glyph_rename_at(&f, col),
+            FieldRole::GlyphDef | FieldRole::GlyphRef => glyph_rename_at(&f, col, at_base),
             FieldRole::NamePartsValue => scan_dollar_ref_at(&f.token, f.col_start, col),
             FieldRole::NamePartsDef => whole_field_rename(&f, col, RenameKind::NameParts),
             FieldRole::ColorDef | FieldRole::ColorRef => {
@@ -398,7 +419,7 @@ mod rename_detection_tests {
 
     #[test]
     fn glyph_header_name() {
-        let t = find_renameable_at_caret("glyph foo 8 16", 6).unwrap();
+        let t = find_renameable_at_caret("glyph foo 8 16", 6, None).unwrap();
         assert_eq!(t.name, "foo");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
@@ -406,26 +427,26 @@ mod rename_detection_tests {
     #[test]
     fn glyph_header_name_at_end() {
         // col 9 = right after "foo" (col_end), should still match
-        let t = find_renameable_at_caret("glyph foo 8 16", 9).unwrap();
+        let t = find_renameable_at_caret("glyph foo 8 16", 9, None).unwrap();
         assert_eq!(t.name, "foo");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn glyph_header_on_dimensions() {
-        assert!(find_renameable_at_caret("glyph foo 8 16", 10).is_none());
+        assert!(find_renameable_at_caret("glyph foo 8 16", 10, None).is_none());
     }
 
     #[test]
     fn glyph_alias_def_name() {
-        let t = find_renameable_at_caret("glyph foo = bar", 6).unwrap();
+        let t = find_renameable_at_caret("glyph foo = bar", 6, None).unwrap();
         assert_eq!(t.name, "foo");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn glyph_alias_target() {
-        let t = find_renameable_at_caret("glyph foo = bar", 12).unwrap();
+        let t = find_renameable_at_caret("glyph foo = bar", 12, None).unwrap();
         assert_eq!(t.name, "bar");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
@@ -435,14 +456,14 @@ mod rename_detection_tests {
     /// editor reads the line as text and must keep working on one being typed
     /// or half-migrated.
     fn glyph_alias_target_survives_stray_flags() {
-        let t = find_renameable_at_caret("glyph foo advance 8 = bar", 23).unwrap();
+        let t = find_renameable_at_caret("glyph foo advance 8 = bar", 23, None).unwrap();
         assert_eq!(t.name, "bar");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn feature_for_script_links_remap_group() {
-        let links = extract_line_links("feature ljmo for hang : hangul-ljmo");
+        let links = extract_line_links("feature ljmo for hang : hangul-ljmo", None);
         // The group is a reference and navigates; the tag names nothing else,
         // so it only ever searches.
         assert_eq!(
@@ -467,7 +488,7 @@ mod rename_detection_tests {
             ("color red = #ff0000", "red", LinkTargetKind::Color),
             ("remap liga : a -> b", "liga", LinkTargetKind::Remap),
         ] {
-            let links = extract_line_links(line);
+            let links = extract_line_links(line, None);
             let found = links
                 .iter()
                 .find(|l| l.target == target)
@@ -481,7 +502,7 @@ mod rename_detection_tests {
     #[test]
     fn an_anchor_link_drops_its_sign() {
         for line in ["anchor +above 4 1", "anchor -above 2 1"] {
-            let links = extract_line_links(line);
+            let links = extract_line_links(line, None);
             assert_eq!(links.len(), 1, "{line:?}");
             assert_eq!(links[0].target, "above");
             assert_eq!(links[0].kind, LinkTargetKind::Anchor);
@@ -493,7 +514,7 @@ mod rename_detection_tests {
     /// inside it are links.
     #[test]
     fn a_pattern_glyph_definition_links_only_its_variables() {
-        let links = extract_line_links("glyph hangul-($init)-l 8 16");
+        let links = extract_line_links("glyph hangul-($init)-l 8 16", None);
         assert_eq!(links.len(), 1);
         assert_eq!(links[0].target, "$init");
         assert!(!links[0].is_def);
@@ -501,35 +522,35 @@ mod rename_detection_tests {
 
     #[test]
     fn ref_name() {
-        let t = find_renameable_at_caret("ref latin-a 0 0", 4).unwrap();
+        let t = find_renameable_at_caret("ref latin-a 0 0", 4, None).unwrap();
         assert_eq!(t.name, "latin-a");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn map_name() {
-        let t = find_renameable_at_caret("map A = latin-a", 8).unwrap();
+        let t = find_renameable_at_caret("map A = latin-a", 8, None).unwrap();
         assert_eq!(t.name, "latin-a");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn name_parts_def() {
-        let t = find_renameable_at_caret("name-parts $init = a b c", 11).unwrap();
+        let t = find_renameable_at_caret("name-parts $init = a b c", 11, None).unwrap();
         assert_eq!(t.name, "$init");
         assert_eq!(t.kind, RenameKind::NameParts);
     }
 
     #[test]
     fn name_parts_ref_in_values() {
-        let t = find_renameable_at_caret("name-parts $combo = $init $final", 20).unwrap();
+        let t = find_renameable_at_caret("name-parts $combo = $init $final", 20, None).unwrap();
         assert_eq!(t.name, "$init");
         assert_eq!(t.kind, RenameKind::NameParts);
     }
 
     #[test]
     fn dollar_var_in_glyph_header() {
-        let t = find_renameable_at_caret("glyph hangul-($init)-l 8 16", 14).unwrap();
+        let t = find_renameable_at_caret("glyph hangul-($init)-l 8 16", 14, None).unwrap();
         assert_eq!(t.name, "$init");
         assert_eq!(t.kind, RenameKind::NameParts);
     }
@@ -537,55 +558,55 @@ mod rename_detection_tests {
     #[test]
     fn pattern_glyph_non_var_part() {
         // Caret on the non-$var part of a pattern name — not renameable
-        assert!(find_renameable_at_caret("glyph hangul-($init)-l 8 16", 6).is_none());
+        assert!(find_renameable_at_caret("glyph hangul-($init)-l 8 16", 6, None).is_none());
     }
 
     #[test]
     fn point_plus() {
-        let t = find_renameable_at_caret("anchor +above 4 1", 7).unwrap();
+        let t = find_renameable_at_caret("anchor +above 4 1", 7, None).unwrap();
         assert_eq!(t.name, "above");
         assert_eq!(t.kind, RenameKind::Point);
     }
 
     #[test]
     fn point_minus() {
-        let t = find_renameable_at_caret("anchor -above 2 1", 8).unwrap();
+        let t = find_renameable_at_caret("anchor -above 2 1", 8, None).unwrap();
         assert_eq!(t.name, "above");
         assert_eq!(t.kind, RenameKind::Point);
     }
 
     #[test]
     fn point_on_coords() {
-        assert!(find_renameable_at_caret("anchor +above 4 1", 15).is_none());
+        assert!(find_renameable_at_caret("anchor +above 4 1", 15, None).is_none());
     }
 
     #[test]
     fn remap_token() {
-        let t = find_renameable_at_caret("remap liga : a -> b", 13).unwrap();
+        let t = find_renameable_at_caret("remap liga : a -> b", 13, None).unwrap();
         assert_eq!(t.name, "a");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn exclude_from_sample() {
-        let t = find_renameable_at_caret("exclude-from-sample foo", 20).unwrap();
+        let t = find_renameable_at_caret("exclude-from-sample foo", 20, None).unwrap();
         assert_eq!(t.name, "foo");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn empty_line() {
-        assert!(find_renameable_at_caret("", 0).is_none());
+        assert!(find_renameable_at_caret("", 0, None).is_none());
     }
 
     #[test]
     fn comment_line() {
-        assert!(find_renameable_at_caret("# some comment", 2).is_none());
+        assert!(find_renameable_at_caret("# some comment", 2, None).is_none());
     }
 
     #[test]
     fn color_def_name() {
-        let t = find_renameable_at_caret("color red = #ff0000", 6).unwrap();
+        let t = find_renameable_at_caret("color red = #ff0000", 6, None).unwrap();
         assert_eq!(t.name, "red");
         assert_eq!(t.kind, RenameKind::Color);
     }
@@ -594,36 +615,36 @@ mod rename_detection_tests {
     fn color_def_value_hex_is_renameable() {
         // Hex values are not color name references, but they are still renameable
         // (a hex value is not a color name, so no rename target)
-        assert!(find_renameable_at_caret("color red = #ff0000", 12).is_none());
+        assert!(find_renameable_at_caret("color red = #ff0000", 12, None).is_none());
     }
 
     #[test]
     fn color_def_value_name_ref() {
-        let t = find_renameable_at_caret("color light-red = red", 18).unwrap();
+        let t = find_renameable_at_caret("color light-red = red", 18, None).unwrap();
         assert_eq!(t.name, "red");
         assert_eq!(t.kind, RenameKind::Color);
     }
 
     #[test]
     fn ref_fill_color_name() {
-        let t = find_renameable_at_caret("ref foo 0 0 fill red", 17).unwrap();
+        let t = find_renameable_at_caret("ref foo 0 0 fill red", 17, None).unwrap();
         assert_eq!(t.name, "red");
         assert_eq!(t.kind, RenameKind::Color);
     }
 
     #[test]
     fn ref_fill_fg_not_renameable() {
-        assert!(find_renameable_at_caret("ref foo 0 0 fill fg", 17).is_none());
+        assert!(find_renameable_at_caret("ref foo 0 0 fill fg", 17, None).is_none());
     }
 
     #[test]
     fn ref_fill_hex_not_renameable() {
-        assert!(find_renameable_at_caret("ref foo 0 0 fill #ff0000", 17).is_none());
+        assert!(find_renameable_at_caret("ref foo 0 0 fill #ff0000", 17, None).is_none());
     }
 
     #[test]
     fn color_links_value_name() {
-        let links = extract_line_links("color light-red = red");
+        let links = extract_line_links("color light-red = red", None);
         assert_eq!(
             links
                 .iter()
@@ -637,7 +658,7 @@ mod rename_detection_tests {
     #[test]
     fn color_links_value_hex_no_link() {
         // The hex value is not a name; only the color being defined is.
-        let links = extract_line_links("color red = #ff0000");
+        let links = extract_line_links("color red = #ff0000", None);
         assert_eq!(links.len(), 1);
         assert_eq!(links[0].target, "red");
         assert!(links[0].is_def);
@@ -645,7 +666,7 @@ mod rename_detection_tests {
 
     #[test]
     fn ref_fill_links_color_name() {
-        let links = extract_line_links("ref foo 0 0 fill red");
+        let links = extract_line_links("ref foo 0 0 fill red", None);
         // Should have glyph link for 'foo' AND color link for 'red'
         assert!(
             links
@@ -661,7 +682,7 @@ mod rename_detection_tests {
 
     #[test]
     fn ref_fill_links_fg_no_color_link() {
-        let links = extract_line_links("ref foo 0 0 fill fg");
+        let links = extract_line_links("ref foo 0 0 fill fg", None);
         assert!(
             !links
                 .iter()
@@ -671,7 +692,7 @@ mod rename_detection_tests {
 
     #[test]
     fn ref_fill_links_hex_no_color_link() {
-        let links = extract_line_links("ref foo 0 0 fill #ff0000");
+        let links = extract_line_links("ref foo 0 0 fill #ff0000", None);
         assert!(
             !links
                 .iter()
@@ -681,7 +702,7 @@ mod rename_detection_tests {
 
     #[test]
     fn assert_same_links_glyph_names() {
-        let links = extract_line_links("assert same foo bar");
+        let links = extract_line_links("assert same foo bar", None);
         assert_eq!(links.len(), 2);
         assert!(
             links
@@ -697,7 +718,7 @@ mod rename_detection_tests {
 
     #[test]
     fn assert_distinct_links_glyph_names() {
-        let links = extract_line_links("assert distinct a b c");
+        let links = extract_line_links("assert distinct a b c", None);
         assert_eq!(links.len(), 3);
         assert!(links.iter().any(|l| l.target == "a"));
         assert!(links.iter().any(|l| l.target == "b"));
@@ -706,7 +727,7 @@ mod rename_detection_tests {
 
     #[test]
     fn assert_same_comment_not_linked() {
-        let links = extract_line_links("assert same foo bar // not a glyph");
+        let links = extract_line_links("assert same foo bar // not a glyph", None);
         let glyph_names: Vec<&str> = links
             .iter()
             .filter(|l| matches!(l.kind, LinkTargetKind::Glyph))
@@ -719,7 +740,7 @@ mod rename_detection_tests {
 
     #[test]
     fn assert_shape_links_glyph_names() {
-        let links = extract_line_links("assert shape AB : a-upper : b-upper");
+        let links = extract_line_links("assert shape AB : a-upper : b-upper", None);
         assert!(
             links
                 .iter()
@@ -734,34 +755,34 @@ mod rename_detection_tests {
 
     #[test]
     fn assert_same_rename_glyph() {
-        let t = find_renameable_at_caret("assert same foo bar", 12).unwrap();
+        let t = find_renameable_at_caret("assert same foo bar", 12, None).unwrap();
         assert_eq!(t.name, "foo");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn assert_distinct_rename_glyph() {
-        let t = find_renameable_at_caret("assert distinct abc def", 16).unwrap();
+        let t = find_renameable_at_caret("assert distinct abc def", 16, None).unwrap();
         assert_eq!(t.name, "abc");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn assert_same_rename_not_on_keyword() {
-        assert!(find_renameable_at_caret("assert same foo bar", 0).is_none());
-        assert!(find_renameable_at_caret("assert same foo bar", 7).is_none());
+        assert!(find_renameable_at_caret("assert same foo bar", 0, None).is_none());
+        assert!(find_renameable_at_caret("assert same foo bar", 7, None).is_none());
     }
 
     #[test]
     fn assert_shape_rename_glyph() {
-        let t = find_renameable_at_caret("assert shape AB : a-upper : b-upper", 18).unwrap();
+        let t = find_renameable_at_caret("assert shape AB : a-upper : b-upper", 18, None).unwrap();
         assert_eq!(t.name, "a-upper");
         assert_eq!(t.kind, RenameKind::Glyph);
     }
 
     #[test]
     fn assert_rename_not_in_comment() {
-        assert!(find_renameable_at_caret("assert same foo bar // comment", 23).is_none());
+        assert!(find_renameable_at_caret("assert same foo bar // comment", 23, None).is_none());
     }
 
     /// A face declares its id and refers to the slices it includes; a slice
@@ -802,21 +823,21 @@ mod rename_detection_tests {
                 RenameKind::RemapGroup,
             ),
         ] {
-            let t = find_renameable_at_caret(line, col)
+            let t = find_renameable_at_caret(line, col, None)
                 .unwrap_or_else(|| panic!("nothing renameable at {col} in {line:?}"));
             assert_eq!(t.name, name, "{line:?}");
             assert_eq!(t.kind, kind, "{line:?}");
         }
         // An OpenType tag is not this font's name to change.
-        assert!(find_renameable_at_caret("feature dlig for latn : liga", 9).is_none());
+        assert!(find_renameable_at_caret("feature dlig for latn : liga", 9, None).is_none());
         // `*` is "every face", not a face.
-        assert!(find_renameable_at_caret("meta * : family Unison", 5).is_none());
+        assert!(find_renameable_at_caret("meta * : family Unison", 5, None).is_none());
     }
 
     #[test]
     fn face_and_slice_lines_link_both_ways() {
         assert_eq!(
-            extract_line_links("face term : narrow")
+            extract_line_links("face term : narrow", None)
                 .iter()
                 .map(|l| (l.target.as_str(), l.kind, l.is_def))
                 .collect::<Vec<_>>(),
@@ -826,7 +847,7 @@ mod rename_detection_tests {
             ],
         );
         assert_eq!(
-            extract_line_links("slice both = narrow wide")
+            extract_line_links("slice both = narrow wide", None)
                 .iter()
                 .map(|l| (l.target.as_str(), l.kind, l.is_def))
                 .collect::<Vec<_>>(),
@@ -860,7 +881,7 @@ mod rename_detection_tests {
                 LinkTargetKind::Slice,
             ),
         ] {
-            let links = extract_line_links(line);
+            let links = extract_line_links(line, None);
             let found = links
                 .iter()
                 .find(|l| l.target == target)
@@ -870,7 +891,7 @@ mod rename_detection_tests {
         }
         // The glyph on a qualified `map` is still a link of its own.
         assert!(
-            extract_line_links("map narrow : A = latin-a")
+            extract_line_links("map narrow : A = latin-a", None)
                 .iter()
                 .any(|l| l.target == "latin-a" && l.kind == LinkTargetKind::Glyph)
         );
@@ -900,7 +921,7 @@ mod rename_detection_tests {
 
     #[test]
     fn exclude_from_sample_links_glyph_name() {
-        let links = extract_line_links("exclude-from-sample foo");
+        let links = extract_line_links("exclude-from-sample foo", None);
         assert_eq!(links.len(), 1);
         assert_eq!(links[0].target, "foo");
         assert!(matches!(links[0].kind, LinkTargetKind::Glyph));
@@ -908,8 +929,30 @@ mod rename_detection_tests {
 
     #[test]
     fn assume_unused_links_glyph_names() {
-        let links = extract_line_links("assume unused foo bar");
+        let links = extract_line_links("assume unused foo bar", None);
         assert!(links.iter().any(|l| l.target == "foo"));
         assert!(links.iter().any(|l| l.target == "bar"));
+    }
+
+    /// An `@` name links to the glyph it expands to — the one that exists —
+    /// and renaming from it renames that glyph, not a name spelled `@-bar`.
+    #[test]
+    fn an_at_name_links_to_what_it_expands_to() {
+        let links = extract_line_links("ref @-bar", Some("foo"));
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].target, "foo-bar");
+        assert!(!links[0].is_def);
+
+        let links = extract_line_links("glyph @-bar", Some("foo"));
+        assert_eq!(links[0].target, "foo-bar");
+        assert!(links[0].is_def);
+
+        let t = find_renameable_at_caret("ref @-bar", 6, Some("foo")).unwrap();
+        assert_eq!(t.name, "foo-bar");
+        assert_eq!(t.kind, RenameKind::Glyph);
+
+        // With no base the `@` stands for nothing, and the token is left to be
+        // reported as the invalid name it is.
+        assert_eq!(extract_line_links("ref @-bar", None)[0].target, "@-bar");
     }
 }

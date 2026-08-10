@@ -386,6 +386,7 @@ fn expand_decomposed_maps(
             let refs: Vec<GlyphRef> = nfd
                 .iter()
                 .map(|c| GlyphRef {
+                    raw_name: None,
                     comment: None,
                     name: cp_to_glyph[&(*c as u32)].clone(),
                     offset: None,
@@ -573,6 +574,7 @@ fn inject_on_demand_glyph_items(
                             })
                         };
                         refs.push(GlyphRef {
+                            raw_name: None,
                             comment: None,
                             name: r.name.clone(),
                             offset,
@@ -591,6 +593,7 @@ fn inject_on_demand_glyph_items(
                             })
                         };
                         refs.push(GlyphRef {
+                            raw_name: None,
                             comment: None,
                             name: r.name.clone(),
                             offset,
@@ -693,6 +696,16 @@ fn inject_on_demand_glyph_items(
             kind,
         ) {
             (false, false, _) => continue,
+            // A ref still carrying its `@` was written before any glyph the
+            // `@` could stand for; saying so beats sending the author looking
+            // for a glyph literally named `@…`.
+            (true, _, RefKind::Ref) if name.starts_with('@') => (
+                Severity::Error,
+                format!(
+                    "ref '{name}' has no glyph to expand `@` against: `@` stands for the \
+                     last glyph declared without one, and this file declares none above it",
+                ),
+            ),
             (true, _, RefKind::Ref) => (Severity::Error, format!("unresolved ref '{name}'")),
             (true, _, RefKind::Map(char_repr)) => (
                 Severity::Error,

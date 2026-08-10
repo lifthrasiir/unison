@@ -146,6 +146,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | --- | --- |
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
 | What characters a name may contain | `document_io.rs` (`# Names`), `pattern.rs` |
+| `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document.rs` (`expand_at_name`), `document_io.rs` (`# Names`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |

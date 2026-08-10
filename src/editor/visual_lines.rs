@@ -700,6 +700,7 @@ mod tests {
             DocLine::Text("ref beta".into()),
         ];
         let gref = |name: &str| GlyphRef {
+            raw_name: None,
             name: name.into(),
             offset: None,
             negated: false,

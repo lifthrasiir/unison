@@ -46,8 +46,11 @@ pub(super) fn handle_document_keys(
                 && matches!(state.popup, PopupState::None)
                 && ui.input(|i| i.key_pressed(egui::Key::F2))
                 && let Some(DocLine::Text(line_text)) = lines.get(state.cursor.line)
-                && let Some(target) =
-                    doc_links::find_renameable_at_caret(line_text, state.cursor.col)
+                && let Some(target) = doc_links::find_renameable_at_caret(
+                    line_text,
+                    state.cursor.col,
+                    crate::document::at_base_at_line(lines, state.cursor.line).as_deref(),
+                )
             {
                 state.popup = PopupState::Rename {
                     original_name: target.name.clone(),

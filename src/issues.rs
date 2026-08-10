@@ -477,12 +477,20 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         bad.sort_by(|a, b| a.0.cmp(b.0));
         bad.dedup_by(|a, b| a.0 == b.0);
         for (name, origin) in bad {
-            issues.push(docset.to_issue(&Diagnostic::error(
-                origin,
+            // A name that still carries its `@` was written above every glyph
+            // the `@` could stand for. Saying so beats the charset wording,
+            // which reads as though `@` were simply misspelled.
+            let message = if name.starts_with('@') {
+                format!(
+                    "glyph name `{name}` has no glyph to expand `@` against: `@` stands for \
+                     the last glyph declared without one, and this file declares none above it",
+                )
+            } else {
                 format!(
                     "glyph name `{name}` may only contain letters, digits, `-`, `.`, `_` and `:`",
-                ),
-            )));
+                )
+            };
+            issues.push(docset.to_issue(&Diagnostic::error(origin, message)));
         }
     }
 

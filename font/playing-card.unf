@@ -28,8 +28,7 @@ glyph card-border 16 16
 ....@@......................@@..
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
-
-glyph card-border-half 8 16
+glyph @-half 8 16
 ................
 /0@@@@@@@@@@@@0\
 @@............@@
@@ -64,8 +63,7 @@ glyph card-half-fill 16 16
 ....@@/10//10//10//10//10//1@@..
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
-
-glyph card-half-fill-half 8 16
+glyph @-half 8 16
 ................
 /0@@@@@@@@@@@@0\
 @@0//10//10//1@@
@@ -86,6 +84,9 @@ glyph card-half-fill-half 8 16
 glyph card-back 16 16
 ref card-fill fill card-white
 ref card-half-fill fill card-border
+glyph @-half 8 16
+ref card-fill-half fill card-white
+ref card-half-fill-half fill card-border
 
 glyph card-fill 16 16
 ................................
@@ -104,8 +105,7 @@ glyph card-fill 16 16
 ......@@@@@@@@@@@@@@@@@@@@@@....
 ................................
 ................................
-
-glyph card-fill-half 8 16
+glyph @-half 8 16
 ................
 ................
 ..@@@@@@@@@@@@..
@@ -122,10 +122,6 @@ glyph card-fill-half 8 16
 ..@@@@@@@@@@@@..
 ................
 ................
-
-glyph card-back-half 8 16
-ref card-fill-half fill card-white
-ref card-half-fill-half fill card-border
 
 glyph card-suit-spade 16 16
 ................................
@@ -144,8 +140,7 @@ glyph card-suit-spade 16 16
 ................................
 ................................
 ................................
-
-glyph card-suit-spade-half 8 16
+glyph @-half 8 16
 ................
 ................
 ................
@@ -180,8 +175,7 @@ glyph card-suit-heart 16 16
 ................................
 ................................
 ................................
-
-glyph card-suit-heart-half 8 16
+glyph @-half 8 16
 ................
 ................
 ................
@@ -216,8 +210,7 @@ glyph card-suit-diamond 16 16
 ................0P..............
 ................................
 ................................
-
-glyph card-suit-diamond-half 8 16
+glyph @-half 8 16
 ................
 ................
 ................
@@ -252,13 +245,11 @@ glyph card-suit-club 16 16
 ................................
 ................................
 ................................
-ref card-suit-club-aux 5 10
-
-glyph card-suit-club-aux 7 2
+ref @-aux 5 10
+glyph @-aux 7 2
 /1h~h\../h~h1\
 \1@@0/..\0@@1/
-
-glyph card-suit-club-half 8 16
+glyph @-half 8 16
 ................
 ................
 ................
@@ -278,8 +269,7 @@ glyph card-suit-club-half 8 16
 
 glyph card-rank-(a|2|3|4|5|6|7|8|9|j|q|k) 16 16
 ref sm-(a|2|3|4|5|6|7|8|9|j|q|k)-bold 6 3
-
-glyph card-rank-(a|2|3|4|5|6|7|8|9|j|q|k)-half 8 16
+glyph @-half 8 16
 ref sm-(a|2|3|4|5|6|7|8|9|j|q|k)-4x5 2 3
 
 glyph card-rank-10 16 16
@@ -299,8 +289,7 @@ glyph card-rank-10 16 16
 ................................
 ................................
 ................................
-
-glyph card-rank-10-half 8 16
+glyph @-half 8 16
 ................
 ................
 ................
@@ -335,8 +324,7 @@ glyph card-rank-kn 16 16
 ................................
 ................................
 ................................
-
-glyph card-rank-kn-half 8 16
+glyph @-half 8 16
 ................
 ................
 ................
@@ -371,8 +359,7 @@ glyph card-joker 16 16
 ................................
 ................................
 ................................
-
-glyph card-joker-half 8 16
+glyph @-half 8 16
 ................
 ................
 ................
@@ -394,8 +381,7 @@ glyph card-joker-white 16 16
 ref card-border fill card-border
 ref card-fill fill card-white
 ref card-joker fill card-black
-
-glyph card-joker-white-half 8 16
+glyph @-half 8 16
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-joker-half fill card-black
@@ -417,8 +403,7 @@ glyph card-joker-fill 16 16
 ......@@@@@@@@@@@@@@@@@@@@@@....
 ................................
 ................................
-
-glyph card-joker-fill-half 8 16
+glyph @-half 8 16
 ................
 ................
 ..@@@@@@@@@@@@..
@@ -440,8 +425,7 @@ glyph card-joker-black 16 16
 ref card-border fill card-border
 ref card-fill fill card-white
 ref card-joker-fill fill card-black
-
-glyph card-joker-black-half 8 16
+glyph @-half 8 16
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-joker-fill-half fill card-black
@@ -463,8 +447,7 @@ glyph card-joker-half-fill 16 16
 ....../10//10//10//10//10//1....
 ................................
 ................................
-
-glyph card-joker-half-fill-half 8 16
+glyph @-half 8 16
 ................
 ................
 ..0//10//10//1..
@@ -487,8 +470,7 @@ ref card-border fill card-border
 ref card-fill fill card-red coloronly
 ref card-joker fill card-white coloronly
 ref card-joker-half-fill fill fg monoonly
-
-glyph card-joker-red-half 8 16
+glyph @-half 8 16
 ref card-border-half fill card-border
 ref card-fill-half fill card-red coloronly
 ref card-joker-half fill card-white coloronly
@@ -499,8 +481,7 @@ ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-spade fill card-black
 ref card-rank-($card-rank) fill card-black
-
-glyph card-spade-($card-rank)-half
+glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-spade-half fill card-black
@@ -511,8 +492,7 @@ ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-heart fill card-red
 ref card-rank-($card-rank) fill card-black
-
-glyph card-heart-($card-rank)-half
+glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-heart-half fill card-red
@@ -523,8 +503,7 @@ ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-diamond fill card-red
 ref card-rank-($card-rank) fill card-black
-
-glyph card-diamond-($card-rank)-half
+glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-diamond-half fill card-red
@@ -535,8 +514,7 @@ ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-club fill card-black
 ref card-rank-($card-rank) fill card-black
-
-glyph card-club-($card-rank)-half
+glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-club-half fill card-black
@@ -571,8 +549,7 @@ glyph card-tarot-border 16 16
 ....@@..\01\........../10/..@@..
 ....\0@@@@@@@@@@@@@@@@@@@@@@0/..
 ................................
-
-glyph card-tarot-border-half 8 16
+glyph @-half 8 16
 ................
 /0@@@@@@@@@@@@0\
 @@/01/....\10\@@
@@ -593,8 +570,7 @@ glyph card-tarot-border-half 8 16
 glyph card-tarot-blank 16 16
 ref card-fill fill card-white
 ref card-tarot-border fill card-border
-
-glyph card-tarot-blank-half 8 16
+glyph @-half 8 16
 ref card-fill-half fill card-white
 ref card-tarot-border-half fill card-border
 

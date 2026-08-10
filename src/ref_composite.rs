@@ -355,6 +355,7 @@ pub(crate) fn derive_ref_offsets_with(
                     try_match_minus_plus(alt_anchors, &available_plus)
                 {
                     let alt_gref = GlyphRef {
+                        raw_name: None,
                         comment: None,
                         name: alt_name.clone(),
                         offset: None,
@@ -422,6 +423,7 @@ pub(crate) fn derive_ref_offsets_with(
             );
             if let Some((alt_name, alt_anchors)) = alt_found {
                 let alt_gref = GlyphRef {
+                    raw_name: None,
                     comment: None,
                     name: alt_name,
                     offset: None,
@@ -500,6 +502,7 @@ pub(crate) fn derive_ref_offsets_with(
             }
         };
         let resolved_gref = GlyphRef {
+            raw_name: None,
             comment: None,
             name: resolved_name,
             offset: gref.offset,
@@ -726,6 +729,7 @@ fn commit_ref(
     out: &mut Option<GlyphRef>,
 ) {
     let effective = GlyphRef {
+        raw_name: None,
         comment: None,
         name: gref.name.clone(),
         offset: Some(offset),

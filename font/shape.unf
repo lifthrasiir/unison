@@ -959,9 +959,9 @@ glyph black-white-circle-7-l-r 16 16 refonly
 ................................
 ................................
 ref 13x13-circle:zero 2 1
-ref black-white-circle-7-l-r-aux 3 2 negated
+ref @-aux 3 2 negated
 
-glyph black-white-circle-7-l-r-aux
+glyph @-aux
 ref 11x11-circle:zero
 ref 5p1r2x11 0 0 negated
 
@@ -983,9 +983,9 @@ glyph black-white-circle-7-r-l 16 16 refonly
 ................................
 ................................
 ref 13x13-circle:zero 2 1
-ref black-white-circle-7-r-l-aux 3 2 negated
+ref @-aux 3 2 negated
 
-glyph black-white-circle-7-r-l-aux
+glyph @-aux
 ref 11x11-circle:zero
 ref -5p1r2x11 5 0 negated
 
@@ -1007,9 +1007,9 @@ glyph black-white-circle-7-u-d 16 16 refonly
 ................................
 ................................
 ref 13x13-circle:zero 2 1
-ref black-white-circle-7-u-d-aux 3 2 negated
+ref @-aux 3 2 negated
 
-glyph black-white-circle-7-u-d-aux
+glyph @-aux
 ref 11x11-circle:zero
 ref 11x5p1r2 0 0 negated
 
@@ -1031,9 +1031,9 @@ glyph black-white-circle-7-d-u 16 16 refonly
 ................................
 ................................
 ref 13x13-circle:zero 2 1
-ref black-white-circle-7-d-u-aux 3 2 negated
+ref @-aux 3 2 negated
 
-glyph black-white-circle-7-d-u-aux
+glyph @-aux
 ref 11x11-circle:zero
 ref 11x-5p1r2 0 5 negated
 
@@ -1055,9 +1055,9 @@ glyph black-white-circle-7-quadrant-2-134 16 16 refonly
 ................................
 ................................
 ref 13x13-circle:zero 2 1
-ref black-white-circle-7-quadrant-2-134-aux 3 2 negated
+ref @-aux 3 2 negated
 
-glyph black-white-circle-7-quadrant-2-134-aux
+glyph @-aux
 ref 11x11-circle:zero
 ref -5p1r2x5p1r2 5 0 negated
 
@@ -1079,9 +1079,9 @@ glyph black-white-circle-7-quadrant-234-1 16 16 refonly
 ................................
 ................................
 ref 13x13-circle:zero 2 1
-ref black-white-circle-7-quadrant-234-1-aux 3 2 negated
+ref @-aux 3 2 negated
 
-glyph black-white-circle-7-quadrant-234-1-aux
+glyph @-aux
 ref 11x11-circle:zero
 ref -5p1r2x11 5 0 negated
 ref 11x-5p1r2 0 5 negated
@@ -1255,16 +1255,16 @@ glyph dotted-circle-7 16 16 refonly
 ............@@..@@..@@..........
 ................................
 ................................
-ref dotted-circle-7-aux0 2 1
+ref @-aux0 2 1
 
-glyph dotted-circle-7-aux0
+glyph @-aux0
 ref 13x13-circle:zero
 ref 11x11-circle:zero 1 1 negated
-ref dotted-circle-7-aux1 negated
-ref dotted-circle-7-aux2 negated
-ref dotted-circle-7-aux3 negated
+ref @-aux1 negated
+ref @-aux2 negated
+ref @-aux3 negated
 
-glyph dotted-circle-7-aux1 13 13 scale 2
+glyph @-aux1 13 13 scale 2
 ref 6p7r14x-1p8r14-dl:zero 0 9
 ref 6p1r2x-0p1r2-dl:zero 0 11 negated
 ref 6p7r14x1p8r14-ul:zero 0 13
@@ -1282,7 +1282,7 @@ ref -0p1r2x-6p1r2-dr:zero 11 12 negated
 ref 1p8r14x-6p7r14-dl:zero 13 12
 ref 0p1r2x-6p1r2-dl:zero 13 12 negated
 
-glyph dotted-circle-7-aux2 13 13 scale 2
+glyph @-aux2 13 13 scale 2
 ref 6p1r2x4-dl:zero 0 5
 ref 6p5r10x-2p7r10-dl:zero 0 7 negated
 ref 6p1r2x4-ul:zero 0 13
@@ -1300,7 +1300,7 @@ ref -2p7r10x-6p5r10-dr:zero 7 12 negated
 ref 4x-6p1r2-dl:zero 13 12
 ref 2p7r10x-6p5r10-dl:zero 13 12 negated
 
-glyph dotted-circle-7-aux3 13 13 scale 2
+glyph @-aux3 13 13 scale 2
 ref 13x13
 ref 6p9r18x-5p10r18-dl:zero 0 1 negated
 ref -5p10r18x6p9r18-ur:zero 1 0 negated
@@ -5058,9 +5058,9 @@ glyph black-white-star-7-l-r 16 16 refonly
 ................................
 ................................
 ref 13x13-poly5r2:zero 2 2
-ref black-white-star-7-l-r-aux 4 4 negated
+ref @-aux 4 4 negated
 
-glyph black-white-star-7-l-r-aux
+glyph @-aux
 ref 9x9-poly5r2:zero
 ref 4p1r2x9 0 0 negated
 
@@ -5082,9 +5082,9 @@ glyph black-white-star-7-r-l 16 16 refonly
 ................................
 ................................
 ref 13x13-poly5r2:zero 2 2
-ref black-white-star-7-r-l-aux 4 4 negated
+ref @-aux 4 4 negated
 
-glyph black-white-star-7-r-l-aux
+glyph @-aux
 ref 9x9-poly5r2:zero
 ref -4p1r2x9 4 0 negated
 
