@@ -40,6 +40,10 @@ pub struct CancelToken(Option<Arc<AtomicBool>>);
 
 impl CancelToken {
     /// A fresh token, not yet cancelled.
+    ///
+    /// Only the editor ever cancels; the headless binary passes
+    /// [`CancelToken::never`] everywhere, so this is dead there by design.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn new() -> Self {
         Self(Some(Arc::new(AtomicBool::new(false))))
     }
@@ -49,7 +53,9 @@ impl CancelToken {
         Self(None)
     }
 
-    /// Ask every holder of this token to stop as soon as it notices.
+    /// Ask every holder of this token to stop as soon as it notices. Dead in
+    /// the headless binary for the same reason [`CancelToken::new`] is.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn cancel(&self) {
         if let Some(flag) = &self.0 {
             flag.store(true, Ordering::Relaxed);

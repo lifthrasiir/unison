@@ -75,7 +75,8 @@
 //! - `map BASE SELECTOR = GLYPH` — cmap mapping of a Unicode *variation
 //!   sequence*. Two spellings, and each round-trips as written: `U+0030 U+FE0F`
 //!   is two tokens, while the same pair pasted from a character picker is one
-//!   token holding two characters. They may not be mixed. Only a two-character
+//!   token holding two characters; each half carries its own spelling, so the
+//!   two may be mixed. Only a two-character
 //!   token whose second character is a selector splits — a longer paste like
 //!   `0️⃣` stays whole and is rejected by name, because cmap format 14 holds a
 //!   base and one selector and nothing longer; the rest of such a sequence
@@ -1486,7 +1487,7 @@ pub fn is_source_file(path: &Path) -> bool {
 
 // Write via temp file + rename to work around macOS SMB server silently
 // ignoring file truncation (https://github.com/rust-lang/rust/issues/159054).
-#[cfg(any(feature = "editor", test))]
+#[cfg(feature = "editor")]
 pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
     let dir = path.parent().unwrap_or(Path::new("."));
     let tmp_path = dir.join(format!(

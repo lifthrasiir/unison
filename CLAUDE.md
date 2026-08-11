@@ -15,7 +15,7 @@ recording, put it next to the code and add at most a line here.
 cargo build -r    # normal build
 cargo test        # unit + golden + GUI-harness tests
 make              # build unison.ttf/.woff2 + sample.html/sample.png/live.html
-make test         # the above, then run the `assert` directives in font/
+make test         # the above, the headless test suite, then the `assert` directives in font/
 ```
 
 Cross-compiling for Windows — use these instead of the plain commands when the current environment
@@ -58,8 +58,17 @@ The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 | `UNIFORM_PROFILE_RUNS` | Iteration count for the `ref_composite` profiling test |
 
 Cargo features: `editor` (default) pulls in eframe/egui/tiny-skia/notify/rfd/arboard. `--no-default-features`
-builds the headless CLI only — **it breaks easily**, since most code is under `#[cfg(feature = "editor")]`;
-check it when touching module boundaries (there is a past commit fixing exactly this rot).
+builds the headless CLI only — **it breaks easily**, since most code is under `#[cfg(feature = "editor")]`,
+and `cargo test` never builds it. It has rotted twice, so `make test` now runs `cargo test
+--no-default-features` (the `check-headless` target) rather than trusting anyone to remember.
+
+Which side of the boundary a fix belongs on: an item the headless *binary* genuinely does not need stays
+`#[cfg(feature = "editor")]`, and a test that reaches for it is gated the same way — `detail.rs` gates its
+own rotation/snapping tests exactly so. Widening a gate to `any(feature = "editor", test)` pulls the item's
+whole dependency chain along with it, so it is for items whose callers are already core. An item that is
+live in the headless *test* build but dead in the headless *binary* takes
+`#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]`, which is `expect` and not `allow`
+on purpose: it fails once the item does get used there.
 
 ## Source Layout
 

@@ -804,6 +804,9 @@ fn dot_corner_shapes_and_their_complements_trace_as_expected() {
 /// this is the ordinary outcome of clicking pixels quickly; without it, each
 /// click's build ran to the end and the next one queued behind it on the
 /// contour cache.
+// The editor's cached build path is the subject here, not something the test
+// merely reaches for, so this one is gated rather than the functions it calls.
+#[cfg(feature = "editor")]
 #[test]
 fn a_cancelled_build_produces_no_font() {
     let input = "\

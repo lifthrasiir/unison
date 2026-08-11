@@ -156,12 +156,16 @@ impl CompositeGridCache {
 
     /// Drop everything, for a source that has nothing to do with what is
     /// cached — switching folders, where every key belongs to a font that is
-    /// no longer open.
+    /// no longer open. Only the editor ever switches folders.
+    #[cfg(feature = "editor")]
     pub fn clear(&mut self) {
         self.entries.clear();
     }
 
-    /// Composites the last run reused and recomposed, in that order.
+    /// Composites the last run reused and recomposed, in that order. Read by
+    /// the editor's `UNIFORM_PERF` logging and by tests, and by nothing in the
+    /// headless binary.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn stats(&self) -> (usize, usize) {
         (self.hits, self.misses)
     }
@@ -1201,7 +1205,7 @@ pub struct GlyphComposite {
     pub inherited_anchors: Vec<(GlyphPoint, usize)>,
 }
 
-#[cfg_attr(not(feature = "editor"), expect(dead_code))]
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 impl GlyphComposite {
     pub fn any_layer_filled_at(&self, composite_row: i16, composite_col: i16) -> bool {
         let mut filled = false;
@@ -1585,7 +1589,7 @@ impl CompositeLayout<'_> {
 /// `own_pixels` (if any) plus `refs`, each resolved against `named_glyphs`
 /// via [`resolve_ref_name_for_view`] (which falls back to pattern expansion
 /// when a ref name isn't a direct cache key).
-#[cfg(any(feature = "editor", test))]
+#[cfg(feature = "editor")]
 pub(crate) fn composite_bounds(
     own_pixels: Option<&PixelGrid>,
     refs: &[GlyphRef],

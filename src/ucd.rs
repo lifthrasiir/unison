@@ -259,7 +259,8 @@ pub fn parse_block_range(s: &str) -> Option<(u32, u32)> {
 }
 
 /// Serialize an inclusive code point range the way [`parse_block_range`] reads
-/// it back.
+/// it back. Only a `prop block` written back out needs it, which is the editor.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn format_block_range(start: u32, end: u32) -> String {
     if start == end {
         format!("U+{start:04X}")

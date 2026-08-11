@@ -22,8 +22,17 @@ OUTPUTS = sample.html live.html sample.png $(TTC) $(WOFF2)
 .PHONY: all
 all: $(OUTPUTS)
 
+# `cargo test` only ever builds the default feature set, so the headless build
+# rots silently: most of the crate is behind `#[cfg(feature = "editor")]`, and a
+# test that reaches past that boundary compiles fine until someone thinks to try
+# this. It has broken twice that way. A second debug profile, so it shares no
+# target directory with the release build above and the two can run under `-j`.
+.PHONY: check-headless
+check-headless:
+	$(CARGO) test --no-default-features
+
 .PHONY: test
-test: all $(SRC)
+test: all check-headless $(SRC)
 	$(CARGO) run $(CARGOFLAGS) -- test -i $(INPATH)
 
 .PHONY: clean

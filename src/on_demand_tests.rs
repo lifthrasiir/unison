@@ -687,8 +687,11 @@ fn a_negative_dimension_anchors_a_curved_shape_like_a_rectangle() {
     // The last subcolumn is bare in one and the first in the other.
     assert!((0..8).all(|r| plain.get(r, 7).is_empty()));
     assert!((0..8).all(|r| flipped.get(r, 0).is_empty()));
-    // One is the mirror image of the other, to within the lattice the
-    // vertices snap to.
+    // One is the mirror image of the other, to within the lattice the vertices
+    // snap to. Only this part needs `DetailRegion::mirror_h`, which belongs to
+    // the editor's shape palette, so only this part is gated — the anchoring
+    // the test is named for is core and stays in the headless build.
+    #[cfg(feature = "editor")]
     for r in 0..8 {
         for c in 0..8 {
             let a = plain.region_at(r, c).mirror_h().canonical().area2();

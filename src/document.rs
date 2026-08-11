@@ -2741,6 +2741,7 @@ mod tests {
         assert_eq!(serialized_lines[file_lines[4]], "map A = b");
     }
 
+    #[cfg(feature = "editor")]
     #[test]
     fn snap_details_keeps_straight_edges_straight() {
         // The top half of a logical pixel at scale 2, rescaled to scale 3:
@@ -2771,6 +2772,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "editor")]
     #[test]
     fn snap_details_keeps_diagonals_diagonal() {
         // Same rescale over a diagonal: the cells the diagonal crosses do
