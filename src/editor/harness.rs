@@ -826,10 +826,10 @@ impl EditorHarness {
     /// x offset of document column `col`, inline annotations included, so
     /// clicking lands where the editor actually draws that column.
     fn char_x(&self, text: &str, annotations: &[InlineAnnotation], col: usize) -> f32 {
-        if col == 0 || text.is_empty() {
+        let prefix = AnnotatedText::new(text, annotations).display_prefix(col);
+        if prefix.is_empty() {
             return 0.0;
         }
-        let prefix = AnnotatedText::new(text, annotations).display_prefix(col);
         let font_id = self.font_id.clone();
         self.ctx.fonts(|f| {
             f.layout_no_wrap(prefix, font_id, egui::Color32::WHITE)

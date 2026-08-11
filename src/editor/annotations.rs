@@ -5,6 +5,12 @@
 //! caret steps over it in one go — the annotated character plus its annotation
 //! behave as a single unit for hit-testing, caret placement and selection.
 //!
+//! For *soft wrapping* it is not a unit but ordinary text: the line breaks
+//! wherever the rendered line overflows, annotation included, so a long
+//! annotation wraps by itself instead of dragging the character it trails onto
+//! the next line (`visual_lines::compute_wrap_segments`). The piece landing on
+//! a later segment is an annotation at relative column 0 there.
+//!
 //! The producers are `map` and `assert shape`, which spell out the codepoints of
 //! literally written text (`map 가 = ...` renders as `map 가 U+AC00 = ...`). Both
 //! exist because a source may hold characters that cannot be seen: a variation
@@ -20,9 +26,14 @@ use crate::pattern::has_top_level_pipe;
 
 /// Display-only text inserted *after* document column `col` of a text line.
 ///
-/// `col` is a character column and is always >= 1: an annotation trails the
-/// character it describes, so the caret at `col` sits past the annotation
-/// while the caret at `col - 1` sits before the annotated character.
+/// `col` is a character column, and on a whole document line it is always at
+/// least 1: an annotation trails the character it describes, so the caret at
+/// `col` sits past the annotation while the caret at `col - 1` sits before the
+/// annotated character.
+///
+/// A soft wrap breaks the rendered line, annotations included, so a *wrapped
+/// segment* may also carry `col == 0`: the tail of an annotation that began on
+/// the previous visual line, drawn before every character of this one.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct InlineAnnotation {
     pub col: usize,
@@ -199,6 +210,12 @@ impl<'a> AnnotatedText<'a> {
     pub(crate) fn display_prefix(&self, col: usize) -> String {
         let mut out = String::new();
         let mut ai = 0usize;
+        // A leading fragment precedes every character here, so it is part of
+        // even the empty prefix: column 0 sits after it.
+        while self.annotations.get(ai).is_some_and(|a| a.col == 0) {
+            out.push_str(&self.annotations[ai].text);
+            ai += 1;
+        }
         for (i, c) in self.text.chars().enumerate() {
             if i >= col {
                 break;
@@ -240,6 +257,15 @@ impl<'a> AnnotatedText<'a> {
                 display_start: start,
             });
         };
+        while self.annotations.get(ai).is_some_and(|a| a.col == 0) {
+            push(
+                &mut runs,
+                &mut display_len,
+                self.annotations[ai].text.clone(),
+                true,
+            );
+            ai += 1;
+        }
         for (i, c) in self.text.chars().enumerate() {
             pending.push(c);
             while let Some(a) = self.annotations.get(ai) {
@@ -263,9 +289,8 @@ impl<'a> AnnotatedText<'a> {
 
     /// Pixel x of document column `col`, relative to the line's left edge.
     pub(crate) fn x_pos(&self, ui: &egui::Ui, font_id: &egui::FontId, col: usize) -> f32 {
-        if col == 0 || self.text.is_empty() {
-            return 0.0;
-        }
+        // Not short-circuited at `col == 0`: a segment starting mid-annotation
+        // draws that tail before its first column.
         text_width(ui, font_id, &self.display_prefix(col))
     }
 

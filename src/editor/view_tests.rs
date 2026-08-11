@@ -2650,6 +2650,69 @@ fn map_literal_char_renders_codepoint_annotation() {
     assert_eq!(h.state.cursor, Caret::new(0, 6));
 }
 
+/// An annotation too long for one visual line wraps by itself, exactly as the
+/// same text written in the document would. It used to be unbreakable, so a
+/// long one dragged the character it trails onto the next line and then
+/// painted past the right edge anyway.
+#[test]
+fn a_long_annotation_wraps_across_visual_lines() {
+    // 20 characters, so the ` U+XXXX` spelling is far wider than any editor.
+    let text = "안녕하세요반갑습니다어서오세요고맙습니다";
+    let line = format!("assert shape {text} : greeting");
+    let mut h = EditorHarness::new(&format!("{line}\nglyph greeting 2 2\n....\n....\n"));
+    assert_view_consistent(&h);
+
+    let segments: Vec<(String, usize, String)> = h
+        .snap()
+        .vlines
+        .iter()
+        .filter(|vl| vl.doc_line == 0)
+        .filter_map(|vl| match &vl.kind {
+            SnapKind::Text {
+                text,
+                col_offset,
+                display,
+                ..
+            } => Some((text.clone(), *col_offset, display.clone())),
+            SnapKind::GridRow { .. } => None,
+        })
+        .collect();
+    assert!(
+        segments.len() > 1,
+        "the annotation must wrap for this test to mean anything"
+    );
+
+    // The rendered segments reassemble the rendered line: the annotation is
+    // split across them, not dropped, duplicated or held back.
+    let joined_display: String = segments.iter().map(|(_, _, d)| d.as_str()).collect();
+    let expected: String = format!(
+        "assert shape {text}{} : greeting",
+        text.chars()
+            .map(|c| format!(" U+{:04X}", c as u32))
+            .collect::<String>()
+    );
+    assert_eq!(joined_display, expected);
+    let joined_text: String = segments.iter().map(|(t, _, _)| t.as_str()).collect();
+    assert_eq!(joined_text, line, "the document line is unchanged");
+
+    // At least one segment carries only annotation and no document column of
+    // its own — the wrap fell inside the annotation twice over.
+    assert!(
+        segments
+            .iter()
+            .any(|(t, _, display)| t.is_empty() && !display.is_empty()),
+        "expected an annotation-only segment: {segments:?}"
+    );
+
+    // The caret still walks document columns: the columns on either side of
+    // the wrapped annotation are reachable and one step apart.
+    let after = "assert shape ".chars().count() + text.chars().count();
+    h.click_text(0, after);
+    assert_eq!(h.state.cursor, Caret::new(0, after));
+    h.key(Key::ArrowRight);
+    assert_eq!(h.state.cursor, Caret::new(0, after + 1));
+}
+
 /// A `map` already written as `U+XXXX` needs no annotation.
 #[test]
 fn map_explicit_codepoint_is_not_annotated() {

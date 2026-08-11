@@ -212,6 +212,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Copy/Cut/Delete with nothing framed, and the corner a shift-click extends from | `editor/pixel_selection.rs` (`effective_selection`, `select_all`), `editor/mod.rs` (`pixel_select_anchor`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
+| Inline annotations: one caret step, but ordinary text to the line breaker | `editor/annotations.rs`, `editor/visual_lines.rs` (`compute_wrap_segments`) |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
 | The anchor shadow | `editor/anchor_shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
