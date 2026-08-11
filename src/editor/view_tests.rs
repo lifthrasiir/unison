@@ -851,7 +851,8 @@ fn enter_mid_header_demotes_grid_immediately_and_locally() {
 /// empty and never text in the file, so it goes away with the dimensions.
 #[test]
 fn deleting_dims_of_ref_only_glyph_drops_the_empty_grid() {
-    let mut h = EditorHarness::new("glyph foo 16 16\nref bar\n\nglyph bar 4 2\n@@......\n......@@\n");
+    let mut h =
+        EditorHarness::new("glyph foo 16 16\nref bar\n\nglyph bar 4 2\n@@......\n......@@\n");
     let original_lines = h.lines.clone();
     assert!(matches!(h.lines[1], DocLine::Grid(_)));
 
@@ -1477,9 +1478,12 @@ fn scaled_parent_preview_is_not_oversized() {
     );
 }
 
-/// The subglyph menu ("Inline to pixels") used to be reachable only by
-/// right-clicking the ref thumbnail in the inline tools panel. Right-clicking
-/// the grid while that ref layer is the selected one must offer it too.
+/// The subglyph menu used to be reachable only by right-clicking the ref
+/// thumbnail in the inline tools panel. Right-clicking the grid while that ref
+/// layer is the selected one must offer it too.
+///
+/// The target here draws pixels alone, so its first command ("Inline once")
+/// has no declaration to expand and flattens, exactly like the second one.
 #[test]
 fn right_click_grid_in_layer_move_offers_subglyph_menu() {
     let mut h = EditorHarness::new(&composite_doc());
@@ -1505,6 +1509,62 @@ fn right_click_grid_in_layer_move_offers_subglyph_menu() {
         !matches!(h.lines.get(5), Some(DocLine::Text(t)) if t.starts_with("ref ")),
         "the inlined ref line should be gone, lines: {:?}",
         h.lines
+    );
+}
+
+/// The same menu's "Inline once" on a target that *is* composed: the ref line
+/// is replaced by the target's own ref, rebased onto where it sat, and no ink
+/// is flattened into the grid.
+///
+/// DocLines: 0 header leaf, 1 grid leaf, 2 blank, 3 header mid,
+///           4 "ref leaf 1 0", 5 blank, 6 header parent, 7 grid parent,
+///           8 "ref mid 4 0".
+#[test]
+fn inline_once_from_the_grid_menu_keeps_the_targets_ref() {
+    let mut source = String::from("glyph leaf 4 4\n");
+    for r in 0..4 {
+        for c in 0..4 {
+            source.push_str(if r < 2 && c < 2 { "@@" } else { ".." });
+        }
+        source.push('\n');
+    }
+    source.push_str("\nglyph mid\nref leaf 1 0\n\nglyph parent 8 4\n");
+    for _ in 0..4 {
+        source.push_str(&"..".repeat(8));
+        source.push('\n');
+    }
+    source.push_str("ref mid 4 0\n");
+
+    let mut h = EditorHarness::new(&source);
+    enter_layer_move(&mut h, 7, 4, 0);
+
+    let cell = h.grid_cell_pos(7, 0, 0);
+    h.right_click_at(cell);
+    h.frame();
+    let item = cell + egui::vec2(24.0, 14.0);
+    h.move_pointer(item);
+    h.click_at(item);
+    h.frame();
+
+    let texts: Vec<&str> = h
+        .lines
+        .iter()
+        .filter_map(|l| match l {
+            DocLine::Text(t) => Some(t.as_str()),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        texts.contains(&"ref leaf 5 0"),
+        "`mid`'s own ref should have taken its place: {texts:?}"
+    );
+    assert!(
+        !texts.iter().any(|t| t.starts_with("ref mid")),
+        "the expanded ref line survived: {texts:?}"
+    );
+    assert!(
+        !h.grid(7).get(0, 4).is_filled(),
+        "nothing should have been flattened into the parent's grid"
     );
 }
 

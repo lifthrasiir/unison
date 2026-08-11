@@ -158,6 +158,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure and bearings | `ref_composite.rs` |
+| Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite.rs` (`InlineSource`) |
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite.rs` (`ResolvedGlyph`) |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite.rs` (`resolve_ref_name_for_view`) |

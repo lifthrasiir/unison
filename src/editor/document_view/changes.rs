@@ -199,6 +199,192 @@ fn flush_pixel_change(
     state.clear_document_sync_request();
 }
 
+/// Run the inline command the subglyph menu chose on ref `ref_idx` of the
+/// glyph being edited.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn apply_inline_action(
+    action: crate::editor::inline_tools::InlineAction,
+    lines: &mut Vec<DocLine>,
+    doc: &Document,
+    state: &mut EditorState,
+    edit_idx: usize,
+    ref_idx: usize,
+    composite: Option<&ref_composite::GlyphComposite>,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> bool {
+    use crate::editor::inline_tools::InlineAction;
+    match action {
+        InlineAction::Once => inline_ref_once(
+            lines,
+            doc,
+            state,
+            edit_idx,
+            ref_idx,
+            composite,
+            named_glyphs,
+            name_parts,
+        ),
+        InlineAction::ToPixels => inline_ref_to_pixels(
+            lines,
+            doc,
+            state,
+            edit_idx,
+            ref_idx,
+            named_glyphs,
+            name_parts,
+        ),
+    }
+}
+
+/// Ink to merge into the edited glyph's own pixel grid, already snapped to the
+/// shape catalog and in that glyph's subcell units.
+struct MergeGrid {
+    grid: PixelGrid,
+    row: i32,
+    col: i32,
+    negated: bool,
+}
+
+/// Replace a `ref` with the target's own declaration — its refs, rebased onto
+/// where the ref sat, and the pixels it draws itself.
+///
+/// This is one step of what [`inline_ref_to_pixels`] does all the way down: a
+/// target that is itself a composite stays composed, one level nearer. The
+/// offsets come from the resolved composite where there is one, so a ref that
+/// states no offset at all (an anchor-positioned one) inlines where it is
+/// drawn rather than at `(0, 0)`.
+///
+/// A target with no refs has no declaration to expand — it *is* its pixels —
+/// so there this falls back to flattening. Flags that do not survive the move
+/// (a `negated` target whose own refs subtract, `inherit` on a ref whose
+/// anchors now belong to another glyph) are combined with the ref's own as
+/// best they can be; the composition is only exactly preserved for the common
+/// case of a plain additive target.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn inline_ref_once(
+    lines: &mut Vec<DocLine>,
+    doc: &Document,
+    state: &mut EditorState,
+    edit_idx: usize,
+    ref_idx: usize,
+    composite: Option<&ref_composite::GlyphComposite>,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> bool {
+    let body = match doc.items.get(edit_idx) {
+        Some(DocumentItem::Glyph { body, .. }) => body,
+        _ => return false,
+    };
+    if ref_idx >= body.refs.len() {
+        return false;
+    }
+    let gref = &body.refs[ref_idx];
+    // The layer as the composite placed it: the alternative that was actually
+    // chosen, and the offset an anchor-positioned ref has no `offset` to state.
+    let layer = composite.and_then(|c| c.layers.iter().find(|l| l.ref_idx == ref_idx));
+    let target_name = layer.map_or(gref.name.as_str(), |l| l.resolved_name.as_str());
+    let resolved =
+        match ref_composite::resolve_ref_name_for_view(target_name, named_glyphs, name_parts) {
+            Some(r) => r,
+            None => return false,
+        };
+    let Some(source) = resolved.inline_source.clone() else {
+        return inline_ref_to_pixels(
+            lines,
+            doc,
+            state,
+            edit_idx,
+            ref_idx,
+            named_glyphs,
+            name_parts,
+        );
+    };
+
+    let parent_scale = body.scale.max(1);
+    let ref_scale = resolved.scale.max(1);
+    let (ps, rs) = (parent_scale as i32, ref_scale as i32);
+    // Where the target's own origin sits in this glyph's coordinates. Its
+    // refs and its pixels are both stated from there.
+    let base_row = layer.map_or(gref.row(), |l| l.logical_offset_row) as i32;
+    let base_col = layer.map_or(gref.col(), |l| l.logical_offset_col) as i32;
+    // The target states its refs in *its* subcells; this glyph's grid counts
+    // in its own. A finer target (`scale 4` inlined into a `scale 2` glyph)
+    // has positions this glyph's lattice cannot state, so the offset lands on
+    // the nearest cell it can — the only lossy part of inlining, and only
+    // between glyphs of different `scale`.
+    let rebase = |v: i16| div_round(v as i32 * ps, rs);
+
+    let replacement: Vec<String> = source
+        .refs
+        .iter()
+        .map(|sub| {
+            let mut inlined = sub.clone();
+            // An `@…` name stands for the enclosing base glyph, which from
+            // here on is a different one; the resolved name is what it meant.
+            inlined.raw_name = None;
+            // Both flags describe a relation to the glyph the ref was written
+            // in, and the inlined ref now sits in this one.
+            inlined.negated = sub.negated != gref.negated;
+            inlined.inherit = sub.inherit && gref.inherit;
+            let col = clamp_offset(base_col + rebase(sub.col()));
+            let row = clamp_offset(base_row + rebase(sub.row()));
+            inlined.format_line(Some((col, row)))
+        })
+        .collect();
+
+    // The pixels the target draws itself sit at its logical origin; everything
+    // else it is made of stays a ref.
+    let merge = source
+        .pixels
+        .as_ref()
+        .filter(|g| !g.is_all_empty())
+        .map(|g| {
+            let mut grid = if ref_scale == parent_scale {
+                g.clone()
+            } else {
+                g.rescale(ref_scale, parent_scale)
+            };
+            // Written into the file, so exact regions have to land back on the
+            // shape catalog first — see [`inline_ref_to_pixels`].
+            grid.snap_details_to_catalog();
+            MergeGrid {
+                grid,
+                row: base_row,
+                col: base_col,
+                negated: gref.negated,
+            }
+        });
+
+    apply_inline(
+        lines,
+        doc,
+        state,
+        edit_idx,
+        ref_idx,
+        merge,
+        replacement,
+        named_glyphs,
+        name_parts,
+    )
+}
+
+fn clamp_offset(value: i32) -> i16 {
+    value.clamp(i16::MIN as i32, i16::MAX as i32) as i16
+}
+
+/// `num / den` rounded to the nearest integer, halves away from zero. Plain
+/// integer division truncates *towards* zero, which would move a negative
+/// offset (a bearing) right while moving its positive mirror left.
+fn div_round(num: i32, den: i32) -> i32 {
+    debug_assert!(den > 0);
+    if num >= 0 {
+        (num + den / 2) / den
+    } else {
+        -((-num + den / 2) / den)
+    }
+}
+
 pub(super) fn inline_ref_to_pixels(
     lines: &mut Vec<DocLine>,
     doc: &Document,
@@ -215,7 +401,6 @@ pub(super) fn inline_ref_to_pixels(
     if ref_idx >= body.refs.len() {
         return false;
     }
-    let has_grid = body.pixels.is_some();
 
     let gref = &body.refs[ref_idx];
     let resolved =
@@ -223,9 +408,6 @@ pub(super) fn inline_ref_to_pixels(
             Some(r) => r,
             None => return false,
         };
-
-    let item_start = doc.item_line_starts[edit_idx];
-    let grid_line_idx = item_start + 1;
 
     let parent_scale = body.scale;
     let ref_scale = resolved.scale.max(1);
@@ -240,33 +422,64 @@ pub(super) fn inline_ref_to_pixels(
     scaled_ref_grid.snap_details_to_catalog();
     let ps = parent_scale as i32;
     let rs = ref_scale as i32;
-    let eff_row = gref.row() as i32 + resolved.origin_row * ps / rs;
-    let eff_col = gref.col() as i32 + resolved.origin_col * ps / rs;
-    let negated = gref.negated;
+    let merge = MergeGrid {
+        grid: scaled_ref_grid,
+        row: gref.row() as i32 + resolved.origin_row * ps / rs,
+        col: gref.col() as i32 + resolved.origin_col * ps / rs,
+        negated: gref.negated,
+    };
 
-    if has_grid {
-        let body_line_count = 1 + body.refs.len() + body.points.len();
-        let old_lines: Vec<DocLine> =
-            lines[grid_line_idx..grid_line_idx + body_line_count].to_vec();
+    apply_inline(
+        lines,
+        doc,
+        state,
+        edit_idx,
+        ref_idx,
+        Some(merge),
+        Vec::new(),
+        named_glyphs,
+        name_parts,
+    )
+}
 
-        if let Some(DocLine::Grid(grid)) = lines.get_mut(grid_line_idx) {
-            merge_ref_pixels(grid, &scaled_ref_grid, eff_row, eff_col, negated);
-        }
+/// The line surgery both inline commands share: merge `merge` into the glyph's
+/// own grid (creating one when there is ink to put there and no grid yet), then
+/// put `replacement` where the `ref` line was.
+///
+/// Everything from the header down is one undo entry: creating a grid rewrites
+/// the header, and the ref's own line may be anywhere among the layer lines.
+#[allow(clippy::too_many_arguments)]
+fn apply_inline(
+    lines: &mut Vec<DocLine>,
+    doc: &Document,
+    state: &mut EditorState,
+    edit_idx: usize,
+    ref_idx: usize,
+    merge: Option<MergeGrid>,
+    replacement: Vec<String>,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> bool {
+    let body = match doc.items.get(edit_idx) {
+        Some(DocumentItem::Glyph { body, .. }) => body,
+        _ => return false,
+    };
+    let item_start = doc.item_line_starts[edit_idx];
+    let grid_line_idx = item_start + 1;
+    let has_grid = body.pixels.is_some();
+    let old_len = 1 + usize::from(has_grid) + body.refs.len() + body.points.len();
+    if item_start + old_len > lines.len() {
+        return false;
+    }
+    let old_lines: Vec<DocLine> = lines[item_start..item_start + old_len].to_vec();
 
-        // Scanned, not computed from `ref_idx`: an `anchor` line may sit
-        // between the ref lines (see `layer_doc_line`).
-        let ref_text_line_idx = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
-        lines.remove(ref_text_line_idx);
+    // Scanned, not computed from `ref_idx`: an `anchor` line may sit between
+    // the ref lines (see `layer_doc_line`). Scanned before a grid is inserted,
+    // while `lines` still matches `body.pixels`.
+    let mut ref_text_line_idx = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
 
-        let new_lines: Vec<DocLine> =
-            lines[grid_line_idx..grid_line_idx + body_line_count - 1].to_vec();
-
-        let caret = state.cursor;
-        state.undo.break_coalesce();
-        state
-            .undo
-            .push_lines(grid_line_idx, old_lines, new_lines, caret, caret);
-    } else {
+    let mut inserted_grid = 0usize;
+    if merge.is_some() && !has_grid {
         let header_text = match &lines[item_start] {
             DocLine::Text(s) => s.clone(),
             _ => return false,
@@ -275,8 +488,8 @@ pub(super) fn inline_ref_to_pixels(
             Ok(t) => t,
             Err(_) => return false,
         };
-        let has_dims = parse_glyph_header_dims(&tokens).is_some();
-        let (w, h) = parse_glyph_header_dims(&tokens).unwrap_or_else(|| {
+        let dims = parse_glyph_header_dims(&tokens);
+        let (w, h) = dims.unwrap_or_else(|| {
             let (_min_r, _min_c, max_r, max_c) = ref_composite::composite_bounds(
                 None,
                 &body.refs,
@@ -284,49 +497,40 @@ pub(super) fn inline_ref_to_pixels(
                 name_parts,
                 body.scale,
             );
-            let w = (max_c).max(0) as u16;
-            let h = (max_r).max(0) as u16;
-            (w, h)
+            ((max_c).max(0) as u16, (max_r).max(0) as u16)
         });
         if w == 0 || h == 0 {
             return false;
         }
-
-        let body_line_count = body.refs.len() + body.points.len();
-        let undo_start = if has_dims { grid_line_idx } else { item_start };
-        let old_line_count = if has_dims {
-            body_line_count
-        } else {
-            1 + body_line_count
-        };
-        let old_lines: Vec<DocLine> = lines[undo_start..undo_start + old_line_count].to_vec();
-
-        if !has_dims {
+        if dims.is_none() {
             let new_header = document_io::append_to_line(&header_text, &format!("{w} {h}"));
             lines[item_start] = DocLine::Text(new_header);
         }
-        // Scanned before the grid is inserted (`body.pixels` is still `None`
-        // here, matching `lines`), then shifted past the insertion.
-        let ref_text_line_idx = pixel_interaction::layer_doc_line(lines, body, item_start, ref_idx);
-        let mut grid = PixelGrid::new(w, h);
-        merge_ref_pixels(&mut grid, &scaled_ref_grid, eff_row, eff_col, negated);
-        lines.insert(grid_line_idx, DocLine::Grid(grid));
-
-        lines.remove(ref_text_line_idx + 1);
-
-        let new_line_count = if has_dims {
-            1 + body.refs.len() - 1 + body.points.len()
-        } else {
-            1 + 1 + body.refs.len() - 1 + body.points.len()
-        };
-        let new_lines: Vec<DocLine> = lines[undo_start..undo_start + new_line_count].to_vec();
-
-        let caret = state.cursor;
-        state.undo.break_coalesce();
-        state
-            .undo
-            .push_lines(undo_start, old_lines, new_lines, caret, caret);
+        lines.insert(grid_line_idx, DocLine::Grid(PixelGrid::new(w, h)));
+        ref_text_line_idx += 1;
+        inserted_grid = 1;
     }
+
+    if let Some(merge) = &merge
+        && let Some(DocLine::Grid(grid)) = lines.get_mut(grid_line_idx)
+    {
+        merge_ref_pixels(grid, &merge.grid, merge.row, merge.col, merge.negated);
+    }
+
+    lines.remove(ref_text_line_idx);
+    let replacement_len = replacement.len();
+    for (i, text) in replacement.into_iter().enumerate() {
+        lines.insert(ref_text_line_idx + i, DocLine::Text(text));
+    }
+
+    let new_len = old_len + inserted_grid - 1 + replacement_len;
+    let new_lines: Vec<DocLine> = lines[item_start..item_start + new_len].to_vec();
+
+    let caret = state.cursor;
+    state.undo.break_coalesce();
+    state
+        .undo
+        .push_lines(item_start, old_lines, new_lines, caret, caret);
 
     state.mode = EditMode::GlyphEdit {
         item_idx: edit_idx,

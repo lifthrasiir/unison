@@ -299,7 +299,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             },
             negated: comp.negated ^ gref.negated,
             fill_rgba: fill_rgba.clone().or_else(|| comp.fill_rgba.clone()),
-            visibility: if overridden { fill_vis } else { comp.visibility },
+            visibility: if overridden {
+                fill_vis
+            } else {
+                comp.visibility
+            },
             desync: comp.desync,
         };
 
@@ -310,9 +314,8 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
             // agree on (or the `ref`'s own) survives.
             let mut parts = cached.components.iter().filter(|c| !c.desync);
             let first = parts.next().map(|c| (c.fill_rgba.clone(), c.visibility));
-            let agreed = first.filter(|(rgba, vis)| {
-                parts.all(|c| c.fill_rgba == *rgba && c.visibility == *vis)
-            });
+            let agreed = first
+                .filter(|(rgba, vis)| parts.all(|c| c.fill_rgba == *rgba && c.visibility == *vis));
             out.push(SampleComponent {
                 row: *row,
                 col: *col,

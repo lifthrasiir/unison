@@ -1,7 +1,7 @@
 //! Painting the document area: text, pixel grids, selection, the edit border
 //! and color backgrounds.
 
-use super::changes::{apply_edit_action_to_editor, inline_ref_to_pixels};
+use super::changes::{apply_edit_action_to_editor, apply_inline_action};
 use super::layout::{
     GridStrip, VLineKind, VisualLine, collect_grid_blocks, doc_line_to_y, gutter_line_number,
     inline_panel_reserved_width, visible_grid_rect,
@@ -733,14 +733,16 @@ pub(super) fn paint_document_area(
         if panel_result.click_consumed {
             click_result = None;
         }
-        if let Some(ref_idx) = panel_result.inline_ref {
+        if let Some((ref_idx, action)) = panel_result.inline_ref {
             refocus_after_menu(ui, wid);
-            if inline_ref_to_pixels(
+            if apply_inline_action(
+                action,
                 lines,
                 doc,
                 state,
                 edit_idx,
                 ref_idx,
+                composites.get(&edit_idx),
                 named_glyphs,
                 name_parts,
             ) {
@@ -982,18 +984,20 @@ pub(super) fn paint_document_area(
     // Context menu (only in Normal mode; edit modes use right-click for erasing)
     let ctx_mode_normal = matches!(state.mode, EditMode::Normal);
     if let Some((edit_idx, ref_idx)) = grid_subglyph_ref {
-        let mut inline = false;
+        let mut inline = None;
         response.context_menu(|ui| {
             inline = inline_tools::subglyph_context_menu(ui);
         });
-        if inline {
+        if let Some(action) = inline {
             refocus_after_menu(ui, wid);
-            if inline_ref_to_pixels(
+            if apply_inline_action(
+                action,
                 lines,
                 doc,
                 state,
                 edit_idx,
                 ref_idx,
+                composites.get(&edit_idx),
                 named_glyphs,
                 name_parts,
             ) {

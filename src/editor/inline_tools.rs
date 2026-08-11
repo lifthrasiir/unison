@@ -12,7 +12,16 @@ use crate::pixel;
 
 pub(crate) struct InlineToolsResult {
     pub click_consumed: bool,
-    pub inline_ref: Option<usize>,
+    pub inline_ref: Option<(usize, InlineAction)>,
+}
+
+/// How far the subglyph menu was asked to inline a ref layer.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum InlineAction {
+    /// One level, by the target's own declaration: its refs stay refs.
+    Once,
+    /// All the way down, into this glyph's pixel grid.
+    ToPixels,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -52,13 +61,17 @@ pub(crate) fn cycle_layer_mode(
 /// Items of the subglyph (ref layer) context menu. Shared by the ref thumbnail
 /// in the inline tools panel and by right-clicking the grid while that layer is
 /// the selected one, so both entry points offer the same actions.
-/// Returns true when "Inline to pixels" was chosen.
-pub(crate) fn subglyph_context_menu(ui: &mut egui::Ui) -> bool {
+/// Returns the inline command that was chosen, if any.
+pub(crate) fn subglyph_context_menu(ui: &mut egui::Ui) -> Option<InlineAction> {
+    if ui.button("Inline once").clicked() {
+        ui.close_menu();
+        return Some(InlineAction::Once);
+    }
     if ui.button("Inline to pixels").clicked() {
         ui.close_menu();
-        return true;
+        return Some(InlineAction::ToPixels);
     }
-    false
+    None
 }
 
 // Painting parameters plus the resolution tables the tools read.
@@ -183,7 +196,7 @@ pub(crate) fn draw_inline_tools_panel(
     // but at least as large as the pixel layer)
     let pixel_preview_w = full_preview_size.x;
     let pixel_preview_h = full_preview_size.y;
-    let mut inline_ref_action: Option<usize> = None;
+    let mut inline_ref_action: Option<(usize, InlineAction)> = None;
     for (ref_idx, gref) in body.refs.iter().enumerate() {
         let resolved =
             ref_composite::resolve_ref_name_for_view(&gref.name, named_glyphs, name_parts);
@@ -248,8 +261,8 @@ pub(crate) fn draw_inline_tools_panel(
         }
 
         ref_response.context_menu(|ui| {
-            if subglyph_context_menu(ui) {
-                inline_ref_action = Some(ref_idx);
+            if let Some(action) = subglyph_context_menu(ui) {
+                inline_ref_action = Some((ref_idx, action));
             }
         });
 

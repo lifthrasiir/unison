@@ -113,6 +113,279 @@ fn inline_flatten_removes_the_ref_line_not_an_interleaved_anchor() {
     );
 }
 
+/// Everything "Inline once" needs from a source: the parsed document, the
+/// resolution the editor draws from, and the index of a glyph by name.
+fn inline_fixture(source: &str) -> (Vec<DocLine>, Document, InlineEnv) {
+    let lines = parse_doclines(source);
+    let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+    let name_parts = crate::document::collect_name_parts(&[&doc]);
+    let (named, alt_index) = ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+    (
+        lines,
+        doc,
+        InlineEnv {
+            named,
+            name_parts,
+            alt_index,
+        },
+    )
+}
+
+struct InlineEnv {
+    named: HashMap<String, ref_composite::ResolvedGlyph>,
+    name_parts: crate::document::NamePartsMap,
+    alt_index: ref_composite::AlternativesIndex,
+}
+
+#[track_caller]
+fn glyph_idx(doc: &Document, want: &str) -> usize {
+    doc.items
+        .iter()
+        .position(|i| matches!(i, DocumentItem::Glyph { name, .. } if name.display() == want))
+        .unwrap_or_else(|| panic!("no glyph named {want}"))
+}
+
+fn text_lines(lines: &[DocLine]) -> Vec<&str> {
+    lines
+        .iter()
+        .filter_map(|l| match l {
+            DocLine::Text(t) => Some(t.as_str()),
+            _ => None,
+        })
+        .collect()
+}
+
+/// The composite of `edit_idx`, as the view computes it — "Inline once" reads
+/// the offsets it derived for anchor-positioned refs from there.
+fn composite_of(
+    doc: &Document,
+    env: &InlineEnv,
+    edit_idx: usize,
+) -> Option<ref_composite::GlyphComposite> {
+    let DocumentItem::Glyph { body, .. } = &doc.items[edit_idx] else {
+        return None;
+    };
+    ref_composite::compute_composite(
+        body,
+        &env.named,
+        &env.name_parts,
+        &env.alt_index,
+        &Default::default(),
+    )
+}
+
+/// "Inline once" expands a `ref` by one level: the target's own refs take its
+/// place, rebased onto where the ref sat. What it refers to stays referred to.
+#[test]
+fn inline_once_replaces_a_ref_with_the_targets_own_refs() {
+    let (mut lines, doc, env) = inline_fixture(
+        "glyph stem 2 2\n\
+         @@..\n\
+         ..@@\n\
+         \n\
+         glyph mid\n\
+         ref stem 1 0\n\
+         ref stem 0 2\n\
+         \n\
+         glyph top\n\
+         ref mid 2 1\n",
+    );
+    let top = glyph_idx(&doc, "top");
+    let comp = composite_of(&doc, &env, top);
+    let mut state = EditorState::new();
+
+    assert!(changes::inline_ref_once(
+        &mut lines,
+        &doc,
+        &mut state,
+        top,
+        0,
+        comp.as_ref(),
+        &env.named,
+        &env.name_parts,
+    ));
+
+    let texts = text_lines(&lines);
+    assert!(
+        texts.contains(&"ref stem 3 1") && texts.contains(&"ref stem 2 3"),
+        "the target's refs should have been rebased onto the ref's offset: {texts:?}"
+    );
+    assert!(
+        !texts.iter().any(|t| t.starts_with("ref mid")),
+        "the expanded ref line survived: {texts:?}"
+    );
+    let top_start = lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(t) if t == "glyph top"))
+        .unwrap();
+    assert!(
+        !lines[top_start..]
+            .iter()
+            .any(|l| matches!(l, DocLine::Grid(_))),
+        "a target that draws no pixels of its own must not grow a grid: {lines:?}"
+    );
+}
+
+/// The target states its refs in *its* subcells: inlining a `scale 1` glyph
+/// into a `scale 2` one doubles every offset, and the other way round halves
+/// it onto the coarser lattice.
+#[test]
+fn inline_once_rebases_offsets_across_a_scale_difference() {
+    let (lines, doc, env) = inline_fixture(
+        "glyph stem 1 1\n\
+         @@\n\
+         \n\
+         glyph coarse\n\
+         ref stem 1 0\n\
+         ref stem 0 2\n\
+         \n\
+         glyph fine scale 2\n\
+         ref stem 1 0\n\
+         ref stem 0 2\n\
+         \n\
+         glyph up 4 2 scale 2\n\
+         ................\n\
+         ................\n\
+         ................\n\
+         ................\n\
+         ref coarse 3 1\n\
+         \n\
+         glyph down 4 2\n\
+         ........\n\
+         ........\n\
+         ref fine 3 1\n",
+    );
+
+    for (parent, want) in [
+        ("up", ["ref stem 5 1", "ref stem 3 5"]),
+        ("down", ["ref stem 4 1", "ref stem 3 2"]),
+    ] {
+        let idx = glyph_idx(&doc, parent);
+        let comp = composite_of(&doc, &env, idx);
+        let mut state = EditorState::new();
+        let mut lines_of = lines.clone();
+        assert!(changes::inline_ref_once(
+            &mut lines_of,
+            &doc,
+            &mut state,
+            idx,
+            0,
+            comp.as_ref(),
+            &env.named,
+            &env.name_parts,
+        ));
+        let texts = text_lines(&lines_of);
+        for line in want {
+            assert!(
+                texts.contains(&line),
+                "inlining into `{parent}` should have written `{line}`: {texts:?}"
+            );
+        }
+    }
+}
+
+/// A target that draws pixels *and* refs gives up both: the pixels land in the
+/// parent's grid exactly as flattening would put them, the refs stay refs.
+#[test]
+fn inline_once_merges_the_targets_own_pixels() {
+    let (mut lines, doc, env) = inline_fixture(
+        "glyph dot 2 2\n\
+         @@..\n\
+         ....\n\
+         \n\
+         glyph mid 4 2\n\
+         ..@@....\n\
+         ........\n\
+         ref dot 2 0\n\
+         \n\
+         glyph top 8 2\n\
+         ................\n\
+         ................\n\
+         ref mid 1 0\n",
+    );
+    let top = glyph_idx(&doc, "top");
+    let comp = composite_of(&doc, &env, top);
+    let mut state = EditorState::new();
+
+    assert!(changes::inline_ref_once(
+        &mut lines,
+        &doc,
+        &mut state,
+        top,
+        0,
+        comp.as_ref(),
+        &env.named,
+        &env.name_parts,
+    ));
+
+    let grid = lines
+        .iter()
+        .filter_map(|l| match l {
+            DocLine::Grid(g) => Some(g),
+            _ => None,
+        })
+        .next_back()
+        .expect("top keeps its grid");
+    assert!(
+        grid.get(0, 2).is_filled(),
+        "the target's own pixel should land at its column plus the ref's offset"
+    );
+    assert!(
+        !grid.get(0, 3).is_filled(),
+        "the target's *ref* must not be flattened too"
+    );
+    let texts = text_lines(&lines);
+    assert!(
+        texts.contains(&"ref dot 3 0"),
+        "the target's ref should survive, rebased: {texts:?}"
+    );
+}
+
+/// A target with no refs has no declaration to expand — it is its pixels — so
+/// "Inline once" is the flatten there.
+#[test]
+fn inline_once_of_a_pixel_only_target_flattens_it() {
+    let (mut lines, doc, env) = inline_fixture(
+        "glyph stem 2 2\n\
+         @@..\n\
+         ..@@\n\
+         \n\
+         glyph top 4 2\n\
+         ........\n\
+         ........\n\
+         ref stem 1 0\n",
+    );
+    let top = glyph_idx(&doc, "top");
+    let comp = composite_of(&doc, &env, top);
+    let mut state = EditorState::new();
+
+    assert!(changes::inline_ref_once(
+        &mut lines,
+        &doc,
+        &mut state,
+        top,
+        0,
+        comp.as_ref(),
+        &env.named,
+        &env.name_parts,
+    ));
+
+    let texts = text_lines(&lines);
+    assert!(
+        !texts.iter().any(|t| t.starts_with("ref ")),
+        "the ref line should be gone: {texts:?}"
+    );
+    let grid = lines
+        .iter()
+        .filter_map(|l| match l {
+            DocLine::Grid(g) => Some(g),
+            _ => None,
+        })
+        .next_back()
+        .unwrap();
+    assert!(grid.get(0, 1).is_filled() && grid.get(1, 2).is_filled());
+}
+
 fn assert_all_doc_lines_covered(input: &str) {
     let lines = parse_doclines(input);
     let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();

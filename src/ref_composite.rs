@@ -130,6 +130,28 @@ pub struct ResolvedGlyph {
     /// from refs).  Used by look-ahead alternative selection.
     pub(crate) declared_anchors: Vec<GlyphPoint>,
     pub scale: u8,
+    /// What this glyph is *declared* as, for the one consumer that has to undo
+    /// one level of composition rather than read the result of all of them:
+    /// the editor's "Inline once". `None` unless the glyph declares refs — a
+    /// glyph made of pixels alone already *is* its `grid`, and an on-demand
+    /// shape has no declaration to expand at all.
+    #[cfg_attr(not(feature = "editor"), allow(dead_code))]
+    pub inline_source: Option<std::sync::Arc<InlineSource>>,
+}
+
+/// A composite's own declaration, as "Inline once" pastes it in place of a
+/// `ref` to it.
+///
+/// The refs are the *effective* ones — an anchor-positioned ref carries the
+/// offset resolution derived for it, and the name of the alternative that was
+/// actually chosen — so inlining reproduces the placement on screen instead of
+/// re-deriving it in a parent whose anchors are not the same. Coordinates are
+/// this glyph's own, at its own `scale`; the caller rebases them.
+#[cfg_attr(not(feature = "editor"), allow(dead_code))]
+pub struct InlineSource {
+    pub refs: Vec<GlyphRef>,
+    /// The pixels this glyph draws itself, at its logical origin.
+    pub pixels: Option<PixelGrid>,
 }
 
 fn saturating_i16(value: i32) -> i16 {
@@ -902,6 +924,7 @@ pub fn resolve_expansion(
                     resolved_anchors: body.points.clone(),
                     declared_anchors: body.points,
                     scale: body.scale,
+                    inline_source: None,
                 },
             );
         } else {
@@ -990,6 +1013,12 @@ pub fn resolve_expansion(
             );
             let (min_r, min_c) = (layout.min_r, layout.min_c);
             let grid = layout.to_grid(pg.pixels.as_ref(), pg.scale);
+            // Moved, not cloned: nothing below reads the pending body again,
+            // so carrying the declaration costs one allocation per composite.
+            let inline_source = std::sync::Arc::new(InlineSource {
+                refs: effective_refs,
+                pixels: pg.pixels,
+            });
             for prefix in alternative_prefixes(&pg.name) {
                 if let Some(count) = pending_alts.get_mut(prefix) {
                     *count -= 1;
@@ -1010,6 +1039,7 @@ pub fn resolve_expansion(
                     resolved_anchors: anchors,
                     declared_anchors: pg.points.clone(),
                     scale: pg.scale,
+                    inline_source: Some(inline_source),
                 },
             );
             progress = true;
@@ -1128,6 +1158,7 @@ fn synthesized_on_demand(name: &str) -> Option<&'static ResolvedGlyph> {
         resolved_anchors: Vec::new(),
         declared_anchors: Vec::new(),
         scale: spec.scale,
+        inline_source: None,
     }));
     cache.lock().unwrap().insert(name.to_string(), resolved);
     Some(resolved)
