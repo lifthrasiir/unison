@@ -207,6 +207,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |
 | Why the directory load reads its files on many threads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`) |
 | One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
+| Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite.rs` (`CompositeGridCache`) |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
 | Why the remembered face is applied before the first build, not after the first resolve | `app/mod.rs` (`with_settings`) |
 | What survives between runs, what egui persists on its own, and why there is no session restore | `app/settings.rs` |

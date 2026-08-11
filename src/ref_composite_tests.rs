@@ -1786,3 +1786,86 @@ ref circle
         assert_eq!(inner.offset, Some((1, 1)), "{glyph}");
     }
 }
+
+/// A second resolve of an unchanged source recomposes nothing, and an edit
+/// recomposes only what the edit reaches.
+///
+/// The editor resolves the whole source on every rebuild, and composing the
+/// grids is essentially all of what that costs — 1.28 s of a 1.42 s run over
+/// `font/`. Without the memo the pixel grid trailed the *built font* by more
+/// than a second, because the font build has memoized its own composites
+/// since `ContourCache` gained `composite_entries`; at a typing cadence
+/// shorter than the resolve, each rebuild cancelled the last and the grid
+/// never caught up at all. What is asserted here is the property that fixes
+/// it: work proportional to the edit, not to the font.
+#[test]
+fn resolving_twice_recomposes_only_what_changed() {
+    use crate::document_io;
+
+    // Two source characters per pixel, as everywhere else in `.unf`.
+    let source = |stem_pixels: &str| {
+        format!(
+            "\
+glyph stem 2 2
+{stem_pixels}
+
+glyph bar 2 2
+@@@@
+....
+
+glyph stem-bar 2 2
+ref stem
+ref bar
+
+glyph double-bar 2 2
+ref bar
+ref bar
+"
+        )
+    };
+    let name_parts = NamePartsMap::new();
+    let mut grid_cache = CompositeGridCache::default();
+    let resolve = |text: &str, gc: &mut CompositeGridCache| {
+        let doc = document_io::parse_document_from_str(text, "test.unf".into()).unwrap();
+        let docs = vec![&doc];
+        let expansion = crate::render::ttf_builder::expand_documents(&docs, &name_parts);
+        let (resolved, _) = resolve_expansion_cached(
+            expansion,
+            &name_parts,
+            &crate::cancel::CancelToken::never(),
+            Some(gc),
+        );
+        resolved
+    };
+
+    let first = resolve(&source("@@..\n@@.."), &mut grid_cache);
+    assert_eq!(
+        grid_cache.stats(),
+        (0, 2),
+        "a cold cache composes both composites"
+    );
+    let before = first["stem-bar"].grid.clone();
+
+    resolve(&source("@@..\n@@.."), &mut grid_cache);
+    assert_eq!(
+        grid_cache.stats(),
+        (2, 0),
+        "the same source composes nothing a second time"
+    );
+
+    // `stem` is what `stem-bar` draws over; `double-bar` never touches it.
+    let after = resolve(&source("..@@\n..@@"), &mut grid_cache);
+    assert_eq!(
+        grid_cache.stats(),
+        (1, 1),
+        "only the composite whose ink changed is recomposed"
+    );
+    assert_ne!(
+        after["stem-bar"].grid, before,
+        "and it is recomposed to the new shape, not served stale"
+    );
+    assert_eq!(
+        after["double-bar"].grid, first["double-bar"].grid,
+        "the untouched composite is unchanged"
+    );
+}

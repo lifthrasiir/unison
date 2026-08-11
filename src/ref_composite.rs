@@ -108,6 +108,91 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> egui::Color32 {
     )
 }
 
+/// The flattened grids of [`resolve_expansion`], memoized across runs.
+///
+/// Composing one is a per-cell exact boolean over sub-pixel regions, and over
+/// a full source it is essentially *all* of what a resolve costs: for `font/`,
+/// 1.28 s of a 1.42 s run. Nothing else in the resolve is expensive, so an
+/// editor that recomposes every glyph on every edit spends a second and a half
+/// per keystroke burst on grids that did not change — while the font build,
+/// which memoizes exactly this through
+/// [`ContourCache`](crate::render::ttf_builder::ContourCache), lands in a
+/// fraction of that. The pixel grid then trails the built font by a second or
+/// more, and an edit cadence faster than the resolve cancels every one of them
+/// so it never lands at all.
+///
+/// The key is the composite's *whole* input: its own pixels, and each layer's
+/// target grid, scale and raster placement — the layers being the resolution's
+/// own output, so anchor-derived offsets and the alternative that was picked
+/// are already folded in. Two glyphs composing the same layers the same way
+/// share an entry, and a glyph whose inputs are untouched by an edit is not
+/// recomposed. Mirrors `ContourCache::composite_entries` deliberately: same
+/// key material, same generation sweep.
+#[derive(Default)]
+pub struct CompositeGridCache {
+    entries: HashMap<u64, (u64, PixelGrid)>,
+    gen_id: u64,
+    hits: usize,
+    misses: usize,
+}
+
+impl CompositeGridCache {
+    /// Entries reached during the run that just ended; everything else is what
+    /// [`Self::evict_stale`] drops.
+    fn begin_generation(&mut self) {
+        self.gen_id += 1;
+        self.hits = 0;
+        self.misses = 0;
+    }
+
+    /// Only ever called by a run that *finished*: a cancelled resolve touched
+    /// an arbitrary prefix of the glyphs, so what it did not reach is not
+    /// stale, merely unvisited. Keeping it costs memory until the next
+    /// completed run, which is the same trade `ContourCache` makes.
+    fn evict_stale(&mut self) {
+        let cur = self.gen_id;
+        self.entries.retain(|_, (seen, _)| *seen == cur);
+    }
+
+    /// Drop everything, for a source that has nothing to do with what is
+    /// cached — switching folders, where every key belongs to a font that is
+    /// no longer open.
+    pub fn clear(&mut self) {
+        self.entries.clear();
+    }
+
+    /// Composites the last run reused and recomposed, in that order.
+    pub fn stats(&self) -> (usize, usize) {
+        (self.hits, self.misses)
+    }
+
+    fn get_or_insert(&mut self, key: u64, build: impl FnOnce() -> PixelGrid) -> PixelGrid {
+        let cur = self.gen_id;
+        if let Some((seen, grid)) = self.entries.get_mut(&key) {
+            *seen = cur;
+            self.hits += 1;
+            return grid.clone();
+        }
+        self.misses += 1;
+        let grid = build();
+        self.entries.insert(key, (cur, grid.clone()));
+        grid
+    }
+}
+
+fn hash_grid_into(grid: &PixelGrid, hasher: &mut std::collections::hash_map::DefaultHasher) {
+    use std::hash::Hash;
+    grid.width.hash(hasher);
+    grid.height.hash(hasher);
+    for px in &grid.pixels {
+        px.0.hash(hasher);
+    }
+    if !grid.details.is_empty() {
+        grid.den.hash(hasher);
+        grid.details.hash(hasher);
+    }
+}
+
 /// One glyph resolved against its refs, as the editor and the `assert`
 /// directives see it.
 ///
@@ -878,6 +963,21 @@ pub fn resolve_expansion(
     name_parts: &NamePartsMap,
     cancel: &crate::cancel::CancelToken,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    resolve_expansion_cached(expansion, name_parts, cancel, None)
+}
+
+/// [`resolve_expansion`], reusing the flattened grids of an earlier run through
+/// `grid_cache`. See [`CompositeGridCache`] for why anything resolving
+/// repeatedly — which means the editor — wants one.
+pub fn resolve_expansion_cached(
+    expansion: crate::render::ttf_builder::Expansion,
+    name_parts: &NamePartsMap,
+    cancel: &crate::cancel::CancelToken,
+    mut grid_cache: Option<&mut CompositeGridCache>,
+) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    if let Some(gc) = grid_cache.as_deref_mut() {
+        gc.begin_generation();
+    }
     let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
 
     struct Pending {
@@ -1012,7 +1112,13 @@ pub fn resolve_expansion(
                 false,
             );
             let (min_r, min_c) = (layout.min_r, layout.min_c);
-            let grid = layout.to_grid(pg.pixels.as_ref(), pg.scale);
+            let grid = match grid_cache.as_deref_mut() {
+                Some(gc) => {
+                    let key = layout.grid_cache_key(pg.pixels.as_ref(), pg.scale);
+                    gc.get_or_insert(key, || layout.to_grid(pg.pixels.as_ref(), pg.scale))
+                }
+                None => layout.to_grid(pg.pixels.as_ref(), pg.scale),
+            };
             // Moved, not cloned: nothing below reads the pending body again,
             // so carrying the declaration costs one allocation per composite.
             let inline_source = std::sync::Arc::new(InlineSource {
@@ -1071,6 +1177,12 @@ pub fn resolve_expansion(
         }
     }
 
+    // Only here, on the one path that composed every glyph there is: an early
+    // return above means the run was cancelled part-way, and what it never
+    // reached must not be mistaken for what the source no longer has.
+    if let Some(gc) = grid_cache {
+        gc.evict_stale();
+    }
     (cache, alt_index)
 }
 
@@ -1415,6 +1527,33 @@ impl CompositeLayout<'_> {
     #[cfg(any(feature = "editor", test))]
     fn bounds(&self) -> (i32, i32, i32, i32) {
         (self.min_r, self.min_c, self.max_r, self.max_c)
+    }
+
+    /// Everything [`Self::to_grid`] reads, as one hash: the box it rasterizes
+    /// into, the glyph's own pixels, and every layer's target grid, scale and
+    /// raster placement. Nothing about *how* the layers were chosen enters —
+    /// they are already the choice — so a composite keyed on this recomposes
+    /// only when the ink going into it differs.
+    fn grid_cache_key(&self, own_pixels: Option<&PixelGrid>, parent_scale: u8) -> u64 {
+        use std::hash::{Hash, Hasher};
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        parent_scale.hash(&mut hasher);
+        (self.min_r, self.min_c, self.max_r, self.max_c).hash(&mut hasher);
+        match own_pixels {
+            Some(grid) => {
+                1u8.hash(&mut hasher);
+                hash_grid_into(grid, &mut hasher);
+            }
+            None => 0u8.hash(&mut hasher),
+        }
+        self.layers.len().hash(&mut hasher);
+        for layer in &self.layers {
+            hash_grid_into(&layer.resolved.grid, &mut hasher);
+            layer.resolved.scale.hash(&mut hasher);
+            (layer.raster_row, layer.raster_col).hash(&mut hasher);
+            layer.gref.negated.hash(&mut hasher);
+        }
+        hasher.finish()
     }
 
     /// Flatten into one grid: own pixels plus each layer blitted at its

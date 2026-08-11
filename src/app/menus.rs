@@ -932,6 +932,7 @@ impl UniformApp {
             self.font_cancel.cancel();
             self.derived_cancel.cancel();
             self.contour_cache.lock().unwrap().clear();
+            self.composite_grid_cache.lock().unwrap().clear();
             self.font_build_gen = self.font_build_gen.wrapping_add(1);
             // Neither the font nor the derived data is built here: a folder on
             // a share takes tens of seconds to build and resolve, and doing it

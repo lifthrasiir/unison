@@ -395,6 +395,11 @@ impl UniformApp {
         let cancel = crate::cancel::CancelToken::new();
         self.derived_cancel = cancel.clone();
         self.derived_inflight = Some(build_gen);
+        // Survives this thread, so the next resolve recomposes only what an
+        // edit reached. `derived_inflight` already keeps a second resolve from
+        // starting, so the lock below is never contended — it is what makes the
+        // cache shareable at all, not a queue.
+        let grid_cache = self.composite_grid_cache.clone();
         std::thread::spawn(move || {
             let mut slot = ResultSlot::new(tx, ctx, DerivedDataResult::Failed);
             let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
@@ -417,14 +422,21 @@ impl UniformApp {
                 .map(|f| f.id.clone())
                 .collect();
             let name_parts = resolution.name_parts;
-            let (named_glyphs, alt_index) = crate::editor::ref_composite::resolve_expansion(
+            let mut gc = grid_cache.lock().unwrap();
+            let (named_glyphs, alt_index) = crate::editor::ref_composite::resolve_expansion_cached(
                 resolution.expansion,
                 &name_parts,
                 &cancel,
+                Some(&mut gc),
             );
             if let Some(t0) = perf_t0 {
-                eprintln!("[perf] resolve (derived thread): {:?}", t0.elapsed());
+                let (hits, misses) = gc.stats();
+                eprintln!(
+                    "[perf] resolve (derived thread): {:?} ({misses} composite(s) recomposed, {hits} reused)",
+                    t0.elapsed()
+                );
             }
+            drop(gc);
             // Resolution stops where it was interrupted, so what it holds is a
             // partial font; it is discarded rather than published.
             if cancel.is_cancelled() {
@@ -983,3 +995,5 @@ mod startup_tests {
         );
     }
 }
+
+

@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
-use std::sync::{Arc, mpsc};
+use std::sync::{Arc, Mutex, mpsc};
 
 use crate::document::{DocLine, Document, NamePartsMap};
 use crate::document_io;
@@ -140,6 +140,11 @@ pub struct UniformApp {
     /// cancellation.
     font_cancel: crate::cancel::CancelToken,
     contour_cache: SharedContourCache,
+    /// The composed grids of the last resolve, so the next one only recomposes
+    /// what an edit reached — the resolve's counterpart to `contour_cache`, and
+    /// what keeps the pixel grid from trailing the built font by a full
+    /// resolve. See [`crate::ref_composite::CompositeGridCache`].
+    composite_grid_cache: Arc<Mutex<crate::ref_composite::CompositeGridCache>>,
     /// Which face the editor builds. The editor never builds a collection —
     /// one face at a time — so this picks the one the preview, the specimen
     /// and the UI font itself are drawn with. Empty means the primary face,
@@ -404,6 +409,7 @@ impl UniformApp {
             font_build_inflight: false,
             font_cancel: crate::cancel::CancelToken::never(),
             contour_cache,
+            composite_grid_cache: Arc::default(),
             selected_face,
             face_ids,
             named_glyphs: Arc::default(),
