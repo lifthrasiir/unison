@@ -126,7 +126,8 @@ Editor (feature `editor`):
 - `app/` — `UniformApp` eframe entry point. `mod.rs` (the struct and the `eframe::App` loop),
   `background.rs` (the debounced build/derive/assert threads and the generation rules their consumers
   must respect), `docs.rs`, `history.rs` (go back/forward), `menus.rs`, `panels.rs`, `panes.rs` (the
-  split-editor model and its two invariants), `rename.rs`, `search.rs` (the Search pane),
+  split-editor model and its two invariants), `search.rs` (the Search pane),
+  `rename.rs`, `resize.rs` (carrying a glyph resize across every file that refers to the glyph),
   `settings.rs` (what survives between runs, and what egui persists instead),
   `watch.rs` (the OS watch on the font directory and what an external change may do), `toast.rs`,
   `zoom.rs`.
@@ -136,6 +137,9 @@ Editor (feature `editor`):
   loop behind it (most churn in the editor). `mod.rs` is the loop and the view cache; `layout.rs`
   (grid extents/strips, the visual-line model, `GlyphMetrics`), `paint.rs`, `scroll.rs`, `keys.rs`,
   `popups.rs`, `changes.rs`.
+- `editor/glyph_resize.rs` — F2 over a grid: dragging a glyph's boundary, and the two directions a
+  resize propagates in (its own anchors/refs one way, every `ref` naming it the other). Tests in
+  `glyph_resize_tests.rs`; the cross-file half is `app/resize.rs`.
 - `editor/` others — `anchor_shadow`, `caret`, `codepoint_popup`, `visual_lines`, `line_fields` (**the single place that
   knows where names live** on a line), `doc_links`, `doc_input`, `editing`, `reconcile`, `undo`,
   `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`, `glyph_widget`, `grid_render`
@@ -176,6 +180,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure and bearings | `ref_composite.rs` |
+| Resizing a glyph (F2), and why a `ref` to it moves the other way | `editor/glyph_resize.rs`, `app/resize.rs` |
+| Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite.rs` (`DeriveOutcome::anchor_placed`) |
 | Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite.rs` (`InlineSource`) |
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite.rs` (`ResolvedGlyph`) |
@@ -208,6 +214,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
 | Why a line the grammar cannot read does not fail the derive | `document_io.rs` (`derive_document`) |
 | Why a menu action has to hand the keyboard back to the editor | `editor/mod.rs` (`refocus`), `editor/document_view/paint.rs` (`refocus_after_menu`) |
+| A resize preview: uncommitted text, and everything that has to drop it | `editor/glyph_resize.rs` (`cancel`), `app/docs.rs` (`flush_pending_changes`) |
 | A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`), `app/docs.rs` (`commit_floating_selection`) |
 | Copy/Cut/Delete with nothing framed, and the corner a shift-click extends from | `editor/pixel_selection.rs` (`effective_selection`, `select_all`), `editor/mod.rs` (`pixel_select_anchor`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
@@ -252,6 +259,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | --- | --- |
 | `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, `collection`, with shared canonicalization helpers in its `mod.rs` |
 | `document_io.rs` | `document_io_tests.rs` |
+| `editor/glyph_resize.rs` | `editor/glyph_resize_tests.rs` |
 | `meta.rs` | `meta_tests.rs` |
 | `faces.rs` | `faces_tests.rs` |
 | `ref_composite.rs` | `ref_composite_tests.rs` |

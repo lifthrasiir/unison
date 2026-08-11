@@ -162,6 +162,11 @@ pub(crate) enum Slot {
     /// Interaction id of one ref-layer thumbnail, keyed by
     /// `(edit_idx, ref_idx)`.
     RefLayerCtx,
+    /// The edge a glyph-resize drag grabbed, latched at press time: the
+    /// pointer leaves the edge as soon as the boundary follows it.
+    ResizeDragSide,
+    /// Sub-cell remainder of an in-progress glyph-resize drag.
+    ResizeDragAccum,
 
     // -- sub-panels --------------------------------------------------------
     /// Id of the minimap side panel.
@@ -185,6 +190,10 @@ pub(crate) enum Slot {
     /// `EditorHarness`.
     #[cfg(test)]
     TestEditBorder,
+    /// Rects of the resize mode's Apply/Cancel buttons, published for
+    /// `EditorHarness`.
+    #[cfg(test)]
+    TestResizeButtons,
 }
 
 #[cfg(test)]

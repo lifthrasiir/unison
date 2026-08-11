@@ -32,6 +32,7 @@ pub mod doc_input;
 pub mod doc_links;
 pub mod document_view;
 pub mod editing;
+pub mod glyph_resize;
 pub mod glyph_widget;
 pub mod grid_render;
 #[cfg(test)]
@@ -70,6 +71,13 @@ pub enum EditMode {
         item_idx: usize,
         layer_idx: usize,
     },
+    /// Dragging the glyph's own boundary; see [`glyph_resize`]. The session
+    /// itself (the pristine block, the deltas so far) lives in
+    /// [`EditorState::resize`], because a mode is copied into undo entries and
+    /// a whole snapshot has no business there.
+    GlyphResize {
+        item_idx: usize,
+    },
 }
 
 impl EditMode {
@@ -89,7 +97,8 @@ impl EditMode {
         match self {
             EditMode::GlyphEdit { item_idx, .. }
             | EditMode::PixelSelect { item_idx }
-            | EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
+            | EditMode::LayerMove { item_idx, .. }
+            | EditMode::GlyphResize { item_idx } => Some(*item_idx),
             EditMode::Normal => None,
         }
     }
@@ -158,6 +167,9 @@ pub struct EditorState {
     /// grids wider than the strip use it, each clamped to its own overflow,
     /// so narrow grids stay put while a wide one scrolls.
     pub(crate) grid_scroll_x: f32,
+    /// The live glyph-resize session, whenever [`EditMode::GlyphResize`] is
+    /// the mode. The two are set and cleared together.
+    pub(crate) resize: Option<glyph_resize::GlyphResize>,
     pub(crate) pixel_selection: Option<pixel_selection::PixelSelection>,
     /// The cell a pixel selection was *started* from, kept beside the rectangle
     /// the way `selection_anchor` is kept beside the text caret.
@@ -181,6 +193,10 @@ pub struct EditorState {
     /// A link followed this frame, handed to the host at the end of it: the
     /// host owns the other files and the navigation history.
     pub(crate) pending_nav: Option<document_view::NavRequest>,
+    /// A resize applied this frame, handed to the host at the end of it: the
+    /// `ref`s it has to move along may live in any file. See
+    /// [`glyph_resize`].
+    pub(crate) pending_resize: Option<glyph_resize::ResizeAction>,
 }
 
 impl EditorState {
@@ -220,12 +236,14 @@ impl EditorState {
             grid_hover: false,
             shape_rotation: 0,
             grid_scroll_x: 0.0,
+            resize: None,
             pixel_selection: None,
             pixel_select_anchor: None,
             view_cache: None,
             pixel_paint_dirty: None,
             suppress_font_rebuild: false,
             pending_nav: None,
+            pending_resize: None,
         }
     }
 
@@ -270,9 +288,13 @@ impl EditorState {
         } else {
             self.selection_range().is_some()
         };
+        // A live resize preview is text no undo entry describes, so stepping
+        // the stack under it would mix an uncommitted edit with a committed
+        // one. The keyboard refuses the same chord for the same reason.
+        let resizing = matches!(self.mode, EditMode::GlyphResize { .. });
         EditMenuCaps {
-            can_undo: self.undo.can_undo(),
-            can_redo: self.undo.can_redo(),
+            can_undo: self.undo.can_undo() && !resizing,
+            can_redo: self.undo.can_redo() && !resizing,
             has_selection,
             can_edit: matches!(self.mode, EditMode::Normal)
                 || self.mode.pixel_edit_item_idx().is_some(),
@@ -321,6 +343,7 @@ impl EditorState {
     pub(crate) fn reset_for_external_reload(&mut self, caret: caret::Caret) {
         self.mode = EditMode::Normal;
         self.selection_anchor = None;
+        self.resize = None;
         self.pixel_selection = None;
         self.pixel_select_anchor = None;
         self.autocomplete = None;

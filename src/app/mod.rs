@@ -25,6 +25,7 @@ mod menus;
 mod panels;
 mod panes;
 mod rename;
+mod resize;
 mod search;
 mod settings;
 mod toast;
@@ -663,7 +664,8 @@ impl eframe::App for UniformApp {
 
         let bottom = self.show_bottom_panel(ctx);
 
-        let (nav_request, rename_request, divider_closed_pane) = self.show_editor_panel(ctx);
+        let editor_panel = self.show_editor_panel(ctx);
+        let divider_closed_pane = editor_panel.divider_closed_pane;
         // Now that this frame's editors have run, "the pane the focus is in"
         // is up to date — everything below acts on that pane.
         self.sync_pane_focus();
@@ -676,7 +678,7 @@ impl eframe::App for UniformApp {
             self.focus_pane_editor(ctx);
         }
 
-        if let Some((from_doc, nav)) = nav_request {
+        if let Some((from_doc, nav)) = editor_panel.nav {
             self.follow_nav_request(ctx, from_doc, nav);
         }
 
@@ -712,8 +714,12 @@ impl eframe::App for UniformApp {
             }
         }
 
-        if let Some(rename) = rename_request {
+        if let Some(rename) = editor_panel.rename {
             self.execute_rename(&rename);
+        }
+
+        if let Some(resize) = editor_panel.resize {
+            self.execute_resize(&resize);
         }
 
         self.apply_edit_menu_actions(ctx, edit_target, menu.take_edit_actions());

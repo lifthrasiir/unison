@@ -607,6 +607,13 @@ pub struct GlyphHeaderFlags {
     pub width: Option<u16>,
     pub height: Option<u16>,
     pub scale: Option<u8>,
+    /// Index of the width token *within the flag parts* (i.e. one less than
+    /// its index in the whole header), and of the height token beside it.
+    /// [`replace_glyph_header_dims`] rewrites exactly those two tokens rather
+    /// than reformatting the line, which is what keeps a resize from
+    /// reordering flags or dropping a comment.
+    pub width_at: Option<usize>,
+    pub height_at: Option<usize>,
 }
 
 /// Parse the flag tokens of a `glyph NAME ...` header (everything after the
@@ -671,11 +678,13 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
                     && let Ok(w) = other.parse::<u16>()
                 {
                     flags.width = Some(w);
+                    flags.width_at = Some(fp);
                     fp += 1;
                     if fp < flag_parts.len() {
                         let next = flag_parts[fp].as_ref();
                         if let Ok(h) = next.parse::<u16>() {
                             flags.height = Some(h);
+                            flags.height_at = Some(fp);
                         } else if GLYPH_FLAG_KEYWORDS.contains(&next) {
                             // A flag keyword right after a lone width:
                             // no height given, keyword handled next round.
@@ -717,6 +726,42 @@ pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> 
         height: height.checked_mul(scale as u16)?,
         scale,
     })
+}
+
+/// Rewrite the `W H` pair of a `glyph …` header line in place, leaving every
+/// other character — the name's quoting, the flag order, the spacing and the
+/// trailing comment — exactly as written.
+///
+/// The dimensions are *logical* pixels, as the file states them: a `scale N`
+/// header divides by the scale on the way in and this writes the same
+/// undivided numbers back. Returns `None` for a header that owns no grid
+/// (a ref-only glyph or an alias), which has no pair to rewrite.
+#[cfg(any(feature = "editor", test))]
+pub fn replace_glyph_header_dims(line: &str, width: u16, height: u16) -> Option<String> {
+    let spans = tokenize_with_spans(line).ok()?;
+    if spans.first().map(|s| s.value.as_str()) != Some("glyph") {
+        return None;
+    }
+    if spans.iter().any(|s| s.value == "=") {
+        return None;
+    }
+    let flag_values: Vec<&str> = spans.iter().skip(2).map(|s| s.value.as_str()).collect();
+    let flags = parse_glyph_flag_parts(&flag_values);
+    // Both halves of the pair, in header-token indices.
+    let wi = 2 + flags.width_at?;
+    let hi = 2 + flags.height_at?;
+
+    let chars: Vec<char> = line.chars().collect();
+    let mut out = String::with_capacity(line.len() + 4);
+    let mut cut = 0usize;
+    for (idx, value) in [(wi, width), (hi, height)] {
+        let span = spans.get(idx)?;
+        out.extend(&chars[cut..span.raw_start]);
+        out.push_str(&value.to_string());
+        cut = span.raw_end;
+    }
+    out.extend(&chars[cut..]);
+    Some(out)
 }
 
 /// Parse `.unf` source text into a `Document`.

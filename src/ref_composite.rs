@@ -358,10 +358,48 @@ type PoolAnchor = (GlyphPoint, Option<usize>);
 pub(crate) fn derive_ref_offsets_with(
     declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],
+    lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
+    lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
+    lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
+) -> (Vec<GlyphRef>, Vec<PoolAnchor>, Vec<DeriveIssue>) {
+    let outcome = derive_ref_offsets_detailed(
+        declared_anchors,
+        refs,
+        lookup_anchors,
+        lookup_alternatives,
+        lookup_declared_anchors,
+    );
+    (outcome.effective, outcome.exposed, outcome.issues)
+}
+
+/// What [`derive_ref_offsets_with`] worked out, plus *how* each ref got its
+/// placement.
+pub(crate) struct DeriveOutcome {
+    pub effective: Vec<GlyphRef>,
+    pub exposed: Vec<PoolAnchor>,
+    pub issues: Vec<DeriveIssue>,
+    /// Per ref: the placement came from an anchor match rather than from the
+    /// line. A ref written with an offset is never one of these, and neither
+    /// is an offset-less ref that found no anchor and fell back to (0, 0) —
+    /// the distinction the two cannot express themselves, and the one a
+    /// glyph resize needs: an anchored ref follows its target's anchors on
+    /// its own, so its line must be left alone. See
+    /// [`crate::editor::glyph_resize`].
+    // Only the editor resizes glyphs, and the headless build has no other
+    // reader; the flags are still computed there because they fall out of the
+    // fixpoint that has to run anyway.
+    #[cfg_attr(not(feature = "editor"), expect(dead_code))]
+    pub anchor_placed: Vec<bool>,
+}
+
+/// [`derive_ref_offsets_with`] with the anchor-placement flags kept.
+pub(crate) fn derive_ref_offsets_detailed(
+    declared_anchors: &[GlyphPoint],
+    refs: &[GlyphRef],
     mut lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     mut lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
     mut lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
-) -> (Vec<GlyphRef>, Vec<PoolAnchor>, Vec<DeriveIssue>) {
+) -> DeriveOutcome {
     let mut issues: Vec<DeriveIssue> = Vec::new();
     let mut survived_minus: Vec<PoolAnchor> = declared_anchors
         .iter()
@@ -395,6 +433,7 @@ pub(crate) fn derive_ref_offsets_with(
 
     let n = refs.len();
     let mut effective_refs: Vec<Option<GlyphRef>> = vec![None; n];
+    let mut anchor_placed = vec![false; n];
 
     loop {
         let mut progress = false;
@@ -426,6 +465,7 @@ pub(crate) fn derive_ref_offsets_with(
 
             match try_match_minus_plus(target_anchors, &available_plus) {
                 MatchOutcome::Unique(offset) => {
+                    anchor_placed[i] = true;
                     commit_ref(
                         gref,
                         i,
@@ -475,6 +515,7 @@ pub(crate) fn derive_ref_offsets_with(
                         fill: gref.fill.clone(),
                         visibility: gref.visibility,
                     };
+                    anchor_placed[i] = true;
                     commit_ref(
                         &alt_gref,
                         i,
@@ -581,7 +622,10 @@ pub(crate) fn derive_ref_offsets_with(
             (gref.name.clone(), offset, target_anchors)
         } else {
             match try_match_minus_plus(target_anchors, &available_plus) {
-                MatchOutcome::Unique(offset) => (gref.name.clone(), offset, target_anchors),
+                MatchOutcome::Unique(offset) => {
+                    anchor_placed[i] = true;
+                    (gref.name.clone(), offset, target_anchors)
+                }
                 // Ambiguity is reported by commit_ref below; commit unattached.
                 MatchOutcome::Ambiguous => (gref.name.clone(), (0, 0), target_anchors),
                 MatchOutcome::NoMatch => {
@@ -590,6 +634,7 @@ pub(crate) fn derive_ref_offsets_with(
                         if let MatchOutcome::Unique(offset) =
                             try_match_minus_plus(alt_anchors, &available_plus)
                         {
+                            anchor_placed[i] = true;
                             found = Some((alt_name.clone(), offset, alt_anchors.as_slice()));
                             break;
                         }
@@ -660,7 +705,12 @@ pub(crate) fn derive_ref_offsets_with(
         issues.push(DeriveIssue::DuplicateExposed { position });
     }
 
-    (effective_refs, exposed, issues)
+    DeriveOutcome {
+        effective: effective_refs,
+        exposed,
+        issues,
+        anchor_placed,
+    }
 }
 
 /// Look-ahead alternative selection: when an unresolved sibling would consume

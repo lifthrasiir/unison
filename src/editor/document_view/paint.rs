@@ -60,6 +60,22 @@ pub(super) fn paint_document_area(
 
     *needs_rederive |= pixel_selection::reconcile(doc, lines, state, menu_open);
 
+    // A resize is a modal gesture over one glyph: the moment the editor is no
+    // longer the surface being typed into, it is off. `menu_open` is the one
+    // exception every modal state here makes — the focus went to a menu button
+    // drawn over this editor, not to another document.
+    if matches!(state.mode, EditMode::GlyphResize { .. }) {
+        if !crate::editor::glyph_resize::still_valid(doc, state) {
+            crate::editor::glyph_resize::abandon(state);
+        } else if !has_focus && !menu_open {
+            *needs_rederive |= crate::editor::glyph_resize::cancel(lines, state);
+        }
+    } else if state.resize.is_some() {
+        // The mode was switched from outside the resize (a host action, an
+        // undo that restored a mode). The preview goes with it.
+        *needs_rederive |= crate::editor::glyph_resize::cancel(lines, state);
+    }
+
     if has_focus {
         ui.memory_mut(|m| {
             m.set_focus_lock_filter(
@@ -210,6 +226,8 @@ pub(super) fn paint_document_area(
     // scrolled out of view (culled), and drawing only from it lost the border.
     let mut edit_border_drawn = false;
     let mut grid_caret_drawn = false;
+    // The glyph boundary a resize drags, once it has been painted.
+    let mut resize_rect: Option<egui::Rect> = None;
 
     let mut y = 0.0f32;
     for vl in vlines {
@@ -697,6 +715,7 @@ pub(super) fn paint_document_area(
             )
         {
             edit_border_drawn = true;
+            resize_rect = matches!(state.mode, EditMode::GlyphResize { .. }).then_some(border_rect);
             #[cfg(test)]
             crate::editor::harness::capture_edit_border(ui.ctx(), state.id(), border_rect);
             #[cfg(not(test))]
@@ -711,8 +730,35 @@ pub(super) fn paint_document_area(
     );
     auto_scroll_grid_on_drag(ui, state, &strip, &blocks, origin, zoom_level);
 
-    // Inline tools panel (preview + palette) to the right of the grid
-    if let (Some(edit_idx), Some((panel_x, panel_y, _grid_w))) =
+    // Inline tools panel to the right of the grid. A resize replaces it
+    // wholesale — neither the layer row nor the shape palette acts on
+    // anything while the glyph's own box is what is being edited.
+    if let (Some(_), Some((panel_x, panel_y, _))) = (inline_panel_edit_idx, inline_panel_origin)
+        && matches!(state.mode, EditMode::GlyphResize { .. })
+    {
+        let (action, consumed) = crate::editor::glyph_resize::draw_panel(
+            ui,
+            &painter,
+            panel_x,
+            panel_y,
+            state,
+            click_pos,
+            zoom_level as f32,
+        );
+        if consumed {
+            click_result = None;
+        }
+        match action {
+            Some(crate::editor::glyph_resize::PanelAction::Apply) => {
+                state.pending_resize = crate::editor::glyph_resize::finish(doc, lines, state);
+                *needs_rederive = true;
+            }
+            Some(crate::editor::glyph_resize::PanelAction::Cancel) => {
+                *needs_rederive |= crate::editor::glyph_resize::cancel(lines, state);
+            }
+            None => {}
+        }
+    } else if let (Some(edit_idx), Some((panel_x, panel_y, _grid_w))) =
         (inline_panel_edit_idx, inline_panel_origin)
     {
         let panel_result = inline_tools::draw_inline_tools_panel(
@@ -749,6 +795,23 @@ pub(super) fn paint_document_area(
                 *needs_rederive = true;
             }
         }
+    }
+
+    // Resize overlay and drag: the boundary is painted here, after every grid
+    // row, and one of its edges follows the pointer.
+    if matches!(state.mode, EditMode::GlyphResize { .. })
+        && let Some(rect) = resize_rect
+    {
+        crate::editor::glyph_resize::draw_overlay(&grid_painter, rect, zoom_level as f32, pal);
+        crate::editor::glyph_resize::handle_drag(
+            ui,
+            lines,
+            state,
+            needs_rederive,
+            rect,
+            grid_cell,
+            zoom_level as f32,
+        );
     }
 
     // Layer move drag handling (refs and points)
@@ -791,7 +854,13 @@ pub(super) fn paint_document_area(
             {
                 let ctrl_held = ui.input(|i| i.modifiers.command);
                 let shift_held = ui.input(|i| i.modifiers.shift);
-                if let Some(step) = interceptor_scroll_step(ui.ctx(), state.id(), on_grid) {
+                if let Some(step) =
+                    interceptor_scroll_step(ui.ctx(), state.id(), on_grid).filter(|_| {
+                        // A resize owns the glyph; neither layer cycling nor
+                        // the shape palette may switch the mode under it.
+                        !matches!(state.mode, EditMode::GlyphResize { .. })
+                    })
+                {
                     if ctrl_held {
                         // Ctrl+wheel on grid: cycle layers (same as layer palette)
                         let inherited_count = composites
@@ -895,7 +964,10 @@ pub(super) fn paint_document_area(
             }
             ClickTarget::Grid { item_idx } => {
                 state.selection_anchor = None;
-                if !matches!(
+                if matches!(state.mode, EditMode::GlyphResize { .. }) {
+                    // The glyph is being resized; a press on it grabbed an
+                    // edge, not a pixel.
+                } else if !matches!(
                     state.mode,
                     EditMode::GlyphEdit { item_idx: eidx, .. } if eidx == item_idx
                 ) && !matches!(
@@ -1114,6 +1186,7 @@ fn draw_edit_border(
     let editing_idx = match mode {
         EditMode::GlyphEdit { item_idx, .. } => Some(*item_idx),
         EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
+        EditMode::GlyphResize { item_idx } => Some(*item_idx),
         _ => return None,
     };
     let eidx = editing_idx?;
@@ -1139,12 +1212,19 @@ fn draw_edit_border(
                     *own_height as f32 * grid_cell,
                 ),
             );
-            painter.rect_stroke(
-                border_rect,
-                0.0,
-                egui::Stroke::new(2.0, pal.cursor_border),
-                egui::epaint::StrokeKind::Outside,
-            );
+            // While resizing, this rectangle *is* the thing being dragged, and
+            // its overlay is drawn inside the box — so it cannot go out from
+            // here, in the middle of the glyph's rows, or the rows below this
+            // one would paint straight over it. The caller draws it once every
+            // row is down; all this does is work out where.
+            if !matches!(mode, EditMode::GlyphResize { .. }) {
+                painter.rect_stroke(
+                    border_rect,
+                    0.0,
+                    egui::Stroke::new(2.0, pal.cursor_border),
+                    egui::epaint::StrokeKind::Outside,
+                );
+            }
             Some(border_rect)
         }
         _ => None,

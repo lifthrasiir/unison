@@ -4614,3 +4614,272 @@ fn the_edit_menu_select_all_frames_the_grid() {
         "it must not select the document text as well"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Glyph resize mode (F2 over a grid)
+// ---------------------------------------------------------------------------
+
+const RESIZE_SRC: &str = "\
+glyph dot 2 2
+@@..
+..@@
+
+glyph user 4 4
+ref dot 1 1
+";
+
+/// Enter resize mode the way a user does: click into the grid, press F2.
+fn resize_harness() -> EditorHarness {
+    let mut h = EditorHarness::new(RESIZE_SRC);
+    h.click_grid_cell(1, 0, 0);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
+        "clicking the grid edits it: {:?}",
+        h.state.mode
+    );
+    h.key(Key::F2);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphResize { item_idx: 0 }),
+        "F2 over a grid resizes the glyph: {:?}",
+        h.state.mode
+    );
+    h
+}
+
+/// An arrow moves the boundary the way it points: `Left` grows the glyph
+/// leftwards, and the preview is the document itself, so the ink moves with it.
+#[test]
+fn resize_arrow_grows_the_edge_it_points_at() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowLeft);
+    assert_eq!(h.text(0), "glyph dot 3 2");
+    assert_eq!(h.grid(1).width, 3);
+    assert!(
+        h.grid(1).get(0, 1).is_filled() && !h.grid(1).get(0, 0).is_filled(),
+        "the ink moved right with the new column, not into it"
+    );
+    assert_view_consistent(&h);
+}
+
+/// Shift moves the *far* edge, so the boundary still travels the way the key
+/// points and the glyph shrinks instead of growing.
+#[test]
+fn resize_shift_arrow_moves_the_far_edge() {
+    let mut h = resize_harness();
+    h.key_mod(Key::ArrowUp, Modifiers::SHIFT);
+    assert_eq!(h.text(0), "glyph dot 2 1", "the bottom edge came up");
+    assert_eq!(h.grid(1).height, 1);
+    // The row that survived is the top one: nothing moved, the box shrank.
+    assert!(h.grid(1).get(0, 0).is_filled());
+}
+
+/// Escape puts the document back exactly as it was, in one step, and leaves
+/// the mode it was entered from.
+#[test]
+fn resize_escape_restores_the_glyph() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowLeft);
+    h.key(Key::ArrowUp);
+    assert_eq!(h.text(0), "glyph dot 3 3");
+    h.key(Key::Escape);
+    assert_eq!(h.text(0), "glyph dot 2 2");
+    assert_eq!(h.grid(1).width, 2);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }),
+        "cancelling goes back to the mode F2 was pressed in: {:?}",
+        h.state.mode
+    );
+    assert!(
+        h.take_resize().is_none(),
+        "a cancelled resize asks for nothing"
+    );
+    assert_view_consistent(&h);
+}
+
+/// Enter hands the resize to the host and rolls the preview back: the host is
+/// the only thing that can move the `ref`s in the other files, so it redoes
+/// the whole edit as the one entry it records.
+#[test]
+fn resize_enter_hands_the_action_to_the_host() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowLeft);
+    h.key(Key::ArrowLeft);
+    h.key(Key::ArrowDown);
+    h.key(Key::Enter);
+    let action = h.take_resize().expect("the resize was applied");
+    assert_eq!(action.glyph_name, "dot");
+    assert_eq!(action.deltas.left, 2);
+    assert_eq!(action.deltas.bottom, 1);
+    assert_eq!(action.deltas.right, 0);
+    assert_eq!(action.deltas.top, 0);
+    assert_eq!(
+        h.text(0),
+        "glyph dot 2 2",
+        "the editor leaves the document untouched for the host to edit once"
+    );
+    assert!(matches!(
+        h.state.mode,
+        EditMode::GlyphEdit { item_idx: 0, .. }
+    ));
+}
+
+/// The panel beside the grid is Apply and Cancel and nothing else while a
+/// resize is live; clicking Cancel is Escape.
+#[test]
+fn resize_panel_cancel_button_restores_the_glyph() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowLeft);
+    assert_eq!(h.text(0), "glyph dot 3 2");
+    let pos = h.resize_button_pos(crate::editor::glyph_resize::PanelAction::Cancel);
+    h.click_at(pos);
+    assert_eq!(h.text(0), "glyph dot 2 2");
+    assert!(h.take_resize().is_none());
+}
+
+/// ...and clicking Apply is Enter.
+#[test]
+fn resize_panel_apply_button_hands_over_the_action() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowRight);
+    let pos = h.resize_button_pos(crate::editor::glyph_resize::PanelAction::Apply);
+    h.click_at(pos);
+    let action = h.take_resize().expect("the resize was applied");
+    assert_eq!(action.deltas.right, 1);
+    assert_eq!(h.text(0), "glyph dot 2 2");
+}
+
+/// Dragging the boundary moves it a whole logical pixel at a time.
+#[test]
+fn resize_drag_moves_the_grabbed_edge() {
+    let mut h = resize_harness();
+    let rect = h.edit_border_rect().expect("the boundary is painted");
+    let cell = h.snap().grid_cell;
+    let grab = egui::pos2(rect.right(), rect.center().y);
+    h.press_at(grab);
+    h.move_pointer(egui::pos2(grab.x + cell * 2.0, grab.y));
+    h.release_at(egui::pos2(grab.x + cell * 2.0, grab.y));
+    assert_eq!(
+        h.text(0),
+        "glyph dot 4 2",
+        "the right edge followed the pointer"
+    );
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphResize { .. }),
+        "a press on the grid grabs an edge rather than painting a pixel",
+    );
+}
+
+/// The mode is over the moment the editor is not the surface being typed
+/// into: a resize nobody can see must not stay half-applied in the buffer.
+#[test]
+fn resize_is_cancelled_by_losing_the_focus() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowLeft);
+    h.blur();
+    assert_eq!(h.text(0), "glyph dot 2 2");
+    assert!(matches!(h.state.mode, EditMode::GlyphEdit { .. }));
+    assert!(h.take_resize().is_none());
+}
+
+/// F2 with the caret merely sitting on a grid line resizes too — no pixel mode
+/// needed — and cancelling goes back to that plain caret.
+#[test]
+fn resize_starts_from_a_caret_on_the_grid_line() {
+    let mut h = EditorHarness::new(RESIZE_SRC);
+    h.click_text(0, 0);
+    h.state.cursor = Caret::new(1, 0);
+    h.frame();
+    h.key(Key::F2);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphResize { item_idx: 0 }),
+        "{:?}",
+        h.state.mode
+    );
+    h.key(Key::Escape);
+    assert!(
+        matches!(h.state.mode, EditMode::Normal),
+        "{:?}",
+        h.state.mode
+    );
+}
+
+/// The panel is chrome, not glyph rendering, so it has to follow the theme.
+/// The editor's own palette deliberately keeps its panel colours dark in both
+/// themes — they sit behind glyph swatches over the dark grid — and reusing
+/// them here left dark text on a dark button in light mode.
+#[test]
+fn resize_buttons_stay_legible_in_both_themes() {
+    use crate::editor::glyph_resize::PanelAction;
+
+    /// Perceived brightness, 0..1, of a colour painted over the given theme.
+    fn luma(c: egui::Color32) -> f32 {
+        (0.299 * c.r() as f32 + 0.587 * c.g() as f32 + 0.114 * c.b() as f32) / 255.0
+    }
+
+    let mut h = resize_harness();
+    for theme in [egui::Theme::Dark, egui::Theme::Light] {
+        h.set_theme(theme);
+        for action in [PanelAction::Apply, PanelAction::Cancel] {
+            let (fill, text) = h.resize_button_colors(action);
+            assert!(
+                (luma(fill) - luma(text)).abs() > 0.25,
+                "{action:?} is unreadable in {theme:?}: text {text:?} on {fill:?}",
+            );
+        }
+    }
+}
+
+/// The four handles have to be *inside* the glyph's box, because the grid band
+/// is clipped to exactly where the grid starts: a handle centred on the left
+/// edge of a glyph at column 0 falls in the half that is clipped away, so it
+/// was invisible even though the band around it still grabbed the pointer.
+#[test]
+fn resize_handles_are_inside_the_drawn_band() {
+    let h = resize_harness();
+    let rect = h.edit_border_rect().expect("the boundary is painted");
+    let strip = &h.snap().strip;
+    for (side, handle) in crate::editor::glyph_resize::handle_rects(rect, 1.0) {
+        assert!(
+            handle.left() >= strip.x && handle.right() <= strip.right(),
+            "the {side:?} handle is outside the clipped band: {handle:?} vs {}..{}",
+            strip.x,
+            strip.right(),
+        );
+        assert!(
+            rect.contains_rect(handle),
+            "the {side:?} handle is outside the glyph's own box: {handle:?} vs {rect:?}",
+        );
+    }
+}
+
+/// The overlay has to be painted *over* the glyph, not under it. It used to go
+/// out with the first visible grid row, so every row below that one painted
+/// over it: with the handles moved inside the box, all that survived was the
+/// top border and one cell's worth of the sides.
+#[test]
+fn resize_overlay_is_painted_over_the_grid() {
+    let h = resize_harness();
+    let border = h.edit_border_rect().expect("the boundary is painted");
+    let color = crate::editor::colors::Palette::dark().pixel_selection;
+    let painted = h.painted_rects();
+    // The outline and its four handles are all painted in the overlay colour;
+    // what must not follow them is anything of the grid.
+    let last_overlay = painted
+        .iter()
+        .rposition(|p| p.fill == color || p.stroke.color == color)
+        .expect("the overlay is among the painted rects");
+    assert!(
+        painted[last_overlay].rect.expand(0.5).intersects(border),
+        "the overlay belongs to this glyph's box",
+    );
+    for later in &painted[last_overlay + 1..] {
+        assert!(
+            !(later.fill.a() > 0
+                && later
+                    .rect
+                    .intersect(later.clip)
+                    .intersects(border.shrink(1.0))),
+            "{later:?} is painted over the resize overlay {border:?}",
+        );
+    }
+}

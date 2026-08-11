@@ -77,7 +77,15 @@ pub struct OpenDocument {
 impl OpenDocument {
     /// Flush pending line-level edits into the `Document` model, if any.
     pub(super) fn flush_pending_changes(&mut self) {
-        if self.commit_floating_selection() || self.editor_state.has_pending_document_sync() {
+        // A resize preview is the opposite of a floating selection: the
+        // selection is an edit the user is holding and gets committed, while
+        // the preview is one they have not applied yet, so whoever is about to
+        // take these lines as the file's content gets them without it.
+        let reverted = crate::editor::glyph_resize::cancel(&mut self.lines, &mut self.editor_state);
+        if reverted
+            || self.commit_floating_selection()
+            || self.editor_state.has_pending_document_sync()
+        {
             self.flush_pending_changes_forced();
         }
     }
@@ -654,6 +662,49 @@ mod reload_tests {
         );
         assert_eq!(text_of(&open), "glyph a 2 2\n....\n@@..\n");
         assert!(open.document.dirty, "the committed pixels are unsaved");
+    }
+
+    /// The mirror image: a glyph-resize preview is an edit the user has *not*
+    /// applied, so the buffer a save reads must not have it in it. Without
+    /// this the file on disk would depend on whether Escape was pressed
+    /// before or after Ctrl+S.
+    #[test]
+    fn a_resize_preview_is_dropped_before_the_buffer_is_read() {
+        use crate::editor::glyph_resize::{self, ResizeSide};
+
+        let dir = TempDir::new("resize-flush");
+        let path = dir.write("a.unf", "glyph a 2 2\n@@..\n..@@\n");
+        let mut open = load_open_document(path, None).unwrap();
+        let before = text_of(&open);
+
+        let named = std::collections::HashMap::new();
+        let parts = crate::document::NamePartsMap::new();
+        let alts = crate::editor::ref_composite::AlternativesIndex::default();
+        assert!(glyph_resize::begin(
+            &open.document,
+            &mut open.lines,
+            &mut open.editor_state,
+            0,
+            glyph_resize::ResolveEnv {
+                named_glyphs: &named,
+                name_parts: &parts,
+                alt_index: &alts,
+            },
+        ));
+        assert!(glyph_resize::nudge(
+            &mut open.lines,
+            &mut open.editor_state,
+            ResizeSide::Left,
+            1
+        ));
+        assert_ne!(text_of(&open), before, "the preview is in the buffer");
+
+        open.flush_pending_changes();
+        assert_eq!(text_of(&open), before, "and back out of it before a save");
+        assert!(matches!(
+            open.editor_state.mode,
+            crate::editor::EditMode::Normal
+        ));
     }
 
     /// The whole of requirement 2: the buffer follows the file, the caret

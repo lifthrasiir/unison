@@ -556,6 +556,7 @@ impl UniformApp {
         pane_idx: usize,
         nav_request: &mut Option<(usize, crate::editor::document_view::NavRequest)>,
         rename_request: &mut Option<crate::editor::document_view::RenameAction>,
+        resize_request: &mut Option<crate::editor::glyph_resize::ResizeAction>,
     ) -> Option<egui::Rect> {
         let pane = self.panes.get(pane_idx)?;
         let zoom_level = pane.zoom_level;
@@ -604,28 +605,44 @@ impl UniformApp {
         if let Some(rename) = result.rename {
             *rename_request = Some(rename);
         }
+        if let Some(resize) = result.resize {
+            *resize_request = Some(resize);
+        }
         Some(rect)
     }
+}
 
+/// What one frame of the editor panel asked the host to do afterwards: a
+/// navigation (tagged with the document it came from), a rename, a glyph
+/// resize, and a pane a divider drop asked to close. All of them need the
+/// whole app, which a document view does not have.
+pub(super) struct EditorPanelResult {
+    pub nav: Option<(usize, crate::editor::document_view::NavRequest)>,
+    pub rename: Option<crate::editor::document_view::RenameAction>,
+    pub resize: Option<crate::editor::glyph_resize::ResizeAction>,
+    pub divider_closed_pane: Option<usize>,
+}
+
+impl UniformApp {
     /// The central editor panel: one pane, or two side by side with a
-    /// draggable divider.  Returns any navigation/rename request produced by a
-    /// document view for post-frame dispatch (the navigation one tagged with
-    /// the document it came from), plus the pane a divider drop asked to close.
-    pub(super) fn show_editor_panel(
-        &mut self,
-        ctx: &egui::Context,
-    ) -> (
-        Option<(usize, crate::editor::document_view::NavRequest)>,
-        Option<crate::editor::document_view::RenameAction>,
-        Option<usize>,
-    ) {
+    /// draggable divider.  Returns whatever the document views asked the host
+    /// to carry out after the frame, plus the pane a divider drop asked to
+    /// close.
+    pub(super) fn show_editor_panel(&mut self, ctx: &egui::Context) -> EditorPanelResult {
         let mut nav_request = None;
         let mut rename_request = None;
+        let mut resize_request = None;
         let mut divider_closed_pane = None;
         let mut pane_rects = [None, None];
         egui::CentralPanel::default().show(ctx, |ui| {
             if !self.panes.is_split() {
-                pane_rects[0] = self.show_pane(ui, 0, &mut nav_request, &mut rename_request);
+                pane_rects[0] = self.show_pane(
+                    ui,
+                    0,
+                    &mut nav_request,
+                    &mut rename_request,
+                    &mut resize_request,
+                );
                 return;
             }
 
@@ -638,8 +655,13 @@ impl UniformApp {
                 let mut child =
                     ui.new_child(egui::UiBuilder::new().max_rect(rect).layout(*ui.layout()));
                 child.set_clip_rect(rect);
-                pane_rects[idx] =
-                    self.show_pane(&mut child, idx, &mut nav_request, &mut rename_request);
+                pane_rects[idx] = self.show_pane(
+                    &mut child,
+                    idx,
+                    &mut nav_request,
+                    &mut rename_request,
+                    &mut resize_request,
+                );
             }
 
             // With one sidebar for two panes, which pane an opened file lands
@@ -671,7 +693,12 @@ impl UniformApp {
                 pane.view_rect = rect;
             }
         }
-        (nav_request, rename_request, divider_closed_pane)
+        EditorPanelResult {
+            nav: nav_request,
+            rename: rename_request,
+            resize: resize_request,
+            divider_closed_pane,
+        }
     }
 
     /// The draggable divider between two panes.

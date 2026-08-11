@@ -1,6 +1,7 @@
 //! Keyboard handling for the document view.
 
 use super::*;
+use crate::editor::glyph_resize;
 
 /// All keyboard input for the focused document: autocomplete keys first,
 /// then mode switches, undo/redo, pixel-selection clipboard/transforms, and
@@ -14,6 +15,7 @@ pub(super) fn handle_document_keys(
     state: &mut EditorState,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    alt_index: &crate::editor::ref_composite::AlternativesIndex,
     composites: &HashMap<usize, GlyphComposite>,
     prev_cursor: Caret,
     needs_rederive: &mut bool,
@@ -36,10 +38,26 @@ pub(super) fn handle_document_keys(
                 if !matches!(state.popup, PopupState::None) {
                     state.popup = PopupState::None;
                     state.preedit.clear();
+                } else if matches!(state.mode, EditMode::GlyphResize { .. }) {
+                    // Not a mode switch: the previewed resize has to be taken
+                    // back out of the document too.
+                    *needs_rederive |= glyph_resize::cancel(lines, state);
                 } else if !matches!(state.mode, EditMode::Normal) {
                     state.mode = EditMode::Normal;
                 }
             }
+
+            *needs_rederive |= handle_resize_keys(
+                ui,
+                doc,
+                lines,
+                state,
+                crate::editor::glyph_resize::ResolveEnv {
+                    named_glyphs,
+                    name_parts,
+                    alt_index,
+                },
+            );
 
             // F2: rename symbol at caret
             if matches!(state.mode, EditMode::Normal)
@@ -77,8 +95,12 @@ pub(super) fn handle_document_keys(
                 state.start_codepoint_entry();
             }
 
-            // Undo/redo in GlyphEdit/LayerMove modes (Normal mode handles it via doc_input::handle_keys)
-            if !matches!(state.mode, EditMode::Normal) && matches!(state.popup, PopupState::None) {
+            // Undo/redo in GlyphEdit/LayerMove modes (Normal mode handles it via doc_input::handle_keys).
+            // Not while resizing: the preview is uncommitted text no undo entry
+            // describes, so stepping the stack under it would mix the two.
+            if !matches!(state.mode, EditMode::Normal | EditMode::GlyphResize { .. })
+                && matches!(state.popup, PopupState::None)
+            {
                 let undo_pressed = ui.input(|i| {
                     i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::Z)
                 });
@@ -111,8 +133,12 @@ pub(super) fn handle_document_keys(
                 }
             }
 
-            // Backtick / 1..9: pick a layer palette slot outright
-            handle_palette_shortcuts(ui, doc, composites, state);
+            // Backtick / 1..9: pick a layer palette slot outright. A resize
+            // owns the glyph until it is applied or cancelled, so no shortcut
+            // may switch the mode out from under it.
+            if !matches!(state.mode, EditMode::GlyphResize { .. }) {
+                handle_palette_shortcuts(ui, doc, composites, state);
+            }
 
             // Select-all / clipboard for the pixel grid, in *both* pixel modes:
             // the grid is what the user is working on in either, and with
@@ -481,4 +507,78 @@ fn handle_shape_shortcuts(ui: &egui::Ui, selected_shape: &mut pixel::PixelShape)
             }
         }
     }
+}
+
+/// Everything the glyph-resize mode listens to: `F2` to enter it, the arrow
+/// keys to move one boundary, `Enter` to apply.
+///
+/// An arrow moves the boundary *towards* the direction it names — `Up` pulls
+/// the top edge up (growing the glyph), `Shift+Up` pulls the **bottom** edge
+/// up (shrinking it). Shifting the near edge instead would move the boundary
+/// against the key that asked for it.
+fn handle_resize_keys(
+    ui: &egui::Ui,
+    doc: &Document,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    env: crate::editor::glyph_resize::ResolveEnv<'_>,
+) -> bool {
+    use crate::editor::glyph_resize::{self as resize, ResizeSide};
+
+    if !matches!(state.popup, PopupState::None) {
+        return false;
+    }
+
+    if ui.input(|i| i.key_pressed(egui::Key::F2))
+        && !matches!(state.mode, EditMode::GlyphResize { .. })
+        && let Some(item_idx) = resize_target_at_caret(doc, lines, state)
+        && resize::begin(doc, lines, state, item_idx, env)
+    {
+        return false;
+    }
+
+    if !matches!(state.mode, EditMode::GlyphResize { .. }) {
+        return false;
+    }
+
+    if ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+        state.pending_resize = resize::finish(doc, lines, state);
+        // The preview is rolled back by `finish`; the host puts the resize
+        // back as the one edit it records.
+        return true;
+    }
+
+    let mut changed = false;
+    for (key, shift, side) in [
+        (egui::Key::ArrowUp, false, ResizeSide::Top),
+        (egui::Key::ArrowUp, true, ResizeSide::Bottom),
+        (egui::Key::ArrowDown, false, ResizeSide::Bottom),
+        (egui::Key::ArrowDown, true, ResizeSide::Top),
+        (egui::Key::ArrowLeft, false, ResizeSide::Left),
+        (egui::Key::ArrowLeft, true, ResizeSide::Right),
+        (egui::Key::ArrowRight, false, ResizeSide::Right),
+        (egui::Key::ArrowRight, true, ResizeSide::Left),
+    ] {
+        if ui.input(|i| i.key_pressed(key) && i.modifiers.shift == shift && !i.modifiers.command) {
+            // Unshifted moves the near edge outwards; shifted moves the far
+            // edge, which travels the same way on screen and shrinks the glyph.
+            let steps = if shift { -1 } else { 1 };
+            changed |= resize::nudge(lines, state, side, steps);
+        }
+    }
+    changed
+}
+
+/// The glyph a `F2` would resize: the one being pixel-edited, or the one whose
+/// grid the caret sits on.
+fn resize_target_at_caret(doc: &Document, lines: &[DocLine], state: &EditorState) -> Option<usize> {
+    if let Some(item_idx) = state.mode.pixel_edit_item_idx() {
+        return Some(item_idx);
+    }
+    if !matches!(state.mode, EditMode::Normal) {
+        return None;
+    }
+    matches!(lines.get(state.cursor.line), Some(DocLine::Grid(_)))
+        .then(|| line_to_item_idx(&doc.item_line_starts, state.cursor.line))
+        .flatten()
 }

@@ -120,6 +120,10 @@ pub struct NavRequest {
 pub struct DocumentViewResult {
     pub nav: Option<NavRequest>,
     pub rename: Option<RenameAction>,
+    /// An applied glyph resize, which only the host can carry out: the `ref`s
+    /// that move with it may live in any file. See
+    /// [`crate::editor::glyph_resize`].
+    pub resize: Option<crate::editor::glyph_resize::ResizeAction>,
 }
 
 /// Everything an editor reads but never owns: the resolved font data, the
@@ -328,6 +332,7 @@ fn show_document(
     let EditorEnv {
         named_glyphs,
         name_parts,
+        alt_index,
         derived_gen,
         font_gen,
         zoom_level,
@@ -353,6 +358,7 @@ fn show_document(
         EditMode::GlyphEdit { item_idx, .. } => Some(*item_idx),
         EditMode::PixelSelect { item_idx } => Some(*item_idx),
         EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
+        EditMode::GlyphResize { item_idx } => Some(*item_idx),
         EditMode::Normal => None,
     };
 
@@ -524,6 +530,7 @@ fn show_document(
         state,
         named_glyphs,
         name_parts,
+        alt_index,
         composites,
         prev_cursor,
         &mut needs_rederive,
@@ -559,5 +566,6 @@ fn show_document(
     DocumentViewResult {
         nav: state.pending_nav.take(),
         rename: rename_result,
+        resize: state.pending_resize.take(),
     }
 }

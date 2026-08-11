@@ -186,6 +186,39 @@ pub(crate) fn capture_edit_border(ctx: &egui::Context, editor: EditorId, rect: e
     ctx.data_mut(|d| d.insert_temp(edit_border_id(editor), Some(rect)));
 }
 
+fn resize_buttons_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestResizeButtons)
+}
+
+/// One rectangle as the frame painted it.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct PaintedRect {
+    pub rect: egui::Rect,
+    pub fill: egui::Color32,
+    pub stroke: egui::Stroke,
+    pub clip: egui::Rect,
+}
+
+/// One Apply/Cancel button as it was painted: where it is, and the two
+/// colours a theme has to keep apart.
+pub(crate) type ResizeButton = (
+    crate::editor::glyph_resize::PanelAction,
+    egui::Rect,
+    egui::Color32,
+    egui::Color32,
+);
+
+/// Called from `glyph_resize::draw_panel` (test builds only) to publish the
+/// Apply/Cancel buttons, so a test clicks them where they really are and can
+/// see what they were painted with.
+pub(crate) fn capture_resize_buttons(
+    ctx: &egui::Context,
+    editor: EditorId,
+    rects: &[ResizeButton],
+) {
+    ctx.data_mut(|d| d.insert_temp(resize_buttons_id(editor), rects.to_vec()));
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -276,9 +309,16 @@ pub(crate) struct EditorHarness {
     time: f64,
     snapshot: Option<Arc<ViewSnapshot>>,
     pub last_copied_text: Option<String>,
+    /// Every shape the last frame emitted, before tessellation — the only way
+    /// to ask what was actually *drawn* rather than what the code meant to
+    /// draw, clip rects included.
+    last_shapes: Vec<egui::epaint::ClippedShape>,
     /// The navigation request the primary editor reported on the most recent
     /// frame that produced one — what the host would act on and record.
     pub last_nav: Option<crate::editor::document_view::NavRequest>,
+    /// The resize the primary editor applied on the most recent frame that
+    /// produced one — what the host would then carry across the font.
+    last_resize: Option<crate::editor::glyph_resize::ResizeAction>,
     /// While set, a menu-like `egui::Area` is drawn above the editor over this
     /// rect, so a test can send a click that lands on a popup covering the
     /// grid instead of on the grid itself.
@@ -352,7 +392,9 @@ impl EditorHarness {
             time: 0.0,
             snapshot: None,
             last_copied_text: None,
+            last_shapes: Vec::new(),
             last_nav: None,
+            last_resize: None,
             menu_overlay: None,
             second: None,
         };
@@ -405,6 +447,7 @@ impl EditorHarness {
         let prev_second_gen = self.second.as_ref().map(|p| p.doc.edit_gen);
         let ctx = self.ctx.clone();
         let mut nav_result = None;
+        let mut resize_result = None;
         let menu_overlay = self.menu_overlay;
         let full_output = ctx.run(raw, |cx| {
             if let Some(rect) = menu_overlay {
@@ -438,6 +481,7 @@ impl EditorHarness {
                     )
                     .show(ui);
                     nav_result = result.nav;
+                    resize_result = result.resize;
                     return;
                 };
                 // Split layout: each editor gets half the width, so the two
@@ -466,6 +510,7 @@ impl EditorHarness {
                         )
                         .show(ui);
                         nav_result = result.nav;
+                        resize_result = result.resize;
                     });
                     ui.allocate_ui(pane_size, |ui| {
                         let _ = DocumentEditor::new(
@@ -494,11 +539,15 @@ impl EditorHarness {
         if nav_result.is_some() {
             self.last_nav = nav_result;
         }
+        if resize_result.is_some() {
+            self.last_resize = resize_result;
+        }
         for cmd in &full_output.platform_output.commands {
             if let egui::OutputCommand::CopyText(text) = cmd {
                 self.last_copied_text = Some(text.clone());
             }
         }
+        self.last_shapes = full_output.shapes.clone();
         self.snapshot = self.snapshot_of(&self.state);
         if self.doc.edit_gen != prev_gen {
             // The app rebuilds resolved glyphs whenever a document rederives.
@@ -879,6 +928,69 @@ impl EditorHarness {
         self.ctx
             .data(|d| d.get_temp::<Option<egui::Rect>>(edit_border_id(self.state.id())))
             .flatten()
+    }
+
+    /// Screen position of the resize mode's Apply or Cancel button (available
+    /// once the panel has rendered a frame in `EditMode::GlyphResize`).
+    pub fn resize_button_pos(
+        &self,
+        action: crate::editor::glyph_resize::PanelAction,
+    ) -> egui::Pos2 {
+        self.resize_button(action).1.center()
+    }
+
+    /// The `(fill, text)` colours the last frame painted that button with.
+    pub fn resize_button_colors(
+        &self,
+        action: crate::editor::glyph_resize::PanelAction,
+    ) -> (egui::Color32, egui::Color32) {
+        let b = self.resize_button(action);
+        (b.2, b.3)
+    }
+
+    fn resize_button(&self, action: crate::editor::glyph_resize::PanelAction) -> ResizeButton {
+        self.ctx
+            .data(|d| d.get_temp::<Vec<ResizeButton>>(resize_buttons_id(self.state.id())))
+            .and_then(|v| v.iter().find(|b| b.0 == action).copied())
+            .expect("resize panel not captured -- was the editor in resize mode?")
+    }
+
+    /// Every rectangle the last frame painted, in paint order — which is what
+    /// makes "drawn but painted over" visible to a test at all.
+    pub fn painted_rects(&self) -> Vec<PaintedRect> {
+        fn walk(shape: &egui::Shape, clip: egui::Rect, out: &mut Vec<PaintedRect>) {
+            match shape {
+                egui::Shape::Rect(r) => out.push(PaintedRect {
+                    rect: r.rect,
+                    fill: r.fill,
+                    stroke: r.stroke.into(),
+                    clip,
+                }),
+                egui::Shape::Vec(v) => {
+                    for s in v {
+                        walk(s, clip, out);
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut out = Vec::new();
+        for cs in &self.last_shapes {
+            walk(&cs.shape, cs.clip_rect, &mut out);
+        }
+        out
+    }
+
+    /// Switch the context's theme, as the View menu does, and settle a frame.
+    pub fn set_theme(&mut self, theme: egui::Theme) {
+        self.ctx.set_theme(theme);
+        self.frame();
+        self.frame();
+    }
+
+    /// The resize the last frame handed to the host, if any.
+    pub fn take_resize(&mut self) -> Option<crate::editor::glyph_resize::ResizeAction> {
+        self.last_resize.take()
     }
 
     /// Screen rect of a ref-layer thumbnail in the inline tools panel (only
