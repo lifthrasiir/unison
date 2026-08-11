@@ -54,7 +54,7 @@ The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 | --- | --- |
 | `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app/background.rs`), plus the startup report on stderr after the first frame (`startup.rs`) |
 | `UNIFORM_UPDATE_GOLDEN=1` | Rewrite `testdata/*.golden` instead of comparing (`cargo test golden`) |
-| `UNIFORM_WATCH_POLL_MS` | Re-scan interval used when the font directory is on a network volume (default 10000; `app/watch.rs`) |
+| `UNIFORM_WATCH_POLL_MS` | Shortest interval between two re-scans of a font directory on a network volume (default 2000; the interval itself follows what a scan costs — `app/watch.rs`) |
 | `UNIFORM_PROFILE_RUNS` | Iteration count for the `ref_composite` profiling test |
 
 Cargo features: `editor` (default) pulls in eframe/egui/tiny-skia/notify/rfd/arboard. `--no-default-features`
@@ -201,6 +201,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
 | The anchor shadow | `editor/anchor_shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
+| Why a polled directory is enumerated rather than `stat`ed, and how its interval sets itself | `app/watch.rs` (`poll_snapshot`, `next_poll_delay`) |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
 | Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |
 | Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |

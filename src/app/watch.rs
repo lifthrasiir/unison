@@ -52,6 +52,15 @@
 //! is routinely used) one read is tens of milliseconds and a directory
 //! re-parse is 34 files of them.
 //!
+//! # The poll backend
+//!
+//! A volume the kernel cannot report on is polled by [`spawn_poll_thread`]
+//! rather than by `notify`'s `PollWatcher`. Two properties are the reason, and
+//! both are about what the watch costs a share rather than about what it
+//! detects: a tick is one directory enumeration and no per-file `stat`
+//! ([`poll_snapshot`]), and the interval follows what a tick actually costs
+//! ([`next_poll_delay`]) instead of being a number guessed in advance.
+//!
 //! Uniform's own saves are filtered out by content rather than by suppressing
 //! the watch around the write: every open document remembers the hash of the
 //! bytes it last read from or wrote to disk ([`hash_bytes`]), so a save's own
@@ -70,12 +79,22 @@ use notify::{EventKind, RecursiveMode, Watcher};
 
 use crate::document::{DocLine, Document};
 
-/// How often a directory the kernel cannot report on is re-scanned. Ten
-/// seconds: the scan is one `read_dir` plus a `stat` per file, which is cheap
-/// locally and a handful of round trips over SMB, and a change made in another
-/// window is not something the editor has to see within the second.
+/// The shortest interval between two polls of a directory the kernel cannot
+/// report on — the floor of the adaptive interval described on
+/// [`next_poll_delay`]. Two seconds: a poll tick is one `read_dir` and no
+/// per-file `stat` (see [`poll_snapshot`]), which measured 47 ms over SMB, so
+/// polling this often costs a fraction of what ten-second polling used to.
 /// `UNIFORM_WATCH_POLL_MS` overrides it.
-const DEFAULT_POLL_MS: u64 = 10_000;
+const DEFAULT_POLL_MS: u64 = 2_000;
+
+/// The interval never grows past this, however slow the share: a directory that
+/// is only looked at once a minute is still a watch.
+const MAX_POLL_MS: u64 = 60_000;
+
+/// How much wall-clock time the poll may spend scanning, as a divisor: the next
+/// interval is the tick's own cost times this, so polling occupies at most
+/// 1/20th — 5% — of one thread's time no matter what the volume does.
+const POLL_DUTY_DIVISOR: u32 = 20;
 
 /// How long events are left to settle before the directory is looked at. Long
 /// enough to swallow the write/rename pair of one save, short enough that an
@@ -124,7 +143,8 @@ pub(super) fn hash_bytes(bytes: &[u8]) -> u64 {
 ///   `CHANGE_NOTIFY` request, so a share whose server implements it (Samba,
 ///   Windows Server) does deliver events. Server support varies enough that
 ///   `DRIVE_REMOTE` and UNC paths are treated as remote anyway; a poll that
-///   was not needed costs one directory scan every ten seconds.
+///   was not needed costs one directory enumeration every couple of seconds
+///   ([`poll_snapshot`]), which is cheap enough that the caution is affordable.
 /// - **Elsewhere**: assumed local. Linux and the BSDs are not targets here,
 ///   and inotify/kqueue on a local directory is the behaviour to keep.
 fn is_local_volume(dir: &Path) -> Option<bool> {
@@ -180,18 +200,209 @@ fn poll_interval() -> Duration {
     Duration::from_millis(ms)
 }
 
+/// What one poll tick knows about a file, and all it needs to know: a change to
+/// a `.unf` file changes one of the two.
+///
+/// Both come out of the directory enumeration itself rather than a `stat` per
+/// file — see [`poll_snapshot`] for why that distinction is the whole point.
+/// The pair can miss a rewrite that keeps the length and lands inside one tick
+/// of the volume's timestamp resolution (2 s on a FAT-ish share); polling has
+/// no answer to that, and it is the same blind spot the previous backend had.
+#[derive(PartialEq, Eq)]
+struct PolledEntry {
+    len: u64,
+    modified: Option<std::time::SystemTime>,
+}
+
+/// One `read_dir` over the font directory's `.unf` files.
+///
+/// **No per-file `stat`.** On Windows the directory enumeration already carries
+/// each entry's size and timestamps (`FindFirstFileW` fills them in), and
+/// `DirEntry::metadata` hands those back with no further system call — so a
+/// tick is one network round trip rather than one per file. That is not a
+/// micro-optimization here: `notify`'s `PollWatcher` walks with
+/// `follow_links(true)`, which makes `walkdir` re-`stat` every entry it already
+/// had the metadata for, and over SMB that was 44 round trips of ~185 ms every
+/// ten seconds — about eight seconds of the share's time out of every ten.
+///
+/// On Unix `DirEntry::metadata` *is* a `stat`, so this is one call per file
+/// there; the volumes that fall back to polling on those platforms are the
+/// exception rather than the rule (see [`is_local_volume`]).
+fn poll_snapshot(dir: &Path) -> std::collections::BTreeMap<PathBuf, PolledEntry> {
+    let mut out = std::collections::BTreeMap::new();
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return out;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !crate::document_io::is_source_file(&path) {
+            continue;
+        }
+        // A symlink's own record says nothing about the file it points at, so
+        // that one entry is worth the extra call. There is normally none.
+        let is_link = entry.file_type().map(|t| t.is_symlink()).unwrap_or(false);
+        let meta = if is_link {
+            std::fs::metadata(&path).ok()
+        } else {
+            entry.metadata().ok()
+        };
+        let Some(meta) = meta else { continue };
+        out.insert(
+            path,
+            PolledEntry {
+                len: meta.len(),
+                modified: meta.modified().ok(),
+            },
+        );
+    }
+    out
+}
+
+/// Turns two consecutive snapshots into the events the watch reports.
+///
+/// `listing` follows the same rule as the native backends': an entry appearing
+/// or disappearing may have changed the file list, a file changing in place has
+/// not.
+fn diff_snapshots(
+    prev: &std::collections::BTreeMap<PathBuf, PolledEntry>,
+    next: &std::collections::BTreeMap<PathBuf, PolledEntry>,
+) -> Vec<WatchEvent> {
+    let mut events = Vec::new();
+    for (path, entry) in next {
+        match prev.get(path) {
+            Some(before) if before == entry => {}
+            Some(_) => events.push(WatchEvent {
+                path: path.clone(),
+                listing: false,
+            }),
+            None => events.push(WatchEvent {
+                path: path.clone(),
+                listing: true,
+            }),
+        }
+    }
+    for path in prev.keys() {
+        if !next.contains_key(path) {
+            events.push(WatchEvent {
+                path: path.clone(),
+                listing: true,
+            });
+        }
+    }
+    events
+}
+
+/// How long to wait before the next poll, given what the last one cost.
+///
+/// Proportional to that cost ([`POLL_DUTY_DIVISOR`]) and clamped to
+/// `[floor, MAX_POLL_MS]`. A fast volume therefore polls at the floor, and a
+/// share slow enough that a tick takes a second backs itself off to twenty —
+/// without anyone having to guess a number that suits both. The previous fixed
+/// ten seconds had no such property: when a tick grew to eight seconds, it
+/// simply ran eight-second scans 80% of the time.
+fn next_poll_delay(cost: Duration, floor: Duration) -> Duration {
+    let scaled = cost * POLL_DUTY_DIVISOR;
+    scaled.clamp(floor, Duration::from_millis(MAX_POLL_MS))
+}
+
 /// The OS watch itself: a background watcher and the channel it reports on.
 /// Dropping it stops the watch, which is how opening another folder ends the
 /// previous one.
 struct DirWatcher {
-    _watcher: Box<dyn Watcher + Send>,
+    /// The kernel's own watch, on a volume that has one. `None` when the
+    /// directory is polled instead.
+    _watcher: Option<Box<dyn Watcher + Send>>,
+    /// Tells the poll thread to stop, for the same drop that drops the watcher.
+    /// The thread also ends on its own once `rx` is gone, but only at its next
+    /// tick, and a dropped watch has to stop touching the share now.
+    poll_stop: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     rx: mpsc::Receiver<WatchEvent>,
+}
+
+impl Drop for DirWatcher {
+    fn drop(&mut self) {
+        if let Some(stop) = &self.poll_stop {
+            stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+    }
+}
+
+/// Polls `dir` on a thread of its own until the returned flag is set.
+///
+/// The first tick only records the baseline: every file existing is not a
+/// change, and reporting it as one would reload the whole directory a moment
+/// after it was read.
+fn spawn_poll_thread(
+    dir: PathBuf,
+    tx: mpsc::Sender<WatchEvent>,
+    ctx: egui::Context,
+    floor: Duration,
+) -> std::sync::Arc<std::sync::atomic::AtomicBool> {
+    use std::sync::atomic::Ordering;
+    let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let thread_stop = stop.clone();
+    std::thread::spawn(move || {
+        let baseline = Instant::now();
+        let mut previous = poll_snapshot(&dir);
+        // The baseline tick is a tick like any other, so its cost is what the
+        // first interval is chosen from — a share slow enough to matter says so
+        // before the second scan rather than after it.
+        let mut cost = baseline.elapsed();
+        loop {
+            // Slept in slices so that dropping the watch is felt within a frame
+            // or two rather than at the end of a minute-long wait.
+            let deadline = Instant::now() + next_poll_delay(cost, floor);
+            loop {
+                if thread_stop.load(Ordering::Relaxed) {
+                    return;
+                }
+                let now = Instant::now();
+                if now >= deadline {
+                    break;
+                }
+                std::thread::sleep((deadline - now).min(Duration::from_millis(100)));
+            }
+
+            let tick = Instant::now();
+            let next = poll_snapshot(&dir);
+            cost = tick.elapsed();
+            let events = diff_snapshots(&previous, &next);
+            previous = next;
+            let mut sent = false;
+            for event in events {
+                if tx.send(event).is_err() {
+                    return;
+                }
+                sent = true;
+            }
+            if sent {
+                ctx.request_repaint();
+            }
+        }
+    });
+    stop
 }
 
 impl DirWatcher {
     fn new(dir: &Path, ctx: &egui::Context) -> Option<Self> {
         let (tx, rx) = mpsc::channel();
         let ctx = ctx.clone();
+
+        // Unknown counts as remote: a poll that was not needed is a wasted
+        // directory scan, while a native watch that was not possible is a
+        // feature that silently does nothing.
+        if !is_local_volume(dir).unwrap_or(false) {
+            // Polled by [`spawn_poll_thread`] rather than by `notify`'s
+            // `PollWatcher`, which re-`stat`s every file it has already
+            // enumerated; [`poll_snapshot`] says what that cost.
+            let poll_stop = spawn_poll_thread(dir.to_path_buf(), tx, ctx, poll_interval());
+            return Some(Self {
+                _watcher: None,
+                poll_stop: Some(poll_stop),
+                rx,
+            });
+        }
+
         let handler = move |res: notify::Result<notify::Event>| {
             let Ok(event) = res else { return };
             // A rename reports both ends, a removal only the old path; either
@@ -215,18 +426,12 @@ impl DirWatcher {
             }
         };
 
-        // Unknown counts as remote: a poll that was not needed is a wasted
-        // directory scan, while a native watch that was not possible is a
-        // feature that silently does nothing.
-        let mut watcher: Box<dyn Watcher + Send> = if is_local_volume(dir).unwrap_or(false) {
-            Box::new(notify::recommended_watcher(handler).ok()?)
-        } else {
-            let config = notify::Config::default().with_poll_interval(poll_interval());
-            Box::new(notify::PollWatcher::new(handler, config).ok()?)
-        };
+        let mut watcher: Box<dyn Watcher + Send> =
+            Box::new(notify::recommended_watcher(handler).ok()?);
         watcher.watch(dir, RecursiveMode::NonRecursive).ok()?;
         Some(Self {
-            _watcher: watcher,
+            _watcher: Some(watcher),
+            poll_stop: None,
             rx,
         })
     }
@@ -1029,5 +1234,82 @@ mod tests {
         assert_eq!(names, ["a.unf"], "got {names:?}");
 
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// The poll backend reports what changed and nothing else — in particular
+    /// not the files that were simply *there* when it started, which would
+    /// reload the whole directory a moment after it was read.
+    #[test]
+    fn polling_reports_changes_and_not_the_files_it_started_with() {
+        let dir = std::env::temp_dir().join(format!("uniform-poll-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("a.unf"), "glyph a 2 2\n@@@@\n@@@@\n").unwrap();
+
+        let (tx, rx) = mpsc::channel();
+        let ctx = egui::Context::default();
+        let stop = spawn_poll_thread(dir.clone(), tx, ctx, Duration::from_millis(20));
+        // The baseline is taken on that thread — deliberately, so that no
+        // `read_dir` of a share ever runs on the UI thread — so the writes below
+        // have to come after it, or they are the baseline rather than a change.
+        // Ticks in between report nothing, which is half of what this asserts.
+        std::thread::sleep(Duration::from_millis(300));
+
+        // A file that changes size and one that appears: an in-place change is
+        // not a listing change, a new entry is.
+        std::fs::write(
+            dir.join("a.unf"),
+            "glyph a 2 2\n@@@@\n@@@@\nglyph b 1 1\n@@\n",
+        )
+        .unwrap();
+        std::fs::write(dir.join("b.unf"), "glyph c 1 1\n@@\n").unwrap();
+
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let mut seen: Vec<(String, bool)> = Vec::new();
+        while Instant::now() < deadline && seen.len() < 2 {
+            while let Ok(event) = rx.try_recv() {
+                let name = event
+                    .path
+                    .file_name()
+                    .unwrap()
+                    .to_string_lossy()
+                    .to_string();
+                seen.push((name, event.listing));
+            }
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        stop.store(true, std::sync::atomic::Ordering::Relaxed);
+
+        seen.sort();
+        assert_eq!(
+            seen,
+            [("a.unf".to_string(), false), ("b.unf".to_string(), true)],
+            "the baseline file must not be reported, and only the new entry touches the listing"
+        );
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// The interval follows what a tick costs, so the poll can never take more
+    /// of the volume than [`POLL_DUTY_DIVISOR`] allows — which is what a
+    /// fixed ten seconds could not promise once a tick grew to eight.
+    #[test]
+    fn the_poll_interval_follows_what_a_tick_costs() {
+        let floor = Duration::from_millis(2_000);
+        assert_eq!(
+            next_poll_delay(Duration::from_millis(1), floor),
+            floor,
+            "a cheap tick polls at the floor"
+        );
+        assert_eq!(
+            next_poll_delay(Duration::from_millis(500), floor),
+            Duration::from_millis(10_000),
+            "a slow tick backs off in proportion"
+        );
+        assert_eq!(
+            next_poll_delay(Duration::from_secs(30), floor),
+            Duration::from_millis(MAX_POLL_MS),
+            "and never past the cap: a directory looked at once a minute is still watched"
+        );
     }
 }
