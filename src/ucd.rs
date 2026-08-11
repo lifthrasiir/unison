@@ -435,6 +435,28 @@ pub(crate) fn is_private_use(cp: u32) -> bool {
     })
 }
 
+/// Whether `cp` is a variation selector — the second half of a Unicode
+/// variation sequence, and the only thing the second half of a `map` pair may
+/// be.
+///
+/// Deliberately not `#[cfg(feature = "editor")]` and deliberately not asked of
+/// the UCD tables: this decides how a source line parses, so the headless build
+/// needs it and it must not move when the pinned UCD version does.
+///
+/// The Mongolian selectors are in the set because the *shaper's* definition has
+/// them. HarfBuzz reads a variation sequence out of exactly these ranges in its
+/// normalizer, before GSUB runs, so a pair written outside them would never
+/// reach the cmap format 14 lookup it was stated for — the set that matters
+/// here is the one the consumer uses, not the one the UCD publishes. `U+180F`
+/// joined it in Unicode 14; a shaper old enough to stop at `U+180D` only loses
+/// a pair that nothing else would have matched either.
+pub fn is_variation_selector(cp: u32) -> bool {
+    matches!(
+        cp,
+        0x180B..=0x180D | 0x180F | 0xFE00..=0xFE0F | 0xE0100..=0xE01EF
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

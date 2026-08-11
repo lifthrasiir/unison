@@ -1072,6 +1072,101 @@ map U+1F1E6..1F1FF = regional-indicator-($a-z)
 
 Mapping the same codepoint twice is reported, as is mapping to a glyph that does not exist.
 
+A variation selector cannot be mapped on its own. It reaches the font only as the second half of the
+form below, whose glyph the build owns.
+
+### `map BASE SELECTOR`: Map a variation sequence to a glyph
+
+```
+map [SLICE :] BASE SELECTOR = GLYPH
+```
+
+Maps a Unicode *variation sequence* — a base character followed by a variation selector — to a
+glyph. The `SLICE :` qualifier works exactly as it does on the plain form.
+
+```
+map U+26AB U+FE0E = black-circle-6-inside
+map U+0030 U+FE0F = num-zero-emoji
+```
+
+There are two spellings and each round-trips as it was written. `U+0030 U+FE0F` is two tokens; the
+same pair pasted out of a character picker is *one* token holding two characters. Only that exact
+shape — two characters, the second a selector and the first not — is read as a pair, so a pipe list
+keeps its last alternative and a longer paste stays whole. The halves carry their spellings
+independently, so `map 0 U+FE0F = x` is accepted too, and comes back as written.
+
+Since a selector is invisible, the editor spells out the codepoints of a literally written sequence
+beside it, on `map` lines and on `assert shape` alike.
+
+The selectors are `U+FE00..FE0F`, `U+E0100..E01EF` and the Mongolian `U+180B..180D`/`U+180F`. That
+is the set the *shaper* reads a variation sequence out of, which is the one that matters here: a
+pair written outside it would never reach the lookup it was stated for.
+
+#### Only a base and one selector
+
+A longer sequence is an error, because the `cmap` format 14 subtable this compiles to holds a base
+and one selector and nothing longer. Pasting an emoji keycap gives three characters:
+
+```
+map 0️⃣ = keycap-zero              // error: U+0030 U+FE0F U+20E3
+```
+
+The rest of the sequence belongs in a `remap`, against the glyph the pair produces:
+
+```
+map U+0030 U+FE0F = num-zero-emoji
+remap keycaps : num-zero-emoji combining-keycap -> keycap-zero
+```
+
+#### Ranges
+
+Either half may be a range or a `|` list, but not both — which one goes with which would have to be
+either a zip or a cross product, and neither is more obviously right. `GLYPH` is expanded in
+lock-step with whichever half varies:
+
+```
+map U+0030..0039 U+FE0F = num-($0..9)-emoji          // many bases, one selector
+map U+4E00 U+E0100..E0102 = han-4e00-ivs($1..3)      // one base, many selectors
+```
+
+#### What it emits
+
+Two things, from the one declaration, so that they cannot disagree:
+
+* a **`cmap` format 14 entry**, which is how a conforming shaper reads a variation sequence — it
+  resolves the pair before any `GSUB` lookup runs and removes the selector from the buffer;
+* a **fallback `GSUB` ligature rule** — `base selector -> GLYPH` — in `ccmp`, at a lower lookup index
+  than every rule the source wrote. On a shaper that honors `cmap` format 14 this never fires. It is
+  there for one that does not: DirectWrite drops an unmatched selector before `GSUB` sees it, so a
+  sequence written as a `remap` alone works in HarfBuzz and CoreText and silently fails on Windows.
+  That is why this form exists rather than being spelled out by hand.
+
+The rule is a ligature (two glyphs in, one out) and not a single substitution, because the selector
+has to *leave* the buffer even when the target is the base's own glyph.
+
+Which of format 14's two arrays a pair lands in is decided by the build, not stated: a pair whose
+target is already what the base maps to goes in the Default UVS array, which carries no glyph id and
+says only "this sequence is valid, use the base's glyph, and swallow the selector"; everything else
+carries a glyph id in the Non-default array. A source that had to choose would only ever get it
+wrong.
+
+The build also synthesizes a blank, zero-advance glyph per selector used, and gives it an ordinary
+`cmap` entry — the fallback rule's first element is found through a plain `cmap` lookup, so without
+the entry it would never match. Those glyphs carry no name a source has to avoid: their internal
+names use `@`, which is not in the [glyph-name character set](#identifier), and no name survives
+into the font at all because `post` is version 3.0.
+
+#### What is checked
+
+* The base must be mapped, in a slice this pair can meet, or the fallback rule has no first glyph.
+* The halves must be the right kind — a selector in the selector position, a non-selector in the
+  base position. Both directions are checked, so a swapped line is caught rather than building a
+  sequence nothing will ever match.
+* Format 14 is keyed by codepoint but `GSUB` is keyed by glyph, so the two halves stop agreeing
+  wherever two characters share a base glyph. Two pairs colliding on one base glyph and selector is
+  an error; a pair whose base glyph another character also reaches is a warning, since the fallback
+  rule will apply it to that character too and format 14 will not.
+
 ### `map generate`: Map characters to synthesized glyphs
 
 ```
@@ -1098,7 +1193,12 @@ to keep offering what the components offered. Rewriting one by hand as a `glyph`
 means deciding, per ref, whether to keep that.
 
 The `generate` keyword is not optional; a bare `map CHAR` reads too much like the plain form to be
-worth the ambiguity.
+worth the ambiguity. It is also what tells `map generate Á = a-acute` from
+`map U+0030 U+FE0F = num-zero-emoji`, which have the same shape otherwise.
+
+`generate` never takes a [variation sequence](#map-base-selector-map-a-variation-sequence-to-a-glyph):
+a variation sequence is its own canonical decomposition, so there is nothing to synthesize from. It
+parses and is rejected by name rather than being read as something else.
 
 ### `remap`: Substitution rules
 
@@ -1118,6 +1218,13 @@ lookup type:
 | N → 1 | ligature |
 
 N → M and N → 0 have no OpenType lookup type and are rejected rather than approximated.
+
+A variation sequence cannot be written here. A selector has no glyph a source can name, because a
+conforming shaper resolves the sequence and removes the selector before `GSUB` runs — a rule that
+matched one would work on some shapers and not others. Use
+[`map BASE SELECTOR`](#map-base-selector-map-a-variation-sequence-to-a-glyph), and write the `remap`
+against the glyph it produces. Tag characters are the opposite case: they have no such path, so they
+stay ordinary glyphs a rule names directly.
 
 Lookbehind and lookahead turn the rule into a contextual one. They are matched but not replaced:
 

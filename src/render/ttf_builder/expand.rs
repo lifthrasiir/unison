@@ -184,19 +184,27 @@ pub(crate) fn expand_for(
                     let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
                     let item = match item {
                         DocumentItem::Map {
-                            char_repr, glyph, ..
+                            char_repr,
+                            selector,
+                            glyph,
+                            ..
                         } => DocumentItem::Map {
                             slices: one,
                             comment: None,
                             char_repr: char_repr.clone(),
+                            selector: selector.clone(),
                             glyph: substitute_name_parts(glyph, parts),
                         },
                         DocumentItem::MapDecomposed {
-                            char_repr, glyph, ..
+                            char_repr,
+                            selector,
+                            glyph,
+                            ..
                         } => DocumentItem::MapDecomposed {
                             slices: one,
                             comment: None,
                             char_repr: char_repr.clone(),
+                            selector: selector.clone(),
                             glyph: glyph.as_ref().map(|g| substitute_name_parts(g, parts)),
                         },
                         DocumentItem::Feature { .. } | DocumentItem::FeatureAnchor { .. } => {
@@ -293,6 +301,9 @@ pub(crate) fn expand_for(
 struct PendingDecomposition {
     slices: Vec<String>,
     char_repr: String,
+    /// Always invalid, and carried this far only so the rejection can name what
+    /// was written. See [`DocumentItem::MapDecomposed`].
+    selector: Option<String>,
     glyph: Option<String>,
     origin: Option<ItemRef>,
 }
@@ -313,11 +324,13 @@ fn expand_decomposed_maps(
             DocumentItem::MapDecomposed {
                 slices,
                 char_repr,
+                selector,
                 glyph,
                 ..
             } => Some(PendingDecomposition {
                 slices: slices.clone(),
                 char_repr: char_repr.clone(),
+                selector: selector.clone(),
                 glyph: glyph.clone(),
                 origin: e.origin,
             }),
@@ -328,10 +341,27 @@ fn expand_decomposed_maps(
     for PendingDecomposition {
         slices,
         char_repr,
+        selector,
         glyph,
         origin,
     } in pending
     {
+        // A variation sequence is its own canonical decomposition, so there is
+        // nothing here to synthesize from. Rejected before the pairs are even
+        // expanded, so the message names the sequence rather than complaining
+        // about the base character alone.
+        if let Some(sel) = &selector {
+            diagnostics.push(Diagnostic::error(
+                origin,
+                format!(
+                    "map generate takes a single character, not the variation \
+                     sequence '{char_repr} {sel}'; a variation sequence has no \
+                     canonical decomposition — write `map {char_repr} {sel} = GLYPH`",
+                ),
+            ));
+            continue;
+        }
+
         // The synthesized composite's *name* is not canonicalized — it is a
         // glyph this expansion is about to define, not a reference to one.
         let pairs = decomposed_map_pairs(&char_repr, glyph.as_deref());
@@ -415,6 +445,7 @@ fn expand_decomposed_maps(
                     slices: slices.clone(),
                     comment: None,
                     char_repr: format!("U+{cp:04X}"),
+                    selector: None,
                     glyph: composite_name,
                 },
                 origin,
@@ -729,6 +760,113 @@ fn inject_on_demand_glyph_items(
     }
 }
 
+/// Why a `map BASE SELECTOR = GLYPH` line expands to nothing.
+///
+/// Separate from [`Diagnostic`] so the expansion stays a pure function that
+/// [`crate::issues`] and the builder can each phrase in their own terms.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) enum UvsExpandError {
+    /// Both halves list more than one codepoint. Which base goes with which
+    /// selector would have to be either a zip or a cross product, and neither
+    /// is more obviously right than the other, so the line has to say.
+    BothVary,
+    /// A half expanded to no valid codepoint at all.
+    Empty { selector_half: bool },
+    /// The second half is not a variation selector, or the first half is one.
+    NotASelector { cp: u32, selector_half: bool },
+}
+
+/// Expand `map BASE SELECTOR = GLYPH` into `(base, selector, glyph)` triples.
+///
+/// Either half may be a range or a pipe list, but not both: one position
+/// varies and the other is held fixed, which covers the two shapes that occur —
+/// a fixed selector over many bases (keycaps) and a fixed base over many
+/// selectors (ideographic variants) — without having to define a cross product
+/// nobody asked for. The glyph pattern is expanded in lock-step with whichever
+/// half varies, exactly as a plain `map`'s target is.
+///
+/// Deliberately not written in terms of [`expand_map_pairs`]: that one pairs
+/// glyph names with codepoints *positionally, including the invalid ones*, so
+/// the alignment of a malformed pipe list is part of its observable behaviour.
+/// This one answers a different question and drops invalid codepoints outright.
+pub(crate) fn expand_uvs_map_triples(
+    char_repr: &str,
+    selector: &str,
+    glyph: &str,
+) -> Result<Vec<(u32, u32, String)>, UvsExpandError> {
+    let bases = expand_map_codepoints(char_repr);
+    let selectors = expand_map_codepoints(selector);
+    if bases.is_empty() {
+        return Err(UvsExpandError::Empty {
+            selector_half: false,
+        });
+    }
+    if selectors.is_empty() {
+        return Err(UvsExpandError::Empty {
+            selector_half: true,
+        });
+    }
+    if bases.len() > 1 && selectors.len() > 1 {
+        return Err(UvsExpandError::BothVary);
+    }
+    if let Some(&cp) = bases.iter().find(|cp| crate::ucd::is_variation_selector(**cp)) {
+        return Err(UvsExpandError::NotASelector {
+            cp,
+            selector_half: false,
+        });
+    }
+    if let Some(&cp) = selectors
+        .iter()
+        .find(|cp| !crate::ucd::is_variation_selector(**cp))
+    {
+        return Err(UvsExpandError::NotASelector {
+            cp,
+            selector_half: true,
+        });
+    }
+
+    let count = bases.len().max(selectors.len());
+    let names = expand_glyph_pattern(glyph, count);
+    Ok((0..count)
+        .map(|i| {
+            (
+                bases[i % bases.len()],
+                selectors[i % selectors.len()],
+                names[i % names.len()].clone(),
+            )
+        })
+        .collect())
+}
+
+/// The codepoints one half of a `map` names: a single character, a `U+X..Y`
+/// range, or a top-level pipe list. Invalid and unparsable entries are dropped.
+pub(crate) fn expand_map_codepoints(token: &str) -> Vec<u32> {
+    if let Some(hex_rest) = token.strip_prefix("U+").or_else(|| token.strip_prefix("u+"))
+        && let Some((start_hex, end_hex)) = hex_rest.split_once("..")
+        && let (Ok(start), Ok(end)) = (
+            u32::from_str_radix(start_hex, 16),
+            u32::from_str_radix(end_hex, 16),
+        )
+    {
+        if end < start || u64::from(end) - u64::from(start) + 1 > MAX_EXPANSION as u64 {
+            return vec![];
+        }
+        return (start..=end).filter(|cp| char::from_u32(*cp).is_some()).collect();
+    }
+
+    if has_top_level_pipe(token) {
+        let parts: Vec<&str> = split_top_level_pipes(token)
+            .into_iter()
+            .filter(|s| !s.is_empty())
+            .collect();
+        if parts.len() >= 2 {
+            return parts.iter().filter_map(|s| parse_map_char(s)).collect();
+        }
+    }
+
+    parse_map_char(token).into_iter().collect()
+}
+
 pub(crate) fn parse_map_char(s: &str) -> Option<u32> {
     if let Some(hex) = s.strip_prefix("U+").or_else(|| s.strip_prefix("u+")) {
         u32::from_str_radix(hex, 16).ok()
@@ -838,5 +976,132 @@ pub(crate) fn expand_glyph_pattern(pattern: &str, count: usize) -> Vec<String> {
     match NamePattern::parse_element(pattern) {
         Ok(expanded) => (0..count).map(|i| expanded.get(i)).collect(),
         Err(_) => vec![pattern.to_string(); count],
+    }
+}
+
+#[cfg(test)]
+mod uvs_expand_tests {
+    use super::*;
+
+    fn triples(base: &str, sel: &str, glyph: &str) -> Vec<(u32, u32, String)> {
+        expand_uvs_map_triples(base, sel, glyph).expect("expected a valid expansion")
+    }
+
+    #[test]
+    fn a_fixed_pair_expands_to_one_triple() {
+        assert_eq!(
+            triples("U+0030", "U+FE0F", "num-zero-emoji"),
+            vec![(0x30, 0xFE0F, "num-zero-emoji".to_string())],
+        );
+    }
+
+    /// The keycap shape: many bases, one selector. The glyph pattern runs in
+    /// lock-step with the half that varies.
+    ///
+    /// The target arrives here already through `substitute_name_parts`, so an
+    /// inline numeric range is written out — `($0..2)` is that step's input,
+    /// not this one's.
+    #[test]
+    fn the_base_may_vary_against_a_fixed_selector() {
+        assert_eq!(
+            triples("U+0030..0032", "U+FE0F", "num-(0|1|2)-emoji"),
+            vec![
+                (0x30, 0xFE0F, "num-0-emoji".to_string()),
+                (0x31, 0xFE0F, "num-1-emoji".to_string()),
+                (0x32, 0xFE0F, "num-2-emoji".to_string()),
+            ],
+        );
+    }
+
+    /// The ideographic-variant shape: one base, many selectors. Both directions
+    /// occur in real sources, which is why neither position is privileged.
+    #[test]
+    fn the_selector_may_vary_against_a_fixed_base() {
+        assert_eq!(
+            triples("U+4E00", "U+E0100..E0102", "han-4e00-ivs(1|2|3)"),
+            vec![
+                (0x4E00, 0xE0100, "han-4e00-ivs1".to_string()),
+                (0x4E00, 0xE0101, "han-4e00-ivs2".to_string()),
+                (0x4E00, 0xE0102, "han-4e00-ivs3".to_string()),
+            ],
+        );
+    }
+
+    #[test]
+    fn a_pipe_list_varies_the_same_way_a_range_does() {
+        assert_eq!(
+            triples("#|*", "U+FE0F", "keycap-(hash|star)"),
+            vec![
+                (0x23, 0xFE0F, "keycap-hash".to_string()),
+                (0x2A, 0xFE0F, "keycap-star".to_string()),
+            ],
+        );
+    }
+
+    #[test]
+    fn both_halves_varying_is_rejected() {
+        assert_eq!(
+            expand_uvs_map_triples("U+0030..0032", "U+FE0E..FE0F", "x"),
+            Err(UvsExpandError::BothVary),
+        );
+    }
+
+    /// The halves are not interchangeable: a selector has to be one, and a base
+    /// has to not be one. Both directions are checked so that a swapped line is
+    /// caught rather than silently building a sequence nothing will ever match.
+    #[test]
+    fn each_half_must_be_the_kind_it_stands_in_for() {
+        assert_eq!(
+            expand_uvs_map_triples("U+0030", "U+0031", "x"),
+            Err(UvsExpandError::NotASelector {
+                cp: 0x31,
+                selector_half: true,
+            }),
+        );
+        assert_eq!(
+            expand_uvs_map_triples("U+FE0F", "U+FE0F", "x"),
+            Err(UvsExpandError::NotASelector {
+                cp: 0xFE0F,
+                selector_half: false,
+            }),
+        );
+    }
+
+    /// A range that varies must not drag a selector into the base half either.
+    #[test]
+    fn a_range_covering_selectors_is_rejected_in_the_base_half() {
+        assert!(matches!(
+            expand_uvs_map_triples("U+FDFF..FE0F", "U+FE0F", "x"),
+            Err(UvsExpandError::NotASelector {
+                selector_half: false,
+                ..
+            }),
+        ));
+    }
+
+    #[test]
+    fn an_unreadable_half_expands_to_nothing() {
+        assert_eq!(
+            expand_uvs_map_triples("nonsense", "U+FE0F", "x"),
+            Err(UvsExpandError::Empty {
+                selector_half: false
+            }),
+        );
+        assert_eq!(
+            expand_uvs_map_triples("U+0030", "nonsense", "x"),
+            Err(UvsExpandError::Empty {
+                selector_half: true
+            }),
+        );
+    }
+
+    /// The Mongolian selectors count, because the shaper's own range list has
+    /// them — see [`crate::ucd::is_variation_selector`].
+    #[test]
+    fn mongolian_free_variation_selectors_count() {
+        assert_eq!(
+            triples("U+1820", "U+180B", "a-fvs1"),
+            vec![(0x1820, 0x180B, "a-fvs1".to_string())],
+        );
     }
 }

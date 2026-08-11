@@ -151,6 +151,11 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
 | What characters a name may contain | `document_io.rs` (`# Names`), `pattern.rs` |
 | `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document.rs` (`expand_at_name`), `document_io.rs` (`# Names`) |
+| `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io.rs`, `document.rs` (`Map::selector`) |
+| Which half of a variation sequence may be a range, and why not both | `render/ttf_builder/expand.rs` (`expand_uvs_map_triples`) |
+| cmap format 14, the Default/Non-default split, and the GSUB fallback lookup behind it | `render/ttf_builder/tables.rs` (`add_uvs_subtable`), `gsub.rs` (`build_uvs_fallback_lookup`) |
+| Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable rather than reserved | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
+| Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues.rs` (`uvs_collision_diagnostics`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |

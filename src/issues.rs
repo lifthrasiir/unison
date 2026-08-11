@@ -840,6 +840,34 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             match item {
+                // A variation sequence maps no codepoint on its own, so it
+                // neither duplicates nor conflicts with a plain mapping of the
+                // same base — but its target is every bit as *used* as a plain
+                // map's, and the font does contain that glyph.
+                DocumentItem::Map {
+                    slices,
+                    char_repr,
+                    selector: Some(sel),
+                    glyph,
+                    ..
+                } => {
+                    let stated: Vec<Option<String>> = if slices.is_empty() {
+                        vec![None]
+                    } else {
+                        slices.iter().cloned().map(Some).collect()
+                    };
+                    for slice in stated {
+                        let subst_glyph =
+                            substitute_name_parts(glyph, scoped_parts.for_slice(slice.as_deref()));
+                        if let Ok(triples) = crate::render::ttf_builder::expand_uvs_map_triples(
+                            char_repr,
+                            sel,
+                            &subst_glyph,
+                        ) {
+                            mapped_glyphs.extend(triples.into_iter().map(|(_, _, name)| name));
+                        }
+                    }
+                }
                 // Unresolvable refs, map targets and remap operands are all
                 // reported by the resolution pass above.
                 DocumentItem::Map {
@@ -1410,6 +1438,8 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     }
 
     check_props(docs, &mut issues);
+    check_uvs_maps(docs, &mut issues);
+    issues.extend(docset.to_issues(&uvs_collision_diagnostics(expansion)));
 
     issues.sort_by(|a, b| {
         a.severity
@@ -1418,6 +1448,292 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             .then_with(|| a.line.cmp(&b.line))
     });
     issues
+}
+
+/// The two variation-sequence problems that are only visible once names are
+/// resolved, so they are read off the expansion rather than the raw documents:
+/// it has already substituted name parts and dropped the slices a face does not
+/// include, which is the form the builder itself sees.
+///
+/// Both are about the *fallback* lookup, which is keyed by glyph id where cmap
+/// format 14 is keyed by codepoint. Wherever two codepoints share a base glyph
+/// the two halves of one declaration stop agreeing, and that gap is what these
+/// report.
+fn uvs_collision_diagnostics(
+    expansion: &crate::render::ttf_builder::Expansion,
+) -> Vec<crate::resolve::Diagnostic> {
+    use crate::render::ttf_builder::{expand_map_pairs, expand_uvs_map_triples};
+
+    let mut out = Vec::new();
+
+    // Which glyph each codepoint reaches, and which codepoints reach each glyph.
+    let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
+    let mut glyph_to_cps: HashMap<String, Vec<u32>> = HashMap::new();
+    for e in &expansion.items {
+        let DocumentItem::Map {
+            char_repr,
+            selector: None,
+            glyph,
+            ..
+        } = &e.item
+        else {
+            continue;
+        };
+        for (cp, name) in expand_map_pairs(char_repr, glyph) {
+            glyph_to_cps.entry(name.clone()).or_default().push(cp);
+            cp_to_glyph.insert(cp, name);
+        }
+    }
+
+    // (base glyph, selector) → the target the first pair claimed.
+    let mut claimed: HashMap<(String, u32), String> = HashMap::new();
+    for e in &expansion.items {
+        let DocumentItem::Map {
+            char_repr,
+            selector: Some(sel),
+            glyph,
+            ..
+        } = &e.item
+        else {
+            continue;
+        };
+        let Ok(triples) = expand_uvs_map_triples(char_repr, sel, glyph) else {
+            continue;
+        };
+        for (base, selector, target) in triples {
+            let Some(base_glyph) = cp_to_glyph.get(&base) else {
+                // Reported as an unmapped base by `check_uvs_maps`.
+                continue;
+            };
+            match claimed.get(&(base_glyph.clone(), selector)) {
+                Some(first) if *first != target => out.push(crate::resolve::Diagnostic::error(
+                    e.origin,
+                    format!(
+                        "map 'U+{base:04X} U+{selector:04X}' targets '{target}', but a pair on the \
+                         same glyph '{base_glyph}' already targets '{first}'; the fallback lookup \
+                         is keyed by glyph and can only hold one of them",
+                    ),
+                )),
+                Some(_) => {}
+                None => {
+                    claimed.insert((base_glyph.clone(), selector), target);
+
+                    // The same key seen from the other side: a base glyph that
+                    // more than one character reaches makes the fallback rule
+                    // fire for a sequence nobody declared. cmap 14 stays exact,
+                    // so the two paths disagree.
+                    let others: Vec<u32> = glyph_to_cps
+                        .get(base_glyph)
+                        .into_iter()
+                        .flatten()
+                        .copied()
+                        .filter(|cp| *cp != base)
+                        .collect();
+                    if !others.is_empty() {
+                        let listed: Vec<String> =
+                            others.iter().map(|cp| format!("U+{cp:04X}")).collect();
+                        out.push(crate::resolve::Diagnostic::new(
+                            Severity::Warning,
+                            e.origin,
+                            format!(
+                                "map 'U+{base:04X} U+{selector:04X}': glyph '{base_glyph}' is also \
+                                 reached by {}, so the fallback lookup applies this pair to {} too \
+                                 — cmap format 14 will not",
+                                listed.join(", "),
+                                if others.len() == 1 { "it" } else { "them" },
+                            ),
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    out
+}
+
+/// Spell a codepoint list out, because the characters themselves cannot be
+/// read: a variation selector is invisible, which is the whole reason these
+/// messages exist.
+fn spell_codepoints(s: &str) -> String {
+    s.chars()
+        .map(|c| format!("U+{:04X}", c as u32))
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// `map BASE SELECTOR = GLYPH`, and the plain `map` shapes that only ever occur
+/// because someone meant to write one.
+///
+/// A separate pass rather than an arm in the main item loop, because the rule
+/// that matters most — the base has to be mapped too — can only be judged once
+/// every plain `map` in every document has been seen, and a source is free to
+/// state the pair before the base.
+fn check_uvs_maps(docs: &[&Document], issues: &mut Vec<Issue>) {
+    use crate::render::ttf_builder::{
+        UvsExpandError, expand_map_codepoints, expand_uvs_map_triples,
+    };
+    use crate::ucd::is_variation_selector;
+
+    // Which codepoints a plain `map` claims, per slice. `None` is the base
+    // slice, which every face includes.
+    let mut base_cps: HashMap<Option<&str>, HashSet<u32>> = HashMap::new();
+    for doc in docs {
+        for item in &doc.items {
+            let DocumentItem::Map {
+                slices,
+                char_repr,
+                selector: None,
+                ..
+            } = item
+            else {
+                continue;
+            };
+            let cps = expand_map_codepoints(char_repr);
+            if slices.is_empty() {
+                base_cps.entry(None).or_default().extend(cps);
+            } else {
+                for s in slices {
+                    base_cps
+                        .entry(Some(s.as_str()))
+                        .or_default()
+                        .extend(cps.iter().copied());
+                }
+            }
+        }
+    }
+
+    // Lenient on purpose where a face's slice set would decide it: a pair
+    // stated for the base slice is satisfied by a base mapped in *any* slice,
+    // since `faces.rs` already forbids a character whose mapping varies from
+    // being in the base at all — every face then has exactly one of them. The
+    // check still catches the real mistake, which is a base mapped nowhere or
+    // only in a slice this pair can never meet.
+    let satisfied = |cp: u32, slice: Option<&str>| -> bool {
+        if base_cps.get(&None).is_some_and(|s| s.contains(&cp)) {
+            return true;
+        }
+        match slice {
+            Some(s) => base_cps.get(&Some(s)).is_some_and(|set| set.contains(&cp)),
+            None => base_cps.values().any(|set| set.contains(&cp)),
+        }
+    };
+
+    for doc in docs {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            let DocumentItem::Map {
+                slices,
+                char_repr,
+                selector,
+                ..
+            } = item
+            else {
+                continue;
+            };
+            let stated: Vec<Option<&str>> = if slices.is_empty() {
+                vec![None]
+            } else {
+                slices.iter().map(|s| Some(s.as_str())).collect()
+            };
+
+            let Some(sel) = selector else {
+                // A plain `map` that names a selector. Two shapes, and each
+                // gets its own message because the fixes are different.
+                if char_repr.chars().count() > 1
+                    && char_repr.chars().any(|c| is_variation_selector(c as u32))
+                {
+                    issues.push(issue_at(
+                        doc,
+                        item_idx,
+                        Severity::Error,
+                        format!(
+                            "map names the {}-character sequence {}; cmap format 14 holds a base \
+                             and one selector and nothing longer — map the first two and put the \
+                             rest in a `remap`",
+                            char_repr.chars().count(),
+                            spell_codepoints(char_repr),
+                        ),
+                    ));
+                } else if let Some(cp) = expand_map_codepoints(char_repr)
+                    .into_iter()
+                    .find(|cp| is_variation_selector(*cp))
+                {
+                    issues.push(issue_at(
+                        doc,
+                        item_idx,
+                        Severity::Error,
+                        format!(
+                            "map U+{cp:04X}: a variation selector is reachable only as the second \
+                             half of a `map BASE SELECTOR` pair, whose glyph the build owns",
+                        ),
+                    ));
+                }
+                continue;
+            };
+
+            match expand_uvs_map_triples(char_repr, sel, "") {
+                Err(UvsExpandError::BothVary) => issues.push(issue_at(
+                    doc,
+                    item_idx,
+                    Severity::Error,
+                    format!(
+                        "map '{char_repr} {sel}': only one half of a variation sequence may vary \
+                         — the other has to name a single codepoint",
+                    ),
+                )),
+                Err(UvsExpandError::Empty { selector_half }) => issues.push(issue_at(
+                    doc,
+                    item_idx,
+                    Severity::Error,
+                    format!(
+                        "map '{}' names no valid codepoint",
+                        if selector_half { sel } else { char_repr },
+                    ),
+                )),
+                Err(UvsExpandError::NotASelector { cp, selector_half }) => issues.push(issue_at(
+                    doc,
+                    item_idx,
+                    Severity::Error,
+                    if selector_half {
+                        format!(
+                            "map '{char_repr} {sel}': U+{cp:04X} is not a variation selector, so \
+                             nothing would ever shape this pair",
+                        )
+                    } else {
+                        format!(
+                            "map '{char_repr} {sel}': U+{cp:04X} is a variation selector, not a \
+                             base character — the halves are the wrong way round",
+                        )
+                    },
+                )),
+                Ok(triples) => {
+                    for slice in &stated {
+                        for (base, _, _) in &triples {
+                            if satisfied(*base, *slice) {
+                                continue;
+                            }
+                            issues.push(issue_at(
+                                doc,
+                                item_idx,
+                                Severity::Error,
+                                match slice {
+                                    Some(s) => format!(
+                                        "map '{char_repr} {sel}': base U+{base:04X} is not mapped \
+                                         in slice '{s}', so the fallback lookup has no first glyph",
+                                    ),
+                                    None => format!(
+                                        "map '{char_repr} {sel}': base U+{base:04X} is not mapped, \
+                                         so the fallback lookup has no first glyph",
+                                    ),
+                                },
+                            ));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// `prop` lines: the property values have to be the ones the UCD uses, and a
@@ -1539,6 +1855,189 @@ mod tests {
                 .iter()
                 .any(|i| i.severity == Severity::Error && i.message.contains("unresolved ref")),
             "expected unresolved ref error, got: {issues:?}",
+        );
+    }
+
+    /// Every `map BASE SELECTOR` check, driven through the same entry point the
+    /// build and the editor use. The shared prelude gives the pair something
+    /// valid to point at so that only the rule under test can fail.
+    fn uvs_issues(body: &str) -> Vec<Issue> {
+        let input = format!(
+            "glyph zero 2 2\n@@@@\n@@@@\nglyph zero-emoji 2 2\n@@@@\n@@@@\n{body}"
+        );
+        let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+        collect_issues(&[&doc])
+    }
+
+    fn has_error(issues: &[Issue], needle: &str) -> bool {
+        issues
+            .iter()
+            .any(|i| i.severity == Severity::Error && i.message.contains(needle))
+    }
+
+    #[test]
+    fn a_valid_variation_sequence_is_clean() {
+        let issues = uvs_issues("map U+0030 = zero\nmap U+0030 U+FE0F = zero-emoji\n");
+        assert!(
+            !issues.iter().any(|i| i.severity == Severity::Error),
+            "expected no errors, got: {issues:?}",
+        );
+    }
+
+    /// The two halves are not interchangeable, and a swapped line would build a
+    /// sequence no shaper could ever match — so both directions are errors.
+    #[test]
+    fn each_half_of_a_variation_sequence_must_be_the_right_kind() {
+        let issues = uvs_issues("map U+0030 = zero\nmap U+0030 U+0031 = zero-emoji\n");
+        assert!(
+            has_error(&issues, "is not a variation selector"),
+            "expected a selector-half error, got: {issues:?}",
+        );
+
+        let issues = uvs_issues("map U+FE0F U+FE0F = zero-emoji\n");
+        assert!(
+            has_error(&issues, "is a variation selector"),
+            "expected a base-half error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn only_one_half_of_a_variation_sequence_may_vary() {
+        let issues = uvs_issues("map U+0030..0039 U+FE0E..FE0F = zero-emoji\n");
+        assert!(
+            has_error(&issues, "only one half"),
+            "expected a both-vary error, got: {issues:?}",
+        );
+    }
+
+    /// The fallback GSUB rule needs the base's own glyph as its first element,
+    /// so a pair whose base is unmapped would silently never fire.
+    #[test]
+    fn the_base_of_a_variation_sequence_must_be_mapped() {
+        let issues = uvs_issues("map U+0030 U+FE0F = zero-emoji\n");
+        assert!(
+            has_error(&issues, "U+0030"),
+            "expected an unmapped-base error, got: {issues:?}",
+        );
+
+        // ...and a base mapped only in *another* slice does not count, because
+        // the pair and the base have to meet in the same face.
+        let issues = uvs_issues(
+            "slice wide\nslice narrow\nmap wide : U+0030 = zero\n\
+             map narrow : U+0030 U+FE0F = zero-emoji\n",
+        );
+        assert!(
+            has_error(&issues, "U+0030"),
+            "expected a per-slice unmapped-base error, got: {issues:?}",
+        );
+    }
+
+    /// Pasting `0️⃣` gives three characters, which cmap format 14 cannot hold.
+    /// The message has to say where the rest of the sequence goes, or the only
+    /// signal is a mapping that quietly never happens.
+    #[test]
+    fn a_pasted_longer_sequence_says_how_to_split_it() {
+        let issues = uvs_issues("map 0\u{FE0F}\u{20E3} = zero-emoji\n");
+        assert!(
+            has_error(&issues, "remap"),
+            "expected a split-it error naming remap, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn map_generate_rejects_a_variation_sequence() {
+        let issues = uvs_issues("map U+0030 = zero\nmap generate U+0030 U+FE0F\n");
+        assert!(
+            has_error(&issues, "single character"),
+            "expected a generate-sequence error, got: {issues:?}",
+        );
+    }
+
+    /// A variation selector reaches the font only through a sequence. Mapping
+    /// one on its own would hand a source the glyph the fallback lookup owns,
+    /// and the two would then disagree about what that glyph is for.
+    #[test]
+    fn mapping_a_variation_selector_on_its_own_is_rejected() {
+        let issues = uvs_issues("map U+FE0F = zero-emoji\n");
+        assert!(
+            has_error(&issues, "variation selector"),
+            "expected a lone-selector error, got: {issues:?}",
+        );
+    }
+
+    /// cmap format 14 is keyed by codepoint; the fallback lookup is keyed by
+    /// glyph. Where two characters share a base glyph the two halves of one
+    /// declaration stop agreeing, and the source has to be told.
+    #[test]
+    fn two_pairs_colliding_on_one_base_glyph_are_an_error() {
+        let issues = uvs_issues(
+            "glyph other 2 2\n@@@@\n@@@@\n\
+             map U+0030 = zero\nmap U+0031 = zero\n\
+             map U+0030 U+FE0F = zero-emoji\nmap U+0031 U+FE0F = other\n",
+        );
+        assert!(
+            has_error(&issues, "keyed by glyph"),
+            "expected a collision error, got: {issues:?}",
+        );
+    }
+
+    #[test]
+    fn a_pair_on_a_shared_base_glyph_warns_about_over_firing() {
+        let issues = uvs_issues(
+            "map U+0030 = zero\nmap U+0031 = zero\nmap U+0030 U+FE0F = zero-emoji\n",
+        );
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Warning
+                && i.message.contains("U+0031")
+                && i.message.contains("fallback lookup")),
+            "expected an over-firing warning, got: {issues:?}",
+        );
+    }
+
+    /// A base glyph only one character reaches is the ordinary case and has to
+    /// stay quiet, or the warning above would fire on every well-formed pair.
+    #[test]
+    fn a_pair_on_an_unshared_base_glyph_is_quiet() {
+        let issues = uvs_issues("map U+0030 = zero\nmap U+0030 U+FE0F = zero-emoji\n");
+        assert!(
+            issues.is_empty(),
+            "expected no issues at all, got: {issues:?}",
+        );
+    }
+
+    /// The build names its synthesized selector glyphs `@vs-XXXX`, and that is
+    /// safe without a reserved-name rule because a source cannot produce the
+    /// name: `@` expands against the enclosing base into something else, and
+    /// with no base to expand against the name is invalid outright. This pins
+    /// the argument, since the safety of the whole scheme rests on it.
+    #[test]
+    fn a_source_cannot_write_the_synthesized_selector_name() {
+        // With a preceding glyph, `@` expands and the name becomes another one.
+        let doc = document_io::parse_document_from_str(
+            "glyph base 2 2\n@@@@\n@@@@\nglyph @vs-FE0F 2 2\n@@@@\n@@@@\n",
+            "test.unf".into(),
+        )
+        .unwrap();
+        assert!(
+            doc.items.iter().all(|item| !matches!(
+                item,
+                DocumentItem::Glyph { name: GlyphName(n), .. } if n == "@vs-FE0F"
+            )),
+            "the `@` should have expanded away, got {:?}",
+            doc.items,
+        );
+
+        // With nothing to expand against — so, only as the very first glyph of
+        // a project — it stays literal, and then it is not a valid name.
+        let doc = document_io::parse_document_from_str(
+            "glyph @vs-FE0F 2 2\n@@@@\n@@@@\n",
+            "test.unf".into(),
+        )
+        .unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error),
+            "expected an invalid-name error, got: {issues:?}",
         );
     }
 

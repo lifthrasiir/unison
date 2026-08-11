@@ -215,7 +215,7 @@ map ⚫ = black-circle-6
 map ● = black-circle-7
 map ⬤ = black-circle-8
 
-remap deemojify : black-circle-6 vs-text -> black-circle-6-inside
+map U+26AB U+FE0E = black-circle-6-inside
 
 assert shape ⚫︎ : black-circle-6-inside
 
@@ -539,7 +539,7 @@ map ⭘ = white-circle-7w1
 map 🞅|🞆|🞇|🞈|🞉 = white-circle-7w($2..6)
 map ◯ = white-circle-8
 
-remap deemojify : white-circle-6 vs-text -> white-circle-6:mono
+map U+26AA U+FE0E = white-circle-6:mono
 
 //--------------------------------------
 // colored circles

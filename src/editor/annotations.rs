@@ -5,14 +5,18 @@
 //! caret steps over it in one go — the annotated character plus its annotation
 //! behave as a single unit for hit-testing, caret placement and selection.
 //!
-//! Today the only producer is `map`, which spells out the codepoint of a
-//! literally written character (`map 가 = ...` renders as `map 가 U+AC00 = ...`).
+//! The producers are `map` and `assert shape`, which spell out the codepoints of
+//! literally written text (`map 가 = ...` renders as `map 가 U+AC00 = ...`). Both
+//! exist because a source may hold characters that cannot be seen: a variation
+//! selector is invisible, so `map 0️ = ...` and `map 0 = ...` are the same line
+//! on screen without one.
+//!
 //! New kinds plug into [`line_annotations`]; everything downstream — width
 //! measurement, painting, hit-testing — is kind-agnostic and lives in
 //! [`AnnotatedText`].
 
 use crate::document_io::{TokenSpan, tokenize_with_spans};
-use crate::render::ttf_builder::parse_map_char;
+use crate::pattern::has_top_level_pipe;
 
 /// Display-only text inserted *after* document column `col` of a text line.
 ///
@@ -36,6 +40,7 @@ pub(crate) fn line_annotations(line: &str) -> Vec<InlineAnnotation> {
 
     let mut out = match spans[0].value.as_str() {
         "map" => map_annotations(&spans[1..], leading),
+        "assert" => assert_annotations(&spans[1..], leading),
         _ => Vec::new(),
     };
     out.retain(|a| a.col >= 1);
@@ -88,14 +93,48 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
     }
 }
 
-/// ` U+XXXX` for a single literal character, `None` for anything already
-/// written as `U+XXXX` (or not a single character at all).
+/// `assert shape TEXT …`: spell out every codepoint of the shaped text.
+///
+/// The only other place a source states text, and the one where it can be long.
+/// Nothing else on the line distinguishes a text-presentation sequence from an
+/// emoji one, or a bare base from a base plus a selector — and an assertion
+/// that shapes different text than its author thought fails for a reason that
+/// is invisible in the file. `assert same`/`assert distinct` name glyphs, not
+/// text, so they annotate nothing.
+fn assert_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> {
+    let [kind, text, ..] = rest else {
+        return Vec::new();
+    };
+    if kind.value != "shape" {
+        return Vec::new();
+    }
+    match codepoint_annotation(text.value.as_str()) {
+        Some(annotation) => vec![InlineAnnotation {
+            col: leading + text.raw_end,
+            text: annotation,
+        }],
+        None => Vec::new(),
+    }
+}
+
+/// ` U+XXXX …` for literally written text, `None` for anything already written
+/// as `U+XXXX`.
+///
+/// More than one character is spelled out in full rather than skipped, because
+/// that is exactly the case worth reading: a variation sequence's second half
+/// is invisible, and without this a `map 0️ = …` and a `map 0 = …` look the
+/// same in the editor. A token holding a top-level pipe is left to the caller,
+/// which annotates each alternative in place — the pipes are syntax, and
+/// running them together would spell `U+007C` as if it were text.
 fn codepoint_annotation(s: &str) -> Option<String> {
-    if s.starts_with("U+") || s.starts_with("u+") {
+    if s.is_empty() || s.starts_with("U+") || s.starts_with("u+") || has_top_level_pipe(s) {
         return None;
     }
-    let cp = parse_map_char(s)?;
-    Some(format!(" U+{cp:04X}"))
+    let mut out = String::new();
+    for c in s.chars() {
+        out.push_str(&format!(" U+{:04X}", c as u32));
+    }
+    Some(out)
 }
 
 /// Splits on pipes outside parentheses, yielding each part with the character
@@ -356,6 +395,67 @@ mod tests {
         assert!(ann("map 가").is_empty());
     }
 
+    /// A variation sequence written literally is one token holding two
+    /// characters, the second of which is invisible. Spelling both out is the
+    /// only way to read the line — and the reason the serializer is allowed to
+    /// keep the pasted form.
+    #[test]
+    fn a_literal_variation_sequence_spells_out_both_codepoints() {
+        assert_eq!(
+            ann("map 0\u{FE0F} = num-zero-emoji"),
+            vec![(6, " U+0030 U+FE0F".to_string())],
+        );
+    }
+
+    /// A longer paste is the shape validation rejects, so the annotation has to
+    /// show what is actually there rather than the first two characters.
+    #[test]
+    fn a_longer_pasted_sequence_spells_out_every_codepoint() {
+        assert_eq!(
+            ann("map 0\u{FE0F}\u{20E3} = keycap-zero"),
+            vec![(7, " U+0030 U+FE0F U+20E3".to_string())],
+        );
+    }
+
+    /// The `U+X U+Y` spelling says it already; nothing to add.
+    #[test]
+    fn an_explicit_variation_sequence_is_not_annotated() {
+        assert!(ann("map U+0030 U+FE0F = num-zero-emoji").is_empty());
+        assert!(ann("map generate U+0030 U+FE0F").is_empty());
+    }
+
+    /// A pipe list is annotated part by part, and must not be run together into
+    /// one spelled-out sequence — the pipes are syntax, not characters.
+    #[test]
+    fn a_quoted_pipe_list_is_not_spelled_out_as_one_sequence() {
+        assert!(
+            ann("map `a|b` = ab")
+                .iter()
+                .all(|(_, text)| !text.contains("U+007C")),
+        );
+    }
+
+    /// `assert shape` is the other place a source states text, and the only one
+    /// where the text can be long. Nothing else on the line can be read to tell
+    /// a text-presentation sequence from an emoji one.
+    #[test]
+    fn assert_shape_text_is_annotated() {
+        assert_eq!(
+            ann("assert shape ⚫\u{FE0E} : black-circle-6-inside"),
+            vec![(15, " U+26AB U+FE0E".to_string())],
+        );
+        assert_eq!(
+            ann("assert shape `0\u{FE0F}` : keycap-zero"),
+            vec![(17, " U+0030 U+FE0F".to_string())],
+        );
+    }
+
+    #[test]
+    fn assert_same_and_distinct_are_not_annotated() {
+        assert!(ann("assert same a b").is_empty());
+        assert!(ann("assert distinct a b").is_empty());
+    }
+
     #[test]
     fn indented_line_annotation_is_offset() {
         assert_eq!(ann("  map A = latin-a"), vec![(7, " U+0041".to_string())]);
@@ -406,8 +506,9 @@ mod tests {
     #[test]
     fn non_map_lines_have_no_annotations() {
         assert!(ann("glyph latin-a 8 16").is_empty());
-        assert!(ann("assert shape 가 : hangul-ga").is_empty());
         assert!(ann("").is_empty());
+        // `assert shape` used to be listed here. It states text, and text is
+        // exactly what an annotation is for; see `assert_shape_text_is_annotated`.
     }
 
     #[test]

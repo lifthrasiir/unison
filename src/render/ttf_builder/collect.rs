@@ -206,7 +206,13 @@ pub(super) fn compute_shared_font_input_for(
     // GSUB expands `remap` patterns straight from the documents rather than
     // from `all_items`, so it is one of the two places that has to
     // canonicalize aliases for itself.
-    let gsub_data = collect_gsub_data(docs, &name_parts, &glyph_aliases);
+    let mut gsub_data = collect_gsub_data(docs, &name_parts, &glyph_aliases);
+    // Variation sequences, on the other hand, have to be read *after* the
+    // slice expansion, since a pair can be stated for one slice only. The
+    // selector set is read from the raw documents on purpose: see
+    // `GsubData::uvs_selectors` on why glyph order cannot vary by face.
+    gsub_data.uvs_selectors = super::gsub::collect_uvs_selectors(docs);
+    gsub_data.uvs_pairs = super::gsub::collect_uvs_pairs(&all_items, &glyph_aliases);
     let color_aliases = collect_color_aliases(docs);
 
     let mut glyph_meta: GlyphMetaMap = HashMap::new();
@@ -349,16 +355,39 @@ pub(super) fn collect_glyph_data_with_shared(
             return None;
         }
         let DocumentItem::Map {
-            char_repr, glyph, ..
+            char_repr,
+            selector,
+            glyph,
+            ..
         } = item
         else {
             continue;
         };
 
+        // A variation sequence's target is collected like any other mapped
+        // glyph — it needs the same outline, metrics and glyph id — but it
+        // claims *no codepoint*. The base keeps whatever glyph its own `map`
+        // gave it (claiming `char_repr` here would overwrite exactly that), and
+        // the pair reaches the font through the cmap format 14 subtable and the
+        // fallback lookup instead.
+        //
         // Canonicalized, so a character mapped through an alias reaches the
         // target's `CollectedGlyph` and the two names share one glyph id.
-        let mut pairs = expand_map_pairs(char_repr, glyph);
-        shared.glyph_aliases.canonicalize_pairs(&mut pairs);
+        let pairs: Vec<(Option<u32>, String)> = match selector {
+            Some(sel) => super::expand_uvs_map_triples(char_repr, sel, glyph)
+                .unwrap_or_default()
+                .into_iter()
+                .map(|(_, _, mut name)| {
+                    shared.glyph_aliases.canonicalize(&mut name);
+                    (None, name)
+                })
+                .collect(),
+            None => {
+                let mut pairs = expand_map_pairs(char_repr, glyph);
+                shared.glyph_aliases.canonicalize_pairs(&mut pairs);
+                pairs.into_iter().map(|(cp, name)| (Some(cp), name)).collect()
+            }
+        };
         for (cp, glyph_name) in &pairs {
             let Some(resolved) = cache.get(glyph_name.as_str()) else {
                 continue;
@@ -400,7 +429,7 @@ pub(super) fn collect_glyph_data_with_shared(
             seen_names.insert(glyph_name.clone());
             glyph_data.push(CollectedGlyph {
                 name: glyph_name.clone(),
-                codepoints: vec![*cp],
+                codepoints: cp.iter().copied().collect(),
                 advance_width,
                 contours: font_contours,
                 composite_refs,
@@ -412,6 +441,35 @@ pub(super) fn collect_glyph_data_with_shared(
                 top_offset,
             });
         }
+    }
+
+    // The selector glyphs the fallback lookup is written against. Blank and
+    // zero-advance, because a selector is default-ignorable and invisible
+    // whichever path reaches it. What matters is that it has a glyph id *and a
+    // plain cmap entry*: `hb_font_get_nominal_glyph` is what a shaper calls
+    // before handing an unmatched pair to GSUB, so without the entry the
+    // selector arrives as `.notdef` and the fallback rule can never fire.
+    //
+    // Their codepoints put them in the shared sort below like any other glyph,
+    // so the order stays face-independent.
+    for &sel in &gsub_data.uvs_selectors {
+        let name = super::vs_glyph_name(sel);
+        if !seen_names.insert(name.clone()) {
+            continue;
+        }
+        glyph_data.push(CollectedGlyph {
+            name,
+            codepoints: vec![sel],
+            advance_width: 0,
+            contours: Vec::new(),
+            composite_refs: Vec::new(),
+            color_layers: Vec::new(),
+            mark: false,
+            resolved_anchors: Vec::new(),
+            declared_anchors: Vec::new(),
+            left_offset: 0,
+            top_offset: 0,
+        });
     }
 
     // One entry per glyph *name*, carrying every character that reaches it.

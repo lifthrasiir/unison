@@ -111,8 +111,8 @@ pub use contours::ContourCache;
 #[cfg(feature = "editor")]
 pub use contours::{SharedContourCache, new_contour_cache};
 pub(crate) use expand::{
-    Expansion, decomposed_map_pairs, expand_documents, expand_documents_for, expand_map_pairs,
-    parse_map_char,
+    Expansion, UvsExpandError, decomposed_map_pairs, expand_documents, expand_documents_for,
+    expand_map_codepoints, expand_map_pairs, expand_uvs_map_triples, parse_map_char,
 };
 pub(crate) use gsub::remap_rule_kind;
 
@@ -176,6 +176,34 @@ struct ExpandedRemap {
     lookahead: Vec<Vec<String>>,
 }
 
+/// One `map BASE SELECTOR = GLYPH`, resolved to codepoints and a glyph name.
+///
+/// Feeds two unrelated outputs from one declaration: a cmap format 14 entry,
+/// which is how every conforming shaper reads a variation sequence, and a GSUB
+/// ligature rule, which is the fallback for one that does not. The pair is
+/// stated once because the two must not be able to disagree.
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct UvsPair {
+    base: u32,
+    selector: u32,
+    glyph: String,
+}
+
+/// The name of the synthesized glyph a variation selector is mapped to.
+///
+/// The `@` makes the name unwritable rather than merely unusual, so there is no
+/// reserved-name rule to state or enforce: `@` is not in the glyph-name
+/// character set, and a source that writes one has it expanded against the
+/// enclosing [`expand_at_name`] base into some *other* name — or, with no base
+/// to expand against, rejected as an invalid name. Either way a source cannot
+/// land on this one and steal the glyph the fallback lookup is written against.
+///
+/// Nothing downstream minds, because the name never leaves the build: `post` is
+/// version 3.0, which stores no glyph names at all.
+fn vs_glyph_name(selector: u32) -> String {
+    format!("@vs-{selector:04X}")
+}
+
 #[derive(Clone)]
 struct GsubData {
     remap_sets: BTreeMap<String, Vec<ExpandedRemap>>,
@@ -186,6 +214,16 @@ struct GsubData {
     features: Vec<(String, Vec<String>, Vec<String>)>,
     /// Anchor-based feature declarations: (feature_tag, scripts, anchor_name)
     anchor_features: Vec<(String, Vec<String>, String)>,
+    /// Variation sequences this *face* states, for both cmap 14 and the
+    /// fallback lookup. Filled from the face-expanded items, not from the raw
+    /// documents, so a slice-qualified pair reaches only the faces that include
+    /// it.
+    uvs_pairs: Vec<UvsPair>,
+    /// Every selector any slice mentions, ascending. Deliberately *not* limited
+    /// to the face being built: the synthesized selector glyphs are appended in
+    /// this order, and `collect::build_faces` needs the glyph order to be the
+    /// same for every face of a collection.
+    uvs_selectors: Vec<u32>,
 }
 
 /// A file that failed to parse, and why.

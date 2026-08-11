@@ -157,7 +157,67 @@ pub(super) fn collect_gsub_data(
         groups: crate::document::remap_group_order(docs),
         features,
         anchor_features,
+        // Filled by `collect::compute_shared_font_input_for`, which is where
+        // the face's slice expansion lives — a pair has to be read per face,
+        // and this collector only ever sees the raw documents.
+        uvs_pairs: Vec::new(),
+        uvs_selectors: Vec::new(),
     }
+}
+
+/// Every variation selector any slice of `docs` mentions, ascending.
+pub(super) fn collect_uvs_selectors(docs: &[&Document]) -> Vec<u32> {
+    let mut out: Vec<u32> = docs
+        .iter()
+        .flat_map(|doc| &doc.items)
+        .filter_map(|item| match item {
+            DocumentItem::Map {
+                selector: Some(sel),
+                ..
+            } => Some(super::expand_map_codepoints(sel)),
+            _ => None,
+        })
+        .flatten()
+        .filter(|cp| crate::ucd::is_variation_selector(*cp))
+        .collect();
+    out.sort_unstable();
+    out.dedup();
+    out
+}
+
+/// The face's own variation sequences, read from its expanded items.
+pub(super) fn collect_uvs_pairs(
+    all_items: &[DocumentItem],
+    aliases: &crate::alias::AliasMap,
+) -> Vec<UvsPair> {
+    let mut out = Vec::new();
+    for item in all_items {
+        let DocumentItem::Map {
+            char_repr,
+            selector: Some(sel),
+            glyph,
+            ..
+        } = item
+        else {
+            continue;
+        };
+        let Ok(triples) = super::expand_uvs_map_triples(char_repr, sel, glyph) else {
+            // Every rejection has already been reported by `crate::issues`;
+            // the build's job here is only to not emit half a sequence.
+            continue;
+        };
+        for (base, selector, mut glyph) in triples {
+            // Canonicalized like any other map target, so a pair aimed at an
+            // alias reaches the glyph the alias names rather than a dead name.
+            aliases.canonicalize(&mut glyph);
+            out.push(UvsPair {
+                base,
+                selector,
+                glyph,
+            });
+        }
+    }
+    out
 }
 
 /// Prepend the tags of a broader scope (`DFLT`, or a script's default LangSys)
@@ -264,16 +324,81 @@ fn classify_remap_set(remaps: &[ExpandedRemap], reversed: bool) -> RemapSetKind 
     }
 }
 
+/// The GSUB half of a variation sequence: `base selector -> target`, as one
+/// ligature lookup over every pair the face states.
+///
+/// A ligature (2→1) and not a single substitution, because the selector has to
+/// *leave* the buffer. That matters most in the case where the target is the
+/// base's own glyph — a "default" variation sequence — where a 1→1 rule would
+/// substitute nothing and leave the selector sitting there.
+fn build_uvs_fallback_lookup(
+    gsub_data: &GsubData,
+    name_to_gid: &HashMap<String, GlyphId16>,
+    cp_to_gid: &HashMap<u32, GlyphId16>,
+) -> Option<SubstitutionLookup> {
+    let mut by_first: BTreeMap<GlyphId16, BTreeMap<GlyphId16, GlyphId16>> = BTreeMap::new();
+    for pair in &gsub_data.uvs_pairs {
+        let (Some(&base), Some(&sel), Some(&target)) = (
+            cp_to_gid.get(&pair.base),
+            name_to_gid.get(super::vs_glyph_name(pair.selector).as_str()),
+            name_to_gid.get(pair.glyph.as_str()),
+        ) else {
+            continue;
+        };
+        // First rule wins, matching how a ligature set is searched. A second
+        // pair colliding here is reported by `crate::issues`; silently keeping
+        // both would make which one applies depend on document order.
+        by_first.entry(base).or_default().entry(sel).or_insert(target);
+    }
+    if by_first.is_empty() {
+        return None;
+    }
+
+    let coverage = CoverageTable::format_1(by_first.keys().copied().collect());
+    let ligature_sets: Vec<LigatureSet> = by_first
+        .values()
+        .map(|entries| {
+            LigatureSet::new(
+                entries
+                    .iter()
+                    .map(|(sel, target)| Ligature::new(*target, vec![*sel]))
+                    .collect(),
+            )
+        })
+        .collect();
+
+    Some(SubstitutionLookup::Ligature(Lookup::new(
+        LookupFlag::empty(),
+        vec![LigatureSubstFormat1::new(
+            coverage,
+            ligature_sets.into_iter().collect(),
+        )],
+    )))
+}
+
 pub(super) fn build_gsub(
     gsub_data: &GsubData,
     name_to_gid: &HashMap<String, GlyphId16>,
+    cp_to_gid: &HashMap<u32, GlyphId16>,
 ) -> Option<Gsub> {
-    if gsub_data.features.is_empty() {
+    if gsub_data.features.is_empty() && gsub_data.uvs_pairs.is_empty() {
         return None;
     }
 
     let mut lookups: Vec<SubstitutionLookup> = Vec::new();
     let mut set_to_lookup: HashMap<String, u16> = HashMap::new();
+
+    // Lookup 0, before anything the source wrote. A rule aimed at a pair's
+    // *target* has to see one glyph where the text had two, so the fold has to
+    // have happened by the time any source lookup runs. On a shaper that honors
+    // cmap 14 this never fires — the selector is gone before GSUB starts — and
+    // that is the point: it is the same statement, kept for the shaper that
+    // does not.
+    let uvs_lookup_idx = build_uvs_fallback_lookup(gsub_data, name_to_gid, cp_to_gid).map(|lookup| {
+        let idx = lookups.len() as u16;
+        lookups.push(lookup);
+        idx
+    });
 
     // Lookup index order is application order — a shaper runs the lookups of a
     // stage sorted by index, across features — so this is where "which pass
@@ -388,6 +513,23 @@ pub(super) fn build_gsub(
     // application order.
     let mut per_script: BTreeMap<String, BTreeMap<Option<String>, Vec<TagLookups>>> =
         BTreeMap::new();
+
+    // Seeded before the source's own features so that a `ccmp for DFLT` the
+    // source declares *extends* this record rather than replacing it, leaving
+    // the fallback lookup first in application order. The DFLT fold below then
+    // carries it to every script the font declares.
+    if let Some(idx) = uvs_lookup_idx {
+        per_script
+            .entry("DFLT".to_string())
+            .or_default()
+            .entry(None)
+            .or_default()
+            .push(TagLookups {
+                tag: "ccmp".to_string(),
+                lookups: vec![idx],
+            });
+    }
+
     for (feat_tag, targets, set_names) in &gsub_data.features {
         let lookup_indices: Vec<u16> = set_names
             .iter()

@@ -324,6 +324,11 @@ impl SpecimenState {
                 for slice in slices {
                     let parts = scoped.for_slice(slice);
                     match item {
+                        // A variation sequence covers no cell of its own: the
+                        // base is already counted through its own `map`.
+                        DocumentItem::Map {
+                            selector: Some(_), ..
+                        } => {}
                         DocumentItem::Map {
                             char_repr, glyph, ..
                         } => {

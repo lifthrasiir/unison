@@ -959,6 +959,116 @@ fn quote_roundtrip() {
     }
 }
 
+/// A `map` may name a Unicode variation sequence: a base character and a
+/// variation selector. The two written forms — `U+XXXX U+YYYY` as separate
+/// tokens, and the two characters written literally as one token — are
+/// different text and each has to come back out exactly as it went in.
+#[test]
+fn parse_map_uvs_pair_forms() {
+    let input = "\
+map U+0030 U+FE0F = num-zero-emoji
+map 0\u{FE0F} = num-zero-emoji
+map wide : U+26AA U+FE0E = circle
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Map { char_repr, selector, glyph, .. }
+            if char_repr == "U+0030" && selector.as_deref() == Some("U+FE0F")
+                && glyph == "num-zero-emoji"),
+        "got {:?}",
+        doc.items[0],
+    );
+    // Written literally the pair is a single token, and the parser splits it
+    // only when it really is base + selector.
+    assert!(
+        matches!(&doc.items[1], DocumentItem::Map { char_repr, selector, .. }
+            if char_repr == "0" && selector.as_deref() == Some("\u{FE0F}")),
+        "got {:?}",
+        doc.items[1],
+    );
+    assert!(
+        matches!(&doc.items[2], DocumentItem::Map { slices, char_repr, selector, .. }
+            if slices == &["wide"] && char_repr == "U+26AA"
+                && selector.as_deref() == Some("U+FE0E")),
+        "got {:?}",
+        doc.items[2],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+/// Only a two-character token whose second character is a selector splits. A
+/// longer sequence — what pasting `0️⃣` gives you — stays one `char_repr` so
+/// that validation can reject it with a message about splitting the line,
+/// rather than the parser silently keeping the first two characters.
+#[test]
+fn a_longer_sequence_is_not_split_into_a_uvs_pair() {
+    let doc = parse_document_from_str("map 0\u{FE0F}\u{20E3} = keycap-zero\n", "t.unf".into())
+        .unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Map { char_repr, selector, .. }
+            if char_repr == "0\u{FE0F}\u{20E3}" && selector.is_none()),
+        "got {:?}",
+        doc.items[0],
+    );
+
+    // A pipe list keeps its shape too: the last character of `a|b` is not a
+    // selector, and nothing may be shaved off the end of an alternation.
+    let doc = parse_document_from_str("map a|b = ab\n", "t.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Map { char_repr, selector, .. }
+            if char_repr == "a|b" && selector.is_none()),
+        "got {:?}",
+        doc.items[0],
+    );
+}
+
+/// `map generate` parses the extended syntax so that a sequence written there
+/// is a validation error with a real message, not an unreadable line. It stays
+/// a single codepoint semantically: a variation sequence has no canonical
+/// decomposition, so there is nothing for `generate` to synthesize.
+#[test]
+fn map_generate_parses_but_does_not_take_a_sequence() {
+    let input = "\
+map generate U+0030 U+FE0F
+map generate U+0030 U+FE0F = num-zero-emoji
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, selector, glyph, .. }
+            if char_repr == "U+0030" && selector.as_deref() == Some("U+FE0F") && glyph.is_none()),
+        "got {:?}",
+        doc.items[0],
+    );
+    assert!(
+        matches!(&doc.items[1], DocumentItem::MapDecomposed { char_repr, selector, glyph, .. }
+            if char_repr == "U+0030" && selector.as_deref() == Some("U+FE0F")
+                && glyph.as_deref() == Some("num-zero-emoji")),
+        "got {:?}",
+        doc.items[1],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+/// `map generate Á = a-acute` and `map U+0030 U+FE0F = x` have the same arity.
+/// The `generate` keyword is what tells them apart, so a glyph reached through
+/// the plain form must not be captured by the decomposed one.
+#[test]
+fn map_generate_wins_the_arity_it_shares_with_a_uvs_pair() {
+    let doc =
+        parse_document_from_str("map generate Á = a-acute\n", "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, .. } if char_repr == "Á"),
+        "got {:?}",
+        doc.items[0],
+    );
+}
+
 #[test]
 fn parse_map_generate_forms() {
     let input = "\
@@ -1986,4 +2096,24 @@ fn an_at_with_no_base_keeps_its_at() {
     assert_eq!(name.display(), "@-bar");
     assert_eq!(body.refs[0].name, "@-baz");
     assert!(!crate::document::is_valid_glyph_name(&name.display()));
+}
+
+/// The two halves carry their spellings independently, so a line may mix them.
+/// Concatenating on the way out is only safe when *both* are literal: with a
+/// `U+XXXX` base and a literal selector it would glue them into a single
+/// seven-character token that re-parses as something else entirely.
+#[test]
+fn a_mixed_spelling_variation_sequence_round_trips() {
+    let input = "map 0 U+FE0F = x\nmap U+0030 \u{FE0F} = y\n";
+    let doc = parse_document_from_str(input, "t.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[1], DocumentItem::Map { char_repr, selector, .. }
+            if char_repr == "U+0030" && selector.as_deref() == Some("\u{FE0F}")),
+        "got {:?}",
+        doc.items[1],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
 }

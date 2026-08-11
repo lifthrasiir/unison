@@ -72,6 +72,16 @@
 //!   whose mapping differs between faces must not be in the base slice at all,
 //!   because there is no override — every conflict is an error.
 //! - `map CHAR = GLYPH` — cmap mapping.
+//! - `map BASE SELECTOR = GLYPH` — cmap mapping of a Unicode *variation
+//!   sequence*. Two spellings, and each round-trips as written: `U+0030 U+FE0F`
+//!   is two tokens, while the same pair pasted from a character picker is one
+//!   token holding two characters. They may not be mixed. Only a two-character
+//!   token whose second character is a selector splits — a longer paste like
+//!   `0️⃣` stays whole and is rejected by name, because cmap format 14 holds a
+//!   base and one selector and nothing longer; the rest of such a sequence
+//!   belongs in a `remap`. Either half may be a range or a pipe list but not
+//!   both (see `expand_uvs_map_triples`). `generate` never takes this form: a
+//!   variation sequence is its own canonical decomposition.
 //! - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from
 //!   the character's Unicode canonical decomposition, named `uniXXXX` unless
 //!   `GLYPH` names it. `GLYPH` is a pattern expanded in lock-step with `CHAR`,
@@ -343,6 +353,46 @@ pub fn quote_token(s: &str) -> String {
     } else {
         let escaped = s.replace('`', "``");
         format!("`{escaped}`")
+    }
+}
+
+/// Split a single written `map` token into a base and a variation selector.
+///
+/// A variation sequence written literally — what pasting `0️` from a character
+/// picker gives you — is *one* token holding two characters, while the `U+XXXX
+/// U+YYYY` spelling is two. Only the exact shape "two characters, the second a
+/// selector and the first not" splits; everything else stays whole, so a pipe
+/// list keeps its last alternative and a longer paste (`0️⃣`) survives intact
+/// for [`crate::issues`] to reject by name instead of being truncated here.
+fn split_written_uvs_pair(token: &str) -> (String, Option<String>) {
+    let mut chars = token.chars();
+    if let (Some(base), Some(sel), None) = (chars.next(), chars.next(), chars.next())
+        && !crate::ucd::is_variation_selector(base as u32)
+        && crate::ucd::is_variation_selector(sel as u32)
+    {
+        return (base.to_string(), Some(sel.to_string()));
+    }
+    (token.to_string(), None)
+}
+
+/// Write the character half of a `map` back out in the form it was written in.
+///
+/// The two spellings of one variation sequence are different text and each has
+/// to round-trip, so something has to tell `U+0030 U+FE0F` (two tokens) from
+/// `0️` (one). Concatenating is safe only when *both* halves are literal: with a
+/// `U+XXXX` base and a literal selector it would glue them into one
+/// seven-character token, which re-parses as a single unreadable character
+/// rather than as the pair that was written. Two tokens are always safe, since
+/// only a two-character token is ever split.
+#[cfg(any(feature = "editor", test))]
+fn write_map_chars(char_repr: &str, selector: Option<&str>) -> String {
+    let is_hex = |s: &str| s.starts_with("U+") || s.starts_with("u+");
+    match selector {
+        Some(sel) if is_hex(sel) || is_hex(char_repr) => {
+            format!("{} {}", quote_token(char_repr), quote_token(sel))
+        }
+        Some(sel) => quote_token(&format!("{char_repr}{sel}")),
+        None => quote_token(char_repr),
     }
 }
 
@@ -893,6 +943,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Map {
                 slices,
                 char_repr,
+                selector,
                 glyph,
                 comment,
             } => {
@@ -900,7 +951,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                     writer,
                     "map {}{} = {}{}",
                     slice_prefix(slices),
-                    quote_token(char_repr),
+                    write_map_chars(char_repr, selector.as_deref()),
                     quote_token(glyph),
                     comment_suffix(comment),
                 )?;
@@ -908,6 +959,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::MapDecomposed {
                 slices,
                 char_repr,
+                selector,
                 glyph,
                 comment,
             } => {
@@ -919,7 +971,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                     writer,
                     "map {}generate {}{}{}",
                     slice_prefix(slices),
-                    quote_token(char_repr),
+                    write_map_chars(char_repr, selector.as_deref()),
                     target,
                     comment_suffix(comment),
                 )?;
@@ -1193,10 +1245,12 @@ pub fn derive_document(
                         // = g` stays an ordinary (if nonsensical) `map`.
                         let generate = tokens.len() >= 2 && tokens[0] == "generate";
                         if tokens.len() == 3 && tokens[1] == "=" {
+                            let (char_repr, selector) = split_written_uvs_pair(&tokens[0]);
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
                                 slices,
-                                char_repr: tokens[0].clone(),
+                                char_repr,
+                                selector,
                                 glyph: tokens[2].clone(),
                                 comment,
                             });
@@ -1204,11 +1258,40 @@ pub fn derive_document(
                         } else if generate
                             && (tokens.len() == 2 || (tokens.len() == 4 && tokens[2] == "="))
                         {
+                            let (char_repr, selector) = split_written_uvs_pair(&tokens[1]);
+                            item_line_starts.push(i);
+                            doc.items.push(DocumentItem::MapDecomposed {
+                                slices,
+                                char_repr,
+                                selector,
+                                glyph: tokens.get(3).cloned(),
+                                comment,
+                            });
+                            i += 1;
+                        } else if generate
+                            && (tokens.len() == 3 || (tokens.len() == 5 && tokens[3] == "="))
+                        {
+                            // `map generate BASE SELECTOR [= GLYPH]` parses so
+                            // that it can be *rejected* by name. `generate`
+                            // wins this arity over the plain pair form below,
+                            // which is what keeps `map generate Á = a-acute`
+                            // decomposed rather than read as a sequence.
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::MapDecomposed {
                                 slices,
                                 char_repr: tokens[1].clone(),
-                                glyph: tokens.get(3).cloned(),
+                                selector: Some(tokens[2].clone()),
+                                glyph: tokens.get(4).cloned(),
+                                comment,
+                            });
+                            i += 1;
+                        } else if tokens.len() == 4 && tokens[2] == "=" {
+                            item_line_starts.push(i);
+                            doc.items.push(DocumentItem::Map {
+                                slices,
+                                char_repr: tokens[0].clone(),
+                                selector: Some(tokens[1].clone()),
+                                glyph: tokens[3].clone(),
                                 comment,
                             });
                             i += 1;

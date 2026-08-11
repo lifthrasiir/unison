@@ -97,6 +97,107 @@ pub(super) fn build_script_records(
     script_records
 }
 
+/// Add the cmap format 14 subtable for the face's variation sequences.
+///
+/// The split between the two arrays is decided here rather than stated in the
+/// source, because it is a fact about the built face and not about the author's
+/// intent: a pair whose target *is* what the base already maps to goes in the
+/// Default UVS array, which carries no glyph id and says only "this sequence is
+/// valid, use the base's glyph, and swallow the selector". Everything else
+/// carries a glyph id in the Non-default array. A source that had to choose
+/// would only ever get it wrong.
+fn add_uvs_subtable(
+    cmap: &mut Cmap,
+    gsub_data: &GsubData,
+    name_to_gid: &HashMap<String, GlyphId16>,
+    cp_to_gid: &HashMap<u32, GlyphId16>,
+) {
+    use std::collections::BTreeSet;
+
+    use write_fonts::tables::cmap::{
+        Cmap14, DefaultUvs, EncodingRecord, NonDefaultUvs, PlatformId, UnicodeRange, UvsMapping,
+        VariationSelector,
+    };
+    use write_fonts::types::Uint24;
+
+    // selector → (default bases, non-default (base, gid) pairs), both ascending.
+    let mut by_selector: BTreeMap<u32, (BTreeSet<u32>, BTreeMap<u32, GlyphId16>)> = BTreeMap::new();
+    for pair in &gsub_data.uvs_pairs {
+        let Some(&target) = name_to_gid.get(pair.glyph.as_str()) else {
+            continue;
+        };
+        let entry = by_selector.entry(pair.selector).or_default();
+        if cp_to_gid.get(&pair.base) == Some(&target) {
+            entry.0.insert(pair.base);
+        } else {
+            entry.1.insert(pair.base, target);
+        }
+    }
+    if by_selector.is_empty() {
+        return;
+    }
+
+    // `length` is a stored field, not one the writer recomputes, so the byte
+    // count is spelled out: a 10-byte header, an 11-byte record per selector,
+    // and each array's own 4-byte count plus its entries (4 bytes per Default
+    // range, 5 per Non-default mapping).
+    let mut length: u32 = 10 + 11 * by_selector.len() as u32;
+    let mut records = Vec::with_capacity(by_selector.len());
+    for (selector, (defaults, non_defaults)) in by_selector {
+        // Consecutive bases collapse into one range. `additional_count` is a
+        // byte, so a run longer than 256 becomes several ranges.
+        let mut ranges: Vec<UnicodeRange> = Vec::new();
+        for cp in defaults {
+            match ranges.last_mut() {
+                Some(last)
+                    if u32::from(last.start_unicode_value) + u32::from(last.additional_count) + 1
+                        == cp
+                        && last.additional_count < u8::MAX =>
+                {
+                    last.additional_count += 1;
+                }
+                _ => ranges.push(UnicodeRange::new(Uint24::checked_new(cp).unwrap(), 0)),
+            }
+        }
+
+        let mappings: Vec<UvsMapping> = non_defaults
+            .into_iter()
+            .map(|(cp, gid)| UvsMapping::new(Uint24::checked_new(cp).unwrap(), gid.to_u16()))
+            .collect();
+
+        let default_uvs = (!ranges.is_empty()).then(|| {
+            length += 4 + 4 * ranges.len() as u32;
+            DefaultUvs::new(ranges.len() as u32, ranges)
+        });
+        let non_default_uvs = (!mappings.is_empty()).then(|| {
+            length += 4 + 5 * mappings.len() as u32;
+            NonDefaultUvs::new(mappings.len() as u32, mappings)
+        });
+
+        records.push(VariationSelector::new(
+            Uint24::checked_new(selector).expect("a selector is well below 2^24"),
+            default_uvs,
+            non_default_uvs,
+        ));
+    }
+
+    let subtable = Cmap14::new(length, records.len() as u32, records);
+    cmap.encoding_records.push(EncodingRecord::new(
+        PlatformId::Unicode,
+        UNICODE_VARIATION_SEQUENCES_ENCODING,
+        subtable.into(),
+    ));
+    // Encoding records are read in (platform, encoding) order, and format 14 is
+    // (0, 5) — between the Unicode records `from_mappings` emitted and the
+    // Windows ones.
+    cmap.encoding_records
+        .sort_by_key(|r| (r.platform_id as u16, r.encoding_id));
+}
+
+/// Unicode platform, "Unicode Variation Sequences" — the only encoding a format
+/// 14 subtable may be listed under.
+const UNICODE_VARIATION_SEQUENCES_ENCODING: u16 = 5;
+
 // The font tables' inputs, gathered from unrelated stages.
 #[expect(clippy::too_many_arguments)]
 pub(super) fn build_ttf(
@@ -222,10 +323,20 @@ pub(super) fn build_ttf(
         left_side_bearings: Vec::new(),
     };
 
+    // Codepoint → GID, which the variation-sequence stages need in both
+    // directions the name map cannot answer: cmap 14 is keyed by codepoint, and
+    // the fallback lookup's first element is the *base's* glyph.
+    let cp_to_gid: HashMap<u32, GlyphId16> = cmap_mappings
+        .iter()
+        .filter_map(|(ch, gid)| Some((*ch as u32, GlyphId16::new(u16::try_from(gid.to_u32()).ok()?))))
+        .collect();
+
     // cmap
     // Cannot fail: `build_glyph_outlines` already resolved characters claimed by
     // more than one glyph, which is the only thing `from_mappings` rejects.
-    let cmap = Cmap::from_mappings(cmap_mappings).expect("cmap mappings deduplicated by character");
+    let mut cmap =
+        Cmap::from_mappings(cmap_mappings).expect("cmap mappings deduplicated by character");
+    add_uvs_subtable(&mut cmap, gsub_data, &name_to_gid, &cp_to_gid);
 
     // name
     let name = build_name_table(meta);
@@ -337,7 +448,7 @@ pub(super) fn build_ttf(
         ..Default::default()
     };
 
-    let mut gsub = build_gsub(gsub_data, &name_to_gid);
+    let mut gsub = build_gsub(gsub_data, &name_to_gid, &cp_to_gid);
 
     let mut anchor_data = build_anchor_gpos(glyphs, gsub_data, &name_to_gid, scale, meta.ascent());
     merge_anchor_feature_lookups(&mut gsub, std::mem::take(&mut anchor_data.feature_lookups));

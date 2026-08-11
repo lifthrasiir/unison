@@ -552,6 +552,11 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
     for item in &all_items {
         match item {
+            // A variation sequence claims no codepoint of its own; the base is
+            // already in the cmap through its own `map`.
+            DocumentItem::Map {
+                selector: Some(_), ..
+            } => {}
             DocumentItem::Map {
                 char_repr, glyph, ..
             } => {

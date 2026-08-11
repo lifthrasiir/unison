@@ -139,7 +139,7 @@ feature tjmo for hang : hangul-tjmo
             .entry(g.name.clone())
             .or_insert(GlyphId16::new((i + 1) as u16));
     }
-    let gsub = build_gsub(&gsub_data, &name_to_gid);
+    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::new());
     assert!(gsub.is_some(), "GSUB table should be generated");
     let gsub = gsub.unwrap();
     let hang_found = gsub
@@ -177,7 +177,7 @@ feature liga for latn : ligset
             .or_insert(GlyphId16::new((i + 1) as u16));
     }
 
-    let gsub = build_gsub(&gsub_data, &name_to_gid);
+    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::new());
     assert!(
         gsub.is_some(),
         "GSUB should be generated for ligature remap"
@@ -291,7 +291,7 @@ feature ccmp for hang : second
             .entry(g.name.clone())
             .or_insert(GlyphId16::new((i + 1) as u16));
     }
-    let gsub = build_gsub(&gsub_data, &name_to_gid).expect("GSUB");
+    let gsub = build_gsub(&gsub_data, &name_to_gid, &HashMap::new()).expect("GSUB");
     assert_eq!(
         gsub.feature_list.feature_records.len(),
         2,

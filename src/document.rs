@@ -998,23 +998,36 @@ pub enum DocumentItem {
         inherits: Vec<String>,
         comment: Option<String>,
     },
-    /// `[SLICE[|SLICE...] :] map CHAR = GLYPH` — cmap mapping from a Unicode
-    /// character to a glyph name. `slices` is empty for the base slice, which
-    /// every face includes; more than one means the line is stated once per
-    /// slice, each with that slice's [`NameParts`](DocumentItem::NameParts)
-    /// bindings in force.
+    /// `[SLICE[|SLICE...] :] map CHAR[ SELECTOR] = GLYPH` — cmap mapping from a
+    /// Unicode character, or from a variation sequence, to a glyph name.
+    /// `slices` is empty for the base slice, which every face includes; more
+    /// than one means the line is stated once per slice, each with that slice's
+    /// [`NameParts`](DocumentItem::NameParts) bindings in force.
+    ///
+    /// `selector` is the variation selector of a Unicode variation sequence,
+    /// and `Option` rather than a list because that is the whole shape cmap
+    /// format 14 can hold: a base and one selector, nothing longer. Anything
+    /// longer belongs in a `remap`, and [`crate::issues`] says so in as many
+    /// words rather than letting the parser truncate it.
     Map {
         slices: Vec<String>,
         char_repr: String,
+        selector: Option<String>,
         glyph: String,
         comment: Option<String>,
     },
     /// `map generate CHAR [= GLYPH]` — auto-decomposed cmap mapping. The glyph
     /// is synthesized from the character's Unicode canonical decomposition and
     /// named `uniXXXX` unless `glyph` names it.
+    ///
+    /// `selector` exists only so that a sequence written here parses and then
+    /// fails validation with a real message. It is never valid: a variation
+    /// sequence has no canonical decomposition — `0030 FE0F` is its own NFD —
+    /// so there is nothing for `generate` to synthesize from.
     MapDecomposed {
         slices: Vec<String>,
         char_repr: String,
+        selector: Option<String>,
         glyph: Option<String>,
         comment: Option<String>,
     },

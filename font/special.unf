@@ -40,19 +40,6 @@ glyph replacement-half 8 16
 map wide|narrow : U+FFFD = replacement($-half)
 
 //--------------------------------------
-// variation selectors
-
-glyph vs($1..256) advance 0
-ref sp
-
-map U+FE00..FE0F = vs($1..16)
-map U+E0100..E01EF = vs($17..256)
-
-// convenience alias
-glyph vs-text = vs15
-//glyph vs-emoji = vs16
-
-//--------------------------------------
 // tags
 
 glyph tag-($a-z|$0..9|cancel) advance 0
