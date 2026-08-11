@@ -940,4 +940,46 @@ mod startup_tests {
         );
         assert_eq!(app.selected_face(), "term");
     }
+
+    /// Opening a file the directory snapshot already holds must not rebuild the
+    /// font.
+    ///
+    /// It used to: opening bumped the document's `content_gen` past the
+    /// snapshot's, and `current_font_gen` hashes that — so every Ctrl/Cmd+click
+    /// into a file cost a full build of a font whose bytes could not have
+    /// changed, since the opened text is the snapshot's own bytes re-parsed.
+    #[test]
+    fn opening_a_file_from_the_snapshot_does_not_rebuild_the_font() {
+        let dir = TempDir::new("open");
+        let path = dir.0.join("a.unf");
+        std::fs::write(
+            &path,
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\nglyph a 2 2\n@@\n.@\n\nmap A = a\n",
+        )
+        .unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+        let before = app.current_font_gen();
+
+        app.open_file(path);
+        assert_eq!(app.open_documents.len(), 1, "the file is open");
+        assert_eq!(
+            app.current_font_gen(),
+            before,
+            "the same bytes, so the same font: nothing to rebuild"
+        );
+
+        // A file the snapshot does not have is a real change to the document
+        // set, and does move the generation.
+        let fresh = dir.0.join("b.unf");
+        std::fs::write(&fresh, "glyph b 2 2\n@@\n@.\n").unwrap();
+        app.open_file(fresh);
+        assert_eq!(app.open_documents.len(), 2);
+        assert_ne!(
+            app.current_font_gen(),
+            before,
+            "a document the font did not have is a rebuild"
+        );
+    }
 }

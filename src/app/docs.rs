@@ -158,23 +158,35 @@ pub(super) fn load_open_document(
     // against is the hash of exactly what was parsed.
     let bytes = std::fs::read(&path)?;
     let content = String::from_utf8_lossy(&bytes).into_owned();
-    open_document_from_text(&content, super::watch::hash_bytes(&bytes), path, base_gen)
+    // What was just read may differ from what the snapshot holds — that is the
+    // whole point of reading it — so this *is* a new source revision.
+    let gens = base_gen
+        .map(|(e, c)| (e.wrapping_add(1), c.wrapping_add(1)))
+        .unwrap_or((1, 1));
+    open_document_from_text(&content, super::watch::hash_bytes(&bytes), path, gens)
 }
 
 /// The half of [`load_open_document`] that does not touch the filesystem, for
 /// text already in hand — the directory snapshot's [`FontSource`]. `hash` must
 /// be the hash of the bytes `content` was decoded from, since that is what the
 /// watcher compares against disk.
+///
+/// `gens` is the `(edit_gen, content_gen)` the document takes on, and the
+/// caller decides whether that is the snapshot's own pair or one past it.
+/// Taking the snapshot's pair unchanged says "this is the same source
+/// revision": [`super::UniformApp::current_font_gen`] hashes `content_gen`, so
+/// stepping it schedules a full font build, and text that came out of the
+/// snapshot cannot have changed the font. `pixel_gen` needs no such care — a
+/// freshly parsed document and a snapshot document are both at zero, since a
+/// snapshot document is never edited in place.
 pub(super) fn open_document_from_text(
     content: &str,
     hash: u64,
     path: PathBuf,
-    base_gen: Option<(u64, u64)>,
+    gens: (u64, u64),
 ) -> anyhow::Result<OpenDocument> {
     let (mut doc, lines) = document_from_source(content, path)?;
-    let (edit_gen, content_gen) = base_gen
-        .map(|(e, c)| (e.wrapping_add(1), c.wrapping_add(1)))
-        .unwrap_or((1, 1));
+    let (edit_gen, content_gen) = gens;
     doc.edit_gen = edit_gen;
     doc.content_gen = content_gen;
     Ok(OpenDocument {
@@ -353,8 +365,7 @@ impl UniformApp {
             return;
         }
 
-        // Replacing the directory snapshot with an opened file is a new
-        // source revision even when the path is unchanged.
+        // The generations the snapshot holds for this path, if it has it.
         let base_gen = self
             .font_base_docs
             .iter()
@@ -364,9 +375,21 @@ impl UniformApp {
         // snapshot already holds is parsed from memory rather than read again;
         // see [`FontSource`] for what that costs.
         let loaded = match self.font_sources.get(&path) {
-            Some(source) => {
-                open_document_from_text(&source.text, source.hash, path.clone(), base_gen)
-            }
+            // The snapshot's own bytes, re-parsed: the same source revision,
+            // and so the same font. Stepping the generations here is what made
+            // every Ctrl/Cmd+click into a file cost a full rebuild.
+            //
+            // "The same font" rests on the round trip `document_from_source`
+            // performs — parse, serialize, re-derive — producing the items the
+            // snapshot's plain parse did. That is the invariant the parser's
+            // round-trip tests exist for, and the one every editor flush
+            // already depends on.
+            Some(source) => open_document_from_text(
+                &source.text,
+                source.hash,
+                path.clone(),
+                base_gen.unwrap_or((0, 0)),
+            ),
             None => load_open_document(path.clone(), base_gen),
         };
         match loaded {
