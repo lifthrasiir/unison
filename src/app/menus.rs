@@ -738,6 +738,13 @@ impl UniformApp {
                         ui.close_menu();
                     }
                     ui.separator();
+                    // The only route to the startup report when the binary was
+                    // launched with no console to print it to; see `startup.rs`.
+                    if ui.button("Startup timing\u{2026}").clicked() {
+                        self.startup_timing_open = true;
+                        ui.close_menu();
+                    }
+                    ui.separator();
                     ui.menu_button("Color Scheme", |ui| {
                         if ui
                             .radio(theme_before == egui::ThemePreference::System, "System")
@@ -899,44 +906,54 @@ impl UniformApp {
             let (base_docs, parse_errors, sources) =
                 crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
             self.install_font_snapshot(base_docs, parse_errors, sources);
-            // The faces of the old folder mean nothing in the new one; what
-            // this folder's own last face was is applied once a resolve says
-            // it still exists, exactly as at startup.
-            self.selected_face.clear();
-            self.face_ids.clear();
-            self.pending_face = self.settings.face_for(&dir).map(str::to_string);
-            let refs: Vec<&Document> = self.font_base_docs.iter().collect();
+            // The faces of the old folder mean nothing in the new one. This
+            // folder's own last face is applied straight away, from a scan of
+            // its `face` lines rather than from a resolve — exactly as at
+            // startup, and for the same reason: a face applied later is a
+            // second full build.
+            self.face_ids = {
+                let refs: Vec<&Document> = self.font_base_docs.iter().collect();
+                crate::faces::FaceSet::collect(&refs)
+                    .faces
+                    .iter()
+                    .map(|f| f.id.clone())
+                    .collect()
+            };
+            self.selected_face = self
+                .settings
+                .face_for(&dir)
+                .filter(|f| self.face_ids.iter().any(|id| id == f))
+                .unwrap_or_default()
+                .to_string();
             // Both background stages are still working on the folder that just
             // went away. Nothing they produce is wanted, and the font build in
             // particular holds the contour cache this thread is about to clear
-            // and then build through — so it would be waited on rather than
-            // merely wasted.
+            // — so it would be waited on rather than merely wasted.
             self.font_cancel.cancel();
             self.derived_cancel.cancel();
             self.contour_cache.lock().unwrap().clear();
-            match crate::render::build_font_pair_cached(&refs, &self.contour_cache) {
-                Some(built) => {
-                    self.font_data = Some((built.bitmap, built.vector));
-                    self.font_name_to_gid = built.name_to_gid;
-                }
-                None => {
-                    self.font_data = None;
-                    self.font_name_to_gid.clear();
-                }
-            }
             self.font_build_gen = self.font_build_gen.wrapping_add(1);
-            self.font_data_gen = self.font_build_gen;
-            self.font_applied = None;
+            // Neither the font nor the derived data is built here: a folder on
+            // a share takes tens of seconds to build and resolve, and doing it
+            // on this thread is the freeze that startup no longer has. The
+            // pipeline picks both up on the next frame, and until it does this
+            // folder looks like a directory whose first build has not landed —
+            // which is exactly what it is.
+            self.arm_initial_font_build();
             self.shaped_preview.invalidate_font(self.font_data_gen);
-            self.font_rebuild_at = None;
-            self.last_font_gen = self.current_font_gen();
-            self.rebuild_named_glyphs_sync();
-            self.named_glyphs_gen = self.font_build_gen;
-            {
-                let all_docs = self.collect_all_docs();
-                self.issues = collect_issues(&all_docs);
-            }
-            self.issues_gen = self.font_build_gen;
+            // The old folder's derived data is *wrong* here rather than merely
+            // stale, so it is dropped rather than left to be replaced.
+            self.named_glyphs = Arc::default();
+            self.alt_index = Default::default();
+            self.name_parts = NamePartsMap::new();
+            self.char_props = Default::default();
+            self.color_aliases = Default::default();
+            self.font_meta = Default::default();
+            self.issues.clear();
+            // No resolve has run for this generation: what arms the derived-data
+            // rebuild on the next pump.
+            self.named_glyphs_gen = u64::MAX;
+            self.issues_gen = u64::MAX;
             self.set_status(format!("Opened folder {}", dir.display()));
         }
 

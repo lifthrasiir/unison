@@ -28,6 +28,7 @@ mod script_run;
 mod sidebar;
 #[cfg(feature = "editor")]
 mod specimen;
+mod startup;
 mod ucd;
 
 #[cfg(target_os = "windows")]
@@ -80,8 +81,85 @@ fn report_issues(docs: &[&document::Document]) {
     eprintln!("{} problem(s), {} error(s)", issues.len(), errors);
 }
 
+/// `uniform probe --input DIR [--repeat N]`
+///
+/// The startup path with no window in the way: how long the process took to
+/// reach `main`, how long enumerating and reading the directory takes, and how
+/// long the initial font build takes. Repeating the directory load separates a
+/// cold cache (the first pass) from a warm one — on a share that difference is
+/// usually the whole story. See `startup.rs`.
+fn run_probe(input: &std::path::Path, repeats: usize) {
+    for pass in 0..repeats {
+        if pass > 0 {
+            startup::restart_collection();
+            eprintln!("\n--- pass {} (caches warm) ---\n", pass + 1);
+        }
+        startup::mark("start");
+        let (docs, errors, _sources) =
+            render::ttf_builder::load_docs_from_directory_with_sources(input);
+        startup::mark(format!("load {} file(s)", docs.len()));
+        if !errors.is_empty() {
+            eprintln!("{} file(s) failed to parse", errors.len());
+        }
+        let refs: Vec<&document::Document> = docs.iter().collect();
+
+        let name_parts = document::collect_name_parts(&refs);
+        let _ = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
+        startup::mark("resolve");
+
+        // Exactly what the editor runs before its first frame.
+        #[cfg(feature = "editor")]
+        {
+            let cache = render::new_contour_cache();
+            let built = render::build_font_pair_cached(&refs, &cache).is_some();
+            startup::mark(if built {
+                "initial font build"
+            } else {
+                "initial font build (failed)"
+            });
+        }
+
+        let _ = issues::collect_issues(&refs);
+        startup::mark("validation");
+
+        startup::first_frame_done();
+        print!("{}", startup::report());
+    }
+}
+
 fn main() {
+    startup::init();
     let args: Vec<String> = std::env::args().collect();
+
+    // Probe subcommand: uniform probe --input DIR [--repeat N]
+    if args.get(1).map(|s| s.as_str()) == Some("probe") {
+        let mut input_dir = None;
+        let mut repeats = 1usize;
+        let mut i = 2;
+        while i < args.len() {
+            match args[i].as_str() {
+                "--input" | "-i" => {
+                    i += 1;
+                    input_dir = args.get(i).map(std::path::PathBuf::from);
+                }
+                "--repeat" | "-n" => {
+                    i += 1;
+                    repeats = args.get(i).and_then(|s| s.parse().ok()).unwrap_or(1).max(1);
+                }
+                _ => {
+                    eprintln!("Unknown probe option: {}", args[i]);
+                    std::process::exit(1);
+                }
+            }
+            i += 1;
+        }
+        let Some(input) = input_dir else {
+            eprintln!("Usage: uniform probe --input <DIR> [--repeat N]");
+            std::process::exit(1);
+        };
+        run_probe(&input, repeats);
+        return;
+    }
 
     // Build subcommand: uniform build --input DIR --output FILE [--output FILE ...]
     //   [--sample-html FILE] [--sample-png FILE] [--live-html FILE]
@@ -375,10 +453,18 @@ fn main() {
             ..Default::default()
         };
 
+        // The marks bracket eframe's own window + wgpu setup, which is the one
+        // startup cost that is neither ours nor the loader's.
+        startup::mark("main() reached, entering eframe");
         eframe::run_native(
             "uniform",
             options,
-            Box::new(move |cc| Ok(Box::new(app::UniformApp::new(cc, font_dir)))),
+            Box::new(move |cc| {
+                startup::mark("eframe window + renderer ready");
+                let app = app::UniformApp::new(cc, font_dir);
+                startup::mark("app constructed");
+                Ok(Box::new(app))
+            }),
         )
         .expect("failed to run eframe");
     }

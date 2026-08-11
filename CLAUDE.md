@@ -39,6 +39,7 @@ The `build`/`test` subcommands require native execution:
 cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf] [-o unison.ttc] \
     [--sample-html F] [--sample-png F] [--live-html F] [-d data]
 cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
+cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `startup.rs`
 ```
 
 Output extension picks the format (`.woff2` → WOFF2, anything else → TTF). Both subcommands print
@@ -51,7 +52,7 @@ The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 
 | Var | Effect |
 | --- | --- |
-| `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app/background.rs`) |
+| `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app/background.rs`), plus the startup report on stderr after the first frame (`startup.rs`) |
 | `UNIFORM_UPDATE_GOLDEN=1` | Rewrite `testdata/*.golden` instead of comparing (`cargo test golden`) |
 | `UNIFORM_WATCH_POLL_MS` | Re-scan interval used when the font directory is on a network volume (default 10000; `app/watch.rs`) |
 | `UNIFORM_PROFILE_RUNS` | Iteration count for the `ref_composite` profiling test |
@@ -97,6 +98,9 @@ Core (feature-independent):
   `CancelToken::never()`.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
+- `startup.rs` — the timeline of everything before the first painted frame (loader, directory read,
+  initial font build), and the three ways to read it out. Written for the slow-launch-over-SMB
+  question; the `probe` subcommand is its headless form.
 - `ucd.rs` — the character properties shown beside a character name, and the `prop` directives a
   source states them with (`CharProps`). Nothing in the font depends on them; the status bars and the
   `sample.html` tooltips do. Also `BlockMap`: the bundled `Blocks.txt` with the source's own
@@ -197,8 +201,12 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The anchor shadow | `editor/anchor_shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
+| Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |
+| Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |
+| Why the directory load reads its files on many threads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`) |
 | One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
+| Why the remembered face is applied before the first build, not after the first resolve | `app/mod.rs` (`with_settings`) |
 | What survives between runs, what egui persists on its own, and why there is no session restore | `app/settings.rs` |
 | Where the settings file lives, and the app id that decides it | `app/settings.rs`, `main.rs` (`with_app_id`) |
 
@@ -268,4 +276,7 @@ docs carry the detail; this is the ranking.
 6. **Performance regressions count as bugs here** — a slow `resolve` used to snowball into dozens of
    concurrent rebuild threads. `UNIFORM_PERF`, the rebuild guard in `app/background.rs`, memoized exact
    subtraction and the `PixelGrid::rescale` caches all exist because of that. Keep the caches keyed
-   correctly when changing geometry.
+   correctly when changing geometry. The same rule covers the filesystem: this editor is routinely
+   run against a network share, where a per-file round trip costs ~185 ms, so **nothing on the UI
+   thread may read a directory file by file or build the font** — `startup.rs` is how that is
+   measured and `arm_initial_font_build` is where the work goes instead.

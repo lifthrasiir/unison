@@ -41,6 +41,10 @@ windows = { version = "0.58", features = [
     "Win32_System_Com",
     # app/watch.rs: GetDriveTypeW + DRIVE_REMOTE, to tell a network share from a local disk
     "Win32_Storage_FileSystem",
+    # startup.rs: GetProcessTimes + GetSystemTimeAsFileTime, for how long the
+    # process spent before `main` ran at all
+    "Win32_System_Threading",
+    "Win32_System_SystemInformation",
     "Win32_System_WindowsProgramming",
     "implement",
 ] }

@@ -835,3 +835,51 @@ map A = a
             .expect("the replacing build still succeeds on the cache the cancelled one left");
     assert!(!built.bitmap.is_empty() && !built.vector.is_empty());
 }
+
+/// The directory load reads its files concurrently (they are one network round
+/// trip each, and 44 of them were eight seconds of a cold start). Concurrency
+/// is not observable from here — the contract it must not break is: documents
+/// sorted by path, one source per parsed document, a file that fails to parse
+/// reported and its bytes dropped, and a non-`.unf` file ignored.
+#[test]
+fn directory_load_keeps_its_order_and_reports_every_bad_file() {
+    let dir = std::env::temp_dir().join(format!(
+        "uniform-load-{}-{:?}",
+        std::process::id(),
+        std::thread::current().id()
+    ));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).expect("temp dir");
+
+    // Enough files that the load has to split them across workers.
+    let good: Vec<String> = (0..24).map(|i| format!("g{i:02}.unf")).collect();
+    for (i, name) in good.iter().enumerate() {
+        std::fs::write(dir.join(name), format!("glyph g{i} 2 2\n@@\n.@\n")).unwrap();
+    }
+    std::fs::write(dir.join("bad.unf"), "glyph x 2 nope\n..@@\n").unwrap();
+    std::fs::write(dir.join("notes.txt"), "not a source file").unwrap();
+
+    let (docs, errors, sources) = load_docs_from_directory_with_sources(&dir);
+
+    assert_eq!(docs.len(), good.len());
+    let names: Vec<String> = docs
+        .iter()
+        .map(|d| d.path.file_name().unwrap().to_string_lossy().into_owned())
+        .collect();
+    let mut sorted = names.clone();
+    sorted.sort();
+    assert_eq!(names, sorted, "documents come back in path order");
+    assert_eq!(names, good);
+
+    assert_eq!(errors.len(), 1, "{errors:?}");
+    assert!(errors[0].0.ends_with("bad.unf"), "{errors:?}");
+
+    // One source per parsed document, and nothing for the file that failed.
+    assert_eq!(sources.len(), docs.len());
+    for (path, bytes) in &sources {
+        assert!(docs.iter().any(|d| &d.path == path), "{path:?}");
+        assert_eq!(bytes, &std::fs::read(path).unwrap());
+    }
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

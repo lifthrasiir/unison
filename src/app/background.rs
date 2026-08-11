@@ -320,6 +320,27 @@ impl UniformApp {
         });
     }
 
+    /// Hands the first build of a freshly loaded directory to the background
+    /// pipeline, with no font of its own to show in the meantime.
+    ///
+    /// Both callers — startup and Open Folder — used to build the font on the
+    /// UI thread, which on a network share is a ten-second freeze with nothing
+    /// drawn. The request is armed for *now* rather than debounced: the debounce
+    /// exists to absorb a burst of keystrokes, and a directory that has just
+    /// been read has nothing to absorb.
+    ///
+    /// `last_font_gen` is taken here so that the first pump sees no generation
+    /// change and therefore does not re-arm the request 300 ms out, on top of
+    /// the one this just made due.
+    pub(super) fn arm_initial_font_build(&mut self) {
+        self.font_data = None;
+        self.font_name_to_gid.clear();
+        self.font_data_gen = self.font_build_gen;
+        self.font_applied = None;
+        self.last_font_gen = self.current_font_gen();
+        self.font_rebuild_at = Some(std::time::Instant::now());
+    }
+
     /// Move the selection `delta` faces along the declared order, wrapping.
     /// F11 and F10 in [`crate::app::UniformApp::update`].
     pub(super) fn step_face(&mut self, delta: isize, ctx: &egui::Context) {
@@ -363,26 +384,6 @@ impl UniformApp {
         self.font_build_gen = self.font_build_gen.wrapping_add(1);
         self.font_rebuild_at = None;
         self.rebuild_font(ctx);
-    }
-
-    pub(super) fn rebuild_named_glyphs_sync(&mut self) {
-        let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
-        let all_docs = self.collect_all_docs();
-        let name_parts = crate::document::collect_name_parts(&all_docs);
-        let (named_glyphs, alt_index) =
-            crate::editor::ref_composite::resolve_named_glyphs_with_parts(&all_docs, &name_parts);
-        let font_meta = crate::meta::FontMeta::collect(&all_docs);
-        let char_props = crate::ucd::CharProps::collect(&all_docs);
-        drop(all_docs);
-        self.font_meta = font_meta.metrics;
-        self.named_glyphs = std::sync::Arc::new(named_glyphs);
-        self.alt_index = alt_index;
-        self.name_parts = name_parts;
-        self.char_props = char_props;
-        self.derived_gen = self.derived_gen.wrapping_add(1);
-        if let Some(t0) = perf_t0 {
-            eprintln!("[perf] resolve (sync, main thread): {:?}", t0.elapsed());
-        }
     }
 
     fn rebuild_derived_data(&mut self, ctx: &egui::Context) {
@@ -597,17 +598,11 @@ impl UniformApp {
                     self.derived_gen = self.derived_gen.wrapping_add(1);
                     self.issues = data.issues;
                     self.issues_gen = data.build_gen;
+                    // The list an edit to a `face` line changes; the startup
+                    // one was collected from the same directives before the
+                    // first build, so a remembered face is already selected by
+                    // the time this arrives and no rebuild follows it.
                     self.face_ids = data.face_ids;
-                    // The first moment a face id restored from the settings
-                    // can be checked against what this directory declares. An
-                    // id it no longer has is dropped rather than selected —
-                    // the source is edited between runs, and a face can go
-                    // away.
-                    if let Some(face) = self.pending_face.take()
-                        && self.face_ids.contains(&face)
-                    {
-                        self.set_selected_face(face, ctx);
-                    }
                     // The selection is not silently rewritten when its face
                     // goes away: the build falls back to the primary on its
                     // own, and an edit that briefly breaks a `face` line must
@@ -828,5 +823,121 @@ mod font_build_tests {
         .join()
         .unwrap();
         assert_eq!(rx.try_recv(), Ok("finished"), "the real result wins");
+    }
+}
+
+#[cfg(test)]
+mod startup_tests {
+    use super::*;
+
+    /// Its own directory per test, removed when the test ends. Written inline:
+    /// `font/` is downstream data and no test may read it.
+    struct TempDir(PathBuf);
+
+    impl TempDir {
+        fn new(tag: &str) -> Self {
+            let dir = std::env::temp_dir().join(format!(
+                "uniform-{tag}-{}-{:?}",
+                std::process::id(),
+                std::thread::current().id(),
+            ));
+            let _ = std::fs::remove_dir_all(&dir);
+            std::fs::create_dir_all(&dir).unwrap();
+            Self(dir)
+        }
+    }
+
+    impl Drop for TempDir {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+
+    /// Startup reads the directory and stops there: the font build that used to
+    /// run on the UI thread before eframe ever painted (10.4 s of an 18.6 s
+    /// cold start over SMB — see `startup.rs`) belongs to the background
+    /// pipeline, which the first frame starts with no debounce to wait out.
+    ///
+    /// A font that is not built yet is a state the editor already has to
+    /// handle — an empty directory and a failed build both produce it — so what
+    /// this asserts is only where the work runs, not that anything is missing.
+    #[test]
+    fn startup_hands_the_first_font_build_to_the_background() {
+        let dir = TempDir::new("startup");
+        std::fs::write(
+            dir.0.join("a.unf"),
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\nglyph a 2 2\n@@\n.@\n\nmap A = a\n",
+        )
+        .unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app = UniformApp::with_settings(&ctx, Settings::default(), Some(dir.0.clone()));
+
+        assert_eq!(app.font_base_docs.len(), 1, "the directory is read");
+        assert!(
+            app.font_data.is_none(),
+            "no font is built on the way to the first frame"
+        );
+        assert!(!app.font_build_inflight, "and none is running yet either");
+
+        app.pump_background_pipeline(&ctx);
+        assert!(
+            app.font_build_inflight,
+            "the first frame starts the build straight away, without the edit debounce"
+        );
+    }
+
+    /// A remembered face must not cost a second font build.
+    ///
+    /// It used to: the first build ran before anything knew which faces the
+    /// directory declares, so the choice was applied only when the first
+    /// resolve reported them — and applying it bumped the generation and built
+    /// the whole font again. Over SMB that was a ten-second build followed by a
+    /// five-second one before any text appeared. Which faces exist is a scan of
+    /// the `face` directives, not a resolve, so it is known before the first
+    /// build is armed.
+    #[test]
+    fn a_remembered_face_does_not_cost_a_second_font_build() {
+        let dir = TempDir::new("face");
+        std::fs::write(
+            dir.0.join("a.unf"),
+            "meta height 4\nmeta ascent 3\nmeta descent 1\n\n\
+             slice narrow\nface regular\nface term : narrow\n\n\
+             glyph a 2 2\n@@\n.@\n\nmap A = a\n",
+        )
+        .unwrap();
+
+        let ctx = egui::Context::default();
+        let mut settings = Settings::default();
+        settings.remember_face(&dir.0, "term");
+        let mut app = UniformApp::with_settings(&ctx, settings, Some(dir.0.clone()));
+
+        assert_eq!(
+            app.selected_face(),
+            "term",
+            "the remembered face is known before the first build, not after the first resolve"
+        );
+
+        app.pump_background_pipeline(&ctx);
+        let build_gen = app.font_build_gen;
+        assert!(app.font_build_inflight);
+
+        // Drive the pipeline until the first resolve has been applied: that is
+        // the moment the face used to be switched under it.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        while app.named_glyphs_gen != app.font_build_gen {
+            assert!(
+                std::time::Instant::now() < deadline,
+                "the pipeline never delivered a resolve"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            app.pump_background_pipeline(&ctx);
+        }
+
+        assert_eq!(
+            app.font_build_gen, build_gen,
+            "the resolve landing must not start another build"
+        );
+        assert_eq!(app.selected_face(), "term");
     }
 }

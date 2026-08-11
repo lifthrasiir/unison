@@ -221,37 +221,112 @@ pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<Parse
 /// routinely used — one `stat` per file is already a visible stall, so those
 /// consumers go to memory instead. The caller keeps the sources for exactly as
 /// long as it keeps the documents; nothing else refreshes them.
+///
+/// The files are read concurrently. On a share each one costs a round trip that
+/// dominates its transfer — measured at ~185 ms of fixed cost against ~6 MB/s,
+/// so 44 files were 7.3 of the 18 seconds a cold start took (`startup.rs`) — and
+/// overlapping those waits is the whole of the fix. The thread count is
+/// therefore about latency in flight, not about cores.
 pub fn load_docs_from_directory_with_sources(dir: &Path) -> LoadedDir {
+    // Timed because this is the prime suspect for a slow start on a network
+    // share; `startup` ignores everything after the first frame, so the
+    // rebuilds that also come through here cost one atomic load.
+    let scan_t0 = std::time::Instant::now();
+    let entries = std::fs::read_dir(dir);
+    crate::startup::record_dir_scan(dir, scan_t0.elapsed());
+    let Ok(entries) = entries else {
+        return (Vec::new(), Vec::new(), Vec::new());
+    };
+    let mut paths: Vec<std::path::PathBuf> = entries
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| document_io::is_source_file(p))
+        .collect();
+    // Sorted here rather than sorting the documents afterwards: the workers
+    // write their results by index, so one sort fixes the order of all three
+    // outputs — including `sources`, which nothing sorted before.
+    paths.sort();
+
+    /// What one file turned into. Kept per index so the merge below is a
+    /// straight walk rather than a sort by path.
+    enum Loaded {
+        Parsed(Box<Document>, Vec<u8>),
+        Failed(String),
+    }
+
+    let load_one = |path: &Path| -> Loaded {
+        let read_t0 = std::time::Instant::now();
+        let read = std::fs::read(path);
+        let read_elapsed = read_t0.elapsed();
+        let bytes = match read {
+            Ok(bytes) => bytes,
+            Err(e) => return Loaded::Failed(format!("reading: {e}")),
+        };
+        let parse_t0 = std::time::Instant::now();
+        let content = String::from_utf8_lossy(&bytes);
+        let parsed = document_io::parse_document_from_str(&content, path.to_path_buf());
+        crate::startup::record_file(path, bytes.len(), read_elapsed, parse_t0.elapsed());
+        match parsed {
+            Ok(doc) => Loaded::Parsed(Box::new(doc), bytes),
+            Err(e) => Loaded::Failed(e.to_string()),
+        }
+    };
+
+    // More threads than cores on purpose: a worker spends nearly all its time
+    // waiting on the share, and the parse it does between waits is a fraction
+    // of that. Capped so that a directory of hundreds of files does not open
+    // hundreds of handles at once.
+    let workers = paths.len().min(16);
+    let mut loaded: Vec<Option<Loaded>> = Vec::new();
+    if workers <= 1 {
+        loaded.extend(paths.iter().map(|p| Some(load_one(p))));
+    } else {
+        let next = std::sync::atomic::AtomicUsize::new(0);
+        let paths = &paths;
+        let load_one = &load_one;
+        let chunks: Vec<Vec<(usize, Loaded)>> = std::thread::scope(|scope| {
+            let handles: Vec<_> = (0..workers)
+                .map(|_| {
+                    scope.spawn(|| {
+                        let mut out = Vec::new();
+                        loop {
+                            let i = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                            let Some(path) = paths.get(i) else { break };
+                            out.push((i, load_one(path)));
+                        }
+                        out
+                    })
+                })
+                .collect();
+            // A worker that panics would poison nothing — its files simply have
+            // no result, and the merge below reports them as failures rather
+            // than bringing the whole load down with it.
+            handles
+                .into_iter()
+                .map(|h| h.join().unwrap_or_default())
+                .collect()
+        });
+        loaded.resize_with(paths.len(), || None);
+        for (i, item) in chunks.into_iter().flatten() {
+            loaded[i] = Some(item);
+        }
+    }
+
     let mut docs = Vec::new();
     let mut errors = Vec::new();
     let mut sources = Vec::new();
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return (docs, errors, sources);
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !document_io::is_source_file(&path) {
-            continue;
-        }
-        let bytes = match std::fs::read(&path) {
-            Ok(bytes) => bytes,
-            Err(e) => {
-                errors.push((path, format!("reading: {e}")));
-                continue;
-            }
-        };
-        let content = String::from_utf8_lossy(&bytes);
-        match document_io::parse_document_from_str(&content, path.clone()) {
-            Ok(doc) => {
-                docs.push(doc);
+    for (path, item) in paths.into_iter().zip(loaded) {
+        match item {
+            Some(Loaded::Parsed(doc, bytes)) => {
+                docs.push(*doc);
                 sources.push((path, bytes));
             }
             // A file that does not parse contributes no document, so nothing
             // can search or open it either; its bytes are not kept.
-            Err(e) => errors.push((path, e.to_string())),
+            Some(Loaded::Failed(msg)) => errors.push((path, msg)),
+            None => errors.push((path, "reading: the loader thread died".to_string())),
         }
     }
-    docs.sort_by(|a, b| a.path.cmp(&b.path));
     (docs, errors, sources)
 }
 

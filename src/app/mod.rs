@@ -12,7 +12,7 @@ use crate::editor::EditorState;
 use crate::editor::doc_links::LinkTargetKind;
 use crate::editor::document_view::debounced_scroll_step;
 use crate::editor::ref_composite::ResolvedGlyph;
-use crate::issues::{Issue, collect_issues};
+use crate::issues::Issue;
 use crate::preview::widget::ShapedPreviewState;
 use crate::render::SharedContourCache;
 use crate::sidebar::{Sidebar, SidebarAction};
@@ -86,11 +86,6 @@ pub struct UniformApp {
     /// directory face memory has to survive switching directories — the choice
     /// is recorded when it is made, not when the application quits.
     settings: Settings,
-    /// A face id restored from the settings that no resolve has confirmed yet.
-    /// Taken by the first derived-data result to arrive, which is the earliest
-    /// point at which the directory's faces are known; an id the directory no
-    /// longer declares is dropped there rather than selected.
-    pending_face: Option<String>,
     font_dir: Option<PathBuf>,
     last_title: String,
     open_documents: Vec<OpenDocument>,
@@ -213,6 +208,10 @@ pub struct UniformApp {
     assert_tx: mpsc::Sender<AssertResultMessage>,
     assert_running: bool,
     bg_tasks: BackgroundTaskStatus,
+    /// Startup instrumentation (`startup.rs`): whether the first frame has been
+    /// through `update`, and whether its report window is open.
+    first_frame_seen: bool,
+    startup_timing_open: bool,
 }
 
 pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
@@ -231,8 +230,7 @@ pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
 
 /// Whether `[perf]` stage timing logs are enabled (UNIFORM_PERF env var).
 fn perf_log_enabled() -> bool {
-    static ENABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    *ENABLED.get_or_init(|| std::env::var_os("UNIFORM_PERF").is_some())
+    crate::startup::perf_logging()
 }
 
 impl UniformApp {
@@ -297,6 +295,18 @@ impl UniformApp {
             .unwrap_or_default();
         settings.clamp();
 
+        Self::with_settings(&cc.egui_ctx, settings, font_dir)
+    }
+
+    /// Everything of the startup path that does not need a window: the split
+    /// exists so the tests can build a whole `UniformApp` against a bare
+    /// [`egui::Context`], which is the only way to assert what startup does and
+    /// — more to the point — what it no longer does on the UI thread.
+    fn with_settings(
+        egui_ctx: &egui::Context,
+        settings: Settings,
+        font_dir: Option<PathBuf>,
+    ) -> Self {
         // The argument wins over the remembered directory, and a remembered
         // one that has since been moved or deleted is simply not there.
         let font_dir = font_dir.or_else(|| {
@@ -307,22 +317,23 @@ impl UniformApp {
                 .map(PathBuf::from)
         });
 
+        crate::startup::mark("settings loaded");
+
         let (font_base_docs, file_parse_errors, font_sources) = font_dir
             .as_ref()
             .map(|d| crate::render::ttf_builder::load_docs_from_directory_with_sources(d))
             .unwrap_or_default();
+        crate::startup::mark(format!("read {} .unf file(s)", font_base_docs.len()));
         let font_sources = docs::font_sources_from(font_sources);
 
         let contour_cache = crate::render::new_contour_cache();
-        let (font_data, font_name_to_gid) = if font_base_docs.is_empty() {
-            (None, HashMap::new())
-        } else {
-            let refs: Vec<&Document> = font_base_docs.iter().collect();
-            match crate::render::build_font_pair_cached(&refs, &contour_cache) {
-                Some(built) => (Some((built.bitmap, built.vector)), built.name_to_gid),
-                None => (None, HashMap::new()),
-            }
-        };
+        // No font is built here. It used to be, and on a network share that one
+        // call was 10.4 of the 18.6 seconds before the window appeared — all of
+        // it with nothing on screen, and all of it duplicated work, since the
+        // first frame armed a background rebuild for the same documents anyway.
+        // `arm_initial_font_build` below hands it to the pipeline instead; the
+        // editor renders in the system font until it lands, which is the same
+        // state an empty directory or a failed build already produces.
 
         let (font_build_tx, font_build_rx) = mpsc::channel();
         let (derived_data_tx, derived_data_rx) = mpsc::channel();
@@ -340,16 +351,33 @@ impl UniformApp {
         shaped_preview.select_backend_named(&settings.preview_backend);
         let mut specimen = SpecimenState::new();
         specimen.options = settings.specimen;
-        // Applied once the first resolve says which faces this directory has;
-        // see `background.rs`. Nothing can be checked against them yet.
-        let pending_face = font_dir
+
+        // Which faces this directory declares is a scan of its `face` lines —
+        // the same `FaceSet` the resolve reports, only without the resolve — so
+        // the remembered face can be applied *before* the first build is armed.
+        // Waiting for the resolve meant the first build used the primary face
+        // and the choice arriving after it built the whole font a second time,
+        // which over SMB read as ten seconds of build followed by five more.
+        let face_ids: Vec<String> = {
+            let refs: Vec<&Document> = font_base_docs.iter().collect();
+            crate::faces::FaceSet::collect(&refs)
+                .faces
+                .iter()
+                .map(|f| f.id.clone())
+                .collect()
+        };
+        // A face the directory no longer declares is dropped rather than
+        // selected: the source is edited between runs, and a face can go away.
+        let selected_face = font_dir
             .as_deref()
             .and_then(|d| settings.face_for(d))
-            .map(str::to_string);
+            .filter(|f| face_ids.iter().any(|id| id == f))
+            .unwrap_or_default()
+            .to_string();
+        crate::startup::mark("faces collected");
 
         let mut app = Self {
             settings,
-            pending_face,
             font_dir: font_dir.clone(),
             last_title: String::new(),
             open_documents: Vec::new(),
@@ -364,8 +392,8 @@ impl UniformApp {
             status_message: None,
             font_base_docs,
             font_sources,
-            font_data,
-            font_name_to_gid,
+            font_data: None,
+            font_name_to_gid: HashMap::new(),
             font_applied: None,
             font_data_gen: 0,
             last_font_gen: 0,
@@ -376,8 +404,8 @@ impl UniformApp {
             font_build_inflight: false,
             font_cancel: crate::cancel::CancelToken::never(),
             contour_cache,
-            selected_face: String::new(),
-            face_ids: Vec::new(),
+            selected_face,
+            face_ids,
             named_glyphs: Arc::default(),
             alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
@@ -411,12 +439,17 @@ impl UniformApp {
             assert_tx,
             assert_running: false,
             bg_tasks: BackgroundTaskStatus::new(),
+            first_frame_seen: false,
+            startup_timing_open: false,
         };
 
         if let Some(dir) = &font_dir {
             app.sidebar.set_directory(dir);
-            app.watch.set_directory(dir, &cc.egui_ctx);
+            crate::startup::mark("sidebar directory listing");
+            app.watch.set_directory(dir, egui_ctx);
+            crate::startup::mark("file watch registered");
         }
+        app.arm_initial_font_build();
 
         app
     }
@@ -553,6 +586,14 @@ impl eframe::App for UniformApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // The frame the user actually waited for: everything before it happened
+        // with no window on screen. See `startup.rs`.
+        let first_frame = !self.first_frame_seen;
+        if first_frame {
+            self.first_frame_seen = true;
+            crate::startup::mark("first frame begins");
+        }
+
         self.sync_window_title(ctx);
 
         let mut menu = MenuActions::default();
@@ -689,6 +730,14 @@ impl eframe::App for UniformApp {
         {
             ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
         }
+
+        self.show_startup_timing_window(ctx);
+
+        if first_frame {
+            crate::startup::mark("first frame built");
+            crate::startup::first_frame_done();
+            crate::startup::log_report_once();
+        }
     }
 }
 
@@ -711,6 +760,34 @@ impl UniformApp {
             ctx.send_viewport_cmd(egui::ViewportCommand::Title(title.clone()));
             self.last_title = title;
         }
+    }
+
+    /// The startup report as a window, for the common case of a launch with no
+    /// console to have read `UNIFORM_PERF` output from. The text is the same
+    /// [`crate::startup::report`] the stderr dump prints, and Copy puts it on
+    /// the clipboard so it can be pasted into a bug report.
+    fn show_startup_timing_window(&mut self, ctx: &egui::Context) {
+        if !self.startup_timing_open {
+            return;
+        }
+        let mut open = true;
+        egui::Window::new("Startup timing")
+            .open(&mut open)
+            .default_width(560.0)
+            .show(ctx, |ui| {
+                let report = crate::startup::report();
+                if ui.button("Copy").clicked() {
+                    ctx.copy_text(report.clone());
+                }
+                ui.separator();
+                egui::ScrollArea::both().max_height(420.0).show(ui, |ui| {
+                    ui.add(
+                        egui::Label::new(egui::RichText::new(&report).monospace())
+                            .wrap_mode(egui::TextWrapMode::Extend),
+                    );
+                });
+            });
+        self.startup_timing_open = open;
     }
 
     /// Hands the keyboard back to the active editor, which a menu-bar click
