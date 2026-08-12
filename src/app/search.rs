@@ -27,6 +27,11 @@
 //! glyph is referred to nowhere while the font composes it. See
 //! [`pattern_denotes`] for which grammar each token is read with.
 //!
+//! The pane lists **declarations before uses**, each group in source order, and
+//! rules a line between them; see [`collect_hits`] for why, and [`MatchSpan`]
+//! for what counts as a declaration. It is only the display order that moves —
+//! the ordinal below is assigned before the sort.
+//!
 //! Results are addressed by their **ordinal within their file**, not by a line
 //! number: opening a file canonicalizes its text, so the line a hit sits at on
 //! disk need not be the line it ends up at in the editor. Canonicalization
@@ -46,7 +51,7 @@
 
 use super::*;
 use crate::editor::doc_links::{LinkSpan, scan_dollar_refs};
-use crate::editor::line_fields::{FieldRole, classify_line};
+use crate::editor::line_fields::{FieldRole, LineField, classify_line};
 use crate::pattern::NamePattern;
 
 /// Whether `text` could write a glyph name with a leading `@`.
@@ -131,6 +136,24 @@ fn pattern_denotes(token: &str, is_def: bool, name: &str, parts: &NamePartsMap) 
     parsed.is_ok_and(|p| p.matches(name))
 }
 
+/// One matched token on a line: where it is written, and whether the role it
+/// was matched in *declares* the name rather than referring to it.
+///
+/// The distinction is `line_fields`' own `…Def`/`…Ref` split, so what the pane
+/// calls a declaration is what a Ctrl/Cmd+click calls a definition. Two kinds
+/// have no declaration site at all — an anchor is matched by name across
+/// glyphs, a feature tag is stated once per target — and every appearance of
+/// those is a use, which leaves the pane's grouping to say nothing rather than
+/// to claim each line declares the thing.
+///
+/// Ordered by column first, so sorting a line's matches is still positional.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+pub(super) struct MatchSpan {
+    pub col_start: usize,
+    pub col_end: usize,
+    pub is_decl: bool,
+}
+
 /// Char-column spans on `line` at which `name` appears in the role `kind`
 /// names — the whole written token, so the search pane can highlight exactly
 /// what it matched (an anchor's sign, a quoted token's backticks and a pattern's
@@ -158,12 +181,19 @@ pub(super) fn match_spans(
     kind: LinkTargetKind,
     at_base: Option<&str>,
     name_parts: &NamePartsMap,
-) -> Vec<(usize, usize)> {
+) -> Vec<MatchSpan> {
     let at_possible =
         kind == LinkTargetKind::Glyph && at_base.is_some() && may_write_an_at_name(line);
     let pattern_possible = kind == LinkTargetKind::Glyph && may_write_a_pattern(line);
     if !line.contains(name) && !at_possible && !pattern_possible {
         return Vec::new();
+    }
+    fn span(f: &LineField, is_decl: bool) -> MatchSpan {
+        MatchSpan {
+            col_start: f.col_start,
+            col_end: f.col_end,
+            is_decl,
+        }
     }
     let mut cols = Vec::new();
     for f in classify_line(line) {
@@ -171,68 +201,66 @@ pub(super) fn match_spans(
             // A name-parts variable appears *inside* other tokens, so the
             // column is the `$var`'s own, not the token's.
             LinkTargetKind::NameParts => match f.role {
-                FieldRole::NamePartsDef if f.token == name => cols.push((f.col_start, f.col_end)),
+                FieldRole::NamePartsDef if f.token == name => cols.push(span(&f, true)),
                 FieldRole::GlyphDef | FieldRole::GlyphRef | FieldRole::NamePartsValue => {
                     let mut spans: Vec<LinkSpan> = Vec::new();
                     scan_dollar_refs(&f.token, f.col_start, &mut spans);
-                    cols.extend(
-                        spans
-                            .into_iter()
-                            .filter(|s| s.target == name)
-                            .map(|s| (s.col_start, s.col_end)),
-                    );
+                    cols.extend(spans.into_iter().filter(|s| s.target == name).map(|s| {
+                        MatchSpan {
+                            col_start: s.col_start,
+                            col_end: s.col_end,
+                            is_decl: false,
+                        }
+                    }));
                 }
                 _ => {}
             },
             LinkTargetKind::Glyph => {
                 if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef) {
+                    let is_def = f.role == FieldRole::GlyphDef;
                     let written = crate::document::expand_at_name(&f.token, at_base);
-                    if written == name
-                        || pattern_denotes(
-                            &written,
-                            f.role == FieldRole::GlyphDef,
-                            name,
-                            name_parts,
-                        )
-                    {
-                        cols.push((f.col_start, f.col_end));
+                    if written == name || pattern_denotes(&written, is_def, name, name_parts) {
+                        cols.push(span(&f, is_def));
                     }
                 }
             }
             LinkTargetKind::Color => {
                 if matches!(f.role, FieldRole::ColorDef | FieldRole::ColorRef) && f.token == name {
-                    cols.push((f.col_start, f.col_end));
+                    cols.push(span(&f, f.role == FieldRole::ColorDef));
                 }
             }
             LinkTargetKind::Remap => {
                 if matches!(f.role, FieldRole::RemapGroupDef | FieldRole::RemapGroupRef)
                     && f.token == name
                 {
-                    cols.push((f.col_start, f.col_end));
+                    cols.push(span(&f, f.role == FieldRole::RemapGroupDef));
                 }
             }
+            // A feature tag has no declaration site: every `feature` line
+            // states it again, so none of them is the one that introduces it.
             LinkTargetKind::Feature => {
                 if f.role == FieldRole::FeatureDef && f.token == name {
-                    cols.push((f.col_start, f.col_end));
+                    cols.push(span(&f, false));
                 }
             }
             LinkTargetKind::Face => {
                 if matches!(f.role, FieldRole::FaceDef | FieldRole::FaceRef) && f.token == name {
-                    cols.push((f.col_start, f.col_end));
+                    cols.push(span(&f, f.role == FieldRole::FaceDef));
                 }
             }
             LinkTargetKind::Slice => {
                 if matches!(f.role, FieldRole::SliceDef | FieldRole::SliceRef) && f.token == name {
-                    cols.push((f.col_start, f.col_end));
+                    cols.push(span(&f, f.role == FieldRole::SliceDef));
                 }
             }
             // Attachment is symmetric, so `+above` and `-above` are the same
-            // anchor and both are listed without distinction.
+            // anchor and both are listed without distinction — and neither
+            // declares it, the anchor being matched by name across glyphs.
             LinkTargetKind::Anchor => {
                 if f.role == FieldRole::PointDef
                     && f.token.strip_prefix(['+', '-']).unwrap_or(&f.token) == name
                 {
-                    cols.push((f.col_start, f.col_end));
+                    cols.push(span(&f, false));
                 }
             }
         }
@@ -242,13 +270,15 @@ pub(super) fn match_spans(
     cols
 }
 
-/// Every appearance in a line list, as `(line index, char span)` in order.
+/// Every appearance in a line list, as `(line index, match)` in **source**
+/// order — the order the ordinal counts in, which is not the order the pane
+/// lists them in (see [`collect_hits`]).
 fn hits_in_doclines(
     lines: &[DocLine],
     name: &str,
     kind: LinkTargetKind,
     name_parts: &NamePartsMap,
-) -> Vec<(usize, (usize, usize))> {
+) -> Vec<(usize, MatchSpan)> {
     let mut hits = Vec::new();
     let mut at_base: Option<String> = None;
     for (i, line) in lines.iter().enumerate() {
@@ -291,6 +321,9 @@ pub(super) struct SearchHit {
     /// highlights this occurrence and not every one on a line that has
     /// several — each occurrence is its own row.
     pub highlight: (usize, usize),
+    /// Whether this occurrence *declares* the name; see [`MatchSpan`]. The pane
+    /// lists the declarations first and rules a line under them.
+    pub is_decl: bool,
 }
 
 /// Builds one hit from a matched line, moving the span into the trimmed text
@@ -300,7 +333,7 @@ fn hit(
     ordinal: usize,
     file_line: usize,
     line: &str,
-    span: (usize, usize),
+    span: MatchSpan,
 ) -> SearchHit {
     let leading = line.chars().count() - line.trim_start().chars().count();
     SearchHit {
@@ -309,9 +342,10 @@ fn hit(
         file_line,
         text: line.trim().to_string(),
         highlight: (
-            span.0.saturating_sub(leading),
-            span.1.saturating_sub(leading),
+            span.col_start.saturating_sub(leading),
+            span.col_end.saturating_sub(leading),
         ),
+        is_decl: span.is_decl,
     }
 }
 
@@ -364,6 +398,15 @@ pub(super) enum SearchText<'a> {
 /// a search runs on a click, and the click must not wait on a network volume.
 /// See [`super::docs::FontSource`] for where the text of an unopened file comes
 /// from and how it stays current.
+///
+/// **Declarations come first.** What a search is usually read for is where the
+/// thing *is*, and a glyph used a hundred times would otherwise bury its own
+/// `glyph` line somewhere in the middle of the list. The two groups are then in
+/// source order — the sort is stable and reorders nothing else — so a name
+/// declared several times (an alias, a slice-qualified pair) still reads
+/// file by file. The `ordinal` is assigned before the sort and so still counts
+/// in source order, which is the only order [`hits_in_doclines`] can re-derive
+/// it in once the file is opened.
 pub(super) fn collect_hits(
     files: &[(PathBuf, SearchText<'_>)],
     name: &str,
@@ -398,7 +441,7 @@ pub(super) fn collect_hits(
                 // the same glyph twice is two rows, and the ordinal has to
                 // agree with `hits_in_doclines` once the file opens.
                 let mut at_base: Option<String> = None;
-                let mut found: Vec<(usize, &str, (usize, usize))> = Vec::new();
+                let mut found: Vec<(usize, &str, MatchSpan)> = Vec::new();
                 for (i, text) in content.lines().enumerate() {
                     found.extend(
                         match_spans(text, name, kind, at_base.as_deref(), name_parts)
@@ -417,6 +460,7 @@ pub(super) fn collect_hits(
             file_count += 1;
         }
     }
+    hits.sort_by_key(|h| !h.is_decl);
     (hits, file_count)
 }
 
@@ -502,9 +546,10 @@ impl UniformApp {
         )
         .get(ordinal)
         .copied();
-        let Some((line, (col, _))) = hit else {
+        let Some((line, span)) = hit else {
             return;
         };
+        let col = span.col_start;
         let doc = &mut self.open_documents[idx];
         doc.editor_state.goto_caret(&doc.lines, line, col);
         if let Some(from) = from {
@@ -538,6 +583,35 @@ mod tests {
         assert_eq!(hits[0].text, "ref bar 0 0");
     }
 
+    /// Declarations are listed before uses, and each group keeps the order the
+    /// files and their lines were walked in.
+    #[test]
+    fn declarations_are_listed_before_uses() {
+        let one = "ref foo 0 0\nglyph foo 8 16\nmap A = foo\nglyph bar = foo\n";
+        let two = "glyph foo = baz\n";
+        let files = vec![
+            (PathBuf::from("one.unf"), SearchText::Source(one)),
+            (PathBuf::from("two.unf"), SearchText::Source(two)),
+        ];
+        let (hits, file_count) =
+            collect_hits(&files, "foo", LinkTargetKind::Glyph, &NamePartsMap::new());
+        assert_eq!(file_count, 2);
+        assert_eq!(
+            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
+            vec![
+                "glyph foo 8 16",
+                "glyph foo = baz",
+                "ref foo 0 0",
+                "map A = foo",
+                "glyph bar = foo",
+            ],
+        );
+        assert_eq!(
+            hits.iter().map(|h| h.is_decl).collect::<Vec<_>>(),
+            vec![true, true, false, false, false],
+        );
+    }
+
     /// A path the snapshot has no source for contributes nothing rather than
     /// sending the search back to disk for it.
     #[test]
@@ -558,7 +632,7 @@ mod tests {
     fn cols_with(line: &str, name: &str, kind: LinkTargetKind, parts: &NamePartsMap) -> Vec<usize> {
         match_spans(line, name, kind, None, parts)
             .into_iter()
-            .map(|(s, _)| s)
+            .map(|s| s.col_start)
             .collect()
     }
 
@@ -901,8 +975,11 @@ mod tests {
             DocLine::Text("map A = foo".to_string()),
         ];
         assert_eq!(
-            hits_in_doclines(&lines, "foo", LinkTargetKind::Glyph, &NamePartsMap::new()),
-            vec![(0, (6, 9)), (2, (4, 7)), (3, (8, 11))],
+            hits_in_doclines(&lines, "foo", LinkTargetKind::Glyph, &NamePartsMap::new())
+                .into_iter()
+                .map(|(i, s)| (i, s.col_start, s.col_end, s.is_decl))
+                .collect::<Vec<_>>(),
+            vec![(0, 6, 9, true), (2, 4, 7, false), (3, 8, 11, false)],
         );
     }
 
@@ -924,7 +1001,8 @@ mod tests {
         );
         assert_eq!(
             hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
-            vec!["ref @-bar", "glyph @-bar", "map A = foo-bar"],
+            // The `glyph` line is a declaration and so is listed first.
+            vec!["glyph @-bar", "ref @-bar", "map A = foo-bar"],
         );
         // And the base itself is not one of its own family's appearances.
         let files = vec![(PathBuf::from("x.unf"), SearchText::Source(source))];

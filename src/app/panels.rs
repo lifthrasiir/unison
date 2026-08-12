@@ -81,8 +81,23 @@ fn show_search_tab(ui: &mut egui::Ui, search: Option<&SearchResults>, click: &mu
     }
     ui.separator();
 
+    // The list is declarations first (`collect_hits` sorts it), so the one
+    // place the two groups meet gets a rule between them. Nothing is drawn
+    // when a group is empty: a kind with no declaration site — an anchor, a
+    // feature tag — would otherwise carry a heading claiming it has one.
+    let split = search
+        .hits
+        .iter()
+        .position(|h| !h.is_decl)
+        .filter(|&i| i > 0 && i < search.hits.len());
+
     egui::ScrollArea::vertical().show(ui, |ui| {
         for (hit_idx, hit) in search.hits.iter().enumerate() {
+            if split == Some(hit_idx) {
+                ui.add_space(2.0);
+                ui.separator();
+                ui.add_space(2.0);
+            }
             let file_name = hit
                 .path
                 .file_name()
