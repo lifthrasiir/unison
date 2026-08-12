@@ -237,13 +237,62 @@ impl NamePattern {
             Kind::List(names) => names[i % names.len()].clone(),
             Kind::Segments(segments) => {
                 let mut out = String::new();
-                for seg in segments {
+                build_segments_into(segments, i, &mut out);
+                out
+            }
+        }
+    }
+
+    /// Whether this pattern denotes `name` — whether `name` is one of the names
+    /// it expands to.
+    ///
+    /// Segment-by-segment matching would be wrong: the cyclic indexing means
+    /// `(a|b)-(1|2)` denotes `a-1` and `b-2` and *not* `a-2`, so a candidate has
+    /// to be a name the expansion actually produces. What the shape does buy is
+    /// rejection — the literal frame the pattern begins and ends with has to be
+    /// `name`'s, and a pattern with a single group is decided by its
+    /// alternatives alone, so a `uni($#0000..ffff)` costs one comparison per
+    /// alternative instead of 65536 built names. Only a pattern with several
+    /// groups falls through to enumeration, and that is bounded by
+    /// [`MAX_EXPANSION`] like every other expansion.
+    pub fn matches(&self, name: &str) -> bool {
+        match &self.kind {
+            Kind::Single(s) => s == name,
+            Kind::List(names) => names.iter().any(|n| n == name),
+            Kind::Segments(_) if self.len <= 1 => self.get(0) == name,
+            Kind::Segments(segments) => {
+                fn literal(seg: Option<&Segment>) -> &str {
                     match seg {
-                        Segment::Literal(s) => out.push_str(s),
-                        Segment::Alts(alts) => out.push_str(&alts[i % alts.len()]),
+                        Some(Segment::Literal(s)) => s.as_str(),
+                        _ => "",
                     }
                 }
-                out
+                let head = literal(segments.first());
+                let tail = literal(segments.last());
+                if name.len() < head.len() + tail.len()
+                    || !name.starts_with(head)
+                    || !name.ends_with(tail)
+                {
+                    return false;
+                }
+
+                let mut groups = segments.iter().filter_map(|seg| match seg {
+                    Segment::Alts(alts) => Some(alts),
+                    Segment::Literal(_) => None,
+                });
+                if let (Some(alts), None) = (groups.next(), groups.next()) {
+                    // One group, so every alternative is reached and the text
+                    // between the two literals is the whole question.
+                    let middle = &name[head.len()..name.len() - tail.len()];
+                    return alts.iter().any(|a| a == middle);
+                }
+
+                let mut buf = String::new();
+                (0..self.len).any(|i| {
+                    buf.clear();
+                    build_segments_into(segments, i, &mut buf);
+                    buf == name
+                })
             }
         }
     }
@@ -323,6 +372,17 @@ impl IntoIterator for NamePattern {
         IntoIter {
             pattern: self,
             i: 0,
+        }
+    }
+}
+
+/// Writes the `i`-th name of a segment list into `out`, which lets a caller
+/// that walks the whole expansion reuse one buffer.
+fn build_segments_into(segments: &[Segment], i: usize, out: &mut String) {
+    for seg in segments {
+        match seg {
+            Segment::Literal(s) => out.push_str(s),
+            Segment::Alts(alts) => out.push_str(&alts[i % alts.len()]),
         }
     }
 }
@@ -861,6 +921,54 @@ mod tests {
                 "out-a-1", "out-b-2", "out-a-3", "out-b-1", "out-a-2", "out-b-3"
             ],
         );
+    }
+
+    /// `matches` has to agree with the expansion exactly — including the
+    /// cyclic indexing, which is what makes `a-2` *not* one of the names
+    /// `(a|b)-(1|2)` denotes.
+    #[test]
+    fn matches_agrees_with_the_expansion() {
+        for s in [
+            "plain",
+            "fo(o|q)",
+            "(a|b)-(1|2)",
+            "out-(a|b)-(1|2|3)",
+            "(a|b*2)-x",
+            "pre-(a|b)",
+        ] {
+            let p = NamePattern::parse_element(s).unwrap();
+            let expanded: Vec<String> = p.iter().collect();
+            for name in &expanded {
+                assert!(p.matches(name), "{s} should match its own {name}");
+            }
+            for near in ["a-2", "b-1", "foo", "fop", "plain", "pre-", "x", ""] {
+                assert_eq!(
+                    p.matches(near),
+                    expanded.iter().any(|n| n == near),
+                    "{s} vs {near}",
+                );
+            }
+        }
+    }
+
+    /// A block-name list matches its branches verbatim, as it expands them.
+    #[test]
+    fn matches_a_top_level_list_branch() {
+        let p = NamePattern::parse("a*2|b").unwrap();
+        assert!(p.matches("a*2"));
+        assert!(p.matches("b"));
+        assert!(!p.matches("a"));
+    }
+
+    /// A single group is decided by its alternatives, so a range that would
+    /// take 65536 built names to enumerate is answered without building any.
+    #[test]
+    fn matches_a_large_range_without_enumerating_it() {
+        let parts = NamePartsMap::new();
+        let p = NamePattern::parse(&substitute_name_parts("uni($#0000..ffff)", &parts)).unwrap();
+        assert!(p.matches("uni0041"));
+        assert!(!p.matches("uni041"));
+        assert!(!p.matches("foo"));
     }
 
     #[test]

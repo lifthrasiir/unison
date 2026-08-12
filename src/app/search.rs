@@ -19,6 +19,14 @@
 //! the editor calls one — a `remap` group that happens to read like a glyph
 //! name is not a hit, and an anchor is hit through both of its signs.
 //!
+//! A glyph name is matched against what a token **denotes**, not against how it
+//! is written: a name written as a pattern (`fo(o|q)`, `hangul-($init)`) is an
+//! appearance of every name it expands to, and the row highlights the pattern
+//! token as written. Only exact-name matching would list a fraction of a
+//! `font/` where most names are stated by pattern — the search would say a
+//! glyph is referred to nowhere while the font composes it. See
+//! [`pattern_denotes`] for which grammar each token is read with.
+//!
 //! Results are addressed by their **ordinal within their file**, not by a line
 //! number: opening a file canonicalizes its text, so the line a hit sits at on
 //! disk need not be the line it ends up at in the editor. Canonicalization
@@ -39,21 +47,8 @@
 use super::*;
 use crate::editor::doc_links::{LinkSpan, scan_dollar_refs};
 use crate::editor::line_fields::{FieldRole, classify_line};
+use crate::pattern::NamePattern;
 
-/// Char-column spans on `line` at which `name` appears in the role `kind`
-/// names — the whole written token, so the search pane can highlight exactly
-/// what it matched (an anchor's sign and a quoted token's backticks included).
-///
-/// The substring test in front is what keeps a search cheap: classifying a
-/// line costs a tokenizing pass, and a font directory is mostly pixel rows
-/// that can never match. Every kind's name occurs **literally** in the source
-/// — a name-parts name carries its own `$`, and an anchor's sign only ever
-/// precedes the name — so the filter cannot hide a hit. `search_name` leans on
-/// the same invariant one level up, per file. Together they are what keeps a
-/// search a click and not a wait; over `font/`, 9.9 ms → 1.7 ms.
-///
-/// The returned span is the written token as a whole, which the pane highlights
-/// so a long `remap` or `assert` row says where on it the name actually is.
 /// Whether `text` could write a glyph name with a leading `@`.
 ///
 /// A name token always begins after whitespace or a backtick, and `@` is a name
@@ -71,6 +66,89 @@ pub(super) fn may_write_an_at_name(text: &str) -> bool {
     })
 }
 
+/// The keywords whose line can name a glyph — the ones `classify_line` reads a
+/// `GlyphDef`/`GlyphRef` off. Nothing else can hold a name pattern, which is
+/// what makes the filter below cheap.
+const GLYPH_NAME_KEYWORDS: [&str; 7] = [
+    "glyph",
+    "ref",
+    "map",
+    "remap",
+    "assert",
+    "assume",
+    "exclude-from-sample",
+];
+
+/// Whether `text` — one line, or a whole file — could write a glyph name as a
+/// *pattern* rather than in full.
+///
+/// The literal filters cannot see a pattern hit: `fo(o|q)` denotes `foo` while
+/// containing neither `foo` nor anything derivable from it, so a line that
+/// might carry one has to be tokenized. This keeps that from costing a pass
+/// over every pixel row: `(`, `|` and `*` are all *shape codes* too, so a
+/// metacharacter alone says nothing, and only a line whose first token is a
+/// keyword that names a glyph can be a pattern.
+pub(super) fn may_write_a_pattern(text: &str) -> bool {
+    text.lines().any(|line| {
+        let line = line.trim_start();
+        let keyword = line.split_ascii_whitespace().next().unwrap_or_default();
+        GLYPH_NAME_KEYWORDS.contains(&keyword)
+            && line[keyword.len()..].contains(['(', '|', '$', '*'])
+    })
+}
+
+/// Whether the written name `token` is a pattern that denotes `name`.
+///
+/// Expanded exactly as the pipeline expands it — name parts substituted first,
+/// then the grammar of the context the token sits in: a glyph block name reads
+/// a top-level `a|b` as two verbatim names, an operand reads it as one group
+/// (`pattern.rs` spells the difference out). Searching for `foo` therefore
+/// lists a `glyph fo(o|q)` line, and the span pushed for it is the pattern
+/// token as written, so that is what the pane highlights.
+///
+/// `parts` is the app's collected map, which holds the *unqualified*
+/// `name-parts` bindings only — a pattern spelled with a slice-qualified
+/// variable expands to nothing here and is listed only if it matches
+/// literally. That is the same map every other editor feature reads
+/// (`app/resize.rs`, the derived data in `app/background.rs`), so the search
+/// agrees with them rather than being right on its own.
+fn pattern_denotes(token: &str, is_def: bool, name: &str, parts: &NamePartsMap) -> bool {
+    if !token.contains(['(', '|', '$', '*']) {
+        return false;
+    }
+    let substituted = crate::document::substitute_name_parts(token, parts);
+    if substituted == name {
+        return true;
+    }
+    if !crate::document::is_name_pattern(&substituted) {
+        return false;
+    }
+    let parsed = if is_def {
+        NamePattern::parse(&substituted)
+    } else {
+        NamePattern::parse_element(&substituted)
+    };
+    parsed.is_ok_and(|p| p.matches(name))
+}
+
+/// Char-column spans on `line` at which `name` appears in the role `kind`
+/// names — the whole written token, so the search pane can highlight exactly
+/// what it matched (an anchor's sign, a quoted token's backticks and a pattern's
+/// alternatives included).
+///
+/// The cheap tests in front are what keep a search a click and not a wait:
+/// classifying a line costs a tokenizing pass, and a font directory is mostly
+/// pixel rows that can never match; over `font/` they took 9.9 ms → 1.7 ms.
+/// Most kinds' names occur **literally** in the source — a name-parts name
+/// carries its own `$`, and an anchor's sign only ever precedes the name — so
+/// the substring test cannot hide those. The two ways a glyph name can be
+/// written *without* occurring literally each have their own filter beside it,
+/// [`may_write_an_at_name`] and [`may_write_a_pattern`]. `search_name` leans on
+/// the same three tests one level up, per file.
+///
+/// The returned span is the written token as a whole, which the pane highlights
+/// so a long `remap` or `assert` row says where on it the name actually is.
+///
 /// `at_base` is the `@` base in force on this line — see
 /// [`crate::document::at_base_at_line`] for the rule, which the walkers below
 /// carry along as they go rather than re-deriving per line.
@@ -79,10 +157,12 @@ pub(super) fn match_spans(
     name: &str,
     kind: LinkTargetKind,
     at_base: Option<&str>,
+    name_parts: &NamePartsMap,
 ) -> Vec<(usize, usize)> {
     let at_possible =
         kind == LinkTargetKind::Glyph && at_base.is_some() && may_write_an_at_name(line);
-    if !line.contains(name) && !at_possible {
+    let pattern_possible = kind == LinkTargetKind::Glyph && may_write_a_pattern(line);
+    if !line.contains(name) && !at_possible && !pattern_possible {
         return Vec::new();
     }
     let mut cols = Vec::new();
@@ -105,10 +185,18 @@ pub(super) fn match_spans(
                 _ => {}
             },
             LinkTargetKind::Glyph => {
-                if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef)
-                    && crate::document::expand_at_name(&f.token, at_base) == name
-                {
-                    cols.push((f.col_start, f.col_end));
+                if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef) {
+                    let written = crate::document::expand_at_name(&f.token, at_base);
+                    if written == name
+                        || pattern_denotes(
+                            &written,
+                            f.role == FieldRole::GlyphDef,
+                            name,
+                            name_parts,
+                        )
+                    {
+                        cols.push((f.col_start, f.col_end));
+                    }
                 }
             }
             LinkTargetKind::Color => {
@@ -159,13 +247,14 @@ fn hits_in_doclines(
     lines: &[DocLine],
     name: &str,
     kind: LinkTargetKind,
+    name_parts: &NamePartsMap,
 ) -> Vec<(usize, (usize, usize))> {
     let mut hits = Vec::new();
     let mut at_base: Option<String> = None;
     for (i, line) in lines.iter().enumerate() {
         let DocLine::Text(text) = line else { continue };
         hits.extend(
-            match_spans(text, name, kind, at_base.as_deref())
+            match_spans(text, name, kind, at_base.as_deref(), name_parts)
                 .into_iter()
                 .map(|s| (i, s)),
         );
@@ -279,6 +368,7 @@ pub(super) fn collect_hits(
     files: &[(PathBuf, SearchText<'_>)],
     name: &str,
     kind: LinkTargetKind,
+    name_parts: &NamePartsMap,
 ) -> (Vec<SearchHit>, usize) {
     let mut hits: Vec<SearchHit> = Vec::new();
     let mut file_count = 0usize;
@@ -286,8 +376,9 @@ pub(super) fn collect_hits(
         let before = hits.len();
         match text {
             SearchText::Buffer(lines, doc) => {
-                for (ordinal, (line_idx, span)) in
-                    hits_in_doclines(lines, name, kind).into_iter().enumerate()
+                for (ordinal, (line_idx, span)) in hits_in_doclines(lines, name, kind, name_parts)
+                    .into_iter()
+                    .enumerate()
                 {
                     hits.push(hit(
                         path,
@@ -300,7 +391,8 @@ pub(super) fn collect_hits(
             }
             SearchText::Source(content)
                 if content.contains(name)
-                    || (kind == LinkTargetKind::Glyph && may_write_an_at_name(content)) =>
+                    || (kind == LinkTargetKind::Glyph
+                        && (may_write_an_at_name(content) || may_write_a_pattern(content))) =>
             {
                 // Enumerated over occurrences, not over lines: a line naming
                 // the same glyph twice is two rows, and the ordinal has to
@@ -309,7 +401,7 @@ pub(super) fn collect_hits(
                 let mut found: Vec<(usize, &str, (usize, usize))> = Vec::new();
                 for (i, text) in content.lines().enumerate() {
                     found.extend(
-                        match_spans(text, name, kind, at_base.as_deref())
+                        match_spans(text, name, kind, at_base.as_deref(), name_parts)
                             .into_iter()
                             .map(|s| (i, text, s)),
                     );
@@ -356,7 +448,7 @@ impl UniformApp {
                 Some((path, text))
             })
             .collect();
-        let (hits, file_count) = collect_hits(&files, name, kind);
+        let (hits, file_count) = collect_hits(&files, name, kind, &self.name_parts);
         drop(files);
 
         self.search = Some(SearchResults {
@@ -402,10 +494,18 @@ impl UniformApp {
         };
         self.panes.show_document(idx);
 
-        let doc = &mut self.open_documents[idx];
-        let Some(&(line, (col, _))) = hits_in_doclines(&doc.lines, &name, kind).get(ordinal) else {
+        let hit = hits_in_doclines(
+            &self.open_documents[idx].lines,
+            &name,
+            kind,
+            &self.name_parts,
+        )
+        .get(ordinal)
+        .copied();
+        let Some((line, (col, _))) = hit else {
             return;
         };
+        let doc = &mut self.open_documents[idx];
         doc.editor_state.goto_caret(&doc.lines, line, col);
         if let Some(from) = from {
             self.nav_history.push(NavEntry {
@@ -429,7 +529,8 @@ mod tests {
         let path = PathBuf::from("/nonexistent/never-read.unf");
         let source = "glyph foo 8 16\nref bar 0 0\n";
         let files = vec![(path.clone(), SearchText::Source(source))];
-        let (hits, file_count) = collect_hits(&files, "bar", LinkTargetKind::Glyph);
+        let (hits, file_count) =
+            collect_hits(&files, "bar", LinkTargetKind::Glyph, &NamePartsMap::new());
         assert_eq!(file_count, 1);
         assert_eq!(hits.len(), 1);
         assert_eq!(hits[0].path, path);
@@ -442,7 +543,8 @@ mod tests {
     #[test]
     fn a_file_with_no_source_contributes_no_hits() {
         let files: Vec<(PathBuf, SearchText)> = Vec::new();
-        let (hits, file_count) = collect_hits(&files, "bar", LinkTargetKind::Glyph);
+        let (hits, file_count) =
+            collect_hits(&files, "bar", LinkTargetKind::Glyph, &NamePartsMap::new());
         assert!(hits.is_empty());
         assert_eq!(file_count, 0);
     }
@@ -450,7 +552,11 @@ mod tests {
     /// Start columns only; the spans' ends are pinned separately, by the
     /// highlight tests.
     fn cols(line: &str, name: &str, kind: LinkTargetKind) -> Vec<usize> {
-        match_spans(line, name, kind, None)
+        cols_with(line, name, kind, &NamePartsMap::new())
+    }
+
+    fn cols_with(line: &str, name: &str, kind: LinkTargetKind, parts: &NamePartsMap) -> Vec<usize> {
+        match_spans(line, name, kind, None, parts)
             .into_iter()
             .map(|(s, _)| s)
             .collect()
@@ -476,6 +582,109 @@ mod tests {
             cols("assert same foo bar", "foo", LinkTargetKind::Glyph),
             vec![12],
         );
+    }
+
+    /// A name written as a pattern is an appearance of every name it denotes,
+    /// wherever the pattern stands — the definition, a `ref`, an operand.
+    #[test]
+    fn a_pattern_token_that_denotes_the_name_is_an_appearance() {
+        for (line, col) in [
+            ("glyph fo(o|q) 8 16", 6),
+            ("ref fo(o|q) 0 0", 4),
+            ("remap liga : fo(o|q) -> bar", 13),
+            ("glyph foo|bar 8 16", 6),
+        ] {
+            assert_eq!(
+                cols(line, "foo", LinkTargetKind::Glyph),
+                vec![col],
+                "{line}"
+            );
+        }
+        assert_eq!(
+            cols(
+                "glyph uni($#0041..0043) 8 16",
+                "uni0042",
+                LinkTargetKind::Glyph
+            ),
+            vec![6],
+        );
+    }
+
+    /// The cyclic expansion is what decides it: `(a|b)-(1|2)` is `a-1` and
+    /// `b-2`, so `a-2` is not one of its names and its line is not a hit.
+    #[test]
+    fn a_pattern_that_does_not_denote_the_name_is_not_an_appearance() {
+        assert!(cols("glyph fo(p|q) 8 16", "foo", LinkTargetKind::Glyph).is_empty());
+        assert!(cols("glyph (a|b)-(1|2) 2 2", "a-2", LinkTargetKind::Glyph).is_empty());
+        assert_eq!(
+            cols("glyph (a|b)-(1|2) 2 2", "b-2", LinkTargetKind::Glyph),
+            vec![6]
+        );
+    }
+
+    /// A pattern spelled with a `$var` denotes what the name parts say it
+    /// does, so the search has to substitute them exactly as the pipeline does.
+    #[test]
+    fn a_name_part_is_substituted_before_the_pattern_is_matched() {
+        let mut parts = NamePartsMap::new();
+        parts.insert("$init".to_string(), vec!["g".to_string(), "n".to_string()]);
+        assert_eq!(
+            cols_with(
+                "glyph hangul-($init) 8 16",
+                "hangul-n",
+                LinkTargetKind::Glyph,
+                &parts
+            ),
+            vec![6],
+        );
+        assert!(
+            cols_with(
+                "glyph hangul-($init) 8 16",
+                "hangul-d",
+                LinkTargetKind::Glyph,
+                &parts
+            )
+            .is_empty()
+        );
+        // With no parts in force the reference expands to nothing, and a
+        // pattern that denotes no name is no appearance.
+        assert!(
+            cols(
+                "glyph hangul-($init) 8 16",
+                "hangul-n",
+                LinkTargetKind::Glyph
+            )
+            .is_empty()
+        );
+    }
+
+    /// The whole pattern token is the span, so the pane highlights what the
+    /// line actually says rather than the name that was searched for.
+    #[test]
+    fn a_pattern_hit_highlights_the_whole_pattern_token() {
+        let line = "    ref fo(o|q) 0 0";
+        let span = match_spans(
+            line,
+            "foo",
+            LinkTargetKind::Glyph,
+            None,
+            &NamePartsMap::new(),
+        )[0];
+        let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
+        assert_eq!(&h.text[h.highlight.0..h.highlight.1], "fo(o|q)");
+    }
+
+    /// The cheap filters in front decide whether a line is tokenized at all,
+    /// and a pixel row must still be rejected — `(`, `|` and `*` are shape
+    /// codes as much as they are pattern syntax.
+    #[test]
+    fn only_a_keyword_line_can_be_carrying_a_pattern() {
+        assert!(may_write_a_pattern("glyph fo(o|q) 8 16"));
+        assert!(may_write_a_pattern("  ref hangul-($init) 0 0"));
+        assert!(may_write_a_pattern("assume unused foo*3"));
+        assert!(!may_write_a_pattern("(((|.@@bb"));
+        assert!(!may_write_a_pattern("glyph foo 8 16"));
+        assert!(!may_write_a_pattern("color red = #ff0000"));
     }
 
     #[test]
@@ -616,7 +825,13 @@ mod tests {
     #[test]
     fn the_highlight_follows_the_trimmed_text() {
         let line = "    ref foo 0 0";
-        let span = match_spans(line, "foo", LinkTargetKind::Glyph, None)[0];
+        let span = match_spans(
+            line,
+            "foo",
+            LinkTargetKind::Glyph,
+            None,
+            &NamePartsMap::new(),
+        )[0];
         let h = hit(std::path::Path::new("a.unf"), 0, 3, line, span);
         assert_eq!(h.text, "ref foo 0 0");
         assert_eq!(&h.text[h.highlight.0..h.highlight.1], "foo");
@@ -647,7 +862,7 @@ mod tests {
                 "$init",
             ),
         ] {
-            let span = *match_spans(line, name, kind, None)
+            let span = *match_spans(line, name, kind, None, &NamePartsMap::new())
                 .first()
                 .unwrap_or_else(|| panic!("no match in {line:?}"));
             let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
@@ -659,7 +874,13 @@ mod tests {
     #[test]
     fn each_row_highlights_its_own_occurrence() {
         let line = "glyph foo = foo";
-        let spans = match_spans(line, "foo", LinkTargetKind::Glyph, None);
+        let spans = match_spans(
+            line,
+            "foo",
+            LinkTargetKind::Glyph,
+            None,
+            &NamePartsMap::new(),
+        );
         assert_eq!(spans.len(), 2);
         let hits: Vec<_> = spans
             .into_iter()
@@ -680,7 +901,7 @@ mod tests {
             DocLine::Text("map A = foo".to_string()),
         ];
         assert_eq!(
-            hits_in_doclines(&lines, "foo", LinkTargetKind::Glyph),
+            hits_in_doclines(&lines, "foo", LinkTargetKind::Glyph, &NamePartsMap::new()),
             vec![(0, (6, 9)), (2, (4, 7)), (3, (8, 11))],
         );
     }
@@ -695,14 +916,19 @@ mod tests {
         let path = PathBuf::from("/nonexistent/never-read.unf");
         let source = "glyph foo\nref @-bar\nglyph @-bar\nmap A = foo-bar\n";
         let files = vec![(path, SearchText::Source(source))];
-        let (hits, _) = collect_hits(&files, "foo-bar", LinkTargetKind::Glyph);
+        let (hits, _) = collect_hits(
+            &files,
+            "foo-bar",
+            LinkTargetKind::Glyph,
+            &NamePartsMap::new(),
+        );
         assert_eq!(
             hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
             vec!["ref @-bar", "glyph @-bar", "map A = foo-bar"],
         );
         // And the base itself is not one of its own family's appearances.
         let files = vec![(PathBuf::from("x.unf"), SearchText::Source(source))];
-        let (hits, _) = collect_hits(&files, "foo", LinkTargetKind::Glyph);
+        let (hits, _) = collect_hits(&files, "foo", LinkTargetKind::Glyph, &NamePartsMap::new());
         assert_eq!(
             hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
             vec!["glyph foo"],
