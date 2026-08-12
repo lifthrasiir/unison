@@ -69,39 +69,45 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
         [slice, colon, tail @ ..] if colon.value == ":" && slice.value != ":" => tail,
         _ => rest,
     };
+    // The arities are the parser's own, in the parser's order — a variation
+    // sequence writes its base and its selector as two tokens, and *both* are
+    // text worth spelling out (the selector especially, being invisible).
     let generate = rest.first().is_some_and(|s| s.value == "generate");
-    let char_span = match (generate, rest.len()) {
-        (false, 3) if rest[1].value == "=" => &rest[0],
-        (true, 2) => &rest[1],
-        (true, 4) if rest[2].value == "=" => &rest[1],
+    let char_spans: &[TokenSpan] = match (generate, rest.len()) {
+        (_, 3) if rest[1].value == "=" => &rest[0..1],
+        (true, 2) => &rest[1..2],
+        (true, 4) if rest[2].value == "=" => &rest[1..2],
+        (true, 3) => &rest[1..3],
+        (true, 5) if rest[3].value == "=" => &rest[1..3],
+        (false, 4) if rest[2].value == "=" => &rest[0..2],
         _ => return Vec::new(),
     };
 
-    let value = char_span.value.as_str();
-    let quoted = char_span.raw_end - char_span.raw_start != value.chars().count();
+    let mut out = Vec::new();
+    for char_span in char_spans {
+        let value = char_span.value.as_str();
+        let quoted = char_span.raw_end - char_span.raw_start != value.chars().count();
 
-    // A pipe list annotates each literal part in place; that is only possible
-    // when the token is unquoted, since quoting shifts the inner offsets.
-    if !quoted && value.contains('|') {
-        let mut out = Vec::new();
-        for (part, end_off) in split_top_level_pipes_with_ends(value) {
-            if let Some(text) = codepoint_annotation(part) {
-                out.push(InlineAnnotation {
-                    col: leading + char_span.raw_start + end_off,
-                    text,
-                });
+        // A pipe list annotates each literal part in place; that is only
+        // possible when the token is unquoted, since quoting shifts the inner
+        // offsets.
+        if !quoted && value.contains('|') {
+            for (part, end_off) in split_top_level_pipes_with_ends(value) {
+                if let Some(text) = codepoint_annotation(part) {
+                    out.push(InlineAnnotation {
+                        col: leading + char_span.raw_start + end_off,
+                        text,
+                    });
+                }
             }
+        } else if let Some(text) = codepoint_annotation(value) {
+            out.push(InlineAnnotation {
+                col: leading + char_span.raw_end,
+                text,
+            });
         }
-        return out;
     }
-
-    match codepoint_annotation(value) {
-        Some(text) => vec![InlineAnnotation {
-            col: leading + char_span.raw_end,
-            text,
-        }],
-        None => Vec::new(),
-    }
+    out
 }
 
 /// `assert shape TEXT …`: spell out every codepoint of the shaped text.
@@ -447,6 +453,53 @@ mod tests {
     fn an_explicit_variation_sequence_is_not_annotated() {
         assert!(ann("map U+0030 U+FE0F = num-zero-emoji").is_empty());
         assert!(ann("map generate U+0030 U+FE0F").is_empty());
+    }
+
+    /// `map BASE SELECTOR = GLYPH` is the same sequence written as two tokens,
+    /// so each half is spelled out where it stands. The selector half is the
+    /// one that most needs it — written literally it is invisible.
+    #[test]
+    fn a_two_token_variation_sequence_annotates_both_halves() {
+        assert_eq!(
+            ann("map 0 U+FE0F = num-zero-emoji"),
+            vec![(5, " U+0030".to_string())],
+        );
+        assert_eq!(
+            ann("map U+0030 \u{FE0F} = num-zero-emoji"),
+            vec![(12, " U+FE0F".to_string())],
+        );
+        assert_eq!(
+            ann("map 0 \u{FE0F} = num-zero-emoji"),
+            vec![(5, " U+0030".to_string()), (7, " U+FE0F".to_string())],
+        );
+        // A range on the base half is written `U+…`, so only the selector is.
+        assert_eq!(
+            ann("map U+0030..0039 \u{FE0F} = num-(zero|one)-emoji"),
+            vec![(18, " U+FE0F".to_string())],
+        );
+    }
+
+    /// `map generate BASE SELECTOR [= GLYPH]` parses as its own arity, and is
+    /// annotated like the plain pair form.
+    #[test]
+    fn a_generated_two_token_sequence_annotates_both_halves() {
+        assert_eq!(
+            ann("map generate 0 \u{FE0F}"),
+            vec![(14, " U+0030".to_string()), (16, " U+FE0F".to_string())],
+        );
+        assert_eq!(
+            ann("map generate 0 \u{FE0F} = num-zero-emoji"),
+            vec![(14, " U+0030".to_string()), (16, " U+FE0F".to_string())],
+        );
+    }
+
+    /// A slice qualifier comes off before the arity is read, pair form included.
+    #[test]
+    fn a_slice_qualified_pair_annotates_both_halves() {
+        assert_eq!(
+            ann("map narrow : 0 \u{FE0F} = num-zero-emoji"),
+            vec![(14, " U+0030".to_string()), (16, " U+FE0F".to_string())],
+        );
     }
 
     /// A pipe list is annotated part by part, and must not be run together into
