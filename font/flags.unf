@@ -925,6 +925,21 @@ ref 14x14 1 1 fill #000000
 ref 14x4p2r3 1 1 fill #0072CE
 ref 14x-4p2r3 1 10 fill #FFFFFF
 
+// Western Sahara (aspect 2:1 -> 1:1, division 1:2 & 1:1:1)
+// outer & inner circle diameter / height = 5/21 & 5/21
+// outer & inner circle center from flag center / height = 1/42 & 1/42
+// star-circumscribing circle diameter / height = 4/21
+glyph flag-eh:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #FFFFFF
+ref 14x4p2r3 2 2 fill #000000
+ref 14x-4p2r3 2 20 fill #007A3D
+ref 4p2r3x7-dl 2 2 fill #C4111B
+ref 4p2r3x7-ul 2 16 fill #C4111B
+ref 3p1r3x_3p1r3-circle 14 12 fill #C4111B
+ref -3p1r3x_3p1r3-circle 14 12 fill #FFFFFF
+ref _2p2r3x_2p2r3-poly5r2 15 13 fill #C4111B
+
 // European Union (aspect 3:2 -> 1:1)
 // star center from flag center / height = 1/3
 // star-circumscribing circle diameter / height = 1/9
@@ -1203,6 +1218,20 @@ glyph @-david 6 6 scale 2
 ..........\VV/..........
 ..........`VV'..........
 
+// India (aspect 3:2 -> 1:1, division 1:1:1)
+// chakra rim outer & inner diameter / height = 3/10 & 6/23
+// chakra inner circle diameter / height = 6/115
+// chakra spoke outer & middle & inner diameter / height = 63/230 & 6/115 & 3/230 -> 63/230 & ignored & 9/115
+// chakra small circle diameter / height = 3/460 (not reproduced)
+glyph flag-in:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #FFFFFF
+ref 14x4p2r3 2 2 fill #FF671F
+ref 14x-4p2r3 2 20 fill #046A38
+ref _4p1r5x_4p1r5-circle 11 11 fill #06038D
+ref _3p2r3x_3p2r3-circle 12 12 fill #FFFFFF
+ref _3p5r6x_3p5r6-poly24.712 12 12 fill #06038D
+
 // Iceland (aspect 25:18 -> 19:14, division 7:1:2:1:14 & 7:1:2:1:7 -> 4+5/7:1:2:1:9+2/7 & 7:1:2:1:7)
 glyph flag-is:color 16 16
 ref 16x16 0 0 fill #00000080
@@ -1288,6 +1317,26 @@ ref _6p2r3x_6p2r3-circle 0 0 negated
 glyph @-yurt3 8 8
 ref _7p2r3x_7p2r3-circle
 ref _7p1r3x_7p1r3-circle 0 0 negated
+
+// Comoros (aspect 5:3 -> 1:1, division 1:1 & 1:1:1:1)
+// outer & inner circle diameter / height = 17/36 & 11/24 -> 17/54 & 11/36
+// outer & inner circle center from flag left / height = 41/144 & 3/8 -> whatever this is
+// star-circumscribing circle diameter / height = 7/72 -> 7/108
+// star-circumscribing circle distance / height = 5/48 -> 5/72
+glyph flag-km:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x7 2 2 fill #FFFFFF
+ref 14x3p1r2 2 2 fill #FFD100
+ref 14x7 2 16 fill #EF3340
+ref 14x-3p1r2 2 22 fill #003DA5
+ref 7x7-dl 2 2 fill #009639
+ref 7x7-ul 2 16 fill #009639
+ref _4p2r5x_4p2r5-circle 2 11 fill #FFFFFF
+ref _4p1r4x_4p1r4-circle 4 11 fill #009639
+ref -0p9r10x_0p9r10-poly5r2 7 12 fill #FFFFFF
+ref -0p9r10x_0p9r10-poly5r2 7 14 fill #FFFFFF
+ref -0p9r10x_0p9r10-poly5r2 7 16 fill #FFFFFF
+ref -0p9r10x_0p9r10-poly5r2 7 18 fill #FFFFFF
 
 // North Korea (aspect 33:20 -> 1:1, division 59:80:158 & 30:5:110:5:30 -> 20:80:80 & 30:5+1/7:109+5/7:5+1/7:30)
 glyph flag-kp:color 16 16 scale 6
@@ -1382,6 +1431,20 @@ ref 4x-9p5r6-dl 24 11 fill #000000
 ref -4p2r3x5p2r3-dr 9 24 fill #fcd116
 ref 4p2r3x5p2r3-dl 24 24 fill #fcd116
 
+// Liberia (aspect 19:10 -> 14:11, division 50:159 & 1:..:1 -> 5:9 & 1:..:1)
+// star-circumscribing circle diameter / height = "large" -> 10/33
+glyph flag-lr:color 16 16 scale 2
+ref 16x13 0 2 fill #00000080
+ref 14x11 2 4 fill #FFFFFF
+ref 14x1 2 4 fill #BF0A30
+ref 14x1 2 8 fill #BF0A30
+ref 14x1 2 12 fill #BF0A30
+ref 14x1 2 16 fill #BF0A30
+ref 14x1 2 20 fill #BF0A30
+ref 14x1 2 24 fill #BF0A30
+ref 5x5 2 4 fill #002868
+ref _3p1r3x_3p1r3-poly5r2 3 5 fill #FFFFFF
+
 // Lithuania (aspect 5:3 -> 1:1, ratio 1:1:1)
 glyph flag-lt:color 16 16
 ref 16x16 0 0 fill #00000080
@@ -1402,6 +1465,21 @@ ref 16x16 0 0 fill #00000080
 ref 14x14 1 1 fill #FFFFFF
 ref 14x5p3r5 1 1 fill #9D2235
 ref 14x-5p3r5 1 9 fill #9D2235
+
+// Libya (aspect 2:1 -> 1:1, division 1:2:1)
+// outer & inner circle diameter / height = 1/4 & (15sqrt(2)-16)/24
+// inner circle center from flag center / height = (15sqrt(2)-12)/48
+// crescent width / height = 1/24
+// star-circumscribing circle diameter / height = (5-sqrt(5))*sqrt(5+sqrt(5))/40
+// star center from flag center / height = (40+(5-sqrt(5))*sqrt(5+sqrt(5)))/320
+glyph flag-ly:color 16 16 scale 6
+ref 16x16 0 0 fill #00000080
+ref 14x14 6 6 fill #000000
+ref 14x3p1r2 6 6 fill #E70013
+ref 14x-3p1r2 6 66 fill #239E46
+ref _3p1r2x_3p1r2-circle 36 36 fill #FFFFFF
+ref 3x3-circle 41 39 fill #000000
+ref _2p3r5x_2p3r5-poly5r2-ccw90 51 39 fill #FFFFFF
 
 // Morocco (aspect 3:2 -> 1:1)
 // star-circumscribing circle diameter / height = 1/2
@@ -1442,6 +1520,46 @@ ref 14x7 1 1 fill #f9423a
 ref 14x7 1 8 fill #00843d
 ref 4p2r3x14 1 1 fill #ffffff
 
+// Marshall Islands (aspect 19:10 -> 1:1, division 238:4:4:4 & 4:49:49:148)
+// outer & center & inner star diameter / height = 31/50 & 111/250 & 49/250
+glyph flag-mh:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #003893
+ref 14x13p1r10-dr 2 3 fill #DD7500
+ref 14x-0p4r10 2 28 fill #DD7500
+ref 14x_10p4r7-dr 2 8 fill #FFFFFF
+ref 14x-0p3r14 2 28 fill #FFFFFF
+ref 14x_8p1r15-dr 2 13 fill #003893
+ref _6p2r9x_6p2r9-poly24.555 4 4 fill #FFFFFF
+ref _8p2r3x_8p2r3-poly4.887 2 2 fill #FFFFFF
+
+// North Macedonia (aspect 2:1 -> 1:1, division 3:6:2:6:3 & 4:2:4)
+// red & yellow circle diameter / height = 5/14 & 2/7
+// ray-touching internal circle diameter / height = 3/14
+glyph flag-mk:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #CE2028
+ref -5p9r10x8-dl 6 2 fill #F9D616
+ref 5p9r10x8-dr 14 2 fill #F9D616
+ref -5p9r10x8-ul 6 14 fill #F9D616
+ref 5p9r10x8-ur 14 14 fill #F9D616
+ref 2p1r10x14 2 2 fill #F9D616
+ref -2p1r10x14 24 2 fill #F9D616
+ref -0p7r10x5p5r10-ur 14 2 fill #F9D616
+ref 0p7r10x5p5r10-ul 16 2 fill #F9D616
+ref -0p7r10x-5p5r10-dr 14 18 fill #F9D616
+ref 0p7r10x-5p5r10-dl 16 18 fill #F9D616
+ref 8x8-dl 2 2 fill #CE2028
+ref 8x8-dr 14 2 fill #CE2028
+ref 8x8-ul 2 14 fill #CE2028
+ref 8x8-ur 14 14 fill #CE2028
+ref 7x-1p4r10-dl 2 12 fill #F9D616
+ref 7x1p4r10-ul 2 16 fill #F9D616
+ref 7x-1p4r10-dr 16 12 fill #F9D616
+ref 7x1p4r10-ur 16 16 fill #F9D616
+ref 5x5-circle 11 11 fill #CE2028
+ref 4x4-circle 12 12 fill #F9D616
+
 // Mali (aspect 3:2 -> 1:1, division 1:1:1)
 glyph flag-ml:color 16 16
 ref 16x16 0 0 fill #00000080
@@ -1457,6 +1575,23 @@ ref 14x14 2 2 fill #34B233
 ref 14x4p2r3 2 2 fill #FECB00
 ref 14x-4p2r3 2 20 fill #EA2839
 ref _10p1r3x_10p1r3-poly5r2 5 6 fill #FFFFFF
+
+// Mauritania (aspect 3:2 -> 1:1, division 1:3:1)
+// circle diameter / height = 3/4
+// crescent width / height = 51/500
+// star height / flag height = 191/1000
+// star bottom from inner circle bottom / height = 107/1000
+glyph flag-mr:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #00A95C
+ref 14x2p4r5 2 2 fill #D01C1F
+ref 14x-2p4r5 2 24 fill #D01C1F
+ref @-crescent 4 0 fill #FFD700
+ref _3p1r3x-3p1r3-poly5r2 12 9 fill #FFD700
+
+glyph @-crescent 12 11 scale 2
+ref _10p1r2x_10p1r2-circle 1 0
+ref _10p1r2x_10p1r2-circle 1 -3 negated
 
 // Mauritius (aspect 3:2 -> 1:1, division 1:1:1:1)
 glyph flag-mu:color 16 16
@@ -1478,6 +1613,84 @@ ref @-crescent 13 11 fill #FFFFFF
 glyph @-crescent 5 5 scale 8
 ref _4p2r3x_4p2r3-circle
 ref _4p2r3x_4p2r3-circle 7 0 negated
+
+// Malawi (aspect 3:2 -> 1:1, division 1:1:1)
+// ray outer & inner circle diameter / height = 1/3 & 29/120 (inner circle center is vertically offset by 1/40)
+// sun diameter / height = 5/24
+// total cropped height / flag height = 17/60
+glyph flag-mw:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #CE1126
+ref 14x4p2r3 2 2 fill #000000
+ref 14x-4p2r3 2 20 fill #339E35
+ref @-sun 2 2 fill #CE1126
+
+glyph @-sun 14 5 scale 2
+ref _9p1r3x-9p1r3-poly66.274 4 -1
+ref _6p2r3x_6p2r3-circle 7 3 negated
+ref _5p5r6x_5p5r6-circle 8 4
+ref 14x-5p5r10 0 8 negated
+
+// Malaysia (aspect 2:1 -> 1:1, division 1:1 & 1:..:1 -> 3:1 & 1:..:1)
+// crescent outer & inner circle diameter / height = 3/7 & 8/21
+// star outer & inner circle diameter / height = 5/14 & 1/7
+// crescent outer & inner circle center distance / height = 1/21
+// star center from crescent outer center / height = 3/14
+glyph flag-my:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #FFFFFF
+ref @-stripes 2 2 fill #CC0001
+ref 10p1r2x8 2 2 fill #010066
+ref 6x6-circle 4 4 fill #FFCC00
+ref 5p1r3x_5p1r3-circle 6 4 fill #010066
+ref 5x5-poly14.590 11 5 fill #FFCC00
+
+glyph @-stripes 14 14 scale 2
+..........................................@@@@@@@@@@@@@@
+..........................................@@@@@@@@@@@@@@
+........................................................
+........................................................
+..........................................@@@@@@@@@@@@@@
+..........................................@@@@@@@@@@@@@@
+........................................................
+........................................................
+..........................................@@@@@@@@@@@@@@
+..........................................@@@@@@@@@@@@@@
+........................................................
+........................................................
+..........................................@@@@@@@@@@@@@@
+..........................................@@@@@@@@@@@@@@
+........................................................
+........................................................
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+........................................................
+........................................................
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+........................................................
+........................................................
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+........................................................
+........................................................
+
+// Namibia (aspect 3:2 -> 1:1)
+// red stripe width / height = 1/4
+// white stripe width / height = 1/24
+// star outer & inner diameter / height = 1/3 & 1/5
+// star rim width / height = 1/60
+// star center from flag left & top / height = 3/10 & (87sqrt(13)-281)/120 -> whatever this is
+glyph flag-na:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x14 2 2 fill #C8102E
+ref 11p1r2x11p1r2-ul 2 2 fill #FFFFFF
+ref -11p1r2x-11p1r2-dr 6 6 fill #FFFFFF
+ref 10p7r10x10p7r10-ul 2 2 fill #002F6C
+ref -10p7r10x-10p7r10-dr 8 8 fill #009A44
+ref _4p1r2x_4p1r2-poly12.379 3 3 fill #FFCD00
+ref _2p4r5x_2p4r5-circle 5 5 fill #002F6C
+ref _2p1r3x_2p1r3-circle 5 5 fill #FFCD00
 
 // Niger (aspect 7:6 -> 1:1, division 1:1:1)
 // circle diameter / height = 17/60?
@@ -1697,6 +1910,24 @@ ref 16x16 0 0 fill #00000080
 ref 14x14 2 2 fill #005583
 ref 2p4r5x14 10 2 fill #FFC200
 ref 14x_2p4r5 2 13 fill #FFC200
+
+// Singapore (aspect 3:2 -> 1:1, division 1:1)
+// outer & inner circle diameter / height = 53/144 & 53/144
+// outer & inner circle center from flag left / height = 2281/7200 & 2881/7200
+// constellation circle center from flag left / height = 167/400
+// constellation circle diameter / height = 19/90
+// star-circumscribing circle diameter / height = 23/240
+glyph flag-sg:color 16 16 scale 2
+ref 16x16 0 0 fill #00000080
+ref 14x7 2 2 fill #EE2536
+ref 14x7 2 16 fill #FFFFFF
+ref -5p1r6x_5p1r6-circle 4 3 fill #FFFFFF
+ref 5p1r6x_5p1r6-circle 8 3 fill #EE2536
+ref -1p1r3x_1p1r3-poly5r2 11 4 fill #FFFFFF
+ref -1p1r3x1p1r3-poly5r2 14 7 fill #FFFFFF
+ref 1p1r3x-1p1r3-poly5r2 14 9 fill #FFFFFF
+ref -1p1r3x-1p1r3-poly5r2 9 9 fill #FFFFFF
+ref -1p1r3x1p1r3-poly5r2 8 7 fill #FFFFFF
 
 // Svalbard and Jan Mayen
 glyph flag-sj:color = flag-no:color
@@ -1963,6 +2194,34 @@ ref _0p8r10x_0p8r10-poly5r2 30 58 negated
 ref _0p8r10x_0p8r10-poly5r2 40 58 negated
 ref _0p8r10x_0p8r10-poly5r2 50 58 negated
 
+// Uzbekistan (aspect 2:1 -> 1:1, division 16:1:16:1:16)
+// outer & inner circle diameter / height = 6/25 & 6/25
+// outer & inner circle center from flag left / height = 7/25 & 8/25 -> 5/25 & 6/25
+// leftmost star center from flag left / height = 44/125 -> 34/125
+// star-circumscribing circle diameter / height = 6/125
+// star-circumscribing circle distance / height = 12/125 (in both directions)
+glyph flag-uz:color 16 16 scale 3
+ref 16x16 0 0 fill #00000080
+ref 14x14 3 3 fill #FFFFFF
+ref 14x4p3r4 3 3 fill #EE162E
+ref 14x4p1r2 3 3 fill #3081F7
+ref 14x-4p3r4 3 30 fill #EE162E
+ref 14x-4p1r2 3 30 fill #308738
+ref -3p1r3x_3p1r3-circle 4 4 fill #FFFFFF
+ref 3p1r3x_3p1r3-circle 8 4 fill #3081F7
+ref _0p2r3x_0p2r3-poly5r2 21 4 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 25 4 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 29 4 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 17 8 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 21 8 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 25 8 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 29 8 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 13 12 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 17 12 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 21 12 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 25 12 fill #FFFFFF
+ref _0p2r3x_0p2r3-poly5r2 29 12 fill #FFFFFF
+
 // Saint Vincent and the Grenadines (aspect 3:2 -> 1:1, division 1:2:1)
 glyph flag-vc:color 16 16
 ref 16x16 0 0 fill #00000080
@@ -2072,22 +2331,22 @@ name-parts $flag-a = e g m r t w x z
 name-parts $flag-b = a d e f g h i j o r s v w
 name-parts $flag-c = a d f g h i l m n o p r v u w z
 name-parts $flag-d = e j k z
-name-parts $flag-e = e u
+name-parts $flag-e = e h u
 name-parts $flag-f = i m o r
 name-parts $flag-g = a b f g h l m n r w y
 name-parts $flag-h = n u
-name-parts $flag-i = d e l s t
+name-parts $flag-i = d e l n s t
 name-parts $flag-j = m o p
-name-parts $flag-k = g p r w
-name-parts $flag-l = a c t u v
-name-parts $flag-m = a c g l m u v
-name-parts $flag-n = e g l r o
+name-parts $flag-k = g m p r w
+name-parts $flag-l = a c r t u v y
+name-parts $flag-m = a c g h k l m r u v w y
+name-parts $flag-n = a e g l r o
 name-parts $flag-p = a e k l r s w
 name-parts $flag-q = a
 name-parts $flag-r = e o u w
-name-parts $flag-s = b c d e j l n o r s t y
+name-parts $flag-s = b c d e g j l n o r s t y
 name-parts $flag-t = d g h l n o r t w z
-name-parts $flag-u = a m s
+name-parts $flag-u = a m s z
 name-parts $flag-v = c n
 name-parts $flag-w = s f
 name-parts $flag-y = e
