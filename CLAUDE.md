@@ -202,6 +202,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |
 | Folding a glyph block: what a group is, and when the group list is recomputed | `editor/folding.rs` |
 | Where a caret goes when a fold swallows the line it was on, and what a fold does to a selection | `editor/folding.rs` (`toggle_at`, `snap_caret`) |
+| Which glyph blocks start folded, and the font height that decides it | `editor/folding.rs` (`apply_initial`) |
 | Why closing a fold may scroll and opening one may not | `editor/folding.rs` (`FoldScroll`), `document_view/scroll.rs` |
 | The gutter's marker column, and why it is reserved a frame behind the page | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`) |
 | Split panes, their invariants and key chords | `app/panes.rs` |

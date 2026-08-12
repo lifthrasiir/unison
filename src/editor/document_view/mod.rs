@@ -370,6 +370,15 @@ fn show_document(
     // Folding is derived from the *parsed* document, so this only does work on
     // the frames a reparse actually landed on. See `folding`.
     state.folds.sync(doc, lines);
+    // A caret parked anywhere but the start of the buffer is one the host put
+    // there — the editor was opened *at* that line — so its group stays open.
+    let opened_at = (state.cursor != Caret::new(0, 0)).then_some(state.cursor.line);
+    if state.folds.apply_initial(doc, lines, env.meta, opened_at) {
+        state.cursor =
+            state
+                .folds
+                .snap_caret(lines, state.cursor, crate::editor::folding::Snap::Up);
+    }
 
     let scroll_y_id = state.key(Slot::ScrollY);
     let viewport_h_id = state.key(Slot::ViewportH);

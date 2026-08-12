@@ -26,6 +26,26 @@
 //! That is precisely the behaviour folding wants, and [`FoldState::sync`] gets
 //! it for free by keying off `Document::edit_gen`.
 //!
+//! # Why a tall glyph starts folded
+//!
+//! A `scale N` glyph's grid is stored in *subcells* — `document_io` multiplies
+//! the declared dimensions by the scale — and the editor draws one cell per
+//! subcell, so a `16 16 scale 4` block is 64 rows of grid where an ordinary
+//! glyph is 16. A handful of those turn a file into something that has to be
+//! scrolled past rather than read, so [`FoldState::apply_initial`] collapses
+//! every glyph whose grid draws taller than twice the font height, once, when
+//! the buffer is first laid out.
+//!
+//! The font height it measures against is whatever `meta` says on that first
+//! frame, which before the background derive lands is
+//! [`crate::meta::FontMetrics::DEFAULT_HEIGHT`]. That is deliberate: the
+//! default is the height nearly every source states anyway, and waiting for the
+//! derive would leave a file on a slow share unfolded for as long as the build
+//! takes and then rearrange it under the reader. A source that declares an
+//! unusual `meta height` and is opened before its first derive can therefore
+//! fold by the default rather than by its own height — a fold the reader can
+//! undo, against a rearranging page they cannot.
+//!
 //! # Why collapsed groups are re-found by header text
 //!
 //! [`FoldState`] stores line *indices*, because that is what everything
@@ -113,7 +133,14 @@ pub(crate) struct FoldState {
     /// Bumped whenever the *visible* set of lines changes, so the view cache
     /// (which is keyed on it) rebuilds.
     visible_gen: u64,
+    /// Whether [`FoldState::apply_initial`] has run for this buffer. Reset by
+    /// [`FoldState::clear`], so a buffer replaced wholesale is folded afresh.
+    initial_applied: bool,
 }
+
+/// How tall a glyph's own grid may draw, as a multiple of the font height,
+/// before [`FoldState::apply_initial`] starts it collapsed.
+const INITIAL_FOLD_HEIGHT_RATIO: usize = 2;
 
 impl FoldState {
     /// Re-derives the group list when the document changed under it, and
@@ -160,6 +187,40 @@ impl FoldState {
         {
             self.visible_gen += 1;
         }
+    }
+
+    /// Collapses the glyph blocks that are too tall to start open, once per
+    /// buffer. Reports whether anything was collapsed.
+    ///
+    /// Must run after [`FoldState::sync`], whose group list it picks from.
+    /// `opened_at` is a line the editor was deliberately opened *at* (a search
+    /// hit, a followed link): the group holding it is left open, because a fold
+    /// over the very thing the user asked to see is not a saving.
+    pub(crate) fn apply_initial(
+        &mut self,
+        doc: &Document,
+        lines: &[DocLine],
+        meta: crate::meta::FontMetrics,
+        opened_at: Option<usize>,
+    ) -> bool {
+        if self.initial_applied {
+            return false;
+        }
+        self.initial_applied = true;
+        let limit = meta.height() as usize * INITIAL_FOLD_HEIGHT_RATIO;
+        let tall: Vec<FoldGroup> = doc
+            .items
+            .iter()
+            .enumerate()
+            .filter(|(_, item)| grid_display_height(item) > limit)
+            .filter_map(|(idx, _)| doc.item_line_starts.get(idx))
+            .filter_map(|&header| self.groups.iter().find(|g| g.header == header).copied())
+            .filter(|g| opened_at.is_none_or(|line| !g.contains(line)))
+            .collect();
+        for group in &tall {
+            self.toggle(lines, *group);
+        }
+        !tall.is_empty()
     }
 
     /// The groups of the document as last synced.
@@ -302,6 +363,108 @@ impl FoldState {
         self.collapsed.clear();
         self.groups.clear();
         self.synced_edit_gen = None;
+        self.initial_applied = false;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::document_io::{derive_document, parse_doclines};
+
+    /// A glyph block whose grid is `h` subcell rows tall, written the way the
+    /// parser wants it: two characters per subcell, and `scale` folded into the
+    /// stored dimensions by `derive_document`.
+    fn glyph(name: &str, w: u16, h: u16, scale: u16) -> String {
+        let mut out = format!("glyph {name} {w} {h}");
+        if scale > 1 {
+            out.push_str(&format!(" scale {scale}"));
+        }
+        out.push('\n');
+        for _ in 0..h * scale {
+            out.push_str(&".".repeat(w as usize * scale as usize * 2));
+            out.push('\n');
+        }
+        out
+    }
+
+    fn state_for(source: &str) -> (Document, Vec<DocLine>, FoldState) {
+        let lines = parse_doclines(source);
+        let (doc, _) = derive_document(&lines, "test.unf".into()).expect("derive");
+        let mut folds = FoldState::default();
+        folds.sync(&doc, &lines);
+        (doc, lines, folds)
+    }
+
+    /// Default metrics: height 16, so the limit is 32 subcell rows.
+    fn meta() -> crate::meta::FontMetrics {
+        crate::meta::FontMetrics::default()
+    }
+
+    #[test]
+    fn a_grid_taller_than_twice_the_font_height_starts_collapsed() {
+        // A grid is one `DocLine`, so the headers are lines 0, 2 and 4.
+        let src = glyph("small", 2, 16, 1) + &glyph("limit", 2, 16, 2) + &glyph("tall", 2, 16, 4);
+        let (doc, lines, mut folds) = state_for(&src);
+        assert!(folds.apply_initial(&doc, &lines, meta(), None));
+        assert!(!folds.is_collapsed(0), "an ordinary glyph stays open");
+        assert!(
+            !folds.is_collapsed(2),
+            "twice the font height is not more than it"
+        );
+        assert!(folds.is_collapsed(4));
+    }
+
+    #[test]
+    fn the_initial_fold_runs_once_and_a_reopened_group_stays_open() {
+        let src = glyph("tall", 2, 16, 4);
+        let (doc, lines, mut folds) = state_for(&src);
+        assert!(folds.apply_initial(&doc, &lines, meta(), None));
+        let group = folds.innermost_at(0).expect("group");
+        folds.toggle(&lines, group);
+        assert!(!folds.is_collapsed(0));
+
+        assert!(!folds.apply_initial(&doc, &lines, meta(), None), "once");
+        assert!(!folds.is_collapsed(0));
+
+        // A buffer replaced wholesale is folded afresh.
+        folds.clear();
+        folds.sync(&doc, &lines);
+        assert!(folds.apply_initial(&doc, &lines, meta(), None));
+        assert!(folds.is_collapsed(0));
+    }
+
+    #[test]
+    fn the_group_the_editor_was_opened_at_is_left_open() {
+        let src = glyph("tall", 2, 16, 4) + &glyph("tall2", 2, 16, 4);
+        let (doc, lines, mut folds) = state_for(&src);
+        // Line 1 is the first glyph's grid; 2 is the second one's header.
+        assert!(folds.apply_initial(&doc, &lines, meta(), Some(1)));
+        assert!(!folds.is_collapsed(0), "the glyph the jump landed in");
+        assert!(folds.is_collapsed(2));
+    }
+
+    #[test]
+    fn a_taller_font_folds_a_grid_that_a_shorter_one_would_not() {
+        let src = glyph("tall", 2, 16, 4);
+        let big = crate::meta::FontMetrics {
+            height: Some(32),
+            ..Default::default()
+        };
+        let (doc, lines, mut folds) = state_for(&src);
+        assert!(
+            !folds.apply_initial(&doc, &lines, big, None),
+            "64 rows is exactly twice a 32-pixel font height"
+        );
+    }
+}
+
+/// How many rows of grid a glyph item draws, in the subcells the editor gives
+/// a cell each. Zero for anything that is not a glyph with a grid of its own.
+fn grid_display_height(item: &DocumentItem) -> usize {
+    match item {
+        DocumentItem::Glyph { body, .. } => body.pixels.as_ref().map_or(0, |g| g.height as usize),
+        _ => 0,
     }
 }
 

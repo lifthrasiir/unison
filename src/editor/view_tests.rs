@@ -2527,6 +2527,9 @@ fn scrollbar_of_an_overlong_grid_is_pulled_into_view() {
         src.push('\n');
     }
     let mut h = EditorHarness::new(&src);
+    // Taller than twice the font height, so it opens folded; this test is
+    // about the block open.
+    h.click_fold_marker(0);
     h.click_grid_cell(1, 0, 0);
     h.frame();
     let bar = *h
@@ -4333,6 +4336,9 @@ fn edit_border_survives_the_top_grid_row_being_culled() {
     }
     source.push_str("\nglyph small 2 2\n@@@@\n@@@@\n");
     let mut h = EditorHarness::new(&source);
+    // Taller than twice the font height, so it opens folded; this test is
+    // about the block open.
+    h.click_fold_marker(0);
     h.state.mode = EditMode::GlyphEdit {
         item_idx: 0,
         selected_shape: crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
@@ -5053,6 +5059,37 @@ fn a_glyph_block_folds_down_to_its_header() {
     assert_view_consistent(&h);
 }
 
+/// A `scale N` grid draws one cell per subcell, so a `2 2 scale 32` block is
+/// 64 rows where the font is 16 pixels tall. The editor opens with it shut.
+#[test]
+fn a_glyph_taller_than_twice_the_font_height_opens_folded() {
+    let mut src = String::from("glyph a 2 2\n....\n....\nglyph big 2 2 scale 32\n");
+    for _ in 0..64 {
+        src.push_str(&".".repeat(128));
+        src.push('\n');
+    }
+    let mut h = EditorHarness::new(&src);
+    assert_eq!(
+        shown_lines(&h),
+        vec![0, 1, 2],
+        "the ordinary block is whole; the tall one is its header alone"
+    );
+    let shut: Vec<usize> = h
+        .fold_markers()
+        .iter()
+        .filter(|(.., shut)| *shut)
+        .map(|(l, ..)| *l)
+        .collect();
+    assert_eq!(shut, vec![2]);
+
+    // Opened by hand, it stays open: the initial fold is a one-shot.
+    h.click_fold_marker(2);
+    assert_eq!(shown_lines(&h), vec![0, 1, 2, 3]);
+    h.frame();
+    assert_eq!(shown_lines(&h), vec![0, 1, 2, 3]);
+    assert_view_consistent(&h);
+}
+
 #[test]
 fn every_foldable_block_gets_a_marker_and_the_shut_one_turns_its_triangle() {
     let mut h = EditorHarness::new(&fold_doc());
@@ -5208,6 +5245,9 @@ fn shutting_a_group_from_below_brings_its_header_to_the_top() {
     }
     src.push_str("ref x\nglyph x 2 2\n....\n....\n");
     let mut h = EditorHarness::new(&src);
+    // Taller than twice the font height, so it opens folded; this test is
+    // about the block open.
+    h.click_fold_marker(0);
 
     h.click_text(0, 0);
     h.key_mod(Key::End, Modifiers::COMMAND);
@@ -5347,6 +5387,9 @@ fn a_page_that_is_all_grid_still_carries_the_fold_bar() {
     }
     src.push_str("glyph z 2 2\n....\n....\n");
     let mut h = EditorHarness::new(&src);
+    // Taller than twice the font height, so it opens folded; this test is
+    // about the block open.
+    h.click_fold_marker(0);
     let at_top = h.snap().marker_width;
     assert!(at_top > 0.0);
 
