@@ -212,6 +212,7 @@ map 🞄 = black-circle-3
 map • = black-circle-4 // bullet punctuation
 map ⦁ = black-circle-5
 map ⚫ = black-circle-6
+map ⚫ U+FE0F = black-circle-6
 map ● = black-circle-7
 map ⬤ = black-circle-8
 
@@ -534,6 +535,7 @@ map ∘ = white-circle-2 // ring operator, narrow
 map ◦ = white-circle-4 // white bullet
 map ⚬ = white-circle-5
 map ⚪ = white-circle-6
+map ⚪ U+FE0F = white-circle-6
 map ○ = white-circle-7
 map ⭘ = white-circle-7w1
 map 🞅|🞆|🞇|🞈|🞉 = white-circle-7w($2..6)
@@ -1614,10 +1616,15 @@ map 🞌 = black-square-1
 map ⬝ = black-square-2
 map 🞍 = black-square-3
 map ▪ = black-square-4
+map ▪ U+FE0E = black-square-4
 map ◾ = black-square-5
+map ◾ U+FE0E = black-square-5
 map ◼ = black-square-6
+map ◼ U+FE0E = black-square-6
 map ■ = black-square-7
 map ⬛ = black-square-8
+map ⬛ U+FE0E = black-square-8:mono
+map ⬛ U+FE0F = black-square-8
 
 //--------------------------------------
 // white squares
@@ -1892,8 +1899,11 @@ ref black-square-7 fill emoji-white
 
 map ⬞ = white-square-2
 map ▫ = white-square-4
+map ▫ U+FE0E = white-square-4
 map ◽ = white-square-5
+map ◽ U+FE0E = white-square-5
 map ◻ = white-square-6
+map ◻ U+FE0E = white-square-6
 map □ = white-square-7
 map 🞎 = white-square-7w1
 map 🞏 = white-square-7w2
@@ -1902,6 +1912,8 @@ map 🞑 = white-square-7w5
 map 🞒 = white-square-7w6
 map 🞓 = white-square-7w7
 map ⬜ = white-square-8
+map ⬜ U+FE0E = white-square-8:mono
+map ⬜ U+FE0F = white-square-8
 
 //--------------------------------------
 // other squares
@@ -3129,6 +3141,7 @@ map 🞁 = black-right-triangle-u-7
 map ⏶ = black-right-triangle-u-6
 
 map ▶ = black-triangle-r-7
+map ▶ U+FE0E = black-triangle-r-7
 map ⯈ = black-triangle-r-6
 map ▸ = black-triangle-r-4
 map ► = black-triangle-r-pointer
@@ -3142,6 +3155,7 @@ map 🞃 = black-right-triangle-d-7
 map ⏷ = black-right-triangle-d-6
 
 map ◀ = black-triangle-l-7
+map ◀ U+FE0E = black-triangle-l-7
 map ⯇ = black-triangle-l-6
 map ◂ = black-triangle-l-4
 map ◄ = black-triangle-l-pointer
@@ -5114,6 +5128,7 @@ map ⋆ = black-star-3 // star operator, should be narrow
 
 map ☆ = white-star-7
 map ⭐ = white-star-6 // TODO: emoji
+map ⭐ U+FE0E = white-star-6
 map ⭒ = white-star-4
 
 map ⯨ = black-star-7-l

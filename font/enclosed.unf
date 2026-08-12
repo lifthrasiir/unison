@@ -180,6 +180,7 @@ ref narrow-($a-z)-lower 1 0
 
 map wide|narrow : Ⓐ|Ⓑ|Ⓒ|Ⓓ|Ⓔ|Ⓕ|Ⓖ|Ⓗ|Ⓘ|Ⓙ|Ⓚ|Ⓛ|Ⓜ|Ⓝ|Ⓞ|Ⓟ|Ⓠ|Ⓡ|Ⓢ|Ⓣ|Ⓤ|Ⓥ|Ⓦ|Ⓧ|Ⓨ|Ⓩ = ($a-z)-upper-circled($-half)
 map wide|narrow : ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|ⓕ|ⓖ|ⓗ|ⓘ|ⓙ|ⓚ|ⓛ|ⓜ|ⓝ|ⓞ|ⓟ|ⓠ|ⓡ|ⓢ|ⓣ|ⓤ|ⓥ|ⓦ|ⓧ|ⓨ|ⓩ = ($a-z)-lower-circled($-half)
+map wide|narrow : Ⓜ U+FE0E = m-upper-circled($-half)
 
 glyph ($0..10)-circled-sm
 ref enclosing-small-circle
@@ -1031,6 +1032,10 @@ ref enclosing-black-square-half
 ref narrow-($a-z)-upper 2 0 negated
 
 map wide|narrow : 🅰|🅱|🅲|🅳|🅴|🅵|🅶|🅷|🅸|🅹|🅺|🅻|🅼|🅽|🅾|🅿|🆀|🆁|🆂|🆃|🆄|🆅|🆆|🆇|🆈|🆉 = ($a-z)-upper-squared-black($-half)
+map wide|narrow : 🅰 U+FE0E = a-upper-squared-black($-half)
+map wide|narrow : 🅱 U+FE0E = b-upper-squared-black($-half)
+map wide|narrow : 🅾 U+FE0E = o-upper-squared-black($-half)
+map wide|narrow : 🅿 U+FE0E = p-upper-squared-black($-half)
 
 glyph p-upper-squared-black-crossed 16 16
 ................................

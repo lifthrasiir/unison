@@ -572,12 +572,16 @@ map ' = apos
 map " = quot
 
 map ‘ = quote-6
+map ‘ U+FE00 = quote-6
 map ’ = quote-9
+map ’ U+FE00 = quote-9
 map ‚ = quote-9-bottom
 map ‛ = quote-9-reversed
 
 map “ = quote-66
+map “ U+FE00 = quote-66
 map ” = quote-99
+map ” U+FE00 = quote-99
 map „ = quote-99-bottom
 map ‟ = quote-99-reversed
 map ⹂ = quote-99-bottom-reversed
@@ -1369,6 +1373,7 @@ glyph @-half 8 16
 ................
 
 map * = star
+map * U+FE0E = star
 map ⁎ = star-low
 map ⁑ = double-star
 map wide|narrow : ⁂ = triple-star($-half)
@@ -1585,7 +1590,9 @@ map ‽ = interrobang
 map ⸘ = interrobang-inverted
 
 map ‼ = excl-excl
+map ‼ U+FE0E = excl-excl
 map ⁉ = excl-ques
+map ⁉ U+FE0E = excl-ques
 map ⁈ = ques-excl
 map ⁇ = ques-ques
 
@@ -2055,6 +2062,7 @@ map ^ = caret
 map º = deg
 
 map # = hash
+map # U+FE0E = hash
 map & = amp
 map @ = at
 map § = section

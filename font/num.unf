@@ -220,15 +220,25 @@ glyph 3-inverted 8 16
 ................
 
 map 0 = 0
+map 0 U+FE0E = 0
 map 1 = 1
+map 1 U+FE0E = 1
 map 2 = 2
+map 2 U+FE0E = 2
 map 3 = 3
+map 3 U+FE0E = 3
 map 4 = 4
+map 4 U+FE0E = 4
 map 5 = 5
+map 5 U+FE0E = 5
 map 6 = 6
+map 6 U+FE0E = 6
 map 7 = 7
+map 7 U+FE0E = 7
 map 8 = 8
+map 8 U+FE0E = 8
 map 9 = 9
+map 9 U+FE0E = 9
 
 map ↊ = 2-inverted
 map ↋ = 3-inverted

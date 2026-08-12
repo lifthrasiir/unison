@@ -1862,6 +1862,7 @@ glyph won-double 16 16
 ref w-upper-double
 
 map ！ = excl-double
+map ！ U+FE01 = excl-double
 map ＂ = quot-double
 map ＃ = hash-double
 map ＄ = dollar-double
@@ -1892,6 +1893,7 @@ map ＜ = lt-double
 map ＝ = eq-double
 map ＞ = gt-double
 map ？ = ques-double
+map ？ U+FE01 = ques-double
 map ＠ = at-double
 
 map Ａ = a-upper-double
