@@ -47,7 +47,17 @@ pub(super) fn paint_document_area(
         ..
     } = env;
     let avail_w = ui.available_width();
-    let desired = egui::vec2(avail_w, total_height.max(row_height));
+    // The canvas covers the whole viewport even when the document is shorter
+    // than it: the empty band below the last line is part of this response, so
+    // a click, a drag or a right-click there reaches the editor at all. Where
+    // that band lands is decided further down, by clamping the pointer onto
+    // the last visual line. The height is taken from *this* ui, the scroll
+    // area's own content ui, so it is exactly the viewport height and the
+    // scroll area still sees no reason to show a bar.
+    let desired = egui::vec2(
+        avail_w,
+        total_height.max(row_height).max(ui.available_height()),
+    );
     let (rect, response) = ui.allocate_exact_size(desired, egui::Sense::click_and_drag());
 
     let wid = response.id;
@@ -203,6 +213,21 @@ pub(super) fn paint_document_area(
         } else {
             None
         };
+    // Below the last line the document has no rows to hit-test against, so the
+    // pointer is pulled straight up onto the last one: clicking or dragging
+    // into the empty band acts on the last line at the same x, the way a click
+    // past the end of a line acts on its end.
+    let click_pos = click_pos.map(|p| {
+        let last_h = vlines
+            .last()
+            .map_or(row_height, |vl| vl.height(row_height, grid_cell));
+        let floor = rect.min.y + total_height;
+        if p.y >= floor {
+            egui::pos2(p.x, (floor - last_h * 0.5).max(rect.min.y))
+        } else {
+            p
+        }
+    });
 
     let mut click_result: Option<ClickTarget> = None;
     let mut cursor_screen: Option<egui::Pos2> = None;

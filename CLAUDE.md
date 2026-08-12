@@ -218,6 +218,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A resize preview: uncommitted text, and everything that has to drop it | `editor/glyph_resize.rs` (`cancel`), `app/docs.rs` (`flush_pending_changes`) |
 | A floating pixel selection: what commits it, and who lands it before reading the buffer | `editor/pixel_selection.rs` (`reconcile`), `app/docs.rs` (`commit_floating_selection`) |
 | Copy/Cut/Delete with nothing framed, and the corner a shift-click extends from | `editor/pixel_selection.rs` (`effective_selection`, `select_all`), `editor/mod.rs` (`pixel_select_anchor`) |
+| The empty band below the last line: why the canvas fills the viewport, and where a click there lands | `editor/document_view/paint.rs` (`paint_document_area`) |
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | Inline annotations: one caret step, but ordinary text to the line breaker | `editor/annotations.rs`, `editor/visual_lines.rs` (`compute_wrap_segments`) |

@@ -1054,6 +1054,17 @@ impl EditorHarness {
         panic!("no grid visual line for doc line {grid_doc_line} row {row}");
     }
 
+    /// Absolute screen y just past the bottom edge of the last visual line —
+    /// the empty band a document shorter than the viewport leaves behind.
+    pub fn content_bottom(&self) -> f32 {
+        let last = self
+            .snap()
+            .vlines
+            .last()
+            .expect("no visual lines were rendered");
+        last.y + last.height
+    }
+
     // -- queries ------------------------------------------------------------
 
     pub fn cursor(&self) -> Caret {
