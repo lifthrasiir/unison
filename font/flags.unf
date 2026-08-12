@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// flags
+# flags
 
 remap group flag-ri // determine regional indicator left vs. right
 remap group flag after flag-ri // pair any known flag sequences
@@ -19,8 +18,7 @@ feature ccmp for DFLT : flag-tag-4
 feature ccmp for DFLT : flag-tag-5
 feature ccmp for DFLT : flag-tag-6
 
-//--------------------------------------
-// regional indicator
+## regional indicator
 
 glyph regional-indicator-single 8 16
 @@@@@@@@@@@@@@@@
@@ -93,8 +91,7 @@ map U+1F1E6..1F1FF = regional-indicator-($a-z)
 remap flag-ri : regional-indicator-($a-z)-left : regional-indicator-($a-z) -> regional-indicator-($a-z)-right
 remap flag-ri : regional-indicator-($a-z) -> regional-indicator-($a-z)-left : regional-indicator-($a-z)
 
-//--------------------------------------
-// tags
+## tags
 
 glyph black-flag:mono 16 16
 ..@@@@..@@@@@@@@@@@@@@@@@@@@@@..
@@ -313,8 +310,7 @@ remap flag-tag-6 : black-flag-hole-3 tag-cancel -> black-flag-hole-3-bad
 remap flag-tag-6 : black-flag-hole-4 tag-cancel -> black-flag-hole-4-bad
 remap flag-tag-6 : black-flag-hole-5 tag-cancel -> black-flag-hole-5-bad
 
-//--------------------------------------
-// experimental color flags
+## experimental color flags
 
 glyph flag-($a-z**26)($a-z):mono
 ref regional-indicator-($a-z**26)-left

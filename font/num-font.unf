@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// numeral font variants
+# numeral font variants
 
-//--------------------------------------
-// narrow letters
+## narrow letters
 
 glyph narrow-0 5 16
 ..........
@@ -186,8 +184,7 @@ glyph narrow-9 5 16
 
 assume unused narrow-($0..9)
 
-//--------------------------------------
-// narrow numbers for uses with normal letters (2px vertical)
+## narrow numbers for uses with normal letters (2px vertical)
 
 glyph 0-4x10 4 10
 /0@@@@0\
@@ -309,8 +306,7 @@ glyph 9-4x10 4 10
 @@..@@@@
 \0@@@@0/
 
-//--------------------------------------
-// narrower numbers
+## narrower numbers
 
 glyph 0-3x8 3 8
 /0@@0\
@@ -412,8 +408,7 @@ glyph 9-3x8 3 8
 @@..@@
 \0@@0/
 
-//--------------------------------------
-// medium-sized numbers
+## medium-sized numbers
 
 glyph 0-5x6 5 6
 /0@@@@@@0\
@@ -503,8 +498,7 @@ glyph 10-5x6 5 6
 @@..@@..@@
 @@..\0@@0/
 
-//--------------------------------------
-// small numbers
+## small numbers
 
 // sm-* are designed to fit in 3x5 (normal) or 4x5 (4)
 

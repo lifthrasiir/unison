@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// latin font variants
+# latin font variants
 
-//--------------------------------------
-// narrow letters
+## narrow letters
 
 // narrow-*-{upper,lower} are designed so that three of them fit in 15x16
 
@@ -945,8 +943,7 @@ glyph narrow-z-lower 5 16
 assume unused narrow-($a-z)-lower
 assume unused narrow-($a-z)-upper
 
-//--------------------------------------
-// small letters
+## small letters
 
 // sm-*-{upper,lower} are designed to fit in 3x5 (I), 4x5 (normal) or 5x5 (MTVWXYZ)
 

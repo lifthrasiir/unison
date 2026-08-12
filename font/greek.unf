@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// greek and derivatives
+# greek and derivatives
 
 // general guideline is to make greek distinguishable from
 // latin with a presence of subtle serifs.
@@ -1105,8 +1104,7 @@ map χ = gr-chi-lower
 map ψ = gr-psi-lower
 map ω = gr-omega-lower
 
-//--------------------------------------
-// combining characters
+## combining characters
 
 feature ccmp for grek : anchor gr-above
 feature ccmp for grek : anchor gr-below
@@ -1150,8 +1148,7 @@ remap group gr-merge after gr-comb
 feature ccmp for grek : gr-comb
 feature ccmp for grek : gr-merge
 
-//--------------------------------------
-// with tonos/oxia (not distinguished)
+## with tonos/oxia (not distinguished)
 
 glyph gr-tonos0 3 3
 ../VV'
@@ -1194,8 +1191,7 @@ map ώ|ώ = gr-omega-lower-with-tonos
 assert shape Ά : gr-alpha-upper-with-tonos
 assert shape Β́ : gr-beta-upper : gr-tonos offset -10 2
 
-//--------------------------------------
-// with varia
+## with varia
 
 glyph gr-varia0 3 3
 `VV\..
@@ -1235,8 +1231,7 @@ map ὸ = gr-omicron-lower-with-varia
 map ὺ = gr-upsilon-lower-with-varia
 map ὼ = gr-omega-lower-with-varia
 
-//--------------------------------------
-// with dialytika
+## with dialytika
 
 glyph gr-dialytika mark
 ref dia-above:narrow inherit
@@ -1259,8 +1254,7 @@ map Ϋ = gr-upsilon-upper-with-dialytika
 map ϊ = gr-iota-lower-with-dialytika
 map ϋ = gr-upsilon-lower-with-dialytika
 
-//--------------------------------------
-// with dialytika + tonos
+## with dialytika + tonos
 
 glyph gr-dialytika-tonos mark
 ref dia-wide
@@ -1283,8 +1277,7 @@ ref gr-dialytika-tonos
 map ΐ|ΐ = gr-iota-lower-with-dialytika-tonos
 map ΰ|ΰ = gr-upsilon-lower-with-dialytika-tonos
 
-//--------------------------------------
-// with dialytika + varia
+## with dialytika + varia
 
 glyph gr-dialytika-varia mark
 ref dia-wide
@@ -1307,8 +1300,7 @@ ref gr-dialytika-varia
 map ῒ = gr-iota-lower-with-dialytika-varia
 map ῢ = gr-upsilon-lower-with-dialytika-varia
 
-//--------------------------------------
-// with psili
+## with psili
 
 glyph gr-psili mark
 ref com-above:narrow inherit
@@ -1344,8 +1336,7 @@ map ὐ = gr-upsilon-lower-with-psili
 map ὠ = gr-omega-lower-with-psili
 map ῤ = gr-rho-lower-with-psili
 
-//--------------------------------------
-// with dasia
+## with dasia
 
 glyph gr-dasia mark
 ref com-reversed-above:narrow inherit
@@ -1382,8 +1373,7 @@ map ὑ = gr-upsilon-lower-with-dasia
 map ὡ = gr-omega-lower-with-dasia
 map ῥ = gr-rho-lower-with-dasia
 
-//--------------------------------------
-// with perispomeni
+## with perispomeni
 
 glyph gr-perispomeni0 4 2
 /0@b\./1
@@ -1420,8 +1410,7 @@ map ῶ = gr-omega-lower-with-perispomeni
 assert shape ᾶ : gr-alpha-lower-with-perispomeni
 assert shape Β͂ : gr-beta-upper : gr-perispomeni offset -6 0
 
-//--------------------------------------
-// with dialytika + perispomeni
+## with dialytika + perispomeni
 
 glyph gr-dialytika-perispomeni mark
 ref dia-wide 0 0
@@ -1447,8 +1436,7 @@ map ῧ = gr-upsilon-lower-with-dialytika-perispomeni
 assert shape ῗ : gr-iota-lower-with-dialytika-perispomeni
 assert shape Β̈͂ : gr-beta-upper : gr-dialytika-perispomeni offset -7 1
 
-//--------------------------------------
-// with a breathing mark and an accent (side by side)
+## with a breathing mark and an accent (side by side)
 
 glyph gr-psili-varia mark advance 0
 ref com 0 0
@@ -1663,8 +1651,7 @@ assert shape Β̓́ : gr-beta-upper : gr-psili-tonos offset -11 2
 assert shape Β̔̀ : gr-beta-upper : gr-dasia-varia offset -11 2
 assert shape Β̔͂ : gr-beta-upper : gr-dasia-perispomeni offset -12 2
 
-//--------------------------------------
-// with ypogegrammeni/prosgegrammeni
+## with ypogegrammeni/prosgegrammeni
 
 glyph gr-ypogegrammeni0 2 2
 @@..
@@ -1877,8 +1864,7 @@ assert shape ᾼ : gr-alpha-upper-with-prosgegrammeni
 assert shape ᾏ : gr-alpha-upper-with-dasia-perispomeni-prosgegrammeni
 assert shape Βͅ : gr-beta-upper : gr-ypogegrammeni offset 1 12
 
-//--------------------------------------
-// with vrachy (breve above) or macron
+## with vrachy (breve above) or macron
 
 glyph gr-(alpha|iota|upsilon)-upper-with-breve
 ref gr-(alpha|iota|upsilon)-upper

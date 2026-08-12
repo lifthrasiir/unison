@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// armenian
+# armenian
 
 glyph hy-ayb-upper 8 16
 ................
@@ -1467,8 +1466,7 @@ map օ = hy-oh-lower
 map ֆ = hy-feh-lower
 map և = hy-ech-yiwn-lower
 
-//--------------------------------------
-// ligatures
+## ligatures
 
 glyph hy-men-now-lower 16 16
 ................................
@@ -1566,8 +1564,7 @@ map wide : ﬕ = hy-men-ini-lower
 map wide : ﬖ = hy-vew-now-lower
 map wide : ﬗ = hy-men-xeh-lower
 
-//--------------------------------------
-// punctuations
+## punctuations
 
 glyph hy-full-stop 8 16
 ................
@@ -1610,8 +1607,7 @@ glyph hy-hyphen 8 16
 map ։ = hy-full-stop
 map ֊ = hy-hyphen
 
-//--------------------------------------
-// symbols
+## symbols
 
 glyph hy-eternity-cw 16 16
 ................................

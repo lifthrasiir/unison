@@ -1,6 +1,5 @@
-////////////////////////////////////////
-// unified canadian aboriginal syllabics
-//
+# unified canadian aboriginal syllabics
+
 // this is wide only, because there is no reaonable way
 // to shove every UCAS glyph into the 8x16 grid.
 
@@ -46,8 +45,7 @@ glyph ca-grave-right 4 6
 ....\vV.
 ....`vV\
 
-//--------------------------------------
-// consonants
+## consonants
 
 // as per https://www.unicode.org/L2/L2021/21141-ucas-revisions.pdf,
 // Carrier consonants should be vertically centered at midline (i.e. not superscript).
@@ -1613,8 +1611,7 @@ map wide : ᣳ = ca-l-beaver-dene
 map wide : ᣴ = ca-r-beaver-dene
 map wide : ᣵ = ca-s-carrier-dental
 
-//--------------------------------------
-// vowels
+## vowels
 
 glyph ca-e 16 16
 ................................
@@ -1892,8 +1889,7 @@ map wide : ᐚ = ca-waa-west-cree
 map wide : ᐛ = ca-waa-naskapi
 map wide : ᐮ = ca-an
 
-//--------------------------------------
-// p + vowels
+## p + vowels
 
 glyph ca-pe 16 16
 ................................
@@ -2161,8 +2157,7 @@ map wide : ᑇ = ca-pwaa-west-cree
 map wide : ᑈ = ca-pwaa-y-cree
 map wide : ᔌ = ca-spwa-naskapi
 
-//--------------------------------------
-// t + vowels
+## t + vowels
 
 glyph ca-te 16 16
 ................................
@@ -2478,8 +2473,7 @@ map wide : ᑥ = ca-twaa-naskapi
 map wide : ᑪ = ca-tta
 map wide : ᔍ = ca-stwa-naskapi
 
-//--------------------------------------
-// k + vowels
+## k + vowels
 
 glyph ca-ke0 7 10
 ../0@@@@@@0\..
@@ -2799,8 +2793,7 @@ map wide : ᒂ = ca-kwaa-naskapi
 map wide : ᒈ = ca-kah-south-slavey
 map wide : ᔎ = ca-skwa-naskapi
 
-//--------------------------------------
-// c + vowels
+## c + vowels
 
 glyph ca-ce0 9 10
 ..../H~H@@H~H\....
@@ -3063,8 +3056,7 @@ map wide : ᒟ = ca-cwaa-west-cree
 map wide : ᒠ = ca-cwaa-naskapi
 map wide : ᔏ = ca-scwa-naskapi
 
-//--------------------------------------
-// m + vowels
+## m + vowels
 
 glyph ca-me 16 16
 ................................
@@ -3259,8 +3251,7 @@ map wide : ᒸ = ca-mwaa
 map wide : ᒹ = ca-mwaa-west-mree
 map wide : ᒺ = ca-mwaa-naskapi
 
-//--------------------------------------
-// n + vowels
+## n + vowels
 
 glyph ca-ne 16 16
 ................................
@@ -3460,8 +3451,7 @@ map wide : ᓍ = ca-nwaa
 map wide : ᓎ = ca-nwaa-west-cree
 map wide : ᓏ = ca-nwaa-naskapi
 
-//--------------------------------------
-// l + vowels
+## l + vowels
 
 glyph ca-le 16 16
 ................................
@@ -3650,8 +3640,7 @@ map wide : ᓧ = ca-lwa-west-cree
 map wide : ᓨ = ca-lwaa
 map wide : ᓩ = ca-lwaa-west-cree
 
-//--------------------------------------
-// s + vowels
+## s + vowels
 
 glyph ca-se 16 16
 ................................
@@ -3851,8 +3840,7 @@ map wide : ᔂ = ca-swaa
 map wide : ᔃ = ca-swaa-west-cree
 map wide : ᔄ = ca-swaa-saskapi
 
-//--------------------------------------
-// sh + vowels
+## sh + vowels
 
 glyph ca-she 16 16
 ................................
@@ -4041,8 +4029,7 @@ map wide : ᔢ = ca-shwa-west-cree
 map wide : ᔣ = ca-shwaa
 map wide : ᔤ = ca-shwaa-west-cree
 
-//--------------------------------------
-// y + vowels
+## y + vowels
 
 glyph ca-ye 16 16
 ................................
@@ -4242,8 +4229,7 @@ map wide : ᔻ = ca-ywaa
 map wide : ᔼ = ca-ywaa-west-cree
 map wide : ᔽ = ca-ywaa-naskapi
 
-//--------------------------------------
-// r + vowels
+## r + vowels
 
 glyph ca-re 16 16
 ................................
@@ -4485,8 +4471,7 @@ map wide : ᕏ = ca-rwaa-west-cree
 map wide : ᕍ = ca-la-west-cree
 map wide : ᣢ = ca-laa-west-cree
 
-//--------------------------------------
-// f + vowels
+## f + vowels
 
 glyph ca-fe 16 16
 ................................
@@ -4645,8 +4630,7 @@ map wide : ᕚ = ca-faa
 map wide : ᕛ = ca-fwaa
 map wide : ᕜ = ca-fwaa-west-cree
 
-//--------------------------------------
-// th + vowels
+## th + vowels
 
 glyph ca-the 16 16
 ................................
@@ -4808,8 +4792,7 @@ map wide : ᕧ = ca-thaa
 map wide : ᕨ = ca-thwaa
 map wide : ᕩ = ca-thwaa-west-cree
 
-//--------------------------------------
-// tth + vowels
+## tth + vowels
 
 glyph ca-tthe 16 16
 ................................
@@ -4910,8 +4893,7 @@ map wide : ᣦ = ca-tthoo
 map wide : ᕮ = ca-ttha
 map wide : ᣧ = ca-tthaa
 
-//--------------------------------------
-// ty + vowels
+## ty + vowels
 
 glyph ca-tye 16 16
 ................................
@@ -4994,8 +4976,7 @@ map wide : ᕱ = ca-tyi
 map wide : ᕲ = ca-tyo
 map wide : ᕳ = ca-tya
 
-//--------------------------------------
-// nunavik h + vowels
+## nunavik h + vowels
 
 glyph ca-he-nunavik 16 16
 ................................
@@ -5092,8 +5073,7 @@ map wide : ᕸ = ca-hoo-nunavik
 map wide : ᕹ = ca-ha-nunavik
 map wide : ᕺ = ca-haa-nunavik
 
-//--------------------------------------
-// tlh + vowels
+## tlh + vowels
 
 glyph ca-tlhe 16 16
 ................................
@@ -5189,8 +5169,7 @@ map wide : ᣩ = ca-tlhoo
 
 map wide : ᖉ = ca-tlha
 
-//--------------------------------------
-// west-cree rV + vowels
+## west-cree rV + vowels
 
 glyph ca-re-west-cree 16 16
 ................................
@@ -5269,8 +5248,7 @@ map wide : ᖋ = ca-ri-west-cree
 map wide : ᖌ = ca-ro-west-cree
 map wide : ᖍ = ca-ra-west-cree
 
-//--------------------------------------
-// sayisi sh + vowels
+## sayisi sh + vowels
 
 glyph ca-she-sayisi 16 16
 ................................
@@ -5362,8 +5340,7 @@ map wide : ᣫ = ca-shoo-sayisi
 
 map wide : ᖚ = ca-sha-sayisi
 
-//--------------------------------------
-// woods-cree th + vowels
+## woods-cree th + vowels
 
 glyph ca-the-woods-cree 16 16
 ................................
@@ -5446,8 +5423,7 @@ map wide : ᖜ = ca-thi-woods-cree
 map wide : ᖝ = ca-tho-woods-cree
 map wide : ᖞ = ca-tha-woods-cree
 
-//--------------------------------------
-// lh + vowels
+## lh + vowels
 
 glyph ca-lhi 16 16
 ................................
@@ -5527,8 +5503,7 @@ map wide : ᖣ = ca-lhoo
 map wide : ᖤ = ca-lha
 map wide : ᖥ = ca-lhaa
 
-//--------------------------------------
-// th-cree th / woods-cree thw + vowels
+## th-cree th / woods-cree thw + vowels
 
 glyph ca-the-th-cree 16 16
 ................................
@@ -5814,8 +5789,7 @@ map wide : ᙼ = ca-thwa-woods-cree
 map wide : ᖭ = ca-thaa-th-cree
 map wide : ᙽ = ca-thwaa-woods-cree
 
-//--------------------------------------
-// blackfoot vowels
+## blackfoot vowels
 
 glyph ca-e-blackfoot 16 16
 ................................
@@ -5894,8 +5868,7 @@ map wide : ᖱ = ca-i-blackfoot
 map wide : ᖲ = ca-o-blackfoot
 map wide : ᖳ = ca-a-blackfoot
 
-//--------------------------------------
-// blackfoot w + vowels
+## blackfoot w + vowels
 
 glyph ca-we-blackfoot 16 16
 ................................
@@ -5974,8 +5947,7 @@ map wide : ᖵ = ca-wi-blackfoot
 map wide : ᖶ = ca-wo-blackfoot
 map wide : ᖷ = ca-wa-blackfoot
 
-//--------------------------------------
-// blackfoot n + vowels
+## blackfoot n + vowels
 
 glyph ca-ne-blackfoot 16 16
 ................................
@@ -6054,8 +6026,7 @@ map wide : ᖹ = ca-ni-blackfoot
 map wide : ᖺ = ca-no-blackfoot
 map wide : ᖻ = ca-na-blackfoot
 
-//--------------------------------------
-// blackfoot k + vowels
+## blackfoot k + vowels
 
 glyph ca-ke-blackfoot 16 16
 ................................
@@ -6134,8 +6105,7 @@ map wide : ᖽ = ca-ki-blackfoot
 map wide : ᖾ = ca-ko-blackfoot
 map wide : ᖿ = ca-ka-blackfoot
 
-//--------------------------------------
-// sayisi h + vowels
+## sayisi h + vowels
 
 glyph ca-he-sayisi 16 16
 ................................
@@ -6222,8 +6192,7 @@ map wide : ᣬ = ca-hoo-sayisi
 
 map wide : ᗃ = ca-ha-sayisi
 
-//--------------------------------------
-// carrier gh + vowels
+## carrier gh + vowels
 
 glyph ca-ghu-carrier 16 16
 ................................
@@ -6343,8 +6312,7 @@ map wide : ᗈ = ca-ghi-carrier
 
 map wide : ᗉ = ca-gha-carrier
 
-//--------------------------------------
-// carrier r + vowels
+## carrier r + vowels
 
 glyph ca-ru-carrier 16 16
 ................................
@@ -6466,8 +6434,7 @@ map wide : ᗎ = ca-ri-carrier
 
 map wide : ᗏ = ca-ra-carrier
 
-//--------------------------------------
-// carrier w + vowels
+## carrier w + vowels
 
 glyph ca-wu-carrier 16 16
 ................................
@@ -6589,8 +6556,7 @@ map wide : ᗔ = ca-wi-carrier
 
 map wide : ᗕ = ca-wa-carrier
 
-//--------------------------------------
-// carrier hw + vowels
+## carrier hw + vowels
 
 glyph ca-hwu-carrier 16 16
 ................................
@@ -6716,8 +6682,7 @@ map wide : ᗚ = ca-hwi-carrier
 
 map wide : ᗛ = ca-hwa-carrier
 
-//--------------------------------------
-// carrier th + vowels
+## carrier th + vowels
 
 glyph ca-thu-carrier 16 16
 ................................
@@ -6824,8 +6789,7 @@ map wide : ᗠ = ca-thi-carrier
 
 map wide : ᗡ = ca-tha-carrier
 
-//--------------------------------------
-// carrier tt + vowels
+## carrier tt + vowels
 
 glyph ca-ttu-carrier 16 16
 ................................
@@ -6932,8 +6896,7 @@ map wide : ᗦ = ca-tti-carrier
 
 map wide : ᗧ = ca-tta-carrier
 
-//--------------------------------------
-// carrier p + vowels
+## carrier p + vowels
 
 glyph ca-pu-carrier 16 16
 ................................
@@ -7040,8 +7003,7 @@ map wide : ᗬ = ca-pi-carrier
 
 map wide : ᗭ = ca-pa-carrier
 
-//--------------------------------------
-// carrier g + vowels
+## carrier g + vowels
 
 glyph ca-gu-carrier 16 16
 ................................
@@ -7183,8 +7145,7 @@ map wide : ᗴ = ca-ga-carrier
 map wide : ᣯ = ca-gaa-carrier
 map wide : ᣰ = ca-gwa-carrier
 
-//--------------------------------------
-// carrier kh + vowels
+## carrier kh + vowels
 
 glyph ca-khu-carrier 16 16
 ................................
@@ -7310,8 +7271,7 @@ map wide : ᗹ = ca-khi-carrier
 
 map wide : ᗺ = ca-kha-carrier
 
-//--------------------------------------
-// carrier kk + vowels
+## carrier kk + vowels
 
 glyph ca-kku-carrier 16 16
 ................................
@@ -7437,8 +7397,7 @@ map wide : ᗿ = ca-kki-carrier
 
 map wide : ᘀ = ca-kka-carrier
 
-//--------------------------------------
-// carrier n + vowels
+## carrier n + vowels
 
 glyph ca-nu-carrier 16 16
 ................................
@@ -7545,8 +7504,7 @@ map wide : ᘆ = ca-ni-carrier
 
 map wide : ᘇ = ca-na-carrier
 
-//--------------------------------------
-// carrier m + vowels
+## carrier m + vowels
 
 glyph ca-mu-carrier 16 16
 ................................
@@ -7668,8 +7626,7 @@ map wide : ᘌ = ca-mi-carrier
 
 map wide : ᘍ = ca-ma-carrier
 
-//--------------------------------------
-// carrier y + vowels
+## carrier y + vowels
 
 glyph ca-yu-carrier 16 16
 ................................
@@ -7791,8 +7748,7 @@ map wide : ᘒ = ca-yi-carrier
 
 map wide : ᘓ = ca-ya-carrier
 
-//--------------------------------------
-// carrier/sayisi j + vowels
+## carrier/sayisi j + vowels
 
 glyph ca-ju-carrier 16 16
 ................................
@@ -7962,8 +7918,7 @@ map wide : ᘚ = ca-ji-sayisi
 map wide : ᘛ = ca-ja-carrier
 map wide : ᣲ = ca-jaa-carrier
 
-//--------------------------------------
-// carrier jj + vowels
+## carrier jj + vowels
 
 glyph ca-jju-carrier 16 16
 ................................
@@ -8085,8 +8040,7 @@ map wide : ᘠ = ca-jji-carrier
 
 map wide : ᘡ = ca-jja-carrier
 
-//--------------------------------------
-// carrier l + vowels
+## carrier l + vowels
 
 glyph ca-lu-carrier 16 16
 ................................
@@ -8193,8 +8147,7 @@ map wide : ᘦ = ca-li-carrier
 
 map wide : ᘧ = ca-la-carrier
 
-//--------------------------------------
-// carrier dl + vowels
+## carrier dl + vowels
 
 glyph ca-dlu-carrier 16 16
 ................................
@@ -8319,8 +8272,7 @@ map wide : ᘬ = ca-dli-carrier
 
 map wide : ᘭ = ca-dla-carrier
 
-//--------------------------------------
-// carrier lh + vowels
+## carrier lh + vowels
 
 glyph ca-lhu-carrier 16 16
 ................................
@@ -8427,8 +8379,7 @@ map wide : ᘲ = ca-lhi-carrier
 
 map wide : ᘳ = ca-lha-carrier
 
-//--------------------------------------
-// carrier tlh + vowels
+## carrier tlh + vowels
 
 glyph ca-tlhu-carrier 16 16
 ................................
@@ -8554,8 +8505,7 @@ map wide : ᘸ = ca-tlhi-carrier
 
 map wide : ᘹ = ca-tlha-carrier
 
-//--------------------------------------
-// carrier tl + vowels
+## carrier tl + vowels
 
 glyph ca-tlu-carrier 16 16
 ................................
@@ -8662,8 +8612,7 @@ map wide : ᘾ = ca-tli-carrier
 
 map wide : ᘿ = ca-tla-carrier
 
-//--------------------------------------
-// carrier z + vowels
+## carrier z + vowels
 
 glyph ca-zu-carrier 16 16
 ................................
@@ -8770,8 +8719,7 @@ map wide : ᙄ = ca-zi-carrier
 
 map wide : ᙅ = ca-za-carrier
 
-//--------------------------------------
-// carrier dz + vowels
+## carrier dz + vowels
 
 glyph ca-dzu-carrier 16 16
 ................................
@@ -8878,8 +8826,7 @@ map wide : ᙌ = ca-dzi-carrier
 
 map wide : ᙍ = ca-dza-carrier
 
-//--------------------------------------
-// carrier s + vowels
+## carrier s + vowels
 
 glyph ca-su-carrier 16 16
 ................................
@@ -9001,8 +8948,7 @@ map wide : ᙒ = ca-si-carrier
 
 map wide : ᙓ = ca-sa-carrier
 
-//--------------------------------------
-// carrier sh + vowels
+## carrier sh + vowels
 
 glyph ca-shu-carrier 16 16
 ................................
@@ -9128,8 +9074,7 @@ map wide : ᙘ = ca-shi-carrier
 
 map wide : ᙙ = ca-sha-carrier
 
-//--------------------------------------
-// carrier ts + vowels
+## carrier ts + vowels
 
 glyph ca-tsu-carrier 16 16
 ................................
@@ -9255,8 +9200,7 @@ map wide : ᙟ = ca-tsi-carrier
 
 map wide : ᙠ = ca-tsa-carrier
 
-//--------------------------------------
-// carrier ch + vowels
+## carrier ch + vowels
 
 glyph ca-chu-carrier 16 16
 ................................
@@ -9382,8 +9326,7 @@ map wide : ᙥ = ca-chi-carrier
 
 map wide : ᙦ = ca-cha-carrier
 
-//--------------------------------------
-// carrier tts + vowels
+## carrier tts + vowels
 
 glyph ca-ttsu-carrier 16 16
 ................................
@@ -9509,8 +9452,7 @@ map wide : ᙫ = ca-ttsi-carrier
 
 map wide : ᙬ = ca-ttsa-carrier
 
-//--------------------------------------
-// nattilik h + vowels
+## nattilik h + vowels
 
 glyph ca-hi-nattilik 16 16
 ................................
@@ -9635,8 +9577,7 @@ map wide : 𑪳 = ca-hoo-nattilik
 map wide : 𑪴 = ca-ha-nattilik
 map wide : 𑪵 = ca-haa-nattilik
 
-//--------------------------------------
-// nattilik shr + vowels
+## nattilik shr + vowels
 
 glyph ca-shri-nattilik 16 16
 ................................
@@ -9761,8 +9702,7 @@ map wide : 𑪹 = ca-shroo-nattilik
 map wide : 𑪺 = ca-shra-nattilik
 map wide : 𑪻 = ca-shraa-nattilik
 
-//--------------------------------------
-// sp + vowels
+## sp + vowels
 
 glyph ca-spe 16 16
 ................................
@@ -9841,8 +9781,7 @@ map wide : 𑪽 = ca-spi
 map wide : 𑪾 = ca-spo
 map wide : 𑪿 = ca-spa
 
-//--------------------------------------
-// punctuations
+## punctuations
 
 glyph ca-hyphen 8 16
 ................

@@ -1,6 +1,5 @@
-////////////////////////////////////////
-// geometric shapes
-//
+# geometric shapes
+
 // shapes are always wide because i) their shapes do matter
 // and ii) some of them contain emoji which must be wide.
 // also, designing squashed shape glyphs is no fun.
@@ -28,8 +27,7 @@ color emoji-purple = #FF00DD
 color emoji-brown = #994422
 color emoji-orange = #FF9900
 
-//--------------------------------------
-// black circles
+## black circles
 
 glyph black-circle-1 8 16 desync
 ................
@@ -220,8 +218,7 @@ map U+26AB U+FE0E = black-circle-6-inside
 
 assert shape ⚫︎ : black-circle-6-inside
 
-//--------------------------------------
-// white circles
+## white circles
 
 glyph white-circle-2 8 16 desync
 ................
@@ -543,8 +540,7 @@ map ◯ = white-circle-8
 
 map U+26AA U+FE0E = white-circle-6:mono
 
-//--------------------------------------
-// colored circles
+## colored circles
 
 glyph black-circle-6-yellow:mono 16 16
 ................................
@@ -715,8 +711,7 @@ map 🟢 = black-circle-6-green
 map 🟣 = black-circle-6-purple
 map 🟤 = black-circle-6-brown
 
-//--------------------------------------
-// circle sections
+## circle sections
 
 glyph black-circle-7-l 16 16 desync
 ................................
@@ -940,8 +935,7 @@ map ◝ = white-circle-7-ru
 map ◞ = white-circle-7-rd
 map ◟ = white-circle-7-ld
 
-//--------------------------------------
-// bisected circles
+## bisected circles
 
 glyph black-white-circle-7-l-r 16 16 desync
 ................................
@@ -1176,8 +1170,7 @@ map ◵ = white-circle-7-quadrant-3-124
 map ◶ = white-circle-7-quadrant-4-123
 map ◷ = white-circle-7-quadrant-2-134
 
-//--------------------------------------
-// other circles & ellipses
+## other circles & ellipses
 
 glyph black-circle-3-in-white-circle-7
 ref white-circle-7
@@ -1461,8 +1454,7 @@ map ⬭ = white-hellipse
 map ⬮ = black-vellipse
 map ⬯ = white-vellipse
 
-//--------------------------------------
-// black squares
+## black squares
 
 glyph black-square-1 16 16
 ................................
@@ -1626,8 +1618,7 @@ map ⬛ = black-square-8
 map ⬛ U+FE0E = black-square-8:mono
 map ⬛ U+FE0F = black-square-8
 
-//--------------------------------------
-// white squares
+## white squares
 
 glyph white-square-2 16 16
 ................................
@@ -1915,8 +1906,7 @@ map ⬜ = white-square-8
 map ⬜ U+FE0E = white-square-8:mono
 map ⬜ U+FE0F = white-square-8
 
-//--------------------------------------
-// other squares
+## other squares
 
 glyph black-square-8-yellow:mono 16 16
 ..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -2080,8 +2070,7 @@ map 🟩 = black-square-8-green
 map 🟪 = black-square-8-purple
 map 🟫 = black-square-8-brown
 
-//--------------------------------------
-// hatched squares
+## hatched squares
 
 glyph hhatched-square-7 16 16
 ................................
@@ -2198,8 +2187,7 @@ map ▧ = zhatched-square-7
 map ▨ = shatched-square-7
 map ▩ = szhatched-square-7
 
-//--------------------------------------
-// bisected squares
+## bisected squares
 
 glyph black-white-square-7-l-r 16 16 scale 2
 ................................................................
@@ -2514,8 +2502,7 @@ map ◱ = white-square-7-quadrant-2-134
 map ◲ = white-square-7-quadrant-3-124
 map ◳ = white-square-7-quadrant-4-123
 
-//--------------------------------------
-// other squares & quadrilaterals
+## other squares & quadrilaterals
 
 glyph white-square-7-rounded 16 16
 ................................
@@ -2731,8 +2718,7 @@ map ▱ = white-parallelogram
 
 //map U+2BC0 = black-square-7-centered // ????
 
-//--------------------------------------
-// black triangles
+## black triangles
 
 glyph black-triangle-u-7 16 16 // cut from black-square-7
 ................................
@@ -3162,8 +3148,7 @@ map ◄ = black-triangle-l-pointer
 map 🞀 = black-right-triangle-l-7
 map ⏴ = black-right-triangle-l-6
 
-//--------------------------------------
-// white triangles
+## white triangles
 
 glyph white-triangle-u-7 16 16
 ................................
@@ -3476,8 +3461,7 @@ map ◹ = white-triangle-ru-7
 map ◺ = white-triangle-ld-7
 map ◿ = white-triangle-rd-7
 
-//--------------------------------------
-// bisected triangles
+## bisected triangles
 
 glyph black-white-triangle-u-7-l-r 16 16 scale 2
 ................................................................
@@ -3620,8 +3604,7 @@ map ◮ = black-white-triangle-u-7-r-l
 map ⧨ = black-white-triangle-d-7-l-r
 map ⧩ = black-white-triangle-d-7-r-l
 
-//--------------------------------------
-// black diamonds & lozenges
+## black diamonds & lozenges
 
 glyph black-diamond-7 16 16
 ................................
@@ -3892,8 +3875,7 @@ map ⬪ = black-lozenge-4
 map 🞞 = black-lozenge-3
 map 🞝 = black-lozenge-2
 
-//--------------------------------------
-// white diamonds & lozenges
+## white diamonds & lozenges
 
 glyph white-diamond-7 16 16
 ................................
@@ -4075,8 +4057,7 @@ map ⬨ = white-lozenge-6
 map ⬫ = white-lozenge-4
 map ⋄ = white-lozenge-3 // diamond operator, should be narrow
 
-//--------------------------------------
-// bisected diamonds
+## bisected diamonds
 
 glyph black-white-diamond-7-l-r 16 16 scale 2
 ................................................................
@@ -4219,8 +4200,7 @@ map ⬗ = black-white-diamond-7-r-l
 map ⬘ = black-white-diamond-7-u-d
 map ⬙ = black-white-diamond-7-d-u
 
-//--------------------------------------
-// other diamonds & lozenges
+## other diamonds & lozenges
 
 glyph black-diamond-5-in-white-diamond-7 16 16
 ................................
@@ -4336,8 +4316,7 @@ map 🞜 = white-diamond-in-white-diamond-7
 
 map 🞠 = black-lozenge-4-in-white-lozenge-7
 
-//--------------------------------------
-// greek crosses
+## greek crosses
 
 glyph greek-cross-7w0 16 16
 ................................
@@ -4652,8 +4631,7 @@ map ✚ = greek-cross-7w5
 map 🞦 = greek-cross-7w6
 map 🞧 = greek-cross-7w7
 
-//--------------------------------------
-// saltires
+## saltires
 
 glyph saltire 8 16
 ................
@@ -4873,8 +4851,7 @@ map 🞬 = saltire-w5
 map 🞭 = saltire-w6
 map 🞮 = saltire-w7
 
-//--------------------------------------
-// 5-pointed stars
+## 5-pointed stars
 
 glyph black-star-7 16 16 desync
 ................................

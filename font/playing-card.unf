@@ -1,10 +1,8 @@
-////////////////////////////////////////
-// playing cards
+# playing cards
 
 name-parts $card-rank = a 2 3 4 5 6 7 8 9 10 j kn q k
 
-//--------------------------------------
-// 56-card decks
+## 56-card decks
 
 color card-border = #404040
 color card-white = #ffffff coloronly
@@ -529,8 +527,7 @@ map wide|narrow : U+1F0BF = card-joker-red($-half)
 map wide|narrow : U+1F0CF = card-joker-black($-half)
 map wide|narrow : U+1F0DF = card-joker-white($-half)
 
-//--------------------------------------
-// tarot decks
+## tarot decks
 
 glyph card-tarot-border 16 16
 ................................

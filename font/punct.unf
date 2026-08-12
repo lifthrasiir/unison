@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// punctuations
+# punctuations
 
 glyph sp 8 16
 
@@ -12,8 +11,7 @@ map U+202F = sp // narrow nbsp
 map U+205F = sp // medium mathematical space
 map U+3000 = wsp // ideographic space
 
-//--------------------------------------
-// dashes
+## dashes
 
 glyph hyphen-short 8 16
 ................
@@ -272,8 +270,7 @@ map ‗ = uuline
 
 map ~ = tilde
 
-//--------------------------------------
-// quotes
+## quotes
 
 // ASCII quotes have intentionally very general glyphs
 
@@ -591,8 +588,7 @@ map › = quote-angle-right
 map « = quote-dangle-left
 map » = quote-dangle-right
 
-//--------------------------------------
-// dots
+## dots
 
 glyph dot 8 16
 ................
@@ -1142,8 +1138,7 @@ map ⸵ = semicolon-inverted
 
 map ‣ = bullet-triangle
 
-//--------------------------------------
-// dagger-like marks
+## dagger-like marks
 
 glyph dagger 8 16
 ................
@@ -1260,8 +1255,7 @@ map ⸷ = dagger-right
 map ‡ = double-dagger
 map ⹋ = triple-dagger
 
-//--------------------------------------
-// star-like marks
+## star-like marks
 
 glyph star 8 16
 ................
@@ -1380,8 +1374,7 @@ map wide|narrow : ⁂ = triple-star($-half)
 
 map wide|narrow : ※ = reference-mark($-half)
 
-//--------------------------------------
-// exclamation and question marks
+## exclamation and question marks
 
 glyph excl 8 16
 ................
@@ -1596,8 +1589,7 @@ map ⁉ U+FE0E = excl-ques
 map ⁈ = ques-excl
 map ⁇ = ques-ques
 
-//--------------------------------------
-// parentheses/brackets
+## parentheses/brackets
 
 glyph lparen 8 16
 ................
@@ -1714,8 +1706,7 @@ map } = rbrace
 map [ = lbracket
 map ] = rbracket
 
-//--------------------------------------
-// pipes
+## pipes
 
 glyph pipe 8 16
 ................
@@ -1756,8 +1747,7 @@ glyph broken-pipe 8 16
 map | = pipe
 map ¦ = broken-pipe
 
-//--------------------------------------
-// slashes
+## slashes
 
 glyph slash 8 16
 ................
@@ -1798,8 +1788,7 @@ glyph backslash 8 16
 map / = slash
 map \ = backslash
 
-//--------------------------------------
-// percents
+## percents
 
 glyph percent 8 16
 ................
@@ -1893,8 +1882,7 @@ map % = percent
 map wide|narrow : ‰ = permille($-half)
 map wide|narrow : ‱ = permyriad($-half)
 
-//--------------------------------------
-// general symbols
+## general symbols
 
 glyph caret 8 16
 ................
@@ -2070,8 +2058,7 @@ map ⸹ = section-upper
 map ¶ = para
 map ⁋ = para-reversed
 
-//--------------------------------------
-// IPA
+## IPA
 
 glyph primary-stress 8 16
 ................

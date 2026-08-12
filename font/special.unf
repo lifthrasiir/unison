@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// specials
+# specials
 
 glyph interlinear-annot-anchor 16 16
 ..{}..{}..{}..{}..{}..{}..{}..{}
@@ -203,8 +202,7 @@ map wide|narrow : U+FFFB = interlinear-annot-term($-half)
 map wide|narrow : U+FFFC = obj-replacement($-half)
 map wide|narrow : U+FFFD = replacement($-half)
 
-//--------------------------------------
-// tags
+## tags
 
 glyph tag-($a-z|$0..9|cancel) advance 0
 ref sp

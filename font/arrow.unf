@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// arrow symbols
+# arrow symbols
 
-//--------------------------------------
-// single line
+## single line
 
 glyph arrow-head-r2l 5 5
 .../d@0/..
@@ -1908,8 +1906,7 @@ map wide|narrow : ⇃ = rharpoon-u2d($-half)
 //map ⇾ =
 //map ⇿ =
 
-//--------------------------------------
-// double line
+## double line
 
 glyph arrow-head-r2l-double 6 8
 ....../1@//.
@@ -2327,8 +2324,7 @@ map wide|narrow : ⇙ = arrow-ru2ld-double($-half)
 //map ⇏ = arrow-l2r-double arrow-horiz-stroke@<<
 //map ⇎ = arrow-horiz-double arrow-horiz-stroke
 
-//--------------------------------------
-// poor man's arrow symbol
+## poor man's arrow symbol
 
 glyph lt-and-hyphen 16 16
 ................................

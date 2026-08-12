@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// block elements
+# block elements
 
 glyph full-25 8 16
 ..@@..@@..@@..@@
@@ -251,8 +250,7 @@ glyph full-50z 8 16
 map 🮘 = full-50z
 map 🮙 = full-50s
 
-//--------------------------------------
-// thirds
+## thirds
 
 glyph left-1-over-3 8 16
 ref 2p2r3x16
@@ -262,8 +260,7 @@ ref 5p1r3x16
 
 map 🯏|🯎 = left-(1|2)-over-3
 
-//--------------------------------------
-// eighths
+## eighths
 
 glyph upper-7-over-8 8 16
 ref 8x14
@@ -394,8 +391,7 @@ map ▕|🮇|🮈|▐|🮉|🮊|🮋 = right-(1|2|3|4|5|6|7)-over-8
 map 🭶|🭷|🭸|🭹|🭺|🭻 = horiz-1-over-8-at-(2|3|4|5|6|7)
 map 🭰|🭱|🭲|🭳|🭴|🭵 = vert-1-over-8-at-(2|3|4|5|6|7)
 
-//--------------------------------------
-// sixteenths
+## sixteenths
 
 glyph sixteenth-11 8 16
 ref 2x4 0 0
@@ -528,8 +524,7 @@ map 𜺯 = sixteenth-43-44
 map 🮕 = sixteenth-11-13-22-24-31-33-42-44
 map 🮖 = sixteenth-12-14-21-23-32-34-41-43
 
-//--------------------------------------
-// quadrants
+## quadrants
 
 glyph quadrant-1-on 8 16 inline
 ref 4x8
@@ -744,8 +739,7 @@ map 🮝 = quadrant-ur-50
 map 🮞 = quadrant-dr-50
 map 🮟 = quadrant-dl-50
 
-//--------------------------------------
-// sextants
+## sextants
 
 glyph sextant-1-on 8 16 inline
 ref 4x5p1r3
@@ -1123,8 +1117,7 @@ map 🭆 = sextant-34-dr
 map 🭜 = sextant-34-ul
 map 🭧 = sextant-34-ur
 
-//--------------------------------------
-// octants
+## octants
 
 glyph octant-1-on 8 16 inline
 ref 4x4

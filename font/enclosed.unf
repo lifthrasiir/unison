@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// enclosed letters
+# enclosed letters
 
-//--------------------------------------
-// circled letters
+## circled letters
 
 // slight ellipsis to make an enclosed number balanced
 glyph enclosing-circle 16 16
@@ -227,8 +225,7 @@ ref enclosing-circle
 ref katakana-($kana-lex)-half 4 0
 map U+32D0..32FE = katakana-($kana-lex)-circled
 
-//--------------------------------------
-// squared letters
+## squared letters
 
 glyph enclosing-square 16 16
 ................................
@@ -807,8 +804,7 @@ map wide : 🆪 = shv-squared
 map wide : 🆫 = uhd-squared
 map wide : 🆬 = vod-squared
 
-//--------------------------------------
-// negated circled letters
+## negated circled letters
 
 glyph enclosing-black-circle 16 16
 ................................
@@ -966,8 +962,7 @@ ref narrow-($a-z)-upper 1 0 negated
 
 map wide|narrow : 🅐|🅑|🅒|🅓|🅔|🅕|🅖|🅗|🅘|🅙|🅚|🅛|🅜|🅝|🅞|🅟|🅠|🅡|🅢|🅣|🅤|🅥|🅦|🅧|🅨|🅩 = ($a-z)-upper-circled-black($-half)
 
-//--------------------------------------
-// negated squared letters
+## negated squared letters
 
 glyph enclosing-black-square 16 16
 ................................
@@ -1104,8 +1099,7 @@ map wide : 🆍 = sa-squared-black
 map wide : 🆎 = ab-squared-black
 map wide : 🆏 = wc-squared-black
 
-//--------------------------------------
-// circled letters in a black square
+## circled letters in a black square
 
 glyph enclosing-circle-in-black-square 16 16
 ................................
@@ -1155,8 +1149,7 @@ ref 0-3x8 4 4
 
 map wide|narrow : ㉈|㉉|㉊|㉋|㉌|㉍|㉎|㉏ = ($1..8)0-circled-in-black-square($-half)
 
-//--------------------------------------
-// doubly circled letters
+## doubly circled letters
 
 glyph enclosing-dcircle
 ref enclosing-circle
@@ -1224,8 +1217,7 @@ ref enclosing-dcircle-half
 
 map wide|narrow : ⓵|⓶|⓷|⓸|⓹|⓺|⓻|⓼|⓽|⓾ = ($1..10)-dcircled($-half)
 
-//--------------------------------------
-// parenthesed letters
+## parenthesed letters
 
 glyph enclosing-parens 16 16
 ................................
@@ -1359,8 +1351,7 @@ ref hangul-a-half-narrow 10 0
 map ㈀|㈁|㈂|㈃|㈄|㈅|㈆|㈇|㈈|㈉|㈊|㈋|㈌|㈍ = hangul-($hangul-init-lex)-in-parens
 map ㈎|㈏|㈐|㈑|㈒|㈓|㈔|㈕|㈖|㈗|㈘|㈙|㈚|㈛ = hangul-($hangul-init-lex)a-in-parens
 
-//--------------------------------------
-// with full stop or comma
+## with full stop or comma
 
 glyph enclosing-full-stop 16 16
 ................................

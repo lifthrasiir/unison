@@ -1,6 +1,5 @@
-////////////////////////////////////////
-// ogham
-//
+# ogham
+
 // this is wide only because of unusual shaping requirements.
 
 glyph ogham-begin 8 16

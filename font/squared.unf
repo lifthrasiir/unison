@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// CJK squared symbols
+# CJK squared symbols
 
-//--------------------------------------
-// katakana words
+## katakana words
 
 glyph ja-voiced-8x8 8 8
 ..............\b
@@ -1563,8 +1561,7 @@ map ㋿ = ja-squared-reiwa
 
 map ㍿ = ja-squared-corporation
 
-//--------------------------------------
-// latin letter symbols (mostly units)
+## latin letter symbols (mostly units)
 
 glyph narrow-micro 5 16
 ..........

@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// yijing and tai xuan jing symbols
+# yijing and tai xuan jing symbols
 
 glyph yang 11 2
 @@@@@@@@@@@@@@@@@@@@@@
@@ -19,16 +18,14 @@ glyph yang-sm 11 1
 glyph yin-sm 11 1
 @@@@@@@@......@@@@@@@@
 
-//--------------------------------------
-// monograms
+## monograms
 
 glyph monogram-(p|n|m) 16 16
 ref (yang|yin|ren) 3 7
 
 map ⚊|⚋|𝌀 = monogram-(p|n|m)
 
-//--------------------------------------
-// digrams
+## digrams
 
 glyph digram-(p|n|m)(p|n|m**3) 16 16
 ref (yang|yin|ren) 3 5
@@ -36,8 +33,7 @@ ref (yang|yin|ren**3) 3 9
 
 map ⚌|⚍|𝌃|⚎|⚏|𝌄|𝌁|𝌂|𝌅 = digram-(p|n|m)(p|n|m**3)
 
-//--------------------------------------
-// trigrams
+## trigrams
 
 glyph trigram-(p|n)(p|n**2)(p|n**4) 16 16
 ref (yang|yin) 3 4
@@ -46,8 +42,7 @@ ref (yang|yin**4) 3 10
 
 map ☰|☱|☲|☳|☴|☵|☶|☷ = trigram-(p|n)(p|n**2)(p|n**4)
 
-//--------------------------------------
-// tetragrams
+## tetragrams
 
 glyph tetragram-(p|n|m)(p|n|m**3)(p|n|m**9)(p|n|m**27) 16 16
 ref (yang|yin|ren**27) 3 2
@@ -57,8 +52,7 @@ ref (yang|yin|ren) 3 11
 
 map U+1D306..1D356 = tetragram-(p|n|m)(p|n|m**3)(p|n|m**9)(p|n|m**27)
 
-//--------------------------------------
-// hexagrams
+## hexagrams
 
 glyph hexagram-(p|n)(p|n**2)(p|n**4)(p|n**8)(p|n**16)(p|n**32) 16 16
 ref (yang|yin)-sm 3 2

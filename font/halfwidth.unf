@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// half-width forms
+# half-width forms
 
-//--------------------------------------
-// katakana
+## katakana
 
 glyph katakana-a-half 8 16
 ................

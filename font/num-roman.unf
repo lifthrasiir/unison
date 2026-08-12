@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// roman numerals
+# roman numerals
 
 glyph roman-1-upper 16 16
 ref narrow-i-upper 6 0

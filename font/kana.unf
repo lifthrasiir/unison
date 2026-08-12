@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// hiragana & katakana
+# hiragana & katakana
 
 name-parts $kana-lex = a i u e o ka ki ku ke ko sa shi su se so ta chi tsu te to na ni nu ne no ha hi fu he ho ma mi mu me mo ya yu yo ra ri ru re ro wa wi we wo
 
@@ -96,8 +95,7 @@ map ゜ = ja-half-voiced
 
 feature ccmp for kana : anchor kana-mod
 
-//--------------------------------------
-// hiragana
+## hiragana
 
 glyph hiragana-a 16 16
 ................................
@@ -1419,8 +1417,7 @@ map 𛅒 = hiragana-xwo
 
 map ん = hiragana-n
 
-//--------------------------------------
-// katakana
+## katakana
 
 glyph katakana-a 16 16
 ................................

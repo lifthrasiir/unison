@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// hangul syllables
+# hangul syllables
 
 // the following glyphs are used as representatives for combining jamos:
 //   hangul-init-*-l-f, hangul-med-*-f, hangul-fin-*-w
@@ -36,8 +35,7 @@ name-parts $hangul-fin0 = `` $hangul-fin
 
 name-parts $hangul-init-lex = g n d r m b s 0 j c k t p h
 
-//--------------------------------------
-// smaller jamo parts
+## smaller jamo parts
 
 glyph hangul-g-4x10 4 10
 @@@@@@@@
@@ -639,8 +637,7 @@ glyph hangul-x-6x6 6 6
 \0@@@@@@@@0/
 ............
 
-//--------------------------------------
-// contextual initial jamo (left, no final)
+## contextual initial jamo (left, no final)
 
 glyph hangul-init-g-l-nof 16 16
 ................................
@@ -1661,8 +1658,7 @@ ref wsp
 ref hangul-x-4x10 2 2
 ref hangul-x-4x10 6 2
 
-//--------------------------------------
-// contextual initial jamo (left, final)
+## contextual initial jamo (left, final)
 
 glyph hangul-init-g-l-f 16 16
 ................................
@@ -2683,8 +2679,7 @@ ref wsp
 ref hangul-x-4x7 2 1
 ref hangul-x-4x7 6 1
 
-//--------------------------------------
-// contextual initial jamo (top-left, no final)
+## contextual initial jamo (top-left, no final)
 
 glyph hangul-init-g-tl-nof 16 16
 ................................
@@ -2746,8 +2741,7 @@ name-parts $tl-l-identical-init = n d dd r m b bb s ss 0 j jj c t p h ng nn nd n
 
 glyph hangul-init-($tl-l-identical-init)-tl-nof = hangul-init-($tl-l-identical-init)-l-f
 
-//--------------------------------------
-// contextual initial jamo (top-left, final)
+## contextual initial jamo (top-left, final)
 
 glyph hangul-init-g-tl-f 16 16
 ................................
@@ -3768,8 +3762,7 @@ ref wsp
 ref hangul-x-4x6 2 1
 ref hangul-x-4x6 6 1
 
-//--------------------------------------
-// contextual initial jamo (top, no final)
+## contextual initial jamo (top, no final)
 
 // it is intentional to make hangul-init-*-t-nof and hangul-* identical in shape
 // wsp is required since this glyph will be used as a top-level glyph
@@ -3778,8 +3771,7 @@ glyph hangul-init-($hangul-init)-t-nof
 ref wsp
 ref hangul-($hangul-init) 2 1
 
-//--------------------------------------
-// contextual initial jamo (top, final)
+## contextual initial jamo (top, final)
 
 glyph hangul-init-g-t-f 16 16
 ................................
@@ -4734,8 +4726,7 @@ ref wsp
 ref hangul-x-6x6 2 1
 ref hangul-x-6x6 8 1
 
-//--------------------------------------
-// contextual medial jamo (no final)
+## contextual medial jamo (no final)
 
 glyph hangul-med-a-nof 16 16
 ................................
@@ -5151,8 +5142,7 @@ glyph hangul-med-.i-nof 16 16
 ........................@@@@....
 ................................
 
-//--------------------------------------
-// contextual medial jamo (final)
+## contextual medial jamo (final)
 
 glyph hangul-med-a-f 16 16
 ................................
@@ -5568,8 +5558,7 @@ glyph hangul-med-.i-f 16 16
 ................................
 ................................
 
-//--------------------------------------
-// contextual final jamo (narrow)
+## contextual final jamo (narrow)
 
 glyph hangul-fin--l 15 16
 
@@ -6065,8 +6054,7 @@ glyph hangul-fin-($hangul-fin0)-r
 ref wsp
 ref hangul-fin-($hangul-fin0)-l 1 0
 
-//--------------------------------------
-// contextual final jamo (wide)
+## contextual final jamo (wide)
 
 glyph hangul-fin--w 16 16
 
@@ -6556,8 +6544,7 @@ glyph hangul-fin-h-w 16 16
 ......\h_H@@@@@@@@@@@@H_h/......
 ................................
 
-//--------------------------------------
-// pre-combined hangul syllable
+## pre-combined hangul syllable
 
 name-parts $hangul-modern-med-map-for-init = l l l l l l l l t tl tl tl t t tl tl tl t t tl l
 name-parts $hangul-modern-med-map-for-fin = l r l r r r r r w w r w w w l r l w w w l
@@ -6572,8 +6559,7 @@ map U+AC00..D7A3 = hangul-($#AC00..D7A3)
 // there are so many hangul syllables that we want to hide (most of) them from sample.html
 exclude-from-sample U+AD00..D699
 
-//--------------------------------------
-// combining jamos
+## combining jamos
 
 // XXX modern-init is temporary and should be init instead!
 name-parts $temp-init = $hangul-modern-init
@@ -6677,8 +6663,7 @@ feature ljmo for hang : hangul-ljmo
 feature vjmo for hang : hangul-vjmo
 feature tjmo for hang : hangul-tjmo
 
-//--------------------------------------
-// tone marks
+## tone marks
 
 glyph hangul-tone-1 8 16
 ................

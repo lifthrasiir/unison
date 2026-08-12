@@ -1,11 +1,9 @@
-////////////////////////////////////////
-// combining marks
+# combining marks
 
 feature ccmp for DFLT : anchor below
 feature ccmp for DFLT : anchor above
 
-//--------------------------------------
-// diaeresis
+## diaeresis
 
 glyph dia-narrow 5 2 inline
 /01\../10\
@@ -44,9 +42,8 @@ ref dia-below:narrow 2 0
 
 map ¨ = dia-above-spacing
 
-//--------------------------------------
-// acute accents
-//
+## acute accents
+
 // shared with Polish kreska, which is steeper than acute
 // but such fine distinction is hard in bitmaps anyway.
 
@@ -86,10 +83,9 @@ ref sp
 ref acute-left 3 0
 map ´ = acute-above-spacing
 
-//--------------------------------------
-// double acute accents
+## double acute accents
 
-glyph dacute-above mark left -3 advance 0
+glyph dacute-above mark advance 0 left -3
 ref acute-right 0 0
 ref acute-right 3 0
 anchor -above 3 1
@@ -103,8 +99,7 @@ anchor +above 3..4 -1
 
 map U+030B = dacute-above
 
-//--------------------------------------
-// grave accents
+## grave accents
 
 glyph grave-right 4 2 inline
 \0@@1\..
@@ -137,8 +132,7 @@ anchor +above 1..2 -1
 map U+0300 = grave-above
 map U+0316 = grave-below
 
-//--------------------------------------
-// double grave accents
+## double grave accents
 
 glyph dgrave-above mark advance 0 left -3 top 0
 ref grave-left 0 0
@@ -154,8 +148,7 @@ anchor +above 2..3 -1
 
 map U+030F = dgrave-above
 
-//--------------------------------------
-// macrons
+## macrons
 
 glyph mac-wide 5 1
 @@@@@@@@@@
@@ -191,9 +184,8 @@ ref sp
 ref mac-wide 2 3
 map ¯ = mac-above-spacing
 
-//--------------------------------------
-// cedilla/comma
-//
+## cedilla/comma
+
 // Unicode's handling of cedilla vs. comma is quite unusual:
 // it encodes separate codepoints for combining cedilla and comma,
 // but precomposed characters almost always use cedilla in normalization.
@@ -299,8 +291,7 @@ ref sp
 ref ced 3 13
 map ¸ = ced-below-spacing
 
-//--------------------------------------
-// ogonek
+## ogonek
 
 glyph ogonek 2 3
 /01/
@@ -322,8 +313,7 @@ anchor +below 0..1 4
 
 map U+0328 = ogonek-below
 
-//--------------------------------------
-// caron (hacek)
+## caron (hacek)
 
 glyph caron 5 2
 \01\../10/
@@ -349,8 +339,7 @@ glyph caron-alt 2 3
 \0@@
 @@0/
 
-//--------------------------------------
-// circumflex
+## circumflex
 
 glyph circ 5 2
 ../0@@0\..
@@ -379,8 +368,7 @@ anchor +below 1..2 3
 map U+0302 = circ-above
 map U+032D = circ-below
 
-//--------------------------------------
-// breve
+## breve
 
 glyph breve 5 2
 @@1\../1@@
@@ -411,8 +399,7 @@ anchor +below 1..2 2
 map U+0306 = breve-above
 map U+032E = breve-below
 
-//--------------------------------------
-// inverted breve (arch)
+## inverted breve (arch)
 
 glyph arch 5 2
 /0@@@@@@0\
@@ -430,8 +417,7 @@ anchor +above 1..2 -1
 
 map U+0311 = arch-above
 
-//--------------------------------------
-// ring
+## ring
 
 glyph ring 3 3
 /0@@0\
@@ -461,8 +447,7 @@ anchor +below 1..2 4
 map U+030A = ring-above
 map U+0325 = ring-below
 
-//--------------------------------------
-// tilde
+## tilde
 
 glyph comb-tilde 5 2
 /0@@1\../1
@@ -491,8 +476,7 @@ anchor +below 2..3 2
 map U+0303 = tilde-above
 map U+0330 = tilde-below
 
-//--------------------------------------
-// dot
+## dot
 
 glyph comb-dot 2 2
 @@@@
@@ -524,8 +508,7 @@ anchor +below 0..1 2
 map U+0307 = dot-above
 map U+0323 = dot-below
 
-//--------------------------------------
-// hook above
+## hook above
 
 glyph hook 3 3
 /1@@1\
@@ -544,8 +527,7 @@ anchor +above 0..1 -2
 
 map U+0309 = hook-above
 
-//--------------------------------------
-// tests
+## tests
 
 // i + combining marks
 assert shape ï : uni00EF

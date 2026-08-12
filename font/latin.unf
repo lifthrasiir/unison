@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// latin and derivatives
+# latin and derivatives
 
 name-parts $a-z = a b c d e f g h i j k l m n o p q r s t u v w x y z
 
@@ -2401,8 +2400,7 @@ map x = x-lower
 map y = y-lower
 map z = z-lower
 
-//--------------------------------------
-// with diaeresis
+## with diaeresis
 
 map generate Ä
 glyph uni01DE
@@ -2500,8 +2498,7 @@ map generate ẅ
 map generate ẍ
 map generate ÿ
 
-//--------------------------------------
-// with acute accents
+## with acute accents
 
 map generate Á
 map generate Ǽ
@@ -2575,8 +2572,7 @@ map generate ẃ
 map generate ý
 map generate ź
 
-//--------------------------------------
-// with double acute accents
+## with double acute accents
 
 map generate Ő
 map generate Ű
@@ -2584,8 +2580,7 @@ map generate Ű
 map generate ő
 map generate ű
 
-//--------------------------------------
-// with grave accents
+## with grave accents
 
 map generate À
 map generate È
@@ -2621,8 +2616,7 @@ map generate ǹ
 map generate ẁ
 map generate ỳ
 
-//--------------------------------------
-// with double grave accents
+## with double grave accents
 
 map generate Ȁ
 map generate Ȅ
@@ -2638,8 +2632,7 @@ map generate ȍ
 map generate ȑ
 map generate ȕ
 
-//--------------------------------------
-// with macron
+## with macron
 
 map generate Ā
 map generate Ǣ
@@ -2728,9 +2721,8 @@ map ṻ = uni1E7B
 map generate ȳ
 map generate ẕ
 
-//--------------------------------------
-// with cedilla
-//
+## with cedilla
+
 // normalization is no guide to the shape here: apart from S and T, every
 // precomposed letter decomposes to U+0327 combining cedilla even where the
 // language's convention is a comma below (see the comma section right after
@@ -2766,9 +2758,8 @@ map generate ḩ
 map generate ş = s-lower-with-ced-below
 map generate ţ = t-lower-with-ced-below
 
-//--------------------------------------
-// with comma below
-//
+## with comma below
+
 // Latvian ģ ķ ļ ņ ŗ are encoded as "letter with cedilla" but are drawn with a
 // comma; no language uses those five letters with a real cedilla, so the
 // choice can be made per glyph and needs no locale. lowercase ģ is the odd
@@ -2872,8 +2863,7 @@ assert shape ş : s-lower-with-ced-below
 // `ccmp`, which an explicit language system replaces rather than extends
 assert shape j̈ @ro : j-lower:dotless : dia-above:narrow offset -5 3
 
-//--------------------------------------
-// with ogonek
+## with ogonek
 
 glyph uni0104
 ref a-upper
@@ -2898,8 +2888,7 @@ map generate ǫ
 map generate ǭ
 map generate ų
 
-//--------------------------------------
-// with caron (hacek)
+## with caron (hacek)
 
 map generate Ǎ
 map generate Č
@@ -2990,8 +2979,7 @@ map generate ǔ
 map generate ž
 //map ǯ =
 
-//--------------------------------------
-// with circumflex
+## with circumflex
 
 map generate Â
 glyph uni1EA6
@@ -3162,8 +3150,7 @@ map generate ŵ
 map generate ŷ
 map generate ẑ
 
-//--------------------------------------
-// with breve
+## with breve
 
 map generate Ă
 glyph uni1EB0
@@ -3221,8 +3208,7 @@ map generate ĭ
 map generate ŏ
 map generate ŭ
 
-//--------------------------------------
-// with inverted breve (arch)
+## with inverted breve (arch)
 
 map generate Ȃ
 map generate Ȇ
@@ -3238,8 +3224,7 @@ map generate ȏ
 map generate ȓ
 map generate ȗ
 
-//--------------------------------------
-// with ring
+## with ring
 
 map generate Å
 glyph uni01FA
@@ -3261,8 +3246,7 @@ map generate ů
 map generate ẘ
 map generate ẙ
 
-//--------------------------------------
-// with tilde
+## with tilde
 
 map generate Ã
 map generate Ẽ
@@ -3344,8 +3328,7 @@ map generate ṵ
 map generate ṽ
 map generate ỹ
 
-//--------------------------------------
-// with dot
+## with dot
 
 map generate Ȧ
 glyph uni01E0
@@ -3518,8 +3501,7 @@ map ỵ = uni1EF5
 map generate ż
 map generate ẓ
 
-//--------------------------------------
-// with hook above
+## with hook above
 
 map generate Ả
 map generate Ẻ

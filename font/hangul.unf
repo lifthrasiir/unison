@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// hangul jamos
+# hangul jamos
 
-//--------------------------------------
-// full-width "compatibility" forms
+## full-width "compatibility" forms
 
 // smaller subglyphs (6x7 plus one spare row above) are used for clusters
 
@@ -1560,8 +1558,7 @@ map ㅣ = hangul-i
 map ㆍ = hangul-.
 map ㆎ = hangul-.i
 
-//--------------------------------------
-// half-width forms
+## half-width forms
 
 // narrow jamos have serif unlike their wide counterparts
 

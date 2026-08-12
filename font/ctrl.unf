@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// control pictures
+# control pictures
 
-//--------------------------------------
-// C0/C1 placeholders
+## C0/C1 placeholders
 
 glyph ctrl-nul 8 16
 ref sm-n-4x6 1 1
@@ -259,8 +257,7 @@ map ␠ = ctrl-sp
 map ␡ = ctrl-del
 map ␤ = ctrl-nl
 
-//--------------------------------------
-// OCR symbols
+## OCR symbols
 
 glyph ocr-hook 8 16
 ................
@@ -469,8 +466,7 @@ map ⑇ = micr-amount
 map ⑈ = micr-on-us
 map ⑉ = micr-dash
 
-//--------------------------------------
-// other symbols
+## other symbols
 
 glyph blank-symbol 8 16
 ................

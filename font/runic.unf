@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// runic
+# runic
 
 // "idealized glyphs" only. the author does not have enough knowledge
 // on the historic variations of runes.
@@ -1607,8 +1606,7 @@ map ᛶ = runic-eh-franks-casket
 map ᛷ = runic-ac-franks-casket
 map ᛸ = runic-aesc-franks-casket
 
-////////////////////////////////////////
-// calendar runes
+# calendar runes
 
 glyph runic-arlaug 8 16
 ................
@@ -1668,8 +1666,7 @@ map ᛮ = runic-arlaug
 map ᛯ = runic-tvimadur
 map ᛰ = runic-belgthor
 
-////////////////////////////////////////
-// separators
+# separators
 
 glyph runic-sep-single 8 16
 ................

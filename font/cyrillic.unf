@@ -1,5 +1,4 @@
-////////////////////////////////////////
-// cyrillic and derivatives
+# cyrillic and derivatives
 
 // general guideline is to make cyrillic distinguishable from
 // latin with rounder corners and more straight shapes.
@@ -1771,8 +1770,7 @@ map э = cy-e-lower
 map ю = cy-yu-lower
 map я = cy-ya-lower
 
-//--------------------------------------
-// with diaeresis
+## with diaeresis
 
 map generate Ӓ
 map generate Ё
@@ -1801,8 +1799,7 @@ map generate ӵ
 map generate ӭ
 map generate ӹ
 
-//--------------------------------------
-// with acute accents
+## with acute accents
 
 map generate Ѓ
 map generate Ќ
@@ -1810,15 +1807,13 @@ map generate Ќ
 map generate ѓ
 map generate ќ
 
-//--------------------------------------
-// with double acute accents
+## with double acute accents
 
 map generate Ӳ
 
 map generate ӳ
 
-//--------------------------------------
-// with grave accents
+## with grave accents
 
 map generate Ѐ
 map generate Ѝ
@@ -1826,8 +1821,7 @@ map generate Ѝ
 map generate ѐ
 map generate ѝ
 
-//--------------------------------------
-// with macron
+## with macron
 
 map generate Ӣ
 map generate Ӯ
@@ -1835,8 +1829,7 @@ map generate Ӯ
 map generate ӣ
 map generate ӯ
 
-//--------------------------------------
-// with breve
+## with breve
 
 map generate Ӑ
 map generate Ӗ
@@ -1848,8 +1841,7 @@ map generate ӗ
 map generate й
 map generate ў
 
-//--------------------------------------
-// archaic cyrillic
+## archaic cyrillic
 
 glyph cy-monocular-o-upper 8 16
 ................

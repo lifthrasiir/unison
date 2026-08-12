@@ -1,8 +1,6 @@
-////////////////////////////////////////
-// line segments
+# line segments
 
-//--------------------------------------
-// degree 1
+## degree 1
 
 glyph lineseg-u 8 16
 ........@@......
@@ -234,8 +232,7 @@ map 🮡 = lineseg-_z__
 map 🮢 = lineseg-___z
 map 🮣 = lineseg-__s_
 
-//--------------------------------------
-// degree 2
+## degree 2
 
 glyph lineseg-lr 8 16
 ................
@@ -1873,8 +1870,7 @@ map 🯕 = lineseg-_zz_
 map 🯖 = lineseg-_ss_
 map 🯗 = lineseg-s__s
 
-//--------------------------------------
-// degree 3
+## degree 3
 
 glyph lineseg-rud 8 16
 ........@@......
@@ -2797,8 +2793,7 @@ map 🮫 = lineseg-s_sz
 map 🮬 = lineseg-szs_
 map 🮭 = lineseg-sz_z
 
-//--------------------------------------
-// degree 4
+## degree 4
 
 glyph lineseg-lrud 8 16
 ........@@......

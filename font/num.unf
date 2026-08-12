@@ -1,7 +1,4 @@
-////////////////////////////////////////
-// numerals
-
-//--------------------------------------
+# numerals
 
 glyph 0 8 16
 ................
@@ -243,8 +240,7 @@ map 9 U+FE0E = 9
 map ↊ = 2-inverted
 map ↋ = 3-inverted
 
-//--------------------------------------
-// superscript/subscript
+## superscript/subscript
 
 glyph sup-($0..9)
 ref sp
@@ -275,8 +271,7 @@ map ₇ = sub-7
 map ₈ = sub-8
 map ₉ = sub-9
 
-//--------------------------------------
-// vulgar fractions
+## vulgar fractions
 
 glyph fraction-slash 7 7
 ........../10>
