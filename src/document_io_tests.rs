@@ -2116,3 +2116,53 @@ fn a_mixed_spelling_variation_sequence_round_trips() {
     serialize_document(&doc, &mut output).unwrap();
     assert_eq!(String::from_utf8(output).unwrap(), input);
 }
+
+/// A heading is its own item, its `#` run has to be a token, and everything
+/// after it is prose that survives a round-trip verbatim.
+#[test]
+fn headings_parse_at_three_levels_and_round_trip() {
+    let input = "\
+# a title\n\
+## a section\n\
+### a subsection\n\
+#\n\
+#### too deep\n\
+###not a heading\n\
+# `backticks` and // not a comment marker to the parser\n";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    let levels: Vec<Option<u8>> = doc
+        .items
+        .iter()
+        .map(|item| match item {
+            DocumentItem::Heading { level, .. } => Some(*level),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        levels,
+        vec![Some(1), Some(2), Some(3), Some(1), Some(4), None, Some(1)],
+        "`####` still parses (so `issues` can report it) but `###foo` does not"
+    );
+    assert!(
+        matches!(&doc.items[5], DocumentItem::Directive(t) if t == "###not a heading"),
+        "a `#` run that is not a token of its own is not a heading: {:?}",
+        doc.items[5]
+    );
+    assert!(
+        matches!(&doc.items[3], DocumentItem::Heading { text, .. } if text.is_empty()),
+        "a bare `#` is a heading with no text"
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+/// A heading builds nothing: the font is what it would be with the line gone.
+/// `affects_font` is what the editor rebuilds on, hence the gate.
+#[cfg(feature = "editor")]
+#[test]
+fn a_heading_does_not_affect_the_font() {
+    let doc = parse_document_from_str("# title\n", "test.unf".into()).unwrap();
+    assert!(!doc.items[0].affects_font());
+}

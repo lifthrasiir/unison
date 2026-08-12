@@ -24,8 +24,9 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use crate::document::{
-    Directive, Document, DocumentItem, GlyphName, classify_directive, expand_name_element,
-    find_invalid_inline_ranges, is_name_pattern, is_valid_glyph_name, substitute_name_parts,
+    Directive, Document, DocumentItem, GlyphName, MAX_HEADING_LEVEL, classify_directive,
+    expand_name_element, find_invalid_inline_ranges, is_name_pattern, is_valid_glyph_name,
+    substitute_name_parts,
 };
 use crate::pattern::NamePattern;
 use crate::resolve::{Diagnostic, DocSet, ItemRef, Resolution};
@@ -962,6 +963,21 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                             format!("name part `{name}`: {msg}"),
                         ));
                     }
+                }
+                DocumentItem::Heading { level, .. } if *level > MAX_HEADING_LEVEL => {
+                    // A heading builds nothing, so this could have been a
+                    // warning — but a `####` line is one the author meant as a
+                    // section and the editor will not group, and silently
+                    // dropping structure is what the error is for.
+                    issues.push(issue_at(
+                        doc,
+                        item_idx,
+                        Severity::Error,
+                        format!(
+                            "heading level {level} is past `{}`, the deepest this format has",
+                            "#".repeat(MAX_HEADING_LEVEL as usize),
+                        ),
+                    ));
                 }
                 DocumentItem::Directive(text) => {
                     // `font-meta` became `meta`, one key per line. This is an
@@ -2946,6 +2962,20 @@ map A = user
             !issues.iter().any(|i| i.message.contains("not built")),
             "keep placeholder is built; a ref to it is fine: {issues:?}",
         );
+    }
+
+    #[test]
+    fn a_fourth_heading_level_is_an_error_and_the_three_are_not() {
+        let input = "# one\n## two\n### three\n#### four\n";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        let heading: Vec<&Issue> = issues
+            .iter()
+            .filter(|i| i.message.contains("heading level"))
+            .collect();
+        assert_eq!(heading.len(), 1, "only `####` is reported: {issues:?}");
+        assert_eq!(heading[0].severity, Severity::Error);
+        assert!(heading[0].message.contains("level 4"), "{:?}", heading[0]);
     }
 
     #[test]

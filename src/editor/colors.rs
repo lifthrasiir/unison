@@ -15,6 +15,7 @@ pub struct Palette {
     // Syntax
     pub text_default: Color32,
     pub text_comment: Color32,
+    pub text_heading: Color32,
     pub text_meta: Color32,
     pub text_header: Color32,
     pub text_ref: Color32,
@@ -72,6 +73,7 @@ impl Palette {
 
             text_default: Color32::from_rgb(200, 200, 200),
             text_comment: Color32::from_rgb(87, 130, 70),
+            text_heading: Color32::from_rgb(120, 175, 100),
             text_meta: Color32::from_rgb(70, 130, 180),
             text_header: Color32::from_rgb(190, 180, 130),
             text_ref: Color32::from_rgb(145, 145, 165),
@@ -121,6 +123,7 @@ impl Palette {
 
             text_default: Color32::from_rgb(30, 30, 30),
             text_comment: Color32::from_rgb(55, 110, 35),
+            text_heading: Color32::from_rgb(40, 95, 25),
             text_meta: Color32::from_rgb(25, 95, 160),
             text_header: Color32::from_rgb(140, 115, 20),
             text_ref: Color32::from_rgb(95, 95, 130),

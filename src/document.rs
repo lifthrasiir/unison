@@ -957,11 +957,32 @@ pub fn excluded_from_sample<'a>(
     excluded
 }
 
+/// The deepest heading the format has. Three, because the editor nests one
+/// group per level and a glyph block is the fourth; see
+/// [`crate::document_io`] (`# Headings`).
+pub const MAX_HEADING_LEVEL: u8 = 3;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum DocumentItem {
     Comment(String),
     BlankLine,
     Directive(String),
+    /// `#`/`##`/`###` followed by a space and free text — a section heading.
+    ///
+    /// A heading carries nothing the font is built from: it is a comment as far
+    /// as every build stage is concerned, and exists so the *editor* can fold a
+    /// file by its sections and show them as landmarks. See
+    /// [`crate::editor::folding`] for the grouping and
+    /// [`crate::document_io`] (`# Headings`) for the syntax.
+    ///
+    /// `level` is the number of `#` as written, so a level past 3 survives
+    /// parsing to be reported by [`crate::issues`] rather than silently read as
+    /// something else. `text` is everything after the `#` run, comment
+    /// included, so serializing is lossless — like [`DocumentItem::Meta`].
+    Heading {
+        level: u8,
+        text: String,
+    },
     /// `meta [FACE :] KEY VALUE...` — one key per line. Holds the text after
     /// the keyword, comment included, so serializing is lossless.
     Meta(String),
@@ -1159,6 +1180,7 @@ impl DocumentItem {
             self,
             DocumentItem::Comment(_)
                 | DocumentItem::BlankLine
+                | DocumentItem::Heading { .. }
                 | DocumentItem::Directive(_)
                 | DocumentItem::AssertShape { .. }
                 | DocumentItem::AssertSame { .. }

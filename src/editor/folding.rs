@@ -8,12 +8,12 @@
 //! so nothing paints them, the minimap does not draw them and no caret can
 //! land on one. The header is never hidden by its own group.
 //!
-//! Only one kind of group exists today, [`fold_groups`]'s glyph blocks (a
-//! `glyph` header plus its grid and `ref`/`anchor` lines), but nothing below
-//! that function assumes it: groups are returned sorted by header with the
+//! [`fold_groups`] builds two kinds — a glyph block (a `glyph` header plus its
+//! grid and `ref`/`anchor` lines) and a heading section — but nothing below that
+//! function tells them apart: groups are returned sorted by header with the
 //! *outer* one first at a tie, and every query here walks the list rather than
-//! indexing it, so nested and interleaved kinds only need a longer
-//! [`fold_groups`].
+//! indexing it. Four levels can therefore nest (`#`, `##`, `###`, glyph), and
+//! [`nesting_depth`] is all the gutter needs to stack them.
 //!
 //! # Why the group list is not recomputed every frame
 //!
@@ -58,7 +58,7 @@
 //! grouping broke" outcome as the group disappearing outright.
 
 use super::caret::{self, Caret};
-use crate::document::{DocLine, Document, DocumentItem};
+use crate::document::{DocLine, Document, DocumentItem, MAX_HEADING_LEVEL};
 
 /// A foldable run of lines: `header` is shown always, `header + 1 .. end` are
 /// what collapsing hides. `end` is always greater than `header + 1` — a group
@@ -84,30 +84,78 @@ impl FoldGroup {
 /// Every group the document currently offers, sorted by header ascending and,
 /// at equal headers, outermost first.
 ///
-/// A `glyph` item owns the lines from its own start up to the next item's, so
-/// its members are the optional grid line and the `ref`/`anchor` lines after
-/// it. Items that are a single line are not foldable.
+/// Two kinds:
+///
+/// * A `glyph` item owns the lines from its own start up to the next item's, so
+///   its members are the optional grid line and the `ref`/`anchor` lines after
+///   it. Items that are a single line are not foldable.
+/// * A heading (`#`/`##`/`###`) owns everything up to the next heading of *its
+///   own level or shallower*, or the end of the file. Ending at a shallower one
+///   too is what keeps the kinds properly nested rather than merely overlapping:
+///   every group here is contained in or disjoint from every other, so the
+///   gutter can stack them by depth and `innermost_at` can pick by header alone.
+///
+/// A document with exactly one `#` is the exception: that line is a title for
+/// the file, not a section of it, and folding a file into itself buys nothing —
+/// so it makes no group. `##`/`###` have no such rule, because a lone one of
+/// those is still a section among the plain lines before it.
 pub(crate) fn fold_groups(doc: &Document, lines: &[DocLine]) -> Vec<FoldGroup> {
     let starts = &doc.item_line_starts;
+    let level_of = |item: &DocumentItem| match item {
+        DocumentItem::Heading { level, .. } if *level <= MAX_HEADING_LEVEL => Some(*level),
+        _ => None,
+    };
+    let lone_title = doc
+        .items
+        .iter()
+        .filter(|item| level_of(item) == Some(1))
+        .count()
+        == 1;
+
     let mut groups = Vec::new();
     for (idx, item) in doc.items.iter().enumerate() {
-        if !matches!(item, DocumentItem::Glyph { .. }) {
-            continue;
-        }
         let Some(&header) = starts.get(idx) else {
             continue;
         };
-        let end = starts
-            .get(idx + 1)
-            .copied()
-            .unwrap_or(lines.len())
-            .min(lines.len());
+        let end = match item {
+            DocumentItem::Glyph { .. } => starts.get(idx + 1).copied().unwrap_or(lines.len()),
+            _ => match level_of(item) {
+                Some(1) if lone_title => continue,
+                Some(level) => doc.items[idx + 1..]
+                    .iter()
+                    .position(|it| level_of(it).is_some_and(|l| l <= level))
+                    .and_then(|off| starts.get(idx + 1 + off).copied())
+                    .unwrap_or(lines.len()),
+                None => continue,
+            },
+        };
+        let end = end.min(lines.len());
         if end > header + 1 {
             groups.push(FoldGroup { header, end });
         }
     }
     groups.sort_by(|a, b| a.header.cmp(&b.header).then(b.end.cmp(&a.end)));
     groups
+}
+
+/// The deepest nesting `groups` reaches, and so how many marker columns the
+/// gutter reserves for the document. `0` when there is nothing to fold.
+pub(crate) fn max_nesting_depth(groups: &[FoldGroup]) -> usize {
+    groups
+        .iter()
+        .map(|&g| nesting_depth(groups, g))
+        .max()
+        .unwrap_or(0)
+}
+
+/// How deeply `group` is nested among `groups`: 1 for one nothing contains, one
+/// more for each group around it. The gutter draws a group's marker in the
+/// column this picks — see `document_view::layout::fold_markers`.
+pub(crate) fn nesting_depth(groups: &[FoldGroup], group: FoldGroup) -> usize {
+    1 + groups
+        .iter()
+        .filter(|g| **g != group && g.header <= group.header && g.end >= group.end)
+        .count()
 }
 
 #[derive(Clone)]
@@ -399,6 +447,78 @@ mod tests {
     /// Default metrics: height 16, so the limit is 32 subcell rows.
     fn meta() -> crate::meta::FontMetrics {
         crate::meta::FontMetrics::default()
+    }
+
+    /// The line each group covers, as `(header, end)` pairs, for readability.
+    fn spans(source: &str) -> Vec<(usize, usize)> {
+        let (_, _, folds) = state_for(source);
+        folds.groups().iter().map(|g| (g.header, g.end)).collect()
+    }
+
+    /// A heading owns everything up to the next heading of its own level or
+    /// shallower — so the sections nest rather than overlap — and the glyph
+    /// blocks inside one keep their own groups.
+    #[test]
+    fn a_heading_section_ends_at_the_next_heading_of_its_level_or_above() {
+        let src = "\
+# one\n\
+## alpha\n\
+map a = a\n\
+### deep\n\
+map b = b\n\
+## beta\n\
+map c = c\n\
+# two\n\
+map d = d\n";
+        assert_eq!(
+            spans(src),
+            vec![
+                // `# one` runs to `# two`; `## alpha` stops at `## beta`, and
+                // `### deep` at the `##` that is shallower than it.
+                (0, 7),
+                (1, 5),
+                (3, 5),
+                (5, 7),
+                (7, 9),
+            ]
+        );
+    }
+
+    /// Two `#` are two sections; one `#` is the file's title and folds nothing.
+    #[test]
+    fn a_lone_level_one_heading_makes_no_group() {
+        let one = "# title\nmap a = a\nmap b = b\n";
+        assert_eq!(spans(one), Vec::new());
+
+        let two = "# title\nmap a = a\n# other\nmap b = b\n";
+        assert_eq!(spans(two), vec![(0, 2), (2, 4)]);
+
+        // The rule is `#`-only: a lone `##` is still a section of the file.
+        let lone_sub = "## section\nmap a = a\n";
+        assert_eq!(spans(lone_sub), vec![(0, 2)]);
+    }
+
+    /// A heading with nothing under it is not foldable, just as a one-line
+    /// glyph is not.
+    #[test]
+    fn an_empty_section_is_not_a_group() {
+        assert_eq!(spans("## a\n## b\nmap x = x\n"), vec![(1, 3)]);
+    }
+
+    /// Four levels can nest, and the gutter reads its column from the depth.
+    #[test]
+    fn nesting_runs_four_deep_through_a_glyph_block() {
+        let src = format!("# one\n## two\n### three\n{}# other\n", glyph("g", 2, 2, 1));
+        let (_, _, folds) = state_for(&src);
+        let depths: Vec<usize> = folds
+            .groups()
+            .iter()
+            .map(|&g| (g.header, nesting_depth(folds.groups(), g)))
+            .map(|(_, d)| d)
+            .collect();
+        assert_eq!(depths, vec![1, 2, 3, 4]);
+        // The innermost group at the glyph's grid line is the glyph's own.
+        assert_eq!(folds.innermost_at(4).map(|g| g.header), Some(3));
     }
 
     #[test]

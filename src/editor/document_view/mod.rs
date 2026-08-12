@@ -49,8 +49,8 @@ use scroll::{
 // `document_view::*`, whichever submodule they now live in.
 pub(crate) use changes::flush_document_changes;
 pub(crate) use layout::{
-    GlyphMetrics, GridExtent, GridStrip, VLineKind, ViewCache, VisualLine,
-    compute_grid_display_extent, glyph_metrics,
+    GlyphMetrics, GridExtent, GridStrip, HeadingLine, VLineKind, ViewCache, VisualLine,
+    compute_grid_display_extent, glyph_metrics, heading_font_size,
 };
 #[cfg(test)]
 pub(crate) use layout::{gutter_line_number, inline_panel_reserved_width};
@@ -59,6 +59,11 @@ pub(crate) use scroll::{apply_scroll_physics, debounced_scroll_step, interceptor
 pub(crate) const UNFILLED_OPACITY: f32 = 0.35;
 
 pub(crate) const GRID_CELL: f32 = 14.0;
+
+/// The editor's text size at zoom level 1, and so the size of one zoom step:
+/// the pane draws at `EDITOR_FONT_SIZE * zoom_level`. A heading is measured in
+/// these steps rather than in factors — see [`layout::heading_font_size`].
+pub(crate) const EDITOR_FONT_SIZE: f32 = 16.0;
 
 pub(crate) const LEFT_PAD: f32 = 4.0;
 
@@ -419,7 +424,7 @@ fn show_document(
         .rect
         .width()
     });
-    let marker_width = {
+    let marker_columns = {
         let shown = match state.view_cache.as_ref() {
             Some(cache) => page_has_fold_marker(
                 &cache.data.vlines,
@@ -431,11 +436,23 @@ fn show_document(
             ),
             None => !state.folds.groups().is_empty(),
         };
-        if shown { font_id.size } else { 0.0 }
+        // One column per level the *document* nests, not per level this page
+        // shows: the count decides where every marker sits, and folding a group
+        // must not shift its neighbours out from under the pointer.
+        if shown {
+            crate::editor::folding::max_nesting_depth(state.folds.groups())
+        } else {
+            0
+        }
     };
     let gutter = GutterLayout {
-        width: number_width + marker_width,
-        marker_width,
+        width: number_width + font_id.size * marker_columns as f32,
+        marker_width: if marker_columns > 0 {
+            font_id.size
+        } else {
+            0.0
+        },
+        marker_columns,
         digits: gutter_digits,
     };
     let gutter_width = gutter.width;

@@ -5418,3 +5418,139 @@ fn a_page_that_is_all_grid_still_carries_the_fold_bar() {
         "the bar of the group this page is inside is still painted"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Headings
+// ---------------------------------------------------------------------------
+
+/// A `#`/`##`/`###` file with a glyph block in the deepest section.
+///
+/// DocLines: 0 `# title`, 1 `## alpha`, 2 `map a = a`, 3 `### deep`,
+/// 4 header a, 5 grid, 6 `## beta`, 7 `map b = b`, 8 `# second`, 9 `map c = c`.
+fn heading_doc() -> String {
+    String::from(
+        "# title\n## alpha\nmap a = a\n### deep\nglyph a 2 2\n....\n....\n\
+         ## beta\nmap b = b\n# second\nmap c = c\n",
+    )
+}
+
+/// Height of the first visual line of `doc_line`.
+fn line_height(h: &EditorHarness, doc_line: usize) -> f32 {
+    h.snap()
+        .vlines
+        .iter()
+        .find(|vl| vl.doc_line == doc_line)
+        .unwrap_or_else(|| panic!("no visual line for {doc_line}"))
+        .height
+}
+
+/// A heading draws two zoom steps above the body text for `#` and one for
+/// `##`, and its row grows with it — `###` is body size.
+#[test]
+fn a_heading_row_is_as_tall_as_the_type_it_draws_at() {
+    let h = EditorHarness::new(&heading_doc());
+    let body = line_height(&h, 2);
+    assert!(line_height(&h, 0) > line_height(&h, 1));
+    assert!(line_height(&h, 1) > body);
+    assert_eq!(line_height(&h, 3), body, "### is body size");
+    assert_eq!(line_height(&h, 9), body);
+    // 16px body, so 48/32/16 — measured as row heights, which scale with them.
+    let ratio = |line: usize| line_height(&h, line) / body;
+    assert!((ratio(0) - 3.0).abs() < 0.35, "# is 48/16: {}", ratio(0));
+    assert!((ratio(1) - 2.0).abs() < 0.35, "## is 32/16: {}", ratio(1));
+    assert_view_consistent(&h);
+}
+
+/// Folding a section hides everything under it, up to the next heading of its
+/// own level or shallower.
+#[test]
+fn a_heading_section_folds_down_to_its_heading() {
+    let mut h = EditorHarness::new(&heading_doc());
+    assert_eq!(shown_lines(&h), (0..10).collect::<Vec<_>>());
+
+    h.click_fold_marker(1);
+    assert_eq!(
+        shown_lines(&h),
+        vec![0, 1, 6, 7, 8, 9],
+        "`## alpha` swallows the `###` section inside it but stops at `## beta`"
+    );
+
+    h.click_fold_marker(1);
+    assert_eq!(shown_lines(&h), (0..10).collect::<Vec<_>>());
+    assert_view_consistent(&h);
+}
+
+/// The one `#` of a file is its title, not a section: nothing folds it, while
+/// the second one turns both into sections.
+#[test]
+fn a_lone_title_has_no_marker_but_a_second_heading_gives_it_one() {
+    let h = EditorHarness::new("# title\nmap a = a\nmap b = b\n");
+    assert!(h.fold_markers().is_empty());
+    assert_eq!(h.snap().marker_width, 0.0, "and no column is reserved");
+
+    let h = EditorHarness::new("# title\nmap a = a\n# second\nmap b = b\n");
+    let headers: Vec<usize> = h.fold_markers().iter().map(|(l, ..)| *l).collect();
+    assert_eq!(headers, vec![0, 2]);
+}
+
+/// The gutter stacks a marker per level of nesting, outermost against the line
+/// numbers and each nested one to its left — so the same kind of block sits in
+/// different columns depending on what encloses it.
+#[test]
+fn nested_groups_stack_their_markers_leftwards_from_the_line_numbers() {
+    let h = EditorHarness::new(&heading_doc());
+    let x_of = |header: usize| -> f32 {
+        h.fold_markers()
+            .into_iter()
+            .find(|(l, ..)| *l == header)
+            .unwrap_or_else(|| panic!("no marker for line {header}"))
+            .1
+            .min
+            .x
+    };
+    // `# title` ⊃ `## alpha` ⊃ `### deep` ⊃ the glyph block.
+    assert!(x_of(0) > x_of(1));
+    assert!(x_of(1) > x_of(3));
+    assert!(x_of(3) > x_of(4));
+    // Four columns of markers, and the text starts past all of them.
+    assert!(h.snap().marker_width >= 4.0 * (x_of(0) - x_of(1)) - 0.5);
+
+    // The same glyph block, with no section around it, sits in the *outermost*
+    // column — the one against the line numbers — rather than three columns to
+    // its left. Measured from the text origin, which is what both files share.
+    let flat = EditorHarness::new(&fold_doc());
+    let inset = |h: &EditorHarness, x: f32| h.snap().origin_x - x;
+    assert!(
+        inset(&flat, flat.fold_markers()[0].1.min.x) < inset(&h, x_of(4)),
+        "a glyph block nested three deep is pushed further from the text"
+    );
+}
+
+/// Folding a group must not move the markers of the groups around it: the
+/// column count is the document's nesting, not the page's, so a second click
+/// lands where the first one did.
+#[test]
+fn a_fold_leaves_every_marker_where_it_was() {
+    let mut h = EditorHarness::new(&heading_doc());
+    let xs = |h: &EditorHarness| -> Vec<(usize, f32)> {
+        let mut m = h.fold_markers();
+        m.sort_by_key(|(l, ..)| *l);
+        m.iter().map(|(l, r, _)| (*l, r.min.x)).collect()
+    };
+    let before = xs(&h);
+    assert_eq!(
+        before.iter().map(|(l, _)| *l).collect::<Vec<_>>(),
+        vec![0, 1, 3, 4, 6, 8]
+    );
+    h.click_fold_marker(3);
+    let after = xs(&h);
+    assert_eq!(
+        after.iter().map(|(l, _)| *l).collect::<Vec<_>>(),
+        vec![0, 1, 3, 6, 8],
+        "the glyph block inside the shut section is gone with it"
+    );
+    for (line, x) in after {
+        let was = before.iter().find(|(l, _)| *l == line).unwrap().1;
+        assert_eq!(x, was, "marker of line {line} moved");
+    }
+}

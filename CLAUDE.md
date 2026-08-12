@@ -201,10 +201,13 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Contour coordinate spaces | `render/contour.rs` |
 | The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |
 | Folding a glyph block: what a group is, and when the group list is recomputed | `editor/folding.rs` |
+| `#`/`##`/`###` headings: the syntax, and why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document.rs` (`DocumentItem::Heading`) |
+| What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
+| Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |
 | Where a caret goes when a fold swallows the line it was on, and what a fold does to a selection | `editor/folding.rs` (`toggle_at`, `snap_caret`) |
 | Which glyph blocks start folded, and the font height that decides it | `editor/folding.rs` (`apply_initial`) |
 | Why closing a fold may scroll and opening one may not | `editor/folding.rs` (`FoldScroll`), `document_view/scroll.rs` |
-| The gutter's marker column, and why it is reserved a frame behind the page | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`) |
+| The gutter's marker columns: one per nesting level, outermost by the numbers, and why the count is the document's rather than the page's | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`), `editor/folding.rs` (`nesting_depth`) |
 | Split panes, their invariants and key chords | `app/panes.rs` |
 | Go back / go forward | `app/history.rs` |
 | The Search pane, and where a click goes with no definition | `app/search.rs` |

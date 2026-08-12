@@ -33,6 +33,14 @@ pub(super) fn apply_pending_rederive(
                 lines.get(state.cursor.line),
                 Some(DocLine::Text(t)) if crate::editor::reconcile::parse_glyph_header_dims(t).is_some()
             );
+            // A heading is a header too: its fold group must not come and go
+            // under the caret as the level is retyped, so it settles when the
+            // caret leaves exactly as a `glyph` line's does. See
+            // `folding::settle_edited_header`.
+            let on_heading = matches!(
+                lines.get(state.cursor.line),
+                Some(DocLine::Text(t)) if crate::document_io::split_heading(t.trim()).is_some()
+            );
             // A text line directly above a grid is that grid's header. While
             // it is being edited it may be transiently unparseable (e.g. the
             // height digits were just deleted); reconciling now would demote
@@ -55,7 +63,7 @@ pub(super) fn apply_pending_rederive(
             // back in full.
             let defer = structure_stable
                 && matches!(state.mode, EditMode::Normal)
-                && (on_ref_line || on_glyph_header || owns_grid);
+                && (on_ref_line || on_glyph_header || on_heading || owns_grid);
 
             if defer {
                 defer_document_changes(doc, state);

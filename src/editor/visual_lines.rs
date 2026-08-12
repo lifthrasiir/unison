@@ -10,8 +10,8 @@ use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 use crate::pattern::NamePattern;
 
 use super::document_view::{
-    GRID_CELL, GlyphMetrics, GridExtent, INLINE_PALETTE_CELL, PREVIEW_SCALE, VLineKind, VisualLine,
-    compute_grid_display_extent, glyph_metrics,
+    GRID_CELL, GlyphMetrics, GridExtent, HeadingLine, INLINE_PALETTE_CELL, PREVIEW_SCALE,
+    VLineKind, VisualLine, compute_grid_display_extent, glyph_metrics, heading_font_size,
 };
 
 pub(crate) fn preview_max_height(
@@ -204,12 +204,23 @@ fn push_wrapped_text_vlines(
     wrap_width: Option<f32>,
     ctx: &egui::Context,
     font_id: &egui::FontId,
+    heading: Option<HeadingLine>,
 ) {
     let annotations = annotations::line_annotations(text);
     // A `// …` comment is a comment wherever the line's own color comes from.
     let comment_col = crate::document_io::split_comment(text)
         .1
         .map(|c| text.chars().count() - c.chars().count());
+    // A heading wraps against its own, larger font, or a long title would run
+    // off the page it was measured to fit.
+    let heading_font;
+    let font_id = match heading {
+        Some(h) if h.font_size != font_id.size => {
+            heading_font = egui::FontId::new(h.font_size, font_id.family.clone());
+            &heading_font
+        }
+        _ => font_id,
+    };
     let segments = compute_wrap_segments(text, &annotations, wrap_width, ctx, font_id);
     for (seg_text, col_offset, seg_annotations) in segments {
         let seg_len = seg_text.chars().count();
@@ -236,6 +247,7 @@ fn push_wrapped_text_vlines(
             col_offset,
             annotations: seg_annotations,
             comment_col: seg_comment_col,
+            heading,
         });
     }
 }
@@ -278,6 +290,7 @@ fn push_grid_vlines(
             col_offset: 0,
             annotations: Vec::new(),
             comment_col: None,
+            heading: None,
         });
     }
 }
@@ -332,6 +345,7 @@ fn build_ref_vlines(
             wrap_width,
             ctx,
             font_id,
+            None,
         );
         *cur += 1;
     }
@@ -357,6 +371,7 @@ pub(crate) fn build_visual_lines(
     shadow: Option<&(usize, crate::editor::anchor_shadow::AnchorShadow)>,
 ) -> Vec<VisualLine> {
     let comment_color = pal.text_comment;
+    let heading_color = pal.text_heading;
     let meta_color = pal.text_meta;
     let header_color = pal.text_header;
     let ref_color = pal.text_ref;
@@ -364,10 +379,26 @@ pub(crate) fn build_visual_lines(
     let directive2_color = pal.text_directive2;
     let default_color = pal.text_default;
 
+    // A heading line's level decides both its color and its size, and is read
+    // off the text rather than off the item list: the lines *between* items are
+    // pushed by the catch-up loops below, which never see an item at all.
+    let heading_of = |s: &str| -> Option<HeadingLine> {
+        let (level, _) = crate::document_io::split_heading(s.trim())?;
+        let font_size = heading_font_size(font_id.size, level);
+        let font = egui::FontId::new(font_size, font_id.family.clone());
+        Some(HeadingLine {
+            level,
+            font_size,
+            row_height: ctx.fonts(|f| f.row_height(&font)),
+        })
+    };
+
     let color_for_text = |s: &str| -> egui::Color32 {
         let trimmed = s.trim_start();
         if trimmed.starts_with("//") {
             comment_color
+        } else if crate::document_io::split_heading(trimmed).is_some() {
+            heading_color
         } else if trimmed.starts_with("glyph ") || trimmed.starts_with("map ") {
             header_color
         } else if trimmed.starts_with("ref ") || trimmed.starts_with("anchor ") {
@@ -412,6 +443,7 @@ pub(crate) fn build_visual_lines(
                     wrap_width,
                     ctx,
                     font_id,
+                    heading_of(s),
                 );
             }
             line_idx += 1;
@@ -419,6 +451,7 @@ pub(crate) fn build_visual_lines(
         match item {
             DocumentItem::BlankLine
             | DocumentItem::Comment(_)
+            | DocumentItem::Heading { .. }
             | DocumentItem::Directive(_)
             | DocumentItem::Face { .. }
             | DocumentItem::Slice { .. }
@@ -446,6 +479,7 @@ pub(crate) fn build_visual_lines(
                         wrap_width,
                         ctx,
                         font_id,
+                        heading_of(s),
                     );
                 }
                 line_idx = item_start + 1;
@@ -494,6 +528,7 @@ pub(crate) fn build_visual_lines(
                         wrap_width,
                         ctx,
                         font_id,
+                        None,
                     );
                 }
                 line_idx = item_start + 1;
@@ -523,6 +558,7 @@ pub(crate) fn build_visual_lines(
                         wrap_width,
                         ctx,
                         font_id,
+                        None,
                     );
                 }
 
@@ -644,6 +680,7 @@ pub(crate) fn build_visual_lines(
                 wrap_width,
                 ctx,
                 font_id,
+                heading_of(s),
             );
         }
         line_idx += 1;

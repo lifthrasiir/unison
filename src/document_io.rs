@@ -50,6 +50,22 @@
 //! goes through `append_to_line`, which keeps the insertion in front of the
 //! comment.
 //!
+//! # Headings
+//!
+//! `# TEXT`, `## TEXT`, `### TEXT` — a section heading
+//! ([`DocumentItem::Heading`]). The `#` run must be a token of its own, so
+//! `###foo` is not one and neither is anything with `#` further along the line;
+//! the text after it is prose, taken to the end of the line the way a comment
+//! is (a backtick in a title is a backtick).
+//!
+//! A heading is a *second kind of comment*: no build stage reads one, and the
+//! font is exactly what it would be with the line deleted. It is not spelled
+//! `//` because the editor does read it — heading lines fold the file into
+//! sections, draw larger, and mark the minimap (see
+//! [`crate::editor::folding`]). Which is also why a fourth level is an error
+//! from [`crate::issues`] rather than more of the same: the three levels plus
+//! the glyph block are the four the editor nests.
+//!
 //! # Directives
 //!
 //! - `meta KEY [@LANG] VALUE...` — font metadata, **one key per line**. Keys are
@@ -293,6 +309,26 @@ pub fn split_comment(line: &str) -> (&str, Option<&str>) {
         at_token_start = false;
     }
     (line, None)
+}
+
+/// A heading line split into its level (how many `#` were written) and the
+/// text after them, or `None` for a line that is not a heading at all.
+///
+/// `line` must already be trimmed. A heading is a leading run of `#` that is a
+/// *token* of its own: the run has to be followed by whitespace or end of line,
+/// so `#name` — and a `$#…` pattern, which never starts a line — is untouched.
+/// The run is not capped at three here; `####` parses as level 4 so that
+/// [`crate::issues`] can name it, rather than being read as something else.
+pub fn split_heading(line: &str) -> Option<(u8, &str)> {
+    let hashes = line.len() - line.trim_start_matches('#').len();
+    if hashes == 0 {
+        return None;
+    }
+    let rest = &line[hashes..];
+    if !rest.is_empty() && !rest.starts_with(char::is_whitespace) {
+        return None;
+    }
+    Some((hashes.min(u8::MAX as usize) as u8, rest.trim()))
 }
 
 /// The prose of a comment returned by [`split_comment`]: the text after `//`,
@@ -789,10 +825,10 @@ fn tokenize_strict(content: &str) -> Result<Vec<DocLine>> {
     while let Some((line_no, line)) = iter.next() {
         let trimmed = line.trim();
 
-        // Comments are free text — `derive_document` passes them through
-        // verbatim. Tokenizing them anyway meant a backtick in prose aborted
-        // the whole file.
-        if trimmed.starts_with("//") {
+        // Comments and headings are free text — `derive_document` passes them
+        // through verbatim, and tokenizing them would let a backtick in prose
+        // abort the whole file.
+        if trimmed.starts_with("//") || split_heading(trimmed).is_some() {
             lines.push(DocLine::Text(line.to_string()));
             continue;
         }
@@ -949,6 +985,14 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
         match item {
             DocumentItem::BlankLine => writeln!(writer)?,
             DocumentItem::Comment(text) => writeln!(writer, "//{text}")?,
+            DocumentItem::Heading { level, text } => {
+                let hashes = "#".repeat(*level as usize);
+                if text.is_empty() {
+                    writeln!(writer, "{hashes}")?;
+                } else {
+                    writeln!(writer, "{hashes} {text}")?;
+                }
+            }
             DocumentItem::Meta(text) => writeln!(writer, "meta {text}")?,
             DocumentItem::Directive(text) => writeln!(writer, "{text}")?,
             item @ DocumentItem::Face { .. }
@@ -1220,6 +1264,19 @@ pub fn derive_document(
                 if let Some(comment) = trimmed.strip_prefix("//") {
                     item_line_starts.push(i);
                     doc.items.push(DocumentItem::Comment(comment.to_string()));
+                    i += 1;
+                    continue;
+                }
+
+                // A heading is prose after its `#` run, so it is taken whole
+                // like a comment rather than tokenized: a backtick in a section
+                // title is a backtick, not an unterminated quote.
+                if let Some((level, text)) = split_heading(trimmed) {
+                    item_line_starts.push(i);
+                    doc.items.push(DocumentItem::Heading {
+                        level,
+                        text: text.to_string(),
+                    });
                     i += 1;
                     continue;
                 }

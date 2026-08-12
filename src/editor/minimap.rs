@@ -7,6 +7,24 @@ use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
 use super::document_view::{VLineKind, VisualLine};
 use super::grid_render::{PreviewGeom, apply_opacity, blit_preview};
 
+/// The deepest heading the minimap marks. See `draw_minimap`.
+const MINIMAP_HEADING_LEVELS: u8 = 2;
+
+/// Type size of a minimap landmark, in points and independent of the pane's
+/// zoom: the minimap is a fixed-width strip, so a label that scaled with the
+/// zoom would only run out of it sooner.
+const MINIMAP_HEADING_SIZE: f32 = 16.0;
+
+/// Whether this visual line is drawn as a landmark — readable text in a row of
+/// its own — rather than as texture. See `draw_minimap`.
+fn is_landmark(vl: &VisualLine) -> bool {
+    matches!(vl.kind, VLineKind::Text(_))
+        && vl.col_offset == 0
+        && vl
+            .heading
+            .is_some_and(|h| h.level <= MINIMAP_HEADING_LEVELS)
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn draw_minimap(
     ui: &mut egui::Ui,
@@ -30,7 +48,16 @@ pub(crate) fn draw_minimap(
     let snap = |v: f32| (v * ppp).round() / ppp;
     let cell = snap(zoom_level as f32).max(zoom_level as f32 / ppp);
 
-    let mm_total = vlines.len() as f32 * cell;
+    // A landmark's row is as tall as the text drawn in it, so the label sits in
+    // space of its own instead of over the two lines below it. Every other row
+    // is one cell, and the cell is the pane's zoom level in pixels — a `#` in a
+    // file zoomed to 1× is therefore a full sixteen rows' worth of strip, which
+    // is exactly the prominence a landmark is for.
+    let heading_row = snap(MINIMAP_HEADING_SIZE).max(cell);
+    let row_height = |vl: &VisualLine| {
+        if is_landmark(vl) { heading_row } else { cell }
+    };
+    let mm_total: f32 = vlines.iter().map(row_height).sum();
     let max_doc_scroll = (total_height - viewport_height).max(0.0);
     let scroll_frac = if max_doc_scroll > 0.0 {
         (scroll_y / max_doc_scroll).clamp(0.0, 1.0)
@@ -79,13 +106,27 @@ pub(crate) fn draw_minimap(
     let x0 = snap(available.min.x + 1.0);
     let y0 = available.min.y - mm_scroll;
 
-    for (i, vl) in vlines.iter().enumerate() {
-        let sy = snap(y0 + i as f32 * cell);
-        if sy + cell <= available.min.y || sy >= available.max.y {
+    // `#`/`##` lines are landmarks rather than texture: they are drawn as
+    // readable text at a fixed size, whatever the pane is zoomed to, so the
+    // minimap can be navigated by section. Which section is which is left to
+    // the `#` prefix the line already carries — the two levels are not drawn at
+    // two sizes, because the point of the fixed size is that both stay legible.
+    // `###` is not one of these: three tiers of landmark is a texture again.
+    let mut labels: Vec<(egui::Pos2, &str)> = Vec::new();
+
+    let mut y = y0;
+    for vl in vlines {
+        let h = row_height(vl);
+        let sy = snap(y);
+        y += h;
+        if sy + h <= available.min.y || sy >= available.max.y {
             continue;
         }
 
         match &vl.kind {
+            VLineKind::Text(text) if is_landmark(vl) => {
+                labels.push((egui::pos2(x0, snap(sy + h * 0.5)), text.as_str()));
+            }
             VLineKind::Text(text) => {
                 let chars: Vec<char> = text.chars().collect();
                 for (j, pair) in chars.chunks(2).enumerate() {
@@ -155,6 +196,17 @@ pub(crate) fn draw_minimap(
     }
 
     painter.add(egui::Shape::mesh(mesh));
+
+    // After the mesh, which is one batched shape covering every other line.
+    for (pos, text) in labels {
+        painter.text(
+            pos,
+            egui::Align2::LEFT_CENTER,
+            text,
+            egui::FontId::proportional(MINIMAP_HEADING_SIZE),
+            pal.text_heading,
+        );
+    }
 
     let vp_mm_top = scroll_y / total_height.max(1.0) * mm_total;
     let vp_mm_h = viewport_height / total_height.max(1.0) * mm_total;

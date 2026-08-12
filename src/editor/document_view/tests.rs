@@ -400,6 +400,7 @@ fn assert_all_doc_lines_covered(input: &str) {
             match item {
                 DocumentItem::BlankLine
                 | DocumentItem::Comment(_)
+                | DocumentItem::Heading { .. }
                 | DocumentItem::Directive(_)
                 | DocumentItem::Face { .. }
                 | DocumentItem::Slice { .. }

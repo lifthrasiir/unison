@@ -185,7 +185,7 @@ pub(super) fn paint_document_area(
         grid_cell,
         wid,
         &strip,
-        gutter.marker_width,
+        gutter.marker_area(),
     );
     let grid_painter = painter.with_clip_rect(
         egui::Rect::from_min_max(
@@ -316,9 +316,13 @@ pub(super) fn paint_document_area(
         if let Some(num) = src_line {
             let digits = gutter.digits;
             let num_text = format!(" {num:>digits$} ");
+            // Bottom-aligned, which is what makes a heading's number sit
+            // beside the heading rather than float at the top of the taller
+            // row it opens. Every other row is exactly one line tall, so this
+            // is where the number always was.
             painter.text(
-                egui::pos2(number_x, origin.y + y),
-                egui::Align2::LEFT_TOP,
+                egui::pos2(number_x, origin.y + y + h),
+                egui::Align2::LEFT_BOTTOM,
                 &num_text,
                 font_id.clone(),
                 pal.line_num,
@@ -330,7 +334,7 @@ pub(super) fn paint_document_area(
                 &painter,
                 &grid_painter,
                 ui,
-                font_id,
+                &vl.text_font(font_id),
                 vl,
                 origin,
                 y,
@@ -344,6 +348,11 @@ pub(super) fn paint_document_area(
 
         match &vl.kind {
             VLineKind::Text(text) => {
+                // A `#`/`##` line draws larger than the rest of the document,
+                // so every measurement on this line — the caret's column, a
+                // link's box, the preedit — is taken against *its* font.
+                let heading_font = vl.text_font(font_id);
+                let font_id = &heading_font;
                 let atext = AnnotatedText::new(text, &vl.annotations);
                 atext.paint(
                     &painter,
@@ -1436,7 +1445,7 @@ fn paint_fold_markers(
     clicked: bool,
     needs_rederive: &mut bool,
 ) -> Option<egui::Pos2> {
-    if gutter.marker_width <= 0.0 {
+    if gutter.marker_area() <= 0.0 {
         return click_pos;
     }
     let clip = ui.clip_rect();
@@ -1448,8 +1457,12 @@ fn paint_fold_markers(
     let mut captured: Vec<crate::editor::harness::FoldMarkerRect> = Vec::new();
 
     for marker in fold_markers(vlines, &state.folds, row_height, grid_cell) {
-        let Some(cell) = gutter.marker_rect(gutter_x, origin.y + marker.y0, origin.y + marker.y1)
-        else {
+        let Some(cell) = gutter.marker_rect(
+            gutter_x,
+            marker.depth,
+            origin.y + marker.y0,
+            origin.y + marker.y1,
+        ) else {
             continue;
         };
         if cell.max.y < clip.min.y || cell.min.y > clip.max.y || cell.height() <= 0.0 {

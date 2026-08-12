@@ -315,6 +315,35 @@ pub(crate) struct VisualLine {
     /// starts, if any of it falls in this segment. Painted in the comment
     /// color whatever the rest of the line is.
     pub(crate) comment_col: Option<usize>,
+    /// Set on the segments of a heading line, with the size that line draws at.
+    /// `None` — every other line — means the editor's own font.
+    pub(crate) heading: Option<HeadingLine>,
+}
+
+/// A heading line's type size, resolved once when the visual lines are built.
+///
+/// A `#` draws two zoom steps above the body text and a `##` one step, so a
+/// page at 1× reads 48/32/16 and one at 2× reads 64/48/32: the *step* is what
+/// scales, not a factor on the heading, which keeps the largest heading from
+/// running away as the reader zooms in. `###` is body size, and is a heading
+/// only in that it folds and colors like one.
+///
+/// The row is as tall as its own font wants, so a heading needs no alignment
+/// rule of its own — every line's text sits on the same edge of its row as it
+/// always did, and only the row grew.
+#[derive(Clone, Copy, PartialEq)]
+pub(crate) struct HeadingLine {
+    pub(crate) level: u8,
+    pub(crate) font_size: f32,
+    pub(crate) row_height: f32,
+}
+
+/// The font size a heading of `level` draws at, given the editor's own.
+/// Levels past [`MAX_HEADING_LEVEL`](crate::document::MAX_HEADING_LEVEL) — which
+/// only reach here as the error `issues` reports — draw at body size.
+pub(crate) fn heading_font_size(base_size: f32, level: u8) -> f32 {
+    let steps = crate::document::MAX_HEADING_LEVEL.saturating_sub(level.max(1));
+    base_size + super::EDITOR_FONT_SIZE * steps as f32
 }
 
 impl VisualLine {
@@ -398,8 +427,19 @@ impl ViewCache {
 impl VisualLine {
     pub(crate) fn height(&self, row_h: f32, grid_cell: f32) -> f32 {
         match &self.kind {
-            VLineKind::Text(_) => row_h,
+            VLineKind::Text(_) => self.heading.map_or(row_h, |h| h.row_height),
             VLineKind::GridRow { .. } => grid_cell,
+        }
+    }
+
+    /// The font this line's text is measured and painted with: the editor's
+    /// own, except on a `#`/`##` line, which draws larger.
+    pub(crate) fn text_font(&self, base: &egui::FontId) -> egui::FontId {
+        match self.heading {
+            Some(h) if h.font_size != base.size => {
+                egui::FontId::new(h.font_size, base.family.clone())
+            }
+            _ => base.clone(),
         }
     }
 
@@ -411,40 +451,60 @@ impl VisualLine {
     }
 }
 
-/// How the gutter's width is divided up: `[marker][ space number space ]`.
+/// How the gutter's width is divided up: `[markers][ space number space ]`.
 ///
-/// `marker` is a fixed one-em column, reserved whenever the page could show a
-/// fold marker at all and dropped when it could not — the same
-/// over-reserve-but-never-flicker rule the digit count follows, and for the
-/// same reason: the width is an input to the layout it would otherwise be
-/// measured from.
+/// Each marker column is a fixed one em, and the page reserves one per level of
+/// fold nesting it shows — dropped to none when it shows no group at all. Same
+/// over-reserve-but-never-flicker rule as the digit count, for the same reason:
+/// the width is an input to the layout it would otherwise be measured from.
 #[derive(Clone, Copy)]
 pub(super) struct GutterLayout {
-    /// Total width, marker column included.
+    /// Total width, marker columns included.
     pub(super) width: f32,
-    /// Width of the marker column; `0.0` when this page reserves none.
+    /// Width of *one* marker column; `0.0` when this page reserves none.
     pub(super) marker_width: f32,
+    /// How many marker columns this page reserves — the deepest nesting on it.
+    pub(super) marker_columns: usize,
     /// Digits the line numbers are right-aligned in.
     pub(super) digits: usize,
 }
 
 impl GutterLayout {
-    /// Left edge of the line-number field, given the gutter's left edge.
-    pub(super) fn number_x(&self, gutter_x: f32) -> f32 {
-        gutter_x + self.marker_width
+    /// Width of the whole marker area, every column together.
+    pub(super) fn marker_area(&self) -> f32 {
+        self.marker_width * self.marker_columns as f32
     }
 
-    /// The marker cell for a row spanning `y0..y1`, inset on all four sides so
-    /// consecutive markers stay visibly separate. `None` when this page
-    /// reserves no marker column.
-    pub(super) fn marker_rect(&self, gutter_x: f32, y0: f32, y1: f32) -> Option<egui::Rect> {
-        if self.marker_width <= 0.0 {
+    /// Left edge of the line-number field, given the gutter's left edge.
+    pub(super) fn number_x(&self, gutter_x: f32) -> f32 {
+        gutter_x + self.marker_area()
+    }
+
+    /// The marker cell for a group at `depth` spanning `y0..y1`, inset on all
+    /// four sides so neighbouring markers stay visibly separate. `None` when
+    /// this page reserves no marker column.
+    ///
+    /// Depth 1 — the outermost group — takes the column nearest the line
+    /// numbers and each nested one stacks to its *left*, so a group's marker
+    /// keeps its distance from the text it encloses however deeply the
+    /// sections around it nest. Which also means one glyph block's marker can
+    /// sit in a different column from the next's.
+    pub(super) fn marker_rect(
+        &self,
+        gutter_x: f32,
+        depth: usize,
+        y0: f32,
+        y1: f32,
+    ) -> Option<egui::Rect> {
+        if self.marker_width <= 0.0 || self.marker_columns == 0 {
             return None;
         }
+        let column = self.marker_columns.saturating_sub(depth.max(1)) as f32;
+        let x = gutter_x + column * self.marker_width;
         let pad = self.marker_width * FOLD_MARKER_PAD;
         let inset = (y1 - y0 - pad * 2.0).max(0.0);
         Some(egui::Rect::from_min_size(
-            egui::pos2(gutter_x + pad, y0 + pad),
+            egui::pos2(x + pad, y0 + pad),
             egui::vec2(self.marker_width - pad * 2.0, inset),
         ))
     }
@@ -460,6 +520,9 @@ pub(super) const FOLD_MARKER_PAD: f32 = 0.1;
 pub(super) struct FoldMarker {
     pub(super) group: crate::editor::folding::FoldGroup,
     pub(super) collapsed: bool,
+    /// Which marker column this one belongs in; see
+    /// [`crate::editor::folding::nesting_depth`].
+    pub(super) depth: usize,
     pub(super) y0: f32,
     pub(super) y1: f32,
 }
@@ -504,6 +567,7 @@ pub(super) fn fold_markers(
             Some(FoldMarker {
                 group,
                 collapsed: folds.is_collapsed(group.header),
+                depth: crate::editor::folding::nesting_depth(groups, group),
                 y0,
                 y1,
             })
@@ -517,6 +581,11 @@ pub(super) fn fold_markers(
 /// whole height of its group, so a grid tall enough to fill the page on its own
 /// is covered by a bar whose header scrolled off the top long ago. Asking for
 /// the header would drop the column out from under that bar.
+///
+/// How *many* columns such a page reserves is not asked here but of the
+/// document as a whole ([`crate::editor::folding::max_nesting_depth`]): the
+/// marker of a group must not walk sideways when a fold changes how deep the
+/// page happens to be, least of all under the pointer that just folded it.
 ///
 /// Answered from the *previous* frame's layout, because the width it decides
 /// is an input to this frame's: a page that scrolls into its first foldable
