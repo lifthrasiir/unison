@@ -1,3 +1,25 @@
+//! The minimap: the whole document as one strip of pixels beside the editor.
+//!
+//! # It is always dark
+//!
+//! The strip's ground, its grid and its viewport box are one set of colors in
+//! both themes, so everything drawn on it comes from
+//! [`Palette::dark`] — including the syntax colors, which are repeated from
+//! visual lines that resolved them against the *reader's* theme. In light mode
+//! those are dark inks, and a dark ink on this strip is nothing at all; hence
+//! [`Palette::dark_equivalent`]. Which theme the document is read in is the
+//! document's business, not this widget's.
+//!
+//! # Landmarks
+//!
+//! A row is one cell — the pane's zoom level in pixels — of texture: two
+//! characters of text, or one pixel of a glyph's grid. A `#`/`##` heading is
+//! the exception. It is drawn as readable text at a fixed size in a row as tall
+//! as that text, so the file can be navigated by section; which level it is, is
+//! left to the `#` prefix the line already carries, because the point of the
+//! fixed size is that both levels stay legible. `###` is not one of these —
+//! three tiers of landmark is texture again.
+
 use std::collections::HashMap;
 
 use crate::document::{Document, DocumentItem, GlyphBody};
@@ -49,10 +71,8 @@ pub(crate) fn draw_minimap(
     let cell = snap(zoom_level as f32).max(zoom_level as f32 / ppp);
 
     // A landmark's row is as tall as the text drawn in it, so the label sits in
-    // space of its own instead of over the two lines below it. Every other row
-    // is one cell, and the cell is the pane's zoom level in pixels — a `#` in a
-    // file zoomed to 1× is therefore a full sixteen rows' worth of strip, which
-    // is exactly the prominence a landmark is for.
+    // space of its own rather than over the rows below it — a `#` at 1× is
+    // sixteen ordinary rows' worth of strip, which is the prominence it is for.
     let heading_row = snap(MINIMAP_HEADING_SIZE).max(cell);
     let row_height = |vl: &VisualLine| {
         if is_landmark(vl) { heading_row } else { cell }
@@ -72,7 +92,9 @@ pub(crate) fn draw_minimap(
 
     let response = ui.allocate_rect(available, egui::Sense::click_and_drag());
     let painter = ui.painter_at(available);
-    let pal = Palette::get(ui);
+    // Dark in both themes; see the module docs.
+    let themed = Palette::get(ui);
+    let pal = Palette::dark();
     painter.rect_filled(available, 0.0, pal.minimap_bg);
 
     let mut mesh = egui::Mesh::default();
@@ -106,12 +128,7 @@ pub(crate) fn draw_minimap(
     let x0 = snap(available.min.x + 1.0);
     let y0 = available.min.y - mm_scroll;
 
-    // `#`/`##` lines are landmarks rather than texture: they are drawn as
-    // readable text at a fixed size, whatever the pane is zoomed to, so the
-    // minimap can be navigated by section. Which section is which is left to
-    // the `#` prefix the line already carries — the two levels are not drawn at
-    // two sizes, because the point of the fixed size is that both stay legible.
-    // `###` is not one of these: three tiers of landmark is a texture again.
+    // Landmark text, collected as the rows are walked; see the module docs.
     let mut labels: Vec<(egui::Pos2, &str)> = Vec::new();
 
     let mut y = y0;
@@ -138,7 +155,7 @@ pub(crate) fn draw_minimap(
                     let b = pair.get(1).is_some_and(|c| !c.is_whitespace());
                     if a || b {
                         let alpha: u8 = if a && b { 180 } else { 90 };
-                        let [r, g, b, _] = vl.color.to_array();
+                        let [r, g, b, _] = themed.dark_equivalent(vl.color).to_array();
                         emit(
                             &mut mesh,
                             x,

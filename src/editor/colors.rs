@@ -160,6 +160,39 @@ impl Palette {
         }
     }
 
+    /// The syntax colors, in a fixed order, so one palette's can be matched
+    /// against another's. Only the theme-dependent text slots: everything else
+    /// (the grid, the minimap's own chrome) is already one set of colors for
+    /// both themes.
+    fn syntax_slots(&self) -> [Color32; 8] {
+        [
+            self.text_default,
+            self.text_comment,
+            self.text_heading,
+            self.text_meta,
+            self.text_header,
+            self.text_ref,
+            self.text_directive,
+            self.text_directive2,
+        ]
+    }
+
+    /// What the dark palette calls the color this palette assigned — the color
+    /// itself when the theme is already dark, and `text_default` for anything
+    /// that is not a syntax color at all.
+    ///
+    /// For the minimap, which is drawn on a dark ground in both themes (see
+    /// [`crate::editor::minimap`]) while the colors it repeats were resolved
+    /// against the reader's theme: in light mode those are dark inks, and dark
+    /// ink on a dark strip is nothing at all.
+    pub fn dark_equivalent(&self, color: Color32) -> Color32 {
+        let dark = Self::dark();
+        match self.syntax_slots().iter().position(|c| *c == color) {
+            Some(i) => dark.syntax_slots()[i],
+            None => dark.text_default,
+        }
+    }
+
     pub fn for_theme(dark_mode: bool) -> Self {
         if dark_mode {
             Self::dark()
@@ -190,5 +223,30 @@ impl Palette {
         ui.ctx()
             .data(|d| d.get_temp::<Self>(id))
             .unwrap_or_else(Self::dark)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Every syntax color the light theme assigns has a dark counterpart, and
+    /// the dark theme's own colors map to themselves — the minimap is drawn
+    /// with these whichever theme the reader is in.
+    #[test]
+    fn a_light_syntax_color_maps_to_its_dark_counterpart() {
+        let light = Palette::light();
+        let dark = Palette::dark();
+        for (from, to) in light.syntax_slots().iter().zip(dark.syntax_slots()) {
+            assert_eq!(light.dark_equivalent(*from), to);
+        }
+        for c in dark.syntax_slots() {
+            assert_eq!(dark.dark_equivalent(c), c);
+        }
+        assert_eq!(
+            light.dark_equivalent(Color32::from_rgb(1, 2, 3)),
+            dark.text_default,
+            "a color that is not a syntax slot falls back to the body color"
+        );
     }
 }
