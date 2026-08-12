@@ -95,16 +95,29 @@ impl FoldGroup {
 ///   every group here is contained in or disjoint from every other, so the
 ///   gutter can stack them by depth and `innermost_at` can pick by header alone.
 ///
-/// A document with exactly one `#` is the exception: that line is a title for
-/// the file, not a section of it, and folding a file into itself buys nothing —
-/// so it makes no group. `##`/`###` have no such rule, because a lone one of
-/// those is still a section among the plain lines before it.
+/// Two headings make no group of their own, while still ending the groups
+/// around them:
+///
+/// * A heading with no text — a bare `###` — which is how a section is *closed*
+///   rather than opened. `### name` … `###` reads as `#region`/`#endregion`: the
+///   first folds down to its own line, and the closer is a line, not a section
+///   of nothing.
+/// * The one `#` of a document that has only one: that line is a title for the
+///   file, not a section of it, and folding a file into itself buys nothing.
+///   `##`/`###` have no such rule, because a lone one of those is still a
+///   section among the plain lines before it. A bare `#` closer counts toward
+///   the tally, so a file that titles itself and then closes with `#` has two
+///   and the title does fold.
 pub(crate) fn fold_groups(doc: &Document, lines: &[DocLine]) -> Vec<FoldGroup> {
     let starts = &doc.item_line_starts;
+    // The level a heading *ends* at, which every heading has — a closer ends
+    // the section it closes just as an opener does.
     let level_of = |item: &DocumentItem| match item {
         DocumentItem::Heading { level, .. } if *level <= MAX_HEADING_LEVEL => Some(*level),
         _ => None,
     };
+    // …and whether it opens one at all.
+    let opens = |item: &DocumentItem| matches!(item, DocumentItem::Heading { text, .. } if !text.trim().is_empty());
     let lone_title = doc
         .items
         .iter()
@@ -120,6 +133,7 @@ pub(crate) fn fold_groups(doc: &Document, lines: &[DocLine]) -> Vec<FoldGroup> {
         let end = match item {
             DocumentItem::Glyph { .. } => starts.get(idx + 1).copied().unwrap_or(lines.len()),
             _ => match level_of(item) {
+                Some(_) if !opens(item) => continue,
                 Some(1) if lone_title => continue,
                 Some(level) => doc.items[idx + 1..]
                     .iter()
@@ -496,6 +510,32 @@ map d = d\n";
         // The rule is `#`-only: a lone `##` is still a section of the file.
         let lone_sub = "## section\nmap a = a\n";
         assert_eq!(spans(lone_sub), vec![(0, 2)]);
+    }
+
+    /// A heading with no text closes a section instead of opening one, which is
+    /// how `### name` … `###` stands in for `#region`/`#endregion`.
+    #[test]
+    fn a_textless_heading_closes_a_section_without_opening_one() {
+        let src = "\
+### region\n\
+map a = a\n\
+###\n\
+map b = b\n\
+map c = c\n";
+        assert_eq!(spans(src), vec![(0, 2)], "the closer folds nothing itself");
+
+        // Whitespace after the `#` run is no text either.
+        assert_eq!(spans("###   \nmap a = a\nmap b = b\n"), Vec::new());
+
+        // It closes only what it is level for: a `###` leaves a `##` open.
+        let deeper = "## outer\n### inner\nmap a = a\n###\nmap b = b\n";
+        assert_eq!(spans(deeper), vec![(0, 5), (1, 3)]);
+    }
+
+    /// A bare `#` still counts as a second `#`, so the title above it folds.
+    #[test]
+    fn a_textless_close_makes_the_title_above_it_a_section() {
+        assert_eq!(spans("# title\nmap a = a\n#\nmap b = b\n"), vec![(0, 2)]);
     }
 
     /// A heading with nothing under it is not foldable, just as a one-line
