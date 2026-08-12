@@ -1696,15 +1696,15 @@ glyph squared-cm 16 16
 ref narrow-c-lower 2 0
 ref narrow-m-lower 8 0
 
-glyph squared-cm2 16 16 advance 16
+glyph squared-cm2 16 16
 ref narrow-c-lower
 ref narrow-m-lower 6 0
-ref sup-2 10 0
+ref sm-2 12 1
 
-glyph squared-cm3 16 16 advance 16
+glyph squared-cm3 16 16
 ref narrow-c-lower
 ref narrow-m-lower 6 0
-ref sup-3 10 0
+ref sm-3 12 1
 
 glyph squared-co 16 16
 ................................
@@ -1746,15 +1746,15 @@ glyph squared-dm 16 16
 ref narrow-d-lower 2 0
 ref narrow-m-lower 8 0
 
-glyph squared-dm2 16 16 advance 16
+glyph squared-dm2 16 16
 ref narrow-d-lower
 ref narrow-m-lower 6 0
-ref sup-2 10 0
+ref sm-2 12 1
 
-glyph squared-dm3 16 16 advance 16
+glyph squared-dm3 16 16
 ref narrow-d-lower
 ref narrow-m-lower 6 0
-ref sup-3 10 0
+ref sm-3 12 1
 
 glyph squared-erg 16 16
 ref narrow-e-lower 0 0
@@ -1871,15 +1871,15 @@ glyph squared-km 16 16
 ref narrow-k-lower 2 0
 ref narrow-m-lower 8 0
 
-glyph squared-km2 16 16 advance 16
+glyph squared-km2 16 16
 ref narrow-k-lower
 ref narrow-m-lower 6 0
-ref sup-2 10 0
+ref sm-2 12 1
 
-glyph squared-km3 16 16 advance 16
+glyph squared-km3 16 16
 ref narrow-k-lower
 ref narrow-m-lower 6 0
-ref sup-3 10 0
+ref sm-3 12 1
 
 glyph squared-kohm 16 16
 ref narrow-k-lower 2 0
@@ -1929,19 +1929,19 @@ ref narrow-m-lower 1 0
 ref narrow-slash 7 0
 ref narrow-s-lower 10 0
 
-glyph squared-m-over-s2 16 16 advance 16
+glyph squared-m-over-s2 16 16
 ref narrow-m-lower
 ref narrow-slash 5 0
 ref narrow-s-lower 8 0
-ref sup-2 11 0
+ref sm-2 13 1
 
 glyph squared-m2 16 16
 ref narrow-m-lower 4 0
-ref sup-2 8 0
+ref sm-2 10 1
 
 glyph squared-m3 16 16
 ref narrow-m-lower 4 0
-ref sup-3 8 0
+ref sm-3 10 1
 
 glyph squared-ma 16 16
 ref narrow-m-lower 3 0
@@ -1977,15 +1977,15 @@ glyph squared-mm 16 16
 ref narrow-m-lower 3 0
 ref narrow-m-lower 9 0
 
-glyph squared-mm2 16 16 advance 16
+glyph squared-mm2 16 16
 ref narrow-m-lower 1 0
 ref narrow-m-lower 7 0
-ref sup-2 10 0
+ref sm-2 12 1
 
-glyph squared-mm3 16 16 advance 16
+glyph squared-mm3 16 16
 ref narrow-m-lower 1 0
 ref narrow-m-lower 7 0
-ref sup-3 10 0
+ref sm-3 12 1
 
 glyph squared-mol 16 16
 ref narrow-m-lower 1 0
