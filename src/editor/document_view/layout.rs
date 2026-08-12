@@ -575,6 +575,30 @@ pub(super) fn fold_markers(
         .collect()
 }
 
+/// How many source lines the collapsed groups keep off the page.
+///
+/// The gutter's digit count is otherwise estimated from how many rows a page
+/// holds, which counts what is *drawn*: fold a thousand-line file down to its
+/// section headers and a dozen rows would be asked to carry four-digit numbers
+/// in a field sized for two. A collapsed group's members are exactly the
+/// numbers that estimate misses, so they are added back.
+///
+/// A group whose own header is hidden is skipped — its lines are already
+/// counted by the collapsed group around it — and the caller caps the total by
+/// the source lines that exist, so this can only ever over-reserve.
+pub(super) fn collapsed_source_lines(
+    lines: &[DocLine],
+    folds: &crate::editor::folding::FoldState,
+) -> usize {
+    folds
+        .groups()
+        .iter()
+        .filter(|g| folds.is_collapsed(g.header) && !folds.is_hidden(g.header))
+        .filter_map(|g| lines.get((g.header + 1).min(g.end)..g.end.min(lines.len())))
+        .map(super::changes::source_line_count)
+        .sum()
+}
+
 /// Whether the page on screen falls inside a fold group at all.
 ///
 /// The question is *inside a group*, not *on a header*: a marker's bar runs the

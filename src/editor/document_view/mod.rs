@@ -35,7 +35,7 @@ mod tests;
 
 use changes::{apply_pending_rederive, line_to_item_idx, source_line_count, source_line_offsets};
 use keys::handle_document_keys;
-use layout::{GutterLayout, ViewCacheKey, ViewData, page_has_fold_marker};
+use layout::{GutterLayout, ViewCacheKey, ViewData, collapsed_source_lines, page_has_fold_marker};
 use number_scroll::{apply_number_bump, detect_number_bump, swallow_wheel_delta};
 use paint::paint_document_area;
 use popups::{
@@ -405,12 +405,17 @@ fn show_document(
     // source lines that exist, so this only ever over-reserves — which costs a
     // column of padding and nothing else, and keeps the width from depending on
     // the layout it is an input to.
+    //
+    // What a row count alone cannot see is folding: a collapsed group's lines
+    // keep their numbers without occupying a row, so they are added on top
+    // (`collapsed_source_lines`).
     let gutter_digits = {
         let unit = row_height.min(grid_cell).max(1.0);
         let first_row = (prev_scroll_y / unit).max(0.0) as usize;
         let rows_per_page = (prev_viewport_h / unit).ceil() as usize + 1;
         let highest = first_row
             .saturating_add(rows_per_page)
+            .saturating_add(collapsed_source_lines(lines, &state.folds))
             .min(source_line_count(lines))
             .max(1);
         highest.to_string().len()

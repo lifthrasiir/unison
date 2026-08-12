@@ -179,6 +179,41 @@ fn gutter_widens_when_scrolled_into_higher_line_numbers() {
     );
 }
 
+/// Folding removes the lines from the page but not their numbers: a file whose
+/// sections are all shut draws a dozen visual lines carrying numbers well past
+/// a hundred. Counting the page in rows would reserve two digits for them.
+#[test]
+fn gutter_keeps_room_for_the_numbers_a_shut_group_hides() {
+    let mut src = String::from("# title\n");
+    for s in 0..40 {
+        src.push_str(&format!("## section {s}\n"));
+        for i in 0..29 {
+            src.push_str(&format!("// line {s}-{i}\n"));
+        }
+    }
+    let mut h = EditorHarness::new(&src);
+    for s in 0..40 {
+        h.click_fold_marker(1 + s * 30);
+    }
+    assert_eq!(
+        shown_lines(&h).len(),
+        41,
+        "the title and one line per shut section"
+    );
+    assert_eq!(h.gutter_numbers().iter().copied().max(), Some(1172));
+
+    // Widths of a one- and a two-digit gutter give the width of one digit; the
+    // folded file's numbers reach four.
+    let one = EditorHarness::new(&numbered_doc(9)).snap().origin_x;
+    let digit = EditorHarness::new(&numbered_doc(10)).snap().origin_x - one;
+    let field = h.snap().origin_x - h.snap().marker_width;
+    assert!(
+        (field - (one + digit * 3.0)).abs() < 0.5,
+        "a hidden thousandth line still needs its fourth digit ({field} vs {})",
+        one + digit * 3.0
+    );
+}
+
 #[test]
 fn click_then_type_places_text() {
     let mut h = EditorHarness::new(&sample_doc());
