@@ -31,6 +31,7 @@ pub(super) fn paint_document_area(
     row_height: f32,
     grid_cell: f32,
     gutter_width: f32,
+    gutter_digits: usize,
     total_height: f32,
     viewport_h: f32,
     cursor_color: egui::Color32,
@@ -291,7 +292,7 @@ pub(super) fn paint_document_area(
 
         let src_line = gutter_line_number(vl, lines, source_offsets);
         if let Some(num) = src_line {
-            let num_text = format!("{num:>5} ");
+            let num_text = format!(" {num:>gutter_digits$} ");
             painter.text(
                 egui::pos2(gutter_x, origin.y + y),
                 egui::Align2::LEFT_TOP,

@@ -115,6 +115,67 @@ fn initial_layout_has_expected_gutter_and_grid_rows() {
     assert_eq!(h.gutter_numbers(), (1..=21).collect::<Vec<_>>());
 }
 
+/// A document of `n` comment lines — nothing but line numbers to draw.
+fn numbered_doc(n: usize) -> String {
+    (1..=n)
+        .map(|i| format!("# line {i}\n"))
+        .collect::<Vec<_>>()
+        .concat()
+}
+
+#[test]
+fn gutter_width_follows_the_line_numbers_it_could_draw() {
+    let width = |n: usize| EditorHarness::new(&numbered_doc(n)).snap().origin_x;
+
+    // One digit's worth of growth per decade, and nothing in between.
+    let (w1, w2, w3) = (width(9), width(10), width(100));
+    assert!(w2 > w1, "two-digit gutter must be wider than one-digit");
+    assert_eq!(width(99), w2, "99 still fits two digits");
+    let digit = w2 - w1;
+    assert!(
+        (w3 - w2 - digit).abs() < 0.5,
+        "one more digit, one more char"
+    );
+}
+
+/// A grid is one `DocLine` but many *source* lines, and every one of its rows
+/// gets a number. The width has to be counted in source lines, not in the
+/// line buffer's own length.
+#[test]
+fn gutter_counts_the_source_lines_a_grid_occupies() {
+    let mut src = String::new();
+    for i in 0..6 {
+        src.push_str(&format!("glyph g{i} 8 16\n"));
+        for _ in 0..16 {
+            src.push_str("@@..............\n");
+        }
+    }
+    let h = EditorHarness::new(&src);
+    // 6 × (header + 16 rows) — well past a hundred, and all of it on screen.
+    assert_eq!(h.gutter_numbers().iter().copied().max(), Some(102));
+    assert_eq!(
+        h.snap().origin_x,
+        EditorHarness::new(&numbered_doc(102)).snap().origin_x,
+        "a hundred-and-something needs three digits either way"
+    );
+}
+
+#[test]
+fn gutter_widens_when_scrolled_into_higher_line_numbers() {
+    // Far more lines than a page holds: at the top only three-digit numbers
+    // can appear, so the fourth digit is reserved only once the view moves.
+    let mut h = EditorHarness::new(&numbered_doc(2000));
+    let top = h.snap().origin_x;
+
+    h.click_text(0, 0);
+    h.key_mod(Key::End, Modifiers::COMMAND);
+    let bottom = h.snap().origin_x;
+    assert!(
+        bottom > top,
+        "gutter should grow for four-digit numbers ({top} -> {bottom})"
+    );
+}
+
 #[test]
 fn click_then_type_places_text() {
     let mut h = EditorHarness::new(&sample_doc());
@@ -2656,8 +2717,8 @@ fn map_literal_char_renders_codepoint_annotation() {
 /// painted past the right edge anyway.
 #[test]
 fn a_long_annotation_wraps_across_visual_lines() {
-    // 20 characters, so the ` U+XXXX` spelling is far wider than any editor.
-    let text = "안녕하세요반갑습니다어서오세요고맙습니다";
+    // 30 characters, so the ` U+XXXX` spelling is far wider than any editor.
+    let text = "안녕하세요반갑습니다어서오세요고맙습니다또또오세요건강하세요";
     let line = format!("assert shape {text} : greeting");
     let mut h = EditorHarness::new(&format!("{line}\nglyph greeting 2 2\n....\n....\n"));
     assert_view_consistent(&h);

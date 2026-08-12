@@ -33,7 +33,7 @@ mod scroll;
 #[cfg(test)]
 mod tests;
 
-use changes::{apply_pending_rederive, line_to_item_idx, source_line_offsets};
+use changes::{apply_pending_rederive, line_to_item_idx, source_line_count, source_line_offsets};
 use keys::handle_document_keys;
 use layout::{ViewCacheKey, ViewData};
 use number_scroll::{apply_number_bump, detect_number_bump, swallow_wheel_delta};
@@ -362,10 +362,44 @@ fn show_document(
         EditMode::Normal => None,
     };
 
+    let scroll_y_id = state.key(Slot::ScrollY);
+    let viewport_h_id = state.key(Slot::ViewportH);
+    let prev_scroll_y = ui
+        .ctx()
+        .data(|d| d.get_temp::<f32>(scroll_y_id))
+        .unwrap_or(0.0);
+    let prev_viewport_h = ui
+        .ctx()
+        .data(|d| d.get_temp::<f32>(viewport_h_id))
+        .unwrap_or(200.0);
+
+    // The gutter is as wide as the widest line number it could be asked to
+    // draw, plus a space on either side. Which numbers those are is counted the
+    // crude way on purpose: as if every numbered row were the shortest one this
+    // view can paint, so the topmost number is the scroll offset in such rows
+    // and the page holds a viewport's worth of them. Every real row is at least
+    // that tall and carries at most one number, and the count is capped by the
+    // source lines that exist, so this only ever over-reserves — which costs a
+    // column of padding and nothing else, and keeps the width from depending on
+    // the layout it is an input to.
+    let gutter_digits = {
+        let unit = row_height.min(grid_cell).max(1.0);
+        let first_row = (prev_scroll_y / unit).max(0.0) as usize;
+        let rows_per_page = (prev_viewport_h / unit).ceil() as usize + 1;
+        let highest = first_row
+            .saturating_add(rows_per_page)
+            .min(source_line_count(lines))
+            .max(1);
+        highest.to_string().len()
+    };
     let gutter_width = ui.fonts(|f| {
-        f.layout_no_wrap("88888 ".to_string(), font_id.clone(), egui::Color32::WHITE)
-            .rect
-            .width()
+        f.layout_no_wrap(
+            format!(" {} ", "8".repeat(gutter_digits)),
+            font_id.clone(),
+            egui::Color32::WHITE,
+        )
+        .rect
+        .width()
     });
 
     let wrap_width = {
@@ -429,17 +463,6 @@ fn show_document(
         state,
         number_bump.as_ref().is_some_and(|b| b.from_wheel),
     );
-
-    let scroll_y_id = state.key(Slot::ScrollY);
-    let viewport_h_id = state.key(Slot::ViewportH);
-    let prev_scroll_y = ui
-        .ctx()
-        .data(|d| d.get_temp::<f32>(scroll_y_id))
-        .unwrap_or(0.0);
-    let prev_viewport_h = ui
-        .ctx()
-        .data(|d| d.get_temp::<f32>(viewport_h_id))
-        .unwrap_or(200.0);
 
     apply_scroll_physics(ui, zoom_level, state.key(Slot::ScrollAccel));
 
@@ -506,6 +529,7 @@ fn show_document(
             row_height,
             grid_cell,
             gutter_width,
+            gutter_digits,
             total_height,
             viewport_h,
             cursor_color,

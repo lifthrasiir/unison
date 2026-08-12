@@ -80,6 +80,21 @@ pub(super) fn apply_pending_rederive(
     }
 }
 
+/// How many lines the buffer would occupy in the file. A grid is one
+/// `DocLine` but as many source lines as it has rows — and every one of those
+/// rows carries a line number — so this is the largest number the gutter can
+/// ever be asked to draw.
+pub(super) fn source_line_count(lines: &[DocLine]) -> usize {
+    lines
+        .iter()
+        .map(|line| match line {
+            DocLine::Text(_) => 1,
+            DocLine::Grid(g) if g.is_all_empty() => 0,
+            DocLine::Grid(g) => g.height as usize,
+        })
+        .sum()
+}
+
 pub(crate) fn source_line_offsets(lines: &[DocLine]) -> Vec<usize> {
     let mut offsets = Vec::with_capacity(lines.len());
     let mut src = 0usize;
