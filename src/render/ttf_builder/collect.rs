@@ -385,7 +385,10 @@ pub(super) fn collect_glyph_data_with_shared(
             None => {
                 let mut pairs = expand_map_pairs(char_repr, glyph);
                 shared.glyph_aliases.canonicalize_pairs(&mut pairs);
-                pairs.into_iter().map(|(cp, name)| (Some(cp), name)).collect()
+                pairs
+                    .into_iter()
+                    .map(|(cp, name)| (Some(cp), name))
+                    .collect()
             }
         };
         for (cp, glyph_name) in &pairs {

@@ -150,7 +150,9 @@ fn add_uvs_subtable(
         for cp in defaults {
             match ranges.last_mut() {
                 Some(last)
-                    if u32::from(last.start_unicode_value) + u32::from(last.additional_count) + 1
+                    if u32::from(last.start_unicode_value)
+                        + u32::from(last.additional_count)
+                        + 1
                         == cp
                         && last.additional_count < u8::MAX =>
                 {
@@ -328,7 +330,12 @@ pub(super) fn build_ttf(
     // the fallback lookup's first element is the *base's* glyph.
     let cp_to_gid: HashMap<u32, GlyphId16> = cmap_mappings
         .iter()
-        .filter_map(|(ch, gid)| Some((*ch as u32, GlyphId16::new(u16::try_from(gid.to_u32()).ok()?))))
+        .filter_map(|(ch, gid)| {
+            Some((
+                *ch as u32,
+                GlyphId16::new(u16::try_from(gid.to_u32()).ok()?),
+            ))
+        })
         .collect();
 
     // cmap

@@ -809,7 +809,10 @@ pub(crate) fn expand_uvs_map_triples(
     if bases.len() > 1 && selectors.len() > 1 {
         return Err(UvsExpandError::BothVary);
     }
-    if let Some(&cp) = bases.iter().find(|cp| crate::ucd::is_variation_selector(**cp)) {
+    if let Some(&cp) = bases
+        .iter()
+        .find(|cp| crate::ucd::is_variation_selector(**cp))
+    {
         return Err(UvsExpandError::NotASelector {
             cp,
             selector_half: false,
@@ -841,7 +844,9 @@ pub(crate) fn expand_uvs_map_triples(
 /// The codepoints one half of a `map` names: a single character, a `U+X..Y`
 /// range, or a top-level pipe list. Invalid and unparsable entries are dropped.
 pub(crate) fn expand_map_codepoints(token: &str) -> Vec<u32> {
-    if let Some(hex_rest) = token.strip_prefix("U+").or_else(|| token.strip_prefix("u+"))
+    if let Some(hex_rest) = token
+        .strip_prefix("U+")
+        .or_else(|| token.strip_prefix("u+"))
         && let Some((start_hex, end_hex)) = hex_rest.split_once("..")
         && let (Ok(start), Ok(end)) = (
             u32::from_str_radix(start_hex, 16),
@@ -851,7 +856,9 @@ pub(crate) fn expand_map_codepoints(token: &str) -> Vec<u32> {
         if end < start || u64::from(end) - u64::from(start) + 1 > MAX_EXPANSION as u64 {
             return vec![];
         }
-        return (start..=end).filter(|cp| char::from_u32(*cp).is_some()).collect();
+        return (start..=end)
+            .filter(|cp| char::from_u32(*cp).is_some())
+            .collect();
     }
 
     if has_top_level_pipe(token) {

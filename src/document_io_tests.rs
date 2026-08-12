@@ -1005,8 +1005,8 @@ map wide : U+26AA U+FE0E = circle
 /// rather than the parser silently keeping the first two characters.
 #[test]
 fn a_longer_sequence_is_not_split_into_a_uvs_pair() {
-    let doc = parse_document_from_str("map 0\u{FE0F}\u{20E3} = keycap-zero\n", "t.unf".into())
-        .unwrap();
+    let doc =
+        parse_document_from_str("map 0\u{FE0F}\u{20E3} = keycap-zero\n", "t.unf".into()).unwrap();
     assert!(
         matches!(&doc.items[0], DocumentItem::Map { char_repr, selector, .. }
             if char_repr == "0\u{FE0F}\u{20E3}" && selector.is_none()),
@@ -1060,8 +1060,7 @@ map generate U+0030 U+FE0F = num-zero-emoji
 /// the plain form must not be captured by the decomposed one.
 #[test]
 fn map_generate_wins_the_arity_it_shares_with_a_uvs_pair() {
-    let doc =
-        parse_document_from_str("map generate Á = a-acute\n", "test.unf".into()).unwrap();
+    let doc = parse_document_from_str("map generate Á = a-acute\n", "test.unf".into()).unwrap();
     assert!(
         matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, .. } if char_repr == "Á"),
         "got {:?}",

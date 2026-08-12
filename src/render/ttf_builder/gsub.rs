@@ -348,7 +348,11 @@ fn build_uvs_fallback_lookup(
         // First rule wins, matching how a ligature set is searched. A second
         // pair colliding here is reported by `crate::issues`; silently keeping
         // both would make which one applies depend on document order.
-        by_first.entry(base).or_default().entry(sel).or_insert(target);
+        by_first
+            .entry(base)
+            .or_default()
+            .entry(sel)
+            .or_insert(target);
     }
     if by_first.is_empty() {
         return None;
@@ -394,11 +398,12 @@ pub(super) fn build_gsub(
     // cmap 14 this never fires — the selector is gone before GSUB starts — and
     // that is the point: it is the same statement, kept for the shaper that
     // does not.
-    let uvs_lookup_idx = build_uvs_fallback_lookup(gsub_data, name_to_gid, cp_to_gid).map(|lookup| {
-        let idx = lookups.len() as u16;
-        lookups.push(lookup);
-        idx
-    });
+    let uvs_lookup_idx =
+        build_uvs_fallback_lookup(gsub_data, name_to_gid, cp_to_gid).map(|lookup| {
+            let idx = lookups.len() as u16;
+            lookups.push(lookup);
+            idx
+        });
 
     // Lookup index order is application order — a shaper runs the lookups of a
     // stage sorted by index, across features — so this is where "which pass

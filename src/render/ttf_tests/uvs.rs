@@ -48,10 +48,7 @@ fn a_variation_sequence_shapes_to_its_own_glyph() {
 /// mapping it is built on top of.
 #[test]
 fn the_base_alone_still_shapes_to_the_base_glyph() {
-    assert_eq!(
-        shape_glyph_names(KEYCAP_SRC, "0"),
-        vec!["zero".to_string()],
-    );
+    assert_eq!(shape_glyph_names(KEYCAP_SRC, "0"), vec!["zero".to_string()],);
 }
 
 /// A selector the font states no pair for stays a default-ignorable: the base
@@ -248,7 +245,8 @@ map U+0030 = zero
     let cmap = font.cmap().unwrap();
 
     assert!(
-        cmap.map_codepoint(0xFE0Fu32).is_none_or(|g| g.to_u32() == 0),
+        cmap.map_codepoint(0xFE0Fu32)
+            .is_none_or(|g| g.to_u32() == 0),
         "a font with no variation sequences should not map U+FE0F",
     );
 }
@@ -313,4 +311,3 @@ remap keycaps : zero-emoji keycap -> keycap-zero
         vec!["keycap-zero".to_string()],
     );
 }
-

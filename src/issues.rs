@@ -1862,9 +1862,7 @@ mod tests {
     /// build and the editor use. The shared prelude gives the pair something
     /// valid to point at so that only the rule under test can fail.
     fn uvs_issues(body: &str) -> Vec<Issue> {
-        let input = format!(
-            "glyph zero 2 2\n@@@@\n@@@@\nglyph zero-emoji 2 2\n@@@@\n@@@@\n{body}"
-        );
+        let input = format!("glyph zero 2 2\n@@@@\n@@@@\nglyph zero-emoji 2 2\n@@@@\n@@@@\n{body}");
         let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
         collect_issues(&[&doc])
     }
@@ -1983,9 +1981,8 @@ mod tests {
 
     #[test]
     fn a_pair_on_a_shared_base_glyph_warns_about_over_firing() {
-        let issues = uvs_issues(
-            "map U+0030 = zero\nmap U+0031 = zero\nmap U+0030 U+FE0F = zero-emoji\n",
-        );
+        let issues =
+            uvs_issues("map U+0030 = zero\nmap U+0031 = zero\nmap U+0030 U+FE0F = zero-emoji\n");
         assert!(
             issues.iter().any(|i| i.severity == Severity::Warning
                 && i.message.contains("U+0031")

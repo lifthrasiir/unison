@@ -61,7 +61,8 @@ pub(crate) fn line_annotations(line: &str) -> Vec<InlineAnnotation> {
 
 /// `map CHAR = GLYPH` / `map generate CHAR [= GLYPH]`: spell out the codepoint
 /// of every literally written character. Tokens already in `U+XXXX` form
-/// annotate nothing.
+/// annotate nothing, and neither does a token that is not a mapping sequence
+/// this format supports — see [`map_codepoint_annotation`].
 fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> {
     // A `SLICE :` qualifier comes off first, exactly as the parser takes it
     // off, so a qualified mapping is annotated like any other.
@@ -84,7 +85,14 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
     };
 
     let mut out = Vec::new();
-    for char_span in char_spans {
+    for (i, char_span) in char_spans.iter().enumerate() {
+        // Two spans is the `BASE SELECTOR` form, so the second one stands in
+        // the selector half; a lone span holds the whole sequence.
+        let half = if char_spans.len() == 2 && i == 1 {
+            CharHalf::Selector
+        } else {
+            CharHalf::Whole
+        };
         let value = char_span.value.as_str();
         let quoted = char_span.raw_end - char_span.raw_start != value.chars().count();
 
@@ -93,14 +101,14 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
         // offsets.
         if !quoted && value.contains('|') {
             for (part, end_off) in split_top_level_pipes_with_ends(value) {
-                if let Some(text) = codepoint_annotation(part) {
+                if let Some(text) = map_codepoint_annotation(part, half) {
                     out.push(InlineAnnotation {
                         col: leading + char_span.raw_start + end_off,
                         text,
                     });
                 }
             }
-        } else if let Some(text) = codepoint_annotation(value) {
+        } else if let Some(text) = map_codepoint_annotation(value, half) {
             out.push(InlineAnnotation {
                 col: leading + char_span.raw_end,
                 text,
@@ -108,6 +116,41 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
         }
     }
     out
+}
+
+/// Which half of a `map`'s character side a written token stands in.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum CharHalf {
+    /// The whole sequence: a base, optionally followed by its selector.
+    Whole,
+    /// The selector of the two-token `BASE SELECTOR` form.
+    Selector,
+}
+
+/// [`codepoint_annotation`], but only for a token that is a mapping sequence
+/// this format actually supports — `split_written_uvs_pair`'s shape.
+///
+/// Anything else on the character side is *not* text the font maps: a pattern
+/// (`(a|b)c`), a longer paste that [`crate::issues`] rejects by name, a
+/// selector where a base belongs. Spelling those out claims they are a
+/// sequence, and on a slice-qualified line — where the eye already has a
+/// qualifier, a pattern and a glyph name to sort out — the spurious `U+0028
+/// U+0061 U+007C …` buried the line. So the annotation stops at what a `map`
+/// can mean, and an unsupported form is left to the diagnostics report.
+fn map_codepoint_annotation(s: &str, half: CharHalf) -> Option<String> {
+    let mut chars = s.chars();
+    let supported = match (chars.next(), chars.next(), chars.next()) {
+        (Some(c), None, _) => {
+            crate::ucd::is_variation_selector(c as u32) == (half == CharHalf::Selector)
+        }
+        (Some(base), Some(sel), None) => {
+            half == CharHalf::Whole
+                && !crate::ucd::is_variation_selector(base as u32)
+                && crate::ucd::is_variation_selector(sel as u32)
+        }
+        _ => false,
+    };
+    supported.then(|| codepoint_annotation(s)).flatten()
 }
 
 /// `assert shape TEXT …`: spell out every codepoint of the shaped text.
@@ -140,7 +183,9 @@ fn assert_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotatio
 /// More than one character is spelled out in full rather than skipped, because
 /// that is exactly the case worth reading: a variation sequence's second half
 /// is invisible, and without this a `map 0️ = …` and a `map 0 = …` look the
-/// same in the editor. A token holding a top-level pipe is left to the caller,
+/// same in the editor. *Which* multi-character tokens reach here is the
+/// caller's business — a `map` filters to what it can mean, while an `assert
+/// shape` states arbitrary text. A token holding a top-level pipe is left to the caller,
 /// which annotates each alternative in place — the pipes are syntax, and
 /// running them together would spell `U+007C` as if it were text.
 fn codepoint_annotation(s: &str) -> Option<String> {
@@ -438,13 +483,23 @@ mod tests {
         );
     }
 
-    /// A longer paste is the shape validation rejects, so the annotation has to
-    /// show what is actually there rather than the first two characters.
+    /// Only what a `map` can actually name is annotated: one character, or one
+    /// character and a selector. A longer paste is not a mapping sequence at
+    /// all — `issues` rejects it by name — and spelling it out would suggest it
+    /// is one.
     #[test]
-    fn a_longer_pasted_sequence_spells_out_every_codepoint() {
+    fn an_unsupported_sequence_is_not_annotated() {
+        assert!(ann("map 0\u{FE0F}\u{20E3} = keycap-zero").is_empty());
+        // A pattern is a name, not text; running its syntax through the
+        // speller is exactly the noise that made a slice line unreadable.
+        assert!(ann("map (a|b)c = latin-(a|b)-c").is_empty());
+        assert!(ann("map narrow : (a|b)c = latin-(a|b)-c").is_empty());
+        // A bare selector cannot be a base, and a base cannot stand where the
+        // selector goes.
+        assert!(ann("map \u{FE0F} = num-zero-emoji").is_empty());
         assert_eq!(
-            ann("map 0\u{FE0F}\u{20E3} = keycap-zero"),
-            vec![(7, " U+0030 U+FE0F U+20E3".to_string())],
+            ann("map 0 1 = num-zero-emoji"),
+            vec![(5, " U+0030".to_string())],
         );
     }
 
@@ -550,6 +605,35 @@ mod tests {
     fn quoted_char_is_annotated_after_the_quotes() {
         // `` ` `` is written quoted; the annotation follows the closing quote.
         assert_eq!(ann("map ```` = grave"), vec![(8, " U+0060".to_string())]);
+    }
+
+    /// A list of one-character alternatives is real, everyday `map` syntax, so
+    /// the per-alternative filter has to accept each part on its own — the
+    /// pipes are syntax and never make the token unsupported.
+    #[test]
+    fn a_long_alternative_list_annotates_every_part() {
+        assert_eq!(
+            ann("map a|b|c|d = latin-(a|b|c|d)"),
+            vec![
+                (5, " U+0061".to_string()),
+                (7, " U+0062".to_string()),
+                (9, " U+0063".to_string()),
+                (11, " U+0064".to_string()),
+            ],
+        );
+        // Alternatives that are themselves variation sequences count too.
+        assert_eq!(
+            ann("map 0\u{FE0F}|1\u{FE0F} = num-emoji"),
+            vec![
+                (6, " U+0030 U+FE0F".to_string()),
+                (9, " U+0031 U+FE0F".to_string())
+            ],
+        );
+        // A slice qualifier only shifts the columns.
+        assert_eq!(
+            ann("map narrow : a|b = latin-(a|b)"),
+            vec![(14, " U+0061".to_string()), (16, " U+0062".to_string())],
+        );
     }
 
     #[test]
