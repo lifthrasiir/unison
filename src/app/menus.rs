@@ -51,6 +51,9 @@ pub(super) struct MenuActions {
     pub(super) pane_action: PaneAction,
     /// Go back / go forward through the followed-link history.
     pub(super) nav_action: Option<NavAction>,
+    /// Fold or unfold the group the caret is in. The shortcut itself is the
+    /// editor's own (`document_view::keys`), so this carries only the menu.
+    pub(super) toggle_fold: bool,
 }
 
 /// The subset of [`MenuActions`] dispatched after the central panel.
@@ -144,6 +147,7 @@ impl UniformApp {
         let scale_action = &mut menu.scale_action;
         let pane_action = &mut menu.pane_action;
         let nav_action = &mut menu.nav_action;
+        let toggle_fold = &mut menu.toggle_fold;
 
         use crate::edit_menu::EditMenuCaps;
 
@@ -283,6 +287,18 @@ impl UniformApp {
                         .clicked()
                     {
                         *nav_action = Some(NavAction::Forward);
+                        ui.close_menu();
+                    }
+                    ui.separator();
+                    if ui
+                        .add_enabled(
+                            editor_focused,
+                            egui::Button::new("Fold/unfold innermost group")
+                                .shortcut_text(format!("{mod_name}.")),
+                        )
+                        .clicked()
+                    {
+                        *toggle_fold = true;
                         ui.close_menu();
                     }
                     ui.separator();

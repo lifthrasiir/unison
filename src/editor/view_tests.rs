@@ -153,8 +153,11 @@ fn gutter_counts_the_source_lines_a_grid_occupies() {
     let h = EditorHarness::new(&src);
     // 6 × (header + 16 rows) — well past a hundred, and all of it on screen.
     assert_eq!(h.gutter_numbers().iter().copied().max(), Some(102));
+    // Glyph blocks fold, so this gutter also reserves a marker column the
+    // plain comment file has no use for; the number field is what is compared.
+    assert!(h.snap().marker_width > 0.0);
     assert_eq!(
-        h.snap().origin_x,
+        h.snap().origin_x - h.snap().marker_width,
         EditorHarness::new(&numbered_doc(102)).snap().origin_x,
         "a hundred-and-something needs three digits either way"
     );
@@ -5008,5 +5011,367 @@ fn right_click_in_the_empty_band_opens_the_edit_menu() {
         h.text(0),
         "glyph foo 4 2",
         "the menu's Undo should have run"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Folding
+// ---------------------------------------------------------------------------
+
+/// Three glyph blocks, each a header plus a grid, with a `ref` line on the
+/// first.
+///
+/// DocLines: 0 header a, 1 grid, 2 `ref b`, 3 header b, 4 grid, 5 header c,
+/// 6 grid. Groups: a = 0..3, b = 3..5, c = 5..7.
+fn fold_doc() -> String {
+    String::from(
+        "glyph a 2 2\n....\n....\nref b\nglyph b 2 2\n@@..\n....\nglyph c 2 2\n....\n..@@\n",
+    )
+}
+
+/// Which DocLines the frame actually drew.
+fn shown_lines(h: &EditorHarness) -> Vec<usize> {
+    let mut seen: Vec<usize> = h.snap().vlines.iter().map(|vl| vl.doc_line).collect();
+    seen.dedup();
+    seen
+}
+
+#[test]
+fn a_glyph_block_folds_down_to_its_header() {
+    let mut h = EditorHarness::new(&fold_doc());
+    assert_eq!(shown_lines(&h), vec![0, 1, 2, 3, 4, 5, 6]);
+
+    h.click_fold_marker(0);
+    assert_eq!(
+        shown_lines(&h),
+        vec![0, 3, 4, 5, 6],
+        "the header stays, its grid and ref lines go"
+    );
+
+    h.click_fold_marker(0);
+    assert_eq!(shown_lines(&h), vec![0, 1, 2, 3, 4, 5, 6]);
+    assert_view_consistent(&h);
+}
+
+#[test]
+fn every_foldable_block_gets_a_marker_and_the_shut_one_turns_its_triangle() {
+    let mut h = EditorHarness::new(&fold_doc());
+    let headers: Vec<usize> = h.fold_markers().iter().map(|(l, ..)| *l).collect();
+    assert_eq!(headers, vec![0, 3, 5]);
+    assert!(h.fold_markers().iter().all(|(.., shut)| !*shut));
+
+    h.click_fold_marker(3);
+    let shut: Vec<usize> = h
+        .fold_markers()
+        .iter()
+        .filter(|(.., shut)| *shut)
+        .map(|(l, ..)| *l)
+        .collect();
+    assert_eq!(shut, vec![3]);
+}
+
+/// The marker column is reserved for the page that could show one, not for
+/// every page — a file with no foldable line spends no width on it.
+#[test]
+fn only_a_page_with_a_foldable_line_reserves_the_marker_column() {
+    assert_eq!(
+        EditorHarness::new(&numbered_doc(20)).snap().marker_width,
+        0.0
+    );
+    assert!(EditorHarness::new(&fold_doc()).snap().marker_width > 0.0);
+}
+
+#[test]
+fn a_shut_marker_is_only_as_tall_as_the_header_it_leaves() {
+    let mut h = EditorHarness::new(&fold_doc());
+    let open = h.fold_markers()[0].1.height();
+    h.click_fold_marker(0);
+    let shut = h.fold_markers()[0].1.height();
+    assert!(
+        shut < open,
+        "a shut group shows one row, not the block ({shut} vs {open})"
+    );
+    assert!(shut <= h.snap().vlines[0].height);
+}
+
+/// A click in the gutter belongs to the marker; it must not also drop the
+/// caret onto the line beside it.
+#[test]
+fn clicking_a_marker_does_not_move_the_caret() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_text(3, 2);
+    assert_eq!(h.cursor(), Caret::new(3, 2));
+    h.click_fold_marker(5);
+    assert_eq!(h.cursor(), Caret::new(3, 2));
+}
+
+#[test]
+fn arrows_step_over_a_shut_group_instead_of_into_it() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_fold_marker(0);
+
+    h.click_text(0, 0);
+    h.key(Key::ArrowDown);
+    assert_eq!(
+        h.cursor().line,
+        3,
+        "down off a shut header clears the group"
+    );
+
+    h.key(Key::ArrowUp);
+    assert_eq!(h.cursor().line, 0, "and up comes back to the header");
+
+    h.key_mod(Key::ArrowRight, Modifiers::COMMAND);
+    let header_end = h.cursor();
+    h.key(Key::ArrowRight);
+    assert_eq!(
+        h.cursor(),
+        Caret::new(3, 0),
+        "right off the end of the header opens onto the next visible line"
+    );
+    h.key(Key::ArrowLeft);
+    assert_eq!(h.cursor(), header_end, "and left returns to where it was");
+}
+
+#[test]
+fn ctrl_period_folds_the_group_the_caret_sits_in() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_text(2, 3);
+    h.key_mod(Key::Period, Modifiers::COMMAND);
+
+    assert_eq!(shown_lines(&h), vec![0, 3, 4, 5, 6]);
+    assert_eq!(
+        h.cursor(),
+        Caret::new(0, 3),
+        "the caret comes up to the header at the same column"
+    );
+
+    h.key_mod(Key::Period, Modifiers::COMMAND);
+    assert_eq!(shown_lines(&h), vec![0, 1, 2, 3, 4, 5, 6]);
+}
+
+/// A selection may *span* a shut group — only its two ends have to be
+/// somewhere the user can see.
+#[test]
+fn a_selection_across_a_shut_group_still_covers_what_it_hides() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_fold_marker(0);
+
+    h.click_text(0, 0);
+    h.click_at_mod(h.text_pos(3, 11), Modifiers::SHIFT);
+    h.copy();
+    let copied = h.last_copied_text.clone().expect("nothing copied");
+    assert!(
+        copied.contains("ref b"),
+        "the hidden lines are inside the selection: {copied:?}"
+    );
+}
+
+#[test]
+fn folding_over_an_end_of_the_selection_drops_it() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_text(2, 0);
+    h.click_at_mod(h.text_pos(2, 5), Modifiers::SHIFT);
+    assert!(h.state.selection_range().is_some());
+
+    h.key_mod(Key::Period, Modifiers::COMMAND);
+    assert!(
+        h.state.selection_range().is_none(),
+        "an endpoint about to be hidden cancels the selection"
+    );
+    assert_eq!(h.cursor().line, 0);
+}
+
+#[test]
+fn select_all_then_fold_keeps_the_selection() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_text(0, 0);
+    h.key_mod(Key::A, Modifiers::COMMAND);
+    let before = h.state.selection_range();
+    assert!(before.is_some());
+
+    h.click_fold_marker(0);
+    assert_eq!(
+        h.state.selection_range(),
+        before,
+        "neither end was inside the group, so nothing changes"
+    );
+}
+
+/// Closing a group whose header has scrolled away brings the header to the top
+/// of the page, rather than leaving the fold to happen out of sight.
+#[test]
+fn shutting_a_group_from_below_brings_its_header_to_the_top() {
+    let mut src = String::from("glyph tall 2 300\n");
+    for _ in 0..300 {
+        src.push_str("....\n");
+    }
+    src.push_str("ref x\nglyph x 2 2\n....\n....\n");
+    let mut h = EditorHarness::new(&src);
+
+    h.click_text(0, 0);
+    h.key_mod(Key::End, Modifiers::COMMAND);
+    assert!(h.scroll_y() > 0.0, "the header should be off the page now");
+
+    h.click_text(2, 0);
+    h.key_mod(Key::Period, Modifiers::COMMAND);
+    assert_eq!(h.cursor().line, 0);
+    assert!(
+        h.scroll_y() <= 1.0,
+        "the header should have come to the top ({})",
+        h.scroll_y()
+    );
+}
+
+/// Opening a group adds rows *below* the header, so the page must not move.
+#[test]
+fn opening_a_group_leaves_the_page_where_it_was() {
+    let mut src = String::from("glyph pad 2 300\n");
+    for _ in 0..300 {
+        src.push_str("....\n");
+    }
+    src.push_str("glyph a 2 2\n....\n....\nref b\nglyph b 2 2\n@@..\n....\n");
+    let mut h = EditorHarness::new(&src);
+
+    // Down to the bottom of the file, where the second block is.
+    h.click_text(0, 0);
+    h.key_mod(Key::End, Modifiers::COMMAND);
+    for _ in 0..10 {
+        h.frame();
+    }
+
+    h.toggle_fold(4);
+    let shut = h.scroll_y();
+    h.toggle_fold(2);
+    assert_eq!(
+        h.scroll_y(),
+        shut,
+        "the rows come back below the header, so the page must not move"
+    );
+}
+
+#[test]
+fn jumping_to_a_hidden_line_opens_the_group_holding_it() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_fold_marker(0);
+    assert_eq!(shown_lines(&h), vec![0, 3, 4, 5, 6]);
+
+    h.state.goto_line(2);
+    h.frame();
+    h.frame();
+    assert_eq!(shown_lines(&h), vec![0, 1, 2, 3, 4, 5, 6]);
+    assert_eq!(h.cursor().line, 2);
+}
+
+/// A fold is remembered by the header it was made on, so an edit that shifts
+/// every line below it carries the fold along instead of moving it to whatever
+/// glyph inherited the old line number.
+#[test]
+fn an_edit_above_a_shut_group_carries_the_fold_with_it() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_fold_marker(3);
+    assert_eq!(shown_lines(&h), vec![0, 1, 2, 3, 5, 6]);
+
+    h.click_text(0, 0);
+    h.key(Key::Enter);
+    assert_eq!(
+        shown_lines(&h),
+        vec![0, 1, 2, 3, 4, 6, 7],
+        "glyph b is still the shut one, one line further down"
+    );
+}
+
+/// Typing over a folded header keeps the fold while the caret is on the line —
+/// the document is not re-derived under a live edit — but the key that leaves
+/// the line has to see the grouping the edit left behind.
+#[test]
+fn breaking_a_folded_header_lands_the_caret_on_what_it_was_hiding() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_fold_marker(0);
+
+    h.click_text(0, 1);
+    h.key(Key::Backspace);
+    assert_eq!(h.text(0), "lyph a 2 2");
+    assert_eq!(
+        shown_lines(&h),
+        vec![0, 3, 4, 5, 6],
+        "still folded while the caret is on the header"
+    );
+
+    h.key(Key::ArrowDown);
+    assert_eq!(
+        h.cursor().line,
+        1,
+        "the group is gone, so down lands on the line it used to hide"
+    );
+    assert!(shown_lines(&h).contains(&1));
+}
+
+/// An undo puts the caret back where the edit was, which is a jump like a
+/// followed link: a group standing in front of it opens. The fold itself is
+/// not on the undo stack — only the caret it has to make room for is.
+#[test]
+fn undo_opens_the_group_holding_the_line_it_returns_to() {
+    let mut h = EditorHarness::new(&fold_doc());
+    h.click_text(2, 5);
+    h.type_text("x");
+    assert_eq!(h.text(2), "ref bx");
+
+    h.toggle_fold(2);
+    assert_eq!(shown_lines(&h), vec![0, 3, 4, 5, 6]);
+
+    cmd_z(&mut h);
+    assert_eq!(h.text(2), "ref b");
+    assert_eq!(h.cursor().line, 2);
+    assert!(
+        shown_lines(&h).contains(&2),
+        "the group opened to show where the undo landed"
+    );
+
+    // And a redo the same way.
+    h.toggle_fold(0);
+    assert_eq!(shown_lines(&h), vec![0, 3, 4, 5, 6]);
+    h.key_mod(Key::Z, Modifiers::COMMAND | Modifiers::SHIFT);
+    assert_eq!(h.text(2), "ref bx");
+    assert!(shown_lines(&h).contains(&2));
+}
+
+/// A grid taller than the page leaves no header line on screen at all, but the
+/// group's bar still runs the whole way through it — so the gutter has to keep
+/// its marker column.
+#[test]
+fn a_page_that_is_all_grid_still_carries_the_fold_bar() {
+    let mut src = String::from("glyph tall 2 1000\n");
+    for _ in 0..1000 {
+        src.push_str("....\n");
+    }
+    src.push_str("glyph z 2 2\n....\n....\n");
+    let mut h = EditorHarness::new(&src);
+    let at_top = h.snap().marker_width;
+    assert!(at_top > 0.0);
+
+    h.click_text(0, 0);
+    h.key(Key::PageDown);
+    h.key(Key::PageDown);
+    let header_y = h
+        .snap()
+        .vlines
+        .iter()
+        .find(|vl| vl.doc_line == 0)
+        .expect("no header line")
+        .y;
+    assert!(
+        header_y < 0.0,
+        "the header should have scrolled off the top ({header_y})"
+    );
+
+    assert_eq!(
+        h.snap().marker_width,
+        at_top,
+        "the column must not collapse"
+    );
+    assert!(
+        h.fold_markers().iter().any(|(header, ..)| *header == 0),
+        "the bar of the group this page is inside is still painted"
     );
 }

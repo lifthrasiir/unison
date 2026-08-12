@@ -3,8 +3,8 @@
 
 use super::changes::{apply_edit_action_to_editor, apply_inline_action};
 use super::layout::{
-    GridStrip, VLineKind, VisualLine, collect_grid_blocks, doc_line_to_y, gutter_line_number,
-    inline_panel_reserved_width, visible_grid_rect,
+    GridStrip, GutterLayout, VLineKind, VisualLine, collect_grid_blocks, doc_line_to_y,
+    fold_markers, gutter_line_number, inline_panel_reserved_width, visible_grid_rect,
 };
 use super::scroll::{
     HSCROLL_GAP, HSCROLL_HEIGHT, auto_scroll_grid_on_drag, draw_grid_hscrollbars, hscroll_drag_id,
@@ -30,8 +30,7 @@ pub(super) fn paint_document_area(
     pal: &Palette,
     row_height: f32,
     grid_cell: f32,
-    gutter_width: f32,
-    gutter_digits: usize,
+    gutter: GutterLayout,
     total_height: f32,
     viewport_h: f32,
     cursor_color: egui::Color32,
@@ -104,7 +103,8 @@ pub(super) fn paint_document_area(
 
     let painter = ui.painter_at(rect);
     let gutter_x = rect.min.x;
-    let origin = egui::pos2(rect.min.x + gutter_width, rect.min.y);
+    let number_x = gutter.number_x(gutter_x);
+    let origin = egui::pos2(rect.min.x + gutter.width, rect.min.y);
     let sel = state.selection_range();
 
     // Grid band: the full editor width, less the space the inline tool
@@ -185,6 +185,7 @@ pub(super) fn paint_document_area(
         grid_cell,
         wid,
         &strip,
+        gutter.marker_width,
     );
     let grid_painter = painter.with_clip_rect(
         egui::Rect::from_min_max(
@@ -243,6 +244,27 @@ pub(super) fn paint_document_area(
     let cmd_held = ui.input(|i| i.modifiers.command);
     let hover_pos = ui.input(|i| i.pointer.hover_pos());
 
+    // The gutter's markers are resolved before the lines, because a click that
+    // lands on one must not reach the text hit test below — that one accepts
+    // any x, so a gutter click would otherwise also move the caret.
+    let click_pos = paint_fold_markers(
+        ui,
+        &painter,
+        lines,
+        state,
+        vlines,
+        pal,
+        gutter,
+        gutter_x,
+        origin,
+        row_height,
+        grid_cell,
+        click_pos,
+        hover_pos,
+        response.clicked(),
+        needs_rederive,
+    );
+
     let clip = ui.clip_rect();
     let vis_top = clip.min.y - origin.y;
     let vis_bottom = clip.max.y - origin.y;
@@ -292,9 +314,10 @@ pub(super) fn paint_document_area(
 
         let src_line = gutter_line_number(vl, lines, source_offsets);
         if let Some(num) = src_line {
-            let num_text = format!(" {num:>gutter_digits$} ");
+            let digits = gutter.digits;
+            let num_text = format!(" {num:>digits$} ");
             painter.text(
-                egui::pos2(gutter_x, origin.y + y),
+                egui::pos2(number_x, origin.y + y),
                 egui::Align2::LEFT_TOP,
                 &num_text,
                 font_id.clone(),
@@ -1381,4 +1404,119 @@ fn paint_color_backgrounds(
         );
     }
     painted
+}
+
+/// Draws the fold marker of every group with a row on screen, and resolves a
+/// click on one.
+///
+/// A marker is an inverted plaque: a bar in the line-number colour, as tall as
+/// what the group currently shows — one row while it is shut, unless its
+/// header wraps — with a triangle cut out of its top in the page colour,
+/// pointing down while the group is open and right while it is shut. The whole
+/// bar is the target, not the triangle: hovering shades it and a click
+/// anywhere on it toggles.
+///
+/// Returns `click_pos` with a position that landed on a marker removed, so the
+/// caller's line hit tests never see it.
+#[expect(clippy::too_many_arguments)]
+fn paint_fold_markers(
+    ui: &egui::Ui,
+    painter: &egui::Painter,
+    lines: &mut Vec<DocLine>,
+    state: &mut EditorState,
+    vlines: &[VisualLine],
+    pal: &Palette,
+    gutter: GutterLayout,
+    gutter_x: f32,
+    origin: egui::Pos2,
+    row_height: f32,
+    grid_cell: f32,
+    click_pos: Option<egui::Pos2>,
+    hover_pos: Option<egui::Pos2>,
+    clicked: bool,
+    needs_rederive: &mut bool,
+) -> Option<egui::Pos2> {
+    if gutter.marker_width <= 0.0 {
+        return click_pos;
+    }
+    let clip = ui.clip_rect();
+    let dark_mode = ui.visuals().dark_mode;
+    let page = ui.visuals().panel_fill;
+    let mut toggle: Option<usize> = None;
+    let mut consumed = false;
+    #[cfg(test)]
+    let mut captured: Vec<crate::editor::harness::FoldMarkerRect> = Vec::new();
+
+    for marker in fold_markers(vlines, &state.folds, row_height, grid_cell) {
+        let Some(cell) = gutter.marker_rect(gutter_x, origin.y + marker.y0, origin.y + marker.y1)
+        else {
+            continue;
+        };
+        if cell.max.y < clip.min.y || cell.min.y > clip.max.y || cell.height() <= 0.0 {
+            continue;
+        }
+
+        let hovered = hover_pos.is_some_and(|p| cell.contains(p));
+        if hovered {
+            ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+        }
+        let fill = if hovered {
+            shade_marker(pal.line_num, dark_mode)
+        } else {
+            pal.line_num
+        };
+        painter.rect_filled(cell, cell.width() * 0.25, fill);
+
+        // The triangle sits in the square at the top of the bar, so a group
+        // that spans a hundred rows and one that spans two look the same where
+        // the eye goes.
+        let w = cell.width();
+        let half = w * 0.28;
+        let cx = cell.center().x;
+        let cy = cell.min.y + (w * 0.5).min(cell.height() * 0.5);
+        let points = if marker.collapsed {
+            vec![
+                egui::pos2(cx - half * 0.8, cy - half),
+                egui::pos2(cx - half * 0.8, cy + half),
+                egui::pos2(cx + half * 0.8, cy),
+            ]
+        } else {
+            vec![
+                egui::pos2(cx - half, cy - half * 0.8),
+                egui::pos2(cx + half, cy - half * 0.8),
+                egui::pos2(cx, cy + half * 0.8),
+            ]
+        };
+        painter.add(egui::Shape::convex_polygon(
+            points,
+            page,
+            egui::Stroke::NONE,
+        ));
+
+        #[cfg(test)]
+        captured.push((marker.group.header, cell, marker.collapsed));
+
+        // Only a *click* is the bar's: a drag that merely passes over the
+        // gutter belongs to the text selection it started in.
+        if clicked && click_pos.is_some_and(|p| cell.contains(p)) {
+            consumed = true;
+            toggle = Some(marker.group.header);
+        }
+    }
+
+    #[cfg(test)]
+    crate::editor::harness::capture_fold_markers(ui.ctx(), state.id(), &captured);
+
+    if let Some(header) = toggle {
+        *needs_rederive |= crate::editor::folding::toggle_at(lines, state, header);
+    }
+    if consumed { None } else { click_pos }
+}
+
+/// The hovered shade of a marker: brighter on a dark page, darker on a light
+/// one, so the change reads the same either way.
+fn shade_marker(c: egui::Color32, dark_mode: bool) -> egui::Color32 {
+    let f = if dark_mode { 1.45 } else { 0.7 };
+    let ch = |v: u8| (v as f32 * f).clamp(0.0, 255.0) as u8;
+    egui::Color32::from_rgb(ch(c.r()), ch(c.g()), ch(c.b()))
 }

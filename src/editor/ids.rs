@@ -194,6 +194,9 @@ pub(crate) enum Slot {
     /// `EditorHarness`.
     #[cfg(test)]
     TestResizeButtons,
+    /// Fold-marker cells painted this frame, published for `EditorHarness`.
+    #[cfg(test)]
+    TestFoldMarkers,
 }
 
 #[cfg(test)]

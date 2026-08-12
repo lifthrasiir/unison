@@ -373,6 +373,10 @@ pub(super) struct ViewCacheKey {
     /// built from, and rebuilding it is O(document).
     pub(super) active_point: Option<(usize, usize)>,
     pub(super) show_metrics: bool,
+    /// `FoldState::gen`, which changes exactly when the set of visible lines
+    /// does. The vlines a fold hides are dropped after they are built, so
+    /// nothing else in this key would notice.
+    pub(super) fold_gen: u64,
     pub(super) wrap_width_bits: Option<u32>,
     pub(super) font_id: egui::FontId,
     pub(super) dark_mode: bool,
@@ -405,6 +409,148 @@ impl VisualLine {
             _ => None,
         }
     }
+}
+
+/// How the gutter's width is divided up: `[marker][ space number space ]`.
+///
+/// `marker` is a fixed one-em column, reserved whenever the page could show a
+/// fold marker at all and dropped when it could not — the same
+/// over-reserve-but-never-flicker rule the digit count follows, and for the
+/// same reason: the width is an input to the layout it would otherwise be
+/// measured from.
+#[derive(Clone, Copy)]
+pub(super) struct GutterLayout {
+    /// Total width, marker column included.
+    pub(super) width: f32,
+    /// Width of the marker column; `0.0` when this page reserves none.
+    pub(super) marker_width: f32,
+    /// Digits the line numbers are right-aligned in.
+    pub(super) digits: usize,
+}
+
+impl GutterLayout {
+    /// Left edge of the line-number field, given the gutter's left edge.
+    pub(super) fn number_x(&self, gutter_x: f32) -> f32 {
+        gutter_x + self.marker_width
+    }
+
+    /// The marker cell for a row spanning `y0..y1`, inset on all four sides so
+    /// consecutive markers stay visibly separate. `None` when this page
+    /// reserves no marker column.
+    pub(super) fn marker_rect(&self, gutter_x: f32, y0: f32, y1: f32) -> Option<egui::Rect> {
+        if self.marker_width <= 0.0 {
+            return None;
+        }
+        let pad = self.marker_width * FOLD_MARKER_PAD;
+        let inset = (y1 - y0 - pad * 2.0).max(0.0);
+        Some(egui::Rect::from_min_size(
+            egui::pos2(gutter_x + pad, y0 + pad),
+            egui::vec2(self.marker_width - pad * 2.0, inset),
+        ))
+    }
+}
+
+/// Fraction of the marker column's width kept clear on every side. The drawn
+/// marker is therefore ~0.8em wide inside a 1em cell.
+pub(super) const FOLD_MARKER_PAD: f32 = 0.1;
+
+/// A fold marker's place in the document's y space: where the group starts,
+/// where what is currently *shown* of it ends, and which way the triangle
+/// points.
+pub(super) struct FoldMarker {
+    pub(super) group: crate::editor::folding::FoldGroup,
+    pub(super) collapsed: bool,
+    pub(super) y0: f32,
+    pub(super) y1: f32,
+}
+
+/// The vertical span each fold group occupies among the visual lines as they
+/// stand. A collapsed group is only as tall as its header — which is one row
+/// unless the header itself wraps.
+///
+/// One pass, with the groups that cover the current line held in `active`:
+/// groups arrive in header order and visual lines in document order, so each
+/// group is pushed once and dropped once. Nesting needs no more than that,
+/// which is why this is not a lookup keyed by line.
+pub(super) fn fold_markers(
+    vlines: &[VisualLine],
+    folds: &crate::editor::folding::FoldState,
+    row_height: f32,
+    grid_cell: f32,
+) -> Vec<FoldMarker> {
+    let groups = folds.groups();
+    let mut spans: Vec<Option<(f32, f32)>> = vec![None; groups.len()];
+    let mut active: Vec<usize> = Vec::new();
+    let mut next = 0usize;
+    let mut y = 0.0f32;
+    for vl in vlines {
+        let h = vl.height(row_height, grid_cell);
+        while next < groups.len() && groups[next].header <= vl.doc_line {
+            active.push(next);
+            next += 1;
+        }
+        active.retain(|&i| groups[i].end > vl.doc_line);
+        for &i in &active {
+            let span = spans[i].get_or_insert((y, y));
+            span.1 = y + h;
+        }
+        y += h;
+    }
+    groups
+        .iter()
+        .zip(spans)
+        .filter_map(|(&group, span)| {
+            let (y0, y1) = span?;
+            Some(FoldMarker {
+                group,
+                collapsed: folds.is_collapsed(group.header),
+                y0,
+                y1,
+            })
+        })
+        .collect()
+}
+
+/// Whether the page on screen falls inside a fold group at all.
+///
+/// The question is *inside a group*, not *on a header*: a marker's bar runs the
+/// whole height of its group, so a grid tall enough to fill the page on its own
+/// is covered by a bar whose header scrolled off the top long ago. Asking for
+/// the header would drop the column out from under that bar.
+///
+/// Answered from the *previous* frame's layout, because the width it decides
+/// is an input to this frame's: a page that scrolls into its first foldable
+/// line widens the gutter one frame later, exactly as the digit count does.
+/// With no previous layout to consult the caller falls back to "does the
+/// document have any group at all", which only ever over-reserves.
+pub(super) fn page_has_fold_marker(
+    vlines: &[VisualLine],
+    folds: &crate::editor::folding::FoldState,
+    row_height: f32,
+    grid_cell: f32,
+    scroll_y: f32,
+    viewport_h: f32,
+) -> bool {
+    let groups = folds.groups();
+    let mut active: Vec<usize> = Vec::new();
+    let mut next = 0usize;
+    let mut y = 0.0f32;
+    for vl in vlines {
+        let h = vl.height(row_height, grid_cell);
+        if y > scroll_y + viewport_h {
+            break;
+        }
+        while next < groups.len() && groups[next].header <= vl.doc_line {
+            active.push(next);
+            next += 1;
+        }
+        active.retain(|&i| groups[i].end > vl.doc_line);
+        if y + h > scroll_y && !active.is_empty() {
+            return true;
+        }
+        y += h;
+    }
+    false
 }
 
 /// Vertical offset (in pixels) of the first visual line belonging to

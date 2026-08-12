@@ -32,6 +32,7 @@ pub mod doc_input;
 pub mod doc_links;
 pub mod document_view;
 pub mod editing;
+pub mod folding;
 pub mod glyph_resize;
 pub mod glyph_widget;
 pub mod grid_render;
@@ -123,6 +124,12 @@ pub struct EditorState {
     /// offsets, drags and popups apart. See [`ids`].
     id: EditorId,
     pub(crate) mode: EditMode,
+    /// Which glyph blocks this pane has folded shut. Per-pane and not
+    /// persisted; see [`folding`].
+    pub(crate) folds: folding::FoldState,
+    /// What the fold toggled this frame asks of the next frame's scroll
+    /// offset. See [`document_view::scroll::resolve_scroll_target`].
+    pub(crate) fold_scroll: Option<folding::FoldScroll>,
     pub(crate) cursor: caret::Caret,
     pub(crate) selection_anchor: Option<caret::Caret>,
     cursor_item: Option<usize>,
@@ -212,6 +219,8 @@ impl EditorState {
         Self {
             id,
             mode: EditMode::Normal,
+            folds: Default::default(),
+            fold_scroll: None,
             cursor: caret::Caret::zero(),
             selection_anchor: None,
             cursor_item: None,
@@ -270,6 +279,11 @@ impl EditorState {
         self.active
     }
 
+    /// The document line the caret is on.
+    pub(crate) fn cursor_line(&self) -> usize {
+        self.cursor.line
+    }
+
     pub fn cursor_source_line(&self) -> usize {
         self.cursor_source_line
     }
@@ -316,6 +330,7 @@ impl EditorState {
 
     pub fn goto_line(&mut self, line: usize) {
         self.mode = EditMode::Normal;
+        self.folds.expand_containing(line);
         self.selection_anchor = None;
         self.cursor = caret::Caret::new(line, 0);
         self.scroll_to_cursor = true;
@@ -327,6 +342,7 @@ impl EditorState {
     /// since the jump can leave one pointing past the end.
     pub fn goto_caret(&mut self, lines: &[DocLine], line: usize, col: usize) {
         self.mode = EditMode::Normal;
+        self.folds.expand_containing(line);
         self.selection_anchor = None;
         self.cursor = caret::clamp(lines, caret::Caret::new(line, col));
         self.scroll_to_cursor = true;
@@ -348,6 +364,8 @@ impl EditorState {
         self.pixel_select_anchor = None;
         self.autocomplete = None;
         self.popup = PopupState::None;
+        self.folds.clear();
+        self.fold_scroll = None;
         self.cursor = caret;
         self.cursor_item = None;
         self.view_cache = None;
@@ -453,6 +471,10 @@ impl EditorState {
             pixel_selection: &mut self.pixel_selection,
         });
         if let Some(c) = self.undo.undo_with_sel(lines, sel_ctx) {
+            // The caret an undo restores is a jump like any other, so a group
+            // standing between it and the eye opens. The fold itself is not on
+            // the stack: only where the caret has to end up is.
+            self.folds.expand_containing(c.line);
             self.cursor = caret::clamp(lines, c);
             self.selection_anchor = None;
             self.skip_reconcile = true;
@@ -468,6 +490,7 @@ impl EditorState {
             pixel_selection: &mut self.pixel_selection,
         });
         if let Some(c) = self.undo.redo_with_sel(lines, sel_ctx) {
+            self.folds.expand_containing(c.line);
             self.cursor = caret::clamp(lines, c);
             self.selection_anchor = None;
             self.skip_reconcile = true;

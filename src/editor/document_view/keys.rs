@@ -10,7 +10,7 @@ use crate::editor::glyph_resize;
 #[expect(clippy::too_many_arguments)]
 pub(super) fn handle_document_keys(
     ui: &egui::Ui,
-    doc: &Document,
+    doc: &mut Document,
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
@@ -45,6 +45,18 @@ pub(super) fn handle_document_keys(
                 } else if !matches!(state.mode, EditMode::Normal) {
                     state.mode = EditMode::Normal;
                 }
+            }
+
+            // Ctrl/Cmd+. folds the innermost group the caret is in. Read
+            // before the mode handlers because it is not a mode's key: a fold
+            // asked for from a pixel mode leaves that mode first (see
+            // `folding::toggle_at`), which is the same thing the menu entry
+            // beside this shortcut does.
+            if matches!(state.popup, PopupState::None)
+                && ui.input(|i| i.modifiers.command && i.key_pressed(egui::Key::Period))
+            {
+                *needs_rederive |=
+                    crate::editor::folding::toggle_at(lines, state, state.cursor.line);
             }
 
             *needs_rederive |= handle_resize_keys(
@@ -114,6 +126,7 @@ pub(super) fn handle_document_keys(
                         pixel_selection: &mut state.pixel_selection,
                     });
                     if let Some(c) = state.undo.undo_with_sel(lines, sel_ctx) {
+                        state.folds.expand_containing(c.line);
                         state.cursor = caret::clamp(lines, c);
                         state.selection_anchor = None;
                         state.skip_reconcile = true;
@@ -125,6 +138,7 @@ pub(super) fn handle_document_keys(
                         pixel_selection: &mut state.pixel_selection,
                     });
                     if let Some(c) = state.undo.redo_with_sel(lines, sel_ctx) {
+                        state.folds.expand_containing(c.line);
                         state.cursor = caret::clamp(lines, c);
                         state.selection_anchor = None;
                         state.skip_reconcile = true;
@@ -264,6 +278,7 @@ pub(super) fn handle_document_keys(
             }
 
             if matches!(state.mode, EditMode::Normal) && matches!(state.popup, PopupState::None) {
+                crate::editor::folding::settle_edited_header(ui, doc, lines, state);
                 let text_changed = doc_input::handle_keys(ui, lines, state);
                 *needs_rederive |= text_changed;
 

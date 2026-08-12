@@ -137,6 +137,8 @@ Editor (feature `editor`):
   loop behind it (most churn in the editor). `mod.rs` is the loop and the view cache; `layout.rs`
   (grid extents/strips, the visual-line model, `GlyphMetrics`), `paint.rs`, `scroll.rs`, `keys.rs`,
   `popups.rs`, `changes.rs`.
+- `editor/folding.rs` — collapsing a run of lines to its first one: what a group is, why the
+  group list rides on `Document::edit_gen`, and why a fold is re-found by its header's text.
 - `editor/glyph_resize.rs` — F2 over a grid: dragging a glyph's boundary, and the two directions a
   resize propagates in (its own anchors/refs one way, every `ref` naming it the other). Tests in
   `glyph_resize_tests.rs`; the cross-file half is `app/resize.rs`.
@@ -198,6 +200,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What a test run builds (lazily, once per face), and how the editor's stays fast | `render/assert.rs` (`run_assertions_inner`), `app/background.rs` (`run_shape_assertions`) |
 | Contour coordinate spaces | `render/contour.rs` |
 | The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |
+| Folding a glyph block: what a group is, and when the group list is recomputed | `editor/folding.rs` |
+| Where a caret goes when a fold swallows the line it was on, and what a fold does to a selection | `editor/folding.rs` (`toggle_at`, `snap_caret`) |
+| Why closing a fold may scroll and opening one may not | `editor/folding.rs` (`FoldScroll`), `document_view/scroll.rs` |
+| The gutter's marker column, and why it is reserved a frame behind the page | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`) |
 | Split panes, their invariants and key chords | `app/panes.rs` |
 | Go back / go forward | `app/history.rs` |
 | The Search pane, and where a click goes with no definition | `app/search.rs` |

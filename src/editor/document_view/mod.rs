@@ -35,7 +35,7 @@ mod tests;
 
 use changes::{apply_pending_rederive, line_to_item_idx, source_line_count, source_line_offsets};
 use keys::handle_document_keys;
-use layout::{ViewCacheKey, ViewData};
+use layout::{GutterLayout, ViewCacheKey, ViewData, page_has_fold_marker};
 use number_scroll::{apply_number_bump, detect_number_bump, swallow_wheel_delta};
 use paint::paint_document_area;
 use popups::{
@@ -244,7 +244,7 @@ fn resolve_view(
     let shadow = cache_key.active_point.and_then(|(item_idx, pi)| {
         selected_anchor_shadow(doc, item_idx, pi, named_glyphs, &composites)
     });
-    let vlines = visual_lines::build_visual_lines(
+    let mut vlines = visual_lines::build_visual_lines(
         lines,
         doc,
         &doc.item_line_starts,
@@ -261,6 +261,11 @@ fn resolve_view(
         show_metrics,
         shadow.as_ref(),
     );
+    // Folding is applied to the finished list rather than threaded through the
+    // builder: every line kind a group may come to hold is then hidden by the
+    // same rule, and a grid — one `DocLine` but many visual lines — needs no
+    // special case.
+    vlines.retain(|vl| !state.folds.is_hidden(vl.doc_line));
     let source_offsets = source_line_offsets(lines);
     let data = std::sync::Arc::new(ViewData {
         composites,
@@ -362,6 +367,10 @@ fn show_document(
         EditMode::Normal => None,
     };
 
+    // Folding is derived from the *parsed* document, so this only does work on
+    // the frames a reparse actually landed on. See `folding`.
+    state.folds.sync(doc, lines);
+
     let scroll_y_id = state.key(Slot::ScrollY);
     let viewport_h_id = state.key(Slot::ViewportH);
     let prev_scroll_y = ui
@@ -392,7 +401,7 @@ fn show_document(
             .max(1);
         highest.to_string().len()
     };
-    let gutter_width = ui.fonts(|f| {
+    let number_width = ui.fonts(|f| {
         f.layout_no_wrap(
             format!(" {} ", "8".repeat(gutter_digits)),
             font_id.clone(),
@@ -401,6 +410,26 @@ fn show_document(
         .rect
         .width()
     });
+    let marker_width = {
+        let shown = match state.view_cache.as_ref() {
+            Some(cache) => page_has_fold_marker(
+                &cache.data.vlines,
+                &state.folds,
+                row_height,
+                grid_cell,
+                prev_scroll_y,
+                prev_viewport_h,
+            ),
+            None => !state.folds.groups().is_empty(),
+        };
+        if shown { font_id.size } else { 0.0 }
+    };
+    let gutter = GutterLayout {
+        width: number_width + marker_width,
+        marker_width,
+        digits: gutter_digits,
+    };
+    let gutter_width = gutter.width;
 
     let wrap_width = {
         let minimap_w = MINIMAP_WIDTH * zoom_level as f32;
@@ -420,6 +449,7 @@ fn show_document(
         editing_item_idx,
         active_point: active_point_layer(doc, &state.mode),
         show_metrics: env.show_metrics,
+        fold_gen: state.folds.visible_gen(),
         wrap_width_bits: wrap_width.map(f32::to_bits),
         font_id: font_id.clone(),
         dark_mode: ui.ctx().theme() == egui::Theme::Dark,
@@ -528,8 +558,7 @@ fn show_document(
             &pal,
             row_height,
             grid_cell,
-            gutter_width,
-            gutter_digits,
+            gutter,
             total_height,
             viewport_h,
             cursor_color,
@@ -581,6 +610,12 @@ fn show_document(
     apply_pending_rederive(doc, lines, state, needs_rederive);
 
     state.cursor = caret::clamp(lines, state.cursor);
+    // The caret never rests on a folded line. Every motion already steps over
+    // one, so this only catches a caret the *document* moved under — an undo
+    // that restored a line inside a closed group, say.
+    state.cursor = state
+        .folds
+        .snap_caret(lines, state.cursor, crate::editor::folding::Snap::Up);
     state.cursor_item = line_to_item_idx(&doc.item_line_starts, state.cursor.line);
     state.cursor_source_line = source_offsets
         .get(state.cursor.line)

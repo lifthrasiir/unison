@@ -312,6 +312,26 @@ pub(super) fn resolve_scroll_target(
         }
     };
 
+    // A group that just closed brings its header to the top of the viewport,
+    // but only if the header is not on screen already — a fold you can watch
+    // happen must not also jump the page under you. This outranks the caret
+    // scroll below because closing the group the caret was inside moves the
+    // caret too, and that would otherwise merely nudge the header into view
+    // from the bottom.
+    let fold_scroll: Option<f32> = state.fold_scroll.take().and_then(|req| match req {
+        crate::editor::folding::FoldScroll::Hold => Some(prev_scroll_y),
+        crate::editor::folding::FoldScroll::HeaderToTop(line) => {
+            let y = doc_line_to_y(vlines, row_height, grid_cell, line);
+            let h: f32 = vlines
+                .iter()
+                .filter(|vl| vl.doc_line == line)
+                .map(|vl| vl.height(row_height, grid_cell))
+                .sum();
+            let visible = y >= prev_scroll_y && y + h <= prev_scroll_y + viewport_h;
+            (!visible).then_some(y)
+        }
+    });
+
     let goto_scroll_id = state.key(Slot::ScrollTarget);
     let goto_scroll: Option<f32> = ui.ctx().data(|d| d.get_temp::<f32>(goto_scroll_id));
     if goto_scroll.is_some() {
@@ -326,6 +346,7 @@ pub(super) fn resolve_scroll_target(
     };
     let saved_scroll_y = (state.saved_scroll_frac * total_height - viewport_h / 2.0).max(0.0);
     let restore_scroll = if minimap_scroll_target.is_none()
+        && fold_scroll.is_none()
         && goto_scroll.is_none()
         && cursor_scroll.is_none()
         && zoom_scroll.is_none()
@@ -336,6 +357,7 @@ pub(super) fn resolve_scroll_target(
         None
     };
     minimap_scroll_target
+        .or(fold_scroll)
         .or(goto_scroll)
         .or(cursor_scroll)
         .or(zoom_scroll)

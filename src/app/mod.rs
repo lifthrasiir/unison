@@ -702,6 +702,16 @@ impl eframe::App for UniformApp {
             None => {}
         }
 
+        // The same fold the editor's own Ctrl/Cmd+. does, for a user who
+        // reached it through the menu instead — and so with the keyboard focus
+        // sitting on a menu button, which `with_active_doc_flush` hands back.
+        if menu.toggle_fold {
+            self.with_active_doc_flush(|doc| {
+                let line = doc.editor_state.cursor_line();
+                crate::editor::folding::toggle_at(&mut doc.lines, &mut doc.editor_state, line)
+            });
+        }
+
         if let Some((path, line)) = bottom.issue_click {
             self.open_file(path.clone());
             if let Some(idx) = self

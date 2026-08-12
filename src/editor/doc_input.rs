@@ -10,6 +10,7 @@
 
 use crate::document::DocLine;
 use crate::editor::caret::{self, Caret};
+use crate::editor::folding;
 use crate::editor::undo::UndoStack;
 use crate::editor::{EditorState, Slot};
 
@@ -31,11 +32,25 @@ pub(crate) struct TextEdit<'a> {
     pub preedit: &'a mut String,
     /// Which keys the IME owns right now; see [`ImeKeyGuard`].
     pub ime_guard: &'a mut ImeKeyGuard,
+    /// The folds the caret has to step over, when there is a view that folds
+    /// at all. `None` for the preview, whose lines are all visible.
+    pub folds: Option<&'a folding::FoldState>,
 }
 
 impl TextEdit<'_> {
     fn selection_range(&self) -> Option<(Caret, Caret)> {
         caret::selection_range(*self.cursor, *self.selection_anchor)
+    }
+
+    /// Pulls the caret off a hidden line after a move that walked onto one.
+    /// Every caret motion below goes through this: a folded line takes no
+    /// caret, so the move continues past the group instead of stopping inside
+    /// it. See [`folding::FoldState::snap_caret`] for which edge each
+    /// direction lands on.
+    fn snap_over_folds(&mut self, dir: folding::Snap) {
+        if let Some(folds) = self.folds {
+            *self.cursor = folds.snap_caret(self.lines, *self.cursor, dir);
+        }
     }
 
     /// Deletes the selection, reporting whether anything was actually removed.
@@ -91,6 +106,7 @@ pub(crate) fn handle_keys(
             undo: &mut state.undo,
             preedit: &mut state.preedit,
             ime_guard: &mut state.ime_guard,
+            folds: Some(&state.folds),
         },
     );
 
@@ -287,6 +303,7 @@ fn apply_event(
                         } else {
                             *te.cursor = caret::move_left(te.lines, *te.cursor);
                         }
+                        te.snap_over_folds(folding::Snap::Backward);
                     }
                     egui::Key::ArrowRight => {
                         update_selection(te, shift);
@@ -297,6 +314,7 @@ fn apply_event(
                         } else {
                             *te.cursor = caret::move_right(te.lines, *te.cursor);
                         }
+                        te.snap_over_folds(folding::Snap::Forward);
                     }
                     egui::Key::ArrowUp => {
                         update_selection(te, shift);
@@ -305,13 +323,16 @@ fn apply_event(
                         } else {
                             *te.cursor = caret::move_up(te.lines, *te.cursor);
                         }
+                        te.snap_over_folds(folding::Snap::Up);
                     }
                     egui::Key::ArrowDown => {
                         update_selection(te, shift);
                         if modifiers.command {
                             *te.cursor = caret::doc_end(te.lines);
+                            te.snap_over_folds(folding::Snap::Backward);
                         } else {
                             *te.cursor = caret::move_down(te.lines, *te.cursor);
+                            te.snap_over_folds(folding::Snap::Down);
                         }
                     }
                     egui::Key::Home => {
@@ -321,6 +342,7 @@ fn apply_event(
                         } else {
                             *te.cursor = caret::home(te.lines, *te.cursor);
                         }
+                        te.snap_over_folds(folding::Snap::Forward);
                     }
                     egui::Key::End => {
                         update_selection(te, shift);
@@ -329,12 +351,19 @@ fn apply_event(
                         } else {
                             *te.cursor = caret::end(te.lines, *te.cursor);
                         }
+                        te.snap_over_folds(folding::Snap::Backward);
                     }
                     egui::Key::PageUp | egui::Key::PageDown => {}
                     egui::Key::A if modifiers.command => {
                         *te.selection_anchor = Some(Caret::zero());
                         let last = te.lines.len().saturating_sub(1);
                         *te.cursor = Caret::new(last, caret::line_char_len(te.lines, last));
+                        // Select-all has to end somewhere visible like any
+                        // other selection, so a document whose last line is
+                        // folded away ends on the header of that group. What
+                        // lies between is still selected: only the endpoints
+                        // are constrained.
+                        te.snap_over_folds(folding::Snap::Backward);
                     }
                     _ => {}
                 }

@@ -83,6 +83,9 @@ pub(crate) struct SnapLine {
 pub(crate) struct ViewSnapshot {
     /// Absolute screen x where text/grids start (right of the gutter).
     pub origin_x: f32,
+    /// Width the gutter reserved for fold markers, `0.0` when it reserved
+    /// none. Subtract it to compare the line-number field alone.
+    pub marker_width: f32,
     #[allow(dead_code)]
     pub row_height: f32,
     pub grid_cell: f32,
@@ -219,6 +222,24 @@ pub(crate) fn capture_resize_buttons(
     ctx.data_mut(|d| d.insert_temp(resize_buttons_id(editor), rects.to_vec()));
 }
 
+fn fold_markers_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestFoldMarkers)
+}
+
+/// One fold marker as it was painted: the group's header line, the cell the
+/// click test uses, and which way its triangle points.
+pub(crate) type FoldMarkerRect = (usize, egui::Rect, bool);
+
+/// Called from `paint_fold_markers` (test builds only), so a test clicks a
+/// marker where it really is instead of re-deriving the gutter's geometry.
+pub(crate) fn capture_fold_markers(
+    ctx: &egui::Context,
+    editor: EditorId,
+    markers: &[FoldMarkerRect],
+) {
+    ctx.data_mut(|d| d.insert_temp(fold_markers_id(editor), markers.to_vec()));
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -233,6 +254,7 @@ pub(crate) fn capture_snapshot(
     grid_cell: f32,
     widget_id: egui::Id,
     strip: &GridStrip,
+    marker_width: f32,
 ) {
     let mut y = origin.y;
     let mut snaps = Vec::with_capacity(vlines.len());
@@ -273,6 +295,7 @@ pub(crate) fn capture_snapshot(
     }
     let snapshot = ViewSnapshot {
         origin_x: origin.x,
+        marker_width,
         row_height,
         grid_cell,
         widget_id,
@@ -1141,6 +1164,33 @@ impl EditorHarness {
             .iter()
             .filter_map(|vl| vl.gutter)
             .collect()
+    }
+
+    /// The fold markers the last frame painted, by group header line.
+    pub fn fold_markers(&self) -> Vec<FoldMarkerRect> {
+        self.ctx
+            .data(|d| d.get_temp::<Vec<FoldMarkerRect>>(fold_markers_id(self.state.id())))
+            .unwrap_or_default()
+    }
+
+    /// Folds or unfolds the innermost group at `doc_line`, the way Ctrl/Cmd+.
+    /// and the Edit-menu entry do — without going through the gutter's
+    /// geometry, which is what `click_fold_marker` is for.
+    pub fn toggle_fold(&mut self, doc_line: usize) {
+        crate::editor::folding::toggle_at(&mut self.lines, &mut self.state, doc_line);
+        self.frame();
+        self.frame();
+    }
+
+    /// Clicks the fold marker of the group headed by `doc_line`.
+    pub fn click_fold_marker(&mut self, doc_line: usize) {
+        let rect = self
+            .fold_markers()
+            .into_iter()
+            .find(|(header, ..)| *header == doc_line)
+            .unwrap_or_else(|| panic!("no fold marker for line {doc_line}"))
+            .1;
+        self.click_at(rect.center());
     }
 
     /// Whether the editor canvas widget currently holds keyboard focus.

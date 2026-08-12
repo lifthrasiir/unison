@@ -890,6 +890,7 @@ impl ShapedPreviewState {
                 undo: &mut self.undo,
                 preedit: &mut self.preedit,
                 ime_guard: &mut self.ime_guard,
+                folds: None,
             },
         );
 
