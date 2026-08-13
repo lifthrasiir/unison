@@ -914,6 +914,12 @@ fn is_pixel_row_next(
     lines: &mut std::iter::Peekable<std::iter::Enumerate<std::str::Lines<'_>>>,
     width: u16,
 ) -> bool {
+    // A zero-width glyph has no row to read: every row would encode to the
+    // empty string, so accepting one here would swallow the blank lines that
+    // follow the header (and then fail on the first non-blank one).
+    if width == 0 {
+        return false;
+    }
     let Some(&(_, line)) = lines.peek() else {
         return false;
     };
@@ -1170,7 +1176,10 @@ pub fn parse_doclines(content: &str) -> Vec<DocLine> {
             let width = dims.width;
             let height = dims.height;
             let mut grid = PixelGrid::new(width, height);
-            for row in 0..height {
+            // Zero width means no row to read at all — see
+            // [`is_pixel_row_next`]; the two parsers have to agree on where
+            // the glyph block ends.
+            for row in 0..if width == 0 { 0 } else { height } {
                 let is_pixel = iter.peek().is_some_and(|peek_line| {
                     let chars: Vec<char> = peek_line.chars().collect();
                     chars.len() == width as usize * 2

@@ -2166,3 +2166,48 @@ fn a_heading_does_not_affect_the_font() {
     let doc = parse_document_from_str("# title\n", "test.unf".into()).unwrap();
     assert!(!doc.items[0].affects_font());
 }
+
+/// A zero-width glyph has no pixel row to read: every row would be the empty
+/// string, so a grid of one would swallow the blank lines (and, in the strict
+/// parser, fail on whatever non-blank line came within `height` lines of the
+/// header). Both parsers must leave the following lines alone.
+#[test]
+fn zero_width_glyph_reads_no_grid() {
+    let input = "\
+glyph foo 0 16
+
+glyph bar 2 1
+..@@
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    let names: Vec<&str> = doc
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            DocumentItem::Glyph { name, .. } => Some(name.0.as_str()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(names, vec!["foo", "bar"], "got {:?}", doc.items);
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+/// The lenient parser must not consume the blank lines after a zero-width
+/// header either — the editor and the build have to agree on where the glyph
+/// block ends.
+#[cfg(feature = "editor")]
+#[test]
+fn zero_width_glyph_reads_no_grid_lenient() {
+    let lines = parse_doclines("glyph foo 0 16\n\n\nref bar\n");
+    let texts: Vec<&str> = lines
+        .iter()
+        .filter_map(|l| match l {
+            DocLine::Text(t) => Some(t.as_str()),
+            DocLine::Grid(_) => None,
+        })
+        .collect();
+    assert_eq!(texts, vec!["glyph foo 0 16", "", "", "ref bar"]);
+}
