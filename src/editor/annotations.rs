@@ -100,7 +100,17 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
         // possible when the token is unquoted, since quoting shifts the inner
         // offsets.
         if !quoted && value.contains('|') {
-            for (part, end_off) in split_top_level_pipes_with_ends(value) {
+            let parts = split_top_level_pipes_with_ends(value);
+            // A run of consecutive characters is a range spelled out one
+            // alternative at a time, so it is annotated as the range it is.
+            if let Some(text) = consecutive_range_annotation(&parts, half) {
+                out.push(InlineAnnotation {
+                    col: leading + char_span.raw_end,
+                    text,
+                });
+                continue;
+            }
+            for (part, end_off) in parts {
                 if let Some(text) = map_codepoint_annotation(part, half) {
                     out.push(InlineAnnotation {
                         col: leading + char_span.raw_start + end_off,
@@ -116,6 +126,40 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
         }
     }
     out
+}
+
+/// ` U+XXXX..YYYY` when every alternative of a pipe list is a single literal
+/// character and the list runs up by one from first to last, `None` otherwise.
+///
+/// `a|b|c|d` and `U+0061..0064` name the same four characters, and the second
+/// is how a source would write them; four separate annotations only say the
+/// same thing four times, and on a long list they crowd out the line itself.
+/// The run has to be strictly ascending by one *in the written order* — a
+/// reordered or gapped list is not a range, and pretending otherwise would
+/// annotate a mapping that is not the one written.
+fn consecutive_range_annotation(parts: &[(&str, usize)], half: CharHalf) -> Option<String> {
+    if parts.len() < 2 {
+        return None;
+    }
+    let mut codepoints = Vec::with_capacity(parts.len());
+    for (part, _) in parts {
+        // Each part still has to be a character this `map` can mean, so a
+        // selector standing where a base belongs is left to the per-part path.
+        map_codepoint_annotation(part, half)?;
+        let mut chars = part.chars();
+        match (chars.next(), chars.next()) {
+            (Some(c), None) => codepoints.push(c as u32),
+            _ => return None,
+        }
+    }
+    if !codepoints.windows(2).all(|w| w[1] == w[0] + 1) {
+        return None;
+    }
+    Some(format!(
+        " U+{:04X}..{:04X}",
+        codepoints[0],
+        codepoints[codepoints.len() - 1]
+    ))
 }
 
 /// Which half of a `map`'s character side a written token stands in.
@@ -613,12 +657,12 @@ mod tests {
     #[test]
     fn a_long_alternative_list_annotates_every_part() {
         assert_eq!(
-            ann("map a|b|c|d = latin-(a|b|c|d)"),
+            ann("map a|c|e|g = latin-(a|c|e|g)"),
             vec![
                 (5, " U+0061".to_string()),
-                (7, " U+0062".to_string()),
-                (9, " U+0063".to_string()),
-                (11, " U+0064".to_string()),
+                (7, " U+0063".to_string()),
+                (9, " U+0065".to_string()),
+                (11, " U+0067".to_string()),
             ],
         );
         // Alternatives that are themselves variation sequences count too.
@@ -631,21 +675,67 @@ mod tests {
         );
         // A slice qualifier only shifts the columns.
         assert_eq!(
+            ann("map narrow : a|c = latin-(a|c)"),
+            vec![(14, " U+0061".to_string()), (16, " U+0063".to_string())],
+        );
+    }
+
+    /// A run of consecutive single characters *is* a range written out, so it
+    /// reads as one: four annotations saying `U+0061 U+0062 U+0063 U+0064` say
+    /// nothing that `U+0061..0064` does not, and cost four times the width.
+    #[test]
+    fn a_consecutive_alternative_list_is_annotated_as_one_range() {
+        assert_eq!(
+            ann("map a|b|c|d = latin-(a|b|c|d)"),
+            vec![(11, " U+0061..0064".to_string())],
+        );
+        assert_eq!(
+            ann("map A|B = latin-(a|b)"),
+            vec![(7, " U+0041..0042".to_string())],
+        );
+        // A slice qualifier only shifts the column.
+        assert_eq!(
             ann("map narrow : a|b = latin-(a|b)"),
-            vec![(14, " U+0061".to_string()), (16, " U+0062".to_string())],
+            vec![(16, " U+0061..0062".to_string())],
+        );
+        // The run has to be strictly ascending by one, in the written order.
+        assert_eq!(
+            ann("map b|a = latin-(b|a)"),
+            vec![(5, " U+0062".to_string()), (7, " U+0061".to_string())],
+        );
+        assert_eq!(
+            ann("map a|b|d = latin-(a|b|d)"),
+            vec![
+                (5, " U+0061".to_string()),
+                (7, " U+0062".to_string()),
+                (9, " U+0064".to_string()),
+            ],
+        );
+        // Every part must be one literal character: a variation sequence, an
+        // already-spelled-out `U+…` or a pattern breaks the run.
+        assert_eq!(
+            ann("map 0\u{FE0F}|1\u{FE0F} = num-emoji"),
+            vec![
+                (6, " U+0030 U+FE0F".to_string()),
+                (9, " U+0031 U+FE0F".to_string())
+            ],
+        );
+        assert_eq!(
+            ann("map U+0041|B = latin-(a|b)"),
+            vec![(12, " U+0042".to_string())],
         );
     }
 
     #[test]
     fn pipe_list_annotates_each_literal_part() {
         assert_eq!(
-            ann("map A|B = latin-(a|b)"),
-            vec![(5, " U+0041".to_string()), (7, " U+0042".to_string())]
+            ann("map A|C = latin-(a|c)"),
+            vec![(5, " U+0041".to_string()), (7, " U+0043".to_string())]
         );
         // Mixed forms: only the literal parts get one.
         assert_eq!(
-            ann("map U+0041|B = latin-(a|b)"),
-            vec![(12, " U+0042".to_string())]
+            ann("map U+0041|C = latin-(a|c)"),
+            vec![(12, " U+0043".to_string())]
         );
     }
 
