@@ -152,7 +152,8 @@ Editor (feature `editor`):
   get wrong.
 - `edit_menu.rs`, `preview/` — bottom live-preview panel: rustybuzz shaping + platform rasterizer
   (`coretext.rs` on macOS, `directwrite.rs` on Windows). `preview/widget.rs` is a multi-line text
-  field that runs on the *editor's* text model and key handler; only its layout is its own.
+  field that runs on the *editor's* text model and key handler; only its layout is its own, and
+  `preview/metrics.rs` is the vertical half of that layout — read from the face, not assumed.
 
 `font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files
 plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text) read at build time
@@ -221,6 +222,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which Private Use characters exist (`prop` replaces the UCD there), and the block coverage counting them | `ucd.rs` (`CharProps::is_assigned`), `specimen.rs` |
 | The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
+| How tall a preview row is, and why its chrome is measured from the face rather than the font size | `preview/metrics.rs` (`VMetrics`) |
+| Why the editor's preedit box cannot crop a glyph but the preview's could | `editor/document_view/paint.rs`, `preview/metrics.rs` |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste onto it | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |
 | Why an edit on a header or `ref` line waits before it reparses | `editor/document_view/changes.rs` (`apply_pending_rederive`) |
 | Why a line the grammar cannot read does not fail the derive | `document_io.rs` (`derive_document`) |

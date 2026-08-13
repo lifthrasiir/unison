@@ -1,4 +1,5 @@
 pub mod cluster;
+pub mod metrics;
 pub mod rasterizer;
 pub mod rustybuzz;
 pub mod widget;

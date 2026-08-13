@@ -20,20 +20,13 @@ use crate::editor::caret::{self, Caret};
 use crate::editor::doc_input::{self, TextEdit};
 use crate::editor::undo::UndoStack;
 use crate::preview::cluster::{self, ClusterSpan};
+use crate::preview::metrics::VMetrics;
 use crate::preview::rasterizer::GlyphCache;
 use crate::preview::{self, ShapedGlyph, ShaperBackend};
 
 /// Padding from the field's edges to the first baseline's origin.
 const LEFT_PAD: f32 = 16.0;
 const TOP_PAD: f32 = 8.0;
-
-/// Baseline-to-baseline distance for a given font size. The font's own metrics
-/// are not consulted on purpose: the preview draws whatever face is selected,
-/// and a stable, size-proportional rhythm keeps the caret and hit testing
-/// simple to reason about.
-fn line_height(px_size: f32) -> f32 {
-    (px_size * 1.4).round().max(px_size + 4.0)
-}
 
 pub struct ShapedPreviewState {
     /// The text being previewed. Always `DocLine::Text`; the grid arms of the
@@ -61,6 +54,11 @@ pub struct ShapedPreviewState {
     /// a run of code points into it does not disturb the editor's sequence.
     codepoint_prediction: CodepointPrediction,
     has_focus: bool,
+    /// How far a row reaches around its baseline, read from the built face and
+    /// re-read only when the font changes. Every rectangle the widget paints
+    /// around a run is measured with it; see [`crate::preview::metrics`].
+    vmetrics: VMetrics,
+    vmetrics_gen: u64,
     last_rect: Option<egui::Rect>,
     /// Set when the caret moved or the text changed, so the next frame scrolls
     /// it back into view.
@@ -103,6 +101,8 @@ impl ShapedPreviewState {
             codepoint: None,
             codepoint_prediction: Default::default(),
             has_focus: false,
+            vmetrics: VMetrics::default(),
+            vmetrics_gen: u64::MAX,
             last_rect: None,
             scroll_to_caret: false,
         }
@@ -472,6 +472,14 @@ impl ShapedPreviewState {
             return;
         };
 
+        // The vector face, because that is what shaping positions are taken
+        // against; the bitmap face of the pair only stands in while
+        // rasterizing at the native size.
+        if self.vmetrics_gen != font_gen {
+            self.vmetrics = VMetrics::read(&font_pair.1);
+            self.vmetrics_gen = font_gen;
+        }
+
         self.ensure_shaped(&font_pair.1, font_gen, px_size);
 
         if let Some(ref err) = self.last_error {
@@ -491,7 +499,9 @@ impl ShapedPreviewState {
 
     /// The field itself, inside the scroll area's inner `Ui`.
     fn show_field(&mut self, ui: &mut egui::Ui, font_pair: &(Vec<u8>, Vec<u8>), px_size: f32) {
-        let row_h = line_height(px_size);
+        let vm = self.vmetrics;
+        let (above, below) = (vm.above(px_size), vm.below(px_size));
+        let row_h = vm.line_height(px_size);
         let line_count = self.lines.len();
         let content_w = self
             .shaped
@@ -520,7 +530,7 @@ impl ShapedPreviewState {
         );
 
         let origin_x = rect.left() + LEFT_PAD;
-        let first_baseline = rect.top() + TOP_PAD + px_size;
+        let first_baseline = rect.top() + TOP_PAD + above;
         let baseline_of = |line: usize| first_baseline + row_h * line as f32;
 
         let focus = response.has_focus();
@@ -558,7 +568,7 @@ impl ShapedPreviewState {
         // Where a caret-anchored popup would go: just under the caret.
         let caret_screen = egui::pos2(
             caret_x_at(self, self.cursor),
-            baseline_of(self.cursor.line) + 6.0,
+            baseline_of(self.cursor.line) + below + 2.0,
         );
 
         if focus {
@@ -569,8 +579,8 @@ impl ShapedPreviewState {
                 self.scroll_to_caret = true;
             }
             let ime_rect = egui::Rect::from_min_size(
-                egui::pos2(caret_screen.x, baseline_of(self.cursor.line) - px_size),
-                egui::vec2(16.0, px_size + 4.0),
+                egui::pos2(caret_screen.x, baseline_of(self.cursor.line) - above),
+                egui::vec2(16.0, above + below),
             );
             ui.ctx().output_mut(|o| {
                 o.ime = Some(egui::output::IMEOutput {
@@ -596,7 +606,7 @@ impl ShapedPreviewState {
         // can hold a whole paragraph of text at 128px.
         let clip = ui.clip_rect();
         let visible = |line: usize| {
-            let top = baseline_of(line) - px_size;
+            let top = baseline_of(line) - above;
             let bottom = baseline_of(line) + row_h;
             bottom >= clip.top() && top <= clip.bottom()
         };
@@ -636,8 +646,8 @@ impl ShapedPreviewState {
                         origin_x + line.width + px_size * 0.3
                     };
                     let sel_rect = egui::Rect::from_min_max(
-                        egui::pos2(x0, baseline_y - px_size),
-                        egui::pos2(x1.max(x0 + 1.0), baseline_y + 4.0),
+                        egui::pos2(x0, baseline_y - above),
+                        egui::pos2(x1.max(x0 + 1.0), baseline_y + below),
                     );
                     painter.rect_filled(sel_rect, 0.0, ui.visuals().selection.bg_fill);
                 }
@@ -646,8 +656,8 @@ impl ShapedPreviewState {
                     let preedit_x0 = origin_x + cluster::caret_x(&line.clusters, ps);
                     let preedit_x1 = origin_x + cluster::caret_x(&line.clusters, pe);
                     let preedit_rect = egui::Rect::from_min_max(
-                        egui::pos2(preedit_x0, baseline_y - px_size),
-                        egui::pos2(preedit_x1, baseline_y + 4.0),
+                        egui::pos2(preedit_x0, baseline_y - above),
+                        egui::pos2(preedit_x1, baseline_y + below),
                     );
                     painter.rect_filled(preedit_rect, 0.0, text_color);
                 }
@@ -709,16 +719,17 @@ impl ShapedPreviewState {
         }
 
         let caret_x_pos = caret_x_at(self, self.cursor);
-        let caret_top = baseline_of(self.cursor.line) - px_size;
+        let caret_top = baseline_of(self.cursor.line) - above;
+        let caret_bottom = baseline_of(self.cursor.line) + below;
         let caret_rect = egui::Rect::from_min_max(
             egui::pos2(caret_x_pos - 1.0, caret_top),
-            egui::pos2(caret_x_pos + 1.0, baseline_of(self.cursor.line) + 4.0),
+            egui::pos2(caret_x_pos + 1.0, caret_bottom),
         );
         if focus {
             painter.line_segment(
                 [
                     egui::pos2(caret_x_pos, caret_top),
-                    egui::pos2(caret_x_pos, baseline_of(self.cursor.line) + 4.0),
+                    egui::pos2(caret_x_pos, caret_bottom),
                 ],
                 egui::Stroke::new(1.5, ui.visuals().text_color()),
             );
