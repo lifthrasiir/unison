@@ -1,14 +1,26 @@
 // Unison font.
 // also see LICENSE.txt and README.md in the parent directory.
 
+# font metadata
+
+## metrics
+
+meta fixed-pitch // not exactly true, but typical for dual-width terminal fonts
+meta ascent 13
+meta descent 3
+meta cap-height 10
+meta x-height 8 // derive from `x-lower`
+meta underline-at -2 1
+meta strikeout-at 1 4
+
+## strings
+
 meta designer `Kang Seonghoon`
 meta copyright `The author of Unison, Kang Seonghoon, disclaims copyright to the font data. For jurisdictions where authors cannot disclaim their copyright, it is distributed under CC0 1.0 Universal.`
 meta license `Public domain where the author can disclaim copyright; otherwise CC0 1.0 Universal.`
 meta license-url https://creativecommons.org/publicdomain/zero/1.0/
-// Not literally true — half-width and full-width cells are two advances — but
-// terminal font pickers filter on it, and every CJK monospace font claims it
-// for the same reason. Dropping it would hide Unison from those lists.
-meta fixed-pitch
+
+## faces and slices
 
 face regular : wide
 meta regular : family Unison
@@ -32,43 +44,7 @@ slice wide // EAW=Ambiguous is wide (typical in CJK)
 name-parts wide : $-half = ``
 name-parts narrow : $-half = -half
 
-glyph placeholder-8 8 16
-<>..<>..<>..<>..
-..............<>
-<>..............
-..............<>
-<>..............
-..............<>
-<>..............
-..............<>
-<>..............
-..............<>
-<>..............
-..............<>
-<>..............
-..............<>
-<>..............
-..<>..<>..<>..<>
-
-glyph placeholder-16 16 16
-<>..<>..<>..<>..<>..<>..<>..<>..
-..............................<>
-<>..............................
-..............................<>
-<>..............................
-..............................<>
-<>..............................
-..............................<>
-<>..............................
-..............................<>
-<>..............................
-..............................<>
-<>..............................
-..............................<>
-<>..............................
-..<>..<>..<>..<>..<>..<>..<>..<>
-
-assume unused placeholder-(8|16)
+## mandatory glyphs
 
 // the *actual* tofu, as there are too many rectangular glyphs
 glyph .notdef 8 16

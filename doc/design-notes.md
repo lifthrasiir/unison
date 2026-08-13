@@ -1,5 +1,18 @@
 # Design Notes for Unison
 
+## Design Space
+
+The basic working area is 8x16 pixels or 16x16 pixels (depending on the [East Asian Width](#east-asian-width)). This does *not* mean that the area is fully used! It is actually uncommon for a glyph to use the full area, and the design space is typically organized as follows:
+
+- Upper margin: 3 pixels if non-CJK, none if CJK
+- Lower margin: 3 pixels if non-CJK, 1 pixel if CJK
+- Left margin: 1 pixel
+- Right margin: none, effectively shared with the next glyph
+
+As a result, most 8x16 glyphs have a design space of 7x10 pixels while most CJK glyphs have a design space of 15x15 pixels. The extra pixel is used for multiple purposes, including descenders, combining characters and more rarely excess pixels. For the last purpose it may be necessary to set the `advance` glyph flag.
+
+Also being a pixel-based font, it is often necessary to center pixels. Since half-pixels are avoided as much as possible, we first try to align so that pixels are centered *within the design space*, and otherwise try to align so that pixels are centered *within the entire working area*. Since both regions differ by the odd number of pixels, we have to be centered in some way or another by then.
+
 ## Placeholder Glyphs
 
 There are a number of placeholder glyphs in Unison which are subject to change. These are generally used to test complex shaping behaviors without "properly" drawing each constituent glyph. Such glyphs are visibly incomplete and mostly drawn in a hand-written style.
@@ -16,7 +29,9 @@ Most importantly, most terminal emulators make use of EAW directly or indirectly
 
 After some headaches, we settled on the following rules (in the order of approximate priority):
 
-1. Zero-width characters (gc=Mn/Me/Cf etc.) never consume any cells. Unlike other rules, this is a hard requirement.
+1. Zero-width characters (gc=Mn/Me/Cf etc.) never consume any cells. Unlike other rules, this is a hard requirement and any (rare) exception should be documented here:
+   - U+00AD: Soft hyphen should have a visible glyph to be used when it is actually made visible.
+   - U+FFF9..FFFB: Interlinear annotation characters are typically made visible if not directly supported.
 2. No grapheme clusters can exceed the sum of their constituent characters' inherent widths (e.g. derived from EAW). In addition, emoji grapheme clusters can consume at most two cells.
 3. A single set of related characters (defined in proximity) should have the same width as long as possible.
 4. Ambiguous/Neutral characters except for emojis should consume a single cell **in the Term face**. The Regular face is still free to draw them in two cells as appropriate.
