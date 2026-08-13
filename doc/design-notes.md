@@ -13,6 +13,41 @@ As a result, most 8x16 glyphs have a design space of 7x10 pixels while most CJK 
 
 Also being a pixel-based font, it is often necessary to center pixels. Since half-pixels are avoided as much as possible, we first try to align so that pixels are centered *within the design space*, and otherwise try to align so that pixels are centered *within the entire working area*. Since both regions differ by the odd number of pixels, we have to be centered in some way or another by then.
 
+## Glyph Naming Convention
+
+Glyph names are mostly derived from their Unicode character names, but significantly simplified and opinionated for the use in Unison. The following guideline applies:
+
+- Most glyph names should start with a prefix denoting their primary category. In order to shorten names, language abbreviations (e.g. `gr-` for Greek) and country abbreviations (e.g. `ca-` for Unified Canadian Aboriginal Syllabics) are preferred over script names if the script is mainly used only for that language or region. Endonyms are discouraged (e.g. prefer `gr-` over ISO 639-1 `el-` for Greek) unless it's unambiguous and shorter in that way (e.g. `hy-` for Armenian). Latin and derivatives, common numerals and symbols are not prefixed due to their universal uses throughout the world.
+- The first word apart from the prefix should constrain what the glyph can ever be: if the name starts with `gr-alpha` its base character should be GREEK SMALL/CAPITAL LETTER ALPHA for example. Conversely later words are increasingly more specific to preceding words.
+- Leverage the existing naming convention if possible. For example many mathematical symbols are named after their LaTeX commands (e.g. `lfloor`, `sqcap`), while Kanas are based on Romaji inputs (e.g. `xtsu`).
+
+In addition the following words are used to denote specific variants of a glyph. Quite a lot of them came from the Unicode's own conventions (but applied more consistently, e.g. U+00BF INVERTED QUESTION MARK is `ques-turned`). If multiple of them are applicable, they are concatenated and applied in this order unless there is a good reason to do otherwise.
+
+| Word | Meaning |
+|------|---------|
+| `@-aux` | Typical names for auxiliary glyphs if no other appropriate names exist |
+| `-half` | Glyphs for the `narrow` face, see Unison.unf for more information |
+| `white` | Hollow shapes (unless emoji) |
+| `black` | Solid shapes (unless emoji) |
+| `upper` | Uppercase variant in bicameral scripts |
+| `title` | Titlecase variant in bicameral scripts (rare) |
+| `lower` | Lowercase variant in bicameral scripts |
+| `reversed` | Horizontal mirroring |
+| `inverted` | Vertical mirroring |
+| `turned` | 180-degree rotation, preferred over `reversed-inverted` or (if both applicable) `inverted` |
+| `rotated-cw` | 90-degree clockwise rotation |
+| `rotated-ccw` | 90-degree counter-clockwise rotation |
+| `u`, `d`, `l`, `r` | Directional variants (up, down, left, right), may be concatenated in this order |
+| `horiz`, `vert` | Horizontal or vertical variants |
+| `quadrant-<n>...` | Quadrants are 1-numbered from top to bottom and then from left to right (Z-order) |
+| `A2B` | Preferred over `A-to-B` if A and B are alphabetic |
+| `sm`, `sbg`, `bg` | Small, slightly big, big variants |
+| `A-and-B` | Horizontal arrangement in the inline direction |
+| `A-over-B` | Vertical arrangement, preferred over `B-under-A` etc. |
+| `A-in-B` | General enclosure, preferred over `B-around-A` etc. |
+| `comb`, `spacing` | Combining or spacing variant of diacritics |
+| Numeric suffix or repeated letters | The number of occurrences of a certain feature or the glyph itself |
+
 ## Placeholder Glyphs
 
 There are a number of placeholder glyphs in Unison which are subject to change. These are generally used to test complex shaping behaviors without "properly" drawing each constituent glyph. Such glyphs are visibly incomplete and mostly drawn in a hand-written style.

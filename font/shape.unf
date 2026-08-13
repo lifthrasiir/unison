@@ -835,7 +835,7 @@ ref 13x13-circle:zero 2 1
 ref 11x11-circle:zero 3 2 negated
 ref 16x7p1r2:zero 0 0 negated
 
-glyph white-circle-7-lu 16 16 desync
+glyph white-circle-7-ul 16 16 desync
 ................................
 ............@@@@@@..............
 ........@@@@....................
@@ -857,7 +857,7 @@ ref 11x11-circle:zero 3 2 negated
 ref 16x-8p1r2:zero 0 7 negated
 ref -7p1r2x16:zero 8 0 negated
 
-glyph white-circle-7-ru 16 16 desync
+glyph white-circle-7-ur 16 16 desync
 ................................
 ................@@@@@@..........
 ......................@@@@......
@@ -879,7 +879,7 @@ ref 11x11-circle:zero 3 2 negated
 ref 16x-8p1r2:zero 0 7 negated
 ref 8p1r2x16:zero 0 0 negated
 
-glyph white-circle-7-ld 16 16 desync
+glyph white-circle-7-dl 16 16 desync
 ................................
 ................................
 ................................
@@ -901,7 +901,7 @@ ref 11x11-circle:zero 3 2 negated
 ref 16x7p1r2:zero 0 0 negated
 ref -7p1r2x16:zero 8 0 negated
 
-glyph white-circle-7-rd 16 16 desync
+glyph white-circle-7-dr 16 16 desync
 ................................
 ................................
 ................................
@@ -930,10 +930,10 @@ map ⯋ = black-circle-7-d
 
 map ◠ = white-circle-7-u
 map ◡ = white-circle-7-d
-map ◜ = white-circle-7-lu
-map ◝ = white-circle-7-ru
-map ◞ = white-circle-7-rd
-map ◟ = white-circle-7-ld
+map ◜ = white-circle-7-ul
+map ◝ = white-circle-7-ur
+map ◞ = white-circle-7-dr
+map ◟ = white-circle-7-dl
 
 ## bisected circles
 
@@ -2325,7 +2325,7 @@ glyph black-white-square-7-d-u 16 16 scale 2
 ................................................................
 ................................................................
 
-glyph black-white-square-7-lu-rd 16 16
+glyph black-white-square-7-ul-dr 16 16
 ................................
 ....@@@@@@@@@@@@@@@@@@@@@@@@@@..
 ....@@@@@@@@@@@@@@@@@@@@@@1/@@..
@@ -2343,7 +2343,7 @@ glyph black-white-square-7-lu-rd 16 16
 ................................
 ................................
 
-glyph black-white-square-7-rd-lu 16 16
+glyph black-white-square-7-dr-ul 16 16
 ................................
 ....@@@@@@@@@@@@@@@@@@@@@@@@@@..
 ....@@..................../1@@..
@@ -2361,7 +2361,7 @@ glyph black-white-square-7-rd-lu 16 16
 ................................
 ................................
 
-glyph black-white-square-7-ru-ld 16 16
+glyph black-white-square-7-ur-dl 16 16
 ................................
 ....@@@@@@@@@@@@@@@@@@@@@@@@@@..
 ....@@\1@@@@@@@@@@@@@@@@@@@@@@..
@@ -2379,7 +2379,7 @@ glyph black-white-square-7-ru-ld 16 16
 ................................
 ................................
 
-glyph black-white-square-7-ld-ru 16 16
+glyph black-white-square-7-dl-ur 16 16
 ................................
 ....@@@@@@@@@@@@@@@@@@@@@@@@@@..
 ....@@1\....................@@..
@@ -2491,10 +2491,10 @@ map ◧ = black-white-square-7-l-r
 map ◨ = black-white-square-7-r-l
 map ⬒ = black-white-square-7-u-d
 map ⬓ = black-white-square-7-d-u
-map ◩ = black-white-square-7-lu-rd
-map ◪ = black-white-square-7-rd-lu
-map ⬔ = black-white-square-7-ru-ld
-map ⬕ = black-white-square-7-ld-ru
+map ◩ = black-white-square-7-ul-dr
+map ◪ = black-white-square-7-dr-ul
+map ⬔ = black-white-square-7-ur-dl
+map ⬕ = black-white-square-7-dl-ur
 
 map ◫ = white-square-7-l-r
 map ◰ = white-square-7-quadrant-1-234
@@ -3370,7 +3370,7 @@ ref 9x-3p1r2-ur:zero 8 14
 ref -5p36r63x-2p7r63-dr:zero 12 9 negated
 ref -5p36r63x2p7r63-ur:zero 12 15 negated
 
-glyph white-triangle-lu-7 16 16
+glyph white-triangle-ul-7 16 16
 ................................
 ....@@@@@@@@@@@@@@@@@@@@@@@@1/..
 ....@@.................//@1/....
@@ -3388,7 +3388,7 @@ glyph white-triangle-lu-7 16 16
 ................................
 ................................
 
-glyph white-triangle-ru-7 16 16
+glyph white-triangle-ur-7 16 16
 ................................
 ....\1@@@@@@@@@@@@@@@@@@@@@@@@..
 ......\1@\\.................@@..
@@ -3406,7 +3406,7 @@ glyph white-triangle-ru-7 16 16
 ................................
 ................................
 
-glyph white-triangle-ld-7 16 16
+glyph white-triangle-dl-7 16 16
 ................................
 ....1\..........................
 ....@@1\........................
@@ -3424,7 +3424,7 @@ glyph white-triangle-ld-7 16 16
 ................................
 ................................
 
-glyph white-triangle-rd-7 16 16
+glyph white-triangle-dr-7 16 16
 ................................
 ............................/1..
 ........................../1@@..
@@ -3456,10 +3456,10 @@ map ◁ = white-triangle-l-7
 map ◃ = white-triangle-l-4
 map ◅ = white-triangle-l-pointer
 
-map ◸ = white-triangle-lu-7
-map ◹ = white-triangle-ru-7
-map ◺ = white-triangle-ld-7
-map ◿ = white-triangle-rd-7
+map ◸ = white-triangle-ul-7
+map ◹ = white-triangle-ur-7
+map ◺ = white-triangle-dl-7
+map ◿ = white-triangle-dr-7
 
 ## bisected triangles
 

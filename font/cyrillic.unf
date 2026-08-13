@@ -3,6 +3,8 @@
 // general guideline is to make cyrillic distinguishable from
 // latin with rounder corners and more straight shapes.
 
+## uppercases
+
 glyph cy-a-upper 8 16
 ................
 ................
@@ -203,7 +205,7 @@ glyph cy-ze-upper 8 16
 anchor +above 4 1
 anchor +below 4 14
 
-glyph cy-ze-reversed-upper 8 16
+glyph cy-ze-upper-reversed 8 16
 ................
 ................
 ................
@@ -243,7 +245,7 @@ glyph cy-dze-upper 8 16
 anchor +above 4 1
 anchor +below 4 14
 
-glyph cy-dze-reversed-upper 8 16
+glyph cy-dze-upper-reversed 8 16
 ................
 ................
 ................
@@ -810,6 +812,8 @@ glyph cy-ya-upper 8 16
 anchor +above 4 1
 anchor +below 4 14
 
+## lowercases
+
 glyph cy-a-lower 8 16
 ................
 ................
@@ -1027,7 +1031,7 @@ glyph cy-ze-lower 8 16
 anchor +above 4 3
 anchor +below 4 14
 
-glyph cy-ze-reversed-lower 8 16
+glyph cy-ze-lower-reversed 8 16
 ................
 ................
 ................
@@ -1067,7 +1071,7 @@ glyph cy-dze-lower 8 16
 anchor +above 4 3
 anchor +below 4 14
 
-glyph cy-dze-reversed-lower 8 16
+glyph cy-dze-lower-reversed 8 16
 ................
 ................
 ................
@@ -1694,9 +1698,9 @@ map Е = cy-ye-upper
 map Є = cy-yest-upper
 map Ж = cy-zhe-upper
 map З = cy-ze-upper
-map Ԑ = cy-ze-reversed-upper
+map Ԑ = cy-ze-upper-reversed
 map Ѕ = cy-dze-upper
-map Ꙅ = cy-dze-reversed-upper
+map Ꙅ = cy-dze-upper-reversed
 map И = cy-i-upper
 map І = cy-dotted-i-upper
 map Ј = cy-je-upper
@@ -1737,9 +1741,9 @@ map е = cy-ye-lower
 map є = cy-yest-lower
 map ж = cy-zhe-lower
 map з = cy-ze-lower
-map ԑ = cy-ze-reversed-lower
+map ԑ = cy-ze-lower-reversed
 map ѕ = cy-dze-lower
-map ꙅ = cy-dze-reversed-lower
+map ꙅ = cy-dze-lower-reversed
 map и = cy-i-lower
 map і = cy-dotted-i-lower
 map ј = cy-je-lower

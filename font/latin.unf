@@ -926,7 +926,7 @@ glyph s-upper-compressed 8 16
 anchor +above 4 2
 anchor +below 4 14
 
-glyph reversed-s-upper 8 16
+glyph s-upper-reversed 8 16
 ................
 ................
 ................
@@ -2238,7 +2238,7 @@ anchor +above 4 4
 anchor +below 4 14
 anchor -center 4 9
 
-glyph reversed-s-lower 8 16
+glyph s-lower-reversed 8 16
 ................
 ................
 ................
@@ -2560,7 +2560,7 @@ map P = p-upper
 map Q = q-upper
 map R = r-upper
 map S = s-upper
-map Ƨ = reversed-s-upper
+map Ƨ = s-upper-reversed
 map ẞ = sz-upper
 map T = t-upper
 map Ŧ = t-bar-upper
@@ -2612,7 +2612,7 @@ map p = p-lower
 map q = q-lower
 map r = r-lower
 map s = s-lower
-map ƨ = reversed-s-lower
+map ƨ = s-lower-reversed
 map ſ = long-s-lower
 map ß = sz-lower
 map t = t-lower
@@ -3021,7 +3021,7 @@ map generate Ț = t-upper-with-com-below
 
 glyph g-lower-with-com-below
 ref g-lower inherit
-ref com-inverted-above inherit
+ref com-turned-above inherit
 map ģ = g-lower-with-com-below
 glyph k-lower-with-com-below
 ref k-lower inherit
@@ -3054,11 +3054,11 @@ feature locl for latn/ROM latn/MOL : romanian-comma
 // precomposed glyph above, but opentype does not require an engine to
 // normalize anything, so the substitution is spelled out.
 remap latvian-comma : (g-upper|k-upper|l-upper|n-upper|r-upper|k-lower|l-lower|n-lower|r-lower) : ced-below -> com-below
-remap latvian-comma : g-lower : ced-below -> com-inverted-above
+remap latvian-comma : g-lower : ced-below -> com-turned-above
 feature ccmp for DFLT : latvian-comma
 
 // the cedilla and the comma must never collapse into one shape
-assert distinct ced-below com-below com-inverted-above
+assert distinct ced-below com-below com-turned-above
 assert distinct s-upper-with-ced-below s-upper-with-com-below
 assert distinct s-lower-with-ced-below s-lower-with-com-below
 assert distinct t-upper-with-ced-below t-upper-with-com-below

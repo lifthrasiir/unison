@@ -208,7 +208,7 @@ glyph com-reversed 2 3
 @@0/
 \0@@
 
-glyph com-inverted 2 3
+glyph com-turned 2 3
 /0@@
 @@0\
 @@@@
@@ -260,13 +260,13 @@ anchor +above 1 -1
 // U+0312 is the latvian ģ mark: an attached mark, not a floating accent, so
 // unlike the breathing marks above it sits flush with the letter (one row
 // lower) and follows the comma family's column instead of being centered.
-glyph com-inverted-above mark advance 0 left -1 top 0
-ref com-inverted
+glyph com-turned-above mark advance 0 left -1 top 0
+ref com-turned
 anchor -above 0..1 1
 anchor +above 0..1 -1
 
-glyph com-inverted-above:narrow mark
-ref com-inverted
+glyph com-turned-above:narrow mark
+ref com-turned
 anchor -above 0 1
 anchor +above 0 -1
 
@@ -280,7 +280,7 @@ ref com
 anchor -below 0..1 1
 anchor +below 0..1 4
 
-map U+0312 = com-inverted-above
+map U+0312 = com-turned-above
 map U+0313 = com-above
 map U+0314 = com-reversed-above
 map U+0326 = com-below
