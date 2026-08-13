@@ -1,16 +1,5 @@
 # punctuations
 
-glyph sp 8 16
-
-glyph wsp 16 16
-
-map U+0020 = sp
-map U+00A0 = sp
-map U+2000..200A = sp // most typographic spaces, including em space
-map U+202F = sp // narrow nbsp
-map U+205F = sp // medium mathematical space
-map U+3000 = wsp // ideographic space
-
 ## dashes
 
 glyph hyphen-short 8 16

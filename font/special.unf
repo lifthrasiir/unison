@@ -202,6 +202,92 @@ map wide|narrow : U+FFFB = interlinear-annot-term($-half)
 map wide|narrow : U+FFFC = obj-replacement($-half)
 map wide|narrow : U+FFFD = replacement($-half)
 
+## invisible characters
+
+glyph zwsp advance 0
+ref sp
+
+glyph zwj advance 0
+ref sp
+
+glyph cgj mark advance 0
+ref sp
+
+glyph hairsp 1 16
+
+glyph 6sp 2 16 // XXX: should be 2.666...
+
+glyph thinsp 3 16 // between 1/5--1/6 em
+
+glyph mmsp 3 16 // XXX: should be 3.555...
+
+glyph 4sp 4 16
+
+glyph 3sp 5 16 // XXX: should be 5.333...
+
+glyph sp 8 16
+
+glyph wsp 16 16
+
+// not exactly "half" width, only to use ($-half) shorthand
+glyph hairsp-half = sp
+glyph 6sp-half = sp
+glyph thinsp-half = sp
+glyph mmsp-half = sp
+glyph 4sp-half = sp
+glyph 3sp-half = sp
+glyph wsp-half = sp
+
+map U+0020 = sp
+map U+00A0 = sp // non-breaking space
+map U+2000 = sp // en quad
+map U+2002 = sp // en space
+map U+2007 = sp // figure space
+map U+2008 = sp // punctuation space
+
+map wide|narrow : U+2001 = wsp($-half) // em quad
+map wide|narrow : U+2003 = wsp($-half) // em space
+map U+3000 = wsp // ideographic space
+
+map wide|narrow : U+2004 = 3sp($-half) // 3/em space
+map wide|narrow : U+2005 = 4sp($-half) // 4/em space
+map wide|narrow : U+2006 = 6sp($-half) // 6/em space
+map wide|narrow : U+2009 = thinsp($-half) // thin space
+map wide|narrow : U+200A = hairsp($-half) // hair space
+map wide|narrow : U+202F = thinsp($-half) // narrow nbsp
+map wide|narrow : U+205F = mmsp($-half) // medium mathematical space
+
+map U+061C = zwsp // arabic letter mark
+map U+180E = zwsp // mongolian vowel separator
+map U+200B = zwsp // zero width space
+map U+200C = zwsp // zero width non-joiner
+map U+200E = zwsp // left-to-right mark
+map U+200F = zwsp // right-to-left mark
+map U+2060 = zwsp // word joiner
+map U+2061 = zwsp // function application
+map U+2062 = zwsp // invisible times
+map U+2063 = zwsp // invisible separator
+map U+2064 = zwsp // invisible plus
+map U+202A = zwsp // left-to-right embedding
+map U+202B = zwsp // right-to-left embedding
+map U+202C = zwsp // pop directional formatting
+map U+202D = zwsp // left-to-right override
+map U+202E = zwsp // right-to-left override
+map U+2066 = zwsp // left-to-right isolate
+map U+2067 = zwsp // right-to-left isolate
+map U+2068 = zwsp // first strong isolate
+map U+2069 = zwsp // pop directional isolate
+map U+206A = zwsp // inhibit symmetric swapping
+map U+206B = zwsp // activate symmetric swapping
+map U+206C = zwsp // inhibit arabic form shaping
+map U+206D = zwsp // activate arabic form shaping
+map U+206E = zwsp // national digit shapes
+map U+206F = zwsp // nominal digit shapes
+map U+FEFF = zwsp // zero width no-break space
+
+map U+034F = cgj // combining grapheme joiner (distinct because of mark)
+map U+200D = zwj // zero width joiner (used in emoji, so distinct)
+
 ## tags
 
 glyph tag-($a-z|$0..9|cancel) advance 0
