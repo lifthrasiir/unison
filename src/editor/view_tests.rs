@@ -5205,6 +5205,62 @@ fn arrows_step_over_a_shut_group_instead_of_into_it() {
     assert_eq!(h.cursor(), header_end, "and left returns to where it was");
 }
 
+/// A tall group's bar runs on past the bottom of the editor's viewport, where
+/// the app has its preview panel. Painting clips there and a click never
+/// reaches the gutter, so the hover must not either.
+#[test]
+fn a_marker_below_the_viewport_does_not_shade_under_the_pointer() {
+    let mut src = String::from("## section\n");
+    for i in 0..20 {
+        src.push_str(&format!("glyph g{i} 2 2\n....\n....\n"));
+    }
+    let mut h = EditorHarness::new(&src);
+    h.viewport_height = Some(120.0);
+    h.frame();
+    h.focus();
+    // The viewport shrank under a saved scroll fraction, which lands the view
+    // near the end; walking the caret back to the top brings it along.
+    h.key(Key::ArrowDown);
+    h.key_mod(Key::Home, Modifiers::COMMAND);
+    h.frame();
+    assert!(h.scroll_y() < 1.0, "scrolled to the top ({})", h.scroll_y());
+
+    let cell = h
+        .fold_markers()
+        .into_iter()
+        .find(|(header, ..)| *header == 0)
+        .expect("the heading has a marker")
+        .1;
+    // The bar is painted clipped to the viewport; below that edge is the
+    // editor's outside.
+    let bottom = h
+        .painted_rects()
+        .into_iter()
+        .find(|r| r.rect.x_range() == cell.x_range())
+        .expect("the marker was painted")
+        .clip
+        .max
+        .y;
+    assert!(
+        cell.max.y > bottom,
+        "the bar has to run past the viewport for this to test anything ({cell:?} vs {bottom})"
+    );
+
+    h.move_pointer(egui::pos2(cell.center().x, bottom + 8.0));
+    assert_eq!(
+        h.hovered_fold_marker(),
+        None,
+        "the pointer is below the editor entirely"
+    );
+
+    h.move_pointer(egui::pos2(cell.center().x, cell.min.y + 4.0));
+    assert_eq!(
+        h.hovered_fold_marker(),
+        Some(0),
+        "and inside the viewport it still shades"
+    );
+}
+
 #[test]
 fn ctrl_period_folds_the_group_the_caret_sits_in() {
     let mut h = EditorHarness::new(&fold_doc());

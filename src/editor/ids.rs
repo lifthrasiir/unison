@@ -197,6 +197,10 @@ pub(crate) enum Slot {
     /// Fold-marker cells painted this frame, published for `EditorHarness`.
     #[cfg(test)]
     TestFoldMarkers,
+    /// The fold marker the pointer shaded this frame, published for
+    /// `EditorHarness`.
+    #[cfg(test)]
+    TestFoldMarkerHover,
 }
 
 #[cfg(test)]

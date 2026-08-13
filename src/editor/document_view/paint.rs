@@ -1449,12 +1449,20 @@ fn paint_fold_markers(
         return click_pos;
     }
     let clip = ui.clip_rect();
+    // A bar is as tall as its whole group, so an open one routinely runs on
+    // past both edges of the viewport — where it is painted clipped away and
+    // where a click, which comes through the widget's response, never reaches
+    // it. The hover comes straight off the pointer instead, so it is the one
+    // that has to be clipped by hand.
+    let hover_pos = hover_pos.filter(|p| clip.contains(*p));
     let dark_mode = ui.visuals().dark_mode;
     let page = ui.visuals().panel_fill;
     let mut toggle: Option<usize> = None;
     let mut consumed = false;
     #[cfg(test)]
     let mut captured: Vec<crate::editor::harness::FoldMarkerRect> = Vec::new();
+    #[cfg(test)]
+    let mut captured_hover: Option<usize> = None;
 
     for marker in fold_markers(vlines, &state.folds, row_height, grid_cell) {
         let Some(cell) = gutter.marker_rect(
@@ -1470,6 +1478,10 @@ fn paint_fold_markers(
         }
 
         let hovered = hover_pos.is_some_and(|p| cell.contains(p));
+        #[cfg(test)]
+        if hovered {
+            captured_hover = Some(marker.group.header);
+        }
         if hovered {
             ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
         }
@@ -1519,6 +1531,8 @@ fn paint_fold_markers(
 
     #[cfg(test)]
     crate::editor::harness::capture_fold_markers(ui.ctx(), state.id(), &captured);
+    #[cfg(test)]
+    crate::editor::harness::capture_fold_marker_hover(ui.ctx(), state.id(), captured_hover);
 
     if let Some(header) = toggle {
         *needs_rederive |= crate::editor::folding::toggle_at(lines, state, header);

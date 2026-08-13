@@ -240,6 +240,21 @@ pub(crate) fn capture_fold_markers(
     ctx.data_mut(|d| d.insert_temp(fold_markers_id(editor), markers.to_vec()));
 }
 
+fn fold_marker_hover_id(editor: EditorId) -> egui::Id {
+    editor.key(Slot::TestFoldMarkerHover)
+}
+
+/// Called from `paint_fold_markers` (test builds only) with the group the
+/// pointer shaded, so a test can see that a hover outside the editor's own
+/// viewport shades nothing.
+pub(crate) fn capture_fold_marker_hover(
+    ctx: &egui::Context,
+    editor: EditorId,
+    hovered: Option<usize>,
+) {
+    ctx.data_mut(|d| d.insert_temp(fold_marker_hover_id(editor), hovered));
+}
+
 /// Called from `show_document` (test builds only) to publish the layout the
 /// frame is about to paint.
 #[allow(clippy::too_many_arguments)]
@@ -346,6 +361,10 @@ pub(crate) struct EditorHarness {
     /// rect, so a test can send a click that lands on a popup covering the
     /// grid instead of on the grid itself.
     pub menu_overlay: Option<egui::Rect>,
+    /// While set, the single-pane editor is drawn into a band this tall at the
+    /// top of the screen instead of the whole of it, so a test can put the
+    /// pointer *below* the editor — where the app has its preview panel.
+    pub viewport_height: Option<f32>,
     /// A second editor drawn beside the primary one in the *same* context and
     /// the same frame. Only [`EditorHarness::split`] creates it; every other
     /// test keeps the single-pane layout untouched.
@@ -419,6 +438,7 @@ impl EditorHarness {
             last_nav: None,
             last_resize: None,
             menu_overlay: None,
+            viewport_height: None,
             second: None,
         };
         h.rebuild_derived();
@@ -472,6 +492,7 @@ impl EditorHarness {
         let mut nav_result = None;
         let mut resize_result = None;
         let menu_overlay = self.menu_overlay;
+        let viewport_height = self.viewport_height;
         let full_output = ctx.run(raw, |cx| {
             if let Some(rect) = menu_overlay {
                 egui::Area::new(egui::Id::new("test_menu_overlay"))
@@ -484,27 +505,38 @@ impl EditorHarness {
             egui::CentralPanel::default().show(cx, |ui| {
                 let colors = crate::render::ttf_builder::ColorAliasMap::default();
                 let Some(second) = &mut self.second else {
-                    let result = DocumentEditor::new(
-                        &mut self.doc,
-                        &mut self.lines,
-                        &mut self.state,
-                        EditorEnv {
-                            named_glyphs: &self.named_glyphs,
-                            name_parts: &self.name_parts,
-                            alt_index: &self.alt_index,
-                            color_aliases: &colors,
-                            meta: self.meta,
-                            show_metrics: self.show_metrics,
-                            menu_open: self.menu_open,
-                            derived_gen: 0,
-                            font_gen: 0,
-                            zoom_level: self.zoom,
-                            font_id: &self.font_id,
-                        },
-                    )
-                    .show(ui);
-                    nav_result = result.nav;
-                    resize_result = result.resize;
+                    let mut draw = |ui: &mut egui::Ui| {
+                        let result = DocumentEditor::new(
+                            &mut self.doc,
+                            &mut self.lines,
+                            &mut self.state,
+                            EditorEnv {
+                                named_glyphs: &self.named_glyphs,
+                                name_parts: &self.name_parts,
+                                alt_index: &self.alt_index,
+                                color_aliases: &colors,
+                                meta: self.meta,
+                                show_metrics: self.show_metrics,
+                                menu_open: self.menu_open,
+                                derived_gen: 0,
+                                font_gen: 0,
+                                zoom_level: self.zoom,
+                                font_id: &self.font_id,
+                            },
+                        )
+                        .show(ui);
+                        nav_result = result.nav;
+                        resize_result = result.resize;
+                    };
+                    match viewport_height {
+                        // A band at the top of the screen, so what is below it
+                        // is outside the editor the way the preview panel is.
+                        Some(h) => {
+                            let size = egui::vec2(ui.available_width(), h);
+                            ui.allocate_ui(size, |ui| draw(ui));
+                        }
+                        None => draw(ui),
+                    }
                     return;
                 };
                 // Split layout: each editor gets half the width, so the two
@@ -1171,6 +1203,13 @@ impl EditorHarness {
         self.ctx
             .data(|d| d.get_temp::<Vec<FoldMarkerRect>>(fold_markers_id(self.state.id())))
             .unwrap_or_default()
+    }
+
+    /// The group whose marker the last frame drew shaded, if any.
+    pub fn hovered_fold_marker(&self) -> Option<usize> {
+        self.ctx
+            .data(|d| d.get_temp::<Option<usize>>(fold_marker_hover_id(self.state.id())))
+            .flatten()
     }
 
     /// Folds or unfolds the innermost group at `doc_line`, the way Ctrl/Cmd+.
