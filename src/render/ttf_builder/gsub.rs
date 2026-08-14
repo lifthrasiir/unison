@@ -85,8 +85,10 @@ pub(super) fn collect_gsub_data(
                         .map(|s| parse_name_element(s, name_parts))
                         .collect();
 
-                    // The number of remap entries is the LCM of all position
-                    // expansion counts (each position cycles independently).
+                    // The number of remap entries is the longest position's
+                    // expansion; every other position cycles inside it. A
+                    // position that does not divide it is a warning from
+                    // `issues.rs` rather than a silently longer rule.
                     let entry_count = crate::pattern::combined_len(
                         source_patterns.iter().chain(target_patterns.iter()),
                     );

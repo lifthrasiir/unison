@@ -14,9 +14,19 @@
 //!   on a reference repeats each of its values.
 //!
 //! Multiple groups in one pattern combine cyclically: the total length is the
-//! LCM of the group sizes and group `k` contributes its `i % len(k)`-th
+//! size of the *largest* group and group `k` contributes its `i % len(k)`-th
 //! alternative to the `i`-th name.  This cyclic indexing is what lets remap
 //! operands and `ref` targets expand in lock-step with a glyph-name pattern.
+//!
+//! The length used to be the LCM of the group sizes, which made more patterns
+//! come out "right" but made a wrong one unreadable: `(a|b|c)-(x|y)` quietly
+//! became six names, and the same pattern with an even first group became
+//! *three*, dropping half the combinations with nothing to see.  The rule is
+//! now the largest group, and a group whose size does not divide it —
+//! [`NamePattern::ragged_group_lens`] — is a warning from `issues.rs` rather
+//! than a silent reinterpretation.  A full cross product is written with the
+//! `**N` group multiplier (`(a|b|c**2)-(x|y)`), which is what it was always
+//! for.
 //!
 //! A slice qualifier listing several slices (`map wide|narrow : ...`) is *not*
 //! part of this.  The slices are an outer loop — the line is stated once per
@@ -202,7 +212,7 @@ impl NamePattern {
                     return Err(NamePatternError::Syntax(format!("unmatched '(' in: {s}")));
                 }
                 let alts = parse_alt_content(&s[open + 1..pos - 1])?;
-                len = checked_lcm(len, alts.len())?;
+                len = len.max(alts.len());
                 segments.push(Segment::Alts(alts));
                 lit_start = pos;
             } else {
@@ -226,6 +236,30 @@ impl NamePattern {
 
     pub fn is_empty(&self) -> bool {
         self.len == 0
+    }
+
+    /// The size of each alternation group, in written order.  A plain name has
+    /// none; a verbatim block list counts as the one group it is.
+    pub fn group_lens(&self) -> Vec<usize> {
+        match &self.kind {
+            Kind::Single(_) => Vec::new(),
+            Kind::List(names) => vec![names.len()],
+            Kind::Segments(segments) => segments
+                .iter()
+                .filter_map(|seg| match seg {
+                    Segment::Alts(alts) => Some(alts.len()),
+                    Segment::Literal(_) => None,
+                })
+                .collect(),
+        }
+    }
+
+    /// The group sizes that do not divide [`len`](Self::len) — the groups this
+    /// pattern stops partway through.  Empty when every group either fills the
+    /// expansion or tiles it evenly, which is the only way lock-step indexing
+    /// says what the writer meant.  See the module docs.
+    pub fn ragged_group_lens(&self) -> Vec<usize> {
+        ragged_lens(self.group_lens(), self.len)
     }
 
     /// The `i`-th name.  Indexes cyclically: each alternation group picks its
@@ -387,10 +421,20 @@ fn build_segments_into(segments: &[Segment], i: usize, out: &mut String) {
     }
 }
 
-/// Combined expansion length of several patterns indexed in lock-step:
-/// the LCM of the individual lengths.
+/// Combined expansion length of several patterns indexed in lock-step: the
+/// longest of the individual lengths.  A pattern whose length does not divide
+/// it is cut short mid-cycle, which [`ragged_lens`] is what reports.
 pub fn combined_len<'a>(patterns: impl IntoIterator<Item = &'a NamePattern>) -> usize {
-    patterns.into_iter().fold(1, |acc, p| lcm(acc, p.len()))
+    patterns.into_iter().fold(1, |acc, p| acc.max(p.len()))
+}
+
+/// Those of `lens` that do not divide `total` — the lock-step positions that
+/// stop partway through their own cycle.  Zero-length entries are skipped;
+/// nothing here treats an empty expansion as ragged.
+pub fn ragged_lens(lens: impl IntoIterator<Item = usize>, total: usize) -> Vec<usize> {
+    lens.into_iter()
+        .filter(|&n| n != 0 && total % n != 0)
+        .collect()
 }
 
 /// Splits `(...)` group content on `|`, applying `a*N` per-alternative
@@ -531,16 +575,6 @@ pub(crate) fn gcd(a: usize, b: usize) -> usize {
 
 pub(crate) fn lcm(a: usize, b: usize) -> usize {
     a / gcd(a, b) * b
-}
-
-fn checked_lcm(a: usize, b: usize) -> Result<usize, NamePatternError> {
-    let l = (a / gcd(a, b))
-        .checked_mul(b)
-        .ok_or(NamePatternError::TooManyExpansions(usize::MAX))?;
-    if l > MAX_EXPANSION {
-        return Err(NamePatternError::TooManyExpansions(l));
-    }
-    Ok(l)
 }
 
 // ---------------------------------------------------------------------------
@@ -913,13 +947,45 @@ mod tests {
         assert_eq!(block("foo*3"), vec!["foo", "foo", "foo"]);
     }
 
+    /// The expansion is as long as the *largest* group; a smaller group cycles
+    /// within it. It is deliberately not the LCM — see `ragged_group_lens`.
     #[test]
-    fn block_groups_combine_by_lcm() {
+    fn block_groups_combine_by_the_largest_group() {
         assert_eq!(
             block("out-(a|b)-(1|2|3)"),
-            vec![
-                "out-a-1", "out-b-2", "out-a-3", "out-b-1", "out-a-2", "out-b-3"
-            ],
+            vec!["out-a-1", "out-b-2", "out-a-3"],
+        );
+        // A group that divides the largest one is the intended lock-step.
+        assert_eq!(
+            block("out-(a|b)-(1|2|3|4)"),
+            vec!["out-a-1", "out-b-2", "out-a-3", "out-b-4"],
+        );
+    }
+
+    /// A group whose size does not divide the expansion is cut short mid-cycle
+    /// — the mistake the old LCM rule hid by silently growing the expansion.
+    #[test]
+    fn ragged_groups_are_the_ones_that_do_not_divide() {
+        let ragged = NamePattern::parse_element("(a|b)-(1|2|3)").unwrap();
+        assert_eq!(ragged.len(), 3);
+        assert_eq!(ragged.ragged_group_lens(), vec![2]);
+
+        let even = NamePattern::parse_element("(a|b)-(1|2|3|4)").unwrap();
+        assert_eq!(even.len(), 4);
+        assert!(even.ragged_group_lens().is_empty());
+
+        // A plain name and a verbatim block list have nothing to divide.
+        assert!(
+            NamePattern::parse_element("plain")
+                .unwrap()
+                .ragged_group_lens()
+                .is_empty()
+        );
+        assert!(
+            NamePattern::parse("a|b|c")
+                .unwrap()
+                .ragged_group_lens()
+                .is_empty()
         );
     }
 
@@ -988,11 +1054,11 @@ mod tests {
     }
 
     #[test]
-    fn combined_len_is_lcm_of_pattern_lens() {
+    fn combined_len_is_the_longest_pattern_len() {
         let a = NamePattern::parse_element("(x|y)").unwrap();
         let b = NamePattern::parse_element("(1|2|3)").unwrap();
         let c = NamePattern::parse_element("plain").unwrap();
-        assert_eq!(combined_len([&a, &b, &c]), 6);
+        assert_eq!(combined_len([&a, &b, &c]), 3);
         assert_eq!(combined_len([] as [&NamePattern; 0]), 1);
     }
 

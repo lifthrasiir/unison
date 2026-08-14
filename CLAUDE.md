@@ -180,6 +180,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a glyph's GID is its index, and how `.notdef` gets to GID 0 | `render/ttf_builder/mod.rs` (`NOTDEF`), `collect.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
+| Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues.rs` (`check_ragged_patterns`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure and bearings | `ref_composite.rs` |

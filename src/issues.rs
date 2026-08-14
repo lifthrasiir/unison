@@ -28,7 +28,7 @@ use crate::document::{
     expand_name_element, find_invalid_inline_ranges, is_name_pattern, is_valid_glyph_name,
     substitute_name_parts,
 };
-use crate::pattern::NamePattern;
+use crate::pattern::{NamePartsMap, NamePattern};
 use crate::resolve::{Diagnostic, DocSet, ItemRef, Resolution};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -1455,6 +1455,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
 
     check_props(docs, &mut issues);
     check_uvs_maps(docs, &mut issues);
+    check_ragged_patterns(docs, name_parts, &mut issues);
     issues.extend(docset.to_issues(&uvs_collision_diagnostics(expansion)));
 
     issues.sort_by(|a, b| {
@@ -1752,6 +1753,116 @@ fn check_uvs_maps(docs: &[&Document], issues: &mut Vec<Issue>) {
     }
 }
 
+/// The names written on one item, each with whether it is read as a glyph
+/// *block* name.  That is the one context where a top-level `|` is a verbatim
+/// list rather than an alternation group ([`crate::pattern`]), so the two
+/// cannot be parsed alike.
+fn written_patterns(item: &DocumentItem) -> Vec<(&str, bool)> {
+    match item {
+        DocumentItem::Glyph { name, body } => std::iter::once((name.0.as_str(), true))
+            .chain(body.refs.iter().map(|r| (r.name.as_str(), false)))
+            .collect(),
+        DocumentItem::GlyphAlias { name, target, .. } => {
+            vec![(name.0.as_str(), true), (target.as_str(), false)]
+        }
+        DocumentItem::Map { glyph, .. } => vec![(glyph.as_str(), false)],
+        DocumentItem::MapDecomposed { glyph, .. } => {
+            glyph.as_deref().map(|g| (g, false)).into_iter().collect()
+        }
+        DocumentItem::Remap { .. } => item.remap_operands().map(|s| (s.as_str(), false)).collect(),
+        _ => Vec::new(),
+    }
+}
+
+fn join_counts(lens: &[usize]) -> String {
+    let parts: Vec<String> = lens.iter().map(|n| n.to_string()).collect();
+    match parts.split_last() {
+        Some((last, [])) => last.clone(),
+        Some((last, rest)) => format!("{} and {last}", rest.join(", ")),
+        None => String::new(),
+    }
+}
+
+/// Groups and lock-step operands that do not divide the expansion they sit in.
+///
+/// The expansion is as long as its largest group and every other group cycles
+/// inside it, so a group whose size does not divide that length stops partway
+/// through its own cycle and the combinations past the cut are never written.
+/// Nothing downstream can tell that from a deliberate cycle — the names it does
+/// produce are all valid — so it is caught here, at the line that writes it.
+///
+/// This is the check that replaced the old LCM rule, which had no ragged case
+/// to report because it grew the expansion until every group divided it. That
+/// made more patterns come out right and the wrong ones invisible: one more
+/// alternative could halve the expansion with nothing to see.
+///
+/// A `remap`'s lookbehind and lookahead are deliberately not part of this. They
+/// expand to independent alternative *sets* (one coverage each), not to
+/// positions indexed in lock-step with the rule's entries, so their sizes have
+/// nothing to divide.
+fn check_ragged_patterns(docs: &[&Document], name_parts: &NamePartsMap, issues: &mut Vec<Issue>) {
+    for doc in docs {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            for (written, is_block) in written_patterns(item) {
+                let substituted = substitute_name_parts(written, name_parts);
+                let parsed = if is_block {
+                    NamePattern::parse(&substituted)
+                } else {
+                    NamePattern::parse_element(&substituted)
+                };
+                // A pattern that does not parse, or that is over the expansion
+                // limit, is already an error from the resolution pass.
+                let Ok(parsed) = parsed else { continue };
+                let ragged = parsed.ragged_group_lens();
+                if ragged.is_empty() {
+                    continue;
+                }
+                issues.push(issue_at(
+                    doc,
+                    item_idx,
+                    Severity::Warning,
+                    format!(
+                        "name pattern '{written}' expands to {} names, but its group of {} \
+                         alternatives does not divide that, so it repeats partway and the \
+                         remaining combinations are never written; for a full cross product \
+                         repeat each alternative with the `**N` group multiplier",
+                        parsed.len(),
+                        join_counts(&ragged),
+                    ),
+                ));
+            }
+
+            // Across a rule's operands the same rule holds, one step up: the
+            // entry count is the longest of them and each one tiles it.
+            let DocumentItem::Remap { source, target, .. } = item else {
+                continue;
+            };
+            let operands: Vec<(&String, NamePattern)> = source
+                .iter()
+                .chain(target)
+                .map(|s| (s, crate::pattern::parse_name_element(s, name_parts)))
+                .collect();
+            let entries = crate::pattern::combined_len(operands.iter().map(|(_, p)| p));
+            for (written, parsed) in &operands {
+                if parsed.len() == 0 || entries % parsed.len() == 0 {
+                    continue;
+                }
+                issues.push(issue_at(
+                    doc,
+                    item_idx,
+                    Severity::Warning,
+                    format!(
+                        "remap operand '{written}' denotes {} names, which does not divide the \
+                         {entries} entries this rule expands to, so it repeats partway; the \
+                         entry count is the longest operand, and every other one has to tile it",
+                        parsed.len(),
+                    ),
+                ));
+            }
+        }
+    }
+}
+
 /// `prop` lines: the property values have to be the ones the UCD uses, and a
 /// line has to actually cover a character.
 ///
@@ -1860,6 +1971,76 @@ fn short_path(path: &Path) -> String {
 mod tests {
     use super::*;
     use crate::document_io;
+
+    fn ragged_messages(input: &str) -> Vec<String> {
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        collect_issues(&[&doc])
+            .into_iter()
+            .filter(|i| i.severity == Severity::Warning && i.message.contains("does not divide"))
+            .map(|i| i.message)
+            .collect()
+    }
+
+    /// Groups now combine by the largest one, so a group that does not divide
+    /// it repeats partway and drops combinations. That is nearly always a typo,
+    /// and nothing downstream can tell it from a deliberate cycle.
+    #[test]
+    fn a_ragged_group_in_a_glyph_name_is_a_warning() {
+        let msgs = ragged_messages(
+            "\
+glyph pix 1 1
+@@
+glyph out-(a|b)-(1|2|3)
+ref pix
+",
+        );
+        assert_eq!(msgs.len(), 1, "expected one warning, got: {msgs:?}");
+        assert!(
+            msgs[0].contains("out-(a|b)-(1|2|3)") && msgs[0].contains("**"),
+            "the warning must name the pattern and point at `**N`: {msgs:?}",
+        );
+    }
+
+    /// The cross product spelled with `**N`, and an evenly tiling group, are
+    /// both what the lock-step rule is for — neither may warn.
+    #[test]
+    fn an_evenly_dividing_group_is_not_ragged() {
+        assert!(
+            ragged_messages(
+                "\
+glyph pix 1 1
+@@
+glyph out-(a|b**3)-(1|2|3)
+ref pix
+glyph even-(a|b)-(1|2|3|4)
+ref pix
+glyph plain
+ref pix
+"
+            )
+            .is_empty(),
+        );
+    }
+
+    /// Across a remap's operands the same rule holds: the entry count is the
+    /// longest operand, and a shorter one has to tile it.
+    #[test]
+    fn a_ragged_remap_operand_is_a_warning() {
+        let msgs = ragged_messages(
+            "\
+glyph (a|b|c|d|e) 1 1
+@@
+map (A|B|C|D|E) = (a|b|c|d|e)
+remap liga : (a|b) -> (c|d|e)
+feature liga for DFLT : liga
+",
+        );
+        assert_eq!(msgs.len(), 1, "expected one warning, got: {msgs:?}");
+        assert!(
+            msgs[0].contains("(a|b)") && msgs[0].contains('3'),
+            "the warning must name the short operand and the entry count: {msgs:?}",
+        );
+    }
 
     #[test]
     fn unresolved_ref_reported() {

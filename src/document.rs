@@ -2702,7 +2702,7 @@ mod tests {
     }
 
     #[test]
-    fn glyph_block_uses_lcm_for_independent_alternation_groups() {
+    fn glyph_block_expands_to_its_largest_alternation_group() {
         let items = expand_glyph_block(
             &GlyphName("out-(a|b)-(1|2|3)".to_string()),
             &[pattern_ref("base")],
@@ -2723,9 +2723,6 @@ mod tests {
                 "out-a-1".to_string(),
                 "out-b-2".to_string(),
                 "out-a-3".to_string(),
-                "out-b-1".to_string(),
-                "out-a-2".to_string(),
-                "out-b-3".to_string(),
             ],
         );
     }
