@@ -508,20 +508,35 @@ anchor +below 0..1 2
 map U+0307 = dot-above
 map U+0323 = dot-below
 
-## hook above
+## hook
 
-glyph hook 3 3
+glyph hook-right 3 3
 /1@@1\
 0/..@@
 ../10/
 
+//glyph hook-left 3 3
+///1@@1\
+//@@..\0
+//\01\..
+
+glyph hook-right-inverted 3 3
+..\10\
+0\..@@
+\1@@1/
+
+//glyph hook-left-inverted 3 3
+///01/..
+//@@../0
+//\1@@1/
+
 glyph hook-above mark advance 0 left -1 top 0
-ref hook
+ref hook-right
 anchor -above 1 1
 anchor +above 1 -2
 
 glyph hook-above:wide mark
-ref hook
+ref hook-right
 anchor -above 0..1 1
 anchor +above 0..1 -2
 
