@@ -242,11 +242,9 @@ map ↋ = 3-turned
 
 ## superscript/subscript
 
-glyph sup-($0..9)
-ref sp
+glyph sup-($0..9) 8 16
 ref sm-($0..9) 2 1
-glyph sub-($0..9)
-ref sp
+glyph sub-($0..9) 8 16
 ref sm-($0..9) 2 10
 
 map ⁰ = sup-0

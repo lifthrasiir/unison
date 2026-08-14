@@ -9,6 +9,13 @@
 // both sets are glyphs of their own; the `hangul-[lvt]jmo` remaps below name
 // them, which is what keeps them in the font.
 
+// naming keys:
+// ㄱg ㄴn ㄷd ㄹr ㅁm ㅂb ㅅs  ㅇ0 ㅈj  ㅊc  ㅋk ㅌt ㅍp ㅎh
+// 　  　  　  ᄛl ㅱw ㅸv ㅿz  ㆁq 　   　   　  　  ㆄf ㆆx
+// 　  　  　  　  　  　  ᄼ_s 　  ᅎ_j ᅔ_c
+// 　  　  　  　  　  　  ᄾs_ 　  ᅐj_ ᅕc_
+// ㅏa ㅑya ㅓeo ㅕyeo ㅗo ㅛyo ㅜu ㅠyu ㅡeu ㅣi ㆍ.
+
 name-parts $hangul-modern-init = g gg n d dd r m b bb s ss 0 j jj c k t p h
 name-parts $hangul-ancient-init-1 = ng nn nd nb dg rn rr rh l mb w bg bn bd bs bsg bsd bsb bss bsj bj bc bt bp v vv sg sn sd sr sm sb sbg sss s0 sj sc sk st sp sh _s _ss s_ ss_ z 0g 0d 0m 0b 0s 0z 00 0j 0c 0t 0p q j0 _j _jj j_ jj_ ck ch _c c_ pb f hh x gd ns nj nh dr
 name-parts $hangul-modern-med = a ae ya yae eo e yeo ye o oa oae oi yo u ueo ue ui yu eu eui i
@@ -657,8 +664,7 @@ glyph hangul-init-g-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-g(d|g)-l-nof
-ref wsp
+glyph hangul-init-g(d|g)-l-nof 16 16
 ref hangul-g-4x10 2 2
 ref hangul-(d|g)-4x10 6 2
 
@@ -680,8 +686,7 @@ glyph hangul-init-n-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-n(g|n|d|b|s|j|h)-l-nof
-ref wsp
+glyph hangul-init-n(g|n|d|b|s|j|h)-l-nof 16 16
 ref hangul-n-4x10 2 2
 ref hangul-(g|n|d|b|s|j|h)-4x10 6 2
 
@@ -703,8 +708,7 @@ glyph hangul-init-d-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-d(g|d|r|m|b|s|j)-l-nof
-ref wsp
+glyph hangul-init-d(g|d|r|m|b|s|j)-l-nof 16 16
 ref hangul-d-4x10 2 2
 ref hangul-(g|d|r|m|b|s|j)-4x10 6 2
 
@@ -726,8 +730,7 @@ glyph hangul-init-r-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-l-nof
-ref wsp
+glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-l-nof 16 16
 ref hangul-r-4x10 2 2
 ref hangul-(g|n|d|r|m|b|v|s|j|k|h)-4x10 6 2
 
@@ -821,8 +824,7 @@ glyph hangul-init-m-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-m(g|d|b|s)-l-nof
-ref wsp
+glyph hangul-init-m(g|d|b|s)-l-nof 16 16
 ref hangul-m-4x10 2 2
 ref hangul-(g|d|b|s)-4x10 6 2
 
@@ -880,8 +882,7 @@ glyph hangul-init-bb-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-l-nof
-ref wsp
+glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-l-nof 16 16
 ref hangul-b-4x10 2 2
 ref hangul-(g|n|d|s|j|c|k|t|h)-4x10 6 2
 
@@ -1083,8 +1084,7 @@ glyph hangul-init-ss-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|h)-l-nof
-ref wsp
+glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|h)-l-nof 16 16
 ref hangul-s-4x10 2 2
 ref hangul-(g|n|d|r|m|b|0|j|c|k|t|h)-4x10 6 2
 
@@ -1268,8 +1268,7 @@ glyph hangul-init-0-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|h)-l-nof
-ref wsp
+glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|h)-l-nof 16 16
 ref hangul-0-4x10 2 2
 ref hangul-(g|d|r|m|b|s|z|0|j|c|t|h)-4x10 6 2
 
@@ -1345,8 +1344,7 @@ glyph hangul-init-jj-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-j0-l-nof
-ref wsp
+glyph hangul-init-j0-l-nof 16 16
 ref hangul-j-4x10 2 2
 ref hangul-0-4x10 6 2
 
@@ -1458,8 +1456,7 @@ glyph hangul-init-c-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-c(k|h)-l-nof
-ref wsp
+glyph hangul-init-c(k|h)-l-nof 16 16
 ref hangul-c-4x10 2 2
 ref hangul-(k|h)-4x10 6 2
 
@@ -1535,8 +1532,7 @@ glyph hangul-init-t-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-tt-l-nof
-ref wsp
+glyph hangul-init-tt-l-nof 16 16
 ref hangul-t-4x10 2 2
 ref hangul-t-4x10 6 2
 
@@ -1630,8 +1626,7 @@ glyph hangul-init-h-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-h(s|h)-l-nof
-ref wsp
+glyph hangul-init-h(s|h)-l-nof 16 16
 ref hangul-h-4x10 2 2
 ref hangul-(s|h)-4x10 6 2
 
@@ -1653,8 +1648,7 @@ glyph hangul-init-x-l-nof 16 16
 ................................
 ................................
 
-glyph hangul-init-xx-l-nof
-ref wsp
+glyph hangul-init-xx-l-nof 16 16
 ref hangul-x-4x10 2 2
 ref hangul-x-4x10 6 2
 
@@ -1678,8 +1672,7 @@ glyph hangul-init-g-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-g(d|g)-l-f
-ref wsp
+glyph hangul-init-g(d|g)-l-f 16 16
 ref hangul-g-4x7 2 1
 ref hangul-(d|g)-4x7 6 1
 
@@ -1701,8 +1694,7 @@ glyph hangul-init-n-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-n(g|n|d|b|s|j|h)-l-f
-ref wsp
+glyph hangul-init-n(g|n|d|b|s|j|h)-l-f 16 16
 ref hangul-n-4x7 2 1
 ref hangul-(g|n|d|b|s|j|h)-4x7 6 1
 
@@ -1724,8 +1716,7 @@ glyph hangul-init-d-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-d(g|d|r|m|b|s|j)-l-f
-ref wsp
+glyph hangul-init-d(g|d|r|m|b|s|j)-l-f 16 16
 ref hangul-d-4x7 2 1
 ref hangul-(g|d|r|m|b|s|j)-4x7 6 1
 
@@ -1747,8 +1738,7 @@ glyph hangul-init-r-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-l-f
-ref wsp
+glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-l-f 16 16
 ref hangul-r-4x7 2 1
 ref hangul-(g|n|d|r|m|b|v|s|j|k|h)-4x7 6 1
 
@@ -1842,8 +1832,7 @@ glyph hangul-init-m-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-m(g|d|b|s)-l-f
-ref wsp
+glyph hangul-init-m(g|d|b|s)-l-f 16 16
 ref hangul-m-4x7 2 1
 ref hangul-(g|d|b|s)-4x7 6 1
 
@@ -1901,8 +1890,7 @@ glyph hangul-init-bb-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-l-f
-ref wsp
+glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-l-f 16 16
 ref hangul-b-4x7 2 1
 ref hangul-(g|n|d|s|j|c|k|t|h)-4x7 6 1
 
@@ -2104,8 +2092,7 @@ glyph hangul-init-ss-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|h)-l-f
-ref wsp
+glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|h)-l-f 16 16
 ref hangul-s-4x7 2 1
 ref hangul-(g|n|d|r|m|b|0|j|c|k|t|h)-4x7 6 1
 
@@ -2289,8 +2276,7 @@ glyph hangul-init-0-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|h)-l-f
-ref wsp
+glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|h)-l-f 16 16
 ref hangul-0-4x7 2 1
 ref hangul-(g|d|r|m|b|s|z|0|j|c|t|h)-4x7 6 1
 
@@ -2366,8 +2352,7 @@ glyph hangul-init-jj-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-j0-l-f
-ref wsp
+glyph hangul-init-j0-l-f 16 16
 ref hangul-j-4x7 2 1
 ref hangul-0-4x7 6 1
 
@@ -2479,8 +2464,7 @@ glyph hangul-init-c-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-c(k|h)-l-f
-ref wsp
+glyph hangul-init-c(k|h)-l-f 16 16
 ref hangul-c-4x7 2 1
 ref hangul-(k|h)-4x7 6 1
 
@@ -2556,8 +2540,7 @@ glyph hangul-init-t-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-tt-l-f
-ref wsp
+glyph hangul-init-tt-l-f 16 16
 ref hangul-t-4x7 2 1
 ref hangul-t-4x7 6 1
 
@@ -2651,8 +2634,7 @@ glyph hangul-init-h-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-h(s|h)-l-f
-ref wsp
+glyph hangul-init-h(s|h)-l-f 16 16
 ref hangul-h-4x7 2 1
 ref hangul-(s|h)-4x7 6 1
 
@@ -2674,8 +2656,7 @@ glyph hangul-init-x-l-f 16 16
 ................................
 ................................
 
-glyph hangul-init-xx-l-f
-ref wsp
+glyph hangul-init-xx-l-f 16 16
 ref hangul-x-4x7 2 1
 ref hangul-x-4x7 6 1
 
@@ -2761,8 +2742,7 @@ glyph hangul-init-g-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-g(d|g)-tl-f
-ref wsp
+glyph hangul-init-g(d|g)-tl-f 16 16
 ref hangul-g-4x6 2 1
 ref hangul-(d|g)-4x6 6 1
 
@@ -2784,8 +2764,7 @@ glyph hangul-init-n-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-n(g|n|d|b|s|j|h)-tl-f
-ref wsp
+glyph hangul-init-n(g|n|d|b|s|j|h)-tl-f 16 16
 ref hangul-n-4x6 2 1
 ref hangul-(g|n|d|b|s|j|h)-4x6 6 1
 
@@ -2807,8 +2786,7 @@ glyph hangul-init-d-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-d(g|d|r|m|b|s|j)-tl-f
-ref wsp
+glyph hangul-init-d(g|d|r|m|b|s|j)-tl-f 16 16
 ref hangul-d-4x6 2 1
 ref hangul-(g|d|r|m|b|s|j)-4x6 6 1
 
@@ -2830,8 +2808,7 @@ glyph hangul-init-r-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-tl-f
-ref wsp
+glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-tl-f 16 16
 ref hangul-r-4x6 2 1
 ref hangul-(g|n|d|r|m|b|v|s|j|k|h)-4x6 6 1
 
@@ -2925,8 +2902,7 @@ glyph hangul-init-m-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-m(g|d|b|s)-tl-f
-ref wsp
+glyph hangul-init-m(g|d|b|s)-tl-f 16 16
 ref hangul-m-4x6 2 1
 ref hangul-(g|d|b|s)-4x6 6 1
 
@@ -2984,8 +2960,7 @@ glyph hangul-init-bb-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-tl-f
-ref wsp
+glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-tl-f 16 16
 ref hangul-b-4x6 2 1
 ref hangul-(g|n|d|s|j|c|k|t|h)-4x6 6 1
 
@@ -3187,8 +3162,7 @@ glyph hangul-init-ss-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|h)-tl-f
-ref wsp
+glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|h)-tl-f 16 16
 ref hangul-s-4x6 2 1
 ref hangul-(g|n|d|r|m|b|0|j|c|k|t|h)-4x6 6 1
 
@@ -3372,8 +3346,7 @@ glyph hangul-init-0-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|h)-tl-f
-ref wsp
+glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|h)-tl-f 16 16
 ref hangul-0-4x6 2 1
 ref hangul-(g|d|r|m|b|s|z|0|j|c|t|h)-4x6 6 1
 
@@ -3449,8 +3422,7 @@ glyph hangul-init-jj-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-j0-tl-f
-ref wsp
+glyph hangul-init-j0-tl-f 16 16
 ref hangul-j-4x6 2 1
 ref hangul-0-4x6 6 1
 
@@ -3562,8 +3534,7 @@ glyph hangul-init-c-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-c(k|h)-tl-f
-ref wsp
+glyph hangul-init-c(k|h)-tl-f 16 16
 ref hangul-c-4x6 2 1
 ref hangul-(k|h)-4x6 6 1
 
@@ -3639,8 +3610,7 @@ glyph hangul-init-t-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-tt-tl-f
-ref wsp
+glyph hangul-init-tt-tl-f 16 16
 ref hangul-t-4x6 2 1
 ref hangul-t-4x6 6 1
 
@@ -3734,8 +3704,7 @@ glyph hangul-init-h-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-h(s|h)-tl-f
-ref wsp
+glyph hangul-init-h(s|h)-tl-f 16 16
 ref hangul-h-4x6 2 1
 ref hangul-(s|h)-4x6 6 1
 
@@ -3757,8 +3726,7 @@ glyph hangul-init-x-tl-f 16 16
 ................................
 ................................
 
-glyph hangul-init-xx-tl-f
-ref wsp
+glyph hangul-init-xx-tl-f 16 16
 ref hangul-x-4x6 2 1
 ref hangul-x-4x6 6 1
 
@@ -3767,8 +3735,7 @@ ref hangul-x-4x6 6 1
 // it is intentional to make hangul-init-*-t-nof and hangul-* identical in shape
 // wsp is required since this glyph will be used as a top-level glyph
 // and we need the proper width (advance) and height
-glyph hangul-init-($hangul-init)-t-nof
-ref wsp
+glyph hangul-init-($hangul-init)-t-nof 16 16
 ref hangul-($hangul-init) 2 1
 
 ## contextual initial jamo (top, final)
@@ -3791,8 +3758,7 @@ glyph hangul-init-g-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-g(d|g)-t-f
-ref wsp
+glyph hangul-init-g(d|g)-t-f 16 16
 ref hangul-g-6x6 2 1
 ref hangul-(d|g)-6x6 8 1
 
@@ -3814,8 +3780,7 @@ glyph hangul-init-n-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-n(g|n|d|b|s|j|h)-t-f
-ref wsp
+glyph hangul-init-n(g|n|d|b|s|j|h)-t-f 16 16
 ref hangul-n-6x6 2 1
 ref hangul-(g|n|d|b|s|j|h)-6x6 8 1
 
@@ -3837,8 +3802,7 @@ glyph hangul-init-d-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-d(g|d|r|m|b|s|j)-t-f
-ref wsp
+glyph hangul-init-d(g|d|r|m|b|s|j)-t-f 16 16
 ref hangul-d-6x6 2 1
 ref hangul-(g|d|r|m|b|s|j)-6x6 8 1
 
@@ -3860,8 +3824,7 @@ glyph hangul-init-r-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-t-f
-ref wsp
+glyph hangul-init-r(g|n|d|r|m|b|v|s|j|k|h)-t-f 16 16
 ref hangul-r-6x6 2 1
 ref hangul-(g|n|d|r|m|b|v|s|j|k|h)-6x6 8 1
 
@@ -3955,8 +3918,7 @@ glyph hangul-init-m-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-m(g|d|b|s)-t-f
-ref wsp
+glyph hangul-init-m(g|d|b|s)-t-f 16 16
 ref hangul-m-6x6 2 1
 ref hangul-(g|d|b|s)-6x6 8 1
 
@@ -4014,8 +3976,7 @@ glyph hangul-init-bb-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-t-f
-ref wsp
+glyph hangul-init-b(g|n|d|s|j|c|k|t|h)-t-f 16 16
 ref hangul-b-6x6 2 1
 ref hangul-(g|n|d|s|j|c|k|t|h)-6x6 8 1
 
@@ -4218,8 +4179,7 @@ glyph hangul-init-ss-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|p|h)-t-f
-ref wsp
+glyph hangul-init-s(g|n|d|r|m|b|0|j|c|k|t|p|h)-t-f 16 16
 ref hangul-s-6x6 2 1
 ref hangul-(g|n|d|r|m|b|0|j|c|k|t|p|h)-6x6 8 1
 
@@ -4385,8 +4345,7 @@ glyph hangul-init-0-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|p|h)-t-f
-ref wsp
+glyph hangul-init-0(g|d|r|m|b|s|z|0|j|c|t|p|h)-t-f 16 16
 ref hangul-0-6x6 2 1
 ref hangul-(g|d|r|m|b|s|z|0|j|c|t|p|h)-6x6 8 1
 
@@ -4444,8 +4403,7 @@ glyph hangul-init-jj-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-j0-t-f
-ref wsp
+glyph hangul-init-j0-t-f 16 16
 ref hangul-j-6x6 2 1
 ref hangul-0-6x6 8 1
 
@@ -4557,8 +4515,7 @@ glyph hangul-init-c-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-c(k|h)-t-f
-ref wsp
+glyph hangul-init-c(k|h)-t-f 16 16
 ref hangul-c-6x6 2 1
 ref hangul-(k|h)-6x6 8 1
 
@@ -4634,8 +4591,7 @@ glyph hangul-init-t-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-tt-t-f
-ref wsp
+glyph hangul-init-tt-t-f 16 16
 ref hangul-t-6x6 2 1
 ref hangul-t-6x6 8 1
 
@@ -4657,8 +4613,7 @@ glyph hangul-init-p-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-p(b|h)-t-f
-ref wsp
+glyph hangul-init-p(b|h)-t-f 16 16
 ref hangul-p-6x6 2 1
 ref hangul-(b|h)-6x6 8 1
 
@@ -4698,8 +4653,7 @@ glyph hangul-init-h-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-h(s|h)-t-f
-ref wsp
+glyph hangul-init-h(s|h)-t-f 16 16
 ref hangul-h-6x6 2 1
 ref hangul-(s|h)-6x6 8 1
 
@@ -4721,8 +4675,7 @@ glyph hangul-init-x-t-f 16 16
 ................................
 ................................
 
-glyph hangul-init-xx-t-f
-ref wsp
+glyph hangul-init-xx-t-f 16 16
 ref hangul-x-6x6 2 1
 ref hangul-x-6x6 8 1
 
@@ -6050,8 +6003,7 @@ glyph hangul-fin-h-l 15 16
 
 // wsp is required since this glyph will be used as a top-level glyph
 // and we need the proper width (advance) and height
-glyph hangul-fin-($hangul-fin0)-r
-ref wsp
+glyph hangul-fin-($hangul-fin0)-r 16 16
 ref hangul-fin-($hangul-fin0)-l 1 0
 
 ## contextual final jamo (wide)
@@ -6572,8 +6524,7 @@ glyph hangul-fin-($hangul-fin) advance 0
 ref hangul-fin-($hangul-fin)-w -16 0
 
 // combining jamo variants
-glyph hangul-init-
-ref wsp
+glyph hangul-init- 16 16
 glyph hangul-init-comb-($hangul-init)-l-nof
 ref hangul-init-($hangul-init)-l-nof
 glyph hangul-init-comb-($hangul-init)-l-f

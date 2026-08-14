@@ -36,8 +36,7 @@ anchor +above 2..3 -1
 map U+0308 = dia-above
 map U+0324 = dia-below
 
-glyph dia-above-spacing
-ref sp
+glyph dia-above-spacing 8 16
 ref dia-below:narrow 2 0
 
 map ¨ = dia-above-spacing
@@ -78,12 +77,10 @@ anchor +above 1..2 -1
 map U+0301 = acute-above
 map U+0317 = acute-below
 
-glyph acute-above-spacing
-ref sp
+glyph acute-above-spacing 8 16
 ref acute-right 2 0
 
-glyph acute-below-spacing
-ref sp
+glyph acute-below-spacing 8 16
 ref acute-right 2 14
 
 map ´ = acute-above-spacing // symbol, provides break opportunity
@@ -106,8 +103,7 @@ anchor +above 3..4 -1
 
 map U+030B = dacute-above
 
-glyph dacute-above-spacing
-ref sp
+glyph dacute-above-spacing 8 16
 ref acute-left 1 0
 ref acute-left 4 0
 
@@ -146,12 +142,10 @@ anchor +above 1..2 -1
 map U+0300 = grave-above
 map U+0316 = grave-below
 
-glyph grave-above-spacing
-ref sp
+glyph grave-above-spacing 8 16
 ref grave-right 2 0
 
-glyph grave-below-spacing
-ref sp
+glyph grave-below-spacing 8 16
 ref grave-right 2 14
 
 map ˋ = grave-above-spacing
@@ -204,9 +198,9 @@ anchor +below 1..2 2
 map U+0304 = mac-above
 map U+0331 = mac-below
 
-glyph mac-above-spacing
-ref sp
+glyph mac-above-spacing 8 16
 ref mac-wide 2 3
+
 map ¯ = mac-above-spacing
 
 ## cedilla/comma
@@ -311,20 +305,16 @@ map U+0314 = com-reversed-above
 map U+0326 = com-below
 map U+0327 = ced-below
 
-glyph ced-below-spacing
-ref sp
+glyph ced-below-spacing 8 16
 ref ced 3 13
 
-glyph com-above-spacing
-ref sp
+glyph com-above-spacing 8 16
 ref com 3 0
 
-glyph com-turned-above-spacing
-ref sp
+glyph com-turned-above-spacing 8 16
 ref com-turned 3 0
 
-glyph com-reversed-above-spacing
-ref sp
+glyph com-reversed-above-spacing 8 16
 ref com-reversed 3 0
 
 assert distinct com-above-spacing quote-6
@@ -358,8 +348,7 @@ anchor +below 0..1 4
 
 map U+0328 = ogonek-below
 
-glyph ogonek-below-spacing
-ref sp
+glyph ogonek-below-spacing 8 16
 ref ogonek-below 3 13
 
 map ˛ = ogonek-below-spacing
@@ -389,8 +378,7 @@ glyph caron-alt 2 3
 \0@@
 @@0/
 
-glyph caron-above-spacing
-ref sp
+glyph caron-above-spacing 8 16
 ref caron 2 0
 
 map ˇ = caron-above-spacing
@@ -424,8 +412,7 @@ anchor +below 1..2 3
 map U+0302 = circ-above
 map U+032D = circ-below
 
-glyph circ-above-spacing
-ref sp
+glyph circ-above-spacing 8 16
 ref circ 2 0
 
 map ˆ = circ-above-spacing
@@ -461,8 +448,7 @@ anchor +below 1..2 2
 map U+0306 = breve-above
 map U+032E = breve-below
 
-glyph breve-above-spacing
-ref sp
+glyph breve-above-spacing 8 16
 ref breve 2 0
 
 map ˘ = breve-above-spacing
@@ -515,8 +501,7 @@ anchor +below 1..2 4
 map U+030A = ring-above
 map U+0325 = ring-below
 
-glyph ring-above-spacing
-ref sp
+glyph ring-above-spacing 8 16
 ref ring 3 0
 
 map ˚ = ring-above-spacing
@@ -550,8 +535,7 @@ anchor +below 2..3 2
 map U+0303 = tilde-above
 map U+0330 = tilde-below
 
-glyph tilde-above-spacing
-ref sp
+glyph tilde-above-spacing 8 16
 ref comb-tilde 2 0
 
 map ˜ = tilde-above-spacing
@@ -588,8 +572,7 @@ anchor +below 0..1 2
 map U+0307 = dot-above
 map U+0323 = dot-below
 
-glyph dot-above-spacing
-ref sp
+glyph dot-above-spacing 8 16
 ref comb-dot 3 0
 
 map ˙ = dot-above-spacing
