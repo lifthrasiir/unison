@@ -5645,3 +5645,45 @@ fn a_fold_leaves_every_marker_where_it_was() {
         assert_eq!(x, was, "marker of line {line} moved");
     }
 }
+
+
+/// The marker column's width is an input to the wrapping that decides whether
+/// the page shows a group at all: reserve the column and the text narrows,
+/// which wraps one more line, which pushes the only group on the page off it,
+/// which un-reserves the column — a two-frame cycle the view can never settle.
+/// A page of heavily wrapped lines used to sit in that cycle, flickering the
+/// gutter on every frame while no marker was even on screen.
+#[test]
+fn the_marker_column_does_not_flicker_on_a_page_of_wrapped_lines() {
+    // Long comment lines of many lengths, so some of them wrap differently once
+    // a marker column is taken out of the text area, and one foldable glyph
+    // block at the end for the page to lose and regain.
+    let mut src = String::new();
+    for i in 0..80 {
+        src.push_str("// ");
+        src.push_str(&"x".repeat(80 + i % 31));
+        src.push('\n');
+    }
+    src.push_str("glyph a 2 2\n@@..\n....\n");
+
+    let mut h = EditorHarness::new(&src);
+    h.viewport_height = Some(300.0);
+    h.frame();
+    // The cycle only shows where a group's edge lands near the page's, so the
+    // whole document is swept rather than one hand-picked offset.
+    let mut y = 0.0f32;
+    while y < 3200.0 {
+        h.scroll_to(y);
+        let widths: Vec<f32> = (0..4)
+            .map(|_| {
+                h.frame();
+                h.snap().marker_width
+            })
+            .collect();
+        assert!(
+            widths.windows(2).all(|w| w[0] == w[1]),
+            "gutter marker column flickers at scroll {y}: {widths:?}"
+        );
+        y += 4.0;
+    }
+}

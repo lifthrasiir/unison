@@ -429,6 +429,10 @@ fn show_document(
         .rect
         .width()
     });
+    // One column per level the *document* nests, not per level this page shows:
+    // the count decides where every marker sits, and folding a group must not
+    // shift its neighbours out from under the pointer.
+    let document_marker_columns = crate::editor::folding::max_nesting_depth(state.folds.groups());
     let marker_columns = {
         let shown = match state.view_cache.as_ref() {
             Some(cache) => page_has_fold_marker(
@@ -441,14 +445,7 @@ fn show_document(
             ),
             None => !state.folds.groups().is_empty(),
         };
-        // One column per level the *document* nests, not per level this page
-        // shows: the count decides where every marker sits, and folding a group
-        // must not shift its neighbours out from under the pointer.
-        if shown {
-            crate::editor::folding::max_nesting_depth(state.folds.groups())
-        } else {
-            0
-        }
+        if shown { document_marker_columns } else { 0 }
     };
     let gutter = GutterLayout {
         width: number_width + font_id.size * marker_columns as f32,
@@ -460,11 +457,20 @@ fn show_document(
         marker_columns,
         digits: gutter_digits,
     };
-    let gutter_width = gutter.width;
 
+    // Wrapping is measured against the *widest* gutter this document can ask
+    // for, whether or not the page currently shows a marker. Taking the width
+    // actually reserved would close a loop the view cannot settle: reserving a
+    // column narrows the text, which wraps a line more, which pushes the only
+    // group on the page below it, which un-reserves the column, which widens the
+    // text again — a two-frame cycle that a page of heavily wrapped lines sits
+    // in forever. The cost of the wider measure is a strip of unused width on
+    // the right while no marker is shown, which is the same over-reserve the
+    // digit count already accepts.
     let wrap_width = {
         let minimap_w = MINIMAP_WIDTH * zoom_level as f32;
-        let text_area = ui.available_width() - minimap_w - gutter_width - LEFT_PAD - 16.0;
+        let widest_gutter = number_width + font_id.size * document_marker_columns as f32;
+        let text_area = ui.available_width() - minimap_w - widest_gutter - LEFT_PAD - 16.0;
         if text_area > 0.0 {
             Some(text_area)
         } else {

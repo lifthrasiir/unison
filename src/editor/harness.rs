@@ -1238,6 +1238,15 @@ impl EditorHarness {
         self.ctx.memory(|m| m.has_focus(wid))
     }
 
+    /// Scroll the document to an exact offset, the way a goto does, and settle
+    /// one frame — so a test can put the page anywhere without walking the
+    /// caret there.
+    pub fn scroll_to(&mut self, y: f32) {
+        let id = self.state.key(Slot::ScrollTarget);
+        self.ctx.data_mut(|d| d.insert_temp(id, y));
+        self.frame();
+    }
+
     /// Current vertical scroll offset (pixels) as reported by egui.
     pub fn scroll_y(&self) -> f32 {
         self.scroll_y_of(&self.state)

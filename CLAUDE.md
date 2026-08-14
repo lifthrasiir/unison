@@ -210,6 +210,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which glyph blocks start folded, and the font height that decides it | `editor/folding.rs` (`apply_initial`) |
 | Why closing a fold may scroll and opening one may not | `editor/folding.rs` (`FoldScroll`), `document_view/scroll.rs` |
 | The gutter's marker columns: one per nesting level, outermost by the numbers, and why the count is the document's rather than the page's | `document_view/layout.rs` (`GutterLayout`, `page_has_fold_marker`), `editor/folding.rs` (`nesting_depth`) |
+| Why wrapping is measured against the widest gutter, not the reserved one | `document_view/mod.rs` (`wrap_width`) |
 | Split panes, their invariants and key chords | `app/panes.rs` |
 | Go back / go forward | `app/history.rs` |
 | The Search pane, and where a click goes with no definition | `app/search.rs` |
