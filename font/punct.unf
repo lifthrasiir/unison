@@ -691,6 +691,8 @@ map ‴ = prime3
 map ‵ = prime-reversed
 map ‶ = prime2-reversed
 map ‷ = prime3-reversed
+map ʹ = prime // modifier
+map ʺ = prime2 // modifier
 
 ## dots
 

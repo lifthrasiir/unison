@@ -80,8 +80,15 @@ map U+0317 = acute-below
 
 glyph acute-above-spacing
 ref sp
-ref acute-left 3 0
-map ´ = acute-above-spacing
+ref acute-right 2 0
+
+glyph acute-below-spacing
+ref sp
+ref acute-right 2 14
+
+map ´ = acute-above-spacing // symbol, provides break opportunity
+map ˊ = acute-above-spacing // modifier, cannot be broken
+map ˏ = acute-below-spacing
 
 ## double acute accents
 
@@ -98,6 +105,13 @@ anchor -above 3..4 1
 anchor +above 3..4 -1
 
 map U+030B = dacute-above
+
+glyph dacute-above-spacing
+ref sp
+ref acute-left 1 0
+ref acute-left 4 0
+
+map ˝ = dacute-above-spacing
 
 ## grave accents
 
@@ -131,6 +145,17 @@ anchor +above 1..2 -1
 
 map U+0300 = grave-above
 map U+0316 = grave-below
+
+glyph grave-above-spacing
+ref sp
+ref grave-right 2 0
+
+glyph grave-below-spacing
+ref sp
+ref grave-right 2 14
+
+map ˋ = grave-above-spacing
+map ˎ = grave-below-spacing
 
 ## double grave accents
 
@@ -289,7 +314,27 @@ map U+0327 = ced-below
 glyph ced-below-spacing
 ref sp
 ref ced 3 13
+
+glyph com-above-spacing
+ref sp
+ref com 3 0
+
+glyph com-turned-above-spacing
+ref sp
+ref com-turned 3 0
+
+glyph com-reversed-above-spacing
+ref sp
+ref com-reversed 3 0
+
+assert distinct com-above-spacing quote-6
+assert distinct com-turned-above-spacing quote-9
+assert distinct com-reversed-above-spacing quote-9-reversed
+
 map ¸ = ced-below-spacing
+map ʻ = com-above-spacing
+map ʼ = com-turned-above-spacing
+map ʽ = com-reversed-above-spacing
 
 ## ogonek
 
@@ -313,6 +358,12 @@ anchor +below 0..1 4
 
 map U+0328 = ogonek-below
 
+glyph ogonek-below-spacing
+ref sp
+ref ogonek-below 3 13
+
+map ˛ = ogonek-below-spacing
+
 ## caron (hacek)
 
 glyph caron 5 2
@@ -331,13 +382,18 @@ anchor +above 1..2 -1
 
 map U+030C = caron-above
 
-// looks like a comma, used for czech and slovak.  it is a positional variant
-// of the caron rather than a mark of its own: it has no anchors because it
-// hangs off the letter's right side, which no +above/+below anchor describes.
+// identical to com, used for czech and slovak
+// attached from the letter's right side, unlike `above` anchor
 glyph caron-alt 2 3
 @@@@
 \0@@
 @@0/
+
+glyph caron-above-spacing
+ref sp
+ref caron 2 0
+
+map ˇ = caron-above-spacing
 
 ## circumflex
 
@@ -367,6 +423,12 @@ anchor +below 1..2 3
 
 map U+0302 = circ-above
 map U+032D = circ-below
+
+glyph circ-above-spacing
+ref sp
+ref circ 2 0
+
+map ˆ = circ-above-spacing
 
 ## breve
 
@@ -398,6 +460,12 @@ anchor +below 1..2 2
 
 map U+0306 = breve-above
 map U+032E = breve-below
+
+glyph breve-above-spacing
+ref sp
+ref breve 2 0
+
+map ˘ = breve-above-spacing
 
 ## inverted breve (arch)
 
@@ -447,6 +515,12 @@ anchor +below 1..2 4
 map U+030A = ring-above
 map U+0325 = ring-below
 
+glyph ring-above-spacing
+ref sp
+ref ring 3 0
+
+map ˚ = ring-above-spacing
+
 ## tilde
 
 glyph comb-tilde 5 2
@@ -475,6 +549,12 @@ anchor +below 2..3 2
 
 map U+0303 = tilde-above
 map U+0330 = tilde-below
+
+glyph tilde-above-spacing
+ref sp
+ref comb-tilde 2 0
+
+map ˜ = tilde-above-spacing
 
 ## dot
 
@@ -507,6 +587,12 @@ anchor +below 0..1 2
 
 map U+0307 = dot-above
 map U+0323 = dot-below
+
+glyph dot-above-spacing
+ref sp
+ref comb-dot 3 0
+
+map ˙ = dot-above-spacing
 
 ## hook
 
