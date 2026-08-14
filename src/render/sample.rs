@@ -1597,7 +1597,7 @@ var p=[],i,j,k,a=[],b=[],c=[''];\
 function v(z,s){{for(i=0;s[i];++i)for(j=s[i][0];j&lt;=(s[i][1]||s[i][0]);++j)z.push(String.fromCharCode(j))}}\
 v(a,[[0x115f],[0x1100,0x115e],[0xa960,0xa97c]]);\
 v(b,[[0x1160,0x117e],[0x119e],[0x11a1],[0x11a3,0x11a4]]);\
-v(c,[[0x11a8,0x11c2]]);\
+v(c,[[0x11a8,0x11ff],[0xd7cb,0xd7fb]]);\
 for(i=0;i&lt;a.length;++i,p.push('\\n'))for(j=0;j&lt;b.length;++j,p.push('\\n'))for(k=0;k&lt;c.length;++k)p.push(a[i]+b[j]+c[k]);\
 this.parentNode.replaceChild(document.createTextNode(p.join('')),this);\
 return!1\">Render!</a></span></div>\n"
