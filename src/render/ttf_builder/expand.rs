@@ -268,7 +268,8 @@ pub(crate) fn expand_for(
     // After canonicalization, so a component named through an alias is sized by
     // the glyph it actually is, and before everything below, so nothing
     // downstream has to know an IDC line exists.
-    expand_compose_lines(&mut all_items, &mut diagnostics);
+    let mut undecided_parts: HashSet<(Option<ItemRef>, String)> = HashSet::new();
+    expand_compose_lines(&mut all_items, &mut diagnostics, &mut undecided_parts);
 
     // Expanding a `map` is not free (the font has ranges thousands of
     // codepoints wide), and three later steps need the result, so it happens
@@ -315,6 +316,7 @@ pub(crate) fn expand_for(
         map_targets,
         name_parts,
         &aliases,
+        &undecided_parts,
         &mut diagnostics,
     );
 
@@ -333,7 +335,21 @@ pub(crate) fn expand_for(
 /// and cannot disagree about it. Component boxes come from the `glyph` headers
 /// already in `all_items` (see [`crate::compose`] for why the *declared* box
 /// and not the resolved one), so the pass is one map build and one walk.
-fn expand_compose_lines(all_items: &mut [ExpandedItem], diagnostics: &mut Vec<Diagnostic>) {
+///
+/// `undecided_parts` collects `(glyph item, component name)` for each component
+/// that has not picked its variant yet. Such a component keeps a bare name that
+/// need not exist, and the ref derived from it is deliberately left unresolved
+/// — that is what holds the glyph out of the font until someone decides. But it
+/// is a mechanism, not a fault, so [`inject_on_demand_glyph_items`] must not go
+/// on to report it as an unresolved ref: the line already said its piece as a
+/// [`Severity::Todo`], and an IDS-populated font would otherwise open with two
+/// errors per glyph across 20k glyphs, failing every build over source that is
+/// merely unfinished.
+fn expand_compose_lines(
+    all_items: &mut [ExpandedItem],
+    diagnostics: &mut Vec<Diagnostic>,
+    undecided_parts: &mut HashSet<(Option<ItemRef>, String)>,
+) {
     let has_compose = |e: &ExpandedItem| matches!(&e.item, DocumentItem::Glyph { body, .. } if !body.compose.is_empty());
     if !all_items.iter().any(has_compose) {
         return;
@@ -382,6 +398,11 @@ fn expand_compose_lines(all_items: &mut [ExpandedItem], diagnostics: &mut Vec<Di
         }
         let mut derived = Vec::new();
         for compose in &body.compose {
+            for name in compose.part_names() {
+                if crate::compose::is_undecided(name) {
+                    undecided_parts.insert((e.origin, name.to_string()));
+                }
+            }
             let (refs, issues) =
                 crate::compose::expand_compose(&glyph_name, parent, body.scale, compose, &dims);
             for (severity, message) in issues {
@@ -567,6 +588,7 @@ fn inject_on_demand_glyph_items(
     map_targets: Vec<(String, Option<ItemRef>, String)>,
     name_parts: &NamePartsMap,
     aliases: &crate::alias::AliasMap,
+    undecided_parts: &HashSet<(Option<ItemRef>, String)>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let mut defined: HashSet<String> = HashSet::new();
@@ -817,6 +839,16 @@ fn inject_on_demand_glyph_items(
     }
 
     for (name, origin, kind) in mentions {
+        // A ref an IDC line derived from a component that has not picked its
+        // variant is unresolved on purpose (see `expand_compose_lines`), so it
+        // is not reported — but only for that glyph and that name, which keeps
+        // a hand-written `ref` beside the IDC line reportable. The skip is here
+        // rather than in `consider` so that the name still reaches on-demand
+        // synthesis above: an undecided component naming a shape the font can
+        // generate resolves as it always did.
+        if matches!(kind, RefKind::Ref) && undecided_parts.contains(&(origin, name.clone())) {
+            continue;
+        }
         // A name that is defined but contentless gets its own wording:
         // "undefined" would send the author looking for a definition that is
         // right there. `advance`/`left`/`top`/`point` do not make a glyph
@@ -1084,6 +1116,97 @@ pub(crate) fn expand_glyph_pattern(pattern: &str, count: usize) -> Vec<String> {
     match NamePattern::parse_element(pattern) {
         Ok(expanded) => (0..count).map(|i| expanded.get(i)).collect(),
         Err(_) => vec![pattern.to_string(); count],
+    }
+}
+
+/// The diagnostics an IDC line produces once its components have been looked
+/// up — which is here rather than in `compose.rs`, because whether a component
+/// name resolves is a question only the whole expansion can answer.
+#[cfg(test)]
+mod compose_expand_tests {
+    use crate::document_io::parse_document_from_str;
+    use crate::issues::Severity;
+
+    fn expand(src: &str) -> super::Expansion {
+        let doc = parse_document_from_str(src, "test.unf".into()).unwrap();
+        let docs = vec![&doc];
+        let name_parts = crate::document::collect_name_parts(&docs);
+        super::expand_documents(&docs, &name_parts)
+    }
+
+    fn of(expansion: &super::Expansion, severity: Severity) -> Vec<&str> {
+        expansion
+            .diagnostics
+            .iter()
+            .filter(|d| d.severity == severity)
+            .map(|d| d.message.as_str())
+            .collect()
+    }
+
+    fn refs_of<'a>(expansion: &'a super::Expansion, glyph: &str) -> Vec<&'a str> {
+        expansion
+            .items()
+            .filter_map(|item| match item {
+                crate::document::DocumentItem::Glyph { name, body } if name.display() == glyph => {
+                    Some(body.refs.iter().map(|r| r.name.as_str()))
+                }
+                _ => None,
+            })
+            .flatten()
+            .collect()
+    }
+
+    /// The state every Han glyph is populated in (`PLANS.han.md` item 10):
+    /// both components bare, and neither naming anything yet. The line is a
+    /// Todo per component and **nothing else** — in particular not an
+    /// `unresolved ref` for each derived ref, which would turn a work queue of
+    /// 20k items into 40k errors and fail every build and CI run over source
+    /// that is merely unfinished (see [`Severity`]).
+    ///
+    /// The refs are still emitted and still unresolved: that is what keeps the
+    /// glyph out of the font, and it is a mechanism rather than a complaint.
+    #[test]
+    fn an_undecided_component_naming_nothing_is_a_todo_and_not_an_unresolved_ref() {
+        let expansion = expand("glyph han-6cb3 4 2\n\u{2FF0} han-6c35 han-53ef\n");
+        assert!(
+            of(&expansion, Severity::Error).is_empty(),
+            "{:?}",
+            of(&expansion, Severity::Error)
+        );
+        assert_eq!(of(&expansion, Severity::Todo).len(), 2);
+        assert_eq!(
+            refs_of(&expansion, "han-6cb3"),
+            vec!["han-6c35", "han-53ef"]
+        );
+    }
+
+    /// Only the *undecided* half stands down. A component that picked a
+    /// variant made a claim, and a claim about a glyph that does not exist is
+    /// an ordinary error — the author decided, and decided wrong.
+    #[test]
+    fn a_decided_component_naming_nothing_is_still_an_error() {
+        let expansion = expand("glyph han-6cb3 4 2\n\u{2FF0} han-6c35:2x2 han-53ef\n");
+        let errors = of(&expansion, Severity::Error);
+        assert!(
+            errors.iter().any(|m| m.contains("'han-6c35:2x2'")),
+            "{errors:?}"
+        );
+        assert!(
+            !errors.iter().any(|m| m.contains("'han-53ef'")),
+            "{errors:?}"
+        );
+    }
+
+    /// The suppression is scoped to the name the IDC line left undecided, not
+    /// to the glyph: a hand-written `ref` on the same block that names nothing
+    /// is still reported.
+    #[test]
+    fn a_ref_beside_an_undecided_idc_line_is_still_reported() {
+        let expansion = expand("glyph han-6cb3 4 2\n\u{2FF0} han-6c35 han-53ef\nref gone 0 0\n");
+        assert_eq!(
+            of(&expansion, Severity::Error),
+            vec!["unresolved ref 'gone'"]
+        );
     }
 }
 

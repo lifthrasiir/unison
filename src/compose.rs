@@ -262,6 +262,18 @@ pub enum PartDims {
     Size(u16, u16),
 }
 
+/// Whether an IDC component has yet to pick its variant — the `:` is the whole
+/// of the test, since that is what introduces a variant suffix at all.
+///
+/// This is what separates "not done" from "wrong" for an IDC line, and more
+/// than one stage has to agree on it: [`expand_compose`] to report a
+/// [`Severity::Todo`] and stand the sum rule down, and the expansion pass to
+/// leave the ref it derives unresolved *without* also calling it an unresolved
+/// ref. Two copies of `!name.contains(':')` would be two chances to drift.
+pub fn is_undecided(component_name: &str) -> bool {
+    !component_name.contains(':')
+}
+
 /// Turn one IDC line into the `ref`s it stands for, plus what is wrong with it.
 ///
 /// Best effort: a component whose size is unknown is placed where the walk has
@@ -322,7 +334,7 @@ pub fn expand_compose(
     // about such a line is a consequence of that one gap, so the sum check
     // and the unpicked component's own checks stand down and the line reports
     // one TODO per unpicked component instead. See [`Severity::Todo`].
-    let unresolved = compose.part_names().any(|name| !name.contains(':'));
+    let unresolved = compose.part_names().any(is_undecided);
 
     let mut cursor: i32 = 0;
     let mut slot = 0usize;
@@ -335,7 +347,7 @@ pub fn expand_compose(
             ComposeItem::Part { name, raw_name } => (name, raw_name),
         };
         let spec = VariantSpec::parse(name);
-        let unpicked = !name.contains(':');
+        let unpicked = is_undecided(name);
         if unpicked {
             issues.push((
                 Severity::Todo,

@@ -196,7 +196,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues.rs` (`Severity`) |
-| Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`) |
+| Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`) |
+| Why the ref an unpicked component derives is left unresolved *and* unreported | `render/ttf_builder/expand.rs` (`expand_compose_lines`) |
 | The Issues tab's per-severity filter, why notes start hidden and why right-click is solo | `app/panels.rs` (`IssueFilter`) |
 | Resizing a glyph (F2), and why a `ref` to it moves the other way | `editor/glyph_resize.rs`, `app/resize.rs` |
 | Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite.rs` (`DeriveOutcome::anchor_placed`) |

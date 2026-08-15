@@ -1138,3 +1138,43 @@ map B = plain
         "an unaffected glyph must still map"
     );
 }
+
+/// An IDC line whose components have not picked their variants leaves the
+/// glyph unbuilt and unmapped, exactly as an erroring one would — the point of
+/// [`crate::issues::Severity::Todo`] is that the *report* differs, not the
+/// font. A blank glyph in the cmap would be worse than no glyph at all: it
+/// kills the renderer's fallback, so the character comes out an empty box
+/// instead of being drawn from another font (`PLANS.han.md` item 3).
+#[test]
+fn an_undecided_idc_glyph_is_neither_built_nor_mapped() {
+    let input = "\
+glyph han-6c35:2x4 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+
+glyph han-6cb3 4 4
+\u{2FF0} han-6c35 han-53ef
+map 河 = han-6cb3
+
+glyph plain 1 1
+@@
+map B = plain
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+
+    assert!(
+        !glyphs.iter().any(|g| g.name == "han-6cb3"),
+        "a glyph whose parts are still undecided was built anyway"
+    );
+    assert!(
+        !glyphs.iter().any(|g| g.codepoints.contains(&0x6CB3)),
+        "U+6CB3 kept its cmap entry with nothing drawn behind it"
+    );
+    assert!(
+        glyphs.iter().any(|g| g.codepoints.contains(&0x42)),
+        "an unaffected glyph must still map"
+    );
+}
