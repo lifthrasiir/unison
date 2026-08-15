@@ -37,6 +37,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
             resolved_anchors: Vec::new(),
             declared_anchors: Vec::new(),
             scale: 1,
+            declared_box: None,
             inline_source: None,
         },
     );

@@ -2,6 +2,7 @@ mod alias;
 #[cfg(feature = "editor")]
 mod app;
 mod cancel;
+mod compose;
 mod detail;
 mod document;
 mod document_io;

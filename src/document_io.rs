@@ -203,6 +203,13 @@
 //!   so a later ref draws back over an earlier negation.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges.
+//! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT… ` — an IDC line: the glyph's box split along
+//!   one axis, the offsets *derived* from what the components declare. Each
+//!   token is a gap if it reads as a number and a component name otherwise. It
+//!   is a sibling of `ref`, not sugar for one — the point is that the parts
+//!   must add up to the box and a violation is reported rather than drawn. See
+//!   [`crate::compose`] for the arity, the sum rule and the `:WxH-l` variant
+//!   name rule it reads.
 //! - `glyph NAME = TARGET` — an alias: a second *name* for `TARGET`, sharing
 //!   its glyph id rather than declaring a glyph of its own. It takes no flags
 //!   and has no body; a glyph that needs either — including one that must
@@ -585,6 +592,33 @@ fn parse_ref_line(
         visibility,
         comment,
     })
+}
+
+/// Parse an IDC line — the tokens after `⿰`/`⿱`/`⿲`/`⿳` — into a
+/// [`GlyphCompose`].
+///
+/// A token that reads as a number is a gap, anything else is a component name;
+/// arity, sizes and the sum are [`crate::compose`]'s business, so a line that
+/// tokenizes at all parses here. `base` is the `@` base in force, as for a
+/// `ref`.
+fn parse_compose_line(
+    op: crate::compose::IdcOp,
+    parts: &[String],
+    comment: Option<String>,
+    base: Option<&str>,
+) -> GlyphCompose {
+    let items = parts
+        .iter()
+        .map(|token| match token.parse::<i16>() {
+            Ok(gap) => ComposeItem::Gap(gap),
+            Err(_) => {
+                let name = crate::document::expand_at_name(token, base);
+                let raw_name = crate::document::written_form(token, &name);
+                ComposeItem::Part { name, raw_name }
+            }
+        })
+        .collect();
+    GlyphCompose { op, items, comment }
 }
 
 /// Parse a range token like `3` (single value) or `3..5` (inclusive range).
@@ -1142,6 +1176,11 @@ fn serialize_glyph(writer: &mut dyn Write, name: &GlyphName, body: &GlyphBody) -
     } else {
         writeln!(writer, "glyph {qname}{flags}{hcomment}")?;
     }
+    // Before the refs: an IDC line *is* the glyph's shape, and the refs a
+    // block also carries are what is added on top of it.
+    for c in &body.compose {
+        writeln!(writer, "{}", c.format_line())?;
+    }
     for r in &body.refs {
         writeln!(writer, "{}", r.format_line(None))?;
     }
@@ -1513,6 +1552,18 @@ pub fn derive_document(
                                     break;
                                 };
                                 body.refs.push(parsed_ref);
+                                i += 1;
+                                continue;
+                            } else if let Some(op) = sub_tokens
+                                .first()
+                                .and_then(|t| crate::compose::IdcOp::from_token(t))
+                            {
+                                body.compose.push(parse_compose_line(
+                                    op,
+                                    &sub_tokens[1..],
+                                    sub_comment,
+                                    at_base.as_deref(),
+                                ));
                                 i += 1;
                                 continue;
                             } else if sub_tokens.first().is_some_and(|t| t == "anchor") {

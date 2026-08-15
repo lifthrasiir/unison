@@ -5646,7 +5646,6 @@ fn a_fold_leaves_every_marker_where_it_was() {
     }
 }
 
-
 /// The marker column's width is an input to the wrapping that decides whether
 /// the page shows a group at all: reserve the column and the text narrows,
 /// which wraps one more line, which pushes the only group on the page off it,

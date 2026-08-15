@@ -219,6 +219,15 @@ pub struct ResolvedGlyph {
     /// from refs).  Used by look-ahead alternative selection.
     pub(crate) declared_anchors: Vec<GlyphPoint>,
     pub scale: u8,
+    /// The box the glyph's `glyph` header declares, in declared (un-`scale`d)
+    /// units, or `None` for a glyph whose header declares none.
+    ///
+    /// Kept beside the resolved raster because [`crate::compose`] places an IDC
+    /// component by what it *declares*, never by what it happens to resolve to,
+    /// and the editor's live composite has to read the same number the build
+    /// read — a glyph is not allowed to be laid out one way on screen and
+    /// another in the font.
+    pub declared_box: Option<(u16, u16)>,
     /// What this glyph is *declared* as, for the one consumer that has to undo
     /// one level of composition rather than read the result of all of them:
     /// the editor's "Inline once". `None` unless the glyph declares refs — a
@@ -241,6 +250,16 @@ pub struct InlineSource {
     pub refs: Vec<GlyphRef>,
     /// The pixels this glyph draws itself, at its logical origin.
     pub pixels: Option<PixelGrid>,
+}
+
+/// The declared box behind a grid: the `W H` the header wrote, before `scale`
+/// multiplied it. The single place that undoes that multiplication, so the
+/// resolution cache and [`crate::compose`] cannot disagree about what a glyph
+/// declares.
+pub fn declared_box(pixels: Option<&PixelGrid>, scale: u8) -> Option<(u16, u16)> {
+    let g = pixels?;
+    let s = scale.max(1) as u16;
+    Some((g.width / s, g.height / s))
 }
 
 fn saturating_i16(value: i32) -> i16 {
@@ -1040,6 +1059,7 @@ pub fn resolve_expansion_cached(
         refs: Vec<GlyphRef>,
         points: Vec<GlyphPoint>,
         scale: u8,
+        declared_box: Option<(u16, u16)>,
     }
 
     let mut pending: Vec<Pending> = Vec::new();
@@ -1069,6 +1089,7 @@ pub fn resolve_expansion_cached(
             continue;
         }
         if body.refs.is_empty() {
+            let declared_box = declared_box(body.pixels.as_ref(), body.scale);
             cache.insert(
                 key,
                 ResolvedGlyph {
@@ -1078,6 +1099,7 @@ pub fn resolve_expansion_cached(
                     resolved_anchors: body.points.clone(),
                     declared_anchors: body.points,
                     scale: body.scale,
+                    declared_box,
                     inline_source: None,
                 },
             );
@@ -1085,6 +1107,7 @@ pub fn resolve_expansion_cached(
             pending_names.insert(key.clone());
             pending.push(Pending {
                 name: key,
+                declared_box: declared_box(body.pixels.as_ref(), body.scale),
                 pixels: body.pixels,
                 refs: body.refs,
                 points: body.points,
@@ -1199,6 +1222,7 @@ pub fn resolve_expansion_cached(
                     resolved_anchors: anchors,
                     declared_anchors: pg.points.clone(),
                     scale: pg.scale,
+                    declared_box: pg.declared_box,
                     inline_source: Some(inline_source),
                 },
             );
@@ -1317,8 +1341,12 @@ fn synthesized_on_demand(name: &str) -> Option<&'static ResolvedGlyph> {
         crate::on_demand::OnDemandGlyph::Shape(spec) => spec,
         crate::on_demand::OnDemandGlyph::ColorMono { .. } => return None,
     };
+    let grid = crate::on_demand::make_on_demand_grid(&spec);
     let resolved: &'static ResolvedGlyph = Box::leak(Box::new(ResolvedGlyph {
-        grid: crate::on_demand::make_on_demand_grid(&spec),
+        // An on-demand name states its own box, so the shape declares one the
+        // way a header does — there is simply no header to read it off.
+        declared_box: declared_box(Some(&grid), spec.scale),
+        grid,
         origin_row: 0,
         origin_col: 0,
         resolved_anchors: Vec::new(),
@@ -1678,6 +1706,40 @@ fn resolve_fill_display_color(
     ))
 }
 
+/// The `ref`s a body's IDC lines stand for, as the *editor* sees them.
+///
+/// The same derivation the build runs in `ttf_builder::expand`, reading the
+/// same declared boxes ([`ResolvedGlyph::declared_box`]) — the live view of a
+/// glyph being edited must place its parts exactly where the font will.
+/// Diagnostics are dropped here: `issues.rs` reports them once, from the build
+/// side, and the view's job is only to draw.
+#[cfg(any(feature = "editor", test))]
+fn compose_refs_for_view(
+    body: &GlyphBody,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+    name_parts: &NamePartsMap,
+) -> Vec<GlyphRef> {
+    if body.compose.is_empty() {
+        return Vec::new();
+    }
+    let dims = |name: &str| match resolve_ref_name_for_view(name, named_glyphs, name_parts) {
+        None => crate::compose::PartDims::Unknown,
+        Some(resolved) => match resolved.declared_box {
+            Some((w, h)) => crate::compose::PartDims::Size(w, h),
+            None => crate::compose::PartDims::Undeclared,
+        },
+    };
+    let parent = declared_box(body.pixels.as_ref(), body.scale);
+    body.compose
+        .iter()
+        .flat_map(|c| {
+            crate::compose::expand_compose("", parent, body.scale, c, &dims)
+                .0
+                .into_iter()
+        })
+        .collect()
+}
+
 #[cfg(any(feature = "editor", test))]
 pub fn compute_composite(
     body: &GlyphBody,
@@ -1686,13 +1748,23 @@ pub fn compute_composite(
     alt_index: &AlternativesIndex,
     color_aliases: &crate::render::ttf_builder::ColorAliasMap,
 ) -> Option<GlyphComposite> {
-    if body.refs.is_empty() {
+    // Derived refs go in front, so the stack is the one the font builds; the
+    // layers keep pointing at *source* ref lines, so a derived layer takes an
+    // index past their end and the editor's line lookups simply miss it rather
+    // than landing on the wrong line.
+    let derived = compose_refs_for_view(body, named_glyphs, name_parts);
+    if body.refs.is_empty() && derived.is_empty() {
         return None;
     }
+    let all_refs: Vec<GlyphRef> = derived.iter().chain(body.refs.iter()).cloned().collect();
+    let source_idx = |i: usize| {
+        i.checked_sub(derived.len())
+            .unwrap_or_else(|| body.refs.len() + i)
+    };
 
     let (effective_refs, exposed, _) = derive_ref_offsets_with(
         &body.points,
-        &body.refs,
+        &all_refs,
         |name| {
             resolve_ref_name_for_view(name, named_glyphs, name_parts)
                 .map(|resolved| resolved.resolved_anchors.clone())
@@ -1705,7 +1777,7 @@ pub fn compute_composite(
     );
     let inherited_anchors: Vec<(GlyphPoint, usize)> = exposed
         .into_iter()
-        .filter_map(|(p, source)| source.map(|ref_idx| (p, ref_idx)))
+        .filter_map(|(p, source)| source.map(|ref_idx| (p, source_idx(ref_idx))))
         .collect();
 
     let layout = resolve_composite_layout(
@@ -1724,7 +1796,7 @@ pub fn compute_composite(
     let mut layers = Vec::new();
     for layer in &layout.layers {
         let scaled_grid = ref_grid_scaled(&layer.resolved.grid, layer.resolved.scale, body.scale);
-        let orig_ref = &body.refs[layer.ref_idx];
+        let orig_ref = &all_refs[layer.ref_idx];
         #[cfg(feature = "editor")]
         let fill_color = orig_ref
             .fill
@@ -1736,7 +1808,7 @@ pub fn compute_composite(
             let _ = &orig_ref.fill;
         }
         layers.push(CompositeLayer {
-            ref_idx: layer.ref_idx,
+            ref_idx: source_idx(layer.ref_idx),
             resolved_name: layer.gref.name.clone(),
             grid: scaled_grid,
             offset_row: saturating_i16(layer.raster_row - min_r),

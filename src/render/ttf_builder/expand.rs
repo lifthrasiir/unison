@@ -106,6 +106,20 @@ pub(crate) fn expand_for(
                 let name_str = substitute_name_parts(&name.display(), name_parts);
                 if is_name_pattern(&name_str) {
                     let subst_name = GlyphName(name_str);
+                    // A pattern block expands in lock-step with its refs, and an
+                    // IDC line is not one: its parts are sized per glyph, so
+                    // one line cannot stand for a family. Said out loud, since
+                    // the expansion below would simply not carry it.
+                    if !body.compose.is_empty() {
+                        diagnostics.push(Diagnostic::error(
+                            origin,
+                            format!(
+                                "glyph pattern '{}' has an IDC line; a split is stated per \
+                                 glyph, so write the block out",
+                                subst_name.display(),
+                            ),
+                        ));
+                    }
                     let subst_refs: Vec<GlyphRef> = body
                         .refs
                         .iter()
@@ -166,6 +180,11 @@ pub(crate) fn expand_for(
                     let mut body = body.clone();
                     for gref in &mut body.refs {
                         gref.name = substitute_name_parts(&gref.name, name_parts);
+                    }
+                    for item in body.compose.iter_mut().flat_map(|c| c.items.iter_mut()) {
+                        if let crate::document::ComposeItem::Part { name, .. } = item {
+                            *name = substitute_name_parts(name, name_parts);
+                        }
                     }
                     all_items.push(ExpandedItem {
                         item: DocumentItem::Glyph {
@@ -237,9 +256,19 @@ pub(crate) fn expand_for(
                 for gref in &mut body.refs {
                     aliases.canonicalize(&mut gref.name);
                 }
+                for item in body.compose.iter_mut().flat_map(|c| c.items.iter_mut()) {
+                    if let crate::document::ComposeItem::Part { name, .. } = item {
+                        aliases.canonicalize(name);
+                    }
+                }
             }
         }
     }
+
+    // After canonicalization, so a component named through an alias is sized by
+    // the glyph it actually is, and before everything below, so nothing
+    // downstream has to know an IDC line exists.
+    expand_compose_lines(&mut all_items, &mut diagnostics);
 
     // Expanding a `map` is not free (the font has ranges thousands of
     // codepoints wide), and three later steps need the result, so it happens
@@ -293,6 +322,78 @@ pub(crate) fn expand_for(
         items: all_items,
         diagnostics,
         aliases,
+    }
+}
+
+/// Turn every IDC line into the `ref`s it stands for.
+///
+/// Here rather than at resolve time, for the reason `map generate` synthesizes
+/// its refs here: what follows — the glyph cache, the cmap, validation, the
+/// editor's composite view and its shadows — then sees one ordinary composite
+/// and cannot disagree about it. Component boxes come from the `glyph` headers
+/// already in `all_items` (see [`crate::compose`] for why the *declared* box
+/// and not the resolved one), so the pass is one map build and one walk.
+fn expand_compose_lines(all_items: &mut [ExpandedItem], diagnostics: &mut Vec<Diagnostic>) {
+    let has_compose = |e: &ExpandedItem| matches!(&e.item, DocumentItem::Glyph { body, .. } if !body.compose.is_empty());
+    if !all_items.iter().any(has_compose) {
+        return;
+    }
+
+    // Declared, not raster: a header's `W H` before `scale` multiplied it.
+    let declared = |body: &crate::document::GlyphBody| {
+        crate::ref_composite::declared_box(body.pixels.as_ref(), body.scale)
+    };
+    let mut boxes: HashMap<String, Option<(u16, u16)>> = HashMap::new();
+    for e in all_items.iter() {
+        if let DocumentItem::Glyph { name, body } = &e.item {
+            // First definition wins, as everywhere else.
+            boxes
+                .entry(name.display())
+                .or_insert_with(|| declared(body));
+        }
+    }
+    let dims = |name: &str| match boxes.get(name) {
+        None => crate::compose::PartDims::Unknown,
+        Some(None) => crate::compose::PartDims::Undeclared,
+        Some(Some((w, h))) => crate::compose::PartDims::Size(*w, *h),
+    };
+
+    for e in all_items.iter_mut() {
+        let DocumentItem::Glyph { name, body } = &mut e.item else {
+            continue;
+        };
+        if body.compose.is_empty() {
+            continue;
+        }
+        let glyph_name = name.display();
+        let parent = declared(body);
+        // A second IDC line would be a second answer to "what shape is this
+        // glyph", and there is no rule for combining them: ⿰ inside ⿱ is a
+        // component that is itself a composite, written as its own glyph.
+        if body.compose.len() > 1 {
+            diagnostics.push(Diagnostic::error(
+                e.origin,
+                format!(
+                    "glyph '{glyph_name}' has {} IDC lines; a glyph is split once, and a \
+                     part that is itself split is a glyph of its own",
+                    body.compose.len(),
+                ),
+            ));
+        }
+        let mut derived = Vec::new();
+        for compose in &body.compose {
+            let (refs, issues) =
+                crate::compose::expand_compose(&glyph_name, parent, body.scale, compose, &dims);
+            for (severity, message) in issues {
+                diagnostics.push(Diagnostic::new(severity, e.origin, message));
+            }
+            derived.extend(refs);
+        }
+        // In front of the block's own refs, which are what is drawn *over* the
+        // split, and in place of the line: an expanded body carries no IDC.
+        derived.append(&mut body.refs);
+        body.refs = derived;
+        body.compose.clear();
     }
 }
 

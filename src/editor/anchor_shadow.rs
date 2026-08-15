@@ -212,6 +212,7 @@ mod tests {
             resolved_anchors: vec![anchor.clone()],
             declared_anchors: vec![anchor],
             scale: 1,
+            declared_box: None,
             inline_source: None,
         }
     }

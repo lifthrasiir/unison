@@ -90,6 +90,10 @@ Core (feature-independent):
   `Frac` before adding arithmetic to it.
 - `ref_composite.rs` — composite (`ref`) resolution. Its module docs hold two things nothing else
   records: **anchor exposure is opt-in** and a **negative `ref` offset is a bearing**.
+- `compose.rs` — the `⿰⿱⿲⿳` line: a glyph's box split along one axis, with the offsets *derived*
+  from what the parts declare so a violation of the sum is reported rather than drawn. Also the
+  `:WxH-l` variant name rule (size + position) every han part is named by. Tests in
+  `compose_tests.rs`.
 - `on_demand.rs` — the names nothing defines but that describe a shape (`WxH`, triangles, `-circle`,
   `-polyN`) and the geometry each stands for. Holds the grammar, the `BitmapFill` rule, why polygon
   names are *normalized*, and the two lattices a curve is cut on (`POLY_Q`, `REGION_DEN`) — the
@@ -187,6 +191,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure and bearings | `ref_composite.rs` |
+| `⿰⿱⿲⿳`: the split, the gap term, and why the sum is checked rather than written | `compose.rs` |
+| The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
+| Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | Resizing a glyph (F2), and why a `ref` to it moves the other way | `editor/glyph_resize.rs`, `app/resize.rs` |
 | Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite.rs` (`DeriveOutcome::anchor_placed`) |
@@ -285,6 +292,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | `faces.rs` | `faces_tests.rs` |
 | `ref_composite.rs` | `ref_composite_tests.rs` |
 | `on_demand.rs` | `on_demand_tests.rs` |
+| `compose.rs` | `compose_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests.rs` (harness scenarios) |
 
 Keep a source file at roughly 2000 lines or under; split by stage (as `ttf_builder/` and

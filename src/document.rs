@@ -743,10 +743,71 @@ impl GlyphPoint {
     }
 }
 
+/// One item of an IDC line: a component, or the gap in front of it.
+#[derive(Clone, Debug, PartialEq)]
+pub enum ComposeItem {
+    /// A number written between (or around) the components: how much room is
+    /// left at that position along the split axis. Negative is an overlap.
+    Gap(i16),
+    /// A component, in written order. `raw_name` holds the `@…` form when the
+    /// name was written with one, exactly as [`GlyphRef::raw_name`] does.
+    Part {
+        name: String,
+        raw_name: Option<String>,
+    },
+}
+
+/// A `⿰`/`⿱`/`⿲`/`⿳` line: the glyph's box split along one axis.
+///
+/// A sibling of `ref` inside a glyph block, not sugar for one — see
+/// [`crate::compose`] for what the split means, which sizes it reads, and the
+/// `ref`s it derives.
+#[derive(Clone, Debug, PartialEq)]
+pub struct GlyphCompose {
+    pub op: crate::compose::IdcOp,
+    pub items: Vec<ComposeItem>,
+    /// Trailing `// …` comment of the line, without its marker.
+    pub comment: Option<String>,
+}
+
+impl GlyphCompose {
+    /// The component names, in written order.
+    pub fn part_names(&self) -> impl Iterator<Item = &str> {
+        self.items.iter().filter_map(|it| match it {
+            ComposeItem::Part { name, .. } => Some(name.as_str()),
+            ComposeItem::Gap(_) => None,
+        })
+    }
+
+    /// Format as an IDC line, the way [`GlyphRef::format_line`] formats a `ref`.
+    #[cfg(any(feature = "editor", test))]
+    pub fn format_line(&self) -> String {
+        use crate::document_io::quote_token;
+        let mut parts = vec![self.op.as_char().to_string()];
+        for item in &self.items {
+            parts.push(match item {
+                ComposeItem::Gap(g) => g.to_string(),
+                ComposeItem::Part { name, raw_name } => {
+                    quote_token(raw_name.as_deref().unwrap_or(name))
+                }
+            });
+        }
+        format!(
+            "{}{}",
+            parts.join(" "),
+            crate::document_io::comment_suffix(&self.comment),
+        )
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GlyphBody {
     pub pixels: Option<PixelGrid>,
     pub refs: Vec<GlyphRef>,
+    /// IDC lines, in written order. More than one is an error
+    /// ([`crate::compose`]); the parser keeps them all so serializing puts the
+    /// file back as it was.
+    pub compose: Vec<GlyphCompose>,
     pub points: Vec<GlyphPoint>,
     pub keep: bool,
     pub inline: bool,
@@ -774,6 +835,7 @@ impl GlyphBody {
         Self {
             pixels: None,
             refs: Vec::new(),
+            compose: Vec::new(),
             points: Vec::new(),
             keep: false,
             inline: false,

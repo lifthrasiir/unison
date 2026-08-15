@@ -27,7 +27,12 @@ pub(super) fn apply_pending_rederive(
             state.view_cache = None;
             let on_ref_line = matches!(
                 lines.get(state.cursor.line),
-                Some(DocLine::Text(t)) if t.trim_start().starts_with("ref ") || t.trim_start().starts_with("anchor ")
+                // An IDC line is deferred for the same reason as a `ref`: it is
+                // the whole shape of the glyph, and half a component name
+                // resolves to nothing.
+                Some(DocLine::Text(t)) if t.trim_start().starts_with("ref ")
+                    || t.trim_start().starts_with("anchor ")
+                    || t.split_whitespace().next().and_then(crate::compose::IdcOp::from_token).is_some()
             );
             let on_glyph_header = matches!(
                 lines.get(state.cursor.line),

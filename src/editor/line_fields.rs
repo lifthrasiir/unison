@@ -179,6 +179,16 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
                 fields.push(field(FieldRole::ColorRef, leading, color));
             }
         }
+        // An IDC line's tokens are components (glyph names) and gaps (numbers),
+        // told apart exactly as the parser tells them apart, so a rename of a
+        // component reaches the line that uses it.
+        kw if crate::compose::IdcOp::from_token(kw).is_some() => {
+            for span in rest {
+                if !span.value.is_empty() && span.value.parse::<i16>().is_err() {
+                    fields.push(field(FieldRole::GlyphRef, leading, span));
+                }
+            }
+        }
         "glyph" => {
             if let Some(name) = rest.first()
                 && !name.value.is_empty()
@@ -409,6 +419,19 @@ mod tests {
             .into_iter()
             .map(|f| (f.role, f.token))
             .collect()
+    }
+
+    /// A rename has to reach a glyph named on an IDC line, and a gap is a
+    /// number rather than a very short glyph.
+    #[test]
+    fn idc_components_are_glyph_references() {
+        assert_eq!(
+            roles("\u{2FF0} a:4x16 -1 b:12x16"),
+            vec![
+                (FieldRole::GlyphRef, "a:4x16".to_string()),
+                (FieldRole::GlyphRef, "b:12x16".to_string()),
+            ]
+        );
     }
 
     #[test]

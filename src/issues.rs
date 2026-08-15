@@ -1044,6 +1044,13 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         for gref in &body.refs {
                             refs.extend(expand_name_element(&gref.name, name_parts));
                         }
+                        // An IDC component is a use of the glyph like a `ref`
+                        // is; this pass reads the source rather than the
+                        // expansion, so the line has to be walked here too or
+                        // every part of every composed glyph reads as unused.
+                        for part in body.compose.iter().flat_map(|c| c.part_names()) {
+                            refs.extend(expand_name_element(part, name_parts));
+                        }
                         (n, refs, false)
                     }
                     DocumentItem::GlyphAlias {
