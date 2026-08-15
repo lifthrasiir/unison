@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      build_outcome: ${{ steps.build.outcome }}
+      assertions_outcome: ${{ steps.assertions.outcome }}
     steps:
       - uses: actions/checkout@v4
 
@@ -33,11 +36,25 @@ jobs:
           key: cargo-${{ hashFiles('Cargo.lock') }}
           restore-keys: cargo-
 
+      # `uniform build` writes every output file even when it reports errors,
+      # and then exits non-zero. The deployment below is still worth doing --
+      # the files exist and are mostly right -- so the failure is carried to the
+      # `report` job instead of stopping this one. Same for the assertions.
       - name: Build font and samples
+        id: build
+        continue-on-error: true
         run: make CARGOFLAGS="-r --no-default-features"
 
       - name: Run shape assertions
+        id: assertions
+        continue-on-error: true
         run: make test CARGOFLAGS="-r --no-default-features"
+
+      - name: Check the outputs exist
+        run: |
+          for f in index.html live.html sample.html sample.png unison.ttc unison-*.woff2; do
+            test -s "$f" || { echo "::error::$f was not produced"; exit 1; }
+          done
 
       - name: Prepare pages directory
         run: |
@@ -67,6 +84,27 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # The last word on the run. Deployment has already happened by this point;
+  # this job exists so a run whose font reported errors still shows up red.
+  report:
+    needs: [build, deploy]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report font build errors
+        run: |
+          status=0
+          if [ "${{ needs.build.outputs.build_outcome }}" != "success" ]; then
+            echo "::error::The font build reported errors (see the 'Build font and samples' step). The deployed files were still published, but they are missing whatever those errors dropped."
+            status=1
+          fi
+          if [ "${{ needs.build.outputs.assertions_outcome }}" != "success" ]; then
+            echo "::error::Shape assertions failed (see the 'Run shape assertions' step)."
+            status=1
+          fi
+          if [ $status -eq 0 ]; then echo "Font built and asserted cleanly."; fi
+          exit $status
 
   release:
     needs: build

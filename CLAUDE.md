@@ -45,6 +45,9 @@ cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `st
 Output extension picks the format (`.woff2` → WOFF2, anything else → TTF). Both subcommands print
 parse errors per file and then the full `issues.rs` validation report (`error:`/`warning:` with
 `file:line:`); the font still builds when only warnings/refs-to-nothing exist, so read the report.
+A single `error:` (from either the parse or the validation pass) makes both subcommands **exit 1** —
+`build` still writes every output file first, so a CI run can publish them and fail afterwards, which
+is what `.github/workflows/pages.yml` does with its `report` job.
 
 The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 

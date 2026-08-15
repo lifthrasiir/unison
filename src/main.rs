@@ -37,8 +37,9 @@ extern crate windows_core;
 /// Load a font directory, reporting files that failed to parse.
 ///
 /// `load_docs_from_directory` drops them silently, so a single bad file used
-/// to produce a font quietly built from everything else.
-fn load_docs_reporting_errors(dir: &std::path::Path) -> Vec<document::Document> {
+/// to produce a font quietly built from everything else. Returns how many files
+/// were skipped, so the caller can fail the run over it.
+fn load_docs_reporting_errors(dir: &std::path::Path) -> (Vec<document::Document>, usize) {
     let (docs, errors) = render::ttf_builder::load_docs_from_directory_checked(dir);
     for (path, msg) in &errors {
         let file = path
@@ -50,17 +51,21 @@ fn load_docs_reporting_errors(dir: &std::path::Path) -> Vec<document::Document> 
     if !errors.is_empty() {
         eprintln!("{} file(s) failed to parse and were skipped", errors.len());
     }
-    docs
+    let count = errors.len();
+    (docs, count)
 }
 
-/// Print the same validation the editor shows. The font build proceeds
-/// regardless — a reference that resolves to nothing simply produces no glyph
-/// — so without this a broken document only shows up as a missing glyph much
-/// later.
-fn report_issues(docs: &[&document::Document]) {
+/// Print the same validation the editor shows, and return how many of the
+/// problems were errors. The font build proceeds regardless — a reference that
+/// resolves to nothing simply produces no glyph — so without this a broken
+/// document only shows up as a missing glyph much later.
+///
+/// The count is what makes `build` exit non-zero: every output file is still
+/// written (a CI run can deploy them), but the run itself is a failure.
+fn report_issues(docs: &[&document::Document]) -> usize {
     let issues = issues::collect_issues(docs);
     if issues.is_empty() {
-        return;
+        return 0;
     }
     let errors = issues
         .iter()
@@ -79,6 +84,7 @@ fn report_issues(docs: &[&document::Document]) {
         eprintln!("{label}: {file}:{}: {}", issue.file_line, issue.message);
     }
     eprintln!("{} problem(s), {} error(s)", issues.len(), errors);
+    errors
 }
 
 /// `uniform probe --input DIR [--repeat N]`
@@ -220,13 +226,15 @@ fn main() {
             std::process::exit(1);
         }
 
-        let docs = load_docs_reporting_errors(&input);
+        let (docs, parse_errors) = load_docs_reporting_errors(&input);
         if docs.is_empty() {
             eprintln!("No .unf files found in {}", input.display());
             std::process::exit(1);
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
-        report_issues(&refs);
+        // Counted now, acted on at the very end: the outputs are all written
+        // first, so a CI run can still publish them while the run itself fails.
+        let error_count = parse_errors + report_issues(&refs);
         let faces = faces::FaceSet::collect(&refs);
         let Some(built) = render::build_faces(&refs) else {
             eprintln!("Font build failed");
@@ -361,6 +369,14 @@ fn main() {
             eprintln!("Wrote {}", path.display());
         }
 
+        if error_count > 0 {
+            eprintln!(
+                "\nbuild finished with {error_count} error(s); \
+                 the written files are missing whatever those errors dropped."
+            );
+            std::process::exit(1);
+        }
+
         return;
     }
 
@@ -387,13 +403,15 @@ fn main() {
             std::process::exit(1);
         };
 
-        let docs = load_docs_reporting_errors(&input);
+        let (docs, parse_errors) = load_docs_reporting_errors(&input);
         if docs.is_empty() {
             eprintln!("No .unf files found in {}", input.display());
             std::process::exit(1);
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
-        report_issues(&refs);
+        // Same rule as `build`: a validation error fails the run even when
+        // every assertion passes.
+        let error_count = parse_errors + report_issues(&refs);
 
         let name_parts = document::collect_name_parts(&refs);
         let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);
@@ -411,6 +429,9 @@ fn main() {
 
         if total == 0 {
             eprintln!("No assertions found.");
+            if error_count > 0 {
+                std::process::exit(1);
+            }
             return;
         }
 
@@ -429,7 +450,7 @@ fn main() {
             total, passed, failed,
         );
 
-        if failed > 0 {
+        if failed > 0 || error_count > 0 {
             std::process::exit(1);
         }
         return;
