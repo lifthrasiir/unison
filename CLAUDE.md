@@ -184,6 +184,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
 | Anchor exposure and bearings | `ref_composite.rs` |
+| Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | Resizing a glyph (F2), and why a `ref` to it moves the other way | `editor/glyph_resize.rs`, `app/resize.rs` |
 | Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite.rs` (`DeriveOutcome::anchor_placed`) |
 | Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite.rs` (`InlineSource`) |

@@ -980,10 +980,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     ));
                 }
                 DocumentItem::Directive(text) => {
-                    // `font-meta` became `meta`, one key per line. This is an
-                    // error, not the usual unrecognized-directive warning: the
-                    // font builds through warnings, and it would build with
-                    // default metrics while the file plainly states others.
+                    // `font-meta` became `meta`, one key per line. Named
+                    // separately from the generic unrecognized-directive
+                    // error below, which would leave the author rereading a
+                    // line that is spelled correctly for the format it was
+                    // written against.
                     if text.trim_start().starts_with("font-meta") {
                         issues.push(issue_at(
                             doc,
@@ -997,10 +998,17 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                             ),
                         ));
                     } else if classify_directive(text) == Directive::Unrecognized {
+                        // An error rather than a warning because of the one
+                        // way this line is usually written: a pixel row whose
+                        // width does not match its glyph header parses as a
+                        // directive, the row is dropped, and the glyph builds
+                        // blank or half-drawn — with a `map` still pointing a
+                        // character at it. The font builds through warnings,
+                        // so a warning here is a glyph silently going missing.
                         issues.push(issue_at(
                             doc,
                             item_idx,
-                            Severity::Warning,
+                            Severity::Error,
                             format!("unrecognized directive '{}'", text.trim(),),
                         ));
                     }
@@ -1375,14 +1383,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             |name, issue| derive_issues.push((name.to_string(), issue)),
             &crate::cancel::CancelToken::never(),
         );
+        // Every derive issue is an error: each one means an anchor derived to
+        // nothing, and the glyph it was reported for is dropped from the build
+        // (`glyph_cache::resolve_pending`) rather than shipped mis-composed.
         for (name, issue) in derive_issues {
-            let severity = if issue.is_error() {
-                Severity::Error
-            } else {
-                Severity::Warning
-            };
-            issues.push(docset.to_issue(&Diagnostic::new(
-                severity,
+            issues.push(docset.to_issue(&Diagnostic::error(
                 origin_of.get(name.as_str()).copied().flatten(),
                 issue.message(&name),
             )));
@@ -2288,8 +2293,9 @@ map m = mark
     }
 
     /// A `-` anchor that name-matches a published `+` but size-mismatches it
-    /// is a near-miss (usually the wrong `:narrow`/`:wide` variant), reported
-    /// as a warning rather than silently not attaching.
+    /// is a near-miss (usually the wrong `:narrow`/`:wide` variant). It is an
+    /// error, not a note on the side: the mark attached to nothing, so the
+    /// composite is dropped rather than shipped with the mark at the pen.
     #[test]
     fn size_mismatched_attachment_reported() {
         let input = "\
@@ -2312,11 +2318,11 @@ map m = mark
         let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues.iter().any(|i| i.severity == Severity::Warning
+            issues.iter().any(|i| i.severity == Severity::Error
                 && i.message.contains("combo")
                 && i.message.contains("'mark'")
                 && i.message.contains("'-above'")),
-            "expected size-mismatch warning, got: {issues:?}",
+            "expected size-mismatch error, got: {issues:?}",
         );
     }
 
@@ -2930,9 +2936,33 @@ remap liga : ok -> present-($ab)
         );
     }
 
+    /// A line the grammar cannot read is an error, and the pixel row that
+    /// misses its glyph's width is why. It parses as a directive like any
+    /// other unreadable line, so the row is dropped and the glyph builds from
+    /// whatever rows did fit — a blank or half-drawn glyph that a `map` then
+    /// maps a character to, with nothing but a warning to say so.
+    #[test]
+    fn a_pixel_row_that_does_not_fit_is_an_error() {
+        let input = "\
+glyph wide 4 2
+@@@@
+@@@@
+map A = wide
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let issues = collect_issues(&[&doc]);
+        assert!(
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("unrecognized directive")
+                && i.message.contains("@@@@")),
+            "expected the short row to be an error, got: {issues:?}",
+        );
+    }
+
     /// `font-meta` became `meta`. A leftover line must not fall through to the
-    /// generic "unrecognized directive" *warning*: the font would then build
-    /// with default metrics, silently ignoring the metrics the file states.
+    /// generic "unrecognized directive" report: it names the migration, so the
+    /// author is not left rereading a line that is spelled correctly for the
+    /// format it was written against.
     #[test]
     fn legacy_font_meta_is_error() {
         let input = "font-meta height 16 ascent 12 descent 4\n";

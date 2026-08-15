@@ -272,6 +272,11 @@ pub(crate) enum DeriveIssue {
     /// cells) and therefore attached to nothing. A near-miss like this almost
     /// always means the wrong `:narrow`/`:wide` variant — a `-` with no
     /// same-name `+` at all is ordinary forwarding and stays quiet.
+    ///
+    /// Once reported as a warning, on the reading that the composite still
+    /// resolves around it. It does not: the mark sits at the pen instead of
+    /// over its base, which is not a glyph anyone meant to ship, and a
+    /// warning left the build shipping it anyway.
     SizeMismatchedAttachment {
         position: String,
         ref_name: String,
@@ -310,12 +315,6 @@ impl DeriveIssue {
                 )
             }
         }
-    }
-
-    /// Whether this finding invalidates the anchors involved (error) or only
-    /// flags a near-miss the composite still resolves around (warning).
-    pub(crate) fn is_error(&self) -> bool {
-        !matches!(self, DeriveIssue::SizeMismatchedAttachment { .. })
     }
 }
 
@@ -913,7 +912,8 @@ fn commit_ref(
     // either a Greek `+gr-above` or a plain `+above`). The first one with a
     // candidate decides — the very order `try_match_minus_plus` derived the
     // offset from — and the rest retire without a trace: no survivor, and no
-    // near-miss warning against a `+` this ref was never going to use.
+    // near-miss report against a `+` this ref was never going to use. That
+    // silence is load-bearing now that a near-miss drops the glyph.
     let minus_anchors: Vec<&GlyphPoint> = target_anchors
         .iter()
         .filter(|p| p.position.starts_with('-'))

@@ -181,7 +181,13 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
 /// shared fixups (declared dims win over the composite's raster extent;
 /// resolved anchors and the declaring scale are recorded) and inserts it.
 /// Glyphs whose refs never resolve are dropped, matching how missing refs
-/// are reported elsewhere.
+/// are reported elsewhere. So is a glyph whose derivation reported any
+/// [`crate::ref_composite::DeriveIssue`]: an anchor that
+/// derived to nothing leaves an outline that still looks plausible, and
+/// keeping it meant the error had no effect an author could see — the font
+/// mapped the character to that outline, and the specimen drew the cell.
+/// Dropping it puts an anchor error on the same footing as a missing ref, and
+/// takes its dependents with it for the same reason.
 ///
 /// `build` is the composite tracer, which is most of a font build's cost, so
 /// `cancel` is checked both per round and every [`CANCEL_STRIDE`] glyphs within
@@ -248,22 +254,25 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
                 |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
                 &mut declared_anchors,
             );
+            let errored = !issues.is_empty();
             for issue in issues {
                 on_issue(&pg.name, issue);
             }
             let anchors: Vec<GlyphPoint> = anchors.into_iter().map(|(p, _)| p).collect();
-            let mut entry = build(&pg, &effective_refs, cache);
-            if let Some(grid) = &pg.pixels {
-                let (w, h) = entry.dims_mut();
-                *w = (*w).max(grid.width);
-                *h = (*h).max(grid.height);
-            }
+            // The counts have to come down either way — they say how many
+            // alternatives are still *pending*, and this one no longer is,
+            // whether or not it produced a glyph. Leaving a count standing
+            // would block every composite that refs the base until the first
+            // barren round relaxes the guard.
             for prefix in crate::ref_composite::alternative_prefixes(&pg.name) {
                 if let Some(count) = pending_alts.get_mut(prefix) {
                     *count -= 1;
                     if *count == 0 {
                         pending_alts.remove(prefix);
                     }
+                }
+                if errored {
+                    continue;
                 }
                 // Merged right away rather than at round end: a composite
                 // later in the same round has to see this alternative.
@@ -273,9 +282,20 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
                     Err(pos) => alts.insert(pos, (pg.name.clone(), anchors.clone())),
                 }
             }
+            // Still counts as progress: the glyph left `pending`, so a round
+            // that only dropped glyphs has to be followed by another one.
+            progress = true;
+            if errored {
+                continue;
+            }
+            let mut entry = build(&pg, &effective_refs, cache);
+            if let Some(grid) = &pg.pixels {
+                let (w, h) = entry.dims_mut();
+                *w = (*w).max(grid.width);
+                *h = (*h).max(grid.height);
+            }
             entry.set_resolution(anchors, pg.scale);
             cache.insert(pg.name.clone(), entry);
-            progress = true;
         }
         if pending.is_empty() {
             break;

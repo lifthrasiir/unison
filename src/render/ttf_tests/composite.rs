@@ -1046,3 +1046,95 @@ map C = negating
         "a negated layer must not shrink the advance"
     );
 }
+
+/// An anchor error is not a detail the outline can absorb: the composite it is
+/// reported for is dropped from the build, exactly as an unresolved `ref` is,
+/// so the character mapped to it gets no cmap entry either. Leaving the glyph
+/// in place mapped a plausible-looking outline to the character and the error
+/// had no visible effect anywhere — the report was the only trace of it, and
+/// the specimen even drew the cell through its "the build has not caught up"
+/// fallback, which reads as coverage the font does not have.
+#[test]
+fn a_glyph_with_an_anchor_error_is_dropped_along_with_its_cmap_entry() {
+    let input = "\
+glyph half 1 1
+@@
+anchor +above 0 0
+
+glyph acc 1 1 mark advance 0
+@@
+anchor -above 0 0
+
+glyph ambiguous
+ref half 0 0 inherit
+ref half 1 0 inherit
+ref acc
+map A = ambiguous
+
+glyph plain 1 1
+@@
+map B = plain
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+
+    assert!(
+        !glyphs.iter().any(|g| g.name == "ambiguous"),
+        "a composite whose anchors did not derive was still built"
+    );
+    assert!(
+        !glyphs.iter().any(|g| g.codepoints.contains(&0x41)),
+        "U+0041 kept its cmap entry with no glyph to point at"
+    );
+    let plain = glyphs.iter().find(|g| g.name == "plain").unwrap();
+    assert_eq!(
+        plain.codepoints,
+        vec![0x42],
+        "an unaffected glyph must still map"
+    );
+}
+
+/// A size-mismatched attachment is the same class of failure: the `-` anchor
+/// attached to nothing, so the mark sits at the pen instead of over the base.
+/// It reads as a near-miss — almost always the wrong `:narrow`/`:wide`
+/// variant — but "almost attached" is not a composite anyone meant to ship, so
+/// it drops the glyph and its cmap entry like every other anchor error.
+#[test]
+fn a_size_mismatched_attachment_drops_the_glyph_too() {
+    let input = "\
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 1..2 0
+
+glyph mark 2 1 mark
+@@@@
+anchor -above 0 0
+
+glyph combo
+ref base
+ref mark 1 2
+map A = combo
+
+glyph plain 1 1
+@@
+map B = plain
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+
+    assert!(
+        !glyphs.iter().any(|g| g.name == "combo"),
+        "a composite whose mark attached to nothing was still built"
+    );
+    assert!(
+        !glyphs.iter().any(|g| g.codepoints.contains(&0x41)),
+        "U+0041 kept its cmap entry with no glyph to point at"
+    );
+    assert!(
+        glyphs.iter().any(|g| g.codepoints.contains(&0x42)),
+        "an unaffected glyph must still map"
+    );
+}
