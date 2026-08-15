@@ -62,29 +62,45 @@ fn load_docs_reporting_errors(dir: &std::path::Path) -> (Vec<document::Document>
 /// document only shows up as a missing glyph much later.
 ///
 /// The count is what makes `build` exit non-zero: every output file is still
-/// written (a CI run can deploy them), but the run itself is a failure.
+/// written (a CI run can deploy them), but the run itself is a failure. Only
+/// [`issues::Severity::Error`] counts — a `todo` is work that has not been done
+/// rather than a defect, and there are expected to be tens of thousands of them
+/// (see [`issues::Severity`]).
+///
+/// Which is also why a `todo` is *counted* here rather than printed: the
+/// editor's issue list is where a work queue that size is read, with a filter
+/// over it, and a build log that scrolls it past is a build log nobody reads.
+/// Every other severity prints its line.
 fn report_issues(docs: &[&document::Document]) -> usize {
     let issues = issues::collect_issues(docs);
     if issues.is_empty() {
         return 0;
     }
-    let errors = issues
+    let count = |sev: issues::Severity| issues.iter().filter(|i| i.severity == sev).count();
+    let errors = count(issues::Severity::Error);
+    let todos = count(issues::Severity::Todo);
+    for issue in issues
         .iter()
-        .filter(|i| i.severity == issues::Severity::Error)
-        .count();
-    for issue in &issues {
-        let label = match issue.severity {
-            issues::Severity::Error => "error",
-            issues::Severity::Warning => "warning",
-        };
+        .filter(|i| i.severity != issues::Severity::Todo)
+    {
         let file = issue
             .file
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default();
-        eprintln!("{label}: {file}:{}: {}", issue.file_line, issue.message);
+        eprintln!(
+            "{}: {file}:{}: {}",
+            issue.severity.label(),
+            issue.file_line,
+            issue.message
+        );
     }
-    eprintln!("{} problem(s), {} error(s)", issues.len(), errors);
+    let todos = if todos > 0 {
+        format!(", {todos} todo(s)")
+    } else {
+        String::new()
+    };
+    eprintln!("{} problem(s), {} error(s){todos}", issues.len(), errors);
     errors
 }
 

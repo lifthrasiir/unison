@@ -36,6 +36,17 @@
 //! along that axis, and each component's extent *across* the axis must equal
 //! the parent's — a ⿰ part is as tall as the glyph. Both are errors.
 //!
+//! # An undecided line is not a wrong one
+//!
+//! A component written without a `:` suffix has not picked its variant yet.
+//! That is the initial state of every Han glyph populated from IDS, not a
+//! mistake, so it is a [`Severity::Todo`] and not an error: one per unpicked
+//! component, and the sum rule — which is about widths that have not been
+//! chosen — stands down for the whole line, as do the unpicked component's own
+//! size and cross-axis checks. What is left is the line's *decided* half, still
+//! fully checked. The glyph is no more built than an erroring one is; the
+//! difference is that a build, a `uniform test` run and CI do not fail over it.
+//!
 //! Sizes are read from the components' `glyph` headers, never from the
 //! composed result: a part's width is a property the part *declares*, which is
 //! what makes the layout a lookup rather than a search (see `PLANS.han.md`).
@@ -305,6 +316,14 @@ pub fn expand_compose(
         (parent_h, parent_w)
     };
 
+    // A component that has not picked its variant yet leaves the line
+    // *unresolved* rather than wrong: the width the slot was going to be
+    // filled with is simply not chosen. Everything the sum rule would say
+    // about such a line is a consequence of that one gap, so the sum check
+    // and the unpicked component's own checks stand down and the line reports
+    // one TODO per unpicked component instead. See [`Severity::Todo`].
+    let unresolved = compose.part_names().any(|name| !name.contains(':'));
+
     let mut cursor: i32 = 0;
     let mut slot = 0usize;
     for item in &compose.items {
@@ -316,11 +335,12 @@ pub fn expand_compose(
             ComposeItem::Part { name, raw_name } => (name, raw_name),
         };
         let spec = VariantSpec::parse(name);
-        if !name.contains(':') {
+        let unpicked = !name.contains(':');
+        if unpicked {
             issues.push((
-                Severity::Error,
+                Severity::Todo,
                 at(format!(
-                    "component '{name}' names no variant; a component names the sized \
+                    "component '{name}' has no variant picked yet; a component names the sized \
                      variant it wants, as in `{name}:{}`",
                     if op.horizontal() {
                         format!("{axis_extent}x{cross_extent}")
@@ -361,7 +381,19 @@ pub fn expand_compose(
         });
         slot += 1;
 
-        match dims(name) {
+        // An unpicked component is still *placed* — the cursor walks over
+        // whatever box the bare name happens to have, so the parts that are
+        // decided still land where they belong and the editor can draw the
+        // glyph as it is filled in — but it says nothing yet, so nothing it
+        // says can be wrong.
+        let part_dims = dims(name);
+        if unpicked {
+            if let PartDims::Size(w, h) = part_dims {
+                cursor += if op.horizontal() { w } else { h } as i32;
+            }
+            continue;
+        }
+        match part_dims {
             PartDims::Unknown => issues.push((
                 Severity::Error,
                 at(format!("component '{name}' is not defined")),
@@ -400,7 +432,7 @@ pub fn expand_compose(
         }
     }
 
-    if cursor != axis_extent as i32 {
+    if !unresolved && cursor != axis_extent as i32 {
         issues.push((
             Severity::Error,
             at(format!(

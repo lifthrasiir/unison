@@ -36,12 +36,20 @@ fn expand(
     expand_compose("test", parent, 1, compose, dims)
 }
 
-fn errors(issues: &[(Severity, String)]) -> Vec<&str> {
+fn of_severity(issues: &[(Severity, String)], want: Severity) -> Vec<&str> {
     issues
         .iter()
-        .filter(|(s, _)| *s == Severity::Error)
+        .filter(|(s, _)| *s == want)
         .map(|(_, m)| m.as_str())
         .collect()
+}
+
+fn errors(issues: &[(Severity, String)]) -> Vec<&str> {
+    of_severity(issues, Severity::Error)
+}
+
+fn todos(issues: &[(Severity, String)]) -> Vec<&str> {
+    of_severity(issues, Severity::Todo)
 }
 
 #[test]
@@ -231,18 +239,68 @@ fn a_name_that_lies_about_its_size_is_an_error() {
     );
 }
 
+/// A component with no `:` has not picked its variant yet, which is where
+/// every IDS-populated glyph starts. It is a TODO, and — this is the part that
+/// matters — it silences nothing else and is silenced by nothing: no error is
+/// reported for the line at all, least of all a sum error about a width nobody
+/// has chosen.
 #[test]
-fn a_part_without_a_variant_suffix_is_an_error() {
+fn a_part_without_a_variant_suffix_is_a_todo_and_not_an_error() {
     let dims = table(&[("a", (4, 16)), ("b:11x16", (11, 16))]);
+    let (refs, issues) = expand(
+        Some((15, 16)),
+        &line(IdcOp::LeftRight, vec![part("a"), part("b:11x16")]),
+        &dims,
+    );
+    assert_eq!(errors(&issues), Vec::<&str>::new(), "{issues:?}");
+    assert!(
+        todos(&issues)
+            .iter()
+            .any(|m| m.contains("no variant picked yet")),
+        "{issues:?}"
+    );
+    // Still placed, so the decided half of the line draws where it will end up.
+    assert_eq!(refs.len(), 2);
+    assert_eq!(refs[1].offset, Some((4, 0)));
+}
+
+/// An undecided component with no glyph behind it at all is the ordinary IDS
+/// case (`⿰ han-6c35 han-53ef` before either part exists); it is one TODO and
+/// not an "is not defined" error.
+#[test]
+fn an_undecided_part_that_names_nothing_is_only_a_todo() {
+    let dims = table(&[]);
+    let (_, issues) = expand(
+        Some((15, 16)),
+        &line(IdcOp::LeftRight, vec![part("a"), part("b")]),
+        &dims,
+    );
+    assert_eq!(errors(&issues), Vec::<&str>::new(), "{issues:?}");
+    assert_eq!(todos(&issues).len(), 2, "{issues:?}");
+}
+
+/// The decided half of an undecided line is still fully checked: what stands
+/// down is the sum rule and the undecided component's own claims, not the
+/// whole line.
+#[test]
+fn an_undecided_line_still_checks_its_decided_parts() {
+    let dims = table(&[("a", (4, 16)), ("b:11x16", (11, 17))]);
     let (_, issues) = expand(
         Some((15, 16)),
         &line(IdcOp::LeftRight, vec![part("a"), part("b:11x16")]),
         &dims,
     );
     assert!(
-        errors(&issues)
-            .iter()
-            .any(|m| m.contains("names no variant")),
+        errors(&issues).iter().any(|m| m.contains("is tall 17")),
+        "{issues:?}"
+    );
+    assert!(
+        errors(&issues).iter().any(|m| m.contains("names 11x16")),
+        "{issues:?}"
+    );
+    // …but not a word about the sum.
+    assert!(
+        !errors(&issues).iter().any(|m| m.contains("add up")),
         "{issues:?}"
     );
 }

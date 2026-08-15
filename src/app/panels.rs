@@ -5,6 +5,7 @@ use super::background::BackgroundTaskPhase;
 use super::docs::collect_effective_docs;
 use super::search::{SearchHit, SearchResults};
 use super::*;
+use crate::issues::Severity;
 
 pub(super) fn min_bottom_panel_height(screen_height: f32) -> f32 {
     270.0_f32.min(screen_height * 0.5)
@@ -128,24 +129,204 @@ fn show_search_tab(ui: &mut egui::Ui, search: Option<&SearchResults>, click: &mu
     });
 }
 
-fn show_issues_tab(ui: &mut egui::Ui, issues: &[&Issue], click: &mut Option<(PathBuf, usize)>) {
-    if issues.is_empty() {
+/// Which severities the issue list shows.
+///
+/// Per severity rather than a single "minimum severity": the four are not one
+/// scale. A [`Severity::Todo`] queue tens of thousands long and a handful of
+/// errors are two different lists that happen to share a panel, and reading
+/// either one means hiding the other — which is also why a right-click on a
+/// button is *solo* rather than another toggle.
+///
+/// Notes are the one thing off to begin with: they ask for no action, so they
+/// are what someone opting in goes looking for rather than what the panel opens
+/// on.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+pub(super) struct IssueFilter {
+    pub errors: bool,
+    pub warnings: bool,
+    pub todos: bool,
+    pub notes: bool,
+}
+
+impl Default for IssueFilter {
+    fn default() -> Self {
+        Self {
+            errors: true,
+            warnings: true,
+            todos: true,
+            notes: false,
+        }
+    }
+}
+
+impl IssueFilter {
+    fn slot(&mut self, severity: Severity) -> &mut bool {
+        match severity {
+            Severity::Error => &mut self.errors,
+            Severity::Warning => &mut self.warnings,
+            Severity::Todo => &mut self.todos,
+            Severity::Note => &mut self.notes,
+        }
+    }
+
+    pub(super) fn shows(self, severity: Severity) -> bool {
+        match severity {
+            Severity::Error => self.errors,
+            Severity::Warning => self.warnings,
+            Severity::Todo => self.todos,
+            Severity::Note => self.notes,
+        }
+    }
+
+    fn toggle(&mut self, severity: Severity) {
+        let slot = self.slot(severity);
+        *slot = !*slot;
+    }
+
+    /// Right-click: this severity and nothing else.
+    fn only(&mut self, severity: Severity) {
+        *self = Self {
+            errors: false,
+            warnings: false,
+            todos: false,
+            notes: false,
+        };
+        *self.slot(severity) = true;
+    }
+}
+
+/// The mark that stands for a severity wherever one is drawn: the filter
+/// buttons, the tab label and every row.
+///
+/// `✖`/`⚠` come from the fallback font, `□`/`○` from the font being edited —
+/// which is on purpose only in that the four have to stay apart at 16px in
+/// whichever font answers for them.
+fn severity_icon(severity: Severity) -> &'static str {
+    match severity {
+        Severity::Error => "\u{2716}",
+        Severity::Warning => "\u{26A0}",
+        Severity::Todo => "\u{25A1}",
+        Severity::Note => "\u{25CB}",
+    }
+}
+
+fn severity_color(ui: &egui::Ui, severity: Severity) -> egui::Color32 {
+    match severity {
+        Severity::Error => egui::Color32::from_rgb(220, 60, 60),
+        Severity::Warning => egui::Color32::from_rgb(200, 180, 50),
+        Severity::Todo => egui::Color32::from_rgb(90, 160, 230),
+        Severity::Note => ui.visuals().weak_text_color(),
+    }
+}
+
+/// How many issues of each severity there are, in [`Severity::ALL`] order.
+pub(super) fn severity_counts(issues: &[&Issue]) -> [usize; Severity::ALL.len()] {
+    let mut counts = [0usize; Severity::ALL.len()];
+    for issue in issues {
+        if let Some(i) = Severity::ALL.iter().position(|s| *s == issue.severity) {
+            counts[i] += 1;
+        }
+    }
+    counts
+}
+
+/// A count as it appears on the *tab*, which has a whole panel's worth of other
+/// tabs to sit beside: three digits at most, so that a queue going from 20,000
+/// to 19,999 does not resize the tab strip under the pointer.
+pub(super) fn compact_count(n: usize) -> String {
+    match n {
+        0..1_000 => n.to_string(),
+        1_000..10_000 => format!("{:.1}k", n as f64 / 1_000.0),
+        10_000..1_000_000 => format!("{}k", n / 1_000),
+        _ => format!("{:.1}M", n as f64 / 1_000_000.0),
+    }
+}
+
+/// The Issues tab's own label: the icons carry the counts, since the exact
+/// numbers (and the names) are on the filter buttons inside the tab.
+pub(super) fn issues_tab_label(counts: [usize; Severity::ALL.len()]) -> String {
+    let mut label = "Issues".to_string();
+    for (sev, count) in Severity::ALL.iter().zip(counts) {
+        if count > 0 {
+            label.push(' ');
+            label.push_str(severity_icon(*sev));
+            label.push_str(&compact_count(count));
+        }
+    }
+    label
+}
+
+/// The row of severity buttons above the list: left-click toggles one,
+/// right-click keeps only that one.
+fn show_issue_filter(ui: &mut egui::Ui, filter: &mut IssueFilter, counts: [usize; 4]) {
+    ui.horizontal_wrapped(|ui| {
+        for (sev, count) in Severity::ALL.iter().zip(counts) {
+            let sev = *sev;
+            let mut text = egui::text::LayoutJob::default();
+            let font = egui::FontId::new(16.0, egui::FontFamily::Proportional);
+            text.append(
+                severity_icon(sev),
+                0.0,
+                egui::TextFormat {
+                    font_id: font.clone(),
+                    color: severity_color(ui, sev),
+                    ..Default::default()
+                },
+            );
+            text.append(
+                &format!(" {count} {}", sev.plural()),
+                4.0,
+                egui::TextFormat {
+                    font_id: font,
+                    color: if filter.shows(sev) {
+                        ui.visuals().text_color()
+                    } else {
+                        ui.visuals().weak_text_color()
+                    },
+                    ..Default::default()
+                },
+            );
+            let resp = ui
+                .selectable_label(filter.shows(sev), text)
+                .on_hover_text("Click to show or hide; right-click to show only these");
+            if resp.clicked() {
+                filter.toggle(sev);
+            }
+            if resp.secondary_clicked() {
+                filter.only(sev);
+            }
+        }
+    });
+}
+
+fn show_issues_tab(
+    ui: &mut egui::Ui,
+    issues: &[&Issue],
+    filter: &mut IssueFilter,
+    click: &mut Option<(PathBuf, usize)>,
+) {
+    let counts = severity_counts(issues);
+    show_issue_filter(ui, filter, counts);
+    ui.separator();
+
+    let filter = *filter;
+    let shown: Vec<&&Issue> = issues.iter().filter(|i| filter.shows(i.severity)).collect();
+    if shown.is_empty() {
         ui.centered_and_justified(|ui| {
-            ui.label("No issues");
+            ui.label(if issues.is_empty() {
+                "No issues"
+            } else {
+                "Nothing to show: every severity with an issue in it is filtered out"
+            });
         });
         return;
     }
 
     egui::ScrollArea::vertical().show(ui, |ui| {
-        for (issue_idx, issue) in issues.iter().enumerate() {
-            let icon = match issue.severity {
-                crate::issues::Severity::Error => "\u{2716}",
-                crate::issues::Severity::Warning => "\u{26A0}",
-            };
-            let icon_color = match issue.severity {
-                crate::issues::Severity::Error => egui::Color32::from_rgb(220, 60, 60),
-                crate::issues::Severity::Warning => egui::Color32::from_rgb(200, 180, 50),
-            };
+        for (issue_idx, issue) in shown.iter().enumerate() {
+            let icon = severity_icon(issue.severity);
+            let icon_color = severity_color(ui, issue.severity);
             let file_name = issue
                 .file
                 .file_name()
@@ -399,32 +580,12 @@ impl UniformApp {
                         }
                     }
                 }
-                let total_issues = self.issues.len() + self.assert_issues.len();
-                let issues_label = if total_issues == 0 {
-                    "Issues".to_string()
-                } else {
-                    let errors = self
-                        .issues
-                        .iter()
-                        .chain(self.assert_issues.iter())
-                        .filter(|i| i.severity == crate::issues::Severity::Error)
-                        .count();
-                    let warnings = total_issues - errors;
-                    let mut parts = Vec::new();
-                    if errors > 0 {
-                        parts.push(format!(
-                            "{errors} error{}",
-                            if errors == 1 { "" } else { "s" }
-                        ));
-                    }
-                    if warnings > 0 {
-                        parts.push(format!(
-                            "{warnings} warning{}",
-                            if warnings == 1 { "" } else { "s" }
-                        ));
-                    }
-                    format!("Issues ({})", parts.join(", "))
-                };
+                let all_issues: Vec<&Issue> = self
+                    .issues
+                    .iter()
+                    .chain(self.assert_issues.iter())
+                    .collect();
+                let issues_label = issues_tab_label(severity_counts(&all_issues));
                 let issues_selected = self.bottom_panel_tab == Some(2);
                 if ui.selectable_label(issues_selected, issues_label).clicked() {
                     if issues_selected {
@@ -548,7 +709,12 @@ impl UniformApp {
                 Some(2) => {
                     let mut all_issues: Vec<&Issue> = self.issues.iter().collect();
                     all_issues.extend(self.assert_issues.iter());
-                    show_issues_tab(ui, &all_issues, &mut result.issue_click);
+                    show_issues_tab(
+                        ui,
+                        &all_issues,
+                        &mut self.issue_filter,
+                        &mut result.issue_click,
+                    );
                 }
                 Some(SEARCH_TAB) => {
                     show_search_tab(ui, self.search.as_ref(), &mut result.search_click);
@@ -830,5 +996,85 @@ mod pane_layout_tests {
     fn a_too_narrow_area_falls_back_to_an_even_split() {
         assert_eq!(clamp_ratio(0.0, 100.0), 0.5);
         assert_eq!(clamp_ratio(1.0, 100.0), 0.5);
+    }
+}
+
+#[cfg(test)]
+mod issue_filter_tests {
+    use super::*;
+
+    fn issue(severity: Severity) -> Issue {
+        Issue {
+            severity,
+            message: String::new(),
+            file: PathBuf::from("test.unf"),
+            line: 0,
+            file_line: 1,
+        }
+    }
+
+    #[test]
+    fn notes_are_the_only_severity_hidden_to_begin_with() {
+        let f = IssueFilter::default();
+        assert!(f.shows(Severity::Error));
+        assert!(f.shows(Severity::Warning));
+        assert!(f.shows(Severity::Todo));
+        assert!(!f.shows(Severity::Note));
+    }
+
+    /// A left-click flips one severity and leaves the rest where they were; a
+    /// right-click keeps that one and drops everything else. The two are how a
+    /// 20k-long TODO queue and a three-error list share one panel.
+    #[test]
+    fn clicking_toggles_one_and_right_clicking_solos_it() {
+        let mut f = IssueFilter::default();
+        f.toggle(Severity::Todo);
+        assert!(!f.shows(Severity::Todo));
+        assert!(f.shows(Severity::Error));
+        f.toggle(Severity::Todo);
+        assert!(f.shows(Severity::Todo));
+
+        f.only(Severity::Todo);
+        assert!(f.shows(Severity::Todo));
+        for other in [Severity::Error, Severity::Warning, Severity::Note] {
+            assert!(!f.shows(other), "{other:?}");
+        }
+        // Including a severity that starts out hidden.
+        f.only(Severity::Note);
+        assert!(f.shows(Severity::Note));
+        assert!(!f.shows(Severity::Todo));
+    }
+
+    #[test]
+    fn counts_are_in_severity_order() {
+        let issues = [
+            issue(Severity::Warning),
+            issue(Severity::Todo),
+            issue(Severity::Error),
+            issue(Severity::Todo),
+        ];
+        let refs: Vec<&Issue> = issues.iter().collect();
+        assert_eq!(severity_counts(&refs), [1, 1, 2, 0]);
+    }
+
+    /// The tab has the rest of the tab strip to sit beside, so a count there is
+    /// three digits at most and a severity nobody has is not mentioned at all.
+    #[test]
+    fn the_tab_label_is_icons_and_short_counts() {
+        assert_eq!(issues_tab_label([0, 0, 0, 0]), "Issues");
+        assert_eq!(
+            issues_tab_label([2, 0, 20_000, 0]),
+            format!(
+                "Issues {}2 {}20k",
+                severity_icon(Severity::Error),
+                severity_icon(Severity::Todo)
+            )
+        );
+
+        assert_eq!(compact_count(999), "999");
+        assert_eq!(compact_count(1_000), "1.0k");
+        assert_eq!(compact_count(1_234), "1.2k");
+        assert_eq!(compact_count(19_999), "19k");
+        assert_eq!(compact_count(2_400_000), "2.4M");
     }
 }

@@ -157,7 +157,7 @@ impl<'a> DocSet<'a> {
             ),
         };
         Issue {
-            severity: d.severity.clone(),
+            severity: d.severity,
             message: d.message.clone(),
             file,
             line,

@@ -36,10 +36,7 @@ fn format_issues(issues: &[Issue]) -> String {
     let mut lines: Vec<String> = issues
         .iter()
         .map(|i| {
-            let sev = match i.severity {
-                crate::issues::Severity::Error => "error",
-                crate::issues::Severity::Warning => "warning",
-            };
+            let sev = i.severity.label();
             let file = i
                 .file
                 .file_name()

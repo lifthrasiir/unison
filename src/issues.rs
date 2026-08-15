@@ -6,7 +6,8 @@
 //! this module is for what no single item's resolution can see. Both the build
 //! and the editor print the same report, `error:`/`warning:` prefixed and
 //! `file:line:` located, and a font with only warnings still builds — so the
-//! report is meant to be read, not just exit-coded.
+//! report is meant to be read, not just exit-coded. [`Severity`] says how each
+//! prefix is meant to be read, and which of them a build may ignore.
 //!
 //! A few rules are worth knowing about because they are refusals rather than
 //! best-effort output:
@@ -31,10 +32,59 @@ use crate::document::{
 use crate::pattern::{NamePartsMap, NamePattern};
 use crate::resolve::{Diagnostic, DocSet, ItemRef, Resolution};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// How a finding is meant to be read.
+///
+/// The first two are about the *source*: something is wrong with what is
+/// written, and a font built from it is wrong in a way nobody chose. The last
+/// two are not.
+///
+/// [`Severity::Todo`] is work that has not been done yet. It reads exactly like
+/// an error in the font — the glyph is not built and the character is not
+/// mapped — but it is a normal state of the source rather than a defect in it:
+/// a Han glyph whose IDC line has not picked its variants yet is on the queue,
+/// not broken. So it never fails a build or a `uniform test` run, and its count
+/// is expected to start in the tens of thousands and come down. See
+/// `PLANS.han.md` for why the two had to be told apart at all.
+///
+/// [`Severity::Note`] is the other direction: something worth saying that asks
+/// for no action, so it is off by default in the editor's issue list.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Severity {
     Error,
     Warning,
+    Todo,
+    Note,
+}
+
+impl Severity {
+    /// Every severity, worst first — the order the filter buttons are drawn in
+    /// and the order [`Ord`] sorts by.
+    pub const ALL: [Severity; 4] = [
+        Severity::Error,
+        Severity::Warning,
+        Severity::Todo,
+        Severity::Note,
+    ];
+
+    /// The prefix the command-line report writes.
+    pub fn label(self) -> &'static str {
+        match self {
+            Severity::Error => "error",
+            Severity::Warning => "warning",
+            Severity::Todo => "todo",
+            Severity::Note => "note",
+        }
+    }
+
+    /// The plural noun a count is counted in ("3 errors").
+    pub fn plural(self) -> &'static str {
+        match self {
+            Severity::Error => "errors",
+            Severity::Warning => "warnings",
+            Severity::Todo => "todos",
+            Severity::Note => "notes",
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -614,7 +664,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     // even where its effect is felt somewhere else entirely.
                     for (group, severity, message) in &remap_group_issues {
                         if group == name {
-                            issues.push(issue_at(doc, item_idx, severity.clone(), message.clone()));
+                            issues.push(issue_at(doc, item_idx, *severity, message.clone()));
                         }
                     }
                 }
@@ -1965,9 +2015,11 @@ impl PartialOrd for Severity {
 
 impl Ord for Severity {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        let rank = |s: &Severity| match s {
-            Severity::Error => 0,
-            Severity::Warning => 1,
+        let rank = |s: &Severity| {
+            Severity::ALL
+                .iter()
+                .position(|c| c == s)
+                .unwrap_or(Severity::ALL.len())
         };
         rank(self).cmp(&rank(other))
     }

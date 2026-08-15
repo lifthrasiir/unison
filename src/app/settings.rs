@@ -41,7 +41,7 @@ use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-use super::panels::SEARCH_TAB;
+use super::panels::{IssueFilter, SEARCH_TAB};
 use super::zoom::{
     DEFAULT_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE, MAX_ZOOM_LEVEL, MIN_PREVIEW_FONT_SIZE,
     MIN_ZOOM_LEVEL,
@@ -73,6 +73,10 @@ pub(super) struct Settings {
     /// Which bottom-panel tab was open, `None` for the collapsed panel. The
     /// panel's *height* is egui's to remember, not ours.
     pub(super) bottom_panel_tab: Option<usize>,
+    /// Which severities the Issues tab lists. Saved for the same reason the
+    /// specimen's options are: it is a way of looking at the source that
+    /// belongs to the person, not to the run.
+    pub(super) issue_filter: IssueFilter,
     pub(super) specimen: SpecimenOptions,
     /// The preview's text. Saved because it is the one thing in the window the
     /// user types from scratch every run otherwise.
@@ -96,6 +100,7 @@ impl Default for Settings {
             show_metrics: true,
             escape_mode: false,
             bottom_panel_tab: None,
+            issue_filter: IssueFilter::default(),
             specimen: SpecimenOptions::default(),
             preview_text: String::new(),
             preview_font_size: DEFAULT_PREVIEW_FONT_SIZE,
@@ -186,6 +191,7 @@ impl super::UniformApp {
         self.settings.show_metrics = self.show_metrics;
         self.settings.escape_mode = self.escape_mode;
         self.settings.bottom_panel_tab = self.bottom_panel_tab;
+        self.settings.issue_filter = self.issue_filter;
         self.settings.specimen = self.specimen.options;
         self.settings.preview_text = self.shaped_preview.text();
         self.settings.preview_font_size = self.preview_font_size;
@@ -242,6 +248,9 @@ mod tests {
         assert_eq!(d.preview_font_size, DEFAULT_PREVIEW_FONT_SIZE);
         assert_eq!(d.zoom_level, MIN_ZOOM_LEVEL);
         assert_eq!(d.specimen, SpecimenOptions::default());
+        // The one severity that starts out hidden; see `IssueFilter`.
+        assert!(!d.issue_filter.notes);
+        assert!(d.issue_filter.errors && d.issue_filter.warnings && d.issue_filter.todos);
     }
 
     #[test]
@@ -253,6 +262,12 @@ mod tests {
             preview_font_size: 48.0,
             preview_color_font: false,
             bottom_panel_tab: Some(SEARCH_TAB),
+            issue_filter: IssueFilter {
+                errors: false,
+                warnings: true,
+                todos: false,
+                notes: true,
+            },
             show_metrics: false,
             escape_mode: true,
             zoom_level: 4,

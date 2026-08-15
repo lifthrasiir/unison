@@ -208,6 +208,8 @@ pub struct UniformApp {
     specimen: SpecimenState,
     issues: Vec<Issue>,
     issues_gen: u64,
+    /// Which severities the Issues tab lists; see [`panels::IssueFilter`].
+    issue_filter: panels::IssueFilter,
     file_parse_errors: Vec<(PathBuf, String)>,
     assert_issues: Vec<Issue>,
     assert_rx: mpsc::Receiver<AssertResultMessage>,
@@ -349,6 +351,7 @@ impl UniformApp {
         let show_metrics = settings.show_metrics;
         let escape_mode = settings.escape_mode;
         let bottom_panel_tab = settings.bottom_panel_tab;
+        let issue_filter = settings.issue_filter;
         let preview_font_size = settings.preview_font_size;
 
         let mut shaped_preview = ShapedPreviewState::new();
@@ -440,6 +443,7 @@ impl UniformApp {
             specimen,
             issues: Vec::new(),
             issues_gen: u64::MAX,
+            issue_filter,
             file_parse_errors,
             assert_issues: Vec::new(),
             assert_rx,
