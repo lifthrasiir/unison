@@ -1,7 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::compose::{Direction, IdcOp, direction_rank};
 use crate::document::{DocLine, Document, DocumentItem, NamePartsMap};
-use crate::document_io::tokenize_with_spans;
+use crate::document_io::{TokenSpan, tokenize_with_spans};
 use crate::editor::caret::{Caret, char_to_byte};
 use crate::ref_composite::ResolvedGlyph;
 
@@ -31,12 +32,17 @@ pub(crate) struct AutocompleteState {
     pub replace_start: usize,
     pub line: usize,
     all_candidates: Vec<CompletionCandidate>,
+    kind: CompletionKind,
+    slot: Option<Direction>,
 }
 
 struct CompletionContext {
     kind: CompletionKind,
     prefix: String,
     replace_start: usize,
+    /// Which slot of an enclosing IDC line the name being written fills, if it
+    /// is on one at all. Only the ordering below reads it.
+    slot: Option<Direction>,
 }
 
 pub(crate) struct CompletionSource<'a> {
@@ -72,7 +78,7 @@ pub(crate) fn trigger(
         return;
     }
 
-    let candidates = filter_candidates(&all_candidates, &ctx.prefix);
+    let candidates = filter_candidates(&all_candidates, &ctx.kind, &ctx.prefix, ctx.slot);
     if candidates.is_empty() {
         return;
     }
@@ -86,6 +92,8 @@ pub(crate) fn trigger(
         line: state.cursor.line,
         candidates,
         all_candidates,
+        kind: ctx.kind,
+        slot: ctx.slot,
     });
 }
 
@@ -119,8 +127,7 @@ pub(crate) fn update_after_edit(lines: &[DocLine], state: &mut super::EditorStat
         .take(state.cursor.col - ac.replace_start)
         .collect();
 
-    let all = &ac.all_candidates;
-    let candidates = filter_candidates(all, &prefix);
+    let candidates = filter_candidates(&ac.all_candidates, &ac.kind, &prefix, ac.slot);
 
     if candidates.is_empty() {
         state.autocomplete = None;
@@ -316,11 +323,73 @@ fn word_end(line: &str, col: usize) -> usize {
     end
 }
 
-fn filter_candidates(all: &[CompletionCandidate], prefix: &str) -> Vec<CompletionCandidate> {
-    all.iter()
+/// What a candidate list is actually narrowed by.
+///
+/// A glyph name's `:` opens its variant suffix, and the variants of one name are
+/// exactly the choice the author is making when the caret sits in one — so a
+/// glyph prefix stops filtering at its last `:` and the whole family stays
+/// listed however much of a suffix is already written. Otherwise `foo:4x` would
+/// have to be backspaced down to `foo:` to see what else there is, which is the
+/// one moment the list is worth reading. Every other kind filters by what is
+/// typed, `:` or no `:`.
+fn effective_prefix<'a>(kind: &CompletionKind, prefix: &'a str) -> &'a str {
+    match (kind, prefix.rfind(':')) {
+        (CompletionKind::Glyph, Some(colon)) => &prefix[..colon + 1],
+        _ => prefix,
+    }
+}
+
+/// The candidates a prefix leaves, in the order they are offered.
+///
+/// Lexicographic (the order [`collect_candidates`] built) unless this is a
+/// variant listing for a slot of an IDC line, in which case the choice has a
+/// right answer and D1's tie-break says which: the names claiming this slot's
+/// own direction first, unmarked ones next, and the ones marked for another
+/// direction last. `sort_by_key` is stable, so each rank keeps its
+/// lexicographic order. `slot` is `None` off an IDC line, which is what makes
+/// every other completion order alike.
+fn filter_candidates(
+    all: &[CompletionCandidate],
+    kind: &CompletionKind,
+    prefix: &str,
+    slot: Option<Direction>,
+) -> Vec<CompletionCandidate> {
+    let prefix = effective_prefix(kind, prefix);
+    let mut out: Vec<CompletionCandidate> = all
+        .iter()
         .filter(|c| c.label.starts_with(prefix))
         .cloned()
-        .collect()
+        .collect();
+    if *kind == CompletionKind::Glyph && slot.is_some() && prefix.contains(':') {
+        out.sort_by_key(|c| direction_rank(&c.label, slot));
+    }
+    out
+}
+
+/// Which slot of an IDC line the caret is writing in, as the direction that slot
+/// stands for — `None` when the line is not an IDC line at all.
+///
+/// The parts are told from the gaps exactly as the parser and
+/// [`crate::editor::line_fields`] tell them apart (a gap is a number), and the
+/// slot is how many parts stand before the caret. A caret past the last token is
+/// therefore writing the next slot, which is the one an unwritten component
+/// would fill.
+fn idc_slot(line: &str, col: usize) -> Option<Direction> {
+    let trimmed = line.trim_start();
+    let leading = line.chars().count() - trimmed.chars().count();
+    let spans = tokenize_with_spans(trimmed).ok()?;
+    let (keyword, rest) = spans.split_first()?;
+    let op = IdcOp::from_token(&keyword.value)?;
+    let adj_col = col.saturating_sub(leading);
+    let before = rest
+        .iter()
+        .filter(|s| s.raw_end < adj_col && is_idc_part(s))
+        .count();
+    op.slot_direction(before)
+}
+
+fn is_idc_part(span: &TokenSpan) -> bool {
+    !span.value.is_empty() && span.value.parse::<i16>().is_err()
 }
 
 fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
@@ -341,6 +410,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
         word_start -= 1;
     }
     let word: String = chars[word_start..col].iter().collect();
+    let slot = idc_slot(line, col);
 
     // Check for $ in the current word -> name-parts completion
     if let Some(dp) = word.rfind('$') {
@@ -351,6 +421,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             kind: CompletionKind::NameParts,
             prefix,
             replace_start,
+            slot,
         });
     }
 
@@ -363,6 +434,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             kind: CompletionKind::Keyword,
             prefix: word.clone(),
             replace_start: word_start,
+            slot,
         });
     }
 
@@ -372,6 +444,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             kind: CompletionKind::Keyword,
             prefix: word,
             replace_start: word_start,
+            slot,
         });
     }
 
@@ -384,6 +457,7 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             kind,
             prefix: word.clone(),
             replace_start: word_start,
+            slot,
         })
     };
 
@@ -434,6 +508,14 @@ fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
             {
                 return ctx(CompletionKind::Color);
             }
+            if rest_token_idx.is_none() {
+                return ctx(CompletionKind::Glyph);
+            }
+        }
+        // A fresh token on an IDC line is the next component; a gap is a number,
+        // and a number matches no glyph name, so the popup simply does not open
+        // on one.
+        kw if IdcOp::from_token(kw).is_some() => {
             if rest_token_idx.is_none() {
                 return ctx(CompletionKind::Glyph);
             }
@@ -833,6 +915,8 @@ mod tests {
             replace_start,
             line,
             all_candidates: Vec::new(),
+            kind: CompletionKind::Glyph,
+            slot: None,
         };
 
         // Caret moved back before the prefix being completed.
@@ -923,7 +1007,7 @@ mod tests {
         let all = collect_candidates(&ctx, &source, &at_base);
         let labels: Vec<&str> = all.iter().map(|c| c.label.as_str()).collect();
         assert_eq!(labels, vec!["@", "@-bar", "@-baz"]);
-        let shown: Vec<String> = filter_candidates(&all, &ctx.prefix)
+        let shown: Vec<String> = filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
             .into_iter()
             .map(|c| c.label)
             .collect();
@@ -934,6 +1018,104 @@ mod tests {
         let all = collect_candidates(&ctx, &source, &at_base);
         let labels: Vec<&str> = all.iter().map(|c| c.label.as_str()).collect();
         assert_eq!(labels, vec!["foo", "foo-bar", "foo-baz", "other"]);
+    }
+
+    /// A glyph name's variant suffix does not narrow the list: the caret sitting
+    /// in one is the author choosing among the family, so the whole family stays
+    /// listed instead of having to be backspaced back into view.
+    #[test]
+    fn a_variant_suffix_lists_the_whole_family() {
+        let all: Vec<CompletionCandidate> =
+            ["han-53ef", "han-53ef:11x16", "han-53ef:12x16-r", "han-5b50"]
+                .iter()
+                .map(|n| CompletionCandidate {
+                    label: (*n).to_string(),
+                    kind: CompletionKind::Glyph,
+                })
+                .collect();
+
+        let shown = |prefix: &str| -> Vec<String> {
+            filter_candidates(&all, &CompletionKind::Glyph, prefix, None)
+                .into_iter()
+                .map(|c| c.label)
+                .collect()
+        };
+        assert_eq!(
+            shown("han-53ef:11x"),
+            vec!["han-53ef:11x16", "han-53ef:12x16-r"],
+        );
+        assert_eq!(shown("han-53ef:"), shown("han-53ef:11x"));
+        // Before the `:` the prefix still narrows as it always did.
+        assert_eq!(
+            shown("han-53"),
+            vec!["han-53ef", "han-53ef:11x16", "han-53ef:12x16-r"],
+        );
+
+        // And only a glyph name is read this way; every other kind takes the
+        // prefix whole.
+        let parts = [CompletionCandidate {
+            label: "$a:b".to_string(),
+            kind: CompletionKind::NameParts,
+        }];
+        assert!(filter_candidates(&parts, &CompletionKind::NameParts, "$a:c", None).is_empty());
+    }
+
+    /// A variant listing for a slot of an IDC line is a choice with a right
+    /// answer, so D1's tie-break orders it: this slot's direction first, then
+    /// the unmarked names, then the ones marked for another slot. Off an IDC
+    /// line — and for a name with no variant suffix — the order stays
+    /// lexicographic.
+    #[test]
+    fn an_idc_slot_orders_its_variant_listing_by_direction() {
+        let all: Vec<CompletionCandidate> = ["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"]
+            .iter()
+            .map(|n| CompletionCandidate {
+                label: (*n).to_string(),
+                kind: CompletionKind::Glyph,
+            })
+            .collect();
+
+        let order = |line: &str, col: usize| -> Vec<String> {
+            let ctx = detect_context(line, col).unwrap();
+            assert_eq!(ctx.kind, CompletionKind::Glyph);
+            filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
+                .into_iter()
+                .map(|c| c.label)
+                .collect()
+        };
+
+        // ⿰'s first slot is the left one, its last the right one.
+        assert_eq!(
+            order("⿰ p:4 q:8x16", 5),
+            vec!["p:4x16-l", "p:4x16", "p:5x16-c", "p:5x16-r"],
+        );
+        assert_eq!(
+            order("⿰ q:8x16 p:4", 12),
+            vec!["p:5x16-r", "p:4x16", "p:4x16-l", "p:5x16-c"],
+        );
+        // A gap is not a slot: the component after it is still the right one.
+        assert_eq!(order("⿰ q:8x16 -1 p:4", 15)[0], "p:5x16-r".to_string());
+        // ⿱ names its slots up and down, so no `l`/`r`/`c` name suits it and
+        // only the unmarked one is promoted.
+        assert_eq!(
+            order("⿱ p:4 q:8x16", 5),
+            vec!["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"],
+        );
+
+        // Off an IDC line the same listing is lexicographic.
+        assert_eq!(
+            order("ref p:4", 7),
+            vec!["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"],
+        );
+        // …as is a listing that is not a variant listing at all.
+        let ctx = detect_context("⿰ p q:8x16", 3).unwrap();
+        assert_eq!(
+            filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
+                .into_iter()
+                .map(|c| c.label)
+                .collect::<Vec<_>>(),
+            vec!["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"],
+        );
     }
 
     /// A header's own `@` stands for the base that was already in force, so the

@@ -266,10 +266,10 @@ fn parse_size(word: &str) -> Option<(u16, u16)> {
 /// How well a candidate name suits a slot: 0 is the slot's own direction, 1 an
 /// unmarked name, 2 the wrong direction. Lower wins; `sort_by_key` on this is
 /// stable, so equally-ranked candidates keep the caller's order.
-// Nothing picks a variant automatically yet — an IDC component names the one it
-// wants — so this has only its tests as callers. `expect` and not `allow`: the
-// day the editor's picker uses it, the attribute has to come off.
-#[cfg_attr(not(test), expect(dead_code))]
+// The editor's completion popup orders a variant listing by this
+// (`editor/autocomplete.rs`); nothing in the headless binary picks a variant
+// automatically yet, so there it is still test-only.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn direction_rank(name: &str, slot: Option<Direction>) -> u8 {
     match (VariantSpec::parse(name).direction, slot) {
         (None, _) | (_, None) => 1,

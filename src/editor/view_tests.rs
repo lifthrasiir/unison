@@ -848,6 +848,40 @@ fn autocomplete_trigger_mid_name_completes_whole_name() {
     assert_eq!(h.text(5), "ref alpha");
 }
 
+/// Triggering on a name that already carries a variant suffix lists the whole
+/// family — that is the choice being made — instead of only what the suffix
+/// written so far still matches. On an IDC line the slot the caret is filling
+/// orders it: the variants marked for that slot's own direction first
+/// (`compose::direction_rank`, D1), the unmarked ones next.
+#[test]
+fn autocomplete_lists_and_orders_a_variant_family() {
+    let mut h = EditorHarness::new(
+        "glyph part:4x16 4 16\n\
+         glyph part:5x16-l 5 16\n\
+         glyph part:5x16-r 5 16\n\
+         glyph whole 15 16\n\
+         ⿰ part:4x",
+    );
+    // Every declared header carries an empty grid line, so the IDC line is doc
+    // line 8. Caret at the end of `part:4x`, which matches only the 4x16 one.
+    h.click_text(8, 9);
+    ctrl_j(&mut h);
+
+    let labels: Vec<String> = h
+        .state
+        .autocomplete
+        .as_ref()
+        .unwrap()
+        .candidates
+        .iter()
+        .map(|c| c.label.clone())
+        .collect();
+    assert_eq!(labels, vec!["part:5x16-l", "part:4x16", "part:5x16-r"]);
+
+    h.key(Key::Enter);
+    assert_eq!(h.text(8), "⿰ part:5x16-l");
+}
+
 /// Ctrl+J/Ctrl+K walk the open popup like Down/Up. The trigger itself is the
 /// first step down from a virtual item before the list, so the popup opens on
 /// item 0 and Ctrl+K there stays put rather than closing it — there is nothing
@@ -1873,7 +1907,10 @@ fn make_pixel_select_harness() -> EditorHarness {
 fn shift_right_click_paints_a_hardblank() {
     let mut h = EditorHarness::new("glyph test 4 1\n@@@@@@@@");
     h.click_grid_cell(1, 0, 0); // enter GlyphEdit
-    assert!(matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }));
+    assert!(matches!(
+        h.state.mode,
+        EditMode::GlyphEdit { item_idx: 0, .. }
+    ));
     h.frame(); // entering the mode relays out the grid; measure after it settles
 
     h.right_click_grid_cell_mod(1, 0, 0, Modifiers::SHIFT);
@@ -4243,7 +4280,14 @@ fn wheel_over_the_grid_rotates_the_selected_shape() {
     let start_rotation = h.state.shape_rotation;
 
     eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
+    for i in 0..3 {
+        h.frame();
+        eprintln!(
+            "pos after {} frames = {:?}",
+            i + 1,
+            h.grid_cell_pos(1, 0, 1)
+        );
+    }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
 
@@ -4263,7 +4307,14 @@ fn shift_wheel_picks_another_shape_at_the_same_rotation() {
     h.key(Key::F);
     h.frame();
     eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
+    for i in 0..3 {
+        h.frame();
+        eprintln!(
+            "pos after {} frames = {:?}",
+            i + 1,
+            h.grid_cell_pos(1, 0, 1)
+        );
+    }
     let pos = h.grid_cell_pos(1, 0, 1);
 
     // Rotate twice, then step to the neighbouring palette cell.
@@ -4293,7 +4344,14 @@ fn the_whole_palette_rotates_with_the_wheel() {
 
     let mut h = palette_harness();
     eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
+    for i in 0..3 {
+        h.frame();
+        eprintln!(
+            "pos after {} frames = {:?}",
+            i + 1,
+            h.grid_cell_pos(1, 0, 1)
+        );
+    }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
     let rotation = h.state.shape_rotation;
@@ -4404,7 +4462,14 @@ fn clicking_another_palette_cell_takes_its_own_fill() {
 fn a_shape_shortcut_pulls_the_palette_rotation_with_it() {
     let mut h = palette_harness();
     eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
-    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
+    for i in 0..3 {
+        h.frame();
+        eprintln!(
+            "pos after {} frames = {:?}",
+            i + 1,
+            h.grid_cell_pos(1, 0, 1)
+        );
+    }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
@@ -5749,4 +5814,3 @@ fn the_marker_column_does_not_flicker_on_a_page_of_wrapped_lines() {
         y += 4.0;
     }
 }
-
