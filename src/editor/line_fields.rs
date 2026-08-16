@@ -222,6 +222,12 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             if let Some(slice) = slice {
                 push_slice_refs(&mut fields, leading, slice);
             }
+            // …and so does a trailing `ifexists`, for the same reason: it is a
+            // flag on those arities, not one of their tokens.
+            let rest = match rest.split_last() {
+                Some((last, head)) if last.value == "ifexists" && !head.is_empty() => head,
+                _ => rest,
+            };
             if rest.len() == 3 && rest[1].value == "=" {
                 fields.push(field(FieldRole::GlyphRef, leading, &rest[2]));
             } else if rest.len() == 4 && rest[0].value == "generate" && rest[2].value == "=" {

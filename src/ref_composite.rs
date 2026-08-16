@@ -530,6 +530,7 @@ pub(crate) fn derive_ref_offsets_detailed(
                         offset: None,
                         negated: gref.negated,
                         inherit: gref.inherit,
+                        if_exists: gref.if_exists,
                         fill: gref.fill.clone(),
                         visibility: gref.visibility,
                     };
@@ -599,6 +600,7 @@ pub(crate) fn derive_ref_offsets_detailed(
                     offset: None,
                     negated: gref.negated,
                     inherit: gref.inherit,
+                    if_exists: gref.if_exists,
                     fill: gref.fill.clone(),
                     visibility: gref.visibility,
                 };
@@ -682,6 +684,7 @@ pub(crate) fn derive_ref_offsets_detailed(
             offset: gref.offset,
             negated: gref.negated,
             inherit: gref.inherit,
+            if_exists: gref.if_exists,
             fill: gref.fill.clone(),
             visibility: gref.visibility,
         };
@@ -914,6 +917,7 @@ fn commit_ref(
         offset: Some(offset),
         negated: gref.negated,
         inherit: gref.inherit,
+        if_exists: gref.if_exists,
         fill: gref.fill.clone(),
         visibility: gref.visibility,
     };

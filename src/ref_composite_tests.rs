@@ -49,6 +49,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
         offset: None,
         negated: false,
         inherit: false,
+        if_exists: false,
         fill: None,
         visibility: None,
     }];
@@ -104,6 +105,7 @@ fn on_demand_ref_composites_before_the_next_resolve() {
         offset: None,
         negated: false,
         inherit: false,
+        if_exists: false,
         fill: None,
         visibility: None,
     }];
@@ -596,6 +598,7 @@ ref ($ab)-inner
             offset: None,
             negated: false,
             inherit: false,
+            if_exists: false,
             fill: None,
             visibility: None,
         },
@@ -606,6 +609,7 @@ ref ($ab)-inner
             offset: None,
             negated: false,
             inherit: false,
+            if_exists: false,
             fill: None,
             visibility: None,
         },
@@ -1392,6 +1396,7 @@ fn derive_reports_duplicates_and_ambiguity() {
         offset: Some((col, 0)),
         negated: false,
         inherit: true,
+        if_exists: false,
         fill: None,
         visibility: None,
     };
@@ -1525,6 +1530,7 @@ fn derive_reports_size_mismatched_attachment() {
         offset,
         negated: false,
         inherit: false,
+        if_exists: false,
         fill: None,
         visibility: None,
     };
@@ -1592,6 +1598,7 @@ fn attaching_through_one_minus_retires_the_other_alternatives() {
         offset: None,
         negated: false,
         inherit: true,
+        if_exists: false,
         fill: None,
         visibility: None,
     };

@@ -387,6 +387,7 @@ pub fn expand_compose(
             offset: Some((clamp_offset(col), clamp_offset(row))),
             negated: false,
             inherit: false,
+            if_exists: false,
             fill: None,
             visibility: None,
             comment: None,

@@ -618,6 +618,15 @@ pub struct GlyphRef {
     /// its components' attachment points. Attachment *inside* the composite
     /// (a sibling ref consuming this target's `+` anchors) works regardless.
     pub inherit: bool,
+    /// `ifexists`: this ref is a *condition*, not an error. A ref naming a
+    /// glyph the sources do not define already leaves the enclosing glyph
+    /// unbuilt (`glyph_cache::resolve_pending` never resolves it, so no cmap
+    /// entry reaches it); this flag says that outcome was intended, so nothing
+    /// is reported. It exists for the one shape a diagnostic cannot help with:
+    /// a whole *pattern* of glyphs written once, where which of the expanded
+    /// names actually has a target varies and only the ones that do should
+    /// survive.
+    pub if_exists: bool,
     pub fill: Option<RefFill>,
     pub visibility: Option<LayerVisibility>,
     /// Trailing `// …` comment of the `ref` line, without its marker.
@@ -662,6 +671,9 @@ impl GlyphRef {
         }
         if self.inherit {
             parts.push("inherit".into());
+        }
+        if self.if_exists {
+            parts.push("ifexists".into());
         }
         if let Some(ref fill) = self.fill {
             parts.push(format!("fill {}", quote_token(&fill.color)));
@@ -1092,11 +1104,21 @@ pub enum DocumentItem {
     /// format 14 can hold: a base and one selector, nothing longer. Anything
     /// longer belongs in a `remap`, and [`crate::issues`] says so in as many
     /// words rather than letting the parser truncate it.
+    ///
+    /// `if_exists` is the trailing `ifexists` flag: the line maps only the
+    /// codepoints whose target glyph turns out to exist, and says nothing about
+    /// the ones whose target does not. The build already drops a mapping whose
+    /// glyph never resolved (`collect.rs`), so the flag changes no output — it
+    /// declares that outcome intended, which is what stops it from being
+    /// reported. Written once over a range, it is how a pattern of names whose
+    /// membership varies is mapped in one line. See [`GlyphRef::if_exists`] for
+    /// the same flag on the other side.
     Map {
         slices: Vec<String>,
         char_repr: String,
         selector: Option<String>,
         glyph: String,
+        if_exists: bool,
         comment: Option<String>,
     },
     /// `map generate CHAR [= GLYPH]` — auto-decomposed cmap mapping. The glyph
@@ -2424,6 +2446,7 @@ mod tests {
             offset: None,
             negated: false,
             inherit: false,
+            if_exists: false,
             fill: None,
             visibility: None,
         }

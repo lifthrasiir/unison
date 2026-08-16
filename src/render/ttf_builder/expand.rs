@@ -33,6 +33,16 @@ impl Expansion {
     }
 }
 
+/// One expanded `map` target: the glyph name a codepoint was pointed at, where
+/// the line is, and whether it said `ifexists`.
+struct MapTarget {
+    name: String,
+    origin: Option<ItemRef>,
+    /// The `char_repr` the line was written with, for the message.
+    char_repr: String,
+    if_exists: bool,
+}
+
 /// How a glyph name was referenced, so a name that resolves to nothing can be
 /// reported in the terms the author wrote it.
 #[derive(Clone, PartialEq, Eq)]
@@ -206,6 +216,7 @@ pub(crate) fn expand_for(
                             char_repr,
                             selector,
                             glyph,
+                            if_exists,
                             ..
                         } => DocumentItem::Map {
                             slices: one,
@@ -213,6 +224,7 @@ pub(crate) fn expand_for(
                             char_repr: char_repr.clone(),
                             selector: selector.clone(),
                             glyph: substitute_name_parts(glyph, parts),
+                            if_exists: *if_exists,
                         },
                         DocumentItem::MapDecomposed {
                             char_repr,
@@ -279,10 +291,25 @@ pub(crate) fn expand_for(
     // the single/pipe forms cannot, so an out-of-range `map U+FFFFFFFF = g`
     // used to reach the cmap builder unnoticed.
     let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
-    let mut map_targets: Vec<(String, Option<ItemRef>, String)> = Vec::new();
+    let mut map_targets: Vec<MapTarget> = Vec::new();
+    // Which names exist, for the `ifexists` lines below. On-demand glyphs are
+    // not items yet — they are injected from `map_targets` further down — so
+    // the test has to be `glyph_name_exists`, which knows how to recognize one.
+    let defined_names: HashSet<String> = all_items
+        .iter()
+        .filter_map(|e| match &e.item {
+            DocumentItem::Glyph {
+                name: GlyphName(n), ..
+            } => Some(n.clone()),
+            _ => None,
+        })
+        .collect();
     for e in &all_items {
         let DocumentItem::Map {
-            char_repr, glyph, ..
+            char_repr,
+            glyph,
+            if_exists,
+            ..
         } = &e.item
         else {
             continue;
@@ -305,7 +332,19 @@ pub(crate) fn expand_for(
                 ));
                 reported = true;
             }
-            map_targets.push((target.clone(), e.origin, char_repr.clone()));
+            map_targets.push(MapTarget {
+                name: target.clone(),
+                origin: e.origin,
+                char_repr: char_repr.clone(),
+                if_exists: *if_exists,
+            });
+            // An `ifexists` line claims nothing where its target is absent, so
+            // it must not hold the codepoint against a later line that does map
+            // it — `cp_to_glyph` is first-wins, and this is what the two
+            // overlapping ranges the flag exists for look like.
+            if *if_exists && !glyph_name_exists(&target, &defined_names, &aliases) {
+                continue;
+            }
             cp_to_glyph.entry(cp).or_insert(target);
         }
     }
@@ -543,6 +582,7 @@ fn expand_decomposed_maps(
                     name: cp_to_glyph[&(*c as u32)].clone(),
                     offset: None,
                     negated: false,
+                    if_exists: false,
                     // A generated composite stands in for its decomposition, so
                     // forwarding the components' surviving anchors is the right
                     // default — a hand-written replacement decides per ref.
@@ -569,6 +609,7 @@ fn expand_decomposed_maps(
                     char_repr: format!("U+{cp:04X}"),
                     selector: None,
                     glyph: composite_name,
+                    if_exists: false,
                 },
                 origin,
             });
@@ -585,7 +626,7 @@ fn expand_decomposed_maps(
 /// color/mono composite when X:mono and X:color both exist).
 fn inject_on_demand_glyph_items(
     all_items: &mut Vec<ExpandedItem>,
-    map_targets: Vec<(String, Option<ItemRef>, String)>,
+    map_targets: Vec<MapTarget>,
     name_parts: &NamePartsMap,
     aliases: &crate::alias::AliasMap,
     undecided_parts: &HashSet<(Option<ItemRef>, String)>,
@@ -622,12 +663,15 @@ fn inject_on_demand_glyph_items(
         .map(|(name, _)| name.clone())
         .collect();
 
-    let mut mentions: Vec<(String, Option<ItemRef>, RefKind)> = Vec::new();
+    let mut mentions: Vec<(String, Option<ItemRef>, RefKind, bool)> = Vec::new();
     let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::new();
-    let mut consider = |name: &str, origin: Option<ItemRef>, kind: RefKind| {
+    // `if_exists` rides along rather than filtering here: an `ifexists` name may
+    // still be one the font generates (`ref 3x5 ifexists`), and the synthesis
+    // below is driven by this same list. Only the *reporting* loop honors it.
+    let mut consider = |name: &str, origin: Option<ItemRef>, kind: RefKind, if_exists: bool| {
         let unusable = !defined.contains(name) || contentless.contains(name);
         if unusable && mention_seen.insert((origin, name.to_string())) {
-            mentions.push((name.to_string(), origin, kind));
+            mentions.push((name.to_string(), origin, kind, if_exists));
         }
     };
 
@@ -635,7 +679,7 @@ fn inject_on_demand_glyph_items(
         match &e.item {
             DocumentItem::Glyph { body, .. } => {
                 for r in &body.refs {
-                    consider(&r.name, e.origin, RefKind::Ref);
+                    consider(&r.name, e.origin, RefKind::Ref, r.if_exists);
                 }
             }
             DocumentItem::Remap { .. } => {
@@ -652,7 +696,7 @@ fn inject_on_demand_glyph_items(
                     let mut names = expand_name_element(token, name_parts);
                     aliases.canonicalize_all(&mut names);
                     for name in names {
-                        consider(&name, e.origin, RefKind::Remap);
+                        consider(&name, e.origin, RefKind::Remap, false);
                     }
                 }
             }
@@ -661,8 +705,8 @@ fn inject_on_demand_glyph_items(
     }
     // Map targets were expanded once by the caller: `glyph` is still a pattern
     // on the item, and the cmap builder expands it per codepoint.
-    for (target, origin, char_repr) in map_targets {
-        consider(&target, origin, RefKind::Map(char_repr));
+    for t in map_targets {
+        consider(&t.name, t.origin, RefKind::Map(t.char_repr), t.if_exists);
     }
 
     // Synthesis is per unique name; reporting is per mention, so the loops
@@ -673,8 +717,8 @@ fn inject_on_demand_glyph_items(
             .iter()
             // Contentless names are in `mentions` to be reported, but they are
             // defined, so there is nothing to synthesize for them.
-            .filter(|(n, _, _)| !defined.contains(n) && seen.insert(n.as_str()))
-            .map(|(n, o, _)| (n.clone(), *o))
+            .filter(|(n, _, _, _)| !defined.contains(n) && seen.insert(n.as_str()))
+            .map(|(n, o, _, _)| (n.clone(), *o))
             .collect()
     };
     let mut unresolved: HashSet<String> = HashSet::new();
@@ -734,6 +778,7 @@ fn inject_on_demand_glyph_items(
                             offset,
                             negated: r.negated,
                             inherit: r.inherit,
+                            if_exists: r.if_exists,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::MonoOnly),
                         });
@@ -753,6 +798,7 @@ fn inject_on_demand_glyph_items(
                             offset,
                             negated: r.negated,
                             inherit: r.inherit,
+                            if_exists: r.if_exists,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::ColorOnly),
                         });
@@ -838,7 +884,17 @@ fn inject_on_demand_glyph_items(
         }
     }
 
-    for (name, origin, kind) in mentions {
+    for (name, origin, kind, if_exists) in mentions {
+        // `ifexists` says the author already knows this name may or may not be
+        // there and wants the absent case to build nothing: the glyph is left
+        // unbuilt by `glyph_cache::resolve_pending` and the mapping dropped by
+        // `collect.rs` exactly as an unresolved name always was, and that is
+        // the intended outcome rather than something to report. Placed with
+        // the other skips, after synthesis, so an `ifexists` name the font can
+        // generate still resolves.
+        if if_exists {
+            continue;
+        }
         // A ref an IDC line derived from a component that has not picked its
         // variant is unresolved on purpose (see `expand_compose_lines`), so it
         // is not reported — but only for that glyph and that name, which keeps
@@ -1038,6 +1094,29 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
             (cp, name)
         })
         .collect()
+}
+
+/// Whether `name` denotes a glyph the font can contain: one the sources define
+/// — through an alias, like every other reference — or one the font generates
+/// on demand.
+///
+/// This is the question `ifexists` asks, and it is one function so that the
+/// build, the sample, the specimen and the validation pass cannot come to
+/// different answers about which codepoints an `ifexists` line claims. It is
+/// the *source-side* reading: a glyph that is defined but fails to resolve (an
+/// unresolved ref of its own) counts as existing here, and is dropped later by
+/// the resolution cache — which is what makes `ref … ifexists` work without
+/// this having to resolve anything.
+pub(crate) fn glyph_name_exists(
+    name: &str,
+    defined: &HashSet<String>,
+    aliases: &crate::alias::AliasMap,
+) -> bool {
+    let canonical = |n: &str| aliases.resolved_target(n).unwrap_or(n).to_string();
+    let name = canonical(name);
+    defined.contains(&name)
+        || crate::on_demand::detect_on_demand_glyph(&name, |n| defined.contains(&canonical(n)))
+            .is_some()
 }
 
 pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String)> {

@@ -388,6 +388,7 @@ mod tests {
             offset: Some((1, 0)),
             negated: false,
             inherit: false,
+            if_exists: false,
             fill: None,
             visibility: None,
         };

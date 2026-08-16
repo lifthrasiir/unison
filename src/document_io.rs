@@ -87,7 +87,14 @@
 //!   for the one rule that shapes how a split font is written: a character
 //!   whose mapping differs between faces must not be in the base slice at all,
 //!   because there is no override — every conflict is an error.
-//! - `map CHAR = GLYPH` — cmap mapping.
+//! - `map CHAR = GLYPH [ifexists]` — cmap mapping. `ifexists` maps only the
+//!   codepoints whose target glyph turns out to exist and says nothing about
+//!   the rest, which is how one line covers a range whose membership varies
+//!   (`map U+E000..EFFF = private-($#e000..efff) ifexists`). The build always
+//!   dropped a mapping whose glyph never resolved; the flag declares that
+//!   intended, so it is neither reported nor counted as claiming the codepoint
+//!   — two such lines over one range are not duplicates, and the name that
+//!   exists wins. It is the same flag `ref` takes, from the other side.
 //! - `map BASE SELECTOR = GLYPH` — cmap mapping of a Unicode *variation
 //!   sequence*. Two spellings, and each round-trips as written: `U+0030 U+FE0F`
 //!   is two tokens, while the same pair pasted from a character picker is one
@@ -97,8 +104,10 @@
 //!   `0️⃣` stays whole and is rejected by name, because cmap format 14 holds a
 //!   base and one selector and nothing longer; the rest of such a sequence
 //!   belongs in a `remap`. Either half may be a range or a pipe list but not
-//!   both (see `expand_uvs_map_triples`). `generate` never takes this form: a
-//!   variation sequence is its own canonical decomposition.
+//!   both (see `expand_uvs_map_triples`). Takes `ifexists` like the plain form.
+//!   `generate` never takes this form: a variation sequence is its own
+//!   canonical decomposition — and it takes no `ifexists` either, since it
+//!   synthesizes its target instead of naming one.
 //! - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from
 //!   the character's Unicode canonical decomposition, named `uniXXXX` unless
 //!   `GLYPH` names it. `GLYPH` is a pattern expanded in lock-step with `CHAR`,
@@ -198,11 +207,20 @@
 //!   only its `anchor`s, where a contentless glyph without `keep` is not built
 //!   and every use of it is an error. `.notdef` is kept without saying so —
 //!   see [`crate::render::ttf_builder`].
-//! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly] [fill COLOR]`
+//! - `ref OTHER [COL ROW] [negated] [inherit] [ifexists] [coloronly|monoonly]
+//!   [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from
 //!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
 //!   stack in source order and `negated` subtracts from what is already there,
 //!   so a later ref draws back over an earlier negation.
+//!
+//!   `ifexists` makes the ref a *condition*: a ref naming a glyph nothing
+//!   defines already leaves its own glyph unbuilt, and so unmapped, and the
+//!   flag says that outcome was meant — nothing is reported and the editor
+//!   underlines nothing. It is for the one case a diagnostic cannot help with:
+//!   a whole pattern of glyphs written in one block (`glyph private-($#e000..
+//!   efff)` / `ref foo-($#e000..efff) ifexists`), where which of the expanded
+//!   names has a target varies and only those should survive.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges.
 //! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT… ` — an IDC line: the glyph's box split along
@@ -530,7 +548,7 @@ fn parse_visibility(s: &str) -> Option<LayerVisibility> {
 /// - `ref NAME`
 /// - `ref NAME negated`
 /// - `ref NAME COL ROW [negated]`
-/// - Any of the above followed by `inherit`, `fill COLOR` and/or
+/// - Any of the above followed by `inherit`, `ifexists`, `fill COLOR` and/or
 ///   `coloronly`/`monoonly`, in any order (each is independent of the others)
 ///
 /// `base` is the `@` base in force — the last glyph name declared without one.
@@ -548,6 +566,7 @@ fn parse_ref_line(
     let mut offset: Option<(i16, i16)> = None;
     let mut negated = false;
     let mut inherit = false;
+    let mut if_exists = false;
     let mut fill: Option<RefFill> = None;
     let mut visibility: Option<LayerVisibility> = None;
 
@@ -564,6 +583,7 @@ fn parse_ref_line(
         match parts[idx].as_str() {
             "negated" => negated = true,
             "inherit" => inherit = true,
+            "ifexists" => if_exists = true,
             "fill" => {
                 idx += 1;
                 if idx >= parts.len() {
@@ -590,6 +610,7 @@ fn parse_ref_line(
         offset,
         negated,
         inherit,
+        if_exists,
         fill,
         visibility,
         comment,
@@ -1077,14 +1098,16 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 char_repr,
                 selector,
                 glyph,
+                if_exists,
                 comment,
             } => {
                 writeln!(
                     writer,
-                    "map {}{} = {}{}",
+                    "map {}{} = {}{}{}",
                     slice_prefix(slices),
                     write_map_chars(char_repr, selector.as_deref()),
                     quote_token(glyph),
+                    if *if_exists { " ifexists" } else { "" },
                     comment_suffix(comment),
                 )?;
             }
@@ -1393,11 +1416,30 @@ pub fn derive_document(
                         // `DocumentItem::split_slice_qualifier` for why the
                         // qualifier cannot be confused with `map : = colon`.
                         let (slices, tokens) = DocumentItem::split_slice_qualifier(&tokens[1..]);
+                        // A trailing `ifexists` likewise comes off before the
+                        // arities are counted, so it is a flag on the forms
+                        // below rather than an arity of its own. Only trailing:
+                        // a glyph really named `ifexists` is still writable as
+                        // the target itself.
+                        let if_exists = tokens.len() > 1 && tokens[tokens.len() - 1] == "ifexists";
+                        let tokens = if if_exists {
+                            &tokens[..tokens.len() - 1]
+                        } else {
+                            tokens
+                        };
                         // `map generate CHAR [= GLYPH]` is checked first, but only
                         // in the arities the plain form cannot take: `map generate
                         // = g` stays an ordinary (if nonsensical) `map`.
                         let generate = tokens.len() >= 2 && tokens[0] == "generate";
-                        if tokens.len() == 3 && tokens[1] == "=" {
+                        if if_exists && generate {
+                            // `generate` synthesizes its target rather than
+                            // naming one, so there is nothing for the flag to
+                            // be conditional on. Left unreadable so it is
+                            // reported rather than silently dropped on save.
+                            item_line_starts.push(i);
+                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                            i += 1;
+                        } else if tokens.len() == 3 && tokens[1] == "=" {
                             let (char_repr, selector) = split_written_uvs_pair(&tokens[0]);
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
@@ -1405,6 +1447,7 @@ pub fn derive_document(
                                 char_repr,
                                 selector,
                                 glyph: tokens[2].clone(),
+                                if_exists,
                                 comment,
                             });
                             i += 1;
@@ -1445,6 +1488,7 @@ pub fn derive_document(
                                 char_repr: tokens[0].clone(),
                                 selector: Some(tokens[1].clone()),
                                 glyph: tokens[3].clone(),
+                                if_exists,
                                 comment,
                             });
                             i += 1;

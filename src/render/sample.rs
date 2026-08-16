@@ -550,6 +550,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
     // Collect cmap
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
+    let sample_glyph_names: HashSet<String> = all_items
+        .iter()
+        .filter_map(|item| match item {
+            DocumentItem::Glyph { name, .. } => Some(name.0.clone()),
+            _ => None,
+        })
+        .collect();
     for item in &all_items {
         match item {
             // A variation sequence claims no codepoint of its own; the base is
@@ -558,11 +565,28 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                 selector: Some(_), ..
             } => {}
             DocumentItem::Map {
-                char_repr, glyph, ..
+                char_repr,
+                glyph,
+                if_exists,
+                ..
             } => {
                 let mut pairs = expand_map_pairs(char_repr, glyph);
                 glyph_aliases.canonicalize_pairs(&mut pairs);
                 for (cp, glyph_name) in pairs {
+                    // The same skip the build makes: an `ifexists` line whose
+                    // target is absent claims no codepoint, and this map is
+                    // first-wins, so letting it in would show the sample a
+                    // glyph the font does not map — the exact way the sample
+                    // and the font start disagreeing.
+                    if *if_exists
+                        && !crate::render::ttf_builder::glyph_name_exists(
+                            &glyph_name,
+                            &sample_glyph_names,
+                            &glyph_aliases,
+                        )
+                    {
+                        continue;
+                    }
                     cmap.entry(cp).or_insert(glyph_name);
                 }
             }

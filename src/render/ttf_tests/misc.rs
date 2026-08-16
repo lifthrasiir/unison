@@ -886,3 +886,35 @@ fn directory_load_keeps_its_order_and_reports_every_bad_file() {
 
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// `ifexists` changes what is *reported*, not what is built: a mapping whose
+/// target never resolved was always dropped, and this is that drop with the
+/// author's blessing on it. Both halves of the idiom are here — the map that
+/// names an absent glyph, and the glyph whose `ifexists` ref names one — so a
+/// later change that makes either of them build something empty is caught.
+#[test]
+fn an_ifexists_mapping_whose_target_is_absent_reaches_no_cmap_entry() {
+    let ttf = build_from(
+        "\
+glyph real 1 1
+@@
+
+glyph via-ref 1 1
+ref real ifexists
+
+glyph via-missing-ref 1 1
+ref absent ifexists
+
+map U+E000 = real ifexists
+map U+E001 = gone ifexists
+map U+E002 = via-ref
+map U+E003 = via-missing-ref
+",
+    );
+    let font = read_fonts::FontRef::new(&ttf).unwrap();
+    let cmap = font.cmap().unwrap();
+    assert!(cmap.map_codepoint('\u{E000}').is_some());
+    assert!(cmap.map_codepoint('\u{E001}').is_none());
+    assert!(cmap.map_codepoint('\u{E002}').is_some());
+    assert!(cmap.map_codepoint('\u{E003}').is_none());
+}

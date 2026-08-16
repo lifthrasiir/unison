@@ -888,6 +888,16 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let mut mapped_codepoints: HashMap<u32, BTreeMap<Option<String>, MapSite>> = HashMap::new();
     let mut mapped_glyphs: HashSet<String> = HashSet::new();
 
+    // Whether a `map` target names a glyph the font will contain — through an
+    // alias like everywhere else. This is the source-side reading of the same
+    // question `collect.rs` answers with its resolution cache: a glyph that is
+    // *declared* but fails to resolve (an unresolved ref of its own) still
+    // counts as existing here, which is as close as a check over the documents
+    // can get without resolving them a second time.
+    let glyph_exists = |name: &str| {
+        crate::render::ttf_builder::glyph_name_exists(name, &all_glyph_names, aliases)
+    };
+
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
             match item {
@@ -900,6 +910,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     char_repr,
                     selector: Some(sel),
                     glyph,
+                    if_exists,
                     ..
                 } => {
                     let stated: Vec<Option<String>> = if slices.is_empty() {
@@ -915,7 +926,12 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                             sel,
                             &subst_glyph,
                         ) {
-                            mapped_glyphs.extend(triples.into_iter().map(|(_, _, name)| name));
+                            mapped_glyphs.extend(
+                                triples
+                                    .into_iter()
+                                    .map(|(_, _, name)| name)
+                                    .filter(|name| !*if_exists || glyph_exists(name)),
+                            );
                         }
                     }
                 }
@@ -925,6 +941,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                     slices,
                     char_repr,
                     glyph,
+                    if_exists,
                     ..
                 } => {
                     // Once per slice the line is stated for, with that slice's
@@ -940,6 +957,16 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         let expanded_pairs =
                             crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
                         for (cp, target) in &expanded_pairs {
+                            // An `ifexists` line claims only the codepoints
+                            // whose target is really there, so the ones whose
+                            // target is not neither duplicate an earlier
+                            // mapping nor make one duplicate them. Two such
+                            // lines over one range — the name that exists wins
+                            // the codepoint — is the whole point of the flag,
+                            // and warning per codepoint would bury it.
+                            if *if_exists && !glyph_exists(target) {
+                                continue;
+                            }
                             mapped_glyphs.insert(target.clone());
                             let by_slice = mapped_codepoints.entry(*cp).or_default();
                             if let Some(prev) = by_slice.get(&slice) {
@@ -2467,6 +2494,131 @@ map h = half
                 .iter()
                 .any(|i| i.severity == Severity::Error && i.message.contains("nonexistent")),
             "expected undefined map target error, got: {issues:?}",
+        );
+    }
+
+    /// `ifexists` is what a pattern written over a range whose membership
+    /// varies needs: the codepoints whose target is there are mapped, the rest
+    /// say nothing. Neither half may be reported.
+    #[test]
+    fn ifexists_map_to_a_missing_glyph_is_silent() {
+        let issues = issues_for(
+            "\
+glyph x-e000 1 1
+@@
+map U+E000..E001 = x-($#e000..e001) ifexists
+",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("x-e001")),
+            "expected silence for the absent half, got: {issues:?}",
+        );
+        assert!(
+            !issues.iter().any(|i| i.severity == Severity::Error),
+            "expected no errors, got: {issues:?}",
+        );
+    }
+
+    /// The other side of the same idiom: the glyph block is written over the
+    /// whole range and the `ref` decides which of them is real. An unresolved
+    /// ref already leaves the glyph unbuilt — the flag only says so was meant.
+    #[test]
+    fn ifexists_ref_to_a_missing_glyph_is_silent() {
+        let issues = issues_for(
+            "\
+glyph foo-e000 1 1
+@@
+
+glyph private-e000 1 1
+ref foo-e000 ifexists
+
+glyph private-e001 1 1
+ref foo-e001 ifexists
+
+map U+E000 = private-e000
+map U+E001 = private-e001
+",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("foo-e001")),
+            "expected silence for the unresolved ref, got: {issues:?}",
+        );
+        assert!(
+            !issues.iter().any(|i| i.severity == Severity::Error),
+            "expected no errors, got: {issues:?}",
+        );
+    }
+
+    /// The flag is per line: a plain `ref` beside an `ifexists` one is reported
+    /// exactly as it always was.
+    #[test]
+    fn a_plain_ref_beside_an_ifexists_one_is_still_reported() {
+        let issues = issues_for(
+            "\
+glyph a 1 1
+@@
+
+glyph b 1 1
+ref maybe ifexists
+
+glyph c 1 1
+ref nope
+
+map A = a
+map B = b
+map C = c
+",
+        );
+        assert!(
+            has(&issues, Severity::Error, "unresolved ref 'nope'"),
+            "expected the plain ref reported, got: {issues:?}",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("maybe")),
+            "expected silence for the ifexists ref, got: {issues:?}",
+        );
+    }
+
+    /// Two `ifexists` lines over one range is the idiom's natural shape — the
+    /// name that exists wins the codepoint. Warning about a duplicate the font
+    /// never contains would make it unusable.
+    #[test]
+    fn an_ifexists_map_whose_target_is_absent_duplicates_nothing() {
+        let issues = issues_for(
+            "\
+glyph x-e000 1 1
+@@
+glyph y-e001 1 1
+@@
+map U+E000..E001 = x-($#e000..e001) ifexists
+map U+E000..E001 = y-($#e000..e001) ifexists
+",
+        );
+        assert!(
+            !issues.iter().any(|i| i.message.contains("duplicate")),
+            "expected no duplicate warning, got: {issues:?}",
+        );
+    }
+
+    /// …but two `ifexists` lines that both do land on the same codepoint are
+    /// the ordinary duplicate: one of them is not reaching the font.
+    #[test]
+    fn two_ifexists_maps_that_both_exist_still_duplicate() {
+        let issues = issues_for(
+            "\
+glyph x-e000 1 1
+@@
+glyph x-e001 1 1
+@@
+glyph y-e000 1 1
+@@
+map U+E000..E001 = x-($#e000..e001) ifexists
+map U+E000..E001 = y-($#e000..e001) ifexists
+",
+        );
+        assert!(
+            has(&issues, Severity::Warning, "duplicate codepoint mapping"),
+            "expected the duplicate warning, got: {issues:?}",
         );
     }
 
