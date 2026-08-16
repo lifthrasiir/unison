@@ -159,7 +159,7 @@ fn a_line_that_warns_is_rewritten_by_its_gaps_alone() {
     assert_eq!(fix.glyph, "test-x");
     assert_eq!(fix.old_line, "\u{2FF0} a:4x4 b:4x4");
     // 0/3/0 as written: the middle is 2 outside the range and so is the total.
-    assert_eq!(fix.before, 4);
+    assert_eq!(fix.before, Some(4));
     // Both parts move outwards: 1/1/1, and the total — which no arrangement
     // can change — is all that is left to warn about.
     assert_eq!(fix.after, 2);
@@ -181,7 +181,7 @@ fn a_wider_variant_is_chosen_when_the_gaps_cannot_do_it() {
     let src = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a:3x4 b:4x4");
     let fixes = plan(&src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (5, 2));
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(5), 2));
     assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4");
 }
 
@@ -194,20 +194,40 @@ fn a_variant_for_the_wrong_slot_is_not_a_candidate() {
         .replace("glyph a:4x4 4 4", "glyph a:4x4-r 4 4");
     let fixes = plan(&src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (5, 4));
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(5), 4));
     assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:3x4 -1 b:4x4");
 }
 
-/// An undecided component, a component nothing defines, and a part that is
-/// itself a composite: all three are lines the check does not measure, so
-/// there is nothing here to improve.
+/// A component with no variant picked yet is a TODO rather than a measurement,
+/// so there is no layout to score it against — but the family it names is still
+/// there to be searched, and picking from it is the whole of what the line is
+/// waiting for.
+#[test]
+fn an_undecided_component_picks_a_variant() {
+    let src = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a b:4x4");
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].old_line, "\u{2FF0} a b:4x4");
+    assert_eq!(fixes[0].before, None, "nothing was measured to begin with");
+    // The same answer the decided line reaches: the wider variant, and the
+    // gaps that push both parts out against the box.
+    assert_eq!(fixes[0].after, 2);
+    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4");
+}
+
+/// An undecided component whose family is empty names nothing that could go in
+/// the slot, so the line stays a TODO.
+#[test]
+fn an_undecided_component_with_no_variants_is_skipped() {
+    let src = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} q b:4x4");
+    assert!(plan(&src).is_empty());
+}
+
+/// A component nothing defines and a part that is itself a composite: both are
+/// lines the check does not measure, so there is nothing here to improve.
 #[test]
 fn unmeasurable_lines_are_skipped() {
-    for line in [
-        "\u{2FF0} a b:4x4",
-        "\u{2FF0} a:4x4 nothing:4x4",
-        "\u{2FF0} a:4x4 c:4x4",
-    ] {
+    for line in ["\u{2FF0} a:4x4 nothing:4x4", "\u{2FF0} a:4x4 c:4x4"] {
         let src = format!(
             "{}\nglyph c:4x4 4 4\nref b:4x4\n",
             TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", line)
@@ -246,7 +266,7 @@ glyph test-y 9 3
 ";
     let fixes = plan(src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (8, 7));
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(8), 7));
     // A gap of zero is not written, and neither is a trailing one.
     assert_eq!(fixes[0].new_line, "\u{2FF2} 1 p:3x3 p:3x3 p:3x3");
 }
@@ -270,7 +290,7 @@ glyph test-z 4 4
 ";
     let fixes = plan(src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    assert_eq!((fixes[0].before, fixes[0].after), (2, 1));
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(2), 1));
     assert_eq!(fixes[0].new_line, "\u{2FF1} u:4x2 -1 d:4x2");
 }
 

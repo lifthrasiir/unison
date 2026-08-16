@@ -4,30 +4,43 @@
 //!
 //! # What it touches
 //!
-//! **Only a line that warns.** A clearance warning is the whole trigger: a line
-//! whose measurements already sit in the range is a line whose author has
-//! decided something, and rewriting it to a layout this file happens to prefer
-//! is churn nobody asked for. The same rule cuts the other way at the end — a
-//! rewrite is emitted only when it *lowers* the score, so a line that cannot be
-//! improved keeps the warning rather than being shuffled about.
+//! **Only a line the source already reports.** A line whose measurements sit in
+//! the range is a line whose author has decided something, and rewriting it to
+//! a layout this file happens to prefer is churn nobody asked for. The same
+//! rule cuts the other way at the end — a rewrite is emitted only when it
+//! *lowers* the score, so a line that cannot be improved keeps the warning
+//! rather than being shuffled about.
 //!
-//! Everything the clearance check itself stands down for is skipped here too
-//! (an undecided component, a component that names nothing, a part with no ink
-//! of its own): there is nothing measured to optimize. A glyph whose name is a
-//! pattern is skipped as well, since one line then stands for a family and the
-//! parts of each member are sized differently — expansion already calls that an
-//! error.
+//! There are two kinds of report it acts on, and they are not the same act:
+//!
+//! - a **clearance warning**, where the line has a layout and the layout is
+//!   outside the range. The search moves it inside, and the rewrite has to
+//!   lower the score or it is not made;
+//! - a **TODO**, where a component has not picked its variant
+//!   ([`crate::compose::is_undecided`]). There is no layout at all then, so
+//!   there is no score to lower — but the family the component names is on hand
+//!   and choosing from it is exactly what the TODO asks for. Such a line is
+//!   planned whatever it scores, since any decided layout is more than none,
+//!   and its [`ClearanceFix::before`] is `None` to say so.
+//!
+//! What is skipped is what cannot be measured *after* a choice either: a
+//! component that names nothing, a part with no ink of its own, an undecided
+//! component whose family is empty. A glyph whose name is a pattern is skipped
+//! as well, since one line then stands for a family and the parts of each
+//! member are sized differently — expansion already calls that an error.
 //!
 //! # The search
 //!
 //! For each slot, the candidates are the variants of the component's base name
-//! — `A:4x16`, `A:5x16`, … for a component written `A:x` — filtered to those
+//! — `A:4x16`, `A:5x16`, … for a component written `A:x`, and for an undecided
+//! `A` the base is the whole name — filtered to those
 //! that could go there at all: the box must fit the slot across the axis, a
 //! `:WxH` in the name must be true, and **a name drawn for another direction is
 //! not a candidate** (`compose::direction_rank` = 2, i.e. a `-r` variant for the
 //! left slot of a `⿰`). The component as currently written is always a
 //! candidate, whatever it says, since it is the source's own choice and not an
-//! alternative being proposed.
+//! alternative being proposed — unless it is undecided, which names no drawing
+//! that could fill anything.
 //!
 //! The score of a layout is how far its clearances fall outside the range,
 //! summed — each of the n+1 clearances, plus their total, exactly the set of
@@ -103,7 +116,11 @@ pub struct ClearanceFix {
     pub new_line: String,
     /// The score before and after: how far the clearances fall outside the
     /// range, summed. `after < before` always holds.
-    pub before: i32,
+    ///
+    /// `None` before means the line had no layout to score — a component had
+    /// not picked its variant, so there was nothing measured rather than
+    /// something measured badly.
+    pub before: Option<i32>,
     pub after: i32,
 }
 
@@ -309,6 +326,11 @@ impl<'a> Inventory<'a> {
 
     /// Everything that could fill the slot `current` fills now, `current`
     /// itself first.
+    ///
+    /// A component that has not picked its variant yet is *not* itself a
+    /// candidate — it names no drawing at all — and its whole name is the base
+    /// whose family fills the slot instead. That is the one case where the list
+    /// can come back without the name the line is written with.
     fn candidates(
         &self,
         current: &str,
@@ -317,15 +339,20 @@ impl<'a> Inventory<'a> {
         horizontal: bool,
     ) -> Vec<Candidate> {
         let mut out = Vec::new();
-        let Some(mine) = self.candidate(current, cross, horizontal) else {
-            return out;
-        };
-        out.push(mine);
         let canonical = self.canonical(current);
-        let Some((base, _)) = canonical.split_once(':') else {
-            return out;
+        let base = if crate::compose::is_undecided(&canonical) {
+            canonical.clone()
+        } else {
+            let Some(mine) = self.candidate(current, cross, horizontal) else {
+                return out;
+            };
+            out.push(mine);
+            let Some((base, _)) = canonical.split_once(':') else {
+                return out;
+            };
+            base.to_string()
         };
-        for name in self.variants.get(base).into_iter().flatten() {
+        for name in self.variants.get(&base).into_iter().flatten() {
             if out.len() >= MAX_CANDIDATES {
                 break;
             }
@@ -383,7 +410,7 @@ fn optimize_line(
     compose: &GlyphCompose,
     lo: i32,
     hi: i32,
-) -> Option<(String, i32, i32)> {
+) -> Option<(String, Option<i32>, i32)> {
     let op = compose.op;
     let horizontal = op.horizontal();
     let (axis_extent, cross_extent) = match horizontal {
@@ -394,30 +421,38 @@ fn optimize_line(
     if written.len() != op.arity() {
         return None;
     }
-    // Everything the check itself stands down for. An undecided component has
-    // not chosen a width, so there is no layout here to improve yet.
-    if written
-        .iter()
-        .any(|n| crate::compose::is_undecided(n) || !is_plain_name(n))
-    {
+    if written.iter().any(|n| !is_plain_name(n)) {
         return None;
     }
+    // An undecided component has not chosen a width, so the line has no layout
+    // to measure — the check stands down and reports a TODO instead. There is
+    // still something to do here, though: picking from the family it names is
+    // exactly what the TODO asks for, so the line is optimized *towards* a
+    // decision rather than away from a warning. Its `before` is `None`, and the
+    // "must lower the score" rule below has nothing to compare against.
+    let undecided = written.iter().any(|n| crate::compose::is_undecided(n));
 
     // As written: the parts where the line's own gaps put them.
-    let current: Vec<Candidate> = written
-        .iter()
-        .map(|name| inv.candidate(name, cross_extent, horizontal))
-        .collect::<Option<Vec<_>>>()?;
-    let placed = walk(compose, &current);
-    let as_written: Vec<&Candidate> = current.iter().collect();
-    let before = score(
-        &clearances_at(&as_written, &placed, axis_extent, horizontal)?,
-        lo,
-        hi,
-    );
-    if before == 0 {
-        return None; // nothing warns, so nothing to fix
-    }
+    let before = match undecided {
+        true => None,
+        false => {
+            let current: Vec<Candidate> = written
+                .iter()
+                .map(|name| inv.candidate(name, cross_extent, horizontal))
+                .collect::<Option<Vec<_>>>()?;
+            let placed = walk(compose, &current);
+            let as_written: Vec<&Candidate> = current.iter().collect();
+            let before = score(
+                &clearances_at(&as_written, &placed, axis_extent, horizontal)?,
+                lo,
+                hi,
+            );
+            if before == 0 {
+                return None; // nothing warns, so nothing to fix
+            }
+            Some(before)
+        }
+    };
 
     let slots: Vec<Vec<Candidate>> = written
         .iter()
@@ -444,7 +479,7 @@ fn optimize_line(
         }
     }
     let (key, pick) = best?;
-    if key.score >= before {
+    if before.is_some_and(|before| key.score >= before) {
         return None; // a line nobody can improve keeps its warning
     }
     let chosen: Vec<&Candidate> = pick

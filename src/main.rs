@@ -160,7 +160,12 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
                     f.glyph,
                     lines[line].trim(),
                     f.new_line,
-                    f.before,
+                    // A line whose component had no variant picked was never
+                    // measured; there is no number to have improved on.
+                    match f.before {
+                        Some(before) => before.to_string(),
+                        None => "todo".to_string(),
+                    },
                     f.after,
                 );
                 edits.push((line, f.new_line.clone()));
