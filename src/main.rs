@@ -74,8 +74,8 @@ fn load_docs_reporting_errors(dir: &std::path::Path) -> (Vec<document::Document>
 /// editor's issue list is where a work queue that size is read, with a filter
 /// over it, and a build log that scrolls it past is a build log nobody reads.
 /// Every other severity prints its line.
-fn report_issues(docs: &[&document::Document]) -> usize {
-    let issues = issues::collect_issues(docs);
+fn report_issues(docs: &[&document::Document], resolution: &resolve::Resolution) -> usize {
+    let issues = issues::collect_issues_with(docs, resolution);
     if issues.is_empty() {
         return 0;
     }
@@ -306,6 +306,7 @@ fn main() {
         let mut sample_png = None;
         let mut live_html = None;
         let mut data_dir = None;
+        let mut woff2_quality = render::Woff2Quality::default();
         let mut i = 2;
         while i < args.len() {
             match args[i].as_str() {
@@ -331,6 +332,14 @@ fn main() {
                     i += 1;
                     live_html = args.get(i).map(std::path::PathBuf::from);
                 }
+                "--woff2-quality" => {
+                    i += 1;
+                    let Some(q) = args.get(i).and_then(|s| render::Woff2Quality::parse(s)) else {
+                        eprintln!("--woff2-quality takes `fast` or `max`");
+                        std::process::exit(1);
+                    };
+                    woff2_quality = q;
+                }
                 "--data-dir" | "-d" => {
                     i += 1;
                     data_dir = args.get(i).map(std::path::PathBuf::from);
@@ -345,13 +354,15 @@ fn main() {
 
         let Some(input) = input_dir else {
             eprintln!(
-                "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...]"
+                "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...] \
+                 [--woff2-quality fast|max]"
             );
             std::process::exit(1);
         };
         if output_files.is_empty() {
             eprintln!(
-                "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...]"
+                "Usage: uniform build --input <DIR> --output <FILE.ttf|.woff2> [--output ...] \
+                 [--woff2-quality fast|max]"
             );
             std::process::exit(1);
         }
@@ -367,10 +378,50 @@ fn main() {
         // runs alongside it rather than in front of it — on a font this size it
         // is a second of the wall clock either way. The report is still printed
         // before anything the build has to say, so a log reads as it always did.
-        let (issue_errors, built) = std::thread::scope(|scope| {
-            let build = scope.spawn(|| render::build_faces(&refs));
-            (report_issues(&refs), build.join().unwrap())
+        //
+        // The sample documents resolve their own glyphs, from the same
+        // documents and sharing nothing with either, so that goes here too
+        // rather than in front of the outputs that want it.
+        let wants_sample = sample_html.is_some() || sample_png.is_some() || live_html.is_some();
+        let (issue_errors, built, sample_source) = std::thread::scope(|scope| {
+            let build = scope.spawn(|| {
+                let _t = startup::PerfStage::new("build faces");
+                render::build_faces(&refs)
+            });
+            // Validation and the sample want the same expansion — the primary
+            // face, in full — and it is the larger half of what either costs,
+            // so it is computed once and lent to both. Here, inside the scope,
+            // because the build needs none of it and is already running: on a
+            // machine with cores to spare this whole half is free, and on one
+            // without it is a third of the expansions it used to be.
+            let resolution = {
+                let _t = startup::PerfStage::new("resolve");
+                resolve::Resolution::compute(&refs)
+            };
+            // Its own scope, so the two borrowers of `resolution` are joined
+            // before it goes out of scope — the outer one outlives it.
+            let (errors, sample) = std::thread::scope(|inner| {
+                let sample = wants_sample.then(|| {
+                    inner.spawn(|| {
+                        let _t = startup::PerfStage::new("sample resolve");
+                        render::sample::SampleSource::collect_with(&refs, &resolution)
+                    })
+                });
+                let errors = {
+                    let _t = startup::PerfStage::new("validate");
+                    report_issues(&refs, &resolution)
+                };
+                (errors, sample.map(|h| h.join().unwrap()))
+            });
+            (errors, build.join().unwrap(), sample)
         });
+        let sample_source = match sample_source {
+            Some(None) => {
+                eprintln!("Failed to build the sample: no glyph data");
+                std::process::exit(1);
+            }
+            other => other.flatten(),
+        };
         // Counted now, acted on at the very end: the outputs are all written
         // first, so a CI run can still publish them while the run itself fails.
         let error_count = parse_errors + issue_errors;
@@ -395,19 +446,20 @@ fn main() {
             })
             .collect();
 
-        let mut writes: Vec<(std::path::PathBuf, Vec<u8>)> = Vec::new();
+        // What each output is, before any of it is produced. Splitting the plan
+        // from the work is what lets the work run all at once below: a WOFF2 is
+        // a second or more of brotli per face, and the sample page is as much
+        // again, and none of them needs another's result.
+        enum OutputWork<'a> {
+            Collection,
+            /// Brotli over one face — by far the most expensive of these.
+            Woff2(&'a [u8]),
+            Plain(&'a [u8]),
+        }
+        let mut works: Vec<(std::path::PathBuf, OutputWork)> = Vec::new();
         for plan in plans {
             match plan {
-                faces::OutputPlan::Collection(path) => {
-                    let fonts: Vec<Vec<u8>> = built.iter().map(|(_, b)| b.clone()).collect();
-                    match render::build_collection(&fonts) {
-                        Ok(bytes) => writes.push((path, bytes)),
-                        Err(e) => {
-                            eprintln!("error: {e}");
-                            std::process::exit(1);
-                        }
-                    }
-                }
+                faces::OutputPlan::Collection(path) => works.push((path, OutputWork::Collection)),
                 faces::OutputPlan::PerFace(targets) => {
                     for (face_id, path) in targets {
                         let Some((_, ttf)) = built.iter().find(|(id, _)| *id == face_id) else {
@@ -418,22 +470,91 @@ fn main() {
                             .extension()
                             .and_then(|e| e.to_str())
                             .is_some_and(|e| e.eq_ignore_ascii_case("woff2"));
-                        let bytes = if is_woff2 {
-                            match render::ttf_to_woff2(ttf) {
-                                Ok(b) => b,
-                                Err(e) => {
-                                    eprintln!("{e}");
-                                    std::process::exit(1);
-                                }
-                            }
-                        } else {
-                            ttf.clone()
-                        };
-                        writes.push((path, bytes));
+                        works.push((
+                            path,
+                            if is_woff2 {
+                                OutputWork::Woff2(ttf)
+                            } else {
+                                OutputWork::Plain(ttf)
+                            },
+                        ));
                     }
                 }
             }
         }
+
+        // Every font output and both sample documents at once. The live page is
+        // the one that cannot join them: it embeds whichever WOFF2 the outputs
+        // produced, so it waits for them below.
+        //
+        // Nothing here is written to disk yet — a failure in any one of these
+        // still leaves the run's files as they were, rather than half replaced.
+        let render_to_vec = |what: &'static str, f: &dyn Fn(&mut Vec<u8>) -> std::io::Result<()>| {
+            let _t = startup::PerfStage::new(what);
+            let mut buf = Vec::new();
+            if let Err(e) = f(&mut buf) {
+                eprintln!("Failed to write {what}: {e}");
+                std::process::exit(1);
+            }
+            buf
+        };
+        let (writes, sample_html_bytes, sample_png_bytes) = std::thread::scope(|scope| {
+            let src = sample_source.as_ref();
+            let html_job = sample_html.as_ref().map(|_| {
+                scope.spawn(move || {
+                    render_to_vec("sample HTML", &|w| {
+                        render::sample::write_sample_html(w, src.unwrap())
+                    })
+                })
+            });
+            let png_job = sample_png.as_ref().map(|_| {
+                scope.spawn(move || {
+                    render_to_vec("sample PNG", &|w| {
+                        render::sample::write_sample_png(w, src.unwrap())
+                    })
+                })
+            });
+            let font_jobs: Vec<_> = works
+                .iter()
+                .map(|(_path, work)| {
+                    let built = &built;
+                    scope.spawn(move || {
+                        let _t = startup::PerfStage::new(match work {
+                            OutputWork::Collection => "output collection",
+                            OutputWork::Woff2(_) => "output woff2",
+                            OutputWork::Plain(_) => "output ttf",
+                        });
+                        match work {
+                            OutputWork::Collection => {
+                                let fonts: Vec<Vec<u8>> =
+                                    built.iter().map(|(_, b)| b.clone()).collect();
+                                render::build_collection(&fonts).unwrap_or_else(|e| {
+                                    eprintln!("error: {e}");
+                                    std::process::exit(1);
+                                })
+                            }
+                            OutputWork::Woff2(ttf) => {
+                                render::ttf_to_woff2(ttf, woff2_quality).unwrap_or_else(|e| {
+                                    eprintln!("{e}");
+                                    std::process::exit(1);
+                                })
+                            }
+                            OutputWork::Plain(ttf) => ttf.to_vec(),
+                        }
+                    })
+                })
+                .collect();
+            let writes: Vec<(std::path::PathBuf, Vec<u8>)> = works
+                .iter()
+                .map(|(path, _)| path.clone())
+                .zip(font_jobs.into_iter().map(|h| h.join().unwrap()))
+                .collect();
+            (
+                writes,
+                html_job.map(|h| h.join().unwrap()),
+                png_job.map(|h| h.join().unwrap()),
+            )
+        });
 
         for (output, data) in &writes {
             match std::fs::write(output, data) {
@@ -452,25 +573,15 @@ fn main() {
             }
         }
 
-        if let Some(path) = sample_html {
-            let mut f = std::fs::File::create(&path).unwrap_or_else(|e| {
-                eprintln!("Failed to create {}: {e}", path.display());
-                std::process::exit(1);
-            });
-            if let Err(e) = render::sample::write_sample_html(&mut f, &refs) {
-                eprintln!("Failed to write sample HTML: {e}");
-                std::process::exit(1);
-            }
-            eprintln!("Wrote {}", path.display());
-        }
-
-        if let Some(path) = sample_png {
-            let mut f = std::fs::File::create(&path).unwrap_or_else(|e| {
-                eprintln!("Failed to create {}: {e}", path.display());
-                std::process::exit(1);
-            });
-            if let Err(e) = render::sample::write_sample_png(&mut f, &refs) {
-                eprintln!("Failed to write sample PNG: {e}");
+        for (path, bytes) in [
+            (sample_html, sample_html_bytes),
+            (sample_png, sample_png_bytes),
+        ] {
+            let (Some(path), Some(bytes)) = (path, bytes) else {
+                continue;
+            };
+            if let Err(e) = std::fs::write(&path, &bytes) {
+                eprintln!("Write error for {}: {e}", path.display());
                 std::process::exit(1);
             }
             eprintln!("Wrote {}", path.display());
@@ -492,13 +603,18 @@ fn main() {
             let result = if let Some((_, w2)) = woff2_written {
                 render::sample::write_live_html_woff2(
                     &mut f,
-                    &refs,
+                    sample_source.as_ref().unwrap(),
                     &font_bytes,
                     w2,
                     data_dir.as_deref(),
                 )
             } else {
-                render::sample::write_live_html(&mut f, &refs, &font_bytes, data_dir.as_deref())
+                render::sample::write_live_html(
+                    &mut f,
+                    sample_source.as_ref().unwrap(),
+                    &font_bytes,
+                    data_dir.as_deref(),
+                )
             };
             if let Err(e) = result {
                 eprintln!("Failed to write live HTML: {e}");
@@ -549,7 +665,7 @@ fn main() {
         let refs: Vec<&document::Document> = docs.iter().collect();
         // Same rule as `build`: a validation error fails the run even when
         // every assertion passes.
-        let error_count = parse_errors + report_issues(&refs);
+        let error_count = parse_errors + report_issues(&refs, &resolve::Resolution::compute(&refs));
 
         let name_parts = document::collect_name_parts(&refs);
         let (resolved, _) = ref_composite::resolve_named_glyphs_with_parts(&refs, &name_parts);

@@ -509,7 +509,9 @@ impl UniformApp {
         };
         let is_woff2 = path.extension().and_then(|e| e.to_str()) == Some("woff2");
         let output_bytes = if is_woff2 {
-            match crate::render::ttf_to_woff2(&font_bytes) {
+            // An export is a file the author means to ship, and one asked for
+            // by hand at that, so it takes the wait for the smallest one.
+            match crate::render::ttf_to_woff2(&font_bytes, crate::render::Woff2Quality::Max) {
                 Ok(b) => b,
                 Err(e) => {
                     self.set_status(format!("Export error: {e}"));

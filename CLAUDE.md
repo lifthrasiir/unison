@@ -37,14 +37,15 @@ The `build`/`test`/`fix` subcommands require native execution:
 
 ```sh
 cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf] [-o unison.ttc] \
-    [--sample-html F] [--sample-png F] [--live-html F] [-d data]
+    [--sample-html F] [--sample-png F] [--live-html F] [-d data] [--woff2-quality fast|max]
 cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
 cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]   # rewrite the source: see `fix/`
 cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `startup.rs`
 ```
 
-Output extension picks the format (`.woff2` → WOFF2, anything else → TTF). Both subcommands print
-parse errors per file and then the full `issues.rs` validation report (`error:`/`warning:` with
+Output extension picks the format (`.woff2` → WOFF2, anything else → TTF); `--woff2-quality max`
+is for the files that are actually published, and costs about 1.5 s per face (`render::Woff2Quality`).
+Both subcommands print parse errors per file and then the full `issues.rs` validation report (`error:`/`warning:` with
 `file:line:`); the font still builds when only warnings/refs-to-nothing exist, so read the report.
 A single `error:` (from either the parse or the validation pass) makes both subcommands **exit 1** —
 `build` still writes every output file first, so a CI run can publish them and fail afterwards, which
@@ -289,6 +290,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite.rs` (`resolve_expansion_cached`) |
 | Splitting a memo off its tracer so the tracer can leave the thread | `render/glyph_cache.rs` (`CompositeBuilder`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
 | Which build stages run at once, and what they must not share to | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
+| Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces`), `collect.rs` (`collect_face_cmap`), `expand.rs` (`expand_maps_for`) |
+| Which of a `build`'s outputs are produced at once, and the one that has to wait | `main.rs` (`OutputWork`), `render/sample.rs` (`SampleSource`) |
+| Who shares the primary face's expansion, and why it is computed beside the build | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/sample.rs` (`collect_sample_data_with`) |
 | Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
 | Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite.rs` (`CompositeGridCache`) |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |

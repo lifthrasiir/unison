@@ -13,6 +13,12 @@ FACES = regular term
 # table but `cmap` and `name`, so one file is about half the size of the two
 # fonts separately.
 TTC = unison.ttc
+# Brotli level for the WOFF2 outputs. `max` is what the published files are
+# compressed with; the default trades 13% of their size for a second and a half
+# per face, which is the right way round for a local edit-build loop that never
+# serves them. See `render::Woff2Quality` for the measurements.
+WOFF2QUALITY = fast
+
 # The web takes one file per face. A WOFF2 collection is not usable from CSS —
 # a browser has no way to select a face inside one — and `build` refuses it.
 WOFF2 = $(FACES:%=unison-%.woff2)
@@ -41,4 +47,4 @@ clean:
 
 # The sample, preview and PNG show the *first* declared face.
 $(OUTPUTS): $(INPATH)/*.unf $(SRC)
-	$(CARGO) run $(CARGOFLAGS) -- build -i $(INPATH) -o $(TTC) -o unison-%.woff2 --sample-html sample.html --sample-png sample.png --live-html live.html -d data
+	$(CARGO) run $(CARGOFLAGS) -- build -i $(INPATH) -o $(TTC) -o unison-%.woff2 --woff2-quality $(WOFF2QUALITY) --sample-html sample.html --sample-png sample.png --live-html live.html -d data

@@ -69,7 +69,35 @@ struct SampleData {
     features: Vec<String>,
 }
 
+/// The resolution the three sample documents share.
+///
+/// `sample.html`, `sample.png` and `live.html` all draw the same glyphs from
+/// the same cache, and resolving that cache is most of what producing any one
+/// of them costs. Held here so a `build` writing all three resolves once
+/// instead of three times.
+pub struct SampleSource {
+    data: SampleData,
+    char_props: CharProps,
+}
+
+/// The sample from documents alone, expanding for itself. Every shipping
+/// caller has a [`Resolution`](crate::resolve::Resolution) to lend it, so this
+/// is the tests' entry point and only theirs.
+#[cfg(test)]
 fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
+    collect_sample_data_with(docs, &crate::resolve::Resolution::compute(docs))
+}
+
+/// The sample over an expansion someone else already paid for.
+///
+/// [`Resolution`](crate::resolve::Resolution) holds exactly the expansion this
+/// wants — the primary face, in full — and a `build` computes one anyway to
+/// validate with. Expanding is the larger half of collecting the sample, so the
+/// two share the one rather than doing it twice.
+fn collect_sample_data_with(
+    docs: &[&Document],
+    resolution: &crate::resolve::Resolution,
+) -> Option<SampleData> {
     if docs.is_empty() {
         return None;
     }
@@ -80,12 +108,10 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         return None;
     }
 
-    let name_parts = collect_name_parts(docs);
     let color_aliases = collect_color_aliases(docs);
 
-    let expansion = crate::render::ttf_builder::expand_documents(docs, &name_parts);
-    let glyph_aliases = expansion.aliases;
-    let all_items: Vec<DocumentItem> = expansion.items.into_iter().map(|e| e.item).collect();
+    let glyph_aliases = &resolution.expansion.aliases;
+    let all_items = || resolution.expansion.items();
 
     // Build contour cache for named glyphs
     struct CachedGlyph {
@@ -188,7 +214,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
     let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     let mut glyph_offsets: HashMap<String, (i16, i16)> = HashMap::new();
-    for item in &all_items {
+    for item in all_items() {
         if let DocumentItem::Glyph {
             name: GlyphName(n),
             body,
@@ -206,7 +232,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
     }
 
     let (mut cache, pending) = crate::render::glyph_cache::seed_cache(
-        &all_items,
+        all_items(),
         CachedGlyph::from_grid,
         CachedGlyph::empty,
         &crate::cancel::CancelToken::never(),
@@ -554,14 +580,13 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
     // Collect cmap
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
-    let sample_glyph_names: HashSet<String> = all_items
-        .iter()
+    let sample_glyph_names: HashSet<String> = all_items()
         .filter_map(|item| match item {
             DocumentItem::Glyph { name, .. } => Some(name.0.clone()),
             _ => None,
         })
         .collect();
-    for item in &all_items {
+    for item in all_items() {
         match item {
             // A variation sequence claims no codepoint of its own; the base is
             // already in the cmap through its own `map`.
@@ -607,12 +632,12 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         }
     }
 
-    let excluded: BTreeSet<u32> = crate::document::excluded_from_sample(all_items.iter());
+    let excluded: BTreeSet<u32> = crate::document::excluded_from_sample(all_items());
 
     // Collect features
     let mut features: Vec<String> = Vec::new();
     let mut seen_features: HashSet<String> = HashSet::new();
-    for item in &all_items {
+    for item in all_items() {
         if let DocumentItem::Feature { name, .. } = item
             && seen_features.insert(name.clone())
         {
@@ -800,11 +825,22 @@ fn char_name_str(cp: u32, char_props: &CharProps) -> String {
 // sample.html
 // ---------------------------------------------------------------------------
 
-pub fn write_sample_html(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()> {
-    let Some(data) = collect_sample_data(docs) else {
-        return Err(io::Error::new(io::ErrorKind::InvalidData, "no glyph data"));
-    };
-    let char_props = CharProps::collect(docs);
+impl SampleSource {
+    /// Resolve once for every sample document that follows, over an expansion
+    /// the caller already has — see [`collect_sample_data_with`].
+    pub fn collect_with(
+        docs: &[&Document],
+        resolution: &crate::resolve::Resolution,
+    ) -> Option<Self> {
+        Some(Self {
+            data: collect_sample_data_with(docs, resolution)?,
+            char_props: CharProps::collect(docs),
+        })
+    }
+}
+
+pub fn write_sample_html(w: &mut dyn Write, src: &SampleSource) -> io::Result<()> {
+    let SampleSource { data, char_props } = src;
 
     let svg_scale: f32 = 2.0;
 
@@ -937,10 +973,8 @@ $('reset').onclick=function(){{$('sample').value='';f('')}}
 // sample.png
 // ---------------------------------------------------------------------------
 
-pub fn write_sample_png(w: &mut dyn Write, docs: &[&Document]) -> io::Result<()> {
-    let Some(data) = collect_sample_data(docs) else {
-        return Err(io::Error::new(io::ErrorKind::InvalidData, "no glyph data"));
-    };
+pub fn write_sample_png(w: &mut dyn Write, src: &SampleSource) -> io::Result<()> {
+    let data = &src.data;
 
     let max_height = data.height as u32;
     let line_width: u32 = 512;
@@ -1218,34 +1252,31 @@ fn encode_rgba_png(w: &mut dyn Write, pixels: &[u8], width: u32, height: u32) ->
 
 pub fn write_live_html(
     w: &mut dyn Write,
-    docs: &[&Document],
+    src: &SampleSource,
     ttf_bytes: &[u8],
     data_dir: Option<&Path>,
 ) -> io::Result<()> {
-    write_live_html_inner(w, docs, ttf_bytes, None, data_dir)
+    write_live_html_inner(w, src, ttf_bytes, None, data_dir)
 }
 
 pub fn write_live_html_woff2(
     w: &mut dyn Write,
-    docs: &[&Document],
+    src: &SampleSource,
     ttf_bytes: &[u8],
     woff2_bytes: &[u8],
     data_dir: Option<&Path>,
 ) -> io::Result<()> {
-    write_live_html_inner(w, docs, ttf_bytes, Some(woff2_bytes), data_dir)
+    write_live_html_inner(w, src, ttf_bytes, Some(woff2_bytes), data_dir)
 }
 
 fn write_live_html_inner(
     w: &mut dyn Write,
-    docs: &[&Document],
+    src: &SampleSource,
     ttf_bytes: &[u8],
     woff2_bytes: Option<&[u8]>,
     data_dir: Option<&Path>,
 ) -> io::Result<()> {
-    let Some(data) = collect_sample_data(docs) else {
-        return Err(io::Error::new(io::ErrorKind::InvalidData, "no glyph data"));
-    };
-    let char_props = CharProps::collect(docs);
+    let SampleSource { data, char_props } = src;
 
     let (font_mime, font_data) = if let Some(w2) = woff2_bytes {
         ("font/woff2", w2)
@@ -2457,7 +2488,9 @@ map A = diag
 ",
         );
         let mut buf = Vec::new();
-        write_sample_html(&mut buf, &[&d]).unwrap();
+        let resolution = crate::resolve::Resolution::compute(&[&d]);
+        write_sample_html(&mut buf, &SampleSource::collect_with(&[&d], &resolution).unwrap())
+            .unwrap();
         let html = String::from_utf8(buf).unwrap();
         // Extract the large-glyph SVG (id='u41' for 'A')
         let svg = html.split("id='u41'").nth(1).unwrap();

@@ -504,24 +504,31 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
     };
     let never = crate::cancel::CancelToken::never();
 
-    // The union and every face are collected from the same documents and share
-    // nothing else — no contour cache is passed here, unlike the editor's
-    // build — so they run at once rather than one after another. A source with
-    // two faces spends three quarters of a build in this loop, and two of the
-    // three collections in it are only ever asked for their cmap.
-    let collect_for = |face: &crate::faces::Face| {
+    // The union is traced once and is the only tracing this build does: the
+    // glyph set is face-independent (`expand_for` filters maps by slice, never
+    // glyphs), so a per-face trace would reproduce it outline for outline. Each
+    // face therefore only expands — for its own `meta`, its own GSUB and above
+    // all its own cmap — and reads its glyphs out of the union store.
+    //
+    // They still run at once rather than one after another: the union's trace
+    // dominates, and a face's expansion is free beside it.
+    let collect_union = || {
         let expand = crate::startup::PerfStage::new("expand");
-        let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
+        let shared = collect::compute_shared_font_input_for(docs, &union_face, &never)?;
         drop(expand);
         let _collect = crate::startup::PerfStage::new("collect");
         collect::collect_glyph_data_with_shared(&shared, false, None, &never)
     };
-    let (union_glyphs, per_face) = std::thread::scope(|scope| {
-        let union = scope.spawn(|| collect_for(&union_face));
+    let collect_face = |face: &crate::faces::Face| {
+        let _expand = crate::startup::PerfStage::new("expand face");
+        collect::collect_face_cmap(docs, face, &never)
+    };
+    let (union_collected, per_face) = std::thread::scope(|scope| {
+        let union = scope.spawn(collect_union);
         let per_face: Vec<_> = faces
             .faces
             .iter()
-            .map(|face| scope.spawn(move || collect_for(face)))
+            .map(|face| scope.spawn(move || collect_face(face)))
             .collect();
         (
             union.join().unwrap(),
@@ -531,29 +538,22 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
                 .collect::<Vec<_>>(),
         )
     });
-    let (_, _, union_glyphs, _, _) = union_glyphs?;
+    // The palette comes from the union along with the glyphs, and has to: a
+    // glyph's `color_layers` index into it, and those are the union's.
+    let (_, _, union_glyphs, _, palette) = union_collected?;
 
     let mut out = Vec::new();
     for (face, collected) in faces.faces.iter().zip(per_face) {
-        // Collected for this face, for its own `meta`, its own GSUB, and above
-        // all its own cmap. Only the *codepoints* are taken from it; the
-        // glyphs, and therefore every glyph id, come from the shared store.
-        let (meta, scale, face_glyphs, gsub_data, palette) = collected?;
+        // Expanded for this face, for its own `meta`, its own GSUB, and above
+        // all its own cmap. Only the *codepoints* come from it; the glyphs, and
+        // therefore every glyph id, come from the shared store.
+        let (meta, scale, per_name, gsub_data) = collected?;
 
-        let mut per_name: HashMap<&str, &[u32]> = HashMap::new();
-        for g in &face_glyphs {
-            if !g.codepoints.is_empty() {
-                per_name.insert(g.name.as_str(), g.codepoints.as_slice());
-            }
-        }
         let glyphs: Vec<CollectedGlyph> = union_glyphs
             .iter()
             .map(|g| {
                 let mut g = g.clone();
-                g.codepoints = per_name
-                    .get(g.name.as_str())
-                    .map(|c| c.to_vec())
-                    .unwrap_or_default();
+                g.codepoints = per_name.get(g.name.as_str()).cloned().unwrap_or_default();
                 g
             })
             .collect();

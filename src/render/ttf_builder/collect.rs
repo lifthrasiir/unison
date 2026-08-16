@@ -153,17 +153,29 @@ pub(super) fn compute_shared_font_input(
     compute_shared_font_input_for(docs, crate::faces::FaceSet::collect(docs).primary(), cancel)
 }
 
-/// The shared input for one face: its metadata, and an expansion with every
-/// slice the face does not include already dropped.
+/// What every face needs out of the documents before anything is traced: its
+/// own `meta`, its own GSUB, and the items a slice qualifier left it.
+struct FaceInput {
+    meta: FontMeta,
+    scale: f32,
+    all_items: Vec<DocumentItem>,
+    gsub_data: GsubData,
+    glyph_aliases: crate::alias::AliasMap,
+}
+
+/// `maps_only` stops the expansion at the `map` lines — see
+/// [`expand_maps_for`](super::expand::expand_maps_for) for what that skips and
+/// why a face taking its glyphs from the union store may skip it.
 ///
 /// A cancelled run returns `None`, like any other input that cannot produce a
 /// font: name expansion is the one stage here big enough to be worth aborting,
 /// so the token is checked around it rather than inside it.
-pub(super) fn compute_shared_font_input_for(
+fn compute_face_input(
     docs: &[&Document],
     face: &crate::faces::Face,
     cancel: &crate::cancel::CancelToken,
-) -> Option<SharedFontInput> {
+    maps_only: bool,
+) -> Option<FaceInput> {
     if docs.is_empty() || cancel.is_cancelled() {
         return None;
     }
@@ -183,12 +195,51 @@ pub(super) fn compute_shared_font_input_for(
     let scale = UNITS_PER_EM as f32 / meta.height() as f32;
 
     let name_parts = collect_name_parts(docs);
-    let expansion = super::expand::expand_for(docs, &name_parts, face);
+    let expansion = if maps_only {
+        super::expand::expand_maps_for(docs, &name_parts, face)
+    } else {
+        super::expand::expand_for(docs, &name_parts, face)
+    };
     if cancel.is_cancelled() {
         return None;
     }
     let glyph_aliases = expansion.aliases;
     let all_items: Vec<DocumentItem> = expansion.items.into_iter().map(|e| e.item).collect();
+
+    // GSUB expands `remap` patterns straight from the documents rather than
+    // from `all_items`, so it is one of the two places that has to
+    // canonicalize aliases for itself.
+    let mut gsub_data = collect_gsub_data(docs, &name_parts, &glyph_aliases);
+    // Variation sequences, on the other hand, have to be read *after* the
+    // slice expansion, since a pair can be stated for one slice only. The
+    // selector set is read from the raw documents on purpose: see
+    // `GsubData::uvs_selectors` on why glyph order cannot vary by face.
+    gsub_data.uvs_selectors = super::gsub::collect_uvs_selectors(docs);
+    gsub_data.uvs_pairs = super::gsub::collect_uvs_pairs(&all_items, &glyph_aliases);
+
+    Some(FaceInput {
+        meta,
+        scale,
+        all_items,
+        gsub_data,
+        glyph_aliases,
+    })
+}
+
+/// The shared input for one face: its metadata, and an expansion with every
+/// slice the face does not include already dropped.
+pub(super) fn compute_shared_font_input_for(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<SharedFontInput> {
+    let FaceInput {
+        meta,
+        scale,
+        all_items,
+        gsub_data,
+        glyph_aliases,
+    } = compute_face_input(docs, face, cancel, false)?;
 
     let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &all_items {
@@ -203,16 +254,6 @@ pub(super) fn compute_shared_font_input_for(
         }
     }
 
-    // GSUB expands `remap` patterns straight from the documents rather than
-    // from `all_items`, so it is one of the two places that has to
-    // canonicalize aliases for itself.
-    let mut gsub_data = collect_gsub_data(docs, &name_parts, &glyph_aliases);
-    // Variation sequences, on the other hand, have to be read *after* the
-    // slice expansion, since a pair can be stated for one slice only. The
-    // selector set is read from the raw documents on purpose: see
-    // `GsubData::uvs_selectors` on why glyph order cannot vary by face.
-    gsub_data.uvs_selectors = super::gsub::collect_uvs_selectors(docs);
-    gsub_data.uvs_pairs = super::gsub::collect_uvs_pairs(&all_items, &glyph_aliases);
     let color_aliases = collect_color_aliases(docs);
 
     let mut glyph_meta: GlyphMetaMap = HashMap::new();
@@ -256,6 +297,63 @@ pub(super) fn compute_shared_font_input_for(
         inline_glyphs,
         glyph_bodies,
     })
+}
+
+/// Everything a *secondary* face contributes to its own font: its metadata,
+/// its GSUB, and the characters each glyph name claims — and no geometry.
+///
+/// `build_faces` takes only the cmap out of a per-face collection; the glyphs,
+/// and so every glyph id, come from the shared union store. And `expand_for`
+/// never filters a glyph by slice, so the union and every face would trace
+/// *exactly the same glyph set*: running the full collector per face redid the
+/// whole trace to keep one `HashMap`, which is where a two-face build used to
+/// spend two thirds of its CPU. This is that map, and nothing else.
+///
+/// The full collector drops a glyph it cannot resolve, and so its cmap entry.
+/// That rule is not lost here: a name this map claims still has to appear in
+/// the union store to reach the font, and the union traces the same glyphs.
+pub(super) fn collect_face_cmap(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<(FontMeta, f32, HashMap<String, Vec<u32>>, GsubData)> {
+    let shared = compute_face_input(docs, face, cancel, true)?;
+    let mut per_name: HashMap<String, Vec<u32>> = HashMap::new();
+    for item in &shared.all_items {
+        let DocumentItem::Map {
+            char_repr,
+            selector,
+            glyph,
+            ..
+        } = item
+        else {
+            continue;
+        };
+        // A variation sequence's target claims no codepoint: the base keeps
+        // whatever its own `map` gave it, and the pair reaches the font through
+        // cmap format 14 and the fallback lookup instead.
+        if selector.is_some() {
+            continue;
+        }
+        let mut pairs = expand_map_pairs(char_repr, glyph);
+        shared.glyph_aliases.canonicalize_pairs(&mut pairs);
+        for (cp, name) in pairs {
+            per_name.entry(name).or_default().push(cp);
+        }
+    }
+    // The selector glyphs themselves still need a plain cmap entry, or the
+    // fallback lookup can never fire; see the full collector for why.
+    for &sel in &shared.gsub_data.uvs_selectors {
+        per_name
+            .entry(super::vs_glyph_name(sel))
+            .or_default()
+            .push(sel);
+    }
+    for cps in per_name.values_mut() {
+        cps.sort_unstable();
+        cps.dedup();
+    }
+    Some((shared.meta, shared.scale, per_name, shared.gsub_data))
 }
 
 #[cfg(any(feature = "editor", test))]

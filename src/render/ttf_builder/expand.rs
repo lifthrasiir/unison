@@ -81,6 +81,34 @@ pub(crate) fn expand_for(
     name_parts: &NamePartsMap,
     face: &crate::faces::Face,
 ) -> Expansion {
+    expand_inner(docs, name_parts, face, false)
+}
+
+/// [`expand_for`] for a caller that only wants the `map` lines out of it.
+///
+/// On-demand synthesis is the expensive half of an expansion — it is where a
+/// font this size spends most of it — and it produces *glyphs* and the
+/// diagnostics about the names that reached it. A secondary face of a
+/// collection takes neither: its glyphs come from the shared union store, whose
+/// own expansion is the full one, and the same names are reported from there.
+/// So it is skipped, and the expansion stops at the maps.
+///
+/// The maps themselves are untouched by it, which is what makes this safe:
+/// [`inject_on_demand_glyph_items`] only ever *appends* glyph items.
+pub(crate) fn expand_maps_for(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    face: &crate::faces::Face,
+) -> Expansion {
+    expand_inner(docs, name_parts, face, true)
+}
+
+fn expand_inner(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    face: &crate::faces::Face,
+    maps_only: bool,
+) -> Expansion {
     let mut all_items: Vec<ExpandedItem> = Vec::new();
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
 
@@ -356,14 +384,16 @@ pub(crate) fn expand_for(
     }
 
     expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
-    inject_on_demand_glyph_items(
-        &mut all_items,
-        map_targets,
-        name_parts,
-        &aliases,
-        &undecided_parts,
-        &mut diagnostics,
-    );
+    if !maps_only {
+        inject_on_demand_glyph_items(
+            &mut all_items,
+            map_targets,
+            name_parts,
+            &aliases,
+            &undecided_parts,
+            &mut diagnostics,
+        );
+    }
 
     Expansion {
         items: all_items,

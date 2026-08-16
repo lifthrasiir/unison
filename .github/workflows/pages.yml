@@ -43,7 +43,7 @@ jobs:
       - name: Build font and samples
         id: build
         continue-on-error: true
-        run: make CARGOFLAGS="-r --no-default-features"
+        run: make CARGOFLAGS="-r --no-default-features" WOFF2QUALITY=max
 
       - name: Run shape assertions
         id: assertions
