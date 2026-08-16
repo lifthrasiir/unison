@@ -81,6 +81,11 @@
 //!   spells out the default of every face. The design metrics are every-face
 //!   only. A bare key and a face-scoped one for the same slot conflict, since
 //!   the bare one already reaches that face.
+//! - `audit KEY ARGUMENT...` — a rule the *source* is held to, not a value the
+//!   font carries: `audit ideal-clearance han-* 0 1` says how much room the
+//!   parts of a `han-*` glyph are meant to leave each other. Same one-key-per-
+//!   line shape as `meta`, single-assignment the same way, and no face scope at
+//!   all. See [`crate::audit`].
 //! - `face FACE [: SLICE...]` — one typeface in the output. `slice SLICE
 //!   [= SLICE...]` declares a slice, the `= ...` form being shorthand for
 //!   including those too, transitively. See [`crate::faces`] for the model, and
@@ -226,10 +231,10 @@
 //! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT… ` — an IDC line: the glyph's box split along
 //!   one axis, the offsets *derived* from what the components declare. Each
 //!   token is a gap if it reads as a number and a component name otherwise. It
-//!   is a sibling of `ref`, not sugar for one — the point is that the parts
-//!   must add up to the box and a violation is reported rather than drawn. See
-//!   [`crate::compose`] for the arity, the sum rule and the `:WxH-l` variant
-//!   name rule it reads.
+//!   is a sibling of `ref`, not sugar for one — the point is that what the
+//!   parts leave each other inside the box is checked rather than merely drawn.
+//!   See [`crate::compose`] for the arity, the clearance check and the `:WxH-l`
+//!   variant name rule it reads.
 //! - `glyph NAME = TARGET` — an alias: a second *name* for `TARGET`, sharing
 //!   its glyph id rather than declaring a glyph of its own. It takes no flags
 //!   and has no body; a glyph that needs either — including one that must
@@ -621,8 +626,8 @@ fn parse_ref_line(
 /// [`GlyphCompose`].
 ///
 /// A token that reads as a number is a gap, anything else is a component name;
-/// arity, sizes and the sum are [`crate::compose`]'s business, so a line that
-/// tokenizes at all parses here. `base` is the `@` base in force, as for a
+/// arity, sizes and the layout are [`crate::compose`]'s business, so a line
+/// that tokenizes at all parses here. `base` is the `@` base in force, as for a
 /// `ref`.
 fn parse_compose_line(
     op: crate::compose::IdcOp,
@@ -1057,6 +1062,7 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 }
             }
             DocumentItem::Meta(text) => writeln!(writer, "meta {text}")?,
+            DocumentItem::Audit(text) => writeln!(writer, "audit {text}")?,
             DocumentItem::Directive(text) => writeln!(writer, "{text}")?,
             item @ DocumentItem::Face { .. }
             | item @ DocumentItem::Slice { .. }
@@ -1387,15 +1393,17 @@ pub fn derive_document(
                 }
 
                 match tokens[0].as_str() {
-                    "meta" => {
+                    "meta" | "audit" => {
                         item_line_starts.push(i);
                         let rest: Vec<String> =
                             tokens[1..].iter().map(|t| quote_token(t)).collect();
                         let text = rest.join(" ");
-                        doc.items.push(DocumentItem::Meta(format!(
-                            "{}{comment_raw}",
-                            text.trim_end(),
-                        )));
+                        let text = format!("{}{comment_raw}", text.trim_end());
+                        doc.items.push(if tokens[0] == "meta" {
+                            DocumentItem::Meta(text)
+                        } else {
+                            DocumentItem::Audit(text)
+                        });
                         i += 1;
                     }
                     "exclude-from-sample" | "assume" => {

@@ -1801,7 +1801,8 @@ fn compose_refs_for_view(
     body.compose
         .iter()
         .flat_map(|c| {
-            crate::compose::expand_compose("", parent, body.scale, c, &dims)
+            // No clearance rule: the check reports, and the view only draws.
+            crate::compose::expand_compose("", parent, body.scale, c, &dims, None)
                 .0
                 .into_iter()
         })

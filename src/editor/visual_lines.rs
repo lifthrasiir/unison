@@ -426,6 +426,9 @@ pub(crate) fn build_visual_lines(
         } else if trimmed.starts_with("exclude-from-sample ")
             || trimmed.starts_with("assume unused ")
             || trimmed.starts_with("assert ")
+            // `audit` states a rule about the source rather than a font
+            // value, so it reads with `assert` and not with `meta`.
+            || trimmed.starts_with("audit ")
         {
             directive_color
         } else if trimmed.starts_with("name-parts ")
@@ -471,6 +474,7 @@ pub(crate) fn build_visual_lines(
             | DocumentItem::Face { .. }
             | DocumentItem::Slice { .. }
             | DocumentItem::Meta(_)
+            | DocumentItem::Audit(_)
             | DocumentItem::Map { .. }
             | DocumentItem::NameParts { .. }
             | DocumentItem::Remap { .. }

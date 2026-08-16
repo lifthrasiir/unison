@@ -1060,6 +1060,10 @@ pub enum DocumentItem {
     /// `meta [FACE :] KEY VALUE...` — one key per line. Holds the text after
     /// the keyword, comment included, so serializing is lossless.
     Meta(String),
+    /// `audit KEY ARGUMENT...` — a rule the source is held to rather than a
+    /// value the font carries; stored like [`DocumentItem::Meta`], and read by
+    /// [`crate::audit`].
+    Audit(String),
     Glyph {
         name: GlyphName,
         body: GlyphBody,

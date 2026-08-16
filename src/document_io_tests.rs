@@ -90,6 +90,26 @@ meta descent 2
     assert_eq!(String::from_utf8(output).unwrap(), input);
 }
 
+/// `audit` is `meta`'s shape — one key per line, the text kept verbatim — but
+/// its own item, because what it states is a rule about the source rather than
+/// a value the font carries. See [`crate::audit`].
+#[test]
+fn audit_lines_round_trip() {
+    let input = "\
+audit ideal-clearance han-* 0 1 // the band every han glyph is held to
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Audit(t)
+            if t == "ideal-clearance han-* 0 1 // the band every han glyph is held to"),
+        "expected an Audit item, got {:?}",
+        doc.items[0],
+    );
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
 /// The face/slice grammar, through a parse/serialize round trip. A qualifier is
 /// `SLICE :` in front of what the line already said, so the unqualified form
 /// keeps parsing exactly as before.
@@ -524,6 +544,9 @@ fn assert_derive_equivalent(input: &str) {
             }
             (DocumentItem::Meta(a), DocumentItem::Meta(b)) => {
                 assert_eq!(a, b, "meta mismatch at item {idx}");
+            }
+            (DocumentItem::Audit(a), DocumentItem::Audit(b)) => {
+                assert_eq!(a, b, "audit mismatch at item {idx}");
             }
             (DocumentItem::Directive(a), DocumentItem::Directive(b)) => {
                 assert_eq!(a, b, "directive mismatch at item {idx}");

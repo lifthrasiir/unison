@@ -405,6 +405,7 @@ fn assert_all_doc_lines_covered(input: &str) {
                 | DocumentItem::Face { .. }
                 | DocumentItem::Slice { .. }
                 | DocumentItem::Meta(_)
+                | DocumentItem::Audit(_)
                 | DocumentItem::Map { .. }
                 | DocumentItem::NameParts { .. }
                 | DocumentItem::Remap { .. }

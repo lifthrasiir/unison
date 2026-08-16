@@ -33,7 +33,7 @@ fn expand(
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
 ) -> (Vec<GlyphRef>, Vec<(Severity, String)>) {
-    expand_compose("test", parent, 1, compose, dims)
+    expand_compose("test", parent, 1, compose, dims, None)
 }
 
 fn of_severity(issues: &[(Severity, String)], want: Severity) -> Vec<&str> {
@@ -189,25 +189,6 @@ fn three_way_splits_take_three_parts() {
 }
 
 #[test]
-fn parts_that_do_not_add_up_are_an_error() {
-    let dims = table(&[("a:4x16", (4, 16)), ("b:10x16", (10, 16))]);
-    let (refs, issues) = expand(
-        Some((15, 16)),
-        &line(IdcOp::LeftRight, vec![part("a:4x16"), part("b:10x16")]),
-        &dims,
-    );
-    // Still laid out — the report is what makes the mistake visible, and the
-    // editor has to draw the glyph being fixed.
-    assert_eq!(refs.len(), 2);
-    assert!(
-        errors(&issues)
-            .iter()
-            .any(|m| m.contains("add up to 14 across the glyph's 15")),
-        "{issues:?}"
-    );
-}
-
-#[test]
 fn a_part_must_span_the_other_axis() {
     let dims = table(&[("a:4x14", (4, 14)), ("b:11x16", (11, 16))]);
     let (_, issues) = expand(
@@ -280,8 +261,8 @@ fn an_undecided_part_that_names_nothing_is_only_a_todo() {
 }
 
 /// The decided half of an undecided line is still fully checked: what stands
-/// down is the sum rule and the undecided component's own claims, not the
-/// whole line.
+/// down is the clearance check and the undecided component's own claims, not
+/// the whole line.
 #[test]
 fn an_undecided_line_still_checks_its_decided_parts() {
     let dims = table(&[("a", (4, 16)), ("b:11x16", (11, 17))]);
@@ -296,11 +277,6 @@ fn an_undecided_line_still_checks_its_decided_parts() {
     );
     assert!(
         errors(&issues).iter().any(|m| m.contains("names 11x16")),
-        "{issues:?}"
-    );
-    // …but not a word about the sum.
-    assert!(
-        !errors(&issues).iter().any(|m| m.contains("add up")),
         "{issues:?}"
     );
 }
@@ -476,23 +452,6 @@ fn the_live_view_places_the_parts_where_the_font_does() {
 }
 
 #[test]
-fn a_split_that_does_not_add_up_is_reported_against_its_line() {
-    // Both halves on the left: 2 + 2 == 4 is satisfied, so swap in a part that
-    // is used twice and a parent that is one wider.
-    let doc = crate::document_io::parse_document_from_str(
-        &source("\u{2FF0} part:2x4-l part:2x4-r").replace("glyph whole 4 4", "glyph whole 5 4"),
-        "test.unf".into(),
-    )
-    .unwrap();
-    let msgs = messages(&doc);
-    assert!(
-        msgs.iter()
-            .any(|m| m.starts_with("Error") && m.contains("add up to 4 across the glyph's 5")),
-        "{msgs:?}"
-    );
-}
-
-#[test]
 fn a_component_is_a_use_of_the_glyph() {
     // Nothing `ref`s the halves; only the IDC line names them, and that has to
     // count or every part of every composed glyph reads as unused.
@@ -570,7 +529,280 @@ fn offsets_leave_in_the_parents_raster_units() {
         2,
         &line(IdcOp::LeftRight, vec![part("a:4x16"), part("b:11x16")]),
         &dims,
+        None,
     );
     assert!(issues.is_empty(), "{issues:?}");
     assert_eq!(refs[1].offset, Some((8, 0)));
+}
+
+// ---------------------------------------------------------------- clearance
+
+/// A grid from a picture: `#` is ink, `$` a hardblank, anything else nothing.
+fn grid(rows: &[&str]) -> PixelGrid {
+    let mut g = PixelGrid::new(rows[0].len() as u16, rows.len() as u16);
+    for (r, row) in rows.iter().enumerate() {
+        for (c, ch) in row.chars().enumerate() {
+            let shape = match ch {
+                '#' => crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
+                '$' => crate::pixel::PixelShape::new(crate::pixel::PX_HARDBLANK, false),
+                _ => continue,
+            };
+            g.set(r as u16, c as u16, shape);
+        }
+    }
+    g
+}
+
+fn profiles(entries: &[(&str, &[&str])]) -> std::collections::HashMap<String, InkProfile> {
+    entries
+        .iter()
+        .map(|(name, rows)| (name.to_string(), InkProfile::of(&grid(rows), 1)))
+        .collect()
+}
+
+/// `expand`, holding the line to `min..max`.
+fn with_clearance(
+    parent: (u16, u16),
+    compose: &GlyphCompose,
+    dims: &dyn Fn(&str) -> PartDims,
+    profiles: &std::collections::HashMap<String, InkProfile>,
+    min: i16,
+    max: i16,
+) -> Vec<String> {
+    let ink = |name: &str| profiles.get(name);
+    let rule = ClearanceRule {
+        written: "test*",
+        min,
+        max,
+        ink: &ink,
+    };
+    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, Some(&rule));
+    assert!(errors(&issues).is_empty(), "{issues:?}");
+    of_severity(&issues, Severity::Warning)
+        .into_iter()
+        .map(str::to_string)
+        .collect()
+}
+
+#[test]
+fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
+    let p = InkProfile::of(&grid(&[".##.", "....", "$..#"]), 1);
+    assert_eq!(p.rows, vec![Some((1, 2)), None, Some((0, 3))]);
+    assert_eq!(
+        p.cols,
+        vec![Some((2, 2)), Some((0, 0)), Some((0, 0)), Some((2, 2))],
+    );
+    // Declared units, so a scale-2 grid measures like the 1-unit glyph it is.
+    let doubled = InkProfile::of(&grid(&["..####..", "..####..", "........", "........"]), 2);
+    assert_eq!(doubled.rows, vec![Some((1, 2)), None]);
+}
+
+#[test]
+fn clearance_is_measured_between_frontiers_and_the_edges() {
+    let dims = table(&[("a:4x4", (4, 4)), ("b:4x4", (4, 4))]);
+    let ink = profiles(&[
+        ("a:4x4", &["##..", "##..", "##..", "##.."]),
+        ("b:4x4", &[".###", ".###", ".###", ".###"]),
+    ]);
+    let compose = line(IdcOp::LeftRight, vec![part("a:4x4"), part("b:4x4")]);
+    // 0 at each edge, 3 down the middle: only the middle and the total are out.
+    let warnings = with_clearance((8, 4), &compose, &dims, &ink, 0, 1);
+    assert_eq!(warnings.len(), 2, "{warnings:?}");
+    assert!(
+        warnings[0].contains("leaves 3 between 'a:4x4' and 'b:4x4', outside the ideal 0..1"),
+        "{warnings:?}",
+    );
+    assert!(warnings[1].contains("leaves 3 in total"), "{warnings:?}");
+    // A range that admits it says nothing at all.
+    assert!(with_clearance((8, 4), &compose, &dims, &ink, 0, 3).is_empty());
+}
+
+#[test]
+fn overlapping_ink_is_a_negative_clearance() {
+    let dims = table(&[("a:4x4", (4, 4)), ("b:4x4", (4, 4))]);
+    let ink = profiles(&[
+        ("a:4x4", &["####", "####", "####", "####"]),
+        ("b:4x4", &["####", "####", "####", "####"]),
+    ]);
+    // The overlap term the boxes are allowed: 4 + (-1) + 4 == 7, and the ink
+    // that fills both boxes therefore shares a column.
+    let warnings = with_clearance(
+        (7, 4),
+        &line(
+            IdcOp::LeftRight,
+            vec![part("a:4x4"), ComposeItem::Gap(-1), part("b:4x4")],
+        ),
+        &dims,
+        &ink,
+        0,
+        1,
+    );
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.contains("leaves -1 between 'a:4x4' and 'b:4x4'")),
+        "{warnings:?}",
+    );
+}
+
+#[test]
+fn the_sum_does_not_move_when_a_gap_does() {
+    let dims = table(&[("a:3x4", (3, 4)), ("b:4x4", (4, 4))]);
+    let ink = profiles(&[
+        ("a:3x4", &["##.", "##.", "##.", "##."]),
+        ("b:4x4", &[".###", ".###", ".###", ".###"]),
+    ]);
+    let sum = |compose: &GlyphCompose| {
+        let warnings = with_clearance((8, 4), compose, &dims, &ink, 0, 0);
+        warnings
+            .iter()
+            .find(|w| w.contains("in total"))
+            .expect("a total that is not 0..0")
+            .clone()
+    };
+    // The gap after the first part, then before it: the individual clearances
+    // differ and the total cannot.
+    let after = sum(&line(
+        IdcOp::LeftRight,
+        vec![part("a:3x4"), ComposeItem::Gap(1), part("b:4x4")],
+    ));
+    let before = sum(&line(
+        IdcOp::LeftRight,
+        vec![ComposeItem::Gap(1), part("a:3x4"), part("b:4x4")],
+    ));
+    assert!(after.contains("leaves 3 in total"), "{after}");
+    assert!(before.contains("leaves 3 in total"), "{before}");
+    assert!(after.contains("3 between 'a:3x4' and 'b:4x4'"), "{after}");
+    assert!(before.contains("2 between 'a:3x4' and 'b:4x4'"), "{before}");
+}
+
+#[test]
+fn a_vertical_split_measures_the_same_way_downward() {
+    let dims = table(&[("a:4x4", (4, 4)), ("b:4x4", (4, 4))]);
+    let ink = profiles(&[
+        ("a:4x4", &["####", "####", "....", "...."]),
+        ("b:4x4", &["....", "####", "####", "####"]),
+    ]);
+    // a stops at row 1, b starts at row 4 + 1: 3 between them, 0 at the top
+    // and 0 at the bottom.
+    let warnings = with_clearance(
+        (4, 8),
+        &line(IdcOp::AboveBelow, vec![part("a:4x4"), part("b:4x4")]),
+        &dims,
+        &ink,
+        0,
+        1,
+    );
+    assert_eq!(warnings.len(), 2, "{warnings:?}");
+    assert!(
+        warnings[0].contains("leaves 3 between 'a:4x4' and 'b:4x4'"),
+        "{warnings:?}"
+    );
+    assert!(warnings[1].contains("leaves 3 in total"), "{warnings:?}");
+}
+
+#[test]
+fn ink_before_the_parent_edge_is_a_negative_edge_clearance() {
+    let dims = table(&[("a:4x4", (4, 4)), ("b:5x4", (5, 4))]);
+    let ink = profiles(&[
+        ("a:4x4", &["####", "####", "####", "####"]),
+        ("b:5x4", &["#####", "#####", "#####", "#####"]),
+    ]);
+    // A gap before the first part is a bearing, and a negative one hangs the
+    // part off the left of the box: -1 + 4 + 5 == 8.
+    let warnings = with_clearance(
+        (8, 4),
+        &line(
+            IdcOp::LeftRight,
+            vec![ComposeItem::Gap(-1), part("a:4x4"), part("b:5x4")],
+        ),
+        &dims,
+        &ink,
+        0,
+        1,
+    );
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.contains("leaves -1 between the left edge and 'a:4x4'")),
+        "{warnings:?}",
+    );
+}
+
+/// Boxes that do not fill the parent are caught by the ink they leave against
+/// its edges, in both directions: too much room at the far edge, and ink past
+/// it when the parts are too wide for the box.
+#[test]
+fn parts_that_misfit_the_box_show_up_at_its_edges() {
+    let dims = table(&[("a:4x4", (4, 4)), ("b:4x4", (4, 4))]);
+    let ink = profiles(&[
+        ("a:4x4", &["####", "####", "####", "####"]),
+        ("b:4x4", &["####", "####", "####", "####"]),
+    ]);
+    let compose = line(IdcOp::LeftRight, vec![part("a:4x4"), part("b:4x4")]);
+    let short = with_clearance((10, 4), &compose, &dims, &ink, 0, 1);
+    assert!(
+        short
+            .iter()
+            .any(|w| w.contains("leaves 2 between 'b:4x4' and the right edge")),
+        "{short:?}",
+    );
+    let over = with_clearance((7, 4), &compose, &dims, &ink, 0, 1);
+    assert!(
+        over.iter()
+            .any(|w| w.contains("leaves -1 between 'b:4x4' and the right edge")),
+        "{over:?}",
+    );
+}
+
+#[test]
+fn a_part_with_nothing_to_measure_stands_the_check_down() {
+    let dims = table(&[("a:4x4", (4, 4)), ("b:4x4", (4, 4))]);
+    let compose = line(IdcOp::LeftRight, vec![part("a:4x4"), part("b:4x4")]);
+    // `b` is drawn but empty…
+    let blank = profiles(&[
+        ("a:4x4", &["##..", "##..", "##..", "##.."]),
+        ("b:4x4", &["....", "....", "....", "...."]),
+    ]);
+    assert!(with_clearance((8, 4), &compose, &dims, &blank, 0, 0).is_empty());
+    // …and here `b` has no profile at all (a composite, say).
+    let missing = profiles(&[("a:4x4", &["##..", "##..", "##..", "##.."])]);
+    assert!(with_clearance((8, 4), &compose, &dims, &missing, 0, 0).is_empty());
+    // Two parts that share no line where both draw cannot be measured either.
+    let disjoint = profiles(&[
+        ("a:4x4", &["##..", "##..", "....", "...."]),
+        ("b:4x4", &["....", "....", ".###", ".###"]),
+    ]);
+    assert!(with_clearance((8, 4), &compose, &dims, &disjoint, 0, 0).is_empty());
+}
+
+#[test]
+fn an_undecided_line_is_not_measured() {
+    // The width the slot will be filled with is not chosen yet, so neither is
+    // where anything sits: one Todo, and no clearance warning over a layout
+    // nobody meant.
+    let dims = table(&[("a", (4, 4)), ("b:4x4", (4, 4))]);
+    let ink = profiles(&[
+        ("a", &["##..", "##..", "##..", "##.."]),
+        ("b:4x4", &[".###", ".###", ".###", ".###"]),
+    ]);
+    let ink_fn = |name: &str| ink.get(name);
+    let (_, issues) = expand_compose(
+        "test",
+        Some((8, 4)),
+        1,
+        &line(IdcOp::LeftRight, vec![part("a"), part("b:4x4")]),
+        &dims,
+        Some(&ClearanceRule {
+            written: "test*",
+            min: 0,
+            max: 1,
+            ink: &ink_fn,
+        }),
+    );
+    assert_eq!(todos(&issues).len(), 1, "{issues:?}");
+    assert!(
+        of_severity(&issues, Severity::Warning).is_empty(),
+        "{issues:?}"
+    );
 }

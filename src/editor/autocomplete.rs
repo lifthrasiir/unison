@@ -565,6 +565,7 @@ fn collect_candidates(
                 "remap",
                 "feature",
                 "meta",
+                "audit",
                 "face",
                 "slice",
                 "exclude-from-sample",

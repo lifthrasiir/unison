@@ -722,6 +722,45 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         }
     }
 
+    // `audit` validation: does the line parse, and is its slot already taken?
+    // Single-assignment like `meta`, and for the same reason — a rule stated
+    // twice has no precedence rule to appeal to. There is no scope to consider,
+    // since an `audit` line applies to the one glyph set every face draws from.
+    {
+        let mut declared_audit: BTreeMap<String, ItemRef> = BTreeMap::new();
+        for (doc_idx, doc) in docs.iter().enumerate() {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                let DocumentItem::Audit(text) = item else {
+                    continue;
+                };
+                let here = ItemRef::new(doc_idx, item_idx);
+                let entry = match crate::audit::parse_audit_entry(text) {
+                    Ok(entry) => entry,
+                    Err(message) => {
+                        issues.push(docset.to_issue(&Diagnostic::error(here, message)));
+                        continue;
+                    }
+                };
+                if let Some(&first) = declared_audit.get(&entry.slot()) {
+                    let (path, _, file_line) = docset.location(first);
+                    let name = path
+                        .file_name()
+                        .map(|n| n.to_string_lossy().into_owned())
+                        .unwrap_or_else(|| path.display().to_string());
+                    issues.push(docset.to_issue(&Diagnostic::error(
+                        here,
+                        format!(
+                            "{} is set more than once (also at {name}:{file_line})",
+                            entry.describe_slot(),
+                        ),
+                    )));
+                } else {
+                    declared_audit.insert(entry.slot(), here);
+                }
+            }
+        }
+    }
+
     // `meta` validation. Two passes over different things: each line on its own
     // (does it parse, is its key already taken), then the effective numbers.
     // For the latter, the distinction between "not declared" and "declared as
@@ -894,9 +933,8 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     // *declared* but fails to resolve (an unresolved ref of its own) still
     // counts as existing here, which is as close as a check over the documents
     // can get without resolving them a second time.
-    let glyph_exists = |name: &str| {
-        crate::render::ttf_builder::glyph_name_exists(name, &all_glyph_names, aliases)
-    };
+    let glyph_exists =
+        |name: &str| crate::render::ttf_builder::glyph_name_exists(name, &all_glyph_names, aliases);
 
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -3144,6 +3182,41 @@ remap liga : ok -> present-($ab)
         assert!(
             issues.iter().any(|i| i.severity == Severity::Error),
             "expected a non-numeric error, got: {issues:?}",
+        );
+    }
+
+    /// An `audit` rule is single-assignment like a `meta` key, and unreadable
+    /// lines are errors rather than rules that quietly stop checking.
+    #[test]
+    fn audit_lines_are_checked_and_assigned_once() {
+        let errors = |input: &str| -> Vec<String> {
+            let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+            collect_issues(&[&doc])
+                .into_iter()
+                .filter(|i| i.severity == Severity::Error)
+                .map(|i| i.message)
+                .collect()
+        };
+        assert!(errors("audit ideal-clearance han-* 0 1\n").is_empty());
+        assert!(
+            errors("audit clarence han-* 0 1\n")
+                .iter()
+                .any(|m| m.contains("unknown `audit` key")),
+        );
+        assert!(
+            errors("audit ideal-clearance han-* 0\n")
+                .iter()
+                .any(|m| m.contains("takes a glyph-name prefix")),
+        );
+        assert!(
+            errors("audit ideal-clearance han-* 0 1\naudit ideal-clearance han-* 0 2\n")
+                .iter()
+                .any(|m| m.contains("is set more than once")),
+        );
+        // A different prefix is a different rule, not a second answer.
+        assert!(
+            errors("audit ideal-clearance han-* 0 1\naudit ideal-clearance hang-* 0 2\n")
+                .is_empty(),
         );
     }
 

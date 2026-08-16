@@ -281,7 +281,13 @@ pub(crate) fn expand_for(
     // the glyph it actually is, and before everything below, so nothing
     // downstream has to know an IDC line exists.
     let mut undecided_parts: HashSet<(Option<ItemRef>, String)> = HashSet::new();
-    expand_compose_lines(&mut all_items, &mut diagnostics, &mut undecided_parts);
+    let clearances = crate::audit::AuditRules::collect(docs).ideal_clearance;
+    expand_compose_lines(
+        &mut all_items,
+        &mut diagnostics,
+        &mut undecided_parts,
+        &clearances,
+    );
 
     // Expanding a `map` is not free (the font has ranges thousands of
     // codepoints wide), and three later steps need the result, so it happens
@@ -388,6 +394,7 @@ fn expand_compose_lines(
     all_items: &mut [ExpandedItem],
     diagnostics: &mut Vec<Diagnostic>,
     undecided_parts: &mut HashSet<(Option<ItemRef>, String)>,
+    clearances: &crate::audit::IdealClearances,
 ) {
     let has_compose = |e: &ExpandedItem| matches!(&e.item, DocumentItem::Glyph { body, .. } if !body.compose.is_empty());
     if !all_items.iter().any(has_compose) {
@@ -412,6 +419,9 @@ fn expand_compose_lines(
         Some(None) => crate::compose::PartDims::Undeclared,
         Some(Some((w, h))) => crate::compose::PartDims::Size(*w, *h),
     };
+
+    let profiles = ink_profiles(all_items, clearances);
+    let ink = |name: &str| profiles.get(name);
 
     for e in all_items.iter_mut() {
         let DocumentItem::Glyph { name, body } = &mut e.item else {
@@ -442,8 +452,22 @@ fn expand_compose_lines(
                     undecided_parts.insert((e.origin, name.to_string()));
                 }
             }
-            let (refs, issues) =
-                crate::compose::expand_compose(&glyph_name, parent, body.scale, compose, &dims);
+            let rule = clearances
+                .for_glyph(&glyph_name)
+                .map(|(written, min, max)| crate::compose::ClearanceRule {
+                    written,
+                    min,
+                    max,
+                    ink: &ink,
+                });
+            let (refs, issues) = crate::compose::expand_compose(
+                &glyph_name,
+                parent,
+                body.scale,
+                compose,
+                &dims,
+                rule.as_ref(),
+            );
             for (severity, message) in issues {
                 diagnostics.push(Diagnostic::new(severity, e.origin, message));
             }
@@ -455,6 +479,54 @@ fn expand_compose_lines(
         body.refs = derived;
         body.compose.clear();
     }
+}
+
+/// The [`InkProfile`](crate::compose::InkProfile) of every part a clearance-
+/// checked IDC line names — and of nothing else, so a source stating no
+/// `audit ideal-clearance` pays only a walk over the compose lines it has.
+///
+/// Only a part drawn *entirely* by its own pixels is measured: a part that is
+/// itself a composite draws ink this pass has not resolved and cannot see, and
+/// half its ink measured is worse than none. The clearance check treats a
+/// missing profile as "not measurable" and stands down for the whole line.
+fn ink_profiles(
+    all_items: &[ExpandedItem],
+    clearances: &crate::audit::IdealClearances,
+) -> HashMap<String, crate::compose::InkProfile> {
+    if clearances.is_empty() {
+        return HashMap::new();
+    }
+    let mut wanted: HashSet<&str> = HashSet::new();
+    for e in all_items {
+        let DocumentItem::Glyph { name, body } = &e.item else {
+            continue;
+        };
+        if body.compose.is_empty() || clearances.for_glyph(&name.display()).is_none() {
+            continue;
+        }
+        wanted.extend(body.compose.iter().flat_map(|c| c.part_names()));
+    }
+    if wanted.is_empty() {
+        return HashMap::new();
+    }
+    let mut profiles = HashMap::new();
+    for e in all_items {
+        let DocumentItem::Glyph { name, body } = &e.item else {
+            continue;
+        };
+        let (Some(pixels), true) = (body.pixels.as_ref(), body.refs.is_empty()) else {
+            continue;
+        };
+        if !body.compose.is_empty() {
+            continue;
+        }
+        let name = name.display();
+        if !wanted.contains(name.as_str()) || profiles.contains_key(&name) {
+            continue; // first definition wins, as everywhere else
+        }
+        profiles.insert(name, crate::compose::InkProfile::of(pixels, body.scale));
+    }
+    profiles
 }
 
 /// A `map decomposed` directive waiting to be expanded, lifted out of
@@ -1298,6 +1370,63 @@ mod compose_expand_tests {
             of(&expansion, Severity::Error),
             vec!["unresolved ref 'gone'"]
         );
+    }
+
+    /// A part drawn narrower than its box, seen end to end: the boxes tile the
+    /// parent perfectly and the ink still leaves a 2-cell canyon.
+    const CANYON: &str = "\
+glyph p-a:2x2 2 2
+@@..
+@@..
+glyph p-b:2x2 2 2
+..@@
+..@@
+glyph p-x 4 2
+\u{2FF0} p-a:2x2 p-b:2x2
+";
+
+    #[test]
+    fn a_clearance_outside_the_ideal_range_is_a_warning() {
+        let expansion = expand(&format!("audit ideal-clearance p-* 0 1\n{CANYON}"));
+        assert!(of(&expansion, Severity::Error).is_empty());
+        let warnings = of(&expansion, Severity::Warning);
+        assert_eq!(warnings.len(), 2, "{warnings:?}");
+        assert!(
+            warnings[0].contains("leaves 2 between 'p-a:2x2' and 'p-b:2x2'"),
+            "{warnings:?}",
+        );
+        assert!(warnings[1].contains("leaves 2 in total"), "{warnings:?}");
+    }
+
+    #[test]
+    fn a_glyph_no_rule_reaches_is_not_measured() {
+        // The same source, held only by a prefix that does not name it.
+        let expansion = expand(&format!("audit ideal-clearance q-* 0 1\n{CANYON}"));
+        assert!(of(&expansion, Severity::Warning).is_empty());
+        // …and with no rule at all.
+        let expansion = expand(CANYON);
+        assert!(of(&expansion, Severity::Warning).is_empty());
+    }
+
+    /// `$$` is a cell the source keeps clear on purpose, so it holds a
+    /// neighbour off exactly as ink does — that is what it is for.
+    #[test]
+    fn a_hardblank_is_a_frontier() {
+        let expansion = expand(
+            "audit ideal-clearance p-* 0 1
+glyph p-a:2x2 2 2
+@@..
+@@..
+glyph p-b:2x2 2 2
+$$@@
+$$@@
+glyph p-x 4 2
+\u{2FF0} p-a:2x2 p-b:2x2
+",
+        );
+        // 0 at each edge and 1 down the middle, where the ink alone would have
+        // read 2 and failed.
+        assert!(of(&expansion, Severity::Warning).is_empty());
     }
 }
 
