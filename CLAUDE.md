@@ -155,7 +155,7 @@ Editor (feature `editor`):
 - `editor/glyph_resize.rs` — F2 over a grid: dragging a glyph's boundary, and the two directions a
   resize propagates in (its own anchors/refs one way, every `ref` naming it the other). Tests in
   `glyph_resize_tests.rs`; the cross-file half is `app/resize.rs`.
-- `editor/` others — `anchor_shadow`, `caret`, `codepoint_popup`, `visual_lines`, `line_fields` (**the single place that
+- `editor/` others — `shadow` (`anchor_shadow`/`backref_shadow`), `caret`, `codepoint_popup`, `visual_lines`, `line_fields` (**the single place that
   knows where names live** on a line), `doc_links`, `doc_input`, `editing`, `reconcile`, `undo`,
   `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`, `glyph_widget`, `grid_render`
   (grid painting and the metrics overlay), `pixel_interaction`, `pixel_selection`, `harness`,
@@ -267,6 +267,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Inline annotations: one caret step, but ordinary text to the line breaker | `editor/annotations.rs`, `editor/visual_lines.rs` (`compute_wrap_segments`) |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
 | The anchor shadow | `editor/anchor_shadow.rs` |
+| The backreference shadow, and why it is a toggle inside pixel selection rather than always on | `editor/backref_shadow.rs`, `editor/mod.rs` (`EditMode::PixelSelect`) |
+| What the two shadows share: the union rule, the placement bound, the one live shadow | `editor/shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
 | Why a polled directory is enumerated rather than `stat`ed, and how its interval sets itself | `app/watch.rs` (`poll_snapshot`, `next_poll_delay`) |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |

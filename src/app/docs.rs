@@ -644,7 +644,10 @@ mod reload_tests {
             0,
             crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
         );
-        open.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx: 0 };
+        open.editor_state.mode = crate::editor::EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
         open.editor_state.pixel_selection = Some(PixelSelection {
             item_idx: 0,
             row: 1,

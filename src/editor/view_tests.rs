@@ -1792,7 +1792,7 @@ fn digit_keys_select_palette_slots_from_any_mode() {
     // LayerMove → pixel grid, in either detail mode.
     h.key(Key::Backtick);
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2, .. }),
         "`` ` `` should switch to the pixel grid in PixelSelect, got {:?}",
         h.state.mode
     );
@@ -1844,7 +1844,7 @@ fn subglyph_menu_on_grid_keeps_editor_focus() {
     );
     h.key(Key::Backtick);
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2, .. }),
         "Backtick right after inlining should enter PixelSelect, got {:?}",
         h.state.mode
     );
@@ -1876,7 +1876,7 @@ fn subglyph_menu_on_thumbnail_keeps_editor_focus() {
     );
     h.key(Key::Backtick);
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2, .. }),
         "Backtick right after inlining should enter PixelSelect, got {:?}",
         h.state.mode
     );
@@ -1895,7 +1895,7 @@ fn make_pixel_select_harness() -> EditorHarness {
     );
     h.key(Key::Backtick); // enter PixelSelect
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0, .. }),
         "should be in PixelSelect"
     );
     h
@@ -2131,7 +2131,7 @@ fn make_move_all_harness() -> EditorHarness {
     h.click_grid_cell(6, 0, 0);
     h.key(Key::Backtick);
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 2, .. }),
         "should be in PixelSelect, got {:?}",
         h.state.mode
     );
@@ -2254,7 +2254,7 @@ fn paste_in_pixel_select_creates_floating() {
     h.paste("@@..\n..@@");
 
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0, .. }),
         "should stay in PixelSelect"
     );
     let sel = h
@@ -2274,7 +2274,7 @@ fn paste_in_glyph_edit_switches_to_pixel_select() {
 
     h.paste("@@\n@@");
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0, .. }),
         "paste should switch to PixelSelect"
     );
     let sel = h
@@ -2315,7 +2315,10 @@ fn paste_via_pixel_selection_function() {
 
     let ok = pixel_selection::paste_selection(&doc, &mut lines, &mut state, "@@..\n..@@");
     assert!(ok, "paste should succeed");
-    assert!(matches!(state.mode, EditMode::PixelSelect { item_idx: 0 }));
+    assert!(matches!(
+        state.mode,
+        EditMode::PixelSelect { item_idx: 0, .. }
+    ));
     let sel = state.pixel_selection.as_ref().unwrap();
     assert!(sel.is_floating());
     assert_eq!((sel.width, sel.height), (2, 2));
@@ -2329,7 +2332,10 @@ fn paste_too_small_for_selection_fails() {
     let mut lines = parse_doclines("glyph test 3 2\n......\n......");
     let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
     let mut state = crate::editor::EditorState::new();
-    state.mode = EditMode::PixelSelect { item_idx: 0 };
+    state.mode = EditMode::PixelSelect {
+        item_idx: 0,
+        backrefs: false,
+    };
     state.pixel_selection = Some(pixel_selection::PixelSelection {
         item_idx: 0,
         row: 0,
@@ -4580,7 +4586,7 @@ fn a_menu_action_leaves_the_editor_ready_for_keys() {
     );
     h.paste("@@\n@@");
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0, .. }),
         "paste should switch to PixelSelect, mode = {:?}",
         h.state.mode
     );
@@ -4703,7 +4709,7 @@ fn ctrl_a_selects_the_whole_grid_from_glyph_edit() {
     let mut h = make_glyph_edit_harness();
     h.key_mod(Key::A, Modifiers::COMMAND);
     assert!(
-        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0 }),
+        matches!(h.state.mode, EditMode::PixelSelect { item_idx: 0, .. }),
         "Ctrl+A should enter PixelSelect, got {:?}",
         h.state.mode
     );
@@ -4799,7 +4805,10 @@ fn the_edit_menu_offers_the_pixel_grid_in_a_pixel_mode() {
     // A ref-only glyph has no pixels to take.
     let mut h2 = EditorHarness::new("glyph part 2 1\n@@@@\nglyph whole\nref part 0 0");
     h2.click_grid_cell(1, 0, 0);
-    h2.state.mode = EditMode::PixelSelect { item_idx: 1 };
+    h2.state.mode = EditMode::PixelSelect {
+        item_idx: 1,
+        backrefs: false,
+    };
     h2.frame();
     assert!(!h2.state.edit_menu_caps(&h2.doc).has_selection);
 }
@@ -4838,7 +4847,7 @@ fn the_edit_menu_select_all_frames_the_grid() {
     );
     assert!(matches!(
         h.state.mode,
-        EditMode::PixelSelect { item_idx: 0 }
+        EditMode::PixelSelect { item_idx: 0, .. }
     ));
     let sel = h.state.pixel_selection.as_ref().expect("selection");
     assert_eq!((sel.row, sel.col, sel.width, sel.height), (0, 0, 4, 3));
@@ -5813,4 +5822,168 @@ fn the_marker_column_does_not_flicker_on_a_page_of_wrapped_lines() {
         );
         y += 4.0;
     }
+}
+
+/// The backreference shadow: in pixel-selection mode a second `` ` `` draws
+/// every glyph that refers to this one, placed where it puts this one, and the
+/// drawn area grows to it. A third `` ` `` puts it away again.
+#[test]
+fn a_second_backtick_shadows_the_glyphs_that_refer_to_this_one() {
+    let source = "\
+meta height 16
+meta ascent 14
+meta descent 2
+
+glyph child 2 2
+@@@@
+@@@@
+
+glyph parent 6 2
+........@@@@
+........@@@@
+ref child 0 0
+";
+    let mut h = EditorHarness::new(source);
+    let child_grid_line = 5;
+    h.click_grid_cell(child_grid_line, 0, 0); // GlyphEdit on `child`
+    assert_eq!(
+        grid_extent_x(&h, child_grid_line),
+        (0, 2),
+        "the child's own extent"
+    );
+
+    // First `` ` ``: selection mode, and no shadow yet — a selection must not
+    // resize the grid under the pointer.
+    h.key(Key::Backtick);
+    h.frame();
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::PixelSelect {
+                item_idx: 4,
+                backrefs: false
+            }
+        ),
+        "expected pixel selection with no shadow, got {:?}",
+        h.state.mode
+    );
+    assert_eq!(grid_extent_x(&h, child_grid_line), (0, 2));
+
+    // Second: `parent` refers to `child` at its own origin and is six columns
+    // wide, so the drawn area grows to the whole of it.
+    h.key(Key::Backtick);
+    h.frame();
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::PixelSelect {
+                item_idx: 4,
+                backrefs: true
+            }
+        ),
+        "expected the backreference shadow to be on, got {:?}",
+        h.state.mode
+    );
+    assert_eq!(grid_extent_x(&h, child_grid_line), (0, 6));
+
+    // Third: off again.
+    h.key(Key::Backtick);
+    h.frame();
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::PixelSelect {
+                item_idx: 4,
+                backrefs: false
+            }
+        ),
+        "the third press should toggle the shadow off, got {:?}",
+        h.state.mode
+    );
+    assert_eq!(grid_extent_x(&h, child_grid_line), (0, 2));
+}
+
+/// The toggle belongs to the mode: leaving pixel selection and coming back
+/// starts with the shadow off, whatever it was before.
+#[test]
+fn leaving_pixel_selection_resets_the_backreference_shadow() {
+    let source = "\
+meta height 16
+meta ascent 14
+meta descent 2
+
+glyph child 2 2
+@@@@
+@@@@
+
+glyph parent 6 2
+........@@@@
+........@@@@
+ref child 0 0
+";
+    let mut h = EditorHarness::new(source);
+    let child_grid_line = 5;
+    h.click_grid_cell(child_grid_line, 0, 0);
+    h.key(Key::Backtick);
+    h.key(Key::Backtick);
+    h.frame();
+    assert_eq!(grid_extent_x(&h, child_grid_line), (0, 6), "shadow is on");
+
+    // Out to the drawing mode and back in.
+    h.key(Key::Num1);
+    h.frame();
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 4, .. }),
+        "mode {:?}",
+        h.state.mode
+    );
+    assert_eq!(grid_extent_x(&h, child_grid_line), (0, 2));
+
+    h.key(Key::Backtick);
+    h.frame();
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::PixelSelect {
+                item_idx: 4,
+                backrefs: false
+            }
+        ),
+        "re-entering pixel selection must start with the shadow off, got {:?}",
+        h.state.mode
+    );
+    assert_eq!(grid_extent_x(&h, child_grid_line), (0, 2));
+}
+
+/// A glyph nothing refers to has no shadow to show, and asking for one changes
+/// nothing about the grid.
+#[test]
+fn the_backreference_shadow_of_an_unused_glyph_is_empty() {
+    let source = "\
+meta height 16
+meta ascent 14
+meta descent 2
+
+glyph lonely 2 2
+@@@@
+@@@@
+";
+    let mut h = EditorHarness::new(source);
+    let grid_line = 5;
+    h.click_grid_cell(grid_line, 0, 0);
+    h.key(Key::Backtick);
+    h.key(Key::Backtick);
+    h.frame();
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::PixelSelect {
+                item_idx: 4,
+                backrefs: true
+            }
+        ),
+        "the toggle is the mode's, whether or not anything refers here: {:?}",
+        h.state.mode
+    );
+    assert_eq!(grid_extent_x(&h, grid_line), (0, 2));
 }

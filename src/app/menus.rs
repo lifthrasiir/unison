@@ -335,7 +335,10 @@ impl UniformApp {
                             && let crate::editor::EditMode::GlyphEdit { item_idx, .. } =
                                 d.editor_state.mode
                         {
-                            d.editor_state.mode = crate::editor::EditMode::PixelSelect { item_idx };
+                            d.editor_state.mode = crate::editor::EditMode::pixel_select(
+                                item_idx,
+                                &d.editor_state.mode,
+                            );
                             d.editor_state.refocus();
                         }
                         ui.close_menu();
@@ -348,7 +351,7 @@ impl UniformApp {
                         .clicked()
                     {
                         if let Some(d) = self.active_doc_mut()
-                            && let crate::editor::EditMode::PixelSelect { item_idx } =
+                            && let crate::editor::EditMode::PixelSelect { item_idx, .. } =
                                 d.editor_state.mode
                         {
                             d.editor_state.mode = crate::editor::EditMode::GlyphEdit {

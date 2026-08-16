@@ -7,7 +7,6 @@ use crate::document::{
     DocLine, Document, DocumentItem, GlyphBody, GlyphPoint, NamePartsMap, PixelGrid,
 };
 use crate::document_io::{self, tokenize_with_spans};
-use crate::editor::anchor_shadow::{self, AnchorShadow};
 use crate::editor::annotations::{AnnotatedText, InlineAnnotation};
 use crate::editor::caret::{self, Caret};
 use crate::editor::doc_input;
@@ -18,8 +17,10 @@ use crate::editor::minimap;
 use crate::editor::pixel_interaction;
 use crate::editor::pixel_selection;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
+use crate::editor::shadow::Shadow;
 use crate::editor::visual_lines;
 use crate::editor::{EditMode, EditorState, PopupState, Slot};
+use crate::editor::{anchor_shadow, backref_shadow};
 use crate::pixel;
 use crate::render::ttf_builder::ColorAliasMap;
 
@@ -246,9 +247,18 @@ fn resolve_view(
     }
     let composites =
         grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
-    let shadow = cache_key.active_point.and_then(|(item_idx, pi)| {
-        selected_anchor_shadow(doc, item_idx, pi, named_glyphs, &composites)
-    });
+    // At most one shadow is live: the anchor one needs a selected anchor layer
+    // and the backreference one a pixel selection, and no mode is both.
+    let shadow = cache_key
+        .active_point
+        .and_then(|(item_idx, pi)| {
+            selected_anchor_shadow(doc, item_idx, pi, named_glyphs, &composites)
+        })
+        .or_else(|| {
+            cache_key
+                .backref_item
+                .and_then(|i| glyph_backref_shadow(doc, i, named_glyphs))
+        });
     let mut vlines = visual_lines::build_visual_lines(
         lines,
         doc,
@@ -315,7 +325,7 @@ fn selected_anchor_shadow(
     pi: usize,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     composites: &HashMap<usize, crate::editor::ref_composite::GlyphComposite>,
-) -> Option<(usize, AnchorShadow)> {
+) -> Option<(usize, Shadow)> {
     let Some(DocumentItem::Glyph { name, body }) = doc.items.get(item_idx) else {
         return None;
     };
@@ -328,6 +338,32 @@ fn selected_anchor_shadow(
     })?;
     let self_name = name.display();
     anchor_shadow::compute(Some(&self_name), point, body.scale, named_glyphs).map(|s| (item_idx, s))
+}
+
+/// The item's backreference shadow: every glyph referring to it, unioned. See
+/// [`backref_shadow`]; the mode that asks for it is
+/// [`EditMode::PixelSelect`] with `backrefs` on.
+fn glyph_backref_shadow(
+    doc: &Document,
+    item_idx: usize,
+    named_glyphs: &HashMap<String, ResolvedGlyph>,
+) -> Option<(usize, Shadow)> {
+    let Some(DocumentItem::Glyph { name, body }) = doc.items.get(item_idx) else {
+        return None;
+    };
+    backref_shadow::compute(&name.display(), body.scale, named_glyphs).map(|s| (item_idx, s))
+}
+
+/// The glyph whose backreference shadow is asked for, if the mode asks for one
+/// at all.
+fn backref_shadow_item(mode: &EditMode) -> Option<usize> {
+    match mode {
+        EditMode::PixelSelect {
+            item_idx,
+            backrefs: true,
+        } => Some(*item_idx),
+        _ => None,
+    }
 }
 
 /// The editor's frame loop. Reached through [`DocumentEditor::show`], which
@@ -366,7 +402,7 @@ fn show_document(
 
     let editing_item_idx = match &state.mode {
         EditMode::GlyphEdit { item_idx, .. } => Some(*item_idx),
-        EditMode::PixelSelect { item_idx } => Some(*item_idx),
+        EditMode::PixelSelect { item_idx, .. } => Some(*item_idx),
         EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
         EditMode::GlyphResize { item_idx } => Some(*item_idx),
         EditMode::Normal => None,
@@ -485,6 +521,7 @@ fn show_document(
         zoom_level,
         editing_item_idx,
         active_point: active_point_layer(doc, &state.mode),
+        backref_item: backref_shadow_item(&state.mode),
         show_metrics: env.show_metrics,
         fold_gen: state.folds.visible_gen(),
         wrap_width_bits: wrap_width.map(f32::to_bits),

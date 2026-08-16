@@ -376,7 +376,7 @@ pub(crate) fn build_visual_lines(
     font_id: &egui::FontId,
     meta: crate::meta::FontMetrics,
     show_metrics: bool,
-    shadow: Option<&(usize, crate::editor::anchor_shadow::AnchorShadow)>,
+    shadow: Option<&(usize, crate::editor::shadow::Shadow)>,
 ) -> Vec<VisualLine> {
     let comment_color = pal.text_comment;
     let heading_color = pal.text_heading;

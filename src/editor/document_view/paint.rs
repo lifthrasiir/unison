@@ -25,7 +25,7 @@ pub(super) fn paint_document_area(
     env: EditorEnv<'_>,
     vlines: &[VisualLine],
     composites: &HashMap<usize, GlyphComposite>,
-    shadow: Option<&(usize, AnchorShadow)>,
+    shadow: Option<&(usize, Shadow)>,
     source_offsets: &[usize],
     pal: &Palette,
     row_height: f32,
@@ -671,7 +671,7 @@ pub(super) fn paint_document_area(
                     }
                 }
 
-                if !matches!(state.mode, EditMode::PixelSelect { item_idx: eidx } if eidx == *item_idx)
+                if !matches!(state.mode, EditMode::PixelSelect { item_idx: eidx, .. } if eidx == *item_idx)
                 {
                     pixel_interaction::handle_pixel_painting(
                         ui,
@@ -1030,7 +1030,7 @@ pub(super) fn paint_document_area(
                     EditMode::GlyphEdit { item_idx: eidx, .. } if eidx == item_idx
                 ) && !matches!(
                     state.mode,
-                    EditMode::PixelSelect { item_idx: eidx } if eidx == item_idx
+                    EditMode::PixelSelect { item_idx: eidx, .. } if eidx == item_idx
                 ) && !matches!(
                     state.mode,
                     EditMode::LayerMove { item_idx: eidx, .. } if eidx == item_idx

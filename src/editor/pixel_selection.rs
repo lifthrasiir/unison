@@ -147,7 +147,7 @@ pub(crate) fn select_all(doc: &Document, lines: &mut [DocLine], state: &mut Edit
         .filter(|s| s.item_idx == item_idx);
     // Already the whole grid, in the mode that shows it: nothing to record.
     if current == Some(&new_sel)
-        && matches!(state.mode, EditMode::PixelSelect { item_idx: i } if i == item_idx)
+        && matches!(state.mode, EditMode::PixelSelect { item_idx: i, .. } if i == item_idx)
     {
         return false;
     }
@@ -155,7 +155,7 @@ pub(crate) fn select_all(doc: &Document, lines: &mut [DocLine], state: &mut Edit
 
     let grid_doc_line = new_sel.grid_doc_line(doc).unwrap_or(0);
     let mode_before = state.mode.clone();
-    state.mode = EditMode::PixelSelect { item_idx };
+    state.mode = EditMode::pixel_select(item_idx, &mode_before);
     let after = new_sel.to_snapshot();
     state.pixel_selection = Some(new_sel);
     state.pixel_select_anchor = Some((0, 0));
@@ -221,7 +221,7 @@ pub(crate) fn handle_pixel_select_interaction(
     grid_y: f32,
     grid_cell: f32,
 ) {
-    if !matches!(state.mode, EditMode::PixelSelect { item_idx: eidx } if eidx == item_idx) {
+    if !matches!(state.mode, EditMode::PixelSelect { item_idx: eidx, .. } if eidx == item_idx) {
         return;
     }
 
@@ -612,6 +612,7 @@ pub(crate) fn commit_floating(
     }
 
     let before = sel.to_snapshot();
+    let sel_mode = EditMode::pixel_select(sel.item_idx, &state.mode);
     // `mode_before` is the mode the restored selection needs, not the mode the
     // editor happens to be in: a commit is usually *caused* by leaving
     // PixelSelect (`reconcile`), and undoing into that new mode would hand a
@@ -620,9 +621,7 @@ pub(crate) fn commit_floating(
     state.undo.push_pixel_selection(
         grid_doc_line,
         changes,
-        EditMode::PixelSelect {
-            item_idx: sel.item_idx,
-        },
+        sel_mode,
         state.mode.clone(),
         Some(before),
         None,
@@ -843,7 +842,7 @@ pub(crate) fn paste_selection(
         .unwrap_or(0);
 
     let mode_before = state.mode.clone();
-    state.mode = EditMode::PixelSelect { item_idx };
+    state.mode = EditMode::pixel_select(item_idx, &mode_before);
 
     let new_sel = PixelSelection {
         item_idx,
@@ -1046,7 +1045,7 @@ pub(crate) fn handle_transform_selection(
         let new_col = ((old_center_c - new_w as f32 / 2.0).round() as i16)
             .clamp(0, grid_width as i16 - new_w as i16);
 
-        state.mode = EditMode::PixelSelect { item_idx };
+        state.mode = EditMode::pixel_select(item_idx, &state.mode.clone());
         state.pixel_selection = Some(PixelSelection {
             item_idx,
             row: new_row,
@@ -1390,7 +1389,7 @@ pub(crate) fn reconcile(
     };
     let matches_mode = matches!(
         &state.mode,
-        EditMode::PixelSelect { item_idx } if *item_idx == sel.item_idx
+        EditMode::PixelSelect { item_idx, .. } if *item_idx == sel.item_idx
     );
     if !matches_mode || !(state.active || menu_open) {
         commit_and_clear(doc, lines, state, &sel);
@@ -1509,7 +1508,10 @@ mod tests {
         let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
         state.pixel_selection = Some(PixelSelection {
             item_idx: 0,
             row: 0,
@@ -1542,7 +1544,10 @@ mod tests {
         float.set(0, 0, PixelShape::new(pixel::PX_ALMOSTFULL, true));
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
         state.pixel_selection = Some(PixelSelection {
             item_idx: 0,
             row: 1,
@@ -1578,7 +1583,10 @@ mod tests {
         float.set(0, 1, PixelShape::EMPTY);
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
 
         let sel = PixelSelection {
             item_idx: 0,
@@ -1608,7 +1616,10 @@ mod tests {
         let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
 
         let changed =
             handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::MirrorH);
@@ -1633,7 +1644,10 @@ mod tests {
         let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
 
         handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::FlipV);
 
@@ -1656,7 +1670,10 @@ mod tests {
         let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
 
         handle_transform_selection(&doc, &mut lines, &mut state, SelectionTransform::Rotate180);
 
@@ -1679,7 +1696,10 @@ mod tests {
         let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
 
         assert!(!can_transform(&doc, &state, SelectionTransform::RotateCW));
         assert!(!can_transform(&doc, &state, SelectionTransform::RotateCCW));
@@ -1695,7 +1715,10 @@ mod tests {
         let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
         state.pixel_selection = Some(PixelSelection {
             item_idx: 0,
             row: 0,
@@ -1727,7 +1750,10 @@ mod tests {
         let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
 
         let mut state = EditorState::new();
-        state.mode = EditMode::PixelSelect { item_idx: 0 };
+        state.mode = EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: false,
+        };
         state.pixel_selection = Some(PixelSelection {
             item_idx: 0,
             row: 0,

@@ -47,7 +47,7 @@ impl GridExtent {
     /// as [`GridExtent::include_metrics`], and the same glyph is where it
     /// bites: a two-row mark shows the bases it attaches to only if the rows
     /// they occupy are drawn at all.
-    pub(crate) fn include_shadow(&mut self, s: &AnchorShadow) {
+    pub(crate) fn include_shadow(&mut self, s: &Shadow) {
         self.top = self.top.min(s.row);
         self.left = self.left.min(s.col);
         self.bottom = self.bottom.max(s.row + s.grid.height as i16);
@@ -380,10 +380,11 @@ pub(crate) struct ViewData {
     pub(crate) composites: HashMap<usize, GlyphComposite>,
     pub(crate) vlines: Vec<VisualLine>,
     pub(crate) source_offsets: Vec<usize>,
-    /// The shadow of the anchor layer currently selected, with the item it
-    /// belongs to. `None` whenever the selected layer is not an anchor (or no
-    /// glyph attaches there).
-    pub(crate) shadow: Option<(usize, AnchorShadow)>,
+    /// The shadow drawn under one glyph — the selected anchor's attachable
+    /// glyphs, or the glyphs referring to this one — with the item it belongs
+    /// to. `None` whenever no mode asks for a shadow, or nothing qualifies for
+    /// the one it asks for. Only one can be live; see [`crate::editor::shadow`].
+    pub(crate) shadow: Option<(usize, Shadow)>,
 }
 
 /// Inputs `ViewData` was computed from. `edit_gen` stands in for the document
@@ -401,6 +402,10 @@ pub(super) struct ViewCacheKey {
     /// are keyed on: cycling through ref layers changes nothing the view is
     /// built from, and rebuilding it is O(document).
     pub(super) active_point: Option<(usize, usize)>,
+    /// The glyph whose *backreference* shadow is switched on, keyed for the
+    /// same reason as `active_point`: the shadow and the extents that make room
+    /// for it are derived from it, and building either is O(document).
+    pub(super) backref_item: Option<usize>,
     pub(super) show_metrics: bool,
     /// `FoldState::gen`, which changes exactly when the set of visible lines
     /// does. The vlines a fold hides are dropped after they are built, so

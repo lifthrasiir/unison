@@ -4,11 +4,9 @@
 //!
 //! Attachment is symmetric, so this makes no distinction between the two signs:
 //! a `+above` shows the marks that carry `-above`, a `-above` shows the bases
-//! that carry `+above`, and both are found the same way. What is drawn is the
-//! *union* of all of them — a cell is inked ([`crate::pixel::PX_FULL`]) when any
-//! candidate inks it, and its geometry is the exact union of every candidate's
-//! geometry there, which is what [`PixelGrid::blit`] already computes (a cell
-//! whose union is no catalog shape becomes a `PX_CUSTOM` detail).
+//! that carry `+above`, and both are found the same way. The union rule and the
+//! grid the result is carried in are [`crate::editor::shadow`]'s, shared with
+//! the backreference shadow.
 //!
 //! Placement mirrors composition exactly — [`crate::ref_composite`]'s
 //! `try_match_minus_plus` (anchor delta, *not* scale-converted) plus
@@ -23,29 +21,9 @@
 
 use std::collections::HashMap;
 
-use crate::document::{GlyphPoint, PixelGrid};
+use crate::document::GlyphPoint;
 use crate::editor::ref_composite::ResolvedGlyph;
-use crate::pixel::{PX_ALMOSTFULL, PX_CUSTOM};
-
-/// Rows/columns beyond which a candidate is taken to be misplaced rather than
-/// merely far away. Without a bound one stray anchor pair could ask for a grid
-/// of millions of cells, all of it off screen.
-const MAX_EXTENT: i32 = 1024;
-
-/// The union of every glyph that can attach at the selected anchor, in the
-/// edited glyph's own grid coordinates.
-#[derive(Clone)]
-pub(crate) struct AnchorShadow {
-    pub(crate) grid: PixelGrid,
-    /// Grid coordinate of the shadow's raster cell `(0, 0)`. Negative when the
-    /// shadow reaches above/left of the edited glyph's own grid, exactly as a
-    /// composite's `own_offset_*` allows.
-    pub(crate) row: i16,
-    pub(crate) col: i16,
-    /// How many glyphs went into the union. Zero never reaches here — no
-    /// candidate means no shadow at all.
-    pub(crate) count: usize,
-}
+use crate::editor::shadow::{Shadow, ShadowBuilder, ShadowKind};
 
 /// The anchor on the other side of `position`: `+x` ↔ `-x`. `None` for a name
 /// carrying neither sign, which cannot take part in attachment.
@@ -64,7 +42,7 @@ pub(crate) fn compute(
     point: &GlyphPoint,
     scale: u8,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
-) -> Option<AnchorShadow> {
+) -> Option<Shadow> {
     let counterpart = counterpart_position(&point.position)?;
     let ps = scale.max(1) as i32;
 
@@ -93,9 +71,7 @@ pub(crate) fn compute(
     }
     candidates.sort_by_key(|(name, _, _)| *name);
 
-    let mut placements: Vec<(PixelGrid, i32, i32)> = Vec::new();
-    let (mut min_r, mut min_c) = (i32::MAX, i32::MAX);
-    let (mut max_r, mut max_c) = (i32::MIN, i32::MIN);
+    let mut builder = ShadowBuilder::new(ShadowKind::Anchor);
     for (_, resolved, anchor) in candidates {
         let rs = resolved.scale.max(1) as i32;
         let row = point.row as i32 - anchor.row as i32 + resolved.origin_row * ps / rs;
@@ -105,82 +81,15 @@ pub(crate) fn compute(
         } else {
             resolved.grid.rescale(rs as u8, ps as u8)
         };
-        let (h, w) = (grid.height as i32, grid.width as i32);
-        if row < -MAX_EXTENT || col < -MAX_EXTENT || row + h > MAX_EXTENT || col + w > MAX_EXTENT {
-            continue;
-        }
-        min_r = min_r.min(row);
-        min_c = min_c.min(col);
-        max_r = max_r.max(row + h);
-        max_c = max_c.max(col + w);
-        placements.push((grid, row, col));
+        builder.push(grid, row, col);
     }
-    if placements.is_empty() {
-        return None;
-    }
-
-    let mut grid = PixelGrid::new((max_c - min_c) as u16, (max_r - min_r) as u16);
-    for (src, row, col) in &placements {
-        union_into(&mut grid, src, row - min_r, col - min_c);
-    }
-
-    Some(AnchorShadow {
-        grid,
-        row: min_r as i16,
-        col: min_c as i16,
-        count: placements.len(),
-    })
-}
-
-/// Union `src` into `dst` at `(off_r, off_c)` — the same rule
-/// [`PixelGrid::blit`] applies, with the two cases a shadow is mostly made of
-/// taken first. A shadow is every attachable glyph at once, so its cells
-/// overlap far more than a composite's do, and going through the exact sweep
-/// for each of them costs more than the whole rest of the view rebuild.
-fn union_into(dst: &mut PixelGrid, src: &PixelGrid, off_r: i32, off_c: i32) {
-    for r in 0..src.height as i32 {
-        for c in 0..src.width as i32 {
-            let shape = src.get(r as u16, c as u16);
-            if shape.is_empty() {
-                continue;
-            }
-            let (dr, dc) = (off_r + r, off_c + c);
-            if dr < 0 || dc < 0 || dr >= dst.height as i32 || dc >= dst.width as i32 {
-                continue;
-            }
-            let (dr, dc) = (dr as u16, dc as u16);
-            let current = dst.get(dr, dc);
-            // Already a whole inked pixel: nothing unions into more than that.
-            if current.shape_id() == PX_ALMOSTFULL && current.is_filled() {
-                continue;
-            }
-            let filled = current.is_filled() || shape.is_filled();
-            if current.is_empty() {
-                if shape.shape_id() == PX_CUSTOM {
-                    dst.set_detail(dr, dc, &src.region_at(r as u16, c as u16), filled);
-                } else {
-                    dst.set(dr, dc, shape);
-                }
-                continue;
-            }
-            // The same geometry twice — only the ink flag can still change.
-            if current.shape_id() == shape.shape_id() && shape.shape_id() != PX_CUSTOM {
-                dst.set_filled(dr, dc, filled);
-                continue;
-            }
-            let union = crate::detail::bool_op(
-                &dst.region_at(dr, dc),
-                &src.region_at(r as u16, c as u16),
-                crate::detail::BoolOp::Union,
-            );
-            dst.set_detail(dr, dc, &union, filled);
-        }
-    }
+    builder.finish()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::document::PixelGrid;
     use crate::pixel::{PX_ALMOSTFULL, PX_HALF1, PX_HALF2, PixelShape};
 
     fn point(position: &str, col: i16, row: i16) -> GlyphPoint {

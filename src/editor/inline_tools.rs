@@ -87,7 +87,7 @@ pub(crate) fn draw_inline_tools_panel(
     composites: &HashMap<usize, GlyphComposite>,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
-    shadow: Option<&crate::editor::anchor_shadow::AnchorShadow>,
+    shadow: Option<&crate::editor::shadow::Shadow>,
     click_pos: Option<egui::Pos2>,
     zoom_level: u32,
 ) -> InlineToolsResult {
@@ -348,8 +348,24 @@ pub(crate) fn draw_inline_tools_panel(
         px += point_size.x + 4.0 * zoom;
     }
 
-    // --- Row 2+: Shape palette or point name ---
-    if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
+    // --- Row 2+: Shape palette, point name, or the backreference count ---
+    if let EditMode::PixelSelect { backrefs, .. } = &state.mode {
+        // Nothing but the label says the dim shape under the grid is every
+        // glyph this one is used in — or that a second `` ` `` would show it.
+        if *backrefs {
+            let label = match shadow {
+                Some(s) => format!("used by \u{00d7}{}", s.count),
+                None => "used by nothing".to_string(),
+            };
+            painter.text(
+                egui::pos2(panel_x, panel_y + prh + 4.0),
+                egui::Align2::LEFT_TOP,
+                &label,
+                egui::FontId::monospace(16.0_f32.max(palette_cell * 0.8)),
+                pal.text_default,
+            );
+        }
+    } else if let EditMode::GlyphEdit { selected_shape, .. } = &mut state.mode {
         let palette_y = panel_y + prh + 4.0;
         let shift_held = ui.input(|i| i.modifiers.shift);
         draw_inline_palette(

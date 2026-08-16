@@ -370,8 +370,24 @@ fn handle_palette_shortcuts(
     let to_pixel_select = ui
         .input(|i| i.key_pressed(egui::Key::Backtick) && !i.modifiers.command && !i.modifiers.alt);
     if to_pixel_select {
-        // Reconciliation will commit any floating selection.
-        state.mode = EditMode::PixelSelect { item_idx };
+        // Pressed again inside pixel selection it toggles the backreference
+        // shadow instead — the mode is already the one it asks for, so the key
+        // is free to mean the next thing there. Leaving the mode drops the
+        // toggle with it; see [`EditMode::PixelSelect`].
+        state.mode = match &state.mode {
+            EditMode::PixelSelect {
+                item_idx: i,
+                backrefs,
+            } if *i == item_idx => EditMode::PixelSelect {
+                item_idx,
+                backrefs: !backrefs,
+            },
+            // Reconciliation will commit any floating selection.
+            _ => EditMode::PixelSelect {
+                item_idx,
+                backrefs: false,
+            },
+        };
         return;
     }
 

@@ -1,5 +1,5 @@
-//! Painting a glyph's pixel grid: the cells themselves, the anchor shadow under
-//! them, and the metrics overlay over them.
+//! Painting a glyph's pixel grid: the cells themselves, the shadow under them
+//! ([`crate::editor::shadow`], either kind), and the metrics overlay over them.
 //!
 //! # The metrics overlay (View ▸ Show glyph metrics)
 //!
@@ -22,11 +22,11 @@ use std::collections::HashMap;
 
 use crate::document::{Document, DocumentItem, NamePartsMap, PixelGrid};
 use crate::editor::EditMode;
-use crate::editor::anchor_shadow::AnchorShadow;
 use crate::editor::colors::Palette;
 use crate::editor::document_view::{GlyphMetrics, GridExtent, UNFILLED_OPACITY};
 use crate::editor::glyph_widget;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
+use crate::editor::shadow::{Shadow, ShadowKind};
 
 /// Where a preview bitmap goes and how big one grid cell is on it.
 ///
@@ -222,7 +222,7 @@ pub(crate) fn render_grid_row(
     extent: GridExtent,
     metrics: Option<&GlyphMetrics>,
     composite: Option<&GlyphComposite>,
-    shadow: Option<&AnchorShadow>,
+    shadow: Option<&Shadow>,
     mode: &EditMode,
     grid_cell: f32,
     pal: &Palette,
@@ -260,17 +260,23 @@ pub(crate) fn render_grid_row(
         _ => (None, None),
     };
 
-    // Under everything else: the shadow is what the selected anchor *could*
-    // carry, not part of this glyph.
-    let shadow = shadow.filter(|_| active_point.is_some());
+    // Under everything else: a shadow is context for the glyph — what the
+    // selected anchor *could* carry, or what carries this glyph elsewhere —
+    // and never part of it. Each kind is only drawn in the mode that asks for
+    // it, since the view keeps the last one it built.
+    let shadow = shadow.filter(|s| match s.kind {
+        ShadowKind::Anchor => active_point.is_some(),
+        ShadowKind::Backref => {
+            matches!(mode, EditMode::PixelSelect { item_idx: eidx, backrefs: true } if *eidx == item_idx)
+        }
+    });
     if let Some(s) = shadow {
-        let color = match doc.items.get(item_idx) {
-            Some(DocumentItem::Glyph { body, .. }) => {
-                anchor_layer_color(pal, body, composite, active_point.unwrap_or(0))
-            }
-            _ => ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, 0),
+        let body = match doc.items.get(item_idx) {
+            Some(DocumentItem::Glyph { body, .. }) => Some(body),
+            _ => None,
         };
-        draw_anchor_shadow(painter, x, y, row, extent, s, color, cs);
+        let color = shadow_color(pal, s.kind, body, composite, active_point);
+        draw_shadow_row(painter, x, y, row, extent, s, color, cs);
     }
     let shadow_inked = |dc: i16| -> bool {
         shadow.is_some_and(|s| {
@@ -279,7 +285,7 @@ pub(crate) fn render_grid_row(
                 && sr < s.grid.height as i16
                 && sc >= 0
                 && sc < s.grid.width as i16
-                && !s.grid.get(sr as u16, sc as u16).is_empty()
+                && !s.grid.get(sr as u16, sc as u16).is_blank()
         })
     };
 
@@ -512,23 +518,48 @@ pub(crate) fn render_grid_row(
     }
 }
 
-/// How strongly the anchor shadow is drawn. Well under a real layer's opacity:
+/// What colour a shadow is drawn in.
+///
+/// An anchor shadow borrows the selected anchor's own layer colour, so it reads
+/// as belonging to that anchor. A backreference belongs to no layer, so it
+/// takes the body text colour — but through
+/// [`Palette::dark_equivalent`](crate::editor::colors::Palette::dark_equivalent),
+/// for the same reason the minimap does: the grid is painted on a dark ground
+/// in *both* themes, while `text_default` follows the reader's theme and is
+/// near-black in the light one. Painted straight it would be invisible.
+fn shadow_color(
+    pal: &Palette,
+    kind: ShadowKind,
+    body: Option<&crate::document::GlyphBody>,
+    composite: Option<&GlyphComposite>,
+    active_point: Option<usize>,
+) -> egui::Color32 {
+    match (kind, body) {
+        (ShadowKind::Backref, _) => pal.dark_equivalent(pal.text_default),
+        (ShadowKind::Anchor, Some(body)) => {
+            anchor_layer_color(pal, body, composite, active_point.unwrap_or(0))
+        }
+        (ShadowKind::Anchor, None) => ref_composite::ref_color_sv(pal.ref_hsv_s, pal.ref_hsv_v, 0),
+    }
+}
+
+/// How strongly a shadow is drawn. Well under a real layer's opacity:
 /// it is context for the glyph being edited, and every candidate at once is a
 /// lot of ink — the union of a mark's bases covers most of the em box.
 const SHADOW_OPACITY: f32 = 0.3;
 
-/// One row of the anchor shadow, in the selected anchor's own layer colour so
-/// it reads as belonging to that anchor. Cells any candidate inks are drawn
-/// solid, sub-pixel-only ones at the usual unfilled opacity; the exact geometry
-/// comes from the shadow grid itself, custom details included.
+/// One row of a shadow, in the colour the caller picked for its kind. Cells any
+/// candidate inks are drawn solid, sub-pixel-only ones at the usual unfilled
+/// opacity; the exact geometry comes from the shadow grid itself, custom
+/// details included.
 #[allow(clippy::too_many_arguments)]
-fn draw_anchor_shadow(
+fn draw_shadow_row(
     painter: &egui::Painter,
     x: f32,
     y: f32,
     row: i16,
     extent: GridExtent,
-    shadow: &AnchorShadow,
+    shadow: &Shadow,
     color: egui::Color32,
     cs: f32,
 ) {
@@ -1279,7 +1310,30 @@ pub(crate) fn render_pixel_selection_overlay(
 
 #[cfg(test)]
 mod tests {
-    use super::axis_coverage;
+    use super::{Palette, axis_coverage, shadow_color};
+    use crate::editor::shadow::ShadowKind;
+
+    /// Relative luminance, for "can this be seen against that".
+    fn luma(c: egui::Color32) -> f32 {
+        let [r, g, b, _] = c.to_array();
+        (0.2126 * r as f32 + 0.7152 * g as f32 + 0.0722 * b as f32) / 255.0
+    }
+
+    /// The grid is drawn on a dark ground in *both* themes (`Palette::light`
+    /// copies the grid colours from `dark`), so a shadow painted in the
+    /// reader's text colour is near-black on near-black in the light theme —
+    /// which is how the backreference shadow first shipped.
+    #[test]
+    fn the_backref_shadow_is_visible_on_the_grid_in_either_theme() {
+        for (name, pal) in [("dark", Palette::dark()), ("light", Palette::light())] {
+            let c = shadow_color(&pal, ShadowKind::Backref, None, None, None);
+            assert!(
+                luma(c) - luma(pal.grid_bg) > 0.4,
+                "{name}: shadow colour {c:?} is invisible on the grid ground {:?}",
+                pal.grid_bg
+            );
+        }
+    }
 
     fn total(spans: &[Vec<(usize, f32)>], device_px: usize) -> f32 {
         spans

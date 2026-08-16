@@ -25,6 +25,7 @@
 pub mod anchor_shadow;
 pub mod annotations;
 pub mod autocomplete;
+pub mod backref_shadow;
 pub mod caret;
 pub mod codepoint_popup;
 pub mod colors;
@@ -45,6 +46,7 @@ pub mod minimap;
 pub mod pixel_interaction;
 pub mod pixel_selection;
 pub mod reconcile;
+pub mod shadow;
 pub(crate) use crate::ref_composite;
 pub mod undo;
 #[cfg(test)]
@@ -65,8 +67,18 @@ pub enum EditMode {
         item_idx: usize,
         selected_shape: PixelShape,
     },
+    /// The pixel grid with a *selection* rather than a brush. `backrefs` is the
+    /// backreference shadow ([`backref_shadow`]), which a second `` ` `` turns
+    /// on and a third off.
+    ///
+    /// It lives in the mode, not beside it, so that leaving pixel selection and
+    /// coming back starts with it off again. That is the point of it being a
+    /// toggle at all: the shadow widens the drawn grid to cover every glyph
+    /// this one is used in, and a grid that resized itself the moment a
+    /// selection began would be unusable.
     PixelSelect {
         item_idx: usize,
+        backrefs: bool,
     },
     LayerMove {
         item_idx: usize,
@@ -82,10 +94,27 @@ pub enum EditMode {
 }
 
 impl EditMode {
+    /// Entering pixel selection on `item_idx`, coming from `prev`.
+    ///
+    /// The backreference shadow survives only a re-entry into the *same*
+    /// glyph's selection — which is what a paste or a Ctrl+A inside the mode
+    /// is. Anything that leaves the mode, or lands on another glyph, starts
+    /// with the shadow off again; see [`EditMode::PixelSelect`].
+    pub fn pixel_select(item_idx: usize, prev: &EditMode) -> Self {
+        let backrefs = matches!(
+            prev,
+            EditMode::PixelSelect {
+                item_idx: i,
+                backrefs: true,
+            } if *i == item_idx
+        );
+        EditMode::PixelSelect { item_idx, backrefs }
+    }
+
     /// The glyph item being pixel-edited, in either grid-editing mode.
     pub fn pixel_edit_item_idx(&self) -> Option<usize> {
         match self {
-            EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx } => {
+            EditMode::GlyphEdit { item_idx, .. } | EditMode::PixelSelect { item_idx, .. } => {
                 Some(*item_idx)
             }
             _ => None,
@@ -97,7 +126,7 @@ impl EditMode {
     pub fn edit_item_idx(&self) -> Option<usize> {
         match self {
             EditMode::GlyphEdit { item_idx, .. }
-            | EditMode::PixelSelect { item_idx }
+            | EditMode::PixelSelect { item_idx, .. }
             | EditMode::LayerMove { item_idx, .. }
             | EditMode::GlyphResize { item_idx } => Some(*item_idx),
             EditMode::Normal => None,
