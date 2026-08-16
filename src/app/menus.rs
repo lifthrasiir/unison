@@ -294,7 +294,7 @@ impl UniformApp {
                         .add_enabled(
                             editor_focused,
                             egui::Button::new("Fold/unfold innermost group")
-                                .shortcut_text(format!("{mod_name}.")),
+                                .shortcut_text(format!("{mod_name};")),
                         )
                         .clicked()
                     {

@@ -47,13 +47,15 @@ pub(super) fn handle_document_keys(
                 }
             }
 
-            // Ctrl/Cmd+. folds the innermost group the caret is in. Read
+            // Ctrl/Cmd+; folds the innermost group the caret is in. Read
             // before the mode handlers because it is not a mode's key: a fold
             // asked for from a pixel mode leaves that mode first (see
             // `folding::toggle_at`), which is the same thing the menu entry
-            // beside this shortcut does.
+            // beside this shortcut does. Semicolon and not period: Cmd+Period
+            // is the macOS autocomplete trigger below, and one chord doing both
+            // would fold *and* open the popup on the header it lands on.
             if matches!(state.popup, PopupState::None)
-                && ui.input(|i| i.modifiers.command && i.key_pressed(egui::Key::Period))
+                && ui.input(|i| i.modifiers.command && i.key_pressed(egui::Key::Semicolon))
             {
                 *needs_rederive |=
                     crate::editor::folding::toggle_at(lines, state, state.cursor.line);

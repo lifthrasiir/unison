@@ -824,6 +824,30 @@ fn autocomplete_undo_after_accept() {
     assert_eq!(h.text(5), original_text);
 }
 
+/// Triggering inside a name completes the *whole* name: the caret first moves
+/// to the name's end, so accepting cannot leave the tail of the old spelling
+/// behind.
+#[test]
+fn autocomplete_trigger_mid_name_completes_whole_name() {
+    let mut h = EditorHarness::new(
+        "glyph alpha 2 2\n@@@@\n@@..\n\
+         glyph beta 2 2\n..@@\n@@@@\n\
+         \n\
+         ref alp",
+    );
+    // Caret between `al` and `p`.
+    h.click_text(5, 6);
+    ctrl_j(&mut h);
+
+    assert_eq!(h.state.cursor.col, 7);
+    let ac = h.state.autocomplete.as_ref().unwrap();
+    assert_eq!(ac.replace_start, 4);
+    assert!(ac.candidates.iter().all(|c| c.label.starts_with("alp")));
+
+    h.key(Key::Enter);
+    assert_eq!(h.text(5), "ref alpha");
+}
+
 /// Ctrl+J/Ctrl+K walk the open popup like Down/Up. The trigger itself is the
 /// first step down from a virtual item before the list, so the popup opens on
 /// item 0 and Ctrl+K there stays put rather than closing it — there is nothing
@@ -5301,10 +5325,10 @@ fn a_marker_below_the_viewport_does_not_shade_under_the_pointer() {
 }
 
 #[test]
-fn ctrl_period_folds_the_group_the_caret_sits_in() {
+fn ctrl_semicolon_folds_the_group_the_caret_sits_in() {
     let mut h = EditorHarness::new(&fold_doc());
     h.click_text(2, 3);
-    h.key_mod(Key::Period, Modifiers::COMMAND);
+    h.key_mod(Key::Semicolon, Modifiers::COMMAND);
 
     assert_eq!(shown_lines(&h), vec![0, 3, 4, 5, 6]);
     assert_eq!(
@@ -5313,7 +5337,7 @@ fn ctrl_period_folds_the_group_the_caret_sits_in() {
         "the caret comes up to the header at the same column"
     );
 
-    h.key_mod(Key::Period, Modifiers::COMMAND);
+    h.key_mod(Key::Semicolon, Modifiers::COMMAND);
     assert_eq!(shown_lines(&h), vec![0, 1, 2, 3, 4, 5, 6]);
 }
 
@@ -5341,7 +5365,7 @@ fn folding_over_an_end_of_the_selection_drops_it() {
     h.click_at_mod(h.text_pos(2, 5), Modifiers::SHIFT);
     assert!(h.state.selection_range().is_some());
 
-    h.key_mod(Key::Period, Modifiers::COMMAND);
+    h.key_mod(Key::Semicolon, Modifiers::COMMAND);
     assert!(
         h.state.selection_range().is_none(),
         "an endpoint about to be hidden cancels the selection"
@@ -5384,7 +5408,7 @@ fn shutting_a_group_from_below_brings_its_header_to_the_top() {
     assert!(h.scroll_y() > 0.0, "the header should be off the page now");
 
     h.click_text(2, 0);
-    h.key_mod(Key::Period, Modifiers::COMMAND);
+    h.key_mod(Key::Semicolon, Modifiers::COMMAND);
     assert_eq!(h.cursor().line, 0);
     assert!(
         h.scroll_y() <= 1.0,

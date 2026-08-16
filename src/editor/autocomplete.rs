@@ -55,7 +55,14 @@ pub(crate) fn trigger(
         _ => return,
     };
 
-    let ctx = match detect_context(line_text, state.cursor.col) {
+    // Triggering with the caret inside a name completes the *whole* name, not
+    // the part before the caret: the tail is part of the name being written, so
+    // leaving it in place would splice a candidate onto a leftover suffix. The
+    // caret moves to the name's end first, and only when the popup does open —
+    // a trigger that finds nothing to offer must not move it.
+    let col = word_end(line_text, state.cursor.col);
+
+    let ctx = match detect_context(line_text, col) {
         Some(c) => c,
         None => return,
     };
@@ -70,6 +77,8 @@ pub(crate) fn trigger(
         return;
     }
 
+    state.cursor.col = col;
+    state.selection_anchor = None;
     state.autocomplete = Some(AutocompleteState {
         selected: 0,
         scroll_offset: 0,
@@ -287,6 +296,24 @@ fn rewrite_as_at_names(
             })
         })
         .collect()
+}
+
+/// End of the whitespace-delimited word the caret sits *inside*, in chars.
+///
+/// The same word `detect_context` reads the prefix from, so a trigger from the
+/// middle of one ends up completing all of it. A caret that is not inside a
+/// word — in whitespace, at a line's start, right before a word — stays where
+/// it is: the word ahead is not one the author is in the middle of writing.
+fn word_end(line: &str, col: usize) -> usize {
+    let chars: Vec<char> = line.chars().collect();
+    if col > chars.len() || col == 0 || chars[col - 1].is_whitespace() {
+        return col;
+    }
+    let mut end = col;
+    while end < chars.len() && !chars[end].is_whitespace() {
+        end += 1;
+    }
+    end
 }
 
 fn filter_candidates(all: &[CompletionCandidate], prefix: &str) -> Vec<CompletionCandidate> {
