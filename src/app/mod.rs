@@ -549,21 +549,25 @@ impl UniformApp {
         kind: &LinkTargetKind,
     ) -> Option<(usize, usize)> {
         use crate::document::{DocumentItem, GlyphName};
-        use crate::editor::doc_links::find_link_target_in_doc;
+        use crate::editor::doc_links::{find_link_target_in_doc, pattern_denotes};
 
-        let target_path =
-            {
-                let all_docs = self.collect_all_docs();
-                all_docs.iter().find_map(|doc| {
+        // A block's name may be written as a *pattern*, which declares every
+        // name it expands to; `pattern_denotes` is the same test the Search
+        // pane matches with, so the two agree on where a name is declared.
+        let declares = |n: &str| n == name || pattern_denotes(n, true, name, &self.name_parts);
+        let target_path = {
+            let all_docs = self.collect_all_docs();
+            all_docs.iter().find_map(|doc| {
                     let has_match = match kind {
                     // An alias line defines the name it declares as much as a
                     // glyph block does — it is where "go to definition" has to
                     // land for a `ref` to an alias.
                     LinkTargetKind::Glyph => doc.items.iter().any(|item| {
-                        matches!(item, DocumentItem::Glyph { name: GlyphName(n), .. } if n == name)
+                        matches!(item, DocumentItem::Glyph { name: GlyphName(n), .. } if declares(n))
                             || matches!(
                                 item,
-                                DocumentItem::GlyphAlias { name: GlyphName(n), .. } if n == name
+                                DocumentItem::GlyphAlias { name: GlyphName(n), .. }
+                                    if declares(n)
                             )
                     }),
                     LinkTargetKind::NameParts => doc.items.iter().any(|item| {
@@ -587,7 +591,7 @@ impl UniformApp {
                 };
                     has_match.then(|| doc.path.clone())
                 })
-            };
+        };
 
         let path = target_path?;
 
@@ -599,9 +603,13 @@ impl UniformApp {
             .position(|d| d.document.path == path)?;
         self.panes.show_document(idx);
 
-        let doc = &mut self.open_documents[idx];
-        let line_idx = find_link_target_in_doc(&doc.lines, name, kind)?;
-        doc.editor_state.goto_line(line_idx);
+        let line_idx = find_link_target_in_doc(
+            &self.open_documents[idx].lines,
+            name,
+            kind,
+            &self.name_parts,
+        )?;
+        self.open_documents[idx].editor_state.goto_line(line_idx);
         Some((idx, line_idx))
     }
 }

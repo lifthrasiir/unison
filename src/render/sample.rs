@@ -215,25 +215,27 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         &mut cache,
         pending,
         |name| glyph_declared_anchors.get(name).cloned(),
-        &mut crate::render::glyph_cache::FnBuilder(|pg: &crate::render::glyph_cache::PendingGlyph,
-                                                    effective_refs: &[GlyphRef],
-                                                    cache: &_| {
-            composite_glyph(
-                pg.pixels.as_ref(),
-                pg.desync,
-                effective_refs,
-                cache,
-                &color_aliases,
-                pg.scale,
-            )
-            .unwrap_or_else(|| {
-                if let Some(grid) = &pg.pixels {
-                    CachedGlyph::from_grid(grid, pg.desync)
-                } else {
-                    CachedGlyph::empty()
-                }
-            })
-        }),
+        &mut crate::render::glyph_cache::FnBuilder(
+            |pg: &crate::render::glyph_cache::PendingGlyph,
+             effective_refs: &[GlyphRef],
+             cache: &_| {
+                composite_glyph(
+                    pg.pixels.as_ref(),
+                    pg.desync,
+                    effective_refs,
+                    cache,
+                    &color_aliases,
+                    pg.scale,
+                )
+                .unwrap_or_else(|| {
+                    if let Some(grid) = &pg.pixels {
+                        CachedGlyph::from_grid(grid, pg.desync)
+                    } else {
+                        CachedGlyph::empty()
+                    }
+                })
+            },
+        ),
         |_, _| {},
         &crate::cancel::CancelToken::never(),
     );

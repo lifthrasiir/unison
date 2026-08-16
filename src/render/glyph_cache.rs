@@ -242,7 +242,13 @@ where
 /// entry (`None` where the memo already had it, or where a cancel stopped the
 /// run short of it).
 fn trace_wave<V, B>(
-    wave: &[(PendingGlyph, Vec<GlyphRef>, Vec<GlyphPoint>, B::Key, Option<V>)],
+    wave: &[(
+        PendingGlyph,
+        Vec<GlyphRef>,
+        Vec<GlyphPoint>,
+        B::Key,
+        Option<V>,
+    )],
     builder: &B,
     cache: &HashMap<String, V>,
     cancel: &crate::cancel::CancelToken,
@@ -322,8 +328,7 @@ fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGly
         unsettled.iter().map(|pg| pg.name.as_str()).collect();
     // Owned up front: `dead` borrows `pending`, and the retain below needs it
     // to have let go.
-    let dead: std::collections::HashSet<String> =
-        dead.into_iter().map(|s| s.to_string()).collect();
+    let dead: std::collections::HashSet<String> = dead.into_iter().map(|s| s.to_string()).collect();
     pending.retain(|pg| !dead.contains(&pg.name));
 }
 
@@ -408,8 +413,13 @@ pub(crate) fn resolve_pending<V, B>(
         // What this round will trace: the glyph, the refs its derivation
         // settled on, the anchors to record with it, and the memo key the
         // builder handed back (with the value already, when the memo had it).
-        let mut wave: Vec<(PendingGlyph, Vec<GlyphRef>, Vec<GlyphPoint>, B::Key, Option<V>)> =
-            Vec::new();
+        let mut wave: Vec<(
+            PendingGlyph,
+            Vec<GlyphRef>,
+            Vec<GlyphPoint>,
+            B::Key,
+            Option<V>,
+        )> = Vec::new();
         let mut i = 0;
         while i < pending.len() {
             steps += 1;

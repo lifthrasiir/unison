@@ -959,7 +959,7 @@ pub(super) fn paint_document_area(
         // A declaration would "navigate" to the line the click was already
         // on, so it never looks for one — it asks for the search instead.
         let local = (!goto_is_def)
-            .then(|| doc_links::find_link_target_in_doc(lines, target_name, &kind))
+            .then(|| doc_links::find_link_target_in_doc(lines, target_name, &kind, name_parts))
             .flatten();
         let target = if let Some(line_idx) = local {
             state.mode = EditMode::Normal;

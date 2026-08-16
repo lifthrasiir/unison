@@ -1,6 +1,47 @@
-use crate::document::DocLine;
+use crate::document::{DocLine, NamePartsMap};
 use crate::document_io::{tokenize_tokens, tokenize_with_spans};
 use crate::editor::line_fields::{FieldRole, LineField, classify_line};
+use crate::pattern::NamePattern;
+
+/// Whether the written name `token` is a pattern that denotes `name`.
+///
+/// Expanded exactly as the pipeline expands it — name parts substituted first,
+/// then the grammar of the context the token sits in: a glyph block name reads
+/// a top-level `a|b` as two verbatim names, an operand reads it as one group
+/// (`pattern.rs` spells the difference out). Searching for `foo` therefore
+/// lists a `glyph fo(o|q)` line, and the span pushed for it is the pattern
+/// token as written, so that is what the pane highlights.
+///
+/// The same test decides where a *definition* is: a glyph block written as a
+/// pattern declares every name it expands to, and that is the line a click on
+/// one of those names has to reach. Most of `font/` is stated that way — the
+/// whole of `han.unf` is seven `glyph han-($#…)` blocks — so matching a name
+/// literally would leave those glyphs with no definition to go to at all.
+///
+/// `parts` is the app's collected map, which holds the *unqualified*
+/// `name-parts` bindings only — a pattern spelled with a slice-qualified
+/// variable expands to nothing here and is listed only if it matches
+/// literally. That is the same map every other editor feature reads
+/// (`app/resize.rs`, the derived data in `app/background.rs`), so the search
+/// agrees with them rather than being right on its own.
+pub fn pattern_denotes(token: &str, is_def: bool, name: &str, parts: &NamePartsMap) -> bool {
+    if !token.contains(['(', '|', '$', '*']) {
+        return false;
+    }
+    let substituted = crate::document::substitute_name_parts(token, parts);
+    if substituted == name {
+        return true;
+    }
+    if !crate::document::is_name_pattern(&substituted) {
+        return false;
+    }
+    let parsed = if is_def {
+        NamePattern::parse(&substituted)
+    } else {
+        NamePattern::parse_element(&substituted)
+    };
+    parsed.is_ok_and(|p| p.matches(name))
+}
 
 #[derive(Clone, Debug)]
 pub(crate) struct LinkSpan {
@@ -326,10 +367,15 @@ pub(crate) fn find_renameable_at_caret(
     None
 }
 
+/// The line in `lines` that declares `name`, if this document declares it.
+///
+/// `parts` is only read for the glyph case, where a block's name may be a
+/// pattern standing for every name it expands to — see [`pattern_denotes`].
 pub fn find_link_target_in_doc(
     lines: &[DocLine],
     name: &str,
     kind: &LinkTargetKind,
+    parts: &NamePartsMap,
 ) -> Option<usize> {
     match kind {
         LinkTargetKind::Glyph => {
@@ -338,7 +384,9 @@ pub fn find_link_target_in_doc(
                     let trimmed = s.trim();
                     if let Ok(tokens) = tokenize_tokens(trimmed)
                         && tokens.first().is_some_and(|t| t == "glyph")
-                        && tokens.get(1).is_some_and(|t| t == name)
+                        && tokens
+                            .get(1)
+                            .is_some_and(|t| t == name || pattern_denotes(t, true, name, parts))
                     {
                         return Some(i);
                     }
@@ -905,16 +953,47 @@ mod rename_detection_tests {
             .map(|s| DocLine::Text(s.to_string()))
             .collect();
         assert_eq!(
-            find_link_target_in_doc(&lines, "narrow", &LinkTargetKind::Slice),
+            find_link_target_in_doc(
+                &lines,
+                "narrow",
+                &LinkTargetKind::Slice,
+                &NamePartsMap::new()
+            ),
             Some(0),
         );
         assert_eq!(
-            find_link_target_in_doc(&lines, "term", &LinkTargetKind::Face),
+            find_link_target_in_doc(&lines, "term", &LinkTargetKind::Face, &NamePartsMap::new()),
             Some(2),
         );
         // The two ids live in different namespaces and never cross.
         assert_eq!(
-            find_link_target_in_doc(&lines, "narrow", &LinkTargetKind::Face),
+            find_link_target_in_doc(
+                &lines,
+                "narrow",
+                &LinkTargetKind::Face,
+                &NamePartsMap::new()
+            ),
+            None,
+        );
+    }
+
+    /// A glyph block whose name is written as a *pattern* declares every name
+    /// the pattern expands to, so a click on one of those names — from the
+    /// specimen, or from a `ref` naming it — goes to that line.
+    #[test]
+    fn a_pattern_glyph_definition_is_found_in_a_document() {
+        let lines: Vec<DocLine> = ["glyph latin-a 8 16", "glyph han-($#4e00..9fff) 16 16"]
+            .iter()
+            .map(|s| DocLine::Text(s.to_string()))
+            .collect();
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-4e01", &LinkTargetKind::Glyph, &parts),
+            Some(1),
+        );
+        // A name the pattern does not cover is still not declared here.
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-3400", &LinkTargetKind::Glyph, &parts),
             None,
         );
     }

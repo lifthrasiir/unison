@@ -25,7 +25,9 @@
 //! token as written. Only exact-name matching would list a fraction of a
 //! `font/` where most names are stated by pattern — the search would say a
 //! glyph is referred to nowhere while the font composes it. See
-//! [`pattern_denotes`] for which grammar each token is read with.
+//! [`pattern_denotes`] for which grammar each token is read with; navigation
+//! matches a *definition* with the same test, so a click on a pattern-declared
+//! name goes to the block that declares it.
 //!
 //! The pane lists **declarations before uses**, each group in source order, and
 //! rules a line between them; see [`collect_hits`] for why, and [`MatchSpan`]
@@ -50,9 +52,8 @@
 //! search agree with navigation, which has always read the same snapshot.
 
 use super::*;
-use crate::editor::doc_links::{LinkSpan, scan_dollar_refs};
+use crate::editor::doc_links::{LinkSpan, pattern_denotes, scan_dollar_refs};
 use crate::editor::line_fields::{FieldRole, LineField, classify_line};
-use crate::pattern::NamePattern;
 
 /// Whether `text` could write a glyph name with a leading `@`.
 ///
@@ -100,40 +101,6 @@ pub(super) fn may_write_a_pattern(text: &str) -> bool {
         GLYPH_NAME_KEYWORDS.contains(&keyword)
             && line[keyword.len()..].contains(['(', '|', '$', '*'])
     })
-}
-
-/// Whether the written name `token` is a pattern that denotes `name`.
-///
-/// Expanded exactly as the pipeline expands it — name parts substituted first,
-/// then the grammar of the context the token sits in: a glyph block name reads
-/// a top-level `a|b` as two verbatim names, an operand reads it as one group
-/// (`pattern.rs` spells the difference out). Searching for `foo` therefore
-/// lists a `glyph fo(o|q)` line, and the span pushed for it is the pattern
-/// token as written, so that is what the pane highlights.
-///
-/// `parts` is the app's collected map, which holds the *unqualified*
-/// `name-parts` bindings only — a pattern spelled with a slice-qualified
-/// variable expands to nothing here and is listed only if it matches
-/// literally. That is the same map every other editor feature reads
-/// (`app/resize.rs`, the derived data in `app/background.rs`), so the search
-/// agrees with them rather than being right on its own.
-fn pattern_denotes(token: &str, is_def: bool, name: &str, parts: &NamePartsMap) -> bool {
-    if !token.contains(['(', '|', '$', '*']) {
-        return false;
-    }
-    let substituted = crate::document::substitute_name_parts(token, parts);
-    if substituted == name {
-        return true;
-    }
-    if !crate::document::is_name_pattern(&substituted) {
-        return false;
-    }
-    let parsed = if is_def {
-        NamePattern::parse(&substituted)
-    } else {
-        NamePattern::parse_element(&substituted)
-    };
-    parsed.is_ok_and(|p| p.matches(name))
 }
 
 /// One matched token on a line: where it is written, and whether the role it

@@ -316,7 +316,8 @@ pub(super) fn collect_glyph_data_with_shared(
     drop(seed_timer);
     {
         let _t = crate::startup::PerfStage::new("resolve composites");
-        let mut builder = super::contours::ContourBuilder::new(bitmap, contour_cache.as_deref_mut());
+        let mut builder =
+            super::contours::ContourBuilder::new(bitmap, contour_cache.as_deref_mut());
         crate::render::glyph_cache::resolve_pending(
             &mut cache,
             pending,
