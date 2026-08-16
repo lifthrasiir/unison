@@ -40,7 +40,7 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
     let mut data = vec![PX_EMPTY; total];
     for r in 0..height {
         for c in 0..width {
-            data[(r + 1) * stride + c] = grid.get(r as u16, c as u16).shape_id();
+            data[(r + 1) * stride + c] = grid.get(r as u16, c as u16).ink_shape_id();
         }
     }
 
@@ -571,7 +571,7 @@ fn merge_layers_exact(
                     continue;
                 }
                 let shape = grid.get(lr as u16, lc as u16);
-                if shape.shape_id() & mask == PX_EMPTY {
+                if shape.ink_shape_id() & mask == PX_EMPTY {
                     continue;
                 }
                 let region = grid.region_at(lr as u16, lc as u16);
@@ -754,7 +754,7 @@ pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<V
         let off_c = (col_off - min_c) as usize;
         for r in 0..grid.height as usize {
             for c in 0..grid.width as usize {
-                let sid = grid.get(r as u16, c as u16).shape_id() & mask;
+                let sid = grid.get(r as u16, c as u16).ink_shape_id() & mask;
                 if sid != PX_EMPTY {
                     let idx = (off_r + r + 1) * stride + (off_c + c);
                     if shape_masks[idx] == 0 {
@@ -882,7 +882,7 @@ pub fn track_contour_multi_diff(
         };
         for r in 0..grid.height as usize {
             for c in 0..grid.width as usize {
-                let sid = grid.get(r as u16, c as u16).shape_id() & mask;
+                let sid = grid.get(r as u16, c as u16).ink_shape_id() & mask;
                 if sid != PX_EMPTY {
                     let idx = (off_r + r + 1) * stride + (off_c + c);
                     target[idx] |= 1u128 << sid;
@@ -1065,6 +1065,23 @@ mod tests {
         let grid = make_grid(3, 3, &[PX_EMPTY; 9]);
         let paths = track_contour(&grid, PX_SUBPIXEL);
         assert!(paths.is_empty());
+    }
+
+    /// A hardblank is occupied but carries no geometry, so tracing has to see
+    /// exactly what it sees through an empty cell — alone and beside ink.
+    #[test]
+    fn hardblank_traces_like_an_empty_cell() {
+        use crate::pixel::PX_HARDBLANK;
+
+        let blank = make_grid(1, 1, &[PX_HARDBLANK]);
+        assert!(track_contour(&blank, PX_SUBPIXEL).is_empty());
+
+        let with_hardblank = make_grid(2, 1, &[PX_ALMOSTFULL | PX_FULL, PX_HARDBLANK]);
+        let with_empty = make_grid(2, 1, &[PX_ALMOSTFULL | PX_FULL, PX_EMPTY]);
+        assert_eq!(
+            track_contour(&with_hardblank, PX_SUBPIXEL),
+            track_contour(&with_empty, PX_SUBPIXEL),
+        );
     }
 
     #[test]

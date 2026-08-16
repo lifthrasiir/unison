@@ -7,6 +7,9 @@
 //! its complement one `^ PX_SUBPIXEL` away, which is what lets a serialized
 //! character pair name either side of a diagonal.
 //!
+//! [`PX_HARDBLANK`] is the one code that is neither ink nor the empty cell: it
+//! draws nothing, but a document that writes it (`$$`) gets it back.
+//!
 //! [`PX_CUSTOM`] is the one code with no fixed geometry: it is a sentinel
 //! meaning "this cell's geometry is a [`crate::detail::DetailRegion`] in the
 //! grid's detail table". It appears only in *derived* grids — composition,
@@ -90,10 +93,37 @@ pub const PX_INVHOUSE4: u8 = 30 ^ PX_SUBPIXEL; //    CORNER3 + CORNER2
 /// Sentinel id: the pixel's geometry is a custom [`crate::detail::DetailRegion`]
 /// stored in the owning grid's detail table. Only ever appears in derived
 /// (resolved/composited) grids, never in document source grids, and is
-/// never serialized. It is kept last in the base range so the catalog can grow
-/// below it; its complement id (96) is intentionally left unused, because
-/// negation involving custom pixels is resolved eagerly into a new region.
+/// never serialized. It is kept last in the *catalog* range so the catalog can
+/// grow below it (ids above it are not catalog shapes — see [`PX_HARDBLANK`]);
+/// its complement id (96) is intentionally left unused, because negation
+/// involving custom pixels is resolved eagerly into a new region.
 pub const PX_CUSTOM: u8 = 31;
+
+/// A *hardblank*: written `$$`, it draws exactly the nothing [`PX_EMPTY`] draws
+/// and is kept apart from it only so a source can mark a blank as deliberate —
+/// a cell kerning and the like may one day read. Nothing in the build pipeline
+/// treats it as ink.
+///
+/// It sits *outside* the catalog band (`0..=30` and their complements
+/// `97..=127`), so every geometry table — rasters, adjacency, edge coverage,
+/// [`crate::detail::DetailRegion::from_shape`] — gives it the empty entry an
+/// unassigned id gets, and nothing had to grow a case for it.
+///
+/// It is a shape id rather than the otherwise unused `PX_EMPTY | PX_FULL`
+/// because that combination is *not* unused: `BitmapFill` writes it for a
+/// subcell with no geometry inside a logical pixel the bitmap face inks (see
+/// [`crate::on_demand`]). Being an id of its own, though, means it must never
+/// be inverted into its unused complement (95) or its unwritable filled form —
+/// so [`PixelShape::opposite`], [`PixelShape::opposite_bitmap`] and
+/// [`PixelShape::with_fill_toggled`] all map a hardblank to itself. A blank has
+/// no other side. Mirrors and rotations already do, through
+/// [`transform_shape`]'s identity fallback for non-catalog ids.
+///
+/// The two predicates carry the distinction: the fill bit is unset, so
+/// [`PixelShape::is_filled`] is `false` and nothing renders, rasterizes or
+/// traces it; but [`PixelShape::is_empty`] is `false` too, so the cell counts as
+/// *occupied* — the editor draws it and the serializer writes it back out.
+pub const PX_HARDBLANK: u8 = 32;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct PixelShape(pub u8);
@@ -114,12 +144,37 @@ impl PixelShape {
         self.0 & PX_FULL != 0
     }
 
+    /// Is this cell unwritten? A hardblank is not: it draws the same nothing,
+    /// but it is something the source says.
     pub fn is_empty(self) -> bool {
         self.shape_id() == PX_EMPTY && !self.is_filled()
     }
 
+    pub fn is_hardblank(self) -> bool {
+        self.shape_id() == PX_HARDBLANK
+    }
+
+    /// Nothing is drawn here: an empty cell, or a hardblank, which is the same
+    /// nothing under a name.
+    pub fn is_blank(self) -> bool {
+        self.is_empty() || self.is_hardblank()
+    }
+
+    /// The shape id this cell contributes to an outline — a hardblank
+    /// contributes none, so it reads as [`PX_EMPTY`] to everything tracing ink.
+    pub fn ink_shape_id(self) -> u8 {
+        if self.is_hardblank() {
+            PX_EMPTY
+        } else {
+            self.shape_id()
+        }
+    }
+
     #[cfg(feature = "editor")]
     pub fn with_fill_toggled(self) -> Self {
+        if self.is_hardblank() {
+            return self; // a blank has no filled form
+        }
         Self(self.0 ^ PX_FULL)
     }
 
@@ -182,12 +237,15 @@ impl PixelShape {
 
     #[cfg(feature = "editor")]
     pub fn opposite(self) -> Self {
+        if self.is_hardblank() {
+            return self; // inverting the bits would land on the unused id 95
+        }
         Self(!self.0)
     }
 
     #[cfg(feature = "editor")]
     pub fn opposite_bitmap(self) -> Self {
-        if self.shape_id() == PX_EMPTY {
+        if self.shape_id() == PX_EMPTY || self.is_hardblank() {
             self
         } else {
             self.with_fill_toggled()
@@ -948,6 +1006,7 @@ const SHAPE_TO_CHARS: [[u8; 2]; 256] = {
     table[PX_INVHOUSE3 as usize] = *b"<.";
     table[PX_INVHOUSE4 as usize] = *b"0W";
     table[PX_ALMOSTFULL as usize] = *b"88"; // unfilled almostfull — rare
+    table[PX_HARDBLANK as usize] = *b"$$"; // a blank the source means
 
     // Filled shapes (PX_FULL = 0x80, offset by 128)
     table[128 + PX_EMPTY as usize] = *b"__"; // filled empty — unlikely but define
@@ -1136,6 +1195,15 @@ pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
     if b.is_empty() {
         return a;
     }
+    // A hardblank carries no geometry, so it unions like the empty cell it is:
+    // whatever is drawn over it wins, and it survives only where nothing else
+    // is (the two `is_empty` returns above keep it over a truly empty cell).
+    if a.is_blank() {
+        return b;
+    }
+    if b.is_blank() {
+        return a;
+    }
     let ur = SHAPE_RASTERS[a.shape_id() as usize] | SHAPE_RASTERS[b.shape_id() as usize];
     let result_id = raster_to_shape_id(ur);
     PixelShape::new(result_id, a.is_filled() || b.is_filled())
@@ -1143,7 +1211,7 @@ pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
 
 #[cfg(any(feature = "editor", test))]
 pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
-    if a.is_empty() || b.is_empty() {
+    if a.is_blank() || b.is_blank() {
         return a;
     }
     let sr = SHAPE_RASTERS[a.shape_id() as usize]
@@ -1508,6 +1576,68 @@ mod tests {
             chars_to_shape('@', '@'),
             Some(PixelShape::new(PX_ALMOSTFULL, true))
         );
+    }
+
+    /// A hardblank is written `$$`, is occupied but not ink, and carries no
+    /// geometry at all — every table answers for it as it does for an empty
+    /// cell, without a case of its own.
+    #[test]
+    fn hardblank_is_a_blank_that_is_not_the_empty_cell() {
+        let hb = PixelShape::new(PX_HARDBLANK, false);
+        assert_eq!(shape_to_chars(hb), ['$', '$']);
+        assert_eq!(chars_to_shape('$', '$'), Some(hb));
+
+        assert!(hb.is_hardblank());
+        assert!(hb.is_blank());
+        assert!(!hb.is_empty(), "a hardblank occupies its cell");
+        assert!(!hb.is_filled(), "a hardblank is not ink");
+        assert_eq!(hb.ink_shape_id(), PX_EMPTY);
+
+        assert_eq!(adjacency(PX_HARDBLANK).0, 0);
+        assert!(adjacency(PX_HARDBLANK).1.is_empty());
+        assert_eq!(SHAPE_RASTERS[PX_HARDBLANK as usize], 0);
+        let cov = edge_coverage(PX_HARDBLANK);
+        for side in [cov.top, cov.right, cov.bottom, cov.left] {
+            assert!(side.is_empty(), "a hardblank covers no cell edge");
+        }
+        assert!(crate::detail::DetailRegion::from_shape(PX_HARDBLANK).is_empty());
+    }
+
+    /// Every transform has to land back on a shape that can be written: a
+    /// hardblank has no complement id and no filled form to invert into.
+    ///
+    /// Gated like the transforms themselves — the headless binary never turns a
+    /// shape over.
+    #[cfg(feature = "editor")]
+    #[test]
+    fn hardblank_transforms_to_itself() {
+        let hb = PixelShape::new(PX_HARDBLANK, false);
+        for got in [
+            hb.mirror_h(),
+            hb.flip_v(),
+            hb.rotate_cw(),
+            hb.rotate_ccw(),
+            hb.rotate_180(),
+            hb.with_fill_toggled(),
+            hb.opposite(),
+            hb.opposite_bitmap(),
+        ] {
+            assert_eq!(got, hb, "a hardblank transforms to itself");
+        }
+    }
+
+    /// Combining is by geometry, and a hardblank has none: it yields to
+    /// anything drawn over it, and outlives only the empty cell.
+    #[test]
+    fn hardblank_combines_as_the_blank_it_is() {
+        let hb = PixelShape::new(PX_HARDBLANK, false);
+        let full = PixelShape::new(PX_ALMOSTFULL, true);
+        assert_eq!(shape_union(hb, full), full);
+        assert_eq!(shape_union(full, hb), full);
+        assert_eq!(shape_union(hb, PixelShape::EMPTY), hb);
+        assert_eq!(shape_union(PixelShape::EMPTY, hb), hb);
+        assert_eq!(shape_subtract(hb, full), hb);
+        assert_eq!(shape_subtract(full, hb), full);
     }
 
     #[test]

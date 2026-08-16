@@ -196,6 +196,29 @@ feature wide|narrow : ccmp for DFLT : deemojify
     assert_eq!(String::from_utf8(output).unwrap(), input);
 }
 
+/// `$$` is a pixel pair like any other: it parses into a hardblank and is
+/// written back verbatim, which is the whole point of distinguishing it from
+/// the `..` it draws the same as.
+#[test]
+fn roundtrip_hardblank() {
+    let input = "\
+glyph test 3 1
+$$@@..
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+        panic!("expected a glyph, got {:?}", doc.items[0]);
+    };
+    let grid = body.pixels.as_ref().expect("the glyph has a grid");
+    assert!(grid.get(0, 0).is_hardblank());
+    assert!(grid.get(0, 1).is_filled());
+    assert!(grid.get(0, 2).is_empty());
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
 #[test]
 fn roundtrip_simple() {
     let input = "\

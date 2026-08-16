@@ -180,7 +180,9 @@
 //! multiplies the declared dimensions by it but not the other flags).
 //!
 //! - With `W H`, pixel rows follow immediately, two characters per pixel (`@@`
-//!   filled, `..` empty, plus the sub-pixel shape codes in [`crate::pixel`]).
+//!   filled, `..` empty, `$$` a *hardblank* — the same nothing as `..`, kept
+//!   apart so a source can mark a blank as deliberate ([`crate::pixel::PX_HARDBLANK`])
+//!   — plus the sub-pixel shape codes in [`crate::pixel`]).
 //! - `desync` makes that grid **bitmap ink only**: the vector build of the
 //!   font ignores its geometry and draws the glyph from its `ref`s alone, while
 //!   the bitmap build reads the grid as always. The grid still declares the

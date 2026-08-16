@@ -894,6 +894,11 @@ impl EditorHarness {
 
     /// Right-click at a screen position.
     pub fn right_click_at(&mut self, pos: egui::Pos2) {
+        self.right_click_at_mod(pos, egui::Modifiers::NONE);
+    }
+
+    /// Right-click at a screen position with modifiers held throughout.
+    pub fn right_click_at_mod(&mut self, pos: egui::Pos2, modifiers: egui::Modifiers) {
         self.time += 1.0;
         self.frame_with(
             vec![
@@ -902,21 +907,33 @@ impl EditorHarness {
                     pos,
                     button: egui::PointerButton::Secondary,
                     pressed: true,
-                    modifiers: egui::Modifiers::NONE,
+                    modifiers,
                 },
             ],
-            egui::Modifiers::NONE,
+            modifiers,
         );
         self.frame_with(
             vec![egui::Event::PointerButton {
                 pos,
                 button: egui::PointerButton::Secondary,
                 pressed: false,
-                modifiers: egui::Modifiers::NONE,
+                modifiers,
             }],
-            egui::Modifiers::NONE,
+            modifiers,
         );
         self.frame();
+    }
+
+    /// Right-click the center of a grid cell with modifiers held.
+    pub fn right_click_grid_cell_mod(
+        &mut self,
+        grid_doc_line: usize,
+        row: i16,
+        col: i16,
+        modifiers: egui::Modifiers,
+    ) {
+        let pos = self.grid_cell_pos(grid_doc_line, row, col);
+        self.right_click_at_mod(pos, modifiers);
     }
 
     // -- coordinate lookup --------------------------------------------------

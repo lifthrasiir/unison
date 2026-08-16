@@ -136,7 +136,13 @@ pub(crate) fn handle_pixel_painting(
                 let on_same_slant_cell =
                     selected_shape.is_slant_pair() && last_cell == Some((row, col));
                 let new_shape = if secondary {
-                    pixel::PixelShape::EMPTY
+                    // Right-click erases; with shift it erases to a hardblank,
+                    // the blank that stays in the file.
+                    if shift_held {
+                        pixel::PixelShape::new(pixel::PX_HARDBLANK, false)
+                    } else {
+                        pixel::PixelShape::EMPTY
+                    }
                 } else if shift_held && !selected_shape.is_empty() {
                     selected_shape.with_fill_toggled()
                 } else {

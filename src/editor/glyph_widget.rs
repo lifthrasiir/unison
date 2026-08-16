@@ -75,6 +75,11 @@ pub fn draw_pixel_cell_colored(
         return;
     }
 
+    if shape.is_hardblank() {
+        draw_hardblank_cell(painter, rect, color);
+        return;
+    }
+
     let shape_id = shape.shape_id();
 
     if shape_id == pixel::PX_ALMOSTFULL {
@@ -139,6 +144,37 @@ pub fn draw_pixel_cell_colored(
         if !mesh.indices.is_empty() {
             painter.add(egui::Shape::mesh(mesh));
         }
+    }
+}
+
+/// A hardblank cell: diagonal stripes across the whole cell, since the cell
+/// holds no geometry of its own to draw (see [`pixel::PX_HARDBLANK`]). The
+/// stripes run bottom-left to top-right on the `u + v = c` diagonals of the
+/// unit cell, so they tile continuously across a run of hardblanks.
+fn draw_hardblank_cell(painter: &egui::Painter, rect: egui::Rect, color: egui::Color32) {
+    /// Diagonal spacing, as a fraction of the cell — three stripes per cell,
+    /// one of them corner to corner.
+    const STEP: f32 = 0.5;
+
+    let (w, h) = (rect.width(), rect.height());
+    if w <= 0.0 || h <= 0.0 {
+        return;
+    }
+    let width = (w.min(h) * 0.08).clamp(0.5, 1.5);
+    let stroke = egui::Stroke::new(width, color);
+    let at = |u: f32, v: f32| egui::pos2(rect.min.x + u * w, rect.min.y + v * h);
+
+    let mut c = STEP;
+    while c < 2.0 {
+        // Clip `u + v = c` to the unit square: it enters on the left/bottom
+        // edge and leaves on the top/right one.
+        let (a, b) = if c <= 1.0 {
+            (at(0.0, c), at(c, 0.0))
+        } else {
+            (at(c - 1.0, 1.0), at(1.0, c - 1.0))
+        };
+        painter.line_segment([a, b], stroke);
+        c += STEP;
     }
 }
 

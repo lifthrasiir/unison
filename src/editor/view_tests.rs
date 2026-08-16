@@ -1843,6 +1843,37 @@ fn make_pixel_select_harness() -> EditorHarness {
     h
 }
 
+/// Right-click erases to nothing; shift-right-click erases to a *hardblank*,
+/// which is the same nothing but stays in the file as `$$`.
+#[test]
+fn shift_right_click_paints_a_hardblank() {
+    let mut h = EditorHarness::new("glyph test 4 1\n@@@@@@@@");
+    h.click_grid_cell(1, 0, 0); // enter GlyphEdit
+    assert!(matches!(h.state.mode, EditMode::GlyphEdit { item_idx: 0, .. }));
+    h.frame(); // entering the mode relays out the grid; measure after it settles
+
+    h.right_click_grid_cell_mod(1, 0, 0, Modifiers::SHIFT);
+    h.right_click_grid_cell_mod(1, 0, 1, Modifiers::NONE);
+
+    let grid = h.grid(1);
+    assert!(
+        grid.get(0, 0).is_hardblank(),
+        "shift-right-click should leave a hardblank, got {:?}",
+        grid.get(0, 0)
+    );
+    assert!(
+        grid.get(0, 1).is_empty(),
+        "a plain right-click still erases outright"
+    );
+
+    let mut out = Vec::new();
+    crate::document_io::serialize_document(&h.doc, &mut out).unwrap();
+    assert!(
+        String::from_utf8(out).unwrap().contains("$$.."),
+        "the hardblank has to survive into the file"
+    );
+}
+
 #[test]
 fn backtick_enters_pixel_select_and_num1_returns() {
     let mut h = make_pixel_select_harness();
@@ -4187,6 +4218,8 @@ fn wheel_over_the_grid_rotates_the_selected_shape() {
     assert_eq!(start.shape_id(), crate::pixel::PX_HALF1);
     let start_rotation = h.state.shape_rotation;
 
+    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
+    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
 
@@ -4205,6 +4238,8 @@ fn shift_wheel_picks_another_shape_at_the_same_rotation() {
     let mut h = palette_harness();
     h.key(Key::F);
     h.frame();
+    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
+    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
     let pos = h.grid_cell_pos(1, 0, 1);
 
     // Rotate twice, then step to the neighbouring palette cell.
@@ -4233,6 +4268,8 @@ fn the_whole_palette_rotates_with_the_wheel() {
     use crate::editor::glyph_widget::{palette_shapes, rotate_shape};
 
     let mut h = palette_harness();
+    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
+    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
     let rotation = h.state.shape_rotation;
@@ -4342,6 +4379,8 @@ fn clicking_another_palette_cell_takes_its_own_fill() {
 #[test]
 fn a_shape_shortcut_pulls_the_palette_rotation_with_it() {
     let mut h = palette_harness();
+    eprintln!("pos now = {:?}", h.grid_cell_pos(1, 0, 1));
+    for i in 0..3 { h.frame(); eprintln!("pos after {} frames = {:?}", i + 1, h.grid_cell_pos(1, 0, 1)); }
     let pos = h.grid_cell_pos(1, 0, 1);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
     h.wheel_at_mod(pos, false, Modifiers::NONE);
@@ -5686,3 +5725,4 @@ fn the_marker_column_does_not_flicker_on_a_page_of_wrapped_lines() {
         y += 4.0;
     }
 }
+
