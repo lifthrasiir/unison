@@ -395,7 +395,8 @@ pub fn append_to_line(line: &str, extra: &str) -> String {
 
 /// ` // comment`, or the empty string. The serialized form of a comment on a
 /// directive line.
-#[cfg(any(feature = "editor", test))]
+// Not editor-gated: `GlyphCompose::format_line` is what `uniform fix` writes an
+// IDC line back with, and that is a headless command.
 pub fn comment_suffix(comment: &Option<String>) -> String {
     match comment {
         Some(c) => format!(" // {c}"),

@@ -1,8 +1,8 @@
 # Uniform
 
 Bitmap font editor with sub-pixel shape support and a TTF builder, plus the `font/` sources of the
-Unison font itself. egui/eframe GUI, Rust 2024 edition. Single binary `uniform` with three modes:
-GUI (default), `build`, and `test`.
+Unison font itself. egui/eframe GUI, Rust 2024 edition. Single binary `uniform` with four modes:
+GUI (default), `build`, `test`, and `fix` (the one that rewrites the source).
 
 **This file is an index.** The reasoning behind each design — the `.unf` format, composition rules,
 the editor's structure — lives in the module-level `//!` docs of the code that
@@ -33,12 +33,13 @@ arguments still resolve). **Never run the binary from the repo path** — the re
 PE image is demand-paged from its file for the life of the process, so a cold code page that the
 share cannot serve kills the process; `run-local.cmd`'s comments have the whole story.
 
-The `build`/`test` subcommands require native execution:
+The `build`/`test`/`fix` subcommands require native execution:
 
 ```sh
 cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf] [-o unison.ttc] \
     [--sample-html F] [--sample-png F] [--live-html F] [-d data]
 cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
+cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]   # rewrite the source: see `fix/`
 cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `startup.rs`
 ```
 
@@ -107,6 +108,10 @@ Core (feature-independent):
 - `audit.rs` — the `audit` directive: rules the *source* is held to (`audit ideal-clearance han-* 0
   1`), as opposed to the values the font file carries. Holds why that is not a `meta` key, the
   single-assignment rule and the prefix match. Tests at the bottom of the file.
+- `fix/` — `uniform fix`: the commands that rewrite the *source*, and the rules they share (plan
+  first, whole lines in place, only what already warns). `clearance.rs` is
+  `--optimize-clearance`: the variant search, the score, and why the gaps are solved arithmetically
+  rather than searched. Tests in `fix/clearance_tests.rs`.
 - `meta.rs` — the `meta` directive: the key set, the `@LANG` language slot, and which font fields are
   *declared*, *derived* and *computed*. Tests in `meta_tests.rs`. Values on the pixel grid are
   declared in pixels and scaled by the builder, like everything else in `.unf`.
@@ -141,6 +146,7 @@ Editor (feature `editor`):
   must respect), `docs.rs`, `history.rs` (go back/forward), `menus.rs`, `panels.rs`, `panes.rs` (the
   split-editor model and its two invariants), `search.rs` (the Search pane),
   `rename.rs`, `resize.rs` (carrying a glyph resize across every file that refers to the glyph),
+  `fix.rs` (applying a `crate::fix` plan to the open documents, undoably),
   `settings.rs` (what survives between runs, and what egui persists instead),
   `watch.rs` (the OS watch on the font directory and what an external change may do), `toast.rs`,
   `zoom.rs`.
@@ -200,8 +206,12 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Anchor exposure and bearings | `ref_composite.rs` |
 | `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
-| Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `check_clearances`) |
+| Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
 | `audit ideal-clearance PREFIX* MIN MAX`: the prefix match, and which rule wins | `audit.rs` (`IdealClearances`) |
+| What a `uniform fix` command may rewrite, and the two frontends that apply one | `fix/mod.rs` |
+| Optimizing clearance: the variant search, the score, and why the gaps are arithmetic and not a search | `fix/clearance.rs` (`optimize_clearance`, `arrange`) |
+| Which of several equally good layouts is chosen, and why the edges are minimized first | `fix/clearance.rs` (`Key`) |
+| A fix in the editor: one undo entry per file, and why nothing is written to disk | `app/fix.rs` |
 | Why a rule about the source is `audit` and not `meta` | `audit.rs` |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite.rs` (`declared_box`) |
@@ -316,6 +326,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | `ref_composite.rs` | `ref_composite_tests.rs` |
 | `on_demand.rs` | `on_demand_tests.rs` |
 | `compose.rs` | `compose_tests.rs` |
+| `fix/clearance.rs` | `fix/clearance_tests.rs` |
 | `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests.rs` (harness scenarios) |
 
 Keep a source file at roughly 2000 lines or under; split by stage (as `ttf_builder/` and

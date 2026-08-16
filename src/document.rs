@@ -792,7 +792,8 @@ impl GlyphCompose {
     }
 
     /// Format as an IDC line, the way [`GlyphRef::format_line`] formats a `ref`.
-    #[cfg(any(feature = "editor", test))]
+    // Not editor-gated like its `ref` counterpart: `uniform fix` rewrites IDC
+    // lines and is a headless command.
     pub fn format_line(&self) -> String {
         use crate::document_io::quote_token;
         let mut parts = vec![self.op.as_char().to_string()];

@@ -43,6 +43,8 @@ pub(super) struct MenuActions {
     pub(super) escape_toggled: bool,
     pub(super) run_assert_all: bool,
     pub(super) run_assert_file: bool,
+    /// Font ▸ Optimize clearance: the `uniform fix --optimize-clearance` run.
+    pub(super) optimize_clearance: bool,
     edit_action: crate::edit_menu::EditAction,
     sel_menu_action: Option<SelMenuAction>,
     scale_action: Option<u8>,
@@ -142,6 +144,7 @@ impl UniformApp {
         let escape_toggled = &mut menu.escape_toggled;
         let run_assert_all = &mut menu.run_assert_all;
         let run_assert_file = &mut menu.run_assert_file;
+        let optimize_clearance = &mut menu.optimize_clearance;
         let edit_action = &mut menu.edit_action;
         let sel_menu_action = &mut menu.sel_menu_action;
         let scale_action = &mut menu.scale_action;
@@ -536,6 +539,16 @@ impl UniformApp {
                         .clicked()
                     {
                         *run_assert_all = true;
+                        ui.close_menu();
+                    }
+                    // Below the separator: everything that rewrites the source
+                    // (`uniform fix`), as against the checks above it.
+                    ui.separator();
+                    if ui
+                        .add_enabled(!self.fix_running, egui::Button::new("Optimize clearance"))
+                        .clicked()
+                    {
+                        *optimize_clearance = true;
                         ui.close_menu();
                     }
                 });

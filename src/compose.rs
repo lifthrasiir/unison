@@ -267,9 +267,8 @@ fn parse_size(word: &str) -> Option<(u16, u16)> {
 /// unmarked name, 2 the wrong direction. Lower wins; `sort_by_key` on this is
 /// stable, so equally-ranked candidates keep the caller's order.
 // The editor's completion popup orders a variant listing by this
-// (`editor/autocomplete.rs`); nothing in the headless binary picks a variant
-// automatically yet, so there it is still test-only.
-#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
+// (`editor/autocomplete.rs`), and `fix::clearance` refuses a candidate it ranks
+// last — a drawing made for the other side of the glyph.
 pub fn direction_rank(name: &str, slot: Option<Direction>) -> u8 {
     match (VariantSpec::parse(name).direction, slot) {
         (None, _) | (_, None) => 1,
@@ -344,7 +343,59 @@ impl InkProfile {
     fn along(&self, horizontal: bool) -> &[Option<(u16, u16)>] {
         if horizontal { &self.rows } else { &self.cols }
     }
+
+    /// How far the ink reaches towards each end of the axis, in the part's own
+    /// coordinates, or `None` for a part that draws nothing at all.
+    ///
+    /// These are the two numbers a clearance against a *parent edge* is
+    /// arithmetic on: the near edge measures against the smallest near
+    /// frontier and the far edge against the largest far one, since a
+    /// clearance is the smallest distance over all the lines.
+    pub fn frontier(&self, horizontal: bool) -> Option<AxisFrontier> {
+        let lines = self.along(horizontal);
+        Some(AxisFrontier {
+            near: lines
+                .iter()
+                .filter_map(|l| l.map(|(n, _)| n as i32))
+                .min()?,
+            far: lines
+                .iter()
+                .filter_map(|l| l.map(|(_, f)| f as i32))
+                .max()?,
+        })
+    }
 }
+
+/// How far a part's ink reaches towards each end of the split axis.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AxisFrontier {
+    /// The lowest coordinate any line's ink starts at.
+    pub near: i32,
+    /// The highest coordinate any line's ink ends at.
+    pub far: i32,
+}
+
+/// The clearance two adjacent parts would leave each other if the second sat
+/// exactly at the first's own origin — so the clearance at any placement is
+/// this plus the distance between the two origins.
+///
+/// `None` when the two share no line on which both draw: there is then no pair
+/// of frontiers to measure between, and the line is not measured rather than
+/// measured wrong.
+pub fn facing_offset(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option<i32> {
+    a.along(horizontal)
+        .iter()
+        .zip(b.along(horizontal).iter())
+        .filter_map(|(x, y)| match (x, y) {
+            (Some((_, a_far)), Some((b_near, _))) => Some(*b_near as i32 - *a_far as i32 - 1),
+            _ => None,
+        })
+        .min()
+}
+
+/// How a component name is answered with the ink it draws. See
+/// [`ClearanceRule::ink`] for why this is a callback.
+pub type InkLookup<'a> = dyn Fn(&str) -> Option<&'a InkProfile> + 'a;
 
 /// One `audit ideal-clearance` rule, as [`expand_compose`] applies it: the range
 /// and how to reach a component's [`InkProfile`].
@@ -357,7 +408,7 @@ pub struct ClearanceRule<'a> {
     pub written: &'a str,
     pub min: i16,
     pub max: i16,
-    pub ink: &'a dyn Fn(&str) -> Option<&'a InkProfile>,
+    pub ink: &'a InkLookup<'a>,
 }
 
 /// Whether an IDC component has yet to pick its variant — the `:` is the whole
@@ -565,42 +616,43 @@ pub fn expand_compose(
     (refs, issues)
 }
 
-/// Measure an IDC line's clearances and report the ones outside `rule`'s range,
-/// plus their sum. See the module docs for what a clearance is.
+/// Every clearance of a placed IDC line, near edge to far edge, each with what
+/// it is between; `None` when the line cannot be measured at all.
 ///
 /// `placed` is each component and where it starts along the axis, in declared
-/// units. Nothing is reported when any component has no ink to measure — see
-/// the module docs — and that includes the case where two neighbours share no
-/// line on which both draw something.
-fn check_clearances(
+/// units. A component with no ink to measure — see the module docs — makes the
+/// whole line unmeasurable, and so does a neighbouring pair that shares no line
+/// on which both draw something.
+///
+/// An n-component line yields n+1 clearances, and their **sum is a property of
+/// the parts alone**: it telescopes down to the parent's extent less what the
+/// parts' ink spans, so nothing about where the parts were placed survives in
+/// it. That is why the check below holds the sum to the range as well as each
+/// clearance, and it is what [`crate::fix::clearance`] optimizes against.
+pub fn measure_clearances<'a>(
     op: IdcOp,
     axis_extent: u16,
     placed: &[(&str, i32)],
-    rule: &ClearanceRule,
-) -> Vec<(Severity, String)> {
+    ink: &InkLookup<'a>,
+) -> Option<Vec<(String, i32)>> {
     /// A component of the line, ready to measure: where it sits along the axis
-    /// and what its frontiers are on each line across it.
+    /// and what its ink does.
     struct Placed<'a> {
         name: &'a str,
         offset: i32,
-        lines: &'a [Option<(u16, u16)>],
+        profile: &'a InkProfile,
     }
 
     let horizontal = op.horizontal();
     let mut parts: Vec<Placed> = Vec::new();
     for &(name, offset) in placed {
-        let Some(profile) = (rule.ink)(name) else {
-            return Vec::new();
-        };
         parts.push(Placed {
             name,
             offset,
-            lines: profile.along(horizontal),
+            profile: ink(name)?,
         });
     }
-    let (Some(first), Some(last)) = (parts.first(), parts.last()) else {
-        return Vec::new();
-    };
+    let (first, last) = (parts.first()?, parts.last()?);
 
     // `(what it is between, how much)`, near edge to far edge.
     let (near_edge, far_edge) = match horizontal {
@@ -608,44 +660,33 @@ fn check_clearances(
         false => ("the top edge", "the bottom edge"),
     };
     let mut clearances: Vec<(String, i32)> = Vec::new();
-    let Some(near) = first
-        .lines
-        .iter()
-        .filter_map(|line| line.map(|(near, _)| first.offset + near as i32))
-        .min()
-    else {
-        return Vec::new();
-    };
+    let near = first.profile.frontier(horizontal)?.near + first.offset;
     clearances.push((format!("{near_edge} and '{}'", first.name), near));
     for pair in parts.windows(2) {
         let [a, b] = pair else { continue };
-        // Only lines on which both parts draw: a line where one of them is
-        // blank has no pair of frontiers to measure between.
-        let Some(gap) = a
-            .lines
-            .iter()
-            .zip(b.lines.iter())
-            .filter_map(|(x, y)| match (x, y) {
-                (Some((_, a_far)), Some((b_near, _))) => {
-                    Some((b.offset + *b_near as i32) - (a.offset + *a_far as i32) - 1)
-                }
-                _ => None,
-            })
-            .min()
-        else {
-            return Vec::new();
-        };
-        clearances.push((format!("'{}' and '{}'", a.name, b.name), gap));
+        let facing = facing_offset(a.profile, b.profile, horizontal)?;
+        clearances.push((
+            format!("'{}' and '{}'", a.name, b.name),
+            (b.offset - a.offset) + facing,
+        ));
     }
-    let Some(far) = last
-        .lines
-        .iter()
-        .filter_map(|line| line.map(|(_, far)| axis_extent as i32 - 1 - (last.offset + far as i32)))
-        .min()
-    else {
+    let far = axis_extent as i32 - 1 - (last.offset + last.profile.frontier(horizontal)?.far);
+    clearances.push((format!("'{}' and {far_edge}", last.name), far));
+    Some(clearances)
+}
+
+/// Report the clearances outside `rule`'s range, plus their sum. See
+/// [`measure_clearances`] for the measurement and the module docs for what a
+/// clearance is; a line that cannot be measured says nothing.
+fn check_clearances(
+    op: IdcOp,
+    axis_extent: u16,
+    placed: &[(&str, i32)],
+    rule: &ClearanceRule,
+) -> Vec<(Severity, String)> {
+    let Some(clearances) = measure_clearances(op, axis_extent, placed, rule.ink) else {
         return Vec::new();
     };
-    clearances.push((format!("'{}' and {far_edge}", last.name), far));
 
     let (min, max) = (rule.min as i32, rule.max as i32);
     let range = format!(

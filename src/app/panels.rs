@@ -511,6 +511,7 @@ impl UniformApp {
                     for (label, phase) in [
                         ("Build", &self.bg_tasks.build),
                         ("Test", &self.bg_tasks.test),
+                        ("Optimize", &self.bg_tasks.optimize),
                     ] {
                         if let Some(phase) = phase {
                             let (text, color) = match phase {

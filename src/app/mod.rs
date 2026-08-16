@@ -20,6 +20,7 @@ use crate::specimen::SpecimenState;
 
 mod background;
 mod docs;
+mod fix;
 mod history;
 mod menus;
 mod panels;
@@ -80,6 +81,10 @@ enum DerivedDataResult {
     Cancelled,
 }
 type AssertResultMessage = Vec<Issue>;
+/// What one `fix` run produced, per document: the plan `crate::fix` made and
+/// which document of the snapshot it was made against. Applying it is
+/// `app::fix`'s job, on the UI thread, where the open documents are.
+type FixResultMessage = Vec<crate::fix::clearance::DocumentFixes>;
 
 pub struct UniformApp {
     /// What the last run left behind, and what this one will leave. Held for
@@ -215,6 +220,12 @@ pub struct UniformApp {
     assert_rx: mpsc::Receiver<AssertResultMessage>,
     assert_tx: mpsc::Sender<AssertResultMessage>,
     assert_running: bool,
+    /// The plan a background `fix` run produced, on its way to the documents.
+    /// It names the files by path and the lines by glyph, since what it is
+    /// applied to is whatever those files are *now*. See [`fix`].
+    fix_rx: mpsc::Receiver<FixResultMessage>,
+    fix_tx: mpsc::Sender<FixResultMessage>,
+    fix_running: bool,
     bg_tasks: BackgroundTaskStatus,
     /// Startup instrumentation (`startup.rs`): whether the first frame has been
     /// through `update`, and whether its report window is open.
@@ -346,6 +357,7 @@ impl UniformApp {
         let (font_build_tx, font_build_rx) = mpsc::channel();
         let (derived_data_tx, derived_data_rx) = mpsc::channel();
         let (assert_tx, assert_rx) = mpsc::channel();
+        let (fix_tx, fix_rx) = mpsc::channel();
 
         let zoom_level = settings.zoom_level;
         let show_metrics = settings.show_metrics;
@@ -449,6 +461,9 @@ impl UniformApp {
             assert_rx,
             assert_tx,
             assert_running: false,
+            fix_rx,
+            fix_tx,
+            fix_running: false,
             bg_tasks: BackgroundTaskStatus::new(),
             first_frame_seen: false,
             startup_timing_open: false,
@@ -659,6 +674,9 @@ impl eframe::App for UniformApp {
             self.run_shape_assertions(ctx, false);
         } else if menu.run_assert_file {
             self.run_shape_assertions(ctx, true);
+        }
+        if menu.optimize_clearance {
+            self.run_clearance_optimizer(ctx);
         }
         self.apply_file_menu_actions(ctx, &menu);
 

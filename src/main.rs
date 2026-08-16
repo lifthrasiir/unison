@@ -12,6 +12,7 @@ mod edit_menu;
 #[cfg(feature = "editor")]
 mod editor;
 mod faces;
+mod fix;
 #[cfg(test)]
 mod golden;
 mod issues;
@@ -106,6 +107,86 @@ fn report_issues(docs: &[&document::Document]) -> usize {
     errors
 }
 
+/// `uniform fix --input DIR --optimize-clearance [--dry-run]`
+///
+/// The one command that writes the *source* back. It is deliberately narrow:
+/// each `--…` flag names one thing to fix, nothing runs without one, and every
+/// line it would rewrite is printed whether or not it is written, so a run can
+/// be read as a diff before it is trusted. See [`fix`].
+///
+/// Returns the process exit code: 1 when a file could not be read or written,
+/// 0 otherwise — a source with nothing to fix is a success.
+fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> i32 {
+    let (docs, errors, sources) = render::ttf_builder::load_docs_from_directory_with_sources(input);
+    for (path, msg) in &errors {
+        eprintln!("error: {}: {msg}", path.display());
+    }
+    if docs.is_empty() {
+        eprintln!("No .unf files found in {}", input.display());
+        return 1;
+    }
+    let refs: Vec<&document::Document> = docs.iter().collect();
+
+    let mut planned = 0usize;
+    let mut written = 0usize;
+    let mut failures = errors.len();
+    if optimize_clearance {
+        for doc_fixes in fix::clearance::optimize_clearance(&refs) {
+            let doc = refs[doc_fixes.doc_idx];
+            let Some((_, bytes)) = sources.get(doc_fixes.doc_idx) else {
+                continue;
+            };
+            let text = String::from_utf8_lossy(bytes).into_owned();
+            let lines: Vec<&str> = text.split('\n').collect();
+            let file = doc
+                .path
+                .file_name()
+                .map(|n| n.to_string_lossy().into_owned())
+                .unwrap_or_default();
+
+            let mut edits: Vec<(usize, String)> = Vec::new();
+            for f in &doc_fixes.fixes {
+                let Some(line) = fix::compose_file_line(doc, f.item_idx, f.compose_idx, &lines)
+                else {
+                    eprintln!(
+                        "warning: {file}: glyph '{}': its IDC line moved; not rewritten",
+                        f.glyph,
+                    );
+                    continue;
+                };
+                eprintln!(
+                    "{file}:{}: glyph '{}': {} -> {}  ({} -> {})",
+                    line + 1,
+                    f.glyph,
+                    lines[line].trim(),
+                    f.new_line,
+                    f.before,
+                    f.after,
+                );
+                edits.push((line, f.new_line.clone()));
+                planned += 1;
+            }
+            if edits.is_empty() || dry_run {
+                continue;
+            }
+            match std::fs::write(&doc.path, fix::rewrite_lines(&text, &edits)) {
+                Ok(()) => written += edits.len(),
+                Err(e) => {
+                    eprintln!("error: {file}: {e}");
+                    failures += 1;
+                }
+            }
+        }
+    }
+
+    if dry_run {
+        eprintln!("{planned} line(s) would be rewritten (--dry-run).");
+    } else {
+        eprintln!("{written} line(s) rewritten.");
+    }
+    i32::from(failures > 0)
+}
+
 /// `uniform probe --input DIR [--repeat N]`
 ///
 /// The startup path with no window in the way: how long the process took to
@@ -184,6 +265,36 @@ fn main() {
         };
         run_probe(&input, repeats);
         return;
+    }
+
+    // Fix subcommand: uniform fix --input DIR --optimize-clearance [--dry-run]
+    if args.get(1).map(|s| s.as_str()) == Some("fix") {
+        let mut input_dir = None;
+        let mut optimize_clearance = false;
+        let mut dry_run = false;
+        let mut i = 2;
+        while i < args.len() {
+            match args[i].as_str() {
+                "--input" | "-i" => {
+                    i += 1;
+                    input_dir = args.get(i).map(std::path::PathBuf::from);
+                }
+                "--optimize-clearance" => optimize_clearance = true,
+                "--dry-run" | "-n" => dry_run = true,
+                _ => {
+                    eprintln!("Unknown fix option: {}", args[i]);
+                    std::process::exit(1);
+                }
+            }
+            i += 1;
+        }
+        let (Some(input), true) = (input_dir, optimize_clearance) else {
+            // Nothing runs without a flag saying what to fix: a `fix` that
+            // guesses is a `fix` nobody can run twice with confidence.
+            eprintln!("Usage: uniform fix --input <DIR> --optimize-clearance [--dry-run]");
+            std::process::exit(1);
+        };
+        std::process::exit(run_fix(&input, optimize_clearance, dry_run));
     }
 
     // Build subcommand: uniform build --input DIR --output FILE [--output FILE ...]
@@ -519,7 +630,7 @@ fn main() {
 
     #[cfg(not(feature = "editor"))]
     {
-        eprintln!("Usage: uniform <build|test> [options...]");
+        eprintln!("Usage: uniform <build|test|fix> [options...]");
         eprintln!("GUI mode requires the 'editor' feature.");
         std::process::exit(1);
     }

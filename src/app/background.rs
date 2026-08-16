@@ -83,9 +83,28 @@ pub(super) enum BackgroundTaskPhase {
     Finished(std::time::Instant, std::time::Duration),
 }
 
+/// The background work the status bar shows a stopwatch for, one slot each.
+/// Every slot behaves the same way — running, then finished and readable for a
+/// few seconds — so they are started, finished and expired by the same three
+/// functions rather than one pair per slot.
 pub(super) struct BackgroundTaskStatus {
     pub(super) build: Option<BackgroundTaskPhase>,
     pub(super) test: Option<BackgroundTaskPhase>,
+    /// A `uniform fix` run started from the Font menu.
+    pub(super) optimize: Option<BackgroundTaskPhase>,
+}
+
+fn start(slot: &mut Option<BackgroundTaskPhase>) {
+    *slot = Some(BackgroundTaskPhase::Running(std::time::Instant::now()));
+}
+
+fn finish(slot: &mut Option<BackgroundTaskPhase>) {
+    if let Some(BackgroundTaskPhase::Running(began)) = slot {
+        *slot = Some(BackgroundTaskPhase::Finished(
+            std::time::Instant::now(),
+            began.elapsed(),
+        ));
+    }
 }
 
 impl BackgroundTaskStatus {
@@ -93,46 +112,22 @@ impl BackgroundTaskStatus {
         Self {
             build: None,
             test: None,
+            optimize: None,
         }
     }
 
-    fn start_build(&mut self) {
-        self.build = Some(BackgroundTaskPhase::Running(std::time::Instant::now()));
-    }
-
-    fn finish_build(&mut self) {
-        if let Some(BackgroundTaskPhase::Running(start)) = self.build {
-            self.build = Some(BackgroundTaskPhase::Finished(
-                std::time::Instant::now(),
-                start.elapsed(),
-            ));
-        }
-    }
-
-    fn start_test(&mut self) {
-        self.test = Some(BackgroundTaskPhase::Running(std::time::Instant::now()));
-    }
-
-    fn finish_test(&mut self) {
-        if let Some(BackgroundTaskPhase::Running(start)) = self.test {
-            self.test = Some(BackgroundTaskPhase::Finished(
-                std::time::Instant::now(),
-                start.elapsed(),
-            ));
-        }
+    fn slots(&mut self) -> [&mut Option<BackgroundTaskPhase>; 3] {
+        [&mut self.build, &mut self.test, &mut self.optimize]
     }
 
     fn gc(&mut self) {
         let expire = std::time::Duration::from_secs(10);
-        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.build
-            && at.elapsed() >= expire
-        {
-            self.build = None;
-        }
-        if let Some(BackgroundTaskPhase::Finished(at, _)) = self.test
-            && at.elapsed() >= expire
-        {
-            self.test = None;
+        for slot in self.slots() {
+            if let Some(BackgroundTaskPhase::Finished(at, _)) = slot
+                && at.elapsed() >= expire
+            {
+                *slot = None;
+            }
         }
     }
 }
@@ -196,7 +191,7 @@ impl UniformApp {
             return;
         }
         self.assert_running = true;
-        self.bg_tasks.start_test();
+        start(&mut self.bg_tasks.test);
         self.status_message = Some((
             "Running shape assertions...".to_string(),
             std::time::Instant::now(),
@@ -274,6 +269,38 @@ impl UniformApp {
         });
     }
 
+    /// Plan every clearance rewrite the source's `audit ideal-clearance` rules
+    /// ask for, off the UI thread.
+    ///
+    /// It reads the documents and writes nothing, which is what lets it run
+    /// like the assertions do — on a copy of the sources, with the result
+    /// applied on the UI thread once it lands ([`super::fix`]). At 20k glyphs
+    /// the search is a second of walking, and the editor must not stop for it.
+    pub(super) fn run_clearance_optimizer(&mut self, ctx: &egui::Context) {
+        if self.fix_running {
+            return;
+        }
+        self.fix_running = true;
+        start(&mut self.bg_tasks.optimize);
+        self.set_status("Optimizing clearances...".to_string());
+
+        let all_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
+        let tx = self.fix_tx.clone();
+        let ctx = ctx.clone();
+        std::thread::spawn(move || {
+            // A worker that dies delivers an empty plan, which reads as "there
+            // was nothing to do" — the flag it latched is cleared either way.
+            let mut slot = ResultSlot::new(tx, ctx, Vec::new());
+            let perf_t0 = perf_log_enabled().then(std::time::Instant::now);
+            let refs: Vec<&Document> = all_docs.iter().collect();
+            let plan = crate::fix::clearance::optimize_clearance(&refs);
+            if let Some(t0) = perf_t0 {
+                eprintln!("[perf] optimize clearance: {:?}", t0.elapsed());
+            }
+            slot.set(plan);
+        });
+    }
+
     /// Start a font build for the current generation, or — when one is already
     /// running — cancel that one and leave the request armed for the pump to
     /// retry once the slot frees.
@@ -289,7 +316,7 @@ impl UniformApp {
             return;
         }
 
-        self.bg_tasks.start_build();
+        start(&mut self.bg_tasks.build);
         let build_gen = self.font_build_gen;
         let owned_docs: Vec<Document> = self.collect_all_docs().into_iter().cloned().collect();
         let tx = self.font_build_tx.clone();
@@ -546,7 +573,7 @@ impl UniformApp {
             self.font_build_inflight = false;
         }
         if let Some(result) = build_result {
-            self.bg_tasks.finish_build();
+            finish(&mut self.bg_tasks.build);
             match result {
                 Some(built) => {
                     self.font_data = Some((built.bitmap, built.vector));
@@ -665,7 +692,7 @@ impl UniformApp {
             let count = assert_issues.len();
             self.assert_issues = assert_issues;
             self.assert_running = false;
-            self.bg_tasks.finish_test();
+            finish(&mut self.bg_tasks.test);
             let total_msg = if count == 0 {
                 "All shape assertions passed.".to_string()
             } else {
@@ -677,8 +704,17 @@ impl UniformApp {
             }
         }
 
+        if let Ok(plan) = self.fix_rx.try_recv() {
+            self.fix_running = false;
+            finish(&mut self.bg_tasks.optimize);
+            self.apply_clearance_plan(plan);
+        }
+
         self.bg_tasks.gc();
-        if self.bg_tasks.build.is_some() || self.bg_tasks.test.is_some() {
+        if self.bg_tasks.build.is_some()
+            || self.bg_tasks.test.is_some()
+            || self.bg_tasks.optimize.is_some()
+        {
             ctx.request_repaint_after(std::time::Duration::from_millis(100));
         }
     }
