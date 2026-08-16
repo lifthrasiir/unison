@@ -586,15 +586,83 @@ fn with_clearance(
 
 #[test]
 fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
+    let ink = |near, far| {
+        Some(InkLine {
+            near,
+            far,
+            near_blanks: 0,
+            far_blanks: 0,
+        })
+    };
     let p = InkProfile::of(&grid(&[".##.", "....", "$..#"]), 1);
-    assert_eq!(p.rows, vec![Some((1, 2)), None, Some((0, 3))]);
+    assert_eq!(
+        p.rows,
+        vec![
+            ink(1, 2),
+            None,
+            // The lone `$` is the near frontier, and a run of one.
+            Some(InkLine {
+                near: 0,
+                far: 3,
+                near_blanks: 1,
+                far_blanks: 0,
+            }),
+        ],
+    );
     assert_eq!(
         p.cols,
-        vec![Some((2, 2)), Some((0, 0)), Some((0, 0)), Some((2, 2))],
+        vec![
+            Some(InkLine {
+                near: 2,
+                far: 2,
+                near_blanks: 1,
+                far_blanks: 1,
+            }),
+            ink(0, 0),
+            ink(0, 0),
+            ink(2, 2),
+        ],
     );
-    // Declared units, so a scale-2 grid measures like the 1-unit glyph it is.
-    let doubled = InkProfile::of(&grid(&["..####..", "..####..", "........", "........"]), 2);
-    assert_eq!(doubled.rows, vec![Some((1, 2)), None]);
+    // Declared units, so a scale-2 grid measures like the 1-unit glyph it is,
+    // and a declared cell with any ink in it is ink.
+    let doubled = InkProfile::of(&grid(&["..####..", "..##$$..", "........", "........"]), 2);
+    assert_eq!(doubled.rows, vec![ink(1, 2), None]);
+}
+
+#[test]
+fn facing_hardblanks_overlap_as_far_as_both_reach() {
+    // Two facing hardblanks meet, so a unit of each pair is shared: without
+    // them the frontiers would face at -4 on every row.
+    let a = InkProfile::of(&grid(&["##$$", "###$"]), 1);
+    let b = InkProfile::of(&grid(&["$###", "$$##"]), 1);
+    assert_eq!(facing_offset(&a, &b, true), Some(-3));
+    // Only the shared part counts: a row whose other side has none is measured
+    // as before, and one row is enough to hold the whole line back.
+    let plain = InkProfile::of(&grid(&["####", "$$##"]), 1);
+    assert_eq!(facing_offset(&a, &plain, true), Some(-4));
+    // The reach is the whole facing run, not one cell of it.
+    let deep_a = InkProfile::of(&grid(&["##$$", "#$$$"]), 1);
+    let deep_b = InkProfile::of(&grid(&["$$##", "$$$#"]), 1);
+    assert_eq!(facing_offset(&deep_a, &deep_b, true), Some(-2));
+    // A hardblank pointing the other way is not on this side.
+    let away = InkProfile::of(&grid(&["###$", "###$"]), 1);
+    assert_eq!(facing_offset(&a, &away, true), Some(-4));
+}
+
+#[test]
+fn an_edge_swallows_the_hardblanks_facing_it() {
+    // The edge is all the hardblank anyone could want, so a part's own facing
+    // run collapses into it whole: 2 in from the left, 1 in from the right.
+    let p = InkProfile::of(&grid(&["$$#$", "$##$"]), 1);
+    let f = p.frontier(true).unwrap();
+    assert_eq!((f.near, f.far), (1, 2));
+    // A row of nothing but hardblanks constrains neither edge.
+    let all = InkProfile::of(&grid(&["$$$$", "$###"]), 1);
+    let f = all.frontier(true).unwrap();
+    assert_eq!((f.near, f.far), (1, 3));
+    // Down the other axis the runs are read the same way.
+    let f = p.frontier(false).unwrap();
+    assert_eq!((f.near, f.far), (0, 1));
 }
 
 #[test]

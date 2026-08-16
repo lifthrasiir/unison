@@ -64,9 +64,17 @@
 //! is a cell the source deliberately keeps clear of a neighbour. The
 //! **clearance** between two adjacent parts is the smallest per-line distance
 //! between the two frontiers that face each other, counted in cells between
-//! them: 0 means they touch, negative means they overlap. The parent's own
+//! them: 0 means they touch, negative means they overlap. Two hardblanks that
+//! face each other are one space and not two, though, so as far as both sides'
+//! hardblank runs reach the clearance counts the shared depth as well — a part
+//! keeping two cells clear beside a neighbour keeping one shares one of them,
+//! and the pair may sit that much closer for the same clearance. The parent's own
 //! edges take part too, as the distance from the edge inward (negative when the
-//! ink crosses it), so an n-part line has n+1 clearances.
+//! ink crosses it), so an n-part line has n+1 clearances. An edge is the limit
+//! of that same rule: it is hardblank as far out as anyone could ask, since
+//! there is nothing outside the box to keep clear of, so the whole of a line's
+//! facing hardblank run collapses into it and the edge measures to the ink
+//! behind it.
 //!
 //! [`IdealClearances`](crate::audit::IdealClearances) — `audit ideal-clearance
 //! PREFIX* MIN MAX` — holds each of them, *and* their total, to one range; a
@@ -298,49 +306,81 @@ pub enum PartDims {
 /// line both, and the profile is built once per part per expansion.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct InkProfile {
-    /// Per row: the leftmost and rightmost non-empty column, or `None` for a
-    /// row that draws nothing.
-    pub rows: Vec<Option<(u16, u16)>>,
-    /// Per column: the topmost and bottommost non-empty row.
-    pub cols: Vec<Option<(u16, u16)>>,
+    /// Per row, read left to right, or `None` for a row that draws nothing.
+    pub rows: Vec<Option<InkLine>>,
+    /// Per column, read top to bottom.
+    pub cols: Vec<Option<InkLine>>,
+}
+
+/// What one line of a grid occupies along an axis: the two frontiers, plus how
+/// far a hardblank run reaches in from each of them.
+///
+/// The runs are what lets two facing parts share space. A hardblank draws
+/// nothing yet occupies its cell (it is space the source *means*), so it holds
+/// the frontier out where an empty cell would not; but where the two parts'
+/// runs face each other, the same nothing is written twice, and the shared
+/// depth is clearance rather than a part's own extent — see [`facing_offset`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct InkLine {
+    /// The lowest occupied coordinate on this line.
+    pub near: u16,
+    /// The highest occupied coordinate on this line.
+    pub far: u16,
+    /// Hardblank cells running inward from `near`, `near` included.
+    pub near_blanks: u16,
+    /// Hardblank cells running inward from `far`, `far` included.
+    pub far_blanks: u16,
 }
 
 impl InkProfile {
     /// Read a grid's frontiers. A cell counts as occupied when the source put
     /// *something* there, which includes a hardblank — see
-    /// [`PixelShape::is_empty`](crate::pixel::PixelShape::is_empty).
+    /// [`PixelShape::is_empty`](crate::pixel::PixelShape::is_empty). A declared
+    /// cell is hardblank when the source wrote hardblanks there and no ink, so
+    /// a `scale 2` part is read on the same units its layout is in.
     pub fn of(grid: &PixelGrid, scale: u8) -> Self {
         let s = scale.max(1) as u16;
         // Floor, exactly as `declared_box` does: a grid that is not a whole
         // number of declared cells has no last cell to speak of.
         let (w, h) = (grid.width / s, grid.height / s);
-        let mut profile = Self {
-            rows: vec![None; h as usize],
-            cols: vec![None; w as usize],
-        };
-        let extend = |slot: &mut Option<(u16, u16)>, at: u16| {
-            *slot = Some(match *slot {
-                None => (at, at),
-                Some((lo, hi)) => (lo.min(at), hi.max(at)),
-            });
-        };
+        // Per declared cell: nothing / hardblank only / ink, whichever is
+        // greatest over the sub-cells, so any ink makes the cell ink.
+        const NOTHING: u8 = 0;
+        const BLANK: u8 = 1;
+        const INK: u8 = 2;
+        let mut cells = vec![NOTHING; w as usize * h as usize];
         for row in 0..h * s {
             for col in 0..w * s {
-                if grid.get(row, col).is_empty() {
+                let px = grid.get(row, col);
+                if px.is_empty() {
                     continue;
                 }
-                extend(&mut profile.rows[(row / s) as usize], col / s);
-                extend(&mut profile.cols[(col / s) as usize], row / s);
+                let at = &mut cells[(row / s) as usize * w as usize + (col / s) as usize];
+                *at = (*at).max(if px.is_hardblank() { BLANK } else { INK });
             }
         }
-        profile
+        let scan = |len: u16, at: &dyn Fn(u16) -> u8| -> Option<InkLine> {
+            let near = (0..len).find(|&i| at(i) != NOTHING)?;
+            let far = (near..len).rev().find(|&i| at(i) != NOTHING)?;
+            Some(InkLine {
+                near,
+                far,
+                near_blanks: (near..=far).take_while(|&i| at(i) == BLANK).count() as u16,
+                far_blanks: (near..=far).rev().take_while(|&i| at(i) == BLANK).count() as u16,
+            })
+        };
+        let cell = |row: u16, col: u16| cells[row as usize * w as usize + col as usize];
+        Self {
+            rows: (0..h).map(|r| scan(w, &|c| cell(r, c))).collect(),
+            cols: (0..w).map(|c| scan(h, &|r| cell(r, c))).collect(),
+        }
     }
 
     /// The lines that face along the split axis: rows for a horizontal split
     /// (each gives the leftmost and rightmost column), columns for a vertical
     /// one. Indexed by position across the axis, so two parts of one line index
     /// alike.
-    fn along(&self, horizontal: bool) -> &[Option<(u16, u16)>] {
+    fn along(&self, horizontal: bool) -> &[Option<InkLine>] {
         if horizontal { &self.rows } else { &self.cols }
     }
 
@@ -351,22 +391,31 @@ impl InkProfile {
     /// arithmetic on: the near edge measures against the smallest near
     /// frontier and the far edge against the largest far one, since a
     /// clearance is the smallest distance over all the lines.
+    ///
+    /// A parent edge is taken to be hardblank all the way out — there is
+    /// nothing beyond it for a part to keep clear of — so a line's facing
+    /// hardblank run collapses into the edge entirely, and the frontier the
+    /// edge sees is the first cell past that run. A line that is nothing but
+    /// hardblanks therefore constrains neither edge, which is the same
+    /// statement: it draws nothing to be clear of.
     pub fn frontier(&self, horizontal: bool) -> Option<AxisFrontier> {
         let lines = self.along(horizontal);
         Some(AxisFrontier {
             near: lines
                 .iter()
-                .filter_map(|l| l.map(|(n, _)| n as i32))
+                .filter_map(|l| l.map(|l| l.near as i32 + l.near_blanks as i32))
                 .min()?,
             far: lines
                 .iter()
-                .filter_map(|l| l.map(|(_, f)| f as i32))
+                .filter_map(|l| l.map(|l| l.far as i32 - l.far_blanks as i32))
                 .max()?,
         })
     }
 }
 
-/// How far a part's ink reaches towards each end of the split axis.
+/// How far a part's ink reaches towards each end of the split axis, as an edge
+/// sees it — the hardblanks facing the edge already collapsed into it (see
+/// [`InkProfile::frontier`]).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct AxisFrontier {
     /// The lowest coordinate any line's ink starts at.
@@ -382,12 +431,24 @@ pub struct AxisFrontier {
 /// `None` when the two share no line on which both draw: there is then no pair
 /// of frontiers to measure between, and the line is not measured rather than
 /// measured wrong.
+///
+/// A line's clearance is the gap between the two frontiers *plus* the depth the
+/// parts' facing hardblank runs share ([`InkLine`]): where both sides wrote a
+/// hardblank the space is written twice over, and space written twice is one
+/// space. Only the shared depth counts — the smaller of the two runs — so
+/// nothing is ever measured through a cell one side draws ink in. The result is
+/// therefore this side of the frontier-only measurement: a pair that meets
+/// hardblank to hardblank reads as *more* clear than its frontiers say, and so
+/// sits that much closer once the ideal clearance is solved for.
 pub fn facing_offset(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option<i32> {
     a.along(horizontal)
         .iter()
         .zip(b.along(horizontal).iter())
         .filter_map(|(x, y)| match (x, y) {
-            (Some((_, a_far)), Some((b_near, _))) => Some(*b_near as i32 - *a_far as i32 - 1),
+            (Some(a), Some(b)) => {
+                let shared = a.far_blanks.min(b.near_blanks) as i32;
+                Some(b.near as i32 - a.far as i32 - 1 + shared)
+            }
             _ => None,
         })
         .min()
