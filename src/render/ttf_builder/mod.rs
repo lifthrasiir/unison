@@ -415,8 +415,17 @@ pub fn build_font_pair_cached_for(
     let mut cc = shared_cache.lock().unwrap();
     cc.begin_generation();
 
-    let bitmap_data = collect_glyph_data_with_shared(&shared, true, Some(&mut cc), cancel)?;
-    let vector_data = collect_glyph_data_with_shared(&shared, false, Some(&mut cc), cancel)?;
+    // The two flavors keep separate caches (see `ContourCaches`), so there is
+    // nothing left for the second to wait on: both collections trace at once.
+    let (bitmap_cache, vector_cache) = cc.split();
+    let (bitmap_data, vector_data) = std::thread::scope(|s| {
+        let bh =
+            s.spawn(|| collect_glyph_data_with_shared(&shared, true, Some(bitmap_cache), cancel));
+        let vector_data =
+            collect_glyph_data_with_shared(&shared, false, Some(vector_cache), cancel);
+        (bh.join().unwrap(), vector_data)
+    });
+    let (bitmap_data, vector_data) = (bitmap_data?, vector_data?);
 
     cc.evict_stale();
     drop(cc);
@@ -494,18 +503,42 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
         origin: None,
     };
     let never = crate::cancel::CancelToken::never();
-    let union_input = collect::compute_shared_font_input_for(docs, &union_face, &never)?;
-    let (_, _, union_glyphs, _, _) =
-        collect::collect_glyph_data_with_shared(&union_input, false, None, &never)?;
+
+    // The union and every face are collected from the same documents and share
+    // nothing else — no contour cache is passed here, unlike the editor's
+    // build — so they run at once rather than one after another. A source with
+    // two faces spends three quarters of a build in this loop, and two of the
+    // three collections in it are only ever asked for their cmap.
+    let collect_for = |face: &crate::faces::Face| {
+        let expand = crate::startup::PerfStage::new("expand");
+        let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
+        drop(expand);
+        let _collect = crate::startup::PerfStage::new("collect");
+        collect::collect_glyph_data_with_shared(&shared, false, None, &never)
+    };
+    let (union_glyphs, per_face) = std::thread::scope(|scope| {
+        let union = scope.spawn(|| collect_for(&union_face));
+        let per_face: Vec<_> = faces
+            .faces
+            .iter()
+            .map(|face| scope.spawn(move || collect_for(face)))
+            .collect();
+        (
+            union.join().unwrap(),
+            per_face
+                .into_iter()
+                .map(|h| h.join().unwrap())
+                .collect::<Vec<_>>(),
+        )
+    });
+    let (_, _, union_glyphs, _, _) = union_glyphs?;
 
     let mut out = Vec::new();
-    for face in &faces.faces {
-        // Collected again for this face, for its own `meta`, its own GSUB, and
-        // above all its own cmap. Only the *codepoints* are taken from it; the
+    for (face, collected) in faces.faces.iter().zip(per_face) {
+        // Collected for this face, for its own `meta`, its own GSUB, and above
+        // all its own cmap. Only the *codepoints* are taken from it; the
         // glyphs, and therefore every glyph id, come from the shared store.
-        let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
-        let (meta, scale, face_glyphs, gsub_data, palette) =
-            collect::collect_glyph_data_with_shared(&shared, false, None, &never)?;
+        let (meta, scale, face_glyphs, gsub_data, palette) = collected?;
 
         let mut per_name: HashMap<&str, &[u32]> = HashMap::new();
         for g in &face_glyphs {
@@ -604,7 +637,7 @@ pub fn build_font_with_gid_map_for_cached(
     let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
     let data = {
         let mut cc = shared_cache.lock().unwrap();
-        collect::collect_glyph_data_with_shared(&shared, false, Some(&mut cc), &never)?
+        collect::collect_glyph_data_with_shared(&shared, false, Some(cc.vector()), &never)?
     };
     build_with_gid_map(data)
 }

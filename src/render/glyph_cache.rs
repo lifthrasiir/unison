@@ -175,6 +175,158 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
     (cache, pending)
 }
 
+/// The composite tracer [`resolve_pending`] drives, split so its expensive half
+/// can leave the calling thread.
+///
+/// `lookup` and `store` are the memo around the tracer — the traced-contour
+/// cache the font build carries between rebuilds — and they own a `&mut` to it,
+/// so they stay on the driving thread. [`build`](CompositeBuilder::build) is
+/// what is left once the memo is out of the way: a pure function of the glyph,
+/// its derived refs and the cache, which is why a whole wave of them can run at
+/// once.
+///
+/// A consumer with nothing to memoize (validation, the specimen) passes an
+/// [`FnBuilder`] and never sees the split.
+pub(crate) trait CompositeBuilder<V>: Sync {
+    /// What [`store`](CompositeBuilder::store) files a freshly built value
+    /// under — the memo key `lookup` already computed, so it is not derived
+    /// twice. `()` for a builder that memoizes nothing.
+    ///
+    /// `Sync` because it rides in the wave the tracing threads read.
+    type Key: Send + Sync;
+
+    /// The memo lookup: the key for this composite, and its value when the memo
+    /// already holds it. Serial.
+    fn lookup(
+        &mut self,
+        pg: &PendingGlyph,
+        refs: &[GlyphRef],
+        cache: &HashMap<String, V>,
+    ) -> (Self::Key, Option<V>);
+
+    /// The tracer proper. Called only for a memo miss, on an arbitrary thread,
+    /// possibly several at once.
+    fn build(&self, pg: &PendingGlyph, refs: &[GlyphRef], cache: &HashMap<String, V>) -> V;
+
+    /// Records what `build` produced. Serial.
+    fn store(&mut self, key: Self::Key, value: &V);
+}
+
+/// A [`CompositeBuilder`] that is only a tracer: no memo, so every composite is
+/// a miss and `store` has nowhere to put anything.
+pub(crate) struct FnBuilder<F>(pub(crate) F);
+
+impl<V, F> CompositeBuilder<V> for FnBuilder<F>
+where
+    F: Fn(&PendingGlyph, &[GlyphRef], &HashMap<String, V>) -> V + Sync,
+{
+    type Key = ();
+
+    fn lookup(
+        &mut self,
+        _pg: &PendingGlyph,
+        _refs: &[GlyphRef],
+        _cache: &HashMap<String, V>,
+    ) -> ((), Option<V>) {
+        ((), None)
+    }
+
+    fn build(&self, pg: &PendingGlyph, refs: &[GlyphRef], cache: &HashMap<String, V>) -> V {
+        (self.0)(pg, refs, cache)
+    }
+
+    fn store(&mut self, _key: (), _value: &V) {}
+}
+
+/// Traces every memo miss in `wave`, in parallel, returning one slot per wave
+/// entry (`None` where the memo already had it, or where a cancel stopped the
+/// run short of it).
+fn trace_wave<V, B>(
+    wave: &[(PendingGlyph, Vec<GlyphRef>, Vec<GlyphPoint>, B::Key, Option<V>)],
+    builder: &B,
+    cache: &HashMap<String, V>,
+    cancel: &crate::cancel::CancelToken,
+) -> Vec<Option<V>>
+where
+    V: CachedGlyphEntry + Send + Sync,
+    B: CompositeBuilder<V>,
+{
+    let misses: Vec<usize> = wave
+        .iter()
+        .enumerate()
+        .filter(|(_, e)| e.4.is_none())
+        .map(|(i, _)| i)
+        .collect();
+    let mut out: Vec<Option<V>> = (0..wave.len()).map(|_| None).collect();
+    let traced = crate::parallel::map_indexed(misses.len(), cancel, |at| {
+        let (pg, refs, ..) = &wave[misses[at]];
+        builder.build(pg, refs, cache)
+    });
+    for (at, value) in traced.into_iter().enumerate() {
+        out[misses[at]] = value;
+    }
+    out
+}
+
+/// Drops the pending glyphs whose refs can never resolve, before the expensive
+/// loop below ever walks them.
+///
+/// The fixpoint reaches the same set on its own — a glyph blocked on a name
+/// nothing defines simply survives every round and is discarded at the end — but
+/// it re-walks that glyph, and every glyph waiting on it, once per round while
+/// doing so. A source that declares a family far larger than what is drawn (a
+/// `glyph han-($#4e00..9fff)` block whose parts are still a work queue) makes
+/// that the *majority* of the pending list: ~105k of 125k, walked five times
+/// over, in a font where fewer than 20k composites are real.
+///
+/// This is the same closure over names alone, with no geometry and no anchors:
+/// a name can enter the cache only if every ref of the glyph that carries it can,
+/// so one forward sweep per level of nesting settles it. Glyphs the real loop
+/// drops for a *derive* reason are not predicted here — anchors are exactly what
+/// this pass does not look at — so it only ever removes glyphs the loop was
+/// going to discard anyway.
+fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGlyph>) {
+    // Mirrors `resolve_cached`: a ref hits its own name, or the first expansion
+    // of it read as a pattern.
+    fn ref_known(name: &str, known: &std::collections::HashSet<String>) -> bool {
+        known.contains(name)
+            || crate::ref_composite::parse_ref_pattern(name)
+                .is_some_and(|expanded| known.contains(&expanded.get(0)))
+    }
+
+    let mut known: std::collections::HashSet<String> = cache.keys().cloned().collect();
+    let mut unsettled: Vec<&PendingGlyph> = pending.iter().collect();
+    loop {
+        let before = unsettled.len();
+        let mut still: Vec<&PendingGlyph> = Vec::with_capacity(before);
+        let mut resolved: Vec<&str> = Vec::new();
+        for pg in unsettled {
+            if pg.refs.iter().all(|r| ref_known(&r.name, &known)) {
+                resolved.push(&pg.name);
+            } else {
+                still.push(pg);
+            }
+        }
+        for name in resolved {
+            known.insert(name.to_string());
+        }
+        unsettled = still;
+        if unsettled.len() == before {
+            break;
+        }
+    }
+    if unsettled.is_empty() {
+        return;
+    }
+    let dead: std::collections::HashSet<&str> =
+        unsettled.iter().map(|pg| pg.name.as_str()).collect();
+    // Owned up front: `dead` borrows `pending`, and the retain below needs it
+    // to have let go.
+    let dead: std::collections::HashSet<String> =
+        dead.into_iter().map(|s| s.to_string()).collect();
+    pending.retain(|pg| !dead.contains(&pg.name));
+}
+
 /// Fixpoint loop resolving pending glyphs against the cache.  Each round
 /// takes every pending glyph whose refs all resolve, derives its effective
 /// ref offsets and anchors, builds the composite via `build`, applies the
@@ -195,14 +347,35 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
 /// indistinguishable, to everything downstream, from a source whose remaining
 /// composites never resolved. That is a state the pipeline already handles, and
 /// the caller throws the result away regardless.
-pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
+///
+/// # Why a round is a *wave*
+///
+/// Each round derives every glyph the cache can already satisfy, traces them
+/// all, and only then inserts them. Deriving and inserting stay serial — they
+/// read and write `alt_index`, `pending_alts` and the cache itself — but tracing
+/// is pure with respect to that bookkeeping: a glyph enters a wave only once
+/// every ref of it is *already* in the cache, so nothing a wave produces can
+/// change what another member of the same wave sees. That is what lets
+/// [`CompositeBuilder::build`] run on every core at once, and tracing is where
+/// nearly all of a font build's time goes.
+///
+/// The cost is a round per level of nesting rather than per level that a lucky
+/// walk order failed to collapse: a glyph made ready by an insertion now waits
+/// for the next wave instead of being picked up later in the same pass. Composite
+/// nesting is a handful of levels deep, and a round is a scan plus one
+/// [`build_alt_index`], so that trade is heavily on the wave's side.
+pub(crate) fn resolve_pending<V, B>(
     cache: &mut HashMap<String, V>,
     mut pending: Vec<PendingGlyph>,
     mut declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
-    mut build: impl FnMut(&PendingGlyph, &[GlyphRef], &HashMap<String, V>) -> V,
+    builder: &mut B,
     mut on_issue: impl FnMut(&str, crate::ref_composite::DeriveIssue),
     cancel: &crate::cancel::CancelToken,
-) {
+) where
+    V: CachedGlyphEntry + Send + Sync,
+    B: CompositeBuilder<V>,
+{
+    drop_unresolvable(cache, &mut pending);
     // How many alternatives of each base name are still unresolved. A
     // composite must not be derived while an alternative of one of its
     // offset-less refs is pending: that alternative would be missing from
@@ -210,6 +383,11 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
     // size) silently falls through. Same guard, same relaxation for cycles,
     // as `ref_composite::resolve_expansion` — the two fixpoints must not
     // disagree about which alternative a composite gets.
+    //
+    // Counted after the drop above, so an alternative that can never resolve
+    // does not hold the guard shut: it would never reach `alt_index` either
+    // way, and leaving it counted only delayed every dependent composite to
+    // the relaxation round.
     let mut pending_alts: HashMap<String, usize> = HashMap::new();
     for pg in &pending {
         for prefix in crate::ref_composite::alternative_prefixes(&pg.name) {
@@ -227,6 +405,11 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
         }
         let mut progress = false;
         let mut alt_index = build_alt_index(cache);
+        // What this round will trace: the glyph, the refs its derivation
+        // settled on, the anchors to record with it, and the memo key the
+        // builder handed back (with the value already, when the memo had it).
+        let mut wave: Vec<(PendingGlyph, Vec<GlyphRef>, Vec<GlyphPoint>, B::Key, Option<V>)> =
+            Vec::new();
         let mut i = 0;
         while i < pending.len() {
             steps += 1;
@@ -288,15 +471,36 @@ pub(crate) fn resolve_pending<V: CachedGlyphEntry>(
             if errored {
                 continue;
             }
-            let mut entry = build(&pg, &effective_refs, cache);
+            let (key, hit) = builder.lookup(&pg, &effective_refs, cache);
+            wave.push((pg, effective_refs, anchors, key, hit));
+        }
+
+        // Only the memo misses are traced, and every one of them is filed back
+        // into the memo here rather than by the tracer, which cannot reach it.
+        let traced = trace_wave(&wave, builder, cache, cancel);
+        if cancel.is_cancelled() {
+            return;
+        }
+        for ((pg, _, anchors, key, hit), built) in wave.into_iter().zip(traced) {
+            let mut entry = match built {
+                Some(value) => {
+                    builder.store(key, &value);
+                    value
+                }
+                None => match hit {
+                    Some(value) => value,
+                    None => continue,
+                },
+            };
             if let Some(grid) = &pg.pixels {
                 let (w, h) = entry.dims_mut();
                 *w = (*w).max(grid.width);
                 *h = (*h).max(grid.height);
             }
             entry.set_resolution(anchors, pg.scale);
-            cache.insert(pg.name.clone(), entry);
+            cache.insert(pg.name, entry);
         }
+
         if pending.is_empty() {
             break;
         }
@@ -315,6 +519,7 @@ mod tests {
     use super::*;
     use crate::cancel::CancelToken;
     use crate::document::GlyphPoint;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     /// The smallest thing the driver can cache: enough to be a
     /// `CachedGlyphEntry`, nothing more.
@@ -399,20 +604,24 @@ mod tests {
         );
         assert_eq!(pending.len(), N, "every composite starts out pending");
 
-        let mut built = 0usize;
+        let built = AtomicUsize::new(0);
         resolve_pending(
             &mut cache,
             pending,
             |_| None,
-            |_, _, _| {
-                built += 1;
+            &mut FnBuilder(|_: &_, _: &_, _: &_| {
+                built.fetch_add(1, Ordering::Relaxed);
                 cancel.cancel();
                 Counted::default()
-            },
+            }),
             |_, _| {},
             &cancel,
         );
 
+        // A wave traces on every core, so the threads already inside `build`
+        // when the first one cancels still finish theirs — a handful, not a
+        // stride each, since the token is read per composite.
+        let built = built.into_inner();
         assert!(
             built < N,
             "the fixpoint loop built all {N} composites despite being cancelled at the first"
@@ -434,18 +643,18 @@ mod tests {
             Counted::default,
             &never,
         );
-        let mut built = 0usize;
+        let built = AtomicUsize::new(0);
         resolve_pending(
             &mut cache,
             pending,
             |_| None,
-            |_, _, _| {
-                built += 1;
+            &mut FnBuilder(|_: &_, _: &_, _: &_| {
+                built.fetch_add(1, Ordering::Relaxed);
                 Counted::default()
-            },
+            }),
             |_, _| {},
             &never,
         );
-        assert_eq!(built, N);
+        assert_eq!(built.into_inner(), N);
     }
 }

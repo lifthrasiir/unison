@@ -17,6 +17,7 @@ mod issues;
 mod math;
 mod meta;
 mod on_demand;
+mod parallel;
 mod pattern;
 mod pixel;
 #[cfg(feature = "editor")]
@@ -249,11 +250,19 @@ fn main() {
             std::process::exit(1);
         }
         let refs: Vec<&document::Document> = docs.iter().collect();
+        let faces = faces::FaceSet::collect(&refs);
+        // Validation reads the documents and nothing the build writes, so it
+        // runs alongside it rather than in front of it — on a font this size it
+        // is a second of the wall clock either way. The report is still printed
+        // before anything the build has to say, so a log reads as it always did.
+        let (issue_errors, built) = std::thread::scope(|scope| {
+            let build = scope.spawn(|| render::build_faces(&refs));
+            (report_issues(&refs), build.join().unwrap())
+        });
         // Counted now, acted on at the very end: the outputs are all written
         // first, so a CI run can still publish them while the run itself fails.
-        let error_count = parse_errors + report_issues(&refs);
-        let faces = faces::FaceSet::collect(&refs);
-        let Some(built) = render::build_faces(&refs) else {
+        let error_count = parse_errors + issue_errors;
+        let Some(built) = built else {
             eprintln!("Font build failed");
             std::process::exit(1);
         };

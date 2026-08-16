@@ -21,30 +21,57 @@ pub struct ContourCache {
     gen_id: u64,
 }
 
+/// One [`ContourCache`] per build flavor.
+///
+/// Every key already carries the `bitmap` flag, so the two flavors never shared
+/// an entry — they only shared a `&mut`. Holding them apart is what lets the
+/// bitmap and vector collections of one font pair run at the same time instead
+/// of one behind the other.
 #[cfg(feature = "editor")]
-pub type SharedContourCache = Arc<Mutex<ContourCache>>;
+#[derive(Default)]
+pub struct ContourCaches([ContourCache; 2]);
 
 #[cfg(feature = "editor")]
-impl ContourCache {
+impl ContourCaches {
+    /// `(bitmap, vector)`, borrowed at once.
+    pub(super) fn split(&mut self) -> (&mut ContourCache, &mut ContourCache) {
+        let (bitmap, vector) = self.0.split_at_mut(1);
+        (&mut bitmap[0], &mut vector[0])
+    }
+
+    /// The one flavor a caller that builds only outlines needs.
+    pub(super) fn vector(&mut self) -> &mut ContourCache {
+        &mut self.0[1]
+    }
+
     pub fn clear(&mut self) {
-        self.entries.clear();
-        self.composite_entries.clear();
+        for cache in &mut self.0 {
+            cache.entries.clear();
+            cache.composite_entries.clear();
+        }
     }
 
     pub fn begin_generation(&mut self) {
-        self.gen_id += 1;
+        for cache in &mut self.0 {
+            cache.gen_id += 1;
+        }
     }
 
     pub fn evict_stale(&mut self) {
-        let cur_gen = self.gen_id;
-        self.entries.retain(|_, e| e.gen_id == cur_gen);
-        self.composite_entries.retain(|_, e| e.gen_id == cur_gen);
+        for cache in &mut self.0 {
+            let cur_gen = cache.gen_id;
+            cache.entries.retain(|_, e| e.gen_id == cur_gen);
+            cache.composite_entries.retain(|_, e| e.gen_id == cur_gen);
+        }
     }
 }
 
 #[cfg(feature = "editor")]
+pub type SharedContourCache = Arc<Mutex<ContourCaches>>;
+
+#[cfg(feature = "editor")]
 pub fn new_contour_cache() -> SharedContourCache {
-    Arc::new(Mutex::new(ContourCache::default()))
+    Arc::new(Mutex::new(ContourCaches::default()))
 }
 
 fn hash_grid_for_cache(grid: &PixelGrid, bitmap: bool) -> u64 {
@@ -223,41 +250,6 @@ impl CachedContours {
             }
         }
         hasher.finish()
-    }
-
-    pub(super) fn from_components(
-        own_pixels: Option<&PixelGrid>,
-        refs: &[GlyphRef],
-        cache: &HashMap<String, CachedContours>,
-        bitmap: bool,
-        mut cc: Option<&mut ContourCache>,
-        parent_scale: u8,
-    ) -> Option<Self> {
-        let comp_key = Self::hash_composite_key(own_pixels, refs, cache, bitmap);
-        if let Some(ref mut cc) = cc {
-            let cur_gen = cc.gen_id;
-            if let Some(entry) = cc.composite_entries.get_mut(&comp_key) {
-                entry.gen_id = cur_gen;
-                return Some(entry.value.clone());
-            }
-        }
-
-        let result = Self::from_components_inner(own_pixels, refs, cache, bitmap, parent_scale);
-
-        if let Some(ref val) = result
-            && let Some(cc) = cc
-        {
-            let cur_gen = cc.gen_id;
-            cc.composite_entries.insert(
-                comp_key,
-                CacheEntry {
-                    value: val.clone(),
-                    gen_id: cur_gen,
-                },
-            );
-        }
-
-        result
     }
 
     fn from_components_inner(
@@ -545,6 +537,85 @@ impl CachedContours {
             composite_components: Some(components),
             scale: 1,
         })
+    }
+}
+
+/// The font build's [`CompositeBuilder`](crate::render::glyph_cache::CompositeBuilder):
+/// [`ContourCache`] on one side of the split, the tracer on the other.
+///
+/// The cache is what keeps the borrow here: it is a `&mut` that only `lookup`
+/// and `store` touch, which is exactly why `build` — holding `&self` — is free
+/// to run on every core at once.
+pub(super) struct ContourBuilder<'a> {
+    bitmap: bool,
+    cache: Option<&'a mut ContourCache>,
+}
+
+impl<'a> ContourBuilder<'a> {
+    pub(super) fn new(bitmap: bool, cache: Option<&'a mut ContourCache>) -> Self {
+        Self { bitmap, cache }
+    }
+
+    /// The glyph's own grid, as this flavor sees it: the vector build resolves a
+    /// `desync` glyph from its refs alone, and `resolve_pending` re-applies the
+    /// grid's dimensions afterwards, so the advance is unaffected.
+    fn own_pixels<'p>(
+        &self,
+        pg: &'p crate::render::glyph_cache::PendingGlyph,
+    ) -> Option<&'p PixelGrid> {
+        pg.pixels.as_ref().filter(|_| self.bitmap || !pg.desync)
+    }
+}
+
+impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBuilder<'_> {
+    type Key = u64;
+
+    fn lookup(
+        &mut self,
+        pg: &crate::render::glyph_cache::PendingGlyph,
+        refs: &[GlyphRef],
+        cache: &HashMap<String, CachedContours>,
+    ) -> (u64, Option<CachedContours>) {
+        let key = CachedContours::hash_composite_key(self.own_pixels(pg), refs, cache, self.bitmap);
+        let hit = self.cache.as_deref_mut().and_then(|cc| {
+            let cur_gen = cc.gen_id;
+            cc.composite_entries.get_mut(&key).map(|entry| {
+                entry.gen_id = cur_gen;
+                entry.value.clone()
+            })
+        });
+        (key, hit)
+    }
+
+    fn build(
+        &self,
+        pg: &crate::render::glyph_cache::PendingGlyph,
+        refs: &[GlyphRef],
+        cache: &HashMap<String, CachedContours>,
+    ) -> CachedContours {
+        let own = self.own_pixels(pg);
+        CachedContours::from_components_inner(own, refs, cache, self.bitmap, pg.scale)
+            .unwrap_or_else(|| match own {
+                // Unreachable while `resolve_pending` only ever hands over a
+                // glyph whose every ref already resolved, which is the only way
+                // the tracer above gives up. Kept as the same fallback it always
+                // was rather than as a panic.
+                Some(grid) => CachedContours::from_grid(grid, self.bitmap, None),
+                None => CachedContours::empty(),
+            })
+    }
+
+    fn store(&mut self, key: u64, value: &CachedContours) {
+        if let Some(cc) = self.cache.as_deref_mut() {
+            let gen_id = cc.gen_id;
+            cc.composite_entries.insert(
+                key,
+                CacheEntry {
+                    value: value.clone(),
+                    gen_id,
+                },
+            );
+        }
     }
 }
 

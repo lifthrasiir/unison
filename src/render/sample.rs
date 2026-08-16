@@ -215,7 +215,9 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
         &mut cache,
         pending,
         |name| glyph_declared_anchors.get(name).cloned(),
-        |pg, effective_refs, cache| {
+        &mut crate::render::glyph_cache::FnBuilder(|pg: &crate::render::glyph_cache::PendingGlyph,
+                                                    effective_refs: &[GlyphRef],
+                                                    cache: &_| {
             composite_glyph(
                 pg.pixels.as_ref(),
                 pg.desync,
@@ -231,7 +233,7 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
                     CachedGlyph::empty()
                 }
             })
-        },
+        }),
         |_, _| {},
         &crate::cancel::CancelToken::never(),
     );

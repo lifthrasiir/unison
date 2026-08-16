@@ -293,6 +293,7 @@ pub(super) fn collect_glyph_data_with_shared(
     let inline_glyphs = &shared.inline_glyphs;
     let glyph_bodies = &shared.glyph_bodies;
 
+    let seed_timer = crate::startup::PerfStage::new("seed cache");
     let (mut cache, pending) = {
         let cc = &mut contour_cache;
         crate::render::glyph_cache::seed_cache(
@@ -312,30 +313,15 @@ pub(super) fn collect_glyph_data_with_shared(
             cancel,
         )
     };
+    drop(seed_timer);
     {
-        let cc = &mut contour_cache;
+        let _t = crate::startup::PerfStage::new("resolve composites");
+        let mut builder = super::contours::ContourBuilder::new(bitmap, contour_cache.as_deref_mut());
         crate::render::glyph_cache::resolve_pending(
             &mut cache,
             pending,
             |name| declared_anchors_map.get(name).cloned(),
-            |pg, effective_refs, cache| {
-                // The vector build resolves a `desync` glyph from its refs
-                // alone; `resolve_pending` re-applies the grid's dimensions
-                // afterwards, so the advance is unaffected.
-                let own = pg.pixels.as_ref().filter(|_| bitmap || !pg.desync);
-                CachedContours::from_components(
-                    own,
-                    effective_refs,
-                    cache,
-                    bitmap,
-                    cc.as_deref_mut(),
-                    pg.scale,
-                )
-                .unwrap_or_else(|| match own {
-                    Some(grid) => CachedContours::from_grid(grid, bitmap, cc.as_deref_mut()),
-                    None => CachedContours::empty(),
-                })
-            },
+            &mut builder,
             |_, _| {},
             cancel,
         );

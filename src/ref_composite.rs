@@ -170,17 +170,22 @@ impl CompositeGridCache {
         (self.hits, self.misses)
     }
 
-    fn get_or_insert(&mut self, key: u64, build: impl FnOnce() -> PixelGrid) -> PixelGrid {
+    /// The memoized grid for `key`, marked as reached by this run. The two
+    /// halves are separate because the flattening between them runs on other
+    /// threads, which cannot hold this `&mut`.
+    fn take_hit(&mut self, key: u64) -> Option<PixelGrid> {
         let cur = self.gen_id;
-        if let Some((seen, grid)) = self.entries.get_mut(&key) {
-            *seen = cur;
-            self.hits += 1;
-            return grid.clone();
-        }
+        let (seen, grid) = self.entries.get_mut(&key)?;
+        *seen = cur;
+        self.hits += 1;
+        Some(grid.clone())
+    }
+
+    /// Records what a miss flattened to.
+    fn record_miss(&mut self, key: u64, grid: &PixelGrid) {
+        let cur = self.gen_id;
         self.misses += 1;
-        let grid = build();
         self.entries.insert(key, (cur, grid.clone()));
-        grid
     }
 }
 
@@ -1018,7 +1023,10 @@ pub fn resolve_named_glyphs_with_parts(
     docs: &[&Document],
     name_parts: &NamePartsMap,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    let expand = crate::startup::PerfStage::new("expand");
     let expansion = crate::render::ttf_builder::expand_documents(docs, name_parts);
+    drop(expand);
+    let _resolve = crate::startup::PerfStage::new("resolve expansion");
     resolve_expansion(expansion, name_parts, &crate::cancel::CancelToken::never())
 }
 
@@ -1150,6 +1158,13 @@ pub fn resolve_expansion_cached(
             return (cache, alt_index);
         }
         let mut progress = false;
+        // What this round will flatten. Deriving stays serial — it reads and
+        // writes `alt_index` and `pending_alts`, and a composite later in the
+        // round has to see the alternatives resolved before it — but flattening
+        // is pure, and it is where the time goes. See
+        // `glyph_cache::resolve_pending`, whose rounds are waves for the same
+        // reason.
+        let mut wave: Vec<(Pending, Vec<GlyphRef>, Vec<GlyphPoint>)> = Vec::new();
         for pg in std::mem::take(&mut pending) {
             steps += 1;
             if steps.is_multiple_of(crate::render::glyph_cache::CANCEL_STRIDE)
@@ -1184,28 +1199,6 @@ pub fn resolve_expansion_cached(
                 },
             );
             let anchors: Vec<GlyphPoint> = exposed.into_iter().map(|(p, _)| p).collect();
-            let layout = resolve_composite_layout(
-                pg.pixels.as_ref(),
-                &effective_refs,
-                &cache,
-                name_parts,
-                pg.scale,
-                false,
-            );
-            let (min_r, min_c) = (layout.min_r, layout.min_c);
-            let grid = match grid_cache.as_deref_mut() {
-                Some(gc) => {
-                    let key = layout.grid_cache_key(pg.pixels.as_ref(), pg.scale);
-                    gc.get_or_insert(key, || layout.to_grid(pg.pixels.as_ref(), pg.scale))
-                }
-                None => layout.to_grid(pg.pixels.as_ref(), pg.scale),
-            };
-            // Moved, not cloned: nothing below reads the pending body again,
-            // so carrying the declaration costs one allocation per composite.
-            let inline_source = std::sync::Arc::new(InlineSource {
-                refs: effective_refs,
-                pixels: pg.pixels,
-            });
             for prefix in alternative_prefixes(&pg.name) {
                 if let Some(count) = pending_alts.get_mut(prefix) {
                     *count -= 1;
@@ -1217,21 +1210,92 @@ pub fn resolve_expansion_cached(
             // Merged right away rather than at round end: a composite later in
             // the same round has to see the alternatives resolved before it.
             alt_index.extend([(pg.name.clone(), anchors.clone())]);
+            wave.push((pg, effective_refs, anchors));
+            progress = true;
+        }
+
+        // Flattened in a block of its own: a layout borrows the cache, and the
+        // insertion below needs it back.
+        let flattened: Vec<Option<(PixelGrid, i32, i32)>> = {
+            let layouts: Vec<CompositeLayout<'_>> = wave
+                .iter()
+                .map(|(pg, refs, _)| {
+                    resolve_composite_layout(
+                        pg.pixels.as_ref(),
+                        refs,
+                        &cache,
+                        name_parts,
+                        pg.scale,
+                        false,
+                    )
+                })
+                .collect();
+            let keys: Vec<u64> = layouts
+                .iter()
+                .zip(&wave)
+                .map(|(layout, (pg, ..))| layout.grid_cache_key(pg.pixels.as_ref(), pg.scale))
+                .collect();
+            // The memo is one `&mut`, so it is read here and written below,
+            // with only the misses in between running on other threads.
+            let mut grids: Vec<Option<PixelGrid>> = match grid_cache.as_deref_mut() {
+                Some(gc) => keys.iter().map(|&key| gc.take_hit(key)).collect(),
+                None => (0..wave.len()).map(|_| None).collect(),
+            };
+            let misses: Vec<usize> = (0..wave.len()).filter(|&i| grids[i].is_none()).collect();
+            let built = crate::parallel::map_indexed(misses.len(), cancel, |at| {
+                let i = misses[at];
+                layouts[i].to_grid(wave[i].0.pixels.as_ref(), wave[i].0.scale)
+            });
+            for (at, grid) in built.into_iter().enumerate() {
+                let i = misses[at];
+                if let Some(gc) = grid_cache.as_deref_mut()
+                    && let Some(grid) = &grid
+                {
+                    gc.record_miss(keys[i], grid);
+                }
+                grids[i] = grid;
+            }
+            grids
+                .into_iter()
+                .zip(&layouts)
+                .map(|(grid, layout)| grid.map(|grid| (grid, layout.min_r, layout.min_c)))
+                .collect()
+        };
+
+        for ((pg, effective_refs, anchors), flat) in
+            std::mem::take(&mut wave).into_iter().zip(flattened)
+        {
+            // `None` only where a cancel stopped the round short of this glyph.
+            // Left out rather than inserted blank: an absent composite is a
+            // state the pipeline handles, an empty one is a glyph that draws
+            // nothing.
+            let Some((grid, min_r, min_c)) = flat else {
+                continue;
+            };
+            // Moved, not cloned: nothing below reads the pending body again,
+            // so carrying the declaration costs one allocation per composite.
+            let inline_source = std::sync::Arc::new(InlineSource {
+                refs: effective_refs,
+                pixels: pg.pixels,
+            });
             cache.insert(
-                pg.name.clone(),
+                pg.name,
                 ResolvedGlyph {
                     grid,
                     origin_row: min_r,
                     origin_col: min_c,
                     resolved_anchors: anchors,
-                    declared_anchors: pg.points.clone(),
+                    declared_anchors: pg.points,
                     scale: pg.scale,
                     declared_box: pg.declared_box,
                     inline_source: Some(inline_source),
                 },
             );
-            progress = true;
         }
+        if cancel.is_cancelled() {
+            return (cache, alt_index);
+        }
+
         if pending.is_empty() {
             break;
         }

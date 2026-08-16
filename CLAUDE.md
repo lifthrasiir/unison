@@ -55,7 +55,7 @@ The GUI takes an optional font-directory argument: `cargo run -r -- font/`.
 
 | Var | Effect |
 | --- | --- |
-| `UNIFORM_PERF` | `[perf]` per-stage timing logs for font/derived-data rebuilds (`app/background.rs`), plus the startup report on stderr after the first frame (`startup.rs`) |
+| `UNIFORM_PERF` | `[perf]` per-stage timing logs: font/derived-data rebuilds (`app/background.rs`), the build pipeline's own stages in every mode including `build` (`startup.rs`, `PerfStage`), plus the startup report on stderr after the first frame |
 | `UNIFORM_UPDATE_GOLDEN=1` | Rewrite `testdata/*.golden` instead of comparing (`cargo test golden`) |
 | `UNIFORM_WATCH_POLL_MS` | Shortest interval between two re-scans of a font directory on a network volume (default 2000; the interval itself follows what a scan costs — `app/watch.rs`) |
 | `UNIFORM_PROFILE_RUNS` | Iteration count for the `ref_composite` profiling test |
@@ -109,6 +109,9 @@ Core (feature-independent):
   declared in pixels and scaled by the builder, like everything else in `.unf`.
 - `math.rs` — the one gcd/lcm of the geometry code (binary GCD). A helper more than one module
   wants lives here rather than being re-derived per module.
+- `parallel.rs` — `map_indexed`: the one work-stealing loop the build's pure stages (composite
+  tracing, composite flattening) run on. Why the work is stolen rather than sliced, and where the
+  cancellation check goes, live there.
 - `cancel.rs` — `CancelToken`: how a background stage is told its result is no longer wanted, and
   what a cancelled stage is allowed to return. Only the editor cancels; every other caller passes
   `CancelToken::never()`.
@@ -263,6 +266,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |
 | Why the directory load reads its files on many threads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`) |
 | One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
+| Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite.rs` (`resolve_expansion_cached`) |
+| Splitting a memo off its tracer so the tracer can leave the thread | `render/glyph_cache.rs` (`CompositeBuilder`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
+| Which build stages run at once, and what they must not share to | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
+| Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
 | Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite.rs` (`CompositeGridCache`) |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
 | Why the remembered face is applied before the first build, not after the first resolve | `app/mod.rs` (`with_settings`) |
@@ -335,7 +342,10 @@ docs carry the detail; this is the ranking.
 5. **Name expansion and remap** (`pattern.rs`, `ttf_builder/gsub.rs`) — empty remap targets,
    missing remap warnings, Hangul composition rules. The context-dependent parse rules are the trap.
 6. **Performance regressions count as bugs here** — a slow `resolve` used to snowball into dozens of
-   concurrent rebuild threads. `UNIFORM_PERF`, the rebuild guard in `app/background.rs`, memoized exact
+   concurrent rebuild threads. The build's expensive stages now run on every core (`parallel.rs`),
+   which makes *shared mutable state added to one of them* the new version of that bug: a memo a
+   stage carries has to sit on the serial side of the split, the way `ContourBuilder` holds its
+   `ContourCache`. `UNIFORM_PERF`, the rebuild guard in `app/background.rs`, memoized exact
    subtraction and the `PixelGrid::rescale` caches all exist because of that. Keep the caches keyed
    correctly when changing geometry. The same rule covers the filesystem: this editor is routinely
    run against a network share, where a per-file round trip costs ~185 ms, so **nothing on the UI

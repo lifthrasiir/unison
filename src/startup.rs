@@ -143,13 +143,37 @@ pub fn first_frame_done() {
 
 /// Whether `[perf]`-style logging was asked for. The editor's own stage timings
 /// read this too (`app::perf_log_enabled`): one variable turns on all of it.
-///
-/// Editor-only, like the stderr dump below — the headless CLI reports its own
-/// timings through `probe` instead.
-#[cfg(feature = "editor")]
 pub fn perf_logging() -> bool {
     static ENABLED: OnceLock<bool> = OnceLock::new();
     *ENABLED.get_or_init(|| std::env::var_os("UNIFORM_PERF").is_some())
+}
+
+/// A `[perf]` stage timer: prints `label` and its wall time when dropped, and
+/// costs nothing (not even the clock read) when `UNIFORM_PERF` is unset.
+///
+/// The build pipeline is a chain of stages inside one function call, so a timer
+/// that ends at a scope boundary is what fits it; the editor's stages, which end
+/// at a thread's exit, keep their explicit `Instant`s.
+pub struct PerfStage {
+    label: &'static str,
+    start: Option<Instant>,
+}
+
+impl PerfStage {
+    pub fn new(label: &'static str) -> Self {
+        Self {
+            label,
+            start: perf_logging().then(Instant::now),
+        }
+    }
+}
+
+impl Drop for PerfStage {
+    fn drop(&mut self) {
+        if let Some(start) = self.start {
+            eprintln!("[perf] {}: {:?}", self.label, start.elapsed());
+        }
+    }
 }
 
 /// Clears everything but the origin, so a second measurement (the `probe`

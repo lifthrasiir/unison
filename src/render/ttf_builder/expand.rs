@@ -633,23 +633,10 @@ fn inject_on_demand_glyph_items(
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let mut defined: HashSet<String> = HashSet::new();
-    let mut glyph_bodies: HashMap<String, GlyphBody> = HashMap::new();
-
-    for e in all_items.iter() {
-        if let DocumentItem::Glyph {
-            name: GlyphName(n),
-            body,
-        } = &e.item
-        {
-            defined.insert(n.clone());
-            glyph_bodies.insert(n.clone(), body.clone());
-        }
-    }
-
-    // Every mention of an undefined name, so one that turns out not to be an
-    // on-demand glyph either is reported at each place the author wrote it —
-    // not once for the whole font. Deduped per (site, name) so a pattern that
-    // expands to the same missing name repeatedly reports once per line.
+    // Where each glyph's body is, not a copy of it: the only reader below is
+    // the color/mono pair, which is a handful of glyphs, while a copy here is
+    // every pixel grid in the font cloned for nothing.
+    let mut glyph_bodies: HashMap<String, usize> = HashMap::new();
     // A glyph with neither a pixel grid nor a ref never enters the resolution
     // cache (see `glyph_cache::seed_cache`), so it is not built and every use
     // of it — cmap entry, composite component, GSUB coverage — is dropped. It
@@ -657,11 +644,26 @@ fn inject_on_demand_glyph_items(
     // exception is a `keep` placeholder, which `seed_cache` does build as an
     // empty anchor-carrying entry (and `issues.rs` likewise exempts from its
     // "has no content" warning).
-    let contentless: HashSet<String> = glyph_bodies
-        .iter()
-        .filter(|(_, body)| body.pixels.is_none() && body.refs.is_empty() && !body.keep)
-        .map(|(name, _)| name.clone())
-        .collect();
+    let mut contentless: HashSet<String> = HashSet::new();
+
+    for (idx, e) in all_items.iter().enumerate() {
+        if let DocumentItem::Glyph {
+            name: GlyphName(n),
+            body,
+        } = &e.item
+        {
+            defined.insert(n.clone());
+            glyph_bodies.insert(n.clone(), idx);
+            if body.pixels.is_none() && body.refs.is_empty() && !body.keep {
+                contentless.insert(n.clone());
+            }
+        }
+    }
+
+    // Every mention of an undefined name, so one that turns out not to be an
+    // on-demand glyph either is reported at each place the author wrote it —
+    // not once for the whole font. Deduped per (site, name) so a pattern that
+    // expands to the same missing name repeatedly reports once per line.
 
     let mut mentions: Vec<(String, Option<ItemRef>, RefKind, bool)> = Vec::new();
     let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::new();
@@ -751,9 +753,19 @@ fn inject_on_demand_glyph_items(
                 });
             }
             Some(OnDemandGlyph::ColorMono { mono, color }) => {
-                let mono_body = glyph_bodies.get(canonical(aliases, &mono));
-                let color_body = glyph_bodies.get(canonical(aliases, &color));
-                if let (Some(mono_body), Some(color_body)) = (mono_body, color_body) {
+                // Copied out, because the synthesis below appends to the very
+                // list they live in. Two bodies per color/mono pair, of which a
+                // font has a handful.
+                let body_at = |name: &str| {
+                    let &idx = glyph_bodies.get(canonical(aliases, name))?;
+                    match &all_items[idx].item {
+                        DocumentItem::Glyph { body, .. } => Some(body.clone()),
+                        _ => None,
+                    }
+                };
+                let mono_body = body_at(&mono);
+                let color_body = body_at(&color);
+                if let (Some(mono_body), Some(color_body)) = (&mono_body, &color_body) {
                     let mono_s = mono_body.scale.max(1);
                     let color_s = color_body.scale.max(1);
                     let combined_scale =

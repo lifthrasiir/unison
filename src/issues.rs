@@ -1463,7 +1463,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             &mut cache,
             pending,
             |name| declared_anchors.get(name).map(|pts| pts.to_vec()),
-            |_, _, _| AnchorsOnly::new(),
+            &mut crate::render::glyph_cache::FnBuilder(|_: &_, _: &_, _: &_| AnchorsOnly::new()),
             |name, issue| derive_issues.push((name.to_string(), issue)),
             &crate::cancel::CancelToken::never(),
         );
