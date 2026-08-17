@@ -106,8 +106,12 @@ pub(crate) fn glyph_metrics(
         left,
         // The width the source stated, whichever flag stated it — the same
         // question `ttf_builder::collect` asks, so the overlay and the built
-        // font agree about where the advance is.
-        right: left + body.stated_advance().map_or(resolved_w, |w| w as i16 * s),
+        // font agree about where the advance is. Unstated, the box ends where
+        // the raster does (like `bottom` below), so the origin is a bearing
+        // rather than a shift of the whole box.
+        right: body
+            .stated_advance()
+            .map_or(resolved_w, |w| left + w as i16 * s),
         top,
         // A stated height is the box's height, full stop — the source said it.
         // Unstated, the box is the em box, clamped both ways: the em box is the

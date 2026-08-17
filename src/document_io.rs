@@ -200,7 +200,10 @@
 //! nothing.
 //!
 //! - `origin C R` places its top-left corner in the grid, which is what the
-//!   exported side bearings are the negation of.
+//!   exported side bearings are the negation of. It moves that corner and
+//!   nothing else: an unstated width or height still ends at the grid's own far
+//!   edge, so `glyph foo 6 16 origin 1 0` claims — and advances by — five
+//!   cells, its first column given away as a left bearing.
 //! - `advance W` states its **width only**, leaving the height to the grid.
 //!   This is the common case by far — a combining mark writes `advance 0`, and
 //!   nothing about its height is unusual — and it is why the width did not

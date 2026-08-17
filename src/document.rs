@@ -915,16 +915,33 @@ impl GlyphBody {
     /// A glyph with `advance` and no grid still answers `None`: the width alone
     /// is not a box, and the height it would need is exactly what a gridless
     /// composite has to be measured for.
+    ///
+    /// What the grid states is the box's **far edge**, not its size: an
+    /// [`origin`](Self::origin) has already moved the near one, and the two
+    /// meet at the raster's own corner. So `glyph foo 6 16 origin 1 0` claims
+    /// five cells and gives its first column away as a bearing, and a negative
+    /// origin — a bearing the other way — makes the box wider than the grid.
+    /// Sizing the box by the grid instead would ignore the origin outright and
+    /// so be wrong for nearly every glyph that states one.
     pub fn declared_extent(&self) -> Option<(u16, u16)> {
         if let Some(extent) = self.extent {
             return Some(extent);
         }
         let grid = self.pixels.as_ref();
         let s = self.scale.max(1) as u16;
+        let (origin_c, origin_r) = self.declared_origin();
         // Floor: a grid that is not a whole number of declared cells has no
-        // last cell to speak of.
-        let height = grid.map(|g| g.height / s);
-        match (self.advance, grid.map(|g| g.width / s), height) {
+        // last cell to speak of. An origin past the far edge leaves nothing to
+        // claim, rather than wrapping.
+        let from_origin = |extent: u16, origin: i16| {
+            (extent as i32 - origin as i32).clamp(0, u16::MAX as i32) as u16
+        };
+        let height = grid.map(|g| from_origin(g.height / s, origin_r));
+        match (
+            self.advance,
+            grid.map(|g| from_origin(g.width / s, origin_c)),
+            height,
+        ) {
             (Some(advance), _, Some(h)) => Some((advance, h)),
             (None, Some(w), Some(h)) => Some((w, h)),
             _ => None,

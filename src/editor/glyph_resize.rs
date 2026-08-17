@@ -264,22 +264,25 @@ pub(crate) fn glyph_block_len(lines: &[DocLine], body: &GlyphBody, header_line: 
 
 /// The declared box a glyph starts a drag from, in logical pixels.
 ///
-/// The width is what the header states, or what the grid gives when it states
-/// nothing; the height is the em box unless `extent` says otherwise. This is
-/// the rectangle [`crate::editor::document_view::glyph_metrics`] draws, and it
-/// has to be, since that is what the pointer is grabbing.
+/// The width is what the header states, or what is left of the grid right of
+/// the origin when it states nothing (the unstated box ends where the raster
+/// does — [`GlyphBody::declared_extent`]); the height is the em box unless
+/// `extent` says otherwise. This is the rectangle
+/// [`crate::editor::document_view::glyph_metrics`] draws, and it has to be,
+/// since that is what the pointer is grabbing.
 fn declared_box_of(body: &GlyphBody, meta: crate::meta::FontMetrics) -> ((i16, i16), u16, u16) {
     let s = body.scale.max(1) as u16;
     let grid = body.pixels.as_ref();
+    let origin = body.declared_origin();
     let width = body
         .stated_advance()
-        .or_else(|| grid.map(|g| g.width / s))
+        .or_else(|| grid.map(|g| ((g.width / s) as i32 - origin.0 as i32).max(0) as u16))
         .unwrap_or(0);
     let height = match body.extent {
         Some((_, h)) => h,
         None => meta.ascent() + meta.descent(),
     };
-    (body.declared_origin(), width, height)
+    (origin, width, height)
 }
 
 /// What a header should state about its box, as the three flags that state it.
@@ -299,6 +302,10 @@ struct BoxFlags {
 /// changed; a width the header already stated is already pinned, and a height
 /// is unaffected either way (the box's own is the em box, and a stated one
 /// stays stated).
+///
+/// What that implicit width *was* is the grid's right edge measured from the
+/// old origin, not the whole grid: pinning the grid's width would widen the box
+/// of every glyph that already carried an origin.
 fn canvas_box(body: &GlyphBody, deltas: ResizeDeltas) -> BoxFlags {
     let (oc, or) = body.declared_origin();
     let origin = (oc + deltas.left, or + deltas.top);
@@ -311,9 +318,13 @@ fn canvas_box(body: &GlyphBody, deltas: ResizeDeltas) -> BoxFlags {
     }
     let s = body.scale.max(1) as u16;
     let width_moved = deltas.left != 0 || deltas.right != 0;
-    let advance = body
-        .advance
-        .or_else(|| width_moved.then(|| body.pixels.as_ref().map_or(0, |g| g.width / s)));
+    let advance = body.advance.or_else(|| {
+        width_moved.then(|| {
+            body.pixels
+                .as_ref()
+                .map_or(0, |g| ((g.width / s) as i32 - oc as i32).max(0) as u16)
+        })
+    });
     BoxFlags {
         origin,
         advance,

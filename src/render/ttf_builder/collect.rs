@@ -78,7 +78,13 @@ fn scale_glyph_contours(
 }
 
 /// Advance width, left offset, and top offset in font units, from the declared
-/// box when the glyph states one, else the resolved raster width.
+/// box when the glyph states one, else the resolved raster's *right edge*.
+///
+/// That fallback is the box's far edge and not its size, the same answer
+/// [`GlyphBody::declared_extent`](crate::document::GlyphBody::declared_extent)
+/// gives a grid: the origin has already moved the near edge, and `left_offset`
+/// is exactly that move (negated, in font units), so adding it is what keeps a
+/// column given away as a bearing out of the advance.
 fn resolve_glyph_metrics(
     glyph_meta: &GlyphMetaMap,
     name: &str,
@@ -87,16 +93,17 @@ fn resolve_glyph_metrics(
     base_scale: f32,
 ) -> (u16, i16, i16) {
     let meta = glyph_meta.get(name);
-    let advance_width = match meta.and_then(|m| m.advance) {
-        Some(adv) => (adv as f32 * base_scale).round() as u16,
-        None => (resolved_width as f32 * scale).round() as u16,
-    };
     let left_offset = meta
         .and_then(|m| m.left)
         .map_or(0, |left| (left as f32 * base_scale).round() as i16);
     let top_offset = meta
         .and_then(|m| m.top)
         .map_or(0, |top| (top as f32 * base_scale).round() as i16);
+    let advance_width = match meta.and_then(|m| m.advance) {
+        Some(adv) => (adv as f32 * base_scale).round() as u16,
+        None => ((resolved_width as f32 * scale).round() as i32 + left_offset as i32)
+            .clamp(0, u16::MAX as i32) as u16,
+    };
     (advance_width, left_offset, top_offset)
 }
 

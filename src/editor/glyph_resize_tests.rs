@@ -130,6 +130,26 @@ fn growing_left_and_down_moves_the_ink_and_the_header() {
     );
 }
 
+/// The width a canvas resize pins is the box the glyph *had*, and a glyph that
+/// already carried an origin claimed only what lies right of it: a two-wide
+/// grid with `origin 1 0` advances by one, and growing the canvas must not turn
+/// that into the grid's two.
+#[test]
+fn growing_the_canvas_pins_the_box_the_origin_left() {
+    let mut f = Fixture::new("glyph dot 2 2 origin 1 0\n@@..\n..@@\n");
+    f.resize(
+        "dot",
+        ResizeDeltas {
+            left: 2,
+            ..Default::default()
+        },
+    );
+    assert_eq!(
+        f.rendered(),
+        vec!["glyph dot 4 2 origin 3 0 advance 1", "....@@..", "......@@"],
+    );
+}
+
 #[test]
 fn shrinking_crops_what_falls_outside() {
     let mut f = Fixture::new(DOT);

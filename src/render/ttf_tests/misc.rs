@@ -317,6 +317,40 @@ fn pixel_valued_metrics_are_scaled_to_font_units() {
     assert_eq!(post.underline_thickness().to_i16(), 64);
 }
 
+/// An unstated advance is the *box's* width, and an origin has already moved
+/// the box's left edge: the glyph advances from there to the grid's right edge,
+/// not by the whole grid. A six-wide grid with `origin 1 0` gives its first
+/// column away as a left bearing and advances by five.
+#[test]
+fn an_unstated_advance_answers_from_the_origin() {
+    let rows = "@@@@@@@@@@@@\n".repeat(16);
+    let src = format!(
+        "meta height 16\nmeta ascent 14\nmeta descent 2\n\
+         glyph plain 6 16\n{rows}map A = plain\n\
+         glyph shifted 6 16 origin 1 0\n{rows}map B = shifted\n\
+         glyph bearing 6 16 origin -2 0\n{rows}map C = bearing\n\
+         glyph stated 6 16 origin 1 0 advance 6\n{rows}map D = stated\n"
+    );
+    let doc = document_io::parse_document_from_str(&src, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    let advance = |name: &str| {
+        glyphs
+            .iter()
+            .find(|g| g.name == name)
+            .unwrap_or_else(|| panic!("glyph '{name}' is missing from the build"))
+            .advance_width
+    };
+    // UNITS_PER_EM is 1024 over a 16px em, so one pixel is 64 units.
+    assert_eq!(advance("plain"), 6 * 64, "no origin: the grid is the box");
+    assert_eq!(advance("shifted"), 5 * 64, "the first column is a bearing");
+    assert_eq!(
+        advance("bearing"),
+        8 * 64,
+        "a negative origin widens the box"
+    );
+    assert_eq!(advance("stated"), 6 * 64, "a stated advance is the advance");
+}
+
 #[test]
 fn weight_width_and_panose_are_declared() {
     let ttf = build_from(

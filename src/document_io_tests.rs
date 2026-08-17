@@ -997,9 +997,11 @@ fn one_header_may_not_state_a_box_slot_twice() {
     let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
         panic!("expected a glyph item");
     };
+    // The height is the unstated half, so it reaches from the origin down to
+    // the grid's own last row — see `an_unstated_box_dimension_ends_where_the_grid_does`.
     assert_eq!(
         (body.declared_origin(), body.declared_extent()),
-        ((1, -1), Some((0, 2)))
+        ((1, -1), Some((0, 3)))
     );
 }
 
@@ -1035,6 +1037,40 @@ fn a_zero_extent_is_declared_and_an_absent_one_is_not() {
             panic!("expected a glyph item, got {input:?}");
         };
         assert_eq!(body.declared_extent(), expected, "{input:?}");
+    }
+}
+
+/// An unstated box dimension is the grid's *far edge*, not the grid's size: a
+/// glyph that declares an origin has moved the box's corner, and the box still
+/// ends where the raster does. `glyph foo 6 16 origin 1 0` advances by 5, not
+/// by 6 — the six-wide grid with its first column given away as a bearing.
+#[test]
+fn an_unstated_box_dimension_ends_where_the_grid_does() {
+    let row = "..@@..@@..@@\n";
+    let cases = [
+        // (header, expected extent)
+        ("glyph foo 6 2", Some((6, 2))),
+        ("glyph foo 6 2 origin 1 0", Some((5, 2))),
+        // A negative origin is a bearing: the box starts left of the grid and
+        // still reaches its right edge, so it is *wider* than the grid.
+        ("glyph foo 6 2 origin -2 0", Some((8, 2))),
+        // The height answers the same way, from the same corner.
+        ("glyph foo 6 2 origin 0 1", Some((6, 1))),
+        ("glyph foo 6 2 origin 0 -3", Some((6, 5))),
+        ("glyph foo 6 2 origin 1 1", Some((5, 1))),
+        // An origin past the grid leaves nothing to claim rather than wrapping.
+        ("glyph foo 6 2 origin 9 9", Some((0, 0))),
+        // What the source states, it states: only the unstated half moves.
+        ("glyph foo 6 2 origin 1 0 advance 6", Some((6, 2))),
+        ("glyph foo 6 2 origin 1 1 extent 6 2", Some((6, 2))),
+    ];
+    for (header, expected) in cases {
+        let input = format!("{header}\n{row}{row}");
+        let doc = parse_document_from_str(&input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+            panic!("expected a glyph item, got {input:?}");
+        };
+        assert_eq!(body.declared_extent(), expected, "{header:?}");
     }
 }
 
