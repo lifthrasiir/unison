@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::compose::{Direction, IdcOp, direction_rank};
+use crate::compose::{Direction, IdcOp, VariantSpec, direction_rank};
 use crate::document::{DocLine, Document, DocumentItem, NamePartsMap};
 use crate::document_io::{TokenSpan, tokenize_with_spans};
 use crate::editor::caret::{Caret, char_to_byte};
@@ -73,7 +73,12 @@ pub(crate) fn trigger(
         None => return,
     };
 
-    let all_candidates = collect_candidates(&ctx, source, &at_context(lines, state.cursor.line));
+    let all_candidates = collect_candidates(
+        &ctx,
+        source,
+        &at_context(lines, state.cursor.line),
+        idc_cross_extent(line_text, lines, state.cursor.line),
+    );
     if all_candidates.is_empty() {
         return;
     }
@@ -392,6 +397,76 @@ fn is_idc_part(span: &TokenSpan) -> bool {
     !span.value.is_empty() && span.value.parse::<i16>().is_err()
 }
 
+/// The size test a name has to pass to be offered for an IDC slot: its
+/// declared box must be exactly this many cells *across* the split axis.
+///
+/// This is the one part of the composition rule that is not a matter of taste.
+/// A ⿰ line splits the parent's width and hands each part the parent's full
+/// height, so a part that is not that tall does not fill the slot it is put in
+/// and [`crate::compose`] reports it as an *error* — unlike a name drawn for
+/// the other side of the glyph, which is a warning and so is merely ordered
+/// last (see [`filter_candidates`]). A listing must not offer what the build
+/// would refuse, so these names are dropped outright.
+#[derive(Clone, Copy)]
+struct CrossExtent {
+    /// The parent's extent across the axis, in declared cells.
+    cells: u16,
+    /// Whether the split is horizontal, i.e. which side of a box to read.
+    horizontal: bool,
+}
+
+impl CrossExtent {
+    /// Whether `name`, whose header declares `declared`, may fill the slot.
+    ///
+    /// A name whose box nothing states — a family name, a pattern, a glyph
+    /// that resolves to whatever it places — passes: the listing may only drop
+    /// what it can show is wrong. A name that states a size in its own `:WxH`
+    /// suffix is measured by that when it has no box of its own, since that
+    /// suffix is exactly the claim the author is choosing between.
+    fn admits(self, name: &str, declared: Option<(u16, u16)>) -> bool {
+        let Some((w, h)) = declared.or_else(|| VariantSpec::parse(name).size) else {
+            return true;
+        };
+        self.cells == if self.horizontal { h } else { w }
+    }
+}
+
+/// What the slot the caret is writing demands across the axis, or `None` when
+/// the line is not an IDC line or the enclosing glyph declares no box (which
+/// `compose` reports on its own — there is nothing to filter by).
+fn idc_cross_extent(line: &str, lines: &[DocLine], line_idx: usize) -> Option<CrossExtent> {
+    let op = IdcOp::from_token(&tokenize_with_spans(line.trim_start()).ok()?.first()?.value)?;
+    let (w, h) = enclosing_glyph_box(lines, line_idx)?;
+    Some(CrossExtent {
+        cells: if op.horizontal() { h } else { w },
+        horizontal: op.horizontal(),
+    })
+}
+
+/// The box the `glyph` header above `line` declares, in declared cells.
+///
+/// Read off the header's own text rather than the parsed document because the
+/// popup opens on a buffer that may be mid-edit; the header is the nearest one
+/// above, exactly as [`at_context`] finds the `@` base. An IDC glyph is
+/// required to state its `W H` there, so nothing else has to be consulted.
+fn enclosing_glyph_box(lines: &[DocLine], line_idx: usize) -> Option<(u16, u16)> {
+    let header = lines[..line_idx.min(lines.len())]
+        .iter()
+        .rev()
+        .filter_map(|l| l.as_text())
+        .find_map(|t| {
+            let tokens = crate::document_io::tokenize_tokens(t.trim()).ok()?;
+            (tokens.first()? == "glyph").then_some(tokens)
+        })?;
+    if header.iter().any(|t| t == "=") {
+        return None; // an alias declares nothing of its own
+    }
+    let flags = crate::document_io::parse_glyph_flag_parts(header.get(2..)?);
+    flags
+        .extent
+        .or_else(|| flags.advance.or(flags.width).zip(flags.height))
+}
+
 fn detect_context(line: &str, col: usize) -> Option<CompletionContext> {
     let chars: Vec<char> = line.chars().collect();
     if col > chars.len() {
@@ -629,10 +704,16 @@ fn find_rest_token_at(rest: &[crate::document_io::TokenSpan], adj_col: usize) ->
     None
 }
 
+/// `cross` narrows the glyph listing to the names that fit the IDC slot the
+/// caret is in; see [`CrossExtent`]. It is applied here rather than in
+/// [`filter_candidates`] because it does not depend on what is typed, so the
+/// popup's stored list is already the admissible one and every keystroke after
+/// it filters by prefix alone.
 fn collect_candidates(
     ctx: &CompletionContext,
     source: &CompletionSource,
     at_base: &Option<String>,
+    cross: Option<CrossExtent>,
 ) -> Vec<CompletionCandidate> {
     let mut candidates = Vec::new();
 
@@ -662,22 +743,25 @@ fn collect_candidates(
             }
         }
         CompletionKind::Glyph => {
-            for name in source.named_glyphs.keys() {
-                candidates.push(CompletionCandidate {
-                    label: name.clone(),
-                    kind: CompletionKind::Glyph,
-                });
+            let admits =
+                |name: &str, declared| cross.is_none_or(|cross| cross.admits(name, declared));
+            for (name, glyph) in source.named_glyphs {
+                if admits(name, glyph.declared_box) {
+                    candidates.push(CompletionCandidate {
+                        label: name.clone(),
+                        kind: CompletionKind::Glyph,
+                    });
+                }
             }
             // Also add raw glyph names from current document that may not be
             // resolved yet (e.g. pattern names).
             for item in &source.doc.items {
-                let name = match item {
-                    DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. } => {
-                        name.display()
-                    }
+                let (name, declared) = match item {
+                    DocumentItem::Glyph { name, body } => (name.display(), body.declared_extent()),
+                    DocumentItem::GlyphAlias { name, .. } => (name.display(), None),
                     _ => continue,
                 };
-                if !source.named_glyphs.contains_key(&name) {
+                if !source.named_glyphs.contains_key(&name) && admits(&name, declared) {
                     candidates.push(CompletionCandidate {
                         label: name,
                         kind: CompletionKind::Glyph,
@@ -1006,7 +1090,7 @@ mod tests {
         let ctx = detect_context("ref @-b", 7).unwrap();
         assert_eq!(ctx.kind, CompletionKind::Glyph);
         assert_eq!(ctx.prefix, "@-b");
-        let all = collect_candidates(&ctx, &source, &at_base);
+        let all = collect_candidates(&ctx, &source, &at_base, None);
         let labels: Vec<&str> = all.iter().map(|c| c.label.as_str()).collect();
         assert_eq!(labels, vec!["@", "@-bar", "@-baz"]);
         let shown: Vec<String> = filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
@@ -1017,7 +1101,7 @@ mod tests {
 
         // Without the `@` the same context offers the full names, unchanged.
         let ctx = detect_context("ref fo", 6).unwrap();
-        let all = collect_candidates(&ctx, &source, &at_base);
+        let all = collect_candidates(&ctx, &source, &at_base, None);
         let labels: Vec<&str> = all.iter().map(|c| c.label.as_str()).collect();
         assert_eq!(labels, vec!["foo", "foo-bar", "foo-baz", "other"]);
     }
@@ -1117,6 +1201,59 @@ mod tests {
                 .map(|c| c.label)
                 .collect::<Vec<_>>(),
             vec!["p:4x16", "p:4x16-l", "p:5x16-c", "p:5x16-r"],
+        );
+    }
+
+    /// A component fills its slot across the whole width (or height) of the
+    /// parent, so a name whose box is the wrong size *across* the split axis
+    /// cannot go there at all — `compose` calls it an error, not a warning —
+    /// and the listing drops it rather than offering it last the way a name
+    /// drawn for the other side is offered.
+    #[test]
+    fn an_idc_slot_lists_only_the_names_that_fit_across_the_axis() {
+        let src = "\
+glyph p:5x16 5 16
+glyph p:5x10 5 10
+glyph p:16x5 16 5
+glyph parent 15 16
+⿰ p:5 q:10x16
+";
+        let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
+        let lines = crate::document_io::parse_doclines(src);
+        let named_glyphs = HashMap::new();
+        let name_parts = NamePartsMap::new();
+        let source = CompletionSource {
+            named_glyphs: &named_glyphs,
+            name_parts: &name_parts,
+            doc: &doc,
+        };
+
+        // Every `W H` header owns a grid line of its own, so the IDC line is
+        // not at its source line number.
+        let idc = lines
+            .iter()
+            .position(|l| l.as_text().is_some_and(|t| t.starts_with('⿰')))
+            .unwrap();
+
+        let shown = |line_text: &str, col: usize, line: usize| -> Vec<String> {
+            let ctx = detect_context(line_text, col).unwrap();
+            assert_eq!(ctx.kind, CompletionKind::Glyph);
+            let cross = idc_cross_extent(line_text, &lines, line);
+            let all = collect_candidates(&ctx, &source, &None, cross);
+            filter_candidates(&all, &ctx.kind, &ctx.prefix, ctx.slot)
+                .into_iter()
+                .map(|c| c.label)
+                .collect()
+        };
+
+        // The parent is 15x16 and the split is horizontal, so only the 16-tall
+        // variant is a candidate at all.
+        assert_eq!(shown("⿰ p:5 q:10x16", 5, idc), vec!["p:5x16"]);
+
+        // Off an IDC line there is no slot to fit, so the family lists whole.
+        assert_eq!(
+            shown("ref p:5", 7, idc),
+            vec!["p:16x5", "p:5x10", "p:5x16"],
         );
     }
 

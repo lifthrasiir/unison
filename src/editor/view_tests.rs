@@ -885,6 +885,47 @@ fn autocomplete_lists_and_orders_a_variant_family() {
     assert_eq!(h.text(8), "⿰ part:5x16-l");
 }
 
+/// A component fills its slot across the whole of the parent, so a variant of
+/// the wrong size *across* the split axis is not a choice at all — `compose`
+/// calls it an error — and the listing leaves it out entirely, rather than
+/// offering it last the way a variant drawn for the other side is offered.
+#[test]
+fn autocomplete_drops_variants_that_do_not_fit_the_slot() {
+    let labels = |h: &EditorHarness| -> Vec<String> {
+        h.state
+            .autocomplete
+            .as_ref()
+            .unwrap()
+            .candidates
+            .iter()
+            .map(|c| c.label.clone())
+            .collect()
+    };
+
+    // ⿰ splits the width, so every part is the parent's full 16 tall.
+    let mut h = EditorHarness::new(
+        "glyph part:4x16 4 16\n\
+         glyph part:4x10 4 10\n\
+         glyph whole 15 16\n\
+         ⿰ part:4x",
+    );
+    h.click_text(6, 9);
+    ctrl_j(&mut h);
+    assert_eq!(labels(&h), vec!["part:4x16"]);
+
+    // ⿱ splits the height, so the other side of the box is the one that has
+    // to match.
+    let mut h = EditorHarness::new(
+        "glyph part:15x4 15 4\n\
+         glyph part:10x4 10 4\n\
+         glyph whole 15 16\n\
+         ⿱ part:1",
+    );
+    h.click_text(6, 8);
+    ctrl_j(&mut h);
+    assert_eq!(labels(&h), vec!["part:15x4"]);
+}
+
 /// Ctrl+J/Ctrl+K walk the open popup like Down/Up. The trigger itself is the
 /// first step down from a virtual item before the list, so the popup opens on
 /// item 0 and Ctrl+K there stays put rather than closing it — there is nothing
