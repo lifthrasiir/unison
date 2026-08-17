@@ -29,9 +29,9 @@ thing twice is an error rather than an override. Glyph names must be unique acro
 project; if two files define the same name, the first definition wins, the second is ignored, and
 the report says so along with where the first one is.
 
-Both `build` and `test` print every parse error, then a validation report of errors and warnings
-with `file:line:` locations. Warnings do not stop the build, so a font that builds is not
-necessarily a font without complaints — read the report.
+Both `build` and `test` print every parse error, then a validation report with `file:line:`
+locations. Only errors set the exit status, so a font that builds is not necessarily a font without
+complaints — see [Diagnostics and Exit Status](#diagnostics-and-exit-status).
 
 A glyph only reaches the output font if something asks for it: a `map`, a `ref` from a glyph that
 is itself reachable, a `remap` operand, or the `keep` flag. Unreachable glyphs are dropped and
@@ -130,37 +130,81 @@ meta descent 2
 ```
 
 With this, the top edge of row 0 is 14 pixels above the baseline, the top edge of row 14 is the
-baseline itself, and row 15 hangs below it. Rows grow downward, columns grow rightward, and the
-glyph origin is the top-left corner of cell (0, 0). The builder scales the whole thing to 1024 units per em on the
-way out; nothing in the sources is written in font units.
+baseline itself, and row 15 hangs below it. Rows grow downward, columns grow rightward, and the pen
+starts at the top-left corner of cell (0, 0) unless the glyph says otherwise. The builder scales the
+whole thing to 1024 units per em on the way out; nothing in the sources is written in font units.
 
-The advance width of a glyph defaults to the width of what it actually resolves to — the declared
-`W` for a glyph with a grid, or the extent of the composite for a glyph made of `ref`s. Three flags
-override the defaults:
+What a glyph claims of that space is its **declared box**, and three flags state it. Each states a
+different part of it, and what they leave unsaid is taken from the grid:
 
-| Flag | Effect |
+| Flag | States |
 | --- | --- |
-| `advance N` | Advance width in pixels, independent of what is drawn. `advance 0` is what makes a combining mark zero-width. |
-| `left N` | Shifts the outline N pixels to the right (negative moves left). The advance does not change. |
-| `top N` | Shifts the outline N pixels down (negative moves up). The advance does not change. |
+| `origin C R` | Where the box's top-left corner sits, in the glyph's own grid cells, written in the same order as a `ref` offset. Default (0, 0), the grid's own corner. |
+| `advance W` | The box's **width only**, leaving the height to the grid. `advance 0` is what makes a combining mark zero-width. |
+| `extent W H` | **Both** numbers, for a glyph whose height is not the grid's either. Writing it beside `advance` is an error, the two saying the same thing. |
 
-`left` and `top` shift the drawing relative to the origin, which is how a mark whose grid is drawn
-in the top-left corner ends up positioned under the baseline:
+`advance` is not a lesser spelling of `extent`. It is what a source writes when only the width is
+unusual, which is nearly always — a combining mark states `advance 0` and there is nothing unusual
+about its height — and that is why the width is a flag of its own rather than half of a two-valued
+one.
+
+What the grid states is the box's **far edge**, not its size. An `origin` has already moved the near
+one, and the two meet at the raster's own corner, so `glyph foo 6 16 origin 1 0` claims — and
+advances by — five cells, giving its first column away as a left side bearing. A negative origin is a
+bearing the other way and makes the box *wider* than the grid. Sizing the box by the grid instead
+would ignore the origin outright, which would be wrong for nearly every glyph that states one.
+
+The origin is written as a position in the grid, but it exports as the negation of one: the side
+bearings in the built font are what the box's corner leaves outside itself. That is how a mark whose
+grid is drawn in the top-left corner ends up positioned under the baseline:
 
 ```
-glyph dia-below mark advance 0 left -3 top 14
+glyph dia-below mark advance 0 origin 3 -14
 ref dia-wide
 anchor -below 2..3 0
 anchor +below 2..3 2
 ```
 
-A component's own `left`/`top` are compensated for when it is used as a `ref`, so the shift applies
-once, where it was declared, and does not accumulate through composites.
+A glyph that states no advance at all does not fall back to its grid but to what it actually
+*resolves* to — a glyph whose refs reach past its own grid has always advanced by what it draws. A
+glyph with `advance` and no grid has no box: the width alone is not one, and the height it would need
+is exactly what a gridless composite has to be measured for.
 
-Note that `left`/`top` are not the way to move a subglyph around inside a composite; a `ref` offset
-does that. In particular a negative `ref` offset is a left side bearing and is meant to survive: the
+Note that the origin is not the way to move a subglyph around inside a composite; a `ref` offset does
+that. In particular a negative `ref` offset is a left side bearing and is meant to survive: the
 origin stays at (0, 0), the outline keeps its negative coordinates, and the advance still measures
 only what lies to the right of the origin.
+
+### Declared Box and Canvas
+
+The grid is a **canvas** and the box is a **claim**, and they are two different rectangles. The
+canvas is how many rows and columns of cells the source writes; the box is what the glyph tells the
+rest of the world it occupies. Ink is free to leave the box, and a renderer owes that nothing:
+
+```
+glyph han-4ebb:5x16 5 16 // 亻
+```
+
+drawn on a 5×16 canvas whose outermost columns are hardblanks — cells the part keeps clear of a
+neighbour rather than draws in — still claims all five columns, because the space it wants is part of
+what it occupies. See [Hardblanks](#hardblanks).
+
+Downstream, the box is the only rectangle anything reads. It is what becomes a side bearing and an
+advance in the built font, what a `:WxH` variant name asserts (see
+[Variant names](#variant-names-wxh-l)), and what a clearance is measured over (see
+[Clearance](#clearance)). The canvas is between the source and the person drawing it.
+
+The two rectangles also divide the coordinates. Pixel rows and `anchor` lines are written in **grid
+coordinates**, on the canvas, because that is where the drawing is. A `ref` offset is in **box
+coordinates**: it names where the child's *box* corner goes, so a component that declares an origin
+lands the same way whoever places it and however deeply it is nested. Anchor derivation runs in grid
+coordinates and is converted once, on the way out; a glyph that declares no origin cannot tell the
+two apart, which is why most sources never have to think about it.
+
+The distinction is what lets a component's origin be compensated for exactly once, where it was
+declared, instead of accumulating through composites. The *parent's* own origin takes no part in it:
+everything inside a glyph — its pixels, its anchors, the refs it places — lives in that glyph's grid,
+and its origin says only where the grid sits relative to the pen, which is an output-stage bearing.
 
 ### Anchor Adjoinment
 
@@ -375,6 +419,25 @@ all.
 Pixel rows are the exception: `//` is a legal pair of pixel characters, and a row is never read as
 having a comment.
 
+### Headings
+
+`# TEXT`, `## TEXT` and `### TEXT` are section headings. The run of `#` must be a token of its own,
+so `###foo` is not a heading, and neither is anything with a `#` further along the line. What follows
+is prose, taken to the end of the line the way a comment is — a backtick in a title is a backtick.
+
+```
+# Combining marks
+
+## Above
+```
+
+A heading is a **second kind of comment**: no build stage reads one, and the font is exactly what it
+would be with the line deleted. It is not spelled `//` because the *editor* does read it. Heading
+lines fold the file into sections, draw larger, and mark the minimap.
+
+A fourth level (`####`) is an error rather than more of the same, because three levels plus the glyph
+block are the four the editor nests.
+
 ### Name Pattern
 
 A name pattern is a compact way to write a list of glyph names. It appears in glyph headers, `ref`
@@ -392,10 +455,10 @@ targets, `map` and `remap` operands, `assume unused`, and the character name of 
 one alternative among the others and the forms mix freely:
 `(foo|$bar|baz*5|$#00..ff*3**2)`.
 
-When a pattern contains several groups, they cycle independently: the pattern's length is the least
-common multiple of the group sizes, and group *k* contributes its `i % len(k)`-th alternative to the
-*i*-th name. This is what makes a glyph block expand in lock-step with its refs, and a remap's source
-in lock-step with its target:
+When a pattern contains several groups, they cycle independently: the pattern's length is the size of
+the **largest** group, and group *k* contributes its `i % len(k)`-th alternative to the *i*-th name.
+This is what makes a glyph block expand in lock-step with its refs, and a remap's source in lock-step
+with its target:
 
 ```
 remap regional-indicator : regional-indicator-($a-z) -> regional-indicator-($a-z)-left : regional-indicator-($a-z)
@@ -412,6 +475,13 @@ contexts:
   repeat are recognized; a top-level `a|b` with no group and no repeat stays one literal name.
 
 Writing the parentheses removes the question, and is what the sources do.
+
+A group whose size does not divide the largest one is a **ragged** pattern, and it is a warning
+rather than a silent reinterpretation: `(a|b|c)-(x|y)` produces three names whose second half runs
+`x`, `y`, `x`, which is almost never what was meant. The length is deliberately not the least common
+multiple of the sizes — that rule made this mistake expand quietly to six names instead of reporting
+it. A full cross product is written with the `**N` group multiplier (`(a|b|c**2)-(x|y)`), which is
+what it was always for.
 
 Expansion is capped at 65536 names.
 
@@ -526,6 +596,45 @@ the cell.
 
 A shape and its complement divide one cell exactly between them, which is what lets two strokes meet
 inside a single cell without a seam or an overlap in the outline.
+
+#### Hardblanks
+
+`$$` is a cell that draws nothing — the same nothing as `..` in both builds — kept apart from it so
+that a source can mark a blank as *deliberate*:
+
+```
+glyph han-4ebb:5x16 5 16 // 亻
+..........
+..........
+$$.....vV/
+$$..../Vv'
+$$../10/$$
+$$/1@@..$$
+/10/@@..$$
+$$..@@..$$
+```
+
+The outer columns here are space the part wants its neighbour to leave, written down instead of left
+to a convention. Three questions get asked of a cell, and they are three different questions: does
+the bitmap build ink it, does the outline build draw anything there, and did the source put anything
+there **at all**. A hardblank answers no, no, yes, and that third answer is the whole point — it is a
+`CLEAR` / `HARDBLANK` / `INK` ladder rather than a lit flag.
+
+A hardblank is a **claim**, not geometry, so claims and ink combine on separate levels:
+
+* ink covers a claim, whichever way round the two meet;
+* two claims that meet are one claim, not two;
+* a negation subtracts like from like, so **only a claim cancels a claim**. A `negated` ref made of
+  nothing but hardblanks is how a composite releases the space its parts claimed.
+
+None of that is expressible as geometry, since a hardblank's region is the empty one, so it is
+decided before the geometry layer ever sees the pair — which is also why a `scale` change and a union
+carry claims across by hand rather than losing them in the sweep.
+
+What reads the claim is [Clearance](#clearance): a hardblank counts as occupied when a part's
+frontier is measured, so a part that keeps a column clear is measured as being that much wider. It is
+also what keeps the [declared box](#declared-box-and-canvas) honest — the box is what the glyph
+occupies, and space it wants is part of what it occupies.
 
 A row has to be exactly `W × 2` characters of valid codes. Once the first row has been recognized,
 a later row of the wrong length, or one containing an unknown pair, is an error at that line. A
@@ -914,14 +1023,16 @@ Flags may appear in any order, before or after the dimensions:
 * `desync` — the pixel grid is bitmap ink and nothing else: the outline build ignores its geometry
   and draws the glyph from its `ref` lines alone, while the bitmap build reads the grid as always.
   See [Grid-Only-For-Bitmap Glyphs](#grid-only-for-bitmap-glyphs).
-* `advance N`, `left N`, `top N` — metrics overrides; see [Glyph Metrics](#glyph-metrics).
+* `origin C R`, `advance W`, `extent W H` — the declared box; see [Glyph Metrics](#glyph-metrics) and
+  [Declared Box and Canvas](#declared-box-and-canvas). `advance` and `extent` on one glyph is an
+  error.
 * `scale N` — the glyph's grid is N times finer in both directions. `W` and `H` stay in whole
   pixels, and the rows that follow are `W × N` cells wide and `H × N` tall. Use it when a shape
   needs detail below the pixel: `glyph flag-il-david 5 6 scale 2`. Refs into and out of a scaled
   glyph are rescaled automatically.
 
-A glyph needs a pixel grid or at least one `ref` to exist at all. `advance`, `left`, `top` and
-`anchor` do not make one buildable, and a glyph with none of the two never enters the font:
+A glyph needs a pixel grid, at least one `ref`, or an [IDC line](#idc-composition) to exist at all.
+`origin`, `advance`, `extent` and `anchor` do not make one buildable, and a glyph with none of the two never enters the font:
 referring to it from a `map`, `ref` or `remap` is an error. For a deliberately blank glyph, use
 `ref sp`, or declare dimensions and omit the rows.
 
@@ -1009,6 +1120,17 @@ Flags:
   for punching a hole through a shape rather than drawing around it.
 * `inherit` — expose this ref's surviving anchors as the composite's own. See
   [Anchor Inheritance](#anchor-inheritance).
+* `ifexists` — the ref is a *condition*. A ref naming a glyph nothing defines already leaves its own
+  glyph unbuilt, and so unmapped; the flag says that outcome was meant, so nothing is reported and
+  the editor underlines nothing. It is for the one case a diagnostic cannot help with — a whole
+  family written in one block, where which of the expanded names has a target varies:
+
+  ```
+  glyph private-($#e000..efff)
+  ref foo-($#e000..efff) ifexists
+  ```
+
+  `map` takes the same flag from the other side; see [`map`](#map-map-characters-to-glyphs).
 * `fill COLOR`, `fill fg` — draw this layer in a color, for the `COLR`/`CPAL` build. `COLOR` is a
   `#RRGGBB[AA]` literal or a name from a `color` directive; `fg` means the text color, whatever the
   client is painting with.
@@ -1035,6 +1157,121 @@ offers a one-row one. When both sizes exist, they are usually two alternatives o
 
 Anchors declared on a glyph are always its own; anchors arriving through a ref are exposed only with
 `inherit`.
+
+### IDC composition
+
+```
+⿰ TOKEN...
+⿱ TOKEN...
+⿲ TOKEN...
+⿳ TOKEN...
+```
+
+Splits the glyph's box along one axis and fills the shares with other glyphs. The line is a sibling
+of `ref`, not sugar for one: the offsets are **derived** from what the components declare, so what
+the parts leave one another is something the source can be held to rather than something merely
+drawn. A CJK glyph built from parts is exactly this — a box split along one axis, where how much room
+the shares leave each other is the whole design — and written as `ref`s with hand-written offsets
+there is no place for that to live. Two parts that crowd each other look exactly like two that do
+not, and at twenty thousand glyphs "quietly off by one" is undetectable.
+
+```
+glyph han-4ec2:15x16 15 16 // 仂
+⿰ han-4ebb:5x16 1 han-529b:8x16 // ⿰亻力
+```
+
+Each token is a **gap** if it parses as a number and a **component name** otherwise. ⿰ and ⿱ take two
+components, ⿲ and ⿳ three. Gaps may appear anywhere among them, including before the first and after
+the last — that is how a bearing inside the box is written — and default to none. A negative gap
+means the boxes overlap:
+
+```
+⿰ han-6c35:4x16 -1 han-53ef:12x16
+```
+
+Placement walks the axis in written order: a gap advances the cursor, a component is placed at the
+cursor and advances it by its own extent. Each component's extent *across* the axis must equal the
+parent's — a ⿰ part is as tall as the glyph — and a mismatch is an error.
+
+Sizes are read from the components' `glyph` headers, never from the composed result: a part's width
+is a property the part [declares](#declared-box-and-canvas), which is what makes the layout a lookup
+rather than a search. A component that names no glyph, or one whose header declares no `W H`, is an
+error for the same reason.
+
+Only the four one-dimensional operators exist. ⿰ and ⿱ alone cover 91% of the URO, and the four cover
+99% of what decomposes along one axis; ⿴⿵⿸⿺ and the rest do not lay out along an axis at all, so
+they stay ordinary `ref` + offset. This is not a general IDS layout engine and is not meant to become
+one.
+
+#### Variant names (`:WxH-l`)
+
+A part is usually drawn several times over, at the sizes and in the positions it is needed in, and
+the name says which one this is. Everything after a name's first `:` is split on `-`; the first
+`WxH` token is the variant's **size** and the first `l`, `r`, `u`, `d` or `c` token is its
+**position** — left, right, up, down, or the centre of either axis. Neither is required, and a name
+carrying neither is not an error. This is the ordinary [alternative form](#alternative-glyphs) syntax;
+what follows is what these two particular spellings buy.
+
+* A declared size must equal the glyph's actual size, and it is checked where the name is *used* as a
+  component. A name is a claim about a glyph, so an unused `:4x16` that lies is nothing until
+  somebody believes it.
+* A declared position is matched against the slot the component sits in, and a mismatch is a
+  **warning**, not an error. 阝 really is two different characters on the left and on the right, but a
+  part drawn for the right that happens to fit on the left is a design decision rather than a broken
+  source.
+
+The position is also the tie-break among variants of the same size: the slot's own direction first,
+an unmarked name second, the wrong direction last. Nothing picks a variant automatically — a
+component names the one it wants outright — but that ranking is what the editor's variant listing and
+the optimizer both order by.
+
+#### Clearance
+
+A box says nothing about where the ink inside it stops, so two parts whose boxes tile the parent
+perfectly can still collide, or leave a canyon down the middle. The check therefore reads the drawing
+rather than the boxes.
+
+A glyph's **frontier** is, for each line across the split axis, the first and last cell of that line
+holding anything — a [hardblank](#hardblanks) counts, since it is a cell the source deliberately keeps
+clear of a neighbour. The **clearance** between two adjacent parts is the smallest per-line distance
+between the two frontiers that face each other, counted in cells between them: 0 means they touch,
+and a negative number means they overlap.
+
+Two hardblanks facing each other are one space and not two, so as far as both sides' hardblank runs
+reach, the shared depth counts once — a part keeping two cells clear beside a neighbour keeping one
+shares one of them, and the pair may sit that much closer for the same clearance. The parent's own
+edges take part too, as the distance from the edge inward, so a line of *n* parts has *n + 1*
+clearances. An edge is the limit of the same rule: there is nothing outside the box to keep clear of,
+so it is hardblank as far out as anyone could ask, a facing hardblank run collapses into it entirely,
+and the edge measures to the ink behind it.
+
+A part is measured over its declared box but not *bounded* by it along the split axis: what it draws
+outside is read where it is drawn. That is how a part writes a side bearing — the box is what it
+fills, and a hardblank beyond it is space it wants left — and how two parts that each claim a column
+and are placed box to box overlap by exactly what they claim.
+
+Everything here reads the parts' *own* pixels. A part that has not been drawn yet, or that is itself
+a composite with no pixels of its own, has no frontier, and a line containing one is not measured
+rather than measured wrong.
+
+What the numbers are held to is [`audit ideal-clearance`](#audit-rules-the-source-is-held-to), which
+binds each of them *and* their total to one range; a violation is a warning. Both halves are needed,
+and the reason is arithmetic. The total telescopes down to the parent's extent less the parts' ink
+extents, so it does not depend on the gaps at all: a source that only had to satisfy the total could
+never fix a failing line by moving anything. The per-part bound is what an author can act on, and the
+total is what catches parts that are simply too fat for the box together, however they are shuffled.
+
+#### Undecided components
+
+A component written without a `:` suffix has not picked its variant yet. That is the initial state of
+every glyph populated from IDS data, not a mistake, so it is a **todo** and not an error — one per
+unpicked component. The clearance check, which is about a layout that has not been chosen, stands
+down for the whole line, as do the unpicked component's own size and position checks; what is left is
+the line's decided half, still fully checked.
+
+The glyph is no more built than an erroring one is. The difference is that a build, a `uniform test`
+run and CI do not fail over it. See [Diagnostics and Exit Status](#diagnostics-and-exit-status), and
+[`uniform fix`](#rewriting-the-source) for what turns such a line into a decided one.
 
 ## Character Mapping Commands
 
@@ -1072,6 +1309,19 @@ map U+1F1E6..1F1FF = regional-indicator-($a-z)
 
 Mapping the same codepoint twice is reported, as is mapping to a glyph that does not exist.
 
+A trailing `ifexists` maps only the codepoints whose target glyph turns out to exist, and says
+nothing about the rest:
+
+```
+map U+E000..EFFF = private-($#e000..efff) ifexists
+```
+
+The build always dropped a mapping whose glyph never resolved; the flag declares that intended, so it
+is neither reported nor counted as claiming the codepoint. Two such lines over one range are
+therefore not duplicates, and the name that exists wins. It is the same flag [`ref`](#ref-subglyph-use)
+takes, from the other side. `map generate` takes no `ifexists`, since it synthesizes its target
+instead of naming one.
+
 A variation selector cannot be mapped on its own. It reaches the font only as the second half of the
 form below, whose glyph the build owns.
 
@@ -1093,7 +1343,8 @@ There are two spellings and each round-trips as it was written. `U+0030 U+FE0F` 
 same pair pasted out of a character picker is *one* token holding two characters. Only that exact
 shape — two characters, the second a selector and the first not — is read as a pair, so a pipe list
 keeps its last alternative and a longer paste stays whole. The halves carry their spellings
-independently, so `map 0 U+FE0F = x` is accepted too, and comes back as written.
+independently, so `map 0 U+FE0F = x` is accepted too, and comes back as written. A trailing
+`ifexists` means here what it means on the plain form.
 
 Since a selector is invisible, the editor spells out the codepoints of a literally written sequence
 beside it, on `map` lines and on `assert shape` alike.
@@ -1234,7 +1485,9 @@ remap flag-tag : black-flag-($a-z|$0..9) : tag-($a-z|$0..9) -> black-flag-($a-z|
 ```
 
 Every operand is a name pattern, and all positions in one rule expand together, cycling
-independently — the rule count is the least common multiple of the individual expansions.
+independently — the rule count is the **longest** position's expansion, and every other position
+cycles inside it. A position whose length does not divide it is a warning rather than a silently
+longer rule, exactly as [within one pattern](#name-pattern).
 
 #### A group is one lookup
 
@@ -1291,6 +1544,70 @@ run of any length, while its lookbehind cannot. OpenType allows only a single su
 made this way, so every rule in a `reversed` group must be 1 → 1.
 
 ## Validation Commands
+
+### `audit`: Rules the source is held to
+
+```
+audit KEY ARGUMENT...
+```
+
+States a rule that a *family of glyphs* is held to, so that a drawing which drifts from it is
+reported rather than shipped:
+
+```
+audit ideal-clearance han-* 0 1
+```
+
+This is deliberately not a `meta` key. `meta` states what goes **into the font file** — a name
+record, a metric, a PANOSE vector — while an `audit` line states nothing a consumer of the font could
+ever read. Their failure modes are opposite: a `meta` key that goes missing changes the font, and an
+`audit` rule that goes missing changes nothing except that nobody is told any more.
+
+It is a global rule rather than a per-glyph flag for the same reason a stylesheet is not an inline
+style: the point is that twenty thousand glyphs are held to one standard, and a rule restated per
+glyph is a rule that drifts. A prefix is how a source says which family it means. There is no face
+qualifier either — a face selects which character reaches which glyph, never how a glyph is drawn.
+
+One key per line, exactly as with `meta` and for the same reason: keys are variadic, so two on one
+line could not be told apart. A key that takes N values rejects N ± 1, because a rule that is quietly
+half-read is a rule that quietly stops checking. Assignment is single: setting one slot twice is an
+error even when the two values agree.
+
+| Key | Meaning |
+| --- | --- |
+| `ideal-clearance PREFIX* MIN MAX` | The inclusive range each of an [IDC line](#clearance)'s clearances, *and* their total, must fall in. Violations are warnings. |
+
+`PREFIX*` matches a glyph name by its front, so the `*` may only be the last character and there may
+only be one. A bare name with no `*` matches that one glyph. A source may state as many rules as it
+likes — a band for `han-*` and a tighter one for a subset of it is the intended use, not a conflict,
+which is why the slot is one *per prefix*. When more than one rule matches a name the **longest**
+prefix wins, and an exact name beats every prefix; that is what makes a rule for one troublesome
+glyph an exception rather than a second answer.
+
+### Diagnostics and Exit Status
+
+Every mode prints the same report — the parse errors first, then the cross-document validation, each
+line prefixed with its severity and located as `file:line:`. There are four severities, and they are
+not degrees of the same thing:
+
+| Severity | Means |
+| --- | --- |
+| `error` | The source is wrong in a way nobody chose. The affected glyph is dropped, and so is any `map` that named it. |
+| `warning` | The source is wrong in a way nobody chose, but the font is still built from it. |
+| `todo` | Work that has not been done yet — a normal state of the source rather than a defect in it. |
+| `note` | Something worth saying that asks for no action. |
+
+A `todo` reads exactly like an error in the built font: the glyph is not built and the character is
+not mapped. What differs is what it means about the source. An [IDC line whose components have not
+picked their variants](#undecided-components) is on a queue, not broken, and the count is expected to
+start in the tens of thousands and come down. So a `todo` never fails a build or a `uniform test`
+run, and it is *counted* rather than printed — the editor's issue list, which has a filter over it,
+is where a work queue that size is read, and a build log that scrolls it past is a build log nobody
+reads. Every other severity prints its line.
+
+Only errors set the exit status. `build` and `test` exit 1 if there was at least one, and `build`
+still writes every output file before doing so, so a CI run can publish the files and fail
+afterwards. A font that builds is therefore not a font without complaints — read the report.
 
 ### `assert shape`: Shaping assertions
 
@@ -1365,6 +1682,79 @@ assume unused placeholder-(8|16)
 Unlike `keep`, this does not keep the glyph in the font; it only says that its absence is
 intentional. Use `keep` for a glyph that must be present, and `assume unused` for one that exists
 for documentation, for a test, or as raw material for something else.
+
+## Rewriting the Source
+
+Everything else in this program reads the source and produces something else — a font file, a report,
+a rendering. `uniform fix` reads it and writes it back:
+
+```sh
+uniform fix -i font/ --optimize-clearance [--dry-run]
+```
+
+That is a different kind of act, so the rules every such command shares are worth stating on their
+own:
+
+* **A fix is a plan first.** A command computes what it would rewrite without touching anything, and
+  a *frontend* applies the plan. There are two of them — the `fix` subcommand, which rewrites the
+  files, and the editor's Font menu, which rewrites the open documents so the change is undoable and
+  saved deliberately — and neither may know anything the other does not. `--dry-run` reports the plan
+  and writes nothing.
+* **A fix rewrites whole lines, in place.** Never a re-serialization of the document: that would
+  reformat every line a human wrote for reasons of their own, and bury the actual change in the diff.
+* **A fix only touches what is already reported.** A command that "improves" a line nothing
+  complained about is a command nobody can review, at twenty thousand glyphs least of all.
+
+### `--optimize-clearance`
+
+Puts an [IDC line](#idc-composition)'s [clearances](#clearance) back inside the range
+[`audit ideal-clearance`](#audit-rules-the-source-is-held-to) states, by choosing among the variants
+the source already draws and the gaps the line may write. It acts on two kinds of report, and they
+are not the same act:
+
+* a **clearance warning**, where the line has a layout and the layout is outside the range. The
+  search moves it inside, and the rewrite is emitted only if it *lowers* the score — a line that
+  cannot be improved keeps its warning rather than being shuffled about;
+* a **todo**, where a component has not [picked its variant](#undecided-components). There is no
+  layout at all then and so no score to lower, but the family the component names is on hand and
+  choosing from it is exactly what the todo asks for. Such a line is planned whatever it scores,
+  since any decided layout is more than none.
+
+What cannot be measured after a choice either is skipped: a component that names nothing, a part with
+no ink of its own, an undecided component whose family is empty, and a glyph whose name is a pattern
+(one line then stands for a family whose members are sized differently).
+
+For each slot the candidates are the variants of the component's base name — `A:4x16`, `A:5x16`, …
+for a component written `A:x` — filtered to those that could go there at all: the box must fit the
+slot across the axis, a `:WxH` in the name must be true, and a name drawn for another direction is
+not a candidate (a `-r` variant for the left slot of a ⿰). The component as currently written is
+always a candidate, whatever it says, since it is the source's own choice rather than an alternative
+being proposed.
+
+The **score** of a layout is how far its clearances fall outside the range, summed — each of the
+*n + 1* clearances plus their total, exactly the set of numbers the check warns about. Zero is "no
+warning at all".
+
+The gaps themselves are not searched, because they are arithmetic. Placing the parts is the same as
+choosing all but one of the clearances freely, since moving a part along the axis moves exactly the
+two clearances beside it in opposite directions — and their sum telescopes down to a number that
+mentions no position at all, being a property of the chosen *variants*. So the question is only
+"which integers summing to a fixed total are least far outside `MIN..MAX`", which has three cases and
+no search. Only the variants are searched, and that is the product of the slots' candidate lists,
+which is a handful.
+
+Many layouts score the same, and they are ordered:
+
+1. **more variants that state a direction** — a `-l` name in the left slot says the drawing was made
+   for that slot, and a source that says so is worth more than one that leaves it to be inferred;
+2. **the smallest sum of the two edge clearances** — the parts are pushed out against the glyph's box
+   and the room they leave each other is what grows. This is what decides a ⿰ between `0 1 0` and
+   `0 0 1`, and it is the whole of what makes a result look composed rather than shoved to one side;
+3. **the most even inner clearances**, when there are two of them (⿲, ⿳);
+4. **lexicographically smallest**, left clearance first, so what is left over lands at the near edge
+   rather than anywhere;
+5. **the line as written**, then the names in order — so a run over an unchanged source is a no-op
+   and the output is reproducible.
 
 ## On-demand Glyphs
 
