@@ -1863,6 +1863,42 @@ glyph foo 1 1 scale 2
         }
     }
 
+    /// Adjust scale must write the hardblanks back out: a `$$` is a claim on
+    /// the cell, so the cells it grows into (or collapses onto) are claimed
+    /// too. The exact rescale used to hand a hardblank to the geometry layer,
+    /// where it reads as the nothing it draws, and the claim was simply gone
+    /// from the rewritten grid.
+    #[test]
+    fn adjust_scale_carries_hardblanks() {
+        let source = "\
+glyph foo 2 1
+@@$$
+";
+        let (doc, mut lines, mut state) = make_scale_test_doc(source);
+        state.cursor = c(0, 0);
+
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 2));
+        let grid = lines[1].as_grid().unwrap();
+        assert_eq!((grid.width, grid.height), (4, 2));
+        for row in 0..2u16 {
+            for col in 2..4u16 {
+                assert!(
+                    grid.get(row, col).is_hardblank(),
+                    "cell ({row}, {col}) lost its claim: {:?}",
+                    crate::pixel::shape_to_chars(grid.get(row, col)),
+                );
+            }
+        }
+
+        // And back down again — the claim survives the round trip.
+        let (doc, _) = crate::document_io::derive_document(&lines, "test.unf".into()).unwrap();
+        assert!(handle_adjust_scale(&doc, &mut lines, &mut state, 1));
+        let grid = lines[1].as_grid().unwrap();
+        assert_eq!((grid.width, grid.height), (2, 1));
+        assert!(grid.get(0, 0).is_bitmap_filled());
+        assert!(grid.get(0, 1).is_hardblank());
+    }
+
     #[test]
     fn adjust_scale_updates_ref_offsets() {
         let source = "\

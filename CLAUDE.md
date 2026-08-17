@@ -244,6 +244,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | `$$`, the blank that is not `..`, and why it is an id rather than a spare bit combination | `pixel.rs` (`PX_HARDBLANK`) |
 | A hardblank is a *claim*, not geometry: how claims and ink combine, and why only a claim cancels a claim | `pixel.rs` (`blank_op`) |
+| Why a rescale carries a claim (and a bare ink flag) by hand, beside the geometry sweep | `document.rs` (`PixelGrid::rescale`) |
 | The three questions asked of a cell (bitmap ink / vector contour / nothing at all) and the `CLEAR`-`HARDBLANK`-`INK` ladder | `pixel.rs` (module docs), `compose.rs` (`InkProfile::of`) |
 | Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document.rs` (`snap_details_to_catalog`) |
 | Why the exact sweep carries no rational arithmetic, and the width budget that bounds it | `detail.rs` (`Frac`, `MAX_SWEEP_COORD`) |

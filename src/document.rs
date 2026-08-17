@@ -163,6 +163,12 @@ impl PixelGrid {
     /// overlap it, mapped exactly; results are re-encoded as plain shape
     /// codes when possible and stored as custom details otherwise.
     ///
+    /// What a cell holds *besides* geometry rides along on its own level, since
+    /// the sweep can only see what is drawn: a destination cell covering a
+    /// hardblank is a hardblank, and one covering an inked cell keeps the ink
+    /// flag even where no geometry landed. Ink outranks a claim, the same order
+    /// [`crate::pixel::blank_op`] gives a merge.
+    ///
     /// Results are memoized by content: the same source grid is typically
     /// rescaled once per referencing glyph, which made this the dominant
     /// cost of resolving a font before caching.
@@ -261,21 +267,26 @@ impl PixelGrid {
                     };
 
                 // Fast path: all overlapping source pixels are uniformly
-                // full or uniformly empty — no geometry needed.
+                // full or uniformly clear — no geometry needed. "Clear" is
+                // the bottom of the `CLEAR`/`HARDBLANK`/`INK` ladder rather
+                // than the empty *shape*: a hardblank and a geometry-less ink
+                // flag both draw nothing, so the geometry sweep below cannot
+                // see them and they are carried by hand afterwards.
                 let mut all_full = true;
                 let mut all_empty = true;
                 let mut any_filled = false;
+                let mut any_hardblank = false;
                 for sr in sr0..sr1 {
                     for sc in sc0..sc1 {
                         let s = self.get(sr as u16, sc as u16);
-                        let id = s.shape_id();
-                        if id != PX_ALMOSTFULL {
+                        if s.shape_id() != PX_ALMOSTFULL {
                             all_full = false;
                         }
-                        if id != crate::pixel::PX_EMPTY {
+                        if !s.is_clear() {
                             all_empty = false;
                         }
                         any_filled |= s.is_bitmap_filled();
+                        any_hardblank |= s.is_hardblank();
                     }
                 }
                 if all_empty {
@@ -313,7 +324,11 @@ impl PixelGrid {
                         if let Some(start) = run_start.take() {
                             row_runs.push((start, sc - 1));
                         }
-                        if s.shape_id() == crate::pixel::PX_EMPTY {
+                        // Nothing to sweep: an empty cell, a hardblank, or a
+                        // cell carrying only an ink flag — all three fold to
+                        // the empty shape here, and the latter two are picked
+                        // up from `any_hardblank`/`any_filled` below.
+                        if s.catalog_shape_id() == crate::pixel::PX_EMPTY {
                             continue;
                         }
                         pieces.push((
@@ -349,6 +364,22 @@ impl PixelGrid {
                 }
 
                 let region = detail::union_disjoint_transformed(&pieces);
+                if region.is_empty() {
+                    // Nothing was drawn into this cell, but something was
+                    // claimed: carry the claim on its own level, where ink
+                    // outranks a hardblank exactly as in [`pixel::blank_op`].
+                    // (`set_detail` would classify the empty region as the
+                    // clear cell and drop both.)
+                    let shape = if any_filled {
+                        PixelShape::new(crate::pixel::PX_EMPTY, true)
+                    } else if any_hardblank {
+                        PixelShape::new(crate::pixel::PX_HARDBLANK, false)
+                    } else {
+                        PixelShape::EMPTY
+                    };
+                    out.set(r, c, shape);
+                    continue;
+                }
                 out.set_detail(r, c, &region, any_filled);
             }
         }
@@ -3203,6 +3234,94 @@ mod tests {
                 if negated { "-" } else { "|" },
                 src_shape.0,
             );
+        }
+    }
+
+    /// Rescaling carries a hardblank the same way it carries ink: the cells a
+    /// claim covers in the destination are claimed too, and a destination cell
+    /// that covers both a claim and ink comes out inked (`pixel::blank_op`).
+    ///
+    /// `rescale` used to ask only whether a cell's shape id was `PX_EMPTY`,
+    /// which put a hardblank on the geometry path — where it reads as the empty
+    /// region it draws — so the claim vanished in both directions and silently
+    /// changed what [`crate::compose::InkProfile`] measures.
+    #[test]
+    fn rescale_carries_hardblanks() {
+        use crate::pixel::PX_HARDBLANK;
+        let hb = PixelShape::new(PX_HARDBLANK, false);
+        let ink = PixelShape::new(PX_ALMOSTFULL, true);
+
+        // Up: one claim becomes the 2×2 block of claims it covers.
+        let mut g = PixelGrid::new(2, 1);
+        g.set(0, 0, hb);
+        g.set(0, 1, ink);
+        let up = g.rescale(1, 2);
+        assert_eq!((up.width, up.height), (4, 2));
+        for r in 0..2u16 {
+            for c in 0..2u16 {
+                assert_eq!(up.get(r, c).0, hb.0, "claim at ({r}, {c})");
+                assert_eq!(up.get(r, c + 2).0, ink.0, "ink at ({r}, {})", c + 2);
+            }
+        }
+
+        // Down: a block of claims is one claim, and it round-trips.
+        let down = up.rescale(2, 1);
+        assert_eq!((down.width, down.height), (2, 1));
+        assert_eq!(down.get(0, 0).0, hb.0);
+        assert_eq!(down.get(0, 1).0, ink.0);
+
+        // Down over a mixed block: the ink outranks the claim, and it keeps
+        // the quarter of the cell it actually covers.
+        let mut m = PixelGrid::new(2, 2);
+        m.set(0, 0, hb);
+        m.set(0, 1, hb);
+        m.set(1, 0, hb);
+        m.set(1, 1, ink);
+        let mixed = m.rescale(2, 1);
+        assert_eq!((mixed.width, mixed.height), (1, 1));
+        assert!(!mixed.get(0, 0).is_contour_empty());
+        assert!(mixed.get(0, 0).is_bitmap_filled());
+        assert_eq!(mixed.region_at(0, 0).area2(), 0.5);
+
+        // A fractional ratio: the destination cell covering only source
+        // claims is a claim, the one covering ink is ink.
+        let mut f = PixelGrid::new(3, 3);
+        for r in 0..3u16 {
+            f.set(r, 0, ink);
+            f.set(r, 1, hb);
+            f.set(r, 2, hb);
+        }
+        let frac = f.rescale(3, 2);
+        assert_eq!((frac.width, frac.height), (2, 2));
+        for r in 0..2u16 {
+            assert!(!frac.get(r, 0).is_contour_empty(), "ink at ({r}, 0)");
+            assert_eq!(frac.get(r, 1).0, hb.0, "claim at ({r}, 1)");
+        }
+    }
+
+    /// A subcell with no geometry but the ink flag set — what `BitmapFill`
+    /// writes beside the geometry of a logical pixel the bitmap face inks —
+    /// keeps its flag through a rescale, which is the OR
+    /// [`crate::on_demand`]'s `apply_bitmap_fill` documents relying on.
+    #[test]
+    fn rescale_carries_bitmap_fill_without_geometry() {
+        let mut g = PixelGrid::new(2, 2);
+        let ink = PixelShape::new(PX_ALMOSTFULL, true);
+        let fill_only = PixelShape::new(crate::pixel::PX_EMPTY, true);
+        g.set(0, 0, ink);
+        g.set(0, 1, fill_only);
+        g.set(1, 0, fill_only);
+        g.set(1, 1, fill_only);
+
+        let up = g.rescale(2, 3);
+        assert_eq!((up.width, up.height), (3, 3));
+        for r in 0..3u16 {
+            for c in 0..3u16 {
+                assert!(
+                    up.get(r, c).is_bitmap_filled(),
+                    "cell ({r}, {c}) lost its ink flag"
+                );
+            }
         }
     }
 

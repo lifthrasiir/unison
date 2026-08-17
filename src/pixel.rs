@@ -121,7 +121,9 @@ pub const PX_CUSTOM: u8 = 31;
 ///
 /// Being a claim rather than geometry, it composes on its own level, which no
 /// region operation can express — [`blank_op`] is the one place that rule is
-/// written, and every merge goes through it.
+/// written, and every merge goes through it. A *rescale* is not a merge, so it
+/// carries the claim by hand instead, in the same order
+/// ([`crate::document::PixelGrid::rescale`]).
 ///
 /// It sits *outside* the catalog band (`0..=30` and their complements
 /// `97..=127`), so every geometry table — rasters, adjacency, edge coverage,
