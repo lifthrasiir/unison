@@ -284,7 +284,7 @@ fn header_height_edit_resizes_grid_when_caret_leaves_line() {
     h.key(Key::ArrowDown);
     let grid = h.grid(1);
     assert_eq!((grid.width, grid.height), (16, 8));
-    assert!(!grid.get(5, 5).is_empty(), "surviving pixel kept");
+    assert!(!grid.get(5, 5).is_clear(), "surviving pixel kept");
     assert_eq!(h.grid_row_count(1), 8, "grid widget shrank to 8 rows");
 
     // All following lines moved up by 8 source lines.
@@ -298,7 +298,7 @@ fn header_height_edit_resizes_grid_when_caret_leaves_line() {
     assert_eq!(h.text(0), "glyph foo 16 16");
     assert_eq!(h.grid_row_count(1), 16);
     assert!(
-        !h.grid(1).get(12, 12).is_empty(),
+        !h.grid(1).get(12, 12).is_clear(),
         "truncated pixel restored"
     );
     assert_eq!(h.gutter_of(3), Some(19));
@@ -600,10 +600,10 @@ fn copy_paste_preserves_grid_content() {
     let pasted_grid = h.grid(3);
     assert_eq!(pasted_grid.width, 4);
     assert_eq!(pasted_grid.height, 2);
-    assert!(pasted_grid.get(0, 0).is_filled());
-    assert!(pasted_grid.get(0, 1).is_empty());
-    assert!(pasted_grid.get(1, 2).is_empty());
-    assert!(pasted_grid.get(1, 3).is_filled());
+    assert!(pasted_grid.get(0, 0).is_bitmap_filled());
+    assert!(pasted_grid.get(0, 1).is_clear());
+    assert!(pasted_grid.get(1, 2).is_clear());
+    assert!(pasted_grid.get(1, 3).is_bitmap_filled());
 
     // Undo should restore the original state
     cmd_z(&mut h);
@@ -627,7 +627,7 @@ fn multiline_paste_at_a_grid_header_keeps_the_existing_grid() {
     assert_eq!(h.text(1), "glyph foo 4 4");
     let grid = h.grid(2);
     assert_eq!((grid.width, grid.height), (4, 4));
-    assert!(grid.get(2, 2).is_filled(), "pixel art must survive");
+    assert!(grid.get(2, 2).is_bitmap_filled(), "pixel art must survive");
     assert_eq!(h.grid_row_count(2), 4, "and stay a graphical grid");
     assert_eq!(h.text(3), "");
     assert_eq!(h.text(4), "glyph bar 4 2");
@@ -675,7 +675,10 @@ fn multiline_paste_of_a_glyph_with_pixels_keeps_the_pasted_bitmap() {
     assert_eq!((grid.width, grid.height), (4, 4));
     for r in 0..4 {
         for c in 0..4 {
-            assert!(grid.get(r, c).is_filled(), "pasted pixel {r},{c} survives");
+            assert!(
+                grid.get(r, c).is_bitmap_filled(),
+                "pasted pixel {r},{c} survives"
+            );
         }
     }
     assert_eq!(h.grid_row_count(1), 4);
@@ -710,7 +713,7 @@ fn line_cut_on_a_grid_header_takes_the_pixels_along() {
     assert_eq!(h.text(0), "glyph foo 4 4");
     let grid = h.grid(1);
     assert_eq!((grid.width, grid.height), (4, 4));
-    assert!(grid.get(2, 2).is_filled());
+    assert!(grid.get(2, 2).is_bitmap_filled());
     assert_eq!(h.grid_row_count(1), 4);
     assert_view_consistent(&h);
 
@@ -956,7 +959,7 @@ fn enter_at_end_of_grid_header_opens_line_below_grid() {
     assert_eq!(h.text(0), "glyph foo 4 4");
     let grid = h.grid(1);
     assert_eq!((grid.width, grid.height), (4, 4));
-    assert!(grid.get(2, 2).is_filled(), "pixel art must survive");
+    assert!(grid.get(2, 2).is_bitmap_filled(), "pixel art must survive");
     assert_eq!(h.text(2), "");
     assert_eq!(h.cursor(), Caret::new(2, 0));
     assert_eq!(h.text(3), "");
@@ -1659,7 +1662,7 @@ fn right_click_grid_in_layer_move_offers_subglyph_menu() {
     h.frame();
 
     assert!(
-        h.grid(4).get(0, 4).is_filled(),
+        h.grid(4).get(0, 4).is_bitmap_filled(),
         "the ref's ink should have been inlined into the parent's pixel grid"
     );
     assert!(
@@ -1720,7 +1723,7 @@ fn inline_once_from_the_grid_menu_keeps_the_targets_ref() {
         "the expanded ref line survived: {texts:?}"
     );
     assert!(
-        !h.grid(7).get(0, 4).is_filled(),
+        !h.grid(7).get(0, 4).is_bitmap_filled(),
         "nothing should have been flattened into the parent's grid"
     );
 }
@@ -1923,7 +1926,7 @@ fn shift_right_click_paints_a_hardblank() {
         grid.get(0, 0)
     );
     assert!(
-        grid.get(0, 1).is_empty(),
+        grid.get(0, 1).is_clear(),
         "a plain right-click still erases outright"
     );
 
@@ -1986,10 +1989,10 @@ fn move_selection_makes_floating_and_clears_grid() {
     // The original position (0,0)-(1,1) in grid should be cleared
     let grid = h.grid(1);
     assert!(
-        grid.get(0, 0).is_empty(),
+        grid.get(0, 0).is_clear(),
         "original cell should be empty after move"
     );
-    assert!(grid.get(0, 1).is_empty());
+    assert!(grid.get(0, 1).is_clear());
 }
 
 #[test]
@@ -2018,7 +2021,7 @@ fn undo_move_restores_grid_and_grounded_state() {
     // Grid should be restored
     let grid = h.grid(1);
     assert!(
-        grid.get(0, 0).is_filled(),
+        grid.get(0, 0).is_bitmap_filled(),
         "grid should be restored after undo"
     );
 }
@@ -2042,12 +2045,12 @@ fn mode_change_commits_floating_selection() {
     // The moved pixels should be merged into the grid at new position
     let grid = h.grid(1);
     assert!(
-        grid.get(2, 0).is_filled(),
+        grid.get(2, 0).is_bitmap_filled(),
         "moved pixel should be merged at new position"
     );
     // Original position should be empty
     assert!(
-        grid.get(0, 0).is_empty(),
+        grid.get(0, 0).is_clear(),
         "original position should be empty"
     );
 }
@@ -2062,10 +2065,10 @@ fn delete_grounded_fills_empty() {
     assert!(h.state.pixel_selection.is_none());
 
     let grid = h.grid(1);
-    assert!(grid.get(0, 0).is_empty());
-    assert!(grid.get(0, 1).is_empty());
+    assert!(grid.get(0, 0).is_clear());
+    assert!(grid.get(0, 1).is_clear());
     // Rest unchanged
-    assert!(grid.get(0, 2).is_filled());
+    assert!(grid.get(0, 2).is_bitmap_filled());
 }
 
 #[test]
@@ -2079,10 +2082,10 @@ fn delete_floating_discards_no_merge() {
 
     let grid = h.grid(1);
     // Original was cleared during float, and floating was discarded, so both are empty
-    assert!(grid.get(0, 0).is_empty());
-    assert!(grid.get(0, 1).is_empty());
+    assert!(grid.get(0, 0).is_clear());
+    assert!(grid.get(0, 1).is_clear());
     assert!(
-        grid.get(2, 0).is_empty(),
+        grid.get(2, 0).is_clear(),
         "floating pixels should not merge on delete"
     );
 }
@@ -2109,11 +2112,11 @@ fn undo_after_mode_change_commit_terminates() {
 
     let grid = h.grid(1);
     assert!(
-        grid.get(0, 0).is_filled(),
+        grid.get(0, 0).is_bitmap_filled(),
         "grid should be back to its original state"
     );
-    assert!(grid.get(0, 1).is_filled());
-    assert!(grid.get(2, 0).is_empty());
+    assert!(grid.get(0, 1).is_bitmap_filled());
+    assert!(grid.get(2, 0).is_clear());
 }
 
 /// A glyph with pixels, a ref placed by an explicit offset, a ref placed by
@@ -2145,12 +2148,12 @@ fn cmd_drag_outside_selection_moves_all_layers() {
     h.drag_grid_mod(6, (2, 0), (2, 1), Modifiers::COMMAND);
 
     let grid = h.grid(6);
-    assert!(grid.get(0, 0).is_empty(), "pixels should have moved right");
-    assert!(grid.get(0, 1).is_filled());
-    assert!(grid.get(0, 2).is_filled());
-    assert!(grid.get(0, 3).is_filled());
-    assert!(grid.get(1, 1).is_empty());
-    assert!(grid.get(1, 2).is_filled());
+    assert!(grid.get(0, 0).is_clear(), "pixels should have moved right");
+    assert!(grid.get(0, 1).is_bitmap_filled());
+    assert!(grid.get(0, 2).is_bitmap_filled());
+    assert!(grid.get(0, 3).is_bitmap_filled());
+    assert!(grid.get(1, 1).is_clear());
+    assert!(grid.get(1, 2).is_bitmap_filled());
 
     assert_eq!(
         h.text(7).trim(),
@@ -2176,9 +2179,9 @@ fn cmd_drag_moves_all_layers_down() {
     h.drag_grid_mod(6, (0, 3), (1, 3), Modifiers::COMMAND);
 
     let grid = h.grid(6);
-    assert!(grid.get(0, 0).is_empty(), "top row should be vacated");
-    assert!(grid.get(1, 0).is_filled());
-    assert!(grid.get(2, 1).is_filled());
+    assert!(grid.get(0, 0).is_clear(), "top row should be vacated");
+    assert!(grid.get(1, 0).is_bitmap_filled());
+    assert!(grid.get(2, 1).is_bitmap_filled());
 
     assert_eq!(h.text(7).trim(), "ref part 1 1");
     assert_eq!(h.text(8).trim(), "ref mark 2 2");
@@ -2216,8 +2219,8 @@ fn undo_move_all_restores_every_layer_at_once() {
     h.key_mod(Key::Z, Modifiers::COMMAND);
 
     let grid = h.grid(6);
-    assert!(grid.get(0, 0).is_filled(), "pixels should be back");
-    assert!(grid.get(0, 3).is_empty());
+    assert!(grid.get(0, 0).is_bitmap_filled(), "pixels should be back");
+    assert!(grid.get(0, 3).is_clear());
     assert_eq!(h.text(7).trim(), "ref part 1 0");
     assert_eq!(
         h.text(8).trim(),
@@ -2296,8 +2299,8 @@ fn cut_copies_and_deletes() {
     assert!(h.state.pixel_selection.is_none());
 
     let grid = h.grid(1);
-    assert!(grid.get(0, 0).is_empty());
-    assert!(grid.get(0, 1).is_empty());
+    assert!(grid.get(0, 0).is_clear());
+    assert!(grid.get(0, 1).is_clear());
 }
 
 #[test]
@@ -2381,7 +2384,7 @@ fn blur_commits_floating() {
 
     // Pixel should be merged at new position
     let grid = h.grid(1);
-    assert!(grid.get(2, 0).is_filled());
+    assert!(grid.get(2, 0).is_bitmap_filled());
 }
 
 #[test]
@@ -2745,7 +2748,7 @@ fn clicking_a_menu_over_the_grid_does_not_paint() {
     h.frame();
 
     let cell = h.grid_cell_pos(1, 2, 3);
-    assert!(h.grid(1).get(2, 3).is_empty(), "cell (2, 3) starts empty");
+    assert!(h.grid(1).get(2, 3).is_clear(), "cell (2, 3) starts empty");
 
     // A menu covering that cell, then a click on the entry over it: the menu
     // closes on the press, and the button comes up a frame later — by then
@@ -2759,7 +2762,7 @@ fn clicking_a_menu_over_the_grid_does_not_paint() {
     h.frame();
 
     assert!(
-        h.grid(1).get(2, 3).is_empty(),
+        h.grid(1).get(2, 3).is_clear(),
         "clicking a menu entry must not paint the cell underneath it"
     );
 }
@@ -2778,7 +2781,7 @@ fn a_press_starting_on_the_grid_paints() {
     h.frame();
 
     assert!(
-        !h.grid(1).get(2, 3).is_empty(),
+        !h.grid(1).get(2, 3).is_clear(),
         "a press on the grid should paint the cell under it"
     );
 }
@@ -2966,7 +2969,7 @@ fn typing_a_comment_on_a_header_keeps_the_grid() {
     let grid = h.grid(1);
     assert_eq!((grid.width, grid.height), (4, 2));
     assert!(
-        !grid.get(0, 0).is_empty(),
+        !grid.get(0, 0).is_clear(),
         "pixels survived the header edit"
     );
     match &h.snap().vlines[0].kind {
@@ -4426,14 +4429,14 @@ fn the_selected_palette_cell_is_drawn_with_the_selections_fill() {
     let mut h = palette_harness();
     let (cell, _) = shape_orbit(selected_shape(&h)).unwrap();
     let other = if cell == 0 { 2 } else { 0 };
-    let other_filled = palette_shapes()[other].is_filled();
+    let other_filled = palette_shapes()[other].is_bitmap_filled();
     let click = h.palette_cell_pos(cell);
 
     assert!(h.palette_cell_filled(cell), "starts out filled");
 
     h.click_at(click);
     h.frame();
-    assert!(!selected_shape(&h).is_filled());
+    assert!(!selected_shape(&h).is_bitmap_filled());
     assert!(
         !h.palette_cell_filled(cell),
         "the selected cell follows the selection into unfilled"
@@ -4457,7 +4460,7 @@ fn clicking_another_palette_cell_takes_its_own_fill() {
 
     let mut h = palette_harness();
     let cell = 1; // PX_DOT, the one unfilled representative on row 0
-    assert!(!palette_shapes()[cell].is_filled());
+    assert!(!palette_shapes()[cell].is_bitmap_filled());
 
     h.click_at(h.palette_cell_pos(cell));
     h.frame();
@@ -4622,7 +4625,7 @@ fn a_floating_selection_survives_the_menu_that_acts_on_it() {
     h.menu_open = false;
     h.frame();
     assert!(h.state.pixel_selection.is_none(), "menu closed: commit");
-    assert!(h.grid(1).get(2, 0).is_filled());
+    assert!(h.grid(1).get(2, 0).is_bitmap_filled());
 }
 
 // ---------------------------------------------------------------------------
@@ -4646,7 +4649,7 @@ fn assert_grid_empty(h: &EditorHarness) {
     let grid = h.grid(1);
     for r in 0..grid.height {
         for c in 0..grid.width {
-            assert!(grid.get(r, c).is_empty(), "cell {r},{c} should be empty");
+            assert!(grid.get(r, c).is_clear(), "cell {r},{c} should be empty");
         }
     }
 }
@@ -4686,7 +4689,7 @@ fn delete_without_selection_clears_whole_grid() {
 
     // ...and it is one undo step.
     h.key_mod(Key::Z, Modifiers::COMMAND);
-    assert!(h.grid(1).get(0, 0).is_filled());
+    assert!(h.grid(1).get(0, 0).is_bitmap_filled());
 }
 
 #[test]
@@ -4897,7 +4900,7 @@ fn resize_arrow_grows_the_edge_it_points_at() {
     assert_eq!(h.text(0), "glyph dot 3 2");
     assert_eq!(h.grid(1).width, 3);
     assert!(
-        h.grid(1).get(0, 1).is_filled() && !h.grid(1).get(0, 0).is_filled(),
+        h.grid(1).get(0, 1).is_bitmap_filled() && !h.grid(1).get(0, 0).is_bitmap_filled(),
         "the ink moved right with the new column, not into it"
     );
     assert_view_consistent(&h);
@@ -4912,7 +4915,7 @@ fn resize_shift_arrow_moves_the_far_edge() {
     assert_eq!(h.text(0), "glyph dot 2 1", "the bottom edge came up");
     assert_eq!(h.grid(1).height, 1);
     // The row that survived is the top one: nothing moved, the box shrank.
-    assert!(h.grid(1).get(0, 0).is_filled());
+    assert!(h.grid(1).get(0, 0).is_bitmap_filled());
 }
 
 /// Escape puts the document back exactly as it was, in one step, and leaves

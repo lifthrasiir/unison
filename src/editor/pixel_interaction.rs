@@ -143,7 +143,7 @@ pub(crate) fn handle_pixel_painting(
                     } else {
                         pixel::PixelShape::EMPTY
                     }
-                } else if shift_held && !selected_shape.is_empty() {
+                } else if shift_held && !selected_shape.is_clear() {
                     selected_shape.with_fill_toggled()
                 } else {
                     *selected_shape
@@ -175,7 +175,7 @@ pub(crate) fn handle_pixel_painting(
                         ui.ctx().request_repaint();
                         painted = true;
                     }
-                } else if !new_shape.is_empty() && grid_doc_line > 0 {
+                } else if !new_shape.is_clear() && grid_doc_line > 0 {
                     // Materialize pixel grid for ref-only glyph
                     let header_line = grid_doc_line - 1;
                     if let Some(DocLine::Text(header_text)) = lines.get(header_line) {

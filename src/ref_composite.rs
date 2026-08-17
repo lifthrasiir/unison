@@ -1358,7 +1358,7 @@ impl GlyphComposite {
                 && lr < layer.grid.height as i16
                 && lc >= 0
                 && lc < layer.grid.width as i16
-                && layer.grid.get(lr as u16, lc as u16).is_filled()
+                && layer.grid.get(lr as u16, lc as u16).is_bitmap_filled()
             {
                 filled = !layer.negated;
             }

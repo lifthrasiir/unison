@@ -69,10 +69,10 @@ pub(crate) fn trim_blank_before_origin(
     origin_col: &mut i32,
 ) {
     let blank_rows = (0..grid.height)
-        .take_while(|&r| (0..grid.width).all(|c| grid.get(r, c).is_empty()))
+        .take_while(|&r| (0..grid.width).all(|c| grid.get(r, c).is_clear()))
         .count() as i32;
     let blank_cols = (0..grid.width)
-        .take_while(|&c| (0..grid.height).all(|r| grid.get(r, c).is_empty()))
+        .take_while(|&c| (0..grid.height).all(|r| grid.get(r, c).is_clear()))
         .count() as i32;
     let trim_r = blank_rows.min(-*origin_row).max(0) as u16;
     let trim_c = blank_cols.min(-*origin_col).max(0) as u16;

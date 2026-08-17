@@ -180,7 +180,7 @@ impl CachedContours {
         if bitmap {
             let mut bitmap_grid = grid.clone();
             for pixel in &mut bitmap_grid.pixels {
-                if pixel.is_filled() {
+                if pixel.is_bitmap_filled() {
                     *pixel = PixelShape::new(PX_ALMOSTFULL, true);
                 } else {
                     *pixel = PixelShape::EMPTY;
@@ -411,7 +411,7 @@ impl CachedContours {
                 for r in 0..grid.height as i32 {
                     for c in 0..grid.width as i32 {
                         let shape = grid.get(r as u16, c as u16);
-                        if !shape.is_empty() {
+                        if !shape.is_clear() {
                             let dr = off_r + r;
                             let dc = off_c + c;
                             if dr >= 0 && dc >= 0 && dr < raster_h && dc < raster_w {
@@ -507,7 +507,7 @@ impl CachedContours {
             for r in 0..grid.height as i32 {
                 for c in 0..grid.width as i32 {
                     let shape = grid.get(r as u16, c as u16);
-                    if !shape.is_empty() {
+                    if !shape.is_clear() {
                         let (dr, dc) = (off_r + r, off_c + c);
                         if dr >= 0 && dc >= 0 && dr < cg.height as i32 && dc < cg.width as i32 {
                             cg.set(dr as u16, dc as u16, shape);
@@ -635,7 +635,7 @@ pub(super) fn layers_have_subpixel_conflicts(layers: &[(&PixelGrid, i32, i32)]) 
                     );
                     let s1 = g1.get(p1.0, p1.1);
                     let s2 = g2.get(p2.0, p2.1);
-                    if s1.is_empty() || s2.is_empty() {
+                    if s1.is_clear() || s2.is_clear() {
                         continue;
                     }
                     if s1 != s2 {
@@ -660,7 +660,7 @@ fn to_bitmap_grid(grid: &PixelGrid) -> PixelGrid {
     let mut bg = PixelGrid::new(grid.width, grid.height);
     for r in 0..grid.height {
         for c in 0..grid.width {
-            if grid.get(r, c).is_filled() {
+            if grid.get(r, c).is_bitmap_filled() {
                 bg.set(r, c, PixelShape::new(PX_ALMOSTFULL, true));
             }
         }

@@ -682,7 +682,7 @@ pub(crate) fn handle_delete_selection(
                 let gc = (sel.col + c as i16) as u16;
                 if gr < grid.height && gc < grid.width {
                     let old = grid.get(gr, gc);
-                    if !old.is_empty() {
+                    if !old.is_clear() {
                         changes.push(undo::PixelChange {
                             row: gr,
                             col: gc,
@@ -924,7 +924,7 @@ fn extract_grounded_to_float(
             if gr >= 0 && gr < grid_height as i16 && gc >= 0 && gc < grid_width as i16 {
                 let shape = grid.get(gr as u16, gc as u16);
                 extracted.set(r, c, shape);
-                if !shape.is_empty() {
+                if !shape.is_clear() {
                     pixel_changes.push(undo::PixelChange {
                         row: gr as u16,
                         col: gc as u16,
@@ -1414,10 +1414,10 @@ mod tests {
         let grid = parse_pixel_rect(text).unwrap();
         assert_eq!(grid.width, 2);
         assert_eq!(grid.height, 2);
-        assert!(grid.get(0, 0).is_filled());
-        assert!(grid.get(0, 1).is_empty());
-        assert!(grid.get(1, 0).is_empty());
-        assert!(grid.get(1, 1).is_filled());
+        assert!(grid.get(0, 0).is_bitmap_filled());
+        assert!(grid.get(0, 1).is_clear());
+        assert!(grid.get(1, 0).is_clear());
+        assert!(grid.get(1, 1).is_bitmap_filled());
     }
 
     #[test]
@@ -1527,10 +1527,10 @@ mod tests {
         let DocLine::Grid(grid) = &lines[1] else {
             panic!("expected grid");
         };
-        assert!(grid.get(0, 0).is_empty());
-        assert!(grid.get(0, 1).is_empty());
-        assert!(grid.get(0, 2).is_filled());
-        assert!(grid.get(1, 0).is_filled());
+        assert!(grid.get(0, 0).is_clear());
+        assert!(grid.get(0, 1).is_clear());
+        assert!(grid.get(0, 2).is_bitmap_filled());
+        assert!(grid.get(1, 0).is_bitmap_filled());
     }
 
     #[test]
@@ -1566,7 +1566,7 @@ mod tests {
         };
         for r in 0..2 {
             for c in 0..3 {
-                assert!(grid.get(r, c).is_empty());
+                assert!(grid.get(r, c).is_clear());
             }
         }
     }
@@ -1603,9 +1603,9 @@ mod tests {
             panic!("expected grid");
         };
         // Overwrite means the empty float pixels replace filled grid pixels
-        assert!(grid.get(0, 0).is_empty());
-        assert!(grid.get(0, 1).is_empty());
-        assert!(grid.get(0, 2).is_filled());
+        assert!(grid.get(0, 0).is_clear());
+        assert!(grid.get(0, 1).is_clear());
+        assert!(grid.get(0, 2).is_bitmap_filled());
     }
 
     #[test]
@@ -1628,12 +1628,12 @@ mod tests {
         let DocLine::Grid(grid) = &lines[1] else {
             panic!("expected grid")
         };
-        assert!(grid.get(0, 0).is_empty());
-        assert!(grid.get(0, 1).is_filled());
-        assert!(grid.get(0, 2).is_filled());
-        assert!(grid.get(1, 0).is_filled());
-        assert!(grid.get(1, 1).is_filled());
-        assert!(grid.get(1, 2).is_empty());
+        assert!(grid.get(0, 0).is_clear());
+        assert!(grid.get(0, 1).is_bitmap_filled());
+        assert!(grid.get(0, 2).is_bitmap_filled());
+        assert!(grid.get(1, 0).is_bitmap_filled());
+        assert!(grid.get(1, 1).is_bitmap_filled());
+        assert!(grid.get(1, 2).is_clear());
     }
 
     #[test]
@@ -1654,12 +1654,12 @@ mod tests {
         let DocLine::Grid(grid) = &lines[1] else {
             panic!("expected grid")
         };
-        assert!(grid.get(0, 0).is_empty());
-        assert!(grid.get(0, 1).is_empty());
-        assert!(grid.get(0, 2).is_empty());
-        assert!(grid.get(1, 0).is_filled());
-        assert!(grid.get(1, 1).is_filled());
-        assert!(grid.get(1, 2).is_empty());
+        assert!(grid.get(0, 0).is_clear());
+        assert!(grid.get(0, 1).is_clear());
+        assert!(grid.get(0, 2).is_clear());
+        assert!(grid.get(1, 0).is_bitmap_filled());
+        assert!(grid.get(1, 1).is_bitmap_filled());
+        assert!(grid.get(1, 2).is_clear());
     }
 
     #[test]
@@ -1680,12 +1680,12 @@ mod tests {
         let DocLine::Grid(grid) = &lines[1] else {
             panic!("expected grid")
         };
-        assert!(grid.get(0, 0).is_empty());
-        assert!(grid.get(0, 1).is_empty());
-        assert!(grid.get(0, 2).is_empty());
-        assert!(grid.get(1, 0).is_empty());
-        assert!(grid.get(1, 1).is_empty());
-        assert!(grid.get(1, 2).is_filled());
+        assert!(grid.get(0, 0).is_clear());
+        assert!(grid.get(0, 1).is_clear());
+        assert!(grid.get(0, 2).is_clear());
+        assert!(grid.get(1, 0).is_clear());
+        assert!(grid.get(1, 1).is_clear());
+        assert!(grid.get(1, 2).is_bitmap_filled());
     }
 
     #[test]
@@ -1736,10 +1736,10 @@ mod tests {
         assert_eq!(sel.height, 1);
         let float = sel.float_pixels.as_ref().unwrap();
         // Original: filled, filled, empty, empty → mirrored: empty, empty, filled, filled
-        assert!(float.get(0, 0).is_empty());
-        assert!(float.get(0, 1).is_empty());
-        assert!(float.get(0, 2).is_filled());
-        assert!(float.get(0, 3).is_filled());
+        assert!(float.get(0, 0).is_clear());
+        assert!(float.get(0, 1).is_clear());
+        assert!(float.get(0, 2).is_bitmap_filled());
+        assert!(float.get(0, 3).is_bitmap_filled());
     }
 
     #[test]
@@ -1818,12 +1818,12 @@ glyph foo 2 2
         let grid = lines[1].as_grid().unwrap();
         assert_eq!((grid.width, grid.height), (4, 4));
         // Top-left 2×2 block should be filled (was one filled pixel)
-        assert!(grid.get(0, 0).is_filled());
-        assert!(grid.get(0, 1).is_filled());
-        assert!(grid.get(1, 0).is_filled());
-        assert!(grid.get(1, 1).is_filled());
+        assert!(grid.get(0, 0).is_bitmap_filled());
+        assert!(grid.get(0, 1).is_bitmap_filled());
+        assert!(grid.get(1, 0).is_bitmap_filled());
+        assert!(grid.get(1, 1).is_bitmap_filled());
         // Top-right 2×2 block should be empty
-        assert!(grid.get(0, 2).is_empty());
+        assert!(grid.get(0, 2).is_clear());
     }
 
     #[test]

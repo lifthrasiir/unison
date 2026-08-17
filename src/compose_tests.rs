@@ -412,7 +412,7 @@ fn an_idc_line_resolves_to_the_composed_glyph() {
     // the number nothing in the file wrote.
     for row in 0..4 {
         let on: Vec<u16> = (0..4)
-            .filter(|c| whole.grid.get(row, *c).is_filled())
+            .filter(|c| whole.grid.get(row, *c).is_bitmap_filled())
             .collect();
         assert_eq!(on, vec![0, 3], "row {row}");
     }
@@ -553,6 +553,44 @@ fn grid(rows: &[&str]) -> PixelGrid {
     g
 }
 
+/// A claim survives composition, and a negated claim releases it — measured
+/// where it is actually observable, at the clearance frontier.
+///
+/// A part that claims the space to its right holds the frontier out there, so a
+/// facing part cannot slide in. Overlaying a hardblank-only glyph negated is
+/// how a composite takes that claim back; the frontier then falls to where the
+/// ink stops. Both halves used to be lost in [`PixelGrid::blit`], which sent
+/// every pair through the region layer, where a claim is indistinguishable from
+/// the nothing it draws.
+#[test]
+fn a_negated_hardblank_releases_a_claim_at_the_frontier() {
+    let claimed = grid(&["#$$"]);
+    let line = InkProfile::of(&claimed, 1).rows[0].expect("the row is occupied");
+    assert_eq!(
+        (line.near, line.far, line.far_hardblanks),
+        (0, 2, 2),
+        "the claim holds the frontier out past the ink"
+    );
+
+    // Blitting the same claim over itself must not annihilate it.
+    let mut doubled = claimed.clone();
+    doubled.blit(&grid(&[".$$"]), 0, 0, false);
+    assert_eq!(
+        InkProfile::of(&doubled, 1).rows[0],
+        Some(line),
+        "a claim over a claim is one claim"
+    );
+
+    let mut released = claimed.clone();
+    released.blit(&grid(&[".$$"]), 0, 0, true);
+    let line = InkProfile::of(&released, 1).rows[0].expect("the ink is still there");
+    assert_eq!(
+        (line.near, line.far, line.far_hardblanks),
+        (0, 0, 0),
+        "with the claim released the frontier falls back to the ink"
+    );
+}
+
 fn profiles(entries: &[(&str, &[&str])]) -> std::collections::HashMap<String, InkProfile> {
     entries
         .iter()
@@ -590,8 +628,8 @@ fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
         Some(InkLine {
             near,
             far,
-            near_blanks: 0,
-            far_blanks: 0,
+            near_hardblanks: 0,
+            far_hardblanks: 0,
         })
     };
     let p = InkProfile::of(&grid(&[".##.", "....", "$..#"]), 1);
@@ -604,8 +642,8 @@ fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
             Some(InkLine {
                 near: 0,
                 far: 3,
-                near_blanks: 1,
-                far_blanks: 0,
+                near_hardblanks: 1,
+                far_hardblanks: 0,
             }),
         ],
     );
@@ -615,8 +653,8 @@ fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
             Some(InkLine {
                 near: 2,
                 far: 2,
-                near_blanks: 1,
-                far_blanks: 1,
+                near_hardblanks: 1,
+                far_hardblanks: 1,
             }),
             ink(0, 0),
             ink(0, 0),

@@ -261,10 +261,13 @@ mod tests {
         ]);
         let shadow = compute("a", 1, &glyphs).unwrap();
         assert!(
-            shadow.grid.get(0, 0).is_empty(),
+            shadow.grid.get(0, 0).is_clear(),
             "the parent's hardblank must not be carried into the shadow at all"
         );
-        assert!(!shadow.grid.get(0, 1).is_blank(), "its ink must not");
+        assert!(
+            !shadow.grid.get(0, 1).is_contour_empty(),
+            "its ink must not"
+        );
     }
 
     /// A parent placed absurdly far away is dropped rather than stretching the

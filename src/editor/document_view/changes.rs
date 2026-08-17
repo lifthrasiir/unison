@@ -578,7 +578,7 @@ fn merge_ref_pixels(
     for r in 0..ref_grid.height as i32 {
         for c in 0..ref_grid.width as i32 {
             let shape = ref_grid.get(r as u16, c as u16);
-            if shape.is_empty() {
+            if shape.is_clear() {
                 continue;
             }
             let dr = eff_row + r;

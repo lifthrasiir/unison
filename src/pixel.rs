@@ -8,7 +8,20 @@
 //! character pair name either side of a diagonal.
 //!
 //! [`PX_HARDBLANK`] is the one code that is neither ink nor the empty cell: it
-//! draws nothing, but a document that writes it (`$$`) gets it back.
+//! draws nothing, but a document that writes it (`$$`) gets it back, and a
+//! clearance measures against it.
+//!
+//! Three questions get asked of a cell, and they are three different questions:
+//!
+//! | Predicate | Asks |
+//! | --- | --- |
+//! | [`PixelShape::is_bitmap_filled`] | does the *bitmap* face ink this pixel? |
+//! | [`PixelShape::is_contour_empty`] | does the *vector* face draw nothing here? |
+//! | [`PixelShape::is_clear`] | did the source put nothing here at all — not even a claim? |
+//!
+//! The last is the bottom of the `CLEAR` / `HARDBLANK` / `INK` ladder that
+//! [`crate::compose::InkProfile`] reads; a clearance question needs the level,
+//! so it asks this and then [`PixelShape::is_hardblank`].
 //!
 //! [`PX_CUSTOM`] is the one code with no fixed geometry: it is a sentinel
 //! meaning "this cell's geometry is a [`crate::detail::DetailRegion`] in the
@@ -100,9 +113,15 @@ pub const PX_INVHOUSE4: u8 = 30 ^ PX_SUBPIXEL; //    CORNER3 + CORNER2
 pub const PX_CUSTOM: u8 = 31;
 
 /// A *hardblank*: written `$$`, it draws exactly the nothing [`PX_EMPTY`] draws
-/// and is kept apart from it only so a source can mark a blank as deliberate —
-/// a cell kerning and the like may one day read. Nothing in the build pipeline
-/// treats it as ink.
+/// and is kept apart from it only so a source can mark a blank as deliberate.
+/// Nothing in the build pipeline treats it as ink, but it is not nothing
+/// either: it is a **claim** on the cell, and [`crate::compose::InkProfile`]
+/// holds a clearance frontier out at one where an empty cell would let the
+/// facing part in.
+///
+/// Being a claim rather than geometry, it composes on its own level, which no
+/// region operation can express — [`blank_op`] is the one place that rule is
+/// written, and every merge goes through it.
 ///
 /// It sits *outside* the catalog band (`0..=30` and their complements
 /// `97..=127`), so every geometry table — rasters, adjacency, edge coverage,
@@ -119,10 +138,12 @@ pub const PX_CUSTOM: u8 = 31;
 /// no other side. Mirrors and rotations already do, through
 /// [`transform_shape`]'s identity fallback for non-catalog ids.
 ///
-/// The two predicates carry the distinction: the fill bit is unset, so
-/// [`PixelShape::is_filled`] is `false` and nothing renders, rasterizes or
-/// traces it; but [`PixelShape::is_empty`] is `false` too, so the cell counts as
-/// *occupied* — the editor draws it and the serializer writes it back out.
+/// The predicates carry the distinction. Nothing renders, rasterizes or traces
+/// it: the fill bit is unset ([`PixelShape::is_bitmap_filled`]) and it has no
+/// contour ([`PixelShape::is_contour_empty`]). But it is not
+/// [`PixelShape::is_clear`], so the cell counts as *occupied* — the editor
+/// draws it, the serializer writes it back out, and a clearance measures
+/// against it.
 pub const PX_HARDBLANK: u8 = 32;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -140,29 +161,39 @@ impl PixelShape {
         self.0 & PX_SUBPIXEL
     }
 
-    pub fn is_filled(self) -> bool {
+    /// Does the *bitmap* face ink this logical pixel? The [`PX_FULL`] bit, which
+    /// is carried through every geometric operation but read only by the bitmap
+    /// build (`render::contour::track_contour_fullpixel` and friends).
+    pub fn is_bitmap_filled(self) -> bool {
         self.0 & PX_FULL != 0
     }
 
-    /// Is this cell unwritten? A hardblank is not: it draws the same nothing,
-    /// but it is something the source says.
-    pub fn is_empty(self) -> bool {
-        self.shape_id() == PX_EMPTY && !self.is_filled()
+    /// Does the *vector* face draw anything here? True for the empty cell and
+    /// for a hardblank alike — a claim has no contour.
+    pub fn is_contour_empty(self) -> bool {
+        self.is_clear() || self.is_hardblank()
+    }
+
+    /// Is this cell unwritten — no ink, and no claim either? A hardblank is
+    /// *not* clear: it draws the same nothing, but it is something the source
+    /// says, and [`crate::compose::InkProfile`] holds a frontier out at it.
+    ///
+    /// This is the bottom of a three-state ladder — `CLEAR` / `HARDBLANK` /
+    /// `INK` — and answers only whether a cell is at that bottom. The name is
+    /// the clearance vocabulary's, but a clearance question needs the level,
+    /// not this boolean: ask [`is_hardblank`](Self::is_hardblank) for the rest.
+    pub fn is_clear(self) -> bool {
+        self.shape_id() == PX_EMPTY && !self.is_bitmap_filled()
     }
 
     pub fn is_hardblank(self) -> bool {
         self.shape_id() == PX_HARDBLANK
     }
 
-    /// Nothing is drawn here: an empty cell, or a hardblank, which is the same
-    /// nothing under a name.
-    pub fn is_blank(self) -> bool {
-        self.is_empty() || self.is_hardblank()
-    }
-
-    /// The shape id this cell contributes to an outline — a hardblank
-    /// contributes none, so it reads as [`PX_EMPTY`] to everything tracing ink.
-    pub fn ink_shape_id(self) -> u8 {
+    /// A shape id the geometry tables may be indexed by. A hardblank's id sits
+    /// *outside* the catalog band, so it folds to [`PX_EMPTY`] — which is also
+    /// what it contributes to an outline.
+    pub fn catalog_shape_id(self) -> u8 {
         if self.is_hardblank() {
             PX_EMPTY
         } else {
@@ -207,7 +238,7 @@ impl PixelShape {
             PX_SLANT4V => PX_HALFSLANT4V,
             _ => return self,
         };
-        Self::new(pair_id, !self.is_filled())
+        Self::new(pair_id, !self.is_bitmap_filled())
     }
 
     #[cfg(any(feature = "editor", test))]
@@ -469,7 +500,7 @@ impl fmt::Debug for PixelShape {
             f,
             "PixelShape({}, filled={})",
             self.shape_id(),
-            self.is_filled()
+            self.is_bitmap_filled()
         )
     }
 }
@@ -1187,31 +1218,70 @@ fn raster_to_shape_id(raster: u128) -> u8 {
     PX_DOT
 }
 
+/// Combine two cells when either of them is a hardblank or a clear cell,
+/// or `None` when the pair is geometry the caller has to work out itself.
+///
+/// A hardblank is a *claim*: it draws nothing, yet the cell counts as occupied
+/// ([`crate::compose::InkProfile`]). Claims and ink therefore compose on
+/// separate levels — ink covers a claim whichever way round the two meet, and
+/// a negation subtracts like from like, so **only a claim cancels a claim**.
+/// A negation-only glyph made of nothing but hardblanks is how a composite
+/// releases the space its parts claimed.
+///
+/// None of that is expressible as geometry — a hardblank's region is the empty
+/// one — so it has to be decided before the region layer sees the pair. Every
+/// caller that merges two cells ([`PixelGrid::blit`](crate::document::PixelGrid::blit),
+/// [`shape_union`], [`shape_subtract`]) asks here first, so the rule cannot be
+/// written twice and drift: it once was, and two overlapping claims
+/// annihilated in `blit` while surviving in `shape_union`.
+pub fn blank_op(a: PixelShape, b: PixelShape, negated: bool) -> Option<PixelShape> {
+    if !a.is_hardblank() && !b.is_hardblank() {
+        return None;
+    }
+    Some(if negated {
+        // A claim cancels a claim. Everything else leaves `a` alone: ink does
+        // not reach a claim, and a claim removes no ink.
+        if a.is_hardblank() && b.is_hardblank() {
+            PixelShape::EMPTY
+        } else {
+            a
+        }
+    } else if a.is_clear() {
+        b
+    } else if b.is_clear() {
+        a
+    } else if a.is_hardblank() && b.is_hardblank() {
+        // Two claims are one claim; otherwise whatever is drawn wins.
+        a
+    } else if a.is_hardblank() {
+        b
+    } else {
+        a
+    })
+}
+
 #[cfg(any(feature = "editor", test))]
 pub fn shape_union(a: PixelShape, b: PixelShape) -> PixelShape {
-    if a.is_empty() {
+    if let Some(blank) = blank_op(a, b, false) {
+        return blank;
+    }
+    if a.is_clear() {
         return b;
     }
-    if b.is_empty() {
-        return a;
-    }
-    // A hardblank carries no geometry, so it unions like the empty cell it is:
-    // whatever is drawn over it wins, and it survives only where nothing else
-    // is (the two `is_empty` returns above keep it over a truly empty cell).
-    if a.is_blank() {
-        return b;
-    }
-    if b.is_blank() {
+    if b.is_clear() {
         return a;
     }
     let ur = SHAPE_RASTERS[a.shape_id() as usize] | SHAPE_RASTERS[b.shape_id() as usize];
     let result_id = raster_to_shape_id(ur);
-    PixelShape::new(result_id, a.is_filled() || b.is_filled())
+    PixelShape::new(result_id, a.is_bitmap_filled() || b.is_bitmap_filled())
 }
 
 #[cfg(any(feature = "editor", test))]
 pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
-    if a.is_blank() || b.is_blank() {
+    if let Some(blank) = blank_op(a, b, true) {
+        return blank;
+    }
+    if a.is_clear() || b.is_clear() {
         return a;
     }
     let sr = SHAPE_RASTERS[a.shape_id() as usize]
@@ -1220,7 +1290,7 @@ pub fn shape_subtract(a: PixelShape, b: PixelShape) -> PixelShape {
     if result_id == PX_EMPTY {
         PixelShape::EMPTY
     } else {
-        PixelShape::new(result_id, a.is_filled())
+        PixelShape::new(result_id, a.is_bitmap_filled())
     }
 }
 
@@ -1588,10 +1658,10 @@ mod tests {
         assert_eq!(chars_to_shape('$', '$'), Some(hb));
 
         assert!(hb.is_hardblank());
-        assert!(hb.is_blank());
-        assert!(!hb.is_empty(), "a hardblank occupies its cell");
-        assert!(!hb.is_filled(), "a hardblank is not ink");
-        assert_eq!(hb.ink_shape_id(), PX_EMPTY);
+        assert!(hb.is_contour_empty());
+        assert!(!hb.is_clear(), "a hardblank occupies its cell");
+        assert!(!hb.is_bitmap_filled(), "a hardblank is not ink");
+        assert_eq!(hb.catalog_shape_id(), PX_EMPTY);
 
         assert_eq!(adjacency(PX_HARDBLANK).0, 0);
         assert!(adjacency(PX_HARDBLANK).1.is_empty());
@@ -2079,9 +2149,9 @@ mod tests {
                 let expected = raster_to_id.get(&ur).copied().unwrap_or(PX_DOT);
                 let sa = PixelShape(a);
                 let sb = PixelShape(b);
-                if sa.is_empty() {
+                if sa.is_clear() {
                     assert_eq!(shape_union(sa, sb), sb, "union({a},{b}) identity");
-                } else if sb.is_empty() {
+                } else if sb.is_clear() {
                     assert_eq!(shape_union(sa, sb), sa, "union({a},{b}) identity");
                 } else {
                     assert_eq!(
@@ -2117,11 +2187,11 @@ mod tests {
                 let expected = raster_to_id.get(&sr).copied().unwrap_or(PX_DOT);
                 let sa = PixelShape(a);
                 let sb = PixelShape(b);
-                if sa.is_empty() || sb.is_empty() {
+                if sa.is_clear() || sb.is_clear() {
                     continue; // early-return paths tested separately
                 }
                 let result = shape_subtract(sa, sb);
-                let result_id = if result.is_empty() {
+                let result_id = if result.is_clear() {
                     PX_EMPTY
                 } else {
                     result.shape_id()

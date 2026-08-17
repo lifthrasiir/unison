@@ -327,11 +327,11 @@ fn inline_once_merges_the_targets_own_pixels() {
         .next_back()
         .expect("top keeps its grid");
     assert!(
-        grid.get(0, 2).is_filled(),
+        grid.get(0, 2).is_bitmap_filled(),
         "the target's own pixel should land at its column plus the ref's offset"
     );
     assert!(
-        !grid.get(0, 3).is_filled(),
+        !grid.get(0, 3).is_bitmap_filled(),
         "the target's *ref* must not be flattened too"
     );
     let texts = text_lines(&lines);
@@ -383,7 +383,7 @@ fn inline_once_of_a_pixel_only_target_flattens_it() {
         })
         .next_back()
         .unwrap();
-    assert!(grid.get(0, 1).is_filled() && grid.get(1, 2).is_filled());
+    assert!(grid.get(0, 1).is_bitmap_filled() && grid.get(1, 2).is_bitmap_filled());
 }
 
 fn assert_all_doc_lines_covered(input: &str) {

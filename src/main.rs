@@ -494,15 +494,16 @@ fn main() {
         //
         // Nothing here is written to disk yet — a failure in any one of these
         // still leaves the run's files as they were, rather than half replaced.
-        let render_to_vec = |what: &'static str, f: &dyn Fn(&mut Vec<u8>) -> std::io::Result<()>| {
-            let _t = startup::PerfStage::new(what);
-            let mut buf = Vec::new();
-            if let Err(e) = f(&mut buf) {
-                eprintln!("Failed to write {what}: {e}");
-                std::process::exit(1);
-            }
-            buf
-        };
+        let render_to_vec =
+            |what: &'static str, f: &dyn Fn(&mut Vec<u8>) -> std::io::Result<()>| {
+                let _t = startup::PerfStage::new(what);
+                let mut buf = Vec::new();
+                if let Err(e) = f(&mut buf) {
+                    eprintln!("Failed to write {what}: {e}");
+                    std::process::exit(1);
+                }
+                buf
+            };
         let (writes, sample_html_bytes, sample_png_bytes) = std::thread::scope(|scope| {
             let src = sample_source.as_ref();
             let html_job = sample_html.as_ref().map(|_| {
@@ -538,12 +539,11 @@ fn main() {
                                     std::process::exit(1);
                                 })
                             }
-                            OutputWork::Woff2(ttf) => {
-                                render::ttf_to_woff2(ttf, woff2_quality).unwrap_or_else(|e| {
+                            OutputWork::Woff2(ttf) => render::ttf_to_woff2(ttf, woff2_quality)
+                                .unwrap_or_else(|e| {
                                     eprintln!("{e}");
                                     std::process::exit(1);
-                                })
-                            }
+                                }),
                             OutputWork::Plain(ttf) => ttf.to_vec(),
                         }
                     })

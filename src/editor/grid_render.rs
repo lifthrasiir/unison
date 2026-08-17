@@ -117,7 +117,7 @@ pub(crate) fn blit_preview(
             continue;
         }
         for c in 0..grid.width {
-            if !grid.get(r, c).is_filled() {
+            if !grid.get(r, c).is_bitmap_filled() {
                 continue;
             }
             for &(dy, wy) in row_spans {
@@ -285,7 +285,7 @@ pub(crate) fn render_grid_row(
                 && sr < s.grid.height as i16
                 && sc >= 0
                 && sc < s.grid.width as i16
-                && !s.grid.get(sr as u16, sc as u16).is_blank()
+                && !s.grid.get(sr as u16, sc as u16).is_contour_empty()
         })
     };
 
@@ -312,7 +312,7 @@ pub(crate) fn render_grid_row(
                         continue;
                     }
                     let shape = layer.grid.get(lr_in_layer as u16, lc_in_layer as u16);
-                    if !shape.is_empty() {
+                    if !shape.is_clear() {
                         let cell_rect = egui::Rect::from_min_size(
                             egui::pos2(x + (dc - extent.left) as f32 * cs, y),
                             egui::vec2(cs, cs),
@@ -327,7 +327,7 @@ pub(crate) fn render_grid_row(
                                 pal.grid_bg,
                             );
                         } else {
-                            let px_color = if shape.is_filled() {
+                            let px_color = if shape.is_bitmap_filled() {
                                 color
                             } else {
                                 apply_opacity(color, UNFILLED_OPACITY)
@@ -375,7 +375,7 @@ pub(crate) fn render_grid_row(
                     && lc < layer.grid.width as i16
                 {
                     let shape = layer.grid.get(lr as u16, lc as u16);
-                    if !shape.is_empty() {
+                    if !shape.is_clear() {
                         if layer.negated {
                             if shape.shape_id() == 0 {
                                 visible = false;
@@ -398,12 +398,12 @@ pub(crate) fn render_grid_row(
 
         if in_own {
             let own_shape = grid.map(|g| g.get(row as u16, dc as u16));
-            let is_occupied = own_shape.is_some_and(|s| !s.is_empty());
+            let is_occupied = own_shape.is_some_and(|s| !s.is_clear());
             if is_occupied {
                 let shape = own_shape.unwrap();
                 let base_color = pal.pixel_filled;
                 let mut opacity = own_opacity;
-                if !shape.is_filled() {
+                if !shape.is_bitmap_filled() {
                     opacity *= UNFILLED_OPACITY;
                 }
                 let color = if opacity < 1.0 {
@@ -436,12 +436,12 @@ pub(crate) fn render_grid_row(
                 && lc_in_layer < layer.grid.width as i16
             {
                 let shape = layer.grid.get(lr_in_layer as u16, lc_in_layer as u16);
-                if !shape.is_empty() {
+                if !shape.is_clear() {
                     let cell_rect = egui::Rect::from_min_size(
                         egui::pos2(x + (dc - extent.left) as f32 * cs, y),
                         egui::vec2(cs, cs),
                     );
-                    let px_color = if shape.is_filled() {
+                    let px_color = if shape.is_bitmap_filled() {
                         color
                     } else {
                         apply_opacity(color, UNFILLED_OPACITY)
@@ -573,10 +573,10 @@ fn draw_shadow_row(
             continue;
         }
         let shape = shadow.grid.get(sr as u16, sc as u16);
-        if shape.is_empty() {
+        if shape.is_clear() {
             continue;
         }
-        let opacity = if shape.is_filled() {
+        let opacity = if shape.is_bitmap_filled() {
             SHADOW_OPACITY
         } else {
             SHADOW_OPACITY * UNFILLED_OPACITY
@@ -917,12 +917,12 @@ fn draw_grid_lines(
         } else {
             let left_shape = grid.get(r, c - 1);
             let right_shape = grid.get(r, c);
-            let left_right = if left_shape.is_empty() {
+            let left_right = if left_shape.is_clear() {
                 EdgeInterval::EMPTY
             } else {
                 pixel::edge_coverage(left_shape.shape_id()).right
             };
-            let right_left = if right_shape.is_empty() {
+            let right_left = if right_shape.is_clear() {
                 EdgeInterval::EMPTY
             } else {
                 pixel::edge_coverage(right_shape.shape_id()).left
@@ -959,12 +959,12 @@ fn draw_grid_lines(
         } else {
             let above_shape = grid.get(r - 1, c);
             let below_shape = grid.get(r, c);
-            let above_bottom = if above_shape.is_empty() {
+            let above_bottom = if above_shape.is_clear() {
                 EdgeInterval::EMPTY
             } else {
                 pixel::edge_coverage(above_shape.shape_id()).bottom
             };
-            let below_top = if below_shape.is_empty() {
+            let below_top = if below_shape.is_clear() {
                 EdgeInterval::EMPTY
             } else {
                 pixel::edge_coverage(below_shape.shape_id()).top
@@ -1197,12 +1197,12 @@ pub(crate) fn handle_grid_hover_preview(
             );
             let preview_color = Palette::get(ui).glyph_edit_preview;
             let shift_held = ui.input(|i| i.modifiers.shift);
-            let preview_shape = if shift_held && !selected_shape.is_empty() {
+            let preview_shape = if shift_held && !selected_shape.is_clear() {
                 selected_shape.with_fill_toggled()
             } else {
                 *selected_shape
             };
-            if preview_shape.is_empty() {
+            if preview_shape.is_clear() {
                 painter.rect_stroke(
                     cell_rect.shrink(1.0),
                     0.0,
@@ -1254,12 +1254,12 @@ pub(crate) fn render_pixel_selection_overlay(
             }
             let fc = (dc - sel.col) as u16;
             let shape = float.get(fr, fc);
-            if !shape.is_empty() {
+            if !shape.is_clear() {
                 let cell_rect = egui::Rect::from_min_size(
                     egui::pos2(x + (dc - extent.left) as f32 * cs, y),
                     egui::vec2(cs, cs),
                 );
-                let color = if shape.is_filled() {
+                let color = if shape.is_bitmap_filled() {
                     pal.pixel_filled
                 } else {
                     apply_opacity(pal.pixel_filled, UNFILLED_OPACITY)

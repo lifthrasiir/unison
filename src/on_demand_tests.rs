@@ -19,11 +19,11 @@ fn logical_fill(name: &str) -> Vec<Vec<bool>> {
         .map(|lr| {
             (0..grid.width / s)
                 .map(|lc| {
-                    let want = grid.get(lr * s, lc * s).is_filled();
+                    let want = grid.get(lr * s, lc * s).is_bitmap_filled();
                     for dr in 0..s {
                         for dc in 0..s {
                             assert_eq!(
-                                grid.get(lr * s + dr, lc * s + dc).is_filled(),
+                                grid.get(lr * s + dr, lc * s + dc).is_bitmap_filled(),
                                 want,
                                 "{name}: ink flag not uniform across logical pixel ({lr},{lc})"
                             );
@@ -117,7 +117,7 @@ fn on_demand_bitmap_fill_survives_rescale_to_any_parent_scale() {
                 for dr in 0..s {
                     for dc in 0..s {
                         assert_eq!(
-                            out.get(lr * s + dr, lc * s + dc).is_filled(),
+                            out.get(lr * s + dr, lc * s + dc).is_bitmap_filled(),
                             lr < 5,
                             "scale {parent_scale}: logical pixel ({lr},{lc}) subcell ({dr},{dc})"
                         );
@@ -260,7 +260,7 @@ fn on_demand_triangle_catalog_slope_uses_plain_codes() {
     );
     // The right angle corner is filled, the opposite corner empty.
     assert_eq!(grid.get(0, 0).shape_id(), crate::pixel::PX_ALMOSTFULL);
-    assert!(grid.get(7, 3).is_empty());
+    assert!(grid.get(7, 3).is_clear());
     // Area check: sum of per-pixel region areas must equal W·H/2.
     let mut area2 = 0.0f64;
     for r in 0..8 {
@@ -646,18 +646,18 @@ fn a_polygon_sits_where_its_default_angle_and_rotation_put_it() {
     // 8x8-poly4 puts a point at the top: a diamond with vertices at the edge
     // midpoints, so the box corners are bare and the center is inked.
     let diamond = make_on_demand_grid(&shape_of("8x8-poly4"));
-    assert!(diamond.get(0, 0).is_empty(), "corner of the diamond");
-    assert!(diamond.get(7, 7).is_empty(), "corner of the diamond");
-    assert!(diamond.get(0, 3).is_filled(), "the point at the top");
-    assert!(diamond.get(4, 4).is_filled(), "the middle");
+    assert!(diamond.get(0, 0).is_clear(), "corner of the diamond");
+    assert!(diamond.get(7, 7).is_clear(), "corner of the diamond");
+    assert!(diamond.get(0, 3).is_bitmap_filled(), "the point at the top");
+    assert!(diamond.get(4, 4).is_bitmap_filled(), "the middle");
 
     // Turned 45°, the same square becomes axis-aligned and inscribed in the
     // circle, so it reaches neither the box corners nor the edge midpoints.
     let square = make_on_demand_grid(&shape_of("8x8-poly4-cw45"));
-    assert!(square.get(0, 0).is_empty(), "corner of the box");
-    assert!(square.get(0, 3).is_empty(), "the top edge is clear now");
-    assert!(square.get(2, 2).is_filled(), "inside the square");
-    assert!(square.get(4, 4).is_filled(), "the middle");
+    assert!(square.get(0, 0).is_clear(), "corner of the box");
+    assert!(square.get(0, 3).is_clear(), "the top edge is clear now");
+    assert!(square.get(2, 2).is_bitmap_filled(), "inside the square");
+    assert!(square.get(4, 4).is_bitmap_filled(), "the middle");
 }
 
 #[test]
@@ -666,13 +666,13 @@ fn a_circle_reaches_every_edge_of_its_box_and_no_corner() {
     // Tangent to all four edges at the midpoints.
     for (r, c) in [(0u16, 8u16), (15, 8), (8, 0), (8, 15)] {
         assert!(
-            !grid.get(r, c).is_empty(),
+            !grid.get(r, c).is_clear(),
             "({r},{c}) should hold the curve"
         );
     }
     // The corners are outside.
     for (r, c) in [(0u16, 0u16), (0, 15), (15, 0), (15, 15)] {
-        assert!(grid.get(r, c).is_empty(), "({r},{c}) should be bare");
+        assert!(grid.get(r, c).is_clear(), "({r},{c}) should be bare");
     }
 }
 
@@ -685,8 +685,8 @@ fn a_negative_dimension_anchors_a_curved_shape_like_a_rectangle() {
     assert_eq!((plain.width, plain.height), (8, 8));
     assert_eq!((flipped.width, flipped.height), (8, 8));
     // The last subcolumn is bare in one and the first in the other.
-    assert!((0..8).all(|r| plain.get(r, 7).is_empty()));
-    assert!((0..8).all(|r| flipped.get(r, 0).is_empty()));
+    assert!((0..8).all(|r| plain.get(r, 7).is_clear()));
+    assert!((0..8).all(|r| flipped.get(r, 0).is_clear()));
     // One is the mirror image of the other, to within the lattice the vertices
     // snap to. Only this part needs `DetailRegion::mirror_h`, which belongs to
     // the editor's shape palette, so only this part is gated — the anchoring
@@ -707,9 +707,12 @@ fn bitmap_fill_rules_reach_curved_shapes() {
     // the middle is lit under every rule but :zero.
     for suffix in ["", ":ceil", ":floor", ":zero"] {
         let grid = make_on_demand_grid(&shape_of(&format!("8x8-circle{suffix}")));
-        assert!(!grid.get(0, 0).is_filled(), "corner under '{suffix}'");
+        assert!(
+            !grid.get(0, 0).is_bitmap_filled(),
+            "corner under '{suffix}'"
+        );
         assert_eq!(
-            grid.get(4, 4).is_filled(),
+            grid.get(4, 4).is_bitmap_filled(),
             suffix != ":zero",
             "middle under '{suffix}'"
         );
@@ -719,7 +722,7 @@ fn bitmap_fill_rules_reach_curved_shapes() {
         let grid = make_on_demand_grid(&shape_of(name));
         (0..grid.height)
             .flat_map(|r| (0..grid.width).map(move |c| (r, c)))
-            .filter(|&(r, c)| grid.get(r, c).is_filled())
+            .filter(|&(r, c)| grid.get(r, c).is_bitmap_filled())
             .count()
     };
     assert!(lit("16x16-circle:ceil") > lit("16x16-circle"));

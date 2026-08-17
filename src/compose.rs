@@ -327,17 +327,19 @@ pub struct InkLine {
     /// The highest occupied coordinate on this line.
     pub far: u16,
     /// Hardblank cells running inward from `near`, `near` included.
-    pub near_blanks: u16,
+    pub near_hardblanks: u16,
     /// Hardblank cells running inward from `far`, `far` included.
-    pub far_blanks: u16,
+    pub far_hardblanks: u16,
 }
 
 impl InkProfile {
     /// Read a grid's frontiers. A cell counts as occupied when the source put
     /// *something* there, which includes a hardblank — see
-    /// [`PixelShape::is_empty`](crate::pixel::PixelShape::is_empty). A declared
-    /// cell is hardblank when the source wrote hardblanks there and no ink, so
-    /// a `scale 2` part is read on the same units its layout is in.
+    /// [`PixelShape::is_clear`](crate::pixel::PixelShape::is_clear). This is
+    /// where the `CLEAR` / `HARDBLANK` / `INK` ladder those predicates are
+    /// named for is actually read: a declared cell is hardblank when the source
+    /// wrote hardblanks there and no ink, so a `scale 2` part is read on the
+    /// same units its layout is in.
     pub fn of(grid: &PixelGrid, scale: u8) -> Self {
         let s = scale.max(1) as u16;
         // Floor, exactly as `declared_box` does: a grid that is not a whole
@@ -345,28 +347,31 @@ impl InkProfile {
         let (w, h) = (grid.width / s, grid.height / s);
         // Per declared cell: nothing / hardblank only / ink, whichever is
         // greatest over the sub-cells, so any ink makes the cell ink.
-        const NOTHING: u8 = 0;
-        const BLANK: u8 = 1;
+        const CLEAR: u8 = 0;
+        const HARDBLANK: u8 = 1;
         const INK: u8 = 2;
-        let mut cells = vec![NOTHING; w as usize * h as usize];
+        let mut cells = vec![CLEAR; w as usize * h as usize];
         for row in 0..h * s {
             for col in 0..w * s {
                 let px = grid.get(row, col);
-                if px.is_empty() {
+                if px.is_clear() {
                     continue;
                 }
                 let at = &mut cells[(row / s) as usize * w as usize + (col / s) as usize];
-                *at = (*at).max(if px.is_hardblank() { BLANK } else { INK });
+                *at = (*at).max(if px.is_hardblank() { HARDBLANK } else { INK });
             }
         }
         let scan = |len: u16, at: &dyn Fn(u16) -> u8| -> Option<InkLine> {
-            let near = (0..len).find(|&i| at(i) != NOTHING)?;
-            let far = (near..len).rev().find(|&i| at(i) != NOTHING)?;
+            let near = (0..len).find(|&i| at(i) != CLEAR)?;
+            let far = (near..len).rev().find(|&i| at(i) != CLEAR)?;
             Some(InkLine {
                 near,
                 far,
-                near_blanks: (near..=far).take_while(|&i| at(i) == BLANK).count() as u16,
-                far_blanks: (near..=far).rev().take_while(|&i| at(i) == BLANK).count() as u16,
+                near_hardblanks: (near..=far).take_while(|&i| at(i) == HARDBLANK).count() as u16,
+                far_hardblanks: (near..=far)
+                    .rev()
+                    .take_while(|&i| at(i) == HARDBLANK)
+                    .count() as u16,
             })
         };
         let cell = |row: u16, col: u16| cells[row as usize * w as usize + col as usize];
@@ -403,11 +408,11 @@ impl InkProfile {
         Some(AxisFrontier {
             near: lines
                 .iter()
-                .filter_map(|l| l.map(|l| l.near as i32 + l.near_blanks as i32))
+                .filter_map(|l| l.map(|l| l.near as i32 + l.near_hardblanks as i32))
                 .min()?,
             far: lines
                 .iter()
-                .filter_map(|l| l.map(|l| l.far as i32 - l.far_blanks as i32))
+                .filter_map(|l| l.map(|l| l.far as i32 - l.far_hardblanks as i32))
                 .max()?,
         })
     }
@@ -446,7 +451,7 @@ pub fn facing_offset(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option
         .zip(b.along(horizontal).iter())
         .filter_map(|(x, y)| match (x, y) {
             (Some(a), Some(b)) => {
-                let shared = a.far_blanks.min(b.near_blanks) as i32;
+                let shared = a.far_hardblanks.min(b.near_hardblanks) as i32;
                 Some(b.near as i32 - a.far as i32 - 1 + shared)
             }
             _ => None,

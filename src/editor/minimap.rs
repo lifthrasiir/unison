@@ -190,7 +190,7 @@ pub(crate) fn draw_minimap(
                     let in_own_col = dc >= 0 && dc < *own_width as i16;
                     let own_filled = in_own_row
                         && in_own_col
-                        && grid.is_some_and(|g| g.get(*row as u16, dc as u16).is_filled());
+                        && grid.is_some_and(|g| g.get(*row as u16, dc as u16).is_bitmap_filled());
                     let ref_filled = !own_filled
                         && comp.is_some_and(|comp| {
                             comp.any_layer_filled_at(

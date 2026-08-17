@@ -275,7 +275,7 @@ impl PixelGrid {
                         if id != crate::pixel::PX_EMPTY {
                             all_empty = false;
                         }
-                        any_filled |= s.is_filled();
+                        any_filled |= s.is_bitmap_filled();
                     }
                 }
                 if all_empty {
@@ -373,7 +373,7 @@ impl PixelGrid {
                 if self.get(r, c).shape_id() != PX_CUSTOM {
                     continue;
                 }
-                let filled = self.get(r, c).is_filled();
+                let filled = self.get(r, c).is_bitmap_filled();
                 let id = self.region_at(r, c).nearest_shape();
                 let shape = if id == crate::pixel::PX_EMPTY {
                     PixelShape::EMPTY
@@ -388,7 +388,7 @@ impl PixelGrid {
     }
 
     pub fn is_all_empty(&self) -> bool {
-        self.pixels.iter().all(|s| s.is_empty())
+        self.pixels.iter().all(|s| s.is_clear())
     }
 
     /// Geometric-transform skeleton shared by the five transforms below,
@@ -504,7 +504,7 @@ impl PixelGrid {
         // Custom cells: PixelShape::opposite mangles the sentinel id, so
         // complement the stored geometry instead.
         for (&(r, c), region) in &self.details {
-            let filled = !self.get(r, c).is_filled();
+            let filled = !self.get(r, c).is_bitmap_filled();
             out.set_detail(r, c, &region.complement(), filled);
         }
         out
@@ -528,7 +528,7 @@ impl PixelGrid {
         for r in 0..src.height as i32 {
             for c in 0..src.width as i32 {
                 let shape = src.get(r as u16, c as u16);
-                if shape.is_empty() {
+                if shape.is_clear() {
                     continue;
                 }
                 let dr = off_r + r;
@@ -536,10 +536,19 @@ impl PixelGrid {
                 if dr < 0 || dc < 0 || dr >= self.height as i32 || dc >= self.width as i32 {
                     continue;
                 }
+                let current = self.get(dr as u16, dc as u16);
+                // A hardblank is a claim rather than geometry, so a pair
+                // involving one is settled before the region layer, which can
+                // only see the nothing it draws. See [`pixel::blank_op`].
+                if let Some(blank) = crate::pixel::blank_op(current, shape, negated) {
+                    if blank.0 != current.0 {
+                        self.set(dr as u16, dc as u16, blank);
+                    }
+                    continue;
+                }
                 let src_custom = shape.shape_id() == PX_CUSTOM;
                 if negated {
-                    let current = self.get(dr as u16, dc as u16);
-                    if current.is_empty() {
+                    if current.is_clear() {
                         continue;
                     }
                     let cur_custom = current.shape_id() == PX_CUSTOM;
@@ -550,7 +559,7 @@ impl PixelGrid {
                             dr as u16,
                             dc as u16,
                             detail::catalog_subtract(current.shape_id(), shape.shape_id()),
-                            current.is_filled(),
+                            current.is_bitmap_filled(),
                         );
                         continue;
                     }
@@ -560,14 +569,18 @@ impl PixelGrid {
                         dr as u16,
                         dc as u16,
                         detail::subtract_classified(&cur_region, &sub),
-                        current.is_filled(),
+                        current.is_bitmap_filled(),
                     );
                 } else {
-                    let current = self.get(dr as u16, dc as u16);
-                    if current.is_empty() {
+                    if current.is_clear() {
                         if src_custom {
                             let region = src.region_at(r as u16, c as u16);
-                            self.set_detail(dr as u16, dc as u16, &region, shape.is_filled());
+                            self.set_detail(
+                                dr as u16,
+                                dc as u16,
+                                &region,
+                                shape.is_bitmap_filled(),
+                            );
                         } else {
                             self.set(dr as u16, dc as u16, shape);
                         }
@@ -579,7 +592,7 @@ impl PixelGrid {
                             dc as u16,
                             detail::bool_op(&cur_region, &src_region, detail::BoolOp::Union)
                                 .classify(),
-                            current.is_filled() || shape.is_filled(),
+                            current.is_bitmap_filled() || shape.is_bitmap_filled(),
                         );
                     }
                 }
@@ -3054,6 +3067,50 @@ mod tests {
             assert!(
                 (p.0 - e.0).abs() < 1e-5 && (p.1 - e.1).abs() < 1e-5,
                 "vertex {p:?} != {e:?} in {pts:?}"
+            );
+        }
+    }
+
+    /// A hardblank is a *claim* on a cell, not geometry, so it composes on its
+    /// own level: a claim survives being blitted over another claim, ink wins
+    /// over a claim either way round, and only a claim cancels a claim.
+    ///
+    /// The table is the whole rule. `blit` used to route every non-empty pair
+    /// through the region layer, where a hardblank reads as the empty region it
+    /// draws — so two overlapping claims annihilated into a truly empty cell
+    /// and a claim under ink was erased by a negated blit. Both silently
+    /// changed what [`crate::compose::InkProfile`] measures.
+    #[test]
+    fn blit_composes_hardblanks_on_their_own_level() {
+        use crate::pixel::PX_HARDBLANK;
+        let hb = PixelShape::new(PX_HARDBLANK, false);
+        let ink = PixelShape::new(PX_ALMOSTFULL, true);
+
+        // (destination, source, negated) -> expected
+        let cases: [(PixelShape, PixelShape, bool, PixelShape); 8] = [
+            (hb, hb, false, hb),
+            (hb, ink, false, ink),
+            (ink, hb, false, ink),
+            (PixelShape::EMPTY, hb, false, hb),
+            (hb, hb, true, PixelShape::EMPTY),
+            (hb, ink, true, hb),
+            (ink, hb, true, ink),
+            (PixelShape::EMPTY, hb, true, PixelShape::EMPTY),
+        ];
+
+        for (dst_shape, src_shape, negated, expected) in cases {
+            let mut dst = PixelGrid::new(1, 1);
+            dst.set(0, 0, dst_shape);
+            let mut src = PixelGrid::new(1, 1);
+            src.set(0, 0, src_shape);
+            dst.blit(&src, 0, 0, negated);
+            assert_eq!(
+                dst.get(0, 0).0,
+                expected.0,
+                "{:?} {} {:?}",
+                dst_shape.0,
+                if negated { "-" } else { "|" },
+                src_shape.0,
             );
         }
     }

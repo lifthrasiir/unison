@@ -176,7 +176,7 @@ mod tests {
         let cell = shadow.grid.get(0, 0);
         assert_eq!(cell.shape_id(), PX_ALMOSTFULL);
         assert!(
-            cell.is_filled(),
+            cell.is_bitmap_filled(),
             "ink from either candidate lights the cell"
         );
     }
@@ -215,7 +215,7 @@ mod tests {
         // "left" lands at col -2, "right" at col 1 row -1.
         assert_eq!((shadow.col, shadow.row), (-2, -1));
         assert_eq!((shadow.grid.width, shadow.grid.height), (4, 2));
-        assert!(shadow.grid.get(1, 0).is_filled());
-        assert!(shadow.grid.get(0, 3).is_filled());
+        assert!(shadow.grid.get(1, 0).is_bitmap_filled());
+        assert!(shadow.grid.get(0, 3).is_bitmap_filled());
     }
 }

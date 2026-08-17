@@ -231,8 +231,8 @@ $$@@..
     };
     let grid = body.pixels.as_ref().expect("the glyph has a grid");
     assert!(grid.get(0, 0).is_hardblank());
-    assert!(grid.get(0, 1).is_filled());
-    assert!(grid.get(0, 2).is_empty());
+    assert!(grid.get(0, 1).is_bitmap_filled());
+    assert!(grid.get(0, 2).is_clear());
 
     let mut output = Vec::new();
     serialize_document(&doc, &mut output).unwrap();
@@ -320,13 +320,13 @@ fn parse_glyph_with_all_shapes() {
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     if let DocumentItem::Glyph { body, .. } = &doc.items[0] {
         let grid = body.pixels.as_ref().expect("expected glyph with pixels");
-        assert!(grid.get(0, 0).is_empty());
+        assert!(grid.get(0, 0).is_clear());
         assert_eq!(grid.get(0, 1).shape_id(), crate::pixel::PX_ALMOSTFULL);
-        assert!(grid.get(0, 1).is_filled());
+        assert!(grid.get(0, 1).is_bitmap_filled());
         assert_eq!(grid.get(0, 2).shape_id(), crate::pixel::PX_HALF1);
-        assert!(grid.get(0, 2).is_filled());
+        assert!(grid.get(0, 2).is_bitmap_filled());
         assert_eq!(grid.get(0, 3).shape_id(), crate::pixel::PX_QUAD1);
-        assert!(grid.get(0, 3).is_filled());
+        assert!(grid.get(0, 3).is_bitmap_filled());
     } else {
         panic!("expected glyph");
     }

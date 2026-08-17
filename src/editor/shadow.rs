@@ -133,7 +133,7 @@ impl ShadowBuilder {
 /// is not a shadow: it would widen the drawn area to cover a glyph the reader
 /// cannot see.
 fn has_ink(grid: &PixelGrid) -> bool {
-    (0..grid.height).any(|r| (0..grid.width).any(|c| !grid.get(r, c).is_blank()))
+    (0..grid.height).any(|r| (0..grid.width).any(|c| !grid.get(r, c).is_contour_empty()))
 }
 
 /// Union `src` into `dst` at `(off_r, off_c)` — the same rule
@@ -145,7 +145,7 @@ fn union_into(dst: &mut PixelGrid, src: &PixelGrid, off_r: i32, off_c: i32) {
     for r in 0..src.height as i32 {
         for c in 0..src.width as i32 {
             let shape = src.get(r as u16, c as u16);
-            if shape.is_blank() {
+            if shape.is_contour_empty() {
                 continue;
             }
             let (dr, dc) = (off_r + r, off_c + c);
@@ -155,11 +155,11 @@ fn union_into(dst: &mut PixelGrid, src: &PixelGrid, off_r: i32, off_c: i32) {
             let (dr, dc) = (dr as u16, dc as u16);
             let current = dst.get(dr, dc);
             // Already a whole inked pixel: nothing unions into more than that.
-            if current.shape_id() == PX_ALMOSTFULL && current.is_filled() {
+            if current.shape_id() == PX_ALMOSTFULL && current.is_bitmap_filled() {
                 continue;
             }
-            let filled = current.is_filled() || shape.is_filled();
-            if current.is_empty() {
+            let filled = current.is_bitmap_filled() || shape.is_bitmap_filled();
+            if current.is_clear() {
                 if shape.shape_id() == PX_CUSTOM {
                     dst.set_detail(dr, dc, &src.region_at(r as u16, c as u16), filled);
                 } else {

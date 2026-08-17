@@ -506,14 +506,14 @@ fn draw_inline_palette(
             pal.shape_palette_bg
         };
         painter.rect_filled(cell_rect, 1.0, bg);
-        let apply_shift = shift_held && !shape.is_empty();
+        let apply_shift = shift_held && !shape.is_clear();
         // The fill is per-cell palette data, *except* on the selected cell,
         // which shows the selection's own fill — that is what makes clicking it
         // again (see below) visibly alternate between solid and dimmed.
         let cell_filled = if is_selected {
-            selected_shape.is_filled()
+            selected_shape.is_bitmap_filled()
         } else {
-            shape.is_filled()
+            shape.is_bitmap_filled()
         };
         let display_filled = cell_filled ^ apply_shift;
 
@@ -550,9 +550,9 @@ fn draw_inline_palette(
             // apart, without holding shift. Any other cell arrives with the
             // fill the palette draws it with (shift inverts that, as on the grid).
             let new_fill = if selected_shape.shape_id() == shape.shape_id() {
-                !selected_shape.is_filled()
+                !selected_shape.is_bitmap_filled()
             } else {
-                shape.is_filled() ^ (shift_held && !shape.is_empty())
+                shape.is_bitmap_filled() ^ (shift_held && !shape.is_clear())
             };
             *selected_shape = pixel::PixelShape::new(shape.shape_id(), new_fill);
         }

@@ -40,7 +40,7 @@ pub fn track_contour(grid: &PixelGrid, mask: u8) -> Vec<Vec<(f32, f32)>> {
     let mut data = vec![PX_EMPTY; total];
     for r in 0..height {
         for c in 0..width {
-            data[(r + 1) * stride + c] = grid.get(r as u16, c as u16).ink_shape_id();
+            data[(r + 1) * stride + c] = grid.get(r as u16, c as u16).catalog_shape_id();
         }
     }
 
@@ -506,7 +506,7 @@ pub fn track_contour_fullpixel(grid: &PixelGrid) -> Vec<Vec<(f32, f32)>> {
     let mut fp_grid = PixelGrid::new(grid.width, grid.height);
     for r in 0..grid.height {
         for c in 0..grid.width {
-            if grid.get(r, c).is_filled() {
+            if grid.get(r, c).is_bitmap_filled() {
                 fp_grid.set(r, c, PixelShape(PX_ALMOSTFULL));
             }
         }
@@ -571,7 +571,7 @@ fn merge_layers_exact(
                     continue;
                 }
                 let shape = grid.get(lr as u16, lc as u16);
-                if shape.ink_shape_id() & mask == PX_EMPTY {
+                if shape.catalog_shape_id() & mask == PX_EMPTY {
                     continue;
                 }
                 let region = grid.region_at(lr as u16, lc as u16);
@@ -582,7 +582,7 @@ fn merge_layers_exact(
                     untouched &= acc.is_none();
                     continue;
                 }
-                filled |= shape.is_filled();
+                filled |= shape.is_bitmap_filled();
                 if single.is_some() {
                     untouched = false;
                 } else {
@@ -754,7 +754,7 @@ pub fn track_contour_multi(layers: &[(&PixelGrid, i32, i32)], mask: u8) -> Vec<V
         let off_c = (col_off - min_c) as usize;
         for r in 0..grid.height as usize {
             for c in 0..grid.width as usize {
-                let sid = grid.get(r as u16, c as u16).ink_shape_id() & mask;
+                let sid = grid.get(r as u16, c as u16).catalog_shape_id() & mask;
                 if sid != PX_EMPTY {
                     let idx = (off_r + r + 1) * stride + (off_c + c);
                     if shape_masks[idx] == 0 {
@@ -882,7 +882,7 @@ pub fn track_contour_multi_diff(
         };
         for r in 0..grid.height as usize {
             for c in 0..grid.width as usize {
-                let sid = grid.get(r as u16, c as u16).ink_shape_id() & mask;
+                let sid = grid.get(r as u16, c as u16).catalog_shape_id() & mask;
                 if sid != PX_EMPTY {
                     let idx = (off_r + r + 1) * stride + (off_c + c);
                     target[idx] |= 1u128 << sid;

@@ -133,7 +133,7 @@ fn on_demand_ref_composites_before_the_next_resolve() {
 
     // The flattened form the thumbnails and the grid renderer share must agree.
     let grid = composite_to_grid(&None, &refs, &cache, &empty_parts, 1);
-    assert!(grid.get(0, 0).is_filled());
+    assert!(grid.get(0, 0).is_bitmap_filled());
 }
 
 #[test]
@@ -297,8 +297,8 @@ ref wrapped
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
     assert_eq!(resolved["chain"].grid.width, 3);
-    assert!(resolved["chain"].grid.get(0, 0).is_filled());
-    assert!(resolved["chain"].grid.get(0, 2).is_filled());
+    assert!(resolved["chain"].grid.get(0, 0).is_bitmap_filled());
+    assert!(resolved["chain"].grid.get(0, 2).is_bitmap_filled());
 }
 
 #[test]
@@ -350,7 +350,7 @@ ref $base
         assert!(
             resolved
                 .get(name)
-                .is_some_and(|g| g.grid.get(0, 0).is_filled()),
+                .is_some_and(|g| g.grid.get(0, 0).is_bitmap_filled()),
             "{name} did not resolve"
         );
     }
@@ -964,7 +964,7 @@ fn on_demand_fractional_rect_resolved() {
                 "pixel ({r},{c}) geometry"
             );
             assert!(
-                resolved.grid.get(r, c).is_filled(),
+                resolved.grid.get(r, c).is_bitmap_filled(),
                 "pixel ({r},{c}) should be inked"
             );
         }
@@ -997,10 +997,10 @@ fn on_demand_fractional_rect_neg_anchoring() {
             // and round up, but logical row 0 holds only subrow 2 — ⅓ —
             // and stays dark.
             assert_eq!(
-                resolved.grid.get(r, c).is_filled(),
+                resolved.grid.get(r, c).is_bitmap_filled(),
                 r >= 3,
                 "pixel ({r},{c}) fill={} expected={}",
-                resolved.grid.get(r, c).is_filled(),
+                resolved.grid.get(r, c).is_bitmap_filled(),
                 r >= 3,
             );
         }
@@ -1026,7 +1026,7 @@ fn on_demand_glyph_injected_for_ref() {
     assert_eq!(resolved.grid.height, 3);
     for r in 0..3 {
         for c in 0..2 {
-            assert!(resolved.grid.get(r, c).is_filled());
+            assert!(resolved.grid.get(r, c).is_bitmap_filled());
         }
     }
 }
@@ -1051,7 +1051,7 @@ fn on_demand_glyph_composite_resolves() {
     for r in 0..2 {
         for c in 0..3 {
             assert!(
-                comp.grid.get(r, c).is_filled(),
+                comp.grid.get(r, c).is_bitmap_filled(),
                 "composite pixel ({r},{c}) should be filled"
             );
         }
@@ -1090,7 +1090,7 @@ fn on_demand_glyph_not_injected_when_defined() {
     let resolved = &cache["2x3"];
     for r in 0..3 {
         for c in 0..2 {
-            assert!(!resolved.grid.get(r, c).is_filled());
+            assert!(!resolved.grid.get(r, c).is_bitmap_filled());
         }
     }
 }

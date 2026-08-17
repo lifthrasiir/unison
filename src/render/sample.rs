@@ -546,7 +546,7 @@ fn collect_sample_data_with(
             for r in 0..grid.height as i32 {
                 for c in 0..grid.width as i32 {
                     let shape = grid.get(r as u16, c as u16);
-                    if !shape.is_empty() {
+                    if !shape.is_clear() {
                         let (dr, dc) = (off_r + r, off_c + c);
                         if dr >= 0 && dc >= 0 && dr < cg.height as i32 && dc < cg.width as i32 {
                             cg.set(dr as u16, dc as u16, shape);
@@ -763,7 +763,7 @@ fn composite_components(width: u16, height: u16, components: &[SampleComponent])
         for r in 0..comp.grid.height as i32 {
             for c in 0..comp.grid.width as i32 {
                 let shape = comp.grid.get(r as u16, c as u16);
-                if shape.is_filled() {
+                if shape.is_bitmap_filled() {
                     let dr = comp.row + r;
                     let dc = comp.col + c;
                     if dr >= 0 && dc >= 0 && dr < height as i32 && dc < width as i32 {
@@ -1212,7 +1212,7 @@ fn render_glyph_bitmap_rgba(
         for r in 0..comp.grid.height as i32 {
             for c in 0..comp.grid.width as i32 {
                 let shape = comp.grid.get(r as u16, c as u16);
-                if shape.is_filled() {
+                if shape.is_bitmap_filled() {
                     let py = y + comp.row + r;
                     let px = x + comp.col + c;
                     if py >= 0 && px >= 0 && (py as usize) < img_height && (px as usize) < stride {
@@ -2003,7 +2003,7 @@ map A = combo
         let comps = data.glyphs["combo"].normalized_components();
         let bitmap = composite_components(3, 3, &comps);
         assert!(
-            bitmap.get(1, 1).is_filled(),
+            bitmap.get(1, 1).is_bitmap_filled(),
             "the ring's hole must not punch through the parent's own solid layer"
         );
     }
@@ -2047,7 +2047,7 @@ map A = combo
         for r in 0..3u16 {
             for c in 0..3u16 {
                 assert!(
-                    !bitmap.get(r, c).is_filled(),
+                    !bitmap.get(r, c).is_bitmap_filled(),
                     "({r}, {c}): subtracting a superset must leave nothing; \
                      the target's hole is not ink"
                 );
@@ -2093,7 +2093,7 @@ map A = g
         for r in 0..3u16 {
             for c in 0..3u16 {
                 assert!(
-                    bitmap.get(r, c).is_filled(),
+                    bitmap.get(r, c).is_bitmap_filled(),
                     "({r}, {c}): the desync grid is the bitmap face's ink"
                 );
             }
@@ -2128,11 +2128,11 @@ map A = g
         // the `:zero` ref, which lights no pixel.
         let bitmap = composite_components(2, 4, &comps);
         assert!(
-            bitmap.get(0, 0).is_filled() && bitmap.get(1, 0).is_filled(),
+            bitmap.get(0, 0).is_bitmap_filled() && bitmap.get(1, 0).is_bitmap_filled(),
             "the desync grid is what the bitmap face draws"
         );
         assert!(
-            !bitmap.get(1, 1).is_filled(),
+            !bitmap.get(1, 1).is_bitmap_filled(),
             "`:zero` contributes no bitmap ink"
         );
 
@@ -2141,11 +2141,11 @@ map A = g
         assert!(
             vector
                 .iter()
-                .all(|c| c.grid.get(1, 0).is_empty() || !c.grid.get(1, 0).is_filled()),
+                .all(|c| c.grid.get(1, 0).is_clear() || !c.grid.get(1, 0).is_bitmap_filled()),
             "no vector layer may carry the desync grid's ink"
         );
         let vector_ink = vector.iter().any(|c| {
-            (0..c.grid.height).any(|r| (0..c.grid.width).any(|x| !c.grid.get(r, x).is_empty()))
+            (0..c.grid.height).any(|r| (0..c.grid.width).any(|x| !c.grid.get(r, x).is_clear()))
         });
         assert!(vector_ink, "the `:zero` ref still has a vector outline");
         assert_eq!(
@@ -2481,8 +2481,11 @@ map A = diag
         );
         let mut buf = Vec::new();
         let resolution = crate::resolve::Resolution::compute(&[&d]);
-        write_sample_html(&mut buf, &SampleSource::collect_with(&[&d], &resolution).unwrap())
-            .unwrap();
+        write_sample_html(
+            &mut buf,
+            &SampleSource::collect_with(&[&d], &resolution).unwrap(),
+        )
+        .unwrap();
         let html = String::from_utf8(buf).unwrap();
         // Extract the large-glyph SVG (id='u41' for 'A')
         let svg = html.split("id='u41'").nth(1).unwrap();

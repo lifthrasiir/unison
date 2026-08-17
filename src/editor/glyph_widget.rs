@@ -71,7 +71,7 @@ pub fn draw_pixel_cell_colored(
     shape: PixelShape,
     color: egui::Color32,
 ) {
-    if shape.is_empty() {
+    if shape.is_clear() {
         return;
     }
 
