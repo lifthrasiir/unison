@@ -843,18 +843,20 @@ pub struct GlyphBody {
     /// so the two faces can describe different shapes; see
     /// [`crate::render::ttf_builder`].
     pub desync: bool,
+    /// `advance W`: the declared box's width, with its height left to the
+    /// grid. The common half of [`extent`](Self::extent), and the one a source
+    /// states on its own — see [`GlyphBody::declared_extent`].
     pub advance: Option<u16>,
-    pub left: Option<i16>,
-    pub top: Option<i16>,
     /// `origin C R`: where the declared box's top-left corner sits, in the
     /// glyph's own logical cells. See [`GlyphBody::declared_origin`], which is
-    /// what everything downstream reads — `left`/`top` are the older spelling
-    /// of the same corner, negated.
+    /// what everything downstream reads, and what the exported side bearings
+    /// are the negation of.
     pub origin: Option<(i16, i16)>,
     /// `extent W H`: the size of the declared box, measured from
-    /// [`origin`](Self::origin). Either component may be zero — a combining
-    /// mark declares `extent 0 H`, which is how it says it takes no width.
-    /// See [`GlyphBody::declared_extent`].
+    /// [`origin`](Self::origin), for the glyph whose height is not its grid's
+    /// either. Either component may be zero. A glyph that only means to take no
+    /// width writes [`advance 0`](Self::advance) instead and keeps the grid's
+    /// height; writing both is an error. See [`GlyphBody::declared_extent`].
     pub extent: Option<(u16, u16)>,
     pub scale: u8,
     /// The header's name as written when that differs from the
@@ -871,23 +873,11 @@ impl GlyphBody {
     /// logical cells: `(col, row)`, the same order a `ref` offset is written
     /// in. `(0, 0)` — the grid's own corner — when nothing says otherwise.
     ///
-    /// The older `left`/`top` spelling is the *side bearings* of the same
-    /// corner, so it reads negated: `left 5` puts five cells of blank between
-    /// the pen and the grid, which is the grid's corner sitting at column −5 of
-    /// the box. Both spellings are accepted while `font/` is migrated; every
-    /// consumer goes through here, so only this function knows there are two.
-    // Nothing outside the tests reads the origin yet — the consumers still work
-    // in grid coordinates. `expect` rather than `allow` on purpose: the day one
-    // of them is converted, this line has to go.
-    #[cfg_attr(not(test), expect(dead_code))]
+    /// A `ref` offset is measured to the child's corner, so declaring an origin
+    /// moves everything the glyph places and everything that places it; see
+    /// [`crate::ref_composite::rebase_offsets_to_box`].
     pub fn declared_origin(&self) -> (i16, i16) {
-        match self.origin {
-            Some(origin) => origin,
-            None => (
-                self.left.map_or(0, i16::wrapping_neg),
-                self.top.map_or(0, i16::wrapping_neg),
-            ),
-        }
+        self.origin.unwrap_or((0, 0))
     }
 
     /// The declared box's size in logical cells, or `None` for a glyph that
@@ -895,9 +885,19 @@ impl GlyphBody {
     /// whose box is the union of what it places — see
     /// [`crate::ref_composite`]).
     ///
-    /// Zero is a real answer, not a missing one: `extent 0 H` is how a
-    /// combining mark says it takes no width, and `advance 0` — the older
-    /// spelling — meant the same thing.
+    /// Three ways in, narrowing: `extent` states both numbers, `advance` states
+    /// the width and takes the height from the grid, and a bare grid states
+    /// both by being the box. That middle one is not a lesser spelling of the
+    /// first — it is what a source writes when only the width is unusual, which
+    /// is nearly always — so the two are separate flags and stating both is an
+    /// error.
+    ///
+    /// Zero is a real answer, not a missing one: `advance 0` is how a combining
+    /// mark says it takes no width.
+    ///
+    /// A glyph with `advance` and no grid still answers `None`: the width alone
+    /// is not a box, and the height it would need is exactly what a gridless
+    /// composite has to be measured for.
     pub fn declared_extent(&self) -> Option<(u16, u16)> {
         if let Some(extent) = self.extent {
             return Some(extent);
@@ -925,8 +925,6 @@ impl GlyphBody {
             mark: false,
             desync: false,
             advance: None,
-            left: None,
-            top: None,
             origin: None,
             extent: None,
             scale: 1,

@@ -202,8 +202,8 @@ fn expand_inner(
                                     b.mark = body.mark;
                                     b.desync = body.desync;
                                     b.advance = body.advance;
-                                    b.left = body.left;
-                                    b.top = body.top;
+                                    b.origin = body.origin;
+                                    b.extent = body.extent;
                                     b.scale = body.scale;
                                 }
                                 all_items.push(ExpandedItem {
@@ -969,8 +969,8 @@ fn inject_on_demand_glyph_items(
                                 desync,
                                 scale: combined_scale,
                                 advance: mono_body.advance.or(color_body.advance),
-                                left: mono_body.left.or(color_body.left),
-                                top: mono_body.top.or(color_body.top),
+                                origin: mono_body.origin.or(color_body.origin),
+                                extent: mono_body.extent.or(color_body.extent),
                                 ..GlyphBody::new()
                             },
                         },
@@ -1019,7 +1019,7 @@ fn inject_on_demand_glyph_items(
         }
         // A name that is defined but contentless gets its own wording:
         // "undefined" would send the author looking for a definition that is
-        // right there. `advance`/`left`/`top`/`point` do not make a glyph
+        // right there. `origin`/`advance`/`extent`/`point` do not make a glyph
         // buildable, so the fix is always to add a pixel grid or a `ref`.
         const EMPTY: &str = "has neither a pixel grid nor a ref, so it is not built";
         let (severity, message) = match (

@@ -647,7 +647,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         && body.refs.is_empty()
                         && !body.keep
                         && body.advance.is_none()
-                        && body.left.is_none()
+                        && body.origin.is_none()
                         && body.points.is_empty()
                     {
                         issues.push(issue_at(
@@ -1469,10 +1469,18 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
             fn anchors(&self) -> &[crate::document::GlyphPoint] {
                 &self.anchors
             }
+            fn declared_origin(&self) -> (i16, i16) {
+                (0, 0)
+            }
             fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
                 (&mut self.w, &mut self.h)
             }
-            fn set_resolution(&mut self, anchors: Vec<crate::document::GlyphPoint>, _scale: u8) {
+            fn set_resolution(
+                &mut self,
+                anchors: Vec<crate::document::GlyphPoint>,
+                _scale: u8,
+                _origin: (i16, i16),
+            ) {
                 self.anchors = anchors;
             }
         }

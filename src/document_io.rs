@@ -189,17 +189,28 @@
 //! # Glyph blocks
 //!
 //! `glyph NAME [W H] [flags...]`, with flags `keep`, `inline`, `mark`,
-//! `desync`, `origin C R`, `extent W H` and `scale N` (the per-glyph
-//! sub-pixel detail resolution: the grid is N× finer, and `document_io`
-//! multiplies the declared dimensions by it but not the other flags).
+//! `desync`, `origin C R`, `advance W`, `extent W H` and `scale N` (the
+//! per-glyph sub-pixel detail resolution: the grid is N× finer, and
+//! `document_io` multiplies the declared dimensions by it but not the other
+//! flags).
 //!
-//! `origin`/`extent` are the **declared box** — the rectangle the glyph claims
-//! to draw in, which is what it exports as a bearing and an advance, what
-//! `:WxH` names and what a clearance measures. Ink may leave it; a renderer
-//! owes that nothing. `advance N`, `left N` and `top N` are the older spelling
-//! of the same rectangle (`left`/`top` are its corner's *side bearings*, so
-//! they negate) and are still accepted while `font/` is migrated. Both meet in
-//! [`crate::document::GlyphBody::declared_origin`] and
+//! Those three state the **declared box** — the rectangle the glyph claims to
+//! draw in, which is what it exports as a bearing and an advance, what `:WxH`
+//! names and what a clearance measures. Ink may leave it; a renderer owes that
+//! nothing.
+//!
+//! - `origin C R` places its top-left corner in the grid, which is what the
+//!   exported side bearings are the negation of.
+//! - `advance W` states its **width only**, leaving the height to the grid.
+//!   This is the common case by far — a combining mark writes `advance 0`, and
+//!   nothing about its height is unusual — and it is why the width did not
+//!   become half of a two-valued flag.
+//! - `extent W H` states **both**, for a glyph whose height is not the grid's
+//!   either: a gridless composite that must not be measured by what it happens
+//!   to place. Writing it beside `advance` is an error, the two saying the same
+//!   thing.
+//!
+//! Every spelling meets in [`crate::document::GlyphBody::declared_origin`] and
 //! [`declared_extent`](crate::document::GlyphBody::declared_extent), which is
 //! all anything downstream reads.
 //!
@@ -260,7 +271,7 @@
 //!   `foo-bar`. See [`crate::document::expand_at_name`].
 //!
 //! A glyph needs a pixel grid or at least one `ref` to exist at all.
-//! `advance`/`left`/`top`/`anchor` do not make one buildable, and a contentless
+//! `origin`/`advance`/`extent`/`anchor` do not make one buildable, and a contentless
 //! glyph never enters the resolution cache — so it is absent from cmap, from
 //! composites and from GSUB coverage, and referring to it from a `map`, `ref`
 //! or `remap` is an error (leaving it unused is only the usual warning).
@@ -711,8 +722,6 @@ pub struct GlyphHeaderFlags {
     pub mark: bool,
     pub desync: bool,
     pub advance: Option<u16>,
-    pub left: Option<i16>,
-    pub top: Option<i16>,
     pub origin: Option<(i16, i16)>,
     pub extent: Option<(u16, u16)>,
     pub width: Option<u16>,
@@ -732,7 +741,8 @@ pub struct GlyphHeaderFlags {
 ///
 /// This is the single implementation of the header flag grammar: keyword
 /// flags (`keep`, `inline`, `mark`, `desync`), valued flags (`advance N`,
-/// `left N`, `top N`) and the `W H` dimension pair may appear in any order. It is
+/// `origin C R`, `extent W H`) and the `W H` dimension pair may appear in any
+/// order. It is
 /// shared by `derive_document` and [`glyph_header_dims`] so that the
 /// document model and grid reconciliation can never disagree about whether
 /// a header owns a pixel grid.
@@ -740,8 +750,8 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
     parse_glyph_flag_parts_impl(flag_parts, &mut |_| {})
 }
 
-const GLYPH_FLAG_KEYWORDS: [&str; 10] = [
-    "keep", "inline", "mark", "desync", "advance", "left", "top", "origin", "extent", "scale",
+const GLYPH_FLAG_KEYWORDS: [&str; 8] = [
+    "keep", "inline", "mark", "desync", "advance", "origin", "extent", "scale",
 ];
 
 /// The one walker behind both the lenient parse and the strict validation.
@@ -793,17 +803,6 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
                 }
                 fp += 2;
             }
-            kw @ ("left" | "top") => {
-                fp += 1;
-                let value = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
-                if value.is_none() {
-                    err(format!("'{kw}' requires an i16 value"));
-                }
-                match kw {
-                    "left" => flags.left = value,
-                    _ => flags.top = value,
-                }
-            }
             other => {
                 if flags.width.is_none()
                     && let Ok(w) = other.parse::<u16>()
@@ -832,6 +831,12 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
         }
         fp += 1;
     }
+    // One slot, one spelling. The lenient parse keeps both values — it has no
+    // way to report anything and something has to be shown — and the strict one
+    // rejects the line, so nothing downstream has to pick a winner.
+    if flags.advance.is_some() && flags.extent.is_some() {
+        err("'advance' and 'extent' both state the declared box's width".to_string());
+    }
     flags
 }
 
@@ -841,7 +846,7 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
 ///
 /// Returns `None` for ref-only headers (`glyph NAME`) or simple aliases
 /// (`glyph NAME = ALIAS`). Handles keyword flags like `keep`, `advance N`,
-/// `left N` appearing before or after `W H`.
+/// `origin C R` appearing before or after `W H`.
 pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> {
     if parts.is_empty() {
         return None;
@@ -1204,12 +1209,6 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     }
     if let Some(adv) = body.advance {
         flags.push_str(&format!(" advance {adv}"));
-    }
-    if let Some(left) = body.left {
-        flags.push_str(&format!(" left {left}"));
-    }
-    if let Some(top) = body.top {
-        flags.push_str(&format!(" top {top}"));
     }
     if let Some((c, r)) = body.origin {
         flags.push_str(&format!(" origin {c} {r}"));
@@ -1607,8 +1606,6 @@ pub fn derive_document(
                         body.mark = flags.mark;
                         body.desync = flags.desync;
                         body.advance = flags.advance;
-                        body.left = flags.left;
-                        body.top = flags.top;
                         body.origin = flags.origin;
                         body.extent = flags.extent;
                         body.scale = flags.scale.unwrap_or(1);

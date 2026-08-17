@@ -5,7 +5,7 @@
 //!
 //! Each glyph's metric box is drawn over its grid.
 //! [`crate::editor::document_view::GlyphMetrics`] computes where it sits — and
-//! documents why `left`/`top` put it at `-left`/`-top`, why `bottom` is derived
+//! documents why the box sits at the glyph's `origin`, why `bottom` is derived
 //! rather than written, and when the baseline pair exists at all. Inside the box,
 //! a second left/right-open box runs from the ascent line (the box's own top)
 //! down to the baseline, and `GridExtent::include_metrics` widens the drawn area

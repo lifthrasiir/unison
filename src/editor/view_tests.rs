@@ -3910,14 +3910,14 @@ fn a_color_token_pushed_past_a_soft_wrap_still_paints_its_swatch() {
 // ---------------------------------------------------------------------------
 
 /// A combining mark, its metrics the way `font/comb.unf` writes them:
-/// `left -3` pushes the ink three columns left of the origin and `top 14`
-/// drops it onto the baseline, while `advance 0` makes it take no width.
+/// `origin 3 -14` puts the box's corner three columns right of the ink and
+/// fourteen rows below it, while `advance 0` makes it take no width.
 const MARK_DOC: &str = "\
 meta height 16
 meta ascent 14
 meta descent 2
 
-glyph dia-below 6 2 mark advance 0 left -3 top 14
+glyph dia-below 6 2 mark advance 0 origin 3 -14
 ..............
 @@@@@@@@@@@@..
 
@@ -3931,9 +3931,9 @@ fn first_grid_line(h: &EditorHarness) -> usize {
         .expect("the document has a pixel grid")
 }
 
-/// `left`/`top` move the ink, so the em box lands at `-left` / `-top`, and the
-/// drawn area grows to hold it: the two rows of ink sit at the *bottom* of a
-/// box that reaches fourteen rows above them.
+/// The box sits at the glyph's `origin`, and the drawn area grows to hold it:
+/// the two rows of ink sit at the *bottom* of a box that reaches fourteen rows
+/// above them.
 #[test]
 fn the_metric_box_is_the_em_box_placed_against_the_ink() {
     let mut h = EditorHarness::new(MARK_DOC);
@@ -3988,13 +3988,13 @@ fn the_baseline_needs_room_rather_than_a_mapping() {
 }
 
 /// A `scale N` glyph's grid is already in subcells (`document_io` multiplies the
-/// declared dimensions), but `left`/`top`/`advance` and everything out of
-/// `meta` are logical pixels, so the box has to scale them itself.
+/// declared dimensions), but `origin`/`advance` and everything out of `meta`
+/// are logical pixels, so the box has to scale them itself.
 #[test]
 fn the_metric_box_follows_the_glyph_scale() {
     let source = format!(
         "meta height 16\nmeta ascent 14\nmeta descent 2\n\n\
-         glyph big 4 16 scale 2 advance 3 left -1 top 2\n{}",
+         glyph big 4 16 scale 2 advance 3 origin 1 -2\n{}",
         "@@..............\n".repeat(32),
     );
     let mut h = EditorHarness::new(&source);

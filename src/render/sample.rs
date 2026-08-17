@@ -120,6 +120,9 @@ fn collect_sample_data_with(
         width: u16,
         height: u16,
         contours: Vec<Vec<(f32, f32)>>,
+        /// The glyph's declared box origin in logical cells, carried so a ref's
+        /// placement can run box to box (`glyph_cache::CachedGlyphEntry`).
+        declared_origin: (i16, i16),
         anchors: Vec<GlyphPoint>,
         grid: Option<PixelGrid>,
         /// Logical coordinate of raster cell `(0, 0)` of `grid`, in this
@@ -136,6 +139,7 @@ fn collect_sample_data_with(
     impl CachedGlyph {
         fn empty() -> Self {
             Self {
+                declared_origin: (0, 0),
                 width: 0,
                 height: 0,
                 contours: Vec::new(),
@@ -159,6 +163,7 @@ fn collect_sample_data_with(
                 track_contour(grid, PX_SUBPIXEL)
             };
             Self {
+                declared_origin: (0, 0),
                 width: grid.width,
                 height: grid.height,
                 contours,
@@ -200,13 +205,18 @@ fn collect_sample_data_with(
             &self.anchors
         }
 
+        fn declared_origin(&self) -> (i16, i16) {
+            self.declared_origin
+        }
+
         fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
             (&mut self.width, &mut self.height)
         }
 
-        fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8) {
+        fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8, origin: (i16, i16)) {
             self.anchors = anchors;
             self.scale = scale;
+            self.declared_origin = origin;
         }
     }
 
@@ -223,10 +233,11 @@ fn collect_sample_data_with(
             glyph_declared_anchors
                 .entry(n.clone())
                 .or_insert_with(|| body.points.clone());
-            if body.left.is_some() || body.top.is_some() {
-                glyph_offsets
-                    .entry(n.clone())
-                    .or_insert((body.left.unwrap_or(0), body.top.unwrap_or(0)));
+            if body.origin.is_some() {
+                // The sample draws in grid coordinates and wants the bearings,
+                // which are the origin negated.
+                let (col, row) = body.declared_origin();
+                glyph_offsets.entry(n.clone()).or_insert((-col, -row));
             }
         }
     }
@@ -479,6 +490,7 @@ fn collect_sample_data_with(
             );
 
             return Some(CachedGlyph {
+                declared_origin: (0, 0),
                 width: (min_c + raster_w).max(0) as u16,
                 height: (min_r + raster_h).max(0) as u16,
                 contours,
@@ -566,6 +578,7 @@ fn collect_sample_data_with(
         }
 
         Some(CachedGlyph {
+            declared_origin: (0, 0),
             width: max_width as u16,
             height: max_height as u16,
             contours: all_contours,
@@ -745,7 +758,7 @@ impl SampleGlyph {
 }
 
 /// Cell size and the offset the glyph is drawn at inside it.  A glyph can
-/// reach before its origin, either because `left`/`top` push it there or
+/// reach before its origin, either because an `origin` puts it there or
 /// because a ref sits at a negative offset; the cell grows to the left/top by
 /// that much so the sample shows the bearing instead of clipping it.
 fn sample_display_metrics(sg: &SampleGlyph, font_height: u16) -> (u16, u16, i16, i16) {
@@ -2193,9 +2206,9 @@ map A = test-a
     }
 
     #[test]
-    fn sample_display_metrics_reflects_top_flag() {
-        // `sample_display_metrics` used to hardcode the vertical offset to 0,
-        // so the `top N` glyph flag had no effect in sample output.
+    fn sample_display_metrics_reflects_a_vertical_bearing() {
+        // `sample_display_metrics` used to hardcode the vertical offset to 0, so
+        // a glyph's declared origin had no effect in sample output.
         let sg_with_top = SampleGlyph {
             width: 5,
             _height: 5,
@@ -2294,7 +2307,7 @@ map A = raised
     #[test]
     fn sample_display_metrics_makes_room_for_negative_bearings() {
         // A glyph reaching before its origin — via a negative ref offset or a
-        // negative `left` — used to be drawn at cell column 0 and clipped.
+        // declared `origin` — used to be drawn at cell column 0 and clipped.
         let with_negative_origin = SampleGlyph {
             width: 8,
             _height: 16,

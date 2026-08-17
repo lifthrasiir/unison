@@ -1015,6 +1015,7 @@ assert distinct a b c
             declared_anchors: vec![],
             scale: 4,
             declared_box: None,
+            declared_origin: (0, 0),
             inline_source: None,
         };
         let mut resolved = HashMap::new();

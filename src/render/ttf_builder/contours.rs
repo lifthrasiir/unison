@@ -121,6 +121,9 @@ pub(super) struct CachedContours {
     /// Contours in the glyph's own logical space; negative coordinates are
     /// kept as such.
     pub(super) contours: Vec<Vec<(f32, f32)>>,
+    /// The glyph's declared box origin in logical cells, carried so a ref's
+    /// placement can run box to box (`glyph_cache::CachedGlyphEntry`).
+    declared_origin: (i16, i16),
     pub(super) anchors: Vec<GlyphPoint>,
     pub(super) grid: Option<PixelGrid>,
     /// Logical coordinate of raster cell `(0, 0)` of `grid`, in this glyph's
@@ -136,12 +139,18 @@ pub(super) struct CachedContours {
 impl CachedContours {
     /// Where this glyph's raster grid sits when referenced from a parent at
     /// `(ref_row, ref_col)`, rescaled to the parent's resolution.
+    /// Where a ref to this glyph lands in the parent's raster. The same three
+    /// terms as [`crate::ref_composite::ref_effective_offset_scaled`], which
+    /// this has to agree with cell for cell: the offset runs box origin to box
+    /// origin, so both origins come in, and the target's own resolved raster
+    /// origin is added on top.
     pub(super) fn placed_at(&self, ref_row: i32, ref_col: i32, parent_scale: u8) -> (i32, i32) {
         let rs = self.scale.max(1) as i32;
         let ps = parent_scale.max(1) as i32;
+        let (child_c, child_r) = self.declared_origin;
         (
-            ref_row + self.origin_row * ps / rs,
-            ref_col + self.origin_col * ps / rs,
+            ref_row - child_r as i32 * ps + self.origin_row * ps / rs,
+            ref_col - child_c as i32 * ps + self.origin_col * ps / rs,
         )
     }
 }
@@ -151,19 +160,41 @@ impl crate::render::glyph_cache::CachedGlyphEntry for CachedContours {
         &self.anchors
     }
 
+    fn declared_origin(&self) -> (i16, i16) {
+        self.declared_origin
+    }
+
     fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
         (&mut self.width, &mut self.height)
     }
 
-    fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8) {
+    fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8, origin: (i16, i16)) {
         self.anchors = anchors;
         self.scale = scale;
+        self.declared_origin = origin;
     }
+}
+
+/// A ref's placement in the parent's *logical* space, box origin to box origin.
+///
+/// The raster paths go through [`CachedContours::placed_at`], which adds the
+/// target's resolved raster origin on top; the contour paths want only the two
+/// declared origins, because a contour already carries its own negative
+/// coordinates. Both have to agree about the box term or a glyph's outline and
+/// its TrueType composite reference end up in different places.
+fn box_placement(gref: &GlyphRef, cached: &CachedContours, parent_scale: u8) -> (f32, f32) {
+    let ps = parent_scale.max(1) as f32;
+    let (child_c, child_r) = cached.declared_origin;
+    (
+        gref.col() as f32 - child_c as f32 * ps,
+        gref.row() as f32 - child_r as f32 * ps,
+    )
 }
 
 impl CachedContours {
     pub(super) fn empty() -> Self {
         Self {
+            declared_origin: (0, 0),
             width: 0,
             height: 0,
             contours: Vec::new(),
@@ -191,6 +222,7 @@ impl CachedContours {
                 None => track_contour(&bitmap_grid, PX_SUBPIXEL),
             };
             Self {
+                declared_origin: (0, 0),
                 width: bitmap_grid.width,
                 height: bitmap_grid.height,
                 contours,
@@ -207,6 +239,7 @@ impl CachedContours {
                 None => track_contour(grid, PX_SUBPIXEL),
             };
             Self {
+                declared_origin: (0, 0),
                 width: grid.width,
                 height: grid.height,
                 contours,
@@ -271,12 +304,18 @@ impl CachedContours {
         // a floor, so the same composite does not get a different advance
         // depending on whether its layers happen to conflict at the subpixel
         // level (which is what routes it away from the simple path).
-        let declared_extent = |axis: fn(&CachedContours) -> u16, at: fn(&GlyphRef) -> i16| {
+        // `at` reads the offset as written, so the box term has to come in the
+        // same way it does for every other placement — otherwise a rebased
+        // offset inflates the extent by exactly the origin it was rebased by.
+        let declared_extent = |axis: fn(&CachedContours) -> u16,
+                               at: fn(&GlyphRef) -> i16,
+                               origin: fn((i16, i16)) -> i16| {
             refs.iter()
                 .filter_map(|gref| {
                     let cached = resolve_cached_ref(&gref.name, cache)?;
                     let scale_f = ps as f32 / cached.scale.max(1) as f32;
-                    Some(at(gref) as i32 + (axis(cached) as f32 * scale_f).round() as i32)
+                    let shift = -(origin(cached.declared_origin) as i32) * ps as i32;
+                    Some(at(gref) as i32 + shift + (axis(cached) as f32 * scale_f).round() as i32)
                 })
                 .max()
                 .unwrap_or(0)
@@ -359,11 +398,12 @@ impl CachedContours {
             );
 
             return Some(Self {
+                declared_origin: (0, 0),
                 width: (min_c + raster_w as i32)
-                    .max(declared_extent(|c| c.width, |g| g.col()))
+                    .max(declared_extent(|c| c.width, |g| g.col(), |o| o.0))
                     .max(0) as u16,
                 height: (min_r + raster_h as i32)
-                    .max(declared_extent(|c| c.height, |g| g.row()))
+                    .max(declared_extent(|c| c.height, |g| g.row(), |o| o.1))
                     .max(0) as u16,
                 contours,
                 anchors: Vec::new(),
@@ -429,8 +469,9 @@ impl CachedContours {
                 Some(
                     refs.iter()
                         .filter_map(|gref| {
-                            resolve_cached_ref(&gref.name, cache)?;
-                            Some((gref.name.clone(), gref.col() as f32, gref.row() as f32))
+                            let cached = resolve_cached_ref(&gref.name, cache)?;
+                            let (dx, dy) = box_placement(gref, cached, ps);
+                            Some((gref.name.clone(), dx, dy))
                         })
                         .collect(),
                 )
@@ -446,11 +487,12 @@ impl CachedContours {
             );
 
             return Some(Self {
+                declared_origin: (0, 0),
                 width: (min_c + raster_w)
-                    .max(declared_extent(|c| c.width, |g| g.col()))
+                    .max(declared_extent(|c| c.width, |g| g.col(), |o| o.0))
                     .max(0) as u16,
                 height: (min_r + raster_h)
-                    .max(declared_extent(|c| c.height, |g| g.row()))
+                    .max(declared_extent(|c| c.height, |g| g.row(), |o| o.1))
                     .max(0) as u16,
                 contours,
                 anchors: Vec::new(),
@@ -474,8 +516,7 @@ impl CachedContours {
             let cached = resolve_cached_ref(&gref.name, cache)?;
             let rs = cached.scale.max(1);
             let scale_f = ps as f32 / rs as f32;
-            let dx = gref.col() as f32;
-            let dy = gref.row() as f32;
+            let (dx, dy) = box_placement(gref, cached, ps);
             components.push((gref.name.clone(), dx, dy));
             for contour in &cached.contours {
                 let translated: Vec<(f32, f32)> = contour
@@ -486,11 +527,18 @@ impl CachedContours {
             }
             // Extend by the ref's *declared* extent, not its raster grid: a
             // glyph with declared dims and an all-empty own grid has a grid
-            // narrower than its advance.
+            // narrower than its advance.  The offset is read as written, so the
+            // box term comes in the same way `declared_extent` above brings it
+            // in — the extent is measured from where the target's *grid* lands,
+            // not from the box corner the offset names.
             let scaled_w = (cached.width as f32 * scale_f).round() as i32;
             let scaled_h = (cached.height as f32 * scale_f).round() as i32;
-            max_width = max_width.max(gref.col() as i32 + scaled_w);
-            max_height = max_height.max(gref.row() as i32 + scaled_h);
+            let (shift_c, shift_r) = (
+                -(cached.declared_origin.0 as i32) * ps as i32,
+                -(cached.declared_origin.1 as i32) * ps as i32,
+            );
+            max_width = max_width.max(gref.col() as i32 + shift_c + scaled_w);
+            max_height = max_height.max(gref.row() as i32 + shift_r + scaled_h);
             if let Some((_, row, col)) = sg {
                 min_r = min_r.min(*row);
                 min_c = min_c.min(*col);
@@ -527,6 +575,7 @@ impl CachedContours {
         }
 
         Some(Self {
+            declared_origin: (0, 0),
             width: max_width as u16,
             height: max_height as u16,
             contours: all_contours,

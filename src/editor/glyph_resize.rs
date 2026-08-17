@@ -167,6 +167,7 @@ fn anchor_placed_refs(body: &GlyphBody, env: ResolveEnv<'_>) -> Vec<bool> {
     crate::ref_composite::derive_ref_offsets_detailed(
         &body.points,
         &body.refs,
+        body.scale,
         |name| {
             crate::ref_composite::resolve_ref_name_for_view(name, env.named_glyphs, env.name_parts)
                 .map(|resolved| resolved.resolved_anchors.clone())
@@ -175,6 +176,10 @@ fn anchor_placed_refs(body: &GlyphBody, env: ResolveEnv<'_>) -> Vec<bool> {
         |name| {
             crate::ref_composite::resolve_ref_name_for_view(name, env.named_glyphs, env.name_parts)
                 .map(|resolved| resolved.declared_anchors.clone())
+        },
+        |name| {
+            crate::ref_composite::resolve_ref_name_for_view(name, env.named_glyphs, env.name_parts)
+                .map_or((0, 0), |resolved| resolved.declared_origin)
         },
     )
     .anchor_placed

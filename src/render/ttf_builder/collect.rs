@@ -6,8 +6,13 @@ use super::gsub::collect_gsub_data;
 use super::*;
 use crate::render::glyph_cache::CANCEL_STRIDE;
 
-/// The explicit `advance`/`left`/`top` flags one glyph declares, in pixels as
-/// written in the source; each is `None` when the glyph does not declare it.
+/// One glyph's declared box, in the terms this stage works in: an advance and
+/// the two *bearings* of the box's corner, in pixels, each `None` when the
+/// glyph leaves it to be derived. This is
+/// [`GlyphBody::declared_origin`](crate::document::GlyphBody::declared_origin)
+/// negated — the origin says where the box starts inside the grid, a bearing
+/// says how far the grid sits from the pen, and an outline is shifted by the
+/// latter.
 #[derive(Clone, Copy)]
 pub(super) struct GlyphMeta {
     advance: Option<u16>,
@@ -26,14 +31,22 @@ fn derive_effective_refs(
     cache: &HashMap<String, CachedContours>,
     alt_index: &HashMap<String, Vec<(String, Vec<GlyphPoint>)>>,
     declared_anchors_map: &HashMap<String, Vec<GlyphPoint>>,
+    parent_scale: u8,
 ) -> (Vec<GlyphRef>, Vec<GlyphPoint>) {
-    let (effective_refs, anchors, _issues) = crate::ref_composite::derive_ref_offsets_with(
+    let origin_of = |name: &str| {
+        use crate::render::glyph_cache::CachedGlyphEntry;
+        resolve_cached_ref(name, cache).map_or((0, 0), |c| c.declared_origin())
+    };
+    let (mut effective_refs, anchors, _issues) = crate::ref_composite::derive_ref_offsets_with(
         points,
         refs,
+        parent_scale,
         |name| resolve_cached_ref(name, cache).map(|resolved| resolved.anchors.clone()),
         |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
         |name| declared_anchors_map.get(name).cloned(),
+        origin_of,
     );
+    crate::ref_composite::rebase_offsets_to_box(&mut effective_refs, parent_scale, origin_of);
     (
         effective_refs,
         anchors.into_iter().map(|(p, _)| p).collect(),
@@ -64,8 +77,8 @@ fn scale_glyph_contours(
         .collect()
 }
 
-/// Advance width, left offset, and top offset in font units, from explicit
-/// `advance`/`left`/`top` flags when present, else the resolved raster width.
+/// Advance width, left offset, and top offset in font units, from the declared
+/// box when the glyph states one, else the resolved raster width.
 fn resolve_glyph_metrics(
     glyph_meta: &GlyphMetaMap,
     name: &str,
@@ -266,13 +279,28 @@ pub(super) fn compute_shared_font_input_for(
             body,
         } = item
         {
-            if body.advance.is_some() || body.left.is_some() || body.top.is_some() {
+            // The declared box, in the terms this stage works in: the origin is
+            // where the box's corner sits inside the grid, and the bearings are
+            // the blank the other way round, which is what an outline is
+            // shifted by. Read through `declared_origin` so both spellings
+            // reach here — see `GlyphBody`.
+            let (origin_c, origin_r) = body.declared_origin();
+            // Only an *explicit* width overrides the advance. Left implicit it
+            // stays the resolved raster width, which is what a glyph whose refs
+            // reach past its own grid has always advanced by; whether the box
+            // should take that over is a separate question from the spelling.
+            let advance = match (body.advance, body.extent) {
+                (Some(advance), _) => Some(advance),
+                (None, Some((w, _))) => Some(w),
+                (None, None) => None,
+            };
+            if advance.is_some() || (origin_c, origin_r) != (0, 0) {
                 glyph_meta.insert(
                     n.clone(),
                     GlyphMeta {
-                        advance: body.advance,
-                        left: body.left,
-                        top: body.top,
+                        advance,
+                        left: Some(-origin_c),
+                        top: Some(-origin_r),
                     },
                 );
             }
@@ -833,6 +861,7 @@ pub(super) fn collect_glyph_data_with_shared(
             &cache,
             &color_alt_index,
             declared_anchors_map,
+            body.scale,
         );
 
         let color_glyph_scale = scale / body.scale as f32;

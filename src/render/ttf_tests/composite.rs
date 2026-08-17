@@ -563,6 +563,13 @@ meta height 16
 meta ascent 12
 meta descent 4
 
+anchor +hook 1 1
+
+glyph anchored
+ref base 0 0
+ref markish inherit
+anchor -x 0 0
+
 glyph base 4 4
 @@@@@@@@
 @@@@@@@@
@@ -590,19 +597,18 @@ map B = combo
     );
 }
 
-/// Regression test for `build_composite_refs`'s `top`/`left` offset
-/// compensation: a child glyph's OWN `left`/`top` offset (already baked
-/// into the child's own glyph outline) must not leak into a parent
-/// composite that refs it — the parent must subtract the child's own
-/// offset so the ref's declared position isn't double-shifted.
+/// A child's own declared origin is already baked into the outline it exports
+/// (as a side bearing), so a parent that places the child must not apply it a
+/// second time: an offset of `0 0` puts the child's box corner on the parent's,
+/// which is where the child already draws itself.
 #[test]
-fn composite_ref_compensates_for_childs_own_left_offset() {
+fn composite_ref_compensates_for_childs_own_origin() {
     let input = "\
 meta height 16
 meta ascent 12
 meta descent 4
 
-glyph child 2 2 left 5
+glyph child 2 2 origin -5 0
 @@@@
 @@@@
 
@@ -613,14 +619,12 @@ map A = child
 map B = parent
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
-    let (_, scale, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
     let parent = glyphs.iter().find(|g| g.name == "parent").unwrap();
     assert_eq!(parent.composite_refs.len(), 1);
-    let comp_left = (5.0f32 * scale).round() as i16;
     assert_eq!(
-        parent.composite_refs[0].x_offset, -comp_left,
-        "parent composite must subtract the child's own left offset (already baked into \
-         the child's own glyph outline) so it isn't double-applied"
+        parent.composite_refs[0].x_offset, 0,
+        "a ref at the parent's own box corner must place the child unshifted"
     );
 }
 
@@ -635,6 +639,13 @@ fn negated_ref_subtracts_in_fallback_contours() {
 meta height 16
 meta ascent 12
 meta descent 4
+
+anchor +hook 1 1
+
+glyph anchored
+ref base 0 0
+ref markish inherit
+anchor -x 0 0
 
 glyph base 4 4
 @@@@@@@@
@@ -1102,6 +1113,13 @@ map B = plain
 #[test]
 fn a_size_mismatched_attachment_drops_the_glyph_too() {
     let input = "\
+anchor +hook 1 1
+
+glyph anchored
+ref base 0 0
+ref markish inherit
+anchor -x 0 0
+
 glyph base 4 4
 @@@@@@@@
 @@@@@@@@
@@ -1176,5 +1194,129 @@ map B = plain
     assert!(
         glyphs.iter().any(|g| g.codepoints.contains(&0x42)),
         "an unaffected glyph must still map"
+    );
+}
+
+/// What a declared box does to the glyphs around it, in the one shape that
+/// makes every term visible: a *composite* mark, placed entirely by its refs,
+/// declaring both an origin and a zero width the way a combining mark does.
+///
+/// Three things move, and each has been wrong on its own:
+///
+/// - **The mark's own metrics.** The origin exports as the side bearings, which
+///   are its negation, and `extent 0 H` is what makes the advance zero.
+/// - **Where a parent puts it.** An offset names the *box* corner, so a parent
+///   that wants the mark's grid somewhere writes the box corner instead — and
+///   the mark's zero width must not widen that parent, which is the width floor
+///   in `CachedContours::from_components_inner`.
+/// - **The anchors it forwards.** An anchor is a point on the *grid*, so the
+///   box has to come back out of the offset before it translates one, or every
+///   mark attaching to the parent moves by the origin. That is what GPOS reads.
+#[test]
+fn a_declared_box_moves_the_mark_its_placement_and_its_anchors() {
+    let source = |header: &str, inner: &str, outer: &str| {
+        format!(
+            "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph part 2 2
+@@@@
+@@@@
+
+glyph markish {header}
+ref part {inner}
+anchor -hook 1 1
+anchor +stack 1 0
+
+glyph base 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +hook 1 1
+
+glyph both
+ref base 0 0
+ref markish {outer} inherit
+
+glyph anchored
+ref base 0 0
+ref markish inherit
+
+map A = markish
+map B = both
+map C = anchored
+",
+        )
+    };
+    let build = |header: &str, inner: &str, outer: &str| {
+        let doc =
+            document_io::parse_document_from_str(&source(header, inner, outer), "test.unf".into())
+                .unwrap();
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        glyphs
+            .iter()
+            .map(|g| {
+                format!(
+                    "{} adv={} lsb={:?} anchors={:?} contours={:?} refs={:?}",
+                    g.name,
+                    g.advance_width,
+                    (g.left_offset, g.top_offset),
+                    g.resolved_anchors
+                        .iter()
+                        .map(|p| (p.position.clone(), p.col, p.row))
+                        .collect::<Vec<_>>(),
+                    g.contours,
+                    g.composite_refs
+                        .iter()
+                        .map(|r| (r.component_name.clone(), r.x_offset, r.y_offset))
+                        .collect::<Vec<_>>(),
+                )
+            })
+            .collect::<Vec<_>>()
+    };
+
+    // `markish` declares its box corner two columns right of its grid and one
+    // row above it, so a `ref markish 3 0` puts its grid at column 1.
+    let built = build("origin 2 -1 extent 0 16", "0 0", "3 0");
+    let line = |name: &str| {
+        built
+            .iter()
+            .find(|l| l.starts_with(&format!("{name} ")))
+            .unwrap_or_else(|| panic!("no glyph {name}"))
+            .clone()
+    };
+
+    // The origin negated is the pair of side bearings; `extent 0 …` is the
+    // advance. Its own `ref part 0 0` lands on the box corner, which is where
+    // the exported outline starts too — hence the same shift on both.
+    assert_eq!(
+        line("markish"),
+        "markish adv=0 lsb=(-128, 64) anchors=[(\"-hook\", 1, 1), (\"+stack\", 1, 0)] \
+         contours=[[(-128, 704), (0, 704), (0, 576), (-128, 576)]] refs=[(\"part\", -128, -64)]"
+    );
+
+    // Placed at box column 3, `markish` sits at 3px — its pen, not its grid.
+    // The advance stays `base`'s 4px: a zero-width mark widens nothing. The
+    // forwarded `+stack` moves by the *grid* delta (3 - 2, 0 - -1), not by the
+    // offset as written.
+    assert_eq!(
+        line("both"),
+        "both adv=256 lsb=(0, 0) anchors=[(\"+stack\", 2, 1)] \
+         contours=[[(0, 768), (256, 768), (256, 512), (0, 512)], \
+         [(64, 704), (192, 704), (192, 576), (64, 576)]] \
+         refs=[(\"base\", 0, 0), (\"markish\", 192, 0)]"
+    );
+
+    // The same mark placed by its `-hook` instead: the derivation matches grid
+    // to grid, so the anchor it forwards is the one it declared, unmoved.
+    assert_eq!(
+        line("anchored"),
+        "anchored adv=256 lsb=(0, 0) anchors=[(\"+stack\", 1, 0)] \
+         contours=[[(0, 768), (256, 768), (256, 512), (0, 512)], \
+         [(0, 768), (128, 768), (128, 640), (0, 640)]] \
+         refs=[(\"base\", 0, 0), (\"markish\", 128, 64)]"
     );
 }

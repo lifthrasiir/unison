@@ -27,6 +27,10 @@ pub(crate) struct PendingGlyph {
     pub refs: Vec<GlyphRef>,
     pub points: Vec<GlyphPoint>,
     pub scale: u8,
+    /// The glyph's declared box origin, in logical cells. Both ends of every
+    /// placement need one: this glyph's, and each ref target's (through
+    /// [`CachedGlyphEntry::declared_origin`]).
+    pub declared_origin: (i16, i16),
     /// `desync`: `pixels` is bitmap ink and nothing else. What that means for
     /// a cache value is the *consumer's* decision — this driver only carries
     /// the flag — but every consumer that draws an outline has to make it, or
@@ -37,8 +41,11 @@ pub(crate) struct PendingGlyph {
 /// A cache value the shared resolution driver can operate on.
 pub(crate) trait CachedGlyphEntry {
     fn anchors(&self) -> &[GlyphPoint];
+    /// Where this glyph's declared box starts inside its own grid, in logical
+    /// cells — see [`crate::document::GlyphBody::declared_origin`].
+    fn declared_origin(&self) -> (i16, i16);
     fn dims_mut(&mut self) -> (&mut u16, &mut u16);
-    fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8);
+    fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, scale: u8, origin: (i16, i16));
 }
 
 /// Looks up `name` in the cache, falling back to the first expansion of a
@@ -153,7 +160,7 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
                 && body.refs.is_empty()
             {
                 let mut cached = from_grid(pixels, body.desync);
-                cached.set_resolution(body.points.clone(), body.scale);
+                cached.set_resolution(body.points.clone(), body.scale, body.declared_origin());
                 cache.insert(cache_key, cached);
             } else if body.pixels.is_some() || !body.refs.is_empty() {
                 pending.push(PendingGlyph {
@@ -162,11 +169,12 @@ pub(crate) fn seed_cache<'a, V: CachedGlyphEntry>(
                     refs: body.refs.clone(),
                     points: body.points.clone(),
                     scale: body.scale,
+                    declared_origin: body.declared_origin(),
                     desync: body.desync,
                 });
             } else if body.keep {
                 let mut cached = empty();
-                cached.set_resolution(body.points.clone(), 1);
+                cached.set_resolution(body.points.clone(), 1, body.declared_origin());
                 cache.insert(cache_key, cached);
             }
         }
@@ -440,13 +448,19 @@ pub(crate) fn resolve_pending<V, B>(
                 continue;
             }
             let pg = pending.swap_remove(i);
-            let (effective_refs, anchors, issues) = crate::ref_composite::derive_ref_offsets_with(
-                &pg.points,
-                &pg.refs,
-                |name| resolve_cached(name, cache).map(|v| v.anchors().to_vec()),
-                |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
-                &mut declared_anchors,
-            );
+            let origin_of =
+                |name: &str| resolve_cached(name, cache).map_or((0, 0), |v| v.declared_origin());
+            let (mut effective_refs, anchors, issues) =
+                crate::ref_composite::derive_ref_offsets_with(
+                    &pg.points,
+                    &pg.refs,
+                    pg.scale,
+                    |name| resolve_cached(name, cache).map(|v| v.anchors().to_vec()),
+                    |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
+                    &mut declared_anchors,
+                    origin_of,
+                );
+            crate::ref_composite::rebase_offsets_to_box(&mut effective_refs, pg.scale, origin_of);
             let errored = !issues.is_empty();
             for issue in issues {
                 on_issue(&pg.name, issue);
@@ -507,7 +521,7 @@ pub(crate) fn resolve_pending<V, B>(
                 *w = (*w).max(grid.width);
                 *h = (*h).max(grid.height);
             }
-            entry.set_resolution(anchors, pg.scale);
+            entry.set_resolution(anchors, pg.scale, pg.declared_origin);
             cache.insert(pg.name, entry);
         }
 
@@ -544,10 +558,13 @@ mod tests {
         fn anchors(&self) -> &[GlyphPoint] {
             &self.anchors
         }
+        fn declared_origin(&self) -> (i16, i16) {
+            (0, 0)
+        }
         fn dims_mut(&mut self) -> (&mut u16, &mut u16) {
             (&mut self.width, &mut self.height)
         }
-        fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, _scale: u8) {
+        fn set_resolution(&mut self, anchors: Vec<GlyphPoint>, _scale: u8, _origin: (i16, i16)) {
             self.anchors = anchors;
         }
     }

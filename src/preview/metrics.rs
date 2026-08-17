@@ -188,7 +188,7 @@ meta height 4
 meta ascent 3
 meta descent 1
 
-glyph tall 2 6 top -1
+glyph tall 2 6 origin 0 1
 @@@@
 @@@@
 @@@@

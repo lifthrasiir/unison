@@ -34,8 +34,8 @@ impl GridExtent {
         self.left = self.left.min(m.left);
         self.bottom = self.bottom.max(m.bottom);
         self.right = self.right.max(m.right);
-        // The baseline is normally well inside the box, but a `top` that pushes
-        // the ink up can put it below `bottom`; drawn outside the extent it
+        // The baseline is normally well inside the box, but an `origin` that
+        // pushes the ink up can put it below `bottom`; drawn outside the extent it
         // would simply be clipped away.
         if let Some(baseline) = m.baseline {
             self.top = self.top.min(baseline);
@@ -55,14 +55,13 @@ impl GridExtent {
     }
 }
 
-/// A glyph's metric box in grid coordinates — the em box as `left`, `top` and
-/// `advance` place it relative to the drawn pixels.
+/// A glyph's metric box in grid coordinates — the em box as the declared box
+/// places it relative to the drawn pixels.
 ///
-/// `left`/`top` move the *ink*, not the box: `left -3` shifts the outline three
-/// columns left of the origin (`collect.rs::scale_glyph_contours`), so in the
-/// grid the origin sits three columns right of column 0. The box is therefore
-/// at `-left` / `-top`, and `bottom` follows from `meta height` — which is
-/// why it is computed and never written in a glyph header.
+/// `origin` is where the box's corner sits *in the grid*, which is what these
+/// fields hold; exported, it becomes the side bearings, which are its negation
+/// (`collect.rs::scale_glyph_contours`). `bottom` follows from `meta height` —
+/// which is why it is computed and never written in a glyph header.
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub(crate) struct GlyphMetrics {
     pub(crate) left: i16,
@@ -78,8 +77,8 @@ pub(crate) struct GlyphMetrics {
 /// [`compute_grid_display_extent`] reports for it.
 ///
 /// **Units.** The grid is in subcells for a `scale N` glyph — `document_io`
-/// multiplies the declared dimensions by the scale — but `left`, `top`,
-/// `advance` and everything out of `meta` are logical pixels, exactly as
+/// multiplies the declared dimensions by the scale — but `origin`, `advance`,
+/// `extent` and everything out of `meta` are logical pixels, exactly as
 /// `ttf_builder::collect` reads them. Everything from the latter group is
 /// scaled here; `own_w`/`own_h` and the composite's extent already are.
 pub(crate) fn glyph_metrics(
@@ -99,8 +98,8 @@ pub(crate) fn glyph_metrics(
         ),
         None => (own_w as i16, own_h as i16),
     };
-    let left = -body.left.unwrap_or(0) * s;
-    let top = -body.top.unwrap_or(0) * s;
+    let (origin_col, origin_row) = body.declared_origin();
+    let (left, top) = (origin_col * s, origin_row * s);
     let ascent = meta.ascent() as i16 * s;
     let em = ascent + meta.descent() as i16 * s;
     GlyphMetrics {

@@ -122,6 +122,7 @@ mod tests {
             declared_anchors: vec![anchor],
             scale: 1,
             declared_box: None,
+            declared_origin: (0, 0),
             inline_source: None,
         }
     }

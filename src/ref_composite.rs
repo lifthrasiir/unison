@@ -45,8 +45,8 @@
 //! It is not something to normalize away. The glyph origin stays at (0, 0), the
 //! outline keeps its negative coordinates (a negative lsb, or ink above the
 //! ascent), and the advance still measures only the extent to the *right* of the
-//! origin. `left`/`top` are for shifting a glyph that has no such ref; they are
-//! not for undoing a negative offset.
+//! origin. `origin C R` is for shifting a glyph that has no such ref; it is not
+//! for undoing a negative offset.
 //!
 //! Every composite path has to agree on this, which is why `CachedContours` and
 //! `CachedGlyph` carry `origin_row`/`origin_col` — the logical coordinate of
@@ -233,6 +233,13 @@ pub struct ResolvedGlyph {
     /// read — a glyph is not allowed to be laid out one way on screen and
     /// another in the font.
     pub declared_box: Option<(u16, u16)>,
+    /// Where this glyph's declared box starts inside its own grid, in declared
+    /// (un-`scale`d) cells — [`GlyphBody::declared_origin`].
+    ///
+    /// A `ref` offset runs from the parent's box origin to the child's, so both
+    /// ends of every placement read this: the child's own is subtracted here,
+    /// the parent's is added by [`resolve_composite_layout`].
+    pub(crate) declared_origin: (i16, i16),
     /// What this glyph is *declared* as, for the one consumer that has to undo
     /// one level of composition rather than read the result of all of them:
     /// the editor's "Inline once". `None` unless the glyph declares refs — a
@@ -379,19 +386,28 @@ type PoolAnchor = (GlyphPoint, Option<usize>);
 /// selection: if a later ref would consume `+X` via `-X` and the current
 /// ref's declared anchors lack `+X` (it is only forwarded from sub-refs),
 /// an alternative that declares `+X` directly is preferred.
+///
+/// Everything here is grid coordinates, in and out: an anchor is written where
+/// the drawing is, so a written offset is converted on the way in by
+/// `lookup_origin` and every offset that comes back out is converted once by
+/// [`rebase_offsets_to_box`].
 pub(crate) fn derive_ref_offsets_with(
     declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],
+    parent_scale: u8,
     lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
     lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
+    lookup_origin: impl FnMut(&str) -> (i16, i16),
 ) -> (Vec<GlyphRef>, Vec<PoolAnchor>, Vec<DeriveIssue>) {
     let outcome = derive_ref_offsets_detailed(
         declared_anchors,
         refs,
+        parent_scale,
         lookup_anchors,
         lookup_alternatives,
         lookup_declared_anchors,
+        lookup_origin,
     );
     (outcome.effective, outcome.exposed, outcome.issues)
 }
@@ -416,13 +432,45 @@ pub(crate) struct DeriveOutcome {
     pub anchor_placed: Vec<bool>,
 }
 
+/// Convert what the derivation worked out from grid coordinates into box
+/// coordinates.
+///
+/// An anchor is a point on the drawing, written where the drawing is — in grid
+/// cells — so the whole derivation runs in grid coordinates. Everything
+/// downstream, though, reads an offset as naming the child's box corner
+/// ([`ref_effective_offset_scaled`], which will subtract that origin again), so
+/// it has to be added back here or a ref lands twice-shifted on any target that
+/// declares a box.
+///
+/// Every ref is converted, not only the ones the derivation placed: a written
+/// offset was converted the other way on the way *in*, so this returns it
+/// unchanged. An alternative may have been substituted, so the origin is looked
+/// up by the name that survived.
+pub(crate) fn rebase_offsets_to_box(
+    effective: &mut [GlyphRef],
+    parent_scale: u8,
+    mut lookup_origin: impl FnMut(&str) -> (i16, i16),
+) {
+    let ps = parent_scale.max(1) as i32;
+    for eff in effective.iter_mut() {
+        let Some((c, r)) = eff.offset else { continue };
+        let (child_c, child_r) = lookup_origin(&eff.name);
+        eff.offset = Some((
+            saturating_i16(c as i32 + child_c as i32 * ps),
+            saturating_i16(r as i32 + child_r as i32 * ps),
+        ));
+    }
+}
+
 /// [`derive_ref_offsets_with`] with the anchor-placement flags kept.
 pub(crate) fn derive_ref_offsets_detailed(
     declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],
+    parent_scale: u8,
     mut lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     mut lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
     mut lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
+    mut lookup_origin: impl FnMut(&str) -> (i16, i16),
 ) -> DeriveOutcome {
     let mut issues: Vec<DeriveIssue> = Vec::new();
     let mut survived_minus: Vec<PoolAnchor> = declared_anchors
@@ -455,6 +503,25 @@ pub(crate) fn derive_ref_offsets_detailed(
         })
         .collect();
 
+    // A written offset names the target's box corner; an anchor is a point on
+    // the target's *grid*. The two only meet once the box term is taken out, so
+    // it comes out here, once, and the rest of the derivation is grid-only.
+    // A ref written with an offset never takes an alternative, so the origin
+    // can be looked up by the name on the line.
+    let ps = parent_scale.max(1) as i32;
+    let grid_offsets: Vec<Option<(i16, i16)>> = refs
+        .iter()
+        .map(|gref| {
+            gref.offset.map(|(c, r)| {
+                let (child_c, child_r) = lookup_origin(&gref.name);
+                (
+                    saturating_i16(c as i32 - child_c as i32 * ps),
+                    saturating_i16(r as i32 - child_r as i32 * ps),
+                )
+            })
+        })
+        .collect();
+
     let n = refs.len();
     let mut effective_refs: Vec<Option<GlyphRef>> = vec![None; n];
     let mut anchor_placed = vec![false; n];
@@ -472,7 +539,7 @@ pub(crate) fn derive_ref_offsets_detailed(
                 continue;
             };
 
-            if let Some(offset) = gref.offset {
+            if let Some(offset) = grid_offsets[i] {
                 commit_ref(
                     gref,
                     i,
@@ -644,7 +711,7 @@ pub(crate) fn derive_ref_offsets_detailed(
             continue;
         }
         let target_anchors = target_anchors_list[i].as_deref().unwrap_or(&[]);
-        let (resolved_name, offset, used_anchors) = if let Some(offset) = gref.offset {
+        let (resolved_name, offset, used_anchors) = if let Some(offset) = grid_offsets[i] {
             (gref.name.clone(), offset, target_anchors)
         } else {
             match try_match_minus_plus(target_anchors, &available_plus) {
@@ -1073,6 +1140,7 @@ pub fn resolve_expansion_cached(
         points: Vec<GlyphPoint>,
         scale: u8,
         declared_box: Option<(u16, u16)>,
+        declared_origin: (i16, i16),
     }
 
     let mut pending: Vec<Pending> = Vec::new();
@@ -1103,6 +1171,7 @@ pub fn resolve_expansion_cached(
         }
         if body.refs.is_empty() {
             let declared_box = body.declared_extent();
+            let declared_origin = body.declared_origin();
             cache.insert(
                 key,
                 ResolvedGlyph {
@@ -1113,14 +1182,17 @@ pub fn resolve_expansion_cached(
                     declared_anchors: body.points,
                     scale: body.scale,
                     declared_box,
+                    declared_origin,
                     inline_source: None,
                 },
             );
         } else {
             pending_names.insert(key.clone());
+            let declared_origin = body.declared_origin();
             pending.push(Pending {
                 name: key,
                 declared_box: body.declared_extent(),
+                declared_origin,
                 pixels: body.pixels,
                 refs: body.refs,
                 points: body.points,
@@ -1186,9 +1258,14 @@ pub fn resolve_expansion_cached(
                 pending.push(pg);
                 continue;
             }
-            let (effective_refs, exposed, _issues) = derive_ref_offsets_with(
+            let origin_of = |name: &str| {
+                resolve_ref_name_with_parts(name, &cache, name_parts)
+                    .map_or((0, 0), |resolved| resolved.declared_origin)
+            };
+            let (mut effective_refs, exposed, _issues) = derive_ref_offsets_with(
                 &pg.points,
                 &pg.refs,
+                pg.scale,
                 |name| {
                     resolve_ref_name_with_parts(name, &cache, name_parts)
                         .map(|resolved| resolved.resolved_anchors.clone())
@@ -1198,7 +1275,9 @@ pub fn resolve_expansion_cached(
                     resolve_ref_name_with_parts(name, &cache, name_parts)
                         .map(|resolved| resolved.declared_anchors.clone())
                 },
+                origin_of,
             );
+            rebase_offsets_to_box(&mut effective_refs, pg.scale, origin_of);
             let anchors: Vec<GlyphPoint> = exposed.into_iter().map(|(p, _)| p).collect();
             for prefix in alternative_prefixes(&pg.name) {
                 if let Some(count) = pending_alts.get_mut(prefix) {
@@ -1289,6 +1368,7 @@ pub fn resolve_expansion_cached(
                     declared_anchors: pg.points,
                     scale: pg.scale,
                     declared_box: pg.declared_box,
+                    declared_origin: pg.declared_origin,
                     inline_source: Some(inline_source),
                 },
             );
@@ -1415,6 +1495,9 @@ fn synthesized_on_demand(name: &str) -> Option<&'static ResolvedGlyph> {
         // An on-demand name states its own box, so the shape declares one the
         // way a header does — there is simply no header to read it off.
         declared_box: declared_box(Some(&grid), spec.scale),
+        // An on-demand shape is its own box: the name states the size and
+        // there is nowhere to write an origin, so the grid's corner is it.
+        declared_origin: (0, 0),
         grid,
         origin_row: 0,
         origin_col: 0,
@@ -1571,6 +1654,20 @@ impl AlternativesIndex {
     }
 }
 
+/// Where a ref's target lands in the parent's raster.
+///
+/// Three terms, in the parent's raster units: the offset as written; the
+/// child's box origin, subtracted, because an offset names the child's *box*
+/// corner and not its grid's; and the child's resolved raster origin, which is
+/// where the child's own composition already reached past its grid.
+///
+/// The *parent's* origin is deliberately absent. Everything inside a glyph —
+/// its own pixels, its anchors, the refs it places — lives in one coordinate
+/// system, its grid; the parent's box origin says only where that grid sits
+/// relative to the pen, which is an output-stage bearing
+/// (`ttf_builder::collect`). Letting it shift the refs but not the own pixels
+/// is what pulled the two apart, and a composite that declares a grid *and*
+/// refs would grow by the origin it declared.
 fn ref_effective_offset_scaled(
     gref: &GlyphRef,
     resolved: &ResolvedGlyph,
@@ -1578,9 +1675,10 @@ fn ref_effective_offset_scaled(
 ) -> (i32, i32) {
     let ps = parent_scale as i32;
     let rs = resolved.scale.max(1) as i32;
+    let (child_c, child_r) = resolved.declared_origin;
     (
-        gref.row() as i32 + resolved.origin_row * ps / rs,
-        gref.col() as i32 + resolved.origin_col * ps / rs,
+        gref.row() as i32 - child_r as i32 * ps + resolved.origin_row * ps / rs,
+        gref.col() as i32 - child_c as i32 * ps + resolved.origin_col * ps / rs,
     )
 }
 
@@ -1832,9 +1930,14 @@ pub fn compute_composite(
             .unwrap_or_else(|| body.refs.len() + i)
     };
 
-    let (effective_refs, exposed, _) = derive_ref_offsets_with(
+    let origin_of = |name: &str| {
+        resolve_ref_name_for_view(name, named_glyphs, name_parts)
+            .map_or((0, 0), |resolved| resolved.declared_origin)
+    };
+    let (mut effective_refs, exposed, _) = derive_ref_offsets_with(
         &body.points,
         &all_refs,
+        body.scale,
         |name| {
             resolve_ref_name_for_view(name, named_glyphs, name_parts)
                 .map(|resolved| resolved.resolved_anchors.clone())
@@ -1844,7 +1947,9 @@ pub fn compute_composite(
             resolve_ref_name_for_view(name, named_glyphs, name_parts)
                 .map(|resolved| resolved.declared_anchors.clone())
         },
+        origin_of,
     );
+    rebase_offsets_to_box(&mut effective_refs, body.scale, origin_of);
     let inherited_anchors: Vec<(GlyphPoint, usize)> = exposed
         .into_iter()
         .filter_map(|(p, source)| source.map(|ref_idx| (p, source_idx(ref_idx))))

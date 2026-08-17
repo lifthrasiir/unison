@@ -38,6 +38,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
             declared_anchors: Vec::new(),
             scale: 1,
             declared_box: None,
+            declared_origin: (0, 0),
             inline_source: None,
         },
     );
@@ -617,9 +618,11 @@ ref ($ab)-inner
     let (effective, _, _) = derive_ref_offsets_with(
         &[],
         &b_refs,
+        1,
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
+        |_: &str| (0, 0),
     );
     assert_eq!(
         effective[1].name, "b-inner:compressed",
@@ -801,9 +804,11 @@ ref mark-below
     let (effective, _, _) = derive_ref_offsets_with(
         &above_body.points,
         &above_body.refs,
+        1,
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| decl_anchors.get(name).cloned(),
+        |_: &str| (0, 0),
     );
     assert_eq!(
         effective[0].name, "base:alt",
@@ -823,9 +828,11 @@ ref mark-below
     let (effective, _, _) = derive_ref_offsets_with(
         &below_body.points,
         &below_body.refs,
+        1,
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| decl_anchors.get(name).cloned(),
+        |_: &str| (0, 0),
     );
     assert_eq!(
         effective[0].name, "base",
@@ -897,9 +904,11 @@ ref mark-above
         let (effective, _, _) = derive_ref_offsets_with(
             &body.points,
             &body.refs,
+            1,
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| decl_anchors.get(name).cloned(),
+            |_: &str| (0, 0),
         );
         let base_exposes_above = resolved["base"]
             .resolved_anchors
@@ -1403,7 +1412,15 @@ fn derive_reports_duplicates_and_ambiguity() {
 
     // Two inherited +above survive → both dropped, one issue.
     let refs = vec![inherit_ref("half", 0), inherit_ref("half", 4)];
-    let (_, exposed, issues) = derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (_, exposed, issues) = derive_ref_offsets_with(
+        &[],
+        &refs,
+        1,
+        lookup,
+        |_| Vec::new(),
+        lookup,
+        |_: &str| (0, 0),
+    );
     assert!(exposed.is_empty(), "{exposed:?}");
     assert_eq!(
         issues,
@@ -1423,8 +1440,15 @@ fn derive_reports_duplicates_and_ambiguity() {
             ..inherit_ref("mark", 0)
         },
     ];
-    let (effective, _, issues) =
-        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (effective, _, issues) = derive_ref_offsets_with(
+        &[],
+        &refs,
+        1,
+        lookup,
+        |_| Vec::new(),
+        lookup,
+        |_: &str| (0, 0),
+    );
     assert_eq!(effective[2].offset, Some((0, 0)), "unattached fallback");
     assert!(
         issues.contains(&DeriveIssue::AmbiguousAttachment {
@@ -1537,7 +1561,15 @@ fn derive_reports_size_mismatched_attachment() {
 
     // Explicit offset: the mark cannot consume the 2-cell +above.
     let refs = vec![gref("base", None), gref("mark", Some((1, 2)))];
-    let (_, _, issues) = derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (_, _, issues) = derive_ref_offsets_with(
+        &[],
+        &refs,
+        1,
+        lookup,
+        |_| Vec::new(),
+        lookup,
+        |_: &str| (0, 0),
+    );
     assert!(
         issues.contains(&DeriveIssue::SizeMismatchedAttachment {
             position: "-above".into(),
@@ -1550,7 +1582,15 @@ fn derive_reports_size_mismatched_attachment() {
 
     // No same-name + anywhere: plain forwarding, no warning.
     let refs = vec![gref("mark", None)];
-    let (_, _, issues) = derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (_, _, issues) = derive_ref_offsets_with(
+        &[],
+        &refs,
+        1,
+        lookup,
+        |_| Vec::new(),
+        lookup,
+        |_: &str| (0, 0),
+    );
     assert!(issues.is_empty(), "{issues:?}");
 }
 
@@ -1604,8 +1644,15 @@ fn attaching_through_one_minus_retires_the_other_alternatives() {
     };
 
     let refs = vec![gref("cap"), gref("psili")];
-    let (effective, exposed, issues) =
-        derive_ref_offsets_with(&[], &refs, lookup, |_| Vec::new(), lookup);
+    let (effective, exposed, issues) = derive_ref_offsets_with(
+        &[],
+        &refs,
+        1,
+        lookup,
+        |_| Vec::new(),
+        lookup,
+        |_: &str| (0, 0),
+    );
 
     // Joined through -gr-above: offset = plus(0,3) - minus(1,1).
     assert_eq!(effective[1].offset, Some((-1, 2)));
@@ -1670,9 +1717,11 @@ ref acute
         derive_ref_offsets_with(
             &body.points,
             refs,
+            1,
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
+            |_: &str| (0, 0),
         )
     };
 
@@ -1766,9 +1815,11 @@ ref circle
         derive_ref_offsets_with(
             &body.points,
             &body.refs,
+            1,
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
+            |_: &str| (0, 0),
         )
     };
 
@@ -1876,4 +1927,64 @@ ref bar
         after["double-bar"].grid, first["double-bar"].grid,
         "the untouched composite is unchanged"
     );
+}
+
+/// A `ref` offset names the *target's declared box corner*, not its grid's.
+///
+/// This is what makes a glyph's box independent of the canvas around it: the
+/// target can grow its grid to the left — to hold a hardblank, say — and
+/// declare an origin that keeps its box where it was, and every glyph that
+/// places it stays put.
+///
+/// The *parent's* origin deliberately does not enter. Everything inside a glyph
+/// shares one coordinate system, its grid: its own pixels, its anchors and the
+/// refs it places. The parent's origin says only where that grid sits relative
+/// to the pen, which the output stage applies as a bearing. Letting it shift
+/// the refs as well would move them relative to the glyph's own pixels, and a
+/// composite that declares both a grid and refs would grow by exactly the
+/// origin it declared.
+#[test]
+fn a_ref_offset_names_the_targets_box_corner() {
+    let child = |origin: (i16, i16)| ResolvedGlyph {
+        grid: filled_grid(1, 1),
+        origin_row: 0,
+        origin_col: 0,
+        resolved_anchors: Vec::new(),
+        declared_anchors: Vec::new(),
+        scale: 1,
+        declared_box: Some((1, 1)),
+        declared_origin: origin,
+        inline_source: None,
+    };
+    let one_ref = |offset: (i16, i16)| {
+        vec![GlyphRef {
+            raw_name: None,
+            comment: None,
+            name: "child".to_string(),
+            offset: Some(offset),
+            negated: false,
+            inherit: false,
+            if_exists: false,
+            fill: None,
+            visibility: None,
+        }]
+    };
+    // Where the target's single ink cell lands in the parent's raster, as
+    // (row, col), read off the layer rather than the flattened grid.
+    let placed = |child_origin: (i16, i16), offset: (i16, i16)| {
+        let mut cache: HashMap<String, ResolvedGlyph> = HashMap::new();
+        cache.insert("child".to_string(), child(child_origin));
+        let refs = one_ref(offset);
+        let layout = resolve_composite_layout(None, &refs, &cache, &NamePartsMap::new(), 1, false);
+        assert_eq!(layout.layers.len(), 1, "the ref must resolve");
+        (layout.layers[0].raster_row, layout.layers[0].raster_col)
+    };
+
+    // No origin: the offset is the placement, exactly as before the box existed.
+    assert_eq!(placed((0, 0), (2, 3)), (3, 2));
+
+    // The target's box starts one cell into its own grid, so its grid — and the
+    // ink in it — hangs one cell further out than the offset names.
+    assert_eq!(placed((1, 0), (2, 3)), (3, 1));
+    assert_eq!(placed((0, 1), (2, 3)), (2, 2));
 }

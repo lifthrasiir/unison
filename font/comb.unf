@@ -18,7 +18,7 @@ ref dia-narrow
 anchor -below 2 0
 anchor +below 2 2
 
-glyph dia-below mark advance 0 left -3 top 14
+glyph dia-below mark advance 0 origin 3 -14
 ref dia-wide
 anchor -below 2..3 0
 anchor +below 2..3 2
@@ -28,7 +28,7 @@ ref dia-narrow
 anchor -above 2 1
 anchor +above 2 -1
 
-glyph dia-above mark advance 0 left -3 top 0
+glyph dia-above mark advance 0 origin 3 0
 ref dia-wide
 anchor -above 2..3 1
 anchor +above 2..3 -1
@@ -54,7 +54,7 @@ glyph acute-right 4 2 inline
 ../0@@1/
 /0@@1/..
 
-glyph acute-below mark advance 0 left -2 top 14
+glyph acute-below mark advance 0 origin 2 -14
 ref acute-right
 anchor -below 2 0
 anchor +below 2 2
@@ -64,7 +64,7 @@ ref acute-left
 anchor -below 1..2 0
 anchor +below 1..2 2
 
-glyph acute-above mark advance 0 left -2 top 0
+glyph acute-above mark advance 0 origin 2 0
 ref acute-left
 anchor -above 1 1
 anchor +above 1 -1
@@ -89,7 +89,7 @@ map ˏ = acute-below-spacing
 
 ## double acute accents
 
-glyph dacute-above mark advance 0 left -3
+glyph dacute-above mark advance 0 origin 3 0
 ref acute-right 0 0
 ref acute-right 3 0
 anchor -above 3 1
@@ -119,7 +119,7 @@ glyph grave-left 4 2 inline
 \1@@0\..
 ..\1@@0\
 
-glyph grave-below mark advance 0 left -2 top 14
+glyph grave-below mark advance 0 origin 2 -14
 ref grave-right
 anchor -below 2 0
 anchor +below 2 2
@@ -129,7 +129,7 @@ ref grave-left
 anchor -below 1..2 0
 anchor +below 1..2 2
 
-glyph grave-above mark advance 0 left -2 top 0
+glyph grave-above mark advance 0 origin 2 0
 ref grave-left
 anchor -above 1 1
 anchor +above 1 -1
@@ -153,7 +153,7 @@ map ˎ = grave-below-spacing
 
 ## double grave accents
 
-glyph dgrave-above mark advance 0 left -3 top 0
+glyph dgrave-above mark advance 0 origin 3 0
 ref grave-left 0 0
 ref grave-left 3 0
 anchor -above 3 1
@@ -175,7 +175,7 @@ glyph mac-wide 5 1
 glyph mac-narrow 4 1
 @@@@@@@@
 
-glyph mac-above 5 1 mark advance 0 left -2 top 0
+glyph mac-above 5 1 mark advance 0 origin 2 0
 ref mac-wide
 anchor -above 2 0
 anchor +above 2 -2
@@ -185,7 +185,7 @@ ref mac-narrow
 anchor -above 1..2 0
 anchor +above 1..2 -2
 
-glyph mac-below 5 1 mark advance 0 left -2 top 14
+glyph mac-below 5 1 mark advance 0 origin 2 -14
 ref mac-wide
 anchor -below 2 0
 anchor +below 2 2
@@ -232,7 +232,7 @@ glyph com-turned 2 3
 @@0\
 @@@@
 
-glyph ced-above mark advance 0 left -1 top 0
+glyph ced-above mark advance 0 origin 1 0
 ref ced
 anchor -above 1 2
 anchor +above 1 -1
@@ -246,7 +246,7 @@ anchor +above 1..2 -1
 // leaves two rows inside the em box.  so the attachment row is the mark's
 // *second* row: its top row is the stroke that meets the letter's own last
 // row, which is where these have always been drawn.
-glyph ced-below mark advance 0 left -1 top 13
+glyph ced-below mark advance 0 origin 1 -13
 ref ced
 anchor -below 1 1
 anchor +below 1 4
@@ -256,7 +256,7 @@ ref ced
 anchor -below 1..2 1
 anchor +below 1..2 4
 
-glyph com-above mark advance 0 left -1 top 0
+glyph com-above mark advance 0 origin 1 0
 ref com
 anchor -above 0..1 2
 anchor +above 0..1 -1
@@ -266,7 +266,7 @@ ref com
 anchor -above 1 2
 anchor +above 1 -1
 
-glyph com-reversed-above mark advance 0 left -1 top 0
+glyph com-reversed-above mark advance 0 origin 1 0
 ref com-reversed
 anchor -above 0..1 2
 anchor +above 0..1 -1
@@ -279,7 +279,7 @@ anchor +above 1 -1
 // U+0312 is the latvian ģ mark: an attached mark, not a floating accent, so
 // unlike the breathing marks above it sits flush with the letter (one row
 // lower) and follows the comma family's column instead of being centered.
-glyph com-turned-above mark advance 0 left -1 top 0
+glyph com-turned-above mark advance 0 origin 1 0
 ref com-turned
 anchor -above 0..1 1
 anchor +above 0..1 -1
@@ -289,7 +289,7 @@ ref com-turned
 anchor -above 0 1
 anchor +above 0 -1
 
-glyph com-below mark advance 0 left -1 top 13
+glyph com-below mark advance 0 origin 1 -13
 ref com
 anchor -below 0 1
 anchor +below 0 4
@@ -336,7 +336,7 @@ glyph ogonek 2 3
 // like the cedilla, the ogonek hangs three rows deep while a base's +below
 // anchor only reaches two rows into the em box, so the attachment row is the
 // mark's *second* row.
-glyph ogonek-below mark advance 0 left -1 top 13
+glyph ogonek-below mark advance 0 origin 1 -13
 ref ogonek
 anchor -below 0 1
 anchor +below 0 4
@@ -349,7 +349,7 @@ anchor +below 0..1 4
 map U+0328 = ogonek-below
 
 glyph ogonek-below-spacing 8 16
-ref ogonek-below 3 13
+ref ogonek-below 4 0
 
 map ˛ = ogonek-below-spacing
 
@@ -359,7 +359,7 @@ glyph caron 5 2
 \01\../10/
 ..\0@@0/..
 
-glyph caron-above mark advance 0 left -2 top 0
+glyph caron-above mark advance 0 origin 2 0
 ref caron
 anchor -above 2 1
 anchor +above 2 -1
@@ -389,7 +389,7 @@ glyph circ 5 2
 ../0@@0\..
 /01/..\10\
 
-glyph circ-above mark advance 0 left -2 top 0
+glyph circ-above mark advance 0 origin 2 0
 ref circ
 anchor -above 2 1
 anchor +above 2 -1
@@ -399,7 +399,7 @@ ref circ
 anchor -above 1..2 1
 anchor +above 1..2 -1
 
-glyph circ-below mark advance 0 left -2 top 14
+glyph circ-below mark advance 0 origin 2 -14
 ref circ
 anchor -below 2 1
 anchor +below 2 3
@@ -423,7 +423,7 @@ glyph breve 5 2
 @@1\../1@@
 \0@@@@@@0/
 
-glyph breve-above mark advance 0 left -2 top 0
+glyph breve-above mark advance 0 origin 2 0
 ref breve
 anchor -above 2 1
 anchor +above 2 -1
@@ -435,7 +435,7 @@ anchor +above 1..2 -1
 
 // unlike the circumflex below, the breve below opens away from the letter, so
 // its first row is the one that meets the base
-glyph breve-below mark advance 0 left -2 top 14
+glyph breve-below mark advance 0 origin 2 -14
 ref breve
 anchor -below 2 0
 anchor +below 2 2
@@ -459,7 +459,7 @@ glyph arch 5 2
 /0@@@@@@0\
 @@1/..\1@@
 
-glyph arch-above mark advance 0 left -2 top 0
+glyph arch-above mark advance 0 origin 2 0
 ref arch
 anchor -above 2 1
 anchor +above 2 -1
@@ -478,7 +478,7 @@ glyph ring 3 3
 @@..@@
 \0@@0/
 
-glyph ring-above mark advance 0 left -1 top 0
+glyph ring-above mark advance 0 origin 1 0
 ref ring
 anchor -above 1 1
 anchor +above 1 -2
@@ -488,7 +488,7 @@ ref ring
 anchor -above 1..2 1
 anchor +above 1..2 -2
 
-glyph ring-below mark advance 0 left -1 top 13
+glyph ring-below mark advance 0 origin 1 -13
 ref ring
 anchor -below 1 1
 anchor +below 1 4
@@ -512,7 +512,7 @@ glyph comb-tilde 5 2
 /0@@1\../1
 1/..\1@@0/
 
-glyph tilde-above mark advance 0 left -2 top 0
+glyph tilde-above mark advance 0 origin 2 0
 ref comb-tilde
 anchor -above 2 1
 anchor +above 2 -1
@@ -522,7 +522,7 @@ ref comb-tilde
 anchor -above 1..2 1
 anchor +above 1..2 -1
 
-glyph tilde-below mark advance 0 left -2 top 14
+glyph tilde-below mark advance 0 origin 2 -14
 ref comb-tilde
 anchor -below 2 0
 anchor +below 2 2
@@ -549,7 +549,7 @@ glyph comb-dot 2 2
 glyph dot-middle 2 2
 ref comb-dot
 
-glyph dot-above mark advance 0 left -1 top 0
+glyph dot-above mark advance 0 origin 1 0
 ref comb-dot
 anchor -above 0 1
 anchor +above 0 -1
@@ -559,7 +559,7 @@ ref comb-dot
 anchor -above 0..1 1
 anchor +above 0..1 -1
 
-glyph dot-below mark advance 0 left -1 top 14
+glyph dot-below mark advance 0 origin 1 -14
 ref comb-dot
 anchor -below 0 0
 anchor +below 0 2
@@ -599,7 +599,7 @@ glyph hook-right-inverted 3 3
 //@@../0
 //\1@@1/
 
-glyph hook-above mark advance 0 left -1 top 0
+glyph hook-above mark advance 0 origin 1 0
 ref hook-right
 anchor -above 1 1
 anchor +above 1 -2

@@ -1738,7 +1738,7 @@ glyph hy-emph 8 16
 ................
 ................
 
-glyph hy-mod-emph mark left -8 advance 0
+glyph hy-mod-emph mark advance 0 origin 8 0
 ref hy-emph
 anchor -hy-tonal 5 2
 
@@ -1760,7 +1760,7 @@ glyph hy-excl 8 16
 ................
 ................
 
-glyph hy-mod-excl mark left -8 advance 0
+glyph hy-mod-excl mark advance 0 origin 8 0
 ref hy-excl
 anchor -hy-tonal 5 2
 
@@ -1782,7 +1782,7 @@ glyph hy-ques 8 16
 ................
 ................
 
-glyph hy-mod-ques mark left -8 advance 0
+glyph hy-mod-ques mark advance 0 origin 8 0
 ref hy-ques
 anchor -hy-tonal 5 2
 
@@ -1804,7 +1804,7 @@ glyph hy-abbrev 8 16
 ................
 ................
 
-glyph hy-mod-abbrev mark left -8 advance 0
+glyph hy-mod-abbrev mark advance 0 origin 8 0
 ref hy-abbrev
 // no anchor used, always hovering at the topmost row
 

@@ -21,7 +21,7 @@ fn header_dims_match_derive_for_valued_flags() {
         })
     );
 
-    let dims = glyph_header_dims(&["foo", "left", "2", "3"]);
+    let dims = glyph_header_dims(&["foo", "advance", "2", "3"]);
     assert_eq!(dims, None, "width 3 without height is not a grid header");
 
     let dims = glyph_header_dims(&["foo", "4", "3", "advance", "0"]);
@@ -47,7 +47,7 @@ fn header_dims_match_derive_for_valued_flags() {
     // Cross-check against derive_document on the same headers.
     for (header, expected) in [
         ("glyph foo advance 0 4 3", Some((4u16, 3u16))),
-        ("glyph foo left 2 3", None),
+        ("glyph foo advance 2 3", None),
         ("glyph foo 4 3 advance 0", Some((4, 3))),
     ] {
         let lines = vec![DocLine::Text(header.to_string())];
@@ -825,8 +825,8 @@ fn strict_parse_accepts_valid_glyph_headers() {
         "glyph foo keep\n",
         "glyph foo 2 1 keep\n..@@\n",
         "glyph foo advance 5\n",
-        "glyph foo left -1\n",
-        "glyph foo 2 1 keep advance 5 left -1\n..@@\n",
+        "glyph foo origin -1 2\n",
+        "glyph foo 2 1 keep advance 5 origin -1 2\n..@@\n",
         "glyph foo 2 1 desync\n..@@\n",
         "glyph foo desync 2 1\n..@@\n",
         "glyph foo = bar\n",
@@ -905,22 +905,26 @@ fn origin_and_extent_parse_in_any_order_and_round_trip() {
     }
 }
 
-/// The declared box has two spellings while `font/` is migrated, and they must
-/// mean the same rectangle. `left`/`top` are the *side bearings* of the box's
-/// corner, so they read negated; `advance` is its width.
+/// Stating the box's width twice is a mistake, not a precedence question:
+/// `advance` and `extent` both say it. Reporting it beats picking a winner,
+/// since the source that writes both plainly expects both to count.
 #[test]
-fn the_old_spelling_of_the_declared_box_means_the_same_rectangle() {
-    let old = "glyph foo 4 2 advance 0 left -3 top 1\n@@@@@@@@\n@@@@@@@@\n";
-    let new = "glyph foo 4 2 origin 3 -1 extent 0 2\n@@@@@@@@\n@@@@@@@@\n";
-    let body = |input: &str| {
-        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-        let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
-            panic!("expected a glyph item");
-        };
-        (body.declared_origin(), body.declared_extent())
+fn one_header_may_not_state_a_box_slot_twice() {
+    let input = "glyph foo 4 2 advance 3 extent 3 2\n@@@@@@@@\n@@@@@@@@\n";
+    assert!(
+        parse_document_from_str(input, "test.unf".into()).is_err(),
+        "{input:?} states the width twice and must not parse"
+    );
+    // The two flags that state *different* slots are the ordinary case.
+    let accepted = "glyph foo 4 2 origin 1 -1 advance 0\n@@@@@@@@\n@@@@@@@@\n";
+    let doc = parse_document_from_str(accepted, "test.unf".into()).unwrap();
+    let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+        panic!("expected a glyph item");
     };
-    assert_eq!(body(old), body(new));
-    assert_eq!(body(new), ((3, -1), Some((0, 2))));
+    assert_eq!(
+        (body.declared_origin(), body.declared_extent()),
+        ((1, -1), Some((0, 2)))
+    );
 }
 
 /// Zero is a declared box's real answer, not a missing one: a combining mark

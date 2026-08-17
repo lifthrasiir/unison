@@ -3367,7 +3367,7 @@ glyph tok-cart-start 16 16
 ..............\h_H@@@@@@@@@@@@@@
 ................................
 
-glyph tok-cart-cont 16 16 advance 0 left -16
+glyph tok-cart-cont 16 16 advance 0 origin 16 0
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ................................
 ................................
@@ -3421,7 +3421,7 @@ glyph tok-long-pi 16 16
 ................@@@@@@@@@@@@@@@@
 ................................
 
-glyph tok-long-pi-cont 16 16 advance 0 left -16
+glyph tok-long-pi-cont 16 16 advance 0 origin 16 0
 ................................
 ................................
 ................................
@@ -3470,13 +3470,13 @@ assert shape 󱤑󱥍󱦗󱥺󱤢󱦘 : tok-jan : tok-long-pi : tok-oko : tok-lo
 
 ## compatibility
 
-glyph tok-cart-cont-compat advance 0 left -16
+glyph tok-cart-cont-compat advance 0 origin 16 0
 ref tok-cart-cont
 
 glyph tok-long-pi-compat
 ref tok-long-pi
 
-glyph tok-long-pi-cont-compat advance 0 left -16
+glyph tok-long-pi-cont-compat advance 0 origin 16 0
 ref tok-long-pi-cont
 
 map U+F1992 = tok-cart-cont-compat
@@ -3534,28 +3534,28 @@ glyph tok-colon 16 16
 ................................
 ................................
 
-glyph tok-tally-1 16 2 advance 0 left -16 top 14
+glyph tok-tally-1 16 2 advance 0 origin 16 -14
 ..............d@@b..............
 ..............9@@P..............
 
-glyph tok-tally-2 16 2 advance 0 left -16 top 14
+glyph tok-tally-2 16 2 advance 0 origin 16 -14
 ..........d@@b....d@@b..........
 ..........9@@P....9@@P..........
 
-glyph tok-tally-3 16 2 advance 0 left -16 top 14
+glyph tok-tally-3 16 2 advance 0 origin 16 -14
 ......d@@b....d@@b....d@@b......
 ......9@@P....9@@P....9@@P......
 
-glyph tok-tally-4 16 2 advance 0 left -16 top 14
+glyph tok-tally-4 16 2 advance 0 origin 16 -14
 ..d@@b....d@@b....d@@b....d@@b..
 ..9@@P....9@@P....9@@P....9@@P..
 
-glyph tok-tally-5 16 2 advance 0 left -16 top 14
+glyph tok-tally-5 16 2 advance 0 origin 16 -14
 ..d@@b..d@@b..d@@b..d@@b..d@@b..
 ..9@@P..9@@P..9@@P..9@@P..9@@P..
 
 // the largest legal number of tally marks, as kijetesantakalu only has 7 morae
-glyph tok-tally-6 16 2 advance 0 left -16 top 14 scale 5
+glyph tok-tally-6 16 2 advance 0 scale 5 origin 16 -14
 ...dd@@@@@@@@@@bb..............dd@@@@@@@@@@bb............../d@@@@@@@@@@bb..............dd@@@@@@@@@@b\..............dd@@@@@@@@@@bb..............dd@@@@@@@@@@bb...
 .dd@@@@@@@@@@@@@@bb........../d@@@@@@@@@@@@@@bb..........//@@@@@@@@@@@@@@bb..........dd@@@@@@@@@@@@@@\\..........dd@@@@@@@@@@@@@@b\..........dd@@@@@@@@@@@@@@bb.
 d@@@@@@@@@@@@@@@@@@b......../@@@@@@@@@@@@@@@@@@b......../@88@@@@@@@@@@@@@@@b........d@@@@@@@@@@@@@@@88@\........d@@@@@@@@@@@@@@@@@@\........d@@@@@@@@@@@@@@@@@@b

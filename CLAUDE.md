@@ -194,7 +194,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues.rs` (`uvs_collision_diagnostics`) |
 | `ifexists` on a `ref`/`map`: a name whose absence is expected, and the one existence test all four consumers share | `document_io.rs` (`# Directives`), `render/ttf_builder/expand.rs` (`glyph_name_exists`) |
 | The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document.rs` (`declared_origin`, `declared_extent`) |
-| Why `advance`/`left`/`top` are the same rectangle in an older spelling, and the one place the two meet | `document.rs` (`GlyphBody::declared_extent`) |
+| `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
+| The origin in the grid vs the side bearings it exports as, and why only one of them is written | `document.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
+| Grid coordinates vs box coordinates: which of the two an offset, an anchor and a ref placement are in, and the one conversion between them | `ref_composite.rs` (`rebase_offsets_to_box`, `ref_effective_offset_scaled`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |
