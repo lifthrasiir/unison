@@ -579,13 +579,16 @@ fn collect_sample_data_with(
     }
 
     // Collect cmap
+    //
+    // The same skip the build's collector makes: a mapping whose target never
+    // reached the cache claims no codepoint (`collect.rs` walks past the pair
+    // that `cache.get` cannot answer). That covers `ifexists` — a target
+    // nothing defines is never seeded — but it is *not* only about `ifexists`:
+    // a glyph dropped because one of its own refs never resolved is absent
+    // here for the same reason, and letting either of them in would show the
+    // sample a character the font does not map, which is the exact way the
+    // sample and the font start disagreeing.
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
-    let sample_glyph_names: HashSet<String> = all_items()
-        .filter_map(|item| match item {
-            DocumentItem::Glyph { name, .. } => Some(name.0.clone()),
-            _ => None,
-        })
-        .collect();
     for item in all_items() {
         match item {
             // A variation sequence claims no codepoint of its own; the base is
@@ -594,26 +597,12 @@ fn collect_sample_data_with(
                 selector: Some(_), ..
             } => {}
             DocumentItem::Map {
-                char_repr,
-                glyph,
-                if_exists,
-                ..
+                char_repr, glyph, ..
             } => {
                 let mut pairs = expand_map_pairs(char_repr, glyph);
                 glyph_aliases.canonicalize_pairs(&mut pairs);
                 for (cp, glyph_name) in pairs {
-                    // The same skip the build makes: an `ifexists` line whose
-                    // target is absent claims no codepoint, and this map is
-                    // first-wins, so letting it in would show the sample a
-                    // glyph the font does not map — the exact way the sample
-                    // and the font start disagreeing.
-                    if *if_exists
-                        && !crate::render::ttf_builder::glyph_name_exists(
-                            &glyph_name,
-                            &sample_glyph_names,
-                            &glyph_aliases,
-                        )
-                    {
+                    if !cache.contains_key(&glyph_name) {
                         continue;
                     }
                     cmap.entry(cp).or_insert(glyph_name);
@@ -625,6 +614,9 @@ fn collect_sample_data_with(
                 let pairs =
                     crate::render::ttf_builder::decomposed_map_pairs(char_repr, glyph.as_deref());
                 for (cp, glyph_name) in pairs {
+                    if !cache.contains_key(&glyph_name) {
+                        continue;
+                    }
                     cmap.entry(cp).or_insert(glyph_name);
                 }
             }
@@ -2519,6 +2511,41 @@ map A = diag
             (y_start - expected).abs() < 0.01,
             "first path y={y_start}, expected ~{expected}"
         );
+    }
+
+    /// The sample's cmap is the font's cmap: the mirror of
+    /// `ttf_tests::misc::an_ifexists_mapping_whose_target_is_absent_reaches_no_cmap_entry`.
+    /// A glyph nothing builds — because its own `ifexists` ref named a glyph
+    /// nothing defines — must take its mapping down with it here too, or the
+    /// sample shows a cell for a character the font does not map.
+    #[test]
+    fn an_ifexists_mapping_whose_target_is_absent_reaches_no_sample_cmap_entry() {
+        let d = parse(
+            "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph real 1 1
+@@
+
+glyph via-ref 1 1
+ref real ifexists
+
+glyph via-missing-ref 1 1
+ref absent ifexists
+
+map U+E000 = real ifexists
+map U+E001 = gone ifexists
+map U+E002 = via-ref
+map U+E003 = via-missing-ref
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data should build");
+        assert!(data.cmap.contains_key(&0xE000), "{:?}", data.cmap);
+        assert!(!data.cmap.contains_key(&0xE001), "{:?}", data.cmap);
+        assert!(data.cmap.contains_key(&0xE002), "{:?}", data.cmap);
+        assert!(!data.cmap.contains_key(&0xE003), "{:?}", data.cmap);
     }
 
     fn assert_components_fit(g: &SampleGlyph, max_w: i32, max_h: i32, label: &str) {
