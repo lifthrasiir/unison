@@ -924,6 +924,63 @@ fn a_scale_of_zero_is_rejected_where_it_is_written() {
     );
 }
 
+/// The one rewriter the box editor uses: it replaces a flag's value where the
+/// flag already is, drops a flag whose value is gone, and appends the ones that
+/// were never written — leaving the name's quoting, the other flags, the
+/// spacing and the trailing comment exactly as they were.
+#[test]
+fn a_box_flag_is_rewritten_where_it_stands() {
+    let cases = [
+        // Adding to a header that states nothing.
+        (
+            "glyph foo 4 2",
+            (Some((1, -2)), Some(5), None),
+            "glyph foo 4 2 origin 1 -2 advance 5",
+        ),
+        // Replacing in place, comment and flag order untouched.
+        (
+            "glyph foo 4 2 advance 5 mark // hi",
+            (None, Some(7), None),
+            "glyph foo 4 2 advance 7 mark // hi",
+        ),
+        (
+            "glyph 'a b' 4 2 origin 1 -2 keep",
+            (Some((3, 0)), None, None),
+            "glyph 'a b' 4 2 origin 3 0 keep",
+        ),
+        // A flag whose value is gone goes with it.
+        (
+            "glyph foo 4 2 origin 1 -2 mark",
+            (None, None, None),
+            "glyph foo 4 2 mark",
+        ),
+        // `extent` replaces `advance`: the two state the same slot, so writing
+        // one has to unwrite the other.
+        (
+            "glyph foo 4 2 advance 5",
+            (None, None, Some((5, 16))),
+            "glyph foo 4 2 extent 5 16",
+        ),
+    ];
+    for (line, (origin, advance, extent), expected) in cases {
+        assert_eq!(
+            replace_glyph_box_flags(line, origin, advance, extent).as_deref(),
+            Some(expected),
+            "{line:?}"
+        );
+    }
+
+    // Not a glyph header, or an alias: nothing to rewrite.
+    assert_eq!(
+        replace_glyph_box_flags("ref foo 1 2", None, Some(1), None),
+        None
+    );
+    assert_eq!(
+        replace_glyph_box_flags("glyph foo = bar", None, Some(1), None),
+        None
+    );
+}
+
 /// Stating the box's width twice is a mistake, not a precedence question:
 /// `advance` and `extent` both say it. Reporting it beats picking a winner,
 /// since the source that writes both plainly expects both to count.

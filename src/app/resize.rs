@@ -99,6 +99,8 @@ impl UniformApp {
                 action.deltas,
                 define_item,
                 env,
+                action.kind,
+                self.font_meta,
             );
             if plan.is_empty() {
                 continue;

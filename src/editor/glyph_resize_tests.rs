@@ -55,6 +55,15 @@ impl Fixture {
 
     /// The whole resize, exactly as the host performs it.
     fn resize(&mut self, glyph: &str, deltas: ResizeDeltas) {
+        self.resize_kind(glyph, deltas, ResizeKind::Canvas)
+    }
+
+    /// The same, dragging the declared box instead of the canvas.
+    fn resize_box(&mut self, glyph: &str, deltas: ResizeDeltas) {
+        self.resize_kind(glyph, deltas, ResizeKind::Box)
+    }
+
+    fn resize_kind(&mut self, glyph: &str, deltas: ResizeDeltas, kind: ResizeKind) {
         let docs: Vec<&Document> = vec![&self.doc];
         let names = target_names(&docs, &self.name_parts, glyph);
         let define_item = Some(self.item_of(glyph));
@@ -65,6 +74,8 @@ impl Fixture {
             deltas,
             define_item,
             self.env(),
+            kind,
+            crate::meta::FontMetrics::default(),
         );
         apply_plan(&mut self.lines, plan);
         let (doc, _) = derive_document(&self.lines, "test.unf".into()).expect("re-derive");
@@ -94,6 +105,9 @@ glyph dot 2 2
 ..@@
 ";
 
+/// Growing the canvas moves the ink inside the grid and states the box that
+/// would otherwise have moved with it, so the glyph draws and measures exactly
+/// as it did.
 #[test]
 fn growing_left_and_down_moves_the_ink_and_the_header() {
     let mut f = Fixture::new(DOT);
@@ -107,7 +121,12 @@ fn growing_left_and_down_moves_the_ink_and_the_header() {
     );
     assert_eq!(
         f.rendered(),
-        vec!["glyph dot 4 3", "....@@..", "......@@", "........",],
+        vec![
+            "glyph dot 4 3 origin 2 0 advance 2",
+            "....@@..",
+            "......@@",
+            "........",
+        ],
     );
 }
 
@@ -121,7 +140,12 @@ fn shrinking_crops_what_falls_outside() {
             ..Default::default()
         },
     );
-    assert_eq!(f.rendered(), vec!["glyph dot 1 2", "..", "@@"]);
+    // The room shrank; the claim did not, so the box keeps its width and its
+    // corner sits one column before the cropped grid.
+    assert_eq!(
+        f.rendered(),
+        vec!["glyph dot 1 2 origin -1 0 advance 2", "..", "@@"]
+    );
 }
 
 #[test]
@@ -147,6 +171,74 @@ fn the_glyph_never_shrinks_past_its_last_pixel() {
     );
 }
 
+/// Growing the canvas adds room and changes nothing else: the pixels that were
+/// there stay where they were drawn, the glyph keeps its metrics, and every
+/// `ref` to it is left alone. That is what the automatic `origin` is for — the
+/// ink's *grid* coordinates move, so the box's corner moves with them.
+#[test]
+fn growing_the_canvas_leaves_the_drawing_and_everything_using_it_alone() {
+    let mut f = Fixture::new(
+        "\
+glyph foo 2 2
+@@..
+..@@
+
+glyph bar 8 16
+ref foo 1 2
+",
+    );
+    f.resize(
+        "foo",
+        ResizeDeltas {
+            left: 2,
+            ..Default::default()
+        },
+    );
+    let rendered = f.rendered();
+    assert!(
+        rendered.contains(&"glyph foo 4 2 origin 2 0 advance 2".to_string()),
+        "the header states where the box stayed: {rendered:?}"
+    );
+    assert!(
+        rendered.contains(&"ref foo 1 2".to_string()),
+        "nothing that uses the glyph had to move: {rendered:?}"
+    );
+    assert!(
+        rendered.contains(&"....@@..".to_string()),
+        "the ink kept its place inside the wider grid: {rendered:?}"
+    );
+}
+
+/// A box drag is the other half: it changes what the glyph *claims*, so every
+/// `ref` to it follows and the drawing stays put in its own grid.
+#[test]
+fn a_box_drag_moves_every_ref_to_the_glyph() {
+    let mut f = Fixture::new(
+        "\
+glyph foo 2 2
+@@..
+..@@
+
+glyph bar 8 16
+ref foo 1 2
+",
+    );
+    f.resize_box(
+        "foo",
+        ResizeDeltas {
+            left: 2,
+            ..Default::default()
+        },
+    );
+    let rendered = f.rendered();
+    assert!(rendered.contains(&"glyph foo 2 2 origin -2 0 advance 4".to_string()));
+    assert!(
+        rendered.contains(&"ref foo -1 2".to_string()),
+        "the box's corner moved, so what places it moved too: {rendered:?}"
+    );
+    assert!(rendered.contains(&"@@..".to_string()));
+}
+
 /// The example from the module docs: `foo` grows two columns to the left and
 /// one row down, and a `ref foo 1 2` elsewhere becomes `ref foo -1 2`. Only
 /// the left edge enters the offset — growing downwards adds cells past the
@@ -163,7 +255,7 @@ glyph bar 8 16
 ref foo 1 2
 ",
     );
-    f.resize(
+    f.resize_box(
         "foo",
         ResizeDeltas {
             left: 2,
@@ -190,7 +282,7 @@ ref foo
 ref foo 3 0
 ",
     );
-    f.resize(
+    f.resize_box(
         "foo",
         ResizeDeltas {
             right: 4,
@@ -217,7 +309,7 @@ glyph bar 8 16
 ref foo
 ",
     );
-    f.resize(
+    f.resize_box(
         "foo",
         ResizeDeltas {
             left: 1,
@@ -254,7 +346,7 @@ ref mark
     );
     let before = f.rendered();
     assert!(before.contains(&"ref mark".to_string()));
-    f.resize(
+    f.resize_box(
         "mark",
         ResizeDeltas {
             left: 1,
@@ -267,10 +359,15 @@ ref mark
         after.contains(&"ref mark".to_string()),
         "the anchored ref must keep its auto placement: {after:?}"
     );
-    // The mark's own anchor moved with its ink, which is what keeps the
-    // attachment pointing at the same place.
+    // A box drag moves nothing inside the glyph, the anchor included: what
+    // moved is the box its `-above` is measured from, and the parent's derived
+    // offset is rebased through that on its own.
     assert!(
-        after.contains(&"anchor -above 1 1".to_string()),
+        after.contains(&"anchor -above 0 0".to_string()),
+        "{after:?}"
+    );
+    assert!(
+        after.contains(&"glyph mark 2 2 origin -1 -1 extent 3 17".to_string()),
         "{after:?}"
     );
 }
@@ -291,7 +388,7 @@ glyph bar 8 16
 ref foo-alt 1 0
 ",
     );
-    f.resize(
+    f.resize_box(
         "foo",
         ResizeDeltas {
             left: 1,
@@ -304,10 +401,7 @@ ref foo-alt 1 0
 /// Everything is stated in logical pixels: the header counts them directly,
 /// while the grid, the `anchor` lines and a referring glyph's `ref` offsets
 /// are all in that glyph's own subcells.
-#[test]
-fn scale_is_counted_on_both_sides() {
-    let mut f = Fixture::new(
-        "\
+const SCALED: &str = "\
 glyph foo 2 2 scale 2
 @@@@....
 @@@@....
@@ -317,8 +411,13 @@ anchor +above 0 0
 
 glyph bar 4 4 scale 2
 ref foo 2 0
-",
-    );
+";
+
+/// A canvas resize counts subcells inside the glyph — the grid and the anchor
+/// move by `delta * its own scale` — and logical pixels in the header.
+#[test]
+fn scale_is_counted_in_subcells_inside_the_glyph() {
+    let mut f = Fixture::new(SCALED);
     f.resize(
         "foo",
         ResizeDeltas {
@@ -327,16 +426,43 @@ ref foo 2 0
         },
     );
     let rendered = f.rendered();
-    // Three logical columns, i.e. six subcells, with the ink two subcells in.
-    assert_eq!(rendered[0], "glyph foo 3 2 scale 2");
+    // Three logical columns, i.e. six subcells, with the ink two subcells in,
+    // and a box stated in logical pixels like everything a header states.
+    assert_eq!(rendered[0], "glyph foo 3 2 scale 2 origin 1 0 advance 2");
     assert_eq!(rendered[1], "....@@@@....");
     // The glyph's own anchor moved by the same two subcells...
     assert!(
         rendered.contains(&"anchor +above 2 0".to_string()),
         "{rendered:?}"
     );
-    // ...and `bar`, itself at scale 2, moves its reference by two of *its*
-    // subcells, which is the same one logical pixel.
+    // ...and nothing outside it moved at all.
+    assert!(
+        rendered.contains(&"ref foo 2 0".to_string()),
+        "{rendered:?}"
+    );
+}
+
+/// A box drag counts logical pixels in the header and *the referring glyph's*
+/// subcells in every `ref` — one logical pixel of the target is one logical
+/// pixel of whoever draws it, whatever either scale is.
+#[test]
+fn scale_is_counted_on_both_sides_of_a_box_drag() {
+    let mut f = Fixture::new(SCALED);
+    f.resize_box(
+        "foo",
+        ResizeDeltas {
+            left: 1,
+            ..Default::default()
+        },
+    );
+    let rendered = f.rendered();
+    assert_eq!(rendered[0], "glyph foo 2 2 scale 2 origin -1 0 advance 3");
+    assert_eq!(rendered[1], "@@@@....", "the drawing is untouched");
+    assert!(
+        rendered.contains(&"anchor +above 0 0".to_string()),
+        "{rendered:?}"
+    );
+    // `bar`, itself at scale 2, moves its reference by two of *its* subcells.
     assert!(
         rendered.contains(&"ref foo 0 0".to_string()),
         "{rendered:?}"
@@ -372,6 +498,8 @@ ref foo 1 0
         },
         define_item,
         f.env(),
+        ResizeKind::Box,
+        crate::meta::FontMetrics::default(),
     );
     let ops = apply_plan(&mut f.lines, plan);
     assert!(ops.len() > 1, "the glyph's block and the ref both moved");

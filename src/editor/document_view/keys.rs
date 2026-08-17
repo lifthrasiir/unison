@@ -17,6 +17,7 @@ pub(super) fn handle_document_keys(
     name_parts: &NamePartsMap,
     alt_index: &crate::editor::ref_composite::AlternativesIndex,
     composites: &HashMap<usize, GlyphComposite>,
+    meta: crate::meta::FontMetrics,
     prev_cursor: Caret,
     needs_rederive: &mut bool,
 ) {
@@ -71,6 +72,7 @@ pub(super) fn handle_document_keys(
                     name_parts,
                     alt_index,
                 },
+                meta,
             );
 
             // F2: rename symbol at caret
@@ -555,8 +557,9 @@ fn handle_resize_keys(
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
     env: crate::editor::glyph_resize::ResolveEnv<'_>,
+    meta: crate::meta::FontMetrics,
 ) -> bool {
-    use crate::editor::glyph_resize::{self as resize, ResizeSide};
+    use crate::editor::glyph_resize::{self as resize, ResizeKind, ResizeSide};
 
     if !matches!(state.popup, PopupState::None) {
         return false;
@@ -565,7 +568,7 @@ fn handle_resize_keys(
     if ui.input(|i| i.key_pressed(egui::Key::F2))
         && !matches!(state.mode, EditMode::GlyphResize { .. })
         && let Some(item_idx) = resize_target_at_caret(doc, lines, state)
-        && resize::begin(doc, lines, state, item_idx, env)
+        && resize::begin(doc, lines, state, item_idx, env, ResizeKind::Box, meta)
     {
         return false;
     }

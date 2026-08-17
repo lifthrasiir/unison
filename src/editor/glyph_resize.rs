@@ -1,28 +1,47 @@
-//! Glyph resize mode: dragging a glyph's boundary, and what that costs
-//! everything else.
+//! Resize mode: dragging a glyph's boundary, and what that costs everything
+//! else.
 //!
-//! `F2` over a pixel grid enters the mode. The four edges of the glyph's own
-//! grid become draggable (arrow keys move them too — a key moves the boundary
-//! *towards* the direction it names, so `Shift+Up` pulls the bottom edge up
-//! and shrinks the glyph); Enter applies, Escape or losing the focus cancels.
-//! Nothing is committed while the mode is live: the document is previewed by
-//! rewriting the glyph's block from a pristine snapshot on every step, so what
-//! is on screen is exactly what applying would produce, and cancelling is a
-//! single splice back.
+//! # Two rectangles
 //!
-//! # A resize is not local
+//! A glyph has two, and they are dragged from two different places:
 //!
-//! Growing a glyph to the left or upwards moves its ink *within* its own grid,
-//! so everything positioned against that grid has to move with it:
+//! - **The declared box** — what the glyph *claims*, which is what every `ref`
+//!   to it is measured against. `F2` over a pixel grid drags this one. Nothing
+//!   the glyph draws moves; its `origin`/`advance`/`extent` change.
+//! - **The pixel grid** — how much room the drawing has. Dragged from under the
+//!   backreference shadow (`` ` `` twice), which is up exactly when the question
+//!   "does my ink still fit where I am used?" is being asked, and which is
+//!   bigger than the canvas nearly always, so the drag has room to preview in;
+//!   it stays up for the drag it started. The session begins only once the drag
+//!   has a whole logical pixel to show for itself, so the mode switch is
+//!   something the user sees happen *because* of a change they made — see
+//!   [`CanvasStart`]. Growing the canvas never moves what is already drawn.
 //!
-//! - the glyph's own `anchor` lines and its own explicitly-offset `ref`s shift
-//!   by the same amount, which is what keeps the drawn shape still while the
-//!   box around it changes;
-//! - every `ref` **elsewhere** that names this glyph shifts the *other* way —
-//!   the target's ink now starts further into its own grid, so the reference
-//!   must start further out. `ref foo 1 2` becomes `ref foo -1 2` when `foo`
-//!   grows two columns to the left; a negative offset is a bearing and is
-//!   exactly the right answer (see [`crate::ref_composite`]).
+//! Arrow keys move an edge in either mode (a key moves the boundary *towards*
+//! the direction it names, so `Shift+Up` pulls the bottom edge up and shrinks
+//! the rectangle); Enter applies, Escape or losing the focus cancels. Nothing
+//! is committed while the mode is live: the document is previewed by rewriting
+//! the glyph's block from a pristine snapshot on every step, so what is on
+//! screen is exactly what applying would produce, and cancelling is a single
+//! splice back.
+//!
+//! # What each one costs
+//!
+//! **A canvas resize costs nothing outside the glyph.** Growing the grid to the
+//! left or the top moves the ink's *grid* coordinates, so the block moves with
+//! it — the pixels, the glyph's own `anchor` lines, its own explicitly-offset
+//! `ref`s — and the header states the box that would otherwise have drifted:
+//! an `origin` that keeps the box's corner on the same ink, and the width it
+//! had, which was the grid's until the grid changed ([`canvas_box`]). The glyph
+//! draws and measures exactly as before, so nothing that uses it moves. Room is
+//! all that changed.
+//!
+//! **A box drag is what moves everything else.** It changes what the glyph
+//! claims, and a `ref` offset names that claim's corner, so **every `ref` to
+//! the glyph shifts by the near edges' movement, negated**: `ref foo 1 2`
+//! becomes `ref foo -1 2` when `foo`'s box grows two columns to the left. A
+//! negative offset is a bearing and is exactly the right answer (see
+//! [`crate::ref_composite`]). The drawing itself does not move at all.
 //!
 //! Two things decide whether a `ref` line is touched at all:
 //!
@@ -84,6 +103,25 @@ impl ResizeDeltas {
     }
 }
 
+/// What a resize session is dragging.
+///
+/// The two are the same gesture over two different rectangles, and the
+/// difference is what each one is *for*:
+///
+/// - [`Box`](ResizeKind::Box) drags the **declared box** — what the glyph
+///   claims, which is what every `ref` to it is measured against. Nothing the
+///   glyph draws moves; its header's `origin`/`advance`/`extent` change and
+///   every parent follows.
+/// - [`Canvas`](ResizeKind::Canvas) drags the **pixel grid** — how much room
+///   the drawing has. The ink stays where it is on screen, so the glyph's own
+///   anchors and refs shift inside the grown grid and the header takes an
+///   `origin` to match; nothing outside the glyph changes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ResizeKind {
+    Box,
+    Canvas,
+}
+
 /// Which edge a drag or a key is moving.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ResizeSide {
@@ -105,6 +143,7 @@ pub struct ResizeAction {
     pub item_idx: usize,
     pub glyph_name: String,
     pub deltas: ResizeDeltas,
+    pub(crate) kind: ResizeKind,
 }
 
 /// The live resize session: the glyph, the pristine text of its block, and
@@ -114,6 +153,11 @@ pub struct ResizeAction {
 /// from the previewed document, so repeated nudges cannot compound rounding
 /// or re-shift an already-shifted `anchor` line.
 pub(crate) struct GlyphResize {
+    pub kind: ResizeKind,
+    /// The font's metrics, for the box's height when the header states none.
+    /// Held rather than passed because the preview recomputes the box on every
+    /// step, from the pristine body, exactly as applying it later will.
+    meta: crate::meta::FontMetrics,
     pub item_idx: usize,
     pub name: String,
     pub header_line: usize,
@@ -129,22 +173,35 @@ pub(crate) struct GlyphResize {
     /// F2 is reachable from a plain caret on the grid line as well as from
     /// either pixel mode, and leaving resize must not move the user somewhere
     /// they were not.
-    return_mode: EditMode,
+    pub return_mode: EditMode,
     pub deltas: ResizeDeltas,
 }
 
 impl GlyphResize {
-    /// Logical size the glyph would have with the current deltas.
+    /// Logical size the dragged rectangle would have with the current deltas.
     pub(crate) fn preview_dims(&self) -> (i32, i32) {
-        let s = self.body.scale.max(1) as i32;
-        let (w, h) = match &self.body.pixels {
-            Some(g) => (g.width as i32 / s, g.height as i32 / s),
-            None => (0, 0),
+        let (w, h) = match self.kind {
+            ResizeKind::Box => {
+                let (_, w, h) = declared_box_of(&self.body, self.meta);
+                (w as i32, h as i32)
+            }
+            ResizeKind::Canvas => {
+                let s = self.body.scale.max(1) as i32;
+                match &self.body.pixels {
+                    Some(g) => (g.width as i32 / s, g.height as i32 / s),
+                    None => (0, 0),
+                }
+            }
         };
         (
             w + self.deltas.left as i32 + self.deltas.right as i32,
             h + self.deltas.top as i32 + self.deltas.bottom as i32,
         )
+    }
+
+    /// The declared box the current deltas would leave — see [`boxed_for`].
+    fn boxed(&self) -> BoxFlags {
+        boxed_for(&self.body, self.meta, self.deltas)
     }
 }
 
@@ -205,6 +262,110 @@ pub(crate) fn glyph_block_len(lines: &[DocLine], body: &GlyphBody, header_line: 
     base + n - header_line
 }
 
+/// The declared box a glyph starts a drag from, in logical pixels.
+///
+/// The width is what the header states, or what the grid gives when it states
+/// nothing; the height is the em box unless `extent` says otherwise. This is
+/// the rectangle [`crate::editor::document_view::glyph_metrics`] draws, and it
+/// has to be, since that is what the pointer is grabbing.
+fn declared_box_of(body: &GlyphBody, meta: crate::meta::FontMetrics) -> ((i16, i16), u16, u16) {
+    let s = body.scale.max(1) as u16;
+    let grid = body.pixels.as_ref();
+    let width = body
+        .stated_advance()
+        .or_else(|| grid.map(|g| g.width / s))
+        .unwrap_or(0);
+    let height = match body.extent {
+        Some((_, h)) => h,
+        None => meta.ascent() + meta.descent(),
+    };
+    (body.declared_origin(), width, height)
+}
+
+/// What a header should state about its box, as the three flags that state it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct BoxFlags {
+    origin: (i16, i16),
+    advance: Option<u16>,
+    extent: Option<(u16, u16)>,
+}
+
+/// The box a *canvas* resize leaves: the same rectangle it started as.
+///
+/// The ink's grid coordinates move when the grid grows at the left or the top,
+/// so the box's corner moves with them — that automatic `origin` is what keeps
+/// the drawing where it was drawn. The width has to be pinned along with it
+/// whenever the header left it to the grid, since the grid is what just
+/// changed; a width the header already stated is already pinned, and a height
+/// is unaffected either way (the box's own is the em box, and a stated one
+/// stays stated).
+fn canvas_box(body: &GlyphBody, deltas: ResizeDeltas) -> BoxFlags {
+    let (oc, or) = body.declared_origin();
+    let origin = (oc + deltas.left, or + deltas.top);
+    if body.extent.is_some() {
+        return BoxFlags {
+            origin,
+            advance: None,
+            extent: body.extent,
+        };
+    }
+    let s = body.scale.max(1) as u16;
+    let width_moved = deltas.left != 0 || deltas.right != 0;
+    let advance = body
+        .advance
+        .or_else(|| width_moved.then(|| body.pixels.as_ref().map_or(0, |g| g.width / s)));
+    BoxFlags {
+        origin,
+        advance,
+        extent: None,
+    }
+}
+
+/// The declared box `deltas` leave, as the header should state it.
+///
+/// A width equal to what the glyph resolves to is still written: the drag said
+/// where the edge goes, and leaving it implicit would let it drift with the
+/// ink. A height is written only once one is *asked* for — a vertical drag, or
+/// a header that already stated one — so the em box stays the answer for every
+/// glyph that never had an opinion about it.
+fn boxed_for(body: &GlyphBody, meta: crate::meta::FontMetrics, deltas: ResizeDeltas) -> BoxFlags {
+    let ((oc, or), w, h) = declared_box_of(body, meta);
+    let origin = (oc - deltas.left, or - deltas.top);
+    let w = (w as i32 + deltas.left as i32 + deltas.right as i32).max(0) as u16;
+    let h = (h as i32 + deltas.top as i32 + deltas.bottom as i32).max(0) as u16;
+    if body.extent.is_some() || deltas.top != 0 || deltas.bottom != 0 {
+        BoxFlags {
+            origin,
+            advance: None,
+            extent: Some((w, h)),
+        }
+    } else {
+        BoxFlags {
+            origin,
+            advance: Some(w),
+            extent: None,
+        }
+    }
+}
+
+/// The glyph's header, rewritten for a box that has moved. Nothing else in the
+/// block changes: the drawing stays exactly where it is, and only what the
+/// glyph *claims* about it moves.
+fn rebox_block(block: &[DocLine], boxed: BoxFlags) -> Option<Vec<DocLine>> {
+    let DocLine::Text(header) = block.first()? else {
+        return None;
+    };
+    let new_header = crate::document_io::replace_glyph_box_flags(
+        header,
+        (boxed.origin != (0, 0)).then_some(boxed.origin),
+        boxed.advance,
+        boxed.extent,
+    )?;
+    let mut out = block.to_vec();
+    out[0] = DocLine::Text(new_header);
+    Some(out)
+}
+
 /// The glyph's own block, rewritten for `deltas`: the header's dimensions,
 /// the grid's contents, and every line positioned against the grid.
 ///
@@ -217,6 +378,7 @@ pub(crate) fn resize_block(
     own_anchor_placed: &[bool],
 ) -> Option<Vec<DocLine>> {
     let grid = body.pixels.as_ref()?;
+    let boxed = canvas_box(body, deltas);
     let s = body.scale.max(1) as i32;
     let new_w = grid.width as i32 + (deltas.left as i32 + deltas.right as i32) * s;
     let new_h = grid.height as i32 + (deltas.top as i32 + deltas.bottom as i32) * s;
@@ -233,6 +395,15 @@ pub(crate) fn resize_block(
         header,
         (new_w / s) as u16,
         (new_h / s) as u16,
+    )?;
+    // …and the box the wider grid would otherwise have moved. Growing the
+    // canvas is a change of *room*: the drawing does not move, so neither may
+    // what the glyph claims about it.
+    let new_header = crate::document_io::replace_glyph_box_flags(
+        &new_header,
+        (boxed.origin != (0, 0)).then_some(boxed.origin),
+        boxed.advance,
+        boxed.extent,
     )?;
     out[0] = DocLine::Text(new_header);
 
@@ -400,6 +571,7 @@ pub(crate) fn adjust_refs_in_doc(
 ///
 /// `define_item` is the glyph's own item index when this document is the one
 /// that defines it; the other documents only ever get `ref` line edits.
+#[expect(clippy::too_many_arguments)]
 pub(crate) fn plan_document_resize(
     doc: &Document,
     lines: &[DocLine],
@@ -407,6 +579,8 @@ pub(crate) fn plan_document_resize(
     deltas: ResizeDeltas,
     define_item: Option<usize>,
     env: ResolveEnv<'_>,
+    kind: ResizeKind,
+    meta: crate::meta::FontMetrics,
 ) -> Vec<(usize, Vec<DocLine>, Vec<DocLine>)> {
     let mut plan: Vec<(usize, Vec<DocLine>, Vec<DocLine>)> = Vec::new();
     if let Some(item_idx) = define_item
@@ -415,13 +589,27 @@ pub(crate) fn plan_document_resize(
         let header_line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
         let len = glyph_block_len(lines, body, header_line);
         let old: Vec<DocLine> = lines[header_line..header_line + len].to_vec();
-        if let Some(new) = resize_block(&old, body, deltas, &anchor_placed_refs(body, env))
+        // The same two rewrites the preview used, for the same reason: what a
+        // box drag changes is the header, and what a canvas drag changes is
+        // everything positioned against the grid.
+        let rewritten = match kind {
+            ResizeKind::Box => rebox_block(&old, boxed_for(body, meta, deltas)),
+            ResizeKind::Canvas => resize_block(&old, body, deltas, &anchor_placed_refs(body, env)),
+        };
+        if let Some(new) = rewritten
             && new != old
         {
             plan.push((header_line, old, new));
         }
     }
-    for edit in adjust_refs_in_doc(doc, lines, names, deltas, env) {
+    // Only a box drag moves what uses the glyph. A canvas drag keeps the ink
+    // exactly where it was relative to the box (see [`canvas_box`]), so every
+    // `ref` to it already points at the right place.
+    let ref_edits = match kind {
+        ResizeKind::Box => adjust_refs_in_doc(doc, lines, names, deltas, env),
+        ResizeKind::Canvas => Vec::new(),
+    };
+    for edit in ref_edits {
         plan.push((
             edit.line,
             vec![DocLine::Text(edit.old)],
@@ -456,18 +644,24 @@ pub(crate) fn apply_plan(
 // The editor-side session
 // ---------------------------------------------------------------------------
 
-/// Enter resize mode on the glyph at `item_idx`, if it owns a pixel grid.
+/// Enter resize mode on the glyph at `item_idx`.
+///
+/// A canvas resize needs a grid to resize; a box drag does not, but it does
+/// need the font's em height, which is the box's own whenever the header does
+/// not say otherwise.
 pub(crate) fn begin(
     doc: &Document,
     lines: &mut Vec<DocLine>,
     state: &mut EditorState,
     item_idx: usize,
     env: ResolveEnv<'_>,
+    kind: ResizeKind,
+    meta: crate::meta::FontMetrics,
 ) -> bool {
     let Some(DocumentItem::Glyph { name, body }) = doc.items.get(item_idx) else {
         return false;
     };
-    if body.pixels.is_none() {
+    if body.pixels.is_none() && kind == ResizeKind::Canvas {
         return false;
     }
     let header_line = doc.item_line_starts.get(item_idx).copied().unwrap_or(0);
@@ -488,6 +682,8 @@ pub(crate) fn begin(
 
     let len = glyph_block_len(lines, body, header_line);
     state.resize = Some(GlyphResize {
+        kind,
+        meta,
         item_idx,
         name: name.0.clone(),
         header_line,
@@ -511,12 +707,16 @@ fn refresh_preview(lines: &mut Vec<DocLine>, state: &mut EditorState) -> bool {
     let new_block = if session.deltas.is_zero() {
         session.orig_block.clone()
     } else {
-        match resize_block(
-            &session.orig_block,
-            &session.body,
-            session.deltas,
-            &session.own_anchor_placed,
-        ) {
+        let rewritten = match session.kind {
+            ResizeKind::Box => rebox_block(&session.orig_block, session.boxed()),
+            ResizeKind::Canvas => resize_block(
+                &session.orig_block,
+                &session.body,
+                session.deltas,
+                &session.own_anchor_placed,
+            ),
+        };
+        match rewritten {
             Some(block) => block,
             None => return false,
         }
@@ -553,7 +753,13 @@ pub(crate) fn nudge(
         ResizeSide::Bottom => deltas.bottom += steps,
     }
     let prev = std::mem::replace(&mut session.deltas, deltas);
-    if session.preview_dims().0 < 1 || session.preview_dims().1 < 1 {
+    // A canvas needs a cell to be a canvas; a box may be empty — `advance 0` is
+    // what every combining mark says — but it may not be inside out.
+    let floor = match session.kind {
+        ResizeKind::Box => 0,
+        ResizeKind::Canvas => 1,
+    };
+    if session.preview_dims().0 < floor || session.preview_dims().1 < floor {
         session.deltas = prev;
         return false;
     }
@@ -592,9 +798,9 @@ pub(crate) fn finish(
     state: &mut EditorState,
 ) -> Option<ResizeAction> {
     let deltas = state.resize.as_ref()?.deltas;
-    let (item_idx, name) = {
+    let (item_idx, name, kind) = {
         let session = state.resize.as_ref()?;
-        (session.item_idx, session.name.clone())
+        (session.item_idx, session.name.clone(), session.kind)
     };
     cancel(lines, state);
     if deltas.is_zero() {
@@ -605,6 +811,7 @@ pub(crate) fn finish(
         item_idx,
         glyph_name: name,
         deltas,
+        kind,
     })
 }
 
@@ -683,9 +890,47 @@ pub(crate) fn draw_overlay(
         // the left edge lands entirely in the clipped half of the band.
         egui::epaint::StrokeKind::Inside,
     );
+    draw_handles(painter, rect, zoom, color);
+}
+
+/// The handles alone, for a boundary that is grabbable but not being dragged.
+///
+/// This is the whole affordance the backreference shadow has: without it the
+/// grid's edge says only that the glyph ends there, and a resize nobody knows
+/// how to start is a resize that is not there. Drawn dimmed, since the shadow
+/// is up to be *looked* at and four solid squares in the selection colour would
+/// read as a selection.
+pub(crate) fn draw_grab_hint(
+    painter: &egui::Painter,
+    rect: egui::Rect,
+    zoom: f32,
+    pal: &crate::editor::colors::Palette,
+) {
+    draw_handles(
+        painter,
+        rect,
+        zoom,
+        pal.pixel_selection.gamma_multiply(0.55),
+    );
+}
+
+fn draw_handles(painter: &egui::Painter, rect: egui::Rect, zoom: f32, color: egui::Color32) {
     for (_, handle) in handle_rects(rect, zoom) {
         painter.rect_filled(handle, 0.0, color);
     }
+}
+
+/// The cursor a pointer over `rect`'s edges should take, if any: the affordance
+/// that says *which way* the edge under it moves.
+pub(crate) fn grab_cursor(
+    rect: egui::Rect,
+    pos: egui::Pos2,
+    zoom: f32,
+) -> Option<egui::CursorIcon> {
+    Some(match grabbed_side(rect, pos, zoom)? {
+        ResizeSide::Left | ResizeSide::Right => egui::CursorIcon::ResizeHorizontal,
+        ResizeSide::Top | ResizeSide::Bottom => egui::CursorIcon::ResizeVertical,
+    })
 }
 
 /// The edge a press at `pos` grabs, if any: the nearest one within the grab
@@ -716,9 +961,24 @@ fn grabbed_side(rect: egui::Rect, pos: egui::Pos2, zoom: f32) -> Option<ResizeSi
     best.map(|(side, _)| side)
 }
 
+/// What a drag with no session yet would start, and what it needs to do it.
+///
+/// This is how the *canvas* is resized now that `F2` drags the box: the grid's
+/// edges are grabbable while the backreference shadow is up, and the session
+/// only begins once the drag has a whole logical pixel to show for itself — so
+/// a stray press on the border leaves the mode it was in, and the mode switch
+/// is something the user sees happen because of a change they made.
+pub(crate) struct CanvasStart<'a> {
+    pub doc: &'a Document,
+    pub env: ResolveEnv<'a>,
+    pub meta: crate::meta::FontMetrics,
+    pub item_idx: usize,
+}
+
 /// Drag one edge of the glyph. The grabbed edge is latched at press time: the
 /// boundary follows the pointer, so by the next frame the pointer is no longer
 /// on the edge it grabbed.
+#[expect(clippy::too_many_arguments)]
 pub(crate) fn handle_drag(
     ui: &egui::Ui,
     lines: &mut Vec<DocLine>,
@@ -727,6 +987,7 @@ pub(crate) fn handle_drag(
     rect: egui::Rect,
     grid_cell: f32,
     zoom: f32,
+    start: Option<CanvasStart<'_>>,
 ) {
     let side_id = state.key(crate::editor::Slot::ResizeDragSide);
     let accum_id = state.key(crate::editor::Slot::ResizeDragAccum);
@@ -758,8 +1019,17 @@ pub(crate) fn handle_drag(
     };
 
     // One logical pixel on screen: the grid draws raster cells, and a resize
-    // moves whole logical ones.
-    let scale = state.resize.as_ref().map_or(1, |s| s.body.scale.max(1)) as f32;
+    // moves whole logical ones. Before the session exists the scale comes from
+    // the glyph the drag is about to start on, or the first step would be a
+    // subcell on a `scale N` glyph.
+    let scale = match (&state.resize, &start) {
+        (Some(session), _) => session.body.scale.max(1),
+        (None, Some(start)) => match start.doc.items.get(start.item_idx) {
+            Some(DocumentItem::Glyph { body, .. }) => body.scale.max(1),
+            _ => 1,
+        },
+        (None, None) => 1,
+    } as f32;
     let step_px = grid_cell * scale;
     let mut accum = ui
         .ctx()
@@ -781,6 +1051,21 @@ pub(crate) fn handle_drag(
         ResizeSide::Left | ResizeSide::Top => -cells,
         ResizeSide::Right | ResizeSide::Bottom => cells,
     };
+    // The first step is what starts a canvas session — see [`CanvasStart`].
+    if let Some(start) = start
+        && state.resize.is_none()
+        && !begin(
+            start.doc,
+            lines,
+            state,
+            start.item_idx,
+            start.env,
+            ResizeKind::Canvas,
+            start.meta,
+        )
+    {
+        return;
+    }
     let moved = nudge(lines, state, side, steps);
     if moved {
         *needs_rederive = true;
@@ -877,13 +1162,19 @@ pub(crate) fn draw_panel(
         }
     }
 
-    // The size the glyph would end up with, under the buttons.
+    // The size the dragged rectangle would end up with, under the buttons, and
+    // which rectangle that is — the two are dragged the same way and a glyph
+    // where they coincide would otherwise give no clue which one is live.
     if let Some(session) = &state.resize {
         let (w_new, h_new) = session.preview_dims();
+        let what = match session.kind {
+            ResizeKind::Box => "box",
+            ResizeKind::Canvas => "canvas",
+        };
         painter.text(
             egui::pos2(panel_x, panel_y + 2.0 * (h + gap)),
             egui::Align2::LEFT_TOP,
-            format!("{w_new} × {h_new}"),
+            format!("{what} {w_new} × {h_new}"),
             font,
             visuals.weak_text_color(),
         );

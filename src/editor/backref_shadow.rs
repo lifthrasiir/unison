@@ -16,15 +16,30 @@
 //! parent contributes like any other — the shadow says *where the parent is*,
 //! not what it does with the ink.
 //!
-//! **Placement.** In a parent `P`'s own coordinates this glyph's raster sits at
-//! `ref offset + this glyph's origin` (`ref_effective_offset_scaled`), while
-//! `P`'s raster sits at `P.origin`. Expressing the second relative to the first
-//! and converting to this glyph's `scale` is the whole of [`compute`].
+//! **Placement.** In a parent `P`'s own coordinates this glyph's raster sits
+//! where `ref_effective_offset_scaled` puts it — the `ref` offset, less this
+//! glyph's *declared box* corner, plus its raster's own reach — while `P`'s
+//! raster sits at `P.origin`. Expressing the second relative to the first and
+//! converting to this glyph's `scale` is the whole of [`compute`].
+//!
+//! Of those terms only the box is this glyph's own, and it is read from the
+//! *document* rather than from the resolution: the placement is arithmetic on
+//! it, so the shadow moves with the header instead of a font build later.
 //!
 //! **Cost.** This is O(document) in the glyph count *and* in how often the
 //! edited glyph is used, so unlike the anchor shadow it is not on by default:
 //! see [`crate::editor::EditMode::PixelSelect`], which the second `` ` ``
 //! toggles it on within. A shadow is only rebuilt when the view cache is.
+//!
+//! **It is also where the canvas is resized.** The glyph's own boundary is
+//! grabbable while the shadow is up — marked with a handle on each edge, since
+//! an unmarked edge says only that the glyph ends there — and it is the one
+//! place where the question the shadow answers and the answer are the same
+//! gesture: the parents are drawn around the grid being dragged, so growing it
+//! to fit is previewed against what has to keep fitting. The shadow therefore
+//! *stays up* for the drag it started, or the drawn area would shrink out from
+//! under the pointer at the mode switch. See [`crate::editor::glyph_resize`],
+//! whose `F2` drags the declared box instead.
 
 use std::collections::HashMap;
 
@@ -33,9 +48,17 @@ use crate::editor::shadow::{Shadow, ShadowBuilder, ShadowKind};
 
 /// Build the shadow of every glyph referring to `self_name`, at the edited
 /// glyph's `scale`.
+///
+/// `declared_origin` comes from the *document*, not from `named_glyphs`: it is
+/// the one term of the placement the edited glyph itself controls, and reading
+/// it from the resolution would make the shadow lag a font build behind every
+/// change to it. Where each parent puts this glyph is arithmetic on that
+/// origin, so the shadow can move the moment the header does, and the resolved
+/// data only has to catch up with what the *parents* say.
 pub(crate) fn compute(
     self_name: &str,
     scale: u8,
+    declared_origin: (i16, i16),
     named_glyphs: &HashMap<String, ResolvedGlyph>,
 ) -> Option<Shadow> {
     let ss = scale.max(1) as i32;
@@ -45,6 +68,9 @@ pub(crate) fn compute(
     let (self_origin_row, self_origin_col) = named_glyphs
         .get(self_name)
         .map_or((0, 0), |g| (g.origin_row, g.origin_col));
+    // …and where its *declared box* starts, which is what a `ref` offset
+    // actually names. In logical cells, so it scales by the parent's.
+    let (self_box_col, self_box_row) = declared_origin;
 
     // Collected by name and sorted before the union, for the same reason the
     // anchor shadow does it: a `HashMap` iterates in an arbitrary order, and
@@ -75,9 +101,12 @@ pub(crate) fn compute(
             continue;
         };
         for gref in src.refs.iter().filter(|r| r.name == self_name) {
-            // This glyph's raster top-left, in the parent's coordinates…
-            let rr = gref.row() as i32 + self_origin_row * ps / ss;
-            let rc = gref.col() as i32 + self_origin_col * ps / ss;
+            // This glyph's raster top-left, in the parent's coordinates. The
+            // offset names the box's corner, so the box comes out of it first
+            // and the raster's own reach goes back in — the same two terms, in
+            // the same order, as `ref_effective_offset_scaled`.
+            let rr = gref.row() as i32 - self_box_row as i32 * ps + self_origin_row * ps / ss;
+            let rc = gref.col() as i32 - self_box_col as i32 * ps + self_origin_col * ps / ss;
             // …and the parent's own raster top-left, back in this glyph's.
             let row = self_origin_row + (parent.origin_row - rr) * ss / ps;
             let col = self_origin_col + (parent.origin_col - rc) * ss / ps;
@@ -110,6 +139,21 @@ mod tests {
             fill: None,
             visibility: None,
             comment: None,
+        }
+    }
+
+    /// The same, with a declared box corner of its own.
+    fn boxed_glyph(
+        w: u16,
+        h: u16,
+        shape: u8,
+        origin: (i32, i32),
+        declared: (i16, i16),
+        refs: Vec<GlyphRef>,
+    ) -> ResolvedGlyph {
+        ResolvedGlyph {
+            declared_origin: declared,
+            ..glyph(w, h, shape, origin, refs)
         }
     }
 
@@ -153,7 +197,7 @@ mod tests {
                 glyph(1, 1, PX_ALMOSTFULL, (0, 0), vec![gref("c", 0, 0)]),
             ),
         ]);
-        assert!(compute("a", 1, &glyphs).is_none());
+        assert!(compute("a", 1, (0, 0), &glyphs).is_none());
     }
 
     /// The parent lands so that its copy of us sits on us: a parent that draws
@@ -167,11 +211,48 @@ mod tests {
                 glyph(4, 2, PX_ALMOSTFULL, (0, 0), vec![gref("a", 3, 1)]),
             ),
         ]);
-        let shadow = compute("a", 1, &glyphs).unwrap();
+        let shadow = compute("a", 1, (0, 0), &glyphs).unwrap();
         assert_eq!((shadow.col, shadow.row), (-3, -1));
         assert_eq!((shadow.grid.width, shadow.grid.height), (4, 2));
         assert_eq!(shadow.count, 1);
         assert_eq!(shadow.kind, ShadowKind::Backref);
+    }
+
+    /// A `ref` offset names the *box's* corner, so a glyph that declares one is
+    /// placed by that and not by its grid — exactly as
+    /// [`crate::ref_composite::ref_effective_offset_scaled`] places it for the
+    /// build. Getting this wrong puts every shadow of every glyph that declares
+    /// an origin out by that origin, which is every combining mark there is.
+    ///
+    /// The origin is the caller's, not the resolution's, and the resolution
+    /// here is deliberately *stale* — carrying the origin the glyph had before
+    /// the edit, the way it does until the next font build lands. Where the
+    /// parents put this glyph follows from the header immediately, so the
+    /// shadow must too.
+    #[test]
+    fn our_declared_box_is_taken_out_of_the_offset() {
+        // Same drawing, same parent, two spellings of where it sits: the box's
+        // corner two columns into the grid, and the ref that names it moved to
+        // match. The shadow must not budge.
+        let plain = named(vec![
+            ("a", glyph(2, 1, PX_ALMOSTFULL, (0, 0), vec![])),
+            (
+                "ab",
+                glyph(4, 1, PX_ALMOSTFULL, (0, 0), vec![gref("a", 1, 0)]),
+            ),
+        ]);
+        let boxed = named(vec![
+            // What the last build resolved, i.e. before the box moved.
+            ("a", boxed_glyph(2, 1, PX_ALMOSTFULL, (0, 0), (0, 0), vec![])),
+            (
+                "ab",
+                glyph(4, 1, PX_ALMOSTFULL, (0, 0), vec![gref("a", 3, 0)]),
+            ),
+        ]);
+        let a = compute("a", 1, (0, 0), &plain).unwrap();
+        let b = compute("a", 1, (2, 0), &boxed).unwrap();
+        assert_eq!((a.col, a.row), (-1, 0));
+        assert_eq!((b.col, b.row), (a.col, a.row));
     }
 
     /// A composite whose raster reaches left of its own pixels is placed by
@@ -187,7 +268,7 @@ mod tests {
                 glyph(4, 1, PX_ALMOSTFULL, (0, 0), vec![gref("a", 3, 0)]),
             ),
         ]);
-        let shadow = compute("a", 1, &glyphs).unwrap();
+        let shadow = compute("a", 1, (0, 0), &glyphs).unwrap();
         assert_eq!((shadow.col, shadow.row), (-3, 0));
     }
 
@@ -210,7 +291,7 @@ mod tests {
             ),
             ("ax", glyph(1, 1, PX_HALF2, (0, 0), vec![gref("a", 0, 0)])),
         ]);
-        let shadow = compute("a", 1, &glyphs).unwrap();
+        let shadow = compute("a", 1, (0, 0), &glyphs).unwrap();
         assert_eq!(shadow.count, 3);
         assert_eq!((shadow.grid.width, shadow.grid.height), (1, 1));
         assert_eq!(shadow.grid.get(0, 0).shape_id(), PX_ALMOSTFULL);
@@ -224,7 +305,7 @@ mod tests {
             "a",
             glyph(1, 1, PX_ALMOSTFULL, (0, 0), vec![gref("a", 1, 0)]),
         )]);
-        assert!(compute("a", 1, &glyphs).is_none());
+        assert!(compute("a", 1, (0, 0), &glyphs).is_none());
     }
 
     /// A parent that writes hardblanks (`$$`) where this glyph sits draws
@@ -245,7 +326,7 @@ mod tests {
                 ),
             ),
         ]);
-        assert!(compute("a", 1, &glyphs).is_none());
+        assert!(compute("a", 1, (0, 0), &glyphs).is_none());
     }
 
     /// The blank cells of a parent that *does* draw are left out of the union,
@@ -260,7 +341,7 @@ mod tests {
             ("a", glyph(1, 1, PX_ALMOSTFULL, (0, 0), vec![])),
             ("parent", parent),
         ]);
-        let shadow = compute("a", 1, &glyphs).unwrap();
+        let shadow = compute("a", 1, (0, 0), &glyphs).unwrap();
         assert!(
             shadow.grid.get(0, 0).is_clear(),
             "the parent's hardblank must not be carried into the shadow at all"
@@ -282,6 +363,6 @@ mod tests {
                 glyph(1, 1, PX_ALMOSTFULL, (0, 0), vec![gref("a", 30000, 0)]),
             ),
         ]);
-        assert!(compute("a", 1, &glyphs).is_none());
+        assert!(compute("a", 1, (0, 0), &glyphs).is_none());
     }
 }

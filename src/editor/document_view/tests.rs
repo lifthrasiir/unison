@@ -60,6 +60,72 @@ fn external_edit_action_can_be_flushed_immediately() {
     assert!(!state.take_document_sync_request());
 }
 
+/// Flattening a `ref` writes the target's pixels where the *ref* drew them,
+/// and a ref offset names the target's declared box corner — so a target that
+/// declares one has that box taken out of the offset first. Getting it wrong
+/// lands the pixels somewhere the composite never drew.
+#[test]
+fn inline_flatten_places_the_pixels_by_the_targets_box() {
+    let flattened = |flags: &str, offset: &str| {
+        let src = format!(
+            "glyph stem 2 2 {flags}\n\
+             @@..\n\
+             ..@@\n\
+             \n\
+             glyph comp 4 2\n\
+             ........\n\
+             ........\n\
+             ref stem {offset}\n"
+        );
+        let mut lines = parse_doclines(&src);
+        let (doc, _) = derive_document(&lines, "test.unf".into()).unwrap();
+        let name_parts = crate::document::collect_name_parts(&[&doc]);
+        let (named, _alt) = ref_composite::resolve_named_glyphs_with_parts(&[&doc], &name_parts);
+        let mut state = EditorState::new();
+        let comp_idx = doc
+            .items
+            .iter()
+            .position(|i| matches!(i, DocumentItem::Glyph { name, .. } if name.display() == "comp"))
+            .unwrap();
+        assert!(changes::inline_ref_to_pixels(
+            &mut lines,
+            &doc,
+            &mut state,
+            comp_idx,
+            0,
+            &named,
+            &name_parts,
+        ));
+        lines
+            .iter()
+            .filter_map(|l| match l {
+                DocLine::Grid(g) => Some(g.clone()),
+                _ => None,
+            })
+            .next_back()
+            .expect("the composite kept its grid")
+    };
+
+    // The same drawing in the same place, spelled two ways.
+    let plain = flattened("", "1 0");
+    let boxed = flattened("origin 1 0", "2 0");
+    assert_eq!(
+        (0..plain.height)
+            .flat_map(|r| (0..plain.width).map(move |c| (r, c)))
+            .filter(|&(r, c)| plain.get(r, c).is_bitmap_filled())
+            .collect::<Vec<_>>(),
+        (0..boxed.height)
+            .flat_map(|r| (0..boxed.width).map(move |c| (r, c)))
+            .filter(|&(r, c)| boxed.get(r, c).is_bitmap_filled())
+            .collect::<Vec<_>>(),
+        "the box a ref names must not move the pixels it flattens"
+    );
+    assert!(
+        plain.get(0, 1).is_bitmap_filled(),
+        "and they landed where the ref drew them"
+    );
+}
+
 /// The parser accepts `ref` and `anchor` lines in any order, so a body's
 /// layer-to-line mapping cannot assume refs come first: flattening ref 0 of a
 /// glyph whose source states an anchor first must remove the *ref* line.

@@ -695,6 +695,8 @@ mod reload_tests {
                 name_parts: &parts,
                 alt_index: &alts,
             },
+            glyph_resize::ResizeKind::Canvas,
+            crate::meta::FontMetrics::default(),
         ));
         assert!(glyph_resize::nudge(
             &mut open.lines,

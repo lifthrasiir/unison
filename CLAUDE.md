@@ -198,6 +198,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an unstated advance follows the raster and not the grid, and the one accessor that keeps the editor and `hmtx` agreeing | `document.rs` (`GlyphBody::stated_advance`) |
 | The origin in the grid vs the side bearings it exports as, and why only one of them is written | `document.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
 | Grid coordinates vs box coordinates: which of the two an offset, an anchor and a ref placement are in, and the one conversion between them | `ref_composite.rs` (`rebase_offsets_to_box`, `ref_effective_offset_scaled`) |
+| Everyone who places a `ref` and so owes that conversion: the build, the sample, the backreference shadow, flattening | `render/ttf_builder/contours.rs` (`placed_at`), `render/sample.rs` (`placed_at`), `editor/backref_shadow.rs`, `editor/document_view/changes.rs` (`inline_ref_to_pixels`) |
+| Why the anchor shadow is the one placement with no box term in it | `editor/anchor_shadow.rs`, `ref_composite.rs` (`derive_ref_offsets_detailed`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |
@@ -228,7 +230,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`) |
 | Why the ref an unpicked component derives is left unresolved *and* unreported | `render/ttf_builder/expand.rs` (`expand_compose_lines`) |
 | The Issues tab's per-severity filter, why notes start hidden and why right-click is solo | `app/panels.rs` (`IssueFilter`) |
-| Resizing a glyph (F2), and why a `ref` to it moves the other way | `editor/glyph_resize.rs`, `app/resize.rs` |
+| The two rectangles a resize drags — the box (F2) and the canvas (under the backreference shadow) — and why only the box's drag moves a `ref` to the glyph | `editor/glyph_resize.rs`, `app/resize.rs` |
+| Why growing the canvas writes an `origin`, and what else it pins | `editor/glyph_resize.rs` (`canvas_box`) |
+| Why a canvas drag only switches modes once it has a pixel to show | `editor/glyph_resize.rs` (`CanvasStart`) |
+| Which flags a box drag writes, and why a vertical one states the height | `editor/glyph_resize.rs` (`boxed_for`), `document_io.rs` (`replace_glyph_box_flags`) |
 | Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite.rs` (`DeriveOutcome::anchor_placed`) |
 | Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite.rs` (`InlineSource`) |
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |

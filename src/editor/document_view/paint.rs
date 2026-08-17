@@ -762,6 +762,10 @@ pub(super) fn paint_document_area(
             && let Some(border_rect) = draw_edit_border(
                 &grid_painter,
                 &state.mode,
+                state
+                    .resize
+                    .as_ref()
+                    .is_some_and(|r| r.kind == crate::editor::glyph_resize::ResizeKind::Box),
                 vl,
                 doc,
                 origin,
@@ -773,7 +777,11 @@ pub(super) fn paint_document_area(
             )
         {
             edit_border_drawn = true;
-            resize_rect = matches!(state.mode, EditMode::GlyphResize { .. }).then_some(border_rect);
+            resize_rect = matches!(
+                state.mode,
+                EditMode::GlyphResize { .. } | EditMode::PixelSelect { backrefs: true, .. }
+            )
+            .then_some(border_rect);
             #[cfg(test)]
             crate::editor::harness::capture_edit_border(ui.ctx(), state.id(), border_rect);
             #[cfg(not(test))]
@@ -857,10 +865,47 @@ pub(super) fn paint_document_area(
 
     // Resize overlay and drag: the boundary is painted here, after every grid
     // row, and one of its edges follows the pointer.
-    if matches!(state.mode, EditMode::GlyphResize { .. })
-        && let Some(rect) = resize_rect
-    {
-        crate::editor::glyph_resize::draw_overlay(&grid_painter, rect, zoom_level as f32, pal);
+    //
+    // Two ways in. In resize mode the rectangle *is* the session's, drawn with
+    // its handles. Under the backreference shadow it is the grid's, undrawn and
+    // ungrabbed until a drag has a whole pixel to show — see
+    // [`crate::editor::glyph_resize::CanvasStart`].
+    if let Some(rect) = resize_rect {
+        let canvas_start = match state.mode {
+            EditMode::PixelSelect {
+                item_idx,
+                backrefs: true,
+            } => Some(crate::editor::glyph_resize::CanvasStart {
+                doc,
+                env: crate::editor::glyph_resize::ResolveEnv {
+                    named_glyphs,
+                    name_parts,
+                    alt_index: env.alt_index,
+                },
+                meta: env.meta,
+                item_idx,
+            }),
+            _ => None,
+        };
+        if canvas_start.is_none() {
+            crate::editor::glyph_resize::draw_overlay(&grid_painter, rect, zoom_level as f32, pal);
+        } else {
+            crate::editor::glyph_resize::draw_grab_hint(
+                &grid_painter,
+                rect,
+                zoom_level as f32,
+                pal,
+            );
+        }
+        // Either way the pointer says which edge it is on, and which way that
+        // edge moves.
+        if let Some(pos) = ui.input(|i| i.pointer.hover_pos())
+            && strip.accepts_pointer(pos)
+            && let Some(icon) =
+                crate::editor::glyph_resize::grab_cursor(rect, pos, zoom_level as f32)
+        {
+            ui.ctx().set_cursor_icon(icon);
+        }
         crate::editor::glyph_resize::handle_drag(
             ui,
             lines,
@@ -869,6 +914,7 @@ pub(super) fn paint_document_area(
             rect,
             grid_cell,
             zoom_level as f32,
+            canvas_start,
         );
     }
 
@@ -1232,6 +1278,7 @@ fn draw_selection(
 fn draw_edit_border(
     painter: &egui::Painter,
     mode: &EditMode,
+    box_drag: bool,
     vl: &VisualLine,
     _doc: &Document,
     origin: egui::Pos2,
@@ -1245,6 +1292,13 @@ fn draw_edit_border(
         EditMode::GlyphEdit { item_idx, .. } => Some(*item_idx),
         EditMode::LayerMove { item_idx, .. } => Some(*item_idx),
         EditMode::GlyphResize { item_idx } => Some(*item_idx),
+        // Not an editing border: the caller wants the grid's rectangle so the
+        // canvas can be dragged from under the backreference shadow, which is
+        // where a canvas resize starts now that `F2` drags the box.
+        EditMode::PixelSelect {
+            item_idx,
+            backrefs: true,
+        } => Some(*item_idx),
         _ => return None,
     };
     let eidx = editing_idx?;
@@ -1256,6 +1310,7 @@ fn draw_edit_border(
             own_width,
             own_height,
             extent,
+            metrics,
             ..
         } if *item_idx == eidx => {
             let own_x =
@@ -1275,13 +1330,32 @@ fn draw_edit_border(
             // here, in the middle of the glyph's rows, or the rows below this
             // one would paint straight over it. The caller draws it once every
             // row is down; all this does is work out where.
-            if !matches!(mode, EditMode::GlyphResize { .. }) {
+            if !matches!(
+                mode,
+                EditMode::GlyphResize { .. } | EditMode::PixelSelect { .. }
+            ) {
                 painter.rect_stroke(
                     border_rect,
                     0.0,
                     egui::Stroke::new(2.0, pal.cursor_border),
                     egui::epaint::StrokeKind::Outside,
                 );
+                return Some(border_rect);
+            }
+            if matches!(mode, EditMode::PixelSelect { .. }) {
+                return Some(border_rect);
+            }
+            // A box drag grabs the *metric box*, which is the rectangle it
+            // moves; a canvas drag grabs the grid. The two coincide for a
+            // glyph that declares nothing, which is why only one of them was
+            // ever needed before.
+            if box_drag && let Some(m) = metrics {
+                let gx = |c: i16| own_x + c as f32 * grid_cell;
+                let gy = |r: i16| origin.y + y + (r - *row) as f32 * grid_cell;
+                return Some(egui::Rect::from_min_max(
+                    egui::pos2(gx(m.left), gy(m.top)),
+                    egui::pos2(gx(m.right), gy(m.bottom)),
+                ));
             }
             Some(border_rect)
         }

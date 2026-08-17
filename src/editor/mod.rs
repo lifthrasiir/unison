@@ -76,6 +76,9 @@ pub enum EditMode {
     /// toggle at all: the shadow widens the drawn grid to cover every glyph
     /// this one is used in, and a grid that resized itself the moment a
     /// selection began would be unusable.
+    ///
+    /// While it is up, the glyph's own boundary is draggable and resizes the
+    /// *canvas* — see [`crate::editor::glyph_resize::CanvasStart`].
     PixelSelect {
         item_idx: usize,
         backrefs: bool,

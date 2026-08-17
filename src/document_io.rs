@@ -907,6 +907,106 @@ pub fn replace_glyph_header_dims(line: &str, width: u16, height: u16) -> Option<
     Some(out)
 }
 
+/// Rewrite the declared-box flags of a `glyph …` header line, leaving every
+/// other character — the name's quoting, the other flags, the spacing and the
+/// trailing comment — exactly as written.
+///
+/// Each argument is the value the header should end up stating: `Some` writes
+/// it (in place if the flag is already there, appended otherwise) and `None`
+/// removes the flag. `advance` and `extent` state the same slot, so writing one
+/// while leaving the other is rejected by the parser — pass `None` for the one
+/// being replaced, as the box editor does.
+///
+/// Values are *logical* pixels, like every number a header states. Returns
+/// `None` for a line that is not a glyph header, or for an alias, which has no
+/// flags to carry.
+#[cfg(any(feature = "editor", test))]
+pub fn replace_glyph_box_flags(
+    line: &str,
+    origin: Option<(i16, i16)>,
+    advance: Option<u16>,
+    extent: Option<(u16, u16)>,
+) -> Option<String> {
+    let spans = tokenize_with_spans(line).ok()?;
+    if spans.first().map(|s| s.value.as_str()) != Some("glyph") {
+        return None;
+    }
+    if spans.iter().any(|s| s.value == "=") {
+        return None;
+    }
+
+    let wanted: [(&str, Option<String>); 3] = [
+        ("origin", origin.map(|(c, r)| format!("origin {c} {r}"))),
+        ("advance", advance.map(|a| format!("advance {a}"))),
+        ("extent", extent.map(|(w, h)| format!("extent {w} {h}"))),
+    ];
+
+    // Where each flag stands today: the keyword's span and the span of its last
+    // value, so a replacement covers the whole flag and a removal takes the
+    // space before it too.
+    let chars: Vec<char> = line.chars().collect();
+    let mut edits: Vec<(usize, usize, String)> = Vec::new();
+    let mut appended = String::new();
+    for (keyword, value) in wanted {
+        let values = if keyword == "advance" { 1 } else { 2 };
+        let at = spans
+            .iter()
+            .position(|s| s.value == keyword)
+            .filter(|&i| i >= 2);
+        match (at, value) {
+            (Some(i), Some(text)) => {
+                let start = spans[i].raw_start;
+                let end = spans
+                    .get(i + values)
+                    .map_or(spans[i].raw_end, |s| s.raw_end);
+                edits.push((start, end, text));
+            }
+            (Some(i), None) => {
+                let start = spans[i].raw_start;
+                let end = spans
+                    .get(i + values)
+                    .map_or(spans[i].raw_end, |s| s.raw_end);
+                // The separating space goes with the flag; without it a removal
+                // in the middle of a header leaves a double space behind.
+                let start = chars[..start]
+                    .iter()
+                    .rposition(|c| !c.is_whitespace())
+                    .map_or(start, |p| p + 1);
+                edits.push((start, end, String::new()));
+            }
+            (None, Some(text)) => {
+                appended.push(' ');
+                appended.push_str(&text);
+            }
+            (None, None) => {}
+        }
+    }
+
+    // Appended flags go at the end of the code, i.e. before the comment.
+    if !appended.is_empty() {
+        let code_len = split_comment(line).0.chars().count();
+        let end = chars[..code_len]
+            .iter()
+            .rposition(|c| !c.is_whitespace())
+            .map_or(code_len, |p| p + 1);
+        edits.push((end, end, appended));
+    }
+
+    edits.sort_by_key(|(start, _, _)| *start);
+    let mut out = String::with_capacity(line.len() + 16);
+    let mut cut = 0usize;
+    for (start, end, text) in edits {
+        if start < cut {
+            return None; // overlapping flags: not something to rewrite blind
+        }
+        out.extend(&chars[cut..start]);
+        out.push_str(&text);
+        cut = end;
+    }
+    out.extend(&chars[cut..]);
+    Some(out)
+}
+
 /// Parse `.unf` source text into a `Document`.
 ///
 /// This tokenizes the text into `DocLine`s (validating pixel rows strictly

@@ -198,9 +198,13 @@ fn collect_sample_data_with(
         fn placed_at(&self, ref_row: i32, ref_col: i32, parent_scale: u8) -> (i32, i32) {
             let rs = self.scale.max(1) as i32;
             let ps = parent_scale.max(1) as i32;
+            // The offset names this glyph's declared box corner, so the box
+            // comes out of it before its raster's own reach goes in — the same
+            // two terms `ref_effective_offset_scaled` applies for the build.
+            let (box_col, box_row) = self.declared_origin;
             (
-                ref_row + self.origin_row * ps / rs,
-                ref_col + self.origin_col * ps / rs,
+                ref_row - box_row as i32 * ps + self.origin_row * ps / rs,
+                ref_col - box_col as i32 * ps + self.origin_col * ps / rs,
             )
         }
     }
@@ -336,7 +340,12 @@ fn collect_sample_data_with(
         let ps = parent_scale.max(1);
         let rs = cached.scale.max(1);
         let rsf = ps as f32 / rs as f32;
-        let (off_r, off_c) = (gref.row() as i32, gref.col() as i32);
+        // Box coordinates in, grid coordinates out: see `placed_at`.
+        let (box_col, box_row) = cached.declared_origin;
+        let (off_r, off_c) = (
+            gref.row() as i32 - box_row as i32 * ps as i32,
+            gref.col() as i32 - box_col as i32 * ps as i32,
+        );
         let overridden = gref.fill.is_some() || gref.visibility.is_some();
 
         let translated = |comp: &SampleComponent| SampleComponent {
@@ -522,8 +531,9 @@ fn collect_sample_data_with(
 
         for (gref, sg) in refs.iter().zip(ref_scaled.iter()) {
             let cached = resolve_cached_ref(&gref.name, cache)?;
-            let dx = gref.col() as f32;
-            let dy = gref.row() as f32;
+            let (box_col, box_row) = cached.declared_origin;
+            let dx = gref.col() as f32 - box_col as f32 * ps as f32;
+            let dy = gref.row() as f32 - box_row as f32 * ps as f32;
             let rs = cached.scale.max(1);
             let rsf = ps as f32 / rs as f32;
             for contour in &cached.contours {
@@ -538,8 +548,8 @@ fn collect_sample_data_with(
             // narrower than its advance.  Mirrors `from_components_inner`.
             let scaled_w = (cached.width as f32 * rsf).round() as i32;
             let scaled_h = (cached.height as f32 * rsf).round() as i32;
-            max_width = max_width.max(gref.col() as i32 + scaled_w);
-            max_height = max_height.max(gref.row() as i32 + scaled_h);
+            max_width = max_width.max(dx as i32 + scaled_w);
+            max_height = max_height.max(dy as i32 + scaled_h);
             if let Some((_, row, col)) = sg {
                 min_r = min_r.min(*row);
                 min_c = min_c.min(*col);
@@ -2395,6 +2405,46 @@ map A = raised
             ..plain
         };
         assert_eq!(sample_background(&composite, 16), (0, 8, 16));
+    }
+
+    /// A `ref` offset names the target's *box* corner, so the sample has to
+    /// take that box out of the offset exactly as the builder does — or every
+    /// glyph placing a combining mark draws it shifted by the mark's own
+    /// bearing, which is the sample being wrong about a font that is right.
+    #[test]
+    fn the_sample_places_a_ref_by_the_targets_box() {
+        let source = |flags: &str, offset: &str| {
+            format!(
+                "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph part 2 2 {flags}
+@@@@
+@@@@
+
+glyph places
+ref part {offset}
+
+map A = places
+"
+            )
+        };
+        let placed = |flags: &str, offset: &str| {
+            let d = parse(&source(flags, offset));
+            let data = collect_sample_data(&[&d]).expect("sample data");
+            let g = data.glyphs.get("places").expect("the parent is sampled");
+            g.components
+                .iter()
+                .map(|c| (c.row, c.col))
+                .collect::<Vec<_>>()
+        };
+
+        // The same drawing in the same place, spelled two ways: the box's
+        // corner one column into the grid, and the offset that names it moved
+        // to match.
+        assert_eq!(placed("origin 1 0", "3 0"), placed("", "2 0"));
     }
 
     /// The width the background is painted over comes from the source's own

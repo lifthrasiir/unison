@@ -450,10 +450,15 @@ pub(super) fn inline_ref_to_pixels(
     scaled_ref_grid.snap_details_to_catalog();
     let ps = parent_scale as i32;
     let rs = ref_scale as i32;
+    // The offset names the target's declared box corner, so the box comes out
+    // of it before the raster's own reach goes in — the same two terms as
+    // [`crate::ref_composite::ref_effective_offset_scaled`], or the pixels land
+    // where the ref never drew them.
+    let (box_col, box_row) = resolved.declared_origin;
     let merge = MergeGrid {
         grid: scaled_ref_grid,
-        row: gref.row() as i32 + resolved.origin_row * ps / rs,
-        col: gref.col() as i32 + resolved.origin_col * ps / rs,
+        row: gref.row() as i32 - box_row as i32 * ps + resolved.origin_row * ps / rs,
+        col: gref.col() as i32 - box_col as i32 * ps + resolved.origin_col * ps / rs,
         negated: gref.negated,
     };
 

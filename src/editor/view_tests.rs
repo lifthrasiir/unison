@@ -3931,6 +3931,42 @@ fn first_grid_line(h: &EditorHarness) -> usize {
         .expect("the document has a pixel grid")
 }
 
+/// A stated `extent` height is the box's height. Left unstated the box is the
+/// em box placed at the glyph's origin — a one-row glyph is not padded out to
+/// sixteen — but a source that says how tall its box is has said something the
+/// overlay must not overrule.
+#[test]
+fn the_metric_box_takes_a_stated_extent_height() {
+    let source = |flags: &str| {
+        format!(
+            "\
+meta height 16
+meta ascent 14
+meta descent 2
+
+glyph tall 2 2 {flags}
+@@@@
+@@@@
+
+map A = tall
+"
+        )
+    };
+    let box_of = |flags: &str| {
+        let mut h = EditorHarness::new(&source(flags));
+        h.set_show_metrics(true);
+        let grid_line = first_grid_line(&h);
+        let m = h.metrics_of(grid_line).0.expect("the overlay is on");
+        (m.top, m.bottom)
+    };
+
+    // Unstated: the em box, clamped to what the glyph actually draws.
+    assert_eq!(box_of("advance 2"), (0, 2));
+    // Stated: the box is as tall as it says, ink or no ink.
+    assert_eq!(box_of("extent 2 16"), (0, 16));
+    assert_eq!(box_of("extent 2 1"), (0, 1));
+}
+
 /// The overlay reads the *declared box*, whichever flag states it: `extent`
 /// says the same thing `advance` does about the width, so a glyph written with
 /// one must not be drawn with the other's answer — a mark spelled `extent 0 16`
@@ -4889,7 +4925,7 @@ fn the_edit_menu_select_all_frames_the_grid() {
 }
 
 // ---------------------------------------------------------------------------
-// Glyph resize mode (F2 over a grid)
+// Resize modes: the box (F2) and the canvas (under the backreference shadow)
 // ---------------------------------------------------------------------------
 
 const RESIZE_SRC: &str = "\
@@ -4901,7 +4937,7 @@ glyph user 4 4
 ref dot 1 1
 ";
 
-/// Enter resize mode the way a user does: click into the grid, press F2.
+/// Enter box-resize mode the way a user does: click into the grid, press F2.
 fn resize_harness() -> EditorHarness {
     let mut h = EditorHarness::new(RESIZE_SRC);
     h.click_grid_cell(1, 0, 0);
@@ -4919,31 +4955,107 @@ fn resize_harness() -> EditorHarness {
     h
 }
 
-/// An arrow moves the boundary the way it points: `Left` grows the glyph
-/// leftwards, and the preview is the document itself, so the ink moves with it.
+/// The canvas is resized from under the backreference shadow: click into the
+/// grid, `` ` `` twice, then drag an edge. No session exists until the drag has
+/// a whole pixel to show for itself, so this leaves the harness *in* the shadow
+/// with the pointer ready.
+fn canvas_harness() -> EditorHarness {
+    let mut h = EditorHarness::new(RESIZE_SRC);
+    h.click_grid_cell(1, 0, 0);
+    h.key(Key::Backtick);
+    h.frame();
+    h.key(Key::Backtick);
+    h.frame();
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::PixelSelect {
+                item_idx: 0,
+                backrefs: true
+            }
+        ),
+        "two backticks put the backreference shadow up: {:?}",
+        h.state.mode
+    );
+    h
+}
+
+/// Drag `side` of the glyph's canvas by `cells` logical pixels, starting the
+/// canvas session on the way.
+fn drag_canvas_edge(h: &mut EditorHarness, cells: f32, from_right: bool) {
+    let rect = h.edit_border_rect().expect("the grid's boundary is known");
+    let cell = h.snap().grid_cell;
+    let grab = if from_right {
+        egui::pos2(rect.right(), rect.center().y)
+    } else {
+        egui::pos2(rect.left(), rect.center().y)
+    };
+    h.press_at(grab);
+    let to = egui::pos2(grab.x + cell * cells, grab.y);
+    h.move_pointer(to);
+    h.release_at(to);
+}
+
+/// An arrow moves the boundary the way it points: `Left` grows the *box*
+/// leftwards, which is a left bearing and a wider advance. The drawing does not
+/// move — that is the whole difference between this and a canvas resize.
 #[test]
-fn resize_arrow_grows_the_edge_it_points_at() {
+fn resize_arrow_grows_the_box_the_way_it_points() {
     let mut h = resize_harness();
     h.key(Key::ArrowLeft);
-    assert_eq!(h.text(0), "glyph dot 3 2");
-    assert_eq!(h.grid(1).width, 3);
+    assert_eq!(h.text(0), "glyph dot 2 2 origin -1 0 advance 3");
+    assert_eq!(h.grid(1).width, 2, "the canvas is untouched");
     assert!(
-        h.grid(1).get(0, 1).is_bitmap_filled() && !h.grid(1).get(0, 0).is_bitmap_filled(),
-        "the ink moved right with the new column, not into it"
+        h.grid(1).get(0, 0).is_bitmap_filled(),
+        "and so is the ink in it"
     );
     assert_view_consistent(&h);
 }
 
+/// The right edge is the advance alone: no bearing, since the box's corner has
+/// not moved.
+#[test]
+fn resize_arrow_on_the_far_edge_is_the_advance_alone() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowRight);
+    assert_eq!(h.text(0), "glyph dot 2 2 advance 3");
+}
+
+/// A vertical drag states the height, which the box otherwise takes from the em
+/// box — so it is `extent` that gets written, and the width comes along.
+#[test]
+fn resize_vertical_states_the_boxs_height() {
+    let mut h = resize_harness();
+    h.key(Key::ArrowUp);
+    assert_eq!(h.text(0), "glyph dot 2 2 origin 0 -1 extent 2 17");
+}
+
 /// Shift moves the *far* edge, so the boundary still travels the way the key
-/// points and the glyph shrinks instead of growing.
+/// points and the box shrinks instead of growing.
 #[test]
 fn resize_shift_arrow_moves_the_far_edge() {
     let mut h = resize_harness();
     h.key_mod(Key::ArrowUp, Modifiers::SHIFT);
-    assert_eq!(h.text(0), "glyph dot 2 1", "the bottom edge came up");
-    assert_eq!(h.grid(1).height, 1);
-    // The row that survived is the top one: nothing moved, the box shrank.
-    assert!(h.grid(1).get(0, 0).is_bitmap_filled());
+    assert_eq!(
+        h.text(0),
+        "glyph dot 2 2 extent 2 15",
+        "the bottom edge came up, and the box's corner stayed"
+    );
+    assert_eq!(h.grid(1).height, 2, "the canvas is untouched");
+}
+
+/// A box may be empty — `advance 0` is what every combining mark says — but it
+/// may not be inside out.
+#[test]
+fn a_box_may_shrink_to_nothing_and_no_further() {
+    let mut h = resize_harness();
+    // Shift+Left pulls the *right* edge in, so the box narrows from the side
+    // its corner is not on.
+    h.key_mod(Key::ArrowLeft, Modifiers::SHIFT);
+    h.key_mod(Key::ArrowLeft, Modifiers::SHIFT);
+    assert_eq!(h.text(0), "glyph dot 2 2 advance 0");
+    h.key_mod(Key::ArrowLeft, Modifiers::SHIFT);
+    assert_eq!(h.text(0), "glyph dot 2 2 advance 0", "and no further");
 }
 
 /// Escape puts the document back exactly as it was, in one step, and leaves
@@ -4953,7 +5065,7 @@ fn resize_escape_restores_the_glyph() {
     let mut h = resize_harness();
     h.key(Key::ArrowLeft);
     h.key(Key::ArrowUp);
-    assert_eq!(h.text(0), "glyph dot 3 3");
+    assert_eq!(h.text(0), "glyph dot 2 2 origin -1 -1 extent 3 17");
     h.key(Key::Escape);
     assert_eq!(h.text(0), "glyph dot 2 2");
     assert_eq!(h.grid(1).width, 2);
@@ -5002,7 +5114,7 @@ fn resize_enter_hands_the_action_to_the_host() {
 fn resize_panel_cancel_button_restores_the_glyph() {
     let mut h = resize_harness();
     h.key(Key::ArrowLeft);
-    assert_eq!(h.text(0), "glyph dot 3 2");
+    assert_eq!(h.text(0), "glyph dot 2 2 origin -1 0 advance 3");
     let pos = h.resize_button_pos(crate::editor::glyph_resize::PanelAction::Cancel);
     h.click_at(pos);
     assert_eq!(h.text(0), "glyph dot 2 2");
@@ -5033,13 +5145,218 @@ fn resize_drag_moves_the_grabbed_edge() {
     h.release_at(egui::pos2(grab.x + cell * 2.0, grab.y));
     assert_eq!(
         h.text(0),
-        "glyph dot 4 2",
-        "the right edge followed the pointer"
+        "glyph dot 2 2 advance 4",
+        "the box's right edge followed the pointer"
     );
     assert!(
         matches!(h.state.mode, EditMode::GlyphResize { .. }),
-        "a press on the grid grabs an edge rather than painting a pixel",
+        "a press on the boundary grabs an edge rather than painting a pixel",
     );
+}
+
+/// The canvas is what the backreference shadow resizes, and the mode switches
+/// when the drag has something to show — not when the pointer goes down.
+#[test]
+fn a_drag_under_the_backref_shadow_resizes_the_canvas() {
+    let mut h = canvas_harness();
+    drag_canvas_edge(&mut h, 2.0, true);
+    assert_eq!(
+        h.text(0),
+        "glyph dot 4 2 advance 2",
+        "the grid grew to the right, and the box it would have widened is pinned"
+    );
+    assert_eq!(h.grid(1).width, 4);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphResize { item_idx: 0 }),
+        "the drag took the mode with it: {:?}",
+        h.state.mode
+    );
+    assert!(
+        h.state.pixel_selection.is_none(),
+        "the press that grabbed the edge did not also leave a selection behind"
+    );
+    // Growing to the left moves the ink inside the grid, which is the canvas
+    // resize's own signature.
+    h.key(Key::Escape);
+    let mut h = canvas_harness();
+    drag_canvas_edge(&mut h, -1.0, false);
+    assert_eq!(
+        h.text(0),
+        "glyph dot 3 2 origin 1 0 advance 2",
+        "growing to the left states the origin that keeps the ink where it was"
+    );
+    assert!(
+        h.grid(1).get(0, 1).is_bitmap_filled() && !h.grid(1).get(0, 0).is_bitmap_filled(),
+        "the ink moved right with the new column, not into it"
+    );
+}
+
+/// The canvas being grabbable has to be *visible*: the backreference shadow is
+/// where a resize starts, and a boundary with nothing on it says only that the
+/// glyph ends there. So the four handles are drawn as soon as the shadow is up,
+/// before any pointer goes near them.
+#[test]
+fn the_backref_shadow_marks_the_canvas_as_grabbable() {
+    let h = canvas_harness();
+    let border = h.edit_border_rect().expect("the grid's boundary is known");
+    // Dimmed: the shadow is up to be looked at, so the marker is quieter than
+    // the overlay a live drag paints.
+    let color = crate::editor::colors::Palette::dark()
+        .pixel_selection
+        .gamma_multiply(0.55);
+    let handles: Vec<_> = h
+        .painted_rects()
+        .into_iter()
+        .filter(|p| {
+            p.fill == color && p.rect.area() > 0.0 && border.expand(1.0).contains_rect(p.rect)
+        })
+        .collect();
+    assert_eq!(
+        handles.len(),
+        4,
+        "one handle per edge, got {handles:?} over {border:?}"
+    );
+
+    // With the shadow off there is nothing to grab, so nothing is marked.
+    let mut plain = EditorHarness::new(RESIZE_SRC);
+    plain.click_grid_cell(1, 0, 0);
+    plain.key(Key::Backtick);
+    plain.frame();
+    assert!(
+        matches!(
+            plain.state.mode,
+            EditMode::PixelSelect {
+                backrefs: false,
+                ..
+            }
+        ),
+        "one backtick is selection without the shadow: {:?}",
+        plain.state.mode
+    );
+    let marked = plain
+        .painted_rects()
+        .into_iter()
+        .filter(|p| p.fill == color && p.rect.area() > 0.0)
+        .count();
+    assert_eq!(marked, 0, "nothing is grabbable, so nothing is marked");
+}
+
+/// The shadow stays up for the drag it started. It is what the new size is
+/// being judged against, and it is wider than the canvas nearly always — so
+/// dropping it at the mode switch would shrink the drawn area out from under
+/// the pointer, mid-gesture.
+#[test]
+fn the_shadow_survives_the_resize_it_starts() {
+    let mut h = canvas_harness();
+    let grid_line = first_grid_line(&h);
+    let with_shadow = grid_extent_x(&h, grid_line);
+    assert_eq!(
+        with_shadow,
+        (-1, 3),
+        "`user` places `dot` at (1, 1) and is four wide, so the shadow reaches \
+         one column before this glyph and three past its own two"
+    );
+
+    drag_canvas_edge(&mut h, 1.0, true);
+    assert!(
+        matches!(h.state.mode, EditMode::GlyphResize { item_idx: 0 }),
+        "the drag started a session: {:?}",
+        h.state.mode
+    );
+    assert_eq!(
+        grid_extent_x(&h, grid_line),
+        with_shadow,
+        "the drawn area kept the shadow it was measured against"
+    );
+
+    // Cancelling goes back to the shadow the drag was started from, so the
+    // drawn area does not move then either. The shadow goes when it is asked
+    // to, which is the third `` ` ``.
+    h.key(Key::Escape);
+    h.frame();
+    assert!(matches!(
+        h.state.mode,
+        EditMode::PixelSelect {
+            item_idx: 0,
+            backrefs: true
+        }
+    ));
+    assert_eq!(grid_extent_x(&h, grid_line), with_shadow);
+    h.key(Key::Backtick);
+    h.frame();
+    assert_eq!(grid_extent_x(&h, grid_line), (0, 2));
+}
+
+/// The shadow follows the document it is drawn from. Stepping through history
+/// changes where every parent places this glyph, so the shadow has to move in
+/// the frame the step happens in — leaving it to the next pointer event shows a
+/// placement that is no longer true, which is exactly the state an undo is
+/// supposed to leave nothing in.
+#[test]
+fn the_backref_shadow_follows_a_step_through_history() {
+    let mut h = EditorHarness::new(
+        "\
+glyph dot 2 2 origin 1 0
+@@..
+..@@
+
+glyph user 4 4
+ref dot 3 1
+",
+    );
+    // An edit to the box, made before the shadow is up so the click that makes
+    // it does not leave the mode.
+    h.click_text(0, "glyph dot 2 2 origin 1".chars().count());
+    h.key(Key::Backspace);
+    h.type_text("2");
+    h.frame();
+    assert_eq!(h.text(0), "glyph dot 2 2 origin 2 0");
+
+    h.click_grid_cell(1, 0, 0);
+    h.key(Key::Backtick);
+    h.frame();
+    h.key(Key::Backtick);
+    h.frame();
+    let grid_line = first_grid_line(&h);
+    let with_two = grid_extent_x(&h, grid_line);
+    assert_eq!(
+        with_two,
+        (-1, 3),
+        "`user` places the box's corner at column 3, so its own grid starts one \
+         column before this one"
+    );
+
+    h.key_mod(Key::Z, Modifiers::COMMAND);
+    h.frame();
+    assert_eq!(h.text(0), "glyph dot 2 2 origin 1 0");
+    assert_eq!(
+        grid_extent_x(&h, grid_line),
+        (-2, 2),
+        "the shadow moved with the box the undo restored, in the same frame"
+    );
+}
+
+/// A press that goes nowhere is not a resize: the mode it was made in survives.
+#[test]
+fn a_press_on_the_border_that_does_not_move_changes_no_mode() {
+    let mut h = canvas_harness();
+    let rect = h.edit_border_rect().expect("the grid's boundary is known");
+    let grab = egui::pos2(rect.right(), rect.center().y);
+    h.press_at(grab);
+    h.move_pointer(egui::pos2(grab.x + 2.0, grab.y));
+    h.release_at(egui::pos2(grab.x + 2.0, grab.y));
+    assert!(
+        matches!(
+            h.state.mode,
+            EditMode::PixelSelect {
+                item_idx: 0,
+                backrefs: true
+            }
+        ),
+        "half a pixel of travel is not a resize: {:?}",
+        h.state.mode
+    );
+    assert_eq!(h.text(0), "glyph dot 2 2");
 }
 
 /// The mode is over the moment the editor is not the surface being typed

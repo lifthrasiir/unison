@@ -230,11 +230,14 @@ fn resolve_view(
         alt_index,
         color_aliases,
         meta,
-        show_metrics,
         zoom_level,
         font_id,
         ..
     } = env;
+    // The key decides this, not the env: a live box drag draws the metric box
+    // whether or not the View menu asked for it, and the vlines the key selects
+    // are the ones carrying it.
+    let show_metrics = cache_key.show_metrics;
     // An external mutation of `lines` (menu action, rename, …) queues a sync
     // request; the cached view predates that mutation, so rebuild.
     let cache_valid = !state.document_sync_requested
@@ -351,17 +354,33 @@ fn glyph_backref_shadow(
     let Some(DocumentItem::Glyph { name, body }) = doc.items.get(item_idx) else {
         return None;
     };
-    backref_shadow::compute(&name.display(), body.scale, named_glyphs).map(|s| (item_idx, s))
+    // The box comes from the body being edited rather than from the
+    // resolution, so moving it moves the shadow now and not a build later.
+    backref_shadow::compute(
+        &name.display(),
+        body.scale,
+        body.declared_origin(),
+        named_glyphs,
+    )
+    .map(|s| (item_idx, s))
 }
 
-/// The glyph whose backreference shadow is asked for, if the mode asks for one
-/// at all.
-fn backref_shadow_item(mode: &EditMode) -> Option<usize> {
-    match mode {
+/// The glyph whose backreference shadow is asked for, if anything asks for one.
+///
+/// A canvas resize started under the shadow keeps it: the shadow is what the
+/// drag is being judged against, and it is nearly always wider than the grid,
+/// so dropping it at the mode switch would shrink the drawn area out from under
+/// the pointer mid-drag.
+fn backref_shadow_item(state: &EditorState) -> Option<usize> {
+    match &state.mode {
         EditMode::PixelSelect {
             item_idx,
             backrefs: true,
         } => Some(*item_idx),
+        EditMode::GlyphResize { item_idx } => state.resize.as_ref().and_then(|r| {
+            matches!(r.return_mode, EditMode::PixelSelect { backrefs: true, .. })
+                .then_some(*item_idx)
+        }),
         _ => None,
     }
 }
@@ -383,6 +402,7 @@ fn show_document(
         font_gen,
         zoom_level,
         font_id,
+        meta,
         ..
     } = env;
     Palette::store(ui.ctx());
@@ -521,8 +541,16 @@ fn show_document(
         zoom_level,
         editing_item_idx,
         active_point: active_point_layer(doc, &state.mode),
-        backref_item: backref_shadow_item(&state.mode),
-        show_metrics: env.show_metrics,
+        backref_item: backref_shadow_item(state),
+        // A box drag is a drag *of* the metric box, so the box is drawn for
+        // the duration whether or not the View menu asked for it. Keyed here
+        // rather than read at paint time: the vlines carry the metrics, and
+        // this is what decides they are built.
+        show_metrics: env.show_metrics
+            || state
+                .resize
+                .as_ref()
+                .is_some_and(|r| r.kind == crate::editor::glyph_resize::ResizeKind::Box),
         fold_gen: state.folds.visible_gen(),
         wrap_width_bits: wrap_width.map(f32::to_bits),
         font_id: font_id.clone(),
@@ -659,6 +687,7 @@ fn show_document(
         name_parts,
         alt_index,
         composites,
+        meta,
         prev_cursor,
         &mut needs_rederive,
     );

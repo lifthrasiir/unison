@@ -109,11 +109,15 @@ pub(crate) fn glyph_metrics(
         // font agree about where the advance is.
         right: left + body.stated_advance().map_or(resolved_w, |w| w as i16 * s),
         top,
-        // Clamped both ways. The em box is the *upper* bound, but a glyph
-        // shorter than it has no cell below its own last row either, and
-        // padding one out to the full em height showed a one-row glyph as
-        // sixteen rows of grid.
-        bottom: resolved_h.min(top + em).max(top),
+        // A stated height is the box's height, full stop — the source said it.
+        // Unstated, the box is the em box, clamped both ways: the em box is the
+        // *upper* bound, but a glyph shorter than it has no cell below its own
+        // last row either, and padding one out to the full em height showed a
+        // one-row glyph as sixteen rows of grid.
+        bottom: match body.extent {
+            Some((_, h)) => top + h as i16 * s,
+            None => resolved_h.min(top + em).max(top),
+        },
         // Drawn wherever there is room for both lines, whatever the font maps.
         // A glyph is normally drawn before it is mapped — and a `flags` glyph
         // is reached through its own `:mono`/`:color` variants and never
