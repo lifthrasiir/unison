@@ -20,19 +20,19 @@
 
 audit ideal-clearance han-* 0 1
 
-glyph han-($#4e00..9fff) 16 16 // URO
+glyph han-($#4e00..9fff) 16 16 advance 16 // URO
 ref han-($#4e00..9fff):15x16 1 0 ifexists
-glyph han-($#3400..4dbf) 16 16 // CJK Extension A
+glyph han-($#3400..4dbf) 16 16 advance 16 // CJK Extension A
 ref han-($#3400..4dbf):15x16 1 0 ifexists
-glyph han-($#f900..faff) 16 16 // CJK Compatibility Ideographs
+glyph han-($#f900..faff) 16 16 advance 16 // CJK Compatibility Ideographs
 ref han-($#f900..faff):15x16 1 0 ifexists
-glyph han-($#20000..2a6df) 16 16 // CJK Extension B
+glyph han-($#20000..2a6df) 16 16 advance 16 // CJK Extension B
 ref han-($#20000..2a6df):15x16 1 0 ifexists
-glyph han-($#2a700..2ee5f) 16 16 // CJK Extension C/D/E/F/I
+glyph han-($#2a700..2ee5f) 16 16 advance 16 // CJK Extension C/D/E/F/I
 ref han-($#2a700..2ee5f):15x16 1 0 ifexists
-glyph han-($#2f800..2fa1f) 16 16 // CJK Compatibility Ideographs Supplement
+glyph han-($#2f800..2fa1f) 16 16 advance 16 // CJK Compatibility Ideographs Supplement
 ref han-($#2f800..2fa1f):15x16 1 0 ifexists
-glyph han-($#30000..3347f) 16 16 // CJK Extension G/H/J
+glyph han-($#30000..3347f) 16 16 advance 16 // CJK Extension G/H/J
 ref han-($#30000..3347f):15x16 1 0 ifexists
 
 map U+4E00..9FFF = han-($#4e00..9fff) ifexists
