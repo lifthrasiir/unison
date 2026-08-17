@@ -86,6 +86,13 @@
 //! author can act on, and the total is what catches parts that are simply too
 //! fat for the box together, however they are shuffled.
 //!
+//! A part is measured over its declared box, but not *bounded* by it along the
+//! split axis: what it draws outside is read where it is drawn. That is how a
+//! part writes a side bearing — the box is the cells it fills and a hardblank
+//! beyond it is the space it wants its neighbour to leave — and two parts that
+//! each claim a column and are placed box to box overlap by exactly what they
+//! claim ([`InkProfile::of`]).
+//!
 //! Everything here reads the parts' *own* pixels. A part that draws nothing
 //! yet, or that is a composite with no pixels of its own, has no frontier, and
 //! a line with one of those in it is not measured rather than measured wrong.
@@ -320,12 +327,17 @@ pub struct InkProfile {
 /// the frontier out where an empty cell would not; but where the two parts'
 /// runs face each other, the same nothing is written twice, and the shared
 /// depth is clearance rather than a part's own extent — see [`facing_offset`].
+///
+/// The two frontiers are in the box's coordinates and are *not* bounded by it:
+/// a part that draws outside what it declared is measured where it draws, so
+/// `near` may be negative and `far` may reach past the extent. See
+/// [`InkProfile::of`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct InkLine {
     /// The lowest occupied coordinate on this line.
-    pub near: u16,
+    pub near: i32,
     /// The highest occupied coordinate on this line.
-    pub far: u16,
+    pub far: i32,
     /// Hardblank cells running inward from `near`, `near` included.
     pub near_hardblanks: u16,
     /// Hardblank cells running inward from `far`, `far` included.
@@ -345,10 +357,20 @@ impl InkProfile {
     /// wrote hardblanks there and no ink, so a `scale 2` part is read on the
     /// same units its layout is in.
     ///
-    /// Ink outside the box folds into the edge cell it escapes through rather
-    /// than being dropped: a part drawing where it said it would not can only
-    /// cost its neighbour room, never gain any. A box reaching past the grid is
-    /// simply clear out there — there is nothing drawn to report.
+    /// **Along** the line being read, a cell outside the box keeps the
+    /// coordinate it is drawn at, negative or past the extent as the case may
+    /// be. That is the whole point on this axis: a hardblank drawn beyond the
+    /// box is a claim on the neighbour's space (it is how a part writes a side
+    /// bearing), and one folded onto the box's edge would be lost the moment
+    /// that edge held ink. Ink out there is read the same way — a part drawing
+    /// where it said it would not can only cost its neighbour room, never gain
+    /// any.
+    ///
+    /// **Across** it the cell folds into the nearest line instead: the lines of
+    /// two parts of one IDC line are matched by index, so a profile that is not
+    /// exactly the box's size across cannot be measured against anything. A box
+    /// reaching past the grid is simply clear out there — there is nothing
+    /// drawn to report.
     pub fn of(grid: &PixelGrid, scale: u8, origin: (i16, i16), extent: (u16, u16)) -> Self {
         let s = scale.max(1) as u16;
         let (w, h) = extent;
@@ -357,7 +379,22 @@ impl InkProfile {
         const CLEAR: u8 = 0;
         const HARDBLANK: u8 = 1;
         const INK: u8 = 2;
-        let mut cells = vec![CLEAR; w as usize * h as usize];
+        // The box coordinates the grid reaches on each axis, box and grid
+        // together, so a cell outside the box still has a place to be counted.
+        let span = |extent: u16, len: u16, origin: i16| -> (i32, i32) {
+            if extent == 0 || len == 0 {
+                return (0, extent as i32);
+            }
+            let (lo, hi) = (-(origin as i32), ((len - 1) / s) as i32 - origin as i32);
+            (lo.min(0), hi.max(extent as i32 - 1) + 1)
+        };
+        let (col_lo, col_hi) = span(w, grid.width, origin.0);
+        let (row_lo, row_hi) = span(h, grid.height, origin.1);
+        let (cols_wide, rows_tall) = ((col_hi - col_lo) as usize, (row_hi - row_lo) as usize);
+        // One map per axis, since which coordinate folds depends on which way
+        // the line is read: `by_row` keeps the column exact and `by_col` the row.
+        let mut by_row = vec![CLEAR; cols_wide * h as usize];
+        let mut by_col = vec![CLEAR; rows_tall * w as usize];
         if w > 0 && h > 0 {
             for row in 0..grid.height {
                 for col in 0..grid.width {
@@ -365,21 +402,24 @@ impl InkProfile {
                     if px.is_clear() {
                         continue;
                     }
-                    let box_r =
-                        ((row / s) as i32 - origin.1 as i32).clamp(0, h as i32 - 1) as usize;
-                    let box_c =
-                        ((col / s) as i32 - origin.0 as i32).clamp(0, w as i32 - 1) as usize;
-                    let at = &mut cells[box_r * w as usize + box_c];
-                    *at = (*at).max(if px.is_hardblank() { HARDBLANK } else { INK });
+                    let level = if px.is_hardblank() { HARDBLANK } else { INK };
+                    let box_r = (row / s) as i32 - origin.1 as i32;
+                    let box_c = (col / s) as i32 - origin.0 as i32;
+                    let folded_r = box_r.clamp(0, h as i32 - 1) as usize;
+                    let folded_c = box_c.clamp(0, w as i32 - 1) as usize;
+                    let at = &mut by_row[folded_r * cols_wide + (box_c - col_lo) as usize];
+                    *at = (*at).max(level);
+                    let at = &mut by_col[folded_c * rows_tall + (box_r - row_lo) as usize];
+                    *at = (*at).max(level);
                 }
             }
         }
-        let scan = |len: u16, at: &dyn Fn(u16) -> u8| -> Option<InkLine> {
+        let scan = |lo: i32, len: usize, at: &dyn Fn(usize) -> u8| -> Option<InkLine> {
             let near = (0..len).find(|&i| at(i) != CLEAR)?;
             let far = (near..len).rev().find(|&i| at(i) != CLEAR)?;
             Some(InkLine {
-                near,
-                far,
+                near: lo + near as i32,
+                far: lo + far as i32,
                 near_hardblanks: (near..=far).take_while(|&i| at(i) == HARDBLANK).count() as u16,
                 far_hardblanks: (near..=far)
                     .rev()
@@ -387,10 +427,13 @@ impl InkProfile {
                     .count() as u16,
             })
         };
-        let cell = |row: u16, col: u16| cells[row as usize * w as usize + col as usize];
         Self {
-            rows: (0..h).map(|r| scan(w, &|c| cell(r, c))).collect(),
-            cols: (0..w).map(|c| scan(h, &|r| cell(r, c))).collect(),
+            rows: (0..h as usize)
+                .map(|r| scan(col_lo, cols_wide, &|c| by_row[r * cols_wide + c]))
+                .collect(),
+            cols: (0..w as usize)
+                .map(|c| scan(row_lo, rows_tall, &|r| by_col[c * rows_tall + r]))
+                .collect(),
         }
     }
 
@@ -421,11 +464,11 @@ impl InkProfile {
         Some(AxisFrontier {
             near: lines
                 .iter()
-                .filter_map(|l| l.map(|l| l.near as i32 + l.near_hardblanks as i32))
+                .filter_map(|l| l.map(|l| l.near + l.near_hardblanks as i32))
                 .min()?,
             far: lines
                 .iter()
-                .filter_map(|l| l.map(|l| l.far as i32 - l.far_hardblanks as i32))
+                .filter_map(|l| l.map(|l| l.far - l.far_hardblanks as i32))
                 .max()?,
         })
     }
@@ -465,7 +508,7 @@ pub fn facing_offset(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option
         .filter_map(|(x, y)| match (x, y) {
             (Some(a), Some(b)) => {
                 let shared = a.far_hardblanks.min(b.near_hardblanks) as i32;
-                Some(b.near as i32 - a.far as i32 - 1 + shared)
+                Some(b.near - a.far - 1 + shared)
             }
             _ => None,
         })

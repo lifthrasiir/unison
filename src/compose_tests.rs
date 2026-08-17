@@ -565,9 +565,10 @@ fn whole(g: &PixelGrid, scale: u8) -> InkProfile {
 /// than what it claims to fill would otherwise measure its own margin as ink
 /// standing in the way.
 ///
-/// Ink outside the box folds into the edge it escapes through. It can only take
-/// room away, never invent it — the part is drawing where it said it would not,
-/// and the neighbour has to be told.
+/// Along the axis, though, what is outside the box is measured where it is
+/// drawn rather than folded onto the box's edge: it can only take room away,
+/// never invent it — the part is drawing (or claiming) where it said it would
+/// not, and the neighbour has to be told.
 #[test]
 fn a_clearance_is_measured_on_the_declared_box() {
     // Grid 6 wide, box the middle 4: the ink at grid column 2 is the box's
@@ -582,9 +583,9 @@ fn a_clearance_is_measured_on_the_declared_box() {
     let as_grid = InkProfile::of(&g, 1, (0, 0), (6, 2));
     assert_eq!(as_grid.rows[0].expect("row 0 is occupied").near, 2);
 
-    // Ink before the box's own corner lands on its first cell.
+    // Ink before the box's own corner keeps the coordinate it is drawn at.
     let escaping = InkProfile::of(&grid(&["#....."]), 1, (2, 0), (4, 1));
-    assert_eq!(escaping.rows[0].expect("row 0 is occupied").near, 0);
+    assert_eq!(escaping.rows[0].expect("row 0 is occupied").near, -2);
 }
 
 /// A claim survives composition, and a negated claim releases it — measured
@@ -782,6 +783,61 @@ fn overlapping_ink_is_a_negative_clearance() {
             .iter()
             .any(|w| w.contains("leaves -1 between 'a:4x4' and 'b:4x4'")),
         "{warnings:?}",
+    );
+}
+
+/// A hardblank drawn *outside* the declared box is a claim on the neighbour's
+/// space, and it is measured where it is drawn.
+///
+/// This is how the Han parts write their side bearings: the box is the cells
+/// the part fills and the column beyond it is the space it wants kept clear, so
+/// two parts that each claim one column and are placed box-to-box are
+/// overlapping — each one's claim sits on the other's ink. Folding the escaping
+/// cell into the box's edge lost exactly that, since the edge is already ink.
+#[test]
+fn a_hardblank_outside_the_box_claims_the_neighbours_cell() {
+    let dims = table(&[("a:3x1", (3, 1)), ("b:3x1", (3, 1))]);
+    // `a` is 3 wide from grid column 0 and claims the column past it; `b` is 3
+    // wide from grid column 1 and claims the column before it.
+    let ink: std::collections::HashMap<String, InkProfile> = [
+        (
+            "a:3x1".to_string(),
+            InkProfile::of(&grid(&["$##$"]), 1, (0, 0), (3, 1)),
+        ),
+        (
+            "b:3x1".to_string(),
+            InkProfile::of(&grid(&["$###$"]), 1, (1, 0), (3, 1)),
+        ),
+    ]
+    .into_iter()
+    .collect();
+    let compose = line(IdcOp::LeftRight, vec![part("a:3x1"), part("b:3x1")]);
+    // Box to box in a 6-wide parent: the two claims interlock, and the pair
+    // needs the one column of gap the parent has room for.
+    let tight = with_clearance((6, 1), &compose, &dims, &ink, 0, 1);
+    assert!(
+        tight
+            .iter()
+            .any(|w| w.contains("leaves -1 between 'a:3x1' and 'b:3x1'")),
+        "{tight:?}",
+    );
+    // With the gap the claims coincide, which is one space and not two.
+    let spaced = with_clearance(
+        (7, 1),
+        &line(
+            IdcOp::LeftRight,
+            vec![part("a:3x1"), ComposeItem::Gap(1), part("b:3x1")],
+        ),
+        &dims,
+        &ink,
+        0,
+        1,
+    );
+    assert!(
+        !spaced
+            .iter()
+            .any(|w| w.contains("between 'a:3x1' and 'b:3x1'")),
+        "{spaced:?}",
     );
 }
 
