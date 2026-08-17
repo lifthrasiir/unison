@@ -1965,6 +1965,10 @@ pub fn compute_composite(
     );
     let (min_r, min_c, max_r, max_c) = layout.bounds();
 
+    // The *raster* the view draws into, not the declared box: a composite that
+    // resolved to nothing still gets a cell to be empty in, rather than a
+    // zero-sized grid every consumer would have to special-case. A glyph that
+    // declares a zero-width box is unaffected — no box is read here.
     let width = raster_dimension(min_c, max_c).max(1);
     let height = raster_dimension(min_r, max_r).max(1);
 

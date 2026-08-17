@@ -104,7 +104,10 @@ pub(crate) fn glyph_metrics(
     let em = ascent + meta.descent() as i16 * s;
     GlyphMetrics {
         left,
-        right: left + body.advance.map_or(resolved_w, |a| a as i16 * s),
+        // The width the source stated, whichever flag stated it — the same
+        // question `ttf_builder::collect` asks, so the overlay and the built
+        // font agree about where the advance is.
+        right: left + body.stated_advance().map_or(resolved_w, |w| w as i16 * s),
         top,
         // Clamped both ways. The em box is the *upper* bound, but a glyph
         // shorter than it has no cell below its own last row either, and

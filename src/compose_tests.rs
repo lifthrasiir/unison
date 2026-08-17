@@ -553,6 +553,40 @@ fn grid(rows: &[&str]) -> PixelGrid {
     g
 }
 
+/// The profile of a grid that is its own declared box, which is what a part
+/// with no `origin`/`extent` of its own is.
+fn whole(g: &PixelGrid, scale: u8) -> InkProfile {
+    let s = scale.max(1) as u16;
+    InkProfile::of(g, scale, (0, 0), (g.width / s, g.height / s))
+}
+
+/// A part is measured on its *declared box*, not on its grid: the clearance an
+/// IDC line checks is the room the box leaves, and a part whose grid is bigger
+/// than what it claims to fill would otherwise measure its own margin as ink
+/// standing in the way.
+///
+/// Ink outside the box folds into the edge it escapes through. It can only take
+/// room away, never invent it — the part is drawing where it said it would not,
+/// and the neighbour has to be told.
+#[test]
+fn a_clearance_is_measured_on_the_declared_box() {
+    // Grid 6 wide, box the middle 4: the ink at grid column 2 is the box's
+    // column 1, and the empty column 0 of the grid is outside the box entirely.
+    let g = grid(&["..##..", "..#..."]);
+    let p = InkProfile::of(&g, 1, (1, 0), (4, 2));
+    assert_eq!(p.rows[0].expect("row 0 is occupied").near, 1);
+    assert_eq!(p.rows[0].expect("row 0 is occupied").far, 2);
+    assert_eq!(p.cols.len(), 4, "the profile is the box's width");
+
+    // The same grid measured as itself, for contrast.
+    let as_grid = InkProfile::of(&g, 1, (0, 0), (6, 2));
+    assert_eq!(as_grid.rows[0].expect("row 0 is occupied").near, 2);
+
+    // Ink before the box's own corner lands on its first cell.
+    let escaping = InkProfile::of(&grid(&["#....."]), 1, (2, 0), (4, 1));
+    assert_eq!(escaping.rows[0].expect("row 0 is occupied").near, 0);
+}
+
 /// A claim survives composition, and a negated claim releases it — measured
 /// where it is actually observable, at the clearance frontier.
 ///
@@ -565,7 +599,7 @@ fn grid(rows: &[&str]) -> PixelGrid {
 #[test]
 fn a_negated_hardblank_releases_a_claim_at_the_frontier() {
     let claimed = grid(&["#$$"]);
-    let line = InkProfile::of(&claimed, 1).rows[0].expect("the row is occupied");
+    let line = whole(&claimed, 1).rows[0].expect("the row is occupied");
     assert_eq!(
         (line.near, line.far, line.far_hardblanks),
         (0, 2, 2),
@@ -576,14 +610,14 @@ fn a_negated_hardblank_releases_a_claim_at_the_frontier() {
     let mut doubled = claimed.clone();
     doubled.blit(&grid(&[".$$"]), 0, 0, false);
     assert_eq!(
-        InkProfile::of(&doubled, 1).rows[0],
+        whole(&doubled, 1).rows[0],
         Some(line),
         "a claim over a claim is one claim"
     );
 
     let mut released = claimed.clone();
     released.blit(&grid(&[".$$"]), 0, 0, true);
-    let line = InkProfile::of(&released, 1).rows[0].expect("the ink is still there");
+    let line = whole(&released, 1).rows[0].expect("the ink is still there");
     assert_eq!(
         (line.near, line.far, line.far_hardblanks),
         (0, 0, 0),
@@ -594,7 +628,7 @@ fn a_negated_hardblank_releases_a_claim_at_the_frontier() {
 fn profiles(entries: &[(&str, &[&str])]) -> std::collections::HashMap<String, InkProfile> {
     entries
         .iter()
-        .map(|(name, rows)| (name.to_string(), InkProfile::of(&grid(rows), 1)))
+        .map(|(name, rows)| (name.to_string(), whole(&grid(rows), 1)))
         .collect()
 }
 
@@ -632,7 +666,7 @@ fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
             far_hardblanks: 0,
         })
     };
-    let p = InkProfile::of(&grid(&[".##.", "....", "$..#"]), 1);
+    let p = whole(&grid(&[".##.", "....", "$..#"]), 1);
     assert_eq!(
         p.rows,
         vec![
@@ -663,7 +697,7 @@ fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
     );
     // Declared units, so a scale-2 grid measures like the 1-unit glyph it is,
     // and a declared cell with any ink in it is ink.
-    let doubled = InkProfile::of(&grid(&["..####..", "..##$$..", "........", "........"]), 2);
+    let doubled = whole(&grid(&["..####..", "..##$$..", "........", "........"]), 2);
     assert_eq!(doubled.rows, vec![ink(1, 2), None]);
 }
 
@@ -671,19 +705,19 @@ fn ink_profile_reads_both_frontiers_and_counts_a_hardblank() {
 fn facing_hardblanks_overlap_as_far_as_both_reach() {
     // Two facing hardblanks meet, so a unit of each pair is shared: without
     // them the frontiers would face at -4 on every row.
-    let a = InkProfile::of(&grid(&["##$$", "###$"]), 1);
-    let b = InkProfile::of(&grid(&["$###", "$$##"]), 1);
+    let a = whole(&grid(&["##$$", "###$"]), 1);
+    let b = whole(&grid(&["$###", "$$##"]), 1);
     assert_eq!(facing_offset(&a, &b, true), Some(-3));
     // Only the shared part counts: a row whose other side has none is measured
     // as before, and one row is enough to hold the whole line back.
-    let plain = InkProfile::of(&grid(&["####", "$$##"]), 1);
+    let plain = whole(&grid(&["####", "$$##"]), 1);
     assert_eq!(facing_offset(&a, &plain, true), Some(-4));
     // The reach is the whole facing run, not one cell of it.
-    let deep_a = InkProfile::of(&grid(&["##$$", "#$$$"]), 1);
-    let deep_b = InkProfile::of(&grid(&["$$##", "$$$#"]), 1);
+    let deep_a = whole(&grid(&["##$$", "#$$$"]), 1);
+    let deep_b = whole(&grid(&["$$##", "$$$#"]), 1);
     assert_eq!(facing_offset(&deep_a, &deep_b, true), Some(-2));
     // A hardblank pointing the other way is not on this side.
-    let away = InkProfile::of(&grid(&["###$", "###$"]), 1);
+    let away = whole(&grid(&["###$", "###$"]), 1);
     assert_eq!(facing_offset(&a, &away, true), Some(-4));
 }
 
@@ -691,11 +725,11 @@ fn facing_hardblanks_overlap_as_far_as_both_reach() {
 fn an_edge_swallows_the_hardblanks_facing_it() {
     // The edge is all the hardblank anyone could want, so a part's own facing
     // run collapses into it whole: 2 in from the left, 1 in from the right.
-    let p = InkProfile::of(&grid(&["$$#$", "$##$"]), 1);
+    let p = whole(&grid(&["$$#$", "$##$"]), 1);
     let f = p.frontier(true).unwrap();
     assert_eq!((f.near, f.far), (1, 2));
     // A row of nothing but hardblanks constrains neither edge.
-    let all = InkProfile::of(&grid(&["$$$$", "$###"]), 1);
+    let all = whole(&grid(&["$$$$", "$###"]), 1);
     let f = all.frontier(true).unwrap();
     assert_eq!((f.near, f.far), (1, 3));
     // Down the other axis the runs are read the same way.

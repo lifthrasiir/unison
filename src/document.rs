@@ -880,6 +880,23 @@ impl GlyphBody {
         self.origin.unwrap_or((0, 0))
     }
 
+    /// The box's width as the source *stated* it, in logical cells, or `None`
+    /// when it stated none.
+    ///
+    /// The narrower question [`declared_extent`](Self::declared_extent) answers
+    /// with the grid: this one keeps the difference, because an unstated width
+    /// is not the grid's but the *resolved* one — a glyph whose refs reach past
+    /// its own grid has always advanced by what it draws. Everything that
+    /// exports or draws an advance goes through here so the editor's overlay
+    /// and the font's `hmtx` cannot disagree.
+    pub fn stated_advance(&self) -> Option<u16> {
+        match (self.advance, self.extent) {
+            (Some(advance), _) => Some(advance),
+            (None, Some((w, _))) => Some(w),
+            (None, None) => None,
+        }
+    }
+
     /// The declared box's size in logical cells, or `None` for a glyph that
     /// declares neither an extent nor a grid to take one from (a composite,
     /// whose box is the union of what it places — see

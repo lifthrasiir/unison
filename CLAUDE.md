@@ -195,6 +195,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `ifexists` on a `ref`/`map`: a name whose absence is expected, and the one existence test all four consumers share | `document_io.rs` (`# Directives`), `render/ttf_builder/expand.rs` (`glyph_name_exists`) |
 | The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document.rs` (`declared_origin`, `declared_extent`) |
 | `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
+| Why an unstated advance follows the raster and not the grid, and the one accessor that keeps the editor and `hmtx` agreeing | `document.rs` (`GlyphBody::stated_advance`) |
 | The origin in the grid vs the side bearings it exports as, and why only one of them is written | `document.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
 | Grid coordinates vs box coordinates: which of the two an offset, an anchor and a ref placement are in, and the one conversion between them | `ref_composite.rs` (`rebase_offsets_to_box`, `ref_effective_offset_scaled`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
@@ -219,6 +220,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A fix in the editor: one undo entry per file, and why nothing is written to disk | `app/fix.rs` |
 | Why a rule about the source is `audit` and not `meta` | `audit.rs` |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
+| Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
+| What a sample cell paints a background over, and why only its width is the box's | `render/sample.rs` (`sample_background`) |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues.rs` (`Severity`) |

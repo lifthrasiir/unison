@@ -552,7 +552,14 @@ fn ink_profiles(
         if !wanted.contains(name.as_str()) || profiles.contains_key(&name) {
             continue; // first definition wins, as everywhere else
         }
-        profiles.insert(name, crate::compose::InkProfile::of(pixels, body.scale));
+        let extent = body.declared_extent().unwrap_or_else(|| {
+            let s = body.scale.max(1) as u16;
+            (pixels.width / s, pixels.height / s)
+        });
+        profiles.insert(
+            name,
+            crate::compose::InkProfile::of(pixels, body.scale, body.declared_origin(), extent),
+        );
     }
     profiles
 }

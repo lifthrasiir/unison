@@ -3931,6 +3931,34 @@ fn first_grid_line(h: &EditorHarness) -> usize {
         .expect("the document has a pixel grid")
 }
 
+/// The overlay reads the *declared box*, whichever flag states it: `extent`
+/// says the same thing `advance` does about the width, so a glyph written with
+/// one must not be drawn with the other's answer — a mark spelled `extent 0 16`
+/// used to get the box its raster happened to need.
+#[test]
+fn the_metric_box_reads_extent_as_well_as_advance() {
+    let source = "\
+meta height 16
+meta ascent 14
+meta descent 2
+
+glyph dia-below 6 2 mark extent 0 16 origin 3 -14
+..............
+@@@@@@@@@@@@..
+
+map \u{0323} = dia-below
+";
+    let mut h = EditorHarness::new(source);
+    h.set_show_metrics(true);
+    let grid_line = first_grid_line(&h);
+    let m = h.metrics_of(grid_line).0.expect("the overlay is on");
+    assert_eq!(
+        (m.left, m.right),
+        (3, 3),
+        "`extent 0 …` is a box with no width, exactly as `advance 0` is"
+    );
+}
+
 /// The box sits at the glyph's `origin`, and the drawn area grows to hold it:
 /// the two rows of ink sit at the *bottom* of a box that reaches fourteen rows
 /// above them.

@@ -905,6 +905,25 @@ fn origin_and_extent_parse_in_any_order_and_round_trip() {
     }
 }
 
+/// `scale 0` is not a scale. It used to parse, multiply the header's `W H` by
+/// zero, and turn the pixel rows that followed into unrecognized directives —
+/// an error cascade naming everything except the flag that caused it. Every
+/// consumer clamps the scale to 1 to stay out of a division by zero; this is
+/// what makes those clamps defensive rather than load-bearing.
+#[test]
+fn a_scale_of_zero_is_rejected_where_it_is_written() {
+    let input = "glyph foo 2 2 scale 0\n@@@@\n@@@@\n";
+    let err =
+        parse_document_from_str(input, "test.unf".into()).expect_err("`scale 0` must not parse");
+    assert!(
+        format!("{err}").contains("scale"),
+        "the error must name the flag, got {err}"
+    );
+    assert!(
+        parse_document_from_str("glyph foo 2 2 scale 1\n@@@@\n@@@@\n", "test.unf".into()).is_ok()
+    );
+}
+
 /// Stating the box's width twice is a mistake, not a precedence question:
 /// `advance` and `extent` both say it. Reporting it beats picking a winner,
 /// since the source that writes both plainly expects both to count.

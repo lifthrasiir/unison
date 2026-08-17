@@ -778,9 +778,16 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
             }
             "scale" => {
                 fp += 1;
-                flags.scale = flag_parts.get(fp).and_then(|t| t.as_ref().parse().ok());
+                // Zero is not a scale: it would multiply the header's `W H`
+                // away and leave the pixel rows below with no grid to belong
+                // to. Rejected here so the error names the flag rather than
+                // every row after it.
+                flags.scale = flag_parts
+                    .get(fp)
+                    .and_then(|t| t.as_ref().parse().ok())
+                    .filter(|&n| n > 0);
                 if flags.scale.is_none() {
-                    err("'scale' requires a numeric value".to_string());
+                    err("'scale' requires a numeric value of at least 1".to_string());
                 }
             }
             // The only two-valued flags. Both components are required: a lone

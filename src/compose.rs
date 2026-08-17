@@ -333,32 +333,45 @@ pub struct InkLine {
 }
 
 impl InkProfile {
-    /// Read a grid's frontiers. A cell counts as occupied when the source put
-    /// *something* there, which includes a hardblank — see
+    /// Read a part's frontiers over its **declared box**: `origin` is where the
+    /// box's corner sits in the grid and `extent` is its size, both in declared
+    /// cells, so the profile is indexed the way the IDC layout is.
+    ///
+    /// A cell counts as occupied when the source put *something* there, which
+    /// includes a hardblank — see
     /// [`PixelShape::is_clear`](crate::pixel::PixelShape::is_clear). This is
     /// where the `CLEAR` / `HARDBLANK` / `INK` ladder those predicates are
     /// named for is actually read: a declared cell is hardblank when the source
     /// wrote hardblanks there and no ink, so a `scale 2` part is read on the
     /// same units its layout is in.
-    pub fn of(grid: &PixelGrid, scale: u8) -> Self {
+    ///
+    /// Ink outside the box folds into the edge cell it escapes through rather
+    /// than being dropped: a part drawing where it said it would not can only
+    /// cost its neighbour room, never gain any. A box reaching past the grid is
+    /// simply clear out there — there is nothing drawn to report.
+    pub fn of(grid: &PixelGrid, scale: u8, origin: (i16, i16), extent: (u16, u16)) -> Self {
         let s = scale.max(1) as u16;
-        // Floor, exactly as `declared_box` does: a grid that is not a whole
-        // number of declared cells has no last cell to speak of.
-        let (w, h) = (grid.width / s, grid.height / s);
+        let (w, h) = extent;
         // Per declared cell: nothing / hardblank only / ink, whichever is
         // greatest over the sub-cells, so any ink makes the cell ink.
         const CLEAR: u8 = 0;
         const HARDBLANK: u8 = 1;
         const INK: u8 = 2;
         let mut cells = vec![CLEAR; w as usize * h as usize];
-        for row in 0..h * s {
-            for col in 0..w * s {
-                let px = grid.get(row, col);
-                if px.is_clear() {
-                    continue;
+        if w > 0 && h > 0 {
+            for row in 0..grid.height {
+                for col in 0..grid.width {
+                    let px = grid.get(row, col);
+                    if px.is_clear() {
+                        continue;
+                    }
+                    let box_r =
+                        ((row / s) as i32 - origin.1 as i32).clamp(0, h as i32 - 1) as usize;
+                    let box_c =
+                        ((col / s) as i32 - origin.0 as i32).clamp(0, w as i32 - 1) as usize;
+                    let at = &mut cells[box_r * w as usize + box_c];
+                    *at = (*at).max(if px.is_hardblank() { HARDBLANK } else { INK });
                 }
-                let at = &mut cells[(row / s) as usize * w as usize + (col / s) as usize];
-                *at = (*at).max(if px.is_hardblank() { HARDBLANK } else { INK });
             }
         }
         let scan = |len: u16, at: &dyn Fn(u16) -> u8| -> Option<InkLine> {

@@ -1197,6 +1197,64 @@ map B = plain
     );
 }
 
+/// Zero is a size a box may have, on either axis, and it has to survive the
+/// whole pipeline rather than being read as "unstated". `0 0` is the box of a
+/// glyph that claims nothing at all — it draws, and it takes up no room doing
+/// it — and a zero *height* is the same statement about a part's slot.
+#[test]
+fn a_degenerate_extent_is_a_box_like_any_other() {
+    let source = |extent: &str| {
+        format!(
+            "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph ink 2 2 {extent}
+@@@@
+@@@@
+
+glyph places
+ref ink 1 0
+
+map A = ink
+map B = places
+"
+        )
+    };
+    let build = |extent: &str| {
+        let doc = document_io::parse_document_from_str(&source(extent), "test.unf".into()).unwrap();
+        let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+        let of = |name: &str| {
+            let g = glyphs.iter().find(|g| g.name == name).unwrap();
+            (g.advance_width, g.left_offset, g.contours.len())
+        };
+        (of("ink"), of("places"))
+    };
+
+    // The ink is 2x2 at 64 units per pixel either way; only the advance moves.
+    assert_eq!(build("extent 2 2"), ((128, 0, 1), (192, 0, 1)));
+    assert_eq!(build("extent 0 2").0, (0, 0, 1), "no width, still drawn");
+    assert_eq!(build("extent 2 0").0, (128, 0, 1), "no height, still drawn");
+    assert_eq!(
+        build("extent 0 0").0,
+        (0, 0, 1),
+        "no box at all, still drawn"
+    );
+
+    // The parent states no box of its own, so it advances by what it *draws*,
+    // and what it draws is the child's ink — which a zero box does not shrink.
+    // (A box is a claim about room, not a clip: see `GlyphBody::stated_advance`
+    // for why an unstated width follows the raster.)
+    for extent in ["extent 2 2", "extent 0 2", "extent 2 0", "extent 0 0"] {
+        assert_eq!(
+            build(extent).1,
+            (192, 0, 1),
+            "{extent}: the parent follows the ink it places"
+        );
+    }
+}
+
 /// What a declared box does to the glyphs around it, in the one shape that
 /// makes every term visible: a *composite* mark, placed entirely by its refs,
 /// declaring both an origin and a zero width the way a combining mark does.

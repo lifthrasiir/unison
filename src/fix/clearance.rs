@@ -209,6 +209,14 @@ fn is_plain_name(name: &str) -> bool {
     !crate::pattern::is_name_pattern(name) && !name.contains('$')
 }
 
+/// One part's ink, and the box [`InkProfile::of`] measures it over.
+struct PartGrid<'a> {
+    grid: &'a PixelGrid,
+    scale: u8,
+    origin: (i16, i16),
+    extent: (u16, u16),
+}
+
 /// The glyphs a slot could be filled with, and what is known about each.
 ///
 /// Names are canonicalized through the source's aliases exactly as the
@@ -222,7 +230,8 @@ struct Inventory<'a> {
     /// A composite draws ink this pass cannot see, and half a part's ink
     /// measured is worse than none — the same rule `expand.rs::ink_profiles`
     /// applies.
-    grids: HashMap<String, (&'a PixelGrid, u8)>,
+    /// Name → the grid to measure and the box to measure it over.
+    grids: HashMap<String, PartGrid<'a>>,
     /// Base name (everything before the first `:`) → its variants.
     variants: HashMap<String, Vec<String>>,
     aliases: crate::alias::AliasMap,
@@ -258,7 +267,19 @@ impl<'a> Inventory<'a> {
                     body.refs.is_empty(),
                     body.compose.is_empty(),
                 ) {
-                    inv.grids.insert(name.clone(), (pixels, body.scale));
+                    let extent = body.declared_extent().unwrap_or_else(|| {
+                        let s = body.scale.max(1) as u16;
+                        (pixels.width / s, pixels.height / s)
+                    });
+                    inv.grids.insert(
+                        name.clone(),
+                        PartGrid {
+                            grid: pixels,
+                            scale: body.scale,
+                            origin: body.declared_origin(),
+                            extent,
+                        },
+                    );
                 }
                 if let Some((base, _)) = name.split_once(':') {
                     inv.variants
@@ -289,7 +310,7 @@ impl<'a> Inventory<'a> {
         let computed = self
             .grids
             .get(name)
-            .map(|(grid, scale)| Rc::new(InkProfile::of(grid, *scale)));
+            .map(|g| Rc::new(InkProfile::of(g.grid, g.scale, g.origin, g.extent)));
         self.profiles
             .borrow_mut()
             .insert(name.to_string(), computed.clone());

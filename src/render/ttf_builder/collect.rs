@@ -285,15 +285,7 @@ pub(super) fn compute_shared_font_input_for(
             // shifted by. Read through `declared_origin` so both spellings
             // reach here — see `GlyphBody`.
             let (origin_c, origin_r) = body.declared_origin();
-            // Only an *explicit* width overrides the advance. Left implicit it
-            // stays the resolved raster width, which is what a glyph whose refs
-            // reach past its own grid has always advanced by; whether the box
-            // should take that over is a separate question from the spelling.
-            let advance = match (body.advance, body.extent) {
-                (Some(advance), _) => Some(advance),
-                (None, Some((w, _))) => Some(w),
-                (None, None) => None,
-            };
+            let advance = body.stated_advance();
             if advance.is_some() || (origin_c, origin_r) != (0, 0) {
                 glyph_meta.insert(
                     n.clone(),

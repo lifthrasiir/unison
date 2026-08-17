@@ -50,6 +50,11 @@ struct SampleGlyph {
     origin_col: i16,
     left: i16,
     top: i16,
+    /// The declared box's width in scale-1 pixels, when the glyph declares one:
+    /// what the cell paints a background over, as opposed to `width`, which is
+    /// what its ink needs. `None` for a glyph with no box of its own — a
+    /// composite — where the two are the same thing.
+    declared_width: Option<u16>,
     scale: u8,
 }
 
@@ -224,6 +229,7 @@ fn collect_sample_data_with(
 
     let mut glyph_declared_anchors: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     let mut glyph_offsets: HashMap<String, (i16, i16)> = HashMap::new();
+    let mut glyph_declared_widths: HashMap<String, u16> = HashMap::new();
     for item in all_items() {
         if let DocumentItem::Glyph {
             name: GlyphName(n),
@@ -238,6 +244,9 @@ fn collect_sample_data_with(
                 // which are the origin negated.
                 let (col, row) = body.declared_origin();
                 glyph_offsets.entry(n.clone()).or_insert((-col, -row));
+            }
+            if let Some((w, _)) = body.declared_extent() {
+                glyph_declared_widths.entry(n.clone()).or_insert(w);
             }
         }
     }
@@ -659,6 +668,7 @@ fn collect_sample_data_with(
         }
         if let Some(cached) = cache.get(glyph_name) {
             let (left, top) = glyph_offsets.get(glyph_name).copied().unwrap_or((0, 0));
+            let declared_width = glyph_declared_widths.get(glyph_name).copied();
             let s = cached.scale.max(1);
             sample_glyphs.insert(
                 glyph_name.clone(),
@@ -670,6 +680,7 @@ fn collect_sample_data_with(
                     origin_col: cached.origin_col.div_euclid(s as i32) as i16,
                     left,
                     top,
+                    declared_width,
                     scale: s,
                 },
             );
@@ -767,6 +778,27 @@ fn sample_display_metrics(sg: &SampleGlyph, font_height: u16) -> (u16, u16, i16,
     let display_w = pad_c as u16 + sg.width + sg.left.max(0) as u16;
     let display_h = font_height + pad_r as u16;
     (display_w, display_h, pad_c + sg.left, pad_r + sg.top)
+}
+
+/// The rectangle a cell paints its background over: `(x, width, height)` in the
+/// cell's own pixels.
+///
+/// This is the *declared box*, not the drawn area — a glyph may put ink outside
+/// it and a combining mark is nothing but that. Only the width is the box's
+/// own; a cell is an em box tall, since a glyph that declares no height has the
+/// grid's, which for a mark is two rows of ink nowhere near where its box
+/// corner sits.
+fn sample_background(sg: &SampleGlyph, font_height: u16) -> (i16, u16, u16) {
+    let (display_w, display_h, col_off, _) = sample_display_metrics(sg, font_height);
+    // The pen, i.e. the box's corner: the cell drew the *grid* at `col_off`,
+    // and the box's corner sits `origin` cells along from it — which is the
+    // bearing negated.
+    let pen = col_off - sg.left;
+    let width = sg.declared_width.unwrap_or(sg.width);
+    // Never past the cell, so a declared box wider than the ink cannot paint
+    // outside the image it was measured for.
+    let width = width.min(display_w.saturating_sub(pen.max(0) as u16));
+    (pen, width, display_h)
 }
 
 fn composite_components(width: u16, height: u16, components: &[SampleComponent]) -> PixelGrid {
@@ -1163,13 +1195,20 @@ pub fn write_sample_png(w: &mut dyn Write, src: &SampleSource) -> io::Result<()>
         let y = (max_height + 1) * r + row_offsets[r as usize] + 1;
         let x = label_width + 1 + left;
 
-        let (dw, dh, col_off, row_off) = sample_display_metrics(sg, data.height);
+        let (_, dh, col_off, row_off) = sample_display_metrics(sg, data.height);
 
-        // Clear glyph area to white
+        // The background is the *declared box*, so a glyph that claims no width
+        // — every combining mark — draws onto the page rather than onto a cell
+        // of its own. Ink outside the box is allowed and simply lands on the
+        // gray behind it.
+        let (box_x, box_w, _) = sample_background(sg, data.height);
         for dy in 0..dh.min(max_height as u16) as u32 {
-            for dx in 0..dw as u32 {
+            for dx in 0..box_w as u32 {
                 let py = (y + dy) as usize;
-                let px = (x + dx) as usize;
+                let Some(px) = (x as i32 + box_x as i32 + dx as i32).try_into().ok() else {
+                    continue;
+                };
+                let px: usize = px;
                 if py < img_height as usize && px < stride {
                     set_pixel(&mut pixels, stride, px, py, 0xFF, 0xFF, 0xFF);
                 }
@@ -2217,6 +2256,7 @@ map A = test-a
             origin_col: 0,
             left: 0,
             top: 3,
+            declared_width: None,
             scale: 1,
         };
         let (_, _, _, row_off) = sample_display_metrics(&sg_with_top, 16);
@@ -2230,6 +2270,7 @@ map A = test-a
             origin_col: 0,
             left: 0,
             top: 0,
+            declared_width: None,
             scale: 1,
         };
         let (_, _, _, row_off) = sample_display_metrics(&sg_without_top, 16);
@@ -2304,6 +2345,101 @@ map A = raised
         assert_eq!(sample_display_metrics(g, data.height), (2, 16, 0, 0));
     }
 
+    /// The white a sample cell paints is the glyph's *declared box*, not the
+    /// area its ink happens to need: a combining mark declares no width, so it
+    /// draws onto the page instead of onto a cell of its own, which is the one
+    /// way a sample shows an advance of zero at all.
+    ///
+    /// Only the width comes from the declared box. Its height is the grid's
+    /// whenever the source does not say otherwise, and for a mark that is the
+    /// two rows of ink sitting fourteen rows below the box's own corner — a
+    /// rectangle nothing would want painted. The em box is what a cell is tall,
+    /// so that is what the background keeps.
+    #[test]
+    fn the_sample_background_is_the_declared_box_not_the_ink() {
+        let mark = SampleGlyph {
+            width: 6,
+            _height: 2,
+            components: Vec::new(),
+            origin_row: 0,
+            origin_col: 0,
+            left: -3,
+            top: 14,
+            declared_width: Some(0),
+            scale: 1,
+        };
+        let (dw, dh, ..) = sample_display_metrics(&mark, 16);
+        assert_eq!((dw, dh), (9, 16), "the cell still holds the ink");
+        assert_eq!(
+            sample_background(&mark, 16),
+            (3, 0, 16),
+            "a zero-width mark paints nothing, at the pen"
+        );
+
+        let plain = SampleGlyph {
+            width: 8,
+            _height: 16,
+            components: Vec::new(),
+            origin_row: 0,
+            origin_col: 0,
+            left: 0,
+            top: 0,
+            declared_width: Some(8),
+            scale: 1,
+        };
+        assert_eq!(sample_background(&plain, 16), (0, 8, 16));
+
+        // A composite with no box of its own: the raster is all there is.
+        let composite = SampleGlyph {
+            declared_width: None,
+            ..plain
+        };
+        assert_eq!(sample_background(&composite, 16), (0, 8, 16));
+    }
+
+    /// The width the background is painted over comes from the source's own
+    /// declared box, which is the half of it a `map`ped mark actually states.
+    #[test]
+    fn a_marks_declared_width_reaches_the_sample() {
+        let d = parse(
+            "\
+meta height 16
+meta ascent 14
+meta descent 2
+
+glyph dia-below 6 2 mark advance 0 origin 3 -14
+..............
+@@@@@@@@@@@@..
+
+map \u{0323} = dia-below
+
+glyph a 8 16 advance 8
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+
+map A = a
+",
+        );
+        let data = collect_sample_data(&[&d]).expect("sample data");
+        let mark = data.glyphs.get("dia-below").expect("the mark is sampled");
+        assert_eq!(mark.declared_width, Some(0));
+        assert_eq!(sample_background(mark, data.height).1, 0);
+    }
+
     #[test]
     fn sample_display_metrics_makes_room_for_negative_bearings() {
         // A glyph reaching before its origin — via a negative ref offset or a
@@ -2316,6 +2452,7 @@ map A = raised
             origin_col: -3,
             left: 0,
             top: 0,
+            declared_width: None,
             scale: 1,
         };
         let (w, h, col_off, row_off) = sample_display_metrics(&with_negative_origin, 16);
@@ -2329,6 +2466,7 @@ map A = raised
             origin_col: 0,
             left: -3,
             top: 0,
+            declared_width: None,
             scale: 1,
         };
         let (w, _, col_off, _) = sample_display_metrics(&with_negative_left, 16);

@@ -716,7 +716,9 @@ fn collect_candidates(
             candidates.sort_by(|a, b| a.label.cmp(&b.label));
         }
         CompletionKind::GlyphFlag => {
-            for flag in &["keep", "inline", "mark", "desync", "advance", "left"] {
+            for flag in &[
+                "keep", "inline", "mark", "desync", "advance", "origin", "extent",
+            ] {
                 candidates.push(CompletionCandidate {
                     label: flag.to_string(),
                     kind: CompletionKind::GlyphFlag,
