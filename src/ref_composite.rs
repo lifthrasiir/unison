@@ -257,10 +257,11 @@ pub struct InlineSource {
     pub pixels: Option<PixelGrid>,
 }
 
-/// The declared box behind a grid: the `W H` the header wrote, before `scale`
-/// multiplied it. The single place that undoes that multiplication, so the
-/// resolution cache and [`crate::compose`] cannot disagree about what a glyph
-/// declares.
+/// The declared box behind a bare grid, for the one caller that has a grid but
+/// no glyph body to ask: an on-demand shape, whose name states its own box.
+/// Everything with a body goes through
+/// [`GlyphBody::declared_extent`](crate::document::GlyphBody::declared_extent),
+/// which knows about `extent` and `advance` as well.
 pub fn declared_box(pixels: Option<&PixelGrid>, scale: u8) -> Option<(u16, u16)> {
     let g = pixels?;
     let s = scale.max(1) as u16;
@@ -1101,7 +1102,7 @@ pub fn resolve_expansion_cached(
             continue;
         }
         if body.refs.is_empty() {
-            let declared_box = declared_box(body.pixels.as_ref(), body.scale);
+            let declared_box = body.declared_extent();
             cache.insert(
                 key,
                 ResolvedGlyph {
@@ -1119,7 +1120,7 @@ pub fn resolve_expansion_cached(
             pending_names.insert(key.clone());
             pending.push(Pending {
                 name: key,
-                declared_box: declared_box(body.pixels.as_ref(), body.scale),
+                declared_box: body.declared_extent(),
                 pixels: body.pixels,
                 refs: body.refs,
                 points: body.points,
@@ -1797,7 +1798,7 @@ fn compose_refs_for_view(
             None => crate::compose::PartDims::Undeclared,
         },
     };
-    let parent = declared_box(body.pixels.as_ref(), body.scale);
+    let parent = body.declared_extent();
     body.compose
         .iter()
         .flat_map(|c| {

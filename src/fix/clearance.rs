@@ -169,8 +169,7 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
             let Some((_, min, max)) = rules.for_glyph(&glyph) else {
                 continue;
             };
-            let Some(parent) = crate::ref_composite::declared_box(body.pixels.as_ref(), body.scale)
-            else {
+            let Some(parent) = body.declared_extent() else {
                 continue;
             };
             for (compose_idx, compose) in body.compose.iter().enumerate() {
@@ -267,10 +266,7 @@ impl<'a> Inventory<'a> {
                         .or_default()
                         .push(name.clone());
                 }
-                inv.boxes.insert(
-                    name,
-                    crate::ref_composite::declared_box(body.pixels.as_ref(), body.scale),
-                );
+                inv.boxes.insert(name, body.declared_extent());
             }
         }
         for names in inv.variants.values_mut() {

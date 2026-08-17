@@ -189,9 +189,19 @@
 //! # Glyph blocks
 //!
 //! `glyph NAME [W H] [flags...]`, with flags `keep`, `inline`, `mark`,
-//! `desync`, `advance N`, `left N`, `top N` and `scale N` (the per-glyph
+//! `desync`, `origin C R`, `extent W H` and `scale N` (the per-glyph
 //! sub-pixel detail resolution: the grid is N× finer, and `document_io`
 //! multiplies the declared dimensions by it but not the other flags).
+//!
+//! `origin`/`extent` are the **declared box** — the rectangle the glyph claims
+//! to draw in, which is what it exports as a bearing and an advance, what
+//! `:WxH` names and what a clearance measures. Ink may leave it; a renderer
+//! owes that nothing. `advance N`, `left N` and `top N` are the older spelling
+//! of the same rectangle (`left`/`top` are its corner's *side bearings*, so
+//! they negate) and are still accepted while `font/` is migrated. Both meet in
+//! [`crate::document::GlyphBody::declared_origin`] and
+//! [`declared_extent`](crate::document::GlyphBody::declared_extent), which is
+//! all anything downstream reads.
 //!
 //! - With `W H`, pixel rows follow immediately, two characters per pixel (`@@`
 //!   filled, `..` empty, `$$` a *hardblank* — the same nothing as `..`, kept
@@ -703,6 +713,8 @@ pub struct GlyphHeaderFlags {
     pub advance: Option<u16>,
     pub left: Option<i16>,
     pub top: Option<i16>,
+    pub origin: Option<(i16, i16)>,
+    pub extent: Option<(u16, u16)>,
     pub width: Option<u16>,
     pub height: Option<u16>,
     pub scale: Option<u8>,
@@ -728,8 +740,8 @@ pub fn parse_glyph_flag_parts<S: AsRef<str>>(flag_parts: &[S]) -> GlyphHeaderFla
     parse_glyph_flag_parts_impl(flag_parts, &mut |_| {})
 }
 
-const GLYPH_FLAG_KEYWORDS: [&str; 8] = [
-    "keep", "inline", "mark", "desync", "advance", "left", "top", "scale",
+const GLYPH_FLAG_KEYWORDS: [&str; 10] = [
+    "keep", "inline", "mark", "desync", "advance", "left", "top", "origin", "extent", "scale",
 ];
 
 /// The one walker behind both the lenient parse and the strict validation.
@@ -760,6 +772,26 @@ fn parse_glyph_flag_parts_impl<S: AsRef<str>>(
                 if flags.scale.is_none() {
                     err("'scale' requires a numeric value".to_string());
                 }
+            }
+            // The only two-valued flags. Both components are required: a lone
+            // number would be indistinguishable from the bare `W H` pair.
+            "origin" => {
+                let c = flag_parts.get(fp + 1).and_then(|t| t.as_ref().parse().ok());
+                let r = flag_parts.get(fp + 2).and_then(|t| t.as_ref().parse().ok());
+                flags.origin = c.zip(r);
+                if flags.origin.is_none() {
+                    err("'origin' requires two i16 values (column, row)".to_string());
+                }
+                fp += 2;
+            }
+            "extent" => {
+                let w = flag_parts.get(fp + 1).and_then(|t| t.as_ref().parse().ok());
+                let h = flag_parts.get(fp + 2).and_then(|t| t.as_ref().parse().ok());
+                flags.extent = w.zip(h);
+                if flags.extent.is_none() {
+                    err("'extent' requires two u16 values (width, height)".to_string());
+                }
+                fp += 2;
             }
             kw @ ("left" | "top") => {
                 fp += 1;
@@ -1179,6 +1211,12 @@ fn format_glyph_flags(body: &GlyphBody) -> String {
     if let Some(top) = body.top {
         flags.push_str(&format!(" top {top}"));
     }
+    if let Some((c, r)) = body.origin {
+        flags.push_str(&format!(" origin {c} {r}"));
+    }
+    if let Some((w, h)) = body.extent {
+        flags.push_str(&format!(" extent {w} {h}"));
+    }
     if body.scale > 1 {
         flags.push_str(&format!(" scale {}", body.scale));
     }
@@ -1571,6 +1609,8 @@ pub fn derive_document(
                         body.advance = flags.advance;
                         body.left = flags.left;
                         body.top = flags.top;
+                        body.origin = flags.origin;
+                        body.extent = flags.extent;
                         body.scale = flags.scale.unwrap_or(1);
                         let scale = body.scale as u16;
                         let (width, height) = (

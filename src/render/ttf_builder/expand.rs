@@ -432,9 +432,7 @@ fn expand_compose_lines(
     }
 
     // Declared, not raster: a header's `W H` before `scale` multiplied it.
-    let declared = |body: &crate::document::GlyphBody| {
-        crate::ref_composite::declared_box(body.pixels.as_ref(), body.scale)
-    };
+    let declared = |body: &crate::document::GlyphBody| body.declared_extent();
     let mut boxes: HashMap<String, Option<(u16, u16)>> = HashMap::new();
     for e in all_items.iter() {
         if let DocumentItem::Glyph { name, body } = &e.item {

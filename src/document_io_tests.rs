@@ -870,6 +870,94 @@ fn desync_header_owns_its_pixel_grid_and_round_trips() {
     }
 }
 
+/// `origin C R` and `extent W H` are the only two-valued header flags, so the
+/// parser has to take both components before it hands the walker back — and a
+/// bare `W H` pair on the same line must still be the grid's, not theirs.
+#[test]
+fn origin_and_extent_parse_in_any_order_and_round_trip() {
+    for input in [
+        "glyph foo 2 1 origin -1 3 extent 4 5\n..@@\n",
+        "glyph foo origin -1 3 2 1 extent 4 5\n..@@\n",
+        "glyph foo extent 4 5 origin -1 3 2 1\n..@@\n",
+    ] {
+        let tokens = tokenize_tokens(input.lines().next().unwrap()).unwrap();
+        assert_eq!(
+            glyph_header_dims(&tokens[1..]).map(|d| (d.width, d.height)),
+            Some((2, 1)),
+            "the grid's own W H must not be eaten by a two-valued flag: {input:?}"
+        );
+
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+            panic!("expected a glyph item, got {:?}", doc.items[0]);
+        };
+        assert_eq!(body.origin, Some((-1, 3)), "{input:?}");
+        assert_eq!(body.extent, Some((4, 5)), "{input:?}");
+        assert_eq!(body.declared_origin(), (-1, 3), "{input:?}");
+        assert_eq!(body.declared_extent(), Some((4, 5)), "{input:?}");
+
+        let mut output = Vec::new();
+        serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "glyph foo 2 1 origin -1 3 extent 4 5\n..@@\n",
+        );
+    }
+}
+
+/// The declared box has two spellings while `font/` is migrated, and they must
+/// mean the same rectangle. `left`/`top` are the *side bearings* of the box's
+/// corner, so they read negated; `advance` is its width.
+#[test]
+fn the_old_spelling_of_the_declared_box_means_the_same_rectangle() {
+    let old = "glyph foo 4 2 advance 0 left -3 top 1\n@@@@@@@@\n@@@@@@@@\n";
+    let new = "glyph foo 4 2 origin 3 -1 extent 0 2\n@@@@@@@@\n@@@@@@@@\n";
+    let body = |input: &str| {
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+            panic!("expected a glyph item");
+        };
+        (body.declared_origin(), body.declared_extent())
+    };
+    assert_eq!(body(old), body(new));
+    assert_eq!(body(new), ((3, -1), Some((0, 2))));
+}
+
+/// Zero is a declared box's real answer, not a missing one: a combining mark
+/// says `extent 0 H` (or, in the old spelling, `advance 0`) to take no width at
+/// all. `None` is reserved for a glyph that declares no box — the composite
+/// whose box is the union of what it places.
+#[test]
+fn a_zero_extent_is_declared_and_an_absent_one_is_not() {
+    let cases = [
+        (
+            "glyph foo 4 2 extent 0 0\n@@@@@@@@\n@@@@@@@@\n",
+            Some((0, 0)),
+        ),
+        (
+            "glyph foo 4 2 extent 0 9\n@@@@@@@@\n@@@@@@@@\n",
+            Some((0, 9)),
+        ),
+        (
+            "glyph foo 4 2 extent 9 0\n@@@@@@@@\n@@@@@@@@\n",
+            Some((9, 0)),
+        ),
+        (
+            "glyph foo 4 2 advance 0\n@@@@@@@@\n@@@@@@@@\n",
+            Some((0, 2)),
+        ),
+        ("glyph foo 4 2\n@@@@@@@@\n@@@@@@@@\n", Some((4, 2))),
+        ("glyph foo\nref bar\n", None),
+    ];
+    for (input, expected) in cases {
+        let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+        let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
+            panic!("expected a glyph item, got {input:?}");
+        };
+        assert_eq!(body.declared_extent(), expected, "{input:?}");
+    }
+}
+
 /// An alias is a name for a glyph and nothing else, so the flags a real glyph
 /// takes are a mistake on one — silently dropping them would build a font that
 /// does not say what the file says.

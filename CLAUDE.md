@@ -193,6 +193,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable rather than reserved | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
 | Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues.rs` (`uvs_collision_diagnostics`) |
 | `ifexists` on a `ref`/`map`: a name whose absence is expected, and the one existence test all four consumers share | `document_io.rs` (`# Directives`), `render/ttf_builder/expand.rs` (`glyph_name_exists`) |
+| The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document.rs` (`declared_origin`, `declared_extent`) |
+| Why `advance`/`left`/`top` are the same rectangle in an older spelling, and the one place the two meet | `document.rs` (`GlyphBody::declared_extent`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |

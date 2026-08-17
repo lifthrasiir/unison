@@ -846,6 +846,16 @@ pub struct GlyphBody {
     pub advance: Option<u16>,
     pub left: Option<i16>,
     pub top: Option<i16>,
+    /// `origin C R`: where the declared box's top-left corner sits, in the
+    /// glyph's own logical cells. See [`GlyphBody::declared_origin`], which is
+    /// what everything downstream reads — `left`/`top` are the older spelling
+    /// of the same corner, negated.
+    pub origin: Option<(i16, i16)>,
+    /// `extent W H`: the size of the declared box, measured from
+    /// [`origin`](Self::origin). Either component may be zero — a combining
+    /// mark declares `extent 0 H`, which is how it says it takes no width.
+    /// See [`GlyphBody::declared_extent`].
+    pub extent: Option<(u16, u16)>,
     pub scale: u8,
     /// The header's name as written when that differs from the
     /// [`GlyphName`] the item carries: an `@…` form. Like `comment`, this is
@@ -857,6 +867,53 @@ pub struct GlyphBody {
 }
 
 impl GlyphBody {
+    /// Where the declared box's top-left corner sits, in this glyph's own
+    /// logical cells: `(col, row)`, the same order a `ref` offset is written
+    /// in. `(0, 0)` — the grid's own corner — when nothing says otherwise.
+    ///
+    /// The older `left`/`top` spelling is the *side bearings* of the same
+    /// corner, so it reads negated: `left 5` puts five cells of blank between
+    /// the pen and the grid, which is the grid's corner sitting at column −5 of
+    /// the box. Both spellings are accepted while `font/` is migrated; every
+    /// consumer goes through here, so only this function knows there are two.
+    // Nothing outside the tests reads the origin yet — the consumers still work
+    // in grid coordinates. `expect` rather than `allow` on purpose: the day one
+    // of them is converted, this line has to go.
+    #[cfg_attr(not(test), expect(dead_code))]
+    pub fn declared_origin(&self) -> (i16, i16) {
+        match self.origin {
+            Some(origin) => origin,
+            None => (
+                self.left.map_or(0, i16::wrapping_neg),
+                self.top.map_or(0, i16::wrapping_neg),
+            ),
+        }
+    }
+
+    /// The declared box's size in logical cells, or `None` for a glyph that
+    /// declares neither an extent nor a grid to take one from (a composite,
+    /// whose box is the union of what it places — see
+    /// [`crate::ref_composite`]).
+    ///
+    /// Zero is a real answer, not a missing one: `extent 0 H` is how a
+    /// combining mark says it takes no width, and `advance 0` — the older
+    /// spelling — meant the same thing.
+    pub fn declared_extent(&self) -> Option<(u16, u16)> {
+        if let Some(extent) = self.extent {
+            return Some(extent);
+        }
+        let grid = self.pixels.as_ref();
+        let s = self.scale.max(1) as u16;
+        // Floor: a grid that is not a whole number of declared cells has no
+        // last cell to speak of.
+        let height = grid.map(|g| g.height / s);
+        match (self.advance, grid.map(|g| g.width / s), height) {
+            (Some(advance), _, Some(h)) => Some((advance, h)),
+            (None, Some(w), Some(h)) => Some((w, h)),
+            _ => None,
+        }
+    }
+
     pub fn new() -> Self {
         Self {
             pixels: None,
@@ -870,6 +927,8 @@ impl GlyphBody {
             advance: None,
             left: None,
             top: None,
+            origin: None,
+            extent: None,
             scale: 1,
             raw_name: None,
             comment: None,
