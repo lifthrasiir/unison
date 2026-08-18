@@ -90,6 +90,10 @@ impl Severity {
 #[derive(Clone, Debug)]
 pub struct Issue {
     pub severity: Severity,
+    /// The one expanded glyph this is about, where the *line* is wider than the
+    /// finding — see [`crate::resolve::Diagnostic::glyph`]. Only
+    /// [`crate::glyph_flags`] reads it; the report itself locates by line.
+    pub glyph: Option<String>,
     pub message: String,
     pub file: PathBuf,
     /// DocLine index (0-based), used for editor navigation.
@@ -103,6 +107,7 @@ fn issue_at(doc: &Document, item_idx: usize, severity: Severity, message: String
     let (line, file_line) = doc.item_lines(item_idx);
     Issue {
         severity,
+        glyph: None,
         message,
         file: doc.path.clone(),
         line,
@@ -1219,6 +1224,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                 for (slice, site) in &present[1..] {
                     issues.push(Issue {
                         severity: Severity::Error,
+                        glyph: None,
                         message: format!(
                             "U+{cp:04X} is mapped in both {} and {}, and face `{}` includes both \
                          (first at {}:{})",
@@ -1429,6 +1435,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
                         {
                             issues.push(Issue {
                                 severity: Severity::Warning,
+                                glyph: None,
                                 message: format!(
                                     "alternative '{}' has same anchor dimensions as '{}' for '{}' (base '{}')",
                                     dup, sorted_names[0], pos, base,
@@ -1517,10 +1524,18 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         // nothing, and the glyph it was reported for is dropped from the build
         // (`glyph_cache::resolve_pending`) rather than shipped mis-composed.
         for (name, issue) in derive_issues {
-            issues.push(docset.to_issue(&Diagnostic::error(
-                origin_of.get(name.as_str()).copied().flatten(),
-                issue.message(&name),
-            )));
+            // Named, not just located: an anchor derives against whatever the
+            // refs resolve to, which differs between the expansions of one
+            // pattern line the same way a missing ref does.
+            issues.push(
+                docset.to_issue(
+                    &Diagnostic::error(
+                        origin_of.get(name.as_str()).copied().flatten(),
+                        issue.message(&name),
+                    )
+                    .about(&name),
+                ),
+            );
         }
     }
 

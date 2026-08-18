@@ -124,6 +124,10 @@ Core (feature-independent):
 - `cancel.rs` — `CancelToken`: how a background stage is told its result is no longer wanted, and
   what a cancelled stage is allowed to return. Only the editor cancels; every other caller passes
   `CancelToken::never()`.
+- `glyph_flags.rs` — which glyphs the diagnostics report faults, as one tri-state flag per glyph
+  (none / warning / error), propagated backwards along the `ref` graph. Holds why attribution is per
+  a *line* rather than per expanded glyph, the two paths that can narrow a finding to one expansion
+  of a pattern, and why `Todo`/`Note` flag nothing. The specimen's cell backgrounds are the consumer.
 - `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `startup.rs` — the timeline of everything before the first painted frame (loader, directory read,
@@ -228,6 +232,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues.rs` (`Severity`) |
+| Which glyph a finding is about, and why a composite carries its components' findings | `glyph_flags.rs` |
+| When a finding faults one expansion of a pattern rather than the whole line, and the only two paths that can | `resolve.rs` (`Diagnostic::glyph`), `glyph_flags.rs` |
+| The specimen's warning/error cell tints, and why the hovered cell inverts instead of hiding one | `specimen.rs` (`flag_bg`) |
 | Why an IDC line with an unpicked variant is a TODO and not an error, and what else it silences | `compose.rs` (`expand_compose`, `is_undecided`) |
 | Why the ref an unpicked component derives is left unresolved *and* unreported | `render/ttf_builder/expand.rs` (`expand_compose_lines`) |
 | The Issues tab's per-severity filter, why notes start hidden and why right-click is solo | `app/panels.rs` (`IssueFilter`) |

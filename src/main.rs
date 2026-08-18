@@ -13,6 +13,7 @@ mod edit_menu;
 mod editor;
 mod faces;
 mod fix;
+mod glyph_flags;
 #[cfg(test)]
 mod golden;
 mod issues;

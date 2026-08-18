@@ -772,23 +772,38 @@ fn inject_on_demand_glyph_items(
     // not once for the whole font. Deduped per (site, name) so a pattern that
     // expands to the same missing name repeatedly reports once per line.
 
-    let mut mentions: Vec<(String, Option<ItemRef>, RefKind, bool)> = Vec::new();
+    let mut mentions: Vec<Mention> = Vec::new();
     let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::new();
     // `if_exists` rides along rather than filtering here: an `ifexists` name may
     // still be one the font generates (`ref 3x5 ifexists`), and the synthesis
     // below is driven by this same list. Only the *reporting* loop honors it.
-    let mut consider = |name: &str, origin: Option<ItemRef>, kind: RefKind, if_exists: bool| {
-        let unusable = !defined.contains(name) || contentless.contains(name);
-        if unusable && mention_seen.insert((origin, name.to_string())) {
-            mentions.push((name.to_string(), origin, kind, if_exists));
-        }
-    };
+    let mut consider =
+        |name: &str, origin: Option<ItemRef>, by: Option<&str>, kind: RefKind, if_exists: bool| {
+            let unusable = !defined.contains(name) || contentless.contains(name);
+            if unusable && mention_seen.insert((origin, name.to_string())) {
+                mentions.push(Mention {
+                    name: name.to_string(),
+                    origin,
+                    by: by.map(str::to_string),
+                    kind,
+                    if_exists,
+                });
+            }
+        };
 
     for e in all_items.iter() {
         match &e.item {
-            DocumentItem::Glyph { body, .. } => {
+            // The referring glyph is named because one `glyph a-($#…)` line is
+            // one origin and thousands of glyphs, each substituting a different
+            // target into the same `ref`: whether the target is there is the
+            // one thing that varies between them, so this is the only fault a
+            // pattern's expansions can disagree about. See `Mention::by`.
+            DocumentItem::Glyph {
+                name: GlyphName(by),
+                body,
+            } => {
                 for r in &body.refs {
-                    consider(&r.name, e.origin, RefKind::Ref, r.if_exists);
+                    consider(&r.name, e.origin, Some(by), RefKind::Ref, r.if_exists);
                 }
             }
             DocumentItem::Remap { .. } => {
@@ -805,7 +820,7 @@ fn inject_on_demand_glyph_items(
                     let mut names = expand_name_element(token, name_parts);
                     aliases.canonicalize_all(&mut names);
                     for name in names {
-                        consider(&name, e.origin, RefKind::Remap, false);
+                        consider(&name, e.origin, None, RefKind::Remap, false);
                     }
                 }
             }
@@ -815,7 +830,13 @@ fn inject_on_demand_glyph_items(
     // Map targets were expanded once by the caller: `glyph` is still a pattern
     // on the item, and the cmap builder expands it per codepoint.
     for t in map_targets {
-        consider(&t.name, t.origin, RefKind::Map(t.char_repr), t.if_exists);
+        consider(
+            &t.name,
+            t.origin,
+            None,
+            RefKind::Map(t.char_repr),
+            t.if_exists,
+        );
     }
 
     // Synthesis is per unique name; reporting is per mention, so the loops
@@ -826,8 +847,8 @@ fn inject_on_demand_glyph_items(
             .iter()
             // Contentless names are in `mentions` to be reported, but they are
             // defined, so there is nothing to synthesize for them.
-            .filter(|(n, _, _, _)| !defined.contains(n) && seen.insert(n.as_str()))
-            .map(|(n, o, _, _)| (n.clone(), *o))
+            .filter(|m| !defined.contains(&m.name) && seen.insert(m.name.as_str()))
+            .map(|m| (m.name.clone(), m.origin))
             .collect()
     };
     let mut unresolved: HashSet<String> = HashSet::new();
@@ -1003,7 +1024,14 @@ fn inject_on_demand_glyph_items(
         }
     }
 
-    for (name, origin, kind, if_exists) in mentions {
+    for Mention {
+        name,
+        origin,
+        by,
+        kind,
+        if_exists,
+    } in mentions
+    {
         // `ifexists` says the author already knows this name may or may not be
         // there and wants the absent case to build nothing: the glyph is left
         // unbuilt by `glyph_cache::resolve_pending` and the mapping dropped by
@@ -1064,8 +1092,24 @@ fn inject_on_demand_glyph_items(
                 format!("remap references glyph '{name}', which {EMPTY}"),
             ),
         };
-        diagnostics.push(Diagnostic::new(severity, origin, message));
+        let mut d = Diagnostic::new(severity, origin, message);
+        d.glyph = by;
+        diagnostics.push(d);
     }
+}
+
+/// One mention of a name that is missing or contentless, as the reporting loop
+/// below needs it.
+struct Mention {
+    name: String,
+    origin: Option<ItemRef>,
+    /// The glyph whose `ref` this is, for a `ref`; `None` for a `map` or
+    /// `remap`, neither of which is written inside a glyph. This is what lets
+    /// one expansion of a pattern be faulted without faulting its siblings —
+    /// see [`crate::resolve::Diagnostic::glyph`].
+    by: Option<String>,
+    kind: RefKind,
+    if_exists: bool,
 }
 
 /// Why a `map BASE SELECTOR = GLYPH` line expands to nothing.

@@ -66,6 +66,8 @@ struct DerivedDataMessage {
     char_props: crate::ucd::CharProps,
     meta: crate::meta::FontMetrics,
     issues: Vec<Issue>,
+    /// Which glyphs those issues are about, the specimen's cell backgrounds.
+    glyph_flags: crate::glyph_flags::GlyphFlags,
     /// Every face the source declares, in declaration order, for the face
     /// picker. Resolution already collects them, so nothing else has to.
     face_ids: Vec<String>,
@@ -213,6 +215,9 @@ pub struct UniformApp {
     specimen: SpecimenState,
     issues: Vec<Issue>,
     issues_gen: u64,
+    /// Which glyphs `issues` are about, propagated through the `ref` graph —
+    /// what tints a specimen cell. Kept beside `issues` and replaced with it.
+    glyph_flags: crate::glyph_flags::GlyphFlags,
     /// Which severities the Issues tab lists; see [`panels::IssueFilter`].
     issue_filter: panels::IssueFilter,
     file_parse_errors: Vec<(PathBuf, String)>,
@@ -455,6 +460,7 @@ impl UniformApp {
             specimen,
             issues: Vec::new(),
             issues_gen: u64::MAX,
+            glyph_flags: crate::glyph_flags::GlyphFlags::default(),
             issue_filter,
             file_parse_errors,
             assert_issues: Vec::new(),

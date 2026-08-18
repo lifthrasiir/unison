@@ -44,6 +44,7 @@ use crate::document::{
     Document, DocumentItem, NamePartsMap, expand_name_element, substitute_name_parts,
 };
 use crate::editor::doc_links::LinkTargetKind;
+use crate::glyph_flags::{GlyphFlag, GlyphFlags};
 use crate::preview::rasterizer::GlyphCache;
 use crate::render::ttf_builder::{decomposed_map_pairs, expand_map_pairs};
 use crate::ucd::{BlockMap, format_block_range};
@@ -175,6 +176,25 @@ const DIM_ALPHA: f32 = 0.35;
 const HEADING_BG: egui::Color32 = egui::Color32::from_gray(128);
 const HEADING_FG: egui::Color32 = egui::Color32::WHITE;
 
+/// The tint a cell gets when the report has something to say about the glyph it
+/// draws — see [`crate::glyph_flags`], which is also where a composite inherits
+/// its components' flags. Pale enough on the grid's white to leave the glyph
+/// itself the thing being read; the hovered pair replaces the black a hovered
+/// cell is otherwise drawn against, so hovering never hides the flag.
+const WARNING_BG: egui::Color32 = egui::Color32::from_rgb(0xff, 0xf3, 0xbf);
+const ERROR_BG: egui::Color32 = egui::Color32::from_rgb(0xff, 0xd5, 0xcc);
+const WARNING_BG_HOVER: egui::Color32 = egui::Color32::from_rgb(0x46, 0x38, 0x00);
+const ERROR_BG_HOVER: egui::Color32 = egui::Color32::from_rgb(0x4e, 0x11, 0x08);
+
+fn flag_bg(flag: GlyphFlag, is_hovered: bool) -> egui::Color32 {
+    match (flag, is_hovered) {
+        (GlyphFlag::Warning, false) => WARNING_BG,
+        (GlyphFlag::Error, false) => ERROR_BG,
+        (GlyphFlag::Warning, true) => WARNING_BG_HOVER,
+        (GlyphFlag::Error, true) => ERROR_BG_HOVER,
+    }
+}
+
 impl GridLayout {
     fn total_height(&self) -> f32 {
         self.row_y.last().copied().unwrap_or(0.0)
@@ -247,6 +267,10 @@ pub struct SpecimenState {
     /// named reads as that name here too — one rebuild behind an edit, like
     /// every other thing the specimen shows.
     char_props: crate::ucd::CharProps,
+    /// Which glyphs the last derive's report faults, as of the same derive as
+    /// everything else here. Read per cell while painting, so it is held rather
+    /// than borrowed for the frame.
+    glyph_flags: GlyphFlags,
     pub hover_status: Option<String>,
 }
 
@@ -266,6 +290,7 @@ impl SpecimenState {
             cached_gen: None,
             glyph_cache: GlyphCache::new(),
             char_props: crate::ucd::CharProps::default(),
+            glyph_flags: GlyphFlags::default(),
             hover_status: None,
         }
     }
@@ -274,12 +299,14 @@ impl SpecimenState {
         self.cached_gen != Some((font_data_gen, derived_gen))
     }
 
+    #[expect(clippy::too_many_arguments)]
     pub fn rebuild_if_needed(
         &mut self,
         docs: &[&Document],
         name_parts: &NamePartsMap,
         name_to_gid: &HashMap<String, u16>,
         face_id: Option<&str>,
+        glyph_flags: &GlyphFlags,
         font_data_gen: u64,
         derived_gen: u64,
     ) {
@@ -287,6 +314,7 @@ impl SpecimenState {
             return;
         }
         self.cached_gen = Some((font_data_gen, derived_gen));
+        self.glyph_flags = glyph_flags.clone();
         // Steps 2 and 3 (see the module docs) rest on what this collects.
         self.sections_key = None;
         self.layout = None;
@@ -968,9 +996,16 @@ impl SpecimenState {
 
                 if let Some((idx, cell_min)) = hovered {
                     let item = self.items[idx];
-                    painter.rect_filled(style.cell_rect(cell_min), 0.0, egui::Color32::BLACK);
+                    // The hovered cell inverts, so a flag shows here as the
+                    // dark end of its pair rather than as the pale tint the
+                    // resting cells carry.
+                    let hover_bg = match self.flag_for(item) {
+                        Some(flag) => flag_bg(flag, true),
+                        None => egui::Color32::BLACK,
+                    };
+                    painter.rect_filled(style.cell_rect(cell_min), 0.0, hover_bg);
                     if let Some(gr) = self.compute_glyph_rect(cell_min, item, &style) {
-                        painter.rect_filled(gr.expand(4.0), 0.0, egui::Color32::BLACK);
+                        painter.rect_filled(gr.expand(4.0), 0.0, hover_bg);
                     }
                     // A remap label is wider than a cell far more often than a
                     // `U+XXXX` one; give it a background of its own.
@@ -986,7 +1021,7 @@ impl SpecimenState {
                                 cell_min,
                                 egui::vec2(lw, label_galley.size().y + 2.0),
                             );
-                            painter.rect_filled(label_bg, 0.0, egui::Color32::BLACK);
+                            painter.rect_filled(label_bg, 0.0, hover_bg);
                         }
                     }
                     self.draw_item(&painter, cell_min, item, true, egui::Color32::WHITE, &style);
@@ -1054,6 +1089,15 @@ impl SpecimenState {
         }
     }
 
+    /// What the report says about the glyph one cell draws, if anything.
+    fn flag_for(&self, item: Item) -> Option<GlyphFlag> {
+        let name = match item {
+            Item::Char(i) => self.entries[i].glyph_name.as_deref()?,
+            Item::Remap(ri) => self.remap_entries[ri].glyph_name.as_str(),
+        };
+        self.glyph_flags.get(name)
+    }
+
     /// The status-bar line for one cell.
     fn status_for(&self, item: Item) -> String {
         match item {
@@ -1107,6 +1151,18 @@ impl SpecimenState {
         glyph_color: egui::Color32,
         style: &CellStyle<'_>,
     ) {
+        // Painted under everything the cell draws. A hovered cell has already
+        // had its (dark) background filled in by `show`, which owns the
+        // overflow past the cell edge as well.
+        if !is_hovered && let Some(flag) = self.flag_for(item) {
+            // Inset by the border stroke, which is drawn before the cells and
+            // is the grid the tint sits inside rather than over.
+            painter.rect_filled(
+                style.cell_rect(cell_min).shrink(1.0),
+                0.0,
+                flag_bg(flag, false),
+            );
+        }
         match item {
             Item::Char(i) => {
                 let cp = self.entries[i].cp;
@@ -1541,12 +1597,28 @@ remap liga : sq -> ($l)-lig
         // Frame 1: opened before the background build landed — no name parts,
         // no gid map yet.
         assert!(state.needs_rebuild(0, 0));
-        state.rebuild_if_needed(&docs, &NamePartsMap::new(), &HashMap::new(), None, 0, 0);
+        state.rebuild_if_needed(
+            &docs,
+            &NamePartsMap::new(),
+            &HashMap::new(),
+            None,
+            &GlyphFlags::default(),
+            0,
+            0,
+        );
         assert!(state.remap_glyph_names().is_empty());
 
         // Frame 2: the build and the derived data have landed.
         assert!(state.needs_rebuild(1, 1));
-        state.rebuild_if_needed(&docs, &name_parts, &gids, None, 1, 1);
+        state.rebuild_if_needed(
+            &docs,
+            &name_parts,
+            &gids,
+            None,
+            &GlyphFlags::default(),
+            1,
+            1,
+        );
         assert_eq!(state.remap_glyph_names(), vec!["a-lig", "b-lig"]);
 
         // Nothing new: the cache holds.
@@ -1570,7 +1642,15 @@ remap liga : sq -> ($l)-lig
         let mut state = SpecimenState::new();
         assert_eq!(state.char_props.name(0xE000), None);
 
-        state.rebuild_if_needed(&docs, &NamePartsMap::new(), &HashMap::new(), None, 1, 1);
+        state.rebuild_if_needed(
+            &docs,
+            &NamePartsMap::new(),
+            &HashMap::new(),
+            None,
+            &GlyphFlags::default(),
+            1,
+            1,
+        );
         assert_eq!(
             state.char_props.name(0xE000).as_deref(),
             Some("UNISON LOGO")
@@ -1605,7 +1685,15 @@ map wide|narrow : U+2042 = star($-half)
         let docs = [&d];
         let name_parts = crate::document::collect_name_parts(&docs);
         let mut state = SpecimenState::new();
-        state.rebuild_if_needed(&docs, &name_parts, &HashMap::new(), None, 1, 1);
+        state.rebuild_if_needed(
+            &docs,
+            &name_parts,
+            &HashMap::new(),
+            None,
+            &GlyphFlags::default(),
+            1,
+            1,
+        );
         state
     }
 
@@ -1689,7 +1777,15 @@ map U+2200 = sq
         let gids: HashMap<String, u16> = [("a-lig".to_string(), 2u16), ("b-lig".to_string(), 3)]
             .into_iter()
             .collect();
-        state.rebuild_if_needed(&docs, &name_parts, &gids, None, 1, 1);
+        state.rebuild_if_needed(
+            &docs,
+            &name_parts,
+            &gids,
+            None,
+            &GlyphFlags::default(),
+            1,
+            1,
+        );
 
         state.options.group_by_block = false;
         assert_eq!(state.row_summaries(4), vec!["0061 a-lig b-lig"]);
@@ -1997,10 +2093,26 @@ map U+2200 = sq
             .collect();
 
         let mut state = SpecimenState::new();
-        state.rebuild_if_needed(&docs, &name_parts, &gids, Some("regular"), 1, 1);
+        state.rebuild_if_needed(
+            &docs,
+            &name_parts,
+            &gids,
+            Some("regular"),
+            &GlyphFlags::default(),
+            1,
+            1,
+        );
         assert_eq!(state.glyph_for_cp(0x2042), Some("star"));
 
-        state.rebuild_if_needed(&docs, &name_parts, &gids, Some("term"), 2, 1);
+        state.rebuild_if_needed(
+            &docs,
+            &name_parts,
+            &gids,
+            Some("term"),
+            &GlyphFlags::default(),
+            2,
+            1,
+        );
         assert_eq!(state.glyph_for_cp(0x2042), Some("star-half"));
     }
 }

@@ -221,6 +221,7 @@ impl UniformApp {
                 tx,
                 ctx,
                 vec![Issue {
+                    glyph: None,
                     severity: crate::issues::Severity::Error,
                     message: "Shape assertions failed to run (internal error)".to_string(),
                     file: std::path::PathBuf::new(),
@@ -441,6 +442,9 @@ impl UniformApp {
             // Validation only reads names and diagnostics, so it runs before
             // the expansion is consumed by the glyph cache.
             let mut issues = crate::issues::collect_issues_with(&refs, &resolution);
+            // Computed here rather than on the UI thread because it needs the
+            // expansion, which the glyph cache consumes a few lines below.
+            let glyph_flags = crate::glyph_flags::collect(&refs, &issues, &resolution.expansion);
             let char_props = crate::ucd::CharProps::collect(&refs);
             let face_ids: Vec<String> = resolution
                 .faces
@@ -474,6 +478,7 @@ impl UniformApp {
                 issues.insert(
                     0,
                     Issue {
+                        glyph: None,
                         severity: crate::issues::Severity::Error,
                         message: msg.clone(),
                         file: path.clone(),
@@ -490,6 +495,7 @@ impl UniformApp {
                 name_parts,
                 char_props,
                 issues,
+                glyph_flags,
                 face_ids,
             })));
         });
@@ -637,6 +643,7 @@ impl UniformApp {
                     self.derived_gen = self.derived_gen.wrapping_add(1);
                     self.issues = data.issues;
                     self.issues_gen = data.build_gen;
+                    self.glyph_flags = data.glyph_flags;
                     // The list an edit to a `face` line changes; the startup
                     // one was collected from the same directives before the
                     // first build, so a remembered face is already selected by

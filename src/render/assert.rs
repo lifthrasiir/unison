@@ -267,6 +267,7 @@ fn run_assertions_inner(
             total += 1;
             let Some(built) = face_fonts.get(&face.id).and_then(|b| b.as_ref()) else {
                 issues.push(Issue {
+                    glyph: None,
                     severity: Severity::Error,
                     message: format!(
                         "assert shape {}: face failed to build",
@@ -314,6 +315,7 @@ fn check_assertion(
     );
 
     let issue = |message: String| Issue {
+        glyph: None,
         severity: Severity::Error,
         message,
         file: assertion.file.clone(),
@@ -567,6 +569,7 @@ fn run_same_distinct_inner(
 
         if !missing.is_empty() {
             issues.push(Issue {
+                glyph: None,
                 severity: Severity::Error,
                 message: format!(
                     "assert {}{}: undefined glyph(s): {}",
@@ -615,6 +618,7 @@ fn run_same_distinct_inner(
                 passed += 1;
             } else {
                 issues.push(Issue {
+                    glyph: None,
                     severity: Severity::Error,
                     message: format!(
                         "assert same{}: {}",
@@ -641,6 +645,7 @@ fn run_same_distinct_inner(
                 passed += 1;
             } else {
                 issues.push(Issue {
+                    glyph: None,
                     severity: Severity::Error,
                     message: format!(
                         "assert distinct{}: same rendering: {}",

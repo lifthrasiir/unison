@@ -40,6 +40,14 @@ pub struct Diagnostic {
     /// `None` for findings that belong to the font as a whole rather than to
     /// any one line (e.g. a missing `meta`).
     pub origin: Option<ItemRef>,
+    /// The one *expanded* glyph this is about, where that is narrower than
+    /// `origin`. A `glyph han-($#4e00..9fff)` line is one item and eighteen
+    /// thousand glyphs, and whether its substituted `ref` resolves is answered
+    /// per glyph, not per line — so a finding from that path names the glyph
+    /// here and [`crate::glyph_flags`] faults that one instead of the whole
+    /// pattern. `None` means the finding really is about the line, which for
+    /// a pattern means every glyph it stands for.
+    pub glyph: Option<String>,
     pub message: String,
 }
 
@@ -48,14 +56,22 @@ impl Diagnostic {
         Self {
             severity: Severity::Error,
             origin: origin.into(),
+            glyph: None,
             message: message.into(),
         }
+    }
+
+    /// Narrow this finding to one expanded glyph; see [`Diagnostic::glyph`].
+    pub fn about(mut self, glyph: impl Into<String>) -> Self {
+        self.glyph = Some(glyph.into());
+        self
     }
 
     pub fn new(severity: Severity, origin: Option<ItemRef>, message: String) -> Self {
         Self {
             severity,
             origin,
+            glyph: None,
             message,
         }
     }
@@ -158,6 +174,7 @@ impl<'a> DocSet<'a> {
         };
         Issue {
             severity: d.severity,
+            glyph: d.glyph.clone(),
             message: d.message.clone(),
             file,
             line,

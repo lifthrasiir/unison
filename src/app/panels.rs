@@ -699,6 +699,7 @@ impl UniformApp {
                             &self.name_parts,
                             &self.font_name_to_gid,
                             (!face.is_empty()).then_some(face.as_str()),
+                            &self.glyph_flags,
                             self.font_data_gen,
                             self.derived_gen,
                         );
@@ -1006,6 +1007,7 @@ mod issue_filter_tests {
 
     fn issue(severity: Severity) -> Issue {
         Issue {
+            glyph: None,
             severity,
             message: String::new(),
             file: PathBuf::from("test.unf"),
