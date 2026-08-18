@@ -952,3 +952,27 @@ map U+E003 = via-missing-ref
     assert!(cmap.map_codepoint('\u{E002}').is_some());
     assert!(cmap.map_codepoint('\u{E003}').is_none());
 }
+
+/// `gasp` is the switch that decides whether a rasterizer grid-fits and
+/// antialiases at a given size, and only the Windows rasterizers read it. Both
+/// halves of the value matter here and for opposite reasons, so both are
+/// asserted: `GRIDFIT` because `hints.rs` emits instructions that would
+/// otherwise never run under GDI, and `DOGRAY` because a PPEM that is not a
+/// multiple of the font height cannot land on the pixel grid anyway — blurred
+/// is the acceptable outcome there, bi-level nearest-neighbour is not.
+#[test]
+fn gasp_asks_for_grid_fitting_and_grayscale_at_every_size() {
+    let ttf = build_from("glyph a 2 2\n@@\n@@\nmap A = a\n");
+    let gasp = read_fonts::FontRef::new(&ttf).unwrap().gasp().unwrap();
+    assert_eq!(gasp.version(), 1, "the symmetric bits need version 1");
+    let ranges: Vec<_> = gasp
+        .gasp_ranges()
+        .iter()
+        .map(|r| (r.range_max_ppem(), r.range_gasp_behavior().bits()))
+        .collect();
+    assert_eq!(
+        ranges,
+        vec![(0xFFFF, 0x000F)],
+        "one range covering every size, with all four behaviour bits set"
+    );
+}

@@ -1,4 +1,21 @@
 //! Assembly of the final font: the non-layout OpenType tables.
+//!
+//! # `gasp` is derived, not declared
+//!
+//! The one range this writes — every size, all four behaviour bits — follows
+//! from how *this builder* draws, so it is not a `meta` key: any font Uniform
+//! builds wants the same value, and a different one would simply be wrong.
+//! `GRIDFIT` because [`super::hints`] emits instructions, which GDI runs only
+//! when the table asks it to; `DOGRAY` because a PPEM that is not a multiple of
+//! the font height cannot land on the pixel grid, and blurred is the acceptable
+//! outcome there where bi-level nearest-neighbour is not. The symmetric bits say
+//! the same two things to DirectWrite. Note what this cannot buy: horizontal
+//! hinting runs only under GDI Classic (DirectWrite's symmetric modes and
+//! FreeType's default interpreter both drop x-moves, and CoreText runs no
+//! instructions at all), so `gasp` keeps the 16-PPEM hints reachable rather than
+//! making them universal. Should a font ever want its bitmap face deliberately
+//! aliased at large sizes, the key to add states *that intent* — never a raw
+//! bitmask, which is a rasterizer detail with no place in `.unf`.
 
 use super::gpos::{build_anchor_gpos, merge_anchor_feature_lookups};
 use super::gsub::{build_gsub, compute_max_context};
@@ -455,6 +472,19 @@ pub(super) fn build_ttf(
         ..Default::default()
     };
 
+    // gasp
+    let gasp = Gasp {
+        version: 1,
+        num_ranges: 1,
+        gasp_ranges: vec![GaspRange {
+            range_max_ppem: u16::MAX,
+            range_gasp_behavior: GaspRangeBehavior::GASP_GRIDFIT
+                | GaspRangeBehavior::GASP_DOGRAY
+                | GaspRangeBehavior::GASP_SYMMETRIC_GRIDFIT
+                | GaspRangeBehavior::GASP_SYMMETRIC_SMOOTHING,
+        }],
+    };
+
     let mut gsub = build_gsub(gsub_data, &name_to_gid, &cp_to_gid);
 
     let mut anchor_data = build_anchor_gpos(glyphs, gsub_data, &name_to_gid, scale, meta.ascent());
@@ -463,6 +493,8 @@ pub(super) fn build_ttf(
     let mut builder = FontBuilder::new();
     builder
         .add_table(&head)
+        .unwrap()
+        .add_table(&gasp)
         .unwrap()
         .add_table(&hhea)
         .unwrap()

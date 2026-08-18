@@ -52,6 +52,7 @@ use write_fonts::FontBuilder;
 use write_fonts::tables::cmap::Cmap;
 use write_fonts::tables::colr::{BaseGlyph, Colr, Layer as ColrLayer};
 use write_fonts::tables::cpal::{ColorRecord, Cpal};
+use write_fonts::tables::gasp::{Gasp, GaspRange, GaspRangeBehavior};
 use write_fonts::tables::gdef::{Gdef, MarkGlyphSets};
 use write_fonts::tables::glyf::{
     Bbox, Component, ComponentFlags, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph, SimpleGlyph,
