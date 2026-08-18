@@ -468,9 +468,8 @@ impl UniformApp {
             hits,
             file_count,
         });
-        self.bottom_panel_tab = Some(super::panels::SEARCH_TAB);
         let screen_h = ctx.input(|i| i.screen_rect.height());
-        self.ensure_min_panel_height(screen_h);
+        self.open_bottom_panel(super::panels::SEARCH_TAB, screen_h);
     }
 
     /// Opens the file a listed hit is in and puts the caret on it.

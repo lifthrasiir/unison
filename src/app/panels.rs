@@ -7,11 +7,25 @@ use super::search::{SearchHit, SearchResults};
 use super::*;
 use crate::issues::Severity;
 
-pub(super) fn min_bottom_panel_height(screen_height: f32) -> f32 {
+fn min_bottom_panel_height(screen_height: f32) -> f32 {
     270.0_f32.min(screen_height * 0.5)
 }
 
 pub(super) const SEARCH_TAB: usize = 3;
+
+/// Reopening the bottom panel: the height it comes back at, and the override
+/// that gets it there.
+///
+/// The override is unconditional on purpose. While the panel is collapsed egui
+/// keeps persisting a `PanelState` no taller than the tab row, and it prefers
+/// that state to `default_height`, so the remembered height has to be written
+/// back on *every* reopen — not only when it falls below the minimum. Guarding
+/// it by the minimum meant a panel dragged taller than that came back at
+/// `min_height` instead.
+fn open_panel_height(remembered: &mut f32, override_state: &mut bool, screen_height: f32) {
+    *remembered = remembered.max(min_bottom_panel_height(screen_height));
+    *override_state = true;
+}
 
 /// Shared by the panel itself and by `Sidebar::fit_panel_width`, which reaches
 /// into the panel's stored width under this id.
@@ -359,12 +373,13 @@ fn show_issues_tab(
 }
 
 impl UniformApp {
-    pub(super) fn ensure_min_panel_height(&mut self, screen_height: f32) {
-        let min_h = min_bottom_panel_height(screen_height);
-        if self.bottom_panel_height < min_h {
-            self.bottom_panel_height = min_h;
-            self.bottom_panel_height_override = true;
-        }
+    pub(super) fn open_bottom_panel(&mut self, tab: usize, screen_height: f32) {
+        self.bottom_panel_tab = Some(tab);
+        open_panel_height(
+            &mut self.bottom_panel_height,
+            &mut self.bottom_panel_height_override,
+            screen_height,
+        );
     }
 
     pub(super) fn show_sidebar_panel(&mut self, ctx: &egui::Context, editor_focused: bool) {
@@ -576,8 +591,7 @@ impl UniformApp {
                         if selected {
                             self.bottom_panel_tab = None;
                         } else {
-                            self.bottom_panel_tab = Some(idx);
-                            self.ensure_min_panel_height(screen_h);
+                            self.open_bottom_panel(idx, screen_h);
                         }
                     }
                 }
@@ -592,8 +606,7 @@ impl UniformApp {
                     if issues_selected {
                         self.bottom_panel_tab = None;
                     } else {
-                        self.bottom_panel_tab = Some(2);
-                        self.ensure_min_panel_height(screen_h);
+                        self.open_bottom_panel(2, screen_h);
                     }
                 }
                 let search_label = match &self.search {
@@ -607,8 +620,7 @@ impl UniformApp {
                     if search_selected {
                         self.bottom_panel_tab = None;
                     } else {
-                        self.bottom_panel_tab = Some(SEARCH_TAB);
-                        self.ensure_min_panel_height(screen_h);
+                        self.open_bottom_panel(SEARCH_TAB, screen_h);
                     }
                 }
             });
@@ -1079,5 +1091,30 @@ mod issue_filter_tests {
         assert_eq!(compact_count(1_234), "1.2k");
         assert_eq!(compact_count(19_999), "19k");
         assert_eq!(compact_count(2_400_000), "2.4M");
+    }
+}
+
+#[cfg(test)]
+mod bottom_panel_height_tests {
+    use super::*;
+
+    #[test]
+    fn reopening_restores_a_panel_taller_than_the_minimum() {
+        // While the panel is collapsed egui keeps persisting a `PanelState`
+        // that is only as tall as the tab row, and it prefers that state to
+        // `default_height`. So *every* reopen has to override it, not just the
+        // ones that fall below the minimum height.
+        let (mut h, mut override_state) = (600.0_f32, false);
+        open_panel_height(&mut h, &mut override_state, 1000.0);
+        assert_eq!(h, 600.0);
+        assert!(override_state);
+    }
+
+    #[test]
+    fn reopening_a_short_panel_grows_it_to_the_minimum() {
+        let (mut h, mut override_state) = (40.0_f32, false);
+        open_panel_height(&mut h, &mut override_state, 1000.0);
+        assert_eq!(h, min_bottom_panel_height(1000.0));
+        assert!(override_state);
     }
 }

@@ -1,6 +1,5 @@
 //! The menu bar and the actions it produces.
 
-use super::panels::min_bottom_panel_height;
 use super::panes::{PaneAction, SplitSide};
 use super::zoom::{
     DEFAULT_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE, MAX_ZOOM_LEVEL, MIN_PREVIEW_FONT_SIZE,
@@ -636,7 +635,8 @@ impl UniformApp {
                             btn = btn.fill(ui.visuals().selection.bg_fill);
                         }
                         if ui.add(btn).clicked() {
-                            self.bottom_panel_tab = Some(tab);
+                            let screen_h = ui.ctx().input(|i| i.screen_rect.height());
+                            self.open_bottom_panel(tab, screen_h);
                             ui.close_menu();
                         }
                     }
@@ -880,12 +880,7 @@ impl UniformApp {
                     (egui::Key::Num3, 2),
                 ] {
                     if i.key_pressed(key) {
-                        self.bottom_panel_tab = Some(tab);
-                        let min_h = min_bottom_panel_height(i.screen_rect.height());
-                        if self.bottom_panel_height < min_h {
-                            self.bottom_panel_height = min_h;
-                            self.bottom_panel_height_override = true;
-                        }
+                        self.open_bottom_panel(tab, i.screen_rect.height());
                     }
                 }
                 if i.key_pressed(egui::Key::Backtick) {
