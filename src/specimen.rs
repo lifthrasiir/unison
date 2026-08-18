@@ -1033,15 +1033,15 @@ impl SpecimenState {
                 {
                     clicked = match self.items[idx] {
                         // An undeclared character has nothing to jump to.
-                        Item::Char(i) => {
-                            self.entries[i]
-                                .glyph_name
-                                .clone()
-                                .map(|name| SpecimenClick {
-                                    name,
-                                    kind: LinkTargetKind::Glyph,
-                                })
+                        Item::Char(_) => {
+                            self.goto_target(self.items[idx]).map(|name| SpecimenClick {
+                                name: name.to_string(),
+                                kind: LinkTargetKind::Glyph,
+                            })
                         }
+                        // A remap cell jumps to the *feature*, which is what
+                        // put the glyph on the grid; the glyph itself has no
+                        // character to reach it by.
                         Item::Remap(ri) => Some(SpecimenClick {
                             name: self.remap_entries[ri].feature.clone(),
                             kind: LinkTargetKind::Remap,
@@ -1091,15 +1091,52 @@ impl SpecimenState {
 
     /// What the report says about the glyph one cell draws, if anything.
     fn flag_for(&self, item: Item) -> Option<GlyphFlag> {
-        let name = match item {
-            Item::Char(i) => self.entries[i].glyph_name.as_deref()?,
-            Item::Remap(ri) => self.remap_entries[ri].glyph_name.as_str(),
-        };
-        self.glyph_flags.get(name)
+        self.glyph_flags.get(self.glyph_of(item)?)
     }
 
-    /// The status-bar line for one cell.
+    /// The glyph a cell draws, `None` for a character the source declares
+    /// nothing about.
+    fn glyph_of(&self, item: Item) -> Option<&str> {
+        match item {
+            Item::Char(i) => self.entries[i].glyph_name.as_deref(),
+            Item::Remap(ri) => Some(self.remap_entries[ri].glyph_name.as_str()),
+        }
+    }
+
+    /// Where a click on this cell lands: the glyph whose own line carries the
+    /// fault, if any, and otherwise the glyph the cell draws.
+    ///
+    /// A cell tinted because something it is *built out of* is broken is a cell
+    /// whose own declaration is fine — for a Han character that declaration is
+    /// a pattern line covering a whole block, which is not a place anyone
+    /// wants to be sent. See [`crate::glyph_flags`]. For a glyph faulted
+    /// directly the two names are the same and this changes nothing.
+    fn goto_target(&self, item: Item) -> Option<&str> {
+        let name = self.glyph_of(item)?;
+        Some(self.glyph_flags.source(name).unwrap_or(name))
+    }
+
+    /// The status-bar line for one cell, with what the report says about the
+    /// glyph on the end of it. An inherited fault names the glyph it is really
+    /// in, which is also where a click goes — see [`Self::goto_target`].
     fn status_for(&self, item: Item) -> String {
+        let mut line = self.status_body(item);
+        if let Some(name) = self.glyph_of(item)
+            && let Some(flag) = self.glyph_flags.get(name)
+        {
+            let what = match flag {
+                GlyphFlag::Warning => "warning",
+                GlyphFlag::Error => "error",
+            };
+            line.push_str(&match self.glyph_flags.source(name) {
+                Some(src) if src != name => format!(" \u{2014} {what} in '{src}'"),
+                _ => format!(" \u{2014} {what}"),
+            });
+        }
+        line
+    }
+
+    fn status_body(&self, item: Item) -> String {
         match item {
             Item::Char(i) => {
                 let cp = self.entries[i].cp;
@@ -1695,6 +1732,79 @@ map wide|narrow : U+2042 = star($-half)
             1,
         );
         state
+    }
+
+    /// A tinted cell sends a click to the line the fault is on, not to the
+    /// glyph the character maps to — for a Han character the latter is a
+    /// pattern line covering a whole block.
+    #[test]
+    fn a_click_on_a_faulted_cell_goes_to_the_glyph_the_fault_is_in() {
+        let d = doc("\
+meta height 2
+meta ascent 2
+meta descent 0
+glyph part 1 1
+@
+glyph whole 1 1
+ref part
+ref nowhere
+map U+0041 = whole
+");
+        let docs = [&d];
+        let resolution = crate::resolve::Resolution::compute(&docs);
+        let issues = crate::issues::collect_issues_with(&docs, &resolution);
+        let flags = crate::glyph_flags::collect(&docs, &issues, &resolution.expansion);
+        let name_parts = crate::document::collect_name_parts(&docs);
+        let mut state = SpecimenState::new();
+        state.rebuild_if_needed(&docs, &name_parts, &HashMap::new(), None, &flags, 1, 1);
+        state.rebuild_sections();
+
+        let cell = *state
+            .items
+            .iter()
+            .find(|i| matches!(i, Item::Char(n) if state.entries[*n].cp == 0x41))
+            .expect("U+0041 is on the grid");
+        assert_eq!(state.flag_for(cell), Some(GlyphFlag::Error));
+        // `whole` is faulted directly, so nothing is redirected.
+        assert_eq!(state.goto_target(cell), Some("whole"));
+        assert!(state.status_for(cell).ends_with(" \u{2014} error"));
+    }
+
+    /// …and when the fault is one level down, the click follows it there while
+    /// the tint stays on the cell the character reaches.
+    #[test]
+    fn an_inherited_fault_redirects_the_click_and_says_so() {
+        let d = doc("\
+meta height 2
+meta ascent 2
+meta descent 0
+glyph part 1 1
+ref nowhere
+glyph whole 1 1
+ref part
+map U+0041 = whole
+");
+        let docs = [&d];
+        let resolution = crate::resolve::Resolution::compute(&docs);
+        let issues = crate::issues::collect_issues_with(&docs, &resolution);
+        let flags = crate::glyph_flags::collect(&docs, &issues, &resolution.expansion);
+        let name_parts = crate::document::collect_name_parts(&docs);
+        let mut state = SpecimenState::new();
+        state.rebuild_if_needed(&docs, &name_parts, &HashMap::new(), None, &flags, 1, 1);
+        state.rebuild_sections();
+
+        let cell = *state
+            .items
+            .iter()
+            .find(|i| matches!(i, Item::Char(n) if state.entries[*n].cp == 0x41))
+            .expect("U+0041 is on the grid");
+        assert_eq!(state.flag_for(cell), Some(GlyphFlag::Error));
+        assert_eq!(state.goto_target(cell), Some("part"));
+        assert!(
+            state
+                .status_for(cell)
+                .ends_with(" \u{2014} error in 'part'")
+        );
     }
 
     const BLOCKS_SRC: &str = "\

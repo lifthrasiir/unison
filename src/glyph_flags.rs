@@ -41,6 +41,17 @@
 //! provenance. `item_line_starts` is sorted, so the item a line belongs to is
 //! one binary search.
 //!
+//! # Where the fault is, as opposed to where it shows
+//!
+//! A flag carries the glyph it *started* at, which is not the glyph the flag is
+//! on once it has travelled. That is the difference between the cell to look at
+//! and the line to fix: `map U+4EC2 = han-4ec2` reaches a glyph declared by a
+//! pattern covering a whole block, and its fault is really in the
+//! `han-4ec2:15x16` it refs. So the specimen tints the cell for `han-4ec2` and
+//! sends a click to `han-4ec2:15x16`. For a glyph faulted directly — every
+//! source that is not built out of parts — the two are the same name and
+//! nothing changes.
+//!
 //! # Propagation
 //!
 //! A glyph built out of a broken glyph is broken too — a Han composite whose
@@ -73,13 +84,22 @@ pub enum GlyphFlag {
 /// simply absent — the map is expected to be small next to the glyph set.
 #[derive(Clone, Debug, Default)]
 pub struct GlyphFlags {
-    flags: HashMap<String, GlyphFlag>,
+    /// Glyph → its flag and the glyph the flag started at (itself, for one
+    /// faulted directly).
+    flags: HashMap<String, (GlyphFlag, String)>,
 }
 
 impl GlyphFlags {
     #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn get(&self, glyph: &str) -> Option<GlyphFlag> {
-        self.flags.get(glyph).copied()
+        self.flags.get(glyph).map(|(f, _)| *f)
+    }
+
+    /// The glyph whose own line the flag came from — `glyph` itself unless it
+    /// inherited the fault through a `ref`. See the module docs.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
+    pub fn source(&self, glyph: &str) -> Option<&str> {
+        self.flags.get(glyph).map(|(_, src)| src.as_str())
     }
 
     #[cfg(test)]
@@ -87,17 +107,20 @@ impl GlyphFlags {
         self.flags.is_empty()
     }
 
-    /// Raise `glyph` to at least `flag`, reporting whether that changed
-    /// anything — which is what keeps the propagation below finite.
-    fn raise(&mut self, glyph: &str, flag: GlyphFlag) -> bool {
+    /// Raise `glyph` to at least `flag`, blaming `from`, and report whether
+    /// that changed anything — which is what keeps the propagation below
+    /// finite. A flag that does not raise leaves the blame alone too, so the
+    /// worst fault names its own source and ties go to the first arrival.
+    fn raise(&mut self, glyph: &str, flag: GlyphFlag, from: &str) -> bool {
         match self.flags.get_mut(glyph) {
-            Some(cur) if *cur >= flag => false,
-            Some(cur) => {
-                *cur = flag;
+            Some((cur, _)) if *cur >= flag => false,
+            Some(entry) => {
+                *entry = (flag, from.to_string());
                 true
             }
             None => {
-                self.flags.insert(glyph.to_string(), flag);
+                self.flags
+                    .insert(glyph.to_string(), (flag, from.to_string()));
                 true
             }
         }
@@ -168,7 +191,8 @@ pub fn collect(docs: &[&Document], issues: &[Issue], expansion: &Expansion) -> G
     // `used_by[target]` is every glyph that would carry `target`'s flag.
     let mut used_by: HashMap<&str, Vec<&str>> = HashMap::new();
     let mut glyph_names: HashSet<&str> = HashSet::new();
-    let mut queue: Vec<(&str, GlyphFlag)> = Vec::new();
+    // `(glyph, flag, the glyph the flag started at)`.
+    let mut queue: Vec<(&str, GlyphFlag, &str)> = Vec::new();
     for e in &expansion.items {
         let DocumentItem::Glyph {
             name: GlyphName(name),
@@ -182,9 +206,9 @@ pub fn collect(docs: &[&Document], issues: &[Issue], expansion: &Expansion) -> G
             used_by.entry(gref.name.as_str()).or_default().push(name);
         }
         if let Some(&flag) = e.origin.and_then(|o| seeds.get(&o))
-            && flags.raise(name, flag)
+            && flags.raise(name, flag, name)
         {
-            queue.push((name, flag));
+            queue.push((name, flag, name));
         }
     }
 
@@ -192,19 +216,19 @@ pub fn collect(docs: &[&Document], issues: &[Issue], expansion: &Expansion) -> G
     // own string rather than the issue's copy of it.
     for (glyph, flag) in named {
         if let Some(&glyph) = glyph_names.get(glyph)
-            && flags.raise(glyph, flag)
+            && flags.raise(glyph, flag, glyph)
         {
-            queue.push((glyph, flag));
+            queue.push((glyph, flag, glyph));
         }
     }
 
-    while let Some((glyph, flag)) = queue.pop() {
+    while let Some((glyph, flag, from)) = queue.pop() {
         let Some(users) = used_by.get(glyph) else {
             continue;
         };
         for &user in users {
-            if flags.raise(user, flag) {
-                queue.push((user, flag));
+            if flags.raise(user, flag, from) {
+                queue.push((user, flag, from));
             }
         }
     }
@@ -305,12 +329,30 @@ mod tests {
         }
     }
 
+    /// The Han shape again, from the other side: the tinted cell is the mapped
+    /// glyph, but the line to fix is the component's.
+    #[test]
+    fn an_inherited_flag_names_the_glyph_the_fault_is_in() {
+        let flags = flags_of(&format!(
+            "{HEAD}\
+             glyph a\n\
+             ref b\n\
+             map U+0062 = a\n\
+             glyph b\n\
+             ref nowhere\n\
+             map U+0063 = b\n"
+        ));
+        assert_eq!(flags.source("a"), Some("b"));
+        assert_eq!(flags.source("b"), Some("b"));
+        assert_eq!(flags.source("sq"), None);
+    }
+
     #[test]
     fn an_error_outranks_a_warning_on_the_same_glyph() {
         let mut flags = GlyphFlags::default();
-        assert!(flags.raise("a", GlyphFlag::Warning));
-        assert!(flags.raise("a", GlyphFlag::Error));
-        assert!(!flags.raise("a", GlyphFlag::Warning));
+        assert!(flags.raise("a", GlyphFlag::Warning, "a"));
+        assert!(flags.raise("a", GlyphFlag::Error, "a"));
+        assert!(!flags.raise("a", GlyphFlag::Warning, "a"));
         assert_eq!(flags.get("a"), Some(GlyphFlag::Error));
     }
 
