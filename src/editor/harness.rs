@@ -1035,7 +1035,7 @@ impl EditorHarness {
                 egui::Shape::Rect(r) => out.push(PaintedRect {
                     rect: r.rect,
                     fill: r.fill,
-                    stroke: r.stroke.into(),
+                    stroke: r.stroke,
                     clip,
                 }),
                 egui::Shape::Vec(v) => {

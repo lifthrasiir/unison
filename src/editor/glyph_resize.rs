@@ -662,7 +662,7 @@ pub(crate) fn apply_plan(
 /// not say otherwise.
 pub(crate) fn begin(
     doc: &Document,
-    lines: &mut Vec<DocLine>,
+    lines: &mut [DocLine],
     state: &mut EditorState,
     item_idx: usize,
     env: ResolveEnv<'_>,

@@ -243,7 +243,10 @@ mod tests {
         ]);
         let boxed = named(vec![
             // What the last build resolved, i.e. before the box moved.
-            ("a", boxed_glyph(2, 1, PX_ALMOSTFULL, (0, 0), (0, 0), vec![])),
+            (
+                "a",
+                boxed_glyph(2, 1, PX_ALMOSTFULL, (0, 0), (0, 0), vec![]),
+            ),
             (
                 "ab",
                 glyph(4, 1, PX_ALMOSTFULL, (0, 0), vec![gref("a", 3, 0)]),

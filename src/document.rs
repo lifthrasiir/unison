@@ -2812,7 +2812,7 @@ mod tests {
         assert!(try_resolve_name_part_values(one, &NamePartsMap::new()).is_err());
         assert_eq!(
             resolve_name_part_values(one, &NamePartsMap::new()),
-            [over.clone()]
+            std::slice::from_ref(&over)
         );
 
         let half = format!("x-($1..{})", MAX_EXPANSION / 2 + 1);

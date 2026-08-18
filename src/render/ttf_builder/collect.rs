@@ -326,6 +326,15 @@ pub(super) fn compute_shared_font_input_for(
     })
 }
 
+/// What [`collect_face_cmap`] returns.
+pub(super) struct FaceCmap {
+    pub(super) meta: FontMeta,
+    pub(super) scale: f32,
+    /// Which codepoints each glyph name claims, for this face alone.
+    pub(super) per_name: HashMap<String, Vec<u32>>,
+    pub(super) gsub_data: GsubData,
+}
+
 /// Everything a *secondary* face contributes to its own font: its metadata,
 /// its GSUB, and the characters each glyph name claims — and no geometry.
 ///
@@ -343,7 +352,7 @@ pub(super) fn collect_face_cmap(
     docs: &[&Document],
     face: &crate::faces::Face,
     cancel: &crate::cancel::CancelToken,
-) -> Option<(FontMeta, f32, HashMap<String, Vec<u32>>, GsubData)> {
+) -> Option<FaceCmap> {
     let shared = compute_face_input(docs, face, cancel, true)?;
     let mut per_name: HashMap<String, Vec<u32>> = HashMap::new();
     for item in &shared.all_items {
@@ -380,7 +389,12 @@ pub(super) fn collect_face_cmap(
         cps.sort_unstable();
         cps.dedup();
     }
-    Some((shared.meta, shared.scale, per_name, shared.gsub_data))
+    Some(FaceCmap {
+        meta: shared.meta,
+        scale: shared.scale,
+        per_name,
+        gsub_data: shared.gsub_data,
+    })
 }
 
 #[cfg(any(feature = "editor", test))]
@@ -441,8 +455,7 @@ pub(super) fn collect_glyph_data_with_shared(
     drop(seed_timer);
     {
         let _t = crate::startup::PerfStage::new("resolve composites");
-        let mut builder =
-            super::contours::ContourBuilder::new(bitmap, contour_cache.as_deref_mut());
+        let mut builder = super::contours::ContourBuilder::new(bitmap, contour_cache);
         crate::render::glyph_cache::resolve_pending(
             &mut cache,
             pending,

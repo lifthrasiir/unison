@@ -1251,10 +1251,7 @@ glyph parent 15 16
         assert_eq!(shown("⿰ p:5 q:10x16", 5, idc), vec!["p:5x16"]);
 
         // Off an IDC line there is no slot to fit, so the family lists whole.
-        assert_eq!(
-            shown("ref p:5", 7, idc),
-            vec!["p:16x5", "p:5x10", "p:5x16"],
-        );
+        assert_eq!(shown("ref p:5", 7, idc), vec!["p:16x5", "p:5x10", "p:5x16"],);
     }
 
     /// A header's own `@` stands for the base that was already in force, so the

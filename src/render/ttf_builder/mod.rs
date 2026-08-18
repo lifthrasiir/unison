@@ -548,7 +548,12 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
         // Expanded for this face, for its own `meta`, its own GSUB, and above
         // all its own cmap. Only the *codepoints* come from it; the glyphs, and
         // therefore every glyph id, come from the shared store.
-        let (meta, scale, per_name, gsub_data) = collected?;
+        let collect::FaceCmap {
+            meta,
+            scale,
+            per_name,
+            gsub_data,
+        } = collected?;
 
         let glyphs: Vec<CollectedGlyph> = union_glyphs
             .iter()

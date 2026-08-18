@@ -232,6 +232,7 @@ pub struct ResolvedGlyph {
     /// and the editor's live composite has to read the same number the build
     /// read — a glyph is not allowed to be laid out one way on screen and
     /// another in the font.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub declared_box: Option<(u16, u16)>,
     /// Where this glyph's declared box starts inside its own grid, in declared
     /// (un-`scale`d) cells — [`GlyphBody::declared_origin`].

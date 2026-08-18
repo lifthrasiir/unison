@@ -587,7 +587,7 @@ fn run_same_distinct_inner(
         let q = glyphs.iter().fold(1i64, |acc, (_, g)| {
             crate::pattern::lcm(acc as usize, glyph_lattice_denom(g) as usize) as i64
         });
-        let entries: Vec<(&str, ((u32, u32), (u32, u32)), CanonicalContours)> = glyphs
+        let entries: Vec<_> = glyphs
             .iter()
             .map(|(name, g)| {
                 let dims = glyph_logical_dims(g);

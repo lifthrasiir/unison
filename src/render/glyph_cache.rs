@@ -246,17 +246,15 @@ where
     fn store(&mut self, _key: (), _value: &V) {}
 }
 
+/// One entry of a resolution wave: the pending glyph, the refs and anchors its
+/// derive produced, and the memo lookup (`K` the key, `Option<V>` the hit).
+type WaveEntry<K, V> = (PendingGlyph, Vec<GlyphRef>, Vec<GlyphPoint>, K, Option<V>);
+
 /// Traces every memo miss in `wave`, in parallel, returning one slot per wave
 /// entry (`None` where the memo already had it, or where a cancel stopped the
 /// run short of it).
 fn trace_wave<V, B>(
-    wave: &[(
-        PendingGlyph,
-        Vec<GlyphRef>,
-        Vec<GlyphPoint>,
-        B::Key,
-        Option<V>,
-    )],
+    wave: &[WaveEntry<B::Key, V>],
     builder: &B,
     cache: &HashMap<String, V>,
     cancel: &crate::cancel::CancelToken,
@@ -421,13 +419,7 @@ pub(crate) fn resolve_pending<V, B>(
         // What this round will trace: the glyph, the refs its derivation
         // settled on, the anchors to record with it, and the memo key the
         // builder handed back (with the value already, when the memo had it).
-        let mut wave: Vec<(
-            PendingGlyph,
-            Vec<GlyphRef>,
-            Vec<GlyphPoint>,
-            B::Key,
-            Option<V>,
-        )> = Vec::new();
+        let mut wave = Vec::new();
         let mut i = 0;
         while i < pending.len() {
             steps += 1;

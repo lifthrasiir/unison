@@ -172,6 +172,7 @@ impl PixelShape {
 
     /// Does the *vector* face draw anything here? True for the empty cell and
     /// for a hardblank alike — a claim has no contour.
+    #[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
     pub fn is_contour_empty(self) -> bool {
         self.is_clear() || self.is_hardblank()
     }

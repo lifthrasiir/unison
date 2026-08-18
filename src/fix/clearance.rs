@@ -129,6 +129,7 @@ pub struct ClearanceFix {
 pub struct DocumentFixes {
     /// Index into the `docs` slice the plan was made from.
     pub doc_idx: usize,
+    #[cfg_attr(not(feature = "editor"), expect(dead_code))]
     pub path: PathBuf,
     pub fixes: Vec<ClearanceFix>,
 }

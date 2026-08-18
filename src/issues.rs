@@ -77,6 +77,7 @@ impl Severity {
     }
 
     /// The plural noun a count is counted in ("3 errors").
+    #[cfg_attr(not(feature = "editor"), expect(dead_code))]
     pub fn plural(self) -> &'static str {
         match self {
             Severity::Error => "errors",
@@ -1994,7 +1995,7 @@ fn check_ragged_patterns(docs: &[&Document], name_parts: &NamePartsMap, issues: 
                 .collect();
             let entries = crate::pattern::combined_len(operands.iter().map(|(_, p)| p));
             for (written, parsed) in &operands {
-                if parsed.len() == 0 || entries % parsed.len() == 0 {
+                if parsed.is_empty() || entries % parsed.len() == 0 {
                     continue;
                 }
                 issues.push(issue_at(
@@ -2079,15 +2080,13 @@ fn check_props(docs: &[&Document], issues: &mut Vec<Issue>) {
                         }
                     }
                 }
-                DocumentItem::PropBlock { name, end, .. } => {
-                    if *end > 0x10FFFF {
-                        issues.push(issue_at(
-                            doc,
-                            item_idx,
-                            Severity::Error,
-                            format!("prop block `{name}` ends past U+10FFFF"),
-                        ));
-                    }
+                DocumentItem::PropBlock { name, end, .. } if *end > 0x10FFFF => {
+                    issues.push(issue_at(
+                        doc,
+                        item_idx,
+                        Severity::Error,
+                        format!("prop block `{name}` ends past U+10FFFF"),
+                    ));
                 }
                 _ => {}
             }

@@ -433,7 +433,7 @@ pub fn combined_len<'a>(patterns: impl IntoIterator<Item = &'a NamePattern>) -> 
 /// nothing here treats an empty expansion as ragged.
 pub fn ragged_lens(lens: impl IntoIterator<Item = usize>, total: usize) -> Vec<usize> {
     lens.into_iter()
-        .filter(|&n| n != 0 && total % n != 0)
+        .filter(|&n| n != 0 && !total.is_multiple_of(n))
         .collect()
 }
 

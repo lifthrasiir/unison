@@ -38,6 +38,7 @@ use crate::document::{Document, DocumentItem};
 /// they are now, which may have been rederived in between — and that renumbers
 /// items. The name is what identifies the glyph; the index is only a hint. Same
 /// rule, and same reason, as `app::resize`'s `defining_item`.
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn find_glyph_item(doc: &Document, name: &str, hint: usize) -> Option<usize> {
     let is_target = |idx: usize| {
         matches!(

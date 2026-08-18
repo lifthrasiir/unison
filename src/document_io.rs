@@ -883,6 +883,7 @@ pub fn glyph_header_dims<S: AsRef<str>>(parts: &[S]) -> Option<GlyphHeaderDims> 
 /// undivided numbers back. Returns `None` for a header that owns no grid
 /// (a ref-only glyph or an alias), which has no pair to rewrite.
 #[cfg(any(feature = "editor", test))]
+#[cfg_attr(not(feature = "editor"), expect(dead_code))]
 pub fn replace_glyph_header_dims(line: &str, width: u16, height: u16) -> Option<String> {
     let spans = tokenize_with_spans(line).ok()?;
     if spans.first().map(|s| s.value.as_str()) != Some("glyph") {

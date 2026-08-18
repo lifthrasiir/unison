@@ -914,7 +914,7 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         }
         excluded_run = false;
 
-        let title = html_escape(&char_name_str(cp, &char_props));
+        let title = html_escape(&char_name_str(cp, char_props));
         write!(
             w,
             "<a href='#u{cp:x}'><span id='sm-u{cp:x}' title='{title}'>"
@@ -957,7 +957,7 @@ svg{{background:#111;fill:white;vertical-align:top}}.glyphs>:nth-child(even) svg
         }
         excluded_run = false;
 
-        let title = html_escape(&char_name_str(cp, &char_props));
+        let title = html_escape(&char_name_str(cp, char_props));
         write!(w, "<span id='u{cp:x}' title='{title}'>")?;
         if let Some(sg) = data.glyphs.get(glyph_name) {
             let (display_w, display_h, col_off, row_off) = sample_display_metrics(sg, data.height);
@@ -1433,7 +1433,7 @@ Y88b. .d88P 888  888 888      X88 Y88..88P 888  888
 
     // Confusables section
     if has_confusables {
-        write_live_confusables(w, data_dir.unwrap(), &data.cmap, &char_props)?;
+        write_live_confusables(w, data_dir.unwrap(), &data.cmap, char_props)?;
     }
 
     // Hangul section
