@@ -1,0 +1,68 @@
+# CJK unified ideographs extension F: 氏 (83)
+
+## 83.7
+
+glyph han-2dbf1:15x16 15 16 // 𭯱
+⿰ -1 han-5e76:8x16 han-6c10:8x16 // ⿰并氐
+
+# CJK unified ideographs extension F: 火 (86)
+
+## 86.4
+
+glyph han-2dd0c:15x16 15 16 // 𭴌
+⿰ han-706b:7x16 1 han-65e5:7x16 // ⿰火日
+
+## 86.5
+
+glyph han-2dd13:15x16 15 16 // 𭴓
+⿰ han-706b:5x16-l 1 han-5931:9x16 // ⿰火失
+
+glyph han-2dd17:15x16 15 16 // 𭴗
+⿰ han-706b:5x16-l 1 han-76ae:9x16 // ⿰火皮
+
+## 86.6
+
+glyph han-2dd21:15x16 15 16 // 𭴡
+⿰ han-706b:5x16-l han-5e76:9x16 // ⿰火并
+
+## 86.8
+
+glyph han-2dd3c:15x16 15 16 // 𭴼
+⿰ han-706b:7x16 1 han-9752:7x16 // ⿰火青
+
+## 86.9
+
+glyph han-2dd5e:15x16 15 16 // 𭵞
+⿰ han-708e:7x16 1 han-4e14:7x16 // ⿰炎且
+
+## 86.12
+
+glyph han-2dd88:15x16 15 16 // 𭶈
+⿰ han-5352:7x16 1 han-708e:7x16 // ⿰卒炎
+
+## 86.14
+
+glyph han-2dd9f:15x16 15 16 // 𭶟
+⿰ han-9ad8:7x16 1 han-708e:7x16 // ⿰高炎
+
+# CJK unified ideographs extension F: 犬 (94)
+
+## 94.2
+
+glyph han-2ddf8:15x16 15 16 // 𭷸
+⿰ han-72ad:6x16 han-4e01:9x16 // ⿰犭丁
+
+# CJK unified ideographs extension F: 玉 (96)
+
+## 96.5
+
+glyph han-2de41:15x16 15 16 // 𭹁
+⿰ han-248e9:7x16 han-6c10:8x16 // ⿰𤣩氐
+
+## 96.9
+
+glyph han-2de64:15x16 15 16 // 𭹤
+⿰ han-248e9:5x16 1 han-9769:9x16 // ⿰𤣩革
+
+glyph han-2de68:15x16 15 16 // 𭹨
+⿰ han-248e9:5x16 han-66f7:9x16 // ⿰𤣩曷

@@ -1,0 +1,53 @@
+# CJK unified ideographs extension I: 火 (86)
+
+## 86.4
+
+glyph han-2ecdf:15x16 15 16 // 𮳟
+⿰ han-706b:7x16 1 han-6708:7x16 // ⿰火月
+
+## 86.5
+
+glyph han-2ece4:15x16 15 16 // 𮳤
+⿰ han-706b:7x16 1 han-53e5:7x16 // ⿰火句
+
+# CJK unified ideographs extension I: 白 (106)
+
+## 106.4
+
+glyph han-2ed44:15x16 15 16 // 𮵄
+⿰ han-767d:6x16 1 han-4eca:7x16 // ⿰白今
+
+# CJK unified ideographs extension I: 耳 (128)
+
+## 128.6
+
+glyph han-2ed92:15x16 15 16 // 𮶒
+⿰ han-8033:7x16 han-572d:7x16 // ⿰耳圭
+
+# CJK unified ideographs extension I: 讠 (149')
+
+## 149'.12
+
+glyph han-2edca:15x16 15 16 // 𮷊
+⿰ han-8ba0:5x16 1 han-756a:9x16 // ⿰讠番
+
+# CJK unified ideographs extension I: 邑 (163)
+
+## 163.4
+
+glyph han-2ede9:15x16 15 16 // 𮷩
+⿰ 1 han-6708:7x16 2 han-961d:4x16 // ⿰月阝
+
+# CJK unified ideographs extension I: 钅 (167')
+
+## 167'.7
+
+glyph han-2ee0f:15x16 15 16 // 𮸏
+⿰ han-9485:6x16 1 han-590b:7x16 // ⿰钅夋
+
+# CJK unified ideographs extension I: 阜 (170)
+
+## 170.8
+
+glyph han-2ee28:15x16 15 16 // 𮸨
+⿰ han-961d:4x16-l 2 han-9752:9x16 // ⿰阝青

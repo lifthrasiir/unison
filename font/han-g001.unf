@@ -1,0 +1,37 @@
+# CJK unified ideographs extension G: 人 (9)
+
+## 9.7
+
+glyph han-30087:15x16 15 16 // 𰂇
+⿰ 1 han-4ebb:5x16 2 han-8c9d:6x16 // ⿰亻貝
+
+# CJK unified ideographs extension G: 口 (30)
+
+## 30.5
+
+glyph han-301cf:15x16 15 16 // 𰇏
+⿰ -4 han-53e3:15x16 -2 han-76ee:6x16 // ⿰口目
+
+# CJK unified ideographs extension G: 大 (37)
+
+## 37.7
+
+glyph han-302e3:15x16 15 16 // 𰋣
+⿰ -3 han-5931:9x16 han-5931:9x16 // ⿰失失
+
+# CJK unified ideographs extension G: 女 (38)
+
+## 38.2
+
+glyph han-302f6:15x16 15 16 // 𰋶
+⿰ han-5973:7x16 han-529b:8x16 // ⿰女力
+
+## 38.4
+
+glyph han-302fa:15x16 15 16 // 𰋺
+⿰ han-5973:5x16 1 han-706b:9x16 // ⿰女火
+
+## 38.10
+
+glyph han-3030f:15x16 15 16 // 𰌏
+⿰ han-5973:5x16 1 han-9aa8:9x16 // ⿰女骨

@@ -1,0 +1,78 @@
+# CJK unified ideographs extension F: 斤 (69)
+
+## 69.4
+
+glyph han-2d920:15x16 15 16 // 𭤠
+⿰ han-6b20:7x16 1 han-65a4:7x16 // ⿰欠斤
+
+## 69.5
+
+glyph han-2d922:15x16 15 16 // 𭤢
+⿰ han-65a4:6x16 han-5931:9x16 // ⿰斤失
+
+# CJK unified ideographs extension F: 日 (72)
+
+## 72.2
+
+glyph han-2d94c:15x16 15 16 // 𭥌
+⿰ han-65e5:7x16 1 han-4e01:7x16 // ⿰日丁
+
+## 72.4
+
+glyph han-2d959:15x16 15 16 // 𭥙
+⿰ han-65e5:4x16-l 1 han-4ea2:9x16 // ⿰日亢
+
+## 72.6
+
+glyph han-2d975:15x16 15 16 // 𭥵
+⿰ han-65e5:7x16 1 han-5404:7x16 // ⿰日各
+
+glyph han-2d97b:15x16 15 16 // 𭥻
+⿰ han-65e5:7x16 1 han-7c73:7x16 // ⿰日米
+
+## 72.11
+
+glyph han-2d9d8:15x16 15 16 // 𭧘
+⿰ -4 han-65e5:15x16 -3 han-9ce5:7x16 // ⿰日鳥
+
+# CJK unified ideographs extension F: 月 (74)
+
+## 74.4
+
+glyph han-2da2c:15x16 15 16 // 𭨬
+⿰ han-6708:5x16-l 1 han-706b:9x16 // ⿰月火
+
+# CJK unified ideographs extension F: 木 (75)
+
+## 75.6
+
+glyph han-2da7c:15x16 15 16 // 𭩼
+⿰ han-7c73:7x16 1 han-6728:7x16 // ⿰米木
+
+glyph han-2da7d:15x16 15 16 // 𭩽
+⿰ han-6728:7x16 han-7c73:7x16 // ⿰木米
+
+## 75.8
+
+glyph han-2daa5:15x16 15 16 // 𭪥
+⿰ han-679c:7x16 1 han-4eca:7x16 // ⿰果今
+
+## 75.9
+
+glyph han-2dab9:15x16 15 16 // 𭪹
+⿰ han-679c:7x16 1 han-53e5:7x16 // ⿰果句
+
+# CJK unified ideographs extension F: 欠 (76)
+
+## 76.6
+
+glyph han-2db49:15x16 15 16 // 𭭉
+⿰ -1 han-4ea4:9x16 han-6b20:7x16 // ⿰交欠
+
+glyph han-2db4b:15x16 15 16 // 𭭋
+⿰ han-7f8a:7x16 1 han-6b20:7x16 // ⿰羊欠
+
+## 76.9
+
+glyph han-2db50:15x16 15 16 // 𭭐
+⿰ -1 han-661c:9x16 han-6b20:7x16 // ⿰昜欠

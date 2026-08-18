@@ -1,0 +1,227 @@
+# CJK unified ideographs extension A: 見 (147)
+
+## 147.4
+
+glyph han-467a:15x16 15 16 // 䙺
+⿰ han-706b:7x16 han-898b:7x16 // ⿰火見
+
+## 147.5
+
+glyph han-467c:15x16 15 16 // 䙼
+⿰ han-53ec:6x16 1 han-898b:7x16 // ⿰召見
+
+## 147.12
+
+glyph han-468f:15x16 15 16 // 䚏
+⿰ -1 han-7ca6:9x16 han-898b:7x16 // ⿰粦見
+
+# CJK unified ideographs extension A: 言 (149)
+
+## 149.4
+
+glyph han-46b4:15x16 15 16 // 䚴
+⿰ han-8a01:7x16 han-6708:7x16 // ⿰訁月
+
+glyph han-46bf:15x16 15 16 // 䚿
+⿰ han-8a01:7x16 han-6b20:7x16 // ⿰訁欠
+
+## 149.5
+
+glyph han-46cc:15x16 15 16 // 䛌
+⿰ han-8a01:7x16 han-5305:7x16 // ⿰訁包
+
+# CJK unified ideographs extension A: 讠 (149')
+
+## 149'.4
+
+glyph han-4723:15x16 15 16 // 䜣
+⿰ 1 han-8ba0:5x16 1 han-65a4:7x16 // ⿰讠斤
+
+# CJK unified ideographs extension A: 貝 (154)
+
+## 154.5
+
+glyph han-476d:15x16 15 16 // 䝭
+⿰ han-8c9d:6x16 1 han-53e5:7x16 // ⿰貝句
+
+## 154.7
+
+glyph han-4775:15x16 15 16 // 䝵
+⿰ han-8c9d:6x16 1 han-752b:7x16 // ⿰貝甫
+
+## 154.8
+
+glyph han-477c:15x16 15 16 // 䝼
+⿰ han-8c9d:6x16 1 han-9752:7x16 // ⿰貝青
+
+# CJK unified ideographs extension A: 足 (157)
+
+## 157.2
+
+glyph han-47d3:15x16 15 16 // 䟓
+⿰ han-27fb7:5x16 han-4e01:9x16 // ⿰𧾷丁
+
+## 157.3
+
+glyph han-47d6:15x16 15 16 // 䟖
+⿰ han-27fb7:5x16 1 han-5c71:9x16 // ⿰𧾷山
+
+## 157.4
+
+glyph han-47d8:15x16 15 16 // 䟘
+⿰ han-27fb7:5x16 1 han-4ea2:9x16 // ⿰𧾷亢
+
+## 157.5
+
+glyph han-47e1:15x16 15 16 // 䟡
+⿰ han-27fb7:5x16 1 han-6c10:8x16 // ⿰𧾷氐
+
+## 157.7
+
+glyph han-47fa:15x16 15 16 // 䟺
+⿰ 1 han-27fb7:5x16 2 han-8c9d:6x16 // ⿰𧾷貝
+
+## 157.8
+
+glyph han-480b:15x16 15 16 // 䠋
+⿰ han-27fb7:5x16 1 han-5351:8x16 // ⿰𧾷卑
+
+## 157.18
+
+glyph han-4830:15x16 15 16 // 䠰
+⿰ han-27fb7:5x16 1 han-96da:9x16 // ⿰𧾷雚
+
+# CJK unified ideographs extension A: 車 (159)
+
+## 159.2
+
+glyph han-4843:15x16 15 16 // 䡃
+⿰ han-8eca:7x16 han-529b:8x16 // ⿰車力
+
+## 159.4
+
+glyph han-4849:15x16 15 16 // 䡉
+⿰ han-8eca:5x16 1 han-4ea2:9x16 // ⿰車亢
+
+## 159.7
+
+glyph han-4859:15x16 15 16 // 䡙
+⿰ han-8eca:7x16 han-826f:7x16 // ⿰車良
+
+glyph han-485b:15x16 15 16 // 䡛
+⿰ han-8eca:7x16 1 han-8eca:7x16 // ⿰車車
+
+## 159.8
+
+glyph han-485f:15x16 15 16 // 䡟
+⿰ han-8eca:7x16 han-5351:8x16 // ⿰車卑
+
+## 159.9
+
+glyph han-4863:15x16 15 16 // 䡣
+⿰ han-8eca:7x16 han-8ecd:7x16 // ⿰車軍
+
+# CJK unified ideographs extension A: 邑 (163)
+
+## 163.4
+
+glyph han-48b6:15x16 15 16 // 䢶
+⿰ han-6728:9x16 2 han-961d:4x16 // ⿰木阝
+
+## 163.5
+
+glyph han-48b8:15x16 15 16 // 䢸
+⿰ 1 han-4e14:8x16 1 han-961d:4x16 // ⿰且阝
+
+## 163.10
+
+glyph han-48d5:15x16 15 16 // 䣕
+⿰ han-99ac:9x16 1 han-961d:4x16 // ⿰馬阝
+
+# CJK unified ideographs extension A: 酉 (164)
+
+## 164.2
+
+glyph han-48e6:15x16 15 16 // 䣦
+⿰ han-9149:7x16 2 han-529b:6x16 // ⿰酉力
+
+## 164.5
+
+glyph han-48ef:15x16 15 16 // 䣯
+⿰ han-9149:7x16 1 han-4e14:7x16 // ⿰酉且
+
+glyph han-48f1:15x16 15 16 // 䣱
+⿰ han-9149:7x16 1 han-53e5:7x16 // ⿰酉句
+
+## 164.6
+
+glyph han-48f5:15x16 15 16 // 䣵
+⿰ han-9149:7x16 1 han-8033:7x16 // ⿰酉耳
+
+## 164.9
+
+glyph han-4905:15x16 15 16 // 䤅
+⿰ han-9149:7x16 1 han-4fde:7x16 // ⿰酉俞
+
+# CJK unified ideographs extension A: 阜 (170)
+
+## 170.2
+
+glyph han-49ba:15x16 15 16 // 䦺
+⿰ han-961d:4x16 1 han-4e01:9x16 // ⿰阝丁
+
+## 170.5
+
+glyph han-49c1:15x16 15 16 // 䧁
+⿰ han-961d:4x16-l 2 han-53e5:9x16 // ⿰阝句
+
+glyph han-49c2:15x16 15 16 // 䧂
+⿰ han-961d:4x16-l 2 han-53ec:8x16 // ⿰阝召
+
+## 170.6
+
+glyph han-49c4:15x16 15 16 // 䧄
+⿰ 1 han-961d:4x16-l 2 han-5404:7x16 // ⿰阝各
+
+## 170.7
+
+glyph han-49ca:15x16 15 16 // 䧊
+⿰ 1 han-961d:4x16-l 1 han-544a:8x16 // ⿰阝告
+
+glyph han-49cb:15x16 15 16 // 䧋
+⿰ 1 han-961d:4x16-l 1 han-898b:8x16 // ⿰阝見
+
+## 170.8
+
+glyph han-49d3:15x16 15 16 // 䧓
+⿰ han-961d:4x16-l 1 han-5468:10x16 // ⿰阝周
+
+## 170.10
+
+glyph han-49da:15x16 15 16 // 䧚
+⿰ han-961d:4x16-l 2 han-9ad8:9x16 // ⿰阝高
+
+glyph han-49de:15x16 15 16 // 䧞
+⿰ han-961d:4x16-l 1 han-99ac:9x16 // ⿰阝馬
+
+## 170.11
+
+glyph han-49e3:15x16 15 16 // 䧣
+⿰ 1 han-961d:4x16-l 2 han-7968:7x16 // ⿰阝票
+
+# CJK unified ideographs extension A: 隹 (172)
+
+## 172.3
+
+glyph han-49f2:15x16 15 16 // 䧲
+⿰ han-5e72:7x16 1 han-96b9:7x16 // ⿰干隹
+
+## 172.6
+
+glyph han-49fb:15x16 15 16 // 䧻
+⿰ han-5408:7x16 1 han-96b9:7x16 // ⿰合隹
+
+## 172.7
+
+glyph han-49fc:15x16 15 16 // 䧼
+⿰ han-544a:8x16 han-96b9:7x16 // ⿰告隹

@@ -1,0 +1,84 @@
+# CJK unified ideographs extension F: 虫 (142)
+
+## 142.7
+
+glyph han-2e516:15x16 15 16 // 𮔖
+⿰ han-866b:7x16 1 han-590b:7x16 // ⿰虫夋
+
+# CJK unified ideographs extension F: 衣 (145)
+
+## 145.5
+
+glyph han-2e572:15x16 15 16 // 𮕲
+⿰ 1 han-8864:5x16 2 han-76ee:6x16 // ⿰衤目
+
+## 145.9
+
+glyph han-2e597:15x16 15 16 // 𮖗
+⿰ 1 han-8864:5x16 1 han-9801:7x16 // ⿰衤頁
+
+## 145.11
+
+glyph han-2e5ae:15x16 15 16 // 𮖮
+⿰ han-8864:5x16 1 han-7fcf:9x16 // ⿰衤翏
+
+# CJK unified ideographs extension F: 言 (149)
+
+## 149.4
+
+glyph han-2e5fc:15x16 15 16 // 𮗼
+⿰ han-8a01:5x16 1 han-6728:9x16 // ⿰訁木
+
+# CJK unified ideographs extension F: 貝 (154)
+
+## 154.12
+
+glyph han-2e6a4:15x16 15 16 // 𮚤
+⿰ han-8c9d:6x16 1 han-756a:7x16 // ⿰貝番
+
+# CJK unified ideographs extension F: 足 (157)
+
+## 157.3
+
+glyph han-2e6c4:15x16 15 16 // 𮛄
+⿰ han-27fb7:5x16 1 han-571f:9x16 // ⿰𧾷土
+
+glyph han-2e6c8:15x16 15 16 // 𮛈
+⿰ 2 han-27fb7:5x16 2 han-961d:4x16 // ⿰𧾷阝
+
+## 157.10
+
+glyph han-2e703:15x16 15 16 // 𮜃
+⿰ han-27fb7:5x16 1 han-99ac:9x16 // ⿰𧾷馬
+
+# CJK unified ideographs extension F: 車 (159)
+
+## 159.4
+
+glyph han-2e741:15x16 15 16 // 𮝁
+⿰ han-6708:5x16-l 1 han-8eca:9x16 // ⿰月車
+
+## 159.5
+
+glyph han-2e74c:15x16 15 16 // 𮝌
+⿰ han-8eca:5x16 1 han-76ae:9x16 // ⿰車皮
+
+# CJK unified ideographs extension F: 酉 (164)
+
+## 164.4
+
+glyph han-2e81b:15x16 15 16 // 𮠛
+⿰ han-9149:7x16 1 han-6728:7x16 // ⿰酉木
+
+## 164.6
+
+glyph han-2e825:15x16 15 16 // 𮠥
+⿰ han-9149:7x16 1 han-5409:7x16 // ⿰酉吉
+
+glyph han-2e829:15x16 15 16 // 𮠩
+⿰ han-9149:7x16 1 han-7c73:7x16 // ⿰酉米
+
+## 164.7
+
+glyph han-2e82d:15x16 15 16 // 𮠭
+⿰ han-544a:8x16 han-9149:7x16 // ⿰告酉

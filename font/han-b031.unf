@@ -1,0 +1,64 @@
+# CJK unified ideographs extension B: 土 (32)
+
+## 32.4
+
+glyph han-2126d:15x16 15 16 // 𡉭
+⿰ han-571f:7x16 1 han-65e5:7x16 // ⿰土日
+
+glyph han-2127f:15x16 15 16 // 𡉿
+⿰ han-571f:3x16-l -1 han-6728:15x16 // ⿰土木
+
+## 32.5
+
+glyph han-2129a:15x16 15 16 // 𡊚
+⿰ han-571f:7x16 2 han-767d:6x16 // ⿰土白
+
+glyph han-2129f:15x16 15 16 // 𡊟
+⿰ han-571f:7x16 2 han-76ee:6x16 // ⿰土目
+
+glyph han-212b1:15x16 15 16 // 𡊱
+⿰ han-571f:7x16 2 han-53ec:6x16 // ⿰土召
+
+## 32.6
+
+glyph han-212df:15x16 15 16 // 𡋟
+⿰ han-571f:5x16-l 1 han-4ea4:9x16 // ⿰土交
+
+glyph han-212e3:15x16 15 16 // 𡋣
+⿰ han-571f:7x16 han-572d:7x16 // ⿰土圭
+
+glyph han-212e5:15x16 15 16 // 𡋥
+⿰ han-571f:7x16 han-5409:7x16 // ⿰土吉
+
+## 32.7
+
+glyph han-21304:15x16 15 16 // 𡌄
+⿰ han-571f:3x16-l -1 han-8eca:15x16 // ⿰土車
+
+glyph han-21314:15x16 15 16 // 𡌔
+⿰ han-571f:7x16 han-8096:7x16 // ⿰土肖
+
+## 32.8
+
+glyph han-21332:15x16 15 16 // 𡌲
+⿰ han-572d:7x16 1 han-53e5:7x16 // ⿰圭句
+
+## 32.9
+
+glyph han-21389:15x16 15 16 // 𡎉
+⿰ han-8005:7x16 1 han-571f:7x16 // ⿰者土
+
+## 32.10
+
+glyph han-213e2:15x16 15 16 // 𡏢
+⿰ han-571f:7x16 1 han-99ac:7x16 // ⿰土馬
+
+## 32.11
+
+glyph han-2141a:15x16 15 16 // 𡐚
+⿰ han-571f:7x16 1 han-9b5a:7x16 // ⿰土魚
+
+## 32.12
+
+glyph han-2145d:15x16 15 16 // 𡑝
+⿰ han-571f:5x16-l 1 han-7ca6:9x16 // ⿰土粦

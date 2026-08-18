@@ -1,0 +1,106 @@
+# CJK unified ideographs extension E: 虫 (142)
+
+## 142.3
+
+glyph han-2c7f4:15x16 15 16 // 𬟴
+⿰ han-866b:5x16 1 han-5c71:9x16 // ⿰虫山
+
+## 142.5
+
+glyph han-2c800:15x16 15 16 // 𬠀
+⿰ han-866b:7x16 2 han-767d:6x16 // ⿰虫白
+
+# CJK unified ideographs extension E: 衣 (145)
+
+## 145.3
+
+glyph han-2c843:15x16 15 16 // 𬡃
+⿰ han-8864:5x16 1 han-571f:9x16 // ⿰衤土
+
+glyph han-2c845:15x16 15 16 // 𬡅
+⿰ 2 han-8864:5x16 2 han-961d:4x16 // ⿰衤阝
+
+## 145.6
+
+glyph han-2c858:15x16 15 16 // 𬡘
+⿰ han-8864:5x16 1 han-7f8a:9x16 // ⿰衤羊
+
+# CJK unified ideographs extension E: 讠 (149')
+
+## 149'.3
+
+glyph han-2c8da:15x16 15 16 // 𬣚
+⿰ han-8ba0:5x16 -2 han-53e3:15x16 // ⿰讠口
+
+## 149'.6
+
+glyph han-2c8f2:15x16 15 16 // 𬣲
+⿰ han-8ba0:5x16 han-5e76:9x16 // ⿰讠并
+
+## 149'.7
+
+glyph han-2c8fc:15x16 15 16 // 𬣼
+⿰ 1 han-8ba0:5x16 1 han-826f:7x16 // ⿰讠良
+
+## 149'.9
+
+glyph han-2c90a:15x16 15 16 // 𬤊
+⿰ han-8ba0:5x16 han-662f:9x16 // ⿰讠是
+
+## 149'.18
+
+glyph han-2c930:15x16 15 16 // 𬤰
+⿰ han-8ba0:5x16 han-96da:9x16 // ⿰讠雚
+
+# CJK unified ideographs extension E: 貝 (154)
+
+## 154.4
+
+glyph han-2c94f:15x16 15 16 // 𬥏
+⿰ han-8c9d:6x16 1 han-5206:7x16 // ⿰貝分
+
+## 154.7
+
+glyph han-2c958:15x16 15 16 // 𬥘
+⿰ han-8c9d:6x16 1 han-544a:8x16 // ⿰貝告
+
+# CJK unified ideographs extension E: 足 (157)
+
+## 157.5
+
+glyph han-2c9aa:15x16 15 16 // 𬦪
+⿰ han-27fb7:5x16 2 han-53ec:8x16 // ⿰𧾷召
+
+## 157.6
+
+glyph han-2c9ae:15x16 15 16 // 𬦮
+⿰ han-27fb7:5x16 1 han-8033:9x16 // ⿰𧾷耳
+
+## 157.7
+
+glyph han-2c9b2:15x16 15 16 // 𬦲
+⿰ han-27fb7:5x16 1 han-8eca:9x16 // ⿰𧾷車
+
+# CJK unified ideographs extension E: 邑 (163)
+
+## 163.2
+
+glyph han-2ca73:15x16 15 16 // 𬩳
+⿰ 1 han-529b:8x16 1 han-961d:4x16 // ⿰力阝
+
+## 163.5
+
+glyph han-2ca77:15x16 15 16 // 𬩷
+⿰ 1 han-5360:7x16 2 han-961d:4x16 // ⿰占阝
+
+## 163.9
+
+glyph han-2ca8c:15x16 15 16 // 𬪌
+⿰ han-661c:9x16 1 han-961d:4x16 // ⿰昜阝
+
+# CJK unified ideographs extension E: 酉 (164)
+
+## 164.7
+
+glyph han-2caaa:15x16 15 16 // 𬪪
+⿰ han-9149:7x16 1 han-9149:7x16 // ⿰酉酉

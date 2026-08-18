@@ -1,0 +1,37 @@
+# CJK unified ideographs extension B: 肉 (130)
+
+## 130.2
+
+glyph han-2662d:15x16 15 16 // 𦘭
+⿰ han-6708:5x16-l 1 han-4e01:9x16 // ⿰月丁
+
+## 130.3
+
+glyph han-26639:15x16 15 16 // 𦘹
+⿰ han-6708:5x16-l 1 han-5c71:9x16 // ⿰月山
+
+## 130.4
+
+glyph han-26663:15x16 15 16 // 𦙣
+⿰ han-6708:5x16-l 1 han-6728:9x16 // ⿰月木
+
+## 130.5
+
+glyph han-26688:15x16 15 16 // 𦚈
+⿰ han-6708:5x16-l 2 han-77f3:8x16 // ⿰月石
+
+## 130.6
+
+glyph han-266ad:15x16 15 16 // 𦚭
+⿰ han-6708:7x16 1 han-866b:7x16 // ⿰月虫
+
+glyph han-266cb:15x16 15 16 // 𦛋
+⿰ han-6708:7x16 1 han-5409:7x16 // ⿰月吉
+
+## 130.10
+
+glyph han-267bd:15x16 15 16 // 𦞽
+⿰ han-6708:5x16-l 1 han-9aa8:9x16 // ⿰月骨
+
+glyph han-267d0:15x16 15 16 // 𦟐
+⿰ han-6708:5x16-l 1 han-99ac:9x16 // ⿰月馬

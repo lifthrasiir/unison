@@ -1,0 +1,29 @@
+# CJK unified ideographs extension E: 女 (38)
+
+## 38.4
+
+glyph han-2bc11:15x16 15 16 // 𫰑
+⿰ han-5973:7x16 1 han-6b20:7x16 // ⿰女欠
+
+glyph han-2bc12:15x16 15 16 // 𫰒
+⿰ han-5973:7x16 1 han-6708:7x16 // ⿰女月
+
+## 38.6
+
+glyph han-2bc24:15x16 15 16 // 𫰤
+⿰ han-5973:7x16 1 han-7c73:7x16 // ⿰女米
+
+glyph han-2bc27:15x16 15 16 // 𫰧
+⿰ han-5973:5x16 1 han-7f8a:9x16 // ⿰女羊
+
+## 38.9
+
+glyph han-2bc4a:15x16 15 16 // 𫱊
+⿰ han-5973:5x16 1 han-66f7:9x16 // ⿰女曷
+
+# CJK unified ideographs extension E: 心 (61)
+
+## 61.5
+
+glyph han-2be7a:15x16 15 16 // 𫹺
+⿰ han-5fc4:7x16 han-77f3:8x16 // ⿰忄石

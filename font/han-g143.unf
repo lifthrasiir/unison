@@ -1,0 +1,124 @@
+# CJK unified ideographs extension G: 見 (147)
+
+## 147.5
+
+glyph han-30d10:15x16 15 16 // 𰴐
+⿰ -1 han-5931:9x16 han-898b:7x16 // ⿰失見
+
+# CJK unified ideographs extension G: 讠 (149')
+
+## 149'.5
+
+glyph han-30d59:15x16 15 16 // 𰵙
+⿰ han-8ba0:5x16 han-5931:9x16 // ⿰讠失
+
+glyph han-30d5a:15x16 15 16 // 𰵚
+⿰ han-8ba0:5x16 1 han-4ee4:9x16 // ⿰讠令
+
+glyph han-30d5b:15x16 15 16 // 𰵛
+⿰ han-8ba0:5x16 1 han-53e5:9x16 // ⿰讠句
+
+glyph han-30d5d:15x16 15 16 // 𰵝
+⿰ 1 han-8ba0:5x16 1 han-79be:7x16 // ⿰讠禾
+
+## 149'.6
+
+glyph han-30d63:15x16 15 16 // 𰵣
+⿰ han-8ba0:5x16 1 han-5408:9x16 // ⿰讠合
+
+glyph han-30d64:15x16 15 16 // 𰵤
+⿰ 1 han-8ba0:5x16 1 han-5404:7x16 // ⿰讠各
+
+glyph han-30d66:15x16 15 16 // 𰵦
+⿰ han-8ba0:5x16 han-4ea4:9x16 // ⿰讠交
+
+## 149'.7
+
+glyph han-30d69:15x16 15 16 // 𰵩
+⿰ 1 han-8ba0:5x16 1 han-752b:7x16 // ⿰讠甫
+
+glyph han-30d6f:15x16 15 16 // 𰵯
+⿰ 1 han-8ba0:5x16 1 han-590b:7x16 // ⿰讠夋
+
+## 149'.8
+
+glyph han-30d72:15x16 15 16 // 𰵲
+⿰ han-8ba0:5x16 1 han-5176:9x16 // ⿰讠其
+
+## 149'.10
+
+glyph han-30d7f:15x16 15 16 // 𰵿
+⿰ han-8ba0:3x16 -1 han-9ad8:15x16 // ⿰讠高
+
+## 149'.14
+
+glyph han-30d8c:15x16 15 16 // 𰶌
+⿰ han-8ba0:5x16 1 han-9700:9x16 // ⿰讠需
+
+# CJK unified ideographs extension G: 貝 (154)
+
+## 154.4
+
+glyph han-30db7:15x16 15 16 // 𰶷
+⿰ han-8c9d:6x16 1 han-6b20:7x16 // ⿰貝欠
+
+## 154.5
+
+glyph han-30dbe:15x16 15 16 // 𰶾
+⿰ han-8c9d:6x16 1 han-4ee4:7x16 // ⿰貝令
+
+## 154.6
+
+glyph han-30dc0:15x16 15 16 // 𰷀
+⿰ han-8c9d:6x16 1 han-8033:7x16 // ⿰貝耳
+
+# CJK unified ideographs extension G: 車 (159)
+
+## 159.3
+
+glyph han-30e4b:15x16 15 16 // 𰹋
+⿰ han-8eca:7x16 han-52fa:7x16 // ⿰車勺
+
+# CJK unified ideographs extension G: 钅 (167')
+
+## 167'.2
+
+glyph han-30f56:15x16 15 16 // 𰽖
+⿰ han-9485:6x16 han-529b:8x16 // ⿰钅力
+
+## 167'.4
+
+glyph han-30f61:15x16 15 16 // 𰽡
+⿰ han-9485:6x16 -2 han-65e5:15x16 // ⿰钅日
+
+## 167'.5
+
+glyph han-30f6c:15x16 15 16 // 𰽬
+⿰ han-9485:6x16 1 han-79be:7x16 // ⿰钅禾
+
+glyph han-30f6d:15x16 15 16 // 𰽭
+⿰ han-9485:6x16 han-53e5:9x16 // ⿰钅句
+
+## 167'.6
+
+glyph han-30f72:15x16 15 16 // 𰽲
+⿰ han-9485:6x16 han-5409:9x16 // ⿰钅吉
+
+glyph han-30f76:15x16 15 16 // 𰽶
+⿰ han-9485:6x16 2 han-866b:7x16 // ⿰钅虫
+
+glyph han-30f7c:15x16 15 16 // 𰽼
+⿰ han-9485:5x16 han-5e76:9x16 // ⿰钅并
+
+glyph han-30f7d:15x16 15 16 // 𰽽
+⿰ han-9485:6x16 han-7f8a:9x16 // ⿰钅羊
+
+## 167'.8
+
+glyph han-30f8e:15x16 15 16 // 𰾎
+⿰ han-9485:6x16 han-5351:8x16 // ⿰钅卑
+
+## 167'.14
+
+glyph han-30fc2:15x16 15 16 // 𰿂
+⿰ han-9485:5x16 1 han-9700:9x16 // ⿰钅需

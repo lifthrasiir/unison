@@ -1,0 +1,153 @@
+# CJK unified ideographs extension B: 示 (113)
+
+## 113.2
+
+glyph han-2560b:15x16 15 16 // 𥘋
+⿰ han-793b:5x16 1 han-529b:8x16 // ⿰礻力
+
+## 113.3
+
+glyph han-2560f:15x16 15 16 // 𥘏
+⿰ han-793b:5x16 1 han-5e72:9x16 // ⿰礻干
+
+## 113.4
+
+glyph han-25617:15x16 15 16 // 𥘗
+⿰ han-793b:5x16 -2 han-65e5:15x16 // ⿰礻日
+
+glyph han-25619:15x16 15 16 // 𥘙
+⿰ han-793b:5x16 1 han-706b:9x16 // ⿰礻火
+
+glyph han-2561e:15x16 15 16 // 𥘞
+⿰ 1 han-793b:5x16 1 han-4eca:7x16 // ⿰礻今
+
+## 113.5
+
+glyph han-2562b:15x16 15 16 // 𥘫
+⿰ han-793b:5x16 han-53ef:10x16 // ⿰礻可
+
+glyph han-2562e:15x16 15 16 // 𥘮
+⿰ han-793b:5x16 1 han-53e5:9x16 // ⿰礻句
+
+glyph han-25643:15x16 15 16 // 𥙃
+⿰ han-793b:5x16 2 han-767d:8x16 // ⿰礻白
+
+glyph han-25649:15x16 15 16 // 𥙉
+⿰ 1 han-793b:5x16 1 han-53f0:7x16 // ⿰礻台
+
+## 113.6
+
+glyph han-2565e:15x16 15 16 // 𥙞
+⿰ han-793b:5x16 1 han-572d:9x16 // ⿰礻圭
+
+glyph han-2565f:15x16 15 16 // 𥙟
+⿰ han-793b:5x16 1 han-8033:9x16 // ⿰礻耳
+
+## 113.7
+
+glyph han-2566b:15x16 15 16 // 𥙫
+⿰ han-793b:5x16 1 han-9149:9x16 // ⿰礻酉
+
+glyph han-2566c:15x16 15 16 // 𥙬
+⿰ 1 han-793b:5x16 1 han-8096:7x16 // ⿰礻肖
+
+glyph han-25677:15x16 15 16 // 𥙷
+⿰ 1 han-793b:5x16 1 han-752b:7x16 // ⿰礻甫
+
+glyph han-25682:15x16 15 16 // 𥚂
+⿰ 1 han-793b:5x16 1 han-590b:7x16 // ⿰礻夋
+
+## 113.9
+
+glyph han-256b4:15x16 15 16 // 𥚴
+⿰ 1 han-793b:5x16 1 han-9801:7x16 // ⿰礻頁
+
+## 113.10
+
+glyph han-256d4:15x16 15 16 // 𥛔
+⿰ han-793b:5x16 1 han-9aa8:9x16 // ⿰礻骨
+
+## 113.11
+
+glyph han-256e6:15x16 15 16 // 𥛦
+⿰ 1 han-793b:5x16 1 han-7968:7x16 // ⿰礻票
+
+## 113.12
+
+glyph han-256ee:15x16 15 16 // 𥛮
+⿰ han-793b:5x16 1 han-756a:9x16 // ⿰礻番
+
+glyph han-256f7:15x16 15 16 // 𥛷
+⿰ han-793b:5x16 1 han-7ca6:9x16 // ⿰礻粦
+
+## 113.14
+
+glyph han-25717:15x16 15 16 // 𥜗
+⿰ han-793b:5x16 1 han-9700:9x16 // ⿰礻需
+
+# CJK unified ideographs extension B: 禾 (115)
+
+## 115.3
+
+glyph han-2575f:15x16 15 16 // 𥝟
+⿰ han-79be:7x16 1 han-571f:7x16 // ⿰禾土
+
+## 115.4
+
+glyph han-25770:15x16 15 16 // 𥝰
+⿰ han-79be:7x16 1 han-6728:7x16 // ⿰禾木
+
+glyph han-25779:15x16 15 16 // 𥝹
+⿰ han-79be:7x16 1 han-65a4:7x16 // ⿰禾斤
+
+## 115.5
+
+glyph han-2578d:15x16 15 16 // 𥞍
+⿰ han-79be:7x16 han-53ef:8x16 // ⿰禾可
+
+## 115.6
+
+glyph han-257a9:15x16 15 16 // 𥞩
+⿰ han-79be:5x16 1 han-5e76:9x16 // ⿰禾并
+
+glyph han-257aa:15x16 15 16 // 𥞪
+⿰ han-79be:7x16 han-7c73:7x16 // ⿰禾米
+
+## 115.7
+
+glyph han-257b4:15x16 15 16 // 𥞴
+⿰ han-79be:7x16 han-544a:8x16 // ⿰禾告
+
+glyph han-257c1:15x16 15 16 // 𥟁
+⿰ han-79be:7x16 1 han-9149:7x16 // ⿰禾酉
+
+## 115.8
+
+glyph han-257e2:15x16 15 16 // 𥟢
+⿰ han-79be:7x16 han-708e:7x16 // ⿰禾炎
+
+## 115.9
+
+glyph han-25815:15x16 15 16 // 𥠕
+⿰ han-79be:7x16 1 han-4fde:7x16 // ⿰禾俞
+
+glyph han-2581c:15x16 15 16 // 𥠜
+⿰ han-79be:5x16 1 han-661c:9x16 // ⿰禾昜
+
+## 115.10
+
+glyph han-25833:15x16 15 16 // 𥠳
+⿰ han-79be:7x16 1 han-9aa8:7x16 // ⿰禾骨
+
+glyph han-25857:15x16 15 16 // 𥡗
+⿰ han-79be:7x16 1 han-99ac:7x16 // ⿰禾馬
+
+## 115.12
+
+glyph han-2588c:15x16 15 16 // 𥢌
+⿰ han-79be:7x16 1 han-756a:7x16 // ⿰禾番
+
+## 115.18
+
+glyph han-2590a:15x16 15 16 // 𥤊
+⿰ han-79be:5x16 1 han-96da:9x16 // ⿰禾雚

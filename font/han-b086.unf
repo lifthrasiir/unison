@@ -1,0 +1,63 @@
+# CJK unified ideographs extension B: 火 (86)
+
+## 86.2
+
+glyph han-24189:15x16 15 16 // 𤆉
+⿰ han-4e01:9x16 -1 han-706b:7x16 // ⿰丁火
+
+## 86.3
+
+glyph han-2418e:15x16 15 16 // 𤆎
+⿰ han-624c:5x16 han-706b:9x16 // ⿰扌火
+
+## 86.4
+
+glyph han-241b6:15x16 15 16 // 𤆶
+⿰ han-706b:7x16 1 han-5206:7x16 // ⿰火分
+
+## 86.5
+
+glyph han-241c5:15x16 15 16 // 𤇅
+⿰ han-706b:7x16 han-4e14:8x16 // ⿰火且
+
+glyph han-241e2:15x16 15 16 // 𤇢
+⿰ han-706b:7x16 2 han-767d:6x16 // ⿰火白
+
+## 86.6
+
+glyph han-241f7:15x16 15 16 // 𤇷
+⿰ han-8864:5x16 1 han-706b:9x16 // ⿰衤火
+
+glyph han-241ff:15x16 15 16 // 𤇿
+⿰ han-706b:7x16 1 han-7c73:7x16 // ⿰火米
+
+glyph han-24204:15x16 15 16 // 𤈄
+⿰ han-706b:7x16 1 han-5409:7x16 // ⿰火吉
+
+glyph han-2421c:15x16 15 16 // 𤈜
+⿰ han-706b:7x16 1 han-81f3:7x16 // ⿰火至
+
+## 86.7
+
+glyph han-24256:15x16 15 16 // 𤉖
+⿰ han-706b:5x16-l han-8eca:9x16 // ⿰火車
+
+## 86.8
+
+glyph han-24284:15x16 15 16 // 𤊄
+⿰ han-706b:7x16 han-5176:8x16 // ⿰火其
+
+## 86.9
+
+glyph han-24304:15x16 15 16 // 𤌄
+⿰ han-706b:7x16 1 han-8005:7x16 // ⿰火者
+
+## 86.10
+
+glyph han-2432c:15x16 15 16 // 𤌬
+⿰ han-706b:5x16-l 1 han-99ac:9x16 // ⿰火馬
+
+## 86.13
+
+glyph han-24415:15x16 15 16 // 𤐕
+⿰ han-708e:7x16 1 han-8ecd:7x16 // ⿰炎軍

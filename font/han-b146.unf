@@ -1,0 +1,54 @@
+# CJK unified ideographs extension B: 見 (147)
+
+## 147.4
+
+glyph han-2781a:15x16 15 16 // 𧠚
+⿰ han-5206:7x16 1 han-898b:7x16 // ⿰分見
+
+## 147.5
+
+glyph han-2781c:15x16 15 16 // 𧠜
+⿰ han-53f0:7x16 1 han-898b:7x16 // ⿰台見
+
+glyph han-2781f:15x16 15 16 // 𧠟
+⿰ han-6c10:8x16 han-898b:7x16 // ⿰氐見
+
+glyph han-27822:15x16 15 16 // 𧠢
+⿰ han-4e14:7x16 1 han-898b:7x16 // ⿰且見
+
+## 147.6
+
+glyph han-2782b:15x16 15 16 // 𧠫
+⿰ han-81f3:7x16 1 han-898b:7x16 // ⿰至見
+
+glyph han-2782f:15x16 15 16 // 𧠯
+⿰ han-5409:7x16 1 han-898b:7x16 // ⿰吉見
+
+glyph han-27837:15x16 15 16 // 𧠷
+⿰ -1 han-4ea4:9x16 han-898b:7x16 // ⿰交見
+
+glyph han-27839:15x16 15 16 // 𧠹
+⿰ han-572d:7x16 1 han-898b:7x16 // ⿰圭見
+
+## 147.7
+
+glyph han-2783c:15x16 15 16 // 𧠼
+⿰ han-544a:8x16 han-898b:7x16 // ⿰告見
+
+## 147.8
+
+glyph han-27856:15x16 15 16 // 𧡖
+⿰ han-96b9:7x16 1 han-898b:7x16 // ⿰隹見
+
+## 147.9
+
+glyph han-27861:15x16 15 16 // 𧡡
+⿰ han-8ecd:7x16 1 han-898b:7x16 // ⿰軍見
+
+## 147.11
+
+glyph han-27884:15x16 15 16 // 𧢄
+⿰ han-7968:7x16 1 han-898b:7x16 // ⿰票見
+
+glyph han-2788b:15x16 15 16 // 𧢋
+⿰ -1 han-7fcf:9x16 han-898b:7x16 // ⿰翏見

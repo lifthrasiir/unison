@@ -1,22 +1,57 @@
 # CJK ideographs
 
-//glyph 雨
-//................
-//................
-//................
-//...@@@@@@@@@@@..
-//........@.......
-//...@@@@@@@@@@@..
-//...@....@....@..
-//...@.@\.@.@\.@..
-//...@.\@.@.\@.@..
-//...@....@....@..
-//...@.@\.@.@\.@..
-//...@.\@.@.\@.@..
-//...@......../@..
-//................
-//................
-//................
+// due to the sheer amount of characters, they are partitioned into
+// 150 slices as evenly as possible. the slice ID has a format of
+// BRRR[.SS] where B is the block code (0 for URO, a--j for extensions)
+// and RRR is the radical index (001--214) and SS is the number of
+// additional strokes (-infinity if omitted). this ID represents
+// the very first character therein, while the last character is
+// inferred from the next slice ID. for example, slice 0059 is followed
+// by 0064 so it contains radicals 59--63, while slice 0075 is followed
+// by 0075.09 so it contains radical 75 with up to 8 additional strokes.
+// the determination of radical-stroke follows kRSUnicode in Unihan DB.
+//
+// since the next slice is not necessarily present in this directory,
+// here we give the list of all slices that will be present eventually:
+//
+// han-0001 0010 0030 0031 0038 0045 0059 0064 0065 0075 0075.09 0076
+//      837  684  755  671  762  757  747  742  506  520     498  279
+// han-0085 0085.09 0086 0094 0102 0110 0116 0120 0124 0140 0141 0146 
+//      483     597  584  645  684  675  645  710  706  987  818  698
+// han-0150 0159 0167 0168 0181 0188 0196
+//      660  778  940  654  681  584  705
+// han-a001 a045 a075 a097 a120 a146 a173
+//      931  931  969  940  959  921  941
+// han-b001 b009 b010 b018 b022 b030 b030.09 b030.13 b031 b033 b038 b039
+//      394  702  555  646  622  545     532     472  892  409  660  483
+// han-b041 b046 b047 b052 b057 b061 b062 b064 b064.11 b065 b071
+//      534  697  459  486  527  999  219  589     514  632  646
+// han-b075 b075.11 b076 b079 b085 b085.11 b086 b087 b094 b096 b097 b103
+//      609     617  509  497  604     692  871  554  463  514  557  530
+// han-b105 b109 b110 b113 b116 b118 b119 b120 b121 b124 b130 b131
+//      444  635  683  803  435  846  354  669  467  567  693  535
+// han-b140 b140.10 b140.14 b141 b142 b143 b146 b149 b150 b154 b157 b158
+//      620     587     495  129  907  573  380  593  378  660  600  563
+// han-b161 b163 b167 b168 b170 b173 b177 b181 b183 b187 b189 b195 b196
+//      549  728  793  441  615  486  496  550  504  600  653  581  712
+// han-b197 b204
+//      631  534
+// han-c001 c046 c085 c119 c159
+//      805  842  842  835  836
+// han-d001
+//      222
+// han-e001 e037 e065 e096 e135 e167
+//      960  970  944  949  958  993
+// han-f001 f030 f040 f064 f077 f097 f119 f142 f167
+//      776  806  815  843  831  812  813  884  893
+// han-g001 g040 g078 g112 g143 g170
+//      819  841  808  835  794  842
+// han-h001 h039 h085 h110 h146
+//      805  761  877  878  871
+// han-i001
+//      622
+// han-j001 j039 j085 j119 j162
+//      844  820  901  866  867
 
 audit ideal-clearance han-* 0 1
 

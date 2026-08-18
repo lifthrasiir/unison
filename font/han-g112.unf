@@ -1,0 +1,33 @@
+# CJK unified ideographs extension G: 石 (112)
+
+## 112.6
+
+glyph han-309b3:15x16 15 16 // 𰦳
+⿰ han-77f3:7x16 1 han-8033:7x16 // ⿰石耳
+
+# CJK unified ideographs extension G: 米 (119)
+
+## 119.5
+
+glyph han-30ab2:15x16 15 16 // 𰪲
+⿰ han-7c73:7x16 han-53ef:8x16 // ⿰米可
+
+glyph han-30ab5:15x16 15 16 // 𰪵
+⿰ han-7c73:5x16-l 1 han-5931:9x16 // ⿰米失
+
+## 119.9
+
+glyph han-30ac3:15x16 15 16 // 𰫃
+⿰ han-7c73:7x16 1 han-8ecd:7x16 // ⿰米軍
+
+## 119.10
+
+glyph han-30ac6:15x16 15 16 // 𰫆
+⿰ han-7c73:7x16 1 han-99ac:7x16 // ⿰米馬
+
+# CJK unified ideographs extension G: 羊 (123)
+
+## 123.6
+
+glyph han-30b59:15x16 15 16 // 𰭙
+⿰ han-7f8a:7x16 han-5e76:8x16 // ⿰羊并

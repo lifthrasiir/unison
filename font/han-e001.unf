@@ -1,0 +1,54 @@
+# CJK unified ideographs extension E: 人 (9)
+
+## 9.7
+
+glyph han-2b89e:15x16 15 16 // 𫢞
+⿰ han-4ebb:5x16 1 han-9149:9x16 // ⿰亻酉
+
+## 9.16
+
+glyph han-2b8f9:15x16 15 16 // 𫣹
+⿰ han-5408:7x16 1 han-55ac:7x16 // ⿰合喬
+
+# CJK unified ideographs extension E: 力 (19)
+
+## 19.6
+
+glyph han-2b9a8:15x16 15 16 // 𫦨
+⿰ han-7c73:7x16 han-529b:8x16 // ⿰米力
+
+## 19.7
+
+glyph han-2b9ad:15x16 15 16 // 𫦭
+⿰ han-529b:6x16 2 han-826f:7x16 // ⿰力良
+
+## 19.8
+
+glyph han-2b9ae:15x16 15 16 // 𫦮
+⿰ han-5176:8x16 1 han-529b:6x16 // ⿰其力
+
+# CJK unified ideographs extension E: 勹 (20)
+
+## 20.8
+
+glyph han-2b9c2:15x16 15 16 // 𫧂
+⿰ han-544a:8x16 han-52fa:7x16 // ⿰告勺
+
+# CJK unified ideographs extension E: 口 (30)
+
+## 30.6
+
+glyph han-2ba6e:15x16 15 16 // 𫩮
+⿰ -4 han-53e3:15x16 -3 han-866b:7x16 // ⿰口虫
+
+# CJK unified ideographs extension E: 土 (32)
+
+## 32.3
+
+glyph han-2bb59:15x16 15 16 // 𫭙
+⿰ han-571f:7x16 -3 han-53e3:15x16 // ⿰土口
+
+## 32.8
+
+glyph han-2bb80:15x16 15 16 // 𫮀
+⿰ han-571f:7x16 han-5468:8x16 // ⿰土周

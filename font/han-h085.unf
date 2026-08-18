@@ -1,0 +1,39 @@
+# CJK unified ideographs extension H: 火 (86)
+
+## 86.2
+
+glyph han-31aa2:15x16 15 16 // 𱪢
+⿰ han-706b:5x16-l 2 han-529b:8x16 // ⿰火力
+
+## 86.5
+
+glyph han-31ab4:15x16 15 16 // 𱪴
+⿰ han-706b:7x16 2 han-76ee:6x16 // ⿰火目
+
+# CJK unified ideographs extension H: 犬 (94)
+
+## 94.8
+
+glyph han-31b85:15x16 15 16 // 𱮅
+⿰ han-72ad:4x16 1 han-5468:10x16 // ⿰犭周
+
+# CJK unified ideographs extension H: 玉 (96)
+
+## 96.4
+
+glyph han-31bb3:15x16 15 16 // 𱮳
+⿰ han-248e9:7x16 -3 han-65e5:15x16 // ⿰𤣩日
+
+# CJK unified ideographs extension H: 皮 (107)
+
+## 107.6
+
+glyph han-31c84:15x16 15 16 // 𱲄
+⿰ -1 han-76ae:9x16 han-5146:7x16 // ⿰皮兆
+
+# CJK unified ideographs extension H: 目 (109)
+
+## 109.2
+
+glyph han-31ca4:15x16 15 16 // 𱲤
+⿰ han-529b:8x16 1 han-76ee:6x16 // ⿰力目

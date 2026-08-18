@@ -1,0 +1,40 @@
+# CJK unified ideographs extension B: 虫 (142)
+
+## 142.5
+
+glyph han-2725f:15x16 15 16 // 𧉟
+⿰ han-866b:7x16 1 han-53f0:7x16 // ⿰虫台
+
+glyph han-27281:15x16 15 16 // 𧊁
+⿰ han-866b:7x16 2 han-76ee:6x16 // ⿰虫目
+
+## 142.6
+
+glyph han-27297:15x16 15 16 // 𧊗
+⿰ han-866b:7x16 1 han-8033:7x16 // ⿰虫耳
+
+glyph han-2729a:15x16 15 16 // 𧊚
+⿰ han-866b:5x16 -2 han-540c:15x16 // ⿰虫同
+
+glyph han-272be:15x16 15 16 // 𧊾
+⿰ han-7c73:7x16 1 han-866b:7x16 // ⿰米虫
+
+## 142.7
+
+glyph han-272d3:15x16 15 16 // 𧋓
+⿰ han-866b:5x16 1 han-544a:8x16 // ⿰虫告
+
+## 142.9
+
+glyph han-2738a:15x16 15 16 // 𧎊
+⿰ han-866b:7x16 1 han-8ecd:7x16 // ⿰虫軍
+
+## 142.10
+
+glyph han-273b8:15x16 15 16 // 𧎸
+⿰ han-866b:7x16 1 han-9ad8:7x16 // ⿰虫高
+
+## 142.12
+
+glyph han-2746a:15x16 15 16 // 𧑪
+⿰ han-756a:7x16 1 han-866b:7x16 // ⿰番虫

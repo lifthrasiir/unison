@@ -1,0 +1,59 @@
+# CJK unified ideographs extension F: 白 (106)
+
+## 106.2
+
+glyph han-2df46:15x16 15 16 // 𭽆
+⿰ han-767d:6x16 han-4e01:9x16 // ⿰白丁
+
+# CJK unified ideographs extension F: 皮 (107)
+
+## 107.5
+
+glyph han-2df63:15x16 15 16 // 𭽣
+⿰ -2 han-76ae:9x16 han-6c10:8x16 // ⿰皮氐
+
+## 107.7
+
+glyph han-2df6b:15x16 15 16 // 𭽫
+⿰ -1 han-76ae:9x16 han-590b:7x16 // ⿰皮夋
+
+# CJK unified ideographs extension F: 目 (109)
+
+## 109.5
+
+glyph han-2dfa8:15x16 15 16 // 𭾨
+⿰ han-76ee:4x16-l han-53ef:10x16 // ⿰目可
+
+# CJK unified ideographs extension F: 示 (113)
+
+## 113.5
+
+glyph han-2e063:15x16 15 16 // 𮁣
+⿰ han-793b:5x16 1 han-4ee4:9x16 // ⿰礻令
+
+# CJK unified ideographs extension F: 禾 (115)
+
+## 115.3
+
+glyph han-2e0b0:15x16 15 16 // 𮂰
+⿰ 1 han-79be:7x16 2 han-961d:4x16 // ⿰禾阝
+
+## 115.4
+
+glyph han-2e0b8:15x16 15 16 // 𮂸
+⿰ han-79be:7x16 han-6b20:7x16 // ⿰禾欠
+
+## 115.6
+
+glyph han-2e0c1:15x16 15 16 // 𮃁
+⿰ han-79be:7x16 han-7f8a:7x16 // ⿰禾羊
+
+## 115.9
+
+glyph han-2e0d4:15x16 15 16 // 𮃔
+⿰ han-79be:7x16 1 han-8005:7x16 // ⿰禾者
+
+## 115.11
+
+glyph han-2e0e3:15x16 15 16 // 𮃣
+⿰ han-79be:7x16 1 han-9b5a:7x16 // ⿰禾魚

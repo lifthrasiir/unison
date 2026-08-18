@@ -1,0 +1,85 @@
+# CJK unified ideographs extension C: 火 (86)
+
+## 86.6
+
+glyph han-2ae25:15x16 15 16 // 𪸥
+⿰ han-706b:7x16 han-8033:7x16 // ⿰火耳
+
+## 86.7
+
+glyph han-2ae2d:15x16 15 16 // 𪸭
+⿰ han-706b:7x16 2 han-8c9d:6x16 // ⿰火貝
+
+## 86.8
+
+glyph han-2ae3c:15x16 15 16 // 𪸼
+⿰ han-706b:7x16 han-5468:8x16 // ⿰火周
+
+## 86.9
+
+glyph han-2ae4a:15x16 15 16 // 𪹊
+⿰ han-706b:7x16 1 han-4fde:7x16 // ⿰火俞
+
+glyph han-2ae51:15x16 15 16 // 𪹑
+⿰ han-53ec:6x16 1 han-708e:7x16 // ⿰召炎
+
+# CJK unified ideographs extension C: 玉 (96)
+
+## 96.4
+
+glyph han-2aed1:15x16 15 16 // 𪻑
+⿰ han-248e9:5x16 han-4ea2:9x16 // ⿰𤣩亢
+
+glyph han-2aed3:15x16 15 16 // 𪻓
+⿰ han-248e9:5x16 1 han-706b:9x16 // ⿰𤣩火
+
+## 96.6
+
+glyph han-2aedb:15x16 15 16 // 𪻛
+⿰ han-248e9:5x16 -2 han-540c:15x16 // ⿰𤣩同
+
+# CJK unified ideographs extension C: 白 (106)
+
+## 106.4
+
+glyph han-2af7b:15x16 15 16 // 𪽻
+⿰ han-767d:6x16 2 han-6728:7x16 // ⿰白木
+
+# CJK unified ideographs extension C: 目 (109)
+
+## 109.3
+
+glyph han-2afa0:15x16 15 16 // 𪾠
+⿰ han-76ee:6x16 1 han-52fa:7x16 // ⿰目勺
+
+## 109.5
+
+glyph han-2afa7:15x16 15 16 // 𪾧
+⿰ han-76ee:6x16 1 han-4ee4:7x16 // ⿰目令
+
+# CJK unified ideographs extension C: 石 (112)
+
+## 112.5
+
+glyph han-2afd5:15x16 15 16 // 𪿕
+⿰ han-77f3:7x16 1 han-53e5:7x16 // ⿰石句
+
+glyph han-2afd8:15x16 15 16 // 𪿘
+⿰ han-77f3:7x16 1 han-53f0:7x16 // ⿰石台
+
+## 112.6
+
+glyph han-2afdb:15x16 15 16 // 𪿛
+⿰ han-77f3:8x16 1 han-866b:5x16 // ⿰石虫
+
+# CJK unified ideographs extension C: 示 (113)
+
+## 113.5
+
+glyph han-2b005:15x16 15 16 // 𫀅
+⿰ 1 han-793b:5x16 1 han-5360:7x16 // ⿰礻占
+
+## 113.6
+
+glyph han-2b008:15x16 15 16 // 𫀈
+⿰ han-793b:5x16 -2 han-540c:15x16 // ⿰礻同

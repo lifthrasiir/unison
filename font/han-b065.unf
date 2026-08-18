@@ -1,0 +1,14 @@
+# CJK unified ideographs extension B: 斤 (69)
+
+## 69.2
+
+glyph han-23092:15x16 15 16 // 𣂒
+⿰ han-529b:8x16 1 han-65a4:6x16 // ⿰力斤
+
+## 69.9
+
+glyph han-230ae:15x16 15 16 // 𣂮
+⿰ han-4fde:7x16 1 han-65a4:6x16 // ⿰俞斤
+
+glyph han-230b0:15x16 15 16 // 𣂰
+⿰ han-66f7:9x16 han-65a4:6x16 // ⿰曷斤

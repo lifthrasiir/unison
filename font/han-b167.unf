@@ -1,0 +1,28 @@
+# CJK unified ideographs extension B: 金 (167)
+
+## 167.3
+
+glyph han-28949:15x16 15 16 // 𨥉
+⿰ han-91d2:5x16-l 1 han-5c71:9x16 // ⿰釒山
+
+## 167.6
+
+glyph han-289a1:15x16 15 16 // 𨦡
+⿰ han-91d2:7x16 han-7f8a:7x16 // ⿰釒羊
+
+## 167.10
+
+glyph han-28ab7:15x16 15 16 // 𨪷
+⿰ han-91d2:5x16-l han-9aa8:9x16 // ⿰釒骨
+
+## 167.11
+
+glyph han-28af7:15x16 15 16 // 𨫷
+⿰ han-91d2:7x16 1 han-9b5a:7x16 // ⿰釒魚
+
+# CJK unified ideographs extension B: 钅 (167')
+
+## 167'.9
+
+glyph han-28c4e:15x16 15 16 // 𨱎
+⿰ han-9485:6x16 1 han-4fde:7x16 // ⿰钅俞

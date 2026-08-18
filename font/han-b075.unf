@@ -1,0 +1,19 @@
+# CJK unified ideographs extension B: 木 (75)
+
+## 75.4
+
+glyph han-233ec:15x16 15 16 // 𣏬
+⿰ han-6728:7x16 1 han-65e5:7x16 // ⿰木日
+
+glyph han-233f9:15x16 15 16 // 𣏹
+⿰ han-6728:5x16-l han-706b:9x16 // ⿰木火
+
+## 75.6
+
+glyph han-2347a:15x16 15 16 // 𣑺
+⿰ han-6728:9x16 1 han-866b:5x16 // ⿰木虫
+
+## 75.7
+
+glyph han-2349e:15x16 15 16 // 𣒞
+⿰ han-6728:5x16-l han-8eca:9x16 // ⿰木車

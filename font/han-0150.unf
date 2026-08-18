@@ -1,0 +1,216 @@
+# CJK unified ideographs: 貝 (154)
+
+## 154.0
+
+glyph han-8c9d:6x16 8 16 advance 6 origin 1 0 // 貝
+................
+................
+$$@@@@@@@@@@@@$$
+$$@@........@@$$
+$$@@........@@$$
+$$@@@@@@@@@@@@$$
+$$@@........@@$$
+$$@@........@@$$
+$$@@@@@@@@@@@@$$
+$$@@........@@$$
+$$@@........@@$$
+$$@@@@@@@@@@@@$$
+$$./d@0/\0@b\.$$
+$$d@0/....\0@b$$
+................
+................
+
+## 154.4
+
+glyph han-8ca5:15x16 15 16 // 貥
+⿰ han-8c9d:6x16 2 han-4ea2:7x16 // ⿰貝亢
+
+## 154.5
+
+glyph han-8cb1:15x16 15 16 // 貱
+⿰ han-8c9d:6x16 han-76ae:9x16 // ⿰貝皮
+
+glyph han-8cbc:15x16 15 16 // 貼
+⿰ han-8c9d:6x16 1 han-5360:7x16 // ⿰貝占
+
+glyph han-8cbd:15x16 15 16 // 貽
+⿰ han-8c9d:6x16 1 han-53f0:7x16 // ⿰貝台
+
+glyph han-8cbe:15x16 15 16 // 貾
+⿰ han-8c9d:6x16 1 han-6c10:8x16 // ⿰貝氐
+
+## 154.6
+
+glyph han-8cc2:15x16 15 16 // 賂
+⿰ han-8c9d:6x16 1 han-5404:7x16 // ⿰貝各
+
+glyph han-8cc6:15x16 15 16 // 賆
+⿰ han-8c9d:6x16 1 han-5e76:8x16 // ⿰貝并
+
+glyph han-8ccb:15x16 15 16 // 賋
+⿰ han-8c9d:6x16 han-4ea4:9x16 // ⿰貝交
+
+## 154.7
+
+glyph han-8ccf:15x16 15 16 // 賏
+⿰ 1 han-8c9d:6x16 1 han-8c9d:6x16 // ⿰貝貝
+
+glyph han-8cd0:15x16 15 16 // 賐
+⿰ han-8c9d:6x16 1 han-590b:7x16 // ⿰貝夋
+
+## 154.8
+
+glyph han-8cd9:15x16 15 16 // 賙
+⿰ han-8c9d:6x16 1 han-5468:8x16 // ⿰貝周
+
+glyph han-8ce5:15x16 15 16 // 賥
+⿰ han-8c9d:6x16 1 han-5352:7x16 // ⿰貝卒
+
+glyph han-8ce7:15x16 15 16 // 賧
+⿰ han-8c9d:6x16 1 han-708e:7x16 // ⿰貝炎
+
+## 154.9
+
+glyph han-8ced:15x16 15 16 // 賭
+⿰ han-8c9d:6x16 1 han-8005:7x16 // ⿰貝者
+
+glyph han-8cf1:15x16 15 16 // 賱
+⿰ han-8c9d:6x16 1 han-8ecd:7x16 // ⿰貝軍
+
+## 154.11
+
+glyph han-8cff:15x16 15 16 // 賿
+⿰ han-8c9d:6x16 han-7fcf:9x16 // ⿰貝翏
+
+# CJK unified ideographs: 足 (157)
+
+## 157.3
+
+glyph han-8db5:15x16 15 16 // 趵
+⿰ han-27fb7:5x16 1 han-52fa:9x16 // ⿰𧾷勺
+
+## 157.4
+
+glyph han-8dbb:15x16 15 16 // 趻
+⿰ 1 han-27fb7:5x16 1 han-4eca:7x16 // ⿰𧾷今
+
+glyph han-8dc0:15x16 15 16 // 跀
+⿰ 1 han-27fb7:5x16 1 han-6708:7x16 // ⿰𧾷月
+
+## 157.5
+
+glyph han-8dc6:15x16 15 16 // 跆
+⿰ 1 han-27fb7:5x16 1 han-53f0:7x16 // ⿰𧾷台
+
+glyph han-8dc9:15x16 15 16 // 跉
+⿰ han-27fb7:5x16 1 han-4ee4:9x16 // ⿰𧾷令
+
+glyph han-8dcc:15x16 15 16 // 跌
+⿰ han-27fb7:5x16 1 han-5931:9x16 // ⿰𧾷失
+
+glyph han-8dd1:15x16 15 16 // 跑
+⿰ 1 han-27fb7:5x16 1 han-5305:7x16 // ⿰𧾷包
+
+glyph han-8dd2:15x16 15 16 // 跒
+⿰ han-27fb7:5x16 han-53ef:10x16 // ⿰𧾷可
+
+glyph han-8dd4:15x16 15 16 // 跔
+⿰ han-27fb7:5x16 1 han-53e5:9x16 // ⿰𧾷句
+
+glyph han-8dd5:15x16 15 16 // 跕
+⿰ 1 han-27fb7:5x16 1 han-5360:7x16 // ⿰𧾷占
+
+glyph han-8dd6:15x16 15 16 // 跖
+⿰ han-27fb7:5x16 1 han-77f3:8x16 // ⿰𧾷石
+
+glyph han-8dd9:15x16 15 16 // 跙
+⿰ han-27fb7:5x16 1 han-4e14:8x16 // ⿰𧾷且
+
+glyph han-8ddb:15x16 15 16 // 跛
+⿰ han-27fb7:5x16 1 han-76ae:9x16 // ⿰𧾷皮
+
+## 157.6
+
+glyph han-8de4:15x16 15 16 // 跤
+⿰ han-27fb7:5x16 1 han-4ea4:9x16 // ⿰𧾷交
+
+glyph han-8dec:15x16 15 16 // 跬
+⿰ han-27fb7:5x16 1 han-572d:9x16 // ⿰𧾷圭
+
+glyph han-8dee:15x16 15 16 // 跮
+⿰ 1 han-27fb7:5x16 1 han-81f3:7x16 // ⿰𧾷至
+
+glyph han-8def:15x16 15 16 // 路
+⿰ 1 han-27fb7:5x16 1 han-5404:7x16 // ⿰𧾷各
+
+glyph han-8df0:15x16 15 16 // 跰
+⿰ han-27fb7:5x16 1 han-5e76:9x16 // ⿰𧾷并
+
+glyph han-8df2:15x16 15 16 // 跲
+⿰ han-27fb7:5x16 1 han-5408:9x16 // ⿰𧾷合
+
+glyph han-8df3:15x16 15 16 // 跳
+⿰ 1 han-27fb7:5x16 1 han-5146:7x16 // ⿰𧾷兆
+
+## 157.7
+
+glyph han-8e03:15x16 15 16 // 踃
+⿰ 1 han-27fb7:5x16 1 han-8096:7x16 // ⿰𧾷肖
+
+glyph han-8e06:15x16 15 16 // 踆
+⿰ 1 han-27fb7:5x16 1 han-590b:7x16 // ⿰𧾷夋
+
+glyph han-8e09:15x16 15 16 // 踉
+⿰ 1 han-27fb7:5x16 1 han-826f:7x16 // ⿰𧾷良
+
+## 157.8
+
+glyph han-8e11:15x16 15 16 // 踑
+⿰ han-27fb7:5x16 1 han-5176:8x16 // ⿰𧾷其
+
+glyph han-8e13:15x16 15 16 // 踓
+⿰ han-27fb7:5x16 1 han-96b9:9x16 // ⿰𧾷隹
+
+glyph han-8e1d:15x16 15 16 // 踝
+⿰ han-27fb7:5x16 1 han-679c:9x16 // ⿰𧾷果
+
+glyph han-8e24:15x16 15 16 // 踤
+⿰ 1 han-27fb7:5x16 1 han-5352:7x16 // ⿰𧾷卒
+
+## 157.9
+
+glyph han-8e30:15x16 15 16 // 踰
+⿰ 1 han-27fb7:5x16 1 han-4fde:7x16 // ⿰𧾷俞
+
+glyph han-8e36:15x16 15 16 // 踶
+⿰ han-27fb7:5x16 1 han-662f:9x16 // ⿰𧾷是
+
+glyph han-8e37:15x16 15 16 // 踷
+⿰ 1 han-27fb7:5x16 1 han-8005:7x16 // ⿰𧾷者
+
+glyph han-8e3c:15x16 15 16 // 踼
+⿰ han-27fb7:5x16 1 han-661c:9x16 // ⿰𧾷昜
+
+## 157.11
+
+glyph han-8e58:15x16 15 16 // 蹘
+⿰ han-27fb7:5x16 1 han-7fcf:9x16 // ⿰𧾷翏
+
+## 157.12
+
+glyph han-8e6f:15x16 15 16 // 蹯
+⿰ han-27fb7:5x16 1 han-756a:9x16 // ⿰𧾷番
+
+glyph han-8e78:15x16 15 16 // 蹸
+⿰ han-27fb7:5x16 1 han-7ca6:9x16 // ⿰𧾷粦
+
+glyph han-8e7a:15x16 15 16 // 蹺
+⿰ 1 han-27fb7:5x16 1 han-582f:7x16 // ⿰𧾷堯
+
+glyph han-8e7b:15x16 15 16 // 蹻
+⿰ han-27fb7:5x16 1 han-55ac:9x16 // ⿰𧾷喬
+
+## 157.17
+
+glyph han-8e9f:15x16 15 16 // 躟
+⿰ han-27fb7:5x16 1 han-8944:9x16 // ⿰𧾷襄

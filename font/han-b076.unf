@@ -1,0 +1,40 @@
+# CJK unified ideographs extension B: 欠 (76)
+
+## 76.4
+
+glyph han-2388f:15x16 15 16 // 𣢏
+⿰ han-5206:7x16 1 han-6b20:7x16 // ⿰分欠
+
+glyph han-23890:15x16 15 16 // 𣢐
+⿰ han-6b20:7x16 1 han-6b20:7x16 // ⿰欠欠
+
+## 76.5
+
+glyph han-2389d:15x16 15 16 // 𣢝
+⿰ han-4ee4:7x16 1 han-6b20:7x16 // ⿰令欠
+
+glyph han-238a4:15x16 15 16 // 𣢤
+⿰ han-5360:7x16 1 han-6b20:7x16 // ⿰占欠
+
+## 76.6
+
+glyph han-238b6:15x16 15 16 // 𣢶
+⿰ han-81f3:7x16 1 han-6b20:7x16 // ⿰至欠
+
+glyph han-238b7:15x16 15 16 // 𣢷
+⿰ han-5404:7x16 1 han-6b20:7x16 // ⿰各欠
+
+## 76.9
+
+glyph han-238de:15x16 15 16 // 𣣞
+⿰ han-8ecd:7x16 1 han-6b20:7x16 // ⿰軍欠
+
+## 76.12
+
+glyph han-23919:15x16 15 16 // 𣤙
+⿰ han-55ac:7x16 1 han-6b20:7x16 // ⿰喬欠
+
+## 76.17
+
+glyph han-23938:15x16 15 16 // 𣤸
+⿰ -1 han-8944:9x16 han-6b20:7x16 // ⿰襄欠

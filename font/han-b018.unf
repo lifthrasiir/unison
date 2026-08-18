@@ -1,0 +1,29 @@
+# CJK unified ideographs extension B: 力 (19)
+
+## 19.2
+
+glyph han-20834:15x16 15 16 // 𠠴
+⿰ han-529b:8x16 1 han-529b:6x16 // ⿰力力
+
+## 19.5
+
+glyph han-20844:15x16 15 16 // 𠡄
+⿰ han-76ae:9x16 han-529b:6x16 // ⿰皮力
+
+glyph han-20847:15x16 15 16 // 𠡇
+⿰ han-53f0:7x16 han-529b:8x16 // ⿰台力
+
+## 19.9
+
+glyph han-20883:15x16 15 16 // 𠢃
+⿰ han-661c:9x16 han-529b:6x16 // ⿰昜力
+
+# CJK unified ideographs extension B: 勹 (20)
+
+## 20.8
+
+glyph han-208ea:15x16 15 16 // 𠣪
+⿰ han-53e5:7x16 1 han-53e5:7x16 // ⿰句句
+
+glyph han-208eb:15x16 15 16 // 𠣫
+⿰ han-53ec:6x16 1 han-53e5:7x16 // ⿰召句

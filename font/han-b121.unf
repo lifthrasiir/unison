@@ -1,0 +1,42 @@
+# CJK unified ideographs extension B: 羊 (123)
+
+## 123.3
+
+glyph han-26355:15x16 15 16 // 𦍕
+⿰ han-72ad:6x16 han-7f8a:9x16 // ⿰犭羊
+
+## 123.4
+
+glyph han-26364:15x16 15 16 // 𦍤
+⿰ han-7f8a:7x16 1 han-6708:7x16 // ⿰羊月
+
+## 123.5
+
+glyph han-26375:15x16 15 16 // 𦍵
+⿰ han-7f8a:7x16 han-53e5:7x16 // ⿰羊句
+
+glyph han-26377:15x16 15 16 // 𦍷
+⿰ -1 han-7f8a:7x16 han-76ae:9x16 // ⿰羊皮
+
+## 123.6
+
+glyph han-2637b:15x16 15 16 // 𦍻
+⿰ han-7f8a:7x16 1 han-540c:7x16 // ⿰羊同
+
+glyph han-26381:15x16 15 16 // 𦎁
+⿰ han-7f8a:7x16 han-5409:7x16 // ⿰羊吉
+
+## 123.7
+
+glyph han-2638e:15x16 15 16 // 𦎎
+⿰ han-7f8a:7x16 1 han-752b:7x16 // ⿰羊甫
+
+## 123.9
+
+glyph han-263aa:15x16 15 16 // 𦎪
+⿰ -1 han-7f8a:7x16 han-661c:9x16 // ⿰羊昜
+
+## 123.10
+
+glyph han-263b0:15x16 15 16 // 𦎰
+⿰ han-7f8a:7x16 1 han-9aa8:7x16 // ⿰羊骨

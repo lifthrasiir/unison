@@ -1,0 +1,16 @@
+# CJK unified ideographs extension B: 水 (85)
+
+## 85.4
+
+glyph han-23ca7:15x16 15 16 // 𣲧
+⿰ han-6c35:5x16 han-706b:9x16 // ⿰氵火
+
+## 85.5
+
+glyph han-23cb2:15x16 15 16 // 𣲲
+⿰ 1 han-6c35:5x16 1 han-79be:7x16 // ⿰氵禾
+
+## 85.7
+
+glyph han-23d50:15x16 15 16 // 𣵐
+⿰ han-6c35:3x16 -1 han-8eca:15x16 // ⿰氵車

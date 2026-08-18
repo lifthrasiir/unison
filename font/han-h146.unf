@@ -1,0 +1,87 @@
+# CJK unified ideographs extension H: 貝 (154)
+
+## 154.9
+
+glyph han-320b2:15x16 15 16 // 𲂲
+⿰ han-8c9d:6x16 han-66f7:9x16 // ⿰貝曷
+
+# CJK unified ideographs extension H: 車 (159)
+
+## 159.9
+
+glyph han-3213a:15x16 15 16 // 𲄺
+⿰ han-8ecd:7x16 1 han-590b:7x16 // ⿰軍夋
+
+# CJK unified ideographs extension H: 邑 (163)
+
+## 163.3
+
+glyph han-3218f:15x16 15 16 // 𲆏
+⿰ han-52fa:9x16 2 han-961d:4x16 // ⿰勺阝
+
+# CJK unified ideographs extension H: 酉 (164)
+
+## 164.6
+
+glyph han-321aa:15x16 15 16 // 𲆪
+⿰ han-9149:7x16 1 han-5408:7x16 // ⿰酉合
+
+# CJK unified ideographs extension H: 金 (167)
+
+## 167.9
+
+glyph han-321d2:15x16 15 16 // 𲇒
+⿰ han-91d2:7x16 han-9769:7x16 // ⿰釒革
+
+# CJK unified ideographs extension H: 钅 (167')
+
+## 167'.3
+
+glyph han-321ef:15x16 15 16 // 𲇯
+⿰ han-9485:5x16 1 han-5c71:9x16 // ⿰钅山
+
+## 167'.18
+
+glyph han-32221:15x16 15 16 // 𲈡
+⿰ han-9485:5x16 han-96da:9x16 // ⿰钅雚
+
+# CJK unified ideographs extension H: 阜 (170)
+
+## 170.5
+
+glyph han-3224c:15x16 15 16 // 𲉌
+⿰ han-961d:4x16-l 2 han-767d:8x16 // ⿰阝白
+
+glyph han-3224d:15x16 15 16 // 𲉍
+⿰ 1 han-961d:4x16-l 2 han-53f0:7x16 // ⿰阝台
+
+# CJK unified ideographs extension H: 隹 (172)
+
+## 172.5
+
+glyph han-3226a:15x16 15 16 // 𲉪
+⿰ han-53ec:6x16 2 han-96b9:7x16 // ⿰召隹
+
+## 172.9
+
+glyph han-3226e:15x16 15 16 // 𲉮
+⿰ han-9801:7x16 1 han-96b9:7x16 // ⿰頁隹
+
+# CJK unified ideographs extension H: 頁 (181)
+
+## 181.5
+
+glyph han-322ac:15x16 15 16 // 𲊬
+⿰ han-5305:7x16 1 han-9801:7x16 // ⿰包頁
+
+## 181.9
+
+glyph han-322b4:15x16 15 16 // 𲊴
+⿰ han-8005:7x16 1 han-9801:7x16 // ⿰者頁
+
+# CJK unified ideographs extension H: 食 (184)
+
+## 184.5
+
+glyph han-322d5:15x16 15 16 // 𲋕
+⿰ han-98e0:7x16 1 han-79be:7x16 // ⿰飠禾

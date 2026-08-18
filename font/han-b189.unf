@@ -1,0 +1,22 @@
+# CJK unified ideographs extension B: 高 (189)
+
+## 189.5
+
+glyph han-29acb:15x16 15 16 // 𩫋
+⿰ -1 han-9ad8:7x16 han-76ae:9x16 // ⿰高皮
+
+## 189.6
+
+glyph han-29ad0:15x16 15 16 // 𩫐
+⿰ -1 han-5e76:8x16 1 han-9ad8:7x16 // ⿰并高
+
+glyph han-29ad1:15x16 15 16 // 𩫑
+⿰ -1 han-9ad8:7x16 1 han-5e76:8x16 // ⿰高并
+
+## 189.8
+
+glyph han-29adb:15x16 15 16 // 𩫛
+⿰ han-9ad8:7x16 1 han-5352:7x16 // ⿰高卒
+
+glyph han-29add:15x16 15 16 // 𩫝
+⿰ han-9ad8:7x16 han-5351:8x16 // ⿰高卑

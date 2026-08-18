@@ -1,0 +1,30 @@
+# CJK unified ideographs extension G: 干 (51)
+
+## 51.3
+
+glyph han-303e2:15x16 15 16 // 𰏢
+⿰ han-5e72:7x16 1 han-5c71:7x16 // ⿰干山
+
+# CJK unified ideographs extension G: 心 (61)
+
+## 61.4
+
+glyph han-30443:15x16 15 16 // 𰑃
+⿰ han-5fc4:7x16 -3 han-65e5:15x16 // ⿰忄日
+
+## 61.6
+
+glyph han-30458:15x16 15 16 // 𰑘
+⿰ han-5fc4:7x16 1 han-7f8a:7x16 // ⿰忄羊
+
+## 61.10
+
+glyph han-30480:15x16 15 16 // 𰒀
+⿰ han-5fc4:5x16 han-99ac:9x16 // ⿰忄馬
+
+# CJK unified ideographs extension G: 日 (72)
+
+## 72.10
+
+glyph han-3059b:15x16 15 16 // 𰖛
+⿰ -4 han-65e5:15x16 -3 han-99ac:7x16 // ⿰日馬

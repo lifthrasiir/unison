@@ -1,0 +1,30 @@
+# CJK unified ideographs extension H: 人 (9)
+
+## 9.9
+
+glyph han-313bc:15x16 15 16 // 𱎼
+⿰ han-4ebb:5x16 1 han-9769:9x16 // ⿰亻革
+
+# CJK unified ideographs extension H: 力 (19)
+
+## 19.5
+
+glyph han-3142b:15x16 15 16 // 𱐫
+⿰ han-529b:6x16 1 han-77f3:8x16 // ⿰力石
+
+# CJK unified ideographs extension H: 土 (32)
+
+## 32.3
+
+glyph han-31587:15x16 15 16 // 𱖇
+⿰ han-571f:7x16 han-5e72:7x16 // ⿰土干
+
+## 32.9
+
+glyph han-315cb:15x16 15 16 // 𱗋
+⿰ han-571f:7x16 han-9769:7x16 // ⿰土革
+
+## 32.10
+
+glyph han-315de:15x16 15 16 // 𱗞
+⿰ han-571f:3x16-l -1 han-9aa8:15x16 // ⿰土骨

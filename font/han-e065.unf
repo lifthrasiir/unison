@@ -1,0 +1,40 @@
+# CJK unified ideographs extension E: 欠 (76)
+
+## 76.7
+
+glyph han-2c164:15x16 15 16 // 𬅤
+⿰ han-752b:7x16 1 han-6b20:7x16 // ⿰甫欠
+
+## 76.8
+
+glyph han-2c169:15x16 15 16 // 𬅩
+⿰ han-8005:7x16 1 han-6b20:7x16 // ⿰者欠
+
+## 76.12
+
+glyph han-2c171:15x16 15 16 // 𬅱
+⿰ han-756a:7x16 1 han-6b20:7x16 // ⿰番欠
+
+# CJK unified ideographs extension E: 水 (85)
+
+## 85.3
+
+glyph han-2c1d6:15x16 15 16 // 𬇖
+⿰ han-6c35:5x16 -2 han-53e3:15x16 // ⿰氵口
+
+# CJK unified ideographs extension E: 犬 (94)
+
+## 94.6
+
+glyph han-2c32f:15x16 15 16 // 𬌯
+⿰ han-72ad:6x16 han-8033:9x16 // ⿰犭耳
+
+## 94.7
+
+glyph han-2c332:15x16 15 16 // 𬌲
+⿰ han-72ad:4x16 2 han-9149:9x16 // ⿰犭酉
+
+## 94.9
+
+glyph han-2c33a:15x16 15 16 // 𬌺
+⿰ han-72ad:6x16 han-661c:9x16 // ⿰犭昜

@@ -1,0 +1,104 @@
+# CJK unified ideographs extension A: 人 (9)
+
+## 9.3
+
+glyph han-3430:15x16 15 16 // 㐰
+⿰ 1 han-4ebb:5x16 -3 han-53e3:15x16 // ⿰亻口
+
+## 9.4
+
+glyph han-3438:15x16 15 16 // 㐸
+⿰ 1 han-4ebb:5x16 1 han-6b20:7x16 // ⿰亻欠
+
+## 9.9
+
+glyph han-346e:15x16 15 16 // 㑮
+⿰ han-4ebb:5x16 1 han-8ecd:9x16 // ⿰亻軍
+
+glyph han-346f:15x16 15 16 // 㑯
+⿰ 1 han-4ebb:5x16 1 han-9801:7x16 // ⿰亻頁
+
+# CJK unified ideographs extension A: 力 (19)
+
+## 19.6
+
+glyph han-3519:15x16 15 16 // 㔙
+⿰ han-5e76:9x16 han-529b:6x16 // ⿰并力
+
+## 19.9
+
+glyph han-3520:15x16 15 16 // 㔠
+⿰ han-66f7:9x16 han-529b:6x16 // ⿰曷力
+
+# CJK unified ideographs extension A: 口 (30)
+
+## 30.4
+
+glyph han-3572:15x16 15 16 // 㕲
+⿰ han-53e3:4x16-l 2 han-6728:9x16 // ⿰口木
+
+## 30.5
+
+glyph han-3577:15x16 15 16 // 㕷
+⿰ -4 han-53e3:15x16 -2 han-767d:6x16 // ⿰口白
+
+## 30.9
+
+glyph han-35b7:15x16 15 16 // 㖷
+⿰ han-53e3:4x16-l 1 han-662f:9x16 // ⿰口是
+
+glyph han-35bd:15x16 15 16 // 㖽
+⿰ -4 han-53e3:15x16 -3 han-9801:7x16 // ⿰口頁
+
+glyph han-35c6:15x16 15 16 // 㗆
+⿰ -4 han-53e3:15x16 -3 han-9769:7x16 // ⿰口革
+
+# CJK unified ideographs extension A: 土 (32)
+
+## 32.2
+
+glyph han-3626:15x16 15 16 // 㘦
+⿰ han-571f:7x16 han-529b:8x16 // ⿰土力
+
+## 32.8
+
+glyph han-364b:15x16 15 16 // 㙋
+⿰ han-571f:7x16 han-5176:8x16 // ⿰土其
+
+## 32.21
+
+glyph han-3681:15x16 15 16 // 㚁
+⿰ han-582f:7x16 1 han-582f:7x16 // ⿰堯堯
+
+# CJK unified ideographs extension A: 女 (38)
+
+## 38.2
+
+glyph han-36a2:15x16 15 16 // 㚢
+⿰ 1 han-4ebb:5x16 1 han-5973:7x16 // ⿰亻女
+
+## 38.5
+
+glyph han-36b2:15x16 15 16 // 㚲
+⿰ han-5973:7x16 1 han-5360:7x16 // ⿰女占
+
+glyph han-36bf:15x16 15 16 // 㚿
+⿰ han-5973:7x16 1 han-5305:7x16 // ⿰女包
+
+## 38.6
+
+glyph han-36c5:15x16 15 16 // 㛅
+⿰ han-5973:5x16 1 han-8033:9x16 // ⿰女耳
+
+## 38.7
+
+glyph han-36d6:15x16 15 16 // 㛖
+⿰ han-5973:7x16 1 han-590b:7x16 // ⿰女夋
+
+glyph han-36dd:15x16 15 16 // 㛝
+⿰ han-5973:7x16 2 han-8c9d:6x16 // ⿰女貝
+
+## 38.9
+
+glyph han-36f2:15x16 15 16 // 㛲
+⿰ han-5973:7x16 1 han-9801:7x16 // ⿰女頁

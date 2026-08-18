@@ -1,0 +1,37 @@
+# CJK unified ideographs extension B: 心 (61)
+
+## 61.3
+
+glyph han-225b5:15x16 15 16 // 𢖵
+⿰ han-5fc4:7x16 1 han-5973:7x16 // ⿰忄女
+
+## 61.6
+
+glyph han-22637:15x16 15 16 // 𢘷
+⿰ han-5fc4:7x16 1 han-866b:7x16 // ⿰忄虫
+
+glyph han-2263a:15x16 15 16 // 𢘺
+⿰ han-5fc4:7x16 1 han-7c73:7x16 // ⿰忄米
+
+glyph han-22658:15x16 15 16 // 𢙘
+⿰ han-5fc4:7x16 1 han-8033:7x16 // ⿰忄耳
+
+## 61.7
+
+glyph han-226b7:15x16 15 16 // 𢚷
+⿰ han-5fc4:5x16 han-8eca:9x16 // ⿰忄車
+
+## 61.8
+
+glyph han-226de:15x16 15 16 // 𢛞
+⿰ han-5fc4:7x16 han-5351:8x16 // ⿰忄卑
+
+## 61.10
+
+glyph han-2279f:15x16 15 16 // 𢞟
+⿰ han-5fc4:5x16 1 han-9ad8:9x16 // ⿰忄高
+
+## 61.11
+
+glyph han-22810:15x16 15 16 // 𢠐
+⿰ han-5fc4:7x16 1 han-9b5a:7x16 // ⿰忄魚

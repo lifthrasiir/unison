@@ -1,0 +1,133 @@
+# CJK unified ideographs extension E: 玉 (96)
+
+## 96.3
+
+glyph han-2c351:15x16 15 16 // 𬍑
+⿰ han-248e9:5x16 1 han-5c71:9x16 // ⿰𤣩山
+
+## 96.4
+
+glyph han-2c353:15x16 15 16 // 𬍓
+⿰ han-248e9:5x16 1 han-6728:9x16 // ⿰𤣩木
+
+## 96.7
+
+glyph han-2c365:15x16 15 16 // 𬍥
+⿰ han-248e9:7x16 1 han-752b:7x16 // ⿰𤣩甫
+
+## 96.8
+
+glyph han-2c36f:15x16 15 16 // 𬍯
+⿰ han-248e9:7x16 1 han-679c:7x16 // ⿰𤣩果
+
+# CJK unified ideographs extension E: 田 (102)
+
+## 102.10
+
+glyph han-2c3ce:15x16 15 16 // 𬏎
+⿰ han-756a:7x16 1 han-5e72:7x16 // ⿰番干
+
+## 102.11
+
+glyph han-2c3d4:15x16 15 16 // 𬏔
+⿰ han-756a:7x16 1 han-5206:7x16 // ⿰番分
+
+# CJK unified ideographs extension E: 白 (106)
+
+## 106.7
+
+glyph han-2c40a:15x16 15 16 // 𬐊
+⿰ han-544a:8x16 1 han-767d:6x16 // ⿰告白
+
+# CJK unified ideographs extension E: 目 (109)
+
+## 109.10
+
+glyph han-2c463:15x16 15 16 // 𬑣
+⿰ han-76ee:6x16 1 han-9ad8:7x16 // ⿰目高
+
+# CJK unified ideographs extension E: 石 (112)
+
+## 112.9
+
+glyph han-2c49a:15x16 15 16 // 𬒚
+⿰ han-77f3:7x16 1 han-8ecd:7x16 // ⿰石軍
+
+# CJK unified ideographs extension E: 示 (113)
+
+## 113.5
+
+glyph han-2c4b3:15x16 15 16 // 𬒳
+⿰ han-793b:5x16 han-76ae:9x16 // ⿰礻皮
+
+## 113.7
+
+glyph han-2c4b9:15x16 15 16 // 𬒹
+⿰ 1 han-793b:5x16 2 han-8c9d:6x16 // ⿰礻貝
+
+## 113.12
+
+glyph han-2c4da:15x16 15 16 // 𬓚
+⿰ han-793b:5x16 han-55ac:9x16 // ⿰礻喬
+
+# CJK unified ideographs extension E: 禾 (115)
+
+## 115.4
+
+glyph han-2c4e2:15x16 15 16 // 𬓢
+⿰ han-79be:7x16 han-4eca:7x16 // ⿰禾今
+
+# CJK unified ideographs extension E: 米 (119)
+
+## 119.3
+
+glyph han-2c58f:15x16 15 16 // 𬖏
+⿰ han-7c73:7x16 -3 han-53e3:15x16 // ⿰米口
+
+## 119.8
+
+glyph han-2c5a1:15x16 15 16 // 𬖡
+⿰ han-7c73:7x16 1 han-8005:7x16 // ⿰米者
+
+## 119.10
+
+glyph han-2c5b0:15x16 15 16 // 𬖰
+⿰ han-7c73:7x16 1 han-9ad8:7x16 // ⿰米高
+
+# CJK unified ideographs extension E: 糸 (120)
+
+## 120.6
+
+glyph han-2c5cc:15x16 15 16 // 𬗌
+⿰ han-7cf9:5x16 2 han-866b:7x16 // ⿰糹虫
+
+# CJK unified ideographs extension E: 老 (125)
+
+## 125.12
+
+glyph han-2c68d:15x16 15 16 // 𬚍
+⿰ han-8005:7x16 1 han-8005:7x16 // ⿰者者
+
+# CJK unified ideographs extension E: 耳 (128)
+
+## 128.5
+
+glyph han-2c696:15x16 15 16 // 𬚖
+⿰ han-8033:7x16 1 han-53ec:6x16 // ⿰耳召
+
+## 128.6
+
+glyph han-2c698:15x16 15 16 // 𬚘
+⿰ han-8033:7x16 han-81f3:7x16 // ⿰耳至
+
+## 128.8
+
+glyph han-2c69f:15x16 15 16 // 𬚟
+⿰ han-8033:7x16 1 han-96b9:7x16 // ⿰耳隹
+
+# CJK unified ideographs extension E: 肉 (130)
+
+## 130.8
+
+glyph han-2c6c5:15x16 15 16 // 𬛅
+⿰ han-6708:5x16-l 2 han-5468:8x16 // ⿰月周

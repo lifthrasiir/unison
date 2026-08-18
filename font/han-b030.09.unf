@@ -1,0 +1,14 @@
+# CJK unified ideographs extension B: 口 (30)
+
+## 30.10
+
+glyph han-20e8e:15x16 15 16 // 𠺎
+⿰ han-99ac:7x16 -3 han-53e3:15x16 // ⿰馬口
+
+## 30.11
+
+glyph han-20f11:15x16 15 16 // 𠼑
+⿰ -1 han-544a:8x16 han-544a:8x16 // ⿰告告
+
+glyph han-20f50:15x16 15 16 // 𠽐
+⿰ -4 han-53e3:15x16 -3 han-9b5a:7x16 // ⿰口魚
