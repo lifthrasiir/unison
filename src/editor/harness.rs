@@ -222,6 +222,19 @@ pub(crate) fn capture_resize_buttons(
     ctx.data_mut(|d| d.insert_temp(resize_buttons_id(editor), rects.to_vec()));
 }
 
+/// The two rects a caret-anchored popup (rename, code point) publishes, keyed
+/// off the popup's own area id so split panes cannot collide: the panel itself
+/// and its commit button. A test clicks the panel's chrome where it really is
+/// rather than re-deriving the frame's margins.
+pub(crate) fn capture_popup_rect(
+    ctx: &egui::Context,
+    area_id: egui::Id,
+    part: &'static str,
+    rect: egui::Rect,
+) {
+    ctx.data_mut(|d| d.insert_temp(area_id.with(part), rect));
+}
+
 fn fold_markers_id(editor: EditorId) -> egui::Id {
     editor.key(Slot::TestFoldMarkers)
 }
@@ -357,6 +370,7 @@ pub(crate) struct EditorHarness {
     /// The resize the primary editor applied on the most recent frame that
     /// produced one — what the host would then carry across the font.
     last_resize: Option<crate::editor::glyph_resize::ResizeAction>,
+    last_rename: Option<crate::editor::document_view::RenameAction>,
     /// While set, a menu-like `egui::Area` is drawn above the editor over this
     /// rect, so a test can send a click that lands on a popup covering the
     /// grid instead of on the grid itself.
@@ -437,6 +451,7 @@ impl EditorHarness {
             last_shapes: Vec::new(),
             last_nav: None,
             last_resize: None,
+            last_rename: None,
             menu_overlay: None,
             viewport_height: None,
             second: None,
@@ -491,6 +506,7 @@ impl EditorHarness {
         let ctx = self.ctx.clone();
         let mut nav_result = None;
         let mut resize_result = None;
+        let mut rename_result = None;
         let menu_overlay = self.menu_overlay;
         let viewport_height = self.viewport_height;
         let full_output = ctx.run(raw, |cx| {
@@ -527,6 +543,7 @@ impl EditorHarness {
                         .show(ui);
                         nav_result = result.nav;
                         resize_result = result.resize;
+                        rename_result = result.rename;
                     };
                     match viewport_height {
                         // A band at the top of the screen, so what is below it
@@ -596,6 +613,9 @@ impl EditorHarness {
         }
         if resize_result.is_some() {
             self.last_resize = resize_result;
+        }
+        if rename_result.is_some() {
+            self.last_rename = rename_result;
         }
         for cmd in &full_output.platform_output.commands {
             if let egui::OutputCommand::CopyText(text) = cmd {
@@ -1060,6 +1080,13 @@ impl EditorHarness {
         self.frame();
     }
 
+    /// The rename the last frame handed to the host, if any. The harness has
+    /// no host to carry one out (that is `app::rename`), so a test asserts on
+    /// the action rather than on the renamed text.
+    pub fn take_rename(&mut self) -> Option<crate::editor::document_view::RenameAction> {
+        self.last_rename.take()
+    }
+
     /// The resize the last frame handed to the host, if any.
     pub fn take_resize(&mut self) -> Option<crate::editor::glyph_resize::ResizeAction> {
         self.last_resize.take()
@@ -1074,6 +1101,20 @@ impl EditorHarness {
         });
         map.and_then(|m| m.get(&(edit_idx, ref_idx)).copied())
             .expect("ref thumbnail rect not captured -- was the inline tools panel rendered?")
+    }
+
+    /// The rect the open caret-anchored popup (rename or code point) published
+    /// this frame: `"panel"` is the whole popup, `"commit"` its Rename/Input
+    /// button.
+    pub fn popup_rect(&self, part: &'static str) -> egui::Rect {
+        let slot = match self.state.popup {
+            crate::editor::PopupState::Rename { .. } => Slot::RenamePopup,
+            crate::editor::PopupState::Codepoint(_) => Slot::CodepointPopup,
+            crate::editor::PopupState::None => panic!("no popup is open"),
+        };
+        self.ctx
+            .data(|d| d.get_temp::<egui::Rect>(self.state.key(slot).with(part)))
+            .expect("popup rect not captured -- was the popup rendered?")
     }
 
     /// Screen position of the center of a ref-layer thumbnail in the inline

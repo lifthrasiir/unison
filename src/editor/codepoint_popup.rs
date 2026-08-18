@@ -98,6 +98,72 @@ pub(crate) fn validate_hex_codepoint(hex: &str) -> Option<char> {
     u32::from_str_radix(hex, 16).ok().and_then(char::from_u32)
 }
 
+/// One frame of a caret-anchored popup's text field, as its host saw it.
+pub(crate) struct FieldFrame {
+    /// The field's widget id, so a click that landed elsewhere in the panel
+    /// can be handed straight back to it.
+    pub id: egui::Id,
+    /// The field no longer holds focus as of this frame.
+    pub lost_focus: bool,
+    /// Enter in the field, or the panel's own commit button — the two ways of
+    /// confirming what has been typed.
+    pub confirmed: bool,
+}
+
+/// What [`resolve_field`] tells the host to do with the popup.
+pub(crate) enum FieldOutcome {
+    /// Leave it open.
+    Open,
+    /// Confirmed: commit the field's contents and close.
+    Commit,
+    /// Dismissed: drop what was typed and close.
+    Cancel,
+}
+
+/// Decides a popup's fate from one frame of its field.
+///
+/// The field surrenders focus to anything pressed outside it, its own panel
+/// included, so `lost_focus` alone cannot say whether the popup was dismissed:
+/// pressing the panel's label or the padding around the field would close it,
+/// which is what made these popups feel hair-triggered. Only a press *outside*
+/// `panel` dismisses; a press inside it hands focus back to the field, so the
+/// panel can be clicked anywhere without losing what is being typed. Escape
+/// drops focus with no press at all, and so still cancels.
+///
+/// The commit button is the one thing in the panel that does not bounce focus
+/// back — it confirms instead, and `confirmed` is therefore tested first.
+pub(crate) fn resolve_field(
+    ctx: &egui::Context,
+    frame: &FieldFrame,
+    panel: egui::Rect,
+) -> FieldOutcome {
+    if frame.confirmed {
+        // Whatever holds focus at this point — the field itself, or the
+        // commit button that was just clicked — disappears with the popup, so
+        // the focus is dropped here and `restore_host_focus` can hand the
+        // keyboard back to the host. Enter's own path already clears it; a
+        // button click does not.
+        ctx.memory_mut(|m| m.stop_text_input());
+        return FieldOutcome::Commit;
+    }
+    if !frame.lost_focus {
+        return FieldOutcome::Open;
+    }
+    // A press is what takes focus away (`Context::interact_with_hovered`), so
+    // it is the press position — not a mere hover — that says where the click
+    // that closed the field landed.
+    let pressed_inside = ctx.input(|i| {
+        (i.pointer.any_pressed() || i.pointer.any_click())
+            && i.pointer.interact_pos().is_some_and(|p| panel.contains(p))
+    });
+    if pressed_inside {
+        ctx.memory_mut(|m| m.request_focus(frame.id));
+        FieldOutcome::Open
+    } else {
+        FieldOutcome::Cancel
+    }
+}
+
 /// Hands keyboard focus back to `host` after the popup closes, so typing
 /// continues where it was going before Ctrl+K instead of going nowhere. The
 /// popup's text field surrenders focus to no one, so without this every host
@@ -173,74 +239,83 @@ impl CodepointPopup {
             .order(egui::Order::Foreground)
             .fixed_pos(pos);
 
-        let confirmed = area
-            .show(ctx, |ui| {
-                egui::Frame::popup(ui.style())
-                    .show(ui, |ui| {
-                        ui.set_min_width(200.0);
-                        ui.label("Type code point");
-                        let resp = ui
-                            .horizontal(|ui| {
-                                ui.label("U+");
-                                // No `char_limit`: it would truncate the raw
-                                // keystrokes, so a rejected character could
-                                // still push a digit off the end. The filter
-                                // below is the only thing that bounds the
-                                // field, and it counts digits.
-                                let te =
-                                    egui::TextEdit::singleline(&mut self.hex).desired_width(180.0);
-                                ui.add(te)
-                            })
-                            .inner;
+        let area_resp = area.show(ctx, |ui| {
+            egui::Frame::popup(ui.style())
+                .show(ui, |ui| {
+                    ui.set_min_width(200.0);
+                    ui.label("Type code point");
+                    let (resp, commit_clicked) = ui
+                        .horizontal(|ui| {
+                            ui.label("U+");
+                            // No `char_limit`: it would truncate the raw
+                            // keystrokes, so a rejected character could
+                            // still push a digit off the end. The filter
+                            // below is the only thing that bounds the
+                            // field, and it counts digits.
+                            let te = egui::TextEdit::singleline(&mut self.hex).desired_width(140.0);
+                            let resp = ui.add(te);
+                            // The pointer's way of pressing Enter, for anyone
+                            // who reached the field with the mouse.
+                            let button = ui.small_button("Input");
+                            #[cfg(test)]
+                            crate::editor::harness::capture_popup_rect(
+                                ui.ctx(),
+                                area_id,
+                                "commit",
+                                button.rect,
+                            );
+                            (resp, button.clicked())
+                        })
+                        .inner;
 
-                        // Hex only, and upper case, so what the field shows and
-                        // what the status bar names are the same text. Typing
-                        // is filtered rather than rejected: the digits that are
-                        // valid still land, as they would in any numeric field.
-                        let filtered: String = self
-                            .hex
-                            .chars()
-                            .filter(|c| c.is_ascii_hexdigit())
-                            .map(|c| c.to_ascii_uppercase())
-                            .take(MAX_HEX_LEN)
-                            .collect();
-                        if filtered != self.hex {
-                            self.hex = filtered;
-                        }
+                    // Hex only, and upper case, so what the field shows and
+                    // what the status bar names are the same text. Typing
+                    // is filtered rather than rejected: the digits that are
+                    // valid still land, as they would in any numeric field.
+                    let filtered: String = self
+                        .hex
+                        .chars()
+                        .filter(|c| c.is_ascii_hexdigit())
+                        .map(|c| c.to_ascii_uppercase())
+                        .take(MAX_HEX_LEN)
+                        .collect();
+                    if filtered != self.hex {
+                        self.hex = filtered;
+                    }
 
-                        if !self.focus_set {
-                            resp.request_focus();
-                            // Select what is there, so a seeded guess is
-                            // replaced by the first digit typed instead of
-                            // being appended to. Harmless on an empty field.
-                            if let Some(mut te_state) =
-                                egui::TextEdit::load_state(ui.ctx(), resp.id)
-                            {
-                                te_state.cursor.set_char_range(Some(
-                                    egui::text::CCursorRange::two(
-                                        egui::text::CCursor::new(0),
-                                        egui::text::CCursor::new(self.hex.chars().count()),
-                                    ),
-                                ));
-                                te_state.store(ui.ctx(), resp.id);
-                            }
-                            self.focus_set = true;
+                    if !self.focus_set {
+                        resp.request_focus();
+                        // Select what is there, so a seeded guess is
+                        // replaced by the first digit typed instead of
+                        // being appended to. Harmless on an empty field.
+                        if let Some(mut te_state) = egui::TextEdit::load_state(ui.ctx(), resp.id) {
+                            te_state
+                                .cursor
+                                .set_char_range(Some(egui::text::CCursorRange::two(
+                                    egui::text::CCursor::new(0),
+                                    egui::text::CCursor::new(self.hex.chars().count()),
+                                )));
+                            te_state.store(ui.ctx(), resp.id);
                         }
-                        if resp.lost_focus() {
-                            // Enter confirms; anything else that took focus
-                            // away (Escape, a click elsewhere) cancels.
-                            return Some(ui.input(|i| i.key_pressed(egui::Key::Enter)));
-                        }
-                        None
-                    })
-                    .inner
-            })
-            .inner;
+                        self.focus_set = true;
+                    }
+                    FieldFrame {
+                        id: resp.id,
+                        lost_focus: resp.lost_focus(),
+                        confirmed: commit_clicked
+                            || (resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter))),
+                    }
+                })
+                .inner
+        });
 
-        match confirmed {
-            Some(true) => CodepointOutcome::Commit(self.preedit()),
-            Some(false) => CodepointOutcome::Cancel,
-            None => CodepointOutcome::Open,
+        #[cfg(test)]
+        crate::editor::harness::capture_popup_rect(ctx, area_id, "panel", area_resp.response.rect);
+
+        match resolve_field(ctx, &area_resp.inner, area_resp.response.rect) {
+            FieldOutcome::Commit => CodepointOutcome::Commit(self.preedit()),
+            FieldOutcome::Cancel => CodepointOutcome::Cancel,
+            FieldOutcome::Open => CodepointOutcome::Open,
         }
     }
 }

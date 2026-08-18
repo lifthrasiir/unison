@@ -3463,6 +3463,105 @@ fn rename_popup_click_cancels_and_moves_the_caret() {
     assert_eq!(h.text(2), "map A = foo", "the rename was cancelled");
 }
 
+/// A click on the popup's own chrome — its label, or the padding around the
+/// field — must not close it: the field takes focus straight back, so what has
+/// been typed survives and typing continues into the field.
+#[test]
+fn rename_popup_survives_a_click_on_its_own_chrome() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("glyph foo 2 1\n@@..\n");
+    h.click_text(0, 8);
+    h.key(Key::F2);
+    h.frame();
+    h.type_text("bar");
+
+    let panel = h.popup_rect("panel");
+    h.click_at(panel.left_top() + egui::vec2(6.0, 6.0));
+    h.frame();
+    assert!(
+        matches!(h.state.popup, PopupState::Rename { .. }),
+        "clicking the panel itself must not dismiss it"
+    );
+
+    // The field, not the editor, still owns the keyboard.
+    h.type_text("2");
+    match &h.state.popup {
+        PopupState::Rename { new_name, .. } => assert_eq!(new_name, "bar2"),
+        other => panic!("the rename popup closed: {other:?}"),
+    }
+    assert_eq!(h.text(0), "glyph foo 2 1", "nothing committed yet");
+}
+
+/// The Rename button is the pointer's Enter: it confirms instead of handing
+/// focus back to the field.
+#[test]
+fn rename_popup_button_confirms_the_rename() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("glyph foo 2 1\n@@..\nmap A = foo\n");
+    h.click_text(0, 8);
+    h.key(Key::F2);
+    h.frame();
+    h.type_text("bar");
+
+    let button = h.popup_rect("commit");
+    h.click_at(button.center());
+    h.frame();
+    assert!(matches!(h.state.popup, PopupState::None));
+    let action = h.take_rename().expect("the button must confirm the rename");
+    assert_eq!(action.old_name, "foo");
+    assert_eq!(action.new_name, "bar");
+    assert!(h.editor_has_focus(), "focus must return to the editor");
+}
+
+/// The same two rules for the code point popup: its chrome is not a dismiss
+/// target, and its Input button commits what the digits name.
+#[test]
+fn codepoint_popup_survives_a_click_on_its_own_chrome() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("260");
+
+    let panel = h.popup_rect("panel");
+    h.click_at(panel.left_top() + egui::vec2(6.0, 6.0));
+    h.frame();
+    assert!(
+        matches!(h.state.popup, PopupState::Codepoint(_)),
+        "clicking the panel itself must not dismiss it"
+    );
+
+    h.type_text("3");
+    assert_eq!(
+        h.state.preedit, "\u{2603}",
+        "the field must still own the keyboard"
+    );
+    assert_eq!(h.text(0), "meta name Test", "nothing committed yet");
+}
+
+#[test]
+fn codepoint_popup_button_commits_the_preedit() {
+    use crate::editor::PopupState;
+
+    let mut h = EditorHarness::new("meta name Test\n");
+    h.click_text(0, 14);
+    h.key_mod(Key::K, Modifiers::CTRL);
+    h.frame();
+    h.type_text("2603");
+
+    let button = h.popup_rect("commit");
+    h.click_at(button.center());
+    h.frame();
+    assert!(matches!(h.state.popup, PopupState::None));
+    assert_eq!(h.text(0), "meta name Test\u{2603}");
+    assert!(h.state.preedit.is_empty());
+    assert!(h.editor_has_focus(), "focus must return to the editor");
+}
+
 // ---------------------------------------------------------------------------
 // Alt + wheel over the editor bumps the number at the caret
 // ---------------------------------------------------------------------------

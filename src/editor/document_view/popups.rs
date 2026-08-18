@@ -20,67 +20,93 @@ fn caret_anchored_area(ctx: &egui::Context, state: &EditorState, slot: Slot) -> 
 
 /// The rename popup; returns the confirmed rename, if any.
 pub(super) fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Option<RenameAction> {
+    use crate::editor::codepoint_popup::{FieldFrame, FieldOutcome, resolve_field};
+
     let mut rename_result: Option<RenameAction> = None;
     if matches!(state.popup, PopupState::Rename { .. }) {
+        #[cfg(test)]
+        let area_id = state.key(Slot::RenamePopup);
         let area = caret_anchored_area(ui.ctx(), state, Slot::RenamePopup);
 
         let area_resp = area.show(ui.ctx(), |ui| {
             egui::Frame::popup(ui.style())
                 .show(ui, |ui| {
                     ui.set_min_width(200.0);
-                    ui.horizontal(|ui| {
-                        let kind_label = match &state.popup {
-                            PopupState::Rename { kind, .. } => match kind {
-                                RenameKind::Glyph => "Rename glyph",
-                                RenameKind::NameParts => "Rename name-parts",
-                                RenameKind::Point => "Rename point",
-                                RenameKind::Color => "Rename color",
-                                RenameKind::Face => "Rename face",
-                                RenameKind::Slice => "Rename slice",
-                                RenameKind::RemapGroup => "Rename remap group",
-                            },
-                            _ => "Rename",
-                        };
-                        ui.label(kind_label);
-                    });
-                    if let PopupState::Rename {
+                    let kind_label = match &state.popup {
+                        PopupState::Rename { kind, .. } => match kind {
+                            RenameKind::Glyph => "Rename glyph",
+                            RenameKind::NameParts => "Rename name-parts",
+                            RenameKind::Point => "Rename point",
+                            RenameKind::Color => "Rename color",
+                            RenameKind::Face => "Rename face",
+                            RenameKind::Slice => "Rename slice",
+                            RenameKind::RemapGroup => "Rename remap group",
+                        },
+                        _ => "Rename",
+                    };
+                    ui.label(kind_label);
+                    let PopupState::Rename {
                         new_name,
                         focus_set,
                         ..
                     } = &mut state.popup
-                    {
-                        let te = egui::TextEdit::singleline(new_name).desired_width(200.0);
-                        let resp = ui.add(te);
-                        if !*focus_set {
-                            resp.request_focus();
-                            if let Some(mut te_state) =
-                                egui::TextEdit::load_state(ui.ctx(), resp.id)
-                            {
-                                te_state.cursor.set_char_range(Some(
-                                    egui::text::CCursorRange::two(
-                                        egui::text::CCursor::new(0),
-                                        egui::text::CCursor::new(new_name.chars().count()),
-                                    ),
-                                ));
-                                te_state.store(ui.ctx(), resp.id);
-                            }
-                            *focus_set = true;
+                    else {
+                        return None;
+                    };
+                    let (resp, commit_clicked) = ui
+                        .horizontal(|ui| {
+                            let te = egui::TextEdit::singleline(new_name).desired_width(160.0);
+                            let resp = ui.add(te);
+                            // The pointer's way of pressing Enter, for anyone
+                            // who reached the field with the mouse.
+                            let button = ui.small_button("Rename");
+                            #[cfg(test)]
+                            crate::editor::harness::capture_popup_rect(
+                                ui.ctx(),
+                                area_id,
+                                "commit",
+                                button.rect,
+                            );
+                            (resp, button.clicked())
+                        })
+                        .inner;
+                    if !*focus_set {
+                        resp.request_focus();
+                        if let Some(mut te_state) = egui::TextEdit::load_state(ui.ctx(), resp.id) {
+                            te_state
+                                .cursor
+                                .set_char_range(Some(egui::text::CCursorRange::two(
+                                    egui::text::CCursor::new(0),
+                                    egui::text::CCursor::new(new_name.chars().count()),
+                                )));
+                            te_state.store(ui.ctx(), resp.id);
                         }
-                        if resp.lost_focus() {
-                            if ui.input(|i| i.key_pressed(egui::Key::Enter)) {
-                                return Some(true); // confirm
-                            }
-                            return Some(false); // cancel (Escape, click outside, etc.)
-                        }
+                        *focus_set = true;
                     }
-                    None
+                    Some(FieldFrame {
+                        id: resp.id,
+                        lost_focus: resp.lost_focus(),
+                        confirmed: commit_clicked
+                            || (resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter))),
+                    })
                 })
                 .inner
         });
 
-        match area_resp.inner {
-            Some(true) => {
-                // Confirmed
+        #[cfg(test)]
+        crate::editor::harness::capture_popup_rect(
+            ui.ctx(),
+            area_id,
+            "panel",
+            area_resp.response.rect,
+        );
+
+        let outcome = area_resp
+            .inner
+            .as_ref()
+            .map(|frame| resolve_field(ui.ctx(), frame, area_resp.response.rect));
+        match outcome {
+            Some(FieldOutcome::Commit) => {
                 restore_editor_focus(ui, state);
                 if let PopupState::Rename {
                     original_name,
@@ -99,12 +125,11 @@ pub(super) fn show_rename_popup(ui: &egui::Ui, state: &mut EditorState) -> Optio
                     }
                 }
             }
-            Some(false) => {
-                // Cancelled
+            Some(FieldOutcome::Cancel) => {
                 restore_editor_focus(ui, state);
                 state.popup = PopupState::None;
             }
-            None => {}
+            Some(FieldOutcome::Open) | None => {}
         }
     }
     rename_result

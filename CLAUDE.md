@@ -281,6 +281,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |
 | Why opening a file from the snapshot keeps its generations (and so rebuilds nothing) | `app/docs.rs` (`open_document_from_text`) |
 | Typing a character by code point (Ctrl+K), and why not Alt | `editor/codepoint_popup.rs` |
+| Why a click on a caret-anchored popup's own chrome does not dismiss it, and what its commit button does instead | `editor/codepoint_popup.rs` (`resolve_field`) |
 | Why completing a glyph name stops filtering at its last `:`, and the order an IDC slot puts that listing in | `editor/autocomplete.rs` (`effective_prefix`, `filter_candidates`), `compose.rs` (`direction_rank`) |
 | Why an IDC slot's listing drops a variant of the wrong size outright, where a wrong direction is only ordered last | `editor/autocomplete.rs` (`CrossExtent`) |
 | The `{gc=… ccc=… eaw=…}` group after a character name, and the pinned UCD version | `ucd.rs` |
