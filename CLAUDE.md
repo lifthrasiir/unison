@@ -45,7 +45,7 @@ cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `st
 
 Output extension picks the format (`.woff2` → WOFF2, anything else → TTF); `--woff2-quality max`
 is for the files that are actually published, and costs about 1.5 s per face (`render::Woff2Quality`).
-Both subcommands print parse errors per file and then the full `issues.rs` validation report (`error:`/`warning:` with
+Both subcommands print parse errors per file and then the full `issues/` validation report (`error:`/`warning:` with
 `file:line:`); the font still builds when only warnings/refs-to-nothing exist, so read the report.
 A single `error:` (from either the parse or the validation pass) makes both subcommands **exit 1** —
 `build` still writes every output file first, so a CI run can publish them and fail afterwards, which
@@ -79,8 +79,11 @@ on purpose: it fails once the item does get used there.
 
 Core (feature-independent):
 
-- `document.rs` / `document_io.rs` — the `.unf` data model, parser and serializer. **`document_io.rs`
+- `document/` / `document_io.rs` — the `.unf` data model, parser and serializer. **`document_io.rs`
   is the format reference**: tokens, comments, every directive, glyph blocks and their flags.
+  `document/mod.rs` holds `Document`/`DocumentItem`/`DocLine`; what hangs off them is split by what
+  it models — `pixel_grid.rs`, `glyph.rs` (refs, anchors, IDC, `GlyphBody`), `names.rs` (`GlyphName`
+  and `@`), `name_parts.rs`, `remap.rs`, and `serialize.rs` for the way back to text.
 - `alias.rs` — `glyph NAME = TARGET`: a second *name* for a glyph, sharing its glyph id. Holds the
   chain/cycle rules and the list of which pipeline stages canonicalize where.
 - `pattern.rs` — `NamePattern`, the single name-expansion engine. The same syntax parses differently
@@ -90,8 +93,9 @@ Core (feature-independent):
   an exact trapezoid sweep. This is what makes composition exact instead of code-approximate. The
   sweep's arithmetic is bounded by construction (`MAX_SWEEP_COORD` carries the width budget); read
   `Frac` before adding arithmetic to it.
-- `ref_composite.rs` — composite (`ref`) resolution. Its module docs hold two things nothing else
-  records: **anchor exposure is opt-in** and a **negative `ref` offset is a bearing**.
+- `ref_composite/` — composite (`ref`) resolution. `mod.rs`'s docs hold two things nothing else
+  records: **anchor exposure is opt-in** and a **negative `ref` offset is a bearing**. `anchors.rs`
+  is the offset/anchor derivation those two rules govern, `composite.rs` the layout and flattening.
 - `compose.rs` — the `⿰⿱⿲⿳` line: a glyph's box split along one axis, with the offsets *derived*
   from what the parts declare, and the ink the parts leave each other (*clearance*) measured against
   `audit ideal-clearance`. Also the `:WxH-l` variant name rule (size + position) every han part is
@@ -129,7 +133,10 @@ Core (feature-independent):
   a *line* rather than per expanded glyph, the two paths that can narrow a finding to one expansion
   of a pattern, why `Todo`/`Note` flag nothing, and why a flag carries the glyph it *started* at
   besides the ones it reached. The specimen's cell backgrounds and clicks are the consumer.
-- `issues.rs` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
+- `issues/` — cross-document validation (missing refs, duplicate maps, unused glyphs, remap sanity).
+  `mod.rs` is `Severity`, `Issue` and the driver that runs every check over one shared `Cx`; each
+  check is a module of its own (`slices`, `glyph_names`, `remap`, `directives`, `maps`, `unused`,
+  `anchors`, `colors`, `patterns`).
 - `script_run.rs` — script segmentation for shaping, mirroring browser behavior.
 - `startup.rs` — the timeline of everything before the first painted frame (loader, directory read,
   initial font build), and the three ways to read it out. Written for the slow-launch-over-SMB
@@ -191,21 +198,21 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | --- | --- |
 | `.unf` syntax: tokens, comments, directives, glyph blocks | `document_io.rs` |
 | What characters a name may contain | `document_io.rs` (`# Names`), `pattern.rs` |
-| `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document.rs` (`expand_at_name`), `document_io.rs` (`# Names`) |
-| `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io.rs`, `document.rs` (`Map::selector`) |
+| `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document/names.rs` (`expand_at_name`), `document_io.rs` (`# Names`) |
+| `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io.rs`, `document/mod.rs` (`Map::selector`) |
 | Which half of a variation sequence may be a range, and why not both | `render/ttf_builder/expand.rs` (`expand_uvs_map_triples`) |
 | cmap format 14, the Default/Non-default split, and the GSUB fallback lookup behind it | `render/ttf_builder/tables.rs` (`add_uvs_subtable`), `gsub.rs` (`build_uvs_fallback_lookup`) |
 | Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable rather than reserved | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
-| Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues.rs` (`uvs_collision_diagnostics`) |
+| Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues/maps.rs` (`uvs_collision_diagnostics`) |
 | `ifexists` on a `ref`/`map`: a name whose absence is expected, and the one existence test all four consumers share | `document_io.rs` (`# Directives`), `render/ttf_builder/expand.rs` (`glyph_name_exists`) |
-| The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document.rs` (`declared_origin`, `declared_extent`) |
-| `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
-| Why an unstated advance follows the raster and not the grid, and the one accessor that keeps the editor and `hmtx` agreeing | `document.rs` (`GlyphBody::stated_advance`) |
-| Why an unstated box dimension is the raster's *far edge* — so an origin is a bearing rather than a shift of the whole box | `document.rs` (`declared_extent`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
-| The origin in the grid vs the side bearings it exports as, and why only one of them is written | `document.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
-| Grid coordinates vs box coordinates: which of the two an offset, an anchor and a ref placement are in, and the one conversion between them | `ref_composite.rs` (`rebase_offsets_to_box`, `ref_effective_offset_scaled`) |
+| The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document/glyph.rs` (`declared_origin`, `declared_extent`) |
+| `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document/glyph.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
+| Why an unstated advance follows the raster and not the grid, and the one accessor that keeps the editor and `hmtx` agreeing | `document/glyph.rs` (`GlyphBody::stated_advance`) |
+| Why an unstated box dimension is the raster's *far edge* — so an origin is a bearing rather than a shift of the whole box | `document/glyph.rs` (`declared_extent`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
+| The origin in the grid vs the side bearings it exports as, and why only one of them is written | `document/glyph.rs` (`GlyphBody::declared_origin`), `render/ttf_builder/collect.rs` (`resolve_glyph_metrics`) |
+| Grid coordinates vs box coordinates: which of the two an offset, an anchor and a ref placement are in, and the one conversion between them | `ref_composite/anchors.rs` (`rebase_offsets_to_box`), `ref_composite/composite.rs` (`ref_effective_offset_scaled`) |
 | Everyone who places a `ref` and so owes that conversion: the build, the sample, the backreference shadow, flattening | `render/ttf_builder/contours.rs` (`placed_at`), `render/sample.rs` (`placed_at`), `editor/backref_shadow.rs`, `editor/document_view/changes.rs` (`inline_ref_to_pixels`) |
-| Why the anchor shadow is the one placement with no box term in it | `editor/anchor_shadow.rs`, `ref_composite.rs` (`derive_ref_offsets_detailed`) |
+| Why the anchor shadow is the one placement with no box term in it | `editor/anchor_shadow.rs`, `ref_composite/anchors.rs` (`derive_ref_offsets_detailed`) |
 | `meta` keys, name-record derivation, single-assignment rule | `meta.rs` |
 | Faces, slices, the base slice, and why there is no override | `faces.rs` |
 | `--output` path rules (`%`, `.ttc`, `.woff2`) | `faces.rs` (`plan_output`) |
@@ -214,10 +221,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a glyph's GID is its index, and how `.notdef` gets to GID 0 | `render/ttf_builder/mod.rs` (`NOTDEF`), `collect.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
-| Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues.rs` (`check_ragged_patterns`) |
-| Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document.rs` (`SliceNameParts`), `pattern.rs` |
+| Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |
+| Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
-| Anchor exposure and bearings | `ref_composite.rs` |
+| Anchor exposure and bearings | `ref_composite/mod.rs` |
 | `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
 | Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
@@ -230,9 +237,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
 | What a sample cell paints a background over, and why only its width is the box's | `render/sample.rs` (`sample_background`) |
-| Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite.rs` (`declared_box`) |
+| Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
-| What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues.rs` (`Severity`) |
+| What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues/mod.rs` (`Severity`) |
 | Which glyph a finding is about, and why a composite carries its components' findings | `glyph_flags.rs` |
 | When a finding faults one expansion of a pattern rather than the whole line, and the only two paths that can | `resolve.rs` (`Diagnostic::glyph`), `glyph_flags.rs` |
 | The specimen's warning/error cell tints, and why the hovered cell inverts instead of hiding one | `specimen.rs` (`flag_bg`) |
@@ -244,29 +251,29 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why growing the canvas writes an `origin`, and what else it pins | `editor/glyph_resize.rs` (`canvas_box`) |
 | Why a canvas drag only switches modes once it has a pixel to show | `editor/glyph_resize.rs` (`CanvasStart`) |
 | Which flags a box drag writes, and why a vertical one states the height | `editor/glyph_resize.rs` (`boxed_for`), `document_io.rs` (`replace_glyph_box_flags`) |
-| Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite.rs` (`DeriveOutcome::anchor_placed`) |
-| Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite.rs` (`InlineSource`) |
+| Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
+| Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite/mod.rs` (`InlineSource`) |
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
-| `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite.rs` (`ResolvedGlyph`) |
-| Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite.rs` (`resolve_ref_name_for_view`) |
+| `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
+| Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
 | Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
 | Sub-pixel shape codes, `PX_CUSTOM` | `pixel.rs` |
 | `$$`, the blank that is not `..`, and why it is an id rather than a spare bit combination | `pixel.rs` (`PX_HARDBLANK`) |
 | A hardblank is a *claim*, not geometry: how claims and ink combine, and why only a claim cancels a claim | `pixel.rs` (`blank_op`) |
-| Why a rescale carries a claim (and a bare ink flag) by hand, beside the geometry sweep | `document.rs` (`PixelGrid::rescale`) |
+| Why a rescale carries a claim (and a bare ink flag) by hand, beside the geometry sweep | `document/pixel_grid.rs` (`PixelGrid::rescale`) |
 | The three questions asked of a cell (bitmap ink / vector contour / nothing at all) and the `CLEAR`-`HARDBLANK`-`INK` ladder | `pixel.rs` (module docs), `compose.rs` (`InkProfile::of`) |
-| Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document.rs` (`snap_details_to_catalog`) |
+| Snapping an exact region back onto the catalog (a grid on its way into a file) | `detail.rs` (`nearest_shape`), `document/pixel_grid.rs` (`snap_details_to_catalog`) |
 | Why the exact sweep carries no rational arithmetic, and the width budget that bounds it | `detail.rs` (`Frac`, `MAX_SWEEP_COORD`) |
 | The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
 | Feature targets, `DFLT`/LangSys fallback | `render/ttf_builder/gsub.rs` |
 | A remap group is one lookup: rule order is match priority | `render/ttf_builder/gsub.rs` |
-| Lookup order, `remap group` and its stable toposort | `document.rs` (`remap_group_order`) |
+| Lookup order, `remap group` and its stable toposort | `document/remap.rs` (`remap_group_order`) |
 | `assert shape` and why `@lang` is BCP 47 | `render/assert.rs` |
 | What a test run builds (lazily, once per face), and how the editor's stays fast | `render/assert.rs` (`run_assertions_inner`), `app/background.rs` (`run_shape_assertions`) |
 | Contour coordinate spaces | `render/contour.rs` |
 | The editor as a widget; what is per-instance vs per-pane | `editor/mod.rs`, `editor/ids.rs` |
 | Folding a glyph block: what a group is, and when the group list is recomputed | `editor/folding.rs` |
-| `#`/`##`/`###` headings: the syntax, and why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document.rs` (`DocumentItem::Heading`) |
+| `#`/`##`/`###` headings: the syntax, and why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document/mod.rs` (`DocumentItem::Heading`) |
 | What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
 | Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |
 | Where a caret goes when a fold swallows the line it was on, and what a fold does to a selection | `editor/folding.rs` (`toggle_at`, `snap_caret`) |
@@ -314,14 +321,14 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |
 | Why the directory load reads its files on many threads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`) |
 | One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
-| Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite.rs` (`resolve_expansion_cached`) |
+| Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite/mod.rs` (`resolve_expansion_cached`) |
 | Splitting a memo off its tracer so the tracer can leave the thread | `render/glyph_cache.rs` (`CompositeBuilder`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
 | Which build stages run at once, and what they must not share to | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
 | Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces`), `collect.rs` (`collect_face_cmap`), `expand.rs` (`expand_maps_for`) |
 | Which of a `build`'s outputs are produced at once, and the one that has to wait | `main.rs` (`OutputWork`), `render/sample.rs` (`SampleSource`) |
 | Who shares the primary face's expansion, and why it is computed beside the build | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/sample.rs` (`collect_sample_data_with`) |
 | Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
-| Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite.rs` (`CompositeGridCache`) |
+| Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite/mod.rs` (`CompositeGridCache`) |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
 | Why the remembered face is applied before the first build, not after the first resolve | `app/mod.rs` (`with_settings`) |
 | What survives between runs, what egui persists on its own, and why there is no session restore | `app/settings.rs` |
@@ -329,10 +336,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 
 ## Testing
 
-- `cargo test` — ~680 unit tests. Heaviest suites: `document_io_tests.rs` (parser round-trips),
-  `editor/view_tests.rs` (GUI scenarios), `render/ttf_tests/`, `editor/doc_links.rs`, `pattern.rs`.
+- `cargo test` — ~1500 unit tests. Heaviest suites: `document_io_tests/` (parser round-trips),
+  `editor/view_tests/` (GUI scenarios), `render/ttf_tests/`, `editor/doc_links.rs`, `pattern.rs`.
 - **GUI behavior must be tested through `EditorHarness` (`src/editor/harness.rs`)**, not left to
-  manual testing; scenarios go in `src/editor/view_tests.rs`. The harness docs say what it drives and
+  manual testing; scenarios go in `src/editor/view_tests/`, one module per theme. The harness docs say what it drives and
   what it papers over.
 - Golden snapshots (`src/golden.rs`) cover the diagnostics report and a digest of what resolution
   produces over `testdata/`. Behaviour-preserving refactors must not move them; intentional changes
@@ -350,18 +357,26 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | Module | Tests |
 | --- | --- |
 | `render/ttf_builder/` | `render/ttf_tests/` — `misc`, `hints`, `gsub`, `gpos`, `color`, `composite`, `collection`, with shared canonicalization helpers in its `mod.rs` |
-| `document_io.rs` | `document_io_tests.rs` |
+| `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names` |
+| `document/` | `document/document_tests.rs` |
+| `issues/` | `issues/issues_tests.rs` |
+| `pixel.rs` | `pixel_tests.rs` |
+| `specimen.rs` | `specimen_tests.rs` |
+| `render/sample.rs` | `render/sample_tests.rs` |
+| `editor/pixel_selection.rs` | `editor/pixel_selection_tests.rs` |
 | `editor/glyph_resize.rs` | `editor/glyph_resize_tests.rs` |
 | `meta.rs` | `meta_tests.rs` |
 | `faces.rs` | `faces_tests.rs` |
-| `ref_composite.rs` | `ref_composite_tests.rs` |
+| `ref_composite/` | `ref_composite/ref_composite_tests.rs` |
 | `on_demand.rs` | `on_demand_tests.rs` |
 | `compose.rs` | `compose_tests.rs` |
 | `fix/clearance.rs` | `fix/clearance_tests.rs` |
-| `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests.rs` (harness scenarios) |
+| `editor/document_view/` | `document_view/tests.rs` (helpers) and `editor/view_tests/` (harness scenarios, with the shared fixtures in its `mod.rs`) |
 
 Keep a source file at roughly 2000 lines or under; split by stage (as `ttf_builder/` and
-`document_view/` are) rather than growing one file further.
+`document_view/` are) rather than growing one file further. A test suite that outgrows its sibling
+file becomes a directory of its own, grouped by what it tests (`document_io_tests/`,
+`editor/view_tests/`).
 
 ### `font/` is a consumer, not a part of Uniform
 

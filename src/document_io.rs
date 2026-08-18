@@ -1871,5 +1871,5 @@ pub fn write_and_sync(path: &Path, data: &[u8]) -> anyhow::Result<()> {
 }
 
 #[cfg(test)]
-#[path = "document_io_tests.rs"]
+#[path = "document_io_tests/mod.rs"]
 mod tests;
