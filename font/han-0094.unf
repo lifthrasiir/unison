@@ -91,7 +91,7 @@ glyph han-72e4:15x16 15 16 // 狤
 ⿰ han-72ad:6x16 han-5409:9x16 // ⿰犭吉
 
 glyph han-72ea:15x16 15 16 // 狪
-⿰ han-72ad:6x16 -3 han-540c:15x16 // ⿰犭同
+⿰ han-72ad:6x16 1 han-540c:8x16 // ⿰犭同
 
 glyph han-72ec:15x16 15 16 // 独
 ⿰ han-72ad:6x16 2 han-866b:7x16 // ⿰犭虫

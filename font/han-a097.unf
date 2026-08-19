@@ -22,7 +22,7 @@ glyph han-3ff0:15x16 15 16 // 㿰
 ## 109.5
 
 glyph han-4020:15x16 15 16 // 䀠
-⿰ 1 han-76ee:6x16 1 han-76ee:6x16 // ⿰目目
+⿰ -4 han-76ee:15x16 -7 han-76ee:15x16 // ⿰目目
 
 glyph han-4021:15x16 15 16 // 䀡
 ⿰ han-76ee:6x16 1 han-5360:7x16 // ⿰目占

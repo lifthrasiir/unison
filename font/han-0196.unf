@@ -81,7 +81,7 @@ glyph han-9cf1:15x16 15 16 // 鳱
 ⿰ han-5e72:7x16 1 han-9ce5:7x16 // ⿰干鳥
 
 glyph han-9cf4:15x16 15 16 // 鳴
-⿰ -4 han-53e3:15x16 -3 han-9ce5:7x16 // ⿰口鳥
+⿰ han-53e3:4x16-l -2 han-9ce5:15x16 // ⿰口鳥
 
 ## 196.4
 
