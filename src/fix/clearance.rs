@@ -25,9 +25,24 @@
 //!
 //! What is skipped is what cannot be measured *after* a choice either: a
 //! component that names nothing, a part with no ink of its own, an undecided
-//! component whose family is empty. A glyph whose name is a pattern is skipped
-//! as well, since one line then stands for a family and the parts of each
-//! member are sized differently — expansion already calls that an error.
+//! component whose family is empty.
+//!
+//! # A line that stands for a family
+//!
+//! A glyph block whose name is a pattern writes one line for every glyph it
+//! declares, and each of those glyphs is composed of its own parts, sized on
+//! their own. So the *components* are not searched there — a variant is one
+//! glyph's answer and cannot be the family's — and what is left, the gaps, is
+//! shared by all of them and is what a rewrite may move.
+//!
+//! One set of gaps then has to serve every glyph, which makes the objective a
+//! different one: **the fewest glyphs warning at all**, and only then the
+//! summed score and the same tie-breaks below. The warnings are a work queue
+//! and its length is what the command is there to shorten, so a family in
+//! which one more glyph is finished beats one in which every glyph is a little
+//! less wrong — even when that trade costs the sum. [`optimize_pattern_line`]
+//! is the whole of it, and [`Member`] is why it stays cheap over a family of
+//! thousands.
 //!
 //! # The search
 //!
@@ -115,13 +130,22 @@ pub struct ClearanceFix {
     /// The line to put there instead.
     pub new_line: String,
     /// The score before and after: how far the clearances fall outside the
-    /// range, summed. `after < before` always holds.
+    /// range, summed — over the whole family for a pattern line.
+    ///
+    /// `after < before` holds for a line that stands for one glyph. For a
+    /// pattern line the objective is [`glyphs_warning`](Self::glyphs_warning)
+    /// first, so `after` may be the larger of the two when the rewrite
+    /// finishes a glyph at the others' expense.
     ///
     /// `None` before means the line had no layout to score — a component had
     /// not picked its variant, so there was nothing measured rather than
     /// something measured badly.
     pub before: Option<i32>,
     pub after: i32,
+    /// How many of the glyphs the line stands for warn at all, before and
+    /// after. `None` for a line that stands for one glyph, which either warns
+    /// or is not planned.
+    pub glyphs_warning: Option<(usize, usize)>,
 }
 
 /// What one document's fixes are, in the order the lines appear.
@@ -139,6 +163,10 @@ pub struct DocumentFixes {
 /// A real one has a handful: the widest measured Han radical family is 5.
 const MAX_CANDIDATES: usize = 32;
 const MAX_COMBINATIONS: usize = 32_768;
+/// The same, for a pattern line, where the unit of work is one glyph of the
+/// family scored at one set of gaps: a few million of those is a few
+/// milliseconds, and no real line comes close.
+const MAX_PATTERN_WORK: usize = 4_194_304;
 
 /// Plan every IDC line rewrite the source's `audit ideal-clearance` rules ask
 /// for. Reads the documents and nothing else; see [`crate::fix`] for who
@@ -148,7 +176,11 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
     if rules.is_empty() {
         return Vec::new();
     }
-    let inventory = Inventory::collect(docs);
+    // The base bindings, not a slice's: a `$` in an IDC line stands for a name
+    // whichever face is being built, and a slice-scoped binding would make one
+    // line several, which is not something one rewrite could be right for.
+    let name_parts = crate::document::collect_name_parts(docs);
+    let inventory = Inventory::collect(docs, &name_parts);
 
     let mut out: Vec<DocumentFixes> = Vec::new();
     for (doc_idx, doc) in docs.iter().enumerate() {
@@ -164,19 +196,28 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                 continue;
             }
             let glyph = name.display();
-            if !is_plain_name(&glyph) {
-                continue;
-            }
-            let Some((_, min, max)) = rules.for_glyph(&glyph) else {
-                continue;
-            };
             let Some(parent) = body.declared_extent() else {
                 continue;
             };
             for (compose_idx, compose) in body.compose.iter().enumerate() {
-                let Some((new_line, before, after)) =
-                    optimize_line(&inventory, parent, compose, min as i32, max as i32)
-                else {
+                // A pattern block is one line over a family, and what its
+                // glyphs share is the gaps; a plain one is a layout of its own.
+                let planned: Option<PlannedLine> = match is_plain_name(&glyph) {
+                    true => rules.for_glyph(&glyph).and_then(|(_, min, max)| {
+                        optimize_line(&inventory, parent, compose, min as i32, max as i32)
+                            .map(|(line, before, after)| (line, before, after, None))
+                    }),
+                    false => optimize_pattern_line(
+                        &inventory,
+                        &rules,
+                        &name_parts,
+                        &glyph,
+                        body.scale,
+                        parent,
+                        compose,
+                    ),
+                };
+                let Some((new_line, before, after, glyphs_warning)) = planned else {
                     continue;
                 };
                 fixes.push(ClearanceFix {
@@ -187,6 +228,7 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                     new_line,
                     before,
                     after,
+                    glyphs_warning,
                 });
             }
         }
@@ -201,11 +243,12 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
     out
 }
 
-/// A name the optimizer is willing to reason about: one glyph, spelled out.
+/// A name the optimizer is willing to reason about as one glyph: spelled out,
+/// with no pattern and no `$` in it.
 ///
-/// A pattern names a family whose members are composed differently, and a `$`
-/// is a name part that is not substituted here; neither is a thing a single
-/// rewritten line could be right for.
+/// A block whose *name* is one of those is a family, and is planned by
+/// [`optimize_pattern_line`] instead. Inside the inventory the test is what it
+/// says: a name that is not one glyph names no drawing to measure.
 fn is_plain_name(name: &str) -> bool {
     !crate::pattern::is_name_pattern(name) && !name.contains('$')
 }
@@ -242,13 +285,12 @@ struct Inventory<'a> {
 }
 
 impl<'a> Inventory<'a> {
-    fn collect(docs: &[&'a Document]) -> Self {
-        let name_parts = crate::document::collect_name_parts(docs);
+    fn collect(docs: &[&'a Document], name_parts: &crate::document::NamePartsMap) -> Self {
         let mut inv = Self {
             boxes: HashMap::new(),
             grids: HashMap::new(),
             variants: HashMap::new(),
-            aliases: crate::alias::AliasMap::collect(docs, &name_parts),
+            aliases: crate::alias::AliasMap::collect(docs, name_parts),
             profiles: std::cell::RefCell::new(HashMap::new()),
         };
         for doc in docs {
@@ -527,6 +569,314 @@ fn optimize_line(
         return None;
     }
     Some((line, before, key.score))
+}
+
+/// What planning one IDC line comes to: the line to write in its place, the
+/// score before it and after, and — for a line that stands for a family — how
+/// many of its glyphs warn on each side.
+type PlannedLine = (String, Option<i32>, i32, Option<(usize, usize)>);
+
+/// One glyph of the family a pattern line stands for: its parts as that glyph
+/// names them, and the range its own rule holds them to.
+///
+/// The clearances are affine in the gaps and are kept that way: `base[i]` is
+/// what clearance `i` is before the gaps are added (`c_i = gap_i + base[i]`),
+/// and `total` is the sum every layout of these parts has, whatever the gaps
+/// do — the same telescoping the module docs derive — so the last clearance is
+/// `total` less the others. That is what makes one combination cost a handful
+/// of additions per glyph, which matters when one line stands for thousands.
+struct Member {
+    lo: i32,
+    hi: i32,
+    base: Vec<i32>,
+    total: i32,
+    parts: Vec<Candidate>,
+}
+
+impl Member {
+    /// The clearances the gaps `gaps` leave, into a buffer the caller reuses:
+    /// one line stands for thousands of glyphs and is scored once per set of
+    /// gaps, so this is the innermost loop there is here.
+    fn clearances_into(&self, gaps: &[i32], out: &mut Vec<i32>) {
+        out.clear();
+        out.extend(gaps.iter().zip(&self.base).map(|(gap, base)| gap + base));
+        out.push(self.total - out.iter().sum::<i32>());
+    }
+
+    fn clearances(&self, gaps: &[i32]) -> Vec<i32> {
+        let mut out = Vec::with_capacity(self.base.len() + 1);
+        self.clearances_into(gaps, &mut out);
+        out
+    }
+}
+
+/// Plan a pattern block's IDC line: `(the line, score before, score after, the
+/// count of warning glyphs before and after)`.
+///
+/// One line here stands for a family, and the parts of each glyph in it are
+/// drawn and sized on their own — so the components are *not* searched, a name
+/// being one glyph's answer and not the family's. What the family shares is the
+/// gaps, and one set of them has to serve every glyph the block declares.
+///
+/// The objective is that shared position, in this order:
+///
+/// 1. **the fewest glyphs warning at all.** A family in which one more glyph is
+///    finished is worth more than one in which every glyph is slightly less
+///    wrong: the warnings are a work queue, and its length is what the command
+///    is there to shorten;
+/// 2. then the summed score, and the same tie-breaks a single line is ordered
+///    by ([`Key`]) summed over the family — a gap moves every glyph's first
+///    clearance by the same amount, so ordering the gaps lexicographically
+///    orders the clearances the way [`Key`] does.
+///
+/// A glyph whose parts this pass cannot measure — a name nothing defines, a
+/// part that is itself a composite, a component with no variant picked, a name
+/// no `audit ideal-clearance` rule reaches — is left out of the answer rather
+/// than making the whole family unfixable. The line still has to warn about
+/// something, and the answer still has to improve on what is written.
+fn optimize_pattern_line(
+    inv: &Inventory,
+    rules: &crate::audit::IdealClearances,
+    name_parts: &crate::document::NamePartsMap,
+    glyph: &str,
+    scale: u8,
+    parent: (u16, u16),
+    compose: &GlyphCompose,
+) -> Option<PlannedLine> {
+    let op = compose.op;
+    let horizontal = op.horizontal();
+    let (axis_extent, cross_extent) = match horizontal {
+        true => (parent.0 as i32, parent.1),
+        false => (parent.1 as i32, parent.0),
+    };
+    if compose.part_names().count() != op.arity() {
+        return None;
+    }
+
+    // The same expansion the build does, so that what is optimized is what is
+    // built: the block's name drives the count and each component pattern is
+    // consumed in lock-step with it.
+    let mut substituted = compose.clone();
+    for item in &mut substituted.items {
+        if let ComposeItem::Part { name, .. } = item {
+            *name = crate::document::substitute_name_parts(name, name_parts);
+        }
+    }
+    let expanded = crate::document::expand_glyph_block(
+        &crate::document::GlyphName(crate::document::substitute_name_parts(glyph, name_parts)),
+        &[],
+        std::slice::from_ref(&substituted),
+        scale,
+    )
+    .ok()?;
+
+    let mut members: Vec<Member> = Vec::new();
+    for item in &expanded {
+        let DocumentItem::Glyph { name, body } = item else {
+            continue;
+        };
+        let Some((_, lo, hi)) = rules.for_glyph(&name.display()) else {
+            continue;
+        };
+        let Some(line) = body.compose.first() else {
+            continue;
+        };
+        let names: Vec<&str> = line.part_names().collect();
+        // An undecided component names no drawing, here as anywhere: the glyph
+        // has no layout to measure and waits for its author, while the rest of
+        // the family is optimized around it.
+        if names.iter().any(|n| crate::compose::is_undecided(n)) {
+            continue;
+        }
+        let Some(parts) = names
+            .iter()
+            .map(|n| inv.candidate(n, cross_extent, horizontal))
+            .collect::<Option<Vec<Candidate>>>()
+        else {
+            continue;
+        };
+        let last = parts.len() - 1;
+        let mut base = vec![parts[0].frontier.near];
+        let mut total = parts[0].frontier.near + (axis_extent - 1 - parts[last].frontier.far);
+        for pair in parts.windows(2) {
+            let Some(facing) = facing_offset(&pair[0].profile, &pair[1].profile, horizontal) else {
+                base.clear();
+                break;
+            };
+            base.push(pair[0].extent + facing);
+            total += facing;
+        }
+        if base.len() != parts.len() {
+            continue; // two neighbours with no line on which both draw
+        }
+        members.push(Member {
+            lo: lo as i32,
+            hi: hi as i32,
+            base,
+            total,
+            parts,
+        });
+    }
+    if members.is_empty() {
+        return None;
+    }
+
+    // The gaps as written: everything before each component, summed, since a
+    // line may write two numbers in a row. A trailing one moves nothing.
+    let mut written_gaps: Vec<i32> = Vec::new();
+    let mut pending = 0i32;
+    for item in &compose.items {
+        match item {
+            ComposeItem::Gap(gap) => pending += *gap as i32,
+            ComposeItem::Part { .. } => {
+                written_gaps.push(std::mem::take(&mut pending));
+            }
+        }
+    }
+
+    let before = evaluate_gaps(&members, &written_gaps, &written_gaps);
+    if before.warnings == 0 {
+        return None; // nothing warns, so nothing to fix
+    }
+
+    // What each gap could usefully be: enough to put that clearance inside some
+    // glyph's range, and one cell either side of that. Outside the hull every
+    // glyph's clearance `i` is on the same side of its range, so stepping back
+    // towards it gains each glyph a cell there and costs it at most the one it
+    // takes from the last clearance — never a worse answer, and often a better
+    // one. The gaps as written are in the set whatever it says, so that "as
+    // written" is always one of the answers compared.
+    let mut choices: Vec<Vec<i32>> = Vec::with_capacity(written_gaps.len());
+    for (i, written) in written_gaps.iter().enumerate() {
+        let (mut lo, mut hi) = (*written, *written);
+        for member in &members {
+            lo = lo.min(member.lo - member.base[i] - 1);
+            hi = hi.max(member.hi - member.base[i] + 1);
+        }
+        choices.push((lo..=hi).collect());
+    }
+    let combinations: usize = choices.iter().map(Vec::len).product();
+    // A family is scored whole, once per set of gaps, so what a line costs is
+    // the product of the two. A line that would cost more than that is left
+    // alone rather than allowed to take a minute, exactly as an over-large
+    // variant family is above.
+    if combinations == 0 || combinations.saturating_mul(members.len()) > MAX_PATTERN_WORK {
+        return None;
+    }
+
+    let mut best: Option<(PatternKey, Vec<i32>)> = None;
+    let mut gaps = vec![0i32; choices.len()];
+    for mut counter in 0..combinations {
+        for (slot, values) in choices.iter().enumerate() {
+            gaps[slot] = values[counter % values.len()];
+            counter /= values.len();
+        }
+        let key = evaluate_gaps(&members, &gaps, &written_gaps);
+        if best.as_ref().is_none_or(|(b, _)| key < *b) {
+            best = Some((key, gaps.clone()));
+        }
+    }
+    let (key, gaps) = best?;
+    if (key.warnings, key.score) >= (before.warnings, before.score) {
+        return None; // a line nobody can improve keeps its warnings
+    }
+
+    let line = write_gaps_line(compose, &gaps)?;
+    // What the arithmetic says the layout measures, measured. Same rule as
+    // [`optimize_line`]: a command that quietly writes a layout it was wrong
+    // about is worse than one that writes nothing.
+    let (mut score_after, mut warnings_after) = (0, 0);
+    for member in &members {
+        let mut positions = vec![gaps[0]];
+        for (i, part) in member.parts.iter().enumerate().take(member.parts.len() - 1) {
+            positions.push(positions[i] + part.extent + gaps[i + 1]);
+        }
+        let parts: Vec<&Candidate> = member.parts.iter().collect();
+        let measured = clearances_at(&parts, &positions, axis_extent, horizontal)?;
+        if measured != member.clearances(&gaps) {
+            return None;
+        }
+        let s = score(&measured, member.lo, member.hi);
+        score_after += s;
+        warnings_after += usize::from(s > 0);
+    }
+    if (warnings_after, score_after) != (key.warnings, key.score) {
+        return None;
+    }
+    Some((
+        line,
+        Some(before.score),
+        key.score,
+        Some((before.warnings, key.warnings)),
+    ))
+}
+
+/// How the optimizer orders two sets of gaps for a pattern line. Derived `Ord`
+/// again, and the fields are [`Key`]'s with the family's own objective — how
+/// many glyphs warn — in front, and each of the rest summed over the family.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct PatternKey {
+    /// How many of the glyphs the line stands for warn at all. The objective.
+    warnings: usize,
+    /// How far outside their ranges the family is, summed.
+    score: i32,
+    edge_sum: i32,
+    inner_spread: i32,
+    /// `false` — the gaps as written — sorts first.
+    changed: bool,
+    gaps: Vec<i32>,
+}
+
+/// Score one set of gaps over the whole family.
+fn evaluate_gaps(members: &[Member], gaps: &[i32], written: &[i32]) -> PatternKey {
+    let mut key = PatternKey {
+        warnings: 0,
+        score: 0,
+        edge_sum: 0,
+        inner_spread: 0,
+        changed: gaps != written,
+        gaps: gaps.to_vec(),
+    };
+    let mut clearances: Vec<i32> = Vec::with_capacity(4);
+    for member in members {
+        member.clearances_into(gaps, &mut clearances);
+        let n = clearances.len();
+        let s = score(&clearances, member.lo, member.hi);
+        key.warnings += usize::from(s > 0);
+        key.score += s;
+        key.edge_sum += clearances[0] + clearances[n - 1];
+        if n == 4 {
+            key.inner_spread += (clearances[1] - clearances[2]).abs();
+        }
+    }
+    key
+}
+
+/// The line with `gaps` in place of the ones it writes, and everything else —
+/// the operator, the components as the block spells them, `ifexists`, the
+/// comment — left exactly as it is. A pattern line's components are the
+/// family's and not this pass's to choose.
+fn write_gaps_line(compose: &GlyphCompose, gaps: &[i32]) -> Option<String> {
+    let mut items: Vec<ComposeItem> = Vec::new();
+    let mut parts = compose
+        .items
+        .iter()
+        .filter(|i| matches!(i, ComposeItem::Part { .. }));
+    for gap in gaps {
+        if *gap != 0 {
+            items.push(ComposeItem::Gap(i16::try_from(*gap).ok()?));
+        }
+        items.push(parts.next()?.clone());
+    }
+    Some(
+        GlyphCompose {
+            op: compose.op,
+            items,
+            if_exists: compose.if_exists,
+            comment: compose.comment.clone(),
+        }
+        .format_line(),
+    )
 }
 
 /// Score one candidate combination, and the layout it is scored at.

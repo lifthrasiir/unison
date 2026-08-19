@@ -156,7 +156,7 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
                     continue;
                 };
                 eprintln!(
-                    "{file}:{}: glyph '{}': {} -> {}  ({} -> {})",
+                    "{file}:{}: glyph '{}': {} -> {}  ({} -> {}{})",
                     line + 1,
                     f.glyph,
                     lines[line].trim(),
@@ -168,6 +168,13 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
                         None => "todo".to_string(),
                     },
                     f.after,
+                    // A pattern line is scored over the family it stands for,
+                    // where the score is the tie-break and the count of glyphs
+                    // still warning is the point.
+                    match f.glyphs_warning {
+                        Some((before, after)) => format!(", {before} -> {after} glyphs warning"),
+                        None => String::new(),
+                    },
                 );
                 edits.push((line, f.new_line.clone()));
                 planned += 1;

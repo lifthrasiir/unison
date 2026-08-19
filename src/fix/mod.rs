@@ -19,8 +19,9 @@
 //! - **A fix only touches what is already reported.** A command that "improves"
 //!   a line nothing complained about is a command nobody can review, at 20k
 //!   glyphs least of all. Each command states its own version of this rule; for
-//!   clearance it is that the line must warn *and* the rewrite must lower the
-//!   score.
+//!   clearance it is that the line must warn *and* the rewrite must improve on
+//!   it — lower the score, or, for a line that stands for a whole family of
+//!   glyphs, leave fewer of them warning.
 //!
 //! The commands so far:
 //!

@@ -240,12 +240,139 @@ fn unmeasurable_lines_are_skipped() {
     assert!(plan(&format!("{src}\nglyph short:4x2 4 2\n..@@@@@@\n..@@@@@@\n")).is_empty());
 }
 
-/// A pattern block stands for a family whose parts are sized one by one, so no
-/// single line could be right for it.
+/// A pattern block stands for a family whose parts are sized one by one, so
+/// only what the family *shares* can be rewritten: the gaps. Two glyphs whose
+/// parts are drawn differently, and the one pair of gaps that puts both of them
+/// inside the range.
+///
+/// ```text
+/// l1:4x4 ####   r1:4x4 ####      l2:5x4 ####.  r2:3x4 ###
+/// ```
+const PATTERN_PARTS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph l1:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph r1:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph l2:5x4 5 4
+@@@@@@@@..
+@@@@@@@@..
+@@@@@@@@..
+@@@@@@@@..
+
+glyph r2:3x4 3 4
+@@@@@@
+@@@@@@
+@@@@@@
+@@@@@@
+
+glyph test-(x|y) 8 4
+\u{2FF0} 1 (l1:4x4|l2:5x4) 1 (r1:4x4|r2:3x4)
+";
+
 #[test]
-fn a_pattern_named_glyph_is_skipped() {
-    let src = TWO_PARTS.replace("glyph test-x 8 4", "glyph test-(x|y) 8 4");
-    assert!(plan(&src).is_empty());
+fn a_pattern_line_is_optimized_by_the_gaps_its_glyphs_share() {
+    let fixes = plan(PATTERN_PARTS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    assert_eq!(fix.glyph, "test-(x|y)", "the block, not one of its glyphs");
+    // 1/1/-2 and 1/2/-2 as written: both glyphs warn. One pair of gaps puts
+    // both inside — 0/0/0 and 0/1/0 — though neither glyph could have chosen
+    // it alone.
+    assert_eq!((fix.before, fix.after), (Some(5), 0));
+    assert_eq!(fix.glyphs_warning, Some((2, 0)));
+    assert_eq!(
+        fix.new_line, "\u{2FF0} (l1:4x4|l2:5x4) (r1:4x4|r2:3x4)",
+        "the components are the block's own; only the gaps are the fix",
+    );
+}
+
+/// Three glyphs, one of which the gaps can bring inside the range while the
+/// other two are pushed further out. Fewer glyphs warning is what the command
+/// is for, so it takes that trade even though the summed score is worse.
+#[test]
+fn fewer_warning_glyphs_beats_a_lower_score() {
+    let src = "\
+audit ideal-clearance test-* 0 1
+
+glyph la:5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph ra:4x4 4 4
+....@@@@
+....@@@@
+....@@@@
+....@@@@
+
+glyph lb:4x4 4 4
+..@@@@@@
+..@@@@@@
+..@@@@@@
+..@@@@@@
+
+glyph rb:4x4 4 4
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+
+glyph test-(x|y|z) 8 4
+\u{2FF0} (la:5x4|lb:4x4|lb:4x4) (ra:4x4|rb:4x4|rb:4x4)
+";
+    let fixes = plan(src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    // As written every glyph warns, and the total of the three scores is 4.
+    // The one gap that clears `test-x` costs the other two 2 each: three
+    // warnings at 4, or two at 6, and the count decides.
+    assert_eq!((fix.before, fix.after), (Some(4), 6));
+    assert_eq!(fix.glyphs_warning, Some((3, 2)));
+    assert_eq!(
+        fix.new_line,
+        "\u{2FF0} (la:5x4|lb:4x4|lb:4x4) -1 (ra:4x4|rb:4x4|rb:4x4)",
+    );
+}
+
+/// A glyph of the family whose parts cannot be measured — one of them names
+/// nothing — is not part of the answer, and a family none of whose glyphs can
+/// be measured is left alone.
+#[test]
+fn a_glyph_the_line_cannot_measure_is_left_out_of_the_answer() {
+    let src = PATTERN_PARTS.replace("(r1:4x4|r2:3x4)", "(r1:4x4|nothing:3x4)");
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    // `test-x` alone decides now: 1/1/-2 to 0/0/0.
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(2), 0));
+    assert_eq!(fixes[0].glyphs_warning, Some((1, 0)));
+
+    let none = PATTERN_PARTS
+        .replace("(r1:4x4|r2:3x4)", "(nope:4x4|nothing:3x4)")
+        .replace("glyph r1:4x4 4 4", "glyph unused-r1:4x4 4 4");
+    assert!(plan(&none).is_empty());
+}
+
+/// A pattern line whose gaps already suit every glyph it stands for is not
+/// touched, and neither is one no rule reaches.
+#[test]
+fn a_pattern_line_that_warns_about_nothing_is_left_alone() {
+    let good = PATTERN_PARTS.replace(
+        "\u{2FF0} 1 (l1:4x4|l2:5x4) 1 (r1:4x4|r2:3x4)",
+        "\u{2FF0} (l1:4x4|l2:5x4) (r1:4x4|r2:3x4)",
+    );
+    assert!(plan(&good).is_empty());
+    assert!(plan(&PATTERN_PARTS.replace("test-*", "other-*")).is_empty());
 }
 
 /// Three parts, each drawing only its first column of three, in a 9x3 box.
@@ -351,4 +478,15 @@ fn applying_a_plan_removes_the_warnings_it_was_scored_on() {
     // A second run is a no-op: what it would rewrite, it already did.
     let once = fixed(TWO_PARTS);
     assert_eq!(fixed(&once), once);
+}
+
+/// The same, for a line that stands for a family: the count the plan claims to
+/// have brought down is the count the check reports.
+#[test]
+fn applying_a_pattern_plan_removes_the_warnings_of_every_glyph_it_cleared() {
+    let before = clearance_warnings(PATTERN_PARTS);
+    assert_eq!(before.len(), 3, "both glyphs warn: {before:?}");
+    let once = fixed(PATTERN_PARTS);
+    assert!(clearance_warnings(&once).is_empty(), "{once}");
+    assert_eq!(fixed(&once), once, "a second run is a no-op");
 }
