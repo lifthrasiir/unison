@@ -32,8 +32,10 @@
 //! differ only in the names substituted into it, so what varies is whether a
 //! substituted `ref` target **exists**
 //! ([`crate::render::ttf_builder::expand`]) and, through that, whether an
-//! **anchor** derives against it ([`crate::issues`]). An IDC line cannot vary,
-//! because the pattern expansion does not carry `compose` at all.
+//! **anchor** derives against it ([`crate::issues`]). An IDC line is the third:
+//! its components expand with the block too, and the split is then solved from
+//! the boxes *that* glyph's parts declare, so every finding it makes names the
+//! glyph it made it about.
 //!
 //! A finding with no glyph of its own is matched back to its item by line
 //! rather than by carrying an [`ItemRef`] on every [`Issue`], because an

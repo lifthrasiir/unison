@@ -194,6 +194,16 @@ pub enum ComposeItem {
 pub struct GlyphCompose {
     pub op: crate::compose::IdcOp,
     pub items: Vec<ComposeItem>,
+    /// `ifexists`, the line's last token: the components are names whose
+    /// absence is expected, exactly as [`GlyphRef::if_exists`] says of a ref
+    /// target — and, for the same reason, because one pattern block writes a
+    /// split for thousands of glyphs and only some of them have the parts.
+    ///
+    /// It holds for the *line*, not for a component: half a split is not a
+    /// shape, so a line one of whose components nothing defines stands for
+    /// nothing at all — no refs and no diagnostics. See
+    /// [`crate::compose::stands_for_nothing`].
+    pub if_exists: bool,
     /// Trailing `// …` comment of the line, without its marker.
     pub comment: Option<String>,
 }
@@ -220,6 +230,9 @@ impl GlyphCompose {
                     quote_token(raw_name.as_deref().unwrap_or(name))
                 }
             });
+        }
+        if self.if_exists {
+            parts.push("ifexists".into());
         }
         format!(
             "{}{}",

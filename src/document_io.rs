@@ -252,13 +252,22 @@
 //!   names has a target varies and only those should survive.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges.
-//! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT… ` — an IDC line: the glyph's box split along
-//!   one axis, the offsets *derived* from what the components declare. Each
-//!   token is a gap if it reads as a number and a component name otherwise. It
-//!   is a sibling of `ref`, not sugar for one — the point is that what the
-//!   parts leave each other inside the box is checked rather than merely drawn.
-//!   See [`crate::compose`] for the arity, the clearance check and the `:WxH-l`
-//!   variant name rule it reads.
+//! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT… [ifexists]` — an IDC line: the glyph's box split
+//!   along one axis, the offsets *derived* from what the components declare.
+//!   Each token is a gap if it reads as a number and a component name
+//!   otherwise. It is a sibling of `ref`, not sugar for one — the point is that
+//!   what the parts leave each other inside the box is checked rather than
+//!   merely drawn. See [`crate::compose`] for the arity, the clearance check
+//!   and the `:WxH-l` variant name rule it reads.
+//!
+//!   A component name takes the patterns of [`crate::pattern`] and expands in
+//!   lock-step with the block's name, as a `ref` target does — but the layout
+//!   is solved per expanded glyph, since that is the whole point of it: the
+//!   parts of one expansion are sized differently from the next one's, so the
+//!   same line writes different offsets for each. `ifexists`, only ever the
+//!   line's *last* token, says the components are names that may or may not be
+//!   there, and a line missing one stands for nothing rather than for half a
+//!   glyph.
 //! - `glyph NAME = TARGET` — an alias: a second *name* for `TARGET`, sharing
 //!   its glyph id rather than declaring a glyph of its own. It takes no flags
 //!   and has no body; a glyph that needs either — including one that must
@@ -654,12 +663,23 @@ fn parse_ref_line(
 /// arity, sizes and the layout are [`crate::compose`]'s business, so a line
 /// that tokenizes at all parses here. `base` is the `@` base in force, as for a
 /// `ref`.
+///
+/// A trailing `ifexists` is the line's flag rather than a component, and only a
+/// trailing one is: unlike on a `ref`, where the flag may sit among the other
+/// words, an IDC line's tokens are all names and numbers, so the word is read
+/// as a flag exactly where a component cannot be reordered away from it. A line
+/// whose only token is `ifexists` names a glyph so called, the way `map`
+/// leaves its own last token alone.
 fn parse_compose_line(
     op: crate::compose::IdcOp,
     parts: &[String],
     comment: Option<String>,
     base: Option<&str>,
 ) -> GlyphCompose {
+    let (if_exists, parts) = match parts.split_last() {
+        Some((last, head)) if last == "ifexists" && !head.is_empty() => (true, head),
+        _ => (false, parts),
+    };
     let items = parts
         .iter()
         .map(|token| match token.parse::<i16>() {
@@ -671,7 +691,12 @@ fn parse_compose_line(
             }
         })
         .collect();
-    GlyphCompose { op, items, comment }
+    GlyphCompose {
+        op,
+        items,
+        if_exists,
+        comment,
+    }
 }
 
 /// Parse a range token like `3` (single value) or `3..5` (inclusive range).

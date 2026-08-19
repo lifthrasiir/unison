@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 
 use super::{
-    Document, DocumentItem, GlyphBody, GlyphName, GlyphRef, MAX_EXPANSION,
-    find_invalid_inline_ranges, parse_glyph_name, split_top_level_pipes,
+    ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, GlyphName, GlyphRef,
+    MAX_EXPANSION, find_invalid_inline_ranges, parse_glyph_name, split_top_level_pipes,
 };
 use crate::pattern::{NamePartsMap, NamePattern, substitute_name_parts};
 
@@ -106,10 +106,10 @@ impl SliceNameParts {
     }
 }
 
-/// Expand a ref-only glyph item (`glyph NAME` + `ref ...` lines, no pixel
-/// data) whose name and/or ref targets carry alternation/range patterns,
-/// directly from its in-memory `GlyphName`/`GlyphRef`s (no serialize/reparse
-/// round-trip through `.unf` text).
+/// Expand a ref-only glyph item (`glyph NAME` + `ref`/IDC lines, no pixel data)
+/// whose name, ref targets and/or IDC components carry alternation/range
+/// patterns, directly from its in-memory `GlyphName`/`GlyphRef`s (no
+/// serialize/reparse round-trip through `.unf` text).
 ///
 /// Mirrors the historical behavior exactly: pixel data is not meaningful
 /// for a batch of expanded ref-composites, so expanded items always come
@@ -117,9 +117,15 @@ impl SliceNameParts {
 /// already-pattern-named item, and `.unf` content never combines a
 /// pattern name with pixel data on the same glyph (patterns are only
 /// used for ref/composite batches).
+///
+/// An IDC line's components expand exactly as a `ref` target does, in lock-step
+/// with the block's name. What the line *stands for* is not expanded here at
+/// all: the split is solved per glyph from the boxes that glyph's own parts
+/// declare, which is [`crate::compose`]'s business and happens downstream.
 pub fn expand_glyph_block(
     name: &GlyphName,
     refs: &[GlyphRef],
+    compose: &[GlyphCompose],
     scale: u8,
 ) -> Result<Vec<DocumentItem>, String> {
     let name_pattern = NamePattern::parse(&name.display()).map_err(|e| e.to_string())?;
@@ -140,6 +146,19 @@ pub fn expand_glyph_block(
         parsed_refs.push((pattern, template));
     }
 
+    // The same, per IDC line: every component is a pattern of its own, and the
+    // gaps between them are the line's whatever it expands to.
+    let mut parsed_compose: Vec<(Vec<NamePattern>, &GlyphCompose)> = Vec::new();
+    for c in compose {
+        let mut patterns = Vec::new();
+        for item in &c.items {
+            if let ComposeItem::Part { name, .. } = item {
+                patterns.push(NamePattern::parse_segments(name).map_err(|e| e.to_string())?);
+            }
+        }
+        parsed_compose.push((patterns, c));
+    }
+
     // The glyph-name pattern determines how many glyphs are declared. Each
     // ref pattern is consumed cyclically in lock-step with those names.
     let n = name_pattern.len();
@@ -156,7 +175,30 @@ pub fn expand_glyph_block(
             })
             .collect();
 
-        if expanded_refs.is_empty() {
+        let expanded_compose: Vec<GlyphCompose> = parsed_compose
+            .iter()
+            .map(|(patterns, c)| {
+                let mut patterns = patterns.iter();
+                GlyphCompose {
+                    op: c.op,
+                    items: c
+                        .items
+                        .iter()
+                        .map(|item| match item {
+                            ComposeItem::Gap(gap) => ComposeItem::Gap(*gap),
+                            ComposeItem::Part { raw_name, .. } => ComposeItem::Part {
+                                name: patterns.next().expect("one pattern per part").get(i),
+                                raw_name: raw_name.clone(),
+                            },
+                        })
+                        .collect(),
+                    if_exists: c.if_exists,
+                    comment: None,
+                }
+            })
+            .collect();
+
+        if expanded_refs.is_empty() && expanded_compose.is_empty() {
             continue;
         }
 
@@ -164,6 +206,7 @@ pub fn expand_glyph_block(
             name: expanded_name,
             body: GlyphBody {
                 refs: expanded_refs,
+                compose: expanded_compose,
                 scale,
                 ..GlyphBody::new()
             },

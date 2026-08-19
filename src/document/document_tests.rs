@@ -240,7 +240,12 @@ fn a_name_part_value_over_the_expansion_limit_is_an_error() {
 
 #[test]
 fn expand_glyph_block_rejects_zero_repeat_without_panicking() {
-    let result = expand_glyph_block(&GlyphName("glyph*0".to_string()), &[pattern_ref("base")], 1);
+    let result = expand_glyph_block(
+        &GlyphName("glyph*0".to_string()),
+        &[pattern_ref("base")],
+        &[],
+        1,
+    );
 
     assert!(result.is_err());
 }
@@ -263,6 +268,7 @@ fn expand_glyph_block_expands_a_hex_range() {
             &NamePartsMap::new(),
         )),
         &[pattern_ref("base")],
+        &[],
         1,
     )
     .unwrap();
@@ -282,6 +288,7 @@ fn glyph_name_count_drives_ref_pattern_expansion() {
     let items = expand_glyph_block(
         &GlyphName("out-(a|b)".to_string()),
         &[pattern_ref("dep-(1|2|3|4)")],
+        &[],
         1,
     )
     .unwrap();
@@ -308,6 +315,7 @@ fn glyph_block_group_mult() {
     let items = expand_glyph_block(
         &GlyphName("out-(a|b**3)".to_string()),
         &[pattern_ref("base")],
+        &[],
         1,
     )
     .unwrap();
@@ -330,6 +338,7 @@ fn glyph_block_group_mult_with_individual_repeats() {
     let items = expand_glyph_block(
         &GlyphName("out-(a*2|b**3)".to_string()),
         &[pattern_ref("base")],
+        &[],
         1,
     )
     .unwrap();
@@ -354,6 +363,7 @@ fn glyph_block_expands_to_its_largest_alternation_group() {
     let items = expand_glyph_block(
         &GlyphName("out-(a|b)-(1|2|3)".to_string()),
         &[pattern_ref("base")],
+        &[],
         1,
     )
     .unwrap();

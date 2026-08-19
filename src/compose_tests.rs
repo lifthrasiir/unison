@@ -14,6 +14,7 @@ fn line(op: IdcOp, items: Vec<ComposeItem>) -> GlyphCompose {
     GlyphCompose {
         op,
         items,
+        if_exists: false,
         comment: None,
     }
 }
@@ -1001,4 +1002,46 @@ fn an_undecided_line_is_not_measured() {
         of_severity(&issues, Severity::Warning).is_empty(),
         "{issues:?}"
     );
+}
+
+/// `ifexists`: a line one of whose components nothing defines derives no refs
+/// and says nothing — not the "not defined" error the same line would be
+/// without the flag, and not a Todo for a component that also happens to be
+/// undecided. Half a split is not a shape, so the line stands for nothing at
+/// all rather than for the parts that are there.
+#[test]
+fn an_ifexists_line_missing_a_component_stands_for_nothing() {
+    let dims = table(&[("a:4x4", (4, 4))]);
+    let items = vec![part("a:4x4"), part("b:4x4")];
+    let mut conditional = line(IdcOp::LeftRight, items.clone());
+    conditional.if_exists = true;
+
+    let (refs, issues) = expand(Some((8, 4)), &conditional, &dims);
+    assert!(refs.is_empty(), "{refs:?}");
+    assert!(issues.is_empty(), "{issues:?}");
+
+    // Without the flag the very same line is the error it always was.
+    let (refs, issues) = expand(Some((8, 4)), &line(IdcOp::LeftRight, items), &dims);
+    assert_eq!(refs.len(), 2);
+    assert_eq!(
+        errors(&issues),
+        vec!["glyph 'test': `\u{2FF0}` component 'b:4x4' is not defined"]
+    );
+}
+
+/// The flag is about a name being *there*, not about it being usable: a
+/// component that is defined but declares no box is the same error it is
+/// without the flag, since the author's name did find a glyph.
+#[test]
+fn an_ifexists_line_still_reports_a_component_that_declares_no_box() {
+    let dims = |name: &str| match name {
+        "a:4x4" => PartDims::Size(4, 4),
+        "b:4x4" => PartDims::Undeclared,
+        _ => PartDims::Unknown,
+    };
+    let mut conditional = line(IdcOp::LeftRight, vec![part("a:4x4"), part("b:4x4")]);
+    conditional.if_exists = true;
+    let (refs, issues) = expand(Some((8, 4)), &conditional, &dims);
+    assert_eq!(refs.len(), 2);
+    assert_eq!(errors(&issues).len(), 1, "{issues:?}");
 }

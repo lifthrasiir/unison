@@ -144,20 +144,6 @@ fn expand_inner(
                 let name_str = substitute_name_parts(&name.display(), name_parts);
                 if is_name_pattern(&name_str) {
                     let subst_name = GlyphName(name_str);
-                    // A pattern block expands in lock-step with its refs, and an
-                    // IDC line is not one: its parts are sized per glyph, so
-                    // one line cannot stand for a family. Said out loud, since
-                    // the expansion below would simply not carry it.
-                    if !body.compose.is_empty() {
-                        diagnostics.push(Diagnostic::error(
-                            origin,
-                            format!(
-                                "glyph pattern '{}' has an IDC line; a split is stated per \
-                                 glyph, so write the block out",
-                                subst_name.display(),
-                            ),
-                        ));
-                    }
                     let subst_refs: Vec<GlyphRef> = body
                         .refs
                         .iter()
@@ -167,7 +153,25 @@ fn expand_inner(
                             ..r.clone()
                         })
                         .collect();
-                    match expand_glyph_block(&subst_name, &subst_refs, body.scale) {
+                    // An IDC line expands with the block exactly as the refs
+                    // do. What it *derives* does not: the split is solved per
+                    // glyph, below, from the boxes each expansion's own parts
+                    // declare, so one line can write a different layout for
+                    // every glyph it stands for.
+                    let subst_compose: Vec<crate::document::GlyphCompose> = body
+                        .compose
+                        .iter()
+                        .map(|c| {
+                            let mut c = c.clone();
+                            for item in &mut c.items {
+                                if let crate::document::ComposeItem::Part { name, .. } = item {
+                                    *name = substitute_name_parts(name, name_parts);
+                                }
+                            }
+                            c
+                        })
+                        .collect();
+                    match expand_glyph_block(&subst_name, &subst_refs, &subst_compose, body.scale) {
                         Ok(expanded) if expanded.is_empty() => {
                             // `expand_glyph_block` only emits a glyph per
                             // expanded name when that name has refs, so a
@@ -177,7 +181,8 @@ fn expand_inner(
                                 origin,
                                 format!(
                                     "glyph pattern '{}' defines no glyphs; a pattern glyph \
-                                     needs `ref` lines, a pixel grid alone cannot be shared",
+                                     needs `ref` or IDC lines, a pixel grid alone cannot be \
+                                     shared",
                                     subst_name.display(),
                                 ),
                             ));
@@ -421,7 +426,7 @@ fn expand_inner(
 /// errors per glyph across 20k glyphs, failing every build over source that is
 /// merely unfinished.
 fn expand_compose_lines(
-    all_items: &mut [ExpandedItem],
+    all_items: &mut Vec<ExpandedItem>,
     diagnostics: &mut Vec<Diagnostic>,
     undecided_parts: &mut HashSet<(Option<ItemRef>, String)>,
     clearances: &crate::audit::IdealClearances,
@@ -442,20 +447,59 @@ fn expand_compose_lines(
                 .or_insert_with(|| declared(body));
         }
     }
-    let dims = |name: &str| match boxes.get(name) {
+    let dims_of = |boxes: &HashMap<String, Option<(u16, u16)>>, name: &str| match boxes.get(name) {
         None => crate::compose::PartDims::Unknown,
         Some(None) => crate::compose::PartDims::Undeclared,
         Some(Some((w, h))) => crate::compose::PartDims::Size(*w, *h),
     };
 
+    // The glyphs an `ifexists` line leaves standing for nothing: the line was
+    // the whole of the shape, so what is left is not an empty glyph but no
+    // glyph, and it is dropped outright. That is what lets the `map` that
+    // reaches it say `ifexists` too, and what makes an unconditional one say
+    // "not defined" rather than the puzzling "defined but not built".
+    //
+    // Read before anything is derived, and the names are taken out of `boxes`,
+    // so a line naming a glyph that is about to go finds it missing rather than
+    // sized. One round of that, not a fixpoint: a component of a component is a
+    // glyph of its own and answers for itself.
+    let mut drop_item = vec![false; all_items.len()];
+    for (idx, e) in all_items.iter().enumerate() {
+        let DocumentItem::Glyph { body, .. } = &e.item else {
+            continue;
+        };
+        // An IDC glyph states its `W H` on the header and so carries a grid,
+        // which is empty until someone draws on it: it is the box the split
+        // fills, not a shape of its own, so a blank one is not content. A grid
+        // with so much as a hardblank in it is, and keeps the glyph.
+        let empty = body.refs.is_empty()
+            && !body.keep
+            && body.pixels.as_ref().is_none_or(|g| g.is_all_empty());
+        drop_item[idx] = empty
+            && body
+                .compose
+                .iter()
+                .any(|c| crate::compose::stands_for_nothing(c, &|n| dims_of(&boxes, n)));
+    }
+    if drop_item.iter().any(|&d| d) {
+        let mut surviving: HashSet<String> = HashSet::new();
+        for (idx, e) in all_items.iter().enumerate() {
+            if let (false, DocumentItem::Glyph { name, .. }) = (drop_item[idx], &e.item) {
+                surviving.insert(name.display());
+            }
+        }
+        boxes.retain(|name, _| surviving.contains(name));
+    }
+    let dims = |name: &str| dims_of(&boxes, name);
+
     let profiles = ink_profiles(all_items, clearances);
     let ink = |name: &str| profiles.get(name);
 
-    for e in all_items.iter_mut() {
+    for (idx, e) in all_items.iter_mut().enumerate() {
         let DocumentItem::Glyph { name, body } = &mut e.item else {
             continue;
         };
-        if body.compose.is_empty() {
+        if body.compose.is_empty() || drop_item[idx] {
             continue;
         }
         let glyph_name = name.display();
@@ -464,17 +508,25 @@ fn expand_compose_lines(
         // glyph", and there is no rule for combining them: ⿰ inside ⿱ is a
         // component that is itself a composite, written as its own glyph.
         if body.compose.len() > 1 {
-            diagnostics.push(Diagnostic::error(
-                e.origin,
-                format!(
-                    "glyph '{glyph_name}' has {} IDC lines; a glyph is split once, and a \
-                     part that is itself split is a glyph of its own",
-                    body.compose.len(),
-                ),
-            ));
+            diagnostics.push(
+                Diagnostic::error(
+                    e.origin,
+                    format!(
+                        "glyph '{glyph_name}' has {} IDC lines; a glyph is split once, and a \
+                         part that is itself split is a glyph of its own",
+                        body.compose.len(),
+                    ),
+                )
+                .about(&glyph_name),
+            );
         }
         let mut derived = Vec::new();
         for compose in &body.compose {
+            // A line that stands for nothing says nothing either — not even
+            // that its components have yet to pick a variant.
+            if crate::compose::stands_for_nothing(compose, &dims) {
+                continue;
+            }
             for name in compose.part_names() {
                 if crate::compose::is_undecided(name) {
                     undecided_parts.insert((e.origin, name.to_string()));
@@ -497,7 +549,11 @@ fn expand_compose_lines(
                 rule.as_ref(),
             );
             for (severity, message) in issues {
-                diagnostics.push(Diagnostic::new(severity, e.origin, message));
+                // Named down to the glyph, not just to the line: one pattern
+                // block writes the split of thousands of glyphs, and what each
+                // of them is made of — so what is wrong with it — is its own.
+                // See [`crate::glyph_flags`].
+                diagnostics.push(Diagnostic::new(severity, e.origin, message).about(&glyph_name));
             }
             derived.extend(refs);
         }
@@ -506,6 +562,14 @@ fn expand_compose_lines(
         derived.append(&mut body.refs);
         body.refs = derived;
         body.compose.clear();
+    }
+
+    if drop_item.iter().any(|&d| d) {
+        let mut idx = 0;
+        all_items.retain(|_| {
+            idx += 1;
+            !drop_item[idx - 1]
+        });
     }
 }
 
@@ -1385,6 +1449,31 @@ mod compose_expand_tests {
             .collect()
     }
 
+    /// Every ref of `glyph`, with the offset the line derived for it.
+    fn placed<'a>(expansion: &'a super::Expansion, glyph: &str) -> Vec<(&'a str, (i16, i16))> {
+        expansion
+            .items()
+            .filter_map(|item| match item {
+                crate::document::DocumentItem::Glyph { name, body } if name.display() == glyph => {
+                    Some(
+                        body.refs
+                            .iter()
+                            .map(|r| (r.name.as_str(), r.offset.unwrap_or_default())),
+                    )
+                }
+                _ => None,
+            })
+            .flatten()
+            .collect()
+    }
+
+    fn defines(expansion: &super::Expansion, glyph: &str) -> bool {
+        expansion.items().any(|item| {
+            matches!(item, crate::document::DocumentItem::Glyph { name, .. }
+                if name.display() == glyph)
+        })
+    }
+
     fn refs_of<'a>(expansion: &'a super::Expansion, glyph: &str) -> Vec<&'a str> {
         expansion
             .items()
@@ -1485,6 +1574,131 @@ glyph p-x 4 2
         // …and with no rule at all.
         let expansion = expand(CANYON);
         assert!(of(&expansion, Severity::Warning).is_empty());
+    }
+
+    /// The parts of two glyphs written by one line, as a Han source writes a
+    /// family: the components expand in lock-step with the block's name, and
+    /// the *layout* is solved per glyph — the same line puts the second part at
+    /// 1 in one expansion and at 2 in the next, because that expansion's first
+    /// part is that much wider.
+    #[test]
+    fn a_pattern_block_expands_its_idc_line_per_glyph() {
+        let expansion = expand(
+            "\
+glyph p-a1:1x2 1 2
+@.
+@.
+glyph p-a2:2x2 2 2
+@@
+@@
+glyph p-b1:3x2 3 2
+@@@
+@@@
+glyph p-b2:2x2 2 2
+@@
+@@
+glyph p-x(1|2) 4 2
+\u{2FF0} p-a(1|2):(1|2)x2 p-b(1|2):(3|2)x2
+",
+        );
+        assert!(
+            of(&expansion, Severity::Error).is_empty(),
+            "{:?}",
+            of(&expansion, Severity::Error)
+        );
+        assert_eq!(
+            placed(&expansion, "p-x1"),
+            vec![("p-a1:1x2", (0, 0)), ("p-b1:3x2", (1, 0))],
+        );
+        assert_eq!(
+            placed(&expansion, "p-x2"),
+            vec![("p-a2:2x2", (0, 0)), ("p-b2:2x2", (2, 0))],
+        );
+    }
+
+    /// A finding about one expansion of a pattern line names the glyph it is
+    /// about, so the specimen faults that cell rather than every glyph the line
+    /// declares (see [`crate::glyph_flags`]).
+    #[test]
+    fn a_finding_about_one_expansion_names_that_glyph() {
+        let expansion = expand(
+            "\
+glyph p-a:2x2 2 2
+@@
+@@
+glyph p-x(1|2) 4 2
+\u{2FF0} p-a:2x2 (p-a:2x2|p-gone:2x2)
+",
+        );
+        let faulted: Vec<_> = expansion
+            .diagnostics
+            .iter()
+            .filter(|d| d.severity == Severity::Error)
+            .map(|d| (d.glyph.as_deref(), d.message.as_str()))
+            .collect();
+        // The missing component and the ref it derived, both about `p-x2`
+        // alone — `p-x1` is written by the same line and is faultless.
+        assert_eq!(faulted.len(), 2, "{faulted:?}");
+        assert!(
+            faulted.iter().all(|(g, _)| *g == Some("p-x2")),
+            "{faulted:?}"
+        );
+    }
+
+    /// `ifexists` on the line: the expansions whose parts are all there are
+    /// built, and the ones missing one are not glyphs at all — no refs, no
+    /// diagnostics, and nothing left behind for a `map` to reach.
+    #[test]
+    fn an_ifexists_idc_line_drops_the_expansions_that_name_nothing() {
+        let src = "\
+glyph p-a:2x2 2 2
+@@
+@@
+glyph p-x(1|2) 4 2
+\u{2FF0} p-a:2x2 (p-a:2x2|p-gone:2x2) ifexists
+";
+        let expansion = expand(src);
+        assert!(
+            expansion.diagnostics.is_empty(),
+            "{:?}",
+            expansion
+                .diagnostics
+                .iter()
+                .map(|d| &d.message)
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(
+            placed(&expansion, "p-x1"),
+            vec![("p-a:2x2", (0, 0)), ("p-a:2x2", (2, 0))],
+        );
+        assert!(!defines(&expansion, "p-x2"));
+
+        // …and a `map` reaching the glyph that did not survive says so, in the
+        // words of a name nothing defines rather than of a glyph that is there
+        // but empty.
+        let expansion = expand(&format!("{src}map U+4E00 = p-x2\n"));
+        assert_eq!(
+            of(&expansion, Severity::Error),
+            vec!["map 'U+4E00' targets undefined glyph 'p-x2'"],
+        );
+    }
+
+    /// A glyph that has more to it than the conditional line keeps its other
+    /// content: only the split goes.
+    #[test]
+    fn an_ifexists_line_leaves_the_rest_of_the_block_alone() {
+        let expansion = expand(
+            "\
+glyph p-a:2x2 2 2
+@@
+@@
+glyph p-x 4 2
+\u{2FF0} p-a:2x2 p-gone:2x2 ifexists
+ref p-a:2x2 0 0
+",
+        );
+        assert!(expansion.diagnostics.is_empty());
+        assert_eq!(placed(&expansion, "p-x"), vec![("p-a:2x2", (0, 0))]);
     }
 
     /// `$$` is a cell the source keeps clear on purpose, so it holds a

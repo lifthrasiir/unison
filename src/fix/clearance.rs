@@ -622,6 +622,9 @@ fn write_line(compose: &GlyphCompose, chosen: &[&Candidate], positions: &[i32]) 
         GlyphCompose {
             op: compose.op,
             items,
+            // A rewrite picks variants and moves gaps; whether the line is
+            // conditional is not its business.
+            if_exists: compose.if_exists,
             comment: compose.comment.clone(),
         }
         .format_line(),

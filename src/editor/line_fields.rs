@@ -183,6 +183,12 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
         // told apart exactly as the parser tells them apart, so a rename of a
         // component reaches the line that uses it.
         kw if crate::compose::IdcOp::from_token(kw).is_some() => {
+            // A trailing `ifexists` is the line's flag, not a component, so it
+            // is no more a name here than it is on a `map`.
+            let rest = match rest.split_last() {
+                Some((last, head)) if last.value == "ifexists" && !head.is_empty() => head,
+                _ => rest,
+            };
             for span in rest {
                 if !span.value.is_empty() && span.value.parse::<i16>().is_err() {
                     fields.push(field(FieldRole::GlyphRef, leading, span));
