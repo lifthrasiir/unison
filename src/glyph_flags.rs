@@ -321,7 +321,11 @@ mod tests {
     fn a_fault_in_the_line_itself_reaches_every_expansion() {
         let flags = flags_of(&format!(
             "{HEAD}\
-             glyph part-($#0061..0063) 1 1\n\
+             glyph part-0061 1 1\n\
+             ref sq\n\
+             glyph part-0062 1 1\n\
+             ref sq\n\
+             glyph part-0063 1 1\n\
              ref sq\n\
              glyph a-($#0061..0063) 1 1\n\
              ref part-($#0061..0063)\n"

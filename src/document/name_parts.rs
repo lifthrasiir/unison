@@ -186,6 +186,54 @@ pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<Docu
     Ok(items)
 }
 
+/// [`expand_glyph_block`] reduced to the names, with no body built at all: the
+/// glyph each expansion declares, and the names its `ref`s and IDC components
+/// expand to alongside it.
+///
+/// The slot list is every `ref` in written order followed by every IDC line's
+/// components in written order — a fixed order, so the *i*th slot of two
+/// expansions is the same written name in both. Those slots are the only thing
+/// that varies between the expansions of one block (everything else the block
+/// states is shared verbatim, see [`expand_glyph_block`]), which is what makes
+/// slot-by-slot comparison the identity test [`crate::merge`] runs.
+///
+/// Unlike [`expand_glyph_block`] this substitutes `$name-parts` itself, on the
+/// three names it reads, so a caller holding the block as written needs no
+/// body clone to get at them.
+pub fn expand_glyph_block_slots(
+    name: &GlyphName,
+    body: &GlyphBody,
+    name_parts: &NamePartsMap,
+) -> Result<Vec<(String, Vec<String>)>, String> {
+    let name_pattern = NamePattern::parse(&substitute_name_parts(&name.display(), name_parts))
+        .map_err(|e| e.to_string())?;
+
+    let mut slot_patterns: Vec<NamePattern> = Vec::new();
+    for r in &body.refs {
+        slot_patterns.push(
+            NamePattern::parse_segments(&substitute_name_parts(&r.name, name_parts))
+                .map_err(|e| e.to_string())?,
+        );
+    }
+    for c in &body.compose {
+        for part in c.part_names() {
+            slot_patterns.push(
+                NamePattern::parse_segments(&substitute_name_parts(part, name_parts))
+                    .map_err(|e| e.to_string())?,
+            );
+        }
+    }
+
+    Ok((0..name_pattern.len())
+        .map(|i| {
+            (
+                name_pattern.get(i),
+                slot_patterns.iter().map(|p| p.get(i)).collect(),
+            )
+        })
+        .collect())
+}
+
 // ---------------------------------------------------------------------------
 // DocLine — the new ground truth for the editor
 

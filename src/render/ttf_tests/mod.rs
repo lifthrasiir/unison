@@ -19,6 +19,7 @@ mod desync;
 mod gpos;
 mod gsub;
 mod hints;
+mod merge;
 mod misc;
 mod uvs;
 

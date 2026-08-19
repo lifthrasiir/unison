@@ -1988,3 +1988,28 @@ fn a_ref_offset_names_the_targets_box_corner() {
     assert_eq!(placed((1, 0), (2, 3)), (3, 1));
     assert_eq!(placed((0, 1), (2, 3)), (2, 2));
 }
+
+/// A name merged into another of its block's expansions is still a name the
+/// editor finds in the text, so resolution has to answer for it exactly as it
+/// does for a declared alias — otherwise a perfectly good `ref a-j` is
+/// underlined as undefined. See [`crate::merge`].
+#[test]
+fn a_merged_away_name_still_resolves() {
+    use crate::document_io;
+
+    let input = "\
+glyph a-(g|j|k) 1 1
+@@
+glyph user 1 1
+ref a-j
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (resolved, _alt_idx) = resolve_named_glyphs_with_parts(&[&doc], &NamePartsMap::new());
+    for name in ["a-g", "a-j", "a-k", "user"] {
+        assert!(resolved.contains_key(name), "{name} should resolve");
+    }
+    assert_eq!(
+        resolved["a-j"].grid.width, resolved["a-g"].grid.width,
+        "the merged-away name resolves to the glyph it is a name for",
+    );
+}

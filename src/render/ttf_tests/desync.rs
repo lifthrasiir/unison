@@ -177,10 +177,13 @@ meta descent 0
 glyph dot 1 1
 @@
 
+glyph dot-two 1 1
+@@
+
 glyph p-(a|b) desync 2 2
 @@..
 @@..
-ref dot 0 0
+ref (dot|dot-two) 0 0
 map A = p-a
 map B = p-b
 ";

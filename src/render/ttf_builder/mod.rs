@@ -116,7 +116,7 @@ pub(crate) use expand::{
     expand_map_codepoints, expand_map_pairs, expand_uvs_map_triples, glyph_name_exists,
     parse_map_char,
 };
-pub(crate) use gsub::remap_rule_kind;
+pub(crate) use gsub::{remap_rule_kind, shadowed_single_subst_rules};
 
 #[cfg(any(feature = "editor", test))]
 use collect::collect_glyph_data_cached;
@@ -170,6 +170,10 @@ struct CollectedColorLayer {
 
 #[derive(Clone)]
 struct ExpandedRemap {
+    /// The `remap` line this came from, for the one check that reports
+    /// against a rule rather than building one — see
+    /// [`gsub::shadowed_single_subst_rules`].
+    origin: Option<ItemRef>,
     lookbehind: Vec<Vec<String>>,
     /// Each inner Vec is a sequence of input glyph positions (len > 1 = ligature).
     source: Vec<Vec<String>>,

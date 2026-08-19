@@ -18,6 +18,7 @@ mod glyph_flags;
 mod golden;
 mod issues;
 mod math;
+mod merge;
 mod meta;
 mod on_demand;
 mod parallel;

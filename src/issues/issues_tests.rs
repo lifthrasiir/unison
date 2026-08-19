@@ -1010,15 +1010,18 @@ fn remap_pattern_operand_that_resolves_is_quiet() {
     let input = "\
 name-parts $ab = a b
 
-glyph ok 2 1
+glyph ok-a 2 1
 @@..
+glyph ok-b 2 1
+.@@.
 glyph present-a 2 1
 @@..
 glyph present-b 2 1
 ..@@
-map A = ok
+map A = ok-a
+map B = ok-b
 
-remap liga : ok -> present-($ab)
+remap liga : ok-($ab) -> present-($ab)
 ";
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let issues = collect_issues(&[&doc]);
@@ -1648,4 +1651,73 @@ fn a_prop_line_that_names_no_character_is_an_error() {
             .any(|i| i.severity == Severity::Error && i.message.contains("names no character")),
         "{issues:?}",
     );
+}
+
+/// Messages of one severity, for the tests that name their own filter.
+fn messages_matching(input: &str, needle: &str) -> Vec<String> {
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    collect_issues(&[&doc])
+        .into_iter()
+        .filter(|i| i.message.contains(needle))
+        .map(|i| format!("{:?}: {}", i.severity, i.message))
+        .collect()
+}
+
+/// A single-substitution lookup covers each glyph once, so a second rule for
+/// a glyph the group already substitutes is dropped when the lookup is built.
+/// It used to be dropped in silence — and two rules land on one glyph without
+/// looking like it whenever a name reaches the same glyph twice: through an
+/// alias, or through an implicit merge (`crate::merge`), which is the whole
+/// reason a merge cannot break a font quietly.
+#[test]
+fn a_remap_rule_shadowed_by_an_earlier_one_warns() {
+    let msgs = messages_matching(
+        "\
+glyph a 1 1
+@@
+glyph x 1 1
+..
+glyph y 1 1
+@@
+glyph a-alias = a
+map A = a
+map X = x
+map Y = y
+remap sub : a -> x
+remap sub : a-alias -> y
+feature ccmp for DFLT : sub
+",
+        "shadow",
+    );
+    assert_eq!(msgs.len(), 1, "{msgs:?}");
+    assert!(msgs[0].starts_with("Warning"), "{msgs:?}");
+}
+
+/// The same source with the same target is a duplicate, not a lost rule, and
+/// a group that is not one single-substitution lookup keeps its rule order in
+/// the lookup itself — neither may warn.
+#[test]
+fn an_identical_or_contextual_rule_is_not_shadowed() {
+    let msgs = messages_matching(
+        "\
+glyph a 1 1
+@@
+glyph x 1 1
+..
+glyph y 1 1
+@@
+glyph a-alias = a
+map A = a
+map X = x
+map Y = y
+remap sub : a -> x
+remap sub : a-alias -> x
+remap ctx : a -> x
+remap ctx : y | a-alias -> y
+feature ccmp for DFLT : sub
+feature ccmp for DFLT : ctx
+",
+        "shadow",
+    );
+    assert!(msgs.is_empty(), "{msgs:?}");
 }

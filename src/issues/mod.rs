@@ -219,6 +219,17 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
         cx.docset
             .to_issues(&maps::uvs_collision_diagnostics(expansion)),
     );
+    // A rule the GSUB builder would drop, reported from where the dropping is
+    // decided rather than reimplemented here; see
+    // `ttf_builder::shadowed_single_subst_rules`.
+    issues.extend(
+        cx.docset
+            .to_issues(&crate::render::ttf_builder::shadowed_single_subst_rules(
+                docs,
+                cx.name_parts,
+                cx.aliases,
+            )),
+    );
 
     issues.sort_by(|a, b| {
         a.severity

@@ -65,8 +65,8 @@ pub(super) fn collect_gsub_data(
     let mut features: Vec<(String, Vec<String>, Vec<String>)> = Vec::new();
     let mut anchor_features: Vec<(String, Vec<String>, String)> = Vec::new();
 
-    for doc in docs {
-        for item in &doc.items {
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in doc.items.iter().enumerate() {
             match item {
                 DocumentItem::Remap {
                     feature,
@@ -127,6 +127,7 @@ pub(super) fn collect_gsub_data(
                         .entry(feature.clone())
                         .or_default()
                         .push(ExpandedRemap {
+                            origin: Some(ItemRef::new(doc_idx, item_idx)),
                             lookbehind: lb,
                             source: source_seqs,
                             target: target_seqs,
@@ -664,6 +665,64 @@ pub(super) fn make_coverage(
     gids.sort();
     gids.dedup();
     CoverageTable::format_1(gids)
+}
+
+/// The rules a single-substitution group would drop when its lookup is built:
+/// a source glyph the group already substitutes, being substituted again.
+///
+/// A `SingleSubst` coverage names each glyph once, so
+/// [`build_single_subst_from_pairs`] keeps the first rule for a glyph and
+/// discards the rest. That is right — rule order is match priority
+/// ([`super::gsub`]) — but it is invisible, and two rules land on one glyph
+/// without looking like it whenever two *names* reach one glyph: through a
+/// declared alias, or through an implicit merge ([`crate::merge`]), which is
+/// the one way merging a glyph could change what a font does. So the drop is
+/// reported here, on the line whose rule loses, rather than left to be found
+/// by shaping.
+///
+/// Only a group that becomes one single-substitution lookup is checked: every
+/// other kind keeps its rules in declaration order, one subtable or one nested
+/// lookup each, and shadows nothing.
+pub(crate) fn shadowed_single_subst_rules(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    aliases: &crate::alias::AliasMap,
+) -> Vec<Diagnostic> {
+    let data = collect_gsub_data(docs, name_parts, aliases);
+    let mut out = Vec::new();
+    for (group, remaps) in &data.remap_sets {
+        let reversed = data.groups.info.get(group).is_some_and(|i| i.reversed);
+        if !matches!(classify_remap_set(remaps, reversed), RemapSetKind::Single) {
+            continue;
+        }
+        // Keyed by the glyph, not the name: the collision this is about is one
+        // the names hide.
+        let mut claimed: HashMap<&str, &str> = HashMap::new();
+        for remap in remaps {
+            for (seq, tgt) in remap.source.iter().zip(remap.target.iter()) {
+                let ([source], [target]) = (&seq[..], &tgt[..]) else {
+                    continue;
+                };
+                match claimed.get(source.as_str()) {
+                    // The same substitution written twice loses nothing.
+                    Some(&first) if first == target => {}
+                    Some(&first) => out.push(Diagnostic::new(
+                        Severity::Warning,
+                        remap.origin,
+                        format!(
+                            "remap of '{source}' to '{target}' in group '{group}' is shadowed \
+                             by an earlier rule substituting '{first}'; a group of single \
+                             substitutions covers each glyph once, so only the first applies"
+                        ),
+                    )),
+                    None => {
+                        claimed.insert(source, target);
+                    }
+                }
+            }
+        }
+    }
+    out
 }
 
 pub(super) fn build_single_subst_from_pairs(

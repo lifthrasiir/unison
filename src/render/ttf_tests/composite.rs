@@ -54,8 +54,11 @@ anchor +top 0 0
 glyph dot 1 1
 @@
 
+glyph dot-blank 1 1
+..
+
 glyph acc-(one|two) mark advance 0
-ref dot
+ref (dot|dot-blank)
 anchor -top 0 0
 map B = acc-one
 map C = acc-two

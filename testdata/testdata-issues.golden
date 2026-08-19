@@ -6,6 +6,8 @@ error	issues-base.unf	47	unrecognized directive 'totally-unknown-directive foo b
 error	issues-patterns.unf	10	glyph name `uni$#2802..2800` may only contain letters, digits, `-`, `.`, `_` and `:`
 error	issues-patterns.unf	10	invalid inline range '$#2802..2800' (end < start or too large)
 error	issues-patterns.unf	39	map 'Z' (U+005A) has no canonical decomposition; use `map Z = GLYPH` instead
+warning	composites.unf	23	remap of 'ok' to 'badge-b' in group 'badge-pattern' is shadowed by an earlier rule substituting 'badge-a'; a group of single substitutions covers each glyph once, so only the first applies
+warning	composites.unf	28	remap of 'ok' to 'no-such-badge-b' in group 'badge-broken' is shadowed by an earlier rule substituting 'no-such-badge-a'; a group of single substitutions covers each glyph once, so only the first applies
 warning	composites.unf	28	remap references undefined glyph 'no-such-badge-a'
 warning	composites.unf	28	remap references undefined glyph 'no-such-badge-b'
 warning	issues-base.unf	11	undefined name-parts reference '$nonexistent'
@@ -15,6 +17,7 @@ warning	issues-base.unf	27	glyph 'dup' is unused
 warning	issues-base.unf	30	duplicate glyph 'dup' (first defined at issues-base.unf:27)
 warning	issues-base.unf	30	glyph 'dup' is unused
 warning	issues-base.unf	35	duplicate codepoint mapping U+0041 (first at issues-base.unf:33)
+warning	issues-base.unf	40	remap of 'ok' to 'also-never-defined' in group 'liga' is shadowed by an earlier rule substituting 'ok'; a group of single substitutions covers each glyph once, so only the first applies
 warning	issues-base.unf	40	remap references undefined glyph 'also-never-defined'
 warning	issues-patterns.unf	10	glyph 'uni($#2802..2800)' is unused
 warning	issues-patterns.unf	18	alternative 'stem:a' has same anchor dimensions as 'stem' for '-join' (base 'stem')

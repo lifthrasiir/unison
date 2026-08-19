@@ -165,7 +165,7 @@ fn collect_assertions(docs: &[&Document]) -> Vec<CollectedAssertion> {
     // and an alias has no name of its own there — so writing one is the same
     // as writing its target. See [`crate::alias`].
     let name_parts = collect_name_parts(docs);
-    let aliases = crate::alias::AliasMap::collect(docs, &name_parts);
+    let aliases = crate::alias::AliasMap::collect_with_merges(docs, &name_parts);
 
     let mut result = Vec::new();
     for doc in docs {

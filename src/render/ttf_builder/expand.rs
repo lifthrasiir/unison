@@ -115,7 +115,7 @@ fn expand_inner(
     // Collected before anything is expanded: from here on every glyph name in
     // `all_items` is the canonical one, so nothing downstream — the glyph
     // cache, the cmap, the on-demand injector — ever sees an alias.
-    let aliases = crate::alias::AliasMap::collect(docs, name_parts);
+    let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts);
     // Slice-scoped `name-parts`, so a qualified line substitutes with the
     // bindings of the slice it is being stated for. Empty (and free) unless the
     // source binds something per slice.
@@ -285,6 +285,18 @@ fn expand_inner(
             }
         }
     }
+
+    // An expansion merged into another of its block's declares no glyph of its
+    // own: it is now a second name for the survivor, whose item is the one that
+    // stays. Only an implicit merge is dropped this way — a `glyph` block whose
+    // name a declared alias also claims is a source error, and dropping its
+    // block would answer it by silently picking a winner. See `crate::merge`.
+    all_items.retain(|e| match &e.item {
+        DocumentItem::Glyph {
+            name: GlyphName(n), ..
+        } => !aliases.is_implicit(n),
+        _ => true,
+    });
 
     // After canonicalization, so a component named through an alias is sized by
     // the glyph it actually is, and before everything below, so nothing

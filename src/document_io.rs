@@ -235,7 +235,10 @@
 //!   (no grid, no `ref`): such a glyph is built as an empty outline carrying
 //!   only its `anchor`s, where a contentless glyph without `keep` is not built
 //!   and every use of it is an error. `.notdef` is kept without saying so —
-//!   see [`crate::render::ttf_builder`].
+//!   see [`crate::render::ttf_builder`]. On a block whose *name* is a pattern
+//!   `keep` says one thing more: that each name it declares is a glyph of its
+//!   own, where expansions that describe the same glyph are otherwise merged
+//!   into one — see [`crate::merge`].
 //! - `ref OTHER [COL ROW] [negated] [inherit] [ifexists] [coloronly|monoonly]
 //!   [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from

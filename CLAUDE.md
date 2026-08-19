@@ -86,6 +86,11 @@ Core (feature-independent):
   and `@`), `name_parts.rs`, `remap.rs`, and `serialize.rs` for the way back to text.
 - `alias.rs` — `glyph NAME = TARGET`: a second *name* for a glyph, sharing its glyph id. Holds the
   chain/cycle rules and the list of which pipeline stages canonicalize where.
+- `merge.rs` — implicit merging: the names one `glyph` *pattern* block declares that describe the
+  same glyph, folded into one glyph id by producing `alias.rs`'s input. Holds why the candidates are
+  one block's expansions and never two blocks, the σ fixpoint over the `ref`/IDC graph, why
+  `ifexists` needs no rule of its own, why a `remap`'s *inputs* are excluded where its outputs are
+  not, and `keep` as the opt-out.
 - `pattern.rs` — `NamePattern`, the single name-expansion engine. The same syntax parses differently
   per context on purpose; its module docs spell the three contexts out.
 - `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
@@ -224,6 +229,11 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
+| Several names of one pattern block turning out to be one glyph, and why two blocks never merge | `merge.rs` |
+| Why a merge is decided on names and not on outlines, and what makes that sound | `merge.rs` (`implicit_merges`), `document/name_parts.rs` (`expand_glyph_block_slots`) |
+| Which glyph a `remap` stops from merging, and why only the ones it matches on | `merge.rs` (`remap_inputs`) |
+| Saying that each expansion of a pattern block is a glyph of its own | `document_io.rs` (`keep`), `merge.rs` |
+| A `remap` rule that the lookup silently drops, and where that is reported | `render/ttf_builder/gsub.rs` (`shadowed_single_subst_rules`, `build_single_subst_from_pairs`) |
 | Anchor exposure and bearings | `ref_composite/mod.rs` |
 | `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |

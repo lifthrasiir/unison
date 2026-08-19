@@ -13,6 +13,16 @@
 //! error now, and a glyph that needs any of them is written in block form with
 //! `ref TARGET` instead.
 //!
+//! An alias is written by hand, but it is not the only thing in the map: the
+//! expansions of one `glyph` pattern block that describe the same glyph are
+//! folded in as **implicit** merges, which is [`crate::merge`]'s whole output.
+//! They differ from a declared alias in exactly one way — the name is also a
+//! `glyph` block, whose item the expansion drops in favour of the survivor's
+//! ([`AliasMap::is_implicit`]) — and they never join [`AliasMap::decls`],
+//! since nothing wrote them. [`AliasMap::collect_with_merges`] is the
+//! constructor that includes them, and what reads glyph names as the font will
+//! carry them uses it.
+//!
 //! # How the rest of the pipeline sees it
 //!
 //! [`AliasMap::collect`] is the only place that reads
@@ -42,7 +52,7 @@
 //! alias is used at all are reported by [`crate::issues`], which is where the
 //! full glyph set is known.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::document::{Document, DocumentItem, NamePartsMap, substitute_name_parts};
 use crate::pattern::NamePattern;
@@ -66,6 +76,11 @@ pub struct AliasMap {
     /// The declarations as written, in source order — what validation and the
     /// unused-glyph walk report against.
     decls: Vec<AliasDecl>,
+    /// The subset of `map`'s keys that no line declares: the implicit merges
+    /// of [`crate::merge`]. They differ from a declared alias in one way only
+    /// — the name *is* a `glyph` block, whose item the expansion drops in
+    /// favour of the survivor's — so that is the one question asked of this.
+    implicit: HashSet<String>,
     pub diagnostics: Vec<Diagnostic>,
 }
 
@@ -140,8 +155,40 @@ impl AliasMap {
         Self {
             map,
             decls,
+            implicit: HashSet::new(),
             diagnostics,
         }
+    }
+
+    /// [`collect`](Self::collect) plus the merges [`crate::merge`] finds: the
+    /// names a `glyph` pattern block declares that describe one glyph between
+    /// them. Both kinds of name are the same thing downstream — a name for a
+    /// glyph that carries another name — so they share one map.
+    ///
+    /// The consumers that read glyph names *as the font will carry them* build
+    /// the map this way: the expansion, and `assert shape`, which names the
+    /// glyphs a shaper produced. Validation reads the same map through the
+    /// expansion. What reports against a written line uses
+    /// [`decls`](Self::decls), which an implicit merge never joins.
+    pub fn collect_with_merges(docs: &[&Document], name_parts: &NamePartsMap) -> Self {
+        let mut aliases = Self::collect(docs, name_parts);
+        let merges = crate::merge::implicit_merges(docs, name_parts, &aliases);
+        // Declared first: `glyph A = B` is what the author wrote, and an
+        // implicit merge is only ever a second opinion about the same name.
+        for (name, target) in merges {
+            if let std::collections::hash_map::Entry::Vacant(e) = aliases.map.entry(name) {
+                aliases.implicit.insert(e.key().clone());
+                e.insert(target);
+            }
+        }
+        aliases
+    }
+
+    /// Whether `name` is a name a `glyph` block declares that has been merged
+    /// into another of the same block's expansions — the one case where the
+    /// name's own glyph item is not the glyph it names.
+    pub fn is_implicit(&self, name: &str) -> bool {
+        self.implicit.contains(name)
     }
 
     pub fn is_empty(&self) -> bool {
