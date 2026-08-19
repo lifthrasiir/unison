@@ -461,8 +461,9 @@ map U+E000..E001 = x-($#e000..e001) ifexists
 }
 
 /// The other side of the same idiom: the glyph block is written over the
-/// whole range and the `ref` decides which of them is real. An unresolved
-/// ref already leaves the glyph unbuilt — the flag only says so was meant.
+/// whole range and the `ref` decides which of them is real. An unresolved ref
+/// already leaves the glyph unbuilt — the flag only says so was meant — and the
+/// `ifexists` map that reaches it claims nothing either way.
 #[test]
 fn ifexists_ref_to_a_missing_glyph_is_silent() {
     let issues = issues_for(
@@ -477,7 +478,7 @@ glyph private-e001 1 1
 ref foo-e001 ifexists
 
 map U+E000 = private-e000
-map U+E001 = private-e001
+map U+E001 = private-e001 ifexists
 ",
     );
     assert!(
@@ -487,6 +488,29 @@ map U+E001 = private-e001
     assert!(
         !issues.iter().any(|i| i.severity == Severity::Error),
         "expected no errors, got: {issues:?}",
+    );
+}
+
+/// A glyph whose `ifexists` ref names nothing declares no glyph — the same
+/// answer an IDC line standing for nothing gives — so an *unconditional* `map`
+/// reaching it is told the glyph is not defined. That is the report the author
+/// can act on; the alternative is the puzzling "defined, but not built", which
+/// is what the pipeline used to leave them with.
+#[test]
+fn an_unconditional_map_to_a_glyph_that_stands_for_nothing_is_reported() {
+    let issues = issues_for(
+        "\
+glyph private-e001 1 1
+ref foo-e001 ifexists
+
+map U+E001 = private-e001
+",
+    );
+    assert!(
+        issues
+            .iter()
+            .any(|i| i.severity == Severity::Error && i.message.contains("private-e001")),
+        "expected the map to report an undefined target, got: {issues:?}",
     );
 }
 

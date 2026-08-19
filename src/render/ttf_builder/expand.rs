@@ -120,6 +120,12 @@ fn expand_inner(
     // bindings of the slice it is being stated for. Empty (and free) unless the
     // source binds something per slice.
     let scoped = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
+    // The names the sources declare, before a single body is built: what an
+    // `ifexists` `ref` is answered against, so an expansion that stands for
+    // nothing is never materialized. See `declared_glyph_names` for why one
+    // round of this is enough.
+    let declared = declared_glyph_names(docs, name_parts);
+    let ref_exists = |name: &str| glyph_name_exists(name, &declared, &aliases);
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -168,8 +174,8 @@ fn expand_inner(
                             *name = substitute_name_parts(name, name_parts);
                         }
                     }
-                    match expand_glyph_block(&subst_name, &subst_body) {
-                        Ok(expanded) if expanded.is_empty() => {
+                    match expand_glyph_block_where(&subst_name, &subst_body, &ref_exists) {
+                        Ok(expanded) if expanded.names == 0 => {
                             // The name expanded to nothing at all — an empty
                             // alternation, or a reversed range, which expands
                             // to no names rather than failing to parse. The
@@ -186,7 +192,7 @@ fn expand_inner(
                             ));
                         }
                         Ok(expanded) => {
-                            for item in expanded {
+                            for item in expanded.items {
                                 all_items.push(ExpandedItem {
                                     item,
                                     origin: Some(origin),
@@ -204,6 +210,17 @@ fn expand_inner(
                         if let crate::document::ComposeItem::Part { name, .. } = item {
                             *name = substitute_name_parts(name, name_parts);
                         }
+                    }
+                    // The same rule a pattern block's expansions are held to,
+                    // stated once for the block that declares one glyph: an
+                    // `ifexists` ref naming nothing means this glyph was never
+                    // going to be built, so it declares nothing.
+                    if body
+                        .refs
+                        .iter()
+                        .any(|r| r.if_exists && !ref_exists(&r.name))
+                    {
+                        continue;
                     }
                     all_items.push(ExpandedItem {
                         item: DocumentItem::Glyph {
@@ -359,19 +376,27 @@ fn expand_inner(
                 ));
                 reported = true;
             }
+            // An `ifexists` line claims nothing where its target is absent, so
+            // it must not hold the codepoint against a later line that does map
+            // it — `cp_to_glyph` is first-wins, and this is what the two
+            // overlapping ranges the flag exists for look like.
+            //
+            // It claims nothing of `map_targets` either. That list is what
+            // [`inject_on_demand_glyph_items`] both synthesizes from and
+            // reports on, and `glyph_name_exists` has just said this name is
+            // neither defined nor one the font generates — so there is nothing
+            // to synthesize, and the flag is the author saying there is nothing
+            // to report. Kept out rather than filtered there because a range
+            // covering a whole CJK block is twenty thousand of these.
+            if *if_exists && !glyph_name_exists(&target, &defined_names, &aliases) {
+                continue;
+            }
             map_targets.push(MapTarget {
                 name: target.clone(),
                 origin: e.origin,
                 char_repr: char_repr.clone(),
                 if_exists: *if_exists,
             });
-            // An `ifexists` line claims nothing where its target is absent, so
-            // it must not hold the codepoint against a later line that does map
-            // it — `cp_to_glyph` is first-wins, and this is what the two
-            // overlapping ranges the flag exists for look like.
-            if *if_exists && !glyph_name_exists(&target, &defined_names, &aliases) {
-                continue;
-            }
             cp_to_glyph.entry(cp).or_insert(target);
         }
     }
@@ -1309,6 +1334,41 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
             (cp, name)
         })
         .collect()
+}
+
+/// Every glyph name the sources declare, with `$name-parts` substituted and
+/// name patterns expanded — the oracle an `ifexists` `ref` is answered against
+/// before any body is built.
+///
+/// Names only: a block's body is what an expansion costs, and this pass exists
+/// precisely so that the ones standing for nothing never pay it. Aliases are
+/// not resolved here either, because [`glyph_name_exists`] canonicalizes what
+/// it is asked about before looking it up.
+///
+/// It is one round, like the sibling rule an IDC line that stands for nothing
+/// gets ([`expand_compose_lines`]): a name this set holds may itself turn out
+/// to declare no glyph, and a ref to it is then left for the resolution cache
+/// to drop the way it always did. Chasing that to a fixpoint would buy nothing
+/// — the glyph is dropped either way — at the price of a rule whose answer
+/// depends on the order the source is written in.
+fn declared_glyph_names(docs: &[&Document], name_parts: &NamePartsMap) -> HashSet<String> {
+    let mut out: HashSet<String> = HashSet::new();
+    for doc in docs {
+        for item in &doc.items {
+            let DocumentItem::Glyph { name, .. } = item else {
+                continue;
+            };
+            let name = substitute_name_parts(&name.display(), name_parts);
+            match NamePattern::parse(&name) {
+                // A block whose name does not parse declares nothing, and the
+                // expansion below reports it; keeping the written name out of
+                // the set matches what that block ends up declaring.
+                Err(_) => continue,
+                Ok(pattern) => out.extend((0..pattern.len()).map(|i| pattern.get(i))),
+            }
+        }
+    }
+    out
 }
 
 /// Whether `name` denotes a glyph the font can contain: one the sources define

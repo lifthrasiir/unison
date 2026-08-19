@@ -76,6 +76,16 @@ pub(super) fn build_anchor_gpos(
         .map(|(_, _, a)| a.clone())
         .collect();
 
+    // The name each gid carries, for the entry lists the tests read. Built once
+    // rather than by scanning the glyph set per gid: the scan is quadratic in a
+    // font this size and it is the test build's own cost, which is `cargo test`
+    // waiting for something the font never contains.
+    #[cfg(test)]
+    let gid_to_name: HashMap<GlyphId16, &str> = glyphs
+        .iter()
+        .filter_map(|g| name_to_gid.get(&g.name).map(|&gid| (gid, g.name.as_str())))
+        .collect();
+
     let mut all_scripts: Vec<String> = Vec::new();
     for (_, scripts, _) in &gsub_data.anchor_features {
         for s in scripts {
@@ -598,6 +608,30 @@ pub(super) fn build_anchor_gpos(
                 None
             };
 
+            // Every glyph carrying this anchor's `+X`, found once per anchor
+            // rather than per (mark, alternative) pair. The backtrack below
+            // wants the same answer every time it asks, and asking meant a scan
+            // over the whole glyph set with a name lookup per glyph — the
+            // product of three loops over a font whose glyph count is now five
+            // figures. Declaration order is kept, which is the order the
+            // backtrack used to see them in; it sorts and dedups regardless.
+            let plus_bases: Vec<(GlyphId16, &crate::document::GlyphPoint)> = glyphs
+                .iter()
+                .filter_map(|base| {
+                    let &gid = name_to_gid.get(&base.name)?;
+                    let pt = base
+                        .declared_anchors
+                        .iter()
+                        .find(|p| p.position == plus_name)
+                        .or_else(|| {
+                            base.resolved_anchors
+                                .iter()
+                                .find(|p| p.position == plus_name)
+                        })?;
+                    Some((gid, pt))
+                })
+                .collect();
+
             // Collect marks that have alternatives with different `-X` sizes.
             for g in glyphs {
                 if !g.mark {
@@ -630,27 +664,13 @@ pub(super) fn build_anchor_gpos(
                     // matches the alt's `-X` size.  Including marks here
                     // handles mark-to-mark stacking where a second mark
                     // should be substituted based on the first mark's anchor.
-                    let mut backtrack_gids: Vec<GlyphId16> = Vec::new();
-                    for base in glyphs {
-                        let Some(&base_gid) = name_to_gid.get(&base.name) else {
-                            continue;
-                        };
-                        let plus_pt = base
-                            .declared_anchors
-                            .iter()
-                            .find(|p| p.position == plus_name)
-                            .or_else(|| {
-                                base.resolved_anchors
-                                    .iter()
-                                    .find(|p| p.position == plus_name)
-                            });
-                        if let Some(pt) = plus_pt
-                            && pt.size_matches(alt_minus)
-                            && !pt.size_matches(mark_minus)
-                        {
-                            backtrack_gids.push(base_gid);
-                        }
-                    }
+                    let mut backtrack_gids: Vec<GlyphId16> = plus_bases
+                        .iter()
+                        .filter(|(_, pt)| {
+                            pt.size_matches(alt_minus) && !pt.size_matches(mark_minus)
+                        })
+                        .map(|&(gid, _)| gid)
+                        .collect();
                     if backtrack_gids.is_empty() {
                         continue;
                     }
@@ -661,12 +681,7 @@ pub(super) fn build_anchor_gpos(
                     {
                         let bt_names: Vec<String> = backtrack_gids
                             .iter()
-                            .filter_map(|gid| {
-                                glyphs
-                                    .iter()
-                                    .find(|g| name_to_gid.get(&g.name) == Some(gid))
-                                    .map(|g| g.name.clone())
-                            })
+                            .filter_map(|gid| gid_to_name.get(gid).map(|n| (*n).to_string()))
                             .collect();
                         mark_subst_entries.push((
                             g.name.clone(),

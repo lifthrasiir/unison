@@ -976,3 +976,36 @@ fn gasp_asks_for_grid_fitting_and_grayscale_at_every_size() {
         "one range covering every size, with all four behaviour bits set"
     );
 }
+
+/// An expansion whose `ifexists` `ref` names nothing declares no glyph at all,
+/// rather than an item that every later stage carries and the resolution cache
+/// drops at the end for never resolving. The font is the same either way — that
+/// is what makes this safe — but a `glyph han-($#4e00..9fff)` line covering a
+/// whole CJK block is twenty thousand such items for the few thousand that are
+/// actually drawn, and each of them is a body clone.
+#[test]
+fn an_expansion_whose_ifexists_ref_is_absent_declares_no_glyph() {
+    let doc = document_io::parse_document_from_str(
+        "\
+glyph part-b 1 1
+@
+
+glyph wrap-(a|b|c) 1 1
+ref part-(a|b|c) 0 0 ifexists
+",
+        "test.unf".into(),
+    )
+    .unwrap();
+    let docs = [&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let expansion = expand_documents(&docs, &name_parts);
+    let mut names: Vec<String> = expansion
+        .items()
+        .filter_map(|item| match item {
+            DocumentItem::Glyph { name, .. } => Some(name.display()),
+            _ => None,
+        })
+        .collect();
+    names.sort();
+    assert_eq!(names, vec!["part-b", "wrap-b"], "{names:?}");
+}

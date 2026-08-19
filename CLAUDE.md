@@ -210,6 +210,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable rather than reserved | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
 | Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues/maps.rs` (`uvs_collision_diagnostics`) |
 | `ifexists` on a `ref`/`map`: a name whose absence is expected, and the one existence test all four consumers share | `document_io.rs` (`# Directives`), `render/ttf_builder/expand.rs` (`glyph_name_exists`) |
+| Why a glyph whose `ifexists` `ref` names nothing declares no glyph at all, and the name-only pass that answers it before any body is built | `document/name_parts.rs` (`expand_glyph_block_where`), `render/ttf_builder/expand.rs` (`declared_glyph_names`) |
 | The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document/glyph.rs` (`declared_origin`, `declared_extent`) |
 | `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document/glyph.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
 | Why an unstated advance follows the raster and not the grid, and the one accessor that keeps the editor and `hmtx` agreeing | `document/glyph.rs` (`GlyphBody::stated_advance`) |
