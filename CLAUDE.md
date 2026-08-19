@@ -228,6 +228,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
 | An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |
+| What a pattern glyph block shares with every name it declares (the grid, the box, the flags) | `document/name_parts.rs` (`expand_glyph_block`) |
 | `ifexists` on an IDC line: why it holds for the line and what a line missing a part stands for | `compose.rs` (`stands_for_nothing`) |
 | Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
 | `audit ideal-clearance PREFIX* MIN MAX`: the prefix match, and which rule wins | `audit.rs` (`IdealClearances`) |

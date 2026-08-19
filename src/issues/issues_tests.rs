@@ -828,9 +828,30 @@ map Y = y
     );
 }
 
-/// Pattern glyphs already refuse to be empty, whatever the reason — a
-/// pixel grid cannot be shared across the expansions, so only `ref` lines
-/// can fill them.
+/// A pattern glyph declares one glyph per expanded name, whatever the block
+/// holds — the expansions share the block's body, its pixel grid included,
+/// exactly as they share its `ref` lines. So a block that states only a box is
+/// the pattern form of `glyph blank 3 4`, and each expansion is that blank
+/// glyph.
+#[test]
+fn a_pattern_glyph_stating_only_a_box_declares_each_expansion() {
+    let input = "\
+name-parts $ab = a b
+
+glyph pat-($ab) 3 4
+map A|B = pat-($ab)
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let issues = collect_issues(&[&doc]);
+    assert!(
+        !issues.iter().any(|i| i.severity == Severity::Error),
+        "a boxed pattern glyph declares `pat-a`/`pat-b` like any other glyph, got: {issues:?}",
+    );
+}
+
+/// A block that declares *nothing* is still an error — but by the ordinary
+/// contentless-glyph rule, reported per expanded name rather than by a rule of
+/// its own about patterns.
 #[test]
 fn an_empty_pattern_glyph_is_an_error() {
     for body in ["", " advance 0"] {
@@ -847,9 +868,9 @@ map A|B = pat-($ab)
         let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
         let issues = collect_issues(&[&doc]);
         assert!(
-            issues
-                .iter()
-                .any(|i| i.severity == Severity::Error && i.message.contains("defines no glyphs")),
+            issues.iter().any(|i| i.severity == Severity::Error
+                && i.message.contains("'pat-a'")
+                && i.message.contains("not built")),
             "an empty pattern glyph must be an error (body {body:?}), got: {issues:?}",
         );
     }

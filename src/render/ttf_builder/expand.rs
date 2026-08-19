@@ -144,73 +144,49 @@ fn expand_inner(
                 let name_str = substitute_name_parts(&name.display(), name_parts);
                 if is_name_pattern(&name_str) {
                     let subst_name = GlyphName(name_str);
-                    let subst_refs: Vec<GlyphRef> = body
-                        .refs
-                        .iter()
-                        .map(|r| GlyphRef {
-                            comment: None,
-                            name: substitute_name_parts(&r.name, name_parts),
-                            ..r.clone()
-                        })
-                        .collect();
+                    // The block as written, with every name in it substituted:
+                    // the expansion shares this body, so a grid, a box or a
+                    // flag written once holds for every glyph the pattern
+                    // declares, exactly as a non-pattern block's does for its
+                    // one glyph.
+                    //
                     // An IDC line expands with the block exactly as the refs
                     // do. What it *derives* does not: the split is solved per
                     // glyph, below, from the boxes each expansion's own parts
                     // declare, so one line can write a different layout for
                     // every glyph it stands for.
-                    let subst_compose: Vec<crate::document::GlyphCompose> = body
+                    let mut subst_body = body.clone();
+                    for gref in &mut subst_body.refs {
+                        gref.name = substitute_name_parts(&gref.name, name_parts);
+                    }
+                    for item in subst_body
                         .compose
-                        .iter()
-                        .map(|c| {
-                            let mut c = c.clone();
-                            for item in &mut c.items {
-                                if let crate::document::ComposeItem::Part { name, .. } = item {
-                                    *name = substitute_name_parts(name, name_parts);
-                                }
-                            }
-                            c
-                        })
-                        .collect();
-                    match expand_glyph_block(&subst_name, &subst_refs, &subst_compose, body.scale) {
+                        .iter_mut()
+                        .flat_map(|c| c.items.iter_mut())
+                    {
+                        if let crate::document::ComposeItem::Part { name, .. } = item {
+                            *name = substitute_name_parts(name, name_parts);
+                        }
+                    }
+                    match expand_glyph_block(&subst_name, &subst_body) {
                         Ok(expanded) if expanded.is_empty() => {
-                            // `expand_glyph_block` only emits a glyph per
-                            // expanded name when that name has refs, so a
-                            // pattern glyph carrying just a pixel grid used to
-                            // vanish from the font without a word.
+                            // The name expanded to nothing at all — an empty
+                            // alternation, or a reversed range, which expands
+                            // to no names rather than failing to parse. The
+                            // block declares no glyph, and every use of the
+                            // name it looks like it declares would otherwise
+                            // report as merely undefined.
                             diagnostics.push(Diagnostic::error(
                                 origin,
                                 format!(
-                                    "glyph pattern '{}' defines no glyphs; a pattern glyph \
-                                     needs `ref` or IDC lines, a pixel grid alone cannot be \
-                                     shared",
+                                    "glyph pattern '{}' expands to no names, so it declares \
+                                     no glyphs",
                                     subst_name.display(),
                                 ),
                             ));
                         }
                         Ok(expanded) => {
-                            for mut item in expanded {
-                                if let DocumentItem::Glyph {
-                                    body: ref mut b, ..
-                                } = item
-                                {
-                                    b.pixels = body.pixels.clone();
-                                    b.points = body.points.clone();
-                                    b.keep = body.keep;
-                                    // `mark`, `inline` and `desync` are
-                                    // invisible in the outline of one build, so
-                                    // dropping one here builds a clean font
-                                    // that behaves wrong: a mark that is not a
-                                    // mark never reaches GPOS, and a lost
-                                    // `desync` puts the grid back into the
-                                    // vector face.
-                                    b.inline = body.inline;
-                                    b.mark = body.mark;
-                                    b.desync = body.desync;
-                                    b.advance = body.advance;
-                                    b.origin = body.origin;
-                                    b.extent = body.extent;
-                                    b.scale = body.scale;
-                                }
+                            for item in expanded {
                                 all_items.push(ExpandedItem {
                                     item,
                                     origin: Some(origin),

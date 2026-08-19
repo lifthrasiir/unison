@@ -3,13 +3,9 @@ error	issues-base.unf	36	map 'C' targets undefined glyph 'never-defined'
 error	issues-base.unf	37	map 'U+FFFFFFFF' is not a valid Unicode scalar value
 error	issues-base.unf	43	feature references undefined remap group 'no-such-remap-group'
 error	issues-base.unf	47	unrecognized directive 'totally-unknown-directive foo bar'
-error	issues-patterns.unf	10	glyph pattern 'uni($#2802..2800)' defines no glyphs; a pattern glyph needs `ref` or IDC lines, a pixel grid alone cannot be shared
+error	issues-patterns.unf	10	glyph name `uni$#2802..2800` may only contain letters, digits, `-`, `.`, `_` and `:`
 error	issues-patterns.unf	10	invalid inline range '$#2802..2800' (end < start or too large)
-error	issues-patterns.unf	31	map 'P' targets undefined glyph 'p'
-error	issues-patterns.unf	32	map 'Q' targets undefined glyph 'q'
 error	issues-patterns.unf	39	map 'Z' (U+005A) has no canonical decomposition; use `map Z = GLYPH` instead
-error	issues-patterns.unf	4	glyph pattern '(p|q)' defines no glyphs; a pattern glyph needs `ref` or IDC lines, a pixel grid alone cannot be shared
-error	issues-patterns.unf	7	glyph pattern 'pat-(0|1|2|3)' defines no glyphs; a pattern glyph needs `ref` or IDC lines, a pixel grid alone cannot be shared
 warning	composites.unf	28	remap references undefined glyph 'no-such-badge-a'
 warning	composites.unf	28	remap references undefined glyph 'no-such-badge-b'
 warning	issues-base.unf	11	undefined name-parts reference '$nonexistent'

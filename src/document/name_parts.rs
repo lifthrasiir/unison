@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 
 use super::{
-    ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, GlyphName, GlyphRef,
-    MAX_EXPANSION, find_invalid_inline_ranges, parse_glyph_name, split_top_level_pipes,
+    ComposeItem, Document, DocumentItem, GlyphBody, GlyphName, MAX_EXPANSION,
+    find_invalid_inline_ranges, parse_glyph_name, split_top_level_pipes,
 };
 use crate::pattern::{NamePartsMap, NamePattern, substitute_name_parts};
 
@@ -106,57 +106,46 @@ impl SliceNameParts {
     }
 }
 
-/// Expand a ref-only glyph item (`glyph NAME` + `ref`/IDC lines, no pixel data)
-/// whose name, ref targets and/or IDC components carry alternation/range
-/// patterns, directly from its in-memory `GlyphName`/`GlyphRef`s (no
-/// serialize/reparse round-trip through `.unf` text).
+/// Expand a glyph item whose name, `ref` targets and/or IDC components carry
+/// alternation/range patterns, directly from its in-memory
+/// `GlyphName`/`GlyphBody` (no serialize/reparse round-trip through `.unf`
+/// text). `body`'s names are expected to have had their `$name-parts`
+/// substituted already; only the pattern expansion happens here.
 ///
-/// Mirrors the historical behavior exactly: pixel data is not meaningful
-/// for a batch of expanded ref-composites, so expanded items always come
-/// out as `pixels: None` — this function is only ever called on an
-/// already-pattern-named item, and `.unf` content never combines a
-/// pattern name with pixel data on the same glyph (patterns are only
-/// used for ref/composite batches).
+/// The block's name decides *how many* glyphs are declared — one per expanded
+/// name, whatever the block holds. Everything else the block states is the
+/// same for all of them: a `ref` or IDC component is a pattern consumed in
+/// lock-step with the name, and every other field — the pixel grid, the box,
+/// the flags — is shared verbatim, because there is only one of it written.
+/// So a pattern glyph stating just a box is the pattern form of `glyph blank
+/// W H`, and a block that states nothing at all expands to glyphs with no
+/// content, which the ordinary contentless-glyph diagnostics report per
+/// expanded name (there is no rule of its own about patterns here).
 ///
-/// An IDC line's components expand exactly as a `ref` target does, in lock-step
-/// with the block's name. What the line *stands for* is not expanded here at
-/// all: the split is solved per glyph from the boxes that glyph's own parts
-/// declare, which is [`crate::compose`]'s business and happens downstream.
-pub fn expand_glyph_block(
-    name: &GlyphName,
-    refs: &[GlyphRef],
-    compose: &[GlyphCompose],
-    scale: u8,
-) -> Result<Vec<DocumentItem>, String> {
+/// What an IDC line *stands for* is not expanded here at all: the split is
+/// solved per glyph from the boxes that glyph's own parts declare, which is
+/// [`crate::compose`]'s business and happens downstream.
+pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<DocumentItem>, String> {
     let name_pattern = NamePattern::parse(&name.display()).map_err(|e| e.to_string())?;
 
-    // Each ref is reduced to a template once, with the two fields the expansion
-    // replaces already empty. `..r.clone()` per expanded name instead copied the
-    // pattern string into every one of them only for `name` to overwrite it,
-    // which over a block covering a whole CJK range is one wasted allocation per
-    // glyph declared.
-    let mut parsed_refs: Vec<(NamePattern, GlyphRef)> = Vec::new();
-    for r in refs {
-        let pattern = NamePattern::parse_segments(&r.name).map_err(|e| e.to_string())?;
-        let template = GlyphRef {
-            name: String::new(),
-            comment: None,
-            ..r.clone()
-        };
-        parsed_refs.push((pattern, template));
+    // Each ref is reduced to a pattern once, so that expanding a block covering
+    // a whole CJK range does not re-parse the same pattern string per glyph.
+    let mut ref_patterns: Vec<NamePattern> = Vec::new();
+    for r in &body.refs {
+        ref_patterns.push(NamePattern::parse_segments(&r.name).map_err(|e| e.to_string())?);
     }
 
     // The same, per IDC line: every component is a pattern of its own, and the
     // gaps between them are the line's whatever it expands to.
-    let mut parsed_compose: Vec<(Vec<NamePattern>, &GlyphCompose)> = Vec::new();
-    for c in compose {
+    let mut compose_patterns: Vec<Vec<NamePattern>> = Vec::new();
+    for c in &body.compose {
         let mut patterns = Vec::new();
         for item in &c.items {
             if let ComposeItem::Part { name, .. } = item {
                 patterns.push(NamePattern::parse_segments(name).map_err(|e| e.to_string())?);
             }
         }
-        parsed_compose.push((patterns, c));
+        compose_patterns.push(patterns);
     }
 
     // The glyph-name pattern determines how many glyphs are declared. Each
@@ -167,49 +156,30 @@ pub fn expand_glyph_block(
     for i in 0..n {
         let expanded_name = parse_glyph_name(&name_pattern.get(i));
 
-        let expanded_refs: Vec<GlyphRef> = parsed_refs
-            .iter()
-            .map(|(pattern, template)| GlyphRef {
-                name: pattern.get(i),
-                ..template.clone()
-            })
-            .collect();
-
-        let expanded_compose: Vec<GlyphCompose> = parsed_compose
-            .iter()
-            .map(|(patterns, c)| {
-                let mut patterns = patterns.iter();
-                GlyphCompose {
-                    op: c.op,
-                    items: c
-                        .items
-                        .iter()
-                        .map(|item| match item {
-                            ComposeItem::Gap(gap) => ComposeItem::Gap(*gap),
-                            ComposeItem::Part { raw_name, .. } => ComposeItem::Part {
-                                name: patterns.next().expect("one pattern per part").get(i),
-                                raw_name: raw_name.clone(),
-                            },
-                        })
-                        .collect(),
-                    if_exists: c.if_exists,
-                    comment: None,
+        // The one body, with the two fields the expansion rewrites replaced.
+        // `raw_name` and `comment` are the header line's own — a name that has
+        // been expanded is no longer the one that was written, and nothing
+        // downstream serializes an expansion back out.
+        let mut expanded_body = body.clone();
+        expanded_body.raw_name = None;
+        expanded_body.comment = None;
+        for (r, pattern) in expanded_body.refs.iter_mut().zip(&ref_patterns) {
+            r.name = pattern.get(i);
+            r.comment = None;
+        }
+        for (c, patterns) in expanded_body.compose.iter_mut().zip(&compose_patterns) {
+            let mut patterns = patterns.iter();
+            for item in &mut c.items {
+                if let ComposeItem::Part { name, .. } = item {
+                    *name = patterns.next().expect("one pattern per part").get(i);
                 }
-            })
-            .collect();
-
-        if expanded_refs.is_empty() && expanded_compose.is_empty() {
-            continue;
+            }
+            c.comment = None;
         }
 
         items.push(DocumentItem::Glyph {
             name: expanded_name,
-            body: GlyphBody {
-                refs: expanded_refs,
-                compose: expanded_compose,
-                scale,
-                ..GlyphBody::new()
-            },
+            body: expanded_body,
         });
     }
 

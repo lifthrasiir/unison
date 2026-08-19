@@ -111,7 +111,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::compose::{AxisFrontier, Direction, InkProfile, VariantSpec, facing_offset};
-use crate::document::{ComposeItem, Document, DocumentItem, GlyphCompose, PixelGrid};
+use crate::document::{ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, PixelGrid};
 
 /// One IDC line the optimizer would rewrite.
 #[derive(Clone, Debug, PartialEq)]
@@ -662,11 +662,14 @@ fn optimize_pattern_line(
             *name = crate::document::substitute_name_parts(name, name_parts);
         }
     }
+    let body = GlyphBody {
+        compose: vec![substituted],
+        scale,
+        ..GlyphBody::new()
+    };
     let expanded = crate::document::expand_glyph_block(
         &crate::document::GlyphName(crate::document::substitute_name_parts(glyph, name_parts)),
-        &[],
-        std::slice::from_ref(&substituted),
-        scale,
+        &body,
     )
     .ok()?;
 

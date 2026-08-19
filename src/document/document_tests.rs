@@ -6,6 +6,16 @@
 use super::*;
 use crate::pixel::{PX_ALMOSTFULL, PX_CUSTOM, PixelShape};
 
+/// A block whose only content is one `ref`, which is what the name-expansion
+/// tests below vary the *name* of.
+fn ref_body(name: &str) -> GlyphBody {
+    GlyphBody {
+        refs: vec![pattern_ref(name)],
+        scale: 1,
+        ..GlyphBody::new()
+    }
+}
+
 fn pattern_ref(name: &str) -> GlyphRef {
     GlyphRef {
         raw_name: None,
@@ -240,12 +250,7 @@ fn a_name_part_value_over_the_expansion_limit_is_an_error() {
 
 #[test]
 fn expand_glyph_block_rejects_zero_repeat_without_panicking() {
-    let result = expand_glyph_block(
-        &GlyphName("glyph*0".to_string()),
-        &[pattern_ref("base")],
-        &[],
-        1,
-    );
+    let result = expand_glyph_block(&GlyphName("glyph*0".to_string()), &ref_body("base"));
 
     assert!(result.is_err());
 }
@@ -260,6 +265,42 @@ fn an_oversized_inline_range_is_reported() {
     );
 }
 
+/// The block's body is shared by every name it declares, the grid included:
+/// there is one of it written, so there is one of it in each expansion. A
+/// block that draws (or just boxes) but refers to nothing still declares its
+/// glyphs — the count comes from the name, never from what fills the block.
+#[test]
+fn expand_glyph_block_shares_the_block_body_with_every_expansion() {
+    let mut pixels = PixelGrid::new(2, 2);
+    pixels.set(0, 0, PixelShape::new(0, true));
+    let body = GlyphBody {
+        pixels: Some(pixels.clone()),
+        extent: Some((3, 4)),
+        mark: true,
+        scale: 1,
+        ..GlyphBody::new()
+    };
+
+    let items = expand_glyph_block(&GlyphName("out-(a|b)".to_string()), &body).unwrap();
+
+    let names: Vec<String> = items
+        .iter()
+        .map(|item| match item {
+            DocumentItem::Glyph { name, .. } => name.display(),
+            _ => unreachable!(),
+        })
+        .collect();
+    assert_eq!(names, vec!["out-a".to_string(), "out-b".to_string()]);
+    for item in &items {
+        let DocumentItem::Glyph { name, body } = item else {
+            unreachable!()
+        };
+        assert_eq!(body.pixels.as_ref(), Some(&pixels), "{}", name.display());
+        assert_eq!(body.extent, Some((3, 4)), "{}", name.display());
+        assert!(body.mark, "{}", name.display());
+    }
+}
+
 #[test]
 fn expand_glyph_block_expands_a_hex_range() {
     let items = expand_glyph_block(
@@ -267,9 +308,7 @@ fn expand_glyph_block_expands_a_hex_range() {
             "uni($#2800..2801)",
             &NamePartsMap::new(),
         )),
-        &[pattern_ref("base")],
-        &[],
-        1,
+        &ref_body("base"),
     )
     .unwrap();
     let names: Vec<String> = items
@@ -287,9 +326,7 @@ fn expand_glyph_block_expands_a_hex_range() {
 fn glyph_name_count_drives_ref_pattern_expansion() {
     let items = expand_glyph_block(
         &GlyphName("out-(a|b)".to_string()),
-        &[pattern_ref("dep-(1|2|3|4)")],
-        &[],
-        1,
+        &ref_body("dep-(1|2|3|4)"),
     )
     .unwrap();
 
@@ -312,13 +349,8 @@ fn glyph_name_count_drives_ref_pattern_expansion() {
 
 #[test]
 fn glyph_block_group_mult() {
-    let items = expand_glyph_block(
-        &GlyphName("out-(a|b**3)".to_string()),
-        &[pattern_ref("base")],
-        &[],
-        1,
-    )
-    .unwrap();
+    let items =
+        expand_glyph_block(&GlyphName("out-(a|b**3)".to_string()), &ref_body("base")).unwrap();
 
     let names: Vec<String> = items
         .into_iter()
@@ -335,13 +367,8 @@ fn glyph_block_group_mult() {
 
 #[test]
 fn glyph_block_group_mult_with_individual_repeats() {
-    let items = expand_glyph_block(
-        &GlyphName("out-(a*2|b**3)".to_string()),
-        &[pattern_ref("base")],
-        &[],
-        1,
-    )
-    .unwrap();
+    let items =
+        expand_glyph_block(&GlyphName("out-(a*2|b**3)".to_string()), &ref_body("base")).unwrap();
 
     let names: Vec<String> = items
         .into_iter()
@@ -362,9 +389,7 @@ fn glyph_block_group_mult_with_individual_repeats() {
 fn glyph_block_expands_to_its_largest_alternation_group() {
     let items = expand_glyph_block(
         &GlyphName("out-(a|b)-(1|2|3)".to_string()),
-        &[pattern_ref("base")],
-        &[],
-        1,
+        &ref_body("base"),
     )
     .unwrap();
 
