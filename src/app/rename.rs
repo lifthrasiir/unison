@@ -68,6 +68,15 @@ fn doc_may_reference(
                 if body.refs.iter().any(|r| r.name == name) {
                     return true;
                 }
+                // An IDC line names glyphs as directly as a `ref` does, and it
+                // is the only way most han parts are ever mentioned.
+                if body
+                    .compose
+                    .iter()
+                    .any(|c| c.part_names().any(|p| p == name))
+                {
+                    return true;
+                }
             }
             (
                 RenameKind::Glyph,
@@ -135,6 +144,13 @@ fn doc_may_reference(
                     return true;
                 }
                 if body.refs.iter().any(|r| r.name.contains(name)) {
+                    return true;
+                }
+                if body
+                    .compose
+                    .iter()
+                    .any(|c| c.part_names().any(|p| p.contains(name)))
+                {
                     return true;
                 }
             }
@@ -732,6 +748,33 @@ mod rename_tests {
                 RenameKind::NameParts => "$init",
                 _ => "liga",
             };
+            assert!(
+                doc_may_reference(&items(src), name, &kind),
+                "{src:?} does not look like it names {name}",
+            );
+        }
+    }
+
+    /// An IDC line names its components as glyphs — and, since a component is
+    /// an ordinary name token, it can embed a `$var` too. Both have to open
+    /// the file, or a rename reaches only the files that happen to be open.
+    #[test]
+    fn doc_may_reference_sees_idc_components() {
+        let items = |src: &str| {
+            crate::document_io::parse_document_from_str(src, std::path::PathBuf::from("t.unf"))
+                .unwrap()
+                .items
+        };
+
+        for (src, kind, name) in [
+            ("glyph x 8 16\n⿰ liga other\n", RenameKind::Glyph, "liga"),
+            ("glyph x 8 16\n⿰ other liga ifexists\n", RenameKind::Glyph, "liga"),
+            (
+                "glyph x 8 16\n⿱ 1 a-$init 2 other\n",
+                RenameKind::NameParts,
+                "$init",
+            ),
+        ] {
             assert!(
                 doc_may_reference(&items(src), name, &kind),
                 "{src:?} does not look like it names {name}",
