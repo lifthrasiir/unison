@@ -181,6 +181,26 @@ impl AliasMap {
                 e.insert(target);
             }
         }
+        // A declared alias resolved its chain before the merges were known, so
+        // it may still name an expansion that has since been merged away — a
+        // name no glyph carries any more. Follow it one step further; a merge
+        // target is canonical by construction (`crate::merge` stores a
+        // representative, never another key), so one step is the whole chain.
+        let survivors: HashMap<String, String> = aliases
+            .map
+            .iter()
+            .filter(|(name, _)| !aliases.implicit.contains(name.as_str()))
+            .filter_map(|(name, target)| {
+                let merged = aliases.map.get(target.as_str())?;
+                if !aliases.implicit.contains(target.as_str()) {
+                    return None;
+                }
+                Some((name.clone(), merged.clone()))
+            })
+            .collect();
+        for (name, target) in survivors {
+            aliases.map.insert(name, target);
+        }
         aliases
     }
 
@@ -298,6 +318,13 @@ mod tests {
         AliasMap::collect(&docs, &name_parts)
     }
 
+    fn collect_with_merges(src: &str) -> AliasMap {
+        let doc = parse_document_from_str(src, "t.unf".into()).unwrap();
+        let docs = vec![&doc];
+        let name_parts = crate::document::collect_name_parts(&docs);
+        AliasMap::collect_with_merges(&docs, &name_parts)
+    }
+
     /// The glyph a name stands for, as every consumer sees it: the name itself
     /// unless it is an alias that resolved.
     fn canonical<'a>(aliases: &'a AliasMap, name: &'a str) -> &'a str {
@@ -352,6 +379,18 @@ mod tests {
         assert_eq!(canonical(&aliases, "x-a"), "y-a-f");
         assert_eq!(canonical(&aliases, "x-b"), "y-b-f");
         assert_eq!(canonical(&aliases, "x-c"), "y-c-f");
+        assert!(aliases.diagnostics.is_empty());
+    }
+
+    /// A declared alias naming one expansion of a `glyph` pattern block keeps
+    /// naming a glyph after that expansion is merged away: chains are followed
+    /// again once the implicit merges are in, or the alias would point at a
+    /// name no glyph carries any more.
+    #[test]
+    fn a_declared_alias_follows_an_implicit_merge() {
+        let aliases = collect_with_merges("glyph a-(j|k) 1 1\n@\nglyph b = a-k\n");
+        assert_eq!(canonical(&aliases, "a-k"), "a-j");
+        assert_eq!(canonical(&aliases, "b"), "a-j");
         assert!(aliases.diagnostics.is_empty());
     }
 
