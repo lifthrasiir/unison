@@ -72,6 +72,23 @@ ref ($0) 1 0
 exists han-([0-9a-f]{4,5})-(k):15x16 // TODO: other regions
 map U+($1) = han-($1)-($2)
 
+// han-XXXX-<region>:15x16 -> U+XXXX U+E01EY (Y derives from <region>)
+// follows proposed PanCJKV IVD collection (L2/16-063)
+exists han-([0-9a-f]{4,5})-g:15x16
+map U+($1) U+E01EE = han-($1)-g
+exists han-([0-9a-f]{4,5})-h:15x16
+map U+($1) U+E01EB = han-($1)-h
+exists han-([0-9a-f]{4,5})-t:15x16
+map U+($1) U+E01EC = han-($1)-t
+exists han-([0-9a-f]{4,5})-j:15x16
+map U+($1) U+E01E8 = han-($1)-j
+exists han-([0-9a-f]{4,5})-k:15x16
+map U+($1) U+E01E7 = han-($1)-k
+exists han-([0-9a-f]{4,5})-p:15x16
+map U+($1) U+E01E6 = han-($1)-p
+exists han-([0-9a-f]{4,5})-v:15x16
+map U+($1) U+E01E5 = han-($1)-v
+
 // han-XXXX.YY:15x16 -> U+XXXX U+E01YY
 exists han-([0-9a-f]{4,5})\.([0-1]?[0-9a-f]):15x16
 glyph han-($1).($2) 16 16 advance 16
