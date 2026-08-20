@@ -70,9 +70,27 @@ The major differences (and possible advantages) are as follows:
 
 ## Coverage
 
-For now, please see the bitmap glyph chart below.
+As of 2026-08-20:
 
-![Glyph chart](https://lifthrasiir.github.io/unison/sample.png)
+| Script | Status |
+|--------|--------|
+| Latin | Latin-1, Ext.A and Extended complete, Ext.B 50% |
+| Greek | Main block 50% (enough for modern Greek), Extended >90% |
+| Cyrillic | Main block 70% (enough for many Slavic languages) |
+| Armenian | Complete |
+| Unified Canadian Aboriginal Syllabics | Complete |
+| Ogham | Complete |
+| Runic | Complete |
+| Kana | Placeholder glyphs only (100%) |
+| Han | Semi-automatically composed (~10%), verification needed |
+| Hangul | Modern complete, archaic 80% |
+| General symbols | ~30% |
+| Mathematical symbols | ~20% |
+| Emoji | PoC only |
+| Sitelen Pona (UCSUR) | Complete |
+
+The detailed listing of available characters can be found in the
+[glyph chart](https://lifthrasiir.github.io/unison/sample.png).
 
 ## Uniform
 
