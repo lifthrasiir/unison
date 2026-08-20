@@ -656,8 +656,8 @@ map U+4E01 U+FE00 = var-a
 
 /// A variation sequence is read against the character it varies, so its cell
 /// follows that character's — in selector order, whatever order the source
-/// states them in — and is labelled by the pair rather than by a code point it
-/// does not have one of.
+/// states them in — and is labelled by its selector alone, the base being the
+/// cell it shares an open box with.
 #[test]
 fn a_variation_sequence_follows_its_base_in_selector_order() {
     let mut state = state(UVS_SRC);
@@ -666,7 +666,49 @@ fn a_variation_sequence_follows_its_base_in_selector_order() {
         state.row_summaries(8),
         // U+4E01 is `map`ped by nothing on its own, and still gets the base
         // cell its sequence varies from.
-        vec!["4E00 4E00+VS17 4E00+VS18 4E01 4E01+VS1"]
+        vec!["4E00 +VS17 +VS18 4E01 +VS1"]
+    );
+}
+
+/// The undrawn borders: the ones a variation-sequence cell shares with the run
+/// it belongs to. Read per row as one flag per vertical border, `cols + 1` of
+/// them, so a run cut by a line break is left open at both ends of the cut.
+#[test]
+fn a_variation_sequence_is_joined_to_its_base_by_an_open_border() {
+    let mut state = state(UVS_SRC);
+    state.options.group_by_block = false;
+    state.rebuild_sections();
+    let dashes = |state: &SpecimenState, cols: usize| -> Vec<Vec<bool>> {
+        let layout = state.build_layout(cols);
+        layout
+            .rows
+            .iter()
+            .filter_map(|row| match row {
+                Row::Cells { start, len } => {
+                    Some((0..=*len).map(|c| state.uvs_boundary(start + c)).collect())
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    // `4E00  +VS17  +VS18 | 4E01  +VS1` — the two sequences of U+4E00 share
+    // an open box with their base and each other, the next base does not, and
+    // the outer edges of the row are drawn.
+    assert_eq!(
+        dashes(&state, 5),
+        vec![vec![false, true, true, false, true, false]]
+    );
+    // Wrapped between the base and its first sequence: the right edge of the
+    // first row and the left edge of the second are both left open.
+    assert_eq!(
+        dashes(&state, 1),
+        vec![
+            vec![false, true],
+            vec![true, true],
+            vec![true, false],
+            vec![false, true],
+            vec![true, false],
+        ]
     );
 }
 
@@ -707,7 +749,7 @@ remap liga : sq -> var-a
 ",
     );
     state.options.group_by_block = false;
-    assert_eq!(state.row_summaries(8), vec!["4E00 4E00+VS17"]);
+    assert_eq!(state.row_summaries(8), vec!["4E00 +VS17"]);
     assert!(state.remap_glyph_names().is_empty());
     assert_eq!(state.uvs_entries[0].glyph_name, "var-a");
 }

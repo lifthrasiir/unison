@@ -839,6 +839,22 @@ impl SpecimenState {
         GridLayout { cols, rows, row_y }
     }
 
+    /// Whether the vertical border *before* item `idx` separates a variation
+    /// sequence from the cell it varies — its base, or an earlier sequence of
+    /// the same base. Those borders are not drawn at all: the `n + 1` cells of
+    /// one base are one open box, which reads as a run at a glance where a
+    /// lighter or dashed rule of the same width does not.
+    ///
+    /// The question is asked of the item alone and not of the pair around it,
+    /// so a run broken across two rows is left open at *both* ends of the
+    /// break: the right edge of the row that fills up (the border before the
+    /// item that did not fit) and the left edge of the row that continues it,
+    /// which is what says the run goes on. `idx` past the last item — the
+    /// right edge of the final row — is simply not a boundary.
+    fn uvs_boundary(&self, idx: usize) -> bool {
+        matches!(self.items.get(idx), Some(Item::Uvs(_)))
+    }
+
     /// Whether every character on one row is excluded from the sample — the
     /// rule that hides the row. A remap cell is never excluded, so a row with
     /// one on it always stays.
@@ -1089,6 +1105,9 @@ impl SpecimenState {
                             let ly0 = clamp_y(y0);
                             let ly1 = clamp_y(y1);
                             for col in 0..=len {
+                                if self.uvs_boundary(start + col) {
+                                    continue;
+                                }
                                 let x = clamp_x(origin.x + col as f32 * CELL_W);
                                 painter.line_segment(
                                     [egui::pos2(x, ly0), egui::pos2(x, ly1)],
@@ -1470,7 +1489,7 @@ impl SpecimenState {
         }
     }
 
-    /// A variation-sequence cell: the `XXXX+VS17` label, and whatever the built
+    /// A variation-sequence cell: the `+VS17` label, and whatever the built
     /// font's cmap format 14 maps the pair to.
     ///
     /// The glyph is looked up through the *font*, not through the source's
@@ -1659,11 +1678,17 @@ impl SpecimenState {
     }
 }
 
-/// A variation-sequence cell's label: `3402+VS17`, the base's code point and
-/// the selector's short name. A selector outside the two `VS` ranges (and the
-/// Mongolian ones) has no such name and falls back to its code point.
+/// A variation-sequence cell's label: `+VS17`, the selector's short name alone.
+/// A selector outside the two `VS` ranges (and the Mongolian ones) has no such
+/// name and falls back to its code point.
+///
+/// The base is not repeated here: the cell sits right after the one it varies
+/// and shares an open box with it, so its code point is already on
+/// screen, and the short form is the one that fits a cell. Where there is no
+/// such neighbour to read it against — the status bar, the tooltip — the pair
+/// is spelled out in full instead (`status_body`).
 fn uvs_label(entry: &UvsEntry) -> String {
-    format!("{:04X}+{}", entry.base, selector_name(entry.selector))
+    format!("+{}", selector_name(entry.selector))
 }
 
 fn selector_name(selector: u32) -> String {

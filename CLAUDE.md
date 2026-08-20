@@ -318,7 +318,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which block a code point is in, and how `prop block` overrides the UCD | `ucd.rs` (`BlockMap`) |
 | Which Private Use characters exist (`prop` replaces the UCD there), and the block coverage counting them | `ucd.rs` (`CharProps::is_assigned`), `specimen.rs` |
 | The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
-| Where a variation sequence sits on the specimen, and the `XXXX+VS17` label it carries | `specimen.rs` (`UvsEntry`, `uvs_label`) |
+| Where a variation sequence sits on the specimen, the `+VS17` label it carries, and the undrawn border joining it to its base | `specimen.rs` (`UvsEntry`, `uvs_label`, `uvs_boundary`) |
 | Why the specimen resolves the `exists` searches itself, and the one clone per line that pays for it | `specimen.rs` (`rebuild_if_needed`), `exists.rs` (`Scope::rebind`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
 | How tall a preview row is, and why its chrome is measured from the face rather than the font size | `preview/metrics.rs` (`VMetrics`) |
