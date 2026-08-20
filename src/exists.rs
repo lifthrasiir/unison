@@ -330,14 +330,22 @@ impl Scope {
         out
     }
 
-    /// The same for one match alone: what a `map` is stated with, since a
-    /// mapping is emitted per matched name rather than once for the line.
-    pub fn bindings_for(&self, base: &NamePartsMap, i: usize) -> NamePartsMap {
-        let mut out = base.clone();
+    /// The same for one match alone — what a `map` is stated with, since a
+    /// mapping is emitted per matched name rather than once for the line —
+    /// written into a map the caller already filled with the base, and with the
+    /// previous match's slots, which this overwrites.
+    ///
+    /// It takes that map rather than returning one because a search over a
+    /// font's worth of han glyphs matches tens of thousands of names, and the
+    /// base a match is bound over is every `name-parts` the source declares:
+    /// cloning that per match dwarfs the binding itself, so a caller unrolling
+    /// a whole line clones once for the line and rebinds per match. Every slot
+    /// the scope has is written on every call, so no match can read a slot the
+    /// last one left behind.
+    pub fn rebind(&self, out: &mut NamePartsMap, i: usize) {
         for slot in 0..self.slots {
             out.insert(format!("${slot}"), vec![self.matches[i][slot].clone()]);
         }
-        out
     }
 }
 

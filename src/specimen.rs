@@ -16,7 +16,14 @@
 //! 1. **What the source says** — the cmap pairs, the variation sequences, the
 //!    remap-only glyphs, the `prop` lines, the blocks and the
 //!    `exclude-from-sample` set. Keyed on the
-//!    two background generations ([`SpecimenState::cached_gen`]).
+//!    two background generations ([`SpecimenState::cached_gen`]). This is the
+//!    step that reads the source the way the build does rather than as written:
+//!    an `exists` above a `map` unrolls it once per matched name, so a source
+//!    that states its han characters as one search maps them all through a
+//!    single line. Resolving those searches (and the merges the aliases rest on)
+//!    is what this step costs — a few tens of milliseconds for a font this size,
+//!    paid once per background result rather than per frame, which is why it is
+//!    a step of its own and not part of the layout below.
 //! 2. **Which cells exist, in which sections** — [`SpecimenState::rebuild_sections`].
 //!    Keyed additionally on [`SpecimenOptions`], since "show undeclared
 //!    characters" fills every block that has a mapped character out to its whole
@@ -48,6 +55,7 @@ use crate::editor::doc_links::LinkTargetKind;
 use crate::glyph_flags::{GlyphFlag, GlyphFlags};
 use crate::preview::rasterizer::GlyphCache;
 use crate::render::ttf_builder::{decomposed_map_pairs, expand_map_pairs, expand_uvs_map_triples};
+use crate::resolve::ItemRef;
 use crate::ucd::{BlockMap, format_block_range, variation_selector_label};
 
 /// One variation-sequence cell — a `map BASE SELECTOR = GLYPH`.
@@ -346,10 +354,22 @@ impl SpecimenState {
         self.blocks = BlockMap::collect(docs);
         self.excluded = crate::document::excluded_from_sample(docs.iter().flat_map(|d| &d.items));
 
+        // An `exists` above a line binds `$0`/`$N` over the names the source
+        // declares and unrolls the line below it once per matched name. A
+        // source that maps a few thousand han glyphs that way — `exists
+        // han-([0-9a-f]{4,5})` / `map U+($1) = han-($1)` — has no literal `map`
+        // line for any of them, so a pass that reads the items as written finds
+        // no character at all. The searches are resolved here, over the very
+        // documents this rebuild was handed, rather than carried over from the
+        // background pipeline: a scope is keyed by *item index*, which means
+        // nothing against a document set edited since.
+        let (exists, _) = crate::exists::resolve_scopes(docs, name_parts);
+
         // `name_to_gid` comes from the built font, which knows a glyph only by
         // its canonical name, so a character mapped through an alias has to be
-        // asked for under that name.
-        let aliases = crate::alias::AliasMap::collect(docs, name_parts);
+        // asked for under that name. Merged names count as aliases here for the
+        // same reason they do in the expansion: the font carries one of them.
+        let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
 
         // The specimen draws one face's font bytes, so it has to read the
         // source the way `expand_for` did when building them: a slice-qualified
@@ -367,64 +387,113 @@ impl SpecimenState {
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
         let mut uvs: BTreeMap<u32, BTreeMap<u32, String>> = BTreeMap::new();
         let mut mapped_glyphs: HashSet<String> = HashSet::new();
-        for doc in docs {
-            for item in &doc.items {
+        for (doc_idx, doc) in docs.iter().enumerate() {
+            for (item_idx, item) in doc.items.iter().enumerate() {
+                let origin = ItemRef::new(doc_idx, item_idx);
+                // The `exists` line itself states nothing of its own, and a
+                // search that found nothing leaves the line below it standing
+                // for nothing.
+                if exists.is_directive(origin) {
+                    continue;
+                }
+                let scope = exists.scope(origin);
+                if scope.is_some_and(|s| s.matches.is_empty()) {
+                    continue;
+                }
                 let mut slices: Vec<Option<&str>> = match item.slice_qualifier() {
                     [] => vec![None],
                     qual => qual.iter().map(|s| Some(s.as_str())).collect(),
                 };
                 slices.retain(|s| face.includes(*s));
                 for slice in slices {
-                    let parts = scoped.for_slice(slice);
-                    match item {
-                        // A variation sequence gets a cell of its own, beside
-                        // the base's. A malformed one (both halves varying, a
-                        // selector that is not one) is left to `issues` to
-                        // report and draws nothing here.
-                        DocumentItem::Map {
-                            char_repr,
-                            selector: Some(selector),
-                            glyph,
-                            ..
-                        } => {
-                            let subst_glyph = substitute_name_parts(glyph, parts);
-                            let Ok(triples) =
-                                expand_uvs_map_triples(char_repr, selector, &subst_glyph)
-                            else {
-                                continue;
-                            };
-                            for (base, sel, glyph_name) in triples {
-                                let mut pairs = vec![(base, glyph_name)];
+                    let slice_parts = scoped.for_slice(slice);
+                    // A scoped `map` unrolls to one mapping per match, with the
+                    // code point *computed* from that match; an unscoped one is
+                    // stated once, exactly as written. Same asymmetry, and same
+                    // machinery, as `expand_inner`.
+                    // The base of the bindings is cloned once for the line,
+                    // not once per match: a search over the han glyphs matches
+                    // thousands of names, and the base is every `name-parts`
+                    // the source declares.
+                    let mut bound = scope.map(|_| slice_parts.clone());
+                    for round in 0..scope.map_or(1, |s| s.matches.len()) {
+                        let (parts, caps) = match (scope, &mut bound) {
+                            (Some(scope), Some(bound)) => {
+                                scope.rebind(bound, round);
+                                (&*bound, Some(&scope.matches[round][..]))
+                            }
+                            _ => (slice_parts, None),
+                        };
+                        // A spelling `exists` cannot evaluate (`U+($9)` with no
+                        // ninth group) fails every match the same way; it is
+                        // reported by the build, and draws nothing here.
+                        let evaluated = |spec: &str| match caps {
+                            Some(caps) => crate::exists::eval_codepoint(spec, caps).ok(),
+                            None => Some(spec.to_string()),
+                        };
+                        match item {
+                            // A variation sequence gets a cell of its own, beside
+                            // the base's. A malformed one (both halves varying, a
+                            // selector that is not one) is left to `issues` to
+                            // report and draws nothing here.
+                            DocumentItem::Map {
+                                char_repr,
+                                selector: Some(selector),
+                                glyph,
+                                ..
+                            } => {
+                                let subst_glyph = substitute_name_parts(glyph, parts);
+                                let (Some(char_repr), Some(selector)) =
+                                    (evaluated(char_repr), evaluated(selector))
+                                else {
+                                    continue;
+                                };
+                                let Ok(triples) =
+                                    expand_uvs_map_triples(&char_repr, &selector, &subst_glyph)
+                                else {
+                                    continue;
+                                };
+                                for (base, sel, glyph_name) in triples {
+                                    let mut pairs = vec![(base, glyph_name)];
+                                    aliases.canonicalize_pairs(&mut pairs);
+                                    let (_, glyph_name) =
+                                        pairs.pop().expect("one pair in, one out");
+                                    mapped_glyphs.insert(glyph_name.clone());
+                                    uvs.entry(base)
+                                        .or_default()
+                                        .entry(sel)
+                                        .or_insert(glyph_name);
+                                }
+                            }
+                            DocumentItem::Map {
+                                char_repr, glyph, ..
+                            } => {
+                                let subst_glyph = substitute_name_parts(glyph, parts);
+                                let Some(char_repr) = evaluated(char_repr) else {
+                                    continue;
+                                };
+                                let mut pairs = expand_map_pairs(&char_repr, &subst_glyph);
                                 aliases.canonicalize_pairs(&mut pairs);
-                                let (_, glyph_name) = pairs.pop().expect("one pair in, one out");
-                                mapped_glyphs.insert(glyph_name.clone());
-                                uvs.entry(base)
-                                    .or_default()
-                                    .entry(sel)
-                                    .or_insert(glyph_name);
+                                for (cp, glyph_name) in pairs {
+                                    mapped_glyphs.insert(glyph_name.clone());
+                                    map.entry(cp).or_insert(glyph_name);
+                                }
                             }
-                        }
-                        DocumentItem::Map {
-                            char_repr, glyph, ..
-                        } => {
-                            let subst_glyph = substitute_name_parts(glyph, parts);
-                            let mut pairs = expand_map_pairs(char_repr, &subst_glyph);
-                            aliases.canonicalize_pairs(&mut pairs);
-                            for (cp, glyph_name) in pairs {
-                                mapped_glyphs.insert(glyph_name.clone());
-                                map.entry(cp).or_insert(glyph_name);
+                            DocumentItem::MapDecomposed {
+                                char_repr, glyph, ..
+                            } => {
+                                let subst = glyph.as_ref().map(|g| substitute_name_parts(g, parts));
+                                let Some(char_repr) = evaluated(char_repr) else {
+                                    continue;
+                                };
+                                for (cp, name) in decomposed_map_pairs(&char_repr, subst.as_deref())
+                                {
+                                    mapped_glyphs.insert(name.clone());
+                                    map.entry(cp).or_insert(name);
+                                }
                             }
+                            _ => {}
                         }
-                        DocumentItem::MapDecomposed {
-                            char_repr, glyph, ..
-                        } => {
-                            let subst = glyph.as_ref().map(|g| substitute_name_parts(g, parts));
-                            for (cp, name) in decomposed_map_pairs(char_repr, subst.as_deref()) {
-                                mapped_glyphs.insert(name.clone());
-                                map.entry(cp).or_insert(name);
-                            }
-                        }
-                        _ => {}
                     }
                 }
             }

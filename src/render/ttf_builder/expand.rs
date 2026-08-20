@@ -264,6 +264,9 @@ fn expand_inner(
                 for slice in &slices {
                     let parts = scoped.for_slice(*slice);
                     let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
+                    // Cloned once for the line rather than once per match; see
+                    // [`crate::exists::Scope::rebind`].
+                    let mut per = parts.clone();
                     for (i, caps) in scope.matches.iter().enumerate() {
                         let (char_repr, selector) = match (
                             crate::exists::eval_codepoint(char_repr, caps),
@@ -283,7 +286,7 @@ fn expand_inner(
                                 continue;
                             }
                         };
-                        let per = scope.bindings_for(parts, i);
+                        scope.rebind(&mut per, i);
                         all_items.push(ExpandedItem {
                             item: DocumentItem::Map {
                                 slices: one.clone(),

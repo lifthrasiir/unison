@@ -626,4 +626,3 @@ fn a_blank_line_ends_the_carry() {
     }
     assert_eq!(carry, Carry::None);
 }
-

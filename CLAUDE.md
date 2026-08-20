@@ -319,6 +319,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which Private Use characters exist (`prop` replaces the UCD there), and the block coverage counting them | `ucd.rs` (`CharProps::is_assigned`), `specimen.rs` |
 | The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
 | Where a variation sequence sits on the specimen, and the `XXXX+VS17` label it carries | `specimen.rs` (`UvsEntry`, `uvs_label`) |
+| Why the specimen resolves the `exists` searches itself, and the one clone per line that pays for it | `specimen.rs` (`rebuild_if_needed`), `exists.rs` (`Scope::rebind`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
 | How tall a preview row is, and why its chrome is measured from the face rather than the font size | `preview/metrics.rs` (`VMetrics`) |
 | Why the editor's preedit box cannot crop a glyph but the preview's could | `editor/document_view/paint.rs`, `preview/metrics.rs` |

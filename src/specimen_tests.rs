@@ -711,3 +711,49 @@ remap liga : sq -> var-a
     assert!(state.remap_glyph_names().is_empty());
     assert_eq!(state.uvs_entries[0].glyph_name, "var-a");
 }
+
+/// An `exists` above a `map` unrolls the line once per matched name, with the
+/// code point computed from the match; the specimen has to read that the way
+/// the build does, or a source that maps thousands of han glyphs that way
+/// (`exists han-([0-9a-f]{4,5})` / `map U+($1) = han-($1)`) shows none of them.
+#[test]
+fn lists_characters_an_exists_scoped_map_declares() {
+    let d = doc("\
+meta height 16
+glyph han-4e00 1 1
+@@
+glyph han-4e01-k 1 1
+@@
+exists han-([0-9a-f]{4,5})
+map U+($1) = han-($1)
+exists han-([0-9a-f]{4,5})-k
+map U+($1) U+E01E7 = han-($1)-k
+");
+    let docs = [&d];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let mut state = SpecimenState::new();
+    state.rebuild_if_needed(
+        &docs,
+        &name_parts,
+        &HashMap::new(),
+        None,
+        &GlyphFlags::default(),
+        1,
+        1,
+    );
+    assert_eq!(
+        state.declared.get(&0x4e00).map(String::as_str),
+        Some("han-4e00")
+    );
+    // The variation sequence the second search states, on the base it names.
+    assert_eq!(
+        state
+            .uvs
+            .get(&0x4e01)
+            .and_then(|m| m.get(&0xE01E7))
+            .map(String::as_str),
+        Some("han-4e01-k")
+    );
+    // The `exists` lines themselves declare no character.
+    assert_eq!(state.declared.len(), 1);
+}
