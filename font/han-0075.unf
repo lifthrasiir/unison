@@ -168,8 +168,8 @@ glyph han-67b9:15x16 15 16 // 枹
 glyph han-67c0:15x16 15 16 // 柀
 ⿰ han-6728:5x16-l han-76ae:9x16 // ⿰木皮
 
-glyph han-67c3:15x16 15 16 // 柃
-⿰ han-6728:7x16 han-4ee4:7x16 // ⿰木令
+glyph han-67c3-($han-regions):15x16 15 16 // 柃
+⿰ han-6728:7x16 han-4ee4-($han-regions):7x16 // ⿰木令
 
 glyph han-67c7:15x16 15 16 // 柇
 ⿰ han-6728:7x16 han-79be:7x16 // ⿰木禾

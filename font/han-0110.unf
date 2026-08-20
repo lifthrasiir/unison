@@ -92,8 +92,8 @@ glyph han-7825:15x16 15 16 // 砥
 glyph han-7827:15x16 15 16 // 砧
 ⿰ han-77f3:7x16 1 han-5360:7x16 // ⿰石占
 
-glyph han-7831:15x16 15 16 // 砱
-⿰ han-77f3:7x16 han-4ee4:7x16 // ⿰石令
+glyph han-7831-($han-regions):15x16 15 16 // 砱
+⿰ han-77f3:7x16 han-4ee4-($han-regions):7x16 // ⿰石令
 
 glyph han-7832:15x16 15 16 // 砲
 ⿰ han-77f3:7x16 han-5305:7x16 // ⿰石包
@@ -448,8 +448,8 @@ glyph han-79dd:15x16 15 16 // 秝
 glyph han-79df:15x16 15 16 // 租
 ⿰ han-79be:7x16 han-4e14:8x16 // ⿰禾且
 
-glyph han-79e2:15x16 15 16 // 秢
-⿰ han-79be:7x16 han-4ee4:7x16 // ⿰禾令
+glyph han-79e2-($han-regions):15x16 15 16 // 秢
+⿰ han-79be:7x16 han-4ee4-($han-regions):7x16 // ⿰禾令
 
 glyph han-79e5:15x16 15 16 // 秥
 ⿰ han-79be:7x16 1 han-5360:7x16 // ⿰禾占

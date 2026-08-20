@@ -9,5 +9,5 @@ glyph han-20042:15x16 15 16 // 𠁂
 
 ## 6.6
 
-glyph han-20116:15x16 15 16 // 𠄖
-⿰ han-4ee4:7x16 han-4e01:7x16 // ⿰令丁
+glyph han-20116-($han-regions):15x16 15 16 // 𠄖
+⿰ han-4ee4-($han-regions):7x16 han-4e01:7x16 // ⿰令丁

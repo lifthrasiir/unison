@@ -28,8 +28,8 @@ glyph han-2dfa8:15x16 15 16 // 𭾨
 
 ## 113.5
 
-glyph han-2e063:15x16 15 16 // 𮁣
-⿰ han-793b:5x16 1 han-4ee4:9x16 // ⿰礻令
+glyph han-2e063-($han-regions):15x16 15 16 // 𮁣
+⿰ han-793b:5x16 1 han-4ee4-($han-regions):9x16 // ⿰礻令
 
 # CJK unified ideographs extension F: 禾 (115)
 

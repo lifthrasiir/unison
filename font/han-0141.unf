@@ -102,8 +102,8 @@ glyph han-86c6:15x16 15 16 // 蛆
 glyph han-86c8:15x16 15 16 // 蛈
 ⿰ han-866b:5x16 1 han-5931:9x16 // ⿰虫失
 
-glyph han-86c9:15x16 15 16 // 蛉
-⿰ han-866b:7x16 1 han-4ee4:7x16 // ⿰虫令
+glyph han-86c9-($han-regions):15x16 15 16 // 蛉
+⿰ han-866b:7x16 1 han-4ee4-($han-regions):7x16 // ⿰虫令
 
 ## 142.6
 
@@ -279,8 +279,8 @@ glyph han-887f:15x16 15 16 // 衿
 
 ## 145.5
 
-glyph han-888a:15x16 15 16 // 袊
-⿰ han-8864:5x16 1 han-4ee4:9x16 // ⿰衤令
+glyph han-888a-($han-regions):15x16 15 16 // 袊
+⿰ han-8864:5x16 1 han-4ee4-($han-regions):9x16 // ⿰衤令
 
 glyph han-888d:15x16 15 16 // 袍
 ⿰ 1 han-8864:5x16 1 han-5305:7x16 // ⿰衤包

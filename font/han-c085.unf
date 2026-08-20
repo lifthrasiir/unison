@@ -54,8 +54,8 @@ glyph han-2afa0:15x16 15 16 // 𪾠
 
 ## 109.5
 
-glyph han-2afa7:15x16 15 16 // 𪾧
-⿰ han-76ee:6x16 1 han-4ee4:7x16 // ⿰目令
+glyph han-2afa7-($han-regions):15x16 15 16 // 𪾧
+⿰ han-76ee:6x16 1 han-4ee4-($han-regions):7x16 // ⿰目令
 
 # CJK unified ideographs extension C: 石 (112)
 

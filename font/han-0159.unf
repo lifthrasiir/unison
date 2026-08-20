@@ -132,8 +132,8 @@ glyph han-8ee5:15x16 15 16 // 軥
 glyph han-8ee7:15x16 15 16 // 軧
 ⿰ han-8eca:7x16 han-6c10:8x16 // ⿰車氐
 
-glyph han-8ee8:15x16 15 16 // 軨
-⿰ han-8eca:7x16 han-4ee4:7x16 // ⿰車令
+glyph han-8ee8-($han-regions):15x16 15 16 // 軨
+⿰ han-8eca:7x16 han-4ee4-($han-regions):7x16 // ⿰車令
 
 glyph han-8ee9:15x16 15 16 // 軩
 ⿰ han-8eca:7x16 han-53f0:7x16 // ⿰車台
@@ -267,8 +267,8 @@ glyph han-90b5:15x16 15 16 // 邵
 glyph han-90b8:15x16 15 16 // 邸
 ⿰ 1 han-6c10:8x16 1 han-961d:4x16 // ⿰氐阝
 
-glyph han-90bb:15x16 15 16 // 邻
-⿰ han-4ee4:9x16 2 han-961d:4x16 // ⿰令阝
+glyph han-90bb-($han-regions):15x16 15 16 // 邻
+⿰ han-4ee4-($han-regions):9x16 2 han-961d:4x16 // ⿰令阝
 
 ## 163.6
 

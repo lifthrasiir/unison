@@ -116,8 +116,8 @@ glyph han-70a3:15x16 15 16 // 炣
 glyph han-70a4:15x16 15 16 // 炤
 ⿰ han-706b:7x16 2 han-53ec:6x16 // ⿰火召
 
-glyph han-70a9:15x16 15 16 // 炩
-⿰ han-706b:7x16 1 han-4ee4:7x16 // ⿰火令
+glyph han-70a9-($han-regions):15x16 15 16 // 炩
+⿰ han-706b:7x16 1 han-4ee4-($han-regions):7x16 // ⿰火令
 
 glyph han-70ae:15x16 15 16 // 炮
 ⿰ han-706b:7x16 1 han-5305:7x16 // ⿰火包

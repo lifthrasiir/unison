@@ -104,8 +104,8 @@ glyph han-5ca5:15x16 15 16 // 岥
 glyph han-5ca8:15x16 15 16 // 岨
 ⿰ han-5c71:5x16-l 2 han-4e14:8x16 // ⿰山且
 
-glyph han-5cad:15x16 15 16 // 岭
-⿰ han-5c71:7x16 1 han-4ee4:7x16 // ⿰山令
+glyph han-5cad-($han-regions):15x16 15 16 // 岭
+⿰ han-5c71:7x16 1 han-4ee4-($han-regions):7x16 // ⿰山令
 
 glyph han-5cb6:15x16 15 16 // 岶
 ⿰ han-5c71:7x16 2 han-767d:6x16 // ⿰山白

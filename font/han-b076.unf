@@ -10,8 +10,8 @@ glyph han-23890:15x16 15 16 // 𣢐
 
 ## 76.5
 
-glyph han-2389d:15x16 15 16 // 𣢝
-⿰ han-4ee4:7x16 1 han-6b20:7x16 // ⿰令欠
+glyph han-2389d-($han-regions):15x16 15 16 // 𣢝
+⿰ han-4ee4-($han-regions):7x16 1 han-6b20:7x16 // ⿰令欠
 
 glyph han-238a4:15x16 15 16 // 𣢤
 ⿰ han-5360:7x16 1 han-6b20:7x16 // ⿰占欠

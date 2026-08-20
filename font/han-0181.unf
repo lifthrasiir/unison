@@ -52,8 +52,8 @@ glyph han-9815:15x16 15 16 // 頕
 glyph han-9817:15x16 15 16 // 頗
 ⿰ -1 han-76ae:9x16 han-9801:7x16 // ⿰皮頁
 
-glyph han-9818:15x16 15 16 // 領
-⿰ han-4ee4:7x16 1 han-9801:7x16 // ⿰令頁
+glyph han-9818-($han-regions):15x16 15 16 // 領
+⿰ han-4ee4-($han-regions):7x16 1 han-9801:7x16 // ⿰令頁
 
 ## 181.6
 
@@ -331,8 +331,8 @@ glyph han-99d2:15x16 15 16 // 駒
 glyph han-99d4:15x16 15 16 // 駔
 ⿰ han-99ac:7x16 1 han-4e14:7x16 // ⿰馬且
 
-glyph han-99d6:15x16 15 16 // 駖
-⿰ han-99ac:7x16 1 han-4ee4:7x16 // ⿰馬令
+glyph han-99d6-($han-regions):15x16 15 16 // 駖
+⿰ han-99ac:7x16 1 han-4ee4-($han-regions):7x16 // ⿰馬令
 
 glyph han-99d8:15x16 15 16 // 駘
 ⿰ han-99ac:7x16 1 han-53f0:7x16 // ⿰馬台

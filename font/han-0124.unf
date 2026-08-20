@@ -138,8 +138,8 @@ glyph han-8041:15x16 15 16 // 聁
 
 ## 128.5
 
-glyph han-8046:15x16 15 16 // 聆
-⿰ han-8033:7x16 1 han-4ee4:7x16 // ⿰耳令
+glyph han-8046-($han-regions):15x16 15 16 // 聆
+⿰ han-8033:7x16 1 han-4ee4-($han-regions):7x16 // ⿰耳令
 
 ## 128.6
 

@@ -16,8 +16,8 @@ glyph han-2927f:15x16 15 16 // 𩉿
 glyph han-29280:15x16 15 16 // 𩊀
 ⿰ han-9769:7x16 1 han-767d:6x16 // ⿰革白
 
-glyph han-29282:15x16 15 16 // 𩊂
-⿰ han-9769:7x16 han-4ee4:7x16 // ⿰革令
+glyph han-29282-($han-regions):15x16 15 16 // 𩊂
+⿰ han-9769:7x16 han-4ee4-($han-regions):7x16 // ⿰革令
 
 glyph han-29286:15x16 15 16 // 𩊆
 ⿰ han-9769:7x16 han-53ef:8x16 // ⿰革可

@@ -7,8 +7,8 @@ glyph han-2cf6a:15x16 15 16 // 𬽪
 
 ## 9.9
 
-glyph han-2cfba:15x16 15 16 // 𬾺
-⿰ han-5e76:8x16 han-4ee4:7x16 // ⿰并令
+glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
+⿰ han-5e76:8x16 han-4ee4-($han-regions):7x16 // ⿰并令
 
 # CJK unified ideographs extension F: 力 (19)
 

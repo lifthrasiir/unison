@@ -16,7 +16,7 @@
 //
 // han-0001 0010 0030 0031 0038 0045 0059 0064 0065 0075 0075.09 0076
 //      837  684  755  671  762  757  747  742  506  520     498  279
-// han-0085 0085.09 0086 0094 0102 0110 0116 0120 0124 0140 0141 0146 
+// han-0085 0085.09 0086 0094 0102 0110 0116 0120 0124 0140 0141 0146
 //      483     597  584  645  684  675  645  710  706  987  818  698
 // han-0150 0159 0167 0168 0181 0188 0196
 //      660  778  940  654  681  584  705
@@ -53,30 +53,31 @@
 // han-j001 j039 j085 j119 j162
 //      844  820  901  866  867
 
+name-parts $han-regions = g h t j k p v
+
 audit ideal-clearance han-* 0 1
 
-glyph han-($#4e00..9fff) 16 16 advance 16 // URO
-ref han-($#4e00..9fff):15x16 1 0 ifexists
-glyph han-($#3400..4dbf) 16 16 advance 16 // CJK Extension A
-ref han-($#3400..4dbf):15x16 1 0 ifexists
-glyph han-($#f900..faff) 16 16 advance 16 // CJK Compatibility Ideographs
-ref han-($#f900..faff):15x16 1 0 ifexists
-glyph han-($#20000..2a6df) 16 16 advance 16 // CJK Extension B
-ref han-($#20000..2a6df):15x16 1 0 ifexists
-glyph han-($#2a700..2ee5f) 16 16 advance 16 // CJK Extension C/D/E/F/I
-ref han-($#2a700..2ee5f):15x16 1 0 ifexists
-glyph han-($#2f800..2fa1f) 16 16 advance 16 // CJK Compatibility Ideographs Supplement
-ref han-($#2f800..2fa1f):15x16 1 0 ifexists
-glyph han-($#30000..3347f) 16 16 advance 16 // CJK Extension G/H/J
-ref han-($#30000..3347f):15x16 1 0 ifexists
+// han-XXXX:15x16 -> U+XXXX (assumes no han-XXXX-<region>:15x16)
+exists han-([0-9a-f]{4,5}):15x16
+glyph han-($1) 16 16 advance 16
+ref ($0) 1 0
+exists han-([0-9a-f]{4,5}):15x16
+map U+($1) = han-($1)
 
-map U+4E00..9FFF = han-($#4e00..9fff) ifexists
-map U+3400..4DBF = han-($#3400..4dbf) ifexists
-map U+F900..FAFF = han-($#f900..faff) ifexists
-map U+20000..2A6DF = han-($#20000..2a6df) ifexists
-map U+2A700..2EE5F = han-($#2a700..2ee5f) ifexists
-map U+2F800..2FA1F = han-($#2f800..2fa1f) ifexists
-map U+30000..3347F = han-($#30000..3347f) ifexists
+// han-XXXX-<region>:15x16 -> U+XXXX (assumes no han-XXXX:15x16)
+// <region> is face-dependent: G(china) Hongkong Taiwan Japan roK dPrk Vietnam
+exists han-([0-9a-f]{4,5})-([ghtjkpv]):15x16
+glyph han-($1)-($2) 16 16 advance 16
+ref ($0) 1 0
+exists han-([0-9a-f]{4,5})-(k):15x16 // TODO: other regions
+map U+($1) = han-($1)-($2)
+
+// han-XXXX.YY:15x16 -> U+XXXX U+E01YY
+exists han-([0-9a-f]{4,5})\.([0-1]?[0-9a-f]):15x16
+glyph han-($1).($2) 16 16 advance 16
+ref ($0) 1 0
+exists han-([0-9a-f]{4,5})\.([0-1]?[0-9a-f]):15x16
+map U+($1) U+E0100+($2) = han-($1).($2)
 
 ## kanbun
 

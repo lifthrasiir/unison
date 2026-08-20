@@ -83,8 +83,8 @@ glyph han-7684:15x16 15 16 // 的
 
 ## 106.5
 
-glyph han-768a:15x16 15 16 // 皊
-⿰ han-767d:6x16 1 han-4ee4:7x16 // ⿰白令
+glyph han-768a-($han-regions):15x16 15 16 // 皊
+⿰ han-767d:6x16 1 han-4ee4-($han-regions):7x16 // ⿰白令
 
 ## 106.6
 

@@ -153,8 +153,8 @@ glyph han-8a40:15x16 15 16 // 詀
 glyph han-8a44:15x16 15 16 // 詄
 ⿰ han-8a01:5x16 han-5931:9x16 // ⿰訁失
 
-glyph han-8a45:15x16 15 16 // 詅
-⿰ han-8a01:7x16 han-4ee4:7x16 // ⿰訁令
+glyph han-8a45-($han-regions):15x16 15 16 // 詅
+⿰ han-8a01:7x16 han-4ee4-($han-regions):7x16 // ⿰訁令
 
 glyph han-8a46:15x16 15 16 // 詆
 ⿰ han-8a01:7x16 han-6c10:8x16 // ⿰訁氐

@@ -96,8 +96,8 @@ glyph han-9cff:15x16 15 16 // 鳿
 
 ## 196.5
 
-glyph han-9d12:15x16 15 16 // 鴒
-⿰ han-4ee4:7x16 1 han-9ce5:7x16 // ⿰令鳥
+glyph han-9d12-($han-regions):15x16 15 16 // 鴒
+⿰ han-4ee4-($han-regions):7x16 1 han-9ce5:7x16 // ⿰令鳥
 
 glyph han-9d1a:15x16 15 16 // 鴚
 ⿰ han-9ce5:7x16 han-53ef:8x16 // ⿰鳥可

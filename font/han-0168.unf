@@ -67,8 +67,8 @@ glyph han-963b:15x16 15 16 // 阻
 glyph han-963d:15x16 15 16 // 阽
 ⿰ 1 han-961d:4x16-l 2 han-5360:7x16 // ⿰阝占
 
-glyph han-963e:15x16 15 16 // 阾
-⿰ han-961d:4x16-l 2 han-4ee4:9x16 // ⿰阝令
+glyph han-963e-($han-regions):15x16 15 16 // 阾
+⿰ han-961d:4x16-l 2 han-4ee4-($han-regions):9x16 // ⿰阝令
 
 glyph han-963f:15x16 15 16 // 阿
 ⿰ han-961d:4x16-l han-53ef:10x16 // ⿰阝可

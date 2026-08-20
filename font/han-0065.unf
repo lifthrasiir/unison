@@ -171,8 +171,8 @@ $$../Vv'/Vv'\1@@$$
 ..................
 ..................
 
-glyph han-6624:15x16 15 16 // 昤
-⿰ han-65e5:7x16 1 han-4ee4:7x16 // ⿰日令
+glyph han-6624-($han-regions):15x16 15 16 // 昤
+⿰ han-65e5:7x16 1 han-4ee4-($han-regions):7x16 // ⿰日令
 
 glyph han-662b:15x16 15 16 // 昫
 ⿰ han-65e5:7x16 1 han-53e5:7x16 // ⿰日句
@@ -364,8 +364,8 @@ glyph han-670c:15x16 15 16 // 朌
 
 ## 74.5
 
-glyph han-670e:15x16 15 16 // 朎
-⿰ han-6708:7x16 1 han-4ee4:7x16 // ⿰月令
+glyph han-670e-($han-regions):15x16 15 16 // 朎
+⿰ han-6708:7x16 1 han-4ee4-($han-regions):7x16 // ⿰月令
 
 glyph han-6710:15x16 15 16 // 朐
 ⿰ han-6708:7x16 1 han-53e5:7x16 // ⿰月句

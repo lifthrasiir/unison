@@ -93,8 +93,8 @@ glyph han-9227:15x16 15 16 // 鈧
 glyph han-9233:15x16 15 16 // 鈳
 ⿰ han-91d2:5x16-l han-53ef:10x16 // ⿰釒可
 
-glyph han-9234:15x16 15 16 // 鈴
-⿰ han-91d2:7x16 han-4ee4:7x16 // ⿰釒令
+glyph han-9234-($han-regions):15x16 15 16 // 鈴
+⿰ han-91d2:7x16 han-4ee4-($han-regions):7x16 // ⿰釒令
 
 glyph han-9236:15x16 15 16 // 鈶
 ⿰ han-91d2:7x16 han-53f0:7x16 // ⿰釒台
@@ -373,8 +373,8 @@ glyph han-94c1:15x16 15 16 // 铁
 glyph han-94c2:15x16 15 16 // 铂
 ⿰ han-9485:6x16 1 han-767d:8x16 // ⿰钅白
 
-glyph han-94c3:15x16 15 16 // 铃
-⿰ han-9485:6x16 han-4ee4:9x16 // ⿰钅令
+glyph han-94c3-($han-regions):15x16 15 16 // 铃
+⿰ han-9485:6x16 han-4ee4-($han-regions):9x16 // ⿰钅令
 
 glyph han-94c7:15x16 15 16 // 铇
 ⿰ han-9485:6x16 1 han-5305:7x16 // ⿰钅包

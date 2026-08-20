@@ -179,8 +179,8 @@ glyph han-5778:15x16 15 16 // 坸
 glyph han-577b:15x16 15 16 // 坻
 ⿰ han-571f:7x16 han-6c10:8x16 // ⿰土氐
 
-glyph han-577d:15x16 15 16 // 坽
-⿰ han-571f:7x16 han-4ee4:7x16 // ⿰土令
+glyph han-577d-($han-regions):15x16 15 16 // 坽
+⿰ han-571f:7x16 han-4ee4-($han-regions):7x16 // ⿰土令
 
 glyph han-5789:15x16 15 16 // 垉
 ⿰ han-571f:7x16 han-5305:7x16 // ⿰土包

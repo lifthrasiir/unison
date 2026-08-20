@@ -20,8 +20,8 @@ glyph han-25e37:15x16 15 16 // 𥸷
 glyph han-25e4b:15x16 15 16 // 𥹋
 ⿰ han-7c73:7x16 han-53f0:7x16 // ⿰米台
 
-glyph han-25e55:15x16 15 16 // 𥹕
-⿰ han-7c73:7x16 han-4ee4:7x16 // ⿰米令
+glyph han-25e55-($han-regions):15x16 15 16 // 𥹕
+⿰ han-7c73:7x16 han-4ee4-($han-regions):7x16 // ⿰米令
 
 glyph han-25e56:15x16 15 16 // 𥹖
 ⿰ han-7c73:5x16-l 1 han-76ae:9x16 // ⿰米皮

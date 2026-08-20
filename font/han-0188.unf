@@ -210,8 +210,8 @@ glyph han-9b75:15x16 15 16 // 魵
 glyph han-9b7a:15x16 15 16 // 魺
 ⿰ han-9b5a:7x16 han-53ef:8x16 // ⿰魚可
 
-glyph han-9b7f:15x16 15 16 // 魿
-⿰ han-9b5a:7x16 1 han-4ee4:7x16 // ⿰魚令
+glyph han-9b7f-($han-regions):15x16 15 16 // 魿
+⿰ han-9b5a:7x16 1 han-4ee4-($han-regions):7x16 // ⿰魚令
 
 glyph han-9b88:15x16 15 16 // 鮈
 ⿰ han-9b5a:7x16 1 han-53e5:7x16 // ⿰魚句
