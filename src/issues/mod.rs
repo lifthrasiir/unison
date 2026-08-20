@@ -257,7 +257,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     anchors::check_anchor_derivation(&cx, &mut issues);
     colors::check_colors(&cx, &mut issues);
     patterns::check_props(docs, &mut issues);
-    maps::check_uvs_maps(docs, &mut issues);
+    maps::check_uvs_maps(&cx, &mut issues);
     patterns::check_ragged_patterns(docs, cx.name_parts, &mut issues);
     issues.extend(
         cx.docset

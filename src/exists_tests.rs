@@ -285,6 +285,35 @@ map U+($1) U+E0100+($2) = han-($1).($2)
     assert_eq!(maps(&r), ["U+4E00 U+E0100 => han-4e00.0"]);
 }
 
+/// The variation-sequence checks read the *source*, so they have to read a
+/// scoped `map` through its matches like every other consumer — otherwise the
+/// `U+($1)` still standing on the line reads as a codepoint nobody could write.
+#[test]
+fn a_scoped_variation_sequence_is_validated_per_match() {
+    let d = doc("\
+glyph han-4e00:15x16 1 1
+@@
+glyph han-4e00.0:15x16 1 1
+@@
+exists han-([0-9a-f]{4,5}):15x16
+glyph han-($1) 16 16 advance 16
+ref ($0)
+exists han-([0-9a-f]{4,5}):15x16
+map U+($1) = han-($1)
+exists han-([0-9a-f]{4,5})\\.([0-9a-f]):15x16
+glyph han-($1).($2) 16 16 advance 16
+ref ($0)
+exists han-([0-9a-f]{4,5})\\.([0-9a-f]):15x16
+map U+($1) U+E0100+($2) = han-($1).($2)
+");
+    let errs: Vec<String> = crate::issues::collect_issues(&[&d])
+        .into_iter()
+        .filter(|i| i.severity == crate::issues::Severity::Error)
+        .map(|i| i.message)
+        .collect();
+    assert_eq!(errs, Vec::<String>::new());
+}
+
 /// A search that matches a name another search declared: the round after the
 /// first picks it up.
 #[test]

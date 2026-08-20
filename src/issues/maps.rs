@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::document::{
-    Directive, Document, DocumentItem, MAX_HEADING_LEVEL, classify_directive, substitute_name_parts,
+    Directive, DocumentItem, MAX_HEADING_LEVEL, classify_directive, substitute_name_parts,
 };
 
 use super::{Cx, Issue, Severity, issue_at, short_path};
@@ -437,7 +437,8 @@ fn spell_codepoints(s: &str) -> String {
 /// that matters most — the base has to be mapped too — can only be judged once
 /// every plain `map` in every document has been seen, and a source is free to
 /// state the pair before the base.
-pub(super) fn check_uvs_maps(docs: &[&Document], issues: &mut Vec<Issue>) {
+pub(super) fn check_uvs_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
+    let docs = cx.docs;
     use crate::render::ttf_builder::{
         UvsExpandError, expand_map_codepoints, expand_uvs_map_triples,
     };
@@ -445,9 +446,14 @@ pub(super) fn check_uvs_maps(docs: &[&Document], issues: &mut Vec<Issue>) {
 
     // Which codepoints a plain `map` claims, per slice. `None` is the base
     // slice, which every face includes.
+    //
+    // Both loops walk `Cx::source_items` rather than the raw items, because a
+    // `map` an `exists` governs still says `U+($1)` on the line: read as
+    // written it names no codepoint at all, and a pair whose base is stated by
+    // another scoped `map` would read as a base mapped nowhere.
     let mut base_cps: HashMap<Option<&str>, HashSet<u32>> = HashMap::new();
-    for doc in docs {
-        for item in &doc.items {
+    for doc_idx in 0..docs.len() {
+        for (_, item) in cx.source_items(doc_idx) {
             let DocumentItem::Map {
                 slices,
                 char_repr,
@@ -487,8 +493,8 @@ pub(super) fn check_uvs_maps(docs: &[&Document], issues: &mut Vec<Issue>) {
         }
     };
 
-    for doc in docs {
-        for (item_idx, item) in doc.items.iter().enumerate() {
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in cx.source_items(doc_idx) {
             let DocumentItem::Map {
                 slices,
                 char_repr,
