@@ -371,10 +371,11 @@ ref ($0)
     );
 }
 
-/// What is refused is narrower: two matched names that are one glyph. `$0`
-/// would have two values for it, and the block below would build it twice.
+/// Two matched names that are one glyph are not a search's problem: the block
+/// below still names its output by the captures, so it builds two glyphs that
+/// happen to share a shape. That is what an alias is for.
 #[test]
-fn finding_one_glyph_under_two_names_is_an_error() {
+fn finding_one_glyph_under_two_names_is_fine() {
     let d = doc("\
 glyph part-a 1 1
 @@
@@ -384,14 +385,40 @@ glyph made-($1) 1 1
 ref ($0)
 ");
     let r = Resolution::compute(&[&d]);
-    let errs = errors(&r);
-    assert!(
-        errs.iter()
-            .any(|e| e.contains("two names for the glyph `part-a`")),
-        "expected a collision error, got {errs:?}"
+    assert_eq!(errors(&r), Vec::<String>::new());
+    // Both names are built. They come out as one glyph id, because the two
+    // blocks the pattern expands to `ref` the same thing and `crate::merge`
+    // folds those — which is the same answer the source gave by aliasing.
+    assert_eq!(declared(&r), ["made-a", "part-a"]);
+    assert_eq!(
+        r.expansion.aliases.resolved_target("made-b"),
+        Some("made-a")
     );
-    // And the block it scoped builds nothing rather than a glyph named `$1`.
-    assert_eq!(declared(&r), ["part-a"]);
+}
+
+/// The hazard the search itself never had to police: a pattern whose captures
+/// do not tell two matches apart makes the block below declare one name twice.
+/// That is a duplicate declaration like any other and is reported as one, on
+/// the name that collided rather than on the `exists`.
+#[test]
+fn a_pattern_that_cannot_tell_two_matches_apart_declares_twice() {
+    let d = doc("\
+glyph part-a 1 1
+@@
+glyph part-a.0 1 1
+@@
+exists part-(a)(\\.0)?
+glyph made-($1) 1 1
+ref ($0)
+");
+    let issues = crate::issues::collect_issues(&[&d]);
+    assert!(
+        issues
+            .iter()
+            .any(|i| i.message.contains("duplicate glyph 'made-a'")),
+        "expected a duplicate-glyph finding, got {:?}",
+        issues.iter().map(|i| &i.message).collect::<Vec<_>>()
+    );
 }
 
 /// A search that cannot run leaves the line below it standing for nothing, so
@@ -570,3 +597,4 @@ fn a_blank_line_ends_the_carry() {
     }
     assert_eq!(carry, Carry::None);
 }
+

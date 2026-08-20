@@ -326,11 +326,7 @@ mod tests {
         let doc = parse_document_from_str(src, "t.unf".into()).unwrap();
         let docs = vec![&doc];
         let name_parts = crate::document::collect_name_parts(&docs);
-        let (exists, _) = crate::exists::resolve_scopes(
-            &docs,
-            &name_parts,
-            &AliasMap::collect(&docs, &name_parts),
-        );
+        let (exists, _) = crate::exists::resolve_scopes(&docs, &name_parts);
         AliasMap::collect_with_merges(&docs, &name_parts, &exists)
     }
 

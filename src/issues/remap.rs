@@ -14,7 +14,7 @@ use super::{Cx, Issue, Severity, issue_at, short_path};
 pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     let docs = cx.docs;
     let name_parts = cx.name_parts;
-    let _expansion = cx.expansion;
+    let expansion = cx.expansion;
     let groups = &cx.groups;
     let _resolution = cx.resolution;
     let mut glyph_defs: HashMap<String, (PathBuf, usize)> = HashMap::new();
@@ -67,7 +67,7 @@ pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
         }
     }
 
-    for doc in docs {
+    for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             match item {
                 DocumentItem::Glyph {
@@ -85,7 +85,18 @@ pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                     // Duplicate detection needs the *defining* line of each
                     // expanded name, which the expansion does not retain, so
                     // it expands names (not bodies) once more here.
-                    let name_str = substitute_name_parts(n, name_parts);
+                    //
+                    // Through the `exists` bindings, because a search is the
+                    // one thing that can make one header declare a name twice
+                    // without the source having written it twice: a pattern
+                    // whose captures do not tell two matches apart binds `$N`
+                    // to the same value for both. `None` is a block the search
+                    // left standing for nothing, which declares no name at all.
+                    let here = crate::resolve::ItemRef::new(doc_idx, item_idx);
+                    let Some(name_parts) = expansion.exists.parts_at(name_parts, here) else {
+                        continue;
+                    };
+                    let name_str = substitute_name_parts(n, &name_parts);
                     let expanded: Vec<String> = if is_name_pattern(&name_str) {
                         // A pattern that fails to expand is already reported
                         // by the resolution pass.

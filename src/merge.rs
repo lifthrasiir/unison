@@ -277,7 +277,7 @@ mod tests {
         let docs = vec![&doc];
         let name_parts = crate::document::collect_name_parts(&docs);
         let aliases = AliasMap::collect(&docs, &name_parts);
-        let (exists, _) = crate::exists::resolve_scopes(&docs, &name_parts, &aliases);
+        let (exists, _) = crate::exists::resolve_scopes(&docs, &name_parts);
         implicit_merges(&docs, &name_parts, &aliases, &exists)
     }
 

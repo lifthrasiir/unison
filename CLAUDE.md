@@ -231,7 +231,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `exists PATTERN`: searching the declared names instead of listing candidates, and what `$0`/`$N` bind | `exists.rs`, `document_io.rs` (`# Directives`) |
 | Why an `exists` governs exactly one line, and why it does not stack | `exists.rs` (`# Scope`) |
 | Why searches are a fixpoint, and the round budget that stands in for cycle detection | `exists.rs` (`# Recursion`), `resolve_scopes` |
-| Which names a search may find — aliases yes, on-demand names no — and the one thing it refuses | `exists.rs` (`# What is searched`, `resolve_scopes`) |
+| Which names a search may find — aliases yes, on-demand names no | `exists.rs` (`# What is searched`) |
+| Why two matched names of one glyph are not an error, and where a pattern that cannot tell two matches apart is caught instead | `exists.rs` (`# What is searched`), `issues/remap.rs` (the duplicate scan) |
 | A code point computed from a match (`U+[BASE+]($N)`), and why it is hexadecimal on both sides | `exists.rs` (`eval_codepoint`) |
 | Where a scoped item is expanded, and why a `map` unrolls per match where a `glyph` block does not | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
 | Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |

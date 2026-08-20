@@ -119,15 +119,11 @@ fn expand_inner(
     // Collected before anything is expanded: from here on every glyph name in
     // `all_items` is the canonical one, so nothing downstream — the glyph
     // cache, the cmap, the on-demand injector — ever sees an alias.
-    // Resolved first: a search decides which glyph blocks declare what, so the
-    // merge candidates below rest on it.
-    // Declared aliases first, because a search has to know when two names it
-    // found are one glyph. The *implicit* merges below need the scopes in turn,
-    // and there is no cycle between the two: a merge is a second opinion about
-    // a name, never a new one.
-    let declared_aliases = crate::alias::AliasMap::collect(docs, name_parts);
-    let (exists, exists_diagnostics) =
-        crate::exists::resolve_scopes(docs, name_parts, &declared_aliases);
+    // The searches are resolved first, because they decide which glyph blocks
+    // declare what, and the merge candidates below rest on that. Nothing in the
+    // other direction: a search reads the names as written, so it needs no
+    // alias map of its own.
+    let (exists, exists_diagnostics) = crate::exists::resolve_scopes(docs, name_parts);
     diagnostics.extend(exists_diagnostics);
     let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
     // Slice-scoped `name-parts`, so a qualified line substitutes with the

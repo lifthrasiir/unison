@@ -31,10 +31,18 @@
 //! - **Aliases** ([`crate::alias`]) *are* searched, because an alias is a name
 //!   a `ref` may use like any other — `glyph han-4ee4:15x16 = han-4ee4-k:15x16`
 //!   is how a source gives one regional variant the plain name, and the glyph
-//!   built from it has to be built. What is refused is narrower and is the real
-//!   hazard: two matched names that are **the same glyph**. Then `$0` has two
-//!   values for one glyph, and the block below would declare it twice or map a
-//!   codepoint to it twice, and nothing here can say which name was meant.
+//!   built from it has to be built.
+//!
+//! Two matched names that turn out to be **one glyph** are not a case of their
+//! own. A search matches *names*, and the line below names its output by the
+//! captures, so `han-4ee4.0:15x16` and `han-4ee4.1:15x16` aliasing one shape
+//! build two glyphs that share it — which is what the source said by writing
+//! the two aliases. This once was an error, on the reasoning that the block
+//! below would then declare one glyph twice; that reasoning measured the wrong
+//! thing on both sides. Two matches collide when the *captures* fail to tell
+//! them apart, whether or not they alias — `part-(a)(\.0)?` over `part-a` and
+//! `part-a.0` binds `$1` to `a` twice — and that is a duplicate declaration
+//! like any other, reported where it happens instead of here.
 //!
 //! # Scope
 //!
@@ -392,7 +400,6 @@ impl ExistsScopes {
 pub fn resolve_scopes(
     docs: &[&Document],
     name_parts: &NamePartsMap,
-    aliases: &crate::alias::AliasMap,
 ) -> (ExistsScopes, Vec<Diagnostic>) {
     let mut diagnostics = Vec::new();
     let mut out = ExistsScopes::default();
@@ -570,33 +577,7 @@ pub fn resolve_scopes(
         return (out, diagnostics);
     }
 
-    for (p, mut scope) in pending.iter().zip(scopes) {
-        // Two names of one glyph, both found. `$0` would then have two values
-        // for one glyph and the line below would build it twice — or map two
-        // code points to it, which is a `map` a source can write on purpose but
-        // not one a search may write by accident.
-        let mut by_glyph: HashMap<&str, &str> = HashMap::new();
-        let mut collision = None;
-        for m in &scope.matches {
-            let canonical = aliases.resolved_target(&m[0]).unwrap_or(&m[0]);
-            if let Some(first) = by_glyph.insert(canonical, &m[0]) {
-                collision = Some((first.to_string(), m[0].clone(), canonical.to_string()));
-                break;
-            }
-        }
-        if let Some((first, second, glyph)) = collision {
-            diagnostics.push(Diagnostic::error(
-                p.origin,
-                format!(
-                    "`exists {}` matches both `{first}` and `{second}`, which are two names \
-                     for the glyph `{glyph}`; narrow the pattern so it finds each glyph once",
-                    scope.pattern,
-                ),
-            ));
-            scope.matches.clear();
-            out.scoped.insert(p.target, scope);
-            continue;
-        }
+    for (p, scope) in pending.iter().zip(scopes) {
         if scope.matches.is_empty() {
             // Not an error: a source that has not drawn any `han-XXXX:15x16`
             // yet is a source in progress, and the line it would build is
