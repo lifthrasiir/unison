@@ -189,20 +189,11 @@ pub enum DocumentItem {
     /// longer belongs in a `remap`, and [`crate::issues`] says so in as many
     /// words rather than letting the parser truncate it.
     ///
-    /// `if_exists` is the trailing `ifexists` flag: the line maps only the
-    /// codepoints whose target glyph turns out to exist, and says nothing about
-    /// the ones whose target does not. The build already drops a mapping whose
-    /// glyph never resolved (`collect.rs`), so the flag changes no output — it
-    /// declares that outcome intended, which is what stops it from being
-    /// reported. Written once over a range, it is how a pattern of names whose
-    /// membership varies is mapped in one line. See [`GlyphRef::if_exists`] for
-    /// the same flag on the other side.
     Map {
         slices: Vec<String>,
         char_repr: String,
         selector: Option<String>,
         glyph: String,
-        if_exists: bool,
         comment: Option<String>,
     },
     /// `map generate CHAR [= GLYPH]` — auto-decomposed cmap mapping. The glyph

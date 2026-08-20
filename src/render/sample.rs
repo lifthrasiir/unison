@@ -614,12 +614,11 @@ fn collect_sample_data_with(
     //
     // The same skip the build's collector makes: a mapping whose target never
     // reached the cache claims no codepoint (`collect.rs` walks past the pair
-    // that `cache.get` cannot answer). That covers `ifexists` — a target
-    // nothing defines is never seeded — but it is *not* only about `ifexists`:
-    // a glyph dropped because one of its own refs never resolved is absent
-    // here for the same reason, and letting either of them in would show the
-    // sample a character the font does not map, which is the exact way the
-    // sample and the font start disagreeing.
+    // that `cache.get` cannot answer). A target nothing defines is never
+    // seeded, and a glyph dropped because one of its own refs never resolved is
+    // absent for the same reason; letting either in would show the sample a
+    // character the font does not map, which is the exact way the sample and
+    // the font start disagreeing.
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
     for item in all_items() {
         match item {

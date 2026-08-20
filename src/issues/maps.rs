@@ -30,8 +30,6 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
     let name_parts = cx.name_parts;
     let scoped_parts = &cx.scoped_parts;
     let faces = cx.faces;
-    let aliases = cx.aliases;
-    let all_glyph_names = &cx.all_glyph_names;
     let groups = &cx.groups;
     let _resolution = cx.resolution;
     // Every codepoint, by the slice that maps it. Two entries in one slice are
@@ -40,15 +38,6 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
     // conflict the face split exists to make explicit.
     let mut mapped_codepoints: HashMap<u32, BTreeMap<Option<String>, MapSite>> = HashMap::new();
     let mut mapped_glyphs: HashSet<String> = HashSet::new();
-
-    // Whether a `map` target names a glyph the font will contain — through an
-    // alias like everywhere else. This is the source-side reading of the same
-    // question `collect.rs` answers with its resolution cache: a glyph that is
-    // *declared* but fails to resolve (an unresolved ref of its own) still
-    // counts as existing here, which is as close as a check over the documents
-    // can get without resolving them a second time.
-    let glyph_exists =
-        |name: &str| crate::render::ttf_builder::glyph_name_exists(name, all_glyph_names, aliases);
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in cx.source_items(doc_idx) {
@@ -62,7 +51,6 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                     char_repr,
                     selector: Some(sel),
                     glyph,
-                    if_exists,
                     ..
                 } => {
                     let stated: Vec<Option<String>> = if slices.is_empty() {
@@ -78,12 +66,7 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                             sel,
                             &subst_glyph,
                         ) {
-                            mapped_glyphs.extend(
-                                triples
-                                    .into_iter()
-                                    .map(|(_, _, name)| name)
-                                    .filter(|name| !*if_exists || glyph_exists(name)),
-                            );
+                            mapped_glyphs.extend(triples.into_iter().map(|(_, _, name)| name));
                         }
                     }
                 }
@@ -93,7 +76,6 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                     slices,
                     char_repr,
                     glyph,
-                    if_exists,
                     ..
                 } => {
                     // Once per slice the line is stated for, with that slice's
@@ -109,16 +91,6 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                         let expanded_pairs =
                             crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
                         for (cp, target) in &expanded_pairs {
-                            // An `ifexists` line claims only the codepoints
-                            // whose target is really there, so the ones whose
-                            // target is not neither duplicate an earlier
-                            // mapping nor make one duplicate them. Two such
-                            // lines over one range — the name that exists wins
-                            // the codepoint — is the whole point of the flag,
-                            // and warning per codepoint would bury it.
-                            if *if_exists && !glyph_exists(target) {
-                                continue;
-                            }
                             mapped_glyphs.insert(target.clone());
                             let by_slice = mapped_codepoints.entry(*cp).or_default();
                             if let Some(prev) = by_slice.get(&slice) {

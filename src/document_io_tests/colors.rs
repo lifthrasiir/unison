@@ -1,4 +1,4 @@
-//! `color`, `ref … fill`, layer visibility and `ifexists`.
+//! `color`, `ref … fill` and layer visibility.
 
 use super::*;
 
@@ -164,80 +164,5 @@ ref full 1 2 negated inherit fill #00ff00 coloronly
     assert!(
         output_str.contains("ref full 1 2 negated inherit fill #00ff00 coloronly\n"),
         "{output_str}"
-    );
-}
-
-/// `ifexists` is a flag like the others: it survives a round trip beside them,
-/// on a ref with an offset and on one without.
-#[test]
-fn ref_ifexists_roundtrip() {
-    let input = "\
-glyph foo
-ref plain
-ref maybe ifexists
-ref placed 1 -2 ifexists
-ref full 1 2 negated inherit ifexists fill #00ff00 coloronly
-";
-    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    let DocumentItem::Glyph { body, .. } = &doc.items[0] else {
-        panic!("expected Glyph");
-    };
-    let flags: Vec<bool> = body.refs.iter().map(|r| r.if_exists).collect();
-    assert_eq!(flags, vec![false, true, true, true]);
-    assert_eq!(body.refs[2].offset, Some((1, -2)));
-    let mut output = Vec::new();
-    serialize_document(&doc, &mut output).unwrap();
-    assert_eq!(String::from_utf8(output).unwrap(), input);
-}
-
-/// The `map` flag is trailing, so it has to come off before the arities are
-/// counted — including for the `BASE SELECTOR` form, which has one more token.
-#[test]
-fn map_ifexists_roundtrip() {
-    let input = "\
-map A = a-upper ifexists
-map wide : U+E000..E00F = private-($#e000..e00f) ifexists
-map U+0030 U+FE0F = zero-text ifexists
-map B = b-upper
-";
-    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
-    let flags: Vec<(bool, Option<&str>)> = doc
-        .items
-        .iter()
-        .filter_map(|item| match item {
-            DocumentItem::Map {
-                if_exists,
-                selector,
-                ..
-            } => Some((*if_exists, selector.as_deref())),
-            _ => None,
-        })
-        .collect();
-    assert_eq!(
-        flags,
-        vec![
-            (true, None),
-            (true, None),
-            (true, Some("U+FE0F")),
-            (false, None),
-        ],
-        "{:?}",
-        doc.items,
-    );
-    let mut output = Vec::new();
-    serialize_document(&doc, &mut output).unwrap();
-    assert_eq!(String::from_utf8(output).unwrap(), input);
-}
-
-/// `generate` synthesizes its target instead of naming one, so there is nothing
-/// for the flag to be conditional on: the line stays unreadable rather than
-/// parsing and losing the token on the next save.
-#[test]
-fn map_generate_rejects_ifexists() {
-    let doc = parse_document_from_str("map generate Á ifexists\n", "test.unf".into()).unwrap();
-    assert!(
-        matches!(&doc.items[0], DocumentItem::Directive(text) if text.contains("ifexists")),
-        "{:?}",
-        doc.items,
     );
 }

@@ -920,39 +920,6 @@ fn directory_load_keeps_its_order_and_reports_every_bad_file() {
 
     let _ = std::fs::remove_dir_all(&dir);
 }
-
-/// `ifexists` changes what is *reported*, not what is built: a mapping whose
-/// target never resolved was always dropped, and this is that drop with the
-/// author's blessing on it. Both halves of the idiom are here — the map that
-/// names an absent glyph, and the glyph whose `ifexists` ref names one — so a
-/// later change that makes either of them build something empty is caught.
-#[test]
-fn an_ifexists_mapping_whose_target_is_absent_reaches_no_cmap_entry() {
-    let ttf = build_from(
-        "\
-glyph real 1 1
-@@
-
-glyph via-ref 1 1
-ref real ifexists
-
-glyph via-missing-ref 1 1
-ref absent ifexists
-
-map U+E000 = real ifexists
-map U+E001 = gone ifexists
-map U+E002 = via-ref
-map U+E003 = via-missing-ref
-",
-    );
-    let font = read_fonts::FontRef::new(&ttf).unwrap();
-    let cmap = font.cmap().unwrap();
-    assert!(cmap.map_codepoint('\u{E000}').is_some());
-    assert!(cmap.map_codepoint('\u{E001}').is_none());
-    assert!(cmap.map_codepoint('\u{E002}').is_some());
-    assert!(cmap.map_codepoint('\u{E003}').is_none());
-}
-
 /// `gasp` is the switch that decides whether a rasterizer grid-fits and
 /// antialiases at a given size, and only the Windows rasterizers read it. Both
 /// halves of the value matter here and for opposite reasons, so both are
@@ -975,37 +942,4 @@ fn gasp_asks_for_grid_fitting_and_grayscale_at_every_size() {
         vec![(0xFFFF, 0x000F)],
         "one range covering every size, with all four behaviour bits set"
     );
-}
-
-/// An expansion whose `ifexists` `ref` names nothing declares no glyph at all,
-/// rather than an item that every later stage carries and the resolution cache
-/// drops at the end for never resolving. The font is the same either way — that
-/// is what makes this safe — but a `glyph han-($#4e00..9fff)` line covering a
-/// whole CJK block is twenty thousand such items for the few thousand that are
-/// actually drawn, and each of them is a body clone.
-#[test]
-fn an_expansion_whose_ifexists_ref_is_absent_declares_no_glyph() {
-    let doc = document_io::parse_document_from_str(
-        "\
-glyph part-b 1 1
-@
-
-glyph wrap-(a|b|c) 1 1
-ref part-(a|b|c) 0 0 ifexists
-",
-        "test.unf".into(),
-    )
-    .unwrap();
-    let docs = [&doc];
-    let name_parts = crate::document::collect_name_parts(&docs);
-    let expansion = expand_documents(&docs, &name_parts);
-    let mut names: Vec<String> = expansion
-        .items()
-        .filter_map(|item| match item {
-            DocumentItem::Glyph { name, .. } => Some(name.display()),
-            _ => None,
-        })
-        .collect();
-    names.sort();
-    assert_eq!(names, vec!["part-b", "wrap-b"], "{names:?}");
 }

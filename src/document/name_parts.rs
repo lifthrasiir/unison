@@ -126,43 +126,6 @@ impl SliceNameParts {
 /// solved per glyph from the boxes that glyph's own parts declare, which is
 /// [`crate::compose`]'s business and happens downstream.
 pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<DocumentItem>, String> {
-    expand_glyph_block_where(name, body, &|_| true).map(|e| e.items)
-}
-
-/// What one glyph block expanded to. The two numbers differ only through
-/// [`expand_glyph_block_where`]'s existence test, and telling them apart is
-/// what lets a block whose *name* stands for no names at all be reported as
-/// the mistake it is, while a block every one of whose expansions turned out
-/// to stand for nothing is the intended outcome of `ifexists` and silent.
-pub struct BlockExpansion {
-    /// How many names the block's name pattern declared.
-    pub names: usize,
-    /// The glyphs that survived, in expansion order.
-    pub items: Vec<DocumentItem>,
-}
-
-/// [`expand_glyph_block`] with the one question that can make an expansion
-/// declare nothing: does the glyph an `ifexists` `ref` names exist?
-///
-/// An `ifexists` `ref` whose target is absent already leaves the glyph unbuilt
-/// — [`crate::render::glyph_cache`] never resolves it, so no cmap entry reaches
-/// it — and the flag is the author saying that outcome was intended. Answering
-/// it here rather than at the end of the pipeline changes nothing about the
-/// font and everything about what the pipeline carries: a block covering a
-/// whole CJK block declares one glyph per codepoint, of which the handful that
-/// have a drawn part are the only ones that were ever going to survive. Each
-/// item that does not is a body clone, an entry in every name map downstream
-/// and a glyph the validation pass has an opinion about.
-///
-/// `exists` is asked about the *expanded* target name, with `$name-parts`
-/// already substituted (the body's names are, see above) but before alias
-/// canonicalization — [`crate::render::ttf_builder::glyph_name_exists`] is
-/// what answers it, and canonicalizes on its own.
-pub fn expand_glyph_block_where(
-    name: &GlyphName,
-    body: &GlyphBody,
-    exists: &dyn Fn(&str) -> bool,
-) -> Result<BlockExpansion, String> {
     let name_pattern = NamePattern::parse(&name.display()).map_err(|e| e.to_string())?;
 
     // Each ref is reduced to a pattern once, so that expanding a block covering
@@ -191,16 +154,6 @@ pub fn expand_glyph_block_where(
 
     let mut items = Vec::with_capacity(n);
     for i in 0..n {
-        // Asked before the body is cloned, which is the whole point of asking
-        // here: an expansion that stands for nothing costs nothing.
-        if body
-            .refs
-            .iter()
-            .zip(&ref_patterns)
-            .any(|(r, pattern)| r.if_exists && !exists(&pattern.get(i)))
-        {
-            continue;
-        }
         let expanded_name = parse_glyph_name(&name_pattern.get(i));
 
         // The one body, with the two fields the expansion rewrites replaced.
@@ -230,7 +183,7 @@ pub fn expand_glyph_block_where(
         });
     }
 
-    Ok(BlockExpansion { names: n, items })
+    Ok(items)
 }
 
 /// [`expand_glyph_block`] reduced to the names, with no body built at all: the

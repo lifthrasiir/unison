@@ -904,42 +904,6 @@ map A = diag
         "first path y={y_start}, expected ~{expected}"
     );
 }
-
-/// The sample's cmap is the font's cmap: the mirror of
-/// `ttf_tests::misc::an_ifexists_mapping_whose_target_is_absent_reaches_no_cmap_entry`.
-/// A glyph nothing builds — because its own `ifexists` ref named a glyph
-/// nothing defines — must take its mapping down with it here too, or the
-/// sample shows a cell for a character the font does not map.
-#[test]
-fn an_ifexists_mapping_whose_target_is_absent_reaches_no_sample_cmap_entry() {
-    let d = parse(
-        "\
-meta height 16
-meta ascent 12
-meta descent 4
-
-glyph real 1 1
-@@
-
-glyph via-ref 1 1
-ref real ifexists
-
-glyph via-missing-ref 1 1
-ref absent ifexists
-
-map U+E000 = real ifexists
-map U+E001 = gone ifexists
-map U+E002 = via-ref
-map U+E003 = via-missing-ref
-",
-    );
-    let data = collect_sample_data(&[&d]).expect("sample data should build");
-    assert!(data.cmap.contains_key(&0xE000), "{:?}", data.cmap);
-    assert!(!data.cmap.contains_key(&0xE001), "{:?}", data.cmap);
-    assert!(data.cmap.contains_key(&0xE002), "{:?}", data.cmap);
-    assert!(!data.cmap.contains_key(&0xE003), "{:?}", data.cmap);
-}
-
 fn assert_components_fit(g: &SampleGlyph, max_w: i32, max_h: i32, label: &str) {
     let norm = g.normalized_components();
     for (i, comp) in norm.iter().enumerate() {

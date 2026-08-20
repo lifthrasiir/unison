@@ -34,15 +34,6 @@ pub struct GlyphRef {
     /// its components' attachment points. Attachment *inside* the composite
     /// (a sibling ref consuming this target's `+` anchors) works regardless.
     pub inherit: bool,
-    /// `ifexists`: this ref is a *condition*, not an error. A ref naming a
-    /// glyph the sources do not define already leaves the enclosing glyph
-    /// unbuilt (`glyph_cache::resolve_pending` never resolves it, so no cmap
-    /// entry reaches it); this flag says that outcome was intended, so nothing
-    /// is reported. It exists for the one shape a diagnostic cannot help with:
-    /// a whole *pattern* of glyphs written once, where which of the expanded
-    /// names actually has a target varies and only the ones that do should
-    /// survive.
-    pub if_exists: bool,
     pub fill: Option<RefFill>,
     pub visibility: Option<LayerVisibility>,
     /// Trailing `// …` comment of the `ref` line, without its marker.
@@ -87,9 +78,6 @@ impl GlyphRef {
         }
         if self.inherit {
             parts.push("inherit".into());
-        }
-        if self.if_exists {
-            parts.push("ifexists".into());
         }
         if let Some(ref fill) = self.fill {
             parts.push(format!("fill {}", quote_token(&fill.color)));
@@ -194,16 +182,6 @@ pub enum ComposeItem {
 pub struct GlyphCompose {
     pub op: crate::compose::IdcOp,
     pub items: Vec<ComposeItem>,
-    /// `ifexists`, the line's last token: the components are names whose
-    /// absence is expected, exactly as [`GlyphRef::if_exists`] says of a ref
-    /// target — and, for the same reason, because one pattern block writes a
-    /// split for thousands of glyphs and only some of them have the parts.
-    ///
-    /// It holds for the *line*, not for a component: half a split is not a
-    /// shape, so a line one of whose components nothing defines stands for
-    /// nothing at all — no refs and no diagnostics. See
-    /// [`crate::compose::stands_for_nothing`].
-    pub if_exists: bool,
     /// Trailing `// …` comment of the line, without its marker.
     pub comment: Option<String>,
 }
@@ -230,9 +208,6 @@ impl GlyphCompose {
                     quote_token(raw_name.as_deref().unwrap_or(name))
                 }
             });
-        }
-        if self.if_exists {
-            parts.push("ifexists".into());
         }
         format!(
             "{}{}",

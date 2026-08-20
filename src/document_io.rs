@@ -111,14 +111,7 @@
 //!   sides, and both halves of a variation sequence take that spelling
 //!   (`map U+($1) U+E0100+($2) = …`). See [`crate::exists`] for what is
 //!   searched, why `exists` does not stack, and the cycle rule.
-//! - `map CHAR = GLYPH [ifexists]` — cmap mapping. `ifexists` maps only the
-//!   codepoints whose target glyph turns out to exist and says nothing about
-//!   the rest, which is how one line covers a range whose membership varies
-//!   (`map U+E000..EFFF = private-($#e000..efff) ifexists`). The build always
-//!   dropped a mapping whose glyph never resolved; the flag declares that
-//!   intended, so it is neither reported nor counted as claiming the codepoint
-//!   — two such lines over one range are not duplicates, and the name that
-//!   exists wins. It is the same flag `ref` takes, from the other side.
+//! - `map CHAR = GLYPH` — cmap mapping.
 //! - `map BASE SELECTOR = GLYPH` — cmap mapping of a Unicode *variation
 //!   sequence*. Two spellings, and each round-trips as written: `U+0030 U+FE0F`
 //!   is two tokens, while the same pair pasted from a character picker is one
@@ -128,10 +121,9 @@
 //!   `0️⃣` stays whole and is rejected by name, because cmap format 14 holds a
 //!   base and one selector and nothing longer; the rest of such a sequence
 //!   belongs in a `remap`. Either half may be a range or a pipe list but not
-//!   both (see `expand_uvs_map_triples`). Takes `ifexists` like the plain form.
+//!   both (see `expand_uvs_map_triples`).
 //!   `generate` never takes this form: a variation sequence is its own
-//!   canonical decomposition — and it takes no `ifexists` either, since it
-//!   synthesizes its target instead of naming one.
+//!   canonical decomposition.
 //! - `map generate CHAR [= GLYPH]` — cmap mapping to a glyph synthesized from
 //!   the character's Unicode canonical decomposition, named `uniXXXX` unless
 //!   `GLYPH` names it. `GLYPH` is a pattern expanded in lock-step with `CHAR`,
@@ -258,23 +250,15 @@
 //!   `keep` says one thing more: that each name it declares is a glyph of its
 //!   own, where expansions that describe the same glyph are otherwise merged
 //!   into one — see [`crate::merge`].
-//! - `ref OTHER [COL ROW] [negated] [inherit] [ifexists] [coloronly|monoonly]
+//! - `ref OTHER [COL ROW] [negated] [inherit] [coloronly|monoonly]
 //!   [fill COLOR]`
 //!   — a composite reference. Omitting the offset auto-resolves it from
 //!   `anchor`s; `fill` takes a `#RRGGBB[AA]` literal or a `color` name. Refs
 //!   stack in source order and `negated` subtracts from what is already there,
 //!   so a later ref draws back over an earlier negation.
-//!
-//!   `ifexists` makes the ref a *condition*: a ref naming a glyph nothing
-//!   defines already leaves its own glyph unbuilt, and so unmapped, and the
-//!   flag says that outcome was meant — nothing is reported and the editor
-//!   underlines nothing. It is for the one case a diagnostic cannot help with:
-//!   a whole pattern of glyphs written in one block (`glyph private-($#e000..
-//!   efff)` / `ref foo-($#e000..efff) ifexists`), where which of the expanded
-//!   names has a target varies and only those should survive.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges.
-//! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT… [ifexists]` — an IDC line: the glyph's box split
+//! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT…` — an IDC line: the glyph's box split
 //!   along one axis, the offsets *derived* from what the components declare.
 //!   Each token is a gap if it reads as a number and a component name
 //!   otherwise. It is a sibling of `ref`, not sugar for one — the point is that
@@ -286,10 +270,7 @@
 //!   lock-step with the block's name, as a `ref` target does — but the layout
 //!   is solved per expanded glyph, since that is the whole point of it: the
 //!   parts of one expansion are sized differently from the next one's, so the
-//!   same line writes different offsets for each. `ifexists`, only ever the
-//!   line's *last* token, says the components are names that may or may not be
-//!   there, and a line missing one stands for nothing rather than for half a
-//!   glyph.
+//!   same line writes different offsets for each.
 //! - `glyph NAME = TARGET` — an alias: a second *name* for `TARGET`, sharing
 //!   its glyph id rather than declaring a glyph of its own. It takes no flags
 //!   and has no body; a glyph that needs either — including one that must
@@ -609,7 +590,7 @@ fn parse_visibility(s: &str) -> Option<LayerVisibility> {
 /// - `ref NAME`
 /// - `ref NAME negated`
 /// - `ref NAME COL ROW [negated]`
-/// - Any of the above followed by `inherit`, `ifexists`, `fill COLOR` and/or
+/// - Any of the above followed by `inherit`, `fill COLOR` and/or
 ///   `coloronly`/`monoonly`, in any order (each is independent of the others)
 ///
 /// `base` is the `@` base in force — the last glyph name declared without one.
@@ -627,7 +608,6 @@ fn parse_ref_line(
     let mut offset: Option<(i16, i16)> = None;
     let mut negated = false;
     let mut inherit = false;
-    let mut if_exists = false;
     let mut fill: Option<RefFill> = None;
     let mut visibility: Option<LayerVisibility> = None;
 
@@ -644,7 +624,6 @@ fn parse_ref_line(
         match parts[idx].as_str() {
             "negated" => negated = true,
             "inherit" => inherit = true,
-            "ifexists" => if_exists = true,
             "fill" => {
                 idx += 1;
                 if idx >= parts.len() {
@@ -671,7 +650,6 @@ fn parse_ref_line(
         offset,
         negated,
         inherit,
-        if_exists,
         fill,
         visibility,
         comment,
@@ -685,23 +663,12 @@ fn parse_ref_line(
 /// arity, sizes and the layout are [`crate::compose`]'s business, so a line
 /// that tokenizes at all parses here. `base` is the `@` base in force, as for a
 /// `ref`.
-///
-/// A trailing `ifexists` is the line's flag rather than a component, and only a
-/// trailing one is: unlike on a `ref`, where the flag may sit among the other
-/// words, an IDC line's tokens are all names and numbers, so the word is read
-/// as a flag exactly where a component cannot be reordered away from it. A line
-/// whose only token is `ifexists` names a glyph so called, the way `map`
-/// leaves its own last token alone.
 fn parse_compose_line(
     op: crate::compose::IdcOp,
     parts: &[String],
     comment: Option<String>,
     base: Option<&str>,
 ) -> GlyphCompose {
-    let (if_exists, parts) = match parts.split_last() {
-        Some((last, head)) if last == "ifexists" && !head.is_empty() => (true, head),
-        _ => (false, parts),
-    };
     let items = parts
         .iter()
         .map(|token| match token.parse::<i16>() {
@@ -713,12 +680,7 @@ fn parse_compose_line(
             }
         })
         .collect();
-    GlyphCompose {
-        op,
-        items,
-        if_exists,
-        comment,
-    }
+    GlyphCompose { op, items, comment }
 }
 
 /// Parse a range token like `3` (single value) or `3..5` (inclusive range).
@@ -1301,16 +1263,14 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 char_repr,
                 selector,
                 glyph,
-                if_exists,
                 comment,
             } => {
                 writeln!(
                     writer,
-                    "map {}{} = {}{}{}",
+                    "map {}{} = {}{}",
                     slice_prefix(slices),
                     write_map_chars(char_repr, selector.as_deref()),
                     quote_token(glyph),
-                    if *if_exists { " ifexists" } else { "" },
                     comment_suffix(comment),
                 )?;
             }
@@ -1650,30 +1610,11 @@ pub fn derive_document(
                         // `DocumentItem::split_slice_qualifier` for why the
                         // qualifier cannot be confused with `map : = colon`.
                         let (slices, tokens) = DocumentItem::split_slice_qualifier(&tokens[1..]);
-                        // A trailing `ifexists` likewise comes off before the
-                        // arities are counted, so it is a flag on the forms
-                        // below rather than an arity of its own. Only trailing:
-                        // a glyph really named `ifexists` is still writable as
-                        // the target itself.
-                        let if_exists = tokens.len() > 1 && tokens[tokens.len() - 1] == "ifexists";
-                        let tokens = if if_exists {
-                            &tokens[..tokens.len() - 1]
-                        } else {
-                            tokens
-                        };
                         // `map generate CHAR [= GLYPH]` is checked first, but only
                         // in the arities the plain form cannot take: `map generate
                         // = g` stays an ordinary (if nonsensical) `map`.
                         let generate = tokens.len() >= 2 && tokens[0] == "generate";
-                        if if_exists && generate {
-                            // `generate` synthesizes its target rather than
-                            // naming one, so there is nothing for the flag to
-                            // be conditional on. Left unreadable so it is
-                            // reported rather than silently dropped on save.
-                            item_line_starts.push(i);
-                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
-                            i += 1;
-                        } else if tokens.len() == 3 && tokens[1] == "=" {
+                        if tokens.len() == 3 && tokens[1] == "=" {
                             let (char_repr, selector) = split_written_uvs_pair(&tokens[0]);
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
@@ -1681,7 +1622,6 @@ pub fn derive_document(
                                 char_repr,
                                 selector,
                                 glyph: tokens[2].clone(),
-                                if_exists,
                                 comment,
                             });
                             i += 1;
@@ -1722,7 +1662,6 @@ pub fn derive_document(
                                 char_repr: tokens[0].clone(),
                                 selector: Some(tokens[1].clone()),
                                 glyph: tokens[3].clone(),
-                                if_exists,
                                 comment,
                             });
                             i += 1;

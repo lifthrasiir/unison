@@ -358,25 +358,12 @@ impl SpecimenState {
                             selector: Some(_), ..
                         } => {}
                         DocumentItem::Map {
-                            char_repr,
-                            glyph,
-                            if_exists,
-                            ..
+                            char_repr, glyph, ..
                         } => {
                             let subst_glyph = substitute_name_parts(glyph, parts);
                             let mut pairs = expand_map_pairs(char_repr, &subst_glyph);
                             aliases.canonicalize_pairs(&mut pairs);
                             for (cp, glyph_name) in pairs {
-                                // An `ifexists` line claims only what is really
-                                // there. `name_to_gid` comes from the built
-                                // font, so this is the font's own answer rather
-                                // than a second reading of the sources — and
-                                // this map is first-wins, so an absent target
-                                // left in would take the cell from the line
-                                // that does map the character.
-                                if *if_exists && !name_to_gid.contains_key(&glyph_name) {
-                                    continue;
-                                }
                                 mapped_glyphs.insert(glyph_name.clone());
                                 map.entry(cp).or_insert(glyph_name);
                             }

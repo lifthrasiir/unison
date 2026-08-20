@@ -24,7 +24,6 @@ fn pattern_ref(name: &str) -> GlyphRef {
         offset: None,
         negated: false,
         inherit: false,
-        if_exists: false,
         fill: None,
         visibility: None,
     }

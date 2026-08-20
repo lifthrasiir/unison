@@ -89,8 +89,7 @@ Core (feature-independent):
 - `merge.rs` — implicit merging: the names one `glyph` *pattern* block declares that describe the
   same glyph, folded into one glyph id by producing `alias.rs`'s input. Holds why the candidates are
   one block's expansions and never two blocks, the σ fixpoint over the `ref`/IDC graph, why
-  `ifexists` needs no rule of its own, why a `remap`'s *inputs* are excluded where its outputs are
-  not, and `keep` as the opt-out.
+  why a `remap`'s *inputs* are excluded where its outputs are not, and `keep` as the opt-out.
 - `exists.rs` — `exists PATTERN`: the inverse of a name pattern — a search over the names the
   source declares, repeating the next line once per match with `$0`/`$N` bound. Holds what is
   searched (and why on-demand names are not), the one-line scope rule, the fixpoint and its cycle
@@ -213,8 +212,6 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | cmap format 14, the Default/Non-default split, and the GSUB fallback lookup behind it | `render/ttf_builder/tables.rs` (`add_uvs_subtable`), `gsub.rs` (`build_uvs_fallback_lookup`) |
 | Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable rather than reserved | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
 | Where cmap 14 and the fallback lookup can disagree (glyph-keyed vs codepoint-keyed) | `issues/maps.rs` (`uvs_collision_diagnostics`) |
-| `ifexists` on a `ref`/`map`: a name whose absence is expected, and the one existence test all four consumers share | `document_io.rs` (`# Directives`), `render/ttf_builder/expand.rs` (`glyph_name_exists`) |
-| Why a glyph whose `ifexists` `ref` names nothing declares no glyph at all, and the name-only pass that answers it before any body is built | `document/name_parts.rs` (`expand_glyph_block_where`), `render/ttf_builder/expand.rs` (`declared_glyph_names`) |
 | The declared box (`origin C R` / `extent W H`): the rectangle a glyph claims, and why ink may leave it | `document_io.rs` (`# Glyph blocks`), `document/glyph.rs` (`declared_origin`, `declared_extent`) |
 | `advance W` vs `extent W H`: why the width is a flag of its own, and why writing both is an error | `document/glyph.rs` (`GlyphBody::declared_extent`), `document_io.rs` (`parse_glyph_flag_parts_impl`) |
 | Why an unstated advance follows the raster and not the grid, and the one accessor that keeps the editor and `hmtx` agreeing | `document/glyph.rs` (`GlyphBody::stated_advance`) |
@@ -250,7 +247,6 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
 | An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |
 | What a pattern glyph block shares with every name it declares (the grid, the box, the flags) | `document/name_parts.rs` (`expand_glyph_block`) |
-| `ifexists` on an IDC line: why it holds for the line and what a line missing a part stands for | `compose.rs` (`stands_for_nothing`) |
 | Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
 | `audit ideal-clearance PREFIX* MIN MAX`: the prefix match, and which rule wins | `audit.rs` (`IdealClearances`) |
 | What a `uniform fix` command may rewrite, and the two frontends that apply one | `fix/mod.rs` |

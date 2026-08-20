@@ -183,12 +183,6 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
         // told apart exactly as the parser tells them apart, so a rename of a
         // component reaches the line that uses it.
         kw if crate::compose::IdcOp::from_token(kw).is_some() => {
-            // A trailing `ifexists` is the line's flag, not a component, so it
-            // is no more a name here than it is on a `map`.
-            let rest = match rest.split_last() {
-                Some((last, head)) if last.value == "ifexists" && !head.is_empty() => head,
-                _ => rest,
-            };
             for span in rest {
                 if !span.value.is_empty() && span.value.parse::<i16>().is_err() {
                     fields.push(field(FieldRole::GlyphRef, leading, span));
@@ -228,12 +222,6 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             if let Some(slice) = slice {
                 push_slice_refs(&mut fields, leading, slice);
             }
-            // …and so does a trailing `ifexists`, for the same reason: it is a
-            // flag on those arities, not one of their tokens.
-            let rest = match rest.split_last() {
-                Some((last, head)) if last.value == "ifexists" && !head.is_empty() => head,
-                _ => rest,
-            };
             if rest.len() == 3 && rest[1].value == "=" {
                 fields.push(field(FieldRole::GlyphRef, leading, &rest[2]));
             } else if rest.len() == 4 && rest[0].value == "generate" && rest[2].value == "=" {

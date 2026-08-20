@@ -48,10 +48,6 @@
 //! (`ttf_builder::expand::expand_compose_lines`): what reaches here is always
 //! one concrete glyph's line.
 //!
-//! `ifexists` — the line's last token, and only ever the last — says the
-//! components may or may not be there. See [`stands_for_nothing`] for what a
-//! line missing one stands for, which is nothing.
-//!
 //! # An undecided line is not a wrong one
 //!
 //! A component written without a `:` suffix has not picked its variant yet.
@@ -561,26 +557,6 @@ pub fn is_undecided(component_name: &str) -> bool {
     !component_name.contains(':')
 }
 
-/// Whether an `ifexists` line stands for nothing, because one of the components
-/// it names is not a glyph the sources declare.
-///
-/// `ifexists` on an IDC line holds for the line and not for a component, and
-/// the reason is that a split is one shape: a ⿰ whose right half is missing is
-/// not a left half, it is a glyph nobody drew. So the line derives no refs at
-/// all — and reports nothing, which is what the flag is for.
-///
-/// "Exists" is asked of [`PartDims`] rather than of the wider existence test a
-/// `ref` uses ([`glyph_name_exists`](crate::render::ttf_builder::expand)),
-/// because a component needs more than a name: it fills a slot with a box, and
-/// only a `glyph` header states one. A name the font would generate on demand
-/// is no more usable as a component with the flag than without it.
-pub fn stands_for_nothing(compose: &GlyphCompose, dims: &dyn Fn(&str) -> PartDims) -> bool {
-    compose.if_exists
-        && compose
-            .part_names()
-            .any(|name| matches!(dims(name), PartDims::Unknown))
-}
-
 /// Turn one IDC line into the `ref`s it stands for, plus what is wrong with it.
 ///
 /// Best effort: a component whose size is unknown is placed where the walk has
@@ -606,11 +582,6 @@ pub fn expand_compose(
     dims: &dyn Fn(&str) -> PartDims,
     clearance: Option<&ClearanceRule>,
 ) -> (Vec<GlyphRef>, Vec<(Severity, String)>) {
-    // Before anything is said about the line: an `ifexists` line whose parts
-    // are not all there is not a line with a problem, it is not a line.
-    if stands_for_nothing(compose, dims) {
-        return (Vec::new(), Vec::new());
-    }
     let op = compose.op;
     let mut issues: Vec<(Severity, String)> = Vec::new();
     let mut refs: Vec<GlyphRef> = Vec::new();
@@ -706,7 +677,6 @@ pub fn expand_compose(
             inherit: false,
             // The derived ref is not conditional: the line already answered
             // that question for the whole of itself above.
-            if_exists: false,
             fill: None,
             visibility: None,
             comment: None,

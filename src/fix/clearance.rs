@@ -856,8 +856,8 @@ fn evaluate_gaps(members: &[Member], gaps: &[i32], written: &[i32]) -> PatternKe
 }
 
 /// The line with `gaps` in place of the ones it writes, and everything else —
-/// the operator, the components as the block spells them, `ifexists`, the
-/// comment — left exactly as it is. A pattern line's components are the
+/// the operator, the components as the block spells them, the comment — left
+/// exactly as it is. A pattern line's components are the
 /// family's and not this pass's to choose.
 fn write_gaps_line(compose: &GlyphCompose, gaps: &[i32]) -> Option<String> {
     let mut items: Vec<ComposeItem> = Vec::new();
@@ -875,7 +875,6 @@ fn write_gaps_line(compose: &GlyphCompose, gaps: &[i32]) -> Option<String> {
         GlyphCompose {
             op: compose.op,
             items,
-            if_exists: compose.if_exists,
             comment: compose.comment.clone(),
         }
         .format_line(),
@@ -977,7 +976,6 @@ fn write_line(compose: &GlyphCompose, chosen: &[&Candidate], positions: &[i32]) 
             items,
             // A rewrite picks variants and moves gaps; whether the line is
             // conditional is not its business.
-            if_exists: compose.if_exists,
             comment: compose.comment.clone(),
         }
         .format_line(),

@@ -39,13 +39,12 @@ impl Expansion {
 }
 
 /// One expanded `map` target: the glyph name a codepoint was pointed at, where
-/// the line is, and whether it said `ifexists`.
+/// the line is.
 struct MapTarget {
     name: String,
     origin: Option<ItemRef>,
     /// The `char_repr` the line was written with, for the message.
     char_repr: String,
-    if_exists: bool,
 }
 
 /// How a glyph name was referenced, so a name that resolves to nothing can be
@@ -121,7 +120,7 @@ fn expand_inner(
     // `all_items` is the canonical one, so nothing downstream — the glyph
     // cache, the cmap, the on-demand injector — ever sees an alias.
     // Resolved first: a search decides which glyph blocks declare what, so the
-    // merge candidates and the `ifexists` oracle below both rest on it.
+    // merge candidates below rest on it.
     // Declared aliases first, because a search has to know when two names it
     // found are one glyph. The *implicit* merges below need the scopes in turn,
     // and there is no cycle between the two: a merge is a second opinion about
@@ -135,12 +134,6 @@ fn expand_inner(
     // bindings of the slice it is being stated for. Empty (and free) unless the
     // source binds something per slice.
     let scoped = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
-    // The names the sources declare, before a single body is built: what an
-    // `ifexists` `ref` is answered against, so an expansion that stands for
-    // nothing is never materialized. See `declared_glyph_names` for why one
-    // round of this is enough.
-    let declared = declared_glyph_names(docs, name_parts, &exists);
-    let ref_exists = |name: &str| glyph_name_exists(name, &declared, &aliases);
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -211,8 +204,8 @@ fn expand_inner(
                             *name = substitute_name_parts(name, name_parts);
                         }
                     }
-                    match expand_glyph_block_where(&subst_name, &subst_body, &ref_exists) {
-                        Ok(expanded) if expanded.names == 0 => {
+                    match expand_glyph_block(&subst_name, &subst_body) {
+                        Ok(expanded) if expanded.is_empty() => {
                             // The name expanded to nothing at all — an empty
                             // alternation, or a reversed range, which expands
                             // to no names rather than failing to parse. The
@@ -229,7 +222,7 @@ fn expand_inner(
                             ));
                         }
                         Ok(expanded) => {
-                            for item in expanded.items {
+                            for item in expanded {
                                 all_items.push(ExpandedItem {
                                     item,
                                     origin: Some(origin),
@@ -248,17 +241,6 @@ fn expand_inner(
                             *name = substitute_name_parts(name, name_parts);
                         }
                     }
-                    // The same rule a pattern block's expansions are held to,
-                    // stated once for the block that declares one glyph: an
-                    // `ifexists` ref naming nothing means this glyph was never
-                    // going to be built, so it declares nothing.
-                    if body
-                        .refs
-                        .iter()
-                        .any(|r| r.if_exists && !ref_exists(&r.name))
-                    {
-                        continue;
-                    }
                     all_items.push(ExpandedItem {
                         item: DocumentItem::Glyph {
                             name: GlyphName(name_str),
@@ -273,7 +255,6 @@ fn expand_inner(
                     char_repr,
                     selector,
                     glyph,
-                    if_exists,
                     ..
                 },
             ) = (scope, item)
@@ -314,7 +295,6 @@ fn expand_inner(
                                 char_repr,
                                 selector,
                                 glyph: substitute_name_parts(glyph, &per),
-                                if_exists: *if_exists,
                             },
                             origin: Some(origin),
                         });
@@ -332,7 +312,6 @@ fn expand_inner(
                             char_repr,
                             selector,
                             glyph,
-                            if_exists,
                             ..
                         } => DocumentItem::Map {
                             slices: one,
@@ -340,7 +319,6 @@ fn expand_inner(
                             char_repr: char_repr.clone(),
                             selector: selector.clone(),
                             glyph: substitute_name_parts(glyph, parts),
-                            if_exists: *if_exists,
                         },
                         DocumentItem::MapDecomposed {
                             char_repr,
@@ -426,24 +404,9 @@ fn expand_inner(
     // used to reach the cmap builder unnoticed.
     let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
     let mut map_targets: Vec<MapTarget> = Vec::new();
-    // Which names exist, for the `ifexists` lines below. On-demand glyphs are
-    // not items yet — they are injected from `map_targets` further down — so
-    // the test has to be `glyph_name_exists`, which knows how to recognize one.
-    let defined_names: HashSet<String> = all_items
-        .iter()
-        .filter_map(|e| match &e.item {
-            DocumentItem::Glyph {
-                name: GlyphName(n), ..
-            } => Some(n.clone()),
-            _ => None,
-        })
-        .collect();
     for e in &all_items {
         let DocumentItem::Map {
-            char_repr,
-            glyph,
-            if_exists,
-            ..
+            char_repr, glyph, ..
         } = &e.item
         else {
             continue;
@@ -466,26 +429,10 @@ fn expand_inner(
                 ));
                 reported = true;
             }
-            // An `ifexists` line claims nothing where its target is absent, so
-            // it must not hold the codepoint against a later line that does map
-            // it — `cp_to_glyph` is first-wins, and this is what the two
-            // overlapping ranges the flag exists for look like.
-            //
-            // It claims nothing of `map_targets` either. That list is what
-            // [`inject_on_demand_glyph_items`] both synthesizes from and
-            // reports on, and `glyph_name_exists` has just said this name is
-            // neither defined nor one the font generates — so there is nothing
-            // to synthesize, and the flag is the author saying there is nothing
-            // to report. Kept out rather than filtered there because a range
-            // covering a whole CJK block is twenty thousand of these.
-            if *if_exists && !glyph_name_exists(&target, &defined_names, &aliases) {
-                continue;
-            }
             map_targets.push(MapTarget {
                 name: target.clone(),
                 origin: e.origin,
                 char_repr: char_repr.clone(),
-                if_exists: *if_exists,
             });
             cp_to_glyph.entry(cp).or_insert(target);
         }
@@ -557,53 +504,16 @@ fn expand_compose_lines(
         Some(Some((w, h))) => crate::compose::PartDims::Size(*w, *h),
     };
 
-    // The glyphs an `ifexists` line leaves standing for nothing: the line was
-    // the whole of the shape, so what is left is not an empty glyph but no
-    // glyph, and it is dropped outright. That is what lets the `map` that
-    // reaches it say `ifexists` too, and what makes an unconditional one say
-    // "not defined" rather than the puzzling "defined but not built".
-    //
-    // Read before anything is derived, and the names are taken out of `boxes`,
-    // so a line naming a glyph that is about to go finds it missing rather than
-    // sized. One round of that, not a fixpoint: a component of a component is a
-    // glyph of its own and answers for itself.
-    let mut drop_item = vec![false; all_items.len()];
-    for (idx, e) in all_items.iter().enumerate() {
-        let DocumentItem::Glyph { body, .. } = &e.item else {
-            continue;
-        };
-        // An IDC glyph states its `W H` on the header and so carries a grid,
-        // which is empty until someone draws on it: it is the box the split
-        // fills, not a shape of its own, so a blank one is not content. A grid
-        // with so much as a hardblank in it is, and keeps the glyph.
-        let empty = body.refs.is_empty()
-            && !body.keep
-            && body.pixels.as_ref().is_none_or(|g| g.is_all_empty());
-        drop_item[idx] = empty
-            && body
-                .compose
-                .iter()
-                .any(|c| crate::compose::stands_for_nothing(c, &|n| dims_of(&boxes, n)));
-    }
-    if drop_item.iter().any(|&d| d) {
-        let mut surviving: HashSet<String> = HashSet::new();
-        for (idx, e) in all_items.iter().enumerate() {
-            if let (false, DocumentItem::Glyph { name, .. }) = (drop_item[idx], &e.item) {
-                surviving.insert(name.display());
-            }
-        }
-        boxes.retain(|name, _| surviving.contains(name));
-    }
     let dims = |name: &str| dims_of(&boxes, name);
 
     let profiles = ink_profiles(all_items, clearances);
     let ink = |name: &str| profiles.get(name);
 
-    for (idx, e) in all_items.iter_mut().enumerate() {
+    for e in all_items.iter_mut() {
         let DocumentItem::Glyph { name, body } = &mut e.item else {
             continue;
         };
-        if body.compose.is_empty() || drop_item[idx] {
+        if body.compose.is_empty() {
             continue;
         }
         let glyph_name = name.display();
@@ -626,11 +536,6 @@ fn expand_compose_lines(
         }
         let mut derived = Vec::new();
         for compose in &body.compose {
-            // A line that stands for nothing says nothing either — not even
-            // that its components have yet to pick a variant.
-            if crate::compose::stands_for_nothing(compose, &dims) {
-                continue;
-            }
             for name in compose.part_names() {
                 if crate::compose::is_undecided(name) {
                     undecided_parts.insert((e.origin, name.to_string()));
@@ -666,14 +571,6 @@ fn expand_compose_lines(
         derived.append(&mut body.refs);
         body.refs = derived;
         body.compose.clear();
-    }
-
-    if drop_item.iter().any(|&d| d) {
-        let mut idx = 0;
-        all_items.retain(|_| {
-            idx += 1;
-            !drop_item[idx - 1]
-        });
     }
 }
 
@@ -857,7 +754,6 @@ fn expand_decomposed_maps(
                     name: cp_to_glyph[&(*c as u32)].clone(),
                     offset: None,
                     negated: false,
-                    if_exists: false,
                     // A generated composite stands in for its decomposition, so
                     // forwarding the components' surviving anchors is the right
                     // default — a hand-written replacement decides per ref.
@@ -884,7 +780,6 @@ fn expand_decomposed_maps(
                     char_repr: format!("U+{cp:04X}"),
                     selector: None,
                     glyph: composite_name,
-                    if_exists: false,
                 },
                 origin,
             });
@@ -942,22 +837,17 @@ fn inject_on_demand_glyph_items(
 
     let mut mentions: Vec<Mention> = Vec::new();
     let mut mention_seen: HashSet<(Option<ItemRef>, String)> = HashSet::new();
-    // `if_exists` rides along rather than filtering here: an `ifexists` name may
-    // still be one the font generates (`ref 3x5 ifexists`), and the synthesis
-    // below is driven by this same list. Only the *reporting* loop honors it.
-    let mut consider =
-        |name: &str, origin: Option<ItemRef>, by: Option<&str>, kind: RefKind, if_exists: bool| {
-            let unusable = !defined.contains(name) || contentless.contains(name);
-            if unusable && mention_seen.insert((origin, name.to_string())) {
-                mentions.push(Mention {
-                    name: name.to_string(),
-                    origin,
-                    by: by.map(str::to_string),
-                    kind,
-                    if_exists,
-                });
-            }
-        };
+    let mut consider = |name: &str, origin: Option<ItemRef>, by: Option<&str>, kind: RefKind| {
+        let unusable = !defined.contains(name) || contentless.contains(name);
+        if unusable && mention_seen.insert((origin, name.to_string())) {
+            mentions.push(Mention {
+                name: name.to_string(),
+                origin,
+                by: by.map(str::to_string),
+                kind,
+            });
+        }
+    };
 
     for e in all_items.iter() {
         match &e.item {
@@ -971,7 +861,7 @@ fn inject_on_demand_glyph_items(
                 body,
             } => {
                 for r in &body.refs {
-                    consider(&r.name, e.origin, Some(by), RefKind::Ref, r.if_exists);
+                    consider(&r.name, e.origin, Some(by), RefKind::Ref);
                 }
             }
             DocumentItem::Remap { .. } => {
@@ -988,7 +878,7 @@ fn inject_on_demand_glyph_items(
                     let mut names = expand_name_element(token, name_parts);
                     aliases.canonicalize_all(&mut names);
                     for name in names {
-                        consider(&name, e.origin, None, RefKind::Remap, false);
+                        consider(&name, e.origin, None, RefKind::Remap);
                     }
                 }
             }
@@ -998,13 +888,7 @@ fn inject_on_demand_glyph_items(
     // Map targets were expanded once by the caller: `glyph` is still a pattern
     // on the item, and the cmap builder expands it per codepoint.
     for t in map_targets {
-        consider(
-            &t.name,
-            t.origin,
-            None,
-            RefKind::Map(t.char_repr),
-            t.if_exists,
-        );
+        consider(&t.name, t.origin, None, RefKind::Map(t.char_repr));
     }
 
     // Synthesis is per unique name; reporting is per mention, so the loops
@@ -1086,7 +970,6 @@ fn inject_on_demand_glyph_items(
                             offset,
                             negated: r.negated,
                             inherit: r.inherit,
-                            if_exists: r.if_exists,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::MonoOnly),
                         });
@@ -1106,7 +989,6 @@ fn inject_on_demand_glyph_items(
                             offset,
                             negated: r.negated,
                             inherit: r.inherit,
-                            if_exists: r.if_exists,
                             fill: r.fill.clone(),
                             visibility: Some(LayerVisibility::ColorOnly),
                         });
@@ -1197,19 +1079,8 @@ fn inject_on_demand_glyph_items(
         origin,
         by,
         kind,
-        if_exists,
     } in mentions
     {
-        // `ifexists` says the author already knows this name may or may not be
-        // there and wants the absent case to build nothing: the glyph is left
-        // unbuilt by `glyph_cache::resolve_pending` and the mapping dropped by
-        // `collect.rs` exactly as an unresolved name always was, and that is
-        // the intended outcome rather than something to report. Placed with
-        // the other skips, after synthesis, so an `ifexists` name the font can
-        // generate still resolves.
-        if if_exists {
-            continue;
-        }
         // A ref an IDC line derived from a component that has not picked its
         // variant is unresolved on purpose (see `expand_compose_lines`), so it
         // is not reported — but only for that glyph and that name, which keeps
@@ -1277,7 +1148,6 @@ struct Mention {
     /// see [`crate::resolve::Diagnostic::glyph`].
     by: Option<String>,
     kind: RefKind,
-    if_exists: bool,
 }
 
 /// Why a `map BASE SELECTOR = GLYPH` line expands to nothing.
@@ -1427,79 +1297,6 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
         .collect()
 }
 
-/// Every glyph name the sources declare, with `$name-parts` substituted and
-/// name patterns expanded — the oracle an `ifexists` `ref` is answered against
-/// before any body is built.
-///
-/// Names only: a block's body is what an expansion costs, and this pass exists
-/// precisely so that the ones standing for nothing never pay it. Aliases are
-/// not resolved here either, because [`glyph_name_exists`] canonicalizes what
-/// it is asked about before looking it up.
-///
-/// It is one round, like the sibling rule an IDC line that stands for nothing
-/// gets ([`expand_compose_lines`]): a name this set holds may itself turn out
-/// to declare no glyph, and a ref to it is then left for the resolution cache
-/// to drop the way it always did. Chasing that to a fixpoint would buy nothing
-/// — the glyph is dropped either way — at the price of a rule whose answer
-/// depends on the order the source is written in.
-fn declared_glyph_names(
-    docs: &[&Document],
-    name_parts: &NamePartsMap,
-    exists: &crate::exists::ExistsScopes,
-) -> HashSet<String> {
-    let mut out: HashSet<String> = HashSet::new();
-    for (doc_idx, doc) in docs.iter().enumerate() {
-        for (item_idx, item) in doc.items.iter().enumerate() {
-            let DocumentItem::Glyph { name, .. } = item else {
-                continue;
-            };
-            // A scoped block's names are its search's, and the search has
-            // already been brought to a fixpoint against this same rule — so
-            // this stays the one place that says what a header declares.
-            let bound;
-            let name_parts = match exists.scope(ItemRef::new(doc_idx, item_idx)) {
-                Some(scope) => {
-                    bound = scope.bindings(name_parts);
-                    &bound
-                }
-                None => name_parts,
-            };
-            let name = substitute_name_parts(&name.display(), name_parts);
-            match NamePattern::parse(&name) {
-                // A block whose name does not parse declares nothing, and the
-                // expansion below reports it; keeping the written name out of
-                // the set matches what that block ends up declaring.
-                Err(_) => continue,
-                Ok(pattern) => out.extend((0..pattern.len()).map(|i| pattern.get(i))),
-            }
-        }
-    }
-    out
-}
-
-/// Whether `name` denotes a glyph the font can contain: one the sources define
-/// — through an alias, like every other reference — or one the font generates
-/// on demand.
-///
-/// This is the question `ifexists` asks, and it is one function so that the
-/// build, the sample, the specimen and the validation pass cannot come to
-/// different answers about which codepoints an `ifexists` line claims. It is
-/// the *source-side* reading: a glyph that is defined but fails to resolve (an
-/// unresolved ref of its own) counts as existing here, and is dropped later by
-/// the resolution cache — which is what makes `ref … ifexists` work without
-/// this having to resolve anything.
-pub(crate) fn glyph_name_exists(
-    name: &str,
-    defined: &HashSet<String>,
-    aliases: &crate::alias::AliasMap,
-) -> bool {
-    let canonical = |n: &str| aliases.resolved_target(n).unwrap_or(n).to_string();
-    let name = canonical(name);
-    defined.contains(&name)
-        || crate::on_demand::detect_on_demand_glyph(&name, |n| defined.contains(&canonical(n)))
-            .is_some()
-}
-
 pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String)> {
     // Range: U+XXXX..YYYY or u+XXXX..YYYY
     if let Some(hex_rest) = char_repr
@@ -1620,14 +1417,6 @@ mod compose_expand_tests {
             .flatten()
             .collect()
     }
-
-    fn defines(expansion: &super::Expansion, glyph: &str) -> bool {
-        expansion.items().any(|item| {
-            matches!(item, crate::document::DocumentItem::Glyph { name, .. }
-                if name.display() == glyph)
-        })
-    }
-
     fn refs_of<'a>(expansion: &'a super::Expansion, glyph: &str) -> Vec<&'a str> {
         expansion
             .items()
@@ -1798,63 +1587,6 @@ glyph p-x(1|2) 4 2
             "{faulted:?}"
         );
     }
-
-    /// `ifexists` on the line: the expansions whose parts are all there are
-    /// built, and the ones missing one are not glyphs at all — no refs, no
-    /// diagnostics, and nothing left behind for a `map` to reach.
-    #[test]
-    fn an_ifexists_idc_line_drops_the_expansions_that_name_nothing() {
-        let src = "\
-glyph p-a:2x2 2 2
-@@
-@@
-glyph p-x(1|2) 4 2
-\u{2FF0} p-a:2x2 (p-a:2x2|p-gone:2x2) ifexists
-";
-        let expansion = expand(src);
-        assert!(
-            expansion.diagnostics.is_empty(),
-            "{:?}",
-            expansion
-                .diagnostics
-                .iter()
-                .map(|d| &d.message)
-                .collect::<Vec<_>>()
-        );
-        assert_eq!(
-            placed(&expansion, "p-x1"),
-            vec![("p-a:2x2", (0, 0)), ("p-a:2x2", (2, 0))],
-        );
-        assert!(!defines(&expansion, "p-x2"));
-
-        // …and a `map` reaching the glyph that did not survive says so, in the
-        // words of a name nothing defines rather than of a glyph that is there
-        // but empty.
-        let expansion = expand(&format!("{src}map U+4E00 = p-x2\n"));
-        assert_eq!(
-            of(&expansion, Severity::Error),
-            vec!["map 'U+4E00' targets undefined glyph 'p-x2'"],
-        );
-    }
-
-    /// A glyph that has more to it than the conditional line keeps its other
-    /// content: only the split goes.
-    #[test]
-    fn an_ifexists_line_leaves_the_rest_of_the_block_alone() {
-        let expansion = expand(
-            "\
-glyph p-a:2x2 2 2
-@@
-@@
-glyph p-x 4 2
-\u{2FF0} p-a:2x2 p-gone:2x2 ifexists
-ref p-a:2x2 0 0
-",
-        );
-        assert!(expansion.diagnostics.is_empty());
-        assert_eq!(placed(&expansion, "p-x"), vec![("p-a:2x2", (0, 0))]);
-    }
-
     /// `$$` is a cell the source keeps clear on purpose, so it holds a
     /// neighbour off exactly as ink does — that is what it is for.
     #[test]

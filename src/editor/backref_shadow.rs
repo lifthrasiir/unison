@@ -135,7 +135,6 @@ mod tests {
             offset: Some((col, row)),
             negated: false,
             inherit: false,
-            if_exists: false,
             fill: None,
             visibility: None,
             comment: None,

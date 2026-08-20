@@ -249,9 +249,8 @@ ref ($0)
     );
 }
 
-/// The codepoint is computed from the capture rather than written, which is the
-/// half `ifexists` had no answer for: today's `map U+4E00..9FFF = han-($#…)
-/// ifexists` claims the whole range and lets resolution drop what is missing.
+/// The codepoint is computed from the capture rather than written, so the line
+/// claims exactly the characters that were drawn and no others.
 #[test]
 fn a_scoped_map_computes_its_codepoint() {
     let d = doc(&format!(
@@ -328,7 +327,7 @@ ref ($0)
 }
 
 /// On-demand names are an infinite set, so a search cannot enumerate them and
-/// must not answer for them — unlike `ifexists`, which does.
+/// must not answer for them.
 #[test]
 fn on_demand_names_are_not_found() {
     let d = doc("\

@@ -768,11 +768,7 @@ mod rename_tests {
 
         for (src, kind, name) in [
             ("glyph x 8 16\n⿰ liga other\n", RenameKind::Glyph, "liga"),
-            (
-                "glyph x 8 16\n⿰ other liga ifexists\n",
-                RenameKind::Glyph,
-                "liga",
-            ),
+            ("glyph x 8 16\n⿰ other liga\n", RenameKind::Glyph, "liga"),
             (
                 "glyph x 8 16\n⿱ 1 a-$init 2 other\n",
                 RenameKind::NameParts,

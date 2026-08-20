@@ -325,12 +325,7 @@ fn build_ref_vlines(
             Some("ref") => {
                 let r = next_ref.expect("loop guard");
                 next_ref = refs_in_order.next();
-                // `ifexists` says the absent case is expected, so it is not
-                // underlined either: the flag exists for a pattern written over
-                // a range where most of the names have no target, and marking
-                // every one of them would be the noise it was added to remove.
-                if !r.if_exists
-                    && !ref_composite::is_ref_valid(&r.name, named_glyphs, name_parts)
+                if !ref_composite::is_ref_valid(&r.name, named_glyphs, name_parts)
                     && let Some(range) = doc_links::find_name_col_range_after_prefix(s, "ref ")
                 {
                     error_spans.push((range.0, range.1, format!("undefined glyph: {}", r.name)));
@@ -799,7 +794,6 @@ mod tests {
             offset: None,
             negated: false,
             inherit: false,
-            if_exists: false,
             fill: None,
             visibility: None,
             comment: None,
@@ -831,48 +825,6 @@ mod tests {
         assert_eq!(vlines[2].error_spans.len(), 1, "ref beta is undefined");
         assert!(vlines[2].error_spans[0].2.contains("beta"));
     }
-
-    /// An `ifexists` ref is expected to name nothing much of the time — that is
-    /// what it is for — so the editor must not underline it. The plain ref
-    /// beside it still is.
-    #[test]
-    fn an_ifexists_ref_carries_no_undefined_span() {
-        let ctx = test_ctx();
-        let font_id = egui::FontId::monospace(16.0);
-        let lines = vec![
-            DocLine::Text("ref alpha ifexists".into()),
-            DocLine::Text("ref beta".into()),
-        ];
-        let gref = |name: &str, if_exists: bool| GlyphRef {
-            raw_name: None,
-            name: name.into(),
-            offset: None,
-            negated: false,
-            inherit: false,
-            if_exists,
-            fill: None,
-            visibility: None,
-            comment: None,
-        };
-        let refs = vec![gref("alpha", true), gref("beta", false)];
-        let named_glyphs = HashMap::new();
-        let name_parts = NamePartsMap::default();
-        let mut cur = 0usize;
-        let vlines = build_ref_vlines(
-            &lines,
-            &refs,
-            &mut cur,
-            &named_glyphs,
-            &name_parts,
-            &|_| egui::Color32::WHITE,
-            None,
-            &ctx,
-            &font_id,
-        );
-        assert!(vlines[0].error_spans.is_empty());
-        assert_eq!(vlines[1].error_spans.len(), 1);
-    }
-
     /// `ref ($0)` under an `exists` names whatever the search matched, which is
     /// not knowable from the line — so it is not underlined as undefined. The
     /// plain ref beside it still is.
@@ -890,7 +842,6 @@ mod tests {
             offset: None,
             negated: false,
             inherit: false,
-            if_exists: false,
             fill: None,
             visibility: None,
             comment: None,

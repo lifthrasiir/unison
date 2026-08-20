@@ -46,21 +46,15 @@
 //! for `-k` drawn differently the `{g,j}` group keeps `-g` while `-k` stays a
 //! glyph of its own.
 //!
-//! # Why this is sound, including `ifexists`
+//! # Why this is sound
 //!
 //! σ-equal names denote one glyph, by induction over the `ref` graph: the
 //! bodies agree by construction, and each slot's target is one glyph by the
 //! hypothesis. Nothing has to be resolved, traced or measured.
 //!
-//! `ifexists` needs no rule of its own, which is worth stating because it
-//! looks like it should. A line whose component nothing defines stands for
-//! something else entirely ([`crate::compose::stands_for_nothing`]), so a
-//! merge that ignored existence would be wrong — but σ only ever relates names
-//! a `glyph` block declares, so a name that does not exist is σ-equal to
-//! nothing but itself, and two expansions that differ in whether a slot exists
-//! never compare equal. The cost is one deliberate incompleteness: two
-//! expansions whose `ifexists` lines both stand for nothing, by *different*
-//! missing names, are not merged.
+//! σ only ever relates names a `glyph` block declares, so a slot naming
+//! nothing is σ-equal to nothing but itself and two expansions that differ in
+//! whether a slot exists never compare equal.
 //!
 //! # What a `remap` takes out of it
 //!
@@ -379,8 +373,8 @@ ref (a|a-alt) 0 0
         assert_eq!(pairs(&m), vec![("c-j", "c-g")]);
     }
 
-    /// An undefined name is σ-equal to nothing but itself, which is what makes
-    /// `ifexists` need no rule of its own.
+    /// An undefined name is σ-equal to nothing but itself: the expansion whose
+    /// slot names nothing merges with neither of the two whose slots do.
     #[test]
     fn a_slot_naming_nothing_is_merged_with_nothing() {
         let m = merges(
@@ -388,7 +382,7 @@ ref (a|a-alt) 0 0
 glyph a-(g|j) 1 1
 @@
 glyph b-(g|j|k) 1 1
-ref a-(g|j|k) 0 0 ifexists
+ref a-(g|j|k) 0 0
 ",
         );
         assert_eq!(pairs(&m), vec![("a-j", "a-g"), ("b-j", "b-g")]);

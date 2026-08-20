@@ -2,12 +2,13 @@
 //! names the source already declares, which then states what to build for each
 //! one it finds.
 //!
-//! [`crate::pattern`] goes forwards. A block carries the list of every name it
-//! declares, and `ifexists` prunes the expansions that turned out to name
-//! nothing. That reads backwards when the list is not the point: `glyph
-//! han-($#4e00..9fff)` with `ref han-($#4e00..9fff):15x16 ifexists` writes
-//! 20,992 names twice over to say *"wherever a `han-XXXX:15x16` was drawn, make
-//! the `han-XXXX` that uses it"*. `exists` says that instead:
+//! [`crate::pattern`] goes forwards: a block states the list of names it
+//! declares, and every one of them is declared. That is the wrong way round
+//! when the list is not the point but a *condition* on an existing name is —
+//! *"wherever a `han-XXXX:15x16` was drawn, make the `han-XXXX` that uses it"*.
+//! Written forwards that means enumerating twenty thousand code points twice
+//! over and discarding all but the few hundred that were drawn. Written as a
+//! search it is what it says:
 //!
 //! ```text
 //! exists han-([0-9a-f]{4,5}):15x16
@@ -16,10 +17,7 @@
 //! ```
 //!
 //! `$0` is the whole matched name and `$1`… its capture groups, usable anywhere
-//! the scoped item takes a name pattern. There is no `ifexists` on either line:
-//! the search *is* the condition, and it is exact where `ifexists` is not —
-//! see [`crate::render::ttf_builder::expand::declared_glyph_names`] for the
-//! one-round over-approximation an `ifexists` `map` is answered against.
+//! the scoped item takes a name pattern.
 //!
 //! # What is searched
 //!
@@ -29,8 +27,7 @@
 //! - **On-demand names** ([`crate::on_demand`]) never match. They are an
 //!   infinite set — every `WxH`, every `-polyN` — so a search cannot enumerate
 //!   them, and a rule that answered "yes" for names nobody wrote would make an
-//!   `exists` declare glyphs out of thin air. This is where `exists` is
-//!   narrower than `ifexists`, which does accept them.
+//!   `exists` declare glyphs out of thin air.
 //! - **Aliases** ([`crate::alias`]) *are* searched, because an alias is a name
 //!   a `ref` may use like any other — `glyph han-4ee4:15x16 = han-4ee4-k:15x16`
 //!   is how a source gives one regional variant the plain name, and the glyph
@@ -623,9 +620,8 @@ pub fn resolve_scopes(
 /// The names one `glyph`/`glyph … =` header declares, with `name_parts`
 /// substituted and the pattern expanded.
 ///
-/// This is [`crate::render::ttf_builder::expand::declared_glyph_names`]'s rule
-/// for one header, and it has to stay that rule: a name the search can find but
-/// the build does not declare would make an `exists` build a glyph out of a
+/// This has to be the rule the build declares by: a name the search can find
+/// but the build does not declare would make an `exists` build a glyph out of a
 /// name nothing draws.
 fn expand_header_names(name: &GlyphName, name_parts: &NamePartsMap) -> Vec<String> {
     let text = substitute_name_parts(&name.display(), name_parts);
@@ -675,11 +671,9 @@ pub fn pattern_on_line(line: &str) -> Option<String> {
 /// match — so it is an over-approximation of what this source declares, since
 /// only the names actually drawn are searched.
 ///
-/// Over-approximating is the right side to err on here and is what the pattern
-/// form it replaces did too: `glyph han-($#4e00..9fff)` denoted all 21k names to
-/// the search while `ifexists` built a fraction of them. A search that lists a
-/// line which turns out to declare nothing costs a click; one that hides the
-/// only line declaring a name costs the name.
+/// Over-approximating is the right side to err on here: a search that lists a
+/// line which turns out to declare nothing costs a click, where one that hides
+/// the only line declaring a name costs the name.
 ///
 /// `None` when the two do not combine into a test at all — an unparsable
 /// pattern, or a `$N` past the groups it has.

@@ -161,32 +161,6 @@ map U+4E01 = whole-j
         names(&built)
     );
 }
-
-/// `ifexists` needs no rule of its own: a name nothing defines is merged with
-/// nothing, so the expansion that names it keeps to itself — and, having no
-/// target, is not built at all.
-#[test]
-fn an_ifexists_ref_to_an_undefined_name_is_not_merged() {
-    let built = build(
-        "\
-glyph a-(g|j) 1 1
-@@
-glyph b-(g|j|k) 1 1
-ref a-(g|j|k) 0 0 ifexists
-map A = b-g
-map B = b-j
-",
-    );
-    let gids = gids_for(&built, "AB");
-    assert_eq!(gids[0], gids[1]);
-    assert_eq!(
-        names(&built),
-        vec![".notdef", "a-g", "b-g"],
-        "{:?}",
-        names(&built)
-    );
-}
-
 /// `keep` says the glyph is wanted in its own right, which is also what makes
 /// it a glyph of its own: it is the opt-out.
 #[test]
