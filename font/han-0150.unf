@@ -28,7 +28,7 @@ glyph han-8ca5:15x16 15 16 // 貥
 ## 154.5
 
 glyph han-8cb1:15x16 15 16 // 貱
-⿰ han-8c9d:6x16 han-76ae:9x16 // ⿰貝皮
+⿰ han-8c9d:6x16 1 han-76ae:8x16 // ⿰貝皮
 
 glyph han-8cbc:15x16 15 16 // 貼
 ⿰ han-8c9d:6x16 1 han-5360:7x16 // ⿰貝占
@@ -171,7 +171,7 @@ glyph han-8df2:15x16 15 16 // 跲
 ⿰ han-27fb7:5x16 1 han-5408:9x16 // ⿰𧾷合
 
 glyph han-8df3:15x16 15 16 // 跳
-⿰ 1 han-27fb7:5x16 1 han-5146:7x16 // ⿰𧾷兆
+⿰ han-27fb7:5x16 1 han-5146:9x16 // ⿰𧾷兆
 
 ## 157.7
 
@@ -182,7 +182,7 @@ glyph han-8e06:15x16 15 16 // 踆
 ⿰ 1 han-27fb7:5x16 1 han-590b:7x16 // ⿰𧾷夋
 
 glyph han-8e09:15x16 15 16 // 踉
-⿰ 1 han-27fb7:5x16 1 han-826f:7x16 // ⿰𧾷良
+⿰ han-27fb7:5x16 1 han-826f:9x16 // ⿰𧾷良
 
 ## 157.8
 

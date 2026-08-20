@@ -37,7 +37,7 @@ glyph han-6f01:15x16 15 16 // 漁
 ⿰ 1 han-6c35:5x16 1 han-9b5a:7x16 // ⿰氵魚
 
 glyph han-6f02:15x16 15 16 // 漂
-⿰ 1 han-6c35:5x16 1 han-7968:7x16 // ⿰氵票
+⿰ han-6c35:5x16 1 han-7968:9x16 // ⿰氵票
 
 glyph han-6f3b:15x16 15 16 // 漻
 ⿰ han-6c35:5x16 1 han-7fcf:9x16 // ⿰氵翏

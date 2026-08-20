@@ -70,7 +70,7 @@ glyph han-9ab2:15x16 15 16 // 骲
 ⿰ han-9aa8:7x16 1 han-5305:7x16 // ⿰骨包
 
 glyph han-9ab3:15x16 15 16 // 骳
-⿰ -1 han-9aa8:7x16 han-76ae:9x16 // ⿰骨皮
+⿰ han-9aa8:7x16 han-76ae:8x16 // ⿰骨皮
 
 glyph han-9ab6:15x16 15 16 // 骶
 ⿰ han-9aa8:7x16 han-6c10:8x16 // ⿰骨氐
@@ -223,7 +223,7 @@ glyph han-9b8a:15x16 15 16 // 鮊
 ⿰ han-9b5a:7x16 1 han-767d:6x16 // ⿰魚白
 
 glyph han-9b8d:15x16 15 16 // 鮍
-⿰ -1 han-9b5a:7x16 han-76ae:9x16 // ⿰魚皮
+⿰ -1 han-9b5a:7x16 1 han-76ae:8x16 // ⿰魚皮
 
 glyph han-9b8e:15x16 15 16 // 鮎
 ⿰ han-9b5a:7x16 1 han-5360:7x16 // ⿰魚占
@@ -306,7 +306,7 @@ glyph han-9bfa:15x16 15 16 // 鯺
 ⿰ han-9b5a:7x16 1 han-8005:7x16 // ⿰魚者
 
 glyph han-9c11:15x16 15 16 // 鰑
-⿰ -1 han-9b5a:7x16 han-661c:9x16 // ⿰魚昜
+⿰ han-9b5a:7x16 1 han-661c:7x16 // ⿰魚昜
 
 ## 195.10
 
@@ -341,7 +341,7 @@ glyph han-9c59:15x16 15 16 // 鱙
 ## 195.14
 
 glyph han-9c6c:15x16 15 16 // 鱬
-⿰ -1 han-9b5a:7x16 han-9700:9x16 // ⿰魚需
+⿰ han-9b5a:7x16 1 han-9700:7x16 // ⿰魚需
 
 ## 195.18
 

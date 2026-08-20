@@ -10,7 +10,7 @@ glyph han-2b3f4:15x16 15 16 // 𫏴
 ## 163.6
 
 glyph han-2b45c:15x16 15 16 // 𫑜
-⿰ 1 han-5146:7x16 2 han-961d:4x16-r // ⿰兆阝
+⿰ han-5146:9x16 2 han-961d:4x16-r // ⿰兆阝
 
 ## 163.7
 
@@ -80,7 +80,7 @@ glyph han-2b5d3:15x16 15 16 // 𫗓
 ## 184.14
 
 glyph han-2b5dc:15x16 15 16 // 𫗜
-⿰ -1 han-98e0:7x16 han-9700:9x16 // ⿰飠需
+⿰ han-98e0:7x16 1 han-9700:7x16 // ⿰飠需
 
 # CJK unified ideographs extension C: 馬 (187)
 

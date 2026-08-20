@@ -14,12 +14,12 @@ glyph han-28e22:15x16 15 16 // 𨸢
 ⿰ 1 han-961d:4x16-l 2 han-65a4:7x16 // ⿰阝斤
 
 glyph han-28e23:15x16 15 16 // 𨸣
-⿰ 1 han-961d:4x16-l 2 han-5206:7x16 // ⿰阝分
+⿰ han-961d:4x16-l 2 han-5206:9x16 // ⿰阝分
 
 ## 170.6
 
 glyph han-28e41:15x16 15 16 // 𨹁
-⿰ 1 han-961d:4x16-l 2 han-866b:7x16 // ⿰阝虫
+⿰ han-961d:4x16-l 1 han-866b:9x16 // ⿰阝虫
 
 glyph han-28e4d:15x16 15 16 // 𨹍
 ⿰ han-961d:4x16-l 1 han-4ea4:9x16 // ⿰阝交
@@ -63,7 +63,7 @@ glyph han-28fa0-($han-regions):15x16 15 16 // 𨾠
 ⿰ han-4ee4-($han-regions):7x16 1 han-96b9:7x16 // ⿰令隹
 
 glyph han-28fa4:15x16 15 16 // 𨾤
-⿰ -1 han-5931:9x16 han-96b9:7x16 // ⿰失隹
+⿰ han-5931:7x16 1 han-96b9:7x16 // ⿰失隹
 
 glyph han-28fa6:15x16 15 16 // 𨾦
 ⿰ han-6c10:8x16 han-96b9:7x16 // ⿰氐隹

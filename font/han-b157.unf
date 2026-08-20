@@ -35,7 +35,7 @@ glyph han-27fc2:15x16 15 16 // 𧿂
 ## 157.4
 
 glyph han-27fda:15x16 15 16 // 𧿚
-⿰ 1 han-27fb7:5x16 1 han-5206:7x16 // ⿰𧾷分
+⿰ han-27fb7:5x16 1 han-5206:9x16 // ⿰𧾷分
 
 glyph han-27fde:15x16 15 16 // 𧿞
 ⿰ 1 han-27fb7:5x16 1 han-6b20:7x16 // ⿰𧾷欠
@@ -44,7 +44,7 @@ glyph han-27fe7:15x16 15 16 // 𧿧
 ⿰ han-27fb7:5x16 2 han-65a4:7x16 // ⿰𧾷斤
 
 glyph han-27fed:15x16 15 16 // 𧿭
-⿰ han-27fb7:5x16 2 han-65e5:7x16 // ⿰𧾷日
+⿰ han-27fb7:5x16 1 han-65e5:9x16 // ⿰𧾷日
 
 ## 157.6
 
@@ -58,12 +58,12 @@ glyph han-2801c:15x16 15 16 // 𨀜
 ⿰ han-27fb7:5x16 2 han-540c:8x16 // ⿰𧾷同
 
 glyph han-28037:15x16 15 16 // 𨀷
-⿰ 1 han-27fb7:5x16 1 han-7c73:7x16 // ⿰𧾷米
+⿰ han-27fb7:5x16 1 han-7c73:9x16 // ⿰𧾷米
 
 ## 157.7
 
 glyph han-2804d:15x16 15 16 // 𨁍
-⿰ han-27fb7:5x16 1 han-898b:8x16 // ⿰𧾷見
+⿰ han-27fb7:5x16 han-898b:10x16 // ⿰𧾷見
 
 glyph han-2804f:15x16 15 16 // 𨁏
 ⿰ 1 han-27fb7:5x16 1 han-752b:7x16 // ⿰𧾷甫
@@ -104,7 +104,7 @@ glyph han-280f4:15x16 15 16 // 𨃴
 ## 157.11
 
 glyph han-2810f:15x16 15 16 // 𨄏
-⿰ 1 han-27fb7:5x16 1 han-7968:7x16 // ⿰𧾷票
+⿰ han-27fb7:5x16 1 han-7968:9x16 // ⿰𧾷票
 
 glyph han-28119:15x16 15 16 // 𨄙
 ⿰ han-27fb7:5x16 1 han-9ce5:9x16 // ⿰𧾷鳥

@@ -37,7 +37,7 @@ glyph han-24f88:15x16 15 16 // 𤾈
 ⿰ han-767d:6x16 1 han-8ecd:7x16 // ⿰白軍
 
 glyph han-24f89:15x16 15 16 // 𤾉
-⿰ han-767d:6x16 han-661c:9x16 // ⿰白昜
+⿰ han-767d:6x16 2 han-661c:7x16 // ⿰白昜
 
 ## 106.11
 
@@ -49,26 +49,26 @@ glyph han-24f9b:15x16 15 16 // 𤾛
 ## 107.2
 
 glyph han-24fc6:15x16 15 16 // 𤿆
-⿰ han-76ae:9x16 -1 han-4e01:7x16 // ⿰皮丁
+⿰ han-76ae:8x16 han-4e01:7x16 // ⿰皮丁
 
 ## 107.3
 
 glyph han-24fc8:15x16 15 16 // 𤿈
-⿰ -1 han-52fa:7x16 han-76ae:9x16 // ⿰勺皮
+⿰ -1 han-52fa:7x16 1 han-76ae:8x16 // ⿰勺皮
 
 glyph han-24fc9:15x16 15 16 // 𤿉
-⿰ -1 han-76ae:9x16 han-52fa:7x16 // ⿰皮勺
+⿰ han-76ae:8x16 han-52fa:7x16 // ⿰皮勺
 
 glyph han-24fca:15x16 15 16 // 𤿊
-⿰ -1 han-5e72:7x16 han-76ae:9x16 // ⿰干皮
+⿰ han-5e72:7x16 han-76ae:8x16 // ⿰干皮
 
 ## 107.5
 
 glyph han-24fd8:15x16 15 16 // 𤿘
-⿰ han-53ec:6x16 han-76ae:9x16 // ⿰召皮
+⿰ han-53ec:6x16 1 han-76ae:8x16 // ⿰召皮
 
 glyph han-24fda:15x16 15 16 // 𤿚
-⿰ -1 han-4e14:7x16 han-76ae:9x16 // ⿰且皮
+⿰ -1 han-4e14:7x16 1 han-76ae:8x16 // ⿰且皮
 
 glyph han-24fdd:15x16 15 16 // 𤿝
 ⿰ han-5360:5x16 1 han-76ae:9x16 // ⿰占皮
@@ -76,41 +76,41 @@ glyph han-24fdd:15x16 15 16 // 𤿝
 ## 107.6
 
 glyph han-24fe0:15x16 15 16 // 𤿠
-⿰ -1 han-5409:7x16 han-76ae:9x16 // ⿰吉皮
+⿰ han-5409:7x16 han-76ae:8x16 // ⿰吉皮
 
 ## 107.7
 
 glyph han-24fe8:15x16 15 16 // 𤿨
-⿰ -1 han-8096:7x16 han-76ae:9x16 // ⿰肖皮
+⿰ han-8096:7x16 han-76ae:8x16 // ⿰肖皮
 
 glyph han-24fe9:15x16 15 16 // 𤿩
-⿰ -2 han-544a:8x16 han-76ae:9x16 // ⿰告皮
+⿰ -1 han-544a:8x16 han-76ae:8x16 // ⿰告皮
 
 glyph han-24fed:15x16 15 16 // 𤿭
-⿰ -1 han-76ae:9x16 han-752b:7x16 // ⿰皮甫
+⿰ -1 han-76ae:8x16 1 han-752b:7x16 // ⿰皮甫
 
 ## 107.8
 
 glyph han-24ffa:15x16 15 16 // 𤿺
-⿰ -2 han-5176:8x16 han-76ae:9x16 // ⿰其皮
+⿰ -1 han-5176:8x16 han-76ae:8x16 // ⿰其皮
 
 glyph han-24ffe:15x16 15 16 // 𤿾
-⿰ -2 han-5351:8x16 han-76ae:9x16 // ⿰卑皮
+⿰ -1 han-5351:8x16 han-76ae:8x16 // ⿰卑皮
 
 ## 107.9
 
 glyph han-25001:15x16 15 16 // 𥀁
-⿰ -1 han-8005:7x16 han-76ae:9x16 // ⿰者皮
+⿰ -1 han-8005:7x16 1 han-76ae:8x16 // ⿰者皮
 
 ## 107.14
 
 glyph han-2502b:15x16 15 16 // 𥀫
-⿰ -3 han-9700:9x16 han-76ae:9x16 // ⿰需皮
+⿰ han-9700:7x16 han-76ae:8x16 // ⿰需皮
 
 glyph han-2502d:15x16 15 16 // 𥀭
-⿰ -3 han-76ae:9x16 han-9700:9x16 // ⿰皮需
+⿰ -1 han-76ae:8x16 1 han-9700:7x16 // ⿰皮需
 
 ## 107.17
 
 glyph han-25036:15x16 15 16 // 𥀶
-⿰ -3 han-8944:9x16 han-76ae:9x16 // ⿰襄皮
+⿰ -2 han-8944:9x16 han-76ae:8x16 // ⿰襄皮
