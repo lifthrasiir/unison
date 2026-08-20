@@ -23,7 +23,7 @@ WOFF2QUALITY = fast
 # a browser has no way to select a face inside one — and `build` refuses it.
 WOFF2 = $(FACES:%=unison-%.woff2)
 
-OUTPUTS = sample.html live.html sample.png $(TTC) $(WOFF2)
+OUTPUTS = demo.html sample.html live.html sample.png $(TTC) $(WOFF2)
 
 .PHONY: all
 all: $(OUTPUTS)
@@ -45,6 +45,12 @@ test: all check-headless $(SRC)
 clean:
 	-$(RM) -f $(OUTPUTS)
 
-# The sample, preview and PNG show the *first* declared face.
+# The sample, preview, PNG and demo page all show the *first* declared face.
+# `demo.html` is what the other three are being folded into: it embeds the
+# primary face twice — the bitmap build and the vector build — and draws every
+# specimen from the font itself rather than from pre-rendered SVG, which is why
+# it is a fraction of sample.html's size. The three older outputs stay until it
+# covers what they do.
 $(OUTPUTS): $(INPATH)/*.unf $(SRC)
-	$(CARGO) run $(CARGOFLAGS) -- build -i $(INPATH) -o $(TTC) -o unison-%.woff2 --woff2-quality $(WOFF2QUALITY) --sample-html sample.html --sample-png sample.png --live-html live.html -d data
+	$(CARGO) run $(CARGOFLAGS) -- build -i $(INPATH) -o $(TTC) -o unison-%.woff2 --woff2-quality $(WOFF2QUALITY) --sample-html sample.html --sample-png sample.png --live-html live.html \
+	    --demo-html demo.html -d data

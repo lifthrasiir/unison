@@ -313,13 +313,14 @@ fn main() {
     }
 
     // Build subcommand: uniform build --input DIR --output FILE [--output FILE ...]
-    //   [--sample-html FILE] [--sample-png FILE] [--live-html FILE]
+    //   [--sample-html FILE] [--sample-png FILE] [--live-html FILE] [--demo-html FILE]
     if args.get(1).map(|s| s.as_str()) == Some("build") {
         let mut input_dir = None;
         let mut output_files: Vec<std::path::PathBuf> = Vec::new();
         let mut sample_html = None;
         let mut sample_png = None;
         let mut live_html = None;
+        let mut demo_html = None;
         let mut data_dir = None;
         let mut woff2_quality = render::Woff2Quality::default();
         let mut i = 2;
@@ -346,6 +347,10 @@ fn main() {
                 "--live-html" => {
                     i += 1;
                     live_html = args.get(i).map(std::path::PathBuf::from);
+                }
+                "--demo-html" => {
+                    i += 1;
+                    demo_html = args.get(i).map(std::path::PathBuf::from);
                 }
                 "--woff2-quality" => {
                     i += 1;
@@ -397,7 +402,10 @@ fn main() {
         // The sample documents resolve their own glyphs, from the same
         // documents and sharing nothing with either, so that goes here too
         // rather than in front of the outputs that want it.
-        let wants_sample = sample_html.is_some() || sample_png.is_some() || live_html.is_some();
+        let wants_sample = sample_html.is_some()
+            || sample_png.is_some()
+            || live_html.is_some()
+            || demo_html.is_some();
         let (issue_errors, built, sample_source) = std::thread::scope(|scope| {
             let build = scope.spawn(|| {
                 let _t = startup::PerfStage::new("build faces");
@@ -633,6 +641,51 @@ fn main() {
             };
             if let Err(e) = result {
                 eprintln!("Failed to write live HTML: {e}");
+                std::process::exit(1);
+            }
+            eprintln!("Wrote {}", path.display());
+        }
+
+        if let Some(path) = demo_html {
+            // The demo page embeds the font rather than pictures of it, and it
+            // embeds *both* flavors of the primary face: the bitmap build for
+            // the small sizes and the vector build for the large ones, which
+            // are the two things `sample.png` and `sample.html` used to be.
+            // Neither is one of the `--output` files — those are the shipping
+            // faces, and only one of them is a flavor — so the pair is built
+            // here rather than borrowed from the outputs above.
+            let Some((bitmap_ttf, vector_ttf)) =
+                render::build_face_ttf_pair(&refs, faces.primary())
+            else {
+                eprintln!("Failed to build the demo page: no glyph data");
+                std::process::exit(1);
+            };
+            let encode = |ttf: &[u8]| {
+                render::ttf_to_woff2(ttf, woff2_quality).unwrap_or_else(|e| {
+                    eprintln!("Failed to write the demo page: {e}");
+                    std::process::exit(1);
+                })
+            };
+            let (bitmap_woff2, vector_woff2) =
+                std::thread::scope(|s| {
+                    let b = s.spawn(|| encode(&bitmap_ttf));
+                    (b.join().unwrap(), encode(&vector_ttf))
+                });
+            let mut f = std::fs::File::create(&path).unwrap_or_else(|e| {
+                eprintln!("Failed to create {}: {e}", path.display());
+                std::process::exit(1);
+            });
+            let fonts = render::demo::DemoFonts {
+                bitmap_woff2: &bitmap_woff2,
+                vector_woff2: &vector_woff2,
+            };
+            if let Err(e) = render::demo::write_demo_html(
+                &mut f,
+                sample_source.as_ref().unwrap(),
+                &refs,
+                fonts,
+            ) {
+                eprintln!("Failed to write the demo HTML: {e}");
                 std::process::exit(1);
             }
             eprintln!("Wrote {}", path.display());

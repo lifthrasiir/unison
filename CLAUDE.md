@@ -37,7 +37,8 @@ The `build`/`test`/`fix` subcommands require native execution:
 
 ```sh
 cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf] [-o unison.ttc] \
-    [--sample-html F] [--sample-png F] [--live-html F] [-d data] [--woff2-quality fast|max]
+    [--sample-html F] [--sample-png F] [--live-html F] [--demo-html F] [-d data] \
+    [--woff2-quality fast|max]
 cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
 cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]   # rewrite the source: see `fix/`
 cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `startup.rs`
@@ -150,9 +151,15 @@ Core (feature-independent):
   initial font build), and the three ways to read it out. Written for the slow-launch-over-SMB
   question; the `probe` subcommand is its headless form.
 - `ucd.rs` — the character properties shown beside a character name, and the `prop` directives a
-  source states them with (`CharProps`). Nothing in the font depends on them; the status bars and the
-  `sample.html` tooltips do. Also `BlockMap`: the bundled `Blocks.txt` with the source's own
-  `prop block` claims over it.
+  source states them with (`CharProps`). Nothing in the font depends on them; the status bars, the
+  `sample.html` tooltips and the demo page's grid do. Also `BlockMap`: the bundled `Blocks.txt` with
+  the source's own `prop block` claims over it. Blocks and assignedness are *not* behind the `editor`
+  feature — the headless `build` lays out `demo.html` with them — which is why `icu_properties` is a
+  plain dependency rather than an optional one.
+- `render/demo/` — `demo.html`: the page the three sample outputs are being folded into. It embeds
+  the *font* (both flavors of the primary face) and one JSON blob instead of pre-rendered SVG, and
+  `demo.js`/`demo.css` build every cell from them. Holds what the specimen there does differently
+  from the editor's and why.
 - `render/` — `contour.rs` (pixel shapes → contours; note the normalized vs `_at` coordinate spaces),
   `glyph_cache.rs` (the composite-resolution driver `ttf_builder` and `sample` share), `sample.rs`,
   `assert.rs` (`assert` directives).
@@ -259,6 +266,10 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
 | What a sample cell paints a background over, and why only its width is the box's | `render/sample.rs` (`sample_background`) |
+| What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
+| Which character names the demo page is told and which it spells for itself | `render/demo/mod.rs` (`collect_names`), `render/demo/demo.js` (`nameOf`) |
+| Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
+| One face's bitmap and vector builds with no cache between them (the demo's pair, as against the editor's) | `render/ttf_builder/mod.rs` (`build_face_ttf_pair`) |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |
 | What each severity means, and which of them a build, `uniform test` and CI may ignore | `issues/mod.rs` (`Severity`) |

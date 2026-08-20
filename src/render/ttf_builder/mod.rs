@@ -624,6 +624,71 @@ pub fn build_font_with_gid_map_for(
     )?)
 }
 
+/// One face's two flavors — the bitmap build (hinted to nothing, its outlines
+/// already squared off to the pixel grid) and the vector build — with no cache
+/// between them.
+///
+/// [`build_font_pair_cached_for`] is the editor's form of this and is what the
+/// preview draws; this one is the headless `build`'s, for the demo page, which
+/// embeds both flavors and lets the reader switch between them. Neither shares
+/// anything with the other, and this one traces the face twice on purpose: the
+/// two flavors read the same grids but square them off differently, so there is
+/// no contour either can lend the other.
+pub fn build_face_ttf_pair(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+) -> Option<(Vec<u8>, Vec<u8>)> {
+    let never = crate::cancel::CancelToken::never();
+    let shared = collect::compute_shared_font_input_for(docs, face, &never)?;
+    let (bitmap_data, vector_data) = std::thread::scope(|s| {
+        let bh = s.spawn(|| collect::collect_glyph_data_with_shared(&shared, true, None, &never));
+        let vector_data = collect::collect_glyph_data_with_shared(&shared, false, None, &never);
+        (bh.join().unwrap(), vector_data)
+    });
+    let (b_meta, _, b_glyphs, b_gsub, b_palette) = bitmap_data?;
+    let (v_meta, v_scale, v_glyphs, v_gsub, v_palette) = vector_data?;
+
+    // The bitmap build's own scale, like the editor's pair: a full pixel is a
+    // full em cell there, whatever scale the collection reported.
+    let b_scale = UNITS_PER_EM as f32 / b_meta.height() as f32;
+    let b_ascender = (b_meta.ascent() as f32 * b_scale).round() as i16;
+    let b_descender = -((b_meta.descent() as f32 * b_scale).round() as i16);
+    let v_ascender = (v_meta.ascent() as f32 * v_scale).round() as i16;
+    let v_descender = -((v_meta.descent() as f32 * v_scale).round() as i16);
+    let v_hint_ppem = if UNITS_PER_EM.is_multiple_of(v_meta.height()) {
+        v_meta.height()
+    } else {
+        0
+    };
+
+    let (bitmap, vector) = std::thread::scope(|s| {
+        let bh = s.spawn(|| {
+            build_ttf(
+                b_ascender,
+                b_descender,
+                &b_glyphs,
+                0,
+                &b_gsub,
+                &b_palette,
+                b_scale,
+                &b_meta,
+            )
+        });
+        let vector = build_ttf(
+            v_ascender,
+            v_descender,
+            &v_glyphs,
+            v_hint_ppem,
+            &v_gsub,
+            &v_palette,
+            v_scale,
+            &v_meta,
+        );
+        (bh.join().unwrap(), vector)
+    });
+    Some((bitmap, vector))
+}
+
 /// The same again, tracing contours through the editor's shared cache.
 ///
 /// Contour tracing is ~90% of a face build, and the editor has already paid for

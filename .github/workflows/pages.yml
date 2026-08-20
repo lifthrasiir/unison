@@ -52,14 +52,14 @@ jobs:
 
       - name: Check the outputs exist
         run: |
-          for f in index.html live.html sample.html sample.png unison.ttc unison-*.woff2; do
+          for f in index.html demo.html live.html sample.html sample.png unison.ttc unison-*.woff2; do
             test -s "$f" || { echo "::error::$f was not produced"; exit 1; }
           done
 
       - name: Prepare pages directory
         run: |
           mkdir _site
-          cp index.html live.html sample.html sample.png unison.ttc unison-*.woff2 _site/
+          cp index.html demo.html live.html sample.html sample.png unison.ttc unison-*.woff2 _site/
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3

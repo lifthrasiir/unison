@@ -1,0 +1,257 @@
+/* demo.html's own styles. Loaded through `include_str!`, so this file is the
+   page's whole appearance — nothing is written from Rust but the two
+   `@font-face` rules and the data blob.
+
+   Two color schemes, both stated in tokens on `:root`: the page is read on a
+   projector as often as on a laptop, and a specimen that inverts its own
+   background is a specimen nobody can compare against a printed chart. */
+:root {
+  color-scheme: dark light;
+  --bg: #0f1115;
+  --bg-raised: #161a21;
+  --bg-cell: #1b2029;
+  --bg-cell-alt: #171c24;
+  --fg: #e8ecf3;
+  --fg-dim: #8b95a7;
+  --fg-faint: #4d5768;
+  --line: #262d38;
+  --accent: #7cc7ff;
+  --accent-dim: #2b4a63;
+  --missing: #2a2f3a;
+  --radius: 10px;
+  --gutter: 4.5rem;
+  --em: 32px;
+  --cell-w: calc(var(--em) + 14px);
+  --cell-h: calc(var(--em) + 22px);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #fbfbfd;
+    --bg-raised: #ffffff;
+    --bg-cell: #ffffff;
+    --bg-cell-alt: #f4f6fa;
+    --fg: #10151d;
+    --fg-dim: #5c677a;
+    --fg-faint: #a7b0be;
+    --line: #e2e6ee;
+    --accent: #0b6bcb;
+    --accent-dim: #cfe3f7;
+    --missing: #eef0f5;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---- header ------------------------------------------------------------ */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: color-mix(in srgb, var(--bg-raised) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand { display: flex; align-items: baseline; gap: 0.5rem; margin-right: auto; }
+.brand h1 { font-size: 1.05rem; font-weight: 650; margin: 0; letter-spacing: 0.01em; }
+.brand .ver { color: var(--fg-dim); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+
+.stats { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.chip {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--fg-dim);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.chip b { color: var(--fg); font-weight: 600; }
+
+.controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.segmented button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.28rem 0.8rem;
+  cursor: pointer;
+}
+.segmented button[aria-pressed="true"] { background: var(--accent-dim); color: var(--fg); }
+.segmented button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+label.size { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--fg-dim); font-size: 0.8rem; }
+label.size input { accent-color: var(--accent); width: 8rem; }
+label.size .val { font-variant-numeric: tabular-nums; color: var(--fg); min-width: 3.2rem; }
+
+select.jump {
+  appearance: none;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.28rem 1.6rem 0.28rem 0.7rem;
+  max-width: 14rem;
+  cursor: pointer;
+}
+
+/* ---- grid -------------------------------------------------------------- */
+
+main { padding: 0 1.25rem 6rem; }
+
+/* The grid is exactly 16 cells wide whatever the size control says, so the
+   section is that wide and centered rather than stretched: a heading that runs
+   to the window edge reads as belonging to the page, not to the chart. */
+section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem auto 0; }
+
+.block-head {
+  position: sticky;
+  top: 3.35rem;
+  z-index: 20;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.45rem 0.6rem;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.block-head h2 { font-size: 0.95rem; font-weight: 620; margin: 0; }
+.block-head .range {
+  color: var(--fg-dim);
+  font: 0.78rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.block-head .cov { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+.block-head .cov span { color: var(--fg-dim); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.bar { width: 6rem; height: 5px; border-radius: 3px; background: var(--missing); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+
+.ruler, .row {
+  display: grid;
+  grid-template-columns: var(--gutter) repeat(16, var(--cell-w));
+}
+.ruler {
+  position: sticky;
+  top: 5.6rem;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.ruler div {
+  text-align: center;
+  padding: 0.2rem 0;
+  color: var(--fg-faint);
+  font: 0.7rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.rows { position: relative; }
+.chunk { contain: strict; }
+
+.row { height: var(--cell-h); }
+.row .gut {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+  color: var(--fg-faint);
+  font: 0.72rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  border-right: 1px solid var(--line);
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-cell);
+  overflow: hidden;
+}
+/* The stripe follows the row's own code point, not its place in the DOM: rows
+   are rendered in lazy chunks and a collapsed run of excluded rows is a child
+   like any other, so `nth-child` would restripe the grid at every gap. */
+.row.alt .cell { background: var(--bg-cell-alt); }
+.cell:hover { background: var(--accent-dim); }
+
+/* The glyph. Its box is exactly the em square so that a full-width glyph and a
+   half-width one sit on the same baseline and the same left edge — the cell
+   centers the advance, not the ink. */
+.cell .g {
+  height: var(--em);
+  line-height: var(--em);
+  font-size: var(--em);
+  font-family: var(--font), monospace;
+  font-variant-ligatures: none;
+  font-kerning: none;
+  white-space: pre;
+}
+.cell .n {
+  font: 9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--fg-faint);
+  padding-top: 3px;
+}
+/* An image rather than a background color, so the row's stripe still shows
+   through and the hatch does not have to out-specify it. */
+.cell.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--missing) 4px 5px); }
+.cell.missing .n { color: var(--fg-faint); opacity: 0.7; }
+.cell.empty { background: transparent; background-image: none; border-right-color: transparent; border-bottom-color: transparent; }
+
+.gap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 1.9rem;
+  padding-left: calc(var(--gutter) + 0.5rem);
+  color: var(--fg-faint);
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.gap::before { content: "\22EF"; letter-spacing: 0.2em; }
+
+footer {
+  padding: 1.5rem 1.25rem 3rem;
+  color: var(--fg-faint);
+  font-size: 0.75rem;
+  border-top: 1px solid var(--line);
+  margin-top: 3rem;
+}
+footer .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+footer .legend i {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  vertical-align: -2px;
+  margin-right: 0.35rem;
+  border: 1px solid var(--line);
+}
+footer .legend i.declared { background: var(--bg-cell); }
+footer .legend i.missing { background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--missing) 4px 5px); }

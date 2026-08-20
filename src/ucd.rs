@@ -69,7 +69,6 @@
 //! [`crate::issues`]; this module only records what was written.
 
 use std::collections::BTreeMap;
-#[cfg(feature = "editor")]
 use std::sync::OnceLock;
 
 use crate::document::{Document, DocumentItem};
@@ -203,7 +202,6 @@ impl CharProps {
     /// that can assign one, and a code point still `Cn` afterwards is one the
     /// source has no character for — inside a `prop block` claim as much as
     /// outside one, since a claim names an area without populating it.
-    #[cfg(feature = "editor")]
     pub fn is_assigned(&self, cp: u32) -> bool {
         let stated = self.stated(cp);
         if let Some(gc) = stated.and_then(|s| s.values.gc.as_deref()) {
@@ -272,13 +270,13 @@ pub fn format_block_range(start: u32, end: u32) -> String {
 /// `Blocks.txt` of the pinned UCD version, bundled rather than read from
 /// `data/` at run time: the editor groups the specimen by block, and a panel
 /// that silently loses its headings when the working directory is elsewhere is
-/// worse than 11 KB in the binary. Keep the version in step with the
+/// worse than 11 KB in the binary. The headless build wants it too — `demo.html`
+/// is grouped the same way — which is why nothing here is behind the `editor`
+/// feature. Keep the version in step with the
 /// `icu_properties` pin ([`tests::data_is_unicode_17`]).
-#[cfg(feature = "editor")]
 const BLOCKS_TXT: &str = include_str!("../data/Blocks-17.0.0.txt");
 
 /// One block of the code space: an inclusive range with a name.
-#[cfg(feature = "editor")]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct BlockInfo<'a> {
     pub start: u32,
@@ -288,7 +286,6 @@ pub struct BlockInfo<'a> {
 
 /// The UCD blocks, parsed once. Sorted and non-overlapping by construction of
 /// the file, so a lookup is a binary search.
-#[cfg(feature = "editor")]
 fn ucd_blocks() -> &'static [(u32, u32, &'static str)] {
     static BLOCKS: OnceLock<Vec<(u32, u32, &'static str)>> = OnceLock::new();
     BLOCKS.get_or_init(|| {
@@ -314,14 +311,12 @@ fn ucd_blocks() -> &'static [(u32, u32, &'static str)] {
 /// point of stating one, since the UCD calls the entire area "Private Use Area"
 /// and says nothing about what a font put there. Two stated blocks that overlap
 /// are resolved last-wins, in source order, like every other `prop` field.
-#[cfg(feature = "editor")]
 #[derive(Clone, Debug, Default)]
 pub struct BlockMap {
     /// `prop block` claims in source order; searched back to front.
     stated: Vec<(u32, u32, String)>,
 }
 
-#[cfg(feature = "editor")]
 impl BlockMap {
     pub fn collect(docs: &[&Document]) -> Self {
         let mut stated = Vec::new();
@@ -409,7 +404,6 @@ pub(crate) fn property_summary(ch: char) -> String {
 /// nothing can draw it, so it counts as unassigned here. This is what keeps the
 /// specimen's "show undeclared characters" from filling a block's permanent
 /// holes and its unused tail with cells.
-#[cfg(feature = "editor")]
 pub(crate) fn is_assigned(cp: u32) -> bool {
     use icu_properties::CodePointMapData;
     use icu_properties::props::GeneralCategory;
@@ -426,7 +420,6 @@ pub(crate) fn is_assigned(cp: u32) -> bool {
 /// That is why the specimen fills a Private Use block from what the source
 /// states rather than from [`is_assigned`], which would call the whole plane
 /// present.
-#[cfg(feature = "editor")]
 pub(crate) fn is_private_use(cp: u32) -> bool {
     use icu_properties::CodePointMapData;
     use icu_properties::props::GeneralCategory;

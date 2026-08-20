@@ -872,6 +872,32 @@ fn char_name_str(cp: u32, char_props: &CharProps) -> String {
 // ---------------------------------------------------------------------------
 
 impl SampleSource {
+    /// Every character the primary face maps, and the glyph name it maps to.
+    pub fn cmap(&self) -> &BTreeMap<u32, String> {
+        &self.data.cmap
+    }
+
+    /// The `exclude-from-sample` code points.
+    pub fn excluded(&self) -> &BTreeSet<u32> {
+        &self.data.excluded
+    }
+
+    /// The `prop` lines of the source: what a character is called here, and
+    /// which Private Use code points are characters at all.
+    pub fn char_props(&self) -> &CharProps {
+        &self.char_props
+    }
+
+    /// The pixel em height the source is drawn on.
+    pub fn height(&self) -> u16 {
+        self.data.height
+    }
+
+    /// The OpenType feature tags the font carries.
+    pub fn features(&self) -> &[String] {
+        &self.data.features
+    }
+
     /// Resolve once for every sample document that follows, over an expansion
     /// the caller already has — see [`collect_sample_data_with`].
     pub fn collect_with(
@@ -1788,7 +1814,7 @@ fn write_live_flags(w: &mut dyn Write, subdivisions_path: Option<&Path>) -> io::
     Ok(())
 }
 
-fn base64_encode(data: &[u8]) -> String {
+pub(crate) fn base64_encode(data: &[u8]) -> String {
     const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let mut out = String::with_capacity(data.len().div_ceil(3) * 4);
     for chunk in data.chunks(3) {
