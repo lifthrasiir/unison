@@ -637,3 +637,77 @@ fn slice_scoped_name_parts_expand_per_face() {
     );
     assert_eq!(state.glyph_for_cp(0x2042), Some("star-half"));
 }
+
+const UVS_SRC: &str = "\
+meta height 16
+meta ascent 14
+meta descent 2
+glyph sq 1 1
+@@
+glyph var-a 1 1
+@@
+glyph var-b 1 1
+@@
+map U+4E00 = sq
+map U+4E00 U+E0101 = var-b
+map U+4E00 U+E0100 = var-a
+map U+4E01 U+FE00 = var-a
+";
+
+/// A variation sequence is read against the character it varies, so its cell
+/// follows that character's — in selector order, whatever order the source
+/// states them in — and is labelled by the pair rather than by a code point it
+/// does not have one of.
+#[test]
+fn a_variation_sequence_follows_its_base_in_selector_order() {
+    let mut state = state(UVS_SRC);
+    state.options.group_by_block = false;
+    assert_eq!(
+        state.row_summaries(8),
+        // U+4E01 is `map`ped by nothing on its own, and still gets the base
+        // cell its sequence varies from.
+        vec!["4E00 4E00+VS17 4E00+VS18 4E01 4E01+VS1"]
+    );
+}
+
+/// The hover line names both halves of the sequence and the glyph it picks.
+#[test]
+fn a_variation_sequence_cell_states_the_pair_it_stands_for() {
+    let mut state = state(UVS_SRC);
+    state.options.group_by_block = false;
+    state.rebuild_sections();
+    let item = state.items[1];
+    assert_eq!(
+        state.status_body(item),
+        "U+4E00 U+E0100 \u{4E00}\u{E0100} CJK UNIFIED IDEOGRAPH-4E00 + VS17 (var-a)"
+    );
+    // Ctrl+C over it copies the whole sequence: one half of it is not the
+    // character anyone wanted.
+    assert_eq!(state.copy_text(item).as_deref(), Some("\u{4E00}\u{E0100}"));
+}
+
+/// A glyph a variation sequence names is mapped, so it is not listed again as
+/// a remap-only glyph — and an alias-named target is canonicalized like every
+/// other `map` target, since the built font knows the glyph by one name only.
+#[test]
+fn a_variation_sequence_target_is_a_mapped_glyph() {
+    let mut state = state(
+        "\
+meta height 16
+meta ascent 14
+meta descent 2
+glyph sq 1 1
+@@
+glyph var-a 1 1
+@@
+glyph alias-a = var-a
+map U+4E00 = sq
+map U+4E00 U+E0100 = alias-a
+remap liga : sq -> var-a
+",
+    );
+    state.options.group_by_block = false;
+    assert_eq!(state.row_summaries(8), vec!["4E00 4E00+VS17"]);
+    assert!(state.remap_glyph_names().is_empty());
+    assert_eq!(state.uvs_entries[0].glyph_name, "var-a");
+}

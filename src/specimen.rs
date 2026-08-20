@@ -13,8 +13,9 @@
 //! What the grid shows is built in three steps, each keyed on strictly more than
 //! the last, because each is invalidated by something different:
 //!
-//! 1. **What the source says** — the cmap pairs, the remap-only glyphs, the
-//!    `prop` lines, the blocks and the `exclude-from-sample` set. Keyed on the
+//! 1. **What the source says** — the cmap pairs, the variation sequences, the
+//!    remap-only glyphs, the `prop` lines, the blocks and the
+//!    `exclude-from-sample` set. Keyed on the
 //!    two background generations ([`SpecimenState::cached_gen`]).
 //! 2. **Which cells exist, in which sections** — [`SpecimenState::rebuild_sections`].
 //!    Keyed additionally on [`SpecimenOptions`], since "show undeclared
@@ -46,8 +47,21 @@ use crate::document::{
 use crate::editor::doc_links::LinkTargetKind;
 use crate::glyph_flags::{GlyphFlag, GlyphFlags};
 use crate::preview::rasterizer::GlyphCache;
-use crate::render::ttf_builder::{decomposed_map_pairs, expand_map_pairs};
-use crate::ucd::{BlockMap, format_block_range};
+use crate::render::ttf_builder::{decomposed_map_pairs, expand_map_pairs, expand_uvs_map_triples};
+use crate::ucd::{BlockMap, format_block_range, variation_selector_label};
+
+/// One variation-sequence cell — a `map BASE SELECTOR = GLYPH`.
+///
+/// It sits immediately after the cell of its own base character, in selector
+/// order, because that is where someone looking for it looks: a variant is read
+/// against the character it varies, not as a section of its own. The base
+/// always gets a cell even when nothing `map`s it on its own, so a sequence is
+/// never listed with nothing to vary from.
+struct UvsEntry {
+    base: u32,
+    selector: u32,
+    glyph_name: String,
+}
 
 struct RemapEntry {
     label: String,
@@ -111,6 +125,8 @@ struct CharEntry {
 #[derive(Clone, Copy)]
 enum Item {
     Char(usize),
+    /// Index into [`SpecimenState::uvs_entries`].
+    Uvs(usize),
     Remap(usize),
 }
 
@@ -237,6 +253,7 @@ impl GridLayout {
 pub struct SpecimenState {
     pub options: SpecimenOptions,
     entries: Vec<CharEntry>,
+    uvs_entries: Vec<UvsEntry>,
     remap_entries: Vec<RemapEntry>,
     /// Every cell of the grid in drawing order; the sections index into it.
     items: Vec<Item>,
@@ -249,6 +266,11 @@ pub struct SpecimenState {
     /// `entries` because filling a block asks it per code point, and because a
     /// change of options must not have to re-read the documents.
     declared: BTreeMap<u32, String>,
+    /// The variation sequences the source declares: base character, then
+    /// selector, to the glyph each pair maps to. Two nested maps rather than a
+    /// list, because a cell's place on the grid is *beside its base*, in
+    /// selector order.
+    uvs: BTreeMap<u32, BTreeMap<u32, String>>,
     /// Which block every code point falls in, `prop block` claims included.
     blocks: BlockMap,
     /// The `exclude-from-sample` code points — the rows a filled grid drops.
@@ -279,12 +301,14 @@ impl SpecimenState {
         Self {
             options: SpecimenOptions::default(),
             entries: Vec::new(),
+            uvs_entries: Vec::new(),
             remap_entries: Vec::new(),
             items: Vec::new(),
             sections: Vec::new(),
             sections_key: None,
             layout: None,
             declared: BTreeMap::new(),
+            uvs: BTreeMap::new(),
             blocks: BlockMap::default(),
             excluded: BTreeSet::new(),
             cached_gen: None,
@@ -341,6 +365,7 @@ impl SpecimenState {
         let scoped = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
 
         let mut map: BTreeMap<u32, String> = BTreeMap::new();
+        let mut uvs: BTreeMap<u32, BTreeMap<u32, String>> = BTreeMap::new();
         let mut mapped_glyphs: HashSet<String> = HashSet::new();
         for doc in docs {
             for item in &doc.items {
@@ -352,11 +377,33 @@ impl SpecimenState {
                 for slice in slices {
                     let parts = scoped.for_slice(slice);
                     match item {
-                        // A variation sequence covers no cell of its own: the
-                        // base is already counted through its own `map`.
+                        // A variation sequence gets a cell of its own, beside
+                        // the base's. A malformed one (both halves varying, a
+                        // selector that is not one) is left to `issues` to
+                        // report and draws nothing here.
                         DocumentItem::Map {
-                            selector: Some(_), ..
-                        } => {}
+                            char_repr,
+                            selector: Some(selector),
+                            glyph,
+                            ..
+                        } => {
+                            let subst_glyph = substitute_name_parts(glyph, parts);
+                            let Ok(triples) =
+                                expand_uvs_map_triples(char_repr, selector, &subst_glyph)
+                            else {
+                                continue;
+                            };
+                            for (base, sel, glyph_name) in triples {
+                                let mut pairs = vec![(base, glyph_name)];
+                                aliases.canonicalize_pairs(&mut pairs);
+                                let (_, glyph_name) = pairs.pop().expect("one pair in, one out");
+                                mapped_glyphs.insert(glyph_name.clone());
+                                uvs.entry(base)
+                                    .or_default()
+                                    .entry(sel)
+                                    .or_insert(glyph_name);
+                            }
+                        }
                         DocumentItem::Map {
                             char_repr, glyph, ..
                         } => {
@@ -383,6 +430,7 @@ impl SpecimenState {
             }
         }
         self.declared = map;
+        self.uvs = uvs;
 
         // Build reverse map: glyph_name → smallest codepoint.
         let mut glyph_to_cp: HashMap<&str, u32> = HashMap::new();
@@ -523,6 +571,7 @@ impl SpecimenState {
         self.sections_key = Some(self.options);
         self.layout = None;
         self.entries.clear();
+        self.uvs_entries.clear();
         self.items.clear();
         self.sections.clear();
 
@@ -532,7 +581,15 @@ impl SpecimenState {
         // it, and is never filled.
         let mut by_block: BTreeMap<(u32, u32), (String, Vec<u32>)> = BTreeMap::new();
         let mut no_block: Vec<u32> = Vec::new();
-        for &cp in self.declared.keys() {
+        // A base that only variation sequences name still gets a cell — see
+        // [`UvsEntry`] — so the grouping runs over both sets of code points.
+        let cell_cps: BTreeSet<u32> = self
+            .declared
+            .keys()
+            .chain(self.uvs.keys())
+            .copied()
+            .collect();
+        for cp in cell_cps {
             match self.blocks.block_of(cp) {
                 Some(b) => by_block
                     .entry((b.start, b.end))
@@ -586,6 +643,15 @@ impl SpecimenState {
                 let glyph_name = self.declared.get(&cp).cloned();
                 self.entries.push(CharEntry { cp, glyph_name });
                 self.items.push(Item::Char(self.entries.len() - 1));
+                // `BTreeMap`, so the selectors come out in order.
+                for (selector, glyph_name) in self.uvs.get(&cp).cloned().unwrap_or_default() {
+                    self.uvs_entries.push(UvsEntry {
+                        base: cp,
+                        selector,
+                        glyph_name,
+                    });
+                    self.items.push(Item::Uvs(self.uvs_entries.len() - 1));
+                }
             }
             if grouped {
                 let len = self.items.len() - start;
@@ -641,8 +707,11 @@ impl SpecimenState {
     /// ones it draws. A block's permanent holes and its unassigned tail are not
     /// holes in the *font*, so they get no cell.
     fn block_members(&self, start: u32, end: u32) -> impl Iterator<Item = u32> + '_ {
-        self.block_range(start, end)
-            .filter(move |&cp| self.declared.contains_key(&cp) || self.char_props.is_assigned(cp))
+        self.block_range(start, end).filter(move |&cp| {
+            self.declared.contains_key(&cp)
+                || self.uvs.contains_key(&cp)
+                || self.char_props.is_assigned(cp)
+        })
     }
 
     /// How many characters a block has — the denominator of the coverage its
@@ -709,6 +778,9 @@ impl SpecimenState {
             .iter()
             .all(|item| match item {
                 Item::Char(i) => self.excluded.contains(&self.entries[*i].cp),
+                // A variation sequence is excluded with its base: the two are
+                // read together, so hiding one and not the other says nothing.
+                Item::Uvs(i) => self.excluded.contains(&self.uvs_entries[*i].base),
                 Item::Remap(_) => false,
             })
     }
@@ -747,6 +819,7 @@ impl SpecimenState {
                     .iter()
                     .map(|item| match item {
                         Item::Char(i) => format!("{:04X}", self.entries[*i].cp),
+                        Item::Uvs(i) => uvs_label(&self.uvs_entries[*i]),
                         Item::Remap(ri) => self.remap_entries[*ri].glyph_name.clone(),
                     })
                     .collect::<Vec<_>>()
@@ -765,7 +838,7 @@ impl SpecimenState {
             .iter()
             .filter_map(|item| match item {
                 Item::Char(i) => Some(self.entries[*i].cp),
-                Item::Remap(_) => None,
+                Item::Uvs(_) | Item::Remap(_) => None,
             })
             .collect()
     }
@@ -994,14 +1067,17 @@ impl SpecimenState {
                     if let Some(gr) = self.compute_glyph_rect(cell_min, item, &style) {
                         painter.rect_filled(gr.expand(4.0), 0.0, hover_bg);
                     }
-                    // A remap label is wider than a cell far more often than a
-                    // `U+XXXX` one; give it a background of its own.
-                    if let Item::Remap(ri) = item {
-                        let label_galley = painter.layout_no_wrap(
-                            self.remap_entries[ri].label.clone(),
-                            label_font.clone(),
-                            LABEL_COLOR,
-                        );
+                    // A remap or variation-sequence label is wider than a cell
+                    // far more often than a `U+XXXX` one; give it a background
+                    // of its own.
+                    let wide_label = match item {
+                        Item::Char(_) => None,
+                        Item::Uvs(i) => Some(uvs_label(&self.uvs_entries[i])),
+                        Item::Remap(ri) => Some(self.remap_entries[ri].label.clone()),
+                    };
+                    if let Some(text) = wide_label {
+                        let label_galley =
+                            painter.layout_no_wrap(text, label_font.clone(), LABEL_COLOR);
                         let lw = label_galley.size().x + 4.0;
                         if lw > CELL_W {
                             let label_bg = egui::Rect::from_min_size(
@@ -1020,7 +1096,7 @@ impl SpecimenState {
                 {
                     clicked = match self.items[idx] {
                         // An undeclared character has nothing to jump to.
-                        Item::Char(_) => {
+                        Item::Char(_) | Item::Uvs(_) => {
                             self.goto_target(self.items[idx]).map(|name| SpecimenClick {
                                 name: name.to_string(),
                                 kind: LinkTargetKind::Glyph,
@@ -1038,11 +1114,8 @@ impl SpecimenState {
 
                 if let Some((idx, _)) = hovered {
                     self.hover_status = Some(self.status_for(self.items[idx]));
-                    if ctrl_c
-                        && let Item::Char(i) = self.items[idx]
-                        && let Some(ch) = char::from_u32(self.entries[i].cp)
-                    {
-                        ui.ctx().copy_text(ch.to_string());
+                    if ctrl_c && let Some(text) = self.copy_text(self.items[idx]) {
+                        ui.ctx().copy_text(text);
                     }
                 }
 
@@ -1086,6 +1159,7 @@ impl SpecimenState {
     fn glyph_of(&self, item: Item) -> Option<&str> {
         match item {
             Item::Char(i) => self.entries[i].glyph_name.as_deref(),
+            Item::Uvs(i) => Some(self.uvs_entries[i].glyph_name.as_str()),
             Item::Remap(ri) => Some(self.remap_entries[ri].glyph_name.as_str()),
         }
     }
@@ -1123,6 +1197,24 @@ impl SpecimenState {
         line
     }
 
+    /// What Ctrl+C over one cell copies: the character, or the whole variation
+    /// sequence — the two code points together are what a text field has to
+    /// receive for the variant to show up in it.
+    fn copy_text(&self, item: Item) -> Option<String> {
+        match item {
+            Item::Char(i) => char::from_u32(self.entries[i].cp).map(|c| c.to_string()),
+            Item::Uvs(i) => {
+                let entry = &self.uvs_entries[i];
+                let text: String = [entry.base, entry.selector]
+                    .iter()
+                    .filter_map(|cp| char::from_u32(*cp))
+                    .collect();
+                (text.chars().count() == 2).then_some(text)
+            }
+            Item::Remap(_) => None,
+        }
+    }
+
     fn status_body(&self, item: Item) -> String {
         match item {
             Item::Char(i) => {
@@ -1143,6 +1235,26 @@ impl SpecimenState {
                     None => "(undeclared)".to_string(),
                 };
                 format!("U+{cp:04X} {char_str} {char_name}{props} {tail}")
+            }
+            Item::Uvs(i) => {
+                let entry = &self.uvs_entries[i];
+                let base_name = self
+                    .char_props
+                    .name(entry.base)
+                    .unwrap_or_else(|| "<unknown>".to_string());
+                let text: String = [entry.base, entry.selector]
+                    .iter()
+                    .filter_map(|cp| char::from_u32(*cp))
+                    .collect();
+                format!(
+                    "U+{:04X} U+{:04X} {} {} + {} ({})",
+                    entry.base,
+                    entry.selector,
+                    text,
+                    base_name,
+                    selector_name(entry.selector),
+                    entry.glyph_name
+                )
             }
             Item::Remap(ri) => {
                 let entry = &self.remap_entries[ri];
@@ -1200,6 +1312,9 @@ impl SpecimenState {
                     glyph_color,
                     style,
                 );
+            }
+            Item::Uvs(i) => {
+                self.draw_uvs_cell(painter, cell_min, i, is_hovered, glyph_color, style)
             }
             Item::Remap(ri) => {
                 self.draw_remap_cell(painter, cell_min, ri, is_hovered, glyph_color, style)
@@ -1283,6 +1398,58 @@ impl SpecimenState {
             let glyph_size = glyph_galley.size();
             let pos = egui::pos2(center.0 - glyph_size.x / 2.0, center.1 - glyph_size.y / 2.0);
             cell_painter(painter, cell_rect, is_hovered).galley(pos, glyph_galley, color);
+        }
+    }
+
+    /// A variation-sequence cell: the `XXXX+VS17` label, and whatever the built
+    /// font's cmap format 14 maps the pair to.
+    ///
+    /// The glyph is looked up through the *font*, not through the source's
+    /// glyph name, so the cell shows what a shaper would actually pick — a
+    /// sequence the build dropped draws nothing and dims its label, exactly as
+    /// a character whose glyph never made it does.
+    fn draw_uvs_cell(
+        &mut self,
+        painter: &egui::Painter,
+        cell_min: egui::Pos2,
+        uvs_idx: usize,
+        is_hovered: bool,
+        glyph_color: egui::Color32,
+        style: &CellStyle<'_>,
+    ) {
+        let cell_rect = style.cell_rect(cell_min);
+        let entry = &self.uvs_entries[uvs_idx];
+        let label_text = uvs_label(entry);
+        let (base, selector) = (entry.base, entry.selector);
+
+        let font = style.raster_font.and_then(|b| FontRef::new(b).ok());
+        let gid = font.as_ref().and_then(|f| variant_gid(f, base, selector));
+        let label_color = if gid.is_some() {
+            style.label_color
+        } else {
+            style.dim_label_color
+        };
+        let label_galley =
+            painter.layout_no_wrap(label_text, style.label_font.clone(), label_color);
+        cell_painter(painter, cell_rect, is_hovered).galley(
+            egui::pos2(cell_min.x + 2.0, cell_min.y + 1.0),
+            label_galley,
+            label_color,
+        );
+
+        if let (Some(font_bytes), Some(font), Some(gid)) = (style.raster_font, &font, gid) {
+            let center = style.cell_center(cell_min);
+            self.draw_rasterized_glyph(
+                painter,
+                cell_rect,
+                center,
+                font,
+                font_bytes,
+                gid,
+                is_hovered,
+                glyph_color,
+                style,
+            );
         }
     }
 
@@ -1407,6 +1574,12 @@ impl SpecimenState {
                     size,
                 ))
             }
+            Item::Uvs(i) => {
+                let entry = &self.uvs_entries[i];
+                let font = font?;
+                let gid = variant_gid(&font, entry.base, entry.selector)?;
+                Some(raster_glyph_rect(&font, gid, style.px_size, center))
+            }
             Item::Remap(ri) => Some(raster_glyph_rect(
                 &font?,
                 skrifa::GlyphId::new(self.remap_entries[ri].gid as u32),
@@ -1414,6 +1587,27 @@ impl SpecimenState {
                 center,
             )),
         }
+    }
+}
+
+/// A variation-sequence cell's label: `3402+VS17`, the base's code point and
+/// the selector's short name. A selector outside the two `VS` ranges (and the
+/// Mongolian ones) has no such name and falls back to its code point.
+fn uvs_label(entry: &UvsEntry) -> String {
+    format!("{:04X}+{}", entry.base, selector_name(entry.selector))
+}
+
+fn selector_name(selector: u32) -> String {
+    variation_selector_label(selector).unwrap_or_else(|| format!("U+{selector:04X}"))
+}
+
+/// The glyph the built font maps `base` + `selector` to, following cmap format
+/// 14's "use default" entries back to the base's own glyph.
+fn variant_gid(font: &FontRef, base: u32, selector: u32) -> Option<skrifa::GlyphId> {
+    let ch = char::from_u32(base)?;
+    match font.charmap().map_variant(ch, char::from_u32(selector)?)? {
+        skrifa::charmap::MapVariant::UseDefault => font.charmap().map(ch),
+        skrifa::charmap::MapVariant::Variant(gid) => Some(gid),
     }
 }
 

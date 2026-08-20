@@ -458,9 +458,38 @@ pub fn is_variation_selector(cp: u32) -> bool {
     )
 }
 
+/// The short name a variation selector is written by — `VS1`..`VS256` for the
+/// two Unicode ranges, `FVS1`..`FVS4` for the Mongolian ones, which are
+/// numbered separately and are not part of the `VS` sequence.
+///
+/// `None` for a code point that is not a variation selector at all, so a caller
+/// can fall back to the plain `U+XXXX` form rather than inventing a number.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
+pub fn variation_selector_label(cp: u32) -> Option<String> {
+    match cp {
+        0xFE00..=0xFE0F => Some(format!("VS{}", cp - 0xFE00 + 1)),
+        0xE0100..=0xE01EF => Some(format!("VS{}", cp - 0xE0100 + 17)),
+        0x180B..=0x180D => Some(format!("FVS{}", cp - 0x180B + 1)),
+        0x180F => Some("FVS4".to_string()),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_selector_is_named_by_its_number_within_its_own_series() {
+        assert_eq!(variation_selector_label(0xFE00).as_deref(), Some("VS1"));
+        assert_eq!(variation_selector_label(0xFE0F).as_deref(), Some("VS16"));
+        assert_eq!(variation_selector_label(0xE0100).as_deref(), Some("VS17"));
+        assert_eq!(variation_selector_label(0xE01EF).as_deref(), Some("VS256"));
+        // The Mongolian selectors are numbered apart from the VS series.
+        assert_eq!(variation_selector_label(0x180B).as_deref(), Some("FVS1"));
+        assert_eq!(variation_selector_label(0x180F).as_deref(), Some("FVS4"));
+        assert_eq!(variation_selector_label(0x0041), None);
+    }
 
     fn props(src: &str) -> CharProps {
         let doc = crate::document_io::parse_document_from_str(src, "t.unf".into()).unwrap();
