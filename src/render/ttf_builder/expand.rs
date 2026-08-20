@@ -25,6 +25,11 @@ pub(crate) struct Expansion {
     /// `assert shape`, validation — and for the editor, which has to recognize
     /// an alias name written in the text. See [`crate::alias`].
     pub aliases: crate::alias::AliasMap,
+    /// Which items an `exists` governs and what each search found. The items
+    /// above are already expanded against it and hold no `$N` at all; this is
+    /// for the consumers that walk the *source* — validation, above all, which
+    /// would otherwise read `han-($1)` as a glyph name nobody may write.
+    pub exists: crate::exists::ExistsScopes,
 }
 
 impl Expansion {
@@ -115,7 +120,17 @@ fn expand_inner(
     // Collected before anything is expanded: from here on every glyph name in
     // `all_items` is the canonical one, so nothing downstream — the glyph
     // cache, the cmap, the on-demand injector — ever sees an alias.
-    let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts);
+    // Resolved first: a search decides which glyph blocks declare what, so the
+    // merge candidates and the `ifexists` oracle below both rest on it.
+    // Declared aliases first, because a search has to know when two names it
+    // found are one glyph. The *implicit* merges below need the scopes in turn,
+    // and there is no cycle between the two: a merge is a second opinion about
+    // a name, never a new one.
+    let declared_aliases = crate::alias::AliasMap::collect(docs, name_parts);
+    let (exists, exists_diagnostics) =
+        crate::exists::resolve_scopes(docs, name_parts, &declared_aliases);
+    diagnostics.extend(exists_diagnostics);
+    let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
     // Slice-scoped `name-parts`, so a qualified line substitutes with the
     // bindings of the slice it is being stated for. Empty (and free) unless the
     // source binds something per slice.
@@ -124,12 +139,34 @@ fn expand_inner(
     // `ifexists` `ref` is answered against, so an expansion that stands for
     // nothing is never materialized. See `declared_glyph_names` for why one
     // round of this is enough.
-    let declared = declared_glyph_names(docs, name_parts);
+    let declared = declared_glyph_names(docs, name_parts, &exists);
     let ref_exists = |name: &str| glyph_name_exists(name, &declared, &aliases);
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
             let origin = ItemRef::new(doc_idx, item_idx);
+            // An `exists` states a condition on the line below it and nothing
+            // of its own.
+            if exists.is_directive(origin) {
+                continue;
+            }
+            // The search above it, if there is one. `$0`…`$N` are bound over
+            // the base name parts, so from here on a scoped item expands
+            // through exactly the machinery an unscoped one does.
+            let scope = exists.scope(origin);
+            if scope.is_some_and(|s| s.matches.is_empty()) {
+                // The search found nothing, so the line below it stands for
+                // nothing. Warned about at the `exists`, not here.
+                continue;
+            }
+            let bound;
+            let name_parts = match scope {
+                Some(scope) => {
+                    bound = scope.bindings(name_parts);
+                    &bound
+                }
+                None => name_parts,
+            };
             // A qualifier lists the slices the line is stated for, one at a
             // time; the face keeps the ones it includes. An unqualified line is
             // the base slice, which every face includes.
@@ -229,6 +266,59 @@ fn expand_inner(
                         },
                         origin: Some(origin),
                     });
+                }
+            } else if let (
+                Some(scope),
+                DocumentItem::Map {
+                    char_repr,
+                    selector,
+                    glyph,
+                    if_exists,
+                    ..
+                },
+            ) = (scope, item)
+            {
+                // A scoped `map` unrolls to one mapping per match, where a
+                // scoped `glyph` stays one block declaring many. The asymmetry
+                // is the existing model's: a `map` line is already unrolled per
+                // codepoint by `expand_map_pairs`, and the codepoint here is
+                // *computed* from the match rather than written, so there is no
+                // pattern left for that to unroll.
+                for slice in &slices {
+                    let parts = scoped.for_slice(*slice);
+                    let one: Vec<String> = slice.iter().map(|s| s.to_string()).collect();
+                    for (i, caps) in scope.matches.iter().enumerate() {
+                        let (char_repr, selector) = match (
+                            crate::exists::eval_codepoint(char_repr, caps),
+                            selector
+                                .as_deref()
+                                .map(|s| crate::exists::eval_codepoint(s, caps))
+                                .transpose(),
+                        ) {
+                            (Ok(c), Ok(s)) => (c, s),
+                            (Err(e), _) | (_, Err(e)) => {
+                                // Reported once for the line rather than once
+                                // per match: the spelling is the line's, so
+                                // every match fails it the same way.
+                                if i == 0 {
+                                    diagnostics.push(Diagnostic::error(origin, e));
+                                }
+                                continue;
+                            }
+                        };
+                        let per = scope.bindings_for(parts, i);
+                        all_items.push(ExpandedItem {
+                            item: DocumentItem::Map {
+                                slices: one.clone(),
+                                comment: None,
+                                char_repr,
+                                selector,
+                                glyph: substitute_name_parts(glyph, &per),
+                                if_exists: *if_exists,
+                            },
+                            origin: Some(origin),
+                        });
+                    }
                 }
             } else {
                 // Everything else is emitted once per slice it is stated for,
@@ -417,6 +507,7 @@ fn expand_inner(
         items: all_items,
         diagnostics,
         aliases,
+        exists,
     }
 }
 
@@ -1351,12 +1442,27 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
 /// to drop the way it always did. Chasing that to a fixpoint would buy nothing
 /// — the glyph is dropped either way — at the price of a rule whose answer
 /// depends on the order the source is written in.
-fn declared_glyph_names(docs: &[&Document], name_parts: &NamePartsMap) -> HashSet<String> {
+fn declared_glyph_names(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    exists: &crate::exists::ExistsScopes,
+) -> HashSet<String> {
     let mut out: HashSet<String> = HashSet::new();
-    for doc in docs {
-        for item in &doc.items {
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::Glyph { name, .. } = item else {
                 continue;
+            };
+            // A scoped block's names are its search's, and the search has
+            // already been brought to a fixpoint against this same rule — so
+            // this stays the one place that says what a header declares.
+            let bound;
+            let name_parts = match exists.scope(ItemRef::new(doc_idx, item_idx)) {
+                Some(scope) => {
+                    bound = scope.bindings(name_parts);
+                    &bound
+                }
+                None => name_parts,
             };
             let name = substitute_name_parts(&name.display(), name_parts);
             match NamePattern::parse(&name) {

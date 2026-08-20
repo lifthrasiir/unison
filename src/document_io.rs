@@ -92,6 +92,25 @@
 //!   for the one rule that shapes how a split font is written: a character
 //!   whose mapping differs between faces must not be in the base slice at all,
 //!   because there is no override — every conflict is an error.
+//! - `exists PATTERN` — the inverse of a name pattern: a *search* over the
+//!   glyph names the source declares, repeating the item on the **very next
+//!   line** — one `glyph` block or one `map`, nothing else — once per match.
+//!   `$0` stands for the matched name and `$1`… for the pattern's capture
+//!   groups, usable wherever that item takes a name pattern:
+//!
+//!   ```text
+//!   exists han-([0-9a-f]{4,5}):15x16
+//!   glyph han-($1) 16 16 advance 16
+//!   ref ($0) 1 0
+//!   ```
+//!
+//!   `PATTERN` is a regular expression, implicitly anchored, restricted to what
+//!   can only ever match a glyph name — a bare `.` is rejected in favour of an
+//!   explicit class, so write `\.` for a literal dot. A scoped `map` computes
+//!   its code point from the match with `U+[BASE+]($N)`, hexadecimal on both
+//!   sides, and both halves of a variation sequence take that spelling
+//!   (`map U+($1) U+E0100+($2) = …`). See [`crate::exists`] for what is
+//!   searched, why `exists` does not stack, and the cycle rule.
 //! - `map CHAR = GLYPH [ifexists]` — cmap mapping. `ifexists` maps only the
 //!   codepoints whose target glyph turns out to exist and says nothing about
 //!   the rest, which is how one line covers a range whose membership varies
@@ -1241,7 +1260,8 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
             DocumentItem::Meta(text) => writeln!(writer, "meta {text}")?,
             DocumentItem::Audit(text) => writeln!(writer, "audit {text}")?,
             DocumentItem::Directive(text) => writeln!(writer, "{text}")?,
-            item @ DocumentItem::Face { .. }
+            item @ DocumentItem::Exists { .. }
+            | item @ DocumentItem::Face { .. }
             | item @ DocumentItem::Slice { .. }
             | item @ DocumentItem::NameParts { .. }
             | item @ DocumentItem::Remap { .. }
@@ -1824,6 +1844,22 @@ pub fn derive_document(
                         item_line_starts.push(i);
                         doc.items
                             .push(DocumentItem::parse_directive(&tokens, comment));
+                        i += 1;
+                    }
+                    "exists" => {
+                        item_line_starts.push(i);
+                        // Exactly one token: the pattern is a regex, and a
+                        // second token would either be a second pattern (there
+                        // is no conjunction) or a flag (there are none). Both
+                        // are better said by `issues` than guessed at here.
+                        if tokens.len() == 2 {
+                            doc.items.push(DocumentItem::Exists {
+                                pattern: tokens[1].clone(),
+                                comment,
+                            });
+                        } else {
+                            doc.items.push(DocumentItem::Directive(trimmed.to_string()));
+                        }
                         i += 1;
                     }
                     "color" => {

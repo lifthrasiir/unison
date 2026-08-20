@@ -472,6 +472,7 @@ fn assert_all_doc_lines_covered(input: &str) {
                 | DocumentItem::Slice { .. }
                 | DocumentItem::Meta(_)
                 | DocumentItem::Audit(_)
+                | DocumentItem::Exists { .. }
                 | DocumentItem::Map { .. }
                 | DocumentItem::NameParts { .. }
                 | DocumentItem::Remap { .. }

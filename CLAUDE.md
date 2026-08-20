@@ -91,6 +91,10 @@ Core (feature-independent):
   one block's expansions and never two blocks, the σ fixpoint over the `ref`/IDC graph, why
   `ifexists` needs no rule of its own, why a `remap`'s *inputs* are excluded where its outputs are
   not, and `keep` as the opt-out.
+- `exists.rs` — `exists PATTERN`: the inverse of a name pattern — a search over the names the
+  source declares, repeating the next line once per match with `$0`/`$N` bound. Holds what is
+  searched (and why on-demand names are not), the one-line scope rule, the fixpoint and its cycle
+  budget, and the regex subset. Tests in `exists_tests.rs`.
 - `pattern.rs` — `NamePattern`, the single name-expansion engine. The same syntax parses differently
   per context on purpose; its module docs spell the three contexts out.
 - `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
@@ -227,6 +231,12 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a glyph's GID is its index, and how `.notdef` gets to GID 0 | `render/ttf_builder/mod.rs` (`NOTDEF`), `collect.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
+| `exists PATTERN`: searching the declared names instead of listing candidates, and what `$0`/`$N` bind | `exists.rs`, `document_io.rs` (`# Directives`) |
+| Why an `exists` governs exactly one line, and why it does not stack | `exists.rs` (`# Scope`) |
+| Why searches are a fixpoint, and the round budget that stands in for cycle detection | `exists.rs` (`# Recursion`), `resolve_scopes` |
+| Which names a search may find — aliases yes, on-demand names no — and the one thing it refuses | `exists.rs` (`# What is searched`, `resolve_scopes`) |
+| A code point computed from a match (`U+[BASE+]($N)`), and why it is hexadecimal on both sides | `exists.rs` (`eval_codepoint`) |
+| Where a scoped item is expanded, and why a `map` unrolls per match where a `glyph` block does not | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
 | Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
@@ -375,6 +385,7 @@ past the source it tests, it lives in a sibling file (or directory) declared as 
 | `document_io.rs` | `document_io_tests/` — `roundtrip`, `doclines`, `derive`, `lenient`, `tokenizer`, `maps`, `colors`, `asserts`, `comments`, `misc`, `at_names` |
 | `document/` | `document/document_tests.rs` |
 | `issues/` | `issues/issues_tests.rs` |
+| `exists.rs` | `exists_tests.rs` |
 | `pixel.rs` | `pixel_tests.rs` |
 | `specimen.rs` | `specimen_tests.rs` |
 | `render/sample.rs` | `render/sample_tests.rs` |

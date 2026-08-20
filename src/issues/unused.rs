@@ -35,6 +35,17 @@ pub(super) fn check_unused_glyphs(
             // reachable from what names it and it keeps its target
             // reachable in turn, so `map x = A` where `glyph A = B` leaves
             // neither the alias nor `B` looking unused.
+            // A block an `exists` governs names `$N`, which is not a glyph
+            // name until the search binds it — and if the search found
+            // nothing, the block is not in the graph at all.
+            let Some(name_parts) = cx
+                .expansion
+                .exists
+                .parts_at(name_parts, crate::resolve::ItemRef::new(doc_idx, item_idx))
+            else {
+                continue;
+            };
+            let name_parts = name_parts.as_ref();
             let (name, refs, is_alias) = match item {
                 DocumentItem::Glyph {
                     name: GlyphName(n),

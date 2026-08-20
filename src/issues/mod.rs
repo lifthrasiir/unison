@@ -151,6 +151,50 @@ struct Cx<'a> {
     groups: crate::document::RemapGroupOrder,
 }
 
+impl<'a> Cx<'a> {
+    /// One document's items as a check over the *source* should read them.
+    ///
+    /// Two substitutions, both because an `exists` line and the item it governs
+    /// do not mean what they say in isolation: the directive itself drops out,
+    /// and a `map` it governs is replaced by the mappings it actually produced
+    /// — the codepoint on a scoped `map` is computed from the match, so there
+    /// is nothing on the written line for a source-side check to read.
+    ///
+    /// The index each item comes back with is the **written** one, so a finding
+    /// still lands on the line the author can see.
+    ///
+    /// A scoped `glyph` block is *not* substituted: its names expand from the
+    /// same header the unscoped ones do, once `$N` is bound, and binding is
+    /// what [`crate::exists::ExistsScopes::parts_at`] is for. Replacing it here
+    /// would hand every such check N blocks where the source has one.
+    fn source_items(&self, doc_idx: usize) -> Vec<(usize, &'a DocumentItem)> {
+        let doc = self.docs[doc_idx];
+        let exists = &self.expansion.exists;
+        if exists.is_empty() {
+            return doc.items.iter().enumerate().collect();
+        }
+        let mut out = Vec::with_capacity(doc.items.len());
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            let here = crate::resolve::ItemRef::new(doc_idx, item_idx);
+            if exists.is_directive(here) {
+                continue;
+            }
+            if exists.scope(here).is_some() && matches!(item, DocumentItem::Map { .. }) {
+                out.extend(
+                    self.expansion
+                        .items
+                        .iter()
+                        .filter(|e| e.origin == Some(here))
+                        .map(|e| (item_idx, &e.item)),
+                );
+                continue;
+            }
+            out.push((item_idx, item));
+        }
+        out
+    }
+}
+
 pub fn collect_issues(docs: &[&Document]) -> Vec<Issue> {
     collect_issues_with(docs, &Resolution::compute(docs))
 }

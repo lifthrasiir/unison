@@ -125,6 +125,25 @@ pub enum DocumentItem {
     /// value the font carries; stored like [`DocumentItem::Meta`], and read by
     /// [`crate::audit`].
     Audit(String),
+    /// `exists PATTERN` — a *search* over the glyph names the source declares,
+    /// binding the item written on the very next line and repeating it once per
+    /// match, with `$0` the matched name and `$1`… its captures.
+    ///
+    /// The pattern is kept as written rather than compiled: a document is
+    /// cloned per edit and compared for equality, and a `Regex` is neither
+    /// cheap to clone nor comparable. [`crate::exists::ExistsPattern::parse`]
+    /// is where it becomes one, and the errors it gives are reported by
+    /// [`crate::issues`] like every other malformed line.
+    ///
+    /// The binding itself is *adjacency*, not nesting — the scoped item is the
+    /// next `items` entry and stays an ordinary [`Glyph`](DocumentItem::Glyph)
+    /// or [`Map`](DocumentItem::Map). Nesting would give the editor's folding,
+    /// rename and resize paths a second kind of block to know about, for a
+    /// relationship one index step already states. See [`crate::exists`].
+    Exists {
+        pattern: String,
+        comment: Option<String>,
+    },
     Glyph {
         name: GlyphName,
         body: GlyphBody,

@@ -3,6 +3,9 @@ error	issues-base.unf	36	map 'C' targets undefined glyph 'never-defined'
 error	issues-base.unf	37	map 'U+FFFFFFFF' is not a valid Unicode scalar value
 error	issues-base.unf	43	feature references undefined remap group 'no-such-remap-group'
 error	issues-base.unf	47	unrecognized directive 'totally-unknown-directive foo bar'
+error	issues-exists.unf	31	`exists` must be followed on the very next line by a `glyph` block or a `map`, not a blank line
+error	issues-exists.unf	33	glyph name `orphaned-$1` may only contain letters, digits, `-`, `.`, `_` and `:`
+error	issues-exists.unf	36	invalid exists pattern `ex-(`: unclosed group
 error	issues-patterns.unf	10	glyph name `uni$#2802..2800` may only contain letters, digits, `-`, `.`, `_` and `:`
 error	issues-patterns.unf	10	invalid inline range '$#2802..2800' (end < start or too large)
 error	issues-patterns.unf	39	map 'Z' (U+005A) has no canonical decomposition; use `map Z = GLYPH` instead
@@ -19,6 +22,8 @@ warning	issues-base.unf	30	glyph 'dup' is unused
 warning	issues-base.unf	35	duplicate codepoint mapping U+0041 (first at issues-base.unf:33)
 warning	issues-base.unf	40	remap of 'ok' to 'also-never-defined' in group 'liga' is shadowed by an earlier rule substituting 'ok'; a group of single substitutions covers each glyph once, so only the first applies
 warning	issues-base.unf	40	remap references undefined glyph 'also-never-defined'
+warning	issues-exists.unf	26	`exists nothing-([0-9]+)` matches no declared glyph name, so the line below builds nothing
+warning	issues-exists.unf	33	glyph 'orphaned-($1)' is unused
 warning	issues-patterns.unf	10	glyph 'uni($#2802..2800)' is unused
 warning	issues-patterns.unf	18	alternative 'stem:a' has same anchor dimensions as 'stem' for '-join' (base 'stem')
 warning	issues-patterns.unf	23	alternative 'stem:b' has same anchor dimensions as 'stem' for '-join' (base 'stem')

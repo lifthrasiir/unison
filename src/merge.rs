@@ -118,8 +118,9 @@ pub fn implicit_merges(
     docs: &[&Document],
     name_parts: &NamePartsMap,
     aliases: &AliasMap,
+    exists: &crate::exists::ExistsScopes,
 ) -> Vec<(String, String)> {
-    let blocks = collect_blocks(docs, name_parts);
+    let blocks = collect_blocks(docs, name_parts, exists);
     if blocks.is_empty() {
         return Vec::new();
     }
@@ -230,12 +231,28 @@ fn remap_inputs(
 
 /// Every block whose expansions are candidates: a `glyph` block whose name is
 /// a pattern standing for more than one name, and that does not say `keep`.
-fn collect_blocks(docs: &[&Document], name_parts: &NamePartsMap) -> Vec<Block> {
+fn collect_blocks(
+    docs: &[&Document],
+    name_parts: &NamePartsMap,
+    exists: &crate::exists::ExistsScopes,
+) -> Vec<Block> {
     let mut blocks = Vec::new();
-    for doc in docs {
-        for item in &doc.items {
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::Glyph { name, body } = item else {
                 continue;
+            };
+            // A block governed by an `exists` is a pattern block like any
+            // other once `$N` is bound; the candidates it offers are still one
+            // block's expansions, which is the rule this module rests on.
+            let bound;
+            let name_parts = match exists.scope(crate::resolve::ItemRef::new(doc_idx, item_idx)) {
+                Some(scope) if scope.matches.is_empty() => continue,
+                Some(scope) => {
+                    bound = scope.bindings(name_parts);
+                    &bound
+                }
+                None => name_parts,
             };
             if body.keep || !is_name_pattern(&substitute_name_parts(&name.display(), name_parts)) {
                 continue;
@@ -266,7 +283,8 @@ mod tests {
         let docs = vec![&doc];
         let name_parts = crate::document::collect_name_parts(&docs);
         let aliases = AliasMap::collect(&docs, &name_parts);
-        implicit_merges(&docs, &name_parts, &aliases)
+        let (exists, _) = crate::exists::resolve_scopes(&docs, &name_parts, &aliases);
+        implicit_merges(&docs, &name_parts, &aliases, &exists)
     }
 
     fn pairs(merges: &[(String, String)]) -> Vec<(&str, &str)> {

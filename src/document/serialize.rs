@@ -458,6 +458,11 @@ impl DocumentItem {
     pub fn serialize_line(&self) -> Option<String> {
         use crate::document_io::quote_token;
         match self {
+            DocumentItem::Exists { pattern, comment } => Some(format!(
+                "exists {}{}",
+                quote_token(pattern),
+                serialize_comment_suffix(comment),
+            )),
             DocumentItem::NameParts {
                 slices,
                 name,

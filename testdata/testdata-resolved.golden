@@ -11,7 +11,15 @@ composite	2x2	s1	63e21525bb202e5e
 dieresis	2x1	s1	37eb7d7b1cf1c3c9	
 dup	2x1	s1	37eb7d7b1cf1c3c9	
 empty-body	0x0	s1	3787a04b920c6778	
+ex-4e00	4x2	s1	ee00bdcb786c8759	
+ex-4e00:15x16	2x2	s1	63e21525bb202e5e	
+ex-4e01	4x2	s1	ee00bdcb786c8759	
+ex-4e01:15x16	2x2	s1	63e21525bb202e5e	
+ex-4e02	4x2	s1	ee00bdcb786c8759	
+ex-4e02-k:15x16	2x2	s1	63e21525bb202e5e	
+ex-4e02:15x16	2x2	s1	63e21525bb202e5e	
 ok	2x2	s1	63e21525bb202e5e	
+orphaned-$1	1x1	s1	95d19b514f8f970d	
 p	2x1	s1	37eb7d7b1cf1c3c9	
 pat-0	2x1	s1	9b0d8ed6bebe7c4c	
 pat-1	2x1	s1	9b0d8ed6bebe7c4c	

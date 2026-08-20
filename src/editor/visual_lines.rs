@@ -475,6 +475,7 @@ pub(crate) fn build_visual_lines(
             | DocumentItem::Slice { .. }
             | DocumentItem::Meta(_)
             | DocumentItem::Audit(_)
+            | DocumentItem::Exists { .. }
             | DocumentItem::Map { .. }
             | DocumentItem::NameParts { .. }
             | DocumentItem::Remap { .. }
@@ -869,6 +870,51 @@ mod tests {
             &font_id,
         );
         assert!(vlines[0].error_spans.is_empty());
+        assert_eq!(vlines[1].error_spans.len(), 1);
+    }
+
+    /// `ref ($0)` under an `exists` names whatever the search matched, which is
+    /// not knowable from the line — so it is not underlined as undefined. The
+    /// plain ref beside it still is.
+    #[test]
+    fn a_capture_ref_carries_no_undefined_span() {
+        let ctx = test_ctx();
+        let font_id = egui::FontId::monospace(16.0);
+        let lines = vec![
+            DocLine::Text("ref ($0)".into()),
+            DocLine::Text("ref beta".into()),
+        ];
+        let gref = |name: &str| GlyphRef {
+            raw_name: None,
+            name: name.into(),
+            offset: None,
+            negated: false,
+            inherit: false,
+            if_exists: false,
+            fill: None,
+            visibility: None,
+            comment: None,
+        };
+        let refs = vec![gref("($0)"), gref("beta")];
+        let named_glyphs = HashMap::new();
+        let name_parts = NamePartsMap::default();
+        let mut cur = 0usize;
+        let vlines = build_ref_vlines(
+            &lines,
+            &refs,
+            &mut cur,
+            &named_glyphs,
+            &name_parts,
+            &|_| egui::Color32::WHITE,
+            None,
+            &ctx,
+            &font_id,
+        );
+        assert!(
+            vlines[0].error_spans.is_empty(),
+            "{:?}",
+            vlines[0].error_spans
+        );
         assert_eq!(vlines[1].error_spans.len(), 1);
     }
 

@@ -50,8 +50,8 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
     let glyph_exists =
         |name: &str| crate::render::ttf_builder::glyph_name_exists(name, all_glyph_names, aliases);
 
-    for doc in docs {
-        for (item_idx, item) in doc.items.iter().enumerate() {
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in cx.source_items(doc_idx) {
             match item {
                 // A variation sequence maps no codepoint on its own, so it
                 // neither duplicates nor conflicts with a plain mapping of the

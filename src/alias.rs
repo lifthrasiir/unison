@@ -170,9 +170,13 @@ impl AliasMap {
     /// glyphs a shaper produced. Validation reads the same map through the
     /// expansion. What reports against a written line uses
     /// [`decls`](Self::decls), which an implicit merge never joins.
-    pub fn collect_with_merges(docs: &[&Document], name_parts: &NamePartsMap) -> Self {
+    pub fn collect_with_merges(
+        docs: &[&Document],
+        name_parts: &NamePartsMap,
+        exists: &crate::exists::ExistsScopes,
+    ) -> Self {
         let mut aliases = Self::collect(docs, name_parts);
-        let merges = crate::merge::implicit_merges(docs, name_parts, &aliases);
+        let merges = crate::merge::implicit_merges(docs, name_parts, &aliases, exists);
         // Declared first: `glyph A = B` is what the author wrote, and an
         // implicit merge is only ever a second opinion about the same name.
         for (name, target) in merges {
@@ -322,7 +326,12 @@ mod tests {
         let doc = parse_document_from_str(src, "t.unf".into()).unwrap();
         let docs = vec![&doc];
         let name_parts = crate::document::collect_name_parts(&docs);
-        AliasMap::collect_with_merges(&docs, &name_parts)
+        let (exists, _) = crate::exists::resolve_scopes(
+            &docs,
+            &name_parts,
+            &AliasMap::collect(&docs, &name_parts),
+        );
+        AliasMap::collect_with_merges(&docs, &name_parts, &exists)
     }
 
     /// The glyph a name stands for, as every consumer sees it: the name itself

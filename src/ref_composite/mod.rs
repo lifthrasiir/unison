@@ -796,6 +796,13 @@ pub fn is_ref_valid(
     if crate::on_demand::parse_on_demand_glyph(name).is_some() {
         return true;
     }
+    // `ref ($0)` under an `exists` names what the search matched. Nothing on
+    // the line says what that is, so it is valid here and answered where the
+    // search is — [`crate::exists`]. The editor asks this while typing, before
+    // any search has run, which is why the test is on the text.
+    if crate::exists::mentions_capture(name) {
+        return true;
+    }
     let subst = substitute_name_parts(name, name_parts);
     if named_glyphs.contains_key(&subst) {
         return true;

@@ -11,6 +11,7 @@ mod document_io;
 mod edit_menu;
 #[cfg(feature = "editor")]
 mod editor;
+mod exists;
 mod faces;
 mod fix;
 mod glyph_flags;

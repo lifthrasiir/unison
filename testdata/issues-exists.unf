@@ -1,0 +1,37 @@
+// `exists` — a search over the declared names that states what to build for
+// each match, plus the ways one can be wrong. See `src/exists.rs`.
+
+glyph ex-4e00:15x16 2 2
+@@@@
+@@@@
+glyph ex-4e01:15x16 2 2
+@@@@
+@@@@
+glyph ex-4e02-k:15x16 2 2
+@@@@
+@@@@
+glyph ex-4e02:15x16 = ex-4e02-k:15x16
+
+// The case the directive is for: one base glyph per variant that was drawn,
+// and the code point computed from the name rather than claimed by range.
+exists ex-([0-9a-f]{4,5}):15x16
+glyph ex-($1) 4 2 advance 4
+ref ($0) 1 0
+
+exists ex-([0-9a-f]{4,5}):15x16
+map U+($1) = ex-($1)
+
+// A search that finds nothing: not an error, but worth saying, because the
+// pattern that matches nothing looks exactly like the one that works.
+exists nothing-([0-9]+)
+glyph made-($1) 1 1
+ref ($0)
+
+// The scope is the next line and only the next line.
+exists ex-([0-9a-f]{4,5}):15x16
+
+glyph orphaned-($1) 1 1
+
+// An unparsable pattern, which also silences the line it scoped.
+exists ex-(
+glyph unbuilt-($1) 1 1

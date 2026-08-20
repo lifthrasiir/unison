@@ -108,6 +108,41 @@ audit ideal-clearance han-* 0 1 // the band every han glyph is held to
     assert_eq!(String::from_utf8(output).unwrap(), input);
 }
 
+/// `exists` is one token — a regex — and it binds the item on the next line by
+/// adjacency, so the scoped `glyph` block round-trips as an ordinary one.
+#[test]
+fn exists_lines_round_trip() {
+    let input = "\
+exists han-([0-9a-f]{4,5}):15x16 // wherever a 15x16 han was drawn
+glyph han-($1) 16 16 advance 16
+ref ($0)
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Exists { pattern, comment }
+            if pattern == "han-([0-9a-f]{4,5}):15x16"
+                && comment.as_deref() == Some("wherever a 15x16 han was drawn")),
+        "expected an Exists item, got {:?}",
+        doc.items[0],
+    );
+    assert!(matches!(&doc.items[1], DocumentItem::Glyph { .. }));
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+/// A second token is neither a flag nor a second pattern, so the line stays an
+/// unrecognized directive for `issues` to report — and round-trips verbatim.
+#[test]
+fn an_exists_with_extra_tokens_is_not_an_exists_item() {
+    let input = "exists han-(x) han-(y)\n";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(matches!(&doc.items[0], DocumentItem::Directive(_)));
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
 /// The face/slice grammar, through a parse/serialize round trip. A qualifier is
 /// `SLICE :` in front of what the line already said, so the unqualified form
 /// keeps parsing exactly as before.

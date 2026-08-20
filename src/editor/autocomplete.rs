@@ -729,6 +729,7 @@ fn collect_candidates(
                 "feature",
                 "meta",
                 "audit",
+                "exists",
                 "face",
                 "slice",
                 "exclude-from-sample",
