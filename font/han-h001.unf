@@ -3,7 +3,7 @@
 ## 9.9
 
 glyph han-313bc:15x16 15 16 // 𱎼
-⿰ -2 han-4ebb:15x16 -7 han-9769:9x16 // ⿰亻革
+⿰ han-4ebb:5x16 1 han-9769:9x16 // ⿰亻革
 
 # CJK unified ideographs extension H: 力 (19)
 
@@ -27,4 +27,4 @@ glyph han-315cb:15x16 15 16 // 𱗋
 ## 32.10
 
 glyph han-315de:15x16 15 16 // 𱗞
-⿰ han-571f:3x16-l -1 han-9aa8:15x16 // ⿰土骨
+⿰ han-571f:5x16-l 1 han-9aa8:9x16 // ⿰土骨

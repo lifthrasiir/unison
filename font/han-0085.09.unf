@@ -26,7 +26,7 @@ glyph han-6ea4:15x16 15 16 // 溤
 ⿰ han-6c35:5x16 1 han-99ac:9x16 // ⿰氵馬
 
 glyph han-6ec8:15x16 15 16 // 滈
-⿰ han-6c35:3x16 -1 han-9ad8:15x16 // ⿰氵高
+⿰ han-6c35:5x16 1 han-9ad8:9x16 // ⿰氵高
 
 glyph han-6ed1:15x16 15 16 // 滑
 ⿰ han-6c35:5x16 han-9aa8:9x16 // ⿰氵骨
@@ -61,7 +61,7 @@ glyph han-6fe1:15x16 15 16 // 濡
 ## 85.17
 
 glyph han-703c:15x16 15 16 // 瀼
-⿰ han-6c35:5x16 han-8944:9x16 // ⿰氵襄
+⿰ han-6c35:5x16 1 han-8944:9x16 // ⿰氵襄
 
 ## 85.18
 

@@ -3,7 +3,7 @@
 ## 9.7
 
 glyph han-2b89e:15x16 15 16 // 𫢞
-⿰ -2 han-4ebb:15x16 -7 han-9149:9x16 // ⿰亻酉
+⿰ han-4ebb:5x16 1 han-9149:9x16 // ⿰亻酉
 
 ## 9.16
 
@@ -39,14 +39,14 @@ glyph han-2b9c2:15x16 15 16 // 𫧂
 ## 30.6
 
 glyph han-2ba6e:15x16 15 16 // 𫩮
-⿰ -3 han-53e3:15x16 -2 han-866b:5x16 // ⿰口虫
+⿰ han-53e3:7x16 1 han-866b:7x16 // ⿰口虫
 
 # CJK unified ideographs extension E: 土 (32)
 
 ## 32.3
 
 glyph han-2bb59:15x16 15 16 // 𫭙
-⿰ han-571f:5x16-l -2 han-53e3:15x16 // ⿰土口
+⿰ han-571f:7x16 1 han-53e3:7x16 // ⿰土口
 
 ## 32.8
 

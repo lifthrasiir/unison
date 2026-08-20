@@ -3,7 +3,7 @@
 ## 46.2
 
 glyph han-21d35:15x16 15 16 // 𡴵
-⿰ han-5c71:5x16-l han-4e01:9x16 // ⿰山丁
+⿰ han-5c71:5x16-l 1 han-4e01:9x16 // ⿰山丁
 
 glyph han-21d3d:15x16 15 16 // 𡴽
 ⿰ han-5c71:5x16-l 2 han-529b:8x16 // ⿰山力

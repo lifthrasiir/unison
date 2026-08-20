@@ -126,17 +126,17 @@ glyph han-4863:15x16 15 16 // 䡣
 ## 163.4
 
 glyph han-48b6:15x16 15 16 // 䢶
-⿰ han-6728:9x16 2 han-961d:4x16 // ⿰木阝
+⿰ han-6728:9x16 2 han-961d:4x16-r // ⿰木阝
 
 ## 163.5
 
 glyph han-48b8:15x16 15 16 // 䢸
-⿰ 1 han-4e14:8x16 1 han-961d:4x16 // ⿰且阝
+⿰ 1 han-4e14:8x16 1 han-961d:4x16-r // ⿰且阝
 
 ## 163.10
 
 glyph han-48d5:15x16 15 16 // 䣕
-⿰ han-99ac:9x16 1 han-961d:4x16 // ⿰馬阝
+⿰ han-99ac:9x16 1 han-961d:4x16-r // ⿰馬阝
 
 # CJK unified ideographs extension A: 酉 (164)
 
@@ -168,7 +168,7 @@ glyph han-4905:15x16 15 16 // 䤅
 ## 170.2
 
 glyph han-49ba:15x16 15 16 // 䦺
-⿰ han-961d:4x16 1 han-4e01:9x16 // ⿰阝丁
+⿰ han-961d:4x16-r 2 han-4e01:9x16 // ⿰阝丁
 
 ## 170.5
 
@@ -189,7 +189,7 @@ glyph han-49ca:15x16 15 16 // 䧊
 ⿰ 1 han-961d:4x16-l 1 han-544a:8x16 // ⿰阝告
 
 glyph han-49cb:15x16 15 16 // 䧋
-⿰ 1 han-961d:4x16-l 1 han-898b:8x16 // ⿰阝見
+⿰ 1 han-961d:4x16-r 1 han-898b:8x16 // ⿰阝見
 
 ## 170.8
 

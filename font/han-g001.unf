@@ -3,7 +3,7 @@
 ## 9.7
 
 glyph han-30087:15x16 15 16 // 𰂇
-⿰ -1 han-4ebb:15x16 -6 han-8c9d:6x16 // ⿰亻貝
+⿰ 1 han-4ebb:5x16 2 han-8c9d:6x16 // ⿰亻貝
 
 # CJK unified ideographs extension G: 口 (30)
 
@@ -29,9 +29,9 @@ glyph han-302f6:15x16 15 16 // 𰋶
 ## 38.4
 
 glyph han-302fa:15x16 15 16 // 𰋺
-⿰ han-5973:5x16 1 han-706b:9x16 // ⿰女火
+⿰ han-5973:5x16-l 1 han-706b:9x16 // ⿰女火
 
 ## 38.10
 
 glyph han-3030f:15x16 15 16 // 𰌏
-⿰ han-5973:5x16 1 han-9aa8:9x16 // ⿰女骨
+⿰ han-5973:5x16-l 1 han-9aa8:9x16 // ⿰女骨

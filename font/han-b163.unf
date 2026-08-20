@@ -3,75 +3,75 @@
 ## 163.3
 
 glyph han-2866b:15x16 15 16 // 𨙫
-⿰ -3 han-53e3:15x16 -2 han-961d:4x16 // ⿰口阝
+⿰ 1 han-53e3:7x16 2 han-961d:4x16-r // ⿰口阝
 
 glyph han-2866d:15x16 15 16 // 𨙭
-⿰ han-571f:9x16 2 han-961d:4x16 // ⿰土阝
+⿰ han-571f:9x16 2 han-961d:4x16-r // ⿰土阝
 
 glyph han-28670:15x16 15 16 // 𨙰
-⿰ 2 han-624c:5x16 2 han-961d:4x16 // ⿰扌阝
+⿰ 2 han-624c:5x16 2 han-961d:4x16-r // ⿰扌阝
 
 ## 163.4
 
 glyph han-2867d:15x16 15 16 // 𨙽
-⿰ 1 han-4eca:7x16 2 han-961d:4x16 // ⿰今阝
+⿰ 1 han-4eca:7x16 2 han-961d:4x16-r // ⿰今阝
 
 ## 163.5
 
 glyph han-28694:15x16 15 16 // 𨚔
-⿰ 1 han-5305:7x16 2 han-961d:4x16 // ⿰包阝
+⿰ 1 han-5305:7x16 2 han-961d:4x16-r // ⿰包阝
 
 glyph han-286a9:15x16 15 16 // 𨚩
-⿰ han-53ef:10x16 1 han-961d:4x16 // ⿰可阝
+⿰ han-53ef:10x16 1 han-961d:4x16-r // ⿰可阝
 
 glyph han-286ae:15x16 15 16 // 𨚮
-⿰ han-767d:8x16 2 han-961d:4x16 // ⿰白阝
+⿰ han-767d:8x16 2 han-961d:4x16-r // ⿰白阝
 
 ## 163.6
 
 glyph han-286af:15x16 15 16 // 𨚯
-⿰ -3 han-540c:15x16 -2 han-961d:4x16 // ⿰同阝
+⿰ han-540c:8x16 2 han-961d:4x16-r // ⿰同阝
 
 glyph han-286c1:15x16 15 16 // 𨛁
-⿰ han-7f8a:9x16 2 han-961d:4x16 // ⿰羊阝
+⿰ han-7f8a:9x16 2 han-961d:4x16-r // ⿰羊阝
 
 ## 163.7
 
 glyph han-286cd:15x16 15 16 // 𨛍
-⿰ 1 han-8096:7x16 2 han-961d:4x16 // ⿰肖阝
+⿰ 1 han-8096:7x16 2 han-961d:4x16-r // ⿰肖阝
 
 glyph han-286d0:15x16 15 16 // 𨛐
-⿰ 1 han-590b:7x16 2 han-961d:4x16 // ⿰夋阝
+⿰ 1 han-590b:7x16 2 han-961d:4x16-r // ⿰夋阝
 
 glyph han-286e9:15x16 15 16 // 𨛩
-⿰ han-8eca:9x16 2 han-961d:4x16 // ⿰車阝
+⿰ han-8eca:9x16 2 han-961d:4x16-r // ⿰車阝
 
 ## 163.8
 
 glyph han-286fa:15x16 15 16 // 𨛺
-⿰ han-5176:9x16 2 han-961d:4x16 // ⿰其阝
+⿰ han-5176:9x16 2 han-961d:4x16-r // ⿰其阝
 
 ## 163.11
 
 glyph han-28753:15x16 15 16 // 𨝓
-⿰ 1 han-7968:7x16 2 han-961d:4x16 // ⿰票阝
+⿰ 1 han-7968:7x16 2 han-961d:4x16-r // ⿰票阝
 
 ## 163.12
 
 glyph han-28770:15x16 15 16 // 𨝰
-⿰ han-55ac:9x16 1 han-961d:4x16 // ⿰喬阝
+⿰ han-55ac:9x16 1 han-961d:4x16-r // ⿰喬阝
 
 ## 163.17
 
 glyph han-287da:15x16 15 16 // 𨟚
-⿰ han-8944:9x16 1 han-961d:4x16 // ⿰襄阝
+⿰ han-8944:9x16 1 han-961d:4x16-r // ⿰襄阝
 
 # CJK unified ideographs extension B: 酉 (164)
 
 ## 164.3
 
 glyph han-287f0:15x16 15 16 // 𨟰
-⿰ han-9149:9x16 2 han-961d:4x16 // ⿰酉阝
+⿰ han-9149:9x16 2 han-961d:4x16-r // ⿰酉阝
 
 ## 164.4
 

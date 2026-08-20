@@ -49,7 +49,7 @@ glyph han-24f9b:15x16 15 16 // 𤾛
 ## 107.2
 
 glyph han-24fc6:15x16 15 16 // 𤿆
-⿰ -1 han-76ae:9x16 han-4e01:7x16 // ⿰皮丁
+⿰ han-76ae:9x16 -1 han-4e01:7x16 // ⿰皮丁
 
 ## 107.3
 
@@ -68,7 +68,7 @@ glyph han-24fd8:15x16 15 16 // 𤿘
 ⿰ han-53ec:6x16 han-76ae:9x16 // ⿰召皮
 
 glyph han-24fda:15x16 15 16 // 𤿚
-⿰ -2 han-4e14:7x16 1 han-76ae:9x16 // ⿰且皮
+⿰ -1 han-4e14:7x16 han-76ae:9x16 // ⿰且皮
 
 glyph han-24fdd:15x16 15 16 // 𤿝
 ⿰ han-5360:5x16 1 han-76ae:9x16 // ⿰占皮
