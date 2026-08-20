@@ -1509,6 +1509,35 @@ impl fmt::Display for DeriveError {
 
 impl std::error::Error for DeriveError {}
 
+/// The keywords that begin a top-level item, as [`derive_document`] dispatches
+/// on them.
+///
+/// A line starting with one of these ends whatever block came before it; a line
+/// starting with anything else — `ref`, `anchor`, an IDC operator, a pixel row —
+/// belongs to the glyph block above. The editor's text-only passes (search,
+/// navigation) need that boundary without parsing the file, so it is stated
+/// here, beside the dispatch it has to agree with, rather than re-listed there.
+pub fn starts_item(token: &str) -> bool {
+    matches!(
+        token,
+        "meta"
+            | "audit"
+            | "exclude-from-sample"
+            | "assume"
+            | "map"
+            | "glyph"
+            | "name-parts"
+            | "remap"
+            | "feature"
+            | "assert"
+            | "face"
+            | "slice"
+            | "prop"
+            | "exists"
+            | "color"
+    )
+}
+
 pub fn derive_document(
     lines: &[DocLine],
     path: std::path::PathBuf,

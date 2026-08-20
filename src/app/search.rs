@@ -94,6 +94,20 @@ const GLYPH_NAME_KEYWORDS: [&str; 7] = [
 /// over every pixel row: `(`, `|` and `*` are all *shape codes* too, so a
 /// metacharacter alone says nothing, and only a line whose first token is a
 /// keyword that names a glyph can be a pattern.
+/// Whether `text` could write a `$N` capture slot on a line an `exists`
+/// governs.
+///
+/// The filter beside [`may_write_a_pattern`] rather than folded into it: that
+/// one asks whether a line *is* a pattern, which a scoped line need not be —
+/// `ref ($0)` is, but the question is asked of every body line of the block,
+/// pixel rows included, and `$` is not a pixel code. So this is the same shape
+/// of cheap rejection and stays as cheap.
+pub(super) fn may_write_a_capture(text: &str) -> bool {
+    text.as_bytes()
+        .windows(2)
+        .any(|w| w[0] == b'$' && w[1].is_ascii_digit())
+}
+
 pub(super) fn may_write_a_pattern(text: &str) -> bool {
     text.lines().any(|line| {
         let line = line.trim_start();
@@ -141,17 +155,22 @@ pub(super) struct MatchSpan {
 ///
 /// `at_base` is the `@` base in force on this line — see
 /// [`crate::document::at_base_at_line`] for the rule, which the walkers below
-/// carry along as they go rather than re-deriving per line.
+/// carry along as they go rather than re-deriving per line. `exists` is the
+/// search in force, carried the same way ([`crate::exists::Carry`]): a `($1)`
+/// on a scoped line names what that search matched, and nothing on the line
+/// itself says so.
 pub(super) fn match_spans(
     line: &str,
     name: &str,
     kind: LinkTargetKind,
     at_base: Option<&str>,
+    exists: Option<&str>,
     name_parts: &NamePartsMap,
 ) -> Vec<MatchSpan> {
     let at_possible =
         kind == LinkTargetKind::Glyph && at_base.is_some() && may_write_an_at_name(line);
-    let pattern_possible = kind == LinkTargetKind::Glyph && may_write_a_pattern(line);
+    let pattern_possible = kind == LinkTargetKind::Glyph
+        && (may_write_a_pattern(line) || (exists.is_some() && may_write_a_capture(line)));
     if !line.contains(name) && !at_possible && !pattern_possible {
         return Vec::new();
     }
@@ -186,7 +205,9 @@ pub(super) fn match_spans(
                 if matches!(f.role, FieldRole::GlyphDef | FieldRole::GlyphRef) {
                     let is_def = f.role == FieldRole::GlyphDef;
                     let written = crate::document::expand_at_name(&f.token, at_base);
-                    if written == name || pattern_denotes(&written, is_def, name, name_parts) {
+                    if written == name
+                        || pattern_denotes(&written, is_def, name, name_parts, exists)
+                    {
                         cols.push(span(&f, is_def));
                     }
                 }
@@ -248,12 +269,26 @@ fn hits_in_doclines(
 ) -> Vec<(usize, MatchSpan)> {
     let mut hits = Vec::new();
     let mut at_base: Option<String> = None;
+    let mut exists = crate::exists::Carry::default();
     for (i, line) in lines.iter().enumerate() {
+        // A pixel row carries no name but is still inside the block an `exists`
+        // governs, so the carry has to see it — otherwise a `ref ($0)` written
+        // under a grid would read as ungoverned.
+        // A pixel row is inside the block and changes nothing, so it is not
+        // stepped — see `Carry::enter`.
         let DocLine::Text(text) = line else { continue };
+        exists.enter(text);
         hits.extend(
-            match_spans(text, name, kind, at_base.as_deref(), name_parts)
-                .into_iter()
-                .map(|s| (i, s)),
+            match_spans(
+                text,
+                name,
+                kind,
+                at_base.as_deref(),
+                exists.pattern(),
+                name_parts,
+            )
+            .into_iter()
+            .map(|s| (i, s)),
         );
         // After matching, never before: a header's own `@` stands for the base
         // that was already in force, exactly as the parser reads it.
@@ -408,12 +443,21 @@ pub(super) fn collect_hits(
                 // the same glyph twice is two rows, and the ordinal has to
                 // agree with `hits_in_doclines` once the file opens.
                 let mut at_base: Option<String> = None;
+                let mut exists = crate::exists::Carry::default();
                 let mut found: Vec<(usize, &str, MatchSpan)> = Vec::new();
                 for (i, text) in content.lines().enumerate() {
+                    exists.enter(text);
                     found.extend(
-                        match_spans(text, name, kind, at_base.as_deref(), name_parts)
-                            .into_iter()
-                            .map(|s| (i, text, s)),
+                        match_spans(
+                            text,
+                            name,
+                            kind,
+                            at_base.as_deref(),
+                            exists.pattern(),
+                            name_parts,
+                        )
+                        .into_iter()
+                        .map(|s| (i, text, s)),
                     );
                     advance_at_base(&mut at_base, text);
                 }
@@ -578,6 +622,78 @@ mod tests {
         );
     }
 
+    /// A name an `exists` block declares is found at the block that declares
+    /// it, though the name occurs nowhere in the file. This is the whole reason
+    /// `match_spans` carries the search along: `glyph han-($1)` says nothing
+    /// about `han-4e00` on its own line.
+    #[test]
+    fn a_name_an_exists_block_declares_is_found_at_the_block() {
+        let src = "glyph han-4e00:15x16 15 16\n\
+                   exists han-([0-9a-f]{4,5}):15x16\n\
+                   glyph han-($1) 16 16 advance 16\n\
+                   ref ($0) 1 0\n";
+        let files = vec![(PathBuf::from("han.unf"), SearchText::Source(src))];
+        let (hits, _) = collect_hits(
+            &files,
+            "han-4e00",
+            LinkTargetKind::Glyph,
+            &NamePartsMap::new(),
+        );
+        assert_eq!(
+            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
+            vec!["glyph han-($1) 16 16 advance 16"],
+        );
+        assert!(hits[0].is_decl);
+    }
+
+    /// And the `ref` inside that block is a *use* of what the search matched,
+    /// which is why the carry outlives the header line.
+    #[test]
+    fn a_capture_ref_is_a_use_of_the_name_the_search_matched() {
+        let src = "glyph han-4e00:15x16 15 16\n\
+                   exists han-([0-9a-f]{4,5}):15x16\n\
+                   glyph han-($1) 16 16 advance 16\n\
+                   ref ($0) 1 0\n";
+        let files = vec![(PathBuf::from("han.unf"), SearchText::Source(src))];
+        let (hits, _) = collect_hits(
+            &files,
+            "han-4e00:15x16",
+            LinkTargetKind::Glyph,
+            &NamePartsMap::new(),
+        );
+        assert_eq!(
+            hits.iter()
+                .map(|h| (h.text.as_str(), h.is_decl))
+                .collect::<Vec<_>>(),
+            vec![
+                ("glyph han-4e00:15x16 15 16", true),
+                ("ref ($0) 1 0", false)
+            ],
+        );
+    }
+
+    /// The carry ends where the block does: a `$1` under the *next* block is
+    /// not the previous search's.
+    #[test]
+    fn the_search_does_not_reach_past_the_block_it_governs() {
+        let src = "exists han-([0-9a-f]{4,5}):15x16\n\
+                   glyph han-($1) 16 16\n\
+                   ref ($0) 1 0\n\
+                   glyph other-($1) 8 16\n";
+        let files = vec![(PathBuf::from("han.unf"), SearchText::Source(src))];
+        let (hits, _) = collect_hits(
+            &files,
+            "other-4e00",
+            LinkTargetKind::Glyph,
+            &NamePartsMap::new(),
+        );
+        assert!(
+            hits.is_empty(),
+            "{:?}",
+            hits.iter().map(|h| h.text.as_str()).collect::<Vec<_>>(),
+        );
+    }
+
     /// A path the snapshot has no source for contributes nothing rather than
     /// sending the search back to disk for it.
     #[test]
@@ -596,7 +712,7 @@ mod tests {
     }
 
     fn cols_with(line: &str, name: &str, kind: LinkTargetKind, parts: &NamePartsMap) -> Vec<usize> {
-        match_spans(line, name, kind, None, parts)
+        match_spans(line, name, kind, None, None, parts)
             .into_iter()
             .map(|s| s.col_start)
             .collect()
@@ -707,6 +823,7 @@ mod tests {
             line,
             "foo",
             LinkTargetKind::Glyph,
+            None,
             None,
             &NamePartsMap::new(),
         )[0];
@@ -870,6 +987,7 @@ mod tests {
             "foo",
             LinkTargetKind::Glyph,
             None,
+            None,
             &NamePartsMap::new(),
         )[0];
         let h = hit(std::path::Path::new("a.unf"), 0, 3, line, span);
@@ -902,7 +1020,7 @@ mod tests {
                 "$init",
             ),
         ] {
-            let span = *match_spans(line, name, kind, None, &NamePartsMap::new())
+            let span = *match_spans(line, name, kind, None, None, &NamePartsMap::new())
                 .first()
                 .unwrap_or_else(|| panic!("no match in {line:?}"));
             let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
@@ -918,6 +1036,7 @@ mod tests {
             line,
             "foo",
             LinkTargetKind::Glyph,
+            None,
             None,
             &NamePartsMap::new(),
         );

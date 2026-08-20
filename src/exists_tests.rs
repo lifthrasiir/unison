@@ -448,3 +448,126 @@ glyph made-($1) 1 1
         "expected a scope error, got {errs:?}"
     );
 }
+
+// --- Search and navigation ----------------------------------------------
+
+#[test]
+fn a_template_denotes_the_names_its_search_could_produce() {
+    let p = "han-([0-9a-f]{4,5}):15x16";
+    assert_eq!(template_denotes(p, "han-($1)", "han-4e00"), Some(true));
+    assert_eq!(template_denotes(p, "han-($1)", "han-20000"), Some(true));
+    // The variant the search reads, not the glyph the header declares.
+    assert_eq!(
+        template_denotes(p, "han-($1)", "han-4e00:15x16"),
+        Some(false)
+    );
+    // Outside what the capture can hold.
+    assert_eq!(template_denotes(p, "han-($1)", "han-zzzz"), Some(false));
+    assert_eq!(template_denotes(p, "han-($1)", "kana-4e00"), Some(false));
+    // The literal text around the slot is literal, `.` included.
+    assert_eq!(
+        template_denotes(p, "han-($1).alt", "han-4e00.alt"),
+        Some(true)
+    );
+    assert_eq!(
+        template_denotes(p, "han-($1).alt", "han-4e00xalt"),
+        Some(false)
+    );
+}
+
+#[test]
+fn capture_zero_denotes_the_whole_matched_name() {
+    let p = "han-([0-9a-f]{4,5}):15x16";
+    assert_eq!(
+        template_denotes(p, "copy-($0)", "copy-han-4e00:15x16"),
+        Some(true)
+    );
+    assert_eq!(
+        template_denotes(p, "copy-($0)", "copy-han-4e00"),
+        Some(false)
+    );
+}
+
+#[test]
+fn slots_are_numbered_by_the_groups_the_author_counted() {
+    let p = "([a-z]+)-([0-9]+)";
+    assert_eq!(template_denotes(p, "x-($2)-($1)", "x-12-ab"), Some(true));
+    assert_eq!(template_denotes(p, "x-($2)-($1)", "x-ab-12"), Some(false));
+    // A slot the pattern has no group for is no test at all.
+    assert_eq!(template_denotes(p, "x-($3)", "x-1"), None);
+}
+
+#[test]
+fn a_pattern_that_is_not_a_pattern_denotes_nothing() {
+    assert_eq!(template_denotes("han-(", "han-($1)", "han-4e00"), None);
+    assert_eq!(template_denotes("han-(.)", "han-($1)", "han-4e00"), None);
+}
+
+#[test]
+fn an_exists_line_is_recognized_by_its_text() {
+    assert_eq!(
+        pattern_on_line("exists han-([0-9a-f]{4,5}):15x16"),
+        Some("han-([0-9a-f]{4,5}):15x16".to_string()),
+    );
+    assert_eq!(pattern_on_line("  exists a-(x)"), Some("a-(x)".to_string()));
+    assert_eq!(pattern_on_line("glyph a 1 1"), None);
+    assert_eq!(pattern_on_line("exists a b"), None);
+    assert_eq!(pattern_on_line("existsx a"), None);
+}
+
+/// The carry steps onto each line before it is read, so a line that starts the
+/// next item is already ungoverned when its own names are looked at.
+#[test]
+fn the_carry_covers_the_block_and_stops_at_the_next_item() {
+    let lines = [
+        "glyph other 8 16",
+        "exists han-(x)",
+        "glyph han-($1) 16 16",
+        "ref ($0) 1 0",
+        "anchor top 0 0",
+        "glyph next-($1) 8 16",
+    ];
+    let mut carry = Carry::default();
+    let seen: Vec<Option<String>> = lines
+        .iter()
+        .map(|l| {
+            carry.enter(l);
+            carry.pattern().map(str::to_string)
+        })
+        .collect();
+    let p = || Some("han-(x)".to_string());
+    assert_eq!(seen, [None, p(), p(), p(), p(), None]);
+}
+
+/// A `map` is one line, so the carry is over after it.
+#[test]
+fn the_carry_over_a_map_lasts_one_line() {
+    let lines = ["exists han-(x)", "map U+($1) = han-($1)", "map U+0041 = a"];
+    let mut carry = Carry::default();
+    let seen: Vec<Option<String>> = lines
+        .iter()
+        .map(|l| {
+            carry.enter(l);
+            carry.pattern().map(str::to_string)
+        })
+        .collect();
+    assert_eq!(
+        seen,
+        [
+            Some("han-(x)".to_string()),
+            Some("han-(x)".to_string()),
+            None
+        ]
+    );
+}
+
+/// A blank line ends the block, which is the same rule that makes a blank line
+/// below an `exists` an error rather than a wider reach.
+#[test]
+fn a_blank_line_ends_the_carry() {
+    let mut carry = Carry::default();
+    for line in ["exists han-(x)", "glyph han-($1) 8 16", ""] {
+        carry.enter(line);
+    }
+    assert_eq!(carry, Carry::None);
+}

@@ -24,9 +24,24 @@ use crate::pattern::NamePattern;
 /// literally. That is the same map every other editor feature reads
 /// (`app/resize.rs`, the derived data in `app/background.rs`), so the search
 /// agrees with them rather than being right on its own.
-pub fn pattern_denotes(token: &str, is_def: bool, name: &str, parts: &NamePartsMap) -> bool {
+///
+/// `exists` is the one context where a token's meaning comes from a *different*
+/// line: `glyph han-($1)` under `exists han-([0-9a-f]{4,5}):15x16` denotes
+/// `han-4e00` and says so nowhere on its own line. `exists` is the pattern in
+/// force there, carried by [`crate::exists::Carry`], and the two are combined
+/// by [`crate::exists::template_denotes`].
+pub fn pattern_denotes(
+    token: &str,
+    is_def: bool,
+    name: &str,
+    parts: &NamePartsMap,
+    exists: Option<&str>,
+) -> bool {
     if !token.contains(['(', '|', '$', '*']) {
         return false;
+    }
+    if let Some(pattern) = exists.filter(|_| crate::exists::mentions_capture(token)) {
+        return crate::exists::template_denotes(pattern, token, name).unwrap_or(false);
     }
     let substituted = crate::document::substitute_name_parts(token, parts);
     if substituted == name {
@@ -379,14 +394,16 @@ pub fn find_link_target_in_doc(
 ) -> Option<usize> {
     match kind {
         LinkTargetKind::Glyph => {
+            let mut exists = crate::exists::Carry::default();
             for (i, line) in lines.iter().enumerate() {
                 if let DocLine::Text(s) = line {
+                    exists.enter(s);
                     let trimmed = s.trim();
                     if let Ok(tokens) = tokenize_tokens(trimmed)
                         && tokens.first().is_some_and(|t| t == "glyph")
-                        && tokens
-                            .get(1)
-                            .is_some_and(|t| t == name || pattern_denotes(t, true, name, parts))
+                        && tokens.get(1).is_some_and(|t| {
+                            t == name || pattern_denotes(t, true, name, parts, exists.pattern())
+                        })
                     {
                         return Some(i);
                     }
@@ -994,6 +1011,37 @@ mod rename_detection_tests {
         // A name the pattern does not cover is still not declared here.
         assert_eq!(
             find_link_target_in_doc(&lines, "han-3400", &LinkTargetKind::Glyph, &parts),
+            None,
+        );
+    }
+
+    /// The same, for a block whose names come from an `exists` above it: the
+    /// header alone says nothing about `han-4e00`, so navigation has to read
+    /// the directive with it.
+    #[test]
+    fn an_exists_block_is_found_as_the_definition_of_what_it_declares() {
+        let lines: Vec<DocLine> = [
+            "glyph latin-a 8 16",
+            "exists han-([0-9a-f]{4,5}):15x16",
+            "glyph han-($1) 16 16 advance 16",
+            "ref ($0) 1 0",
+        ]
+        .iter()
+        .map(|s| DocLine::Text(s.to_string()))
+        .collect();
+        let parts = NamePartsMap::new();
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-4e00", &LinkTargetKind::Glyph, &parts),
+            Some(2),
+        );
+        // The variant the search reads is declared elsewhere, not here.
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-4e00:15x16", &LinkTargetKind::Glyph, &parts),
+            None,
+        );
+        // And a name outside what the capture can hold is not declared here.
+        assert_eq!(
+            find_link_target_in_doc(&lines, "han-zzzz", &LinkTargetKind::Glyph, &parts),
             None,
         );
     }

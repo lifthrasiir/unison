@@ -648,6 +648,110 @@ fn describe_scoped(item: Option<&DocumentItem>) -> &'static str {
     }
 }
 
+/// The pattern of an `exists` line, if `line` is one.
+///
+/// Text, not the item model: the editor's search and navigation read files they
+/// have never parsed — an unopened one comes from the directory snapshot — so
+/// the question has to be answerable from the line as written.
+pub fn pattern_on_line(line: &str) -> Option<String> {
+    let trimmed = line.trim_start();
+    if !trimmed.starts_with("exists") {
+        return None;
+    }
+    let tokens = crate::document_io::tokenize_tokens(trimmed).ok()?;
+    match tokens.as_slice() {
+        [kw, pattern] if kw == "exists" => Some(pattern.clone()),
+        _ => None,
+    }
+}
+
+/// Whether the `glyph` header `template`, governed by `exists pattern`,
+/// declares `name`.
+///
+/// Answered by turning the two written lines into one regular expression: each
+/// `($N)` on the header becomes the sub-pattern of that capture group, and
+/// everything around it becomes a literal. What that regex accepts is exactly
+/// the set of names the header can produce over *all* strings the search could
+/// match — so it is an over-approximation of what this source declares, since
+/// only the names actually drawn are searched.
+///
+/// Over-approximating is the right side to err on here and is what the pattern
+/// form it replaces did too: `glyph han-($#4e00..9fff)` denoted all 21k names to
+/// the search while `ifexists` built a fraction of them. A search that lists a
+/// line which turns out to declare nothing costs a click; one that hides the
+/// only line declaring a name costs the name.
+///
+/// `None` when the two do not combine into a test at all — an unparsable
+/// pattern, or a `$N` past the groups it has.
+pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<bool> {
+    let hir = regex_syntax::parse(pattern).ok()?;
+    if check_subset(&hir).is_err() {
+        return None;
+    }
+    // `$0` is the whole pattern; `$N` is the group the regex parser gave index
+    // `N`, which is the one the author counted opening parentheses to.
+    let mut indexed: Vec<(u32, String)> = Vec::new();
+    collect_capture_sources(&hir, &mut indexed);
+    indexed.sort_by_key(|(i, _)| *i);
+    let mut groups: Vec<String> = vec![hir.to_string()];
+    for (i, src) in indexed {
+        if usize::try_from(i) != Ok(groups.len()) {
+            return None;
+        }
+        groups.push(src);
+    }
+
+    let mut out = String::from(r"\A");
+    let bytes = template.as_bytes();
+    let mut i = 0;
+    let mut literal = String::new();
+    while i < bytes.len() {
+        // `($N)` and a bare `$N` both stand for the slot; the parenthesized
+        // form is what a source writes, since that is where a name pattern puts
+        // an alternation and the slot sits in one.
+        let (slot, width) = match (
+            bytes[i],
+            bytes.get(i + 1),
+            bytes.get(i + 2),
+            bytes.get(i + 3),
+        ) {
+            (b'(', Some(b'$'), Some(d), Some(b')')) if d.is_ascii_digit() => {
+                (usize::from(d - b'0'), 4)
+            }
+            (b'$', Some(d), _, _) if d.is_ascii_digit() => (usize::from(d - b'0'), 2),
+            _ => {
+                literal.push(template[i..].chars().next()?);
+                i += template[i..].chars().next()?.len_utf8();
+                continue;
+            }
+        };
+        out.push_str(&regex::escape(&literal));
+        literal.clear();
+        out.push_str("(?:");
+        out.push_str(groups.get(slot)?);
+        out.push(')');
+        i += width;
+    }
+    out.push_str(&regex::escape(&literal));
+    out.push_str(r"\z");
+    Some(Regex::new(&out).ok()?.is_match(name))
+}
+
+/// Every capture group's own sub-pattern, with the index the parser gave it.
+fn collect_capture_sources(hir: &Hir, out: &mut Vec<(u32, String)>) {
+    match hir.kind() {
+        HirKind::Capture(cap) => {
+            out.push((cap.index, cap.sub.to_string()));
+            collect_capture_sources(&cap.sub, out);
+        }
+        HirKind::Repetition(rep) => collect_capture_sources(&rep.sub, out),
+        HirKind::Concat(subs) | HirKind::Alternation(subs) => {
+            subs.iter().for_each(|h| collect_capture_sources(h, out))
+        }
+        _ => {}
+    }
+}
+
 /// Whether a written name mentions a capture slot (`$0`…`$9`), and so names
 /// whatever the `exists` above it matched rather than a glyph of its own.
 ///
@@ -711,4 +815,64 @@ pub fn eval_codepoint(spec: &str, caps: &[String]) -> Result<String, String> {
         .filter(|cp| char::from_u32(*cp).is_some())
         .ok_or_else(|| format!("`{spec}`: {base:X}+{offset:X} is not a Unicode code point"))?;
     Ok(format!("U+{cp:04X}"))
+}
+
+/// How far an `exists` reaches down a file, carried one source line at a time.
+///
+/// The scope is one item, but an item is several *lines* — a `glyph` block's
+/// `ref`, IDC and pixel rows all belong to it, and `ref ($0)` is where the
+/// search's own matches are named. So the carry is a small state machine rather
+/// than a flag, stepped *before* each line is read: what governs a line has to
+/// be known while reading it, and whether the block ended is decided by the
+/// line itself ([`crate::document_io::starts_item`]).
+///
+/// Text again, not the item model, for the reason [`pattern_on_line`] is.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub enum Carry {
+    #[default]
+    None,
+    /// The previous line was the directive; the line being entered is the one
+    /// it governs, and it is not yet known whether that is a block or a line.
+    Armed(String),
+    /// A `map`: governed for this line and no further.
+    Once(String),
+    /// Inside the `glyph` block it governs.
+    Body(String),
+}
+
+impl Carry {
+    /// The pattern in force on the line just entered.
+    pub fn pattern(&self) -> Option<&str> {
+        match self {
+            Carry::None => None,
+            Carry::Armed(p) | Carry::Once(p) | Carry::Body(p) => Some(p),
+        }
+    }
+
+    /// Step onto `line`, which is about to be read.
+    ///
+    /// A pixel row need not be stepped and must not be stepped as a blank one:
+    /// it is inside the block, and it is neither a directive nor the start of
+    /// the next item, so the state it would pass through is the state it is in.
+    pub fn enter(&mut self, line: &str) {
+        if let Some(pattern) = pattern_on_line(line) {
+            *self = Carry::Armed(pattern);
+            return;
+        }
+        let trimmed = line.trim_start();
+        let starts_item = trimmed
+            .split_ascii_whitespace()
+            .next()
+            .is_some_and(crate::document_io::starts_item);
+        *self = match std::mem::take(self) {
+            Carry::Armed(p) if trimmed.starts_with("glyph") => Carry::Body(p),
+            Carry::Armed(p) => Carry::Once(p),
+            Carry::Once(_) => Carry::None,
+            Carry::Body(p) if starts_item || trimmed.is_empty() => {
+                let _ = p;
+                Carry::None
+            }
+            other => other,
+        };
+    }
 }

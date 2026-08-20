@@ -559,21 +559,31 @@ impl UniformApp {
 
         // A block's name may be written as a *pattern*, which declares every
         // name it expands to; `pattern_denotes` is the same test the Search
-        // pane matches with, so the two agree on where a name is declared.
-        let declares = |n: &str| n == name || pattern_denotes(n, true, name, &self.name_parts);
-        let target_path = {
-            let all_docs = self.collect_all_docs();
-            all_docs.iter().find_map(|doc| {
+        // pane matches with, so the two agree on where a name is declared. An
+        // `exists` on the line above is part of what the header says, and here
+        // that is one index back in the item list — the binding is adjacency.
+        let declares = |items: &[DocumentItem], idx: usize, n: &str| {
+            let exists = match idx.checked_sub(1).and_then(|p| items.get(p)) {
+                Some(DocumentItem::Exists { pattern, .. }) => Some(pattern.as_str()),
+                _ => None,
+            };
+            n == name || pattern_denotes(n, true, name, &self.name_parts, exists)
+        };
+        let target_path =
+            {
+                let all_docs = self.collect_all_docs();
+                all_docs.iter().find_map(|doc| {
                     let has_match = match kind {
                     // An alias line defines the name it declares as much as a
                     // glyph block does — it is where "go to definition" has to
                     // land for a `ref` to an alias.
-                    LinkTargetKind::Glyph => doc.items.iter().any(|item| {
-                        matches!(item, DocumentItem::Glyph { name: GlyphName(n), .. } if declares(n))
+                    LinkTargetKind::Glyph => doc.items.iter().enumerate().any(|(i, item)| {
+                        matches!(item, DocumentItem::Glyph { name: GlyphName(n), .. }
+                            if declares(&doc.items, i, n))
                             || matches!(
                                 item,
                                 DocumentItem::GlyphAlias { name: GlyphName(n), .. }
-                                    if declares(n)
+                                    if declares(&doc.items, i, n)
                             )
                     }),
                     LinkTargetKind::NameParts => doc.items.iter().any(|item| {
@@ -597,7 +607,7 @@ impl UniformApp {
                 };
                     has_match.then(|| doc.path.clone())
                 })
-        };
+            };
 
         let path = target_path?;
 
