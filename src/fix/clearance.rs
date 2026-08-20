@@ -11,11 +11,17 @@
 //! *lowers* the score, so a line that cannot be improved keeps the warning
 //! rather than being shuffled about.
 //!
-//! There are two kinds of report it acts on, and they are not the same act:
+//! There are three kinds of report it acts on, and they are not the same act:
 //!
 //! - a **clearance warning**, where the line has a layout and the layout is
 //!   outside the range. The search moves it inside, and the rewrite has to
 //!   lower the score or it is not made;
+//! - a **wrong-slot warning**, where a component is drawn for one side of the
+//!   glyph and sits on another (`compose`'s "drawn for `-l` but sits in the
+//!   `-r` slot"). Nothing about the *clearances* is wrong there, so a score is
+//!   silent about it and the count of such components is an objective of its
+//!   own — the second one, behind the score, so that no name is ever put right
+//!   by making the layout worse;
 //! - a **TODO**, where a component has not picked its variant
 //!   ([`crate::compose::is_undecided`]). There is no layout at all then, so
 //!   there is no score to lower — but the family the component names is on hand
@@ -59,7 +65,9 @@
 //!
 //! The score of a layout is how far its clearances fall outside the range,
 //! summed — each of the n+1 clearances, plus their total, exactly the set of
-//! numbers the check warns about. Zero is "no warning at all".
+//! numbers the check warns about. Zero is "no clearance warning at all", which
+//! is not the same as no warning: a wrong-slot component warns at any score,
+//! and is counted beside it.
 //!
 //! # Why the gaps need no search
 //!
@@ -88,9 +96,14 @@
 //!
 //! The score alone leaves many. In order:
 //!
-//! 1. **more variants that state a direction** — a `-l` name in the left slot
+//! 1. **fewer components in a slot they are not drawn for** — this is the
+//!    warning above, so it comes before every tie-break; then **more variants
+//!    that state their slot's own direction** — a `-l` name in the left slot
 //!    says the drawing was made for that slot, and a source that says so is
-//!    worth more than one that leaves it to be inferred;
+//!    worth more than one that leaves it to be inferred. They are two numbers
+//!    and not one sum of ranks, because a sum cannot tell a `⿰` whose slots
+//!    hold `[-l, -r]` reversed — one perfect name and one wrong one — from one
+//!    holding two unmarked names, and only the first of those warns;
 //! 2. **the smallest sum of the two edge clearances** — the parts are pushed
 //!    out against the glyph's box and the room they leave each other is what
 //!    grows. This is the one that decides `⿰` between "0 1 0" and "0 0 1", and
@@ -142,6 +155,11 @@ pub struct ClearanceFix {
     /// something measured badly.
     pub before: Option<i32>,
     pub after: i32,
+    /// How many components sit in a slot their name is not drawn for, before
+    /// and after — the other thing this command answers, and the one a score of
+    /// zero says nothing about. `None` for a pattern line, whose components are
+    /// not searched at all.
+    pub mismatched: Option<(usize, usize)>,
     /// How many of the glyphs the line stands for warn at all, before and
     /// after. `None` for a line that stands for one glyph, which either warns
     /// or is not planned.
@@ -205,7 +223,6 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                 let planned: Option<PlannedLine> = match is_plain_name(&glyph) {
                     true => rules.for_glyph(&glyph).and_then(|(_, min, max)| {
                         optimize_line(&inventory, parent, compose, min as i32, max as i32)
-                            .map(|(line, before, after)| (line, before, after, None))
                     }),
                     false => optimize_pattern_line(
                         &inventory,
@@ -217,18 +234,17 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                         compose,
                     ),
                 };
-                let Some((new_line, before, after, glyphs_warning)) = planned else {
-                    continue;
-                };
+                let Some(planned) = planned else { continue };
                 fixes.push(ClearanceFix {
                     glyph: glyph.clone(),
                     item_idx,
                     compose_idx,
                     old_line: compose.format_line(),
-                    new_line,
-                    before,
-                    after,
-                    glyphs_warning,
+                    new_line: planned.line,
+                    before: planned.before,
+                    after: planned.after,
+                    mismatched: planned.mismatched,
+                    glyphs_warning: planned.glyphs_warning,
                 });
             }
         }
@@ -361,7 +377,13 @@ impl<'a> Inventory<'a> {
     }
 
     /// One name, ready to be put in a slot — or `None` when it cannot go there.
-    fn candidate(&self, written: &str, cross: u16, horizontal: bool) -> Option<Candidate> {
+    fn candidate(
+        &self,
+        written: &str,
+        slot: Option<Direction>,
+        cross: u16,
+        horizontal: bool,
+    ) -> Option<Candidate> {
         let canonical = self.canonical(written);
         let (w, h) = (*self.boxes.get(&canonical)?)?;
         let (along, across) = if horizontal { (w, h) } else { (h, w) };
@@ -377,9 +399,11 @@ impl<'a> Inventory<'a> {
         let profile = self.profile(&canonical)?;
         Some(Candidate {
             frontier: profile.frontier(horizontal)?,
+            // Ranked on the name as *written*, which is the name the check
+            // reads when it decides whether to warn.
+            rank: crate::compose::direction_rank(written, slot),
             name: written.to_string(),
             extent: along as i32,
-            directed: spec.direction.is_some(),
             profile,
         })
     }
@@ -403,7 +427,7 @@ impl<'a> Inventory<'a> {
         let base = if crate::compose::is_undecided(&canonical) {
             canonical.clone()
         } else {
-            let Some(mine) = self.candidate(current, cross, horizontal) else {
+            let Some(mine) = self.candidate(current, slot, cross, horizontal) else {
                 return out;
             };
             out.push(mine);
@@ -424,7 +448,7 @@ impl<'a> Inventory<'a> {
             if crate::compose::direction_rank(name, slot) > 1 {
                 continue;
             }
-            if let Some(candidate) = self.candidate(name, cross, horizontal) {
+            if let Some(candidate) = self.candidate(name, slot, cross, horizontal) {
                 out.push(candidate);
             }
         }
@@ -438,8 +462,11 @@ struct Candidate {
     /// The box's extent along the split axis, in declared units.
     extent: i32,
     frontier: AxisFrontier,
-    /// Whether the name states an `l`/`r`/`u`/`d`/`c`.
-    directed: bool,
+    /// How the name suits the slot it is being considered for, as
+    /// [`crate::compose::direction_rank`] scores it: 0 the slot's own
+    /// direction, 1 an unmarked name, 2 the wrong one — which is exactly the
+    /// case `compose` warns about.
+    rank: u8,
     profile: Rc<InkProfile>,
 }
 
@@ -449,7 +476,11 @@ struct Candidate {
 struct Key {
     /// How far outside the range the layout is, summed. The objective.
     score: i32,
-    /// More directed names first.
+    /// How many components are drawn for a slot other than the one they sit
+    /// in — the second objective, and the only one that moves a line whose
+    /// clearances are already perfect.
+    mismatched: usize,
+    /// More names drawn *for* their slot first.
     directed: std::cmp::Reverse<usize>,
     /// The two edge clearances, added.
     edge_sum: i32,
@@ -461,16 +492,15 @@ struct Key {
     names: Vec<String>,
 }
 
-/// Plan one IDC line: `(the line to write, score before, score after)`, or
-/// `None` when the line does not warn, cannot be measured, or cannot be
-/// improved.
+/// Plan one IDC line, or `None` when the line does not warn, cannot be
+/// measured, or cannot be improved.
 fn optimize_line(
     inv: &Inventory,
     parent: (u16, u16),
     compose: &GlyphCompose,
     lo: i32,
     hi: i32,
-) -> Option<(String, Option<i32>, i32)> {
+) -> Option<PlannedLine> {
     let op = compose.op;
     let horizontal = op.horizontal();
     let (axis_extent, cross_extent) = match horizontal {
@@ -492,22 +522,30 @@ fn optimize_line(
     // "must lower the score" rule below has nothing to compare against.
     let undecided = written.iter().any(|n| crate::compose::is_undecided(n));
 
-    // As written: the parts where the line's own gaps put them.
+    // As written: the parts where the line's own gaps put them, and how many
+    // of them are drawn for a slot they do not sit in. Both are things the
+    // check warns about, and a line is left alone only when neither does.
     let before = match undecided {
         true => None,
         false => {
             let current: Vec<Candidate> = written
                 .iter()
-                .map(|name| inv.candidate(name, cross_extent, horizontal))
+                .enumerate()
+                .map(|(slot, name)| {
+                    inv.candidate(name, op.slot_direction(slot), cross_extent, horizontal)
+                })
                 .collect::<Option<Vec<_>>>()?;
             let placed = walk(compose, &current);
             let as_written: Vec<&Candidate> = current.iter().collect();
-            let before = score(
-                &clearances_at(&as_written, &placed, axis_extent, horizontal)?,
-                lo,
-                hi,
+            let before = (
+                score(
+                    &clearances_at(&as_written, &placed, axis_extent, horizontal)?,
+                    lo,
+                    hi,
+                ),
+                current.iter().filter(|c| c.rank == 2).count(),
             );
-            if before == 0 {
+            if before == (0, 0) {
                 return None; // nothing warns, so nothing to fix
             }
             Some(before)
@@ -539,7 +577,7 @@ fn optimize_line(
         }
     }
     let (key, pick) = best?;
-    if before.is_some_and(|before| key.score >= before) {
+    if before.is_some_and(|before| (key.score, key.mismatched) >= before) {
         return None; // a line nobody can improve keeps its warning
     }
     let chosen: Vec<&Candidate> = pick
@@ -568,13 +606,27 @@ fn optimize_line(
     if score(&verified, lo, hi) != key.score {
         return None;
     }
-    Some((line, before, key.score))
+    Some(PlannedLine {
+        line,
+        before: before.map(|(score, _)| score),
+        after: key.score,
+        mismatched: before.map(|(_, mismatched)| (mismatched, key.mismatched)),
+        glyphs_warning: None,
+    })
 }
 
 /// What planning one IDC line comes to: the line to write in its place, the
 /// score before it and after, and — for a line that stands for a family — how
 /// many of its glyphs warn on each side.
-type PlannedLine = (String, Option<i32>, i32, Option<(usize, usize)>);
+/// What planning one line comes to, whichever of the two planners did it.
+/// The fields are [`ClearanceFix`]'s, minus the ones naming where the line is.
+struct PlannedLine {
+    line: String,
+    before: Option<i32>,
+    after: i32,
+    mismatched: Option<(usize, usize)>,
+    glyphs_warning: Option<(usize, usize)>,
+}
 
 /// One glyph of the family a pattern line stands for: its parts as that glyph
 /// names them, and the range its own rule holds them to.
@@ -610,8 +662,7 @@ impl Member {
     }
 }
 
-/// Plan a pattern block's IDC line: `(the line, score before, score after, the
-/// count of warning glyphs before and after)`.
+/// Plan a pattern block's IDC line.
 ///
 /// One line here stands for a family, and the parts of each glyph in it are
 /// drawn and sized on their own — so the components are *not* searched, a name
@@ -693,7 +744,8 @@ fn optimize_pattern_line(
         }
         let Some(parts) = names
             .iter()
-            .map(|n| inv.candidate(n, cross_extent, horizontal))
+            .enumerate()
+            .map(|(slot, n)| inv.candidate(n, op.slot_direction(slot), cross_extent, horizontal))
             .collect::<Option<Vec<Candidate>>>()
         else {
             continue;
@@ -806,12 +858,15 @@ fn optimize_pattern_line(
     if (warnings_after, score_after) != (key.warnings, key.score) {
         return None;
     }
-    Some((
+    Some(PlannedLine {
         line,
-        Some(before.score),
-        key.score,
-        Some((before.warnings, key.warnings)),
-    ))
+        before: Some(before.score),
+        after: key.score,
+        // The components are the same before and after — only the gaps moved —
+        // so there is no mismatch this rewrite could have changed.
+        mismatched: None,
+        glyphs_warning: Some((before.warnings, key.warnings)),
+    })
 }
 
 /// How the optimizer orders two sets of gaps for a pattern line. Derived `Ord`
@@ -899,7 +954,8 @@ fn evaluate(
     let clearances = arrange(n, total, lo, hi);
     Some(Key {
         score: score(&clearances, lo, hi),
-        directed: std::cmp::Reverse(chosen.iter().filter(|c| c.directed).count()),
+        mismatched: chosen.iter().filter(|c| c.rank == 2).count(),
+        directed: std::cmp::Reverse(chosen.iter().filter(|c| c.rank == 0).count()),
         edge_sum: clearances[0] + clearances[n - 1],
         inner_spread: match n {
             4 => (clearances[1] - clearances[2]).abs(),

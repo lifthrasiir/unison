@@ -158,7 +158,7 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
                     continue;
                 };
                 eprintln!(
-                    "{file}:{}: glyph '{}': {} -> {}  ({} -> {}{})",
+                    "{file}:{}: glyph '{}': {} -> {}  ({} -> {}{}{})",
                     line + 1,
                     f.glyph,
                     lines[line].trim(),
@@ -170,6 +170,15 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
                         None => "todo".to_string(),
                     },
                     f.after,
+                    // A line whose clearances were already right is rewritten
+                    // for the other thing the check warns about, and then the
+                    // scores alone would read as a no-op.
+                    match f.mismatched {
+                        Some((before, after)) if before != after => {
+                            format!(", {before} -> {after} in the wrong slot")
+                        }
+                        _ => String::new(),
+                    },
                     // A pattern line is scored over the family it stands for,
                     // where the score is the tie-break and the count of glyphs
                     // still warning is the point.

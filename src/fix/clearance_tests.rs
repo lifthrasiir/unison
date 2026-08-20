@@ -198,6 +198,73 @@ fn a_variant_for_the_wrong_slot_is_not_a_candidate() {
     assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:3x4 -1 b:4x4");
 }
 
+/// Two full parts filling an 8x4 box exactly, so every clearance is already
+/// 0 and no arrangement of the gaps has anything to say. `p` is drawn twice
+/// under the same base, once marked `-l` and once unmarked.
+const DIRECTED_PARTS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph p:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph p:4x4-l 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph q:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-x 8 4
+\u{2FF0} q:4x4 p:4x4-l
+";
+
+/// A component drawn for the other side of the glyph warns even when the
+/// clearances are perfect, and the search has to reach it: the score alone says
+/// nothing is wrong here.
+#[test]
+fn a_component_in_the_wrong_slot_is_swapped_for_an_undirected_one() {
+    let fixes = plan(DIRECTED_PARTS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    assert_eq!(fix.old_line, "\u{2FF0} q:4x4 p:4x4-l");
+    assert_eq!(fix.new_line, "\u{2FF0} q:4x4 p:4x4");
+    assert_eq!(
+        (fix.before, fix.after),
+        (Some(0), 0),
+        "the clearances were never the problem",
+    );
+    assert_eq!(fix.mismatched, Some((1, 0)));
+}
+
+/// The same line with nothing else to put in the slot: the mismatch stands,
+/// since the only answer is the one already written.
+#[test]
+fn a_wrong_slot_with_no_alternative_keeps_its_warning() {
+    let src = DIRECTED_PARTS.replace("glyph p:4x4 4 4", "glyph z:4x4 4 4");
+    let fixes = plan(&src);
+    assert!(fixes.is_empty(), "{fixes:?}");
+}
+
+/// A directed name that *does* suit its slot is what the tie-break prefers, so
+/// the search takes it over the unmarked twin.
+#[test]
+fn a_name_drawn_for_the_slot_is_preferred() {
+    let src =
+        format!("{DIRECTED_PARTS}\nglyph p:4x4-r 4 4\n@@@@@@@@\n@@@@@@@@\n@@@@@@@@\n@@@@@@@@\n");
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} q:4x4 p:4x4-r");
+    assert_eq!(fixes[0].mismatched, Some((1, 0)));
+}
+
 /// A component with no variant picked yet is a TODO rather than a measurement,
 /// so there is no layout to score it against — but the family it names is still
 /// there to be searched, and picking from it is the whole of what the line is
