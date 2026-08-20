@@ -311,3 +311,85 @@ remap keycaps : zero-emoji keycap -> keycap-zero
         vec!["keycap-zero".to_string()],
     );
 }
+
+/// The subtable's stored `length` is the bytes it actually occupies.
+///
+/// Two selectors that name the same pairs share one array in the writer's
+/// object graph, so a length summed from what went *in* over-counts — and a
+/// `length` running past the end of the cmap table is what OTS rejects a
+/// downloadable font for ("Over long cmap subtable"). Both selectors below
+/// carry identical arrays on purpose.
+#[test]
+fn the_uvs_subtable_length_matches_the_bytes_written() {
+    let src = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph circle 4 4
+@@@@@@@@
+@@....@@
+@@....@@
+@@@@@@@@
+
+glyph zero 4 4
+@@@@@@@@
+@@......
+@@......
+@@......
+
+glyph zero-emoji 4 4
+@@@@@@@@
+@@@@@@@@
+@@......
+@@......
+
+map U+26AA = circle
+map U+0030 = zero
+map U+26AA U+FE00 = circle
+map U+26AA U+FE01 = circle
+map U+0030 U+FE0E = zero-emoji
+map U+0030 U+FE0F = zero-emoji
+";
+    let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let built = build_font_with_gid_map(&[&doc]).expect("font should build");
+    let font = read_fonts::FontRef::new(&built.ttf).unwrap();
+    let cmap_bytes = font.table_data(read_fonts::types::Tag::new(b"cmap")).unwrap();
+    let cmap_bytes = cmap_bytes.as_ref();
+
+    let be16 = |at: usize| u16::from_be_bytes([cmap_bytes[at], cmap_bytes[at + 1]]) as usize;
+    let be32 = |at: usize| {
+        u32::from_be_bytes([
+            cmap_bytes[at],
+            cmap_bytes[at + 1],
+            cmap_bytes[at + 2],
+            cmap_bytes[at + 3],
+        ]) as usize
+    };
+
+    let subtable = (0..be16(2))
+        .map(|i| be32(4 + 8 * i + 4))
+        .find(|&off| be16(off) == 14)
+        .expect("a format 14 subtable should be emitted");
+
+    // The extent the records actually reach, arrays shared or not.
+    let record_count = be32(subtable + 6);
+    let mut extent = 10 + 11 * record_count;
+    for k in 0..record_count {
+        let rec = subtable + 10 + 11 * k;
+        let default_uvs = be32(rec + 3);
+        if default_uvs != 0 {
+            extent = extent.max(default_uvs + 4 + 4 * be32(subtable + default_uvs));
+        }
+        let non_default_uvs = be32(rec + 7);
+        if non_default_uvs != 0 {
+            extent = extent.max(non_default_uvs + 4 + 5 * be32(subtable + non_default_uvs));
+        }
+    }
+
+    assert_eq!(be32(subtable + 2), extent, "stored length vs. real extent");
+    assert!(
+        subtable + be32(subtable + 2) <= cmap_bytes.len(),
+        "the subtable must not run past the cmap table",
+    );
+}

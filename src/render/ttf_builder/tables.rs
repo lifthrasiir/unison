@@ -154,11 +154,10 @@ fn add_uvs_subtable(
         return;
     }
 
-    // `length` is a stored field, not one the writer recomputes, so the byte
-    // count is spelled out: a 10-byte header, an 11-byte record per selector,
-    // and each array's own 4-byte count plus its entries (4 bytes per Default
-    // range, 5 per Non-default mapping).
-    let mut length: u32 = 10 + 11 * by_selector.len() as u32;
+    // `length` is a stored field, not one the writer recomputes, but it cannot
+    // be summed from what goes in either: two selectors naming the same pairs
+    // share one array in the writer's object graph, so a sum over-counts. It is
+    // read back off the serialized bytes instead (`fix_uvs_subtable_lengths`).
     let mut records = Vec::with_capacity(by_selector.len());
     for (selector, (defaults, non_defaults)) in by_selector {
         // Consecutive bases collapse into one range. `additional_count` is a
@@ -184,14 +183,10 @@ fn add_uvs_subtable(
             .map(|(cp, gid)| UvsMapping::new(Uint24::checked_new(cp).unwrap(), gid.to_u16()))
             .collect();
 
-        let default_uvs = (!ranges.is_empty()).then(|| {
-            length += 4 + 4 * ranges.len() as u32;
-            DefaultUvs::new(ranges.len() as u32, ranges)
-        });
-        let non_default_uvs = (!mappings.is_empty()).then(|| {
-            length += 4 + 5 * mappings.len() as u32;
-            NonDefaultUvs::new(mappings.len() as u32, mappings)
-        });
+        let default_uvs =
+            (!ranges.is_empty()).then(|| DefaultUvs::new(ranges.len() as u32, ranges));
+        let non_default_uvs =
+            (!mappings.is_empty()).then(|| NonDefaultUvs::new(mappings.len() as u32, mappings));
 
         records.push(VariationSelector::new(
             Uint24::checked_new(selector).expect("a selector is well below 2^24"),
@@ -200,7 +195,7 @@ fn add_uvs_subtable(
         ));
     }
 
-    let subtable = Cmap14::new(length, records.len() as u32, records);
+    let subtable = Cmap14::new(0, records.len() as u32, records);
     cmap.encoding_records.push(EncodingRecord::new(
         PlatformId::Unicode,
         UNICODE_VARIATION_SEQUENCES_ENCODING,
@@ -216,6 +211,47 @@ fn add_uvs_subtable(
 /// Unicode platform, "Unicode Variation Sequences" — the only encoding a format
 /// 14 subtable may be listed under.
 const UNICODE_VARIATION_SEQUENCES_ENCODING: u16 = 5;
+
+/// Serialize the cmap, writing each format 14 subtable's real `length` over the
+/// placeholder `add_uvs_subtable` left.
+///
+/// The extent is measured off the bytes rather than summed from the records,
+/// because the writer shares two identical arrays as one object: a summed
+/// length runs past the end of the table, which is what OTS rejects a
+/// downloadable font for ("Over long cmap subtable").
+fn dump_cmap(cmap: &Cmap) -> Vec<u8> {
+    let mut bytes = write_fonts::dump_table(cmap).expect("cmap is valid");
+    let be16 = |bytes: &[u8], at: usize| u16::from_be_bytes([bytes[at], bytes[at + 1]]) as usize;
+    let be32 = |bytes: &[u8], at: usize| {
+        u32::from_be_bytes([bytes[at], bytes[at + 1], bytes[at + 2], bytes[at + 3]]) as usize
+    };
+
+    for i in 0..be16(&bytes, 2) {
+        let subtable = be32(&bytes, 4 + 8 * i + 4);
+        if be16(&bytes, subtable) != 14 {
+            continue;
+        }
+        // A record names its two arrays by offset; several records may name the
+        // same one, so the length is the farthest any of them reaches.
+        let record_count = be32(&bytes, subtable + 6);
+        let mut extent = 10 + 11 * record_count;
+        for k in 0..record_count {
+            let record = subtable + 10 + 11 * k;
+            let default_uvs = be32(&bytes, record + 3);
+            if default_uvs != 0 {
+                extent = extent.max(default_uvs + 4 + 4 * be32(&bytes, subtable + default_uvs));
+            }
+            let non_default_uvs = be32(&bytes, record + 7);
+            if non_default_uvs != 0 {
+                extent =
+                    extent.max(non_default_uvs + 4 + 5 * be32(&bytes, subtable + non_default_uvs));
+            }
+        }
+        let extent = u32::try_from(extent).expect("a cmap subtable is far below 4 GiB");
+        bytes[subtable + 2..subtable + 6].copy_from_slice(&extent.to_be_bytes());
+    }
+    bytes
+}
 
 // The font tables' inputs, gathered from unrelated stages.
 #[expect(clippy::too_many_arguments)]
@@ -502,8 +538,7 @@ pub(super) fn build_ttf(
         .unwrap()
         .add_table(&hmtx)
         .unwrap()
-        .add_table(&cmap)
-        .unwrap()
+        .add_raw(Tag::new(b"cmap"), dump_cmap(&cmap))
         .add_table(&name)
         .unwrap()
         .add_table(&os2)
