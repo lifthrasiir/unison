@@ -1165,7 +1165,7 @@ map B = plain
 /// [`crate::issues::Severity::Todo`] is that the *report* differs, not the
 /// font. A blank glyph in the cmap would be worse than no glyph at all: it
 /// kills the renderer's fallback, so the character comes out an empty box
-/// instead of being drawn from another font (`PLANS.han.md` item 3).
+/// instead of being drawn from another font.
 #[test]
 fn an_undecided_idc_glyph_is_neither_built_nor_mapped() {
     let input = "\

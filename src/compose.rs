@@ -61,7 +61,7 @@
 //!
 //! Sizes are read from the components' `glyph` headers, never from the
 //! composed result: a part's width is a property the part *declares*, which is
-//! what makes the layout a lookup rather than a search (see `PLANS.han.md`).
+//! what makes the layout a lookup rather than a search.
 //! A component that names no glyph, or one whose header declares no `W H`, is
 //! an error for the same reason.
 //!

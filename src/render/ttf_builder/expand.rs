@@ -1429,7 +1429,7 @@ mod compose_expand_tests {
             .collect()
     }
 
-    /// The state every Han glyph is populated in (`PLANS.han.md` item 10):
+    /// The state every Han glyph is populated in:
     /// both components bare, and neither naming anything yet. The line is a
     /// Todo per component and **nothing else** — in particular not an
     /// `unresolved ref` for each derived ref, which would turn a work queue of

@@ -49,8 +49,7 @@ use crate::resolve::{DocSet, Resolution};
 /// mapped — but it is a normal state of the source rather than a defect in it:
 /// a Han glyph whose IDC line has not picked its variants yet is on the queue,
 /// not broken. So it never fails a build or a `uniform test` run, and its count
-/// is expected to start in the tens of thousands and come down. See
-/// `PLANS.han.md` for why the two had to be told apart at all.
+/// is expected to start in the tens of thousands and come down.
 ///
 /// [`Severity::Note`] is the other direction: something worth saying that asks
 /// for no action, so it is off by default in the editor's issue list.

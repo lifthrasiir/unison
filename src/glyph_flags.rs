@@ -14,7 +14,7 @@
 //! background, and the worse finding is the one worth painting.
 //! [`Severity::Todo`] and [`Severity::Note`] are deliberately not flags: a Todo
 //! is a normal state of the source (a Han glyph on the work queue, tens of
-//! thousands of them at once — see `PLANS.han.md`), so painting it would tint
+//! thousands of them at once), so painting it would tint
 //! nearly the whole grid, and a Note asks for no action at all.
 //!
 //! # Attribution: the line, or the one glyph that named itself
