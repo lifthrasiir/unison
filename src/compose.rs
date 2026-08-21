@@ -105,9 +105,14 @@
 //! each claim a column and are placed box to box overlap by exactly what they
 //! claim ([`InkProfile::of`]).
 //!
-//! Everything here reads the parts' *own* pixels. A part that draws nothing
-//! yet, or that is a composite with no pixels of its own, has no frontier, and
-//! a line with one of those in it is not measured rather than measured wrong.
+//! Everything here reads what a part *draws*. A part drawn with its own pixels
+//! is read off them; one that is a composite is flattened first and read off
+//! that, since a radical written as a `ref` to a shared drawing draws exactly
+//! as much as one written out. A part that draws nothing yet — and one that is
+//! itself split by an IDC line, whose refs are not derived until later — has no
+//! frontier, and a line with one of those in it is not measured rather than
+//! measured wrong. `ttf_builder::expand::ink_profiles` is where the three cases
+//! are told apart.
 //!
 //! # The variant name rule (D1)
 //!
@@ -453,9 +458,27 @@ impl InkProfile {
     /// exactly the box's size across cannot be measured against anything. A box
     /// reaching past the grid is simply clear out there — there is nothing
     /// drawn to report.
-    pub fn of(grid: &PixelGrid, scale: u8, origin: (i16, i16), extent: (u16, u16)) -> Self {
+    /// `raster` is the raster coordinate `(col, row)` of grid cell `(0, 0)`:
+    /// `(0, 0)` for a glyph's own pixels, and the flattening's own origin
+    /// ([`ResolvedGlyph::origin_col`](crate::ref_composite::ResolvedGlyph) and
+    /// `origin_row`) for a part that is a composite. A ref reaching left of or
+    /// above the origin makes it negative, and the ink out there is exactly the
+    /// ink this profile may not lose (see "along the line" below). It is in
+    /// *raster* cells, not declared ones, because a `ref` offset is: it need
+    /// not be a multiple of `scale`, so it cannot be folded into `origin`.
+    pub fn of(
+        grid: &PixelGrid,
+        scale: u8,
+        raster: (i32, i32),
+        origin: (i16, i16),
+        extent: (u16, u16),
+    ) -> Self {
         let s = scale.max(1) as u16;
         let (w, h) = extent;
+        // Raster → box coordinate, on the one axis at a time the callers below
+        // read it: floor division, since a grid starting left of the origin has
+        // negative raster coordinates and `-1 / 2` is not the cell `-1` is in.
+        let box_of = |raster: i32, origin: i16| raster.div_euclid(s as i32) - origin as i32;
         // Per declared cell: nothing / hardblank only / ink, whichever is
         // greatest over the sub-cells, so any ink makes the cell ink.
         const CLEAR: u8 = 0;
@@ -463,15 +486,18 @@ impl InkProfile {
         const INK: u8 = 2;
         // The box coordinates the grid reaches on each axis, box and grid
         // together, so a cell outside the box still has a place to be counted.
-        let span = |extent: u16, len: u16, origin: i16| -> (i32, i32) {
+        let span = |extent: u16, len: u16, origin: i16, base: i32| -> (i32, i32) {
             if extent == 0 || len == 0 {
                 return (0, extent as i32);
             }
-            let (lo, hi) = (-(origin as i32), ((len - 1) / s) as i32 - origin as i32);
+            let (lo, hi) = (
+                box_of(base, origin),
+                box_of(base + len as i32 - 1, origin),
+            );
             (lo.min(0), hi.max(extent as i32 - 1) + 1)
         };
-        let (col_lo, col_hi) = span(w, grid.width, origin.0);
-        let (row_lo, row_hi) = span(h, grid.height, origin.1);
+        let (col_lo, col_hi) = span(w, grid.width, origin.0, raster.0);
+        let (row_lo, row_hi) = span(h, grid.height, origin.1, raster.1);
         let (cols_wide, rows_tall) = ((col_hi - col_lo) as usize, (row_hi - row_lo) as usize);
         // One map per axis, since which coordinate folds depends on which way
         // the line is read: `by_row` keeps the column exact and `by_col` the row.
@@ -485,8 +511,8 @@ impl InkProfile {
                         continue;
                     }
                     let level = if px.is_hardblank() { HARDBLANK } else { INK };
-                    let box_r = (row / s) as i32 - origin.1 as i32;
-                    let box_c = (col / s) as i32 - origin.0 as i32;
+                    let box_r = box_of(raster.1 + row as i32, origin.1);
+                    let box_c = box_of(raster.0 + col as i32, origin.0);
                     let folded_r = box_r.clamp(0, h as i32 - 1) as usize;
                     let folded_c = box_c.clamp(0, w as i32 - 1) as usize;
                     let at = &mut by_row[folded_r * cols_wide + (box_c - col_lo) as usize];
@@ -544,8 +570,12 @@ impl InkProfile {
                 };
                 let Some(region) = region else { continue };
                 let cov = region.edge_coverage();
-                let (box_r, box_c) = ((row / s) as i32 - origin.1 as i32, (col / s) as i32 - origin.0 as i32);
-                let (sub_j, sub_i) = (row % s, col % s);
+                let (abs_r, abs_c) = (raster.1 + row as i32, raster.0 + col as i32);
+                let (box_r, box_c) = (box_of(abs_r, origin.1), box_of(abs_c, origin.0));
+                let (sub_j, sub_i) = (
+                    abs_r.rem_euclid(s as i32) as u16,
+                    abs_c.rem_euclid(s as i32) as u16,
+                );
                 let fr = box_r.clamp(0, h as i32 - 1) as usize;
                 let fc = box_c.clamp(0, w as i32 - 1) as usize;
                 if let Some((near, far)) = rows.get(fr).copied().flatten().and_then(InkLine::ink) {

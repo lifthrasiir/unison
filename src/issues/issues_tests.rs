@@ -1019,6 +1019,59 @@ fn audit_lines_are_checked_and_assigned_once() {
     );
 }
 
+/// A component that is a composite draws no pixels of its own, but it does
+/// draw: it is flattened before it is measured, so a radical written as a `ref`
+/// to a shared drawing is checked like any other part. Before it was, a line
+/// through one was silently not measured at all — no warning, right or wrong.
+#[test]
+fn a_component_that_is_a_composite_is_measured() {
+    let source = |right: &str| {
+        format!(
+            "\
+audit ideal-clearance test-* 0 1
+
+glyph l:4x4 4 4
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+
+glyph r:4x4 4 4
+..@@@@@@
+..@@@@@@
+..@@@@@@
+..@@@@@@
+
+glyph through-ref:4x4 4 4
+ref r:4x4
+
+glyph test-x 8 4
+⿰ l:4x4 1 {right}:4x4
+"
+        )
+    };
+    let clearances = |input: &str| -> Vec<String> {
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        collect_issues(&[&doc])
+            .into_iter()
+            .filter(|i| i.message.contains("ideal"))
+            .map(|i| i.message)
+            .collect()
+    };
+    // The two parts leave two cells between them and none at the right edge.
+    let drawn = clearances(&source("r"));
+    assert!(!drawn.is_empty(), "the drawn part is measured");
+    // The name is the only difference; the ink behind it is the same ink.
+    let through_ref = clearances(&source("through-ref"));
+    assert_eq!(
+        through_ref
+            .iter()
+            .map(|m| m.replace("through-ref", "r"))
+            .collect::<Vec<_>>(),
+        drawn,
+    );
+}
+
 /// A line the grammar cannot read is an error, and the pixel row that
 /// misses its glyph's width is why. It parses as a directive like any
 /// other unreadable line, so the row is dropped and the glyph builds from

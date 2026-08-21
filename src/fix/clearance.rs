@@ -322,10 +322,15 @@ fn block_names(display: &str, name_parts: &crate::document::NamePartsMap) -> Vec
 
 /// One part's ink, and the box [`InkProfile::of`] measures it over.
 struct PartGrid<'a> {
-    grid: &'a PixelGrid,
+    /// Borrowed for a part drawn by its own pixels; owned for one flattened
+    /// out of a composite ([`Inventory::flatten_composites`]).
+    grid: std::borrow::Cow<'a, PixelGrid>,
     scale: u8,
     origin: (i16, i16),
     extent: (u16, u16),
+    /// The raster coordinate of the grid's cell `(0, 0)`, which is `(0, 0)`
+    /// for a drawn grid and the flattening's own origin for a composite.
+    raster: (i32, i32),
 }
 
 /// The glyphs a slot could be filled with, and what is known about each.
@@ -381,10 +386,11 @@ impl<'a> Inventory<'a> {
                         inv.grids.insert(
                             name.clone(),
                             PartGrid {
-                                grid: pixels,
+                                grid: std::borrow::Cow::Borrowed(pixels),
                                 scale: body.scale,
                                 origin: body.declared_origin(),
                                 extent,
+                                raster: (0, 0),
                             },
                         );
                     }
@@ -401,7 +407,95 @@ impl<'a> Inventory<'a> {
         for names in inv.variants.values_mut() {
             names.sort();
         }
+        inv.flatten_composites(docs, name_parts);
         inv
+    }
+
+    /// Give the parts that are themselves composites a grid to be measured
+    /// over, by flattening them the way the build does
+    /// ([`crate::ref_composite::resolve_reachable`]) — a radical written as a
+    /// `ref` to a shared drawing is a candidate like any other, and one that
+    /// could not be measured could not be chosen.
+    ///
+    /// The same walk the clearance *check* makes, deliberately: the fixer may
+    /// only touch a line the check reports, so a part it can measure and the
+    /// check cannot would let it rewrite a line nothing complained about. Two
+    /// things narrow it further, both in the safe direction — a block whose
+    /// name is a pattern is left out, since its `ref` names expand per glyph and
+    /// the block holds only the unexpanded ones; and only the families some IDC
+    /// line actually names are flattened, since nothing else can be chosen.
+    fn flatten_composites(
+        &mut self,
+        docs: &[&'a Document],
+        name_parts: &crate::document::NamePartsMap,
+    ) {
+        let mut families: std::collections::HashSet<String> = std::collections::HashSet::new();
+        for doc in docs {
+            for item in &doc.items {
+                let DocumentItem::Glyph { body, .. } = item else {
+                    continue;
+                };
+                for part in body.compose.iter().flat_map(|c| c.part_names()) {
+                    let canonical = self.canonical(part);
+                    let base = canonical.split_once(':').map_or(&canonical[..], |(b, _)| b);
+                    families.insert(base.to_string());
+                }
+            }
+        }
+        if families.is_empty() {
+            return;
+        }
+
+        // Every plain block's body, for the walk to follow refs through.
+        let mut bodies: HashMap<String, &'a crate::document::GlyphBody> = HashMap::new();
+        let mut roots: Vec<String> = Vec::new();
+        for doc in docs {
+            for item in &doc.items {
+                let DocumentItem::Glyph { name, body } = item else {
+                    continue;
+                };
+                let name = name.display();
+                if !is_plain_name(&name) || bodies.contains_key(&name) {
+                    continue;
+                }
+                if !body.refs.is_empty() && body.compose.is_empty() {
+                    let base = name.split_once(':').map_or(&name[..], |(b, _)| b);
+                    if families.contains(base) {
+                        roots.push(name.clone());
+                    }
+                }
+                bodies.insert(name, body);
+            }
+        }
+        if roots.is_empty() {
+            return;
+        }
+
+        let resolved = crate::ref_composite::resolve_reachable(
+            roots.iter().map(String::as_str),
+            &|name| bodies.get(name).copied(),
+            &self.aliases,
+            name_parts,
+        );
+        for name in roots {
+            let (Some(body), Some(flat)) = (bodies.get(&name), resolved.get(&name)) else {
+                continue;
+            };
+            let extent = body.declared_extent().unwrap_or_else(|| {
+                let s = flat.scale.max(1) as u16;
+                (flat.grid.width / s, flat.grid.height / s)
+            });
+            self.grids.insert(
+                name,
+                PartGrid {
+                    grid: std::borrow::Cow::Owned(flat.grid.clone()),
+                    scale: flat.scale,
+                    origin: body.declared_origin(),
+                    extent,
+                    raster: (flat.origin_col, flat.origin_row),
+                },
+            );
+        }
     }
 
     fn canonical(&self, name: &str) -> String {
@@ -418,7 +512,7 @@ impl<'a> Inventory<'a> {
         let computed = self
             .grids
             .get(name)
-            .map(|g| Rc::new(InkProfile::of(g.grid, g.scale, g.origin, g.extent)));
+            .map(|g| Rc::new(InkProfile::of(&g.grid, g.scale, g.raster, g.origin, g.extent)));
         self.profiles
             .borrow_mut()
             .insert(name.to_string(), computed.clone());

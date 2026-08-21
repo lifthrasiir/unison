@@ -330,13 +330,14 @@ fn an_undecided_component_with_no_variants_is_skipped() {
     assert!(plan(&src).is_empty());
 }
 
-/// A component nothing defines and a part that is itself a composite: both are
-/// lines the check does not measure, so there is nothing here to improve.
+/// A component nothing defines, and one that is split by an IDC line of its
+/// own: both are lines the check does not measure, so there is nothing here to
+/// improve.
 #[test]
 fn unmeasurable_lines_are_skipped() {
-    for line in ["\u{2FF0} a:4x4 nothing:4x4", "\u{2FF0} a:4x4 c:4x4"] {
+    for line in ["\u{2FF0} a:4x4 nothing:4x4", "\u{2FF0} a:4x4 split:4x4"] {
         let src = format!(
-            "{}\nglyph c:4x4 4 4\nref b:4x4\n",
+            "{}\nglyph split:4x4 4 4\n\u{2FF1} b:4x2 b:4x2\n\nglyph b:4x2 4 2\n..@@@@@@\n..@@@@@@\n",
             TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", line)
         );
         assert!(plan(&src).is_empty(), "{line}");
@@ -345,6 +346,53 @@ fn unmeasurable_lines_are_skipped() {
     // error the source has to answer first.
     let src = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a:4x4 short:4x2");
     assert!(plan(&format!("{src}\nglyph short:4x2 4 2\n..@@@@@@\n..@@@@@@\n")).is_empty());
+}
+
+/// A part that is a composite draws no pixels of its own, but it does draw: it
+/// is flattened and measured like any other, so a radical written as a `ref` to
+/// a shared drawing can be chosen and can be scored.
+///
+/// `c:4x4` is `b:4x4` under another name, so the line through it has to reach
+/// exactly the layout the line through `b:4x4` reaches.
+#[test]
+fn a_part_that_is_a_composite_is_measured() {
+    let direct = plan(TWO_PARTS);
+    let src = format!(
+        "{}\nglyph c:4x4 4 4\nref b:4x4\n",
+        TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a:4x4 c:4x4")
+    );
+    let through_ref = plan(&src);
+    assert_eq!(direct.len(), 1, "{direct:?}");
+    assert_eq!(through_ref.len(), 1, "{through_ref:?}");
+    assert_eq!(through_ref[0].before, direct[0].before);
+    assert_eq!(through_ref[0].after, direct[0].after);
+    assert_eq!(
+        through_ref[0].new_line,
+        direct[0].new_line.replace("b:4x4", "c:4x4"),
+    );
+}
+
+/// A `ref` reaching left of the composite's own origin: the flattened grid
+/// starts before cell (0, 0), and the ink out there is where it is drawn — the
+/// same rule a part's own pixels are read by. `d:4x4` is `b:4x4` placed one
+/// declared cell to the left, which is the drawing `bb:4x4` *is*, so the two
+/// lines have to be laid out alike.
+#[test]
+fn a_composite_reaching_left_of_its_origin_is_measured_where_it_draws() {
+    let bb = "\nglyph bb:4x4 4 4\n@@@@@@..\n@@@@@@..\n@@@@@@..\n@@@@@@..\n";
+    let d = "\nglyph d:4x4 4 4\nref b:4x4 -1 0\n";
+    let line = |part: &str| {
+        TWO_PARTS.replace(
+            "\u{2FF0} a:4x4 b:4x4",
+            &format!("\u{2FF0} a:4x4 {part}:4x4"),
+        )
+    };
+    let drawn = plan(&format!("{}{bb}", line("bb")));
+    let composed = plan(&format!("{}{d}", line("d")));
+    assert_eq!(drawn.len(), 1, "{drawn:?}");
+    assert_eq!(composed.len(), 1, "{composed:?}");
+    assert_eq!(composed[0].after, drawn[0].after);
+    assert_eq!(composed[0].new_line, drawn[0].new_line.replace("bb", "d"));
 }
 
 /// A pattern block stands for a family whose parts are sized one by one, so

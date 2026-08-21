@@ -667,7 +667,7 @@ fn grid(rows: &[&str]) -> PixelGrid {
 /// with no `origin`/`extent` of its own is.
 fn whole(g: &PixelGrid, scale: u8) -> InkProfile {
     let s = scale.max(1) as u16;
-    InkProfile::of(g, scale, (0, 0), (g.width / s, g.height / s))
+    InkProfile::of(g, scale, (0, 0), (0, 0), (g.width / s, g.height / s))
 }
 
 /// A part is measured on its *declared box*, not on its grid: the clearance an
@@ -684,17 +684,17 @@ fn a_clearance_is_measured_on_the_declared_box() {
     // Grid 6 wide, box the middle 4: the ink at grid column 2 is the box's
     // column 1, and the empty column 0 of the grid is outside the box entirely.
     let g = grid(&["..##..", "..#..."]);
-    let p = InkProfile::of(&g, 1, (1, 0), (4, 2));
+    let p = InkProfile::of(&g, 1, (0, 0), (1, 0), (4, 2));
     assert_eq!(p.rows[0].expect("row 0 is occupied").near, 1);
     assert_eq!(p.rows[0].expect("row 0 is occupied").far, 2);
     assert_eq!(p.cols.len(), 4, "the profile is the box's width");
 
     // The same grid measured as itself, for contrast.
-    let as_grid = InkProfile::of(&g, 1, (0, 0), (6, 2));
+    let as_grid = InkProfile::of(&g, 1, (0, 0), (0, 0), (6, 2));
     assert_eq!(as_grid.rows[0].expect("row 0 is occupied").near, 2);
 
     // Ink before the box's own corner keeps the coordinate it is drawn at.
-    let escaping = InkProfile::of(&grid(&["#....."]), 1, (2, 0), (4, 1));
+    let escaping = InkProfile::of(&grid(&["#....."]), 1, (0, 0), (2, 0), (4, 1));
     assert_eq!(escaping.rows[0].expect("row 0 is occupied").near, -2);
 }
 
@@ -914,11 +914,11 @@ fn a_hardblank_outside_the_box_claims_the_neighbours_cell() {
     let ink: std::collections::HashMap<String, InkProfile> = [
         (
             "a:3x1".to_string(),
-            InkProfile::of(&grid(&["$##$"]), 1, (0, 0), (3, 1)),
+            InkProfile::of(&grid(&["$##$"]), 1, (0, 0), (0, 0), (3, 1)),
         ),
         (
             "b:3x1".to_string(),
-            InkProfile::of(&grid(&["$###$"]), 1, (1, 0), (3, 1)),
+            InkProfile::of(&grid(&["$###$"]), 1, (0, 0), (1, 0), (3, 1)),
         ),
     ]
     .into_iter()

@@ -338,6 +338,131 @@ pub fn resolve_expansion_cached(
     expansion: crate::render::ttf_builder::Expansion,
     name_parts: &NamePartsMap,
     cancel: &crate::cancel::CancelToken,
+    grid_cache: Option<&mut CompositeGridCache>,
+) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    // The expansion is consumed, not borrowed: it already owns a full copy of
+    // every glyph body, and cloning it a second time into `pending` cost more
+    // than sharing the expansion saved.
+    let aliases = expansion.aliases;
+    let bodies = expansion.items.into_iter().filter_map(|e| match e.item {
+        DocumentItem::Glyph {
+            name: GlyphName(key),
+            body,
+        } => Some((key, body)),
+        _ => None,
+    });
+    resolve_glyph_bodies(bodies, &aliases, name_parts, cancel, grid_cache)
+}
+
+/// Flatten `roots` and everything they reach, and nothing else.
+///
+/// This is what a caller with no [`Expansion`](crate::render::ttf_builder::Expansion)
+/// to resolve — the expansion itself, and `fix::clearance` — uses to measure a
+/// part that is a composite: the glyphs it walks are the ones the parts refer
+/// to, transitively, rather than the whole font, since flattening 18k glyphs to
+/// measure a hundred of them is not a trade anything here can afford.
+///
+/// `body_of` answers what a name is declared as. A name it does not know is an
+/// **on-demand** shape if it parses as one — synthesized here exactly as
+/// [`inject_on_demand_glyph_items`](crate::render::ttf_builder) would, because
+/// the caller inside the expansion runs before that pass — and otherwise
+/// nothing, in which case whatever refers to it stays unresolved and so
+/// unmeasured. A glyph split by an IDC line is treated the same way: its refs
+/// have not been derived yet at the point the expansion asks, and one of the
+/// two callers seeing them and the other not is exactly the disagreement this
+/// shared walk exists to prevent.
+pub(crate) fn resolve_reachable<'a, 'b>(
+    roots: impl Iterator<Item = &'a str>,
+    body_of: &dyn Fn(&str) -> Option<&'b crate::document::GlyphBody>,
+    aliases: &crate::alias::AliasMap,
+    name_parts: &NamePartsMap,
+) -> HashMap<String, ResolvedGlyph> {
+    use crate::document::GlyphBody;
+
+    let mut bodies: Vec<(String, GlyphBody)> = Vec::new();
+    let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut queue: Vec<String> = Vec::new();
+    for root in roots {
+        if seen.insert(root.to_string()) {
+            queue.push(root.to_string());
+        }
+    }
+    while let Some(name) = queue.pop() {
+        // The same three forms [`lookup_ref_name`] tries, in the same order, so
+        // a ref written as a pattern or through a name part is followed here
+        // the way it will be followed there.
+        let subst = substitute_name_parts(&name, name_parts);
+        let expanded = parse_ref_pattern(&subst).map(|pattern| pattern.get(0));
+        let found = [Some(name.as_str()), Some(subst.as_str()), expanded.as_deref()]
+            .into_iter()
+            .flatten()
+            .find_map(|n| body_of(n));
+        if let Some(body) = found {
+            // Not measurable until its line has been expanded into refs.
+            if !body.compose.is_empty() {
+                continue;
+            }
+            for r in &body.refs {
+                if seen.insert(r.name.clone()) {
+                    queue.push(r.name.clone());
+                }
+            }
+            // Kept under the name that was *written*, whichever of the three
+            // forms found it, so the composite naming it finds it back.
+            bodies.push((name, body.clone()));
+            continue;
+        }
+        // Only the self-contained shapes, as [`synthesized_on_demand`] takes: a
+        // color/mono pair is built from two glyph bodies, which is a synthesis
+        // and not a lookup.
+        let shape = [Some(name.as_str()), Some(subst.as_str()), expanded.as_deref()]
+            .into_iter()
+            .flatten()
+            .find_map(|n| match crate::on_demand::parse_on_demand_glyph(n) {
+                Some(crate::on_demand::OnDemandGlyph::Shape(spec)) => Some(spec),
+                _ => None,
+            });
+        if let Some(spec) = shape {
+            bodies.push((
+                name,
+                GlyphBody {
+                    scale: spec.scale,
+                    pixels: Some(crate::on_demand::make_on_demand_grid(&spec)),
+                    inline: true,
+                    ..GlyphBody::new()
+                },
+            ));
+        }
+    }
+    resolve_glyph_bodies(
+        bodies.into_iter(),
+        aliases,
+        name_parts,
+        &crate::cancel::CancelToken::never(),
+        None,
+    )
+    .0
+}
+
+/// [`resolve_expansion_cached`] over a glyph set stated directly, for the one
+/// caller that has no [`Expansion`](crate::render::ttf_builder::Expansion) to
+/// give: the expansion itself.
+///
+/// A clearance check has to measure the ink of the parts an IDC line names, and
+/// a part that is a composite draws none of its own — so the parts are resolved
+/// here, in the middle of the expansion that will go on to resolve everything.
+/// It is the same resolution over a subset, which is the point: a part measured
+/// by a second, simpler flattener would be measured differently from the one
+/// the font is built from. See `ttf_builder::expand::ink_profiles`.
+///
+/// `aliases` is only read at the very end, to give every alias name the
+/// resolution of its target; the bodies themselves are expected to name
+/// canonical targets already, as an expansion's do.
+pub(crate) fn resolve_glyph_bodies(
+    bodies: impl Iterator<Item = (String, crate::document::GlyphBody)>,
+    aliases: &crate::alias::AliasMap,
+    name_parts: &NamePartsMap,
+    cancel: &crate::cancel::CancelToken,
     mut grid_cache: Option<&mut CompositeGridCache>,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
     if let Some(gc) = grid_cache.as_deref_mut() {
@@ -360,23 +485,11 @@ pub fn resolve_expansion_cached(
     // is quadratic over the whole font (~18k glyphs).
     let mut pending_names: std::collections::HashSet<String> = std::collections::HashSet::new();
 
-    let aliases = expansion.aliases;
-
-    // The expansion is consumed, not borrowed: it already owns a full copy of
-    // every glyph body, and cloning it a second time into `pending` cost more
-    // than sharing the expansion saved.
-    for (i, expanded) in expansion.items.into_iter().enumerate() {
+    for (i, (key, body)) in bodies.enumerate() {
         if i.is_multiple_of(crate::render::glyph_cache::CANCEL_STRIDE) && cancel.is_cancelled() {
             let alt_index = AlternativesIndex::build(&cache);
             return (cache, alt_index);
         }
-        let DocumentItem::Glyph {
-            name: GlyphName(key),
-            body,
-        } = expanded.item
-        else {
-            continue;
-        };
         // First definition wins, matching the font build.
         if cache.contains_key(&key) || pending_names.contains(&key) {
             continue;

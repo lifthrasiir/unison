@@ -392,6 +392,8 @@ fn expand_inner(
         &mut diagnostics,
         &mut undecided_parts,
         &audit,
+        &aliases,
+        name_parts,
     );
 
     // Expanding a `map` is not free (the font has ranges thousands of
@@ -480,6 +482,8 @@ fn expand_compose_lines(
     diagnostics: &mut Vec<Diagnostic>,
     undecided_parts: &mut HashSet<(Option<ItemRef>, String)>,
     audit: &crate::audit::AuditRules,
+    aliases: &crate::alias::AliasMap,
+    name_parts: &NamePartsMap,
 ) {
     let clearances = &audit.ideal_clearance;
     let has_compose = |e: &ExpandedItem| matches!(&e.item, DocumentItem::Glyph { body, .. } if !body.compose.is_empty());
@@ -531,7 +535,7 @@ fn expand_compose_lines(
     }
     let family = |name: &str| families.get(name).cloned().unwrap_or_default();
 
-    let profiles = ink_profiles(all_items, clearances);
+    let profiles = ink_profiles(all_items, clearances, aliases, name_parts);
     let ink = |name: &str| profiles.get(name);
 
     for e in all_items.iter_mut() {
@@ -607,13 +611,24 @@ fn expand_compose_lines(
 /// checked IDC line names — and of nothing else, so a source stating no
 /// `audit ideal-clearance` pays only a walk over the compose lines it has.
 ///
-/// Only a part drawn *entirely* by its own pixels is measured: a part that is
-/// itself a composite draws ink this pass has not resolved and cannot see, and
-/// half its ink measured is worse than none. The clearance check treats a
-/// missing profile as "not measurable" and stands down for the whole line.
+/// A part drawn by its own pixels is read straight off them. A part that is a
+/// **composite** draws no pixels of its own, so it is flattened first, by the
+/// same resolution the font is built from ([`resolve_glyph_bodies`]) over the
+/// parts alone — a radical written as `ref` to a shared drawing (`han-6b63` is
+/// `ref han-6b62`) is a component like any other, and measuring it by a second,
+/// simpler flattener would measure it differently from what the font draws. The
+/// subgraph is walked rather than the whole font: what is resolved here is the
+/// parts of clearance-checked lines and, transitively, what those refer to.
+///
+/// What is still not measured is a part that is *itself* split by an IDC line:
+/// its own refs have not been derived at the point this runs, and deriving them
+/// first would need the lines ordered by dependency. The clearance check treats
+/// a missing profile as "not measurable" and stands down for the whole line.
 fn ink_profiles(
     all_items: &[ExpandedItem],
     clearances: &crate::audit::IdealClearances,
+    aliases: &crate::alias::AliasMap,
+    name_parts: &NamePartsMap,
 ) -> HashMap<String, crate::compose::InkProfile> {
     if clearances.is_empty() {
         return HashMap::new();
@@ -631,28 +646,60 @@ fn ink_profiles(
     if wanted.is_empty() {
         return HashMap::new();
     }
-    let mut profiles = HashMap::new();
+    // First definition wins here as everywhere else, which is what the
+    // `or_insert_with` says; the lookups below all go through it.
+    let mut bodies: HashMap<&str, &GlyphBody> = HashMap::new();
     for e in all_items {
-        let DocumentItem::Glyph { name, body } = &e.item else {
-            continue;
-        };
-        let (Some(pixels), true) = (body.pixels.as_ref(), body.refs.is_empty()) else {
-            continue;
-        };
+        if let DocumentItem::Glyph { name, body } = &e.item {
+            bodies.entry(name.0.as_str()).or_insert(body);
+        }
+    }
+    let profile_of = |body: &GlyphBody, pixels: &PixelGrid, raster: (i32, i32), scale: u8| {
+        let extent = body.declared_extent().unwrap_or_else(|| {
+            let s = scale.max(1) as u16;
+            (pixels.width / s, pixels.height / s)
+        });
+        crate::compose::InkProfile::of(pixels, scale, raster, body.declared_origin(), extent)
+    };
+
+    let mut profiles = HashMap::new();
+    let mut composites: Vec<&str> = Vec::new();
+    for &name in &wanted {
+        let Some(body) = bodies.get(name) else { continue };
+        // A part split by a line of its own: see the note above.
         if !body.compose.is_empty() {
             continue;
         }
-        let name = name.display();
-        if !wanted.contains(name.as_str()) || profiles.contains_key(&name) {
-            continue; // first definition wins, as everywhere else
+        match (body.refs.is_empty(), body.pixels.as_ref()) {
+            (true, Some(pixels)) => {
+                profiles.insert(name.to_string(), profile_of(body, pixels, (0, 0), body.scale));
+            }
+            (false, _) => composites.push(name),
+            (true, None) => {}
         }
-        let extent = body.declared_extent().unwrap_or_else(|| {
-            let s = body.scale.max(1) as u16;
-            (pixels.width / s, pixels.height / s)
-        });
+    }
+    if composites.is_empty() {
+        return profiles;
+    }
+
+    let resolved = crate::ref_composite::resolve_reachable(
+        composites.iter().copied(),
+        &|name| bodies.get(name).copied(),
+        aliases,
+        name_parts,
+    );
+    for name in composites {
+        let (Some(body), Some(flat)) = (bodies.get(name), resolved.get(name)) else {
+            continue;
+        };
         profiles.insert(
-            name,
-            crate::compose::InkProfile::of(pixels, body.scale, body.declared_origin(), extent),
+            name.to_string(),
+            profile_of(
+                body,
+                &flat.grid,
+                (flat.origin_col, flat.origin_row),
+                flat.scale,
+            ),
         );
     }
     profiles

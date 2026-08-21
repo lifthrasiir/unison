@@ -269,6 +269,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | A fix in the editor: one undo entry per file, and why nothing is written to disk | `app/fix.rs` |
 | Why a rule about the source is `audit` and not `meta` | `audit.rs` |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
+| Measuring a part that is itself a composite, and the walk the check and the fixer share so they measure the same set | `ref_composite/mod.rs` (`resolve_reachable`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`Inventory::flatten_composites`) |
 | Why a clearance is measured over the declared box, and what ink escaping it costs | `compose.rs` (`InkProfile::of`) |
 | What a sample cell paints a background over, and why only its width is the box's | `render/sample.rs` (`sample_background`) |
 | What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
