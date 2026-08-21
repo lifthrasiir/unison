@@ -138,6 +138,11 @@ glyph han-40cb:15x16 15 16 // 䃋
 
 # CJK unified ideographs extension A: 示 (113)
 
+## 113.5
+
+// glyph han-4101:15x16 15 16 // 䄁
+// ⿰ han-793b han-4e16 // ⿰礻世
+
 ## 113.9
 
 glyph han-4116:15x16 15 16 // 䄖

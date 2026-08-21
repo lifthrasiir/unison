@@ -27,6 +27,11 @@ glyph han-2b0b9:15x16 15 16 // 𫂹
 glyph han-2b0dc:15x16 15 16 // 𫃜
 ⿰ han-7cf9:5x16 1 han-53e3:9x16 // ⿰糹口
 
+## 120.4
+
+// glyph han-2b0de:15x16 15 16 // 𫃞
+// ⿰ han-7cf9 han-4e2d // ⿰糹中
+
 ## 120.5
 
 glyph han-2b0e0:15x16 15 16 // 𫃠
@@ -80,6 +85,11 @@ glyph han-2b181:15x16 15 16 // 𫆁
 // glyph han-2b189:15x16 15 16 // 𫆉
 // ⿱ han-79cb han-8033 // ⿱秋耳
 
+## 128.10
+
+// glyph han-2b18d:15x16 15 16 // 𫆍
+// ⿰ han-8033 han-6717 // ⿰耳朗
+
 # CJK unified ideographs extension C: 虫 (142)
 
 ## 142.3
@@ -87,12 +97,20 @@ glyph han-2b181:15x16 15 16 // 𫆁
 glyph han-2b2a5:15x16 15 16 // 𫊥
 ⿰ han-866b:5x16 1 han-571f:9x16 // ⿰虫土
 
+## 142.6
+
+// glyph han-2b2ba:15x16 15 16 // 𫊺
+// ⿰ han-866b han-7cf8 // ⿰虫糸
+
 # CJK unified ideographs extension C: 衣 (145)
 
 ## 145.6
 
 glyph han-2b2fa:15x16 15 16 // 𫋺
 ⿰ han-8864:7x16 1 han-5146:7x16 // ⿰衤兆
+
+// glyph han-2b2fc:15x16 15 16 // 𫋼
+// ⿰ han-8864 han-7cf8 // ⿰衤糸
 
 ## 145.9
 

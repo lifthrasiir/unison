@@ -72,6 +72,9 @@ glyph han-7d24:15x16 15 16 // 紤
 glyph han-7d29:15x16 15 16 // 紩
 ⿰ han-7cf9:5x16 1 han-5931:9x16 // ⿰糹失
 
+// glyph han-7d32:15x16 15 16 // 紲
+// ⿰ han-7cf9 han-4e16 // ⿰糹世
+
 glyph han-7d34:15x16 15 16 // 紴
 ⿰ han-7cf9:5x16 1 han-76ae:9x16 // ⿰糹皮
 
@@ -119,8 +122,14 @@ glyph han-7d67:15x16 15 16 // 絧
 glyph han-7d69:15x16 15 16 // 絩
 ⿰ han-7cf9:5x16 1 han-5146:9x16 // ⿰糹兆
 
+// glyph han-7d6e:15x16 15 16 // 絮
+// ⿱ han-5982 han-7cf8 // ⿱如糸
+
 glyph han-7d70:15x16 15 16 // 絰
 ⿰ han-7cf9:5x16 1 han-81f3:9x16 // ⿰糹至
+
+// glyph han-7d72:15x16 15 16 // 絲
+// ⿰ han-7cf9 han-7cf8 // ⿰糹糸
 
 glyph han-7d74:15x16 15 16 // 絴
 ⿰ han-7cf9:5x16 1 han-7f8a:9x16 // ⿰糹羊
@@ -143,6 +152,12 @@ glyph han-7d87:15x16 15 16 // 綇
 
 glyph han-7da2:15x16 15 16 // 綢
 ⿰ han-7cf9:5x16 han-5468:10x16 // ⿰糹周
+
+// glyph han-7da4:15x16 15 16 // 綤
+// ⿱ han-90b5 han-7cf8 // ⿱邵糸
+
+// glyph han-7da6:15x16 15 16 // 綦
+// ⿱ han-5176 han-7cf8 // ⿱其糸
 
 glyph han-7da8:15x16 15 16 // 綨
 ⿰ han-7cf9:5x16 1 han-5176:9x16 // ⿰糹其
@@ -172,6 +187,9 @@ glyph han-7dd2:15x16 15 16 // 緒
 ⿰ han-7cf9:5x16 1 han-8005:9x16 // ⿰糹者
 
 ## 120.9
+
+// glyph han-7dd6:15x16 15 16 // 緖
+// ⿰ han-7cf8 han-8005 // ⿰糸者
 
 // glyph han-7dd7:15x16 15 16 // 緗
 // ⿰ han-7cf9 han-76f8 // ⿰糹相

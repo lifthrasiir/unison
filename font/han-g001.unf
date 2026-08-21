@@ -18,6 +18,13 @@
 // glyph han-30049:15x16 15 16 // 𰁉
 // ⿱ han-662f han-4e59 // ⿱是乙
 
+# CJK unified ideographs extension G: 二 (7)
+
+## 7.2
+
+// glyph han-30055:15x16 15 16 // 𰁕
+// ⿱ han-4e03 han-4e8c // ⿱七二
+
 # CJK unified ideographs extension G: 人 (9)
 
 ## 9.5
@@ -72,6 +79,9 @@ glyph han-301cf:15x16 15 16 // 𰇏
 
 // glyph han-301e9:15x16 15 16 // 𰇩
 // ⿱ han-8c9d han-53e3 // ⿱貝口
+
+// glyph han-301ea:15x16 15 16 // 𰇪
+// ⿱ han-5405 han-4e2d // ⿱吅中
 
 ## 30.9
 

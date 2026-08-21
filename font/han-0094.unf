@@ -53,6 +53,9 @@ glyph han-72ba:15x16 15 16 // 犺
 glyph han-72c4:15x16 15 16 // 狄
 ⿰ han-72ad:6x16 han-706b:9x16 // ⿰犭火
 
+// glyph han-72c6:15x16 15 16 // 狆
+// ⿰ han-72ad han-4e2d // ⿰犭中
+
 glyph han-72c7:15x16 15 16 // 狇
 ⿰ han-72ad:6x16 han-6728:9x16 // ⿰犭木
 
@@ -223,6 +226,9 @@ glyph han-73aa:15x16 15 16 // 玪
 
 glyph han-73b2-($han-regions):15x16 15 16 // 玲
 ⿰ han-248e9:5x16 1 han-4ee4-($han-regions):9x16 // ⿰𤣩令
+
+// glyph han-73b4:15x16 15 16 // 玴
+// ⿰ han-248e9 han-4e16 // ⿰𤣩世
 
 glyph han-73b7:15x16 15 16 // 玷
 ⿰ han-248e9:7x16 1 han-5360:7x16 // ⿰𤣩占

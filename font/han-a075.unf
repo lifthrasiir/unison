@@ -1,5 +1,10 @@
 # CJK unified ideographs extension A: 木 (75)
 
+## 75.3
+
+// glyph han-3b45:15x16 15 16 // 㭅
+// ⿰ han-6728 han-4e09 // ⿰木三
+
 ## 75.6
 
 glyph han-3b58:15x16 15 16 // 㭘
@@ -26,6 +31,11 @@ glyph han-3b9b:15x16 15 16 // 㮛
 // glyph han-3b9f:15x16 15 16 // 㮟
 // ⿰ han-67d8 han-6728 // ⿰柘木
 
+## 75.11
+
+// glyph han-3bbe:15x16 15 16 // 㮾
+// ⿱ han-6717 han-6728 // ⿱朗木
+
 ## 75.12
 
 // glyph han-3bd5:15x16 15 16 // 㯕
@@ -50,6 +60,9 @@ glyph han-3c20:15x16 15 16 // 㰠
 
 glyph han-3c24:15x16 15 16 // 㰤
 ⿰ han-53ef:8x16 han-6b20:7x16 // ⿰可欠
+
+// glyph han-3c25:15x16 15 16 // 㰥
+// ⿰ han-4e16 han-6b20 // ⿰世欠
 
 glyph han-3c27:15x16 15 16 // 㰧
 ⿰ han-53f0:7x16 1 han-6b20:7x16 // ⿰台欠
@@ -97,6 +110,11 @@ glyph han-3cb3:15x16 15 16 // 㲳
 
 // glyph han-3cb8:15x16 15 16 // 㲸
 // ⿰ han-6c35 han-4e59 // ⿰氵乙
+
+## 85.2
+
+// glyph han-3cba:15x16 15 16 // 㲺
+// ⿰ han-6c35 han-4e03 // ⿰氵七
 
 ## 85.4
 

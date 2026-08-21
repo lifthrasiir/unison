@@ -1,5 +1,10 @@
 # CJK unified ideographs extension C: 山 (46)
 
+## 46.3
+
+// glyph han-2aa22:15x16 15 16 // 𪨢
+// ⿱ han-5c71 han-4e0b // ⿱山下
+
 ## 46.6
 
 // glyph han-2aa31:15x16 15 16 // 𪨱
@@ -67,6 +72,9 @@ glyph han-2ab70:15x16 15 16 // 𪭰
 // glyph han-2ab9e:15x16 15 16 // 𪮞
 // ⿰ han-624c han-79e9 // ⿰扌秩
 
+// glyph han-2aba1:15x16 15 16 // 𪮡
+// ⿰ han-624c han-6717 // ⿰扌朗
+
 ## 64.20
 
 // glyph han-2abc4:15x16 15 16 // 𪯄
@@ -113,6 +121,11 @@ glyph han-2ac52:15x16 15 16 // 𪱒
 
 # CJK unified ideographs extension C: 月 (74)
 
+## 74.3
+
+// glyph han-2ac5a:15x16 15 16 // 𪱚
+// ⿰ han-6708 han-4e0a // ⿰月上
+
 ## 74.5
 
 glyph han-2ac5c:15x16 15 16 // 𪱜
@@ -121,6 +134,12 @@ glyph han-2ac5c:15x16 15 16 // 𪱜
 # CJK unified ideographs extension C: 木 (75)
 
 ## 75.3
+
+// glyph han-2ac71:15x16 15 16 // 𪱱
+// ⿱ han-6728 han-4e0b // ⿱木下
+
+// glyph han-2ac72:15x16 15 16 // 𪱲
+// ⿰ han-6728 han-4e0a // ⿰木上
 
 glyph han-2ac73:15x16 15 16 // 𪱳
 ⿰ han-6728:7x16 1 han-53e3:7x16 // ⿰木口

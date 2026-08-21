@@ -1,5 +1,10 @@
 # CJK unified ideographs extension G: 水 (85)
 
+## 85.3
+
+// glyph han-306c8:15x16 15 16 // 𰛈
+// ⿰ han-6c35 han-4e0a // ⿰氵上
+
 ## 85.7
 
 // glyph han-306fa:15x16 15 16 // 𰛺
@@ -113,6 +118,9 @@ glyph han-30931:15x16 15 16 // 𰤱
 # CJK unified ideographs extension G: 目 (109)
 
 ## 109.3
+
+// glyph han-3094c:15x16 15 16 // 𰥌
+// ⿰ han-76ee han-4e0b // ⿰目下
 
 // glyph han-3094f:15x16 15 16 // 𰥏
 // ⿱ han-76ee han-53e3 // ⿱目口

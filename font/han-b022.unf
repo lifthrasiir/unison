@@ -5,6 +5,16 @@
 glyph han-209c3:15x16 15 16 // 𠧃
 ⿰ han-752b:7x16 han-5351:8x16 // ⿰甫卑
 
+# CJK unified ideographs extension B: 卜 (25)
+
+## 25.4
+
+// glyph han-2001d:15x16 15 16 // 𠀝
+// ⿱ han-4e0b han-4e0a // ⿱下上
+
+// glyph han-209d7:15x16 15 16 // 𠧗
+// ⿱ han-4e0a han-4e0b // ⿱上下
+
 # CJK unified ideographs extension B: 厶 (28)
 
 ## 28.11

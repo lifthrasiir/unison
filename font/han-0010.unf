@@ -512,6 +512,11 @@ $$......@@......$$
 
 # CJK unified ideographs: 卜 (25)
 
+## 25.2
+
+// glyph han-535e:15x16 15 16 // 卞
+// ⿱ han-4e36 han-4e0b // ⿱丶下
+
 ## 25.3
 
 glyph han-5360:5x16 5 16 // 占

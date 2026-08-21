@@ -221,6 +221,11 @@ glyph han-4905:15x16 15 16 // 䤅
 glyph han-49ba:15x16 15 16 // 䦺
 ⿰ han-961d:4x16-l han-4e01:11x16 // ⿰阝丁
 
+## 170.4
+
+// glyph han-49bf:15x16 15 16 // 䦿
+// ⿰ han-961d han-4e2d // ⿰阝中
+
 ## 170.5
 
 glyph han-49c1:15x16 15 16 // 䧁

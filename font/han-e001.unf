@@ -1,9 +1,36 @@
+# CJK unified ideographs extension E: 一 (1)
+
+## 1.4
+
+// glyph han-2b822:15x16 15 16 // 𫠢
+// ⿱ han-4e0a han-4e01 // ⿱上丁
+
+## 1.8
+
+// glyph han-2b82e:15x16 15 16 // 𫠮
+// ⿰ han-81f3 han-4e0b // ⿰至下
+
+## 1.12
+
+// glyph han-2b838:15x16 15 16 // 𫠸
+// ⿱ han-4e0a han-6d88 // ⿱上消
+
+## 1.13
+
+// glyph han-2b83d:15x16 15 16 // 𫠽
+// ⿱ han-4e0a han-60c5 // ⿱上情
+
 # CJK unified ideographs extension E: 丨 (2)
 
 ## 2.2
 
 // glyph han-2b843:15x16 15 16 // 𫡃
 // ⿲ han-4e28 han-4e00 han-4e28 // ⿲丨一丨
+
+## 2.7
+
+// glyph han-2b847:15x16 15 16 // 𫡇
+// ⿰ han-5206 han-4e2d // ⿰分中
 
 # CJK unified ideographs extension E: 人 (9)
 
@@ -26,6 +53,11 @@
 
 glyph han-2b89e:15x16 15 16 // 𫢞
 ⿰ han-4ebb:5x16 1 han-9149:9x16 // ⿰亻酉
+
+## 9.8
+
+// glyph han-2b8b5:15x16 15 16 // 𫢵
+// ⿱ han-4f4e han-4e0b // ⿱低下
 
 ## 9.9
 
@@ -81,10 +113,18 @@ glyph han-2b9c2:15x16 15 16 // 𫧂
 
 # CJK unified ideographs extension E: 口 (30)
 
+## 30.4
+
+// glyph han-2ba58:15x16 15 16 // 𫩘
+// ⿰ han-53e3 han-4e2d // ⿰口中
+
 ## 30.6
 
 glyph han-2ba6e:15x16 15 16 // 𫩮
 ⿰ han-53e3:7x16 1 han-866b:7x16 // ⿰口虫
+
+// glyph han-2ba79:15x16 15 16 // 𫩹
+// ⿰ han-53e3 han-7cf8 // ⿰口糸
 
 ## 30.7
 

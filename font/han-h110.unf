@@ -76,6 +76,11 @@ glyph han-31e5e:15x16 15 16 // 𱹞
 // glyph han-31e70:15x16 15 16 // 𱹰
 // ⿰ han-7cf9 han-6263 // ⿰糹扣
 
+## 120.10
+
+// glyph han-31e7d:15x16 15 16 // 𱹽
+// ⿱ han-99ac han-7cf8 // ⿱馬糸
+
 ## 120.11
 
 // glyph han-31e7f:15x16 15 16 // 𱹿
@@ -108,6 +113,11 @@ glyph han-31e5e:15x16 15 16 // 𱹞
 // ⿱ han-2bb59 han-8033 // ⿱𫭙耳
 
 # CJK unified ideographs extension H: 肉 (130)
+
+## 130.3
+
+// glyph han-31f02:15x16 15 16 // 𱼂
+// ⿰ han-6708 han-4e0b // ⿰月下
 
 ## 130.7
 

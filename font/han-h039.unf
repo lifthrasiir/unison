@@ -77,6 +77,11 @@ glyph han-31882:15x16 15 16 // 𱢂
 // glyph han-31883:15x16 15 16 // 𱢃
 // ⿱ han-65e5 han-72c4 // ⿱日狄
 
+## 72.10
+
+// glyph han-3189e:15x16 15 16 // 𱢞
+// ⿰ han-65e5 han-6717 // ⿰日朗
+
 # CJK unified ideographs extension H: 月 (74)
 
 ## 74.5
@@ -90,6 +95,11 @@ glyph han-318b9:15x16 15 16 // 𱢹
 ⿰ han-6708:5x16-l 1 han-572d:9x16 // ⿰月圭
 
 # CJK unified ideographs extension H: 木 (75)
+
+## 75.2
+
+// glyph han-318be:15x16 15 16 // 𱢾
+// ⿰ han-6728 han-4e03 // ⿰木七
 
 ## 75.5
 

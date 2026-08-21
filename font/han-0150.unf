@@ -67,6 +67,9 @@ glyph han-8ca5:15x16 15 16 // 貥
 
 ## 154.5
 
+// glyph han-8cb0:15x16 15 16 // 貰
+// ⿱ han-4e16 han-8c9d // ⿱世貝
+
 glyph han-8cb1:15x16 15 16 // 貱
 ⿰ han-8c9d:6x16 1 han-76ae:8x16 // ⿰貝皮
 
@@ -183,6 +186,9 @@ glyph han-8dc0:15x16 15 16 // 跀
 
 glyph han-8dc6:15x16 15 16 // 跆
 ⿰ han-27fb7:5x16 1 han-53f0:9x16 // ⿰𧾷台
+
+// glyph han-8dc7:15x16 15 16 // 跇
+// ⿰ han-27fb7 han-4e16 // ⿰𧾷世
 
 glyph han-8dc9-($han-regions):15x16 15 16 // 跉
 ⿰ han-27fb7:5x16 1 han-4ee4-($han-regions):9x16 // ⿰𧾷令

@@ -13,6 +13,12 @@
 
 ## 196.2
 
+// glyph han-29f94:15x16 15 16 // 𩾔
+// ⿰ han-4e03 han-9ce5 // ⿰七鳥
+
+// glyph han-29f99:15x16 15 16 // 𩾙
+// ⿰ han-9ce5 han-4e03 // ⿰鳥七
+
 glyph han-29f9a:15x16 15 16 // 𩾚
 ⿰ han-4e01:7x16 1 han-9ce5:7x16 // ⿰丁鳥
 
@@ -34,6 +40,9 @@ glyph han-29faf:15x16 15 16 // 𩾯
 
 // glyph han-29fb0:15x16 15 16 // 𩾰
 // ⿰ han-6b62 han-9ce5 // ⿰止鳥
+
+// glyph han-29fc0:15x16 15 16 // 𩿀
+// ⿰ han-4e2d han-9ce5 // ⿰中鳥
 
 // glyph han-29fc8:15x16 15 16 // 𩿈
 // ⿱ han-5206 han-9ce5 // ⿱分鳥

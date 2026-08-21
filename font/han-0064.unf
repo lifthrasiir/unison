@@ -107,6 +107,9 @@ glyph han-62b1:15x16 15 16 // 抱
 glyph han-62b2:15x16 15 16 // 抲
 ⿰ han-624c:5x16 han-53ef:10x16 // ⿰扌可
 
+// glyph han-62b4:15x16 15 16 // 抴
+// ⿰ han-624c han-4e16 // ⿰扌世
+
 glyph han-62b5:15x16 15 16 // 抵
 ⿰ han-624c:5x16 han-6c10:10x16 // ⿰扌氐
 

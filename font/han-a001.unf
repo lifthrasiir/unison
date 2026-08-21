@@ -1,3 +1,10 @@
+# CJK unified ideographs extension A: 一 (1)
+
+## 1.14
+
+// glyph han-4db6:15x16 15 16 // 䶶
+// ⿱ han-4e0a han-63d0 // ⿱上提
+
 # CJK unified ideographs extension A: 乙 (5)
 
 ## 5.2
@@ -162,6 +169,9 @@ glyph han-364b:15x16 15 16 // 㙋
 
 // glyph han-365c:15x16 15 16 // 㙜
 // ⿱ han-9ad8 han-571f // ⿱高土
+
+// glyph han-365f:15x16 15 16 // 㙟
+// ⿰ han-571f han-6717 // ⿰土朗
 
 ## 32.21
 

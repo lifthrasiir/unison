@@ -48,6 +48,16 @@ glyph han-30480:15x16 15 16 // 𰒀
 
 # CJK unified ideographs extension G: 手 (64)
 
+## 64.2
+
+// glyph han-304b7:15x16 15 16 // 𰒷
+// ⿰ han-624c han-4e03 // ⿰扌七
+
+## 64.3
+
+// glyph han-304bc:15x16 15 16 // 𰒼
+// ⿰ han-624c han-4e09 // ⿰扌三
+
 ## 64.4
 
 // glyph han-304be:15x16 15 16 // 𰒾

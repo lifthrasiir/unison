@@ -1,5 +1,10 @@
 # CJK unified ideographs extension C: 水 (85)
 
+## 85.3
+
+// glyph han-2ad69:15x16 15 16 // 𪵩
+// ⿰ han-6c35 han-4e0b // ⿰氵下
+
 ## 85.7
 
 // glyph han-2ad86:15x16 15 16 // 𪶆
@@ -36,6 +41,9 @@
 
 // glyph han-2add7:15x16 15 16 // 𪷗
 // ⿰ han-6c35 han-813e // ⿰氵脾
+
+// glyph han-2addc:15x16 15 16 // 𪷜
+// ⿲ han-6c35 han-7cf8 han-7cf8 // ⿲氵糸糸
 
 # CJK unified ideographs extension C: 火 (86)
 

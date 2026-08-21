@@ -121,6 +121,11 @@ glyph han-2a8bb:15x16 15 16 // 𪢻
 // glyph han-2a8be:15x16 15 16 // 𪢾
 // ⿱ han-706b han-571f // ⿱火土
 
+## 32.5
+
+// glyph han-2a8c5:15x16 15 16 // 𪣅
+// ⿰ han-571f han-4e16 // ⿰土世
+
 ## 32.6
 
 glyph han-2a8cc:15x16 15 16 // 𪣌
@@ -156,6 +161,11 @@ glyph han-2a917:15x16 15 16 // 𪤗
 
 # CJK unified ideographs extension C: 女 (38)
 
+## 38.3
+
+// glyph han-2a964:15x16 15 16 // 𪥤
+// ⿱ han-4e0a han-5973 // ⿱上女
+
 ## 38.4
 
 // glyph han-2a967:15x16 15 16 // 𪥧
@@ -173,3 +183,8 @@ glyph han-2a968:15x16 15 16 // 𪥨
 
 // glyph han-2a99c:15x16 15 16 // 𪦜
 // ⿰ han-5973 han-6e1a // ⿰女渚
+
+## 38.12
+
+// glyph han-2a9a4:15x16 15 16 // 𪦤
+// ⿲ han-5973 han-7cf8 han-7cf8 // ⿲女糸糸

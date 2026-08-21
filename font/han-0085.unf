@@ -91,6 +91,9 @@ glyph han-6c86:15x16 15 16 // 沆
 glyph han-6c90:15x16 15 16 // 沐
 ⿰ han-6c35:5x16 1 han-6728:9x16 // ⿰氵木
 
+// glyph han-6c96:15x16 15 16 // 沖
+// ⿰ han-6c35 han-4e2d // ⿰氵中
+
 // glyph han-6c9a:15x16 15 16 // 沚
 // ⿰ han-6c35 han-6b62 // ⿰氵止
 
@@ -119,6 +122,9 @@ glyph han-6cbe:15x16 15 16 // 沾
 
 glyph han-6cc3:15x16 15 16 // 泃
 ⿰ han-6c35:5x16 1 han-53e5:9x16 // ⿰氵句
+
+// glyph han-6cc4:15x16 15 16 // 泄
+// ⿰ han-6c35 han-4e16 // ⿰氵世
 
 glyph han-6cc6:15x16 15 16 // 泆
 ⿰ han-6c35:5x16 1 han-5931:9x16 // ⿰氵失

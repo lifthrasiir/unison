@@ -17,6 +17,11 @@ glyph han-3100b:15x16 15 16 // 𱀋
 
 # CJK unified ideographs extension G: 食 (184)
 
+## 184.3
+
+// glyph han-310e3:15x16 15 16 // 𱃣
+// ⿰ han-98e0 han-4e0b // ⿰飠下
+
 ## 184.7
 
 // glyph han-310e8:15x16 15 16 // 𱃨
@@ -48,6 +53,11 @@ glyph han-31171:15x16 15 16 // 𱅱
 
 // glyph han-31174:15x16 15 16 // 𱅴
 // ⿱ han-9ad8 han-4e01 // ⿱高丁
+
+## 189.3
+
+// glyph han-31177:15x16 15 16 // 𱅷
+// ⿰ han-9ad8 han-4e0a // ⿰高上
 
 ## 189.5
 

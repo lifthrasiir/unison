@@ -370,6 +370,9 @@ glyph han-99b8:15x16 15 16 // 馸
 glyph han-99b9:15x16 15 16 // 馹
 ⿰ han-99ac:7x16 1 han-65e5:7x16 // ⿰馬日
 
+// glyph han-99bd:15x16 15 16 // 馽
+// ⿱ han-99ac han-4e2d // ⿱馬中
+
 ## 187.5
 
 glyph han-99ca:15x16 15 16 // 駊

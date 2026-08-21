@@ -10,10 +10,16 @@
 glyph han-22a73:15x16 15 16 // 𢩳
 ⿰ han-624c:5x16 1 han-5c71:9x16 // ⿰扌山
 
+// glyph han-22a79:15x16 15 16 // 𢩹
+// ⿰ han-624c han-4e0b // ⿰扌下
+
 ## 64.4
 
 glyph han-22a8f:15x16 15 16 // 𢪏
 ⿰ han-624c:5x16 1 han-65e5:9x16 // ⿰扌日
+
+// glyph han-22aa0:15x16 15 16 // 𢪠
+// ⿰ han-624c han-4e2d // ⿰扌中
 
 glyph han-22aae:15x16 15 16 // 𢪮
 ⿰ han-624c:5x16 1 han-6728:9x16 // ⿰扌木
@@ -33,6 +39,9 @@ glyph han-22afc:15x16 15 16 // 𢫼
 
 glyph han-22b0a:15x16 15 16 // 𢬊
 ⿰ han-624c:5x16 1 han-7c73:9x16 // ⿰扌米
+
+// glyph han-22b21:15x16 15 16 // 𢬡
+// ⿰ han-624c han-7cf8 // ⿰扌糸
 
 // glyph han-22b28:15x16 15 16 // 𢬨
 // ⿰ han-624c han-6c5d // ⿰扌汝

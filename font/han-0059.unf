@@ -57,6 +57,9 @@ glyph han-5fd3:15x16 15 16 // 忓
 
 ## 61.4
 
+// glyph han-5fe1:15x16 15 16 // 忡
+// ⿰ han-5fc4 han-4e2d // ⿰忄中
+
 glyph han-5ff4:15x16 15 16 // 忴
 ⿰ han-5fc4:7x16 1 han-4eca:7x16 // ⿰忄今
 
@@ -70,6 +73,9 @@ glyph han-5ffc:15x16 15 16 // 忼
 ⿰ han-5fc4:5x16 han-4ea2:9x16 // ⿰忄亢
 
 ## 61.5
+
+// glyph han-6008:15x16 15 16 // 怈
+// ⿰ han-5fc4 han-4e16 // ⿰忄世
 
 glyph han-6009:15x16 15 16 // 怉
 ⿰ han-5fc4:7x16 1 han-5305:7x16 // ⿰忄包

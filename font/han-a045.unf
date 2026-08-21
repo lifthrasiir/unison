@@ -10,6 +10,9 @@
 // glyph han-37b1:15x16 15 16 // 㞱
 // ⿱ han-5c71 han-65e5 // ⿱山日
 
+// glyph han-37b2:15x16 15 16 // 㞲
+// ⿰ han-5c71 han-4e2d // ⿰山中
+
 ## 46.5
 
 glyph han-37b9:15x16 15 16 // 㞹
@@ -61,6 +64,13 @@ glyph han-37fd:15x16 15 16 // 㟽
 
 glyph han-3824:15x16 15 16 // 㠤
 ⿰ han-5c71:5x16-l 1 han-8944:9x16 // ⿰山襄
+
+# CJK unified ideographs extension A: 工 (48)
+
+## 48.1
+
+// glyph han-382a:15x16 15 16 // 㠪
+// ⿱ han-4e00 han-4e0a // ⿱一上
 
 # CJK unified ideographs extension A: 心 (61)
 
@@ -151,6 +161,14 @@ glyph han-3abe:15x16 15 16 // 㪾
 
 glyph han-3ad1:15x16 15 16 // 㫑
 ⿰ han-65e5:7x16 han-529b:8x16 // ⿰日力
+
+## 72.3
+
+// glyph han-3ad4:15x16 15 16 // 㫔
+// ⿱ han-65e5 han-4e0a // ⿱日上
+
+// glyph han-3ad6:15x16 15 16 // 㫖
+// ⿱ han-4e0a han-65e5 // ⿱上日
 
 ## 72.5
 

@@ -1,5 +1,10 @@
 # CJK unified ideographs extension E: 日 (72)
 
+## 72.3
+
+// glyph han-2c027:15x16 15 16 // 𬀧
+// ⿱ han-65e5 han-4e0b // ⿱日下
+
 ## 72.11
 
 // glyph han-2c051:15x16 15 16 // 𬁑
@@ -17,6 +22,11 @@
 // glyph han-2c09c:15x16 15 16 // 𬂜
 // ⿰ han-6728 han-4e00 // ⿰木一
 
+## 75.3
+
+// glyph han-2c09e:15x16 15 16 // 𬂞
+// ⿱ han-4e0a han-6728 // ⿱上木
+
 ## 75.7
 
 // glyph han-2c0b6:15x16 15 16 // 𬂶
@@ -29,6 +39,9 @@
 
 // glyph han-2c0bf:15x16 15 16 // 𬂿
 // ⿰ han-684e han-529b // ⿰桎力
+
+// glyph han-2c0cc:15x16 15 16 // 𬃌
+// ⿰ han-6728 han-52c6 // ⿰木勆
 
 // glyph han-2c0cd:15x16 15 16 // 𬃍
 // ⿰ han-6728 han-6cca // ⿰木泊
@@ -75,6 +88,11 @@ glyph han-2c171:15x16 15 16 // 𬅱
 
 # CJK unified ideographs extension E: 止 (77)
 
+## 77.3
+
+// glyph han-2c178:15x16 15 16 // 𬅸
+// ⿱ han-4e0a han-6b62 // ⿱上止
+
 ## 77.11
 
 // glyph han-2c189:15x16 15 16 // 𬆉
@@ -97,12 +115,18 @@ glyph han-2c1d6:15x16 15 16 // 𬇖
 // glyph han-2c232:15x16 15 16 // 𬈲
 // ⿰ han-6c35 han-742a // ⿰氵琪
 
+// glyph han-2c234:15x16 15 16 // 𬈴
+// ⿰ han-6e05 han-4e2d // ⿰清中
+
 // glyph han-2c23b:15x16 15 16 // 𬈻
 // ⿰ han-6d69 han-767d // ⿰浩白
 
 # CJK unified ideographs extension E: 火 (86)
 
 ## 86.3
+
+// glyph han-2c277:15x16 15 16 // 𬉷
+// ⿰ han-706b han-4e0a // ⿰火上
 
 // glyph han-2c278:15x16 15 16 // 𬉸
 // ⿱ han-706b han-53e3 // ⿱火口

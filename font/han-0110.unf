@@ -352,6 +352,9 @@ glyph han-7948:15x16 15 16 // 祈
 // glyph han-7949:15x16 15 16 // 祉
 // ⿰ han-793b han-6b62 // ⿰礻止
 
+// glyph han-794c:15x16 15 16 // 祌
+// ⿰ han-793b han-4e2d // ⿰礻中
+
 ## 113.5
 
 glyph han-794f:15x16 15 16 // 祏
@@ -555,6 +558,9 @@ glyph han-79cb:15x16 15 16 // 秋
 
 glyph han-79cc:15x16 15 16 // 秌
 ⿰ han-706b:7x16 1 han-79be:7x16 // ⿰火禾
+
+// glyph han-79cd:15x16 15 16 // 种
+// ⿰ han-79be han-4e2d // ⿰禾中
 
 glyph han-79ce:15x16 15 16 // 秎
 ⿰ han-79be:7x16 han-5206:7x16 // ⿰禾分
