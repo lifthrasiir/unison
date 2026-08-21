@@ -9,18 +9,20 @@ goes under), and writes one glyph block per character that
   * decomposes, at the top level, into one of the four one-dimensional IDCs
     (`⿰⿱⿲⿳` — the only ones `compose.rs` implements) with single-character
     operands, and
-  * has every operand drawn in the source, at any size — the box is not
-    consulted, since a declaration is what says which parts are still to be
-    drawn.
+  * has every operand drawn in the source, at any size — a size that does not
+    fit the box only comments the line out, since a declaration is what says
+    which parts are still to be drawn.
 
 The emitted line leaves its components *undecided* (no `:WxH` suffix), which is
 the initial state `compose.rs` documents for a glyph populated from IDS; run
 `cargo run -r -- fix -i font/ --optimize-clearance` afterwards to pick the
 variants and the gaps.
 
-A character whose only usable parts are themselves composites is emitted
-commented out (`// glyph …`), so nothing is lost but nothing unbuildable is
-added either.
+A line the parts cannot lay out yet is emitted commented out (`// glyph …`), so
+that nothing is lost and nothing unbuildable is added either: either because its
+parts are drawn at no size that tiles the box (`--ignore-box` writes it anyway),
+or because the only parts it has are themselves composites
+(`--include-composite-parts`).
 
 Usage:
     python3 scripts/gen_ids_composites.py [--dry-run] [--limit N]
@@ -60,6 +62,9 @@ OTHER_ARITY = {
     "⿻": 2, "⿼": 2, "⿽": 2, "㇯": 2, "⿾": 1, "⿿": 1,
 }
 ARITY = {**IDC_ARITY, **OTHER_ARITY}
+
+# The two that split the box left to right; the other two split it top to bottom.
+HORIZONTAL = {"⿰", "⿲"}
 
 # The box every full-size han glyph declares.
 BOX_W, BOX_H = 15, 16
@@ -414,29 +419,54 @@ def radical_char(radical: int) -> str:
 # feasibility
 # --------------------------------------------------------------------------
 
-def feasible(inv: Inventory, op: str, comps: list[int]) -> str | None:
-    kind, _ = feasible_detail(inv, op, comps)
-    return kind
+@dataclass
+class Verdict:
+    """What the parts allow for one line."""
+
+    kind: str | None  # "handdrawn", "composite", or None when nothing does
+    fits: bool  # some combination of what is drawn tiles the box today
+    reason: str  # why `kind` is None
 
 
-def feasible_detail(inv: Inventory, op: str, comps: list[int]) -> tuple[str | None, str]:
-    """`"handdrawn"`, `"composite"` or None — what the parts allow for this line.
+def feasible(inv: Inventory, op: str, comps: list[int]) -> Verdict:
+    """Ask the parts about one line, in two independent questions.
 
-    Only *existence* is asked, never a size. A declaration is what says which
-    character is to be drawn, so it comes before the drawing: a line whose parts
-    are all drawn at 15x16 and so cannot tile the box yet is exactly the line
-    that asks for a narrow variant to be drawn, and dropping it would hide the
-    request. Sizes are `compose.rs`'s to check and
-    `uniform fix --optimize-clearance`'s to choose, once the variants exist.
+    *Existence* decides whether the line is written at all. A declaration is
+    what says which character is to be drawn, so it comes before the drawing: a
+    line whose parts are all drawn at 15x16 and so cannot tile the box yet is
+    exactly the line that asks for a narrow variant to be drawn, and dropping it
+    would hide the request.
+
+    *Fit* decides whether it is written commented out, and mirrors
+    `compose::fits_slot`: a variant can go in a slot when its extent across the
+    split is the glyph's and its extent along the split is strictly shorter than
+    the glyph's — a part as long as the glyph fills it on its own and leaves the
+    rest of the line nowhere to stand — and the line fits when the smallest such
+    variants still tile the box together. Which variant is actually written is
+    `uniform fix --optimize-clearance`'s to choose.
     """
+    horizontal = op in HORIZONTAL
+    axis, cross = (BOX_W, BOX_H) if horizontal else (BOX_H, BOX_W)
     all_hand = True
+    total = 0
+    fits = True
     for cp in comps:
         cands = inv.variants.get(han_name(cp), [])
         if not cands:
-            return None, "component not drawn"
+            return Verdict(None, False, "component not drawn")
         if not any(v.handdrawn for v in cands):
             all_hand = False
-    return ("handdrawn" if all_hand else "composite"), ""
+        along = [
+            (v.w if horizontal else v.h)
+            for v in cands
+            if (v.h if horizontal else v.w) == cross
+            and (v.w if horizontal else v.h) < axis
+        ]
+        if along:
+            total += min(along)
+        else:
+            fits = False
+    return Verdict("handdrawn" if all_hand else "composite", fits and total <= axis, "")
 
 
 # --------------------------------------------------------------------------
@@ -602,6 +632,8 @@ def main() -> int:
                     help="also use sequences marked 〾 (a component differs in some minor way)")
     ap.add_argument("--include-composite-parts", action="store_true",
                     help="write composite-part glyphs uncommented as well")
+    ap.add_argument("--ignore-box", action="store_true",
+                    help="write a line whose parts cannot tile the 15x16 box uncommented as well")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
 
@@ -638,7 +670,7 @@ def main() -> int:
         letter, block_name = blk
         entry = ids[cp]
 
-        best: tuple[str, list[int], str] | None = None
+        best: tuple[tuple[bool, bool], str, list[int], Verdict] | None = None
         why = "no decomposition at all"
         for seq, tags in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
             if "？" in seq or "{" in seq:
@@ -666,16 +698,22 @@ def main() -> int:
             if cp in comps:
                 why = min(why, "self-referential IDS", key=reason_rank)
                 continue
-            kind, reason = feasible_detail(inv, tree.op, comps)
-            if kind is None:
-                why = min(why, reason, key=reason_rank)
+            verdict = feasible(inv, tree.op, comps)
+            if verdict.kind is None:
+                why = min(why, verdict.reason, key=reason_rank)
                 continue
-            best = (tree.op, comps, kind)
-            break
+            # A character with several sequences takes the one that can be laid
+            # out today over one that only could be later, source tags being the
+            # tie-break the sort already applied.
+            rank = (verdict.fits, verdict.kind == "handdrawn")
+            if best is None or rank > best[0]:
+                best = (rank, tree.op, comps, verdict)
+            if rank == (True, True):
+                break
         if best is None:
             stats["skipped: " + why] += 1
             continue
-        op, comps, kind = best
+        _, op, comps, verdict = best
 
         key = rs.get(cp)
         if key is None:
@@ -686,14 +724,21 @@ def main() -> int:
             stats["no slice"] += 1
             continue
 
-        commented = kind == "composite" and not args.include_composite_parts
-        block = build_blocks(op, comps, cp, entry.char, commented)
+        holds = []
+        if verdict.kind == "composite" and not args.include_composite_parts:
+            holds.append("composite parts")
+        if not verdict.fits and not args.ignore_box:
+            holds.append("parts do not fit the box")
+        block = build_blocks(op, comps, cp, entry.char, bool(holds))
         plan[sl.name].append((key, cp, block))
-        stats["composite parts" if kind == "composite" else "hand-drawn parts"] += 1
+        stats["composite parts" if verdict.kind == "composite" else "hand-drawn parts"] += 1
+        for hold in holds:
+            stats["commented out: " + hold] += 1
         made += 1
         if args.verbose:
+            note = ", ".join([verdict.kind] + holds)
             print(f"  {entry.char} U+{cp:04X} -> {sl.name} {key[0]}{"'" if key[1] else ''}.{key[2]}"
-                  f"  {op}{''.join(chr(c) for c in comps)} ({kind})", file=sys.stderr)
+                  f"  {op}{''.join(chr(c) for c in comps)} ({note})", file=sys.stderr)
         if args.limit and made >= args.limit:
             break
 
