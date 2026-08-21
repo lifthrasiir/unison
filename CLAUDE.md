@@ -264,6 +264,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Optimizing clearance: the variant search, the score, and why the gaps are arithmetic and not a search | `fix/clearance.rs` (`optimize_clearance`, `arrange`) |
 | Which of several equally good layouts is chosen, and why the edges are minimized first | `fix/clearance.rs` (`Key`) |
 | Optimizing an IDC line written as a pattern: the gaps its glyphs share, and why the count of warning glyphs comes before the score | `fix/clearance.rs` (`optimize_pattern_line`) |
+| Why a component's `:label` is the family's to choose where its base is not, and why one label must serve every glyph | `fix/clearance.rs` (`slot_choices`) |
+| Which parts the variant search knows about, pattern-declared blocks included | `fix/clearance.rs` (`Inventory::collect`, `block_names`) |
 | A fix in the editor: one undo entry per file, and why nothing is written to disk | `app/fix.rs` |
 | Why a rule about the source is `audit` and not `meta` | `audit.rs` |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |

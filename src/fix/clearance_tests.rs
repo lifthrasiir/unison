@@ -597,3 +597,130 @@ fn applying_a_pattern_plan_removes_the_warnings_of_every_glyph_it_cleared() {
     assert!(clearance_warnings(&once).is_empty(), "{once}");
     assert_eq!(fixed(&once), once, "a second run is a no-op");
 }
+
+/// A pattern line whose components carry a variant label the block's own
+/// pattern does not reach: `(rx|ry):5x4` says the same `5x4` for every glyph
+/// of the family, so the label is the family's answer and not one glyph's.
+///
+/// ```text
+/// l:4x4 ####   rx:5x4/ry:5x4 #####   rx:4x4/ry:4x4 ####
+/// ```
+const PATTERN_LABELS: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph l:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph l:5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph rx:5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph ry:5x4 5 4
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+@@@@@@@@@@
+
+glyph rx:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph ry:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-(x|y) 8 4
+\u{2FF0} l:4x4 (rx|ry):5x4
+";
+
+/// The parts are 4 + 5 wide in an 8-wide box, so no set of gaps can bring the
+/// family inside the range — but every glyph's own family offers a `4x4`, and
+/// the label is spelled out on the line, so it is the family's to choose.
+#[test]
+fn a_pattern_component_label_is_searched_when_the_pattern_does_not_reach_it() {
+    let fixes = plan(PATTERN_LABELS);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    let fix = &fixes[0];
+    assert_eq!(fix.glyph, "test-(x|y)");
+    assert_eq!((fix.before, fix.after), (Some(4), 0));
+    assert_eq!(fix.glyphs_warning, Some((2, 0)));
+    assert_eq!(fix.new_line, "\u{2FF0} l:4x4 (rx|ry):4x4");
+}
+
+/// A component of a pattern line that is spelled out entirely is the same
+/// glyph in every member of the family, so its variants are searched too.
+#[test]
+fn a_spelled_out_component_of_a_pattern_line_is_searched() {
+    let src = PATTERN_LABELS.replace("\u{2FF0} l:4x4 (rx|ry):5x4", "\u{2FF0} l:5x4 (rx|ry):4x4");
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(4), 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 (rx|ry):4x4");
+}
+
+/// A label the block's pattern *does* reach is one glyph's answer and not the
+/// family's, so it is left exactly as written.
+#[test]
+fn a_label_the_pattern_reaches_is_not_searched() {
+    let src = PATTERN_LABELS.replace("\u{2FF0} l:4x4 (rx|ry):5x4", "\u{2FF0} l:4x4 rx:(4|5)x4");
+    assert!(plan(&src).is_empty(), "{:?}", plan(&src));
+}
+
+/// The parts of a real Han source are written as one block per size — a
+/// pattern block declaring a whole family of names with one drawing — so a
+/// variant search that only knew spelled-out blocks would find almost nothing.
+#[test]
+fn a_variant_declared_by_a_pattern_block_is_a_candidate() {
+    let src = PATTERN_LABELS
+        .replace("glyph rx:5x4 5 4", "glyph (rx|ry):5x4 5 4")
+        .replace("glyph rx:4x4 4 4", "glyph (rx|ry):4x4 4 4")
+        // The blocks the two names above now cover, gone.
+        .replace("glyph ry:5x4 5 4", "glyph spare-a:5x4 5 4")
+        .replace("glyph ry:4x4 4 4", "glyph spare-b:4x4 4 4");
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(4), 0));
+    assert_eq!(
+        fixes[0].glyphs_warning,
+        Some((2, 0)),
+        "both glyphs measured"
+    );
+    assert_eq!(fixes[0].new_line, "\u{2FF0} l:4x4 (rx|ry):4x4");
+}
+
+/// One label has to serve the whole family: a label some glyph of it does not
+/// draw is no answer, however well it suits the others.
+#[test]
+fn a_label_only_part_of_the_family_draws_is_not_a_candidate() {
+    let src = PATTERN_LABELS.replace("glyph ry:4x4 4 4", "glyph unused-ry:4x4 4 4");
+    assert!(plan(&src).is_empty(), "{:?}", plan(&src));
+}
+
+/// A relabel writes the name the *line* spells, so a component written as an
+/// alias may be relabelled only where the alias itself goes on saying what it
+/// says. An alias that exists at one label alone is not a family to search.
+#[test]
+fn an_alias_that_exists_at_one_label_only_is_not_relabelled() {
+    let src = format!(
+        "{}\nglyph ry:5x4 = ry2:5x4\n",
+        PATTERN_LABELS
+            .replace("glyph ry:5x4 5 4", "glyph ry2:5x4 5 4")
+            .replace("glyph ry:4x4 4 4", "glyph ry2:4x4 4 4"),
+    );
+    assert!(plan(&src).is_empty(), "{:?}", plan(&src));
+}

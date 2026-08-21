@@ -37,18 +37,25 @@
 //!
 //! A glyph block whose name is a pattern writes one line for every glyph it
 //! declares, and each of those glyphs is composed of its own parts, sized on
-//! their own. So the *components* are not searched there — a variant is one
-//! glyph's answer and cannot be the family's — and what is left, the gaps, is
-//! shared by all of them and is what a rewrite may move.
+//! their own. So what a rewrite may move there is what the family *shares*:
+//! the gaps, and a component's variant **label** whenever the block's own
+//! pattern does not reach it. A component written `han-4ee4-($han-regions):9x16`
+//! says the same `9x16` for every glyph the block declares, so that label is
+//! the family's answer and not one glyph's, and each glyph's own family is
+//! asked for the same label in turn ([`slot_choices`]); a component written
+//! `han-4ee4-g:(7|9)x16` says something different per glyph and is left alone.
+//! The *base* is never searched — a name is one glyph's answer and cannot be
+//! the family's.
 //!
-//! One set of gaps then has to serve every glyph, which makes the objective a
-//! different one: **the fewest glyphs warning at all**, and only then the
+//! One set of gaps and labels then has to serve every glyph, which makes the
+//! objective a different one: **the fewest glyphs warning at all**, and only then the
 //! summed score and the same tie-breaks below. The warnings are a work queue
 //! and its length is what the command is there to shorten, so a family in
 //! which one more glyph is finished beats one in which every glyph is a little
 //! less wrong — even when that trade costs the sum. [`optimize_pattern_line`]
 //! is the whole of it, and [`Member`] is why it stays cheap over a family of
-//! thousands.
+//! thousands: one glyph costs a handful of additions per set of gaps, whatever
+//! the labels chose.
 //!
 //! # The search
 //!
@@ -164,8 +171,10 @@ pub struct ClearanceFix {
     pub after: i32,
     /// How many components sit in a slot their name is not drawn for, before
     /// and after — the other thing this command answers, and the one a score of
-    /// zero says nothing about. `None` for a pattern line, whose components are
-    /// not searched at all.
+    /// zero says nothing about. For a pattern line it counts *slots*, the
+    /// label a slot carries being one thing the whole family shares. `None`
+    /// when the line was not scored as written at all (an undecided
+    /// component), there being no before to compare against.
     pub mismatched: Option<(usize, usize)>,
     /// How many of the glyphs the line stands for warn at all, before and
     /// after. `None` for a line that stands for one glyph, which either warns
@@ -284,6 +293,30 @@ fn is_plain_name(name: &str) -> bool {
     !crate::pattern::is_name_pattern(name) && !name.contains('$')
 }
 
+/// Every glyph a `glyph` block declares, as a part this pass could measure.
+///
+/// A block whose name is a pattern draws all of them with the one grid it
+/// holds ([`crate::document::expand_glyph_block`]), so each of its names names
+/// the same drawing — and a component naming one of them is the common case in
+/// a Han source, where a radical's variants are written as one block per size.
+/// A name still standing on a `$` after the base bindings have been applied is
+/// no name at all and declares nothing here.
+fn block_names(display: &str, name_parts: &crate::document::NamePartsMap) -> Vec<String> {
+    if is_plain_name(display) {
+        return vec![display.to_string()];
+    }
+    let substituted = crate::document::substitute_name_parts(display, name_parts);
+    if substituted.contains('$') {
+        return Vec::new();
+    }
+    let Ok(pattern) = crate::pattern::NamePattern::parse(&substituted) else {
+        return Vec::new();
+    };
+    (0..pattern.len())
+        .map(|i| crate::document::parse_glyph_name(&pattern.get(i)).display())
+        .collect()
+}
+
 /// One part's ink, and the box [`InkProfile::of`] measures it over.
 struct PartGrid<'a> {
     grid: &'a PixelGrid,
@@ -329,39 +362,37 @@ impl<'a> Inventory<'a> {
                 let DocumentItem::Glyph { name, body } = item else {
                     continue;
                 };
-                let name = name.display();
-                if !is_plain_name(&name) {
-                    continue;
+                for name in block_names(&name.display(), name_parts) {
+                    if inv.boxes.contains_key(&name) {
+                        continue; // first definition wins, as everywhere else
+                    }
+                    if let (Some(pixels), true, true) = (
+                        body.pixels.as_ref(),
+                        body.refs.is_empty(),
+                        body.compose.is_empty(),
+                    ) {
+                        let extent = body.declared_extent().unwrap_or_else(|| {
+                            let s = body.scale.max(1) as u16;
+                            (pixels.width / s, pixels.height / s)
+                        });
+                        inv.grids.insert(
+                            name.clone(),
+                            PartGrid {
+                                grid: pixels,
+                                scale: body.scale,
+                                origin: body.declared_origin(),
+                                extent,
+                            },
+                        );
+                    }
+                    if let Some((base, _)) = name.split_once(':') {
+                        inv.variants
+                            .entry(base.to_string())
+                            .or_default()
+                            .push(name.clone());
+                    }
+                    inv.boxes.insert(name, body.declared_extent());
                 }
-                if inv.boxes.contains_key(&name) {
-                    continue; // first definition wins, as everywhere else
-                }
-                if let (Some(pixels), true, true) = (
-                    body.pixels.as_ref(),
-                    body.refs.is_empty(),
-                    body.compose.is_empty(),
-                ) {
-                    let extent = body.declared_extent().unwrap_or_else(|| {
-                        let s = body.scale.max(1) as u16;
-                        (pixels.width / s, pixels.height / s)
-                    });
-                    inv.grids.insert(
-                        name.clone(),
-                        PartGrid {
-                            grid: pixels,
-                            scale: body.scale,
-                            origin: body.declared_origin(),
-                            extent,
-                        },
-                    );
-                }
-                if let Some((base, _)) = name.split_once(':') {
-                    inv.variants
-                        .entry(base.to_string())
-                        .or_default()
-                        .push(name.clone());
-                }
-                inv.boxes.insert(name, body.declared_extent());
             }
         }
         for names in inv.variants.values_mut() {
@@ -472,6 +503,10 @@ impl<'a> Inventory<'a> {
 }
 
 /// One name a slot could hold, with everything the score needs from it.
+///
+/// Cloning one is cheap — the profile behind it is shared — which is what lets
+/// a pattern line keep one per member of the family per label it considers.
+#[derive(Clone)]
 struct Candidate {
     name: String,
     /// The box's extent along the split axis, in declared units.
@@ -573,13 +608,14 @@ fn optimize_line(
         .enumerate()
         .map(|(slot, name)| inv.candidates(name, op.slot_direction(slot), cross_extent, horizontal))
         .collect();
-    let combinations: usize = slots.iter().map(Vec::len).product();
+    let lengths: Vec<usize> = slots.iter().map(Vec::len).collect();
+    let combinations: usize = lengths.iter().product();
     if combinations == 0 || combinations > MAX_COMBINATIONS {
         return None;
     }
 
     let mut best: Option<(Key, Vec<usize>)> = None;
-    for pick in Combinations::new(&slots) {
+    for pick in Combinations::new(&lengths) {
         let chosen: Vec<&Candidate> = pick
             .iter()
             .enumerate()
@@ -610,8 +646,7 @@ fn optimize_line(
     let mut at = key.clearances[0] - chosen[0].frontier.near;
     positions.push(at);
     for (i, pair) in chosen.windows(2).enumerate() {
-        let facing =
-            effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
+        let facing = effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
         at += key.clearances[i + 1] - facing;
         positions.push(at);
     }
@@ -646,8 +681,21 @@ struct PlannedLine {
     glyphs_warning: Option<(usize, usize)>,
 }
 
-/// One glyph of the family a pattern line stands for: its parts as that glyph
-/// names them, and the range its own rule holds them to.
+/// One glyph of the family a pattern line stands for: what it is held to, and
+/// the components it writes once the block's pattern has been expanded.
+///
+/// The names are the glyph's own, and every slot the family shares a label on
+/// ([`LabelChoice`]) rewrites all of them at once.
+struct MemberNames {
+    lo: i32,
+    hi: i32,
+    /// One per slot, in the line's order.
+    names: Vec<String>,
+    contact: Option<u16>,
+}
+
+/// One glyph of the family at one choice of labels: the range its own rule
+/// holds it to, and its layout as a function of the gaps.
 ///
 /// The clearances are affine in the gaps and are kept that way: `base[i]` is
 /// what clearance `i` is before the gaps are added (`c_i = gap_i + base[i]`),
@@ -660,7 +708,6 @@ struct Member {
     hi: i32,
     base: Vec<i32>,
     total: i32,
-    parts: Vec<Candidate>,
     /// The `audit max-contact-run` rule this glyph is held to, for the
     /// verification pass; the layout itself already has it folded into `base`
     /// and `total`.
@@ -684,14 +731,34 @@ impl Member {
     }
 }
 
+/// One answer for a slot of a pattern line: a variant label the whole family
+/// can carry, and what each of its glyphs draws when it does.
+struct LabelChoice {
+    /// The label this choice puts on the slot, and the name the line would
+    /// write with it. `None` is the line's own component, left exactly as
+    /// written — the only choice a slot whose label the block's own pattern
+    /// reaches ever has.
+    relabel: Option<(String, String)>,
+    /// How the name suits the slot, as [`crate::compose::direction_rank`]
+    /// scores it. One number for the family: the label is what carries a
+    /// direction, and the label is what every glyph here shares.
+    rank: u8,
+    /// The glyph each member puts in the slot, in `members` order.
+    parts: Vec<Candidate>,
+}
+
 /// Plan a pattern block's IDC line.
 ///
-/// One line here stands for a family, and the parts of each glyph in it are
-/// drawn and sized on their own — so the components are *not* searched, a name
-/// being one glyph's answer and not the family's. What the family shares is the
-/// gaps, and one set of them has to serve every glyph the block declares.
+/// One line here stands for a family, and what a rewrite may move is what the
+/// family *shares*: the gaps, and — this is [`slot_choices`] — a component's
+/// variant label whenever the block's own pattern does not reach it. A
+/// component written `(rx|ry):5x4` says the same `5x4` for every glyph the
+/// block declares, so that label is the family's answer and not one glyph's,
+/// and each glyph's own family is asked for the same label in turn. A
+/// component written `rx:(4|5)x4` says something different per glyph and is
+/// left alone. The *base* is never searched: a name is one glyph's answer.
 ///
-/// The objective is that shared position, in this order:
+/// The objective is that shared choice, in this order:
 ///
 /// 1. **the fewest glyphs warning at all.** A family in which one more glyph is
 ///    finished is worth more than one in which every glyph is slightly less
@@ -705,8 +772,11 @@ impl Member {
 /// A glyph whose parts this pass cannot measure — a name nothing defines, a
 /// part that is itself a composite, a component with no variant picked, a name
 /// no `audit ideal-clearance` rule reaches — is left out of the answer rather
-/// than making the whole family unfixable. The line still has to warn about
-/// something, and the answer still has to improve on what is written.
+/// than making the whole family unfixable. Which glyphs those are is decided
+/// once, on the line as written, so that every choice below is scored over the
+/// same family; a *choice* that some member of it cannot be measured at is
+/// dropped instead. The line still has to warn about something, and the answer
+/// still has to improve on what is written.
 fn optimize_pattern_line(
     inv: &Inventory,
     audit: &crate::audit::AuditRules,
@@ -722,7 +792,8 @@ fn optimize_pattern_line(
         true => (parent.0 as i32, parent.1),
         false => (parent.1 as i32, parent.0),
     };
-    if compose.part_names().count() != op.arity() {
+    let written: Vec<&str> = compose.part_names().collect();
+    if written.len() != op.arity() {
         return None;
     }
 
@@ -746,7 +817,10 @@ fn optimize_pattern_line(
     )
     .ok()?;
 
-    let mut members: Vec<Member> = Vec::new();
+    let mut members: Vec<MemberNames> = Vec::new();
+    // The parts of each member as the line writes them, kept beside it: they
+    // are the first choice of every slot below.
+    let mut as_written: Vec<Vec<Candidate>> = Vec::new();
     for item in &expanded {
         let DocumentItem::Glyph { name, body } = item else {
             continue;
@@ -758,7 +832,10 @@ fn optimize_pattern_line(
         let Some(line) = body.compose.first() else {
             continue;
         };
-        let names: Vec<&str> = line.part_names().collect();
+        let names: Vec<String> = line.part_names().map(str::to_string).collect();
+        if names.len() != written.len() {
+            continue;
+        }
         // An undecided component names no drawing, here as anywhere: the glyph
         // has no layout to measure and waits for its author, while the rest of
         // the family is optimized around it.
@@ -773,33 +850,44 @@ fn optimize_pattern_line(
         else {
             continue;
         };
-        let contact = audit.max_contact_run.for_glyph(&member_name).map(|(_, m)| m);
-        let last = parts.len() - 1;
-        let mut base = vec![parts[0].frontier.near];
-        let mut total = parts[0].frontier.near + (axis_extent - 1 - parts[last].frontier.far);
-        for pair in parts.windows(2) {
-            let Some(facing) =
-                effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)
-            else {
-                base.clear();
-                break;
-            };
-            base.push(pair[0].extent + facing);
-            total += facing;
+        let contact = audit
+            .max_contact_run
+            .for_glyph(&member_name)
+            .map(|(_, m)| m);
+        // Two neighbours with no line on which both draw: nothing to measure.
+        let refs: Vec<&Candidate> = parts.iter().collect();
+        if affine_layout(&refs, axis_extent, horizontal, contact).is_none() {
+            continue;
         }
-        if base.len() != parts.len() {
-            continue; // two neighbours with no line on which both draw
-        }
-        members.push(Member {
+        members.push(MemberNames {
             lo: lo as i32,
             hi: hi as i32,
-            base,
-            total,
-            parts,
+            names,
             contact,
         });
+        as_written.push(parts);
     }
     if members.is_empty() {
+        return None;
+    }
+
+    let slots: Vec<Vec<LabelChoice>> = (0..written.len())
+        .map(|slot| {
+            slot_choices(
+                inv,
+                &members,
+                &as_written,
+                written[slot],
+                slot,
+                op.slot_direction(slot),
+                cross_extent,
+                horizontal,
+            )
+        })
+        .collect();
+    let lengths: Vec<usize> = slots.iter().map(Vec::len).collect();
+    let label_combinations: usize = lengths.iter().product();
+    if label_combinations == 0 || label_combinations > MAX_COMBINATIONS {
         return None;
     }
 
@@ -816,71 +904,87 @@ fn optimize_pattern_line(
         }
     }
 
-    let before = evaluate_gaps(&members, &written_gaps, &written_gaps);
-    if before.warnings == 0 {
+    let unchanged = vec![0usize; slots.len()];
+    let written_members = member_layouts(&members, &slots, &unchanged, axis_extent, horizontal)?;
+    let before = evaluate_gaps(
+        &written_members,
+        &slots,
+        &unchanged,
+        &written_gaps,
+        &written_gaps,
+    );
+    if before.warnings == 0 && before.mismatched == 0 {
         return None; // nothing warns, so nothing to fix
     }
 
-    // What each gap could usefully be: enough to put that clearance inside some
-    // glyph's range, and one cell either side of that. Outside the hull every
-    // glyph's clearance `i` is on the same side of its range, so stepping back
-    // towards it gains each glyph a cell there and costs it at most the one it
-    // takes from the last clearance — never a worse answer, and often a better
-    // one. The gaps as written are in the set whatever it says, so that "as
-    // written" is always one of the answers compared.
-    let mut choices: Vec<Vec<i32>> = Vec::with_capacity(written_gaps.len());
-    for (i, written) in written_gaps.iter().enumerate() {
-        let (mut lo, mut hi) = (*written, *written);
-        for member in &members {
-            lo = lo.min(member.lo - member.base[i] - 1);
-            hi = hi.max(member.hi - member.base[i] + 1);
+    let mut best: Option<(PatternKey, Vec<usize>, Vec<i32>)> = None;
+    // A family is scored whole, once per set of gaps and per choice of labels,
+    // so what a line costs is the product of the three. A line that would cost
+    // more than the budget is left alone rather than allowed to take a minute,
+    // exactly as an over-large variant family is above.
+    let mut work = 0usize;
+    for pick in Combinations::new(&lengths) {
+        let Some(family) = member_layouts(&members, &slots, &pick, axis_extent, horizontal) else {
+            continue; // a choice some glyph of the family cannot be measured at
+        };
+        // What each gap could usefully be: enough to put that clearance inside
+        // some glyph's range, and one cell either side of that. Outside the
+        // hull every glyph's clearance `i` is on the same side of its range, so
+        // stepping back towards it gains each glyph a cell there and costs it
+        // at most the one it takes from the last clearance — never a worse
+        // answer, and often a better one. The gaps as written are in the set
+        // whatever it says, so that "as written" is always one of the answers
+        // compared.
+        let mut choices: Vec<Vec<i32>> = Vec::with_capacity(written_gaps.len());
+        for (i, gap) in written_gaps.iter().enumerate() {
+            let (mut lo, mut hi) = (*gap, *gap);
+            for member in &family {
+                lo = lo.min(member.lo - member.base[i] - 1);
+                hi = hi.max(member.hi - member.base[i] + 1);
+            }
+            choices.push((lo..=hi).collect());
         }
-        choices.push((lo..=hi).collect());
-    }
-    let combinations: usize = choices.iter().map(Vec::len).product();
-    // A family is scored whole, once per set of gaps, so what a line costs is
-    // the product of the two. A line that would cost more than that is left
-    // alone rather than allowed to take a minute, exactly as an over-large
-    // variant family is above.
-    if combinations == 0 || combinations.saturating_mul(members.len()) > MAX_PATTERN_WORK {
-        return None;
-    }
+        let combinations: usize = choices.iter().map(Vec::len).product();
+        if combinations == 0 {
+            continue;
+        }
+        work = work.saturating_add(combinations.saturating_mul(family.len()));
+        if work > MAX_PATTERN_WORK {
+            return None;
+        }
 
-    let mut best: Option<(PatternKey, Vec<i32>)> = None;
-    let mut gaps = vec![0i32; choices.len()];
-    for mut counter in 0..combinations {
-        for (slot, values) in choices.iter().enumerate() {
-            gaps[slot] = values[counter % values.len()];
-            counter /= values.len();
-        }
-        let key = evaluate_gaps(&members, &gaps, &written_gaps);
-        if best.as_ref().is_none_or(|(b, _)| key < *b) {
-            best = Some((key, gaps.clone()));
+        let mut gaps = vec![0i32; choices.len()];
+        for mut counter in 0..combinations {
+            for (slot, values) in choices.iter().enumerate() {
+                gaps[slot] = values[counter % values.len()];
+                counter /= values.len();
+            }
+            let key = evaluate_gaps(&family, &slots, &pick, &gaps, &written_gaps);
+            if best.as_ref().is_none_or(|(b, _, _)| key < *b) {
+                best = Some((key, pick.clone(), gaps.clone()));
+            }
         }
     }
-    let (key, gaps) = best?;
-    if (key.warnings, key.score) >= (before.warnings, before.score) {
+    let (key, pick, gaps) = best?;
+    if (key.warnings, key.score, key.mismatched)
+        >= (before.warnings, before.score, before.mismatched)
+    {
         return None; // a line nobody can improve keeps its warnings
     }
 
-    let line = write_gaps_line(compose, &gaps)?;
+    let line = write_pattern_line(compose, &gaps, &slots, &pick)?;
     // What the arithmetic says the layout measures, measured. Same rule as
     // [`optimize_line`]: a command that quietly writes a layout it was wrong
     // about is worse than one that writes nothing.
+    let family = member_layouts(&members, &slots, &pick, axis_extent, horizontal)?;
     let (mut score_after, mut warnings_after) = (0, 0);
-    for member in &members {
+    for (m, member) in family.iter().enumerate() {
+        let parts = parts_at(&slots, &pick, m);
         let mut positions = vec![gaps[0]];
-        for (i, part) in member.parts.iter().enumerate().take(member.parts.len() - 1) {
+        for (i, part) in parts.iter().enumerate().take(parts.len() - 1) {
             positions.push(positions[i] + part.extent + gaps[i + 1]);
         }
-        let parts: Vec<&Candidate> = member.parts.iter().collect();
-        let measured = clearances_at(
-            &parts,
-            &positions,
-            axis_extent,
-            horizontal,
-            member.contact,
-        )?;
+        let measured = clearances_at(&parts, &positions, axis_extent, horizontal, member.contact)?;
         if measured != member.clearances(&gaps) {
             return None;
         }
@@ -895,14 +999,178 @@ fn optimize_pattern_line(
         line,
         before: Some(before.score),
         after: key.score,
-        // The components are the same before and after — only the gaps moved —
-        // so there is no mismatch this rewrite could have changed.
-        mismatched: None,
+        mismatched: Some((before.mismatched, key.mismatched)),
         glyphs_warning: Some((before.warnings, key.warnings)),
     })
 }
 
-/// How the optimizer orders two sets of gaps for a pattern line. Derived `Ord`
+/// Everything one slot of a pattern line could carry, the line's own component
+/// first.
+///
+/// A label is a candidate only when the block's pattern does not reach it —
+/// the line writes it as one string, and it means the same thing in every
+/// glyph the block declares — and only when *every* glyph of the family draws
+/// something at it. A family whose members' variants do not all offer the same
+/// label offers no choice at all, which is the answer for a slot whose glyphs
+/// are drawn one by one.
+#[allow(clippy::too_many_arguments)]
+fn slot_choices(
+    inv: &Inventory,
+    members: &[MemberNames],
+    as_written: &[Vec<Candidate>],
+    written: &str,
+    slot: usize,
+    dir: Option<Direction>,
+    cross: u16,
+    horizontal: bool,
+) -> Vec<LabelChoice> {
+    let mut out = vec![LabelChoice {
+        relabel: None,
+        // Ranked on the name as *written*, which is the name the check reads
+        // when it decides whether to warn.
+        rank: crate::compose::direction_rank(written, dir),
+        parts: as_written.iter().map(|p| p[slot].clone()).collect(),
+    }];
+    let Some((base, label)) = written.split_once(':') else {
+        return out; // undecided: no label to move, and no drawing to move it to
+    };
+    if !is_plain_name(label) {
+        return out; // a label the block's own pattern reaches
+    }
+    let suffix = format!(":{label}");
+    // Each glyph's own base, twice over: as the line's own pattern expands it,
+    // which is what a rewrite writes, and canonically — through the aliases,
+    // exactly as [`Inventory::candidates`] does — which is the family a variant
+    // is looked for in.
+    let mut bases: Vec<(String, String)> = Vec::with_capacity(members.len());
+    for member in members {
+        let Some(written_base) = member.names[slot].strip_suffix(&suffix) else {
+            return out; // the line's label is not this glyph's after all
+        };
+        let canonical = inv.canonical(&member.names[slot]);
+        let Some((canonical_base, _)) = canonical.split_once(':') else {
+            return out;
+        };
+        bases.push((written_base.to_string(), canonical_base.to_string()));
+    }
+    // The labels every one of them offers, and no more: one label has to serve
+    // the whole family.
+    let mut shared: Option<std::collections::BTreeSet<&str>> = None;
+    for (_, base) in &bases {
+        let mine: std::collections::BTreeSet<&str> = inv
+            .variants
+            .get(base)
+            .into_iter()
+            .flatten()
+            .filter_map(|name| name.split_once(':').map(|(_, l)| l))
+            .collect();
+        shared = Some(match shared {
+            None => mine,
+            Some(prev) => prev.intersection(&mine).copied().collect(),
+        });
+        if shared.as_ref().is_some_and(|s| s.is_empty()) {
+            return out;
+        }
+    }
+    for candidate_label in shared.into_iter().flatten() {
+        if out.len() >= MAX_CANDIDATES {
+            break;
+        }
+        if candidate_label == label {
+            continue; // the line's own, already first
+        }
+        let name = format!("{base}:{candidate_label}");
+        // A drawing made for the other side of the glyph is not an alternative
+        // for this slot; see `compose::direction_rank`.
+        let rank = crate::compose::direction_rank(&name, dir);
+        if rank > 1 {
+            continue;
+        }
+        // Measured as the line would write it — a base whose alias exists at
+        // one label only would otherwise be relabelled into a name nothing
+        // defines — and only where that is the same glyph the family offered.
+        let Some(parts) = bases
+            .iter()
+            .map(|(written_base, base)| {
+                let name = format!("{written_base}:{candidate_label}");
+                let part = inv.candidate(&name, dir, cross, horizontal)?;
+                (inv.canonical(&name) == format!("{base}:{candidate_label}")).then_some(part)
+            })
+            .collect::<Option<Vec<Candidate>>>()
+        else {
+            continue; // some glyph of the family draws nothing at this label
+        };
+        out.push(LabelChoice {
+            relabel: Some((candidate_label.to_string(), name)),
+            rank,
+            parts,
+        });
+    }
+    out
+}
+
+/// The parts one member of the family puts in its slots, at one choice of
+/// labels.
+fn parts_at<'a>(
+    slots: &'a [Vec<LabelChoice>],
+    pick: &[usize],
+    member: usize,
+) -> Vec<&'a Candidate> {
+    slots
+        .iter()
+        .zip(pick)
+        .map(|(choices, &i)| &choices[i].parts[member])
+        .collect()
+}
+
+/// One glyph's clearances as a function of the gaps: `(base, total)`, the
+/// affine form [`Member`] documents. `None` when two neighbours share no line
+/// on which both draw.
+fn affine_layout(
+    parts: &[&Candidate],
+    axis_extent: i32,
+    horizontal: bool,
+    contact: Option<u16>,
+) -> Option<(Vec<i32>, i32)> {
+    let last = parts.len() - 1;
+    let mut base = vec![parts[0].frontier.near];
+    let mut total = parts[0].frontier.near + (axis_extent - 1 - parts[last].frontier.far);
+    for pair in parts.windows(2) {
+        let facing = effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
+        base.push(pair[0].extent + facing);
+        total += facing;
+    }
+    Some((base, total))
+}
+
+/// The whole family's layouts at one choice of labels, or `None` when some
+/// glyph of it cannot be measured there — a choice that is no answer, since
+/// every choice is scored over the same family.
+fn member_layouts(
+    members: &[MemberNames],
+    slots: &[Vec<LabelChoice>],
+    pick: &[usize],
+    axis_extent: i32,
+    horizontal: bool,
+) -> Option<Vec<Member>> {
+    members
+        .iter()
+        .enumerate()
+        .map(|(m, member)| {
+            let parts = parts_at(slots, pick, m);
+            let (base, total) = affine_layout(&parts, axis_extent, horizontal, member.contact)?;
+            Some(Member {
+                lo: member.lo,
+                hi: member.hi,
+                base,
+                total,
+                contact: member.contact,
+            })
+        })
+        .collect()
+}
+
+/// How the optimizer orders two answers for a pattern line. Derived `Ord`
 /// again, and the fields are [`Key`]'s with the family's own objective — how
 /// many glyphs warn — in front, and each of the rest summed over the family.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -911,25 +1179,47 @@ struct PatternKey {
     warnings: usize,
     /// How far outside their ranges the family is, summed.
     score: i32,
+    /// How many slots hold a label drawn for another slot — one number for the
+    /// family, the label being what every glyph here shares.
+    mismatched: usize,
+    /// More labels drawn *for* their slot first.
+    directed: std::cmp::Reverse<usize>,
     edge_sum: i32,
     inner_spread: i32,
-    /// `false` — the gaps as written — sorts first.
+    /// `false` — the line as written — sorts first.
     changed: bool,
     gaps: Vec<i32>,
+    names: Vec<String>,
 }
 
-/// Score one set of gaps over the whole family.
-fn evaluate_gaps(members: &[Member], gaps: &[i32], written: &[i32]) -> PatternKey {
+/// Score one choice of labels and gaps over the whole family.
+fn evaluate_gaps(
+    family: &[Member],
+    slots: &[Vec<LabelChoice>],
+    pick: &[usize],
+    gaps: &[i32],
+    written: &[i32],
+) -> PatternKey {
+    let chosen: Vec<&LabelChoice> = slots.iter().zip(pick).map(|(c, &i)| &c[i]).collect();
     let mut key = PatternKey {
         warnings: 0,
         score: 0,
+        mismatched: chosen.iter().filter(|c| c.rank == 2).count(),
+        directed: std::cmp::Reverse(chosen.iter().filter(|c| c.rank == 0).count()),
         edge_sum: 0,
         inner_spread: 0,
-        changed: gaps != written,
+        changed: gaps != written || chosen.iter().any(|c| c.relabel.is_some()),
         gaps: gaps.to_vec(),
+        names: chosen
+            .iter()
+            .map(|c| match &c.relabel {
+                Some((_, name)) => name.clone(),
+                None => String::new(),
+            })
+            .collect(),
     };
     let mut clearances: Vec<i32> = Vec::with_capacity(4);
-    for member in members {
+    for member in family {
         member.clearances_into(gaps, &mut clearances);
         let n = clearances.len();
         let s = score(&clearances, member.lo, member.hi);
@@ -943,21 +1233,43 @@ fn evaluate_gaps(members: &[Member], gaps: &[i32], written: &[i32]) -> PatternKe
     key
 }
 
-/// The line with `gaps` in place of the ones it writes, and everything else —
-/// the operator, the components as the block spells them, the comment — left
-/// exactly as it is. A pattern line's components are the
-/// family's and not this pass's to choose.
-fn write_gaps_line(compose: &GlyphCompose, gaps: &[i32]) -> Option<String> {
+/// The line with `gaps` in place of the ones it writes and the chosen labels in
+/// place of the ones its components carry, and everything else — the operator,
+/// the components' base names as the block spells them, the comment — left
+/// exactly as it is. A pattern line's component *names* are the family's and
+/// not this pass's to choose; only the label they share is.
+fn write_pattern_line(
+    compose: &GlyphCompose,
+    gaps: &[i32],
+    slots: &[Vec<LabelChoice>],
+    pick: &[usize],
+) -> Option<String> {
     let mut items: Vec<ComposeItem> = Vec::new();
     let mut parts = compose
         .items
         .iter()
         .filter(|i| matches!(i, ComposeItem::Part { .. }));
-    for gap in gaps {
+    for (slot, gap) in gaps.iter().enumerate() {
         if *gap != 0 {
             items.push(ComposeItem::Gap(i16::try_from(*gap).ok()?));
         }
-        items.push(parts.next()?.clone());
+        let part = parts.next()?;
+        let ComposeItem::Part { raw_name, .. } = part else {
+            return None;
+        };
+        items.push(match &slots.get(slot)?.get(pick[slot])?.relabel {
+            // The block's own component, untouched: the `@` form and all.
+            None => part.clone(),
+            // Only the label moved, so the name is written the way the line
+            // already writes it, with the new label in place of the old.
+            Some((label, name)) => ComposeItem::Part {
+                name: name.clone(),
+                raw_name: raw_name
+                    .as_deref()
+                    .and_then(|raw| raw.split_once(':'))
+                    .map(|(raw_base, _)| format!("{raw_base}:{label}")),
+            },
+        });
     }
     Some(
         GlyphCompose {
@@ -1029,8 +1341,12 @@ fn clearances_at(
     let last = parts.len() - 1;
     let mut out = vec![positions[0] + parts[0].frontier.near];
     for i in 0..last {
-        let facing =
-            effective_facing(&parts[i].profile, &parts[i + 1].profile, horizontal, contact)?;
+        let facing = effective_facing(
+            &parts[i].profile,
+            &parts[i + 1].profile,
+            horizontal,
+            contact,
+        )?;
         out.push(positions[i + 1] - positions[i] + facing);
     }
     out.push(axis_extent - 1 - (positions[last] + parts[last].frontier.far));
@@ -1139,16 +1455,17 @@ fn arrange(n: usize, total: i32, lo: i32, hi: i32) -> Vec<i32> {
     out
 }
 
-/// The cartesian product of the slots' candidate lists, as index vectors. The
-/// last slot varies fastest, so the order is the one the lists are written in.
+/// The cartesian product of the slots' candidate lists, as index vectors over
+/// the lists' lengths. The last slot varies fastest, so the order is the one
+/// the lists are written in.
 struct Combinations {
     lengths: Vec<usize>,
     next: Option<Vec<usize>>,
 }
 
 impl Combinations {
-    fn new(slots: &[Vec<Candidate>]) -> Self {
-        let lengths: Vec<usize> = slots.iter().map(Vec::len).collect();
+    fn new(lengths: &[usize]) -> Self {
+        let lengths = lengths.to_vec();
         let next = lengths
             .iter()
             .all(|n| *n > 0)
