@@ -259,6 +259,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `audit ideal-clearance PREFIX* MIN MAX`: the prefix match, and which rule wins | `audit.rs` (`IdealClearances`) |
 | `audit max-contact-run PREFIX* N`: how far two parts may run together, and why that is a clearance rather than a complaint of its own | `audit.rs` (`MaxContactRuns`), `compose.rs` (`contact_run`) |
 | Why a contact needs no hardblank term, and why the two never both fire on one junction | `compose.rs` (`contact_run`, `InkLine::ink`) |
+| Why a contact is measured between two contours and not two cells, and the covers a profile keeps for it | `compose.rs` (`contact_run`, `EdgeCover`), `detail.rs` (`DetailRegion::edge_coverage`) |
 | What a `uniform fix` command may rewrite, and the two frontends that apply one | `fix/mod.rs` |
 | Optimizing clearance: the variant search, the score, and why the gaps are arithmetic and not a search | `fix/clearance.rs` (`optimize_clearance`, `arrange`) |
 | Which of several equally good layouts is chosen, and why the edges are minimized first | `fix/clearance.rs` (`Key`) |

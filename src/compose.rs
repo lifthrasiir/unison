@@ -133,6 +133,7 @@
 //! but the ranking is the rule that the editor's variant picker and the
 //! most-common-choice default will both use, so it lives here with the parse.
 
+use crate::detail::DetailRegion;
 use crate::document::{ComposeItem, GlyphCompose, GlyphRef, PixelGrid};
 use crate::issues::Severity;
 
@@ -329,6 +330,60 @@ pub struct InkProfile {
     pub rows: Vec<Option<InkLine>>,
     /// Per column, read top to bottom.
     pub cols: Vec<Option<InkLine>>,
+    /// Per row, what its two ink frontiers actually cover of the boundary they
+    /// face. Parallel to [`Self::rows`].
+    pub row_edges: Vec<EdgeCover>,
+    /// Per column, the same. Parallel to [`Self::cols`].
+    pub col_edges: Vec<EdgeCover>,
+    /// The lattice the covers are counted over: one declared cell across a line
+    /// is `edge_den`. Catalog geometry lies on the half lattice, so this is
+    /// twice the grid's `scale` and every endpoint is exact on it.
+    pub edge_den: u16,
+}
+
+/// How much of the boundary a line's frontier faces its ink actually covers, as
+/// sorted disjoint intervals over [`InkProfile::edge_den`], measured across the
+/// line (down a row, along a column).
+///
+/// A frontier is a *cell*, and a cell is inked long before its ink reaches the
+/// side of it that faces the neighbour: a diagonal ending in a corner inks the
+/// cell and covers none of the edge, or a sliver of it. That difference is the
+/// whole reason this is kept — [`contact_run`] asks whether two parts really
+/// run together, and the cells alone answer a coarser question, always the
+/// stricter way round.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct EdgeCover {
+    /// What the near frontier covers of its near side.
+    pub near: Vec<(u16, u16)>,
+    /// What the far frontier covers of its far side.
+    pub far: Vec<(u16, u16)>,
+}
+
+/// Whether two covers, each over its own lattice, share any length at all.
+fn covers_meet(a: &[(u16, u16)], a_den: u16, b: &[(u16, u16)], b_den: u16) -> bool {
+    let (a_den, b_den) = (a_den.max(1) as i64, b_den.max(1) as i64);
+    // Cross-multiplied onto the shared lattice, which needs no gcd: the
+    // comparison is all anyone wants of it.
+    a.iter().any(|&(p, q)| {
+        let (p, q) = (p as i64 * b_den, q as i64 * b_den);
+        b.iter().any(|&(r, t)| {
+            let (r, t) = (r as i64 * a_den, t as i64 * a_den);
+            p.max(r) < q.min(t)
+        })
+    })
+}
+
+/// Sorted, with everything that meets or overlaps run together.
+fn merge_cover(list: &mut Vec<(u16, u16)>) {
+    list.sort_unstable();
+    let mut out: Vec<(u16, u16)> = Vec::with_capacity(list.len());
+    for &(s, e) in list.iter() {
+        match out.last_mut() {
+            Some(last) if s <= last.1 => last.1 = last.1.max(e),
+            _ => out.push((s, e)),
+        }
+    }
+    *list = out;
 }
 
 /// What one line of a grid occupies along an axis: the two frontiers, plus how
@@ -454,13 +509,83 @@ impl InkProfile {
                     .count() as u16,
             })
         };
+        let rows: Vec<Option<InkLine>> = (0..h as usize)
+            .map(|r| scan(col_lo, cols_wide, &|c| by_row[r * cols_wide + c]))
+            .collect();
+        let cols: Vec<Option<InkLine>> = (0..w as usize)
+            .map(|c| scan(row_lo, rows_tall, &|r| by_col[c * rows_tall + r]))
+            .collect();
+
+        // A second pass, now that the frontiers are known: what each of them
+        // covers of the boundary it faces. Only the outermost sub-cell of a
+        // declared cell touches that boundary, which is why `scale` shows up
+        // here as a position and not only as a divisor.
+        let mut row_edges = vec![EdgeCover::default(); h as usize];
+        let mut col_edges = vec![EdgeCover::default(); w as usize];
+        let mut push = |out: &mut Vec<(u16, u16)>, list: &[(u8, u8)], sub: u16, den: u8| {
+            let mul = 2 / den.max(1) as u16;
+            out.extend(
+                list.iter()
+                    .map(|&(a, b)| (sub * 2 + a as u16 * mul, sub * 2 + b as u16 * mul)),
+            );
+        };
+        for row in 0..grid.height {
+            for col in 0..grid.width {
+                let px = grid.get(row, col);
+                // A hardblank draws nothing, so it covers nothing — the same
+                // statement [`InkLine::ink`] makes about the frontiers.
+                if px.is_clear() || px.is_hardblank() {
+                    continue;
+                }
+                let id = px.catalog_shape_id();
+                let region = match id {
+                    crate::pixel::PX_CUSTOM => grid.details.get(&(row, col)).cloned(),
+                    _ => Some(DetailRegion::from_shape(id)),
+                };
+                let Some(region) = region else { continue };
+                let cov = region.edge_coverage();
+                let (box_r, box_c) = ((row / s) as i32 - origin.1 as i32, (col / s) as i32 - origin.0 as i32);
+                let (sub_j, sub_i) = (row % s, col % s);
+                let fr = box_r.clamp(0, h as i32 - 1) as usize;
+                let fc = box_c.clamp(0, w as i32 - 1) as usize;
+                if let Some((near, far)) = rows.get(fr).copied().flatten().and_then(InkLine::ink) {
+                    if box_c == far && sub_i == s - 1 {
+                        push(&mut row_edges[fr].far, &cov.right, sub_j, cov.den);
+                    }
+                    if box_c == near && sub_i == 0 {
+                        push(&mut row_edges[fr].near, &cov.left, sub_j, cov.den);
+                    }
+                }
+                if let Some((near, far)) = cols.get(fc).copied().flatten().and_then(InkLine::ink) {
+                    if box_r == far && sub_j == s - 1 {
+                        push(&mut col_edges[fc].far, &cov.bottom, sub_i, cov.den);
+                    }
+                    if box_r == near && sub_j == 0 {
+                        push(&mut col_edges[fc].near, &cov.top, sub_i, cov.den);
+                    }
+                }
+            }
+        }
+        for e in row_edges.iter_mut().chain(col_edges.iter_mut()) {
+            merge_cover(&mut e.near);
+            merge_cover(&mut e.far);
+        }
         Self {
-            rows: (0..h as usize)
-                .map(|r| scan(col_lo, cols_wide, &|c| by_row[r * cols_wide + c]))
-                .collect(),
-            cols: (0..w as usize)
-                .map(|c| scan(row_lo, rows_tall, &|r| by_col[c * rows_tall + r]))
-                .collect(),
+            rows,
+            cols,
+            row_edges,
+            col_edges,
+            edge_den: 2 * s,
+        }
+    }
+
+    /// The covers of the lines that face along the split axis, indexed like
+    /// [`Self::along`].
+    fn along_edges(&self, horizontal: bool) -> &[EdgeCover] {
+        if horizontal {
+            &self.row_edges
+        } else {
+            &self.col_edges
         }
     }
 
@@ -546,10 +671,16 @@ pub fn facing_offset(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option
 /// `delta` declared cells past `a`'s own origin — the longest such run, since a
 /// split is spoiled by one long seam rather than by scattered nicks.
 ///
-/// A line counts when both parts draw ink on it and the ink leaves no cell
-/// between them. That is a question about the *pattern* of two facing edges and
-/// not about the distance between them, which is the whole point: two flat
-/// faces meeting over sixteen lines and two tips grazing over one are the same
+/// A line counts when both parts draw ink on it and their *contours* meet:
+/// the two frontier cells abut and the ink in them covers some of the boundary
+/// they share ([`EdgeCover`]). Cells alone would be the stricter question and
+/// the less intuitive one — a diagonal that ends in a corner inks its cell
+/// without reaching the side of it, and two such cells pass each other with no
+/// seam to speak of.
+///
+/// Either way it is a question about the *pattern* of two facing edges and not
+/// about the distance between them, which is the whole point: two flat faces
+/// meeting over sixteen lines and two tips grazing over one are the same
 /// clearance and want opposite answers.
 ///
 /// Hardblanks need no term here. A hardblank holds a part's *ink* frontier back
@@ -558,10 +689,34 @@ pub fn facing_offset(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option
 /// on one line. A line either part draws nothing on breaks the run: there is no
 /// contact where one side is not there.
 pub fn contact_run(a: &InkProfile, b: &InkProfile, horizontal: bool, delta: i32) -> u16 {
+    let (a_edges, b_edges) = (a.along_edges(horizontal), b.along_edges(horizontal));
     let (mut longest, mut run) = (0u16, 0u16);
-    for (x, y) in a.along(horizontal).iter().zip(b.along(horizontal).iter()) {
+    for (i, (x, y)) in a
+        .along(horizontal)
+        .iter()
+        .zip(b.along(horizontal).iter())
+        .enumerate()
+    {
         let touching = match (x.and_then(InkLine::ink), y.and_then(InkLine::ink)) {
-            (Some((_, a_far)), Some((b_near, _))) => delta + b_near - a_far - 1 <= 0,
+            (Some((_, a_far)), Some((b_near, _))) => match delta + b_near - a_far - 1 {
+                // Their cells overlap: whatever the contours do inside them,
+                // the parts are into each other and the line is not the place
+                // to be subtle about it.
+                gap if gap < 0 => true,
+                // The two frontier cells abut, so the boundary they share is
+                // one line of geometry — and only the part of it both actually
+                // cover is a seam. A tip that inks its cell without reaching
+                // the side of it touches nothing.
+                0 => match (a_edges.get(i), b_edges.get(i)) {
+                    (Some(ae), Some(be)) => {
+                        covers_meet(&ae.far, a.edge_den, &be.near, b.edge_den)
+                    }
+                    // A profile from before the covers were kept: the cells are
+                    // all there is to go on.
+                    _ => true,
+                },
+                _ => false,
+            },
             _ => false,
         };
         run = if touching { run + 1 } else { 0 };

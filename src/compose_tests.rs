@@ -538,6 +538,10 @@ fn offsets_leave_in_the_parents_raster_units() {
 // ---------------------------------------------------------------- clearance
 
 /// A grid from a picture: `#` is ink, `$` a hardblank, anything else nothing.
+///
+/// Three sub-pixel shapes have a character too, for the cells whose *contours*
+/// decide a contact: `/` covers none of its right edge, `^` the top half of it,
+/// and `v` the bottom half of its left edge.
 fn grid(rows: &[&str]) -> PixelGrid {
     let mut g = PixelGrid::new(rows[0].len() as u16, rows.len() as u16);
     for (r, row) in rows.iter().enumerate() {
@@ -545,6 +549,9 @@ fn grid(rows: &[&str]) -> PixelGrid {
             let shape = match ch {
                 '#' => crate::pixel::PixelShape::new(crate::pixel::PX_ALMOSTFULL, true),
                 '$' => crate::pixel::PixelShape::new(crate::pixel::PX_HARDBLANK, false),
+                '/' => crate::pixel::PixelShape::new(crate::pixel::PX_HALF1, true),
+                '^' => crate::pixel::PixelShape::new(crate::pixel::PX_CORNER2, true),
+                'v' => crate::pixel::PixelShape::new(crate::pixel::PX_CORNER1, true),
                 _ => continue,
             };
             g.set(r as u16, c as u16, shape);
@@ -1012,6 +1019,44 @@ fn a_contact_run_is_the_longest_seam_two_edges_share() {
     assert_eq!(demand(&flat, &facing, 3), ContactDemand { run: 3, owed: 0 });
     assert_eq!(demand(&flat, &tip, 2), ContactDemand { run: 1, owed: 0 });
     assert_eq!(demand(&claimed, &facing, 2), ContactDemand { run: 3, owed: 0 });
+}
+
+/// A contact is between two *contours*, not two cells: a frontier cell whose
+/// ink never reaches the side facing the neighbour touches nothing there, and
+/// two that reach opposite halves of the boundary they share pass each other.
+#[test]
+fn a_contact_is_where_the_ink_meets_and_not_where_the_cells_do() {
+    let flat = whole(&grid(&["####", "####", "####"]), 1);
+    let facing = whole(&grid(&["####", "####", "####"]), 1);
+    assert_eq!(contact_run(&flat, &facing, true, 4), 3);
+
+    // `/` inks its cell and covers none of its right edge, so the cells abut
+    // and the ink does not.
+    let tapered = whole(&grid(&["###/", "###/", "###/"]), 1);
+    assert_eq!(contact_run(&tapered, &facing, true, 4), 0);
+    // The cells are still what an overlap is measured by.
+    assert_eq!(contact_run(&tapered, &facing, true, 3), 3);
+
+    // Opposite halves of the same boundary: both cells are inked, the two
+    // frontiers meet, and the contours miss each other.
+    let upper = whole(&grid(&["###^", "###^", "###^"]), 1);
+    let lower = whole(&grid(&["v###", "v###", "v###"]), 1);
+    assert_eq!(contact_run(&upper, &lower, true, 4), 0);
+    // Against a flat edge each of them shares half the boundary, which is a
+    // seam like any other.
+    assert_eq!(contact_run(&upper, &facing, true, 4), 3);
+    assert_eq!(contact_run(&flat, &lower, true, 4), 3);
+
+    // And so the demand follows the ink: no cell is owed for a seam that is
+    // not there.
+    assert_eq!(
+        contact_demand(&tapered, &facing, true, 2).map(|d| d.owed),
+        Some(0),
+    );
+    assert_eq!(
+        contact_demand(&flat, &facing, true, 2).map(|d| d.owed),
+        Some(1),
+    );
 }
 
 /// `expand`, holding the line to `min..max` and to a contact-run rule.
