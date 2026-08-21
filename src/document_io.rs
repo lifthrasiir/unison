@@ -83,9 +83,10 @@
 //!   the bare one already reaches that face.
 //! - `audit KEY ARGUMENT...` — a rule the *source* is held to, not a value the
 //!   font carries: `audit ideal-clearance han-* 0 1` says how much room the
-//!   parts of a `han-*` glyph are meant to leave each other. Same one-key-per-
-//!   line shape as `meta`, single-assignment the same way, and no face scope at
-//!   all. See [`crate::audit`].
+//!   parts of a `han-*` glyph are meant to leave each other, and `audit
+//!   max-contact-run han-* 2` how far two of them may run together. Same
+//!   one-key-per-line shape as `meta`, single-assignment the same way, and no
+//!   face scope at all. See [`crate::audit`].
 //! - `face FACE [: SLICE...]` — one typeface in the output. `slice SLICE
 //!   [= SLICE...]` declares a slice, the `= ...` form being shorthand for
 //!   including those too, transitively. See [`crate::faces`] for the model, and

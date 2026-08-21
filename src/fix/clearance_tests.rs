@@ -166,6 +166,46 @@ fn a_line_that_warns_is_rewritten_by_its_gaps_alone() {
     assert_eq!(fix.new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4");
 }
 
+/// Two flat faces in a box with one cell to spare. Nothing warns about the
+/// distance between them — they sit at 0, inside the range — but they run
+/// together over the whole of both edges, so `max-contact-run` takes the cell
+/// they were leaning on and the optimizer spends the spare one parting them.
+const FLAT_FACES: &str = "\
+audit ideal-clearance test-* 0 1
+audit max-contact-run test-* 2
+
+glyph a:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph b:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-x 9 4
+\u{2FF0} a:4x4 b:4x4
+";
+
+#[test]
+fn a_long_contact_is_worth_the_spare_cell() {
+    let fixes = plan(FLAT_FACES);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    // 0/0/1 as written, and the middle one is reported a cell short because the
+    // two faces touch over all 4 lines.
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(1), 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} a:4x4 1 b:4x4");
+
+    // A rule that tolerates the run says nothing, and neither does no rule.
+    let slack = FLAT_FACES.replace("max-contact-run test-* 2", "max-contact-run test-* 4");
+    assert!(plan(&slack).is_empty(), "4 lines is inside the ideal 4");
+    let none = FLAT_FACES.replace("audit max-contact-run test-* 2\n", "");
+    assert!(plan(&none).is_empty(), "no rule, nothing measured");
+}
+
 #[test]
 fn a_line_inside_the_range_is_left_alone() {
     let wide = TWO_PARTS.replace("ideal-clearance test-* 0 1", "ideal-clearance test-* 0 3");

@@ -23,10 +23,11 @@
 //! apart). There is no face scope: a face selects which characters map to which
 //! glyph, never how a glyph is drawn, and every face draws from one glyph set.
 //!
-//! Only one key exists so far:
+//! The keys:
 //!
 //! ```text
 //! audit ideal-clearance han-* 0 1
+//! audit max-contact-run han-* 2
 //! ```
 //!
 //! Everything here is single-assignment, exactly as `meta` is: setting one slot
@@ -48,6 +49,10 @@ pub enum AuditEntry {
     /// are meant to leave each other and the glyph's edges. See
     /// [`IdealClearances`] and [`crate::compose`].
     IdealClearance { prefix: String, min: i16, max: i16 },
+    /// `max-contact-run PREFIX* N` — how many consecutive lines two neighbouring
+    /// parts of an IDC line may touch along before the layout owes them a cell
+    /// of clearance. See [`MaxContactRuns`] and [`crate::compose::contact_run`].
+    MaxContactRun { prefix: String, max: u16 },
 }
 
 impl AuditEntry {
@@ -58,6 +63,7 @@ impl AuditEntry {
             // and a tighter one for a subset), so only the same prefix twice
             // is a duplicate.
             Self::IdealClearance { prefix, .. } => format!("ideal-clearance {prefix}"),
+            Self::MaxContactRun { prefix, .. } => format!("max-contact-run {prefix}"),
         }
     }
 
@@ -69,7 +75,26 @@ impl AuditEntry {
 
 /// Every key, for the unknown-key message.
 fn known_keys() -> String {
-    "ideal-clearance".to_string()
+    "ideal-clearance, max-contact-run".to_string()
+}
+
+/// The `PREFIX*` every key is scoped by: a glyph name's front, so a `*` that is
+/// anywhere but the end would match by something this never asks.
+fn check_prefix(key: &str, prefix: &str) -> Result<(), String> {
+    if let Some(pos) = prefix.find('*')
+        && pos + 1 != prefix.len()
+    {
+        return Err(format!(
+            "`audit {key}` matches a glyph name by its front, so `*` may only be \
+             the last character of `{prefix}`",
+        ));
+    }
+    if prefix.matches('*').count() > 1 {
+        return Err(format!(
+            "`audit {key}` takes one `*`, at the end; `{prefix}` has more",
+        ));
+    }
+    Ok(())
 }
 
 /// Parse the text of an [`DocumentItem::Audit`] item — everything after the
@@ -92,19 +117,7 @@ pub fn parse_audit_entry(text: &str) -> Result<AuditEntry, String> {
                     rest.len(),
                 ));
             };
-            if let Some(pos) = prefix.find('*')
-                && pos + 1 != prefix.len()
-            {
-                return Err(format!(
-                    "`audit {key}` matches a glyph name by its front, so `*` may only be \
-                     the last character of `{prefix}`",
-                ));
-            }
-            if prefix.matches('*').count() > 1 {
-                return Err(format!(
-                    "`audit {key}` takes one `*`, at the end; `{prefix}` has more",
-                ));
-            }
+            check_prefix(key, prefix)?;
             let num = |v: &String| {
                 v.parse::<i16>()
                     .map_err(|_| format!("`audit {key}` takes numbers, got `{v}`"))
@@ -118,6 +131,22 @@ pub fn parse_audit_entry(text: &str) -> Result<AuditEntry, String> {
             Ok(AuditEntry::IdealClearance {
                 prefix: prefix.clone(),
                 min,
+                max,
+            })
+        }
+        "max-contact-run" => {
+            let [prefix, max] = rest else {
+                return Err(format!(
+                    "`audit {key}` takes a glyph-name prefix and 1 value, got {}",
+                    rest.len(),
+                ));
+            };
+            check_prefix(key, prefix)?;
+            let max = max.parse::<u16>().map_err(|_| {
+                format!("`audit {key}` takes a count of lines, got `{max}`")
+            })?;
+            Ok(AuditEntry::MaxContactRun {
+                prefix: prefix.clone(),
                 max,
             })
         }
@@ -138,6 +167,7 @@ pub fn parse_audit_entry(text: &str) -> Result<AuditEntry, String> {
 #[derive(Clone, Debug, Default)]
 pub struct AuditRules {
     pub ideal_clearance: IdealClearances,
+    pub max_contact_run: MaxContactRuns,
 }
 
 impl AuditRules {
@@ -152,6 +182,9 @@ impl AuditRules {
                     Ok(AuditEntry::IdealClearance { prefix, min, max }) => {
                         rules.ideal_clearance.rules.insert(prefix, (min, max));
                     }
+                    Ok(AuditEntry::MaxContactRun { prefix, max }) => {
+                        rules.max_contact_run.rules.insert(prefix, max);
+                    }
                     Err(_) => continue,
                 }
             }
@@ -160,43 +193,81 @@ impl AuditRules {
     }
 }
 
-/// The `audit ideal-clearance` rules, and which one a glyph is held to.
-///
-/// See [`crate::compose`] for what a clearance is and where it is measured;
-/// violating one is a warning, since it is a drawing that has drifted rather
-/// than a source that cannot be built.
+/// The rules of one `audit` key, and which one a glyph is held to.
 ///
 /// Rules are keyed by the pattern as written (`han-*`, or a bare name matching
 /// exactly one glyph), which is also the duplicate-detection slot, so a source
 /// may state as many as it likes. When more than one matches a name the
 /// **longest** wins and an exact name beats every prefix: that is what makes a
 /// rule for one troublesome glyph an exception rather than a second answer.
+///
+/// Every key scopes the same way, so the matching lives here once; what a rule
+/// *says* is the type parameter.
 #[derive(Clone, Debug, Default)]
-pub struct IdealClearances {
-    /// Pattern as written -> `(min, max)`, inclusive.
-    rules: BTreeMap<String, (i16, i16)>,
+pub struct PrefixRules<T> {
+    /// Pattern as written -> what it states.
+    rules: BTreeMap<String, T>,
 }
 
-impl IdealClearances {
+impl<T> PrefixRules<T> {
     pub fn is_empty(&self) -> bool {
         self.rules.is_empty()
     }
 
-    /// The rule `glyph` is held to: the pattern it was written as and the
-    /// inclusive range, or `None` when no rule reaches the name.
-    pub fn for_glyph(&self, glyph: &str) -> Option<(&str, i16, i16)> {
+    /// The rule `glyph` is held to: the pattern it was written as and what it
+    /// states, or `None` when no rule reaches the name.
+    pub fn get(&self, glyph: &str) -> Option<(&str, &T)> {
         self.rules
             .iter()
-            .filter_map(|(pattern, &(min, max))| {
+            .filter_map(|(pattern, value)| {
                 let specificity = match pattern.strip_suffix('*') {
                     Some(prefix) => glyph.starts_with(prefix).then_some(prefix.len()),
                     // An exact name is more specific than any prefix of it.
                     None => (pattern == glyph).then_some(usize::MAX),
                 }?;
-                Some((specificity, pattern.as_str(), min, max))
+                Some((specificity, pattern.as_str(), value))
             })
             .max_by_key(|&(specificity, ..)| specificity)
-            .map(|(_, pattern, min, max)| (pattern, min, max))
+            .map(|(_, pattern, value)| (pattern, value))
+    }
+}
+
+/// The `audit ideal-clearance` rules: how much room an IDC line's parts are
+/// meant to leave each other and the glyph's edges, as an inclusive range.
+///
+/// See [`crate::compose`] for what a clearance is and where it is measured;
+/// violating one is a warning, since it is a drawing that has drifted rather
+/// than a source that cannot be built.
+pub type IdealClearances = PrefixRules<(i16, i16)>;
+
+/// The `audit max-contact-run` rules: how many consecutive lines two
+/// neighbouring parts may touch along before the layout owes them a cell.
+///
+/// This is the one rule that reads the *pattern* of two facing edges rather
+/// than the distance between them, which is what tells a pair of flat faces
+/// (which want parting) from a pair that meets at a tip (which does not). It
+/// says nothing about hardblanks and needs none: a hardblank that has already
+/// parted two parts leaves no ink touching for this to count. See
+/// [`crate::compose::contact_run`].
+///
+/// It says its piece *as* a clearance — the junction reports a cell less — so
+/// it is in force only where an `audit ideal-clearance` rule reaches the same
+/// glyph. A source stating this key alone measures nothing, which is the same
+/// arrangement every other consumer of an ink profile is under: nothing is
+/// profiled where nothing holds the result to anything.
+pub type MaxContactRuns = PrefixRules<u16>;
+
+impl IdealClearances {
+    /// The pattern the rule was written as and its inclusive range.
+    pub fn for_glyph(&self, glyph: &str) -> Option<(&str, i16, i16)> {
+        self.get(glyph).map(|(p, &(min, max))| (p, min, max))
+    }
+}
+
+impl MaxContactRuns {
+    /// The pattern the rule was written as and the longest tolerated run.
+    pub fn for_glyph(&self, glyph: &str) -> Option<(&str, u16)> {
+        self.get(glyph).map(|(p, &max)| (p, max))
     }
 }
 
@@ -239,6 +310,42 @@ mod tests {
         assert!(parse_audit_entry("ideal-clearance han-* 0").is_err());
         assert!(parse_audit_entry("clearance han-* 0 1").is_err());
         assert!(parse_audit_entry("").is_err());
+    }
+
+    #[test]
+    fn a_max_contact_run_rule_parses() {
+        assert_eq!(
+            parse_audit_entry("max-contact-run han-* 2").unwrap(),
+            AuditEntry::MaxContactRun {
+                prefix: "han-*".to_string(),
+                max: 2,
+            },
+        );
+        // 0 is a rule like any other: no two parts may touch at all.
+        assert!(matches!(
+            parse_audit_entry("max-contact-run han-* 0"),
+            Ok(AuditEntry::MaxContactRun { max: 0, .. })
+        ));
+        // A count of lines, so nothing below zero and nothing fractional.
+        assert!(parse_audit_entry("max-contact-run han-* -1").is_err());
+        assert!(parse_audit_entry("max-contact-run han-* two").is_err());
+        assert!(parse_audit_entry("max-contact-run han-*").is_err());
+        assert!(parse_audit_entry("max-contact-run han-* 1 2").is_err());
+        // The prefix rule is the one every key shares.
+        assert!(
+            parse_audit_entry("max-contact-run han-*-l 2")
+                .unwrap_err()
+                .contains("last character"),
+        );
+        // Its own key, so it neither collides with nor replaces the other one.
+        let r = rules_of("audit ideal-clearance han-* 0 1\naudit max-contact-run han-* 2\n");
+        assert_eq!(r.ideal_clearance.for_glyph("han-4e00"), Some(("han-*", 0, 1)));
+        assert_eq!(r.max_contact_run.for_glyph("han-4e00"), Some(("han-*", 2)));
+        assert!(r.max_contact_run.for_glyph("latin-a").is_none());
+        assert_ne!(
+            parse_audit_entry("max-contact-run han-* 2").unwrap().slot(),
+            parse_audit_entry("ideal-clearance han-* 0 1").unwrap().slot(),
+        );
     }
 
     /// One slot per prefix, so a source may hold different families of glyph to

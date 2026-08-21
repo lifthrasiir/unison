@@ -386,12 +386,12 @@ fn expand_inner(
     // the glyph it actually is, and before everything below, so nothing
     // downstream has to know an IDC line exists.
     let mut undecided_parts: HashSet<(Option<ItemRef>, String)> = HashSet::new();
-    let clearances = crate::audit::AuditRules::collect(docs).ideal_clearance;
+    let audit = crate::audit::AuditRules::collect(docs);
     expand_compose_lines(
         &mut all_items,
         &mut diagnostics,
         &mut undecided_parts,
-        &clearances,
+        &audit,
     );
 
     // Expanding a `map` is not free (the font has ranges thousands of
@@ -479,8 +479,9 @@ fn expand_compose_lines(
     all_items: &mut Vec<ExpandedItem>,
     diagnostics: &mut Vec<Diagnostic>,
     undecided_parts: &mut HashSet<(Option<ItemRef>, String)>,
-    clearances: &crate::audit::IdealClearances,
+    audit: &crate::audit::AuditRules,
 ) {
+    let clearances = &audit.ideal_clearance;
     let has_compose = |e: &ExpandedItem| matches!(&e.item, DocumentItem::Glyph { body, .. } if !body.compose.is_empty());
     if !all_items.iter().any(has_compose) {
         return;
@@ -540,6 +541,7 @@ fn expand_compose_lines(
                     undecided_parts.insert((e.origin, name.to_string()));
                 }
             }
+            let contact = audit.max_contact_run.for_glyph(&glyph_name);
             let rule = clearances
                 .for_glyph(&glyph_name)
                 .map(|(written, min, max)| crate::compose::ClearanceRule {
@@ -547,6 +549,8 @@ fn expand_compose_lines(
                     min,
                     max,
                     ink: &ink,
+                    max_contact_run: contact.map(|(_, max)| max),
+                    contact_written: contact.map_or("", |(w, _)| w),
                 });
             let (refs, issues) = crate::compose::expand_compose(
                 &glyph_name,

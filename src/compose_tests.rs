@@ -648,6 +648,8 @@ fn with_clearance(
         min,
         max,
         ink: &ink,
+        max_contact_run: None,
+        contact_written: "test*",
     };
     let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, Some(&rule));
     assert!(errors(&issues).is_empty(), "{issues:?}");
@@ -972,6 +974,139 @@ fn a_part_with_nothing_to_measure_stands_the_check_down() {
     assert!(with_clearance((8, 4), &compose, &dims, &disjoint, 0, 0).is_empty());
 }
 
+/// What [`contact_run`] measures, and what [`contact_demand`] makes of it.
+#[test]
+fn a_contact_run_is_the_longest_seam_two_edges_share() {
+    // Flat faces: they run together over every line they share.
+    let flat = whole(&grid(&["####", "####", "####"]), 1);
+    let facing = whole(&grid(&["####", "####", "####"]), 1);
+    assert_eq!(contact_run(&flat, &facing, true, 4), 3);
+    assert_eq!(contact_run(&flat, &facing, true, 5), 0, "drawn apart");
+    assert_eq!(contact_run(&flat, &facing, true, 3), 3, "overlapping");
+
+    // A tip: the seam is one line long however flat the other side is.
+    let tip = whole(&grid(&["...#", "####", "...#"]), 1);
+    assert_eq!(contact_run(&flat, &tip, true, 4), 1);
+
+    // Two lines that touch with a third between them are two seams, not one.
+    let notched = whole(&grid(&["####", "...#", "####"]), 1);
+    let reversed = whole(&grid(&["####", "#...", "####"]), 1);
+    assert_eq!(contact_run(&reversed, &notched, true, 4), 1);
+
+    // A line one of them draws nothing on has no contact on it.
+    let gapped = whole(&grid(&["####", "....", "####"]), 1);
+    assert_eq!(contact_run(&flat, &gapped, true, 4), 1);
+
+    // A hardblank holds the ink back, so the same edges no longer meet.
+    let claimed = whole(&grid(&["###$", "###$", "###$"]), 1);
+    assert_eq!(contact_run(&claimed, &facing, true, 4), 0);
+    assert_eq!(contact_run(&claimed, &facing, true, 3), 3);
+
+    // The demand is read where the ink *would* meet, so it is the same however
+    // the line places the parts — and a hardblank that already holds them apart
+    // is the rule's answer rather than a second claim on top of it.
+    let demand = |a: &InkProfile, b: &InkProfile, max| {
+        contact_demand(a, b, true, max).expect("both draw on some line")
+    };
+    assert_eq!(demand(&flat, &facing, 2), ContactDemand { run: 3, owed: 1 });
+    assert_eq!(demand(&flat, &facing, 3), ContactDemand { run: 3, owed: 0 });
+    assert_eq!(demand(&flat, &tip, 2), ContactDemand { run: 1, owed: 0 });
+    assert_eq!(demand(&claimed, &facing, 2), ContactDemand { run: 3, owed: 0 });
+}
+
+/// `expand`, holding the line to `min..max` and to a contact-run rule.
+fn with_contact_run(
+    parent: (u16, u16),
+    compose: &GlyphCompose,
+    dims: &dyn Fn(&str) -> PartDims,
+    profiles: &std::collections::HashMap<String, InkProfile>,
+    max_contact_run: Option<u16>,
+) -> Vec<String> {
+    let ink = |name: &str| profiles.get(name);
+    let rule = ClearanceRule {
+        written: "test*",
+        min: 0,
+        max: 1,
+        ink: &ink,
+        max_contact_run,
+        contact_written: "test*",
+    };
+    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, Some(&rule));
+    assert!(errors(&issues).is_empty(), "{issues:?}");
+    of_severity(&issues, Severity::Warning)
+        .into_iter()
+        .map(str::to_string)
+        .collect()
+}
+
+/// The whole of the contact rule: two parts that touch over a long run are held
+/// a cell apart, two that touch over a short one are not, and a hardblank that
+/// has already parted them says nothing more.
+#[test]
+fn a_long_contact_run_costs_a_clearance() {
+    let dims = table(&[("a:4x4", (4, 4)), ("b:4x4", (4, 4)), ("c:4x4", (4, 4))]);
+    let ink = profiles(&[
+        // Flat right edge on every row.
+        ("a:4x4", &["####", "####", "####", "####"]),
+        // Flat left edge: the two meet over all 4 rows.
+        ("b:4x4", &["####", "####", "####", "####"]),
+        // Only the top two rows reach the left edge.
+        ("c:4x4", &["####", "####", "..##", "..##"]),
+        // Like `a`, but the last column is a hardblank rather than ink.
+        ("a$:4x4", &["###$", "###$", "###$", "###$"]),
+    ]);
+    let dims = |name: &str| match name {
+        "a$:4x4" => PartDims::Size(4, 4),
+        other => dims(other),
+    };
+    let touching = line(IdcOp::LeftRight, vec![part("a:4x4"), part("b:4x4")]);
+    let grazing = line(IdcOp::LeftRight, vec![part("a:4x4"), part("c:4x4")]);
+    let parted = line(IdcOp::LeftRight, vec![part("a$:4x4"), part("b:4x4")]);
+
+    // With no rule stated, nothing about contact is measured at all.
+    assert!(with_contact_run((8, 4), &touching, &dims, &ink, None).is_empty());
+
+    // 4 rows of contact, over the ideal 2: the clearance is one less than the
+    // ink says, which puts it under the ideal 0..1.
+    let warnings = with_contact_run((8, 4), &touching, &dims, &ink, Some(2));
+    assert_eq!(warnings.len(), 2, "{warnings:?}"); // the clearance and the total
+    assert!(
+        warnings[0].contains("run together over 4") && warnings[0].contains("leaves -1"),
+        "{warnings:?}"
+    );
+
+    // 2 rows is inside the ideal, so the parts may sit against each other.
+    assert!(with_contact_run((8, 4), &grazing, &dims, &ink, Some(2)).is_empty());
+
+    // The hardblank has already parted them, so the rule asks for nothing more.
+    assert!(with_contact_run((8, 4), &parted, &dims, &ink, Some(2)).is_empty());
+
+    // A line that has *given* the junction its cell still reads 0 there: the
+    // space the rule asked for is not room the glyph has left to spend. Written
+    // a cell apart in a 10-wide box, that reads 0 at the junction and 1 at the
+    // right edge — a total of 1, inside the ideal.
+    let given = GlyphCompose {
+        op: IdcOp::LeftRight,
+        items: vec![
+            ComposeItem::Part {
+                name: "a:4x4".to_string(),
+                raw_name: None,
+            },
+            ComposeItem::Gap(1),
+            ComposeItem::Part {
+                name: "b:4x4".to_string(),
+                raw_name: None,
+            },
+        ],
+        comment: None,
+    };
+    assert!(with_contact_run((10, 4), &given, &dims, &ink, Some(2)).is_empty());
+    // Without the rule that same cell is a cell of slack, and the total says so.
+    let loose = with_contact_run((10, 4), &given, &dims, &ink, None);
+    assert_eq!(loose.len(), 1, "{loose:?}");
+    assert!(loose[0].contains("leaves 2 in total"), "{loose:?}");
+}
+
 #[test]
 fn an_undecided_line_is_not_measured() {
     // The width the slot will be filled with is not chosen yet, so neither is
@@ -994,6 +1129,8 @@ fn an_undecided_line_is_not_measured() {
             min: 0,
             max: 1,
             ink: &ink_fn,
+            max_contact_run: None,
+            contact_written: "test*",
         }),
     );
     assert_eq!(todos(&issues).len(), 1, "{issues:?}");

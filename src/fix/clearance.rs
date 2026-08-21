@@ -92,6 +92,13 @@
 //! Only the variants are searched, and the search is the product of the slots'
 //! candidate lists, which is a handful.
 //!
+//! `audit max-contact-run` does not disturb any of that, because it is not a
+//! second kind of number: what a junction owes it is a property of the pair and
+//! not of where the line puts them, so it lands inside the facing measurement
+//! ([`crate::compose::effective_facing`]) exactly where a hardblank would have.
+//! Every sum, arrangement and score below reads it without knowing it is
+//! there.
+//!
 //! # Which of the equally good answers
 //!
 //! The score alone leaves many. In order:
@@ -123,7 +130,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use crate::compose::{AxisFrontier, Direction, InkProfile, VariantSpec, facing_offset};
+use crate::compose::{AxisFrontier, Direction, InkProfile, VariantSpec, effective_facing};
 use crate::document::{ComposeItem, Document, DocumentItem, GlyphBody, GlyphCompose, PixelGrid};
 
 /// One IDC line the optimizer would rewrite.
@@ -190,7 +197,8 @@ const MAX_PATTERN_WORK: usize = 4_194_304;
 /// for. Reads the documents and nothing else; see [`crate::fix`] for who
 /// applies the result.
 pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
-    let rules = crate::audit::AuditRules::collect(docs).ideal_clearance;
+    let audit = crate::audit::AuditRules::collect(docs);
+    let rules = &audit.ideal_clearance;
     if rules.is_empty() {
         return Vec::new();
     }
@@ -222,11 +230,18 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                 // glyphs share is the gaps; a plain one is a layout of its own.
                 let planned: Option<PlannedLine> = match is_plain_name(&glyph) {
                     true => rules.for_glyph(&glyph).and_then(|(_, min, max)| {
-                        optimize_line(&inventory, parent, compose, min as i32, max as i32)
+                        optimize_line(
+                            &inventory,
+                            parent,
+                            compose,
+                            min as i32,
+                            max as i32,
+                            audit.max_contact_run.for_glyph(&glyph).map(|(_, m)| m),
+                        )
                     }),
                     false => optimize_pattern_line(
                         &inventory,
-                        &rules,
+                        &audit,
                         &name_parts,
                         &glyph,
                         body.scale,
@@ -500,6 +515,7 @@ fn optimize_line(
     compose: &GlyphCompose,
     lo: i32,
     hi: i32,
+    contact: Option<u16>,
 ) -> Option<PlannedLine> {
     let op = compose.op;
     let horizontal = op.horizontal();
@@ -539,7 +555,7 @@ fn optimize_line(
             let as_written: Vec<&Candidate> = current.iter().collect();
             let before = (
                 score(
-                    &clearances_at(&as_written, &placed, axis_extent, horizontal)?,
+                    &clearances_at(&as_written, &placed, axis_extent, horizontal, contact)?,
                     lo,
                     hi,
                 ),
@@ -569,7 +585,8 @@ fn optimize_line(
             .enumerate()
             .map(|(s, &i)| &slots[s][i])
             .collect();
-        let Some(key) = evaluate(&chosen, &written, axis_extent, horizontal, lo, hi) else {
+        let Some(key) = evaluate(&chosen, &written, axis_extent, horizontal, lo, hi, contact)
+        else {
             continue;
         };
         if best.as_ref().is_none_or(|(b, _)| key < *b) {
@@ -593,7 +610,8 @@ fn optimize_line(
     let mut at = key.clearances[0] - chosen[0].frontier.near;
     positions.push(at);
     for (i, pair) in chosen.windows(2).enumerate() {
-        let facing = facing_offset(&pair[0].profile, &pair[1].profile, horizontal)?;
+        let facing =
+            effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
         at += key.clearances[i + 1] - facing;
         positions.push(at);
     }
@@ -602,7 +620,7 @@ fn optimize_line(
     // The arithmetic says what this layout measures; the measurement says so
     // too, or the line is left alone. Cheap, and the alternative is a command
     // that quietly writes a layout it was wrong about.
-    let verified = clearances_at(&chosen, &positions, axis_extent, horizontal)?;
+    let verified = clearances_at(&chosen, &positions, axis_extent, horizontal, contact)?;
     if score(&verified, lo, hi) != key.score {
         return None;
     }
@@ -643,6 +661,10 @@ struct Member {
     base: Vec<i32>,
     total: i32,
     parts: Vec<Candidate>,
+    /// The `audit max-contact-run` rule this glyph is held to, for the
+    /// verification pass; the layout itself already has it folded into `base`
+    /// and `total`.
+    contact: Option<u16>,
 }
 
 impl Member {
@@ -687,7 +709,7 @@ impl Member {
 /// something, and the answer still has to improve on what is written.
 fn optimize_pattern_line(
     inv: &Inventory,
-    rules: &crate::audit::IdealClearances,
+    audit: &crate::audit::AuditRules,
     name_parts: &crate::document::NamePartsMap,
     glyph: &str,
     scale: u8,
@@ -729,7 +751,8 @@ fn optimize_pattern_line(
         let DocumentItem::Glyph { name, body } = item else {
             continue;
         };
-        let Some((_, lo, hi)) = rules.for_glyph(&name.display()) else {
+        let member_name = name.display();
+        let Some((_, lo, hi)) = audit.ideal_clearance.for_glyph(&member_name) else {
             continue;
         };
         let Some(line) = body.compose.first() else {
@@ -750,11 +773,14 @@ fn optimize_pattern_line(
         else {
             continue;
         };
+        let contact = audit.max_contact_run.for_glyph(&member_name).map(|(_, m)| m);
         let last = parts.len() - 1;
         let mut base = vec![parts[0].frontier.near];
         let mut total = parts[0].frontier.near + (axis_extent - 1 - parts[last].frontier.far);
         for pair in parts.windows(2) {
-            let Some(facing) = facing_offset(&pair[0].profile, &pair[1].profile, horizontal) else {
+            let Some(facing) =
+                effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)
+            else {
                 base.clear();
                 break;
             };
@@ -770,6 +796,7 @@ fn optimize_pattern_line(
             base,
             total,
             parts,
+            contact,
         });
     }
     if members.is_empty() {
@@ -847,7 +874,13 @@ fn optimize_pattern_line(
             positions.push(positions[i] + part.extent + gaps[i + 1]);
         }
         let parts: Vec<&Candidate> = member.parts.iter().collect();
-        let measured = clearances_at(&parts, &positions, axis_extent, horizontal)?;
+        let measured = clearances_at(
+            &parts,
+            &positions,
+            axis_extent,
+            horizontal,
+            member.contact,
+        )?;
         if measured != member.clearances(&gaps) {
             return None;
         }
@@ -944,12 +977,13 @@ fn evaluate(
     horizontal: bool,
     lo: i32,
     hi: i32,
+    contact: Option<u16>,
 ) -> Option<Key> {
     let n = chosen.len() + 1;
     // The sum every layout of these variants has, whatever the gaps do.
     let mut total = chosen[0].frontier.near + (axis_extent - 1 - chosen[n - 2].frontier.far);
     for pair in chosen.windows(2) {
-        total += facing_offset(&pair[0].profile, &pair[1].profile, horizontal)?;
+        total += effective_facing(&pair[0].profile, &pair[1].profile, horizontal, contact)?;
     }
     let clearances = arrange(n, total, lo, hi);
     Some(Key {
@@ -990,11 +1024,13 @@ fn clearances_at(
     positions: &[i32],
     axis_extent: i32,
     horizontal: bool,
+    contact: Option<u16>,
 ) -> Option<Vec<i32>> {
     let last = parts.len() - 1;
     let mut out = vec![positions[0] + parts[0].frontier.near];
     for i in 0..last {
-        let facing = facing_offset(&parts[i].profile, &parts[i + 1].profile, horizontal)?;
+        let facing =
+            effective_facing(&parts[i].profile, &parts[i + 1].profile, horizontal, contact)?;
         out.push(positions[i + 1] - positions[i] + facing);
     }
     out.push(axis_extent - 1 - (positions[last] + parts[last].frontier.far));

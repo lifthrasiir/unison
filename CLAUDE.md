@@ -120,7 +120,7 @@ Core (feature-independent):
   and `plan_output` — the table of which `--output` path means one file, one per face, or a
   collection. Tests in `faces_tests.rs`.
 - `audit.rs` — the `audit` directive: rules the *source* is held to (`audit ideal-clearance han-* 0
-  1`), as opposed to the values the font file carries. Holds why that is not a `meta` key, the
+  1`, `audit max-contact-run han-* 2`), as opposed to the values the font file carries. Holds why that is not a `meta` key, the
   single-assignment rule and the prefix match. Tests at the bottom of the file.
 - `fix/` — `uniform fix`: the commands that rewrite the *source*, and the rules they share (plan
   first, whole lines in place, only what already warns). `clearance.rs` is
@@ -257,6 +257,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What a pattern glyph block shares with every name it declares (the grid, the box, the flags) | `document/name_parts.rs` (`expand_glyph_block`) |
 | Clearance: the ink a split leaves between its parts and the box, and why the per-part range and the total are both needed | `compose.rs` (`InkProfile`, `measure_clearances`) |
 | `audit ideal-clearance PREFIX* MIN MAX`: the prefix match, and which rule wins | `audit.rs` (`IdealClearances`) |
+| `audit max-contact-run PREFIX* N`: how far two parts may run together, and why that is a clearance rather than a complaint of its own | `audit.rs` (`MaxContactRuns`), `compose.rs` (`contact_run`) |
+| Why a contact needs no hardblank term, and why the two never both fire on one junction | `compose.rs` (`contact_run`, `InkLine::ink`) |
 | What a `uniform fix` command may rewrite, and the two frontends that apply one | `fix/mod.rs` |
 | Optimizing clearance: the variant search, the score, and why the gaps are arithmetic and not a search | `fix/clearance.rs` (`optimize_clearance`, `arrange`) |
 | Which of several equally good layouts is chosen, and why the edges are minimized first | `fix/clearance.rs` (`Key`) |

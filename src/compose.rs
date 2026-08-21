@@ -356,6 +356,21 @@ pub struct InkLine {
     pub far_hardblanks: u16,
 }
 
+impl InkLine {
+    /// The two *ink* frontiers of this line: the hardblank runs stripped off
+    /// both ends, or `None` for a line that is hardblank all the way across
+    /// and so draws nothing at all.
+    ///
+    /// This is the frontier pair a contact is measured between, and the reason
+    /// [`contact_run`] needs no hardblank term of its own: a claim parts two
+    /// parts by holding their *ink* apart, and ink that is already apart
+    /// touches over no lines.
+    pub fn ink(self) -> Option<(i32, i32)> {
+        (self.near_hardblanks as i32 <= self.far - self.near)
+            .then(|| (self.near + self.near_hardblanks as i32, self.far - self.far_hardblanks as i32))
+    }
+}
+
 impl InkProfile {
     /// Read a part's frontiers over its **declared box**: `origin` is where the
     /// box's corner sits in the grid and `extent` is its size, both in declared
@@ -527,6 +542,106 @@ pub fn facing_offset(a: &InkProfile, b: &InkProfile, horizontal: bool) -> Option
         .min()
 }
 
+/// How many consecutive lines the two parts' ink touches along, with `b` sitting
+/// `delta` declared cells past `a`'s own origin — the longest such run, since a
+/// split is spoiled by one long seam rather than by scattered nicks.
+///
+/// A line counts when both parts draw ink on it and the ink leaves no cell
+/// between them. That is a question about the *pattern* of two facing edges and
+/// not about the distance between them, which is the whole point: two flat
+/// faces meeting over sixteen lines and two tips grazing over one are the same
+/// clearance and want opposite answers.
+///
+/// Hardblanks need no term here. A hardblank holds a part's *ink* frontier back
+/// (see [`InkLine::ink`]), so a claim that has already parted two parts leaves
+/// nothing touching for this to count, and the two mechanisms never both fire
+/// on one line. A line either part draws nothing on breaks the run: there is no
+/// contact where one side is not there.
+pub fn contact_run(a: &InkProfile, b: &InkProfile, horizontal: bool, delta: i32) -> u16 {
+    let (mut longest, mut run) = (0u16, 0u16);
+    for (x, y) in a.along(horizontal).iter().zip(b.along(horizontal).iter()) {
+        let touching = match (x.and_then(InkLine::ink), y.and_then(InkLine::ink)) {
+            (Some((_, a_far)), Some((b_near, _))) => delta + b_near - a_far - 1 <= 0,
+            _ => false,
+        };
+        run = if touching { run + 1 } else { 0 };
+        longest = longest.max(run);
+    }
+    longest
+}
+
+/// What `audit max-contact-run` asks of one junction: the run its two parts
+/// would share **if they were drawn together until their ink met**, and the
+/// cell that costs the layout.
+///
+/// The run is measured at that meeting and not where the line happens to put
+/// the parts, because the demand is a property of the *pair*: a junction that
+/// was given its cell has to keep reading as though it had none to spare, or
+/// the space the rule asked for would be counted a second time as room the
+/// glyph could spend elsewhere. This is exactly how a hardblank behaves — it
+/// occupies its cell wherever the parts sit — and the two are the same
+/// statement made twice, which is why `owed` nets one against the other: a
+/// hardblank already holding the parts apart is the rule's answer, not a second
+/// claim on top of it.
+///
+/// `None` when the two share no line on which both draw ink.
+pub fn contact_demand(
+    a: &InkProfile,
+    b: &InkProfile,
+    horizontal: bool,
+    max: u16,
+) -> Option<ContactDemand> {
+    let facing = facing_offset(a, b, horizontal)?;
+    // The same measurement with every hardblank stripped off: where the *ink*
+    // would meet, which is where the run is counted.
+    let ink = a
+        .along(horizontal)
+        .iter()
+        .zip(b.along(horizontal).iter())
+        .filter_map(|(x, y)| match (x.and_then(InkLine::ink), y.and_then(InkLine::ink)) {
+            (Some((_, a_far)), Some((b_near, _))) => Some(b_near - a_far - 1),
+            _ => None,
+        })
+        .min()?;
+    let run = contact_run(a, b, horizontal, -ink);
+    Some(ContactDemand {
+        run,
+        // What the hardblanks already hold open, netted off what the rule asks.
+        owed: (i32::from(run > max) - (ink - facing)).max(0),
+    })
+}
+
+/// What [`contact_demand`] found: how far two parts would run together, and
+/// what the layout owes them for it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ContactDemand {
+    /// The lines their ink would share if they met.
+    pub run: u16,
+    /// The cells the junction owes on top of what its hardblanks already claim
+    /// — 0 or 1, since the rule asks for one cell and asks once.
+    pub owed: i32,
+}
+
+/// The facing measurement a layout is *scored* on: [`facing_offset`], less what
+/// [`contact_demand`] asks of the pair.
+///
+/// Everything that lays an IDC line out reads this rather than the raw
+/// measurement, which is what keeps the rule from being a second kind of
+/// number: it is a hardblank the source did not have to write, and it lands in
+/// the one place a hardblank would have landed.
+pub fn effective_facing(
+    a: &InkProfile,
+    b: &InkProfile,
+    horizontal: bool,
+    max_contact_run: Option<u16>,
+) -> Option<i32> {
+    let facing = facing_offset(a, b, horizontal)?;
+    let owed = max_contact_run
+        .and_then(|max| contact_demand(a, b, horizontal, max))
+        .map_or(0, |d| d.owed);
+    Some(facing - owed)
+}
+
 /// How a component name is answered with the ink it draws. See
 /// [`ClearanceRule::ink`] for why this is a callback.
 pub type InkLookup<'a> = dyn Fn(&str) -> Option<&'a InkProfile> + 'a;
@@ -543,6 +658,11 @@ pub struct ClearanceRule<'a> {
     pub min: i16,
     pub max: i16,
     pub ink: &'a InkLookup<'a>,
+    /// The longest contact run `audit max-contact-run` tolerates, or `None`
+    /// when the source states no such rule and contact is not measured.
+    pub max_contact_run: Option<u16>,
+    /// The prefix *that* rule was written with, for its own message.
+    pub contact_written: &'a str,
 }
 
 /// Whether an IDC component has yet to pick its variant — the `:` is the whole
@@ -769,7 +889,8 @@ pub fn measure_clearances<'a>(
     axis_extent: u16,
     placed: &[(&str, i32)],
     ink: &InkLookup<'a>,
-) -> Option<Vec<(String, i32)>> {
+    max_contact_run: Option<u16>,
+) -> Option<Vec<Clearance>> {
     /// A component of the line, ready to measure: where it sits along the axis
     /// and what its ink does.
     struct Placed<'a> {
@@ -794,20 +915,56 @@ pub fn measure_clearances<'a>(
         true => ("the left edge", "the right edge"),
         false => ("the top edge", "the bottom edge"),
     };
-    let mut clearances: Vec<(String, i32)> = Vec::new();
+    let mut clearances: Vec<Clearance> = Vec::new();
     let near = first.profile.frontier(horizontal)?.near + first.offset;
-    clearances.push((format!("{near_edge} and '{}'", first.name), near));
+    clearances.push(Clearance {
+        between: format!("{near_edge} and '{}'", first.name),
+        value: near,
+        contact: None,
+    });
     for pair in parts.windows(2) {
         let [a, b] = pair else { continue };
         let facing = facing_offset(a.profile, b.profile, horizontal)?;
-        clearances.push((
-            format!("'{}' and '{}'", a.name, b.name),
-            (b.offset - a.offset) + facing,
-        ));
+        // Measured only where a rule asks for it: a source stating none pays
+        // nothing, exactly as it pays nothing for the profiles themselves.
+        let contact = max_contact_run
+            .and_then(|max| contact_demand(a.profile, b.profile, horizontal, max));
+        // The rule says its piece *as* a clearance: the cell it asks for is not
+        // room the glyph still has, and whether what is left is worth a warning
+        // is `ideal-clearance`'s answer and not a second one.
+        clearances.push(Clearance {
+            between: format!("'{}' and '{}'", a.name, b.name),
+            value: (b.offset - a.offset) + facing - contact.map_or(0, |d| d.owed),
+            contact,
+        });
     }
     let far = axis_extent as i32 - 1 - (last.offset + last.profile.frontier(horizontal)?.far);
-    clearances.push((format!("'{}' and {far_edge}", last.name), far));
+    clearances.push(Clearance {
+        between: format!("'{}' and {far_edge}", last.name),
+        value: far,
+        contact: None,
+    });
     Some(clearances)
+}
+
+/// One measured clearance of an IDC line: what it is between, how much room is
+/// there, and — for a clearance between two parts — how far their ink runs
+/// together.
+///
+/// `value` is what the check holds to `audit ideal-clearance`, with the cell
+/// `audit max-contact-run` takes back already gone from it. The two rules meet
+/// in this one number on purpose: a source states one range for how a split
+/// should look, and a contact too long is a way of not looking like it rather
+/// than a separate complaint.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Clearance {
+    /// What it is between, ready to drop into a message.
+    pub between: String,
+    /// The room left, the contact rule's cell already taken back.
+    pub value: i32,
+    /// What the contact rule made of the two parts; `None` at a glyph edge, and
+    /// for every clearance when no `audit max-contact-run` rule is in force.
+    pub contact: Option<ContactDemand>,
 }
 
 /// Report the clearances outside `rule`'s range, plus their sum. See
@@ -819,7 +976,9 @@ fn check_clearances(
     placed: &[(&str, i32)],
     rule: &ClearanceRule,
 ) -> Vec<(Severity, String)> {
-    let Some(clearances) = measure_clearances(op, axis_extent, placed, rule.ink) else {
+    let Some(clearances) =
+        measure_clearances(op, axis_extent, placed, rule.ink, rule.max_contact_run)
+    else {
         return Vec::new();
     };
 
@@ -828,21 +987,35 @@ fn check_clearances(
         "the ideal {}..{} (`audit ideal-clearance {}`)",
         rule.min, rule.max, rule.written,
     );
+    // Why a clearance came out a cell short, said where the shortfall is read.
+    let blamed_on_contact = |c: &Clearance| match (c.contact, rule.max_contact_run) {
+        (Some(d), Some(limit)) if d.owed > 0 => format!(
+            " — they would run together over {} lines if they met, more than the ideal \
+             {limit} (`audit max-contact-run {}`), so a cell between them is spoken for",
+            d.run, rule.contact_written,
+        ),
+        _ => String::new(),
+    };
     let mut out: Vec<(Severity, String)> = clearances
         .iter()
-        .filter(|(_, c)| !(min..=max).contains(c))
-        .map(|(between, c)| {
+        .filter(|c| !(min..=max).contains(&c.value))
+        .map(|c| {
             (
                 Severity::Warning,
-                format!("leaves {c} between {between}, outside {range}"),
+                format!(
+                    "leaves {} between {}, outside {range}{}",
+                    c.value,
+                    c.between,
+                    blamed_on_contact(c),
+                ),
             )
         })
         .collect();
-    let total: i32 = clearances.iter().map(|(_, c)| c).sum();
+    let total: i32 = clearances.iter().map(|c| c.value).sum();
     if !(min..=max).contains(&total) {
         let breakdown = clearances
             .iter()
-            .map(|(between, c)| format!("{c} between {between}"))
+            .map(|c| format!("{} between {}", c.value, c.between))
             .collect::<Vec<_>>()
             .join(", ");
         out.push((
