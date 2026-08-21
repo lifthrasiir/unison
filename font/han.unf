@@ -56,6 +56,7 @@
 name-parts $han-regions = g h t j k p v
 
 audit ideal-clearance han-* 0 1
+audit max-contact-run han-* 2
 
 // han-XXXX:15x16 -> U+XXXX (assumes no han-XXXX-<region>:15x16)
 exists han-([0-9a-f]{4,5}):15x16

@@ -16,7 +16,7 @@ glyph han-22aae:15x16 15 16 // 𢪮
 ## 64.5
 
 glyph han-22ab7:15x16 15 16 // 𢪷
-⿰ han-624c:5x16 2 han-76ee:7x16 // ⿰扌目
+⿰ han-624c:5x16 1 han-76ee:9x16 // ⿰扌目
 
 ## 64.6
 
@@ -32,7 +32,7 @@ glyph han-22b57:15x16 15 16 // 𢭗
 ⿰ han-624c:5x16 1 han-826f:9x16 // ⿰扌良
 
 glyph han-22b72:15x16 15 16 // 𢭲
-⿰ 1 han-624c:5x16 2 han-8c9d:6x16 // ⿰扌貝
+⿰ han-624c:5x16 1 han-8c9d:8x16 // ⿰扌貝
 
 glyph han-22b73:15x16 15 16 // 𢭳
 ⿰ han-624c:5x16 1 han-9149:9x16 // ⿰扌酉

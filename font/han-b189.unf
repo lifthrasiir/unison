@@ -3,15 +3,15 @@
 ## 189.5
 
 glyph han-29acb:15x16 15 16 // 𩫋
-⿰ -1 han-9ad8:7x16 1 han-76ae:8x16 // ⿰高皮
+⿰ han-9ad8:7x16 han-76ae:8x16 // ⿰高皮
 
 ## 189.6
 
 glyph han-29ad0:15x16 15 16 // 𩫐
-⿰ -1 han-5e76:8x16 1 han-9ad8:7x16 // ⿰并高
+⿰ han-5e76:8x16 han-9ad8:7x16 // ⿰并高
 
 glyph han-29ad1:15x16 15 16 // 𩫑
-⿰ -1 han-9ad8:7x16 1 han-5e76:8x16 // ⿰高并
+⿰ han-9ad8:7x16 han-5e76:8x16 // ⿰高并
 
 ## 189.8
 

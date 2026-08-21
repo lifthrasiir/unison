@@ -20,7 +20,7 @@ glyph han-6986:15x16 15 16 // 榆
 ## 75.10
 
 glyph han-69aa:15x16 15 16 // 榪
-⿰ han-6728:5x16-l han-99ac:9x16 // ⿰木馬
+⿰ han-6728:5x16-l 1 han-99ac:9x16 // ⿰木馬
 
 glyph han-69be:15x16 15 16 // 榾
 ⿰ han-6728:5x16-l han-9aa8:9x16 // ⿰木骨

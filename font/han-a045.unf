@@ -18,7 +18,7 @@ glyph han-37cd:15x16 15 16 // 㟍
 ## 46.8
 
 glyph han-37d8:15x16 15 16 // 㟘
-⿰ han-5c71:5x16-l 2 han-5468:8x16 // ⿰山周
+⿰ han-5c71:5x16-l han-5468:10x16 // ⿰山周
 
 ## 46.11
 
@@ -70,7 +70,7 @@ glyph han-3a04:15x16 15 16 // 㨄
 ## 64.9
 
 glyph han-3a0b:15x16 15 16 // 㨋
-⿰ 1 han-624c:5x16 1 han-8005:7x16 // ⿰扌者
+⿰ han-624c:5x16 1 han-8005:9x16 // ⿰扌者
 
 ## 64.11
 
@@ -99,12 +99,12 @@ glyph han-3abe:15x16 15 16 // 㪾
 ## 72.2
 
 glyph han-3ad1:15x16 15 16 // 㫑
-⿰ han-65e5:7x16 2 han-529b:6x16 // ⿰日力
+⿰ han-65e5:7x16 han-529b:8x16 // ⿰日力
 
 ## 72.5
 
 glyph han-3add:15x16 15 16 // 㫝
-⿰ han-65e5:4x16-l 2 han-6c10:8x16 // ⿰日氐
+⿰ han-65e5:7x16 han-6c10:8x16 // ⿰日氐
 
 ## 72.7
 
@@ -114,7 +114,7 @@ glyph han-3af0:15x16 15 16 // 㫰
 ## 72.8
 
 glyph han-3aff:15x16 15 16 // 㫿
-⿰ han-65e5:4x16-l 2 han-96b9:9x16 // ⿰日隹
+⿰ han-65e5:6x16 han-96b9:9x16 // ⿰日隹
 
 ## 72.11
 
@@ -122,7 +122,7 @@ glyph han-3b13:15x16 15 16 // 㬓
 ⿰ han-65e5:7x16 1 han-7968:7x16 // ⿰日票
 
 glyph han-3b14:15x16 15 16 // 㬔
-⿰ han-65e5:4x16-l 1 han-7fcf:9x16 // ⿰日翏
+⿰ han-65e5:5x16 1 han-7fcf:9x16 // ⿰日翏
 
 # CJK unified ideographs extension A: 月 (74)
 
@@ -134,4 +134,4 @@ glyph han-3b35:15x16 15 16 // 㬵
 ## 74.7
 
 glyph han-3b36:15x16 15 16 // 㬶
-⿰ han-6708:5x16-l 2 han-544a:8x16 // ⿰月告
+⿰ han-6708:7x16 han-544a:8x16 // ⿰月告

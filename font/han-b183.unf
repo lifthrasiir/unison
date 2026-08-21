@@ -22,7 +22,7 @@ glyph han-296b9-($han-regions):15x16 15 16 // 𩚹
 ⿰ han-98e0:7x16 han-4ee4-($han-regions):7x16 // ⿰飠令
 
 glyph han-296c7:15x16 15 16 // 𩛇
-⿰ han-98e0:7x16 1 han-767d:6x16 // ⿰飠白
+⿰ han-98e0:7x16 han-767d:8x16 // ⿰飠白
 
 ## 184.7
 
@@ -30,7 +30,7 @@ glyph han-296e1:15x16 15 16 // 𩛡
 ⿰ han-98e0:7x16 han-826f:7x16 // ⿰飠良
 
 glyph han-296f1:15x16 15 16 // 𩛱
-⿰ han-98e0:7x16 han-8096:7x16 // ⿰飠肖
+⿰ han-98e0:7x16 1 han-8096:7x16 // ⿰飠肖
 
 ## 184.8
 
@@ -65,4 +65,4 @@ glyph han-2975d:15x16 15 16 // 𩝝
 ## 184.12
 
 glyph han-297bb:15x16 15 16 // 𩞻
-⿰ -1 han-98e0:7x16 han-7ca6:9x16 // ⿰飠粦
+⿰ han-98e0:7x16 han-7ca6:8x16 // ⿰飠粦

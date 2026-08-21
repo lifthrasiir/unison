@@ -8,7 +8,7 @@ glyph han-25f8d:15x16 15 16 // 𥾍
 ## 120.4
 
 glyph han-25fb6:15x16 15 16 // 𥾶
-⿰ 1 han-7cf9:5x16 1 han-6708:7x16 // ⿰糹月
+⿰ han-7cf9:5x16 1 han-6708:8x16 // ⿰糹月
 
 glyph han-25fc0:15x16 15 16 // 𥿀
 ⿰ han-7cf9:5x16 1 han-65e5:9x16 // ⿰糹日
@@ -19,7 +19,7 @@ glyph han-25fc4:15x16 15 16 // 𥿄
 ⿰ han-7cf9:5x16 1 han-6c10:8x16 // ⿰糹氐
 
 glyph han-25fd5:15x16 15 16 // 𥿕
-⿰ 1 han-7cf9:5x16 1 han-5360:7x16 // ⿰糹占
+⿰ han-7cf9:5x16 1 han-5360:9x16 // ⿰糹占
 
 glyph han-25fd8:15x16 15 16 // 𥿘
 ⿰ han-7cf9:5x16 1 han-79be:9x16 // ⿰糹禾
@@ -36,10 +36,10 @@ glyph han-2603a:15x16 15 16 // 𦀺
 ⿰ han-7cf9:5x16 1 han-8eca:9x16 // ⿰糹車
 
 glyph han-2603d:15x16 15 16 // 𦀽
-⿰ han-7cf9:5x16 1 han-544a:8x16 // ⿰糹告
+⿰ han-7cf9:5x16 han-544a:10x16 // ⿰糹告
 
 glyph han-26040:15x16 15 16 // 𦁀
-⿰ 1 han-7cf9:5x16 2 han-8c9d:6x16 // ⿰糹貝
+⿰ han-7cf9:5x16 1 han-8c9d:8x16 // ⿰糹貝
 
 ## 120.10
 

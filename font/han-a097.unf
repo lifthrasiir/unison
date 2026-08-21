@@ -15,7 +15,7 @@ glyph han-3fe3:15x16 15 16 // 㿣
 ## 107.6
 
 glyph han-3ff0:15x16 15 16 // 㿰
-⿰ -2 han-4ea4:9x16 han-76ae:8x16 // ⿰交皮
+⿰ han-4ea4:7x16 han-76ae:8x16 // ⿰交皮
 
 # CJK unified ideographs extension A: 目 (109)
 
@@ -25,45 +25,45 @@ glyph han-4020:15x16 15 16 // 䀠
 ⿰ han-76ee:7x16 1 han-76ee:7x16 // ⿰目目
 
 glyph han-4021:15x16 15 16 // 䀡
-⿰ han-76ee:6x16 1 han-5360:7x16 // ⿰目占
+⿰ han-76ee:7x16 1 han-5360:7x16 // ⿰目占
 
 ## 109.6
 
 glyph han-4029:15x16 15 16 // 䀩
-⿰ han-76ee:6x16 1 han-5404:7x16 // ⿰目各
+⿰ han-76ee:7x16 1 han-5404:7x16 // ⿰目各
 
 glyph han-402b:15x16 15 16 // 䀫
-⿰ han-76ee:6x16 1 han-5408:7x16 // ⿰目合
+⿰ han-76ee:6x16 han-5408:9x16 // ⿰目合
 
 ## 109.7
 
 glyph han-402f:15x16 15 16 // 䀯
-⿰ han-76ee:6x16 1 han-752b:7x16 // ⿰目甫
+⿰ han-76ee:7x16 1 han-752b:7x16 // ⿰目甫
 
 glyph han-4036:15x16 15 16 // 䀶
-⿰ han-76ee:6x16 1 han-826f:7x16 // ⿰目良
+⿰ han-76ee:6x16 han-826f:9x16 // ⿰目良
 
 ## 109.9
 
 glyph han-4051:15x16 15 16 // 䁑
-⿰ han-76ee:4x16-l 2 han-661c:9x16 // ⿰目昜
+⿰ han-76ee:6x16 han-661c:9x16 // ⿰目昜
 
 ## 109.11
 
 glyph han-4069:15x16 15 16 // 䁩
-⿰ han-76ee:6x16 1 han-9b5a:7x16 // ⿰目魚
+⿰ han-76ee:7x16 1 han-9b5a:7x16 // ⿰目魚
 
 ## 109.12
 
 glyph han-4071:15x16 15 16 // 䁱
-⿰ han-76ee:6x16 1 han-582f:7x16 // ⿰目堯
+⿰ han-76ee:7x16 1 han-582f:7x16 // ⿰目堯
 
 # CJK unified ideographs extension A: 石 (112)
 
 ## 112.3
 
 glyph han-4099:15x16 15 16 // 䂙
-⿰ 1 han-77f3:8x16 1 han-961d:4x16-r // ⿰石阝
+⿰ han-77f3:9x16 2 han-961d:4x16-r // ⿰石阝
 
 ## 112.6
 
@@ -79,7 +79,7 @@ glyph han-40ba:15x16 15 16 // 䂺
 ⿰ han-77f3:7x16 1 han-679c:7x16 // ⿰石果
 
 glyph han-40c6:15x16 15 16 // 䃆
-⿰ han-77f3:5x16 2 han-5176:8x16 // ⿰石其
+⿰ han-77f3:7x16 han-5176:8x16 // ⿰石其
 
 ## 112.9
 
@@ -103,7 +103,7 @@ glyph han-412a:15x16 15 16 // 䄪
 ## 115.4
 
 glyph han-4134:15x16 15 16 // 䄴
-⿰ han-79be:7x16 1 han-6708:7x16 // ⿰禾月
+⿰ han-79be:7x16 han-6708:7x16 // ⿰禾月
 
 ## 115.5
 
@@ -111,7 +111,7 @@ glyph han-4137:15x16 15 16 // 䄷
 ⿰ han-79be:7x16 han-77f3:8x16 // ⿰禾石
 
 glyph han-4138:15x16 15 16 // 䄸
-⿰ han-79be:7x16 1 han-767d:6x16 // ⿰禾白
+⿰ han-79be:9x16 han-767d:6x16 // ⿰禾白
 
 ## 115.6
 

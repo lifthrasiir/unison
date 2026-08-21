@@ -70,13 +70,13 @@ glyph han-6009:15x16 15 16 // 怉
 ⿰ han-5fc4:7x16 1 han-5305:7x16 // ⿰忄包
 
 glyph han-600a:15x16 15 16 // 怊
-⿰ han-5fc4:7x16 2 han-53ec:6x16 // ⿰忄召
+⿰ han-5fc4:7x16 han-53ec:8x16 // ⿰忄召
 
 glyph han-6010:15x16 15 16 // 怐
 ⿰ han-5fc4:7x16 1 han-53e5:7x16 // ⿰忄句
 
 glyph han-6015:15x16 15 16 // 怕
-⿰ han-5fc4:7x16 2 han-767d:6x16 // ⿰忄白
+⿰ han-5fc4:7x16 han-767d:8x16 // ⿰忄白
 
 glyph han-6017:15x16 15 16 // 怗
 ⿰ han-5fc4:7x16 1 han-5360:7x16 // ⿰忄占
@@ -188,7 +188,7 @@ glyph han-6113:15x16 15 16 // 愓
 ## 61.10
 
 glyph han-6132:15x16 15 16 // 愲
-⿰ han-5fc4:5x16 han-9aa8:9x16 // ⿰忄骨
+⿰ han-5fc4:5x16 1 han-9aa8:9x16 // ⿰忄骨
 
 ## 61.11
 

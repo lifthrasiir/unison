@@ -3,52 +3,52 @@
 ## 170.3
 
 glyph han-28e17:15x16 15 16 // 𨸗
-⿰ han-961d:4x16-l 1 han-5e72:9x16 // ⿰阝干
+⿰ han-961d:5x16-l 1 han-5e72:9x16 // ⿰阝干
 
 glyph han-28e19:15x16 15 16 // 𨸙
-⿰ 2 han-961d:4x16-l 3 han-961d:4x16-r // ⿰阝阝
+⿰ 1 han-961d:5x16-l 1 han-961d:7x16-r // ⿰阝阝
 
 ## 170.4
 
 glyph han-28e22:15x16 15 16 // 𨸢
-⿰ 1 han-961d:4x16-l 2 han-65a4:7x16 // ⿰阝斤
+⿰ 1 han-961d:5x16-l 1 han-65a4:7x16 // ⿰阝斤
 
 glyph han-28e23:15x16 15 16 // 𨸣
-⿰ han-961d:4x16-l 2 han-5206:9x16 // ⿰阝分
+⿰ han-961d:5x16-l 1 han-5206:9x16 // ⿰阝分
 
 ## 170.6
 
 glyph han-28e41:15x16 15 16 // 𨹁
-⿰ han-961d:4x16-l 1 han-866b:9x16 // ⿰阝虫
+⿰ han-961d:5x16-l 1 han-866b:9x16 // ⿰阝虫
 
 glyph han-28e4d:15x16 15 16 // 𨹍
-⿰ han-961d:4x16-l 1 han-4ea4:9x16 // ⿰阝交
+⿰ han-961d:5x16-l 1 han-4ea4:9x16 // ⿰阝交
 
 glyph han-28e57:15x16 15 16 // 𨹗
-⿰ han-961d:4x16-l 1 han-5e76:9x16 // ⿰阝并
+⿰ han-961d:5x16-l 1 han-5e76:9x16 // ⿰阝并
 
 ## 170.8
 
 glyph han-28e81:15x16 15 16 // 𨺁
-⿰ han-961d:4x16-l 2 han-679c:9x16 // ⿰阝果
+⿰ han-961d:5x16-l 1 han-679c:9x16 // ⿰阝果
 
 glyph han-28e8c:15x16 15 16 // 𨺌
-⿰ han-961d:4x16-l 1 han-5176:9x16 // ⿰阝其
+⿰ han-961d:5x16-l 1 han-5176:9x16 // ⿰阝其
 
 ## 170.12
 
 glyph han-28f20:15x16 15 16 // 𨼠
-⿰ han-961d:4x16-l 2 han-756a:9x16 // ⿰阝番
+⿰ han-961d:5x16-l 1 han-756a:9x16 // ⿰阝番
 
 ## 170.17
 
 glyph han-28f62:15x16 15 16 // 𨽢
-⿰ han-961d:4x16-l 1 han-8944:9x16 // ⿰阝襄
+⿰ han-961d:5x16-l 1 han-8944:9x16 // ⿰阝襄
 
 ## 170.18
 
 glyph han-28f67:15x16 15 16 // 𨽧
-⿰ han-961d:4x16-l 1 han-96da:9x16 // ⿰阝雚
+⿰ han-961d:5x16-l 1 han-96da:9x16 // ⿰阝雚
 
 # CJK unified ideographs extension B: 隹 (172)
 
@@ -85,7 +85,7 @@ glyph han-28fcc:15x16 15 16 // 𨿌
 ⿰ han-752b:7x16 1 han-96b9:7x16 // ⿰甫隹
 
 glyph han-28fce:15x16 15 16 // 𨿎
-⿰ han-8c9d:6x16 2 han-96b9:7x16 // ⿰貝隹
+⿰ han-8c9d:6x16 han-96b9:9x16 // ⿰貝隹
 
 glyph han-28fd3:15x16 15 16 // 𨿓
 ⿰ han-590b:7x16 1 han-96b9:7x16 // ⿰夋隹
@@ -117,4 +117,4 @@ glyph han-29037:15x16 15 16 // 𩀷
 ## 172.16
 
 glyph han-29067:15x16 15 16 // 𩁧
-⿰ -1 han-5146:7x16 han-96da:9x16 // ⿰兆雚
+⿰ han-5146:7x16 han-96da:8x16 // ⿰兆雚

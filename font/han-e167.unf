@@ -13,7 +13,7 @@ glyph han-2cb27:15x16 15 16 // 𬬧
 ⿰ han-9485:6x16 han-5e72:9x16 // ⿰钅干
 
 glyph han-2cb2a:15x16 15 16 // 𬬪
-⿰ han-9485:6x16 2 han-53e3:7x16 // ⿰钅口
+⿰ han-9485:6x16 1 han-53e3:8x16 // ⿰钅口
 
 ## 167'.4
 
@@ -32,7 +32,7 @@ glyph han-2cb3f:15x16 15 16 // 𬬿
 ⿰ han-9485:6x16 1 han-53ec:8x16 // ⿰钅召
 
 glyph han-2cb40:15x16 15 16 // 𬭀
-⿰ han-9485:6x16 1 han-53f0:7x16 // ⿰钅台
+⿰ han-9485:6x16 han-53f0:9x16 // ⿰钅台
 
 ## 167'.8
 
@@ -49,7 +49,7 @@ glyph han-2cb78:15x16 15 16 // 𬭸
 ## 170.4
 
 glyph han-2cbbc:15x16 15 16 // 𬮼
-⿰ 1 han-961d:4x16-l 2 han-6b20:7x16 // ⿰阝欠
+⿰ han-961d:5x16-l 1 han-6b20:9x16 // ⿰阝欠
 
 # CJK unified ideographs extension E: 隹 (172)
 
@@ -82,7 +82,7 @@ glyph han-2cd52:15x16 15 16 // 𬵒
 ## 195.11
 
 glyph han-2cd69:15x16 15 16 // 𬵩
-⿰ -1 han-9b5a:7x16 han-7fcf:9x16 // ⿰魚翏
+⿰ han-9b5a:7x16 1 han-7fcf:7x16 // ⿰魚翏
 
 # CJK unified ideographs extension E: 鳥 (196)
 

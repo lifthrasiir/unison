@@ -3,7 +3,7 @@
 ## 46.7
 
 glyph han-316eb:15x16 15 16 // 𱛫
-⿰ han-5c71:7x16 2 han-8c9d:6x16 // ⿰山貝
+⿰ han-5c71:5x16-l 1 han-8c9d:8x16 // ⿰山貝
 
 ## 46.11
 
@@ -29,12 +29,12 @@ glyph han-31882:15x16 15 16 // 𱢂
 ## 74.5
 
 glyph han-318b8-($han-regions):15x16 15 16 // 𱢸
-⿰ han-4ee4-($han-regions):7x16 1 han-6708:7x16 // ⿰令月
+⿰ han-4ee4-($han-regions):7x16 han-6708:7x16 // ⿰令月
 
 ## 74.6
 
 glyph han-318b9:15x16 15 16 // 𱢹
-⿰ han-6708:7x16 1 han-572d:7x16 // ⿰月圭
+⿰ han-6708:5x16-l 1 han-572d:9x16 // ⿰月圭
 
 # CJK unified ideographs extension H: 止 (77)
 

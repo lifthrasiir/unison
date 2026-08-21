@@ -40,14 +40,14 @@ glyph han-2ac19:15x16 15 16 // 𪰙
 ## 72.17
 
 glyph han-2ac52:15x16 15 16 // 𪱒
-⿰ han-65e5:4x16-l 1 han-8944:9x16 // ⿰日襄
+⿰ han-65e5:6x16 han-8944:9x16 // ⿰日襄
 
 # CJK unified ideographs extension C: 月 (74)
 
 ## 74.5
 
 glyph han-2ac5c:15x16 15 16 // 𪱜
-⿰ han-53f0:7x16 1 han-6708:7x16 // ⿰台月
+⿰ han-53f0:7x16 han-6708:7x16 // ⿰台月
 
 # CJK unified ideographs extension C: 木 (75)
 

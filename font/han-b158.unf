@@ -8,7 +8,7 @@ glyph han-282a1:15x16 15 16 // 𨊡
 ## 159.4
 
 glyph han-282b8:15x16 15 16 // 𨊸
-⿰ han-8eca:7x16 1 han-6708:7x16 // ⿰車月
+⿰ han-8eca:7x16 han-6708:7x16 // ⿰車月
 
 glyph han-282c2:15x16 15 16 // 𨋂
 ⿰ han-8eca:7x16 han-5206:7x16 // ⿰車分

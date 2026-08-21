@@ -36,12 +36,12 @@ glyph han-2e063-($han-regions):15x16 15 16 // 𮁣
 ## 115.3
 
 glyph han-2e0b0:15x16 15 16 // 𮂰
-⿰ han-79be:9x16 2 han-961d:4x16-r // ⿰禾阝
+⿰ han-79be:9x16 1 han-961d:5x16-r // ⿰禾阝
 
 ## 115.4
 
 glyph han-2e0b8:15x16 15 16 // 𮂸
-⿰ han-79be:7x16 han-6b20:7x16 // ⿰禾欠
+⿰ han-79be:7x16 1 han-6b20:7x16 // ⿰禾欠
 
 ## 115.6
 

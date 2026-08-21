@@ -26,4 +26,4 @@ glyph han-208ea:15x16 15 16 // 𠣪
 ⿰ han-53e5:7x16 1 han-53e5:7x16 // ⿰句句
 
 glyph han-208eb:15x16 15 16 // 𠣫
-⿰ han-53ec:6x16 1 han-53e5:7x16 // ⿰召句
+⿰ han-53ec:6x16 han-53e5:9x16 // ⿰召句

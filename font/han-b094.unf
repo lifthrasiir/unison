@@ -8,7 +8,7 @@ glyph han-2471c:15x16 15 16 // 𤜜
 ## 94.3
 
 glyph han-24721:15x16 15 16 // 𤜡
-⿰ 1 han-72ad:6x16 3 han-961d:4x16-r // ⿰犭阝
+⿰ han-72ad:6x16 1 han-961d:7x16-r // ⿰犭阝
 
 glyph han-2472c:15x16 15 16 // 𤜬
 ⿰ han-72ad:6x16 han-5c71:9x16 // ⿰犭山
@@ -16,18 +16,18 @@ glyph han-2472c:15x16 15 16 // 𤜬
 ## 94.4
 
 glyph han-24730:15x16 15 16 // 𤜰
-⿰ han-72ad:6x16 1 han-4eca:7x16 // ⿰犭今
+⿰ han-72ad:6x16 han-4eca:9x16 // ⿰犭今
 
 glyph han-24746:15x16 15 16 // 𤝆
-⿰ han-72ad:6x16 1 han-6b20:7x16 // ⿰犭欠
+⿰ han-72ad:6x16 han-6b20:9x16 // ⿰犭欠
 
 glyph han-2474d:15x16 15 16 // 𤝍
-⿰ han-72ad:6x16 2 han-65e5:7x16 // ⿰犭日
+⿰ han-72ad:6x16 han-65e5:9x16 // ⿰犭日
 
 ## 94.5
 
 glyph han-24753:15x16 15 16 // 𤝓
-⿰ han-72ad:6x16 1 han-5360:7x16 // ⿰犭占
+⿰ han-72ad:6x16 han-5360:9x16 // ⿰犭占
 
 glyph han-2476c:15x16 15 16 // 𤝬
 ⿰ han-72ad:6x16 1 han-6c10:8x16 // ⿰犭氐
@@ -44,7 +44,7 @@ glyph han-24778:15x16 15 16 // 𤝸
 ⿰ han-72ad:6x16 han-7c73:9x16 // ⿰犭米
 
 glyph han-24782:15x16 15 16 // 𤞂
-⿰ han-72ad:6x16 1 han-81f3:7x16 // ⿰犭至
+⿰ han-72ad:6x16 han-81f3:9x16 // ⿰犭至
 
 glyph han-24787:15x16 15 16 // 𤞇
 ⿰ han-72ad:6x16 han-572d:9x16 // ⿰犭圭
@@ -52,10 +52,10 @@ glyph han-24787:15x16 15 16 // 𤞇
 ## 94.7
 
 glyph han-2479a:15x16 15 16 // 𤞚
-⿰ han-72ad:6x16 1 han-8096:7x16 // ⿰犭肖
+⿰ han-72ad:6x16 han-8096:9x16 // ⿰犭肖
 
 glyph han-247a8:15x16 15 16 // 𤞨
-⿰ han-72ad:6x16 2 han-752b:7x16 // ⿰犭甫
+⿰ han-72ad:6x16 han-752b:9x16 // ⿰犭甫
 
 glyph han-247ad:15x16 15 16 // 𤞭
 ⿰ han-72ad:6x16 1 han-898b:8x16 // ⿰犭見
@@ -66,12 +66,12 @@ glyph han-247ba:15x16 15 16 // 𤞺
 ## 94.8
 
 glyph han-247c7:15x16 15 16 // 𤟇
-⿰ han-72ad:6x16 1 han-708e:7x16 // ⿰犭炎
+⿰ han-72ad:6x16 han-708e:9x16 // ⿰犭炎
 
 ## 94.9
 
 glyph han-247e4:15x16 15 16 // 𤟤
-⿰ han-72ad:6x16 2 han-8ecd:7x16 // ⿰犭軍
+⿰ han-72ad:6x16 han-8ecd:9x16 // ⿰犭軍
 
 glyph han-247e5:15x16 15 16 // 𤟥
 ⿰ han-72ad:6x16 han-662f:9x16 // ⿰犭是
@@ -87,7 +87,7 @@ glyph han-24816:15x16 15 16 // 𤠖
 ## 94.11
 
 glyph han-24851:15x16 15 16 // 𤡑
-⿰ han-72ad:6x16 2 han-7968:7x16 // ⿰犭票
+⿰ han-72ad:6x16 han-7968:9x16 // ⿰犭票
 
 glyph han-24855:15x16 15 16 // 𤡕
 ⿰ han-72ad:6x16 han-9ce5:9x16 // ⿰犭鳥
