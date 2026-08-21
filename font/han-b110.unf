@@ -76,7 +76,7 @@ glyph han-254b0:15x16 15 16 // 𥒰
 // ⿰ han-77f3 han-65ac // ⿰石斬
 
 glyph han-2555d:15x16 15 16 // 𥕝
-⿲ han-77f3 han-7c73 han-77f3 // ⿲石米石
+⿲ han-77f3:5x16 han-7c73:5x16 han-77f3:5x16 // ⿲石米石
 
 ## 112.12
 

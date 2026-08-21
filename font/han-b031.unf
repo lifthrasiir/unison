@@ -76,7 +76,7 @@ glyph han-212e5:15x16 15 16 // 𡋥
 // ⿱ han-6c7e han-571f // ⿱汾土
 
 glyph han-21303:15x16 15 16 // 𡌃
-⿰ han-571f han-544a // ⿰土告
+⿰ han-571f:5x16-l han-544a:10x16 // ⿰土告
 
 glyph han-21304:15x16 15 16 // 𡌄
 ⿰ han-571f:5x16-l 1 han-8eca:9x16 // ⿰土車

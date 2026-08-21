@@ -31,7 +31,7 @@ glyph han-30d5b:15x16 15 16 // 𰵛
 ⿰ han-8ba0:5x16 1 han-53e5:9x16 // ⿰讠句
 
 glyph han-30d5c:15x16 15 16 // 𰵜
-⿰ han-8ba0 han-5305 // ⿰讠包
+⿰ han-8ba0:5x16 1 han-5305:9x16 // ⿰讠包
 
 glyph han-30d5d:15x16 15 16 // 𰵝
 ⿰ han-8ba0:5x16 1 han-79be:9x16 // ⿰讠禾

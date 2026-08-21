@@ -50,7 +50,7 @@ glyph han-46cc:15x16 15 16 // 䛌
 ## 149'.4
 
 glyph han-4723:15x16 15 16 // 䜣
-⿰ 1 han-8ba0:5x16 1 han-65a4:7x16 // ⿰讠斤
+⿰ han-8ba0:5x16 1 han-65a4:9x16 // ⿰讠斤
 
 # CJK unified ideographs extension A: 貝 (154)
 
@@ -89,7 +89,7 @@ glyph han-47d8:15x16 15 16 // 䟘
 ## 157.5
 
 glyph han-47e1:15x16 15 16 // 䟡
-⿰ han-27fb7:5x16 1 han-6c10:8x16 // ⿰𧾷氐
+⿰ han-27fb7:5x16 han-6c10:10x16 // ⿰𧾷氐
 
 ## 157.7
 

@@ -61,7 +61,7 @@ glyph han-27861:15x16 15 16 // 𧡡
 // ⿱ han-79cb han-898b // ⿱秋見
 
 glyph han-27868:15x16 15 16 // 𧡨
-⿰ han-662f han-898b // ⿰是見
+⿰ han-662f:7x16 han-898b:8x16 // ⿰是見
 
 // glyph han-2786e:15x16 15 16 // 𧡮
 // ⿱ han-76f8 han-898b // ⿱相見

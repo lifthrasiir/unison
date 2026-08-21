@@ -108,7 +108,7 @@ glyph han-2a04e:15x16 15 16 // 𪁎
 ⿰ han-8096:7x16 1 han-9ce5:7x16 // ⿰肖鳥
 
 glyph han-2a05c:15x16 15 16 // 𪁜
-⿰ han-826f han-9ce5 // ⿰良鳥
+⿰ han-826f:7x16 1 han-9ce5:7x16 // ⿰良鳥
 
 glyph han-2a06d:15x16 15 16 // 𪁭
 ⿰ han-9ce5:7x16 1 han-752b:7x16 // ⿰鳥甫

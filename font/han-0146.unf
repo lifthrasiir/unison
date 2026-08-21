@@ -440,7 +440,7 @@ glyph han-8bc5:15x16 15 16 // 诅
 ⿰ han-8ba0:5x16 1 han-4e14:9x16 // ⿰讠且
 
 glyph han-8bcb:15x16 15 16 // 诋
-⿰ han-8ba0:5x16 1 han-6c10:8x16 // ⿰讠氐
+⿰ han-8ba0:5x16 han-6c10:10x16 // ⿰讠氐
 
 glyph han-8bcf:15x16 15 16 // 诏
 ⿰ han-8ba0:5x16 han-53ec:10x16 // ⿰讠召
@@ -499,7 +499,7 @@ glyph han-8c12:15x16 15 16 // 谒
 ⿰ han-8ba0:5x16 han-66f7:9x16 // ⿰讠曷
 
 glyph han-8c15:15x16 15 16 // 谕
-⿰ 1 han-8ba0:5x16 1 han-4fde:7x16 // ⿰讠俞
+⿰ han-8ba0:5x16 1 han-4fde:9x16 // ⿰讠俞
 
 ## 149'.11
 

@@ -111,7 +111,7 @@ glyph han-9633:15x16 15 16 // 阳
 ⿰ han-961d:5x16-l 1 han-65e5:9x16 // ⿰阝日
 
 glyph han-9634:15x16 15 16 // 阴
-⿰ han-961d:5x16-l 1 han-6708:8x16 // ⿰阝月
+⿰ han-961d:5x16-l 1 han-6708:9x16 // ⿰阝月
 
 ## 170.5
 
@@ -119,7 +119,7 @@ glyph han-9634:15x16 15 16 // 阴
 // ⿰ han-961d han-6b63 // ⿰阝正
 
 glyph han-963a:15x16 15 16 // 阺
-⿰ han-961d:5x16-l 1 han-6c10:8x16 // ⿰阝氐
+⿰ han-961d:5x16-l han-6c10:10x16 // ⿰阝氐
 
 glyph han-963b:15x16 15 16 // 阻
 ⿰ han-961d:5x16-l 1 han-4e14:9x16 // ⿰阝且
@@ -170,7 +170,7 @@ glyph han-967d:15x16 15 16 // 陽
 ⿰ han-961d:5x16-l 1 han-661c:9x16 // ⿰阝昜
 
 glyph han-9683:15x16 15 16 // 隃
-⿰ 1 han-961d:5x16-l 1 han-4fde:7x16 // ⿰阝俞
+⿰ han-961d:5x16-l 1 han-4fde:9x16 // ⿰阝俞
 
 glyph han-9684:15x16 15 16 // 隄
 ⿰ han-961d:5x16-l 1 han-662f:9x16 // ⿰阝是

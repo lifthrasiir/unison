@@ -11,7 +11,7 @@ glyph han-2e1d5:15x16 15 16 // 𮇕
 ⿰ han-7c73:7x16 han-5409:7x16 // ⿰米吉
 
 glyph han-2e1db:15x16 15 16 // 𮇛
-⿰ han-7c73:5x16-l 1 han-5e76:9x16 // ⿰米并
+⿰ han-7c73:5x16 1 han-5e76:9x16 // ⿰米并
 
 ## 119.7
 
@@ -39,12 +39,12 @@ glyph han-2e201:15x16 15 16 // 𮈁
 ⿰ han-7cf9:5x16 1 han-5c71:9x16 // ⿰糹山
 
 glyph han-2e202:15x16 15 16 // 𮈂
-⿰ han-7cf9 han-961d // ⿰糹阝
+⿰ han-7cf9:5x16 2 han-961d:7x16-r // ⿰糹阝
 
 ## 120.9
 
 glyph han-2e22c:15x16 15 16 // 𮈬
-⿰ han-7cf9 han-661c // ⿰糹昜
+⿰ han-7cf9:5x16 1 han-661c:9x16 // ⿰糹昜
 
 ## 120.16
 

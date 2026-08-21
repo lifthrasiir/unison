@@ -82,7 +82,7 @@ glyph han-20c40:15x16 15 16 // 𠱀
 ## 30.6
 
 glyph han-20c60:15x16 15 16 // 𠱠
-⿲ han-53e3 han-53e3 han-53e3 // ⿲口口口
+⿲ han-53e3:5x16-l 1 han-53e3:4x16 1 han-53e3:4x16 // ⿲口口口
 
 // glyph han-20c62:15x16 15 16 // 𠱢
 // ⿰ han-53e3 han-6c57 // ⿰口汗

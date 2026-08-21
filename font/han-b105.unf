@@ -109,7 +109,7 @@ glyph han-24fe8:15x16 15 16 // 𤿨
 ⿰ han-8096:7x16 han-76ae:8x16 // ⿰肖皮
 
 glyph han-24fe9:15x16 15 16 // 𤿩
-⿰ -1 han-544a:8x16 han-76ae:8x16 // ⿰告皮
+⿰ han-544a:7x16 han-76ae:8x16 // ⿰告皮
 
 glyph han-24fed:15x16 15 16 // 𤿭
 ⿰ han-76ae:8x16 han-752b:7x16 // ⿰皮甫

@@ -47,7 +47,7 @@ glyph han-7d1f:15x16 15 16 // 紟
 ⿰ han-7cf9:5x16 1 han-4eca:9x16 // ⿰糹今
 
 glyph han-7d24:15x16 15 16 // 紤
-⿰ 1 han-7cf9:5x16 1 han-65a4:7x16 // ⿰糹斤
+⿰ han-7cf9:5x16 1 han-65a4:9x16 // ⿰糹斤
 
 ## 120.5
 
@@ -162,7 +162,7 @@ glyph han-7dd9:15x16 15 16 // 緙
 ⿰ han-7cf9:5x16 1 han-9769:9x16 // ⿰糹革
 
 glyph han-7df0:15x16 15 16 // 緰
-⿰ 1 han-7cf9:5x16 1 han-4fde:7x16 // ⿰糹俞
+⿰ han-7cf9:5x16 1 han-4fde:9x16 // ⿰糹俞
 
 glyph han-7df7:15x16 15 16 // 緷
 ⿰ han-7cf9:5x16 1 han-8ecd:9x16 // ⿰糹軍
