@@ -16,6 +16,9 @@ glyph han-28e22:15x16 15 16 // 𨸢
 glyph han-28e23:15x16 15 16 // 𨸣
 ⿰ han-961d:5x16-l 1 han-5206:9x16 // ⿰阝分
 
+// glyph han-28e26:15x16 15 16 // 𨸦
+// ⿰ han-961d han-5e75 // ⿰阝幵
+
 ## 170.6
 
 glyph han-28e41:15x16 15 16 // 𨹁
@@ -29,13 +32,24 @@ glyph han-28e57:15x16 15 16 // 𨹗
 
 ## 170.8
 
+// glyph han-28e79:15x16 15 16 // 𨹹
+// ⿰ han-961d han-670b // ⿰阝朋
+
 glyph han-28e81:15x16 15 16 // 𨺁
 ⿰ han-961d:5x16-l 1 han-679c:9x16 // ⿰阝果
 
 glyph han-28e8c:15x16 15 16 // 𨺌
 ⿰ han-961d:5x16-l 1 han-5176:9x16 // ⿰阝其
 
+## 170.9
+
+// glyph han-28eb9:15x16 15 16 // 𨺹
+// ⿰ han-961d han-79cb // ⿰阝秋
+
 ## 170.12
+
+// glyph han-28f0c:15x16 15 16 // 𨼌
+// ⿰ han-961d han-6b3d // ⿰阝欽
 
 glyph han-28f20:15x16 15 16 // 𨼠
 ⿰ han-961d:5x16-l 1 han-756a:9x16 // ⿰阝番
@@ -57,6 +71,9 @@ glyph han-28f67:15x16 15 16 // 𨽧
 glyph han-28f92:15x16 15 16 // 𨾒
 ⿰ han-4ea2:7x16 1 han-96b9:7x16 // ⿰亢隹
 
+// glyph han-28f96:15x16 15 16 // 𨾖
+// ⿰ han-6b63 han-96b9 // ⿰正隹
+
 ## 172.5
 
 glyph han-28fa0-($han-regions):15x16 15 16 // 𨾠
@@ -72,6 +89,12 @@ glyph han-28fb1:15x16 15 16 // 𨾱
 ⿰ han-53f0:7x16 1 han-96b9:7x16 // ⿰台隹
 
 ## 172.6
+
+// glyph han-28fb4:15x16 15 16 // 𨾴
+// ⿱ han-5405 han-96b9 // ⿱吅隹
+
+// glyph han-28fb5:15x16 15 16 // 𨾵
+// ⿱ han-5982 han-96b9 // ⿱如隹
 
 glyph han-28fbd:15x16 15 16 // 𨾽
 ⿰ han-81f3:7x16 1 han-96b9:7x16 // ⿰至隹
@@ -104,15 +127,38 @@ glyph han-28ff5:15x16 15 16 // 𨿵
 glyph han-28ffc:15x16 15 16 // 𨿼
 ⿰ han-5352:7x16 1 han-96b9:7x16 // ⿰卒隹
 
+## 172.9
+
+// glyph han-29012:15x16 15 16 // 𩀒
+// ⿱ han-2e0b8 han-96b9 // ⿱𮂸隹
+
 ## 172.10
 
 glyph han-2901c:15x16 15 16 // 𩀜
 ⿰ han-9aa8:7x16 1 han-96b9:7x16 // ⿰骨隹
 
+## 172.11
+
+// glyph han-29027:15x16 15 16 // 𩀧
+// ⿱ han-65ac han-96b9 // ⿱斬隹
+
 ## 172.12
 
 glyph han-29037:15x16 15 16 // 𩀷
 ⿰ han-756a:7x16 1 han-96b9:7x16 // ⿰番隹
+
+## 172.13
+
+// glyph han-29050:15x16 15 16 // 𩁐
+// ⿱ han-8def han-96b9 // ⿱路隹
+
+// glyph han-29052:15x16 15 16 // 𩁒
+// ⿱ han-694a han-96b9 // ⿱楊隹
+
+## 172.14
+
+// glyph han-29057:15x16 15 16 // 𩁗
+// ⿲ han-96b9 han-5404 han-96b9 // ⿲隹各隹
 
 ## 172.16
 

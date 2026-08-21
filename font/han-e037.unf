@@ -1,6 +1,14 @@
 # CJK unified ideographs extension E: 女 (38)
 
+## 38.1
+
+// glyph han-2bc06:15x16 15 16 // 𫰆
+// ⿰ han-5973 han-4e59 // ⿰女乙
+
 ## 38.4
+
+// glyph han-2bc0f:15x16 15 16 // 𫰏
+// ⿱ han-5973 han-6b62 // ⿱女止
 
 glyph han-2bc11:15x16 15 16 // 𫰑
 ⿰ han-5973:7x16 1 han-6b20:7x16 // ⿰女欠
@@ -16,10 +24,52 @@ glyph han-2bc24:15x16 15 16 // 𫰤
 glyph han-2bc27:15x16 15 16 // 𫰧
 ⿰ han-5973:5x16-l 1 han-7f8a:9x16 // ⿰女羊
 
+## 38.8
+
+// glyph han-2bc37:15x16 15 16 // 𫰷
+// ⿱ han-62ab han-5973 // ⿱披女
+
 ## 38.9
+
+// glyph han-2bc45:15x16 15 16 // 𫱅
+// ⿰ han-5978 han-5408 // ⿰奸合
 
 glyph han-2bc4a:15x16 15 16 // 𫱊
 ⿰ han-5973:5x16-l 1 han-66f7:9x16 // ⿰女曷
+
+## 38.10
+
+// glyph han-2bc56:15x16 15 16 // 𫱖
+// ⿱ han-5982 han-4f55 // ⿱如何
+
+## 38.13
+
+// glyph han-2bc81:15x16 15 16 // 𫲁
+// ⿰ han-5973 han-797c // ⿰女祼
+
+# CJK unified ideographs extension E: 山 (46)
+
+## 46.2
+
+// glyph han-2bd72:15x16 15 16 // 𫵲
+// ⿱ han-5c71 han-4e01 // ⿱山丁
+
+## 46.12
+
+// glyph han-2bd96:15x16 15 16 // 𫶖
+// ⿱ han-967d han-5c71 // ⿱陽山
+
+## 46.16
+
+// glyph han-2bda0:15x16 15 16 // 𫶠
+// ⿱ han-5c71 han-2b57b // ⿱山𫕻
+
+# CJK unified ideographs extension E: 巛 (47)
+
+## 47.0
+
+// glyph han-2bda7:15x16 15 16 // 𫶧
+// ⿲ han-4e3f han-4e28 han-4e5a // ⿲丿丨乚
 
 # CJK unified ideographs extension E: 心 (61)
 
@@ -27,3 +77,45 @@ glyph han-2bc4a:15x16 15 16 // 𫱊
 
 glyph han-2be7a:15x16 15 16 // 𫹺
 ⿰ han-5fc4:7x16 han-77f3:8x16 // ⿰忄石
+
+## 61.6
+
+// glyph han-2be88:15x16 15 16 // 𫺈
+// ⿰ han-5fc4 han-6c5d // ⿰忄汝
+
+## 61.10
+
+// glyph han-2beb6:15x16 15 16 // 𫺶
+// ⿰ han-5fc4 han-9663 // ⿰忄陣
+
+# CJK unified ideographs extension E: 手 (64)
+
+## 64.6
+
+// glyph han-2bf30:15x16 15 16 // 𫼰
+// ⿰ han-624c han-5982 // ⿰扌如
+
+## 64.7
+
+// glyph han-2bf3b:15x16 15 16 // 𫼻
+// ⿰ han-624c han-4f2f // ⿰扌伯
+
+## 64.8
+
+// glyph han-2bf56:15x16 15 16 // 𫽖
+// ⿰ han-624c han-963b // ⿰扌阻
+
+## 64.9
+
+// glyph han-2bf5e:15x16 15 16 // 𫽞
+// ⿰ han-624c han-54c8 // ⿰扌哈
+
+## 64.10
+
+// glyph han-2bf70:15x16 15 16 // 𫽰
+// ⿰ han-62fe han-65e5 // ⿰拾日
+
+## 64.12
+
+// glyph han-2bf88:15x16 15 16 // 𫾈
+// ⿰ han-624c han-6ed1 // ⿰扌滑

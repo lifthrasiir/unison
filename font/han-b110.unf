@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 石 (112)
 
+## 112.1
+
+// glyph han-25415:15x16 15 16 // 𥐕
+// ⿰ han-77f3 han-4e5a // ⿰石乚
+
 ## 112.3
 
 glyph han-2541d:15x16 15 16 // 𥐝
@@ -10,29 +15,86 @@ glyph han-25422:15x16 15 16 // 𥐢
 
 ## 112.5
 
+// glyph han-25446:15x16 15 16 // 𥑆
+// ⿰ han-77f3 han-52a0 // ⿰石加
+
 glyph han-25447:15x16 15 16 // 𥑇
 ⿰ han-77f3:5x16 1 han-5931:9x16 // ⿰石失
 
 ## 112.6
 
+// glyph han-25474:15x16 15 16 // 𥑴
+// ⿰ han-77f3 han-8863 // ⿰石衣
+
 glyph han-25484:15x16 15 16 // 𥒄
 ⿰ han-77f3:7x16 1 han-7c73:7x16 // ⿰石米
 
+// glyph han-25490:15x16 15 16 // 𥒐
+// ⿱ han-572d han-77f3 // ⿱圭石
+
 glyph han-25493:15x16 15 16 // 𥒓
 ⿰ han-77f3:7x16 1 han-81f3:7x16 // ⿰石至
+
+// glyph han-25499:15x16 15 16 // 𥒙
+// ⿰ han-77f3 han-72b3 // ⿰石犳
 
 glyph han-2549e:15x16 15 16 // 𥒞
 ⿰ han-77f3:7x16 1 han-7f8a:7x16 // ⿰石羊
 
 ## 112.7
 
+// glyph han-254ad:15x16 15 16 // 𥒭
+// ⿰ han-77f3 han-8db3 // ⿰石足
+
 glyph han-254b0:15x16 15 16 // 𥒰
 ⿰ han-77f3:7x16 1 han-752b:7x16 // ⿰石甫
 
+## 112.8
+
+// glyph han-254ca:15x16 15 16 // 𥓊
+// ⿱ han-6790 han-77f3 // ⿱析石
+
+// glyph han-254d9:15x16 15 16 // 𥓙
+// ⿱ han-6797 han-77f3 // ⿱林石
+
+## 112.9
+
+// glyph han-2550d:15x16 15 16 // 𥔍
+// ⿰ han-77f3 han-79cb // ⿰石秋
+
+// glyph han-25529:15x16 15 16 // 𥔩
+// ⿱ han-780d han-77f3 // ⿱砍石
+
+## 112.10
+
+// glyph han-25546:15x16 15 16 // 𥕆
+// ⿰ han-77f3 han-79dd // ⿰石秝
+
+## 112.11
+
+// glyph han-2554c:15x16 15 16 // 𥕌
+// ⿰ han-77f3 han-65ac // ⿰石斬
+
+glyph han-2555d:15x16 15 16 // 𥕝
+⿲ han-77f3 han-7c73 han-77f3 // ⿲石米石
+
 ## 112.12
+
+// glyph han-25576:15x16 15 16 // 𥕶
+// ⿰ han-77f3 han-65af // ⿰石斯
 
 glyph han-2557f:15x16 15 16 // 𥕿
 ⿰ han-756a:7x16 1 han-77f3:7x16 // ⿰番石
+
+## 112.14
+
+// glyph han-255b9:15x16 15 16 // 𥖹
+// ⿱ han-9285 han-77f3 // ⿱銅石
+
+## 112.15
+
+// glyph han-255c9:15x16 15 16 // 𥗉
+// ⿱ han-7833 han-7833 // ⿱砳砳
 
 ## 112.17
 

@@ -10,6 +10,14 @@ glyph han-2c351:15x16 15 16 // 𬍑
 glyph han-2c353:15x16 15 16 // 𬍓
 ⿰ han-248e9:5x16 1 han-6728:9x16 // ⿰𤣩木
 
+## 96.6
+
+// glyph han-2c360:15x16 15 16 // 𬍠
+// ⿰ han-248e9 han-8863 // ⿰𤣩衣
+
+// glyph han-2c363:15x16 15 16 // 𬍣
+// ⿰ han-248e9 han-5982 // ⿰𤣩如
+
 ## 96.7
 
 glyph han-2c365:15x16 15 16 // 𬍥
@@ -19,6 +27,11 @@ glyph han-2c365:15x16 15 16 // 𬍥
 
 glyph han-2c36f:15x16 15 16 // 𬍯
 ⿰ han-248e9:7x16 1 han-679c:7x16 // ⿰𤣩果
+
+## 96.13
+
+// glyph han-2c394:15x16 15 16 // 𬎔
+// ⿰ han-248e9 han-9773 // ⿰𤣩靳
 
 # CJK unified ideographs extension E: 田 (102)
 
@@ -34,10 +47,23 @@ glyph han-2c3d4:15x16 15 16 // 𬏔
 
 # CJK unified ideographs extension E: 白 (106)
 
+## 106.1
+
+// glyph han-2c403:15x16 15 16 // 𬐃
+// ⿱ han-767d han-4e00 // ⿱白一
+
 ## 106.7
 
 glyph han-2c40a:15x16 15 16 // 𬐊
 ⿰ han-544a:8x16 1 han-767d:6x16 // ⿰告白
+
+## 106.8
+
+// glyph han-2c40c:15x16 15 16 // 𬐌
+// ⿱ han-767d han-62ab // ⿱白披
+
+// glyph han-2c40e:15x16 15 16 // 𬐎
+// ⿱ han-767d han-5352 // ⿱白卒
 
 # CJK unified ideographs extension E: 目 (109)
 
@@ -48,10 +74,20 @@ glyph han-2c463:15x16 15 16 // 𬑣
 
 # CJK unified ideographs extension E: 石 (112)
 
+## 112.6
+
+// glyph han-2c48c:15x16 15 16 // 𬒌
+// ⿱ han-77f3 han-7f8a // ⿱石羊
+
 ## 112.9
 
 glyph han-2c49a:15x16 15 16 // 𬒚
 ⿰ han-77f3:7x16 1 han-8ecd:7x16 // ⿰石軍
+
+## 112.12
+
+// glyph han-2c4a3:15x16 15 16 // 𬒣
+// ⿱ han-77f3 han-45b5 // ⿱石䖵
 
 # CJK unified ideographs extension E: 示 (113)
 
@@ -64,6 +100,14 @@ glyph han-2c4b3:15x16 15 16 // 𬒳
 
 glyph han-2c4b9:15x16 15 16 // 𬒹
 ⿰ han-793b:7x16 han-8c9d:8x16 // ⿰礻貝
+
+// glyph han-2c4ba:15x16 15 16 // 𬒺
+// ⿰ han-793b han-8db3 // ⿰礻足
+
+## 113.8
+
+// glyph han-2c4c3:15x16 15 16 // 𬓃
+// ⿰ han-793b han-670b // ⿰礻朋
 
 ## 113.12
 
@@ -79,6 +123,16 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 
 # CJK unified ideographs extension E: 米 (119)
 
+## 119.1
+
+// glyph han-2c58b:15x16 15 16 // 𬖋
+// ⿰ han-7c73 han-4e59 // ⿰米乙
+
+## 119.2
+
+// glyph han-2c58c:15x16 15 16 // 𬖌
+// ⿰ han-7c73 han-4eba // ⿰米人
+
 ## 119.3
 
 glyph han-2c58f:15x16 15 16 // 𬖏
@@ -89,10 +143,30 @@ glyph han-2c58f:15x16 15 16 // 𬖏
 glyph han-2c5a1:15x16 15 16 // 𬖡
 ⿰ han-7c73:7x16 1 han-8005:7x16 // ⿰米者
 
+## 119.9
+
+// glyph han-2c5a8:15x16 15 16 // 𬖨
+// ⿱ han-7ca6 han-53e3 // ⿱粦口
+
 ## 119.10
 
 glyph han-2c5b0:15x16 15 16 // 𬖰
 ⿰ han-7c73:7x16 1 han-9ad8:7x16 // ⿰米高
+
+## 119.12
+
+// glyph han-2c5b9:15x16 15 16 // 𬖹
+// ⿰ han-7c73 han-7a0d // ⿰米稍
+
+## 119.14
+
+// glyph han-2c5be:15x16 15 16 // 𬖾
+// ⿰ han-7c73 han-9817 // ⿰米頗
+
+## 119.16
+
+// glyph han-2c5c0:15x16 15 16 // 𬗀
+// ⿱ han-7c98 han-9802 // ⿱粘頂
 
 # CJK unified ideographs extension E: 糸 (120)
 
@@ -100,6 +174,36 @@ glyph han-2c5b0:15x16 15 16 // 𬖰
 
 glyph han-2c5cc:15x16 15 16 // 𬗌
 ⿰ han-7cf9:5x16 1 han-866b:9x16 // ⿰糹虫
+
+// glyph han-2c5d1:15x16 15 16 // 𬗑
+// ⿰ han-7cf9 han-8863 // ⿰糹衣
+
+## 120.7
+
+// glyph han-2c5d7:15x16 15 16 // 𬗗
+// ⿰ han-7cf9 han-6298 // ⿰糹折
+
+## 120.9
+
+// glyph han-2c5e9:15x16 15 16 // 𬗩
+// ⿰ han-7cf9 han-65ab // ⿰糹斫
+
+## 120.16
+
+// glyph han-2c60f:15x16 15 16 // 𬘏
+// ⿰ han-7cf9 han-71d2 // ⿰糹燒
+
+# CJK unified ideographs extension E: 羊 (123)
+
+## 123.6
+
+// glyph han-2c672:15x16 15 16 // 𬙲
+// ⿰ han-7f8a han-5e75 // ⿰羊幵
+
+## 123.8
+
+// glyph han-2c676:15x16 15 16 // 𬙶
+// ⿱ han-7f8a han-670b // ⿱羊朋
 
 # CJK unified ideographs extension E: 老 (125)
 
@@ -122,6 +226,9 @@ glyph han-2c698:15x16 15 16 // 𬚘
 
 ## 128.8
 
+// glyph han-2c69e:15x16 15 16 // 𬚞
+// ⿱ han-53ef han-8036 // ⿱可耶
+
 glyph han-2c69f:15x16 15 16 // 𬚟
 ⿰ han-8033:7x16 1 han-96b9:7x16 // ⿰耳隹
 
@@ -131,3 +238,25 @@ glyph han-2c69f:15x16 15 16 // 𬚟
 
 glyph han-2c6c5:15x16 15 16 // 𬛅
 ⿰ han-6708:5x16-l han-5468:10x16 // ⿰月周
+
+## 130.11
+
+// glyph han-2c6d2:15x16 15 16 // 𬛒
+// ⿰ han-6708 han-6e1a // ⿰月渚
+
+## 130.20
+
+// glyph han-2c6e1:15x16 15 16 // 𬛡
+// ⿰ han-8178 han-7968 // ⿰腸票
+
+# CJK unified ideographs extension E: 至 (133)
+
+## 133.2
+
+// glyph han-2c6f1:15x16 15 16 // 𬛱
+// ⿰ han-81f3 han-4eba // ⿰至人
+
+## 133.6
+
+// glyph han-2c6f3:15x16 15 16 // 𬛳
+// ⿱ han-81f3 han-81f3 // ⿱至至

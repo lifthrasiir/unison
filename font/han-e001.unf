@@ -1,9 +1,41 @@
+# CJK unified ideographs extension E: 丨 (2)
+
+## 2.2
+
+// glyph han-2b843:15x16 15 16 // 𫡃
+// ⿲ han-4e28 han-4e00 han-4e28 // ⿲丨一丨
+
 # CJK unified ideographs extension E: 人 (9)
+
+## 9.1
+
+// glyph han-2b885:15x16 15 16 // 𫢅
+// ⿰ han-4ebb han-4e00 // ⿰亻一
+
+## 9.2
+
+// glyph han-2b887:15x16 15 16 // 𫢇
+// ⿲ han-4ebb han-4e28 han-4e28 // ⿲亻丨丨
+
+## 9.4
+
+// glyph han-2b88d:15x16 15 16 // 𫢍
+// ⿰ han-65a4 han-4eba // ⿰斤人
 
 ## 9.7
 
 glyph han-2b89e:15x16 15 16 // 𫢞
 ⿰ han-4ebb:5x16 1 han-9149:9x16 // ⿰亻酉
+
+## 9.9
+
+// glyph han-2b8be:15x16 15 16 // 𫢾
+// ⿰ han-4ebb han-67cf // ⿰亻柏
+
+## 9.11
+
+// glyph han-2b8d1:15x16 15 16 // 𫣑
+// ⿰ han-4ebb han-8edf // ⿰亻軟
 
 ## 9.16
 
@@ -11,6 +43,16 @@ glyph han-2b8f9:15x16 15 16 // 𫣹
 ⿰ han-5408:7x16 1 han-55ac:7x16 // ⿰合喬
 
 # CJK unified ideographs extension E: 力 (19)
+
+## 19.1
+
+// glyph han-2b9a4:15x16 15 16 // 𫦤
+// ⿱ han-529b han-4e00 // ⿱力一
+
+## 19.4
+
+// glyph han-2b9a5:15x16 15 16 // 𫦥
+// ⿱ han-52a0 han-4e00 // ⿱加一
 
 ## 19.6
 
@@ -27,6 +69,9 @@ glyph han-2b9ad:15x16 15 16 // 𫦭
 glyph han-2b9ae:15x16 15 16 // 𫦮
 ⿰ han-5176:8x16 1 han-529b:6x16 // ⿰其力
 
+// glyph han-2b9af:15x16 15 16 // 𫦯
+// ⿱ han-6797 han-529b // ⿱林力
+
 # CJK unified ideographs extension E: 勹 (20)
 
 ## 20.8
@@ -41,14 +86,73 @@ glyph han-2b9c2:15x16 15 16 // 𫧂
 glyph han-2ba6e:15x16 15 16 // 𫩮
 ⿰ han-53e3:7x16 1 han-866b:7x16 // ⿰口虫
 
+## 30.7
+
+// glyph han-2ba7d:15x16 15 16 // 𫩽
+// ⿰ han-53e3 han-6297 // ⿰口抗
+
+## 30.9
+
+// glyph han-2bab7:15x16 15 16 // 𫪷
+// ⿰ han-53e3 han-22b0a // ⿰口𢬊
+
+// glyph han-2babd:15x16 15 16 // 𫪽
+// ⿰ han-53e3 han-94a6 // ⿰口钦
+
+## 30.10
+
+// glyph han-2bad0:15x16 15 16 // 𫫐
+// ⿱ han-6d6a han-53e3 // ⿱浪口
+
+## 30.11
+
+// glyph han-2badc:15x16 15 16 // 𫫜
+// ⿰ han-53e3 han-731c // ⿰口猜
+
+// glyph han-2bae2:15x16 15 16 // 𫫢
+// ⿰ han-53e3 han-88ab // ⿰口被
+
+## 30.13
+
+// glyph han-2bb06:15x16 15 16 // 𫬆
+// ⿰ han-53e3 han-7169 // ⿰口煩
+
+## 30.16
+
+// glyph han-2bb25:15x16 15 16 // 𫬥
+// ⿰ han-53e3 han-7a4c // ⿰口穌
+
 # CJK unified ideographs extension E: 土 (32)
+
+## 32.1
+
+// glyph han-2bb56:15x16 15 16 // 𫭖
+// ⿰ han-571f han-4e59 // ⿰土乙
 
 ## 32.3
 
 glyph han-2bb59:15x16 15 16 // 𫭙
 ⿰ han-571f:7x16 1 han-53e3:7x16 // ⿰土口
 
+## 32.4
+
+// glyph han-2bb60:15x16 15 16 // 𫭠
+// ⿱ han-6b62 han-571f // ⿱止土
+
 ## 32.8
 
 glyph han-2bb80:15x16 15 16 // 𫮀
 ⿰ han-571f:7x16 han-5468:8x16 // ⿰土周
+
+// glyph han-2bb84:15x16 15 16 // 𫮄
+// ⿱ han-963f han-571f // ⿱阿土
+
+## 32.10
+
+// glyph han-2bb92:15x16 15 16 // 𫮒
+// ⿰ han-571f han-7834 // ⿰土破
+
+## 32.11
+
+// glyph han-2bba1:15x16 15 16 // 𫮡
+// ⿰ han-571f han-6de1 // ⿰土淡

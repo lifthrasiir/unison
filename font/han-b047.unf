@@ -1,6 +1,14 @@
 # CJK unified ideographs extension B: 干 (51)
 
+## 51.6
+
+// glyph han-22194:15x16 15 16 // 𢆔
+// ⿱ han-5405 han-5e72 // ⿱吅干
+
 ## 51.9
+
+// glyph han-2219b:15x16 15 16 // 𢆛
+// ⿱ han-5e75 han-5e76 // ⿱幵并
 
 glyph han-2219c:15x16 15 16 // 𢆜
 ⿰ han-66f7:8x16 han-5e72:7x16 // ⿰曷干

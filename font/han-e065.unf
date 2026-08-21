@@ -1,3 +1,61 @@
+# CJK unified ideographs extension E: 日 (72)
+
+## 72.11
+
+// glyph han-2c051:15x16 15 16 // 𬁑
+// ⿱ han-65e5 han-732a // ⿱日猪
+
+## 72.12
+
+// glyph han-2c055:15x16 15 16 // 𬁕
+// ⿱ han-65e5 han-582f // ⿱日堯
+
+# CJK unified ideographs extension E: 木 (75)
+
+## 75.1
+
+// glyph han-2c09c:15x16 15 16 // 𬂜
+// ⿰ han-6728 han-4e00 // ⿰木一
+
+## 75.7
+
+// glyph han-2c0b6:15x16 15 16 // 𬂶
+// ⿰ han-6728 han-52a9 // ⿰木助
+
+// glyph han-2c0ba:15x16 15 16 // 𬂺
+// ⿰ han-6728 han-4f2f // ⿰木伯
+
+## 75.8
+
+// glyph han-2c0bf:15x16 15 16 // 𬂿
+// ⿰ han-684e han-529b // ⿰桎力
+
+// glyph han-2c0cd:15x16 15 16 // 𬃍
+// ⿰ han-6728 han-6cca // ⿰木泊
+
+## 75.9
+
+// glyph han-2c0de:15x16 15 16 // 𬃞
+// ⿰ han-6728 han-76fa // ⿰木盺
+
+## 75.11
+
+// glyph han-2c115:15x16 15 16 // 𬄕
+// ⿱ han-6dee han-6728 // ⿱淮木
+
+// glyph han-2c117:15x16 15 16 // 𬄗
+// ⿰ han-6728 han-7d44 // ⿰木組
+
+## 75.12
+
+// glyph han-2c119:15x16 15 16 // 𬄙
+// ⿰ han-6728 han-671f // ⿰木期
+
+## 75.15
+
+// glyph han-2c141:15x16 15 16 // 𬅁
+// ⿰ han-6728 han-9821 // ⿰木頡
+
 # CJK unified ideographs extension E: 欠 (76)
 
 ## 76.7
@@ -15,6 +73,13 @@ glyph han-2c169:15x16 15 16 // 𬅩
 glyph han-2c171:15x16 15 16 // 𬅱
 ⿰ han-756a:7x16 1 han-6b20:7x16 // ⿰番欠
 
+# CJK unified ideographs extension E: 止 (77)
+
+## 77.11
+
+// glyph han-2c189:15x16 15 16 // 𬆉
+// ⿱ han-65ac han-9fb0 // ⿱斬龰
+
 # CJK unified ideographs extension E: 水 (85)
 
 ## 85.3
@@ -22,7 +87,57 @@ glyph han-2c171:15x16 15 16 // 𬅱
 glyph han-2c1d6:15x16 15 16 // 𬇖
 ⿰ han-6c35:5x16 1 han-53e3:9x16 // ⿰氵口
 
+## 85.7
+
+// glyph han-2c1e9:15x16 15 16 // 𬇩
+// ⿰ han-6c35 han-675c // ⿰氵杜
+
+## 85.12
+
+// glyph han-2c232:15x16 15 16 // 𬈲
+// ⿰ han-6c35 han-742a // ⿰氵琪
+
+// glyph han-2c23b:15x16 15 16 // 𬈻
+// ⿰ han-6d69 han-767d // ⿰浩白
+
+# CJK unified ideographs extension E: 火 (86)
+
+## 86.3
+
+// glyph han-2c278:15x16 15 16 // 𬉸
+// ⿱ han-706b han-53e3 // ⿱火口
+
+## 86.9
+
+// glyph han-2c2aa:15x16 15 16 // 𬊪
+// ⿱ han-9801 han-706b // ⿱頁火
+
+## 86.10
+
+// glyph han-2c2bb:15x16 15 16 // 𬊻
+// ⿱ han-3fdf han-706b // ⿱㿟火
+
+## 86.12
+
+// glyph han-2c2c7:15x16 15 16 // 𬋇
+// ⿱ han-8051 han-706b // ⿱聑火
+
+## 86.13
+
+// glyph han-2c2cf:15x16 15 16 // 𬋏
+// ⿰ han-706b han-6b47 // ⿰火歇
+
+## 86.14
+
+// glyph han-2c2d1:15x16 15 16 // 𬋑
+// ⿱ han-8ccf han-706b // ⿱賏火
+
 # CJK unified ideographs extension E: 犬 (94)
+
+## 94.1
+
+// glyph han-2c329:15x16 15 16 // 𬌩
+// ⿰ han-72ad han-4e36 // ⿰犭丶
 
 ## 94.6
 

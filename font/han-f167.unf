@@ -1,4 +1,26 @@
+# CJK unified ideographs extension F: 金 (167)
+
+## 167.8
+
+// glyph han-2e885:15x16 15 16 // 𮢅
+// ⿰ han-91d2 han-6797 // ⿰釒林
+
+## 167.10
+
+// glyph han-2e8ae:15x16 15 16 // 𮢮
+// ⿰ han-91d2 han-26364 // ⿰釒𦍤
+
+## 167.11
+
+// glyph han-2e8ba:15x16 15 16 // 𮢺
+// ⿰ han-91d2 han-7309 // ⿰釒猉
+
 # CJK unified ideographs extension F: 阜 (170)
+
+## 170.5
+
+// glyph han-2e93f:15x16 15 16 // 𮤿
+// ⿰ han-961d han-52a0 // ⿰阝加
 
 ## 170.6
 
@@ -17,6 +39,11 @@ glyph han-2e952:15x16 15 16 // 𮥒
 
 # CJK unified ideographs extension F: 隹 (172)
 
+## 172.8
+
+// glyph han-2e97e:15x16 15 16 // 𮥾
+// ⿱ han-670b han-96b9 // ⿱朋隹
+
 ## 172.18
 
 glyph han-2e983:15x16 15 16 // 𮦃
@@ -28,6 +55,11 @@ glyph han-2e983:15x16 15 16 // 𮦃
 
 glyph han-2e9d5:15x16 15 16 // 𮧕
 ⿰ han-9769:7x16 1 han-5931:7x16 // ⿰革失
+
+## 177.8
+
+glyph han-2e9de:15x16 15 16 // 𮧞
+⿰ han-9769 han-9752 // ⿰革青
 
 # CJK unified ideographs extension F: 頁 (181)
 
@@ -43,10 +75,18 @@ glyph han-2ea12:15x16 15 16 // 𮨒
 glyph han-2ea79:15x16 15 16 // 𮩹
 ⿰ han-99ac:7x16 1 han-6b20:7x16 // ⿰馬欠
 
+## 187.5
+
+// glyph han-2ea7b:15x16 15 16 // 𮩻
+// ⿱ han-53f0 han-99ac // ⿱台馬
+
 ## 187.6
 
 glyph han-2ea7f:15x16 15 16 // 𮩿
 ⿰ han-99ac:9x16 1 han-866b:5x16 // ⿰馬虫
+
+// glyph han-2ea81:15x16 15 16 // 𮪁
+// ⿱ han-5408 han-99ac // ⿱合馬
 
 ## 187.8
 
@@ -63,6 +103,13 @@ glyph han-2ea8f:15x16 15 16 // 𮪏
 glyph han-2ea99:15x16 15 16 // 𮪙
 ⿰ han-99ac:7x16 1 han-7fcf:7x16 // ⿰馬翏
 
+# CJK unified ideographs extension F: 骨 (188)
+
+## 188.6
+
+// glyph han-2eaa9:15x16 15 16 // 𮪩
+// ⿰ han-9aa8 han-8863 // ⿰骨衣
+
 # CJK unified ideographs extension F: 魚 (195)
 
 ## 195.6
@@ -70,9 +117,19 @@ glyph han-2ea99:15x16 15 16 // 𮪙
 glyph han-2eaf8:15x16 15 16 // 𮫸
 ⿰ han-9b5a:7x16 1 han-8033:7x16 // ⿰魚耳
 
+## 195.7
+
+// glyph han-2eafc:15x16 15 16 // 𮫼
+// ⿰ han-9b5a han-52a9 // ⿰魚助
+
 # CJK unified ideographs extension F: 鳥 (196)
 
 ## 196.3
 
 glyph han-2eb29:15x16 15 16 // 𮬩
 ⿰ han-5fc4:5x16 1 han-9ce5:9x16 // ⿰忄鳥
+
+## 196.7
+
+// glyph han-2eb39:15x16 15 16 // 𮬹
+// ⿰ han-53e3 han-29fca // ⿰口𩿊

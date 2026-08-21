@@ -70,6 +70,11 @@ $$/Vv'../Vv'../Vv'../Vv'..@@$$
 $$@@....@@....@@....@@....@@$$
 $$......................\1@@$$
 
+## 196.1
+
+// glyph han-9ce6:15x16 15 16 // 鳦
+// ⿰ han-9ce5 han-4e59 // ⿰鳥乙
+
 ## 196.2
 
 glyph han-9ce8:15x16 15 16 // 鳨
@@ -91,10 +96,19 @@ glyph han-9cf9:15x16 15 16 // 鳹
 glyph han-9cfb:15x16 15 16 // 鳻
 ⿰ han-5206:7x16 1 han-9ce5:7x16 // ⿰分鳥
 
+// glyph han-9cfd:15x16 15 16 // 鳽
+// ⿰ han-5e75 han-9ce5 // ⿰幵鳥
+
 glyph han-9cff:15x16 15 16 // 鳿
 ⿰ han-248e9:7x16 1 han-9ce5:7x16 // ⿰𤣩鳥
 
 ## 196.5
+
+// glyph han-9d0a:15x16 15 16 // 鴊
+// ⿰ han-6b63 han-9ce5 // ⿰正鳥
+
+// glyph han-9d10:15x16 15 16 // 鴐
+// ⿱ han-52a0 han-9ce5 // ⿱加鳥
 
 glyph han-9d12-($han-regions):15x16 15 16 // 鴒
 ⿰ han-4ee4-($han-regions):7x16 1 han-9ce5:7x16 // ⿰令鳥
@@ -128,11 +142,17 @@ glyph han-9d39:15x16 15 16 // 鴹
 glyph han-9d3c:15x16 15 16 // 鴼
 ⿰ han-9ce5:7x16 1 han-5404:7x16 // ⿰鳥各
 
+// glyph han-9d3d:15x16 15 16 // 鴽
+// ⿱ han-5982 han-9ce5 // ⿱如鳥
+
 glyph han-9d3f:15x16 15 16 // 鴿
 ⿰ han-5408:7x16 1 han-9ce5:7x16 // ⿰合鳥
 
 glyph han-9d41:15x16 15 16 // 鵁
 ⿰ han-4ea4:7x16 1 han-9ce5:7x16 // ⿰交鳥
+
+// glyph han-9d42:15x16 15 16 // 鵂
+// ⿰ han-4f11 han-9ce5 // ⿰休鳥
 
 glyph han-9d44:15x16 15 16 // 鵄
 ⿰ han-81f3:7x16 1 han-9ce5:7x16 // ⿰至鳥
@@ -165,6 +185,9 @@ glyph han-9d60:15x16 15 16 // 鵠
 glyph han-9d67:15x16 15 16 // 鵧
 ⿰ han-5e76:8x16 han-9ce5:7x16 // ⿰并鳥
 
+// glyph han-9d6c:15x16 15 16 // 鵬
+// ⿰ han-670b han-9ce5 // ⿰朋鳥
+
 glyph han-9d6d:15x16 15 16 // 鵭
 ⿰ han-91d2:5x16-l 1 han-9ce5:9x16 // ⿰釒鳥
 
@@ -183,7 +206,13 @@ glyph han-9d80:15x16 15 16 // 鶀
 glyph han-9d84:15x16 15 16 // 鶄
 ⿰ han-9752:7x16 1 han-9ce5:7x16 // ⿰青鳥
 
+// glyph han-9d91:15x16 15 16 // 鶑
+// ⿱ han-708f han-9ce5 // ⿱炏鳥
+
 ## 196.9
+
+// glyph han-9d96:15x16 15 16 // 鶖
+// ⿱ han-79cb han-9ce5 // ⿱秋鳥
 
 glyph han-9da1:15x16 15 16 // 鶡
 ⿰ han-66f7:7x16 1 han-9ce5:7x16 // ⿰曷鳥
@@ -204,6 +233,9 @@ glyph han-9dcc:15x16 15 16 // 鷌
 
 ## 196.11
 
+// glyph han-9dd5:15x16 15 16 // 鷕
+// ⿱ han-552f han-9ce5 // ⿱唯鳥
+
 glyph han-9dda:15x16 15 16 // 鷚
 ⿰ han-7fcf:7x16 1 han-9ce5:7x16 // ⿰翏鳥
 
@@ -214,6 +246,19 @@ glyph han-9ded:15x16 15 16 // 鷭
 
 glyph han-9dee:15x16 15 16 // 鷮
 ⿰ han-55ac:7x16 1 han-9ce5:7x16 // ⿰喬鳥
+
+// glyph han-9dfa:15x16 15 16 // 鷺
+// ⿱ han-8def han-9ce5 // ⿱路鳥
+
+## 196.13
+
+// glyph han-9e09:15x16 15 16 // 鸉
+// ⿱ han-694a han-9ce5 // ⿱楊鳥
+
+## 196.14
+
+// glyph han-9e0e:15x16 15 16 // 鸎
+// ⿱ han-8ccf han-9ce5 // ⿱賏鳥
 
 ## 196.18
 

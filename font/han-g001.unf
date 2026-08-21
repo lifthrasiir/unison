@@ -1,16 +1,128 @@
+# CJK unified ideographs extension G: 乙 (5)
+
+## 5.5
+
+// glyph han-30039:15x16 15 16 // 𰀹
+// ⿱ han-79be han-4e59 // ⿱禾乙
+
+// glyph han-3003b:15x16 15 16 // 𰀻
+// ⿰ han-53ec han-4e5a // ⿰召乚
+
+## 5.7
+
+// glyph han-30042:15x16 15 16 // 𰁂
+// ⿱ han-52a9 han-4e59 // ⿱助乙
+
+## 5.9
+
+// glyph han-30049:15x16 15 16 // 𰁉
+// ⿱ han-662f han-4e59 // ⿱是乙
+
 # CJK unified ideographs extension G: 人 (9)
 
+## 9.5
+
+// glyph han-3006b:15x16 15 16 // 𰁫
+// ⿰ han-4ebb han-6253 // ⿰亻打
+
+// glyph han-3006e:15x16 15 16 // 𰁮
+// ⿰ han-767d han-4eba // ⿰白人
+
 ## 9.7
+
+// glyph han-30085:15x16 15 16 // 𰂅
+// ⿱ han-5408 han-5c71 // ⿱合山
 
 glyph han-30087:15x16 15 16 // 𰂇
 ⿰ han-4ebb:5x16 1 han-8c9d:8x16 // ⿰亻貝
 
+// glyph han-30088:15x16 15 16 // 𰂈
+// ⿲ han-4ebb han-4e28 han-6c5d // ⿲亻丨汝
+
+## 9.10
+
+// glyph han-300a9:15x16 15 16 // 𰂩
+// ⿰ han-4ebb han-7956 // ⿰亻祖
+
+# CJK unified ideographs extension G: 勹 (20)
+
+## 20.12
+
+// glyph han-30160:15x16 15 16 // 𰅠
+// ⿱ han-72ec han-5305 // ⿱独包
+
 # CJK unified ideographs extension G: 口 (30)
+
+## 30.2
+
+// glyph han-301c7:15x16 15 16 // 𰇇
+// ⿰ han-53e3 han-4e8c // ⿰口二
 
 ## 30.5
 
 glyph han-301cf:15x16 15 16 // 𰇏
 ⿰ han-53e3:7x16 1 han-76ee:7x16 // ⿰口目
+
+## 30.6
+
+// glyph han-301d7:15x16 15 16 // 𰇗
+// ⿰ han-53e3 han-6263 // ⿰口扣
+
+## 30.7
+
+// glyph han-301e9:15x16 15 16 // 𰇩
+// ⿱ han-8c9d han-53e3 // ⿱貝口
+
+## 30.9
+
+// glyph han-30201:15x16 15 16 // 𰈁
+// ⿰ han-53e3 han-6311 // ⿰口挑
+
+// glyph han-30204:15x16 15 16 // 𰈄
+// ⿰ han-53e3 han-62fe // ⿰口拾
+
+// glyph han-3020b:15x16 15 16 // 𰈋
+// ⿰ han-53e3 han-72ec // ⿰口独
+
+## 30.13
+
+// glyph han-30232:15x16 15 16 // 𰈲
+// ⿰ han-53e3 han-9244 // ⿰口鉄
+
+## 30.17
+
+// glyph han-30249:15x16 15 16 // 𰉉
+// ⿰ han-53e3 han-9bae // ⿰口鮮
+
+# CJK unified ideographs extension G: 土 (32)
+
+## 32.4
+
+// glyph han-3025c:15x16 15 16 // 𰉜
+// ⿱ han-571f han-4eca // ⿱土今
+
+## 32.5
+
+// glyph han-30264:15x16 15 16 // 𰉤
+// ⿱ han-76ae han-571f // ⿱皮土
+
+## 32.8
+
+// glyph han-3027c:15x16 15 16 // 𰉼
+// ⿱ han-670b han-571f // ⿱朋土
+
+// glyph han-30280:15x16 15 16 // 𰊀
+// ⿱ han-59cb han-571f // ⿱始土
+
+## 32.11
+
+// glyph han-302a3:15x16 15 16 // 𰊣
+// ⿱ han-6de1 han-571f // ⿱淡土
+
+## 32.14
+
+// glyph han-302b9:15x16 15 16 // 𰊹
+// ⿰ han-571f han-78a9 // ⿰土碩
 
 # CJK unified ideographs extension G: 大 (37)
 
@@ -31,7 +143,15 @@ glyph han-302f6:15x16 15 16 // 𰋶
 glyph han-302fa:15x16 15 16 // 𰋺
 ⿰ han-5973:5x16-l 1 han-706b:9x16 // ⿰女火
 
+## 38.9
+
+// glyph han-3030e:15x16 15 16 // 𰌎
+// ⿰ han-5973 han-80ce // ⿰女胎
+
 ## 38.10
 
 glyph han-3030f:15x16 15 16 // 𰌏
 ⿰ han-5973:5x16-l 1 han-9aa8:9x16 // ⿰女骨
+
+// glyph han-30311:15x16 15 16 // 𰌑
+// ⿱ han-54fa han-5973 // ⿱哺女

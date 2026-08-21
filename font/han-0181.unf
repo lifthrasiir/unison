@@ -47,6 +47,9 @@ glyph han-9802:15x16 15 16 // 頂
 glyph han-9807:15x16 15 16 // 頇
 ⿰ han-5e72:7x16 1 han-9801:7x16 // ⿰干頁
 
+// glyph han-9809:15x16 15 16 // 頉
+// ⿰ han-6b62 han-9801 // ⿰止頁
+
 ## 181.4
 
 glyph han-980a:15x16 15 16 // 頊
@@ -71,6 +74,9 @@ glyph han-9817:15x16 15 16 // 頗
 
 glyph han-9818-($han-regions):15x16 15 16 // 領
 ⿰ han-4ee4-($han-regions):7x16 1 han-9801:7x16 // ⿰令頁
+
+// glyph han-9819:15x16 15 16 // 頙
+// ⿰ han-6b63 han-9801 // ⿰正頁
 
 ## 181.6
 
@@ -177,6 +183,9 @@ $$@@H_h/`vV\$$
 glyph han-98e3:15x16 15 16 // 飣
 ⿰ han-98e0:7x16 1 han-4e01:7x16 // ⿰飠丁
 
+// glyph han-98e4:15x16 15 16 // 飤
+// ⿰ han-98e0 han-4eba // ⿰飠人
+
 ## 184.3
 
 glyph han-98e6:15x16 15 16 // 飦
@@ -221,6 +230,9 @@ glyph han-990c:15x16 15 16 // 餌
 glyph han-990e:15x16 15 16 // 餎
 ⿰ han-98e0:7x16 han-5404:7x16 // ⿰飠各
 
+// glyph han-990f:15x16 15 16 // 餏
+// ⿰ han-98e0 han-8863 // ⿰飠衣
+
 ## 184.7
 
 glyph han-9914:15x16 15 16 // 餔
@@ -262,6 +274,13 @@ glyph han-9952:15x16 15 16 // 饒
 
 glyph han-995f:15x16 15 16 // 饟
 ⿰ han-98e0:7x16 1 han-8944:7x16 // ⿰飠襄
+
+# CJK unified ideographs: 香 (186)
+
+## 186.0
+
+// glyph han-9999:15x16 15 16 // 香
+// ⿱ han-79be han-65e5 // ⿱禾日
 
 # CJK unified ideographs: 馬 (187)
 
@@ -365,6 +384,9 @@ glyph han-99d2:15x16 15 16 // 駒
 glyph han-99d4:15x16 15 16 // 駔
 ⿰ han-99ac:7x16 1 han-4e14:7x16 // ⿰馬且
 
+// glyph han-99d5:15x16 15 16 // 駕
+// ⿱ han-52a0 han-99ac // ⿱加馬
+
 glyph han-99d6-($han-regions):15x16 15 16 // 駖
 ⿰ han-99ac:7x16 1 han-4ee4-($han-regions):7x16 // ⿰馬令
 
@@ -372,6 +394,9 @@ glyph han-99d8:15x16 15 16 // 駘
 ⿰ han-99ac:7x16 1 han-53f0:7x16 // ⿰馬台
 
 ## 187.6
+
+// glyph han-99e1:15x16 15 16 // 駡
+// ⿱ han-5405 han-99ac // ⿱吅馬
 
 glyph han-99e2:15x16 15 16 // 駢
 ⿰ han-99ac:7x16 han-5e76:8x16 // ⿰馬并
@@ -457,3 +482,8 @@ glyph han-9a64:15x16 15 16 // 驤
 
 glyph han-9a69:15x16 15 16 // 驩
 ⿰ han-99ac:7x16 han-96da:8x16 // ⿰馬雚
+
+## 187.20
+
+// glyph han-9a6b:15x16 15 16 // 驫
+// ⿱ han-99ac han-9a33 // ⿱馬騳

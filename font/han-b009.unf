@@ -1,6 +1,94 @@
 # CJK unified ideographs extension B: 人 (9)
 
+## 9.1
+
+// glyph han-201a3:15x16 15 16 // 𠆣
+// ⿱ han-4e00 han-4eba // ⿱一人
+
+## 9.2
+
+// glyph han-201a7:15x16 15 16 // 𠆧
+// ⿰ han-4ebb han-4eba // ⿰亻人
+
+## 9.4
+
+// glyph han-201c8:15x16 15 16 // 𠇈
+// ⿰ han-4ebb han-6b62 // ⿰亻止
+
+## 9.5
+
+// glyph han-201e3:15x16 15 16 // 𠇣
+// ⿰ han-4ebb han-793a // ⿰亻示
+
+## 9.6
+
+// glyph han-2020f:15x16 15 16 // 𠈏
+// ⿱ han-5408 han-4eba // ⿱合人
+
+## 9.8
+
+// glyph han-2029c:15x16 15 16 // 𠊜
+// ⿰ han-4ebb han-59ac // ⿰亻妬
+
+## 9.9
+
+// glyph han-202c7:15x16 15 16 // 𠋇
+// ⿰ han-4ebb han-25e2c // ⿰亻𥸬
+
+## 9.10
+
+// glyph han-20319:15x16 15 16 // 𠌙
+// ⿲ han-4ebb han-4e28 han-9769 // ⿲亻丨革
+
 ## 9.11
+
+// glyph han-20332:15x16 15 16 // 𠌲
+// ⿰ han-4ebb han-65ac // ⿰亻斬
 
 glyph han-20335:15x16 15 16 // 𠌵
 ⿰ han-4ebb:5x16 1 han-9ce5:9x16 // ⿰亻鳥
+
+// glyph han-20356:15x16 15 16 // 𠍖
+// ⿰ han-4ebb han-91e3 // ⿰亻釣
+
+## 9.12
+
+// glyph han-2039e:15x16 15 16 // 𠎞
+// ⿰ han-4ebb han-671f // ⿰亻期
+
+// glyph han-203a8:15x16 15 16 // 𠎨
+// ⿰ han-4ebb han-7d66 // ⿰亻給
+
+// glyph han-203af:15x16 15 16 // 𠎯
+// ⿰ han-4ebb han-6e6f // ⿰亻湯
+
+## 9.13
+
+// glyph han-203e0:15x16 15 16 // 𠏠
+// ⿰ han-4ebb han-8dec // ⿰亻跬
+
+## 9.15
+
+// glyph han-2040b:15x16 15 16 // 𠐋
+// ⿰ han-4ebb han-81a0 // ⿰亻膠
+
+// glyph han-20415:15x16 15 16 // 𠐕
+// ⿰ han-4ebb han-9130 // ⿰亻鄰
+
+// glyph han-20419:15x16 15 16 // 𠐙
+// ⿱ han-4fde han-6797 // ⿱俞林
+
+## 9.17
+
+// glyph han-2043e:15x16 15 16 // 𠐾
+// ⿰ han-4ebb han-4acf // ⿰亻䫏
+
+## 9.20
+
+// glyph han-20467:15x16 15 16 // 𠑧
+// ⿰ han-4ebb han-52f8 // ⿰亻勸
+
+## 9.21
+
+// glyph han-2046c:15x16 15 16 // 𠑬
+// ⿰ han-4ebb han-9952 // ⿰亻饒

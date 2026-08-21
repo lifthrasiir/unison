@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 食 (184)
 
+## 184.1
+
+// glyph han-29682:15x16 15 16 // 𩚂
+// ⿰ han-98e0 han-4e5a // ⿰飠乚
+
 ## 184.3
 
 glyph han-29688:15x16 15 16 // 𩚈
@@ -17,6 +22,12 @@ glyph han-296a3:15x16 15 16 // 𩚣
 ⿰ han-98e0:7x16 1 han-65e5:7x16 // ⿰飠日
 
 ## 184.5
+
+// glyph han-296aa:15x16 15 16 // 𩚪
+// ⿰ han-98e0 han-793a // ⿰飠示
+
+// glyph han-296ab:15x16 15 16 // 𩚫
+// ⿰ han-98e0 han-6b63 // ⿰飠正
 
 glyph han-296b9-($han-regions):15x16 15 16 // 𩚹
 ⿰ han-98e0:7x16 han-4ee4-($han-regions):7x16 // ⿰飠令
@@ -43,6 +54,9 @@ glyph han-29711:15x16 15 16 // 𩜑
 glyph han-29718:15x16 15 16 // 𩜘
 ⿰ han-98e0:7x16 han-5352:7x16 // ⿰飠卒
 
+// glyph han-29724:15x16 15 16 // 𩜤
+// ⿰ han-98e0 han-6ce2 // ⿰飠波
+
 ## 184.9
 
 glyph han-29736:15x16 15 16 // 𩜶
@@ -54,6 +68,9 @@ glyph han-2973c:15x16 15 16 // 𩜼
 glyph han-2974a:15x16 15 16 // 𩝊
 ⿰ han-98e0:7x16 1 han-662f:7x16 // ⿰飠是
 
+// glyph han-2974b:15x16 15 16 // 𩝋
+// ⿰ han-98e0 han-79cb // ⿰飠秋
+
 glyph han-29757:15x16 15 16 // 𩝗
 ⿰ han-98e0:7x16 1 han-9801:7x16 // ⿰飠頁
 
@@ -61,6 +78,11 @@ glyph han-29757:15x16 15 16 // 𩝗
 
 glyph han-2975d:15x16 15 16 // 𩝝
 ⿰ han-98e0:7x16 han-9ad8:7x16 // ⿰飠高
+
+## 184.11
+
+// glyph han-2978f:15x16 15 16 // 𩞏
+// ⿰ han-98e0 han-65ac // ⿰飠斬
 
 ## 184.12
 

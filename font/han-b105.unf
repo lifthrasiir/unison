@@ -1,5 +1,13 @@
 # CJK unified ideographs extension B: 白 (106)
 
+## 106.1
+
+// glyph han-24f3d:15x16 15 16 // 𤼽
+// ⿱ han-767d han-4e28 // ⿱白丨
+
+// glyph han-24f3e:15x16 15 16 // 𤼾
+// ⿱ han-767d han-4e5a // ⿱白乚
+
 ## 106.3
 
 glyph han-24f42:15x16 15 16 // 𤽂
@@ -7,8 +15,16 @@ glyph han-24f42:15x16 15 16 // 𤽂
 
 ## 106.4
 
+// glyph han-24f48:15x16 15 16 // 𤽈
+// ⿱ han-767d han-706b // ⿱白火
+
 glyph han-24f49:15x16 15 16 // 𤽉
 ⿰ han-767d:6x16 han-5206:9x16 // ⿰白分
+
+## 106.5
+
+// glyph han-24f62:15x16 15 16 // 𤽢
+// ⿱ han-767d han-6b63 // ⿱白正
 
 ## 106.6
 
@@ -20,6 +36,9 @@ glyph han-24f65:15x16 15 16 // 𤽥
 glyph han-24f6d:15x16 15 16 // 𤽭
 ⿰ han-767d:8x16 han-590b:7x16 // ⿰白夋
 
+// glyph han-24f71:15x16 15 16 // 𤽱
+// ⿰ han-767d han-8db3 // ⿰白足
+
 ## 106.8
 
 glyph han-24f79:15x16 15 16 // 𤽹
@@ -27,6 +46,9 @@ glyph han-24f79:15x16 15 16 // 𤽹
 
 glyph han-24f7c:15x16 15 16 // 𤽼
 ⿰ han-767d:6x16 han-96b9:9x16 // ⿰白隹
+
+// glyph han-24f81:15x16 15 16 // 𤾁
+// ⿱ han-767d han-5351 // ⿱白卑
 
 glyph han-24f83:15x16 15 16 // 𤾃
 ⿰ han-767d:6x16 han-708e:9x16 // ⿰白炎
@@ -61,6 +83,9 @@ glyph han-24fc9:15x16 15 16 // 𤿉
 
 glyph han-24fca:15x16 15 16 // 𤿊
 ⿰ han-5e72:7x16 han-76ae:8x16 // ⿰干皮
+
+// glyph han-24fcc:15x16 15 16 // 𤿌
+// ⿱ han-53e3 han-76ae // ⿱口皮
 
 ## 107.5
 

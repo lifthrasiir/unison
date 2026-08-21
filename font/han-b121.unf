@@ -1,6 +1,14 @@
 # CJK unified ideographs extension B: 羊 (123)
 
+## 123.2
+
+// glyph han-2634f:15x16 15 16 // 𦍏
+// ⿰ han-7f8a han-4eba // ⿰羊人
+
 ## 123.3
+
+// glyph han-26352:15x16 15 16 // 𦍒
+// ⿱ han-571f han-7f8a // ⿱土羊
 
 glyph han-26355:15x16 15 16 // 𦍕
 ⿰ han-72ad:6x16 han-7f8a:9x16 // ⿰犭羊

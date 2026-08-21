@@ -5,10 +5,19 @@
 glyph han-282a1:15x16 15 16 // 𨊡
 ⿰ han-8eca:5x16 1 han-4e01:9x16 // ⿰車丁
 
+// glyph han-282a4:15x16 15 16 // 𨊤
+// ⿰ han-8eca han-4eba // ⿰車人
+
 ## 159.4
 
 glyph han-282b8:15x16 15 16 // 𨊸
 ⿰ han-8eca:7x16 han-6708:7x16 // ⿰車月
+
+// glyph han-282ba:15x16 15 16 // 𨊺
+// ⿰ han-8eca han-6b62 // ⿰車止
+
+// glyph han-282bb:15x16 15 16 // 𨊻
+// ⿰ han-8eca han-5e75 // ⿰車幵
 
 glyph han-282c2:15x16 15 16 // 𨋂
 ⿰ han-8eca:7x16 han-5206:7x16 // ⿰車分
@@ -17,6 +26,12 @@ glyph han-282c2:15x16 15 16 // 𨋂
 
 glyph han-282d3:15x16 15 16 // 𨋓
 ⿰ han-8eca:7x16 han-77f3:8x16 // ⿰車石
+
+// glyph han-282df:15x16 15 16 // 𨋟
+// ⿱ han-79be han-8eca // ⿱禾車
+
+// glyph han-282e7:15x16 15 16 // 𨋧
+// ⿱ han-767d han-8eca // ⿱白車
 
 ## 159.6
 
@@ -47,6 +62,12 @@ glyph han-28339:15x16 15 16 // 𨌹
 
 ## 159.9
 
+// glyph han-2834a:15x16 15 16 // 𨍊
+// ⿰ han-8eca han-79cb // ⿰車秋
+
+// glyph han-28359:15x16 15 16 // 𨍙
+// ⿰ han-8eca han-4fe5 // ⿰車俥
+
 glyph han-2835d:15x16 15 16 // 𨍝
 ⿰ han-8eca:7x16 han-9769:7x16 // ⿰車革
 
@@ -62,3 +83,20 @@ glyph han-28387:15x16 15 16 // 𨎇
 
 glyph han-283ac:15x16 15 16 // 𨎬
 ⿰ han-8eca:7x16 1 han-582f:7x16 // ⿰車堯
+
+## 159.13
+
+// glyph han-283b2:15x16 15 16 // 𨎲
+// ⿰ han-8eca han-8def // ⿰車路
+
+## 159.21
+
+// glyph han-283ff:15x16 15 16 // 𨏿
+// ⿱ han-485b han-485b // ⿱䡛䡛
+
+# CJK unified ideographs extension B: 辛 (160)
+
+## 160.1
+
+// glyph han-2840c:15x16 15 16 // 𨐌
+// ⿱ han-4ea0 han-7f8a // ⿱亠羊

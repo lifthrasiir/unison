@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 欠 (76)
 
+## 76.3
+
+// glyph han-23883:15x16 15 16 // 𣢃
+// ⿰ han-6b62 han-6b20 // ⿰止欠
+
 ## 76.4
 
 glyph han-2388f:15x16 15 16 // 𣢏
@@ -24,12 +29,32 @@ glyph han-238b6:15x16 15 16 // 𣢶
 glyph han-238b7:15x16 15 16 // 𣢷
 ⿰ han-5404:7x16 1 han-6b20:7x16 // ⿰各欠
 
+## 76.8
+
+// glyph han-238d2:15x16 15 16 // 𣣒
+// ⿰ han-65a4 han-6b25 // ⿰斤欥
+
+// glyph han-238d3:15x16 15 16 // 𣣓
+// ⿱ han-6b20 han-23890 // ⿱欠𣢐
+
+// glyph han-238db:15x16 15 16 // 𣣛
+// ⿱ han-23890 han-706b // ⿱𣢐火
+
+// glyph han-238dc:15x16 15 16 // 𣣜
+// ⿰ han-7cfc han-6b20 // ⿰糼欠
+
 ## 76.9
 
 glyph han-238de:15x16 15 16 // 𣣞
 ⿰ han-8ecd:7x16 1 han-6b20:7x16 // ⿰軍欠
 
+// glyph han-238ea:15x16 15 16 // 𣣪
+// ⿲ han-65a4 han-767d han-6b20 // ⿲斤白欠
+
 ## 76.12
+
+// glyph han-23918:15x16 15 16 // 𣤘
+// ⿰ han-65af han-6b20 // ⿰斯欠
 
 glyph han-23919:15x16 15 16 // 𣤙
 ⿰ han-55ac:7x16 1 han-6b20:7x16 // ⿰喬欠
@@ -42,6 +67,9 @@ glyph han-23938:15x16 15 16 // 𣤸
 # CJK unified ideographs extension B: 止 (77)
 
 ## 77.1
+
+// glyph han-23943:15x16 15 16 // 𣥃
+// ⿰ han-6b62 han-4e5a // ⿰止乚
 
 glyph han-23944:15x16 15 16 // 𣥄
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -61,4 +89,63 @@ glyph han-23944:15x16 15 16 // 𣥄
 ..............................
 ..............................
 ref han-3193b:15x16
+
+## 77.4
+
+// glyph han-2394d:15x16 15 16 // 𣥍
+// ⿱ han-6b62 han-65a4 // ⿱止斤
+
+// glyph han-23955:15x16 15 16 // 𣥕
+// ⿱ han-6b62 han-6b62 // ⿱止止
+
+// glyph han-23956:15x16 15 16 // 𣥖
+// ⿰ han-6b62 han-6b62 // ⿰止止
+
+// glyph han-23957:15x16 15 16 // 𣥗
+// ⿱ han-6b62 han-3193b // ⿱止𱤻
+
+// glyph han-2395c:15x16 15 16 // 𣥜
+// ⿱ han-6b62 han-65e5 // ⿱止日
+
+// glyph han-2395d:15x16 15 16 // 𣥝
+// ⿱ han-5206 han-6b62 // ⿱分止
+
+// glyph han-23960:15x16 15 16 // 𣥠
+// ⿰ han-3193b han-6b62 // ⿰𱤻止
+
+## 77.5
+
+// glyph han-23963:15x16 15 16 // 𣥣
+// ⿰ han-6b62 han-76ae // ⿰止皮
+
+## 77.6
+
+// glyph han-23967:15x16 15 16 // 𣥧
+// ⿱ han-6b62 han-5405 // ⿱止吅
+
+// glyph han-2396d:15x16 15 16 // 𣥭
+// ⿱ han-6b62 han-5e75 // ⿱止幵
+
+// glyph han-2396e:15x16 15 16 // 𣥮
+// ⿱ han-6b62 han-572d // ⿱止圭
+
+## 77.9
+
+// glyph han-23988:15x16 15 16 // 𣦈
+// ⿰ han-6b62 han-8005 // ⿰止者
+
+## 77.11
+
+// glyph han-23998:15x16 15 16 // 𣦘
+// ⿰ han-9ce5 han-6b62 // ⿰鳥止
+
+## 77.12
+
+// glyph han-2399c:15x16 15 16 // 𣦜
+// ⿰ han-6b62 han-55ac // ⿰止喬
+
+## 77.13
+
+// glyph han-239a5:15x16 15 16 // 𣦥
+// ⿰ han-6b63 han-582f // ⿰正堯
 

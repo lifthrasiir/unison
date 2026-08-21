@@ -91,6 +91,9 @@ glyph han-24950:15x16 15 16 // 𤥐
 
 ## 96.7
 
+glyph han-24962:15x16 15 16 // 𤥢
+⿰ han-248e9 han-544a // ⿰𤣩告
+
 glyph han-2496d:15x16 15 16 // 𤥭
 ⿰ han-248e9:5x16 han-8eca:9x16 // ⿰𤣩車
 
@@ -99,12 +102,26 @@ glyph han-2496d:15x16 15 16 // 𤥭
 glyph han-249ad:15x16 15 16 // 𤦭
 ⿰ han-248e9:5x16 1 han-9752:9x16 // ⿰𤣩青
 
+// glyph han-249ae:15x16 15 16 // 𤦮
+// ⿰ han-248e9 han-6cbb // ⿰𤣩治
+
+## 96.9
+
+// glyph han-249c7:15x16 15 16 // 𤧇
+// ⿰ han-248e9 han-76f8 // ⿰𤣩相
+
+// glyph han-249d0:15x16 15 16 // 𤧐
+// ⿰ han-248e9 han-79cb // ⿰𤣩秋
+
 ## 96.10
 
 glyph han-249fc:15x16 15 16 // 𤧼
 ⿰ han-248e9:5x16 1 han-9ad8:9x16 // ⿰𤣩高
 
 ## 96.11
+
+// glyph han-24a15:15x16 15 16 // 𤨕
+// ⿰ han-248e9 han-52d2 // ⿰𤣩勒
 
 glyph han-24a27:15x16 15 16 // 𤨧
 ⿰ han-248e9:7x16 1 han-7968:7x16 // ⿰𤣩票
@@ -114,5 +131,13 @@ glyph han-24a27:15x16 15 16 // 𤨧
 glyph han-24a4a:15x16 15 16 // 𤩊
 ⿰ han-248e9:7x16 1 han-582f:7x16 // ⿰𤣩堯
 
+// glyph han-24a50:15x16 15 16 // 𤩐
+// ⿰ han-248e9 han-65af // ⿰𤣩斯
+
 glyph han-24a5d:15x16 15 16 // 𤩝
 ⿰ han-248e9:5x16 han-55ac:9x16 // ⿰𤣩喬
+
+## 96.13
+
+// glyph han-24a8a:15x16 15 16 // 𤪊
+// ⿰ han-248e9 han-9210 // ⿰𤣩鈐

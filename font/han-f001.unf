@@ -1,3 +1,44 @@
+# CJK unified ideographs extension F: 一 (1)
+
+## 1.6
+
+// glyph han-2ced0:15x16 15 16 // 𬻐
+// ⿱ han-4e00 han-2d94c // ⿱一𭥌
+
+## 1.8
+
+// glyph han-2ceda:15x16 15 16 // 𬻚
+// ⿱ han-8db3 han-4e01 // ⿱足丁
+
+# CJK unified ideographs extension F: 乙 (5)
+
+## 5.6
+
+// glyph han-2cf24:15x16 15 16 // 𬼤
+// ⿱ han-5982 han-4e59 // ⿱如乙
+
+## 5.7
+
+// glyph han-2cf26:15x16 15 16 // 𬼦
+// ⿱ han-675c han-4e59 // ⿱杜乙
+
+## 5.10
+
+// glyph han-2cf31:15x16 15 16 // 𬼱
+// ⿱ han-6d66 han-4e59 // ⿱浦乙
+
+# CJK unified ideographs extension F: 亠 (8)
+
+## 8.4
+
+// glyph han-2cf44:15x16 15 16 // 𬽄
+// ⿱ han-4ea0 han-706b // ⿱亠火
+
+## 8.14
+
+// glyph han-2cf5c:15x16 15 16 // 𬽜
+// ⿱ han-4ea0 han-7dad // ⿱亠維
+
 # CJK unified ideographs extension F: 人 (9)
 
 ## 9.4
@@ -5,14 +46,42 @@
 glyph han-2cf6a:15x16 15 16 // 𬽪
 ⿰ han-4ebb:5x16 1 han-65e5:9x16 // ⿰亻日
 
+## 9.8
+
+// glyph han-2cfa2:15x16 15 16 // 𬾢
+// ⿰ han-4ebb han-6ce2 // ⿰亻波
+
 ## 9.9
 
 glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
 ⿰ han-5e76:8x16 han-4ee4-($han-regions):7x16 // ⿰并令
 
+## 9.13
+
+// glyph han-2cff0:15x16 15 16 // 𬿰
+// ⿰ han-4ebb han-980a // ⿰亻頊
+
+## 9.15
+
+// glyph han-2d002:15x16 15 16 // 𭀂
+// ⿰ han-4ebb han-9821 // ⿰亻頡
+
+## 9.16
+
+// glyph han-2d00a:15x16 15 16 // 𭀊
+// ⿰ han-4ebb han-4cc6 // ⿰亻䳆
+
 # CJK unified ideographs extension F: 力 (19)
 
+## 19.6
+
+// glyph han-2d125:15x16 15 16 // 𭄥
+// ⿱ han-5982 han-529b // ⿱如力
+
 ## 19.8
+
+// glyph han-2d12d:15x16 15 16 // 𭄭
+// ⿱ han-5176 han-529b // ⿱其力
 
 glyph han-2d130:15x16 15 16 // 𭄰
 ⿰ han-679c:7x16 han-529b:8x16 // ⿰果力

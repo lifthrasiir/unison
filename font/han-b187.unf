@@ -2,10 +2,16 @@
 
 ## 187.2
 
+// glyph han-2986e:15x16 15 16 // 𩡮
+// ⿰ han-99ac han-4eba // ⿰馬人
+
 glyph han-2986f:15x16 15 16 // 𩡯
 ⿰ han-99ac:7x16 1 han-4e01:7x16 // ⿰馬丁
 
 ## 187.3
+
+// glyph han-29873:15x16 15 16 // 𩡳
+// ⿱ han-99ac han-53e3 // ⿱馬口
 
 glyph han-29876:15x16 15 16 // 𩡶
 ⿰ han-99ac:7x16 1 han-571f:7x16 // ⿰馬土
@@ -22,13 +28,30 @@ glyph han-298a0:15x16 15 16 // 𩢠
 
 ## 187.6
 
+// glyph han-298ae:15x16 15 16 // 𩢮
+// ⿰ han-4f11 han-99ac // ⿰休馬
+
 glyph han-298b4:15x16 15 16 // 𩢴
 ⿰ han-99ac:7x16 1 han-5409:7x16 // ⿰馬吉
 
 glyph han-298c6:15x16 15 16 // 𩣆
 ⿰ han-99ac:7x16 1 han-7f8a:7x16 // ⿰馬羊
 
+// glyph han-298c9:15x16 15 16 // 𩣉
+// ⿱ han-5982 han-99ac // ⿱如馬
+
+## 187.7
+
+// glyph han-298e9:15x16 15 16 // 𩣩
+// ⿰ han-99ac han-6298 // ⿰馬折
+
 ## 187.8
+
+// glyph han-298f6:15x16 15 16 // 𩣶
+// ⿱ han-660e han-99ac // ⿱明馬
+
+// glyph han-29906:15x16 15 16 // 𩤆
+// ⿱ han-6797 han-99ac // ⿱林馬
 
 glyph han-2990f:15x16 15 16 // 𩤏
 ⿰ han-99ac:7x16 1 han-5352:7x16 // ⿰馬卒
@@ -41,10 +64,33 @@ glyph han-2991c:15x16 15 16 // 𩤜
 glyph han-2991f:15x16 15 16 // 𩤟
 ⿰ han-99ac:7x16 1 han-661c:7x16 // ⿰馬昜
 
+## 187.10
+
+// glyph han-2994a:15x16 15 16 // 𩥊
+// ⿱ han-9ad8 han-99ac // ⿱高馬
+
+// glyph han-2994b:15x16 15 16 // 𩥋
+// ⿱ han-99ac han-99ac // ⿱馬馬
+
 ## 187.11
 
 glyph han-2996d:15x16 15 16 // 𩥭
 ⿰ han-99ac:7x16 1 han-9b5a:7x16 // ⿰馬魚
+
+## 187.14
+
+// glyph han-299bc:15x16 15 16 // 𩦼
+// ⿰ han-99ac han-96d2 // ⿰馬雒
+
+## 187.17
+
+// glyph han-299d4:15x16 15 16 // 𩧔
+// ⿱ han-9843 han-99ac // ⿱顃馬
+
+## 187.20
+
+// glyph han-299e2:15x16 15 16 // 𩧢
+// ⿲ han-99ac han-99ac han-99ac // ⿲馬馬馬
 
 # CJK unified ideographs extension B: 骨 (188)
 
@@ -68,6 +114,9 @@ glyph han-29a30:15x16 15 16 // 𩨰
 glyph han-29a42:15x16 15 16 // 𩩂
 ⿰ han-9aa8:7x16 1 han-5408:7x16 // ⿰骨合
 
+// glyph han-29a44:15x16 15 16 // 𩩄
+// ⿰ han-9aa8 han-5e75 // ⿰骨幵
+
 glyph han-29a45:15x16 15 16 // 𩩅
 ⿰ han-9aa8:7x16 1 han-540c:7x16 // ⿰骨同
 
@@ -75,6 +124,9 @@ glyph han-29a45:15x16 15 16 // 𩩅
 
 glyph han-29a53:15x16 15 16 // 𩩓
 ⿰ han-9aa8:7x16 1 han-8096:7x16 // ⿰骨肖
+
+// glyph han-29a54:15x16 15 16 // 𩩔
+// ⿰ han-9aa8 han-8db3 // ⿰骨足
 
 ## 188.8
 

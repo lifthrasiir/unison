@@ -1,6 +1,60 @@
 # CJK unified ideographs extension B: 木 (75)
 
+## 75.11
+
+// glyph han-23647:15x16 15 16 // 𣙇
+// ⿱ han-5806 han-6728 // ⿱堆木
+
+// glyph han-2366f:15x16 15 16 // 𣙯
+// ⿰ han-6728 han-5806 // ⿰木堆
+
+// glyph han-23673:15x16 15 16 // 𣙳
+// ⿲ han-6728 han-8db3 han-6728 // ⿲木足木
+
 ## 75.12
+
+// glyph han-23684:15x16 15 16 // 𣚄
+// ⿱ han-65af han-6728 // ⿱斯木
+
+// glyph han-236ab:15x16 15 16 // 𣚫
+// ⿰ han-6728 han-6e1a // ⿰木渚
+
+// glyph han-236ac:15x16 15 16 // 𣚬
+// ⿰ han-6728 han-7d50 // ⿰木結
 
 glyph han-236d5:15x16 15 16 // 𣛕
 ⿰ han-679c:7x16 1 han-679c:7x16 // ⿰果果
+
+// glyph han-236ed:15x16 15 16 // 𣛭
+// ⿰ han-6728 han-90fd // ⿰木都
+
+## 75.14
+
+// glyph han-23757:15x16 15 16 // 𣝗
+// ⿰ han-6728 han-267bd // ⿰木𦞽
+
+// glyph han-23768:15x16 15 16 // 𣝨
+// ⿱ han-29faf han-6728 // ⿱𩾯木
+
+## 75.17
+
+// glyph han-237f2:15x16 15 16 // 𣟲
+// ⿰ han-6728 han-9bae // ⿰木鮮
+
+## 75.20
+
+// glyph han-23852:15x16 15 16 // 𣡒
+// ⿰ han-6728 han-52f8 // ⿰木勸
+
+// glyph han-23857:15x16 15 16 // 𣡗
+// ⿱ han-679c han-236d5 // ⿱果𣛕
+
+## 75.26
+
+// glyph han-2387b:15x16 15 16 // 𣡻
+// ⿲ han-6728 han-96da han-96b9 // ⿲木雚隹
+
+## 75.28
+
+// glyph han-2387e:15x16 15 16 // 𣡾
+// ⿱ han-236d5 han-236d5 // ⿱𣛕𣛕

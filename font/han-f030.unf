@@ -12,6 +12,9 @@ glyph han-2d1c4:15x16 15 16 // 𭇄
 
 ## 30.5
 
+// glyph han-2d1ce:15x16 15 16 // 𭇎
+// ⿱ han-53e3 han-53ef // ⿱口可
+
 glyph han-2d1cf:15x16 15 16 // 𭇏
 ⿰ han-4e01:7x16 1 han-5404:7x16 // ⿰丁各
 
@@ -26,24 +29,181 @@ glyph han-2d1f1:15x16 15 16 // 𭇱
 glyph han-2d1f4:15x16 15 16 // 𭇴
 ⿰ han-53e3:7x16 han-5e76:8x16 // ⿰口并
 
+## 30.7
+
+// glyph han-2d1f5:15x16 15 16 // 𭇵
+// ⿰ han-53e3 han-573b // ⿰口圻
+
+// glyph han-2d1fa:15x16 15 16 // 𭇺
+// ⿱ han-5439 han-53e3 // ⿱吹口
+
+// glyph han-2d1fe:15x16 15 16 // 𭇾
+// ⿱ han-5405 han-4eca // ⿱吅今
+
+## 30.8
+
+// glyph han-2d211:15x16 15 16 // 𭈑
+// ⿱ han-5405 han-53ef // ⿱吅可
+
+// glyph han-2d212:15x16 15 16 // 𭈒
+// ⿰ han-53e3 han-670b // ⿰口朋
+
+// glyph han-2d221:15x16 15 16 // 𭈡
+// ⿰ han-53e3 han-6cae // ⿰口沮
+
+// glyph han-2d222:15x16 15 16 // 𭈢
+// ⿰ han-53e3 han-7941 // ⿰口祁
+
 ## 30.9
 
 glyph han-2d241:15x16 15 16 // 𭉁
 ⿰ han-5408:7x16 1 han-4ea4:7x16 // ⿰合交
 
+// glyph han-2d250:15x16 15 16 // 𭉐
+// ⿰ han-53e3 han-59ea // ⿰口姪
+
+## 30.10
+
+// glyph han-2d26f:15x16 15 16 // 𭉯
+// ⿰ han-53e3 han-2db49 // ⿰口𭭉
+
+// glyph han-2d277:15x16 15 16 // 𭉷
+// ⿰ han-53e3 han-7956 // ⿰口祖
+
+// glyph han-2d278:15x16 15 16 // 𭉸
+// ⿰ han-53e3 han-7957 // ⿰口祗
+
+// glyph han-2d27b:15x16 15 16 // 𭉻
+// ⿰ han-53e3 han-5a18 // ⿰口娘
+
 ## 30.11
+
+// glyph han-2d280:15x16 15 16 // 𭊀
+// ⿱ han-5475 han-8863 // ⿱呵衣
+
+// glyph han-2d28e:15x16 15 16 // 𭊎
+// ⿱ han-5405 han-963f // ⿱吅阿
 
 glyph han-2d290:15x16 15 16 // 𭊐
 ⿰ han-5468:8x16 han-5408:7x16 // ⿰周合
 
+## 30.12
+
+// glyph han-2d2aa:15x16 15 16 // 𭊪
+// ⿰ han-53e3 han-63ed // ⿰口揭
+
+// glyph han-2d2ab:15x16 15 16 // 𭊫
+// ⿰ han-53e3 han-671f // ⿰口期
+
+// glyph han-2d2b1:15x16 15 16 // 𭊱
+// ⿰ han-53e3 han-8ddb // ⿰口跛
+
+// glyph han-2d2bd:15x16 15 16 // 𭊽
+// ⿰ han-53e3 han-7d61 // ⿰口絡
+
+// glyph han-2d2be:15x16 15 16 // 𭊾
+// ⿰ han-53e3 han-7d70 // ⿰口絰
+
+## 30.13
+
+// glyph han-2d2d0:15x16 15 16 // 𭋐
+// ⿰ han-53e3 han-813e // ⿰口脾
+
+## 30.14
+
+// glyph han-2d2df:15x16 15 16 // 𭋟
+// ⿰ han-53e3 han-9178 // ⿰口酸
+
+## 30.15
+
+// glyph han-2d2f4:15x16 15 16 // 𭋴
+// ⿰ han-53e3 han-9821 // ⿰口頡
+
+// glyph han-2d2fe:15x16 15 16 // 𭋾
+// ⿳ han-5405 han-8033 han-5405 // ⿳吅耳吅
+
+// glyph han-2d304:15x16 15 16 // 𭌄
+// ⿰ han-53e3 han-8abf // ⿰口調
+
+// glyph han-2d305:15x16 15 16 // 𭌅
+// ⿰ han-53e3 han-7faf // ⿰口羯
+
+// glyph han-2d307:15x16 15 16 // 𭌇
+// ⿰ han-53e3 han-96a3 // ⿰口隣
+
+## 30.16
+
+// glyph han-2d30b:15x16 15 16 // 𭌋
+// ⿰ han-53e3 han-8f38 // ⿰口輸
+
+// glyph han-2d30e:15x16 15 16 // 𭌎
+// ⿰ han-53e3 han-89a9 // ⿰口覩
+
+// glyph han-2d319:15x16 15 16 // 𭌙
+// ⿰ han-53e3 han-8ced // ⿰口賭
+
+## 30.17
+
+// glyph han-2d322:15x16 15 16 // 𭌢
+// ⿰ han-53e3 han-979e // ⿰口鞞
+
+## 30.18
+
+// glyph han-2d333:15x16 15 16 // 𭌳
+// ⿱ han-544a han-20f11 // ⿱告𠼑
+
+## 30.21
+
+// glyph han-2d347:15x16 15 16 // 𭍇
+// ⿰ han-53e3 han-9a43 // ⿰口驃
+
 # CJK unified ideographs extension F: 土 (32)
+
+## 32.4
+
+// glyph han-2d37f:15x16 15 16 // 𭍿
+// ⿰ han-571f han-5e75 // ⿰土幵
+
+## 32.5
+
+// glyph han-2d38a:15x16 15 16 // 𭎊
+// ⿱ han-767d han-571f // ⿱白土
+
+## 32.6
+
+// glyph han-2d39a:15x16 15 16 // 𭎚
+// ⿰ han-571f han-6c57 // ⿰土汗
+
+## 32.7
+
+// glyph han-2d3a3:15x16 15 16 // 𭎣
+// ⿰ han-571f han-8db3 // ⿰土足
+
+// glyph han-2d3a6:15x16 15 16 // 𭎦
+// ⿱ han-6c90 han-571f // ⿱沐土
+
+## 32.8
+
+// glyph han-2d3ae:15x16 15 16 // 𭎮
+// ⿱ han-660e han-571f // ⿱明土
 
 ## 32.9
 
 glyph han-2d3b8:15x16 15 16 // 𭎸
 ⿰ han-571f:7x16 han-9801:7x16 // ⿰土頁
 
+// glyph han-2d3c4:15x16 15 16 // 𭏄
+// ⿱ han-6d3d han-571f // ⿱洽土
+
+// glyph han-2d3c7:15x16 15 16 // 𭏇
+// ⿱ han-90ca han-571f // ⿱郊土
+
 # CJK unified ideographs extension F: 夊 (35)
+
+## 35.6
+
+// glyph han-2d424:15x16 15 16 // 𭐤
+// ⿱ han-4ea0 han-590b // ⿱亠夋
 
 ## 35.11
 
@@ -56,3 +216,18 @@ glyph han-2d42a:15x16 15 16 // 𭐪
 
 glyph han-2d470:15x16 15 16 // 𭑰
 ⿰ han-5973:7x16 1 han-76ee:7x16 // ⿰女目
+
+## 38.8
+
+// glyph han-2d482:15x16 15 16 // 𭒂
+// ⿱ han-20c40 han-5973 // ⿱𠱀女
+
+## 38.9
+
+// glyph han-2d485:15x16 15 16 // 𭒅
+// ⿰ han-5973 han-8036 // ⿰女耶
+
+## 38.12
+
+// glyph han-2d49f:15x16 15 16 // 𭒟
+// ⿰ han-5973 han-7d70 // ⿰女絰

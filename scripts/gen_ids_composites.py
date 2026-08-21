@@ -181,6 +181,11 @@ class Inventory:
     covered: set[int] = field(default_factory=set)
     # code points that have a full-size (15x16) glyph
     covered_full: set[int] = field(default_factory=set)
+    # code points a *commented-out* block declares -- a line an earlier run (or
+    # a hand) left as a request to draw the parts. It is not a drawing, so it
+    # lends no variant to anything, but it is a declaration, so writing it again
+    # would only duplicate it.
+    declared: set[int] = field(default_factory=set)
 
 
 NAME_CP_RE = re.compile(r"^han-([0-9a-f]{4,5})(?:-[a-z])?(?:\.[0-9a-f]{1,2})?$")
@@ -208,6 +213,14 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
         with open(path, encoding="utf-8") as f:
             lines = f.read().split("\n")
         for i, line in enumerate(lines):
+            commented = line.lstrip("/ ")
+            if line.startswith("//") and commented.startswith("glyph "):
+                toks = commented.split()
+                for expanded in expand_pattern(toks[1], parts) if len(toks) > 1 else []:
+                    m = NAME_CP_RE.match(split_variant(expanded)[0])
+                    if m:
+                        inv.declared.add(int(m.group(1), 16))
+                continue
             if not line.startswith("glyph "):
                 continue
             head = line.split("//")[0].strip()
@@ -333,9 +346,15 @@ def load_ids(path: str) -> dict[int, IdsEntry]:
 RS_RE = re.compile(r"^(\d+)('?)\.(-?\d+)$")
 
 
-def load_rs(path: str) -> dict[int, tuple[int, int, int]]:
-    """code point -> (radical, prime, additional strokes), from kRSUnicode."""
+def load_rs(path: str) -> tuple[dict[int, tuple[int, int, int]], dict[tuple[int, int], str]]:
+    """code point -> (radical, prime, additional strokes), from kRSUnicode.
+
+    Also the character each *prime* radical is written as, which the Kangxi
+    radical block does not give: a simplified radical is only ever named by the
+    ideograph whose own radical-stroke is `R'.0` (149' -> 讠, 167' -> 钅).
+    """
     out: dict[int, tuple[int, int, int]] = {}
+    prime_chars: dict[tuple[int, int], str] = {}
     with open_text(path, "utf-8") as f:
         for line in f:
             if not line.startswith("U+") or "kRSUnicode" not in line:
@@ -343,12 +362,19 @@ def load_rs(path: str) -> dict[int, tuple[int, int, int]]:
             cp_s, key, value = line.rstrip("\n").split("\t")
             if key != "kRSUnicode":
                 continue
-            first = value.split()[0]
-            m = RS_RE.match(first)
-            if not m:
-                continue
-            out[int(cp_s[2:], 16)] = (int(m.group(1)), 1 if m.group(2) else 0, int(m.group(3)))
-    return out
+            cp = int(cp_s[2:], 16)
+            for i, tok in enumerate(value.split()):
+                m = RS_RE.match(tok)
+                if not m:
+                    continue
+                rs = (int(m.group(1)), 1 if m.group(2) else 0, int(m.group(3)))
+                if i == 0:
+                    out[cp] = rs
+                if rs[1] and rs[2] == 0:
+                    prev = prime_chars.get(rs[:2])
+                    if prev is None or cp < ord(prev):
+                        prime_chars[rs[:2]] = chr(cp)
+    return out, prime_chars
 
 
 # --------------------------------------------------------------------------
@@ -411,7 +437,33 @@ def slice_for(slices: list[SliceId], letter: str, rs: tuple[int, int, int]) -> S
     return best
 
 
-def radical_char(radical: int) -> str:
+def load_radical_chars(font_dir: str) -> dict[tuple[int, int], str]:
+    """What the source already writes each radical heading's character as."""
+    out: dict[tuple[int, int], str] = {}
+    for fname in sorted(os.listdir(font_dir)):
+        if not fname.endswith(".unf"):
+            continue
+        with open(os.path.join(font_dir, fname), encoding="utf-8") as f:
+            for line in f:
+                m = RADICAL_HEADING_RE.match(line.rstrip("\r\n"))
+                if m:
+                    key = (int(m.group("radical")), 1 if m.group("prime") else 0)
+                    out.setdefault(key, m.group("char"))
+    return out
+
+
+def radical_char(radical: int, prime: int, known: dict[tuple[int, int], str]) -> str:
+    """The character a `# ...: X (R)` heading names its radical by.
+
+    What the source already writes wins, so a new heading matches the ones
+    beside it; a radical no file has yet falls back to the Kangxi radical (or,
+    for a prime one, to what `load_rs` harvested).
+    """
+    ch = known.get((radical, prime))
+    if ch is not None:
+        return ch
+    if prime:
+        raise KeyError(f"no character known for radical {radical}'")
     return unicodedata.normalize("NFKC", chr(0x2F00 + radical - 1))
 
 
@@ -473,27 +525,50 @@ def feasible(inv: Inventory, op: str, comps: list[int]) -> Verdict:
 # the .unf files
 # --------------------------------------------------------------------------
 
+# The two heading levels a slice file is written in: `#` opens a radical and
+# `##` a stroke count within it (both are comments to every build stage --
+# `document_io.rs`). A `## R.S` only ever stands under the `# ...: X (R)` of its
+# own radical, so a section for a radical the file does not have yet has to open
+# that radical's heading first, in radical order, rather than being dropped
+# under whichever heading happens to precede it.
+RADICAL_HEADING_RE = re.compile(
+    r"^#\s+(?P<block>.*?):\s*(?P<char>\S+)\s*\((?P<radical>\d+)(?P<prime>'?)\)\s*$"
+)
 HEADING_RE = re.compile(r"^##\s+(\d+)('?)\.(-?\d+)\s*$")
 
 
 @dataclass
 class Section:
     heading: str
-    key: tuple
+    key: tuple  # (radical, prime, strokes)
     blocks: list[list[str]]
+
+
+@dataclass
+class Group:
+    """One `# ...: 火 (86)` radical heading and the `## R.S` sections under it."""
+
+    heading: str
+    key: tuple  # (radical, prime)
+    sections: list[Section]
 
 
 @dataclass
 class SliceFile:
     path: str
-    preamble: list[str]
-    sections: list[Section]
+    letter: str
+    # (radical, prime) -> the character a heading names it by
+    rad_chars: dict[tuple[int, int], str]
+    groups: list[Group]
+    # anything before the first `## R.S`, kept verbatim: a file that has any
+    # fails the round-trip check below and is left alone rather than reshuffled
+    stray: list[list[str]]
     # blank lines a file happens to end with, kept so a rewrite is a pure
     # insertion rather than a whitespace tidy-up
     trailing: int = 0
 
     @classmethod
-    def load(cls, path: str) -> "SliceFile":
+    def load(cls, path: str, letter: str, rad_chars: dict) -> "SliceFile":
         with open(path, encoding="utf-8") as f:
             text = f.read()
         lines = text.split("\n")
@@ -501,63 +576,102 @@ class SliceFile:
         while lines and lines[-1] == "":
             lines.pop()
             trailing += 1
-        preamble: list[str] = []
-        sections: list[Section] = []
-        cur: Section | None = None
+        groups: list[Group] = []
+        stray: list[list[str]] = []
+        cur_group: Group | None = None
+        cur_sec: Section | None = None
         block: list[str] = []
 
         def flush():
             nonlocal block
             if block:
-                (cur.blocks if cur else preamble_blocks).append(block)
+                (cur_sec.blocks if cur_sec else stray).append(block)
                 block = []
 
-        preamble_blocks: list[list[str]] = []
         for line in lines:
             m = HEADING_RE.match(line)
             if m:
                 flush()
-                cur = Section(line.rstrip(), (int(m.group(1)), 1 if m.group(2) else 0, int(m.group(3))), [])
-                sections.append(cur)
+                key = (int(m.group(1)), 1 if m.group(2) else 0, int(m.group(3)))
+                cur_sec = Section(line.rstrip(), key, [])
+                if cur_group is None or cur_group.key != key[:2]:
+                    # a section under no heading of its own: leave it where it
+                    # is (the round-trip check will skip the file)
+                    cur_group = Group("", key[:2], [])
+                    groups.append(cur_group)
+                cur_group.sections.append(cur_sec)
+                continue
+            m = RADICAL_HEADING_RE.match(line)
+            if m:
+                flush()
+                cur_sec = None
+                cur_group = Group(
+                    line.rstrip(),
+                    (int(m.group("radical")), 1 if m.group("prime") else 0),
+                    [],
+                )
+                groups.append(cur_group)
                 continue
             if not line.strip():
                 flush()
                 continue
             block.append(line)
         flush()
-        pre = []
-        for b in preamble_blocks:
-            if pre:
-                pre.append("")
-            pre.extend(b)
-        return cls(path, pre, sections, max(0, trailing - 1))
+        return cls(path, letter, rad_chars, groups, stray, max(0, trailing - 1))
 
     def dumps(self) -> str:
-        out = list(self.preamble)
-        for sec in self.sections:
+        out: list[str] = []
+        for b in self.stray:
             if out:
                 out.append("")
-            out.append(sec.heading)
-            for b in sec.blocks:
-                out.append("")
-                out.extend(b)
+            out.extend(b)
+        for g in self.groups:
+            if g.heading:
+                if out:
+                    out.append("")
+                out.append(g.heading)
+            for sec in g.sections:
+                if out:
+                    out.append("")
+                out.append(sec.heading)
+                for b in sec.blocks:
+                    out.append("")
+                    out.extend(b)
         if not out:
             return ""
         return "\n".join(out) + "\n" * (1 + self.trailing)
 
+    def group_for(self, key: tuple) -> Group:
+        for g in self.groups:
+            if g.key == key:
+                return g
+        radical, prime = key
+        heading = (f"# {block_of_letter_name(self.letter)}: "
+                   f"{radical_char(radical, prime, self.rad_chars)} "
+                   f"({radical}{chr(39) if prime else ''})")
+        g = Group(heading, key, [])
+        pos = len(self.groups)
+        for i, other in enumerate(self.groups):
+            if other.key > key:
+                pos = i
+                break
+        self.groups.insert(pos, g)
+        return g
+
     def section_for(self, key: tuple) -> Section:
-        for sec in self.sections:
+        group = self.group_for(key[:2])
+        for sec in group.sections:
             if sec.key == key:
                 return sec
         radical, prime, strokes = key
-        heading = f"## {radical}{"'" if prime else ''}.{strokes}"
+        heading = f"## {radical}{chr(39) if prime else ''}.{strokes}"
         sec = Section(heading, key, [])
-        pos = len(self.sections)
-        for i, s in enumerate(self.sections):
+        pos = len(group.sections)
+        for i, s in enumerate(group.sections):
             if s.key > key:
                 pos = i
                 break
-        self.sections.insert(pos, sec)
+        group.sections.insert(pos, sec)
         return sec
 
 
@@ -649,7 +763,8 @@ def main() -> int:
     inv = load_inventory(args.font_dir, parts)
     slices = load_slices(args.font_dir)
     ids = load_ids(args.ids)
-    rs = load_rs(args.unihan)
+    rs, prime_chars = load_rs(args.unihan)
+    rad_chars = {**prime_chars, **load_radical_chars(args.font_dir)}
 
     print(f"{len(inv.variants)} part families, {len(inv.covered)} characters drawn, "
           f"{len(slices)} slices, {len(ids)} IDS entries", file=sys.stderr)
@@ -662,6 +777,9 @@ def main() -> int:
     for cp in sorted(ids):
         if cp in inv.covered:
             stats["already drawn"] += 1
+            continue
+        if cp in inv.declared:
+            stats["already declared (commented out)"] += 1
             continue
         blk = block_of(cp)
         if blk is None:
@@ -744,8 +862,9 @@ def main() -> int:
 
     for name, items in sorted(plan.items()):
         path = os.path.join(args.font_dir, name + ".unf")
+        sl = next(s for s in slices if s.name == name)
         if os.path.exists(path):
-            sf = SliceFile.load(path)
+            sf = SliceFile.load(path, sl.letter, rad_chars)
             before = sf.dumps()
             with open(path, encoding="utf-8") as f:
                 original = f.read()
@@ -755,12 +874,8 @@ def main() -> int:
                 stats["files skipped (round-trip)"] += 1
                 continue
         else:
-            sf = SliceFile(path, [], [])
-        if not sf.preamble:
-            # a slice with no file yet, or the empty placeholder one
-            sl = next(s for s in slices if s.name == name)
-            sf.preamble = [f"# {block_of_letter_name(sl.letter)}: "
-                           f"{radical_char(sl.radical)} ({sl.radical})"]
+            # a slice with no file yet: `section_for` opens its headings
+            sf = SliceFile(path, sl.letter, rad_chars, [], [])
         for key, cp, block in sorted(items, key=lambda it: (it[0], it[1])):
             insert_block(sf.section_for(key), cp, block)
         if not args.dry_run:

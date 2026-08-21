@@ -1,3 +1,15 @@
+# CJK unified ideographs extension G: 衣 (145)
+
+## 145.5
+
+// glyph han-30cf7:15x16 15 16 // 𰳷
+// ⿰ han-8864 han-52a0 // ⿰衤加
+
+## 145.7
+
+// glyph han-30cfe:15x16 15 16 // 𰳾
+// ⿰ han-8864 han-52a9 // ⿰衤助
+
 # CJK unified ideographs extension G: 見 (147)
 
 ## 147.5
@@ -17,6 +29,9 @@ glyph han-30d5a-($han-regions):15x16 15 16 // 𰵚
 
 glyph han-30d5b:15x16 15 16 // 𰵛
 ⿰ han-8ba0:5x16 1 han-53e5:9x16 // ⿰讠句
+
+glyph han-30d5c:15x16 15 16 // 𰵜
+⿰ han-8ba0 han-5305 // ⿰讠包
 
 glyph han-30d5d:15x16 15 16 // 𰵝
 ⿰ han-8ba0:5x16 1 han-79be:9x16 // ⿰讠禾
@@ -42,6 +57,9 @@ glyph han-30d6f:15x16 15 16 // 𰵯
 
 ## 149'.8
 
+// glyph han-30d71:15x16 15 16 // 𰵱
+// ⿰ han-8ba0 han-6797 // ⿰讠林
+
 glyph han-30d72:15x16 15 16 // 𰵲
 ⿰ han-8ba0:5x16 1 han-5176:9x16 // ⿰讠其
 
@@ -59,6 +77,9 @@ glyph han-30d8c:15x16 15 16 // 𰶌
 
 ## 154.4
 
+// glyph han-30db5:15x16 15 16 // 𰶵
+// ⿱ han-6b62 han-8c9d // ⿱止貝
+
 glyph han-30db7:15x16 15 16 // 𰶷
 ⿰ han-8c9d:6x16 han-6b20:9x16 // ⿰貝欠
 
@@ -72,12 +93,53 @@ glyph han-30dbe-($han-regions):15x16 15 16 // 𰶾
 glyph han-30dc0:15x16 15 16 // 𰷀
 ⿰ han-8c9d:6x16 han-8033:9x16 // ⿰貝耳
 
+# CJK unified ideographs extension G: 足 (157)
+
+## 157.12
+
+// glyph han-30e2c:15x16 15 16 // 𰸬
+// ⿰ han-27fb7 han-63d0 // ⿰𧾷提
+
+// glyph han-30e2d:15x16 15 16 // 𰸭
+// ⿰ han-27fb7 han-8cbc // ⿰𧾷貼
+
 # CJK unified ideographs extension G: 車 (159)
+
+## 159.1
+
+// glyph han-30e48:15x16 15 16 // 𰹈
+// ⿰ han-8eca han-4e59 // ⿰車乙
 
 ## 159.3
 
 glyph han-30e4b:15x16 15 16 // 𰹋
 ⿰ han-8eca:7x16 han-52fa:7x16 // ⿰車勺
+
+## 159.5
+
+// glyph han-30e50:15x16 15 16 // 𰹐
+// ⿰ han-8eca han-52a0 // ⿰車加
+
+# CJK unified ideographs extension G: 邑 (163)
+
+## 163.4
+
+// glyph han-30ee4:15x16 15 16 // 𰻤
+// ⿰ han-6b62 han-961d // ⿰止阝
+
+# CJK unified ideographs extension G: 酉 (164)
+
+## 164.12
+
+// glyph han-30f14:15x16 15 16 // 𰼔
+// ⿰ han-9149 han-7d50 // ⿰酉結
+
+# CJK unified ideographs extension G: 金 (167)
+
+## 167.12
+
+// glyph han-30f47:15x16 15 16 // 𰽇
+// ⿰ han-91d2 han-63d0 // ⿰釒提
 
 # CJK unified ideographs extension G: 钅 (167')
 
@@ -87,6 +149,9 @@ glyph han-30f56:15x16 15 16 // 𰽖
 ⿰ han-9485:6x16 han-529b:8x16 // ⿰钅力
 
 ## 167'.4
+
+// glyph han-30f60:15x16 15 16 // 𰽠
+// ⿰ han-9485 han-6b62 // ⿰钅止
 
 glyph han-30f61:15x16 15 16 // 𰽡
 ⿰ han-9485:6x16 1 han-65e5:8x16 // ⿰钅日
@@ -113,10 +178,20 @@ glyph han-30f7c:15x16 15 16 // 𰽼
 glyph han-30f7d:15x16 15 16 // 𰽽
 ⿰ han-9485:6x16 han-7f8a:9x16 // ⿰钅羊
 
+## 167'.7
+
+// glyph han-30f83:15x16 15 16 // 𰾃
+// ⿰ han-9485 han-8db3 // ⿰钅足
+
 ## 167'.8
 
 glyph han-30f8e:15x16 15 16 // 𰾎
 ⿰ han-9485:6x16 han-5351:8x16 // ⿰钅卑
+
+## 167'.12
+
+// glyph han-30fb4:15x16 15 16 // 𰾴
+// ⿰ han-9485 han-65af // ⿰钅斯
 
 ## 167'.14
 

@@ -42,6 +42,12 @@ $$/vV'....`Vv\$$
 glyph han-8ca5:15x16 15 16 // 貥
 ⿰ han-8c9d:6x16 han-4ea2:9x16 // ⿰貝亢
 
+// glyph han-8ca7:15x16 15 16 // 貧
+// ⿱ han-5206 han-8c9d // ⿱分貝
+
+// glyph han-8caa:15x16 15 16 // 貪
+// ⿱ han-4eca han-8c9d // ⿱今貝
+
 ## 154.5
 
 glyph han-8cb1:15x16 15 16 // 貱
@@ -55,6 +61,9 @@ glyph han-8cbd:15x16 15 16 // 貽
 
 glyph han-8cbe:15x16 15 16 // 貾
 ⿰ han-8c9d:6x16 1 han-6c10:8x16 // ⿰貝氐
+
+// glyph han-8cc0:15x16 15 16 // 賀
+// ⿱ han-52a0 han-8c9d // ⿱加貝
 
 ## 154.6
 
@@ -86,6 +95,9 @@ glyph han-8ce5:15x16 15 16 // 賥
 glyph han-8ce7:15x16 15 16 // 賧
 ⿰ han-8c9d:6x16 han-708e:9x16 // ⿰貝炎
 
+// glyph han-8cea:15x16 15 16 // 質
+// ⿱ han-65a6 han-8c9d // ⿱斦貝
+
 ## 154.9
 
 glyph han-8ced:15x16 15 16 // 賭
@@ -98,6 +110,18 @@ glyph han-8cf1:15x16 15 16 // 賱
 
 glyph han-8cff:15x16 15 16 // 賿
 ⿰ han-8c9d:8x16 han-7fcf:7x16 // ⿰貝翏
+
+## 154.14
+
+// glyph han-8d14:15x16 15 16 // 贔
+// ⿱ han-8c9d han-8ccf // ⿱貝賏
+
+# CJK unified ideographs: 走 (156)
+
+## 156.0
+
+// glyph han-8d70:15x16 15 16 // 走
+// ⿱ han-571f han-9fb0 // ⿱土龰
 
 # CJK unified ideographs: 足 (157)
 
@@ -132,6 +156,9 @@ glyph han-8db5:15x16 15 16 // 趵
 glyph han-8dbb:15x16 15 16 // 趻
 ⿰ han-27fb7:5x16 1 han-4eca:9x16 // ⿰𧾷今
 
+// glyph han-8dbe:15x16 15 16 // 趾
+// ⿰ han-27fb7 han-6b62 // ⿰𧾷止
+
 glyph han-8dc0:15x16 15 16 // 跀
 ⿰ han-27fb7:5x16 1 han-6708:8x16 // ⿰𧾷月
 
@@ -145,6 +172,9 @@ glyph han-8dc9-($han-regions):15x16 15 16 // 跉
 
 glyph han-8dcc:15x16 15 16 // 跌
 ⿰ han-27fb7:5x16 1 han-5931:9x16 // ⿰𧾷失
+
+// glyph han-8dcf:15x16 15 16 // 跏
+// ⿰ han-27fb7 han-52a0 // ⿰𧾷加
 
 glyph han-8dd1:15x16 15 16 // 跑
 ⿰ han-27fb7:5x16 1 han-5305:9x16 // ⿰𧾷包
@@ -169,6 +199,9 @@ glyph han-8ddb:15x16 15 16 // 跛
 
 ## 157.6
 
+// glyph han-8dbc:15x16 15 16 // 趼
+// ⿰ han-27fb7 han-5e75 // ⿰𧾷幵
+
 glyph han-8de4:15x16 15 16 // 跤
 ⿰ han-27fb7:5x16 1 han-4ea4:9x16 // ⿰𧾷交
 
@@ -192,8 +225,14 @@ glyph han-8df3:15x16 15 16 // 跳
 
 ## 157.7
 
+// glyph han-8e00:15x16 15 16 // 踀
+// ⿰ han-27fb7 han-8db3 // ⿰𧾷足
+
 glyph han-8e03:15x16 15 16 // 踃
 ⿰ han-27fb7:5x16 1 han-8096:9x16 // ⿰𧾷肖
+
+// glyph han-8e05:15x16 15 16 // 踅
+// ⿱ han-6298 han-8db3 // ⿱折足
 
 glyph han-8e06:15x16 15 16 // 踆
 ⿰ 1 han-27fb7:5x16 1 han-590b:7x16 // ⿰𧾷夋
@@ -229,7 +268,13 @@ glyph han-8e37:15x16 15 16 // 踷
 glyph han-8e3c:15x16 15 16 // 踼
 ⿰ han-27fb7:5x16 1 han-661c:9x16 // ⿰𧾷昜
 
+// glyph han-8e3f:15x16 15 16 // 踿
+// ⿰ han-27fb7 han-79cb // ⿰𧾷秋
+
 ## 157.11
+
+// glyph han-8e54:15x16 15 16 // 蹔
+// ⿱ han-65ac han-8db3 // ⿱斬足
 
 glyph han-8e58:15x16 15 16 // 蹘
 ⿰ han-27fb7:5x16 1 han-7fcf:9x16 // ⿰𧾷翏
