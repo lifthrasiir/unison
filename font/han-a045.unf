@@ -112,6 +112,11 @@ glyph han-3969:15x16 15 16 // 㥩
 
 # CJK unified ideographs extension A: 手 (64)
 
+## 64.2
+
+// glyph han-39c5:15x16 15 16 // 㧅
+// ⿰ han-624c han-5200 // ⿰扌刀
+
 ## 64.8
 
 glyph han-3a04:15x16 15 16 // 㨄
@@ -138,7 +143,7 @@ glyph han-3a36:15x16 15 16 // 㨶
 ## 64.18
 
 glyph han-3a72:15x16 15 16 // 㩲
-⿰ han-624c:5x16 han-96da:9x16 // ⿰扌雚
+⿰ han-624c:5x16 1 han-96da:9x16 // ⿰扌雚
 
 # CJK unified ideographs extension A: 斤 (69)
 

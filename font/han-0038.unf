@@ -180,8 +180,8 @@ glyph han-59ea:15x16 15 16 // 姪
 glyph han-59f6:15x16 15 16 // 姶
 ⿰ han-5973:5x16-l 1 han-5408:9x16 // ⿰女合
 
-// glyph han-59f8:15x16 15 16 // 姸
-// ⿰ han-5973 han-5e75 // ⿰女幵
+glyph han-59f8:15x16 15 16 // 姸
+⿲ han-5973:5x16-l han-5e72:5x16 han-5e72:5x16 // ⿲女干干
 
 glyph han-5a03:15x16 15 16 // 娃
 ⿰ han-5973:7x16 1 han-572d:7x16 // ⿰女圭
@@ -305,3 +305,10 @@ glyph han-5b43:15x16 15 16 // 孃
 
 glyph han-5b49:15x16 15 16 // 孉
 ⿰ han-5973:5x16-l 1 han-96da:9x16 // ⿰女雚
+
+# CJK unified ideographs: 尢 (43)
+
+## 43.0
+
+// glyph han-5c23:15x16 15 16 // 尣
+// ⿱ han-516b han-513f // ⿱八儿

@@ -54,12 +54,12 @@
 ## 51.5
 
 glyph han-2d640:15x16 15 16 // 𭙀
-⿰ han-5e72:9x16 han-5360:5x16 // ⿰干占
+⿰ han-5e72:9x16 1 han-5360:5x16 // ⿰干占
 
 ## 51.7
 
 glyph han-2d643:15x16 15 16 // 𭙃
-⿰ han-5e72:7x16 han-826f:7x16 // ⿰干良
+⿰ han-5e72:7x16 1 han-826f:7x16 // ⿰干良
 
 # CJK unified ideographs extension F: 心 (61)
 

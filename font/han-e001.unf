@@ -44,6 +44,9 @@
 // glyph han-2b887:15x16 15 16 // 𫢇
 // ⿲ han-4ebb han-4e28 han-4e28 // ⿲亻丨丨
 
+// glyph han-2b888:15x16 15 16 // 𫢈
+// ⿰ han-4ebb han-5200 // ⿰亻刀
+
 ## 9.4
 
 // glyph han-2b88d:15x16 15 16 // 𫢍
@@ -73,6 +76,26 @@ glyph han-2b89e:15x16 15 16 // 𫢞
 
 glyph han-2b8f9:15x16 15 16 // 𫣹
 ⿰ han-5408:7x16 1 han-55ac:7x16 // ⿰合喬
+
+# CJK unified ideographs extension E: 刀 (18)
+
+## 18.5
+
+// glyph han-2b978:15x16 15 16 // 𫥸
+// ⿰ han-5200 han-5360 // ⿰刀占
+
+## 18.6
+
+// glyph han-2b97e:15x16 15 16 // 𫥾
+// ⿰ han-7c73 han-5202 // ⿰米刂
+
+// glyph han-2b97f:15x16 15 16 // 𫥿
+// ⿰ han-4ea4 han-5200 // ⿰交刀
+
+## 18.12
+
+// glyph han-2b999:15x16 15 16 // 𫦙
+// ⿰ han-55ac han-5202 // ⿰喬刂
 
 # CJK unified ideographs extension E: 力 (19)
 
@@ -169,6 +192,11 @@ glyph han-2ba6e:15x16 15 16 // 𫩮
 // glyph han-2bb56:15x16 15 16 // 𫭖
 // ⿰ han-571f han-4e59 // ⿰土乙
 
+## 32.2
+
+// glyph han-2bb57:15x16 15 16 // 𫭗
+// ⿰ han-571f han-516b // ⿰土八
+
 ## 32.3
 
 glyph han-2bb59:15x16 15 16 // 𫭙
@@ -191,6 +219,9 @@ glyph han-2bb80:15x16 15 16 // 𫮀
 
 // glyph han-2bb92:15x16 15 16 // 𫮒
 // ⿰ han-571f han-7834 // ⿰土破
+
+// glyph han-2bb99:15x16 15 16 // 𫮙
+// ⿰ han-571f han-5017 // ⿰土倗
 
 ## 32.11
 

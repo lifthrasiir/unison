@@ -29,6 +29,11 @@ glyph han-309b3:15x16 15 16 // 𰦳
 
 # CJK unified ideographs extension G: 禾 (115)
 
+## 115.2
+
+// glyph han-30a1b:15x16 15 16 // 𰨛
+// ⿰ han-79be han-5200 // ⿰禾刀
+
 ## 115.8
 
 // glyph han-30a2e:15x16 15 16 // 𰨮
@@ -80,6 +85,13 @@ glyph han-30ac6:15x16 15 16 // 𰫆
 
 glyph han-30b59:15x16 15 16 // 𰭙
 ⿰ han-7f8a:7x16 han-5e76:8x16 // ⿰羊并
+
+# CJK unified ideographs extension G: 肉 (130)
+
+## 130.2
+
+// glyph han-30b81:15x16 15 16 // 𰮁
+// ⿰ han-6708 han-5200 // ⿰月刀
 
 # CJK unified ideographs extension G: 虫 (142)
 

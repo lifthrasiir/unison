@@ -31,7 +31,7 @@ glyph han-2cb37:15x16 15 16 // 𬬷
 ⿰ han-9485:6x16 1 han-77f3:8x16 // ⿰钅石
 
 glyph han-2cb3a:15x16 15 16 // 𬬺
-⿰ han-9485:6x16 han-4e14:8x16 // ⿰钅且
+⿰ han-9485:6x16 1 han-4e14:8x16 // ⿰钅且
 
 glyph han-2cb3f:15x16 15 16 // 𬬿
 ⿰ han-9485:6x16 1 han-53ec:8x16 // ⿰钅召
@@ -50,7 +50,7 @@ glyph han-2cb40:15x16 15 16 // 𬭀
 ## 167'.8
 
 glyph han-2cb55:15x16 15 16 // 𬭕
-⿰ han-9485:6x16 han-5468:8x16 // ⿰钅周
+⿰ han-9485:6x16 1 han-5468:8x16 // ⿰钅周
 
 // glyph han-2cb56:15x16 15 16 // 𬭖
 // ⿰ han-9485 han-670b // ⿰钅朋
@@ -97,12 +97,19 @@ glyph han-2cbef:15x16 15 16 // 𬯯
 // glyph han-2cbf5:15x16 15 16 // 𬯵
 // ⿱ han-8ccf han-96b9 // ⿱賏隹
 
+# CJK unified ideographs extension E: 頁 (181)
+
+## 181.2
+
+// glyph han-2cc3f:15x16 15 16 // 𬰿
+// ⿰ han-5200 han-9801 // ⿰刀頁
+
 # CJK unified ideographs extension E: 食 (184)
 
 ## 184.4
 
 glyph han-2cc8d:15x16 15 16 // 𬲍
-⿰ han-98e0:7x16 han-5206:7x16 // ⿰飠分
+⿰ han-98e0:7x16 1 han-5206:7x16 // ⿰飠分
 
 ## 184.12
 

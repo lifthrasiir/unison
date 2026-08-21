@@ -41,6 +41,21 @@ glyph han-313bc:15x16 15 16 // 𱎼
 // glyph han-313d2:15x16 15 16 // 𱏒
 // ⿰ han-4ebb han-6b3d // ⿰亻欽
 
+# CJK unified ideographs extension H: 刀 (18)
+
+## 18.4
+
+// glyph han-31413:15x16 15 16 // 𱐓
+// ⿰ han-5200 han-5206 // ⿰刀分
+
+// glyph han-31415:15x16 15 16 // 𱐕
+// ⿲ han-5200 han-5200 han-5200 // ⿲刀刀刀
+
+## 18.8
+
+// glyph han-3141f:15x16 15 16 // 𱐟
+// ⿰ han-5352 han-5202 // ⿰卒刂
+
 # CJK unified ideographs extension H: 力 (19)
 
 ## 19.5
@@ -132,7 +147,7 @@ glyph han-3142b:15x16 15 16 // 𱐫
 ## 32.3
 
 glyph han-31587:15x16 15 16 // 𱖇
-⿰ han-571f:7x16 han-5e72:7x16 // ⿰土干
+⿰ han-571f:7x16 1 han-5e72:7x16 // ⿰土干
 
 ## 32.6
 
@@ -153,7 +168,7 @@ glyph han-31587:15x16 15 16 // 𱖇
 ## 32.9
 
 glyph han-315cb:15x16 15 16 // 𱗋
-⿰ han-571f:7x16 han-9769:7x16 // ⿰土革
+⿰ han-571f:7x16 1 han-9769:7x16 // ⿰土革
 
 // glyph han-315d5:15x16 15 16 // 𱗕
 // ⿱ han-79cb han-571f // ⿱秋土
@@ -189,6 +204,11 @@ glyph han-315de:15x16 15 16 // 𱗞
 
 // glyph han-31641:15x16 15 16 // 𱙁
 // ⿱ han-5973 han-4e00 // ⿱女一
+
+## 38.2
+
+// glyph han-31642:15x16 15 16 // 𱙂
+// ⿰ han-5973 han-513f // ⿰女儿
 
 ## 38.22
 

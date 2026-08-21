@@ -51,6 +51,26 @@ glyph han-30087:15x16 15 16 // 𰂇
 // glyph han-300a9:15x16 15 16 // 𰂩
 // ⿰ han-4ebb han-7956 // ⿰亻祖
 
+# CJK unified ideographs extension G: 刀 (18)
+
+## 18.2
+
+// glyph han-30119:15x16 15 16 // 𰄙
+// ⿰ han-516b han-5202 // ⿰八刂
+
+## 18.3
+
+// glyph han-3011b:15x16 15 16 // 𰄛
+// ⿰ han-5200 han-52fa // ⿰刀勺
+
+// glyph han-3011c:15x16 15 16 // 𰄜
+// ⿰ han-5fc4 han-5202 // ⿰忄刂
+
+## 18.5
+
+// glyph han-30124:15x16 15 16 // 𰄤
+// ⿰ han-5200 han-5305 // ⿰刀包
+
 # CJK unified ideographs extension G: 勹 (20)
 
 ## 20.12

@@ -44,7 +44,7 @@ glyph han-22658:15x16 15 16 // 𢙘
 // ⿰ han-5fc4 han-52a9 // ⿰忄助
 
 glyph han-226b7:15x16 15 16 // 𢚷
-⿰ han-5fc4:5x16 han-8eca:9x16 // ⿰忄車
+⿰ han-5fc4:5x16 1 han-8eca:9x16 // ⿰忄車
 
 ## 61.8
 

@@ -38,7 +38,7 @@ glyph han-29497:15x16 15 16 // 𩒗
 ## 181.7
 
 glyph han-294b7:15x16 15 16 // 𩒷
-⿰ han-8eca:7x16 han-9801:7x16 // ⿰車頁
+⿰ han-8eca:7x16 1 han-9801:7x16 // ⿰車頁
 
 glyph han-294ba:15x16 15 16 // 𩒺
 ⿰ han-752b:7x16 1 han-9801:7x16 // ⿰甫頁

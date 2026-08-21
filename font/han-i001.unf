@@ -1,3 +1,17 @@
+# CJK unified ideographs extension I: 亠 (8)
+
+## 8.12
+
+// glyph han-2ebf3:15x16 15 16 // 𮯳
+// ⿳ han-4ea0 han-708f han-706b // ⿳亠炏火 <- ⿱亠⿱炏火
+
+# CJK unified ideographs extension I: 人 (9)
+
+## 9.2
+
+// glyph han-2ebf4:15x16 15 16 // 𮯴
+// ⿰ han-4ebb han-513f // ⿰亻儿
+
 # CJK unified ideographs extension I: 女 (38)
 
 ## 38.8
@@ -87,7 +101,7 @@ glyph han-2ed44:15x16 15 16 // 𮵄
 ## 128.6
 
 glyph han-2ed92:15x16 15 16 // 𮶒
-⿰ han-8033:7x16 han-572d:7x16 // ⿰耳圭
+⿰ han-8033:7x16 1 han-572d:7x16 // ⿰耳圭
 
 # CJK unified ideographs extension I: 虫 (142)
 

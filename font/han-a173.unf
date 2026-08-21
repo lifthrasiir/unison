@@ -19,7 +19,7 @@ glyph han-4a5e:15x16 15 16 // 䩞
 // ⿰ han-9769 han-6298 // ⿰革折
 
 glyph han-4a64:15x16 15 16 // 䩤
-⿰ han-9769:7x16 han-898b:7x16 // ⿰革見
+⿰ han-9769:7x16 1 han-898b:7x16 // ⿰革見
 
 ## 177.9
 
@@ -67,27 +67,35 @@ glyph han-4af0:15x16 15 16 // 䫰
 
 # CJK unified ideographs extension A: 食 (184)
 
+## 184.2
+
+// glyph han-4b22:15x16 15 16 // 䬢
+// ⿰ han-98e0 han-5200 // ⿰飠刀
+
+// glyph han-4dbf:15x16 15 16 // 䶿
+// ⿰ han-98e0 han-513f // ⿰飠儿
+
 ## 184.5
 
 glyph han-4b2b:15x16 15 16 // 䬫
 ⿰ han-98e0:7x16 han-6c10:8x16 // ⿰飠氐
 
 glyph han-4b2f:15x16 15 16 // 䬯
-⿰ han-98e0:7x16 han-5360:7x16 // ⿰飠占
+⿰ han-98e0:7x16 1 han-5360:7x16 // ⿰飠占
 
 glyph han-4b30:15x16 15 16 // 䬰
 ⿰ han-98e0:7x16 han-53ec:8x16 // ⿰飠召
 
 glyph han-4b32:15x16 15 16 // 䬲
-⿰ han-98e0:7x16 han-53e5:7x16 // ⿰飠句
+⿰ han-98e0:7x16 1 han-53e5:7x16 // ⿰飠句
 
 ## 184.6
 
 glyph han-4b39:15x16 15 16 // 䬹
-⿰ han-98e0:7x16 han-81f3:7x16 // ⿰飠至
+⿰ han-98e0:7x16 1 han-81f3:7x16 // ⿰飠至
 
 glyph han-4b3a:15x16 15 16 // 䬺
-⿰ han-98e0:7x16 han-7f8a:7x16 // ⿰飠羊
+⿰ han-98e0:7x16 1 han-7f8a:7x16 // ⿰飠羊
 
 # CJK unified ideographs extension A: 馬 (187)
 

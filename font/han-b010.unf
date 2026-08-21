@@ -1,4 +1,24 @@
+# CJK unified ideographs extension B: 儿 (10)
+
+## 10.3
+
+// glyph han-20477:15x16 15 16 // 𠑷
+// ⿱ han-4e0a han-513f // ⿱上儿
+
 # CJK unified ideographs extension B: 八 (12)
+
+## 12.2
+
+// glyph han-20501:15x16 15 16 // 𠔁
+// ⿱ han-516b han-516b // ⿱八八
+
+// glyph han-20502:15x16 15 16 // 𠔂
+// ⿲ han-4e28 han-4e28 han-516b // ⿲丨丨八 <- ⿰⿰丨丨八
+
+## 12.4
+
+// glyph han-20508:15x16 15 16 // 𠔈
+// ⿱ han-516b han-4e2d // ⿱八中
 
 ## 12.6
 

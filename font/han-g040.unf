@@ -39,7 +39,7 @@ glyph han-30458:15x16 15 16 // 𰑘
 ## 61.10
 
 glyph han-30480:15x16 15 16 // 𰒀
-⿰ han-5fc4:5x16 han-99ac:9x16 // ⿰忄馬
+⿰ han-5fc4:5x16 1 han-99ac:9x16 // ⿰忄馬
 
 ## 61.12
 
@@ -74,6 +74,11 @@ glyph han-30480:15x16 15 16 // 𰒀
 // ⿱ han-72ec han-6253 // ⿱独打
 
 # CJK unified ideographs extension G: 日 (72)
+
+## 72.2
+
+// glyph han-30572:15x16 15 16 // 𰕲
+// ⿲ han-4e36 han-4e3f han-65e5 // ⿲丶丿日 <- ⿰⿰丶丿日
 
 ## 72.5
 

@@ -47,6 +47,9 @@ $$..\1@@....$$
 glyph han-5fc7:15x16 15 16 // 忇
 ⿰ han-5fc4:7x16 han-529b:8x16 // ⿰忄力
 
+// glyph han-5fc9:15x16 15 16 // 忉
+// ⿰ han-5fc4 han-5200 // ⿰忄刀
+
 glyph han-5fca:15x16 15 16 // 忊
 ⿰ han-5fc4:5x16 1 han-4e01:9x16 // ⿰忄丁
 
@@ -127,8 +130,8 @@ glyph han-604e:15x16 15 16 // 恎
 glyph han-6054:15x16 15 16 // 恔
 ⿰ han-5fc4:5x16 han-4ea4:9x16 // ⿰忄交
 
-// glyph han-6058:15x16 15 16 // 恘
-// ⿰ han-5fc4 han-4f11 // ⿰忄休
+glyph han-6058:15x16 15 16 // 恘
+⿲ han-5fc4:5x16 han-4ebb:3x16 han-6728:7x16 // ⿲忄亻木
 
 glyph han-606a:15x16 15 16 // 恪
 ⿰ han-5fc4:7x16 1 han-5404:7x16 // ⿰忄各
@@ -140,7 +143,7 @@ glyph han-6070:15x16 15 16 // 恰
 ⿰ han-5fc4:7x16 1 han-5408:7x16 // ⿰忄合
 
 glyph han-6072:15x16 15 16 // 恲
-⿰ han-5fc4:5x16 han-5e76:9x16 // ⿰忄并
+⿰ han-5fc4:5x16 1 han-5e76:9x16 // ⿰忄并
 
 ## 61.7
 
@@ -176,8 +179,8 @@ glyph han-60c6:15x16 15 16 // 惆
 glyph han-60c8:15x16 15 16 // 惈
 ⿰ han-5fc4:7x16 1 han-679c:7x16 // ⿰忄果
 
-// glyph han-60cf:15x16 15 16 // 惏
-// ⿰ han-5fc4 han-6797 // ⿰忄林
+glyph han-60cf:15x16 15 16 // 惏
+⿲ han-5fc4:5x16 han-6728:5x16 han-6728:5x16 // ⿲忄木木
 
 glyph han-60d4:15x16 15 16 // 惔
 ⿰ han-5fc4:7x16 1 han-708e:7x16 // ⿰忄炎
@@ -186,7 +189,7 @@ glyph han-60d4:15x16 15 16 // 惔
 // ⿰ han-5fc4 han-6b23 // ⿰忄欣
 
 glyph han-60df:15x16 15 16 // 惟
-⿰ han-5fc4:5x16 han-96b9:9x16 // ⿰忄隹
+⿰ han-5fc4:5x16 1 han-96b9:9x16 // ⿰忄隹
 
 ## 61.9
 
@@ -194,7 +197,7 @@ glyph han-60f2:15x16 15 16 // 惲
 ⿰ han-5fc4:5x16 1 han-8ecd:9x16 // ⿰忄軍
 
 glyph han-60ff:15x16 15 16 // 惿
-⿰ han-5fc4:5x16 han-662f:9x16 // ⿰忄是
+⿰ han-5fc4:5x16 1 han-662f:9x16 // ⿰忄是
 
 // glyph han-6100:15x16 15 16 // 愀
 // ⿰ han-5fc4 han-79cb // ⿰忄秋
@@ -230,7 +233,7 @@ glyph han-6180:15x16 15 16 // 憀
 ## 61.12
 
 glyph han-618d:15x16 15 16 // 憍
-⿰ han-5fc4:5x16 han-55ac:9x16 // ⿰忄喬
+⿰ han-5fc4:5x16 1 han-55ac:9x16 // ⿰忄喬
 
 glyph han-6190:15x16 15 16 // 憐
 ⿰ han-5fc4:5x16 1 han-7ca6:9x16 // ⿰忄粦
@@ -249,9 +252,9 @@ glyph han-61e6:15x16 15 16 // 懦
 ## 61.17
 
 glyph han-61f9:15x16 15 16 // 懹
-⿰ han-5fc4:5x16 han-8944:9x16 // ⿰忄襄
+⿰ han-5fc4:5x16 1 han-8944:9x16 // ⿰忄襄
 
 ## 61.18
 
 glyph han-61fd:15x16 15 16 // 懽
-⿰ han-5fc4:5x16 han-96da:9x16 // ⿰忄雚
+⿰ han-5fc4:5x16 1 han-96da:9x16 // ⿰忄雚

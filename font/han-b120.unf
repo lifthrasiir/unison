@@ -1,9 +1,14 @@
 # CJK unified ideographs extension B: 糸 (120)
 
+## 120.2
+
+// glyph han-25f88:15x16 15 16 // 𥾈
+// ⿱ han-516b han-7cf8 // ⿱八糸
+
 ## 120.3
 
 glyph han-25f8d:15x16 15 16 // 𥾍
-⿰ han-7cf9:5x16 han-5e72:9x16 // ⿰糹干
+⿰ han-7cf9:5x16 1 han-5e72:9x16 // ⿰糹干
 
 ## 120.4
 

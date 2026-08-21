@@ -115,7 +115,7 @@ glyph han-2b2fa:15x16 15 16 // 𫋺
 ## 145.9
 
 glyph han-2b305:15x16 15 16 // 𫌅
-⿰ han-8864:5x16 han-661c:9x16 // ⿰衤昜
+⿰ han-8864:5x16 1 han-661c:9x16 // ⿰衤昜
 
 # CJK unified ideographs extension C: 見 (147)
 
@@ -139,7 +139,7 @@ glyph han-2b333:15x16 15 16 // 𫌳
 ## 149.7
 
 glyph han-2b33c:15x16 15 16 // 𫌼
-⿰ han-8a01:5x16 han-8eca:9x16 // ⿰訁車
+⿰ han-8a01:5x16 1 han-8eca:9x16 // ⿰訁車
 
 # CJK unified ideographs extension C: 讠 (149')
 

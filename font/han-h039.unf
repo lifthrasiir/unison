@@ -87,7 +87,7 @@ glyph han-31882:15x16 15 16 // 𱢂
 ## 74.5
 
 glyph han-318b8-($han-regions):15x16 15 16 // 𱢸
-⿰ han-4ee4-($han-regions):7x16 han-6708:7x16 // ⿰令月
+⿰ han-4ee4-($han-regions):7x16 1 han-6708:7x16 // ⿰令月
 
 ## 74.6
 

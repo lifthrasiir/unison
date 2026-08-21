@@ -94,7 +94,7 @@ glyph han-2dd17:15x16 15 16 // 𭴗
 ## 86.6
 
 glyph han-2dd21:15x16 15 16 // 𭴡
-⿰ han-706b:5x16-l han-5e76:9x16 // ⿰火并
+⿰ han-706b:5x16-l 1 han-5e76:9x16 // ⿰火并
 
 ## 86.8
 
@@ -159,6 +159,11 @@ glyph han-2ddf8:15x16 15 16 // 𭷸
 
 # CJK unified ideographs extension F: 玉 (96)
 
+## 96.2
+
+// glyph han-2de35:15x16 15 16 // 𭸵
+// ⿰ han-248e9 han-5200 // ⿰𤣩刀
+
 ## 96.5
 
 glyph han-2de41:15x16 15 16 // 𭹁
@@ -175,7 +180,7 @@ glyph han-2de64:15x16 15 16 // 𭹤
 ⿰ han-248e9:5x16 1 han-9769:9x16 // ⿰𤣩革
 
 glyph han-2de68:15x16 15 16 // 𭹨
-⿰ han-248e9:5x16 han-66f7:9x16 // ⿰𤣩曷
+⿰ han-248e9:5x16 1 han-66f7:9x16 // ⿰𤣩曷
 
 ## 96.12
 

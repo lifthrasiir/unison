@@ -1,26 +1,31 @@
 # CJK unified ideographs extension B: 革 (177)
 
+## 177.2
+
+// glyph han-2925b:15x16 15 16 // 𩉛
+// ⿰ han-9769 han-5200 // ⿰革刀
+
 ## 177.4
 
 glyph han-29262:15x16 15 16 // 𩉢
-⿰ han-9769:7x16 han-6b20:7x16 // ⿰革欠
+⿰ han-9769:7x16 1 han-6b20:7x16 // ⿰革欠
 
 // glyph han-2926e:15x16 15 16 // 𩉮
 // ⿰ han-9769 han-6b62 // ⿰革止
 
 glyph han-29275:15x16 15 16 // 𩉵
-⿰ han-9769:7x16 han-5206:7x16 // ⿰革分
+⿰ han-9769:7x16 1 han-5206:7x16 // ⿰革分
 
 ## 177.5
 
 glyph han-2927f:15x16 15 16 // 𩉿
-⿰ han-9769:7x16 han-53e5:7x16 // ⿰革句
+⿰ han-9769:7x16 1 han-53e5:7x16 // ⿰革句
 
 glyph han-29280:15x16 15 16 // 𩊀
 ⿰ han-9769:7x16 han-767d:8x16 // ⿰革白
 
 glyph han-29282-($han-regions):15x16 15 16 // 𩊂
-⿰ han-9769:7x16 han-4ee4-($han-regions):7x16 // ⿰革令
+⿰ han-9769:7x16 1 han-4ee4-($han-regions):7x16 // ⿰革令
 
 glyph han-29286:15x16 15 16 // 𩊆
 ⿰ han-9769:7x16 han-53ef:8x16 // ⿰革可
@@ -34,10 +39,10 @@ glyph han-29286:15x16 15 16 // 𩊆
 ## 177.6
 
 glyph han-29290:15x16 15 16 // 𩊐
-⿰ han-9769:7x16 han-8033:7x16 // ⿰革耳
+⿰ han-9769:7x16 1 han-8033:7x16 // ⿰革耳
 
 glyph han-29291:15x16 15 16 // 𩊑
-⿰ han-9769:7x16 han-7f8a:7x16 // ⿰革羊
+⿰ han-9769:7x16 1 han-7f8a:7x16 // ⿰革羊
 
 glyph han-29294:15x16 15 16 // 𩊔
 ⿰ han-9769:7x16 1 han-4ea4:7x16 // ⿰革交
@@ -49,10 +54,10 @@ glyph han-29297:15x16 15 16 // 𩊗
 ⿰ han-9769:7x16 1 han-540c:7x16 // ⿰革同
 
 glyph han-2929a:15x16 15 16 // 𩊚
-⿰ han-9769:7x16 han-5404:7x16 // ⿰革各
+⿰ han-9769:7x16 1 han-5404:7x16 // ⿰革各
 
 glyph han-2929e:15x16 15 16 // 𩊞
-⿰ han-9769:7x16 han-81f3:7x16 // ⿰革至
+⿰ han-9769:7x16 1 han-81f3:7x16 // ⿰革至
 
 ## 177.7
 
@@ -60,7 +65,7 @@ glyph han-292ac:15x16 15 16 // 𩊬
 ⿰ han-9769:7x16 1 han-752b:7x16 // ⿰革甫
 
 glyph han-292bb:15x16 15 16 // 𩊻
-⿰ han-9769:7x16 han-590b:7x16 // ⿰革夋
+⿰ han-9769:7x16 1 han-590b:7x16 // ⿰革夋
 
 ## 177.8
 
@@ -74,7 +79,7 @@ glyph han-292bb:15x16 15 16 // 𩊻
 // ⿰ han-9769 han-4f73 // ⿰革佳
 
 glyph han-292d7:15x16 15 16 // 𩋗
-⿰ han-9769:7x16 han-679c:7x16 // ⿰革果
+⿰ han-9769:7x16 1 han-679c:7x16 // ⿰革果
 
 glyph han-292d8:15x16 15 16 // 𩋘
 ⿰ han-9769:7x16 1 han-96b9:7x16 // ⿰革隹

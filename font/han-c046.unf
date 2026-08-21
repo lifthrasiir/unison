@@ -90,7 +90,7 @@ glyph han-2ab70:15x16 15 16 // 𪭰
 ## 72.5
 
 glyph han-2ac0f:15x16 15 16 // 𪰏
-⿰ han-65e5:4x16-l han-53ef:10x16 // ⿰日可
+⿰ han-65e5:4x16-l 1 han-53ef:10x16 // ⿰日可
 
 glyph han-2ac12:15x16 15 16 // 𪰒
 ⿰ han-65e5:7x16 1 han-77f3:7x16 // ⿰日石
@@ -129,7 +129,7 @@ glyph han-2ac52:15x16 15 16 // 𪱒
 ## 74.5
 
 glyph han-2ac5c:15x16 15 16 // 𪱜
-⿰ han-53f0:7x16 han-6708:7x16 // ⿰台月
+⿰ han-53f0:7x16 1 han-6708:7x16 // ⿰台月
 
 # CJK unified ideographs extension C: 木 (75)
 

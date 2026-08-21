@@ -1,5 +1,10 @@
 # CJK unified ideographs extension F: 一 (1)
 
+## 1.2
+
+// glyph han-2ceb3:15x16 15 16 // 𬺳
+// ⿱ han-4e00 han-5200 // ⿱一刀
+
 ## 1.5
 
 // glyph han-2cec1:15x16 15 16 // 𬻁
@@ -107,6 +112,49 @@ glyph han-2cfba-($han-regions):15x16 15 16 // 𬾺
 
 // glyph han-2d00a:15x16 15 16 // 𭀊
 // ⿰ han-4ebb han-4cc6 // ⿰亻䳆
+
+# CJK unified ideographs extension F: 刀 (18)
+
+## 18.2
+
+// glyph han-2d0c3:15x16 15 16 // 𭃃
+// ⿰ han-5200 han-4e03 // ⿰刀七
+
+## 18.6
+
+// glyph han-2d0d5:15x16 15 16 // 𭃕
+// ⿰ han-5200 han-5409 // ⿰刀吉
+
+// glyph han-2d0df:15x16 15 16 // 𭃟
+// ⿱ han-5408 han-5200 // ⿱合刀
+
+// glyph han-2d0e0:15x16 15 16 // 𭃠
+// ⿰ han-5200 han-4ea4 // ⿰刀交
+
+## 18.8
+
+// glyph han-2d0e9:15x16 15 16 // 𭃩
+// ⿱ han-6797 han-5200 // ⿱林刀
+
+## 18.9
+
+// glyph han-2d0f6:15x16 15 16 // 𭃶
+// ⿰ han-661c han-5202 // ⿰昜刂
+
+## 18.11
+
+// glyph han-2d107:15x16 15 16 // 𭄇
+// ⿱ han-65ac han-5200 // ⿱斬刀
+
+## 18.14
+
+// glyph han-2d113:15x16 15 16 // 𭄓
+// ⿰ han-78ad han-5202 // ⿰碭刂
+
+## 18.22
+
+// glyph han-2d11d:15x16 15 16 // 𭄝
+// ⿰ han-5200 han-6b61 // ⿰刀歡
 
 # CJK unified ideographs extension F: 力 (19)
 

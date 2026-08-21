@@ -88,6 +88,11 @@ glyph han-2c171:15x16 15 16 // 𬅱
 
 # CJK unified ideographs extension E: 止 (77)
 
+## 77.2
+
+// glyph han-2c177:15x16 15 16 // 𬅷
+// ⿱ han-5200 han-6b62 // ⿱刀止
+
 ## 77.3
 
 // glyph han-2c178:15x16 15 16 // 𬅸
@@ -97,6 +102,13 @@ glyph han-2c171:15x16 15 16 // 𬅱
 
 // glyph han-2c189:15x16 15 16 // 𬆉
 // ⿱ han-65ac han-9fb0 // ⿱斬龰
+
+# CJK unified ideographs extension E: 氏 (83)
+
+## 83.3
+
+// glyph han-2c1c9:15x16 15 16 // 𬇉
+// ⿰ han-6c10 han-5200 // ⿰氐刀
 
 # CJK unified ideographs extension E: 水 (85)
 
