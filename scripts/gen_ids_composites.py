@@ -13,6 +13,14 @@ goes under), and writes one glyph block per character that
     fit the box only comments the line out, since a declaration is what says
     which parts are still to be drawn.
 
+An operand that splits along the same axis as the whole is *inlined* rather
+than lost: `⿰⿰XYC` is written as `⿲XYC` and `⿱⿱XYC` as `⿳XYC`. Only one
+operand of a line can be, since four parts have no IDC of their own;
+`--no-inline` turns it off. `--inline-parts` extends it to an operand named by
+a *character* that decomposes the same way (`⿰BC` with `B = ⿰XY`), which is
+off by default because it gives up on drawing that part -- it would write 刊 as
+`⿲干丨亅` rather than as 干 beside a 刂 nobody has drawn yet.
+
 The emitted line leaves its components *undecided* (no `:WxH` suffix), which is
 the initial state `compose.rs` documents for a glyph populated from IDS; run
 `cargo run -r -- fix -i font/ --optimize-clearance` afterwards to pick the
@@ -336,6 +344,114 @@ def load_ids(path: str) -> dict[int, IdsEntry]:
                     seqs.append((m.group(1), m.group(2)))
             if seqs:
                 out[cp] = IdsEntry(cp, fields[1], seqs)
+    return out
+
+
+# --------------------------------------------------------------------------
+# inlining a nested component
+# --------------------------------------------------------------------------
+
+# `⿰⿰XYC` is the same split of the box as `⿲XYC`, and `⿱⿱XYC` the same as
+# `⿳XYC`, so a binary IDC whose own operand splits along the *same* axis is
+# rewritten into the ternary one rather than dropped for naming a part nothing
+# draws. Only one operand can be inlined -- four parts have no IDC of their own
+# -- and only one level deep, for that same reason.
+INLINE_OP = {"⿰": "⿲", "⿱": "⿳"}
+
+
+def render_ids(node: "Node") -> str:
+    """A tree back to the sequence it was parsed from."""
+    if node.char is not None:
+        return node.char
+    return node.op + "".join(render_ids(kid) for kid in node.kids)
+
+
+def binary_split(node: "Node") -> tuple[str, list[str]] | None:
+    """`⿰XY` with two single-character operands, or None."""
+    if node.op in INLINE_OP and all(kid.char is not None for kid in node.kids):
+        return node.op, [kid.char for kid in node.kids]
+    return None
+
+
+def build_split_index(ids: dict[int, "IdsEntry"], allow_ivi: bool) -> dict[int, tuple[str, list[int]]]:
+    """code point -> the same-axis binary split its own IDS gives it.
+
+    This is what lets an operand *named by a character* be inlined as well: `A
+    = ⿰BC` where the source draws no `B`, but `B` is itself `⿰XY`, becomes
+    `⿲XYC`. A character's best-attested sequence wins, as everywhere else here.
+    """
+    out: dict[int, tuple[str, list[int]]] = {}
+    for cp, entry in ids.items():
+        for seq, tags in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
+            if "？" in seq or "{" in seq:
+                continue
+            if "〾" in seq:
+                if not allow_ivi:
+                    continue
+                seq = seq.replace("〾", "")
+            tree, used = parse_ids(seq)
+            if tree is None or used != len(seq):
+                continue
+            split = binary_split(tree)
+            if split is None:
+                continue
+            comps = [ord(normalize_component(c)) for c in split[1]]
+            if cp in comps:
+                continue
+            out[cp] = (split[0], comps)
+            break
+    return out
+
+
+@dataclass
+class Candidate:
+    """One way of writing a node as an IDC line the source can hold."""
+
+    op: str
+    comps: list[int]
+    inlined: bool
+
+
+def candidates(tree: "Node", inline: bool,
+               splits: dict[int, tuple[str, list[int]]] | None) -> list[Candidate]:
+    """Every component list one IDS node can be written as, plainest first.
+
+    The plain one is the node itself when every operand is a character; the
+    others each inline one operand that splits along the same axis. The
+    sequence's own nesting (`⿰⿰XYC`) is inlined whenever `inline` is set, since
+    there the sequence itself says the box splits three ways. A *character*
+    standing for such a split (`⿰BC` where `B` is itself `⿰XY`) is only
+    inlined when `splits` is given, because that one is a judgement about the
+    part rather than about this character: 刂 decomposes into 丨 and 亅, but a
+    line that says so has given up on ever drawing 刂.
+    """
+    out: list[Candidate] = []
+    if all(kid.char is not None for kid in tree.kids):
+        out.append(Candidate(
+            tree.op, [ord(normalize_component(kid.char)) for kid in tree.kids], False
+        ))
+    ternary = INLINE_OP.get(tree.op)
+    if ternary is None or not inline:
+        return out
+    for i, kid in enumerate(tree.kids):
+        other = tree.kids[1 - i]
+        if other.char is None:
+            continue  # both operands nested: four parts, and no IDC for them
+        split = binary_split(kid)
+        if split is not None:
+            if split[0] != tree.op:
+                continue  # nested, but splitting the other way
+            inner = [ord(normalize_component(c)) for c in split[1]]
+        elif kid.char is not None and splits is not None:
+            got = splits.get(ord(normalize_component(kid.char)))
+            if got is None or got[0] != tree.op:
+                continue
+            inner = list(got[1])
+        else:
+            continue  # nested, but along the other axis
+        rest = ord(normalize_component(other.char))
+        comps = inner + [rest] if i == 0 else [rest] + inner
+        out.append(Candidate(ternary, comps, True))
     return out
 
 
@@ -725,11 +841,14 @@ def tag_score(tags: str) -> int:
     return len(set(re.sub(r"\[.*?\]", "", tags)) & set("GHTJKPV"))
 
 
-def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool) -> list[str]:
+def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool,
+                 origin: str | None = None) -> list[str]:
     names = " ".join(han_name(c) for c in comps)
     ids = op + "".join(chr(c) for c in comps)
     head = f"glyph {han_name(cp)}:{BOX_W}x{BOX_H} {BOX_W} {BOX_H} // {char}"
-    body = f"{op} {names} // {ids}"
+    # an inlined line keeps the sequence it came from beside the one it draws,
+    # since the two are the same split but not the same text
+    body = f"{op} {names} // {ids}" + (f" <- {origin}" if origin else "")
     if commented:
         return [f"// {head}", f"// {body}"]
     return [head, body]
@@ -746,6 +865,11 @@ def main() -> int:
                     help="also use sequences marked 〾 (a component differs in some minor way)")
     ap.add_argument("--include-composite-parts", action="store_true",
                     help="write composite-part glyphs uncommented as well")
+    ap.add_argument("--no-inline", action="store_true",
+                    help="do not rewrite a same-axis nested operand into ⿲/⿳")
+    ap.add_argument("--inline-parts", action="store_true",
+                    help="also inline an operand named by a character whose own IDS "
+                         "splits the same way (⿰BC with B = ⿰XY -> ⿲XYC)")
     ap.add_argument("--ignore-box", action="store_true",
                     help="write a line whose parts cannot tile the 15x16 box uncommented as well")
     ap.add_argument("-v", "--verbose", action="store_true")
@@ -764,6 +888,8 @@ def main() -> int:
     slices = load_slices(args.font_dir)
     ids = load_ids(args.ids)
     rs, prime_chars = load_rs(args.unihan)
+    inline = not args.no_inline
+    splits = build_split_index(ids, args.allow_ivi) if inline and args.inline_parts else None
     rad_chars = {**prime_chars, **load_radical_chars(args.font_dir)}
 
     print(f"{len(inv.variants)} part families, {len(inv.covered)} characters drawn, "
@@ -788,7 +914,8 @@ def main() -> int:
         letter, block_name = blk
         entry = ids[cp]
 
-        best: tuple[tuple[bool, bool], str, list[int], Verdict] | None = None
+        best: tuple[tuple[bool, bool, bool], Candidate, Verdict] | None = None
+        best_origin: str | None = None
         why = "no decomposition at all"
         for seq, tags in sorted(entry.seqs, key=lambda s: -tag_score(s[1])):
             if "？" in seq or "{" in seq:
@@ -809,29 +936,34 @@ def main() -> int:
             if tree.op not in IDC_ARITY:
                 why = min(why, f"not a one-dimensional IDC ({tree.op})", key=reason_rank)
                 continue
-            if any(kid.char is None for kid in tree.kids):
+            cands = candidates(tree, inline, splits)
+            if not cands:
                 why = min(why, "a nested component nothing names", key=reason_rank)
                 continue
-            comps = [ord(normalize_component(kid.char)) for kid in tree.kids]
-            if cp in comps:
-                why = min(why, "self-referential IDS", key=reason_rank)
-                continue
-            verdict = feasible(inv, tree.op, comps)
-            if verdict.kind is None:
-                why = min(why, verdict.reason, key=reason_rank)
-                continue
-            # A character with several sequences takes the one that can be laid
-            # out today over one that only could be later, source tags being the
-            # tie-break the sort already applied.
-            rank = (verdict.fits, verdict.kind == "handdrawn")
-            if best is None or rank > best[0]:
-                best = (rank, tree.op, comps, verdict)
-            if rank == (True, True):
+            for cand in cands:
+                if cp in cand.comps:
+                    why = min(why, "self-referential IDS", key=reason_rank)
+                    continue
+                verdict = feasible(inv, cand.op, cand.comps)
+                if verdict.kind is None:
+                    why = min(why, verdict.reason, key=reason_rank)
+                    continue
+                # A character with several sequences takes the one that can be
+                # laid out today over one that only could be later, source tags
+                # being the tie-break the sort already applied; and, all else
+                # equal, the sequence as written over one that inlined an
+                # operand into it.
+                rank = (verdict.fits, verdict.kind == "handdrawn", not cand.inlined)
+                if best is None or rank > best[0]:
+                    best = (rank, cand, verdict)
+                    best_origin = render_ids(tree) if cand.inlined else None
+            if best is not None and best[0] == (True, True, True):
                 break
         if best is None:
             stats["skipped: " + why] += 1
             continue
-        _, op, comps, verdict = best
+        _, cand, verdict = best
+        op, comps, origin = cand.op, cand.comps, best_origin
 
         key = rs.get(cp)
         if key is None:
@@ -847,14 +979,16 @@ def main() -> int:
             holds.append("composite parts")
         if not verdict.fits and not args.ignore_box:
             holds.append("parts do not fit the box")
-        block = build_blocks(op, comps, cp, entry.char, bool(holds))
+        block = build_blocks(op, comps, cp, entry.char, bool(holds), origin)
         plan[sl.name].append((key, cp, block))
         stats["composite parts" if verdict.kind == "composite" else "hand-drawn parts"] += 1
+        if origin:
+            stats["inlined a nested operand"] += 1
         for hold in holds:
             stats["commented out: " + hold] += 1
         made += 1
         if args.verbose:
-            note = ", ".join([verdict.kind] + holds)
+            note = ", ".join([verdict.kind] + (["inlined"] if origin else []) + holds)
             print(f"  {entry.char} U+{cp:04X} -> {sl.name} {key[0]}{"'" if key[1] else ''}.{key[2]}"
                   f"  {op}{''.join(chr(c) for c in comps)} ({note})", file=sys.stderr)
         if args.limit and made >= args.limit:
