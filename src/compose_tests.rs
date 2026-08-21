@@ -33,7 +33,7 @@ fn expand(
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
 ) -> (Vec<GlyphRef>, Vec<(Severity, String)>) {
-    expand_compose("test", parent, 1, compose, dims, None)
+    expand_compose("test", parent, 1, compose, dims, None, None)
 }
 
 fn of_severity(issues: &[(Severity, String)], want: Severity) -> Vec<&str> {
@@ -243,6 +243,108 @@ fn a_part_without_a_variant_suffix_is_a_todo_and_not_an_error() {
     // Still placed, so the decided half of the line draws where it will end up.
     assert_eq!(refs.len(), 2);
     assert_eq!(refs[1].offset, Some((4, 0)));
+}
+
+/// A family whose sizes come from a table, as `table` does for `dims`.
+fn family_of<'a>(entries: &'a [(&'a str, &'a [(u16, u16)])]) -> impl Fn(&str) -> Vec<(u16, u16)> + 'a
+{
+    move |name: &str| {
+        entries
+            .iter()
+            .find(|(n, _)| *n == name)
+            .map_or_else(Vec::new, |(_, sizes)| sizes.to_vec())
+    }
+}
+
+/// 址 (`⿰土止`) as an IDS-populated source has it: 止 is drawn at one size, and
+/// that size fills the whole 15-wide glyph. No decision can lay this line out,
+/// so it is not a decision waiting to be made — the drawing it waits for does
+/// not exist.
+#[test]
+fn an_undecided_part_whose_family_cannot_fit_the_slot_is_a_warning() {
+    let dims = table(&[("a", (4, 16))]);
+    let family = family_of(&[("b", &[(15, 16)])]);
+    let (_, issues) = expand_compose(
+        "test",
+        Some((15, 16)),
+        1,
+        &line(IdcOp::LeftRight, vec![part("a"), part("b")]),
+        &dims,
+        Some(&family),
+        None,
+    );
+    assert_eq!(errors(&issues), Vec::<&str>::new(), "{issues:?}");
+    let warnings = of_severity(&issues, Severity::Warning);
+    assert_eq!(
+        warnings,
+        vec![
+            "glyph 'test': `\u{2FF0}` component 'b' has no variant that fits a 15-wide slot; \
+             its family draws 15x16"
+        ],
+    );
+    // And it is the *warning*, not a TODO beside it: one line, one thing to do.
+    assert_eq!(
+        todos(&issues).len(),
+        1,
+        "only 'a', whose family was not offered: {issues:?}"
+    );
+}
+
+/// The same line where the family does draw something that fits: the decision
+/// is there to be made, which is exactly what a TODO says.
+#[test]
+fn an_undecided_part_whose_family_fits_is_still_a_todo() {
+    let dims = table(&[("a", (4, 16))]);
+    for sizes in [&[(11, 16)][..], &[(15, 16), (11, 16)][..]] {
+        let entries = [("b", sizes)];
+        let family = family_of(&entries);
+        let (_, issues) = expand_compose(
+            "test",
+            Some((15, 16)),
+            1,
+            &line(IdcOp::LeftRight, vec![part("a"), part("b")]),
+            &dims,
+            Some(&family),
+            None,
+        );
+        assert_eq!(of_severity(&issues, Severity::Warning), Vec::<&str>::new());
+        assert_eq!(todos(&issues).len(), 2, "{issues:?}");
+    }
+    // A variant of the right length but the wrong height fills no slot either.
+    let family = family_of(&[("b", &[(11, 15)])]);
+    let (_, issues) = expand_compose(
+        "test",
+        Some((15, 16)),
+        1,
+        &line(IdcOp::LeftRight, vec![part("a"), part("b")]),
+        &dims,
+        Some(&family),
+        None,
+    );
+    assert_eq!(of_severity(&issues, Severity::Warning).len(), 1, "{issues:?}");
+}
+
+/// A vertical split asks the same question of the other axis.
+#[test]
+fn a_vertical_split_measures_the_family_along_its_own_axis() {
+    let dims = table(&[("a", (16, 4))]);
+    let family = family_of(&[("b", &[(16, 16)])]);
+    let (_, issues) = expand_compose(
+        "test",
+        Some((16, 16)),
+        1,
+        &line(IdcOp::AboveBelow, vec![part("a"), part("b")]),
+        &dims,
+        Some(&family),
+        None,
+    );
+    assert_eq!(
+        of_severity(&issues, Severity::Warning),
+        vec![
+            "glyph 'test': `\u{2FF1}` component 'b' has no variant that fits a 16-tall slot; \
+             its family draws 16x16"
+        ],
+    );
 }
 
 /// An undecided component with no glyph behind it at all is the ordinary IDS
@@ -530,6 +632,7 @@ fn offsets_leave_in_the_parents_raster_units() {
         &line(IdcOp::LeftRight, vec![part("a:4x16"), part("b:11x16")]),
         &dims,
         None,
+        None,
     );
     assert!(issues.is_empty(), "{issues:?}");
     assert_eq!(refs[1].offset, Some((8, 0)));
@@ -658,7 +761,7 @@ fn with_clearance(
         max_contact_run: None,
         contact_written: "test*",
     };
-    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, Some(&rule));
+    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, None, Some(&rule));
     assert!(errors(&issues).is_empty(), "{issues:?}");
     of_severity(&issues, Severity::Warning)
         .into_iter()
@@ -1076,7 +1179,7 @@ fn with_contact_run(
         max_contact_run,
         contact_written: "test*",
     };
-    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, Some(&rule));
+    let (_, issues) = expand_compose("test", Some(parent), 1, compose, dims, None, Some(&rule));
     assert!(errors(&issues).is_empty(), "{issues:?}");
     of_severity(&issues, Severity::Warning)
         .into_iter()
@@ -1169,6 +1272,7 @@ fn an_undecided_line_is_not_measured() {
         1,
         &line(IdcOp::LeftRight, vec![part("a"), part("b:4x4")]),
         &dims,
+        None,
         Some(&ClearanceRule {
             written: "test*",
             min: 0,

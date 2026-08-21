@@ -820,6 +820,32 @@ pub struct ClearanceRule<'a> {
     pub contact_written: &'a str,
 }
 
+/// Whether a part `along` long may share an axis `axis_extent` long with the
+/// rest of an IDC line.
+///
+/// A part as long as the glyph it is a part of fills the glyph on its own, so
+/// whatever else the line names has nowhere to stand: the layout does not
+/// exist, however well a score happens to take it. (And a score does take it:
+/// a total that has gone negative is as far outside the ideal range as one that
+/// is too large, so an oversized variant reads as an improvement over parts
+/// that are merely too thin.) The bound is the glyph's *declared* axis, the
+/// same rectangle the clearances are measured over.
+///
+/// Two stages ask it and they have to agree: [`crate::fix::clearance`] over
+/// what it may *propose* for a slot, and [`expand_compose`] over what an
+/// undecided component's family could ever put there.
+pub fn fits_axis(along: i32, axis_extent: i32) -> bool {
+    along < axis_extent
+}
+
+/// Whether a glyph this size could fill one slot of a line split along
+/// `axis_extent`, in a glyph `cross_extent` across: [`fits_axis`] along the
+/// split, and the exact box the line demands across it.
+pub fn fits_slot(size: (u16, u16), axis_extent: u16, cross_extent: u16, horizontal: bool) -> bool {
+    let (along, across) = if horizontal { size } else { (size.1, size.0) };
+    across == cross_extent && fits_axis(along as i32, axis_extent as i32)
+}
+
 /// Whether an IDC component has yet to pick its variant — the `:` is the whole
 /// of the test, since that is what introduces a variant suffix at all.
 ///
@@ -832,6 +858,51 @@ pub fn is_undecided(component_name: &str) -> bool {
     !component_name.contains(':')
 }
 
+/// What an undecided component's family draws when *none* of it fits the slot,
+/// as a list for the message — or `None` when the caller offered no family, the
+/// family is empty, or something in it fits.
+///
+/// An empty family stays a TODO on purpose: a component nothing has been drawn
+/// for yet is the ordinary state of a source populated from IDS, and the work
+/// it names is "draw it", which is what a TODO already says. The warning is for
+/// the case where the drawings exist and none of them can go there.
+fn misfit_variants(
+    name: &str,
+    family: Option<&dyn Fn(&str) -> Vec<(u16, u16)>>,
+    axis_extent: u16,
+    cross_extent: u16,
+    horizontal: bool,
+) -> Option<String> {
+    let sizes = family?(name);
+    if sizes.is_empty()
+        || sizes
+            .iter()
+            .any(|&size| fits_slot(size, axis_extent, cross_extent, horizontal))
+    {
+        return None;
+    }
+    // By the numbers rather than by the text, so `5x16` comes before `15x16`.
+    let mut sizes: Vec<String> = sizes
+        .iter()
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .map(|(w, h)| format!("{w}x{h}"))
+        .collect();
+    // Enough to see what the family is; a long tail of them says no more than
+    // the first few do.
+    let rest = sizes.len().saturating_sub(MAX_LISTED_VARIANTS);
+    sizes.truncate(MAX_LISTED_VARIANTS);
+    let listed = sizes.join(", ");
+    Some(match rest {
+        0 => listed,
+        n => format!("{listed} and {n} more"),
+    })
+}
+
+/// How many of an undecided component's sizes a message lists before counting
+/// the rest.
+const MAX_LISTED_VARIANTS: usize = 4;
+
 /// Turn one IDC line into the `ref`s it stands for, plus what is wrong with it.
 ///
 /// Best effort: a component whose size is unknown is placed where the walk has
@@ -841,8 +912,11 @@ pub fn is_undecided(component_name: &str) -> bool {
 /// for a right one.
 ///
 /// `parent` is the enclosing `glyph` header's box, `dims` answers for a
-/// component name. Messages come back with a severity and no location — the
-/// caller owns the [`crate::resolve::ItemRef`].
+/// component name, and `family` — where the caller has one — answers what the
+/// *family* of an undecided component draws, which is what separates a line
+/// waiting for a decision from one whose decision cannot be made. Messages come
+/// back with a severity and no location — the caller owns the
+/// [`crate::resolve::ItemRef`].
 ///
 /// Every length here is in *declared* units, the ones the `glyph` header
 /// writes: the layout is the same at any `scale`, and a component drawn at a
@@ -855,6 +929,7 @@ pub fn expand_compose(
     scale: u8,
     compose: &GlyphCompose,
     dims: &dyn Fn(&str) -> PartDims,
+    family: Option<&dyn Fn(&str) -> Vec<(u16, u16)>>,
     clearance: Option<&ClearanceRule>,
 ) -> (Vec<GlyphRef>, Vec<(Severity, String)>) {
     let op = compose.op;
@@ -911,18 +986,34 @@ pub fn expand_compose(
         let spec = VariantSpec::parse(name);
         let unpicked = is_undecided(name);
         if unpicked {
-            issues.push((
-                Severity::Todo,
-                at(format!(
-                    "component '{name}' has no variant picked yet; a component names the sized \
-                     variant it wants, as in `{name}:{}`",
-                    if op.horizontal() {
-                        format!("{axis_extent}x{cross_extent}")
-                    } else {
-                        format!("{cross_extent}x{axis_extent}")
-                    }
+            let slot_size = if op.horizontal() {
+                format!("{axis_extent}x{cross_extent}")
+            } else {
+                format!("{cross_extent}x{axis_extent}")
+            };
+            // A family that draws nothing this slot could hold is not a
+            // decision waiting to be made: whatever is picked, the line cannot
+            // be laid out, and the drawing that would let it be does not exist
+            // yet. Saying TODO there loses it — a TODO flags no glyph and is
+            // hidden by default — so it is a warning, and it names what the
+            // family does draw, since that is the thing to be looked at.
+            match misfit_variants(name, family, axis_extent, cross_extent, op.horizontal()) {
+                Some(sizes) => issues.push((
+                    Severity::Warning,
+                    at(format!(
+                        "component '{name}' has no variant that fits a {axis_extent}-{} slot; \
+                         its family draws {sizes}",
+                        if op.horizontal() { "wide" } else { "tall" },
+                    )),
                 )),
-            ));
+                None => issues.push((
+                    Severity::Todo,
+                    at(format!(
+                        "component '{name}' has no variant picked yet; a component names the \
+                         sized variant it wants, as in `{name}:{slot_size}`"
+                    )),
+                )),
+            }
         }
         if let Some(slot_dir) = op.slot_direction(slot)
             && let Some(dir) = spec.direction

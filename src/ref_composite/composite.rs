@@ -249,8 +249,9 @@ fn compose_refs_for_view(
     body.compose
         .iter()
         .flat_map(|c| {
-            // No clearance rule: the check reports, and the view only draws.
-            crate::compose::expand_compose("", parent, body.scale, c, &dims, None)
+            // No family and no clearance rule: the check reports, and the
+            // view only draws.
+            crate::compose::expand_compose("", parent, body.scale, c, &dims, None, None)
                 .0
                 .into_iter()
         })

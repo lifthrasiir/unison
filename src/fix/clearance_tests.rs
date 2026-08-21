@@ -724,3 +724,84 @@ fn an_alias_that_exists_at_one_label_only_is_not_relabelled() {
     );
     assert!(plan(&src).is_empty(), "{:?}", plan(&src));
 }
+
+/// Parts far too thin for their box, with a variant of `a` as wide as the
+/// whole glyph on hand. Filling the box with one part leaves a *negative*
+/// total, which the score likes as much as one that is too large — so without a
+/// bound on the axis the search would write a layout whose parts overlap.
+const OVERSIZED_VARIANT: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph a:2x4 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+
+glyph a:8x4 8 4
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+
+glyph b:1x4 1 4
+@@
+@@
+@@
+@@
+
+glyph test-x:8x4 8 4
+\u{2FF0} a:2x4 b:1x4
+";
+
+/// A part that would fill the glyph's whole axis on its own is no candidate:
+/// whatever sits beside it has nowhere to go.
+#[test]
+fn a_part_as_long_as_the_glyph_is_not_a_candidate() {
+    let fixes = plan(OVERSIZED_VARIANT);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert!(
+        !fixes[0].new_line.contains("a:8x4"),
+        "the 8-wide variant fills the 8-wide box: {}",
+        fixes[0].new_line,
+    );
+    // Only the gaps are left to work with, and they cannot mend a total of 5:
+    // the edges take their maximum and the middle swells with the rest.
+    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:2x4 3 b:1x4");
+}
+
+/// The same trap over a family: the label `8x4` fills the 8-wide box on its
+/// own, and it is the label that scores best if nothing bounds it.
+const OVERSIZED_LABEL: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph l:1x4 1 4
+@@
+@@
+@@
+@@
+
+glyph (rx|ry):2x4 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+
+glyph (rx|ry):8x4 8 4
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@
+
+glyph test-(x|y) 8 4
+\u{2FF0} l:1x4 (rx|ry):2x4
+";
+
+/// A label no glyph of the family has room for is no answer for it either, so
+/// the pattern line is left with its gaps alone.
+#[test]
+fn a_label_as_long_as_the_glyph_is_not_a_candidate() {
+    let fixes = plan(OVERSIZED_LABEL);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 l:1x4 2 (rx|ry):2x4");
+}

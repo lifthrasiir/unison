@@ -506,6 +506,31 @@ fn expand_compose_lines(
 
     let dims = |name: &str| dims_of(&boxes, name);
 
+    // What every base name is drawn at, for the one question `expand_compose`
+    // cannot answer from a name alone: whether an undecided component *could*
+    // ever fill its slot. Built once over the names already collected above,
+    // and only where the source has an undecided component to ask about — an
+    // IDS-populated source has tens of thousands of names and nearly all of
+    // them are decided.
+    let mut families: HashMap<&str, Vec<(u16, u16)>> = HashMap::new();
+    if all_items.iter().any(|e| match &e.item {
+        DocumentItem::Glyph { body, .. } => body
+            .compose
+            .iter()
+            .flat_map(|c| c.part_names())
+            .any(|n| crate::compose::is_undecided(n)),
+        _ => false,
+    }) {
+        for (name, size) in &boxes {
+            if let Some((base, _)) = name.split_once(':')
+                && let Some(size) = size
+            {
+                families.entry(base).or_default().push(*size);
+            }
+        }
+    }
+    let family = |name: &str| families.get(name).cloned().unwrap_or_default();
+
     let profiles = ink_profiles(all_items, clearances);
     let ink = |name: &str| profiles.get(name);
 
@@ -558,6 +583,7 @@ fn expand_compose_lines(
                 body.scale,
                 compose,
                 &dims,
+                Some(&family),
                 rule.as_ref(),
             );
             for (severity, message) in issues {

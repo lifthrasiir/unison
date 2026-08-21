@@ -63,8 +63,11 @@
 //! — `A:4x16`, `A:5x16`, … for a component written `A:x`, and for an undecided
 //! `A` the base is the whole name — filtered to those
 //! that could go there at all: the box must fit the slot across the axis, a
-//! `:WxH` in the name must be true, and **a name drawn for another direction is
-//! not a candidate** (`compose::direction_rank` = 2, i.e. a `-r` variant for the
+//! `:WxH` in the name must be true, **a drawing as long as the glyph's own
+//! axis is not a candidate** — it fills the glyph on its own, so nothing else
+//! on the line has anywhere to stand ([`fits_beside`]) — and **a name drawn for
+//! another direction is not a candidate**
+//! (`compose::direction_rank` = 2, i.e. a `-r` variant for the
 //! left slot of a `⿰`). The component as currently written is always a
 //! candidate, whatever it says, since it is the source's own choice and not an
 //! alternative being proposed — unless it is undecided, which names no drawing
@@ -466,6 +469,7 @@ impl<'a> Inventory<'a> {
         current: &str,
         slot: Option<Direction>,
         cross: u16,
+        along: i32,
         horizontal: bool,
     ) -> Vec<Candidate> {
         let mut out = Vec::new();
@@ -495,6 +499,11 @@ impl<'a> Inventory<'a> {
                 continue;
             }
             if let Some(candidate) = self.candidate(name, slot, cross, horizontal) {
+                // A drawing that would fill the glyph's own axis leaves the
+                // rest of the line nowhere to stand; see `fits_beside`.
+                if !fits_beside(candidate.extent, along) {
+                    continue;
+                }
                 out.push(candidate);
             }
         }
@@ -606,7 +615,15 @@ fn optimize_line(
     let slots: Vec<Vec<Candidate>> = written
         .iter()
         .enumerate()
-        .map(|(slot, name)| inv.candidates(name, op.slot_direction(slot), cross_extent, horizontal))
+        .map(|(slot, name)| {
+            inv.candidates(
+                name,
+                op.slot_direction(slot),
+                cross_extent,
+                axis_extent,
+                horizontal,
+            )
+        })
         .collect();
     let lengths: Vec<usize> = slots.iter().map(Vec::len).collect();
     let combinations: usize = lengths.iter().product();
@@ -881,6 +898,7 @@ fn optimize_pattern_line(
                 slot,
                 op.slot_direction(slot),
                 cross_extent,
+                axis_extent,
                 horizontal,
             )
         })
@@ -1022,6 +1040,7 @@ fn slot_choices(
     slot: usize,
     dir: Option<Direction>,
     cross: u16,
+    along: i32,
     horizontal: bool,
 ) -> Vec<LabelChoice> {
     let mut out = vec![LabelChoice {
@@ -1100,6 +1119,11 @@ fn slot_choices(
         else {
             continue; // some glyph of the family draws nothing at this label
         };
+        // One glyph the label would not fit in is enough: the label is the
+        // family's answer and every glyph of it has to be able to hold it.
+        if parts.iter().any(|part| !fits_beside(part.extent, along)) {
+            continue;
+        }
         out.push(LabelChoice {
             relabel: Some((candidate_label.to_string(), name)),
             rank,
@@ -1391,6 +1415,18 @@ fn write_line(compose: &GlyphCompose, chosen: &[&Candidate], positions: &[i32]) 
 }
 
 /// How far `v` is from the inclusive range; 0 inside it.
+/// Whether a part this long may be *proposed* for a glyph whose own axis is
+/// `along` long: [`crate::compose::fits_axis`], which is where the rule and the
+/// reason for it live.
+///
+/// It is a bound on what may be *offered*, not on what may be written: the
+/// component as the line already writes it stays a candidate whatever its size,
+/// since it is the source's own choice rather than a proposal — the same rule
+/// [`Inventory::candidates`] states for a drawing made for the wrong slot.
+fn fits_beside(extent: i32, along: i32) -> bool {
+    crate::compose::fits_axis(extent, along)
+}
+
 fn distance(v: i32, lo: i32, hi: i32) -> i32 {
     (lo - v).max(v - hi).max(0)
 }
