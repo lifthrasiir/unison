@@ -10,3 +10,4 @@ unison-*.ttf
 unison.woff2
 unison-*.woff2
 *.log
+__pycache__
