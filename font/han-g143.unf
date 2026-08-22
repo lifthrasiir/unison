@@ -7,8 +7,8 @@
 
 ## 145.5
 
-// glyph han-30cf7:15x16 15 16 // 𰳷
-// ⿰ han-8864 han-52a0 // ⿰衤加
+glyph han-30cf7:15x16 15 16 // 𰳷
+⿲ -1 han-8864:5x16 han-529b:6x16 1 han-53e3:4x16 // ⿲衤力口
 
 ## 145.7
 
@@ -79,16 +79,16 @@ glyph han-30d66:15x16 15 16 // 𰵦
 glyph han-30d69:15x16 15 16 // 𰵩
 ⿰ han-8ba0:5x16 1 han-752b:9x16 // ⿰讠甫
 
-// glyph han-30d6d:15x16 15 16 // 𰵭
-// ⿰ han-8ba0 han-5229 // ⿰讠利
+glyph han-30d6d:15x16 15 16 // 𰵭
+⿲ han-8ba0:3x16 han-79be:7x16 han-5202:5x16 // ⿲讠禾刂
 
 glyph han-30d6f:15x16 15 16 // 𰵯
 ⿰ 1 han-8ba0:5x16 1 han-590b:7x16 // ⿰讠夋
 
 ## 149'.8
 
-// glyph han-30d71:15x16 15 16 // 𰵱
-// ⿰ han-8ba0 han-6797 // ⿰讠林
+glyph han-30d71:15x16 15 16 // 𰵱
+⿲ han-8ba0:3x16 han-6728:5x16 han-6728:7x16 // ⿲讠木木
 
 glyph han-30d72:15x16 15 16 // 𰵲
 ⿰ han-8ba0:5x16 1 han-5176:9x16 // ⿰讠其
@@ -140,18 +140,18 @@ glyph han-30dc0:15x16 15 16 // 𰷀
 
 ## 157.6
 
-// glyph han-30e0c:15x16 15 16 // 𰸌
-// ⿰ han-27fb7 han-5216 // ⿰𧾷刖
+glyph han-30e0c:15x16 15 16 // 𰸌
+⿲ han-27fb7:5x16 han-6708:5x16 1 han-5202:4x16 // ⿲𧾷月刂
 
 ## 157.9
 
-// glyph han-30e20:15x16 15 16 // 𰸠
-// ⿰ han-27fb7 han-5247 // ⿰𧾷則
+glyph han-30e20:15x16 15 16 // 𰸠
+⿲ -2 han-27fb7:5x16 1 han-8c9d:6x16 1 han-5202:4x16 // ⿲𧾷貝刂
 
 ## 157.12
 
-// glyph han-30e2c:15x16 15 16 // 𰸬
-// ⿰ han-27fb7 han-63d0 // ⿰𧾷提
+glyph han-30e2c:15x16 15 16 // 𰸬
+⿲ han-27fb7:5x16 han-624c:3x16 han-662f:7x16 // ⿲𧾷扌是
 
 // glyph han-30e2d:15x16 15 16 // 𰸭
 // ⿰ han-27fb7 han-8cbc // ⿰𧾷貼
@@ -180,8 +180,8 @@ glyph han-30e4b:15x16 15 16 // 𰹋
 
 ## 159.5
 
-// glyph han-30e50:15x16 15 16 // 𰹐
-// ⿰ han-8eca han-52a0 // ⿰車加
+glyph han-30e50:15x16 15 16 // 𰹐
+⿲ -1 han-8eca:5x16 han-529b:6x16 1 han-53e3:4x16 // ⿲車力口
 
 ## 159.15
 
@@ -221,8 +221,8 @@ glyph han-30f03:15x16 15 16 // 𰼃
 
 ## 167.12
 
-// glyph han-30f47:15x16 15 16 // 𰽇
-// ⿰ han-91d2 han-63d0 // ⿰釒提
+glyph han-30f47:15x16 15 16 // 𰽇
+⿲ han-91d2:5x16-l han-624c:3x16 han-662f:7x16 // ⿲釒扌是
 
 # CJK unified ideographs extension G: 钅 (167')
 
@@ -252,8 +252,8 @@ glyph han-30f6c:15x16 15 16 // 𰽬
 glyph han-30f6d:15x16 15 16 // 𰽭
 ⿰ han-9485:6x16 han-53e5:9x16 // ⿰钅句
 
-// glyph han-30f6e:15x16 15 16 // 𰽮
-// ⿰ han-9485 han-4ed8 // ⿰钅付
+glyph han-30f6e:15x16 15 16 // 𰽮
+⿲ han-9485:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲钅亻寸
 
 ## 167'.6
 

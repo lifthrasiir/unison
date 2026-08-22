@@ -72,6 +72,11 @@ glyph han-3ff0:15x16 15 16 // 㿰
 
 # CJK unified ideographs extension A: 目 (109)
 
+## 109.4
+
+// glyph han-4019:15x16 15 16 // 䀙
+// ⿲ han-76ee han-4e03 han-5200 // ⿲目七刀 <- ⿰目切
+
 ## 109.5
 
 glyph han-4020:15x16 15 16 // 䀠
@@ -102,8 +107,8 @@ glyph han-4036:15x16 15 16 // 䀶
 // glyph han-4038:15x16 15 16 // 䀸
 // ⿱ han-6298 han-76ee // ⿱折目
 
-// glyph han-403f:15x16 15 16 // 䀿
-// ⿰ han-76ee han-6298 // ⿰目折
+glyph han-403f:15x16 15 16 // 䀿
+⿲ han-76ee:4x16-l han-624c:5x16 han-65a4:6x16 // ⿲目扌斤
 
 // glyph han-4040:15x16 15 16 // 䁀
 // ⿱ han-76ee han-6298 // ⿱目折
@@ -118,8 +123,8 @@ glyph han-4051:15x16 15 16 // 䁑
 glyph han-4069:15x16 15 16 // 䁩
 ⿰ han-76ee:7x16 1 han-9b5a:7x16 // ⿰目魚
 
-// glyph han-406a:15x16 15 16 // 䁪
-// ⿰ han-76ee han-65ac // ⿰目斬
+glyph han-406a:15x16 15 16 // 䁪
+⿲ -1 han-76ee:4x16-l 1 han-8eca:5x16 han-65a4:6x16 // ⿲目車斤
 
 ## 109.12
 
@@ -146,8 +151,8 @@ glyph han-4099:15x16 15 16 // 䂙
 // glyph han-409f:15x16 15 16 // 䂟
 // ⿱ han-52a0 han-77f3 // ⿱加石
 
-// glyph han-40a4:15x16 15 16 // 䂤
-// ⿰ han-77f3 han-4ed8 // ⿰石付
+glyph han-40a4:15x16 15 16 // 䂤
+⿲ han-77f3:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲石亻寸
 
 ## 112.6
 
@@ -159,8 +164,8 @@ glyph han-40ad:15x16 15 16 // 䂭
 
 ## 112.7
 
-// glyph han-40b0:15x16 15 16 // 䂰
-// ⿰ han-77f3 han-5229 // ⿰石利
+glyph han-40b0:15x16 15 16 // 䂰
+⿲ han-77f3:5x16 han-79be:5x16 han-5202:5x16 // ⿲石禾刂
 
 ## 112.8
 

@@ -2,6 +2,9 @@
 
 ## 189.5
 
+// glyph han-29aca:15x16 15 16 // 𩫊
+// ⿳ han-9ad8 han-516b han-571f // ⿳高八土 <- ⿱高𡉀
+
 glyph han-29acb:15x16 15 16 // 𩫋
 ⿰ han-9ad8:7x16 han-76ae:8x16 // ⿰高皮
 
@@ -20,6 +23,11 @@ glyph han-29adb:15x16 15 16 // 𩫛
 
 glyph han-29add:15x16 15 16 // 𩫝
 ⿰ han-9ad8:7x16 han-5351:8x16 // ⿰高卑
+
+## 189.18
+
+// glyph han-29af2:15x16 15 16 // 𩫲
+// ⿳ han-9ad8 han-866b han-45b5 // ⿳高虫䖵 <- ⿱高蟲
 
 # CJK unified ideographs extension B: 鬥 (191)
 

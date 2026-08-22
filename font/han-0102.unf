@@ -168,6 +168,9 @@ glyph han-753a:15x16 15 16 // 町
 
 ## 102.4
 
+// glyph han-7550:15x16 15 16 // 畐
+// ⿳ han-4e00 han-53e3 han-7530 // ⿳一口田 <- ⿱𠮛田
+
 glyph han-7551:15x16 15 16 // 畑
 ⿰ han-706b:5x16-l 1 han-7530:9x16 // ⿰火田
 
@@ -423,6 +426,11 @@ glyph han-76a2:15x16 15 16 // 皢
 
 glyph han-76a4:15x16 15 16 // 皤
 ⿰ han-767d:6x16 han-756a:9x16 // ⿰白番
+
+## 106.13
+
+// glyph han-76a8:15x16 15 16 // 皨
+// ⿳ han-767d han-3fdf han-571f // ⿳白㿟土 <- ⿱皛土
 
 # CJK unified ideographs: 皮 (107)
 
@@ -697,13 +705,16 @@ glyph han-7779:15x16 15 16 // 睹
 glyph han-777c:15x16 15 16 // 睼
 ⿰ han-76ee:6x16 han-662f:9x16 // ⿰目是
 
-// glyph han-7785:15x16 15 16 // 瞅
-// ⿰ han-76ee han-79cb // ⿰目秋
+glyph han-7785:15x16 15 16 // 瞅
+⿲ -1 han-76ee:4x16-l han-79be:5x16 han-706b:7x16 // ⿲目禾火
 
 ## 109.10
 
 // glyph han-7790:15x16 15 16 // 瞐
 // ⿱ han-76ee han-4020 // ⿱目䀠
+
+// glyph han-7793:15x16 15 16 // 瞓
+// ⿲ han-76ee han-8a01 han-5ddd // ⿲目訁川 <- ⿰目訓
 
 ## 109.11
 

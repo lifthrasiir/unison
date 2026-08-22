@@ -49,19 +49,19 @@ glyph han-2cb40:15x16 15 16 // 𬭀
 
 ## 167'.7
 
-// glyph han-2cb4a:15x16 15 16 // 𬭊
-// ⿰ han-9485 han-675c // ⿰钅杜
+glyph han-2cb4a:15x16 15 16 // 𬭊
+⿲ -2 han-9485:5x16 han-6728:5x16 han-571f:7x16 // ⿲钅木土
 
-// glyph han-2cb4f:15x16 15 16 // 𬭏
-// ⿰ han-9485 han-9633 // ⿰钅阳
+glyph han-2cb4f:15x16 15 16 // 𬭏
+⿲ han-9485:5x16 han-961d:4x16-c han-65e5:6x16 // ⿲钅阝日
 
 ## 167'.8
 
 glyph han-2cb55:15x16 15 16 // 𬭕
 ⿰ han-9485:6x16 1 han-5468:8x16 // ⿰钅周
 
-// glyph han-2cb56:15x16 15 16 // 𬭖
-// ⿰ han-9485 han-670b // ⿰钅朋
+glyph han-2cb56:15x16 15 16 // 𬭖
+⿲ han-9485:5x16 han-6708:5x16 han-6708:5x16 // ⿲钅月月
 
 // glyph han-2cb5b:15x16 15 16 // 𬭛
 // ⿰ han-9485 han-6ce2 // ⿰钅波
@@ -90,8 +90,8 @@ glyph han-2cbbc:15x16 15 16 // 𬮼
 
 ## 170.7
 
-// glyph han-2cbc3:15x16 15 16 // 𬯃
-// ⿰ han-961d han-3cc4 // ⿰阝㳄
+glyph han-2cbc3:15x16 15 16 // 𬯃
+⿲ han-961d:5x16-l han-6c35:3x16 han-6b20:7x16 // ⿲阝氵欠
 
 # CJK unified ideographs extension E: 隹 (172)
 
@@ -133,6 +133,13 @@ glyph han-2cc8d:15x16 15 16 // 𬲍
 
 // glyph han-2cc9b:15x16 15 16 // 𬲛
 // ⿰ han-98e0 han-65af // ⿰飠斯
+
+# CJK unified ideographs extension E: 香 (186)
+
+## 186.9
+
+// glyph han-2cce0:15x16 15 16 // 𬳠
+// ⿳ han-79cb han-79be han-65e5 // ⿳秋禾日 <- ⿱秋香
 
 # CJK unified ideographs extension E: 高 (189)
 

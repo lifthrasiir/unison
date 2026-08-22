@@ -225,6 +225,9 @@ glyph han-576b:15x16 15 16 // 坫
 glyph han-576e:15x16 15 16 // 坮
 ⿰ han-571f:7x16 han-53f0:7x16 // ⿰土台
 
+// glyph han-5774:15x16 15 16 // 坴
+// ⿳ han-571f han-513f han-571f // ⿳土儿土 <- ⿱圥土
+
 glyph han-5777:15x16 15 16 // 坷
 ⿰ han-571f:7x16 han-53ef:8x16 // ⿰土可
 
@@ -237,8 +240,8 @@ glyph han-577b:15x16 15 16 // 坻
 glyph han-577d-($han-regions):15x16 15 16 // 坽
 ⿰ han-571f:7x16 han-4ee4-($han-regions):7x16 // ⿰土令
 
-// glyph han-577f:15x16 15 16 // 坿
-// ⿰ han-571f han-4ed8 // ⿰土付
+glyph han-577f:15x16 15 16 // 坿
+⿲ han-571f:3x16-l han-4ebb:3x16 han-5bf8:9x16 // ⿲土亻寸
 
 glyph han-5789:15x16 15 16 // 垉
 ⿰ han-571f:7x16 han-5305:7x16 // ⿰土包
@@ -292,8 +295,8 @@ glyph han-57cc:15x16 15 16 // 埌
 glyph han-57d4:15x16 15 16 // 埔
 ⿰ han-571f:7x16 1 han-752b:7x16 // ⿰土甫
 
-// glyph han-57d8:15x16 15 16 // 埘
-// ⿰ han-571f han-65f6 // ⿰土时
+glyph han-57d8:15x16 15 16 // 埘
+⿲ han-571f:3x16-l han-65e5:5x16 han-5bf8:7x16 // ⿲土日寸
 
 ## 32.8
 
@@ -416,6 +419,9 @@ glyph han-58a7:15x16 15 16 // 墧
 ⿰ han-571f:5x16-l 1 han-55ac:9x16 // ⿰土喬
 
 ## 32.14
+
+// glyph han-58cd:15x16 15 16 // 壍
+// ⿱ han-6f38 han-571f // ⿱漸土
 
 glyph han-58d6:15x16 15 16 // 壖
 ⿰ han-571f:5x16-l 1 han-9700:9x16 // ⿰土需

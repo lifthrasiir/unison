@@ -26,8 +26,8 @@ glyph han-25e37:15x16 15 16 // 𥸷
 
 ## 119.5
 
-// glyph han-25e43:15x16 15 16 // 𥹃
-// ⿰ han-7c73 han-4ed8 // ⿰米付
+glyph han-25e43:15x16 15 16 // 𥹃
+⿲ han-7c73:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲米亻寸
 
 glyph han-25e4b:15x16 15 16 // 𥹋
 ⿰ han-7c73:7x16 1 han-53f0:7x16 // ⿰米台
@@ -66,8 +66,11 @@ glyph han-25e6b:15x16 15 16 // 𥹫
 glyph han-25e76:15x16 15 16 // 𥹶
 ⿰ han-7c73:5x16 1 han-8096:9x16 // ⿰米肖
 
-// glyph han-25e88:15x16 15 16 // 𥺈
-// ⿰ han-7c73 han-6298 // ⿰米折
+// glyph han-25e7f:15x16 15 16 // 𥹿
+// ⿳ han-7c73 han-706b han-571f // ⿳米火土 <- ⿱米𪢾
+
+glyph han-25e88:15x16 15 16 // 𥺈
+⿲ han-7c73:5x16 han-624c:3x16 han-65a4:7x16 // ⿲米扌斤
 
 glyph han-25e8a:15x16 15 16 // 𥺊
 ⿰ han-7c73:7x16 han-544a:8x16 // ⿰米告
@@ -78,8 +81,8 @@ glyph han-25e8e:15x16 15 16 // 𥺎
 // glyph han-25e8f:15x16 15 16 // 𥺏
 // ⿰ han-7c73 han-5439 // ⿰米吹
 
-// glyph han-25e90:15x16 15 16 // 𥺐
-// ⿰ han-7c73 han-542c // ⿰米听
+glyph han-25e90:15x16 15 16 // 𥺐
+⿲ han-7c73:5x16 han-53e3:4x16 han-65a4:6x16 // ⿲米口斤
 
 // glyph han-25e94:15x16 15 16 // 𥺔
 // ⿱ han-5439 han-7c73 // ⿱吹米
@@ -102,6 +105,11 @@ glyph han-25ec9:15x16 15 16 // 𥻉
 
 // glyph han-25ed8:15x16 15 16 // 𥻘
 // ⿰ han-7ca6 han-5ddb // ⿰粦巛
+
+## 119.11
+
+// glyph han-25f14:15x16 15 16 // 𥼔
+// ⿲ han-7c73 han-6c35 han-6790 // ⿲米氵析 <- ⿰米淅
 
 ## 119.12
 

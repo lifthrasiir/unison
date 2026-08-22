@@ -10,13 +10,16 @@ glyph han-2c351:15x16 15 16 // 𬍑
 glyph han-2c353:15x16 15 16 // 𬍓
 ⿰ han-248e9:5x16 1 han-6728:9x16 // ⿰𤣩木
 
+// glyph han-2c354:15x16 15 16 // 𬍔
+// ⿲ han-248e9 han-4e03 han-5200 // ⿲𤣩七刀 <- ⿰𤣩切
+
 ## 96.6
 
 // glyph han-2c360:15x16 15 16 // 𬍠
 // ⿰ han-248e9 han-8863 // ⿰𤣩衣
 
-// glyph han-2c363:15x16 15 16 // 𬍣
-// ⿰ han-248e9 han-5982 // ⿰𤣩如
+glyph han-2c363:15x16 15 16 // 𬍣
+⿲ han-248e9:3x16 han-5973:5x16 han-53e3:7x16 // ⿲𤣩女口
 
 ## 96.7
 
@@ -64,6 +67,13 @@ glyph han-2c3d0:15x16 15 16 // 𬏐
 glyph han-2c3d4:15x16 15 16 // 𬏔
 ⿰ han-756a:7x16 1 han-5206:7x16 // ⿰番分
 
+# CJK unified ideographs extension E: 疋 (103)
+
+## 103.8
+
+// glyph han-2c3d9:15x16 15 16 // 𬏙
+// ⿳ han-708f han-4e5b han-9fb0 // ⿳炏乛龰 <- ⿱炏疋
+
 # CJK unified ideographs extension E: 白 (106)
 
 ## 106.1
@@ -108,6 +118,11 @@ glyph han-2c47a:15x16 15 16 // 𬑺
 // glyph han-2c48c:15x16 15 16 // 𬒌
 // ⿱ han-77f3 han-7f8a // ⿱石羊
 
+## 112.8
+
+// glyph han-2c492:15x16 15 16 // 𬒒
+// ⿲ han-77f3 han-8eca han-4e5a // ⿲石車乚 <- ⿰石軋
+
 ## 112.9
 
 glyph han-2c49a:15x16 15 16 // 𬒚
@@ -143,8 +158,8 @@ glyph han-2c4b9:15x16 15 16 // 𬒹
 
 ## 113.8
 
-// glyph han-2c4c3:15x16 15 16 // 𬓃
-// ⿰ han-793b han-670b // ⿰礻朋
+glyph han-2c4c3:15x16 15 16 // 𬓃
+⿲ han-793b:5x16 han-6708:5x16 han-6708:5x16 // ⿲礻月月
 
 ## 113.12
 
@@ -213,6 +228,11 @@ glyph han-2c5b0:15x16 15 16 // 𬖰
 // glyph han-2c5be:15x16 15 16 // 𬖾
 // ⿰ han-7c73 han-9817 // ⿰米頗
 
+## 119.15
+
+// glyph han-2c5bf:15x16 15 16 // 𬖿
+// ⿳ han-7ca6 han-53e3 han-5405 // ⿳粦口吅 <- ⿱粦品
+
 ## 119.16
 
 // glyph han-2c5c0:15x16 15 16 // 𬗀
@@ -235,8 +255,8 @@ glyph han-2c5cc:15x16 15 16 // 𬗌
 
 ## 120.7
 
-// glyph han-2c5d7:15x16 15 16 // 𬗗
-// ⿰ han-7cf9 han-6298 // ⿰糹折
+glyph han-2c5d7:15x16 15 16 // 𬗗
+⿲ han-7cf9:5x16 han-624c:3x16 han-65a4:7x16 // ⿲糹扌斤
 
 ## 120.9
 
@@ -306,8 +326,8 @@ glyph han-2c6c5:15x16 15 16 // 𬛅
 
 ## 130.11
 
-// glyph han-2c6d2:15x16 15 16 // 𬛒
-// ⿰ han-6708 han-6e1a // ⿰月渚
+glyph han-2c6d2:15x16 15 16 // 𬛒
+⿲ han-6708:5x16-l han-6c35:3x16 han-8005:7x16 // ⿲月氵者
 
 ## 130.20
 

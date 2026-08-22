@@ -217,7 +217,7 @@ glyph han-805b:15x16 15 16 // 聛
 ⿰ han-8033:7x16 han-5351:8x16 // ⿰耳卑
 
 glyph han-9fe2:15x16 15 16 // 鿢
-⿲ -3 han-8033:6x16-l han-961d:5x16-r han-5408:7x16 // ⿲耳阝合
+⿲ -2 han-8033:6x16-l han-961d:4x16-c han-5408:7x16 // ⿲耳阝合
 
 ## 128.12
 
@@ -226,6 +226,11 @@ glyph han-9fe2:15x16 15 16 // 鿢
 
 // glyph han-9fe4:15x16 15 16 // 鿤
 // ⿰ han-8036 han-683c // ⿰耶格
+
+## 128.14
+
+// glyph han-807b:15x16 15 16 // 聻
+// ⿱ han-6f38 han-8033 // ⿱漸耳
 
 # CJK unified ideographs: 肉 (130)
 
@@ -337,8 +342,8 @@ glyph han-80cb:15x16 15 16 // 胋
 glyph han-80ce:15x16 15 16 // 胎
 ⿰ han-6708:5x16-l 1 han-53f0:9x16 // ⿰月台
 
-// glyph han-80d5:15x16 15 16 // 胕
-// ⿰ han-6708 han-4ed8 // ⿰月付
+glyph han-80d5:15x16 15 16 // 胕
+⿲ han-6708:5x16-l han-4ebb:3x16 han-5bf8:7x16 // ⿲月亻寸
 
 // glyph han-80db:15x16 15 16 // 胛
 // ⿰ han-6708 han-7532 // ⿰月甲
@@ -377,6 +382,9 @@ glyph han-80ff:15x16 15 16 // 胿
 
 glyph han-8101:15x16 15 16 // 脁
 ⿰ han-6708:5x16-l 1 han-5146:9x16 // ⿰月兆
+
+// glyph han-8105:15x16 15 16 // 脅
+// ⿳ han-529b han-20834 han-6708 // ⿳力𠠴月 <- ⿱劦月
 
 glyph han-8112:15x16 15 16 // 脒
 ⿰ han-6708:5x16-l 1 han-7c73:9x16 // ⿰月米

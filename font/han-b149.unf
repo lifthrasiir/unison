@@ -26,8 +26,8 @@ glyph han-27991:15x16 15 16 // 𧦑
 
 ## 149.5
 
-// glyph han-279a4:15x16 15 16 // 𧦤
-// ⿰ han-8a01 han-52a0 // ⿰訁加
+glyph han-279a4:15x16 15 16 // 𧦤
+⿲ -1 han-8a01:5x16 han-529b:6x16 1 han-53e3:4x16 // ⿲訁力口
 
 glyph han-279b3:15x16 15 16 // 𧦳
 ⿰ han-8a01:7x16 1 han-77f3:7x16 // ⿰訁石
@@ -52,6 +52,9 @@ glyph han-279fe:15x16 15 16 // 𧧾
 
 // glyph han-27a2e:15x16 15 16 // 𧨮
 // ⿰ han-8a01 han-961c // ⿰訁阜
+
+// glyph han-27a3d:15x16 15 16 // 𧨽
+// ⿲ han-8a01 han-961d han-4ed8 // ⿲訁阝付 <- ⿰訁附
 
 ## 149.9
 

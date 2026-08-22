@@ -138,8 +138,8 @@ glyph han-4b80:15x16 15 16 // 䮀
 
 ## 187.6
 
-// glyph han-4b8c:15x16 15 16 // 䮌
-// ⿰ han-99ac han-4f11 // ⿰馬休
+glyph han-4b8c:15x16 15 16 // 䮌
+⿲ han-99ac:7x16 han-4ebb:3x16 han-6728:5x16 // ⿲馬亻木
 
 // glyph han-4b8d:15x16 15 16 // 䮍
 // ⿱ han-99ac han-8863 // ⿱馬衣
@@ -148,6 +148,11 @@ glyph han-4b80:15x16 15 16 // 䮀
 
 glyph han-4b92:15x16 15 16 // 䮒
 ⿰ han-99ac:7x16 1 han-752b:7x16 // ⿰馬甫
+
+## 187.8
+
+// glyph han-4b9b:15x16 15 16 // 䮛
+// ⿲ han-99ac han-961d han-4ed8 // ⿲馬阝付 <- ⿰馬附
 
 ## 187.9
 
@@ -166,6 +171,11 @@ glyph han-4ba9:15x16 15 16 // 䮩
 
 glyph han-4bb3:15x16 15 16 // 䮳
 ⿰ han-99ac:7x16 1 han-756a:7x16 // ⿰馬番
+
+## 187.24
+
+// glyph han-4bc2:15x16 15 16 // 䯂
+// ⿳ han-99ac han-9a33 han-6728 // ⿳馬騳木 <- ⿱驫木
 
 # CJK unified ideographs extension A: 骨 (188)
 

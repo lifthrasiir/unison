@@ -111,13 +111,16 @@ glyph han-2dfb5:15x16 15 16 // 𭾵
 
 ## 112.5
 
+// glyph han-2e012:15x16 15 16 // 𮀒
+// ⿳ han-4e36 han-738b han-77f3 // ⿳丶王石 <- ⿱主石
+
 // glyph han-2e014:15x16 15 16 // 𮀔
 // ⿰ han-77f3 han-793a // ⿰石示
 
 ## 112.8
 
-// glyph han-2e022:15x16 15 16 // 𮀢
-// ⿰ han-77f3 han-62db // ⿰石招
+glyph han-2e022:15x16 15 16 // 𮀢
+⿲ han-77f3:5x16 han-624c:3x16 1 han-53ec:6x16 // ⿲石扌召
 
 // glyph han-2e02b:15x16 15 16 // 𮀫
 // ⿰ han-77f3 han-963f // ⿰石阿
@@ -144,8 +147,8 @@ glyph han-2e05e:15x16 15 16 // 𮁞
 glyph han-2e063-($han-regions):15x16 15 16 // 𮁣
 ⿰ han-793b:5x16 1 han-4ee4-($han-regions):9x16 // ⿰礻令
 
-// glyph han-2e06c:15x16 15 16 // 𮁬
-// ⿰ han-793a han-52a0 // ⿰示加
+glyph han-2e06c:15x16 15 16 // 𮁬
+⿲ -1 han-793b:5x16 han-529b:6x16 1 han-53e3:4x16 // ⿲礻力口
 
 # CJK unified ideographs extension F: 禾 (115)
 
@@ -177,8 +180,13 @@ glyph han-2e0c7:15x16 15 16 // 𮃇
 glyph han-2e0d4:15x16 15 16 // 𮃔
 ⿰ han-79be:7x16 1 han-8005:7x16 // ⿰禾者
 
-// glyph han-2e0da:15x16 15 16 // 𮃚
-// ⿰ han-79be han-79cb // ⿰禾秋
+glyph han-2e0da:15x16 15 16 // 𮃚
+⿲ -2 han-79be:5x16 han-79be:5x16 han-706b:7x16 // ⿲禾禾火
+
+## 115.10
+
+// glyph han-2e0e2:15x16 15 16 // 𮃢
+// ⿳ han-79cb han-4ea0 han-65e5 // ⿳秋亠日 <- ⿱秋𣅀
 
 ## 115.11
 

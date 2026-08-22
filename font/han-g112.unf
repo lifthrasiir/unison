@@ -15,8 +15,8 @@ glyph han-309b3:15x16 15 16 // 𰦳
 
 ## 112.10
 
-// glyph han-309d8:15x16 15 16 // 𰧘
-// ⿰ han-77f3 han-8bf8 // ⿰石诸
+glyph han-309d8:15x16 15 16 // 𰧘
+⿲ han-77f3:5x16 han-8ba0:3x16 han-8005:7x16 // ⿲石讠者
 
 ## 112.12
 
@@ -27,8 +27,11 @@ glyph han-309b3:15x16 15 16 // 𰦳
 
 ## 113.6
 
-// glyph han-309f9:15x16 15 16 // 𰧹
-// ⿰ han-793a han-5982 // ⿰示如
+glyph han-309f9:15x16 15 16 // 𰧹
+⿲ han-793b:5x16 han-5973:5x16 1 han-53e3:4x16 // ⿲礻女口
+
+// glyph han-309ff:15x16 15 16 // 𰧿
+// ⿳ han-4ea0 han-65e5 han-793a // ⿳亠日示 <- ⿱𣅀示
 
 # CJK unified ideographs extension G: 禾 (115)
 
@@ -72,16 +75,16 @@ glyph han-30ab5:15x16 15 16 // 𰪵
 
 ## 119.7
 
-// glyph han-30abd:15x16 15 16 // 𰪽
-// ⿰ han-7c73 han-5229 // ⿰米利
+glyph han-30abd:15x16 15 16 // 𰪽
+⿲ han-7c73:5x16 han-79be:5x16 han-5202:5x16 // ⿲米禾刂
 
 ## 119.9
 
 glyph han-30ac3:15x16 15 16 // 𰫃
 ⿰ han-7c73:7x16 1 han-8ecd:7x16 // ⿰米軍
 
-// glyph han-30ac5:15x16 15 16 // 𰫅
-// ⿰ han-7c73 han-6d1b // ⿰米洛
+glyph han-30ac5:15x16 15 16 // 𰫅
+⿲ han-7c73:5x16 han-6c35:3x16 han-5404:7x16 // ⿲米氵各
 
 ## 119.10
 
@@ -121,8 +124,8 @@ glyph han-30b59:15x16 15 16 // 𰭙
 
 ## 130.9
 
-// glyph han-30bb8:15x16 15 16 // 𰮸
-// ⿰ han-6708 han-5247 // ⿰月則
+glyph han-30bb8:15x16 15 16 // 𰮸
+⿲ -2 han-6708:5x16-l 1 han-8c9d:6x16 1 han-5202:4x16 // ⿲月貝刂
 
 # CJK unified ideographs extension G: 虫 (142)
 
@@ -130,6 +133,9 @@ glyph han-30b59:15x16 15 16 // 𰭙
 
 // glyph han-30cad:15x16 15 16 // 𰲭
 // ⿱ han-65e5 han-866b // ⿱日虫
+
+// glyph han-30caf:15x16 15 16 // 𰲯
+// ⿲ han-866b han-4eba han-4eba // ⿲虫人人 <- ⿰虫从
 
 ## 142.10
 

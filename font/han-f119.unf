@@ -7,8 +7,8 @@
 
 ## 119.5
 
-// glyph han-2e1d2:15x16 15 16 // 𮇒
-// ⿰ han-7c73 han-52a0 // ⿰米加
+glyph han-2e1d2:15x16 15 16 // 𮇒
+⿲ -1 han-7c73:5x16 han-529b:6x16 1 han-53e3:4x16 // ⿲米力口
 
 ## 119.6
 
@@ -25,11 +25,11 @@ glyph han-2e1db:15x16 15 16 // 𮇛
 
 ## 119.8
 
-// glyph han-2e1e5:15x16 15 16 // 𮇥
-// ⿰ han-7c73 han-6797 // ⿰米林
+glyph han-2e1e5:15x16 15 16 // 𮇥
+⿲ han-7c73:5x16 han-6728:5x16 han-6728:5x16 // ⿲米木木
 
-// glyph han-2e1e7:15x16 15 16 // 𮇧
-// ⿰ han-7c73 han-670b // ⿰米朋
+glyph han-2e1e7:15x16 15 16 // 𮇧
+⿲ han-7c73:5x16 han-6708:5x16 han-6708:5x16 // ⿲米月月
 
 ## 119.13
 
@@ -65,8 +65,13 @@ glyph han-2e2f0:15x16 15 16 // 𮋰
 
 ## 128.9
 
-// glyph han-2e2f7:15x16 15 16 // 𮋷
-// ⿰ han-8033 han-72ec // ⿰耳独
+glyph han-2e2f7:15x16 15 16 // 𮋷
+⿲ han-8033:6x16-l han-72ad:4x16 han-866b:5x16 // ⿲耳犭虫
+
+## 128.14
+
+// glyph han-2e2fd:15x16 15 16 // 𮋽
+// ⿱ han-20f17 han-8033 // ⿱𠼗耳
 
 # CJK unified ideographs extension F: 肉 (130)
 

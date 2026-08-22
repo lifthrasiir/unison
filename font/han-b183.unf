@@ -24,6 +24,9 @@ glyph han-29695:15x16 15 16 // 𩚕
 glyph han-296a3:15x16 15 16 // 𩚣
 ⿰ han-98e0:7x16 1 han-65e5:7x16 // ⿰飠日
 
+// glyph han-296a6:15x16 15 16 // 𩚦
+// ⿲ han-98e0 han-4e03 han-5200 // ⿲飠七刀 <- ⿰飠切
+
 ## 184.5
 
 glyph han-296a9:15x16 15 16 // 𩚩
@@ -106,3 +109,20 @@ glyph han-2975d:15x16 15 16 // 𩝝
 
 glyph han-297bb:15x16 15 16 // 𩞻
 ⿰ han-98e0:7x16 han-7ca6:8x16 // ⿰飠粦
+
+# CJK unified ideographs extension B: 香 (186)
+
+## 186.1
+
+// glyph han-2983a:15x16 15 16 // 𩠺
+// ⿳ han-79be han-65e5 han-4e00 // ⿳禾日一 <- ⿱香一
+
+## 186.4
+
+// glyph han-2983c:15x16 15 16 // 𩠼
+// ⿳ han-79be han-6728 han-65e5 // ⿳禾木日 <- ⿱禾杳
+
+## 186.11
+
+// glyph han-2985c:15x16 15 16 // 𩡜
+// ⿳ han-79be han-65e5 han-6717 // ⿳禾日朗 <- ⿱香朗

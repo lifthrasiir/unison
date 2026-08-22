@@ -81,8 +81,8 @@ glyph han-7d24:15x16 15 16 // 紤
 
 ## 120.5
 
-// glyph han-7d28:15x16 15 16 // 紨
-// ⿰ han-7cf9 han-4ed8 // ⿰糹付
+glyph han-7d28:15x16 15 16 // 紨
+⿲ han-7cf9:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲糹亻寸
 
 glyph han-7d29:15x16 15 16 // 紩
 ⿰ han-7cf9:5x16 1 han-5931:9x16 // ⿰糹失

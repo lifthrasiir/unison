@@ -44,54 +44,54 @@ glyph han-201c8:15x16 15 16 // 𠇈
 
 ## 9.8
 
-// glyph han-2029c:15x16 15 16 // 𠊜
-// ⿰ han-4ebb han-59ac // ⿰亻妬
+glyph han-2029c:15x16 15 16 // 𠊜
+⿲ han-4ebb:3x16 han-5973:5x16 han-77f3:7x16 // ⿲亻女石
 
 ## 9.9
 
-// glyph han-202c7:15x16 15 16 // 𠋇
-// ⿰ han-4ebb han-25e2c // ⿰亻𥸬
+glyph han-202c7:15x16 15 16 // 𠋇
+⿲ han-4ebb:3x16 han-7c73:5x16 han-961d:7x16-r // ⿲亻米阝
 
 ## 9.10
 
-// glyph han-202f4:15x16 15 16 // 𠋴
-// ⿰ han-4ebb han-5261 // ⿰亻剡
+glyph han-202f4:15x16 15 16 // 𠋴
+⿲ han-4ebb:3x16 han-708e:7x16 han-5202:5x16 // ⿲亻炎刂
 
 // glyph han-20319:15x16 15 16 // 𠌙
 // ⿲ han-4ebb han-4e28 han-9769 // ⿲亻丨革
 
 ## 9.11
 
-// glyph han-20332:15x16 15 16 // 𠌲
-// ⿰ han-4ebb han-65ac // ⿰亻斬
+glyph han-20332:15x16 15 16 // 𠌲
+⿲ han-4ebb:3x16 han-8eca:5x16 han-65a4:7x16 // ⿲亻車斤
 
 glyph han-20335:15x16 15 16 // 𠌵
 ⿰ han-4ebb:5x16 1 han-9ce5:9x16 // ⿰亻鳥
 
-// glyph han-20356:15x16 15 16 // 𠍖
-// ⿰ han-4ebb han-91e3 // ⿰亻釣
+glyph han-20356:15x16 15 16 // 𠍖
+⿲ -2 han-4ebb:3x16 han-91d2:7x16 han-52fa:7x16 // ⿲亻釒勺
 
 ## 9.12
 
 // glyph han-2038f:15x16 15 16 // 𠎏
 // ⿱ han-5408 han-80bf // ⿱合肿
 
-// glyph han-2039e:15x16 15 16 // 𠎞
-// ⿰ han-4ebb han-671f // ⿰亻期
+glyph han-2039e:15x16 15 16 // 𠎞
+⿲ han-4ebb:3x16 han-5176:6x16 1 han-6708:5x16 // ⿲亻其月
 
-// glyph han-203a8:15x16 15 16 // 𠎨
-// ⿰ han-4ebb han-7d66 // ⿰亻給
+glyph han-203a8:15x16 15 16 // 𠎨
+⿲ han-4ebb:3x16 han-7cf9:5x16 han-5408:7x16 // ⿲亻糹合
 
-// glyph han-203af:15x16 15 16 // 𠎯
-// ⿰ han-4ebb han-6e6f // ⿰亻湯
+glyph han-203af:15x16 15 16 // 𠎯
+⿲ han-4ebb:3x16 han-6c35:3x16 han-661c:9x16 // ⿲亻氵昜
 
 ## 9.13
 
-// glyph han-203bc:15x16 15 16 // 𠎼
-// ⿰ han-4ebb han-527d // ⿰亻剽
+glyph han-203bc:15x16 15 16 // 𠎼
+⿲ han-4ebb:3x16 han-7968:7x16 1 han-5202:4x16 // ⿲亻票刂
 
-// glyph han-203e0:15x16 15 16 // 𠏠
-// ⿰ han-4ebb han-8dec // ⿰亻跬
+glyph han-203e0:15x16 15 16 // 𠏠
+⿲ han-4ebb:3x16 han-27fb7:5x16 han-572d:7x16 // ⿲亻𧾷圭
 
 ## 9.14
 
@@ -100,11 +100,11 @@ glyph han-20335:15x16 15 16 // 𠌵
 
 ## 9.15
 
-// glyph han-2040b:15x16 15 16 // 𠐋
-// ⿰ han-4ebb han-81a0 // ⿰亻膠
+glyph han-2040b:15x16 15 16 // 𠐋
+⿲ han-4ebb:3x16 han-6708:5x16 han-7fcf:7x16 // ⿲亻月翏
 
-// glyph han-20415:15x16 15 16 // 𠐕
-// ⿰ han-4ebb han-9130 // ⿰亻鄰
+glyph han-20415:15x16 15 16 // 𠐕
+⿲ han-4ebb:3x16 han-7ca6:8x16 han-961d:4x16-r // ⿲亻粦阝
 
 // glyph han-20419:15x16 15 16 // 𠐙
 // ⿱ han-4fde han-6797 // ⿱俞林

@@ -165,8 +165,8 @@ glyph han-963f:15x16 15 16 // 阿
 glyph han-9642:15x16 15 16 // 陂
 ⿰ han-961d:5x16-l 1 han-76ae:9x16 // ⿰阝皮
 
-// glyph han-9644:15x16 15 16 // 附
-// ⿰ han-961d han-4ed8 // ⿰阝付
+glyph han-9644:15x16 15 16 // 附
+⿲ han-961d:5x16-l han-4ebb:3x16 han-5bf8:7x16 // ⿲阝亻寸
 
 // glyph han-9645:15x16 15 16 // 际
 // ⿰ han-961d han-793a // ⿰阝示
@@ -353,6 +353,11 @@ glyph han-96e1:15x16 15 16 // 雡
 
 // glyph han-96e6:15x16 15 16 // 雦
 // ⿲ han-96b9 han-96b9 han-96b9 // ⿲隹隹隹
+
+## 172.20
+
+// glyph han-96e7:15x16 15 16 // 雧
+// ⿳ han-96b9 han-96d4 han-6728 // ⿳隹雔木 <- ⿱雥木
 
 # CJK unified ideographs: 雨 (173)
 

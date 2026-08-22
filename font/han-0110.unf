@@ -98,6 +98,9 @@ glyph han-780a:15x16 15 16 // 砊
 glyph han-780b:15x16 15 16 // 砋
 ⿰ han-77f3:5x16 han-6b62:10x16 // ⿰石止
 
+// glyph han-780c:15x16 15 16 // 砌
+// ⿲ han-77f3 han-4e03 han-5200 // ⿲石七刀 <- ⿰石切
+
 glyph han-780d:15x16 15 16 // 砍
 ⿰ han-77f3:7x16 1 han-6b20:7x16 // ⿰石欠
 
@@ -159,8 +162,8 @@ glyph han-7848:15x16 15 16 // 硈
 glyph han-784c:15x16 15 16 // 硌
 ⿰ han-77f3:7x16 1 han-5404:7x16 // ⿰石各
 
-// glyph han-784f:15x16 15 16 // 硏
-// ⿰ han-77f3 han-5e75 // ⿰石幵
+glyph han-784f:15x16 15 16 // 硏
+⿲ han-77f3:5x16 han-5e72:5x16 han-5e72:5x16 // ⿲石干干
 
 glyph han-7850:15x16 15 16 // 硐
 ⿰ han-77f3:7x16 1 han-540c:7x16 // ⿰石同
@@ -190,8 +193,8 @@ glyph han-786f:15x16 15 16 // 硯
 
 ## 112.8
 
-// glyph han-787c:15x16 15 16 // 硼
-// ⿰ han-77f3 han-670b // ⿰石朋
+glyph han-787c:15x16 15 16 // 硼
+⿲ han-77f3:5x16 han-6708:5x16 han-6708:5x16 // ⿲石月月
 
 // glyph han-7881:15x16 15 16 // 碁
 // ⿱ han-5176 han-77f3 // ⿱其石
@@ -199,8 +202,8 @@ glyph han-786f:15x16 15 16 // 硯
 glyph han-7883:15x16 15 16 // 碃
 ⿰ han-77f3:7x16 han-9752:7x16 // ⿰石青
 
-// glyph han-7884:15x16 15 16 // 碄
-// ⿰ han-77f3 han-6797 // ⿰石林
+glyph han-7884:15x16 15 16 // 碄
+⿲ han-77f3:5x16 han-6728:5x16 han-6728:5x16 // ⿲石木木
 
 // glyph han-7886:15x16 15 16 // 碆
 // ⿱ han-6ce2 han-77f3 // ⿱波石
@@ -218,6 +221,9 @@ glyph han-7893:15x16 15 16 // 碓
 ⿰ han-77f3:8x16 han-96b9:7x16 // ⿰石隹
 
 ## 112.9
+
+// glyph han-789e:15x16 15 16 // 碞
+// ⿳ han-53e3 han-5405 han-77f3 // ⿳口吅石 <- ⿱品石
 
 glyph han-78a3:15x16 15 16 // 碣
 ⿰ han-77f3:5x16 1 han-66f7:9x16 // ⿰石曷
@@ -384,8 +390,8 @@ glyph han-7951:15x16 15 16 // 祑
 glyph han-7952:15x16 15 16 // 祒
 ⿰ han-793b:7x16 han-53ec:8x16 // ⿰礻召
 
-// glyph han-7954:15x16 15 16 // 祔
-// ⿰ han-793b han-4ed8 // ⿰礻付
+glyph han-7954:15x16 15 16 // 祔
+⿲ han-793b:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲礻亻寸
 
 glyph han-7956:15x16 15 16 // 祖
 ⿰ han-793b:7x16 han-4e14:8x16 // ⿰礻且
@@ -669,8 +675,8 @@ glyph han-7a18:15x16 15 16 // 稘
 glyph han-7a1a:15x16 15 16 // 稚
 ⿰ han-79be:7x16 1 han-96b9:7x16 // ⿰禾隹
 
-// glyph han-7a1d:15x16 15 16 // 稝
-// ⿰ han-79be han-670b // ⿰禾朋
+glyph han-7a1d:15x16 15 16 // 稝
+⿲ han-79be:5x16 han-6708:5x16 han-6708:5x16 // ⿲禾月月
 
 glyph han-7a1e:15x16 15 16 // 稞
 ⿰ han-79be:7x16 1 han-679c:7x16 // ⿰禾果

@@ -84,8 +84,8 @@ glyph han-27d7c:15x16 15 16 // 𧵼
 
 ## 154.7
 
-// glyph han-27d87:15x16 15 16 // 𧶇
-// ⿰ han-8c9d han-6298 // ⿰貝折
+glyph han-27d87:15x16 15 16 // 𧶇
+⿲ han-8c9d:6x16 han-624c:3x16 han-65a4:6x16 // ⿲貝扌斤
 
 glyph han-27d88:15x16 15 16 // 𧶈
 ⿰ han-8c9d:6x16 han-8096:9x16 // ⿰貝肖
@@ -113,3 +113,20 @@ glyph han-27e0d:15x16 15 16 // 𧸍
 
 // glyph han-27e1a:15x16 15 16 // 𧸚
 // ⿰ han-8c9d han-8def // ⿰貝路
+
+# CJK unified ideographs extension B: 走 (156)
+
+## 156.5
+
+// glyph han-27ec5:15x16 15 16 // 𧻅
+// ⿳ han-52a0 han-571f han-9fb0 // ⿳加土龰 <- ⿱加走
+
+## 156.7
+
+// glyph han-27efb:15x16 15 16 // 𧻻
+// ⿳ han-8db3 han-571f han-9fb0 // ⿳足土龰 <- ⿱足走
+
+## 156.8
+
+// glyph han-27f16:15x16 15 16 // 𧼖
+// ⿳ han-6797 han-571f han-9fb0 // ⿳林土龰 <- ⿱林走

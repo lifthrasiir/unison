@@ -32,6 +32,9 @@ glyph han-24f42:15x16 15 16 // 𤽂
 glyph han-24f49:15x16 15 16 // 𤽉
 ⿰ han-767d:6x16 han-5206:9x16 // ⿰白分
 
+// glyph han-24f4b:15x16 15 16 // 𤽋
+// ⿳ han-767d han-5ddb han-4e00 // ⿳白巛一 <- ⿱𰤔一
+
 // glyph han-24f55:15x16 15 16 // 𤽕
 // ⿳ han-767d han-4e36 han-5140 // ⿳白丶兀
 

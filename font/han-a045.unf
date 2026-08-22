@@ -43,6 +43,9 @@ glyph han-37c4:15x16 15 16 // 㟄
 glyph han-37cd:15x16 15 16 // 㟍
 ⿰ han-5c71:7x16 1 han-826f:7x16 // ⿰山良
 
+// glyph han-37d4:15x16 15 16 // 㟔
+// ⿳ han-5c71 han-4eca han-53e3 // ⿳山今口 <- ⿱山含
+
 ## 46.8
 
 glyph han-37d8:15x16 15 16 // 㟘
@@ -68,6 +71,9 @@ glyph han-37fd:15x16 15 16 // 㟽
 
 // glyph han-380c:15x16 15 16 // 㠌
 // ⿱ han-5c71 han-6b3a // ⿱山欺
+
+// glyph han-380d:15x16 15 16 // 㠍
+// ⿳ han-5c71 han-96b9 han-6728 // ⿳山隹木 <- ⿱山集
 
 // glyph han-3810:15x16 15 16 // 㠐
 // ⿱ han-5c71 han-55ac // ⿱山喬
@@ -120,8 +126,8 @@ glyph han-390b:15x16 15 16 // 㤋
 // glyph han-3910:15x16 15 16 // 㤐
 // ⿱ han-5360 han-5fc3 // ⿱占心
 
-// glyph han-3914:15x16 15 16 // 㤔
-// ⿰ han-5fc4 han-4ed8 // ⿰忄付
+glyph han-3914:15x16 15 16 // 㤔
+⿲ han-5fc4:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲忄亻寸
 
 ## 61.6
 
@@ -136,8 +142,8 @@ glyph han-392c:15x16 15 16 // 㤬
 
 ## 61.8
 
-// glyph han-394a:15x16 15 16 // 㥊
-// ⿰ han-5fc4 han-670b // ⿰忄朋
+glyph han-394a:15x16 15 16 // 㥊
+⿲ han-5fc4:5x16 han-6708:5x16 han-6708:5x16 // ⿲忄月月
 
 glyph han-394d:15x16 15 16 // 㥍
 ⿰ han-5fc4:7x16 han-5176:8x16 // ⿰忄其
@@ -191,8 +197,8 @@ glyph han-3969:15x16 15 16 // 㥩
 glyph han-3a04:15x16 15 16 // 㨄
 ⿰ han-624c:5x16 han-5468:10x16 // ⿰扌周
 
-// glyph han-3a06:15x16 15 16 // 㨆
-// ⿰ han-624c han-6797 // ⿰扌林
+glyph han-3a06:15x16 15 16 // 㨆
+⿲ han-624c:3x16 han-6728:5x16 han-6728:7x16 // ⿲扌木木
 
 // glyph han-3a07:15x16 15 16 // 㨇
 // ⿱ han-6ce2 han-624b // ⿱波手
@@ -218,8 +224,8 @@ glyph han-3a36:15x16 15 16 // 㨶
 
 ## 64.15
 
-// glyph han-3a6a:15x16 15 16 // 㩪
-// ⿰ han-624c han-42f6 // ⿰扌䋶
+glyph han-3a6a:15x16 15 16 // 㩪
+⿲ han-624c:3x16 han-7cf9:5x16 han-9801:7x16 // ⿲扌糹頁
 
 ## 64.18
 
@@ -272,7 +278,13 @@ glyph han-3add:15x16 15 16 // 㫝
 // glyph han-3ae7:15x16 15 16 // 㫧
 // ⿱ han-65e5 han-7c73 // ⿱日米
 
+// glyph han-3aed:15x16 15 16 // 㫭
+// ⿳ han-65e5 han-571f han-5bf8 // ⿳日土寸 <- ⿱日寺
+
 ## 72.7
+
+// glyph han-3aef:15x16 15 16 // 㫯
+// ⿳ han-65e5 han-65e5 han-5140 // ⿳日日兀 <- ⿱昌兀
 
 glyph han-3af0:15x16 15 16 // 㫰
 ⿰ han-65e5:7x16 1 han-826f:7x16 // ⿰日良
@@ -289,6 +301,9 @@ glyph han-3aff:15x16 15 16 // 㫿
 
 // glyph han-3b01:15x16 15 16 // 㬁
 // ⿱ han-65e5 han-6d3d // ⿱日洽
+
+// glyph han-3b03:15x16 15 16 // 㬃
+// ⿳ han-65e5 han-53f0 han-706b // ⿳日台火 <- ⿱日炱
 
 ## 72.11
 

@@ -40,8 +40,8 @@ glyph han-298aa:15x16 15 16 // 𩢪
 
 ## 187.6
 
-// glyph han-298ae:15x16 15 16 // 𩢮
-// ⿰ han-4f11 han-99ac // ⿰休馬
+glyph han-298ae:15x16 15 16 // 𩢮
+⿲ han-4ebb:3x16 han-6728:5x16 han-99ac:7x16 // ⿲亻木馬
 
 glyph han-298b4:15x16 15 16 // 𩢴
 ⿰ han-99ac:7x16 1 han-5409:7x16 // ⿰馬吉
@@ -84,6 +84,9 @@ glyph han-2991c:15x16 15 16 // 𩤜
 
 glyph han-2991f:15x16 15 16 // 𩤟
 ⿰ han-99ac:7x16 1 han-661c:7x16 // ⿰馬昜
+
+// glyph han-29939:15x16 15 16 // 𩤹
+// ⿳ han-99ac han-79be han-65e5 // ⿳馬禾日 <- ⿱馬香
 
 ## 187.10
 

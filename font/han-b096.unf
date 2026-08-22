@@ -77,8 +77,8 @@ glyph han-24906:15x16 15 16 // 𤤆
 
 ## 96.5
 
-// glyph han-24915:15x16 15 16 // 𤤕
-// ⿰ han-248e9 han-4ed8 // ⿰𤣩付
+glyph han-24915:15x16 15 16 // 𤤕
+⿲ han-248e9:3x16 han-4ebb:3x16 han-5bf8:9x16 // ⿲𤣩亻寸
 
 // glyph han-24919:15x16 15 16 // 𤤙
 // ⿰ han-7389 han-4e16 // ⿰玉世
@@ -149,16 +149,16 @@ glyph han-2496d:15x16 15 16 // 𤥭
 glyph han-249ad:15x16 15 16 // 𤦭
 ⿰ han-248e9:5x16 1 han-9752:9x16 // ⿰𤣩青
 
-// glyph han-249ae:15x16 15 16 // 𤦮
-// ⿰ han-248e9 han-6cbb // ⿰𤣩治
+glyph han-249ae:15x16 15 16 // 𤦮
+⿲ han-248e9:3x16 han-6c35:3x16 han-53f0:9x16 // ⿲𤣩氵台
 
 ## 96.9
 
-// glyph han-249c7:15x16 15 16 // 𤧇
-// ⿰ han-248e9 han-76f8 // ⿰𤣩相
+glyph han-249c7:15x16 15 16 // 𤧇
+⿲ han-248e9:3x16 han-6728:5x16 han-76ee:7x16 // ⿲𤣩木目
 
-// glyph han-249d0:15x16 15 16 // 𤧐
-// ⿰ han-248e9 han-79cb // ⿰𤣩秋
+glyph han-249d0:15x16 15 16 // 𤧐
+⿲ han-248e9:3x16 han-79be:5x16 han-706b:7x16 // ⿲𤣩禾火
 
 // glyph han-249e5:15x16 15 16 // 𤧥
 // ⿱ han-73c0 han-7389 // ⿱珀玉
@@ -179,8 +179,8 @@ glyph han-249fc:15x16 15 16 // 𤧼
 // glyph han-24a19:15x16 15 16 // 𤨙
 // ⿱ han-52d2 han-7389 // ⿱勒玉
 
-// glyph han-24a21:15x16 15 16 // 𤨡
-// ⿰ han-248e9 han-6717 // ⿰𤣩朗
+glyph han-24a21:15x16 15 16 // 𤨡
+⿲ han-248e9:3x16 han-826f:7x16 han-6708:5x16 // ⿲𤣩良月
 
 glyph han-24a27:15x16 15 16 // 𤨧
 ⿰ han-248e9:7x16 1 han-7968:7x16 // ⿰𤣩票
@@ -190,13 +190,13 @@ glyph han-24a27:15x16 15 16 // 𤨧
 glyph han-24a4a:15x16 15 16 // 𤩊
 ⿰ han-248e9:7x16 1 han-582f:7x16 // ⿰𤣩堯
 
-// glyph han-24a50:15x16 15 16 // 𤩐
-// ⿰ han-248e9 han-65af // ⿰𤣩斯
+glyph han-24a50:15x16 15 16 // 𤩐
+⿲ han-248e9:3x16 han-5176:6x16 han-65a4:6x16 // ⿲𤣩其斤
 
 glyph han-24a5d:15x16 15 16 // 𤩝
 ⿰ han-248e9:5x16 1 han-55ac:9x16 // ⿰𤣩喬
 
 ## 96.13
 
-// glyph han-24a8a:15x16 15 16 // 𤪊
-// ⿰ han-248e9 han-9210 // ⿰𤣩鈐
+glyph han-24a8a:15x16 15 16 // 𤪊
+⿲ -2 han-248e9:3x16 han-91d2:7x16 han-4eca:7x16 // ⿲𤣩釒今
