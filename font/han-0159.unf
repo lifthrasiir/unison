@@ -178,8 +178,8 @@ glyph han-8ef3:15x16 15 16 // 軳
 glyph han-8ef5:15x16 15 16 // 軵
 ⿲ han-8eca:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲車亻寸
 
-// glyph han-8ef8:15x16 15 16 // 軸
-// ⿰ han-8eca han-7531 // ⿰車由
+glyph han-8ef8:15x16 15 16 // 軸
+⿰ han-8eca:5x16 1 han-7531:9x16 // ⿰車由
 
 glyph han-8efa:15x16 15 16 // 軺
 ⿰ han-8eca:7x16 han-53ec:8x16 // ⿰車召
@@ -338,8 +338,8 @@ glyph han-90a9:15x16 15 16 // 邩
 glyph han-90ad:15x16 15 16 // 邭
 ⿰ han-53e5:9x16 1 han-961d:4x16-r // ⿰句阝
 
-// glyph han-90ae:15x16 15 16 // 邮
-// ⿰ han-7531 han-961d // ⿰由阝
+glyph han-90ae:15x16 15 16 // 邮
+⿰ han-7531:7x16 1 han-961d:7x16-r // ⿰由阝
 
 glyph han-90b0:15x16 15 16 // 邰
 ⿰ han-53f0:9x16 1 han-961d:5x16-r // ⿰台阝
@@ -580,8 +580,8 @@ glyph han-917f:15x16 15 16 // 酿
 glyph han-9180:15x16 15 16 // 醀
 ⿰ han-9149:7x16 1 han-96b9:7x16 // ⿰酉隹
 
-// glyph han-9182:15x16 15 16 // 醂
-// ⿰ han-9149 han-6797 // ⿰酉林
+glyph han-9182:15x16 15 16 // 醂
+⿲ -2 han-9149:7x16 han-6728:5x16 han-6728:5x16 // ⿲酉木木
 
 glyph han-9188:15x16 15 16 // 醈
 ⿰ han-9149:7x16 1 han-708e:7x16 // ⿰酉炎
@@ -597,8 +597,8 @@ glyph han-918d:15x16 15 16 // 醍
 glyph han-918f:15x16 15 16 // 醏
 ⿰ han-9149:7x16 1 han-8005:7x16 // ⿰酉者
 
-// glyph han-9190:15x16 15 16 // 醐
-// ⿰ han-9149 han-80e1 // ⿰酉胡
+glyph han-9190:15x16 15 16 // 醐
+⿲ -3 han-9149:7x16 1 han-53e4:5x16 han-6708:5x16 // ⿲酉古月
 
 // glyph han-9194:15x16 15 16 // 醔
 // ⿱ han-79cb han-9149 // ⿱秋酉

@@ -42,8 +42,8 @@ glyph han-2bc27:15x16 15 16 // 𫰧
 
 ## 38.7
 
-// glyph han-2bc2c:15x16 15 16 // 𫰬
-// ⿰ han-5973 han-6760 // ⿰女杠
+glyph han-2bc2c:15x16 15 16 // 𫰬
+⿲ han-5973:5x16-l han-6728:5x16 han-5de5:5x16 // ⿲女木工
 
 ## 38.8
 
@@ -52,8 +52,8 @@ glyph han-2bc27:15x16 15 16 // 𫰧
 
 ## 38.9
 
-// glyph han-2bc45:15x16 15 16 // 𫱅
-// ⿰ han-5978 han-5408 // ⿰奸合
+glyph han-2bc45:15x16 15 16 // 𫱅
+⿲ -2 han-5973:5x16-l han-5e72:5x16 han-5408:7x16 // ⿲女干合
 
 glyph han-2bc4a:15x16 15 16 // 𫱊
 ⿰ han-5973:5x16-l 1 han-66f7:9x16 // ⿰女曷
@@ -65,8 +65,8 @@ glyph han-2bc4a:15x16 15 16 // 𫱊
 
 ## 38.11
 
-// glyph han-2bc6b:15x16 15 16 // 𫱫
-// ⿰ han-5973 han-7d30 // ⿰女細
+glyph han-2bc6b:15x16 15 16 // 𫱫
+⿲ -1 han-5973:5x16-l han-7cf9:5x16 1 han-7530:5x16 // ⿲女糹田
 
 ## 38.12
 
@@ -75,15 +75,15 @@ glyph han-2bc4a:15x16 15 16 // 𫱊
 
 ## 38.13
 
-// glyph han-2bc81:15x16 15 16 // 𫲁
-// ⿰ han-5973 han-797c // ⿰女祼
+glyph han-2bc81:15x16 15 16 // 𫲁
+⿲ -2 han-5973:5x16-l han-793b:5x16 han-679c:7x16 // ⿲女礻果
 
 # CJK unified ideographs extension E: 寸 (41)
 
 ## 41.9
 
-// glyph han-2bd2f:15x16 15 16 // 𫴯
-// ⿰ han-5247 han-5bf8 // ⿰則寸
+glyph han-2bd2f:15x16 15 16 // 𫴯
+⿲ -2 han-8c9d:6x16 1 han-5202:3x16 han-5bf8:7x16 // ⿲貝刂寸
 
 # CJK unified ideographs extension E: 山 (46)
 

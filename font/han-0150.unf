@@ -219,7 +219,7 @@ glyph han-8dcd:15x16 15 16 // 跍
 ⿰ han-27fb7:5x16 1 han-53e4:9x16 // ⿰𧾷古
 
 glyph han-8dcf:15x16 15 16 // 跏
-⿲ -1 han-27fb7:5x16 han-529b:6x16 1 han-53e3:4x16 // ⿲𧾷力口
+⿲ han-27fb7:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲𧾷力口
 
 glyph han-8dd1:15x16 15 16 // 跑
 ⿰ han-27fb7:5x16 1 han-5305:9x16 // ⿰𧾷包
@@ -317,7 +317,7 @@ glyph han-8e3c:15x16 15 16 // 踼
 ⿰ han-27fb7:5x16 1 han-661c:9x16 // ⿰𧾷昜
 
 glyph han-8e3f:15x16 15 16 // 踿
-⿲ -2 han-27fb7:5x16 han-79be:5x16 han-706b:7x16 // ⿲𧾷禾火
+⿲ han-27fb7:5x16 han-79be:5x16 han-706b:5x16 // ⿲𧾷禾火
 
 ## 157.11
 

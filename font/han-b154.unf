@@ -95,24 +95,24 @@ glyph han-27d88:15x16 15 16 // 𧶈
 glyph han-27dbd:15x16 15 16 // 𧶽
 ⿰ han-8c9d:6x16 han-661c:9x16 // ⿰貝昜
 
-// glyph han-27dc2:15x16 15 16 // 𧷂
-// ⿰ han-8c9d han-79cb // ⿰貝秋
+glyph han-27dc2:15x16 15 16 // 𧷂
+⿲ -1 han-8c9d:6x16 han-79be:5x16 han-706b:5x16 // ⿲貝禾火
 
 ## 154.12
 
-// glyph han-27dff:15x16 15 16 // 𧷿
-// ⿰ han-8c9d han-90fd // ⿰貝都
+glyph han-27dff:15x16 15 16 // 𧷿
+⿲ -1 han-8c9d:6x16 han-8005:5x16 1 han-961d:4x16-r // ⿲貝者阝
 
 glyph han-27e0d:15x16 15 16 // 𧸍
 ⿰ han-8c9d:6x16 1 han-7ca6:8x16 // ⿰貝粦
 
-// glyph han-27e13:15x16 15 16 // 𧸓
-// ⿰ han-8c9d han-6e1a // ⿰貝渚
+glyph han-27e13:15x16 15 16 // 𧸓
+⿲ han-8c9d:6x16 han-6c35:3x16 1 han-8005:5x16 // ⿲貝氵者
 
 ## 154.13
 
-// glyph han-27e1a:15x16 15 16 // 𧸚
-// ⿰ han-8c9d han-8def // ⿰貝路
+glyph han-27e1a:15x16 15 16 // 𧸚
+⿲ -4 han-8c9d:6x16 1 han-27fb7:5x16 han-5404:7x16 // ⿲貝𧾷各
 
 # CJK unified ideographs extension B: 走 (156)
 

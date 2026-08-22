@@ -12,8 +12,8 @@ glyph han-319a7:15x16 15 16 // 𱦧
 
 ## 85.8
 
-// glyph han-319b7:15x16 15 16 // 𱦷
-// ⿰ han-6c35 han-6b23 // ⿰氵欣
+glyph han-319b7:15x16 15 16 // 𱦷
+⿲ -1 han-6c35:3x16 han-65a4:6x16 han-6b20:7x16 // ⿲氵斤欠
 
 ## 85.9
 
@@ -23,12 +23,17 @@ glyph han-319da:15x16 15 16 // 𱧚
 ## 85.10
 
 glyph han-319f6:15x16 15 16 // 𱧶
-⿲ -2 han-6c35:3x16 han-5c71:7x16 han-590b:7x16 // ⿲氵山夋
+⿲ han-6c35:3x16 han-5c71:5x16 han-590b:7x16 // ⿲氵山夋
 
 ## 85.13
 
 glyph han-31a4c:15x16 15 16 // 𱩌
 ⿲ han-6c35:3x16 han-77f3:5x16 han-5352:7x16 // ⿲氵石卒
+
+## 85.16
+
+// glyph han-31a7b:15x16 15 16 // 𱩻
+// ⿲ han-6e56 han-72ad han-738b // ⿲湖犭王 <- ⿰湖狂
 
 # CJK unified ideographs extension H: 火 (86)
 
@@ -44,8 +49,8 @@ glyph han-31aa2:15x16 15 16 // 𱪢
 
 ## 86.5
 
-// glyph han-31ab3:15x16 15 16 // 𱪳
-// ⿰ han-706b han-7531 // ⿰火由
+glyph han-31ab3:15x16 15 16 // 𱪳
+⿰ han-706b:5x16 1 han-7531:9x16 // ⿰火由
 
 glyph han-31ab4:15x16 15 16 // 𱪴
 ⿰ han-706b:9x16 han-76ee:6x16 // ⿰火目
@@ -57,13 +62,13 @@ glyph han-31ab4:15x16 15 16 // 𱪴
 
 ## 86.11
 
-// glyph han-31b00:15x16 15 16 // 𱬀
-// ⿰ han-706b han-52d2 // ⿰火勒
+glyph han-31b00:15x16 15 16 // 𱬀
+⿲ -2 han-706b:5x16 han-9769:7x16 han-529b:5x16 // ⿲火革力
 
 ## 86.14
 
-// glyph han-31b1e:15x16 15 16 // 𱬞
-// ⿰ han-706b han-21b3d // ⿰火𡬽
+glyph han-31b1e:15x16 15 16 // 𱬞
+⿲ -5 han-706b:5x16 1 han-7968:7x16 han-5bf8:7x16 // ⿲火票寸
 
 # CJK unified ideographs extension H: 犬 (94)
 
@@ -143,5 +148,5 @@ glyph han-31cb3:15x16 15 16 // 𱲳
 
 ## 109.13
 
-// glyph han-31ccd:15x16 15 16 // 𱳍
-// ⿰ han-76ee han-8def // ⿰目路
+glyph han-31ccd:15x16 15 16 // 𱳍
+⿲ -1 han-76ee:3x16-l 1 han-27fb7:5x16 han-5404:7x16 // ⿲目𧾷各

@@ -28,8 +28,8 @@ glyph han-3100b:15x16 15 16 // 𱀋
 
 ## 170.13
 
-// glyph han-3103a:15x16 15 16 // 𱀺
-// ⿰ han-961d han-8def // ⿰阝路
+glyph han-3103a:15x16 15 16 // 𱀺
+⿲ -1 han-961d:4x16-l han-27fb7:5x16 han-5404:7x16 // ⿲阝𧾷各
 
 # CJK unified ideographs extension G: 隹 (172)
 
@@ -55,13 +55,13 @@ glyph han-310e3:15x16 15 16 // 𱃣
 glyph han-310ea:15x16 15 16 // 𱃪
 ⿰ han-98e0:7x16 han-5176:8x16 // ⿰飠其
 
-// glyph han-310eb:15x16 15 16 // 𱃫
-// ⿰ han-98e0 han-670b // ⿰飠朋
+glyph han-310eb:15x16 15 16 // 𱃫
+⿲ -2 han-98e0:7x16 han-6708:5x16 han-6708:5x16 // ⿲飠月月
 
 ## 184.10
 
-// glyph han-310ed:15x16 15 16 // 𱃭
-// ⿰ han-98e0 han-6821 // ⿰飠校
+glyph han-310ed:15x16 15 16 // 𱃭
+⿲ -4 han-98e0:7x16 han-6728:5x16 han-4ea4:7x16 // ⿲飠木交
 
 # CJK unified ideographs extension G: 馬 (187)
 
@@ -99,8 +99,8 @@ glyph han-31177:15x16 15 16 // 𱅷
 // glyph han-31178:15x16 15 16 // 𱅸
 // ⿱ han-6b63 han-9ad8 // ⿱正高
 
-// glyph han-31179:15x16 15 16 // 𱅹
-// ⿰ han-9ad8 han-7533 // ⿰高申
+glyph han-31179:15x16 15 16 // 𱅹
+⿰ han-9ad8:7x16 1 han-7533:7x16 // ⿰高申
 
 # CJK unified ideographs extension G: 魚 (195)
 
@@ -111,8 +111,8 @@ glyph han-31177:15x16 15 16 // 𱅷
 
 ## 195.8
 
-// glyph han-311b4:15x16 15 16 // 𱆴
-// ⿰ han-9b5a han-6797 // ⿰魚林
+glyph han-311b4:15x16 15 16 // 𱆴
+⿲ -2 han-9b5a:7x16 han-6728:5x16 han-6728:5x16 // ⿲魚木木
 
 # CJK unified ideographs extension G: 鳥 (196)
 
@@ -128,13 +128,13 @@ glyph han-31225:15x16 15 16 // 𱈥
 
 ## 196.8
 
-// glyph han-3122e:15x16 15 16 // 𱈮
-// ⿰ han-6797 han-9ce5 // ⿰林鳥
+glyph han-3122e:15x16 15 16 // 𱈮
+⿲ -2 han-6728:5x16 han-6728:5x16 han-9ce5:7x16 // ⿲木木鳥
 
 ## 196.13
 
-// glyph han-3123e:15x16 15 16 // 𱈾
-// ⿰ han-694a han-9ce5 // ⿰楊鳥
+glyph han-3123e:15x16 15 16 // 𱈾
+⿲ -5 han-6728:5x16 han-661c:7x16 1 han-9ce5:7x16 // ⿲木昜鳥
 
 ## 196.16
 

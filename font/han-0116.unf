@@ -90,8 +90,8 @@ glyph han-7c97:15x16 15 16 // 粗
 glyph han-7c98:15x16 15 16 // 粘
 ⿰ han-7c73:7x16 1 han-5360:7x16 // ⿰米占
 
-// glyph han-7c99:15x16 15 16 // 粙
-// ⿰ han-7c73 han-7531 // ⿰米由
+glyph han-7c99:15x16 15 16 // 粙
+⿰ han-7c73:5x16 1 han-7531:9x16 // ⿰米由
 
 ## 119.6
 
@@ -172,8 +172,8 @@ glyph han-7cbf:15x16 15 16 // 粿
 glyph han-7cc3:15x16 15 16 // 糃
 ⿰ han-7c73:5x16 1 han-661c:9x16 // ⿰米昜
 
-// glyph han-7cca:15x16 15 16 // 糊
-// ⿰ han-7c73 han-80e1 // ⿰米胡
+glyph han-7cca:15x16 15 16 // 糊
+⿲ han-7c73:5x16 han-53e4:5x16 han-6708:5x16 // ⿲米古月
 
 ## 119.14
 

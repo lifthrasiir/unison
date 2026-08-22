@@ -27,19 +27,19 @@ glyph han-25422:15x16 15 16 // 𥐢
 ## 112.5
 
 glyph han-25446:15x16 15 16 // 𥑆
-⿲ -1 han-77f3:5x16 han-529b:6x16 1 han-53e3:4x16 // ⿲石力口
+⿲ han-77f3:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲石力口
 
 glyph han-25447:15x16 15 16 // 𥑇
 ⿰ han-77f3:5x16 1 han-5931:9x16 // ⿰石失
 
-// glyph han-25450:15x16 15 16 // 𥑐
-// ⿰ han-77f3 han-7532 // ⿰石甲
+glyph han-25450:15x16 15 16 // 𥑐
+⿰ han-77f3:5x16 1 han-7532:9x16 // ⿰石甲
 
 // glyph han-25459:15x16 15 16 // 𥑙
 // ⿱ han-529f han-77f3 // ⿱功石
 
-// glyph han-25464:15x16 15 16 // 𥑤
-// ⿰ han-77f3 han-7531 // ⿰石由
+glyph han-25464:15x16 15 16 // 𥑤
+⿰ han-77f3:5x16 1 han-7531:9x16 // ⿰石由
 
 // glyph han-25467:15x16 15 16 // 𥑧
 // ⿱ han-4ed8 han-77f3 // ⿱付石
@@ -61,8 +61,8 @@ glyph han-25484:15x16 15 16 // 𥒄
 glyph han-25493:15x16 15 16 // 𥒓
 ⿰ han-77f3:7x16 1 han-81f3:7x16 // ⿰石至
 
-// glyph han-25499:15x16 15 16 // 𥒙
-// ⿰ han-77f3 han-72b3 // ⿰石犳
+glyph han-25499:15x16 15 16 // 𥒙
+⿲ han-77f3:5x16 han-72ad:4x16 1 han-52fa:5x16 // ⿲石犭勺
 
 glyph han-2549e:15x16 15 16 // 𥒞
 ⿰ han-77f3:7x16 1 han-7f8a:7x16 // ⿰石羊
@@ -86,8 +86,8 @@ glyph han-254b0:15x16 15 16 // 𥒰
 // glyph han-254d9:15x16 15 16 // 𥓙
 // ⿱ han-6797 han-77f3 // ⿱林石
 
-// glyph han-254eb:15x16 15 16 // 𥓫
-// ⿰ han-77f3 han-5230 // ⿰石到
+glyph han-254eb:15x16 15 16 // 𥓫
+⿲ han-77f3:5x16 han-81f3:7x16 han-5202:3x16 // ⿲石至刂
 
 // glyph han-254ec:15x16 15 16 // 𥓬
 // ⿱ han-5230 han-77f3 // ⿱到石
@@ -98,10 +98,10 @@ glyph han-254b0:15x16 15 16 // 𥒰
 ## 112.9
 
 glyph han-2550d:15x16 15 16 // 𥔍
-⿲ -2 han-77f3:5x16 han-79be:5x16 han-706b:7x16 // ⿲石禾火
+⿲ han-77f3:5x16 han-79be:5x16 han-706b:5x16 // ⿲石禾火
 
-// glyph han-25513:15x16 15 16 // 𥔓
-// ⿰ han-77f3 han-80e1 // ⿰石胡
+glyph han-25513:15x16 15 16 // 𥔓
+⿲ -1 han-77f3:5x16 1 han-53e4:5x16 han-6708:5x16 // ⿲石古月
 
 // glyph han-25521:15x16 15 16 // 𥔡
 // ⿳ han-77f3 han-79be han-65e5 // ⿳石禾日 <- ⿱石香
@@ -111,21 +111,24 @@ glyph han-2550d:15x16 15 16 // 𥔍
 
 ## 112.10
 
+// glyph han-2553b:15x16 15 16 // 𥔻
+// ⿱ han-795e han-77f3 // ⿱神石
+
 glyph han-25546:15x16 15 16 // 𥕆
 ⿲ han-77f3:5x16 han-79be:5x16 han-79be:5x16 // ⿲石禾禾
 
 ## 112.11
 
-// glyph han-2554c:15x16 15 16 // 𥕌
-// ⿰ han-77f3 han-65ac // ⿰石斬
+glyph han-2554c:15x16 15 16 // 𥕌
+⿲ -2 han-77f3:5x16 1 han-8eca:5x16 han-65a4:6x16 // ⿲石車斤
 
 glyph han-2555d:15x16 15 16 // 𥕝
 ⿲ han-77f3:5x16 han-7c73:5x16 han-77f3:5x16 // ⿲石米石
 
 ## 112.12
 
-// glyph han-25576:15x16 15 16 // 𥕶
-// ⿰ han-77f3 han-65af // ⿰石斯
+glyph han-25576:15x16 15 16 // 𥕶
+⿲ -2 han-77f3:5x16 han-5176:6x16 han-65a4:6x16 // ⿲石其斤
 
 glyph han-2557f:15x16 15 16 // 𥕿
 ⿰ han-756a:7x16 1 han-77f3:7x16 // ⿰番石

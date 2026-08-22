@@ -37,8 +37,8 @@ glyph han-2948e:15x16 15 16 // 𩒎
 glyph han-29490:15x16 15 16 // 𩒐
 ⿰ han-81f3:7x16 1 han-9801:7x16 // ⿰至頁
 
-// glyph han-29496:15x16 15 16 // 𩒖
-// ⿰ han-5e75 han-9801 // ⿰幵頁
+glyph han-29496:15x16 15 16 // 𩒖
+⿲ han-5e72:5x16 han-5e72:5x16 han-9801:5x16 // ⿲干干頁
 
 glyph han-29497:15x16 15 16 // 𩒗
 ⿰ han-540c:7x16 1 han-9801:7x16 // ⿰同頁
@@ -51,8 +51,8 @@ glyph han-294b7:15x16 15 16 // 𩒷
 glyph han-294ba:15x16 15 16 // 𩒺
 ⿰ han-752b:7x16 1 han-9801:7x16 // ⿰甫頁
 
-// glyph han-294bb:15x16 15 16 // 𩒻
-// ⿰ han-541f han-9801 // ⿰吟頁
+glyph han-294bb:15x16 15 16 // 𩒻
+⿲ han-53e3:3x16-l han-4eca:7x16 han-9801:5x16 // ⿲口今頁
 
 glyph han-294c0:15x16 15 16 // 𩓀
 ⿰ han-590b:7x16 1 han-9801:7x16 // ⿰夋頁
@@ -78,8 +78,8 @@ glyph han-2954f:15x16 15 16 // 𩕏
 glyph han-29554:15x16 15 16 // 𩕔
 ⿰ han-7ca6:8x16 han-9801:7x16 // ⿰粦頁
 
-// glyph han-2955b:15x16 15 16 // 𩕛
-// ⿰ han-7cf9 han-42f6 // ⿰糹䋶
+glyph han-2955b:15x16 15 16 // 𩕛
+⿲ -1 han-7cf9:5x16 1 han-7cf9:5x16 han-9801:5x16 // ⿲糹糹頁
 
 ## 181.13
 
@@ -88,8 +88,8 @@ glyph han-29554:15x16 15 16 // 𩕔
 
 ## 181.16
 
-// glyph han-29587:15x16 15 16 // 𩖇
-// ⿰ han-2527e han-9801 // ⿰𥉾頁
+glyph han-29587:15x16 15 16 // 𩖇
+⿲ -1 han-76ee:3x16-l han-7fcf:7x16 1 han-9801:5x16 // ⿲目翏頁
 
 ## 181.18
 

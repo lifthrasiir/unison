@@ -132,8 +132,8 @@ glyph han-6cb3:15x16 15 16 // 河
 // glyph han-6cb6:15x16 15 16 // 沶
 // ⿰ han-6c35 han-793a // ⿰氵示
 
-// glyph han-6cb9:15x16 15 16 // 油
-// ⿰ han-6c35 han-7531 // ⿰氵由
+glyph han-6cb9:15x16 15 16 // 油
+⿰ han-6c35:5x16 1 han-7531:9x16 // ⿰氵由
 
 glyph han-6cba:15x16 15 16 // 沺
 ⿰ han-6c35:5x16 1 han-7530:9x16 // ⿰氵田

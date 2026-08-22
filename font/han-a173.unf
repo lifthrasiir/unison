@@ -10,16 +10,16 @@ glyph han-4a57:15x16 15 16 // 䩗
 glyph han-4a5a:15x16 15 16 // 䩚
 ⿰ han-9769:7x16 han-6c10:8x16 // ⿰革氐
 
-// glyph han-4a5c:15x16 15 16 // 䩜
-// ⿰ han-9769 han-7531 // ⿰革由
+glyph han-4a5c:15x16 15 16 // 䩜
+⿰ han-9769:7x16 1 han-7531:7x16 // ⿰革由
 
 glyph han-4a5e:15x16 15 16 // 䩞
 ⿰ han-9769:7x16 1 han-5360:7x16 // ⿰革占
 
 ## 177.7
 
-// glyph han-4a62:15x16 15 16 // 䩢
-// ⿰ han-9769 han-6298 // ⿰革折
+glyph han-4a62:15x16 15 16 // 䩢
+⿲ -1 han-9769:7x16 han-624c:3x16 han-65a4:6x16 // ⿲革扌斤
 
 glyph han-4a64:15x16 15 16 // 䩤
 ⿰ han-9769:7x16 1 han-898b:7x16 // ⿰革見
@@ -29,8 +29,8 @@ glyph han-4a64:15x16 15 16 // 䩤
 glyph han-4a71:15x16 15 16 // 䩱
 ⿰ han-9769:7x16 1 han-4fde:7x16 // ⿰革俞
 
-// glyph han-4a74:15x16 15 16 // 䩴
-// ⿰ han-9769 han-80e1 // ⿰革胡
+glyph han-4a74:15x16 15 16 // 䩴
+⿲ -2 han-9769:7x16 han-53e4:5x16 han-6708:5x16 // ⿲革古月
 
 glyph han-4a75:15x16 15 16 // 䩵
 ⿰ han-9769:7x16 1 han-8ecd:7x16 // ⿰革軍
@@ -63,8 +63,8 @@ glyph han-4acc:15x16 15 16 // 䫌
 glyph han-4acf:15x16 15 16 // 䫏
 ⿰ han-5176:8x16 han-9801:7x16 // ⿰其頁
 
-// glyph han-4ad0:15x16 15 16 // 䫐
-// ⿰ han-6797 han-9801 // ⿰林頁
+glyph han-4ad0:15x16 15 16 // 䫐
+⿲ han-6728:5x16 han-6728:5x16 han-9801:5x16 // ⿲木木頁
 
 ## 181.9
 
@@ -263,8 +263,8 @@ glyph han-4c4a:15x16 15 16 // 䱊
 
 ## 195.7
 
-// glyph han-4c51:15x16 15 16 // 䱑
-// ⿰ han-9b5a han-6298 // ⿰魚折
+glyph han-4c51:15x16 15 16 // 䱑
+⿲ -1 han-9b5a:7x16 han-624c:3x16 han-65a4:6x16 // ⿲魚扌斤
 
 // glyph han-4c52:15x16 15 16 // 䱒
 // ⿰ han-9b5a han-9091 // ⿰魚邑
@@ -285,24 +285,24 @@ glyph han-4c66:15x16 15 16 // 䱦
 
 ## 195.10
 
-// glyph han-4c76:15x16 15 16 // 䱶
-// ⿰ han-9b5a han-90de // ⿰魚郞
+glyph han-4c76:15x16 15 16 // 䱶
+⿲ -3 han-9b5a:7x16 han-826f:7x16 han-961d:4x16-r // ⿲魚良阝
 
 glyph han-4c7b:15x16 15 16 // 䱻
 ⿰ han-9b5a:7x16 1 han-9aa8:7x16 // ⿰魚骨
 
 ## 195.11
 
-// glyph han-4c7f:15x16 15 16 // 䱿
-// ⿰ han-9b5a han-65ac // ⿰魚斬
+glyph han-4c7f:15x16 15 16 // 䱿
+⿲ -4 han-9b5a:7x16 1 han-8eca:5x16 han-65a4:6x16 // ⿲魚車斤
 
 glyph han-4c86:15x16 15 16 // 䲆
 ⿰ han-9b5a:7x16 1 han-9b5a:7x16 // ⿰魚魚
 
 ## 195.12
 
-// glyph han-4c89:15x16 15 16 // 䲉
-// ⿰ han-9b5a han-65af // ⿰魚斯
+glyph han-4c89:15x16 15 16 // 䲉
+⿲ -4 han-9b5a:7x16 han-5176:6x16 han-65a4:6x16 // ⿲魚其斤
 
 ## 195.33
 
@@ -328,7 +328,7 @@ glyph han-4cb3:15x16 15 16 // 䲳
 ⿰ han-4ea2:7x16 1 han-9ce5:7x16 // ⿰亢鳥
 
 glyph han-4cb4:15x16 15 16 // 䲴
-⿰ han-706b:5x16-l 1 han-9ce5:9x16 // ⿰火鳥
+⿰ han-706b:5x16 1 han-9ce5:9x16 // ⿰火鳥
 
 // glyph han-4cb6:15x16 15 16 // 䲶
 // ⿱ han-5143 han-9ce5 // ⿱元鳥
@@ -363,8 +363,8 @@ glyph han-4ccf:15x16 15 16 // 䳏
 
 ## 196.8
 
-// glyph han-4cdf:15x16 15 16 // 䳟
-// ⿰ han-660e han-9ce5 // ⿰明鳥
+glyph han-4cdf:15x16 15 16 // 䳟
+⿲ -2 han-65e5:4x16-l han-6708:5x16 1 han-9ce5:7x16 // ⿲日月鳥
 
 glyph han-4ce1:15x16 15 16 // 䳡
 ⿰ han-96b9:7x16 1 han-9ce5:7x16 // ⿰隹鳥
@@ -389,5 +389,5 @@ glyph han-4d03:15x16 15 16 // 䴃
 
 ## 196.14
 
-// glyph han-4d0d:15x16 15 16 // 䴍
-// ⿰ han-8ccf han-9ce5 // ⿰賏鳥
+glyph han-4d0d:15x16 15 16 // 䴍
+⿲ -5 han-8c9d:6x16 1 han-8c9d:6x16 han-9ce5:7x16 // ⿲貝貝鳥

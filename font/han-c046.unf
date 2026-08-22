@@ -17,8 +17,8 @@
 
 ## 46.8
 
-// glyph han-2aa41:15x16 15 16 // 𪩁
-// ⿰ han-5c71 han-963b // ⿰山阻
+glyph han-2aa41:15x16 15 16 // 𪩁
+⿲ -1 han-5c71:5x16 1 han-961d:4x16-c han-4e14:6x16 // ⿲山阝且
 
 ## 46.9
 
@@ -128,8 +128,8 @@ glyph han-2aba1:15x16 15 16 // 𪮡
 
 ## 64.20
 
-// glyph han-2abc4:15x16 15 16 // 𪯄
-// ⿰ han-624c han-52f8 // ⿰扌勸
+glyph han-2abc4:15x16 15 16 // 𪯄
+⿲ han-624c:3x16 han-96da:7x16 han-529b:5x16 // ⿲扌雚力
 
 # CJK unified ideographs extension C: 日 (72)
 
@@ -255,8 +255,8 @@ glyph han-2acc5:15x16 15 16 // 𪳅
 
 ## 75.13
 
-// glyph han-2ad01:15x16 15 16 // 𪴁
-// ⿰ han-6728 han-8df3 // ⿰木跳
+glyph han-2ad01:15x16 15 16 // 𪴁
+⿲ -2 han-6728:5x16 han-27fb7:5x16 han-5146:7x16 // ⿲木𧾷兆
 
 ## 75.14
 

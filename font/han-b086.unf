@@ -53,7 +53,7 @@ glyph han-241c5:15x16 15 16 // 𤇅
 // ⿰ han-706b han-793a // ⿰火示
 
 glyph han-241cc:15x16 15 16 // 𤇌
-⿰ han-706b:5x16-l 1 han-53e4:9x16 // ⿰火古
+⿰ han-706b:5x16 1 han-53e4:9x16 // ⿰火古
 
 // glyph han-241d9:15x16 15 16 // 𤇙
 // ⿱ han-706b han-4e14 // ⿱火且
@@ -89,8 +89,8 @@ glyph han-2421c:15x16 15 16 // 𤈜
 
 ## 86.7
 
-// glyph han-24238:15x16 15 16 // 𤈸
-// ⿰ han-706b han-20849 // ⿰火𠡉
+glyph han-24238:15x16 15 16 // 𤈸
+⿲ han-706b:5x16-l han-53e4:5x16 han-529b:5x16 // ⿲火古力
 
 // glyph han-24239:15x16 15 16 // 𤈹
 // ⿱ han-5c71 han-708e // ⿱山炎
@@ -108,10 +108,10 @@ glyph han-2421c:15x16 15 16 // 𤈜
 // ⿱ han-52ad han-706b // ⿱劭火
 
 glyph han-24256:15x16 15 16 // 𤉖
-⿰ han-706b:5x16-l 1 han-8eca:9x16 // ⿰火車
+⿰ han-706b:5x16 1 han-8eca:9x16 // ⿰火車
 
-// glyph han-2425a:15x16 15 16 // 𤉚
-// ⿰ han-706b han-5439 // ⿰火吹
+glyph han-2425a:15x16 15 16 // 𤉚
+⿲ -2 han-706b:5x16 1 han-53e3:4x16 han-6b20:7x16 // ⿲火口欠
 
 ## 86.8
 
@@ -131,7 +131,7 @@ glyph han-24284:15x16 15 16 // 𤊄
 // ⿱ han-2aed3 han-706b // ⿱𪻓火
 
 glyph han-24289:15x16 15 16 // 𤊉
-⿲ -1 han-706b:5x16-l 1 han-65e5:5x16 han-6708:5x16 // ⿲火日月
+⿲ -1 han-706b:5x16 1 han-65e5:5x16 han-6708:5x16 // ⿲火日月
 
 // glyph han-2428f:15x16 15 16 // 𤊏
 // ⿱ han-670b han-706b // ⿱朋火
@@ -140,10 +140,10 @@ glyph han-24289:15x16 15 16 // 𤊉
 // ⿱ han-96b9 han-706b // ⿱隹火
 
 glyph han-242a9:15x16 15 16 // 𤊩
-⿲ han-706b:5x16-l han-6728:5x16 han-6728:5x16 // ⿲火木木
+⿲ han-706b:5x16 han-6728:5x16 han-6728:5x16 // ⿲火木木
 
-// glyph han-242ab:15x16 15 16 // 𤊫
-// ⿰ han-706b han-5761 // ⿰火坡
+glyph han-242ab:15x16 15 16 // 𤊫
+⿲ -5 han-706b:5x16 han-571f:7x16 han-76ae:8x16 // ⿲火土皮
 
 ## 86.9
 
@@ -153,11 +153,11 @@ glyph han-242a9:15x16 15 16 // 𤊩
 // glyph han-242dc:15x16 15 16 // 𤋜
 // ⿱ han-662d han-706b // ⿱昭火
 
-// glyph han-242e2:15x16 15 16 // 𤋢
-// ⿰ han-706b han-7d04 // ⿰火約
+glyph han-242e2:15x16 15 16 // 𤋢
+⿲ han-706b:5x16-l han-7cf9:5x16 han-52fa:5x16 // ⿲火糹勺
 
-// glyph han-242f9:15x16 15 16 // 𤋹
-// ⿰ han-706b han-67af // ⿰火枯
+glyph han-242f9:15x16 15 16 // 𤋹
+⿲ han-706b:5x16-l han-6728:5x16 han-53e4:5x16 // ⿲火木古
 
 glyph han-24304:15x16 15 16 // 𤌄
 ⿰ han-706b:7x16 1 han-8005:7x16 // ⿰火者
@@ -168,13 +168,13 @@ glyph han-24304:15x16 15 16 // 𤌄
 // ⿱ han-708f han-7c73 // ⿱炏米
 
 glyph han-2432c:15x16 15 16 // 𤌬
-⿰ han-706b:5x16-l 1 han-99ac:9x16 // ⿰火馬
+⿰ han-706b:5x16 1 han-99ac:9x16 // ⿰火馬
 
 // glyph han-2433e:15x16 15 16 // 𤌾
 // ⿱ han-9ad8 han-706b // ⿱高火
 
-// glyph han-24344:15x16 15 16 // 𤍄
-// ⿰ han-706b han-7956 // ⿰火祖
+glyph han-24344:15x16 15 16 // 𤍄
+⿲ -1 han-706b:5x16-l han-793b:5x16 han-4e14:6x16 // ⿲火礻且
 
 // glyph han-24346:15x16 15 16 // 𤍆
 // ⿲ han-706b han-8eca han-5140 // ⿲火車兀 <- ⿰火軏
@@ -187,8 +187,8 @@ glyph han-2432c:15x16 15 16 // 𤌬
 // glyph han-24355:15x16 15 16 // 𤍕
 // ⿱ han-6884 han-706b // ⿱梄火
 
-// glyph han-24356:15x16 15 16 // 𤍖
-// ⿰ han-706b han-65ac // ⿰火斬
+glyph han-24356:15x16 15 16 // 𤍖
+⿲ -2 han-706b:5x16 1 han-8eca:5x16 han-65a4:6x16 // ⿲火車斤
 
 // glyph han-24362:15x16 15 16 // 𤍢
 // ⿳ han-706b han-708f han-571f // ⿳火炏土 <- ⿱焱土
@@ -196,16 +196,16 @@ glyph han-2432c:15x16 15 16 // 𤌬
 // glyph han-24377:15x16 15 16 // 𤍷
 // ⿱ han-706b han-27fed // ⿱火𧿭
 
-// glyph han-2439c:15x16 15 16 // 𤎜
-// ⿰ han-706b han-6717 // ⿰火朗
+glyph han-2439c:15x16 15 16 // 𤎜
+⿲ -2 han-706b:5x16 han-826f:7x16 han-6708:5x16 // ⿲火良月
 
 ## 86.12
 
-// glyph han-243ce:15x16 15 16 // 𤏎
-// ⿲ han-706b han-572d han-572d // ⿲火圭圭 <- ⿰火⿰圭圭
+glyph han-243ce:15x16 15 16 // 𤏎
+⿲ han-706b:5x16-l han-572d:5x16 han-572d:5x16 // ⿲火圭圭 <- ⿰火⿰圭圭
 
-// glyph han-243d4:15x16 15 16 // 𤏔
-// ⿰ han-706b han-7693 // ⿰火皓
+glyph han-243d4:15x16 15 16 // 𤏔
+⿲ -2 han-706b:5x16 1 han-767d:4x16 han-544a:7x16 // ⿲火白告
 
 ## 86.13
 
@@ -217,13 +217,13 @@ glyph han-24415:15x16 15 16 // 𤐕
 
 ## 86.15
 
-// glyph han-24472:15x16 15 16 // 𤑲
-// ⿰ han-706b han-9130 // ⿰火鄰
+glyph han-24472:15x16 15 16 // 𤑲
+⿲ -2 han-706b:5x16 han-7ca6:8x16 han-961d:4x16-r // ⿲火粦阝
 
 ## 86.16
 
-// glyph han-244a0:15x16 15 16 // 𤒠
-// ⿰ han-706b han-89a9 // ⿰火覩
+glyph han-244a0:15x16 15 16 // 𤒠
+⿲ -1 han-706b:5x16-l han-8005:5x16 1 han-898b:5x16 // ⿲火者見
 
 ## 86.24
 

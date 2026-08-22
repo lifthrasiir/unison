@@ -47,6 +47,11 @@
 // glyph han-341e:15x16 15 16 // 㐞
 // ⿱ han-5176 han-4e59 // ⿱其乙
 
+## 5.15
+
+// glyph han-3425:15x16 15 16 // 㐥
+// ⿱ han-92e4 han-4e59 // ⿱鋤乙
+
 # CJK unified ideographs extension A: 人 (9)
 
 ## 9.3
@@ -99,8 +104,8 @@ glyph han-346f:15x16 15 16 // 㑯
 
 ## 9.11
 
-// glyph han-347c:15x16 15 16 // 㑼
-// ⿰ han-4ebb han-7565 // ⿰亻略
+glyph han-347c:15x16 15 16 // 㑼
+⿲ han-4ebb:3x16 han-7530:5x16 han-5404:7x16 // ⿲亻田各
 
 ## 9.12
 
@@ -234,8 +239,8 @@ glyph han-35bd:15x16 15 16 // 㖽
 glyph han-35bf:15x16 15 16 // 㖿
 ⿲ han-53e3:4x16-l han-8033:7x16 han-961d:4x16-r // ⿲口耳阝
 
-// glyph han-35c5:15x16 15 16 // 㗅
-// ⿰ han-53e3 han-80e1 // ⿰口胡
+glyph han-35c5:15x16 15 16 // 㗅
+⿲ han-53e3:3x16-l han-53e4:7x16 han-6708:5x16 // ⿲口古月
 
 glyph han-35c6:15x16 15 16 // 㗆
 ⿰ han-53e3:7x16 1 han-9769:7x16 // ⿰口革
@@ -245,18 +250,18 @@ glyph han-35c6:15x16 15 16 // 㗆
 
 ## 30.10
 
-// glyph han-35de:15x16 15 16 // 㗞
-// ⿰ han-53e3 han-7834 // ⿰口破
+glyph han-35de:15x16 15 16 // 㗞
+⿲ -1 han-53e3:3x16-l han-77f3:5x16 han-76ae:8x16 // ⿲口石皮
 
 ## 30.12
 
-// glyph han-35f5:15x16 15 16 // 㗵
-// ⿰ han-53e3 han-6b3b // ⿰口欻
+glyph han-35f5:15x16 15 16 // 㗵
+⿲ -2 han-53e3:3x16-l han-708e:7x16 han-6b20:7x16 // ⿲口炎欠
 
 ## 30.16
 
-// glyph han-3610:15x16 15 16 // 㘐
-// ⿰ han-53e3 han-99ee // ⿰口駮
+glyph han-3610:15x16 15 16 // 㘐
+⿲ -2 han-53e3:3x16-l han-99ac:7x16 han-4ea4:7x16 // ⿲口馬交
 
 # CJK unified ideographs extension A: 土 (32)
 
@@ -306,7 +311,7 @@ glyph han-36b2:15x16 15 16 // 㚲
 ⿰ han-5973:7x16 1 han-5360:7x16 // ⿰女占
 
 glyph han-36b3:15x16 15 16 // 㚳
-⿲ -1 han-5973:5x16-l han-529b:6x16 1 han-53e3:4x16 // ⿲女力口
+⿲ han-5973:5x16-l han-529b:5x16 1 han-53e3:4x16 // ⿲女力口
 
 // glyph han-36bb:15x16 15 16 // 㚻
 // ⿱ han-7530 han-5973 // ⿱田女
@@ -347,7 +352,7 @@ glyph han-36f2:15x16 15 16 // 㛲
 ⿰ han-5973:7x16 1 han-9801:7x16 // ⿰女頁
 
 glyph han-3700:15x16 15 16 // 㜀
-⿲ -1 han-5973:5x16-l han-6728:5x16 han-76ee:6x16 // ⿲女木目
+⿲ han-5973:5x16-l han-6728:5x16 1 han-76ee:4x16 // ⿲女木目
 
 // glyph han-3702:15x16 15 16 // 㜂
 // ⿱ han-5c01 han-5973 // ⿱封女
@@ -359,8 +364,8 @@ glyph han-3700:15x16 15 16 // 㜀
 
 ## 38.11
 
-// glyph han-371b:15x16 15 16 // 㜛
-// ⿰ han-5973 han-8edf // ⿰女軟
+glyph han-371b:15x16 15 16 // 㜛
+⿲ -2 han-5973:5x16-l han-8eca:5x16 han-6b20:7x16 // ⿲女車欠
 
 // glyph han-371e:15x16 15 16 // 㜞
 // ⿱ han-65ac han-5973 // ⿱斬女

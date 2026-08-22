@@ -55,24 +55,24 @@ glyph han-266cb:15x16 15 16 // 𦛋
 // ⿰ han-6708 han-9091 // ⿰月邑
 
 glyph han-266e1:15x16 15 16 // 𦛡
-⿲ -1 han-6708:5x16-l han-72ad:4x16 han-706b:7x16 // ⿲月犭火
+⿲ han-6708:5x16-l han-72ad:4x16 1 han-706b:5x16 // ⿲月犭火
 
-// glyph han-266fb:15x16 15 16 // 𦛻
-// ⿰ han-6708 han-6751 // ⿰月村
+glyph han-266fb:15x16 15 16 // 𦛻
+⿲ -2 han-6708:5x16-l han-6728:5x16 han-5bf8:7x16 // ⿲月木寸
 
-// glyph han-266fd:15x16 15 16 // 𦛽
-// ⿰ han-6708 han-541f // ⿰月吟
+glyph han-266fd:15x16 15 16 // 𦛽
+⿲ -2 han-6708:5x16-l 1 han-53e3:4x16 han-4eca:7x16 // ⿲月口今
 
 ## 130.8
 
-// glyph han-26713:15x16 15 16 // 𦜓
-// ⿰ han-6708 han-6b23 // ⿰月欣
+glyph han-26713:15x16 15 16 // 𦜓
+⿲ -3 han-6708:5x16-l han-65a4:6x16 han-6b20:7x16 // ⿲月斤欠
 
 glyph han-26741:15x16 15 16 // 𦝁
 ⿰ han-6708:5x16-l 1 han-5176:9x16 // ⿰月其
 
-// glyph han-26742:15x16 15 16 // 𦝂
-// ⿰ han-6708 han-7684 // ⿰月的
+glyph han-26742:15x16 15 16 // 𦝂
+⿲ han-6708:5x16-l 1 han-767d:4x16 han-52fa:5x16 // ⿲月白勺
 
 glyph han-26743:15x16 15 16 // 𦝃
 ⿲ han-6708:5x16-l han-6728:5x16 han-6728:5x16 // ⿲月木木
@@ -95,29 +95,29 @@ glyph han-267d0:15x16 15 16 // 𦟐
 
 ## 130.11
 
-// glyph han-267ef:15x16 15 16 // 𦟯
-// ⿰ han-6708 han-52d2 // ⿰月勒
+glyph han-267ef:15x16 15 16 // 𦟯
+⿲ -2 han-6708:5x16-l han-9769:7x16 han-529b:5x16 // ⿲月革力
 
 glyph han-267f6:15x16 15 16 // 𦟶
 ⿲ han-6708:5x16-l han-7c73:5x16 han-5360:5x16 // ⿲月米占
 
 glyph han-267ff:15x16 15 16 // 𦟿
-⿲ -4 han-6708:5x16-l han-571f:7x16 han-96b9:7x16 // ⿲月土隹
+⿲ -3 han-6708:5x16-l han-571f:7x16 -1 han-96b9:7x16 // ⿲月土隹
 
 ## 130.12
 
-// glyph han-2682d:15x16 15 16 // 𦠭
-// ⿰ han-6708 han-65af // ⿰月斯
+glyph han-2682d:15x16 15 16 // 𦠭
+⿲ -2 han-6708:5x16-l han-5176:6x16 han-65a4:6x16 // ⿲月其斤
 
-// glyph han-26844:15x16 15 16 // 𦡄
-// ⿰ han-6708 han-90fd // ⿰月都
+glyph han-26844:15x16 15 16 // 𦡄
+⿲ han-6708:5x16-l han-8005:5x16 1 han-961d:4x16-r // ⿲月者阝
 
 ## 130.16
 
-// glyph han-268a6:15x16 15 16 // 𦢦
-// ⿰ han-6708 han-7a4c // ⿰月穌
+glyph han-268a6:15x16 15 16 // 𦢦
+⿲ -3 han-6708:5x16-l 1 han-9b5a:7x16 han-79be:5x16 // ⿲月魚禾
 
 ## 130.21
 
-// glyph han-268d7:15x16 15 16 // 𦣗
-// ⿰ han-6708 han-9952 // ⿰月饒
+glyph han-268d7:15x16 15 16 // 𦣗
+⿲ -4 han-6708:5x16-l han-98e0:7x16 han-582f:7x16 // ⿲月飠堯

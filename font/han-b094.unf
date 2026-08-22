@@ -49,8 +49,8 @@ glyph han-24754:15x16 15 16 // 𤝔
 glyph han-24757:15x16 15 16 // 𤝗
 ⿰ han-72ad:6x16 han-7530:9x16 // ⿰犭田
 
-// glyph han-2475a:15x16 15 16 // 𤝚
-// ⿰ han-72ad han-7533 // ⿰犭申
+glyph han-2475a:15x16 15 16 // 𤝚
+⿰ han-72ad:6x16 han-7533:9x16 // ⿰犭申
 
 // glyph han-24766:15x16 15 16 // 𤝦
 // ⿲ han-72ad han-4ebb han-624d // ⿲犭亻才 <- ⿰犭𠆫
@@ -86,8 +86,8 @@ glyph han-2479a:15x16 15 16 // 𤞚
 glyph han-247a8:15x16 15 16 // 𤞨
 ⿰ han-72ad:6x16 han-752b:9x16 // ⿰犭甫
 
-// glyph han-247a9:15x16 15 16 // 𤞩
-// ⿰ han-72ad han-52a9 // ⿰犭助
+glyph han-247a9:15x16 15 16 // 𤞩
+⿲ han-72ad:4x16 han-4e14:6x16 han-529b:5x16 // ⿲犭且力
 
 glyph han-247ad:15x16 15 16 // 𤞭
 ⿰ han-72ad:6x16 1 han-898b:8x16 // ⿰犭見
@@ -100,8 +100,8 @@ glyph han-247ba:15x16 15 16 // 𤞺
 glyph han-247c7:15x16 15 16 // 𤟇
 ⿰ han-72ad:6x16 han-708e:9x16 // ⿰犭炎
 
-// glyph han-247cb:15x16 15 16 // 𤟋
-// ⿰ han-72ad han-52b9 // ⿰犭効
+glyph han-247cb:15x16 15 16 // 𤟋
+⿲ -1 han-72ad:4x16 han-4ea4:7x16 han-529b:5x16 // ⿲犭交力
 
 ## 94.9
 
@@ -124,8 +124,8 @@ glyph han-24816:15x16 15 16 // 𤠖
 
 ## 94.11
 
-// glyph han-2484b:15x16 15 16 // 𤡋
-// ⿰ han-72ad han-8edf // ⿰犭軟
+glyph han-2484b:15x16 15 16 // 𤡋
+⿲ -1 han-72ad:4x16 han-8eca:5x16 han-6b20:7x16 // ⿲犭車欠
 
 glyph han-24851:15x16 15 16 // 𤡑
 ⿰ han-72ad:6x16 han-7968:9x16 // ⿰犭票
@@ -138,15 +138,15 @@ glyph han-24855:15x16 15 16 // 𤡕
 // glyph han-24868:15x16 15 16 // 𤡨
 // ⿲ han-72ad han-7cf9 han-7cf8 // ⿲犭糹糸 <- ⿰犭絲
 
-// glyph han-2488a:15x16 15 16 // 𤢊
-// ⿰ han-72ad han-8def // ⿰犭路
+glyph han-2488a:15x16 15 16 // 𤢊
+⿲ -1 han-72ad:4x16 han-27fb7:5x16 han-5404:7x16 // ⿲犭𧾷各
 
 ## 94.13
 
-// glyph han-24894:15x16 15 16 // 𤢔
-// ⿰ han-72ad han-6b47 // ⿰犭歇
+glyph han-24894:15x16 15 16 // 𤢔
+⿲ -3 han-72ad:4x16 han-66f7:7x16 han-6b20:7x16 // ⿲犭曷欠
 
 ## 94.15
 
-// glyph han-248ba:15x16 15 16 // 𤢺
-// ⿰ han-72ad han-9821 // ⿰犭頡
+glyph han-248ba:15x16 15 16 // 𤢺
+⿲ han-72ad:4x16 han-5409:5x16 1 han-9801:5x16 // ⿲犭吉頁

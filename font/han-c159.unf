@@ -34,16 +34,16 @@ glyph han-2b489:15x16 15 16 // 𫒉
 
 ## 167.8
 
-// glyph han-2b4a8:15x16 15 16 // 𫒨
-// ⿲ han-91d2 han-571f han-7533 // ⿲釒土申 <- ⿰釒坤
+glyph han-2b4a8:15x16 15 16 // 𫒨
+⿲ -3 han-91d2:5x16-l -1 han-571f:7x16 han-7533:7x16 // ⿲釒土申
 
-// glyph han-2b4ab:15x16 15 16 // 𫒫
-// ⿰ han-91d2 han-7684 // ⿰釒的
+glyph han-2b4ab:15x16 15 16 // 𫒫
+⿲ han-91d2:5x16-l 1 han-767d:4x16 han-52fa:5x16 // ⿲釒白勺
 
 ## 167.11
 
-// glyph han-2b4c0:15x16 15 16 // 𫓀
-// ⿰ han-91d2 han-52d2 // ⿰釒勒
+glyph han-2b4c0:15x16 15 16 // 𫓀
+⿲ -2 han-91d2:5x16-l han-9769:7x16 han-529b:5x16 // ⿲釒革力
 
 ## 167.12
 
@@ -52,8 +52,8 @@ glyph han-2b489:15x16 15 16 // 𫒉
 
 ## 167.14
 
-// glyph han-2b4d9:15x16 15 16 // 𫓙
-// ⿰ han-91d2 han-7dad // ⿰釒維
+glyph han-2b4d9:15x16 15 16 // 𫓙
+⿲ -2 han-91d2:5x16-l han-7cf9:5x16 han-96b9:7x16 // ⿲釒糹隹
 
 # CJK unified ideographs extension C: 钅 (167')
 
@@ -83,8 +83,8 @@ glyph han-2b4f9:15x16 15 16 // 𫓹
 glyph han-2b4fc:15x16 15 16 // 𫓼
 ⿲ han-9485:6x16 han-79be:5x16 han-53e3:4x16 // ⿲钅禾口
 
-// glyph han-2b4ff:15x16 15 16 // 𫓿
-// ⿰ han-9485 han-708a // ⿰钅炊
+glyph han-2b4ff:15x16 15 16 // 𫓿
+⿲ -2 han-9485:5x16 han-706b:5x16 han-6b20:7x16 // ⿲钅火欠
 
 ## 167'.9
 
@@ -100,8 +100,8 @@ glyph han-2b50d:15x16 15 16 // 𫔍
 
 ## 170.5
 
-// glyph han-2b53c:15x16 15 16 // 𫔼
-// ⿰ han-961d han-7531 // ⿰阝由
+glyph han-2b53c:15x16 15 16 // 𫔼
+⿰ han-961d:5x16-l 1 han-7531:9x16 // ⿰阝由
 
 ## 170.6
 
@@ -109,7 +109,7 @@ glyph han-2b53e:15x16 15 16 // 𫔾
 ⿰ han-961d:5x16-l 1 han-8033:9x16 // ⿰阝耳
 
 glyph han-2b53f:15x16 15 16 // 𫔿
-⿲ -1 han-961d:4x16-l han-65e5:5x16 han-4e01:7x16 // ⿲阝日丁
+⿲ han-961d:4x16-l han-65e5:6x16 han-4e01:5x16 // ⿲阝日丁
 
 ## 170.9
 
@@ -168,13 +168,13 @@ glyph han-2b60b:15x16 15 16 // 𫘋
 
 ## 195.8
 
-// glyph han-2b664:15x16 15 16 // 𫙤
-// ⿰ han-9b5a han-676d // ⿰魚杭
+glyph han-2b664:15x16 15 16 // 𫙤
+⿲ -4 han-9b5a:7x16 han-6728:5x16 han-4ea2:7x16 // ⿲魚木亢
 
 ## 195.11
 
-// glyph han-2b676:15x16 15 16 // 𫙶
-// ⿰ han-9b5a han-7d30 // ⿰魚細
+glyph han-2b676:15x16 15 16 // 𫙶
+⿲ -4 han-9b5a:7x16 1 han-7cf9:5x16 1 han-7530:5x16 // ⿲魚糹田
 
 # CJK unified ideographs extension C: 鳥 (196)
 
