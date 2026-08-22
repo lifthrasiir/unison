@@ -315,6 +315,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `#`/`##`/`###` headings: the syntax, and why they are a comment to every build stage | `document_io.rs` (`# Headings`), `document/mod.rs` (`DocumentItem::Heading`) |
 | What a heading section holds, and why one lone `#` folds nothing | `editor/folding.rs` (`fold_groups`) |
 | Why a heading draws in zoom *steps*, and what marks the minimap | `document_view/layout.rs` (`heading_font_size`), `editor/minimap.rs` |
+| Why an enlarged heading re-picks the *face* and not just the size | `document_view/layout.rs` (`heading_font`), `app/mod.rs` (`uniform_family_at_size`) |
 | Where a caret goes when a fold swallows the line it was on, and what a fold does to a selection | `editor/folding.rs` (`toggle_at`, `snap_caret`) |
 | Which glyph blocks start folded, and the font height that decides it | `editor/folding.rs` (`apply_initial`) |
 | Why closing a fold may scroll and opening one may not | `editor/folding.rs` (`FoldScroll`), `document_view/scroll.rs` |

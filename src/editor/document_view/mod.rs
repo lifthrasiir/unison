@@ -51,7 +51,7 @@ use scroll::{
 pub(crate) use changes::flush_document_changes;
 pub(crate) use layout::{
     GlyphMetrics, GridExtent, GridStrip, HeadingLine, VLineKind, ViewCache, VisualLine,
-    compute_grid_display_extent, glyph_metrics, heading_font_size,
+    compute_grid_display_extent, glyph_metrics, heading_font, heading_font_size,
 };
 #[cfg(test)]
 pub(crate) use layout::{gutter_line_number, inline_panel_reserved_width};

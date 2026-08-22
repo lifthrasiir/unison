@@ -11,7 +11,7 @@ use crate::pattern::NamePattern;
 
 use super::document_view::{
     GRID_CELL, GlyphMetrics, GridExtent, HeadingLine, INLINE_PALETTE_CELL, PREVIEW_SCALE,
-    VLineKind, VisualLine, compute_grid_display_extent, glyph_metrics, heading_font_size,
+    VLineKind, VisualLine, compute_grid_display_extent, glyph_metrics, heading_font, heading_font_size,
 };
 
 pub(crate) fn preview_max_height(
@@ -213,11 +213,11 @@ fn push_wrapped_text_vlines(
         .map(|c| text.chars().count() - c.chars().count());
     // A heading wraps against its own, larger font, or a long title would run
     // off the page it was measured to fit.
-    let heading_font;
+    let heading_font_id;
     let font_id = match heading {
         Some(h) if h.font_size != font_id.size => {
-            heading_font = egui::FontId::new(h.font_size, font_id.family.clone());
-            &heading_font
+            heading_font_id = heading_font(font_id, h.font_size);
+            &heading_font_id
         }
         _ => font_id,
     };
@@ -388,7 +388,7 @@ pub(crate) fn build_visual_lines(
     let heading_of = |s: &str| -> Option<HeadingLine> {
         let (level, _) = crate::document_io::split_heading(s.trim())?;
         let font_size = heading_font_size(font_id.size, level);
-        let font = egui::FontId::new(font_size, font_id.family.clone());
+        let font = heading_font(font_id, font_size);
         Some(HeadingLine {
             level,
             font_size,

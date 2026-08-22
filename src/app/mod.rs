@@ -238,18 +238,32 @@ pub struct UniformApp {
     startup_timing_open: bool,
 }
 
+/// The largest type size the bitmap face is drawn at. Anything above it is
+/// the *vector* face's, since an enlarged bitmap only shows its own pixels.
+pub const BITMAP_MAX_SIZE: f32 = 16.0;
+
 pub fn uniform_font_id(ctx: &egui::Context, size: f32) -> egui::FontId {
     let bitmap_family = egui::FontFamily::Name("UniformBitmap".into());
     let has_uniform = ctx.fonts(|f| f.families().contains(&bitmap_family));
     if !has_uniform {
         return egui::FontId::new(size, egui::FontFamily::Proportional);
     }
-    let family = if size <= 16.0 {
-        bitmap_family
-    } else {
+    egui::FontId::new(size, uniform_family_at_size(&bitmap_family, size))
+}
+
+/// The family a piece of text drawn at `size` belongs in, given the family the
+/// text around it uses. A size is not carried on the family, so a caller that
+/// derives one size from another — a heading off the body text
+/// ([`crate::editor::document_view::layout::heading_font_size`]) — has to
+/// re-pick the face as well, or a 48 px `#` line draws as a scaled-up bitmap.
+/// Only the upgrade is made: a caller already on the vector face asked for it.
+pub fn uniform_family_at_size(base: &egui::FontFamily, size: f32) -> egui::FontFamily {
+    let is_bitmap = matches!(base, egui::FontFamily::Name(n) if &**n == "UniformBitmap");
+    if is_bitmap && size > BITMAP_MAX_SIZE {
         egui::FontFamily::Name("UniformVector".into())
-    };
-    egui::FontId::new(size, family)
+    } else {
+        base.clone()
+    }
 }
 
 /// Whether `[perf]` stage timing logs are enabled (UNIFORM_PERF env var).

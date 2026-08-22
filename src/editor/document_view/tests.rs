@@ -629,3 +629,41 @@ exclude-from-sample stem
 ",
     );
 }
+
+/// A heading drawn above the bitmap face's own size has to be painted with the
+/// *vector* face, or the enlarged bitmap shows its pixels. At 1× the body text
+/// is 16 px and a `#` line is 48 px, so the switch has to happen on the heading
+/// even though the base font is the bitmap one.
+#[test]
+fn a_heading_larger_than_the_bitmap_size_draws_with_the_vector_face() {
+    let bitmap = egui::FontFamily::Name("UniformBitmap".into());
+    let vector = egui::FontFamily::Name("UniformVector".into());
+    let base = egui::FontId::new(EDITOR_FONT_SIZE, bitmap.clone());
+
+    let heading = |level: u8| {
+        let font_size = heading_font_size(base.size, level);
+        VisualLine {
+            kind: VLineKind::Text(String::new()),
+            doc_line: 0,
+            color: egui::Color32::WHITE,
+            comment_col: None,
+            annotations: Vec::new(),
+            error_spans: Vec::new(),
+            col_offset: 0,
+            heading: Some(HeadingLine {
+                level,
+                font_size,
+                row_height: font_size,
+            }),
+        }
+        .text_font(&base)
+    };
+
+    assert_eq!(heading(1).size, 48.0);
+    assert_eq!(heading(1).family, vector, "`#` must use the vector face");
+    assert_eq!(heading(2).size, 32.0);
+    assert_eq!(heading(2).family, vector, "`##` must use the vector face");
+    // `###` is body size, so it stays on the bitmap face like the rest.
+    assert_eq!(heading(3).size, EDITOR_FONT_SIZE);
+    assert_eq!(heading(3).family, bitmap);
+}

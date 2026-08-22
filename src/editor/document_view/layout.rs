@@ -356,6 +356,18 @@ pub(crate) fn heading_font_size(base_size: f32, level: u8) -> f32 {
     base_size + super::EDITOR_FONT_SIZE * steps as f32
 }
 
+/// The font a heading of `font_size` draws with, given the editor's own. The
+/// *face* is re-picked and not just the size: a heading above the bitmap
+/// face's own size belongs to the vector face, or 1× — where the body text is
+/// on the bitmap face and a `#` line is three times its size — would scale the
+/// bitmap up instead. See [`crate::app::uniform_family_at_size`].
+pub(crate) fn heading_font(base: &egui::FontId, font_size: f32) -> egui::FontId {
+    egui::FontId::new(
+        font_size,
+        crate::app::uniform_family_at_size(&base.family, font_size),
+    )
+}
+
 impl VisualLine {
     /// The line's text paired with its annotations, for measuring and painting.
     /// Returns `None` for grid rows.
@@ -448,12 +460,11 @@ impl VisualLine {
     }
 
     /// The font this line's text is measured and painted with: the editor's
-    /// own, except on a `#`/`##` line, which draws larger.
+    /// own, except on a `#`/`##` line, which draws larger — and so may draw
+    /// with a different *face*; see [`heading_font`].
     pub(crate) fn text_font(&self, base: &egui::FontId) -> egui::FontId {
         match self.heading {
-            Some(h) if h.font_size != base.size => {
-                egui::FontId::new(h.font_size, base.family.clone())
-            }
+            Some(h) if h.font_size != base.size => heading_font(base, h.font_size),
             _ => base.clone(),
         }
     }
