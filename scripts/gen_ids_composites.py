@@ -23,14 +23,22 @@ off by default because it gives up on drawing that part -- it would write 刊 as
 the un-inlined one it came from above it, commented out:
 
     glyph han-520a:15x16 15 16 // 刊
-    // ⿰ han-5e72 han-5202 // ⿰干刂
+    // ⿰ han-5e72 han-5202 // ⿰干刂 -- no-inline
     ⿲ han-5e72 han-4e28 han-4e85 // ⿲干丨亅
 
-so that undoing the inline by hand is deleting the last line and commenting the
-first out -- what is left is this script's own shape for a request to draw 刂,
-and a later run leaves it alone rather than inlining it again. (A sequence's own
-nesting, `⿰⿰XYC`, has no such line: its operand is not a character, so nothing
-names it. Those keep the `<- ⿰⿰XYC` note instead.)
+Such a block does not parse, deliberately: a comment between a `glyph` header
+and its body ends the block, so `uniform` refuses the source until every one of
+them has been settled by hand -- an inline is a judgement about a part that no
+rule here can make. Undoing one is deleting the last line and commenting the
+first out, and what is left is this script's own shape for a request to draw 刂,
+carrying the `-- no-inline` mark that makes a later run leave it alone rather
+than inline it again. The mark is written rather than inferred because a block
+a hand undid an inline in is character for character the block an ordinary run
+writes for a line the box holds back, so nothing about the block itself could
+tell the two apart; dropping the mark by hand is how a block already in the file
+asks to be inlined after all. (A sequence's own nesting, `⿰⿰XYC`, has no such
+line: its operand is not a character, so nothing names it. Those keep the
+`<- ⿰⿰XYC` note instead, and being nobody's judgement they parse and build.)
 
 The emitted line leaves its components *undecided* (no `:WxH` suffix), which is
 the initial state `compose.rs` documents for a glyph populated from IDS; run
@@ -42,6 +50,15 @@ that nothing is lost and nothing unbuildable is added either: either because its
 parts are drawn at no size that tiles the box (`--ignore-box` writes it anyway),
 or because the only parts it has are themselves composites
 (`--include-composite-parts`).
+
+An *inlined* line is the exception, and is held only to its own parts: whether
+their smallest drawings add up to the box is not asked, since that total is not
+a reason to hold the line back but the very thing the line was written to
+measure -- run `--optimize-clearance` over it and a total that overruns the box
+shows as ink out of the box in the editor and as a negative clearance in the
+report, which says how much narrower a part has to be drawn. A part drawn at no
+size that could sit in a slot at all still comments the line out, inlined or
+not: that one is a request for a drawing, and there is nothing to look at yet.
 
 Such a line is a request, not a drawing, so a later run *revives* it: a character
 an earlier run left commented out is put through the same feasibility test again,
@@ -633,7 +650,7 @@ class Verdict:
     reason: str  # why `kind` is None
 
 
-def feasible(inv: Inventory, op: str, comps: list[int]) -> Verdict:
+def feasible(inv: Inventory, op: str, comps: list[int], inlined: bool = False) -> Verdict:
     """Ask the parts about one line, in two independent questions.
 
     *Existence* decides whether the line is written at all. A declaration is
@@ -649,12 +666,24 @@ def feasible(inv: Inventory, op: str, comps: list[int]) -> Verdict:
     rest of the line nowhere to stand — and the line fits when the smallest such
     variants still tile the box together. Which variant is actually written is
     `uniform fix --optimize-clearance`'s to choose.
+
+    Those are two questions, not one, and an `inlined` line is only asked the
+    first. A line written *as it stands* is held to the box because the box is
+    all that says the parts are the wrong size: nothing else would ever ask for
+    a narrower 項 than the one 15x16 drawing. An inlined line has already
+    answered that -- it is written because its own smaller parts are drawn, and
+    what its total says is how much narrower they have to become, which is a
+    thing to be *seen*: `--optimize-clearance` lays it out anyway, with the
+    overflow showing as a negative clearance and as ink out of the box in the
+    editor. Commenting it out instead hides exactly the measurement that would
+    have been acted on. `--ignore-box` is the same relaxation for the
+    un-inlined line, where it is a much blunter thing to ask for.
     """
     horizontal = op in HORIZONTAL
     axis, cross = (BOX_W, BOX_H) if horizontal else (BOX_H, BOX_W)
     all_hand = True
     total = 0
-    fits = True
+    parts_fit = True
     for cp in comps:
         cands = inv.variants.get(han_name(cp), [])
         if not cands:
@@ -670,8 +699,9 @@ def feasible(inv: Inventory, op: str, comps: list[int]) -> Verdict:
         if along:
             total += min(along)
         else:
-            fits = False
-    return Verdict("handdrawn" if all_hand else "composite", fits and total <= axis, "")
+            parts_fit = False
+    fits = parts_fit and (inlined or total <= axis)
+    return Verdict("handdrawn" if all_hand else "composite", fits, "")
 
 
 # --------------------------------------------------------------------------
@@ -884,24 +914,43 @@ def idc_line(op: str, comps: list[int]) -> str:
     return f"{op} {names} // " + op + "".join(chr(c) for c in comps)
 
 
+# What an un-inlined line carries so that a hand can leave it un-inlined, and
+# the only thing that stops a later run from inlining that character again. It
+# has to be written rather than inferred: a block a hand undid an inline in is
+# *character for character* the block an ordinary run writes for a line the box
+# holds back, so nothing about the block itself can tell the two apart.
+NO_INLINE_MARK = "-- no-inline"
+
+
 def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool,
                  origin: str | None = None,
-                 alt: tuple[str, list[int]] | None = None) -> list[str]:
+                 alt: tuple[str, list[int]] | None = None,
+                 no_inline: bool = False) -> list[str]:
     head = f"glyph {han_name(cp)}:{BOX_W}x{BOX_H} {BOX_W} {BOX_H} // {char}"
+    mark = f" {NO_INLINE_MARK}" if no_inline else ""
     if commented:
         # an inlined line keeps the sequence it came from beside the one it
         # draws, since the two are the same split but not the same text
-        body = idc_line(op, comps) + (f" <- {origin}" if origin else "")
+        body = idc_line(op, comps) + (f" <- {origin}" if origin else "") + mark
         return [f"// {head}", f"// {body}"]
     if alt is not None:
         # An inline that gave up on a part *nameable* keeps that un-inlined line
-        # above the one it drew, commented out. Undoing the inline by hand is
-        # then the whole of deleting the last line and commenting the first out:
-        # what is left is a request for the part, in the shape this script
-        # writes one -- which `is_script_block` recognizes, and which the revive
-        # below then declines to inline again.
-        return [head, f"// {idc_line(*alt)}", idc_line(op, comps)]
-    return [head, idc_line(op, comps) + (f" <- {origin}" if origin else "")]
+        # above the one it drew, commented out, and marked. Undoing the inline
+        # by hand is then the whole of deleting the last line and commenting the
+        # first out: what is left is a request for the part, in the shape this
+        # script writes one -- which `is_script_block` recognizes -- and the
+        # mark it kept is what makes the revive below decline to inline it
+        # again. Dropping the mark by hand asks for the opposite.
+        #
+        # The block this writes does not parse, on purpose: a comment between a
+        # `glyph` header and its body ends the block, so the drawn line is read
+        # as a directive of its own and `uniform` refuses the file
+        # (`document_io.rs`). That is the review gate -- an inline is a
+        # judgement about a part that no rule here can make, so every block this
+        # form writes has to be looked at and settled by hand, one of the two
+        # ways above, before the source builds again.
+        return [head, f"// {idc_line(*alt)} {NO_INLINE_MARK}", idc_line(op, comps)]
+    return [head, idc_line(op, comps) + (f" <- {origin}" if origin else "") + mark]
 
 
 def is_script_block(cp: int, char: str, block: list[str]) -> bool:
@@ -917,16 +966,25 @@ def is_script_block(cp: int, char: str, block: list[str]) -> bool:
     got = script_block_idc(block)
     if got is None:
         return False
-    op, comps, origin = got
-    return block == build_blocks(op, comps, cp, char, True, origin)
+    op, comps, origin, no_inline = got
+    return block == build_blocks(op, comps, cp, char, True, origin,
+                                 no_inline=no_inline)
 
 
-def script_block_idc(block: list[str]) -> tuple[str, list[int], str | None] | None:
-    """The `(op, components, origin)` a commented-out two-line block states."""
+def script_block_idc(block: list[str]) -> tuple[str, list[int], str | None, bool] | None:
+    """The `(op, components, origin, no_inline)` a commented-out block states."""
     if len(block) != 2:
         return None
     body = block[1].lstrip("/ ")
     head, _, rest = body.partition("//")
+    no_inline = False
+    if "--" in rest:
+        rest, note = rest.split("--", 1)
+        # Anything else is a hand's own note, and leaving it in `rest` is what
+        # makes `is_script_block` say so: the block will not regenerate.
+        no_inline = note.strip() == NO_INLINE_MARK[3:]
+        if not no_inline:
+            rest = rest + "--" + note
     toks = head.split()
     if not toks or toks[0] not in IDC_ARITY:
         return None
@@ -937,7 +995,7 @@ def script_block_idc(block: list[str]) -> tuple[str, list[int], str | None] | No
             return None
         comps.append(int(m.group(1), 16))
     origin = rest.split("<-", 1)[1].strip() if "<-" in rest else None
-    return toks[0], comps, origin
+    return toks[0], comps, origin, no_inline
 
 
 def main() -> int:
@@ -955,7 +1013,8 @@ def main() -> int:
                     help="do not rewrite a same-axis nested operand into ⿲/⿳")
     ap.add_argument("--inline-parts", action="store_true",
                     help="also inline an operand named by a character whose own IDS "
-                         "splits the same way (⿰BC with B = ⿰XY -> ⿲XYC)")
+                         "splits the same way (⿰BC with B = ⿰XY -> ⿲XYC); mark such "
+                         "a line `-- no-inline` to keep a later run off it")
     ap.add_argument("--ignore-box", action="store_true",
                     help="write a line whose parts cannot tile the 15x16 box uncommented as well")
     ap.add_argument("-v", "--verbose", action="store_true")
@@ -1036,7 +1095,7 @@ def main() -> int:
                 if cp in cand.comps:
                     why = min(why, "self-referential IDS", key=reason_rank)
                     continue
-                verdict = feasible(inv, cand.op, cand.comps)
+                verdict = feasible(inv, cand.op, cand.comps, cand.inlined)
                 if verdict.kind is None:
                     why = min(why, verdict.reason, key=reason_rank)
                     continue
@@ -1084,12 +1143,11 @@ def main() -> int:
                 stats["declared, now writable, but not this script's own block"] += 1
                 continue
             got = script_block_idc(old[1])
-            if cand.alt is not None and got is not None and got[:2] == (
-                    cand.alt[0], list(cand.alt[1])):
-                # the block already *is* the un-inlined line this candidate came
-                # from, commented out: a hand undid the inline, and writing the
-                # inlined line back is exactly what that asked not to happen
-                stats["declared, un-inlined by hand"] += 1
+            if cand.inlined and got is not None and got[3]:
+                # the block is the un-inlined line, marked: a hand undid the
+                # inline (or declined one), and writing the inlined line back is
+                # exactly what that asked not to happen
+                stats["declared, marked `-- no-inline`"] += 1
                 continue
             removals[old[0]].add(cp)
             stats["revived (was commented out)"] += 1
