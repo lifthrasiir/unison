@@ -19,7 +19,18 @@ operand of a line can be, since four parts have no IDC of their own;
 `--no-inline` turns it off. `--inline-parts` extends it to an operand named by
 a *character* that decomposes the same way (`⿰BC` with `B = ⿰XY`), which is
 off by default because it gives up on drawing that part -- it would write 刊 as
-`⿲干丨亅` rather than as 干 beside a 刂 nobody has drawn yet.
+`⿲干丨亅` rather than as 干 beside a 刂 nobody has drawn yet. Such a line keeps
+the un-inlined one it came from above it, commented out:
+
+    glyph han-520a:15x16 15 16 // 刊
+    // ⿰ han-5e72 han-5202 // ⿰干刂
+    ⿲ han-5e72 han-4e28 han-4e85 // ⿲干丨亅
+
+so that undoing the inline by hand is deleting the last line and commenting the
+first out -- what is left is this script's own shape for a request to draw 刂,
+and a later run leaves it alone rather than inlining it again. (A sequence's own
+nesting, `⿰⿰XYC`, has no such line: its operand is not a character, so nothing
+names it. Those keep the `<- ⿰⿰XYC` note instead.)
 
 The emitted line leaves its components *undecided* (no `:WxH` suffix), which is
 the initial state `compose.rs` documents for a glyph populated from IDS; run
@@ -430,6 +441,10 @@ class Candidate:
     op: str
     comps: list[int]
     inlined: bool
+    # the line this one was inlined *from*, when that line is writable at all:
+    # `⿰BC` for `⿲XYC` where `B = ⿰XY`. A sequence's own nesting (`⿰⿰XYC`)
+    # has none -- its operand is not a character, and so has no name to write.
+    alt: tuple[str, list[int]] | None = None
 
 
 def candidates(tree: "Node", inline: bool,
@@ -462,16 +477,18 @@ def candidates(tree: "Node", inline: bool,
             if split[0] != tree.op:
                 continue  # nested, but splitting the other way
             inner = [ord(normalize_component(c)) for c in split[1]]
+            alt = None
         elif kid.char is not None and splits is not None:
             got = splits.get(ord(normalize_component(kid.char)))
             if got is None or got[0] != tree.op:
                 continue
             inner = list(got[1])
+            alt = (tree.op, [ord(normalize_component(k.char)) for k in tree.kids])
         else:
             continue  # nested, but along the other axis
         rest = ord(normalize_component(other.char))
         comps = inner + [rest] if i == 0 else [rest] + inner
-        out.append(Candidate(ternary, comps, True))
+        out.append(Candidate(ternary, comps, True, alt))
     return out
 
 
@@ -861,17 +878,30 @@ def tag_score(tags: str) -> int:
     return len(set(re.sub(r"\[.*?\]", "", tags)) & set("GHTJKPV"))
 
 
-def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool,
-                 origin: str | None = None) -> list[str]:
+def idc_line(op: str, comps: list[int]) -> str:
+    """One IDC line: the component names, and the sequence they spell."""
     names = " ".join(han_name(c) for c in comps)
-    ids = op + "".join(chr(c) for c in comps)
+    return f"{op} {names} // " + op + "".join(chr(c) for c in comps)
+
+
+def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool,
+                 origin: str | None = None,
+                 alt: tuple[str, list[int]] | None = None) -> list[str]:
     head = f"glyph {han_name(cp)}:{BOX_W}x{BOX_H} {BOX_W} {BOX_H} // {char}"
-    # an inlined line keeps the sequence it came from beside the one it draws,
-    # since the two are the same split but not the same text
-    body = f"{op} {names} // {ids}" + (f" <- {origin}" if origin else "")
     if commented:
+        # an inlined line keeps the sequence it came from beside the one it
+        # draws, since the two are the same split but not the same text
+        body = idc_line(op, comps) + (f" <- {origin}" if origin else "")
         return [f"// {head}", f"// {body}"]
-    return [head, body]
+    if alt is not None:
+        # An inline that gave up on a part *nameable* keeps that un-inlined line
+        # above the one it drew, commented out. Undoing the inline by hand is
+        # then the whole of deleting the last line and commenting the first out:
+        # what is left is a request for the part, in the shape this script
+        # writes one -- which `is_script_block` recognizes, and which the revive
+        # below then declines to inline again.
+        return [head, f"// {idc_line(*alt)}", idc_line(op, comps)]
+    return [head, idc_line(op, comps) + (f" <- {origin}" if origin else "")]
 
 
 def is_script_block(cp: int, char: str, block: list[str]) -> bool:
@@ -884,21 +914,30 @@ def is_script_block(cp: int, char: str, block: list[str]) -> bool:
     wrote, and so one it may rewrite; anything else is a hand edit and says
     something this script does not know.
     """
-    if len(block) != 2:
+    got = script_block_idc(block)
+    if got is None:
         return False
+    op, comps, origin = got
+    return block == build_blocks(op, comps, cp, char, True, origin)
+
+
+def script_block_idc(block: list[str]) -> tuple[str, list[int], str | None] | None:
+    """The `(op, components, origin)` a commented-out two-line block states."""
+    if len(block) != 2:
+        return None
     body = block[1].lstrip("/ ")
     head, _, rest = body.partition("//")
     toks = head.split()
     if not toks or toks[0] not in IDC_ARITY:
-        return False
+        return None
     comps = []
     for tok in toks[1:]:
         m = NAME_CP_RE.match(tok)
         if not m:
-            return False
+            return None
         comps.append(int(m.group(1), 16))
     origin = rest.split("<-", 1)[1].strip() if "<-" in rest else None
-    return block == build_blocks(toks[0], comps, cp, char, True, origin)
+    return toks[0], comps, origin
 
 
 def main() -> int:
@@ -1032,7 +1071,7 @@ def main() -> int:
             holds.append("composite parts")
         if not verdict.fits and not args.ignore_box:
             holds.append("parts do not fit the box")
-        block = build_blocks(op, comps, cp, entry.char, bool(holds), origin)
+        block = build_blocks(op, comps, cp, entry.char, bool(holds), origin, cand.alt)
         if revive:
             # Only a line that is now unheld is worth rewriting, and only where
             # the block in the file is this script's own output: anything else
@@ -1043,6 +1082,14 @@ def main() -> int:
             old = inv.declared_blocks.get(cp)
             if old is None or not is_script_block(cp, entry.char, old[1]):
                 stats["declared, now writable, but not this script's own block"] += 1
+                continue
+            got = script_block_idc(old[1])
+            if cand.alt is not None and got is not None and got[:2] == (
+                    cand.alt[0], list(cand.alt[1])):
+                # the block already *is* the un-inlined line this candidate came
+                # from, commented out: a hand undid the inline, and writing the
+                # inlined line back is exactly what that asked not to happen
+                stats["declared, un-inlined by hand"] += 1
                 continue
             removals[old[0]].add(cp)
             stats["revived (was commented out)"] += 1
