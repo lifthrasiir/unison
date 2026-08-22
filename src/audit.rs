@@ -142,9 +142,9 @@ pub fn parse_audit_entry(text: &str) -> Result<AuditEntry, String> {
                 ));
             };
             check_prefix(key, prefix)?;
-            let max = max.parse::<u16>().map_err(|_| {
-                format!("`audit {key}` takes a count of lines, got `{max}`")
-            })?;
+            let max = max
+                .parse::<u16>()
+                .map_err(|_| format!("`audit {key}` takes a count of lines, got `{max}`"))?;
             Ok(AuditEntry::MaxContactRun {
                 prefix: prefix.clone(),
                 max,
@@ -339,12 +339,17 @@ mod tests {
         );
         // Its own key, so it neither collides with nor replaces the other one.
         let r = rules_of("audit ideal-clearance han-* 0 1\naudit max-contact-run han-* 2\n");
-        assert_eq!(r.ideal_clearance.for_glyph("han-4e00"), Some(("han-*", 0, 1)));
+        assert_eq!(
+            r.ideal_clearance.for_glyph("han-4e00"),
+            Some(("han-*", 0, 1))
+        );
         assert_eq!(r.max_contact_run.for_glyph("han-4e00"), Some(("han-*", 2)));
         assert!(r.max_contact_run.for_glyph("latin-a").is_none());
         assert_ne!(
             parse_audit_entry("max-contact-run han-* 2").unwrap().slot(),
-            parse_audit_entry("ideal-clearance han-* 0 1").unwrap().slot(),
+            parse_audit_entry("ideal-clearance han-* 0 1")
+                .unwrap()
+                .slot(),
         );
     }
 

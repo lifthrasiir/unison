@@ -1648,3 +1648,56 @@ feature ccmp for DFLT : ctx
     );
     assert!(msgs.is_empty(), "{msgs:?}");
 }
+
+/// A component named through a `glyph A = B` alias: the name the check sees has
+/// been canonicalized to the drawing's own (`-r`), but the slot the author
+/// picked is the one the *written* name states (`-c`). Ranking the canonical
+/// name warns that every aliased component sits in the wrong slot, which is the
+/// one thing the alias was written to say is fine.
+#[test]
+fn an_aliased_component_is_ranked_on_the_name_as_written() {
+    let source = |middle: &str| {
+        format!(
+            "\
+glyph a:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph r:4x4-r 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph r:4x4-c = r:4x4-r
+
+glyph b:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-x 12 4
+\u{2FF2} a:4x4 {middle} b:4x4
+"
+        )
+    };
+    let slots = |input: &str| -> Vec<String> {
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        collect_issues(&[&doc])
+            .into_iter()
+            .filter(|i| i.message.contains("sits in the"))
+            .map(|i| i.message)
+            .collect()
+    };
+    // The alias names the middle slot, which is the slot it sits in.
+    assert!(
+        slots(&source("r:4x4-c")).is_empty(),
+        "{:?}",
+        slots(&source("r:4x4-c"))
+    );
+    // The drawing's own name still says `-r`, and that one does warn.
+    assert_eq!(slots(&source("r:4x4-r")).len(), 1);
+}

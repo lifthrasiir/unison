@@ -426,8 +426,12 @@ impl InkLine {
     /// parts by holding their *ink* apart, and ink that is already apart
     /// touches over no lines.
     pub fn ink(self) -> Option<(i32, i32)> {
-        (self.near_hardblanks as i32 <= self.far - self.near)
-            .then(|| (self.near + self.near_hardblanks as i32, self.far - self.far_hardblanks as i32))
+        (self.near_hardblanks as i32 <= self.far - self.near).then(|| {
+            (
+                self.near + self.near_hardblanks as i32,
+                self.far - self.far_hardblanks as i32,
+            )
+        })
     }
 }
 
@@ -490,10 +494,7 @@ impl InkProfile {
             if extent == 0 || len == 0 {
                 return (0, extent as i32);
             }
-            let (lo, hi) = (
-                box_of(base, origin),
-                box_of(base + len as i32 - 1, origin),
-            );
+            let (lo, hi) = (box_of(base, origin), box_of(base + len as i32 - 1, origin));
             (lo.min(0), hi.max(extent as i32 - 1) + 1)
         };
         let (col_lo, col_hi) = span(w, grid.width, origin.0, raster.0);
@@ -738,9 +739,7 @@ pub fn contact_run(a: &InkProfile, b: &InkProfile, horizontal: bool, delta: i32)
                 // cover is a seam. A tip that inks its cell without reaching
                 // the side of it touches nothing.
                 0 => match (a_edges.get(i), b_edges.get(i)) {
-                    (Some(ae), Some(be)) => {
-                        covers_meet(&ae.far, a.edge_den, &be.near, b.edge_den)
-                    }
+                    (Some(ae), Some(be)) => covers_meet(&ae.far, a.edge_den, &be.near, b.edge_den),
                     // A profile from before the covers were kept: the cells are
                     // all there is to go on.
                     _ => true,
@@ -783,10 +782,12 @@ pub fn contact_demand(
         .along(horizontal)
         .iter()
         .zip(b.along(horizontal).iter())
-        .filter_map(|(x, y)| match (x.and_then(InkLine::ink), y.and_then(InkLine::ink)) {
-            (Some((_, a_far)), Some((b_near, _))) => Some(b_near - a_far - 1),
-            _ => None,
-        })
+        .filter_map(
+            |(x, y)| match (x.and_then(InkLine::ink), y.and_then(InkLine::ink)) {
+                (Some((_, a_far)), Some((b_near, _))) => Some(b_near - a_far - 1),
+                _ => None,
+            },
+        )
         .min()?;
     let run = contact_run(a, b, horizontal, -ink);
     Some(ContactDemand {
@@ -1013,7 +1014,15 @@ pub fn expand_compose(
             }
             ComposeItem::Part { name, raw_name } => (name, raw_name),
         };
-        let spec = VariantSpec::parse(name);
+        // The size and the position a name states are claims the *author*
+        // made, so they are read off the name as written: a component named
+        // through an alias has had `name` pointed at the drawing, and the
+        // drawing's own name says which slot it was made for, not which slot
+        // this line picked it for. Everything else here — what the component
+        // resolves to, and whether it resolves at all — is the resolved name's
+        // to answer, including whether a variant has been picked, since an
+        // alias may name one without saying so.
+        let spec = VariantSpec::parse(raw_name.as_deref().unwrap_or(name));
         let unpicked = is_undecided(name);
         if unpicked {
             let slot_size = if op.horizontal() {
@@ -1203,8 +1212,8 @@ pub fn measure_clearances<'a>(
         let facing = facing_offset(a.profile, b.profile, horizontal)?;
         // Measured only where a rule asks for it: a source stating none pays
         // nothing, exactly as it pays nothing for the profiles themselves.
-        let contact = max_contact_run
-            .and_then(|max| contact_demand(a.profile, b.profile, horizontal, max));
+        let contact =
+            max_contact_run.and_then(|max| contact_demand(a.profile, b.profile, horizontal, max));
         // The rule says its piece *as* a clearance: the cell it asks for is not
         // room the glyph still has, and whether what is left is worth a warning
         // is `ideal-clearance`'s answer and not a second one.

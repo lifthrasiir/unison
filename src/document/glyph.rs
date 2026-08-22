@@ -165,8 +165,13 @@ pub enum ComposeItem {
     /// A number written between (or around) the components: how much room is
     /// left at that position along the split axis. Negative is an overlap.
     Gap(i16),
-    /// A component, in written order. `raw_name` holds the `@…` form when the
-    /// name was written with one, exactly as [`GlyphRef::raw_name`] does.
+    /// A component, in written order. `raw_name` holds the name as *written*
+    /// whenever that differs from `name` — the `@…` form, as
+    /// [`GlyphRef::raw_name`] does, and the pre-alias name once the build has
+    /// canonicalized this one. A component's name is a claim about which slot
+    /// the author picked ([`crate::compose`]'s variant name rule), so the
+    /// written form has to survive the canonicalization that points `name` at
+    /// the drawing.
     Part {
         name: String,
         raw_name: Option<String>,

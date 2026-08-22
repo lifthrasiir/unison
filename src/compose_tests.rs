@@ -246,8 +246,9 @@ fn a_part_without_a_variant_suffix_is_a_todo_and_not_an_error() {
 }
 
 /// A family whose sizes come from a table, as `table` does for `dims`.
-fn family_of<'a>(entries: &'a [(&'a str, &'a [(u16, u16)])]) -> impl Fn(&str) -> Vec<(u16, u16)> + 'a
-{
+fn family_of<'a>(
+    entries: &'a [(&'a str, &'a [(u16, u16)])],
+) -> impl Fn(&str) -> Vec<(u16, u16)> + 'a {
     move |name: &str| {
         entries
             .iter()
@@ -321,7 +322,11 @@ fn an_undecided_part_whose_family_fits_is_still_a_todo() {
         Some(&family),
         None,
     );
-    assert_eq!(of_severity(&issues, Severity::Warning).len(), 1, "{issues:?}");
+    assert_eq!(
+        of_severity(&issues, Severity::Warning).len(),
+        1,
+        "{issues:?}"
+    );
 }
 
 /// A vertical split asks the same question of the other axis.
@@ -1121,7 +1126,10 @@ fn a_contact_run_is_the_longest_seam_two_edges_share() {
     assert_eq!(demand(&flat, &facing, 2), ContactDemand { run: 3, owed: 1 });
     assert_eq!(demand(&flat, &facing, 3), ContactDemand { run: 3, owed: 0 });
     assert_eq!(demand(&flat, &tip, 2), ContactDemand { run: 1, owed: 0 });
-    assert_eq!(demand(&claimed, &facing, 2), ContactDemand { run: 3, owed: 0 });
+    assert_eq!(
+        demand(&claimed, &facing, 2),
+        ContactDemand { run: 3, owed: 0 }
+    );
 }
 
 /// A contact is between two *contours*, not two cells: a frontier cell whose

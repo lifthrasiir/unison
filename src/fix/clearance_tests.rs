@@ -853,3 +853,47 @@ fn a_label_as_long_as_the_glyph_is_not_a_candidate() {
     assert_eq!(fixes.len(), 1, "{fixes:?}");
     assert_eq!(fixes[0].new_line, "\u{2FF0} 1 l:1x4 2 (rx|ry):2x4");
 }
+
+/// A family whose only drawing for a slot is reachable through a `glyph A = B`
+/// alias: `r:4x4-r` is drawn, and `r:4x4-l` is a second *name* for it. The
+/// name is what carries the direction, so without the alias the left slot has
+/// no candidate at all — every name the family declares outright ranks as the
+/// wrong direction there.
+const ALIASED_VARIANT: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph r:4x4-r 4 4
+@@@@@@..
+@@@@@@..
+@@@@@@..
+@@@@@@..
+
+glyph r:4x4-l = r:4x4-r
+
+glyph b:4x4 4 4
+..@@@@@@
+..@@@@@@
+..@@@@@@
+..@@@@@@
+
+glyph test-x 8 4
+\u{2FF0} r b:4x4
+";
+
+#[test]
+fn an_alias_is_a_candidate_for_the_slot_its_name_states() {
+    let fixes = plan(ALIASED_VARIANT);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].glyph, "test-x");
+    // Undecided as written, so there is no score to compare against.
+    assert_eq!(fixes[0].before, None);
+    assert!(
+        fixes[0].new_line.contains("r:4x4-l"),
+        "{}",
+        fixes[0].new_line
+    );
+
+    // Drop the alias and the slot is empty again: nothing to plan.
+    let without = ALIASED_VARIANT.replace("glyph r:4x4-l = r:4x4-r\n\n", "");
+    assert!(plan(&without).is_empty(), "no name the left slot can take");
+}

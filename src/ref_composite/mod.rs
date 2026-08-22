@@ -393,10 +393,14 @@ pub(crate) fn resolve_reachable<'a, 'b>(
         // the way it will be followed there.
         let subst = substitute_name_parts(&name, name_parts);
         let expanded = parse_ref_pattern(&subst).map(|pattern| pattern.get(0));
-        let found = [Some(name.as_str()), Some(subst.as_str()), expanded.as_deref()]
-            .into_iter()
-            .flatten()
-            .find_map(|n| body_of(n));
+        let found = [
+            Some(name.as_str()),
+            Some(subst.as_str()),
+            expanded.as_deref(),
+        ]
+        .into_iter()
+        .flatten()
+        .find_map(|n| body_of(n));
         if let Some(body) = found {
             // Not measurable until its line has been expanded into refs.
             if !body.compose.is_empty() {
@@ -415,13 +419,17 @@ pub(crate) fn resolve_reachable<'a, 'b>(
         // Only the self-contained shapes, as [`synthesized_on_demand`] takes: a
         // color/mono pair is built from two glyph bodies, which is a synthesis
         // and not a lookup.
-        let shape = [Some(name.as_str()), Some(subst.as_str()), expanded.as_deref()]
-            .into_iter()
-            .flatten()
-            .find_map(|n| match crate::on_demand::parse_on_demand_glyph(n) {
-                Some(crate::on_demand::OnDemandGlyph::Shape(spec)) => Some(spec),
-                _ => None,
-            });
+        let shape = [
+            Some(name.as_str()),
+            Some(subst.as_str()),
+            expanded.as_deref(),
+        ]
+        .into_iter()
+        .flatten()
+        .find_map(|n| match crate::on_demand::parse_on_demand_glyph(n) {
+            Some(crate::on_demand::OnDemandGlyph::Shape(spec)) => Some(spec),
+            _ => None,
+        });
         if let Some(spec) = shape {
             bodies.push((
                 name,

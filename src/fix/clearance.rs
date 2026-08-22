@@ -404,6 +404,27 @@ impl<'a> Inventory<'a> {
                 }
             }
         }
+        // A `glyph A = B` declares no drawing of its own, but it does declare a
+        // second *name* for one — and the name is what states which slot the
+        // drawing is for. `han-961d:4x16-c = han-961d:4x16-r` is the only way
+        // the source says that the right-hand 阝 is what a ⿲'s middle slot
+        // draws, so a family known by its blocks alone leaves that slot with no
+        // candidate at all: every name it declares outright ranks as the wrong
+        // direction there. The box and the ink come from the target, which is
+        // what `canonical` already resolves every candidate through.
+        let aliased: Vec<String> = inv
+            .aliases
+            .entries()
+            .filter(|(name, target)| {
+                !inv.boxes.contains_key(*name) && inv.boxes.contains_key(*target)
+            })
+            .map(|(name, _)| name.clone())
+            .collect();
+        for name in aliased {
+            if let Some((base, _)) = name.split_once(':') {
+                inv.variants.entry(base.to_string()).or_default().push(name);
+            }
+        }
         for names in inv.variants.values_mut() {
             names.sort();
         }
@@ -509,10 +530,11 @@ impl<'a> Inventory<'a> {
         if let Some(cached) = self.profiles.borrow().get(name) {
             return cached.clone();
         }
-        let computed = self
-            .grids
-            .get(name)
-            .map(|g| Rc::new(InkProfile::of(&g.grid, g.scale, g.raster, g.origin, g.extent)));
+        let computed = self.grids.get(name).map(|g| {
+            Rc::new(InkProfile::of(
+                &g.grid, g.scale, g.raster, g.origin, g.extent,
+            ))
+        });
         self.profiles
             .borrow_mut()
             .insert(name.to_string(), computed.clone());
@@ -584,7 +606,15 @@ impl<'a> Inventory<'a> {
             if out.len() >= MAX_CANDIDATES {
                 break;
             }
-            if *name == canonical || out.iter().any(|c| self.canonical(&c.name) == *name) {
+            // Two names for one drawing are two candidates on purpose — they
+            // rank differently for the slot — so what is already offered is
+            // matched on the name as written, and only the name the component
+            // itself resolves to is dropped outright.
+            if *name == canonical
+                || out
+                    .iter()
+                    .any(|c| c.name == *name || self.canonical(&c.name) == *name)
+            {
                 continue;
             }
             // A drawing made for the other side of the glyph is not an

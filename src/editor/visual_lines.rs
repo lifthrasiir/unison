@@ -11,7 +11,8 @@ use crate::pattern::NamePattern;
 
 use super::document_view::{
     GRID_CELL, GlyphMetrics, GridExtent, HeadingLine, INLINE_PALETTE_CELL, PREVIEW_SCALE,
-    VLineKind, VisualLine, compute_grid_display_extent, glyph_metrics, heading_font, heading_font_size,
+    VLineKind, VisualLine, compute_grid_display_extent, glyph_metrics, heading_font,
+    heading_font_size,
 };
 
 pub(crate) fn preview_max_height(

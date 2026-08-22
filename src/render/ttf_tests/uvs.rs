@@ -354,7 +354,9 @@ map U+0030 U+FE0F = zero-emoji
     let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
     let built = build_font_with_gid_map(&[&doc]).expect("font should build");
     let font = read_fonts::FontRef::new(&built.ttf).unwrap();
-    let cmap_bytes = font.table_data(read_fonts::types::Tag::new(b"cmap")).unwrap();
+    let cmap_bytes = font
+        .table_data(read_fonts::types::Tag::new(b"cmap"))
+        .unwrap();
     let cmap_bytes = cmap_bytes.as_ref();
 
     let be16 = |at: usize| u16::from_be_bytes([cmap_bytes[at], cmap_bytes[at + 1]]) as usize;

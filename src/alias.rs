@@ -38,6 +38,16 @@
 //! compares against the built font's glyph names — canonicalize with the same
 //! map.
 //!
+//! One reference keeps both names: an IDC line's component
+//! ([`crate::document::ComposeItem::Part`]) is canonicalized like every other,
+//! but the name it was written with is kept beside it, because a component's
+//! name is also a claim about which slot of the split it fills
+//! ([`crate::compose`]'s variant name rule). `阝:4x16-c = 阝:4x16-r` is a
+//! source saying the right-hand drawing is what a `⿲`'s middle slot uses, and
+//! it is the `-c` that says so; that is also the one thing that makes such a
+//! drawing reachable for the middle slot at all, in the check and in
+//! [`crate::fix::clearance`]'s variant search alike.
+//!
 //! One deliberate exception: [`crate::ref_composite::resolve_expansion`] adds
 //! the alias names back into the resolved-glyph map after resolution finishes.
 //! The editor validates the names it finds *in the text* against that map, and

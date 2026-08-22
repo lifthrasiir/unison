@@ -675,11 +675,10 @@ fn main() {
                     std::process::exit(1);
                 })
             };
-            let (bitmap_woff2, vector_woff2) =
-                std::thread::scope(|s| {
-                    let b = s.spawn(|| encode(&bitmap_ttf));
-                    (b.join().unwrap(), encode(&vector_ttf))
-                });
+            let (bitmap_woff2, vector_woff2) = std::thread::scope(|s| {
+                let b = s.spawn(|| encode(&bitmap_ttf));
+                (b.join().unwrap(), encode(&vector_ttf))
+            });
             let mut f = std::fs::File::create(&path).unwrap_or_else(|e| {
                 eprintln!("Failed to create {}: {e}", path.display());
                 std::process::exit(1);
@@ -688,12 +687,9 @@ fn main() {
                 bitmap_woff2: &bitmap_woff2,
                 vector_woff2: &vector_woff2,
             };
-            if let Err(e) = render::demo::write_demo_html(
-                &mut f,
-                sample_source.as_ref().unwrap(),
-                &refs,
-                fonts,
-            ) {
+            if let Err(e) =
+                render::demo::write_demo_html(&mut f, sample_source.as_ref().unwrap(), &refs, fonts)
+            {
                 eprintln!("Failed to write the demo HTML: {e}");
                 std::process::exit(1);
             }

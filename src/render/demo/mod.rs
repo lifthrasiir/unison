@@ -152,15 +152,12 @@ fn collect(src: &SampleSource, docs: &[&Document]) -> DemoData {
 
     let mut out_blocks: Vec<DemoBlock> = Vec::new();
     for ((start, end), (name, cps)) in by_block {
-        let coverage = cps
-            .iter()
-            .all(|&cp| props.is_assigned(cp))
-            .then(|| {
-                let total = (start..=end)
-                    .filter(|&cp| in_block(cp, start, end) && props.is_assigned(cp))
-                    .count();
-                [cps.len(), total]
-            });
+        let coverage = cps.iter().all(|&cp| props.is_assigned(cp)).then(|| {
+            let total = (start..=end)
+                .filter(|&cp| in_block(cp, start, end) && props.is_assigned(cp))
+                .count();
+            [cps.len(), total]
+        });
         let members = (start..=end).filter(|&cp| {
             in_block(cp, start, end) && (declared.contains_key(&cp) || props.is_assigned(cp))
         });
@@ -362,7 +359,10 @@ mod tests {
             Some("LATIN CAPITAL LETTER A")
         );
         assert_eq!(names.len(), 1);
-        assert_eq!(runs, vec![(0x4e00, 3, "CJK UNIFIED IDEOGRAPH-".to_string())]);
+        assert_eq!(
+            runs,
+            vec![(0x4e00, 3, "CJK UNIFIED IDEOGRAPH-".to_string())]
+        );
     }
 
     #[test]

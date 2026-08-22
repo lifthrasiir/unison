@@ -245,6 +245,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |
+| Why an IDC component keeps its written name past canonicalization, and the slot claim that rests on it | `alias.rs`, `compose.rs` (`expand_compose`) |
 | Several names of one pattern block turning out to be one glyph, and why two blocks never merge | `merge.rs` |
 | Why a merge is decided on names and not on outlines, and what makes that sound | `merge.rs` (`implicit_merges`), `document/name_parts.rs` (`expand_glyph_block_slots`) |
 | Which glyph a `remap` stops from merging, and why only the ones it matches on | `merge.rs` (`remap_inputs`) |

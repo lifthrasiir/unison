@@ -362,8 +362,19 @@ fn expand_inner(
                     aliases.canonicalize(&mut gref.name);
                 }
                 for item in body.compose.iter_mut().flat_map(|c| c.items.iter_mut()) {
-                    if let crate::document::ComposeItem::Part { name, .. } = item {
+                    // A component keeps the name it was written with beside
+                    // the one it resolves to. The two say different things: the
+                    // resolved name is the drawing, and the written one is
+                    // which slot of the split the author picked — `阝:4x16-c =
+                    // 阝:4x16-r` is a source saying that the right-hand drawing
+                    // is what a `⿲`'s middle slot uses, and dropping the `-c`
+                    // would leave `compose` ranking it as the wrong slot.
+                    if let crate::document::ComposeItem::Part { name, raw_name } = item {
+                        let written = name.clone();
                         aliases.canonicalize(name);
+                        if raw_name.is_none() && *name != written {
+                            *raw_name = Some(written);
+                        }
                     }
                 }
             }
@@ -665,14 +676,19 @@ fn ink_profiles(
     let mut profiles = HashMap::new();
     let mut composites: Vec<&str> = Vec::new();
     for &name in &wanted {
-        let Some(body) = bodies.get(name) else { continue };
+        let Some(body) = bodies.get(name) else {
+            continue;
+        };
         // A part split by a line of its own: see the note above.
         if !body.compose.is_empty() {
             continue;
         }
         match (body.refs.is_empty(), body.pixels.as_ref()) {
             (true, Some(pixels)) => {
-                profiles.insert(name.to_string(), profile_of(body, pixels, (0, 0), body.scale));
+                profiles.insert(
+                    name.to_string(),
+                    profile_of(body, pixels, (0, 0), body.scale),
+                );
             }
             (false, _) => composites.push(name),
             (true, None) => {}
