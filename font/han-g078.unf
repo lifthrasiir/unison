@@ -2,8 +2,11 @@
 
 ## 85.3
 
-// glyph han-306c8:15x16 15 16 // 𰛈
-// ⿰ han-6c35 han-4e0a // ⿰氵上
+glyph han-306c7:15x16 15 16 // 𰛇
+⿰ han-6c35:5x16 1 han-5bf8:9x16 // ⿰氵寸
+
+glyph han-306c8:15x16 15 16 // 𰛈
+⿰ han-6c35:5x16 1 han-4e0a:9x16 // ⿰氵上
 
 ## 85.7
 
@@ -27,6 +30,14 @@
 
 # CJK unified ideographs extension G: 火 (86)
 
+## 86.3
+
+// glyph han-30777:15x16 15 16 // 𰝷
+// ⿱ han-706b han-5de5 // ⿱火工
+
+// glyph han-30778:15x16 15 16 // 𰝸
+// ⿱ han-624d han-706b // ⿱才火
+
 ## 86.6
 
 glyph han-3078a:15x16 15 16 // 𰞊
@@ -34,6 +45,11 @@ glyph han-3078a:15x16 15 16 // 𰞊
 
 // glyph han-30799:15x16 15 16 // 𰞙
 // ⿱ han-4ea4 han-706b // ⿱交火
+
+## 86.7
+
+// glyph han-307a7:15x16 15 16 // 𰞧
+// ⿱ han-8098 han-706b // ⿱肘火
 
 ## 86.8
 
@@ -65,6 +81,9 @@ glyph han-3078a:15x16 15 16 // 𰞊
 glyph han-3083f:15x16 15 16 // 𰠿
 ⿰ han-72ad:6x16 han-5206:9x16 // ⿰犭分
 
+// glyph han-30841:15x16 15 16 // 𰡁
+// ⿰ han-72ad han-516d // ⿰犭六
+
 ## 94.8
 
 // glyph han-30855:15x16 15 16 // 𰡕
@@ -73,14 +92,51 @@ glyph han-3083f:15x16 15 16 // 𰠿
 // glyph han-3085a:15x16 15 16 // 𰡚
 // ⿰ han-72ad han-6b23 // ⿰犭欣
 
+## 94.9
+
+// glyph han-3085f:15x16 15 16 // 𰡟
+// ⿰ han-72ad han-5247 // ⿰犭則
+
 # CJK unified ideographs extension G: 玉 (96)
 
 ## 96.5
 
-// glyph han-30874:15x16 15 16 // 𰡴
-// ⿰ han-248e9 han-6b63 // ⿰𤣩正
+glyph han-30874:15x16 15 16 // 𰡴
+⿰ han-248e9:5x16 han-6b63:10x16 // ⿰𤣩正
+
+## 96.12
+
+// glyph han-30892:15x16 15 16 // 𰢒
+// ⿱ han-967d han-7389 // ⿱陽玉
+
+# CJK unified ideographs extension G: 田 (102)
+
+## 102.1
+
+// glyph han-308b4:15x16 15 16 // 𰢴
+// ⿱ han-4e00 han-7530 // ⿱一田
+
+## 102.3
+
+// glyph han-308b8:15x16 15 16 // 𰢸
+// ⿱ han-5ddd han-7530 // ⿱川田
+
+## 102.6
+
+// glyph han-308c6:15x16 15 16 // 𰣆
+// ⿰ han-7532 han-5404 // ⿰甲各
+
+## 102.12
+
+// glyph han-308d8:15x16 15 16 // 𰣘
+// ⿱ han-25e6b han-7530 // ⿱𥹫田
 
 # CJK unified ideographs extension G: 白 (106)
+
+## 106.3
+
+// glyph han-30914:15x16 15 16 // 𰤔
+// ⿱ han-767d han-5ddb // ⿱白巛
 
 ## 106.7
 
@@ -110,6 +166,11 @@ glyph han-30925:15x16 15 16 // 𰤥
 glyph han-30926:15x16 15 16 // 𰤦
 ⿰ han-76ae:8x16 han-7c73:7x16 // ⿰皮米
 
+## 107.7
+
+// glyph han-30929:15x16 15 16 // 𰤩
+// ⿰ han-76ae han-5229 // ⿰皮利
+
 ## 107.10
 
 glyph han-30931:15x16 15 16 // 𰤱
@@ -119,8 +180,8 @@ glyph han-30931:15x16 15 16 // 𰤱
 
 ## 109.3
 
-// glyph han-3094c:15x16 15 16 // 𰥌
-// ⿰ han-76ee han-4e0b // ⿰目下
+glyph han-3094c:15x16 15 16 // 𰥌
+⿰ han-76ee:6x16 han-4e0b:9x16 // ⿰目下
 
 // glyph han-3094f:15x16 15 16 // 𰥏
 // ⿱ han-76ee han-53e3 // ⿱目口

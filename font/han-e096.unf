@@ -35,10 +35,29 @@ glyph han-2c36f:15x16 15 16 // 𬍯
 
 # CJK unified ideographs extension E: 田 (102)
 
+## 102.3
+
+glyph han-2c3c0:15x16 15 16 // 𬏀
+⿰ han-7530:7x16-l 1 han-52fa:7x16 // ⿰田勺
+
+## 102.7
+
+// glyph han-2c3c8:15x16 15 16 // 𬏈
+// ⿱ han-7530 han-753a // ⿱田町
+
+glyph han-2c3ca:15x16 15 16 // 𬏊
+⿰ han-7530:7x16-l 1 han-826f:7x16 // ⿰田良
+
 ## 102.10
 
 glyph han-2c3ce:15x16 15 16 // 𬏎
 ⿰ han-756a:7x16 1 han-5e72:7x16 // ⿰番干
+
+glyph han-2c3d0:15x16 15 16 // 𬏐
+⿰ han-7530:7x16-l 1 han-9ad8:7x16 // ⿰田高
+
+// glyph han-2c3d2:15x16 15 16 // 𬏒
+// ⿱ han-7530 han-5a18 // ⿱田娘
 
 ## 102.11
 
@@ -74,6 +93,16 @@ glyph han-2c463:15x16 15 16 // 𬑣
 
 # CJK unified ideographs extension E: 石 (112)
 
+## 112.2
+
+// glyph han-2c479:15x16 15 16 // 𬑹
+// ⿰ han-77f3 han-5382 // ⿰石厂
+
+## 112.3
+
+glyph han-2c47a:15x16 15 16 // 𬑺
+⿰ han-77f3:8x16 han-5bf8:7x16 // ⿰石寸
+
 ## 112.6
 
 // glyph han-2c48c:15x16 15 16 // 𬒌
@@ -91,7 +120,15 @@ glyph han-2c49a:15x16 15 16 // 𬒚
 
 # CJK unified ideographs extension E: 示 (113)
 
+## 113.3
+
+glyph han-2c4ac:15x16 15 16 // 𬒬
+⿰ han-793b:5x16 1 han-5de5:9x16 // ⿰礻工
+
 ## 113.5
+
+// glyph han-2c4b1:15x16 15 16 // 𬒱
+// ⿰ han-793b han-7532 // ⿰礻甲
 
 glyph han-2c4b3:15x16 15 16 // 𬒳
 ⿰ han-793b:5x16 1 han-76ae:9x16 // ⿰礻皮
@@ -121,6 +158,11 @@ glyph han-2c4da:15x16 15 16 // 𬓚
 glyph han-2c4e2:15x16 15 16 // 𬓢
 ⿰ han-79be:7x16 1 han-4eca:7x16 // ⿰禾今
 
+## 115.10
+
+// glyph han-2c4f7:15x16 15 16 // 𬓷
+// ⿱ han-79dd han-7530 // ⿱秝田
+
 # CJK unified ideographs extension E: 米 (119)
 
 ## 119.1
@@ -140,6 +182,11 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 
 glyph han-2c58f:15x16 15 16 // 𬖏
 ⿰ han-7c73:7x16 1 han-53e3:7x16 // ⿰米口
+
+## 119.7
+
+// glyph han-2c59e:15x16 15 16 // 𬖞
+// ⿰ han-7c73 han-65f6 // ⿰米时
 
 ## 119.8
 
@@ -173,6 +220,11 @@ glyph han-2c5b0:15x16 15 16 // 𬖰
 
 # CJK unified ideographs extension E: 糸 (120)
 
+## 120.5
+
+// glyph han-2c5c8:15x16 15 16 // 𬗈
+// ⿰ han-7cf9 han-7389 // ⿰糹玉
+
 ## 120.6
 
 glyph han-2c5cc:15x16 15 16 // 𬗌
@@ -195,6 +247,11 @@ glyph han-2c5cc:15x16 15 16 // 𬗌
 
 // glyph han-2c5f8:15x16 15 16 // 𬗸
 // ⿱ han-7d47 han-7cf8 // ⿱絇糸
+
+## 120.12
+
+// glyph han-2c5fd:15x16 15 16 // 𬗽
+// ⿱ han-7d30 han-6751 // ⿱細村
 
 ## 120.16
 

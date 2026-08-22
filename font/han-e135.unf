@@ -5,10 +5,15 @@
 glyph han-2c7f4:15x16 15 16 // 𬟴
 ⿰ han-866b:5x16 1 han-5c71:9x16 // ⿰虫山
 
+## 142.4
+
+// glyph han-2c7fb:15x16 15 16 // 𬟻
+// ⿰ han-866b han-516d // ⿰虫六
+
 ## 142.5
 
-// glyph han-2c7ff:15x16 15 16 // 𬟿
-// ⿰ han-866b han-6b63 // ⿰虫正
+glyph han-2c7ff:15x16 15 16 // 𬟿
+⿰ han-866b:5x16 han-6b63:10x16 // ⿰虫正
 
 glyph han-2c800:15x16 15 16 // 𬠀
 ⿰ han-866b:7x16 1 han-767d:6x16 // ⿰虫白
@@ -121,10 +126,18 @@ glyph han-2c9aa:15x16 15 16 // 𬦪
 glyph han-2c9ae:15x16 15 16 // 𬦮
 ⿰ han-27fb7:5x16 1 han-8033:9x16 // ⿰𧾷耳
 
+// glyph han-2c9b0:15x16 15 16 // 𬦰
+// ⿰ han-27fb7 han-767e // ⿰𧾷百
+
 ## 157.7
 
 glyph han-2c9b2:15x16 15 16 // 𬦲
 ⿰ han-27fb7:5x16 1 han-8eca:9x16 // ⿰𧾷車
+
+## 157.8
+
+// glyph han-2c9b6:15x16 15 16 // 𬦶
+// ⿰ han-27fb7 han-5230 // ⿰𧾷到
 
 ## 157.11
 
@@ -134,12 +147,18 @@ glyph han-2c9b2:15x16 15 16 // 𬦲
 // glyph han-2c9cb:15x16 15 16 // 𬧋
 // ⿰ han-27fb7 han-65ac // ⿰𧾷斬
 
+// glyph han-2c9d0:15x16 15 16 // 𬧐
+// ⿰ han-27fb7 han-7d30 // ⿰𧾷細
+
 # CJK unified ideographs extension E: 車 (159)
 
 ## 159.5
 
 // glyph han-2c9f2:15x16 15 16 // 𬧲
 // ⿱ han-53ef han-8eca // ⿱可車
+
+// glyph han-2c9f3:15x16 15 16 // 𬧳
+// ⿰ han-8eca han-7535 // ⿰車电
 
 # CJK unified ideographs extension E: 邑 (163)
 
@@ -150,13 +169,16 @@ glyph han-2ca73:15x16 15 16 // 𬩳
 
 ## 163.4
 
-// glyph han-2ca75:15x16 15 16 // 𬩵
-// ⿰ han-4e2d han-961d // ⿰中阝
+glyph han-2ca75:15x16 15 16 // 𬩵
+⿰ han-4e2d:9x16 1 han-961d:5x16-r // ⿰中阝
 
 ## 163.5
 
 glyph han-2ca77:15x16 15 16 // 𬩷
 ⿰ han-5360:9x16 2 han-961d:4x16-r // ⿰占阝
+
+// glyph han-2ca78:15x16 15 16 // 𬩸
+// ⿰ han-7533 han-961d // ⿰申阝
 
 ## 163.9
 

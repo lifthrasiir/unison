@@ -54,10 +54,21 @@ $$../vV'..`Vv\..$$
 $$.vV/......\Vv.$$
 $$/Vv'......`vV\$$
 
+## 154.3
+
+// glyph han-8ca1:15x16 15 16 // 財
+// ⿰ han-8c9d han-624d // ⿰貝才
+
+// glyph han-8ca2:15x16 15 16 // 貢
+// ⿱ han-5de5 han-8c9d // ⿱工貝
+
 ## 154.4
 
 glyph han-8ca5:15x16 15 16 // 貥
 ⿰ han-8c9d:6x16 han-4ea2:9x16 // ⿰貝亢
+
+// glyph han-8ca6:15x16 15 16 // 貦
+// ⿰ han-8c9d han-5143 // ⿰貝元
 
 // glyph han-8ca7:15x16 15 16 // 貧
 // ⿱ han-5206 han-8c9d // ⿱分貝
@@ -181,8 +192,8 @@ glyph han-8db5:15x16 15 16 // 趵
 glyph han-8dbb:15x16 15 16 // 趻
 ⿰ han-27fb7:5x16 1 han-4eca:9x16 // ⿰𧾷今
 
-// glyph han-8dbe:15x16 15 16 // 趾
-// ⿰ han-27fb7 han-6b62 // ⿰𧾷止
+glyph han-8dbe:15x16 15 16 // 趾
+⿰ han-27fb7:5x16 han-6b62:10x16 // ⿰𧾷止
 
 glyph han-8dc0:15x16 15 16 // 跀
 ⿰ han-27fb7:5x16 1 han-6708:9x16 // ⿰𧾷月
@@ -192,14 +203,17 @@ glyph han-8dc0:15x16 15 16 // 跀
 glyph han-8dc6:15x16 15 16 // 跆
 ⿰ han-27fb7:5x16 1 han-53f0:9x16 // ⿰𧾷台
 
-// glyph han-8dc7:15x16 15 16 // 跇
-// ⿰ han-27fb7 han-4e16 // ⿰𧾷世
+glyph han-8dc7:15x16 15 16 // 跇
+⿰ han-27fb7:5x16 1 han-4e16:9x16 // ⿰𧾷世
 
 glyph han-8dc9-($han-regions):15x16 15 16 // 跉
 ⿰ han-27fb7:5x16 1 han-4ee4-($han-regions):9x16 // ⿰𧾷令
 
 glyph han-8dcc:15x16 15 16 // 跌
 ⿰ han-27fb7:5x16 1 han-5931:9x16 // ⿰𧾷失
+
+glyph han-8dcd:15x16 15 16 // 跍
+⿰ han-27fb7:5x16 1 han-53e4:9x16 // ⿰𧾷古
 
 // glyph han-8dcf:15x16 15 16 // 跏
 // ⿰ han-27fb7 han-52a0 // ⿰𧾷加
@@ -218,6 +232,9 @@ glyph han-8dd5:15x16 15 16 // 跕
 
 glyph han-8dd6:15x16 15 16 // 跖
 ⿰ han-27fb7:5x16 1 han-77f3:9x16 // ⿰𧾷石
+
+// glyph han-8dd7:15x16 15 16 // 跗
+// ⿰ han-27fb7 han-4ed8 // ⿰𧾷付
 
 glyph han-8dd9:15x16 15 16 // 跙
 ⿰ han-27fb7:5x16 1 han-4e14:9x16 // ⿰𧾷且

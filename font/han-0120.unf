@@ -56,8 +56,17 @@ glyph han-7cfd:15x16 15 16 // 糽
 
 ## 120.3
 
+glyph han-7d02:15x16 15 16 // 紂
+⿰ han-7cf9:5x16 1 han-5bf8:9x16 // ⿰糹寸
+
+// glyph han-7d03:15x16 15 16 // 紃
+// ⿰ han-7cf9 han-5ddd // ⿰糹川
+
 glyph han-7d04:15x16 15 16 // 約
 ⿰ han-7cf9:5x16 1 han-52fa:9x16 // ⿰糹勺
+
+glyph han-7d05:15x16 15 16 // 紅
+⿰ han-7cf9:5x16 1 han-5de5:9x16 // ⿰糹工
 
 ## 120.4
 
@@ -72,11 +81,26 @@ glyph han-7d24:15x16 15 16 // 紤
 
 ## 120.5
 
+// glyph han-7d28:15x16 15 16 // 紨
+// ⿰ han-7cf9 han-4ed8 // ⿰糹付
+
 glyph han-7d29:15x16 15 16 // 紩
 ⿰ han-7cf9:5x16 1 han-5931:9x16 // ⿰糹失
 
-// glyph han-7d32:15x16 15 16 // 紲
-// ⿰ han-7cf9 han-4e16 // ⿰糹世
+// glyph han-7d2c:15x16 15 16 // 紬
+// ⿰ han-7cf9 han-7531 // ⿰糹由
+
+// glyph han-7d2f:15x16 15 16 // 累
+// ⿱ han-7530 han-7cf8 // ⿱田糸
+
+glyph han-7d30:15x16 15 16 // 細
+⿰ han-7cf9:5x16 1 han-7530:9x16 // ⿰糹田
+
+glyph han-7d32:15x16 15 16 // 紲
+⿰ han-7cf9:5x16 1 han-4e16:9x16 // ⿰糹世
+
+// glyph han-7d33:15x16 15 16 // 紳
+// ⿰ han-7cf9 han-7533 // ⿰糹申
 
 glyph han-7d34:15x16 15 16 // 紴
 ⿰ han-7cf9:5x16 1 han-76ae:9x16 // ⿰糹皮
@@ -106,6 +130,9 @@ glyph han-7d50:15x16 15 16 // 結
 
 glyph han-7d53:15x16 15 16 // 絓
 ⿰ han-7cf9:5x16 1 han-572d:9x16 // ⿰糹圭
+
+// glyph han-7d54:15x16 15 16 // 絔
+// ⿰ han-7cf9 han-767e // ⿰糹百
 
 glyph han-7d5e:15x16 15 16 // 絞
 ⿰ han-7cf9:5x16 1 han-4ea4:9x16 // ⿰糹交
@@ -150,8 +177,8 @@ glyph han-7d87:15x16 15 16 // 綇
 
 ## 120.8
 
-// glyph han-7d9d:15x16 15 16 // 綝
-// ⿰ han-7cf9 han-6797 // ⿰糹林
+glyph han-7d9d:15x16 15 16 // 綝
+⿲ han-7cf9:5x16 han-6728:5x16 han-6728:5x16 // ⿲糹木木
 
 glyph han-7da2:15x16 15 16 // 綢
 ⿰ han-7cf9:5x16 han-5468:10x16 // ⿰糹周
@@ -171,8 +198,8 @@ glyph han-7daa:15x16 15 16 // 綪
 glyph han-7dad:15x16 15 16 // 維
 ⿰ han-7cf9:5x16 1 han-96b9:9x16 // ⿰糹隹
 
-// glyph han-7db3:15x16 15 16 // 綳
-// ⿰ han-7cf9 han-670b // ⿰糹朋
+glyph han-7db3:15x16 15 16 // 綳
+⿲ han-7cf9:5x16 han-6708:5x16 han-6708:5x16 // ⿲糹月月
 
 glyph han-7db6:15x16 15 16 // 綶
 ⿰ han-7cf9:5x16 1 han-679c:9x16 // ⿰糹果
@@ -194,8 +221,8 @@ glyph han-7dd2:15x16 15 16 // 緒
 // glyph han-7dd6:15x16 15 16 // 緖
 // ⿰ han-7cf8 han-8005 // ⿰糸者
 
-// glyph han-7dd7:15x16 15 16 // 緗
-// ⿰ han-7cf9 han-76f8 // ⿰糹相
+glyph han-7dd7:15x16 15 16 // 緗
+⿲ -1 han-7cf9:5x16 han-6728:5x16 han-76ee:6x16 // ⿲糹木目
 
 glyph han-7dd9:15x16 15 16 // 緙
 ⿰ han-7cf9:5x16 1 han-9769:9x16 // ⿰糹革

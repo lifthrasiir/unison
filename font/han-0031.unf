@@ -155,14 +155,17 @@ $$......@@......$$
 $$......@@......$$
 @@@@@@@@@@@@@@@@@@
 
+// glyph han-5733:15x16 15 16 // 圳
+// ⿰ han-571f han-5ddd // ⿰土川
+
 glyph han-5734:15x16 15 16 // 圴
 ⿰ han-571f:7x16 han-52fa:7x16 // ⿰土勺
 
-// glyph han-5735:15x16 15 16 // 圵
-// ⿰ han-571f han-4e0a // ⿰土上
+glyph han-5735:15x16 15 16 // 圵
+⿰ han-571f:5x16-l 1 han-4e0a:9x16 // ⿰土上
 
-// glyph han-5737:15x16 15 16 // 圷
-// ⿰ han-571f han-4e0b // ⿰土下
+glyph han-5737:15x16 15 16 // 圷
+⿰ han-571f:5x16-l 1 han-4e0b:9x16 // ⿰土下
 
 glyph han-5738:15x16 15 16 // 圸
 ⿰ han-571f:5x16-l 1 han-5c71:9x16 // ⿰土山
@@ -175,8 +178,11 @@ glyph han-573b:15x16 15 16 // 圻
 // glyph han-573c:15x16 15 16 // 圼
 // ⿱ han-65e5 han-571f // ⿱日土
 
-// glyph han-5740:15x16 15 16 // 址
-// ⿰ han-571f han-6b62 // ⿰土止
+glyph han-5740:15x16 15 16 // 址
+⿰ han-571f:5x16-l han-6b62:10x16 // ⿰土止
+
+// glyph han-5743:15x16 15 16 // 坃
+// ⿰ han-571f han-5143 // ⿰土元
 
 glyph han-5745:15x16 15 16 // 坅
 ⿰ han-571f:7x16 1 han-4eca:7x16 // ⿰土今
@@ -193,10 +199,19 @@ glyph han-574e:15x16 15 16 // 坎
 glyph han-5751:15x16 15 16 // 坑
 ⿰ han-571f:7x16 1 han-4ea2:7x16 // ⿰土亢
 
+// glyph han-5756:15x16 15 16 // 坖
+// ⿱ han-5143 han-571f // ⿱元土
+
+// glyph han-5759:15x16 15 16 // 坙
+// ⿳ han-4e00 han-5ddb han-571f // ⿳一巛土
+
 ## 32.5
 
 glyph han-5761:15x16 15 16 // 坡
 ⿰ han-571f:5x16-l 1 han-76ae:9x16 // ⿰土皮
+
+// glyph han-5764:15x16 15 16 // 坤
+// ⿰ han-571f han-7533 // ⿰土申
 
 glyph han-5765:15x16 15 16 // 坥
 ⿰ han-571f:7x16 1 han-4e14:7x16 // ⿰土且
@@ -221,6 +236,9 @@ glyph han-577b:15x16 15 16 // 坻
 
 glyph han-577d-($han-regions):15x16 15 16 // 坽
 ⿰ han-571f:7x16 han-4ee4-($han-regions):7x16 // ⿰土令
+
+// glyph han-577f:15x16 15 16 // 坿
+// ⿰ han-571f han-4ed8 // ⿰土付
 
 glyph han-5789:15x16 15 16 // 垉
 ⿰ han-571f:7x16 han-5305:7x16 // ⿰土包
@@ -274,10 +292,16 @@ glyph han-57cc:15x16 15 16 // 埌
 glyph han-57d4:15x16 15 16 // 埔
 ⿰ han-571f:7x16 1 han-752b:7x16 // ⿰土甫
 
+// glyph han-57d8:15x16 15 16 // 埘
+// ⿰ han-571f han-65f6 // ⿰土时
+
 ## 32.8
 
 // glyph han-57dc:15x16 15 16 // 埜
 // ⿱ han-6797 han-571f // ⿱林土
+
+// glyph han-57e0:15x16 15 16 // 埠
+// ⿰ han-571f han-961c // ⿰土阜
 
 glyph han-57e3:15x16 15 16 // 埣
 ⿰ han-571f:7x16 1 han-5352:7x16 // ⿰土卒
@@ -357,6 +381,9 @@ glyph han-5834:15x16 15 16 // 場
 
 glyph han-5835:15x16 15 16 // 堵
 ⿰ han-571f:7x16 1 han-8005:7x16 // ⿰土者
+
+// glyph han-583c:15x16 15 16 // 堼
+// ⿱ han-5c01 han-571f // ⿱封土
 
 ## 32.10
 

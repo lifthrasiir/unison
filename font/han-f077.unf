@@ -2,16 +2,16 @@
 
 ## 77.4
 
-// glyph han-2db5c:15x16 15 16 // 𭭜
-// ⿰ han-6b62 han-65a4 // ⿰止斤
+glyph han-2db5c:15x16 15 16 // 𭭜
+⿰ han-6b62:8x16 han-65a4:7x16 // ⿰止斤
 
 // glyph han-2db5d:15x16 15 16 // 𭭝
 // ⿱ han-6b62 han-706b // ⿱止火
 
 ## 77.5
 
-// glyph han-2db5e:15x16 15 16 // 𭭞
-// ⿰ han-6b62 han-4e14 // ⿰止且
+glyph han-2db5e:15x16 15 16 // 𭭞
+⿰ han-6b62:8x16 han-4e14:7x16 // ⿰止且
 
 ## 77.7
 
@@ -20,8 +20,13 @@
 
 ## 77.8
 
-// glyph han-2db66:15x16 15 16 // 𭭦
-// ⿰ han-6b62 han-9752 // ⿰止青
+glyph han-2db66:15x16 15 16 // 𭭦
+⿰ han-6b62:10x16 han-9752:5x16 // ⿰止青
+
+## 77.12
+
+// glyph han-2db74:15x16 15 16 // 𭭴
+// ⿱ han-23956 han-23956 // ⿱𣥖𣥖
 
 # CJK unified ideographs extension F: 氏 (83)
 
@@ -37,6 +42,12 @@ glyph han-2dbf1:15x16 15 16 // 𭯱
 // glyph han-2dbfe:15x16 15 16 // 𭯾
 // ⿰ han-6c35 han-6253 // ⿰氵打
 
+// glyph han-2dbff:15x16 15 16 // 𭯿
+// ⿰ han-6c35 han-520a // ⿰氵刊
+
+// glyph han-2dc00:15x16 15 16 // 𭰀
+// ⿰ han-6c35 han-529f // ⿰氵功
+
 ## 85.7
 
 // glyph han-2dc1b:15x16 15 16 // 𭰛
@@ -44,8 +55,11 @@ glyph han-2dbf1:15x16 15 16 // 𭯱
 
 ## 85.9
 
-// glyph han-2dc4c:15x16 15 16 // 𭱌
-// ⿲ han-6c35 han-8033 han-5e72 // ⿲氵耳干
+// glyph han-2dc46:15x16 15 16 // 𭱆
+// ⿰ han-6c35 han-20712 // ⿰氵𠜒
+
+glyph han-2dc4c:15x16 15 16 // 𭱌
+⿲ han-6c35:3x16 han-8033:7x16 han-5e72:5x16 // ⿲氵耳干
 
 // glyph han-2dc51:15x16 15 16 // 𭱑
 // ⿰ han-6c35 han-7700 // ⿰氵眀
@@ -65,8 +79,16 @@ glyph han-2dbf1:15x16 15 16 // 𭯱
 
 ## 85.16
 
+// glyph han-2dce0:15x16 15 16 // 𭳠
+// ⿲ han-6c35 han-7532 han-9ce5 // ⿲氵甲鳥
+
 // glyph han-2dce5:15x16 15 16 // 𭳥
 // ⿰ han-6c35 han-9836 // ⿰氵頶
+
+## 85.21
+
+// glyph han-2dcfc:15x16 15 16 // 𭳼
+// ⿰ han-6c5f han-96da // ⿰江雚
 
 # CJK unified ideographs extension F: 火 (86)
 
@@ -74,6 +96,11 @@ glyph han-2dbf1:15x16 15 16 // 𭯱
 
 // glyph han-2dcff:15x16 15 16 // 𭳿
 // ⿰ han-706b han-4e5a // ⿰火乚
+
+## 86.3
+
+// glyph han-2dd03:15x16 15 16 // 𭴃
+// ⿱ han-5de5 han-706b // ⿱工火
 
 ## 86.4
 
@@ -102,6 +129,9 @@ glyph han-2dd3c:15x16 15 16 // 𭴼
 ⿰ han-706b:7x16 1 han-9752:7x16 // ⿰火青
 
 ## 86.9
+
+// glyph han-2dd4e:15x16 15 16 // 𭵎
+// ⿰ han-706b han-5247 // ⿰火則
 
 // glyph han-2dd58:15x16 15 16 // 𭵘
 // ⿰ han-706b han-4fca // ⿰火俊

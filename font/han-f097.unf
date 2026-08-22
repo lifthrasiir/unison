@@ -1,9 +1,49 @@
+# CJK unified ideographs extension F: 田 (102)
+
+## 102.4
+
+// glyph han-2dec3:15x16 15 16 // 𭻃
+// ⿱ han-7530 han-5206 // ⿱田分
+
+## 102.5
+
+glyph han-2dec7:15x16 15 16 // 𭻇
+⿰ han-7530:7x16-l 1 han-53e4:7x16 // ⿰田古
+
+## 102.8
+
+// glyph han-2dedc:15x16 15 16 // 𭻜
+// ⿰ han-7530 han-6797 // ⿰田林
+
+// glyph han-2dede:15x16 15 16 // 𭻞
+// ⿱ han-7530 han-708e // ⿱田炎
+
+## 102.11
+
+// glyph han-2deed:15x16 15 16 // 𭻭
+// ⿱ han-88ab han-7530 // ⿱被田
+
+## 102.12
+
+glyph han-2def1:15x16 15 16 // 𭻱
+⿰ han-7530:7x16-l 1 han-756a:7x16 // ⿰田番
+
 # CJK unified ideographs extension F: 白 (106)
 
 ## 106.2
 
 glyph han-2df46:15x16 15 16 // 𭽆
 ⿰ han-767d:6x16 han-4e01:9x16 // ⿰白丁
+
+## 106.3
+
+// glyph han-2df48:15x16 15 16 // 𭽈
+// ⿱ han-767e han-4e04 // ⿱百丄
+
+## 106.4
+
+// glyph han-2df4b:15x16 15 16 // 𭽋
+// ⿰ han-767d han-5143 // ⿰白元
 
 ## 106.5
 
@@ -14,6 +54,11 @@ glyph han-2df46:15x16 15 16 // 𭽆
 
 // glyph han-2df57:15x16 15 16 // 𭽗
 // ⿱ han-767d han-7f8a // ⿱白羊
+
+## 106.9
+
+// glyph han-2df5d:15x16 15 16 // 𭽝
+// ⿰ han-767e han-679c // ⿰百果
 
 ## 106.10
 
@@ -39,6 +84,11 @@ glyph han-2df6b:15x16 15 16 // 𭽫
 // glyph han-2df98:15x16 15 16 // 𭾘
 // ⿰ han-76ee han-516b // ⿰目八
 
+## 109.4
+
+// glyph han-2dfa1:15x16 15 16 // 𭾡
+// ⿳ han-76ee han-4e00 han-5ddb // ⿳目一巛
+
 ## 109.5
 
 glyph han-2dfa8:15x16 15 16 // 𭾨
@@ -52,6 +102,9 @@ glyph han-2dfb5:15x16 15 16 // 𭾵
 # CJK unified ideographs extension F: 石 (112)
 
 ## 112.4
+
+// glyph han-2e00d:15x16 15 16 // 𮀍
+// ⿰ han-77f3 han-738b // ⿰石王
 
 // glyph han-2e00e:15x16 15 16 // 𮀎
 // ⿱ han-5206 han-77f3 // ⿱分石
@@ -78,13 +131,13 @@ glyph han-2dfb5:15x16 15 16 // 𭾵
 
 ## 113.2
 
-// glyph han-2e05c:15x16 15 16 // 𮁜
-// ⿰ han-793a han-5202 // ⿰示刂
+glyph han-2e05c:15x16 15 16 // 𮁜
+⿰ 1 han-793b:7x16 1 han-5202:5x16 // ⿰礻刂
 
 ## 113.3
 
-// glyph han-2e05e:15x16 15 16 // 𮁞
-// ⿰ han-793a han-4e0a // ⿰示上
+glyph han-2e05e:15x16 15 16 // 𮁞
+⿰ han-793b:5x16 1 han-4e0a:9x16 // ⿰礻上
 
 ## 113.5
 
@@ -102,6 +155,9 @@ glyph han-2e0b0:15x16 15 16 // 𮂰
 ⿰ han-79be:9x16 1 han-961d:5x16-r // ⿰禾阝
 
 ## 115.4
+
+// glyph han-2e0b4:15x16 15 16 // 𮂴
+// ⿰ han-79be han-738b // ⿰禾王
 
 glyph han-2e0b8:15x16 15 16 // 𮂸
 ⿰ han-79be:7x16 1 han-6b20:7x16 // ⿰禾欠

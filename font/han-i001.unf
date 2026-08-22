@@ -12,6 +12,13 @@
 // glyph han-2ebf4:15x16 15 16 // 𮯴
 // ⿰ han-4ebb han-513f // ⿰亻儿
 
+# CJK unified ideographs extension I: 士 (33)
+
+## 33.6
+
+// glyph han-2ec31:15x16 15 16 // 𮰱
+// ⿰ han-5409 han-624d // ⿰吉才
+
 # CJK unified ideographs extension I: 女 (38)
 
 ## 38.8
@@ -25,6 +32,13 @@
 
 // glyph han-2ec68:15x16 15 16 // 𮱨
 // ⿱ han-5c71 han-8033 // ⿱山耳
+
+# CJK unified ideographs extension I: 心 (61)
+
+## 61.7
+
+// glyph han-2ec86:15x16 15 16 // 𮲆
+// ⿱ han-752b han-5fc3 // ⿱甫心
 
 # CJK unified ideographs extension I: 日 (72)
 
@@ -59,10 +73,15 @@ glyph han-2ece4:15x16 15 16 // 𮳤
 
 # CJK unified ideographs extension I: 玉 (96)
 
+## 96.3
+
+// glyph han-2ed00:15x16 15 16 // 𮴀
+// ⿰ han-248e9 han-5140 // ⿰𤣩兀
+
 ## 96.4
 
-// glyph han-2ed04:15x16 15 16 // 𮴄
-// ⿰ han-248e9 han-4e2d // ⿰𤣩中
+glyph han-2ed04:15x16 15 16 // 𮴄
+⿰ han-248e9:5x16 1 han-4e2d:9x16 // ⿰𤣩中
 
 ## 96.7
 
@@ -96,7 +115,22 @@ glyph han-2ed44:15x16 15 16 // 𮵄
 // glyph han-2ed50:15x16 15 16 // 𮵐
 // ⿱ han-77f3 han-5146 // ⿱石兆
 
+# CJK unified ideographs extension I: 米 (119)
+
+## 119.11
+
+// glyph han-2ed7c:15x16 15 16 // 𮵼
+// ⿲ han-7c73 han-7530 han-7c73 // ⿲米田米
+
 # CJK unified ideographs extension I: 耳 (128)
+
+## 128.5
+
+// glyph han-2ed90:15x16 15 16 // 𮶐
+// ⿰ han-8033 han-7531 // ⿰耳由
+
+// glyph han-2ed91:15x16 15 16 // 𮶑
+// ⿰ han-8033 han-7389 // ⿰耳玉
 
 ## 128.6
 
@@ -110,7 +144,19 @@ glyph han-2ed92:15x16 15 16 // 𮶒
 // glyph han-2edbc:15x16 15 16 // 𮶼
 // ⿰ han-866b han-793a // ⿰虫示
 
+# CJK unified ideographs extension I: 衣 (145)
+
+## 145.5
+
+// glyph han-2edc0:15x16 15 16 // 𮷀
+// ⿰ han-8864 han-7389 // ⿰衤玉
+
 # CJK unified ideographs extension I: 讠 (149')
+
+## 149'.5
+
+glyph han-2edc6:15x16 15 16 // 𮷆
+⿰ han-8ba0:5x16 1 han-7530:9x16 // ⿰讠田
 
 ## 149'.12
 
@@ -126,12 +172,20 @@ glyph han-2ede9:15x16 15 16 // 𮷩
 
 # CJK unified ideographs extension I: 钅 (167')
 
+## 167'.4
+
+// glyph han-2edf8:15x16 15 16 // 𮷸
+// ⿰ han-9485 han-5143 // ⿰钅元
+
 ## 167'.5
 
 // glyph han-2edff:15x16 15 16 // 𮷿
 // ⿰ han-9485 han-793a // ⿰钅示
 
 ## 167'.7
+
+// glyph han-2ee0a:15x16 15 16 // 𮸊
+// ⿰ han-9485 han-5229 // ⿰钅利
 
 glyph han-2ee0f:15x16 15 16 // 𮸏
 ⿰ han-9485:6x16 1 han-590b:7x16 // ⿰钅夋

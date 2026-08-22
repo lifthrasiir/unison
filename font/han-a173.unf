@@ -10,6 +10,9 @@ glyph han-4a57:15x16 15 16 // 䩗
 glyph han-4a5a:15x16 15 16 // 䩚
 ⿰ han-9769:7x16 han-6c10:8x16 // ⿰革氐
 
+// glyph han-4a5c:15x16 15 16 // 䩜
+// ⿰ han-9769 han-7531 // ⿰革由
+
 glyph han-4a5e:15x16 15 16 // 䩞
 ⿰ han-9769:7x16 1 han-5360:7x16 // ⿰革占
 
@@ -26,6 +29,9 @@ glyph han-4a64:15x16 15 16 // 䩤
 glyph han-4a71:15x16 15 16 // 䩱
 ⿰ han-9769:7x16 1 han-4fde:7x16 // ⿰革俞
 
+// glyph han-4a74:15x16 15 16 // 䩴
+// ⿰ han-9769 han-80e1 // ⿰革胡
+
 glyph han-4a75:15x16 15 16 // 䩵
 ⿰ han-9769:7x16 1 han-8ecd:7x16 // ⿰革軍
 
@@ -35,6 +41,11 @@ glyph han-4a7b:15x16 15 16 // 䩻
 ⿰ han-9769:7x16 1 han-99ac:7x16 // ⿰革馬
 
 # CJK unified ideographs extension A: 頁 (181)
+
+## 181.3
+
+// glyph han-4ab2:15x16 15 16 // 䪲
+// ⿰ han-5140 han-9801 // ⿰兀頁
 
 ## 181.5
 
@@ -75,6 +86,11 @@ glyph han-4af0:15x16 15 16 // 䫰
 // glyph han-4dbf:15x16 15 16 // 䶿
 // ⿰ han-98e0 han-513f // ⿰飠儿
 
+## 184.4
+
+// glyph han-4b27:15x16 15 16 // 䬧
+// ⿰ han-98e0 han-5143 // ⿰飠元
+
 ## 184.5
 
 glyph han-4b2b:15x16 15 16 // 䬫
@@ -96,6 +112,11 @@ glyph han-4b39:15x16 15 16 // 䬹
 
 glyph han-4b3a:15x16 15 16 // 䬺
 ⿰ han-98e0:7x16 1 han-7f8a:7x16 // ⿰飠羊
+
+## 184.7
+
+// glyph han-4b42:15x16 15 16 // 䭂
+// ⿰ han-98e0 han-9091 // ⿰飠邑
 
 # CJK unified ideographs extension A: 馬 (187)
 
@@ -159,6 +180,9 @@ glyph han-4bc7:15x16 15 16 // 䯇
 ⿰ han-9aa8:9x16 han-529b:6x16 // ⿰骨力
 
 ## 188.4
+
+// glyph han-4bc8:15x16 15 16 // 䯈
+// ⿰ han-9aa8 han-5143 // ⿰骨元
 
 glyph han-4bc9:15x16 15 16 // 䯉
 ⿰ han-9aa8:7x16 1 han-6b20:7x16 // ⿰骨欠
@@ -232,6 +256,12 @@ glyph han-4c4a:15x16 15 16 // 䱊
 // glyph han-4c51:15x16 15 16 // 䱑
 // ⿰ han-9b5a han-6298 // ⿰魚折
 
+// glyph han-4c52:15x16 15 16 // 䱒
+// ⿰ han-9b5a han-9091 // ⿰魚邑
+
+// glyph han-4c58:15x16 15 16 // 䱘
+// ⿱ han-5229 han-9b5a // ⿱利魚
+
 ## 195.8
 
 glyph han-4c5d:15x16 15 16 // 䱝
@@ -276,13 +306,22 @@ glyph han-4c86:15x16 15 16 // 䲆
 glyph han-4ca7:15x16 15 16 // 䲧
 ⿰ han-571f:7x16 1 han-9ce5:7x16 // ⿰土鳥
 
+glyph han-4ca8:15x16 15 16 // 䲨
+⿰ han-5de5:7x16 1 han-9ce5:7x16 // ⿰工鳥
+
 ## 196.4
+
+// glyph han-4cae:15x16 15 16 // 䲮
+// ⿰ han-5143 han-9ce5 // ⿰元鳥
 
 glyph han-4cb3:15x16 15 16 // 䲳
 ⿰ han-4ea2:7x16 1 han-9ce5:7x16 // ⿰亢鳥
 
 glyph han-4cb4:15x16 15 16 // 䲴
 ⿰ han-706b:5x16-l 1 han-9ce5:9x16 // ⿰火鳥
+
+// glyph han-4cb6:15x16 15 16 // 䲶
+// ⿱ han-5143 han-9ce5 // ⿱元鳥
 
 // glyph han-4cb7:15x16 15 16 // 䲷
 // ⿱ han-9ce5 han-6728 // ⿱鳥木

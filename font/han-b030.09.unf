@@ -2,11 +2,20 @@
 
 ## 30.9
 
+// glyph han-20dcc:15x16 15 16 // 𠷌
+// ⿰ han-53e3 han-5247 // ⿰口則
+
 // glyph han-20dd8:15x16 15 16 // 𠷘
 // ⿰ han-53e3 han-79cc // ⿰口秌
 
+// glyph han-20de1:15x16 15 16 // 𠷡
+// ⿱ han-767e han-5408 // ⿱百合
+
 // glyph han-20de4:15x16 15 16 // 𠷤
 // ⿰ han-53e3 han-80de // ⿰口胞
+
+// glyph han-20df5:15x16 15 16 // 𠷵
+// ⿰ han-53e3 han-7d02 // ⿰口紂
 
 // glyph han-20df9:15x16 15 16 // 𠷹
 // ⿰ han-53e3 han-76f8 // ⿰口相
@@ -14,8 +23,14 @@
 // glyph han-20e10:15x16 15 16 // 𠸐
 // ⿰ han-53e3 han-887f // ⿰口衿
 
+// glyph han-20e11:15x16 15 16 // 𠸑
+// ⿰ han-53e3 han-524a // ⿰口削
+
 // glyph han-20e1e:15x16 15 16 // 𠸞
 // ⿰ han-53e3 han-70b6 // ⿰口炶
+
+// glyph han-20e23:15x16 15 16 // 𠸣
+// ⿰ han-53e3 han-7d05 // ⿰口紅
 
 // glyph han-20e27:15x16 15 16 // 𠸧
 // ⿰ han-53e3 han-606a // ⿰口恪
@@ -30,6 +45,9 @@ glyph han-20e8e:15x16 15 16 // 𠺎
 
 // glyph han-20e90:15x16 15 16 // 𠺐
 // ⿱ han-5405 han-898b // ⿱吅見
+
+// glyph han-20e93:15x16 15 16 // 𠺓
+// ⿰ han-53e3 han-91d7 // ⿰口釗
 
 // glyph han-20e98:15x16 15 16 // 𠺘
 // ⿰ han-53e3 han-6d6a // ⿰口浪
@@ -112,6 +130,9 @@ glyph han-20f50:15x16 15 16 // 𠽐
 
 // glyph han-20fac:15x16 15 16 // 𠾬
 // ⿰ han-53e3 han-6b3d // ⿰口欽
+
+// glyph han-20fbf:15x16 15 16 // 𠾿
+// ⿰ han-53e3 han-9805 // ⿰口項
 
 // glyph han-20fc0:15x16 15 16 // 𠿀
 // ⿰ han-53e3 han-7a0d // ⿰口稍

@@ -1,3 +1,10 @@
+# CJK unified ideographs extension F: 寸 (41)
+
+## 41.10
+
+// glyph han-2d53b:15x16 15 16 // 𭔻
+// ⿱ han-6d6a han-5bf8 // ⿱浪寸
+
 # CJK unified ideographs extension F: 山 (46)
 
 ## 46.3
@@ -5,13 +12,13 @@
 // glyph han-2d581:15x16 15 16 // 𭖁
 // ⿰ han-5c71 han-4e09 // ⿰山三
 
-// glyph han-2d584:15x16 15 16 // 𭖄
-// ⿰ han-5c71 han-4e0b // ⿰山下
+glyph han-2d584:15x16 15 16 // 𭖄
+⿰ han-5c71:5x16-l 1 han-4e0b:9x16 // ⿰山下
 
 ## 46.4
 
-// glyph han-2d587:15x16 15 16 // 𭖇
-// ⿰ han-5c71 han-6b62 // ⿰山止
+glyph han-2d587:15x16 15 16 // 𭖇
+⿰ han-5c71:5x16-l han-6b62:10x16 // ⿰山止
 
 ## 46.5
 
@@ -20,6 +27,11 @@
 
 // glyph han-2d594:15x16 15 16 // 𭖔
 // ⿱ han-52a0 han-5c71 // ⿱加山
+
+## 46.6
+
+// glyph han-2d596:15x16 15 16 // 𭖖
+// ⿰ han-5c71 han-767e // ⿰山百
 
 ## 46.7
 
@@ -49,6 +61,41 @@
 // glyph han-2d5f4:15x16 15 16 // 𭗴
 // ⿱ han-5c71 han-9bae // ⿱山鮮
 
+# CJK unified ideographs extension F: 巛 (47)
+
+## 47.2
+
+// glyph han-2d5fa:15x16 15 16 // 𭗺
+// ⿱ han-5ddb han-4e03 // ⿱巛七
+
+## 47.3
+
+// glyph han-2d5fc:15x16 15 16 // 𭗼
+// ⿱ han-5ddb han-5c71 // ⿱巛山
+
+## 47.7
+
+// glyph han-2d601:15x16 15 16 // 𭘁
+// ⿰ han-590b han-5ddb // ⿰夋巛
+
+# CJK unified ideographs extension F: 工 (48)
+
+## 48.3
+
+// glyph han-2d603:15x16 15 16 // 𭘃
+// ⿱ han-5de5 han-4e0b // ⿱工下
+
+// glyph han-2d604:15x16 15 16 // 𭘄
+// ⿰ han-5de5 han-5140 // ⿰工兀
+
+glyph han-2d605:15x16 15 16 // 𭘅
+⿰ han-5de5:7x16 1 han-52fa:7x16 // ⿰工勺
+
+## 48.6
+
+glyph han-2d607:15x16 15 16 // 𭘇
+⿰ han-5de5:7x16 1 han-5404:7x16 // ⿰工各
+
 # CJK unified ideographs extension F: 干 (51)
 
 ## 51.5
@@ -73,6 +120,11 @@ glyph han-2d643:15x16 15 16 // 𭙃
 glyph han-2d71c:15x16 15 16 // 𭜜
 ⿰ han-5fc4:7x16 1 han-76ee:7x16 // ⿰忄目
 
+## 61.6
+
+// glyph han-2d72b:15x16 15 16 // 𭜫
+// ⿱ han-866b han-5fc3 // ⿱虫心
+
 ## 61.7
 
 // glyph han-2d73b:15x16 15 16 // 𭜻
@@ -80,3 +132,29 @@ glyph han-2d71c:15x16 15 16 // 𭜜
 
 glyph han-2d73c:15x16 15 16 // 𭜼
 ⿰ han-5fc4:7x16 han-8c9d:8x16 // ⿰忄貝
+
+// glyph han-2d746:15x16 15 16 // 𭝆
+// ⿱ han-2bc11 han-5fc3 // ⿱𫰑心
+
+// glyph han-2d747:15x16 15 16 // 𭝇
+// ⿱ han-59a2 han-5fc3 // ⿱妢心
+
+## 61.8
+
+// glyph han-2d759:15x16 15 16 // 𭝙
+// ⿱ han-6ce2 han-5fc3 // ⿱波心
+
+## 61.9
+
+// glyph han-2d764:15x16 15 16 // 𭝤
+// ⿱ han-8036 han-5fc3 // ⿱耶心
+
+## 61.11
+
+// glyph han-2d793:15x16 15 16 // 𭞓
+// ⿱ han-63a8 han-5fc3 // ⿱推心
+
+## 61.14
+
+// glyph han-2d7c5:15x16 15 16 // 𭟅
+// ⿰ han-5fc4 han-21b3d // ⿰忄𡬽

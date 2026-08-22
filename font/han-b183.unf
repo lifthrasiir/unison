@@ -10,6 +10,9 @@
 glyph han-29688:15x16 15 16 // 𩚈
 ⿰ han-98e0:7x16 1 han-52fa:7x16 // ⿰飠勺
 
+// glyph han-2968c:15x16 15 16 // 𩚌
+// ⿰ han-98e0 han-5140 // ⿰飠兀
+
 glyph han-29694:15x16 15 16 // 𩚔
 ⿰ han-98e0:7x16 1 han-5973:7x16 // ⿰飠女
 
@@ -23,14 +26,26 @@ glyph han-296a3:15x16 15 16 // 𩚣
 
 ## 184.5
 
+glyph han-296a9:15x16 15 16 // 𩚩
+⿰ han-98e0:7x16 1 han-53e4:7x16 // ⿰飠古
+
 // glyph han-296aa:15x16 15 16 // 𩚪
 // ⿰ han-98e0 han-793a // ⿰飠示
 
-// glyph han-296ab:15x16 15 16 // 𩚫
-// ⿰ han-98e0 han-6b63 // ⿰飠正
+glyph han-296ab:15x16 15 16 // 𩚫
+⿰ han-98e0:7x16 han-6b63:8x16 // ⿰飠正
+
+// glyph han-296ad:15x16 15 16 // 𩚭
+// ⿰ han-98e0 han-4ed8 // ⿰飠付
+
+// glyph han-296b2:15x16 15 16 // 𩚲
+// ⿰ han-98e0 han-7532 // ⿰飠甲
 
 glyph han-296b9-($han-regions):15x16 15 16 // 𩚹
 ⿰ han-98e0:7x16 1 han-4ee4-($han-regions):7x16 // ⿰飠令
+
+// glyph han-296bd:15x16 15 16 // 𩚽
+// ⿰ han-98e0 han-7389 // ⿰飠玉
 
 glyph han-296c7:15x16 15 16 // 𩛇
 ⿰ han-98e0:7x16 han-767d:8x16 // ⿰飠白

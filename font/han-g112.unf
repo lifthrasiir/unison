@@ -7,6 +7,9 @@ glyph han-309b3:15x16 15 16 // 𰦳
 
 ## 112.9
 
+// glyph han-309cc:15x16 15 16 // 𰧌
+// ⿱ han-77f3 han-5247 // ⿱石則
+
 // glyph han-309ce:15x16 15 16 // 𰧎
 // ⿰ han-77f3 han-94a6 // ⿰石钦
 
@@ -34,6 +37,11 @@ glyph han-309b3:15x16 15 16 // 𰦳
 // glyph han-30a1b:15x16 15 16 // 𰨛
 // ⿰ han-79be han-5200 // ⿰禾刀
 
+## 115.5
+
+// glyph han-30a21:15x16 15 16 // 𰨡
+// ⿰ han-79be han-7532 // ⿰禾甲
+
 ## 115.8
 
 // glyph han-30a2e:15x16 15 16 // 𰨮
@@ -46,13 +54,26 @@ glyph han-309b3:15x16 15 16 // 𰦳
 
 # CJK unified ideographs extension G: 米 (119)
 
+## 119.4
+
+// glyph han-30aac:15x16 15 16 // 𰪬
+// ⿰ han-7c73 han-738b // ⿰米王
+
 ## 119.5
 
 glyph han-30ab2:15x16 15 16 // 𰪲
 ⿰ han-7c73:7x16 han-53ef:8x16 // ⿰米可
 
+// glyph han-30ab4:15x16 15 16 // 𰪴
+// ⿰ han-7c73 han-7532 // ⿰米甲
+
 glyph han-30ab5:15x16 15 16 // 𰪵
 ⿰ han-7c73:5x16 1 han-5931:9x16 // ⿰米失
+
+## 119.7
+
+// glyph han-30abd:15x16 15 16 // 𰪽
+// ⿰ han-7c73 han-5229 // ⿰米利
 
 ## 119.9
 
@@ -74,6 +95,11 @@ glyph han-30ac6:15x16 15 16 // 𰫆
 
 # CJK unified ideographs extension G: 糸 (120)
 
+## 120.5
+
+// glyph han-30ae0:15x16 15 16 // 𰫠
+// ⿰ han-7cf9 han-7532 // ⿰糹甲
+
 ## 120.22
 
 // glyph han-30afb:15x16 15 16 // 𰫻
@@ -92,6 +118,11 @@ glyph han-30b59:15x16 15 16 // 𰭙
 
 // glyph han-30b81:15x16 15 16 // 𰮁
 // ⿰ han-6708 han-5200 // ⿰月刀
+
+## 130.9
+
+// glyph han-30bb8:15x16 15 16 // 𰮸
+// ⿰ han-6708 han-5247 // ⿰月則
 
 # CJK unified ideographs extension G: 虫 (142)
 

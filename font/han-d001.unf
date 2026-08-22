@@ -5,12 +5,26 @@
 // glyph han-2b75b:15x16 15 16 // 𫝛
 // ⿱ han-76f8 han-540c // ⿱相同
 
+# CJK unified ideographs extension D: 日 (72)
+
+## 72.5
+
+// glyph han-2b782:15x16 15 16 // 𫞂
+// ⿰ han-65e5 han-7389 // ⿰日玉
+
 # CJK unified ideographs extension D: 水 (85)
 
 ## 85.10
 
 // glyph han-2b79b:15x16 15 16 // 𫞛
 // ⿰ han-6c35 han-8bf8 // ⿰氵诸
+
+# CJK unified ideographs extension D: 田 (102)
+
+## 102.6
+
+// glyph han-2b7ab:15x16 15 16 // 𫞫
+// ⿱ han-7530 han-8863 // ⿱田衣
 
 # CJK unified ideographs extension D: 白 (106)
 
@@ -23,8 +37,8 @@ glyph han-2b7ae:15x16 15 16 // 𫞮
 
 ## 149'.4
 
-// glyph han-2b7de:15x16 15 16 // 𫟞
-// ⿰ han-8ba0 han-6b62 // ⿰讠止
+glyph han-2b7de:15x16 15 16 // 𫟞
+⿰ han-8ba0:5x16 han-6b62:10x16 // ⿰讠止
 
 # CJK unified ideographs extension D: 钅 (167')
 

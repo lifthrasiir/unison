@@ -5,6 +5,12 @@
 glyph han-6e1d:15x16 15 16 // 渝
 ⿰ han-6c35:5x16 1 han-4fde:9x16 // ⿰氵俞
 
+// glyph han-6e2c:15x16 15 16 // 測
+// ⿰ han-6c35 han-5247 // ⿰氵則
+
+// glyph han-6e31:15x16 15 16 // 渱
+// ⿰ han-6c35 han-8679 // ⿰氵虹
+
 glyph han-6e34:15x16 15 16 // 渴
 ⿰ han-6c35:5x16 1 han-66f7:9x16 // ⿰氵曷
 
@@ -19,6 +25,12 @@ glyph han-6e4f:15x16 15 16 // 湏
 
 // glyph han-6e50:15x16 15 16 // 湐
 // ⿰ han-6c35 han-67cf // ⿰氵柏
+
+// glyph han-6e56:15x16 15 16 // 湖
+// ⿰ han-6c35 han-80e1 // ⿰氵胡
+
+// glyph han-6e57:15x16 15 16 // 湗
+// ⿰ han-6c35 han-5c01 // ⿰氵封
 
 // glyph han-6e58:15x16 15 16 // 湘
 // ⿰ han-6c35 han-76f8 // ⿰氵相
@@ -82,6 +94,9 @@ glyph han-6f86:15x16 15 16 // 澆
 
 // glyph han-6f8c:15x16 15 16 // 澌
 // ⿰ han-6c35 han-65af // ⿰氵斯
+
+// glyph han-6f92:15x16 15 16 // 澒
+// ⿰ han-6c35 han-9805 // ⿰氵項
 
 // glyph han-6f94:15x16 15 16 // 澔
 // ⿰ han-6c35 han-7693 // ⿰氵皓

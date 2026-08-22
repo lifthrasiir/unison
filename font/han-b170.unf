@@ -7,6 +7,9 @@
 
 ## 170.3
 
+glyph han-28e16:15x16 15 16 // 𨸖
+⿰ han-961d:5x16-l 1 han-5de5:9x16 // ⿰阝工
+
 glyph han-28e17:15x16 15 16 // 𨸗
 ⿰ han-961d:5x16-l 1 han-5e72:9x16 // ⿰阝干
 
@@ -24,6 +27,14 @@ glyph han-28e23:15x16 15 16 // 𨸣
 // glyph han-28e26:15x16 15 16 // 𨸦
 // ⿰ han-961d han-5e75 // ⿰阝幵
 
+## 170.5
+
+// glyph han-28e2c:15x16 15 16 // 𨸬
+// ⿰ han-961d han-7533 // ⿰阝申
+
+// glyph han-28e3a:15x16 15 16 // 𨸺
+// ⿰ han-961d han-7532 // ⿰阝甲
+
 ## 170.6
 
 glyph han-28e41:15x16 15 16 // 𨹁
@@ -35,10 +46,18 @@ glyph han-28e4d:15x16 15 16 // 𨹍
 glyph han-28e57:15x16 15 16 // 𨹗
 ⿰ han-961d:5x16-l 1 han-5e76:9x16 // ⿰阝并
 
+## 170.7
+
+// glyph han-28e5d:15x16 15 16 // 𨹝
+// ⿰ han-961d han-9091 // ⿰阝邑
+
 ## 170.8
 
 // glyph han-28e79:15x16 15 16 // 𨹹
 // ⿰ han-961d han-670b // ⿰阝朋
+
+// glyph han-28e7a:15x16 15 16 // 𨹺
+// ⿰ han-961d han-961c // ⿰阝阜
 
 glyph han-28e81:15x16 15 16 // 𨺁
 ⿰ han-961d:5x16-l 1 han-679c:9x16 // ⿰阝果
@@ -76,24 +95,35 @@ glyph han-28f67:15x16 15 16 // 𨽧
 // glyph han-28f85:15x16 15 16 // 𨾅
 // ⿰ han-4e03 han-96b9 // ⿰七隹
 
+## 172.3
+
+glyph han-28f8a:15x16 15 16 // 𨾊
+⿰ han-5de5:7x16 1 han-96b9:7x16 // ⿰工隹
+
 ## 172.4
 
 glyph han-28f92:15x16 15 16 // 𨾒
 ⿰ han-4ea2:7x16 1 han-96b9:7x16 // ⿰亢隹
 
-// glyph han-28f96:15x16 15 16 // 𨾖
-// ⿰ han-6b63 han-96b9 // ⿰正隹
+glyph han-28f96:15x16 15 16 // 𨾖
+⿰ han-6b63:8x16 han-96b9:7x16 // ⿰正隹
 
 ## 172.5
 
 glyph han-28fa0-($han-regions):15x16 15 16 // 𨾠
 ⿰ han-4ee4-($han-regions):7x16 1 han-96b9:7x16 // ⿰令隹
 
+// glyph han-28fa1:15x16 15 16 // 𨾡
+// ⿰ han-7533 han-96b9 // ⿰申隹
+
 glyph han-28fa4:15x16 15 16 // 𨾤
 ⿰ han-5931:7x16 1 han-96b9:7x16 // ⿰失隹
 
 glyph han-28fa6:15x16 15 16 // 𨾦
 ⿰ han-6c10:8x16 han-96b9:7x16 // ⿰氐隹
+
+// glyph han-28faa:15x16 15 16 // 𨾪
+// ⿰ han-4ed8 han-96b9 // ⿰付隹
 
 glyph han-28fb1:15x16 15 16 // 𨾱
 ⿰ han-53f0:7x16 1 han-96b9:7x16 // ⿰台隹
@@ -138,6 +168,9 @@ glyph han-28ffc:15x16 15 16 // 𨿼
 ⿰ han-5352:7x16 1 han-96b9:7x16 // ⿰卒隹
 
 ## 172.9
+
+// glyph han-29009:15x16 15 16 // 𩀉
+// ⿱ han-80e1 han-96b9 // ⿱胡隹
 
 // glyph han-29012:15x16 15 16 // 𩀒
 // ⿱ han-2e0b8 han-96b9 // ⿱𮂸隹

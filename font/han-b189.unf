@@ -20,3 +20,13 @@ glyph han-29adb:15x16 15 16 // 𩫛
 
 glyph han-29add:15x16 15 16 // 𩫝
 ⿰ han-9ad8:7x16 han-5351:8x16 // ⿰高卑
+
+# CJK unified ideographs extension B: 鬥 (191)
+
+## 191.-5
+
+// glyph han-29c0a:15x16 15 16 // 𩰊
+// ⿰ han-738b han-4e28 // ⿰王丨
+
+// glyph han-29c0b:15x16 15 16 // 𩰋
+// ⿰ han-4e28 han-738b // ⿰丨王

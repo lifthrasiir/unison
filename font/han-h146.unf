@@ -1,3 +1,22 @@
+# CJK unified ideographs extension H: 言 (149)
+
+## 149.3
+
+// glyph han-32061:15x16 15 16 // 𲁡
+// ⿰ han-8a01 han-624d // ⿰訁才
+
+## 149.8
+
+// glyph han-3206a:15x16 15 16 // 𲁪
+// ⿰ han-8a01 han-5230 // ⿰訁到
+
+# CJK unified ideographs extension H: 讠 (149')
+
+## 149'.5
+
+// glyph han-32086:15x16 15 16 // 𲂆
+// ⿰ han-8ba0 han-7532 // ⿰讠甲
+
 # CJK unified ideographs extension H: 貝 (154)
 
 ## 154.6
@@ -11,6 +30,11 @@ glyph han-320b2:15x16 15 16 // 𲂲
 ⿰ han-8c9d:6x16 han-66f7:9x16 // ⿰貝曷
 
 # CJK unified ideographs extension H: 足 (157)
+
+## 157.5
+
+// glyph han-320db:15x16 15 16 // 𲃛
+// ⿰ han-27fb7 han-7531 // ⿰𧾷由
 
 ## 157.6
 
@@ -74,10 +98,21 @@ glyph han-321d2:15x16 15 16 // 𲇒
 
 ## 167'.3
 
+// glyph han-321ed:15x16 15 16 // 𲇭
+// ⿰ han-9485 han-624d // ⿰钅才
+
 glyph han-321ef:15x16 15 16 // 𲇯
 ⿰ han-9485:5x16 1 han-5c71:9x16 // ⿰钅山
 
+## 167'.4
+
+// glyph han-321f4:15x16 15 16 // 𲇴
+// ⿰ han-9485 han-5fc3 // ⿰钅心
+
 ## 167'.9
+
+// glyph han-3220b:15x16 15 16 // 𲈋
+// ⿰ han-9485 han-80e1 // ⿰钅胡
 
 // glyph han-3220d:15x16 15 16 // 𲈍
 // ⿰ han-9485 han-8036 // ⿰钅耶
@@ -94,6 +129,11 @@ glyph han-32221:15x16 15 16 // 𲈡
 
 # CJK unified ideographs extension H: 阜 (170)
 
+## 170.4
+
+// glyph han-3224a:15x16 15 16 // 𲉊
+// ⿰ han-961d han-516d // ⿰阝六
+
 ## 170.5
 
 glyph han-3224c:15x16 15 16 // 𲉌
@@ -101,6 +141,11 @@ glyph han-3224c:15x16 15 16 // 𲉌
 
 glyph han-3224d:15x16 15 16 // 𲉍
 ⿰ han-961d:5x16-l 1 han-53f0:9x16 // ⿰阝台
+
+## 170.9
+
+// glyph han-32258:15x16 15 16 // 𲉘
+// ⿰ han-961d han-5247 // ⿰阝則
 
 ## 170.14
 
@@ -128,8 +173,11 @@ glyph han-3226e:15x16 15 16 // 𲉮
 
 ## 181.5
 
-// glyph han-322aa:15x16 15 16 // 𲊪
-// ⿰ han-9801 han-6b63 // ⿰頁正
+glyph han-322aa:15x16 15 16 // 𲊪
+⿰ han-9801:7x16 han-6b63:8x16 // ⿰頁正
+
+// glyph han-322ab:15x16 15 16 // 𲊫
+// ⿰ han-7533 han-9801 // ⿰申頁
 
 glyph han-322ac:15x16 15 16 // 𲊬
 ⿰ han-5305:7x16 1 han-9801:7x16 // ⿰包頁
@@ -164,3 +212,15 @@ glyph han-322d5:15x16 15 16 // 𲋕
 
 // glyph han-32316:15x16 15 16 // 𲌖
 // ⿱ han-529b han-9ad8 // ⿱力高
+
+# CJK unified ideographs extension H: 魚 (195)
+
+## 195.4
+
+// glyph han-32332:15x16 15 16 // 𲌲
+// ⿰ han-9b5a han-516d // ⿰魚六
+
+## 195.8
+
+// glyph han-3233a:15x16 15 16 // 𲌺
+// ⿰ han-9b5a han-59d1 // ⿰魚姑

@@ -1,5 +1,10 @@
 # CJK unified ideographs extension G: 乙 (5)
 
+## 5.3
+
+// glyph han-30031:15x16 15 16 // 𰀱
+// ⿱ han-5ddc han-5ddc // ⿱巜巜
+
 ## 5.5
 
 // glyph han-30039:15x16 15 16 // 𰀹
@@ -18,6 +23,9 @@
 // glyph han-30049:15x16 15 16 // 𰁉
 // ⿱ han-662f han-4e59 // ⿱是乙
 
+// glyph han-3004a:15x16 15 16 // 𰁊
+// ⿱ han-5247 han-4e59 // ⿱則乙
+
 # CJK unified ideographs extension G: 二 (7)
 
 ## 7.2
@@ -35,6 +43,11 @@
 // glyph han-3006e:15x16 15 16 // 𰁮
 // ⿰ han-767d han-4eba // ⿰白人
 
+## 9.6
+
+// glyph han-30082:15x16 15 16 // 𰂂
+// ⿰ han-4ebb han-6c5f // ⿰亻江
+
 ## 9.7
 
 // glyph han-30085:15x16 15 16 // 𰂅
@@ -46,10 +59,22 @@ glyph han-30087:15x16 15 16 // 𰂇
 // glyph han-30088:15x16 15 16 // 𰂈
 // ⿲ han-4ebb han-4e28 han-6c5d // ⿲亻丨汝
 
+## 9.9
+
+// glyph han-300a0:15x16 15 16 // 𰂠
+// ⿰ han-4ebb han-7d02 // ⿰亻紂
+
 ## 9.10
 
 // glyph han-300a9:15x16 15 16 // 𰂩
 // ⿰ han-4ebb han-7956 // ⿰亻祖
+
+# CJK unified ideographs extension G: 八 (12)
+
+## 12.8
+
+// glyph han-300e3:15x16 15 16 // 𰃣
+// ⿰ han-516d han-5408 // ⿰六合
 
 # CJK unified ideographs extension G: 刀 (18)
 
@@ -63,13 +88,21 @@ glyph han-30087:15x16 15 16 // 𰂇
 // glyph han-3011b:15x16 15 16 // 𰄛
 // ⿰ han-5200 han-52fa // ⿰刀勺
 
-// glyph han-3011c:15x16 15 16 // 𰄜
-// ⿰ han-5fc4 han-5202 // ⿰忄刂
+glyph han-3011c:15x16 15 16 // 𰄜
+⿰ 1 han-5fc4:7x16 1 han-5202:5x16 // ⿰忄刂
 
 ## 18.5
 
 // glyph han-30124:15x16 15 16 // 𰄤
 // ⿰ han-5200 han-5305 // ⿰刀包
+
+## 18.9
+
+// glyph han-30138:15x16 15 16 // 𰄸
+// ⿰ han-5200 han-5247 // ⿰刀則
+
+// glyph han-30139:15x16 15 16 // 𰄹
+// ⿰ han-5247 han-5200 // ⿰則刀
 
 # CJK unified ideographs extension G: 勹 (20)
 
@@ -89,6 +122,9 @@ glyph han-30087:15x16 15 16 // 𰂇
 
 glyph han-301cf:15x16 15 16 // 𰇏
 ⿰ han-53e3:7x16 1 han-76ee:7x16 // ⿰口目
+
+glyph han-301d0:15x16 15 16 // 𰇐
+⿰ han-53e3:5x16-l 1 han-7530:9x16 // ⿰口田
 
 ## 30.6
 
@@ -172,6 +208,11 @@ glyph han-302f6:15x16 15 16 // 𰋶
 
 glyph han-302fa:15x16 15 16 // 𰋺
 ⿰ han-5973:5x16-l 1 han-706b:9x16 // ⿰女火
+
+## 38.6
+
+// glyph han-302ff:15x16 15 16 // 𰋿
+// ⿰ han-5973 han-767e // ⿰女百
 
 ## 38.9
 

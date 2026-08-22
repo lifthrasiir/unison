@@ -1,0 +1,25 @@
+# CJK unified ideographs extension B: 寸 (41)
+
+## 41.5
+
+glyph han-21b1f:15x16 15 16 // 𡬟
+⿰ han-79be:5x16 1 han-5bf8:9x16 // ⿰禾寸
+
+// glyph han-21b24:15x16 15 16 // 𡬤
+// ⿰ han-7533 han-5bf8 // ⿰申寸
+
+// glyph han-21b26:15x16 15 16 // 𡬦
+// ⿳ han-516b han-5de5 han-5bf8 // ⿳八工寸
+
+## 41.9
+
+// glyph han-21b37:15x16 15 16 // 𡬷
+// ⿱ han-5247 han-5bf8 // ⿱則寸
+
+## 41.11
+
+glyph han-21b3d:15x16 15 16 // 𡬽
+⿰ han-7968:7x16 1 han-5bf8:7x16 // ⿰票寸
+
+glyph han-21b41:15x16 15 16 // 𡭁
+⿰ han-7fcf:7x16 1 han-5bf8:7x16 // ⿰翏寸

@@ -5,6 +5,16 @@
 // glyph han-2c027:15x16 15 16 // 𬀧
 // ⿱ han-65e5 han-4e0b // ⿱日下
 
+## 72.5
+
+glyph han-2c02c:15x16 15 16 // 𬀬
+⿰ han-65e5:6x16 han-53e4:9x16 // ⿰日古
+
+## 72.9
+
+// glyph han-2c045:15x16 15 16 // 𬁅
+// ⿰ han-65e5 han-8679 // ⿰日虹
+
 ## 72.11
 
 // glyph han-2c051:15x16 15 16 // 𬁑
@@ -15,6 +25,20 @@
 // glyph han-2c055:15x16 15 16 // 𬁕
 // ⿱ han-65e5 han-582f // ⿱日堯
 
+# CJK unified ideographs extension E: 曰 (73)
+
+## 73.3
+
+// glyph han-2c05f:15x16 15 16 // 𬁟
+// ⿱ han-65e5 han-5bf8 // ⿱日寸
+
+# CJK unified ideographs extension E: 月 (74)
+
+## 74.3
+
+// glyph han-2c071:15x16 15 16 // 𬁱
+// ⿰ han-6708 han-624d // ⿰月才
+
 # CJK unified ideographs extension E: 木 (75)
 
 ## 75.1
@@ -23,6 +47,9 @@
 // ⿰ han-6728 han-4e00 // ⿰木一
 
 ## 75.3
+
+// glyph han-2c09d:15x16 15 16 // 𬂝
+// ⿱ han-6728 han-5bf8 // ⿱木寸
 
 // glyph han-2c09e:15x16 15 16 // 𬂞
 // ⿱ han-4e0a han-6728 // ⿱上木
@@ -51,6 +78,11 @@
 // glyph han-2c0de:15x16 15 16 // 𬃞
 // ⿰ han-6728 han-76fa // ⿰木盺
 
+## 75.10
+
+// glyph han-2c0f4:15x16 15 16 // 𬃴
+// ⿰ han-6797 han-767e // ⿰林百
+
 ## 75.11
 
 // glyph han-2c115:15x16 15 16 // 𬄕
@@ -64,12 +96,20 @@
 // glyph han-2c119:15x16 15 16 // 𬄙
 // ⿰ han-6728 han-671f // ⿰木期
 
+// glyph han-2c11d:15x16 15 16 // 𬄝
+// ⿰ han-6728 han-9805 // ⿰木項
+
 ## 75.15
 
 // glyph han-2c141:15x16 15 16 // 𬅁
 // ⿰ han-6728 han-9821 // ⿰木頡
 
 # CJK unified ideographs extension E: 欠 (76)
+
+## 76.4
+
+// glyph han-2c15f:15x16 15 16 // 𬅟
+// ⿱ han-6b20 han-5fc3 // ⿱欠心
 
 ## 76.7
 
@@ -119,6 +159,9 @@ glyph han-2c1d6:15x16 15 16 // 𬇖
 
 ## 85.7
 
+// glyph han-2c1e7:15x16 15 16 // 𬇧
+// ⿰ han-6c5f han-4e2d // ⿰江中
+
 // glyph han-2c1e9:15x16 15 16 // 𬇩
 // ⿰ han-6c35 han-675c // ⿰氵杜
 
@@ -137,8 +180,11 @@ glyph han-2c1d6:15x16 15 16 // 𬇖
 
 ## 86.3
 
-// glyph han-2c277:15x16 15 16 // 𬉷
-// ⿰ han-706b han-4e0a // ⿰火上
+glyph han-2c274:15x16 15 16 // 𬉴
+⿰ han-706b:5x16-l 1 han-5bf8:9x16 // ⿰火寸
+
+glyph han-2c277:15x16 15 16 // 𬉷
+⿰ han-706b:5x16-l 1 han-4e0a:9x16 // ⿰火上
 
 // glyph han-2c278:15x16 15 16 // 𬉸
 // ⿱ han-706b han-53e3 // ⿱火口
