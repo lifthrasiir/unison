@@ -291,7 +291,7 @@ glyph han-7393:15x16 15 16 // 玓
 // ⿰ han-248e9 han-5ddd // ⿰𤣩川
 
 glyph han-7395:15x16 15 16 // 玕
-⿰ han-248e9:5x16 han-5e72:9x16 // ⿰𤣩干
+⿰ han-248e9:5x16 1 han-5e72:9x16 // ⿰𤣩干
 
 ## 96.4
 
@@ -299,7 +299,7 @@ glyph han-73a2:15x16 15 16 // 玢
 ⿰ han-248e9:7x16 1 han-5206:7x16 // ⿰𤣩分
 
 glyph han-73a5:15x16 15 16 // 玥
-⿰ han-248e9:7x16 han-6708:7x16 // ⿰𤣩月
+⿰ han-248e9:7x16 1 han-6708:7x16 // ⿰𤣩月
 
 // glyph han-73a8:15x16 15 16 // 玨
 // ⿰ han-248e9 han-738b // ⿰𤣩王
@@ -325,7 +325,7 @@ glyph han-73b8:15x16 15 16 // 玸
 ⿰ han-248e9:7x16 1 han-5305:7x16 // ⿰𤣩包
 
 glyph han-73bb:15x16 15 16 // 玻
-⿰ han-248e9:5x16 han-76ae:9x16 // ⿰𤣩皮
+⿰ han-248e9:5x16 1 han-76ae:9x16 // ⿰𤣩皮
 
 glyph han-73bd:15x16 15 16 // 玽
 ⿰ han-248e9:5x16 1 han-53e5:9x16 // ⿰𤣩句
@@ -360,7 +360,7 @@ glyph han-73c8:15x16 15 16 // 珈
 ## 96.6
 
 glyph han-73d3:15x16 15 16 // 珓
-⿰ han-248e9:5x16 han-4ea4:9x16 // ⿰𤣩交
+⿰ han-248e9:5x16 1 han-4ea4:9x16 // ⿰𤣩交
 
 glyph han-73dc:15x16 15 16 // 珜
 ⿰ han-248e9:5x16 1 han-7f8a:9x16 // ⿰𤣩羊
@@ -409,7 +409,7 @@ glyph han-7417:15x16 15 16 // 琗
 ⿰ han-248e9:7x16 1 han-5352:7x16 // ⿰𤣩卒
 
 glyph han-741f:15x16 15 16 // 琟
-⿰ han-248e9:5x16 han-96b9:9x16 // ⿰𤣩隹
+⿰ han-248e9:5x16 1 han-96b9:9x16 // ⿰𤣩隹
 
 glyph han-742a:15x16 15 16 // 琪
 ⿰ han-248e9:5x16 1 han-5176:9x16 // ⿰𤣩其
@@ -435,10 +435,10 @@ glyph han-743f:15x16 15 16 // 琿
 ⿰ han-248e9:5x16 1 han-8ecd:9x16 // ⿰𤣩軍
 
 glyph han-7445:15x16 15 16 // 瑅
-⿰ han-248e9:5x16 han-662f:9x16 // ⿰𤣩是
+⿰ han-248e9:5x16 1 han-662f:9x16 // ⿰𤣩是
 
 glyph han-7452:15x16 15 16 // 瑒
-⿰ han-248e9:5x16 han-661c:9x16 // ⿰𤣩昜
+⿰ han-248e9:5x16 1 han-661c:9x16 // ⿰𤣩昜
 
 glyph han-7458:15x16 15 16 // 瑘
 ⿲ han-248e9:3x16 han-8033:7x16 han-961d:5x16-r // ⿲𤣩耳阝
@@ -452,7 +452,7 @@ glyph han-745c:15x16 15 16 // 瑜
 ## 96.10
 
 glyph han-746a:15x16 15 16 // 瑪
-⿰ han-248e9:5x16 han-99ac:9x16 // ⿰𤣩馬
+⿰ han-248e9:5x16 1 han-99ac:9x16 // ⿰𤣩馬
 
 glyph han-746f:15x16 15 16 // 瑯
 ⿲ han-248e9:3x16 han-826f:7x16 han-961d:5x16-r // ⿲𤣩良阝
@@ -484,12 +484,12 @@ glyph han-74c0:15x16 15 16 // 瓀
 ## 96.17
 
 glyph han-74d6:15x16 15 16 // 瓖
-⿰ han-248e9:5x16 han-8944:9x16 // ⿰𤣩襄
+⿰ han-248e9:5x16 1 han-8944:9x16 // ⿰𤣩襄
 
 ## 96.18
 
 glyph han-74d8:15x16 15 16 // 瓘
-⿰ han-248e9:5x16 han-96da:9x16 // ⿰𤣩雚
+⿰ han-248e9:5x16 1 han-96da:9x16 // ⿰𤣩雚
 
 # CJK unified ideographs: 用 (101)
 

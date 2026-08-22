@@ -74,7 +74,7 @@ glyph han-2006f:15x16 15 16 // 𠁯
 ## 6.6
 
 glyph han-20116-($han-regions):15x16 15 16 // 𠄖
-⿰ han-4ee4-($han-regions):7x16 han-4e01:7x16 // ⿰令丁
+⿰ han-4ee4-($han-regions):7x16 1 han-4e01:7x16 // ⿰令丁
 
 # CJK unified ideographs extension B: 二 (7)
 

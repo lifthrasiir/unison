@@ -254,7 +254,7 @@ glyph han-8f4e:15x16 15 16 // 轎
 ⿰ han-8eca:5x16 1 han-55ac:9x16 // ⿰車喬
 
 glyph han-8f53:15x16 15 16 // 轓
-⿰ han-8eca:7x16 han-756a:7x16 // ⿰車番
+⿰ han-8eca:7x16 1 han-756a:7x16 // ⿰車番
 
 glyph han-8f54:15x16 15 16 // 轔
 ⿰ han-8eca:5x16 1 han-7ca6:9x16 // ⿰車粦

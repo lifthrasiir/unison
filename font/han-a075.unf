@@ -232,7 +232,7 @@ glyph han-3da5:15x16 15 16 // 㶥
 ## 86.8
 
 glyph han-3dc4:15x16 15 16 // 㷄
-⿰ han-706b:7x16 han-679c:7x16 // ⿰火果
+⿰ han-706b:7x16 1 han-679c:7x16 // ⿰火果
 
 // glyph han-3dc6:15x16 15 16 // 㷆
 // ⿰ han-706b han-961c // ⿰火阜
@@ -316,7 +316,7 @@ glyph han-3eba:15x16 15 16 // 㺺
 ## 96.6
 
 glyph han-3ec2:15x16 15 16 // 㻂
-⿰ han-248e9:5x16 han-5e76:9x16 // ⿰𤣩并
+⿰ han-248e9:5x16 1 han-5e76:9x16 // ⿰𤣩并
 
 ## 96.7
 
