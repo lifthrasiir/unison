@@ -32,6 +32,14 @@ parts are drawn at no size that tiles the box (`--ignore-box` writes it anyway),
 or because the only parts it has are themselves composites
 (`--include-composite-parts`).
 
+Such a line is a request, not a drawing, so a later run *revives* it: a character
+an earlier run left commented out is put through the same feasibility test again,
+and once the parts allow the line -- a narrower variant of an operand having been
+drawn in the meantime -- the block is rewritten uncommented in place, from
+whichever sequence today's parts make best. Only a block this script itself wrote
+is rewritten that way; one that has been edited by hand is left alone and
+reported.
+
 Usage:
     python3 scripts/gen_ids_composites.py [--dry-run] [--limit N]
 """
@@ -194,6 +202,11 @@ class Inventory:
     # lends no variant to anything, but it is a declaration, so writing it again
     # would only duplicate it.
     declared: set[int] = field(default_factory=set)
+    # cp -> (slice file stem, the block's lines), for a commented-out block that
+    # is this script's own output verbatim and so can be *revived*: rewritten
+    # uncommented once the parts allow the line. A block written by hand, or one
+    # a pattern declares several characters through, is left out of this.
+    declared_blocks: dict[int, tuple[str, list[str]]] = field(default_factory=dict)
 
 
 NAME_CP_RE = re.compile(r"^han-([0-9a-f]{4,5})(?:-[a-z])?(?:\.[0-9a-f]{1,2})?$")
@@ -224,10 +237,17 @@ def load_inventory(font_dir: str, parts: dict[str, list[str]]) -> Inventory:
             commented = line.lstrip("/ ")
             if line.startswith("//") and commented.startswith("glyph "):
                 toks = commented.split()
+                cps = []
                 for expanded in expand_pattern(toks[1], parts) if len(toks) > 1 else []:
                     m = NAME_CP_RE.match(split_variant(expanded)[0])
                     if m:
-                        inv.declared.add(int(m.group(1), 16))
+                        cps.append(int(m.group(1), 16))
+                inv.declared.update(cps)
+                if len(cps) == 1 and (i == 0 or not lines[i - 1].strip()):
+                    end = i + 1
+                    while end < len(lines) and lines[end].strip():
+                        end += 1
+                    inv.declared_blocks[cps[0]] = (fname[:-4], lines[i:end])
                 continue
             if not line.startswith("glyph "):
                 continue
@@ -854,6 +874,33 @@ def build_blocks(op: str, comps: list[int], cp: int, char: str, commented: bool,
     return [head, body]
 
 
+def is_script_block(cp: int, char: str, block: list[str]) -> bool:
+    """Whether a commented-out block is this script's own output.
+
+    Not by comparing it to what today's parts produce: an earlier run may well
+    have written the character from another of its sequences, and picking a
+    different one now is precisely what a newly drawn part does. So the block is
+    regenerated from *itself* -- a block that survives that is one this script
+    wrote, and so one it may rewrite; anything else is a hand edit and says
+    something this script does not know.
+    """
+    if len(block) != 2:
+        return False
+    body = block[1].lstrip("/ ")
+    head, _, rest = body.partition("//")
+    toks = head.split()
+    if not toks or toks[0] not in IDC_ARITY:
+        return False
+    comps = []
+    for tok in toks[1:]:
+        m = NAME_CP_RE.match(tok)
+        if not m:
+            return False
+        comps.append(int(m.group(1), 16))
+    origin = rest.split("<-", 1)[1].strip() if "<-" in rest else None
+    return block == build_blocks(toks[0], comps, cp, char, True, origin)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("-i", "--font-dir", default="font")
@@ -898,15 +945,21 @@ def main() -> int:
     stats = defaultdict(int)
     # slice name -> list of (rs key, cp, block lines)
     plan: dict[str, list[tuple[tuple, int, list[str]]]] = defaultdict(list)
+    # slice name -> the code points whose commented-out block that file is to
+    # lose, because the plan writes the same line uncommented instead
+    removals: dict[str, set[int]] = defaultdict(set)
     made = 0
 
     for cp in sorted(ids):
         if cp in inv.covered:
             stats["already drawn"] += 1
             continue
-        if cp in inv.declared:
-            stats["already declared (commented out)"] += 1
-            continue
+        # A commented-out block is a request, not a drawing: the day a part it
+        # was waiting for is drawn, the very same line becomes writable. So a
+        # declared character is reconsidered rather than skipped -- skipping it
+        # is what left a newly drawn narrow variant unreachable by every line
+        # that had asked for one.
+        revive = cp in inv.declared
         blk = block_of(cp)
         if blk is None:
             stats["outside the han slices"] += 1
@@ -980,6 +1033,19 @@ def main() -> int:
         if not verdict.fits and not args.ignore_box:
             holds.append("parts do not fit the box")
         block = build_blocks(op, comps, cp, entry.char, bool(holds), origin)
+        if revive:
+            # Only a line that is now unheld is worth rewriting, and only where
+            # the block in the file is this script's own output: anything else
+            # is a hand edit, and replacing it would throw away what it says.
+            if holds:
+                stats["already declared (commented out)"] += 1
+                continue
+            old = inv.declared_blocks.get(cp)
+            if old is None or not is_script_block(cp, entry.char, old[1]):
+                stats["declared, now writable, but not this script's own block"] += 1
+                continue
+            removals[old[0]].add(cp)
+            stats["revived (was commented out)"] += 1
         plan[sl.name].append((key, cp, block))
         stats["composite parts" if verdict.kind == "composite" else "hand-drawn parts"] += 1
         if origin:
@@ -988,15 +1054,22 @@ def main() -> int:
             stats["commented out: " + hold] += 1
         made += 1
         if args.verbose:
-            note = ", ".join([verdict.kind] + (["inlined"] if origin else []) + holds)
+            note = ", ".join([verdict.kind] + (["revived"] if revive else [])
+                             + (["inlined"] if origin else []) + holds)
             print(f"  {entry.char} U+{cp:04X} -> {sl.name} {key[0]}{"'" if key[1] else ''}.{key[2]}"
                   f"  {op}{''.join(chr(c) for c in comps)} ({note})", file=sys.stderr)
         if args.limit and made >= args.limit:
             break
 
-    for name, items in sorted(plan.items()):
+    for name in sorted(set(plan) | set(removals)):
+        items = plan.get(name, [])
+        drop = removals.get(name, set())
         path = os.path.join(args.font_dir, name + ".unf")
-        sl = next(s for s in slices if s.name == name)
+        sl = next((s for s in slices if s.name == name), None)
+        if sl is None:
+            print(f"error: {path} is no slice han.unf lists; skipping it", file=sys.stderr)
+            stats["files skipped (unknown slice)"] += 1
+            continue
         if os.path.exists(path):
             sf = SliceFile.load(path, sl.letter, rad_chars)
             before = sf.dumps()
@@ -1010,12 +1083,22 @@ def main() -> int:
         else:
             # a slice with no file yet: `section_for` opens its headings
             sf = SliceFile(path, sl.letter, rad_chars, [], [])
+        if drop:
+            # the revived line replaces the commented-out one wherever it sits,
+            # which is not necessarily the section the new one goes into
+            for g in sf.groups:
+                for sec in g.sections:
+                    sec.blocks = [
+                        b for b in sec.blocks
+                        if not (block_cp(b) in drop and b[0].lstrip().startswith("//"))
+                    ]
         for key, cp, block in sorted(items, key=lambda it: (it[0], it[1])):
             insert_block(sf.section_for(key), cp, block)
         if not args.dry_run:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(sf.dumps())
-        print(f"{'would write' if args.dry_run else 'wrote'} {path}: +{len(items)}", file=sys.stderr)
+        note = f"+{len(items)}" + (f", {len(drop)} revived" if drop else "")
+        print(f"{'would write' if args.dry_run else 'wrote'} {path}: {note}", file=sys.stderr)
 
     print("\nsummary:", file=sys.stderr)
     for k in sorted(stats):
