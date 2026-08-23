@@ -86,26 +86,30 @@ pub(super) fn check_glyphs_and_remaps(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
                     // expanded name, which the expansion does not retain, so
                     // it expands names (not bodies) once more here.
                     //
-                    // Through the `exists` bindings, because a search is the
-                    // one thing that can make one header declare a name twice
-                    // without the source having written it twice: a pattern
-                    // whose captures do not tell two matches apart binds `$N`
-                    // to the same value for both. `None` is a block the search
-                    // left standing for nothing, which declares no name at all.
+                    // Once per match of the `exists` above it, because a
+                    // search is the one thing that can make one header declare
+                    // a name twice without the source having written it twice:
+                    // a pattern whose captures do not tell two matches apart
+                    // binds `$N` to the same value for both. A block the search
+                    // left standing for nothing is walked no times at all.
                     let here = crate::resolve::ItemRef::new(doc_idx, item_idx);
-                    let Some(name_parts) = expansion.exists.parts_at(name_parts, here) else {
-                        continue;
-                    };
-                    let name_str = substitute_name_parts(n, &name_parts);
-                    let expanded: Vec<String> = if is_name_pattern(&name_str) {
-                        // A pattern that fails to expand is already reported
-                        // by the resolution pass.
-                        NamePattern::parse(&name_str)
-                            .map(|e| e.into_vec())
-                            .unwrap_or_default()
-                    } else {
-                        vec![name_str]
-                    };
+                    let mut expanded: Vec<String> = Vec::new();
+                    expansion
+                        .exists
+                        .for_each_binding(name_parts, here, |name_parts| {
+                            let name_str = substitute_name_parts(n, name_parts);
+                            if is_name_pattern(&name_str) {
+                                // A pattern that fails to expand is already
+                                // reported by the resolution pass.
+                                expanded.extend(
+                                    NamePattern::parse(&name_str)
+                                        .map(|e| e.into_vec())
+                                        .unwrap_or_default(),
+                                );
+                            } else {
+                                expanded.push(name_str);
+                            }
+                        });
                     for en in expanded {
                         if let Some((prev_file, prev_line)) = glyph_defs.get(en.as_str()) {
                             issues.push(issue_at(

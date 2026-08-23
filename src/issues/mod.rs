@@ -162,10 +162,11 @@ impl<'a> Cx<'a> {
     /// The index each item comes back with is the **written** one, so a finding
     /// still lands on the line the author can see.
     ///
-    /// A scoped `glyph` block is *not* substituted: its names expand from the
-    /// same header the unscoped ones do, once `$N` is bound, and binding is
-    /// what [`crate::exists::ExistsScopes::parts_at`] is for. Replacing it here
-    /// would hand every such check N blocks where the source has one.
+    /// A scoped `glyph` block or alias is *not* substituted: its names expand
+    /// from the same header the unscoped ones do, once `$N` is bound, and
+    /// binding per match is what
+    /// [`crate::exists::ExistsScopes::for_each_binding`] is for. Replacing it
+    /// here would hand every such check N items where the source has one.
     fn source_items(&self, doc_idx: usize) -> Vec<(usize, &'a DocumentItem)> {
         let doc = self.docs[doc_idx];
         let exists = &self.expansion.exists;

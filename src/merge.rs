@@ -13,11 +13,14 @@
 //!
 //! # What is compared
 //!
-//! Only the expansions of **one block** are ever candidates. Two blocks that
-//! happen to draw the same shape are left alone: measured over `font/` as it
-//! stands, merging those saves 49 glyphs out of 8,719 while landing squarely
-//! on `remap` operands (`hangul-oa` vs `hangul-med-oa-nof`, `zwsp`/`zwj`), and
-//! a rule keyed on a glyph id is the one thing merging can change. The gain
+//! Only the expansions of **one block** are ever candidates — an `exists`
+//! above one included: a search makes one written block run once per match,
+//! and every name it writes across those runs belongs to that one block. Two
+//! blocks that happen to draw the same shape are left alone: measured over
+//! `font/` as it stands, merging those saves 49 glyphs out of 8,719 while
+//! landing squarely on `remap` operands (`hangul-oa` vs `hangul-med-oa-nof`,
+//! `zwsp`/`zwj`), and a rule keyed on a glyph id is the one thing merging can
+//! change. The gain
 //! from a pattern block is the opposite: every han character written with
 //! per-region names is a duplicate.
 //!
@@ -236,31 +239,42 @@ fn collect_blocks(
             let DocumentItem::Glyph { name, body } = item else {
                 continue;
             };
-            // A block governed by an `exists` is a pattern block like any
-            // other once `$N` is bound; the candidates it offers are still one
-            // block's expansions, which is the rule this module rests on.
-            let bound;
-            let name_parts = match exists.scope(crate::resolve::ItemRef::new(doc_idx, item_idx)) {
-                Some(scope) if scope.matches.is_empty() => continue,
-                Some(scope) => {
-                    bound = scope.bindings(name_parts);
-                    &bound
+            if body.keep {
+                continue;
+            }
+            let here = crate::resolve::ItemRef::new(doc_idx, item_idx);
+            let scoped = exists.scope(here).is_some();
+            // A block whose name stands for one name has nothing to merge. The
+            // question is asked before expanding because it is asked of every
+            // glyph block in the font, and expanding one is not free. A scoped
+            // block is past that test by construction: its header names one
+            // glyph *per match*, and it is the matches that make it several.
+            if !scoped && !is_name_pattern(&substitute_name_parts(&name.display(), name_parts)) {
+                continue;
+            }
+            // A scoped block's matches gather into **one** candidate set, not
+            // one each. The rule this module rests on is that the candidates
+            // are what a single written block declares, and a search does not
+            // make a second block — it makes the one block declare more. That
+            // is what folds the two `han-XXXX` a source built from two aliases
+            // of one drawing back into one glyph id.
+            let mut members: Vec<String> = Vec::new();
+            let mut slots: Vec<Vec<String>> = Vec::new();
+            exists.for_each_binding(name_parts, here, |name_parts| {
+                // A block that does not expand is reported by the expansion,
+                // which is where the line is known; here it simply declares
+                // nothing to merge.
+                let Ok(expanded) = expand_glyph_block_slots(name, body, name_parts) else {
+                    return;
+                };
+                for (member, slot) in expanded {
+                    members.push(member);
+                    slots.push(slot);
                 }
-                None => name_parts,
-            };
-            if body.keep || !is_name_pattern(&substitute_name_parts(&name.display(), name_parts)) {
+            });
+            if members.len() < 2 {
                 continue;
             }
-            // A block that does not expand is reported by the expansion, which
-            // is where the line is known; here it simply declares nothing to
-            // merge.
-            let Ok(expanded) = expand_glyph_block_slots(name, body, name_parts) else {
-                continue;
-            };
-            if expanded.len() < 2 {
-                continue;
-            }
-            let (members, slots) = expanded.into_iter().unzip();
             blocks.push(Block { members, slots });
         }
     }

@@ -95,7 +95,22 @@ pub struct AliasMap {
 }
 
 impl AliasMap {
+    /// Every declared alias, with no `exists` in sight.
+    ///
+    /// The callers that read aliases beside the *written* source use this —
+    /// they read a written glyph block the same way, without binding `$N` — so
+    /// an alias a search declares is not in it. Everything that reads glyph
+    /// names as the font will carry them goes through
+    /// [`collect_with_merges`](Self::collect_with_merges), which does bind.
     pub fn collect(docs: &[&Document], name_parts: &NamePartsMap) -> Self {
+        Self::collect_inner(docs, name_parts, None)
+    }
+
+    fn collect_inner(
+        docs: &[&Document],
+        name_parts: &NamePartsMap,
+        exists: Option<&crate::exists::ExistsScopes>,
+    ) -> Self {
         let mut decls: Vec<AliasDecl> = Vec::new();
         let mut diagnostics: Vec<Diagnostic> = Vec::new();
         let mut seen: HashMap<String, Option<ItemRef>> = HashMap::new();
@@ -106,13 +121,38 @@ impl AliasMap {
                     continue;
                 };
                 let origin = Some(ItemRef::new(doc_idx, item_idx));
-                for (name, target) in expand_alias(
-                    &name.display(),
-                    target,
-                    name_parts,
-                    origin,
-                    &mut diagnostics,
-                ) {
+                // An `exists` above it makes the line one alias per match,
+                // each `$N` bound to one string — the same unrolling a scoped
+                // `glyph` block gets, which is what lets a search give every
+                // drawing it found a second name.
+                let mut expanded: Vec<(String, String)> = Vec::new();
+                let mut round = 0usize;
+                let mut per_binding = |name_parts: &NamePartsMap| {
+                    // A pattern the line got wrong is the line's fault, and
+                    // every match fails it the same way, so it is reported on
+                    // the first run and not once per match.
+                    let mut per = Vec::new();
+                    expanded.extend(expand_alias(
+                        &name.display(),
+                        target,
+                        name_parts,
+                        origin,
+                        &mut per,
+                    ));
+                    if round == 0 {
+                        diagnostics.extend(per);
+                    }
+                    round += 1;
+                };
+                match exists {
+                    Some(exists) => exists.for_each_binding(
+                        name_parts,
+                        ItemRef::new(doc_idx, item_idx),
+                        per_binding,
+                    ),
+                    None => per_binding(name_parts),
+                }
+                for (name, target) in expanded {
                     if seen.contains_key(&name) {
                         diagnostics.push(Diagnostic::error(
                             origin,
@@ -185,7 +225,7 @@ impl AliasMap {
         name_parts: &NamePartsMap,
         exists: &crate::exists::ExistsScopes,
     ) -> Self {
-        let mut aliases = Self::collect(docs, name_parts);
+        let mut aliases = Self::collect_inner(docs, name_parts, Some(exists));
         let merges = crate::merge::implicit_merges(docs, name_parts, &aliases, exists);
         // Declared first: `glyph A = B` is what the author wrote, and an
         // implicit merge is only ever a second opinion about the same name.

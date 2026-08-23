@@ -626,3 +626,138 @@ fn a_blank_line_ends_the_carry() {
     }
     assert_eq!(carry, Carry::None);
 }
+
+/// A scoped item runs **once per match**, with each `$N` bound to one string.
+/// The alternative — one run with every slot bound to the whole list — made a
+/// slot combine with the other groups on the line, so `(x|y)` beside a `($1)`
+/// of three matches wrote three names rather than six, and writing the six
+/// needed a `**N` multiplier on the group that had nothing to do with the
+/// search.
+#[test]
+fn a_scoped_block_expands_its_own_groups_per_match() {
+    let d = doc("\
+glyph part-a 1 1
+@@
+glyph part-b 1 1
+@@
+exists part-([a-z])
+glyph made-(x|y)-($1) 1 1 keep
+ref ($0)
+");
+    let r = Resolution::compute(&[&d]);
+    assert_eq!(errors(&r), Vec::<String>::new());
+    assert_eq!(
+        declared(&r),
+        [
+            "made-x-a", "made-x-b", "made-y-a", "made-y-b", "part-a", "part-b"
+        ]
+    );
+}
+
+/// The same for a `ref`: the target names one match, so a group on the header
+/// no longer drags the slot along its own cycle.
+#[test]
+fn a_scoped_block_refs_the_one_match_its_names_were_built_from() {
+    let d = doc("\
+glyph part-a 1 1
+@@
+glyph part-b 1 1
+@@
+exists part-([a-z])
+glyph made-(x|y)-($1) 1 1 keep
+ref ($0)
+");
+    let r = Resolution::compute(&[&d]);
+    let refs: Vec<(String, String)> = r
+        .expansion
+        .items()
+        .filter_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.0.starts_with("made-") => {
+                Some((name.0.clone(), body.refs[0].name.clone()))
+            }
+            _ => None,
+        })
+        .collect();
+    let mut refs = refs;
+    refs.sort();
+    assert_eq!(
+        refs,
+        [
+            ("made-x-a".to_string(), "part-a".to_string()),
+            ("made-x-b".to_string(), "part-b".to_string()),
+            ("made-y-a".to_string(), "part-a".to_string()),
+            ("made-y-b".to_string(), "part-b".to_string()),
+        ]
+    );
+}
+
+/// A `glyph A = B` is one of the three items an `exists` may scope: it declares
+/// a name, which is exactly what a search is for.
+#[test]
+fn a_scoped_alias_is_declared_per_match() {
+    let d = doc("\
+glyph part-a-k 1 1
+@@
+glyph part-b-k 1 1
+@@
+exists part-([a-z])-k
+glyph part-($1) = ($0)
+");
+    let r = Resolution::compute(&[&d]);
+    assert_eq!(errors(&r), Vec::<String>::new());
+    assert_eq!(
+        r.expansion.aliases.resolved_target("part-a"),
+        Some("part-a-k")
+    );
+    assert_eq!(
+        r.expansion.aliases.resolved_target("part-b"),
+        Some("part-b-k")
+    );
+}
+
+/// An alias a search declared is a name like any other, so another search finds
+/// it — the fixpoint covers aliases as well as `glyph` headers.
+#[test]
+fn a_search_finds_what_a_scoped_alias_declared() {
+    let d = doc("\
+glyph part-a-k 1 1
+@@
+exists part-([a-z])-k
+glyph part-($1) = ($0)
+exists part-([a-z])
+glyph made-($1) 1 1
+ref ($0)
+");
+    let r = Resolution::compute(&[&d]);
+    assert_eq!(errors(&r), Vec::<String>::new());
+    assert!(
+        declared(&r).contains(&"made-a".to_string()),
+        "{:?}",
+        declared(&r)
+    );
+}
+
+/// An alias is one line, so the carry is over after it — as for a `map`, and
+/// unlike the `glyph` block whose first token it shares.
+#[test]
+fn the_carry_over_an_alias_lasts_one_line() {
+    // The third line is neither an item start nor blank, so only an alias
+    // having ended the scope on its own line leaves it ungoverned.
+    let lines = ["exists part-(x)", "glyph part-($1) = ($0)", "# note"];
+    let mut carry = Carry::default();
+    let seen: Vec<Option<String>> = lines
+        .iter()
+        .map(|l| {
+            carry.enter(l);
+            carry.pattern().map(str::to_string)
+        })
+        .collect();
+    assert_eq!(
+        seen,
+        [
+            Some("part-(x)".to_string()),
+            Some("part-(x)".to_string()),
+            None
+        ]
+    );
+}

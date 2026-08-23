@@ -409,8 +409,8 @@ impl SpecimenState {
                     let slice_parts = scoped.for_slice(slice);
                     // A scoped `map` unrolls to one mapping per match, with the
                     // code point *computed* from that match; an unscoped one is
-                    // stated once, exactly as written. Same asymmetry, and same
-                    // machinery, as `expand_inner`.
+                    // stated once, exactly as written. Same machinery as
+                    // `expand_inner`.
                     // The base of the bindings is cloned once for the line,
                     // not once per match: a search over the han glyphs matches
                     // thousands of names, and the base is every `name-parts`

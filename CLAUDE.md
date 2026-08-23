@@ -93,7 +93,8 @@ Core (feature-independent):
   why a `remap`'s *inputs* are excluded where its outputs are not, and `keep` as the opt-out.
 - `exists.rs` — `exists PATTERN`: the inverse of a name pattern — a search over the names the
   source declares, repeating the next line once per match with `$0`/`$N` bound. Holds what is
-  searched (and why on-demand names are not), the one-line scope rule, the fixpoint and its cycle
+  searched (and why on-demand names are not), the one-line scope rule, why the scoped item is
+  *unrolled* per match rather than bound to the whole list, the fixpoint and its cycle
   budget, and the regex subset. Tests in `exists_tests.rs`.
 - `pattern.rs` — `NamePattern`, the single name-expansion engine. The same syntax parses differently
   per context on purpose; its module docs spell the three contexts out.
@@ -237,11 +238,14 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | `exists PATTERN`: searching the declared names instead of listing candidates, and what `$0`/`$N` bind | `exists.rs`, `document_io.rs` (`# Directives`) |
 | Why an `exists` governs exactly one line, and why it does not stack | `exists.rs` (`# Scope`) |
+| Why a scoped item runs once per match with each `$N` a single string, rather than once with the whole list | `exists.rs` (`# One run per match`), `render/ttf_builder/expand.rs` (`expand_glyph_item`) |
+| A `glyph … = …` under an `exists`: a second name for every drawing a search found | `exists.rs` (`resolve_scopes`), `alias.rs` (`collect_inner`) |
+| Why a scoped block's matches are still *one* merge candidate set | `merge.rs` (`collect_blocks`) |
 | Why searches are a fixpoint, and the round budget that stands in for cycle detection | `exists.rs` (`# Recursion`), `resolve_scopes` |
 | Which names a search may find — aliases yes, on-demand names no | `exists.rs` (`# What is searched`) |
 | Why two matched names of one glyph are not an error, and where a pattern that cannot tell two matches apart is caught instead | `exists.rs` (`# What is searched`), `issues/remap.rs` (the duplicate scan) |
 | A code point computed from a match (`U+[BASE+]($N)`), and why it is hexadecimal on both sides | `exists.rs` (`eval_codepoint`) |
-| Where a scoped item is expanded, and why a `map` unrolls per match where a `glyph` block does not | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
+| Where a scoped item is expanded, and why a source-side check reads a scoped `map`'s output but a scoped block's own line | `render/ttf_builder/expand.rs` (`expand_inner`), `issues/mod.rs` (`Cx::source_items`) |
 | Why several groups combine by the largest (not the LCM), and what a ragged group warns | `pattern.rs`, `issues/patterns.rs` (`check_ragged_patterns`) |
 | Stating one line for several slices (`map wide\|narrow :`) and per-slice `name-parts` | `document/name_parts.rs` (`SliceNameParts`), `pattern.rs` |
 | `glyph A = B`: one glyph id, two names; where each stage canonicalizes | `alias.rs` |

@@ -37,44 +37,54 @@ pub(super) fn check_unused_glyphs(
             // neither the alias nor `B` looking unused.
             // A block an `exists` governs names `$N`, which is not a glyph
             // name until the search binds it — and if the search found
-            // nothing, the block is not in the graph at all.
-            let Some(name_parts) = cx
-                .expansion
-                .exists
-                .parts_at(name_parts, crate::resolve::ItemRef::new(doc_idx, item_idx))
-            else {
-                continue;
-            };
-            let name_parts = name_parts.as_ref();
-            let (name, refs, is_alias) = match item {
+            // nothing, the block is not in the graph at all. Its matches
+            // gather into one node rather than one each: a finding lands on
+            // the written line either way, so splitting them would only turn
+            // one warning into thousands of the same warning.
+            let (name, is_alias) = match item {
                 DocumentItem::Glyph {
-                    name: GlyphName(n),
-                    body,
-                } => {
-                    let mut refs = Vec::new();
-                    for gref in &body.refs {
-                        refs.extend(expand_name_element(&gref.name, name_parts));
-                    }
-                    // An IDC component is a use of the glyph like a `ref`
-                    // is; this pass reads the source rather than the
-                    // expansion, so the line has to be walked here too or
-                    // every part of every composed glyph reads as unused.
-                    for part in body.compose.iter().flat_map(|c| c.part_names()) {
-                        refs.extend(expand_name_element(part, name_parts));
-                    }
-                    (n, refs, false)
-                }
+                    name: GlyphName(n), ..
+                } => (n, false),
                 DocumentItem::GlyphAlias {
-                    name: GlyphName(n),
-                    target,
-                    ..
-                } => (n, expand_name_element(target, name_parts), true),
+                    name: GlyphName(n), ..
+                } => (n, true),
                 _ => continue,
             };
+            let mut names: Vec<String> = Vec::new();
+            let mut refs: Vec<String> = Vec::new();
+            cx.expansion.exists.for_each_binding(
+                name_parts,
+                crate::resolve::ItemRef::new(doc_idx, item_idx),
+                |name_parts| {
+                    names.extend(expand_name_element(name, name_parts));
+                    match item {
+                        DocumentItem::Glyph { body, .. } => {
+                            for gref in &body.refs {
+                                refs.extend(expand_name_element(&gref.name, name_parts));
+                            }
+                            // An IDC component is a use of the glyph like a
+                            // `ref` is; this pass reads the source rather than
+                            // the expansion, so the line has to be walked here
+                            // too or every part of every composed glyph reads
+                            // as unused.
+                            for part in body.compose.iter().flat_map(|c| c.part_names()) {
+                                refs.extend(expand_name_element(part, name_parts));
+                            }
+                        }
+                        DocumentItem::GlyphAlias { target, .. } => {
+                            refs.extend(expand_name_element(target, name_parts));
+                        }
+                        _ => {}
+                    }
+                },
+            );
+            if names.is_empty() && refs.is_empty() {
+                continue;
+            }
 
             let idx = item_refs.len();
             item_location.push((doc_idx, item_idx, name, is_alias));
-            for en in expand_name_element(name, name_parts) {
+            for en in names {
                 name_to_item.entry(en).or_insert(idx);
             }
             item_refs.push(refs);

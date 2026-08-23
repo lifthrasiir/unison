@@ -19,6 +19,19 @@
 //! `$0` is the whole matched name and `$1`… its capture groups, usable anywhere
 //! the scoped item takes a name pattern.
 //!
+//! # One run per match
+//!
+//! The scoped item is expanded **once per match**, with every `$N` bound to one
+//! string. It is not expanded once with each slot bound to the whole list of
+//! matches: that made a slot an ordinary [`crate::pattern`] group, combining
+//! with the other groups on the line by the largest-cycles rule, so
+//! `glyph han-($1)-(g|h|t)` over three matches wrote three names rather than
+//! nine and the nine needed a `**N` multiplier on a group that has nothing to
+//! do with the search. Since a slot's value is whatever a name happened to
+//! match, correlating it with an unrelated alternation is very nearly always a
+//! mistake rather than something a source meant, so the search unrolls and the
+//! groups beside it mean what they mean everywhere else.
+//!
 //! # What is searched
 //!
 //! Only names a `glyph` **header** declares. Two exclusions follow from that
@@ -47,12 +60,12 @@
 //! # Scope
 //!
 //! An `exists` binds **the item on the very next line** — one `glyph` block
-//! (its `ref`/IDC/grid lines included) or one `map`. A blank line, a comment or
-//! anything else there is an error rather than a wider or narrower reach. The
-//! alternative, letting it govern a run of items, would have to answer where
-//! the run ends, which is exactly the question `editor::folding` and
-//! `app::rename` already answer for a glyph block; giving `exists` a second
-//! answer to it is how those two drift apart.
+//! (its `ref`/IDC/grid lines included), one `glyph … = …` alias or one `map`.
+//! A blank line, a comment or anything else there is an error rather than a
+//! wider or narrower reach. The alternative, letting it govern a run of items,
+//! would have to answer where the run ends, which is exactly the question
+//! `editor::folding` and `app::rename` already answer for a glyph block;
+//! giving `exists` a second answer to it is how those two drift apart.
 //!
 //! One consequence worth stating: `exists` does not stack, so `$N` is never
 //! ambiguous about which pattern it came from.
@@ -297,9 +310,9 @@ use crate::resolve::{Diagnostic, ItemRef};
 /// What one `exists` found: its matches, in the order the matched names were
 /// declared.
 ///
-/// Match-major (`matches[i]` is one name's `[$0, $1, …]`) because that is the
-/// shape a `map` wants — it becomes one mapping per match — while a `glyph`
-/// block wants the transpose, which [`Scope::bindings`] takes.
+/// Match-major (`matches[i]` is one name's `[$0, $1, …]`), which is the shape
+/// every consumer wants: the scoped item is expanded once per match, so a
+/// match is the unit of work and never a column of a table.
 #[derive(Debug, Clone)]
 pub struct Scope {
     pub pattern: String,
@@ -309,31 +322,18 @@ pub struct Scope {
 }
 
 impl Scope {
-    /// `$0`…`$N` bound over `base`, one alternation per slot, for expanding the
-    /// scoped item's name patterns in one pass.
-    ///
-    /// The bindings ride on the [`NamePartsMap`] rather than on a new
-    /// substitution stage because they are the same thing a `name-parts` is: a
-    /// name that stands for a list. What makes the slots *correlated* — `$0`
-    /// and `$1` of one match landing in the same expanded name — is that every
-    /// slot binds the same number of values, so [`crate::pattern`]'s cyclic
-    /// combination indexes them in lock-step. That is the rule name patterns
-    /// already run on; there is nothing new here to get wrong.
-    pub fn bindings(&self, base: &NamePartsMap) -> NamePartsMap {
-        let mut out = base.clone();
-        for slot in 0..self.slots {
-            out.insert(
-                format!("${slot}"),
-                self.matches.iter().map(|m| m[slot].clone()).collect(),
-            );
-        }
-        out
+    /// How many times the scoped item runs.
+    pub fn len(&self) -> usize {
+        self.matches.len()
     }
 
-    /// The same for one match alone — what a `map` is stated with, since a
-    /// mapping is emitted per matched name rather than once for the line —
-    /// written into a map the caller already filled with the base, and with the
-    /// previous match's slots, which this overwrites.
+    /// `$0`…`$N` of match `i` written into a map the caller already filled with
+    /// the base, over whatever the previous match left there.
+    ///
+    /// The bindings ride on the [`NamePartsMap`] rather than on a substitution
+    /// stage of their own because they are the same thing a `name-parts` is: a
+    /// name standing for a list of names — a list of exactly one here, which is
+    /// what keeps a slot from combining with the groups written beside it.
     ///
     /// It takes that map rather than returning one because a search over a
     /// font's worth of han glyphs matches tens of thousands of names, and the
@@ -377,25 +377,38 @@ impl ExistsScopes {
         self.directives.is_empty()
     }
 
-    /// The name parts an item's names expand with: the base ones, plus `$N`
-    /// when an `exists` governs it.
+    /// Run `f` once for every way this item's names expand: once with `base`
+    /// when no `exists` governs it, and once per match — each `$N` bound to one
+    /// string — when one does.
     ///
-    /// `None` means the item declares and refers to nothing at all — either the
-    /// search above it found nothing, or the item *is* the `exists` line. Every
-    /// pass that walks the source rather than the expansion has to ask this,
-    /// because the alternative is reading `han-($1)` as a name.
-    pub fn parts_at<'a>(
+    /// Not called at all when the item stands for nothing: it *is* the `exists`
+    /// line, or the search above it found nothing. Every pass that walks the
+    /// source rather than the expansion has to go through here, because the
+    /// alternative is reading `han-($1)` as a name.
+    ///
+    /// A closure rather than a list of maps because the base is every
+    /// `name-parts` the source declares and a han search matches tens of
+    /// thousands of names: this clones the base once for the item and rebinds
+    /// per match.
+    pub fn for_each_binding(
         &self,
-        base: &'a NamePartsMap,
+        base: &NamePartsMap,
         r: ItemRef,
-    ) -> Option<std::borrow::Cow<'a, NamePartsMap>> {
+        mut f: impl FnMut(&NamePartsMap),
+    ) {
         if self.is_directive(r) {
-            return None;
+            return;
         }
         match self.scope(r) {
-            None => Some(std::borrow::Cow::Borrowed(base)),
-            Some(scope) if scope.matches.is_empty() => None,
-            Some(scope) => Some(std::borrow::Cow::Owned(scope.bindings(base))),
+            None => f(base),
+            Some(scope) if scope.matches.is_empty() => {}
+            Some(scope) => {
+                let mut per = base.clone();
+                for i in 0..scope.len() {
+                    scope.rebind(&mut per, i);
+                    f(&per);
+                }
+            }
         }
     }
 }
@@ -420,8 +433,9 @@ pub fn resolve_scopes(
         origin: ItemRef,
         target: ItemRef,
         pattern: ExistsPattern,
-        /// The scoped `glyph` header, when it is one: the only kind of item
-        /// that feeds names back into the search.
+        /// The name the scoped item declares, when it declares one: a `glyph`
+        /// header or an alias's own name. Those are what feed names back into
+        /// the search; a `map` declares nothing.
         declares: Option<GlyphName>,
     }
     let mut pending: Vec<Pending> = Vec::new();
@@ -453,14 +467,20 @@ pub fn resolve_scopes(
             // that reads as if it were governed and is not.
             let target = ItemRef::new(doc_idx, item_idx + 1);
             let declares = match doc.items.get(item_idx + 1) {
-                Some(DocumentItem::Glyph { name, .. }) => Some(name.clone()),
+                // An alias declares a name exactly as a header does — `glyph
+                // part-($1) = ($0)` is how a search gives every drawing it
+                // found a second name — so it feeds the search back the same
+                // way, and the name it declares is the one on its left.
+                Some(DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. }) => {
+                    Some(name.clone())
+                }
                 Some(DocumentItem::Map { .. }) => None,
                 other => {
                     fail(
                         &mut diagnostics,
                         format!(
-                            "`exists` must be followed on the very next line by a `glyph` block \
-                             or a `map`, not {}",
+                            "`exists` must be followed on the very next line by a `glyph` block, \
+                             an alias or a `map`, not {}",
                             describe_scoped(other),
                         ),
                     );
@@ -516,11 +536,14 @@ pub fn resolve_scopes(
     // a source that names one regional variant `han-4ee4:15x16` means that name
     // to be findable. Aliases declare no glyph of their own, so they are added
     // to the searched set rather than to the seed of what blocks declare.
-    for doc in docs {
-        for item in &doc.items {
+    for (doc_idx, doc) in docs.iter().enumerate() {
+        for (item_idx, item) in doc.items.iter().enumerate() {
             let DocumentItem::GlyphAlias { name, .. } = item else {
                 continue;
             };
+            if scoped_targets.contains(&ItemRef::new(doc_idx, item_idx)) {
+                continue;
+            }
             for n in expand_header_names(name, name_parts) {
                 if seen.insert(n.clone()) {
                     names.push(n);
@@ -557,11 +580,18 @@ pub fn resolve_scopes(
             if scopes[k].matches.is_empty() {
                 continue;
             }
-            let bound = scopes[k].bindings(name_parts);
-            for n in expand_header_names(header, &bound) {
-                if seen.insert(n.clone()) {
-                    names.push(n);
-                    changed = true;
+            // Per match, because that is how the block below runs: a name
+            // the search may go on to find is one the *build* declares, and
+            // the build expands the header once for each match with the slots
+            // bound to one string each.
+            let mut bound = name_parts.clone();
+            for i in 0..scopes[k].len() {
+                scopes[k].rebind(&mut bound, i);
+                for n in expand_header_names(header, &bound) {
+                    if seen.insert(n.clone()) {
+                        names.push(n);
+                        changed = true;
+                    }
                 }
             }
         }
@@ -627,10 +657,19 @@ fn describe_scoped(item: Option<&DocumentItem>) -> &'static str {
         Some(DocumentItem::Comment(_)) => "a comment",
         Some(DocumentItem::Heading { .. }) => "a heading",
         Some(DocumentItem::Exists { .. }) => "another `exists`",
-        Some(DocumentItem::GlyphAlias { .. }) => "an alias",
         Some(DocumentItem::MapDecomposed { .. }) => "a `map generate`",
         Some(_) => "another directive",
     }
+}
+
+/// Whether a `glyph` line is the alias form (`glyph NAME = TARGET`) rather
+/// than a block header. Read off the tokens, so a `=` inside a quoted name is
+/// not one — the same rule [`crate::document_io`] parses by.
+fn is_alias_line(line: &str) -> bool {
+    let Ok(tokens) = crate::document_io::tokenize_tokens(line) else {
+        return false;
+    };
+    tokens.iter().skip(2).any(|t| t == "=")
 }
 
 /// The pattern of an `exists` line, if `line` is one.
@@ -848,7 +887,12 @@ impl Carry {
             .next()
             .is_some_and(crate::document_io::starts_item);
         *self = match std::mem::take(self) {
-            Carry::Armed(p) if trimmed.starts_with("glyph") => Carry::Body(p),
+            // An alias shares the `glyph` keyword with a block and is one line,
+            // like a `map` — so it is what it says on that line and nothing
+            // below it is governed.
+            Carry::Armed(p) if trimmed.starts_with("glyph") && !is_alias_line(trimmed) => {
+                Carry::Body(p)
+            }
             Carry::Armed(p) => Carry::Once(p),
             Carry::Once(_) => Carry::None,
             Carry::Body(p) if starts_item || trimmed.is_empty() => {

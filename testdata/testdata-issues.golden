@@ -3,7 +3,7 @@ error	issues-base.unf	36	map 'C' targets undefined glyph 'never-defined'
 error	issues-base.unf	37	map 'U+FFFFFFFF' is not a valid Unicode scalar value
 error	issues-base.unf	43	feature references undefined remap group 'no-such-remap-group'
 error	issues-base.unf	47	unrecognized directive 'totally-unknown-directive foo bar'
-error	issues-exists.unf	31	`exists` must be followed on the very next line by a `glyph` block or a `map`, not a blank line
+error	issues-exists.unf	31	`exists` must be followed on the very next line by a `glyph` block, an alias or a `map`, not a blank line
 error	issues-exists.unf	33	glyph name `orphaned-$1` may only contain letters, digits, `-`, `.`, `_` and `:`
 error	issues-exists.unf	36	invalid exists pattern `ex-(`: unclosed group
 error	issues-patterns.unf	10	glyph name `uni$#2802..2800` may only contain letters, digits, `-`, `.`, `_` and `:`

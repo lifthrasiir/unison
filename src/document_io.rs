@@ -95,9 +95,12 @@
 //!   because there is no override — every conflict is an error.
 //! - `exists PATTERN` — the inverse of a name pattern: a *search* over the
 //!   glyph names the source declares, repeating the item on the **very next
-//!   line** — one `glyph` block or one `map`, nothing else — once per match.
-//!   `$0` stands for the matched name and `$1`… for the pattern's capture
-//!   groups, usable wherever that item takes a name pattern:
+//!   line** — one `glyph` block, one `glyph … = …` alias or one `map`, nothing
+//!   else — once per match. `$0` stands for the matched name and `$1`… for the
+//!   pattern's capture groups, usable wherever that item takes a name pattern.
+//!   Each of them is one string on each run, so a group written beside a slot
+//!   expands the way it does anywhere else — `glyph han-($1)-(g|h|t)` over
+//!   three matches writes nine names:
 //!
 //!   ```text
 //!   exists han-([0-9a-f]{4,5}):15x16
