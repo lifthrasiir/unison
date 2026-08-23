@@ -602,8 +602,10 @@ glyph han-52bc:15x16 15 16 // 劼
 
 ## 19.7
 
-glyph han-52c2:15x16 15 16 // 勂
+glyph han-52c2-(g|t|k):15x16 15 16 // 勂
 ⿰ han-544a:8x16 1 han-529b:6x16 // ⿰告力
+glyph han-52c2-h:15x16 15 16 // 勂
+⿰ han-543f:8x16 1 han-529b:6x16 // ⿰吿力
 
 glyph han-52c6:15x16 15 16 // 勆
 ⿰ han-826f:7x16 han-529b:8x16 // ⿰良力
@@ -785,6 +787,8 @@ exists han-52fa\.0:([0-9]+x[0-9]+)
 glyph han-52fa-k:($1) = ($0)
 exists han-52fa\.1:([0-9]+x[0-9]+)
 glyph han-52fa-(g|h|t|j|p|v):($1) = ($0)
+glyph han-52fa.2:15x16 = han-52fa.1:15x16
+glyph han-52fa.3:15x16 = han-52fa.0:15x16
 
 ## 20.3
 

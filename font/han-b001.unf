@@ -32,8 +32,8 @@
 
 ## 1.10
 
-glyph han-20042:15x16 15 16 // 𠁂
-⿰ han-8005:7x16 1 han-4e01:7x16 // ⿰者丁
+glyph han-20042-($han-regions):15x16 15 16 // 𠁂
+⿰ han-8005-($-1):7x16 1 han-4e01:7x16 // ⿰者丁
 
 # CJK unified ideographs extension B: 丨 (2)
 

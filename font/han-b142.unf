@@ -240,8 +240,8 @@ glyph han-27471:15x16 15 16 // 𧑱
 // glyph han-27483:15x16 15 16 // 𧒃
 // ⿱ han-7f8a han-45b5 // ⿱羊䖵
 
-glyph han-27487:15x16 15 16 // 𧒇
-⿲ han-866b:5x16 han-72ad:4x16 1 han-8005:5x16 // ⿲虫犭者
+glyph han-27487-($han-regions):15x16 15 16 // 𧒇
+⿲ han-866b:5x16 han-72ad:4x16 1 han-8005-($-1):5x16 // ⿲虫犭者
 
 glyph han-2748c:15x16 15 16 // 𧒌
 ⿲ -3 han-866b:5x16 1 han-27fb7:5x16 han-5404:7x16 // ⿲虫𧾷各

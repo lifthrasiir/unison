@@ -223,8 +223,10 @@ glyph han-5cf4:15x16 15 16 // 峴
 glyph han-5cfb:15x16 15 16 // 峻
 ⿰ han-5c71:7x16 1 han-590b:7x16 // ⿰山夋
 
-glyph han-5cfc:15x16 15 16 // 峼
+glyph han-5cfc-(g|t|k|p):15x16 15 16 // 峼
 ⿰ han-5c71:7x16 han-544a:8x16 // ⿰山告
+glyph han-5cfc-h:15x16 15 16 // 峼
+⿰ han-5c71:7x16 han-543f:8x16 // ⿰山吿
 
 // glyph han-5cfe:15x16 15 16 // 峾
 // ⿱ han-6c82 han-5c71 // ⿱沂山
@@ -246,8 +248,10 @@ glyph han-5d0a:15x16 15 16 // 崊
 // glyph han-5d14:15x16 15 16 // 崔
 // ⿱ han-5c71 han-96b9 // ⿱山隹
 
-glyph han-5d1d:15x16 15 16 // 崝
+glyph han-5d1d-(g|h|t|p):15x16 15 16 // 崝
 ⿰ han-5c71:7x16 1 han-9752:7x16 // ⿰山青
+glyph han-5d1d-(j|k):15x16 15 16 // 崝
+⿰ han-5c71:7x16 1 han-9751:7x16 // ⿰山靑
 
 // glyph han-5d1f:15x16 15 16 // 崟
 // ⿱ han-5c71 han-91d1 // ⿱山金

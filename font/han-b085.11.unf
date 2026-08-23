@@ -40,8 +40,8 @@ glyph han-23fb7:15x16 15 16 // 𣾷
 glyph han-23fb8:15x16 15 16 // 𣾸
 ⿲ han-6c35:3x16 han-624c:3x16 han-662f:9x16 // ⿲氵扌是
 
-glyph han-23fbb:15x16 15 16 // 𣾻
-⿲ han-6c35:3x16 han-53e3:4x16 1 han-8005:7x16 // ⿲氵口者
+glyph han-23fbb-($han-regions):15x16 15 16 // 𣾻
+⿲ han-6c35:3x16 han-53e3:4x16 1 han-8005-($-1):7x16 // ⿲氵口者
 
 ## 85.13
 
@@ -54,8 +54,8 @@ glyph han-23fd8:15x16 15 16 // 𣿘
 glyph han-24014:15x16 15 16 // 𤀔
 ⿲ -2 han-6c35:3x16 han-98e0:7x16 han-6b20:7x16 // ⿲氵飠欠
 
-// glyph han-2401c:15x16 15 16 // 𤀜
-// ⿰ han-6c35 han-775b // ⿰氵睛
+glyph han-2401c:15x16 15 16 // 𤀜
+⿲ han-6c35:3x16 han-76ee:4x16 1 han-9751:7x16 // ⿲氵目靑
 
 ## 85.14
 

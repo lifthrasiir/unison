@@ -162,8 +162,8 @@ glyph han-242e2-($han-regions):15x16 15 16 // 𤋢
 glyph han-242f9:15x16 15 16 // 𤋹
 ⿲ han-706b:5x16-l han-6728:5x16 han-53e4:5x16 // ⿲火木古
 
-glyph han-24304:15x16 15 16 // 𤌄
-⿰ han-706b:7x16 1 han-8005:7x16 // ⿰火者
+glyph han-24304-($han-regions):15x16 15 16 // 𤌄
+⿰ han-706b:7x16 1 han-8005-($-1):7x16 // ⿰火者
 
 ## 86.10
 
@@ -225,8 +225,8 @@ glyph han-24472:15x16 15 16 // 𤑲
 
 ## 86.16
 
-glyph han-244a0:15x16 15 16 // 𤒠
-⿲ -1 han-706b:5x16-l han-8005:5x16 1 han-898b:5x16 // ⿲火者見
+glyph han-244a0-($han-regions):15x16 15 16 // 𤒠
+⿲ -1 han-706b:5x16-l han-8005-($-1):5x16 1 han-898b:5x16 // ⿲火者見
 
 ## 86.24
 

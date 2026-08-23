@@ -159,8 +159,8 @@ glyph han-24ffe:15x16 15 16 // 𤿾
 
 ## 107.9
 
-glyph han-25001:15x16 15 16 // 𥀁
-⿰ han-8005:7x16 han-76ae:8x16 // ⿰者皮
+glyph han-25001-($han-regions):15x16 15 16 // 𥀁
+⿰ han-8005-($-1):7x16 han-76ae:8x16 // ⿰者皮
 
 // glyph han-25002:15x16 15 16 // 𥀂
 // ⿱ han-5c01 han-76ae // ⿱封皮

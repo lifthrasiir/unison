@@ -261,8 +261,10 @@ glyph han-8731:15x16 15 16 // 蜱
 glyph han-8736:15x16 15 16 // 蜶
 ⿰ han-866b:7x16 1 han-5352:7x16 // ⿰虫卒
 
-glyph han-873b:15x16 15 16 // 蜻
+glyph han-873b-(g|h|t):15x16 15 16 // 蜻
 ⿰ han-866b:7x16 1 han-9752:7x16 // ⿰虫青
+glyph han-873b-(j|k|p):15x16 15 16 // 蜻
+⿰ han-866b:7x16 1 han-9751:7x16 // ⿰虫靑
 
 glyph han-873c:15x16 15 16 // 蜼
 ⿰ han-866b:5x16 1 han-96b9:9x16 // ⿰虫隹
@@ -287,8 +289,8 @@ glyph han-8762:15x16 15 16 // 蝢
 glyph han-876a:15x16 15 16 // 蝪
 ⿰ han-866b:5x16 1 han-661c:9x16 // ⿰虫昜
 
-glyph han-876b:15x16 15 16 // 蝫
-⿰ han-866b:7x16 1 han-8005:7x16 // ⿰虫者
+glyph han-876b-($han-regions):15x16 15 16 // 蝫
+⿰ han-866b:7x16 1 han-8005-($-1):7x16 // ⿰虫者
 
 glyph han-876d:15x16 15 16 // 蝭
 ⿰ han-866b:5x16 1 han-662f:9x16 // ⿰虫是
@@ -356,8 +358,8 @@ glyph han-8815:15x16 15 16 // 蠕
 
 ## 142.16
 
-glyph han-8829:15x16 15 16 // 蠩
-⿲ han-866b:5x16 han-8a01:5x16 han-8005:5x16 // ⿲虫訁者
+glyph han-8829-($han-regions):15x16 15 16 // 蠩
+⿲ han-866b:5x16 han-8a01:5x16 han-8005-($-1):5x16 // ⿲虫訁者
 
 ## 142.17
 
@@ -560,8 +562,10 @@ glyph han-8910:15x16 15 16 // 褐
 glyph han-8915:15x16 15 16 // 褕
 ⿰ han-8864:7x16 1 han-4fde:7x16 // ⿰衤俞
 
-glyph han-891a:15x16 15 16 // 褚
-⿰ han-8864:7x16 1 han-8005:7x16 // ⿰衤者
+glyph han-891a-(g|h|t|k|p):15x16 15 16 // 褚
+⿰ han-8864:7x16 1 han-8005-($-1):7x16 // ⿰衤者
+glyph han-891a-j:15x16 15 16 // 褚
+⿰ han-8864:7x16 1 han-8005.1:7x16 // ⿰衤者
 
 // glyph han-891c:15x16 15 16 // 褜
 // ⿱ han-80de han-8863 // ⿱胞衣

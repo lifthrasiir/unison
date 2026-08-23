@@ -116,8 +116,8 @@ glyph han-20f52:15x16 15 16 // 𠽒
 
 ## 30.12
 
-glyph han-20e72:15x16 15 16 // 𠹲
-⿲ han-53e3:5x16-l han-6c35:3x16 han-8005:7x16 // ⿲口氵者
+glyph han-20e72-($han-regions):15x16 15 16 // 𠹲
+⿲ han-53e3:5x16-l han-6c35:3x16 han-8005-($-1):7x16 // ⿲口氵者
 
 glyph han-20f6e:15x16 15 16 // 𠽮
 ⿲ han-53e3:5x16-l han-624c:3x16 han-662f:7x16 // ⿲口扌是

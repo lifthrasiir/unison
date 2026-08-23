@@ -157,11 +157,11 @@ glyph han-2d307:15x16 15 16 // 𭌇
 glyph han-2d30b:15x16 15 16 // 𭌋
 ⿲ -1 han-53e3:3x16-l 1 han-8eca:5x16 han-4fde:7x16 // ⿲口車俞
 
-glyph han-2d30e:15x16 15 16 // 𭌎
-⿲ han-53e3:3x16-l han-8005:5x16 han-898b:7x16 // ⿲口者見
+glyph han-2d30e-($han-regions):15x16 15 16 // 𭌎
+⿲ han-53e3:3x16-l han-8005-($-1):5x16 han-898b:7x16 // ⿲口者見
 
-glyph han-2d319:15x16 15 16 // 𭌙
-⿲ han-53e3:3x16-l 1 han-8c9d:6x16 han-8005:5x16 // ⿲口貝者
+glyph han-2d319-($han-regions):15x16 15 16 // 𭌙
+⿲ han-53e3:3x16-l 1 han-8c9d:6x16 han-8005-($-1):5x16 // ⿲口貝者
 
 ## 30.17
 

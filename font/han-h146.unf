@@ -197,8 +197,8 @@ glyph han-322ac:15x16 15 16 // 𲊬
 
 ## 181.9
 
-glyph han-322b4:15x16 15 16 // 𲊴
-⿰ han-8005:7x16 1 han-9801:7x16 // ⿰者頁
+glyph han-322b4-($han-regions):15x16 15 16 // 𲊴
+⿰ han-8005-($-1):7x16 1 han-9801:7x16 // ⿰者頁
 
 # CJK unified ideographs extension H: 食 (184)
 

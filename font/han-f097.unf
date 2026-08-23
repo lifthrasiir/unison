@@ -177,8 +177,8 @@ glyph han-2e0c7:15x16 15 16 // 𮃇
 
 ## 115.9
 
-glyph han-2e0d4:15x16 15 16 // 𮃔
-⿰ han-79be:7x16 1 han-8005:7x16 // ⿰禾者
+glyph han-2e0d4-($han-regions):15x16 15 16 // 𮃔
+⿰ han-79be:7x16 1 han-8005-($-1):7x16 // ⿰禾者
 
 glyph han-2e0da:15x16 15 16 // 𮃚
 ⿲ han-79be:5x16 han-79be:5x16 han-706b:5x16 // ⿲禾禾火

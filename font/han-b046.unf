@@ -210,8 +210,8 @@ glyph han-21e63:15x16 15 16 // 𡹣
 // glyph han-21e8b:15x16 15 16 // 𡺋
 // ⿱ han-5c71 han-9801 // ⿱山頁
 
-glyph han-21e90:15x16 15 16 // 𡺐
-⿰ han-5c71:7x16 1 han-8005:7x16 // ⿰山者
+glyph han-21e90-($han-regions):15x16 15 16 // 𡺐
+⿰ han-5c71:7x16 1 han-8005-($-1):7x16 // ⿰山者
 
 // glyph han-21e95:15x16 15 16 // 𡺕
 // ⿱ han-5c71 han-27d27 // ⿱山𧴧

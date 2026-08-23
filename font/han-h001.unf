@@ -157,8 +157,8 @@ glyph han-31515:15x16 15 16 // 𱔕
 glyph han-3151d:15x16 15 16 // 𱔝
 ⿲ -1 han-53e3:3x16-l 1 han-866b:5x16 han-5408:7x16 // ⿲口虫合
 
-glyph han-31522:15x16 15 16 // 𱔢
-⿲ han-53e3:4x16-l han-72ad:4x16 han-8005:7x16 // ⿲口犭者
+glyph han-31522-($han-regions):15x16 15 16 // 𱔢
+⿲ han-53e3:4x16-l han-72ad:4x16 han-8005-($-1):7x16 // ⿲口犭者
 
 // glyph han-31526:15x16 15 16 // 𱔦
 // ⿲ han-53e3 han-6c35 han-5247 // ⿲口氵則 <- ⿰口測
@@ -173,8 +173,8 @@ glyph han-31546:15x16 15 16 // 𱕆
 
 ## 30.16
 
-glyph han-31563:15x16 15 16 // 𱕣
-⿲ han-53e3:3x16-l han-8a01:5x16 han-8005:7x16 // ⿲口訁者
+glyph han-31563-($han-regions):15x16 15 16 // 𱕣
+⿲ han-53e3:3x16-l han-8a01:5x16 han-8005-($-1):7x16 // ⿲口訁者
 
 ## 30.17
 

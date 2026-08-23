@@ -226,8 +226,10 @@ glyph han-8f20:15x16 15 16 // 輠
 glyph han-8f23:15x16 15 16 // 輣
 ⿲ han-8eca:5x16 han-6708:5x16 han-6708:5x16 // ⿲車月月
 
-glyph han-8f24:15x16 15 16 // 輤
+glyph han-8f24-(g|h|t):15x16 15 16 // 輤
 ⿰ han-8eca:7x16 1 han-9752:7x16 // ⿰車青
+glyph han-8f24-(k|p):15x16 15 16 // 輤
+⿰ han-8eca:7x16 1 han-9751:7x16 // ⿰車靑
 
 ## 159.9
 
@@ -387,8 +389,10 @@ glyph han-90ca:15x16 15 16 // 郊
 glyph han-90d9:15x16 15 16 // 郙
 ⿰ han-752b:9x16 1 han-961d:4x16-r // ⿰甫阝
 
-glyph han-90dc:15x16 15 16 // 郜
+glyph han-90dc-(g|t|k|p):15x16 15 16 // 郜
 ⿰ han-544a:10x16 han-961d:5x16-r // ⿰告阝
+glyph han-90dc-(h|j):15x16 15 16 // 郜
+⿰ han-543f:10x16 han-961d:5x16-r // ⿰吿阝
 
 glyph han-90de:15x16 15 16 // 郞
 ⿰ han-826f:9x16 1 han-961d:5x16-r // ⿰良阝
@@ -401,8 +405,10 @@ glyph han-90e5:15x16 15 16 // 郥
 glyph han-90eb:15x16 15 16 // 郫
 ⿰ han-5351:10x16 han-961d:5x16-r // ⿰卑阝
 
-glyph han-90ec:15x16 15 16 // 郬
+glyph han-90ec-(g|h|t):15x16 15 16 // 郬
 ⿰ han-9752:9x16 1 han-961d:5x16-r // ⿰青阝
+glyph han-90ec-p:15x16 15 16 // 郬
+⿰ han-9751:9x16 1 han-961d:5x16-r // ⿰靑阝
 
 glyph han-90ee:15x16 15 16 // 郮
 ⿰ han-5468:10x16 1 han-961d:4x16-r // ⿰周阝
@@ -418,8 +424,8 @@ glyph han-90f4:15x16 15 16 // 郴
 
 ## 163.9
 
-glyph han-90fd:15x16 15 16 // 都
-⿰ han-8005:9x16 1 han-961d:5x16-r // ⿰者阝
+glyph han-90fd-($han-regions):15x16 15 16 // 都
+⿰ han-8005-($-1):9x16 1 han-961d:5x16-r // ⿰者阝
 
 glyph han-9103:15x16 15 16 // 鄃
 ⿰ han-4fde:7x16 1 han-961d:7x16-r // ⿰俞阝
@@ -568,8 +574,10 @@ glyph han-916e:15x16 15 16 // 酮
 
 ## 164.7
 
-glyph han-9177:15x16 15 16 // 酷
+glyph han-9177-(g|t|j|k|p|v):15x16 15 16 // 酷
 ⿰ han-9149:7x16 han-544a:8x16 // ⿰酉告
+glyph han-9177-h:15x16 15 16 // 酷
+⿰ han-9149:7x16 han-543f:8x16 // ⿰酉吿
 
 glyph han-9178:15x16 15 16 // 酸
 ⿰ han-9149:7x16 1 han-590b:7x16 // ⿰酉夋
@@ -599,8 +607,8 @@ glyph han-9189:15x16 15 16 // 醉
 glyph han-918d:15x16 15 16 // 醍
 ⿰ han-9149:7x16 1 han-662f:7x16 // ⿰酉是
 
-glyph han-918f:15x16 15 16 // 醏
-⿰ han-9149:7x16 1 han-8005:7x16 // ⿰酉者
+glyph han-918f-($han-regions):15x16 15 16 // 醏
+⿰ han-9149:7x16 1 han-8005-($-1):7x16 // ⿰酉者
 
 glyph han-9190:15x16 15 16 // 醐
 ⿲ -3 han-9149:7x16 1 han-53e4:5x16 han-6708:5x16 // ⿲酉古月

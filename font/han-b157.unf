@@ -217,8 +217,8 @@ glyph han-28149:15x16 15 16 // 𨅉
 // glyph han-28160:15x16 15 16 // 𨅠
 // ⿱ han-6b3d han-8db3 // ⿱欽足
 
-glyph han-2816e:15x16 15 16 // 𨅮
-⿲ han-27fb7:5x16 han-8005:5x16 1 han-961d:4x16-r // ⿲𧾷者阝
+glyph han-2816e-($han-regions):15x16 15 16 // 𨅮
+⿲ han-27fb7:5x16 han-8005-($-1):5x16 1 han-961d:4x16-r // ⿲𧾷者阝
 
 // glyph han-28174:15x16 15 16 // 𨅴
 // ⿱ han-756a han-8db3 // ⿱番足

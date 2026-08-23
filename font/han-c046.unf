@@ -178,8 +178,8 @@ glyph han-2ac24:15x16 15 16 // 𪰤
 
 ## 72.11
 
-glyph han-2ac42:15x16 15 16 // 𪱂
-⿲ han-65e5:4x16-l han-72ad:4x16 han-8005:7x16 // ⿲日犭者
+glyph han-2ac42-($han-regions):15x16 15 16 // 𪱂
+⿲ han-65e5:4x16-l han-72ad:4x16 han-8005-($-1):7x16 // ⿲日犭者
 
 // glyph han-2ac45:15x16 15 16 // 𪱅
 // ⿱ han-65e5 han-6e1a // ⿱日渚

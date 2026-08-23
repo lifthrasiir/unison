@@ -74,8 +74,8 @@ glyph han-27aa8:15x16 15 16 // 𧪨
 glyph han-27b1c:15x16 15 16 // 𧬜
 ⿲ -2 han-8a01:5x16 han-5176:6x16 han-65a4:6x16 // ⿲訁其斤
 
-glyph han-27b25:15x16 15 16 // 𧬥
-⿲ han-8a01:5x16 han-8005:5x16 1 han-961d:4x16-r // ⿲訁者阝
+glyph han-27b25-($han-regions):15x16 15 16 // 𧬥
+⿲ han-8a01:5x16 han-8005-($-1):5x16 1 han-961d:4x16-r // ⿲訁者阝
 
 # CJK unified ideographs extension B: 讠 (149')
 

@@ -216,8 +216,8 @@ glyph han-3d80:15x16 15 16 // 㶀
 
 ## 85.16
 
-glyph han-3d86:15x16 15 16 // 㶆
-⿲ han-6c35:3x16 han-8a01:5x16 han-8005:7x16 // ⿲氵訁者
+glyph han-3d86-($han-regions):15x16 15 16 // 㶆
+⿲ han-6c35:3x16 han-8a01:5x16 han-8005-($-1):7x16 // ⿲氵訁者
 
 ## 85.17
 

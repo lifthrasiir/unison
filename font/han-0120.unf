@@ -192,8 +192,10 @@ glyph han-7da2:15x16 15 16 // 綢
 glyph han-7da8:15x16 15 16 // 綨
 ⿰ han-7cf9:5x16 1 han-5176:9x16 // ⿰糹其
 
-glyph han-7daa:15x16 15 16 // 綪
+glyph han-7daa-(g|h|t):15x16 15 16 // 綪
 ⿰ han-7cf9:5x16 1 han-9752:9x16 // ⿰糹青
+glyph han-7daa-(j|k|p):15x16 15 16 // 綪
+⿰ han-7cf9:5x16 1 han-9751:9x16 // ⿰糹靑
 
 glyph han-7dad:15x16 15 16 // 維
 ⿰ han-7cf9:5x16 1 han-96b9:9x16 // ⿰糹隹
@@ -213,8 +215,8 @@ glyph han-7dbc:15x16 15 16 // 綼
 glyph han-7dc2:15x16 15 16 // 緂
 ⿰ han-7cf9:5x16 1 han-708e:9x16 // ⿰糹炎
 
-glyph han-7dd2:15x16 15 16 // 緒
-⿰ han-7cf9:5x16 1 han-8005:9x16 // ⿰糹者
+glyph han-7dd2-($han-regions):15x16 15 16 // 緒
+⿰ han-7cf9:5x16 1 han-8005-($-1):9x16 // ⿰糹者
 
 ## 120.9
 

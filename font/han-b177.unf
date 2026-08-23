@@ -119,8 +119,8 @@ glyph han-292ee:15x16 15 16 // 𩋮
 glyph han-292f0:15x16 15 16 // 𩋰
 ⿲ -4 han-9769:7x16 han-7cf9:5x16 han-5bf8:7x16 // ⿲革糹寸
 
-glyph han-292f5:15x16 15 16 // 𩋵
-⿰ han-9769:7x16 1 han-8005:7x16 // ⿰革者
+glyph han-292f5-($han-regions):15x16 15 16 // 𩋵
+⿰ han-9769:7x16 1 han-8005-($-1):7x16 // ⿰革者
 
 ## 177.10
 

@@ -112,8 +112,8 @@ glyph han-2cbc3:15x16 15 16 // 𬯃
 
 ## 172.8
 
-glyph han-2cbef:15x16 15 16 // 𬯯
-⿰ han-8005:7x16 1 han-96b9:7x16 // ⿰者隹
+glyph han-2cbef-($han-regions):15x16 15 16 // 𬯯
+⿰ han-8005-($-1):7x16 1 han-96b9:7x16 // ⿰者隹
 
 ## 172.12
 

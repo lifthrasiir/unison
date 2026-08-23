@@ -15,8 +15,8 @@ glyph han-31cee:15x16 15 16 // 𱳮
 
 ## 112.12
 
-glyph han-31d34:15x16 15 16 // 𱴴
-⿲ han-77f3:5x16 han-72ad:4x16 1 han-8005:5x16 // ⿲石犭者
+glyph han-31d34-($han-regions):15x16 15 16 // 𱴴
+⿲ han-77f3:5x16 han-72ad:4x16 1 han-8005-($-1):5x16 // ⿲石犭者
 
 # CJK unified ideographs extension H: 示 (113)
 

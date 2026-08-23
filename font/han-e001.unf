@@ -203,8 +203,8 @@ glyph han-2babd:15x16 15 16 // 𫪽
 
 ## 30.11
 
-// glyph han-2badc:15x16 15 16 // 𫫜
-// ⿰ han-53e3 han-731c // ⿰口猜
+glyph han-2badc:15x16 15 16 // 𫫜
+⿲ han-53e3:4x16-l han-72ad:4x16 han-9751:7x16 // ⿲口犭靑
 
 glyph han-2bae2:15x16 15 16 // 𫫢
 ⿲ -1 han-53e3:3x16-l han-8864:5x16 han-76ae:8x16 // ⿲口衤皮

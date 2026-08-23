@@ -175,8 +175,8 @@ glyph han-21381:15x16 15 16 // 𡎁
 glyph han-21388:15x16 15 16 // 𡎈
 ⿲ han-571f:3x16-l han-572d:5x16 han-5bf8:7x16 // ⿲土圭寸
 
-glyph han-21389:15x16 15 16 // 𡎉
-⿰ han-8005:7x16 1 han-571f:7x16 // ⿰者土
+glyph han-21389-($han-regions):15x16 15 16 // 𡎉
+⿰ han-8005-($-1):7x16 1 han-571f:7x16 // ⿰者土
 
 glyph han-213a3:15x16 15 16 // 𡎣
 ⿲ han-571f:3x16-l han-65e5:5x16 1 han-53ec:6x16 // ⿲土日召

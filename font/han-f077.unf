@@ -74,8 +74,8 @@ glyph han-2dc51:15x16 15 16 // 𭱑
 glyph han-2dcbd:15x16 15 16 // 𭲽
 ⿲ -1 han-6c35:3x16 han-8eca:5x16 1 han-752b:7x16 // ⿲氵車甫
 
-glyph han-2dccc:15x16 15 16 // 𭳌
-⿲ han-6c35:3x16 han-7cf9:5x16 han-8005:7x16 // ⿲氵糹者
+glyph han-2dccc-($han-regions):15x16 15 16 // 𭳌
+⿲ han-6c35:3x16 han-7cf9:5x16 han-8005-($-1):7x16 // ⿲氵糹者
 
 ## 85.15
 

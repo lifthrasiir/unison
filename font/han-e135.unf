@@ -30,8 +30,8 @@ glyph han-2c822:15x16 15 16 // 𬠢
 
 ## 142.12
 
-glyph han-2c829:15x16 15 16 // 𬠩
-⿲ han-866b:5x16 han-8005:5x16 1 han-961d:4x16-r // ⿲虫者阝
+glyph han-2c829-($han-regions):15x16 15 16 // 𬠩
+⿲ han-866b:5x16 han-8005-($-1):5x16 1 han-961d:4x16-r // ⿲虫者阝
 
 # CJK unified ideographs extension E: 衣 (145)
 

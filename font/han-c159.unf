@@ -140,8 +140,10 @@ glyph han-2b548:15x16 15 16 // 𫕈
 
 ## 174.8
 
-glyph han-2b57b:15x16 15 16 // 𫕻
+glyph han-2b57b-t:15x16 15 16 // 𫕻
 ⿰ han-9752:7x16 1 han-9752:7x16 // ⿰青青
+glyph han-2b57b-j:15x16 15 16 // 𫕻
+⿰ han-9751:7x16 1 han-9751:7x16 // ⿰靑靑
 
 # CJK unified ideographs extension C: 食 (184)
 
