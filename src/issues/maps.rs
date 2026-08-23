@@ -4,7 +4,7 @@
 //! per-item scan — features, `name-parts` values, headings and unrecognized
 //! directives — which walks the same items.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::document::{
@@ -19,10 +19,55 @@ use super::{Cx, Issue, Severity, issue_at, short_path};
 /// its reachability at.
 /// Where one codepoint was mapped: the file, the `DocLine` index and the
 /// 1-based file line, as [`Issue`] wants them.
+///
+/// Interned rather than stored per codepoint. A site is a `map` *line*, and a
+/// range line claims tens of thousands of codepoints from the same one — a
+/// `PathBuf` cloned once per codepoint was most of what this scan cost.
 struct MapSite {
     file: PathBuf,
     line: usize,
     file_line: usize,
+}
+
+/// The slices and sites a codepoint scan refers to, kept out of the
+/// per-codepoint table so that what the table holds is two integers.
+///
+/// The slice ids are handed out in first-appearance order, which is not the
+/// order the conflict report wants — see [`SliceTable::rank`].
+#[derive(Default)]
+struct SliceTable {
+    ids: HashMap<Option<String>, u16>,
+    names: Vec<Option<String>>,
+}
+
+impl SliceTable {
+    fn id(&mut self, slice: &Option<String>) -> u16 {
+        if let Some(&id) = self.ids.get(slice) {
+            return id;
+        }
+        let id = self.names.len() as u16;
+        self.names.push(slice.clone());
+        self.ids.insert(slice.clone(), id);
+        id
+    }
+
+    fn name(&self, id: u16) -> &Option<String> {
+        &self.names[id as usize]
+    }
+
+    /// Per slice id, its position in the order the conflict report reads the
+    /// slices of one codepoint in — the base slice first, then the named ones
+    /// alphabetically. That used to be a `BTreeMap<Option<String>, _>` per
+    /// codepoint; this is the same order without the map.
+    fn rank(&self) -> Vec<u16> {
+        let mut order: Vec<u16> = (0..self.names.len() as u16).collect();
+        order.sort_by(|a, b| self.name(*a).cmp(self.name(*b)));
+        let mut rank = vec![0u16; self.names.len()];
+        for (r, id) in order.into_iter().enumerate() {
+            rank[id as usize] = r as u16;
+        }
+        rank
+    }
 }
 
 pub(super) fn check_maps(
@@ -40,7 +85,11 @@ pub(super) fn check_maps(
     // the duplicate this has always warned about; two entries in *different*
     // slices are only a problem for a face that includes both, which is the
     // conflict the face split exists to make explicit.
-    let mut mapped_codepoints: HashMap<u32, BTreeMap<Option<String>, MapSite>> = HashMap::new();
+    // `(slice id, site id)` per codepoint, both into the tables below: see
+    // `MapSite` for why the site is not stored here.
+    let mut mapped_codepoints: HashMap<u32, Vec<(u16, u32)>> = HashMap::new();
+    let mut slices_seen = SliceTable::default();
+    let mut sites: Vec<MapSite> = Vec::new();
     let mut mapped_glyphs: HashSet<String> = HashSet::new();
 
     for (doc_idx, doc) in docs.iter().enumerate() {
@@ -116,25 +165,20 @@ pub(super) fn check_maps(
                     };
                     for slice in stated {
                         let parts = scoped_parts.for_slice(slice.as_deref());
-                        // Which codepoints the line claims is what the
-                        // duplicate scan is about, and every alternative
-                        // expands over the same ones — so they are walked once,
-                        // over the first, while *every* alternative counts as a
-                        // used glyph name (see the variation-sequence arm).
-                        // Expanded together rather than one alternative at a
-                        // time: the character spec is the same for all of them,
-                        // and a range line is thousands of characters wide.
+                        // Every alternative counts as a used glyph name, not
+                        // just the one the build ends up picking; see the
+                        // variation-sequence arm for why.
                         let substituted: Vec<String> = glyphs
                             .iter()
                             .map(|g| substitute_name_parts(g, parts))
                             .collect();
-                        // The fallbacks are only ever looked up, so they are
-                        // streamed rather than collected: a range line nine
+                        // The targets are only ever looked up here, so they
+                        // are streamed rather than collected: a range line nine
                         // alternatives deep names millions of glyphs and keeps
                         // a few thousand of them.
                         crate::render::ttf_builder::for_each_map_alternative_name(
                             char_repr,
-                            &substituted[1..],
+                            &substituted,
                             |name| {
                                 // A name no glyph declares is a root the walk
                                 // can do nothing with, and a range line names
@@ -145,37 +189,39 @@ pub(super) fn check_maps(
                                 }
                             },
                         );
-                        let first = crate::render::ttf_builder::expand_map_pairs_per_alternative(
-                            char_repr,
-                            &substituted[..1],
-                        );
-                        for (cp, target) in &first[0] {
-                            if graph.knows(target) && !mapped_glyphs.contains(target) {
-                                mapped_glyphs.insert(target.clone());
-                            }
-                            let by_slice = mapped_codepoints.entry(*cp).or_default();
-                            if let Some(prev) = by_slice.get(&slice) {
-                                issues.push(issue_at(
-                                    doc,
-                                    item_idx,
-                                    Severity::Warning,
-                                    format!(
-                                        "duplicate codepoint mapping U+{:04X} (first at {}:{})",
-                                        cp,
-                                        short_path(&prev.file),
-                                        prev.file_line,
-                                    ),
-                                ));
-                            } else {
-                                let (line, file_line) = doc.item_lines(item_idx);
-                                by_slice.insert(
-                                    slice.clone(),
-                                    MapSite {
-                                        file: doc.path.clone(),
-                                        line,
-                                        file_line,
-                                    },
-                                );
+                        // Interned once for the line rather than looked up
+                        // once per codepoint it claims.
+                        let slice_id = slices_seen.id(&slice);
+                        let site_id = sites.len() as u32;
+                        let (line, file_line) = doc.item_lines(item_idx);
+                        sites.push(MapSite {
+                            file: doc.path.clone(),
+                            line,
+                            file_line,
+                        });
+                        // Which codepoints the line claims, with no target
+                        // paired to them: every alternative claims the same
+                        // ones, and the duplicate scan is about the claim.
+                        for cp in crate::render::ttf_builder::expand_map_codepoints(char_repr) {
+                            // A codepoint is in a handful of slices at most, so
+                            // the scan is shorter than hashing would be.
+                            let by_slice = mapped_codepoints.entry(cp).or_default();
+                            match by_slice.iter().find(|(s, _)| *s == slice_id) {
+                                Some(&(_, prev)) => {
+                                    let prev = &sites[prev as usize];
+                                    issues.push(issue_at(
+                                        doc,
+                                        item_idx,
+                                        Severity::Warning,
+                                        format!(
+                                            "duplicate codepoint mapping U+{:04X} (first at {}:{})",
+                                            cp,
+                                            short_path(&prev.file),
+                                            prev.file_line,
+                                        ),
+                                    ));
+                                }
+                                None => by_slice.push((slice_id, site_id)),
                             }
                         }
                     }
@@ -288,16 +334,20 @@ pub(super) fn check_maps(
     //
     // Sorted by codepoint: the report is a golden, and a HashMap would make its
     // order depend on the hasher.
-    let mut conflicts: Vec<(u32, &BTreeMap<Option<String>, MapSite>)> = mapped_codepoints
-        .iter()
+    let rank = slices_seen.rank();
+    let mut conflicts: Vec<(u32, &mut Vec<(u16, u32)>)> = mapped_codepoints
+        .iter_mut()
         .filter(|(_, by_slice)| by_slice.len() > 1)
         .map(|(cp, by_slice)| (*cp, by_slice))
         .collect();
     conflicts.sort_by_key(|(cp, _)| *cp);
     for (cp, by_slice) in conflicts {
+        // Into the order the message reads them in; see `SliceTable::rank`.
+        by_slice.sort_by_key(|(slice, _)| rank[*slice as usize]);
         for face in &faces.faces {
             let present: Vec<(&Option<String>, &MapSite)> = by_slice
                 .iter()
+                .map(|&(slice, site)| (slices_seen.name(slice), &sites[site as usize]))
                 .filter(|(slice, _)| face.includes(slice.as_deref()))
                 .collect();
             if present.len() < 2 {

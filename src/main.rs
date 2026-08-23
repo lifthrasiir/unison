@@ -211,6 +211,212 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
     i32::from(failures > 0)
 }
 
+/// One rebuild's stages, as the editor splits them across its two background
+/// threads.
+#[cfg(feature = "editor")]
+struct RebuildTiming {
+    label: &'static str,
+    font: std::time::Duration,
+    resolve: std::time::Duration,
+    validate: std::time::Duration,
+    flags: std::time::Duration,
+    recompose: std::time::Duration,
+}
+
+#[cfg(feature = "editor")]
+impl RebuildTiming {
+    fn derived(&self) -> std::time::Duration {
+        self.resolve + self.validate + self.flags + self.recompose
+    }
+}
+
+/// `uniform probe --input DIR --edit`
+///
+/// What *one edit* costs the editor, which is a different question from what
+/// starting it costs: by the time an edit lands the contour and composite
+/// caches are warm, so the startup numbers say nothing about the wait between
+/// clicking a pixel and seeing the font.
+///
+/// Four passes, in the order that makes the numbers readable: a cold build, a
+/// second build with nothing changed (which is the warm floor), then one pixel
+/// and then one whole glyph block. The last two are what a source is actually
+/// edited by, and comparing them to the warm floor is the point — a floor as
+/// high as the edits means nothing is being reused between rebuilds.
+///
+/// The stages are the editor's own, split the way `app::background` runs them:
+/// the font build on one thread, the derived data (resolve, validation, glyph
+/// flags, recomposition) on the other, so the wait is the larger of the two
+/// rather than the sum.
+///
+/// Which glyph is edited is deliberately arbitrary — the first one with a grid
+/// — because the cost of a rebuild does not depend on it: nothing downstream
+/// of the caches is keyed on what changed.
+#[cfg(feature = "editor")]
+fn run_edit_probe(input: &std::path::Path) {
+    let never = cancel::CancelToken::never();
+    let (mut docs, errors, _sources) =
+        render::ttf_builder::load_docs_from_directory_with_sources(input);
+    if !errors.is_empty() {
+        eprintln!("{} file(s) failed to parse", errors.len());
+    }
+    if docs.is_empty() {
+        eprintln!("no .unf files in {}", input.display());
+        std::process::exit(1);
+    }
+
+    let contour_cache = render::new_contour_cache();
+    let mut grid_cache = ref_composite::CompositeGridCache::default();
+    let mut rows: Vec<RebuildTiming> = Vec::new();
+
+    let mut rebuild = |docs: &[document::Document],
+                       grid_cache: &mut ref_composite::CompositeGridCache,
+                       label: &'static str| {
+        let refs: Vec<&document::Document> = docs.iter().collect();
+
+        let t = std::time::Instant::now();
+        let _font = render::build_font_pair_cached_for(&refs, &contour_cache, None, &never);
+        let font = t.elapsed();
+
+        let t = std::time::Instant::now();
+        let Some(resolution) = resolve::Resolution::compute_cancellable(&refs, &never) else {
+            eprintln!("resolution produced nothing; is `meta height` set?");
+            std::process::exit(1);
+        };
+        let resolve = t.elapsed();
+
+        let t = std::time::Instant::now();
+        let issues = issues::collect_issues_with(&refs, &resolution);
+        let validate = t.elapsed();
+
+        let t = std::time::Instant::now();
+        let _flags = glyph_flags::collect(&refs, &issues, &resolution.expansion);
+        let flags = t.elapsed();
+
+        let name_parts = resolution.name_parts;
+        let t = std::time::Instant::now();
+        let _ = ref_composite::resolve_expansion_cached(
+            resolution.expansion,
+            &name_parts,
+            &never,
+            Some(grid_cache),
+        );
+        let recompose = t.elapsed();
+
+        RebuildTiming {
+            label,
+            font,
+            resolve,
+            validate,
+            flags,
+            recompose,
+        }
+    };
+
+    rows.push(rebuild(&docs, &mut grid_cache, "cold (first build)"));
+    rows.push(rebuild(&docs, &mut grid_cache, "warm (nothing changed)"));
+
+    if !edit_one_pixel(&mut docs) {
+        eprintln!("no glyph with a pixel grid to edit");
+        std::process::exit(1);
+    }
+    rows.push(rebuild(&docs, &mut grid_cache, "one pixel"));
+
+    add_one_glyph_block(&mut docs);
+    rows.push(rebuild(&docs, &mut grid_cache, "one glyph block"));
+
+    print!("{}", edit_probe_report(&rows));
+}
+
+/// Flip the first pixel of the first glyph that has a grid, the way the editor's
+/// own pixel-only path does — the grid in place, both generations bumped.
+#[cfg(feature = "editor")]
+fn edit_one_pixel(docs: &mut [document::Document]) -> bool {
+    for doc in docs.iter_mut() {
+        for item in doc.items.iter_mut() {
+            let document::DocumentItem::Glyph { body, .. } = item else {
+                continue;
+            };
+            let Some(grid) = body.pixels.as_mut() else {
+                continue;
+            };
+            if grid.width == 0 || grid.height == 0 {
+                continue;
+            }
+            let was_empty = grid.get(0, 0).shape_id() == pixel::PX_EMPTY;
+            grid.set(
+                0,
+                0,
+                if was_empty {
+                    pixel::PixelShape::new(pixel::PX_FULL, true)
+                } else {
+                    pixel::PixelShape::new(pixel::PX_EMPTY, false)
+                },
+            );
+            doc.pixel_gen += 1;
+            doc.content_gen += 1;
+            return true;
+        }
+    }
+    false
+}
+
+/// Append one glyph block — the smallest change that alters the *structure*
+/// rather than a drawing, and so the one that tells a cache keyed on the glyph
+/// set from a cache keyed on the pixels.
+#[cfg(feature = "editor")]
+fn add_one_glyph_block(docs: &mut [document::Document]) {
+    let Some(doc) = docs.first_mut() else {
+        return;
+    };
+    let body = doc.items.iter().find_map(|item| match item {
+        document::DocumentItem::Glyph { body, .. } if body.pixels.is_some() => Some(body.clone()),
+        _ => None,
+    });
+    let Some(body) = body else { return };
+    doc.items.push(document::DocumentItem::Glyph {
+        name: document::GlyphName("probe-added-glyph".to_string()),
+        body,
+    });
+    doc.item_line_starts.push(0);
+    doc.content_gen += 1;
+}
+
+#[cfg(feature = "editor")]
+fn edit_probe_report(rows: &[RebuildTiming]) -> String {
+    fn ms(d: std::time::Duration) -> String {
+        format!("{:.1} ms", d.as_secs_f64() * 1000.0)
+    }
+    let mut out = String::new();
+    out.push_str("Rebuild timing after one edit\n");
+    out.push_str("=============================\n\n");
+    if cfg!(debug_assertions) {
+        out.push_str(
+            "(debug build \u{2014} compute stages are 10-30x slower than a release build)\n\n",
+        );
+    }
+    out.push_str(
+        "The font build runs on one background thread and the derived data on\n\
+         another, so what an edit costs is the larger of the two columns.\n\n",
+    );
+    out.push_str(
+        "pass                        font build      resolve     validate      \
+         flags   recompose      derived\n",
+    );
+    for r in rows {
+        out.push_str(&format!(
+            "  {:<24}{:>12}{:>13}{:>13}{:>11}{:>12}{:>13}\n",
+            r.label,
+            ms(r.font),
+            ms(r.resolve),
+            ms(r.validate),
+            ms(r.flags),
+            ms(r.recompose),
+            ms(r.derived()),
+        ));
+    }
+    out
+}
+
 /// `uniform probe --input DIR [--repeat N]`
 ///
 /// The startup path with no window in the way: how long the process took to
@@ -261,10 +467,11 @@ fn main() {
     startup::init();
     let args: Vec<String> = std::env::args().collect();
 
-    // Probe subcommand: uniform probe --input DIR [--repeat N]
+    // Probe subcommand: uniform probe --input DIR [--repeat N] [--edit]
     if args.get(1).map(|s| s.as_str()) == Some("probe") {
         let mut input_dir = None;
         let mut repeats = 1usize;
+        let mut edit = false;
         let mut i = 2;
         while i < args.len() {
             match args[i].as_str() {
@@ -276,6 +483,7 @@ fn main() {
                     i += 1;
                     repeats = args.get(i).and_then(|s| s.parse().ok()).unwrap_or(1).max(1);
                 }
+                "--edit" => edit = true,
                 _ => {
                     eprintln!("Unknown probe option: {}", args[i]);
                     std::process::exit(1);
@@ -284,10 +492,17 @@ fn main() {
             i += 1;
         }
         let Some(input) = input_dir else {
-            eprintln!("Usage: uniform probe --input <DIR> [--repeat N]");
+            eprintln!("Usage: uniform probe --input <DIR> [--repeat N] [--edit]");
             std::process::exit(1);
         };
-        run_probe(&input, repeats);
+        if edit {
+            #[cfg(feature = "editor")]
+            run_edit_probe(&input);
+            #[cfg(not(feature = "editor"))]
+            eprintln!("`--edit` measures the editor's rebuild and needs the `editor` feature");
+        } else {
+            run_probe(&input, repeats);
+        }
         return;
     }
 

@@ -42,6 +42,7 @@ cargo run -r -- build -i font/ -o unison.ttf [-o unison.woff2] [-o unison-%.ttf]
 cargo run -r -- test -i font/       # run `assert` directives; exit 1 on failure
 cargo run -r -- fix -i font/ --optimize-clearance [--dry-run]   # rewrite the source: see `fix/`
 cargo run -r -- probe -i font/ [-n 2]   # startup timing with no window: see `startup.rs`
+cargo run -r -- probe -i font/ --edit   # what one edit costs the editor, caches warm
 ```
 
 Output extension picks the format (`.woff2` → WOFF2, anything else → TTF); `--woff2-quality max`
@@ -223,6 +224,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The empty target `` `` ``: dropping a mapping instead of faulting it, and why it has to be last | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
 | Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `render/ttf_builder/expand.rs` (`WideMapRows`, `AltTarget`, `map_char_pattern`) |
 | Why a `map` target nothing declares is never remembered as a reachability root | `issues/unused.rs` (`GlyphGraph::knows`), `issues/maps.rs`, `render/ttf_builder/expand.rs` (`for_each_map_alternative_name`) |
+| Why the duplicate-codepoint table holds two integers per codepoint rather than a slice name and a path | `issues/maps.rs` (`MapSite`, `SliceTable`) |
 | Why a name that is nothing but one `($-N)` is never ragged | `issues/patterns.rs` (`whole_back_reference`) |
 | Why a character the font cannot draw is tinted by the specimen and not by a glyph flag | `specimen.rs` (`CharEntry::unresolved`, `flag_for`) |
 | Which half of a variation sequence may be a range, and why not both | `render/ttf_builder/expand.rs` (`expand_uvs_map_triples`) |
@@ -311,6 +313,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
 | Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite/mod.rs` (`InlineSource`) |
 | On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
+| Which on-demand grids are remembered between builds, and why the line is not drawn at the shape | `on_demand.rs` (`make_on_demand_grid`) |
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |
 | Why a `ref` to a composite that subtracts is one sample layer, not its parts | `render/sample.rs` (`push_ref_components`) |
@@ -378,6 +381,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a polled directory is enumerated rather than `stat`ed, and how its interval sets itself | `app/watch.rs` (`poll_snapshot`, `next_poll_delay`) |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
 | Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |
+| What one edit costs the editor once its caches are warm, and why that is not the startup question | `main.rs` (`run_edit_probe`) |
 | Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |
 | Why the directory load reads its files on many threads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`) |
 | One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |

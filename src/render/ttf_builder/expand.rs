@@ -1132,35 +1132,6 @@ fn settle_row(
     (usable(NOTDEF).then(|| NOTDEF.to_string()), false)
 }
 
-/// Every alternative of one `map` line, expanded over the line's characters.
-///
-/// The same pairs [`expand_map_pairs`] returns for each alternative in turn,
-/// but with the character spec — which a range line writes tens of thousands of
-/// characters wide — parsed and expanded once for the line rather than once per
-/// alternative. That is the difference between a source-side check costing a
-/// line's width and costing its width times its alternatives.
-pub(crate) fn expand_map_pairs_per_alternative(
-    char_repr: &str,
-    glyphs: &[String],
-) -> Vec<Vec<(u32, String)>> {
-    let Some(spec) = wide_map_rows(char_repr) else {
-        return glyphs
-            .iter()
-            .map(|g| expand_map_pairs(char_repr, g))
-            .collect();
-    };
-    glyphs
-        .iter()
-        .map(|g| {
-            let target = AltTarget::of(g, &spec);
-            spec.rows()
-                .iter()
-                .map(|&(i, cp)| (cp, target.get(i)))
-                .collect()
-        })
-        .collect()
-}
-
 /// Every glyph name one `map` line's alternatives put on a character, one at a
 /// time.
 ///
@@ -2016,9 +1987,9 @@ pub(crate) fn map_char_captures(char_repr: &str, selector: Option<&str>) -> Vec<
 /// range, or a top-level pipe list. Invalid and unparsable entries are dropped.
 pub(crate) fn expand_map_codepoints(token: &str) -> Vec<u32> {
     if let Some(spec) = map_char_pattern(token) {
-        return (0..spec.pattern.len())
-            .filter_map(|i| parse_map_char(&spec.pattern.get(i)))
-            .collect();
+        // The memo already holds the expansion; rebuilding every name to read
+        // its code point back out is what this used to cost.
+        return spec.rows.iter().map(|&(_, cp)| cp).collect();
     }
 
     if let Some(hex_rest) = token

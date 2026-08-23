@@ -1034,22 +1034,31 @@ fn draw_triangle(
 /// are decided afterwards by [`apply_bitmap_fill`], so `spec.fill` changes
 /// only what the bitmap build draws, never an outline.
 ///
-/// Curved shapes are memoized: cutting one costs an exact clip per outline
-/// cell, and the same handful of names is rebuilt on every font build.
+/// Memoized on the box, which is the whole input: the same handful of names is
+/// rebuilt on every font build, and the editor runs two of those per edit — one
+/// for the font, one for the derived data — on top of each other.
+///
+/// A curved shape costs an exact clip per outline cell and was the first to be
+/// kept; a whole-cell rectangle costs almost nothing and does not need to be.
+/// Everything in between — a rectangle with a fractional edge, a triangle — is
+/// exact geometry like a curve, so the line is drawn at "does this box place
+/// anything but whole cells" rather than at the shape.
 pub fn make_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
-    match spec.shape {
-        OnDemandShape::Circle | OnDemandShape::Poly(_) => {
-            static CACHE: OnceLock<Mutex<HashMap<OnDemandBox, PixelGrid>>> = OnceLock::new();
-            let cache = CACHE.get_or_init(Mutex::default);
-            if let Some(grid) = cache.lock().unwrap().get(spec) {
-                return grid.clone();
-            }
-            let grid = build_on_demand_grid(spec);
-            cache.lock().unwrap().insert(spec.clone(), grid.clone());
-            grid
-        }
-        OnDemandShape::Rect | OnDemandShape::Tri(_) => build_on_demand_grid(spec),
+    let whole_cells = spec.shape == OnDemandShape::Rect
+        && spec.w_frac == 0
+        && spec.h_frac == 0
+        && spec.scale == 1;
+    if whole_cells {
+        return build_on_demand_grid(spec);
     }
+    static CACHE: OnceLock<Mutex<HashMap<OnDemandBox, PixelGrid>>> = OnceLock::new();
+    let cache = CACHE.get_or_init(Mutex::default);
+    if let Some(grid) = cache.lock().unwrap().get(spec) {
+        return grid.clone();
+    }
+    let grid = build_on_demand_grid(spec);
+    cache.lock().unwrap().insert(spec.clone(), grid.clone());
+    grid
 }
 
 /// Where the box starts on an axis whose extent leaves `gap` subcells over.
