@@ -22,11 +22,11 @@ meta license-url https://creativecommons.org/publicdomain/zero/1.0/
 
 ## faces and slices
 
-face regular : wide
+face regular : wide han
 meta regular : family Unison
 meta regular : subfamily Regular
 
-face term : narrow
+face term : narrow han
 meta term : family `Unison Term`
 meta term : subfamily Regular
 

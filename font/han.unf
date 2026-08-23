@@ -53,27 +53,59 @@
 // han-j001 j039 j085 j119 j162
 //      844  820  901  866  867
 
+// per-region slices of Han character mappings
+slice han-cn // China (G)
+slice han-hk // Hong Kong (H)
+slice han-tw // Taiwan (T)
+slice han-jp // Japan (J)
+slice han-kr // Republic of Korea (K)
+slice han-kp // Democratic People's Republic of Korea (P)
+slice han-vn // Viet Nam (V)
+
+slice han = han-kr // TODO: should be face-dependent
+
 name-parts $han-regions = g h t j k p v
 
 audit ideal-clearance han-* 0 1
 audit max-contact-run han-* 2
 
-// han-XXXX:15x16 -> U+XXXX (assumes no han-XXXX-<region>:15x16)
-exists han-([0-9a-f]{4,5}):15x16
+// han-XXXX[-<region>]:15x16 -> han-XXXX[-<region>]
+// <region> = G(china) Hongkong Taiwan Japan roK dPrk Vietnam
+exists han-([0-9a-f]{4,5}(?:-[ghtjkpv])?):15x16
 glyph han-($1) 16 16 advance 16
 ref ($0) 1 0
-exists han-([0-9a-f]{4,5}):15x16
-map U+($1) = han-($1)
 
-// han-XXXX-<region>:15x16 -> U+XXXX (assumes no han-XXXX:15x16)
-// <region> is face-dependent: G(china) Hongkong Taiwan Japan roK dPrk Vietnam
-exists han-([0-9a-f]{4,5})-([ghtjkpv]):15x16
-glyph han-($1)-($2) 16 16 advance 16
-ref ($0) 1 0
-exists han-([0-9a-f]{4,5})-(k):15x16 // TODO: other regions
-map U+($1) = han-($1)-($2)
+// map han-XXXX[-<region>] -> U+XXXX
+// explicit han-XXXX (without a region) is preferred if exists
+// otherwise the region corresponding to the current face is preferred
+// otherwise remaining regions are matched in the order
+//
+// BMP
+map han-cn : U+($#4e00..9fff|$#3400..4dbf|$#f900..faff) = han-($-1) han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-hk : U+($#4e00..9fff|$#3400..4dbf|$#f900..faff) = han-($-1) han-($-1)-h han-($-1)-g han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-tw : U+($#4e00..9fff|$#3400..4dbf|$#f900..faff) = han-($-1) han-($-1)-t han-($-1)-g han-($-1)-h han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-jp : U+($#4e00..9fff|$#3400..4dbf|$#f900..faff) = han-($-1) han-($-1)-j han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-kr : U+($#4e00..9fff|$#3400..4dbf|$#f900..faff) = han-($-1) han-($-1)-k han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-p han-($-1)-v ``
+map han-kp : U+($#4e00..9fff|$#3400..4dbf|$#f900..faff) = han-($-1) han-($-1)-p han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-v ``
+map han-vn : U+($#4e00..9fff|$#3400..4dbf|$#f900..faff) = han-($-1) han-($-1)-v han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p ``
+// SIP
+map han-cn : U+($#20000..2a6df|$#2a700..2ee5f|$#2f800..2fa1f) = han-($-1) han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-hk : U+($#20000..2a6df|$#2a700..2ee5f|$#2f800..2fa1f) = han-($-1) han-($-1)-h han-($-1)-g han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-tw : U+($#20000..2a6df|$#2a700..2ee5f|$#2f800..2fa1f) = han-($-1) han-($-1)-t han-($-1)-g han-($-1)-h han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-jp : U+($#20000..2a6df|$#2a700..2ee5f|$#2f800..2fa1f) = han-($-1) han-($-1)-j han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-kr : U+($#20000..2a6df|$#2a700..2ee5f|$#2f800..2fa1f) = han-($-1) han-($-1)-k han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-p han-($-1)-v ``
+map han-kp : U+($#20000..2a6df|$#2a700..2ee5f|$#2f800..2fa1f) = han-($-1) han-($-1)-p han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-v ``
+map han-vn : U+($#20000..2a6df|$#2a700..2ee5f|$#2f800..2fa1f) = han-($-1) han-($-1)-v han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p ``
+// TIP
+map han-cn : U+($#30000..3347f) = han-($-1) han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-hk : U+($#30000..3347f) = han-($-1) han-($-1)-h han-($-1)-g han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-tw : U+($#30000..3347f) = han-($-1) han-($-1)-t han-($-1)-g han-($-1)-h han-($-1)-j han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-jp : U+($#30000..3347f) = han-($-1) han-($-1)-j han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-k han-($-1)-p han-($-1)-v ``
+map han-kr : U+($#30000..3347f) = han-($-1) han-($-1)-k han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-p han-($-1)-v ``
+map han-kp : U+($#30000..3347f) = han-($-1) han-($-1)-p han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-v ``
+map han-vn : U+($#30000..3347f) = han-($-1) han-($-1)-v han-($-1)-g han-($-1)-h han-($-1)-t han-($-1)-j han-($-1)-k han-($-1)-p ``
 
-// han-XXXX-<region>:15x16 -> U+XXXX U+E01EY (Y derives from <region>)
+// han-XXXX-<region> -> U+XXXX U+E01EY (Y derives from <region>)
 // follows proposed PanCJKV IVD collection (L2/16-063)
 exists han-([0-9a-f]{4,5})-g:15x16
 map U+($1) U+E01EE = han-($1)-g

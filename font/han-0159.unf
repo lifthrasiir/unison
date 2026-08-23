@@ -519,7 +519,7 @@ glyph han-914a:15x16 15 16 // 酊
 
 ## 164.3
 
-glyph han-914c-(g|h|t|j|k|v):15x16 15 16 // 酌
+glyph han-914c-(g|h|t|j|p|v):15x16 15 16 // 酌
 ⿰ han-9149:7x16 1 han-52fa-($-1):7x16 // ⿰酉勺
 glyph han-914c-k:15x16 15 16 // 酌
 ⿰ han-9149:7x16 1 han-52fa.1:7x16 // ⿰酉勺
