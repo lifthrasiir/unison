@@ -2,6 +2,7 @@
 //! decomposed-map glyph items synthesized on top of them.
 
 use super::*;
+use crate::pattern::{capture_groups, substitute_captures};
 
 /// One item of the expanded item list, tagged with the source item it came
 /// from. Synthesized items (on-demand glyphs, `map <decomposable>` composites)
@@ -1318,6 +1319,10 @@ pub(crate) fn expand_uvs_map_triples(
 ) -> Result<Vec<(u32, u32, String)>, UvsExpandError> {
     let bases = expand_map_codepoints(char_repr);
     let selectors = expand_map_codepoints(selector);
+    // The groups of both halves, numbered in written order — the base's first,
+    // since that is how the line reads.
+    let captures = map_char_captures(char_repr, Some(selector));
+    let glyph = &substitute_captures(glyph, &captures);
     if bases.is_empty() {
         return Err(UvsExpandError::Empty {
             selector_half: false,
@@ -1363,9 +1368,49 @@ pub(crate) fn expand_uvs_map_triples(
         .collect())
 }
 
+/// The character spec of a `map`, when it is written as a *pattern*: the code
+/// point spellings it stands for, and the groups it captures.
+///
+/// A parenthesized list is the only spelling on this side that captures, which
+/// is what makes `map (ㅠ|ㅡ) = hangul-($-1)` different from the bare
+/// `map ㅠ|ㅡ = ...` beside it: the parentheses mark the group, and only a
+/// marked group can be named again. Inline ranges are expanded here (with no
+/// bindings, since a `map`'s left-hand side has never taken a `$name-part`),
+/// so `U+($#4e00..9fff)` is one line over a whole block.
+///
+/// `None` for every spelling that is not one — a lone `(` is a character to be
+/// mapped like any other, and so is anything whose group does not parse.
+fn map_char_pattern(char_repr: &str) -> Option<(NamePattern, Vec<Vec<String>>)> {
+    if !char_repr.contains('(') {
+        return None;
+    }
+    let spec = substitute_name_parts(char_repr, &NamePartsMap::new());
+    let captures = capture_groups(&spec);
+    if captures.is_empty() {
+        return None;
+    }
+    Some((NamePattern::parse_element(&spec).ok()?, captures))
+}
+
+/// The groups a `map`'s character spec captures — [`map_char_pattern`]'s other
+/// half, for the checks that read the line rather than expand it.
+pub(crate) fn map_char_captures(char_repr: &str, selector: Option<&str>) -> Vec<Vec<String>> {
+    map_char_pattern(char_repr)
+        .into_iter()
+        .chain(selector.and_then(map_char_pattern))
+        .flat_map(|(_, groups)| groups)
+        .collect()
+}
+
 /// The codepoints one half of a `map` names: a single character, a `U+X..Y`
 /// range, or a top-level pipe list. Invalid and unparsable entries are dropped.
 pub(crate) fn expand_map_codepoints(token: &str) -> Vec<u32> {
+    if let Some((pattern, _)) = map_char_pattern(token) {
+        return (0..pattern.len())
+            .filter_map(|i| parse_map_char(&pattern.get(i)))
+            .collect();
+    }
+
     if let Some(hex_rest) = token
         .strip_prefix("U+")
         .or_else(|| token.strip_prefix("u+"))
@@ -1430,6 +1475,19 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
 }
 
 pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String)> {
+    // Written as a pattern, which is the one spelling that binds `$-N` for the
+    // target beside it.
+    if let Some((pattern, captures)) = map_char_pattern(char_repr) {
+        let glyph = substitute_captures(glyph, &captures);
+        let count = pattern.len();
+        let names = expand_glyph_pattern(&glyph, count);
+        return (0..count)
+            .filter_map(|i| {
+                parse_map_char(&pattern.get(i)).map(|cp| (cp, names[i % names.len()].clone()))
+            })
+            .collect();
+    }
+
     // Range: U+XXXX..YYYY or u+XXXX..YYYY
     if let Some(hex_rest) = char_repr
         .strip_prefix("U+")

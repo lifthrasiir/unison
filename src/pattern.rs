@@ -12,6 +12,34 @@
 //!   pattern parsing.  A reference is just one alternative among the others,
 //!   so `(foo|$bar|baz*5|$#00..ff*3**2)` mixes all the forms freely; a `*N`
 //!   on a reference repeats each of its values.
+//! - `$-1`, `$-2`, … — *back-references*: the item's own groups, named again
+//!   further along it.  A `glyph` block header, a `glyph … = …` alias and a
+//!   `map` each write one leading pattern, and the parenthesized groups of
+//!   that pattern are numbered in written order for every other name on the
+//!   item — a `ref`, an IDC component, an alias target, a `map` target:
+//!
+//!   ```text
+//!   glyph han-xxxx-(g|h|t|j|p|v):15x16 15 16
+//!   ref han-yyyy-($-1):15x16 0 0
+//!   ```
+//!
+//!   Only a written `(...)` captures, which is what tells `map (ㅠ|ㅡ) = …`
+//!   from the `map ㅠ|ㅡ = …` beside it: the parentheses are the mark, and the
+//!   two entry points that *synthesize* a group nobody wrote (see below) must
+//!   not bind one.  [`capture_groups`] is that rule.
+//!
+//!   A back-reference is substituted like any other reference —
+//!   [`substitute_captures`] splices the group's alternatives in as a group of
+//!   its own — so it is indexed in lock-step with the pattern it names (that
+//!   is the point) and every operator above works on it unchanged.  It is
+//!   declared by the item and gone with it: nothing carries a `$-N` from one
+//!   line to the next except the block header's reach over its own `ref`
+//!   lines.
+//!
+//!   A `$N` from an [`exists`](crate::exists) search and a `$-N` answer
+//!   different questions — what the search matched, and the n-th group this
+//!   item writes — but they share the parentheses: `glyph out-($1)-(a|b)` has
+//!   two groups, and the `(a|b)` beside the capture is `$-2`.
 //!
 //! Multiple groups in one pattern combine cyclically: the total length is the
 //! size of the *largest* group and group `k` contributes its `i % len(k)`-th
@@ -624,6 +652,16 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
     if !s.contains('$') {
         return s.to_string();
     }
+    substitute_with(s, &|var| parts.get(var).cloned())
+}
+
+/// [`substitute_name_parts`] over an arbitrary binding: `lookup` answers with
+/// the values of one `$reference`, or `None` to leave it verbatim.
+///
+/// Inline ranges (`$#a0..af`) are the syntax's own and are expanded whatever
+/// `lookup` says, which is why a caller with no bindings at all still goes
+/// through here.
+fn substitute_with(s: &str, lookup: &dyn Fn(&str) -> Option<Vec<String>>) -> String {
     let mut result = String::with_capacity(s.len());
     let chars: Vec<char> = s.chars().collect();
     let mut i = 0;
@@ -653,7 +691,7 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
                     j += 1;
                 }
                 let var: String = chars[start..j].iter().collect();
-                (parts.get(&var).cloned(), j)
+                (lookup(&var), j)
             }
         };
 
@@ -680,6 +718,120 @@ pub fn substitute_name_parts(s: &str, parts: &NamePartsMap) -> String {
         }
     }
     result
+}
+
+// ---------------------------------------------------------------------------
+// Back-references ($-N)
+
+/// The alternation groups a pattern *writes*, in written order — what a
+/// `$-1`, `$-2`, … back-reference on the same item names.
+///
+/// Only a literal `(...)` captures. That is a narrower rule than
+/// [`NamePattern::group_lens`], and deliberately so: the two entry points that
+/// synthesize a group nobody wrote — [`parse_element`](NamePattern::parse_element)
+/// wrapping a top-level `a|b` and [`parse`](NamePattern::parse)'s verbatim
+/// branch list — would otherwise make `map a|b|c = ...` capture something the
+/// author never marked, and the parentheses are exactly the mark. A `$var`
+/// substituted into a group is part of that group and nothing on its own, so
+/// this reads the string *after* substitution.
+///
+/// A group whose content does not parse comes back empty and binds nothing,
+/// which keeps the numbering of the groups after it as written.
+pub fn capture_groups(s: &str) -> Vec<Vec<String>> {
+    let mut groups = Vec::new();
+    if !s.contains('(') {
+        return groups;
+    }
+    let bytes = s.as_bytes();
+    let mut pos = 0;
+    while pos < bytes.len() {
+        if bytes[pos] != b'(' {
+            pos += 1;
+            continue;
+        }
+        let open = pos;
+        let mut depth = 1;
+        pos += 1;
+        while pos < bytes.len() && depth > 0 {
+            match bytes[pos] {
+                b'(' => depth += 1,
+                b')' => depth -= 1,
+                _ => {}
+            }
+            pos += 1;
+        }
+        if depth != 0 {
+            // Unmatched `(` — not a group, and neither is anything after it.
+            break;
+        }
+        groups.push(parse_alt_content(&s[open + 1..pos - 1]).unwrap_or_default());
+    }
+    groups
+}
+
+/// The values `$-N` stands for, or `None` when `var` is not a back-reference
+/// or names a group the pattern does not have.
+fn capture_value(var: &str, groups: &[Vec<String>]) -> Option<Vec<String>> {
+    let digits = var.strip_prefix("$-")?;
+    if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let n: usize = digits.parse().ok()?;
+    let group = groups.get(n.checked_sub(1)?)?;
+    if group.is_empty() {
+        return None;
+    }
+    Some(group.clone())
+}
+
+/// Whether `s` writes a `$-N` back-reference at all.
+///
+/// The editor asks this of a `ref` line while it is being typed, before
+/// anything has expanded the block it sits in: the groups it names are the
+/// header's, so the line cannot answer for itself and must not be called
+/// wrong for it. The same question [`crate::exists::mentions_capture`] answers
+/// for a `($1)`, for the same reason.
+pub fn mentions_back_reference(s: &str) -> bool {
+    let bytes = s.as_bytes();
+    (0..bytes.len()).any(|i| {
+        bytes[i] == b'$'
+            && bytes.get(i + 1) == Some(&b'-')
+            && bytes.get(i + 2).is_some_and(u8::is_ascii_digit)
+    })
+}
+
+/// Substitute the back-references of one item, given the groups its own
+/// pattern wrote.
+///
+/// The values are spliced in as an alternation group of their own, so the
+/// reference is indexed in lock-step with the pattern it names — which is the
+/// whole point — and every operator that works on a `$name-part` (`*N`, `**N`,
+/// mixing it with literal alternatives) works on it unchanged.
+pub fn substitute_captures(s: &str, groups: &[Vec<String>]) -> String {
+    if groups.is_empty() || !s.contains('$') {
+        return s.to_string();
+    }
+    substitute_with(s, &|var| capture_value(var, groups))
+}
+
+/// [`substitute_name_parts`] with the item's own back-references in scope.
+///
+/// A back-reference wins over a `name-parts` binding of the same spelling: it
+/// is declared by the line itself, so it is the nearer scope. (Nothing writes
+/// `name-parts $-1` — the collision is theoretical — but the precedence has to
+/// be *some* way round, and this is the one that makes a line mean what it
+/// says on its own.)
+pub fn substitute_name_parts_and_captures(
+    s: &str,
+    parts: &NamePartsMap,
+    groups: &[Vec<String>],
+) -> String {
+    if !s.contains('$') {
+        return s.to_string();
+    }
+    substitute_with(s, &|var| {
+        capture_value(var, groups).or_else(|| parts.get(var).cloned())
+    })
 }
 
 /// Reads a `*N` / `**N` repeat suffix at `pos`.  Returns the star count and
@@ -1224,5 +1376,86 @@ mod tests {
             substitute_name_parts("($bar**2)", &NamePartsMap::new()),
             "($bar**2)",
         );
+    }
+
+    // -----------------------------------------------------------------------
+    // Back-references
+
+    #[test]
+    fn capture_groups_are_the_written_parentheses_in_order() {
+        assert_eq!(
+            capture_groups("han-(g|h|t):15x16"),
+            vec![vec!["g".to_string(), "h".to_string(), "t".to_string()]],
+        );
+        assert_eq!(
+            capture_groups("(a|b)-(1|2|3)"),
+            vec![
+                vec!["a".to_string(), "b".to_string()],
+                vec!["1".to_string(), "2".to_string(), "3".to_string()],
+            ],
+        );
+        // A repeat is part of the group's alternatives, so a back-reference to
+        // it stays indexed in lock-step with the name.
+        assert_eq!(
+            capture_groups("(a|b**2)"),
+            vec![vec![
+                "a".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "b".to_string(),
+            ]],
+        );
+        // Neither a top-level list nor a bare repeat writes parentheses, so
+        // neither captures.
+        assert!(capture_groups("a|b|c").is_empty());
+        assert!(capture_groups("foo*3").is_empty());
+        assert!(capture_groups("plain-name").is_empty());
+        // An unmatched `(` is not a group.
+        assert!(capture_groups("(a|b").is_empty());
+    }
+
+    #[test]
+    fn a_back_reference_substitutes_as_a_group_of_its_own() {
+        let groups = capture_groups("out-(a|b|c)-(1|2|3)");
+        assert_eq!(substitute_captures("dep-($-1)", &groups), "dep-(a|b|c)");
+        assert_eq!(substitute_captures("dep-($-2)", &groups), "dep-(1|2|3)");
+        // Every operator a `$name-part` takes works on it unchanged.
+        assert_eq!(
+            substitute_captures("dep-($-1*2)", &groups),
+            "dep-(a*2|b*2|c*2)",
+        );
+        assert_eq!(
+            substitute_captures("dep-($-1**2)", &groups),
+            "dep-(a|b|c**2)"
+        );
+        assert_eq!(substitute_captures("dep-($-1|x)", &groups), "dep-(a|b|c|x)",);
+        // A group the pattern does not have stays verbatim, so the name it
+        // leaves behind is the invalid one `issues` reports.
+        assert_eq!(substitute_captures("dep-($-3)", &groups), "dep-($-3)");
+        assert_eq!(substitute_captures("dep-($-0)", &groups), "dep-($-0)");
+    }
+
+    /// A back-reference is nearer than a `name-parts` binding of the same
+    /// spelling, and an ordinary `$var` beside it still resolves.
+    #[test]
+    fn a_back_reference_wins_over_a_name_part_of_the_same_name() {
+        let mut parts = NamePartsMap::new();
+        parts.insert("$-1".to_string(), vec!["outer".to_string()]);
+        parts.insert("$half".to_string(), vec!["-half".to_string()]);
+        let groups = capture_groups("out-(a|b)");
+        assert_eq!(
+            substitute_name_parts_and_captures("dep-($-1)($half)", &parts, &groups),
+            "dep-(a|b)(-half)",
+        );
+    }
+
+    #[test]
+    fn mentions_back_reference_reads_only_the_numbered_form() {
+        assert!(mentions_back_reference("dep-($-1)"));
+        assert!(mentions_back_reference("$-12"));
+        // `$-half` is an ordinary name part, and has been one all along.
+        assert!(!mentions_back_reference("arrow-r2l($-half)"));
+        assert!(!mentions_back_reference("dep-($1)"));
+        assert!(!mentions_back_reference("plain"));
     }
 }

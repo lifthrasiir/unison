@@ -158,13 +158,17 @@ pub(super) struct MatchSpan {
 /// carry along as they go rather than re-deriving per line. `exists` is the
 /// search in force, carried the same way ([`crate::exists::Carry`]): a `($1)`
 /// on a scoped line names what that search matched, and nothing on the line
-/// itself says so.
+/// itself says so. `block_captures` is the third of them — the groups the
+/// enclosing `glyph` header wrote, which a `$-N` on a `ref` line names; a line
+/// that writes a leading pattern of its own (an alias, a `map`) binds them
+/// itself instead, which is what [`line_captures`] decides.
 pub(super) fn match_spans(
     line: &str,
     name: &str,
     kind: LinkTargetKind,
     at_base: Option<&str>,
     exists: Option<&str>,
+    block_captures: &[Vec<String>],
     name_parts: &NamePartsMap,
 ) -> Vec<MatchSpan> {
     let at_possible =
@@ -182,6 +186,14 @@ pub(super) fn match_spans(
         }
     }
     let mut cols = Vec::new();
+    let own_captures;
+    let captures = match line_captures(line, at_base, name_parts) {
+        Some(own) => {
+            own_captures = own;
+            &own_captures[..]
+        }
+        None => block_captures,
+    };
     for f in classify_line(line) {
         match kind {
             // A name-parts variable appears *inside* other tokens, so the
@@ -206,7 +218,7 @@ pub(super) fn match_spans(
                     let is_def = f.role == FieldRole::GlyphDef;
                     let written = crate::document::expand_at_name(&f.token, at_base);
                     if written == name
-                        || pattern_denotes(&written, is_def, name, name_parts, exists)
+                        || pattern_denotes(&written, is_def, name, name_parts, exists, captures)
                     {
                         cols.push(span(&f, is_def));
                     }
@@ -270,6 +282,7 @@ fn hits_in_doclines(
     let mut hits = Vec::new();
     let mut at_base: Option<String> = None;
     let mut exists = crate::exists::Carry::default();
+    let mut captures: Vec<Vec<String>> = Vec::new();
     for (i, line) in lines.iter().enumerate() {
         // A pixel row carries no name but is still inside the block an `exists`
         // governs, so the carry has to see it — otherwise a `ref ($0)` written
@@ -285,6 +298,7 @@ fn hits_in_doclines(
                 kind,
                 at_base.as_deref(),
                 exists.pattern(),
+                &captures,
                 name_parts,
             )
             .into_iter()
@@ -293,8 +307,82 @@ fn hits_in_doclines(
         // After matching, never before: a header's own `@` stands for the base
         // that was already in force, exactly as the parser reads it.
         advance_at_base(&mut at_base, text);
+        advance_block_captures(&mut captures, text, at_base.as_deref(), name_parts);
     }
     hits
+}
+
+/// The groups a line binds *itself*, for the `$-N` written further along it —
+/// `None` when it binds none and the enclosing block's are the ones in force.
+///
+/// A `glyph NAME = TARGET` and a `map CHAR = GLYPH` each write their pattern
+/// and name it again on the same line, so the binding never outlives them. A
+/// `glyph` block header is the other shape: what it writes is named on the
+/// `ref` lines *below* it, which is [`advance_block_captures`]'s job.
+fn line_captures(
+    line: &str,
+    at_base: Option<&str>,
+    name_parts: &NamePartsMap,
+) -> Option<Vec<Vec<String>>> {
+    if !line.contains('(') {
+        return None;
+    }
+    let tokens = crate::document_io::tokenize_tokens(line.trim()).ok()?;
+    let (keyword, rest) = tokens.split_first()?;
+    match keyword.as_str() {
+        "glyph" if rest.get(1).is_some_and(|t| t == "=") => Some(crate::pattern::capture_groups(
+            &crate::document::substitute_name_parts(
+                &crate::document::expand_at_name(&rest[0], at_base),
+                name_parts,
+            ),
+        )),
+        "map" => {
+            // The `SLICE :` qualifier first, so what is left is the arity the
+            // unqualified form has — as `line_fields` reads it.
+            let rest = match rest.get(1) {
+                Some(colon) if colon == ":" => &rest[2..],
+                _ => rest,
+            };
+            let rest = match rest.first() {
+                Some(g) if g == "generate" => &rest[1..],
+                _ => rest,
+            };
+            let eq = rest.iter().position(|t| t == "=")?;
+            let (base, selector) = match &rest[..eq] {
+                [base] => (base, None),
+                [base, selector] => (base, Some(selector.as_str())),
+                _ => return None,
+            };
+            Some(crate::render::ttf_builder::map_char_captures(
+                base, selector,
+            ))
+        }
+        _ => None,
+    }
+}
+
+/// Carry the groups a `glyph` block header wrote down to the lines under it,
+/// which is where a `$-N` back-reference names them. A header that writes none
+/// (and an alias line, which binds its own) clears what the last one left.
+pub(super) fn advance_block_captures(
+    captures: &mut Vec<Vec<String>>,
+    line: &str,
+    at_base: Option<&str>,
+    name_parts: &NamePartsMap,
+) {
+    if let Ok(tokens) = crate::document_io::tokenize_tokens(line.trim())
+        && tokens.first().is_some_and(|t| t == "glyph")
+    {
+        *captures = match tokens.get(1) {
+            Some(name) if tokens.get(2).is_none_or(|t| t != "=") => {
+                crate::pattern::capture_groups(&crate::document::substitute_name_parts(
+                    &crate::document::expand_at_name(name, at_base),
+                    name_parts,
+                ))
+            }
+            _ => Vec::new(),
+        };
+    }
 }
 
 /// Carry the `@` base across one source line, as
@@ -444,6 +532,7 @@ pub(super) fn collect_hits(
                 // agree with `hits_in_doclines` once the file opens.
                 let mut at_base: Option<String> = None;
                 let mut exists = crate::exists::Carry::default();
+                let mut captures: Vec<Vec<String>> = Vec::new();
                 let mut found: Vec<(usize, &str, MatchSpan)> = Vec::new();
                 for (i, text) in content.lines().enumerate() {
                     exists.enter(text);
@@ -454,12 +543,14 @@ pub(super) fn collect_hits(
                             kind,
                             at_base.as_deref(),
                             exists.pattern(),
+                            &captures,
                             name_parts,
                         )
                         .into_iter()
                         .map(|s| (i, text, s)),
                     );
                     advance_at_base(&mut at_base, text);
+                    advance_block_captures(&mut captures, text, at_base.as_deref(), name_parts);
                 }
                 for (ordinal, (line_idx, text, span)) in found.into_iter().enumerate() {
                     hits.push(hit(path, ordinal, line_idx + 1, text, span));
@@ -712,7 +803,7 @@ mod tests {
     }
 
     fn cols_with(line: &str, name: &str, kind: LinkTargetKind, parts: &NamePartsMap) -> Vec<usize> {
-        match_spans(line, name, kind, None, None, parts)
+        match_spans(line, name, kind, None, None, &[], parts)
             .into_iter()
             .map(|s| s.col_start)
             .collect()
@@ -814,6 +905,53 @@ mod tests {
         );
     }
 
+    /// A `$-N` names a group of the header above it, so the `ref` line has to
+    /// be walked with that header in force — on its own it denotes nothing.
+    #[test]
+    fn a_back_reference_is_read_against_the_header_above_it() {
+        let name_parts = NamePartsMap::new();
+        let mut captures: Vec<Vec<String>> = Vec::new();
+        advance_block_captures(&mut captures, "glyph out-(a|b|c) 8 16", None, &name_parts);
+
+        let hit = |name: &str| {
+            match_spans(
+                "  ref dep-($-1) 0 0",
+                name,
+                LinkTargetKind::Glyph,
+                None,
+                None,
+                &captures,
+                &name_parts,
+            )
+            .len()
+        };
+        assert_eq!(hit("dep-b"), 1);
+        assert_eq!(hit("dep-z"), 0);
+        // With no header in force there is nothing for it to name.
+        assert_eq!(
+            cols("  ref dep-($-1) 0 0", "dep-b", LinkTargetKind::Glyph),
+            Vec::<usize>::new(),
+        );
+    }
+
+    /// An alias and a `map` write their pattern and name it again on the same
+    /// line, so they bind their own groups rather than the block's.
+    #[test]
+    fn a_line_that_writes_its_own_pattern_binds_its_own_groups() {
+        assert_eq!(
+            cols(
+                "glyph out-(a|b) = dep-($-1)",
+                "dep-b",
+                LinkTargetKind::Glyph
+            ),
+            vec![18],
+        );
+        assert_eq!(
+            cols("map (A|B) = dep-($-1)", "dep-B", LinkTargetKind::Glyph),
+            vec![12],
+        );
+    }
+
     /// The whole pattern token is the span, so the pane highlights what the
     /// line actually says rather than the name that was searched for.
     #[test]
@@ -825,6 +963,7 @@ mod tests {
             LinkTargetKind::Glyph,
             None,
             None,
+            &[],
             &NamePartsMap::new(),
         )[0];
         let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
@@ -988,6 +1127,7 @@ mod tests {
             LinkTargetKind::Glyph,
             None,
             None,
+            &[],
             &NamePartsMap::new(),
         )[0];
         let h = hit(std::path::Path::new("a.unf"), 0, 3, line, span);
@@ -1020,7 +1160,7 @@ mod tests {
                 "$init",
             ),
         ] {
-            let span = *match_spans(line, name, kind, None, None, &NamePartsMap::new())
+            let span = *match_spans(line, name, kind, None, None, &[], &NamePartsMap::new())
                 .first()
                 .unwrap_or_else(|| panic!("no match in {line:?}"));
             let h = hit(std::path::Path::new("a.unf"), 0, 1, line, span);
@@ -1038,6 +1178,7 @@ mod tests {
             LinkTargetKind::Glyph,
             None,
             None,
+            &[],
             &NamePartsMap::new(),
         );
         assert_eq!(spans.len(), 2);

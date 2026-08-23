@@ -581,7 +581,7 @@ impl UniformApp {
                 Some(DocumentItem::Exists { pattern, .. }) => Some(pattern.as_str()),
                 _ => None,
             };
-            n == name || pattern_denotes(n, true, name, &self.name_parts, exists)
+            n == name || pattern_denotes(n, true, name, &self.name_parts, exists, &[])
         };
         let target_path =
             {

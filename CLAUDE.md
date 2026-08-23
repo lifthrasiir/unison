@@ -97,7 +97,8 @@ Core (feature-independent):
   *unrolled* per match rather than bound to the whole list, the fixpoint and its cycle
   budget, and the regex subset. Tests in `exists_tests.rs`.
 - `pattern.rs` — `NamePattern`, the single name-expansion engine. The same syntax parses differently
-  per context on purpose; its module docs spell the three contexts out.
+  per context on purpose; its module docs spell the three contexts out, and the `$-N`
+  back-reference rule with them.
 - `pixel.rs` — `PixelShape`/`PixelGrid`, the shape-code catalog (`PX_*`), boolean ops, `rescale`.
 - `detail.rs` — `DetailRegion`: exact per-pixel sub-pixel geometry on a `1/den` lattice, combined by
   an exact trapezoid sweep. This is what makes composition exact instead of code-approximate. The
@@ -236,6 +237,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a glyph's GID is its index, and how `.notdef` gets to GID 0 | `render/ttf_builder/mod.rs` (`NOTDEF`), `collect.rs` |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
+| `$-N` back-references: naming a pattern's own groups again, and why only a written `(...)` captures | `pattern.rs` (`capture_groups`, `substitute_captures`) |
+| Which item binds a back-reference, and how far it reaches (a header over its `ref` lines, an alias or `map` over its own line) | `document/name_parts.rs` (`expand_glyph_block`), `alias.rs` (`expand_alias`), `render/ttf_builder/expand.rs` (`map_char_pattern`) |
 | `exists PATTERN`: searching the declared names instead of listing candidates, and what `$0`/`$N` bind | `exists.rs`, `document_io.rs` (`# Directives`) |
 | Why an `exists` governs exactly one line, and why it does not stack | `exists.rs` (`# Scope`) |
 | Why a scoped item runs once per match with each `$N` a single string, rather than once with the whole list | `exists.rs` (`# One run per match`), `render/ttf_builder/expand.rs` (`expand_glyph_item`) |

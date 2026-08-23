@@ -249,6 +249,46 @@ ref ($0)
     );
 }
 
+/// A `$N` and a `$-N` answer different questions — what the search matched,
+/// and the n-th group this item's own pattern writes — but they share the
+/// parentheses: a `($1)` is written parentheses like any other, so it takes
+/// the first slot and the group beside it is the second.
+#[test]
+fn a_search_capture_takes_a_back_reference_slot_of_its_own() {
+    let d = doc(&format!(
+        "{PARTS}\
+glyph part-a 1 1
+@@
+glyph part-b 1 1
+..
+exists han-([0-9a-f]{{4,5}}):15x16
+glyph out-($1)-(a|b) 16 16 advance 16 keep
+ref part-($-2)
+"
+    ));
+    let r = Resolution::compute(&[&d]);
+    let refs: Vec<(String, Vec<String>)> = r
+        .expansion
+        .items()
+        .filter_map(|item| match item {
+            DocumentItem::Glyph { name, body } if name.0.starts_with("out-") => Some((
+                name.0.clone(),
+                body.refs.iter().map(|x| x.name.clone()).collect(),
+            )),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        refs,
+        [
+            ("out-4e00-a".to_string(), vec!["part-a".to_string()]),
+            ("out-4e00-b".to_string(), vec!["part-b".to_string()]),
+            ("out-4e01-a".to_string(), vec!["part-a".to_string()]),
+            ("out-4e01-b".to_string(), vec!["part-b".to_string()]),
+        ]
+    );
+}
+
 /// The codepoint is computed from the capture rather than written, so the line
 /// claims exactly the characters that were drawn and no others.
 #[test]

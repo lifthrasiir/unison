@@ -924,6 +924,12 @@ pub fn is_ref_valid(
     if crate::exists::mentions_capture(name) {
         return true;
     }
+    // A `$-N` names a group of the *block header* above it, which this call
+    // cannot see either — answered where the block expands, for the same
+    // reason as above. See [`crate::pattern::mentions_back_reference`].
+    if crate::pattern::mentions_back_reference(name) {
+        return true;
+    }
     let subst = substitute_name_parts(name, name_parts);
     if named_glyphs.contains_key(&subst) {
         return true;

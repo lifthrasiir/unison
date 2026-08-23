@@ -346,6 +346,81 @@ fn glyph_name_count_drives_ref_pattern_expansion() {
     );
 }
 
+/// A back-reference names a group of the block's own name, so a `ref` follows
+/// the name in lock-step without repeating the alternatives.
+#[test]
+fn glyph_block_ref_back_references_the_name_pattern() {
+    let items = expand_glyph_block(
+        &GlyphName("out-(a|b|c)-x".to_string()),
+        &ref_body("dep-($-1)-y"),
+    )
+    .unwrap();
+
+    let expanded: Vec<(String, String)> = items
+        .into_iter()
+        .map(|item| match item {
+            DocumentItem::Glyph { name, body } => (name.display(), body.refs[0].name.clone()),
+            _ => unreachable!(),
+        })
+        .collect();
+    assert_eq!(
+        expanded,
+        vec![
+            ("out-a-x".to_string(), "dep-a-y".to_string()),
+            ("out-b-x".to_string(), "dep-b-y".to_string()),
+            ("out-c-x".to_string(), "dep-c-y".to_string()),
+        ],
+    );
+}
+
+/// The groups are numbered in written order, and a reference is an ordinary
+/// alternation group once substituted — so it combines with the groups written
+/// beside it exactly as the alternatives themselves would.
+#[test]
+fn glyph_block_back_references_are_numbered_in_written_order() {
+    let items = expand_glyph_block(
+        &GlyphName("out-(a|b)-(1|2)".to_string()),
+        &ref_body("dep-($-2)-($-1)"),
+    )
+    .unwrap();
+
+    let expanded: Vec<(String, String)> = items
+        .into_iter()
+        .map(|item| match item {
+            DocumentItem::Glyph { name, body } => (name.display(), body.refs[0].name.clone()),
+            _ => unreachable!(),
+        })
+        .collect();
+    assert_eq!(
+        expanded,
+        vec![
+            ("out-a-1".to_string(), "dep-1-a".to_string()),
+            ("out-b-2".to_string(), "dep-2-b".to_string()),
+        ],
+    );
+}
+
+/// A top-level `a|b` list is not a group: it has no parentheses to mark it,
+/// so it captures nothing and the reference stays unsubstituted — which leaves
+/// a `$` in the name, and `crate::issues` has always reported that.
+#[test]
+fn a_top_level_list_captures_nothing() {
+    let items = expand_glyph_block(
+        &GlyphName("out-a|out-b".to_string()),
+        &ref_body("dep-($-1)"),
+    )
+    .unwrap();
+
+    let refs: Vec<String> = items
+        .into_iter()
+        .map(|item| match item {
+            DocumentItem::Glyph { body, .. } => body.refs[0].name.clone(),
+            _ => unreachable!(),
+        })
+        .collect();
+    assert_eq!(refs, vec!["dep-$-1".to_string(); 2]);
+}
+
 #[test]
 fn glyph_block_group_mult() {
     let items =

@@ -7,7 +7,10 @@ use super::{
     ComposeItem, Document, DocumentItem, GlyphBody, GlyphName, MAX_EXPANSION,
     find_invalid_inline_ranges, parse_glyph_name, split_top_level_pipes,
 };
-use crate::pattern::{NamePartsMap, NamePattern, substitute_name_parts};
+use crate::pattern::{
+    NamePartsMap, NamePattern, capture_groups, substitute_captures, substitute_name_parts,
+    substitute_name_parts_and_captures,
+};
 
 /// The unqualified name parts: what every context that is not scoped to a
 /// slice — a glyph name, a `ref` target, a `remap` operand — substitutes with.
@@ -126,13 +129,22 @@ impl SliceNameParts {
 /// solved per glyph from the boxes that glyph's own parts declare, which is
 /// [`crate::compose`]'s business and happens downstream.
 pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<DocumentItem>, String> {
-    let name_pattern = NamePattern::parse(&name.display()).map_err(|e| e.to_string())?;
+    let name_str = name.display();
+    // The groups the header wrote, which every name below it may name with a
+    // `$-N` back-reference. Substituting them here rather than beside the
+    // `$name-parts` keeps them the block's own: they are declared by this
+    // header and are gone the moment it is.
+    let captures = capture_groups(&name_str);
+    let name_pattern = NamePattern::parse(&name_str).map_err(|e| e.to_string())?;
 
     // Each ref is reduced to a pattern once, so that expanding a block covering
     // a whole CJK range does not re-parse the same pattern string per glyph.
     let mut ref_patterns: Vec<NamePattern> = Vec::new();
     for r in &body.refs {
-        ref_patterns.push(NamePattern::parse_segments(&r.name).map_err(|e| e.to_string())?);
+        ref_patterns.push(
+            NamePattern::parse_segments(&substitute_captures(&r.name, &captures))
+                .map_err(|e| e.to_string())?,
+        );
     }
 
     // The same, per IDC line: every component is a pattern of its own, and the
@@ -142,7 +154,10 @@ pub fn expand_glyph_block(name: &GlyphName, body: &GlyphBody) -> Result<Vec<Docu
         let mut patterns = Vec::new();
         for item in &c.items {
             if let ComposeItem::Part { name, .. } = item {
-                patterns.push(NamePattern::parse_segments(name).map_err(|e| e.to_string())?);
+                patterns.push(
+                    NamePattern::parse_segments(&substitute_captures(name, &captures))
+                        .map_err(|e| e.to_string())?,
+                );
             }
         }
         compose_patterns.push(patterns);
@@ -205,21 +220,26 @@ pub fn expand_glyph_block_slots(
     body: &GlyphBody,
     name_parts: &NamePartsMap,
 ) -> Result<Vec<(String, Vec<String>)>, String> {
-    let name_pattern = NamePattern::parse(&substitute_name_parts(&name.display(), name_parts))
-        .map_err(|e| e.to_string())?;
+    let name_str = substitute_name_parts(&name.display(), name_parts);
+    let captures = capture_groups(&name_str);
+    let name_pattern = NamePattern::parse(&name_str).map_err(|e| e.to_string())?;
 
     let mut slot_patterns: Vec<NamePattern> = Vec::new();
     for r in &body.refs {
         slot_patterns.push(
-            NamePattern::parse_segments(&substitute_name_parts(&r.name, name_parts))
-                .map_err(|e| e.to_string())?,
+            NamePattern::parse_segments(&substitute_name_parts_and_captures(
+                &r.name, name_parts, &captures,
+            ))
+            .map_err(|e| e.to_string())?,
         );
     }
     for c in &body.compose {
         for part in c.part_names() {
             slot_patterns.push(
-                NamePattern::parse_segments(&substitute_name_parts(part, name_parts))
-                    .map_err(|e| e.to_string())?,
+                NamePattern::parse_segments(&substitute_name_parts_and_captures(
+                    part, name_parts, &captures,
+                ))
+                .map_err(|e| e.to_string())?,
             );
         }
     }

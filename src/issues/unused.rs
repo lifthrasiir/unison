@@ -5,7 +5,9 @@ use std::collections::{HashMap, HashSet};
 
 use crate::document::{
     Directive, DocumentItem, GlyphName, classify_directive, expand_name_element,
+    substitute_name_parts,
 };
+use crate::pattern::{capture_groups, substitute_name_parts_and_captures};
 
 use super::{Cx, Issue, Severity, issue_at};
 
@@ -56,11 +58,25 @@ pub(super) fn check_unused_glyphs(
                 name_parts,
                 crate::resolve::ItemRef::new(doc_idx, item_idx),
                 |name_parts| {
-                    names.extend(expand_name_element(name, name_parts));
+                    let name = substitute_name_parts(name, name_parts);
+                    // The groups the item's own leading pattern writes. A name
+                    // below it may say `($-1)` instead of writing the group out
+                    // again, and that is the same use of the same glyphs — so
+                    // this pass, which reads the source rather than the
+                    // expansion, has to substitute them exactly as the
+                    // expansion does or every glyph named that way reads as
+                    // unused.
+                    let captures = capture_groups(&name);
+                    let expand = |element: &str| {
+                        expand_name_element(
+                            &substitute_name_parts_and_captures(element, name_parts, &captures),
+                            name_parts,
+                        )
+                    };
                     match item {
                         DocumentItem::Glyph { body, .. } => {
                             for gref in &body.refs {
-                                refs.extend(expand_name_element(&gref.name, name_parts));
+                                refs.extend(expand(&gref.name));
                             }
                             // An IDC component is a use of the glyph like a
                             // `ref` is; this pass reads the source rather than
@@ -68,14 +84,15 @@ pub(super) fn check_unused_glyphs(
                             // too or every part of every composed glyph reads
                             // as unused.
                             for part in body.compose.iter().flat_map(|c| c.part_names()) {
-                                refs.extend(expand_name_element(part, name_parts));
+                                refs.extend(expand(part));
                             }
                         }
                         DocumentItem::GlyphAlias { target, .. } => {
-                            refs.extend(expand_name_element(target, name_parts));
+                            refs.extend(expand(target));
                         }
                         _ => {}
                     }
+                    names.extend(expand_name_element(&name, name_parts));
                 },
             );
             if names.is_empty() && refs.is_empty() {

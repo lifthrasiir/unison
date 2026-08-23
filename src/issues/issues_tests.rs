@@ -1701,3 +1701,51 @@ glyph test-x 12 4
     // The drawing's own name still says `-r`, and that one does warn.
     assert_eq!(slots(&source("r:4x4-r")).len(), 1);
 }
+
+/// A `$-N` back-reference on a `ref`, an IDC component or an alias target is a
+/// use of what the group names, exactly as writing the group out again is. The
+/// reachability walk reads the source rather than the expansion, so it has to
+/// substitute the item's own captures itself or every glyph named that way
+/// reads as unused.
+#[test]
+fn back_referenced_ref_target_is_a_use() {
+    let input = "\
+glyph part-a 2 1
+..@@
+
+glyph part-b 2 1
+@@..
+
+glyph outer-(a|b) 2 1
+ref part-($-1) 0 0
+
+map A|B = outer-(a|b)
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let issues = collect_issues(&[&doc]);
+    assert!(
+        !issues.iter().any(|i| i.message.contains("is unused")),
+        "a `$-N` ref target uses the glyphs its group names: {issues:?}",
+    );
+}
+
+#[test]
+fn back_referenced_alias_target_is_a_use() {
+    let input = "\
+glyph part-a 2 1
+..@@
+
+glyph part-b 2 1
+@@..
+
+glyph outer-(a|b) = part-($-1)
+
+map A|B = outer-(a|b)
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let issues = collect_issues(&[&doc]);
+    assert!(
+        !issues.iter().any(|i| i.message.contains("is unused")),
+        "a `$-N` alias target uses the glyphs its group names: {issues:?}",
+    );
+}

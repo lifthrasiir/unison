@@ -4,6 +4,7 @@
 
 use crate::document::{Document, DocumentItem, substitute_name_parts};
 use crate::pattern::{NamePartsMap, NamePattern};
+use crate::pattern::{capture_groups, substitute_name_parts_and_captures};
 
 use super::{Issue, Severity, issue_at};
 
@@ -32,6 +33,27 @@ fn written_patterns(item: &DocumentItem) -> Vec<(&str, bool)> {
             glyph.as_deref().map(|g| (g, false)).into_iter().collect()
         }
         DocumentItem::Remap { .. } => item.remap_operands().map(|s| (s.as_str(), false)).collect(),
+        _ => Vec::new(),
+    }
+}
+
+/// The groups an item's leading pattern writes, which every other name on it
+/// may name with a `$-N`. The check has to substitute them like the expansion
+/// does, or it measures a one-alternative `($-1)` instead of the group it
+/// stands for and never sees the ragged case.
+fn item_captures(item: &DocumentItem, name_parts: &NamePartsMap) -> Vec<Vec<String>> {
+    match item {
+        DocumentItem::Glyph { name, .. } | DocumentItem::GlyphAlias { name, .. } => {
+            capture_groups(&substitute_name_parts(&name.0, name_parts))
+        }
+        DocumentItem::Map {
+            char_repr,
+            selector,
+            ..
+        } => crate::render::ttf_builder::map_char_captures(char_repr, selector.as_deref()),
+        DocumentItem::MapDecomposed { char_repr, .. } => {
+            crate::render::ttf_builder::map_char_captures(char_repr, None)
+        }
         _ => Vec::new(),
     }
 }
@@ -69,8 +91,15 @@ pub(super) fn check_ragged_patterns(
 ) {
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
+            let captures = item_captures(item, name_parts);
             for (written, is_block) in written_patterns(item) {
-                let substituted = substitute_name_parts(written, name_parts);
+                // The leading pattern is the one that *declares* the groups, so
+                // it never names them.
+                let substituted = if is_block {
+                    substitute_name_parts(written, name_parts)
+                } else {
+                    substitute_name_parts_and_captures(written, name_parts, &captures)
+                };
                 let parsed = if is_block {
                     NamePattern::parse(&substituted)
                 } else {

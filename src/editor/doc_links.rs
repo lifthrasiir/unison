@@ -25,6 +25,11 @@ use crate::pattern::NamePattern;
 /// (`app/resize.rs`, the derived data in `app/background.rs`), so the search
 /// agrees with them rather than being right on its own.
 ///
+/// `captures` is the other: a `$-N` on a `ref` line names a group of the
+/// *block header* above it, which the line likewise does not say. The caller
+/// carries the groups in force down the file, the way it carries the `@` base
+/// — see [`crate::app::search::block_captures`].
+///
 /// `exists` is the one context where a token's meaning comes from a *different*
 /// line: `glyph han-($1)` under `exists han-([0-9a-f]{4,5}):15x16` denotes
 /// `han-4e00` and says so nowhere on its own line. `exists` is the pattern in
@@ -36,6 +41,7 @@ pub fn pattern_denotes(
     name: &str,
     parts: &NamePartsMap,
     exists: Option<&str>,
+    captures: &[Vec<String>],
 ) -> bool {
     if !token.contains(['(', '|', '$', '*']) {
         return false;
@@ -43,7 +49,7 @@ pub fn pattern_denotes(
     if let Some(pattern) = exists.filter(|_| crate::exists::mentions_capture(token)) {
         return crate::exists::template_denotes(pattern, token, name).unwrap_or(false);
     }
-    let substituted = crate::document::substitute_name_parts(token, parts);
+    let substituted = crate::pattern::substitute_name_parts_and_captures(token, parts, captures);
     if substituted == name {
         return true;
     }
@@ -402,7 +408,8 @@ pub fn find_link_target_in_doc(
                     if let Ok(tokens) = tokenize_tokens(trimmed)
                         && tokens.first().is_some_and(|t| t == "glyph")
                         && tokens.get(1).is_some_and(|t| {
-                            t == name || pattern_denotes(t, true, name, parts, exists.pattern())
+                            t == name
+                                || pattern_denotes(t, true, name, parts, exists.pattern(), &[])
                         })
                     {
                         return Some(i);

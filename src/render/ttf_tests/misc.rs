@@ -624,6 +624,47 @@ fn expand_map_pairs_reverse_range_returns_empty() {
     assert!(pairs.is_empty());
 }
 
+/// A parenthesized character list is a group like any other: it captures, so
+/// the target may name it with `$-1` instead of repeating the alternatives.
+#[test]
+fn expand_map_pairs_back_references_the_char_pattern() {
+    let pairs = expand_map_pairs("(A|B|C)", "g-($-1)");
+    assert_eq!(
+        pairs,
+        vec![
+            (0x41, "g-A".to_string()),
+            (0x42, "g-B".to_string()),
+            (0x43, "g-C".to_string()),
+        ],
+    );
+}
+
+/// The same list without parentheses is still a list of characters, but it
+/// marks no group, so nothing captures and `$-1` stays as written.
+#[test]
+fn expand_map_pairs_without_parens_captures_nothing() {
+    let pairs = expand_map_pairs("A|B", "g-($-1)");
+    assert_eq!(
+        pairs,
+        vec![(0x41, "g-$-1".to_string()), (0x42, "g-$-1".to_string()),],
+    );
+}
+
+/// A hex range spelled as a group binds the code points themselves, which is
+/// what makes one line name a whole block of ideographs.
+#[test]
+fn expand_map_pairs_back_references_a_hex_range() {
+    let pairs = expand_map_pairs("U+($#4e00..4e02)", "han-($-1)");
+    assert_eq!(
+        pairs,
+        vec![
+            (0x4e00, "han-4e00".to_string()),
+            (0x4e01, "han-4e01".to_string()),
+            (0x4e02, "han-4e02".to_string()),
+        ],
+    );
+}
+
 #[test]
 fn expand_map_pairs_bare_pipe_char() {
     // "map | = pipe" — the pipe character itself, not a separator

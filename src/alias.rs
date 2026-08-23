@@ -65,7 +65,7 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::document::{Document, DocumentItem, NamePartsMap, substitute_name_parts};
-use crate::pattern::NamePattern;
+use crate::pattern::{NamePattern, capture_groups, substitute_captures};
 use crate::resolve::{Diagnostic, ItemRef};
 
 /// One `glyph NAME = TARGET` after name-part substitution and pattern
@@ -335,7 +335,10 @@ fn expand_alias(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Vec<(String, String)> {
     let name = substitute_name_parts(name, name_parts);
-    let target = substitute_name_parts(target, name_parts);
+    // The groups the alias's own name wrote, which its target may name with a
+    // `$-N` back-reference — the same scope a glyph block gives its `ref`s.
+    let captures = capture_groups(&name);
+    let target = substitute_captures(&substitute_name_parts(target, name_parts), &captures);
 
     if !crate::document::is_name_pattern(&name) && !crate::document::is_name_pattern(&target) {
         return vec![(name, target)];
@@ -384,6 +387,17 @@ mod tests {
     /// unless it is an alias that resolved.
     fn canonical<'a>(aliases: &'a AliasMap, name: &'a str) -> &'a str {
         aliases.resolved_target(name).unwrap_or(name)
+    }
+
+    /// The target may name a group of the alias's own name pattern, so the two
+    /// stay in lock-step without the alternatives being written twice.
+    #[test]
+    fn target_back_references_the_name_pattern() {
+        let aliases = collect("glyph x-(a|b|c) = y-($-1)\n");
+        assert_eq!(canonical(&aliases, "x-a"), "y-a");
+        assert_eq!(canonical(&aliases, "x-b"), "y-b");
+        assert_eq!(canonical(&aliases, "x-c"), "y-c");
+        assert!(aliases.diagnostics.is_empty());
     }
 
     #[test]

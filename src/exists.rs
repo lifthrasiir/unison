@@ -32,6 +32,12 @@
 //! mistake rather than something a source meant, so the search unrolls and the
 //! groups beside it mean what they mean everywhere else.
 //!
+//! A `$N` and a [`$-N` back-reference](crate::pattern#back-references) are
+//! unrelated — one is what the search matched, the other the n-th group the
+//! item's own pattern writes — but they share the parentheses a group is
+//! marked with, since a `($1)` is written parentheses like any other. So in
+//! `glyph out-($1)-(a|b)` the capture is group 1 and the `(a|b)` is `$-2`.
+//!
 //! # What is searched
 //!
 //! Only names a `glyph` **header** declares. Two exclusions follow from that

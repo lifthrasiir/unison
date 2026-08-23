@@ -16,6 +16,22 @@
 //! checked against *expanded* names by [`crate::issues`]; see
 //! [`crate::document::is_valid_glyph_name`].
 //!
+//! A pattern's parenthesized groups may be named again further along the same
+//! item, as `$-1`, `$-2`, … in written order: a `glyph` block's header binds
+//! them for its `ref` and IDC lines, and an alias or a `map` binds its own for
+//! the target beside it.
+//!
+//! ```text
+//! glyph han-xxxx-(g|h|t|j|p|v):15x16 15 16
+//! ref han-yyyy-($-1):15x16 0 0
+//! ```
+//!
+//! Only a written `(...)` captures — `glyph a|b` and `map a|b|c = …` list
+//! names without marking a group, so they bind nothing. Otherwise a
+//! back-reference is a `$name-part` in every respect, including `*N`/`**N` and
+//! mixing with literal alternatives; it is just declared by the item instead of
+//! by a `name-parts` line. See [`crate::pattern`].
+//!
 //! A `glyph` header and a `ref` target may also start with `@`, which stands
 //! for the last glyph name declared *without* one — see
 //! [`crate::document::expand_at_name`] for the rule and what it is for. `@` is
@@ -115,7 +131,10 @@
 //!   sides, and both halves of a variation sequence take that spelling
 //!   (`map U+($1) U+E0100+($2) = …`). See [`crate::exists`] for what is
 //!   searched, why `exists` does not stack, and the cycle rule.
-//! - `map CHAR = GLYPH` — cmap mapping.
+//! - `map CHAR = GLYPH` — cmap mapping. `CHAR` is one character, a
+//!   `U+XXXX..YYYY` range or a `|` list; parenthesized, it is a name pattern
+//!   like any other (`map (ㅠ|ㅡ) = …`, `map U+($#4e00..4e05) = …`), which is
+//!   the spelling that captures — see back-references below.
 //! - `map BASE SELECTOR = GLYPH` — cmap mapping of a Unicode *variation
 //!   sequence*. Two spellings, and each round-trips as written: `U+0030 U+FE0F`
 //!   is two tokens, while the same pair pasted from a character picker is one
