@@ -37,7 +37,8 @@ fn diagnostics(src: &str) -> Vec<String> {
 
 #[test]
 fn first_alternative_wins_when_it_exists() {
-    let src = format!("{HEAD}\nglyph first 1 1\n@\n\nglyph second 1 1\n@\n\nmap A = first second\n");
+    let src =
+        format!("{HEAD}\nglyph first 1 1\n@\n\nglyph second 1 1\n@\n\nmap A = first second\n");
     assert_eq!(glyph_for(&src, 0x41).as_deref(), Some("first"));
 }
 
@@ -102,7 +103,11 @@ fn nothing_matching_falls_back_to_notdef() {
 fn nothing_matching_and_no_notdef_leaves_the_character_unmapped() {
     let src = format!("{HEAD}\nglyph other 1 1\n@\n\nmap B = other\nmap A = first second\n");
     assert_eq!(glyph_for(&src, 0x41), None);
-    assert!(diagnostics(&src).iter().any(|m| m.contains("has no target")));
+    assert!(
+        diagnostics(&src)
+            .iter()
+            .any(|m| m.contains("has no target"))
+    );
 }
 
 /// One finding per line, not one per character: a range fails the same way all
@@ -165,9 +170,7 @@ fn an_empty_last_target_drops_the_mapping_silently() {
 /// are still mapped.
 #[test]
 fn an_empty_last_target_only_drops_what_matched_nothing() {
-    let src = format!(
-        "{HEAD}\nglyph a-0041 1 1\n@\n\nmap U+($#0041..0042) = a-($-1) ``\n"
-    );
+    let src = format!("{HEAD}\nglyph a-0041 1 1\n@\n\nmap U+($#0041..0042) = a-($-1) ``\n");
     assert_eq!(glyph_for(&src, 0x41).as_deref(), Some("a-0041"));
     assert_eq!(glyph_for(&src, 0x42), None);
     assert!(diagnostics(&src).is_empty(), "{:?}", diagnostics(&src));
@@ -191,8 +194,10 @@ fn an_empty_target_that_is_not_last_is_an_error() {
     let resolution = crate::resolve::Resolution::compute(&docs);
     let issues = crate::issues::collect_issues_with(&docs, &resolution);
     assert!(
-        issues.iter().any(|i| i.severity == crate::issues::Severity::Error
-            && i.message.contains("has to be the last one")),
+        issues
+            .iter()
+            .any(|i| i.severity == crate::issues::Severity::Error
+                && i.message.contains("has to be the last one")),
         "{:?}",
         issues.iter().map(|i| &i.message).collect::<Vec<_>>(),
     );

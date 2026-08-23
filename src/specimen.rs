@@ -443,7 +443,8 @@ impl SpecimenState {
         // as "no glyph exists" would tint the entire grid red over a transient
         // state, so nothing is faulted until there is a font to fault against.
         let have_font = !name_to_gid.is_empty();
-        let usable = |name: &str| !name.is_empty() && (!have_font || name_to_gid.contains_key(name));
+        let usable =
+            |name: &str| !name.is_empty() && (!have_font || name_to_gid.contains_key(name));
 
         let mut map: BTreeMap<u32, (String, bool)> = BTreeMap::new();
         let mut uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>> = BTreeMap::new();
@@ -512,10 +513,9 @@ impl SpecimenState {
                                     .iter()
                                     .map(|g| {
                                         let subst = substitute_name_parts(g, parts);
-                                        let mut triples = expand_uvs_map_triples(
-                                            &char_repr, &selector, &subst,
-                                        )
-                                        .unwrap_or_default();
+                                        let mut triples =
+                                            expand_uvs_map_triples(&char_repr, &selector, &subst)
+                                                .unwrap_or_default();
                                         for t in &mut triples {
                                             aliases.canonicalize(&mut t.2);
                                         }
@@ -528,8 +528,7 @@ impl SpecimenState {
                                 let Some(first) = per_alt.first() else {
                                     continue;
                                 };
-                                let optional =
-                                    glyphs.last().is_some_and(|g| g.is_empty());
+                                let optional = glyphs.last().is_some_and(|g| g.is_empty());
                                 for (i, &(base, sel, _)) in first.iter().enumerate() {
                                     let Some(target) =
                                         pick_target(&per_alt, i, |t| &t.2, &usable, optional)
@@ -560,8 +559,7 @@ impl SpecimenState {
                                 let Some(first) = per_alt.first() else {
                                     continue;
                                 };
-                                let optional =
-                                    glyphs.last().is_some_and(|g| g.is_empty());
+                                let optional = glyphs.last().is_some_and(|g| g.is_empty());
                                 for (i, &(cp, _)) in first.iter().enumerate() {
                                     if let std::collections::btree_map::Entry::Vacant(slot) =
                                         map.entry(cp)

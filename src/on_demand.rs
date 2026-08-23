@@ -539,13 +539,23 @@ pub fn detect_color_mono_glyph(
     if name.contains(":mono") || name.contains(":color") {
         return None;
     }
-    let mono = format!("{name}:mono");
-    let color = format!("{name}:color");
-    if has_glyph(&mono) && has_glyph(&color) {
-        Some(OnDemandGlyph::ColorMono { mono, color })
-    } else {
-        None
+    // One buffer, reused for the second probe and handed over as the answer:
+    // this is asked of every name that is not a declared glyph, which for a
+    // source with ordered `map` alternatives over a han range is millions of
+    // names per build, and two `format!`s per miss was most of what that cost.
+    let mut probe = String::with_capacity(name.len() + ":color".len());
+    probe.push_str(name);
+    probe.push_str(":mono");
+    if !has_glyph(&probe) {
+        return None;
     }
+    let mono = probe.clone();
+    probe.truncate(name.len());
+    probe.push_str(":color");
+    if !has_glyph(&probe) {
+        return None;
+    }
+    Some(OnDemandGlyph::ColorMono { mono, color: probe })
 }
 
 pub fn detect_on_demand_glyph(

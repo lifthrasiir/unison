@@ -117,18 +117,21 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                         // expands over the same ones — so they are walked once,
                         // over the first, while *every* alternative counts as a
                         // used glyph name (see the variation-sequence arm).
-                        for glyph in &glyphs[1..] {
-                            let subst = substitute_name_parts(glyph, parts);
-                            mapped_glyphs.extend(
-                                crate::render::ttf_builder::expand_map_pairs(char_repr, &subst)
-                                    .into_iter()
-                                    .map(|(_, name)| name),
-                            );
+                        // Expanded together rather than one alternative at a
+                        // time: the character spec is the same for all of them,
+                        // and a range line is thousands of characters wide.
+                        let substituted: Vec<String> = glyphs
+                            .iter()
+                            .map(|g| substitute_name_parts(g, parts))
+                            .collect();
+                        let per_alt = crate::render::ttf_builder::expand_map_pairs_per_alternative(
+                            char_repr,
+                            &substituted,
+                        );
+                        for alt in &per_alt[1..] {
+                            mapped_glyphs.extend(alt.iter().map(|(_, name)| name.clone()));
                         }
-                        let subst_glyph = substitute_name_parts(&glyphs[0], parts);
-                        let expanded_pairs =
-                            crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
-                        for (cp, target) in &expanded_pairs {
+                        for (cp, target) in &per_alt[0] {
                             mapped_glyphs.insert(target.clone());
                             let by_slice = mapped_codepoints.entry(*cp).or_default();
                             if let Some(prev) = by_slice.get(&slice) {

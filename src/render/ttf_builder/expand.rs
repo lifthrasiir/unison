@@ -1,6 +1,8 @@
 //! Name-pattern expansion of document items, plus the on-demand and
 //! decomposed-map glyph items synthesized on top of them.
 
+use std::sync::{Arc, Mutex, OnceLock};
+
 use super::*;
 use crate::pattern::{capture_groups, substitute_captures};
 
@@ -946,6 +948,238 @@ pub(crate) fn resolved_map_target(glyphs: &[String]) -> &str {
     glyphs.first().map(String::as_str).unwrap_or("")
 }
 
+/// One `map` line's character spec, expanded once for the whole line rather
+/// than once per alternative target.
+///
+/// Every alternative of a line ranges over the same characters, so the spec —
+/// a pattern in its own right, and one that can be tens of thousands of code
+/// points wide — is parsed and expanded once here and each alternative is read
+/// off it by index. Expanding it per alternative is what made the seven han
+/// slice lines, three ranges wide and nine alternatives deep, cost their width
+/// nine times over on every rebuild.
+struct WideMapRows {
+    /// `(index into the expansion, code point)`. The index is what a target is
+    /// read at and is *not* the row number: a spec entry naming no code point
+    /// drops the row and keeps the index, exactly as [`expand_map_pairs`] does.
+    rows: Vec<(usize, u32)>,
+    /// The parsed spec, where the line writes one — a range line captures
+    /// nothing and needs none.
+    spec: Option<Arc<MapCharSpec>>,
+}
+
+impl WideMapRows {
+    fn captures(&self) -> &[Vec<String>] {
+        self.spec.as_ref().map_or(&[], |s| &s.captures)
+    }
+
+    /// Whether capture group `idx` holds plain literals only.
+    fn plain(&self, idx: usize) -> bool {
+        self.spec
+            .as_ref()
+            .and_then(|s| s.plain.get(idx))
+            .copied()
+            .unwrap_or(false)
+    }
+}
+
+/// The rows of a `map` line wide enough to be worth expanding once for the
+/// whole line: the pattern and the `U+X..Y` range forms.
+///
+/// The pipe and single-character forms name a handful of characters each, and
+/// their target pairing has rules of its own ([`expand_map_pairs`] matches a
+/// piped target against a piped spec element by element), so they keep the
+/// straightforward path rather than restating those rules here.
+fn wide_map_rows(char_repr: &str) -> Option<WideMapRows> {
+    if let Some(spec) = map_char_pattern(char_repr) {
+        let rows = (0..spec.pattern.len())
+            .filter_map(|i| parse_map_char(&spec.pattern.get(i)).map(|cp| (i, cp)))
+            .collect();
+        return Some(WideMapRows {
+            rows,
+            spec: Some(spec),
+        });
+    }
+
+    let hex_rest = char_repr
+        .strip_prefix("U+")
+        .or_else(|| char_repr.strip_prefix("u+"))?;
+    let (start_hex, end_hex) = hex_rest.split_once("..")?;
+    let (Ok(start), Ok(end)) = (
+        u32::from_str_radix(start_hex, 16),
+        u32::from_str_radix(end_hex, 16),
+    ) else {
+        return None;
+    };
+    // Reversed and over-wide ranges expand to nothing, like every other
+    // spelling `expand_map_pairs` cannot make sense of; the line then keeps its
+    // shape below.
+    let count = match u64::from(end).checked_sub(u64::from(start)) {
+        Some(span) if span + 1 <= MAX_EXPANSION as u64 => (span + 1) as usize,
+        _ => 0,
+    };
+    Some(WideMapRows {
+        rows: (0..count)
+            .map(|i| (i, start + i as u32))
+            .filter(|(_, cp)| char::from_u32(*cp).is_some())
+            .collect(),
+        spec: None,
+    })
+}
+
+/// One alternative target of a wide `map` line, ready to be read at a row index.
+enum AltTarget<'a> {
+    /// `PREFIX($-N)SUFFIX`, with nothing else in the target that a pattern
+    /// reads: the name at index `i` is the group's `i`-th value between the two
+    /// literals. Worth an arm of its own because it is what every ordered-
+    /// alternative line in the font writes, and because the general path splices
+    /// the whole group into one string and parses it straight back out — per
+    /// alternative, on a group tens of thousands of values long.
+    Capture {
+        prefix: &'a str,
+        group: &'a [String],
+        suffix: &'a str,
+    },
+    Pattern(NamePattern),
+    /// A target no pattern can be made of, read as the literal it is written
+    /// as — which is what [`expand_glyph_pattern`] does with one.
+    Literal(String),
+}
+
+impl<'a> AltTarget<'a> {
+    fn of(glyph: &'a str, spec: &'a WideMapRows) -> Self {
+        if let Some(target) = Self::capture_only(glyph, spec) {
+            return target;
+        }
+        let substituted = substitute_captures(glyph, spec.captures());
+        match NamePattern::parse_element(&substituted) {
+            Ok(pattern) => Self::Pattern(pattern),
+            Err(_) => Self::Literal(substituted),
+        }
+    }
+
+    /// The `PREFIX($-N)SUFFIX` form, or `None` when anything else in the target
+    /// — another group, another variable, a repeat — means the general path has
+    /// to read it.
+    fn capture_only(glyph: &'a str, spec: &'a WideMapRows) -> Option<Self> {
+        let plain = |s: &str| !s.contains(['(', ')', '|', '*', '$']);
+        let (prefix, rest) = glyph.split_once("($-")?;
+        let (digits, suffix) = rest.split_once(')')?;
+        if !plain(prefix) || !plain(suffix) {
+            return None;
+        }
+        let n: usize = digits.parse().ok()?;
+        let idx = n.checked_sub(1)?;
+        if !spec.plain(idx) {
+            return None;
+        }
+        Some(Self::Capture {
+            prefix,
+            group: &spec.captures()[idx],
+            suffix,
+        })
+    }
+
+    /// The name at expansion index `i`, cyclically — the same rule
+    /// [`NamePattern::get`] indexes by.
+    fn get(&self, i: usize) -> String {
+        match self {
+            Self::Capture {
+                prefix,
+                group,
+                suffix,
+            } => {
+                let value = &group[i % group.len()];
+                let mut out = String::with_capacity(prefix.len() + value.len() + suffix.len());
+                out.push_str(prefix);
+                out.push_str(value);
+                out.push_str(suffix);
+                out
+            }
+            Self::Pattern(pattern) => pattern.get(i),
+            Self::Literal(s) => s.clone(),
+        }
+    }
+}
+
+/// Which alternative one row settles on, and whether anything matched at all.
+///
+/// The first usable alternative wins; where none is, an optional line (one
+/// whose last alternative is the empty token) drops the row and any other line
+/// takes `.notdef` — if the source declares one. The names are pulled lazily,
+/// so a row that settles on its first alternative never builds the other eight.
+fn settle_row(
+    names: impl Iterator<Item = String>,
+    usable: &impl Fn(&str) -> bool,
+    optional: bool,
+) -> (Option<String>, bool) {
+    for name in names {
+        if usable(&name) {
+            return (Some(name), true);
+        }
+    }
+    if optional {
+        return (None, true);
+    }
+    (usable(NOTDEF).then(|| NOTDEF.to_string()), false)
+}
+
+/// Every alternative of one `map` line, expanded over the line's characters.
+///
+/// The same pairs [`expand_map_pairs`] returns for each alternative in turn,
+/// but with the character spec — which a range line writes tens of thousands of
+/// characters wide — parsed and expanded once for the line rather than once per
+/// alternative. That is the difference between a source-side check costing a
+/// line's width and costing its width times its alternatives.
+pub(crate) fn expand_map_pairs_per_alternative(
+    char_repr: &str,
+    glyphs: &[String],
+) -> Vec<Vec<(u32, String)>> {
+    let Some(spec) = wide_map_rows(char_repr) else {
+        return glyphs
+            .iter()
+            .map(|g| expand_map_pairs(char_repr, g))
+            .collect();
+    };
+    glyphs
+        .iter()
+        .map(|g| {
+            let target = AltTarget::of(g, &spec);
+            spec.rows
+                .iter()
+                .map(|&(i, cp)| (cp, target.get(i)))
+                .collect()
+        })
+        .collect()
+}
+
+/// The one diagnostic a line's unmatched characters produce, reported once for
+/// the line rather than once per character: a range fails the same way for
+/// every character it covers.
+fn report_unmatched(
+    unmatched: Option<(String, usize)>,
+    glyphs: &[String],
+    origin: Option<ItemRef>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let Some((first, more)) = unmatched else {
+        return;
+    };
+    let listed = glyphs
+        .iter()
+        .filter(|g| !g.is_empty())
+        .map(|g| format!("'{g}'"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let and_more = match more {
+        0 => String::new(),
+        n => format!(" (and {n} more character{})", if n == 1 { "" } else { "s" }),
+    };
+    diagnostics.push(Diagnostic::error(
+        origin,
+        format!("map '{first}'{and_more} has no target: none of {listed} names a glyph"),
+    ));
+}
+
 /// Pick each `map`'s target out of the alternatives it lists.
 ///
 /// `map CHAR = first second` means *first if it exists, otherwise second*, and
@@ -1071,6 +1305,61 @@ fn resolve_map_alternatives(
             unreachable!("matched just above");
         };
 
+        // The written form, not an expanded one: an empty pattern expands to
+        // an empty name, so this is the same question either way.
+        let optional = glyphs.last().is_some_and(String::is_empty);
+        let mut unmatched: Option<(String, usize)> = None;
+
+        // A wide line expands its character spec once and reads every
+        // alternative off it by index; see [`WideMapRows`]. A line whose spec
+        // expands to nothing keeps its shape, so the checks downstream still
+        // see the line they are written to report.
+        if let Some(spec) = selector
+            .is_none()
+            .then(|| wide_map_rows(&char_repr))
+            .flatten()
+        {
+            if spec.rows.is_empty() {
+                out.push(ExpandedItem {
+                    item: DocumentItem::Map {
+                        slices,
+                        char_repr,
+                        selector,
+                        glyphs,
+                        comment: None,
+                    },
+                    origin,
+                });
+                continue;
+            }
+            let targets: Vec<AltTarget<'_>> =
+                glyphs.iter().map(|g| AltTarget::of(g, &spec)).collect();
+            for &(i, cp) in &spec.rows {
+                let (chosen, matched) =
+                    settle_row(targets.iter().map(|t| t.get(i)), &usable, optional);
+                if !matched {
+                    match &mut unmatched {
+                        Some((_, more)) => *more += 1,
+                        None => unmatched = Some((format!("U+{cp:04X}"), 0)),
+                    }
+                }
+                if let Some(chosen) = chosen {
+                    out.push(ExpandedItem {
+                        item: DocumentItem::Map {
+                            slices: slices.clone(),
+                            char_repr: format!("U+{cp:04X}"),
+                            selector: None,
+                            glyphs: vec![chosen],
+                            comment: None,
+                        },
+                        origin,
+                    });
+                }
+            }
+            report_unmatched(unmatched, &glyphs, origin, diagnostics);
+            continue;
+        }
+
         // `(codepoint spelling, selector spelling, one name per alternative)`.
         // Both forms are reduced to this so the choice below is written once.
         let rows: Vec<(String, Option<String>, Vec<String>)> = match &selector {
@@ -1114,8 +1403,6 @@ fn resolve_map_alternatives(
             }
         };
 
-        // A line whose character spec expands to nothing keeps its shape, so
-        // the checks downstream still see the line they are written to report.
         if rows.is_empty() {
             out.push(ExpandedItem {
                 item: DocumentItem::Map {
@@ -1130,26 +1417,15 @@ fn resolve_map_alternatives(
             continue;
         }
 
-        // The written form, not an expanded one: an empty pattern expands to
-        // an empty name, so this is the same question either way.
-        let optional = glyphs.last().is_some_and(String::is_empty);
-        let mut unmatched: Option<(String, usize)> = None;
         for (cp_repr, sel_repr, names) in rows {
-            let chosen = names.iter().find(|n| usable(n)).cloned();
-            let chosen = match chosen {
-                Some(n) => n,
-                None if optional => continue,
-                None => {
-                    match &mut unmatched {
-                        Some((_, more)) => *more += 1,
-                        None => unmatched = Some((cp_repr.clone(), 0)),
-                    }
-                    if !usable(NOTDEF) {
-                        continue;
-                    }
-                    NOTDEF.to_string()
+            let (chosen, matched) = settle_row(names.into_iter(), &usable, optional);
+            if !matched {
+                match &mut unmatched {
+                    Some((_, more)) => *more += 1,
+                    None => unmatched = Some((cp_repr.clone(), 0)),
                 }
-            };
+            }
+            let Some(chosen) = chosen else { continue };
             out.push(ExpandedItem {
                 item: DocumentItem::Map {
                     slices: slices.clone(),
@@ -1162,24 +1438,7 @@ fn resolve_map_alternatives(
             });
         }
 
-        if let Some((first, more)) = unmatched {
-            let listed = glyphs
-                .iter()
-                .filter(|g| !g.is_empty())
-                .map(|g| format!("'{g}'"))
-                .collect::<Vec<_>>()
-                .join(", ");
-            let and_more = match more {
-                0 => String::new(),
-                n => format!(" (and {n} more character{})", if n == 1 { "" } else { "s" }),
-            };
-            diagnostics.push(Diagnostic::error(
-                origin,
-                format!(
-                    "map '{first}'{and_more} has no target: none of {listed} names a glyph"
-                ),
-            ));
-        }
+        report_unmatched(unmatched, &glyphs, origin, diagnostics);
     }
     *all_items = out;
 }
@@ -1629,6 +1888,23 @@ pub(crate) fn expand_uvs_map_triples(
         .collect())
 }
 
+/// A `map` line's character spec, parsed once for every pass that reads it.
+///
+/// The spec is a pure function of the text it is written as, and a range spec
+/// is tens of thousands of code points wide: the han slice lines write three
+/// distinct specs between them, and the expansion, each face's cmap and three
+/// separate validation checks each used to parse every one of them again. The
+/// memo in [`map_char_pattern`] is what makes that one parse per spec instead.
+struct MapCharSpec {
+    pattern: NamePattern,
+    /// The groups the spec captures, for a target's `$-N`.
+    captures: Vec<Vec<String>>,
+    /// Per capture group, whether every value in it is a plain literal — which
+    /// is what lets [`AltTarget::Capture`] read a value straight out of the
+    /// group instead of splicing the group into a string and parsing it back.
+    plain: Vec<bool>,
+}
+
 /// The character spec of a `map`, when it is written as a *pattern*: the code
 /// point spellings it stands for, and the groups it captures.
 ///
@@ -1641,16 +1917,42 @@ pub(crate) fn expand_uvs_map_triples(
 ///
 /// `None` for every spelling that is not one — a lone `(` is a character to be
 /// mapped like any other, and so is anything whose group does not parse.
-fn map_char_pattern(char_repr: &str) -> Option<(NamePattern, Vec<Vec<String>>)> {
+fn map_char_pattern(char_repr: &str) -> Option<Arc<MapCharSpec>> {
     if !char_repr.contains('(') {
         return None;
     }
-    let spec = substitute_name_parts(char_repr, &NamePartsMap::new());
-    let captures = capture_groups(&spec);
+    // Wide specs only, and a handful of them: what is kept is a whole
+    // expansion, and a narrow one costs less to parse than to look up.
+    const MEMO_MIN_WIDTH: usize = 256;
+    const MEMO_MAX_ENTRIES: usize = 32;
+    static CACHE: OnceLock<Mutex<HashMap<String, Arc<MapCharSpec>>>> = OnceLock::new();
+    let cache = CACHE.get_or_init(Mutex::default);
+    if let Some(spec) = cache.lock().unwrap().get(char_repr) {
+        return Some(spec.clone());
+    }
+
+    let text = substitute_name_parts(char_repr, &NamePartsMap::new());
+    let captures = capture_groups(&text);
     if captures.is_empty() {
         return None;
     }
-    Some((NamePattern::parse_element(&spec).ok()?, captures))
+    let pattern = NamePattern::parse_element(&text).ok()?;
+    let plain = captures
+        .iter()
+        .map(|g| !g.is_empty() && !g.iter().any(|v| v.contains(['(', ')', '|', '*'])))
+        .collect();
+    let spec = Arc::new(MapCharSpec {
+        pattern,
+        captures,
+        plain,
+    });
+    if spec.pattern.len() >= MEMO_MIN_WIDTH {
+        let mut cache = cache.lock().unwrap();
+        if cache.len() < MEMO_MAX_ENTRIES {
+            cache.insert(char_repr.to_string(), spec.clone());
+        }
+    }
+    Some(spec)
 }
 
 /// The groups a `map`'s character spec captures — [`map_char_pattern`]'s other
@@ -1659,16 +1961,16 @@ pub(crate) fn map_char_captures(char_repr: &str, selector: Option<&str>) -> Vec<
     map_char_pattern(char_repr)
         .into_iter()
         .chain(selector.and_then(map_char_pattern))
-        .flat_map(|(_, groups)| groups)
+        .flat_map(|spec| spec.captures.clone())
         .collect()
 }
 
 /// The codepoints one half of a `map` names: a single character, a `U+X..Y`
 /// range, or a top-level pipe list. Invalid and unparsable entries are dropped.
 pub(crate) fn expand_map_codepoints(token: &str) -> Vec<u32> {
-    if let Some((pattern, _)) = map_char_pattern(token) {
-        return (0..pattern.len())
-            .filter_map(|i| parse_map_char(&pattern.get(i)))
+    if let Some(spec) = map_char_pattern(token) {
+        return (0..spec.pattern.len())
+            .filter_map(|i| parse_map_char(&spec.pattern.get(i)))
             .collect();
     }
 
@@ -1738,13 +2040,13 @@ pub fn decomposed_map_pairs(char_repr: &str, glyph: Option<&str>) -> Vec<(u32, S
 pub(crate) fn expand_map_pairs(char_repr: &str, glyph: &str) -> Vec<(u32, String)> {
     // Written as a pattern, which is the one spelling that binds `$-N` for the
     // target beside it.
-    if let Some((pattern, captures)) = map_char_pattern(char_repr) {
-        let glyph = substitute_captures(glyph, &captures);
-        let count = pattern.len();
+    if let Some(spec) = map_char_pattern(char_repr) {
+        let glyph = substitute_captures(glyph, &spec.captures);
+        let count = spec.pattern.len();
         let names = expand_glyph_pattern(&glyph, count);
         return (0..count)
             .filter_map(|i| {
-                parse_map_char(&pattern.get(i)).map(|cp| (cp, names[i % names.len()].clone()))
+                parse_map_char(&spec.pattern.get(i)).map(|cp| (cp, names[i % names.len()].clone()))
             })
             .collect();
     }

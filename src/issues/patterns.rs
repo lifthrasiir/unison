@@ -28,9 +28,7 @@ fn written_patterns(item: &DocumentItem) -> Vec<(&str, bool)> {
         DocumentItem::GlyphAlias { name, target, .. } => {
             vec![(name.0.as_str(), true), (target.as_str(), false)]
         }
-        DocumentItem::Map { glyphs, .. } => {
-            glyphs.iter().map(|g| (g.as_str(), false)).collect()
-        }
+        DocumentItem::Map { glyphs, .. } => glyphs.iter().map(|g| (g.as_str(), false)).collect(),
         DocumentItem::MapDecomposed { glyph, .. } => {
             glyph.as_deref().map(|g| (g, false)).into_iter().collect()
         }
