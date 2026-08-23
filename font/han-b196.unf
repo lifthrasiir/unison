@@ -201,8 +201,8 @@ glyph han-2a0a0:15x16 15 16 // 𪂠
 glyph han-2a0af:15x16 15 16 // 𪂯
 ⿲ -2 han-9ce5:7x16 han-5973:5x16 han-53e4:5x16 // ⿲鳥女古
 
-glyph han-2a0b4:15x16 15 16 // 𪂴
-⿰ han-9ce5:7x16 1 han-9752:7x16 // ⿰鳥青
+glyph han-2a0b4-($han-regions):15x16 15 16 // 𪂴
+⿰ han-9ce5:7x16 1 han-9752-($-1):7x16 // ⿰鳥青
 
 ## 196.9
 
@@ -315,8 +315,8 @@ glyph han-2a1bd:15x16 15 16 // 𪆽
 
 ## 196.14
 
-glyph han-2a1d2:15x16 15 16 // 𪇒
-⿲ -2 han-7c73:5x16 han-9752:5x16 han-9ce5:7x16 // ⿲米青鳥
+glyph han-2a1d2-($han-regions):15x16 15 16 // 𪇒
+⿲ -2 han-7c73:5x16 han-9752-($-1):5x16 han-9ce5:7x16 // ⿲米青鳥
 
 // glyph han-2a1da:15x16 15 16 // 𪇚
 // ⿱ han-7993 han-9ce5 // ⿱禓鳥

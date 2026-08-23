@@ -395,9 +395,9 @@ glyph han-8ac7:15x16 15 16 // 談
 ⿰ han-8a01:7x16 1 han-708e:7x16 // ⿰訁炎
 
 glyph han-8acb-(g|h|t|j|v):15x16 15 16 // 請
-⿰ han-8a01:7x16 1 han-9752:7x16 // ⿰訁青
+⿰ han-8a01:7x16 1 han-9752-($-1):7x16 // ⿰訁青
 glyph han-8acb-(k|p):15x16 15 16 // 請
-⿰ han-8a01:7x16 1 han-9751:7x16 // ⿰訁靑
+⿰ han-8a01:7x16 1 han-9751-($-1):7x16 // ⿰訁靑
 
 ## 149.9
 
@@ -580,8 +580,8 @@ glyph han-8bf0:15x16 15 16 // 诰
 
 ## 149'.8
 
-glyph han-8bf7:15x16 15 16 // 请
-⿰ han-8ba0:5x16 1 han-9752:9x16 // ⿰讠青
+glyph han-8bf7-($han-regions):15x16 15 16 // 请
+⿰ han-8ba0:5x16 1 han-9752-($-1):9x16 // ⿰讠青
 
 glyph han-8bf8-($han-regions):15x16 15 16 // 诸
 ⿰ han-8ba0:5x16 1 han-8005-($-1):9x16 // ⿰讠者

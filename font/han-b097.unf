@@ -79,8 +79,8 @@ glyph han-24c69:15x16 15 16 // 𤱩
 glyph han-24c92:15x16 15 16 // 𤲒
 ⿰ han-7530:7x16-l han-5e76:8x16 // ⿰田并
 
-glyph han-24c9f:15x16 15 16 // 𤲟
-⿰ han-7530:7x16-l 1 han-9752:7x16 // ⿰田青
+glyph han-24c9f-($han-regions):15x16 15 16 // 𤲟
+⿰ han-7530:7x16-l 1 han-9752-($-1):7x16 // ⿰田青
 
 glyph han-24ca0:15x16 15 16 // 𤲠
 ⿰ han-7530:7x16-l 1 han-5352:7x16 // ⿰田卒

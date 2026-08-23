@@ -208,8 +208,8 @@ glyph han-3d71:15x16 15 16 // 㵱
 
 ## 85.15
 
-glyph han-3d7e:15x16 15 16 // 㵾
-⿲ han-6c35:3x16 han-9752:5x16 han-898b:7x16 // ⿲氵青見
+glyph han-3d7e-($han-regions):15x16 15 16 // 㵾
+⿲ han-6c35:3x16 han-9752-($-1):5x16 han-898b:7x16 // ⿲氵青見
 
 glyph han-3d80:15x16 15 16 // 㶀
 ⿲ han-6c35:3x16 han-6708:5x16 han-7fcf:7x16 // ⿲氵月翏

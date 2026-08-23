@@ -221,9 +221,9 @@ glyph han-9d80:15x16 15 16 // 鶀
 ⿰ han-9ce5:7x16 han-5176:8x16 // ⿰鳥其
 
 glyph han-9d84-(g|h|t|p):15x16 15 16 // 鶄
-⿰ han-9752:7x16 1 han-9ce5:7x16 // ⿰青鳥
+⿰ han-9752-($-1):7x16 1 han-9ce5:7x16 // ⿰青鳥
 glyph han-9d84-(j|k):15x16 15 16 // 鶄
-⿰ han-9751:7x16 1 han-9ce5:7x16 // ⿰靑鳥
+⿰ han-9751-($-1):7x16 1 han-9ce5:7x16 // ⿰靑鳥
 
 // glyph han-9d91:15x16 15 16 // 鶑
 // ⿱ han-708f han-9ce5 // ⿱炏鳥

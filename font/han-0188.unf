@@ -335,9 +335,9 @@ glyph han-9bd5:15x16 15 16 // 鯕
 ⿰ han-9b5a:7x16 han-5176:8x16 // ⿰魚其
 
 glyph han-9bd6-(g|h|t|p):15x16 15 16 // 鯖
-⿰ han-9b5a:7x16 1 han-9752:7x16 // ⿰魚青
+⿰ han-9b5a:7x16 1 han-9752-($-1):7x16 // ⿰魚青
 glyph han-9bd6-(j|k):15x16 15 16 // 鯖
-⿰ han-9b5a:7x16 1 han-9751:7x16 // ⿰魚靑
+⿰ han-9b5a:7x16 1 han-9751-($-1):7x16 // ⿰魚靑
 
 glyph han-9bdb:15x16 15 16 // 鯛
 ⿰ han-9b5a:7x16 han-5468:8x16 // ⿰魚周

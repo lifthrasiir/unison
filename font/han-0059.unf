@@ -274,9 +274,9 @@ glyph han-60b4:15x16 15 16 // 悴
 // ⿱ han-6790 han-5fc3 // ⿱析心
 
 glyph han-60c5-(g|h|t|j|v):15x16 15 16 // 情
-⿰ han-5fc4:7x16 1 han-9752:7x16 // ⿰忄青
+⿰ han-5fc4:7x16 1 han-9752-($-1):7x16 // ⿰忄青
 glyph han-60c5-(k|p):15x16 15 16 // 情
-⿰ han-5fc4:7x16 1 han-9751:7x16 // ⿰忄靑
+⿰ han-5fc4:7x16 1 han-9751-($-1):7x16 // ⿰忄靑
 
 glyph han-60c6:15x16 15 16 // 惆
 ⿰ han-5fc4:7x16 han-5468:8x16 // ⿰忄周

@@ -146,8 +146,8 @@ glyph han-2496d:15x16 15 16 // 𤥭
 // glyph han-249a6:15x16 15 16 // 𤦦
 // ⿰ han-73a2 han-738b // ⿰玢王
 
-glyph han-249ad:15x16 15 16 // 𤦭
-⿰ han-248e9:5x16 1 han-9752:9x16 // ⿰𤣩青
+glyph han-249ad-($han-regions):15x16 15 16 // 𤦭
+⿰ han-248e9:5x16 1 han-9752-($-1):9x16 // ⿰𤣩青
 
 glyph han-249ae:15x16 15 16 // 𤦮
 ⿲ han-248e9:3x16 han-6c35:3x16 han-53f0:9x16 // ⿲𤣩氵台

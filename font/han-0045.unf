@@ -249,9 +249,9 @@ glyph han-5d0a:15x16 15 16 // 崊
 // ⿱ han-5c71 han-96b9 // ⿱山隹
 
 glyph han-5d1d-(g|h|t|p):15x16 15 16 // 崝
-⿰ han-5c71:7x16 1 han-9752:7x16 // ⿰山青
+⿰ han-5c71:7x16 1 han-9752-($-1):7x16 // ⿰山青
 glyph han-5d1d-(j|k):15x16 15 16 // 崝
-⿰ han-5c71:7x16 1 han-9751:7x16 // ⿰山靑
+⿰ han-5c71:7x16 1 han-9751-($-1):7x16 // ⿰山靑
 
 // glyph han-5d1f:15x16 15 16 // 崟
 // ⿱ han-5c71 han-91d1 // ⿱山金

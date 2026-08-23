@@ -227,9 +227,9 @@ glyph han-8f23:15x16 15 16 // 輣
 ⿲ han-8eca:5x16 han-6708:5x16 han-6708:5x16 // ⿲車月月
 
 glyph han-8f24-(g|h|t):15x16 15 16 // 輤
-⿰ han-8eca:7x16 1 han-9752:7x16 // ⿰車青
+⿰ han-8eca:7x16 1 han-9752-($-1):7x16 // ⿰車青
 glyph han-8f24-(k|p):15x16 15 16 // 輤
-⿰ han-8eca:7x16 1 han-9751:7x16 // ⿰車靑
+⿰ han-8eca:7x16 1 han-9751-($-1):7x16 // ⿰車靑
 
 ## 159.9
 
@@ -406,9 +406,9 @@ glyph han-90eb:15x16 15 16 // 郫
 ⿰ han-5351:10x16 han-961d:5x16-r // ⿰卑阝
 
 glyph han-90ec-(g|h|t):15x16 15 16 // 郬
-⿰ han-9752:9x16 1 han-961d:5x16-r // ⿰青阝
-glyph han-90ec-p:15x16 15 16 // 郬
-⿰ han-9751:9x16 1 han-961d:5x16-r // ⿰靑阝
+⿰ han-9752-($-1):9x16 1 han-961d:5x16-r // ⿰青阝
+glyph han-90ec-(p):15x16 15 16 // 郬
+⿰ han-9751-($-1):9x16 1 han-961d:5x16-r // ⿰靑阝
 
 glyph han-90ee:15x16 15 16 // 郮
 ⿰ han-5468:10x16 1 han-961d:4x16-r // ⿰周阝

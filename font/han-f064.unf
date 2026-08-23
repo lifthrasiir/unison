@@ -136,8 +136,8 @@ glyph han-2d9f8:15x16 15 16 // 𭧸
 
 ## 72.14
 
-glyph han-2da07:15x16 15 16 // 𭨇
-⿲ han-65e5:4x16-l han-7c73:5x16 1 han-9752:5x16 // ⿲日米青
+glyph han-2da07-($han-regions):15x16 15 16 // 𭨇
+⿲ han-65e5:4x16-l han-7c73:5x16 1 han-9752-($-1):5x16 // ⿲日米青
 
 # CJK unified ideographs extension F: 月 (74)
 

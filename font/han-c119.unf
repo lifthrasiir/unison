@@ -233,10 +233,10 @@ glyph han-2b3c0:15x16 15 16 // 𫏀
 
 ## 157.8
 
-glyph han-2b3cf-t:15x16 15 16 // 𫏏
-⿰ han-27fb7:5x16 1 han-9752:9x16 // ⿰𧾷青
-glyph han-2b3cf-j:15x16 15 16 // 𫏏
-⿰ han-27fb7:5x16 1 han-9751:9x16 // ⿰𧾷靑
+glyph han-2b3cf-(t):15x16 15 16 // 𫏏
+⿰ han-27fb7:5x16 1 han-9752-($-1):9x16 // ⿰𧾷青
+glyph han-2b3cf-(j):15x16 15 16 // 𫏏
+⿰ han-27fb7:5x16 1 han-9751-($-1):9x16 // ⿰𧾷靑
 
 ## 157.11
 

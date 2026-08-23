@@ -313,11 +313,11 @@ glyph han-6dec:15x16 15 16 // 淬
 glyph han-6dee:15x16 15 16 // 淮
 ⿰ han-6c35:5x16 1 han-96b9:9x16 // ⿰氵隹
 
-glyph han-6df8:15x16 15 16 // 淸
-⿰ han-6c35:5x16 1 han-9751:9x16 // ⿰氵靑
+glyph han-6df8-($han-regions):15x16 15 16 // 淸
+⿰ han-6c35:5x16 1 han-9751-($-1):9x16 // ⿰氵靑
 
-glyph han-6e05:15x16 15 16 // 清
-⿰ han-6c35:5x16 1 han-9752:9x16 // ⿰氵青
+glyph han-6e05-($han-regions):15x16 15 16 // 清
+⿰ han-6c35:5x16 1 han-9752-($-1):9x16 // ⿰氵青
 
 glyph han-6e06:15x16 15 16 // 渆
 ⿲ han-6c35:3x16 han-5e76:8x16 han-5202:4x16 // ⿲氵并刂

@@ -193,9 +193,9 @@ glyph han-7da8:15x16 15 16 // 綨
 ⿰ han-7cf9:5x16 1 han-5176:9x16 // ⿰糹其
 
 glyph han-7daa-(g|h|t):15x16 15 16 // 綪
-⿰ han-7cf9:5x16 1 han-9752:9x16 // ⿰糹青
+⿰ han-7cf9:5x16 1 han-9752-($-1):9x16 // ⿰糹青
 glyph han-7daa-(j|k|p):15x16 15 16 // 綪
-⿰ han-7cf9:5x16 1 han-9751:9x16 // ⿰糹靑
+⿰ han-7cf9:5x16 1 han-9751-($-1):9x16 // ⿰糹靑
 
 glyph han-7dad:15x16 15 16 // 維
 ⿰ han-7cf9:5x16 1 han-96b9:9x16 // ⿰糹隹

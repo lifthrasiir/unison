@@ -235,5 +235,5 @@ glyph han-2ee11:15x16 15 16 // 𮸑
 
 ## 170.8
 
-glyph han-2ee28:15x16 15 16 // 𮸨
-⿰ han-961d:5x16-l 1 han-9752:9x16 // ⿰阝青
+glyph han-2ee28-($han-regions):15x16 15 16 // 𮸨
+⿰ han-961d:5x16-l 1 han-9752-($-1):9x16 // ⿰阝青

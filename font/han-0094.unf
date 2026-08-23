@@ -149,9 +149,9 @@ glyph han-731a:15x16 15 16 // 猚
 ⿰ han-72ad:6x16 han-96b9:9x16 // ⿰犭隹
 
 glyph han-731c-(g|h|t):15x16 15 16 // 猜
-⿰ han-72ad:6x16 han-9752:9x16 // ⿰犭青
+⿰ han-72ad:6x16 han-9752-($-1):9x16 // ⿰犭青
 glyph han-731c-(j|k|p):15x16 15 16 // 猜
-⿰ han-72ad:6x16 han-9751:9x16 // ⿰犭靑
+⿰ han-72ad:6x16 han-9751-($-1):9x16 // ⿰犭靑
 
 glyph han-731d:15x16 15 16 // 猝
 ⿰ han-72ad:6x16 han-5352:9x16 // ⿰犭卒

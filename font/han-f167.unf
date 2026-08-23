@@ -97,8 +97,8 @@ glyph han-2e9d6:15x16 15 16 // 𮧖
 
 ## 177.8
 
-glyph han-2e9de:15x16 15 16 // 𮧞
-⿰ han-9769:7x16 1 han-9752:7x16 // ⿰革青
+glyph han-2e9de-($han-regions):15x16 15 16 // 𮧞
+⿰ han-9769:7x16 1 han-9752-($-1):7x16 // ⿰革青
 
 # CJK unified ideographs extension F: 頁 (181)
 

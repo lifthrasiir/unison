@@ -20,8 +20,8 @@ glyph han-2db5e:15x16 15 16 // 𭭞
 
 ## 77.8
 
-glyph han-2db66:15x16 15 16 // 𭭦
-⿰ han-6b62:10x16 han-9752:5x16 // ⿰止青
+glyph han-2db66-($han-regions):15x16 15 16 // 𭭦
+⿰ han-6b62:8x16 han-9752-($-1):7x16 // ⿰止青
 
 ## 77.12
 
@@ -130,8 +130,8 @@ glyph han-2dd21:15x16 15 16 // 𭴡
 
 ## 86.8
 
-glyph han-2dd3c:15x16 15 16 // 𭴼
-⿰ han-706b:7x16 1 han-9752:7x16 // ⿰火青
+glyph han-2dd3c-($han-regions):15x16 15 16 // 𭴼
+⿰ han-706b:7x16 1 han-9752-($-1):7x16 // ⿰火青
 
 ## 86.9
 
