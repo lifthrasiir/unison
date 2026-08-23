@@ -54,7 +54,9 @@ use crate::document::{
 use crate::editor::doc_links::LinkTargetKind;
 use crate::glyph_flags::{GlyphFlag, GlyphFlags};
 use crate::preview::rasterizer::GlyphCache;
-use crate::render::ttf_builder::{decomposed_map_pairs, expand_map_pairs, expand_uvs_map_triples};
+use crate::render::ttf_builder::{
+    decomposed_map_pairs, expand_map_pairs_per_alternative, expand_uvs_map_triples,
+};
 use crate::resolve::ItemRef;
 use crate::ucd::{BlockMap, format_block_range, variation_selector_label};
 
@@ -350,6 +352,10 @@ pub struct SpecimenState {
     /// than borrowed for the frame.
     glyph_flags: GlyphFlags,
     pub hover_status: Option<String>,
+    /// What steps 2 and 3 cost in the frame that last re-ran them, for the
+    /// rebuild report; `None` in a frame that reused them. Read and cleared by
+    /// the panel that drew this.
+    pub relayout_took: Option<std::time::Duration>,
 }
 
 impl SpecimenState {
@@ -372,6 +378,7 @@ impl SpecimenState {
             char_props: crate::ucd::CharProps::default(),
             glyph_flags: GlyphFlags::default(),
             hover_status: None,
+            relayout_took: None,
         }
     }
 
@@ -379,6 +386,26 @@ impl SpecimenState {
         self.cached_gen != Some((font_data_gen, derived_gen))
     }
 
+    /// Install what [`SpecimenData::collect`] found, for the two generations it
+    /// was collected from. Steps 2 and 3 (see the module docs) rest on it, so
+    /// both are invalidated.
+    pub fn apply(&mut self, data: SpecimenData, font_data_gen: u64, derived_gen: u64) {
+        self.cached_gen = Some((font_data_gen, derived_gen));
+        self.sections_key = None;
+        self.layout = None;
+        self.declared = data.declared;
+        self.uvs = data.uvs;
+        self.remap_entries = data.remap_entries;
+        self.blocks = data.blocks;
+        self.excluded = data.excluded;
+        self.char_props = data.char_props;
+        self.glyph_flags = data.glyph_flags;
+    }
+
+    /// Collect and install in one go, for a caller with no background pipeline
+    /// to collect on — which is the tests, and only the tests: the editor
+    /// cannot afford this on the thread it draws with.
+    #[cfg(test)]
     #[expect(clippy::too_many_arguments)]
     pub fn rebuild_if_needed(
         &mut self,
@@ -393,31 +420,73 @@ impl SpecimenState {
         if !self.needs_rebuild(font_data_gen, derived_gen) {
             return;
         }
-        self.cached_gen = Some((font_data_gen, derived_gen));
-        self.glyph_flags = glyph_flags.clone();
-        // Steps 2 and 3 (see the module docs) rest on what this collects.
-        self.sections_key = None;
-        self.layout = None;
-        self.char_props = crate::ucd::CharProps::collect(docs);
-        self.blocks = BlockMap::collect(docs);
-        self.excluded = crate::document::excluded_from_sample(docs.iter().flat_map(|d| &d.items));
+        let (exists, _) = crate::exists::resolve_scopes(docs, name_parts);
+        let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
+        let data = SpecimenData::collect(
+            docs,
+            name_parts,
+            &exists,
+            &aliases,
+            name_to_gid,
+            face_id,
+            glyph_flags,
+        );
+        self.apply(data, font_data_gen, derived_gen);
+    }
+}
+
+/// What the specimen reads out of the documents: step 1 of its three, and the
+/// only one that has to look at them at all.
+///
+/// Split off [`SpecimenState`] because it is a third full expansion of the
+/// document set — the same order of work as the font build, and on a slow
+/// machine over a second of it — and it used to run on the UI thread, where the
+/// editor simply stopped for as long as it took. It depends on nothing the UI
+/// knows: the options, the column count and the layout are steps 2 and 3, which
+/// read only what this leaves behind. So the rebuild collects it beside
+/// everything else and hands it over; see [`crate::app`]'s background pipeline.
+pub struct SpecimenData {
+    declared: BTreeMap<u32, (String, bool)>,
+    uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>>,
+    remap_entries: Vec<RemapEntry>,
+    blocks: BlockMap,
+    excluded: BTreeSet<u32>,
+    char_props: crate::ucd::CharProps,
+    glyph_flags: GlyphFlags,
+}
+
+impl SpecimenData {
+    /// `exists` and `aliases` come from the caller because it already has them:
+    /// the rebuild that collects this expanded the very same documents a moment
+    /// earlier, and both cost as much as a fifth of an expansion to derive. A
+    /// scope is keyed by *item index*, so they may only be handed in by a
+    /// caller holding the same document set they were resolved over — which is
+    /// the whole point of collecting this inside the rebuild rather than after
+    /// it.
+    pub fn collect(
+        docs: &[&Document],
+        name_parts: &NamePartsMap,
+        exists: &crate::exists::ExistsScopes,
+        aliases: &crate::alias::AliasMap,
+        name_to_gid: &HashMap<String, u16>,
+        face_id: Option<&str>,
+        glyph_flags: &GlyphFlags,
+    ) -> Self {
+        let glyph_flags = glyph_flags.clone();
+        let char_props = crate::ucd::CharProps::collect(docs);
+        let blocks = BlockMap::collect(docs);
+        let excluded = crate::document::excluded_from_sample(docs.iter().flat_map(|d| &d.items));
 
         // An `exists` above a line binds `$0`/`$N` over the names the source
         // declares and unrolls the line below it once per matched name. A
         // source that maps a few thousand han glyphs that way — `exists
         // han-([0-9a-f]{4,5})` / `map U+($1) = han-($1)` — has no literal `map`
         // line for any of them, so a pass that reads the items as written finds
-        // no character at all. The searches are resolved here, over the very
-        // documents this rebuild was handed, rather than carried over from the
-        // background pipeline: a scope is keyed by *item index*, which means
-        // nothing against a document set edited since.
-        let (exists, _) = crate::exists::resolve_scopes(docs, name_parts);
-
+        // no character at all. Hence `exists`, and hence `aliases` beside it:
         // `name_to_gid` comes from the built font, which knows a glyph only by
         // its canonical name, so a character mapped through an alias has to be
         // asked for under that name. Merged names count as aliases here for the
         // same reason they do in the expansion: the font carries one of them.
-        let aliases = crate::alias::AliasMap::collect_with_merges(docs, name_parts, &exists);
 
         // The specimen draws one face's font bytes, so it has to read the
         // source the way `expand_for` did when building them: a slice-qualified
@@ -448,6 +517,20 @@ impl SpecimenState {
 
         let mut map: BTreeMap<u32, (String, bool)> = BTreeMap::new();
         let mut uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>> = BTreeMap::new();
+        // Only the names a `remap` targets are ever asked of `mapped_glyphs`
+        // below, so only those are worth remembering: a `map` line with ordered
+        // alternatives over a range names hundreds of thousands of glyphs, and
+        // keeping every one of them was most of what this walk cost.
+        let remap_targets: HashSet<String> = docs
+            .iter()
+            .flat_map(|d| &d.items)
+            .filter_map(|item| match item {
+                DocumentItem::Remap { target, .. } => Some(target),
+                _ => None,
+            })
+            .flatten()
+            .flat_map(|t| expand_name_element(t, name_parts))
+            .collect();
         let mut mapped_glyphs: HashSet<String> = HashSet::new();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
@@ -523,7 +606,9 @@ impl SpecimenState {
                                     })
                                     .collect();
                                 for t in per_alt.iter().flatten() {
-                                    mapped_glyphs.insert(t.2.clone());
+                                    if remap_targets.contains(&t.2) {
+                                        mapped_glyphs.insert(t.2.clone());
+                                    }
                                 }
                                 let Some(first) = per_alt.first() else {
                                     continue;
@@ -544,17 +629,23 @@ impl SpecimenState {
                                 let Some(char_repr) = evaluated(char_repr) else {
                                     continue;
                                 };
-                                let per_alt: Vec<Vec<(u32, String)>> = glyphs
+                                // Expanded together rather than one alternative
+                                // at a time: they range over the same
+                                // characters, and a range line is thousands of
+                                // them wide.
+                                let substituted: Vec<String> = glyphs
                                     .iter()
-                                    .map(|g| {
-                                        let subst = substitute_name_parts(g, parts);
-                                        let mut pairs = expand_map_pairs(&char_repr, &subst);
-                                        aliases.canonicalize_pairs(&mut pairs);
-                                        pairs
-                                    })
+                                    .map(|g| substitute_name_parts(g, parts))
                                     .collect();
+                                let mut per_alt =
+                                    expand_map_pairs_per_alternative(&char_repr, &substituted);
+                                for alt in &mut per_alt {
+                                    aliases.canonicalize_pairs(alt);
+                                }
                                 for p in per_alt.iter().flatten() {
-                                    mapped_glyphs.insert(p.1.clone());
+                                    if remap_targets.contains(&p.1) {
+                                        mapped_glyphs.insert(p.1.clone());
+                                    }
                                 }
                                 let Some(first) = per_alt.first() else {
                                     continue;
@@ -579,7 +670,9 @@ impl SpecimenState {
                                 };
                                 for (cp, name) in decomposed_map_pairs(&char_repr, subst.as_deref())
                                 {
-                                    mapped_glyphs.insert(name.clone());
+                                    if remap_targets.contains(&name) {
+                                        mapped_glyphs.insert(name.clone());
+                                    }
                                     let unresolved = !usable(&name);
                                     map.entry(cp).or_insert((name, unresolved));
                                 }
@@ -590,12 +683,11 @@ impl SpecimenState {
                 }
             }
         }
-        self.declared = map;
-        self.uvs = uvs;
+        let declared = map;
 
         // Build reverse map: glyph_name → smallest codepoint.
         let mut glyph_to_cp: HashMap<&str, u32> = HashMap::new();
-        for (cp, (glyph_name, _)) in &self.declared {
+        for (cp, (glyph_name, _)) in &declared {
             glyph_to_cp.entry(glyph_name.as_str()).or_insert(*cp);
         }
 
@@ -721,10 +813,22 @@ impl SpecimenState {
         // Sort ligature remaps by codepoint sequence, then append others
         // (already sorted by glyph name via BTreeSet).
         with_cp.sort_by(|a, b| a.cp_sequence.cmp(&b.cp_sequence));
-        self.remap_entries = with_cp;
-        self.remap_entries.append(&mut without_cp);
-    }
+        let mut remap_entries = with_cp;
+        remap_entries.append(&mut without_cp);
 
+        Self {
+            declared,
+            uvs,
+            remap_entries,
+            blocks,
+            excluded,
+            char_props,
+            glyph_flags,
+        }
+    }
+}
+
+impl SpecimenState {
     /// Step 2: which cells the grid has, and how they are grouped. Reads only
     /// what step 1 left behind, so a change of options never re-reads the
     /// documents.
@@ -1045,8 +1149,15 @@ impl SpecimenState {
         self.glyph_cache.invalidate_if_changed(font_data_gen);
         self.hover_status = None;
 
+        // Steps 2 and 3, both on the UI thread and both re-run when step 1
+        // lands something new — which is the frame after every rebuild that
+        // collected it. Timed for the rebuild report, since a frame that does
+        // them is the one frame an edit is visible in.
+        let relayout = std::time::Instant::now();
+        let mut relaid = false;
         if self.sections_key != Some(self.options) {
             self.rebuild_sections();
+            relaid = true;
         }
         if self.items.is_empty() {
             ui.label("No cmap entries.");
@@ -1058,7 +1169,9 @@ impl SpecimenState {
         let cols = (avail_width / CELL_W).floor().max(1.0) as usize;
         if self.layout.as_ref().is_none_or(|l| l.cols != cols) {
             self.layout = Some(self.build_layout(cols));
+            relaid = true;
         }
+        self.relayout_took = relaid.then(|| relayout.elapsed());
         // Out of `self` for the frame: every draw call below wants `&mut self`
         // for the glyph cache, and the context menu wants `&mut self.options`.
         // Always `Some` — it was just filled in above.

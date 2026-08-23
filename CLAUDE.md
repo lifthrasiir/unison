@@ -173,12 +173,13 @@ Core (feature-independent):
 Editor (feature `editor`):
 
 - `app/` — `UniformApp` eframe entry point. `mod.rs` (the struct and the `eframe::App` loop),
-  `background.rs` (the debounced build/derive/assert threads and the generation rules their consumers
+  `background.rs` (the debounced rebuild and assert threads and the generation rules their consumers
   must respect), `docs.rs`, `history.rs` (go back/forward), `menus.rs`, `panels.rs`, `panes.rs` (the
   split-editor model and its two invariants), `search.rs` (the Search pane),
   `rename.rs`, `resize.rs` (carrying a glyph resize across every file that refers to the glyph),
   `fix.rs` (applying a `crate::fix` plan to the open documents, undoably),
   `settings.rs` (what survives between runs, and what egui persists instead),
+  `timing.rs` (what one rebuild cost, on both threads — *View → Rebuild timing…*),
   `watch.rs` (the OS watch on the font directory and what an external change may do), `toast.rs`,
   `zoom.rs`.
 - `editor/mod.rs` — `EditorState`, `EditMode`, and **the editor-is-a-widget model**; `editor/ids.rs`
@@ -223,7 +224,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `map CHAR = A B C`: ordered alternatives, why the choice is per codepoint, and `.notdef` as the implicit last one | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`) |
 | The empty target `` `` ``: dropping a mapping instead of faulting it, and why it has to be last | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
 | Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `render/ttf_builder/expand.rs` (`WideMapRows`, `AltTarget`, `map_char_pattern`) |
-| Why a `map` target nothing declares is never remembered as a reachability root | `issues/unused.rs` (`GlyphGraph::knows`), `issues/maps.rs`, `render/ttf_builder/expand.rs` (`for_each_map_alternative_name`) |
+| Why a wide `map` line's alternatives are settled on every core | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `parallel.rs` |
+| Why a `map` target nothing declares is never remembered as a reachability root, and why the wide lines are asked from the declared side | `issues/unused.rs` (`GlyphGraph::knows`), `render/ttf_builder/expand.rs` (`MapAlternativeIndex`) |
 | Why the duplicate-codepoint table holds two integers per codepoint rather than a slice name and a path | `issues/maps.rs` (`MapSite`, `SliceTable`) |
 | Why a name that is nothing but one `($-N)` is never ragged | `issues/patterns.rs` (`whole_back_reference`) |
 | Why a character the font cannot draw is tinted by the specimen and not by a glyph flag | `specimen.rs` (`CharEntry::unresolved`, `flag_for`) |
@@ -356,6 +358,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | `prop`: naming Private Use characters the UCD says nothing about, and what reads it | `ucd.rs` (`CharProps`) |
 | Which block a code point is in, and how `prop block` overrides the UCD | `ucd.rs` (`BlockMap`) |
 | Which Private Use characters exist (`prop` replaces the UCD there), and the block coverage counting them | `ucd.rs` (`CharProps::is_assigned`), `specimen.rs` |
+| Why what the specimen reads out of the documents is collected in the background, and what asks for it | `specimen.rs` (`SpecimenData`), `app/background.rs` |
+| Which mapped glyph names the specimen bothers to remember, and why only those | `specimen.rs` (`remap_targets`) |
+| Why the specimen is handed the searches and aliases rather than deriving its own | `specimen.rs` (`SpecimenData::collect`), `ref_composite/mod.rs` (`resolve_expanded_items`) |
 | The specimen's three options, filling a block, and hiding an excluded row | `specimen.rs` (`SpecimenOptions`) |
 | Where a variation sequence sits on the specimen, the `+VS17` label it carries, and the undrawn border joining it to its base | `specimen.rs` (`UvsEntry`, `uvs_label`, `uvs_boundary`) |
 | Why the specimen resolves the `exists` searches itself, and the one clone per line that pays for it | `specimen.rs` (`rebuild_if_needed`), `exists.rs` (`Scope::rebind`) |
@@ -382,9 +387,13 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
 | Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |
 | What one edit costs the editor once its caches are warm, and why that is not the startup question | `main.rs` (`run_edit_probe`) |
+| Where an edit's wait actually goes in the running editor — the UI half included — and why a headless probe cannot answer it | `app/timing.rs` |
+| Why Windows gets a different allocator, and the measurement that says so | `main.rs` (`GLOBAL_ALLOC`) |
 | Why startup and Open Folder build no font of their own | `app/background.rs` (`arm_initial_font_build`) |
 | Why the directory load reads its files on many threads | `render/ttf_builder/mod.rs` (`load_docs_from_directory_with_sources`) |
 | One build at a time, and cancelling the one that a new edit superseded | `app/background.rs`, `cancel.rs` |
+| Why the font result is sent before the rebuild that produced it has finished, and what frees the slot instead | `app/background.rs` (`take_current_font_build`, `UniformApp::rebuild`) |
+| The font and the derived data as one rebuild, and the expansion it lends to both | `app/background.rs` (`UniformApp::rebuild`), `render/ttf_builder/collect.rs` (`ExpansionSource`) |
 | Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite/mod.rs` (`resolve_expansion_cached`) |
 | Splitting a memo off its tracer so the tracer can leave the thread | `render/glyph_cache.rs` (`CompositeBuilder`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
 | Which build stages run at once, and what they must not share to | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |

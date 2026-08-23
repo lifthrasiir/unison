@@ -29,6 +29,7 @@ mod rename;
 mod resize;
 mod search;
 mod settings;
+mod timing;
 mod toast;
 mod watch;
 mod zoom;
@@ -74,6 +75,13 @@ struct DerivedDataMessage {
     /// Every face the source declares, in declaration order, for the face
     /// picker. Resolution already collects them, so nothing else has to.
     face_ids: Vec<String>,
+    /// What the specimen reads out of the documents, when its tab is open —
+    /// a third full expansion, and the reason it is not done on the UI thread.
+    /// See [`crate::specimen::SpecimenData`].
+    specimen: Option<crate::specimen::SpecimenData>,
+    /// What each stage of this rebuild cost, measured where it ran; see
+    /// [`timing`].
+    timing: timing::BackgroundTiming,
 }
 /// How one derived-data thread ended. `Failed` is a rebuild that died on the
 /// way (see `background::ResultSlot`) and `Cancelled` one that was superseded
@@ -135,21 +143,33 @@ pub struct UniformApp {
     font_applied: Option<bool>,
     font_data_gen: u64,
     last_font_gen: u64,
-    font_rebuild_at: Option<std::time::Instant>,
+    /// When the debounced rebuild — the font *and* the derived data, which are
+    /// one thread; see [`UniformApp::rebuild`] — is due.
+    rebuild_at: Option<std::time::Instant>,
+    /// What the last few rebuilds cost, stage by stage. See [`timing`].
+    rebuild_log: timing::RebuildLog,
+    /// *View → Rebuild timing…* is showing.
+    rebuild_timing_open: bool,
+    /// The generations the specimen's data was last *asked* for. Opening the
+    /// tab asks for a rebuild, and this is what keeps it to one ask rather than
+    /// one per frame.
+    specimen_asked_for: Option<(u64, u64)>,
     font_build_rx: mpsc::Receiver<FontBuildMessage>,
     font_build_tx: mpsc::Sender<FontBuildMessage>,
     font_build_gen: u64,
-    /// A font-build thread is running. At most one ever is: a second build
-    /// would only queue behind the first on `contour_cache`, and it is that
-    /// queue — one full build per click, each finishing long after its own
-    /// edit was superseded — that made a burst of pixel edits take seconds to
-    /// show. A build arriving while one runs cancels it and re-arms
-    /// `font_rebuild_at` instead.
-    font_build_inflight: bool,
-    /// Cancels the in-flight font build. Replaced, never reset, when the next
-    /// build starts, so a build can never inherit its predecessor's
-    /// cancellation.
-    font_cancel: crate::cancel::CancelToken,
+    /// A rebuild thread is running. At most one ever is: a second would only
+    /// queue behind the first on `contour_cache`, and it is that queue — one
+    /// full build per click, each finishing long after its own edit was
+    /// superseded — that made a burst of pixel edits take seconds to show. A
+    /// rebuild arriving while one runs cancels it and re-arms `rebuild_at`
+    /// instead. It is also what keeps a stage slower than the debounce from
+    /// respawning itself every period: on machines where a resolve takes longer
+    /// than the debounce that used to snowball into dozens of concurrent
+    /// threads starving each other (observed: 2s resolves stretching past 20s).
+    rebuild_inflight: bool,
+    /// Cancels the in-flight rebuild. Replaced, never reset, when the next one
+    /// starts, so a rebuild can never inherit its predecessor's cancellation.
+    rebuild_cancel: crate::cancel::CancelToken,
     contour_cache: SharedContourCache,
     /// The composed grids of the last resolve, so the next one only recomposes
     /// what an edit reached — the resolve's counterpart to `contour_cache`, and
@@ -191,21 +211,6 @@ pub struct UniformApp {
     derived_gen: u64,
     derived_data_tx: mpsc::Sender<DerivedDataResult>,
     derived_data_rx: mpsc::Receiver<DerivedDataResult>,
-    derived_rebuild_at: Option<std::time::Instant>,
-    /// A derived-data rebuild thread is currently running. Without this
-    /// guard the scheduler below respawns a rebuild every debounce period
-    /// for as long as one is in flight — on machines where a resolve takes
-    /// longer than the debounce, that snowballs into dozens of concurrent
-    /// resolve threads starving each other (observed: 2s resolves stretching
-    /// past 20s under the pile-up).
-    /// The build generation the in-flight derived-data rebuild is resolving,
-    /// or `None` when none is running. The generation is what makes it
-    /// cancellable: a rebuild already resolving the current sources is left
-    /// alone, and only one resolving superseded ones is stopped.
-    derived_inflight: Option<u64>,
-    /// Cancels the in-flight derived-data rebuild; replaced per rebuild, like
-    /// `font_cancel`.
-    derived_cancel: crate::cancel::CancelToken,
     last_export_path: Option<PathBuf>,
     close_confirmed: bool,
     bottom_panel_height: f32,
@@ -443,12 +448,15 @@ impl UniformApp {
             font_applied: None,
             font_data_gen: 0,
             last_font_gen: 0,
-            font_rebuild_at: None,
+            rebuild_at: None,
+            rebuild_log: timing::RebuildLog::default(),
+            rebuild_timing_open: false,
+            specimen_asked_for: None,
             font_build_rx,
             font_build_tx,
             font_build_gen: 0,
-            font_build_inflight: false,
-            font_cancel: crate::cancel::CancelToken::never(),
+            rebuild_inflight: false,
+            rebuild_cancel: crate::cancel::CancelToken::never(),
             contour_cache,
             composite_grid_cache: Arc::default(),
             selected_face,
@@ -466,9 +474,6 @@ impl UniformApp {
             derived_gen: 0,
             derived_data_tx,
             derived_data_rx,
-            derived_rebuild_at: None,
-            derived_inflight: None,
-            derived_cancel: crate::cancel::CancelToken::never(),
             last_export_path: None,
             close_confirmed: false,
             bottom_panel_height: 0.0,
@@ -664,6 +669,10 @@ impl eframe::App for UniformApp {
             self.first_frame_seen = true;
             crate::startup::mark("first frame begins");
         }
+        // Timed for the frames right after a font lands: egui refills its atlas
+        // inside the first layout that needs the new font, not in `set_fonts`,
+        // so that cost is only visible as a slow frame. See [`timing`].
+        let frame_started = std::time::Instant::now();
 
         self.sync_window_title(ctx);
 
@@ -821,6 +830,8 @@ impl eframe::App for UniformApp {
         }
 
         self.show_startup_timing_window(ctx);
+        self.show_rebuild_timing_window(ctx);
+        self.rebuild_log.frame(frame_started.elapsed());
 
         if first_frame {
             crate::startup::mark("first frame built");
@@ -877,6 +888,33 @@ impl UniformApp {
                 });
             });
         self.startup_timing_open = open;
+    }
+
+    /// What the last few rebuilds cost, as a window — the same report the
+    /// stderr dump prints, and the only route on a launch with no console. See
+    /// [`timing`] for why the UI-thread stages are in it.
+    fn show_rebuild_timing_window(&mut self, ctx: &egui::Context) {
+        if !self.rebuild_timing_open {
+            return;
+        }
+        let mut open = true;
+        egui::Window::new("Rebuild timing")
+            .open(&mut open)
+            .default_width(560.0)
+            .show(ctx, |ui| {
+                let report = self.rebuild_log.report();
+                if ui.button("Copy").clicked() {
+                    ctx.copy_text(report.clone());
+                }
+                ui.separator();
+                egui::ScrollArea::both().max_height(420.0).show(ui, |ui| {
+                    ui.add(
+                        egui::Label::new(egui::RichText::new(&report).monospace())
+                            .wrap_mode(egui::TextWrapMode::Extend),
+                    );
+                });
+            });
+        self.rebuild_timing_open = open;
     }
 
     /// Hands the keyboard back to the active editor, which a menu-bar click

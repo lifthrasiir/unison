@@ -37,6 +37,16 @@ impl<'a> GlyphGraph<'a> {
     pub(super) fn knows(&self, name: &str) -> bool {
         self.name_to_item.contains_key(name) || self.alt_names.contains_key(name)
     }
+
+    /// Every name [`knows`](Self::knows) answers for. What a wide `map` line's
+    /// alternatives name is decided by walking this rather than the line; see
+    /// [`crate::render::ttf_builder::MapAlternativeIndex`].
+    pub(super) fn known(&self) -> impl Iterator<Item = &str> {
+        self.name_to_item
+            .keys()
+            .map(String::as_str)
+            .chain(self.alt_names.keys().copied())
+    }
 }
 
 pub(super) fn collect_graph<'a>(cx: &'a Cx<'_>) -> GlyphGraph<'a> {

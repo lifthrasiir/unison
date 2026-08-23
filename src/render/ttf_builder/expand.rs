@@ -1017,7 +1017,7 @@ fn wide_map_rows(char_repr: &str) -> Option<WideMapRows> {
     // spelling `expand_map_pairs` cannot make sense of; the line then keeps its
     // shape below.
     let count = match u64::from(end).checked_sub(u64::from(start)) {
-        Some(span) if span + 1 <= MAX_EXPANSION as u64 => (span + 1) as usize,
+        Some(span) if span < MAX_EXPANSION as u64 => (span + 1) as usize,
         _ => 0,
     };
     Some(WideMapRows {
@@ -1041,6 +1041,9 @@ enum AltTarget<'a> {
         prefix: &'a str,
         group: &'a [String],
         suffix: &'a str,
+        /// Which capture group of the spec `group` is, for
+        /// [`MapAlternativeIndex`] — the one reader that needs to name it.
+        group_idx: usize,
     },
     Pattern(NamePattern),
     /// A target no pattern can be made of, read as the literal it is written
@@ -1079,6 +1082,7 @@ impl<'a> AltTarget<'a> {
             prefix,
             group: &spec.captures()[idx],
             suffix,
+            group_idx: idx,
         })
     }
 
@@ -1099,6 +1103,7 @@ impl<'a> AltTarget<'a> {
                 prefix,
                 group,
                 suffix,
+                ..
             } => {
                 out.push_str(prefix);
                 out.push_str(&group[i % group.len()]);
@@ -1132,6 +1137,37 @@ fn settle_row(
     (usable(NOTDEF).then(|| NOTDEF.to_string()), false)
 }
 
+/// Every alternative of one `map` line, expanded over the line's characters.
+///
+/// The same pairs [`expand_map_pairs`] returns for each alternative in turn,
+/// but with the character spec — which a range line writes tens of thousands of
+/// characters wide — expanded once for the line rather than once per
+/// alternative. For a caller that needs every alternative's name per row and so
+/// cannot stream them ([`for_each_map_alternative_name`]) or read them lazily
+/// (`resolve_map_alternatives`): the specimen, which asks its own oracle which
+/// one a character settles on.
+pub(crate) fn expand_map_pairs_per_alternative(
+    char_repr: &str,
+    glyphs: &[String],
+) -> Vec<Vec<(u32, String)>> {
+    let Some(spec) = wide_map_rows(char_repr) else {
+        return glyphs
+            .iter()
+            .map(|g| expand_map_pairs(char_repr, g))
+            .collect();
+    };
+    glyphs
+        .iter()
+        .map(|g| {
+            let target = AltTarget::of(g, &spec);
+            spec.rows()
+                .iter()
+                .map(|&(i, cp)| (cp, target.get(i)))
+                .collect()
+        })
+        .collect()
+}
+
 /// Every glyph name one `map` line's alternatives put on a character, one at a
 /// time.
 ///
@@ -1141,6 +1177,7 @@ fn settle_row(
 pub(crate) fn for_each_map_alternative_name(
     char_repr: &str,
     glyphs: &[String],
+    index: &mut MapAlternativeIndex,
     mut f: impl FnMut(&str),
 ) {
     let Some(spec) = wide_map_rows(char_repr) else {
@@ -1154,10 +1191,91 @@ pub(crate) fn for_each_map_alternative_name(
     let mut buf = String::new();
     for glyph in glyphs {
         let target = AltTarget::of(glyph, &spec);
+        if index.take(&target, spec.spec.as_ref()) {
+            continue;
+        }
         for &(i, _) in spec.rows() {
             target.get_into(i, &mut buf);
             f(&buf);
         }
+    }
+}
+
+/// The `map` alternatives wide enough that asking each of them to produce every
+/// name it can is more work than asking every declared name which of them
+/// produces it.
+///
+/// A `PREFIX($-N)SUFFIX` alternative over a range spec names one glyph per code
+/// point the line covers — the han slice lines name close to a million between
+/// them — while a source-side check only cares about the few thousand a glyph
+/// is really declared for. The index turns the question around: it keeps the
+/// two literals and the group values the line actually produces, so a candidate
+/// name is answered with one `starts_with`, one `ends_with` and one hash
+/// lookup, and the walk is over the declared names instead.
+///
+/// What it cannot invert it does not take, and
+/// [`for_each_map_alternative_name`] streams those the forward way — so between
+/// the two, every alternative is accounted for exactly once.
+#[derive(Default)]
+pub(crate) struct MapAlternativeIndex {
+    /// Grouped by the literal before the group, which is what a candidate is
+    /// tested against first. Wide lines are few by nature — each is thousands
+    /// of characters — so scanning the distinct prefixes beats the trie it
+    /// would take to avoid scanning them.
+    by_prefix: Vec<(String, Vec<IndexedAlt>)>,
+}
+
+struct IndexedAlt {
+    suffix: String,
+    /// Held so the values outlive the line they were read from.
+    spec: Arc<MapCharSpec>,
+    group: usize,
+}
+
+impl MapAlternativeIndex {
+    pub(crate) fn is_empty(&self) -> bool {
+        self.by_prefix.is_empty()
+    }
+
+    /// Take `target` into the index, or report that it has to be streamed.
+    fn take(&mut self, target: &AltTarget<'_>, spec: Option<&Arc<MapCharSpec>>) -> bool {
+        let AltTarget::Capture {
+            prefix,
+            suffix,
+            group_idx,
+            ..
+        } = target
+        else {
+            return false;
+        };
+        let Some(spec) = spec else { return false };
+        if !spec.produced.get(*group_idx).is_some_and(Option::is_some) {
+            return false;
+        }
+        let alt = IndexedAlt {
+            suffix: (*suffix).to_string(),
+            spec: spec.clone(),
+            group: *group_idx,
+        };
+        match self.by_prefix.iter_mut().find(|(p, _)| p == prefix) {
+            Some((_, alts)) => alts.push(alt),
+            None => self.by_prefix.push(((*prefix).to_string(), vec![alt])),
+        }
+        true
+    }
+
+    /// Whether any alternative the index took names `name`.
+    pub(crate) fn produces(&self, name: &str) -> bool {
+        self.by_prefix.iter().any(|(prefix, alts)| {
+            name.starts_with(prefix.as_str())
+                && alts.iter().any(|alt| {
+                    name.len() >= prefix.len() + alt.suffix.len()
+                        && name.ends_with(alt.suffix.as_str())
+                        && alt.spec.produced[alt.group].as_ref().is_some_and(|values| {
+                            values.contains(&name[prefix.len()..name.len() - alt.suffix.len()])
+                        })
+                })
+        })
     }
 }
 
@@ -1343,9 +1461,25 @@ fn resolve_map_alternatives(
             }
             let targets: Vec<AltTarget<'_>> =
                 glyphs.iter().map(|g| AltTarget::of(g, &spec)).collect();
-            for &(i, cp) in spec.rows() {
-                let (chosen, matched) =
-                    settle_row(targets.iter().map(|t| t.get(i)), &usable, optional);
+            // One row is a name built per alternative and a lookup each, and a
+            // range line is a hundred thousand of them — the largest single
+            // stage of an expansion, and a pure one: `usable` reads sets
+            // nothing here writes. Settled on every core, then walked in order,
+            // because the items and the diagnostic are the line's and have to
+            // come out in the order it wrote them.
+            let rows = spec.rows();
+            let settled = crate::parallel::map_indexed(
+                rows.len(),
+                &crate::cancel::CancelToken::never(),
+                |k| {
+                    let (i, _) = rows[k];
+                    settle_row(targets.iter().map(|t| t.get(i)), &usable, optional)
+                },
+            );
+            for (&(_, cp), settled) in rows.iter().zip(settled) {
+                let Some((chosen, matched)) = settled else {
+                    continue;
+                };
                 if !matched {
                     match &mut unmatched {
                         Some((_, more)) => *more += 1,
@@ -1917,6 +2051,15 @@ struct MapCharSpec {
     /// is what lets [`AltTarget::Capture`] read a value straight out of the
     /// group instead of splicing the group into a string and parsing it back.
     plain: Vec<bool>,
+    /// Per capture group, the values the expansion really produces — the
+    /// group's entries at the indices that name a code point — and what lets
+    /// [`MapAlternativeIndex`] answer a name without enumerating them.
+    ///
+    /// `None` for a group that does not span the whole expansion: a value there
+    /// stands for several indices at once, so its presence no longer settles
+    /// whether the name is produced. Also `None` throughout for a spec too
+    /// narrow to be worth indexing, which is every spec the memo does not keep.
+    produced: Vec<Option<HashSet<String>>>,
 }
 
 /// The character spec of a `map`, when it is written as a *pattern*: the code
@@ -1951,20 +2094,29 @@ fn map_char_pattern(char_repr: &str) -> Option<Arc<MapCharSpec>> {
         return None;
     }
     let pattern = NamePattern::parse_element(&text).ok()?;
-    let rows = (0..pattern.len())
+    let rows: Vec<(usize, u32)> = (0..pattern.len())
         .filter_map(|i| parse_map_char(&pattern.get(i)).map(|cp| (i, cp)))
         .collect();
     let plain = captures
         .iter()
         .map(|g| !g.is_empty() && !g.iter().any(|v| v.contains(['(', ')', '|', '*'])))
         .collect();
+    let wide = pattern.len() >= MEMO_MIN_WIDTH;
+    let produced = captures
+        .iter()
+        .map(|group| {
+            (wide && group.len() == pattern.len())
+                .then(|| rows.iter().map(|&(i, _)| group[i].clone()).collect())
+        })
+        .collect();
     let spec = Arc::new(MapCharSpec {
         pattern,
         rows,
         captures,
         plain,
+        produced,
     });
-    if spec.pattern.len() >= MEMO_MIN_WIDTH {
+    if wide {
         let mut cache = cache.lock().unwrap();
         if cache.len() < MEMO_MAX_ENTRIES {
             cache.insert(char_repr.to_string(), spec.clone());

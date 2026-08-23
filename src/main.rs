@@ -211,22 +211,29 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
     i32::from(failures > 0)
 }
 
-/// One rebuild's stages, as the editor splits them across its two background
-/// threads.
+/// One rebuild's stages, in the shape `app::background::UniformApp::rebuild`
+/// runs them: the expansion once, the font build beside validation, and the
+/// recomposition last.
 #[cfg(feature = "editor")]
 struct RebuildTiming {
     label: &'static str,
+    expand: std::time::Duration,
     font: std::time::Duration,
-    resolve: std::time::Duration,
     validate: std::time::Duration,
     flags: std::time::Duration,
     recompose: std::time::Duration,
+    /// What the specimen reads out of the documents, which the editor collects
+    /// beside the recomposition and only when its tab is open.
+    specimen: std::time::Duration,
 }
 
 #[cfg(feature = "editor")]
 impl RebuildTiming {
-    fn derived(&self) -> std::time::Duration {
-        self.resolve + self.validate + self.flags + self.recompose
+    /// What the edit costs, with the pairs that overlap counted once: the font
+    /// build runs beside validation, and the recomposition beside the
+    /// specimen's data.
+    fn total(&self) -> std::time::Duration {
+        self.expand + self.font.max(self.validate + self.flags) + self.recompose.max(self.specimen)
     }
 }
 
@@ -243,10 +250,11 @@ impl RebuildTiming {
 /// edited by, and comparing them to the warm floor is the point — a floor as
 /// high as the edits means nothing is being reused between rebuilds.
 ///
-/// The stages are the editor's own, split the way `app::background` runs them:
-/// the font build on one thread, the derived data (resolve, validation, glyph
-/// flags, recomposition) on the other, so the wait is the larger of the two
-/// rather than the sum.
+/// The stages are the editor's own, in the order `app::background` runs them:
+/// one expansion, then the font build beside validation, then the
+/// recomposition that consumes the expansion. The font build and validation
+/// overlap in the editor, so the total counts the longer of the two rather than
+/// both.
 ///
 /// Which glyph is edited is deliberately arbitrary — the first one with a grid
 /// — because the cost of a rebuild does not depend on it: nothing downstream
@@ -268,21 +276,26 @@ fn run_edit_probe(input: &std::path::Path) {
     let mut grid_cache = ref_composite::CompositeGridCache::default();
     let mut rows: Vec<RebuildTiming> = Vec::new();
 
-    let mut rebuild = |docs: &[document::Document],
-                       grid_cache: &mut ref_composite::CompositeGridCache,
-                       label: &'static str| {
+    let rebuild = |docs: &[document::Document],
+                   contour_cache: &render::SharedContourCache,
+                   grid_cache: &mut ref_composite::CompositeGridCache,
+                   label: &'static str| {
         let refs: Vec<&document::Document> = docs.iter().collect();
 
-        let t = std::time::Instant::now();
-        let _font = render::build_font_pair_cached_for(&refs, &contour_cache, None, &never);
-        let font = t.elapsed();
-
+        // The one expansion both halves below read.
         let t = std::time::Instant::now();
         let Some(resolution) = resolve::Resolution::compute_cancellable(&refs, &never) else {
             eprintln!("resolution produced nothing; is `meta height` set?");
             std::process::exit(1);
         };
-        let resolve = t.elapsed();
+        let expand = t.elapsed();
+
+        // Timed one after the other rather than at once: what is wanted here is
+        // what each stage costs, and the report combines them the way the
+        // editor's threads do.
+        let t = std::time::Instant::now();
+        let font = render::build_font_pair_cached_from(&refs, contour_cache, &resolution, &never);
+        let font_took = t.elapsed();
 
         let t = std::time::Instant::now();
         let issues = issues::collect_issues_with(&refs, &resolution);
@@ -302,27 +315,61 @@ fn run_edit_probe(input: &std::path::Path) {
         );
         let recompose = t.elapsed();
 
+        // What the editor collects when the specimen tab is open, which is when
+        // it is on the critical path at all.
+        let t = std::time::Instant::now();
+        let _specimen = font.as_ref().map(|f| {
+            let (exists, _) = exists::resolve_scopes(&refs, &name_parts);
+            let aliases = alias::AliasMap::collect_with_merges(&refs, &name_parts, &exists);
+            specimen::SpecimenData::collect(
+                &refs,
+                &name_parts,
+                &exists,
+                &aliases,
+                &f.name_to_gid,
+                None,
+                &_flags,
+            )
+        });
+        let specimen = t.elapsed();
+
         RebuildTiming {
             label,
-            font,
-            resolve,
+            expand,
+            font: font_took,
             validate,
             flags,
             recompose,
+            specimen,
         }
     };
 
-    rows.push(rebuild(&docs, &mut grid_cache, "cold (first build)"));
-    rows.push(rebuild(&docs, &mut grid_cache, "warm (nothing changed)"));
+    rows.push(rebuild(
+        &docs,
+        &contour_cache,
+        &mut grid_cache,
+        "cold (first build)",
+    ));
+    rows.push(rebuild(
+        &docs,
+        &contour_cache,
+        &mut grid_cache,
+        "warm (nothing changed)",
+    ));
 
     if !edit_one_pixel(&mut docs) {
         eprintln!("no glyph with a pixel grid to edit");
         std::process::exit(1);
     }
-    rows.push(rebuild(&docs, &mut grid_cache, "one pixel"));
+    rows.push(rebuild(&docs, &contour_cache, &mut grid_cache, "one pixel"));
 
     add_one_glyph_block(&mut docs);
-    rows.push(rebuild(&docs, &mut grid_cache, "one glyph block"));
+    rows.push(rebuild(
+        &docs,
+        &contour_cache,
+        &mut grid_cache,
+        "one glyph block",
+    ));
 
     print!("{}", edit_probe_report(&rows));
 }
@@ -395,23 +442,26 @@ fn edit_probe_report(rows: &[RebuildTiming]) -> String {
         );
     }
     out.push_str(
-        "The font build runs on one background thread and the derived data on\n\
-         another, so what an edit costs is the larger of the two columns.\n\n",
+        "One expansion feeds the font build and validation, which run at once;\n\
+         the recomposition and the specimen's data then run at once too. The\n\
+         total counts each pair once. The specimen is only collected when its\n\
+         tab is open, which is the case measured here.\n\n",
     );
     out.push_str(
-        "pass                        font build      resolve     validate      \
-         flags   recompose      derived\n",
+        "pass                            expand   font build     validate      \
+         flags   recompose     specimen        total\n",
     );
     for r in rows {
         out.push_str(&format!(
-            "  {:<24}{:>12}{:>13}{:>13}{:>11}{:>12}{:>13}\n",
+            "  {:<24}{:>12}{:>13}{:>13}{:>11}{:>12}{:>13}{:>13}\n",
             r.label,
+            ms(r.expand),
             ms(r.font),
-            ms(r.resolve),
             ms(r.validate),
             ms(r.flags),
             ms(r.recompose),
-            ms(r.derived()),
+            ms(r.specimen),
+            ms(r.total()),
         ));
     }
     out
@@ -462,6 +512,21 @@ fn run_probe(input: &std::path::Path, repeats: usize) {
         print!("{}", startup::report());
     }
 }
+
+/// Windows only, and for one reason: the work here is allocation-bound —
+/// name expansion, validation and the glyph graph are millions of short-lived
+/// `String`s and small maps — and the platform heap serializes on a lock that
+/// two busy threads contend for. Measured against this same source on macOS,
+/// the compute-bound stages (exact geometry) run about 4x slower on the test
+/// Windows machine while the allocation-bound ones run 7x slower; the gap
+/// between those two numbers is the heap, not the CPU.
+///
+/// Nothing else on the platform is worth swapping the allocator for, so the
+/// other targets keep theirs: macOS's is already a per-thread magazine
+/// allocator and shows no such gap.
+#[cfg(target_os = "windows")]
+#[global_allocator]
+static GLOBAL_ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 fn main() {
     startup::init();

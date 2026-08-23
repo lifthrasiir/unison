@@ -114,11 +114,14 @@ pub(super) fn check_ragged_patterns(
             // names one of its groups: reading the groups out of a `map`'s
             // character spec means expanding it, and a range spec is tens of
             // thousands of code points wide.
-            let captures = written
+            let names_a_group = written
                 .iter()
-                .any(|(w, is_block)| !is_block && !whole_back_reference(w))
-                .then(|| item_captures(item, name_parts))
-                .unwrap_or_default();
+                .any(|(w, is_block)| !is_block && !whole_back_reference(w));
+            let captures = if names_a_group {
+                item_captures(item, name_parts)
+            } else {
+                Vec::new()
+            };
             for (written, is_block) in written {
                 // A name that is nothing but one back-reference between plain
                 // literals expands to exactly the group it names, so that group

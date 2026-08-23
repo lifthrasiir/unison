@@ -190,11 +190,27 @@ struct FaceInput {
 /// A cancelled run returns `None`, like any other input that cannot produce a
 /// font: name expansion is the one stage here big enough to be worth aborting,
 /// so the token is checked around it rather than inside it.
+/// Where a face's expansion comes from: computed here, or lent by a caller
+/// that already has one for this face.
+///
+/// The editor rebuilds the font and the derived data from the same edit, and
+/// both used to expand the same face for themselves — the larger half of what
+/// either costs, paid twice. Lending is what makes it once; see
+/// [`crate::app::UniformApp::rebuild`].
+enum ExpansionSource<'a> {
+    Compute {
+        /// See [`expand_maps_for`](super::expand::expand_maps_for) for what
+        /// stopping at the `map` lines skips and who may skip it.
+        maps_only: bool,
+    },
+    Lent(&'a super::expand::Expansion),
+}
+
 fn compute_face_input(
     docs: &[&Document],
     face: &crate::faces::Face,
     cancel: &crate::cancel::CancelToken,
-    maps_only: bool,
+    source: ExpansionSource<'_>,
 ) -> Option<FaceInput> {
     if docs.is_empty() || cancel.is_cancelled() {
         return None;
@@ -215,16 +231,28 @@ fn compute_face_input(
     let scale = UNITS_PER_EM as f32 / meta.height() as f32;
 
     let name_parts = collect_name_parts(docs);
-    let expansion = if maps_only {
-        super::expand::expand_maps_for(docs, &name_parts, face)
-    } else {
-        super::expand::expand_for(docs, &name_parts, face)
+    let (glyph_aliases, all_items): (crate::alias::AliasMap, Vec<DocumentItem>) = match source {
+        ExpansionSource::Compute { maps_only } => {
+            let expansion = if maps_only {
+                super::expand::expand_maps_for(docs, &name_parts, face)
+            } else {
+                super::expand::expand_for(docs, &name_parts, face)
+            };
+            if cancel.is_cancelled() {
+                return None;
+            }
+            let items = expansion.items.into_iter().map(|e| e.item).collect();
+            (expansion.aliases, items)
+        }
+        // Copied rather than taken: the lender is still reading it — validation
+        // walks the same expansion beside this build, and the glyph cache
+        // consumes it after. A copy of the items is a fraction of what
+        // producing them costs.
+        ExpansionSource::Lent(expansion) => (
+            expansion.aliases.clone(),
+            expansion.items.iter().map(|e| e.item.clone()).collect(),
+        ),
     };
-    if cancel.is_cancelled() {
-        return None;
-    }
-    let glyph_aliases = expansion.aliases;
-    let all_items: Vec<DocumentItem> = expansion.items.into_iter().map(|e| e.item).collect();
 
     // GSUB expands `remap` patterns straight from the documents rather than
     // from `all_items`, so it is one of the two places that has to
@@ -253,13 +281,38 @@ pub(super) fn compute_shared_font_input_for(
     face: &crate::faces::Face,
     cancel: &crate::cancel::CancelToken,
 ) -> Option<SharedFontInput> {
+    shared_font_input(
+        docs,
+        face,
+        cancel,
+        ExpansionSource::Compute { maps_only: false },
+    )
+}
+
+/// The same, from an expansion the caller already has for this face.
+#[cfg(feature = "editor")]
+pub(super) fn compute_shared_font_input_from(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    expansion: &super::expand::Expansion,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<SharedFontInput> {
+    shared_font_input(docs, face, cancel, ExpansionSource::Lent(expansion))
+}
+
+fn shared_font_input(
+    docs: &[&Document],
+    face: &crate::faces::Face,
+    cancel: &crate::cancel::CancelToken,
+    source: ExpansionSource<'_>,
+) -> Option<SharedFontInput> {
     let FaceInput {
         meta,
         scale,
         all_items,
         gsub_data,
         glyph_aliases,
-    } = compute_face_input(docs, face, cancel, false)?;
+    } = compute_face_input(docs, face, cancel, source)?;
 
     let mut declared_anchors_map: HashMap<String, Vec<GlyphPoint>> = HashMap::new();
     for item in &all_items {
@@ -353,7 +406,12 @@ pub(super) fn collect_face_cmap(
     face: &crate::faces::Face,
     cancel: &crate::cancel::CancelToken,
 ) -> Option<FaceCmap> {
-    let shared = compute_face_input(docs, face, cancel, true)?;
+    let shared = compute_face_input(
+        docs,
+        face,
+        cancel,
+        ExpansionSource::Compute { maps_only: true },
+    )?;
     let mut per_name: HashMap<String, Vec<u32>> = HashMap::new();
     for item in &shared.all_items {
         let DocumentItem::Map {

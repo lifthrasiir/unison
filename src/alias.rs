@@ -70,6 +70,7 @@ use crate::resolve::{Diagnostic, ItemRef};
 
 /// One `glyph NAME = TARGET` after name-part substitution and pattern
 /// expansion, still pointing at whatever it was written as.
+#[derive(Clone)]
 pub struct AliasDecl {
     pub name: String,
     /// The target as written, before chains are followed.
@@ -78,7 +79,7 @@ pub struct AliasDecl {
 }
 
 /// Every glyph alias a document set declares, with chains already followed.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct AliasMap {
     /// Alias name → the canonical glyph name it stands for. Never contains a
     /// key that is also a value: chains are collapsed at construction.

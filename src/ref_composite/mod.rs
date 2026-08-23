@@ -340,18 +340,29 @@ pub fn resolve_expansion_cached(
     cancel: &crate::cancel::CancelToken,
     grid_cache: Option<&mut CompositeGridCache>,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
-    // The expansion is consumed, not borrowed: it already owns a full copy of
-    // every glyph body, and cloning it a second time into `pending` cost more
-    // than sharing the expansion saved.
     let aliases = expansion.aliases;
-    let bodies = expansion.items.into_iter().filter_map(|e| match e.item {
+    resolve_expanded_items(expansion.items, &aliases, name_parts, cancel, grid_cache)
+}
+
+/// The same, for a caller that keeps the rest of the expansion — its searches
+/// and its aliases — because something beside this still reads them. The
+/// *items* are still consumed: they already own a full copy of every glyph
+/// body, and cloning them into `pending` cost more than sharing saved.
+pub fn resolve_expanded_items(
+    items: Vec<crate::render::ttf_builder::ExpandedItem>,
+    aliases: &crate::alias::AliasMap,
+    name_parts: &NamePartsMap,
+    cancel: &crate::cancel::CancelToken,
+    grid_cache: Option<&mut CompositeGridCache>,
+) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    let bodies = items.into_iter().filter_map(|e| match e.item {
         DocumentItem::Glyph {
             name: GlyphName(key),
             body,
         } => Some((key, body)),
         _ => None,
     });
-    resolve_glyph_bodies(bodies, &aliases, name_parts, cancel, grid_cache)
+    resolve_glyph_bodies(bodies, aliases, name_parts, cancel, grid_cache)
 }
 
 /// Flatten `roots` and everything they reach, and nothing else.

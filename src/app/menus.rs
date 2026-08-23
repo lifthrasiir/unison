@@ -776,6 +776,12 @@ impl UniformApp {
                         self.startup_timing_open = true;
                         ui.close_menu();
                     }
+                    // What one *edit* costs, which is a different question and
+                    // has a report of its own; see `app::timing`.
+                    if ui.button("Rebuild timing\u{2026}").clicked() {
+                        self.rebuild_timing_open = true;
+                        ui.close_menu();
+                    }
                     ui.separator();
                     ui.menu_button("Color Scheme", |ui| {
                         if ui
@@ -956,8 +962,7 @@ impl UniformApp {
             // went away. Nothing they produce is wanted, and the font build in
             // particular holds the contour cache this thread is about to clear
             // — so it would be waited on rather than merely wasted.
-            self.font_cancel.cancel();
-            self.derived_cancel.cancel();
+            self.rebuild_cancel.cancel();
             self.contour_cache.lock().unwrap().clear();
             self.composite_grid_cache.lock().unwrap().clear();
             self.font_build_gen = self.font_build_gen.wrapping_add(1);

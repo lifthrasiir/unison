@@ -112,8 +112,9 @@ pub use contours::ContourCache;
 #[cfg(feature = "editor")]
 pub use contours::{SharedContourCache, new_contour_cache};
 pub(crate) use expand::{
-    Expansion, UvsExpandError, decomposed_map_pairs, expand_documents, expand_documents_for,
-    expand_map_codepoints, expand_map_pairs, expand_uvs_map_triples, for_each_map_alternative_name,
+    ExpandedItem, Expansion, MapAlternativeIndex, UvsExpandError, decomposed_map_pairs,
+    expand_documents, expand_documents_for, expand_map_codepoints, expand_map_pairs,
+    expand_map_pairs_per_alternative, expand_uvs_map_triples, for_each_map_alternative_name,
     map_char_captures, parse_map_char, resolved_map_target,
 };
 pub(crate) use gsub::{remap_rule_kind, shadowed_single_subst_rules};
@@ -405,11 +406,53 @@ pub fn build_font_pair_cached_for(
     cancel: &crate::cancel::CancelToken,
 ) -> Option<BuiltFontPair> {
     let faces = crate::faces::FaceSet::collect(docs);
-    let face = face_id
-        .and_then(|id| faces.faces.iter().find(|f| f.id == id))
-        .unwrap_or_else(|| faces.primary());
+    let face = resolve_face(&faces, face_id);
     let shared = collect::compute_shared_font_input_for(docs, face, cancel)?;
+    build_pair_from_shared(shared, shared_cache, cancel)
+}
 
+/// Which face `face_id` names, with the fallback [`build_font_pair_cached_for`]
+/// documents.
+#[cfg(feature = "editor")]
+pub fn resolve_face<'a>(
+    faces: &'a crate::faces::FaceSet,
+    face_id: Option<&str>,
+) -> &'a crate::faces::Face {
+    face_id
+        .and_then(|id| faces.faces.iter().find(|f| f.id == id))
+        .unwrap_or_else(|| faces.primary())
+}
+
+/// The primary face's pair, from an expansion the caller already has for it.
+///
+/// The editor's rebuild computes one expansion and lends it here rather than
+/// letting the font build produce a second of the same thing; see
+/// [`crate::app::UniformApp::rebuild`] for the arrangement and
+/// `collect::ExpansionSource` for what "lent" costs.
+#[cfg(feature = "editor")]
+pub fn build_font_pair_cached_from(
+    docs: &[&Document],
+    shared_cache: &SharedContourCache,
+    resolution: &crate::resolve::Resolution,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<BuiltFontPair> {
+    let _t = crate::startup::PerfStage::new("font pair: shared input");
+    let shared = collect::compute_shared_font_input_from(
+        docs,
+        resolution.faces.primary(),
+        &resolution.expansion,
+        cancel,
+    )?;
+    drop(_t);
+    build_pair_from_shared(shared, shared_cache, cancel)
+}
+
+#[cfg(feature = "editor")]
+fn build_pair_from_shared(
+    shared: collect::SharedFontInput,
+    shared_cache: &SharedContourCache,
+    cancel: &crate::cancel::CancelToken,
+) -> Option<BuiltFontPair> {
     // The lock is held across both flavors, so a build that gives up here also
     // frees the cache for the build that replaces it. Bailing between
     // `begin_generation` and `evict_stale` is safe by construction: the
@@ -422,6 +465,7 @@ pub fn build_font_pair_cached_for(
 
     // The two flavors keep separate caches (see `ContourCaches`), so there is
     // nothing left for the second to wait on: both collections trace at once.
+    let _t2 = crate::startup::PerfStage::new("font pair: trace");
     let (bitmap_cache, vector_cache) = cc.split();
     let (bitmap_data, vector_data) = std::thread::scope(|s| {
         let bh =
@@ -434,6 +478,7 @@ pub fn build_font_pair_cached_for(
 
     cc.evict_stale();
     drop(cc);
+    drop(_t2);
 
     let (b_meta, _, b_glyphs, b_gsub, b_palette) = bitmap_data;
     let (v_meta, v_scale, v_glyphs, v_gsub, v_palette) = vector_data;
@@ -456,6 +501,7 @@ pub fn build_font_pair_cached_for(
         0
     };
 
+    let _t3 = crate::startup::PerfStage::new("font pair: tables");
     let (bitmap, vector) = std::thread::scope(|s| {
         let bh = s.spawn(|| {
             build_ttf(

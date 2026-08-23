@@ -38,6 +38,9 @@ core-graphics = "0.23"
 core-foundation = "0.9"
 
 [target.'cfg(target_os = "windows")'.dependencies]
+# See `main.rs`: this workload is allocation-bound and the platform heap is
+# where Windows loses to everything else on it.
+mimalloc = "0.1"
 windows = { version = "0.58", features = [
     "Win32_Graphics_DirectWrite",
     "Win32_System_Com",

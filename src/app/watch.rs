@@ -556,7 +556,7 @@ pub(super) struct WatchState {
     scan_rx: mpsc::Receiver<ScanResult>,
     /// A scan thread is running. Without this, a directory being rewritten
     /// file by file would start a re-parse per event — the same pile-up
-    /// `derived_inflight` exists for in `background.rs`.
+    /// `rebuild_inflight` exists for in `background.rs`.
     scanning: bool,
     /// Scanned changes not applied yet, because the pointer is over the pane
     /// showing them. Retried every frame, without touching the filesystem.

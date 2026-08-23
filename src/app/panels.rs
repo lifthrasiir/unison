@@ -2,7 +2,6 @@
 //! panel and the issues tab.
 
 use super::background::BackgroundTaskPhase;
-use super::docs::collect_effective_docs;
 use super::search::{SearchHit, SearchResults};
 use super::*;
 use crate::issues::Severity;
@@ -11,6 +10,9 @@ fn min_bottom_panel_height(screen_height: f32) -> f32 {
     270.0_f32.min(screen_height * 0.5)
 }
 
+/// The specimen's tab. Named because the background rebuild asks whether it is
+/// open before collecting what it needs; see [`crate::specimen::SpecimenData`].
+pub(super) const SPECIMEN_TAB: usize = 1;
 pub(super) const SEARCH_TAB: usize = 3;
 
 /// Reopening the bottom panel: the height it comes back at, and the override
@@ -690,35 +692,25 @@ impl UniformApp {
                     );
                     preview_rect = self.shaped_preview.last_rect();
                 }
-                Some(1) => {
+                Some(SPECIMEN_TAB) => {
                     // Keyed on what the rebuild actually reads (the built
                     // font's gid map and the derived name parts), not on
                     // `font_build_gen` — that is bumped the moment a doc
                     // changes, so a specimen built on it would cache a
                     // half-built state and never refresh. See
                     // `SpecimenState::cached_gen`.
-                    if self
-                        .specimen
-                        .needs_rebuild(self.font_data_gen, self.derived_gen)
-                    {
-                        let all_docs =
-                            collect_effective_docs(&self.open_documents, &self.font_base_docs);
-                        // The face the built font bytes are for; a
-                        // slice-qualified `map` reads differently per face.
-                        let face = self.selected_face().to_string();
-                        self.specimen.rebuild_if_needed(
-                            &all_docs,
-                            &self.name_parts,
-                            &self.font_name_to_gid,
-                            (!face.is_empty()).then_some(face.as_str()),
-                            &self.glyph_flags,
-                            self.font_data_gen,
-                            self.derived_gen,
-                        );
-                    }
+                    // What the specimen reads out of the documents is a third
+                    // expansion of the whole set, so the rebuild collects it in
+                    // the background and the pump installs it; see
+                    // [`crate::specimen::SpecimenData`]. Until it lands the
+                    // previous one is drawn, which is what every other derived
+                    // thing here does.
                     result.specimen_click =
                         self.specimen
                             .show(ui, self.font_data.as_ref(), self.font_data_gen);
+                    if let Some(took) = self.specimen.relayout_took.take() {
+                        self.rebuild_log.ui_stage(|e| &mut e.specimen_layout, took);
+                    }
                 }
                 Some(2) => {
                     let mut all_issues: Vec<&Issue> = self.issues.iter().collect();

@@ -91,6 +91,9 @@ pub(super) fn check_maps(
     let mut slices_seen = SliceTable::default();
     let mut sites: Vec<MapSite> = Vec::new();
     let mut mapped_glyphs: HashSet<String> = HashSet::new();
+    // The alternatives too wide to enumerate: answered from the declared side
+    // once the walk below is done. See `MapAlternativeIndex`.
+    let mut alt_index = crate::render::ttf_builder::MapAlternativeIndex::default();
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in cx.source_items(doc_idx) {
@@ -179,6 +182,7 @@ pub(super) fn check_maps(
                         crate::render::ttf_builder::for_each_map_alternative_name(
                             char_repr,
                             &substituted,
+                            &mut alt_index,
                             |name| {
                                 // A name no glyph declares is a root the walk
                                 // can do nothing with, and a range line names
@@ -322,6 +326,17 @@ pub(super) fn check_maps(
                     }
                 }
                 _ => {}
+            }
+        }
+    }
+
+    // Every name the wide lines put on a glyph, asked of the declared names
+    // rather than of the lines: see `MapAlternativeIndex` for why round that
+    // way.
+    if !alt_index.is_empty() {
+        for name in graph.known() {
+            if alt_index.produces(name) && !mapped_glyphs.contains(name) {
+                mapped_glyphs.insert(name.to_string());
             }
         }
     }

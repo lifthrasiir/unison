@@ -23,8 +23,10 @@
 //!   directory load, which is what tells a cold cache from a warm one.
 //!
 //! What one *edit* costs once the caches are warm is a different question with
-//! a report of its own — `uniform probe -i DIR --edit`, in `main.rs`. Nothing
-//! here is involved: this timeline stops at the first frame, and an edit is
+//! reports of its own — `uniform probe -i DIR --edit` in `main.rs` for the
+//! headless half, and *View → Rebuild timing…* (`app::timing`) for the running
+//! editor, where the UI thread's share of the wait is visible too. Nothing here
+//! is involved: this timeline stops at the first frame, and an edit is
 //! everything after it.
 //!
 //! `before_main` — process creation to the first line of `main` — is the one

@@ -1,10 +1,11 @@
 //! Running one pure closure over an index range on every core.
 //!
-//! The build pipeline has three stages shaped exactly alike — trace this wave of
-//! composites, lay out that wave, flatten those grids — and each of them is a
-//! pure function of a shared, immutable input. What they need is not a thread
-//! pool but the one loop that hands such a range out; this is that loop, so the
-//! three do not each grow their own.
+//! The build pipeline has several stages shaped exactly alike — trace this wave
+//! of composites, lay out that wave, flatten those grids, settle which
+//! alternative every character of a wide `map` line takes — and each of them is
+//! a pure function of a shared, immutable input. What they need is not a thread
+//! pool but the one loop that hands such a range out; this is that loop, so
+//! they do not each grow their own.
 //!
 //! # Why the work is stolen rather than sliced
 //!
