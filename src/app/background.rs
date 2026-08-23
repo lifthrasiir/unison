@@ -453,6 +453,11 @@ impl UniformApp {
                 .map(|f| f.id.clone())
                 .collect();
             let name_parts = resolution.name_parts;
+            // Before the expansion is consumed below: the editor draws a
+            // search-scoped block as its first match, and this is the only
+            // place that holds the searches at all.
+            let exists_matches =
+                crate::exists::FirstMatches::collect(&refs, &resolution.expansion.exists);
             let mut gc = grid_cache.lock().unwrap();
             let (named_glyphs, alt_index) = crate::editor::ref_composite::resolve_expansion_cached(
                 resolution.expansion,
@@ -493,6 +498,7 @@ impl UniformApp {
                 alt_index,
                 meta: resolution.meta.metrics,
                 name_parts,
+                exists_matches,
                 char_props,
                 issues,
                 glyph_flags,
@@ -637,6 +643,7 @@ impl UniformApp {
                     self.named_glyphs = std::sync::Arc::new(data.named_glyphs);
                     self.alt_index = data.alt_index;
                     self.name_parts = data.name_parts;
+                    self.exists_matches = data.exists_matches;
                     self.char_props = data.char_props;
                     self.font_meta = data.meta;
                     self.named_glyphs_gen = data.build_gen;

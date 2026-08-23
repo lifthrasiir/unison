@@ -41,6 +41,7 @@ pub mod grid_render;
 pub(crate) mod harness;
 pub mod ids;
 pub mod inline_tools;
+pub mod item_bindings;
 pub mod line_fields;
 pub mod minimap;
 pub mod pixel_interaction;

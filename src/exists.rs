@@ -308,6 +308,7 @@ impl std::fmt::Display for ExistsCycle {
 mod exists_tests;
 
 use std::collections::{HashMap, HashSet};
+use std::path::{Path, PathBuf};
 
 use crate::document::{Document, DocumentItem, GlyphName};
 use crate::pattern::{NamePartsMap, NamePattern, substitute_name_parts};
@@ -383,6 +384,11 @@ impl ExistsScopes {
         self.directives.is_empty()
     }
 
+    /// Every search and the item it scopes.
+    pub fn iter(&self) -> impl Iterator<Item = (ItemRef, &Scope)> {
+        self.scoped.iter().map(|(r, s)| (*r, s))
+    }
+
     /// Run `f` once for every way this item's names expand: once with `base`
     /// when no `exists` governs it, and once per match — each `$N` bound to one
     /// string — when one does.
@@ -416,6 +422,50 @@ impl ExistsScopes {
                 }
             }
         }
+    }
+}
+
+/// The first match of every search, keyed by the file and the item the search
+/// scopes.
+///
+/// The editor draws a glyph block *as written* rather than expanding it, so a
+/// block under an `exists` has to draw some one of the names the search found,
+/// and the first match is that one — for the same reason a pattern block draws
+/// its first expansion. Only the first is kept: carrying a han search's tens of
+/// thousands of matches into the editor's derived data would cost what
+/// [`Scope::rebind`] exists to avoid, and nothing but the drawing reads them.
+///
+/// Keyed by path and item index rather than by [`ItemRef`] because the editor
+/// holds one document at a time and never the slice the refs were numbered
+/// against. Both halves are stale the moment the document is edited, exactly
+/// as the resolved glyphs beside them are; the next rebuild settles it.
+#[derive(Debug, Default, Clone)]
+pub struct FirstMatches {
+    per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>>,
+}
+
+impl FirstMatches {
+    pub fn collect(docs: &[&Document], scopes: &ExistsScopes) -> Self {
+        let mut per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>> = HashMap::new();
+        for (r, scope) in scopes.iter() {
+            let Some(first) = scope.matches.first() else {
+                continue;
+            };
+            let Some(doc) = docs.get(r.doc as usize) else {
+                continue;
+            };
+            per_file
+                .entry(doc.path.clone())
+                .or_default()
+                .insert(r.item as usize, first.clone());
+        }
+        Self { per_file }
+    }
+
+    /// `$0`…`$N` of the first match of the search scoping item `item` of
+    /// `path`, or `None` where no search does.
+    pub fn get(&self, path: &Path, item: usize) -> Option<&[String]> {
+        Some(self.per_file.get(path)?.get(&item)?.as_slice())
     }
 }
 

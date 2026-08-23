@@ -272,3 +272,78 @@ fn a_color_token_pushed_past_a_soft_wrap_still_paints_its_swatch() {
 // ---------------------------------------------------------------------------
 // Glyph metrics overlay
 // ---------------------------------------------------------------------------
+
+/// A `$-N` on a `ref` line names a group of the *header* above it, and nothing
+/// on its own line says which. Ctrl/Cmd+clicking it goes to that group — the
+/// only place the name it stands for is written.
+#[test]
+fn clicking_a_back_reference_goes_to_the_group_it_names() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(
+        "glyph part-a 2 2\n\
+         @@..\n\
+         ..@@\n\
+         glyph whole-(a|b)\n\
+         ref part-($-1) 0 0\n",
+    );
+    let ref_line = text_line_at(&h, "ref part-");
+    let header_line = text_line_at(&h, "glyph whole-");
+
+    h.last_nav = None;
+    // Inside the `$-1`, which is its own link inside the ref name.
+    h.click_at_mod(h.text_pos(ref_line, 11), Modifiers::COMMAND);
+
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    match nav.target {
+        NavTarget::Local { line } => assert_eq!(line, header_line),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("the group `$-1` names is on the header above it")
+        }
+    }
+    // On the group itself, not merely on its line: `whole-(a|b)` starts at
+    // column 6, so its one group opens at column 12.
+    assert_eq!(h.state.cursor, Caret::new(header_line, 12));
+}
+
+/// The same for a `($N)` under an `exists`: the group is on the search line,
+/// and `$0` — the whole match — is the search itself.
+#[test]
+fn clicking_a_search_capture_goes_to_the_search() {
+    use crate::editor::document_view::NavTarget;
+
+    let mut h = EditorHarness::new(
+        "glyph han-4e00:2x2 2 2\n\
+         @@..\n\
+         ..@@\n\
+         exists han-([0-9a-f]{4}):2x2\n\
+         glyph han-($1) 2 2\n\
+         ref ($0) 0 0\n",
+    );
+    let exists_line = text_line_at(&h, "exists ");
+    let header_line = text_line_at(&h, "glyph han-($1)");
+    let ref_line = text_line_at(&h, "ref ($0)");
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(header_line, 12), Modifiers::COMMAND);
+    match h.last_nav.as_ref().expect("no navigation reported").target {
+        NavTarget::Local { line } => assert_eq!(line, exists_line),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("the group `$1` names is on the `exists` line above")
+        }
+    }
+    // `exists ` is seven columns, so the pattern's one group opens at 11.
+    assert_eq!(h.state.cursor, Caret::new(exists_line, 11));
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(ref_line, 6), Modifiers::COMMAND);
+    match h.last_nav.as_ref().expect("no navigation reported").target {
+        NavTarget::Local { line } => assert_eq!(line, exists_line),
+        NavTarget::CrossFile(_) | NavTarget::Search(_) => {
+            panic!("`$0` is the whole search")
+        }
+    }
+    // `$0` is the match itself, so it lands on the pattern rather than on a
+    // group of it.
+    assert_eq!(h.state.cursor, Caret::new(exists_line, 7));
+}

@@ -348,6 +348,9 @@ pub(crate) struct EditorHarness {
     pub named_glyphs: HashMap<String, ResolvedGlyph>,
     pub alt_index: AlternativesIndex,
     pub name_parts: NamePartsMap,
+    /// What the app's derived-data thread carries: the first match of each
+    /// `exists`, which is what a search-scoped block draws.
+    pub exists_matches: crate::exists::FirstMatches,
     pub meta: crate::meta::FontMetrics,
     /// Off by default: the metric box widens the drawn grid, and every layout
     /// assertion written before it existed expects the un-widened extents.
@@ -394,6 +397,9 @@ pub(crate) struct Pane {
     pub named_glyphs: HashMap<String, ResolvedGlyph>,
     pub alt_index: AlternativesIndex,
     pub name_parts: NamePartsMap,
+    /// What the app's derived-data thread carries: the first match of each
+    /// `exists`, which is what a search-scoped block draws.
+    pub exists_matches: crate::exists::FirstMatches,
     pub meta: crate::meta::FontMetrics,
 }
 
@@ -408,6 +414,7 @@ impl Pane {
             named_glyphs: HashMap::new(),
             alt_index: AlternativesIndex::default(),
             name_parts: NamePartsMap::new(),
+            exists_matches: Default::default(),
             meta: Default::default(),
         };
         pane.rebuild_derived();
@@ -419,6 +426,8 @@ impl Pane {
         let name_parts = collect_name_parts(&docs);
         let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
         self.meta = crate::meta::FontMeta::collect(&docs).metrics;
+        let (scopes, _) = crate::exists::resolve_scopes(&docs, &name_parts);
+        self.exists_matches = crate::exists::FirstMatches::collect(&docs, &scopes);
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
@@ -440,6 +449,7 @@ impl EditorHarness {
             named_glyphs: HashMap::new(),
             alt_index: AlternativesIndex::default(),
             name_parts: NamePartsMap::new(),
+            exists_matches: Default::default(),
             meta: Default::default(),
             show_metrics: false,
             menu_open: false,
@@ -475,6 +485,8 @@ impl EditorHarness {
         let name_parts = collect_name_parts(&docs);
         let (named_glyphs, alt_index) = resolve_named_glyphs_with_parts(&docs, &name_parts);
         self.meta = crate::meta::FontMeta::collect(&docs).metrics;
+        let (scopes, _) = crate::exists::resolve_scopes(&docs, &name_parts);
+        self.exists_matches = crate::exists::FirstMatches::collect(&docs, &scopes);
         self.named_glyphs = named_glyphs;
         self.alt_index = alt_index;
         self.name_parts = name_parts;
@@ -529,6 +541,7 @@ impl EditorHarness {
                             EditorEnv {
                                 named_glyphs: &self.named_glyphs,
                                 name_parts: &self.name_parts,
+                                exists_matches: &self.exists_matches,
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
                                 meta: self.meta,
@@ -569,6 +582,7 @@ impl EditorHarness {
                             EditorEnv {
                                 named_glyphs: &self.named_glyphs,
                                 name_parts: &self.name_parts,
+                                exists_matches: &self.exists_matches,
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
                                 meta: self.meta,
@@ -592,6 +606,7 @@ impl EditorHarness {
                             EditorEnv {
                                 named_glyphs: &second.named_glyphs,
                                 name_parts: &second.name_parts,
+                                exists_matches: &second.exists_matches,
                                 alt_index: &second.alt_index,
                                 color_aliases: &colors,
                                 meta: second.meta,

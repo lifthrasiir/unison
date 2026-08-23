@@ -191,6 +191,8 @@ Editor (feature `editor`):
 - `editor/glyph_resize.rs` — F2 over a grid: dragging a glyph's boundary, and the two directions a
   resize propagates in (its own anchors/refs one way, every `ref` naming it the other). Tests in
   `glyph_resize_tests.rs`; the cross-file half is `app/resize.rs`.
+- `editor/item_bindings.rs` — the `$-N`/`$N` a block's own lines name, bound for the view: what the
+  grid overlay draws where the build would expand.
 - `editor/` others — `shadow` (`anchor_shadow`/`backref_shadow`), `caret`, `codepoint_popup`, `visual_lines`, `line_fields` (**the single place that
   knows where names live** on a line), `doc_links`, `doc_input`, `editing`, `reconcile`, `undo`,
   `autocomplete`, `annotations`, `colors`, `minimap`, `inline_tools`, `glyph_widget`, `grid_render`
@@ -243,6 +245,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why an `exists` governs exactly one line, and why it does not stack | `exists.rs` (`# Scope`) |
 | Why a scoped item runs once per match with each `$N` a single string, rather than once with the whole list | `exists.rs` (`# One run per match`), `render/ttf_builder/expand.rs` (`expand_glyph_item`) |
 | A `glyph … = …` under an `exists`: a second name for every drawing a search found | `exists.rs` (`resolve_scopes`), `alias.rs` (`collect_inner`) |
+| What a `$-N` or a `($N)` draws on the grid, and why it is the first expansion | `editor/item_bindings.rs`, `exists.rs` (`FirstMatches`) |
+| Where a Ctrl/Cmd+click on a `$-N`/`($N)` goes, and why no `name-parts` lookup answers it | `editor/doc_links.rs` (`find_capture_target`) |
 | Why a scoped block's matches are still *one* merge candidate set | `merge.rs` (`collect_blocks`) |
 | Why searches are a fixpoint, and the round budget that stands in for cycle detection | `exists.rs` (`# Recursion`), `resolve_scopes` |
 | Which names a search may find — aliases yes, on-demand names no | `exists.rs` (`# What is searched`) |

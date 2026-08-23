@@ -777,6 +777,7 @@ impl UniformApp {
         let env = crate::editor::document_view::EditorEnv {
             named_glyphs: &self.named_glyphs,
             name_parts: &self.name_parts,
+            exists_matches: &self.exists_matches,
             alt_index: &self.alt_index,
             color_aliases: &self.color_aliases,
             meta: self.font_meta,

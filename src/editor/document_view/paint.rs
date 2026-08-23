@@ -40,6 +40,7 @@ pub(super) fn paint_document_area(
     let EditorEnv {
         named_glyphs,
         name_parts,
+        exists_matches,
         color_aliases,
         zoom_level,
         font_id,
@@ -837,7 +838,9 @@ pub(super) fn paint_document_area(
             edit_idx,
             composites,
             named_glyphs,
-            name_parts,
+            // The block's own `$-N`/`$N` in force, so a thumbnail draws what
+            // the grid above it does.
+            &crate::editor::item_bindings::item_bindings(doc, edit_idx, name_parts, exists_matches),
             shadow.filter(|(idx, _)| *idx == edit_idx).map(|(_, s)| s),
             click_pos,
             zoom_level,
@@ -1002,15 +1005,26 @@ pub(super) fn paint_document_area(
         // The link's own position, so "go back" returns to the reference
         // rather than to the untouched caret.
         let from = goto_link_pos.unwrap_or(state.cursor);
+        // A `$-N` or a `$N` is spelled like a name-parts reference but names a
+        // group of another line — see `doc_links::find_capture_target`. It is
+        // tried first: there is no `name-parts` by either spelling to find.
+        let capture = (kind == LinkTargetKind::NameParts)
+            .then(|| doc_links::find_capture_target(lines, from.line, target_name))
+            .flatten();
         // A declaration would "navigate" to the line the click was already
         // on, so it never looks for one — it asks for the search instead.
-        let local = (!goto_is_def)
-            .then(|| doc_links::find_link_target_in_doc(lines, target_name, &kind, name_parts))
-            .flatten();
+        let local = capture.map(|(line, _)| line).or_else(|| {
+            (!goto_is_def)
+                .then(|| doc_links::find_link_target_in_doc(lines, target_name, &kind, name_parts))
+                .flatten()
+        });
         let target = if let Some(line_idx) = local {
             state.mode = EditMode::Normal;
             state.selection_anchor = None;
-            state.cursor = Caret::new(line_idx, 0);
+            // On the group itself where there is one: the line alone would
+            // leave the reader counting parentheses, which is the work the
+            // jump is meant to save.
+            state.cursor = Caret::new(line_idx, capture.map_or(0, |(_, col)| col));
             let target_y = doc_line_to_y(vlines, row_height, grid_cell, line_idx);
             let centered = (target_y - viewport_h / 3.0).max(0.0);
             ui.ctx().data_mut(|d| {

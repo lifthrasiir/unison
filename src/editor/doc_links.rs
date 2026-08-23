@@ -388,6 +388,223 @@ pub(crate) fn find_renameable_at_caret(
     None
 }
 
+/// A reference whose meaning is written on a *different* token than the one it
+/// is spelled on.
+enum Capture {
+    /// `$-N` — the N-th parenthesized group of the pattern its own item wrote.
+    Back(usize),
+    /// `$N` — the N-th capturing group of the `exists` search in force, with
+    /// `$0` the whole search.
+    Search(usize),
+}
+
+fn parse_capture(token: &str) -> Option<Capture> {
+    let rest = token.strip_prefix('$')?;
+    let (back, digits) = match rest.strip_prefix('-') {
+        Some(d) => (true, d),
+        None => (false, rest),
+    };
+    if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let n: usize = digits.parse().ok()?;
+    match (back, n) {
+        // `$-0` names nothing: a pattern's groups are numbered from one.
+        (true, 0) => None,
+        (true, n) => Some(Capture::Back(n)),
+        (false, n) => Some(Capture::Search(n)),
+    }
+}
+
+/// Character offsets of the groups a *name pattern* writes, in the order
+/// [`crate::pattern::capture_groups`] numbers them: the outermost parentheses
+/// only, since that is what a `$-N` counts.
+fn written_group_offsets(text: &str) -> Vec<usize> {
+    let mut offsets = Vec::new();
+    let mut depth = 0usize;
+    for (i, c) in text.chars().enumerate() {
+        match c {
+            '(' => {
+                if depth == 0 {
+                    offsets.push(i);
+                }
+                depth += 1;
+            }
+            ')' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
+    }
+    offsets
+}
+
+/// The same for a *regular expression*: every capturing group, numbered by its
+/// opening parenthesis — nested ones included, and `(?…)` excluded, which is
+/// how the regex crate numbers them and so how [`crate::exists`] does.
+fn regex_group_offsets(pattern: &str) -> Vec<usize> {
+    let chars: Vec<char> = pattern.chars().collect();
+    let mut offsets = Vec::new();
+    let mut i = 0;
+    while i < chars.len() {
+        match chars[i] {
+            '\\' => i += 1,
+            '(' if chars.get(i + 1) != Some(&'?') => offsets.push(i),
+            _ => {}
+        }
+        i += 1;
+    }
+    offsets
+}
+
+/// The tokens of the leading pattern a line writes, as `(column, raw text)` in
+/// written order, and whether the groups it binds are named *below* it.
+///
+/// The two shapes are the ones [`crate::app::search`] tells apart for the same
+/// reason: a `glyph` block header's groups are named on the `ref` lines under
+/// it, where an alias's and a `map`'s are named further along their own line.
+/// `None` is a line that writes no leading pattern at all — a `ref`, an anchor,
+/// a pixel row.
+fn leading_pattern_spans(line: &str) -> Option<(bool, Vec<(usize, String)>)> {
+    let spans = tokenize_with_spans(line).ok()?;
+    let raw = |t: &crate::document_io::TokenSpan| {
+        let text: String = line
+            .chars()
+            .skip(t.raw_start)
+            .take(t.raw_end - t.raw_start)
+            .collect();
+        (t.raw_start, text)
+    };
+    let (keyword, rest) = spans.split_first()?;
+    match keyword.value.as_str() {
+        "glyph" => {
+            let name = rest.first()?;
+            let is_alias = rest.get(1).is_some_and(|t| t.value == "=");
+            Some((!is_alias, vec![raw(name)]))
+        }
+        "map" => {
+            // The `SLICE :` qualifier first, so what is left is the arity the
+            // unqualified form has — as `app::search::line_captures` reads it.
+            let rest = match rest.get(1) {
+                Some(colon) if colon.value == ":" => &rest[2..],
+                _ => rest,
+            };
+            let rest = match rest.first() {
+                Some(g) if g.value == "generate" => &rest[1..],
+                _ => rest,
+            };
+            let eq = rest.iter().position(|t| t.value == "=")?;
+            match &rest[..eq] {
+                [base] => Some((false, vec![raw(base)])),
+                [base, selector] => Some((false, vec![raw(base), raw(selector)])),
+                _ => None,
+            }
+        }
+        _ => None,
+    }
+}
+
+/// Where a `$-N` back-reference or an `exists` `$N` is *written*: the line that
+/// binds it and the column of the group it names.
+///
+/// Both are the same kind of reference — a name whose meaning is stated on
+/// another token — and neither is a `name-parts`, so the lookup a `$var` gets
+/// would find nothing to go to. A `$-N` names the N-th group of the pattern its
+/// own item wrote ([`crate::pattern`]): the `glyph` header above a `ref` line,
+/// or the leading pattern of an alias or a `map` on the line itself. A `$N`
+/// names the N-th capturing group of the `exists` in force, and `$0` the whole
+/// search ([`crate::exists`]).
+///
+/// Read off the lines rather than the parsed items, like every other navigation
+/// question here: the scopes are carried down the file exactly as
+/// [`crate::exists::Carry`] and `app::search`'s block captures carry them, so a
+/// click answers the same way the Search pane does.
+pub(crate) fn find_capture_target(
+    lines: &[DocLine],
+    from_line: usize,
+    token: &str,
+) -> Option<(usize, usize)> {
+    let capture = parse_capture(token)?;
+    let mut carry = crate::exists::Carry::default();
+    let mut search_line: Option<usize> = None;
+    let mut header_line: Option<usize> = None;
+    let mut from_text: Option<&str> = None;
+    for (i, line) in lines.iter().enumerate() {
+        if i > from_line {
+            break;
+        }
+        let DocLine::Text(text) = line else { continue };
+        carry.enter(text);
+        // `Armed` is the directive line itself; the pattern stays in force over
+        // the item below it and is gone past it.
+        match carry {
+            crate::exists::Carry::Armed(_) => search_line = Some(i),
+            crate::exists::Carry::None => search_line = None,
+            _ => {}
+        }
+        if i == from_line {
+            from_text = Some(text);
+            break;
+        }
+        // A `glyph` line that writes groups binds them for the lines under it;
+        // any other `glyph` line — an alias, or a header with no groups —
+        // clears what the last one left, as `advance_block_captures` does.
+        if text.trim_start().starts_with("glyph") {
+            header_line = match leading_pattern_spans(text) {
+                Some((true, spans)) if spans.iter().any(|(_, t)| t.contains('(')) => Some(i),
+                _ => None,
+            };
+        }
+    }
+    let from_text = from_text?;
+
+    let nth = |spans: &[(usize, String)], offsets: fn(&str) -> Vec<usize>, n: usize| {
+        let mut seen = 0usize;
+        for (col, text) in spans {
+            for off in offsets(text) {
+                seen += 1;
+                if seen == n {
+                    return Some(col + off);
+                }
+            }
+        }
+        None
+    };
+
+    match capture {
+        Capture::Search(n) => {
+            let line = search_line?;
+            let text = lines.get(line)?.as_text()?;
+            let spans = tokenize_with_spans(text).ok()?;
+            let pattern = spans.get(1)?;
+            let raw: String = text
+                .chars()
+                .skip(pattern.raw_start)
+                .take(pattern.raw_end - pattern.raw_start)
+                .collect();
+            // `$0` is the match itself, so it lands on the search rather than
+            // on any one group of it.
+            if n == 0 {
+                return Some((line, pattern.raw_start));
+            }
+            let col = nth(&[(pattern.raw_start, raw)], regex_group_offsets, n)?;
+            Some((line, col))
+        }
+        Capture::Back(n) => {
+            // A line writing its own leading pattern binds its own groups; a
+            // `ref` line writes none and names the header's.
+            let (line, spans) = match leading_pattern_spans(from_text) {
+                Some((false, spans)) => (from_line, spans),
+                _ => {
+                    let line = header_line?;
+                    let (_, spans) = leading_pattern_spans(lines.get(line)?.as_text()?)?;
+                    (line, spans)
+                }
+            };
+            let col = nth(&spans, written_group_offsets, n)?;
+            Some((line, col))
+        }
+    }
+}
+
 /// The line in `lines` that declares `name`, if this document declares it.
 ///
 /// `parts` is only read for the glyph case, where a block's name may be a
@@ -1088,5 +1305,89 @@ mod rename_detection_tests {
         // With no base the `@` stands for nothing, and the token is left to be
         // reported as the invalid name it is.
         assert_eq!(extract_line_links("ref @-bar", None)[0].target, "@-bar");
+    }
+}
+
+/// Where a `$-N` and a `$N` are written — the lines the click on one jumps to.
+/// The scenarios these stand for are in
+/// [`crate::editor::view_tests::links`](crate::editor::view_tests).
+#[cfg(test)]
+mod capture_target_tests {
+    use super::*;
+
+    fn doc(source: &str) -> Vec<DocLine> {
+        crate::document_io::parse_doclines(source)
+    }
+
+    /// Index of the line starting with `prefix`. A declared box gives a glyph
+    /// block a `Grid` line of its own, so the indices are not the source's.
+    #[track_caller]
+    fn at(lines: &[DocLine], prefix: &str) -> usize {
+        lines
+            .iter()
+            .position(|l| matches!(l, DocLine::Text(s) if s.starts_with(prefix)))
+            .unwrap_or_else(|| panic!("no line starting with {prefix:?}"))
+    }
+
+    /// The header above the line, and the group counted from one.
+    #[test]
+    fn a_ref_names_the_header_above_it() {
+        let lines = doc("glyph a-(x|y)-(1|2) 2 2\nref b-($-2) 0 0\n");
+        let (header, r) = (at(&lines, "glyph"), at(&lines, "ref"));
+        assert_eq!(find_capture_target(&lines, r, "$-1"), Some((header, 8)));
+        assert_eq!(find_capture_target(&lines, r, "$-2"), Some((header, 14)));
+        // A group the header does not have is nowhere to go.
+        assert_eq!(find_capture_target(&lines, r, "$-3"), None);
+    }
+
+    /// An alias and a `map` write their pattern and name it again on the same
+    /// line, so neither reaches for a header — and a `map`'s two halves are
+    /// numbered in written order.
+    #[test]
+    fn a_line_that_binds_its_own_groups_stays_on_it() {
+        let lines = doc("glyph a-(x|y) 2 2\nglyph b-(p|q) = c-($-1)\n");
+        let alias = at(&lines, "glyph b-");
+        assert_eq!(find_capture_target(&lines, alias, "$-1"), Some((alias, 8)));
+
+        let lines = doc("map U+(4e00|4e01) U+E010(0|1) = han-($-1).($-2)\n");
+        assert_eq!(find_capture_target(&lines, 0, "$-1"), Some((0, 6)));
+        assert_eq!(find_capture_target(&lines, 0, "$-2"), Some((0, 24)));
+    }
+
+    /// A header with no groups clears the one above it rather than leaving a
+    /// stale binding behind.
+    #[test]
+    fn a_header_without_groups_binds_nothing() {
+        let lines = doc("glyph a-(x|y) 2 2\nglyph plain 2 2\nref b-($-1) 0 0\n");
+        assert_eq!(find_capture_target(&lines, at(&lines, "ref"), "$-1"), None);
+    }
+
+    /// A search governs the item below it and nothing past it; `$0` is the
+    /// search itself, and a nested group is numbered by its own parenthesis.
+    #[test]
+    fn a_search_capture_names_the_exists_line() {
+        let lines = doc(
+            "exists han-(([0-9a-f]{4}))-(k):2x2\nglyph han-($1)-($3) 2 2\nref ($0) 0 0\nglyph other 2 2\nref ($0) 0 0\n",
+        );
+        let ex = at(&lines, "exists");
+        let header = at(&lines, "glyph han-");
+        let r = at(&lines, "ref");
+        assert_eq!(find_capture_target(&lines, header, "$0"), Some((ex, 7)));
+        assert_eq!(find_capture_target(&lines, header, "$1"), Some((ex, 11)));
+        assert_eq!(find_capture_target(&lines, header, "$2"), Some((ex, 12)));
+        assert_eq!(find_capture_target(&lines, r, "$3"), Some((ex, 27)));
+        // Past the block the search governs there is nothing to name.
+        let past = lines.len() - 1;
+        assert_eq!(find_capture_target(&lines, past, "$0"), None);
+    }
+
+    /// Neither spelling is a name-parts reference, and a plain `$var` is not
+    /// one of these.
+    #[test]
+    fn a_name_part_is_not_a_capture() {
+        let lines = doc("glyph a-(x|y) 2 2\nref b-($foo) 0 0\n");
+        let r = at(&lines, "ref");
+        assert_eq!(find_capture_target(&lines, r, "$foo"), None);
+        assert_eq!(find_capture_target(&lines, r, "$-0"), None);
     }
 }

@@ -172,19 +172,25 @@ pub(crate) fn build_composites(
     name_parts: &NamePartsMap,
     alt_index: &ref_composite::AlternativesIndex,
     color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    exists: &crate::exists::FirstMatches,
 ) -> HashMap<usize, GlyphComposite> {
     let mut composites = HashMap::new();
     for (idx, item) in doc.items.iter().enumerate() {
-        if let DocumentItem::Glyph { body, .. } = item
-            && let Some(comp) = ref_composite::compute_composite(
+        if let DocumentItem::Glyph { body, .. } = item {
+            // What the block's own `$-N` and `$N` stand for; borrowed
+            // unchanged where it writes neither. See
+            // [`crate::editor::item_bindings`].
+            let bindings =
+                crate::editor::item_bindings::item_bindings(doc, idx, name_parts, exists);
+            if let Some(comp) = ref_composite::compute_composite(
                 body,
                 named_glyphs,
-                name_parts,
+                &bindings,
                 alt_index,
                 color_aliases,
-            )
-        {
-            composites.insert(idx, comp);
+            ) {
+                composites.insert(idx, comp);
+            }
         }
     }
     composites

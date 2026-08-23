@@ -63,6 +63,9 @@ struct DerivedDataMessage {
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
+    /// The first match of every `exists`, which is the one the editor draws a
+    /// search-scoped block as. See [`crate::exists::FirstMatches`].
+    exists_matches: crate::exists::FirstMatches,
     char_props: crate::ucd::CharProps,
     meta: crate::meta::FontMetrics,
     issues: Vec<Issue>,
@@ -166,6 +169,9 @@ pub struct UniformApp {
     named_glyphs: Arc<HashMap<String, ResolvedGlyph>>,
     alt_index: crate::editor::ref_composite::AlternativesIndex,
     name_parts: NamePartsMap,
+    /// What a `ref ($0)` under an `exists` draws — one match per scoped item,
+    /// alongside the name parts it is bound like.
+    exists_matches: crate::exists::FirstMatches,
     /// What the source's `prop` lines state about characters the UCD leaves
     /// blank. Rebuilt with the rest of the derived data, so the status bar
     /// picks a new `prop` line up a debounce later rather than instantly —
@@ -450,6 +456,7 @@ impl UniformApp {
             named_glyphs: Arc::default(),
             alt_index: Default::default(),
             name_parts: NamePartsMap::new(),
+            exists_matches: Default::default(),
             char_props: Default::default(),
             color_aliases: Default::default(),
             font_meta: Default::default(),

@@ -140,6 +140,10 @@ pub struct DocumentViewResult {
 pub struct EditorEnv<'a> {
     pub named_glyphs: &'a HashMap<String, ResolvedGlyph>,
     pub name_parts: &'a NamePartsMap,
+    /// What a `$0`/`$N` on a line under an `exists` stands for — the first
+    /// match of each search, one per scoped item. See
+    /// [`crate::editor::item_bindings`].
+    pub exists_matches: &'a crate::exists::FirstMatches,
     pub alt_index: &'a crate::editor::ref_composite::AlternativesIndex,
     pub color_aliases: &'a ColorAliasMap,
     /// `meta`, for the baseline and the height of the metric box.
@@ -227,6 +231,7 @@ fn resolve_view(
     let EditorEnv {
         named_glyphs,
         name_parts,
+        exists_matches,
         alt_index,
         color_aliases,
         meta,
@@ -248,8 +253,14 @@ fn resolve_view(
     if cache_valid {
         return std::sync::Arc::clone(&state.view_cache.as_ref().unwrap().data);
     }
-    let composites =
-        grid_render::build_composites(doc, named_glyphs, name_parts, alt_index, color_aliases);
+    let composites = grid_render::build_composites(
+        doc,
+        named_glyphs,
+        name_parts,
+        alt_index,
+        color_aliases,
+        exists_matches,
+    );
     // At most one shadow is live: the anchor one needs a selected anchor layer
     // and the backreference one a pixel selection, and no mode is both.
     let shadow = cache_key
@@ -269,6 +280,7 @@ fn resolve_view(
         &composites,
         named_glyphs,
         name_parts,
+        exists_matches,
         editing_item_idx,
         zoom_level,
         pal,

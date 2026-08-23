@@ -364,6 +364,7 @@ pub(crate) fn build_visual_lines(
     composites: &HashMap<usize, GlyphComposite>,
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
+    exists_matches: &crate::exists::FirstMatches,
     editing_item_idx: Option<usize>,
     zoom_level: u32,
     pal: &Palette,
@@ -580,11 +581,19 @@ pub(crate) fn build_visual_lines(
 
                 let mut cur = header_line + 1;
 
+                // The `$-N`/`$N` this block writes, so a preview and a `ref`
+                // line's own thumbnail agree with the grid.
+                let bindings = crate::editor::item_bindings::item_bindings(
+                    doc,
+                    item_idx,
+                    name_parts,
+                    exists_matches,
+                );
                 let is_editing = editing_item_idx == Some(item_idx);
                 // Only the glyph the anchor belongs to makes room for it.
                 let shadow = shadow.filter(|(idx, _)| *idx == item_idx).map(|(_, s)| s);
                 let max_ph = if is_editing {
-                    preview_max_height(body, composites.get(&item_idx), named_glyphs, name_parts)
+                    preview_max_height(body, composites.get(&item_idx), named_glyphs, &bindings)
                 } else {
                     0
                 };
@@ -633,7 +642,7 @@ pub(crate) fn build_visual_lines(
                         &body.refs,
                         &mut cur,
                         named_glyphs,
-                        name_parts,
+                        &bindings,
                         &color_for_text,
                         wrap_width,
                         ctx,
@@ -670,7 +679,7 @@ pub(crate) fn build_visual_lines(
                         &body.refs,
                         &mut cur,
                         named_glyphs,
-                        name_parts,
+                        &bindings,
                         &color_for_text,
                         wrap_width,
                         ctx,
