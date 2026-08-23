@@ -40,8 +40,8 @@ glyph han-2c394:15x16 15 16 // 𬎔
 
 ## 102.3
 
-glyph han-2c3c0:15x16 15 16 // 𬏀
-⿰ han-7530:7x16-l 1 han-52fa:7x16 // ⿰田勺
+glyph han-2c3c0-($han-regions):15x16 15 16 // 𬏀
+⿰ han-7530:7x16-l 1 han-52fa-($han-regions):7x16 // ⿰田勺
 
 ## 102.7
 

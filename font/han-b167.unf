@@ -26,8 +26,11 @@ glyph han-28949:15x16 15 16 // 𨥉
 
 ## 167.5
 
-// glyph han-2896e:15x16 15 16 // 𨥮
-// ⿰ han-91d2 han-793a // ⿰釒示
+glyph han-2896e:15x16 15 16 // 𨥮
+⿰ han-91d2:7x16 1 han-793a:7x16 // ⿰釒示
+
+// glyph han-28974:15x16 15 16 // 𨥴
+// ⿱ han-77f3 han-91d1 // ⿱石金
 
 // glyph han-2897c:15x16 15 16 // 𨥼
 // ⿲ han-91d2 han-6728 han-4e5a // ⿲釒木乚 <- ⿰釒札
@@ -36,6 +39,9 @@ glyph han-28949:15x16 15 16 // 𨥉
 
 // glyph han-28982:15x16 15 16 // 𨦂
 // ⿲ han-91d2 han-793b han-4e5a // ⿲釒礻乚 <- ⿰釒礼
+
+// glyph han-28994:15x16 15 16 // 𨦔
+// ⿱ han-5982 han-91d1 // ⿱如金
 
 glyph han-289a1:15x16 15 16 // 𨦡
 ⿰ han-91d2:7x16 1 han-7f8a:7x16 // ⿰釒羊
@@ -56,11 +62,23 @@ glyph han-289e0:15x16 15 16 // 𨧠
 
 ## 167.8
 
+// glyph han-289e6:15x16 15 16 // 𨧦
+// ⿱ han-9642 han-91d1 // ⿱陂金
+
 glyph han-289f9:15x16 15 16 // 𨧹
 ⿲ -1 han-91d2:5x16-l 1 han-65e5:5x16 han-6708:5x16 // ⿲釒日月
 
+// glyph han-289ff:15x16 15 16 // 𨧿
+// ⿱ han-708f han-91d1 // ⿱炏金
+
 glyph han-28a0f:15x16 15 16 // 𨨏
 ⿲ -1 han-91d2:5x16-l han-6c35:3x16 han-76ae:8x16 // ⿲釒氵皮
+
+// glyph han-28a11:15x16 15 16 // 𨨑
+// ⿱ han-548c han-91d1 // ⿱和金
+
+// glyph han-28a17:15x16 15 16 // 𨨗
+// ⿱ han-6797 han-91d1 // ⿱林金
 
 glyph han-28a1b:15x16 15 16 // 𨨛
 ⿲ han-91d2:5x16-l han-79be:5x16 1 han-53e3:4x16 // ⿲釒禾口
@@ -70,6 +88,15 @@ glyph han-28a22:15x16 15 16 // 𨨢
 
 ## 167.9
 
+// glyph han-28a3a:15x16 15 16 // 𨨺
+// ⿱ han-524a han-91d1 // ⿱削金
+
+// glyph han-28a3e:15x16 15 16 // 𨨾
+// ⿳ han-4e0a han-2a8b4 han-91d1 // ⿳上𪢴金
+
+// glyph han-28a53:15x16 15 16 // 𨩓
+// ⿳ han-571f han-2a8b4 han-91d1 // ⿳土𪢴金 <- ⿱垚金
+
 glyph han-28a65:15x16 15 16 // 𨩥
 ⿲ -2 han-91d2:5x16-l han-572d:5x16 han-5bf8:7x16 // ⿲釒圭寸
 
@@ -77,6 +104,9 @@ glyph han-28a65:15x16 15 16 // 𨩥
 
 glyph han-28a9a:15x16 15 16 // 𨪚
 ⿲ han-91d2:5x16-l han-8eca:5x16 han-5e72:5x16 // ⿲釒車干
+
+// glyph han-28ab1:15x16 15 16 // 𨪱
+// ⿱ han-30664 han-91d1 // ⿱𰙤金
 
 glyph han-28ab5:15x16 15 16 // 𨪵
 ⿲ -2 han-91d2:5x16-l 1 han-76ee:4x16 han-53e5:7x16 // ⿲釒目句
@@ -116,11 +146,19 @@ glyph han-28b60:15x16 15 16 // 𨭠
 
 ## 167.14
 
+// glyph han-28b9c:15x16 15 16 // 𨮜
+// ⿱ han-6f38 han-91d1 // ⿱漸金
+
 glyph han-28bac:15x16 15 16 // 𨮬
 ⿲ -4 han-91d2:5x16-l han-7968:7x16 han-5bf8:7x16 // ⿲釒票寸
 
 glyph han-28bb6:15x16 15 16 // 𨮶
 ⿲ han-91d2:5x16-l han-6c35:3x16 han-7968:7x16 // ⿲釒氵票
+
+## 167.21
+
+// glyph han-28c35:15x16 15 16 // 𨰵
+// ⿳ han-8eca han-485b han-91d1 // ⿳車䡛金 <- ⿱轟金
 
 # CJK unified ideographs extension B: 钅 (167')
 

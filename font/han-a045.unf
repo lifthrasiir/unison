@@ -107,8 +107,10 @@ glyph han-3824:15x16 15 16 // 㠤
 // glyph han-38fd:15x16 15 16 // 㣽
 // ⿱ han-5973 han-5fc3 // ⿱女心
 
-glyph han-38ff:15x16 15 16 // 㣿
-⿰ han-5fc4:7x16 1 han-52fa:7x16 // ⿰忄勺
+glyph han-38ff-(g|t):15x16 15 16 // 㣿
+⿰ han-5fc4:7x16 1 han-52fa-(g|t):7x16 // ⿰忄勺
+glyph han-38ff-p:15x16 15 16 // 㣿
+⿰ han-5fc4:7x16 1 han-52fa.0:7x16 // ⿰忄勺
 
 ## 61.4
 

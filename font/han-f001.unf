@@ -128,6 +128,11 @@ glyph han-2cf70:15x16 15 16 // 𬽰
 glyph han-2cf75:15x16 15 16 // 𬽵
 ⿲ han-4ebb:3x16 han-4ebb:3x16 han-5bf8:9x16 // ⿲亻亻寸
 
+## 9.7
+
+// glyph han-2cf89:15x16 15 16 // 𬾉
+// ⿰ han-4ebb han-8d70 // ⿰亻走
+
 ## 9.8
 
 glyph han-2cfa2:15x16 15 16 // 𬾢
@@ -240,5 +245,5 @@ glyph han-2d130:15x16 15 16 // 𭄰
 
 ## 20.9
 
-glyph han-2d14c:15x16 15 16 // 𭅌
-⿰ han-5176:8x16 han-52fa:7x16 // ⿰其勺
+glyph han-2d14c-($han-regions):15x16 15 16 // 𭅌
+⿰ han-5176:8x16 han-52fa-($han-regions):7x16 // ⿰其勺

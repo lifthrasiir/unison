@@ -87,8 +87,8 @@ glyph han-597b:15x16 15 16 // 奻
 glyph han-597e:15x16 15 16 // 奾
 ⿰ han-5973:5x16-l 1 han-5c71:9x16 // ⿰女山
 
-glyph han-5981:15x16 15 16 // 妁
-⿰ han-5973:7x16 1 han-52fa:7x16 // ⿰女勺
+glyph han-5981-($han-regions):15x16 15 16 // 妁
+⿰ han-5973:7x16 1 han-52fa-($han-regions):7x16 // ⿰女勺
 
 glyph han-5982:15x16 15 16 // 如
 ⿰ han-5973:7x16 1 han-53e3:7x16 // ⿰女口
@@ -236,7 +236,7 @@ glyph han-5a38:15x16 15 16 // 娸
 // ⿱ han-963f han-5973 // ⿱阿女
 
 glyph han-5a40:15x16 15 16 // 婀
-⿲ -2 han-5973:5x16-l han-961d:4x16-c han-53ef:8x16 // ⿲女阝可
+⿲ han-5973:5x16-l han-961d:4x16-c han-53ef:6x16 // ⿲女阝可
 
 // glyph han-5a46:15x16 15 16 // 婆
 // ⿱ han-6ce2 han-5973 // ⿱波女

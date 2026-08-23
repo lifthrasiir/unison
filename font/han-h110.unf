@@ -22,6 +22,9 @@ glyph han-31d34:15x16 15 16 // 𱴴
 
 ## 113.7
 
+// glyph han-31d4e:15x16 15 16 // 𱵎
+// ⿰ han-793a han-8d70 // ⿰示走
+
 glyph han-31d52:15x16 15 16 // 𱵒
 ⿰ han-793b:7x16 1 han-826f:7x16 // ⿰礻良
 
@@ -76,8 +79,8 @@ glyph han-31e5e:15x16 15 16 // 𱹞
 
 ## 120.5
 
-// glyph han-31e6f:15x16 15 16 // 𱹯
-// ⿰ han-7cf9 han-793a // ⿰糹示
+glyph han-31e6f:15x16 15 16 // 𱹯
+⿰ 1 han-7cf9:5x16 1 han-793a:7x16 // ⿰糹示
 
 ## 120.6
 

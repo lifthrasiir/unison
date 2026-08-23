@@ -29,16 +29,24 @@ glyph han-2b468:15x16 15 16 // 𫑨
 glyph han-2b486:15x16 15 16 // 𫒆
 ⿰ han-91d2:5x16-l 1 han-4e0a:9x16 // ⿰釒上
 
+// glyph han-2b488:15x16 15 16 // 𫒈
+// ⿱ han-91d1 han-5973 // ⿱金女
+
 glyph han-2b489:15x16 15 16 // 𫒉
 ⿰ han-91d2:7x16 1 han-961d:7x16-r // ⿰釒阝
+
+## 167.6
+
+// glyph han-2b495:15x16 15 16 // 𫒕
+// ⿱ han-91d1 han-2a8b4 // ⿱金𪢴
 
 ## 167.8
 
 glyph han-2b4a8:15x16 15 16 // 𫒨
 ⿲ -3 han-91d2:5x16-l -1 han-571f:7x16 han-7533:7x16 // ⿲釒土申
 
-glyph han-2b4ab:15x16 15 16 // 𫒫
-⿲ han-91d2:5x16-l 1 han-767d:4x16 han-52fa:5x16 // ⿲釒白勺
+glyph han-2b4ab-($han-regions):15x16 15 16 // 𫒫
+⿲ han-91d2:5x16-l 1 han-767d:4x16 han-52fa-($han-regions):5x16 // ⿲釒白勺
 
 ## 167.11
 

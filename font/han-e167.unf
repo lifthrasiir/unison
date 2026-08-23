@@ -10,6 +10,11 @@
 glyph han-2cacc:15x16 15 16 // 𬫌
 ⿰ han-91d2:7x16 han-6c10:8x16 // ⿰釒氐
 
+## 167.8
+
+// glyph han-2cae8:15x16 15 16 // 𬫨
+// ⿱ han-708e han-91d1 // ⿱炎金
+
 ## 167.13
 
 glyph han-2cb0d:15x16 15 16 // 𬬍
@@ -92,6 +97,11 @@ glyph han-2cbbc:15x16 15 16 // 𬮼
 
 glyph han-2cbc3:15x16 15 16 // 𬯃
 ⿲ han-961d:5x16-l han-6c35:3x16 han-6b20:7x16 // ⿲阝氵欠
+
+## 170.8
+
+// glyph han-2cbc9:15x16 15 16 // 𬯉
+// ⿰ han-961d han-91d1 // ⿰阝金
 
 # CJK unified ideographs extension E: 隹 (172)
 

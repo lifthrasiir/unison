@@ -233,8 +233,8 @@ glyph han-30957:15x16 15 16 // 𰥗
 glyph han-3095a:15x16 15 16 // 𰥚
 ⿰ han-79be:9x16 han-76ee:6x16 // ⿰禾目
 
-// glyph han-3095b:15x16 15 16 // 𰥛
-// ⿲ han-76ee han-8ba0 han-5ddd // ⿲目讠川 <- ⿰目训
+glyph han-3095b:15x16 15 16 // 𰥛
+⿲ han-76ee:4x16-l han-8ba0:5x16 han-5ddd:6x16 // ⿲目讠川
 
 ## 109.9
 

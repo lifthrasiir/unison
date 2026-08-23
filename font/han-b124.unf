@@ -51,8 +51,8 @@ glyph han-26552:15x16 15 16 // 𦕒
 glyph han-26559:15x16 15 16 // 𦕙
 ⿰ han-8033:7x16 1 han-53e5:7x16 // ⿰耳句
 
-// glyph han-2655d:15x16 15 16 // 𦕝
-// ⿰ han-8033 han-793a // ⿰耳示
+glyph han-2655d:15x16 15 16 // 𦕝
+⿰ han-8033:7x16 1 han-793a:7x16 // ⿰耳示
 
 ## 128.6
 
@@ -87,8 +87,8 @@ glyph han-26592:15x16 15 16 // 𦖒
 glyph han-265a0:15x16 15 16 // 𦖠
 ⿰ han-8033:7x16 1 han-708e:7x16 // ⿰耳炎
 
-glyph han-265a1:15x16 15 16 // 𦖡
-⿲ han-8033:6x16-l han-767d:4x16 han-52fa:5x16 // ⿲耳白勺
+glyph han-265a1-($han-regions):15x16 15 16 // 𦖡
+⿲ han-8033:6x16-l han-767d:4x16 han-52fa-($han-regions):5x16 // ⿲耳白勺
 
 ## 128.9
 

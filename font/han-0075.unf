@@ -101,8 +101,8 @@ glyph han-673e:15x16 15 16 // 朾
 glyph han-6746:15x16 15 16 // 杆
 ⿰ han-6728:5x16 1 han-5e72:9x16 // ⿰木干
 
-// glyph han-674a:15x16 15 16 // 杊
-// ⿰ han-6728 han-5ddd // ⿰木川
+glyph han-674a:15x16 15 16 // 杊
+⿰ han-6728:9x16 han-5ddd:6x16 // ⿰木川
 
 // glyph han-674c:15x16 15 16 // 杌
 // ⿰ han-6728 han-5140 // ⿰木兀
@@ -116,8 +116,10 @@ glyph han-6746:15x16 15 16 // 杆
 glyph han-6751:15x16 15 16 // 村
 ⿰ han-6728:5x16 1 han-5bf8:9x16 // ⿰木寸
 
-glyph han-6753:15x16 15 16 // 杓
-⿰ han-6728:7x16 1 han-52fa:7x16 // ⿰木勺
+glyph han-6753-(g|h|t|k|p):15x16 15 16 // 杓
+⿰ han-6728:7x16 1 han-52fa-(g|h|t|k|p):7x16 // ⿰木勺
+glyph han-6753-j:15x16 15 16 // 杓
+⿰ han-6728:7x16 1 han-52fa.0:7x16 // ⿰木勺
 
 glyph han-675c:15x16 15 16 // 杜
 ⿰ han-6728:5x16 1 han-571f:9x16 // ⿰木土
@@ -299,8 +301,8 @@ glyph han-67ef:15x16 15 16 // 柯
 glyph han-67fe:15x16 15 16 // 柾
 ⿰ han-6728:5x16 han-6b63:10x16 // ⿰木正
 
-// glyph han-6807:15x16 15 16 // 标
-// ⿰ han-6728 han-793a // ⿰木示
+glyph han-6807:15x16 15 16 // 标
+⿰ han-6728:7x16 1 han-793a:7x16 // ⿰木示
 
 ## 75.6
 
@@ -425,8 +427,8 @@ glyph han-690e:15x16 15 16 // 椎
 glyph han-6911:15x16 15 16 // 椑
 ⿰ han-6728:7x16 han-5351:8x16 // ⿰木卑
 
-// glyph han-6915:15x16 15 16 // 椕
-// ⿲ han-6728 han-5206 han-6728 // ⿲木分木
+glyph han-6915:15x16 15 16 // 椕
+⿲ -2 han-6728:5x16 han-5206:7x16 han-6728:5x16 // ⿲木分木
 
 // glyph han-691e:15x16 15 16 // 椞
 // ⿱ han-6790 han-6728 // ⿱析木

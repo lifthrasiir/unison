@@ -53,11 +53,13 @@ glyph han-6c40:15x16 15 16 // 汀
 
 ## 85.3
 
-glyph han-6c4b:15x16 15 16 // 汋
-⿰ han-6c35:5x16 1 han-52fa:9x16 // ⿰氵勺
+glyph han-6c4b-(g|h|t|k|p):15x16 15 16 // 汋
+⿰ han-6c35:5x16 1 han-52fa-(g|h|t|k|p):9x16 // ⿰氵勺
+glyph han-6c4b-j:15x16 15 16 // 汋
+⿰ han-6c35:5x16 1 han-52fa.0:9x16 // ⿰氵勺
 
-// glyph han-6c4c:15x16 15 16 // 汌
-// ⿰ han-6c35 han-5ddd // ⿰氵川
+glyph han-6c4c:15x16 15 16 // 汌
+⿰ han-6c35:5x16 1 han-5ddd:8x16 // ⿰氵川
 
 glyph han-6c55:15x16 15 16 // 汕
 ⿰ han-6c35:5x16 1 han-5c71:9x16 // ⿰氵山
@@ -129,8 +131,8 @@ glyph han-6cb0:15x16 15 16 // 沰
 glyph han-6cb3:15x16 15 16 // 河
 ⿰ han-6c35:5x16 han-53ef:10x16 // ⿰氵可
 
-// glyph han-6cb6:15x16 15 16 // 沶
-// ⿰ han-6c35 han-793a // ⿰氵示
+glyph han-6cb6:15x16 15 16 // 沶
+⿰ 1 han-6c35:5x16 1 han-793a:7x16 // ⿰氵示
 
 glyph han-6cb9:15x16 15 16 // 油
 ⿰ han-6c35:5x16 1 han-7531:9x16 // ⿰氵由
@@ -299,6 +301,9 @@ glyph han-6ddc:15x16 15 16 // 淜
 
 glyph han-6de1:15x16 15 16 // 淡
 ⿰ han-6c35:5x16 1 han-708e:9x16 // ⿰氵炎
+
+// glyph han-6de6:15x16 15 16 // 淦
+// ⿰ han-6c35 han-91d1 // ⿰氵金
 
 glyph han-6dec:15x16 15 16 // 淬
 ⿰ han-6c35:5x16 1 han-5352:9x16 // ⿰氵卒

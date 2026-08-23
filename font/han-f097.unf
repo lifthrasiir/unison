@@ -114,8 +114,8 @@ glyph han-2dfb5:15x16 15 16 // 𭾵
 // glyph han-2e012:15x16 15 16 // 𮀒
 // ⿳ han-4e36 han-738b han-77f3 // ⿳丶王石 <- ⿱主石
 
-// glyph han-2e014:15x16 15 16 // 𮀔
-// ⿰ han-77f3 han-793a // ⿰石示
+glyph han-2e014:15x16 15 16 // 𮀔
+⿰ han-77f3:8x16 han-793a:7x16 // ⿰石示
 
 ## 112.8
 
@@ -123,7 +123,7 @@ glyph han-2e022:15x16 15 16 // 𮀢
 ⿲ han-77f3:5x16 han-624c:3x16 1 han-53ec:6x16 // ⿲石扌召
 
 glyph han-2e02b:15x16 15 16 // 𮀫
-⿲ -3 han-77f3:5x16 1 han-961d:4x16-c han-53ef:8x16 // ⿲石阝可
+⿲ -1 han-77f3:5x16 1 han-961d:4x16-c han-53ef:6x16 // ⿲石阝可
 
 ## 112.9
 

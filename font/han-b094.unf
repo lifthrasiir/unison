@@ -55,8 +55,8 @@ glyph han-2475a:15x16 15 16 // 𤝚
 // glyph han-24766:15x16 15 16 // 𤝦
 // ⿲ han-72ad han-4ebb han-624d // ⿲犭亻才 <- ⿰犭𠆫
 
-glyph han-24767:15x16 15 16 // 𤝧
-⿲ han-72ad:4x16 han-4ebb:3x16 1 han-52fa:7x16 // ⿲犭亻勺
+glyph han-24767-($han-regions):15x16 15 16 // 𤝧
+⿲ han-72ad:4x16 han-4ebb:3x16 1 han-52fa-($han-regions):7x16 // ⿲犭亻勺
 
 glyph han-2476c:15x16 15 16 // 𤝬
 ⿰ han-72ad:6x16 1 han-6c10:8x16 // ⿰犭氐

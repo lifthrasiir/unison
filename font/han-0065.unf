@@ -232,14 +232,17 @@ glyph han-65f0:15x16 15 16 // 旰
 // glyph han-65f1:15x16 15 16 // 旱
 // ⿱ han-65e5 han-5e72 // ⿱日干
 
-glyph han-65f3:15x16 15 16 // 旳
-⿰ han-65e5:7x16 1 han-52fa:7x16 // ⿰日勺
+glyph han-65f3-($han-regions):15x16 15 16 // 旳
+⿰ han-65e5:7x16 1 han-52fa-($han-regions):7x16 // ⿰日勺
 
 // glyph han-65f5:15x16 15 16 // 旵
 // ⿱ han-65e5 han-5c71 // ⿱日山
 
 glyph han-65f6:15x16 15 16 // 时
 ⿰ han-65e5:6x16 han-5bf8:9x16 // ⿰日寸
+
+// glyph han-65f7:15x16 15 16 // 旷
+// ⿰ han-65e5 han-5e7f // ⿰日广
 
 ## 72.4
 

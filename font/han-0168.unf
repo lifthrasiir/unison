@@ -168,8 +168,8 @@ glyph han-9642:15x16 15 16 // 陂
 glyph han-9644:15x16 15 16 // 附
 ⿲ han-961d:5x16-l han-4ebb:3x16 han-5bf8:7x16 // ⿲阝亻寸
 
-// glyph han-9645:15x16 15 16 // 际
-// ⿰ han-961d han-793a // ⿰阝示
+glyph han-9645:15x16 15 16 // 际
+⿰ 1 han-961d:5x16-l 1 han-793a:7x16 // ⿰阝示
 
 ## 170.6
 
@@ -186,6 +186,9 @@ glyph han-9657:15x16 15 16 // 陗
 
 glyph han-9660:15x16 15 16 // 陠
 ⿰ han-961d:5x16-l 1 han-752b:9x16 // ⿰阝甫
+
+// glyph han-9661:15x16 15 16 // 陡
+// ⿰ han-961d han-8d70 // ⿰阝走
 
 glyph han-9663:15x16 15 16 // 陣
 ⿰ han-961d:5x16-l 1 han-8eca:9x16 // ⿰阝車
@@ -530,8 +533,10 @@ glyph han-976a:15x16 15 16 // 靪
 glyph han-976c:15x16 15 16 // 靬
 ⿰ han-9769:7x16 1 han-5e72:7x16 // ⿰革干
 
-glyph han-976e:15x16 15 16 // 靮
-⿰ han-9769:7x16 1 han-52fa:7x16 // ⿰革勺
+glyph han-976e-(g|h|t|k|p):15x16 15 16 // 靮
+⿰ han-9769:7x16 1 han-52fa-(g|h|t|k|p):7x16 // ⿰革勺
+glyph han-976e-j:15x16 15 16 // 靮
+⿰ han-9769:7x16 1 han-52fa.0:7x16 // ⿰革勺
 
 glyph han-976f:15x16 15 16 // 靯
 ⿰ han-9769:7x16 1 han-571f:7x16 // ⿰革土

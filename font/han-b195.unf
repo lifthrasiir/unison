@@ -16,8 +16,8 @@ glyph han-29d53:15x16 15 16 // 𩵓
 // glyph han-29d58:15x16 15 16 // 𩵘
 // ⿱ han-9b5a han-571f // ⿱魚土
 
-// glyph han-29d59:15x16 15 16 // 𩵙
-// ⿰ han-9b5a han-5ddd // ⿰魚川
+glyph han-29d59:15x16 15 16 // 𩵙
+⿰ han-9b5a:7x16 han-5ddd:8x16 // ⿰魚川
 
 glyph han-29d5a:15x16 15 16 // 𩵚
 ⿰ han-9b5a:7x16 1 han-571f:7x16 // ⿰魚土
@@ -142,6 +142,9 @@ glyph han-29e09:15x16 15 16 // 𩸉
 
 glyph han-29e25:15x16 15 16 // 𩸥
 ⿰ han-9b5a:7x16 1 han-708e:7x16 // ⿰魚炎
+
+// glyph han-29e31:15x16 15 16 // 𩸱
+// ⿰ han-9b5a han-91d1 // ⿰魚金
 
 ## 195.9
 

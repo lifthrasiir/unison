@@ -96,8 +96,10 @@ glyph han-6253:15x16 15 16 // 打
 glyph han-6257:15x16 15 16 // 扗
 ⿰ han-624c:5x16 1 han-571f:9x16 // ⿰扌土
 
-glyph han-625a:15x16 15 16 // 扚
-⿰ han-624c:5x16 1 han-52fa:9x16 // ⿰扌勺
+glyph han-625a-(g|h|t|k):15x16 15 16 // 扚
+⿰ han-624c:5x16 1 han-52fa-(g|h|t|k):9x16 // ⿰扌勺
+glyph han-625a-(j|p):15x16 15 16 // 扚
+⿰ han-624c:5x16 1 han-52fa.0:9x16 // ⿰扌勺
 
 glyph han-625b:15x16 15 16 // 扛
 ⿰ han-624c:5x16 1 han-5de5:9x16 // ⿰扌工
@@ -110,6 +112,9 @@ glyph han-6263:15x16 15 16 // 扣
 
 // glyph han-6264:15x16 15 16 // 扤
 // ⿰ han-624c han-5140 // ⿰扌兀
+
+// glyph han-6269:15x16 15 16 // 扩
+// ⿰ han-624c han-5e7f // ⿰扌广
 
 ## 64.4
 
@@ -276,6 +281,9 @@ glyph han-6359:15x16 15 16 // 捙
 ⿰ han-624c:5x16 1 han-8eca:9x16 // ⿰扌車
 
 ## 64.8
+
+// glyph han-6366:15x16 15 16 // 捦
+// ⿰ han-624c han-91d1 // ⿰扌金
 
 glyph han-636d:15x16 15 16 // 捭
 ⿰ han-624c:5x16 han-5351:10x16 // ⿰扌卑

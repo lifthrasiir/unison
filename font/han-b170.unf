@@ -13,6 +13,9 @@ glyph han-28e16:15x16 15 16 // 𨸖
 glyph han-28e17:15x16 15 16 // 𨸗
 ⿰ han-961d:5x16-l 1 han-5e72:9x16 // ⿰阝干
 
+// glyph han-28e18:15x16 15 16 // 𨸘
+// ⿰ han-961d han-5e7f // ⿰阝广
+
 glyph han-28e19:15x16 15 16 // 𨸙
 ⿰ 1 han-961d:5x16-l 1 han-961d:7x16-r // ⿰阝阝
 

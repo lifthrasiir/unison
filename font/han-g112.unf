@@ -40,6 +40,11 @@ glyph han-309f9:15x16 15 16 // 𰧹
 // glyph han-30a1b:15x16 15 16 // 𰨛
 // ⿰ han-79be han-5200 // ⿰禾刀
 
+## 115.3
+
+// glyph han-30a1c:15x16 15 16 // 𰨜
+// ⿰ han-79be han-5e7f // ⿰禾广
+
 ## 115.5
 
 glyph han-30a21:15x16 15 16 // 𰨡
@@ -56,6 +61,11 @@ glyph han-30a3c:15x16 15 16 // 𰨼
 ⿲ -2 han-79be:5x16 han-27fb7:5x16 han-5404:7x16 // ⿲禾𧾷各
 
 # CJK unified ideographs extension G: 米 (119)
+
+## 119.3
+
+// glyph han-30aa9:15x16 15 16 // 𰪩
+// ⿰ han-7c73 han-5e7f // ⿰米广
 
 ## 119.4
 

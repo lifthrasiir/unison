@@ -18,8 +18,8 @@
 // glyph han-250f7:15x16 15 16 // 𥃷
 // ⿱ han-76ee han-5bf8 // ⿱目寸
 
-// glyph han-250f9:15x16 15 16 // 𥃹
-// ⿰ han-76ee han-5ddd // ⿰目川
+glyph han-250f9:15x16 15 16 // 𥃹
+⿰ han-76ee:9x16 han-5ddd:6x16 // ⿰目川
 
 // glyph han-250fa:15x16 15 16 // 𥃺
 // ⿱ han-76ee han-5140 // ⿱目兀
@@ -125,6 +125,9 @@ glyph han-25198:15x16 15 16 // 𥆘
 // glyph han-2519a:15x16 15 16 // 𥆚
 // ⿲ han-76ee han-6c35 han-738b // ⿲目氵王 <- ⿰目汪
 
+// glyph han-251a5:15x16 15 16 // 𥆥
+// ⿰ han-76ee han-8d70 // ⿰目走
+
 glyph han-251ba:15x16 15 16 // 𥆺
 ⿰ han-76ee:7x16 1 han-9149:7x16 // ⿰目酉
 
@@ -150,6 +153,9 @@ glyph han-251ec:15x16 15 16 // 𥇬
 
 // glyph han-251f2:15x16 15 16 // 𥇲
 // ⿱ han-6ce2 han-76ee // ⿱波目
+
+// glyph han-251f6:15x16 15 16 // 𥇶
+// ⿰ han-76ee han-91d1 // ⿰目金
 
 ## 109.9
 

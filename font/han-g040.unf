@@ -54,6 +54,11 @@ glyph han-303e2:15x16 15 16 // 𰏢
 // glyph han-3043c:15x16 15 16 // 𰐼
 // ⿱ han-4eba han-5fc3 // ⿱人心
 
+## 61.3
+
+// glyph han-3043e:15x16 15 16 // 𰐾
+// ⿰ han-5fc4 han-5e7f // ⿰忄广
+
 ## 61.4
 
 glyph han-30443:15x16 15 16 // 𰑃
@@ -177,6 +182,11 @@ glyph han-3059f:15x16 15 16 // 𰖟
 // ⿰ han-6708 han-7535 // ⿰月电
 
 # CJK unified ideographs extension G: 木 (75)
+
+## 75.3
+
+// glyph han-305d3:15x16 15 16 // 𰗓
+// ⿰ han-6728 han-5e7f // ⿰木广
 
 ## 75.7
 

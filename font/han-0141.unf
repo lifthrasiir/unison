@@ -86,8 +86,8 @@ glyph han-8670:15x16 15 16 // 虰
 
 ## 142.3
 
-glyph han-8673:15x16 15 16 // 虳
-⿰ han-866b:7x16 1 han-52fa:7x16 // ⿰虫勺
+glyph han-8673-($han-regions):15x16 15 16 // 虳
+⿰ han-866b:7x16 1 han-52fa-($han-regions):7x16 // ⿰虫勺
 
 glyph han-8677:15x16 15 16 // 虷
 ⿰ han-866b:5x16 1 han-5e72:9x16 // ⿰虫干

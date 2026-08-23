@@ -101,11 +101,11 @@ glyph han-24fc6:15x16 15 16 // 𤿆
 
 ## 107.3
 
-glyph han-24fc8:15x16 15 16 // 𤿈
-⿰ han-52fa:7x16 han-76ae:8x16 // ⿰勺皮
+glyph han-24fc8-($han-regions):15x16 15 16 // 𤿈
+⿰ han-52fa-($han-regions):7x16 han-76ae:8x16 // ⿰勺皮
 
-glyph han-24fc9:15x16 15 16 // 𤿉
-⿰ han-76ae:8x16 han-52fa:7x16 // ⿰皮勺
+glyph han-24fc9-($han-regions):15x16 15 16 // 𤿉
+⿰ han-76ae:8x16 han-52fa-($han-regions):7x16 // ⿰皮勺
 
 glyph han-24fca:15x16 15 16 // 𤿊
 ⿰ han-5e72:7x16 han-76ae:8x16 // ⿰干皮

@@ -69,8 +69,8 @@ glyph han-2c868:15x16 15 16 // 𬡨
 
 ## 149.5
 
-// glyph han-2c8a1:15x16 15 16 // 𬢡
-// ⿰ han-8a01 han-793a // ⿰訁示
+glyph han-2c8a1:15x16 15 16 // 𬢡
+⿰ han-8a01:7x16 1 han-793a:7x16 // ⿰訁示
 
 # CJK unified ideographs extension E: 讠 (149')
 

@@ -30,14 +30,14 @@ glyph han-29f9a:15x16 15 16 // 𩾚
 glyph han-29f9d:15x16 15 16 // 𩾝
 ⿰ han-9ce5:7x16 1 han-5e72:7x16 // ⿰鳥干
 
-glyph han-29fa1:15x16 15 16 // 𩾡
-⿰ han-9ce5:7x16 1 han-52fa:7x16 // ⿰鳥勺
+glyph han-29fa1-($han-regions):15x16 15 16 // 𩾡
+⿰ han-9ce5:7x16 1 han-52fa-($han-regions):7x16 // ⿰鳥勺
 
 // glyph han-29fa3:15x16 15 16 // 𩾣
 // ⿱ han-5ddb han-9ce5 // ⿱巛鳥
 
-// glyph han-29fa7:15x16 15 16 // 𩾧
-// ⿰ han-9ce5 han-5ddd // ⿰鳥川
+glyph han-29fa7:15x16 15 16 // 𩾧
+⿰ han-9ce5:9x16 han-5ddd:6x16 // ⿰鳥川
 
 glyph han-29fac:15x16 15 16 // 𩾬
 ⿰ han-9ce5:7x16 1 han-5de5:7x16 // ⿰鳥工
@@ -85,8 +85,10 @@ glyph han-29fec:15x16 15 16 // 𩿬
 glyph han-29ff5:15x16 15 16 // 𩿵
 ⿰ han-9ce5:7x16 1 han-53e4:7x16 // ⿰鳥古
 
-glyph han-29ff7:15x16 15 16 // 𩿷
+glyph han-29ff7-g:15x16 15 16 // 𩿷
 ⿰ han-793b:5x16 1 han-9ce5:9x16 // ⿰礻鳥
+glyph han-29ff7-t:15x16 15 16 // 𩿷
+⿰ han-793a:5x16 1 han-9ce5:9x16 // ⿰示鳥
 
 // glyph han-29ffc:15x16 15 16 // 𩿼
 // ⿱ han-9ce5 han-7532 // ⿱鳥甲

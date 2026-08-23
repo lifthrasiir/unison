@@ -202,15 +202,17 @@ glyph han-4102:15x16 15 16 // 䄂
 
 ## 113.9
 
-glyph han-4116:15x16 15 16 // 䄖
+glyph han-4116-g:15x16 15 16 // 䄖
 ⿰ han-793b:7x16 1 han-4fde:7x16 // ⿰礻俞
+glyph han-4116-k:15x16 15 16 // 䄖
+⿰ han-793a:7x16 1 han-4fde:7x16 // ⿰示俞
 
 # CJK unified ideographs extension A: 禾 (115)
 
 ## 115.3
 
-glyph han-412a:15x16 15 16 // 䄪
-⿰ han-79be:7x16 1 han-52fa:7x16 // ⿰禾勺
+glyph han-412a-($han-regions):15x16 15 16 // 䄪
+⿰ han-79be:7x16 1 han-52fa-($han-regions):7x16 // ⿰禾勺
 
 ## 115.4
 

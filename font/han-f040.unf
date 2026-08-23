@@ -104,8 +104,8 @@ glyph han-2d5e3:15x16 15 16 // 𭗣
 // glyph han-2d604:15x16 15 16 // 𭘄
 // ⿰ han-5de5 han-5140 // ⿰工兀
 
-glyph han-2d605:15x16 15 16 // 𭘅
-⿰ han-5de5:7x16 1 han-52fa:7x16 // ⿰工勺
+glyph han-2d605-($han-regions):15x16 15 16 // 𭘅
+⿰ han-5de5:7x16 1 han-52fa-($han-regions):7x16 // ⿰工勺
 
 ## 48.6
 

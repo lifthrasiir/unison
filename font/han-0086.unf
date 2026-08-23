@@ -101,8 +101,10 @@ glyph han-7076:15x16 15 16 // 灶
 // glyph han-707b:15x16 15 16 // 灻
 // ⿱ han-571f han-706b // ⿱土火
 
-glyph han-707c:15x16 15 16 // 灼
-⿰ han-706b:7x16 1 han-52fa:7x16 // ⿰火勺
+glyph han-707c-(g|h|t|k|p|v):15x16 15 16 // 灼
+⿰ han-706b:7x16 1 han-52fa-(g|h|t|k|p|v):7x16 // ⿰火勺
+glyph han-707c-j:15x16 15 16 // 灼
+⿰ han-706b:7x16 1 han-52fa.0:7x16 // ⿰火勺
 
 // glyph han-707d:15x16 15 16 // 災
 // ⿱ han-5ddb han-706b // ⿱巛火

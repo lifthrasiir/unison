@@ -10,8 +10,8 @@
 glyph han-2760d:15x16 15 16 // 𧘍
 ⿰ han-8864:5x16 1 han-5de5:9x16 // ⿰衤工
 
-glyph han-27611:15x16 15 16 // 𧘑
-⿰ han-8864:5x16 1 han-52fa:9x16 // ⿰衤勺
+glyph han-27611-($han-regions):15x16 15 16 // 𧘑
+⿰ han-8864:5x16 1 han-52fa-($han-regions):9x16 // ⿰衤勺
 
 glyph han-27614:15x16 15 16 // 𧘔
 ⿰ han-8864:5x16 1 han-4e0b:9x16 // ⿰衤下

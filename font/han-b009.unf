@@ -15,8 +15,8 @@
 // glyph han-201ab:15x16 15 16 // 𠆫
 // ⿰ han-4ebb han-624d // ⿰亻才
 
-// glyph han-201af:15x16 15 16 // 𠆯
-// ⿰ han-4ebb han-5ddd // ⿰亻川
+glyph han-201af:15x16 15 16 // 𠆯
+⿰ han-4ebb:5x16 1 han-5ddd:8x16 // ⿰亻川
 
 ## 9.4
 
@@ -28,8 +28,8 @@ glyph han-201c8:15x16 15 16 // 𠇈
 
 ## 9.5
 
-// glyph han-201e3:15x16 15 16 // 𠇣
-// ⿰ han-4ebb han-793a // ⿰亻示
+glyph han-201e3:15x16 15 16 // 𠇣
+⿰ 1 han-4ebb:5x16 1 han-793a:7x16 // ⿰亻示
 
 // glyph han-201e4:15x16 15 16 // 𠇤
 // ⿰ han-4ebb han-7389 // ⿰亻玉
@@ -43,6 +43,9 @@ glyph han-201fa:15x16 15 16 // 𠇺
 // ⿱ han-5408 han-4eba // ⿱合人
 
 ## 9.8
+
+// glyph han-20284:15x16 15 16 // 𠊄
+// ⿰ han-4ebb han-91d1 // ⿰亻金
 
 glyph han-2029c:15x16 15 16 // 𠊜
 ⿲ han-4ebb:3x16 han-5973:5x16 han-77f3:7x16 // ⿲亻女石
@@ -68,8 +71,8 @@ glyph han-20332:15x16 15 16 // 𠌲
 glyph han-20335:15x16 15 16 // 𠌵
 ⿰ han-4ebb:5x16 1 han-9ce5:9x16 // ⿰亻鳥
 
-glyph han-20356:15x16 15 16 // 𠍖
-⿲ han-4ebb:3x16 han-91d2:7x16 han-52fa:5x16 // ⿲亻釒勺
+glyph han-20356-($han-regions):15x16 15 16 // 𠍖
+⿲ han-4ebb:3x16 han-91d2:7x16 han-52fa-($han-regions):5x16 // ⿲亻釒勺
 
 ## 9.12
 

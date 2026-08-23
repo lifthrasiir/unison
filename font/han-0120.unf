@@ -59,11 +59,11 @@ glyph han-7cfd:15x16 15 16 // 糽
 glyph han-7d02:15x16 15 16 // 紂
 ⿰ han-7cf9:5x16 1 han-5bf8:9x16 // ⿰糹寸
 
-// glyph han-7d03:15x16 15 16 // 紃
-// ⿰ han-7cf9 han-5ddd // ⿰糹川
+glyph han-7d03:15x16 15 16 // 紃
+⿰ han-7cf9:5x16 1 han-5ddd:8x16 // ⿰糹川
 
-glyph han-7d04:15x16 15 16 // 約
-⿰ han-7cf9:5x16 1 han-52fa:9x16 // ⿰糹勺
+glyph han-7d04-($han-regions):15x16 15 16 // 約
+⿰ han-7cf9:5x16 1 han-52fa-($han-regions):9x16 // ⿰糹勺
 
 glyph han-7d05:15x16 15 16 // 紅
 ⿰ han-7cf9:5x16 1 han-5de5:9x16 // ⿰糹工

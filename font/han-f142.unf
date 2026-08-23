@@ -126,8 +126,8 @@ glyph han-2e622:15x16 15 16 // 𮘢
 // glyph han-2e66e:15x16 15 16 // 𮙮
 // ⿱ han-8c9d han-5bf8 // ⿱貝寸
 
-// glyph han-2e670:15x16 15 16 // 𮙰
-// ⿰ han-8c9d han-5ddd // ⿰貝川
+glyph han-2e670:15x16 15 16 // 𮙰
+⿰ han-8c9d:9x16 han-5ddd:6x16 // ⿰貝川
 
 ## 154.5
 

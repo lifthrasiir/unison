@@ -217,8 +217,8 @@ glyph han-2af7b:15x16 15 16 // 𪽻
 
 ## 109.3
 
-glyph han-2afa0:15x16 15 16 // 𪾠
-⿰ han-76ee:7x16 1 han-52fa:7x16 // ⿰目勺
+glyph han-2afa0-($han-regions):15x16 15 16 // 𪾠
+⿰ han-76ee:7x16 1 han-52fa-($han-regions):7x16 // ⿰目勺
 
 ## 109.5
 

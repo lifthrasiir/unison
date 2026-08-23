@@ -158,8 +158,8 @@ glyph han-23247:15x16 15 16 // 𣉇
 glyph han-2325e:15x16 15 16 // 𣉞
 ⿰ han-65e5:7x16 1 han-9ad8:7x16 // ⿰日高
 
-// glyph han-23264:15x16 15 16 // 𣉤
-// ⿲ han-65e5 han-8a01 han-5ddd // ⿲日訁川 <- ⿰日訓
+glyph han-23264:15x16 15 16 // 𣉤
+⿲ -1 han-65e5:4x16-l 1 han-8a01:5x16 han-5ddd:6x16 // ⿲日訁川
 
 glyph han-2326b:15x16 15 16 // 𣉫
 ⿲ -1 han-65e5:4x16-l han-6728:5x16 han-7f8a:7x16 // ⿲日木羊

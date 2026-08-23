@@ -316,6 +316,9 @@ glyph han-909a:15x16 15 16 // 邚
 glyph han-909b:15x16 15 16 // 邛
 ⿰ han-5de5:7x16 1 han-961d:7x16-r // ⿰工阝
 
+// glyph han-909d:15x16 15 16 // 邝
+// ⿰ han-5e7f han-961d // ⿰广阝
+
 ## 163.4
 
 glyph han-909f:15x16 15 16 // 邟
@@ -516,8 +519,10 @@ glyph han-914a:15x16 15 16 // 酊
 
 ## 164.3
 
-glyph han-914c:15x16 15 16 // 酌
-⿰ han-9149:7x16 1 han-52fa:7x16 // ⿰酉勺
+glyph han-914c-(g|h|t|j|k|v):15x16 15 16 // 酌
+⿰ han-9149:7x16 1 han-52fa-(g|h|t|j|k|v):7x16 // ⿰酉勺
+glyph han-914c-k:15x16 15 16 // 酌
+⿰ han-9149:7x16 1 han-52fa.1:7x16 // ⿰酉勺
 
 glyph han-914e:15x16 15 16 // 酎
 ⿰ han-9149:7x16 1 han-5bf8:7x16 // ⿰酉寸
