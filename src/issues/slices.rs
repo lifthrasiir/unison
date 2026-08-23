@@ -282,7 +282,7 @@ fn written_names(item: &DocumentItem) -> Vec<&str> {
             names.push(name.0.as_str());
             names.push(target.as_str());
         }
-        DocumentItem::Map { glyph, .. } => names.push(glyph.as_str()),
+        DocumentItem::Map { glyphs, .. } => names.extend(glyphs.iter().map(String::as_str)),
         DocumentItem::MapDecomposed { glyph, .. } => {
             names.extend(glyph.as_deref());
         }

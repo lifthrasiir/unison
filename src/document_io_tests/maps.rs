@@ -16,9 +16,9 @@ map wide : U+26AA U+FE0E = circle
 ";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     assert!(
-        matches!(&doc.items[0], DocumentItem::Map { char_repr, selector, glyph, .. }
+        matches!(&doc.items[0], DocumentItem::Map { char_repr, selector, glyphs, .. }
             if char_repr == "U+0030" && selector.as_deref() == Some("U+FE0F")
-                && glyph == "num-zero-emoji"),
+                && glyphs == &["num-zero-emoji"]),
         "got {:?}",
         doc.items[0],
     );
@@ -136,8 +136,8 @@ map generate = g
     // `generate` in the plain form's own arity stays a plain `map`, so a glyph
     // that happens to be called `generate` is still reachable.
     assert!(
-        matches!(&doc.items[2], DocumentItem::Map { char_repr, glyph, .. }
-            if char_repr == "generate" && glyph == "g"),
+        matches!(&doc.items[2], DocumentItem::Map { char_repr, glyphs, .. }
+            if char_repr == "generate" && glyphs == &["g"]),
         "got {:?}",
         doc.items[2],
     );
@@ -153,11 +153,11 @@ fn parse_map_with_quoted_backtick() {
     let input = "map ```` = bquot\n";
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
     if let DocumentItem::Map {
-        char_repr, glyph, ..
+        char_repr, glyphs, ..
     } = &doc.items[0]
     {
         assert_eq!(char_repr, "`");
-        assert_eq!(glyph, "bquot");
+        assert_eq!(glyphs, &["bquot"]);
     } else {
         panic!("expected Map");
     }
@@ -213,4 +213,71 @@ fn tokenize_with_spans_basic() {
     assert_eq!(spans[2].value, "8");
     assert_eq!(spans[2].raw_start, 12);
     assert_eq!(spans[2].raw_end, 13);
+}
+
+/// `map CHAR = A B C` — the targets are *ordered alternatives*, kept as
+/// written; which one a character gets is decided by the build.
+#[test]
+fn parse_map_with_several_targets() {
+    let input = "\
+map A = first second third
+map U+0030 U+FE0F = fancy-zero zero
+map wide : B = w-first w-second
+";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Map { char_repr, selector, glyphs, .. }
+            if char_repr == "A" && selector.is_none()
+                && glyphs == &["first", "second", "third"]),
+        "got {:?}",
+        doc.items[0],
+    );
+    assert!(
+        matches!(&doc.items[1], DocumentItem::Map { char_repr, selector, glyphs, .. }
+            if char_repr == "U+0030" && selector.as_deref() == Some("U+FE0F")
+                && glyphs == &["fancy-zero", "zero"]),
+        "got {:?}",
+        doc.items[1],
+    );
+    assert!(
+        matches!(&doc.items[2], DocumentItem::Map { slices, glyphs, .. }
+            if slices == &["wide"] && glyphs == &["w-first", "w-second"]),
+        "got {:?}",
+        doc.items[2],
+    );
+
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
+}
+
+/// `generate` keeps its own arities: the one it shares with the alternatives
+/// form stays a decomposition rather than becoming a variation sequence.
+#[test]
+fn map_generate_is_not_read_as_alternatives() {
+    let doc =
+        parse_document_from_str("map generate U+00C1 = a-acute\n", "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::MapDecomposed { char_repr, glyph, .. }
+            if char_repr == "U+00C1" && glyph.as_deref() == Some("a-acute")),
+        "got {:?}",
+        doc.items[0],
+    );
+}
+
+/// An empty token — two backquotes — is a target that says "map nothing". It
+/// survives tokenizing, parsing and serializing as an empty string.
+#[test]
+fn parse_map_with_an_empty_trailing_target() {
+    let input = "map A = first ``\n";
+    let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        matches!(&doc.items[0], DocumentItem::Map { char_repr, glyphs, .. }
+            if char_repr == "A" && glyphs == &["first", ""]),
+        "got {:?}",
+        doc.items[0],
+    );
+    let mut output = Vec::new();
+    serialize_document(&doc, &mut output).unwrap();
+    assert_eq!(String::from_utf8(output).unwrap(), input);
 }

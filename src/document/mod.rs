@@ -177,8 +177,8 @@ pub enum DocumentItem {
         inherits: Vec<String>,
         comment: Option<String>,
     },
-    /// `[SLICE[|SLICE...] :] map CHAR[ SELECTOR] = GLYPH` — cmap mapping from a
-    /// Unicode character, or from a variation sequence, to a glyph name.
+    /// `[SLICE[|SLICE...] :] map CHAR[ SELECTOR] = GLYPH...` — cmap mapping
+    /// from a Unicode character, or from a variation sequence, to a glyph name.
     /// `slices` is empty for the base slice, which every face includes; more
     /// than one means the line is stated once per slice, each with that slice's
     /// [`NameParts`](DocumentItem::NameParts) bindings in force.
@@ -193,7 +193,25 @@ pub enum DocumentItem {
         slices: Vec<String>,
         char_repr: String,
         selector: Option<String>,
-        glyph: String,
+        /// The targets, in the order they were written: *ordered alternatives*.
+        /// The first one that names a glyph the font actually has is the one
+        /// the character maps to, and a name that stands for nothing is simply
+        /// passed over — which is what lets one line cover a range whose glyphs
+        /// come from more than one family. Never empty; a line with no target
+        /// at all does not parse as a `map`.
+        ///
+        /// One entry *may* be the empty string, written `` `` ``: as the last
+        /// alternative it says a character none of the others covered is
+        /// dropped rather than faulted. Anywhere else it is an error, since it
+        /// always matches.
+        ///
+        /// Resolved once, in
+        /// [`crate::render::ttf_builder::expand`], because the choice is *per
+        /// codepoint*: a target is a pattern expanded in lock-step with
+        /// `char_repr`, so two characters of one line may well pick different
+        /// alternatives. Everything downstream sees the resolved single-target
+        /// items that pass leaves behind.
+        glyphs: Vec<String>,
         comment: Option<String>,
     },
     /// `map generate CHAR [= GLYPH]` — auto-decomposed cmap mapping. The glyph

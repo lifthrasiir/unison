@@ -88,8 +88,8 @@ fn doc_may_reference(
                     return true;
                 }
             }
-            (RenameKind::Glyph, DocumentItem::Map { glyph, .. }) => {
-                if glyph == name {
+            (RenameKind::Glyph, DocumentItem::Map { glyphs, .. }) => {
+                if glyphs.iter().any(|g| g == name) {
                     return true;
                 }
             }
@@ -157,8 +157,8 @@ fn doc_may_reference(
             // A `$var` is embedded inside larger glyph-name tokens, so every
             // item that names glyphs can carry one. Substring only opens the
             // file; the boundary-checked rewrite is `rename_in_line`'s.
-            (RenameKind::NameParts, DocumentItem::Map { glyph, .. }) => {
-                if glyph.contains(name) {
+            (RenameKind::NameParts, DocumentItem::Map { glyphs, .. }) => {
+                if glyphs.iter().any(|g| g.contains(name)) {
                     return true;
                 }
             }

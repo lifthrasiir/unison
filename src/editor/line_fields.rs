@@ -222,9 +222,24 @@ pub(crate) fn classify_line(line: &str) -> Vec<LineField> {
             if let Some(slice) = slice {
                 push_slice_refs(&mut fields, leading, slice);
             }
-            if rest.len() == 3 && rest[1].value == "=" {
-                fields.push(field(FieldRole::GlyphRef, leading, &rest[2]));
-            } else if rest.len() == 4 && rest[0].value == "generate" && rest[2].value == "=" {
+            // Everything past the `=` is a target — a `map` may list several,
+            // tried in order. The `=` sits after the character alone, or after
+            // a `CHAR SELECTOR` pair; the arities are the parser's, in the same
+            // order, so `map generate X = g` is still a definition and not a
+            // variation sequence.
+            let generate = rest.first().is_some_and(|s| s.value == "generate");
+            let eq = if rest.len() >= 3 && rest[1].value == "=" {
+                Some(1)
+            } else if rest.len() >= 4 && rest[2].value == "=" && !generate {
+                Some(2)
+            } else {
+                None
+            };
+            if let Some(eq) = eq {
+                for span in &rest[eq + 1..] {
+                    fields.push(field(FieldRole::GlyphRef, leading, span));
+                }
+            } else if rest.len() == 4 && generate && rest[2].value == "=" {
                 // `map generate CHAR = NAME` names a glyph that does not exist
                 // anywhere else, so this token *is* its definition.
                 fields.push(field(FieldRole::GlyphDef, leading, &rest[3]));

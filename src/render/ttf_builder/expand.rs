@@ -292,7 +292,7 @@ fn expand_inner(
                 DocumentItem::Map {
                     char_repr,
                     selector,
-                    glyph,
+                    glyphs,
                     ..
                 },
             ) = (scope, item)
@@ -334,7 +334,10 @@ fn expand_inner(
                                 comment: None,
                                 char_repr,
                                 selector,
-                                glyph: substitute_name_parts(glyph, &per),
+                                glyphs: glyphs
+                                    .iter()
+                                    .map(|g| substitute_name_parts(g, &per))
+                                    .collect(),
                             },
                             origin: Some(origin),
                         });
@@ -351,14 +354,17 @@ fn expand_inner(
                         DocumentItem::Map {
                             char_repr,
                             selector,
-                            glyph,
+                            glyphs,
                             ..
                         } => DocumentItem::Map {
                             slices: one,
                             comment: None,
                             char_repr: char_repr.clone(),
                             selector: selector.clone(),
-                            glyph: substitute_name_parts(glyph, parts),
+                            glyphs: glyphs
+                                .iter()
+                                .map(|g| substitute_name_parts(g, parts))
+                                .collect(),
                         },
                         DocumentItem::MapDecomposed {
                             char_repr,
@@ -448,6 +454,10 @@ fn expand_inner(
         name_parts,
     );
 
+    // Before anything reads a `map`'s target: every line here has exactly one
+    // from now on, whatever it listed.
+    resolve_map_alternatives(&mut all_items, &aliases, &mut diagnostics);
+
     // Expanding a `map` is not free (the font has ranges thousands of
     // codepoints wide), and three later steps need the result, so it happens
     // exactly once here.
@@ -459,11 +469,13 @@ fn expand_inner(
     let mut map_targets: Vec<MapTarget> = Vec::new();
     for e in &all_items {
         let DocumentItem::Map {
-            char_repr, glyph, ..
+            char_repr, glyphs, ..
         } = &e.item
         else {
             continue;
         };
+        // One target by now: `resolve_map_alternatives` above picked it.
+        let glyph = glyphs.first().map(String::as_str).unwrap_or("");
         let mut pairs = expand_map_pairs(char_repr, glyph);
         aliases.canonicalize_pairs(&mut pairs);
         if pairs.is_empty() {
@@ -912,7 +924,7 @@ fn expand_decomposed_maps(
                     comment: None,
                     char_repr: format!("U+{cp:04X}"),
                     selector: None,
-                    glyph: composite_name,
+                    glyphs: vec![composite_name],
                 },
                 origin,
             });
@@ -921,6 +933,255 @@ fn expand_decomposed_maps(
 
     all_items.retain(|e| !matches!(e.item, DocumentItem::MapDecomposed { .. }));
     all_items.extend(decomposed_items);
+}
+
+/// The one target an *expanded* `map` item carries.
+///
+/// Every item that reaches the collectors has been through
+/// [`resolve_map_alternatives`], which leaves exactly one; this is that
+/// invariant written down in one place rather than an indexing expression
+/// repeated at each collector. An empty list cannot occur — the parser will not
+/// produce one — and names no glyph if it somehow did.
+pub(crate) fn resolved_map_target(glyphs: &[String]) -> &str {
+    glyphs.first().map(String::as_str).unwrap_or("")
+}
+
+/// Pick each `map`'s target out of the alternatives it lists.
+///
+/// `map CHAR = first second` means *first if it exists, otherwise second*, and
+/// the choice is per **codepoint**, not per line: a target is a name pattern
+/// expanded in lock-step with `char_repr`, so `map U+($#4e00..9fff) = a-($-1)
+/// b-($-1)` asks the question eighteen thousand times and may well answer it
+/// differently each time. That is why the line cannot simply keep a pattern of
+/// its own — there is no one winner to keep — and why a multi-target line is
+/// *split* here into one single-target `map` per codepoint. Everything
+/// downstream (the cmap collectors, the sample, GSUB's variation-sequence pass)
+/// then reads the ordinary one-target item it always read, and cannot disagree
+/// with this pass about which glyph a character got.
+///
+/// The split is why the pass returns immediately for source that lists no
+/// alternatives anywhere: it costs a walk of `all_items` and nothing else, and
+/// every source written before this syntax existed takes that path.
+///
+/// `.notdef` is the implicit last alternative, as it is in the font itself: a
+/// character that matched nothing draws the missing-glyph box rather than
+/// borrowing whichever name happened to be written last. If the source does not
+/// declare `.notdef` either the codepoint is left unmapped, which reaches a
+/// renderer as the same thing — glyph id 0.
+///
+/// Reported once per line rather than once per codepoint: a range line fails
+/// the same way for every character it covers, and the specimen is where the
+/// per-character answer belongs (see [`crate::specimen`]).
+///
+/// # The empty target
+///
+/// A last alternative written as the empty token — `` `` `` — says that a
+/// character matching none of the others is *not an error*: the mapping is
+/// dropped, silently, and the character is simply not in the font. That is the
+/// difference between "this range should be covered and something is missing"
+/// and "this range is covered as far as it goes", and only the source knows
+/// which it meant, so it has to be written down.
+///
+/// It has to be *last*, because everything after a target that always matches
+/// would be unreachable — and it always matches, being the one alternative that
+/// asks for no glyph at all. An empty token anywhere else is reported by
+/// [`crate::issues`], which reads the line as written; here it simply names no
+/// glyph, like any other name that stands for nothing.
+fn resolve_map_alternatives(
+    all_items: &mut Vec<ExpandedItem>,
+    aliases: &crate::alias::AliasMap,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    // An empty target changes what a *single*-target line means too, so it is
+    // enough on its own to bring the line through this pass.
+    let resolvable = |e: &ExpandedItem| {
+        matches!(&e.item, DocumentItem::Map { glyphs, .. }
+            if glyphs.len() > 1 || glyphs.iter().any(String::is_empty))
+    };
+    if !all_items.iter().any(resolvable) {
+        return;
+    }
+
+    // The same two sets `inject_on_demand_glyph_items` builds, and for the same
+    // reason: a name is only worth mapping if a glyph is going to be built for
+    // it, which a contentless block is not. Built here as well as there because
+    // `expand_decomposed_maps` adds glyphs between the two passes.
+    let mut defined: HashSet<String> = HashSet::new();
+    let mut contentless: HashSet<String> = HashSet::new();
+    for e in all_items.iter() {
+        match &e.item {
+            DocumentItem::Glyph {
+                name: GlyphName(n),
+                body,
+            } => {
+                defined.insert(n.clone());
+                if body.pixels.is_none() && body.refs.is_empty() && !body.keep {
+                    contentless.insert(n.clone());
+                }
+            }
+            // `map generate` runs *after* this pass — it needs the resolved
+            // maps to find the components it decomposes into — but the names it
+            // will declare are already readable off the line, and an
+            // alternative naming one is naming a glyph that is going to be
+            // there.
+            DocumentItem::MapDecomposed {
+                char_repr, glyph, ..
+            } => {
+                for (_, name) in decomposed_map_pairs(char_repr, glyph.as_deref()) {
+                    defined.insert(name);
+                }
+            }
+            _ => {}
+        }
+    }
+    // An alternative may name an alias, or a shape the font generates on
+    // demand; both are glyphs the character would really get, so both count as
+    // present. Canonicalized first, for the same reason the pairs are.
+    let usable = |name: &str| {
+        if name.is_empty() {
+            // The "map nothing" target names no glyph, ever: it is read where
+            // the alternatives run out, not as one of them.
+            return false;
+        }
+        let canon = aliases.resolved_target(name).unwrap_or(name);
+        if defined.contains(canon) {
+            return !contentless.contains(canon);
+        }
+        crate::on_demand::detect_on_demand_glyph(canon, |n| {
+            defined.contains(aliases.resolved_target(n).unwrap_or(n))
+        })
+        .is_some()
+    };
+
+    let mut out: Vec<ExpandedItem> = Vec::with_capacity(all_items.len());
+    for e in std::mem::take(all_items) {
+        if !resolvable(&e) {
+            out.push(e);
+            continue;
+        }
+        let origin = e.origin;
+        let DocumentItem::Map {
+            slices,
+            char_repr,
+            selector,
+            glyphs,
+            ..
+        } = e.item
+        else {
+            unreachable!("matched just above");
+        };
+
+        // `(codepoint spelling, selector spelling, one name per alternative)`.
+        // Both forms are reduced to this so the choice below is written once.
+        let rows: Vec<(String, Option<String>, Vec<String>)> = match &selector {
+            Some(sel) => {
+                let per_alt: Vec<Vec<(u32, u32, String)>> = glyphs
+                    .iter()
+                    .map(|g| expand_uvs_map_triples(&char_repr, sel, g).unwrap_or_default())
+                    .collect();
+                let first = &per_alt[0];
+                (0..first.len())
+                    .map(|i| {
+                        (
+                            format!("U+{:04X}", first[i].0),
+                            Some(format!("U+{:04X}", first[i].1)),
+                            per_alt
+                                .iter()
+                                .filter_map(|alt| alt.get(i).map(|t| t.2.clone()))
+                                .collect(),
+                        )
+                    })
+                    .collect()
+            }
+            None => {
+                let per_alt: Vec<Vec<(u32, String)>> = glyphs
+                    .iter()
+                    .map(|g| expand_map_pairs(&char_repr, g))
+                    .collect();
+                let first = &per_alt[0];
+                (0..first.len())
+                    .map(|i| {
+                        (
+                            format!("U+{:04X}", first[i].0),
+                            None,
+                            per_alt
+                                .iter()
+                                .filter_map(|alt| alt.get(i).map(|p| p.1.clone()))
+                                .collect(),
+                        )
+                    })
+                    .collect()
+            }
+        };
+
+        // A line whose character spec expands to nothing keeps its shape, so
+        // the checks downstream still see the line they are written to report.
+        if rows.is_empty() {
+            out.push(ExpandedItem {
+                item: DocumentItem::Map {
+                    slices,
+                    char_repr,
+                    selector,
+                    glyphs,
+                    comment: None,
+                },
+                origin,
+            });
+            continue;
+        }
+
+        // The written form, not an expanded one: an empty pattern expands to
+        // an empty name, so this is the same question either way.
+        let optional = glyphs.last().is_some_and(String::is_empty);
+        let mut unmatched: Option<(String, usize)> = None;
+        for (cp_repr, sel_repr, names) in rows {
+            let chosen = names.iter().find(|n| usable(n)).cloned();
+            let chosen = match chosen {
+                Some(n) => n,
+                None if optional => continue,
+                None => {
+                    match &mut unmatched {
+                        Some((_, more)) => *more += 1,
+                        None => unmatched = Some((cp_repr.clone(), 0)),
+                    }
+                    if !usable(NOTDEF) {
+                        continue;
+                    }
+                    NOTDEF.to_string()
+                }
+            };
+            out.push(ExpandedItem {
+                item: DocumentItem::Map {
+                    slices: slices.clone(),
+                    char_repr: cp_repr,
+                    selector: sel_repr,
+                    glyphs: vec![chosen],
+                    comment: None,
+                },
+                origin,
+            });
+        }
+
+        if let Some((first, more)) = unmatched {
+            let listed = glyphs
+                .iter()
+                .filter(|g| !g.is_empty())
+                .map(|g| format!("'{g}'"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            let and_more = match more {
+                0 => String::new(),
+                n => format!(" (and {n} more character{})", if n == 1 { "" } else { "s" }),
+            };
+            diagnostics.push(Diagnostic::error(
+                origin,
+                format!(
+                    "map '{first}'{and_more} has no target: none of {listed} names a glyph"
+                ),
+            ));
+        }
+    }
+    *all_items = out;
 }
 
 /// Scan `all_items` for on-demand glyph names referenced in refs, maps,

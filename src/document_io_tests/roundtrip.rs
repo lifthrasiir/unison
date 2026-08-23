@@ -197,8 +197,8 @@ assert shape AB for wide both : a : b
 fn a_colon_being_mapped_is_not_a_slice_qualifier() {
     let doc = parse_document_from_str("map : = colon\n", "test.unf".into()).unwrap();
     assert!(
-        matches!(&doc.items[0], DocumentItem::Map { slices, char_repr, glyph, .. }
-            if slices.is_empty() && char_repr == ":" && glyph == "colon"),
+        matches!(&doc.items[0], DocumentItem::Map { slices, char_repr, glyphs, .. }
+            if slices.is_empty() && char_repr == ":" && glyphs == &["colon"]),
         "got {:?}",
         doc.items[0],
     );
@@ -232,8 +232,8 @@ feature wide|narrow : ccmp for DFLT : deemojify
         doc.items[1],
     );
     assert!(
-        matches!(&doc.items[2], DocumentItem::Map { slices, glyph, .. }
-            if slices == &["wide", "narrow"] && glyph == "triple-star($half)"),
+        matches!(&doc.items[2], DocumentItem::Map { slices, glyphs, .. }
+            if slices == &["wide", "narrow"] && glyphs == &["triple-star($half)"]),
         "got {:?}",
         doc.items[2],
     );

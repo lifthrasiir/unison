@@ -114,7 +114,7 @@ pub use contours::{SharedContourCache, new_contour_cache};
 pub(crate) use expand::{
     Expansion, UvsExpandError, decomposed_map_pairs, expand_documents, expand_documents_for,
     expand_map_codepoints, expand_map_pairs, expand_uvs_map_triples, map_char_captures,
-    parse_map_char,
+    parse_map_char, resolved_map_target,
 };
 pub(crate) use gsub::{remap_rule_kind, shadowed_single_subst_rules};
 

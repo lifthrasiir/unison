@@ -69,6 +69,8 @@ struct UvsEntry {
     base: u32,
     selector: u32,
     glyph_name: String,
+    /// See [`CharEntry::unresolved`].
+    unresolved: bool,
 }
 
 struct RemapEntry {
@@ -127,6 +129,12 @@ struct CharEntry {
     /// which would read as coverage the font does not have) and is not
     /// clickable, since there is nothing to jump to.
     glyph_name: Option<String>,
+    /// The source maps this character, but the font has no glyph for it: none
+    /// of the `map` line's alternatives named one. The cell is tinted like an
+    /// error, because that is what it is — a character the font claims and
+    /// cannot draw — and no [`crate::glyph_flags`] entry can say so, since a
+    /// flag is per glyph *name* and the name here stands for nothing.
+    unresolved: bool,
 }
 
 /// What one cell of a section draws.
@@ -210,6 +218,44 @@ const ERROR_BG: egui::Color32 = egui::Color32::from_rgb(0xff, 0xd5, 0xcc);
 const WARNING_BG_HOVER: egui::Color32 = egui::Color32::from_rgb(0x46, 0x38, 0x00);
 const ERROR_BG_HOVER: egui::Color32 = egui::Color32::from_rgb(0x4e, 0x11, 0x08);
 
+/// The alternative one cell takes, and whether it had to settle for a name the
+/// font has no glyph for. `None` for a mapping that is not there at all.
+///
+/// `per_alt[k][i]` is alternative `k`'s expansion at position `i`; the
+/// alternatives all expand over the same characters, so the position is the
+/// character. A cell that matches nothing keeps the *first* name written, which
+/// is the one the author most likely meant and so the one worth showing in the
+/// status bar and jumping to on a click — unless the line ends in the empty
+/// target, which says a character that matched nothing is simply not in the
+/// font. Then there is no cell: the grid shows what the build produced, and the
+/// build dropped the mapping.
+fn pick_target<T>(
+    per_alt: &[Vec<T>],
+    i: usize,
+    name_of: impl Fn(&T) -> &String,
+    usable: &impl Fn(&str) -> bool,
+    optional: bool,
+) -> Option<(String, bool)> {
+    let mut first = None;
+    for alt in per_alt {
+        let Some(entry) = alt.get(i) else {
+            continue;
+        };
+        let name = name_of(entry);
+        if name.is_empty() {
+            continue;
+        }
+        if usable(name) {
+            return Some((name.clone(), false));
+        }
+        first.get_or_insert_with(|| name.clone());
+    }
+    if optional {
+        return None;
+    }
+    Some((first.unwrap_or_default(), true))
+}
+
 fn flag_bg(flag: GlyphFlag, is_hovered: bool) -> egui::Color32 {
     match (flag, is_hovered) {
         (GlyphFlag::Warning, false) => WARNING_BG,
@@ -273,12 +319,14 @@ pub struct SpecimenState {
     /// Every character the source maps, and the glyph it maps to. Kept beside
     /// `entries` because filling a block asks it per code point, and because a
     /// change of options must not have to re-read the documents.
-    declared: BTreeMap<u32, String>,
+    /// Per character, the glyph the source maps it to and whether the font
+    /// actually has that glyph — see [`CharEntry::unresolved`].
+    declared: BTreeMap<u32, (String, bool)>,
     /// The variation sequences the source declares: base character, then
     /// selector, to the glyph each pair maps to. Two nested maps rather than a
     /// list, because a cell's place on the grid is *beside its base*, in
     /// selector order.
-    uvs: BTreeMap<u32, BTreeMap<u32, String>>,
+    uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>>,
     /// Which block every code point falls in, `prop block` claims included.
     blocks: BlockMap,
     /// The `exclude-from-sample` code points — the rows a filled grid drops.
@@ -384,8 +432,21 @@ impl SpecimenState {
             .unwrap_or_else(|| faces.primary());
         let scoped = crate::document::SliceNameParts::with_base(docs, name_parts.clone());
 
-        let mut map: BTreeMap<u32, String> = BTreeMap::new();
-        let mut uvs: BTreeMap<u32, BTreeMap<u32, String>> = BTreeMap::new();
+        // The oracle the ordered alternatives of a `map` line are asked
+        // against, and the one the grid's error tint rests on: the *built
+        // font*'s own glyph set. It answers the same question the build asked
+        // (`resolve_map_alternatives`) without re-deriving it, and it is the
+        // only honest answer for a cell — a name with no glyph id is a
+        // character the font cannot draw, whatever the source says.
+        //
+        // A build that produced nothing at all leaves it empty; treating that
+        // as "no glyph exists" would tint the entire grid red over a transient
+        // state, so nothing is faulted until there is a font to fault against.
+        let have_font = !name_to_gid.is_empty();
+        let usable = |name: &str| !name.is_empty() && (!have_font || name_to_gid.contains_key(name));
+
+        let mut map: BTreeMap<u32, (String, bool)> = BTreeMap::new();
+        let mut uvs: BTreeMap<u32, BTreeMap<u32, (String, bool)>> = BTreeMap::new();
         let mut mapped_glyphs: HashSet<String> = HashSet::new();
         for (doc_idx, doc) in docs.iter().enumerate() {
             for (item_idx, item) in doc.items.iter().enumerate() {
@@ -439,44 +500,76 @@ impl SpecimenState {
                             DocumentItem::Map {
                                 char_repr,
                                 selector: Some(selector),
-                                glyph,
+                                glyphs,
                                 ..
                             } => {
-                                let subst_glyph = substitute_name_parts(glyph, parts);
                                 let (Some(char_repr), Some(selector)) =
                                     (evaluated(char_repr), evaluated(selector))
                                 else {
                                     continue;
                                 };
-                                let Ok(triples) =
-                                    expand_uvs_map_triples(&char_repr, &selector, &subst_glyph)
-                                else {
+                                let per_alt: Vec<Vec<(u32, u32, String)>> = glyphs
+                                    .iter()
+                                    .map(|g| {
+                                        let subst = substitute_name_parts(g, parts);
+                                        let mut triples = expand_uvs_map_triples(
+                                            &char_repr, &selector, &subst,
+                                        )
+                                        .unwrap_or_default();
+                                        for t in &mut triples {
+                                            aliases.canonicalize(&mut t.2);
+                                        }
+                                        triples
+                                    })
+                                    .collect();
+                                for t in per_alt.iter().flatten() {
+                                    mapped_glyphs.insert(t.2.clone());
+                                }
+                                let Some(first) = per_alt.first() else {
                                     continue;
                                 };
-                                for (base, sel, glyph_name) in triples {
-                                    let mut pairs = vec![(base, glyph_name)];
-                                    aliases.canonicalize_pairs(&mut pairs);
-                                    let (_, glyph_name) =
-                                        pairs.pop().expect("one pair in, one out");
-                                    mapped_glyphs.insert(glyph_name.clone());
-                                    uvs.entry(base)
-                                        .or_default()
-                                        .entry(sel)
-                                        .or_insert(glyph_name);
+                                let optional =
+                                    glyphs.last().is_some_and(|g| g.is_empty());
+                                for (i, &(base, sel, _)) in first.iter().enumerate() {
+                                    let Some(target) =
+                                        pick_target(&per_alt, i, |t| &t.2, &usable, optional)
+                                    else {
+                                        continue;
+                                    };
+                                    uvs.entry(base).or_default().entry(sel).or_insert(target);
                                 }
                             }
                             DocumentItem::Map {
-                                char_repr, glyph, ..
+                                char_repr, glyphs, ..
                             } => {
-                                let subst_glyph = substitute_name_parts(glyph, parts);
                                 let Some(char_repr) = evaluated(char_repr) else {
                                     continue;
                                 };
-                                let mut pairs = expand_map_pairs(&char_repr, &subst_glyph);
-                                aliases.canonicalize_pairs(&mut pairs);
-                                for (cp, glyph_name) in pairs {
-                                    mapped_glyphs.insert(glyph_name.clone());
-                                    map.entry(cp).or_insert(glyph_name);
+                                let per_alt: Vec<Vec<(u32, String)>> = glyphs
+                                    .iter()
+                                    .map(|g| {
+                                        let subst = substitute_name_parts(g, parts);
+                                        let mut pairs = expand_map_pairs(&char_repr, &subst);
+                                        aliases.canonicalize_pairs(&mut pairs);
+                                        pairs
+                                    })
+                                    .collect();
+                                for p in per_alt.iter().flatten() {
+                                    mapped_glyphs.insert(p.1.clone());
+                                }
+                                let Some(first) = per_alt.first() else {
+                                    continue;
+                                };
+                                let optional =
+                                    glyphs.last().is_some_and(|g| g.is_empty());
+                                for (i, &(cp, _)) in first.iter().enumerate() {
+                                    if let std::collections::btree_map::Entry::Vacant(slot) =
+                                        map.entry(cp)
+                                        && let Some(target) =
+                                            pick_target(&per_alt, i, |p| &p.1, &usable, optional)
+                                    {
+                                        slot.insert(target);
+                                    }
                                 }
                             }
                             DocumentItem::MapDecomposed {
@@ -489,7 +582,8 @@ impl SpecimenState {
                                 for (cp, name) in decomposed_map_pairs(&char_repr, subst.as_deref())
                                 {
                                     mapped_glyphs.insert(name.clone());
-                                    map.entry(cp).or_insert(name);
+                                    let unresolved = !usable(&name);
+                                    map.entry(cp).or_insert((name, unresolved));
                                 }
                             }
                             _ => {}
@@ -503,7 +597,7 @@ impl SpecimenState {
 
         // Build reverse map: glyph_name → smallest codepoint.
         let mut glyph_to_cp: HashMap<&str, u32> = HashMap::new();
-        for (cp, glyph_name) in &self.declared {
+        for (cp, (glyph_name, _)) in &self.declared {
             glyph_to_cp.entry(glyph_name.as_str()).or_insert(*cp);
         }
 
@@ -709,15 +803,23 @@ impl SpecimenState {
         {
             let start = self.items.len();
             for cp in cps {
-                let glyph_name = self.declared.get(&cp).cloned();
-                self.entries.push(CharEntry { cp, glyph_name });
+                let declared = self.declared.get(&cp).cloned();
+                let unresolved = declared.as_ref().is_some_and(|(_, u)| *u);
+                self.entries.push(CharEntry {
+                    cp,
+                    glyph_name: declared.map(|(n, _)| n),
+                    unresolved,
+                });
                 self.items.push(Item::Char(self.entries.len() - 1));
                 // `BTreeMap`, so the selectors come out in order.
-                for (selector, glyph_name) in self.uvs.get(&cp).cloned().unwrap_or_default() {
+                for (selector, (glyph_name, unresolved)) in
+                    self.uvs.get(&cp).cloned().unwrap_or_default()
+                {
                     self.uvs_entries.push(UvsEntry {
                         base: cp,
                         selector,
                         glyph_name,
+                        unresolved,
                     });
                     self.items.push(Item::Uvs(self.uvs_entries.len() - 1));
                 }
@@ -872,7 +974,7 @@ impl SpecimenState {
 
     #[cfg(test)]
     fn glyph_for_cp(&self, cp: u32) -> Option<&str> {
-        self.declared.get(&cp).map(|n| n.as_str())
+        self.declared.get(&cp).map(|(n, _)| n.as_str())
     }
 
     /// The grid as `show` would lay it out at `cols` columns, one string per
@@ -1238,7 +1340,18 @@ impl SpecimenState {
     }
 
     /// What the report says about the glyph one cell draws, if anything.
+    ///
+    /// A cell whose character maps to no glyph at all is an error of its own:
+    /// see [`CharEntry::unresolved`] for why the flag map cannot carry it.
     fn flag_for(&self, item: Item) -> Option<GlyphFlag> {
+        let unresolved = match item {
+            Item::Char(i) => self.entries[i].unresolved,
+            Item::Uvs(i) => self.uvs_entries[i].unresolved,
+            Item::Remap(_) => false,
+        };
+        if unresolved {
+            return Some(GlyphFlag::Error);
+        }
         self.glyph_flags.get(self.glyph_of(item)?)
     }
 

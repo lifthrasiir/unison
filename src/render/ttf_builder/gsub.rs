@@ -198,12 +198,13 @@ pub(super) fn collect_uvs_pairs(
         let DocumentItem::Map {
             char_repr,
             selector: Some(sel),
-            glyph,
+            glyphs,
             ..
         } = item
         else {
             continue;
         };
+        let glyph = super::resolved_map_target(glyphs);
         let Ok(triples) = super::expand_uvs_map_triples(char_repr, sel, glyph) else {
             // Every rejection has already been reported by `crate::issues`;
             // the build's job here is only to not emit half a sequence.

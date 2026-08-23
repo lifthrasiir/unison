@@ -131,11 +131,22 @@
 //!   sides, and both halves of a variation sequence take that spelling
 //!   (`map U+($1) U+E0100+($2) = …`). See [`crate::exists`] for what is
 //!   searched, why `exists` does not stack, and the cycle rule.
-//! - `map CHAR = GLYPH` — cmap mapping. `CHAR` is one character, a
+//! - `map CHAR = GLYPH...` — cmap mapping. `CHAR` is one character, a
 //!   `U+XXXX..YYYY` range or a `|` list; parenthesized, it is a name pattern
 //!   like any other (`map (ㅠ|ㅡ) = …`, `map U+($#4e00..4e05) = …`), which is
 //!   the spelling that captures — see back-references below.
-//! - `map BASE SELECTOR = GLYPH` — cmap mapping of a Unicode *variation
+//!
+//!   More than one target means *ordered alternatives*: the first one that
+//!   names a glyph the font has is the one the character gets, and the rest are
+//!   fallbacks. Since a target is a pattern expanded in lock-step with `CHAR`,
+//!   the choice is made per character, not per line — `map U+($#4e00..9fff) =
+//!   han-($-1) han-old-($-1)` asks it once per character of the block. A
+//!   character that matches none of them falls back to `.notdef`, and is
+//!   reported — unless the last alternative is the *empty token* (`` `` ``),
+//!   which says that a character nothing covered is not an error: the mapping
+//!   is dropped without a word. It has to be last, since it always matches. See
+//!   `resolve_map_alternatives` in `render/ttf_builder/expand.rs`.
+//! - `map BASE SELECTOR = GLYPH...` — cmap mapping of a Unicode *variation
 //!   sequence*. Two spellings, and each round-trips as written: `U+0030 U+FE0F`
 //!   is two tokens, while the same pair pasted from a character picker is one
 //!   token holding two characters; each half carries its own spelling, so the
@@ -1285,15 +1296,16 @@ pub fn serialize_document(doc: &Document, writer: &mut dyn Write) -> Result<()> 
                 slices,
                 char_repr,
                 selector,
-                glyph,
+                glyphs,
                 comment,
             } => {
+                let targets: Vec<String> = glyphs.iter().map(|g| quote_token(g)).collect();
                 writeln!(
                     writer,
                     "map {}{} = {}{}",
                     slice_prefix(slices),
                     write_map_chars(char_repr, selector.as_deref()),
-                    quote_token(glyph),
+                    targets.join(" "),
                     comment_suffix(comment),
                 )?;
             }
@@ -1637,14 +1649,17 @@ pub fn derive_document(
                         // in the arities the plain form cannot take: `map generate
                         // = g` stays an ordinary (if nonsensical) `map`.
                         let generate = tokens.len() >= 2 && tokens[0] == "generate";
-                        if tokens.len() == 3 && tokens[1] == "=" {
+                        // Everything past the `=` is a target, and there may be
+                        // several: `map A = first second` tries `first` and
+                        // falls back to `second`. See `DocumentItem::Map`.
+                        if tokens.len() >= 3 && tokens[1] == "=" {
                             let (char_repr, selector) = split_written_uvs_pair(&tokens[0]);
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
                                 slices,
                                 char_repr,
                                 selector,
-                                glyph: tokens[2].clone(),
+                                glyphs: tokens[2..].to_vec(),
                                 comment,
                             });
                             i += 1;
@@ -1678,13 +1693,16 @@ pub fn derive_document(
                                 comment,
                             });
                             i += 1;
-                        } else if tokens.len() == 4 && tokens[2] == "=" {
+                        } else if tokens.len() >= 4 && tokens[2] == "=" && !generate {
+                            // `!generate`, so the one arity the two forms share
+                            // (`map generate B = g`) stays decomposed above
+                            // rather than becoming a variation sequence here.
                             item_line_starts.push(i);
                             doc.items.push(DocumentItem::Map {
                                 slices,
                                 char_repr: tokens[0].clone(),
                                 selector: Some(tokens[1].clone()),
-                                glyph: tokens[3].clone(),
+                                glyphs: tokens[3..].to_vec(),
                                 comment,
                             });
                             i += 1;

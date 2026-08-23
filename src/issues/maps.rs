@@ -41,6 +41,23 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in cx.source_items(doc_idx) {
+            // The empty target (`` `` ``) says that a character none of the
+            // other alternatives covers is not an error — so it always matches,
+            // and anything written after it can never be reached. Read as
+            // written, since this is about the line and not about what it
+            // expands to. See `resolve_map_alternatives`.
+            if let DocumentItem::Map { glyphs, .. } = item
+                && glyphs.iter().rev().skip(1).any(String::is_empty)
+            {
+                issues.push(issue_at(
+                    doc,
+                    item_idx,
+                    Severity::Error,
+                    "the empty `` target has to be the last one: it always matches, so every \
+                     alternative after it is unreachable"
+                        .to_string(),
+                ));
+            }
             match item {
                 // A variation sequence maps no codepoint on its own, so it
                 // neither duplicates nor conflicts with a plain mapping of the
@@ -50,7 +67,7 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                     slices,
                     char_repr,
                     selector: Some(sel),
-                    glyph,
+                    glyphs,
                     ..
                 } => {
                     let stated: Vec<Option<String>> = if slices.is_empty() {
@@ -58,15 +75,23 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                     } else {
                         slices.iter().cloned().map(Some).collect()
                     };
+                    // Every alternative counts as used, not just the one the
+                    // build ends up picking: a fallback nothing reached today
+                    // is still named on purpose, and "unused glyph" would ask
+                    // the author to delete the safety net.
                     for slice in stated {
-                        let subst_glyph =
-                            substitute_name_parts(glyph, scoped_parts.for_slice(slice.as_deref()));
-                        if let Ok(triples) = crate::render::ttf_builder::expand_uvs_map_triples(
-                            char_repr,
-                            sel,
-                            &subst_glyph,
-                        ) {
-                            mapped_glyphs.extend(triples.into_iter().map(|(_, _, name)| name));
+                        for glyph in glyphs {
+                            let subst_glyph = substitute_name_parts(
+                                glyph,
+                                scoped_parts.for_slice(slice.as_deref()),
+                            );
+                            if let Ok(triples) = crate::render::ttf_builder::expand_uvs_map_triples(
+                                char_repr,
+                                sel,
+                                &subst_glyph,
+                            ) {
+                                mapped_glyphs.extend(triples.into_iter().map(|(_, _, name)| name));
+                            }
                         }
                     }
                 }
@@ -75,7 +100,7 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                 DocumentItem::Map {
                     slices,
                     char_repr,
-                    glyph,
+                    glyphs,
                     ..
                 } => {
                     // Once per slice the line is stated for, with that slice's
@@ -86,8 +111,21 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                         slices.iter().cloned().map(Some).collect()
                     };
                     for slice in stated {
-                        let subst_glyph =
-                            substitute_name_parts(glyph, scoped_parts.for_slice(slice.as_deref()));
+                        let parts = scoped_parts.for_slice(slice.as_deref());
+                        // Which codepoints the line claims is what the
+                        // duplicate scan is about, and every alternative
+                        // expands over the same ones — so they are walked once,
+                        // over the first, while *every* alternative counts as a
+                        // used glyph name (see the variation-sequence arm).
+                        for glyph in &glyphs[1..] {
+                            let subst = substitute_name_parts(glyph, parts);
+                            mapped_glyphs.extend(
+                                crate::render::ttf_builder::expand_map_pairs(char_repr, &subst)
+                                    .into_iter()
+                                    .map(|(_, name)| name),
+                            );
+                        }
+                        let subst_glyph = substitute_name_parts(&glyphs[0], parts);
                         let expanded_pairs =
                             crate::render::ttf_builder::expand_map_pairs(char_repr, &subst_glyph);
                         for (cp, target) in &expanded_pairs {
@@ -341,12 +379,13 @@ pub(super) fn uvs_collision_diagnostics(
         let DocumentItem::Map {
             char_repr,
             selector: None,
-            glyph,
+            glyphs,
             ..
         } = &e.item
         else {
             continue;
         };
+        let glyph = crate::render::ttf_builder::resolved_map_target(glyphs);
         for (cp, name) in expand_map_pairs(char_repr, glyph) {
             glyph_to_cps.entry(name.clone()).or_default().push(cp);
             cp_to_glyph.insert(cp, name);
@@ -359,12 +398,13 @@ pub(super) fn uvs_collision_diagnostics(
         let DocumentItem::Map {
             char_repr,
             selector: Some(sel),
-            glyph,
+            glyphs,
             ..
         } = &e.item
         else {
             continue;
         };
+        let glyph = crate::render::ttf_builder::resolved_map_target(glyphs);
         let Ok(triples) = expand_uvs_map_triples(char_repr, sel, glyph) else {
             continue;
         };

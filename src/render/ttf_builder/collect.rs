@@ -359,12 +359,13 @@ pub(super) fn collect_face_cmap(
         let DocumentItem::Map {
             char_repr,
             selector,
-            glyph,
+            glyphs,
             ..
         } = item
         else {
             continue;
         };
+        let glyph = super::resolved_map_target(glyphs);
         // A variation sequence's target claims no codepoint: the base keeps
         // whatever its own `map` gave it, and the pair reaches the font through
         // cmap format 14 and the fallback lookup instead.
@@ -482,12 +483,13 @@ pub(super) fn collect_glyph_data_with_shared(
         let DocumentItem::Map {
             char_repr,
             selector,
-            glyph,
+            glyphs,
             ..
         } = item
         else {
             continue;
         };
+        let glyph = super::resolved_map_target(glyphs);
 
         // A variation sequence's target is collected like any other mapped
         // glyph — it needs the same outline, metrics and glyph id — but it

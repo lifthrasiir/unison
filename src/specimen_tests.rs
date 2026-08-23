@@ -784,7 +784,7 @@ map U+($1) U+E01E7 = han-($1)-k
         1,
     );
     assert_eq!(
-        state.declared.get(&0x4e00).map(String::as_str),
+        state.declared.get(&0x4e00).map(|(n, _)| n.as_str()),
         Some("han-4e00")
     );
     // The variation sequence the second search states, on the base it names.
@@ -793,9 +793,116 @@ map U+($1) U+E01E7 = han-($1)-k
             .uvs
             .get(&0x4e01)
             .and_then(|m| m.get(&0xE01E7))
-            .map(String::as_str),
+            .map(|(n, _)| n.as_str()),
         Some("han-4e01-k")
     );
     // The `exists` lines themselves declare no character.
     assert_eq!(state.declared.len(), 1);
+}
+
+/// The grid's own error tint: a character the source maps but the font has no
+/// glyph for. No [`crate::glyph_flags`] entry can say this — a flag is per
+/// glyph *name*, and the name here stands for nothing — so the cell asks the
+/// gid map directly.
+#[test]
+fn a_character_with_no_glyph_is_flagged_on_the_grid() {
+    let d = doc("\
+meta height 16
+glyph sq 1 1
+@@
+map U+0061 = sq
+map U+0062 = missing
+map U+0063 = also-missing sq
+");
+    let docs = [&d];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let gids: HashMap<String, u16> = [("sq".to_string(), 1u16)].into_iter().collect();
+    let mut state = SpecimenState::new();
+    state.rebuild_if_needed(
+        &docs,
+        &name_parts,
+        &gids,
+        None,
+        &GlyphFlags::default(),
+        1,
+        1,
+    );
+    state.rebuild_sections();
+    let flag_of = |cp: u32| {
+        let i = state
+            .entries
+            .iter()
+            .position(|e| e.cp == cp)
+            .expect("character is on the grid");
+        state.flag_for(Item::Char(i))
+    };
+    assert_eq!(flag_of(0x61), None);
+    assert_eq!(flag_of(0x62), Some(GlyphFlag::Error));
+    // The second alternative is there, so nothing is wrong with this one.
+    assert_eq!(flag_of(0x63), None);
+    assert_eq!(
+        state.declared.get(&0x63).map(|(n, _)| n.as_str()),
+        Some("sq")
+    );
+    // A cell that matched nothing still names what the author wrote first, so
+    // the status bar and a click have somewhere to go.
+    assert_eq!(
+        state.declared.get(&0x62).map(|(n, _)| n.as_str()),
+        Some("missing")
+    );
+}
+
+/// Nothing is faulted before there is a font to fault against: an empty gid map
+/// is a build that has not landed, not a font with no glyphs.
+#[test]
+fn no_font_yet_tints_nothing() {
+    let d = doc("meta height 16\nglyph sq 1 1\n@@\nmap U+0061 = missing\n");
+    let docs = [&d];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let mut state = SpecimenState::new();
+    state.rebuild_if_needed(
+        &docs,
+        &name_parts,
+        &HashMap::new(),
+        None,
+        &GlyphFlags::default(),
+        1,
+        1,
+    );
+    state.rebuild_sections();
+    assert_eq!(state.flag_for(Item::Char(0)), None);
+}
+
+/// The empty target says the character is simply not in the font, so the grid
+/// has no cell for it — nothing to tint, and nothing to click.
+#[test]
+fn an_empty_last_target_leaves_no_cell() {
+    let d = doc("\
+meta height 16
+glyph sq 1 1
+@@
+map U+0061 = sq
+map U+0062 = missing ``
+map U+0063 = missing
+");
+    let docs = [&d];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let gids: HashMap<String, u16> = [("sq".to_string(), 1u16)].into_iter().collect();
+    let mut state = SpecimenState::new();
+    state.rebuild_if_needed(
+        &docs,
+        &name_parts,
+        &gids,
+        None,
+        &GlyphFlags::default(),
+        1,
+        1,
+    );
+    state.rebuild_sections();
+    let cps: Vec<u32> = state.entries.iter().map(|e| e.cp).collect();
+    assert_eq!(cps, vec![0x61, 0x63]);
+    // The one that *is* faulted still is, so the cell is missing for the right
+    // reason rather than because nothing is checked any more.
+    let i = state.entries.iter().position(|e| e.cp == 0x63).unwrap();
+    assert_eq!(state.flag_for(Item::Char(i)), Some(GlyphFlag::Error));
 }

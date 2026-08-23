@@ -149,9 +149,10 @@ fn maps(resolution: &Resolution) -> Vec<String> {
             DocumentItem::Map {
                 char_repr,
                 selector,
-                glyph,
+                glyphs,
                 ..
             } => {
+                let glyph = crate::render::ttf_builder::resolved_map_target(glyphs);
                 let pairs = crate::render::ttf_builder::expand_map_pairs(char_repr, glyph);
                 Some(format!(
                     "{char_repr}{} => {}",

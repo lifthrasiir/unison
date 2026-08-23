@@ -628,8 +628,9 @@ fn collect_sample_data_with(
                 selector: Some(_), ..
             } => {}
             DocumentItem::Map {
-                char_repr, glyph, ..
+                char_repr, glyphs, ..
             } => {
+                let glyph = crate::render::ttf_builder::resolved_map_target(glyphs);
                 let mut pairs = expand_map_pairs(char_repr, glyph);
                 glyph_aliases.canonicalize_pairs(&mut pairs);
                 for (cp, glyph_name) in pairs {

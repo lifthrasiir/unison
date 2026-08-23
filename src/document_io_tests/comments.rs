@@ -24,8 +24,9 @@ anchor top 0 0 // where marks go
     let doc = parse_document_from_str(input, "test.unf".into()).unwrap();
 
     assert!(
-        matches!(&doc.items[1], DocumentItem::Map { char_repr, glyph, comment, .. }
-            if char_repr == "A" && glyph == "latin-a" && comment.as_deref() == Some("the letter")),
+        matches!(&doc.items[1], DocumentItem::Map { char_repr, glyphs, comment, .. }
+            if char_repr == "A" && glyphs == &["latin-a"]
+                && comment.as_deref() == Some("the letter")),
         "got {:?}",
         doc.items[1],
     );

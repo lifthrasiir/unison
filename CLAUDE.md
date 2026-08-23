@@ -219,6 +219,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What characters a name may contain | `document_io.rs` (`# Names`), `pattern.rs` |
 | `@` as a glyph/`ref` name prefix: what it stands for and where the written form is kept | `document/names.rs` (`expand_at_name`), `document_io.rs` (`# Names`) |
 | `map BASE SELECTOR`: a variation sequence, its two written forms and why length stops at 2 | `document_io.rs`, `document/mod.rs` (`Map::selector`) |
+| `map CHAR = A B C`: ordered alternatives, why the choice is per codepoint, and `.notdef` as the implicit last one | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`) |
+| The empty target `` `` ``: dropping a mapping instead of faulting it, and why it has to be last | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
+| Why a character the font cannot draw is tinted by the specimen and not by a glyph flag | `specimen.rs` (`CharEntry::unresolved`, `flag_for`) |
 | Which half of a variation sequence may be a range, and why not both | `render/ttf_builder/expand.rs` (`expand_uvs_map_triples`) |
 | cmap format 14, the Default/Non-default split, and the GSUB fallback lookup behind it | `render/ttf_builder/tables.rs` (`add_uvs_subtable`), `gsub.rs` (`build_uvs_fallback_lookup`) |
 | Why a selector needs a plain cmap entry, and why its synthesized glyph's name is unwritable rather than reserved | `render/ttf_builder/collect.rs`, `mod.rs` (`vs_glyph_name`) |
