@@ -28,7 +28,7 @@ glyph han-20ba7:15x16 15 16 // 𠮧
 ## 30.3
 
 glyph han-20bad-($han-regions):15x16 15 16 // 𠮭
-⿰ han-53e3:7x16 1 han-52fa-($han-regions):7x16 // ⿰口勺
+⿰ han-53e3:7x16 1 han-52fa-($-1):7x16 // ⿰口勺
 
 // glyph han-20bb0:15x16 15 16 // 𠮰
 // ⿱ han-53e3 han-5ddb // ⿱口巛

@@ -87,7 +87,7 @@ glyph han-8670:15x16 15 16 // 虰
 ## 142.3
 
 glyph han-8673-($han-regions):15x16 15 16 // 虳
-⿰ han-866b:7x16 1 han-52fa-($han-regions):7x16 // ⿰虫勺
+⿰ han-866b:7x16 1 han-52fa-($-1):7x16 // ⿰虫勺
 
 glyph han-8677:15x16 15 16 // 虷
 ⿰ han-866b:5x16 1 han-5e72:9x16 // ⿰虫干
@@ -175,7 +175,7 @@ glyph han-86c8:15x16 15 16 // 蛈
 ⿰ han-866b:5x16 1 han-5931:9x16 // ⿰虫失
 
 glyph han-86c9-($han-regions):15x16 15 16 // 蛉
-⿰ han-866b:7x16 1 han-4ee4-($han-regions):7x16 // ⿰虫令
+⿰ han-866b:7x16 1 han-4ee4-($-1):7x16 // ⿰虫令
 
 // glyph han-86cb:15x16 15 16 // 蛋
 // ⿳ han-4e5b han-9fb0 han-866b // ⿳乛龰虫 <- ⿱疋虫
@@ -457,7 +457,7 @@ glyph han-887f:15x16 15 16 // 衿
 // ⿱ han-52a0 han-8863 // ⿱加衣
 
 glyph han-888a-($han-regions):15x16 15 16 // 袊
-⿰ han-8864:5x16 1 han-4ee4-($han-regions):9x16 // ⿰衤令
+⿰ han-8864:5x16 1 han-4ee4-($-1):9x16 // ⿰衤令
 
 glyph han-888d:15x16 15 16 // 袍
 ⿰ han-8864:7x16 1 han-5305:7x16 // ⿰衤包

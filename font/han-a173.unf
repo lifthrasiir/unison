@@ -203,7 +203,7 @@ glyph han-4bca:15x16 15 16 // 䯊
 ⿰ han-9aa8:7x16 han-53ef:8x16 // ⿰骨可
 
 glyph han-4bcd-($han-regions):15x16 15 16 // 䯍
-⿰ han-9aa8:7x16 1 han-4ee4-($han-regions):7x16 // ⿰骨令
+⿰ han-9aa8:7x16 1 han-4ee4-($-1):7x16 // ⿰骨令
 
 ## 188.6
 

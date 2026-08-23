@@ -155,7 +155,7 @@ glyph han-601a:15x16 15 16 // 怚
 ⿰ han-5fc4:7x16 han-4e14:8x16 // ⿰忄且
 
 glyph han-601c-($han-regions):15x16 15 16 // 怜
-⿰ han-5fc4:7x16 1 han-4ee4-($han-regions):7x16 // ⿰忄令
+⿰ han-5fc4:7x16 1 han-4ee4-($-1):7x16 // ⿰忄令
 
 // glyph han-601d:15x16 15 16 // 思
 // ⿱ han-7530 han-5fc3 // ⿱田心

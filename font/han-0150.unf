@@ -204,7 +204,7 @@ ref han-9fb0:15x9 0 7
 ## 157.3
 
 glyph han-8db5-(g|h|t|k|p):15x16 15 16 // 趵
-⿰ han-27fb7:5x16 1 han-52fa-(g|h|t|k|p):9x16 // ⿰𧾷勺
+⿰ han-27fb7:5x16 1 han-52fa-($-1):9x16 // ⿰𧾷勺
 glyph han-8db5-j:15x16 15 16 // 趵
 ⿰ han-27fb7:5x16 1 han-52fa.0:9x16 // ⿰𧾷勺
 
@@ -228,7 +228,7 @@ glyph han-8dc7:15x16 15 16 // 跇
 ⿰ han-27fb7:5x16 1 han-4e16:9x16 // ⿰𧾷世
 
 glyph han-8dc9-($han-regions):15x16 15 16 // 跉
-⿰ han-27fb7:5x16 1 han-4ee4-($han-regions):9x16 // ⿰𧾷令
+⿰ han-27fb7:5x16 1 han-4ee4-($-1):9x16 // ⿰𧾷令
 
 glyph han-8dcc:15x16 15 16 // 跌
 ⿰ han-27fb7:5x16 1 han-5931:9x16 // ⿰𧾷失

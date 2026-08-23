@@ -193,7 +193,7 @@ glyph han-5733:15x16 15 16 // 圳
 ⿰ han-571f:9x16 han-5ddd:6x16 // ⿰土川
 
 glyph han-5734-(g|h|t|k):15x16 15 16 // 圴
-⿰ han-571f:7x16 1 han-52fa-(g|h|t|k):7x16 // ⿰土勺
+⿰ han-571f:7x16 1 han-52fa-($-1):7x16 // ⿰土勺
 glyph han-5734-j:15x16 15 16 // 圴
 ⿰ han-571f:7x16 1 han-52fa.0:7x16 // ⿰土勺
 
@@ -277,7 +277,7 @@ glyph han-577b:15x16 15 16 // 坻
 ⿰ han-571f:7x16 han-6c10:8x16 // ⿰土氐
 
 glyph han-577d-($han-regions):15x16 15 16 // 坽
-⿰ han-571f:7x16 1 han-4ee4-($han-regions):7x16 // ⿰土令
+⿰ han-571f:7x16 1 han-4ee4-($-1):7x16 // ⿰土令
 
 glyph han-577f:15x16 15 16 // 坿
 ⿲ han-571f:3x16-l han-4ebb:3x16 han-5bf8:9x16 // ⿲土亻寸

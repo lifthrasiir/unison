@@ -1166,10 +1166,10 @@ anchor -gr-above 0..1 1
 anchor +gr-above 1 -1
 
 glyph gr-($gr-vowel)-upper-with-tonos
-ref gr-($gr-vowel)-upper
+ref gr-($-1)-upper
 ref gr-tonos
 glyph gr-($gr-vowel)-lower-with-tonos
-ref gr-($gr-vowel)-lower
+ref gr-($-1)-lower
 ref gr-tonos
 
 map Ά|Ά = gr-alpha-upper-with-tonos
@@ -1209,10 +1209,10 @@ anchor -gr-above 1..2 1
 anchor +gr-above 1 -1
 
 glyph gr-($gr-vowel)-upper-with-varia
-ref gr-($gr-vowel)-upper
+ref gr-($-1)-upper
 ref gr-varia
 glyph gr-($gr-vowel)-lower-with-varia
-ref gr-($gr-vowel)-lower
+ref gr-($-1)-lower
 ref gr-varia
 
 map Ὰ = gr-alpha-upper-with-varia
@@ -1242,10 +1242,10 @@ ref dia-above inherit
 anchor +gr-above 2..3 -1
 
 glyph gr-(iota|upsilon)-upper-with-dialytika
-ref gr-(iota|upsilon)-upper
+ref gr-($-1)-upper
 ref gr-dialytika
 glyph gr-(iota|upsilon)-lower-with-dialytika
-ref gr-(iota|upsilon)-lower
+ref gr-($-1)-lower
 ref gr-dialytika
 
 map Ϊ = gr-iota-upper-with-dialytika
@@ -1271,7 +1271,7 @@ anchor +above 2..3 -2
 anchor +gr-above 2..3 -2
 
 glyph gr-(iota|upsilon)-lower-with-dialytika-tonos
-ref gr-(iota|upsilon)-lower
+ref gr-($-1)-lower
 ref gr-dialytika-tonos
 
 map ΐ|ΐ = gr-iota-lower-with-dialytika-tonos
@@ -1294,7 +1294,7 @@ anchor +above 2..3 -2
 anchor +gr-above 2..3 -2
 
 glyph gr-(iota|upsilon)-lower-with-dialytika-varia
-ref gr-(iota|upsilon)-lower
+ref gr-($-1)-lower
 ref gr-dialytika-varia
 
 map ῒ = gr-iota-lower-with-dialytika-varia
@@ -1313,10 +1313,10 @@ anchor -gr-above 0..1 1
 anchor +gr-above 0..1 -1
 
 glyph gr-($gr-vowel)-upper-with-psili
-ref gr-($gr-vowel)-upper
+ref gr-($-1)-upper
 ref gr-psili
 glyph gr-($gr-vowel|rho)-lower-with-psili
-ref gr-($gr-vowel|rho)-lower
+ref gr-($-1)-lower
 ref gr-psili
 
 map Ἀ = gr-alpha-upper-with-psili
@@ -1349,10 +1349,10 @@ anchor -gr-above 0..1 1
 anchor +gr-above 0..1 -1
 
 glyph gr-($gr-vowel|rho)-upper-with-dasia
-ref gr-($gr-vowel|rho)-upper
+ref gr-($-1)-upper
 ref gr-dasia
 glyph gr-($gr-vowel|rho)-lower-with-dasia
-ref gr-($gr-vowel|rho)-lower
+ref gr-($-1)-lower
 ref gr-dasia
 
 map Ἁ = gr-alpha-upper-with-dasia
@@ -1398,7 +1398,7 @@ map U+0342 = gr-perispomeni
 name-parts $gr-peri = alpha eta iota upsilon omega
 
 glyph gr-($gr-peri)-lower-with-perispomeni
-ref gr-($gr-peri)-lower
+ref gr-($-1)-lower
 ref gr-perispomeni
 
 map ᾶ = gr-alpha-lower-with-perispomeni
@@ -1427,7 +1427,7 @@ anchor +above 2..3 -3
 anchor +gr-above 2..3 -3
 
 glyph gr-(iota|upsilon)-lower-with-dialytika-perispomeni
-ref gr-(iota|upsilon)-lower
+ref gr-($-1)-lower
 ref gr-dialytika-perispomeni
 
 map ῗ = gr-iota-lower-with-dialytika-perispomeni
@@ -1510,53 +1510,51 @@ ref gr-perispomeni0 2 0
 anchor -gr-above 2..3 1
 anchor +gr-above 2..3 -1
 
-name-parts $gr-psili-varia = alpha epsilon eta iota omicron omega
-glyph gr-($gr-psili-varia)-upper-with-psili-varia
-ref gr-($gr-psili-varia)-upper
+glyph gr-(alpha|epsilon|eta|iota|omicron|omega)-upper-with-psili-varia
+ref gr-($-1)-upper
 ref gr-psili-varia
-glyph gr-($gr-psili-varia)-upper-with-psili-tonos
-ref gr-($gr-psili-varia)-upper
+glyph gr-(alpha|epsilon|eta|iota|omicron|omega)-upper-with-psili-tonos
+ref gr-($-1)-upper
 ref gr-psili-tonos
 
-name-parts $gr-psili-peri = alpha eta iota omega
-glyph gr-($gr-psili-peri)-upper-with-psili-perispomeni
-ref gr-($gr-psili-peri)-upper
+glyph gr-(alpha|eta|iota|omega)-upper-with-psili-perispomeni
+ref gr-($-1)-upper
 ref gr-psili-perispomeni
 
 glyph gr-($gr-vowel)-upper-with-dasia-varia
-ref gr-($gr-vowel)-upper
+ref gr-($-1)-upper
 ref gr-dasia-varia
 
 glyph gr-($gr-vowel)-upper-with-dasia-tonos
-ref gr-($gr-vowel)-upper
+ref gr-($-1)-upper
 ref gr-dasia-tonos
 
 glyph gr-($gr-peri)-upper-with-dasia-perispomeni
-ref gr-($gr-peri)-upper
+ref gr-($-1)-upper
 ref gr-dasia-perispomeni
 
 glyph gr-($gr-vowel)-lower-with-psili-varia
-ref gr-($gr-vowel)-lower
+ref gr-($-1)-lower
 ref gr-psili-varia
 
 glyph gr-($gr-vowel)-lower-with-psili-tonos
-ref gr-($gr-vowel)-lower
+ref gr-($-1)-lower
 ref gr-psili-tonos
 
 glyph gr-($gr-peri)-lower-with-psili-perispomeni
-ref gr-($gr-peri)-lower
+ref gr-($-1)-lower
 ref gr-psili-perispomeni
 
 glyph gr-($gr-vowel)-lower-with-dasia-varia
-ref gr-($gr-vowel)-lower
+ref gr-($-1)-lower
 ref gr-dasia-varia
 
 glyph gr-($gr-vowel)-lower-with-dasia-tonos
-ref gr-($gr-vowel)-lower
+ref gr-($-1)-lower
 ref gr-dasia-tonos
 
 glyph gr-($gr-peri)-lower-with-dasia-perispomeni
-ref gr-($gr-peri)-lower
+ref gr-($-1)-lower
 ref gr-dasia-perispomeni
 
 map Ἂ = gr-alpha-upper-with-psili-varia
@@ -1672,105 +1670,105 @@ map U+0345 = gr-ypogegrammeni
 name-parts $gr-ypo = alpha eta omega
 
 glyph gr-($gr-ypo)-upper-with-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-psili-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-psili
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-dasia-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-dasia
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-psili-varia-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-psili-varia
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-psili-tonos-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-psili-tonos
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-psili-perispomeni-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-psili-perispomeni
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-dasia-varia-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-dasia-varia
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-dasia-tonos-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-dasia-tonos
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-upper-with-dasia-perispomeni-prosgegrammeni advance 8
-ref gr-($gr-ypo)-upper
+ref gr-($-1)-upper
 ref gr-dasia-perispomeni
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-varia-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-varia
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-tonos-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-tonos
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-perispomeni-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-perispomeni
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-psili-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-psili
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-dasia-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-dasia
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-psili-varia-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-psili-varia
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-psili-tonos-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-psili-tonos
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-psili-perispomeni-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-psili-perispomeni
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-dasia-varia-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-dasia-varia
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-dasia-tonos-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-dasia-tonos
 ref gr-ypogegrammeni
 
 glyph gr-($gr-ypo)-lower-with-dasia-perispomeni-ypogegrammeni
-ref gr-($gr-ypo)-lower
+ref gr-($-1)-lower
 ref gr-dasia-perispomeni
 ref gr-ypogegrammeni
 
@@ -1867,17 +1865,17 @@ assert shape Βͅ : gr-beta-upper : gr-ypogegrammeni offset 1 12
 ## with vrachy (breve above) or macron
 
 glyph gr-(alpha|iota|upsilon)-upper-with-breve
-ref gr-(alpha|iota|upsilon)-upper
+ref gr-($-1)-upper
 ref breve-above
 glyph gr-(alpha|iota|upsilon)-lower-with-breve
-ref gr-(alpha|iota|upsilon)-lower
+ref gr-($-1)-lower
 ref breve-above
 
 glyph gr-(alpha|iota|upsilon)-upper-with-macron
-ref gr-(alpha|iota|upsilon)-upper
+ref gr-($-1)-upper
 ref mac-above
 glyph gr-(alpha|iota|upsilon)-lower-with-macron
-ref gr-(alpha|iota|upsilon)-lower
+ref gr-($-1)-lower
 ref mac-above
 
 map Ᾰ = gr-alpha-upper-with-breve

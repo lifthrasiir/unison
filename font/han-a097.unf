@@ -212,7 +212,7 @@ glyph han-4116-k:15x16 15 16 // 䄖
 ## 115.3
 
 glyph han-412a-($han-regions):15x16 15 16 // 䄪
-⿰ han-79be:7x16 1 han-52fa-($han-regions):7x16 // ⿰禾勺
+⿰ han-79be:7x16 1 han-52fa-($-1):7x16 // ⿰禾勺
 
 ## 115.4
 

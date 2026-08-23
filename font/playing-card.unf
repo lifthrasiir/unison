@@ -266,9 +266,9 @@ glyph @-half 8 16
 ................
 
 glyph card-rank-(a|2|3|4|5|6|7|8|9|j|q|k) 16 16
-ref sm-(a|2|3|4|5|6|7|8|9|j|q|k)-bold 6 3
+ref sm-($-1)-bold 6 3
 glyph @-half 8 16
-ref sm-(a|2|3|4|5|6|7|8|9|j|q|k)-4x5 2 3
+ref sm-($-1)-4x5 2 3
 
 glyph card-rank-10 16 16
 ................................
@@ -478,45 +478,45 @@ glyph card-spade-($card-rank)
 ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-spade fill card-black
-ref card-rank-($card-rank) fill card-black
+ref card-rank-($-1) fill card-black
 glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-spade-half fill card-black
-ref card-rank-($card-rank)-half fill card-black
+ref card-rank-($-1)-half fill card-black
 
 glyph card-heart-($card-rank)
 ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-heart fill card-red
-ref card-rank-($card-rank) fill card-black
+ref card-rank-($-1) fill card-black
 glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-heart-half fill card-red
-ref card-rank-($card-rank)-half fill card-black
+ref card-rank-($-1)-half fill card-black
 
 glyph card-diamond-($card-rank)
 ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-diamond fill card-red
-ref card-rank-($card-rank) fill card-black
+ref card-rank-($-1) fill card-black
 glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-diamond-half fill card-red
-ref card-rank-($card-rank)-half fill card-black
+ref card-rank-($-1)-half fill card-black
 
 glyph card-club-($card-rank)
 ref card-border fill card-border
 ref card-fill fill card-white
 ref card-suit-club fill card-black
-ref card-rank-($card-rank) fill card-black
+ref card-rank-($-1) fill card-black
 glyph @-half
 ref card-border-half fill card-border
 ref card-fill-half fill card-white
 ref card-suit-club-half fill card-black
-ref card-rank-($card-rank)-half fill card-black
+ref card-rank-($-1)-half fill card-black
 
 map wide|narrow : U+1F0A0 = card-back($-half)
 map wide|narrow : U+1F0A1..1F0AE = card-spade-($card-rank)($-half)
@@ -574,32 +574,32 @@ ref card-tarot-border-half fill card-border
 glyph card-tarot-($1..9)
 ref card-fill fill card-white
 ref card-tarot-border fill card-border
-ref sm-($1..9) 7 5 fill card-black
+ref sm-($-1) 7 5 fill card-black
 glyph card-tarot-1($0..9)
 ref card-fill fill card-white
 ref card-tarot-border fill card-border
 ref sm-1 5 5 fill card-black
-ref sm-($0..9) 9 5 fill card-black
+ref sm-($-1) 9 5 fill card-black
 glyph card-tarot-2(0|1)
 ref card-fill fill card-white
 ref card-tarot-border fill card-border
 ref sm-2 5 5 fill card-black
-ref sm-(0|1) 9 5 fill card-black
+ref sm-($-1) 9 5 fill card-black
 
 glyph card-tarot-($1..9)-half
 ref card-fill-half fill card-white
 ref card-tarot-border-half fill card-border
-ref sm-($1..9)-4x5 2 5 fill card-black
+ref sm-($-1)-4x5 2 5 fill card-black
 glyph card-tarot-1($0..9)-half
 ref card-fill-half fill card-white
 ref card-tarot-border-half fill card-border
 ref sm-1 1 5 fill card-black
-ref sm-($0..9) 4 5 fill card-black
+ref sm-($-1) 4 5 fill card-black
 glyph card-tarot-2(0|1)-half
 ref card-fill-half fill card-white
 ref card-tarot-border-half fill card-border
 ref sm-2 1 5 fill card-black
-ref sm-(0|1) 4 5 fill card-black
+ref sm-($-1) 4 5 fill card-black
 
 map wide|narrow : U+1F0E0 = card-tarot-blank($-half)
 map wide|narrow : U+1F0E1..1F0F5 = card-tarot-($1..21)($-half)

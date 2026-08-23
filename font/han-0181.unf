@@ -102,7 +102,7 @@ glyph han-9817:15x16 15 16 // 頗
 ⿰ han-76ae:8x16 han-9801:7x16 // ⿰皮頁
 
 glyph han-9818-($han-regions):15x16 15 16 // 領
-⿰ han-4ee4-($han-regions):7x16 1 han-9801:7x16 // ⿰令頁
+⿰ han-4ee4-($-1):7x16 1 han-9801:7x16 // ⿰令頁
 
 glyph han-9819:15x16 15 16 // 頙
 ⿰ han-6b63:8x16 han-9801:7x16 // ⿰正頁
@@ -395,7 +395,7 @@ glyph han-99af:15x16 15 16 // 馯
 ⿰ han-99ac:7x16 1 han-5e72:7x16 // ⿰馬干
 
 glyph han-99b0-(g|h|t|k|p):15x16 15 16 // 馰
-⿰ han-99ac:7x16 1 han-52fa-(g|h|t|k|p):7x16 // ⿰馬勺
+⿰ han-99ac:7x16 1 han-52fa-($-1):7x16 // ⿰馬勺
 glyph han-99b0-j:15x16 15 16 // 馰
 ⿰ han-99ac:7x16 1 han-52fa.0:7x16 // ⿰馬勺
 
@@ -434,7 +434,7 @@ glyph han-99d4:15x16 15 16 // 駔
 // ⿱ han-52a0 han-99ac // ⿱加馬
 
 glyph han-99d6-($han-regions):15x16 15 16 // 駖
-⿰ han-99ac:7x16 1 han-4ee4-($han-regions):7x16 // ⿰馬令
+⿰ han-99ac:7x16 1 han-4ee4-($-1):7x16 // ⿰馬令
 
 glyph han-99d8:15x16 15 16 // 駘
 ⿰ han-99ac:7x16 1 han-53f0:7x16 // ⿰馬台

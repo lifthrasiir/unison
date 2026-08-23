@@ -144,7 +144,7 @@ glyph han-2b9ae:15x16 15 16 // 𫦮
 ## 20.8
 
 glyph han-2b9c2-($han-regions):15x16 15 16 // 𫧂
-⿰ han-544a:8x16 han-52fa-($han-regions):7x16 // ⿰告勺
+⿰ han-544a:8x16 han-52fa-($-1):7x16 // ⿰告勺
 
 # CJK unified ideographs extension E: 口 (30)
 

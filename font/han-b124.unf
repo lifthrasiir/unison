@@ -88,7 +88,7 @@ glyph han-265a0:15x16 15 16 // 𦖠
 ⿰ han-8033:7x16 1 han-708e:7x16 // ⿰耳炎
 
 glyph han-265a1-($han-regions):15x16 15 16 // 𦖡
-⿲ han-8033:6x16-l han-767d:4x16 han-52fa-($han-regions):5x16 // ⿲耳白勺
+⿲ han-8033:6x16-l han-767d:4x16 han-52fa-($-1):5x16 // ⿲耳白勺
 
 ## 128.9
 

@@ -154,7 +154,7 @@ glyph han-5cac:15x16 15 16 // 岬
 ⿰ han-5c71:5x16 1 han-7532:9x16 // ⿰山甲
 
 glyph han-5cad-($han-regions):15x16 15 16 // 岭
-⿰ han-5c71:7x16 1 han-4ee4-($han-regions):7x16 // ⿰山令
+⿰ han-5c71:7x16 1 han-4ee4-($-1):7x16 // ⿰山令
 
 glyph han-5cb5:15x16 15 16 // 岵
 ⿰ han-5c71:5x16 1 han-53e4:9x16 // ⿰山古

@@ -75,7 +75,7 @@ glyph han-26741:15x16 15 16 // 𦝁
 ⿰ han-6708:5x16-l 1 han-5176:9x16 // ⿰月其
 
 glyph han-26742-($han-regions):15x16 15 16 // 𦝂
-⿲ han-6708:5x16-l 1 han-767d:4x16 han-52fa-($han-regions):5x16 // ⿲月白勺
+⿲ han-6708:5x16-l 1 han-767d:4x16 han-52fa-($-1):5x16 // ⿲月白勺
 
 glyph han-26743:15x16 15 16 // 𦝃
 ⿲ han-6708:5x16-l han-6728:5x16 han-6728:5x16 // ⿲月木木

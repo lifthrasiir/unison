@@ -102,7 +102,7 @@ glyph han-7076:15x16 15 16 // 灶
 // ⿱ han-571f han-706b // ⿱土火
 
 glyph han-707c-(g|h|t|k|p|v):15x16 15 16 // 灼
-⿰ han-706b:7x16 1 han-52fa-(g|h|t|k|p|v):7x16 // ⿰火勺
+⿰ han-706b:7x16 1 han-52fa-($-1):7x16 // ⿰火勺
 glyph han-707c-j:15x16 15 16 // 灼
 ⿰ han-706b:7x16 1 han-52fa.0:7x16 // ⿰火勺
 
@@ -188,7 +188,7 @@ glyph han-70a4:15x16 15 16 // 炤
 ⿰ han-706b:7x16 han-53ec:8x16 // ⿰火召
 
 glyph han-70a9-($han-regions):15x16 15 16 // 炩
-⿰ han-706b:7x16 1 han-4ee4-($han-regions):7x16 // ⿰火令
+⿰ han-706b:7x16 1 han-4ee4-($-1):7x16 // ⿰火令
 
 glyph han-70ae:15x16 15 16 // 炮
 ⿰ han-706b:7x16 1 han-5305:7x16 // ⿰火包

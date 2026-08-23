@@ -97,7 +97,7 @@ glyph han-6257:15x16 15 16 // 扗
 ⿰ han-624c:5x16 1 han-571f:9x16 // ⿰扌土
 
 glyph han-625a-(g|h|t|k):15x16 15 16 // 扚
-⿰ han-624c:5x16 1 han-52fa-(g|h|t|k):9x16 // ⿰扌勺
+⿰ han-624c:5x16 1 han-52fa-($-1):9x16 // ⿰扌勺
 glyph han-625a-(j|p):15x16 15 16 // 扚
 ⿰ han-624c:5x16 1 han-52fa.0:9x16 // ⿰扌勺
 
@@ -202,7 +202,7 @@ glyph han-62cd:15x16 15 16 // 拍
 ⿰ han-624c:5x16 han-767d:10x16 // ⿰扌白
 
 glyph han-62ce-($han-regions):15x16 15 16 // 拎
-⿰ han-624c:5x16 1 han-4ee4-($han-regions):9x16 // ⿰扌令
+⿰ han-624c:5x16 1 han-4ee4-($-1):9x16 // ⿰扌令
 
 glyph han-62d3:15x16 15 16 // 拓
 ⿰ han-624c:5x16 1 han-77f3:9x16 // ⿰扌石

@@ -46,7 +46,7 @@ glyph han-2b4a8:15x16 15 16 // 𫒨
 ⿲ -3 han-91d2:5x16-l -1 han-571f:7x16 han-7533:7x16 // ⿲釒土申
 
 glyph han-2b4ab-($han-regions):15x16 15 16 // 𫒫
-⿲ han-91d2:5x16-l 1 han-767d:4x16 han-52fa-($han-regions):5x16 // ⿲釒白勺
+⿲ han-91d2:5x16-l 1 han-767d:4x16 han-52fa-($-1):5x16 // ⿲釒白勺
 
 ## 167.11
 

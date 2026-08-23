@@ -88,7 +88,7 @@ glyph han-597e:15x16 15 16 // 奾
 ⿰ han-5973:5x16-l 1 han-5c71:9x16 // ⿰女山
 
 glyph han-5981-($han-regions):15x16 15 16 // 妁
-⿰ han-5973:7x16 1 han-52fa-($han-regions):7x16 // ⿰女勺
+⿰ han-5973:7x16 1 han-52fa-($-1):7x16 // ⿰女勺
 
 glyph han-5982:15x16 15 16 // 如
 ⿰ han-5973:7x16 1 han-53e3:7x16 // ⿰女口
@@ -158,7 +158,7 @@ glyph han-59c3:15x16 15 16 // 姃
 // ⿱ han-4ed8 han-5973 // ⿱付女
 
 glyph han-59c8-($han-regions):15x16 15 16 // 姈
-⿰ han-5973:5x16-l 1 han-4ee4-($han-regions):9x16 // ⿰女令
+⿰ han-5973:5x16-l 1 han-4ee4-($-1):9x16 // ⿰女令
 
 glyph han-59cb:15x16 15 16 // 始
 ⿰ han-5973:7x16 1 han-53f0:7x16 // ⿰女台

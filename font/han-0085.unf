@@ -54,7 +54,7 @@ glyph han-6c40:15x16 15 16 // 汀
 ## 85.3
 
 glyph han-6c4b-(g|h|t|k|p):15x16 15 16 // 汋
-⿰ han-6c35:5x16 1 han-52fa-(g|h|t|k|p):9x16 // ⿰氵勺
+⿰ han-6c35:5x16 1 han-52fa-($-1):9x16 // ⿰氵勺
 glyph han-6c4b-j:15x16 15 16 // 汋
 ⿰ han-6c35:5x16 1 han-52fa.0:9x16 // ⿰氵勺
 
@@ -177,7 +177,7 @@ glyph han-6cdf:15x16 15 16 // 泟
 ⿰ han-6c35:5x16 han-6b63:10x16 // ⿰氵正
 
 glyph han-6ce0-($han-regions):15x16 15 16 // 泠
-⿰ han-6c35:5x16 1 han-4ee4-($han-regions):9x16 // ⿰氵令
+⿰ han-6c35:5x16 1 han-4ee4-($-1):9x16 // ⿰氵令
 
 glyph han-6ce1:15x16 15 16 // 泡
 ⿰ han-6c35:5x16 1 han-5305:9x16 // ⿰氵包

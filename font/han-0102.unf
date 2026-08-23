@@ -317,7 +317,7 @@ glyph han-753d:15x16 15 16 // 甽
 // ⿱ han-5ddb han-7530 // ⿱巛田
 
 glyph han-7543-(g|t):15x16 15 16 // 畃
-⿰ han-7533:7x16 1 han-52fa-(g|t):7x16 // ⿰申勺
+⿰ han-7533:7x16 1 han-52fa-($-1):7x16 // ⿰申勺
 glyph han-7543-j:15x16 15 16 // 畃
 ⿰ han-7533:7x16 1 han-52fa.0:7x16 // ⿰申勺
 
@@ -541,7 +541,7 @@ ref han-767d:15x16
 ## 106.3
 
 glyph han-7684-(g|h|t|j|p|v):15x16 15 16 // 的
-⿰ han-767d:6x16 han-52fa-(g|h|t|j|p|v):9x16 // ⿰白勺
+⿰ han-767d:6x16 han-52fa-($-1):9x16 // ⿰白勺
 glyph han-7684-k:15x16 15 16 // 的
 ⿰ han-767d:6x16 han-52fa.1:9x16 // ⿰白勺
 
@@ -556,7 +556,7 @@ glyph han-7684-k:15x16 15 16 // 的
 // ⿱ han-767d han-7530 // ⿱白田
 
 glyph han-768a-($han-regions):15x16 15 16 // 皊
-⿰ han-767d:6x16 han-4ee4-($han-regions):9x16 // ⿰白令
+⿰ han-767d:6x16 han-4ee4-($-1):9x16 // ⿰白令
 
 ## 106.6
 

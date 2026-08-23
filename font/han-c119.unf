@@ -62,7 +62,7 @@ glyph han-2b0e4:15x16 15 16 // 𫃤
 ## 120.9
 
 glyph han-2b0f3-($han-regions):15x16 15 16 // 𫃳
-⿲ han-7cf9:5x16 han-866b:5x16 han-52fa-($han-regions):5x16 // ⿲糹虫勺
+⿲ han-7cf9:5x16 han-866b:5x16 han-52fa-($-1):5x16 // ⿲糹虫勺
 
 glyph han-2b0f6:15x16 15 16 // 𫃶
 ⿲ han-7cf9:5x16 han-6c35:3x16 han-5404:7x16 // ⿲糹氵各

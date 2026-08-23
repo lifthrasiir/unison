@@ -210,7 +210,7 @@ glyph han-8a02:15x16 15 16 // 訂
 ## 149.3
 
 glyph han-8a0b-($han-regions):15x16 15 16 // 訋
-⿰ han-8a01:7x16 1 han-52fa-($han-regions):7x16 // ⿰訁勺
+⿰ han-8a01:7x16 1 han-52fa-($-1):7x16 // ⿰訁勺
 
 glyph han-8a0c:15x16 15 16 // 訌
 ⿰ han-8a01:5x16 1 han-5de5:9x16 // ⿰訁工
@@ -277,7 +277,7 @@ glyph han-8a44:15x16 15 16 // 詄
 ⿰ han-8a01:5x16 1 han-5931:9x16 // ⿰訁失
 
 glyph han-8a45-($han-regions):15x16 15 16 // 詅
-⿰ han-8a01:7x16 1 han-4ee4-($han-regions):7x16 // ⿰訁令
+⿰ han-8a01:7x16 1 han-4ee4-($-1):7x16 // ⿰訁令
 
 glyph han-8a46:15x16 15 16 // 詆
 ⿰ han-8a01:7x16 han-6c10:8x16 // ⿰訁氐

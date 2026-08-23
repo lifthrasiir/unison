@@ -233,7 +233,7 @@ glyph han-65f0:15x16 15 16 // 旰
 // ⿱ han-65e5 han-5e72 // ⿱日干
 
 glyph han-65f3-($han-regions):15x16 15 16 // 旳
-⿰ han-65e5:7x16 1 han-52fa-($han-regions):7x16 // ⿰日勺
+⿰ han-65e5:7x16 1 han-52fa-($-1):7x16 // ⿰日勺
 
 // glyph han-65f5:15x16 15 16 // 旵
 // ⿱ han-65e5 han-5c71 // ⿱日山
@@ -308,7 +308,7 @@ $$../Vv'/Vv'..@@$$
 $$..........\1@@$$
 
 glyph han-6624-($han-regions):15x16 15 16 // 昤
-⿰ han-65e5:7x16 1 han-4ee4-($han-regions):7x16 // ⿰日令
+⿰ han-65e5:7x16 1 han-4ee4-($-1):7x16 // ⿰日令
 
 glyph han-662b:15x16 15 16 // 昫
 ⿰ han-65e5:7x16 1 han-53e5:7x16 // ⿰日句
@@ -703,7 +703,7 @@ glyph han-670c:15x16 15 16 // 朌
 ## 74.5
 
 glyph han-670e-($han-regions):15x16 15 16 // 朎
-⿰ han-6708:7x16 1 han-4ee4-($han-regions):7x16 // ⿰月令
+⿰ han-6708:7x16 1 han-4ee4-($-1):7x16 // ⿰月令
 
 glyph han-6710:15x16 15 16 // 朐
 ⿰ han-6708:5x16-l 1 han-53e5:9x16 // ⿰月句

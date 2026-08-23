@@ -31,7 +31,7 @@ glyph han-2d1cf:15x16 15 16 // 𭇏
 ⿰ han-4e01:7x16 1 han-5404:7x16 // ⿰丁各
 
 glyph han-2d1d5-($han-regions):15x16 15 16 // 𭇕
-⿰ han-53e5:7x16 1 han-52fa-($han-regions):7x16 // ⿰句勺
+⿰ han-53e5:7x16 1 han-52fa-($-1):7x16 // ⿰句勺
 
 ## 30.6
 

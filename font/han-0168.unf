@@ -157,7 +157,7 @@ glyph han-963d:15x16 15 16 // 阽
 ⿰ han-961d:5x16-l 1 han-5360:9x16 // ⿰阝占
 
 glyph han-963e-($han-regions):15x16 15 16 // 阾
-⿰ han-961d:5x16-l 1 han-4ee4-($han-regions):9x16 // ⿰阝令
+⿰ han-961d:5x16-l 1 han-4ee4-($-1):9x16 // ⿰阝令
 
 glyph han-963f:15x16 15 16 // 阿
 ⿰ han-961d:4x16-l han-53ef:10x16 // ⿰阝可
@@ -534,7 +534,7 @@ glyph han-976c:15x16 15 16 // 靬
 ⿰ han-9769:7x16 1 han-5e72:7x16 // ⿰革干
 
 glyph han-976e-(g|h|t|k|p):15x16 15 16 // 靮
-⿰ han-9769:7x16 1 han-52fa-(g|h|t|k|p):7x16 // ⿰革勺
+⿰ han-9769:7x16 1 han-52fa-($-1):7x16 // ⿰革勺
 glyph han-976e-j:15x16 15 16 // 靮
 ⿰ han-9769:7x16 1 han-52fa.0:7x16 // ⿰革勺
 

@@ -39,7 +39,7 @@ glyph han-25e51:15x16 15 16 // 𥹑
 ⿰ han-7c73:5x16 1 han-4e16:9x16 // ⿰米世
 
 glyph han-25e55-($han-regions):15x16 15 16 // 𥹕
-⿰ han-7c73:7x16 1 han-4ee4-($han-regions):7x16 // ⿰米令
+⿰ han-7c73:7x16 1 han-4ee4-($-1):7x16 // ⿰米令
 
 glyph han-25e56:15x16 15 16 // 𥹖
 ⿰ han-7c73:5x16 1 han-76ae:9x16 // ⿰米皮

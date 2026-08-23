@@ -476,9 +476,9 @@ map ↋ = 3-turned
 ## superscript/subscript
 
 glyph sup-($0..9) 8 16
-ref sm-($0..9) 2 1
+ref sm-($-1) 2 1
 glyph sub-($0..9) 8 16
-ref sm-($0..9) 2 10
+ref sm-($-1) 2 10
 
 map ⁰ = sup-0
 map ¹ = sup-1

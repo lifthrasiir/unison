@@ -52,7 +52,7 @@ glyph han-30d59:15x16 15 16 // 𰵙
 ⿰ han-8ba0:5x16 1 han-5931:9x16 // ⿰讠失
 
 glyph han-30d5a-($han-regions):15x16 15 16 // 𰵚
-⿰ han-8ba0:5x16 1 han-4ee4-($han-regions):9x16 // ⿰讠令
+⿰ han-8ba0:5x16 1 han-4ee4-($-1):9x16 // ⿰讠令
 
 glyph han-30d5b:15x16 15 16 // 𰵛
 ⿰ han-8ba0:5x16 1 han-53e5:9x16 // ⿰讠句
@@ -119,7 +119,7 @@ glyph han-30dbc:15x16 15 16 // 𰶼
 ⿰ han-8c9d:6x16 2 han-7530:7x16 // ⿰貝田
 
 glyph han-30dbe-($han-regions):15x16 15 16 // 𰶾
-⿰ han-8c9d:6x16 han-4ee4-($han-regions):9x16 // ⿰貝令
+⿰ han-8c9d:6x16 han-4ee4-($-1):9x16 // ⿰貝令
 
 ## 154.6
 
@@ -171,7 +171,7 @@ glyph han-30e30:15x16 15 16 // 𰸰
 ## 159.3
 
 glyph han-30e4b-($han-regions):15x16 15 16 // 𰹋
-⿰ han-8eca:7x16 1 han-52fa-($han-regions):7x16 // ⿰車勺
+⿰ han-8eca:7x16 1 han-52fa-($-1):7x16 // ⿰車勺
 
 ## 159.4
 

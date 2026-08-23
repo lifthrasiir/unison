@@ -545,7 +545,7 @@ glyph 2root 9 16 advance 8
 ..................
 
 glyph (3|4)root 9 16 advance 8
-ref sup-(3|4)
+ref sup-($-1)
 ref 2root
 
 glyph div-times 16 16

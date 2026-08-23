@@ -8,7 +8,7 @@
 ## 184.3
 
 glyph han-29688-($han-regions):15x16 15 16 // 𩚈
-⿰ han-98e0:7x16 1 han-52fa-($han-regions):7x16 // ⿰飠勺
+⿰ han-98e0:7x16 1 han-52fa-($-1):7x16 // ⿰飠勺
 
 // glyph han-2968c:15x16 15 16 // 𩚌
 // ⿰ han-98e0 han-5140 // ⿰飠兀
@@ -45,7 +45,7 @@ glyph han-296b2:15x16 15 16 // 𩚲
 ⿰ han-98e0:7x16 1 han-7532:7x16 // ⿰飠甲
 
 glyph han-296b9-($han-regions):15x16 15 16 // 𩚹
-⿰ han-98e0:7x16 1 han-4ee4-($han-regions):7x16 // ⿰飠令
+⿰ han-98e0:7x16 1 han-4ee4-($-1):7x16 // ⿰飠令
 
 // glyph han-296bd:15x16 15 16 // 𩚽
 // ⿰ han-98e0 han-7389 // ⿰飠玉

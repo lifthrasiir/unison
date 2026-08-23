@@ -31,7 +31,7 @@ glyph han-29f9d:15x16 15 16 // 𩾝
 ⿰ han-9ce5:7x16 1 han-5e72:7x16 // ⿰鳥干
 
 glyph han-29fa1-($han-regions):15x16 15 16 // 𩾡
-⿰ han-9ce5:7x16 1 han-52fa-($han-regions):7x16 // ⿰鳥勺
+⿰ han-9ce5:7x16 1 han-52fa-($-1):7x16 // ⿰鳥勺
 
 // glyph han-29fa3:15x16 15 16 // 𩾣
 // ⿱ han-5ddb han-9ce5 // ⿱巛鳥

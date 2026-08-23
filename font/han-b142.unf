@@ -178,7 +178,7 @@ glyph han-27390:15x16 15 16 // 𧎐
 ⿲ han-866b:5x16 han-79be:5x16 han-706b:5x16 // ⿲虫禾火
 
 glyph han-27392-($han-regions):15x16 15 16 // 𧎒
-⿲ han-866b:5x16 han-7cf9:5x16 han-52fa-($han-regions):5x16 // ⿲虫糹勺
+⿲ han-866b:5x16 han-7cf9:5x16 han-52fa-($-1):5x16 // ⿲虫糹勺
 
 ## 142.10
 
