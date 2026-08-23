@@ -58,6 +58,24 @@ fn item_captures(item: &DocumentItem, name_parts: &NamePartsMap) -> Vec<Vec<Stri
     }
 }
 
+/// Whether `written` is `PREFIX($-N)SUFFIX` with nothing else a pattern reads
+/// in it — the shape an ordered-alternative `map` target has, and the one whose
+/// expansion is its own single group. See where it is used for why that answers
+/// the ragged question outright.
+fn whole_back_reference(written: &str) -> bool {
+    let plain = |s: &str| !s.contains(['(', ')', '|', '*', '$']);
+    let Some((prefix, rest)) = written.split_once("($-") else {
+        return false;
+    };
+    let Some((digits, suffix)) = rest.split_once(')') else {
+        return false;
+    };
+    !digits.is_empty()
+        && digits.bytes().all(|b| b.is_ascii_digit())
+        && plain(prefix)
+        && plain(suffix)
+}
+
 fn join_counts(lens: &[usize]) -> String {
     let parts: Vec<String> = lens.iter().map(|n| n.to_string()).collect();
     match parts.split_last() {
@@ -91,8 +109,25 @@ pub(super) fn check_ragged_patterns(
 ) {
     for doc in docs {
         for (item_idx, item) in doc.items.iter().enumerate() {
-            let captures = item_captures(item, name_parts);
-            for (written, is_block) in written_patterns(item) {
+            let written = written_patterns(item);
+            // Computed only where a name below the leading pattern actually
+            // names one of its groups: reading the groups out of a `map`'s
+            // character spec means expanding it, and a range spec is tens of
+            // thousands of code points wide.
+            let captures = written
+                .iter()
+                .any(|(w, is_block)| !is_block && !whole_back_reference(w))
+                .then(|| item_captures(item, name_parts))
+                .unwrap_or_default();
+            for (written, is_block) in written {
+                // A name that is nothing but one back-reference between plain
+                // literals expands to exactly the group it names, so that group
+                // *is* the whole expansion and divides it: never ragged, and
+                // not worth splicing a group tens of thousands of values long
+                // into a string only to parse it straight back out.
+                if !is_block && whole_back_reference(written) {
+                    continue;
+                }
                 // The leading pattern is the one that *declares* the groups, so
                 // it never names them.
                 let substituted = if is_block {

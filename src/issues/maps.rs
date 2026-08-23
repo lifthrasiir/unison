@@ -25,7 +25,11 @@ struct MapSite {
     file_line: usize,
 }
 
-pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String> {
+pub(super) fn check_maps(
+    cx: &Cx<'_>,
+    graph: &super::unused::GlyphGraph<'_>,
+    issues: &mut Vec<Issue>,
+) -> HashSet<String> {
     let docs = cx.docs;
     let name_parts = cx.name_parts;
     let scoped_parts = &cx.scoped_parts;
@@ -124,15 +128,31 @@ pub(super) fn check_maps(cx: &Cx<'_>, issues: &mut Vec<Issue>) -> HashSet<String
                             .iter()
                             .map(|g| substitute_name_parts(g, parts))
                             .collect();
-                        let per_alt = crate::render::ttf_builder::expand_map_pairs_per_alternative(
+                        // The fallbacks are only ever looked up, so they are
+                        // streamed rather than collected: a range line nine
+                        // alternatives deep names millions of glyphs and keeps
+                        // a few thousand of them.
+                        crate::render::ttf_builder::for_each_map_alternative_name(
                             char_repr,
-                            &substituted,
+                            &substituted[1..],
+                            |name| {
+                                // A name no glyph declares is a root the walk
+                                // can do nothing with, and a range line names
+                                // close to a million of them; see
+                                // `GlyphGraph::knows`.
+                                if graph.knows(name) && !mapped_glyphs.contains(name) {
+                                    mapped_glyphs.insert(name.to_string());
+                                }
+                            },
                         );
-                        for alt in &per_alt[1..] {
-                            mapped_glyphs.extend(alt.iter().map(|(_, name)| name.clone()));
-                        }
-                        for (cp, target) in &per_alt[0] {
-                            mapped_glyphs.insert(target.clone());
+                        let first = crate::render::ttf_builder::expand_map_pairs_per_alternative(
+                            char_repr,
+                            &substituted[..1],
+                        );
+                        for (cp, target) in &first[0] {
+                            if graph.knows(target) && !mapped_glyphs.contains(target) {
+                                mapped_glyphs.insert(target.clone());
+                            }
                             let by_slice = mapped_codepoints.entry(*cp).or_default();
                             if let Some(prev) = by_slice.get(&slice) {
                                 issues.push(issue_at(

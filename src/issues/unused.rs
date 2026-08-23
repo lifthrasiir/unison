@@ -11,14 +11,37 @@ use crate::pattern::{capture_groups, substitute_name_parts_and_captures};
 
 use super::{Cx, Issue, Severity, issue_at};
 
-pub(super) fn check_unused_glyphs(
-    cx: &Cx<'_>,
-    mapped_glyphs: HashSet<String>,
-    issues: &mut Vec<Issue>,
-) {
+/// The glyph graph the reachability walk runs on, built before the roots are
+/// collected so that a root nobody can look up is never collected at all.
+///
+/// A `map` line with ordered alternatives names every fallback of every
+/// character it covers, and the han slice lines name close to a million glyphs
+/// that no source declares. Those are roots that reach nothing — the walk only
+/// ever asks [`name_to_item`](Self::name_to_item) and
+/// [`alt_names`](Self::alt_names) about a name — so [`knows`](Self::knows) is
+/// what lets [`super::maps::check_maps`] drop them where they are generated
+/// rather than remember them all first.
+pub(super) struct GlyphGraph<'a> {
+    /// Expanded glyph (and alias) name → the item that declares it.
+    name_to_item: HashMap<String, usize>,
+    /// Per item, the names its `ref`s and IDC parts reach.
+    item_refs: Vec<Vec<String>>,
+    /// Per item, where to report it: `(doc, item, written name, is alias)`.
+    item_location: Vec<(usize, usize, &'a str, bool)>,
+    /// Base name → the `base:variant` names that complete it.
+    alt_names: HashMap<&'a str, Vec<&'a str>>,
+}
+
+impl<'a> GlyphGraph<'a> {
+    /// Whether the walk could do anything at all with `name` as a root.
+    pub(super) fn knows(&self, name: &str) -> bool {
+        self.name_to_item.contains_key(name) || self.alt_names.contains_key(name)
+    }
+}
+
+pub(super) fn collect_graph<'a>(cx: &'a Cx<'_>) -> GlyphGraph<'a> {
     let docs = cx.docs;
     let name_parts = cx.name_parts;
-    let _expansion = cx.expansion;
     let aliases = cx.aliases;
     let all_glyph_names = &cx.all_glyph_names;
     // Detect unused glyphs: glyphs not reachable from any map/remap root.
@@ -108,8 +131,47 @@ pub(super) fn check_unused_glyphs(
         }
     }
 
-    // Collect root names from map targets and remap references.
+    // Build alternative lookup: base name -> list of "base:variant" names.
+    // Alias names belong here too: `glyph x:color = y:color` is what makes
+    // the color/mono pair of `x` complete, so it is used by every use of
+    // `x` — and it is absent from `all_glyph_names`, which holds glyphs.
+    let mut alt_names: HashMap<&str, Vec<&str>> = HashMap::new();
+    let alt_candidates = all_glyph_names
+        .iter()
+        .map(|n| n.as_str())
+        .chain(aliases.decls().iter().map(|d| d.name.as_str()));
+    for name in alt_candidates {
+        if let Some(colon_pos) = name.find(':') {
+            let base = &name[..colon_pos];
+            alt_names.entry(base).or_default().push(name);
+        }
+    }
 
+    GlyphGraph {
+        name_to_item,
+        item_refs,
+        item_location,
+        alt_names,
+    }
+}
+
+/// Which glyphs and aliases no `map`, `remap` or `ref` root reaches.
+pub(super) fn check_unused_glyphs(
+    cx: &Cx<'_>,
+    graph: &GlyphGraph<'_>,
+    mapped_glyphs: HashSet<String>,
+    issues: &mut Vec<Issue>,
+) {
+    let docs = cx.docs;
+    let name_parts = cx.name_parts;
+    let GlyphGraph {
+        name_to_item,
+        item_refs,
+        item_location,
+        alt_names,
+    } = graph;
+
+    // Collect root names from map targets and remap references.
     let mut root_names: HashSet<String> = mapped_glyphs;
     // .notdef is always required in TrueType fonts.
     root_names.insert(".notdef".to_string());
@@ -139,22 +201,6 @@ pub(super) fn check_unused_glyphs(
                 }
                 _ => {}
             }
-        }
-    }
-
-    // Build alternative lookup: base name -> list of "base:variant" names.
-    // Alias names belong here too: `glyph x:color = y:color` is what makes
-    // the color/mono pair of `x` complete, so it is used by every use of
-    // `x` — and it is absent from `all_glyph_names`, which holds glyphs.
-    let mut alt_names: HashMap<&str, Vec<&str>> = HashMap::new();
-    let alt_candidates = all_glyph_names
-        .iter()
-        .map(|n| n.as_str())
-        .chain(aliases.decls().iter().map(|d| d.name.as_str()));
-    for name in alt_candidates {
-        if let Some(colon_pos) = name.find(':') {
-            let base = &name[..colon_pos];
-            alt_names.entry(base).or_default().push(name);
         }
     }
 

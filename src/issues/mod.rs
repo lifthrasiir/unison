@@ -251,8 +251,11 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     remap::check_glyphs_and_remaps(&cx, &mut issues);
     directives::check_audit(&cx, &mut issues);
     directives::check_meta(&cx, &mut issues);
-    let mapped_glyphs = maps::check_maps(&cx, &mut issues);
-    unused::check_unused_glyphs(&cx, mapped_glyphs, &mut issues);
+    // Built before the roots are collected, so a `map` target the walk could
+    // do nothing with is never collected as one; see `unused::GlyphGraph`.
+    let graph = unused::collect_graph(&cx);
+    let mapped_glyphs = maps::check_maps(&cx, &graph, &mut issues);
+    unused::check_unused_glyphs(&cx, &graph, mapped_glyphs, &mut issues);
     anchors::check_ambiguous_anchors(&cx, &mut issues);
     anchors::check_anchor_derivation(&cx, &mut issues);
     colors::check_colors(&cx, &mut issues);

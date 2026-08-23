@@ -958,16 +958,22 @@ pub(crate) fn resolved_map_target(glyphs: &[String]) -> &str {
 /// slice lines, three ranges wide and nine alternatives deep, cost their width
 /// nine times over on every rebuild.
 struct WideMapRows {
-    /// `(index into the expansion, code point)`. The index is what a target is
-    /// read at and is *not* the row number: a spec entry naming no code point
-    /// drops the row and keeps the index, exactly as [`expand_map_pairs`] does.
-    rows: Vec<(usize, u32)>,
+    /// A range line's own rows; a pattern line reads the spec's, which the
+    /// memo already holds. See [`WideMapRows::rows`].
+    range_rows: Vec<(usize, u32)>,
     /// The parsed spec, where the line writes one — a range line captures
     /// nothing and needs none.
     spec: Option<Arc<MapCharSpec>>,
 }
 
 impl WideMapRows {
+    /// `(index into the expansion, code point)`. The index is what a target is
+    /// read at and is *not* the row number: a spec entry naming no code point
+    /// drops the row and keeps the index, exactly as [`expand_map_pairs`] does.
+    fn rows(&self) -> &[(usize, u32)] {
+        self.spec.as_ref().map_or(&self.range_rows, |s| &s.rows)
+    }
+
     fn captures(&self) -> &[Vec<String>] {
         self.spec.as_ref().map_or(&[], |s| &s.captures)
     }
@@ -991,11 +997,8 @@ impl WideMapRows {
 /// straightforward path rather than restating those rules here.
 fn wide_map_rows(char_repr: &str) -> Option<WideMapRows> {
     if let Some(spec) = map_char_pattern(char_repr) {
-        let rows = (0..spec.pattern.len())
-            .filter_map(|i| parse_map_char(&spec.pattern.get(i)).map(|cp| (i, cp)))
-            .collect();
         return Some(WideMapRows {
-            rows,
+            range_rows: Vec::new(),
             spec: Some(spec),
         });
     }
@@ -1018,7 +1021,7 @@ fn wide_map_rows(char_repr: &str) -> Option<WideMapRows> {
         _ => 0,
     };
     Some(WideMapRows {
-        rows: (0..count)
+        range_rows: (0..count)
             .map(|i| (i, start + i as u32))
             .filter(|(_, cp)| char::from_u32(*cp).is_some())
             .collect(),
@@ -1082,21 +1085,27 @@ impl<'a> AltTarget<'a> {
     /// The name at expansion index `i`, cyclically — the same rule
     /// [`NamePattern::get`] indexes by.
     fn get(&self, i: usize) -> String {
+        let mut out = String::new();
+        self.get_into(i, &mut out);
+        out
+    }
+
+    /// The same, into a buffer the caller reuses. A check that only looks each
+    /// name up asks for millions of them and keeps almost none.
+    fn get_into(&self, i: usize, out: &mut String) {
+        out.clear();
         match self {
             Self::Capture {
                 prefix,
                 group,
                 suffix,
             } => {
-                let value = &group[i % group.len()];
-                let mut out = String::with_capacity(prefix.len() + value.len() + suffix.len());
                 out.push_str(prefix);
-                out.push_str(value);
+                out.push_str(&group[i % group.len()]);
                 out.push_str(suffix);
-                out
             }
-            Self::Pattern(pattern) => pattern.get(i),
-            Self::Literal(s) => s.clone(),
+            Self::Pattern(pattern) => out.push_str(&pattern.get(i)),
+            Self::Literal(s) => out.push_str(s),
         }
     }
 }
@@ -1144,12 +1153,41 @@ pub(crate) fn expand_map_pairs_per_alternative(
         .iter()
         .map(|g| {
             let target = AltTarget::of(g, &spec);
-            spec.rows
+            spec.rows()
                 .iter()
                 .map(|&(i, cp)| (cp, target.get(i)))
                 .collect()
         })
         .collect()
+}
+
+/// Every glyph name one `map` line's alternatives put on a character, one at a
+/// time.
+///
+/// A source-side check only wants to look each name up, and a range line nine
+/// alternatives deep names millions of them: streaming through one buffer is
+/// what keeps that from being millions of `String`s the caller drops again.
+pub(crate) fn for_each_map_alternative_name(
+    char_repr: &str,
+    glyphs: &[String],
+    mut f: impl FnMut(&str),
+) {
+    let Some(spec) = wide_map_rows(char_repr) else {
+        for glyph in glyphs {
+            for (_, name) in expand_map_pairs(char_repr, glyph) {
+                f(&name);
+            }
+        }
+        return;
+    };
+    let mut buf = String::new();
+    for glyph in glyphs {
+        let target = AltTarget::of(glyph, &spec);
+        for &(i, _) in spec.rows() {
+            target.get_into(i, &mut buf);
+            f(&buf);
+        }
+    }
 }
 
 /// The one diagnostic a line's unmatched characters produce, reported once for
@@ -1319,7 +1357,7 @@ fn resolve_map_alternatives(
             .then(|| wide_map_rows(&char_repr))
             .flatten()
         {
-            if spec.rows.is_empty() {
+            if spec.rows().is_empty() {
                 out.push(ExpandedItem {
                     item: DocumentItem::Map {
                         slices,
@@ -1334,7 +1372,7 @@ fn resolve_map_alternatives(
             }
             let targets: Vec<AltTarget<'_>> =
                 glyphs.iter().map(|g| AltTarget::of(g, &spec)).collect();
-            for &(i, cp) in &spec.rows {
+            for &(i, cp) in spec.rows() {
                 let (chosen, matched) =
                     settle_row(targets.iter().map(|t| t.get(i)), &usable, optional);
                 if !matched {
@@ -1897,6 +1935,11 @@ pub(crate) fn expand_uvs_map_triples(
 /// memo in [`map_char_pattern`] is what makes that one parse per spec instead.
 struct MapCharSpec {
     pattern: NamePattern,
+    /// `(index into the expansion, code point)` for every entry of the spec
+    /// that names one — see [`WideMapRows::rows`]. Kept here rather than
+    /// recomputed per caller because building it means expanding the whole
+    /// pattern, which is the cost the memo exists to pay once.
+    rows: Vec<(usize, u32)>,
     /// The groups the spec captures, for a target's `$-N`.
     captures: Vec<Vec<String>>,
     /// Per capture group, whether every value in it is a plain literal — which
@@ -1937,12 +1980,16 @@ fn map_char_pattern(char_repr: &str) -> Option<Arc<MapCharSpec>> {
         return None;
     }
     let pattern = NamePattern::parse_element(&text).ok()?;
+    let rows = (0..pattern.len())
+        .filter_map(|i| parse_map_char(&pattern.get(i)).map(|cp| (i, cp)))
+        .collect();
     let plain = captures
         .iter()
         .map(|g| !g.is_empty() && !g.iter().any(|v| v.contains(['(', ')', '|', '*'])))
         .collect();
     let spec = Arc::new(MapCharSpec {
         pattern,
+        rows,
         captures,
         plain,
     });
