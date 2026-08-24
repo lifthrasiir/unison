@@ -316,24 +316,35 @@ fn apply_event(
                         }
                         te.snap_over_folds(folding::Snap::Forward);
                     }
+                    // Up/Down take `mac_cmd` where the rest of the motion keys
+                    // take the platform-folded `command`: reaching the ends of
+                    // a document with an arrow is a macOS convention, and the
+                    // same chord elsewhere is Ctrl+Up/Down, which is in the
+                    // way rather than useful (Ctrl+Home/End is the shortcut
+                    // there, and it stays `command` below). A Ctrl+Up/Down is
+                    // then swallowed on every platform, macOS included:
+                    // falling back to a plain Up/Down would move the caret
+                    // under a chord that asked for something else.
+                    egui::Key::ArrowUp if modifiers.mac_cmd => {
+                        update_selection(te, shift);
+                        *te.cursor = caret::doc_home(te.lines);
+                        te.snap_over_folds(folding::Snap::Up);
+                    }
+                    egui::Key::ArrowDown if modifiers.mac_cmd => {
+                        update_selection(te, shift);
+                        *te.cursor = caret::doc_end(te.lines);
+                        te.snap_over_folds(folding::Snap::Backward);
+                    }
+                    egui::Key::ArrowUp | egui::Key::ArrowDown if modifiers.ctrl => {}
                     egui::Key::ArrowUp => {
                         update_selection(te, shift);
-                        if modifiers.command {
-                            *te.cursor = caret::doc_home(te.lines);
-                        } else {
-                            *te.cursor = caret::move_up(te.lines, *te.cursor);
-                        }
+                        *te.cursor = caret::move_up(te.lines, *te.cursor);
                         te.snap_over_folds(folding::Snap::Up);
                     }
                     egui::Key::ArrowDown => {
                         update_selection(te, shift);
-                        if modifiers.command {
-                            *te.cursor = caret::doc_end(te.lines);
-                            te.snap_over_folds(folding::Snap::Backward);
-                        } else {
-                            *te.cursor = caret::move_down(te.lines, *te.cursor);
-                            te.snap_over_folds(folding::Snap::Down);
-                        }
+                        *te.cursor = caret::move_down(te.lines, *te.cursor);
+                        te.snap_over_folds(folding::Snap::Down);
                     }
                     egui::Key::Home => {
                         update_selection(te, shift);

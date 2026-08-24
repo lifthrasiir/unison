@@ -202,3 +202,40 @@ fn growing_header_height_expands_grid_and_gutter() {
     undo_all(&mut h);
     assert_eq!(h.grid(4).height, 2);
 }
+
+/// Cmd+Up/Down are the macOS way to reach the ends of a document. The same
+/// physical chord elsewhere is Ctrl+Up/Down, where it means nothing and only
+/// gets in the way — Ctrl+Home/End is the shortcut there. So the jump is the
+/// Command chord alone, told apart by `mac_cmd` rather than by the
+/// platform-folded `command`, and a Ctrl+Up/Down is swallowed rather than
+/// falling back to a plain Up/Down.
+#[test]
+fn only_the_command_chord_jumps_to_the_ends_of_the_document_with_arrows() {
+    let mac_cmd = Modifiers::MAC_CMD | Modifiers::COMMAND;
+    let ctrl = Modifiers {
+        ctrl: true,
+        command: true,
+        ..Modifiers::NONE
+    };
+
+    let mut h = EditorHarness::new("// one\n// two\n// three\n");
+    h.click_text(1, 0);
+    let start = h.cursor();
+
+    h.key_mod(Key::ArrowUp, mac_cmd);
+    assert_eq!(h.cursor(), Caret::zero(), "Cmd+Up goes to the top");
+    h.key_mod(Key::ArrowDown, mac_cmd);
+    assert!(h.cursor().line > start.line, "Cmd+Down goes to the end");
+
+    h.click_text(1, 0);
+    h.key_mod(Key::ArrowUp, ctrl);
+    assert_eq!(h.cursor(), start, "Ctrl+Up does nothing at all");
+    h.key_mod(Key::ArrowDown, ctrl);
+    assert_eq!(h.cursor(), start, "Ctrl+Down does nothing at all");
+
+    // Ctrl/Cmd+Home/End stay the portable way to the ends.
+    h.key_mod(Key::Home, ctrl);
+    assert_eq!(h.cursor(), Caret::zero());
+    h.key_mod(Key::End, ctrl);
+    assert!(h.cursor().line > start.line);
+}
