@@ -378,10 +378,16 @@ pub fn resolve_expanded_items(
 /// [`inject_on_demand_glyph_items`](crate::render::ttf_builder) would, because
 /// the caller inside the expansion runs before that pass — and otherwise
 /// nothing, in which case whatever refers to it stays unresolved and so
-/// unmeasured. A glyph split by an IDC line is treated the same way: its refs
-/// have not been derived yet at the point the expansion asks, and one of the
-/// two callers seeing them and the other not is exactly the disagreement this
-/// shared walk exists to prevent.
+/// unmeasured.
+///
+/// A glyph **split by an IDC line of its own** is walked too, by deriving that
+/// line here ([`derive_compose_body`]) exactly as the expansion will derive it
+/// later. Nesting is what an IDS-populated source is made of — `⿱艹林` names
+/// 林, which is itself `⿰木木` — so a walk that stopped at one left the outer
+/// line unmeasurable and silent, which reads like a layout nobody need look at.
+/// Both callers derive through this one walk for the same reason they flatten
+/// through it: one of them seeing a part and the other not is exactly the
+/// disagreement it exists to prevent.
 pub(crate) fn resolve_reachable<'a, 'b>(
     roots: impl Iterator<Item = &'a str>,
     body_of: &dyn Fn(&str) -> Option<&'b crate::document::GlyphBody>,
@@ -413,10 +419,32 @@ pub(crate) fn resolve_reachable<'a, 'b>(
         .flatten()
         .find_map(|n| body_of(n));
         if let Some(body) = found {
-            // Not measurable until its line has been expanded into refs.
-            if !body.compose.is_empty() {
-                continue;
-            }
+            // A line of its own is derived into refs first, and a line that
+            // cannot be derived leaves the glyph unmeasurable as before.
+            let derived;
+            let body = if body.compose.is_empty() {
+                body
+            } else {
+                let lookup = |n: &str| {
+                    let mut canonical = n.to_string();
+                    aliases.canonicalize(&mut canonical);
+                    let subst = substitute_name_parts(&canonical, name_parts);
+                    let expanded = parse_ref_pattern(&subst).map(|pattern| pattern.get(0));
+                    [
+                        Some(canonical.as_str()),
+                        Some(subst.as_str()),
+                        expanded.as_deref(),
+                    ]
+                    .into_iter()
+                    .flatten()
+                    .find_map(|n| body_of(n))
+                };
+                let Some(body) = derive_compose_body(&name, body, &lookup) else {
+                    continue;
+                };
+                derived = body;
+                &derived
+            };
             for r in &body.refs {
                 if seen.insert(r.name.clone()) {
                     queue.push(r.name.clone());
@@ -461,6 +489,59 @@ pub(crate) fn resolve_reachable<'a, 'b>(
         None,
     )
     .0
+}
+
+/// The body a glyph split by an IDC line will have once the expansion derives
+/// it: the line's refs in front of whatever the block draws over them, and no
+/// line left. `None` when that derivation is not one this walk may stand on.
+///
+/// It is `expand_compose` itself that derives them — not a second, simpler
+/// placement — so a part measured here is measured against the very geometry
+/// the font is built from. What it is *not* given is a family: an undecided
+/// component has no drawing to place, and the parts around it are laid out
+/// against whatever box the bare name happens to have, so the shape this would
+/// flatten is not the one the source will end up drawing. Half a part's ink
+/// measured is worse than none, so such a line yields nothing at all — and
+/// neither does one the derivation calls an error, or a glyph split twice,
+/// which is an error the source has to answer before anything here is a layout.
+fn derive_compose_body<'b>(
+    name: &str,
+    body: &crate::document::GlyphBody,
+    body_of: &dyn Fn(&str) -> Option<&'b crate::document::GlyphBody>,
+) -> Option<crate::document::GlyphBody> {
+    let [compose] = &body.compose[..] else {
+        return None;
+    };
+    if compose.part_names().any(|n| crate::compose::is_undecided(n)) {
+        return None;
+    }
+    let dims = |part: &str| match body_of(part) {
+        None => crate::compose::PartDims::Unknown,
+        Some(part) => match part.declared_extent() {
+            Some((w, h)) => crate::compose::PartDims::Size(w, h),
+            None => crate::compose::PartDims::Undeclared,
+        },
+    };
+    let (mut refs, issues) = crate::compose::expand_compose(
+        name,
+        body.declared_extent(),
+        body.scale,
+        compose,
+        &dims,
+        None,
+        None,
+    );
+    if issues
+        .iter()
+        .any(|(severity, _)| *severity == crate::issues::Severity::Error)
+    {
+        return None;
+    }
+    let mut out = body.clone();
+    refs.append(&mut out.refs);
+    out.refs = refs;
+    out.compose.clear();
+    Some(out)
 }
 
 /// [`resolve_expansion_cached`] over a glyph set stated directly, for the one

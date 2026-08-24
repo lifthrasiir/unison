@@ -108,11 +108,13 @@
 //! Everything here reads what a part *draws*. A part drawn with its own pixels
 //! is read off them; one that is a composite is flattened first and read off
 //! that, since a radical written as a `ref` to a shared drawing draws exactly
-//! as much as one written out. A part that draws nothing yet — and one that is
-//! itself split by an IDC line, whose refs are not derived until later — has no
-//! frontier, and a line with one of those in it is not measured rather than
-//! measured wrong. `ttf_builder::expand::ink_profiles` is where the three cases
-//! are told apart.
+//! as much as one written out. A part that is itself **split by an IDC line**
+//! is the same case one step further out — `⿱艹林` names 林, which is
+//! `⿰木木` — so its line is derived and then flattened. What has no frontier
+//! at all is a part that draws nothing yet, and one whose own line has an
+//! undecided component in it: a line with one of those in it is not measured
+//! rather than measured wrong. `ttf_builder::expand::ink_profiles` is where the
+//! cases are told apart.
 //!
 //! # The variant name rule (D1)
 //!

@@ -686,10 +686,14 @@ fn expand_compose_lines(
 /// subgraph is walked rather than the whole font: what is resolved here is the
 /// parts of clearance-checked lines and, transitively, what those refer to.
 ///
-/// What is still not measured is a part that is *itself* split by an IDC line:
-/// its own refs have not been derived at the point this runs, and deriving them
-/// first would need the lines ordered by dependency. The clearance check treats
-/// a missing profile as "not measurable" and stands down for the whole line.
+/// A part that is *itself* split by an IDC line is measured the same way: the
+/// walk derives its line before flattening it
+/// ([`resolve_reachable`](crate::ref_composite::resolve_reachable)), which is
+/// what an IDS-populated source is full of — `⿱艹林` names 林, which is
+/// `⿰木木`. What no profile can be had for — a name nothing declares, a part
+/// with no ink, a nested line whose own components are undecided — the
+/// clearance check reads as "not measurable" and stands down for the whole
+/// line, since half a line's ink measured is worse than none.
 fn ink_profiles(
     all_items: &[ExpandedItem],
     clearances: &crate::audit::IdealClearances,
@@ -734,8 +738,10 @@ fn ink_profiles(
         let Some(body) = bodies.get(name) else {
             continue;
         };
-        // A part split by a line of its own: see the note above.
+        // A part split by a line of its own draws no pixels either: the walk
+        // derives that line and flattens what it stands for. See the note above.
         if !body.compose.is_empty() {
+            composites.push(name);
             continue;
         }
         match (body.refs.is_empty(), body.pixels.as_ref()) {

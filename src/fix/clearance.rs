@@ -432,11 +432,13 @@ impl<'a> Inventory<'a> {
         inv
     }
 
-    /// Give the parts that are themselves composites a grid to be measured
+    /// Give the parts that draw no pixels of their own a grid to be measured
     /// over, by flattening them the way the build does
     /// ([`crate::ref_composite::resolve_reachable`]) — a radical written as a
-    /// `ref` to a shared drawing is a candidate like any other, and one that
-    /// could not be measured could not be chosen.
+    /// `ref` to a shared drawing is a candidate like any other, and so is one
+    /// split by an IDC line of its own (`⿱艹林`, where 林 is `⿰木木`), whose
+    /// line that walk derives before flattening it. One that could not be
+    /// measured could not be chosen.
     ///
     /// The same walk the clearance *check* makes, deliberately: the fixer may
     /// only touch a line the check reports, so a part it can measure and the
@@ -479,7 +481,7 @@ impl<'a> Inventory<'a> {
                 if !is_plain_name(&name) || bodies.contains_key(&name) {
                     continue;
                 }
-                if !body.refs.is_empty() && body.compose.is_empty() {
+                if !body.refs.is_empty() || !body.compose.is_empty() {
                     let base = name.split_once(':').map_or(&name[..], |(b, _)| b);
                     if families.contains(base) {
                         roots.push(name.clone());

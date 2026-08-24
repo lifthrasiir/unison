@@ -330,14 +330,15 @@ fn an_undecided_component_with_no_variants_is_skipped() {
     assert!(plan(&src).is_empty());
 }
 
-/// A component nothing defines, and one that is split by an IDC line of its
-/// own: both are lines the check does not measure, so there is nothing here to
-/// improve.
+/// A component nothing defines, and one split by a line whose own components
+/// have not been decided: neither names a drawing the check can measure, so
+/// there is nothing here to improve. (A part split by a *decided* line is
+/// measured like any other — see [`a_part_that_is_itself_split_can_be_chosen`].)
 #[test]
 fn unmeasurable_lines_are_skipped() {
     for line in ["\u{2FF0} a:4x4 nothing:4x4", "\u{2FF0} a:4x4 split:4x4"] {
         let src = format!(
-            "{}\nglyph split:4x4 4 4\n\u{2FF1} b:4x2 b:4x2\n\nglyph b:4x2 4 2\n..@@@@@@\n..@@@@@@\n",
+            "{}\nglyph split:4x4 4 4\n\u{2FF1} b b:4x2\n\nglyph b:4x2 4 2\n..@@@@@@\n..@@@@@@\n",
             TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", line)
         );
         assert!(plan(&src).is_empty(), "{line}");
@@ -896,4 +897,50 @@ fn an_alias_is_a_candidate_for_the_slot_its_name_states() {
     // Drop the alias and the slot is empty again: nothing to plan.
     let without = ALIASED_VARIANT.replace("glyph r:4x4-l = r:4x4-r\n\n", "");
     assert!(plan(&without).is_empty(), "no name the left slot can take");
+}
+
+/// A part that is itself split by an IDC line (`⿱艹林`, where 林 is `⿰木木`)
+/// is a candidate like any other: its own line is derived and the drawing it
+/// stands for is measured, so the outer line can be optimized.
+///
+/// `nested:4x4` is `⿰ in:2x4-l in:2x4-r`, which inks its columns 1..3; beside
+/// `left:4x4`, which inks 0..1, that leaves a canyon of 3 the gaps can spread.
+const NESTED: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph in:2x4-l 2 4
+..@@
+..@@
+..@@
+..@@
+
+glyph in:2x4-r 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+
+glyph left:4x4 4 4
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+
+glyph nested:4x4 4 4
+\u{2FF0} in:2x4-l in:2x4-r
+
+glyph test-x 8 4
+\u{2FF0} left:4x4 nested:4x4
+";
+
+#[test]
+fn a_part_that_is_itself_split_can_be_chosen() {
+    let fixes = plan(NESTED);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].glyph, "test-x");
+    // 0/3/0 as written: the middle is 2 outside the range and so is the total.
+    // The total is the parts' own and cannot move, so 1/1/1 is the best there
+    // is and the total's own 2 is all that is left.
+    assert_eq!((fixes[0].before, fixes[0].after), (Some(4), 2));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} 1 left:4x4 -2 nested:4x4");
 }

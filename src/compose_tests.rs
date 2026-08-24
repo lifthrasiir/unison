@@ -1296,3 +1296,81 @@ fn an_undecided_line_is_not_measured() {
         "{issues:?}"
     );
 }
+
+// ------------------------------------------ a part that is itself an IDC line
+
+/// The whole pipeline over an inline source, for the two tests below: the
+/// clearance warnings a build would print, in order.
+fn clearance_warnings(src: &str) -> Vec<String> {
+    let doc = crate::document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let r = crate::resolve::Resolution::compute(&[&doc]);
+    r.expansion
+        .diagnostics
+        .iter()
+        .filter(|d| d.severity == Severity::Warning && d.message.contains("outside the ideal"))
+        .map(|d| d.message.clone())
+        .collect()
+}
+
+/// `test-x` is `⿰ left:4x4 nested:4x4`, and `nested:4x4` is itself split by an
+/// IDC line. Its drawing exists all the same — the line derives it — so the
+/// outer line's clearances are measurable, and the canyon between the two
+/// parts is a warning like any other.
+///
+/// It used to be silently unmeasurable: a part split by a line of its own had
+/// no ink profile, and the check stands down for the whole line when one part
+/// cannot be measured. So a `⿱艹林` said nothing at all, which reads exactly
+/// like a layout nobody need look at.
+const NESTED: &str = "\
+audit ideal-clearance test-* 0 1
+
+glyph in:2x4-l 2 4
+..@@
+..@@
+..@@
+..@@
+
+glyph in:2x4-r 2 4
+@@@@
+@@@@
+@@@@
+@@@@
+
+glyph left:4x4 4 4
+@@@@....
+@@@@....
+@@@@....
+@@@@....
+
+glyph nested:4x4 4 4
+\u{2FF0} in:2x4-l in:2x4-r
+
+glyph test-x 8 4
+\u{2FF0} left:4x4 nested:4x4
+";
+
+#[test]
+fn a_part_that_is_itself_split_is_measured() {
+    let warnings = clearance_warnings(NESTED);
+    // `left:4x4` inks columns 0..1 and `nested:4x4`, placed at 4, inks 5..7:
+    // three cells between them, and the same three in total.
+    assert_eq!(warnings.len(), 2, "{warnings:?}");
+    assert!(
+        warnings[0].contains("leaves 3 between 'left:4x4' and 'nested:4x4'"),
+        "{warnings:?}"
+    );
+    assert!(warnings[1].contains("leaves 3 in total"), "{warnings:?}");
+}
+
+/// One part of the nested line has not picked its variant, so the nested
+/// drawing is not one the source has decided on — and half a layout measured is
+/// worse than none. The outer line stands down, as it does for any part it
+/// cannot measure.
+#[test]
+fn an_undecided_nested_part_is_still_not_measured() {
+    let src = NESTED.replace(
+        "\u{2FF0} in:2x4-l in:2x4-r",
+        "\u{2FF0} in-a in:2x4-r\n\nglyph in-a 2 4\n..@@\n..@@\n..@@\n..@@",
+    );
+    assert!(clearance_warnings(&src).is_empty(), "{src}");
+}
