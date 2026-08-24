@@ -163,11 +163,15 @@ fn run_fix(input: &std::path::Path, optimize_clearance: bool, dry_run: bool) -> 
                     f.glyph,
                     lines[line].trim(),
                     f.new_line,
-                    // A line whose component had no variant picked was never
-                    // measured; there is no number to have improved on.
-                    match f.before {
-                        Some(before) => before.to_string(),
-                        None => "todo".to_string(),
+                    // A line with no layout of its own was never measured;
+                    // there is no number to have improved on. Which of the two
+                    // reasons it is matters to whoever reads the diff: a
+                    // component with no variant picked is work not yet done,
+                    // and one the check errors on is work done wrong.
+                    match (f.before, f.faulty) {
+                        (Some(before), _) => before.to_string(),
+                        (None, true) => "error".to_string(),
+                        (None, false) => "todo".to_string(),
                     },
                     f.after,
                     // A line whose clearances were already right is rewritten

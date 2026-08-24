@@ -11,7 +11,7 @@
 //! *lowers* the score, so a line that cannot be improved keeps the warning
 //! rather than being shuffled about.
 //!
-//! There are three kinds of report it acts on, and they are not the same act:
+//! There are four kinds of report it acts on, and they are not the same act:
 //!
 //! - a **clearance warning**, where the line has a layout and the layout is
 //!   outside the range. The search moves it inside, and the rewrite has to
@@ -27,11 +27,22 @@
 //!   there is no score to lower — but the family the component names is on hand
 //!   and choosing from it is exactly what the TODO asks for. Such a line is
 //!   planned whatever it scores, since any decided layout is more than none,
-//!   and its [`ClearanceFix::before`] is `None` to say so.
+//!   and its [`ClearanceFix::before`] is `None` to say so;
+//! - an **error**, where a component is wrong about the glyph it names: nothing
+//!   is drawn under that name, or the drawing does not fill the slot across the
+//!   axis, or the name states a size the glyph does not have
+//!   ([`SlotState::Faulty`] lists them against the messages `compose` writes).
+//!   That is the TODO's case again and it is planned the same way — a component
+//!   naming a drawing that does not exist has picked no variant any more than
+//!   an undecided one has — so the line has no layout that came out wrong, its
+//!   `before` is `None`, and the family is searched *without* the name that
+//!   errors. [`ClearanceFix::faulty`] is what tells the two apart in the
+//!   report.
 //!
-//! What is skipped is what cannot be measured *after* a choice either: a
-//! component that names nothing, a part with no ink of its own, an undecided
-//! component whose family is empty.
+//! What is skipped is what cannot be measured *after* a choice either: a part
+//! with no ink of its own, a part that is a composite this pass cannot flatten,
+//! a component — undecided or erroring — whose family draws nothing that could
+//! fill the slot.
 //!
 //! # A line that stands for a family
 //!
@@ -70,8 +81,8 @@
 //! (`compose::direction_rank` = 2, i.e. a `-r` variant for the
 //! left slot of a `⿰`). The component as currently written is always a
 //! candidate, whatever it says, since it is the source's own choice and not an
-//! alternative being proposed — unless it is undecided, which names no drawing
-//! that could fill anything.
+//! alternative being proposed — unless it names no drawing that could fill
+//! anything, which is an undecided component and an erroring one alike.
 //!
 //! The score of a layout is how far its clearances fall outside the range,
 //! summed — each of the n+1 clearances, plus their total, exactly the set of
@@ -183,6 +194,13 @@ pub struct ClearanceFix {
     /// after. `None` for a line that stands for one glyph, which either warns
     /// or is not planned.
     pub glyphs_warning: Option<(usize, usize)>,
+    /// Whether the line as written names something the check *errors* on — a
+    /// component nothing defines, one whose box does not fill the slot across
+    /// the axis, one whose name is wrong about its own size. Such a line has no
+    /// layout to have measured badly, so a plain one's [`before`](Self::before)
+    /// is `None` for the same reason a TODO's is; the flag is how the report
+    /// tells the two apart.
+    pub faulty: bool,
 }
 
 /// What one document's fixes are, in the order the lines appear.
@@ -272,6 +290,7 @@ pub fn optimize_clearance(docs: &[&Document]) -> Vec<DocumentFixes> {
                     after: planned.after,
                     mismatched: planned.mismatched,
                     glyphs_warning: planned.glyphs_warning,
+                    faulty: planned.faulty,
                 });
             }
         }
@@ -551,28 +570,59 @@ impl<'a> Inventory<'a> {
         cross: u16,
         horizontal: bool,
     ) -> Option<Candidate> {
+        match self.candidate_state(written, slot, cross, horizontal) {
+            SlotState::Ok(candidate) => Some(*candidate),
+            _ => None,
+        }
+    }
+
+    /// The same, saying *why* when the name cannot go in the slot: the two
+    /// answers are not the same act. See [`SlotState`].
+    fn candidate_state(
+        &self,
+        written: &str,
+        slot: Option<Direction>,
+        cross: u16,
+        horizontal: bool,
+    ) -> SlotState {
         let canonical = self.canonical(written);
-        let (w, h) = (*self.boxes.get(&canonical)?)?;
+        // Every one of these is a `Severity::Error` on the line, and the
+        // messages `compose::compose_refs` writes for them say what they are:
+        // a component nothing defines, one whose header declares no box, one
+        // that does not fill the slot across the axis, one whose name is wrong
+        // about the size of the glyph it names.
+        let Some(&declared) = self.boxes.get(&canonical) else {
+            return SlotState::Faulty;
+        };
+        let Some((w, h)) = declared else {
+            return SlotState::Faulty;
+        };
         let (along, across) = if horizontal { (w, h) } else { (h, w) };
         if across != cross {
-            return None;
+            return SlotState::Faulty;
         }
-        // A name that lies about its own size is a source error, not a variant
-        // to choose from.
         let spec = VariantSpec::parse(&canonical);
         if spec.size.is_some_and(|size| size != (w, h)) {
-            return None;
+            return SlotState::Faulty;
         }
-        let profile = self.profile(&canonical)?;
-        Some(Candidate {
-            frontier: profile.frontier(horizontal)?,
+        // Past here the name is sound and the *drawing* is what is missing:
+        // nothing is wrong with the line, this pass simply cannot read what it
+        // would have to read to score it.
+        let Some(profile) = self.profile(&canonical) else {
+            return SlotState::Unmeasurable;
+        };
+        let Some(frontier) = profile.frontier(horizontal) else {
+            return SlotState::Unmeasurable;
+        };
+        SlotState::Ok(Box::new(Candidate {
+            frontier,
             // Ranked on the name as *written*, which is the name the check
             // reads when it decides whether to warn.
             rank: crate::compose::direction_rank(written, slot),
             name: written.to_string(),
             extent: along as i32,
             profile,
-        })
+        }))
     }
 
     /// Everything that could fill the slot `current` fills now, `current`
@@ -595,14 +645,24 @@ impl<'a> Inventory<'a> {
         let base = if crate::compose::is_undecided(&canonical) {
             canonical.clone()
         } else {
-            let Some(mine) = self.candidate(current, slot, cross, horizontal) else {
-                return out;
-            };
-            out.push(mine);
-            let Some((base, _)) = canonical.split_once(':') else {
-                return out;
-            };
-            base.to_string()
+            match self.candidate(current, slot, cross, horizontal) {
+                Some(mine) => {
+                    out.push(mine);
+                    let Some((base, _)) = canonical.split_once(':') else {
+                        return out;
+                    };
+                    base.to_string()
+                }
+                // A name the check errors on: it names no drawing that could
+                // fill the slot, so it is not offered back, and the family it
+                // names is searched for one that could. That is the second case
+                // where the list can come back without the name the line is
+                // written with, and the caller has already stopped scoring the
+                // line as written.
+                None => canonical
+                    .split_once(':')
+                    .map_or_else(|| canonical.clone(), |(base, _)| base.to_string()),
+            }
         };
         for name in self.variants.get(&base).into_iter().flatten() {
             if out.len() >= MAX_CANDIDATES {
@@ -637,6 +697,22 @@ impl<'a> Inventory<'a> {
     }
 }
 
+/// What a name written in a slot turns out to be.
+///
+/// The two ways it can fail are not the same thing and the caller does not
+/// treat them alike: a **faulty** name is one the check reports a
+/// `Severity::Error` for, so the line has no layout that was measured — there
+/// is nothing to have got worse, and the family the component names is
+/// searched for a name that would work. An **unmeasurable** one is a sound
+/// name whose drawing this pass cannot read (a composite it could not flatten,
+/// a part with no ink of its own), which is the case it has always skipped:
+/// what it cannot measure before a choice it cannot measure after one either.
+enum SlotState {
+    Ok(Box<Candidate>),
+    Faulty,
+    Unmeasurable,
+}
+
 /// One name a slot could hold, with everything the score needs from it.
 ///
 /// Cloning one is cheap — the profile behind it is shared — which is what lets
@@ -667,6 +743,13 @@ struct Key {
     mismatched: usize,
     /// More names drawn *for* their slot first.
     directed: std::cmp::Reverse<usize>,
+    /// More slots whose name is as long along the axis as the one the line
+    /// asked for, first — counted only over the slots that have to be filled
+    /// from the family because what the line writes errors, where the size the
+    /// erroring name states is the one thing about it that still says what its
+    /// author wanted. Zero everywhere else, so this orders nothing on a line
+    /// whose components are sound.
+    asked: std::cmp::Reverse<usize>,
     /// The two edge clearances, added.
     edge_sum: i32,
     /// How far apart the two inner clearances are (`⿲`/`⿳` only; 0 otherwise).
@@ -708,19 +791,45 @@ fn optimize_line(
     // "must lower the score" rule below has nothing to compare against.
     let undecided = written.iter().any(|n| crate::compose::is_undecided(n));
 
+    // A component the check *errors* on — a name nothing defines, a box that
+    // does not fill the slot — is the other way a line comes to have no layout
+    // this pass can score. It is not a measurement that came out wrong, so
+    // there is nothing to lower and nothing to compare against, exactly as for
+    // an undecided component; and the family the component names is searched
+    // without it below, since it names no drawing that could go there.
+    let mut faulty = false;
+    // What each erroring slot asked for, along the axis: the size its name
+    // states is wrong about the glyph it names, but it is still the extent its
+    // author wanted, and among two answers that measure alike it decides. Only
+    // the erroring slots are in it — see [`Key::asked`].
+    let mut asked: Vec<Option<i32>> = vec![None; written.len()];
+    let current: Option<Vec<Candidate>> = match undecided {
+        true => None,
+        false => {
+            let mut parts = Vec::with_capacity(written.len());
+            for (slot, name) in written.iter().enumerate() {
+                match inv.candidate_state(name, op.slot_direction(slot), cross_extent, horizontal) {
+                    SlotState::Ok(candidate) => parts.push(*candidate),
+                    SlotState::Faulty => {
+                        faulty = true;
+                        asked[slot] = VariantSpec::parse(name)
+                            .size
+                            .map(|(w, h)| i32::from(if horizontal { w } else { h }));
+                    }
+                    // Nothing this pass could measure after a choice either.
+                    SlotState::Unmeasurable => return None,
+                }
+            }
+            (!faulty).then_some(parts)
+        }
+    };
+
     // As written: the parts where the line's own gaps put them, and how many
     // of them are drawn for a slot they do not sit in. Both are things the
     // check warns about, and a line is left alone only when neither does.
-    let before = match undecided {
-        true => None,
-        false => {
-            let current: Vec<Candidate> = written
-                .iter()
-                .enumerate()
-                .map(|(slot, name)| {
-                    inv.candidate(name, op.slot_direction(slot), cross_extent, horizontal)
-                })
-                .collect::<Option<Vec<_>>>()?;
+    let before = match current {
+        None => None,
+        Some(current) => {
             let placed = walk(compose, &current);
             let as_written: Vec<&Candidate> = current.iter().collect();
             let before = (
@@ -764,8 +873,16 @@ fn optimize_line(
             .enumerate()
             .map(|(s, &i)| &slots[s][i])
             .collect();
-        let Some(key) = evaluate(&chosen, &written, axis_extent, horizontal, lo, hi, contact)
-        else {
+        let Some(key) = evaluate(
+            &chosen,
+            &written,
+            &asked,
+            axis_extent,
+            horizontal,
+            lo,
+            hi,
+            contact,
+        ) else {
             continue;
         };
         if best.as_ref().is_none_or(|(b, _)| key < *b) {
@@ -808,6 +925,7 @@ fn optimize_line(
         after: key.score,
         mismatched: before.map(|(_, mismatched)| (mismatched, key.mismatched)),
         glyphs_warning: None,
+        faulty,
     })
 }
 
@@ -822,6 +940,7 @@ struct PlannedLine {
     after: i32,
     mismatched: Option<(usize, usize)>,
     glyphs_warning: Option<(usize, usize)>,
+    faulty: bool,
 }
 
 /// One glyph of the family a pattern line stands for: what it is held to, and
@@ -835,6 +954,12 @@ struct MemberNames {
     /// One per slot, in the line's order.
     names: Vec<String>,
     contact: Option<u16>,
+    /// Whether the line as written names something the check errors on in any
+    /// of this glyph's slots ([`SlotState::Faulty`]). Such a glyph has no
+    /// layout as written — it is counted among the ones that warn and left out
+    /// of every sum — and a label that draws for the whole family, this glyph
+    /// included, is what puts it right.
+    faulty: bool,
 }
 
 /// One glyph of the family at one choice of labels: the range its own rule
@@ -886,8 +1011,11 @@ struct LabelChoice {
     /// scores it. One number for the family: the label is what carries a
     /// direction, and the label is what every glyph here shares.
     rank: u8,
-    /// The glyph each member puts in the slot, in `members` order.
-    parts: Vec<Candidate>,
+    /// The glyph each member puts in the slot, in `members` order. `None` for
+    /// a member the line as written errors on at this slot; only the line's own
+    /// component ([`relabel`](Self::relabel) `None`) ever carries one, since a
+    /// label is offered only where every glyph of the family draws at it.
+    parts: Vec<Option<Candidate>>,
 }
 
 /// Plan a pattern block's IDC line.
@@ -903,23 +1031,31 @@ struct LabelChoice {
 ///
 /// The objective is that shared choice, in this order:
 ///
-/// 1. **the fewest glyphs warning at all.** A family in which one more glyph is
-///    finished is worth more than one in which every glyph is slightly less
-///    wrong: the warnings are a work queue, and its length is what the command
-///    is there to shorten;
+/// 1. **the fewest glyphs warning at all**, a glyph the check errors on
+///    counting among them. A family in which one more glyph is finished is
+///    worth more than one in which every glyph is slightly less wrong: the
+///    warnings are a work queue, and its length is what the command is there to
+///    shorten;
 /// 2. then the summed score, and the same tie-breaks a single line is ordered
 ///    by ([`Key`]) summed over the family — a gap moves every glyph's first
 ///    clearance by the same amount, so ordering the gaps lexicographically
 ///    orders the clearances the way [`Key`] does.
 ///
-/// A glyph whose parts this pass cannot measure — a name nothing defines, a
-/// part that is itself a composite, a component with no variant picked, a name
-/// no `audit ideal-clearance` rule reaches — is left out of the answer rather
-/// than making the whole family unfixable. Which glyphs those are is decided
-/// once, on the line as written, so that every choice below is scored over the
-/// same family; a *choice* that some member of it cannot be measured at is
-/// dropped instead. The line still has to warn about something, and the answer
-/// still has to improve on what is written.
+/// A glyph whose parts this pass cannot measure — a part that is itself a
+/// composite, a component with no variant picked, a name no
+/// `audit ideal-clearance` rule reaches — is left out of the answer rather than
+/// making the whole family unfixable. Which glyphs those are is decided once,
+/// on the line as written, so that every choice below is scored over the same
+/// family; a *choice* that one of them cannot be measured at is dropped
+/// instead. The line still has to warn about something, and the answer still
+/// has to improve on what is written.
+///
+/// A glyph the check *errors* on ([`SlotState::Faulty`]) is the one thing that
+/// is neither: it has no layout to be scored at either, but a name nothing
+/// draws is precisely what a shared label could answer, so it is kept — with no
+/// layout, counted among the glyphs that warn, and asked for the label along
+/// with the rest of the family. Fixing one is then the same act as bringing a
+/// glyph inside its range, and the first objective values it the same way.
 fn optimize_pattern_line(
     inv: &Inventory,
     audit: &crate::audit::AuditRules,
@@ -963,7 +1099,7 @@ fn optimize_pattern_line(
     let mut members: Vec<MemberNames> = Vec::new();
     // The parts of each member as the line writes them, kept beside it: they
     // are the first choice of every slot below.
-    let mut as_written: Vec<Vec<Candidate>> = Vec::new();
+    let mut as_written: Vec<Vec<Option<Candidate>>> = Vec::new();
     for item in &expanded {
         let DocumentItem::Glyph { name, body } = item else {
             continue;
@@ -985,28 +1121,43 @@ fn optimize_pattern_line(
         if names.iter().any(|n| crate::compose::is_undecided(n)) {
             continue;
         }
-        let Some(parts) = names
-            .iter()
-            .enumerate()
-            .map(|(slot, n)| inv.candidate(n, op.slot_direction(slot), cross_extent, horizontal))
-            .collect::<Option<Vec<Candidate>>>()
-        else {
+        // Per slot, so that a glyph one of whose components errors keeps the
+        // parts of the slots that are sound: a label found for the slot that
+        // errors has to be laid out beside them.
+        let mut parts: Vec<Option<Candidate>> = Vec::with_capacity(names.len());
+        let mut faulty = false;
+        let mut unmeasurable = false;
+        for (slot, n) in names.iter().enumerate() {
+            match inv.candidate_state(n, op.slot_direction(slot), cross_extent, horizontal) {
+                SlotState::Ok(candidate) => parts.push(Some(*candidate)),
+                SlotState::Faulty => {
+                    faulty = true;
+                    parts.push(None);
+                }
+                SlotState::Unmeasurable => unmeasurable = true,
+            }
+        }
+        if unmeasurable {
             continue;
-        };
+        }
         let contact = audit
             .max_contact_run
             .for_glyph(&member_name)
             .map(|(_, m)| m);
-        // Two neighbours with no line on which both draw: nothing to measure.
-        let refs: Vec<&Candidate> = parts.iter().collect();
-        if affine_layout(&refs, axis_extent, horizontal, contact).is_none() {
-            continue;
+        if !faulty {
+            // Two neighbours with no line on which both draw: nothing to
+            // measure, here or at any label.
+            let refs: Vec<&Candidate> = parts.iter().flatten().collect();
+            if affine_layout(&refs, axis_extent, horizontal, contact).is_none() {
+                continue;
+            }
         }
         members.push(MemberNames {
             lo: lo as i32,
             hi: hi as i32,
             names,
             contact,
+            faulty,
         });
         as_written.push(parts);
     }
@@ -1082,7 +1233,7 @@ fn optimize_pattern_line(
         let mut choices: Vec<Vec<i32>> = Vec::with_capacity(written_gaps.len());
         for (i, gap) in written_gaps.iter().enumerate() {
             let (mut lo, mut hi) = (*gap, *gap);
-            for member in &family {
+            for member in family.iter().flatten() {
                 lo = lo.min(member.lo - member.base[i] - 1);
                 hi = hi.max(member.hi - member.base[i] + 1);
             }
@@ -1123,7 +1274,11 @@ fn optimize_pattern_line(
     let family = member_layouts(&members, &slots, &pick, axis_extent, horizontal)?;
     let (mut score_after, mut warnings_after) = (0, 0);
     for (m, member) in family.iter().enumerate() {
-        let parts = parts_at(&slots, &pick, m);
+        let Some(member) = member else {
+            warnings_after += 1;
+            continue;
+        };
+        let parts = parts_at(&slots, &pick, m)?;
         let mut positions = vec![gaps[0]];
         for (i, part) in parts.iter().enumerate().take(parts.len() - 1) {
             positions.push(positions[i] + part.extent + gaps[i + 1]);
@@ -1145,6 +1300,7 @@ fn optimize_pattern_line(
         after: key.score,
         mismatched: Some((before.mismatched, key.mismatched)),
         glyphs_warning: Some((before.warnings, key.warnings)),
+        faulty: members.iter().any(|m| m.faulty),
     })
 }
 
@@ -1161,7 +1317,7 @@ fn optimize_pattern_line(
 fn slot_choices(
     inv: &Inventory,
     members: &[MemberNames],
-    as_written: &[Vec<Candidate>],
+    as_written: &[Vec<Option<Candidate>>],
     written: &str,
     slot: usize,
     dir: Option<Direction>,
@@ -1174,6 +1330,8 @@ fn slot_choices(
         // Ranked on the name as *written*, which is the name the check reads
         // when it decides whether to warn.
         rank: crate::compose::direction_rank(written, dir),
+        // A glyph the line as written errors on *at this slot* has no part
+        // here to keep; one that errors at another slot keeps this one.
         parts: as_written.iter().map(|p| p[slot].clone()).collect(),
     }];
     let Some((base, label)) = written.split_once(':') else {
@@ -1253,7 +1411,7 @@ fn slot_choices(
         out.push(LabelChoice {
             relabel: Some((candidate_label.to_string(), name)),
             rank,
-            parts,
+            parts: parts.into_iter().map(Some).collect(),
         });
     }
     out
@@ -1265,11 +1423,11 @@ fn parts_at<'a>(
     slots: &'a [Vec<LabelChoice>],
     pick: &[usize],
     member: usize,
-) -> Vec<&'a Candidate> {
+) -> Option<Vec<&'a Candidate>> {
     slots
         .iter()
         .zip(pick)
-        .map(|(choices, &i)| &choices[i].parts[member])
+        .map(|(choices, &i)| choices[i].parts[member].as_ref())
         .collect()
 }
 
@@ -1293,29 +1451,42 @@ fn affine_layout(
     Some((base, total))
 }
 
-/// The whole family's layouts at one choice of labels, or `None` when some
-/// glyph of it cannot be measured there — a choice that is no answer, since
-/// every choice is scored over the same family.
+/// The whole family's layouts at one choice of labels, one per member — or
+/// `None` for the whole choice when a glyph the line *does* lay out cannot be
+/// measured at it, which is no answer, since every choice is scored over the
+/// same family.
+///
+/// A member's own entry is `None` when the choice leaves it with no layout at
+/// all: that is a glyph the line as written errors on, which no label has
+/// answered. It stays in the family and is counted among the ones that warn
+/// ([`evaluate_gaps`]) rather than dropping the choice, since the choice is not
+/// what made it unmeasurable.
 fn member_layouts(
     members: &[MemberNames],
     slots: &[Vec<LabelChoice>],
     pick: &[usize],
     axis_extent: i32,
     horizontal: bool,
-) -> Option<Vec<Member>> {
+) -> Option<Vec<Option<Member>>> {
     members
         .iter()
         .enumerate()
         .map(|(m, member)| {
-            let parts = parts_at(slots, pick, m);
-            let (base, total) = affine_layout(&parts, axis_extent, horizontal, member.contact)?;
-            Some(Member {
-                lo: member.lo,
-                hi: member.hi,
-                base,
-                total,
-                contact: member.contact,
-            })
+            let layout = parts_at(slots, pick, m).and_then(|parts| {
+                affine_layout(&parts, axis_extent, horizontal, member.contact)
+            });
+            match layout {
+                Some((base, total)) => Some(Some(Member {
+                    lo: member.lo,
+                    hi: member.hi,
+                    base,
+                    total,
+                    contact: member.contact,
+                })),
+                // A glyph that was measured as written and is not measurable
+                // here: the choice is dropped, exactly as before.
+                None => member.faulty.then_some(None),
+            }
         })
         .collect()
 }
@@ -1344,7 +1515,7 @@ struct PatternKey {
 
 /// Score one choice of labels and gaps over the whole family.
 fn evaluate_gaps(
-    family: &[Member],
+    family: &[Option<Member>],
     slots: &[Vec<LabelChoice>],
     pick: &[usize],
     gaps: &[i32],
@@ -1370,6 +1541,12 @@ fn evaluate_gaps(
     };
     let mut clearances: Vec<i32> = Vec::with_capacity(4);
     for member in family {
+        // A glyph this choice leaves with no layout is one the check errors on
+        // and nothing here has answered: it warns, at every set of gaps alike.
+        let Some(member) = member else {
+            key.warnings += 1;
+            continue;
+        };
         member.clearances_into(gaps, &mut clearances);
         let n = clearances.len();
         let s = score(&clearances, member.lo, member.hi);
@@ -1432,9 +1609,11 @@ fn write_pattern_line(
 }
 
 /// Score one candidate combination, and the layout it is scored at.
+#[allow(clippy::too_many_arguments)]
 fn evaluate(
     chosen: &[&Candidate],
     written: &[&str],
+    asked: &[Option<i32>],
     axis_extent: i32,
     horizontal: bool,
     lo: i32,
@@ -1452,6 +1631,13 @@ fn evaluate(
         score: score(&clearances, lo, hi),
         mismatched: chosen.iter().filter(|c| c.rank == 2).count(),
         directed: std::cmp::Reverse(chosen.iter().filter(|c| c.rank == 0).count()),
+        asked: std::cmp::Reverse(
+            chosen
+                .iter()
+                .zip(asked)
+                .filter(|(c, asked)| **asked == Some(c.extent))
+                .count(),
+        ),
         edge_sum: clearances[0] + clearances[n - 1],
         inner_spread: match n {
             4 => (clearances[1] - clearances[2]).abs(),

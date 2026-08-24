@@ -330,8 +330,9 @@ fn an_undecided_component_with_no_variants_is_skipped() {
     assert!(plan(&src).is_empty());
 }
 
-/// A component nothing defines, and one split by a line whose own components
-/// have not been decided: neither names a drawing the check can measure, so
+/// A component nothing defines whose *family* draws nothing either, and one
+/// split by a line whose own components have not been decided: neither names a
+/// drawing the check can measure and neither has an alternative that would, so
 /// there is nothing here to improve. (A part split by a *decided* line is
 /// measured like any other — see [`a_part_that_is_itself_split_can_be_chosen`].)
 #[test]
@@ -343,10 +344,80 @@ fn unmeasurable_lines_are_skipped() {
         );
         assert!(plan(&src).is_empty(), "{line}");
     }
-    // A component whose box does not fill the slot across the axis is an
-    // error the source has to answer first.
+    // A component whose box does not fill the slot across the axis errors, and
+    // its family draws nothing that would fill it instead.
     let src = TWO_PARTS.replace("\u{2FF0} a:4x4 b:4x4", "\u{2FF0} a:4x4 short:4x2");
     assert!(plan(&format!("{src}\nglyph short:4x2 4 2\n..@@@@@@\n..@@@@@@\n")).is_empty());
+}
+
+/// A line the check *errors* on has no layout either — a component naming a
+/// glyph nothing defines is not a measurement that came out wrong — but the
+/// family that component names is on hand, and choosing from it is what the
+/// error asks for. The three ways a component can be wrong about the glyph it
+/// names, and the one answer all of them reach: the variant that is actually
+/// drawn, at the gaps the sound line would have chosen.
+#[test]
+fn a_component_the_check_errors_on_picks_a_variant_that_fits() {
+    // `a:5x4` names nothing; `a:4x3` is the wrong height for the slot; `a:9x4`
+    // says 9x4 while the glyph it names is 4x4.
+    let extra = "\nglyph a:4x3 4 3\n@@@@....\n@@@@....\n@@@@....\n\
+                 \nglyph a:9x4 4 4\n@@@@....\n@@@@....\n@@@@....\n@@@@....\n";
+    for part in ["a:5x4", "a:4x3", "a:9x4"] {
+        let src = format!(
+            "{}{extra}",
+            TWO_PARTS.replace("\u{2FF0} a:4x4", &format!("\u{2FF0} {part}"))
+        );
+        let fixes = plan(&src);
+        assert_eq!(fixes.len(), 1, "{part}: {fixes:?}");
+        assert_eq!(fixes[0].before, None, "{part}: nothing was measured");
+        assert!(fixes[0].faulty, "{part}");
+        assert_eq!(fixes[0].after, 2, "{part}");
+        assert_eq!(fixes[0].new_line, "\u{2FF0} 1 a:4x4 -2 b:4x4", "{part}");
+    }
+}
+
+
+/// Two variants that measure alike, and the size the erroring name states as
+/// the thing that decides between them: a component that names a glyph nothing
+/// draws is wrong about the glyph, but the extent its author asked for is still
+/// written on it, and an answer that keeps it is the one to prefer.
+#[test]
+fn an_erroring_name_keeps_the_extent_it_asked_for() {
+    let src = "\
+audit ideal-clearance test-* 0 1
+
+glyph p:3x4 3 4
+@@@@@@
+@@@@@@
+@@@@@@
+@@@@@@
+
+glyph p:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph q:4x4 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+
+glyph test-x 8 4
+\u{2FF0} p:3x9 q:4x4
+";
+    // `p:4x4` fills the box exactly and `p:3x4` leaves the one cell the range
+    // allows: both score 0, and the 3 the line asked for is the tie-break.
+    let fixes = plan(src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
+    assert_eq!(fixes[0].new_line, "\u{2FF0} p:3x4 1 q:4x4", "the spare cell between them");
+    // An extent nothing in the family has decides nothing, and the layout that
+    // leaves the least at the edges wins as it always does.
+    let fixes = plan(&src.replace("p:3x9", "p:9x9"));
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert_eq!(fixes[0].new_line, "\u{2FF0} p:4x4 q:4x4");
 }
 
 /// A part that is a composite draws no pixels of its own, but it does draw: it
@@ -502,21 +573,48 @@ glyph test-(x|y|z) 8 4
 }
 
 /// A glyph of the family whose parts cannot be measured — one of them names
-/// nothing — is not part of the answer, and a family none of whose glyphs can
-/// be measured is left alone.
+/// nothing — has no layout in the answer, and a family none of whose glyphs
+/// can be measured is left alone. The glyph is still *counted*, since a name
+/// nothing defines is a thing the line is reported for; it is the label the
+/// slot shares that could put it right, and here the slot's label is the
+/// block's own pattern and there is nothing to move.
 #[test]
 fn a_glyph_the_line_cannot_measure_is_left_out_of_the_answer() {
     let src = PATTERN_PARTS.replace("(r1:4x4|r2:3x4)", "(r1:4x4|nothing:3x4)");
     let fixes = plan(&src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
-    // `test-x` alone decides now: 1/1/-2 to 0/0/0.
+    // `test-x` alone decides now: 1/1/-2 to 0/0/0, and `test-y` stays where it
+    // is, counted among the glyphs that warn on both sides.
     assert_eq!((fixes[0].before, fixes[0].after), (Some(2), 0));
-    assert_eq!(fixes[0].glyphs_warning, Some((1, 0)));
+    assert_eq!(fixes[0].glyphs_warning, Some((2, 1)));
 
     let none = PATTERN_PARTS
         .replace("(r1:4x4|r2:3x4)", "(nope:4x4|nothing:3x4)")
         .replace("glyph r1:4x4 4 4", "glyph unused-r1:4x4 4 4");
     assert!(plan(&none).is_empty());
+}
+
+/// A pattern line one of whose glyphs the check errors on: the label the slot
+/// shares is what can put it right, and the search asks every glyph's family
+/// for it — the erroring one included, which is the whole point. `r2:4x4` is
+/// not drawn, so the one label both families offer is `3x4`.
+#[test]
+fn a_shared_label_answers_a_glyph_the_check_errors_on() {
+    let src = format!(
+        "{}\nglyph r1:3x4 3 4\n@@@@@@\n@@@@@@\n@@@@@@\n@@@@@@\n",
+        PATTERN_PARTS.replace(
+            "\u{2FF0} 1 (l1:4x4|l2:5x4) 1 (r1:4x4|r2:3x4)",
+            "\u{2FF0} (l1:4x4|l2:5x4) (r1|r2):4x4",
+        )
+    );
+    let fixes = plan(&src);
+    assert_eq!(fixes.len(), 1, "{fixes:?}");
+    assert!(fixes[0].faulty);
+    assert_eq!(
+        fixes[0].new_line, "\u{2FF0} (l1:4x4|l2:5x4) (r1|r2):3x4",
+        "the one label every glyph of the family draws",
+    );
+    assert_eq!(fixes[0].glyphs_warning, Some((1, 0)));
 }
 
 /// A pattern line whose gaps already suit every glyph it stands for is not
