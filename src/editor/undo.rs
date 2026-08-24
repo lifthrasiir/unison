@@ -68,6 +68,26 @@ pub struct UndoStack {
     position: usize,
     last_push_time: std::time::Instant,
     saved_position: Option<usize>,
+    /// Stepped whenever entries are dropped for a redo branch nobody can reach
+    /// again. A [`SavePoint`] taken before that happened names a state the
+    /// stack can no longer walk to, and this is how it is told apart from a
+    /// position that merely moved; see [`UndoStack::mark_saved_at`].
+    epoch: u64,
+}
+
+/// The state of a buffer at one moment, kept so that a write finishing later
+/// can be credited to the revision it actually wrote.
+///
+/// A save is not instant — on a network share it is the slowest thing the
+/// editor does — and the buffer moves on while it is in flight. Marking the
+/// *current* position saved when the write lands would call edits made during
+/// the write saved as well, and they are not on disk. So the position is taken
+/// when the bytes are serialized and handed back at the end; see
+/// [`crate::app::save`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SavePoint {
+    position: usize,
+    epoch: u64,
 }
 
 impl UndoStack {
@@ -77,6 +97,7 @@ impl UndoStack {
             position: 0,
             last_push_time: std::time::Instant::now() - std::time::Duration::from_secs(10),
             saved_position: Some(0),
+            epoch: 0,
         }
     }
 
@@ -89,11 +110,42 @@ impl UndoStack {
         self.break_coalesce();
     }
 
+    /// The point a write about to be started is writing, with coalescing
+    /// broken so that the next keystroke cannot fold into the entry this names
+    /// — the same reason [`UndoStack::mark_saved`] breaks it.
+    pub fn save_point(&mut self) -> SavePoint {
+        self.break_coalesce();
+        SavePoint {
+            position: self.position,
+            epoch: self.epoch,
+        }
+    }
+
+    /// Records that the buffer as of `point` is what is on disk now.
+    ///
+    /// A point whose entries have since been dropped — the user undid past it
+    /// and typed, so the redo branch it sat on is gone — names a state nothing
+    /// can walk back to, and leaves the document unconditionally dirty rather
+    /// than claiming a position that now means something else.
+    pub fn mark_saved_at(&mut self, point: SavePoint) {
+        if point.epoch == self.epoch {
+            self.saved_position = Some(point.position);
+        } else {
+            self.saved_position = None;
+        }
+        if self.is_at_saved() {
+            self.break_coalesce();
+        }
+    }
+
     pub fn is_at_saved(&self) -> bool {
         self.saved_position == Some(self.position)
     }
 
     fn truncate_and_invalidate(&mut self) {
+        if self.entries.len() > self.position {
+            self.epoch = self.epoch.wrapping_add(1);
+        }
         self.entries.truncate(self.position);
         if let Some(sp) = self.saved_position
             && sp > self.position
@@ -963,6 +1015,61 @@ mod tests {
         undo.undo(&mut lines);
         assert!(undo.is_at_saved());
 
+        undo.redo(&mut lines);
+        assert!(!undo.is_at_saved());
+    }
+
+    /// A write started at one revision and landing after two more edits is
+    /// credited to the revision it wrote, not to the buffer as it stands. See
+    /// [`crate::app::save`].
+    #[test]
+    fn a_save_point_credits_the_revision_it_was_taken_at() {
+        let mut lines = vec![text("abc")];
+        let mut undo = UndoStack::new();
+
+        undo.break_coalesce();
+        undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
+        lines[0] = DocLine::Text("abcd".into());
+
+        let point = undo.save_point();
+
+        undo.break_coalesce();
+        undo.push_text(0, 4, "".into(), "e".into(), c(0, 4), c(0, 5));
+        lines[0] = DocLine::Text("abcde".into());
+
+        undo.mark_saved_at(point);
+        assert!(
+            !undo.is_at_saved(),
+            "the edit made while the write was in flight is not on disk"
+        );
+
+        undo.undo(&mut lines);
+        assert!(undo.is_at_saved(), "back at the revision the write carried");
+    }
+
+    /// The redo branch a save point sat on can be thrown away while the write
+    /// is in flight — undo past it, then type. Nothing can walk back to what
+    /// was written, so the point names nothing and the document stays dirty.
+    #[test]
+    fn a_save_point_on_a_dropped_redo_branch_credits_nothing() {
+        let mut lines = vec![text("abc")];
+        let mut undo = UndoStack::new();
+
+        undo.break_coalesce();
+        undo.push_text(0, 3, "".into(), "d".into(), c(0, 3), c(0, 4));
+        lines[0] = DocLine::Text("abcd".into());
+
+        let point = undo.save_point();
+
+        undo.undo(&mut lines);
+        undo.break_coalesce();
+        undo.push_text(0, 3, "".into(), "z".into(), c(0, 3), c(0, 4));
+        lines[0] = DocLine::Text("abcz".into());
+
+        undo.mark_saved_at(point);
+        assert!(!undo.is_at_saved());
+        undo.undo(&mut lines);
+        assert!(!undo.is_at_saved(), "and no position on the stack is it");
         undo.redo(&mut lines);
         assert!(!undo.is_at_saved());
     }

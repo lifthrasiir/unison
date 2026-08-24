@@ -27,6 +27,7 @@ mod panels;
 mod panes;
 mod rename;
 mod resize;
+mod save;
 mod search;
 mod settings;
 mod timing;
@@ -243,6 +244,8 @@ pub struct UniformApp {
     fix_tx: mpsc::Sender<FixResultMessage>,
     fix_running: bool,
     bg_tasks: BackgroundTaskStatus,
+    /// The worker every write to an open document goes through. See [`save`].
+    saves: save::SaveQueue,
     /// Startup instrumentation (`startup.rs`): whether the first frame has been
     /// through `update`, and whether its report window is open.
     first_frame_seen: bool,
@@ -497,6 +500,7 @@ impl UniformApp {
             fix_tx,
             fix_running: false,
             bg_tasks: BackgroundTaskStatus::new(),
+            saves: save::SaveQueue::new(egui_ctx),
             first_frame_seen: false,
             startup_timing_open: false,
         };
@@ -713,6 +717,7 @@ impl eframe::App for UniformApp {
         self.pump_file_watch(ctx);
 
         self.pump_background_pipeline(ctx);
+        self.pump_saves(ctx);
 
         let edit_target = if self.shaped_preview.is_focused() {
             EditTarget::Preview

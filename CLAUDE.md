@@ -178,6 +178,7 @@ Editor (feature `editor`):
   split-editor model and its two invariants), `search.rs` (the Search pane),
   `rename.rs`, `resize.rs` (carrying a glyph resize across every file that refers to the glyph),
   `fix.rs` (applying a `crate::fix` plan to the open documents, undoably),
+  `save.rs` (the write queue, and the revision a finished write is credited to),
   `settings.rs` (what survives between runs, and what egui persists instead),
   `timing.rs` (what one rebuild cost, on both threads — *View → Rebuild timing…*),
   `watch.rs` (the OS watch on the font directory and what an external change may do), `toast.rs`,
@@ -290,6 +291,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a component's `:label` is the family's to choose where its base is not, and why one label must serve every glyph | `fix/clearance.rs` (`slot_choices`) |
 | Which parts the variant search knows about, pattern-declared blocks included | `fix/clearance.rs` (`Inventory::collect`, `block_names`) |
 | A fix in the editor: one undo entry per file, and why nothing is written to disk | `app/fix.rs` |
+| Saving off the UI thread, and why a finished write is credited to the revision it wrote rather than to the buffer | `app/save.rs`, `editor/undo.rs` (`SavePoint`) |
+| Why the bytes a write is putting on disk are recorded before it starts | `app/save.rs` (`enqueue_save`), `app/docs.rs` (`knows_disk_bytes`), `app/watch.rs` |
+| Why quitting is the one save that waits | `app/save.rs` (`finish_pending_saves`), `app/docs.rs` (`confirm_close_and_maybe_save`) |
 | Why a rule about the source is `audit` and not `meta` | `audit.rs` |
 | Which parts a clearance check can measure, and what it costs a source with no rule | `render/ttf_builder/expand.rs` (`ink_profiles`) |
 | Measuring a part that is itself a composite, and the walk the check and the fixer share so they measure the same set | `ref_composite/mod.rs` (`resolve_reachable`), `render/ttf_builder/expand.rs` (`ink_profiles`), `fix/clearance.rs` (`Inventory::flatten_composites`) |

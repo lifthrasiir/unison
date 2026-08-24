@@ -847,7 +847,7 @@ impl super::UniformApp {
                 // Re-checked here, not just in the scan: the file may have
                 // been saved from this editor while the scan was in flight,
                 // which makes those bytes ours after all.
-                unchanged: doc.disk_hash == Some(file.hash),
+                unchanged: doc.knows_disk_bytes(file.hash),
                 dirty: doc.document.dirty || doc.editor_state.has_pending_document_sync(),
                 displayed: self.panes.pane_showing(idx).is_some(),
                 pointer_over: self.pointer_over_document(ctx, idx),

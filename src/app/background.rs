@@ -93,13 +93,15 @@ pub(super) struct BackgroundTaskStatus {
     pub(super) test: Option<BackgroundTaskPhase>,
     /// A `uniform fix` run started from the Font menu.
     pub(super) optimize: Option<BackgroundTaskPhase>,
+    /// Writes in the save queue; see [`super::save`].
+    pub(super) save: Option<BackgroundTaskPhase>,
 }
 
-fn start(slot: &mut Option<BackgroundTaskPhase>) {
+pub(super) fn start(slot: &mut Option<BackgroundTaskPhase>) {
     *slot = Some(BackgroundTaskPhase::Running(std::time::Instant::now()));
 }
 
-fn finish(slot: &mut Option<BackgroundTaskPhase>) {
+pub(super) fn finish(slot: &mut Option<BackgroundTaskPhase>) {
     if let Some(BackgroundTaskPhase::Running(began)) = slot {
         *slot = Some(BackgroundTaskPhase::Finished(
             std::time::Instant::now(),
@@ -114,11 +116,17 @@ impl BackgroundTaskStatus {
             build: None,
             test: None,
             optimize: None,
+            save: None,
         }
     }
 
-    fn slots(&mut self) -> [&mut Option<BackgroundTaskPhase>; 3] {
-        [&mut self.build, &mut self.test, &mut self.optimize]
+    fn slots(&mut self) -> [&mut Option<BackgroundTaskPhase>; 4] {
+        [
+            &mut self.build,
+            &mut self.test,
+            &mut self.optimize,
+            &mut self.save,
+        ]
     }
 
     fn gc(&mut self) {
@@ -967,6 +975,7 @@ mod font_build_tests {
             lines: Vec::new(),
             editor_state: EditorState::new(),
             disk_hash: None,
+            pending_disk_hashes: Vec::new(),
             external_change: false,
             owed_external_toast: false,
         };

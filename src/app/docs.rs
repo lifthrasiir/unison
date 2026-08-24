@@ -64,6 +64,13 @@ pub struct OpenDocument {
     /// The file watcher compares it against what is on disk to tell a real
     /// external change from the echo of our own save; see [`super::watch`].
     pub(super) disk_hash: Option<u64>,
+    /// Hashes of writes handed to the save queue that have not reported back.
+    /// The write lands on disk before its outcome reaches the UI thread (that
+    /// is the point of the queue; see [`super::save`]), so between the two the
+    /// watcher can read bytes that are ours while `disk_hash` still names the
+    /// previous ones. Without this it reads that as an external change and
+    /// warns about the file the user just saved.
+    pub(super) pending_disk_hashes: Vec<u64>,
     /// The file changed on disk while this buffer had unsaved edits, and the
     /// edits were kept. Saving over it asks first, and
     /// [`super::UniformApp::reload_from_disk`] is the way to drop them.
@@ -202,6 +209,7 @@ pub(super) fn open_document_from_text(
         lines,
         editor_state: EditorState::new(),
         disk_hash: Some(hash),
+        pending_disk_hashes: Vec::new(),
         external_change: false,
         owed_external_toast: false,
     })
@@ -269,7 +277,7 @@ pub(super) fn file_name_of(path: &std::path::Path) -> String {
 
 /// Asks before writing over files that changed on disk after they were opened.
 /// Answering no cancels the save outright, so the version on disk survives.
-fn confirm_overwrite(names: &[String]) -> bool {
+pub(super) fn confirm_overwrite(names: &[String]) -> bool {
     let description = if let [one] = names {
         format!(
             "{one} has changed on disk since it was opened here. \
@@ -310,11 +318,22 @@ fn confirm_discard(name: &str) -> bool {
 }
 
 impl OpenDocument {
-    /// Records that `bytes` are now both the buffer and the file on disk.
-    pub(super) fn mark_written(&mut self, bytes: &[u8]) {
-        self.document.dirty = false;
-        self.editor_state.undo.mark_saved();
-        self.disk_hash = Some(super::watch::hash_bytes(bytes));
+    /// Whether bytes hashing to `hash` are ours: the ones this buffer last
+    /// read or wrote, or ones a write still in flight is putting there.
+    pub(super) fn knows_disk_bytes(&self, hash: u64) -> bool {
+        self.disk_hash == Some(hash) || self.pending_disk_hashes.contains(&hash)
+    }
+
+    /// Records that the buffer as of `point` is what is on disk now, the file
+    /// holding bytes hashing to `hash`.
+    ///
+    /// `point` is the revision the write was started from, not the buffer as
+    /// it stands: edits made while the write was in flight are not on disk and
+    /// leave the document dirty. See [`super::save`].
+    pub(super) fn mark_written_at(&mut self, hash: u64, point: crate::editor::undo::SavePoint) {
+        self.editor_state.undo.mark_saved_at(point);
+        self.document.dirty = !self.editor_state.undo.is_at_saved();
+        self.disk_hash = Some(hash);
         self.external_change = false;
         self.owed_external_toast = false;
     }
@@ -439,41 +458,15 @@ impl UniformApp {
             .any(|d| d.document.dirty || d.editor_state.has_pending_document_sync())
     }
 
-    pub(super) fn save_all(&mut self) -> bool {
-        for doc in &mut self.open_documents {
-            doc.flush_pending_changes();
-        }
-        // One question for the whole batch rather than one per file: a save-all
-        // after a `git checkout` would otherwise be a queue of dialogs.
-        let overwritten: Vec<String> = self
-            .open_documents
-            .iter()
-            .filter(|d| d.document.dirty && d.external_change)
-            .map(|d| file_name_of(&d.document.path))
-            .collect();
-        if !overwritten.is_empty() && !confirm_overwrite(&overwritten) {
-            return false;
-        }
-
-        for doc in &mut self.open_documents {
-            if !doc.document.dirty {
-                continue;
-            }
-            let mut buf = Vec::new();
-            if let Err(e) = document_io::serialize_doclines(&doc.lines, &mut buf)
-                .and_then(|()| document_io::write_and_sync(&doc.document.path, &buf))
-            {
-                self.status_message = Some((format!("Save error: {e}"), std::time::Instant::now()));
-                return false;
-            }
-            doc.mark_written(&buf);
-        }
-        true
-    }
-
+    /// Whether the window may close, saving first if that is what the user
+    /// asks for.
+    ///
+    /// Every path that says yes waits for the writes still in the save queue:
+    /// a save is asynchronous now (see [`super::save`]), and the process
+    /// exiting is the one thing that can take the worker's queue with it.
     pub(super) fn confirm_close_and_maybe_save(&mut self) -> bool {
         if !self.has_unsaved_changes() {
-            return true;
+            return self.finish_pending_saves();
         }
 
         let save = "Save";
@@ -491,13 +484,16 @@ impl UniformApp {
             ))
             .show();
 
-        match &result {
+        let proceed = match &result {
             rfd::MessageDialogResult::Yes => self.save_all(),
             rfd::MessageDialogResult::Custom(s) if s == save => self.save_all(),
             rfd::MessageDialogResult::No => true,
             rfd::MessageDialogResult::Custom(s) if s == dont_save => true,
             _ => false,
-        }
+        };
+        // A failed write cancels the close, so the message is on screen with
+        // the buffer that failed to reach disk still holding the work.
+        proceed && self.finish_pending_saves()
     }
 
     pub(super) fn export_to_path(&mut self, path: PathBuf) {
@@ -553,32 +549,6 @@ impl UniformApp {
         }
         if let Some(path) = dialog.save_file() {
             self.export_to_path(path);
-        }
-    }
-
-    pub(super) fn save_active(&mut self) {
-        if let Some(idx) = self.active_doc_idx()
-            && let Some(doc) = self.open_documents.get_mut(idx)
-        {
-            doc.flush_pending_changes();
-            if doc.external_change && !confirm_overwrite(&[file_name_of(&doc.document.path)]) {
-                return;
-            }
-            let mut buf = Vec::new();
-            let result = document_io::serialize_doclines(&doc.lines, &mut buf)
-                .and_then(|()| document_io::write_and_sync(&doc.document.path, &buf));
-            let path_display = doc.document.path.display().to_string();
-            match result {
-                Ok(()) => {
-                    doc.mark_written(&buf);
-                    self.status_message =
-                        Some((format!("Saved {path_display}"), std::time::Instant::now()));
-                }
-                Err(e) => {
-                    self.status_message =
-                        Some((format!("Save error: {e}"), std::time::Instant::now()));
-                }
-            }
         }
     }
 }
@@ -783,7 +753,8 @@ mod reload_tests {
         open.external_change = true;
         open.owed_external_toast = true;
 
-        open.mark_written(AFTER.as_bytes());
+        let point = open.editor_state.undo.save_point();
+        open.mark_written_at(super::super::watch::hash_bytes(AFTER.as_bytes()), point);
 
         assert!(!open.document.dirty);
         assert!(!open.external_change);

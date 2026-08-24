@@ -1017,8 +1017,10 @@ impl UniformApp {
         if menu.save {
             self.save_active();
         }
-        if menu.save_all && self.save_all() {
-            self.set_status("Saved all files".to_string());
+        if menu.save_all {
+            // The message is the queue's to print: the files are still being
+            // written when this returns. See [`super::save`].
+            self.save_all();
         }
 
         if menu.export {

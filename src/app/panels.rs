@@ -529,6 +529,7 @@ impl UniformApp {
                         ("Build", &self.bg_tasks.build),
                         ("Test", &self.bg_tasks.test),
                         ("Optimize", &self.bg_tasks.optimize),
+                        ("Save", &self.bg_tasks.save),
                     ] {
                         if let Some(phase) = phase {
                             let (text, color) = match phase {
