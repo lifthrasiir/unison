@@ -229,6 +229,12 @@ glyph han-7dd7:15x16 15 16 // 緗
 glyph han-7dd9:15x16 15 16 // 緙
 ⿰ han-7cf9:5x16 1 han-9769:9x16 // ⿰糹革
 
+// glyph han-7de2:15x16 15 16 // 緢
+// ⿰ han-7cf8 han-82d7 // ⿰糸苗
+
+// glyph han-7de6:15x16 15 16 // 緦
+// ⿰ han-7cf9 han-601d // ⿰糹思
+
 glyph han-7df0:15x16 15 16 // 緰
 ⿰ han-7cf9:5x16 1 han-4fde:9x16 // ⿰糹俞
 
@@ -242,6 +248,9 @@ glyph han-7df9:15x16 15 16 // 緹
 
 glyph han-7e0e:15x16 15 16 // 縎
 ⿰ han-7cf9:5x16 1 han-9aa8:9x16 // ⿰糹骨
+
+// glyph han-7e19:15x16 15 16 // 縙
+// ⿰ han-7cf9 han-8338 // ⿰糹茸
 
 glyph han-7e1e:15x16 15 16 // 縞
 ⿰ han-7cf9:5x16 1 han-9ad8:9x16 // ⿰糹高

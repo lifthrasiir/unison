@@ -174,6 +174,9 @@ glyph han-2a8e6:15x16 15 16 // 𪣦
 
 ## 32.9
 
+// glyph han-2a8f2:15x16 15 16 // 𪣲
+// ⿰ han-571f han-82d7 // ⿰土苗
+
 glyph han-2a8fa:15x16 15 16 // 𪣺
 ⿲ han-571f:3x16-l han-5fc4:5x16 han-5408:7x16 // ⿲土忄合
 
@@ -183,6 +186,9 @@ glyph han-2a8fa:15x16 15 16 // 𪣺
 // ⿱ han-6d6a han-571f // ⿱浪土
 
 ## 32.11
+
+// glyph han-2a90f:15x16 15 16 // 𪤏
+// ⿰ han-571f han-57fa // ⿰土基
 
 glyph han-2a917:15x16 15 16 // 𪤗
 ⿰ han-571f:5x16-l 1 han-7fcf:9x16 // ⿰土翏

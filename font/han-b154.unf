@@ -124,7 +124,8 @@ glyph han-27e1a:15x16 15 16 // 𧸚
 ## 156.7
 
 // glyph han-27efb:15x16 15 16 // 𧻻
-// ⿳ han-8db3 han-571f han-9fb0 // ⿳足土龰 <- ⿱足走
+// ⿱ han-8db3 han-8d70 // ⿱足走 -- no-inline
+// ⿳ han-8db3 han-571f han-9fb0 // ⿳足土龰
 
 // glyph han-27f02:15x16 15 16 // 𧼂
 // ⿰ han-8d70 han-8d70 // ⿰走走

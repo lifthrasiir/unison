@@ -136,6 +136,9 @@ glyph han-28b09:15x16 15 16 // 𨬉
 glyph han-28b30:15x16 15 16 // 𨬰
 ⿲ han-91d2:5x16-l han-5de5:5x16 han-9801:5x16 // ⿲釒工頁
 
+// glyph han-28b48:15x16 15 16 // 𨭈
+// ⿲ han-91d2 han-72ad han-82d6 // ⿲釒犭苖 <- ⿰釒⿰犭苖
+
 ## 167.13
 
 glyph han-28b5a:15x16 15 16 // 𨭚

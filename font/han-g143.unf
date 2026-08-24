@@ -7,6 +7,9 @@
 
 ## 145.5
 
+// glyph han-30cf5:15x16 15 16 // 𰳵
+// ⿰ han-8864 han-827a // ⿰衤艺
+
 glyph han-30cf7:15x16 15 16 // 𰳷
 ⿲ han-8864:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲衤力口
 
@@ -47,6 +50,9 @@ glyph han-30d10:15x16 15 16 // 𰴐
 
 glyph han-30d54:15x16 15 16 // 𰵔
 ⿰ han-8ba0:5x16 1 han-4e16:9x16 // ⿰讠世
+
+// glyph han-30d56:15x16 15 16 // 𰵖
+// ⿰ han-8ba0 han-827a // ⿰讠艺
 
 glyph han-30d59:15x16 15 16 // 𰵙
 ⿰ han-8ba0:5x16 1 han-5931:9x16 // ⿰讠失

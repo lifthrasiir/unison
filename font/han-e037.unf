@@ -137,8 +137,8 @@ glyph han-2bd2f:15x16 15 16 // 𫴯
 
 ## 61.4
 
-// glyph han-2be75:15x16 15 16 // 𫹵
-// ⿱ han-5143 han-5fc3 // ⿱元心
+glyph han-2be75:15x16 15 16 // 𫹵
+⿱ han-5143:15x9 1 han-5fc3:15x6 // ⿱元心
 
 ## 61.5
 
@@ -223,6 +223,9 @@ glyph han-2bf3b:15x16 15 16 // 𫼻
 ⿲ han-624c:3x16 han-4ebb:3x16 1 han-767d:8x16 // ⿲扌亻白
 
 ## 64.8
+
+// glyph han-2bf49:15x16 15 16 // 𫽉
+// ⿰ han-624c han-6b68 // ⿰扌歨
 
 glyph han-2bf56:15x16 15 16 // 𫽖
 ⿲ han-624c:3x16 han-961d:4x16-c han-4e14:8x16 // ⿲扌阝且

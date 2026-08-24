@@ -90,6 +90,11 @@ glyph han-321aa:15x16 15 16 // 𲆪
 glyph han-321b1:15x16 15 16 // 𲆱
 ⿲ -2 han-9149:7x16 han-6708:5x16 han-6708:5x16 // ⿲酉月月
 
+## 164.11
+
+// glyph han-321ba:15x16 15 16 // 𲆺
+// ⿰ han-9149 han-57fa // ⿰酉基
+
 # CJK unified ideographs extension H: 金 (167)
 
 ## 167.9
@@ -116,6 +121,11 @@ glyph han-321ef:15x16 15 16 // 𲇯
 
 // glyph han-321f4:15x16 15 16 // 𲇴
 // ⿰ han-9485 han-5fc3 // ⿰钅心
+
+## 167'.8
+
+// glyph han-32201:15x16 15 16 // 𲈁
+// ⿰ han-9485 han-5774 // ⿰钅坴
 
 ## 167'.9
 

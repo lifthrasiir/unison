@@ -253,6 +253,9 @@ glyph han-21ecb:15x16 15 16 // 𡻋
 // glyph han-21eed:15x16 15 16 // 𡻭
 // ⿳ han-5c71 han-7530 han-7cf8 // ⿳山田糸 <- ⿱山累
 
+// glyph han-21ef8:15x16 15 16 // 𡻸
+// ⿰ han-5c71 han-57fa // ⿰山基
+
 // glyph han-21eff:15x16 15 16 // 𡻿
 // ⿲ han-5c71 han-91d1 han-5c71 // ⿲山金山
 
@@ -297,6 +300,9 @@ glyph han-21f32:15x16 15 16 // 𡼲
 // ⿱ han-5c71 han-7893 // ⿱山碓
 
 ## 46.14
+
+// glyph han-21f5d:15x16 15 16 // 𡽝
+// ⿰ han-5c71 han-84bf // ⿰山蒿
 
 // glyph han-21f60:15x16 15 16 // 𡽠
 // ⿱ han-5c71 han-9817 // ⿱山頗

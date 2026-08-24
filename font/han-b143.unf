@@ -103,6 +103,9 @@ glyph han-276ae:15x16 15 16 // 𧚮
 // glyph han-276b5:15x16 15 16 // 𧚵
 // ⿳ han-706b han-65e5 han-8863 // ⿳火日衣
 
+// glyph han-276ba:15x16 15 16 // 𧚺
+// ⿰ han-8864 han-6b68 // ⿰衤歨
+
 // glyph han-276be:15x16 15 16 // 𧚾
 // ⿳ han-4ea0 han-5405 han-8863 // ⿳亠吅衣
 
@@ -116,6 +119,9 @@ glyph han-276ae:15x16 15 16 // 𧚮
 
 glyph han-276de:15x16 15 16 // 𧛞
 ⿲ han-8864:5x16 han-53e4:5x16 han-6708:5x16 // ⿲衤古月
+
+// glyph han-276ec:15x16 15 16 // 𧛬
+// ⿳ han-8278 han-53e3 han-8863 // ⿳艸口衣 <- ⿱𠱭衣
 
 ## 145.10
 

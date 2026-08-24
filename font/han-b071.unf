@@ -98,6 +98,9 @@ glyph han-231a3:15x16 15 16 // 𣆣
 glyph han-231ba:15x16 15 16 // 𣆺
 ⿰ han-65e5:7x16 1 han-8096:7x16 // ⿰日肖
 
+// glyph han-231bf:15x16 15 16 // 𣆿
+// ⿰ han-65e5 han-7683 // ⿰日皃
+
 // glyph han-231c4:15x16 15 16 // 𣇄
 // ⿱ han-65e5 han-6298 // ⿱日折
 
@@ -146,6 +149,9 @@ glyph han-23225:15x16 15 16 // 𣈥
 
 // glyph han-2322f:15x16 15 16 // 𣈯
 // ⿱ han-65e5 han-4fde // ⿱日俞
+
+// glyph han-23234:15x16 15 16 // 𣈴
+// ⿰ han-65e5 han-82d7 // ⿰日苗
 
 glyph han-23246:15x16 15 16 // 𣉆
 ⿰ han-65e5:6x16 han-662f:9x16 // ⿰日是

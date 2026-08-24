@@ -61,6 +61,9 @@ glyph han-27a02:15x16 15 16 // 𧨂
 glyph han-27a6c:15x16 15 16 // 𧩬
 ⿰ han-8a01:7x16 1 han-9801:7x16 // ⿰訁頁
 
+// glyph han-27a86:15x16 15 16 // 𧪆
+// ⿰ han-8a01 han-82db // ⿰訁苛
+
 ## 149.10
 
 glyph han-27aa8:15x16 15 16 // 𧪨
@@ -68,6 +71,14 @@ glyph han-27aa8:15x16 15 16 // 𧪨
 
 // glyph han-27ac8:15x16 15 16 // 𧫈
 // ⿱ han-46b4 han-5408 // ⿱䚴合
+
+// glyph han-27ac9:15x16 15 16 // 𧫉
+// ⿰ han-8a01 han-605a // ⿰訁恚
+
+## 149.11
+
+// glyph han-27ae0:15x16 15 16 // 𧫠
+// ⿰ han-8a01 han-57fa // ⿰訁基
 
 ## 149.12
 

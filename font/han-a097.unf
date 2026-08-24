@@ -177,6 +177,9 @@ glyph han-40c6:15x16 15 16 // 䃆
 
 ## 112.9
 
+// glyph han-40ca:15x16 15 16 // 䃊
+// ⿰ han-77f3 han-82f4 // ⿰石苴
+
 glyph han-40cb:15x16 15 16 // 䃋
 ⿰ han-77f3:7x16 1 han-4fde:7x16 // ⿰石俞
 
@@ -256,6 +259,9 @@ glyph han-4161:15x16 15 16 // 䅡
 
 glyph han-4165:15x16 15 16 // 䅥
 ⿰ han-79be:5x16 1 han-66f7:9x16 // ⿰禾曷
+
+// glyph han-4166:15x16 15 16 // 䅦
+// ⿰ han-79be han-82d7 // ⿰禾苗
 
 ## 115.11
 

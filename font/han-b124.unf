@@ -98,6 +98,12 @@ glyph han-265a6:15x16 15 16 // 𦖦
 glyph han-265ad:15x16 15 16 // 𦖭
 ⿰ han-8033:7x16 1 han-4fde:7x16 // ⿰耳俞
 
+// glyph han-265b7:15x16 15 16 // 𦖷
+// ⿰ han-601d han-8033 // ⿰思耳
+
+// glyph han-265bb:15x16 15 16 // 𦖻
+// ⿰ han-8033 han-601d // ⿰耳思
+
 ## 128.10
 
 glyph han-265bc:15x16 15 16 // 𦖼

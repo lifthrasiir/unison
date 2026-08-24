@@ -168,6 +168,16 @@ glyph han-2eaf8:15x16 15 16 // 𮫸
 glyph han-2eafc:15x16 15 16 // 𮫼
 ⿲ -3 han-9b5a:7x16 han-4e14:6x16 han-529b:5x16 // ⿲魚且力
 
+## 195.9
+
+// glyph han-2eb02:15x16 15 16 // 𮬂
+// ⿰ han-9b5a han-82d7 // ⿰魚苗
+
+## 195.14
+
+// glyph han-2eb15:15x16 15 16 // 𮬕
+// ⿳ han-8279 han-9ad8 han-9b5a // ⿳艹高魚 <- ⿱蒿魚
+
 # CJK unified ideographs extension F: 鳥 (196)
 
 ## 196.3

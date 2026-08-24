@@ -196,8 +196,8 @@ glyph han-2d37f:15x16 15 16 // 𭍿
 
 ## 32.5
 
-// glyph han-2d38a:15x16 15 16 // 𭎊
-// ⿱ han-767d han-571f // ⿱白土
+glyph han-2d38a:15x16 15 16 // 𭎊
+⿱ han-767d:15x11 han-571f:15x5 // ⿱白土
 
 ## 32.6
 
@@ -213,6 +213,9 @@ glyph han-2d39a:15x16 15 16 // 𭎚
 // ⿱ han-6c90 han-571f // ⿱沐土
 
 ## 32.8
+
+// glyph han-2d3a9:15x16 15 16 // 𭎩
+// ⿰ han-571f han-5774 // ⿰土坴
 
 // glyph han-2d3ae:15x16 15 16 // 𭎮
 // ⿱ han-660e han-571f // ⿱明土
