@@ -56,8 +56,8 @@ glyph han-2aae3:15x16 15 16 // 𪫣
 glyph han-2aae7:15x16 15 16 // 𪫧
 ⿰ han-5fc4:5x16 han-53ef:10x16 // ⿰忄可
 
-// glyph han-2aae9:15x16 15 16 // 𪫩
-// ⿱ han-76ee han-5fc3 // ⿱目心
+glyph han-2aae9:15x16 15 16 // 𪫩
+⿱ 1 han-76ee:15x7 1 han-5fc3:15x6 // ⿱目心
 
 ## 61.6
 
@@ -77,6 +77,11 @@ glyph han-2aae7:15x16 15 16 // 𪫧
 
 // glyph han-2ab0d:15x16 15 16 // 𪬍
 // ⿰ han-6017 han-5fc3 // ⿰怗心
+
+## 61.11
+
+// glyph han-2ab22:15x16 15 16 // 𪬢
+// ⿲ han-5fc4 han-5192 han-529b // ⿲忄冒力 <- ⿰忄勖
 
 ## 61.16
 
@@ -146,11 +151,11 @@ glyph han-2ac06:15x16 15 16 // 𪰆
 
 ## 72.4
 
-// glyph han-2ac08:15x16 15 16 // 𪰈
-// ⿰ han-65e5 han-5143 // ⿰日元
+glyph han-2ac08:15x16 15 16 // 𪰈
+⿰ han-65e5:7x16 han-5143:8x16 // ⿰日元
 
-// glyph han-2ac0a:15x16 15 16 // 𪰊
-// ⿱ han-65e5 han-6b62 // ⿱日止
+glyph han-2ac0a:15x16 15 16 // 𪰊
+⿱ han-65e5:15x7 han-6b62:15x9 // ⿱日止
 
 ## 72.5
 
@@ -209,6 +214,11 @@ glyph han-2ac5a:15x16 15 16 // 𪱚
 glyph han-2ac5c:15x16 15 16 // 𪱜
 ⿰ han-53f0:7x16 1 han-6708:7x16 // ⿰台月
 
+## 74.9
+
+glyph han-2ac66:15x16 15 16 // 𪱦
+⿰ han-6708:5x16-l 1 han-7687:9x16 // ⿰月皇
+
 # CJK unified ideographs extension C: 木 (75)
 
 ## 75.3
@@ -227,6 +237,11 @@ glyph han-2ac74:15x16 15 16 // 𪱴
 
 // glyph han-2ac75:15x16 15 16 // 𪱵
 // ⿱ han-5ddb han-6728 // ⿱巛木
+
+## 75.4
+
+// glyph han-2ac79:15x16 15 16 // 𪱹
+// ⿰ han-6728 han-6c34 // ⿰木水
 
 ## 75.6
 

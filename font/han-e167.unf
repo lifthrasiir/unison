@@ -2,8 +2,8 @@
 
 ## 167.4
 
-// glyph han-2cac3:15x16 15 16 // 𬫃
-// ⿰ han-91d2 han-738b // ⿰釒王
+glyph han-2cac3:15x16 15 16 // 𬫃
+⿰ han-91d2:5x16-l 1 han-738b:9x16 // ⿰釒王
 
 ## 167.5
 
@@ -61,6 +61,9 @@ glyph han-2cb40:15x16 15 16 // 𬭀
 
 glyph han-2cb4a:15x16 15 16 // 𬭊
 ⿲ -1 han-9485:5x16 han-6728:5x16 -1 han-571f:7x16 // ⿲钅木土
+
+// glyph han-2cb4d:15x16 15 16 // 𬭍
+// ⿰ han-9485 han-65f1 // ⿰钅旱
 
 glyph han-2cb4f:15x16 15 16 // 𬭏
 ⿲ han-9485:5x16 han-961d:4x16-c han-65e5:6x16 // ⿲钅阝日
@@ -172,6 +175,9 @@ glyph han-2cd1d:15x16 15 16 // 𬴝
 
 // glyph han-2cd45:15x16 15 16 // 𬵅
 // ⿱ han-65e5 han-9b5a // ⿱日魚
+
+// glyph han-2cd46:15x16 15 16 // 𬵆
+// ⿰ han-9b5a han-6c34 // ⿰魚水
 
 ## 195.5
 

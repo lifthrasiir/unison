@@ -1,9 +1,19 @@
 # CJK unified ideographs extension H: 水 (85)
 
+## 85.4
+
+// glyph han-31977:15x16 15 16 // 𱥷
+// ⿱ han-5206 han-6c34 // ⿱分水
+
 ## 85.5
 
 // glyph han-3197c:15x16 15 16 // 𱥼
 // ⿰ han-6c35 han-7389 // ⿰氵玉
+
+## 85.6
+
+// glyph han-31995:15x16 15 16 // 𱦕
+// ⿱ han-5408 han-6c34 // ⿱合水
 
 ## 85.7
 
@@ -68,7 +78,7 @@ glyph han-31b00:15x16 15 16 // 𱬀
 ## 86.14
 
 glyph han-31b1e:15x16 15 16 // 𱬞
-⿲ -5 han-706b:5x16 1 han-7968:7x16 han-5bf8:7x16 // ⿲火票寸
+⿲ -4 han-706b:5x16-l 1 han-7968:7x16 han-5bf8:6x16 // ⿲火票寸
 
 # CJK unified ideographs extension H: 犬 (94)
 
@@ -94,6 +104,11 @@ glyph han-31bb3:15x16 15 16 // 𱮳
 
 glyph han-31bb7:15x16 15 16 // 𱮷
 ⿰ han-248e9:7x16 1 han-793a:7x16 // ⿰𤣩示
+
+## 96.10
+
+// glyph han-31bcd:15x16 15 16 // 𱯍
+// ⿰ han-248e9 han-54e5 // ⿰𤣩哥
 
 ## 96.14
 

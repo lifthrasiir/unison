@@ -205,6 +205,11 @@ glyph han-322ab:15x16 15 16 // 𲊫
 glyph han-322ac:15x16 15 16 // 𲊬
 ⿰ han-5305:7x16 1 han-9801:7x16 // ⿰包頁
 
+## 181.8
+
+// glyph han-322b1:15x16 15 16 // 𲊱
+// ⿰ han-2ac0a han-9801 // ⿰𪰊頁
+
 ## 181.9
 
 glyph han-322b4-($han-regions):15x16 15 16 // 𲊴

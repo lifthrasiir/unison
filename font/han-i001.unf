@@ -30,6 +30,9 @@
 
 ## 38.8
 
+// glyph han-2ec48:15x16 15 16 // 𮱈
+// ⿰ han-5973 han-31782 // ⿰女𱞂
+
 // glyph han-2ec4c:15x16 15 16 // 𮱌
 // ⿱ han-708f han-5973 // ⿱炏女
 
@@ -110,6 +113,11 @@ glyph han-2ed04:15x16 15 16 // 𮴄
 glyph han-2ed1b:15x16 15 16 // 𮴛
 ⿲ han-248e9:3x16 han-4ebb:3x16 1 han-53ef:8x16 // ⿲𤣩亻可
 
+## 96.8
+
+// glyph han-2ed21:15x16 15 16 // 𮴡
+// ⿱ han-738b han-73a8 // ⿱王玨
+
 ## 96.12
 
 glyph han-2ed32:15x16 15 16 // 𮴲
@@ -119,6 +127,13 @@ glyph han-2ed32:15x16 15 16 // 𮴲
 
 glyph han-2ed37:15x16 15 16 // 𮴷
 ⿲ han-248e9:3x16 han-7cf9:5x16 han-96b9:7x16 // ⿲𤣩糹隹
+
+# CJK unified ideographs extension I: 田 (102)
+
+## 102.7
+
+// glyph han-2ed42:15x16 15 16 // 𮵂
+// ⿱ han-7530 han-72c2 // ⿱田狂
 
 # CJK unified ideographs extension I: 白 (106)
 
@@ -248,8 +263,8 @@ glyph han-2ede9:15x16 15 16 // 𮷩
 
 ## 167'.4
 
-// glyph han-2edf8:15x16 15 16 // 𮷸
-// ⿰ han-9485 han-5143 // ⿰钅元
+glyph han-2edf8:15x16 15 16 // 𮷸
+⿰ han-9485:6x16 1 han-5143:8x16 // ⿰钅元
 
 ## 167'.5
 

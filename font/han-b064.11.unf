@@ -75,7 +75,7 @@ glyph han-22d96:15x16 15 16 // 𢶖
 ## 64.14
 
 glyph han-22dcb:15x16 15 16 // 𢷋
-⿲ -2 han-624c:3x16 han-7968:7x16 han-5bf8:7x16 // ⿲扌票寸
+⿲ -1 han-624c:3x16 han-7968:7x16 han-5bf8:6x16 // ⿲扌票寸
 
 glyph han-22de6:15x16 15 16 // 𢷦
 ⿲ han-624c:3x16 han-8eca:5x16 han-8eca:7x16 // ⿲扌車車
@@ -106,3 +106,8 @@ glyph han-22e2b:15x16 15 16 // 𢸫
 
 glyph han-22e5b:15x16 15 16 // 𢹛
 ⿲ -2 han-624c:3x16 han-9b5a:7x16 han-7f8a:7x16 // ⿲扌魚羊
+
+## 64.18
+
+// glyph han-22e7b:15x16 15 16 // 𢹻
+// ⿲ han-624c han-7687 han-9801 // ⿲扌皇頁 <- ⿰扌𩔇

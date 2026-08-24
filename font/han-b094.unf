@@ -32,11 +32,14 @@ glyph han-24730:15x16 15 16 // 𤜰
 glyph han-24746:15x16 15 16 // 𤝆
 ⿰ han-72ad:6x16 han-6b20:9x16 // ⿰犭欠
 
-// glyph han-2474c:15x16 15 16 // 𤝌
-// ⿰ han-72ad han-5143 // ⿰犭元
+glyph han-2474c:15x16 15 16 // 𤝌
+⿰ han-72ad:6x16 1 han-5143:8x16 // ⿰犭元
 
 glyph han-2474d:15x16 15 16 // 𤝍
 ⿰ han-72ad:6x16 han-65e5:9x16 // ⿰犭日
+
+// glyph han-2474e:15x16 15 16 // 𤝎
+// ⿰ han-72ad han-6c34 // ⿰犭水
 
 ## 94.5
 
@@ -108,6 +111,9 @@ glyph han-247cb:15x16 15 16 // 𤟋
 
 ## 94.9
 
+glyph han-247e1:15x16 15 16 // 𤟡
+⿰ han-72ad:6x16 han-7687:9x16 // ⿰犭皇
+
 glyph han-247e4:15x16 15 16 // 𤟤
 ⿰ han-72ad:6x16 han-8ecd:9x16 // ⿰犭軍
 
@@ -127,6 +133,9 @@ glyph han-24807:15x16 15 16 // 𤠇
 
 glyph han-24816:15x16 15 16 // 𤠖
 ⿰ han-72ad:6x16 han-9ad8:9x16 // ⿰犭高
+
+// glyph han-24819:15x16 15 16 // 𤠙
+// ⿰ han-72ad han-54e5 // ⿰犭哥
 
 ## 94.11
 

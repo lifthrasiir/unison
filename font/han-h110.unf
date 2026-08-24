@@ -13,6 +13,9 @@ glyph han-31cee:15x16 15 16 // 𱳮
 // glyph han-31d1b:15x16 15 16 // 𱴛
 // ⿱ han-79cb han-77f3 // ⿱秋石
 
+glyph han-31d1c:15x16 15 16 // 𱴜
+⿰ han-77f3:5x16 1 han-7687:9x16 // ⿰石皇
+
 ## 112.12
 
 glyph han-31d34-($han-regions):15x16 15 16 // 𱴴

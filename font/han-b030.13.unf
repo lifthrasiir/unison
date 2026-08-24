@@ -14,8 +14,8 @@ glyph han-20fed:15x16 15 16 // 𠿭
 glyph han-20fee:15x16 15 16 // 𠿮
 ⿲ -2 han-53e3:3x16-l han-98e0:7x16 han-6b20:7x16 // ⿲口飠欠
 
-// glyph han-20ffb:15x16 15 16 // 𠿻
-// ⿰ han-55ac han-5143 // ⿰喬元
+glyph han-20ffb:15x16 15 16 // 𠿻
+⿰ han-55ac:7x16 han-5143:8x16 // ⿰喬元
 
 glyph han-21014:15x16 15 16 // 𡀔
 ⿲ -1 han-53e3:3x16-l 1 han-27fb7:5x16 han-5404:7x16 // ⿲口𧾷各

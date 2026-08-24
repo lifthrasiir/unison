@@ -59,6 +59,9 @@ $$./d@0/..\0@b\.$$
 glyph han-9802:15x16 15 16 // 頂
 ⿰ han-4e01:7x16 1 han-9801:7x16 // ⿰丁頁
 
+// glyph han-9804:15x16 15 16 // 頄
+// ⿰ han-4e5d han-9801 // ⿰九頁
+
 ## 181.3
 
 glyph han-9805:15x16 15 16 // 項
@@ -84,8 +87,8 @@ glyph han-980e:15x16 15 16 // 頎
 glyph han-980f:15x16 15 16 // 頏
 ⿰ han-4ea2:7x16 1 han-9801:7x16 // ⿰亢頁
 
-// glyph han-9811:15x16 15 16 // 頑
-// ⿰ han-5143 han-9801 // ⿰元頁
+glyph han-9811:15x16 15 16 // 頑
+⿰ han-5143:6x16 han-9801:9x16 // ⿰元頁
 
 glyph han-9812:15x16 15 16 // 頒
 ⿰ han-5206:7x16 1 han-9801:7x16 // ⿰分頁
@@ -292,6 +295,9 @@ glyph han-992b:15x16 15 16 // 餫
 glyph han-992c:15x16 15 16 // 餬
 ⿲ -2 han-98e0:7x16 han-53e4:5x16 han-6708:5x16 // ⿲飠古月
 
+glyph han-992d:15x16 15 16 // 餭
+⿰ han-98e0:7x16 1 han-7687:7x16 // ⿰飠皇
+
 glyph han-9932:15x16 15 16 // 餲
 ⿰ han-98e0:7x16 han-66f7:8x16 // ⿰飠曷
 
@@ -443,7 +449,7 @@ glyph han-99d8:15x16 15 16 // 駘
 ⿰ han-99ac:7x16 1 han-53f0:7x16 // ⿰馬台
 
 glyph han-99d9:15x16 15 16 // 駙
-⿲ -2 han-99ac:7x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲馬亻寸
+⿲ -1 han-99ac:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲馬亻寸
 
 ## 187.6
 
@@ -476,6 +482,9 @@ glyph han-99f1:15x16 15 16 // 駱
 glyph han-99fa:15x16 15 16 // 駺
 ⿰ han-99ac:7x16 1 han-826f:7x16 // ⿰馬良
 
+// glyph han-99fb:15x16 15 16 // 駻
+// ⿰ han-99ac han-65f1 // ⿰馬旱
+
 glyph han-99ff:15x16 15 16 // 駿
 ⿰ han-99ac:7x16 1 han-590b:7x16 // ⿰馬夋
 
@@ -497,6 +506,9 @@ glyph han-9a0f:15x16 15 16 // 騏
 
 glyph han-9a14:15x16 15 16 // 騔
 ⿰ han-99ac:7x16 han-66f7:8x16 // ⿰馬曷
+
+glyph han-9a1c:15x16 15 16 // 騜
+⿰ han-99ac:7x16 1 han-7687:7x16 // ⿰馬皇
 
 glyph han-9a1f:15x16 15 16 // 騟
 ⿰ han-99ac:7x16 1 han-4fde:7x16 // ⿰馬俞

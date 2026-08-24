@@ -38,6 +38,11 @@ glyph han-309f9:15x16 15 16 // 𰧹
 // glyph han-30a0e:15x16 15 16 // 𰨎
 // ⿰ han-793a han-7560 // ⿰示畠
 
+## 113.15
+
+// glyph han-30a15:15x16 15 16 // 𰨕
+// ⿰ han-793a han-66a0 // ⿰示暠
+
 # CJK unified ideographs extension G: 禾 (115)
 
 ## 115.2
@@ -74,8 +79,8 @@ glyph han-30a3c:15x16 15 16 // 𰨼
 
 ## 119.4
 
-// glyph han-30aac:15x16 15 16 // 𰪬
-// ⿰ han-7c73 han-738b // ⿰米王
+glyph han-30aac:15x16 15 16 // 𰪬
+⿰ han-7c73:5x16 1 han-738b:9x16 // ⿰米王
 
 ## 119.5
 
@@ -116,6 +121,11 @@ glyph han-30ad4:15x16 15 16 // 𰫔
 
 # CJK unified ideographs extension G: 糸 (120)
 
+## 120.4
+
+// glyph han-30adc:15x16 15 16 // 𰫜
+// ⿲ han-7cf9 han-4ebb han-4e5d // ⿲糹亻九 <- ⿰糹仇
+
 ## 120.5
 
 glyph han-30ae0:15x16 15 16 // 𰫠
@@ -143,7 +153,12 @@ glyph han-30b59:15x16 15 16 // 𰭙
 ## 130.9
 
 glyph han-30bb8:15x16 15 16 // 𰮸
-⿲ -1 han-6708:5x16-l 1 han-8c9d:6x16 1 han-5202:3x16 // ⿲月貝刂
+⿲ han-6708:5x16-l 1 han-8c9d:5x16 1 han-5202:3x16 // ⿲月貝刂
+
+## 130.14
+
+// glyph han-30be1:15x16 15 16 // 𰯡
+// ⿰ han-6708 han-84b2 // ⿰月蒲
 
 # CJK unified ideographs extension G: 艸 (140)
 
@@ -153,6 +168,9 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // ⿱ han-8279 han-706d // ⿱艹灭
 
 ## 140.6
+
+// glyph han-30c36:15x16 15 16 // 𰰶
+// ⿳ han-8279 han-4e5d han-6728 // ⿳艹九木 <- ⿱艹杂
 
 // glyph han-30c3c:15x16 15 16 // 𰰼
 // ⿱ han-8279 han-2ad69 // ⿱艹𪵩
@@ -196,13 +214,23 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 
 # CJK unified ideographs extension G: 虫 (142)
 
+## 142.2
+
+// glyph han-30ca9:15x16 15 16 // 𰲩
+// ⿰ han-866b han-4e5d // ⿰虫九
+
 ## 142.4
 
-// glyph han-30cad:15x16 15 16 // 𰲭
-// ⿱ han-65e5 han-866b // ⿱日虫
+glyph han-30cad:15x16 15 16 // 𰲭
+⿱ han-65e5:15x7 1 han-866b:15x8 // ⿱日虫
 
 // glyph han-30caf:15x16 15 16 // 𰲯
 // ⿲ han-866b han-4eba han-4eba // ⿲虫人人 <- ⿰虫从
+
+## 142.7
+
+// glyph han-30cbc:15x16 15 16 // 𰲼
+// ⿰ han-866b han-65f1 // ⿰虫旱
 
 ## 142.10
 
@@ -216,3 +244,8 @@ glyph han-30cd5:15x16 15 16 // 𰳕
 
 // glyph han-30cd6:15x16 15 16 // 𰳖
 // ⿱ han-53ef han-45b5 // ⿱可䖵
+
+## 142.13
+
+// glyph han-30cdf:15x16 15 16 // 𰳟
+// ⿲ han-866b han-4e5d han-9ce5 // ⿲虫九鳥 <- ⿰虫鳩

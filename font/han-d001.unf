@@ -42,6 +42,11 @@ glyph han-2b7de:15x16 15 16 // 𫟞
 
 # CJK unified ideographs extension D: 钅 (167')
 
+## 167'.2
+
+// glyph han-2b7f2:15x16 15 16 // 𫟲
+// ⿰ han-9485 han-4e5d // ⿰钅九
+
 ## 167'.4
 
 glyph han-2b7f4:15x16 15 16 // 𫟴

@@ -1,9 +1,19 @@
 # CJK unified ideographs extension F: 米 (119)
 
+## 119.2
+
+// glyph han-2e1c3:15x16 15 16 // 𮇃
+// ⿰ han-7c73 han-4e5d // ⿰米九
+
 ## 119.3
 
 // glyph han-2e1c5:15x16 15 16 // 𮇅
 // ⿰ han-7c73 han-4e09 // ⿰米三
+
+## 119.4
+
+// glyph han-2e1c8:15x16 15 16 // 𮇈
+// ⿲ han-7c73 han-4ebb han-4e5d // ⿲米亻九 <- ⿰米仇
 
 ## 119.5
 
@@ -77,6 +87,9 @@ glyph han-2e2f7:15x16 15 16 // 𮋷
 
 ## 130.7
 
+// glyph han-2e316:15x16 15 16 // 𮌖
+// ⿰ han-6708 han-3ad6 // ⿰月㫖
+
 // glyph han-2e318:15x16 15 16 // 𮌘
 // ⿰ han-6708 han-8db3 // ⿰月足
 
@@ -110,6 +123,9 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 ## 140.8
 
+// glyph han-2e3d3:15x16 15 16 // 𮏓
+// ⿳ han-8279 han-4e94 han-4e94 // ⿳艹五五 <- ⿱𫇩五
+
 // glyph han-2e3db:15x16 15 16 // 𮏛
 // ⿱ han-8279 han-72d7 // ⿱艹狗
 
@@ -121,8 +137,8 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 ## 140.9
 
-// glyph han-2e3e5:15x16 15 16 // 𮏥
-// ⿳ han-8279 han-7530 han-65e5 // ⿳艹田日 <- ⿱苗日
+glyph han-2e3e5:15x16 15 16 // 𮏥
+⿳ han-8279:15x3 han-7530:15x5 1 han-65e5:15x7 // ⿳艹田日
 
 // glyph han-2e3e6:15x16 15 16 // 𮏦
 // ⿳ han-8279 han-767d han-6728 // ⿳艹白木 <- ⿱艹𣐩
@@ -156,6 +172,9 @@ glyph han-2e342:15x16 15 16 // 𮍂
 
 // glyph han-2e441:15x16 15 16 // 𮑁
 // ⿱ han-8279 han-6b3a // ⿱艹欺
+
+// glyph han-2e443:15x16 15 16 // 𮑃
+// ⿳ han-8279 han-73a8 han-6728 // ⿳艹玨木 <- ⿱艹琹
 
 // glyph han-2e444:15x16 15 16 // 𮑄
 // ⿱ han-8279 han-48f1 // ⿱艹䣱

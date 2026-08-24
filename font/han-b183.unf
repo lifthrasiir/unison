@@ -39,7 +39,7 @@ glyph han-296ab:15x16 15 16 // 𩚫
 ⿰ han-98e0:7x16 han-6b63:8x16 // ⿰飠正
 
 glyph han-296ad:15x16 15 16 // 𩚭
-⿲ -2 han-98e0:7x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲飠亻寸
+⿲ -1 han-98e0:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲飠亻寸
 
 glyph han-296b2:15x16 15 16 // 𩚲
 ⿰ han-98e0:7x16 1 han-7532:7x16 // ⿰飠甲
@@ -57,6 +57,9 @@ glyph han-296c7:15x16 15 16 // 𩛇
 
 glyph han-296e1:15x16 15 16 // 𩛡
 ⿰ han-98e0:7x16 1 han-826f:7x16 // ⿰飠良
+
+// glyph han-296e7:15x16 15 16 // 𩛧
+// ⿰ han-98e0 han-65f1 // ⿰飠旱
 
 // glyph han-296e8:15x16 15 16 // 𩛨
 // ⿰ han-98e0 han-7683 // ⿰飠皃
@@ -121,6 +124,11 @@ glyph han-2978f:15x16 15 16 // 𩞏
 
 glyph han-297bb:15x16 15 16 // 𩞻
 ⿰ han-98e0:7x16 han-7ca6:8x16 // ⿰飠粦
+
+## 184.14
+
+// glyph han-297e2:15x16 15 16 // 𩟢
+// ⿰ han-98e0 han-84b2 // ⿰飠蒲
 
 # CJK unified ideographs extension B: 香 (186)
 

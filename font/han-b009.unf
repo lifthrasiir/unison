@@ -50,6 +50,9 @@ glyph han-201fa:15x16 15 16 // 𠇺
 glyph han-2029c:15x16 15 16 // 𠊜
 ⿲ han-4ebb:3x16 han-5973:5x16 han-77f3:7x16 // ⿲亻女石
 
+// glyph han-202a5:15x16 15 16 // 𠊥
+// ⿲ han-4ebb han-6c34 han-6c34 // ⿲亻水水 <- ⿰亻沝
+
 ## 9.9
 
 glyph han-202c7:15x16 15 16 // 𠋇
@@ -102,7 +105,7 @@ glyph han-203e0:15x16 15 16 // 𠏠
 ## 9.14
 
 glyph han-20406:15x16 15 16 // 𠐆
-⿲ -2 han-4ebb:3x16 han-7968:7x16 han-5bf8:7x16 // ⿲亻票寸
+⿲ -1 han-4ebb:3x16 han-7968:7x16 han-5bf8:6x16 // ⿲亻票寸
 
 ## 9.15
 

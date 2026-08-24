@@ -18,6 +18,9 @@ glyph han-26639:15x16 15 16 // 𦘹
 
 ## 130.4
 
+// glyph han-26659:15x16 15 16 // 𦙙
+// ⿰ han-6708 han-6c34 // ⿰月水
+
 glyph han-26663:15x16 15 16 // 𦙣
 ⿰ han-6708:5x16-l 1 han-6728:9x16 // ⿰月木
 
@@ -57,6 +60,9 @@ glyph han-266cb:15x16 15 16 // 𦛋
 // glyph han-266de:15x16 15 16 // 𦛞
 // ⿰ han-6708 han-9091 // ⿰月邑
 
+// glyph han-266e0:15x16 15 16 // 𦛠
+// ⿰ han-6708 han-573c // ⿰月圼
+
 glyph han-266e1:15x16 15 16 // 𦛡
 ⿲ han-6708:5x16-l han-72ad:4x16 1 han-706b:5x16 // ⿲月犭火
 
@@ -64,7 +70,7 @@ glyph han-266e1:15x16 15 16 // 𦛡
 // ⿰ han-6708 han-8d70 // ⿰月走
 
 glyph han-266fb:15x16 15 16 // 𦛻
-⿲ -2 han-6708:5x16-l han-6728:5x16 han-5bf8:7x16 // ⿲月木寸
+⿲ -1 han-6708:5x16-l han-6728:5x16 han-5bf8:6x16 // ⿲月木寸
 
 glyph han-266fd:15x16 15 16 // 𦛽
 ⿲ -2 han-6708:5x16-l 1 han-53e3:4x16 han-4eca:7x16 // ⿲月口今

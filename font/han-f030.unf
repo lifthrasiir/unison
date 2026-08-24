@@ -1,5 +1,10 @@
 # CJK unified ideographs extension F: 口 (30)
 
+## 30.2
+
+// glyph han-2d1b8:15x16 15 16 // 𭆸
+// ⿱ han-53e3 han-4e5d // ⿱口九
+
 ## 30.3
 
 glyph han-2d1ba:15x16 15 16 // 𭆺
@@ -69,6 +74,9 @@ glyph han-2d201:15x16 15 16 // 𭈁
 glyph han-2d212:15x16 15 16 // 𭈒
 ⿲ han-53e3:5x16-l han-6708:5x16 han-6708:5x16 // ⿲口月月
 
+// glyph han-2d214:15x16 15 16 // 𭈔
+// ⿲ han-53e3 han-6b20 han-4e94 // ⿲口欠五 <- ⿰吹五
+
 glyph han-2d221:15x16 15 16 // 𭈡
 ⿲ han-53e3:4x16-l han-6c35:3x16 han-4e14:8x16 // ⿲口氵且
 
@@ -84,6 +92,9 @@ glyph han-2d250:15x16 15 16 // 𭉐
 ⿲ han-53e3:3x16-l han-5973:5x16 han-81f3:7x16 // ⿲口女至
 
 ## 30.10
+
+// glyph han-2d264:15x16 15 16 // 𭉤
+// ⿰ han-53e3 han-27258 // ⿰口𧉘
 
 glyph han-2d26f:15x16 15 16 // 𭉯
 ⿲ -2 han-53e3:3x16-l han-4ea4:7x16 han-6b20:7x16 // ⿲口交欠
@@ -109,6 +120,9 @@ glyph han-2d290:15x16 15 16 // 𭊐
 ⿰ han-5468:8x16 han-5408:7x16 // ⿰周合
 
 ## 30.12
+
+// glyph han-2d2a3:15x16 15 16 // 𭊣
+// ⿰ han-54e5 han-76ae // ⿰哥皮
 
 glyph han-2d2aa:15x16 15 16 // 𭊪
 ⿲ han-53e3:4x16-l han-624c:3x16 han-66f7:8x16 // ⿲口扌曷
@@ -206,6 +220,9 @@ glyph han-2d39a:15x16 15 16 // 𭎚
 
 ## 32.7
 
+// glyph han-2d3a1:15x16 15 16 // 𭎡
+// ⿰ han-571f han-3ad6 // ⿰土㫖
+
 // glyph han-2d3a3:15x16 15 16 // 𭎣
 // ⿰ han-571f han-8db3 // ⿰土足
 
@@ -272,6 +289,9 @@ glyph han-2d471:15x16 15 16 // 𭑱
 // ⿳ han-4e2d han-4e00 han-5973 // ⿳中一女 <- ⿱𠀐女
 
 ## 38.8
+
+// glyph han-2d481:15x16 15 16 // 𭒁
+// ⿱ han-73a8 han-5973 // ⿱玨女
 
 // glyph han-2d482:15x16 15 16 // 𭒂
 // ⿱ han-20c40 han-5973 // ⿱𠱀女

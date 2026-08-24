@@ -167,7 +167,7 @@ glyph han-2d002:15x16 15 16 // 𭀂
 ## 9.16
 
 glyph han-2d008:15x16 15 16 // 𭀈
-⿲ -1 han-4ebb:3x16 han-7530:5x16 1 han-9ce5:7x16 // ⿲亻田鳥
+⿲ han-4ebb:3x16 han-7530:5x16 han-9ce5:7x16 // ⿲亻田鳥
 
 glyph han-2d00a:15x16 15 16 // 𭀊
 ⿲ han-4ebb:3x16 han-767d:4x16 1 han-9ce5:7x16 // ⿲亻白鳥

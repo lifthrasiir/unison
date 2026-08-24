@@ -39,8 +39,8 @@ glyph han-25fb6:15x16 15 16 // 𥾶
 glyph han-25fc0:15x16 15 16 // 𥿀
 ⿰ han-7cf9:5x16 1 han-65e5:9x16 // ⿰糹日
 
-// glyph han-25fc1:15x16 15 16 // 𥿁
-// ⿰ han-7cf9 han-738b // ⿰糹王
+glyph han-25fc1:15x16 15 16 // 𥿁
+⿰ han-7cf9:5x16 1 han-738b:9x16 // ⿰糹王
 
 // glyph han-25fc2:15x16 15 16 // 𥿂
 // ⿰ han-7cf9 han-5fc3 // ⿰糹心
@@ -88,7 +88,7 @@ glyph han-26037:15x16 15 16 // 𦀷
 // ⿰ han-7cf9 han-7683 // ⿰糹皃
 
 glyph han-26039:15x16 15 16 // 𦀹
-⿲ -2 han-7cf9:5x16 han-6728:5x16 han-5bf8:7x16 // ⿲糹木寸
+⿲ -1 han-7cf9:5x16 han-6728:5x16 han-5bf8:6x16 // ⿲糹木寸
 
 glyph han-2603a:15x16 15 16 // 𦀺
 ⿰ han-7cf9:5x16 1 han-8eca:9x16 // ⿰糹車
@@ -116,8 +116,8 @@ glyph han-26060:15x16 15 16 // 𦁠
 // glyph han-2606a:15x16 15 16 // 𦁪
 // ⿰ han-7cf9 han-5774 // ⿰糹坴
 
-// glyph han-2607d:15x16 15 16 // 𦁽
-// ⿲ han-7cf9 han-65e5 han-738b // ⿲糹日王 <- ⿰糹旺
+glyph han-2607d:15x16 15 16 // 𦁽
+⿲ -3 han-7cf9:5x16 1 han-65e5:5x16 han-738b:7x16 // ⿲糹日王
 
 glyph han-2607f:15x16 15 16 // 𦁿
 ⿲ han-7cf9:5x16 han-5973:5x16 han-53e4:5x16 // ⿲糹女古
@@ -156,6 +156,9 @@ glyph han-260f8:15x16 15 16 // 𦃸
 glyph han-26100:15x16 15 16 // 𦄀
 ⿰ han-7cf9:5x16 1 han-99ac:9x16 // ⿰糹馬
 
+// glyph han-26107:15x16 15 16 // 𦄇
+// ⿲ han-7cf9 han-6c35 han-573c // ⿲糹氵圼 <- ⿰糹涅
+
 glyph han-26108:15x16 15 16 // 𦄈
 ⿲ han-7cf9:5x16 han-91d2:7x16 han-5202:3x16 // ⿲糹釒刂
 
@@ -178,7 +181,7 @@ glyph han-26195:15x16 15 16 // 𦆕
 ## 120.14
 
 glyph han-2619d:15x16 15 16 // 𦆝
-⿲ -4 han-7cf9:5x16 han-7968:7x16 han-5bf8:7x16 // ⿲糹票寸
+⿲ -3 han-7cf9:5x16 han-7968:7x16 han-5bf8:6x16 // ⿲糹票寸
 
 ## 120.17
 

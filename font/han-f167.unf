@@ -1,5 +1,10 @@
 # CJK unified ideographs extension F: 金 (167)
 
+## 167.4
+
+// glyph han-2e868:15x16 15 16 // 𮡨
+// ⿰ han-91d2 han-4e94 // ⿰釒五
+
 ## 167.8
 
 glyph han-2e885:15x16 15 16 // 𮢅
@@ -54,6 +59,9 @@ glyph han-2e941:15x16 15 16 // 𮥁
 
 ## 170.7
 
+// glyph han-2e948:15x16 15 16 // 𮥈
+// ⿰ han-961d han-65f1 // ⿰阝旱
+
 glyph han-2e949:15x16 15 16 // 𮥉
 ⿲ han-961d:4x16-l han-79be:7x16 han-5202:4x16 // ⿲阝禾刂
 
@@ -93,7 +101,7 @@ glyph han-2e9d5:15x16 15 16 // 𮧕
 ⿰ han-9769:7x16 1 han-5931:7x16 // ⿰革失
 
 glyph han-2e9d6:15x16 15 16 // 𮧖
-⿲ -2 han-9769:7x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲革亻寸
+⿲ -1 han-9769:7x16 han-4ebb:3x16 han-5bf8:6x16 // ⿲革亻寸
 
 ## 177.8
 
@@ -155,6 +163,11 @@ glyph han-2ea99:15x16 15 16 // 𮪙
 
 // glyph han-2eaa9:15x16 15 16 // 𮪩
 // ⿰ han-9aa8 han-8863 // ⿰骨衣
+
+## 188.7
+
+// glyph han-2eaab:15x16 15 16 // 𮪫
+// ⿰ han-9aa8 han-3ad6 // ⿰骨㫖
 
 # CJK unified ideographs extension F: 魚 (195)
 

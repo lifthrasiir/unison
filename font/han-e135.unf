@@ -5,6 +5,11 @@
 // glyph han-2c721:15x16 15 16 // 𬜡
 // ⿱ han-8279 han-5c71 // ⿱艹山
 
+## 140.6
+
+// glyph han-2c72b:15x16 15 16 // 𬜫
+// ⿳ han-8279 han-4e5d han-5fc3 // ⿳艹九心 <- ⿱艽心
+
 ## 140.9
 
 // glyph han-2c74c:15x16 15 16 // 𬝌
@@ -53,6 +58,9 @@ glyph han-2c7a9:15x16 15 16 // 𬞩
 
 ## 140.14
 
+// glyph han-2c7b7:15x16 15 16 // 𬞷
+// ⿱ han-8279 han-8a91 // ⿱艹誑
+
 // glyph han-2c7bc:15x16 15 16 // 𬞼
 // ⿱ han-8279 han-7dad // ⿱艹維
 
@@ -93,6 +101,9 @@ glyph han-2c81a:15x16 15 16 // 𬠚
 
 glyph han-2c822:15x16 15 16 // 𬠢
 ⿲ -1 han-866b:5x16 han-793b:5x16 han-4e14:6x16 // ⿲虫礻且
+
+// glyph han-2c824:15x16 15 16 // 𬠤
+// ⿱ han-6c34 han-45b5 // ⿱水䖵
 
 ## 142.12
 
@@ -160,6 +171,9 @@ glyph han-2c8f2:15x16 15 16 // 𬣲
 
 ## 149'.7
 
+// glyph han-2c8f8:15x16 15 16 // 𬣸
+// ⿰ han-8ba0 han-65f1 // ⿰讠旱
+
 // glyph han-2c8f9:15x16 15 16 // 𬣹
 // ⿰ han-8ba0 han-8db3 // ⿰讠足
 
@@ -170,6 +184,14 @@ glyph han-2c8fc:15x16 15 16 // 𬣼
 
 glyph han-2c90a:15x16 15 16 // 𬤊
 ⿰ han-8ba0:5x16 1 han-662f:9x16 // ⿰讠是
+
+glyph han-2c90d:15x16 15 16 // 𬤍
+⿰ han-8ba0:5x16 1 han-7687:9x16 // ⿰讠皇
+
+## 149'.10
+
+// glyph han-2c910:15x16 15 16 // 𬤐
+// ⿰ han-8ba0 han-54e5 // ⿰讠哥
 
 ## 149'.18
 

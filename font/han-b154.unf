@@ -30,8 +30,8 @@ glyph han-27d31:15x16 15 16 // 𧴱
 // glyph han-27d34:15x16 15 16 // 𧴴
 // ⿱ han-65e5 han-8c9d // ⿱日貝
 
-// glyph han-27d3d:15x16 15 16 // 𧴽
-// ⿰ han-8c9d han-738b // ⿰貝王
+glyph han-27d3d:15x16 15 16 // 𧴽
+⿰ han-8c9d:6x16 han-738b:9x16 // ⿰貝王
 
 // glyph han-27d3f:15x16 15 16 // 𧴿
 // ⿱ han-6728 han-8c9d // ⿱木貝
@@ -68,6 +68,9 @@ glyph han-27d53:15x16 15 16 // 𧵓
 glyph han-27d5b:15x16 15 16 // 𧵛
 ⿰ han-8c9d:6x16 1 han-53ef:8x16 // ⿰貝可
 
+// glyph han-27d5e:15x16 15 16 // 𧵞
+// ⿳ han-53e3 han-4e5d han-8c9d // ⿳口九貝
+
 glyph han-27d62:15x16 15 16 // 𧵢
 ⿰ han-8c9d:6x16 han-5305:9x16 // ⿰貝包
 
@@ -90,13 +93,18 @@ glyph han-27d87:15x16 15 16 // 𧶇
 glyph han-27d88:15x16 15 16 // 𧶈
 ⿰ han-8c9d:6x16 han-8096:9x16 // ⿰貝肖
 
+## 154.8
+
+// glyph han-27da7:15x16 15 16 // 𧶧
+// ⿰ han-8c9d han-660c // ⿰貝昌
+
 ## 154.9
 
 glyph han-27dbd:15x16 15 16 // 𧶽
 ⿰ han-8c9d:6x16 han-661c:9x16 // ⿰貝昜
 
 glyph han-27dc2:15x16 15 16 // 𧷂
-⿲ -1 han-8c9d:6x16 han-79be:5x16 han-706b:5x16 // ⿲貝禾火
+⿲ han-8c9d:5x16 han-79be:5x16 han-706b:5x16 // ⿲貝禾火
 
 ## 154.12
 
@@ -112,7 +120,7 @@ glyph han-27e13-($han-regions):15x16 15 16 // 𧸓
 ## 154.13
 
 glyph han-27e1a:15x16 15 16 // 𧸚
-⿲ -4 han-8c9d:6x16 1 han-27fb7:5x16 han-5404:7x16 // ⿲貝𧾷各
+⿲ -3 han-8c9d:5x16 1 han-27fb7:5x16 han-5404:7x16 // ⿲貝𧾷各
 
 # CJK unified ideographs extension B: 走 (156)
 

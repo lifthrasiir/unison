@@ -5,6 +5,9 @@
 glyph han-2b3f4:15x16 15 16 // 𫏴
 ⿰ han-8eca:7x16 han-767d:8x16 // ⿰車白
 
+// glyph han-2b3f5:15x16 15 16 // 𫏵
+// ⿳ han-4e5b han-6c34 han-8eca // ⿳乛水車 <- ⿱氶車
+
 ## 159.7
 
 // glyph han-2b3f7:15x16 15 16 // 𫏷
@@ -39,6 +42,11 @@ glyph han-2b486:15x16 15 16 // 𫒆
 
 glyph han-2b489:15x16 15 16 // 𫒉
 ⿰ han-91d2:7x16 1 han-961d:7x16-r // ⿰釒阝
+
+## 167.4
+
+// glyph han-2b48e:15x16 15 16 // 𫒎
+// ⿰ han-91d2 han-6c34 // ⿰釒水
 
 ## 167.6
 

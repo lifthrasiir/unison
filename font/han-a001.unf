@@ -9,6 +9,9 @@
 
 ## 5.2
 
+// glyph han-3407:15x16 15 16 // 㐇
+// ⿱ han-4e5d han-4e59 // ⿱九乙
+
 // glyph han-3409:15x16 15 16 // 㐉
 // ⿱ han-4e01 han-4e59 // ⿱丁乙
 
@@ -17,13 +20,18 @@
 glyph han-340b:15x16 15 16 // 㐋
 ⿱ han-571f:15x6 2 han-4e59:15x8 // ⿱土乙
 
+## 5.4
+
+// glyph han-340f:15x16 15 16 // 㐏
+// ⿱ han-4e94 han-4e59 // ⿱五乙
+
 ## 5.5
 
 // glyph han-3412:15x16 15 16 // 㐒
 // ⿱ han-53ec han-4e59 // ⿱召乙
 
-// glyph han-3413:15x16 15 16 // 㐓
-// ⿱ han-53ef han-4e59 // ⿱可乙
+glyph han-3413:15x16 15 16 // 㐓
+⿱ han-53ef:15x6 1 han-4e59:15x8 // ⿱可乙
 
 // glyph han-3414:15x16 15 16 // 㐔
 // ⿳ han-4ea0 han-53e3 han-4e59 // ⿳亠口乙
@@ -38,6 +46,11 @@ glyph han-340b:15x16 15 16 // 㐋
 
 // glyph han-3418:15x16 15 16 // 㐘
 // ⿱ han-7c73 han-4e59 // ⿱米乙
+
+## 5.7
+
+// glyph han-341a:15x16 15 16 // 㐚
+// ⿳ han-4e94 han-53e3 han-4e59 // ⿳五口乙 <- ⿱吾乙
 
 ## 5.8
 
@@ -70,8 +83,8 @@ glyph han-3438:15x16 15 16 // 㐸
 // glyph han-343a:15x16 15 16 // 㐺
 // ⿲ han-4ebb han-4ebb han-4eba // ⿲亻亻人 <- ⿰亻𠆧
 
-// glyph han-343e:15x16 15 16 // 㐾
-// ⿰ han-4ebb han-5143 // ⿰亻元
+glyph han-343e:15x16 15 16 // 㐾
+⿰ han-4ebb:5x16 1 han-5143:9x16 // ⿰亻元
 
 // glyph han-343f:15x16 15 16 // 㐿
 // ⿰ han-4ebb han-624b // ⿰亻手
@@ -129,8 +142,8 @@ glyph han-348b:15x16 15 16 // 㒋
 
 ## 13.9
 
-// glyph han-34bb:15x16 15 16 // 㒻
-// ⿱ han-65e5 han-898b // ⿱日見
+glyph han-34bb:15x16 15 16 // 㒻
+⿳ -2 han-65e5:15x5 1 han-76ee:15x7 han-513f:15x5 // ⿳日目儿
 
 # CJK unified ideographs extension A: 刀 (18)
 
@@ -209,6 +222,9 @@ glyph han-3520:15x16 15 16 // 㔠
 // glyph han-3563:15x16 15 16 // 㕣
 // ⿱ han-516b han-53e3 // ⿱八口
 
+// glyph han-3564:15x16 15 16 // 㕤
+// ⿰ han-53e3 han-4e5d // ⿰口九
+
 // glyph han-3565:15x16 15 16 // 㕥
 // ⿰ han-53e3 han-4eba // ⿰口人
 
@@ -220,8 +236,11 @@ glyph han-3520:15x16 15 16 // 㔠
 glyph han-3572:15x16 15 16 // 㕲
 ⿰ han-53e3:7x16 1 han-6728:7x16 // ⿰口木
 
-// glyph han-3575:15x16 15 16 // 㕵
-// ⿰ han-53e3 han-738b // ⿰口王
+glyph han-3575:15x16 15 16 // 㕵
+⿰ han-53e3:5x16-l 1 han-738b:9x16 // ⿰口王
+
+// glyph han-3576:15x16 15 16 // 㕶
+// ⿰ han-53e3 han-4e94 // ⿰口五
 
 ## 30.5
 
@@ -230,6 +249,11 @@ glyph han-3577:15x16 15 16 // 㕷
 
 // glyph han-357f:15x16 15 16 // 㕿
 // ⿱ han-79be han-53e3 // ⿱禾口
+
+## 30.7
+
+// glyph han-358f:15x16 15 16 // 㖏
+// ⿰ han-53e3 han-573c // ⿰口圼
 
 ## 30.9
 
@@ -272,6 +296,11 @@ glyph han-3610:15x16 15 16 // 㘐
 
 glyph han-3626:15x16 15 16 // 㘦
 ⿰ han-571f:7x16 han-529b:8x16 // ⿰土力
+
+## 32.7
+
+// glyph han-363f:15x16 15 16 // 㘿
+// ⿰ han-571f han-573c // ⿰土圼
 
 ## 32.8
 

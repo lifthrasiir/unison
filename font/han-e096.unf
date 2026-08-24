@@ -13,6 +13,9 @@ glyph han-2c353:15x16 15 16 // 𬍓
 // glyph han-2c354:15x16 15 16 // 𬍔
 // ⿲ han-248e9 han-4e03 han-5200 // ⿲𤣩七刀 <- ⿰𤣩切
 
+// glyph han-2c356:15x16 15 16 // 𬍖
+// ⿰ han-248e9 han-6c34 // ⿰𤣩水
+
 ## 96.6
 
 // glyph han-2c360:15x16 15 16 // 𬍠
@@ -90,6 +93,9 @@ glyph han-2c40a:15x16 15 16 // 𬐊
 
 // glyph han-2c40c:15x16 15 16 // 𬐌
 // ⿱ han-767d han-62ab // ⿱白披
+
+glyph han-2c40d:15x16 15 16 // 𬐍
+⿰ han-7687:7x16 han-5143:8x16 // ⿰皇元
 
 // glyph han-2c40e:15x16 15 16 // 𬐎
 // ⿱ han-767d han-5352 // ⿱白卒
@@ -200,8 +206,11 @@ glyph han-2c58f:15x16 15 16 // 𬖏
 
 ## 119.7
 
+// glyph han-2c59d:15x16 15 16 // 𬖝
+// ⿰ han-7c73 han-65f1 // ⿰米旱
+
 glyph han-2c59e:15x16 15 16 // 𬖞
-⿲ -2 han-7c73:5x16 han-65e5:5x16 han-5bf8:7x16 // ⿲米日寸
+⿲ -1 han-7c73:5x16 han-65e5:5x16 han-5bf8:6x16 // ⿲米日寸
 
 ## 119.8
 
@@ -258,10 +267,18 @@ glyph han-2c5cc:15x16 15 16 // 𬗌
 glyph han-2c5d7:15x16 15 16 // 𬗗
 ⿲ han-7cf9:5x16 han-624c:3x16 han-65a4:7x16 // ⿲糹扌斤
 
+## 120.8
+
+// glyph han-2c5e1:15x16 15 16 // 𬗡
+// ⿰ han-7cf9 han-660c // ⿰糹昌
+
 ## 120.9
 
 glyph han-2c5e9:15x16 15 16 // 𬗩
 ⿲ -1 han-7cf9:5x16 han-77f3:5x16 han-65a4:6x16 // ⿲糹石斤
+
+// glyph han-2c5ec:15x16 15 16 // 𬗬
+// ⿰ han-7cf8 han-7687 // ⿰糸皇
 
 ## 120.11
 
@@ -320,6 +337,9 @@ glyph han-2c69f:15x16 15 16 // 𬚟
 # CJK unified ideographs extension E: 肉 (130)
 
 ## 130.8
+
+// glyph han-2c6c4:15x16 15 16 // 𬛄
+// ⿰ han-6708 han-2395c // ⿰月𣥜
 
 glyph han-2c6c5:15x16 15 16 // 𬛅
 ⿰ han-6708:5x16-l han-5468:10x16 // ⿰月周

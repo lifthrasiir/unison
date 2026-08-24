@@ -30,6 +30,9 @@ glyph han-37b2:15x16 15 16 // 㞲
 glyph han-37b9:15x16 15 16 // 㞹
 ⿰ han-5c71:5x16 han-53ef:10x16 // ⿰山可
 
+// glyph han-37bc:15x16 15 16 // 㞼
+// ⿳ han-4e5b han-6c34 han-5c71 // ⿳乛水山 <- ⿱氶山
+
 // glyph han-37c0:15x16 15 16 // 㟀
 // ⿱ han-79be han-5c71 // ⿱禾山
 
@@ -142,6 +145,11 @@ glyph han-3914:15x16 15 16 // 㤔
 glyph han-392c:15x16 15 16 // 㤬
 ⿰ han-5fc4:7x16 1 han-572d:7x16 // ⿰忄圭
 
+## 61.7
+
+// glyph han-392e:15x16 15 16 // 㤮
+// ⿱ han-72c2 han-5fc3 // ⿱狂心
+
 ## 61.8
 
 glyph han-394a:15x16 15 16 // 㥊
@@ -150,8 +158,8 @@ glyph han-394a:15x16 15 16 // 㥊
 glyph han-394d:15x16 15 16 // 㥍
 ⿰ han-5fc4:7x16 han-5176:8x16 // ⿰忄其
 
-// glyph han-3955:15x16 15 16 // 㥕
-// ⿱ han-708e han-5fc3 // ⿱炎心
+glyph han-3955:15x16 15 16 // 㥕
+⿳ han-706b:15x5 han-706b:15x5 han-5fc3:15x6 // ⿳火火心
 
 ## 61.9
 
@@ -253,6 +261,11 @@ glyph han-3abc:15x16 15 16 // 㪼
 glyph han-3abe:15x16 15 16 // 㪾
 ⿰ han-5404:7x16 1 han-65a4:7x16 // ⿰各斤
 
+## 69.8
+
+// glyph han-3ac0:15x16 15 16 // 㫀
+// ⿰ han-660c han-65a4 // ⿰昌斤
+
 # CJK unified ideographs extension A: 日 (72)
 
 ## 72.2
@@ -262,14 +275,14 @@ glyph han-3ad1:15x16 15 16 // 㫑
 
 ## 72.3
 
-// glyph han-3ad4:15x16 15 16 // 㫔
-// ⿱ han-65e5 han-4e0a // ⿱日上
+glyph han-3ad4:15x16 15 16 // 㫔
+⿱ han-65e5:15x7 han-4e0a:15x9 // ⿱日上
 
-// glyph han-3ad5:15x16 15 16 // 㫕
-// ⿱ han-65e5 han-5140 // ⿱日兀
+glyph han-3ad5:15x16 15 16 // 㫕
+⿱ han-65e5:15x7 2 han-5140:15x7 // ⿱日兀
 
-// glyph han-3ad6:15x16 15 16 // 㫖
-// ⿱ han-4e0a han-65e5 // ⿱上日
+glyph han-3ad6:15x16 15 16 // 㫖
+⿱ han-4e0a:15x7 2 han-65e5:15x7 // ⿱上日
 
 ## 72.5
 
@@ -289,16 +302,16 @@ glyph han-3add:15x16 15 16 // 㫝
 
 ## 72.7
 
-// glyph han-3aef:15x16 15 16 // 㫯
-// ⿳ han-65e5 han-65e5 han-5140 // ⿳日日兀 <- ⿱昌兀
+glyph han-3aef:15x16 15 16 // 㫯
+⿳ han-65e5:15x5 1 han-65e5:15x5 1 han-5140:15x4 // ⿳日日兀
 
 glyph han-3af0:15x16 15 16 // 㫰
 ⿰ han-65e5:7x16 1 han-826f:7x16 // ⿰日良
 
 ## 72.8
 
-// glyph han-3af7:15x16 15 16 // 㫷
-// ⿱ han-5176 han-65e5 // ⿱其日
+glyph han-3af7:15x16 15 16 // 㫷
+⿱ han-5176:15x10 1 han-65e5:15x5 // ⿱其日
 
 glyph han-3aff:15x16 15 16 // 㫿
 ⿰ han-65e5:6x16 han-96b9:9x16 // ⿰日隹

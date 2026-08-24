@@ -21,8 +21,8 @@ glyph han-29876:15x16 15 16 // 𩡶
 
 ## 187.4
 
-// glyph han-29884:15x16 15 16 // 𩢄
-// ⿰ han-99ac han-5143 // ⿰馬元
+glyph han-29884:15x16 15 16 // 𩢄
+⿰ han-99ac:7x16 han-5143:8x16 // ⿰馬元
 
 glyph han-2988b:15x16 15 16 // 𩢋
 ⿰ han-99ac:7x16 1 han-6708:7x16 // ⿰馬月
@@ -118,7 +118,7 @@ glyph han-299bc:15x16 15 16 // 𩦼
 ⿲ -6 han-99ac:7x16 han-5404:7x16 han-96b9:7x16 // ⿲馬各隹
 
 glyph han-299be:15x16 15 16 // 𩦾
-⿲ -6 han-99ac:7x16 han-7968:7x16 han-5bf8:7x16 // ⿲馬票寸
+⿲ -5 han-99ac:7x16 han-7968:7x16 han-5bf8:6x16 // ⿲馬票寸
 
 ## 187.17
 
@@ -179,6 +179,12 @@ glyph han-29a60:15x16 15 16 // 𩩠
 
 glyph han-29a67:15x16 15 16 // 𩩧
 ⿰ han-9aa8:7x16 1 han-708e:7x16 // ⿰骨炎
+
+// glyph han-29a6a:15x16 15 16 // 𩩪
+// ⿰ han-660c han-9aa8 // ⿰昌骨
+
+// glyph han-29a6b:15x16 15 16 // 𩩫
+// ⿰ han-9aa8 han-660c // ⿰骨昌
 
 ## 188.9
 
