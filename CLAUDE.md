@@ -69,6 +69,13 @@ builds the headless CLI only — **it breaks easily**, since most code is under 
 and `cargo test` never builds it. It has rotted twice, so `make test` now runs `cargo test
 --no-default-features` (the `check-headless` target) rather than trusting anyone to remember.
 
+The release profile is also tuned for binary size, and **`Cargo.toml`'s own comments are the
+reference** for it: which dependencies are compiled for size rather than speed and why, why the
+renderer is eframe's `glow` and not `wgpu`, and why the `regex` and `arboard` feature sets are cut
+down. The rule the tuning is held to is that a warm rebuild of *this* crate must not get slower —
+every knob that costs incremental time (crate-wide LTO, `codegen-units = 1` for `uniform` itself)
+was measured and rejected for that reason.
+
 Which side of the boundary a fix belongs on: an item the headless *binary* genuinely does not need stays
 `#[cfg(feature = "editor")]`, and a test that reaches for it is gated the same way — `detail.rs` gates its
 own rotation/snapping tests exactly so. Widening a gate to `any(feature = "editor", test)` pulls the item's
@@ -420,6 +427,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why the remembered face is applied before the first build, not after the first resolve | `app/mod.rs` (`with_settings`) |
 | What survives between runs, what egui persists on its own, and why there is no session restore | `app/settings.rs` |
 | Where the settings file lives, and the app id that decides it | `app/settings.rs`, `main.rs` (`with_app_id`) |
+| Why the release build compiles some dependencies for size, and which renderer backend it links | `Cargo.toml` (`[profile.release.package]`) |
 
 ## Testing
 

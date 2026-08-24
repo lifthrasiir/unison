@@ -20,16 +20,19 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ttf2woff2 = { version = "0.13", default-features = false }
 
-eframe = { version = "0.31", default-features = false, features = ["wgpu", "persistence"], optional = true }
+eframe = { version = "0.31", default-features = false, features = ["glow", "persistence"], optional = true }
 egui = { version = "0.31", optional = true }
 tiny-skia = { version = "0.11", optional = true }
 notify = { version = "7", optional = true }
 rfd = { version = "0.15", optional = true }
-arboard = { version = "3", optional = true }
+arboard = { version = "3", default-features = false, optional = true }
 unicode-script = "0.5.8"
 icu_properties = "2.2.0"
-regex = "1.13.1"
-regex-syntax = "0.8.11"
+# Glyph names are ASCII (`pattern::is_valid_glyph_name`), and an `exists`
+# class is rejected unless it stays inside that set, so the Unicode tables
+# the engine would carry are dead weight. `unicode-case` stays for `(?i)`.
+regex = { version = "1.13.1", default-features = false, features = ["std", "perf", "unicode-case", "unicode-perl"] }
+regex-syntax = { version = "0.8.11", default-features = false, features = ["std", "unicode-case", "unicode-perl"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "0.2"
@@ -64,3 +67,76 @@ embed-resource = { version = "3", optional = true }
 # source lines, without the size and build-time cost of full debug info.
 [profile.release]
 debug = "line-tables-only"
+
+# Size over speed for the code that is neither per-frame nor per-rebuild: the
+# GL context/window/dialog shims and the one-shot codecs. `glow` is the call
+# layer every frame goes through, so it gets "s" rather than "z"; everything
+# the editor's hot paths run through (egui/epaint/egui_glow, tiny-skia,
+# skrifa/write-fonts/read-fonts, rustybuzz, regex, hashbrown) keeps the default
+# opt-level 3. Dependencies also get one codegen unit each, which costs a
+# slower *clean* build and nothing at all incrementally.
+[profile.release.package."*"]
+codegen-units = 1
+
+[profile.release.package.glow]
+opt-level = "s"
+
+[profile.release.package.glutin]
+opt-level = "z"
+
+[profile.release.package.glutin-winit]
+opt-level = "z"
+
+[profile.release.package.glutin_egl_sys]
+opt-level = "z"
+
+[profile.release.package.glutin_wgl_sys]
+opt-level = "z"
+
+[profile.release.package.winit]
+opt-level = "z"
+
+[profile.release.package.image]
+opt-level = "z"
+
+[profile.release.package.brotli-decompressor]
+opt-level = "z"
+
+[profile.release.package.ttf2woff2]
+opt-level = "z"
+
+[profile.release.package.ron]
+opt-level = "z"
+
+[profile.release.package.notify]
+opt-level = "z"
+
+[profile.release.package.rfd]
+opt-level = "z"
+
+[profile.release.package.webbrowser]
+opt-level = "z"
+
+[profile.release.package.moxcms]
+opt-level = "z"
+
+[profile.release.package.pxfm]
+opt-level = "z"
+
+[profile.release.package.icu_properties]
+opt-level = "z"
+
+[profile.release.package.icu_normalizer]
+opt-level = "z"
+
+[profile.release.package.idna]
+opt-level = "z"
+
+[profile.release.package.url]
+opt-level = "z"
+
+[profile.release.package.regex-syntax]
+opt-level = "z"
+
+[profile.release.package.serde_json]
+opt-level = "z"
