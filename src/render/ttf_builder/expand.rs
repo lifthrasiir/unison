@@ -69,12 +69,19 @@ pub(crate) fn expand_documents(docs: &[&Document], name_parts: &NamePartsMap) ->
     expand_documents_for(docs, name_parts, &crate::faces::FaceSet::collect(docs))
 }
 
+/// The expansion every consumer shares: the union of every declared slice.
+///
+/// Not the primary face's. A face-filtered expansion cannot fault a line it
+/// dropped, so validation used to be blind to whatever only a secondary face
+/// includes; and the glyph store is the union's anyway. See
+/// [`crate::faces::FaceSet::union`], and [`super::collect::face_items`] for
+/// where a face's own view is taken out of this again.
 pub(crate) fn expand_documents_for(
     docs: &[&Document],
     name_parts: &NamePartsMap,
     faces: &crate::faces::FaceSet,
 ) -> Expansion {
-    expand_for(docs, name_parts, faces.primary())
+    expand_for(docs, name_parts, &faces.union())
 }
 
 /// Expand for one face: items qualified with a slice the face does not include
@@ -88,26 +95,7 @@ pub(crate) fn expand_for(
     name_parts: &NamePartsMap,
     face: &crate::faces::Face,
 ) -> Expansion {
-    expand_inner(docs, name_parts, face, false)
-}
-
-/// [`expand_for`] for a caller that only wants the `map` lines out of it.
-///
-/// On-demand synthesis is the expensive half of an expansion — it is where a
-/// font this size spends most of it — and it produces *glyphs* and the
-/// diagnostics about the names that reached it. A secondary face of a
-/// collection takes neither: its glyphs come from the shared union store, whose
-/// own expansion is the full one, and the same names are reported from there.
-/// So it is skipped, and the expansion stops at the maps.
-///
-/// The maps themselves are untouched by it, which is what makes this safe:
-/// [`inject_on_demand_glyph_items`] only ever *appends* glyph items.
-pub(crate) fn expand_maps_for(
-    docs: &[&Document],
-    name_parts: &NamePartsMap,
-    face: &crate::faces::Face,
-) -> Expansion {
-    expand_inner(docs, name_parts, face, true)
+    expand_inner(docs, name_parts, face)
 }
 
 /// One `glyph` block for one binding of the name parts: the header expanded,
@@ -212,7 +200,6 @@ fn expand_inner(
     docs: &[&Document],
     name_parts: &NamePartsMap,
     face: &crate::faces::Face,
-    maps_only: bool,
 ) -> Expansion {
     let mut all_items: Vec<ExpandedItem> = Vec::new();
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
@@ -506,16 +493,14 @@ fn expand_inner(
     }
 
     expand_decomposed_maps(&mut all_items, &cp_to_glyph, &mut diagnostics);
-    if !maps_only {
-        inject_on_demand_glyph_items(
-            &mut all_items,
-            map_targets,
-            name_parts,
-            &aliases,
-            &undecided_parts,
-            &mut diagnostics,
-        );
-    }
+    inject_on_demand_glyph_items(
+        &mut all_items,
+        map_targets,
+        name_parts,
+        &aliases,
+        &undecided_parts,
+        &mut diagnostics,
+    );
 
     Expansion {
         items: all_items,

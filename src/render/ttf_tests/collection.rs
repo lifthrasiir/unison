@@ -244,7 +244,7 @@ face wide : wide
     let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
     let cache = crate::render::new_contour_cache();
     let advance_of = |face: Option<&str>, ch: char| -> u16 {
-        let built = crate::render::build_font_pair_cached_for(
+        let built = crate::render::ttf_builder::build_font_pair_cached_for(
             &[&doc],
             &cache,
             face,

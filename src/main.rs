@@ -298,7 +298,7 @@ fn run_edit_probe(input: &std::path::Path) {
         // what each stage costs, and the report combines them the way the
         // editor's threads do.
         let t = std::time::Instant::now();
-        let font = render::build_font_pair_cached_from(&refs, contour_cache, &resolution, &never);
+        let font = render::build_font_pair_cached_from(&refs, contour_cache, &resolution, None, &never);
         let font_took = t.elapsed();
 
         let t = std::time::Instant::now();
@@ -699,37 +699,37 @@ fn main() {
             || sample_png.is_some()
             || live_html.is_some()
             || demo_html.is_some();
+        // The build, validation and the sample all want the same expansion —
+        // the union of every slice, which is face-independent (see
+        // `faces::FaceSet::union`) — and it is the larger half of what any of
+        // them costs. So it is computed once, up front, and lent to all three;
+        // it used to be computed twice, once inside the build and once beside
+        // it, which is also how a line only a secondary face includes came to
+        // be built but never validated.
+        let resolution = {
+            let _t = startup::PerfStage::new("resolve");
+            resolve::Resolution::compute(&refs)
+        };
         let (issue_errors, built, sample_source) = std::thread::scope(|scope| {
             let build = scope.spawn(|| {
                 let _t = startup::PerfStage::new("build faces");
-                render::build_faces(&refs)
+                render::build_faces_from(&refs, &resolution.expansion)
             });
-            // Validation and the sample want the same expansion — the primary
-            // face, in full — and it is the larger half of what either costs,
-            // so it is computed once and lent to both. Here, inside the scope,
-            // because the build needs none of it and is already running: on a
-            // machine with cores to spare this whole half is free, and on one
-            // without it is a third of the expansions it used to be.
-            let resolution = {
-                let _t = startup::PerfStage::new("resolve");
-                resolve::Resolution::compute(&refs)
+            let sample = wants_sample.then(|| {
+                scope.spawn(|| {
+                    let _t = startup::PerfStage::new("sample resolve");
+                    render::sample::SampleSource::collect_with(&refs, &resolution)
+                })
+            });
+            let errors = {
+                let _t = startup::PerfStage::new("validate");
+                report_issues(&refs, &resolution)
             };
-            // Its own scope, so the two borrowers of `resolution` are joined
-            // before it goes out of scope — the outer one outlives it.
-            let (errors, sample) = std::thread::scope(|inner| {
-                let sample = wants_sample.then(|| {
-                    inner.spawn(|| {
-                        let _t = startup::PerfStage::new("sample resolve");
-                        render::sample::SampleSource::collect_with(&refs, &resolution)
-                    })
-                });
-                let errors = {
-                    let _t = startup::PerfStage::new("validate");
-                    report_issues(&refs, &resolution)
-                };
-                (errors, sample.map(|h| h.join().unwrap()))
-            });
-            (errors, build.join().unwrap(), sample)
+            (
+                errors,
+                build.join().unwrap(),
+                sample.map(|h| h.join().unwrap()),
+            )
         });
         let sample_source = match sample_source {
             Some(None) => {

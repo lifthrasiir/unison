@@ -9,12 +9,11 @@ pub mod ttf_builder;
 pub use ttf_builder::build_font_from_documents;
 #[cfg(feature = "editor")]
 pub use ttf_builder::{
-    BuiltFontPair, SharedContourCache, build_font_pair_cached, build_font_pair_cached_for,
-    build_font_pair_cached_from, build_font_with_gid_map_for_cached, new_contour_cache,
-    resolve_face,
+    BuiltFontPair, SharedContourCache, build_font_pair_cached, build_font_pair_cached_from,
+    build_font_with_gid_map_for_cached, new_contour_cache,
 };
 pub use ttf_builder::{
-    FontWithGidMap, build_collection, build_face_ttf_pair, build_faces, build_font_with_gid_map_for,
+    FontWithGidMap, build_collection, build_face_ttf_pair, build_faces_from, build_font_with_gid_map_for,
 };
 
 /// How hard the WOFF2 encoder compresses.

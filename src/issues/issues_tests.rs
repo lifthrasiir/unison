@@ -1749,3 +1749,73 @@ map A|B = outer-(a|b)
         "a `$-N` alias target uses the glyphs its group names: {issues:?}",
     );
 }
+
+/// Validation used to expand for the *primary* face alone, so a line stated
+/// for a slice only some other face includes was dropped before any diagnostic
+/// about it could exist — the same line reported an error under the primary
+/// slice and nothing at all under the other one. The expansion validation
+/// reads is the union of every declared slice for exactly this reason.
+#[test]
+fn a_non_primary_slice_is_validated_too() {
+    let input = "\
+face main : sa
+meta main : family Main
+face other : sb
+meta other : family Other
+slice sa
+slice sb
+
+glyph aa 2 1
+@@..
+
+map sa : U+0041 = aa
+map sb : U+0042 = nosuchglyph
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let issues = collect_issues(&[&doc]);
+    assert!(
+        issues
+            .iter()
+            .any(|i| i.severity == Severity::Error && i.message.contains("nosuchglyph")),
+        "a bad `map` in a non-primary face's slice must still be reported: {issues:?}",
+    );
+}
+
+/// The anchor-derivation check and the font build are two passes over the same
+/// graph: the build derives anchors to place its refs and **drops** a glyph
+/// whose derivation failed, silently, while
+/// [`anchors::check_anchor_derivation`] re-derives with a geometry-free builder
+/// to say why. Nothing makes the two agree by construction, so what would
+/// otherwise be a silent divergence — a glyph missing from the font that no
+/// issue accounts for — is pinned here instead.
+#[test]
+fn a_faulted_anchor_derivation_is_a_glyph_the_build_drops() {
+    let input = "\
+glyph half 2 2
+@@@@
+@@@@
+anchor +above 1 0
+glyph digraph
+ref half 0 0 inherit
+ref half 2 0 inherit
+map D = digraph
+map h = half
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    assert!(
+        collect_issues(&[&doc])
+            .iter()
+            .any(|i| i.severity == Severity::Error && i.message.contains("digraph")),
+        "the check has to fault the glyph",
+    );
+    let built = crate::render::ttf_builder::build_font_with_gid_map(&[&doc]).expect("font should build");
+    assert!(
+        !built.gid_to_name.values().any(|n| n == "digraph"),
+        "and the build has to drop exactly that glyph: {:?}",
+        built.gid_to_name.values().collect::<Vec<_>>(),
+    );
+    assert!(
+        built.gid_to_name.values().any(|n| n == "half"),
+        "while a glyph nothing faulted is still built",
+    );
+}

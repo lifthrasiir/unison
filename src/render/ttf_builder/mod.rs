@@ -423,23 +423,28 @@ pub fn resolve_face<'a>(
         .unwrap_or_else(|| faces.primary())
 }
 
-/// The primary face's pair, from an expansion the caller already has for it.
+/// One face's pair, from an expansion the caller already has.
 ///
 /// The editor's rebuild computes one expansion and lends it here rather than
 /// letting the font build produce a second of the same thing; see
 /// [`crate::app::UniformApp::rebuild`] for the arrangement and
 /// `collect::ExpansionSource` for what "lent" costs.
+///
+/// Any face, not just the primary: an expansion is face-independent (see
+/// [`crate::faces::FaceSet::union`]), so selecting a secondary face in the
+/// editor no longer means expanding a second time for it.
 #[cfg(feature = "editor")]
 pub fn build_font_pair_cached_from(
     docs: &[&Document],
     shared_cache: &SharedContourCache,
     resolution: &crate::resolve::Resolution,
+    face_id: Option<&str>,
     cancel: &crate::cancel::CancelToken,
 ) -> Option<BuiltFontPair> {
     let _t = crate::startup::PerfStage::new("font pair: shared input");
     let shared = collect::compute_shared_font_input_from(
         docs,
-        resolution.faces.primary(),
+        resolve_face(&resolution.faces, face_id),
         &resolution.expansion,
         cancel,
     )?;
@@ -540,7 +545,30 @@ fn build_pair_from_shared(
 ///
 /// A source declaring no `face` yields one entry with an empty id — the same
 /// font `build_font_from_documents` returns, so the two paths cannot drift.
+/// Every caller that builds for real has an expansion already and goes through
+/// [`build_faces_from`]; this is the convenience that computes one, and only
+/// the tests still want it.
+#[cfg(test)]
 pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
+    let name_parts = crate::document::collect_name_parts(docs);
+    let faces = crate::faces::FaceSet::collect(docs);
+    let expansion = {
+        let _t = crate::startup::PerfStage::new("expand");
+        expand::expand_documents_for(docs, &name_parts, &faces)
+    };
+    build_faces_from(docs, &expansion)
+}
+
+/// [`build_faces`] over an expansion the caller already has.
+///
+/// Which is every caller that also validates or samples: the expansion is
+/// face-independent (see [`crate::faces::FaceSet::union`]) and is the larger
+/// half of what a build costs, so the whole point of computing it once is that
+/// the build can be handed it.
+pub fn build_faces_from(
+    docs: &[&Document],
+    expansion: &expand::Expansion,
+) -> Option<Vec<(String, Vec<u8>)>> {
     let faces = crate::faces::FaceSet::collect(docs);
 
     // The glyph store is built once, for a synthetic face that includes every
@@ -548,31 +576,27 @@ pub fn build_faces(docs: &[&Document]) -> Option<Vec<(String, Vec<u8>)>> {
     // order no single face's cmap decided. That is what lets the faces of a
     // collection share `glyf`, `loca`, `hmtx` and `maxp`: identical bytes are
     // stored once, and bytes are only identical if the glyph order is.
-    let union_face = crate::faces::Face {
-        id: String::new(),
-        slices: faces.declared.keys().cloned().collect(),
-        origin: None,
-    };
+    let union_face = faces.union();
     let never = crate::cancel::CancelToken::never();
 
     // The union is traced once and is the only tracing this build does: the
-    // glyph set is face-independent (`expand_for` filters maps by slice, never
+    // glyph set is face-independent (a slice qualifier filters maps, never
     // glyphs), so a per-face trace would reproduce it outline for outline. Each
-    // face therefore only expands — for its own `meta`, its own GSUB and above
-    // all its own cmap — and reads its glyphs out of the union store.
+    // face therefore only takes its own view of the shared expansion — for its
+    // own `meta`, its own GSUB and above all its own cmap — and reads its
+    // glyphs out of the union store.
     //
     // They still run at once rather than one after another: the union's trace
-    // dominates, and a face's expansion is free beside it.
+    // dominates, and a face's cmap is free beside it.
     let collect_union = || {
-        let expand = crate::startup::PerfStage::new("expand");
-        let shared = collect::compute_shared_font_input_for(docs, &union_face, &never)?;
-        drop(expand);
         let _collect = crate::startup::PerfStage::new("collect");
+        let shared =
+            collect::compute_shared_font_input_from(docs, &union_face, expansion, &never)?;
         collect::collect_glyph_data_with_shared(&shared, false, None, &never)
     };
     let collect_face = |face: &crate::faces::Face| {
-        let _expand = crate::startup::PerfStage::new("expand face");
-        collect::collect_face_cmap(docs, face, &never)
+        let _t = crate::startup::PerfStage::new("face cmap");
+        collect::collect_face_cmap(docs, face, expansion, &never)
     };
     let (union_collected, per_face) = std::thread::scope(|scope| {
         let union = scope.spawn(collect_union);

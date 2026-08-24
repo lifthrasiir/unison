@@ -183,27 +183,48 @@ struct FaceInput {
     glyph_aliases: crate::alias::AliasMap,
 }
 
-/// `maps_only` stops the expansion at the `map` lines — see
-/// [`expand_maps_for`](super::expand::expand_maps_for) for what that skips and
-/// why a face taking its glyphs from the union store may skip it.
+/// Where the expansion comes from: computed here, or lent by a caller that
+/// already has one.
+///
+/// It is the *union* expansion either way — face-independent, see
+/// [`crate::faces::FaceSet::union`] — and the face this is being computed for
+/// only decides which of its items survive [`face_items`].
 ///
 /// A cancelled run returns `None`, like any other input that cannot produce a
 /// font: name expansion is the one stage here big enough to be worth aborting,
 /// so the token is checked around it rather than inside it.
-/// Where a face's expansion comes from: computed here, or lent by a caller
-/// that already has one for this face.
 ///
 /// The editor rebuilds the font and the derived data from the same edit, and
-/// both used to expand the same face for themselves — the larger half of what
-/// either costs, paid twice. Lending is what makes it once; see
+/// both used to expand for themselves — the larger half of what either costs,
+/// paid twice. Lending is what makes it once; see
 /// [`crate::app::UniformApp::rebuild`].
 enum ExpansionSource<'a> {
-    Compute {
-        /// See [`expand_maps_for`](super::expand::expand_maps_for) for what
-        /// stopping at the `map` lines skips and who may skip it.
-        maps_only: bool,
-    },
+    Compute,
     Lent(&'a super::expand::Expansion),
+}
+
+/// One face's view of the union expansion: the items it does not include,
+/// dropped.
+///
+/// The expansion itself is face-independent — see
+/// [`crate::faces::FaceSet::union`] — so this is where a face becomes one
+/// again. An expanded item carries the single slice it was stated for
+/// (`expand_inner` emits one copy per stated slice), which is all the filter
+/// needs; an unqualified item is the base slice and belongs to every face.
+///
+/// Glyphs are deliberately untouched: every face draws from the same glyph set,
+/// and what a slice changes is which character reaches which glyph.
+pub(super) fn face_items<'a>(
+    items: impl Iterator<Item = &'a DocumentItem>,
+    face: &crate::faces::Face,
+) -> Vec<DocumentItem> {
+    items
+        .filter(|item| match item.slice_qualifier() {
+            [] => true,
+            qual => qual.iter().any(|s| face.includes(Some(s.as_str()))),
+        })
+        .cloned()
+        .collect()
 }
 
 fn compute_face_input(
@@ -223,25 +244,25 @@ fn compute_face_input(
     };
     let meta = FontMeta::for_face(docs, face_id);
 
+    // Refused rather than reported: `issues::directives::check_meta` is what
+    // says "meta height is 0", with the line it is written on, and a build
+    // printing a second copy of it with no location was the only thing this
+    // ever added.
     if meta.height() == 0 {
-        eprintln!("error: `meta height` must be > 0");
         return None;
     }
 
     let scale = UNITS_PER_EM as f32 / meta.height() as f32;
 
     let name_parts = collect_name_parts(docs);
+    let union = crate::faces::FaceSet::collect(docs).union();
     let (glyph_aliases, all_items): (crate::alias::AliasMap, Vec<DocumentItem>) = match source {
-        ExpansionSource::Compute { maps_only } => {
-            let expansion = if maps_only {
-                super::expand::expand_maps_for(docs, &name_parts, face)
-            } else {
-                super::expand::expand_for(docs, &name_parts, face)
-            };
+        ExpansionSource::Compute => {
+            let expansion = super::expand::expand_for(docs, &name_parts, &union);
             if cancel.is_cancelled() {
                 return None;
             }
-            let items = expansion.items.into_iter().map(|e| e.item).collect();
+            let items = face_items(expansion.items(), face);
             (expansion.aliases, items)
         }
         // Copied rather than taken: the lender is still reading it — validation
@@ -250,7 +271,7 @@ fn compute_face_input(
         // producing them costs.
         ExpansionSource::Lent(expansion) => (
             expansion.aliases.clone(),
-            expansion.items.iter().map(|e| e.item.clone()).collect(),
+            face_items(expansion.items(), face),
         ),
     };
 
@@ -285,12 +306,11 @@ pub(super) fn compute_shared_font_input_for(
         docs,
         face,
         cancel,
-        ExpansionSource::Compute { maps_only: false },
+        ExpansionSource::Compute,
     )
 }
 
-/// The same, from an expansion the caller already has for this face.
-#[cfg(feature = "editor")]
+/// The same, from an expansion the caller already has.
 pub(super) fn compute_shared_font_input_from(
     docs: &[&Document],
     face: &crate::faces::Face,
@@ -392,11 +412,16 @@ pub(super) struct FaceCmap {
 /// its GSUB, and the characters each glyph name claims — and no geometry.
 ///
 /// `build_faces` takes only the cmap out of a per-face collection; the glyphs,
-/// and so every glyph id, come from the shared union store. And `expand_for`
+/// and so every glyph id, come from the shared union store. And expansion
 /// never filters a glyph by slice, so the union and every face would trace
 /// *exactly the same glyph set*: running the full collector per face redid the
 /// whole trace to keep one `HashMap`, which is where a two-face build used to
 /// spend two thirds of its CPU. This is that map, and nothing else.
+///
+/// The expansion is the caller's — the union one, which every face's view is
+/// taken out of by [`face_items`]. A face used to expand for itself here, which
+/// on a font this size cost a quarter of a second per face for a result that
+/// differed from the union's only in which `map` lines survived.
 ///
 /// The full collector drops a glyph it cannot resolve, and so its cmap entry.
 /// That rule is not lost here: a name this map claims still has to appear in
@@ -404,14 +429,10 @@ pub(super) struct FaceCmap {
 pub(super) fn collect_face_cmap(
     docs: &[&Document],
     face: &crate::faces::Face,
+    expansion: &super::expand::Expansion,
     cancel: &crate::cancel::CancelToken,
 ) -> Option<FaceCmap> {
-    let shared = compute_face_input(
-        docs,
-        face,
-        cancel,
-        ExpansionSource::Compute { maps_only: true },
-    )?;
+    let shared = compute_face_input(docs, face, cancel, ExpansionSource::Lent(expansion))?;
     let mut per_name: HashMap<String, Vec<u32>> = HashMap::new();
     for item in &shared.all_items {
         let DocumentItem::Map {

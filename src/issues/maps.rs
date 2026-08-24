@@ -446,8 +446,15 @@ fn script_lang_issues(targets: &[String]) -> Vec<String> {
 
 /// The two variation-sequence problems that are only visible once names are
 /// resolved, so they are read off the expansion rather than the raw documents:
-/// it has already substituted name parts and dropped the slices a face does not
-/// include, which is the form the builder itself sees.
+/// it has already substituted name parts, which is the form the builder itself
+/// sees.
+///
+/// Per *face*, and one of the few checks that is: both problems are about one
+/// font file's fallback lookup, and two faces may map one codepoint to two
+/// different glyphs without either colliding with anything. The expansion is
+/// the union of every slice (see [`crate::faces::FaceSet::union`]), so the face
+/// is applied here — reading the union whole reported every dual-width pair in
+/// the font as a collision with its own other half.
 ///
 /// Both are about the *fallback* lookup, which is keyed by glyph id where cmap
 /// format 14 is keyed by codepoint. Wherever two codepoints share a base glyph
@@ -455,15 +462,21 @@ fn script_lang_issues(targets: &[String]) -> Vec<String> {
 /// report.
 pub(super) fn uvs_collision_diagnostics(
     expansion: &crate::render::ttf_builder::Expansion,
+    face: &crate::faces::Face,
 ) -> Vec<crate::resolve::Diagnostic> {
     use crate::render::ttf_builder::{expand_map_pairs, expand_uvs_map_triples};
 
     let mut out = Vec::new();
+    let included = |item: &DocumentItem| {
+        item.slice_qualifier()
+            .iter()
+            .all(|s| face.includes(Some(s.as_str())))
+    };
 
     // Which glyph each codepoint reaches, and which codepoints reach each glyph.
     let mut cp_to_glyph: HashMap<u32, String> = HashMap::new();
     let mut glyph_to_cps: HashMap<String, Vec<u32>> = HashMap::new();
-    for e in &expansion.items {
+    for e in expansion.items.iter().filter(|e| included(&e.item)) {
         let DocumentItem::Map {
             char_repr,
             selector: None,
@@ -482,7 +495,7 @@ pub(super) fn uvs_collision_diagnostics(
 
     // (base glyph, selector) → the target the first pair claimed.
     let mut claimed: HashMap<(String, u32), String> = HashMap::new();
-    for e in &expansion.items {
+    for e in expansion.items.iter().filter(|e| included(&e.item)) {
         let DocumentItem::Map {
             char_repr,
             selector: Some(sel),

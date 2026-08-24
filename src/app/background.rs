@@ -394,23 +394,17 @@ impl UniformApp {
                 std::thread::scope(|scope| {
                     let build = scope.spawn(|| {
                         let t = std::time::Instant::now();
-                        let lendable = crate::render::resolve_face(&resolution.faces, face_id).id
-                            == resolution.faces.primary().id;
-                        let pair = if lendable {
-                            crate::render::build_font_pair_cached_from(
-                                &refs,
-                                &contour_cache,
-                                &resolution,
-                                &cancel,
-                            )
-                        } else {
-                            crate::render::build_font_pair_cached_for(
-                                &refs,
-                                &contour_cache,
-                                face_id,
-                                &cancel,
-                            )
-                        };
+                        // Whichever face is selected: the expansion above is
+                        // face-independent, so the build is always the lent
+                        // one. Picking a secondary face used to fall back to
+                        // expanding again for it, on every edit.
+                        let pair = crate::render::build_font_pair_cached_from(
+                            &refs,
+                            &contour_cache,
+                            &resolution,
+                            face_id,
+                            &cancel,
+                        );
                         (pair, t.elapsed())
                     });
                     let t = std::time::Instant::now();

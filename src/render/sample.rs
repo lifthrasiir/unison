@@ -95,10 +95,14 @@ fn collect_sample_data(docs: &[&Document]) -> Option<SampleData> {
 
 /// The sample over an expansion someone else already paid for.
 ///
-/// [`Resolution`](crate::resolve::Resolution) holds exactly the expansion this
-/// wants — the primary face, in full — and a `build` computes one anyway to
-/// validate with. Expanding is the larger half of collecting the sample, so the
-/// two share the one rather than doing it twice.
+/// [`Resolution`](crate::resolve::Resolution) holds the expansion this wants,
+/// and a `build` computes one anyway to validate and build with. Expanding is
+/// the larger half of collecting the sample, so all three share the one rather
+/// than doing it three times.
+///
+/// That expansion is the union of every slice, so the *cmap* below is the one
+/// place a face still has to be applied: the sample shows the primary face, and
+/// a `map` stated for a slice it does not include maps nothing here.
 fn collect_sample_data_with(
     docs: &[&Document],
     resolution: &crate::resolve::Resolution,
@@ -117,6 +121,7 @@ fn collect_sample_data_with(
 
     let glyph_aliases = &resolution.expansion.aliases;
     let all_items = || resolution.expansion.items();
+    let face = resolution.faces.primary();
 
     // Build contour cache for named glyphs
     struct CachedGlyph {
@@ -621,6 +626,14 @@ fn collect_sample_data_with(
     // the font start disagreeing.
     let mut cmap: BTreeMap<u32, String> = BTreeMap::new();
     for item in all_items() {
+        // The expansion is face-independent; the sample is not.
+        if !item
+            .slice_qualifier()
+            .iter()
+            .all(|s| face.includes(Some(s.as_str())))
+        {
+            continue;
+        }
         match item {
             // A variation sequence claims no codepoint of its own; the base is
             // already in the cmap through its own `map`.

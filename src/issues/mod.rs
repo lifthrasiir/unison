@@ -262,10 +262,17 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     patterns::check_props(docs, &mut issues);
     maps::check_uvs_maps(&cx, &mut issues);
     patterns::check_ragged_patterns(docs, cx.name_parts, &mut issues);
-    issues.extend(
-        cx.docset
-            .to_issues(&maps::uvs_collision_diagnostics(expansion)),
-    );
+    // Once per face, deduplicated: the check is about one font file's fallback
+    // lookup (see `uvs_collision_diagnostics`), and a source with two faces
+    // would otherwise report the same unqualified pair twice.
+    let mut seen_uvs: HashSet<(Option<crate::resolve::ItemRef>, String)> = HashSet::new();
+    for face in &cx.faces.faces {
+        for d in maps::uvs_collision_diagnostics(expansion, face) {
+            if seen_uvs.insert((d.origin, d.message.clone())) {
+                issues.push(cx.docset.to_issue(&d));
+            }
+        }
+    }
     // A rule the GSUB builder would drop, reported from where the dropping is
     // decided rather than reimplemented here; see
     // `ttf_builder::shadowed_single_subst_rules`.

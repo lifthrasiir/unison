@@ -901,7 +901,7 @@ map A = a
     let cancel = crate::cancel::CancelToken::new();
     cancel.cancel();
     assert!(
-        build_font_pair_cached_for(&[&doc], &cache, None, &cancel).is_none(),
+        crate::render::ttf_builder::build_font_pair_cached_for(&[&doc], &cache, None, &cancel).is_none(),
         "a cancelled build must not hand back a font"
     );
 
@@ -909,7 +909,7 @@ map A = a
     // which is a cache holding more than it needs, never a broken one. The
     // build that replaces it has to succeed against that same cache.
     let built =
-        build_font_pair_cached_for(&[&doc], &cache, None, &crate::cancel::CancelToken::never())
+        crate::render::ttf_builder::build_font_pair_cached_for(&[&doc], &cache, None, &crate::cancel::CancelToken::never())
             .expect("the replacing build still succeeds on the cache the cancelled one left");
     assert!(!built.bitmap.is_empty() && !built.vector.is_empty());
 }

@@ -141,6 +141,29 @@ impl FaceSet {
         &self.faces[0]
     }
 
+    /// The synthetic face that includes every declared slice.
+    ///
+    /// This is what an *expansion* is computed for, and so what every
+    /// diagnostic about one is computed for. A real face drops the lines
+    /// qualified with a slice it does not include, which for a diagnostic
+    /// means a line only some other face includes could not be faulted at all:
+    /// nothing expanded it, so nothing had anything to say about it. The glyph
+    /// store has always been the union's for a different reason (glyph ids must
+    /// not vary by face, see [`crate::render::ttf_builder::build_faces`]), so
+    /// this is also the one expansion every consumer can share.
+    ///
+    /// What a face still decides is which *character* reaches which glyph, and
+    /// that is applied to the union's items where the cmap is collected rather
+    /// than by expanding again — an expanded `map` keeps the one slice it was
+    /// stated for.
+    pub fn union(&self) -> Face {
+        Face {
+            id: String::new(),
+            slices: self.declared.keys().cloned().collect(),
+            origin: None,
+        }
+    }
+
     pub fn collect(docs: &[&Document]) -> Self {
         let mut declared: BTreeMap<String, (Vec<String>, ItemRef)> = BTreeMap::new();
         let mut face_decls: Vec<(String, Vec<String>, ItemRef)> = Vec::new();

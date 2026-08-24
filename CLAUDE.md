@@ -120,8 +120,9 @@ Core (feature-independent):
   so build/editor/validation cannot drift apart. Resolution emits issues directly.
 - `faces.rs` — `face`/`slice`: which typefaces the source describes and what each contains. Holds the
   base-slice invariant (a character whose mapping varies must not be in the base), the face-id rules,
-  and `plan_output` — the table of which `--output` path means one file, one per face, or a
-  collection. Tests in `faces_tests.rs`.
+  `union` — the synthetic face every *expansion* is computed for, so that a diagnostic exists for a
+  line only some other face includes — and `plan_output`, the table of which `--output` path means one
+  file, one per face, or a collection. Tests in `faces_tests.rs`.
 - `audit.rs` — the `audit` directive: rules the *source* is held to (`audit ideal-clearance han-* 0
   1`, `audit max-contact-run han-* 2`), as opposed to the values the font file carries. Holds why that is not a `meta` key, the
   single-assignment rule and the prefix match. Tests at the bottom of the file.
@@ -403,9 +404,13 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite/mod.rs` (`resolve_expansion_cached`) |
 | Splitting a memo off its tracer so the tracer can leave the thread | `render/glyph_cache.rs` (`CompositeBuilder`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
 | Which build stages run at once, and what they must not share to | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
-| Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces`), `collect.rs` (`collect_face_cmap`), `expand.rs` (`expand_maps_for`) |
+| Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces_from`), `collect.rs` (`collect_face_cmap`) |
+| Why an expansion is face-independent, and where a face is applied to it instead | `faces.rs` (`FaceSet::union`), `render/ttf_builder/collect.rs` (`face_items`) |
+| Why validation reads the union and not the primary face | `faces.rs` (`FaceSet::union`), `issues/mod.rs` |
+| The one check that is still per face, and why | `issues/maps.rs` (`uvs_collision_diagnostics`) |
 | Which of a `build`'s outputs are produced at once, and the one that has to wait | `main.rs` (`OutputWork`), `render/sample.rs` (`SampleSource`) |
-| Who shares the primary face's expansion, and why it is computed beside the build | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/sample.rs` (`collect_sample_data_with`) |
+| Who shares the one expansion — the build, validation and the sample — and why it is computed ahead of all three | `main.rs` (the `build` thread scope), `resolve.rs` (`Resolution`), `render/ttf_builder/mod.rs` (`build_faces_from`), `render/sample.rs` (`collect_sample_data_with`) |
+| Why a glyph the build drops silently is still accounted for, and the test that pins it | `issues/anchors.rs` (`check_anchor_derivation`), `issues/issues_tests.rs` (`a_faulted_anchor_derivation_is_a_glyph_the_build_drops`) |
 | Dropping a composite that can never resolve before the expensive loop sees it | `render/glyph_cache.rs` (`drop_unresolvable`) |
 | Why a resolve recomposes only what an edit reached (and why it used to trail the build) | `ref_composite/mod.rs` (`CompositeGridCache`) |
 | Which face the editor builds, and switching it | `app/background.rs` (`set_selected_face`) |
