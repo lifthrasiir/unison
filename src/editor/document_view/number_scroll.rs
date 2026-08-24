@@ -9,9 +9,16 @@
 //! Up/Down is the keyboard spelling of the same thing, one press per step, and
 //! needs no pointer at all.
 //!
-//! Either input is claimed only once a number is actually in hand: with the
-//! caret nowhere near a digit the wheel scrolls and the arrows move the caret,
-//! exactly as they would with no Alt held.
+//! Either input *is* this gesture and has no second meaning, so one that
+//! finds no number does nothing at all rather than reverting to what the bare
+//! input would have done: a fruitless wheel is swallowed instead of reaching
+//! the scroll area ([`alt_wheel_here`]), and a fruitless Alt + Up/Down is
+//! consumed instead of moving the caret ([`swallow_alt_arrows`]). An Alt the
+//! user is holding for some other reason must never scroll the document or
+//! walk the caret out from under itself; the interceptor surfaces are held to
+//! the same rule in [`interceptor_scroll_step`].
+//!
+//! [`interceptor_scroll_step`]: super::interceptor_scroll_step
 //!
 //! Numbers are non-negative integers of unbounded width, so the arithmetic is
 //! done on the digit *string* (`[0-8]9*$` carries on increment, `[1-9]0*$` on
@@ -29,10 +36,6 @@ pub(super) struct NumberBump {
     end: usize,
     /// The stepped digits.
     text: String,
-    /// Whether the wheel drove this step, and so has a notch still draining
-    /// that [`swallow_wheel_delta`] has to keep away from the scroll area. A
-    /// key press has nothing to drain.
-    pub(super) from_wheel: bool,
 }
 
 /// The digit run the caret is *in or next to*, as character columns. `None`
@@ -111,14 +114,45 @@ fn step_digits(digits: &str, delta: i32) -> String {
     String::from_utf8(d).expect("digits stay ASCII")
 }
 
+/// Alt, and nothing else. A chord that adds Ctrl/Cmd/Shift belongs to whoever
+/// else claims it, so it is neither this gesture nor swallowed by it.
+fn alt_only(ui: &egui::Ui) -> bool {
+    ui.input(|i| {
+        let m = i.modifiers;
+        m.alt && !m.command && !m.ctrl && !m.shift
+    })
+}
+
+/// Whether an Alt + wheel gesture over this editor is in progress: Alt alone,
+/// a wheel event this frame, and the pointer somewhere over `editor_rect` (a
+/// wheel over the other pane is that pane's gesture).
+///
+/// This is deliberately *not* conditioned on a number being found: the whole
+/// point is that Alt + wheel means one thing, so the notch is taken away from
+/// the scroll area whether or not the caret had a number to step.
+pub(super) fn alt_wheel_here(ui: &egui::Ui, editor_rect: egui::Rect) -> bool {
+    if !alt_only(ui) {
+        return false;
+    }
+    ui.input(|i| {
+        i.pointer
+            .hover_pos()
+            .is_some_and(|p| editor_rect.contains(p))
+            && i.events
+                .iter()
+                .any(|e| matches!(e, egui::Event::MouseWheel { .. }))
+    })
+}
+
 /// Reads this frame's Alt + wheel or Alt + Up/Down gesture, if it lands on a
 /// number.
 ///
 /// Runs *before* the scroll area and before [`handle_document_keys`], so a
 /// gesture that resolves to a number can take its input away from them —
-/// otherwise the view would scroll, or the caret would change line, as well. A
-/// gesture that resolves to nothing is left untouched and scrolls or moves the
-/// caret as usual.
+/// otherwise the view would scroll, or the caret would change line, as well.
+/// A gesture that resolves to nothing takes its input away all the same: the
+/// caller swallows the wheel notch and the arrow press, since neither chord
+/// has another meaning to fall back to.
 ///
 /// [`handle_document_keys`]: super::keys::handle_document_keys
 pub(super) fn detect_number_bump(
@@ -134,11 +168,7 @@ pub(super) fn detect_number_bump(
     {
         return None;
     }
-    let modifiers_ok = ui.input(|i| {
-        let m = i.modifiers;
-        m.alt && !m.command && !m.ctrl && !m.shift
-    });
-    if !modifiers_ok {
+    if !alt_only(ui) {
         return None;
     }
     // Which input is asking. An arrow goes wherever the keyboard focus is,
@@ -150,13 +180,8 @@ pub(super) fn detect_number_bump(
             .into_iter()
             .find(|&k| i.key_pressed(k))
     });
-    if key.is_none() {
-        let over_editor = ui
-            .input(|i| i.pointer.hover_pos())
-            .is_some_and(|p| editor_rect.contains(p));
-        if !over_editor {
-            return None;
-        }
+    if key.is_none() && !alt_wheel_here(ui, editor_rect) {
+        return None;
     }
 
     let line = state.cursor.line;
@@ -193,13 +218,13 @@ pub(super) fn detect_number_bump(
         start,
         end,
         text: step_digits(&digits, delta),
-        from_wheel: key.is_none(),
     })
 }
 
 /// Keeps the wheel away from the scroll area for as long as the gesture's
-/// delta is still arriving. Called every frame, with `bumped` set on the
-/// frames a tick was actually consumed.
+/// delta is still arriving. Called every frame, with `claimed` set on the
+/// frames an Alt + wheel notch arrived over this editor — whether it stepped
+/// a number or found none to step.
 ///
 /// One notch cannot be swallowed in a single frame: egui pushes a discrete
 /// wheel event into its private `unprocessed_scroll_delta` and drips it into
@@ -207,9 +232,9 @@ pub(super) fn detect_number_bump(
 /// the gesture's own frame stops only the first slice of the notch and the
 /// rest still scrolls the view. There is no way to clear the reservoir, so the
 /// editor instead keeps zeroing what comes out of it until it runs dry.
-pub(super) fn swallow_wheel_delta(ui: &egui::Ui, state: &EditorState, bumped: bool) {
+pub(super) fn swallow_wheel_delta(ui: &egui::Ui, state: &EditorState, claimed: bool) {
     let id = state.key(Slot::ScrollSwallow);
-    let armed = bumped || ui.ctx().data(|d| d.get_temp::<bool>(id).unwrap_or(false));
+    let armed = claimed || ui.ctx().data(|d| d.get_temp::<bool>(id).unwrap_or(false));
     if !armed {
         return;
     }
@@ -218,10 +243,28 @@ pub(super) fn swallow_wheel_delta(ui: &egui::Ui, state: &EditorState, bumped: bo
         .input_mut(|i| i.smooth_scroll_delta = egui::Vec2::ZERO);
     // Repaint while it drains: without further input no frame would run, and
     // the reservoir would empty into whatever frame comes next instead.
-    let draining = bumped || residual > 0.1;
+    let draining = claimed || residual > 0.1;
     ui.ctx().data_mut(|d| d.insert_temp(id, draining));
     if draining {
         ui.ctx().request_repaint();
+    }
+}
+
+/// Eats an Alt + Up/Down press that [`detect_number_bump`] did not claim, so
+/// a fruitless gesture stays fruitless instead of moving the caret, nudging a
+/// resize or stepping whatever else the bare arrow drives.
+///
+/// Guarded on `state.active` alone — the pointer's counterpart in
+/// [`alt_wheel_here`] — and so deliberately blind to the mode and to any
+/// popup: Alt + arrow means this one thing everywhere inside the focused
+/// editor. Calling it after `detect_number_bump` is what makes the successful
+/// case a no-op here: that press is already consumed.
+pub(super) fn swallow_alt_arrows(ui: &egui::Ui, state: &EditorState) {
+    if !state.active || !alt_only(ui) {
+        return;
+    }
+    for key in [egui::Key::ArrowUp, egui::Key::ArrowDown] {
+        ui.input_mut(|i| i.consume_key(egui::Modifiers::ALT, key));
     }
 }
 
@@ -244,7 +287,6 @@ pub(super) fn apply_number_bump(
         start,
         end,
         text,
-        from_wheel: _,
     } = bump;
     let anchor = Caret::new(line, start);
     state.cursor = crate::editor::editing::replace_in_line(

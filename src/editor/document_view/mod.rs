@@ -37,7 +37,9 @@ mod tests;
 use changes::{apply_pending_rederive, line_to_item_idx, source_line_count, source_line_offsets};
 use keys::handle_document_keys;
 use layout::{GutterLayout, ViewCacheKey, ViewData, collapsed_source_lines, page_has_fold_marker};
-use number_scroll::{apply_number_bump, detect_number_bump, swallow_wheel_delta};
+use number_scroll::{
+    alt_wheel_here, apply_number_bump, detect_number_bump, swallow_alt_arrows, swallow_wheel_delta,
+};
 use paint::paint_document_area;
 use popups::{
     show_autocomplete_popup, show_codepoint_popup, show_error_tooltip, show_rename_popup,
@@ -601,12 +603,14 @@ fn show_document(
     // sees the arrow — a gesture that lands on a number takes its input with
     // it — but written back below with the frame's other edits, so the view
     // being painted still matches `lines`.
+    //
+    // Either input is swallowed on the strength of the *gesture*, not of its
+    // result: Alt + wheel and Alt + Up/Down mean stepping a number and
+    // nothing else, so one that finds no number does nothing at all rather
+    // than falling back to scrolling the view or moving the caret.
     let number_bump = detect_number_bump(ui, lines, state, ui.max_rect());
-    swallow_wheel_delta(
-        ui,
-        state,
-        number_bump.as_ref().is_some_and(|b| b.from_wheel),
-    );
+    swallow_wheel_delta(ui, state, alt_wheel_here(ui, ui.max_rect()));
+    swallow_alt_arrows(ui, state);
 
     apply_scroll_physics(ui, zoom_level, state.key(Slot::ScrollAccel));
 

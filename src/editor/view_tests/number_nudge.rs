@@ -44,15 +44,19 @@ fn alt_arrows_step_the_number_at_the_caret() {
     assert_eq!(h.cursor().line, 0, "the caret never left the line");
 }
 
-/// With no number to step, Alt + Up/Down keeps the arrow's usual meaning and
-/// moves the caret.
+/// With no number to step, Alt + Up/Down does nothing at all: like Alt +
+/// wheel it is the number gesture and never falls back to the arrow's usual
+/// meaning, so the caret stays put.
 #[test]
-fn alt_arrows_away_from_a_digit_still_move_the_caret() {
+fn alt_arrows_away_from_a_digit_do_nothing() {
     let mut h = EditorHarness::new(NUMBER_DOC);
     h.click_text(1, 3); // inside "meta" on the second line
     h.key_mod(Key::ArrowDown, Modifiers::ALT);
     assert_eq!(h.text(1), "meta ascent 12");
-    assert_eq!(h.cursor(), Caret { line: 2, col: 3 });
+    assert_eq!(h.cursor(), Caret { line: 1, col: 3 });
+
+    h.key_mod(Key::ArrowUp, Modifiers::ALT);
+    assert_eq!(h.cursor(), Caret { line: 1, col: 3 });
 }
 
 /// The caret only has to be *adjacent* to a digit run: at its right edge the
@@ -165,6 +169,29 @@ fn alt_wheel_does_not_also_scroll_the_view() {
     assert!(
         h.scroll_y() < 0.01,
         "the view scrolled too: y = {}",
+        h.scroll_y()
+    );
+}
+
+/// Alt + wheel is the number gesture and nothing else: with no number to
+/// step it does *not* fall back to scrolling the view, so a stray Alt never
+/// moves the document under the caret.
+#[test]
+fn alt_wheel_with_no_number_does_not_scroll_the_view() {
+    let src = format!("meta height 16\n{}", tall_doc());
+    let mut h = EditorHarness::new(&src);
+    h.click_text(0, 3); // inside "meta": no digit anywhere around the caret
+    let pos = h.text_pos(0, 2);
+    assert_eq!(h.scroll_y(), 0.0);
+
+    h.alt_wheel_at(pos, false);
+    for _ in 0..20 {
+        h.frame();
+    }
+    assert_eq!(h.text(0), "meta height 16");
+    assert!(
+        h.scroll_y() < 0.01,
+        "the view scrolled on a fruitless Alt gesture: y = {}",
         h.scroll_y()
     );
 }

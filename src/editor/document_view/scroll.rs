@@ -18,6 +18,12 @@ pub(crate) fn interceptor_scroll_step(
     if !hovering {
         return None;
     }
+    // Alt + wheel is the number gesture (`number_scroll`) and has no second
+    // meaning, so it reaches none of these surfaces — an Alt held for some
+    // other reason must not cycle a layer or step the shape palette.
+    if ctx.input(|i| i.modifiers.alt) {
+        return None;
+    }
     let on_interceptor = ctx.data(|d| {
         d.get_temp::<bool>(editor.key(Slot::ScrollOnInterceptor))
             .unwrap_or(false)
