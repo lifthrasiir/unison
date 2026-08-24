@@ -202,3 +202,71 @@ fn an_empty_target_that_is_not_last_is_an_error() {
         issues.iter().map(|i| &i.message).collect::<Vec<_>>(),
     );
 }
+
+/// `(slice, codepoint) -> glyph`, straight off the expansion — which is where
+/// two lines stated for two slices are both visible.
+fn settled_per_slice(src: &str) -> std::collections::BTreeMap<(String, u32), String> {
+    let doc = document_io::parse_document_from_str(src, "test.unf".into()).unwrap();
+    let docs = vec![&doc];
+    let name_parts = crate::document::collect_name_parts(&docs);
+    let expansion = crate::render::ttf_builder::expand_documents(&docs, &name_parts);
+    let mut out = std::collections::BTreeMap::new();
+    for item in expansion.items() {
+        let DocumentItem::Map {
+            slices,
+            char_repr,
+            selector: None,
+            glyphs,
+            ..
+        } = item
+        else {
+            continue;
+        };
+        let slice = slices.first().cloned().unwrap_or_default();
+        for (cp, name) in crate::render::ttf_builder::expand_map_pairs(
+            char_repr,
+            crate::render::ttf_builder::resolved_map_target(glyphs),
+        ) {
+            out.insert((slice.clone(), cp), name);
+        }
+    }
+    out
+}
+
+/// Two lines writing the same character spec are settled together, judging each
+/// name once per row for both (`settle_wide_groups`). What they must not do is
+/// settle *alike*: the memo answers whether a name is usable, and the order the
+/// line lists its alternatives in still decides which usable one wins.
+#[test]
+fn lines_sharing_a_character_spec_keep_their_own_alternative_order() {
+    let src = format!(
+        "{HEAD}\nslice sa\nslice sb\n\
+         glyph x-0041 1 1\n@\n\nglyph y-0041 1 1\n@\n\nglyph y-0042 1 1\n@\n\n\
+         map sa : U+($#0041..0043) = x-($-1) y-($-1) ``\n\
+         map sb : U+($#0041..0043) = y-($-1) x-($-1) ``\n"
+    );
+    let settled = settled_per_slice(&src);
+    // Both names exist here, so this is the row the order decides.
+    assert_eq!(
+        settled.get(&("sa".into(), 0x41)).map(String::as_str),
+        Some("x-0041"),
+    );
+    assert_eq!(
+        settled.get(&("sb".into(), 0x41)).map(String::as_str),
+        Some("y-0041"),
+    );
+    // One name exists: both lines reach it, whichever way round they list it.
+    assert_eq!(
+        settled.get(&("sa".into(), 0x42)).map(String::as_str),
+        Some("y-0042"),
+    );
+    assert_eq!(
+        settled.get(&("sb".into(), 0x42)).map(String::as_str),
+        Some("y-0042"),
+    );
+    // Neither exists, and both lines end in the empty target: the row maps
+    // nothing on either, and faults on neither.
+    assert!(settled.get(&("sa".into(), 0x43)).is_none());
+    assert!(settled.get(&("sb".into(), 0x43)).is_none());
+    assert!(diagnostics(&src).is_empty(), "{:?}", diagnostics(&src));
+}

@@ -1112,6 +1112,9 @@ impl<'a> AltTarget<'a> {
 /// whose last alternative is the empty token) drops the row and any other line
 /// takes `.notdef` — if the source declares one. The names are pulled lazily,
 /// so a row that settles on its first alternative never builds the other eight.
+///
+/// The narrow forms' path. A wide line goes through [`settle_alt`] instead,
+/// which answers with an index into the alternatives rather than a name.
 fn settle_row(
     names: impl Iterator<Item = String>,
     usable: &impl Fn(&str) -> bool,
@@ -1298,6 +1301,230 @@ fn report_unmatched(
     ));
 }
 
+/// Which alternative one row of a wide `map` line settles on.
+///
+/// An index rather than the name itself: the name is rebuilt from the line's
+/// targets where the row is emitted, which costs the one allocation the item
+/// needs anyway, and keeps a hundred thousand of them out of the settling.
+#[derive(Clone, Copy)]
+enum SettledAlt {
+    /// Index into the line's alternatives.
+    Alt(u16),
+    /// Nothing matched on a line whose last alternative is the empty token:
+    /// the row maps nothing, and that is what the line asked for.
+    Dropped,
+    /// Nothing matched, and the source declares a `.notdef` to fall back on.
+    Notdef,
+    /// Nothing matched and there is nothing to fall back on.
+    Nothing,
+}
+
+/// [`settle_row`] over a wide line's targets, read at row index `i`.
+///
+/// `judge` is `usable` for a line settling alone and the group's per-row memo
+/// for one settling with others; `buf` is the caller's, because a row that
+/// settles on its ninth alternative would otherwise allocate nine names.
+fn settle_alt(
+    targets: &[AltTarget<'_>],
+    i: usize,
+    buf: &mut String,
+    mut judge: impl FnMut(&str) -> bool,
+    optional: bool,
+    notdef_usable: bool,
+) -> SettledAlt {
+    for (n, target) in targets.iter().enumerate() {
+        target.get_into(i, buf);
+        if judge(buf) {
+            return SettledAlt::Alt(n as u16);
+        }
+    }
+    if optional {
+        return SettledAlt::Dropped;
+    }
+    if notdef_usable {
+        SettledAlt::Notdef
+    } else {
+        SettledAlt::Nothing
+    }
+}
+
+/// Every row of one wide `map` line, settled together with the other lines that
+/// write the same character spec.
+struct WideGroupSettle {
+    /// The group's spec, kept so the line can rebuild its targets to read a
+    /// settled index back out. Shared, because an identical character spec
+    /// expands to identical rows — which is what makes the group one.
+    spec: std::sync::Arc<WideMapRows>,
+    settled: Vec<Option<SettledAlt>>,
+}
+
+/// Settle the wide `map` lines that write the *same* character spec in one
+/// pass, so that a name is judged once per row rather than once per line.
+///
+/// A font that varies a glyph family by region writes the family once per
+/// region — seven `map han-XX : U+($#4e00..9fff) = han-($-1) han-($-1)-g …`
+/// lines, the same nine alternatives permuted. Line by line that asks whether
+/// `han-4e00-g` names a glyph seven times, and settling alternatives is the
+/// largest single stage of an expansion; the answer cannot differ between the
+/// lines, because [`usable`](resolve_map_alternatives) is a pure function of
+/// the glyph set. So each row judges every distinct name its group's lines name
+/// once and hands the answer to all of them.
+///
+/// Only groups of two or more are collected: a line with no partner would pay
+/// for the memo and read it once, and takes the straight path instead. A spec
+/// wide enough to matter is also parsed and expanded once for the group rather
+/// than once per line.
+fn settle_wide_groups(
+    items: &[ExpandedItem],
+    resolvable: &impl Fn(&ExpandedItem) -> bool,
+    usable: &(impl Fn(&str) -> bool + Sync),
+    notdef_usable: bool,
+) -> HashMap<usize, WideGroupSettle> {
+    let mut groups: HashMap<&str, Vec<usize>> = HashMap::new();
+    for (idx, e) in items.iter().enumerate() {
+        if !resolvable(e) {
+            continue;
+        }
+        let DocumentItem::Map {
+            char_repr,
+            selector: None,
+            ..
+        } = &e.item
+        else {
+            continue;
+        };
+        groups.entry(char_repr.as_str()).or_default().push(idx);
+    }
+    groups.retain(|_, members| members.len() > 1);
+
+    let mut out: HashMap<usize, WideGroupSettle> = HashMap::new();
+    for (char_repr, members) in groups {
+        let Some(spec) = wide_map_rows(char_repr) else {
+            continue;
+        };
+        if spec.rows().is_empty() {
+            continue;
+        }
+        let spec = std::sync::Arc::new(spec);
+        // Borrowed from `items` for as long as the settling below, which is why
+        // this is a pass of its own: the caller consumes `items` as it emits.
+        let lines: Vec<(Vec<AltTarget<'_>>, bool)> = members
+            .iter()
+            .map(|&idx| {
+                let DocumentItem::Map { glyphs, .. } = &items[idx].item else {
+                    unreachable!("collected as a map above");
+                };
+                (
+                    glyphs.iter().map(|g| AltTarget::of(g, &spec)).collect(),
+                    glyphs.last().is_some_and(String::is_empty),
+                )
+            })
+            .collect();
+
+        let rows = spec.rows();
+        let per_row = crate::parallel::map_indexed(
+            rows.len(),
+            &crate::cancel::CancelToken::never(),
+            |k| {
+                let (i, _) = rows[k];
+                // The row's memo: one entry per distinct name the group's
+                // alternatives build here, which is a handful, so a scan beats
+                // hashing them. Per row rather than shared across rows, because
+                // sharing would need a lock on the one loop that must not have
+                // one — see `crate::parallel`.
+                let mut judged: Vec<(String, bool)> = Vec::new();
+                let mut buf = String::new();
+                lines
+                    .iter()
+                    .map(|(targets, optional)| {
+                        settle_alt(
+                            targets,
+                            i,
+                            &mut buf,
+                            |name| match judged.iter().find(|(seen, _)| seen == name) {
+                                Some(&(_, ok)) => ok,
+                                None => {
+                                    let ok = usable(name);
+                                    judged.push((name.to_string(), ok));
+                                    ok
+                                }
+                            },
+                            *optional,
+                            notdef_usable,
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            },
+        );
+
+        // Row-major to line-major: each line is emitted on its own, in the
+        // order the source wrote it.
+        let mut settled: Vec<Vec<Option<SettledAlt>>> = members
+            .iter()
+            .map(|_| Vec::with_capacity(rows.len()))
+            .collect();
+        for row in per_row {
+            for (line, answer) in settled.iter_mut().enumerate() {
+                answer.push(row.as_ref().map(|per_line| per_line[line]));
+            }
+        }
+        for (&idx, settled) in members.iter().zip(settled) {
+            out.insert(
+                idx,
+                WideGroupSettle {
+                    spec: spec.clone(),
+                    settled,
+                },
+            );
+        }
+    }
+    out
+}
+
+/// Turn one wide line's settled rows into the `map` items they stand for, and
+/// return what [`report_unmatched`] needs — the first row that matched nothing
+/// and how many more followed it.
+fn emit_settled_rows(
+    rows: &[(usize, u32)],
+    settled: &[Option<SettledAlt>],
+    targets: &[AltTarget<'_>],
+    slices: &[String],
+    origin: Option<ItemRef>,
+    out: &mut Vec<ExpandedItem>,
+) -> Option<(String, usize)> {
+    let mut unmatched: Option<(String, usize)> = None;
+    for (&(i, cp), settled) in rows.iter().zip(settled) {
+        let Some(settled) = settled else {
+            continue;
+        };
+        let (chosen, matched) = match settled {
+            SettledAlt::Alt(n) => (Some(targets[*n as usize].get(i)), true),
+            SettledAlt::Dropped => (None, true),
+            SettledAlt::Notdef => (Some(NOTDEF.to_string()), false),
+            SettledAlt::Nothing => (None, false),
+        };
+        if !matched {
+            match &mut unmatched {
+                Some((_, more)) => *more += 1,
+                None => unmatched = Some((format!("U+{cp:04X}"), 0)),
+            }
+        }
+        if let Some(chosen) = chosen {
+            out.push(ExpandedItem {
+                item: DocumentItem::Map {
+                    slices: slices.to_vec(),
+                    char_repr: format!("U+{cp:04X}"),
+                    selector: None,
+                    glyphs: vec![chosen],
+                    comment: None,
+                },
+                origin,
+            });
+        }
+    }
+    unmatched
+}
+
 /// Pick each `map`'s target out of the alternatives it lists.
 ///
 /// `map CHAR = first second` means *first if it exists, otherwise second*, and
@@ -1405,8 +1632,16 @@ fn resolve_map_alternatives(
         .is_some()
     };
 
-    let mut out: Vec<ExpandedItem> = Vec::with_capacity(all_items.len());
-    for e in std::mem::take(all_items) {
+    // Asked once for the whole pass rather than once per row that runs out of
+    // alternatives: `usable` is pure, and this is the one name every such row
+    // asks about.
+    let notdef_usable = usable(NOTDEF);
+
+    let items = std::mem::take(all_items);
+    let mut grouped = settle_wide_groups(&items, &resolvable, &usable, notdef_usable);
+
+    let mut out: Vec<ExpandedItem> = Vec::with_capacity(items.len());
+    for (idx, e) in items.into_iter().enumerate() {
         if !resolvable(&e) {
             out.push(e);
             continue;
@@ -1426,7 +1661,12 @@ fn resolve_map_alternatives(
         // The written form, not an expanded one: an empty pattern expands to
         // an empty name, so this is the same question either way.
         let optional = glyphs.last().is_some_and(String::is_empty);
+        // The wide path below takes its own from `emit_settled_rows`; this one
+        // is the narrow path's, accumulated as it walks.
         let mut unmatched: Option<(String, usize)> = None;
+        // Where a wide line settles alone, its rows live here — beside the
+        // borrow of a group's, so the two read the same way below.
+        let settled_alone;
 
         // A wide line expands its character spec once and reads every
         // alternative off it by index; see [`WideMapRows`]. A line whose spec
@@ -1450,46 +1690,35 @@ fn resolve_map_alternatives(
                 });
                 continue;
             }
+            // Settled with the other lines that write this same character
+            // spec, where there were any; see [`settle_wide_groups`].
+            let group = grouped.remove(&idx);
+            let spec = group.as_ref().map_or(&spec, |g| &g.spec);
             let targets: Vec<AltTarget<'_>> =
-                glyphs.iter().map(|g| AltTarget::of(g, &spec)).collect();
+                glyphs.iter().map(|g| AltTarget::of(g, spec)).collect();
+            let rows = spec.rows();
             // One row is a name built per alternative and a lookup each, and a
             // range line is a hundred thousand of them — the largest single
             // stage of an expansion, and a pure one: `usable` reads sets
             // nothing here writes. Settled on every core, then walked in order,
             // because the items and the diagnostic are the line's and have to
             // come out in the order it wrote them.
-            let rows = spec.rows();
-            let settled = crate::parallel::map_indexed(
-                rows.len(),
-                &crate::cancel::CancelToken::never(),
-                |k| {
-                    let (i, _) = rows[k];
-                    settle_row(targets.iter().map(|t| t.get(i)), &usable, optional)
-                },
-            );
-            for (&(_, cp), settled) in rows.iter().zip(settled) {
-                let Some((chosen, matched)) = settled else {
-                    continue;
-                };
-                if !matched {
-                    match &mut unmatched {
-                        Some((_, more)) => *more += 1,
-                        None => unmatched = Some((format!("U+{cp:04X}"), 0)),
-                    }
-                }
-                if let Some(chosen) = chosen {
-                    out.push(ExpandedItem {
-                        item: DocumentItem::Map {
-                            slices: slices.clone(),
-                            char_repr: format!("U+{cp:04X}"),
-                            selector: None,
-                            glyphs: vec![chosen],
-                            comment: None,
+            let settled = match &group {
+                Some(group) => &group.settled,
+                None => {
+                    settled_alone = crate::parallel::map_indexed(
+                        rows.len(),
+                        &crate::cancel::CancelToken::never(),
+                        |k| {
+                            let (i, _) = rows[k];
+                            let mut buf = String::new();
+                            settle_alt(&targets, i, &mut buf, &usable, optional, notdef_usable)
                         },
-                        origin,
-                    });
+                    );
+                    &settled_alone
                 }
-            }
+            };
+            let unmatched = emit_settled_rows(rows, settled, &targets, &slices, origin, &mut out);
             report_unmatched(unmatched, &glyphs, origin, diagnostics);
             continue;
         }

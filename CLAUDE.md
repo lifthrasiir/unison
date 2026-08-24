@@ -227,6 +227,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The empty target `` `` ``: dropping a mapping instead of faulting it, and why it has to be last | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `issues/maps.rs` |
 | Expanding a `map` line's alternatives together, and the memo that parses a wide character spec once | `render/ttf_builder/expand.rs` (`WideMapRows`, `AltTarget`, `map_char_pattern`) |
 | Why a wide `map` line's alternatives are settled on every core | `render/ttf_builder/expand.rs` (`resolve_map_alternatives`), `parallel.rs` |
+| Why the lines that write one character spec are settled together, and the per-row memo that makes them one | `render/ttf_builder/expand.rs` (`settle_wide_groups`, `SettledAlt`) |
 | Why a `map` target nothing declares is never remembered as a reachability root, and why the wide lines are asked from the declared side | `issues/unused.rs` (`GlyphGraph::knows`), `render/ttf_builder/expand.rs` (`MapAlternativeIndex`) |
 | Why the duplicate-codepoint table holds two integers per codepoint rather than a slice name and a path | `issues/maps.rs` (`MapSite`, `SliceTable`) |
 | Why a name that is nothing but one `($-N)` is never ragged | `issues/patterns.rs` (`whole_back_reference`) |
