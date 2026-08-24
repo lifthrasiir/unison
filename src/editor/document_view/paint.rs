@@ -32,7 +32,6 @@ pub(super) fn paint_document_area(
     grid_cell: f32,
     gutter: GutterLayout,
     total_height: f32,
-    viewport_h: f32,
     cursor_color: egui::Color32,
     inline_panel_edit_idx: Option<usize>,
     needs_rederive: &mut bool,
@@ -1025,11 +1024,9 @@ pub(super) fn paint_document_area(
             // leave the reader counting parentheses, which is the work the
             // jump is meant to save.
             state.cursor = Caret::new(line_idx, capture.map_or(0, |(_, col)| col));
-            let target_y = doc_line_to_y(vlines, row_height, grid_cell, line_idx);
-            let centered = (target_y - viewport_h / 3.0).max(0.0);
-            ui.ctx().data_mut(|d| {
-                d.insert_temp(state.key(Slot::ScrollTarget), centered);
-            });
+            // Centred on the next frame like any other jump to a definition;
+            // `resolve_scroll_target` has already run for this one.
+            state.request_scroll(crate::editor::ScrollIntent::Center);
             NavTarget::Local { line: line_idx }
         } else {
             let goto = GotoGlyph {
@@ -1042,7 +1039,20 @@ pub(super) fn paint_document_area(
                 NavTarget::CrossFile(goto)
             }
         };
-        state.pending_nav = Some(NavRequest { from, target });
+        // Where the link sits on the page right now, so that going back can
+        // restore this view and not just this line. The scroll offset is the
+        // one this frame was painted with, which is what was published at the
+        // end of the last one.
+        let scroll_y = ui
+            .ctx()
+            .data(|d| d.get_temp::<f32>(state.key(Slot::ScrollY)))
+            .unwrap_or(0.0);
+        let from_offset = doc_line_to_y(vlines, row_height, grid_cell, from.line) - scroll_y;
+        state.pending_nav = Some(NavRequest {
+            from,
+            from_offset,
+            target,
+        });
     }
 
     // Process click.  A click on the canvas while the rename popup is

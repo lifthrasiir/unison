@@ -31,6 +31,13 @@
 //! a `NavTarget::CrossFile` only the host can resolve, or a `NavTarget::Search`
 //! (see [`super::search`]). Every case is therefore recorded through one path.
 //!
+//! An entry also remembers **where on the page** each of its two positions was
+//! seen, so that going back restores the view the user left and not merely the
+//! line: a jump is a "go to symbol", which centres its target, but a return is
+//! a request for the page that was there. Only a position somebody was actually
+//! looking at can carry one — a jump's target is recorded before it has ever
+//! been drawn — so `view_offset` is an `Option`, and a `None` centres.
+//!
 //! Positions are plain `(document, line, column)` triples and are **not**
 //! rewritten when the document is edited underneath them; see
 //! [`NavHistory`]'s note. Documents are identified by their index into
@@ -39,22 +46,47 @@
 //! that list, and clears this history with it.
 
 /// A remembered caret position in one open document.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) struct NavLoc {
     /// Index into `UniformApp::open_documents`.
     pub doc_idx: usize,
     pub line: usize,
     pub col: usize,
+    /// How far below the viewport's top `line` was drawn when the user left
+    /// it, if that was seen. `None` means nobody watched the position being
+    /// left — a jump's *target*, which was never on screen when it was
+    /// recorded — and such a position is centred instead of restored.
+    pub view_offset: Option<f32>,
 }
 
 impl NavLoc {
     pub(super) fn new(doc_idx: usize, line: usize, col: usize) -> Self {
-        Self { doc_idx, line, col }
+        Self {
+            doc_idx,
+            line,
+            col,
+            view_offset: None,
+        }
+    }
+
+    /// The same position, remembering the page it was left on.
+    pub(super) fn seen_at(self, view_offset: f32) -> Self {
+        Self {
+            view_offset: Some(view_offset),
+            ..self
+        }
+    }
+
+    /// What a return to this position asks of the view.
+    pub(super) fn scroll_intent(&self) -> crate::editor::ScrollIntent {
+        use crate::editor::ScrollIntent;
+        self.view_offset
+            .map_or(ScrollIntent::Center, ScrollIntent::Offset)
     }
 }
 
 /// One followed link: where it was written, and where it led.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) struct NavEntry {
     /// The link itself — where "go back" returns to.
     pub from: NavLoc,

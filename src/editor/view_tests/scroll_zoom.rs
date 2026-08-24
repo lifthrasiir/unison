@@ -110,3 +110,89 @@ fn two_editors_do_not_share_view_state() {
 }
 
 // -- subglyph layer interactions ---------------------------------------------
+
+// -- where a jump leaves the target ------------------------------------------
+
+/// A "go to symbol" jump centres its target: the line it lands on is what the
+/// user asked to see, and the context above it is as interesting as the context
+/// below. It used to be parked a third of a viewport from the top, which buries
+/// what precedes a definition under the header of the pane.
+#[test]
+fn a_goto_centres_its_target_line() {
+    let mut h = EditorHarness::new(&tall_doc());
+    h.viewport_height = Some(600.0);
+    h.frame();
+
+    // A header well past the first screenful, so the view has to move.
+    let target = text_line_at(&h, "glyph tall12");
+    h.state.goto_line(target);
+    h.frame();
+    h.frame();
+
+    let vl = h
+        .snap()
+        .vlines
+        .iter()
+        .find(|vl| vl.doc_line == target)
+        .cloned()
+        .expect("the target line is on screen");
+    // The first visual line sits at the top of the *content*, which is the
+    // viewport's top less however far the view has scrolled.
+    let viewport_top = h.snap().vlines[0].y + h.scroll_y();
+    let middle = viewport_top + 300.0;
+    assert!(
+        (vl.y + vl.height * 0.5 - middle).abs() < vl.height,
+        "target sits at y = {} (height {}), viewport middle is {middle}",
+        vl.y,
+        vl.height
+    );
+}
+
+/// Going back is not a jump: the line returned to has to come back to the place
+/// on the page it was left at, because that page — not the line alone — is what
+/// the reader is asking for. Centring it instead was the bug.
+#[test]
+fn a_remembered_offset_puts_the_line_back_where_it_was_seen() {
+    let mut h = EditorHarness::new(&tall_doc());
+    h.viewport_height = Some(600.0);
+    h.frame();
+
+    // Near the bottom of the page, which no centring could produce.
+    let line = text_line_at(&h, "glyph tall5");
+    h.state
+        .goto_caret_with(None, line, 0, ScrollIntent::Offset(520.0));
+    h.frame();
+    h.frame();
+    assert!(
+        (view_offset_of(&h, line) - 520.0).abs() < 4.0,
+        "asked for 520, got {}",
+        view_offset_of(&h, line)
+    );
+    // And that is the offset the host reads back when the user leaves from
+    // here, so the round trip is closed.
+    assert!(
+        (h.state.caret_view_offset - 520.0).abs() < 4.0,
+        "the caret's offset was published as {}",
+        h.state.caret_view_offset
+    );
+
+    // Wander off, then return with the offset that was recorded.
+    let elsewhere = text_line_at(&h, "glyph tall15");
+    h.state.goto_line(elsewhere);
+    h.frame();
+    h.frame();
+    assert!(
+        view_offset_of(&h, line) < 0.0,
+        "the line is still on screen"
+    );
+
+    h.state
+        .goto_caret_with(None, line, 0, ScrollIntent::Offset(520.0));
+    h.frame();
+    h.frame();
+    assert!(
+        (view_offset_of(&h, line) - 520.0).abs() < 4.0,
+        "the page was not restored: offset {}",
+        view_offset_of(&h, line)
+    );
+}

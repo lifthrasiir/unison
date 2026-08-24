@@ -529,7 +529,7 @@ impl UniformApp {
         nav: crate::editor::document_view::NavRequest,
     ) {
         use crate::editor::document_view::NavTarget;
-        let from = NavLoc::new(from_doc, nav.from.line, nav.from.col);
+        let from = NavLoc::new(from_doc, nav.from.line, nav.from.col).seen_at(nav.from_offset);
         let to = match nav.target {
             // The editor already moved its own caret; only the record is left.
             NavTarget::Local { line } => Some(NavLoc::new(from_doc, line, 0)),
@@ -571,8 +571,10 @@ impl UniformApp {
             return;
         }
         self.panes.show_document(loc.doc_idx);
+        let intent = loc.scroll_intent();
         let doc = &mut self.open_documents[loc.doc_idx];
-        doc.editor_state.goto_caret(&doc.lines, loc.line, loc.col);
+        doc.editor_state
+            .goto_caret_with(Some(&doc.lines), loc.line, loc.col, intent);
         self.focus_pane_editor(ctx);
     }
 

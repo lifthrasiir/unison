@@ -354,6 +354,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why wrapping is measured against the widest gutter, not the reserved one | `document_view/mod.rs` (`wrap_width`) |
 | Split panes, their invariants and key chords | `app/panes.rs` |
 | Go back / go forward | `app/history.rs` |
+| Where a jump leaves its target, and why going *back* restores a page rather than a line | `editor/mod.rs` (`ScrollIntent`), `app/history.rs` (`NavLoc::view_offset`) |
 | The Search pane, and where a click goes with no definition | `app/search.rs` |
 | Why a search lists a name written as a pattern, and what makes that cheap | `app/search.rs` (`pattern_denotes`, `may_write_a_pattern`), `pattern.rs` (`NamePattern::matches`) |
 | Why a Ctrl/Cmd+click reads no files at all | `app/docs.rs` (`FontSource`), `app/search.rs` |

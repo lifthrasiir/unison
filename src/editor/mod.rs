@@ -61,6 +61,21 @@ use doc_links::RenameKind;
 pub use ids::EditorId;
 pub(crate) use ids::Slot;
 
+/// Where in the viewport a jump should leave the line it lands on.
+///
+/// The two are different gestures, not two tunings of one: going *to* a
+/// definition is a request to read what is there, so the target is centred and
+/// carries its context with it, while going *back* is a request for the page
+/// the reader had — which only the position that page put the line at can
+/// describe. See [`crate::app::history`].
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum ScrollIntent {
+    /// Put the line in the middle of the viewport.
+    Center,
+    /// Put the line this many points below the viewport's top.
+    Offset(f32),
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum EditMode {
     Normal,
@@ -193,8 +208,16 @@ pub struct EditorState {
     /// egui directly.
     pub(crate) pending_focus: bool,
     pub(crate) autocomplete: Option<autocomplete::AutocompleteState>,
-    scroll_to_cursor: bool,
+    scroll_intent: Option<ScrollIntent>,
     pub(crate) saved_scroll_frac: f32,
+    /// How far below the viewport's top the caret's line was drawn, as of the
+    /// last frame. This is what a [`ScrollIntent::Offset`] is made of: the host
+    /// records it when the user leaves a position from the Search pane, where
+    /// the caret *is* the position departed from. A link followed inside a
+    /// document reports its own offset instead
+    /// ([`document_view::NavRequest::from_offset`]), since the link is not
+    /// where the caret is.
+    pub(crate) caret_view_offset: f32,
     zoom_changed_from: Option<u32>,
     pub(crate) grid_hover: bool,
     /// Quarter turns the shape palette is currently rotated by (0..4).
@@ -272,8 +295,9 @@ impl EditorState {
             canvas_id: None,
             pending_focus: false,
             autocomplete: None,
-            scroll_to_cursor: false,
+            scroll_intent: None,
             saved_scroll_frac: 0.0,
+            caret_view_offset: 0.0,
             zoom_changed_from: None,
             grid_hover: false,
             shape_rotation: 0,
@@ -361,24 +385,43 @@ impl EditorState {
         self.pending_focus = true;
     }
 
+    /// Jumps to `line` and centres it: this is "go to symbol", where the line
+    /// landed on is the thing asked for and what surrounds it is context.
     pub fn goto_line(&mut self, line: usize) {
-        self.mode = EditMode::Normal;
-        self.folds.expand_containing(line);
-        self.selection_anchor = None;
-        self.cursor = caret::Caret::new(line, 0);
-        self.scroll_to_cursor = true;
-        self.pending_focus = true;
+        self.goto_caret_with(None, line, 0, ScrollIntent::Center);
     }
 
     /// Moves the caret to a remembered position, clamped to the document as it
     /// stands now. Navigation history records raw line/column pairs, so an edit
     /// since the jump can leave one pointing past the end.
     pub fn goto_caret(&mut self, lines: &[DocLine], line: usize, col: usize) {
+        self.goto_caret_with(Some(lines), line, col, ScrollIntent::Center);
+    }
+
+    /// The same, saying where in the viewport the line should end up.
+    ///
+    /// Going *back* passes [`ScrollIntent::Offset`] with the offset the line
+    /// was last seen at, which is what makes a return trip land on the page the
+    /// user left rather than on a freshly centred one; every other caller
+    /// centres. `lines` is what the column is clamped against, and is `None`
+    /// only where the caller has no buffer to clamp against (`goto_line`, whose
+    /// column is 0).
+    pub fn goto_caret_with(
+        &mut self,
+        lines: Option<&[DocLine]>,
+        line: usize,
+        col: usize,
+        intent: ScrollIntent,
+    ) {
         self.mode = EditMode::Normal;
         self.folds.expand_containing(line);
         self.selection_anchor = None;
-        self.cursor = caret::clamp(lines, caret::Caret::new(line, col));
-        self.scroll_to_cursor = true;
+        let caret = caret::Caret::new(line, col);
+        self.cursor = match lines {
+            Some(lines) => caret::clamp(lines, caret),
+            None => caret,
+        };
+        self.scroll_intent = Some(intent);
         self.pending_focus = true;
     }
 
@@ -408,7 +451,7 @@ impl EditorState {
         // The lines came from the serializer, so they are canonical already;
         // reconciling them would only be a chance to move what was loaded.
         self.skip_reconcile = true;
-        self.scroll_to_cursor = true;
+        self.scroll_intent = Some(ScrollIntent::Center);
     }
 
     pub fn notify_zoom_change(&mut self, old_zoom: u32) {
@@ -419,8 +462,15 @@ impl EditorState {
         self.zoom_changed_from.take()
     }
 
-    pub(crate) fn take_scroll_to_cursor(&mut self) -> bool {
-        std::mem::replace(&mut self.scroll_to_cursor, false)
+    pub(crate) fn take_scroll_intent(&mut self) -> Option<ScrollIntent> {
+        self.scroll_intent.take()
+    }
+
+    /// Asks for `intent` on the next frame without moving the caret — the way
+    /// a jump the editor carried out itself inside a frame reports where the
+    /// view should follow it to.
+    pub(crate) fn request_scroll(&mut self, intent: ScrollIntent) {
+        self.scroll_intent = Some(intent);
     }
 
     pub fn is_grid_hover(&self) -> bool {

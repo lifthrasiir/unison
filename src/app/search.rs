@@ -622,11 +622,16 @@ impl UniformApp {
 
         let from = self.active_doc_idx().and_then(|idx| {
             let doc = self.open_documents.get(idx)?;
-            Some(NavLoc::new(
-                idx,
-                doc.editor_state.cursor.line,
-                doc.editor_state.cursor.col,
-            ))
+            // The pane is not a position in a document, so the caret is what
+            // was left — the page it was left on included.
+            Some(
+                NavLoc::new(
+                    idx,
+                    doc.editor_state.cursor.line,
+                    doc.editor_state.cursor.col,
+                )
+                .seen_at(doc.editor_state.caret_view_offset),
+            )
         });
 
         self.open_file(path.clone());

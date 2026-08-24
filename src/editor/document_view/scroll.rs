@@ -3,7 +3,7 @@
 
 use super::layout::{GridBlock, GridStrip, VLineKind, VisualLine, doc_line_to_y};
 use super::*;
-use crate::editor::EditorId;
+use crate::editor::{EditorId, ScrollIntent};
 
 const COARSE_SCROLL_COOLDOWN: f64 = 0.05;
 
@@ -279,6 +279,38 @@ pub(super) fn handle_page_scroll(
     }
 }
 
+/// The offset a [`ScrollIntent`] asks for, given where the line ended up.
+///
+/// Centring a line taller than the viewport would push its top off the screen,
+/// and the caret sits at that top — so an over-tall line aligns its top
+/// instead, which is the same thing [`scroll_cursor_into_view`] does with one.
+fn scroll_for_intent(
+    vlines: &[VisualLine],
+    row_height: f32,
+    grid_cell: f32,
+    line: usize,
+    line_y: f32,
+    viewport_h: f32,
+    intent: ScrollIntent,
+) -> f32 {
+    match intent {
+        ScrollIntent::Offset(offset) => (line_y - offset).max(0.0),
+        ScrollIntent::Center => {
+            let line_h: f32 = vlines
+                .iter()
+                .filter(|vl| vl.doc_line == line)
+                .map(|vl| vl.height(row_height, grid_cell))
+                .sum();
+            let line_h = if line_h > 0.0 { line_h } else { row_height };
+            if line_h < viewport_h {
+                (line_y + line_h * 0.5 - viewport_h * 0.5).max(0.0)
+            } else {
+                (line_y - row_height * 0.5).max(0.0)
+            }
+        }
+    }
+}
+
 /// Where the scroll area should jump this frame, if anywhere: minimap click,
 /// pending goto, scroll-to-cursor request, zoom recentering, or restoring
 /// the saved position — in that priority order.
@@ -343,13 +375,18 @@ pub(super) fn resolve_scroll_target(
     if goto_scroll.is_some() {
         ui.ctx().data_mut(|d| d.remove::<f32>(goto_scroll_id));
     }
-    let scroll_to_cursor = state.take_scroll_to_cursor();
-    let cursor_scroll = if scroll_to_cursor {
+    let cursor_scroll = state.take_scroll_intent().map(|intent| {
         let target_y = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line);
-        Some((target_y - viewport_h / 3.0).max(0.0))
-    } else {
-        None
-    };
+        scroll_for_intent(
+            vlines,
+            row_height,
+            grid_cell,
+            state.cursor.line,
+            target_y,
+            viewport_h,
+            intent,
+        )
+    });
     let saved_scroll_y = (state.saved_scroll_frac * total_height - viewport_h / 2.0).max(0.0);
     let restore_scroll = if minimap_scroll_target.is_none()
         && fold_scroll.is_none()

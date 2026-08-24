@@ -28,9 +28,9 @@ mod scroll_zoom;
 mod structure;
 
 use crate::document::DocLine;
-use crate::editor::EditMode;
 use crate::editor::caret::Caret;
 use crate::editor::harness::{EditorHarness, SnapKind};
+use crate::editor::{EditMode, ScrollIntent};
 use egui::{Key, Modifiers};
 
 /// Assert that the rendered visual lines and the logical `DocLine`s agree:
@@ -258,6 +258,31 @@ fn make_pixel_select_harness() -> EditorHarness {
 }
 
 /// Build a document tall enough to scroll (20 × 16-row glyphs ≈ 5000 px).
+/// How far below the viewport's top a document line is drawn, as the frame the
+/// harness last painted has it.
+#[track_caller]
+fn view_offset_of(h: &EditorHarness, line: usize) -> f32 {
+    let snap = h.snap();
+    let content_top = snap.vlines.first().expect("an empty view").y;
+    let vl = snap
+        .vlines
+        .iter()
+        .find(|vl| vl.doc_line == line)
+        .unwrap_or_else(|| panic!("line {line} is not laid out"));
+    // The first visual line sits at the content's top, which is the viewport's
+    // top less however far the view has scrolled.
+    vl.y - (content_top + h.scroll_y())
+}
+
+/// Doc-line index of the first text line starting with `prefix`.
+#[track_caller]
+fn text_line_at(h: &EditorHarness, prefix: &str) -> usize {
+    h.lines
+        .iter()
+        .position(|l| matches!(l, DocLine::Text(s) if s.trim_start().starts_with(prefix)))
+        .unwrap_or_else(|| panic!("no line starting with {prefix:?}"))
+}
+
 fn tall_doc() -> String {
     let mut s = String::new();
     for i in 0..20 {

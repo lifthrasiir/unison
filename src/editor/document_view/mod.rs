@@ -36,7 +36,10 @@ mod tests;
 
 use changes::{apply_pending_rederive, line_to_item_idx, source_line_count, source_line_offsets};
 use keys::handle_document_keys;
-use layout::{GutterLayout, ViewCacheKey, ViewData, collapsed_source_lines, page_has_fold_marker};
+use layout::{
+    GutterLayout, ViewCacheKey, ViewData, collapsed_source_lines, doc_line_to_y,
+    page_has_fold_marker,
+};
 use number_scroll::{
     alt_wheel_here, apply_number_bump, detect_number_bump, swallow_alt_arrows, swallow_wheel_delta,
 };
@@ -122,6 +125,10 @@ pub enum NavTarget {
 /// the user followed.
 pub struct NavRequest {
     pub from: Caret,
+    /// How far below the viewport's top the link was drawn. Going back puts it
+    /// back there, so the page returned to is the page departed from rather
+    /// than a freshly centred one — see [`crate::editor::ScrollIntent`].
+    pub from_offset: f32,
     pub target: NavTarget,
 }
 
@@ -678,7 +685,6 @@ fn show_document(
             grid_cell,
             gutter,
             total_height,
-            viewport_h,
             cursor_color,
             inline_panel_edit_idx,
             &mut needs_rederive,
@@ -736,6 +742,12 @@ fn show_document(
         .folds
         .snap_caret(lines, state.cursor, crate::editor::folding::Snap::Up);
     state.cursor_item = line_to_item_idx(&doc.item_line_starts, state.cursor.line);
+    // Where the caret's line sits on this page, kept for the host: leaving a
+    // document from the Search pane records the caret, and coming back has to
+    // be able to put the page back the way it was. Measured against the layout
+    // this frame painted, which is the page the user is looking at.
+    state.caret_view_offset = doc_line_to_y(vlines, row_height, grid_cell, state.cursor.line)
+        - scroll_output.state.offset.y;
     state.cursor_source_line = source_offsets
         .get(state.cursor.line)
         .map(|&off| off + 1)

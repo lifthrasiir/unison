@@ -7,13 +7,42 @@ fn link_doc(body: &str) -> String {
     format!("glyph a 2 2\n@@..\n..@@\nglyph b\n{body}\n")
 }
 
-/// Doc-line index of the first text line starting with `prefix`.
-#[track_caller]
-fn text_line_at(h: &EditorHarness, prefix: &str) -> usize {
-    h.lines
-        .iter()
-        .position(|l| matches!(l, DocLine::Text(s) if s.trim_start().starts_with(prefix)))
-        .unwrap_or_else(|| panic!("no line starting with {prefix:?}"))
+/// The jump also records *where on the page* the link was, which is what lets
+/// Go Back restore the view rather than merely the line. Reported by the editor
+/// because only it knows the layout — and reported for the link, not the caret,
+/// for the same reason `from` is.
+#[test]
+fn following_a_link_reports_the_page_the_link_was_seen_on() {
+    let mut src = String::from("glyph a 2 2\n@@..\n..@@\n");
+    for i in 0..30 {
+        src.push_str(&format!("glyph filler{i} 2 2\n....\n....\n"));
+    }
+    src.push_str("glyph b\nref a 0 0\n");
+
+    let mut h = EditorHarness::new(&src);
+    h.viewport_height = Some(300.0);
+    h.frame();
+    let ref_line = text_line_at(&h, "ref a");
+
+    // Bring the link on screen somewhere other than the top, so an offset
+    // taken from anywhere but the link itself would read differently.
+    h.state.goto_line(ref_line);
+    h.frame();
+    h.frame();
+    let seen_at = view_offset_of(&h, ref_line);
+    assert!(
+        seen_at > 1.0 && seen_at < 300.0,
+        "the link should be on screen, at {seen_at}"
+    );
+
+    h.last_nav = None;
+    h.click_at_mod(h.text_pos(ref_line, 4), Modifiers::COMMAND);
+    let nav = h.last_nav.as_ref().expect("no navigation reported");
+    assert!(
+        (nav.from_offset - seen_at).abs() < 4.0,
+        "reported {} for a link drawn at {seen_at}",
+        nav.from_offset
+    );
 }
 
 /// Ctrl/Cmd+clicking a link reports the jump, and reports it as starting at
