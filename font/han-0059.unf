@@ -100,7 +100,7 @@ glyph han-5fca:15x16 15 16 // 忊
 ## 61.3
 
 glyph han-5fd0:15x16 15 16 // 忐
-⿱ han-4e0a han-5fc3 // ⿱上心
+⿱ han-4e0a:15x9 1 han-5fc3:15x6 // ⿱上心
 
 // glyph han-5fd1:15x16 15 16 // 忑
 // ⿱ han-4e0b han-5fc3 // ⿱下心

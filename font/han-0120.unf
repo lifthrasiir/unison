@@ -60,7 +60,7 @@ glyph han-7d02:15x16 15 16 // 紂
 ⿰ han-7cf9:5x16 1 han-5bf8:9x16 // ⿰糹寸
 
 glyph han-7d03:15x16 15 16 // 紃
-⿰ han-7cf9:5x16 1 han-5ddd:8x16 // ⿰糹川
+⿰ han-7cf9:5x16 han-5ddd:9x16 // ⿰糹川
 
 glyph han-7d04-($han-regions):15x16 15 16 // 約
 ⿰ han-7cf9:5x16 1 han-52fa-($-1):9x16 // ⿰糹勺

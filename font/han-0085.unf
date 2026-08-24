@@ -86,7 +86,7 @@ glyph han-6c4b-j:15x16 15 16 // 汋
 ⿰ han-6c35:5x16 1 han-52fa.0:9x16 // ⿰氵勺
 
 glyph han-6c4c:15x16 15 16 // 汌
-⿰ han-6c35:5x16 1 han-5ddd:8x16 // ⿰氵川
+⿰ han-6c35:5x16 han-5ddd:9x16 // ⿰氵川
 
 glyph han-6c55:15x16 15 16 // 汕
 ⿰ han-6c35:5x16 1 han-5c71:9x16 // ⿰氵山
