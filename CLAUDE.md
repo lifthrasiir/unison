@@ -391,6 +391,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The backreference shadow, and why it is a toggle inside pixel selection rather than always on | `editor/backref_shadow.rs`, `editor/mod.rs` (`EditMode::PixelSelect`) |
 | What the two shadows share: the union rule, the placement bound, the one live shadow | `editor/shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
+| Asking for a filesystem check now (F5), and the two things being asked changes | `app/watch.rs` (`request_refresh`, `run_scan`) |
 | Why a polled directory is enumerated rather than `stat`ed, and how its interval sets itself | `app/watch.rs` (`poll_snapshot`, `next_poll_delay`) |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
 | Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |

@@ -52,6 +52,29 @@
 //! is routinely used) one read is tens of milliseconds and a directory
 //! re-parse is 34 files of them.
 //!
+//! # Asking for it now (F5)
+//!
+//! *File ▸ Refresh filesystem* / F5 is the watch's manual override
+//! ([`WatchState::request_refresh`]), and it exists because every path above
+//! can be silent: a volume with no kernel watch is looked at seconds apart,
+//! and a directory the watcher could not be installed on is never looked at at
+//! all. So the request goes straight to a scan — no event, no pending set, no
+//! settle delay — and it asks for everything: every open document, and the
+//! directory, since what changed is exactly what nobody knows.
+//!
+//! Two things follow from it being *asked for*. What comes back is applied
+//! whatever the pointer is over, like a click on the held-changes notice: the
+//! user pressed a key in this window, so where the pointer was left says
+//! nothing. And the open documents are reported ahead of the directory
+//! re-parse rather than with it ([`run_scan`] sends twice), because the file
+//! on screen is what the request was about and the re-parse is 34 files of a
+//! share behind it.
+//!
+//! A polled directory also has its interval restarted from the request. The
+//! tick that was a second away would only read what the scan thread is reading
+//! now; what it must not do is *adopt* what it finds, so the baseline is left
+//! alone and a write that lands between the two reads is still reported.
+//!
 //! # The poll backend
 //!
 //! A volume the kernel cannot report on is polled by [`spawn_poll_thread`]
@@ -316,6 +339,10 @@ struct DirWatcher {
     /// The thread also ends on its own once `rx` is gone, but only at its next
     /// tick, and a dropped watch has to stop touching the share now.
     poll_stop: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    /// Tells the poll thread that the directory has just been looked at
+    /// without it, so its next tick is a whole interval away rather than
+    /// whatever was left of the one it was in. See [`WatchState::request_refresh`].
+    poll_restart: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     rx: mpsc::Receiver<WatchEvent>,
 }
 
@@ -337,10 +364,15 @@ fn spawn_poll_thread(
     tx: mpsc::Sender<WatchEvent>,
     ctx: egui::Context,
     floor: Duration,
-) -> std::sync::Arc<std::sync::atomic::AtomicBool> {
+) -> (
+    std::sync::Arc<std::sync::atomic::AtomicBool>,
+    std::sync::Arc<std::sync::atomic::AtomicBool>,
+) {
     use std::sync::atomic::Ordering;
     let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
     let thread_stop = stop.clone();
+    let restart = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let thread_restart = restart.clone();
     std::thread::spawn(move || {
         let baseline = Instant::now();
         let mut previous = poll_snapshot(&dir);
@@ -351,10 +383,23 @@ fn spawn_poll_thread(
         loop {
             // Slept in slices so that dropping the watch is felt within a frame
             // or two rather than at the end of a minute-long wait.
-            let deadline = Instant::now() + next_poll_delay(cost, floor);
+            let mut deadline = Instant::now() + next_poll_delay(cost, floor);
             loop {
                 if thread_stop.load(Ordering::Relaxed) {
                     return;
+                }
+                if thread_restart.swap(false, Ordering::Relaxed) {
+                    // The user asked for the directory to be looked at now, and
+                    // the scan thread is doing exactly that. Ticking a second
+                    // later because that is where this interval happened to be
+                    // would be one more enumeration of the share for nothing,
+                    // so the interval starts over from the request. What the
+                    // forced scan found is not fed back here: the baseline is
+                    // left alone on purpose, so a write that lands between the
+                    // two reads is still reported by the next tick rather than
+                    // being adopted as "how the directory already was".
+                    deadline = Instant::now() + next_poll_delay(cost, floor);
+                    continue;
                 }
                 let now = Instant::now();
                 if now >= deadline {
@@ -380,7 +425,7 @@ fn spawn_poll_thread(
             }
         }
     });
-    stop
+    (stop, restart)
 }
 
 impl DirWatcher {
@@ -395,10 +440,12 @@ impl DirWatcher {
             // Polled by [`spawn_poll_thread`] rather than by `notify`'s
             // `PollWatcher`, which re-`stat`s every file it has already
             // enumerated; [`poll_snapshot`] says what that cost.
-            let poll_stop = spawn_poll_thread(dir.to_path_buf(), tx, ctx, poll_interval());
+            let (poll_stop, poll_restart) =
+                spawn_poll_thread(dir.to_path_buf(), tx, ctx, poll_interval());
             return Some(Self {
                 _watcher: None,
                 poll_stop: Some(poll_stop),
+                poll_restart: Some(poll_restart),
                 rx,
             });
         }
@@ -432,6 +479,7 @@ impl DirWatcher {
         Some(Self {
             _watcher: Some(watcher),
             poll_stop: None,
+            poll_restart: None,
             rx,
         })
     }
@@ -498,6 +546,13 @@ struct ScanRequest {
     /// Set when the directory's entry set may have changed, or a file no
     /// buffer holds did: the whole snapshot is re-parsed.
     dir: Option<PathBuf>,
+    /// The user asked for this scan (F5 / *File ▸ Refresh filesystem*) rather
+    /// than an event having reported something. Two things follow: the open
+    /// files are reported before the directory re-parse that would otherwise
+    /// make the user wait for them ([`run_scan`]), and what comes back is
+    /// applied whatever the pointer is over — the user is looking at the
+    /// window they just pressed a key in.
+    forced: bool,
 }
 
 /// What the scan thread found for one file.
@@ -525,6 +580,13 @@ pub(super) struct ScanResult {
     /// The `.unf` files the directory holds, so refreshing the sidebar costs
     /// the UI thread no `read_dir` of its own.
     listing: Option<Vec<PathBuf>>,
+    /// Apply this on arrival whatever the pointer is over: it answers an
+    /// explicit request. See [`ScanRequest::forced`].
+    forced: bool,
+    /// The last result this scan will send. A forced scan sends the open
+    /// files first and the directory afterwards, so only the second of the
+    /// two frees the scan slot.
+    last: bool,
 }
 
 /// The watch, the scan thread behind it, and the changes waiting to be applied.
@@ -566,6 +628,10 @@ pub(super) struct WatchState {
     /// The user clicked the held-changes notice: apply what is held on this
     /// frame whatever the pointer is on. Cleared by the apply it authorizes.
     force_apply: bool,
+    /// A refresh the user asked for is waiting to be scanned. It outlives the
+    /// settle delay and the pending set — there may be no event at all — and
+    /// is cleared by the scan it starts.
+    refresh: bool,
 }
 
 impl WatchState {
@@ -582,6 +648,7 @@ impl WatchState {
             held: Vec::new(),
             held_listing: None,
             force_apply: false,
+            refresh: false,
         }
     }
 
@@ -596,6 +663,7 @@ impl WatchState {
         self.held.clear();
         self.held_listing = None;
         self.force_apply = false;
+        self.refresh = false;
         // A scan of the previous directory may still be running; its result is
         // about files that are no longer on screen, so it is dropped on
         // arrival rather than waited for.
@@ -622,20 +690,53 @@ impl WatchState {
         }
     }
 
-    /// Whether the events have settled and no scan is already running.
+    /// F5 / *File ▸ Refresh filesystem*: look at the directory now, without
+    /// waiting for an event to say something changed.
+    ///
+    /// The point of the command is the case where no event will ever arrive —
+    /// a share whose kernel reports nothing and whose poll tick is seconds
+    /// away, or a watch that could not be installed at all — so it does not go
+    /// through the pending set or the settle delay. What it does share with an
+    /// event-driven scan is the scan thread: a refresh asked for while one is
+    /// running waits for it rather than starting a second.
+    pub(super) fn request_refresh(&mut self) {
+        self.refresh = true;
+        // A polled directory is about to be read by the scan thread, so the
+        // tick that was coming would only read it again. The poll interval
+        // restarts from here.
+        if let Some(watcher) = &self.watcher
+            && let Some(restart) = &watcher.poll_restart
+        {
+            restart.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+    }
+
+    /// Whether there is something to scan and no scan is already running. A
+    /// refresh the user asked for skips the settle delay: nothing is being
+    /// waited out, since the request is not a report that a write is in
+    /// progress.
     fn ready_to_scan(&self) -> bool {
-        if self.scanning || (self.pending.is_empty() && !self.listing_dirty) {
+        if self.scanning {
+            return false;
+        }
+        if self.refresh {
+            return true;
+        }
+        if self.pending.is_empty() && !self.listing_dirty {
             return false;
         }
         self.settle_at.is_some_and(|at| Instant::now() >= at)
     }
 
-    /// The event paths to resolve into a scan request.
-    fn take_pending(&mut self) -> (Vec<PathBuf>, bool) {
+    /// The event paths to resolve into a scan request, and whether the
+    /// directory itself has to be looked at — which a refresh always asks for,
+    /// since it is asked precisely when nothing is known about what changed.
+    fn take_pending(&mut self) -> (Vec<PathBuf>, bool, bool) {
         self.settle_at = None;
         let paths = std::mem::take(&mut self.pending).into_iter().collect();
-        let listing = std::mem::replace(&mut self.listing_dirty, false);
-        (paths, listing)
+        let refresh = std::mem::replace(&mut self.refresh, false);
+        let listing = std::mem::replace(&mut self.listing_dirty, false) || refresh;
+        (paths, listing, refresh)
     }
 
     /// Reads the files and re-parses the directory on a thread of its own.
@@ -647,14 +748,25 @@ impl WatchState {
             // An empty result is "nothing changed", which is the safe reading
             // if the scan dies: `scanning` clears and the next event scans
             // again, instead of the watch going silent for the whole session.
-            let mut slot = super::background::ResultSlot::new(tx, ctx, ScanResult::default());
-            slot.set(run_scan(request));
+            // `last` is what clears it, so the panic value has to carry it.
+            let interim = tx.clone();
+            let mut slot = super::background::ResultSlot::new(
+                tx,
+                ctx.clone(),
+                ScanResult {
+                    last: true,
+                    ..Default::default()
+                },
+            );
+            slot.set(run_scan(request, &interim, &ctx));
         });
     }
 
     fn take_scan_result(&mut self) -> Option<ScanResult> {
         let result = self.scan_rx.try_recv().ok()?;
-        self.scanning = false;
+        // A forced scan reports twice; the slot is only free once the second
+        // of the two has arrived.
+        self.scanning &= !result.last;
         Some(result)
     }
 
@@ -707,7 +819,18 @@ impl WatchState {
 pub(super) const HELD_CHANGES_TOAST: &str = "watch_held_changes";
 
 /// The scan itself. Runs on its own thread; touches no application state.
-fn run_scan(request: ScanRequest) -> ScanResult {
+///
+/// A forced scan reports in two stages, which is why it is handed the sender
+/// as well as being one: the open files are what the user is looking at, and
+/// re-parsing the directory around them is 34 files of I/O on a share. So the
+/// files go back as soon as they are read, and the snapshot follows in the
+/// result this returns.
+fn run_scan(
+    request: ScanRequest,
+    interim: &mpsc::Sender<ScanResult>,
+    ctx: &egui::Context,
+) -> ScanResult {
+    let forced = request.forced;
     let mut files = Vec::new();
     for (path, known) in request.files {
         let Ok(bytes) = std::fs::read(&path) else {
@@ -733,6 +856,24 @@ fn run_scan(request: ScanRequest) -> ScanResult {
         });
     }
 
+    if forced && request.dir.is_some() {
+        let staged = ScanResult {
+            files: std::mem::take(&mut files),
+            snapshot: None,
+            listing: None,
+            forced: true,
+            last: false,
+        };
+        if interim.send(staged).is_err() {
+            // The receiving side went away with the folder it was watching.
+            return ScanResult {
+                last: true,
+                ..Default::default()
+            };
+        }
+        ctx.request_repaint();
+    }
+
     let (snapshot, listing) = match request.dir {
         Some(dir) => {
             let parsed = crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
@@ -753,6 +894,8 @@ fn run_scan(request: ScanRequest) -> ScanResult {
         files,
         snapshot,
         listing,
+        forced,
+        last: true,
     }
 }
 
@@ -809,6 +952,10 @@ impl super::UniformApp {
         for file in result.files {
             self.watch.hold(file);
         }
+        // A scan the user asked for is applied on the frame it lands on: the
+        // pointer is wherever it was left when the key was pressed, which says
+        // nothing about whether the answer is wanted.
+        self.watch.force_apply |= result.forced;
     }
 
     /// Applies whatever the pointer now allows. No filesystem access: every
@@ -895,9 +1042,20 @@ impl super::UniformApp {
         if !self.watch.ready_to_scan() {
             return;
         }
-        let (paths, listing_changed) = self.watch.take_pending();
+        let (paths, listing_changed, forced) = self.watch.take_pending();
         let mut files = Vec::new();
         let mut snapshot = listing_changed;
+        if forced {
+            // Nothing reported anything, so everything is a candidate — and
+            // the open documents go in first, since they are what the user is
+            // looking at and [`run_scan`] reports them before it re-parses the
+            // directory around them.
+            files.extend(
+                self.open_documents
+                    .iter()
+                    .map(|doc| (doc.document.path.clone(), doc.disk_hash)),
+            );
+        }
         for path in paths {
             let name = path.file_name();
             match self
@@ -905,7 +1063,11 @@ impl super::UniformApp {
                 .iter()
                 .find(|d| d.document.path.file_name() == name)
             {
-                Some(doc) => files.push((doc.document.path.clone(), doc.disk_hash)),
+                Some(doc) => {
+                    if !files.iter().any(|(p, _)| p == &doc.document.path) {
+                        files.push((doc.document.path.clone(), doc.disk_hash));
+                    }
+                }
                 None => snapshot = true,
             }
         }
@@ -913,7 +1075,8 @@ impl super::UniformApp {
         if files.is_empty() && dir.is_none() {
             return;
         }
-        self.watch.start_scan(ScanRequest { files, dir }, ctx);
+        self.watch
+            .start_scan(ScanRequest { files, dir, forced }, ctx);
     }
 
     /// Installs a directory snapshot parsed on the scan thread.
@@ -1138,14 +1301,25 @@ mod tests {
         std::fs::write(&changed, source).unwrap();
         std::fs::write(dir.join(".~staging.unf"), "not a document").unwrap();
 
-        let result = run_scan(ScanRequest {
-            files: vec![
-                (same.clone(), Some(hash_bytes(source.as_bytes()))),
-                // The buffer believes something else is on disk.
-                (changed.clone(), Some(0)),
-            ],
-            dir: Some(dir.clone()),
-        });
+        let (tx, rx) = mpsc::channel();
+        let result = run_scan(
+            ScanRequest {
+                files: vec![
+                    (same.clone(), Some(hash_bytes(source.as_bytes()))),
+                    // The buffer believes something else is on disk.
+                    (changed.clone(), Some(0)),
+                ],
+                dir: Some(dir.clone()),
+                forced: false,
+            },
+            &tx,
+            &egui::Context::default(),
+        );
+        assert!(
+            rx.try_recv().is_err(),
+            "an event-driven scan reports once, at the end"
+        );
+        assert!(result.last);
 
         let scanned: Vec<&Path> = result.files.iter().map(|f| f.path.as_path()).collect();
         assert_eq!(
@@ -1173,6 +1347,82 @@ mod tests {
             .map(PathBuf::as_path)
             .collect();
         assert_eq!(listing, [changed.as_path(), same.as_path()]);
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// F5 exists for the case where nothing will ever report a change — a
+    /// share the kernel says nothing about, a watch that could not be
+    /// installed — so the request has to reach the scan with no event behind
+    /// it and no settle delay in front of it, and it has to ask for the
+    /// directory as well, since what changed is exactly what is not known.
+    #[test]
+    fn a_requested_refresh_is_scanned_at_once_and_covers_the_directory() {
+        let mut watch = WatchState::new();
+        assert!(!watch.ready_to_scan(), "nothing to scan yet");
+
+        watch.request_refresh();
+        assert!(watch.ready_to_scan(), "a refresh waits for nothing");
+
+        let (paths, listing, forced) = watch.take_pending();
+        assert!(paths.is_empty(), "no event is behind a refresh");
+        assert!(listing, "a refresh re-reads the directory");
+        assert!(forced);
+        assert!(
+            !watch.ready_to_scan(),
+            "the request is spent by the scan it starts"
+        );
+    }
+
+    /// A refresh asked for while a scan is running does not start a second
+    /// one — it waits, exactly as an event does.
+    #[test]
+    fn a_refresh_does_not_start_a_second_scan() {
+        let mut watch = WatchState::new();
+        watch.scanning = true;
+        watch.request_refresh();
+        assert!(!watch.ready_to_scan());
+        watch.scanning = false;
+        assert!(watch.ready_to_scan(), "and it is not forgotten either");
+    }
+
+    /// The point of asking is the file on screen, and re-parsing the whole
+    /// directory around it is 34 files of I/O on a share. So a forced scan
+    /// reports the open files first, in a result that does *not* free the scan
+    /// slot, and the directory follows in the one that does. Both are marked
+    /// forced, so the pointer does not hold either back.
+    #[test]
+    fn a_forced_scan_reports_the_open_files_before_the_directory() {
+        let dir = std::env::temp_dir().join(format!("uniform-refresh-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let open = dir.join("open.unf");
+        let source = "glyph a 2 2\n@@@@\n@@@@\n";
+        std::fs::write(&open, source).unwrap();
+        std::fs::write(dir.join("other.unf"), source).unwrap();
+
+        let (tx, rx) = mpsc::channel();
+        let result = run_scan(
+            ScanRequest {
+                files: vec![(open.clone(), Some(0))],
+                dir: Some(dir.clone()),
+                forced: true,
+            },
+            &tx,
+            &egui::Context::default(),
+        );
+
+        let staged = rx.try_recv().expect("the open files are reported first");
+        let scanned: Vec<&Path> = staged.files.iter().map(|f| f.path.as_path()).collect();
+        assert_eq!(scanned, [open.as_path()]);
+        assert!(staged.forced);
+        assert!(!staged.last, "the directory is still coming");
+        assert!(staged.snapshot.is_none() && staged.listing.is_none());
+
+        assert!(result.files.is_empty(), "reported already");
+        assert!(result.snapshot.is_some() && result.listing.is_some());
+        assert!(result.forced);
+        assert!(result.last, "the scan slot is freed by the second result");
 
         let _ = std::fs::remove_dir_all(&dir);
     }
@@ -1226,7 +1476,7 @@ mod tests {
         }
         assert!(ready, "the watch reported nothing in 5s");
 
-        let (paths, _listing) = watch.take_pending();
+        let (paths, _listing, _forced) = watch.take_pending();
         let names: Vec<String> = paths
             .iter()
             .map(|p| p.file_name().unwrap().to_string_lossy().to_string())
@@ -1248,7 +1498,7 @@ mod tests {
 
         let (tx, rx) = mpsc::channel();
         let ctx = egui::Context::default();
-        let stop = spawn_poll_thread(dir.clone(), tx, ctx, Duration::from_millis(20));
+        let (stop, _restart) = spawn_poll_thread(dir.clone(), tx, ctx, Duration::from_millis(20));
         // The baseline is taken on that thread — deliberately, so that no
         // `read_dir` of a share ever runs on the UI thread — so the writes below
         // have to come after it, or they are the baseline rather than a change.
@@ -1286,6 +1536,55 @@ mod tests {
             [("a.unf".to_string(), false), ("b.unf".to_string(), true)],
             "the baseline file must not be reported, and only the new entry touches the listing"
         );
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// F5 reads the directory itself, so the tick that was one second away is
+    /// one more enumeration of the share for nothing. The interval restarts
+    /// from the request instead — held here by asking repeatedly, and the
+    /// event that was waiting arrives only once the asking stops.
+    #[test]
+    fn a_requested_refresh_restarts_the_poll_interval() {
+        use std::sync::atomic::Ordering;
+
+        let dir = std::env::temp_dir().join(format!("uniform-poll-reset-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("a.unf"), "glyph a 2 2\n@@@@\n@@@@\n").unwrap();
+
+        let (tx, rx) = mpsc::channel();
+        let ctx = egui::Context::default();
+        let floor = Duration::from_millis(400);
+        let (stop, restart) = spawn_poll_thread(dir.clone(), tx, ctx, floor);
+
+        // After the baseline, so it is a change rather than the starting state.
+        std::thread::sleep(Duration::from_millis(100));
+        std::fs::write(dir.join("b.unf"), "glyph c 1 1\n@@\n").unwrap();
+
+        // Asked for more often than one interval is long: every ask pushes the
+        // tick a whole interval away, so it never comes round.
+        let held_until = Instant::now() + Duration::from_millis(1_200);
+        while Instant::now() < held_until {
+            restart.store(true, Ordering::Relaxed);
+            std::thread::sleep(Duration::from_millis(100));
+            assert!(
+                rx.try_recv().is_err(),
+                "a poll that keeps being asked to start over must not tick"
+            );
+        }
+
+        // Nothing asks any more, so the interval runs out and the change that
+        // was waiting is reported.
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let mut seen = None;
+        while Instant::now() < deadline && seen.is_none() {
+            seen = rx.try_recv().ok();
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        stop.store(true, Ordering::Relaxed);
+        let event = seen.expect("the poll resumes once nothing restarts it");
+        assert_eq!(event.path.file_name().unwrap(), "b.unf");
 
         let _ = std::fs::remove_dir_all(&dir);
     }

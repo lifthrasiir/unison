@@ -684,7 +684,13 @@ impl eframe::App for UniformApp {
         // Collected here and acted on below: switching a face rebuilds the
         // font, and that must not run while the input lock is held.
         let mut face_step = 0isize;
+        // Read before `pump_file_watch` below, so the scan a refresh asks for
+        // starts on this frame rather than the next.
+        let mut refresh_fs = false;
         ctx.input(|i| {
+            if i.key_pressed(egui::Key::F5) {
+                refresh_fs = true;
+            }
             if i.key_pressed(egui::Key::F11) {
                 face_step = 1;
             }
@@ -706,6 +712,10 @@ impl eframe::App for UniformApp {
 
         if face_step != 0 {
             self.step_face(face_step, ctx);
+        }
+
+        if refresh_fs {
+            self.watch.request_refresh();
         }
 
         self.intercept_swap_panes_chord(ctx, &mut menu);

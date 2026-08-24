@@ -32,6 +32,8 @@ pub(super) struct MenuActions {
     new_file: bool,
     open_folder: bool,
     rename_file: bool,
+    /// File ▸ Refresh filesystem (F5): scan the font directory now.
+    refresh_fs: bool,
     rename_symbol: bool,
     type_codepoint: bool,
     export: bool,
@@ -133,6 +135,7 @@ impl UniformApp {
         let menu_new_file = &mut menu.new_file;
         let menu_open_folder = &mut menu.open_folder;
         let menu_rename = &mut menu.rename_file;
+        let menu_refresh_fs = &mut menu.refresh_fs;
         let menu_rename_symbol = &mut menu.rename_symbol;
         let menu_type_codepoint = &mut menu.type_codepoint;
         let menu_export = &mut menu.export;
@@ -212,6 +215,16 @@ impl UniformApp {
                         .clicked()
                     {
                         *menu_rename = true;
+                        ui.close_menu();
+                    }
+                    if ui
+                        .add_enabled(
+                            self.font_dir.is_some(),
+                            egui::Button::new("Refresh filesystem").shortcut_text("F5"),
+                        )
+                        .clicked()
+                    {
+                        *menu_refresh_fs = true;
                         ui.close_menu();
                     }
                     ui.separator();
@@ -917,6 +930,14 @@ impl UniformApp {
     pub(super) fn apply_file_menu_actions(&mut self, ctx: &egui::Context, menu: &MenuActions) {
         if menu.new_file && self.font_dir.is_some() {
             self.sidebar.start_new_file();
+        }
+
+        // The scan itself is started by `pump_file_watch`, which has already
+        // run this frame — so a refresh asked for through the menu begins on
+        // the next one, and the repaint is what brings it.
+        if menu.refresh_fs {
+            self.watch.request_refresh();
+            ctx.request_repaint();
         }
 
         if menu.open_folder
