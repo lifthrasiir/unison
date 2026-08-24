@@ -1808,7 +1808,8 @@ map h = half
             .any(|i| i.severity == Severity::Error && i.message.contains("digraph")),
         "the check has to fault the glyph",
     );
-    let built = crate::render::ttf_builder::build_font_with_gid_map(&[&doc]).expect("font should build");
+    let built =
+        crate::render::ttf_builder::build_font_with_gid_map(&[&doc]).expect("font should build");
     assert!(
         !built.gid_to_name.values().any(|n| n == "digraph"),
         "and the build has to drop exactly that glyph: {:?}",

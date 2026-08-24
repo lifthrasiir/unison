@@ -376,7 +376,6 @@ fn a_component_the_check_errors_on_picks_a_variant_that_fits() {
     }
 }
 
-
 /// Two variants that measure alike, and the size the erroring name states as
 /// the thing that decides between them: a component that names a glyph nothing
 /// draws is wrong about the glyph, but the extent its author asked for is still
@@ -412,7 +411,10 @@ glyph test-x 8 4
     let fixes = plan(src);
     assert_eq!(fixes.len(), 1, "{fixes:?}");
     assert_eq!((fixes[0].before, fixes[0].after), (None, 0));
-    assert_eq!(fixes[0].new_line, "\u{2FF0} p:3x4 1 q:4x4", "the spare cell between them");
+    assert_eq!(
+        fixes[0].new_line, "\u{2FF0} p:3x4 1 q:4x4",
+        "the spare cell between them"
+    );
     // An extent nothing in the family has decides nothing, and the layout that
     // leaves the least at the edges wins as it always does.
     let fixes = plan(&src.replace("p:3x9", "p:9x9"));

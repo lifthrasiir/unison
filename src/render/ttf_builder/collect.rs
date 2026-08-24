@@ -302,12 +302,7 @@ pub(super) fn compute_shared_font_input_for(
     face: &crate::faces::Face,
     cancel: &crate::cancel::CancelToken,
 ) -> Option<SharedFontInput> {
-    shared_font_input(
-        docs,
-        face,
-        cancel,
-        ExpansionSource::Compute,
-    )
+    shared_font_input(docs, face, cancel, ExpansionSource::Compute)
 }
 
 /// The same, from an expansion the caller already has.

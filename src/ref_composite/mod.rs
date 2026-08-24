@@ -512,7 +512,10 @@ fn derive_compose_body<'b>(
     let [compose] = &body.compose[..] else {
         return None;
     };
-    if compose.part_names().any(|n| crate::compose::is_undecided(n)) {
+    if compose
+        .part_names()
+        .any(|n| crate::compose::is_undecided(n))
+    {
         return None;
     }
     let dims = |part: &str| match body_of(part) {

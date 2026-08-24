@@ -298,7 +298,8 @@ fn run_edit_probe(input: &std::path::Path) {
         // what each stage costs, and the report combines them the way the
         // editor's threads do.
         let t = std::time::Instant::now();
-        let font = render::build_font_pair_cached_from(&refs, contour_cache, &resolution, None, &never);
+        let font =
+            render::build_font_pair_cached_from(&refs, contour_cache, &resolution, None, &never);
         let font_took = t.elapsed();
 
         let t = std::time::Instant::now();

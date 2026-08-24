@@ -13,7 +13,8 @@ pub use ttf_builder::{
     build_font_with_gid_map_for_cached, new_contour_cache,
 };
 pub use ttf_builder::{
-    FontWithGidMap, build_collection, build_face_ttf_pair, build_faces_from, build_font_with_gid_map_for,
+    FontWithGidMap, build_collection, build_face_ttf_pair, build_faces_from,
+    build_font_with_gid_map_for,
 };
 
 /// How hard the WOFF2 encoder compresses.

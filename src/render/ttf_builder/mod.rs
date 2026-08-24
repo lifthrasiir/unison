@@ -590,8 +590,7 @@ pub fn build_faces_from(
     // dominates, and a face's cmap is free beside it.
     let collect_union = || {
         let _collect = crate::startup::PerfStage::new("collect");
-        let shared =
-            collect::compute_shared_font_input_from(docs, &union_face, expansion, &never)?;
+        let shared = collect::compute_shared_font_input_from(docs, &union_face, expansion, &never)?;
         collect::collect_glyph_data_with_shared(&shared, false, None, &never)
     };
     let collect_face = |face: &crate::faces::Face| {

@@ -543,3 +543,31 @@ fn on_demand_triangle_ref_reaches_renderer() {
 // ---------------------------------------------------------------------------
 // Horizontal grid scrolling
 // ---------------------------------------------------------------------------
+
+/// Leaving the pixel modes with Escape commits the floating pixels, and the
+/// *derived* document has to catch up in that same frame: the deferred-reparse
+/// rule is about a line the caret is still typing on, and a commit is not that
+/// edit. Without this the grid kept painting the pre-commit shape until some
+/// later edit happened to flush it.
+#[test]
+fn escape_commit_reaches_the_document() {
+    let mut h = make_pixel_select_harness();
+    h.drag_grid(1, (0, 0), (0, 1));
+    h.drag_grid(1, (0, 0), (2, 0)); // move down -> floating
+    h.key(Key::Escape);
+    h.frame();
+
+    assert!(
+        h.state.pixel_selection.is_none(),
+        "Escape commits the float"
+    );
+    let lines_grid = h.grid(1).clone();
+    let Some(crate::document::DocumentItem::Glyph { body, .. }) = h.doc.items.first() else {
+        panic!("first item should be the glyph");
+    };
+    assert_eq!(
+        body.pixels.as_ref(),
+        Some(&lines_grid),
+        "the derived document must hold the committed pixels"
+    );
+}

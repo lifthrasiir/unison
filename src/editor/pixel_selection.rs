@@ -1392,7 +1392,18 @@ pub(crate) fn reconcile(
         EditMode::PixelSelect { item_idx, .. } if *item_idx == sel.item_idx
     );
     if !matches_mode || !(state.active || menu_open) {
+        let landed = sel.is_floating().then(|| sel.grid_doc_line(doc)).flatten();
         commit_and_clear(doc, lines, state, &sel);
+        // The commit is one grid's cells and nothing else, so it takes the
+        // same fast path a painted pixel does. Saying so is what keeps it from
+        // being *deferred*: leaving the mode usually leaves the caret on the
+        // glyph's header line, which the ordinary rederive holds back until the
+        // caret moves on — a rule about a header being typed, not about pixels
+        // the user already let go of. Without this the grid painted the
+        // pre-commit shape until some later edit flushed it.
+        if let Some(grid_doc_line) = landed {
+            state.pixel_paint_dirty = Some((sel.item_idx, grid_doc_line));
+        }
         true
     } else {
         false

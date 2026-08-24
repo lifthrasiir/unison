@@ -1472,9 +1472,8 @@ fn member_layouts(
         .iter()
         .enumerate()
         .map(|(m, member)| {
-            let layout = parts_at(slots, pick, m).and_then(|parts| {
-                affine_layout(&parts, axis_extent, horizontal, member.contact)
-            });
+            let layout = parts_at(slots, pick, m)
+                .and_then(|parts| affine_layout(&parts, axis_extent, horizontal, member.contact));
             match layout {
                 Some((base, total)) => Some(Some(Member {
                     lo: member.lo,

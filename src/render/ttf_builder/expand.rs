@@ -1422,10 +1422,8 @@ fn settle_wide_groups(
             .collect();
 
         let rows = spec.rows();
-        let per_row = crate::parallel::map_indexed(
-            rows.len(),
-            &crate::cancel::CancelToken::never(),
-            |k| {
+        let per_row =
+            crate::parallel::map_indexed(rows.len(), &crate::cancel::CancelToken::never(), |k| {
                 let (i, _) = rows[k];
                 // The row's memo: one entry per distinct name the group's
                 // alternatives build here, which is a handful, so a scan beats
@@ -1454,8 +1452,7 @@ fn settle_wide_groups(
                         )
                     })
                     .collect::<Vec<_>>()
-            },
-        );
+            });
 
         // Row-major to line-major: each line is emitted on its own, in the
         // order the source wrote it.
