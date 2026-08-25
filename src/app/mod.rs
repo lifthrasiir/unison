@@ -371,9 +371,12 @@ impl UniformApp {
 
         crate::startup::mark("settings loaded");
 
+        // Loaded through the cache the watch then takes over, so the first
+        // *File ▸ Refresh filesystem* re-reads only what has moved since.
+        let mut dir_cache = crate::render::ttf_builder::DirCache::new();
         let (font_base_docs, file_parse_errors, font_sources) = font_dir
             .as_ref()
-            .map(|d| crate::render::ttf_builder::load_docs_from_directory_with_sources(d))
+            .map(|d| crate::render::ttf_builder::load_docs_from_directory_cached(d, &mut dir_cache))
             .unwrap_or_default();
         crate::startup::mark(format!("read {} .unf file(s)", font_base_docs.len()));
         let font_sources = docs::font_sources_from(font_sources);
@@ -440,7 +443,7 @@ impl UniformApp {
             search: None,
             sidebar: Sidebar::new(),
             sidebar_rect: egui::Rect::NOTHING,
-            watch: watch::WatchState::new(),
+            watch: watch::WatchState::with_cache(dir_cache),
             toasts: toast::Toasts::new(),
             escape_mode,
             status_message: None,
@@ -717,7 +720,7 @@ impl eframe::App for UniformApp {
         }
 
         if refresh_fs {
-            self.watch.request_refresh();
+            self.request_filesystem_refresh(ctx);
         }
 
         self.intercept_swap_panes_chord(ctx, &mut menu);

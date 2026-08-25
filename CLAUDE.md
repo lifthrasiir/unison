@@ -400,6 +400,9 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What the two shadows share: the union rule, the placement bound, the one live shadow | `editor/shadow.rs` |
 | Files changed outside the editor: reload, keep-and-warn, overwrite guards | `app/watch.rs` |
 | Asking for a filesystem check now (F5), and the two things being asked changes | `app/watch.rs` (`request_refresh`, `run_scan`) |
+| What a refresh re-reads, the stamp it trusts, and why the open files are still hashed | `render/ttf_builder/mod.rs` (`DirCache`), `app/watch.rs` (`run_scan`) |
+| Why a refresh that found nothing rebuilds nothing | `app/watch.rs` (`apply_directory_snapshot`) |
+| What the status line says a refresh is doing, and the two frontends that ask for one | `app/watch.rs` (`request_filesystem_refresh`) |
 | Why a polled directory is enumerated rather than `stat`ed, and how its interval sets itself | `app/watch.rs` (`poll_snapshot`, `next_poll_delay`) |
 | Rebuild debouncing, generations and cache keying | `app/background.rs`, `specimen.rs` |
 | Where the seconds before the first frame go (and what `before main()` does and does not prove) | `startup.rs` |

@@ -43,8 +43,10 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::path::Path;
+#[cfg(any(feature = "editor", test))]
+use std::sync::Arc;
 #[cfg(feature = "editor")]
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use read_fonts::tables::glyf::Anchor;
 use read_fonts::tables::glyf::CurvePoint;
@@ -273,6 +275,99 @@ pub fn load_docs_from_directory_checked(dir: &Path) -> (Vec<Document>, Vec<Parse
 /// overlapping those waits is the whole of the fix. The thread count is
 /// therefore about latency in flight, not about cores.
 pub fn load_docs_from_directory_with_sources(dir: &Path) -> LoadedDir {
+    load_dir(dir, None)
+}
+
+/// What one file looked like when it was last loaded.
+///
+/// The same pair the polling watcher decides on
+/// (`crate::app::watch::poll_snapshot`), and deliberately so: a refresh
+/// trusts exactly what the watch already trusts, rather than inventing a
+/// second, stricter notion of "unchanged" that would make F5 mean something
+/// the ten-second tick does not.
+#[cfg(any(feature = "editor", test))]
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct FileStamp {
+    len: u64,
+    modified: std::time::SystemTime,
+}
+
+#[cfg(any(feature = "editor", test))]
+impl FileStamp {
+    fn of(meta: &std::fs::Metadata) -> Option<Self> {
+        Some(Self {
+            len: meta.len(),
+            modified: meta.modified().ok()?,
+        })
+    }
+}
+
+#[cfg(any(feature = "editor", test))]
+struct CachedFile {
+    stamp: FileStamp,
+    doc: Arc<Document>,
+    bytes: Arc<Vec<u8>>,
+}
+
+/// The last load of one directory, kept so that the next load of the same
+/// directory reads only what moved.
+///
+/// This exists for *File ▸ Refresh filesystem* (F5), which re-parses the whole
+/// directory because what changed is exactly what is not known — 195 files of
+/// read and parse on `font/`, and on a share one round trip each. A file whose
+/// [`FileStamp`] is the one recorded here is handed back as it was: no read, no
+/// parse. The check costs one `stat` for a file the cache has seen and nothing
+/// at all for one it has not, so a cold load is the load it always was.
+///
+/// The cache belongs to a directory, so it is dropped when the folder changes
+/// (`WatchState::set_directory`), and a load rebuilds it from what it saw —
+/// a file that is gone leaves nothing behind.
+///
+/// What it deliberately does *not* do is decide whether an **open** document
+/// changed. That question is answered by hashing the bytes
+/// (`app::watch::run_scan`), because a stamp cannot tell the editor's own save
+/// from someone else's write; this cache only serves the snapshot behind the
+/// buffers.
+#[cfg(any(feature = "editor", test))]
+#[derive(Default)]
+pub struct DirCache {
+    files: HashMap<std::path::PathBuf, CachedFile>,
+}
+
+#[cfg(any(feature = "editor", test))]
+impl DirCache {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[cfg(test)]
+    fn len(&self) -> usize {
+        self.files.len()
+    }
+}
+
+/// [`load_docs_from_directory_with_sources`], reusing what `cache` holds for
+/// the files whose size and mtime have not moved, and leaving `cache`
+/// describing the directory as it was just read.
+#[cfg(any(feature = "editor", test))]
+pub fn load_docs_from_directory_cached(dir: &Path, cache: &mut DirCache) -> LoadedDir {
+    load_dir(dir, Some(cache))
+}
+
+/// Reads `path` and the stamp to remember it by. The metadata is taken from
+/// the handle before the read — the opposite order would record a stamp for
+/// bytes that moved under it, and so miss the change forever.
+#[cfg(any(feature = "editor", test))]
+fn read_with_stamp(path: &Path) -> std::io::Result<(Vec<u8>, Option<FileStamp>)> {
+    use std::io::Read;
+    let mut file = std::fs::File::open(path)?;
+    let meta = file.metadata().ok();
+    let mut bytes = Vec::with_capacity(meta.as_ref().map_or(0, |m| m.len() as usize));
+    file.read_to_end(&mut bytes)?;
+    Ok((bytes, meta.as_ref().and_then(FileStamp::of)))
+}
+
+fn load_dir(dir: &Path, cache: Option<&mut DirCache>) -> LoadedDir {
     // Timed because this is the prime suspect for a slow start on a network
     // share; `startup` ignores everything after the first frame, so the
     // rebuilds that also come through here cost one atomic load.
@@ -295,16 +390,40 @@ pub fn load_docs_from_directory_with_sources(dir: &Path) -> LoadedDir {
     /// What one file turned into. Kept per index so the merge below is a
     /// straight walk rather than a sort by path.
     enum Loaded {
-        Parsed(Box<Document>, Vec<u8>),
+        Parsed(Box<Document>, Vec<u8>, Option<FileStamp>),
+        /// The cache had this file and the stamp says it did not move.
+        #[cfg(any(feature = "editor", test))]
+        Reused(Arc<Document>, Arc<Vec<u8>>, FileStamp),
         Failed(String),
     }
 
+    // Held immutably while the workers run; the cache is rebuilt from what
+    // they report once they are done.
+    #[cfg(any(feature = "editor", test))]
+    let previous: Option<&DirCache> = cache.as_deref();
+
     let load_one = |path: &Path| -> Loaded {
+        // Only worth a round trip when there is something to compare against:
+        // a file the cache has never seen goes straight to the read, whose own
+        // open carries the metadata the cache is to record.
+        #[cfg(any(feature = "editor", test))]
+        if let Some(hit) = previous.and_then(|c| c.files.get(path))
+            && let Some(stamp) = std::fs::metadata(path)
+                .ok()
+                .as_ref()
+                .and_then(FileStamp::of)
+            && stamp == hit.stamp
+        {
+            return Loaded::Reused(hit.doc.clone(), hit.bytes.clone(), stamp);
+        }
         let read_t0 = std::time::Instant::now();
-        let read = std::fs::read(path);
+        #[cfg(any(feature = "editor", test))]
+        let read = read_with_stamp(path);
+        #[cfg(not(any(feature = "editor", test)))]
+        let read = std::fs::read(path).map(|bytes| (bytes, None));
         let read_elapsed = read_t0.elapsed();
-        let bytes = match read {
-            Ok(bytes) => bytes,
+        let (bytes, stamp) = match read {
+            Ok(read) => read,
             Err(e) => return Loaded::Failed(format!("reading: {e}")),
         };
         let parse_t0 = std::time::Instant::now();
@@ -312,7 +431,7 @@ pub fn load_docs_from_directory_with_sources(dir: &Path) -> LoadedDir {
         let parsed = document_io::parse_document_from_str(&content, path.to_path_buf());
         crate::startup::record_file(path, bytes.len(), read_elapsed, parse_t0.elapsed());
         match parsed {
-            Ok(doc) => Loaded::Parsed(Box::new(doc), bytes),
+            Ok(doc) => Loaded::Parsed(Box::new(doc), bytes, stamp),
             Err(e) => Loaded::Failed(e.to_string()),
         }
     };
@@ -360,17 +479,48 @@ pub fn load_docs_from_directory_with_sources(dir: &Path) -> LoadedDir {
     let mut docs = Vec::new();
     let mut errors = Vec::new();
     let mut sources = Vec::new();
+    #[cfg(any(feature = "editor", test))]
+    let mut fresh: HashMap<std::path::PathBuf, CachedFile> = HashMap::new();
     for (path, item) in paths.into_iter().zip(loaded) {
         match item {
-            Some(Loaded::Parsed(doc, bytes)) => {
+            Some(Loaded::Parsed(doc, bytes, _stamp)) => {
+                #[cfg(any(feature = "editor", test))]
+                if let Some(stamp) = _stamp {
+                    let doc = Arc::new(*doc);
+                    let bytes = Arc::new(bytes);
+                    fresh.insert(
+                        path.clone(),
+                        CachedFile {
+                            stamp,
+                            doc: doc.clone(),
+                            bytes: bytes.clone(),
+                        },
+                    );
+                    docs.push((*doc).clone());
+                    sources.push((path, (*bytes).clone()));
+                    continue;
+                }
                 docs.push(*doc);
                 sources.push((path, bytes));
             }
+            #[cfg(any(feature = "editor", test))]
+            Some(Loaded::Reused(doc, bytes, stamp)) => {
+                docs.push((*doc).clone());
+                sources.push((path.clone(), (*bytes).clone()));
+                fresh.insert(path, CachedFile { stamp, doc, bytes });
+            }
             // A file that does not parse contributes no document, so nothing
-            // can search or open it either; its bytes are not kept.
+            // can search or open it either; its bytes are not kept. It is not
+            // cached either: a file being edited into shape is read again
+            // every time, which is the cheap case and the one that wants to
+            // see the next save at once.
             Some(Loaded::Failed(msg)) => errors.push((path, msg)),
             None => errors.push((path, "reading: the loader thread died".to_string())),
         }
+    }
+    #[cfg(any(feature = "editor", test))]
+    if let Some(cache) = cache {
+        cache.files = fresh;
     }
     (docs, errors, sources)
 }

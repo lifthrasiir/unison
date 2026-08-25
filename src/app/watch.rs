@@ -70,6 +70,19 @@
 //! on screen is what the request was about and the re-parse is 34 files of a
 //! share behind it.
 //!
+//! What the re-parse costs is not what it once was, though. It goes through
+//! the directory cache the last load left ([`crate::render::ttf_builder::DirCache`]):
+//! a file whose size and mtime have not moved is handed back as it was, so a
+//! refresh reads only what changed and stats the rest. And a snapshot that
+//! turns out to say what is already installed steps no generation
+//! ([`super::UniformApp::apply_directory_snapshot`]) — a refresh that finds
+//! nothing costs no font build at all, where it used to cost a whole one.
+//!
+//! Both of those trust the same (size, mtime) pair the poll backend decides
+//! on. The open documents do not: their bytes are read and hashed on every
+//! scan, because a stamp cannot tell our own save from someone else's write —
+//! and the open files are what the request was about.
+//!
 //! A polled directory also has its interval restarted from the request. The
 //! tick that was a second away would only read what the scan thread is reading
 //! now; what it must not do is *adopt* what it finds, so the baseline is left
@@ -92,15 +105,16 @@
 //! correctly a no-op too. That comparison is the first thing the scan does, so
 //! a file that did not really change is never even parsed.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
-use std::sync::mpsc;
+use std::sync::{Arc, Mutex, mpsc};
 use std::time::{Duration, Instant};
 
 use notify::{EventKind, RecursiveMode, Watcher};
 
 use crate::document::{DocLine, Document};
+use crate::render::ttf_builder::{DirCache, LoadedDir};
 
 /// The shortest interval between two polls of a directory the kernel cannot
 /// report on — the floor of the adaptive interval described on
@@ -553,6 +567,10 @@ struct ScanRequest {
     /// applied whatever the pointer is over — the user is looking at the
     /// window they just pressed a key in.
     forced: bool,
+    /// The last load of this directory. What has not moved since is served
+    /// from it, so the re-parse costs one `stat` per file rather than a read
+    /// and a parse. See [`DirCache`].
+    cache: Arc<Mutex<DirCache>>,
 }
 
 /// What the scan thread found for one file.
@@ -632,10 +650,22 @@ pub(super) struct WatchState {
     /// settle delay and the pending set — there may be no event at all — and
     /// is cleared by the scan it starts.
     refresh: bool,
+    /// What the last load of this directory found, shared with the scan
+    /// thread. One scan runs at a time, so the lock is never contended; it is
+    /// a lock rather than an owned value because the scan outlives the call
+    /// that started it.
+    dir_cache: Arc<Mutex<DirCache>>,
 }
 
 impl WatchState {
+    #[cfg(test)]
     pub(super) fn new() -> Self {
+        Self::with_cache(DirCache::new())
+    }
+
+    /// The watch over a directory that has just been loaded, keeping what that
+    /// load found so the first refresh is already cheap.
+    pub(super) fn with_cache(cache: DirCache) -> Self {
         let (scan_tx, scan_rx) = mpsc::channel();
         Self {
             watcher: None,
@@ -649,7 +679,15 @@ impl WatchState {
             held_listing: None,
             force_apply: false,
             refresh: false,
+            dir_cache: Arc::new(Mutex::new(cache)),
         }
+    }
+
+    /// Loads a directory on the calling thread through this watch's cache —
+    /// the path Open Folder takes, so that the folder it just read is the one
+    /// the next refresh compares against.
+    pub(super) fn load_directory(&self, dir: &Path) -> LoadedDir {
+        crate::render::ttf_builder::load_docs_from_directory_cached(dir, &mut lock(&self.dir_cache))
     }
 
     /// Starts watching `dir`, dropping any previous watch. A directory that
@@ -671,6 +709,9 @@ impl WatchState {
         self.scan_tx = tx;
         self.scan_rx = rx;
         self.scanning = false;
+        // The cache describes the directory that is being left; nothing in it
+        // says anything about this one.
+        *lock(&self.dir_cache) = DirCache::new();
         self.watcher = DirWatcher::new(dir, ctx);
     }
 
@@ -818,6 +859,13 @@ impl WatchState {
 /// The sticky toast that says a scanned change is waiting for the pointer.
 pub(super) const HELD_CHANGES_TOAST: &str = "watch_held_changes";
 
+/// A poisoned cache is a cache, not a reason to lose the directory: the load
+/// that panicked left it describing fewer files than it might have, and the
+/// next load fills those back in.
+fn lock(cache: &Mutex<DirCache>) -> std::sync::MutexGuard<'_, DirCache> {
+    cache.lock().unwrap_or_else(|e| e.into_inner())
+}
+
 /// The scan itself. Runs on its own thread; touches no application state.
 ///
 /// A forced scan reports in two stages, which is why it is handed the sender
@@ -876,7 +924,10 @@ fn run_scan(
 
     let (snapshot, listing) = match request.dir {
         Some(dir) => {
-            let parsed = crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+            let parsed = crate::render::ttf_builder::load_docs_from_directory_cached(
+                &dir,
+                &mut lock(&request.cache),
+            );
             let mut listing: Vec<PathBuf> = std::fs::read_dir(&dir)
                 .into_iter()
                 .flatten()
@@ -926,6 +977,31 @@ impl super::UniformApp {
         }
     }
 
+    /// *File ▸ Refresh filesystem* / F5, from either frontend.
+    ///
+    /// Says so in the status line, because the work it starts is otherwise
+    /// invisible: over a share the re-parse behind it is seconds long, and a
+    /// refresh that finds nothing changes not one pixel — pressing the key
+    /// again is then the only way to find out whether the first press did
+    /// anything. The two things the user cannot see are what the message
+    /// distinguishes: a scan starting now, and a request that has to wait for
+    /// the scan already running.
+    ///
+    /// The repaint is what makes the menu's request as immediate as the key's:
+    /// the scan is started by [`Self::pump_file_watch`], which has already run
+    /// by the time the menu is dispatched.
+    pub(super) fn request_filesystem_refresh(&mut self, ctx: &egui::Context) {
+        if self.watch.scanning {
+            self.set_status(
+                "Refreshing the font directory — the request waits for the scan already running.",
+            );
+        } else {
+            self.set_status("Refreshing the font directory…");
+        }
+        self.watch.request_refresh();
+        ctx.request_repaint();
+    }
+
     /// The held-changes notice was clicked: apply what is waiting on the next
     /// frame, pointer or no pointer.
     ///
@@ -943,8 +1019,21 @@ impl super::UniformApp {
         let Some(result) = self.watch.take_scan_result() else {
             return;
         };
+        let mut moved = result.files.len();
         if let Some((docs, errors, sources)) = result.snapshot {
-            self.apply_directory_snapshot(docs, errors, sources);
+            // The snapshot covers the open files too, so it is the count —
+            // adding the staged files to it would report a file the user
+            // changed twice.
+            moved = self.apply_directory_snapshot(docs, errors, sources);
+        }
+        // Only the result that frees the scan slot answers the request: the
+        // staged one is half of what was asked for.
+        if result.forced && result.last {
+            self.set_status(match moved {
+                0 => "Font directory refreshed: nothing changed on disk.".to_string(),
+                1 => "Font directory refreshed: 1 file changed on disk.".to_string(),
+                n => format!("Font directory refreshed: {n} files changed on disk."),
+            });
         }
         if let Some(listing) = result.listing {
             self.watch.hold_listing(listing);
@@ -1075,8 +1164,16 @@ impl super::UniformApp {
         if files.is_empty() && dir.is_none() {
             return;
         }
-        self.watch
-            .start_scan(ScanRequest { files, dir, forced }, ctx);
+        let cache = Arc::clone(&self.watch.dir_cache);
+        self.watch.start_scan(
+            ScanRequest {
+                files,
+                dir,
+                forced,
+                cache,
+            },
+            ctx,
+        );
     }
 
     /// Installs a directory snapshot parsed on the scan thread.
@@ -1085,23 +1182,67 @@ impl super::UniformApp {
     /// [`super::UniformApp::current_font_gen`] hashes them, and a freshly
     /// parsed document starts back at zero, which would read as "nothing
     /// changed" and rebuild nothing.
+    ///
+    /// Stepped only for a document whose *bytes* are not the ones already
+    /// installed, though. A refresh re-parses the whole directory because what
+    /// changed is exactly what is not known (`run_scan`), and stepping every
+    /// document made an F5 that found nothing cost a full resolve and font
+    /// build — 2.3 s on `font/` — for a snapshot identical to the one in hand.
+    /// A document that did not move keeps its counters verbatim, which is what
+    /// "nothing changed" has to look like downstream; anything else here would
+    /// only move the wasted rebuild rather than remove it.
+    /// Returns how many files moved: parsed differently, appeared, or went
+    /// away. That is what a refresh reports having found, and it is counted
+    /// here because this is where the comparison already happens.
     fn apply_directory_snapshot(
         &mut self,
         mut docs: Vec<Document>,
         errors: Vec<(PathBuf, String)>,
         sources: Vec<(PathBuf, Vec<u8>)>,
-    ) {
+    ) -> usize {
+        // Hashed once per file here rather than per document below; the same
+        // hash `install_font_snapshot` records for the sources it installs.
+        let scanned: HashMap<&Path, u64> = sources
+            .iter()
+            .map(|(path, bytes)| (path.as_path(), hash_bytes(bytes)))
+            .collect();
+        // A file the previous snapshot had and this one does not: gone from
+        // the directory, and a change of its own.
+        let mut moved = self
+            .font_base_docs
+            .iter()
+            .filter(|previous| !docs.iter().any(|doc| doc.path == previous.path))
+            .count();
         for doc in &mut docs {
-            let (edit_gen, content_gen) = self
-                .font_base_docs
-                .iter()
-                .find(|d| d.path == doc.path)
-                .map(|d| (d.edit_gen, d.content_gen))
-                .unwrap_or((0, 0));
-            doc.edit_gen = edit_gen.wrapping_add(1);
-            doc.content_gen = content_gen.wrapping_add(1);
+            let previous = self.font_base_docs.iter().find(|d| d.path == doc.path);
+            let unchanged = scanned.get(doc.path.as_path()).is_some_and(|hash| {
+                self.font_sources
+                    .get(&doc.path)
+                    .is_some_and(|source| source.hash == *hash)
+            });
+            if !unchanged {
+                moved += 1;
+            }
+            let Some(previous) = previous else {
+                // A file that was not in the snapshot is a change by itself.
+                doc.edit_gen = 1;
+                doc.content_gen = 1;
+                continue;
+            };
+            if unchanged {
+                doc.edit_gen = previous.edit_gen;
+                doc.content_gen = previous.content_gen;
+                // Not derived from the text, so it cannot be reparsed back:
+                // carried, or a document that nothing changed would still
+                // hash differently.
+                doc.pixel_gen = previous.pixel_gen;
+                continue;
+            }
+            doc.edit_gen = previous.edit_gen.wrapping_add(1);
+            doc.content_gen = previous.content_gen.wrapping_add(1);
         }
         self.install_font_snapshot(docs, errors, sources);
+        moved
     }
 
     /// Says what a change to a file no pane was showing did, now that a pane
@@ -1311,6 +1452,7 @@ mod tests {
                 ],
                 dir: Some(dir.clone()),
                 forced: false,
+                cache: Arc::new(Mutex::new(DirCache::new())),
             },
             &tx,
             &egui::Context::default(),
@@ -1407,6 +1549,7 @@ mod tests {
                 files: vec![(open.clone(), Some(0))],
                 dir: Some(dir.clone()),
                 forced: true,
+                cache: Arc::new(Mutex::new(DirCache::new())),
             },
             &tx,
             &egui::Context::default(),
@@ -1610,5 +1753,105 @@ mod tests {
             Duration::from_millis(MAX_POLL_MS),
             "and never past the cap: a directory looked at once a minute is still watched"
         );
+    }
+
+    /// A refresh re-parses the whole directory, and installing that snapshot
+    /// used to step *every* document's generation — so an F5 that found
+    /// nothing still rebuilt the whole font (on `font/` a 1.2 s resolve and a
+    /// 1.1 s build) for a snapshot identical to the one in hand. A document
+    /// whose bytes are the ones already installed keeps its generations, so
+    /// nothing downstream reads it as changed; one whose bytes moved steps
+    /// them as before.
+    #[test]
+    fn a_snapshot_that_matches_what_is_in_hand_rebuilds_nothing() {
+        let dir = std::env::temp_dir().join(format!("uniform-snapshot-gen-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("a.unf"), "glyph a 2 2\n@@\n.@\n").unwrap();
+        std::fs::write(dir.join("b.unf"), "glyph b 2 2\n@@\n@.\n").unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app =
+            super::super::UniformApp::with_settings(&ctx, Default::default(), Some(dir.clone()));
+        assert_eq!(app.font_base_docs.len(), 2);
+        let before = app.current_font_gen();
+
+        let (docs, errors, sources) =
+            crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+        app.apply_directory_snapshot(docs, errors, sources);
+        assert_eq!(
+            app.current_font_gen(),
+            before,
+            "a refresh that found nothing must not look like an edit"
+        );
+
+        std::fs::write(dir.join("b.unf"), "glyph b 2 2\n@@\n@@\n").unwrap();
+        let (docs, errors, sources) =
+            crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+        app.apply_directory_snapshot(docs, errors, sources);
+        assert_ne!(
+            app.current_font_gen(),
+            before,
+            "and one that found a change still rebuilds"
+        );
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// F5 over a share is seconds of work with nothing on screen to say so,
+    /// and a request that arrives while a scan is running waits without a
+    /// word. The status line says which of the two happened, and what the
+    /// refresh found once it lands.
+    #[test]
+    fn a_refresh_says_so_in_the_status_line() {
+        let dir =
+            std::env::temp_dir().join(format!("uniform-refresh-status-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("a.unf"), "glyph a 2 2\n@@\n.@\n").unwrap();
+
+        let ctx = egui::Context::default();
+        let mut app =
+            super::super::UniformApp::with_settings(&ctx, Default::default(), Some(dir.clone()));
+
+        app.request_filesystem_refresh(&ctx);
+        let (msg, _) = app.status_message.clone().expect("a refresh says so");
+        assert!(msg.contains("Refreshing"), "{msg:?}");
+
+        // A second request while the first is still out waits for it, and says
+        // that rather than repeating the first message.
+        app.watch.scanning = true;
+        app.request_filesystem_refresh(&ctx);
+        let (msg, _) = app
+            .status_message
+            .clone()
+            .expect("a queued refresh says so");
+        assert!(msg.contains("waits"), "{msg:?}");
+        app.watch.scanning = false;
+
+        // What it found: the snapshot is the one already installed.
+        let (docs, errors, sources) =
+            crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+        assert_eq!(app.apply_directory_snapshot(docs, errors, sources), 0);
+
+        std::fs::write(dir.join("b.unf"), "glyph b 2 2\n@@\n@.\n").unwrap();
+        let (docs, errors, sources) =
+            crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+        assert_eq!(
+            app.apply_directory_snapshot(docs, errors, sources),
+            1,
+            "the file that appeared is what moved"
+        );
+
+        std::fs::remove_file(dir.join("b.unf")).unwrap();
+        let (docs, errors, sources) =
+            crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+        assert_eq!(
+            app.apply_directory_snapshot(docs, errors, sources),
+            1,
+            "and so is the one that went away"
+        );
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

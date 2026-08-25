@@ -989,3 +989,73 @@ fn gasp_asks_for_grid_fitting_and_grayscale_at_every_size() {
         "one range covering every size, with all four behaviour bits set"
     );
 }
+
+/// A refresh re-reads the whole directory, and on a share every file in it is
+/// a round trip. A file whose size and mtime are the ones the last load
+/// recorded is served from the cache instead — read *and* parse skipped —
+/// which is what changing the bytes underneath without letting the stamp move
+/// proves: the load still reports what it had. The stamp is the same pair the
+/// polling watcher decides on (`app::watch::poll_snapshot`), so a refresh
+/// trusts exactly what the watch already trusts.
+#[test]
+fn a_cached_load_skips_a_file_whose_stamp_did_not_move() {
+    let dir = std::env::temp_dir().join(format!(
+        "uniform-dircache-{}-{:?}",
+        std::process::id(),
+        std::thread::current().id()
+    ));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).expect("temp dir");
+
+    let a = dir.join("a.unf");
+    let b = dir.join("b.unf");
+    std::fs::write(&a, "glyph aaa 2 2\n@@\n.@\n").unwrap();
+    std::fs::write(&b, "glyph bbb 2 2\n@@\n@.\n").unwrap();
+
+    let mut cache = DirCache::new();
+    let (docs, errors, sources) = load_docs_from_directory_cached(&dir, &mut cache);
+    assert_eq!(docs.len(), 2);
+    assert!(errors.is_empty(), "{errors:?}");
+    let stamp = std::fs::metadata(&a).unwrap().modified().unwrap();
+
+    // Same length, different bytes, same mtime: nothing the stamp can see.
+    std::fs::write(&a, "glyph zzz 2 2\n@@\n.@\n").unwrap();
+    std::fs::File::options()
+        .write(true)
+        .open(&a)
+        .unwrap()
+        .set_modified(stamp)
+        .unwrap();
+
+    let (docs, _, sources_again) = load_docs_from_directory_cached(&dir, &mut cache);
+    assert_eq!(docs.len(), 2);
+    assert_eq!(
+        sources_again[0].1, sources[0].1,
+        "the unchanged file was not read again"
+    );
+
+    // A change the stamp does see — the length moved — is read and parsed.
+    std::fs::write(&b, "glyph bbb 3 2\n@@@@\n@...\n").unwrap();
+    let (docs, _, sources_third) = load_docs_from_directory_cached(&dir, &mut cache);
+    assert_eq!(docs.len(), 2);
+    assert_eq!(sources_third[1].1, std::fs::read(&b).unwrap());
+
+    // A file added and one taken away: the cache is the directory's, not a
+    // pile of everything ever seen.
+    std::fs::remove_file(&b).unwrap();
+    std::fs::write(dir.join("c.unf"), "glyph ccc 2 2\n@@\n@@\n").unwrap();
+    let (docs, _, sources_fourth) = load_docs_from_directory_cached(&dir, &mut cache);
+    let names: Vec<String> = sources_fourth
+        .iter()
+        .map(|(p, _)| p.file_name().unwrap().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(names, ["a.unf", "c.unf"]);
+    assert_eq!(docs.len(), 2);
+    assert_eq!(cache.len(), 2, "the file that is gone is not kept");
+
+    // An uncached load is the same load: it reads what is actually there.
+    let (_, _, fresh) = load_docs_from_directory_with_sources(&dir);
+    assert_eq!(fresh[0].1, std::fs::read(&a).unwrap());
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

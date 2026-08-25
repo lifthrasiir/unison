@@ -934,10 +934,10 @@ impl UniformApp {
 
         // The scan itself is started by `pump_file_watch`, which has already
         // run this frame — so a refresh asked for through the menu begins on
-        // the next one, and the repaint is what brings it.
+        // the next one, and the repaint `request_filesystem_refresh` asks for
+        // is what brings it.
         if menu.refresh_fs {
-            self.watch.request_refresh();
-            ctx.request_repaint();
+            self.request_filesystem_refresh(ctx);
         }
 
         if menu.open_folder
@@ -957,8 +957,9 @@ impl UniformApp {
             self.search = None;
             self.sidebar.set_directory(&dir);
             self.watch.set_directory(&dir, ctx);
-            let (base_docs, parse_errors, sources) =
-                crate::render::ttf_builder::load_docs_from_directory_with_sources(&dir);
+            // Through the watch's (just cleared) cache, so the first refresh
+            // in this folder compares against what was read here.
+            let (base_docs, parse_errors, sources) = self.watch.load_directory(&dir);
             self.install_font_snapshot(base_docs, parse_errors, sources);
             // The faces of the old folder mean nothing in the new one. This
             // folder's own last face is applied straight away, from a scan of
