@@ -70,7 +70,7 @@ glyph han-2aae7:15x16 15 16 // 𪫧
 ⿰ han-5fc4:5x16 han-53ef:10x16 // ⿰忄可
 
 glyph han-2aae9:15x16 15 16 // 𪫩
-⿱ 1 han-76ee:15x7 1 han-5fc3:15x6 // ⿱目心
+⿱ han-76ee:15x9 1 han-5fc3:15x6 // ⿱目心
 
 ## 61.6
 
@@ -85,6 +85,19 @@ glyph han-2aae9:15x16 15 16 // 𪫩
 
 // glyph han-2aaf3:15x16 15 16 // 𪫳
 // ⿱ han-8863 han-5fc3 // ⿱衣心
+
+## 61.7
+
+// glyph han-2aafb:15x16 15 16 // 𪫻
+// ⿰ han-5fc4 han-5b8c // ⿰忄完
+
+## 61.8
+
+// glyph han-2ab03:15x16 15 16 // 𪬃
+// ⿰ han-5fc4 han-5b9c // ⿰忄宜
+
+// glyph han-2ab05:15x16 15 16 // 𪬅
+// ⿳ han-5b80 han-77f3 han-5fc3 // ⿳宀石心 <- ⿱宕心
 
 ## 61.9
 

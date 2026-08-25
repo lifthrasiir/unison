@@ -3,7 +3,7 @@
 ## 173.4
 
 glyph han-4a0c:15x16 15 16 // 䨌
-⿱ -1 han-96e8:15x7 1 han-5143:15x9 // ⿱雨元
+⿱ han-96e8:15x7 1 han-5143:15x8 // ⿱雨元
 
 ## 173.6
 
@@ -13,7 +13,7 @@ glyph han-4a0c:15x16 15 16 // 䨌
 ## 173.7
 
 glyph han-4a18:15x16 15 16 // 䨘
-⿳ -4 han-96e8:15x7 1 han-76ee:15x7 han-513f:15x5 // ⿳雨目儿
+⿳ -3 han-96e8:15x7 1 han-76ee:15x7 han-513f:15x4 // ⿳雨目儿
 
 ## 173.8
 
@@ -295,6 +295,9 @@ glyph han-4bd3:15x16 15 16 // 䯓
 
 glyph han-4bd6:15x16 15 16 // 䯖
 ⿰ han-9aa8:7x16 1 han-826f:7x16 // ⿰骨良
+
+// glyph han-4bd8:15x16 15 16 // 䯘
+// ⿰ han-9aa8 han-5b8c // ⿰骨完
 
 glyph han-4bd9:15x16 15 16 // 䯙
 ⿰ han-9aa8:7x16 1 han-752b:7x16 // ⿰骨甫

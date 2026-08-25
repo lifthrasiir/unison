@@ -65,6 +65,9 @@ glyph han-29d7a:15x16 15 16 // 𩵺
 
 ## 195.5
 
+// glyph han-29d82:15x16 15 16 // 𩶂
+// ⿰ han-9b5a han-5b81 // ⿰魚宁
+
 glyph han-29d85:15x16 15 16 // 𩶅
 ⿰ han-9b5a:7x16 han-6c10:8x16 // ⿰魚氐
 
@@ -154,6 +157,9 @@ glyph han-29e09:15x16 15 16 // 𩸉
 
 glyph han-29e25:15x16 15 16 // 𩸥
 ⿰ han-9b5a:7x16 1 han-708e:7x16 // ⿰魚炎
+
+// glyph han-29e28:15x16 15 16 // 𩸨
+// ⿰ han-9b5a han-5b9c // ⿰魚宜
 
 // glyph han-29e31:15x16 15 16 // 𩸱
 // ⿰ han-9b5a han-91d1 // ⿰魚金

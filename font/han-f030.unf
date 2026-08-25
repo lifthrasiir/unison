@@ -358,3 +358,11 @@ glyph han-2d485:15x16 15 16 // 𭒅
 
 glyph han-2d49f:15x16 15 16 // 𭒟
 ⿲ -2 han-5973:5x16-l han-7cf9:5x16 han-81f3:7x16 // ⿲女糹至
+
+## 38.17
+
+// glyph han-2d4b1:15x16 15 16 // 𭒱
+// ⿳ han-8ccf han-5b80 han-5973 // ⿳賏宀女 <- ⿱賏安
+
+// glyph han-2d4b2:15x16 15 16 // 𭒲
+// ⿳ han-5b80 han-8ccf han-5973 // ⿳宀賏女 <- ⿱宀嬰

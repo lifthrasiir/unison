@@ -53,7 +53,7 @@ glyph han-225c4:15x16 15 16 // 𢗄
 // ⿱ han-6c34 han-5fc3 // ⿱水心
 
 glyph han-225ed:15x16 15 16 // 𢗭
-⿱ 1 han-65e5:15x7 1 han-5fc3:15x6 // ⿱日心
+⿱ han-65e5:15x11 han-5fc3:15x5 // ⿱日心
 
 // glyph han-225ef:15x16 15 16 // 𢗯
 // ⿱ han-6708 han-5fc3 // ⿱月心
@@ -70,16 +70,16 @@ glyph han-225ed:15x16 15 16 // 𢗭
 // glyph han-225f9:15x16 15 16 // 𢗹
 // ⿱ han-65a4 han-5fc3 // ⿱斤心
 
-// glyph han-225fb:15x16 15 16 // 𢗻
-// ⿱ han-516d han-5fc3 // ⿱六心
+glyph han-225fb:15x16 15 16 // 𢗻
+⿱ 1 han-516d:15x7 1 han-5fc3:15x6 // ⿱六心
 
 ## 61.5
 
 // glyph han-22602:15x16 15 16 // 𢘂
 // ⿱ han-36a2 han-5fc3 // ⿱㚢心
 
-// glyph han-22607:15x16 15 16 // 𢘇
-// ⿳ han-65e5 han-4e00 han-5fc3 // ⿳日一心 <- ⿱旦心
+glyph han-22607:15x16 15 16 // 𢘇
+⿱ han-65e6:15x11 han-5fc3:15x5 // ⿱旦心
 
 glyph han-22609:15x16 15 16 // 𢘉
 ⿰ han-5fc4:5x16 1 han-7532:9x16 // ⿰忄甲
@@ -97,7 +97,7 @@ glyph han-22623:15x16 15 16 // 𢘣
 ⿱ han-767d:15x9 1 han-5fc3:15x6 // ⿱白心
 
 glyph han-2262b:15x16 15 16 // 𢘫
-⿱ han-6b63:15x8 1 han-5fc3:15x6 // ⿱正心
+⿱ han-6b63:15x9 1 han-5fc3:15x6 // ⿱正心
 
 // glyph han-22632:15x16 15 16 // 𢘲
 // ⿱ han-592e han-5fc3 // ⿱央心
@@ -146,7 +146,7 @@ glyph han-22658:15x16 15 16 // 𢙘
 ## 61.7
 
 glyph han-22676:15x16 15 16 // 𢙶
-⿳ -1 han-65e5:15x5 1 han-5e72:15x5 han-5fc3:15x6 // ⿳日干心
+⿳ han-65e5:15x5 1 han-5e72:15x5 han-5fc3:15x5 // ⿳日干心
 
 glyph han-22679:15x16 15 16 // 𢙹
 ⿲ han-5fc4:5x16 han-72ad:4x16 1 han-706b:5x16 // ⿲忄犭火
@@ -168,6 +168,9 @@ glyph han-22686:15x16 15 16 // 𢚆
 
 // glyph han-2269b:15x16 15 16 // 𢚛
 // ⿰ han-5fc4 han-514b // ⿰忄克
+
+// glyph han-226a0:15x16 15 16 // 𢚠
+// ⿳ han-5b80 han-6728 han-5fc3 // ⿳宀木心 <- ⿱宋心
 
 // glyph han-226a4:15x16 15 16 // 𢚤
 // ⿱ han-2ac73 han-5fc3 // ⿱𪱳心
@@ -199,7 +202,7 @@ glyph han-226b7:15x16 15 16 // 𢚷
 // ⿱ han-6797 han-5fc3 // ⿱林心
 
 glyph han-226dd:15x16 15 16 // 𢛝
-⿳ -1 han-65e5:15x5 1 han-65e5:15x5 han-5fc3:15x6 // ⿳日日心
+⿳ han-65e5:15x5 1 han-65e5:15x5 han-5fc3:15x5 // ⿳日日心
 
 glyph han-226de:15x16 15 16 // 𢛞
 ⿰ han-5fc4:7x16 han-5351:8x16 // ⿰忄卑
@@ -218,6 +221,9 @@ glyph han-226fa:15x16 15 16 // 𢛺
 
 // glyph han-22703:15x16 15 16 // 𢜃
 // ⿱ han-6cbd han-5fc3 // ⿱沽心
+
+glyph han-22707:15x16 15 16 // 𢜇
+⿳ han-5b80:15x4 han-76ee:15x7 han-5fc3:15x5 // ⿳宀目心
 
 // glyph han-22708:15x16 15 16 // 𢜈
 // ⿱ han-73a8 han-5fc3 // ⿱玨心
@@ -254,6 +260,12 @@ glyph han-22727:15x16 15 16 // 𢜧
 // glyph han-22728:15x16 15 16 // 𢜨
 // ⿳ han-4e16 han-6728 han-5fc3 // ⿳世木心 <- ⿱枼心
 
+// glyph han-22740:15x16 15 16 // 𢝀
+// ⿰ han-5fc4 han-7a81 // ⿰忄突
+
+// glyph han-22749:15x16 15 16 // 𢝉
+// ⿰ han-5fc4 han-8037 // ⿰忄耷
+
 // glyph han-2274a:15x16 15 16 // 𢝊
 // ⿱ han-9801 han-5fc3 // ⿱頁心
 
@@ -267,7 +279,7 @@ glyph han-2275e:15x16 15 16 // 𢝞
 ⿲ han-5fc4:5x16 han-8033:6x16 han-961d:4x16-r // ⿲忄耳阝
 
 glyph han-22768:15x16 15 16 // 𢝨
-⿳ -2 han-8279:15x3 han-53e4:15x9 han-5fc3:15x6 // ⿳艹古心
+⿳ han-8279:15x3 han-53e4:15x8 han-5fc3:15x5 // ⿳艹古心
 
 // glyph han-2276c:15x16 15 16 // 𢝬
 // ⿱ han-8005 han-5fc3 // ⿱者心
@@ -309,6 +321,9 @@ glyph han-227d1:15x16 15 16 // 𢟑
 
 ## 61.11
 
+// glyph han-227eb:15x16 15 16 // 𢟫
+// ⿰ han-5fc4 han-3760 // ⿰忄㝠
+
 // glyph han-227fd:15x16 15 16 // 𢟽
 // ⿱ han-83ab han-5fc3 // ⿱莫心
 
@@ -320,6 +335,9 @@ glyph han-22810:15x16 15 16 // 𢠐
 
 // glyph han-2281e:15x16 15 16 // 𢠞
 // ⿳ han-8278 han-7530 han-5fc3 // ⿳艸田心 <- ⿱艸思
+
+// glyph han-22821:15x16 15 16 // 𢠡
+// ⿰ han-5fc4 han-21a3c // ⿰忄𡨼
 
 glyph han-2282f:15x16 15 16 // 𢠯
 ⿲ -2 han-5fc4:5x16 han-826f:7x16 han-6708:5x16 // ⿲忄良月

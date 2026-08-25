@@ -20,6 +20,9 @@
 glyph han-319a7:15x16 15 16 // 𱦧
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-76ae:9x16 // ⿲氵亻皮
 
+// glyph han-319ac:15x16 15 16 // 𱦬
+// ⿰ han-6c35 han-2bcba // ⿰氵𫲺
+
 ## 85.8
 
 glyph han-319b7:15x16 15 16 // 𱦷
@@ -203,6 +206,9 @@ glyph han-31cb3:15x16 15 16 // 𱲳
 // ⿰ han-76ee han-8db3 // ⿰目足
 
 ## 109.13
+
+// glyph han-31ccc:15x16 15 16 // 𱳌
+// ⿳ han-4020 han-5b82 han-53e3 // ⿳䀠宂口
 
 glyph han-31ccd:15x16 15 16 // 𱳍
 ⿲ -1 han-76ee:3x16-l 1 han-27fb7:5x16 han-5404:7x16 // ⿲目𧾷各

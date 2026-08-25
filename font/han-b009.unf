@@ -50,6 +50,9 @@ glyph han-201fa:15x16 15 16 // 𠇺
 // glyph han-20284:15x16 15 16 // 𠊄
 // ⿰ han-4ebb han-91d1 // ⿰亻金
 
+// glyph han-20299:15x16 15 16 // 𠊙
+// ⿰ han-4ebb han-5b9c // ⿰亻宜
+
 glyph han-2029c:15x16 15 16 // 𠊜
 ⿲ han-4ebb:3x16 han-5973:5x16 han-77f3:7x16 // ⿲亻女石
 
@@ -60,6 +63,9 @@ glyph han-2029c:15x16 15 16 // 𠊜
 // ⿲ han-4ebb han-6c34 han-6c34 // ⿲亻水水 <- ⿰亻沝
 
 ## 9.9
+
+// glyph han-202b2:15x16 15 16 // 𠊲
+// ⿰ han-4ebb han-7a81 // ⿰亻突
 
 glyph han-202c7:15x16 15 16 // 𠋇
 ⿲ han-4ebb:3x16 han-7c73:5x16 han-961d:7x16-r // ⿲亻米阝
@@ -112,6 +118,9 @@ glyph han-203e0:15x16 15 16 // 𠏠
 ⿲ han-4ebb:3x16 han-27fb7:5x16 han-572d:7x16 // ⿲亻𧾷圭
 
 ## 9.14
+
+// glyph han-20405:15x16 15 16 // 𠐅
+// ⿲ han-4ebb han-8033 han-5b9c // ⿲亻耳宜 <- ⿰亻𦖑
 
 glyph han-20406:15x16 15 16 // 𠐆
 ⿲ -1 han-4ebb:3x16 han-7968:7x16 han-5bf8:6x16 // ⿲亻票寸

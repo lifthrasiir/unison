@@ -89,6 +89,9 @@ glyph han-298eb:15x16 15 16 // 𩣫
 glyph han-2990f:15x16 15 16 // 𩤏
 ⿰ han-99ac:7x16 1 han-5352:7x16 // ⿰馬卒
 
+// glyph han-29912:15x16 15 16 // 𩤒
+// ⿰ han-99ac han-5b9c // ⿰馬宜
+
 ## 187.9
 
 glyph han-2991c-($han-regions):15x16 15 16 // 𩤜

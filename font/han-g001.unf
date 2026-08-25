@@ -135,6 +135,11 @@ glyph han-3011c:15x16 15 16 // 𰄜
 // glyph han-3014d:15x16 15 16 // 𰅍
 // ⿰ han-5939 han-529b // ⿰夹力
 
+## 19.13
+
+// glyph han-30158:15x16 15 16 // 𰅘
+// ⿳ han-52a9 han-5b80 han-793a // ⿳助宀示 <- ⿱助宗
+
 # CJK unified ideographs extension G: 勹 (20)
 
 ## 20.12
@@ -203,6 +208,11 @@ glyph han-3020b:15x16 15 16 // 𰈋
 
 // glyph han-30212:15x16 15 16 // 𰈒
 // ⿰ han-53e3 han-6067 // ⿰口恧
+
+## 30.11
+
+// glyph han-30222:15x16 15 16 // 𰈢
+// ⿰ han-53e3 han-7b2a // ⿰口笪
 
 ## 30.13
 

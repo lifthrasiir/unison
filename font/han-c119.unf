@@ -162,10 +162,16 @@ glyph han-2b19a:15x16 15 16 // 𫆚
 // glyph han-2b206:15x16 15 16 // 𫈆
 // ⿱ han-8279 han-4f3d // ⿱艹伽
 
+// glyph han-2b20c:15x16 15 16 // 𫈌
+// ⿳ han-8279 han-5b80 han-592b // ⿳艹宀夫 <- ⿱艹𫲷
+
 ## 140.8
 
 // glyph han-2b217:15x16 15 16 // 𫈗
 // ⿳ han-8279 han-79be han-53e3 // ⿳艹禾口 <- ⿱艹㕿
+
+glyph han-2b21b:15x16 15 16 // 𫈛
+⿳ han-8279:15x3 han-5b80:15x5 -1 han-7531:15x9 // ⿳艹宀由
 
 // glyph han-2b21c:15x16 15 16 // 𫈜
 // ⿱ han-8279 han-6cb9 // ⿱艹油

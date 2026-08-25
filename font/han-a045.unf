@@ -65,6 +65,12 @@ glyph han-37d8:15x16 15 16 // 㟘
 // glyph han-37e6:15x16 15 16 // 㟦
 // ⿱ han-5c71 han-8ecd // ⿱山軍
 
+// glyph han-37ee:15x16 15 16 // 㟮
+// ⿰ han-5c71 han-7a81 // ⿰山突
+
+// glyph han-37ef:15x16 15 16 // 㟯
+// ⿳ han-5c71 han-5b80 han-5404 // ⿳山宀各 <- ⿱山客
+
 ## 46.11
 
 // glyph han-37fb:15x16 15 16 // 㟻
@@ -142,6 +148,9 @@ glyph han-390b:15x16 15 16 // 㤋
 
 glyph han-3914:15x16 15 16 // 㤔
 ⿲ han-5fc4:5x16 han-4ebb:3x16 han-5bf8:7x16 // ⿲忄亻寸
+
+// glyph han-3916:15x16 15 16 // 㤖
+// ⿰ han-5fc4 han-5b81 // ⿰忄宁
 
 ## 61.6
 
@@ -253,6 +262,9 @@ glyph han-3a0b-j:15x16 15 16 // 㨋
 // ⿰ han-624c han-594e // ⿰扌奎
 
 ## 64.11
+
+// glyph han-3a33:15x16 15 16 // 㨳
+// ⿰ han-624c han-5bc4 // ⿰扌寄
 
 glyph han-3a36:15x16 15 16 // 㨶
 ⿰ han-624c:5x16 1 han-9ce5:9x16 // ⿰扌鳥

@@ -23,7 +23,7 @@ glyph han-2646c:15x16 15 16 // 𦑬
 ## 126.6
 
 glyph han-264d4:15x16 15 16 // 𦓔
-⿱ han-800c:15x7 1 han-800c:15x7 // ⿱而而
+⿱ han-800c:15x11 han-800c:15x5 // ⿱而而
 
 # CJK unified ideographs extension B: 耳 (128)
 
@@ -110,6 +110,9 @@ glyph han-26583:15x16 15 16 // 𦖃
 glyph han-2658d:15x16 15 16 // 𦖍
 ⿰ han-8033:7x16 1 han-679c:7x16 // ⿰耳果
 
+// glyph han-26591:15x16 15 16 // 𦖑
+// ⿰ han-8033 han-5b9c // ⿰耳宜
+
 glyph han-26592:15x16 15 16 // 𦖒
 ⿰ han-8033:7x16 1 han-5352:7x16 // ⿰耳卒
 
@@ -154,6 +157,9 @@ glyph han-265d6:15x16 15 16 // 𦗖
 
 glyph han-265dd:15x16 15 16 // 𦗝
 ⿲ -2 han-8033:6x16-l han-8eca:5x16 han-65a4:6x16 // ⿲耳車斤
+
+// glyph han-265de:15x16 15 16 // 𦗞
+// ⿰ han-8033 han-5bc4 // ⿰耳寄
 
 ## 128.12
 

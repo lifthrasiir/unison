@@ -16,6 +16,11 @@ glyph han-2c353:15x16 15 16 // 𬍓
 // glyph han-2c356:15x16 15 16 // 𬍖
 // ⿰ han-248e9 han-6c34 // ⿰𤣩水
 
+## 96.5
+
+// glyph han-2c35c:15x16 15 16 // 𬍜
+// ⿰ han-248e9 han-5b81 // ⿰𤣩宁
+
 ## 96.6
 
 // glyph han-2c360:15x16 15 16 // 𬍠
@@ -55,6 +60,9 @@ glyph han-2c3c0-($han-regions):15x16 15 16 // 𬏀
 
 // glyph han-2c3c8:15x16 15 16 // 𬏈
 // ⿱ han-7530 han-753a // ⿱田町
+
+// glyph han-2c3c9:15x16 15 16 // 𬏉
+// ⿰ han-7530 han-5b8c // ⿰田完
 
 glyph han-2c3ca:15x16 15 16 // 𬏊
 ⿰ han-7530:7x16-l 1 han-826f:7x16 // ⿰田良
@@ -139,6 +147,11 @@ glyph han-2c47a:15x16 15 16 // 𬑺
 // glyph han-2c48c:15x16 15 16 // 𬒌
 // ⿱ han-77f3 han-7f8a // ⿱石羊
 
+## 112.7
+
+// glyph han-2c491:15x16 15 16 // 𬒑
+// ⿰ han-77f3 han-5b8c // ⿰石完
+
 ## 112.8
 
 // glyph han-2c492:15x16 15 16 // 𬒒
@@ -187,6 +200,9 @@ glyph han-2c4b9:15x16 15 16 // 𬒹
 glyph han-2c4c3:15x16 15 16 // 𬓃
 ⿲ han-793b:5x16 han-6708:5x16 han-6708:5x16 // ⿲礻月月
 
+// glyph han-2c4c7:15x16 15 16 // 𬓇
+// ⿰ han-793b han-5b9c // ⿰礻宜
+
 ## 113.12
 
 glyph han-2c4da:15x16 15 16 // 𬓚
@@ -204,6 +220,18 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 // glyph han-2c4f7:15x16 15 16 // 𬓷
 // ⿱ han-79dd han-7530 // ⿱秝田
 
+# CJK unified ideographs extension E: 穴 (116)
+
+## 116.4
+
+// glyph han-2c507:15x16 15 16 // 𬔇
+// ⿳ han-5b80 han-516b han-706b // ⿳宀八火 <- ⿱穴火
+
+## 116.7
+
+// glyph han-2c50b:15x16 15 16 // 𬔋
+// ⿰ han-7a81 han-4e0b // ⿰突下
+
 # CJK unified ideographs extension E: 竹 (118)
 
 ## 118.4
@@ -212,10 +240,10 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 // ⿱ han-25ad7 han-592b // ⿱𥫗夫
 
 glyph han-2c530:15x16 15 16 // 𬔰
-⿱ -1 han-25ad7:15x5 -1 han-5fc3:15x13 // ⿱𥫗心
+⿱ han-25ad7:15x5 -1 han-5fc3:15x12 // ⿱𥫗心
 
 glyph han-2c532:15x16 15 16 // 𬔲
-⿱ -1 han-25ad7:15x5 -1 han-706b:15x13 // ⿱𥫗火
+⿱ han-25ad7:15x5 -1 han-706b:15x12 // ⿱𥫗火
 
 ## 118.5
 
@@ -223,6 +251,9 @@ glyph han-2c532:15x16 15 16 // 𬔲
 // ⿱ han-25ad7 han-7389 // ⿱𥫗玉
 
 ## 118.6
+
+// glyph han-2c540:15x16 15 16 // 𬕀
+// ⿳ han-25ad7 han-5b80 han-5bf8 // ⿳𥫗宀寸 <- ⿱𥫗守
 
 // glyph han-2c541:15x16 15 16 // 𬕁
 // ⿱ han-25ad7 han-8863 // ⿱𥫗衣
@@ -236,7 +267,7 @@ glyph han-2c551:15x16 15 16 // 𬕑
 ⿳ han-25ad7:15x5 han-65e5:15x5 1 han-65e5:15x5 // ⿳𥫗日日
 
 glyph han-2c554:15x16 15 16 // 𬕔
-⿱ han-25ad7:15x5 han-670b:15x12 // ⿱𥫗朋
+⿱ han-25ad7:15x5 han-670b:15x11 // ⿱𥫗朋
 
 ## 118.9
 
@@ -361,6 +392,9 @@ glyph han-2c5d7:15x16 15 16 // 𬗗
 
 // glyph han-2c5e5:15x16 15 16 // 𬗥
 // ⿲ han-7cf9 han-5fc4 han-65e6 // ⿲糹忄旦 <- ⿰糹怛
+
+// glyph han-2c5e6:15x16 15 16 // 𬗦
+// ⿰ han-7cf9 han-5b9c // ⿰糹宜
 
 ## 120.9
 

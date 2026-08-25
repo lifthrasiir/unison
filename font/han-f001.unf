@@ -15,8 +15,8 @@ glyph han-2cec1:15x16 15 16 // 𬻁
 
 ## 1.6
 
-// glyph han-2ceca:15x16 15 16 // 𬻊
-// ⿳ han-4e00 han-5927 han-4e0b // ⿳一大下 <- ⿱天下
+glyph han-2ceca:15x16 15 16 // 𬻊
+⿱ han-5929:15x8 han-4e0b:15x8 // ⿱天下
 
 // glyph han-2cece:15x16 15 16 // 𬻎
 // ⿱ han-4e03 han-52a0 // ⿱七加
@@ -138,6 +138,9 @@ glyph han-2cf70:15x16 15 16 // 𬽰
 
 glyph han-2cf75:15x16 15 16 // 𬽵
 ⿲ han-4ebb:3x16 han-4ebb:3x16 han-5bf8:9x16 // ⿲亻亻寸
+
+// glyph han-2cf76:15x16 15 16 // 𬽶
+// ⿰ han-4ebb han-5b82 // ⿰亻宂
 
 ## 9.7
 

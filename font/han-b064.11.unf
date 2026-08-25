@@ -14,11 +14,17 @@ glyph han-22ccf:15x16 15 16 // 𢳏
 glyph han-22cdd:15x16 15 16 // 𢳝
 ⿲ han-624c:3x16 han-9769:7x16 han-529b:5x16 // ⿲扌革力
 
+// glyph han-22ce1:15x16 15 16 // 𢳡
+// ⿰ han-624c han-3760 // ⿰扌㝠
+
 glyph han-22cf6:15x16 15 16 // 𢳶
 ⿰ 1 han-624c:5x16 1 han-9b5a:7x16 // ⿰扌魚
 
 glyph han-22d06-($han-regions):15x16 15 16 // 𢴆
 ⿲ han-624c:3x16 han-6c35:3x16 han-9752-($-1):9x16 // ⿲扌氵青
+
+// glyph han-22d08:15x16 15 16 // 𢴈
+// ⿰ han-624c han-7b2a // ⿰扌笪
 
 glyph han-22d17:15x16 15 16 // 𢴗
 ⿲ han-624c:3x16 han-6c35:3x16 han-708e:9x16 // ⿲扌氵炎

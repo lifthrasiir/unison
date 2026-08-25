@@ -108,6 +108,11 @@
 
 # CJK unified ideographs extension I: 水 (85)
 
+## 85.7
+
+// glyph han-2ecc7:15x16 15 16 // 𮳇
+// ⿰ han-6c35 han-707e // ⿰氵灾
+
 ## 85.8
 
 glyph han-2ecca:15x16 15 16 // 𮳊
@@ -216,12 +221,15 @@ glyph han-2ed44:15x16 15 16 // 𮵄
 ## 118.4
 
 glyph han-2ed6c:15x16 15 16 // 𮵬
-⿱ han-25ad7:15x5 han-738b:15x12 // ⿱𥫗王
+⿱ han-25ad7:15x5 han-738b:15x11 // ⿱𥫗王
 
 ## 118.8
 
 glyph han-2ed75:15x16 15 16 // 𮵵
 ⿳ han-25ad7:15x5 -1 han-5927:15x5 han-7530:15x7 // ⿳𥫗大田
+
+// glyph han-2ed76:15x16 15 16 // 𮵶
+// ⿳ han-25ad7 han-5b80 han-7389 // ⿳𥫗宀玉 <- ⿱𥫗宝
 
 ## 118.12
 

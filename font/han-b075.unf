@@ -93,6 +93,9 @@ glyph han-2343e:15x16 15 16 // 𣐾
 // glyph han-23447:15x16 15 16 // 𣑇
 // ⿱ han-6728 han-7cf8 // ⿱木糸
 
+// glyph han-23452:15x16 15 16 // 𣑒
+// ⿰ han-6728 han-7a75 // ⿰木穵
+
 // glyph han-23453:15x16 15 16 // 𣑓
 // ⿲ han-6728 han-5de5 han-5bf8 // ⿲木工寸
 
@@ -211,6 +214,9 @@ glyph han-23527:15x16 15 16 // 𣔧
 
 // glyph han-2353a:15x16 15 16 // 𣔺
 // ⿰ han-6728 han-5192 // ⿰木冒
+
+// glyph han-2353b:15x16 15 16 // 𣔻
+// ⿰ han-6728 han-7a81 // ⿰木突
 
 // glyph han-2353c:15x16 15 16 // 𣔼
 // ⿰ han-6728 han-7aff // ⿰木竿

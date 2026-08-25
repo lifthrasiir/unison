@@ -316,6 +316,9 @@ glyph han-92c3:15x16 15 16 // 鋃
 glyph han-92c7:15x16 15 16 // 鋇
 ⿰ han-91d2:7x16 han-8c9d:8x16 // ⿰釒貝
 
+// glyph han-92ce:15x16 15 16 // 鋎
+// ⿰ han-91d2 han-5b8c // ⿰釒完
+
 glyph han-92d1:15x16 15 16 // 鋑
 ⿰ han-91d2:7x16 1 han-590b:7x16 // ⿰釒夋
 

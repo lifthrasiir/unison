@@ -70,6 +70,9 @@ glyph han-25fd8:15x16 15 16 // 𥿘
 // glyph han-25ff6:15x16 15 16 // 𥿶
 // ⿰ han-7cf9 han-800c // ⿰糹而
 
+// glyph han-26000:15x16 15 16 // 𦀀
+// ⿳ han-5b80 han-5973 han-7cf8 // ⿳宀女糸 <- ⿱安糸
+
 glyph han-2600c:15x16 15 16 // 𦀌
 ⿲ han-7cf9:5x16 han-5973:5x16 1 han-53e3:4x16 // ⿲糹女口
 
@@ -116,6 +119,9 @@ glyph han-26040:15x16 15 16 // 𦁀
 // glyph han-26054:15x16 15 16 // 𦁔
 // ⿰ han-7cf9 han-3901 // ⿰糹㤁
 
+// glyph han-26056:15x16 15 16 // 𦁖
+// ⿰ han-7cf9 han-5b99 // ⿰糹宙
+
 // glyph han-2605e:15x16 15 16 // 𦁞
 // ⿳ han-5fc3 han-5fc3 han-7cf8 // ⿳心心糸
 
@@ -156,6 +162,9 @@ glyph han-260ab:15x16 15 16 // 𦂫
 
 // glyph han-260ad:15x16 15 16 // 𦂭
 // ⿰ han-7cf9 han-82db // ⿰糹苛
+
+// glyph han-260bd:15x16 15 16 // 𦂽
+// ⿰ han-7cf9 han-7a81 // ⿰糹突
 
 ## 120.10
 
