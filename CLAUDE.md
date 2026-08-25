@@ -329,7 +329,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Which flags a box drag writes, and why a vertical one states the height | `editor/glyph_resize.rs` (`boxed_for`), `document_io.rs` (`replace_glyph_box_flags`) |
 | Which `ref` a resize may rewrite: named outright, and not anchor-placed | `editor/glyph_resize.rs`, `ref_composite/anchors.rs` (`DeriveOutcome::anchor_placed`) |
 | Inlining a `ref` one level (`Inline once`) vs. flattening it to pixels | `editor/document_view/changes.rs` (`inline_ref_once`), `ref_composite/mod.rs` (`InlineSource`) |
-| On-demand glyph names, `BitmapFill`, circles and polygons | `on_demand.rs` |
+| On-demand glyph names, `BitmapFill`, circles, polygons and shears | `on_demand.rs` |
 | Which on-demand grids are remembered between builds, and why the line is not drawn at the shape | `on_demand.rs` (`make_on_demand_grid`) |
 | `glyph … desync`: a grid the bitmap face draws and the vector face ignores | `render/ttf_builder/mod.rs`, `ref_composite/mod.rs` (`ResolvedGlyph`) |
 | Why the view synthesizes an on-demand ref instead of waiting for the resolve | `ref_composite/mod.rs` (`resolve_ref_name_for_view`) |

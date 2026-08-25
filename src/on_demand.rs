@@ -11,6 +11,8 @@
 //! - the box with `-circle` — the ellipse inscribed in it.
 //! - the box with `-polyN[.MMM|rK][-cwR|-ccwR]` — a regular N-gon or a star
 //!   inscribed in that ellipse.
+//! - the box with `-xsN`/`-xzN`/`-ysN`/`-yzN` — the parallelogram whose two
+//!   sheared edges sit `N` apart. See [`ShearSpec`].
 //! - any of those with a trailing `:ceil`/`:floor`/`:zero` — the
 //!   [`BitmapFill`] rule.
 //! - `X` where `X` is undefined but both `X:mono` and `X:color` exist — picks
@@ -30,6 +32,19 @@
 //! the sign on that dimension is what says where the leftover gap falls — at
 //! the far end (no sign), at the near end (`-`) or split between the two (`_`).
 //! The box is anchored to integer coordinates the same way for every shape.
+//!
+//! A shear leans the same way: the box stays `ceil(W) × ceil(H)` and the
+//! parallelogram is inscribed in it, so `WxH-xsN` is a rectangle of
+//! `(W - N) × H` with its two horizontal edges slid `N` apart, rather than a
+//! `W × H` one sheared until it overhangs. `N` is therefore a *length* on the
+//! same lattice as the box — the offset between the two edges, which is what
+//! one looks at when drawing a stroke — and not the slope, which would put
+//! every useful value below 1. The box a name states is what every reader of
+//! it — the `:WxH-l` variant rule, the autocompletion of an IDC slot,
+//! `declared_box`, the clearance an `InkProfile` measures — takes for the
+//! glyph's size, and a shape that grew past its own name would be wrong for
+//! all of them. A shear that eats the whole dimension (`N >= W`) encloses
+//! nothing and is not a name at all, like a zero-width box.
 //!
 //! # Circles and polygons live in a square box first
 //!
@@ -62,6 +77,9 @@
 //! normalizes to 100/360 mod 1/7 of a turn, which no decimal degree spells.
 //! `rK` does *not* normalize into `.MMM`: its inner radius is irrational, so
 //! `poly5r2` and `poly5.528` are near-identical but genuinely distinct shapes.
+//! A shear normalizes the other way round: `-xs0` and its three siblings all
+//! mean the plain rectangle, and parse to [`OnDemandShape::Rect`] so that the
+//! rectangle keeps one spelling in the cache and in every match on the shape.
 //!
 //! Equal specs are the cache key for [`make_on_demand_grid`], which memoizes
 //! the curved shapes — they cost a per-cell exact clip, unlike a rectangle.
@@ -163,6 +181,38 @@ impl PolySpec {
     }
 }
 
+/// Which coordinate a shear displaces, and so which pair of the box's edges
+/// slides apart.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum ShearAxis {
+    /// `xs`/`xz`: x is displaced along y, and the horizontal edges slide.
+    X,
+    /// `ys`/`yz`: y is displaced along x, and the vertical edges do.
+    Y,
+}
+
+/// A shear, normalized: `num` is never zero, because a name that writes a zero
+/// displacement is [`OnDemandShape::Rect`] instead.
+///
+/// The displacement is a length, not a slope: `8x4-xs1` slides the two
+/// horizontal edges one pixel apart, whatever the four rows between them do.
+///
+/// The letter is the direction: `s` for the way a slash leans, `z` for its
+/// mirror. On the y axis that is still read on screen — `ys` puts the left
+/// edge low and the right edge high, which leans like a slash just as `xs`
+/// does — rather than being the sign of the matrix entry, which the two axes
+/// would disagree about.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct ShearSpec {
+    pub axis: ShearAxis,
+    /// `z` rather than `s`: the shape leans like an antidiagonal.
+    pub anti: bool,
+    /// How far apart the two sheared edges sit, in subcells of the box's own
+    /// [`OnDemandBox::scale`] — a length on the same lattice as the box, and
+    /// always below the dimension it is taken out of.
+    pub num: u16,
+}
+
 /// What is drawn inside the declared box.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum OnDemandShape {
@@ -175,6 +225,10 @@ pub enum OnDemandShape {
     Circle,
     /// A regular polygon or star inscribed in that ellipse (`-polyN…`).
     Poly(PolySpec),
+    /// The parallelogram a shear inscribes in the box (`-xsN`/`-xzN`/`-ysN`/
+    /// `-yzN`): the box's rectangle, shortened on the sheared axis by `N` and
+    /// its two remaining edges slid `N` apart.
+    Shear(ShearSpec),
 }
 
 /// How a shape's exact coverage of a *logical* pixel is rounded into that
@@ -280,6 +334,21 @@ struct BoxDim {
     detail: Option<(u8, u8)>,
 }
 
+/// The optional `pBrR` tail of a written number: a box dimension's fraction,
+/// and a shear amount's, which are one lattice and so one spelling.
+fn take_detail(s: &str) -> Option<(Option<(u8, u8)>, &str)> {
+    let Some(s) = s.strip_prefix('p') else {
+        return Some((None, s));
+    };
+    let (frac, s) = take_uint(s)?;
+    let s = s.strip_prefix('r')?;
+    let (scale, s) = take_uint(s)?;
+    Some((
+        Some((u8::try_from(frac).ok()?, u8::try_from(scale).ok()?)),
+        s,
+    ))
+}
+
 fn take_box_dim(s: &str) -> Option<(BoxDim, &str)> {
     let (align, s) = match s.as_bytes().first() {
         Some(b'-') => (BoxAlign::Far, &s[1..]),
@@ -288,24 +357,12 @@ fn take_box_dim(s: &str) -> Option<(BoxDim, &str)> {
     };
     let (base, s) = take_uint(s)?;
     let base = u8::try_from(base).ok()?;
-    let Some(s) = s.strip_prefix('p') else {
-        return Some((
-            BoxDim {
-                align,
-                base,
-                detail: None,
-            },
-            s,
-        ));
-    };
-    let (frac, s) = take_uint(s)?;
-    let s = s.strip_prefix('r')?;
-    let (scale, s) = take_uint(s)?;
+    let (detail, s) = take_detail(s)?;
     Some((
         BoxDim {
             align,
             base,
-            detail: Some((u8::try_from(frac).ok()?, u8::try_from(scale).ok()?)),
+            detail,
         },
         s,
     ))
@@ -331,9 +388,22 @@ fn normalize_rotation(n: u8, milli_deg: u32, ccw: bool) -> (u32, u32) {
     ((num / g) as u32, (den / g) as u32)
 }
 
+/// A shape word as written. Everything but a shear is settled here; a shear's
+/// amount is a fraction on the box's own lattice, so it waits for
+/// [`parse_on_demand_glyph`] to settle the one scale the whole name shares.
+enum ShapeWord {
+    Fixed(OnDemandShape),
+    Shear {
+        axis: ShearAxis,
+        anti: bool,
+        base: u8,
+        detail: Option<(u8, u8)>,
+    },
+}
+
 /// Take a shape word, which must run to the end of the name or to the `:` of
 /// the fill suffix.
-fn take_shape(s: &str) -> Option<(OnDemandShape, &str)> {
+fn take_shape(s: &str) -> Option<(ShapeWord, &str)> {
     let ends_here = |rest: &str| rest.is_empty() || rest.starts_with(':');
     for (word, corner) in [
         ("ul", TriCorner::Ul),
@@ -344,13 +414,40 @@ fn take_shape(s: &str) -> Option<(OnDemandShape, &str)> {
         if let Some(rest) = s.strip_prefix(word)
             && ends_here(rest)
         {
-            return Some((OnDemandShape::Tri(corner), rest));
+            return Some((ShapeWord::Fixed(OnDemandShape::Tri(corner)), rest));
         }
     }
     if let Some(rest) = s.strip_prefix("circle")
         && ends_here(rest)
     {
-        return Some((OnDemandShape::Circle, rest));
+        return Some((ShapeWord::Fixed(OnDemandShape::Circle), rest));
+    }
+    for (word, axis, anti) in [
+        ("xs", ShearAxis::X, false),
+        ("xz", ShearAxis::X, true),
+        ("ys", ShearAxis::Y, false),
+        ("yz", ShearAxis::Y, true),
+    ] {
+        // Once the word matches, the rest of the name is the amount or the
+        // name is no on-demand name at all.
+        let Some(rest) = s.strip_prefix(word) else {
+            continue;
+        };
+        let (base, rest) = take_uint(rest)?;
+        let base = u8::try_from(base).ok()?;
+        let (detail, rest) = take_detail(rest)?;
+        if !ends_here(rest) {
+            return None;
+        }
+        return Some((
+            ShapeWord::Shear {
+                axis,
+                anti,
+                base,
+                detail,
+            },
+            rest,
+        ));
     }
 
     let s = s.strip_prefix("poly")?;
@@ -393,12 +490,12 @@ fn take_shape(s: &str) -> Option<(OnDemandShape, &str)> {
                     return None;
                 }
                 return Some((
-                    OnDemandShape::Poly(PolySpec {
+                    ShapeWord::Fixed(OnDemandShape::Poly(PolySpec {
                         n,
                         inset,
                         rot_num: 0,
                         rot_den: 1,
-                    }),
+                    })),
                     s,
                 ));
             }
@@ -417,12 +514,12 @@ fn take_shape(s: &str) -> Option<(OnDemandShape, &str)> {
     }
     let (rot_num, rot_den) = normalize_rotation(n, deg * 1000 + frac as u32, ccw);
     Some((
-        OnDemandShape::Poly(PolySpec {
+        ShapeWord::Fixed(OnDemandShape::Poly(PolySpec {
             n,
             inset,
             rot_num,
             rot_den,
-        }),
+        })),
         s,
     ))
 }
@@ -434,16 +531,25 @@ fn take_shape(s: &str) -> Option<(OnDemandShape, &str)> {
 /// dim   := ['-' | '_'] uint [ 'p' uint 'r' uint ]
 /// shape := 'ul' | 'ur' | 'dl' | 'dr' | 'circle'
 ///        | 'poly' uint [ '.' digit{1,3} | 'r' uint ] [ ('-cw' | '-ccw') angle ]
+///        | ('xs' | 'xz' | 'ys' | 'yz') amount
 /// angle := uint [ '.' digit{1,3} ]            -- degrees, below 360
+/// amount:= uint [ 'p' uint 'r' uint ]         -- a length, like a dimension
 /// fill  := 'ceil' | 'floor' | 'zero'
 /// ```
 ///
 /// The declared box: a plain `WxH` must have both dimensions nonzero and takes
 /// no alignment sign. The fractional form `A[pBrR]` needs `R >= 2` on both
-/// sides (and the same R when both are fractional), `0 <= B,D < R`, and a
-/// positive total on each axis; a leading `-` there flushes the ink against
-/// the far edge of the cell the fraction does not fill, and a leading `_`
-/// centers it on that axis instead ([`BoxAlign`]).
+/// sides, `0 <= B,D < R`, and a positive total on each axis; a leading `-`
+/// there flushes the ink against the far edge of the cell the fraction does
+/// not fill, and a leading `_` centers it on that axis instead ([`BoxAlign`]).
+///
+/// **One name, one lattice.** Every fraction the name writes shares a single
+/// `R` — the two dimensions and a shear's amount alike — and any of the three
+/// may be the one that states it, so `3x4-xs1p1r2` needs no `p0r2` padding on
+/// the box to say what lattice it is on. A shear also has to leave something
+/// to draw: `N` comes out of the dimension it shears and so must stay below
+/// it, and a zero amount is the plain rectangle rather than a shear of
+/// nothing.
 ///
 /// Nothing is optional beyond what the grammar says and nothing may follow it:
 /// a name is either matched in full or is not an on-demand name at all, which
@@ -455,9 +561,9 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
     let rest = rest.strip_prefix('x')?;
     let (h_dim, rest) = take_box_dim(rest)?;
 
-    let (shape, rest) = match rest.strip_prefix('-') {
+    let (word, rest) = match rest.strip_prefix('-') {
         Some(rest) => take_shape(rest)?,
-        None => (OnDemandShape::Rect, rest),
+        None => (ShapeWord::Fixed(OnDemandShape::Rect), rest),
     };
     let fill = match rest.strip_prefix(':') {
         Some("ceil") => BitmapFill::Ceil,
@@ -483,32 +589,34 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
         detail: h_detail,
     } = h_dim;
 
-    // The whole-cell form has no leftover to place, so it takes no sign.
-    if w_detail.is_none() && h_detail.is_none() {
-        if w == 0 || h == 0 || align_w != BoxAlign::Near || align_h != BoxAlign::Near {
+    // One lattice for the whole name: whichever of the three fractions state
+    // one, they have to state the same one.
+    let shear_detail = match word {
+        ShapeWord::Shear { detail, .. } => detail,
+        ShapeWord::Fixed(_) => None,
+    };
+    let mut written_scale = None;
+    for (_, r) in [w_detail, h_detail, shear_detail].into_iter().flatten() {
+        if written_scale.is_some_and(|s| s != r) {
             return None;
         }
-        return Some(OnDemandGlyph::Shape(OnDemandBox {
-            w,
-            h,
-            w_frac: 0,
-            h_frac: 0,
-            scale: 1,
-            align_w: BoxAlign::Near,
-            align_h: BoxAlign::Near,
-            shape,
-            fill,
-        }));
+        written_scale = Some(r);
     }
-
-    let scale = match (w_detail, h_detail) {
-        (Some((_, ws)), Some((_, hs))) if ws != hs => return None,
-        (Some((_, s)), _) | (_, Some((_, s))) => s,
-        (None, None) => unreachable!("handled above"),
+    let scale = match written_scale {
+        // The whole-cell form has no leftover to place, so it takes no sign.
+        None => {
+            if align_w != BoxAlign::Near || align_h != BoxAlign::Near {
+                return None;
+            }
+            1
+        }
+        Some(r) => {
+            if r < 2 {
+                return None;
+            }
+            r
+        }
     };
-    if scale < 2 {
-        return None;
-    }
     let w_frac = w_detail.map_or(0, |(f, _)| f);
     let h_frac = h_detail.map_or(0, |(f, _)| f);
     if w_frac >= scale || h_frac >= scale {
@@ -517,6 +625,39 @@ pub fn parse_on_demand_glyph(name: &str) -> Option<OnDemandGlyph> {
     if (w == 0 && w_frac == 0) || (h == 0 && h_frac == 0) {
         return None;
     }
+
+    let shape = match word {
+        ShapeWord::Fixed(shape) => shape,
+        ShapeWord::Shear {
+            axis,
+            anti,
+            base,
+            detail,
+        } => {
+            let frac = detail.map_or(0, |(f, _)| f);
+            if frac >= scale {
+                return None;
+            }
+            let num = u16::from(base) * u16::from(scale) + u16::from(frac);
+            if num == 0 {
+                // Normalized: the rectangle keeps one spelling.
+                OnDemandShape::Rect
+            } else {
+                // What is left of the sheared dimension once the displacement
+                // has taken its share: nothing left, nothing to draw. The
+                // other dimension has no say in it.
+                let own = match axis {
+                    ShearAxis::X => u32::from(w) * u32::from(scale) + u32::from(w_frac),
+                    ShearAxis::Y => u32::from(h) * u32::from(scale) + u32::from(h_frac),
+                };
+                if u32::from(num) >= own {
+                    return None;
+                }
+                OnDemandShape::Shear(ShearSpec { axis, anti, num })
+            }
+        }
+    };
+
     Some(OnDemandGlyph::Shape(OnDemandBox {
         w,
         h,
@@ -722,7 +863,7 @@ fn shape_vertices(shape: &OnDemandShape, cx: i64, cy: i64, ax: f64, ay: f64) -> 
                 })
                 .collect()
         }
-        OnDemandShape::Rect | OnDemandShape::Tri(_) => Vec::new(),
+        OnDemandShape::Rect | OnDemandShape::Tri(_) | OnDemandShape::Shear(_) => Vec::new(),
     }
 }
 
@@ -962,6 +1103,61 @@ fn draw_curved_shape(
     }
 }
 
+/// Ink the parallelogram of a shear into the grid.
+///
+/// The box's rectangle is shortened on the sheared axis by the displacement
+/// and its two remaining edges are slid apart by it, so the finished shape
+/// spans the whole box on both axes — the declared box is the bbox, not the
+/// rectangle the shear started from.
+///
+/// `d` is the displacement in the build's own subcells, which may be finer
+/// than the declared ones (see [`center_multiplier`]) but never coarser, so
+/// every vertex here is a whole subcell and the geometry is exact — this is a
+/// triangle's path, not a curve's.
+fn draw_shear(
+    grid: &mut PixelGrid,
+    spec: &ShearSpec,
+    d: i64,
+    off_r: u16,
+    off_c: u16,
+    rect_w: u16,
+    rect_h: u16,
+) {
+    let (x0, y0) = (off_c as i64, off_r as i64);
+    let (w, h) = (rect_w as i64, rect_h as i64);
+    // Clockwise on screen, like every other ring here.
+    let pts: [(i64, i64); 4] = match (spec.axis, spec.anti) {
+        // `s`: the top edge sits to the right of the bottom one, so the shape
+        // leans the way a slash does.
+        (ShearAxis::X, false) => [
+            (x0 + d, y0),
+            (x0 + w, y0),
+            (x0 + w - d, y0 + h),
+            (x0, y0 + h),
+        ],
+        (ShearAxis::X, true) => [
+            (x0, y0),
+            (x0 + w - d, y0),
+            (x0 + w, y0 + h),
+            (x0 + d, y0 + h),
+        ],
+        // `s` again: the left edge sits below the right one.
+        (ShearAxis::Y, false) => [
+            (x0, y0 + d),
+            (x0 + w, y0),
+            (x0 + w, y0 + h - d),
+            (x0, y0 + h),
+        ],
+        (ShearAxis::Y, true) => [
+            (x0, y0),
+            (x0 + w, y0 + d),
+            (x0 + w, y0 + h),
+            (x0, y0 + h - d),
+        ],
+    };
+    draw_convex_polygon(grid, &pts, off_r, off_c, rect_w, rect_h);
+}
+
 /// Ink a right triangle with legs `rect_w × rect_h` into the grid.
 fn draw_triangle(
     grid: &mut PixelGrid,
@@ -981,46 +1177,86 @@ fn draw_triangle(
         TriCorner::Dl => [(x0, y0 + h), (x0, y0), (x0 + w, y0 + h)],
         TriCorner::Dr => [(x0 + w, y0 + h), (x0 + w, y0), (x0, y0 + h)],
     };
-    // The hypotenuse connects tri[1] and tri[2]; tri[0] is the right angle.
-    let (hx1, hy1) = tri[1];
-    let (hx2, hy2) = tri[2];
-    let inside_sign = {
-        let c = (hx2 - hx1) * (tri[0].1 - hy1) - (hy2 - hy1) * (tri[0].0 - hx1);
-        c.signum()
+    draw_convex_polygon(grid, &tri, off_r, off_c, rect_w, rect_h);
+}
+
+/// Ink a convex polygon whose vertices are whole subcells into the grid, cell
+/// by cell: a cell every edge keeps whole is inked as one, a cell some edge
+/// drops entirely is skipped, and the rest are cut exactly.
+///
+/// Straight edges on the grid's own lattice are what separate this from
+/// [`draw_curved_shape`]: the clip is exact rational arithmetic
+/// ([`clip_polygon_to_cell`]) rather than a polyline quantized onto
+/// [`REGION_DEN`], so two cells sharing a border cut a slanted edge at the
+/// same point because the arithmetic says so, not because the outline was
+/// pre-split. Both the triangles and the shears go through it.
+fn draw_convex_polygon(
+    grid: &mut PixelGrid,
+    pts: &[(i64, i64)],
+    off_r: u16,
+    off_c: u16,
+    rect_w: u16,
+    rect_h: u16,
+) {
+    let n = pts.len();
+    if n < 3 {
+        return;
+    }
+    // Which sign of the cross product is the polygon's inside, once for every
+    // edge below.
+    let turn = |a: (i64, i64), b: (i64, i64), p: (i64, i64)| {
+        (b.0 - a.0) * (p.1 - a.1) - (b.1 - a.1) * (p.0 - a.0)
     };
+    let sign = (0..n)
+        .map(|i| turn((0, 0), pts[i], pts[(i + 1) % n]))
+        .sum::<i64>()
+        .signum();
+    if sign == 0 {
+        return;
+    }
 
     for r in off_r..(off_r + rect_h) {
         for c in off_c..(off_c + rect_w) {
-            // Classify the pixel's corners against the hypotenuse.
-            let mut inside = 0;
-            let mut outside = 0;
-            for (px, py) in [
+            let corners = [
                 (c as i64, r as i64),
                 (c as i64 + 1, r as i64),
                 (c as i64, r as i64 + 1),
                 (c as i64 + 1, r as i64 + 1),
-            ] {
-                let cr = (hx2 - hx1) * (py - hy1) - (hy2 - hy1) * (px - hx1);
-                match (cr * inside_sign).signum() {
-                    1 => inside += 1,
-                    -1 => outside += 1,
-                    _ => {}
+            ];
+            // Classify the cell's corners against every edge. Convexity is
+            // what makes the two verdicts sound: all four corners inside every
+            // edge means the whole cell is, and all four outside any one edge
+            // means none of it is.
+            let mut whole = true;
+            let mut empty = false;
+            for i in 0..n {
+                let (a, b) = (pts[i], pts[(i + 1) % n]);
+                let outside = corners
+                    .iter()
+                    .filter(|&&p| turn(a, b, p) * sign < 0)
+                    .count();
+                if outside == corners.len() {
+                    empty = true;
+                    break;
                 }
+                whole &= outside == 0;
             }
-            if outside == 0 {
-                // Fully inside the triangle (the pixel is already within
-                // the leg bounding box).
+            if empty {
+                continue;
+            }
+            if whole {
                 grid.set(r, c, PixelShape::new(PX_ALMOSTFULL, true));
                 continue;
             }
-            if inside == 0 {
-                continue;
-            }
-            let local: Vec<(Frac64, Frac64)> = tri
+            let local: Vec<(Frac64, Frac64)> = pts
                 .iter()
-                .map(|&(tx, ty)| (Frac64::new(tx - c as i64, 1), Frac64::new(ty - r as i64, 1)))
+                .map(|&(x, y)| (Frac64::new(x - c as i64, 1), Frac64::new(y - r as i64, 1)))
                 .collect();
-            grid.set_detail(r, c, &clip_polygon_to_cell(&local), true);
+            let region = clip_polygon_to_cell(&local);
+            // An edge the cell only touches leaves nothing behind.
+            if !region.is_empty() {
+                grid.set_detail(r, c, &region, true);
+            }
         }
     }
 }
@@ -1040,9 +1276,9 @@ fn draw_triangle(
 ///
 /// A curved shape costs an exact clip per outline cell and was the first to be
 /// kept; a whole-cell rectangle costs almost nothing and does not need to be.
-/// Everything in between — a rectangle with a fractional edge, a triangle — is
-/// exact geometry like a curve, so the line is drawn at "does this box place
-/// anything but whole cells" rather than at the shape.
+/// Everything in between — a rectangle with a fractional edge, a triangle, a
+/// shear — is exact geometry like a curve, so the line is drawn at "does this
+/// box place anything but whole cells" rather than at the shape.
 pub fn make_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
     let whole_cells = spec.shape == OnDemandShape::Rect
         && spec.w_frac == 0
@@ -1130,6 +1366,19 @@ fn build_on_demand_grid(spec: &OnDemandBox) -> PixelGrid {
         }
         OnDemandShape::Tri(corner) => {
             draw_triangle(&mut grid, corner, off_r, off_c, rect_w, rect_h)
+        }
+        OnDemandShape::Shear(shear) => {
+            // The amount is written on the declared lattice; the build may be
+            // running on a finer one.
+            draw_shear(
+                &mut grid,
+                &shear,
+                shear.num as i64 * m as i64,
+                off_r,
+                off_c,
+                rect_w,
+                rect_h,
+            )
         }
         OnDemandShape::Circle | OnDemandShape::Poly(_) => {
             draw_curved_shape(&mut grid, &spec.shape, off_r, off_c, rect_w, rect_h)

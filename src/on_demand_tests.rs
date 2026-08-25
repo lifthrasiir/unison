@@ -855,3 +855,252 @@ fn curve_regions_survive_boolean_ops() {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Shear
+// ---------------------------------------------------------------------------
+
+/// `s` leans like a slash and `z` like its mirror, on both axes. The declared
+/// box is the finished bbox, so the ink reaches every edge of it either way.
+#[test]
+fn a_shear_leans_the_way_its_letter_does() {
+    // 4x2-xs1 slides the two horizontal edges one apart: the top spans x 1..4
+    // and the bottom 0..3, which is a slash.
+    assert_eq!(
+        logical_fill("4x2-xs1"),
+        vec![vec![false, true, true, true], vec![true, true, true, false],],
+    );
+    assert_eq!(
+        logical_fill("4x2-xz1"),
+        vec![vec![true, true, true, false], vec![false, true, true, true],],
+    );
+    // The y axis says the same thing about columns.
+    assert_eq!(
+        logical_fill("2x4-ys1"),
+        vec![
+            vec![false, true],
+            vec![true, true],
+            vec![true, true],
+            vec![true, false],
+        ],
+    );
+    assert_eq!(
+        logical_fill("2x4-yz1"),
+        vec![
+            vec![true, false],
+            vec![true, true],
+            vec![true, true],
+            vec![false, true],
+        ],
+    );
+}
+
+/// The parallelogram is inscribed in the declared box rather than sticking out
+/// of it, so the grid is `ceil(W) × ceil(H)` like every other shape and the
+/// area is that of the `(W − N·H) × H` rectangle the shear slid apart.
+#[test]
+fn a_sheared_rect_is_inscribed_in_its_declared_box() {
+    for (name, dims, area) in [
+        ("4x2-xs1", (4u16, 2u16), 3.0 * 2.0),
+        ("4x2-xz1", (4, 2), 3.0 * 2.0),
+        ("2x4-ys1", (2, 4), 2.0 * 3.0),
+        ("8x4-xs1p1r2", (16, 8), 6.5 * 4.0),
+        ("16x8-yz0p1r4", (64, 32), 16.0 * 7.75),
+    ] {
+        let spec = shape_of(name);
+        let grid = make_on_demand_grid(&spec);
+        assert_eq!((grid.width, grid.height), dims, "{name}");
+        let s = spec.scale.max(1) as f64;
+        let got = area2_of(name) / 2.0 / (s * s);
+        assert!(
+            (got - area).abs() < 0.01,
+            "{name}: area {got}, expected {area}"
+        );
+    }
+}
+
+/// The slanted edges cross cell borders at points neither cell holds on its
+/// own lattice, so the two have to cut them at the same place or the tracer
+/// sees fragments instead of one outline.
+#[test]
+fn a_sheared_outline_stitches_across_cell_borders() {
+    for name in [
+        "4x2-xs1",
+        "8x4-xs1p1r2",
+        "8x4-xz1p1r3",
+        "8x8-ys2p1r3",
+        "9p1r3x5-yz0p1r3",
+        "16x8-xs0p1r7",
+    ] {
+        let grid = make_on_demand_grid(&shape_of(name));
+        let paths = crate::render::contour::track_contour(&grid, crate::pixel::PX_SUBPIXEL);
+        assert_eq!(paths.len(), 1, "{name}: {} outlines", paths.len());
+    }
+}
+
+/// The alignment sign still places the *box*; the shear adds no leftover of
+/// its own to align.
+#[test]
+fn a_shear_leaves_the_alignment_of_its_box_alone() {
+    let plain = make_on_demand_grid(&shape_of("4p1r2x2p0r2-xs1"));
+    let flipped = make_on_demand_grid(&shape_of("-4p1r2x2p0r2-xs1"));
+    assert_eq!((plain.width, plain.height), (10, 4));
+    assert_eq!((flipped.width, flipped.height), (10, 4));
+    assert!((0..4).all(|r| plain.get(r, 9).is_clear()), "far half-cell");
+    assert!(
+        (0..4).all(|r| flipped.get(r, 0).is_clear()),
+        "near half-cell"
+    );
+}
+
+/// The fill suffix still follows the shape suffix, and still moves no outline.
+#[test]
+fn bitmap_fill_rules_reach_a_shear() {
+    assert_eq!(
+        logical_fill("4x2-xs1:floor"),
+        vec![
+            vec![false, true, true, false],
+            vec![false, true, true, false],
+        ],
+    );
+    assert_eq!(logical_fill("4x2-xs1:ceil"), vec![vec![true; 4]; 2]);
+    // The corner cells a slanted edge only grazes: `1½ · (1 - y/4)` is still
+    // above 1 across the whole of the top row, so its first cell stays dark
+    // under a rule that lights anything at all.
+    assert_eq!(
+        logical_fill("8x4-xs1p1r2:ceil"),
+        vec![
+            vec![false, true, true, true, true, true, true, true],
+            vec![true; 8],
+            vec![true; 8],
+            vec![true, true, true, true, true, true, true, false],
+        ],
+    );
+    assert_eq!(logical_fill("4x2-xs1:zero"), vec![vec![false; 4]; 2]);
+    let a = area2_of("4x2-xs1");
+    for suffix in [":ceil", ":floor", ":zero"] {
+        assert_eq!(area2_of(&format!("4x2-xs1{suffix}")), a, "{suffix}");
+    }
+}
+
+fn shear_of(name: &str) -> ShearSpec {
+    match shape_of(name).shape {
+        OnDemandShape::Shear(spec) => spec,
+        other => panic!("{name} is not a shear: {other:?}"),
+    }
+}
+
+#[test]
+fn parse_shear_names() {
+    assert_eq!(
+        shear_of("4x2-xs1"),
+        ShearSpec {
+            axis: ShearAxis::X,
+            anti: false,
+            num: 1,
+        },
+    );
+    assert_eq!(
+        shear_of("4x2-xz1"),
+        ShearSpec {
+            axis: ShearAxis::X,
+            anti: true,
+            num: 1,
+        },
+    );
+    assert_eq!(shear_of("2x4-ys1").axis, ShearAxis::Y);
+    assert!(shear_of("2x4-yz1").anti);
+    // The amount is over the box's own lattice: 1½ at scale 2 is 3.
+    assert_eq!(shear_of("8x4-xs1p1r2").num, 3);
+    assert_eq!(shape_of("8x4-xs1p1r2").scale, 2);
+    // The fill suffix still follows the shape suffix.
+    assert_eq!(shape_of("4x2-xs1:floor").fill, BitmapFill::Floor);
+}
+
+/// Whichever of the three fractions states the lattice, it is the same
+/// lattice: the box need not be padded to spell what the shear is written on.
+#[test]
+fn a_shear_shares_one_lattice_with_the_box() {
+    let stated_by_shear = shape_of("8x4-xs1p1r2");
+    let stated_by_both = shape_of("8p0r2x4p0r2-xs1p1r2");
+    assert_eq!(stated_by_shear.scale, 2);
+    assert_eq!(stated_by_shear, stated_by_both);
+    // Two lattices in one name is not a name at all.
+    assert_eq!(parse_on_demand_glyph("8p1r2x4-xs1p1r3"), None);
+    assert_eq!(parse_on_demand_glyph("8x4p1r3-xs1p1r2"), None);
+    // And the fraction has to be on the lattice it states.
+    assert_eq!(parse_on_demand_glyph("8x4-xs1p2r2"), None);
+    assert_eq!(parse_on_demand_glyph("8x4-xs1p1r1"), None);
+}
+
+/// A zero displacement is the plain rectangle, in every spelling: the
+/// rectangle has one shape id, one cache entry and one match arm.
+#[test]
+fn a_zero_shear_normalizes_to_the_plain_rectangle() {
+    for name in ["4x2-xs0", "4x2-xz0", "4x2-ys0", "4x2-yz0"] {
+        assert_eq!(shape_of(name), shape_of("4x2"), "{name}");
+    }
+    assert_eq!(shape_of("4p1r2x2-xs0p0r2"), shape_of("4p1r2x2"));
+}
+
+/// The displacement is taken out of the sheared dimension, so once it has
+/// eaten the whole of it there is no parallelogram left to draw.
+#[test]
+fn a_shear_that_eats_its_box_is_not_a_name() {
+    assert_eq!(parse_on_demand_glyph("4x2-xs4"), None);
+    assert_eq!(parse_on_demand_glyph("4x2-xs5"), None);
+    assert_eq!(parse_on_demand_glyph("2x4-ys4"), None);
+    // The displacement is taken out of the sheared dimension, so the *other*
+    // one has no say in it: 3 out of 4 is a name however tall the box is.
+    assert_eq!(shear_of("4x99-xs3").num, 3);
+    // Half a subcell under the edge is a name and the edge itself is not.
+    assert_eq!(shear_of("8x4-xs7p1r2").num, 15);
+    assert_eq!(parse_on_demand_glyph("8x4-xs8p0r2"), None);
+}
+
+#[test]
+fn parse_rejects_malformed_shear_suffixes() {
+    for name in [
+        "4x2-xs",      // no amount
+        "4x2-x1",      // no direction letter
+        "4x2-s1",      // no axis letter
+        "4x2-zs1",     // not a shear word
+        "4x2-xs1p1",   // half a fraction
+        "4x2-xs1r2",   // ditto
+        "4x2-xs-1",    // the sign is the letter's job
+        "4x2-xs1-xz1", // one shape word, not two
+        "4x2-circle-xs1",
+        "4x2-xs1x",
+        "4x2-xs1:what",
+        "4x2-xs01",
+    ] {
+        assert_eq!(parse_on_demand_glyph(name), None, "{name}");
+    }
+}
+
+/// The same excuse to run the geometry as the curved shapes get: every size
+/// and scale, where an arithmetic lattice would overflow.
+#[test]
+fn shears_stay_sane_across_sizes_and_scales() {
+    for w in [1u8, 2, 3, 5, 9, 16, 24] {
+        for h in [1u8, 2, 7, 16] {
+            for shear in ["xs0p1r3", "xz0p2r3", "ys0p1r3", "yz1p1r3"] {
+                for dims in [format!("{w}p1r3x{h}p2r3"), format!("{w}p2r3x-{h}p1r3")] {
+                    let name = format!("{dims}-{shear}");
+                    let Some(OnDemandGlyph::Shape(spec)) = parse_on_demand_glyph(&name) else {
+                        continue; // the displacement ate the box
+                    };
+                    let grid = make_on_demand_grid(&spec);
+                    let s = spec.scale as u16;
+                    assert_eq!(grid.width % s, 0, "{name}");
+                    assert_eq!(grid.height % s, 0, "{name}");
+                    let area = area2_of(&name) / 2.0;
+                    assert!(
+                        area > 0.0 && area <= (grid.width * grid.height) as f64,
+                        "{name}: area {area} out of its box"
+                    );
+                }
+            }
+        }
+    }
+}

@@ -7720,11 +7720,7 @@ glyph big-sum-u-half 8 16
 ................
 ................
 ................
-ref @-aux
-glyph @-aux 8 16
-ref 4x15-ur 0 1
-ref 2x15 4 1
-ref 4x15-ur 2 1 negated
+ref 6x15-xz4 0 1
 
 glyph big-sum-d 16 16
 .................v@@V/..........
@@ -7760,11 +7756,7 @@ glyph big-sum-d-half 8 16
 ..............@@
 ....@@@@@@@@@@@@
 ................
-ref @-aux
-glyph @-aux 8 16
-ref 4x15-dr 0 0
-ref 2x15 4 0
-ref 4x15-dr 2 0 negated
+ref 6x15-xs4 0 0
 
 glyph big-and 16 16
 ................................
