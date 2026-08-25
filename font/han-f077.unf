@@ -42,8 +42,8 @@ glyph han-2dbf1:15x16 15 16 // 𭯱
 
 ## 85.3
 
-// glyph han-2dbf6:15x16 15 16 // 𭯶
-// ⿱ han-53e3 han-6c34 // ⿱口水
+glyph han-2dbf6:15x16 15 16 // 𭯶
+⿱ han-53e3:15x7 han-6c34:15x9 // ⿱口水
 
 ## 85.5
 
@@ -73,6 +73,9 @@ glyph han-2dc2a:15x16 15 16 // 𭰪
 
 // glyph han-2dc33:15x16 15 16 // 𭰳
 // ⿰ han-6c35 han-82ab // ⿰氵芫
+
+// glyph han-2dc3d:15x16 15 16 // 𭰽
+// ⿰ han-6c35 han-225e8 // ⿰氵𢗨
 
 ## 85.9
 
@@ -126,6 +129,11 @@ glyph han-2dce5:15x16 15 16 // 𭳥
 
 glyph han-2dcfc:15x16 15 16 // 𭳼
 ⿲ han-6c35:3x16 han-5de5:5x16 han-96da:7x16 // ⿲氵工雚
+
+## 85.29
+
+// glyph han-2dcfe:15x16 15 16 // 𭳾
+// ⿳ han-96b9 han-96d4 han-6cc9 // ⿳隹雔泉 <- ⿱雥泉
 
 # CJK unified ideographs extension F: 火 (86)
 

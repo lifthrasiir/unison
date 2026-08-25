@@ -5,8 +5,8 @@
 glyph han-2ad69:15x16 15 16 // 𪵩
 ⿰ han-6c35:5x16 1 han-4e0b:9x16 // ⿰氵下
 
-// glyph han-2ad6a:15x16 15 16 // 𪵪
-// ⿱ han-5927 han-6c34 // ⿱大水
+glyph han-2ad6a:15x16 15 16 // 𪵪
+⿱ han-5927:15x7 han-6c34:15x9 // ⿱大水
 
 ## 85.4
 
@@ -20,8 +20,11 @@ glyph han-2ad79:15x16 15 16 // 𪵹
 
 ## 85.7
 
-// glyph han-2ad82:15x16 15 16 // 𪶂
-// ⿱ han-6c34 han-898b // ⿱水見
+// glyph han-2ad7f:15x16 15 16 // 𪵿
+// ⿰ han-4e01 han-6cc9 // ⿰丁泉
+
+glyph han-2ad82:15x16 15 16 // 𪶂
+⿳ -1 han-6c34:15x6 han-76ee:15x7 han-513f:15x4 // ⿳水目儿
 
 glyph han-2ad84:15x16 15 16 // 𪶄
 ⿲ han-6c35:3x16 han-65e5:5x16 han-5bf8:7x16 // ⿲氵日寸

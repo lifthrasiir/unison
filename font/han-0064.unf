@@ -253,8 +253,8 @@ glyph han-62bd:15x16 15 16 // 抽
 glyph han-62c1:15x16 15 16 // 拁
 ⿲ han-624c:3x16 han-529b:6x16 2 han-53e3:4x16 // ⿲扌力口
 
-// glyph han-62c5:15x16 15 16 // 担
-// ⿰ han-624c han-65e6 // ⿰扌旦
+glyph han-62c5:15x16 15 16 // 担
+⿰ han-624c:5x16 1 han-65e6:9x16 // ⿰扌旦
 
 glyph han-62c8:15x16 15 16 // 拈
 ⿰ han-624c:5x16 1 han-5360:9x16 // ⿰扌占

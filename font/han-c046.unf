@@ -78,7 +78,7 @@ glyph han-2aae9:15x16 15 16 // 𪫩
 // ⿰ han-5fc4 han-767e // ⿰忄百
 
 glyph han-2aaf0:15x16 15 16 // 𪫰
-⿳ han-53e3:15x5 1 han-53e3:15x5 han-5fc3:15x5 // ⿳口口心
+⿳ han-53e3:15x4 1 han-53e3:15x5 han-5fc3:15x6 // ⿳口口心
 
 // glyph han-2aaf1:15x16 15 16 // 𪫱
 // ⿱ han-4efd han-5fc3 // ⿱份心

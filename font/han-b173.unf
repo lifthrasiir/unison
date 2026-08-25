@@ -41,8 +41,8 @@ glyph han-2908a:15x16 15 16 // 𩂊
 // glyph han-2908b:15x16 15 16 // 𩂋
 // ⿱ han-96e8 han-65a4 // ⿱雨斤
 
-// glyph han-2908d:15x16 15 16 // 𩂍
-// ⿱ han-96e8 han-6c34 // ⿱雨水
+glyph han-2908d:15x16 15 16 // 𩂍
+⿱ han-96e8:15x7 han-6c34:15x9 // ⿱雨水
 
 ## 173.5
 
@@ -81,10 +81,10 @@ glyph han-29098:15x16 15 16 // 𩂘
 // ⿱ han-96e8 han-6c85 // ⿱雨沅
 
 glyph han-290c8:15x16 15 16 // 𩃈
-⿳ -4 han-96e8:15x7 1 han-53e3:15x5 han-9fb0:15x7 // ⿳雨口龰
+⿳ -3 han-96e8:15x7 1 han-53e3:15x4 han-9fb0:15x7 // ⿳雨口龰
 
 glyph han-290c9:15x16 15 16 // 𩃉
-⿳ -6 han-96e8:15x7 1 han-53e3:15x5 1 han-5929:15x8 // ⿳雨口天
+⿳ -5 han-96e8:15x7 1 han-53e3:15x4 1 han-5929:15x8 // ⿳雨口天
 
 // glyph han-290d0:15x16 15 16 // 𩃐
 // ⿱ han-96e8 han-4f4e // ⿱雨低

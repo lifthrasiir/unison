@@ -349,8 +349,8 @@ glyph han-574e:15x16 15 16 // 坎
 glyph han-5751:15x16 15 16 // 坑
 ⿰ han-571f:7x16 1 han-4ea2:7x16 // ⿰土亢
 
-// glyph han-5754:15x16 15 16 // 坔
-// ⿱ han-6c34 han-571f // ⿱水土
+glyph han-5754:15x16 15 16 // 坔
+⿱ han-6c34:15x9 1 han-571f:15x6 // ⿱水土
 
 glyph han-5756:15x16 15 16 // 坖
 ⿱ han-5143:15x10 han-571f:15x6 // ⿱元土
@@ -372,8 +372,8 @@ glyph han-5764:15x16 15 16 // 坤
 glyph han-5765:15x16 15 16 // 坥
 ⿰ han-571f:7x16 1 han-4e14:7x16 // ⿰土且
 
-// glyph han-5766:15x16 15 16 // 坦
-// ⿰ han-571f han-65e6 // ⿰土旦
+glyph han-5766:15x16 15 16 // 坦
+⿰ han-571f:5x16-l 1 han-65e6:9x16 // ⿰土旦
 
 glyph han-5767:15x16 15 16 // 坧
 ⿰ han-571f:7x16 1 han-77f3:7x16 // ⿰土石
@@ -463,8 +463,8 @@ glyph han-57bb:15x16 15 16 // 垻
 glyph han-57c8:15x16 15 16 // 埈
 ⿰ han-571f:7x16 1 han-590b:7x16 // ⿰土夋
 
-// glyph han-57ca:15x16 15 16 // 埊
-// ⿳ han-5c71 han-6c34 han-571f // ⿳山水土 <- ⿱汖土
+glyph han-57ca:15x16 15 16 // 埊
+⿳ han-5c71:15x4 han-6c34:15x8 han-571f:15x4 // ⿳山水土
 
 glyph han-57cc:15x16 15 16 // 埌
 ⿰ han-571f:7x16 1 han-826f:7x16 // ⿰土良
@@ -1026,7 +1026,7 @@ $$/h~HH_h/..........\h_HH~h\$$
 // ⿱ han-5927 han-5bf8 // ⿱大寸
 
 glyph han-593b:15x16 15 16 // 夻
-⿱ han-5927:15x11 han-53e3:15x5 // ⿱大口
+⿱ han-5927:15x7 han-53e3:15x9 // ⿱大口
 
 // glyph han-593c:15x16 15 16 // 夼
 // ⿱ han-5927 han-5ddd // ⿱大川

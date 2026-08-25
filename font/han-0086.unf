@@ -336,8 +336,8 @@ glyph han-709a:15x16 15 16 // 炚
 
 ## 86.5
 
-// glyph han-709f:15x16 15 16 // 炟
-// ⿰ han-706b han-65e6 // ⿰火旦
+glyph han-709f:15x16 15 16 // 炟
+⿰ han-706b:5x16-l 1 han-65e6:9x16 // ⿰火旦
 
 glyph han-70a0:15x16 15 16 // 炠
 ⿰ han-706b:5x16 1 han-7532:9x16 // ⿰火甲

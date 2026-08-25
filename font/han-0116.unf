@@ -396,7 +396,7 @@ glyph han-7b78:15x16 15 16 // 筸
 ⿳ han-25ad7:15x5 han-65e5:15x5 1 han-5e72:15x5 // ⿳𥫗日干
 
 glyph han-7b7d:15x16 15 16 // 筽
-⿳ -3 han-25ad7:15x5 han-53e3:15x5 1 han-5929:15x8 // ⿳𥫗口天
+⿳ -2 han-25ad7:15x5 han-53e3:15x4 1 han-5929:15x8 // ⿳𥫗口天
 
 ## 118.8
 
@@ -443,7 +443,7 @@ glyph han-7bb6:15x16 15 16 // 箶
 // ⿱ han-25ad7 han-524a // ⿱𥫗削
 
 glyph han-7bbf:15x16 15 16 // 箿
-⿳ -3 han-25ad7:15x5 han-53e3:15x5 1 han-8033:15x8 // ⿳𥫗口耳
+⿳ -2 han-25ad7:15x5 han-53e3:15x4 1 han-8033:15x8 // ⿳𥫗口耳
 
 glyph han-7bc1:15x16 15 16 // 篁
 ⿳ han-25ad7:15x5 -1 han-767d:15x6 1 han-738b:15x5 // ⿳𥫗白王

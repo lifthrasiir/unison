@@ -1435,6 +1435,9 @@ H/..............\H
 // glyph han-4eaf:15x16 15 16 // 亯
 // ⿳ han-4ea0 han-53e3 han-65e5 // ⿳亠口日 <- ⿱亠𠯭
 
+// glyph han-4eb1:15x16 15 16 // 亱
+// ⿱ han-4ea0 han-4f46 // ⿱亠但
+
 // glyph han-4eb2:15x16 15 16 // 亲
 // ⿱ han-7acb han-6728 // ⿱立木
 
@@ -1965,8 +1968,8 @@ glyph han-4f42:15x16 15 16 // 佂
 glyph han-4f43:15x16 15 16 // 佃
 ⿰ han-4ebb:5x16 1 han-7530:9x16 // ⿰亻田
 
-// glyph han-4f46:15x16 15 16 // 但
-// ⿰ han-4ebb han-65e6 // ⿰亻旦
+glyph han-4f46:15x16 15 16 // 但
+⿰ han-4ebb:5x16 1 han-65e6:9x16 // ⿰亻旦
 
 // glyph han-4f47:15x16 15 16 // 佇
 // ⿰ han-4ebb han-5b81 // ⿰亻宁

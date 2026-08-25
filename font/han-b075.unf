@@ -152,6 +152,9 @@ glyph han-2349e:15x16 15 16 // 𣒞
 glyph han-234a6:15x16 15 16 // 𣒦
 ⿲ han-6728:5x16 han-4ebb:3x16 han-76ee:7x16 // ⿲木亻目
 
+// glyph han-234a9:15x16 15 16 // 𣒩
+// ⿰ han-6728 han-5447 // ⿰木呇
+
 glyph han-234b1:15x16 15 16 // 𣒱
 ⿲ -1 han-6728:5x16 han-53e3:4x16 han-6b20:7x16 // ⿲木口欠
 

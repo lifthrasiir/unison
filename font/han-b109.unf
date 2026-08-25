@@ -88,14 +88,14 @@ glyph han-2a6df:15x16 15 16 // 𪛟
 glyph han-25132:15x16 15 16 // 𥄲
 ⿱ han-7f52:15x4 2 han-76ee:15x10 // ⿱罒目
 
-// glyph han-25133:15x16 15 16 // 𥄳
-// ⿱ han-7f52 han-6c34 // ⿱罒水
+glyph han-25133:15x16 15 16 // 𥄳
+⿱ han-7f52:15x7 han-6c34:15x9 // ⿱罒水
 
 glyph han-25139:15x16 15 16 // 𥄹
 ⿰ han-76ee:7x16 1 han-5305:7x16 // ⿰目包
 
-// glyph han-25143:15x16 15 16 // 𥅃
-// ⿰ han-76ee han-65e6 // ⿰目旦
+glyph han-25143:15x16 15 16 // 𥅃
+⿰ han-76ee:4x16-l 2 han-65e6:9x16 // ⿰目旦
 
 glyph han-25148:15x16 15 16 // 𥅈
 ⿰ han-76ee:7x16 1 han-7acb:7x16 // ⿰目立

@@ -308,7 +308,7 @@ glyph han-3094e:15x16 15 16 // 𰥎
 ⿱ han-5927:15x8 1 han-76ee:15x7 // ⿱大目
 
 glyph han-3094f:15x16 15 16 // 𰥏
-⿱ han-76ee:15x10 1 han-53e3:15x5 // ⿱目口
+⿱ han-76ee:15x7 2 han-53e3:15x7 // ⿱目口
 
 // glyph han-30950:15x16 15 16 // 𰥐
 // ⿳ han-4ea0 han-76ee han-4e00 // ⿳亠目一 <- ⿱𥃰一

@@ -38,8 +38,8 @@ glyph han-42ca:15x16 15 16 // 䋊
 glyph han-42cd:15x16 15 16 // 䋍
 ⿰ han-7cf9:5x16 han-53ef:10x16 // ⿰糹可
 
-// glyph han-42ce:15x16 15 16 // 䋎
-// ⿰ han-7cf9 han-65e6 // ⿰糹旦
+glyph han-42ce:15x16 15 16 // 䋎
+⿰ han-7cf9:5x16 1 han-65e6:9x16 // ⿰糹旦
 
 ## 120.6
 
@@ -141,8 +141,8 @@ glyph han-4350:15x16 15 16 // 䍐
 // glyph han-435c:15x16 15 16 // 䍜
 // ⿱ han-7f52 han-96b9 // ⿱罒隹
 
-// glyph han-435d:15x16 15 16 // 䍝
-// ⿳ han-7f52 han-6c34 han-65e5 // ⿳罒水日 <- ⿱罒沓
+glyph han-435d:15x16 15 16 // 䍝
+⿳ han-7f52:15x3 han-6c34:15x8 han-65e5:15x5 // ⿳罒水日
 
 ## 122.13
 
@@ -400,8 +400,8 @@ glyph han-44cd:15x16 15 16 // 䓍
 // glyph han-44df:15x16 15 16 // 䓟
 // ⿱ han-8279 han-5468 // ⿱艹周
 
-// glyph han-44e0:15x16 15 16 // 䓠
-// ⿳ han-8279 han-6c34 han-65e5 // ⿳艹水日 <- ⿱艹沓
+glyph han-44e0:15x16 15 16 // 䓠
+⿳ han-8279:15x3 han-6c34:15x8 han-65e5:15x5 // ⿳艹水日
 
 glyph han-44eb:15x16 15 16 // 䓫
 ⿳ han-8279:15x3 han-5927:15x7 han-53ef:15x6 // ⿳艹大可
@@ -505,8 +505,8 @@ glyph han-459e:15x16 15 16 // 䖞
 
 ## 142.5
 
-// glyph han-45a7:15x16 15 16 // 䖧
-// ⿰ han-866b han-65e6 // ⿰虫旦
+glyph han-45a7:15x16 15 16 // 䖧
+⿰ han-866b:5x16 1 han-65e6:9x16 // ⿰虫旦
 
 glyph han-45a8:15x16 15 16 // 䖨
 ⿰ han-866b:7x16 han-77f3:8x16 // ⿰虫石

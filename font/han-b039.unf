@@ -56,7 +56,7 @@ glyph han-219e9:15x16 15 16 // 𡧩
 // ⿰ han-5b81 han-4e2d // ⿰宁中
 
 glyph han-219f6:15x16 15 16 // 𡧶
-⿳ han-5b80:15x4 -1 han-5927:15x8 han-53e3:15x5 // ⿳宀大口
+⿳ han-5b80:15x5 -1 han-5927:15x5 han-53e3:15x7 // ⿳宀大口
 
 // glyph han-219f9:15x16 15 16 // 𡧹
 // ⿳ han-5b80 han-7531 han-4e00 // ⿳宀由一 <- ⿱宙一
@@ -76,7 +76,7 @@ glyph han-219f6:15x16 15 16 // 𡧶
 // ⿳ han-5b80 han-706b han-5bf8 // ⿳宀火寸
 
 glyph han-21a10:15x16 15 16 // 𡨐
-⿳ han-5b80:15x5 -1 han-706b:15x6 1 han-53e3:15x5 // ⿳宀火口
+⿳ han-5b80:15x4 -1 han-706b:15x6 han-53e3:15x7 // ⿳宀火口
 
 glyph han-21a12:15x16 15 16 // 𡨒
 ⿳ han-5b80:15x5 han-738b:15x5 1 han-5927:15x5 // ⿳宀王大

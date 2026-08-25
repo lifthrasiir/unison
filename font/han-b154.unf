@@ -119,8 +119,8 @@ glyph han-27d88:15x16 15 16 // 𧶈
 // glyph han-27da7:15x16 15 16 // 𧶧
 // ⿰ han-8c9d han-660c // ⿰貝昌
 
-// glyph han-27dac:15x16 15 16 // 𧶬
-// ⿲ han-8c9d han-5973 han-65e6 // ⿲貝女旦 <- ⿰貝妲
+glyph han-27dac:15x16 15 16 // 𧶬
+⿲ han-8c9d:5x16 han-5973:5x16 han-65e6:5x16 // ⿲貝女旦
 
 ## 154.9
 

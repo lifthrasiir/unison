@@ -117,8 +117,8 @@ glyph han-2b109:15x16 15 16 // 𫄉
 // glyph han-2b150:15x16 15 16 // 𫅐
 // ⿰ han-7f8a han-592e // ⿰羊央
 
-// glyph han-2b151:15x16 15 16 // 𫅑
-// ⿰ han-7f8a han-65e6 // ⿰羊旦
+glyph han-2b151:15x16 15 16 // 𫅑
+⿰ han-7f8a:7x16 1 han-65e6:7x16 // ⿰羊旦
 
 ## 123.6
 

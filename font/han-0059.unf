@@ -215,8 +215,8 @@ glyph han-6019:15x16 15 16 // 怙
 glyph han-601a:15x16 15 16 // 怚
 ⿰ han-5fc4:7x16 han-4e14:8x16 // ⿰忄且
 
-// glyph han-601b:15x16 15 16 // 怛
-// ⿰ han-5fc4 han-65e6 // ⿰忄旦
+glyph han-601b:15x16 15 16 // 怛
+⿰ han-5fc4:5x16 1 han-65e6:9x16 // ⿰忄旦
 
 glyph han-601c-($han-regions):15x16 15 16 // 怜
 ⿰ han-5fc4:7x16 1 han-4ee4-($-1):7x16 // ⿰忄令

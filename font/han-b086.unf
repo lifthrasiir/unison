@@ -43,8 +43,8 @@ glyph han-241a6:15x16 15 16 // 𤆦
 // glyph han-241b0:15x16 15 16 // 𤆰
 // ⿱ han-6728 han-706b // ⿱木火
 
-// glyph han-241b2:15x16 15 16 // 𤆲
-// ⿱ han-6c34 han-706b // ⿱水火
+glyph han-241b2:15x16 15 16 // 𤆲
+⿱ han-6c34:15x9 1 han-706b:15x6 // ⿱水火
 
 glyph han-241b6:15x16 15 16 // 𤆶
 ⿰ han-706b:7x16 1 han-5206:7x16 // ⿰火分

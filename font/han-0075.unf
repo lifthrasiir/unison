@@ -383,8 +383,8 @@ glyph han-67e4:15x16 15 16 // 柤
 // glyph han-67e5:15x16 15 16 // 查
 // ⿳ han-6728 han-65e5 han-4e00 // ⿳木日一 <- ⿱木旦
 
-// glyph han-67e6:15x16 15 16 // 柦
-// ⿰ han-6728 han-65e6 // ⿰木旦
+glyph han-67e6:15x16 15 16 // 柦
+⿰ han-6728:5x16 1 han-65e6:9x16 // ⿰木旦
 
 glyph han-67ef:15x16 15 16 // 柯
 ⿰ han-6728:5x16 han-53ef:10x16 // ⿰木可

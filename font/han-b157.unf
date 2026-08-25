@@ -92,8 +92,8 @@ glyph han-27ff5:15x16 15 16 // 𧿵
 glyph han-2800e:15x16 15 16 // 𨀎
 ⿰ han-27fb7:5x16 1 han-7acb:9x16 // ⿰𧾷立
 
-// glyph han-2800f:15x16 15 16 // 𨀏
-// ⿰ han-27fb7 han-65e6 // ⿰𧾷旦
+glyph han-2800f:15x16 15 16 // 𨀏
+⿰ han-27fb7:5x16 1 han-65e6:9x16 // ⿰𧾷旦
 
 ## 157.6
 

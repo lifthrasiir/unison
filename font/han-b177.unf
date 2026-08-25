@@ -88,8 +88,8 @@ glyph han-2929e:15x16 15 16 // 𩊞
 glyph han-292ac:15x16 15 16 // 𩊬
 ⿰ han-9769:7x16 1 han-752b:7x16 // ⿰革甫
 
-// glyph han-292b9:15x16 15 16 // 𩊹
-// ⿲ han-9769 han-4ebb han-65e6 // ⿲革亻旦 <- ⿰革但
+glyph han-292b9:15x16 15 16 // 𩊹
+⿲ han-9769:7x16 han-4ebb:3x16 han-65e6:5x16 // ⿲革亻旦
 
 glyph han-292bb:15x16 15 16 // 𩊻
 ⿰ han-9769:7x16 1 han-590b:7x16 // ⿰革夋
@@ -135,6 +135,9 @@ glyph han-292f5-($han-regions):15x16 15 16 // 𩋵
 
 // glyph han-25315:15x16 15 16 // 𥌕
 // ⿱ han-9781 han-76ee // ⿱鞁目
+
+// glyph han-29310:15x16 15 16 // 𩌐
+// ⿰ han-9769 han-25133 // ⿰革𥄳
 
 glyph han-29321:15x16 15 16 // 𩌡
 ⿰ han-9769:7x16 1 han-9ad8:7x16 // ⿰革高
