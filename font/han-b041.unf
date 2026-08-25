@@ -16,10 +16,18 @@ glyph han-21b24:15x16 15 16 // 𡬤
 // glyph han-21b37:15x16 15 16 // 𡬷
 // ⿱ han-5247 han-5bf8 // ⿱則寸
 
+## 41.10
+
+// glyph han-21b3a:15x16 15 16 // 𡬺
+// ⿰ han-7f61 han-5bf8 // ⿰罡寸
+
 ## 41.11
 
 glyph han-21b3d:15x16 15 16 // 𡬽
 ⿰ han-7968:7x16 1 han-5bf8:7x16 // ⿰票寸
+
+// glyph han-21b40:15x16 15 16 // 𡭀
+// ⿰ han-7f63 han-5bf8 // ⿰罣寸
 
 glyph han-21b41:15x16 15 16 // 𡭁
 ⿰ han-7fcf:7x16 1 han-5bf8:7x16 // ⿰翏寸

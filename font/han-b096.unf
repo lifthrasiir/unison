@@ -251,6 +251,9 @@ glyph han-24a27:15x16 15 16 // 𤨧
 glyph han-24a4a:15x16 15 16 // 𤩊
 ⿰ han-248e9:7x16 1 han-582f:7x16 // ⿰𤣩堯
 
+// glyph han-24a4f:15x16 15 16 // 𤩏
+// ⿲ han-248e9 han-79be han-5448 // ⿲𤣩禾呈 <- ⿰𤣩程
+
 glyph han-24a50:15x16 15 16 // 𤩐
 ⿲ han-248e9:3x16 han-5176:6x16 han-65a4:6x16 // ⿲𤣩其斤
 

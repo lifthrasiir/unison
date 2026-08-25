@@ -16,6 +16,11 @@ glyph han-31cee:15x16 15 16 // 𱳮
 // glyph han-31cf5:15x16 15 16 // 𱳵
 // ⿲ han-77f3 han-53e3 han-5341 // ⿲石口十 <- ⿰石叶
 
+## 112.7
+
+// glyph han-31d07:15x16 15 16 // 𱴇
+// ⿰ han-77f3 han-5448 // ⿰石呈
+
 ## 112.9
 
 // glyph han-31d1b:15x16 15 16 // 𱴛
@@ -192,6 +197,18 @@ glyph han-31e7f:15x16 15 16 // 𱹿
 glyph han-31e88:15x16 15 16 // 𱺈
 ⿲ -3 han-7cf9:5x16 1 han-8a01:5x16 1 han-53ec:6x16 // ⿲糹訁召
 
+# CJK unified ideographs extension H: 网 (122)
+
+## 122.4
+
+// glyph han-31eba:15x16 15 16 // 𱺺
+// ⿱ han-7f52 han-5206 // ⿱罒分
+
+## 122.8
+
+glyph han-31ec5:15x16 15 16 // 𱻅
+⿳ han-7f52:15x4 han-5b80:15x5 han-4e14:15x7 // ⿳罒宀且
+
 # CJK unified ideographs extension H: 羊 (123)
 
 ## 123.7
@@ -290,6 +307,9 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 // glyph han-31f9d:15x16 15 16 // 𱾝
 // ⿱ han-8279 han-690e // ⿱艹椎
 
+// glyph han-31f9f:15x16 15 16 // 𱾟
+// ⿳ han-44a4 han-7f52 han-5bf8 // ⿳䒤罒寸
+
 ## 140.13
 
 // glyph han-31fab:15x16 15 16 // 𱾫
@@ -332,6 +352,9 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 // glyph han-31fe3:15x16 15 16 // 𱿣
 // ⿰ han-866b han-514b // ⿰虫克
 
+// glyph han-31fe4:15x16 15 16 // 𱿤
+// ⿰ han-866b han-5415 // ⿰虫吕
+
 ## 142.8
 
 // glyph han-31fe8:15x16 15 16 // 𱿨
@@ -353,6 +376,11 @@ glyph han-31ff2:15x16 15 16 // 𱿲
 
 // glyph han-31ffb:15x16 15 16 // 𱿻
 // ⿳ han-7c73 han-5973 han-866b // ⿳米女虫 <- ⿱娄虫
+
+## 142.10
+
+// glyph han-31ffd:15x16 15 16 // 𱿽
+// ⿰ han-866b han-7f61 // ⿰虫罡
 
 # CJK unified ideographs extension H: 衣 (145)
 

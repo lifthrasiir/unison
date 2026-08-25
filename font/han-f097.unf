@@ -115,6 +115,11 @@ glyph han-2df6b:15x16 15 16 // 𭽫
 glyph han-2dfa8:15x16 15 16 // 𭾨
 ⿰ han-76ee:4x16-l 1 han-53ef:10x16 // ⿰目可
 
+## 109.6
+
+// glyph han-2dfb1:15x16 15 16 // 𭾱
+// ⿱ han-7f52 han-8863 // ⿱罒衣
+
 ## 109.7
 
 glyph han-2dfb5:15x16 15 16 // 𭾵
@@ -152,6 +157,9 @@ glyph han-2e014:15x16 15 16 // 𮀔
 ⿰ han-77f3:8x16 han-793a:7x16 // ⿰石示
 
 ## 112.7
+
+// glyph han-2e019:15x16 15 16 // 𮀙
+// ⿰ han-77f3 han-541e // ⿰石吞
 
 // glyph han-2e01a:15x16 15 16 // 𮀚
 // ⿰ han-77f3 han-514b // ⿰石克

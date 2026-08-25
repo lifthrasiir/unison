@@ -2,8 +2,8 @@
 
 ## 46.3
 
-// glyph han-2aa22:15x16 15 16 // 𪨢
-// ⿱ han-5c71 han-4e0b // ⿱山下
+glyph han-2aa22:15x16 15 16 // 𪨢
+⿱ han-5c71:15x4 1 han-4e0b:15x11 // ⿱山下
 
 ## 46.6
 
@@ -25,8 +25,8 @@ glyph han-2aa41:15x16 15 16 // 𪩁
 // glyph han-2aa43:15x16 15 16 // 𪩃
 // ⿱ han-5c71 han-662f // ⿱山是
 
-// glyph han-2aa45:15x16 15 16 // 𪩅
-// ⿳ han-5c71 han-767d han-738b // ⿳山白王 <- ⿱山皇
+glyph han-2aa45:15x16 15 16 // 𪩅
+⿳ han-5c71:15x4 han-767d:15x6 1 han-738b:15x5 // ⿳山白王
 
 // glyph han-2aa47:15x16 15 16 // 𪩇
 // ⿳ han-5c71 han-7c73 han-5973 // ⿳山米女 <- ⿱山娄
@@ -77,8 +77,8 @@ glyph han-2aae9:15x16 15 16 // 𪫩
 // glyph han-2aaee:15x16 15 16 // 𪫮
 // ⿰ han-5fc4 han-767e // ⿰忄百
 
-// glyph han-2aaf0:15x16 15 16 // 𪫰
-// ⿳ han-53e3 han-53e3 han-5fc3 // ⿳口口心 <- ⿱吕心
+glyph han-2aaf0:15x16 15 16 // 𪫰
+⿳ han-53e3:15x5 1 han-53e3:15x5 han-5fc3:15x5 // ⿳口口心
 
 // glyph han-2aaf1:15x16 15 16 // 𪫱
 // ⿱ han-4efd han-5fc3 // ⿱份心
@@ -105,6 +105,9 @@ glyph han-2aae9:15x16 15 16 // 𪫩
 // ⿰ han-6017 han-5fc3 // ⿰怗心
 
 ## 61.11
+
+// glyph han-2ab20:15x16 15 16 // 𪬠
+// ⿰ han-5fc4 han-8392 // ⿰忄莒
 
 // glyph han-2ab22:15x16 15 16 // 𪬢
 // ⿲ han-5fc4 han-5192 han-529b // ⿲忄冒力 <- ⿰忄勖

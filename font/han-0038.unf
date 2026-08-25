@@ -198,6 +198,9 @@ glyph han-59db:15x16 15 16 // 姛
 glyph han-59de:15x16 15 16 // 姞
 ⿰ han-5973:5x16-l 1 han-5409:9x16 // ⿰女吉
 
+// glyph han-59e1:15x16 15 16 // 姡
+// ⿰ han-5973 han-820c // ⿰女舌
+
 glyph han-59e3:15x16 15 16 // 姣
 ⿰ han-5973:5x16-l 1 han-4ea4:9x16 // ⿰女交
 
@@ -241,6 +244,9 @@ glyph han-5a18:15x16 15 16 // 娘
 
 // glyph han-5a28:15x16 15 16 // 娨
 // ⿰ han-5973 han-65f1 // ⿰女旱
+
+// glyph han-5a31:15x16 15 16 // 娱
+// ⿰ han-5973 han-5434 // ⿰女吴
 
 glyph han-5a33:15x16 15 16 // 娳
 ⿲ han-5973:5x16-l han-79be:5x16 han-5202:5x16 // ⿲女禾刂
@@ -304,6 +310,9 @@ glyph han-5a88:15x16 15 16 // 媈
 
 glyph han-5a8e-($han-regions):15x16 15 16 // 媎
 ⿰ han-5973:7x16 1 han-8005-($-1):7x16 // ⿰女者
+
+// glyph han-5a8f:15x16 15 16 // 媏
+// ⿰ han-5973 han-8011 // ⿰女耑
 
 glyph han-5a93:15x16 15 16 // 媓
 ⿰ han-5973:5x16-l 1 han-7687:9x16 // ⿰女皇
@@ -477,8 +486,8 @@ glyph han-5b9c:15x16 15 16 // 宜
 // glyph han-5ba9:15x16 15 16 // 宩
 // ⿱ han-5b80 han-7c73 // ⿱宀米
 
-// glyph han-5bab:15x16 15 16 // 宫
-// ⿳ han-5b80 han-53e3 han-53e3 // ⿳宀口口 <- ⿱宀吕
+glyph han-5bab:15x16 15 16 // 宫
+⿳ han-5b80:15x5 han-53e3:15x5 1 han-53e3:15x5 // ⿳宀口口
 
 ## 40.7
 
@@ -516,6 +525,9 @@ glyph han-5bdb:15x16 15 16 // 寛
 
 // glyph han-5be5:15x16 15 16 // 寥
 // ⿱ han-5b80 han-7fcf // ⿱宀翏
+
+// glyph han-5be7:15x16 15 16 // 寧
+// ⿳ han-2bcbd han-7f52 han-4e01 // ⿳𫲽罒丁 <- ⿱𫲽𦉬
 
 ## 40.12
 

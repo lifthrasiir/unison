@@ -61,6 +61,9 @@ glyph han-22ab7:15x16 15 16 // 𢪷
 // glyph han-22abd:15x16 15 16 // 𢪽
 // ⿲ han-4ecc han-4e28 han-624b // ⿲仌丨手
 
+// glyph han-22abe:15x16 15 16 // 𢪾
+// ⿰ han-624c han-7f52 // ⿰扌罒
+
 // glyph han-22abf:15x16 15 16 // 𢪿
 // ⿱ han-53e4 han-624b // ⿱古手
 
@@ -86,6 +89,9 @@ glyph han-22ae9:15x16 15 16 // 𢫩
 
 // glyph han-22af5:15x16 15 16 // 𢫵
 // ⿰ han-624c han-65e9 // ⿰扌早
+
+// glyph han-22af8:15x16 15 16 // 𢫸
+// ⿰ han-624c han-5434 // ⿰扌吴
 
 glyph han-22afc:15x16 15 16 // 𢫼
 ⿰ han-624c:5x16 1 han-866b:9x16 // ⿰扌虫
@@ -193,6 +199,9 @@ glyph han-22bca-($han-regions):15x16 15 16 // 𢯊
 glyph han-22bd0:15x16 15 16 // 𢯐
 ⿲ han-624c:3x16 han-5973:5x16 han-53e4:7x16 // ⿲扌女古
 
+// glyph han-22bd4:15x16 15 16 // 𢯔
+// ⿲ han-624c han-820c han-5202 // ⿲扌舌刂 <- ⿰扌刮
+
 // glyph han-22bd5:15x16 15 16 // 𢯕
 // ⿰ han-624c han-5b9c // ⿰扌宜
 
@@ -256,6 +265,9 @@ glyph han-22c50:15x16 15 16 // 𢱐
 // ⿰ han-624c han-82e6 // ⿰扌苦
 
 ## 64.10
+
+// glyph han-22c6b:15x16 15 16 // 𢱫
+// ⿰ han-624c han-7f61 // ⿰扌罡
 
 // glyph han-22c76:15x16 15 16 // 𢱶
 // ⿰ han-624c han-2c530 // ⿰扌𬔰

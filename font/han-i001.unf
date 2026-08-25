@@ -70,8 +70,8 @@
 
 ## 46.6
 
-// glyph han-2ec68:15x16 15 16 // 𮱨
-// ⿱ han-5c71 han-8033 // ⿱山耳
+glyph han-2ec68:15x16 15 16 // 𮱨
+⿱ han-5c71:15x4 1 han-8033:15x11 // ⿱山耳
 
 # CJK unified ideographs extension I: 心 (61)
 
@@ -192,6 +192,9 @@ glyph han-2ed44:15x16 15 16 // 𮵄
 # CJK unified ideographs extension I: 石 (112)
 
 ## 112.6
+
+// glyph han-2ed4d:15x16 15 16 // 𮵍
+// ⿰ han-77f3 han-820c // ⿰石舌
 
 // glyph han-2ed4e:15x16 15 16 // 𮵎
 // ⿱ han-77f3 han-2a8b4 // ⿱石𪢴

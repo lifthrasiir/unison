@@ -413,8 +413,8 @@ glyph han-65f2:15x16 15 16 // 旲
 glyph han-65f3-($han-regions):15x16 15 16 // 旳
 ⿰ han-65e5:7x16 1 han-52fa-($-1):7x16 // ⿰日勺
 
-// glyph han-65f5:15x16 15 16 // 旵
-// ⿱ han-65e5 han-5c71 // ⿱日山
+glyph han-65f5:15x16 15 16 // 旵
+⿱ han-65e5:15x11 han-5c71:15x5 // ⿱日山
 
 glyph han-65f6:15x12 15 12 // 时
 ⿰ han-65e5:6x12 han-5bf8:9x12 // ⿰日寸
@@ -462,7 +462,7 @@ glyph han-6615:15x16 15 16 // 昕
 ⿰ han-65e5:7x16 1 han-65a4:7x16 // ⿰日斤
 
 glyph han-6617:15x16 15 16 // 昗
-⿱ han-65e5:15x7 1 han-516d:15x7 // ⿱日六
+⿱ han-65e5:15x7 han-516d:15x9 // ⿱日六
 
 ## 72.5
 

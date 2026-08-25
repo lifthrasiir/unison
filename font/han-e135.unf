@@ -1,9 +1,29 @@
+# CJK unified ideographs extension E: 舌 (135)
+
+## 135.5
+
+// glyph han-2c705:15x16 15 16 // 𬜅
+// ⿰ han-820c han-5360 // ⿰舌占
+
+## 135.8
+
+// glyph han-2c708:15x16 15 16 // 𬜈
+// ⿰ han-820c han-5352 // ⿰舌卒
+
+## 135.9
+
+// glyph han-2c709:15x16 15 16 // 𬜉
+// ⿰ han-820c han-601d // ⿰舌思
+
+// glyph han-2c70a:15x16 15 16 // 𬜊
+// ⿰ han-820c han-5247 // ⿰舌則
+
 # CJK unified ideographs extension E: 艸 (140)
 
 ## 140.3
 
-// glyph han-2c721:15x16 15 16 // 𬜡
-// ⿱ han-8279 han-5c71 // ⿱艹山
+glyph han-2c721:15x16 15 16 // 𬜡
+⿱ han-8279:15x3 1 han-5c71:15x12 // ⿱艹山
 
 ## 140.6
 

@@ -2,28 +2,28 @@
 
 ## 45.4
 
-// glyph han-37b7:15x16 15 16 // 㞷
-// ⿱ han-5c71 han-738b // ⿱山王
+glyph han-37b7:15x16 15 16 // 㞷
+⿱ han-5c71:15x4 1 han-738b:15x11 // ⿱山王
 
 # CJK unified ideographs extension A: 山 (46)
 
 ## 46.2
 
-// glyph han-37a4:15x16 15 16 // 㞤
-// ⿱ han-5c71 han-4eba // ⿱山人
+glyph han-37a4:15x16 15 16 // 㞤
+⿱ han-5c71:15x4 han-4eba:15x12 // ⿱山人
 
 ## 46.3
 
 // glyph han-37ac:15x16 15 16 // 㞬
 // ⿱ han-5c71 han-5de5 // ⿱山工
 
-// glyph han-37ad:15x16 15 16 // 㞭
-// ⿱ han-5927 han-5c71 // ⿱大山
+glyph han-37ad:15x16 15 16 // 㞭
+⿱ han-5927:15x11 han-5c71:15x5 // ⿱大山
 
 ## 46.4
 
-// glyph han-37b1:15x16 15 16 // 㞱
-// ⿱ han-5c71 han-65e5 // ⿱山日
+glyph han-37b1:15x16 15 16 // 㞱
+⿱ han-5c71:15x4 1 han-65e5:15x11 // ⿱山日
 
 glyph han-37b2:15x16 15 16 // 㞲
 ⿰ han-5c71:5x16 1 han-4e2d:9x16 // ⿰山中
@@ -57,19 +57,27 @@ glyph han-37cd:15x16 15 16 // 㟍
 glyph han-37d8:15x16 15 16 // 㟘
 ⿰ han-5c71:5x16 han-5468:10x16 // ⿰山周
 
-// glyph han-37e2:15x16 15 16 // 㟢
-// ⿳ han-5c71 han-5927 han-53ef // ⿳山大可 <- ⿱山奇
+glyph han-37e2:15x16 15 16 // 㟢
+⿳ han-5c71:15x5 han-5927:15x5 han-53ef:15x6 // ⿳山大可
 
 ## 46.9
 
-// glyph han-37e6:15x16 15 16 // 㟦
-// ⿱ han-5c71 han-8ecd // ⿱山軍
+glyph han-37e6:15x16 15 16 // 㟦
+⿱ -1 han-5c71:15x4 1 han-8ecd:15x12 // ⿱山軍
+
+// glyph han-37e8:15x16 15 16 // 㟨
+// ⿰ han-5c71 han-8011 // ⿰山耑
 
 // glyph han-37ee:15x16 15 16 // 㟮
 // ⿰ han-5c71 han-7a81 // ⿰山突
 
 // glyph han-37ef:15x16 15 16 // 㟯
 // ⿳ han-5c71 han-5b80 han-5404 // ⿳山宀各 <- ⿱山客
+
+## 46.10
+
+glyph han-37f5:15x16 15 16 // 㟵
+⿳ han-5c71:15x5 1 han-7f52:15x4 1 han-6b63:15x5 // ⿳山罒正
 
 ## 46.11
 
@@ -130,7 +138,7 @@ glyph han-38ff-p:15x16 15 16 // 㣿
 ## 61.4
 
 glyph han-3901:15x16 15 16 // 㤁
-⿱ han-5929:15x8 1 han-5fc3:15x6 // ⿱天心
+⿱ han-5929:15x11 han-5fc3:15x5 // ⿱天心
 
 // glyph han-3908:15x16 15 16 // 㤈
 // ⿰ han-5fc4 han-5fc3 // ⿰忄心
@@ -234,6 +242,9 @@ glyph han-3969-j:15x16 15 16 // 㥩
 // glyph han-39f3:15x16 15 16 // 㧳
 // ⿱ han-626e han-624b // ⿱扮手
 
+// glyph han-39f7:15x16 15 16 // 㧷
+// ⿰ han-624c han-541e // ⿰扌吞
+
 ## 64.8
 
 glyph han-3a04:15x16 15 16 // 㨄
@@ -274,6 +285,11 @@ glyph han-3a36:15x16 15 16 // 㨶
 
 // glyph han-3a3c:15x16 15 16 // 㨼
 // ⿱ han-7565 han-624b // ⿱略手
+
+## 64.12
+
+// glyph han-3a44:15x16 15 16 // 㩄
+// ⿰ han-624c han-5d3d // ⿰扌崽
 
 ## 64.15
 
@@ -329,6 +345,9 @@ glyph han-3ad6:15x16 15 16 // 㫖
 // ⿰ han-65e5 han-592b // ⿰日夫
 
 ## 72.5
+
+// glyph han-3adb:15x16 15 16 // 㫛
+// ⿰ han-65e5 han-5144 // ⿰日兄
 
 // glyph han-3adc:15x16 15 16 // 㫜
 // ⿰ han-65e5 han-65e6 // ⿰日旦

@@ -29,11 +29,20 @@ glyph han-6e3e:15x16 15 16 // 渾
 glyph han-6e41:15x16 15 16 // 湁
 ⿲ han-6c35:3x16 han-624c:3x16 han-5408:9x16 // ⿲氵扌合
 
+// glyph han-6e49:15x16 15 16 // 湉
+// ⿲ han-6c35 han-5fc4 han-820c // ⿲氵忄舌 <- ⿰氵恬
+
+// glyph han-6e4d:15x16 15 16 // 湍
+// ⿰ han-6c35 han-8011 // ⿰氵耑
+
 glyph han-6e4f:15x16 15 16 // 湏
 ⿰ han-6c35:5x16 1 han-9801:9x16 // ⿰氵頁
 
 glyph han-6e50:15x16 15 16 // 湐
 ⿲ han-6c35:3x16 han-6728:5x16 1 han-767d:6x16 // ⿲氵木白
+
+// glyph han-6e52:15x16 15 16 // 湒
+// ⿰ han-6c35 han-54a0 // ⿰氵咠
 
 glyph han-6e56:15x16 15 16 // 湖
 ⿲ han-6c35:3x16 han-53e4:7x16 han-6708:5x16 // ⿲氵古月

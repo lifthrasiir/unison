@@ -134,6 +134,12 @@ glyph han-8cb1:15x16 15 16 // 貱
 // glyph han-8cb4:15x16 15 16 // 貴
 // ⿳ han-4e2d han-4e00 han-8c9d // ⿳中一貝 <- ⿱𠀐貝
 
+// glyph han-8cb7:15x16 15 16 // 買
+// ⿱ han-7f52 han-8c9d // ⿱罒貝
+
+// glyph han-8cba:15x16 15 16 // 貺
+// ⿰ han-8c9d han-5144 // ⿰貝兄
+
 glyph han-8cbc:15x16 15 16 // 貼
 ⿰ han-8c9d:6x16 1 han-5360:7x16 // ⿰貝占
 
@@ -443,6 +449,9 @@ glyph han-8e37-(g|t|k|p|v):15x16 15 16 // 踷
 ⿰ han-27fb7:5x16 1 han-8005-($-1):9x16 // ⿰𧾷者
 glyph han-8e37-j:15x16 15 16 // 踷
 ⿰ han-27fb7:5x16 1 han-8005.1:9x16 // ⿰𧾷者
+
+// glyph han-8e39:15x16 15 16 // 踹
+// ⿰ han-27fb7 han-8011 // ⿰𧾷耑
 
 glyph han-8e3c:15x16 15 16 // 踼
 ⿰ han-27fb7:5x16 1 han-661c:9x16 // ⿰𧾷昜

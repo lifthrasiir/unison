@@ -52,6 +52,9 @@ glyph han-2896e:15x16 15 16 // 𨥮
 // glyph han-28994:15x16 15 16 // 𨦔
 // ⿱ han-5982 han-91d1 // ⿱如金
 
+// glyph han-2899a:15x16 15 16 // 𨦚
+// ⿰ han-91d2 han-3566 // ⿰釒㕦
+
 glyph han-289a1:15x16 15 16 // 𨦡
 ⿰ han-91d2:7x16 1 han-7f8a:7x16 // ⿰釒羊
 
@@ -68,6 +71,9 @@ glyph han-289ac:15x16 15 16 // 𨦬
 
 glyph han-289c0:15x16 15 16 // 𨧀
 ⿲ -1 han-91d2:5x16-l han-6728:5x16 -1 han-571f:7x16 // ⿲釒木土
+
+// glyph han-289d0:15x16 15 16 // 𨧐
+// ⿰ han-91d2 han-541e // ⿰釒吞
 
 // glyph han-289dd:15x16 15 16 // 𨧝
 // ⿲ han-91d2 han-4ebb han-65e6 // ⿲釒亻旦 <- ⿰釒但
@@ -117,6 +123,9 @@ glyph han-28a22:15x16 15 16 // 𨨢
 
 // glyph han-28a30:15x16 15 16 // 𨨰
 // ⿰ han-91d2 han-800e // ⿰釒耎
+
+// glyph han-28a31:15x16 15 16 // 𨨱
+// ⿲ han-91d2 han-6c35 han-820c // ⿲釒氵舌 <- ⿰釒活
 
 // glyph han-28a37:15x16 15 16 // 𨨷
 // ⿰ han-91d2 han-7a81 // ⿰釒突
@@ -183,6 +192,9 @@ glyph han-28b09:15x16 15 16 // 𨬉
 
 glyph han-28b30:15x16 15 16 // 𨬰
 ⿲ han-91d2:5x16-l han-5de5:5x16 han-9801:5x16 // ⿲釒工頁
+
+// glyph han-28b3c:15x16 15 16 // 𨬼
+// ⿰ han-91d2 han-25b45 // ⿰釒𥭅
 
 // glyph han-28b48:15x16 15 16 // 𨭈
 // ⿲ han-91d2 han-72ad han-82d6 // ⿲釒犭苖 <- ⿰釒⿰犭苖

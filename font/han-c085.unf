@@ -286,6 +286,11 @@ glyph han-2af7b:15x16 15 16 // 𪽻
 // glyph han-2af7e:15x16 15 16 // 𪽾
 // ⿱ han-767d han-8c9d // ⿱白貝
 
+## 106.9
+
+// glyph han-2af82:15x16 15 16 // 𪾂
+// ⿰ han-7687 han-5144 // ⿰皇兄
+
 # CJK unified ideographs extension C: 皮 (107)
 
 ## 107.9
@@ -309,6 +314,9 @@ glyph han-2afa7-($han-regions):15x16 15 16 // 𪾧
 
 // glyph han-2afab:15x16 15 16 // 𪾫
 // ⿱ han-76ee han-52a9 // ⿱目助
+
+// glyph han-2afac:15x16 15 16 // 𪾬
+// ⿲ han-76ee han-820c han-4e5a // ⿲目舌乚 <- ⿰目乱
 
 ## 109.8
 

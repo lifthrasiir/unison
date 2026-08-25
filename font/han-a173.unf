@@ -82,6 +82,9 @@ glyph han-4a64:15x16 15 16 // 䩤
 
 ## 177.9
 
+// glyph han-4a70:15x16 15 16 // 䩰
+// ⿰ han-9769 han-54a0 // ⿰革咠
+
 glyph han-4a71:15x16 15 16 // 䩱
 ⿰ han-9769:7x16 1 han-4fde:7x16 // ⿰革俞
 
@@ -288,6 +291,9 @@ glyph han-4bcd-($han-regions):15x16 15 16 // 䯍
 
 ## 188.6
 
+// glyph han-4bcf:15x16 15 16 // 䯏
+// ⿰ han-9aa8 han-820c // ⿰骨舌
+
 glyph han-4bd3:15x16 15 16 // 䯓
 ⿰ han-9aa8:7x16 1 han-572d:7x16 // ⿰骨圭
 
@@ -490,6 +496,9 @@ glyph han-4ce2:15x16 15 16 // 䳢
 
 glyph han-4ce8:15x16 15 16 // 䳨
 ⿰ han-7687:7x16 1 han-9ce5:7x16 // ⿰皇鳥
+
+// glyph han-4cea:15x16 15 16 // 䳪
+// ⿰ han-8011 han-9ce5 // ⿰耑鳥
 
 glyph han-4cec:15x16 15 16 // 䳬
 ⿰ han-9769:7x16 1 han-9ce5:7x16 // ⿰革鳥

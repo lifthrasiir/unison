@@ -51,6 +51,11 @@ glyph han-2b847:15x16 15 16 // 𫡇
 // glyph han-2b87c:15x16 15 16 // 𫡼
 // ⿳ han-4ea0 han-7530 han-76ee // ⿳亠田目 <- ⿱亩目
 
+## 8.11
+
+// glyph han-2b87d:15x16 15 16 // 𫡽
+// ⿰ han-4ea4 han-5415 // ⿰交吕
+
 # CJK unified ideographs extension E: 人 (9)
 
 ## 9.1
@@ -101,6 +106,13 @@ glyph han-2b8d1:15x16 15 16 // 𫣑
 
 glyph han-2b8f9:15x16 15 16 // 𫣹
 ⿰ han-5408:7x16 1 han-55ac:7x16 // ⿰合喬
+
+# CJK unified ideographs extension E: 儿 (10)
+
+## 10.12
+
+// glyph han-2b91f:15x16 15 16 // 𫤟
+// ⿰ han-5144 han-7687 // ⿰兄皇
 
 # CJK unified ideographs extension E: 刀 (18)
 
@@ -171,6 +183,9 @@ glyph han-2b9ae:15x16 15 16 // 𫦮
 
 // glyph han-2b9af:15x16 15 16 // 𫦯
 // ⿱ han-6797 han-529b // ⿱林力
+
+// glyph han-2b9b2:15x16 15 16 // 𫦲
+// ⿰ han-31492 han-529b // ⿰𱒒力
 
 ## 19.10
 
@@ -274,6 +289,9 @@ glyph han-2bae2:15x16 15 16 // 𫫢
 // ⿲ han-53e3 han-72ad han-82d7 // ⿲口犭苗 <- ⿰口猫
 
 ## 30.13
+
+// glyph han-2bb03:15x16 15 16 // 𫬃
+// ⿲ han-53e3 han-8a01 han-820c // ⿲口訁舌 <- ⿰口話
 
 glyph han-2bb06:15x16 15 16 // 𫬆
 ⿲ han-53e3:3x16-l 1 han-706b:5x16 1 han-9801:5x16 // ⿲口火頁

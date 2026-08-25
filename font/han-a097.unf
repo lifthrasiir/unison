@@ -114,6 +114,9 @@ glyph han-4026:15x16 15 16 // 䀦
 
 ## 109.6
 
+// glyph han-4028:15x16 15 16 // 䀨
+// ⿰ han-76ee han-820c // ⿰目舌
+
 glyph han-4029:15x16 15 16 // 䀩
 ⿰ han-76ee:7x16 1 han-5404:7x16 // ⿰目各
 
@@ -141,6 +144,9 @@ glyph han-403f:15x16 15 16 // 䀿
 
 glyph han-4051:15x16 15 16 // 䁑
 ⿰ han-76ee:6x16 han-661c:9x16 // ⿰目昜
+
+// glyph han-4052:15x16 15 16 // 䁒
+// ⿰ han-76ee han-54a0 // ⿰目咠
 
 ## 109.11
 
@@ -210,6 +216,11 @@ glyph han-40cb:15x16 15 16 // 䃋
 // glyph han-40d0:15x16 15 16 // 䃐
 // ⿰ han-77f3 han-7a81 // ⿰石突
 
+## 112.10
+
+// glyph han-40d4:15x16 15 16 // 䃔
+// ⿰ han-77f3 han-5bab // ⿰石宫
+
 ## 112.12
 
 glyph han-40e2:15x16 15 16 // 䃢
@@ -237,6 +248,16 @@ glyph han-4102:15x16 15 16 // 䄂
 
 // glyph han-4103:15x16 15 16 // 䄃
 // ⿰ han-793b han-592e // ⿰礻央
+
+## 113.6
+
+// glyph han-4106:15x16 15 16 // 䄆
+// ⿰ han-793b han-820c // ⿰礻舌
+
+## 113.7
+
+// glyph han-4107:15x16 15 16 // 䄇
+// ⿰ han-793b han-5448 // ⿰礻呈
 
 ## 113.8
 
@@ -440,8 +461,8 @@ glyph han-41ef:15x16 15 16 // 䇯
 // glyph han-41f5:15x16 15 16 // 䇵
 // ⿱ han-25ad7 han-6c82 // ⿱𥫗沂
 
-// glyph han-41f8:15x16 15 16 // 䇸
-// ⿳ han-25ad7 han-53e3 han-738b // ⿳𥫗口王 <- ⿱𥫗呈
+glyph han-41f8:15x16 15 16 // 䇸
+⿳ han-25ad7:15x5 han-53e3:15x5 1 han-738b:15x5 // ⿳𥫗口王
 
 // glyph han-41fc:15x16 15 16 // 䇼
 // ⿱ han-25ad7 han-9091 // ⿱𥫗邑
@@ -482,6 +503,9 @@ glyph han-41ef:15x16 15 16 // 䇯
 
 // glyph han-421a:15x16 15 16 // 䈚
 // ⿳ han-25ad7 han-53f0 han-5fc3 // ⿳𥫗台心 <- ⿱𥫗怠
+
+// glyph han-421e:15x16 15 16 // 䈞
+// ⿳ han-25ad7 han-4ea0 han-20bed // ⿳𥫗亠𠯭 <- ⿱𥫗亯
 
 // glyph han-421f:15x16 15 16 // 䈟
 // ⿱ han-25ad7 han-5247 // ⿱𥫗則

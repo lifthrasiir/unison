@@ -170,6 +170,11 @@ glyph han-2b548:15x16 15 16 // 𫕈
 // glyph han-2b55a:15x16 15 16 // 𫕚
 // ⿲ han-96b9 han-4eba han-4eba // ⿲隹人人 <- ⿰隹从
 
+## 172.6
+
+// glyph han-2b55b:15x16 15 16 // 𫕛
+// ⿰ han-820c han-96b9 // ⿰舌隹
+
 # CJK unified ideographs extension C: 雨 (173)
 
 ## 173.3
@@ -289,6 +294,11 @@ glyph han-2b6b3:15x16 15 16 // 𫚳
 
 glyph han-2b6b4:15x16 15 16 // 𫚴
 ⿰ han-79be:7x16 1 han-9ce5:7x16 // ⿰禾鳥
+
+## 196.7
+
+// glyph han-2b6be:15x16 15 16 // 𫚾
+// ⿰ han-5434 han-9ce5 // ⿰吴鳥
 
 ## 196.9
 

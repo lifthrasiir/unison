@@ -1269,6 +1269,9 @@ glyph han-7710:15x16 15 16 // 眐
 glyph han-7712:15x16 15 16 // 眒
 ⿰ han-76ee:4x16-l 2 han-7533:9x16 // ⿰目申
 
+// glyph han-7716:15x16 15 16 // 眖
+// ⿰ han-76ee han-5144 // ⿰目兄
+
 glyph han-7717:15x12 15 12 // 眗
 ⿰ han-76ee:7x12 1 han-53e5:7x12 // ⿰目句
 glyph han-7717:15x16 15 16 // 眗
@@ -1328,6 +1331,9 @@ glyph han-7744:15x16 15 16 // 睄
 
 // glyph han-7746:15x16 15 16 // 睆
 // ⿰ han-76ee han-5b8c // ⿰目完
+
+// glyph han-7748:15x16 15 16 // 睈
+// ⿰ han-76ee han-5448 // ⿰目呈
 
 glyph han-774d:15x16 15 16 // 睍
 ⿰ han-76ee:4x16-l 1 han-898b:10x16 // ⿰目見

@@ -80,11 +80,11 @@ glyph han-29098:15x16 15 16 // 𩂘
 // glyph han-290b7:15x16 15 16 // 𩂷
 // ⿱ han-96e8 han-6c85 // ⿱雨沅
 
-// glyph han-290c8:15x16 15 16 // 𩃈
-// ⿱ han-96e8 han-8db3 // ⿱雨足
+glyph han-290c8:15x16 15 16 // 𩃈
+⿳ -4 han-96e8:15x7 1 han-53e3:15x5 han-9fb0:15x7 // ⿳雨口龰
 
-// glyph han-290c9:15x16 15 16 // 𩃉
-// ⿳ han-96e8 han-53e3 han-5929 // ⿳雨口天 <- ⿱雨吴
+glyph han-290c9:15x16 15 16 // 𩃉
+⿳ -6 han-96e8:15x7 1 han-53e3:15x5 1 han-5929:15x8 // ⿳雨口天
 
 // glyph han-290d0:15x16 15 16 // 𩃐
 // ⿱ han-96e8 han-4f4e // ⿱雨低
@@ -118,6 +118,9 @@ glyph han-290e4:15x16 15 16 // 𩃤
 // glyph han-290e8:15x16 15 16 // 𩃨
 // ⿱ han-96e8 han-73aa // ⿱雨玪
 
+// glyph han-290e9:15x16 15 16 // 𩃩
+// ⿳ han-96e8 han-7f52 han-5973 // ⿳雨罒女
+
 ## 173.9
 
 // glyph han-290fc:15x16 15 16 // 𩃼
@@ -125,6 +128,9 @@ glyph han-290e4:15x16 15 16 // 𩃤
 
 // glyph han-29103:15x16 15 16 // 𩄃
 // ⿱ han-96e8 han-67b9 // ⿱雨枹
+
+glyph han-29107:15x16 15 16 // 𩄇
+⿳ -1 han-96e8:15x7 1 han-7f52:15x3 1 han-738b:15x5 // ⿳雨罒王
 
 // glyph han-2910d:15x16 15 16 // 𩄍
 // ⿱ han-96e8 han-79cb // ⿱雨秋
