@@ -611,6 +611,27 @@ impl PixelGrid {
                             self.set(dr as u16, dc as u16, shape);
                         }
                     } else {
+                        let filled = current.is_bitmap_filled() || shape.is_bitmap_filled();
+                        // The sweep is the general answer, but not every pair
+                        // needs one: a cell either side already covers whole
+                        // is that cell, and two equal shape ids describe the
+                        // same region — except `PX_CUSTOM`, the one id many
+                        // regions share. Union is on the hot path of every
+                        // composite flattening, so these three cost nothing
+                        // and skip most of the work a han glyph would do.
+                        let (cur_id, src_id) = (current.shape_id(), shape.shape_id());
+                        if src_id == PX_ALMOSTFULL {
+                            self.set(dr as u16, dc as u16, PixelShape::new(PX_ALMOSTFULL, filled));
+                            continue;
+                        }
+                        if cur_id == PX_ALMOSTFULL {
+                            self.set_filled(dr as u16, dc as u16, filled);
+                            continue;
+                        }
+                        if cur_id == src_id && cur_id != PX_CUSTOM {
+                            self.set_filled(dr as u16, dc as u16, filled);
+                            continue;
+                        }
                         let cur_region = self.region_at(dr as u16, dc as u16);
                         let src_region = src.region_at(r as u16, c as u16);
                         self.apply_classified(
@@ -618,7 +639,7 @@ impl PixelGrid {
                             dc as u16,
                             detail::bool_op(&cur_region, &src_region, detail::BoolOp::Union)
                                 .classify(),
-                            current.is_bitmap_filled() || shape.is_bitmap_filled(),
+                            filled,
                         );
                     }
                 }

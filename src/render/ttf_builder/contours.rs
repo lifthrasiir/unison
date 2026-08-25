@@ -440,27 +440,21 @@ impl CachedContours {
                 track_contour_multi_at(&layers, PX_SUBPIXEL)
             };
 
-            // Build combined grid for downstream composites
+            // The flattened grid a *parent* composite reads this glyph out
+            // of. It is not a bookkeeping copy: once the parent's own layers
+            // conflict it re-traces its contours from these grids, so a layer
+            // has to be *unioned* onto what is already there the way
+            // `PixelGrid::blit` does it — a `ref` dropping a subpixel over the
+            // host's own full pixel would otherwise replace it, and the parent
+            // would draw in pieces what the child's own outline drew whole.
+            // (`blit` also settles a hardblank before the region layer sees it,
+            // which is the case that made overwriting cost the parent ink.)
             let (min_r, min_c, raster_w, raster_h) =
                 crate::render::contour::layer_bounds(layers.iter().copied());
             let (raster_w, raster_h) = (raster_w as i32, raster_h as i32);
             let mut result = PixelGrid::new(raster_w as u16, raster_h as u16);
             for &(grid, row_off, col_off) in &layers {
-                let off_r = row_off - min_r;
-                let off_c = col_off - min_c;
-                for r in 0..grid.height as i32 {
-                    for c in 0..grid.width as i32 {
-                        let shape = grid.get(r as u16, c as u16);
-                        if !shape.is_clear() {
-                            let dr = off_r + r;
-                            let dc = off_c + c;
-                            if dr >= 0 && dc >= 0 && dr < raster_h && dc < raster_w {
-                                let (dr, dc) = (dr as u16, dc as u16);
-                                result.set(dr, dc, stack_cell(result.get(dr, dc), shape));
-                            }
-                        }
-                    }
-                }
+                result.blit(grid, row_off - min_r, col_off - min_c, false);
             }
 
             // Pure-ref composites (no own pixels) can still use TrueType
@@ -547,24 +541,14 @@ impl CachedContours {
         }
         let (max_width, max_height) = (max_width.max(0), max_height.max(0));
 
+        // No layer conflicts here, so this stacking cannot lose anything —
+        // union it all the same, so the flattened grid is built by one rule.
         let mut combined_grid: Option<PixelGrid> = None;
         for (grid, row, col) in ref_scaled.iter().flatten() {
             let cg = combined_grid.get_or_insert_with(|| {
                 PixelGrid::new((max_width - min_c) as u16, (max_height - min_r) as u16)
             });
-            let (off_r, off_c) = (row - min_r, col - min_c);
-            for r in 0..grid.height as i32 {
-                for c in 0..grid.width as i32 {
-                    let shape = grid.get(r as u16, c as u16);
-                    if !shape.is_clear() {
-                        let (dr, dc) = (off_r + r, off_c + c);
-                        if dr >= 0 && dc >= 0 && dr < cg.height as i32 && dc < cg.width as i32 {
-                            let (dr, dc) = (dr as u16, dc as u16);
-                            cg.set(dr, dc, stack_cell(cg.get(dr, dc), shape));
-                        }
-                    }
-                }
-            }
+            cg.blit(grid, row - min_r, col - min_c, false);
         }
 
         let (mut origin_row, mut origin_col) = (min_r, min_c);
@@ -668,23 +652,6 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
             );
         }
     }
-}
-
-/// Stack one layer's cell onto what the flattened grid already holds.
-///
-/// The grid these two loops build is the one a *parent* composite reads this
-/// glyph out of, and a later layer normally just overwrites an earlier one
-/// there — the contours themselves are traced from the layers directly, so
-/// this grid only has to answer "what is in this cell".
-///
-/// A hardblank is the one cell where overwriting is wrong. It is a claim and
-/// not geometry ([`crate::pixel::blank_op`]): it draws the nothing an empty
-/// cell draws, so a layer laying one over ink has to leave the ink alone —
-/// whether or not that ink is bitmap-filled. Overwriting instead cost the
-/// parent ink that the child's own outline still had, which is why the child
-/// looked right and only the parent lost pixels.
-fn stack_cell(current: PixelShape, shape: PixelShape) -> PixelShape {
-    crate::pixel::blank_op(current, shape, false).unwrap_or(shape)
 }
 
 pub(super) fn layers_have_subpixel_conflicts(layers: &[(&PixelGrid, i32, i32)]) -> bool {

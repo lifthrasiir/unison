@@ -416,6 +416,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | The font and the derived data as one rebuild, and the expansion it lends to both | `app/background.rs` (`UniformApp::rebuild`), `render/ttf_builder/collect.rs` (`ExpansionSource`) |
 | Why a resolution round is a *wave*, and what a wave member may not depend on | `render/glyph_cache.rs` (`resolve_pending`), `ref_composite/mod.rs` (`resolve_expansion_cached`) |
 | Splitting a memo off its tracer so the tracer can leave the thread | `render/glyph_cache.rs` (`CompositeBuilder`), `render/ttf_builder/contours.rs` (`ContourBuilder`) |
+| The flattened grid a composite hands its parent, why it is unioned rather than overwritten, and the union's own fast paths | `render/ttf_builder/contours.rs` (`from_components_inner`), `document/pixel_grid.rs` (`PixelGrid::blit`) |
 | Which build stages run at once, and what they must not share to | `render/ttf_builder/mod.rs` (`build_faces`, `build_font_pair_cached_for`), `contours.rs` (`ContourCaches`) |
 | Why only the union face is traced, and what a secondary face costs instead | `render/ttf_builder/mod.rs` (`build_faces_from`), `collect.rs` (`collect_face_cmap`) |
 | Why an expansion is face-independent, and where a face is applied to it instead | `faces.rs` (`FaceSet::union`), `render/ttf_builder/collect.rs` (`face_items`) |

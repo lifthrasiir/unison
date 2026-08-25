@@ -1435,3 +1435,53 @@ map D = mid-control
         "the hardblank ate ink in the grid the composite handed its parent"
     );
 }
+
+/// The flattened grid a composite hands its *parent* is what the parent
+/// re-traces once its own layers conflict, so stacking a layer onto it has to
+/// union the two cells rather than let the later one win. A `ref` dropping a
+/// subpixel onto the host's own full pixel used to replace it, and the parent
+/// then drew in pieces what the child's own outline had drawn whole — which is
+/// how the low 大 of 𡙙 lost the middle of its bar.
+#[test]
+fn a_refs_subpixel_over_a_full_pixel_stays_full_for_the_parent() {
+    let input = "\
+meta height 16
+meta ascent 12
+meta descent 4
+
+glyph part 3 2
+..P1..
+......
+
+glyph inner 3 2
+@@@@@@
+......
+ref part
+
+glyph outer 3 2
+......
+@@@@@@
+ref inner
+
+map A = outer
+map B = inner
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    let inner = glyphs.iter().find(|g| g.name == "inner").unwrap();
+    assert_eq!(
+        inner.contours.len(),
+        1,
+        "the child's own bar is one contour: {:?}",
+        inner.contours
+    );
+    let outer = glyphs.iter().find(|g| g.name == "outer").unwrap();
+    assert_eq!(
+        outer.contours.len(),
+        1,
+        "the parent must see the same bar, not the ref's subpixel: {:?}",
+        outer.contours
+    );
+}
+
+
