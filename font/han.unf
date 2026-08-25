@@ -2,7 +2,8 @@
 
 // due to the sheer amount of characters, they are partitioned into
 // 150 slices as evenly as possible. the slice ID has a format of
-// BRRR[.SS] where B is the block code (0 for URO, a--j for extensions)
+// BRRR[.SS] where B is the block code (0 for URO, 1 for compatibility,
+// 2 for compatibility supplement and a--j for extensions)
 // and RRR is the radical index (001--214) and SS is the number of
 // additional strokes (-infinity if omitted). this ID represents
 // the very first character therein, while the last character is
@@ -20,6 +21,10 @@
 //      483     597  584  645  684  675  645  710  706  987  818  698
 // han-0150 0159 0167 0168 0181 0188 0196
 //      660  778  940  654  681  584  705
+// han-1001
+//      472
+// han-2001
+//      542
 // han-a001 a045 a075 a097 a120 a146 a173
 //      931  931  969  940  959  921  941
 // han-b001 b009 b010 b018 b022 b030 b030.09 b030.13 b031 b033 b038 b039

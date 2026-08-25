@@ -583,7 +583,12 @@ def load_slices(font_dir: str) -> list[SliceId]:
                 continue
             for tok in s[2:].split():
                 m = SLICE_TOK_RE.match(tok)
-                if m:
+                # `1`/`2` are the compatibility blocks, whose slice ids are not
+                # radical-stroke and whose characters IDS.TXT gives no sequence
+                # for at all. Nothing here can place a character in one, so the
+                # slices this script knows are exactly the ones `block_of` can
+                # name -- reading the rest would only be a `BLOCK_RANK` miss.
+                if m and m.group(1) in BLOCK_RANK:
                     out.append(make_slice(
                         m.group(1), int(m.group(2)),
                         int(m.group(3)) if m.group(3) else None,
