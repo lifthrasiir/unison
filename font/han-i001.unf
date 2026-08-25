@@ -318,3 +318,10 @@ glyph han-2ee11:15x16 15 16 // 𮸑
 
 glyph han-2ee28-($han-regions):15x16 15 16 // 𮸨
 ⿰ han-961d:5x16-l 1 han-9752-($-1):9x16 // ⿰阝青
+
+# CJK unified ideographs extension I: 雨 (173)
+
+## 173.5
+
+// glyph han-2ee2c:15x16 15 16 // 𮸬
+// ⿱ han-96e8 han-7389 // ⿱雨玉

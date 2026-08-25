@@ -235,6 +235,9 @@ glyph han-26c8c:15x16 15 16 // 𦲌
 // glyph han-26ca5:15x16 15 16 // 𦲥
 // ⿱ han-8279 han-3e68 // ⿱艹㹨
 
+glyph han-26cb8:15x16 15 16 // 𦲸
+⿱ 1 han-8279:15x3 3 han-96e8:15x8 // ⿱艹雨
+
 // glyph han-26cbc:15x16 15 16 // 𦲼
 // ⿱ han-8279 han-59ac // ⿱艹妬
 
@@ -287,6 +290,12 @@ glyph han-26d46:15x16 15 16 // 𦵆
 
 // glyph han-26d52:15x16 15 16 // 𦵒
 // ⿱ han-8279 han-79cc // ⿱艹秌
+
+// glyph han-26d53:15x16 15 16 // 𦵓
+// ⿳ han-8279 han-5c71 han-800c // ⿳艹山而 <- ⿱艹耑
+
+// glyph han-26d58:15x16 15 16 // 𦵘
+// ⿳ han-8279 han-800c han-5973 // ⿳艹而女 <- ⿱艹耍
 
 // glyph han-26d59:15x16 15 16 // 𦵙
 // ⿱ han-8279 han-6d33 // ⿱艹洳

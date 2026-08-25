@@ -36,6 +36,10 @@ glyph han-2aa41:15x16 15 16 // 𪩁
 // glyph han-2aa4b:15x16 15 16 // 𪩋
 // ⿱ han-5c71 han-7c89 // ⿱山粉
 
+# CJK unified ideographs extension C: 彐 (58)
+
+glyph han-2b739:15x16 = han-5f50.1:15x16 // 𫜹 (disunified in 15.0)
+
 # CJK unified ideographs extension C: 心 (61)
 
 ## 61.3

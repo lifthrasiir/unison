@@ -113,6 +113,9 @@ glyph han-2c829-($han-regions):15x16 15 16 // 𬠩
 // glyph han-2c82b:15x16 15 16 // 𬠫
 // ⿰ han-866b han-840c // ⿰虫萌
 
+// glyph han-2c82c:15x16 15 16 // 𬠬
+// ⿰ han-866b han-26cb8 // ⿰虫𦲸
+
 # CJK unified ideographs extension E: 衣 (145)
 
 ## 145.3
@@ -156,6 +159,11 @@ glyph han-2c8a1:15x16 15 16 // 𬢡
 
 // glyph han-2c8ae:15x16 15 16 // 𬢮
 // ⿰ han-8a01 han-6b68 // ⿰訁歨
+
+## 149.10
+
+// glyph han-2c8bd:15x16 15 16 // 𬢽
+// ⿰ han-8a01 han-43a1 // ⿰訁䎡
 
 # CJK unified ideographs extension E: 讠 (149')
 
@@ -261,6 +269,11 @@ glyph han-2c9d0:15x16 15 16 // 𬧐
 
 // glyph han-2c9f3:15x16 15 16 // 𬧳
 // ⿰ han-8eca han-7535 // ⿰車电
+
+## 159.13
+
+// glyph han-2c9fe:15x16 15 16 // 𬧾
+// ⿰ han-96f7 han-8eca // ⿰雷車
 
 # CJK unified ideographs extension E: 邑 (163)
 

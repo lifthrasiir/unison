@@ -17,6 +17,9 @@ glyph han-20fee:15x16 15 16 // 𠿮
 glyph han-20ffb:15x16 15 16 // 𠿻
 ⿰ han-55ac:7x16 han-5143:8x16 // ⿰喬元
 
+// glyph han-21002:15x16 15 16 // 𡀂
+// ⿰ han-53e3 han-96f7 // ⿰口雷
+
 glyph han-21014:15x16 15 16 // 𡀔
 ⿲ -1 han-53e3:3x16-l 1 han-27fb7:5x16 han-5404:7x16 // ⿲口𧾷各
 
@@ -74,8 +77,16 @@ glyph han-210d8:15x16 15 16 // 𡃘
 
 ## 30.16
 
+// glyph han-210f7:15x16 15 16 // 𡃷
+// ⿳ han-5405 han-96e8 han-7530 // ⿳吅雨田 <- ⿱吅雷
+
 glyph han-210fd:15x16 15 16 // 𡃽
 ⿲ han-53e3:5x16-l han-4ebb:3x16 han-9700:7x16 // ⿲口亻需
+
+## 30.17
+
+// glyph han-21120:15x16 15 16 // 𡄠
+// ⿱ han-9cf4 han-800c // ⿱鳴而
 
 ## 30.18
 

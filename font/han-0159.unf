@@ -240,6 +240,9 @@ glyph han-8efc:15x16 15 16 // 軼
 glyph han-8eff:15x16 15 16 // 軿
 ⿰ han-8eca:5x16 1 han-5e76:9x16 // ⿰車并
 
+// glyph han-8f00:15x16 15 16 // 輀
+// ⿰ han-8eca han-800c // ⿰車而
+
 glyph han-8f03:15x16 15 16 // 較
 ⿰ han-8eca:5x16 1 han-4ea4:9x16 // ⿰車交
 

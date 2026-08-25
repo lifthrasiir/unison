@@ -17,6 +17,11 @@ glyph han-3206a:15x16 15 16 // 𲁪
 glyph han-32086:15x16 15 16 // 𲂆
 ⿰ han-8ba0:5x16 1 han-7532:9x16 // ⿰讠甲
 
+## 149'.6
+
+// glyph han-32088:15x16 15 16 // 𲂈
+// ⿰ han-8ba0 han-800c // ⿰讠而
+
 # CJK unified ideographs extension H: 貝 (154)
 
 ## 154.6
@@ -100,6 +105,11 @@ glyph han-321b1:15x16 15 16 // 𲆱
 
 # CJK unified ideographs extension H: 金 (167)
 
+## 167.6
+
+// glyph han-321cb:15x16 15 16 // 𲇋
+// ⿰ han-91d2 han-800c // ⿰釒而
+
 ## 167.9
 
 glyph han-321d2:15x16 15 16 // 𲇒
@@ -124,6 +134,11 @@ glyph han-321ef:15x16 15 16 // 𲇯
 
 // glyph han-321f4:15x16 15 16 // 𲇴
 // ⿰ han-9485 han-5fc3 // ⿰钅心
+
+## 167'.6
+
+// glyph han-321fc:15x16 15 16 // 𲇼
+// ⿰ han-9485 han-800c // ⿰钅而
 
 ## 167'.8
 
@@ -194,6 +209,36 @@ glyph han-3226a:15x16 15 16 // 𲉪
 
 glyph han-3226e:15x16 15 16 // 𲉮
 ⿰ han-9801:7x16 1 han-96b9:7x16 // ⿰頁隹
+
+# CJK unified ideographs extension H: 雨 (173)
+
+## 173.5
+
+// glyph han-32273:15x16 15 16 // 𲉳
+// ⿱ han-96e8 han-706d // ⿱雨灭
+
+## 173.8
+
+// glyph han-3227b:15x16 15 16 // 𲉻
+// ⿱ han-96e8 han-8036 // ⿱雨耶
+
+// glyph han-3227c:15x16 15 16 // 𲉼
+// ⿱ han-96e8 han-679c // ⿱雨果
+
+## 173.12
+
+// glyph han-32288:15x16 15 16 // 𲊈
+// ⿱ han-96e8 han-6e5c // ⿱雨湜
+
+## 173.13
+
+// glyph han-3228a:15x16 15 16 // 𲊊
+// ⿳ han-96e8 han-4fde han-5fc3 // ⿳雨俞心 <- ⿱雨愈
+
+## 173.14
+
+// glyph han-3228c:15x16 15 16 // 𲊌
+// ⿱ han-96e8 han-49fb // ⿱雨䧻
 
 # CJK unified ideographs extension H: 頁 (181)
 

@@ -72,6 +72,9 @@ glyph han-25b25:15x16 15 16 // 𥬥
 // glyph han-25b34:15x16 15 16 // 𥬴
 // ⿱ han-25ad7 han-7f8a // ⿱𥫗羊
 
+glyph han-25b35:15x16 15 16 // 𥬵
+⿱ 1 han-25ad7:15x5 2 han-800c:15x7 // ⿱𥫗而
+
 glyph han-25b37:15x16 15 16 // 𥬷
 ⿳ -8 han-25ad7:15x5 -1 han-4e0a:15x7 1 han-4e0b:15x12 // ⿳𥫗上下
 
@@ -224,6 +227,9 @@ glyph han-25c2f:15x16 15 16 // 𥰯
 // glyph han-25c39:15x16 15 16 // 𥰹
 // ⿱ han-25ad7 han-3b35 // ⿱𥫗㬵
 
+glyph han-25c47:15x16 15 16 // 𥱇
+⿳ han-25ad7:15x5 han-800c:15x5 han-706b:15x6 // ⿳𥫗而火
+
 // glyph han-25c49:15x16 15 16 // 𥱉
 // ⿱ han-25ad7 han-72fc // ⿱𥫗狼
 
@@ -305,6 +311,9 @@ glyph han-25c2f:15x16 15 16 // 𥰯
 // glyph han-25d34:15x16 15 16 // 𥴴
 // ⿱ han-25ad7 han-9264 // ⿱𥫗鉤
 
+glyph han-25d49:15x16 15 16 // 𥵉
+⿳ -2 han-25ad7:15x5 han-96e8:15x7 1 han-7530:15x5 // ⿳𥫗雨田
+
 // glyph han-25d54:15x16 15 16 // 𥵔
 // ⿱ han-25ad7 han-7891 // ⿱𥫗碑
 
@@ -344,6 +353,9 @@ glyph han-25c2f:15x16 15 16 // 𥰯
 // ⿱ han-25ad7 han-96da // ⿱𥫗雚
 
 ## 118.21
+
+// glyph han-25e10:15x16 15 16 // 𥸐
+// ⿳ han-25ad7 han-96e8 han-8def // ⿳𥫗雨路 <- ⿱𥫗露
 
 // glyph han-25e12:15x16 15 16 // 𥸒
 // ⿳ han-25ad7 han-65e5 han-8944 // ⿳𥫗日襄 <- ⿱𥫗曩

@@ -193,6 +193,9 @@ glyph han-24304-($han-regions):15x16 15 16 // 𤌄
 // glyph han-2431f:15x16 15 16 // 𤌟
 // ⿱ han-708f han-7c73 // ⿱炏米
 
+// glyph han-24322:15x16 15 16 // 𤌢
+// ⿰ han-706b han-43a1 // ⿰火䎡
+
 glyph han-2432c:15x16 15 16 // 𤌬
 ⿰ han-706b:5x16 1 han-99ac:9x16 // ⿰火馬
 
@@ -245,6 +248,9 @@ glyph han-243ce:15x16 15 16 // 𤏎
 glyph han-243d4:15x16 15 16 // 𤏔
 ⿲ -2 han-706b:5x16 1 han-767d:4x16 han-544a:7x16 // ⿲火白告
 
+// glyph han-243d9:15x16 15 16 // 𤏙
+// ⿰ han-706b han-264d4 // ⿰火𦓔
+
 ## 86.13
 
 // glyph han-24414:15x16 15 16 // 𤐔
@@ -252,6 +258,9 @@ glyph han-243d4:15x16 15 16 // 𤏔
 
 glyph han-24415:15x16 15 16 // 𤐕
 ⿰ han-708e:7x16 1 han-8ecd:7x16 // ⿰炎軍
+
+// glyph han-2441d:15x16 15 16 // 𤐝
+// ⿰ han-706b han-96f7 // ⿰火雷
 
 // glyph han-2441e:15x16 15 16 // 𤐞
 // ⿰ han-708e han-82e6 // ⿰炎苦

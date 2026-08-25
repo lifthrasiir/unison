@@ -1,3 +1,54 @@
+# CJK unified ideographs extension A: 雨 (173)
+
+## 173.4
+
+glyph han-4a0c:15x16 15 16 // 䨌
+⿱ -1 han-96e8:15x7 1 han-5143:15x9 // ⿱雨元
+
+## 173.6
+
+// glyph han-4a10:15x16 15 16 // 䨐
+// ⿱ han-96e8 han-5408 // ⿱雨合
+
+## 173.7
+
+glyph han-4a18:15x16 15 16 // 䨘
+⿳ -4 han-96e8:15x7 1 han-76ee:15x7 han-513f:15x5 // ⿳雨目儿
+
+## 173.8
+
+// glyph han-4a1b:15x16 15 16 // 䨛
+// ⿱ han-96e8 han-6790 // ⿱雨析
+
+// glyph han-4a1c:15x16 15 16 // 䨜
+// ⿱ han-96e8 han-670b // ⿱雨朋
+
+## 173.9
+
+// glyph han-4a1f:15x16 15 16 // 䨟
+// ⿱ han-96e8 han-6d3c // ⿱雨洼
+
+// glyph han-4a20:15x16 15 16 // 䨠
+// ⿱ han-96e8 han-66f7 // ⿱雨曷
+
+// glyph han-4a23:15x16 15 16 // 䨣
+// ⿱ han-96e8 han-9769 // ⿱雨革
+
+## 173.11
+
+// glyph han-4a2c:15x16 15 16 // 䨬
+// ⿱ han-96e8 han-6dcb // ⿱雨淋
+
+## 173.12
+
+// glyph han-4a30:15x16 15 16 // 䨰
+// ⿱ han-96e8 han-3d16 // ⿱雨㴖
+
+## 173.14
+
+// glyph han-4a33:15x16 15 16 // 䨳
+// ⿱ han-96e8 han-899e // ⿱雨覞
+
 # CJK unified ideographs extension A: 革 (177)
 
 ## 177.4
@@ -78,6 +129,9 @@ glyph han-4ad8:15x16 15 16 // 䫘
 
 glyph han-4af0:15x16 15 16 // 䫰
 ⿰ han-9801:7x16 han-7ca6:8x16 // ⿰頁粦
+
+// glyph han-4af1:15x16 15 16 // 䫱
+// ⿰ han-264d4 han-9801 // ⿰𦓔頁
 
 # CJK unified ideographs extension A: 食 (184)
 

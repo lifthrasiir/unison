@@ -1,3 +1,197 @@
+# CJK unified ideographs extension B: 雨 (173)
+
+## 173.1
+
+glyph han-29076:15x16 15 16 // 𩁶
+⿱ han-96e8:15x7 1 han-4e59:15x8 // ⿱雨乙
+
+## 173.2
+
+// glyph han-29077:15x16 15 16 // 𩁷
+// ⿱ han-96e8 han-4e01 // ⿱雨丁
+
+## 173.3
+
+// glyph han-2907b:15x16 15 16 // 𩁻
+// ⿱ han-96e8 han-5973 // ⿱雨女
+
+glyph han-29080:15x16 15 16 // 𩂀
+⿱ han-96e8:15x8 1 han-5e72:15x7 // ⿱雨干
+
+glyph han-29081:15x16 15 16 // 𩂁
+⿱ han-96e8:15x7 1 han-5140:15x8 // ⿱雨兀
+
+## 173.4
+
+// glyph han-29087:15x16 15 16 // 𩂇
+// ⿱ han-96e8 han-4eca // ⿱雨今
+
+glyph han-29088:15x16 15 16 // 𩂈
+⿱ han-96e8:15x8 1 han-5fc3:15x6 // ⿱雨心
+
+glyph han-2908a:15x16 15 16 // 𩂊
+⿱ han-96e8:15x7 1 han-738b:15x8 // ⿱雨王
+
+// glyph han-2908b:15x16 15 16 // 𩂋
+// ⿱ han-96e8 han-65a4 // ⿱雨斤
+
+// glyph han-2908d:15x16 15 16 // 𩂍
+// ⿱ han-96e8 han-6c34 // ⿱雨水
+
+## 173.5
+
+// glyph han-29098:15x16 15 16 // 𩂘
+// ⿱ han-96e8 han-7532 // ⿱雨甲
+
+// glyph han-2909b:15x16 15 16 // 𩂛
+// ⿱ han-96e8 han-4ed8 // ⿱雨付
+
+## 173.6
+
+// glyph han-290a3:15x16 15 16 // 𩂣
+// ⿱ han-96e8 han-5404 // ⿱雨各
+
+// glyph han-290a6:15x16 15 16 // 𩂦
+// ⿱ han-96e8 han-5e76 // ⿱雨并
+
+// glyph han-290a9:15x16 15 16 // 𩂩
+// ⿱ han-96e8 han-5405 // ⿱雨吅
+
+// glyph han-290ae:15x16 15 16 // 𩂮
+// ⿱ han-96e8 han-7c73 // ⿱雨米
+
+// glyph han-290af:15x16 15 16 // 𩂯
+// ⿱ han-96e8 han-4f11 // ⿱雨休
+
+// glyph han-290b0:15x16 15 16 // 𩂰
+// ⿱ han-96e8 han-5982 // ⿱雨如
+
+// glyph han-290b1:15x16 15 16 // 𩂱
+// ⿱ han-96e8 han-8863 // ⿱雨衣
+
+## 173.7
+
+// glyph han-290b7:15x16 15 16 // 𩂷
+// ⿱ han-96e8 han-6c85 // ⿱雨沅
+
+// glyph han-290c8:15x16 15 16 // 𩃈
+// ⿱ han-96e8 han-8db3 // ⿱雨足
+
+// glyph han-290d0:15x16 15 16 // 𩃐
+// ⿱ han-96e8 han-4f4e // ⿱雨低
+
+## 173.8
+
+// glyph han-290db:15x16 15 16 // 𩃛
+// ⿱ han-96e8 han-6611 // ⿱雨昑
+
+// glyph han-290df:15x16 15 16 // 𩃟
+// ⿱ han-96e8 han-6615 // ⿱雨昕
+
+// glyph han-290e3:15x16 15 16 // 𩃣
+// ⿱ han-96e8 han-5352 // ⿱雨卒
+
+// glyph han-290e6:15x16 15 16 // 𩃦
+// ⿱ han-96e8 han-6cbb // ⿱雨治
+
+// glyph han-290e7:15x16 15 16 // 𩃧
+// ⿱ han-96e8 han-62b1 // ⿱雨抱
+
+// glyph han-290e8:15x16 15 16 // 𩃨
+// ⿱ han-96e8 han-73aa // ⿱雨玪
+
+## 173.9
+
+// glyph han-290fc:15x16 15 16 // 𩃼
+// ⿱ han-96e8 han-780f // ⿱雨砏
+
+// glyph han-29103:15x16 15 16 // 𩄃
+// ⿱ han-96e8 han-67b9 // ⿱雨枹
+
+// glyph han-2910d:15x16 15 16 // 𩄍
+// ⿱ han-96e8 han-79cb // ⿱雨秋
+
+// glyph han-29113:15x16 15 16 // 𩄓
+// ⿳ han-96e8 han-4e16 han-6728 // ⿳雨世木 <- ⿱雨枼
+
+glyph han-29115:15x16 15 16 // 𩄕
+⿳ -3 han-96e8:15x7 1 han-65e5:15x5 1 han-6b63:15x5 // ⿳雨日正
+
+## 173.10
+
+// glyph han-2911b:15x16 15 16 // 𩄛
+// ⿱ han-96e8 han-9663 // ⿱雨陣
+
+// glyph han-2911e:15x16 15 16 // 𩄞
+// ⿱ han-96e8 han-79dd // ⿱雨秝
+
+// glyph han-29124:15x16 15 16 // 𩄤
+// ⿱ han-96e8 han-26364 // ⿱雨𦍤
+
+// glyph han-29128:15x16 15 16 // 𩄨
+// ⿱ han-96e8 han-9aa8 // ⿱雨骨
+
+// glyph han-29136:15x16 15 16 // 𩄶
+// ⿱ han-96e8 han-25e37 // ⿱雨𥸷
+
+## 173.11
+
+// glyph han-29145:15x16 15 16 // 𩅅
+// ⿱ han-96e8 han-6d34 // ⿱雨洴
+
+// glyph han-29151:15x16 15 16 // 𩅑
+// ⿳ han-96e8 han-5405 han-7530 // ⿳雨吅田 <- ⿱雨㽞
+
+// glyph han-29154:15x16 15 16 // 𩅔
+// ⿱ han-96e8 han-9b5a // ⿱雨魚
+
+// glyph han-2915a:15x16 15 16 // 𩅚
+// ⿱ han-96e8 han-5806 // ⿱雨堆
+
+// glyph han-2915c:15x16 15 16 // 𩅜
+// ⿱ han-96e8 han-6717 // ⿱雨朗
+
+## 173.12
+
+// glyph han-2915f:15x16 15 16 // 𩅟
+// ⿳ han-96e8 han-65e5 han-660d // ⿳雨日昍 <- ⿱雨晶
+
+// glyph han-2916a:15x16 15 16 // 𩅪
+// ⿱ han-96e8 han-6e58 // ⿱雨湘
+
+// glyph han-29170:15x16 15 16 // 𩅰
+// ⿱ han-96e8 han-65af // ⿱雨斯
+
+// glyph han-29173:15x16 15 16 // 𩅳
+// ⿱ han-96e8 han-6e34 // ⿱雨渴
+
+// glyph han-29174:15x16 15 16 // 𩅴
+// ⿱ han-96e8 han-6e3e // ⿱雨渾
+
+## 173.14
+
+// glyph han-29191:15x16 15 16 // 𩆑
+// ⿱ han-96e8 han-9178 // ⿱雨酸
+
+// glyph han-2919c:15x16 15 16 // 𩆜
+// ⿳ han-96e8 han-20c60 han-7389 // ⿳雨𠱠玉 <- ⿱霝玉
+
+// glyph han-2919e:15x16 15 16 // 𩆞
+// ⿳ han-96e8 han-20c60 han-7530 // ⿳雨𠱠田 <- ⿱霝田
+
+## 173.16
+
+// glyph han-291b3:15x16 15 16 // 𩆳
+// ⿱ han-96e8 han-27723 // ⿱雨𧜣
+
+## 173.17
+
+// glyph han-291b5:15x16 15 16 // 𩆵
+// ⿱ han-96e8 han-9bae // ⿱雨鮮
+
+// glyph han-291b6:15x16 15 16 // 𩆶
+// ⿱ han-96e8 han-8944 // ⿱雨襄
+
 # CJK unified ideographs extension B: 靑 (174)
 
 ## 174.5

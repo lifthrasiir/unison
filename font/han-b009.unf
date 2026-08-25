@@ -44,6 +44,9 @@ glyph han-201fa:15x16 15 16 // 𠇺
 
 ## 9.8
 
+// glyph han-20274:15x16 15 16 // 𠉴
+// ⿰ han-4ebb han-96e8 // ⿰亻雨
+
 // glyph han-20284:15x16 15 16 // 𠊄
 // ⿰ han-4ebb han-91d1 // ⿰亻金
 
@@ -81,6 +84,9 @@ glyph han-20356-($han-regions):15x16 15 16 // 𠍖
 ⿲ han-4ebb:3x16 han-91d2:7x16 han-52fa-($-1):5x16 // ⿲亻釒勺
 
 ## 9.12
+
+// glyph han-2038c:15x16 15 16 // 𠎌
+// ⿰ han-4ebb han-2e989 // ⿰亻𮦉
 
 // glyph han-2038f:15x16 15 16 // 𠎏
 // ⿱ han-5408 han-80bf // ⿱合肿

@@ -126,6 +126,9 @@ glyph han-28a9a:15x16 15 16 // 𨪚
 // glyph han-28ab1:15x16 15 16 // 𨪱
 // ⿱ han-30664 han-91d1 // ⿱𰙤金
 
+// glyph han-28ab3:15x16 15 16 // 𨪳
+// ⿰ han-91d2 han-43a1 // ⿰釒䎡
+
 glyph han-28ab5:15x16 15 16 // 𨪵
 ⿲ -2 han-91d2:5x16-l 1 han-76ee:4x16 han-53e5:7x16 // ⿲釒目句
 

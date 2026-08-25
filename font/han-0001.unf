@@ -1676,6 +1676,9 @@ glyph han-4f84:15x16 15 16 // 侄
 glyph han-4f8e:15x16 15 16 // 侎
 ⿰ han-4ebb:5x16 1 han-7c73:9x16 // ⿰亻米
 
+// glyph han-4f95:15x16 15 16 // 侕
+// ⿰ han-4ebb han-800c // ⿰亻而
+
 glyph han-4f97:15x16 15 16 // 侗
 ⿰ han-4ebb:5x16 1 han-540c:9x16 // ⿰亻同
 

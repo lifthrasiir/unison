@@ -283,6 +283,9 @@ glyph han-25857:15x16 15 16 // 𥡗
 glyph han-2588c:15x16 15 16 // 𥢌
 ⿰ han-79be:7x16 1 han-756a:7x16 // ⿰禾番
 
+// glyph han-258a0:15x16 15 16 // 𥢠
+// ⿰ han-79be han-264d4 // ⿰禾𦓔
+
 glyph han-258b3-($han-regions):15x16 15 16 // 𥢳
 ⿲ han-79be:5x16 han-6c35:3x16 han-8005-($-1):7x16 // ⿲禾氵者
 

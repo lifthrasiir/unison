@@ -93,6 +93,18 @@ glyph han-432f:15x16 15 16 // 䌯
 glyph han-436e:15x16 15 16 // 䍮
 ⿰ han-7f8a:7x16 1 han-5146:7x16 // ⿰羊兆
 
+# CJK unified ideographs extension A: 而 (126)
+
+## 126.3
+
+// glyph han-439f:15x16 15 16 // 䎟
+// ⿰ han-5973 han-800c // ⿰女而
+
+## 126.4
+
+glyph han-43a1:15x16 15 16 // 䎡
+⿱ 1 han-800c:15x7 1 han-706b:15x6 // ⿱而火
+
 # CJK unified ideographs extension A: 耳 (128)
 
 ## 128.1

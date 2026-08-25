@@ -124,6 +124,12 @@ glyph han-2ae3d:15x16 15 16 // 𪸽
 
 ## 86.9
 
+// glyph han-2ae45:15x16 15 16 // 𪹅
+// ⿲ han-706b han-800c han-5bf8 // ⿲火而寸 <- ⿰火耐
+
+// glyph han-2ae48:15x16 15 16 // 𪹈
+// ⿰ han-706b han-6630 // ⿰火昰
+
 glyph han-2ae4a:15x16 15 16 // 𪹊
 ⿰ han-706b:7x16 1 han-4fde:7x16 // ⿰火俞
 

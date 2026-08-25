@@ -240,6 +240,9 @@ glyph han-605a:15x16 15 16 // 恚
 // glyph han-6065:15x16 15 16 // 恥
 // ⿰ han-8033 han-5fc3 // ⿰耳心
 
+glyph han-6067:15x16 15 16 // 恧
+⿱ 1 han-800c:15x7 1 han-5fc3:15x6 // ⿱而心
+
 glyph han-606a:15x16 15 16 // 恪
 ⿰ han-5fc4:7x16 1 han-5404:7x16 // ⿰忄各
 

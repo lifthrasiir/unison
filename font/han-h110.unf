@@ -181,6 +181,13 @@ glyph han-31ecd:15x16 15 16 // 𱻍
 // glyph han-31eef:15x16 15 16 // 𱻯
 // ⿱ han-8005 han-6e1a // ⿱者渚
 
+# CJK unified ideographs extension H: 而 (126)
+
+## 126.2
+
+glyph han-31ef0:15x16 15 16 // 𱻰
+⿱ han-800c:15x5 1 han-4e8c:15x10 // ⿱而二
+
 # CJK unified ideographs extension H: 耳 (128)
 
 ## 128.6
@@ -285,6 +292,11 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 
 // glyph han-31fdc:15x16 15 16 // 𱿜
 // ⿰ han-866b han-5fc3 // ⿰虫心
+
+## 142.6
+
+// glyph han-31fdf:15x16 15 16 // 𱿟
+// ⿰ han-866b han-800c // ⿰虫而
 
 ## 142.7
 
