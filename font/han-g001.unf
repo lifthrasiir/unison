@@ -130,6 +130,11 @@ glyph han-3011c:15x16 15 16 // 𰄜
 // glyph han-3014a:15x16 15 16 // 𰅊
 // ⿳ han-65e5 han-4e00 han-529b // ⿳日一力 <- ⿱旦力
 
+## 19.6
+
+// glyph han-3014d:15x16 15 16 // 𰅍
+// ⿰ han-5939 han-529b // ⿰夹力
+
 # CJK unified ideographs extension G: 勹 (20)
 
 ## 20.12
@@ -166,10 +171,16 @@ glyph han-301d0:15x16 15 16 // 𰇐
 
 ## 30.6
 
+// glyph han-301d5:15x16 15 16 // 𰇕
+// ⿰ han-53e3 han-5939 // ⿰口夹
+
 glyph han-301d7:15x16 15 16 // 𰇗
 ⿲ han-53e3:4x16-l han-624c:3x16 han-53e3:8x16 // ⿲口扌口
 
 ## 30.7
+
+// glyph han-301e7:15x16 15 16 // 𰇧
+// ⿲ han-53e3 han-571f han-592c // ⿲口土夬 <- ⿰口块
 
 // glyph han-301e9:15x16 15 16 // 𰇩
 // ⿱ han-8c9d han-53e3 // ⿱貝口
@@ -215,6 +226,11 @@ glyph han-30249:15x16 15 16 // 𰉉
 // glyph han-30264:15x16 15 16 // 𰉤
 // ⿱ han-76ae han-571f // ⿱皮土
 
+## 32.6
+
+// glyph han-30265:15x16 15 16 // 𰉥
+// ⿰ han-571f han-5939 // ⿰土夹
+
 ## 32.8
 
 // glyph han-3027c:15x16 15 16 // 𰉼
@@ -245,10 +261,36 @@ glyph han-302b9:15x16 15 16 // 𰊹
 
 # CJK unified ideographs extension G: 大 (37)
 
+## 37.3
+
+// glyph han-302da:15x16 15 16 // 𰋚
+// ⿰ han-5de5 han-5927 // ⿰工大
+
+## 37.5
+
+glyph han-302de:15x16 15 16 // 𰋞
+⿱ han-5927:15x8 han-6b63:15x8 // ⿱大正
+
+glyph han-302df:15x16 15 16 // 𰋟
+⿱ han-5929:15x8 han-5929:15x8 // ⿱天天
+
 ## 37.7
 
 glyph han-302e3:15x16 15 16 // 𰋣
 ⿰ han-5931:7x16 1 han-5931:7x16 // ⿰失失
+
+## 37.8
+
+// glyph han-302e7:15x16 15 16 // 𰋧
+// ⿱ han-708f han-5927 // ⿱炏大
+
+## 37.9
+
+// glyph han-302e8:15x16 15 16 // 𰋨
+// ⿱ han-73c0 han-5927 // ⿱珀大
+
+// glyph han-302eb:15x16 15 16 // 𰋫
+// ⿱ han-72ec han-5927 // ⿱独大
 
 # CJK unified ideographs extension G: 女 (38)
 

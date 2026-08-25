@@ -43,8 +43,11 @@ glyph han-24f49:15x16 15 16 // 𤽉
 
 ## 106.5
 
-// glyph han-24f59:15x16 15 16 // 𤽙
-// ⿱ han-767d han-7531 // ⿱白由
+// glyph han-24f58:15x16 15 16 // 𤽘
+// ⿳ han-767d han-5927 han-529b // ⿳白大力 <- ⿱白夯
+
+glyph han-24f59:15x16 15 16 // 𤽙
+⿱ han-767d:15x9 1 han-7531:15x6 // ⿱白由
 
 glyph han-24f62:15x16 15 16 // 𤽢
 ⿱ han-767d:15x9 2 han-6b63:15x5 // ⿱白正
@@ -54,7 +57,13 @@ glyph han-24f62:15x16 15 16 // 𤽢
 glyph han-24f65:15x16 15 16 // 𤽥
 ⿰ han-767d:8x16 han-5404:7x16 // ⿰白各
 
+// glyph han-24f6b:15x16 15 16 // 𤽫
+// ⿳ han-767d han-5927 han-4e09 // ⿳白大三
+
 ## 106.7
+
+// glyph han-24f6c:15x16 15 16 // 𤽬
+// ⿳ han-767d han-5927 han-4ecc // ⿳白大仌
 
 glyph han-24f6d:15x16 15 16 // 𤽭
 ⿰ han-767d:8x16 han-590b:7x16 // ⿰白夋
@@ -67,6 +76,11 @@ glyph han-24f6d:15x16 15 16 // 𤽭
 glyph han-24f79:15x16 15 16 // 𤽹
 ⿰ han-767d:6x16 1 han-5351:8x16 // ⿰白卑
 
+glyph han-24f7b:15x16 15 16 // 𤽻
+ref han-767d:15x6 0 0 // ⿳白大由
+ref han-5927:15x5 0 6
+ref han-7531:15x6 0 10
+
 glyph han-24f7c:15x16 15 16 // 𤽼
 ⿰ han-767d:6x16 han-96b9:9x16 // ⿰白隹
 
@@ -75,6 +89,9 @@ glyph han-24f7c:15x16 15 16 // 𤽼
 
 glyph han-24f83:15x16 15 16 // 𤾃
 ⿰ han-767d:6x16 han-708e:9x16 // ⿰白炎
+
+// glyph han-24f84:15x16 15 16 // 𤾄
+// ⿱ han-660b han-767d // ⿱昋白
 
 ## 106.9
 
@@ -91,6 +108,11 @@ glyph han-24f89:15x16 15 16 // 𤾉
 
 glyph han-24f9b:15x16 15 16 // 𤾛
 ⿰ han-767d:6x16 1 han-7968:7x16 // ⿰白票
+
+## 106.13
+
+// glyph han-24faa:15x16 15 16 // 𤾪
+// ⿳ han-767d han-3fdf han-5927 // ⿳白㿟大 <- ⿱皛大
 
 # CJK unified ideographs extension B: 皮 (107)
 
@@ -181,6 +203,11 @@ glyph han-2502b:15x16 15 16 // 𥀫
 
 glyph han-2502d:15x16 15 16 // 𥀭
 ⿰ han-76ae:8x16 han-9700:7x16 // ⿰皮需
+
+## 107.15
+
+// glyph han-25033:15x16 15 16 // 𥀳
+// ⿲ han-76ae han-6728 han-83ab // ⿲皮木莫 <- ⿰皮模
 
 ## 107.17
 

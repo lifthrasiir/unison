@@ -125,6 +125,9 @@ glyph han-72ea:15x16 15 16 // 狪
 glyph han-72ec:15x16 15 16 // 独
 ⿰ han-72ad:6x16 han-866b:9x16 // ⿰犭虫
 
+// glyph han-72ed:15x16 15 16 // 狭
+// ⿰ han-72ad han-5939 // ⿰犭夹
+
 ## 94.7
 
 glyph han-72fb:15x16 15 16 // 狻
@@ -158,6 +161,9 @@ glyph han-7313:15x16 15 16 // 猓
 
 // glyph han-7316:15x16 15 16 // 猖
 // ⿰ han-72ad han-660c // ⿰犭昌
+
+// glyph han-7317:15x16 15 16 // 猗
+// ⿰ han-72ad han-5947 // ⿰犭奇
 
 glyph han-731a:15x16 15 16 // 猚
 ⿰ han-72ad:6x16 han-96b9:9x16 // ⿰犭隹
@@ -195,6 +201,9 @@ glyph han-733e:15x16 15 16 // 猾
 ⿰ han-72ad:6x16 han-9aa8:9x16 // ⿰犭骨
 
 ## 94.11
+
+// glyph han-734f:15x16 15 16 // 獏
+// ⿰ han-72ad han-83ab // ⿰犭莫
 
 glyph han-7351:15x16 15 16 // 獑
 ⿲ han-72ad:4x16 han-8eca:5x16 han-65a4:6x16 // ⿲犭車斤
@@ -421,11 +430,17 @@ glyph han-7395:15x16 15 16 // 玕
 
 ## 96.4
 
+// glyph han-739e:15x16 15 16 // 玞
+// ⿰ han-248e9 han-592b // ⿰𤣩夫
+
 glyph han-73a2:15x16 15 16 // 玢
 ⿰ han-248e9:7x16 1 han-5206:7x16 // ⿰𤣩分
 
 glyph han-73a5:15x16 15 16 // 玥
 ⿰ han-248e9:7x16 1 han-6708:7x16 // ⿰𤣩月
+
+// glyph han-73a6:15x16 15 16 // 玦
+// ⿰ han-248e9 han-592c // ⿰𤣩夬
 
 glyph han-73a8:15x16 15 16 // 玨
 ⿰ han-248e9:5x16 1 han-738b:9x16 // ⿰𤣩王
@@ -540,6 +555,9 @@ glyph han-7417:15x16 15 16 // 琗
 glyph han-741f:15x16 15 16 // 琟
 ⿰ han-248e9:5x16 1 han-96b9:9x16 // ⿰𤣩隹
 
+// glyph han-7426:15x16 15 16 // 琦
+// ⿰ han-248e9 han-5947 // ⿰𤣩奇
+
 // glyph han-7429:15x16 15 16 // 琩
 // ⿰ han-248e9 han-660c // ⿰𤣩昌
 
@@ -584,6 +602,9 @@ glyph han-743f:15x16 15 16 // 琿
 
 glyph han-7445:15x16 15 16 // 瑅
 ⿰ han-248e9:5x16 1 han-662f:9x16 // ⿰𤣩是
+
+// glyph han-744c:15x16 15 16 // 瑌
+// ⿰ han-248e9 han-800e // ⿰𤣩耎
 
 glyph han-7452:15x16 15 16 // 瑒
 ⿰ han-248e9:5x16 1 han-661c:9x16 // ⿰𤣩昜

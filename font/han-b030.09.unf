@@ -5,6 +5,9 @@
 // glyph han-20dbe:15x16 15 16 // 𠶾
 // ⿰ han-53e3 han-82db // ⿰口苛
 
+// glyph han-20dc0:15x16 15 16 // 𠷀
+// ⿰ han-53e3 han-800e // ⿰口耎
+
 glyph han-20dcc:15x16 15 16 // 𠷌
 ⿲ han-53e3:4x16-l 1 han-8c9d:6x16 1 han-5202:3x16 // ⿲口貝刂
 
@@ -105,6 +108,9 @@ glyph han-20ed0:15x16 15 16 // 𠻐
 
 ## 30.11
 
+// glyph han-20eda:15x16 15 16 // 𠻚
+// ⿱ han-83ab han-53e3 // ⿱莫口
+
 // glyph han-20ee1:15x16 15 16 // 𠻡
 // ⿱ han-2309e han-53e3 // ⿱𣂞口
 
@@ -122,6 +128,9 @@ glyph han-20ef7:15x16 15 16 // 𠻷
 
 // glyph han-20f03:15x16 15 16 // 𠼃
 // ⿱ han-65ac han-53e3 // ⿱斬口
+
+// glyph han-20f05:15x16 15 16 // 𠼅
+// ⿳ han-5405 han-5927 han-7535 // ⿳吅大电 <- ⿱吅奄
 
 glyph han-20f11:15x16 15 16 // 𠼑
 ⿰ han-544a:7x16 han-544a:8x16 // ⿰告告
@@ -169,6 +178,9 @@ glyph han-20f7b:15x16 15 16 // 𠽻
 
 glyph han-20f93:15x16 15 16 // 𠾓
 ⿲ han-53e3:3x16-l han-8a01:5x16 1 han-53ec:6x16 // ⿲口訁召
+
+// glyph han-20f96:15x16 15 16 // 𠾖
+// ⿳ han-5405 han-5927 han-5405 // ⿳吅大吅
 
 // glyph han-20fa4:15x16 15 16 // 𠾤
 // ⿳ han-6728 han-6797 han-53e3 // ⿳木林口 <- ⿱森口

@@ -2,6 +2,9 @@
 
 ## 85.9
 
+// glyph han-6e1c:15x16 15 16 // 渜
+// ⿰ han-6c35 han-800e // ⿰氵耎
+
 glyph han-6e1d:15x16 15 16 // 渝
 ⿰ han-6c35:5x16 1 han-4fde:9x16 // ⿰氵俞
 
@@ -85,6 +88,12 @@ glyph han-6f01:15x16 15 16 // 漁
 
 glyph han-6f02:15x16 15 16 // 漂
 ⿰ han-6c35:5x16 1 han-7968:9x16 // ⿰氵票
+
+// glyph han-6f20:15x16 15 16 // 漠
+// ⿰ han-6c35 han-83ab // ⿰氵莫
+
+// glyph han-6f2a:15x16 15 16 // 漪
+// ⿲ han-6c35 han-72ad han-5947 // ⿲氵犭奇 <- ⿰氵猗
 
 glyph han-6f38:15x16 15 16 // 漸
 ⿲ han-6c35:3x16 han-8eca:5x16 han-65a4:7x16 // ⿲氵車斤

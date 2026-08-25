@@ -15,6 +15,9 @@ glyph han-2cec1:15x16 15 16 // 𬻁
 
 ## 1.6
 
+// glyph han-2ceca:15x16 15 16 // 𬻊
+// ⿳ han-4e00 han-5927 han-4e0b // ⿳一大下 <- ⿱天下
+
 // glyph han-2cece:15x16 15 16 // 𬻎
 // ⿱ han-4e03 han-52a0 // ⿱七加
 
@@ -25,6 +28,11 @@ glyph han-2cec1:15x16 15 16 // 𬻁
 
 // glyph han-2ceda:15x16 15 16 // 𬻚
 // ⿱ han-8db3 han-4e01 // ⿱足丁
+
+## 1.9
+
+// glyph han-2cee0:15x16 15 16 // 𬻠
+// ⿳ han-4e00 han-5405 han-5927 // ⿳一吅大
 
 ## 1.10
 
@@ -120,6 +128,9 @@ glyph han-2cf65:15x16 15 16 // 𬽥
 glyph han-2cf6a:15x16 15 16 // 𬽪
 ⿰ han-4ebb:5x16 1 han-65e5:9x16 // ⿰亻日
 
+// glyph han-2cf6d:15x16 15 16 // 𬽭
+// ⿰ han-4ebb han-592c // ⿰亻夬
+
 ## 9.5
 
 glyph han-2cf70:15x16 15 16 // 𬽰
@@ -174,6 +185,13 @@ glyph han-2d008:15x16 15 16 // 𭀈
 
 glyph han-2d00a:15x16 15 16 // 𭀊
 ⿲ han-4ebb:3x16 han-767d:4x16 1 han-9ce5:7x16 // ⿲亻白鳥
+
+# CJK unified ideographs extension F: 儿 (10)
+
+## 10.6
+
+// glyph han-2d022:15x16 15 16 // 𭀢
+// ⿳ han-5927 han-53e3 han-513f // ⿳大口儿 <- ⿱大兄
 
 # CJK unified ideographs extension F: 八 (12)
 

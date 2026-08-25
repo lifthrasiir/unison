@@ -1,5 +1,10 @@
 # CJK unified ideographs extension G: 阜 (170)
 
+## 170.4
+
+// glyph han-31005:15x16 15 16 // 𱀅
+// ⿰ han-961c han-592c // ⿰阜夬
+
 ## 170.5
 
 glyph han-31006:15x16 15 16 // 𱀆
@@ -143,6 +148,11 @@ glyph han-31178:15x16 15 16 // 𱅸
 glyph han-31179:15x16 15 16 // 𱅹
 ⿰ han-9ad8:7x16 1 han-7533:7x16 // ⿰高申
 
+## 189.6
+
+// glyph han-3117c:15x16 15 16 // 𱅼
+// ⿰ han-9ad8 han-5736 // ⿰高圶
+
 # CJK unified ideographs extension G: 魚 (195)
 
 ## 195.2
@@ -199,3 +209,10 @@ glyph han-3123e:15x16 15 16 // 𱈾
 
 // glyph han-31245:15x16 15 16 // 𱉅
 // ⿱ han-28fe3 han-9ce5 // ⿱𨿣鳥
+
+# CJK unified ideographs extension G: 黾 (205')
+
+## 205'.5
+
+// glyph han-31300:15x16 15 16 // 𱌀
+// ⿳ han-592e han-53e3 han-7535 // ⿳央口电 <- ⿱央黾

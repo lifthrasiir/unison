@@ -137,6 +137,9 @@ glyph han-6c4b-j:15x16 15 16 // 汋
 glyph han-6c4c:15x16 15 16 // 汌
 ⿰ han-6c35:5x16 han-5ddd:9x16 // ⿰氵川
 
+// glyph han-6c4f:15x16 15 16 // 汏
+// ⿰ han-6c35 han-5927 // ⿰氵大
+
 glyph han-6c55:15x16 15 16 // 汕
 ⿰ han-6c35:5x16 1 han-5c71:9x16 // ⿰氵山
 
@@ -174,8 +177,14 @@ glyph han-6c69:15x16 15 16 // 汩
 glyph han-6c6a:15x16 15 16 // 汪
 ⿰ han-6c35:5x16 1 han-738b:9x16 // ⿰氵王
 
+// glyph han-6c70:15x16 15 16 // 汰
+// ⿰ han-6c35 han-592a // ⿰氵太
+
 glyph han-6c75:15x16 15 16 // 汵
 ⿰ han-6c35:5x16 1 han-4eca:9x16 // ⿰氵今
+
+// glyph han-6c7a:15x16 15 16 // 決
+// ⿰ han-6c35 han-592c // ⿰氵夬
 
 glyph han-6c7e:15x16 15 16 // 汾
 ⿰ han-6c35:5x16 1 han-5206:9x16 // ⿰氵分
@@ -205,6 +214,9 @@ glyph han-6c90:15x16 15 16 // 沐
 
 glyph han-6c96:15x16 15 16 // 沖
 ⿰ han-6c35:5x16 1 han-4e2d:9x16 // ⿰氵中
+
+// glyph han-6c97:15x16 15 16 // 沗
+// ⿳ han-4e00 han-5927 han-6c34 // ⿳一大水 <- ⿱天水
 
 glyph han-6c9a:15x12 15 12 // 沚
 ⿰ han-6c35:5x12 han-6b62:10x12 // ⿰氵止
@@ -299,6 +311,9 @@ glyph han-6cea:15x16 15 16 // 泪
 glyph han-6ced:15x16 15 16 // 泭
 ⿲ han-6c35:3x16 han-4ebb:3x16 han-5bf8:9x16 // ⿲氵亻寸
 
+// glyph han-6cf1:15x16 15 16 // 泱
+// ⿰ han-6c35 han-592e // ⿰氵央
+
 // glyph han-6cf9:15x16 15 16 // 泹
 // ⿰ han-6c35 han-65e6 // ⿰氵旦
 
@@ -351,6 +366,9 @@ glyph han-6d3c:15x16 15 16 // 洼
 
 glyph han-6d3d:15x16 15 16 // 洽
 ⿰ han-6c35:5x16 1 han-5408:9x16 // ⿰氵合
+
+// glyph han-6d43:15x16 15 16 // 浃
+// ⿰ han-6c35 han-5939 // ⿰氵夹
 
 glyph han-6d4a:15x16 15 16 // 浊
 ⿰ han-6c35:5x16 1 han-866b:9x16 // ⿰氵虫
@@ -420,6 +438,9 @@ glyph han-6dcb:15x16 15 16 // 淋
 glyph han-6dcd:15x16 15 16 // 淍
 ⿰ han-6c35:5x16 han-5468:10x16 // ⿰氵周
 
+// glyph han-6dcf:15x16 15 16 // 淏
+// ⿰ han-6c35 han-660a // ⿰氵昊
+
 // glyph han-6dd0:15x16 15 16 // 淐
 // ⿰ han-6c35 han-660c // ⿰氵昌
 
@@ -459,6 +480,9 @@ glyph han-6e05-($han-regions):15x16 15 16 // 清
 
 glyph han-6e06:15x16 15 16 // 渆
 ⿲ han-6c35:3x16 han-5e76:8x16 han-5202:4x16 // ⿲氵并刂
+
+// glyph han-6e0f:15x16 15 16 // 渏
+// ⿰ han-6c35 han-5947 // ⿰氵奇
 
 glyph han-6e12:15x16 15 16 // 渒
 ⿰ han-6c35:5x16 han-5351:10x16 // ⿰氵卑

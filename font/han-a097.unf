@@ -57,6 +57,11 @@ glyph han-3fe3:15x16 15 16 // 㿣
 
 # CJK unified ideographs extension A: 皮 (107)
 
+## 107.5
+
+// glyph han-3fee:15x16 15 16 // 㿮
+// ⿰ han-592e han-76ae // ⿰央皮
+
 ## 107.6
 
 // glyph han-3fef:15x16 15 16 // 㿯
@@ -70,9 +75,25 @@ glyph han-3ff0:15x16 15 16 // 㿰
 // glyph han-3ff1:15x16 15 16 // 㿱
 // ⿱ han-6298 han-76ae // ⿱折皮
 
+## 107.8
+
+// glyph han-3ff2:15x16 15 16 // 㿲
+// ⿰ han-5947 han-76ae // ⿰奇皮
+
+## 107.9
+
+// glyph han-3ff5:15x16 15 16 // 㿵
+// ⿰ han-76ae han-800e // ⿰皮耎
+
 # CJK unified ideographs extension A: 目 (109)
 
 ## 109.4
+
+// glyph han-4016:15x16 15 16 // 䀖
+// ⿰ han-76ee han-5929 // ⿰目天
+
+// glyph han-4017:15x16 15 16 // 䀗
+// ⿰ han-76ee han-592c // ⿰目夬
 
 // glyph han-4019:15x16 15 16 // 䀙
 // ⿲ han-76ee han-4e03 han-5200 // ⿲目七刀 <- ⿰目切
@@ -195,6 +216,11 @@ glyph han-40f4-($han-regions):15x16 15 16 // 䃴
 
 # CJK unified ideographs extension A: 示 (113)
 
+## 113.4
+
+// glyph han-40ff:15x16 15 16 // 䃿
+// ⿰ han-793b han-592b // ⿰礻夫
+
 ## 113.5
 
 glyph han-4101:15x16 15 16 // 䄁
@@ -202,6 +228,14 @@ glyph han-4101:15x16 15 16 // 䄁
 
 glyph han-4102:15x16 15 16 // 䄂
 ⿰ han-793b:5x16 1 han-7531:9x16 // ⿰礻由
+
+// glyph han-4103:15x16 15 16 // 䄃
+// ⿰ han-793b han-592e // ⿰礻央
+
+## 113.8
+
+// glyph han-410e:15x16 15 16 // 䄎
+// ⿰ han-793b han-5947 // ⿰礻奇
 
 ## 113.9
 
@@ -221,6 +255,9 @@ glyph han-412a-($han-regions):15x16 15 16 // 䄪
 ⿰ han-79be:7x16 1 han-52fa-($-1):7x16 // ⿰禾勺
 
 ## 115.4
+
+// glyph han-412e:15x16 15 16 // 䄮
+// ⿰ han-79be han-592b // ⿰禾夫
 
 glyph han-4133:15x16 15 16 // 䄳
 ⿰ han-79be:5x16 han-6b62:10x16 // ⿰禾止
@@ -300,6 +337,9 @@ glyph han-41e2:15x16 15 16 // 䇢
 glyph han-41e5:15x16 15 16 // 䇥
 ⿱ han-25ad7:15x5 han-6b63:15x12 // ⿱𥫗正
 
+// glyph han-41e6:15x16 15 16 // 䇦
+// ⿱ han-25ad7 han-592e // ⿱𥫗央
+
 ## 118.6
 
 // glyph han-41ea:15x16 15 16 // 䇪
@@ -307,6 +347,9 @@ glyph han-41e5:15x16 15 16 // 䇥
 
 glyph han-41ef:15x16 15 16 // 䇯
 ⿱ han-25ad7:15x5 han-8033:15x12 // ⿱𥫗耳
+
+// glyph han-41f2:15x16 15 16 // 䇲
+// ⿱ han-25ad7 han-5939 // ⿱𥫗夹
 
 ## 118.7
 

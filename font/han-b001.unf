@@ -117,6 +117,11 @@ glyph han-20116-($han-regions):15x16 15 16 // 𠄖
 // glyph han-20145:15x16 15 16 // 𠅅
 // ⿱ han-4ea0 han-6728 // ⿱亠木
 
+## 8.6
+
+// glyph han-2014c:15x16 15 16 // 𠅌
+// ⿳ han-4ea0 han-53e3 han-5927 // ⿳亠口大
+
 ## 8.7
 
 // glyph han-20154:15x16 15 16 // 𠅔
@@ -126,3 +131,6 @@ glyph han-20116-($han-regions):15x16 15 16 // 𠄖
 
 // glyph han-20164:15x16 15 16 // 𠅤
 // ⿳ han-4ea0 han-7530 han-5fc3 // ⿳亠田心 <- ⿱亠思
+
+// glyph han-20167:15x16 15 16 // 𠅧
+// ⿳ han-4ea0 han-5405 han-5927 // ⿳亠吅大 <- ⿱亠⿱吅大

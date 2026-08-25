@@ -34,6 +34,11 @@ glyph han-2c365:15x16 15 16 // 𬍥
 glyph han-2c36f:15x16 15 16 // 𬍯
 ⿰ han-248e9:7x16 1 han-679c:7x16 // ⿰𤣩果
 
+## 96.11
+
+// glyph han-2c387:15x16 15 16 // 𬎇
+// ⿰ han-248e9 han-83ab // ⿰𤣩莫
+
 ## 96.13
 
 glyph han-2c394:15x16 15 16 // 𬎔
@@ -107,6 +112,11 @@ glyph han-2c40d:15x16 15 16 // 𬐍
 glyph han-2c463:15x16 15 16 // 𬑣
 ⿰ han-76ee:7x16 1 han-9ad8:7x16 // ⿰目高
 
+## 109.11
+
+// glyph han-2c464:15x16 15 16 // 𬑤
+// ⿱ han-83ab han-76ee // ⿱莫目
+
 # CJK unified ideographs extension E: 石 (112)
 
 ## 112.2
@@ -118,6 +128,11 @@ glyph han-2c463:15x16 15 16 // 𬑣
 
 glyph han-2c47a:15x16 15 16 // 𬑺
 ⿰ han-77f3:8x16 han-5bf8:7x16 // ⿰石寸
+
+## 112.4
+
+// glyph han-2c47e:15x16 15 16 // 𬑾
+// ⿰ han-77f3 han-5929 // ⿰石天
 
 ## 112.6
 
@@ -145,6 +160,11 @@ glyph han-2c49a:15x16 15 16 // 𬒚
 
 glyph han-2c4ac:15x16 15 16 // 𬒬
 ⿰ han-793b:5x16 1 han-5de5:9x16 // ⿰礻工
+
+## 113.4
+
+// glyph han-2c4ae:15x16 15 16 // 𬒮
+// ⿰ han-793b han-592c // ⿰礻夬
 
 ## 113.5
 
@@ -187,6 +207,9 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 # CJK unified ideographs extension E: 竹 (118)
 
 ## 118.4
+
+// glyph han-2c52e:15x16 15 16 // 𬔮
+// ⿱ han-25ad7 han-592b // ⿱𥫗夫
 
 glyph han-2c530:15x16 15 16 // 𬔰
 ⿱ -1 han-25ad7:15x5 -1 han-5fc3:15x13 // ⿱𥫗心
@@ -259,6 +282,11 @@ glyph han-2c554:15x16 15 16 // 𬕔
 
 glyph han-2c58f:15x16 15 16 // 𬖏
 ⿰ han-7c73:7x16 1 han-53e3:7x16 // ⿰米口
+
+## 119.4
+
+// glyph han-2c590:15x16 15 16 // 𬖐
+// ⿰ han-7c73 han-592b // ⿰米夫
 
 ## 119.7
 
@@ -383,6 +411,11 @@ glyph han-2c68d-($han-regions):15x16 15 16 // 𬚍
 ⿰ han-8005-($-1):7x16 1 han-8005-($-1):7x16 // ⿰者者
 
 # CJK unified ideographs extension E: 耳 (128)
+
+## 128.3
+
+// glyph han-2c693:15x16 15 16 // 𬚓
+// ⿰ han-8033 han-5927 // ⿰耳大
 
 ## 128.5
 

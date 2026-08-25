@@ -287,6 +287,12 @@ glyph han-8db5-j:15x16 15 16 // 趵
 
 ## 157.4
 
+// glyph han-8db9:15x16 15 16 // 趹
+// ⿰ han-27fb7 han-592c // ⿰𧾷夬
+
+// glyph han-8dba:15x16 15 16 // 趺
+// ⿰ han-27fb7 han-592b // ⿰𧾷夫
+
 glyph han-8dbb:15x16 15 16 // 趻
 ⿰ han-27fb7:5x16 1 han-4eca:9x16 // ⿰𧾷今
 
@@ -402,6 +408,9 @@ glyph han-8e1d:15x16 15 16 // 踝
 
 glyph han-8e24:15x16 15 16 // 踤
 ⿰ han-27fb7:5x16 1 han-5352:9x16 // ⿰𧾷卒
+
+// glyph han-8e26:15x16 15 16 // 踦
+// ⿰ han-27fb7 han-5947 // ⿰𧾷奇
 
 ## 157.9
 

@@ -106,6 +106,9 @@ glyph han-248f7:15x16 15 16 // 𤣷
 glyph han-24906:15x16 15 16 // 𤤆
 ⿰ han-248e9:7x16 1 han-65a4:7x16 // ⿰𤣩斤
 
+// glyph han-24907:15x16 15 16 // 𤤇
+// ⿰ han-248e9 han-5929 // ⿰𤣩天
+
 ## 96.5
 
 glyph han-24915:15x16 15 16 // 𤤕
@@ -116,6 +119,9 @@ glyph han-24915:15x16 15 16 // 𤤕
 
 glyph han-2491f:15x16 15 16 // 𤤟
 ⿰ han-248e9:7x16 han-77f3:8x16 // ⿰𤣩石
+
+// glyph han-24920:15x16 15 16 // 𤤠
+// ⿰ han-248e9 han-592e // ⿰𤣩央
 
 glyph han-24924:15x16 15 16 // 𤤤
 ⿰ han-248e9:7x16 1 han-79be:7x16 // ⿰𤣩禾
@@ -200,6 +206,9 @@ glyph han-249ae:15x16 15 16 // 𤦮
 glyph han-249c7:15x16 15 16 // 𤧇
 ⿲ han-248e9:3x16 han-6728:5x16 han-76ee:7x16 // ⿲𤣩木目
 
+// glyph han-249ca:15x16 15 16 // 𤧊
+// ⿰ han-248e9 han-594e // ⿰𤣩奎
+
 glyph han-249d0:15x16 15 16 // 𤧐
 ⿲ han-248e9:3x16 han-79be:5x16 han-706b:7x16 // ⿲𤣩禾火
 
@@ -224,6 +233,9 @@ glyph han-24a15:15x16 15 16 // 𤨕
 
 glyph han-24a21:15x16 15 16 // 𤨡
 ⿲ han-248e9:3x16 han-826f:7x16 han-6708:5x16 // ⿲𤣩良月
+
+// glyph han-24a26:15x16 15 16 // 𤨦
+// ⿲ han-248e9 han-72ad han-5947 // ⿲𤣩犭奇 <- ⿰𤣩猗
 
 glyph han-24a27:15x16 15 16 // 𤨧
 ⿰ han-248e9:7x16 1 han-7968:7x16 // ⿰𤣩票

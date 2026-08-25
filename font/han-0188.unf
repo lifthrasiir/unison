@@ -400,6 +400,9 @@ glyph han-9b96:15x16 15 16 // 鮖
 glyph han-9b9a:15x16 15 16 // 鮚
 ⿰ han-9b5a:7x16 1 han-5409:7x16 // ⿰魚吉
 
+// glyph han-9b9d:15x16 15 16 // 鮝
+// ⿳ han-516b han-592b han-9b5a // ⿳八夫魚 <- ⿱𠔉魚
+
 // glyph han-9b9e:15x16 15 16 // 鮞
 // ⿰ han-9b5a han-800c // ⿰魚而
 

@@ -171,6 +171,9 @@ glyph han-626f:15x16 15 16 // 扯
 glyph han-6272:15x16 15 16 // 扲
 ⿰ han-624c:5x16 1 han-4eca:9x16 // ⿰扌今
 
+// glyph han-6276:15x16 15 16 // 扶
+// ⿰ han-624c han-592b // ⿰扌夫
+
 glyph han-627b:15x16 15 16 // 扻
 ⿰ han-624c:5x16 1 han-6b20:9x16 // ⿰扌欠
 
@@ -182,6 +185,9 @@ glyph han-6287:15x16 15 16 // 抇
 
 glyph han-6288:15x16 15 16 // 抈
 ⿰ han-624c:5x16 1 han-6708:9x16 // ⿰扌月
+
+// glyph han-6289:15x16 15 16 // 抉
+// ⿰ han-624c han-592c // ⿰扌夬
 
 // glyph han-628b:15x16 15 16 // 抋
 // ⿰ han-624c han-5fc3 // ⿰扌心
@@ -208,6 +214,9 @@ glyph han-62ac:15x16 15 16 // 抬
 
 glyph han-62af:15x16 15 16 // 抯
 ⿰ han-624c:5x16 1 han-4e14:9x16 // ⿰扌且
+
+// glyph han-62b0:15x16 15 16 // 抰
+// ⿰ han-624c han-592e // ⿰扌央
 
 glyph han-62b1:15x16 15 16 // 抱
 ⿰ han-624c:5x16 1 han-5305:9x16 // ⿰扌包
@@ -267,6 +276,9 @@ glyph han-62db:15x16 15 16 // 招
 glyph han-62ee:15x16 15 16 // 拮
 ⿰ han-624c:5x16 1 han-5409:9x16 // ⿰扌吉
 
+// glyph han-62f3:15x16 15 16 // 拳
+// ⿳ han-516b han-592b han-624b // ⿳八夫手 <- ⿱𠔉手
+
 glyph han-62fc:15x16 15 16 // 拼
 ⿰ han-624c:5x16 1 han-5e76:9x16 // ⿰扌并
 
@@ -302,6 +314,9 @@ glyph han-6311:15x16 15 16 // 挑
 
 glyph han-6315:15x16 15 16 // 挕
 ⿰ han-624c:5x16 1 han-8033:9x16 // ⿰扌耳
+
+// glyph han-631f:15x16 15 16 // 挟
+// ⿰ han-624c han-5939 // ⿰扌夹
 
 ## 64.7
 
@@ -363,6 +378,9 @@ glyph han-6385-(g|h|t):15x16 15 16 // 掅
 ⿰ han-624c:5x16 1 han-9752-($-1):9x16 // ⿰扌青
 glyph han-6385-(k|p):15x16 15 16 // 掅
 ⿰ han-624c:5x16 1 han-9751-($-1):9x16 // ⿰扌靑
+
+// glyph han-638e:15x16 15 16 // 掎
+// ⿰ han-624c han-5947 // ⿰扌奇
 
 glyph han-6391:15x16 15 16 // 掑
 ⿰ han-624c:5x16 1 han-5176:9x16 // ⿰扌其
@@ -446,8 +464,17 @@ glyph han-6430:15x16 15 16 // 搰
 glyph han-644e:15x16 15 16 // 摎
 ⿰ han-624c:5x16 1 han-7fcf:9x16 // ⿰扌翏
 
+// glyph han-646b:15x16 15 16 // 摫
+// ⿲ han-624c han-592b han-898b // ⿲扌夫見 <- ⿰扌規
+
 glyph han-6472:15x16 15 16 // 摲
 ⿲ han-624c:3x16 han-8eca:5x16 han-65a4:7x16 // ⿲扌車斤
+
+// glyph han-6478:15x16 15 16 // 摸
+// ⿰ han-624c han-83ab // ⿰扌莫
+
+// glyph han-6479:15x16 15 16 // 摹
+// ⿱ han-83ab han-624b // ⿱莫手
 
 glyph han-647d:15x16 15 16 // 摽
 ⿰ han-624c:5x16 1 han-7968:9x16 // ⿰扌票

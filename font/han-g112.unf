@@ -82,6 +82,9 @@ glyph han-30a3c:15x16 15 16 // 𰨼
 
 ## 118.3
 
+glyph han-30a6c:15x16 15 16 // 𰩬
+⿱ han-25ad7:15x5 -1 han-5927:15x12 // ⿱𥫗大
+
 // glyph han-30a6d:15x16 15 16 // 𰩭
 // ⿱ han-25ad7 han-5c71 // ⿱𥫗山
 
@@ -218,6 +221,11 @@ glyph han-30b59:15x16 15 16 // 𰭙
 glyph han-30bb8:15x16 15 16 // 𰮸
 ⿲ han-6708:5x16-l 1 han-8c9d:5x16 1 han-5202:3x16 // ⿲月貝刂
 
+## 130.10
+
+// glyph han-30bc1:15x16 15 16 // 𰯁
+// ⿰ han-6708 han-8695 // ⿰月蚕
+
 ## 130.14
 
 // glyph han-30be1:15x16 15 16 // 𰯡
@@ -278,10 +286,20 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // glyph han-30c6c:15x16 15 16 // 𰱬
 // ⿱ han-8279 han-634e // ⿱艹捎
 
+## 140.11
+
+// glyph han-30c74:15x16 15 16 // 𰱴
+// ⿰ han-592b han-83ab // ⿰夫莫
+
 ## 140.12
 
 // glyph han-30c7b:15x16 15 16 // 𰱻
 // ⿱ han-8279 han-7a02 // ⿱艹稂
+
+## 140.13
+
+// glyph han-30c80:15x16 15 16 // 𰲀
+// ⿱ han-83ab han-572d // ⿱莫圭
 
 # CJK unified ideographs extension G: 虫 (142)
 

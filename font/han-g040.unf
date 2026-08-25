@@ -25,6 +25,11 @@
 // glyph han-3039c:15x16 15 16 // 𰎜
 // ⿱ han-5c71 han-4ea4 // ⿱山交
 
+## 46.7
+
+// glyph han-303a1:15x16 15 16 // 𰎡
+// ⿳ han-5c71 han-738b han-5927 // ⿳山王大 <- ⿱山㺯
+
 ## 46.8
 
 // glyph han-303a5:15x16 15 16 // 𰎥
@@ -61,8 +66,8 @@ glyph han-3043a:15x16 15 16 // 𰐺
 
 ## 61.2
 
-// glyph han-3043c:15x16 15 16 // 𰐼
-// ⿱ han-4eba han-5fc3 // ⿱人心
+glyph han-3043c:15x16 15 16 // 𰐼
+⿱ han-4eba:15x10 han-5fc3:15x6 // ⿱人心
 
 ## 61.3
 
@@ -203,6 +208,11 @@ glyph han-3057c:15x16 15 16 // 𰕼
 glyph han-3058c:15x16 15 16 // 𰖌
 ⿲ han-65e5:4x16-l han-72ad:4x16 han-738b:7x16 // ⿲日犭王
 
+## 72.8
+
+// glyph han-30592:15x16 15 16 // 𰖒
+// ⿰ han-65e5 han-660b // ⿰日昋
+
 ## 72.10
 
 glyph han-3059b:15x16 15 16 // 𰖛
@@ -271,6 +281,9 @@ glyph han-30632:15x16 15 16 // 𰘲
 
 // glyph han-3063e:15x16 15 16 // 𰘾
 // ⿳ han-77f3 han-7833 han-6728 // ⿳石砳木 <- ⿱磊木
+
+// glyph han-30641:15x16 15 16 // 𰙁
+// ⿰ han-679c han-83ab // ⿰果莫
 
 # CJK unified ideographs extension G: 欠 (76)
 

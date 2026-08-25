@@ -193,6 +193,9 @@ glyph han-2cbef-($han-regions):15x16 15 16 // 𬯯
 
 ## 184.4
 
+// glyph han-2cc8b:15x16 15 16 // 𬲋
+// ⿰ han-98e0 han-592b // ⿰飠夫
+
 glyph han-2cc8d:15x16 15 16 // 𬲍
 ⿰ han-98e0:7x16 1 han-5206:7x16 // ⿰飠分
 
@@ -216,6 +219,11 @@ glyph han-2cd1d:15x16 15 16 // 𬴝
 ⿰ han-9ad8:7x16 1 han-582f:7x16 // ⿰高堯
 
 # CJK unified ideographs extension E: 魚 (195)
+
+## 195.3
+
+// glyph han-2cd43:15x16 15 16 // 𬵃
+// ⿰ han-9b5a han-5927 // ⿰魚大
 
 ## 195.4
 
@@ -264,6 +272,9 @@ glyph han-2cdbe:15x16 15 16 // 𬶾
 ⿰ han-9ce5:7x16 1 han-5bf8:7x16 // ⿰鳥寸
 
 ## 196.5
+
+// glyph han-2cdc5:15x16 15 16 // 𬷅
+// ⿰ han-9ce5 han-592e // ⿰鳥央
 
 glyph han-2cdc9:15x16 15 16 // 𬷉
 ⿲ han-4ebb:3x16 han-5de5:5x16 han-9ce5:7x16 // ⿲亻工鳥

@@ -35,17 +35,29 @@ glyph han-24c25:15x16 15 16 // 𤰥
 glyph han-24c2a:15x16 15 16 // 𤰪
 ⿰ han-7530:7x16-l 1 han-5206:7x16 // ⿰田分
 
+// glyph han-24c2e:15x16 15 16 // 𤰮
+// ⿰ han-7530 han-592c // ⿰田夬
+
+glyph han-24c33:15x16 15 16 // 𤰳
+⿱ han-5929:15x8 1 han-7530:15x7 // ⿱天田
+
 glyph han-24c39:15x16 15 16 // 𤰹
 ⿰ han-7530:7x16-l 1 han-706b:7x16 // ⿰田火
 
 glyph han-24c3e:15x16 15 16 // 𤰾
 ⿰ han-7530:7x16-l han-6708:8x16 // ⿰田月
 
+// glyph han-24c41:15x16 15 16 // 𤱁
+// ⿰ han-7531 han-592b // ⿰由夫
+
 glyph han-24c43:15x16 15 16 // 𤱃
 ⿰ han-7530:7x16-l 1 han-6728:7x16 // ⿰田木
 
 // glyph han-24c44:15x16 15 16 // 𤱄
 // ⿰ han-7530 han-6c34 // ⿰田水
+
+// glyph han-24c49:15x16 15 16 // 𤱉
+// ⿰ han-7531 han-592c // ⿰由夬
 
 ## 102.5
 
@@ -80,6 +92,9 @@ glyph han-24c69:15x16 15 16 // 𤱩
 
 ## 102.7
 
+glyph han-24c89:15x16 15 16 // 𤲉
+⿳ han-7530:15x5 han-5927:15x5 1 han-65e5:15x5 // ⿳田大日
+
 // glyph han-24c8a:15x16 15 16 // 𤲊
 // ⿱ han-7530 han-8db3 // ⿱田足
 
@@ -98,6 +113,9 @@ glyph han-24ca9:15x16 15 16 // 𤲩
 ⿰ han-7530:7x16-l 1 han-708e:7x16 // ⿰田炎
 
 ## 102.9
+
+// glyph han-24cac:15x16 15 16 // 𤲬
+// ⿰ han-7530 han-800e // ⿰田耎
 
 glyph han-24cad:15x16 15 16 // 𤲭
 ⿲ han-7530:5x16-l han-6728:5x16 han-7530:5x16 // ⿲田木田

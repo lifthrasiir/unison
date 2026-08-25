@@ -5,6 +5,9 @@
 glyph han-2ad69:15x16 15 16 // 𪵩
 ⿰ han-6c35:5x16 1 han-4e0b:9x16 // ⿰氵下
 
+// glyph han-2ad6a:15x16 15 16 // 𪵪
+// ⿱ han-5927 han-6c34 // ⿱大水
+
 ## 85.4
 
 // glyph han-2ad6e:15x16 15 16 // 𪵮
@@ -42,6 +45,9 @@ glyph han-2ad94:15x16 15 16 // 𪶔
 glyph han-2ad98:15x16 15 16 // 𪶘
 ⿲ han-6c35:3x16 han-8033:7x16 han-961d:5x16-r // ⿲氵耳阝
 
+// glyph han-2ad99:15x16 15 16 // 𪶙
+// ⿰ han-6c35 han-594e // ⿰氵奎
+
 // glyph han-2ad9b:15x16 15 16 // 𪶛
 // ⿱ han-76f8 han-6c34 // ⿱相水
 
@@ -64,6 +70,9 @@ glyph han-2adb5:15x16 15 16 // 𪶵
 
 ## 85.11
 
+// glyph han-2adc2:15x16 15 16 // 𪷂
+// ⿱ han-83ab han-6c34 // ⿱莫水
+
 glyph han-2adc9:15x16 15 16 // 𪷉
 ⿲ han-6c35:3x16 han-7cf9:5x16 2 han-7530:5x16 // ⿲氵糹田
 
@@ -74,6 +83,11 @@ glyph han-2add7:15x16 15 16 // 𪷗
 
 // glyph han-2addc:15x16 15 16 // 𪷜
 // ⿲ han-6c35 han-7cf8 han-7cf8 // ⿲氵糸糸
+
+## 85.16
+
+// glyph han-2adfc:15x16 15 16 // 𪷼
+// ⿲ han-6c35 han-91d2 han-5947 // ⿲氵釒奇 <- ⿰氵錡
 
 # CJK unified ideographs extension C: 火 (86)
 
@@ -105,10 +119,16 @@ glyph han-2ae25:15x16 15 16 // 𪸥
 glyph han-2ae2d:15x16 15 16 // 𪸭
 ⿰ han-706b:9x16 han-8c9d:6x16 // ⿰火貝
 
+// glyph han-2ae2e:15x16 15 16 // 𪸮
+// ⿰ han-706b han-65f2 // ⿰火旲
+
 ## 86.8
 
 glyph han-2ae33:15x16 15 16 // 𪸳
 ⿲ han-706b:5x16 han-624c:3x16 1 han-53ec:6x16 // ⿲火扌召
+
+// glyph han-2ae34:15x16 15 16 // 𪸴
+// ⿰ han-706b han-5947 // ⿰火奇
 
 // glyph han-2ae37:15x16 15 16 // 𪸷
 // ⿰ han-706b han-5774 // ⿰火坴
@@ -167,6 +187,9 @@ glyph han-2aed5:15x16 15 16 // 𪻕
 
 ## 96.6
 
+// glyph han-2aed7:15x16 15 16 // 𪻗
+// ⿰ han-248e9 han-5736 // ⿰𤣩圶
+
 glyph han-2aedb:15x16 15 16 // 𪻛
 ⿰ han-248e9:7x16 1 han-540c:7x16 // ⿰𤣩同
 
@@ -223,6 +246,9 @@ glyph han-2af4e:15x16 15 16 // 𪽎
 ⿰ han-7530:7x16-l han-53ef:8x16 // ⿰田可
 
 ## 102.7
+
+glyph han-2af53:15x16 15 16 // 𪽓
+⿳ han-7530:15x5 han-5927:15x5 han-4e2d:15x6 // ⿳田大中
 
 glyph han-2af54:15x16 15 16 // 𪽔
 ⿰ han-7530:7x16-l han-898b:8x16 // ⿰田見
@@ -375,6 +401,9 @@ glyph han-2b044:15x16 15 16 // 𫁄
 
 // glyph han-2b07f:15x16 15 16 // 𫁿
 // ⿱ han-25ad7 han-8eca // ⿱𥫗車
+
+glyph han-2b081:15x16 15 16 // 𫂁
+⿳ han-25ad7:15x5 han-65e5:15x5 1 han-5927:15x5 // ⿳𥫗日大
 
 ## 118.9
 

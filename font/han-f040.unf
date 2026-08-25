@@ -95,6 +95,11 @@ glyph han-2d5e3:15x16 15 16 // 𭗣
 // glyph han-2d5fc:15x16 15 16 // 𭗼
 // ⿱ han-5ddb han-5c71 // ⿱巛山
 
+## 47.4
+
+// glyph han-2d5fd:15x16 15 16 // 𭗽
+// ⿳ han-5ddb han-4e00 han-5927 // ⿳巛一大 <- ⿱巛天
+
 ## 47.7
 
 // glyph han-2d601:15x16 15 16 // 𭘁
@@ -148,6 +153,9 @@ glyph han-2d715:15x16 15 16 // 𭜕
 glyph han-2d71c:15x16 15 16 // 𭜜
 ⿰ han-5fc4:7x16 1 han-76ee:7x16 // ⿰忄目
 
+// glyph han-2d720:15x16 15 16 // 𭜠
+// ⿲ han-5fc4 han-4ebb han-5927 // ⿲忄亻大 <- ⿰忄㐲
+
 ## 61.6
 
 // glyph han-2d729:15x16 15 16 // 𭜩
@@ -174,6 +182,9 @@ glyph han-2d73c:15x16 15 16 // 𭜼
 // ⿱ han-59a2 han-5fc3 // ⿱妢心
 
 ## 61.8
+
+// glyph han-2d74d:15x16 15 16 // 𭝍
+// ⿳ han-5927 han-793a han-5fc3 // ⿳大示心 <- ⿱奈心
 
 // glyph han-2d759:15x16 15 16 // 𭝙
 // ⿱ han-6ce2 han-5fc3 // ⿱波心
