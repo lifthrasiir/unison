@@ -337,6 +337,9 @@ glyph han-5764:15x16 15 16 // 坤
 glyph han-5765:15x16 15 16 // 坥
 ⿰ han-571f:7x16 1 han-4e14:7x16 // ⿰土且
 
+// glyph han-5766:15x16 15 16 // 坦
+// ⿰ han-571f han-65e6 // ⿰土旦
+
 glyph han-5767:15x16 15 16 // 坧
 ⿰ han-571f:7x16 1 han-77f3:7x16 // ⿰土石
 
@@ -575,6 +578,18 @@ glyph han-58e4:15x16 15 16 // 壤
 glyph han-58e6:15x16 15 16 // 壦
 ⿰ han-571f:5x16-l 1 han-96da:9x16 // ⿰土雚
 
+# CJK unified ideographs: 士 (33)
+
+## 33.0
+
+// glyph han-58eb:15x16 15 16 // 士
+// ⿱ han-5341 han-4e00 // ⿱十一
+
+## 33.1
+
+// glyph han-58ec:15x16 15 16 // 壬
+// ⿳ han-4e00 han-5341 han-4e00 // ⿳一十一 <- ⿱一士
+
 # CJK unified ideographs: 夊 (35)
 
 ## 35.4
@@ -594,8 +609,8 @@ $$.v@@@@@@@@@@
 d@P01\../01/$$
 $$..\01d1/..$$
 $$/h~hP1H~h\$$
-~HH_H/..\h_HH~
-h/..........\h
+~hH_H/..\h_Hh~
+H/..........\H
 
 # CJK unified ideographs: 大 (37)
 

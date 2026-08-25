@@ -63,6 +63,9 @@ glyph han-289ac:15x16 15 16 // 𨦬
 glyph han-289c0:15x16 15 16 // 𨧀
 ⿲ -1 han-91d2:5x16-l han-6728:5x16 -1 han-571f:7x16 // ⿲釒木土
 
+// glyph han-289dd:15x16 15 16 // 𨧝
+// ⿲ han-91d2 han-4ebb han-65e6 // ⿲釒亻旦 <- ⿰釒但
+
 glyph han-289e0:15x16 15 16 // 𨧠
 ⿲ han-91d2:5x16-l han-6708:5x16 han-5e72:5x16 // ⿲釒月干
 

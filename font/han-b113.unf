@@ -58,6 +58,9 @@ glyph han-2562b:15x16 15 16 // 𥘫
 glyph han-2562e:15x16 15 16 // 𥘮
 ⿰ han-793b:5x16 1 han-53e5:9x16 // ⿰礻句
 
+// glyph han-25635:15x16 15 16 // 𥘵
+// ⿰ han-793b han-65e6 // ⿰礻旦
+
 glyph han-2563a-t:15x16 15 16 // 𥘺
 ⿰ han-793b:5x16 han-6b63:10x16 // ⿰礻正
 glyph han-2563a-k:15x16 15 16 // 𥘺

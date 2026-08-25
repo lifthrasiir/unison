@@ -23,3 +23,10 @@ glyph han-21b3d:15x16 15 16 // 𡬽
 
 glyph han-21b41:15x16 15 16 // 𡭁
 ⿰ han-7fcf:7x16 1 han-5bf8:7x16 // ⿰翏寸
+
+# CJK unified ideographs extension B: 屮 (45)
+
+## 45.7
+
+// glyph han-21d19:15x16 15 16 // 𡴙
+// ⿳ han-5c71 han-767d han-5341 // ⿳山白十 <- ⿱山皁

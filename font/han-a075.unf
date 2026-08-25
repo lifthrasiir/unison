@@ -259,7 +259,7 @@ glyph han-3d8d:15x16 15 16 // 㶍
 ## 86.3
 
 glyph han-3da3:15x16 15 16 // 㶣
-⿱ -1 han-5e72:15x12 han-706b:15x5 // ⿱干火
+⿱ han-5e72:15x9 1 han-706b:15x6 // ⿱干火
 
 glyph han-3da5:15x16 15 16 // 㶥
 ⿰ han-706b:5x16 1 han-5e72:9x16 // ⿰火干
@@ -278,7 +278,7 @@ glyph han-3dcb:15x16 15 16 // 㷋
 ## 86.9
 
 glyph han-3dce:15x16 15 16 // 㷎
-⿰ han-706b:5x16 han-66f7:9x16 // ⿰火曷
+⿰ han-706b:5x16 1 han-66f7:9x16 // ⿰火曷
 
 // glyph han-3dd6:15x16 15 16 // 㷖
 // ⿰ han-7085 han-53ec // ⿰炅召

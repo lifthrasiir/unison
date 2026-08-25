@@ -89,6 +89,9 @@ glyph han-26742-($han-regions):15x16 15 16 // 𦝂
 glyph han-26743:15x16 15 16 // 𦝃
 ⿲ han-6708:5x16-l han-6728:5x16 han-6728:5x16 // ⿲月木木
 
+// glyph han-26747:15x16 15 16 // 𦝇
+// ⿲ han-6708 han-5fc4 han-65e6 // ⿲月忄旦 <- ⿰月怛
+
 // glyph han-26757:15x16 15 16 // 𦝗
 // ⿲ han-6708 han-961d han-4ed8 // ⿲月阝付 <- ⿰月附
 

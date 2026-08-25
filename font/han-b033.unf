@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 士 (33)
 
+## 33.2
+
+// glyph han-2151b:15x16 15 16 // 𡔛
+// ⿳ han-5200 han-5341 han-4e00 // ⿳刀十一 <- ⿱刀士
+
 ## 33.6
 
 glyph han-21520:15x16 15 16 // 𡔠

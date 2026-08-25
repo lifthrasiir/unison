@@ -242,6 +242,9 @@ glyph han-21ea2:15x16 15 16 // 𡺢
 // glyph han-21eb2:15x16 15 16 // 𡺲
 // ⿱ han-5c71 han-9656 // ⿱山陖
 
+// glyph han-21ebe:15x16 15 16 // 𡺾
+// ⿳ han-5c71 han-96b9 han-5341 // ⿳山隹十 <- ⿱山隼
+
 // glyph han-21ec3:15x16 15 16 // 𡻃
 // ⿳ han-5c71 han-5de5 han-8c9d // ⿳山工貝 <- ⿱山貢
 

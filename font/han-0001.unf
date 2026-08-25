@@ -1280,6 +1280,9 @@ ref han-4ebb:5x16
 
 ## 9.2
 
+// glyph han-4ec0:15x16 15 16 // 什
+// ⿰ han-4ebb han-5341 // ⿰亻十
+
 // glyph han-4ec1:15x16 15 16 // 仁
 // ⿰ han-4ebb han-4e8c // ⿰亻二
 
@@ -1600,6 +1603,9 @@ glyph han-4f42:15x16 15 16 // 佂
 
 glyph han-4f43:15x16 15 16 // 佃
 ⿰ han-4ebb:5x16 1 han-7530:9x16 // ⿰亻田
+
+// glyph han-4f46:15x16 15 16 // 但
+// ⿰ han-4ebb han-65e6 // ⿰亻旦
 
 glyph han-4f4a:15x16 15 16 // 佊
 ⿰ han-4ebb:5x16 1 han-76ae:9x16 // ⿰亻皮

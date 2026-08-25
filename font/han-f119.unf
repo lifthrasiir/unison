@@ -25,6 +25,9 @@ glyph han-2e1d2:15x16 15 16 // 𮇒
 glyph han-2e1d5:15x16 15 16 // 𮇕
 ⿰ han-7c73:7x16 1 han-5409:7x16 // ⿰米吉
 
+// glyph han-2e1d8:15x16 15 16 // 𮇘
+// ⿰ han-7c73 han-65e9 // ⿰米早
+
 glyph han-2e1db:15x16 15 16 // 𮇛
 ⿰ han-7c73:5x16 1 han-5e76:9x16 // ⿰米并
 
@@ -55,6 +58,11 @@ glyph han-2e201:15x16 15 16 // 𮈁
 
 glyph han-2e202:15x16 15 16 // 𮈂
 ⿰ han-7cf9:5x16 2 han-961d:7x16-r // ⿰糹阝
+
+## 120.6
+
+// glyph han-2e20e:15x16 15 16 // 𮈎
+// ⿰ han-7cf8 han-65e9 // ⿰糸早
 
 ## 120.9
 

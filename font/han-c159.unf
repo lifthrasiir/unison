@@ -187,7 +187,19 @@ glyph han-2b60b-($han-regions):15x16 15 16 // 𫘋
 // glyph han-2b618:15x16 15 16 // 𫘘
 // ⿱ han-8def han-99ac // ⿱路馬
 
+# CJK unified ideographs extension C: 高 (189)
+
+## 189.6
+
+// glyph han-2b637:15x16 15 16 // 𫘷
+// ⿰ han-9ad8 han-65e9 // ⿰高早
+
 # CJK unified ideographs extension C: 魚 (195)
+
+## 195.2
+
+// glyph han-2b64f:15x16 15 16 // 𫙏
+// ⿰ han-9b5a han-5341 // ⿰魚十
 
 ## 195.8
 

@@ -96,6 +96,9 @@ glyph han-72d7:15x16 15 16 // 狗
 glyph han-72d9:15x16 15 16 // 狙
 ⿰ han-72ad:6x16 1 han-4e14:8x16 // ⿰犭且
 
+// glyph han-72da:15x16 15 16 // 狚
+// ⿰ han-72ad han-65e6 // ⿰犭旦
+
 glyph han-72db:15x16 15 16 // 狛
 ⿰ han-72ad:6x16 1 han-767d:8x16 // ⿰犭白
 

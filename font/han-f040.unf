@@ -22,6 +22,9 @@ glyph han-2d587:15x16 15 16 // 𭖇
 
 ## 46.5
 
+// glyph han-2d58c:15x16 15 16 // 𭖌
+// ⿰ han-5c71 han-65e6 // ⿰山旦
+
 // glyph han-2d58d:15x16 15 16 // 𭖍
 // ⿱ han-5c71 han-4e14 // ⿱山且
 
@@ -144,8 +147,14 @@ glyph han-2d71c:15x16 15 16 // 𭜜
 
 ## 61.6
 
+// glyph han-2d729:15x16 15 16 // 𭜩
+// ⿳ han-4e00 han-65e6 han-5fc3 // ⿳一旦心 <- ⿱亘心
+
 glyph han-2d72b:15x16 15 16 // 𭜫
 ⿱ han-866b:15x8 1 han-5fc3:15x6 // ⿱虫心
+
+// glyph han-2d72c:15x16 15 16 // 𭜬
+// ⿰ han-5fc4 han-65e9 // ⿰忄早
 
 ## 61.7
 

@@ -1,6 +1,40 @@
 # CJK unified ideographs extension B: 十 (24)
 
+## 24.3
+
+// glyph han-20980:15x16 15 16 // 𠦀
+// ⿱ han-4e0a han-5341 // ⿱上十
+
+## 24.4
+
+// glyph han-20989:15x16 15 16 // 𠦉
+// ⿰ han-5341 han-65a4 // ⿰十斤
+
+// glyph han-2098d:15x16 15 16 // 𠦍
+// ⿳ han-4eba han-4eba han-5341 // ⿳人人十 <- ⿱仌十
+
+// glyph han-2098e:15x16 15 16 // 𠦎
+// ⿳ han-516b han-516b han-5341 // ⿳八八十 <- ⿱𠔁十
+
+## 24.5
+
+// glyph han-20993:15x16 15 16 // 𠦓
+// ⿱ han-706d han-5341 // ⿱灭十
+
+## 24.6
+
+// glyph han-2099d:15x16 15 16 // 𠦝
+// ⿳ han-5341 han-65e5 han-5341 // ⿳十日十 <- ⿱十早
+
+## 24.10
+
+// glyph han-209b0:15x16 15 16 // 𠦰
+// ⿲ han-5341 han-8033 han-6b20 // ⿲十耳欠 <- ⿰十𫆁
+
 ## 24.13
+
+// glyph han-209c0:15x16 15 16 // 𠧀
+// ⿱ han-7341 han-5341 // ⿱獁十
 
 glyph han-209c3:15x16 15 16 // 𠧃
 ⿰ han-752b:7x16 han-5351:8x16 // ⿰甫卑

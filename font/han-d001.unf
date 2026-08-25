@@ -51,3 +51,10 @@ glyph han-2b7de:15x16 15 16 // 𫟞
 
 glyph han-2b7f4:15x16 15 16 // 𫟴
 ⿰ han-9485:6x16 han-5206:9x16 // ⿰钅分
+
+# CJK unified ideographs extension D: 魚 (195)
+
+## 195.10
+
+// glyph han-2b80d:15x16 15 16 // 𫠍
+// ⿲ han-9b5a han-91d2 han-5341 // ⿲魚釒十 <- ⿰魚針

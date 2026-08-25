@@ -482,6 +482,11 @@ glyph han-7584:15x16 15 16 // 疄
 // glyph han-758b:15x16 15 16 // 疋
 // ⿱ han-4e5b han-9fb0 // ⿱乛龰
 
+## 103.5
+
+// glyph han-758d:15x16 15 16 // 疍
+// ⿳ han-4e5b han-9fb0 han-65e6 // ⿳乛龰旦 <- ⿱疋旦
+
 # CJK unified ideographs: 白 (106)
 
 ## 106.0
@@ -674,6 +679,9 @@ ref han-767d:15x16
 // ⿰ han-767d han-4e5a // ⿰白乚
 
 ## 106.2
+
+// glyph han-7681:15x16 15 16 // 皁
+// ⿱ han-767d han-5341 // ⿱白十
 
 // glyph han-7682:15x16 15 16 // 皂
 // ⿱ han-767d han-4e03 // ⿱白七

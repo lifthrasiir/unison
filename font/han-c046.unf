@@ -92,6 +92,9 @@ glyph han-2aae9:15x16 15 16 // 𪫩
 
 ## 64.4
 
+// glyph han-2ab61:15x16 15 16 // 𪭡
+// ⿲ han-624c han-4ebb han-5341 // ⿲扌亻十 <- ⿰扌什
+
 // glyph han-2ab62:15x16 15 16 // 𪭢
 // ⿲ han-624c han-4eba han-4eba // ⿲扌人人 <- ⿰扌从
 
@@ -283,3 +286,10 @@ glyph han-2ad01:15x16 15 16 // 𪴁
 
 // glyph han-2ad0d:15x16 15 16 // 𪴍
 // ⿱ han-7187 han-6728 // ⿱熇木
+
+# CJK unified ideographs extension C: 止 (77)
+
+## 77.6
+
+// glyph han-2ad36:15x16 15 16 // 𪴶
+// ⿳ han-6b62 han-4e00 han-65e6 // ⿳止一旦 <- ⿱止亘

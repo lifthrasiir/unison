@@ -123,6 +123,11 @@ glyph han-4b3a:15x16 15 16 // 䬺
 
 # CJK unified ideographs extension A: 馬 (187)
 
+## 187.2
+
+// glyph han-4b74:15x16 15 16 // 䭴
+// ⿱ han-99ac han-5341 // ⿱馬十
+
 ## 187.4
 
 glyph han-4b7a:15x16 15 16 // 䭺
@@ -255,6 +260,9 @@ glyph han-4c3c:15x16 15 16 // 䰼
 
 glyph han-4c43:15x16 15 16 // 䱃
 ⿰ han-9b5a:7x16 1 han-5931:7x16 // ⿰魚失
+
+// glyph han-4c47:15x16 15 16 // 䱇
+// ⿰ han-9b5a han-65e6 // ⿰魚旦
 
 glyph han-4c48:15x16 15 16 // 䱈
 ⿰ han-9b5a:7x16 1 han-793a:7x16 // ⿰魚示

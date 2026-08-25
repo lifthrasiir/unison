@@ -85,6 +85,9 @@ glyph han-2929e:15x16 15 16 // 𩊞
 glyph han-292ac:15x16 15 16 // 𩊬
 ⿰ han-9769:7x16 1 han-752b:7x16 // ⿰革甫
 
+// glyph han-292b9:15x16 15 16 // 𩊹
+// ⿲ han-9769 han-4ebb han-65e6 // ⿲革亻旦 <- ⿰革但
+
 glyph han-292bb:15x16 15 16 // 𩊻
 ⿰ han-9769:7x16 1 han-590b:7x16 // ⿰革夋
 
