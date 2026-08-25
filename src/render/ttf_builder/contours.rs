@@ -455,7 +455,8 @@ impl CachedContours {
                             let dr = off_r + r;
                             let dc = off_c + c;
                             if dr >= 0 && dc >= 0 && dr < raster_h && dc < raster_w {
-                                result.set(dr as u16, dc as u16, shape);
+                                let (dr, dc) = (dr as u16, dc as u16);
+                                result.set(dr, dc, stack_cell(result.get(dr, dc), shape));
                             }
                         }
                     }
@@ -558,7 +559,8 @@ impl CachedContours {
                     if !shape.is_clear() {
                         let (dr, dc) = (off_r + r, off_c + c);
                         if dr >= 0 && dc >= 0 && dr < cg.height as i32 && dc < cg.width as i32 {
-                            cg.set(dr as u16, dc as u16, shape);
+                            let (dr, dc) = (dr as u16, dc as u16);
+                            cg.set(dr, dc, stack_cell(cg.get(dr, dc), shape));
                         }
                     }
                 }
@@ -666,6 +668,23 @@ impl crate::render::glyph_cache::CompositeBuilder<CachedContours> for ContourBui
             );
         }
     }
+}
+
+/// Stack one layer's cell onto what the flattened grid already holds.
+///
+/// The grid these two loops build is the one a *parent* composite reads this
+/// glyph out of, and a later layer normally just overwrites an earlier one
+/// there — the contours themselves are traced from the layers directly, so
+/// this grid only has to answer "what is in this cell".
+///
+/// A hardblank is the one cell where overwriting is wrong. It is a claim and
+/// not geometry ([`crate::pixel::blank_op`]): it draws the nothing an empty
+/// cell draws, so a layer laying one over ink has to leave the ink alone —
+/// whether or not that ink is bitmap-filled. Overwriting instead cost the
+/// parent ink that the child's own outline still had, which is why the child
+/// looked right and only the parent lost pixels.
+fn stack_cell(current: PixelShape, shape: PixelShape) -> PixelShape {
+    crate::pixel::blank_op(current, shape, false).unwrap_or(shape)
 }
 
 pub(super) fn layers_have_subpixel_conflicts(layers: &[(&PixelGrid, i32, i32)]) -> bool {

@@ -194,6 +194,18 @@ enum SelectDrag {
 }
 
 /// The owning editor's slot for the in-progress selection drag.
+/// Where a selection of `size` cells may sit along one axis of a grid `extent`
+/// cells long. A selection that fits is held inside the grid; one that does not
+/// — a paste is free to be larger than the grid it lands on — is held the other
+/// way round, so that it always covers the grid and slides over it instead. The
+/// two ranges are the same expression with its ends swapped, which is why the
+/// clamp cannot be written directly: `0..=extent - size` runs backwards in the
+/// second case.
+fn clamp_within_grid(pos: i16, size: u16, extent: u16) -> i16 {
+    let slack = extent as i16 - size as i16;
+    pos.clamp(slack.min(0), slack.max(0))
+}
+
 fn drag_id(state: &EditorState) -> egui::Id {
     state.key(Slot::PixelSelectDrag)
 }
@@ -416,8 +428,8 @@ pub(crate) fn handle_pixel_select_interaction(
             }
 
             // Clamp to grid bounds
-            let new_row = (sel.row + drow).clamp(0, grid_height as i16 - sel.height as i16);
-            let new_col = (sel.col + dcol).clamp(0, grid_width as i16 - sel.width as i16);
+            let new_row = clamp_within_grid(sel.row + drow, sel.height, grid_height);
+            let new_col = clamp_within_grid(sel.col + dcol, sel.width, grid_width);
             let actual_drow = new_row - sel.row;
             let actual_dcol = new_col - sel.col;
 
@@ -1040,10 +1052,16 @@ pub(crate) fn handle_transform_selection(
         // Compute new position: try to keep center, clamp to grid bounds
         let old_center_r = sel.row as f32 + sel.height as f32 / 2.0;
         let old_center_c = sel.col as f32 + sel.width as f32 / 2.0;
-        let new_row = ((old_center_r - new_h as f32 / 2.0).round() as i16)
-            .clamp(0, grid_height as i16 - new_h as i16);
-        let new_col = ((old_center_c - new_w as f32 / 2.0).round() as i16)
-            .clamp(0, grid_width as i16 - new_w as i16);
+        let new_row = clamp_within_grid(
+            (old_center_r - new_h as f32 / 2.0).round() as i16,
+            new_h,
+            grid_height,
+        );
+        let new_col = clamp_within_grid(
+            (old_center_c - new_w as f32 / 2.0).round() as i16,
+            new_w,
+            grid_width,
+        );
 
         state.mode = EditMode::pixel_select(item_idx, &state.mode.clone());
         state.pixel_selection = Some(PixelSelection {

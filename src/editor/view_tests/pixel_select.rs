@@ -571,3 +571,25 @@ fn escape_commit_reaches_the_document() {
         "the derived document must hold the committed pixels"
     );
 }
+
+/// A clipboard rectangle may be *larger* than the grid it lands on — nothing
+/// rejects that, and the pixels outside the grid are simply not committed.
+/// Dragging such a selection used to panic: the move clamped the new position
+/// to `0..=grid - size`, a range that runs backwards once the selection is the
+/// bigger of the two.
+#[test]
+fn dragging_a_paste_larger_than_the_grid_does_not_panic() {
+    let mut h = make_pixel_select_harness(); // 4x3 grid
+    h.paste("@@@@@@@@\n@@@@@@@@\n@@@@@@@@\n@@@@@@@@\n@@@@@@@@");
+    let sel = h.state.pixel_selection.as_ref().expect("pasted selection");
+    assert_eq!((sel.width, sel.height), (4, 5));
+
+    h.drag_grid(1, (0, 0), (1, 0));
+    let sel = h.state.pixel_selection.as_ref().expect("selection survives");
+    assert_eq!(sel.col, 0, "no room to move horizontally");
+    assert!(
+        (-2..=0).contains(&sel.row),
+        "an oversized selection slides within the grid, got row {}",
+        sel.row
+    );
+}

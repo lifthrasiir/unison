@@ -1381,3 +1381,57 @@ map C = anchored
          refs=[(\"base\", 0, 0), (\"markish\", 128, 64)]"
     );
 }
+
+/// A hardblank is a claim and never geometry, so it may not erase ink it is
+/// merged with — not in a composite's traced outline, and not in the grid that
+/// composite hands to whoever refers to *it*. Both halves matter: the outline
+/// is traced from the layers directly, so the middle glyph looks right on its
+/// own; the parent traces from the flattened grid instead, and a hardblank
+/// that overwrote ink there took the ink out of the parent only.
+#[test]
+fn a_hardblank_in_a_ref_never_erases_ink_a_parent_inherits() {
+    let input = "\
+glyph inner 3 1
+$$@@$$
+
+glyph mid 3 1
+@@....
+ref inner
+
+glyph outer 3 2
+......
+@@@@@@
+ref mid
+
+glyph control 3 2
+@@@@..
+@@@@@@
+
+glyph mid-control 3 1
+@@@@..
+
+map A = mid
+map B = outer
+map C = control
+map D = mid-control
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+    let by_name = |name: &str| {
+        glyphs
+            .iter()
+            .find(|g| g.name == name)
+            .unwrap_or_else(|| panic!("{name} missing"))
+    };
+
+    assert_eq!(
+        canonicalize_glyph(by_name("mid")).contours,
+        canonicalize_glyph(by_name("mid-control")).contours,
+        "the hardblank ate ink in the composite's own outline"
+    );
+    assert_eq!(
+        canonicalize_glyph(by_name("outer")).contours,
+        canonicalize_glyph(by_name("control")).contours,
+        "the hardblank ate ink in the grid the composite handed its parent"
+    );
+}
