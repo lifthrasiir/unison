@@ -327,6 +327,9 @@ glyph han-92ef-(g|t|k|v):15x16 15 16 // 鋯
 glyph han-92ef-h:15x16 15 16 // 鋯
 ⿰ han-91d2:7x16 han-543f:8x16 // ⿰釒吿
 
+// glyph han-92f4:15x16 15 16 // 鋴
+// ⿰ han-91d2 han-514b // ⿰釒克
+
 ## 167.8
 
 glyph han-927c:15x16 15 16 // 鉼

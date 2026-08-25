@@ -78,6 +78,47 @@ glyph han-30a21:15x16 15 16 // 𰨡
 glyph han-30a3c:15x16 15 16 // 𰨼
 ⿲ -2 han-79be:5x16 han-27fb7:5x16 han-5404:7x16 // ⿲禾𧾷各
 
+# CJK unified ideographs extension G: 竹 (118)
+
+## 118.3
+
+// glyph han-30a6d:15x16 15 16 // 𰩭
+// ⿱ han-25ad7 han-5c71 // ⿱𥫗山
+
+## 118.5
+
+// glyph han-30a73:15x16 15 16 // 𰩳
+// ⿱ han-25ad7 han-7535 // ⿱𥫗电
+
+// glyph han-30a74:15x16 15 16 // 𰩴
+// ⿳ han-25ad7 han-53e3 han-513f // ⿳𥫗口儿 <- ⿱𥫗兄
+
+## 118.8
+
+// glyph han-30a7f:15x16 15 16 // 𰩿
+// ⿱ han-25ad7 han-5778 // ⿱𥫗坸
+
+## 118.9
+
+// glyph han-30a88:15x16 15 16 // 𰪈
+// ⿳ han-25ad7 han-6728 han-65e6 // ⿳𥫗木旦 <- ⿱𥫗查
+
+// glyph han-30a8a:15x16 15 16 // 𰪊
+// ⿱ han-25ad7 han-949f // ⿱𥫗钟
+
+// glyph han-30a8b:15x16 15 16 // 𰪋
+// ⿱ han-25ad7 han-72ec // ⿱𥫗独
+
+## 118.10
+
+// glyph han-30a90:15x16 15 16 // 𰪐
+// ⿱ han-25ad7 han-91db // ⿱𥫗釛
+
+## 118.12
+
+// glyph han-30a97:15x16 15 16 // 𰪗
+// ⿳ han-25ad7 han-6728 han-6797 // ⿳𥫗木林 <- ⿱𥫗森
+
 # CJK unified ideographs extension G: 米 (119)
 
 ## 119.3
@@ -189,6 +230,9 @@ glyph han-30bb8:15x16 15 16 // 𰮸
 // ⿱ han-8279 han-2ad69 // ⿱艹𪵩
 
 ## 140.7
+
+// glyph han-30c41:15x16 15 16 // 𰱁
+// ⿱ han-8279 han-514b // ⿱艹克
 
 // glyph han-30c45:15x16 15 16 // 𰱅
 // ⿳ han-8279 han-53e3 han-6728 // ⿳艹口木 <- ⿱艹呆

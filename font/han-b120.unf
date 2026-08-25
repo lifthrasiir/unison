@@ -173,6 +173,9 @@ glyph han-2610b:15x16 15 16 // 𦄋
 glyph han-2610f:15x16 15 16 // 𦄏
 ⿲ -2 han-7cf9:5x16 han-6728:5x16 han-8096:7x16 // ⿲糹木肖
 
+// glyph han-26119:15x16 15 16 // 𦄙
+// ⿰ han-7cf9 han-41e5 // ⿰糹䇥
+
 glyph han-2613a:15x16 15 16 // 𦄺
 ⿲ -2 han-7cf9:5x16 han-826f:7x16 han-6708:5x16 // ⿲糹良月
 

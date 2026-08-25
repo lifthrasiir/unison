@@ -119,6 +119,9 @@ glyph han-22b57:15x16 15 16 // 𢭗
 glyph han-22b5f:15x16 15 16 // 𢭟
 ⿲ han-624c:3x16 han-4e14:7x16 han-529b:5x16 // ⿲扌且力
 
+// glyph han-22b6a:15x16 15 16 // 𢭪
+// ⿰ han-624c han-514b // ⿰扌克
+
 glyph han-22b6b:15x16 15 16 // 𢭫
 ⿲ han-624c:3x16 han-961d:4x16-c han-5143:8x16 // ⿲扌阝元
 
@@ -223,6 +226,9 @@ glyph han-22c50:15x16 15 16 // 𢱐
 // ⿰ han-624c han-82e6 // ⿰扌苦
 
 ## 64.10
+
+// glyph han-22c76:15x16 15 16 // 𢱶
+// ⿰ han-624c han-2c530 // ⿰扌𬔰
 
 // glyph han-22ca4:15x16 15 16 // 𢲤
 // ⿰ han-624b han-9ad8 // ⿰手高

@@ -56,6 +56,50 @@ glyph han-31d52:15x16 15 16 // 𱵒
 glyph han-31d9e:15x16 15 16 // 𱶞
 ⿲ -1 han-79be:5x16 han-826f:7x16 han-961d:4x16-r // ⿲禾良阝
 
+# CJK unified ideographs extension H: 竹 (118)
+
+## 118.2
+
+// glyph han-31dee:15x16 15 16 // 𱷮
+// ⿱ han-25ad7 han-516b // ⿱𥫗八
+
+## 118.3
+
+// glyph han-31def:15x16 15 16 // 𱷯
+// ⿱ han-25ad7 han-624d // ⿱𥫗才
+
+## 118.4
+
+glyph han-31df3:15x16 15 16 // 𱷳
+⿱ han-25ad7:15x5 han-65e5:15x12 // ⿱𥫗日
+
+## 118.8
+
+// glyph han-31e04:15x16 15 16 // 𱸄
+// ⿱ han-25ad7 han-62af // ⿱𥫗抯
+
+// glyph han-31e05:15x16 15 16 // 𱸅
+// ⿱ han-25ad7 han-5761 // ⿱𥫗坡
+
+// glyph han-31e09:15x16 15 16 // 𱸉
+// ⿳ han-25ad7 han-4ea0 han-5146 // ⿳𥫗亠兆
+
+// glyph han-31e0a:15x16 15 16 // 𱸊
+// ⿱ han-25ad7 han-6cb9 // ⿱𥫗油
+
+// glyph han-31e0c:15x16 15 16 // 𱸌
+// ⿱ han-25ad7 han-9644 // ⿱𥫗附
+
+## 118.10
+
+// glyph han-31e16:15x16 15 16 // 𱸖
+// ⿱ han-25ad7 han-6837 // ⿱𥫗样
+
+## 118.11
+
+// glyph han-31e1c:15x16 15 16 // 𱸜
+// ⿳ han-25ad7 han-6797 han-571f // ⿳𥫗林土 <- ⿱𥫗埜
+
 # CJK unified ideographs extension H: 米 (119)
 
 ## 119.4
@@ -241,6 +285,11 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 
 // glyph han-31fdc:15x16 15 16 // 𱿜
 // ⿰ han-866b han-5fc3 // ⿰虫心
+
+## 142.7
+
+// glyph han-31fe3:15x16 15 16 // 𱿣
+// ⿰ han-866b han-514b // ⿰虫克
 
 ## 142.8
 

@@ -318,6 +318,11 @@ glyph han-2b008:15x16 15 16 // 𫀈
 // glyph han-2b00a:15x16 15 16 // 𫀊
 // ⿰ han-793b han-8863 // ⿰礻衣
 
+## 113.14
+
+// glyph han-2b023:15x16 15 16 // 𫀣
+// ⿰ han-793b han-7b95 // ⿰礻箕
+
 # CJK unified ideographs extension C: 禾 (115)
 
 ## 115.3
@@ -337,6 +342,9 @@ glyph han-2b02a:15x16 15 16 // 𫀪
 
 ## 115.7
 
+// glyph han-2b032:15x16 15 16 // 𫀲
+// ⿰ han-79be han-514b // ⿰禾克
+
 // glyph han-2b034:15x16 15 16 // 𫀴
 // ⿰ han-79be han-573c // ⿰禾圼
 
@@ -354,3 +362,28 @@ glyph han-2b039:15x16 15 16 // 𫀹
 
 glyph han-2b044:15x16 15 16 // 𫁄
 ⿲ han-79be:5x16 han-6c35:3x16 han-8096:7x16 // ⿲禾氵肖
+
+# CJK unified ideographs extension C: 竹 (118)
+
+## 118.7
+
+// glyph han-2b07f:15x16 15 16 // 𫁿
+// ⿱ han-25ad7 han-8eca // ⿱𥫗車
+
+## 118.9
+
+// glyph han-2b08a:15x16 15 16 // 𫂊
+// ⿱ han-25ad7 han-67fe // ⿱𥫗柾
+
+// glyph han-2b08d:15x16 15 16 // 𫂍
+// ⿳ han-25ad7 han-53e3 han-65e9 // ⿳𥫗口早
+
+## 118.11
+
+// glyph han-2b098:15x16 15 16 // 𫂘
+// ⿱ han-25ad7 han-6884 // ⿱𥫗梄
+
+## 118.12
+
+// glyph han-2b0a3:15x16 15 16 // 𫂣
+// ⿱ han-25ad7 han-671f // ⿱𥫗期

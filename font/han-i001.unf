@@ -167,6 +167,23 @@ glyph han-2ed44:15x16 15 16 // 𮵄
 // glyph han-2ed5d:15x16 15 16 // 𮵝
 // ⿰ han-793b han-82d7 // ⿰礻苗
 
+# CJK unified ideographs extension I: 竹 (118)
+
+## 118.2
+
+// glyph han-2ed6b:15x16 15 16 // 𮵫
+// ⿳ han-25ad7 han-4e5b han-4e85 // ⿳𥫗乛亅 <- ⿱𥫗了
+
+## 118.4
+
+glyph han-2ed6c:15x16 15 16 // 𮵬
+⿱ han-25ad7:15x5 han-738b:15x12 // ⿱𥫗王
+
+## 118.12
+
+// glyph han-2ed78:15x16 15 16 // 𮵸
+// ⿳ han-25ad7 han-65e5 han-660d // ⿳𥫗日昍 <- ⿱𥫗晶
+
 # CJK unified ideographs extension I: 米 (119)
 
 ## 119.11

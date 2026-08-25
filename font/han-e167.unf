@@ -143,6 +143,11 @@ glyph han-2cbef-($han-regions):15x16 15 16 // 𬯯
 // glyph han-2cc3f:15x16 15 16 // 𬰿
 // ⿰ han-5200 han-9801 // ⿰刀頁
 
+## 181.7
+
+// glyph han-2cc46:15x16 15 16 // 𬱆
+// ⿰ han-514b han-9801 // ⿰克頁
+
 # CJK unified ideographs extension E: 食 (184)
 
 ## 184.4
@@ -191,6 +196,11 @@ glyph han-2cd52:15x16 15 16 // 𬵒
 
 // glyph han-2cd54:15x16 15 16 // 𬵔
 // ⿰ han-9b5a han-8db3 // ⿰魚足
+
+## 195.8
+
+// glyph han-2cd5a:15x16 15 16 // 𬵚
+// ⿰ han-9b5a han-7afa // ⿰魚竺
 
 ## 195.11
 

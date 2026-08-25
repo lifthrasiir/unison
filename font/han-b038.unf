@@ -164,6 +164,9 @@ glyph han-21800:15x16 15 16 // 𡠀
 // glyph han-2181d:15x16 15 16 // 𡠝
 // ⿱ han-73fe han-5973 // ⿱現女
 
+// glyph han-2181e:15x16 15 16 // 𡠞
+// ⿰ han-5973 han-7b26 // ⿰女符
+
 glyph han-21822:15x16 15 16 // 𡠢
 ⿰ han-7fcf:7x16 1 han-5973:7x16 // ⿰翏女
 

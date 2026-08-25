@@ -172,8 +172,8 @@ glyph han-6015:15x16 15 16 // 怕
 glyph han-6017:15x16 15 16 // 怗
 ⿰ han-5fc4:7x16 1 han-5360:7x16 // ⿰忄占
 
-// glyph han-6018:15x16 15 16 // 怘
-// ⿱ han-53e4 han-5fc3 // ⿱古心
+glyph han-6018:15x16 15 16 // 怘
+⿱ han-53e4:15x9 1 han-5fc3:15x6 // ⿱古心
 
 glyph han-6019:15x16 15 16 // 怙
 ⿰ han-5fc4:5x16 1 han-53e4:9x16 // ⿰忄古

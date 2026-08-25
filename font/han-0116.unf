@@ -1,3 +1,300 @@
+# CJK unified ideographs: 竹 (118)
+
+## 118.0
+
+glyph han-7af9:15x16 15 16 // 竹
+$$......@@............@@....$$
+$$.....vV/...........vV/....$$
+$$..../Vv'........../Vv'....$$
+$$...vV/...........vV/......$$
+$$../Vv'........../Vv'......$$
+$$.v@@@@@@@@@@...v@@@@@@@@@@@@
+$$/Vv'..@@....../Vv'..@@....$$
+/10/....@@..../10/....@@....$$
+$$......@@............@@....$$
+$$......@@............@@....$$
+$$......@@............@@....$$
+$$......@@............@@....$$
+$$......@@............@@....$$
+$$......@@............@@....$$
+$$......@@............@@....$$
+$$......@@..........\1@@....$$
+
+glyph han-25ad7:15x5 15 5 // 𥫗
+$$$$./d@0/$$$$$$$$./d@0/$$$$$$
+$$./d@@@@@@@@@.../d@@@@@@@@@$$
+$$d@0/\1@\\.....d@0/\1@\\...$$
+$$0/....\1@\\.$$0/....\1@\\.$$
+..$$$$$$$$$$....$$$$$$$$$$....
+glyph han-25ad7:15x16 15 16 // 𥫗
+ref han-25ad7:15x5
+
+## 118.2
+
+glyph han-7afa:15x16 15 16 // 竺
+⿱ han-25ad7:15x5 1 han-4e8c:15x10 // ⿱𥫗二
+
+// glyph han-7afb:15x16 15 16 // 竻
+// ⿱ han-25ad7 han-529b // ⿱𥫗力
+
+## 118.3
+
+glyph han-7aff:15x16 15 16 // 竿
+⿱ han-25ad7:15x5 han-5e72:15x11 // ⿱𥫗干
+
+// glyph han-7b01:15x16 15 16 // 笁
+// ⿱ han-25ad7 han-5de5 // ⿱𥫗工
+
+## 118.4
+
+// glyph han-7b07:15x16 15 16 // 笇
+// ⿳ han-25ad7 han-4e36 han-4e0b // ⿳𥫗丶下 <- ⿱𥫗卞
+
+glyph han-7b0e:15x16 15 16 // 笎
+⿱ han-25ad7:15x5 han-5143:15x11 // ⿱𥫗元
+
+// glyph han-7b10:15x16 15 16 // 笐
+// ⿱ han-25ad7 han-4ea2 // ⿱𥫗亢
+
+// glyph han-7b12:15x16 15 16 // 笒
+// ⿱ han-25ad7 han-4eca // ⿱𥫗今
+
+## 118.5
+
+glyph han-7b18:15x16 15 16 // 笘
+⿱ -1 han-25ad7:15x5 -1 han-5360:15x13 // ⿱𥫗占
+
+// glyph han-7b1a:15x16 15 16 // 笚
+// ⿱ han-25ad7 han-7532 // ⿱𥫗甲
+
+glyph han-7b1b:15x16 15 16 // 笛
+⿱ han-25ad7:15x5 -1 han-7531:15x12 // ⿱𥫗由
+
+// glyph han-7b1e:15x16 15 16 // 笞
+// ⿱ han-25ad7 han-53f0 // ⿱𥫗台
+
+glyph han-7b21:15x16 15 16 // 笡
+⿱ han-25ad7:15x5 han-4e14:15x12 // ⿱𥫗且
+
+// glyph han-7b23:15x16 15 16 // 笣
+// ⿱ han-25ad7 han-5305 // ⿱𥫗包
+
+// glyph han-7b24:15x16 15 16 // 笤
+// ⿱ han-25ad7 han-53ec // ⿱𥫗召
+
+glyph han-7b26:15x16 15 16 // 符
+⿱ -1 han-25ad7:15x5 han-4ed8:15x12 // ⿱𥫗付
+
+// glyph han-7b2a:15x16 15 16 // 笪
+// ⿱ han-25ad7 han-65e6 // ⿱𥫗旦
+
+// glyph han-7b31:15x16 15 16 // 笱
+// ⿱ han-25ad7 han-53e5 // ⿱𥫗句
+
+glyph han-7b33:15x16 15 16 // 笳
+⿱ -1 han-25ad7:15x5 han-52a0:15x12 // ⿱𥫗加
+
+glyph han-7b34:15x16 15 16 // 笴
+⿱ han-25ad7:15x5 han-53ef:15x11 // ⿱𥫗可
+
+glyph han-7b39:15x16 15 16 // 笹
+⿱ han-25ad7:15x5 han-4e16:15x12 // ⿱𥫗世
+
+## 118.6
+
+// glyph han-7b3f:15x16 15 16 // 笿
+// ⿱ han-25ad7 han-5404 // ⿱𥫗各
+
+glyph han-7b40:15x16 15 16 // 筀
+⿳ han-25ad7:15x5 -1 han-571f:15x6 han-571f:15x6 // ⿳𥫗土土
+
+// glyph han-7b44:15x16 15 16 // 筄
+// ⿱ han-25ad7 han-5146 // ⿱𥫗兆
+
+// glyph han-7b47:15x16 15 16 // 筇
+// ⿱ han-25ad7 han-909b // ⿱𥫗邛
+
+// glyph han-7b49:15x16 15 16 // 等
+// ⿳ han-25ad7 han-571f han-5bf8 // ⿳𥫗土寸 <- ⿱𥫗寺
+
+// glyph han-7b4a:15x16 15 16 // 筊
+// ⿱ han-25ad7 han-4ea4 // ⿱𥫗交
+
+glyph han-7b4b:15x16 15 16 // 筋
+⿱ -1 han-25ad7:15x5 han-808b:15x12 // ⿱𥫗肋
+
+// glyph han-7b4e:15x16 15 16 // 筎
+// ⿱ han-25ad7 han-5982 // ⿱𥫗如
+
+glyph han-7b52:15x16 15 16 // 筒
+⿱ han-25ad7:15x5 han-540c:15x12 // ⿱𥫗同
+
+// glyph han-7b53:15x16 15 16 // 筓
+// ⿱ han-25ad7 han-5e75 // ⿱𥫗幵
+
+// glyph han-7b54:15x16 15 16 // 答
+// ⿱ han-25ad7 han-5408 // ⿱𥫗合
+
+// glyph han-7b57:15x16 15 16 // 筗
+// ⿱ han-25ad7 han-4ef2 // ⿱𥫗仲
+
+glyph han-7b58:15x16 15 16 // 筘
+⿱ han-25ad7:15x5 han-6263:15x11 // ⿱𥫗扣
+
+## 118.7
+
+glyph han-7b63:15x16 15 16 // 筣
+⿱ han-25ad7:15x5 han-5229:15x11 // ⿱𥫗利
+
+// glyph han-7b64:15x16 15 16 // 筤
+// ⿱ han-25ad7 han-826f // ⿱𥫗良
+
+// glyph han-7b65:15x16 15 16 // 筥
+// ⿳ han-25ad7 han-53e3 han-53e3 // ⿳𥫗口口 <- ⿱𥫗吕
+
+glyph han-7b67:15x16 15 16 // 筧
+⿱ han-25ad7:15x5 han-898b:15x12 // ⿱𥫗見
+
+// glyph han-7b68:15x16 15 16 // 筨
+// ⿳ han-25ad7 han-4eca han-53e3 // ⿳𥫗今口 <- ⿱𥫗含
+
+// glyph han-7b6b:15x16 15 16 // 筫
+// ⿱ han-25ad7 han-8c9d // ⿱𥫗貝
+
+glyph han-7b6f:15x16 15 16 // 筯
+⿱ -1 han-25ad7:15x5 han-52a9:15x12 // ⿱𥫗助
+
+// glyph han-7b72:15x16 15 16 // 筲
+// ⿱ han-25ad7 han-8096 // ⿱𥫗肖
+
+// glyph han-7b76:15x16 15 16 // 筶
+// ⿱ han-25ad7 han-544a // ⿱𥫗告
+
+glyph han-7b78:15x16 15 16 // 筸
+⿳ han-25ad7:15x5 han-65e5:15x5 1 han-5e72:15x5 // ⿳𥫗日干
+
+## 118.8
+
+// glyph han-7b84:15x16 15 16 // 箄
+// ⿱ han-25ad7 han-5351 // ⿱𥫗卑
+
+// glyph han-7b88:15x16 15 16 // 箈
+// ⿱ han-25ad7 han-6cbb // ⿱𥫗治
+
+// glyph han-7b8c:15x16 15 16 // 箌
+// ⿱ han-25ad7 han-5230 // ⿱𥫗到
+
+// glyph han-7b94:15x16 15 16 // 箔
+// ⿱ han-25ad7 han-6cca // ⿱𥫗泊
+
+glyph han-7b95:15x16 15 16 // 箕
+ref han-25ad7:15x5 0 0 // ⿱𥫗其
+ref han-5176:15x12 0 4
+
+glyph han-7b96:15x16 15 16 // 箖
+⿱ han-25ad7:15x5 han-6797:15x11 // ⿱𥫗林
+
+// glyph han-7b9a:15x16 15 16 // 箚
+// ⿱ han-25ad7 han-34e3 // ⿱𥫗㓣
+
+// glyph han-7ba4:15x16 15 16 // 箤
+// ⿱ han-25ad7 han-5352 // ⿱𥫗卒
+
+// glyph han-7ba5:15x16 15 16 // 箥
+// ⿱ han-25ad7 han-6ce2 // ⿱𥫗波
+
+## 118.9
+
+glyph han-7bb1:15x16 15 16 // 箱
+⿱ han-25ad7:15x5 han-76f8:15x11 // ⿱𥫗相
+
+glyph han-7bb6:15x16 15 16 // 箶
+⿱ -1 han-25ad7:15x5 han-80e1:15x12 // ⿱𥫗胡
+
+// glyph han-7bbe:15x16 15 16 // 箾
+// ⿱ han-25ad7 han-524a // ⿱𥫗削
+
+// glyph han-7bbf:15x16 15 16 // 箿
+// ⿳ han-25ad7 han-53e3 han-8033 // ⿳𥫗口耳 <- ⿱𥫗咠
+
+glyph han-7bc1:15x16 15 16 // 篁
+⿳ han-25ad7:15x5 han-767d:15x6 1 han-738b:15x5 // ⿳𥫗白王
+
+glyph han-7bc8:15x16 15 16 // 篈
+⿱ han-25ad7:15x5 han-5c01:15x11 // ⿱𥫗封
+
+glyph han-7bcd:15x16 15 16 // 篍
+⿱ -1 han-25ad7:15x5 han-79cb:15x12 // ⿱𥫗秋
+
+// glyph han-7bd3:15x16 15 16 // 篓
+// ⿳ han-25ad7 han-7c73 han-5973 // ⿳𥫗米女 <- ⿱𥫗娄
+
+## 118.10
+
+// glyph han-7bd4:15x16 15 16 // 篔
+// ⿳ han-25ad7 han-53e3 han-8c9d // ⿳𥫗口貝 <- ⿱𥫗員
+
+glyph han-7bd9:15x16 15 16 // 篙
+⿱ han-25ad7:15x5 -1 han-9ad8:15x12 // ⿱𥫗高
+
+// glyph han-7be2:15x16 15 16 // 篢
+// ⿳ han-25ad7 han-5de5 han-8c9d // ⿳𥫗工貝 <- ⿱𥫗貢
+
+// glyph han-7be4:15x16 15 16 // 篤
+// ⿱ han-25ad7 han-99ac // ⿱𥫗馬
+
+// glyph han-7c15:15x16 15 16 // 簕
+// ⿱ han-25ad7 han-52d2 // ⿱𥫗勒
+
+## 118.11
+
+// glyph han-7bfa:15x16 15 16 // 篺
+// ⿱ han-25ad7 han-636d // ⿱𥫗捭
+
+// glyph han-7bfb:15x16 15 16 // 篻
+// ⿱ han-25ad7 han-7968 // ⿱𥫗票
+
+glyph han-7c0a:15x16 15 16 // 簊
+ref han-25ad7:15x5 0 0 // ⿳𥫗其土
+ref han-5176:15x10 0 4
+ref han-571f:11x4 2 12
+
+// glyph han-7c10:15x16 15 16 // 簐
+// ⿱ han-25ad7 han-8edf // ⿱𥫗軟
+
+## 118.12
+
+// glyph han-7c1b:15x16 15 16 // 簛
+// ⿱ han-25ad7 han-65af // ⿱𥫗斯
+
+// glyph han-7c1c:15x16 15 16 // 簜
+// ⿱ han-25ad7 han-6e6f // ⿱𥫗湯
+
+// glyph han-7c25:15x16 15 16 // 簥
+// ⿱ han-25ad7 han-55ac // ⿱𥫗喬
+
+// glyph han-7c2c:15x16 15 16 // 簬
+// ⿱ han-25ad7 han-8def // ⿱𥫗路
+
+// glyph han-7c2f:15x16 15 16 // 簯
+// ⿱ han-25ad7 han-68cb // ⿱𥫗棋
+
+// glyph han-7c32:15x16 15 16 // 簲
+// ⿱ han-25ad7 han-813e // ⿱𥫗脾
+
+## 118.13
+
+// glyph han-7c35:15x16 15 16 // 簵
+// ⿱ han-25ad7 han-8f05 // ⿱𥫗輅
+
+// glyph han-7c38:15x16 15 16 // 簸
+// ⿱ han-25ad7 han-24ffa // ⿱𥫗𤿺
+
+## 118.15
+
+// glyph han-7c53:15x16 15 16 // 籓
+// ⿱ han-25ad7 han-6f58 // ⿱𥫗潘
+
 # CJK unified ideographs: 米 (119)
 
 ## 119.0

@@ -70,6 +70,11 @@ glyph han-2a7c8-($han-regions):15x16 15 16 // 𪟈
 glyph han-2a7cb:15x16 15 16 // 𪟋
 ⿰ han-9769:9x16 1 han-5202:5x16 // ⿰革刂
 
+## 18.14
+
+// glyph han-2a7d5:15x16 15 16 // 𪟕
+// ⿰ han-7b95 han-5202 // ⿰箕刂
+
 # CJK unified ideographs extension C: 力 (19)
 
 ## 19.5
@@ -90,6 +95,11 @@ glyph han-2a7cb:15x16 15 16 // 𪟋
 
 // glyph han-2a839:15x16 15 16 // 𪠹
 // ⿱ han-793b han-53e3 // ⿱礻口
+
+## 30.6
+
+// glyph han-2a83f:15x16 15 16 // 𪠿
+// ⿰ han-53e3 han-7af9 // ⿰口竹
 
 ## 30.7
 
@@ -124,6 +134,9 @@ glyph han-2a86e:15x16 15 16 // 𪡮
 ⿲ han-53e3:3x16-l 1 han-8c9d:5x16 han-5bf8:6x16 // ⿲口貝寸
 
 ## 30.12
+
+// glyph han-2a889:15x16 15 16 // 𪢉
+// ⿰ han-53e3 han-7b52 // ⿰口筒
 
 glyph han-2a88d:15x16 15 16 // 𪢍
 ⿲ han-53e3:5x16-l han-7cf9:5x16 han-5409:5x16 // ⿲口糹吉
@@ -170,6 +183,9 @@ glyph han-2a8cc:15x16 15 16 // 𪣌
 ⿰ han-571f:7x16 1 han-8033:7x16 // ⿰土耳
 
 ## 32.7
+
+// glyph han-2a8d5:15x16 15 16 // 𪣕
+// ⿰ han-571f han-514b // ⿰土克
 
 glyph han-2a8db:15x16 15 16 // 𪣛
 ⿲ han-571f:3x16-l han-79be:7x16 han-5202:5x16 // ⿲土禾刂
