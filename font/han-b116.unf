@@ -156,3 +156,89 @@ glyph han-25980:15x16 15 16 // 𥦀
 
 // glyph han-25a1b:15x16 15 16 // 𥨛
 // ⿳ han-5b80 han-516b han-63da // ⿳宀八揚 <- ⿱穴揚
+
+# CJK unified ideographs extension B: 立 (117)
+
+## 117.3
+
+// glyph han-25a57:15x16 15 16 // 𥩗
+// ⿱ han-7acb han-5140 // ⿱立兀
+
+## 117.4
+
+// glyph han-25a5d:15x16 15 16 // 𥩝
+// ⿱ han-7acb han-624b // ⿱立手
+
+## 117.5
+
+// glyph han-25a60:15x16 15 16 // 𥩠
+// ⿱ han-6b63 han-7acb // ⿱正立
+
+glyph han-25a62:15x16 15 16 // 𥩢
+⿰ han-7acb:7x16 han-4e14:8x16 // ⿰立且
+
+glyph han-25a64:15x16 15 16 // 𥩤
+⿰ han-7acb:7x16 han-53ef:8x16 // ⿰立可
+
+// glyph han-25a68:15x16 15 16 // 𥩨
+// ⿰ han-7acb han-7389 // ⿰立玉
+
+glyph han-25a6a:15x16 15 16 // 𥩪
+⿰ han-7acb:7x16 1 han-53e4:7x16 // ⿰立古
+
+// glyph han-25a6b:15x16 15 16 // 𥩫
+// ⿱ han-7acb han-7532 // ⿱立甲
+
+// glyph han-25a6e:15x16 15 16 // 𥩮
+// ⿱ han-7acb han-53e5 // ⿱立句
+
+## 117.6
+
+glyph han-25a75:15x16 15 16 // 𥩵
+⿰ han-7acb:7x16 han-5e76:8x16 // ⿰立并
+
+// glyph han-25a76:15x16 15 16 // 𥩶
+// ⿳ han-7acb han-53e3 han-53e3 // ⿳立口口 <- ⿱立吕
+
+// glyph han-25a7a:15x16 15 16 // 𥩺
+// ⿰ han-7acb han-5939 // ⿰立夹
+
+glyph han-25a7b:15x16 15 16 // 𥩻
+⿰ han-7acb:7x16 1 han-5408:7x16 // ⿰立合
+
+glyph han-25a7c:15x16 15 16 // 𥩼
+⿰ han-7acb:7x16 1 han-5146:7x16 // ⿰立兆
+
+## 117.7
+
+glyph han-25a80:15x16 15 16 // 𥪀
+⿰ han-7acb:7x16 1 han-752b:7x16 // ⿰立甫
+
+glyph han-25a85:15x16 15 16 // 𥪅
+⿲ -1 han-7acb:5x16 han-53e3:4x16 han-6b20:7x16 // ⿲立口欠
+
+## 117.8
+
+glyph han-25a93:15x16 15 16 // 𥪓
+⿰ han-7acb:7x16 han-5176:8x16 // ⿰立其
+
+## 117.9
+
+glyph han-25a99:15x16 15 16 // 𥪙
+⿰ han-7acb:7x16 1 han-9801:7x16 // ⿰立頁
+
+// glyph han-25aa0:15x16 15 16 // 𥪠
+// ⿱ han-7acb han-8ecd // ⿱立軍
+
+## 117.11
+
+// glyph han-25aad:15x16 15 16 // 𥪭
+// ⿱ han-65ac han-7acb // ⿱斬立
+
+// glyph han-25ab0:15x16 15 16 // 𥪰
+// ⿳ han-7add han-65e5 han-513f // ⿳竝日儿
+
+## 117.12
+
+glyph han-25aaf:15x16 15 16 // 𥪯
+⿰ han-7acb:7x16 1 han-582f:7x16 // ⿰立堯

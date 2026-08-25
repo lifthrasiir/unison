@@ -336,6 +336,9 @@ glyph han-67c0:15x16 15 16 // 柀
 glyph han-67c3-($han-regions):15x16 15 16 // 柃
 ⿰ han-6728:7x16 1 han-4ee4-($-1):7x16 // ⿰木令
 
+glyph han-67c6:15x16 15 16 // 柆
+⿰ han-6728:7x16 1 han-7acb:7x16 // ⿰木立
+
 glyph han-67c7:15x16 15 16 // 柇
 ⿰ han-6728:5x16 1 han-79be:9x16 // ⿰木禾
 

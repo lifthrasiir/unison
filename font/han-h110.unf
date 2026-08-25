@@ -86,6 +86,13 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 // glyph han-31dd7:15x16 15 16 // 𱷗
 // ⿰ han-5b82 han-88dc // ⿰宂補
 
+# CJK unified ideographs extension H: 立 (117)
+
+## 117.6
+
+// glyph han-31de5:15x16 15 16 // 𱷥
+// ⿱ han-7acb han-5146 // ⿱立兆
+
 # CJK unified ideographs extension H: 竹 (118)
 
 ## 118.2
@@ -129,6 +136,9 @@ glyph han-31df3:15x16 15 16 // 𱷳
 
 // glyph han-31e1c:15x16 15 16 // 𱸜
 // ⿳ han-25ad7 han-6797 han-571f // ⿳𥫗林土 <- ⿱𥫗埜
+
+// glyph han-31e22:15x16 15 16 // 𱸢
+// ⿳ han-25ad7 han-7acb han-5146 // ⿳𥫗立兆 <- ⿱𥫗𱷥
 
 # CJK unified ideographs extension H: 米 (119)
 

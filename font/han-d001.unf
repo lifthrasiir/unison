@@ -33,6 +33,13 @@ glyph han-2b79b-($han-regions):15x16 15 16 // 𫞛
 glyph han-2b7ae:15x16 15 16 // 𫞮
 ⿰ han-767d:6x16 han-53e5:9x16 // ⿰白句
 
+# CJK unified ideographs extension D: 立 (117)
+
+## 117.2
+
+glyph han-2b7bb:15x16 15 16 // 𫞻
+⿰ han-7acb:7x16 -1 han-4e01:9x16 // ⿰立丁
+
 # CJK unified ideographs extension D: 讠 (149')
 
 ## 149'.4
@@ -51,6 +58,11 @@ glyph han-2b7de:15x16 15 16 // 𫟞
 
 glyph han-2b7f4:15x16 15 16 // 𫟴
 ⿰ han-9485:6x16 han-5206:9x16 // ⿰钅分
+
+## 167'.5
+
+glyph han-2b7f7:15x16 15 16 // 𫟷
+⿰ han-9485:6x16 han-7acb:9x16 // ⿰钅立
 
 # CJK unified ideographs extension D: 魚 (195)
 

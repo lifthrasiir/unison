@@ -21,6 +21,11 @@ glyph han-2d4e5:15x16 15 16 // 𭓥
 // glyph han-2d4ef:15x16 15 16 // 𭓯
 // ⿱ han-5b80 han-820c // ⿱宀舌
 
+## 40.7
+
+// glyph han-2d4f3:15x16 15 16 // 𭓳
+// ⿳ han-5b80 han-7acb han-4e01 // ⿳宀立丁
+
 ## 40.8
 
 // glyph han-2d4f4:15x16 15 16 // 𭓴
@@ -120,6 +125,11 @@ glyph han-2d5ab:15x16 15 16 // 𭖫
 
 // glyph han-2d5c0:15x16 15 16 // 𭗀
 // ⿳ han-5c71 han-6298 han-53e3 // ⿳山折口 <- ⿱山哲
+
+## 46.11
+
+// glyph han-2d5cd:15x16 15 16 // 𭗍
+// ⿳ han-5c71 han-7acb han-65e9 // ⿳山立早 <- ⿱山章
 
 ## 46.12
 

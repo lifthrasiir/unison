@@ -35,6 +35,9 @@ glyph han-27991:15x16 15 16 // 𧦑
 glyph han-279a4:15x16 15 16 // 𧦤
 ⿲ han-8a01:5x16 han-529b:5x16 1 han-53e3:4x16 // ⿲訁力口
 
+glyph han-279b0:15x16 15 16 // 𧦰
+⿰ han-8a01:7x16 1 han-7acb:7x16 // ⿰訁立
+
 glyph han-279b3:15x16 15 16 // 𧦳
 ⿰ han-8a01:7x16 1 han-77f3:7x16 // ⿰訁石
 
@@ -95,6 +98,9 @@ glyph han-27a6c:15x16 15 16 // 𧩬
 
 glyph han-27aa8:15x16 15 16 // 𧪨
 ⿰ han-8a01:5x16 1 han-99ac:9x16 // ⿰訁馬
+
+glyph han-27abb:15x16 15 16 // 𧪻
+⿲ han-8a01:5x16 han-7acb:5x16 han-7acb:5x16 // ⿲訁立立
 
 // glyph han-27ac8:15x16 15 16 // 𧫈
 // ⿱ han-46b4 han-5408 // ⿱䚴合

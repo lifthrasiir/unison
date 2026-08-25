@@ -122,6 +122,9 @@ glyph han-2c800:15x16 15 16 // 𬠀
 
 ## 142.8
 
+glyph han-2c80f:15x16 15 16 // 𬠏
+⿲ han-866b:5x16 han-624c:3x16 han-7acb:7x16 // ⿲虫扌立
+
 glyph han-2c81a:15x16 15 16 // 𬠚
 ⿲ -1 han-866b:5x16 han-6c35:3x16 han-76ae:8x16 // ⿲虫氵皮
 
@@ -284,6 +287,11 @@ glyph han-2c9b2:15x16 15 16 // 𬦲
 
 glyph han-2c9b6:15x16 15 16 // 𬦶
 ⿲ han-27fb7:5x16 han-81f3:7x16 han-5202:3x16 // ⿲𧾷至刂
+
+## 157.10
+
+// glyph han-2c9c8:15x16 15 16 // 𬧈
+// ⿱ han-8db3 han-7add // ⿱足竝
 
 ## 157.11
 

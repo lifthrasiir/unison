@@ -296,6 +296,9 @@ glyph han-3575:15x16 15 16 // 㕵
 glyph han-3577:15x16 15 16 // 㕷
 ⿰ han-53e3:8x16 1 han-767d:6x16 // ⿰口白
 
+glyph han-3578:15x16 15 16 // 㕸
+⿰ han-53e3:8x16 han-7acb:7x16 // ⿰口立
+
 // glyph han-357f:15x16 15 16 // 㕿
 // ⿱ han-79be han-53e3 // ⿱禾口
 
@@ -311,6 +314,9 @@ glyph han-3577:15x16 15 16 // 㕷
 
 // glyph han-3594:15x16 15 16 // 㖔
 // ⿰ han-53e3 han-541e // ⿰口吞
+
+// glyph han-3596:15x16 15 16 // 㖖
+// ⿳ han-7acb han-5341 han-53e3 // ⿳立十口 <- ⿱辛口
 
 ## 30.9
 

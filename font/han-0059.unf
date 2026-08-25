@@ -425,6 +425,9 @@ glyph han-6105:15x16 15 16 // 愅
 glyph han-6109:15x16 15 16 // 愉
 ⿰ han-5fc4:7x16 1 han-4fde:7x16 // ⿰忄俞
 
+// glyph han-610f:15x16 15 16 // 意
+// ⿳ han-7acb han-65e5 han-5fc3 // ⿳立日心 <- ⿱音心
+
 glyph han-6112:15x16 15 16 // 愒
 ⿰ han-5fc4:5x16 1 han-66f7:9x16 // ⿰忄曷
 

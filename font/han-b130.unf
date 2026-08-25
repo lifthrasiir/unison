@@ -47,6 +47,9 @@ glyph han-26688:15x16 15 16 // 𦚈
 // glyph han-2668d:15x16 15 16 // 𦚍
 // ⿱ han-4ea0 han-8096 // ⿱亠肖
 
+glyph han-2668e:15x16 15 16 // 𦚎
+⿰ han-7acb:7x16 han-6708:8x16 // ⿰立月
+
 glyph han-26694:15x16 15 16 // 𦚔
 ⿰ han-6708:5x16-l han-53ec:10x16 // ⿰月召
 

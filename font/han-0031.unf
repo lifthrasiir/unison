@@ -408,6 +408,9 @@ glyph han-577d-($han-regions):15x16 15 16 // 坽
 glyph han-577f:15x16 15 16 // 坿
 ⿲ han-571f:3x16-l han-4ebb:3x16 han-5bf8:9x16 // ⿲土亻寸
 
+glyph han-5783:15x16 15 16 // 垃
+⿰ han-571f:7x16 1 han-7acb:7x16 // ⿰土立
+
 glyph han-5789:15x16 15 16 // 垉
 ⿰ han-571f:7x16 1 han-5305:7x16 // ⿰土包
 

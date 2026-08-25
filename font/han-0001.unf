@@ -1435,6 +1435,9 @@ H/..............\H
 // glyph han-4eaf:15x16 15 16 // 亯
 // ⿳ han-4ea0 han-53e3 han-65e5 // ⿳亠口日 <- ⿱亠𠯭
 
+// glyph han-4eb2:15x16 15 16 // 亲
+// ⿱ han-7acb han-6728 // ⿱立木
+
 # CJK unified ideographs: 人 (9)
 
 ## 9.0
@@ -1974,6 +1977,9 @@ glyph han-4f4a:15x16 15 16 // 佊
 glyph han-4f4b:15x16 15 16 // 佋
 ⿰ han-4ebb:5x16 han-53ec:10x16 // ⿰亻召
 
+glyph han-4f4d:15x16 15 16 // 位
+⿰ han-4ebb:5x16 1 han-7acb:9x16 // ⿰亻立
+
 glyph han-4f4e:15x16 15 16 // 低
 ⿰ han-4ebb:5x16 han-6c10:10x16 // ⿰亻氐
 
@@ -2252,6 +2258,9 @@ glyph han-5090:15x16 15 16 // 傐
 
 glyph han-50a0:15x16 15 16 // 傠
 ⿲ han-4ebb:3x16 han-8a01:5x16 han-5bf8:7x16 // ⿲亻訁寸
+
+glyph han-50a1:15x16 15 16 // 傡
+⿲ han-4ebb:3x16 han-7acb:5x16 han-7acb:7x16 // ⿲亻立立
 
 glyph han-50a6:15x16 15 16 // 傦
 ⿰ han-4ebb:5x16 1 han-9aa8:9x16 // ⿰亻骨

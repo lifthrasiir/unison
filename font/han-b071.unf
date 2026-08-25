@@ -119,6 +119,9 @@ glyph han-231d6:15x16 15 16 // 𣇖
 // glyph han-231d8:15x16 15 16 // 𣇘
 // ⿱ han-5229 han-65e5 // ⿱利日
 
+// glyph han-231db:15x16 15 16 // 𣇛
+// ⿳ han-65e5 han-7acb han-5341 // ⿳日立十 <- ⿱日辛
+
 glyph han-231dc:15x16 15 16 // 𣇜
 ⿰ han-65e5:6x16 1 han-8c9d:8x16 // ⿰日貝
 

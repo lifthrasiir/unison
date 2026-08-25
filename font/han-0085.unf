@@ -325,6 +325,9 @@ glyph han-6ce1:15x16 15 16 // 泡
 glyph han-6ce2:15x16 15 16 // 波
 ⿰ han-6c35:5x16 1 han-76ae:9x16 // ⿰氵皮
 
+glyph han-6ce3:15x16 15 16 // 泣
+⿰ han-6c35:5x16 1 han-7acb:9x16 // ⿰氵立
+
 glyph han-6cea:15x16 15 16 // 泪
 ⿰ han-6c35:5x16 1 han-76ee:9x16 // ⿰氵目
 
@@ -452,6 +455,9 @@ glyph han-6d86:15x16 15 16 // 涆
 
 glyph han-6d88:15x16 15 16 // 消
 ⿰ han-6c35:5x16 1 han-8096:9x16 // ⿰氵肖
+
+glyph han-6d96:15x16 15 16 // 涖
+⿲ han-6c35:3x16 han-4ebb:5x16 han-7acb:7x16 // ⿲氵亻立
 
 ## 85.8
 

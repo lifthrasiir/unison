@@ -205,6 +205,9 @@ glyph han-22bd0:15x16 15 16 // 𢯐
 // glyph han-22bd5:15x16 15 16 // 𢯕
 // ⿰ han-624c han-5b9c // ⿰扌宜
 
+glyph han-22bdb:15x16 15 16 // 𢯛
+⿲ han-624c:3x16 han-6c35:5x16 han-7acb:7x16 // ⿲扌氵立
+
 // glyph han-22bdf:15x16 15 16 // 𢯟
 // ⿲ han-624c han-571f han-65e6 // ⿲扌土旦 <- ⿰扌坦
 

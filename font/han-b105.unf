@@ -68,6 +68,9 @@ glyph han-24f65:15x16 15 16 // 𤽥
 glyph han-24f6d:15x16 15 16 // 𤽭
 ⿰ han-767d:8x16 han-590b:7x16 // ⿰白夋
 
+// glyph han-24f6e:15x16 15 16 // 𤽮
+// ⿳ han-767d han-7acb han-5341 // ⿳白立十 <- ⿱白辛
+
 // glyph han-24f71:15x16 15 16 // 𤽱
 // ⿰ han-767d han-8db3 // ⿰白足
 
@@ -103,6 +106,11 @@ glyph han-24f89:15x16 15 16 // 𤾉
 
 // glyph han-24f93:15x16 15 16 // 𤾓
 // ⿱ han-767e han-6797 // ⿱百林
+
+## 106.10
+
+// glyph han-24f95:15x16 15 16 // 𤾕
+// ⿱ han-7add han-767d // ⿱竝白
 
 ## 106.11
 

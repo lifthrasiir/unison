@@ -237,6 +237,26 @@ glyph han-2c4e2:15x16 15 16 // 𬓢
 // glyph han-2c50b:15x16 15 16 // 𬔋
 // ⿰ han-7a81 han-4e0b // ⿰突下
 
+# CJK unified ideographs extension E: 立 (117)
+
+## 117.3
+
+glyph han-2c517:15x16 15 16 // 𬔗
+⿰ han-4e0b:7x16 1 han-7acb:7x16 // ⿰下立
+
+## 117.4
+
+glyph han-2c518:15x16 15 16 // 𬔘
+⿰ han-7acb:7x16 1 han-65a4:7x16 // ⿰立斤
+
+## 117.5
+
+// glyph han-2c51b:15x16 15 16 // 𬔛
+// ⿱ han-4e16 han-7acb // ⿱世立
+
+glyph han-2c51c:15x16 15 16 // 𬔜
+⿰ han-7acb:7x16 han-76ae:8x16 // ⿰立皮
+
 # CJK unified ideographs extension E: 竹 (118)
 
 ## 118.4
@@ -262,6 +282,11 @@ glyph han-2c532:15x16 15 16 // 𬔲
 
 // glyph han-2c541:15x16 15 16 // 𬕁
 // ⿱ han-25ad7 han-8863 // ⿱𥫗衣
+
+## 118.7
+
+// glyph han-2c545:15x16 15 16 // 𬕅
+// ⿱ han-25ad7 han-4f4d // ⿱𥫗位
 
 ## 118.8
 

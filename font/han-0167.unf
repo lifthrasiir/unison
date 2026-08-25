@@ -222,6 +222,9 @@ glyph han-9251:15x16 15 16 // 鉑
 glyph han-925c:15x16 15 16 // 鉜
 ⿲ han-91d2:5x16-l han-4ebb:3x16 han-5bf8:7x16 // ⿲釒亻寸
 
+glyph han-925d:15x16 15 16 // 鉝
+⿰ han-91d2:7x16 1 han-7acb:7x16 // ⿰釒立
+
 // glyph han-9260:15x16 15 16 // 鉠
 // ⿰ han-91d2 han-592e // ⿰釒央
 

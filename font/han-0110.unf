@@ -142,6 +142,9 @@ glyph han-7825:15x16 15 16 // 砥
 glyph han-7827:15x16 15 16 // 砧
 ⿰ han-77f3:7x16 1 han-5360:7x16 // ⿰石占
 
+glyph han-782c:15x16 15 16 // 砬
+⿰ han-77f3:8x16 han-7acb:7x16 // ⿰石立
+
 glyph han-7831-($han-regions):15x16 15 16 // 砱
 ⿰ han-77f3:7x16 1 han-4ee4-($-1):7x16 // ⿰石令
 

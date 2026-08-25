@@ -92,6 +92,9 @@ glyph han-29711:15x16 15 16 // 𩜑
 glyph han-29718:15x16 15 16 // 𩜘
 ⿰ han-98e0:7x16 1 han-5352:7x16 // ⿰飠卒
 
+glyph han-2971b:15x16 15 16 // 𩜛
+⿲ -1 han-98e0:7x16 han-7acb:5x16 han-961d:4x16-r // ⿲飠立阝
+
 glyph han-29724:15x16 15 16 // 𩜤
 ⿲ -3 han-98e0:7x16 han-6c35:3x16 han-76ae:8x16 // ⿲飠氵皮
 

@@ -56,6 +56,9 @@ glyph han-2b0de:15x16 15 16 // 𫃞
 glyph han-2b0e0:15x16 15 16 // 𫃠
 ⿰ han-7cf9:5x16 1 han-5305:9x16 // ⿰糹包
 
+glyph han-2b0e1:15x16 15 16 // 𫃡
+⿰ han-7cf9:5x16 1 han-7acb:9x16 // ⿰糹立
+
 ## 120.6
 
 glyph han-2b0e2:15x16 15 16 // 𫃢

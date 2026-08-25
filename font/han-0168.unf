@@ -639,6 +639,9 @@ glyph han-96eb:15x16 15 16 // 雫
 
 ## 173.5
 
+// glyph han-96f4:15x16 15 16 // 雴
+// ⿱ han-96e8 han-7acb // ⿱雨立
+
 // glyph han-96f5:15x16 15 16 // 雵
 // ⿱ han-96e8 han-592e // ⿱雨央
 
@@ -681,6 +684,9 @@ glyph han-9700:15x16 15 16 // 需
 
 // glyph han-970d:15x16 15 16 // 霍
 // ⿱ han-96e8 han-96b9 // ⿱雨隹
+
+// glyph han-970e:15x16 15 16 // 霎
+// ⿳ han-96e8 han-7acb han-5973 // ⿳雨立女 <- ⿱雨妾
 
 // glyph han-9711:15x16 15 16 // 霑
 // ⿱ han-96e8 han-6cbe // ⿱雨沾
@@ -1126,6 +1132,9 @@ glyph han-9798:15x16 15 16 // 鞘
 glyph han-979e:15x16 15 16 // 鞞
 ⿰ han-9769:7x16 han-5351:8x16 // ⿰革卑
 
+glyph han-97a1:15x16 15 16 // 鞡
+⿲ han-9769:7x16 han-624c:3x16 han-7acb:5x16 // ⿲革扌立
+
 ## 177.9
 
 // glyph han-97a4:15x16 15 16 // 鞤
@@ -1147,3 +1156,18 @@ glyph han-97ae:15x16 15 16 // 鞮
 
 glyph han-97bd:15x16 15 16 // 鞽
 ⿰ han-9769:7x16 1 han-55ac:7x16 // ⿰革喬
+
+# CJK unified ideographs: 音 (180)
+
+## 180.0
+
+// glyph han-97f3:15x16 15 16 // 音
+// ⿱ han-7acb han-65e5 // ⿱立日
+
+## 180.2
+
+// glyph han-7adf:15x16 15 16 // 竟
+// ⿳ han-7acb han-65e5 han-513f // ⿳立日儿 <- ⿱音儿
+
+// glyph han-7ae0:15x16 15 16 // 章
+// ⿱ han-7acb han-65e9 // ⿱立早

@@ -102,6 +102,13 @@ glyph han-4a75:15x16 15 16 // 䩵
 glyph han-4a7b:15x16 15 16 // 䩻
 ⿰ han-9769:7x16 1 han-99ac:7x16 // ⿰革馬
 
+# CJK unified ideographs extension A: 音 (180)
+
+## 180.5
+
+// glyph han-4aaa:15x16 15 16 // 䪪
+// ⿳ han-52a0 han-7acb han-65e5 // ⿳加立日 <- ⿱加音
+
 # CJK unified ideographs extension A: 頁 (181)
 
 ## 181.3

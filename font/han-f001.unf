@@ -36,6 +36,9 @@ glyph han-2ceda:15x16 15 16 // 𬻚
 
 ## 1.10
 
+// glyph han-2cee1:15x16 15 16 // 𬻡
+// ⿱ han-62c9 han-4e0b // ⿱拉下
+
 // glyph han-2cee4:15x16 15 16 // 𬻤
 // ⿱ han-7d05 han-4e01 // ⿱紅丁
 
@@ -278,6 +281,11 @@ glyph han-2d130:15x16 15 16 // 𭄰
 
 // glyph han-2d133:15x16 15 16 // 𭄳
 // ⿰ han-82f4 han-529b // ⿰苴力
+
+## 19.11
+
+// glyph han-2d13b:15x16 15 16 // 𭄻
+// ⿱ han-52a0 han-62c9 // ⿱加拉
 
 # CJK unified ideographs extension F: 勹 (20)
 

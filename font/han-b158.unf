@@ -62,6 +62,9 @@ glyph han-282dd:15x16 15 16 // 𨋝
 // glyph han-282e0:15x16 15 16 // 𨋠
 // ⿰ han-8eca han-5b82 // ⿰車宂
 
+glyph han-282e2:15x16 15 16 // 𨋢
+⿰ han-8eca:7x16 1 han-7acb:7x16 // ⿰車立
+
 // glyph han-282e7:15x16 15 16 // 𨋧
 // ⿱ han-767d han-8eca // ⿱白車
 
@@ -188,7 +191,17 @@ glyph han-283b2:15x16 15 16 // 𨎲
 
 # CJK unified ideographs extension B: 辛 (160)
 
+## 160.0
+
+// glyph han-2840b:15x16 15 16 // 𨐋
+// ⿱ han-7acb han-5341 // ⿱立十
+
 ## 160.1
 
 // glyph han-2840c:15x16 15 16 // 𨐌
 // ⿱ han-4ea0 han-7f8a // ⿱亠羊
+
+## 160.8
+
+// glyph han-2841e:15x16 15 16 // 𨐞
+// ⿳ han-59d1 han-7acb han-5341 // ⿳姑立十 <- ⿱姑辛

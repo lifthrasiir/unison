@@ -56,6 +56,9 @@ glyph han-286a7:15x16 15 16 // 𨚧
 glyph han-286a9:15x16 15 16 // 𨚩
 ⿰ han-53ef:10x16 1 han-961d:4x16-r // ⿰可阝
 
+glyph han-286aa:15x16 15 16 // 𨚪
+⿰ han-7acb:7x16 1 han-961d:7x16-r // ⿰立阝
+
 glyph han-286ae:15x16 15 16 // 𨚮
 ⿰ han-767d:8x16 2 han-961d:5x16-r // ⿰白阝
 

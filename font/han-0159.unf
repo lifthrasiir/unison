@@ -352,6 +352,18 @@ glyph han-8f5c:15x16 15 16 // 轜
 // glyph han-8f61:15x16 15 16 // 轡
 // ⿱ han-26195 han-53e3 // ⿱𦆕口
 
+# CJK unified ideographs: 辛 (160)
+
+## 160.0
+
+// glyph han-8f9b:15x16 15 16 // 辛
+// ⿱ han-7acb han-5341 // ⿱立十
+
+## 160.5
+
+// glyph han-8f9c:15x16 15 16 // 辜
+// ⿳ han-53e4 han-7acb han-5341 // ⿳古立十 <- ⿱古辛
+
 # CJK unified ideographs: 邑 (163)
 
 ## 163.0
