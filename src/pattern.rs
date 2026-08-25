@@ -791,6 +791,7 @@ fn capture_value(var: &str, groups: &[Vec<String>]) -> Option<Vec<String>> {
 /// header's, so the line cannot answer for itself and must not be called
 /// wrong for it. The same question [`crate::exists::mentions_capture`] answers
 /// for a `($1)`, for the same reason.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn mentions_back_reference(s: &str) -> bool {
     let bytes = s.as_bytes();
     (0..bytes.len()).any(|i| {

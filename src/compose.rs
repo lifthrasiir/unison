@@ -551,7 +551,7 @@ impl InkProfile {
         // here as a position and not only as a divisor.
         let mut row_edges = vec![EdgeCover::default(); h as usize];
         let mut col_edges = vec![EdgeCover::default(); w as usize];
-        let mut push = |out: &mut Vec<(u16, u16)>, list: &[(u8, u8)], sub: u16, den: u8| {
+        let push = |out: &mut Vec<(u16, u16)>, list: &[(u8, u8)], sub: u16, den: u8| {
             let mul = 2 / den.max(1) as u16;
             out.extend(
                 list.iter()

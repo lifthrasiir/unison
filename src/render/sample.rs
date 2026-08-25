@@ -902,11 +902,6 @@ impl SampleSource {
         &self.char_props
     }
 
-    /// The pixel em height the source is drawn on.
-    pub fn height(&self) -> u16 {
-        self.data.height
-    }
-
     /// The OpenType feature tags the font carries.
     pub fn features(&self) -> &[String] {
         &self.data.features

@@ -1140,6 +1140,7 @@ fn settle_row(
 /// cannot stream them ([`for_each_map_alternative_name`]) or read them lazily
 /// (`resolve_map_alternatives`): the specimen, which asks its own oracle which
 /// one a character settles on.
+#[cfg(feature = "editor")]
 pub(crate) fn expand_map_pairs_per_alternative(
     char_repr: &str,
     glyphs: &[String],

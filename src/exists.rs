@@ -308,6 +308,7 @@ impl std::fmt::Display for ExistsCycle {
 mod exists_tests;
 
 use std::collections::{HashMap, HashSet};
+#[cfg(feature = "editor")]
 use std::path::{Path, PathBuf};
 
 use crate::document::{Document, DocumentItem, GlyphName};
@@ -384,7 +385,9 @@ impl ExistsScopes {
         self.directives.is_empty()
     }
 
-    /// Every search and the item it scopes.
+    /// Every search and the item it scopes. Only [`FirstMatches`] walks the
+    /// whole table, so this follows it behind the `editor` feature.
+    #[cfg(feature = "editor")]
     pub fn iter(&self) -> impl Iterator<Item = (ItemRef, &Scope)> {
         self.scoped.iter().map(|(r, s)| (*r, s))
     }
@@ -439,11 +442,13 @@ impl ExistsScopes {
 /// holds one document at a time and never the slice the refs were numbered
 /// against. Both halves are stale the moment the document is edited, exactly
 /// as the resolved glyphs beside them are; the next rebuild settles it.
+#[cfg(feature = "editor")]
 #[derive(Debug, Default, Clone)]
 pub struct FirstMatches {
     per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>>,
 }
 
+#[cfg(feature = "editor")]
 impl FirstMatches {
     pub fn collect(docs: &[&Document], scopes: &ExistsScopes) -> Self {
         let mut per_file: HashMap<PathBuf, HashMap<usize, Vec<String>>> = HashMap::new();
@@ -761,6 +766,7 @@ pub fn pattern_on_line(line: &str) -> Option<String> {
 ///
 /// `None` when the two do not combine into a test at all — an unparsable
 /// pattern, or a `$N` past the groups it has.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn template_denotes(pattern: &str, template: &str, name: &str) -> Option<bool> {
     let hir = regex_syntax::parse(pattern).ok()?;
     if check_subset(&hir).is_err() {
@@ -838,6 +844,7 @@ fn collect_capture_sources(hir: &Hir, out: &mut Vec<(u32, String)>) {
 /// makes this answerable from the text alone, which is what the editor needs —
 /// it underlines an undefined `ref` while typing, long before anything has
 /// resolved the searches.
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 pub fn mentions_capture(name: &str) -> bool {
     name.as_bytes()
         .windows(2)
@@ -918,6 +925,7 @@ pub enum Carry {
     Body(String),
 }
 
+#[cfg_attr(all(not(feature = "editor"), not(test)), expect(dead_code))]
 impl Carry {
     /// The pattern in force on the line just entered.
     pub fn pattern(&self) -> Option<&str> {
