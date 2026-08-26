@@ -11,10 +11,14 @@
 //! descending glyph as soon as the font size grew past 16 — the depth of a
 //! descender scales with the size, the constant did not.
 //!
-//! The extents span the face's alignment box *and* its glyph bounding box.
-//! Ascent and descent alone do not bound the ink: a face may draw past them
-//! (Unison's Ogham reaches a pixel above its ascent), and a pixel the box does
-//! not cover is a pixel the reader never sees.
+//! The extents are the face's *declared* alignment box — `hhea`'s ascent and
+//! descent, which `meta ascent`/`meta descent` write — and nothing else. The
+//! glyph bounding box is deliberately ignored: a source under construction
+//! draws past its box (a han glyph whose height has not been brought in yet
+//! reaches several pixels above the ascent), and taking the ink instead would
+//! let one such glyph push every row of the preview apart, for a face whose
+//! box is exactly one em. The cost is that the preedit box may fail to cover
+//! ink that leaves the box, which is a glyph to fix rather than a row to grow.
 //!
 //! Everything here is in ems, so a value survives a change of font size; the
 //! widget multiplies by the size it is drawing at.
@@ -58,11 +62,7 @@ impl VMetrics {
         let upem = f32::from(m.units_per_em);
         // `hhea.descender` points down as a negative number; ours points down
         // as a positive one, so that `above`/`below` read the same way.
-        let (mut above, mut below) = (m.ascent, -m.descent);
-        if let Some(bounds) = m.bounds {
-            above = above.max(bounds.y_max);
-            below = below.max(-bounds.y_min);
-        }
+        let (above, below) = (m.ascent, -m.descent);
         let read = Self {
             ascent: above / upem,
             descent: below / upem,
@@ -178,10 +178,12 @@ map A = a
         assert_eq!(m.below(64.0), 16.0);
     }
 
-    /// Ink that runs past the alignment box still has to be covered, or the
-    /// preedit box would swallow it.
+    /// Ink that runs past the alignment box does *not* widen the row: a glyph
+    /// drawn outside the box is a glyph whose height has not been brought in
+    /// yet, and one of them would otherwise push every row of the preview
+    /// apart.
     #[test]
-    fn read_widens_to_ink_outside_the_alignment_box() {
+    fn read_ignores_ink_outside_the_alignment_box() {
         let font = font_from(
             "\
 meta height 4
@@ -200,11 +202,7 @@ map A = tall
 ",
         );
         let m = VMetrics::read(&font);
-        assert!(
-            m.ascent > 3.0 / 4.0,
-            "a glyph drawn above the ascent must widen the row, got {}",
-            m.ascent,
-        );
+        assert_eq!((m.ascent, m.descent), (3.0 / 4.0, 1.0 / 4.0));
     }
 
     /// A face the preview cannot parse must not collapse the layout to
