@@ -212,6 +212,9 @@ pub(crate) struct ResolveEnv<'a> {
     pub named_glyphs: &'a HashMap<String, ResolvedGlyph>,
     pub name_parts: &'a NamePartsMap,
     pub alt_index: &'a AlternativesIndex,
+    /// The reduction each anchor class states, so the derivation asked here
+    /// is the one the build runs — see [`crate::document::AnchorAligns`].
+    pub aligns: &'a crate::document::AnchorAligns,
 }
 
 /// Which of `body`'s refs got their placement from an anchor match.
@@ -225,6 +228,7 @@ fn anchor_placed_refs(body: &GlyphBody, env: ResolveEnv<'_>) -> Vec<bool> {
         &body.points,
         &body.refs,
         body.scale,
+        env.aligns,
         |name| {
             crate::ref_composite::resolve_ref_name_for_view(name, env.named_glyphs, env.name_parts)
                 .map(|resolved| resolved.resolved_anchors.clone())

@@ -1108,8 +1108,9 @@ map B = plain
     );
 }
 
-/// A size-mismatched attachment is the same class of failure: the `-` anchor
-/// attached to nothing, so the mark sits at the pen instead of over the base.
+/// A `-` anchor no same-name `+` is big enough to hold is the same class of
+/// failure: it attached to nothing, so the mark sits at the pen instead of
+/// over the base.
 /// It reads as a near-miss — almost always the wrong `:narrow`/`:wide`
 /// variant — but "almost attached" is not a composite anyone meant to ship, so
 /// it drops the glyph and its cmap entry like every other anchor error.
@@ -1128,11 +1129,11 @@ glyph base 4 4
 @@@@@@@@
 @@@@@@@@
 @@@@@@@@
-anchor +above 1..2 0
+anchor +above 1 0
 
 glyph mark 2 1 mark
 @@@@
-anchor -above 0 0
+anchor -above 0..1 0
 
 glyph combo
 ref base

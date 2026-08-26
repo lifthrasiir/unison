@@ -120,6 +120,7 @@ mod tests {
             &alt_index,
             &Default::default(),
             &Default::default(),
+            &Default::default(),
         );
         let idx = glyph_idx(&doc, "whole-(a|b)");
         let comp = composites
@@ -154,6 +155,7 @@ mod tests {
             &named,
             &name_parts,
             &alt_index,
+            &Default::default(),
             &Default::default(),
             &first,
         );

@@ -532,6 +532,7 @@ impl EditorHarness {
             }
             egui::CentralPanel::default().show(cx, |ui| {
                 let colors = crate::render::ttf_builder::ColorAliasMap::default();
+                let aligns = crate::document::AnchorAligns::default();
                 let Some(second) = &mut self.second else {
                     let mut draw = |ui: &mut egui::Ui| {
                         let result = DocumentEditor::new(
@@ -544,6 +545,7 @@ impl EditorHarness {
                                 exists_matches: &self.exists_matches,
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
+                                anchor_aligns: &aligns,
                                 meta: self.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
@@ -585,6 +587,7 @@ impl EditorHarness {
                                 exists_matches: &self.exists_matches,
                                 alt_index: &self.alt_index,
                                 color_aliases: &colors,
+                                anchor_aligns: &aligns,
                                 meta: self.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,
@@ -609,6 +612,7 @@ impl EditorHarness {
                                 exists_matches: &second.exists_matches,
                                 alt_index: &second.alt_index,
                                 color_aliases: &colors,
+                                anchor_aligns: &aligns,
                                 meta: second.meta,
                                 show_metrics: self.show_metrics,
                                 menu_open: self.menu_open,

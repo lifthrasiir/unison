@@ -11,6 +11,7 @@ struct Fixture {
     named_glyphs: HashMap<String, ResolvedGlyph>,
     alt_index: AlternativesIndex,
     name_parts: NamePartsMap,
+    anchor_aligns: crate::document::AnchorAligns,
 }
 
 impl Fixture {
@@ -23,6 +24,7 @@ impl Fixture {
             named_glyphs: HashMap::new(),
             alt_index: AlternativesIndex::default(),
             name_parts: NamePartsMap::new(),
+            anchor_aligns: Default::default(),
         };
         f.resolve();
         f
@@ -35,6 +37,8 @@ impl Fixture {
             crate::ref_composite::resolve_named_glyphs_with_parts(&docs, &self.name_parts);
         self.named_glyphs = named;
         self.alt_index = alts;
+        self.anchor_aligns =
+            crate::document::collect_anchor_aligns(docs.iter().flat_map(|d| d.items.iter()));
     }
 
     fn env(&self) -> ResolveEnv<'_> {
@@ -42,6 +46,7 @@ impl Fixture {
             named_glyphs: &self.named_glyphs,
             name_parts: &self.name_parts,
             alt_index: &self.alt_index,
+            aligns: &self.anchor_aligns,
         }
     }
 

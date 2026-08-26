@@ -31,6 +31,7 @@ fn derive_effective_refs(
     cache: &HashMap<String, CachedContours>,
     alt_index: &HashMap<String, Vec<(String, Vec<GlyphPoint>)>>,
     declared_anchors_map: &HashMap<String, Vec<GlyphPoint>>,
+    aligns: &crate::document::AnchorAligns,
     parent_scale: u8,
 ) -> (Vec<GlyphRef>, Vec<GlyphPoint>) {
     let origin_of = |name: &str| {
@@ -41,6 +42,7 @@ fn derive_effective_refs(
         points,
         refs,
         parent_scale,
+        aligns,
         |name| resolve_cached_ref(name, cache).map(|resolved| resolved.anchors.clone()),
         |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
         |name| declared_anchors_map.get(name).cloned(),
@@ -157,6 +159,10 @@ pub(super) struct SharedFontInput {
     scale: f32,
     all_items: Vec<DocumentItem>,
     declared_anchors_map: HashMap<String, Vec<GlyphPoint>>,
+    /// The reduction each anchor class states — the one table the GPOS builder
+    /// and the composite derivation both read, so a mark a shaped run places
+    /// and a mark a precomposed glyph places land together.
+    anchor_aligns: crate::document::AnchorAligns,
     gsub_data: GsubData,
     color_aliases: ColorAliasMap,
     glyph_aliases: crate::alias::AliasMap,
@@ -342,6 +348,8 @@ fn shared_font_input(
         }
     }
 
+    let anchor_aligns = crate::document::collect_anchor_aligns(all_items.iter());
+
     let color_aliases = collect_color_aliases(docs);
 
     let mut glyph_meta: GlyphMetaMap = HashMap::new();
@@ -385,6 +393,7 @@ fn shared_font_input(
         scale,
         all_items,
         declared_anchors_map,
+        anchor_aligns,
         gsub_data,
         color_aliases,
         glyph_aliases,
@@ -534,6 +543,7 @@ pub(super) fn collect_glyph_data_with_shared(
         crate::render::glyph_cache::resolve_pending(
             &mut cache,
             pending,
+            &shared.anchor_aligns,
             |name| declared_anchors_map.get(name).cloned(),
             &mut builder,
             |_, _| {},
@@ -978,6 +988,7 @@ pub(super) fn collect_glyph_data_with_shared(
             &cache,
             &color_alt_index,
             declared_anchors_map,
+            &shared.anchor_aligns,
             body.scale,
         );
 

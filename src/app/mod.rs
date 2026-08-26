@@ -199,6 +199,10 @@ pub struct UniformApp {
     /// which is all a character name needs.
     char_props: crate::ucd::CharProps,
     color_aliases: crate::render::ttf_builder::ColorAliasMap,
+    /// The reduction each anchor class states, collected beside the color
+    /// aliases and for the same reason: a composite drawn live has to place a
+    /// ref's anchors exactly as the build does.
+    anchor_aligns: crate::document::AnchorAligns,
     font_meta: crate::meta::FontMetrics,
     /// View menu: draw the metric box over every glyph grid.
     show_metrics: bool,
@@ -474,6 +478,7 @@ impl UniformApp {
             exists_matches: Default::default(),
             char_props: Default::default(),
             color_aliases: Default::default(),
+            anchor_aligns: Default::default(),
             font_meta: Default::default(),
             show_metrics,
             menu_open: false,

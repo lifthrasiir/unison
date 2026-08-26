@@ -85,9 +85,12 @@ type CcmpEntry = (String, String, String, Option<Vec<AnchorSize>>);
 
 /// Does a slot hold a mark of `mark`? A `+` range is the room a base hands
 /// over and a `-` range the room a mark takes, so it does when it is at least
-/// as big on both axes.
+/// as big on both axes. The composite derivation asks the same of the same
+/// pair ([`crate::ref_composite`]) — a mark this attaches must be a mark a
+/// precomposed glyph attaches too, or the two spellings of one character
+/// disagree.
 fn slot_holds(slot: &GlyphPoint, mark: AnchorSize) -> bool {
-    slot.width() >= mark.0 && slot.height() >= mark.1
+    slot.holds_size(mark)
 }
 
 pub(super) fn build_anchor_gpos(

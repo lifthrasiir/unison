@@ -83,6 +83,7 @@ impl UniformApp {
                 named_glyphs: &self.named_glyphs,
                 name_parts: &self.name_parts,
                 alt_index: &self.alt_index,
+                aligns: &self.anchor_aligns,
             };
             // The glyph is defined in exactly one file; everywhere else only
             // the `ref` lines move.

@@ -155,6 +155,9 @@ pub struct EditorEnv<'a> {
     pub exists_matches: &'a crate::exists::FirstMatches,
     pub alt_index: &'a crate::editor::ref_composite::AlternativesIndex,
     pub color_aliases: &'a ColorAliasMap,
+    /// The reduction each anchor class states, for placing a ref by its
+    /// anchors exactly as the build places it.
+    pub anchor_aligns: &'a crate::document::AnchorAligns,
     /// `meta`, for the baseline and the height of the metric box.
     pub meta: crate::meta::FontMetrics,
     /// Whether the metric-box overlay is switched on (View menu).
@@ -243,6 +246,7 @@ fn resolve_view(
         exists_matches,
         alt_index,
         color_aliases,
+        anchor_aligns,
         meta,
         zoom_level,
         font_id,
@@ -268,6 +272,7 @@ fn resolve_view(
         name_parts,
         alt_index,
         color_aliases,
+        anchor_aligns,
         exists_matches,
     );
     // At most one shadow is live: the anchor one needs a selected anchor layer
@@ -419,6 +424,7 @@ fn show_document(
         named_glyphs,
         name_parts,
         alt_index,
+        anchor_aligns,
         derived_gen,
         font_gen,
         zoom_level,
@@ -708,6 +714,7 @@ fn show_document(
         named_glyphs,
         name_parts,
         alt_index,
+        anchor_aligns,
         composites,
         meta,
         prev_cursor,

@@ -775,6 +775,7 @@ impl UniformApp {
             exists_matches: &self.exists_matches,
             alt_index: &self.alt_index,
             color_aliases: &self.color_aliases,
+            anchor_aligns: &self.anchor_aligns,
             meta: self.font_meta,
             show_metrics: self.show_metrics,
             menu_open: self.menu_open,

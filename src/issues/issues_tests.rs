@@ -319,10 +319,10 @@ map m = mark
     );
 }
 
-/// A `-` anchor that name-matches a published `+` but size-mismatches it
-/// is a near-miss (usually the wrong `:narrow`/`:wide` variant). It is an
-/// error, not a note on the side: the mark attached to nothing, so the
-/// composite is dropped rather than shipped with the mark at the pen.
+/// A `-` anchor that name-matches a published `+` too small to hold it is a
+/// near-miss (usually the wrong `:narrow`/`:wide` variant). It is an error,
+/// not a note on the side: the mark attached to nothing, so the composite is
+/// dropped rather than shipped with the mark at the pen.
 #[test]
 fn size_mismatched_attachment_reported() {
     let input = "\
@@ -331,10 +331,10 @@ glyph base 4 4
 @@@@@@@@
 @@@@@@@@
 @@@@@@@@
-anchor +above 1..2 0
+anchor +above 1 0
 glyph mark 2 1 mark
 @@@@
-anchor -above 0 0
+anchor -above 0..1 0
 glyph combo
 ref base
 ref mark 1 2
@@ -386,7 +386,9 @@ map i = j-inner
     let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
     let issues = collect_issues(&[&doc]);
     assert!(
-        !issues.iter().any(|i| i.message.contains("only by name")),
+        !issues
+            .iter()
+            .any(|i| i.message.contains("big enough to hold")),
         "circle:alt must be substituted, got: {issues:?}",
     );
 }

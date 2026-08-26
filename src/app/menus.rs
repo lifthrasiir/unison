@@ -1003,6 +1003,7 @@ impl UniformApp {
             self.name_parts = NamePartsMap::new();
             self.char_props = Default::default();
             self.color_aliases = Default::default();
+            self.anchor_aligns = Default::default();
             self.font_meta = Default::default();
             self.issues.clear();
             // No resolve has run for this generation: what arms the derived-data

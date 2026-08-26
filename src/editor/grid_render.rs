@@ -172,6 +172,7 @@ pub(crate) fn build_composites(
     name_parts: &NamePartsMap,
     alt_index: &ref_composite::AlternativesIndex,
     color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    aligns: &crate::document::AnchorAligns,
     exists: &crate::exists::FirstMatches,
 ) -> HashMap<usize, GlyphComposite> {
     let mut composites = HashMap::new();
@@ -188,6 +189,7 @@ pub(crate) fn build_composites(
                 &bindings,
                 alt_index,
                 color_aliases,
+                aligns,
             ) {
                 composites.insert(idx, comp);
             }

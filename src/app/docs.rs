@@ -664,6 +664,7 @@ mod reload_tests {
                 named_glyphs: &named,
                 name_parts: &parts,
                 alt_index: &alts,
+                aligns: &Default::default(),
             },
             glyph_resize::ResizeKind::Canvas,
             crate::meta::FontMetrics::default(),

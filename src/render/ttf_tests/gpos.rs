@@ -1113,6 +1113,115 @@ feature ccmp for DFLT : anchor slot{align}
     );
 }
 
+/// The two ways one character reaches the page have to put the mark in the
+/// same place: shaped, the base's `+slot` and the mark's `-slot` become a GPOS
+/// pair; precomposed, the composite's derivation matches the same two anchors
+/// and writes an offset. A slot *wider* than the mark used to attach only on
+/// the shaped side — the derivation demanded the two sizes be equal and
+/// dropped the composite instead (`he-yod-with-hiriq` was the one that
+/// caught it) — and the reduction the class's `align` states has to be the
+/// same on both sides too, or the mark lands whole cells away.
+#[test]
+fn a_precomposed_mark_lands_where_the_shaped_one_does() {
+    /// `(shaped offset in cells, precomposed offset in cells)` for one class
+    /// alignment. The base's slot is 7 cells against the mark's 3.
+    fn offsets(align: &str) -> (i16, i16) {
+        let input = format!(
+            "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph base-letter 8 4
+................
+................
+................
+................
+anchor +slot 1..7 0
+
+glyph tick 3 4 mark
+......
+......
+......
+......
+anchor -slot 3..5 0
+
+glyph combo
+ref base-letter
+ref tick
+
+map U+0041 = base-letter
+map U+0301 = tick
+map U+00C1 = combo
+
+feature ccmp for DFLT : anchor slot{align}
+"
+        );
+        let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+
+        // Shaped: what the GPOS pair asks a shaper to move the mark by.
+        let (meta, scale, glyphs, gsub_data, _) =
+            collect_glyph_data(&docs, false).expect("should collect glyph data");
+        let name_to_gid: HashMap<String, GlyphId16> = glyphs
+            .iter()
+            .enumerate()
+            .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+            .collect();
+        let anchor_data =
+            build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+        let gpos = anchor_data.gpos.expect("GPOS should exist");
+        let sub = gpos
+            .lookup_list
+            .lookups
+            .iter()
+            .find_map(|l| match l.as_ref() {
+                PositionLookup::MarkToBase(lk) => Some(lk.subtables[0].clone()),
+                _ => None,
+            })
+            .expect("MarkBasePos lookup");
+        let AnchorTable::Format1(mark_anchor) = &*sub.mark_array.mark_records[0].mark_anchor else {
+            panic!("expected AnchorFormat1 on the mark");
+        };
+        let class = sub.mark_array.mark_records[0].mark_class as usize;
+        let base_anchor = sub.base_array.base_records[0].base_anchors[class]
+            .as_ref()
+            .expect("the base must offer this class an anchor");
+        let AnchorTable::Format1(base_anchor) = base_anchor else {
+            panic!("expected AnchorFormat1 on the base");
+        };
+        let shaped = (base_anchor.x_coordinate - mark_anchor.x_coordinate) / scale as i16;
+
+        // Precomposed: where the composite's derivation puts the same ref.
+        let name_parts = crate::document::collect_name_parts(&docs);
+        let (resolved, alt_index) =
+            crate::ref_composite::resolve_named_glyphs_with_parts(&docs, &name_parts);
+        let body = doc
+            .items
+            .iter()
+            .find_map(|item| match item {
+                DocumentItem::Glyph { name, body } if name.display() == "combo" => Some(body),
+                _ => None,
+            })
+            .expect("combo");
+        let composite = crate::ref_composite::compute_composite(
+            body,
+            &resolved,
+            &name_parts,
+            &alt_index,
+            &Default::default(),
+            &crate::document::collect_anchor_aligns(doc.items.iter()),
+        )
+        .expect("combo has refs");
+        (shaped, composite.layers[1].logical_offset_col)
+    }
+
+    // Low ends: the base is read at col 1, the mark at col 3.
+    assert_eq!(offsets(""), (-2, -2));
+    // Middles: 1..7 and 3..5 share the middle 4, so the mark stays put.
+    assert_eq!(offsets(" align c"), (0, 0));
+}
+
 /// A base offering several slot sizes has to hand a following mark the one
 /// that fits it, the way a mark carrying several drawings is handed the one
 /// its slot wants. The two sides used to be asymmetric: a mark alternative was

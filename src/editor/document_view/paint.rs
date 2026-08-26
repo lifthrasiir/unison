@@ -884,6 +884,7 @@ pub(super) fn paint_document_area(
                     named_glyphs,
                     name_parts,
                     alt_index: env.alt_index,
+                    aligns: env.anchor_aligns,
                 },
                 meta: env.meta,
                 item_idx,

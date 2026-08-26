@@ -370,6 +370,9 @@ struct Inventory<'a> {
     /// Base name (everything before the first `:`) → its variants.
     variants: HashMap<String, Vec<String>>,
     aliases: crate::alias::AliasMap,
+    /// The reduction each anchor class states, so a composite flattened here
+    /// places its refs exactly as the build does.
+    aligns: crate::document::AnchorAligns,
     /// Memoized [`InkProfile`]s: one part is a component of hundreds of glyphs,
     /// and its profile is the same in every one of them.
     profiles: std::cell::RefCell<HashMap<String, Option<Rc<InkProfile>>>>,
@@ -382,6 +385,9 @@ impl<'a> Inventory<'a> {
             grids: HashMap::new(),
             variants: HashMap::new(),
             aliases: crate::alias::AliasMap::collect(docs, name_parts),
+            aligns: crate::document::collect_anchor_aligns(
+                docs.iter().flat_map(|d| d.items.iter()),
+            ),
             profiles: std::cell::RefCell::new(HashMap::new()),
         };
         for doc in docs {
@@ -518,6 +524,7 @@ impl<'a> Inventory<'a> {
             &|name| bodies.get(name).copied(),
             &self.aliases,
             name_parts,
+            &self.aligns,
         );
         for name in roots {
             let (Some(body), Some(flat)) = (bodies.get(&name), resolved.get(&name)) else {

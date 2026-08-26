@@ -265,6 +265,7 @@ pub fn compute_composite(
     name_parts: &NamePartsMap,
     alt_index: &AlternativesIndex,
     color_aliases: &crate::render::ttf_builder::ColorAliasMap,
+    aligns: &crate::document::AnchorAligns,
 ) -> Option<GlyphComposite> {
     // Derived refs go in front, so the stack is the one the font builds; the
     // layers keep pointing at *source* ref lines, so a derived layer takes an
@@ -288,6 +289,7 @@ pub fn compute_composite(
         &body.points,
         &all_refs,
         body.scale,
+        aligns,
         |name| {
             resolve_ref_name_for_view(name, named_glyphs, name_parts)
                 .map(|resolved| resolved.resolved_anchors.clone())

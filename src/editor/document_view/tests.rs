@@ -237,6 +237,7 @@ fn composite_of(
         &env.name_parts,
         &env.alt_index,
         &Default::default(),
+        &Default::default(),
     )
 }
 

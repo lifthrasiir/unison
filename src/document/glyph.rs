@@ -185,6 +185,34 @@ impl AnchorAlign {
     }
 }
 
+/// The `align` every anchor class states, by class name (with no `+`/`-`
+/// sign). A class no `feature` line names is absent, and reduces by the
+/// default — which is what every class did before `align` existed.
+///
+/// The map is collected once per document set and handed to whoever pairs two
+/// anchors up: the GPOS builder ([`crate::render::ttf_builder`]) and the
+/// composite derivation ([`crate::ref_composite`]), which have to reduce the
+/// same pair to the same two points or a precomposed glyph would sit
+/// somewhere the shaped one does not.
+pub type AnchorAligns = std::collections::HashMap<String, AnchorAlign>;
+
+/// The [`AnchorAligns`] the given items declare. Takes an item iterator rather
+/// than the documents so an already-expanded item list — which carries the
+/// same `feature` lines — can be asked the same question.
+pub fn collect_anchor_aligns<'a>(
+    items: impl Iterator<Item = &'a super::DocumentItem>,
+) -> AnchorAligns {
+    let mut map = AnchorAligns::new();
+    for item in items {
+        if let super::DocumentItem::FeatureAnchor { anchor, align, .. } = item {
+            // Last naming wins, as in the GPOS builder's own map: a class
+            // named twice is one class, and the two must not disagree.
+            map.insert(anchor.clone(), *align);
+        }
+    }
+    map
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GlyphPoint {
     pub position: String,
@@ -214,6 +242,21 @@ impl GlyphPoint {
 
     pub fn size_matches(&self, other: &GlyphPoint) -> bool {
         self.width() == other.width() && self.height() == other.height()
+    }
+
+    /// Whether this `+` anchor's range is big enough to hold a `-` of
+    /// `(width, height)`. The one rule both attachment paths ask — GPOS's
+    /// slot-to-mark fit and the composite derivation's — so that a mark a
+    /// shaped run puts in a slot is a mark a precomposed glyph puts there
+    /// too. An exact size is the case both prefer; a larger slot still holds
+    /// the mark, which then reduces by the class's [`AnchorAlign`].
+    pub fn holds_size(&self, (width, height): (u16, u16)) -> bool {
+        self.width() >= width && self.height() >= height
+    }
+
+    /// [`Self::holds_size`] against another anchor's range.
+    pub fn holds(&self, mark: &GlyphPoint) -> bool {
+        self.holds_size((mark.width(), mark.height()))
     }
 
     /// The `(col, row)` this anchor's range stands for under `align`, in grid

@@ -529,6 +529,7 @@ fn on_demand_triangle_ref_reaches_renderer() {
         &h.name_parts,
         &h.alt_index,
         &Default::default(),
+        &Default::default(),
     )
     .expect("composite for ref-only glyph");
     let layer = &comp.layers[0];

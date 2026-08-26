@@ -551,6 +551,7 @@ fn the_live_view_places_the_parts_where_the_font_does() {
         &name_parts,
         &alt_index,
         &Default::default(),
+        &Default::default(),
     )
     .expect("an IDC line alone is a composite");
     assert_eq!(composite.layers.len(), 2);

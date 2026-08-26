@@ -6,6 +6,7 @@
 //! is opt-in, and a negative `ref` offset is a bearing.
 
 use super::*;
+use crate::document::{Align1, AnchorAlign, AnchorAligns};
 
 /// A problem found while deriving a composite's offsets and anchors. Carried
 /// as data rather than a formatted string so each consumer can attach the
@@ -16,13 +17,15 @@ pub(crate) enum DeriveIssue {
     /// composite exposes neither: a digraph must not pick one side's
     /// attachment point silently. Declare the anchor explicitly instead.
     DuplicateExposed { position: String },
-    /// A `-` anchor found more than one size-matching `+` anchor to attach
-    /// to. Nothing is attached or consumed.
+    /// A `-` anchor found more than one `+` anchor able to hold it. Nothing is
+    /// attached or consumed.
     AmbiguousAttachment { position: String, ref_name: String },
-    /// A `-` anchor found a same-name `+` of a different size (`(w, h)` in
+    /// A `-` anchor found a same-name `+` too small to hold it (`(w, h)` in
     /// cells) and therefore attached to nothing. A near-miss like this almost
     /// always means the wrong `:narrow`/`:wide` variant — a `-` with no
-    /// same-name `+` at all is ordinary forwarding and stays quiet.
+    /// same-name `+` at all is ordinary forwarding and stays quiet, and a `+`
+    /// *larger* than the `-` is no near-miss at all: it holds the mark, the
+    /// way a base's slot holds a mark in GPOS.
     ///
     /// Once reported as a warning, on the reading that the composite still
     /// resolves around it. It does not: the mark sits at the pen instead of
@@ -56,8 +59,9 @@ impl DeriveIssue {
                 plus,
             } => {
                 format!(
-                    "glyph '{glyph}': ref '{ref_name}' has '{position}' ({}x{}) matching \
-                     a '+{}' only by name ({}x{}); not attached — check the other variants",
+                    "glyph '{glyph}': ref '{ref_name}' has '{position}' ({}x{}), which no \
+                     '+{}' is big enough to hold (the nearest is {}x{}); not attached — \
+                     check the other variants",
                     minus.0,
                     minus.1,
                     position.strip_prefix('-').unwrap_or(position),
@@ -114,6 +118,7 @@ pub(crate) fn derive_ref_offsets_with(
     declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],
     parent_scale: u8,
+    aligns: &AnchorAligns,
     lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
     lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
@@ -123,6 +128,7 @@ pub(crate) fn derive_ref_offsets_with(
         declared_anchors,
         refs,
         parent_scale,
+        aligns,
         lookup_anchors,
         lookup_alternatives,
         lookup_declared_anchors,
@@ -186,6 +192,7 @@ pub(crate) fn derive_ref_offsets_detailed(
     declared_anchors: &[GlyphPoint],
     refs: &[GlyphRef],
     parent_scale: u8,
+    aligns: &AnchorAligns,
     mut lookup_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     mut lookup_alternatives: impl FnMut(&str) -> Vec<(String, Vec<GlyphPoint>)>,
     mut lookup_declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
@@ -273,75 +280,44 @@ pub(crate) fn derive_ref_offsets_detailed(
                 continue;
             }
 
-            match try_match_minus_plus(target_anchors, &available_plus) {
-                MatchOutcome::Unique(offset) => {
-                    anchor_placed[i] = true;
-                    commit_ref(
-                        gref,
-                        i,
-                        offset,
-                        target_anchors,
-                        &mut available_plus,
-                        &mut survived_minus,
-                        &mut issues,
-                        &mut effective_refs[i],
-                    );
-                    progress = true;
-                    continue;
-                }
-                MatchOutcome::Ambiguous => {
-                    // The attachment is ill-defined; commit unattached and be
-                    // loud (commit_ref reports it) rather than silently
-                    // swapping in an alternative or picking one candidate.
-                    commit_ref(
-                        gref,
-                        i,
-                        (0, 0),
-                        target_anchors,
-                        &mut available_plus,
-                        &mut survived_minus,
-                        &mut issues,
-                        &mut effective_refs[i],
-                    );
-                    progress = true;
-                    continue;
-                }
-                MatchOutcome::NoMatch => {}
-            }
-
-            // Try alternatives when primary doesn't size-match.
-            let mut alt_matched = false;
-            for (alt_name, alt_anchors) in &alternatives_list[i] {
-                if let MatchOutcome::Unique(offset) =
-                    try_match_minus_plus(alt_anchors, &available_plus)
-                {
-                    let alt_gref = GlyphRef {
-                        raw_name: None,
-                        comment: None,
-                        name: alt_name.clone(),
-                        offset: None,
-                        negated: gref.negated,
-                        inherit: gref.inherit,
-                        fill: gref.fill.clone(),
-                        visibility: gref.visibility,
-                    };
-                    anchor_placed[i] = true;
-                    commit_ref(
-                        &alt_gref,
-                        i,
-                        offset,
-                        alt_anchors,
-                        &mut available_plus,
-                        &mut survived_minus,
-                        &mut issues,
-                        &mut effective_refs[i],
-                    );
-                    alt_matched = true;
-                    progress = true;
-                    break;
-                }
-            }
-            if alt_matched {
+            // The ref as written, then its alternatives; exact fits before
+            // ones that merely hold. An *ambiguous* match commits unattached
+            // and loudly (commit_ref reports it) rather than silently swapping
+            // in an alternative or picking one candidate.
+            if let Some(attachment) = choose_attachment(
+                target_anchors,
+                &alternatives_list[i],
+                &available_plus,
+                aligns,
+            ) {
+                let offset = match attachment.outcome {
+                    MatchOutcome::Unique(offset) => {
+                        anchor_placed[i] = true;
+                        offset
+                    }
+                    _ => (0, 0),
+                };
+                let alt_gref = attachment.alt.map(|alt_name| GlyphRef {
+                    raw_name: None,
+                    comment: None,
+                    name: alt_name.to_string(),
+                    offset: None,
+                    negated: gref.negated,
+                    inherit: gref.inherit,
+                    fill: gref.fill.clone(),
+                    visibility: gref.visibility,
+                });
+                commit_ref(
+                    alt_gref.as_ref().unwrap_or(gref),
+                    i,
+                    offset,
+                    attachment.anchors,
+                    &mut available_plus,
+                    &mut survived_minus,
+                    &mut issues,
+                    &mut effective_refs[i],
+                );
+                progress = true;
                 continue;
             }
 
@@ -431,36 +407,39 @@ pub(crate) fn derive_ref_offsets_detailed(
         let (resolved_name, offset, used_anchors) = if let Some(offset) = grid_offsets[i] {
             (gref.name.clone(), offset, target_anchors)
         } else {
-            match try_match_minus_plus(target_anchors, &available_plus) {
-                MatchOutcome::Unique(offset) => {
-                    anchor_placed[i] = true;
-                    (gref.name.clone(), offset, target_anchors)
-                }
-                // Ambiguity is reported by commit_ref below; commit unattached.
-                MatchOutcome::Ambiguous => (gref.name.clone(), (0, 0), target_anchors),
-                MatchOutcome::NoMatch => {
-                    let mut found = None;
-                    for (alt_name, alt_anchors) in &alternatives_list[i] {
-                        if let MatchOutcome::Unique(offset) =
-                            try_match_minus_plus(alt_anchors, &available_plus)
-                        {
+            match choose_attachment(
+                target_anchors,
+                &alternatives_list[i],
+                &available_plus,
+                aligns,
+            ) {
+                Some(attachment) => {
+                    let offset = match attachment.outcome {
+                        MatchOutcome::Unique(offset) => {
                             anchor_placed[i] = true;
-                            found = Some((alt_name.clone(), offset, alt_anchors.as_slice()));
-                            break;
+                            offset
                         }
-                    }
-                    if found.is_none()
-                        && let Some((alt_name, alt_anchors)) = try_lookahead_alt(
-                            i,
-                            n,
-                            target_anchors,
-                            target_declared_anchors_list[i].as_deref(),
-                            &available_plus,
-                            &alternatives_list[i],
-                            &effective_refs,
-                            &target_anchors_list,
-                        )
-                    {
+                        // Ambiguity is reported by commit_ref below; commit
+                        // unattached.
+                        _ => (0, 0),
+                    };
+                    let name = attachment
+                        .alt
+                        .map_or_else(|| gref.name.clone(), str::to_string);
+                    (name, offset, attachment.anchors)
+                }
+                None => {
+                    let mut found = None;
+                    if let Some((alt_name, alt_anchors)) = try_lookahead_alt(
+                        i,
+                        n,
+                        target_anchors,
+                        target_declared_anchors_list[i].as_deref(),
+                        &available_plus,
+                        &alternatives_list[i],
+                        &effective_refs,
+                        &target_anchors_list,
+                    ) {
                         found = Some((alt_name.clone(), (0, 0), alt_anchors));
                     }
                     found.unwrap_or_else(|| (gref.name.clone(), (0, 0), target_anchors))
@@ -649,9 +628,71 @@ enum MatchOutcome {
     Ambiguous,
 }
 
+/// How closely a pool `+` has to fit the `-` asked of it.
+///
+/// Both tiers attach — a slot big enough holds the mark, which is the one
+/// rule GPOS has ([`slot_holds`](crate::render::ttf_builder)) — but the exact
+/// one is tried across the whole candidate set first, primary ref and
+/// alternatives alike. That order is what keeps `acute-above:wide` the
+/// variant an `i-upper` gets: its two-cell `-above` matches the two-cell slot
+/// outright, where the plain one-cell `acute-above` would merely fit inside
+/// it. The tiers are the composite's alone; a shaped run has no such choice
+/// to make, since the mark it attaches is the one in the text.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Fit {
+    Exact,
+    Holds,
+}
+
+impl Fit {
+    fn accepts(self, plus: &GlyphPoint, minus: &GlyphPoint) -> bool {
+        match self {
+            Fit::Exact => plus.size_matches(minus),
+            Fit::Holds => plus.holds(minus),
+        }
+    }
+}
+
+/// The reduction the class of `position` states, `position` written with its
+/// `+` or `-`. A class no `feature` line names reduces by the default.
+fn align_for(aligns: &AnchorAligns, position: &str) -> AnchorAlign {
+    let class = position
+        .strip_prefix('-')
+        .or_else(|| position.strip_prefix('+'))
+        .unwrap_or(position);
+    aligns.get(class).copied().unwrap_or_default()
+}
+
+/// Where `minus` lands once `plus` has taken it: the difference of the points
+/// the class's `align` reduces the two ranges to — the same reduction
+/// `anchor_font_units` applies on the GPOS side, so a mark a shaped run
+/// places and a mark a composite places land together.
+///
+/// Doubled integers rather than [`GlyphPoint::aligned_point`]'s halves: a ref
+/// offset is whole grid cells, so a centred pair whose sizes differ in parity
+/// has half a cell to lose. It is lost the same way every time (downwards);
+/// `issues::anchors` is what warns about the parity that gets there.
+fn aligned_delta(plus: &GlyphPoint, minus: &GlyphPoint, align: AnchorAlign) -> (i16, i16) {
+    let twice = |low: i16, high: i16, axis: Align1| match axis {
+        Align1::Low => 2 * low as i32,
+        Align1::Center => low as i32 + high as i32,
+        Align1::High => 2 * high as i32,
+    };
+    let col = twice(plus.col, plus.col_end, align.horizontal)
+        - twice(minus.col, minus.col_end, align.horizontal);
+    let row = twice(plus.row, plus.row_end, align.vertical)
+        - twice(minus.row, minus.row_end, align.vertical);
+    (
+        saturating_i16(col.div_euclid(2)),
+        saturating_i16(row.div_euclid(2)),
+    )
+}
+
 fn try_match_minus_plus(
     target_anchors: &[GlyphPoint],
     available_plus: &[PoolAnchor],
+    aligns: &AnchorAligns,
+    fit: Fit,
 ) -> MatchOutcome {
     for minus in target_anchors
         .iter()
@@ -662,19 +703,65 @@ fn try_match_minus_plus(
         };
         let mut candidates = available_plus
             .iter()
-            .filter(|(p, _)| p.position.strip_prefix('+') == Some(base) && p.size_matches(minus));
+            .filter(|(p, _)| p.position.strip_prefix('+') == Some(base) && fit.accepts(p, minus));
         let Some((plus, _)) = candidates.next() else {
             continue;
         };
         if candidates.next().is_some() {
             return MatchOutcome::Ambiguous;
         }
-        return MatchOutcome::Unique((
-            saturating_i16(plus.col as i32 - minus.col as i32),
-            saturating_i16(plus.row as i32 - minus.row as i32),
+        return MatchOutcome::Unique(aligned_delta(
+            plus,
+            minus,
+            align_for(aligns, &minus.position),
         ));
     }
     MatchOutcome::NoMatch
+}
+
+/// What one ref attaches through: the alternative it gave way to (`None` for
+/// the ref as written), the anchors that came with it, and where it lands.
+struct Attachment<'a> {
+    alt: Option<&'a str>,
+    anchors: &'a [GlyphPoint],
+    outcome: MatchOutcome,
+}
+
+/// The attachment for one ref, weighing the ref as written against its
+/// alternatives, exact fits before merely holding ones — see [`Fit`].
+///
+/// An *ambiguous* primary ends the search where it stands: two candidates for
+/// one `-` is a source problem, and swapping in an alternative would bury it.
+fn choose_attachment<'a>(
+    target_anchors: &'a [GlyphPoint],
+    alternatives: &'a [(String, Vec<GlyphPoint>)],
+    available_plus: &[PoolAnchor],
+    aligns: &AnchorAligns,
+) -> Option<Attachment<'a>> {
+    for fit in [Fit::Exact, Fit::Holds] {
+        match try_match_minus_plus(target_anchors, available_plus, aligns, fit) {
+            MatchOutcome::NoMatch => {}
+            outcome => {
+                return Some(Attachment {
+                    alt: None,
+                    anchors: target_anchors,
+                    outcome,
+                });
+            }
+        }
+        for (alt_name, alt_anchors) in alternatives {
+            if let MatchOutcome::Unique(offset) =
+                try_match_minus_plus(alt_anchors, available_plus, aligns, fit)
+            {
+                return Some(Attachment {
+                    alt: Some(alt_name),
+                    anchors: alt_anchors,
+                    outcome: MatchOutcome::Unique(offset),
+                });
+            }
+        }
+    }
+    None
 }
 
 fn translate_point(p: &GlyphPoint, off_col: i16, off_row: i16) -> GlyphPoint {
@@ -729,32 +816,39 @@ fn commit_ref(
         .iter()
         .filter(|p| p.position.starts_with('-'))
         .collect();
+    //
+    // The tiers are [`choose_attachment`]'s, walked in the same order over the
+    // same pool: an exact fit anywhere in the list beats one that merely holds,
+    // or the `+` consumed here could be a different one from the `+` the offset
+    // was derived against.
     let mut joined: Option<&str> = None;
-    for minus in &minus_anchors {
-        let Some(base) = minus.position.strip_prefix('-') else {
-            continue;
-        };
-        let matching: Vec<usize> = available_plus
-            .iter()
-            .enumerate()
-            .filter(|(_, (p, _))| {
-                p.position.strip_prefix('+') == Some(base) && p.size_matches(minus)
-            })
-            .map(|(i, _)| i)
-            .collect();
-        if matching.is_empty() {
-            continue;
+    'tiers: for fit in [Fit::Exact, Fit::Holds] {
+        for minus in &minus_anchors {
+            let Some(base) = minus.position.strip_prefix('-') else {
+                continue;
+            };
+            let matching: Vec<usize> = available_plus
+                .iter()
+                .enumerate()
+                .filter(|(_, (p, _))| {
+                    p.position.strip_prefix('+') == Some(base) && fit.accepts(p, minus)
+                })
+                .map(|(i, _)| i)
+                .collect();
+            if matching.is_empty() {
+                continue;
+            }
+            joined = Some(base);
+            if matching.len() == 1 {
+                available_plus.remove(matching[0]);
+            } else {
+                issues.push(DeriveIssue::AmbiguousAttachment {
+                    position: minus.position.clone(),
+                    ref_name: gref.name.clone(),
+                });
+            }
+            break 'tiers;
         }
-        joined = Some(base);
-        if matching.len() == 1 {
-            available_plus.remove(matching[0]);
-        } else {
-            issues.push(DeriveIssue::AmbiguousAttachment {
-                position: minus.position.clone(),
-                ref_name: gref.name.clone(),
-            });
-        }
-        break;
     }
     if joined.is_none() {
         for minus in &minus_anchors {

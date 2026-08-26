@@ -269,6 +269,7 @@ fn collect_sample_data_with(
     crate::render::glyph_cache::resolve_pending(
         &mut cache,
         pending,
+        &crate::document::collect_anchor_aligns(all_items()),
         |name| glyph_declared_anchors.get(name).cloned(),
         &mut crate::render::glyph_cache::FnBuilder(
             |pg: &crate::render::glyph_cache::PendingGlyph,

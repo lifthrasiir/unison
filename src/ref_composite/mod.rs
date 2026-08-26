@@ -4,9 +4,25 @@
 //! # Anchor exposure is opt-in
 //!
 //! Inside a composite ([`derive_ref_offsets_with`]), a ref's `-name` anchors
-//! attach to a *unique* size-matching `+name` published by a sibling — or
-//! declared by the composite itself — consuming it; the ref's own `+` anchors
-//! are then published in turn. All of that happens regardless of flags.
+//! attach to a *unique* `+name` big enough to hold them, published by a
+//! sibling — or declared by the composite itself — consuming it; the ref's own
+//! `+` anchors are then published in turn. All of that happens regardless of
+//! flags.
+//!
+//! **The fit is GPOS's fit.** A slot at least as big as the mark on both axes
+//! holds it (`ttf_builder::gpos::slot_holds`), and the two ranges reduce to
+//! points by the class's `align` ([`crate::document::AnchorAlign`]) — the same
+//! reduction `anchor_font_units` applies. That is not a nicety: the two are
+//! the two spellings of one character, and a precomposed glyph that placed its
+//! mark somewhere the shaped pair does not is a font that contradicts itself.
+//! Demanding the two sizes be *equal* here made a wide letter's slot attach
+//! only when shaped, and dropped the precomposed glyph outright.
+//!
+//! What the composite may still choose, and a shaped run may not, is *which
+//! drawing* attaches: an exact size wins over one that merely fits, across the
+//! ref as written and all its alternatives, which is how `acute-above:wide`
+//! reaches `i-upper`'s two-cell slot ahead of the one-cell `acute-above` that
+//! would also fit inside it. See `Fit` in `anchors.rs`.
 //!
 //! Several `-` anchors on one ref are **alternatives**, not several
 //! attachments: they are how one combining mark reaches more than one anchor
@@ -37,8 +53,11 @@
 //!
 //! - an exposed set containing the same anchor name twice exposes *neither*
 //!   (declare it on the composite explicitly instead);
-//! - a `-` anchor with more than one size-matching `+` candidate attaches to
-//!   *nothing*.
+//! - a `-` anchor with more than one `+` candidate that holds it attaches to
+//!   *nothing*;
+//! - a `-` anchor no same-name `+` is big enough to hold attaches to nothing
+//!   either, which is a near-miss worth reporting: it almost always means the
+//!   wrong `:narrow`/`:wide` variant.
 //!
 //! # A negative `ref` offset is a bearing
 //!
@@ -355,6 +374,10 @@ pub fn resolve_expanded_items(
     cancel: &crate::cancel::CancelToken,
     grid_cache: Option<&mut CompositeGridCache>,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
+    // The `feature … : anchor` lines rode along in the item list, so the
+    // alignment every anchor class reduces by is asked of the same expansion
+    // the glyphs came from rather than plumbed in beside it.
+    let aligns = crate::document::collect_anchor_aligns(items.iter().map(|e| &e.item));
     let bodies = items.into_iter().filter_map(|e| match e.item {
         DocumentItem::Glyph {
             name: GlyphName(key),
@@ -362,7 +385,7 @@ pub fn resolve_expanded_items(
         } => Some((key, body)),
         _ => None,
     });
-    resolve_glyph_bodies(bodies, aliases, name_parts, cancel, grid_cache)
+    resolve_glyph_bodies(bodies, aliases, name_parts, &aligns, cancel, grid_cache)
 }
 
 /// Flatten `roots` and everything they reach, and nothing else.
@@ -393,6 +416,7 @@ pub(crate) fn resolve_reachable<'a, 'b>(
     body_of: &dyn Fn(&str) -> Option<&'b crate::document::GlyphBody>,
     aliases: &crate::alias::AliasMap,
     name_parts: &NamePartsMap,
+    aligns: &crate::document::AnchorAligns,
 ) -> HashMap<String, ResolvedGlyph> {
     use crate::document::GlyphBody;
 
@@ -485,6 +509,7 @@ pub(crate) fn resolve_reachable<'a, 'b>(
         bodies.into_iter(),
         aliases,
         name_parts,
+        aligns,
         &crate::cancel::CancelToken::never(),
         None,
     )
@@ -565,6 +590,7 @@ pub(crate) fn resolve_glyph_bodies(
     bodies: impl Iterator<Item = (String, crate::document::GlyphBody)>,
     aliases: &crate::alias::AliasMap,
     name_parts: &NamePartsMap,
+    aligns: &crate::document::AnchorAligns,
     cancel: &crate::cancel::CancelToken,
     mut grid_cache: Option<&mut CompositeGridCache>,
 ) -> (HashMap<String, ResolvedGlyph>, AlternativesIndex) {
@@ -694,6 +720,7 @@ pub(crate) fn resolve_glyph_bodies(
                 &pg.points,
                 &pg.refs,
                 pg.scale,
+                aligns,
                 |name| {
                     resolve_ref_name_with_parts(name, &cache, name_parts)
                         .map(|resolved| resolved.resolved_anchors.clone())

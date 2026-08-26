@@ -16,6 +16,7 @@ pub(super) fn handle_document_keys(
     named_glyphs: &HashMap<String, ResolvedGlyph>,
     name_parts: &NamePartsMap,
     alt_index: &crate::editor::ref_composite::AlternativesIndex,
+    anchor_aligns: &crate::document::AnchorAligns,
     composites: &HashMap<usize, GlyphComposite>,
     meta: crate::meta::FontMetrics,
     prev_cursor: Caret,
@@ -71,6 +72,7 @@ pub(super) fn handle_document_keys(
                     named_glyphs,
                     name_parts,
                     alt_index,
+                    aligns: anchor_aligns,
                 },
                 meta,
             );

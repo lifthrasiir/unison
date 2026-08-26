@@ -749,6 +749,7 @@ fn ink_profiles(
         &|name| bodies.get(name).copied(),
         aliases,
         name_parts,
+        &crate::document::collect_anchor_aligns(all_items.iter().map(|e| &e.item)),
     );
     for name in composites {
         let (Some(body), Some(flat)) = (bodies.get(name), resolved.get(name)) else {

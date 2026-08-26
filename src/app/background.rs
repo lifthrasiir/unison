@@ -804,8 +804,16 @@ impl UniformApp {
                     // not lose the choice.
                     let all_docs = self.collect_all_docs();
                     let doc_refs: Vec<&Document> = all_docs.to_vec();
-                    self.color_aliases =
+                    // Both tables come off the same borrow, and it has to be
+                    // released before either is stored back on `self`.
+                    let color_aliases =
                         crate::render::ttf_builder::collect_color_aliases(&doc_refs);
+                    let anchor_aligns = crate::document::collect_anchor_aligns(
+                        doc_refs.iter().flat_map(|d| d.items.iter()),
+                    );
+                    drop(all_docs);
+                    self.color_aliases = color_aliases;
+                    self.anchor_aligns = anchor_aligns;
                 }
             }
         }

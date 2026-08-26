@@ -290,6 +290,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | An anchor's range: the drawing it selects and the point it reduces to, and why only the class states `align` | `document/glyph.rs` (`AnchorAlign`), `render/ttf_builder/gpos.rs` (`anchor_font_units`) |
 | Why a centred anchor class needs its two sizes to share a parity | `issues/anchors.rs` (`check_centred_anchor_parity`) |
 | A base offering several slot sizes, and the first-fit that picks the one a following mark is put in | `render/ttf_builder/gpos.rs` (`slot_holds`, `CcmpKey`), `collect.rs` (the base-alt reachability loop) |
+| Why a precomposed mark and a shaped one attach by the same rule, and the exact-before-holds tier only the composite has | `ref_composite/anchors.rs` (`Fit`, `aligned_delta`), `render/ttf_builder/gpos.rs` (`slot_holds`) |
 | `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
 | An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |

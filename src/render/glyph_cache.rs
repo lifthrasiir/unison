@@ -378,6 +378,7 @@ fn drop_unresolvable<V>(cache: &HashMap<String, V>, pending: &mut Vec<PendingGly
 pub(crate) fn resolve_pending<V, B>(
     cache: &mut HashMap<String, V>,
     mut pending: Vec<PendingGlyph>,
+    aligns: &crate::document::AnchorAligns,
     mut declared_anchors: impl FnMut(&str) -> Option<Vec<GlyphPoint>>,
     builder: &mut B,
     mut on_issue: impl FnMut(&str, crate::ref_composite::DeriveIssue),
@@ -447,6 +448,7 @@ pub(crate) fn resolve_pending<V, B>(
                     &pg.points,
                     &pg.refs,
                     pg.scale,
+                    aligns,
                     |name| resolve_cached(name, cache).map(|v| v.anchors().to_vec()),
                     |name| alt_index.get(name).map_or_else(Vec::new, |v| v.clone()),
                     &mut declared_anchors,
@@ -627,6 +629,7 @@ mod tests {
         resolve_pending(
             &mut cache,
             pending,
+            &Default::default(),
             |_| None,
             &mut FnBuilder(|_: &_, _: &_, _: &_| {
                 built.fetch_add(1, Ordering::Relaxed);
@@ -666,6 +669,7 @@ mod tests {
         resolve_pending(
             &mut cache,
             pending,
+            &Default::default(),
             |_| None,
             &mut FnBuilder(|_: &_, _: &_, _: &_| {
                 built.fetch_add(1, Ordering::Relaxed);

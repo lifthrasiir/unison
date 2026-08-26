@@ -4,6 +4,7 @@
 //! reaches its private items while keeping the source at a readable size.
 
 use super::*;
+use crate::document::{Align1, AnchorAlign, AnchorAligns};
 use crate::on_demand::detect_color_mono_glyph;
 use crate::pixel::PixelShape;
 
@@ -67,6 +68,7 @@ fn composite_to_grid_resolves_pattern_refs_like_compute_composite() {
         &empty_parts,
         &AlternativesIndex::default(),
         &Default::default(),
+        &Default::default(),
     )
     .expect("has refs");
     assert_eq!(
@@ -118,6 +120,7 @@ fn on_demand_ref_composites_before_the_next_resolve() {
         &cache,
         &empty_parts,
         &AlternativesIndex::default(),
+        &Default::default(),
         &Default::default(),
     )
     .expect("has refs");
@@ -225,6 +228,7 @@ ref target
         &name_parts,
         &_alt_idx,
         &Default::default(),
+        &Default::default(),
     )
     .unwrap();
     assert_eq!(
@@ -262,6 +266,7 @@ ref target
         &resolved,
         &name_parts,
         &_alt_idx,
+        &Default::default(),
         &Default::default(),
     )
     .unwrap();
@@ -489,6 +494,7 @@ ref stem
         &name_parts,
         &_alt_idx,
         &Default::default(),
+        &Default::default(),
     )
     .unwrap();
     assert_eq!(composite.layers[0].resolved_name, "stem:wide");
@@ -538,6 +544,7 @@ ref base
         &resolved,
         &name_parts,
         &_alt_idx,
+        &Default::default(),
         &Default::default(),
     )
     .unwrap();
@@ -615,6 +622,7 @@ ref ($ab)-inner
         &[],
         &b_refs,
         1,
+        &AnchorAligns::new(),
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
@@ -801,6 +809,7 @@ ref mark-below
         &above_body.points,
         &above_body.refs,
         1,
+        &AnchorAligns::new(),
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| decl_anchors.get(name).cloned(),
@@ -825,6 +834,7 @@ ref mark-below
         &below_body.points,
         &below_body.refs,
         1,
+        &AnchorAligns::new(),
         |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
         |name| alt_idx.get(name).to_vec(),
         |name| decl_anchors.get(name).cloned(),
@@ -901,6 +911,7 @@ ref mark-above
             &body.points,
             &body.refs,
             1,
+            &AnchorAligns::new(),
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| decl_anchors.get(name).cloned(),
@@ -1411,6 +1422,7 @@ fn derive_reports_duplicates_and_ambiguity() {
         &[],
         &refs,
         1,
+        &AnchorAligns::new(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1439,6 +1451,7 @@ fn derive_reports_duplicates_and_ambiguity() {
         &[],
         &refs,
         1,
+        &AnchorAligns::new(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1521,10 +1534,90 @@ fn probe_migration_worklist() {
     }
 }
 
-/// A `-` anchor that finds a same-name `+` of a *different size* attaches to
-/// nothing, and that near-miss is reported: it almost always means the wrong
+/// A `+` anchor whose range is *bigger* than the `-` asked of it holds that
+/// mark, exactly as GPOS's `slot_holds` puts a mark in a base's slot, and the
+/// mark reduces by the class's `align` on the way in. The two paths have to
+/// agree here: `he-yod-with-hiriq` precomposes what `he-yod` + `he-hiriq`
+/// shapes to, and demanding an exact size dropped the precomposed glyph while
+/// the shaped pair attached happily.
+#[test]
+fn a_wider_plus_holds_a_narrower_minus() {
+    let anchored = |position: &str, col: i16, col_end: i16, row: i16| GlyphPoint {
+        comment: None,
+        position: position.to_string(),
+        col,
+        row,
+        col_end,
+        row_end: row,
+    };
+    let lookup = |name: &str| -> Option<Vec<GlyphPoint>> {
+        match name {
+            // `he-yod`'s hosting range: the whole width of the letter.
+            "base" => Some(vec![anchored("+below", 0, 6, 13)]),
+            // `he-hiriq`'s footprint: three cells wide, drawn at 3..5.
+            "mark" => Some(vec![anchored("-below", 3, 5, 0)]),
+            _ => None,
+        }
+    };
+    let gref = |name: &str| GlyphRef {
+        raw_name: None,
+        comment: None,
+        name: name.to_string(),
+        offset: None,
+        negated: false,
+        inherit: false,
+        fill: None,
+        visibility: None,
+    };
+    let refs = vec![gref("base"), gref("mark")];
+
+    let mut aligns = AnchorAligns::new();
+    aligns.insert(
+        "below".to_string(),
+        AnchorAlign {
+            vertical: Align1::Center,
+            horizontal: Align1::Center,
+        },
+    );
+    let (effective, _, issues) = derive_ref_offsets_with(
+        &[],
+        &refs,
+        1,
+        &aligns,
+        lookup,
+        |_| Vec::new(),
+        lookup,
+        |_: &str| (0, 0),
+    );
+    assert!(issues.is_empty(), "{issues:?}");
+    // Centre of 0..6 is 3, centre of 3..5 is 4: the mark comes one cell left.
+    assert_eq!(effective[1].offset, Some((-1, 13)), "{effective:?}");
+
+    // The default reduction is the low end of each axis, and it places the
+    // same pair from there instead.
+    let (effective, issues) = {
+        let (e, _, i) = derive_ref_offsets_with(
+            &[],
+            &refs,
+            1,
+            &AnchorAligns::new(),
+            lookup,
+            |_| Vec::new(),
+            lookup,
+            |_: &str| (0, 0),
+        );
+        (e, i)
+    };
+    assert!(issues.is_empty(), "{issues:?}");
+    assert_eq!(effective[1].offset, Some((-3, 13)), "{effective:?}");
+}
+
+/// A `-` anchor bigger than every same-name `+` it finds attaches to nothing,
+/// and that near-miss is reported: it almost always means the wrong
 /// `:narrow`/`:wide` variant was picked. A minus with no same-name `+` at all
-/// stays quiet — that is ordinary alias forwarding.
+/// stays quiet — that is ordinary alias forwarding. (A `+` merely *larger*
+/// than the `-` is no near-miss at all: it holds the mark, exactly as a base
+/// slot holds a mark in GPOS.)
 #[test]
 fn derive_reports_size_mismatched_attachment() {
     let anchored = |position: &str, col: i16, row: i16, w: i16| GlyphPoint {
@@ -1537,8 +1630,8 @@ fn derive_reports_size_mismatched_attachment() {
     };
     let lookup = |name: &str| -> Option<Vec<GlyphPoint>> {
         match name {
-            "base" => Some(vec![anchored("+above", 1, 0, 2)]),
-            "mark" => Some(vec![anchored("-above", 0, 0, 1)]),
+            "base" => Some(vec![anchored("+above", 1, 0, 1)]),
+            "mark" => Some(vec![anchored("-above", 0, 0, 2)]),
             _ => None,
         }
     };
@@ -1553,12 +1646,13 @@ fn derive_reports_size_mismatched_attachment() {
         visibility: None,
     };
 
-    // Explicit offset: the mark cannot consume the 2-cell +above.
+    // Explicit offset, and a mark the one-cell +above could not hold anyway.
     let refs = vec![gref("base", None), gref("mark", Some((1, 2)))];
     let (_, _, issues) = derive_ref_offsets_with(
         &[],
         &refs,
         1,
+        &AnchorAligns::new(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1568,8 +1662,8 @@ fn derive_reports_size_mismatched_attachment() {
         issues.contains(&DeriveIssue::SizeMismatchedAttachment {
             position: "-above".into(),
             ref_name: "mark".into(),
-            minus: (1, 1),
-            plus: (2, 1),
+            minus: (2, 1),
+            plus: (1, 1),
         }),
         "{issues:?}",
     );
@@ -1580,6 +1674,7 @@ fn derive_reports_size_mismatched_attachment() {
         &[],
         &refs,
         1,
+        &AnchorAligns::new(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1641,6 +1736,7 @@ fn attaching_through_one_minus_retires_the_other_alternatives() {
         &[],
         &refs,
         1,
+        &AnchorAligns::new(),
         lookup,
         |_| Vec::new(),
         lookup,
@@ -1658,11 +1754,14 @@ fn attaching_through_one_minus_retires_the_other_alternatives() {
     assert_eq!(positions, vec!["+above", "+gr-above"]);
 }
 
-/// Size-based alternative selection still runs for offset-less refs — and it
-/// is exactly what the size-mismatch warning defers to: the uni1E2E shape
-/// (a narrow mark stacked on a wide mark's 2-cell `+above`) picks the
-/// `:wide` alternative and stays quiet, while the same refs pinned by
-/// explicit offsets cannot substitute and warn instead.
+/// Size-based alternative selection still runs for offset-less refs, and an
+/// exact fit is what it goes by: the uni1E2E shape (a narrow mark stacked on a
+/// wide mark's 2-cell `+above`) picks the `:wide` alternative, whose `-above`
+/// is that slot's own size, over the narrow one the slot would merely hold.
+/// The same refs pinned by explicit offsets cannot substitute; the narrow mark
+/// is then held by the wider slot, as GPOS would hold it, and nothing is
+/// reported — a `-` no `+` is big enough for is the near-miss, and
+/// `derive_reports_size_mismatched_attachment` is where that lives.
 #[test]
 fn offsetless_stacked_mark_picks_wide_alternative_without_warning() {
     let input = "\
@@ -1711,6 +1810,7 @@ ref acute
             &body.points,
             refs,
             1,
+            &AnchorAligns::new(),
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| resolved.get(name).map(|r| r.declared_anchors.clone()),
@@ -1725,7 +1825,7 @@ ref acute
     assert!(issues.is_empty(), "{issues:?}");
 
     // The same refs pinned by explicit offsets: no substitution is possible,
-    // and the near-miss is reported instead of passing in silence.
+    // and the narrow acute is held by the two-cell slot as it stands.
     let pinned: Vec<GlyphRef> = body
         .refs
         .iter()
@@ -1741,13 +1841,7 @@ ref acute
         effective[2].name, "acute",
         "explicit offsets never substitute"
     );
-    assert!(
-        issues.iter().any(|i| matches!(
-            i,
-            DeriveIssue::SizeMismatchedAttachment { ref_name, .. } if ref_name == "acute"
-        )),
-        "{issues:?}",
-    );
+    assert!(issues.is_empty(), "{issues:?}");
 }
 
 /// Alternative selection also runs on the *publisher* side, by size: an
@@ -1809,6 +1903,7 @@ ref circle
             &body.points,
             &body.refs,
             1,
+            &AnchorAligns::new(),
             |name| resolved.get(name).map(|r| r.resolved_anchors.clone()),
             |name| alt_idx.get(name).to_vec(),
             |name| resolved.get(name).map(|r| r.declared_anchors.clone()),

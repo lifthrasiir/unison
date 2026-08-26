@@ -175,6 +175,7 @@ pub(super) fn check_anchor_derivation(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
     crate::render::glyph_cache::resolve_pending(
         &mut cache,
         pending,
+        &crate::document::collect_anchor_aligns(expansion.items()),
         |name| declared_anchors.get(name).map(|pts| pts.to_vec()),
         &mut crate::render::glyph_cache::FnBuilder(|_: &_, _: &_, _: &_| AnchorsOnly::new()),
         |name, issue| derive_issues.push((name.to_string(), issue)),
