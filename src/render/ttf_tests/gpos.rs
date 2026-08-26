@@ -1343,3 +1343,82 @@ feature ccmp for DFLT : anchor slot align c
         "only the mark the base's own slot cannot hold may reach an alternative"
     );
 }
+
+/// One anchor class named by two declarations — the same class offered to two
+/// scripts, or a line left in beside the one that replaced it — must still be
+/// one class. Numbering the classes by each declaration's position in the list
+/// instead of by the class it named handed the second one a number past the
+/// end of the per-class arrays, and the build panicked on the first glyph
+/// carrying that anchor.
+#[test]
+fn an_anchor_class_named_twice_is_still_one_class() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph letter 8 4
+................
+................
+................
+................
+anchor +slot 3..5 0
+
+glyph tick 8 4 mark advance 0
+................
+................
+................
+................
+anchor -slot 3..5 0
+
+glyph other-letter 8 4
+................
+................
+................
+................
+anchor +other 3..5 0
+
+glyph other-tick 8 4 mark advance 0
+................
+................
+................
+................
+anchor -other 3..5 0
+
+map U+0041 = letter
+map U+0301 = tick
+map U+0042 = other-letter
+map U+0302 = other-tick
+
+feature ccmp for DFLT : anchor slot
+feature ccmp for latn : anchor slot
+feature ccmp for DFLT : anchor other
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect glyph data");
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+    let gpos = anchor_data.gpos.expect("GPOS should exist");
+    let sub = gpos
+        .lookup_list
+        .lookups
+        .iter()
+        .find_map(|l| match l.as_ref() {
+            PositionLookup::MarkToBase(lk) => Some(lk.subtables[0].clone()),
+            _ => None,
+        })
+        .expect("MarkBasePos lookup");
+    assert_eq!(sub.mark_array.mark_records.len(), 2);
+    assert_eq!(
+        sub.base_array.base_records[0].base_anchors.len(),
+        2,
+        "two declarations of one anchor name are one mark class, not two"
+    );
+}

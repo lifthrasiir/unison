@@ -110,11 +110,16 @@ pub(super) fn build_anchor_gpos(
         };
     }
 
-    let anchor_names: Vec<String> = gsub_data
-        .anchor_features
-        .iter()
-        .map(|f| f.anchor.clone())
-        .collect();
+    // The classes this build has, in declaration order and each named once. A
+    // class may be declared more than once — offered to two scripts, or a line
+    // left in beside the one meant to replace it — and every loop below is per
+    // class, so the second naming would repeat the work of the first.
+    let mut anchor_names: Vec<String> = Vec::new();
+    for feature in &gsub_data.anchor_features {
+        if !anchor_names.contains(&feature.anchor) {
+            anchor_names.push(feature.anchor.clone());
+        }
+    }
 
     // The name each gid carries, for the entry lists the tests read. Built once
     // rather than by scanning the glyph set per gid: the scan is quadratic in a
@@ -135,10 +140,15 @@ pub(super) fn build_anchor_gpos(
         }
     }
 
-    // Assign anchor classes: each unique anchor name (from feature declarations) gets a class.
+    // Assign anchor classes: each unique anchor name gets a class. The number
+    // is how far the map has filled and not the name's place in any list, so
+    // that it stays an index into the per-class arrays `num_classes` sizes —
+    // counting declarations instead handed a class a number past their end the
+    // moment one name was declared twice.
     let mut anchor_class_map: HashMap<String, u16> = HashMap::new();
-    for (i, name) in anchor_names.iter().enumerate() {
-        anchor_class_map.entry(name.clone()).or_insert(i as u16);
+    for name in &anchor_names {
+        let next = anchor_class_map.len() as u16;
+        anchor_class_map.entry(name.clone()).or_insert(next);
     }
     let num_classes = anchor_class_map.len() as u16;
 
