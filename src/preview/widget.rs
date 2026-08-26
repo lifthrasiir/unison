@@ -19,6 +19,7 @@ use crate::edit_menu::{EditAction, EditMenuCaps};
 use crate::editor::caret::{self, Caret};
 use crate::editor::doc_input::{self, TextEdit};
 use crate::editor::undo::UndoStack;
+use crate::preview::bidi::ParagraphDirection;
 use crate::preview::cluster::{self, ClusterSpan};
 use crate::preview::metrics::VMetrics;
 use crate::preview::rasterizer::GlyphCache;
@@ -211,11 +212,13 @@ impl ShapedPreviewState {
                 continue;
             }
 
-            match preview::shape_text(backend.as_ref(), font_data, &display, 1024, &[]) {
+            // TODO: the paragraph direction is not yet settable from the UI.
+            let para = preview::Paragraph::new(&display, ParagraphDirection::Auto);
+            match backend.shape(font_data, &para, 1024, &[]) {
                 Ok(glyphs) => {
                     let total_chars = display.chars().count();
-                    let mut clusters = cluster::build_clusters(&glyphs, px_size);
-                    cluster::finalize_clusters(&mut clusters, total_chars);
+                    let clusters = cluster::build_clusters(&glyphs, px_size, total_chars);
+                    // Visual order, so the last span is the rightmost one.
                     let width = clusters.last().map_or(0.0, |c| c.pen_x + c.advance);
                     out.push(ShapedLine {
                         text: display,

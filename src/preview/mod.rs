@@ -1,3 +1,21 @@
+//! Shaping the preview field's text with the built font.
+//!
+//! # One paragraph in, visual order out
+//!
+//! A backend is handed a whole [`Paragraph`] — one line of the preview, with
+//! its bidi levels already resolved — and returns glyphs in the order they are
+//! to be painted, left to right. It is *not* handed pre-split single-direction
+//! runs, because two of the three backends do UAX #9 themselves and doing it
+//! for them would replace the very part of the platform stack the preview
+//! exists to proof; see [`bidi`] for the argument. What the shared path does
+//! provide is [`Paragraph::char_levels`], so a backend that resolves its own
+//! levels still labels its glyphs the way the caret code expects.
+//!
+//! [`shape_runs`] is the shared *implementation* a backend may opt into: it
+//! splits the paragraph into runs that are one direction and one script each,
+//! in visual order, and shapes them one at a time. Only rustybuzz uses it.
+
+pub mod bidi;
 pub mod cluster;
 pub mod metrics;
 pub mod rasterizer;
@@ -9,6 +27,8 @@ pub mod coretext;
 
 #[cfg(target_os = "windows")]
 pub mod directwrite;
+
+use bidi::{BidiRun, ParagraphDirection};
 
 /// Maps each UTF-16 code unit index of `text` to its char index.
 #[cfg(any(target_os = "macos", target_os = "windows"))]
@@ -22,6 +42,47 @@ fn build_utf16_to_char_map(text: &str) -> Vec<usize> {
     map
 }
 
+/// One line of the preview, with UAX #9 already run over it.
+pub struct Paragraph<'a> {
+    pub text: &'a str,
+    /// What the caller asked the paragraph level to be. Only a backend that
+    /// resolves its own levels has to be told; Core Text is the one that is.
+    #[cfg_attr(not(target_os = "macos"), expect(dead_code))]
+    pub direction: ParagraphDirection,
+    /// Level runs, in the visual order rule L2 puts them in.
+    pub runs: Vec<BidiRun>,
+    /// The resolved embedding level of each *character*, by char index. A
+    /// backend that did its own reordering labels its glyphs from this rather
+    /// than from `runs`, so the caret code sees one vocabulary whichever
+    /// backend produced the glyphs. Read through [`Paragraph::level_of_char`].
+    pub char_levels: Vec<u8>,
+}
+
+impl<'a> Paragraph<'a> {
+    pub fn new(text: &'a str, direction: ParagraphDirection) -> Self {
+        let runs = bidi::split_bidi_runs(text, direction);
+        let mut char_levels = vec![0u8; text.chars().count()];
+        for run in &runs {
+            let len = text[run.bytes.clone()].chars().count();
+            for level in &mut char_levels[run.char_start..run.char_start + len] {
+                *level = run.level;
+            }
+        }
+        Self {
+            text,
+            direction,
+            runs,
+            char_levels,
+        }
+    }
+
+    /// The level to label a glyph with, given the character it came from.
+    #[cfg_attr(not(target_os = "macos"), expect(dead_code))]
+    fn level_of_char(&self, char_idx: usize) -> u8 {
+        self.char_levels.get(char_idx).copied().unwrap_or(0)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Feature {
     pub tag: [u8; 4],
@@ -33,7 +94,13 @@ pub struct Feature {
 #[derive(Clone, Copy, Debug)]
 pub struct ShapedGlyph {
     pub glyph_id: u16,
+    /// Char index within the paragraph of the character this glyph came from.
+    /// In a right-to-left run these *decrease* along the visual order, which is
+    /// how [`cluster`] tells one run from the next.
     pub cluster: usize,
+    /// The resolved embedding level of the run this glyph belongs to; odd is
+    /// right-to-left. See [`Paragraph::char_levels`].
+    pub level: u8,
     pub x_advance: f32,
     #[allow(dead_code)]
     pub y_advance: f32,
@@ -52,40 +119,54 @@ impl std::fmt::Display for ShapeError {
 
 pub trait ShaperBackend {
     fn name(&self) -> &'static str;
+
+    /// Shape one paragraph, returning its glyphs **in visual order** — the
+    /// order they are painted, left to right — with every glyph's `cluster`
+    /// a char index into `para.text` and its `level` the run's.
     fn shape(
         &self,
         font_data: &[u8],
-        text: &str,
+        para: &Paragraph<'_>,
         upm: u16,
         features: &[Feature],
     ) -> Result<Vec<ShapedGlyph>, ShapeError>;
 }
 
-/// Shape `text` with `backend`, splitting it into single-script runs first and
-/// concatenating the results; see [`crate::script_run`] for why that is
-/// required. Cluster indices stay relative to the whole text.
-pub fn shape_text(
-    backend: &dyn ShaperBackend,
-    font_data: &[u8],
-    text: &str,
-    upm: u16,
+/// Shape `para` by handing `shape_run` one run at a time, each of which is a
+/// single direction *and* a single script, visited in visual order.
+///
+/// A level run still has to be split by script before it reaches a shaper —
+/// see [`crate::script_run`] for why — and inside a right-to-left level run
+/// those script runs are visited back to front, since visual order is what the
+/// concatenation has to come out in. The shaper is told the level rather than
+/// just "backward" so that the glyphs can carry it out.
+///
+/// Cluster indices come back rebased onto the whole paragraph, and features
+/// are clipped and rebased onto each run.
+pub fn shape_runs(
+    para: &Paragraph<'_>,
     features: &[Feature],
+    mut shape_run: impl FnMut(&str, u8, &[Feature]) -> Result<Vec<ShapedGlyph>, ShapeError>,
 ) -> Result<Vec<ShapedGlyph>, ShapeError> {
-    let runs = crate::script_run::split_script_runs(text);
-    if runs.len() <= 1 {
-        return backend.shape(font_data, text, upm, features);
-    }
-
     let mut glyphs = Vec::new();
-    for run in runs {
-        let run_text = &text[run.bytes.clone()];
-        let run_features: Vec<Feature> = features
-            .iter()
-            .filter_map(|f| clip_feature(f, run.char_start, run_text.chars().count()))
-            .collect();
-        for mut glyph in backend.shape(font_data, run_text, upm, &run_features)? {
-            glyph.cluster += run.char_start;
-            glyphs.push(glyph);
+    for level_run in &para.runs {
+        let run_text = &para.text[level_run.bytes.clone()];
+        let mut script_runs = crate::script_run::split_script_runs(run_text);
+        if level_run.is_rtl() {
+            script_runs.reverse();
+        }
+        for script_run in script_runs {
+            let sub = &run_text[script_run.bytes.clone()];
+            let char_start = level_run.char_start + script_run.char_start;
+            let sub_features: Vec<Feature> = features
+                .iter()
+                .filter_map(|f| clip_feature(f, char_start, sub.chars().count()))
+                .collect();
+            for mut glyph in shape_run(sub, level_run.level, &sub_features)? {
+                glyph.cluster += char_start;
+                glyph.level = level_run.level;
+                glyphs.push(glyph);
+            }
         }
     }
     Ok(glyphs)
@@ -119,29 +200,27 @@ mod tests {
     use std::cell::RefCell;
 
     /// Stands in for a real shaper: emits one glyph per character, with the
-    /// cluster index relative to the text it was handed, and records the texts
+    /// cluster index relative to the run it was handed, and records the runs
     /// it was called with.
-    struct RecordingBackend(RefCell<Vec<String>>);
+    #[derive(Default)]
+    struct Recorder(RefCell<Vec<(String, u8)>>);
 
-    impl ShaperBackend for RecordingBackend {
-        fn name(&self) -> &'static str {
-            "recording"
-        }
-
-        fn shape(
-            &self,
-            _font_data: &[u8],
-            text: &str,
-            _upm: u16,
-            _features: &[Feature],
-        ) -> Result<Vec<ShapedGlyph>, ShapeError> {
-            self.0.borrow_mut().push(text.to_string());
-            Ok(text
-                .chars()
-                .enumerate()
-                .map(|(i, _)| ShapedGlyph {
+    impl Recorder {
+        fn shape(&self, text: &str, level: u8) -> Result<Vec<ShapedGlyph>, ShapeError> {
+            self.0.borrow_mut().push((text.to_string(), level));
+            let chars: Vec<char> = text.chars().collect();
+            // A backward run comes out of a shaper in visual order already.
+            let order: Vec<usize> = if level % 2 == 1 {
+                (0..chars.len()).rev().collect()
+            } else {
+                (0..chars.len()).collect()
+            };
+            Ok(order
+                .into_iter()
+                .map(|i| ShapedGlyph {
                     glyph_id: 0,
                     cluster: i,
+                    level,
                     x_advance: 1.0,
                     y_advance: 0.0,
                     x_offset: 0.0,
@@ -151,26 +230,38 @@ mod tests {
         }
     }
 
-    fn shape_recording(text: &str) -> (Vec<String>, Vec<usize>) {
-        let backend = RecordingBackend(RefCell::new(Vec::new()));
-        let glyphs = shape_text(&backend, &[], text, 1024, &[]).unwrap();
+    /// `(runs the shaper saw, cluster index of each glyph in visual order)`.
+    fn shape_recording(text: &str) -> (Vec<(String, u8)>, Vec<usize>) {
+        shape_recording_dir(text, ParagraphDirection::Auto)
+    }
+
+    fn shape_recording_dir(
+        text: &str,
+        direction: ParagraphDirection,
+    ) -> (Vec<(String, u8)>, Vec<usize>) {
+        let para = Paragraph::new(text, direction);
+        let recorder = Recorder::default();
+        let glyphs = shape_runs(&para, &[], |t, level, _| recorder.shape(t, level)).unwrap();
         (
-            backend.0.into_inner(),
+            recorder.0.into_inner(),
             glyphs.iter().map(|g| g.cluster).collect(),
         )
     }
 
     #[test]
     fn single_script_text_is_shaped_in_one_call() {
-        let (texts, clusters) = shape_recording("가나다");
-        assert_eq!(texts, vec!["가나다"]);
+        let (runs, clusters) = shape_recording("가나다");
+        assert_eq!(runs, vec![("가나다".to_string(), 0)]);
         assert_eq!(clusters, vec![0, 1, 2]);
     }
 
     #[test]
     fn mixed_script_text_is_shaped_per_run() {
-        let (texts, _) = shape_recording("ひ 각\u{302F}");
-        assert_eq!(texts, vec!["ひ ", "각\u{302F}"]);
+        let (runs, _) = shape_recording("ひ 각\u{302F}");
+        assert_eq!(
+            runs,
+            vec![("ひ ".to_string(), 0), ("각\u{302F}".to_string(), 0)],
+        );
     }
 
     #[test]
@@ -178,6 +269,51 @@ mod tests {
         // Runs are "ひ " (chars 0..2) and "각\u{302F}" (chars 2..4).
         let (_, clusters) = shape_recording("ひ 각\u{302F}");
         assert_eq!(clusters, vec![0, 1, 2, 3]);
+    }
+
+    /// A right-to-left run's glyphs come out in visual order, so its cluster
+    /// indices run backwards.
+    #[test]
+    fn a_right_to_left_run_comes_back_in_visual_order() {
+        let (runs, clusters) = shape_recording("שלום");
+        assert_eq!(runs, vec![("שלום".to_string(), 1)]);
+        assert_eq!(clusters, vec![3, 2, 1, 0]);
+    }
+
+    /// The level runs themselves are visited in visual order, so the trailing
+    /// Hebrew of an LTR paragraph is shaped last and painted last.
+    #[test]
+    fn level_runs_are_visited_in_visual_order() {
+        let (runs, clusters) = shape_recording("a שלום");
+        assert_eq!(runs, vec![("a ".to_string(), 0), ("שלום".to_string(), 1)]);
+        assert_eq!(clusters, vec![0, 1, 5, 4, 3, 2]);
+    }
+
+    /// ...and in an RTL paragraph the *last* logical run is painted first.
+    #[test]
+    fn a_right_to_left_paragraph_paints_its_last_run_first() {
+        let (runs, clusters) = shape_recording("שלום a");
+        assert_eq!(runs, vec![("a".to_string(), 2), ("שלום ".to_string(), 1)]);
+        assert_eq!(clusters, vec![5, 4, 3, 2, 1, 0]);
+    }
+
+    /// Inside one right-to-left level run, the script runs are visited back to
+    /// front too — otherwise two scripts in one Hebrew phrase would come out
+    /// with their halves swapped.
+    #[test]
+    fn script_runs_inside_a_backward_level_run_are_visited_back_to_front() {
+        // Hebrew then Arabic, both RTL, one level run split by script.
+        let (runs, _) = shape_recording("שלוםسلام");
+        assert_eq!(
+            runs,
+            vec![("سلام".to_string(), 1), ("שלום".to_string(), 1)],
+        );
+    }
+
+    #[test]
+    fn an_explicit_paragraph_direction_reaches_the_runs() {
+        let (runs, _) = shape_recording_dir("abc", ParagraphDirection::Rtl);
+        assert_eq!(runs, vec![("abc".to_string(), 2)]);
     }
 
     #[test]
@@ -213,5 +349,15 @@ mod tests {
             clip_feature(&feature, 2, 2).map(|f| (f.start, f.end)),
             Some((0, 2)),
         );
+    }
+
+    #[test]
+    fn char_levels_cover_every_character() {
+        let para = Paragraph::new("a שלום", ParagraphDirection::Auto);
+        assert_eq!(para.char_levels, vec![0, 0, 1, 1, 1, 1]);
+        assert_eq!(para.level_of_char(2), 1);
+        // Past the end is treated as the paragraph's own left-to-right default
+        // rather than panicking; a backend may report a cluster there.
+        assert_eq!(para.level_of_char(99), 0);
     }
 }

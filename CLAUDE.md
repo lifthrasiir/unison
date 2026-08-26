@@ -216,6 +216,8 @@ Editor (feature `editor`):
   (`coretext.rs` on macOS, `directwrite.rs` on Windows). `preview/widget.rs` is a multi-line text
   field that runs on the *editor's* text model and key handler; only its layout is its own, and
   `preview/metrics.rs` is the vertical half of that layout — read from the face, not assumed.
+  `preview/bidi.rs` is UAX #9, and `preview/mod.rs` says why the resolution is each *backend's* own
+  rather than the shared path's; `preview/cluster.rs` is where visual order meets logical indices.
 
 `font/*.unf` are the font sources (one file per category). `testdata/` holds test-only `.unf` files
 plus goldens. `data/` holds sample-generation inputs (confusables, UDHR text) read at build time
@@ -381,6 +383,11 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Where a variation sequence sits on the specimen, the `+VS17` label it carries, and the undrawn border joining it to its base | `specimen.rs` (`UvsEntry`, `uvs_label`, `uvs_boundary`) |
 | Why the specimen resolves the `exists` searches itself, and the one clone per line that pays for it | `specimen.rs` (`rebuild_if_needed`), `exists.rs` (`Scope::rebind`) |
 | The text-editing keys, and the state both the editor and the preview edit through | `editor/doc_input.rs` (`TextEdit`) |
+| Bidi in the preview: why each backend resolves its own levels, and what the shared path still hands it | `preview/mod.rs` (`Paragraph`), `preview/bidi.rs` |
+| Where the Bidi_Class table comes from, and why `unicode-bidi` carries none of its own | `preview/bidi.rs`, `Cargo.toml` |
+| Mirroring an RTL run: the code point swap, and `rtlm` as the fallback when the font has no counterpart | `preview/rustybuzz.rs`, `preview/bidi.rs` |
+| Visual order against logical char indices, where one run ends, and which of a boundary's two caret positions is taken | `preview/cluster.rs` |
+| Forcing a paragraph direction on Core Text, and why that is an attribute rather than an argument | `preview/coretext.rs` (`paragraph_style_for`) |
 | How tall a preview row is, and why its chrome is measured from the face rather than the font size | `preview/metrics.rs` (`VMetrics`) |
 | Why the editor's preedit box cannot crop a glyph but the preview's could | `editor/document_view/paint.rs`, `preview/metrics.rs` |
 | A header and its grid are one block: Enter, line-wise copy/cut, paste onto it | `editor/editing.rs` (`insert_newline`), `editor/doc_input.rs` (`current_line_range`, `paste_text`) |

@@ -1,4 +1,19 @@
-use crate::preview::{Feature, ShapeError, ShapedGlyph, ShaperBackend};
+//! The DirectWrite backend.
+//!
+//! Unlike Core Text's `CTLine`, this sits on `IDWriteTextAnalyzer` — the
+//! *analysis* layer, below layout — so nothing here reorders anything on its
+//! own. The analyzer does expose `AnalyzeBidi`, and switching to it is what
+//! would make this backend proof DirectWrite's own UAX #9 the way the Core Text
+//! one proofs Core Text's; until then it takes the shared resolution
+//! ([`crate::preview::shape_runs`]) and only tells `GetGlyphs` which direction
+//! each run is, through `isRightToLeft`.
+//!
+//! Whether that flag also applies rule L4 — DirectWrite's documentation does
+//! not say whether `GetGlyphs` substitutes the `Bidi_Mirroring_Glyph` the way
+//! HarfBuzz does — is the thing to check on a real Windows run; if it does not,
+//! the code point swap has to happen here before the call.
+
+use crate::preview::{Feature, Paragraph, ShapeError, ShapedGlyph, ShaperBackend, shape_runs};
 
 pub struct DirectWriteBackend;
 
@@ -10,7 +25,7 @@ impl ShaperBackend for DirectWriteBackend {
     fn shape(
         &self,
         font_data: &[u8],
-        text: &str,
+        para: &Paragraph<'_>,
         upm: u16,
         features: &[Feature],
     ) -> Result<Vec<ShapedGlyph>, ShapeError> {
@@ -49,33 +64,6 @@ impl ShaperBackend for DirectWriteBackend {
 
             let analyzer: IDWriteTextAnalyzer = factory.CreateTextAnalyzer().map_err(err)?;
 
-            let utf16: Vec<u16> = text.encode_utf16().collect();
-            let text_len = utf16.len() as u32;
-
-            if text_len == 0 {
-                factory.UnregisterFontFileLoader(&font_file_loader).ok();
-                return Ok(Vec::new());
-            }
-
-            let source = TextAnalysisSource::new(&utf16);
-            let sink = TextAnalysisSink::new();
-
-            analyzer
-                .AnalyzeScript(&source, 0, text_len, &sink)
-                .map_err(err)?;
-
-            let sink_impl: &TextAnalysisSink = sink.as_impl();
-            let script_runs: Vec<ScriptRun> = sink_impl
-                .runs
-                .borrow()
-                .iter()
-                .map(|r| ScriptRun {
-                    start: r.start,
-                    len: r.len,
-                    analysis: r.analysis,
-                })
-                .collect();
-
             // The feature values live in their own Vec so the pointers stored
             // in `dw_features` stay valid for the GetGlyphs/GetGlyphPlacements
             // calls below; a `&DWRITE_FONT_FEATURE { .. }` temporary inside the
@@ -95,10 +83,44 @@ impl ShaperBackend for DirectWriteBackend {
                 })
                 .collect();
 
-            let utf16_to_char = build_utf16_to_char_map(text);
-            let mut all_glyphs = Vec::new();
+            let shaped = shape_runs(para, features, |text, level, _run_features| {
+                let rtl = level % 2 == 1;
+                let utf16: Vec<u16> = text.encode_utf16().collect();
+                let text_len = utf16.len() as u32;
+                if text_len == 0 {
+                    return Ok(Vec::new());
+                }
 
-            for run in &script_runs {
+                // The run is already one script by `crate::script_run`, but the
+                // analyzer is what produces the `DWRITE_SCRIPT_ANALYSIS` the
+                // shaping calls need, so it still runs over it. Should it split
+                // the run further, a backward one is walked back to front so
+                // the glyphs still come out in visual order.
+                let source = TextAnalysisSource::new(&utf16, rtl);
+                let sink = TextAnalysisSink::new();
+                analyzer
+                    .AnalyzeScript(&source, 0, text_len, &sink)
+                    .map_err(err)?;
+
+                let sink_impl: &TextAnalysisSink = sink.as_impl();
+                let mut script_runs: Vec<ScriptRun> = sink_impl
+                    .runs
+                    .borrow()
+                    .iter()
+                    .map(|r| ScriptRun {
+                        start: r.start,
+                        len: r.len,
+                        analysis: r.analysis,
+                    })
+                    .collect();
+                if rtl {
+                    script_runs.reverse();
+                }
+
+                let utf16_to_char = build_utf16_to_char_map(text);
+                let mut all_glyphs = Vec::new();
+
+                for run in &script_runs {
                 let start = run.start as usize;
                 let len = run.len as usize;
                 let sub_text = &utf16[start..start + len];
@@ -130,8 +152,9 @@ impl ShaperBackend for DirectWriteBackend {
                         PCWSTR(sub_text.as_ptr()),
                         len as u32,
                         &face,
+                        // isSideways, isRightToLeft
                         BOOL::from(false),
-                        BOOL::from(false),
+                        BOOL::from(rtl),
                         &run.analysis,
                         PCWSTR::null(),
                         None,
@@ -165,8 +188,9 @@ impl ShaperBackend for DirectWriteBackend {
                         glyph_count as u32,
                         &face,
                         upm as f32,
+                        // isSideways, isRightToLeft
                         BOOL::from(false),
-                        BOOL::from(false),
+                        BOOL::from(rtl),
                         &run.analysis,
                         PCWSTR::null(),
                         feat_opt,
@@ -193,17 +217,22 @@ impl ShaperBackend for DirectWriteBackend {
                     all_glyphs.push(ShapedGlyph {
                         glyph_id: glyph_indices[i],
                         cluster,
+                        // `shape_runs` overwrites this with the run's level.
+                        level,
                         x_advance: advances[i] / upm as f32,
                         y_advance: 0.0,
                         x_offset: offsets[i].advanceOffset / upm as f32,
                         y_offset: offsets[i].ascenderOffset / upm as f32,
                     });
                 }
-            }
+                }
+
+                Ok(all_glyphs)
+            });
 
             factory.UnregisterFontFileLoader(&font_file_loader).ok();
 
-            Ok(all_glyphs)
+            shaped
         }
     }
 }
@@ -231,13 +260,15 @@ use windows_core::AsImpl;
 struct TextAnalysisSource {
     text: *const u16,
     text_len: u32,
+    rtl: bool,
 }
 
 impl TextAnalysisSource {
-    fn new(text: &[u16]) -> IDWriteTextAnalysisSource {
+    fn new(text: &[u16], rtl: bool) -> IDWriteTextAnalysisSource {
         let source = TextAnalysisSource {
             text: text.as_ptr(),
             text_len: text.len() as u32,
+            rtl,
         };
         source.into()
     }
@@ -280,8 +311,15 @@ impl IDWriteTextAnalysisSource_Impl for TextAnalysisSource_Impl {
         Ok(())
     }
 
+    /// The run's own direction, not the paragraph's: this source is handed one
+    /// single-direction run at a time, and `AnalyzeScript` uses this to decide
+    /// which way a run of neutrals in it reads.
     fn GetParagraphReadingDirection(&self) -> DWRITE_READING_DIRECTION {
-        DWRITE_READING_DIRECTION_LEFT_TO_RIGHT
+        if self.rtl {
+            DWRITE_READING_DIRECTION_RIGHT_TO_LEFT
+        } else {
+            DWRITE_READING_DIRECTION_LEFT_TO_RIGHT
+        }
     }
 
     fn GetLocaleName(

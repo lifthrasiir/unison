@@ -1309,6 +1309,7 @@ dependencies = [
  "icu_locale_core",
  "icu_properties_data",
  "icu_provider",
+ "unicode-bidi",
  "zerotrie",
  "zerovec",
 ]
@@ -3047,6 +3048,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "unicode-bidi"
+version = "0.3.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c1cb5db39152898a79168971543b1cb5020dff7fe43c8dc468b0885f5e29df5"
+
+[[package]]
 name = "unicode-bidi-mirroring"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3138,6 +3145,7 @@ dependencies = [
  "skrifa",
  "tiny-skia",
  "ttf2woff2",
+ "unicode-bidi",
  "unicode-normalization",
  "unicode-script",
  "unicode_names2",
