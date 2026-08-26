@@ -56,12 +56,16 @@ pub struct Paragraph<'a> {
     /// than from `runs`, so the caret code sees one vocabulary whichever
     /// backend produced the glyphs. Read through [`Paragraph::level_of_char`].
     pub char_levels: Vec<u8>,
+    /// The paragraph embedding level: what a caret with no character beside it
+    /// falls back to.
+    pub level: u8,
 }
 
 impl<'a> Paragraph<'a> {
     pub fn new(text: &'a str, direction: ParagraphDirection) -> Self {
-        let runs = bidi::split_bidi_runs(text, direction);
-        let mut char_levels = vec![0u8; text.chars().count()];
+        let line = bidi::split_bidi_runs(text, direction);
+        let runs = line.runs;
+        let mut char_levels = vec![line.paragraph_level; text.chars().count()];
         for run in &runs {
             let len = text[run.bytes.clone()].chars().count();
             for level in &mut char_levels[run.char_start..run.char_start + len] {
@@ -73,13 +77,14 @@ impl<'a> Paragraph<'a> {
             direction,
             runs,
             char_levels,
+            level: line.paragraph_level,
         }
     }
 
     /// The level to label a glyph with, given the character it came from.
     #[cfg_attr(not(target_os = "macos"), expect(dead_code))]
     fn level_of_char(&self, char_idx: usize) -> u8 {
-        self.char_levels.get(char_idx).copied().unwrap_or(0)
+        self.char_levels.get(char_idx).copied().unwrap_or(self.level)
     }
 }
 
@@ -162,7 +167,9 @@ pub fn shape_runs(
                 .iter()
                 .filter_map(|f| clip_feature(f, char_start, sub.chars().count()))
                 .collect();
-            for mut glyph in shape_run(sub, level_run.level, &sub_features)? {
+            let mut run_glyphs = shape_run(sub, level_run.level, &sub_features)?;
+            to_visual_order(&mut run_glyphs, level_run.is_rtl());
+            for mut glyph in run_glyphs {
                 glyph.cluster += char_start;
                 glyph.level = level_run.level;
                 glyphs.push(glyph);
@@ -170,6 +177,28 @@ pub fn shape_runs(
         }
     }
     Ok(glyphs)
+}
+
+/// Put one run's glyphs into visual order, which for a backward run means
+/// descending cluster with the glyphs of a single cluster left where they are —
+/// a mark still follows its base.
+///
+/// This states the contract rather than trusting a shaper to have met it.
+/// rustybuzz reverses a backward run itself, so this is a no-op there; the
+/// DirectWrite analyzer's order is not something the documentation pins down,
+/// and a run arriving in logical order made every glyph its own run in
+/// [`cluster`], which is what this exists to stop.
+fn to_visual_order(glyphs: &mut [ShapedGlyph], rtl: bool) {
+    if !rtl || glyphs.len() < 2 {
+        return;
+    }
+    // Cluster groups are contiguous in either order, so sorting the *glyphs*
+    // by descending cluster — stably, so a group's own order survives — is the
+    // same as reordering the groups.
+    if glyphs.windows(2).all(|w| w[0].cluster >= w[1].cluster) {
+        return;
+    }
+    glyphs.sort_by(|a, b| b.cluster.cmp(&a.cluster));
 }
 
 /// Restrict a feature's character range to a run and rebase it onto that run.
@@ -201,16 +230,20 @@ mod tests {
 
     /// Stands in for a real shaper: emits one glyph per character, with the
     /// cluster index relative to the run it was handed, and records the runs
-    /// it was called with.
+    /// it was called with. `logical_order` makes it behave like a shaper that
+    /// leaves a backward run's glyphs in logical order.
     #[derive(Default)]
-    struct Recorder(RefCell<Vec<(String, u8)>>);
+    struct Recorder {
+        seen: RefCell<Vec<(String, u8)>>,
+        logical_order: bool,
+    }
 
     impl Recorder {
         fn shape(&self, text: &str, level: u8) -> Result<Vec<ShapedGlyph>, ShapeError> {
-            self.0.borrow_mut().push((text.to_string(), level));
+            self.seen.borrow_mut().push((text.to_string(), level));
             let chars: Vec<char> = text.chars().collect();
             // A backward run comes out of a shaper in visual order already.
-            let order: Vec<usize> = if level % 2 == 1 {
+            let order: Vec<usize> = if level % 2 == 1 && !self.logical_order {
                 (0..chars.len()).rev().collect()
             } else {
                 (0..chars.len()).collect()
@@ -243,9 +276,74 @@ mod tests {
         let recorder = Recorder::default();
         let glyphs = shape_runs(&para, &[], |t, level, _| recorder.shape(t, level)).unwrap();
         (
-            recorder.0.into_inner(),
+            recorder.seen.into_inner(),
             glyphs.iter().map(|g| g.cluster).collect(),
         )
+    }
+
+    /// A shaper that leaves a backward run in logical order must not be able to
+    /// change what comes out: `cluster` reads the glyph order as the direction
+    /// itself, so a run arriving the wrong way round used to fall apart into
+    /// one run per glyph.
+    #[test]
+    fn a_backward_run_is_put_in_visual_order_whatever_the_shaper_did() {
+        let para = Paragraph::new("a שלום", ParagraphDirection::Auto);
+        let visual = Recorder::default();
+        let logical = Recorder {
+            logical_order: true,
+            ..Default::default()
+        };
+        let of = |r: &Recorder| {
+            shape_runs(&para, &[], |t, level, _| r.shape(t, level))
+                .unwrap()
+                .iter()
+                .map(|g| g.cluster)
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(of(&visual), vec![0, 1, 5, 4, 3, 2]);
+        assert_eq!(of(&logical), of(&visual));
+    }
+
+    /// The glyphs of one cluster keep their order, so a mark still follows the
+    /// base it belongs to.
+    #[test]
+    fn reordering_a_backward_run_keeps_each_cluster_together_and_in_order() {
+        let glyph = |cluster: usize, glyph_id: u16| ShapedGlyph {
+            glyph_id,
+            cluster,
+            level: 1,
+            x_advance: 0.0,
+            y_advance: 0.0,
+            x_offset: 0.0,
+            y_offset: 0.0,
+        };
+        // Logical order, cluster 0 being a base plus two marks.
+        let mut glyphs = vec![
+            glyph(0, 10),
+            glyph(0, 11),
+            glyph(0, 12),
+            glyph(1, 20),
+            glyph(2, 30),
+        ];
+        to_visual_order(&mut glyphs, true);
+        assert_eq!(
+            glyphs.iter().map(|g| g.glyph_id).collect::<Vec<_>>(),
+            vec![30, 20, 10, 11, 12],
+        );
+        // Already visual: untouched.
+        let before = glyphs.clone();
+        to_visual_order(&mut glyphs, true);
+        assert_eq!(
+            glyphs.iter().map(|g| g.glyph_id).collect::<Vec<_>>(),
+            before.iter().map(|g| g.glyph_id).collect::<Vec<_>>(),
+        );
+        // A forward run is never reordered.
+        let mut forward = vec![glyph(2, 30), glyph(0, 10)];
+        to_visual_order(&mut forward, false);
+        assert_eq!(
+            forward.iter().map(|g| g.glyph_id).collect::<Vec<_>>(),
+            vec![30, 10],
+        );
     }
 
     #[test]
@@ -356,8 +454,8 @@ mod tests {
         let para = Paragraph::new("a שלום", ParagraphDirection::Auto);
         assert_eq!(para.char_levels, vec![0, 0, 1, 1, 1, 1]);
         assert_eq!(para.level_of_char(2), 1);
-        // Past the end is treated as the paragraph's own left-to-right default
-        // rather than panicking; a backend may report a cluster there.
+        // Past the end takes the paragraph's own level rather than panicking;
+        // a backend may report a cluster there.
         assert_eq!(para.level_of_char(99), 0);
     }
 }

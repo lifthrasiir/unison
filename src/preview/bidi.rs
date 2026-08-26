@@ -44,10 +44,9 @@ use unicode_bidi::{Level, ParagraphBidiInfo};
 /// what a browser does with `dir="auto"` and what an editor should default to.
 /// The two explicit arms exist because proofing a font means being able to see
 /// a string under a direction its own characters would not have picked.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-// The two explicit arms are what the preview's direction control will pick;
-// nothing constructs them until it exists.
-#[cfg_attr(not(test), expect(dead_code))]
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize,
+)]
 pub enum ParagraphDirection {
     #[default]
     Auto,
@@ -83,6 +82,17 @@ impl BidiRun {
     }
 }
 
+/// One line's resolved bidi: its paragraph level, and its level runs.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct BidiLine {
+    /// The paragraph embedding level — what P2/P3 picked, or what an explicit
+    /// [`ParagraphDirection`] asked for. It is what a caret falls back to when
+    /// there is no character beside it to take a level from.
+    pub paragraph_level: u8,
+    /// Level runs in the visual order rule L2 puts them in.
+    pub runs: Vec<BidiRun>,
+}
+
 /// Split one line into level runs, **in visual order** — that is, the order
 /// they are to be painted left to right, which rule L2 has already applied.
 ///
@@ -94,9 +104,12 @@ impl BidiRun {
 ///
 /// Returns an empty vector for empty input; otherwise the runs tile the whole
 /// line, with no gaps, once put back in logical order.
-pub fn split_bidi_runs(text: &str, direction: ParagraphDirection) -> Vec<BidiRun> {
+pub fn split_bidi_runs(text: &str, direction: ParagraphDirection) -> BidiLine {
     if text.is_empty() {
-        return Vec::new();
+        return BidiLine {
+            paragraph_level: u8::from(direction == ParagraphDirection::Rtl),
+            runs: Vec::new(),
+        };
     }
 
     let classes = icu_properties::CodePointMapData::<icu_properties::props::BidiClass>::new();
@@ -104,17 +117,21 @@ pub fn split_bidi_runs(text: &str, direction: ParagraphDirection) -> Vec<BidiRun
     let (levels, runs) = info.visual_runs(0..text.len());
 
     let byte_to_char = byte_to_char_starts(text);
-    runs.into_iter()
-        .map(|bytes| {
-            // Every byte of a run carries the same level, so the first will do.
-            let level = levels[bytes.start].number();
-            BidiRun {
-                char_start: byte_to_char[bytes.start],
-                bytes,
-                level,
-            }
-        })
-        .collect()
+    BidiLine {
+        paragraph_level: info.paragraph_level.number(),
+        runs: runs
+            .into_iter()
+            .map(|bytes| {
+                // Every byte of a run carries the same level, so the first will do.
+                let level = levels[bytes.start].number();
+                BidiRun {
+                    char_start: byte_to_char[bytes.start],
+                    bytes,
+                    level,
+                }
+            })
+            .collect(),
+    }
 }
 
 /// Char index of the character each byte offset belongs to, plus one past the
@@ -137,6 +154,7 @@ mod tests {
     /// `(text, level)` per run, in the visual order the runs came back in.
     fn runs(text: &str, direction: ParagraphDirection) -> Vec<(&str, u8)> {
         split_bidi_runs(text, direction)
+            .runs
             .into_iter()
             .map(|r| (&text[r.bytes], r.level))
             .collect()
@@ -144,7 +162,7 @@ mod tests {
 
     #[test]
     fn empty_text_has_no_runs() {
-        assert!(split_bidi_runs("", ParagraphDirection::Auto).is_empty());
+        assert!(split_bidi_runs("", ParagraphDirection::Auto).runs.is_empty());
     }
 
     #[test]
@@ -202,10 +220,32 @@ mod tests {
         );
     }
 
+    /// The paragraph level is what a caret with no character beside it takes.
+    #[test]
+    fn the_paragraph_level_is_reported_alongside_the_runs() {
+        assert_eq!(
+            split_bidi_runs("abc", ParagraphDirection::Auto).paragraph_level,
+            0,
+        );
+        assert_eq!(
+            split_bidi_runs("שלום", ParagraphDirection::Auto).paragraph_level,
+            1,
+        );
+        assert_eq!(
+            split_bidi_runs("abc", ParagraphDirection::Rtl).paragraph_level,
+            1,
+        );
+        // An empty line has no first strong character, so only an explicit
+        // direction can make it right-to-left.
+        assert_eq!(split_bidi_runs("", ParagraphDirection::Rtl).paragraph_level, 1);
+        assert_eq!(split_bidi_runs("", ParagraphDirection::Auto).paragraph_level, 0);
+    }
+
     #[test]
     fn runs_tile_the_whole_line() {
         let text = "abc שלום 42 def";
         let mut spans: Vec<Range<usize>> = split_bidi_runs(text, ParagraphDirection::Auto)
+            .runs
             .into_iter()
             .map(|r| r.bytes)
             .collect();
@@ -220,7 +260,7 @@ mod tests {
     #[test]
     fn char_start_is_the_runs_first_character_in_the_whole_line() {
         let text = "שלום a";
-        let runs = split_bidi_runs(text, ParagraphDirection::Auto);
+        let runs = split_bidi_runs(text, ParagraphDirection::Auto).runs;
         // Visual order puts the Latin run first; it is char 5 logically.
         assert_eq!(runs[0].char_start, 5);
         assert_eq!(runs[1].char_start, 0);
@@ -235,6 +275,7 @@ mod tests {
         // RTL island and the trailing Latin stays at the paragraph level.
         let text = "a \u{2068}שלום\u{2069} b";
         let levels: Vec<u8> = split_bidi_runs(text, ParagraphDirection::Auto)
+            .runs
             .into_iter()
             .map(|r| r.level)
             .collect();

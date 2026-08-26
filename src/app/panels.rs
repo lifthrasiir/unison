@@ -682,6 +682,8 @@ impl UniformApp {
                             }
                         }
                         ui.separator();
+                        self.shaped_preview.show_direction_combo(ui);
+                        ui.separator();
                         ui.checkbox(&mut self.shaped_preview.color_font, "Color");
                     });
                     ui.separator();

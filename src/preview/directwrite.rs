@@ -12,6 +12,10 @@
 //! not say whether `GetGlyphs` substitutes the `Bidi_Mirroring_Glyph` the way
 //! HarfBuzz does — is the thing to check on a real Windows run; if it does not,
 //! the code point swap has to happen here before the call.
+//!
+//! Nor does it pin down the *order* a backward run's glyphs come back in, which
+//! is why `shape_runs` normalizes every run to visual order rather than
+//! trusting this one to have produced it.
 
 use crate::preview::{Feature, Paragraph, ShapeError, ShapedGlyph, ShaperBackend, shape_runs};
 
@@ -201,13 +205,32 @@ impl ShaperBackend for DirectWriteBackend {
                     )
                     .map_err(err)?;
 
-                for i in 0..glyph_count {
-                    let cluster_utf16 = cluster_map
-                        .iter()
-                        .position(|&c| c as usize == i)
-                        .map(|pos| start + pos)
-                        .unwrap_or(start);
+                // `cluster_map[p]` names the *first* glyph of the cluster the
+                // text position `p` is in, so inverting it leaves a cluster's
+                // remaining glyphs — a base's marks — unassigned. They are
+                // filled forward from the glyph that did get a position, since
+                // DirectWrite keeps one cluster's glyphs in logical order
+                // whichever way the run reads. Reading the map the other way
+                // round (`position(|c| c == i)`) instead dropped every mark
+                // onto the start of the run.
+                let mut glyph_to_utf16 = vec![usize::MAX; glyph_count];
+                for (p, &g) in cluster_map.iter().enumerate() {
+                    let g = g as usize;
+                    if g < glyph_count && glyph_to_utf16[g] == usize::MAX {
+                        glyph_to_utf16[g] = start + p;
+                    }
+                }
+                let mut last = start;
+                for slot in &mut glyph_to_utf16 {
+                    if *slot == usize::MAX {
+                        *slot = last;
+                    } else {
+                        last = *slot;
+                    }
+                }
 
+                for i in 0..glyph_count {
+                    let cluster_utf16 = glyph_to_utf16[i];
                     let cluster = if cluster_utf16 < utf16_to_char.len() {
                         utf16_to_char[cluster_utf16]
                     } else {

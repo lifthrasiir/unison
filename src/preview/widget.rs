@@ -13,6 +13,28 @@
 //! What is *not* shared is the layout: the editor lays text out in a monospace
 //! grid, this widget lays out one shaped run per line, so line breaks, caret
 //! placement and hit testing are computed here from [`ClusterSpan`]s.
+//!
+//! # The caret in bidirectional text
+//!
+//! Two things the shared key handler cannot do, because the grid editor it is
+//! also written for has no directions in it:
+//!
+//! * A plain Left/Right arrow moves the caret one step *on screen*, so it is
+//!   intercepted here and answered from [`cluster::step`]. Every other motion —
+//!   word left/right, Home/End, Up/Down, and Shift+arrow extending a selection
+//!   — stays logical and goes to the shared handler untouched. That split is
+//!   Firefox's default (`bidi.edit.caret_movement_style = 2`); a selection is
+//!   one `(anchor, cursor)` pair in the model, and a visually contiguous
+//!   selection across a direction boundary is not a contiguous logical range,
+//!   so it could not be stored even if it were extended that way.
+//! * The caret carries an *affinity* — [`ShapedPreviewState::caret_affinity`],
+//!   the embedding level of the run it belongs to — because at a direction
+//!   boundary one logical position has two screen positions. It is this
+//!   widget's state rather than the shared [`Caret`]'s for the same reason the
+//!   stepping is: the grid editor has no use for it. See [`cluster`] for the
+//!   prior art it follows. The affinity is also what the caret is *shaped* by:
+//!   it is a triangle leaning the way its run reads, not a bar. See
+//!   [`caret_shape`].
 
 use crate::document::DocLine;
 use crate::edit_menu::{EditAction, EditMenuCaps};
@@ -20,7 +42,7 @@ use crate::editor::caret::{self, Caret};
 use crate::editor::doc_input::{self, TextEdit};
 use crate::editor::undo::UndoStack;
 use crate::preview::bidi::ParagraphDirection;
-use crate::preview::cluster::{self, ClusterSpan};
+use crate::preview::cluster::{self, CaretPos, ClusterSpan};
 use crate::preview::metrics::VMetrics;
 use crate::preview::rasterizer::GlyphCache;
 use crate::preview::{self, ShapedGlyph, ShaperBackend};
@@ -28,6 +50,27 @@ use crate::preview::{self, ShapedGlyph, ShaperBackend};
 /// Padding from the field's edges to the first baseline's origin.
 const LEFT_PAD: f32 = 16.0;
 const TOP_PAD: f32 = 8.0;
+
+/// How far the caret's apex reaches sideways, as a fraction of its height, and
+/// the floor that keeps it visible at small sizes. Squashed nearly flat on
+/// purpose: it has to read as a direction at a glance while still sitting on
+/// the text like an ordinary caret bar.
+const CARET_APEX_RATIO: f32 = 1.0 / 8.0;
+const CARET_APEX_MIN: f32 = 2.0;
+
+/// The caret: a filled isosceles triangle whose base is the caret's full
+/// height, leaning the way the run it belongs to reads. Only the level's parity
+/// shows — level 2 and level 4 lean the same way — which is all a 2px apex
+/// could say, and all a font test needs.
+fn caret_shape(x: f32, top: f32, bottom: f32, level: u8) -> Vec<egui::Pos2> {
+    let apex = ((bottom - top) * CARET_APEX_RATIO).max(CARET_APEX_MIN);
+    let apex = if level % 2 == 1 { -apex } else { apex };
+    vec![
+        egui::pos2(x, top),
+        egui::pos2(x + apex, (top + bottom) * 0.5),
+        egui::pos2(x, bottom),
+    ]
+}
 
 pub struct ShapedPreviewState {
     /// The text being previewed. Always `DocLine::Text`; the grid arms of the
@@ -40,6 +83,10 @@ pub struct ShapedPreviewState {
     pub selected_backend: usize,
     pub glyph_cache: GlyphCache,
     pub color_font: bool,
+    /// The paragraph level every line is laid out under. `Auto` is UAX #9's own
+    /// P2/P3 rule; the two explicit settings are for proofing a string under a
+    /// direction its own characters would not have picked.
+    pub direction: ParagraphDirection,
     shaped: Option<ShapedDoc>,
     last_error: Option<String>,
     preedit: String,
@@ -54,6 +101,10 @@ pub struct ShapedPreviewState {
     /// code points committed here. This field is the preview's own, so typing
     /// a run of code points into it does not disturb the editor's sequence.
     codepoint_prediction: CodepointPrediction,
+    /// Which run the caret belongs to, as an embedding level. Set by a visual
+    /// step or a click; reset to the line's paragraph level by anything else
+    /// that moves the caret, since those motions are not about a run.
+    caret_affinity: u8,
     has_focus: bool,
     /// How far a row reaches around its baseline, read from the built face and
     /// re-read only when the font changes. Every rectangle the widget paints
@@ -73,6 +124,9 @@ struct ShapedLine {
     glyphs: Vec<ShapedGlyph>,
     clusters: Vec<ClusterSpan>,
     width: f32,
+    /// The line's paragraph embedding level, for a caret with no character
+    /// beside it to take one from.
+    paragraph_level: u8,
     /// Char range of the IME preedit within `text`, on the line that has one.
     preedit_char_range: Option<(usize, usize)>,
 }
@@ -81,6 +135,7 @@ struct ShapedDoc {
     font_gen: u64,
     backend_idx: usize,
     px_size: f32,
+    direction: ParagraphDirection,
     lines: Vec<ShapedLine>,
 }
 
@@ -95,12 +150,14 @@ impl ShapedPreviewState {
             selected_backend: 0,
             glyph_cache: GlyphCache::new(),
             color_font: true,
+            direction: ParagraphDirection::default(),
             shaped: None,
             last_error: None,
             preedit: String::new(),
             ime_guard: Default::default(),
             codepoint: None,
             codepoint_prediction: Default::default(),
+            caret_affinity: 0,
             has_focus: false,
             vmetrics: VMetrics::default(),
             vmetrics_gen: u64::MAX,
@@ -171,7 +228,10 @@ impl ShapedPreviewState {
 
     fn ensure_shaped(&mut self, font_data: &[u8], font_gen: u64, px_size: f32) {
         let params_match = self.shaped.as_ref().is_some_and(|s| {
-            s.font_gen == font_gen && s.backend_idx == self.selected_backend && s.px_size == px_size
+            s.font_gen == font_gen
+                && s.backend_idx == self.selected_backend
+                && s.px_size == px_size
+                && s.direction == self.direction
         });
         let mut cached: Vec<Option<ShapedLine>> = if params_match {
             self.shaped
@@ -207,13 +267,14 @@ impl ShapedPreviewState {
                     glyphs: Vec::new(),
                     clusters: Vec::new(),
                     width: 0.0,
+                    paragraph_level: 0,
                     preedit_char_range: preedit_range,
                 });
                 continue;
             }
 
-            // TODO: the paragraph direction is not yet settable from the UI.
-            let para = preview::Paragraph::new(&display, ParagraphDirection::Auto);
+            let para = preview::Paragraph::new(&display, self.direction);
+            let paragraph_level = para.level;
             match backend.shape(font_data, &para, 1024, &[]) {
                 Ok(glyphs) => {
                     let total_chars = display.chars().count();
@@ -225,6 +286,7 @@ impl ShapedPreviewState {
                         glyphs,
                         clusters,
                         width,
+                        paragraph_level,
                         preedit_char_range: preedit_range,
                     });
                 }
@@ -240,6 +302,7 @@ impl ShapedPreviewState {
         self.shaped = Some(ShapedDoc {
             font_gen,
             backend_idx: self.selected_backend,
+            direction: self.direction,
             px_size,
             lines: out,
         });
@@ -280,6 +343,36 @@ impl ShapedPreviewState {
                     ui.selectable_value(&mut self.selected_backend, i, backend.name());
                 }
             });
+    }
+
+    /// The paragraph-direction control. `Auto` is what a browser's `dir="auto"`
+    /// does; the other two force the level P2/P3 would have derived, which is
+    /// the only way to see a left-to-right string laid out the way a
+    /// right-to-left document would place it.
+    pub fn show_direction_combo(&mut self, ui: &mut egui::Ui) {
+        ui.label("Direction:");
+        let label = |d: ParagraphDirection| match d {
+            ParagraphDirection::Auto => "Auto",
+            ParagraphDirection::Ltr => "LTR",
+            ParagraphDirection::Rtl => "RTL",
+        };
+        let before = self.direction;
+        egui::ComboBox::from_id_salt("preview_direction")
+            .selected_text(label(self.direction))
+            .show_ui(ui, |ui| {
+                for d in [
+                    ParagraphDirection::Auto,
+                    ParagraphDirection::Ltr,
+                    ParagraphDirection::Rtl,
+                ] {
+                    ui.selectable_value(&mut self.direction, d, label(d));
+                }
+            });
+        if self.direction != before {
+            // The caret's affinity was taken from runs that no longer exist.
+            self.shaped = None;
+            self.caret_affinity = 0;
+        }
     }
 
     fn selection_range_sorted(&self) -> Option<(Caret, Caret)> {
@@ -565,7 +658,11 @@ impl ShapedPreviewState {
                 return origin_x;
             };
             let display_col = committed_to_display(c.col, line.preedit_char_range);
-            origin_x + cluster::caret_x(&line.clusters, display_col)
+            origin_x
+                + cluster::caret_pos_x(
+                    &line.clusters,
+                    CaretPos::new(display_col, state.caret_affinity),
+                )
         };
 
         // Where a caret-anchored popup would go: just under the caret.
@@ -628,41 +725,48 @@ impl ShapedPreviewState {
                     && idx >= lo.line
                     && idx <= hi.line
                 {
-                    let x0 = if idx == lo.line {
-                        origin_x
-                            + cluster::caret_x(
-                                &line.clusters,
-                                committed_to_display(lo.col, preedit_range),
-                            )
+                    // The selection is a logical range, so on a line with a
+                    // direction change in it one range is several stretches on
+                    // screen; `selection_rects` is what splits it.
+                    let from = if idx == lo.line {
+                        committed_to_display(lo.col, preedit_range)
                     } else {
-                        origin_x
+                        0
                     };
-                    let x1 = if idx == hi.line {
-                        origin_x
-                            + cluster::caret_x(
-                                &line.clusters,
-                                committed_to_display(hi.col, preedit_range),
-                            )
+                    let to = if idx == hi.line {
+                        committed_to_display(hi.col, preedit_range)
                     } else {
-                        // A selected line break shows as a stub past the end
-                        // of the line, the way every text editor draws it.
-                        origin_x + line.width + px_size * 0.3
+                        line.text.chars().count()
                     };
-                    let sel_rect = egui::Rect::from_min_max(
-                        egui::pos2(x0, baseline_y - above),
-                        egui::pos2(x1.max(x0 + 1.0), baseline_y + below),
-                    );
-                    painter.rect_filled(sel_rect, 0.0, ui.visuals().selection.bg_fill);
+                    for (x0, x1) in cluster::selection_rects(&line.clusters, from, to) {
+                        let sel_rect = egui::Rect::from_min_max(
+                            egui::pos2(origin_x + x0, baseline_y - above),
+                            egui::pos2(origin_x + x1.max(x0 + 1.0), baseline_y + below),
+                        );
+                        painter.rect_filled(sel_rect, 0.0, ui.visuals().selection.bg_fill);
+                    }
+                    if idx < hi.line {
+                        // A selected line break shows as a stub past the end of
+                        // the line, the way every text editor draws it.
+                        let stub = egui::Rect::from_min_max(
+                            egui::pos2(origin_x + line.width, baseline_y - above),
+                            egui::pos2(
+                                origin_x + line.width + px_size * 0.3,
+                                baseline_y + below,
+                            ),
+                        );
+                        painter.rect_filled(stub, 0.0, ui.visuals().selection.bg_fill);
+                    }
                 }
 
                 if let Some((ps, pe)) = preedit_range {
-                    let preedit_x0 = origin_x + cluster::caret_x(&line.clusters, ps);
-                    let preedit_x1 = origin_x + cluster::caret_x(&line.clusters, pe);
-                    let preedit_rect = egui::Rect::from_min_max(
-                        egui::pos2(preedit_x0, baseline_y - above),
-                        egui::pos2(preedit_x1, baseline_y + below),
-                    );
-                    painter.rect_filled(preedit_rect, 0.0, text_color);
+                    for (x0, x1) in cluster::selection_rects(&line.clusters, ps, pe) {
+                        let preedit_rect = egui::Rect::from_min_max(
+                            egui::pos2(origin_x + x0, baseline_y - above),
+                            egui::pos2(origin_x + x1, baseline_y + below),
+                        );
+                        painter.rect_filled(preedit_rect, 0.0, text_color);
+                    }
                 }
 
                 let mut pen_x = origin_x;
@@ -724,18 +828,17 @@ impl ShapedPreviewState {
         let caret_x_pos = caret_x_at(self, self.cursor);
         let caret_top = baseline_of(self.cursor.line) - above;
         let caret_bottom = baseline_of(self.cursor.line) + below;
+        let caret_apex = ((caret_bottom - caret_top) * CARET_APEX_RATIO).max(CARET_APEX_MIN);
         let caret_rect = egui::Rect::from_min_max(
-            egui::pos2(caret_x_pos - 1.0, caret_top),
-            egui::pos2(caret_x_pos + 1.0, caret_bottom),
+            egui::pos2(caret_x_pos - caret_apex, caret_top),
+            egui::pos2(caret_x_pos + caret_apex, caret_bottom),
         );
         if focus {
-            painter.line_segment(
-                [
-                    egui::pos2(caret_x_pos, caret_top),
-                    egui::pos2(caret_x_pos, caret_bottom),
-                ],
-                egui::Stroke::new(1.5, ui.visuals().text_color()),
-            );
+            painter.add(egui::Shape::convex_polygon(
+                caret_shape(caret_x_pos, caret_top, caret_bottom, self.caret_affinity),
+                ui.visuals().text_color(),
+                egui::Stroke::NONE,
+            ));
         }
 
         if self.scroll_to_caret {
@@ -773,7 +876,8 @@ impl ShapedPreviewState {
             return;
         }
 
-        let target = self.caret_at_pos(pos, origin_x, first_baseline, row_h);
+        let (target, affinity) = self.caret_at_pos(pos, origin_x, first_baseline, row_h);
+        self.caret_affinity = affinity;
 
         if triple {
             self.selection_anchor = Some(Caret::new(target.line, 0));
@@ -795,16 +899,18 @@ impl ShapedPreviewState {
         }
     }
 
-    /// Screen position → caret, clamped into the text. The y picks the line by
-    /// the same rhythm the baselines are drawn on; the x is resolved against
-    /// that line's clusters.
+    /// Screen position → caret and the affinity that goes with it, clamped into
+    /// the text. The y picks the line by the same rhythm the baselines are
+    /// drawn on; the x is resolved against that line's clusters. A click is the
+    /// one gesture that says outright which run the caret is in, so its level
+    /// comes back with it.
     fn caret_at_pos(
         &self,
         pos: egui::Pos2,
         origin_x: f32,
         first_baseline: f32,
         row_h: f32,
-    ) -> Caret {
+    ) -> (Caret, u8) {
         let rel = (pos.y - (first_baseline - row_h * 0.75)) / row_h;
         let line = if rel < 0.0 {
             0
@@ -812,11 +918,15 @@ impl ShapedPreviewState {
             (rel as usize).min(self.lines.len().saturating_sub(1))
         };
         let Some(shaped) = self.shaped.as_ref().and_then(|s| s.lines.get(line)) else {
-            return caret::clamp(&self.lines, Caret::new(line, 0));
+            return (caret::clamp(&self.lines, Caret::new(line, 0)), 0);
         };
-        let display_col = cluster::char_idx_from_x(&shaped.clusters, pos.x - origin_x);
-        let col = display_to_committed(display_col, shaped.preedit_char_range);
-        caret::clamp(&self.lines, Caret::new(line, col))
+        let hit = cluster::caret_from_x(
+            &shaped.clusters,
+            pos.x - origin_x,
+            shaped.paragraph_level,
+        );
+        let col = display_to_committed(hit.char_idx, shaped.preedit_char_range);
+        (caret::clamp(&self.lines, Caret::new(line, col)), hit.level)
     }
 
     /// Drives the Ctrl+K code point popup, if one is open. Like the editor's,
@@ -857,6 +967,98 @@ impl ShapedPreviewState {
     /// `rows_per_page` is how many lines the field currently shows, which is
     /// what Page Up/Down move by. The shared handler deliberately leaves those
     /// two keys alone — only the host knows how tall its viewport is.
+    /// A plain Left/Right arrow: one step along the screen rather than along
+    /// the text. Returns whether the key was taken.
+    ///
+    /// Only the bare chord is claimed. Shift+arrow extends a selection, which
+    /// stays logical because the model holds a selection as one logical range;
+    /// a word motion (Alt on macOS, Ctrl elsewhere) and Cmd+arrow home/end are
+    /// logical everywhere that has bidi, so all of them go to the shared
+    /// handler untouched.
+    fn take_visual_step(&mut self, ui: &egui::Ui) -> bool {
+        let bare = |m: &egui::Modifiers| {
+            !m.shift && !m.alt && !m.ctrl && !m.command && !m.mac_cmd
+        };
+        // Nothing is claimed before it is known to be answerable: a key
+        // consumed on a frame the lines are not shaped on would be a keypress
+        // that moved nothing and never reached the shared handler either.
+        let shaped_here = self
+            .shaped
+            .as_ref()
+            .is_some_and(|s| s.lines.len() > self.cursor.line);
+        let dir = ui.input_mut(|i| {
+            if !shaped_here || !bare(&i.modifiers) {
+                return None;
+            }
+            if i.consume_key(egui::Modifiers::NONE, egui::Key::ArrowLeft) {
+                Some(cluster::Step::Left)
+            } else if i.consume_key(egui::Modifiers::NONE, egui::Key::ArrowRight) {
+                Some(cluster::Step::Right)
+            } else {
+                None
+            }
+        });
+        let Some(dir) = dir else {
+            return false;
+        };
+
+        self.selection_anchor = None;
+        let shaped = self.shaped.as_ref().expect("checked above");
+        let line = &shaped.lines[self.cursor.line];
+        let display_col = committed_to_display(self.cursor.col, line.preedit_char_range);
+        let here = CaretPos::new(display_col, self.caret_affinity);
+
+        if let Some(next) = cluster::step(&line.clusters, here, dir) {
+            let col = display_to_committed(next.char_idx, line.preedit_char_range);
+            self.cursor = caret::clamp(&self.lines, Caret::new(self.cursor.line, col));
+            self.caret_affinity = next.level;
+        } else {
+            // Off the edge of the line: onto the one beside it, entering from
+            // the side the step came from. Which end of *that* line that is
+            // depends on its own direction, not on the arrow pressed.
+            let next_line = match dir {
+                cluster::Step::Left => self.cursor.line.checked_sub(1),
+                cluster::Step::Right => Some(self.cursor.line + 1)
+                    .filter(|&l| l < shaped.lines.len()),
+            };
+            let Some(next_line) = next_line else {
+                return true;
+            };
+            let entering = match dir {
+                cluster::Step::Left => cluster::Step::Right,
+                cluster::Step::Right => cluster::Step::Left,
+            };
+            let target = &shaped.lines[next_line];
+            let (col, level) = match cluster::edge_caret(&target.clusters, entering) {
+                Some(caret) => (
+                    display_to_committed(caret.char_idx, target.preedit_char_range),
+                    caret.level,
+                ),
+                // An empty line has no span to enter; the caret goes to its one
+                // position and takes the paragraph's level.
+                None => (0, target.paragraph_level),
+            };
+            self.cursor = caret::clamp(&self.lines, Caret::new(next_line, col));
+            self.caret_affinity = level;
+        }
+        self.scroll_to_caret = true;
+        true
+    }
+
+    /// Put the caret's affinity back to the run of the character it sits
+    /// before, or to the paragraph's level where there is none.
+    fn reset_affinity(&mut self) {
+        let level = self
+            .shaped
+            .as_ref()
+            .and_then(|s| s.lines.get(self.cursor.line))
+            .map(|line| {
+                let col = committed_to_display(self.cursor.col, line.preedit_char_range);
+                cluster::level_at(&line.clusters, col).unwrap_or(line.paragraph_level)
+            });
+        self.caret_affinity = level.unwrap_or(0);
+    }
+
     fn handle_input(&mut self, ui: &egui::Ui, caret_screen: egui::Pos2, rows_per_page: usize) {
         let undo_pressed =
             ui.input(|i| i.modifiers.command && !i.modifiers.shift && i.key_pressed(egui::Key::Z));
@@ -895,6 +1097,11 @@ impl ShapedPreviewState {
         // composition is open. See `doc_input::ImeKeyGuard`.
         let composing = ui.input(|i| doc_input::ime_composing(&i.events, &self.preedit));
 
+        if !composing && self.take_visual_step(ui) {
+            return;
+        }
+
+        let before = self.cursor;
         doc_input::handle_text_keys(
             ui,
             &mut TextEdit {
@@ -907,6 +1114,12 @@ impl ShapedPreviewState {
                 folds: None,
             },
         );
+        // Every motion but the visual step above is logical, and none of them
+        // is about a run, so the caret's affinity goes back to whatever the
+        // character it landed beside is in.
+        if self.cursor != before {
+            self.reset_affinity();
+        }
 
         let page = ui.input(|i| {
             if composing {

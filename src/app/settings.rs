@@ -46,6 +46,7 @@ use super::zoom::{
     DEFAULT_PREVIEW_FONT_SIZE, MAX_PREVIEW_FONT_SIZE, MAX_ZOOM_LEVEL, MIN_PREVIEW_FONT_SIZE,
     MIN_ZOOM_LEVEL,
 };
+use crate::preview::bidi::ParagraphDirection;
 use crate::specimen::SpecimenOptions;
 
 /// How many directories keep a remembered face. The list is there so that
@@ -87,6 +88,10 @@ pub(super) struct Settings {
     /// different engine on another.
     pub(super) preview_backend: String,
     pub(super) preview_color_font: bool,
+    /// The preview's paragraph direction. Saved for the same reason the backend
+    /// is: it is a way of looking at the font, and re-picking it every run is
+    /// noise.
+    pub(super) preview_direction: ParagraphDirection,
     /// The editor zoom level. Zoom is per pane, but a pane is not restored, so
     /// what is saved is one level for the panes of the next run to start at.
     pub(super) zoom_level: u32,
@@ -106,6 +111,7 @@ impl Default for Settings {
             preview_font_size: DEFAULT_PREVIEW_FONT_SIZE,
             preview_backend: String::new(),
             preview_color_font: true,
+            preview_direction: ParagraphDirection::default(),
             zoom_level: MIN_ZOOM_LEVEL,
         }
     }
@@ -197,6 +203,7 @@ impl super::UniformApp {
         self.settings.preview_font_size = self.preview_font_size;
         self.settings.preview_backend = self.shaped_preview.selected_backend_name().to_string();
         self.settings.preview_color_font = self.shaped_preview.color_font;
+        self.settings.preview_direction = self.shaped_preview.direction;
         self.settings.zoom_level = self.panes.focused().zoom_level;
         eframe::set_value(storage, eframe::APP_KEY, &self.settings);
     }

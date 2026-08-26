@@ -9,6 +9,25 @@
 //! shared path is [`Paragraph::char_levels`], purely to *label* the glyphs it
 //! gets back, so the caret code sees one vocabulary across backends.
 //!
+//! # Font fallback, and why it must not reach the rasterizer
+//!
+//! `CTLine` is a layout object, so it does what a layout object does with a
+//! character the font cannot draw: it splits the run off and *substitutes
+//! another font* for it. The glyph ids that come back are then indices into
+//! that other font, and the preview rasterizes every glyph id it is given
+//! against the built one — so an undrawable character came out as whatever
+//! Unison happens to have at that id, which for Hebrew was a scatter of Latin
+//! Extended-A. A proofing tool showing a plausible glyph where the font has
+//! nothing is worse than useless, so any run that comes back set in another
+//! font is replaced with `.notdef`, which is the honest answer.
+//!
+//! Stopping the substitution at its source does not work, and was tried: an
+//! empty `kCTFontCascadeListAttribute` on the font changes nothing, because
+//! `CTLine` substitutes at the *layout* level rather than through the font's
+//! own cascade list. The test below pins that — it still failed with the
+//! cascade list in place. What the run then keeps is the substitute font's
+//! advances, since the positions are Core Text's; the glyph is ours.
+//!
 //! # Forcing a direction
 //!
 //! `CTLine` picks the paragraph level by P2/P3 on its own, and there is no
@@ -39,7 +58,6 @@ impl ShaperBackend for CoreTextBackend {
         use core_foundation::string::CFString;
         use core_graphics::data_provider::CGDataProvider;
         use core_graphics::font::CGFont;
-        use core_text::font as ct_font;
         use core_text::string_attributes::kCTFontAttributeName;
 
         let text = para.text;
@@ -48,7 +66,8 @@ impl ShaperBackend for CoreTextBackend {
             .map_err(|_| ShapeError("Failed to create CGFont".into()))?;
 
         let pt_size = upm as f64;
-        let ct_font = ct_font::new_from_CGFont(&cg_font, pt_size);
+        let ct_font = core_text::font::new_from_CGFont(&cg_font, pt_size);
+        let own_name = ct_font.postscript_name();
 
         let cf_string = CFString::new(text);
         let mut attr_string = CFMutableAttributedString::new();
@@ -91,6 +110,10 @@ impl ShaperBackend for CoreTextBackend {
             if glyph_count == 0 {
                 continue;
             }
+            // A run Core Text substituted a font into carries that font's glyph
+            // ids, which mean nothing here; `.notdef` is what the built font
+            // actually has for those characters.
+            let substituted = !run_is_font(&run, &own_name);
             let glyphs = run.glyphs();
             let positions = run.positions();
             let string_indices = run.string_indices();
@@ -100,7 +123,8 @@ impl ShaperBackend for CoreTextBackend {
                     .get(utf16_idx)
                     .copied()
                     .unwrap_or(total_chars);
-                placed.push((glyphs[j], cluster, positions[j].x as f32));
+                let glyph_id = if substituted { 0 } else { glyphs[j] };
+                placed.push((glyph_id, cluster, positions[j].x as f32));
             }
         }
 
@@ -124,6 +148,28 @@ impl ShaperBackend for CoreTextBackend {
             .collect();
 
         Ok(result)
+    }
+}
+
+/// Whether a run is still set in the font we asked for, rather than one Core
+/// Text substituted. Compared by PostScript name: the run's font is a separate
+/// instance even when it is the same face, so identity says nothing.
+fn run_is_font(run: &core_text::run::CTRun, own_name: &str) -> bool {
+    use core_foundation::base::TCFType;
+    use core_foundation::string::CFString;
+    use core_text::string_attributes::kCTFontAttributeName;
+
+    let Some(attributes) = run.attributes() else {
+        return true;
+    };
+    // SAFETY: reading one of Core Text's own attribute-name constants.
+    let key = unsafe { CFString::wrap_under_get_rule(kCTFontAttributeName) };
+    let Some(value) = attributes.find(&key) else {
+        return true;
+    };
+    match value.downcast::<core_text::font::CTFont>() {
+        Some(font) => font.postscript_name() == own_name,
+        None => true,
     }
 }
 
@@ -178,3 +224,57 @@ unsafe extern "C" {
 }
 
 use super::build_utf16_to_char_map;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::document_io;
+    use crate::preview::bidi::ParagraphDirection;
+    use crate::render::ttf_builder::build_font_with_gid_map;
+
+    /// A font with exactly one mapped character, so anything else in the text
+    /// is something it cannot draw.
+    fn one_glyph_font() -> Vec<u8> {
+        let input = "\
+glyph pix 1 1
+@@
+glyph a
+ref pix
+map A = a
+";
+        let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        build_font_with_gid_map(&[&doc])
+            .expect("font should build")
+            .ttf
+    }
+
+    fn glyph_ids(text: &str) -> Vec<u16> {
+        let font = one_glyph_font();
+        let para = Paragraph::new(text, ParagraphDirection::Auto);
+        CoreTextBackend
+            .shape(&font, &para, 1024, &[])
+            .expect("Core Text should shape")
+            .iter()
+            .map(|g| g.glyph_id)
+            .collect()
+    }
+
+    #[test]
+    fn a_character_the_font_covers_is_drawn_from_it() {
+        assert_eq!(glyph_ids("A"), vec![1]);
+    }
+
+    /// The regression this exists for: Core Text substitutes another font for a
+    /// character this one has no glyph for, and the ids it hands back index
+    /// into *that* font. Rasterized against the built font they came out as
+    /// unrelated glyphs — a font the preview cannot draw Hebrew with appeared
+    /// to draw it. `.notdef` is the answer, whether the empty cascade list or
+    /// the per-run check is what produced it.
+    #[test]
+    fn a_character_the_font_lacks_never_borrows_another_fonts_glyph_id() {
+        // U+05D0 HEBREW LETTER ALEF, which `one_glyph_font` does not map.
+        assert_eq!(glyph_ids("\u{05D0}"), vec![0]);
+        // ...and mixed, where only the uncovered half is replaced.
+        assert_eq!(glyph_ids("A\u{05D0}"), vec![1, 0]);
+    }
+}

@@ -405,6 +405,7 @@ impl UniformApp {
         let mut shaped_preview = ShapedPreviewState::new();
         shaped_preview.set_text(&settings.preview_text);
         shaped_preview.color_font = settings.preview_color_font;
+        shaped_preview.direction = settings.preview_direction;
         shaped_preview.select_backend_named(&settings.preview_backend);
         let mut specimen = SpecimenState::new();
         specimen.options = settings.specimen;
