@@ -301,7 +301,15 @@
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
 //!   prefixes and cell ranges. A range does two jobs: its size says which
 //!   drawing of a mark a base wants (`GlyphPoint::size_matches`), and it
-//!   reduces to a point under its class's `align`. A `+` range is *the cells
+//!   reduces to a point under its class's `align`. Both sides may state
+//!   several sizes through `:variant`s. A base is substituted for the *first*
+//!   alternative, in the order they are named, whose `+` range is big enough
+//!   to hold the following mark's `-` range — first-fit, and not the tightest
+//!   fit, because a name order is not a size order and the equal sizes already
+//!   go by the first one named. A mark is substituted for the alternative
+//!   whose `-` size the preceding base's `+` size matches exactly. A base with
+//!   a single alternative is reached by every mark of the class, since one
+//!   slot is all it has to offer. A `+` range is *the cells
 //!   the base hands over*, not the cells it happens to have — a base states
 //!   where it wants marks by moving or narrowing its range, which is why only
 //!   the class carries an `align` and no `anchor` line does.

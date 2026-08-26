@@ -436,7 +436,7 @@ feature ccmp for DFLT : anchor below
         anchor_data
             .base_subst_entries
             .iter()
-            .any(|(s, t, a)| s == "ii" && t == "ii:dotless" && a == "above"),
+            .any(|(s, t, a, _)| s == "ii" && t == "ii:dotless" && a == "above"),
         "ii should be substituted to ii:dotless for anchor above"
     );
     // ii + dia-below: ii has own +below → NOT substituted
@@ -444,7 +444,7 @@ feature ccmp for DFLT : anchor below
         !anchor_data
             .base_subst_entries
             .iter()
-            .any(|(s, _, a)| s == "ii" && a == "below"),
+            .any(|(s, _, a, _)| s == "ii" && a == "below"),
         "ii must not be substituted for anchor below (has own +below)"
     );
 
@@ -453,7 +453,7 @@ feature ccmp for DFLT : anchor below
         anchor_data
             .base_subst_entries
             .iter()
-            .any(|(s, t, a)| s == "jj" && t == "jj:dotless" && a == "above"),
+            .any(|(s, t, a, _)| s == "jj" && t == "jj:dotless" && a == "above"),
         "jj should be substituted to jj:dotless for anchor above"
     );
     // jj + dia-below: jj lacks own +below → substituted to jj:compressed
@@ -461,7 +461,7 @@ feature ccmp for DFLT : anchor below
         anchor_data
             .base_subst_entries
             .iter()
-            .any(|(s, t, a)| s == "jj" && t == "jj:compressed" && a == "below"),
+            .any(|(s, t, a, _)| s == "jj" && t == "jj:compressed" && a == "below"),
         "jj should be substituted to jj:compressed for anchor below"
     );
 
@@ -470,7 +470,7 @@ feature ccmp for DFLT : anchor below
         !anchor_data
             .base_subst_entries
             .iter()
-            .any(|(s, _, _)| s == "kk"),
+            .any(|(s, _, _, _)| s == "kk"),
         "kk should not have any base substitution"
     );
 
@@ -1097,7 +1097,7 @@ feature ccmp for DFLT : anchor slot{align}
     let (centred_base, centred_mark, _) = anchor_xs(" align c");
 
     // Low ends: the base is read at col 1, the mark at col 3.
-    assert_eq!(flush_base, 1 * cell);
+    assert_eq!(flush_base, cell);
     assert_eq!(flush_mark, 3 * cell);
     // Middles: 1..7 and 3..5 share the middle 4, so the two coincide and the
     // mark sits exactly where its own grid drew it.
@@ -1110,5 +1110,236 @@ feature ccmp for DFLT : anchor slot{align}
         centred_offset - flush_offset,
         2 * cell,
         "centring shifts by half the difference of the two sizes"
+    );
+}
+
+/// A base offering several slot sizes has to hand a following mark the one
+/// that fits it, the way a mark carrying several drawings is handed the one
+/// its slot wants. The two sides used to be asymmetric: a mark alternative was
+/// chosen by the preceding base's `+X` size, but a base alternative was
+/// whichever came first alphabetically, triggered by *any* mark of the class.
+/// A base could therefore advertise only one slot, so a wide mark meeting a
+/// letter with a narrow slot overflowed it with nothing to swap in.
+#[test]
+fn a_base_offers_the_slot_that_fits_the_following_mark() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph letter 8 4
+................
+................
+................
+................
+
+glyph letter:w3-slot 8 4
+................
+................
+................
+................
+anchor +slot 3..5 0
+
+glyph letter:w7-slot 8 4
+................
+................
+................
+................
+anchor +slot 1..7 0
+
+glyph narrow 8 4 mark advance 0
+................
+................
+................
+................
+anchor -slot 3..5 0
+
+glyph wide 8 4 mark advance 0
+................
+................
+................
+................
+anchor -slot 1..7 0
+
+map U+0041 = letter
+map U+0301 = narrow
+map U+0302 = wide
+
+feature ccmp for DFLT : anchor slot
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect glyph data");
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+
+    // Each entry is (base, base:alt, anchor, mark names the rule keys on).
+    let mut entries: Vec<(String, String, Vec<String>)> = anchor_data
+        .base_subst_entries
+        .iter()
+        .map(|(source, target, _, marks)| {
+            let mut marks = marks.clone();
+            marks.sort();
+            (source.clone(), target.clone(), marks)
+        })
+        .collect();
+    entries.sort();
+
+    assert_eq!(
+        entries,
+        vec![
+            (
+                "letter".to_string(),
+                "letter:w3-slot".to_string(),
+                vec!["narrow".to_string()],
+            ),
+            (
+                "letter".to_string(),
+                "letter:w7-slot".to_string(),
+                vec!["wide".to_string()],
+            ),
+        ],
+        "each slot size must be reached by the marks that fit it, and only those"
+    );
+}
+
+/// A mark no slot matches exactly still has to land somewhere, and the slot it
+/// wants is the smallest one it *fits* — a `+` range is the room a base hands
+/// over and a `-` range the room a mark takes, so a 5-wide mark offered a
+/// 3-wide and a 7-wide slot belongs in the 7-wide one, centred. Matching
+/// exactly and giving up otherwise left it with no anchor at all on a base
+/// that had no slot of its own, which is the silent one-glyph drift that
+/// bearing-placed marks fall into.
+#[test]
+fn a_mark_takes_the_smallest_slot_it_fits() {
+    let slot = |name: &str, range: &str| {
+        format!(
+            "\nglyph letter:{name} 8 4\n................\n................\n\
+             ................\n................\nanchor +slot {range} 0\n"
+        )
+    };
+    let mark = |name: &str, range: &str, cp: u32| {
+        format!(
+            "\nglyph {name} 8 4 mark advance 0\n................\n................\n\
+             ................\n................\nanchor -slot {range} 0\nmap U+{cp:04X} = {name}\n"
+        )
+    };
+    let input = format!(
+        "meta height 4\nmeta ascent 3\nmeta descent 1\n\
+         \nglyph letter 8 4\n................\n................\n\
+         ................\n................\nmap U+0041 = letter\n{}{}{}{}{}\n\
+         feature ccmp for DFLT : anchor slot align c\n",
+        slot("w3", "3..5"),
+        slot("w7", "1..7"),
+        mark("narrow", "3..5", 0x0301),
+        mark("middle", "2..6", 0x0302),
+        mark("wide", "1..7", 0x0303),
+    );
+    let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect glyph data");
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+
+    let mut entries: Vec<(String, Vec<String>)> = anchor_data
+        .base_subst_entries
+        .iter()
+        .map(|(_, target, _, marks)| {
+            let mut marks = marks.clone();
+            marks.sort();
+            (target.clone(), marks)
+        })
+        .collect();
+    entries.sort();
+
+    assert_eq!(
+        entries,
+        vec![
+            ("letter:w3".to_string(), vec!["narrow".to_string()]),
+            (
+                "letter:w7".to_string(),
+                vec!["middle".to_string(), "wide".to_string()],
+            ),
+        ],
+        "the 5-wide mark fits only the 7-wide slot, so that is the one it takes"
+    );
+}
+
+/// The base's own slot comes first in that order: it is what the glyph is
+/// without a substitution, so it is left alone whenever it holds the mark, and
+/// an alternative is reached only by the marks it cannot. Ordering the
+/// alternatives ahead of it substituted every mark, including the ones the
+/// base was already drawn for.
+#[test]
+fn a_base_keeps_its_own_slot_for_the_marks_it_holds() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph letter 8 4
+................
+................
+................
+................
+anchor +slot 3..5 0
+
+glyph letter:w7 8 4
+................
+................
+................
+................
+anchor +slot 1..7 0
+
+glyph narrow 8 4 mark advance 0
+................
+................
+................
+................
+anchor -slot 3..5 0
+
+glyph wide 8 4 mark advance 0
+................
+................
+................
+................
+anchor -slot 1..7 0
+
+map U+0041 = letter
+map U+0301 = narrow
+map U+0302 = wide
+
+feature ccmp for DFLT : anchor slot align c
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect glyph data");
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+
+    let entries: Vec<(String, Vec<String>)> = anchor_data
+        .base_subst_entries
+        .iter()
+        .map(|(_, target, _, marks)| (target.clone(), marks.clone()))
+        .collect();
+    assert_eq!(
+        entries,
+        vec![("letter:w7".to_string(), vec!["wide".to_string()])],
+        "only the mark the base's own slot cannot hold may reach an alternative"
     );
 }

@@ -13,9 +13,10 @@ pub(super) struct AnchorGposData {
     /// Mark glyph sets for GDEF MarkGlyphSets table, used by
     /// USE_MARK_FILTERING_SET on mark-subst lookups.
     pub(super) mark_glyph_sets: Vec<CoverageTable>,
-    /// Base substitution entries: (source, target, anchor_name).
+    /// Base substitution entries: (source, target, anchor_name, mark names the
+    /// rule keys on).
     #[cfg(test)]
-    pub(super) base_subst_entries: Vec<(String, String, String)>,
+    pub(super) base_subst_entries: Vec<(String, String, String, Vec<String>)>,
     /// Mark substitution entries: (mark, mark_alt, anchor_name, backtrack_bases).
     #[cfg(test)]
     pub(super) mark_subst_entries: Vec<(String, String, String, Vec<String>)>,
@@ -59,10 +60,34 @@ struct AnchoredGlyph {
 }
 
 /// The `source`/`target` glyph names of one ccmp anchor group, in step.
+///
+/// One group is one rule: the bases it substitutes, and the mark size that
+/// reaches them. Grouping by size and not by anchor name alone is what lets a
+/// base offer several slots — the marks that fit one slot must not drag in the
+/// alternative built for another.
 #[derive(Default)]
 struct CcmpGroup {
     sources: Vec<String>,
     targets: Vec<String>,
+}
+
+/// A ccmp anchor group's key: the class, and the mark footprints its rule is
+/// for, ascending. `None` reaches every mark of the class.
+type CcmpKey = (String, Option<Vec<AnchorSize>>);
+
+/// A `+`/`-` anchor's `(width, height)` in grid cells — what a base and a mark
+/// are matched on.
+type AnchorSize = (u16, u16);
+
+/// One base's substitution: the glyph, the alternative it gives way to, the
+/// anchor class, and the mark footprints that reach it.
+type CcmpEntry = (String, String, String, Option<Vec<AnchorSize>>);
+
+/// Does a slot hold a mark of `mark`? A `+` range is the room a base hands
+/// over and a `-` range the room a mark takes, so it does when it is at least
+/// as big on both axes.
+fn slot_holds(slot: &GlyphPoint, mark: AnchorSize) -> bool {
+    slot.width() >= mark.0 && slot.height() >= mark.1
 }
 
 pub(super) fn build_anchor_gpos(
@@ -145,7 +170,11 @@ pub(super) fn build_anchor_gpos(
     // Track base glyphs that need alternative substitution, grouped
     // by anchor name.  Each entry also records the feature tag so the
     // resulting lookups land under the correct OpenType feature.
-    let mut ccmp_entries: Vec<(String, String, String)> = Vec::new(); // (source, target, anchor_name)
+    // (source, target, anchor_name, mark size the rule keys on). The size is
+    // `None` for a base with a single alternative, which is reached by every
+    // mark of its class — the rule it has always had, and the only one a base
+    // offering one slot can want.
+    let mut ccmp_entries: Vec<CcmpEntry> = Vec::new();
 
     // Map anchor_name → (feature_tag, scripts) from the declarations.
     let mut anchor_to_feature: HashMap<String, (String, Vec<String>)> = HashMap::new();
@@ -153,6 +182,23 @@ pub(super) fn build_anchor_gpos(
         anchor_to_feature
             .entry(feature.anchor.clone())
             .or_insert_with(|| (feature.tag.clone(), feature.scripts.clone()));
+    }
+
+    // The footprints the marks of each class take, ascending — what the bases
+    // of that class are asked to hold.
+    let mut class_mark_sizes: HashMap<&str, Vec<AnchorSize>> = HashMap::new();
+    for anchor_name in &anchor_names {
+        let minus_name = format!("-{anchor_name}");
+        let mut sizes: Vec<AnchorSize> = glyphs
+            .iter()
+            .filter(|g| g.mark)
+            .flat_map(|g| g.declared_anchors.iter())
+            .filter(|p| p.position == minus_name)
+            .map(|p| (p.width(), p.height()))
+            .collect();
+        sizes.sort_unstable();
+        sizes.dedup();
+        class_mark_sizes.insert(anchor_name.as_str(), sizes);
     }
 
     // The reduction each anchor class applies to a ranged anchor, on both its
@@ -229,59 +275,123 @@ pub(super) fn build_anchor_gpos(
 
             for anchor_name in anchor_names.iter() {
                 let plus_name = format!("+{anchor_name}");
-                if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == plus_name) {
-                    let class = anchor_class_map[anchor_name] as usize;
-                    let align = align_of(&anchor_align, anchor_name);
-                    let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
-                    own_plus[class] = Some((x, y));
-                    has_own = true;
-                } else if let Some(alts) = alt_index.get(&g.name) {
-                    let mut alt_found = false;
-                    for (alt_name, alt_anchors) in alts {
-                        if let Some(pt) = alt_anchors.iter().find(|p| p.position == plus_name) {
-                            let class = anchor_class_map[anchor_name] as usize;
-                            let alt_g = glyphs.iter().find(|gg| gg.name == *alt_name);
-                            let alt_loff = alt_g.map_or(0, |gg| gg.left_offset);
-                            let alt_toff = alt_g.map_or(0, |gg| gg.top_offset);
-                            let align = align_of(&anchor_align, anchor_name);
-                            let (x, y) =
-                                anchor_font_units(pt, align, scale, ascent, alt_loff, alt_toff);
-                            let entry = alt_plus_map
-                                .entry(alt_name.clone())
-                                .or_insert_with(|| vec![None; num_classes as usize]);
-                            entry[class] = Some((x, y));
+                let class = anchor_class_map[anchor_name] as usize;
+                let align = align_of(&anchor_align, anchor_name);
 
-                            if !ccmp_entries
-                                .iter()
-                                .any(|(s, _, a)| s == &g.name && a == anchor_name)
-                            {
-                                ccmp_entries.push((
-                                    g.name.clone(),
-                                    alt_name.clone(),
-                                    anchor_name.clone(),
-                                ));
-                            }
-                            alt_found = true;
-                            break;
+                // The slots this base can offer: its own, and one per size its
+                // alternatives add. First alternative of a given size wins, as
+                // on the mark side; `issues::anchors` warns about the ones that
+                // loses to.
+                let own_pt = g.declared_anchors.iter().find(|p| p.position == plus_name);
+                let mut alt_slots: Vec<(&String, &GlyphPoint)> = Vec::new();
+                if let Some(alts) = alt_index.get(&g.name) {
+                    for (alt_name, alt_anchors) in alts {
+                        if let Some(pt) = alt_anchors.iter().find(|p| p.position == plus_name)
+                            && !alt_slots.iter().any(|(_, seen)| seen.size_matches(pt))
+                        {
+                            alt_slots.push((alt_name, pt));
                         }
                     }
-                    if !alt_found
-                        && let Some(pt) =
-                            g.resolved_anchors.iter().find(|p| p.position == plus_name)
-                    {
-                        let class = anchor_class_map[anchor_name] as usize;
-                        let align = align_of(&anchor_align, anchor_name);
-                        let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
-                        own_plus[class] = Some((x, y));
-                        has_own = true;
-                    }
-                } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name)
-                {
-                    let class = anchor_class_map[anchor_name] as usize;
-                    let align = align_of(&anchor_align, anchor_name);
+                }
+
+                // Which alternative a following mark reaches: the *first*
+                // one that holds it, in the order the alternatives are named
+                // — the same first-one-wins the equal sizes already go by, and
+                // the only rule that stays stated where a name order is not a
+                // size order. Every alternative that catches marks becomes one
+                // rule, keyed on the marks that landed in it.
+                //
+                // Matching sizes exactly instead left a mark no alternative is
+                // drawn for with nothing at all: on a base with no slot of its
+                // own that means no anchor, and a mark with no anchor falls
+                // back to bearing placement, which in a right-to-left run puts
+                // it a whole glyph away. A slot that is too small still beats
+                // that, so a mark nothing holds takes the first alternative
+                // anyway — unless the base has a slot of its own to keep.
+                //
+                // A base with one alternative and no slot of its own keeps the
+                // size-blind rule it has always had: every mark reaches the
+                // only slot there is, and naming them would spell out the same
+                // rule at length.
+                let mut to_record: Vec<(&String, &GlyphPoint, Option<Vec<AnchorSize>>)> =
+                    Vec::new();
+                if let Some(pt) = own_pt {
                     let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
                     own_plus[class] = Some((x, y));
                     has_own = true;
+                }
+                // The base's own slot leads: it is the glyph as it stands, so
+                // it is kept for every mark it holds and an alternative is
+                // reached only by the ones it cannot. An alternative of its
+                // size would therefore never be reached at all.
+                let candidates: Vec<(Option<&String>, &GlyphPoint)> = own_pt
+                    .map(|pt| (None, pt))
+                    .into_iter()
+                    .chain(
+                        alt_slots
+                            .iter()
+                            .filter(|(_, pt)| !own_pt.is_some_and(|own| own.size_matches(pt)))
+                            .map(|(name, pt)| (Some(*name), *pt)),
+                    )
+                    .collect();
+
+                if own_pt.is_none() && candidates.len() == 1 {
+                    let (name, pt) = candidates[0];
+                    to_record.push((name.expect("no own slot, so this is an alternative"), pt, None));
+                } else if candidates.iter().any(|(name, _)| name.is_some()) {
+                    let empty = Vec::new();
+                    let mark_sizes = class_mark_sizes.get(anchor_name.as_str()).unwrap_or(&empty);
+                    let mut caught: Vec<(&String, &GlyphPoint, Vec<AnchorSize>)> = Vec::new();
+                    for &mark_size in mark_sizes {
+                        // A mark nothing holds still has to attach somewhere:
+                        // the first slot, which for a base with one of its own
+                        // is that one, left alone.
+                        let picked = candidates
+                            .iter()
+                            .find(|(_, pt)| slot_holds(pt, mark_size))
+                            .or(candidates.first());
+                        // The base's own slot needs no substitution.
+                        let Some((Some(alt_name), pt)) = picked else {
+                            continue;
+                        };
+                        match caught.iter_mut().find(|(name, _, _)| name == alt_name) {
+                            Some((_, _, sizes)) => sizes.push(mark_size),
+                            None => caught.push((alt_name, pt, vec![mark_size])),
+                        }
+                    }
+                    for (alt_name, pt, sizes) in caught {
+                        to_record.push((alt_name, pt, Some(sizes)));
+                    }
+                } else if own_pt.is_none()
+                    && let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name)
+                {
+                    let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
+                    own_plus[class] = Some((x, y));
+                    has_own = true;
+                }
+
+                for (alt_name, pt, size_key) in to_record {
+                    let size_key = size_key.clone();
+                    let alt_g = glyphs.iter().find(|gg| gg.name == *alt_name);
+                    let alt_loff = alt_g.map_or(0, |gg| gg.left_offset);
+                    let alt_toff = alt_g.map_or(0, |gg| gg.top_offset);
+                    let (x, y) = anchor_font_units(pt, align, scale, ascent, alt_loff, alt_toff);
+                    let entry = alt_plus_map
+                        .entry(alt_name.clone())
+                        .or_insert_with(|| vec![None; num_classes as usize]);
+                    entry[class] = Some((x, y));
+
+                    if !ccmp_entries
+                        .iter()
+                        .any(|(s, _, a, k)| s == &g.name && a == anchor_name && *k == size_key)
+                    {
+                        ccmp_entries.push((
+                            g.name.clone(),
+                            alt_name.clone(),
+                            anchor_name.clone(),
+                            size_key.clone(),
+                        ));
+                    }
                 }
             }
 
@@ -508,8 +618,8 @@ pub(super) fn build_anchor_gpos(
     let mut feature_lookups: Vec<(String, Vec<String>, Vec<SubstitutionLookup>)> = Vec::new();
     if !ccmp_entries.is_empty() {
         // Group entries by feature tag, then by anchor within each tag.
-        let mut tag_groups: BTreeMap<String, BTreeMap<String, CcmpGroup>> = BTreeMap::new();
-        for (source, target, anchor_name) in &ccmp_entries {
+        let mut tag_groups: BTreeMap<String, BTreeMap<CcmpKey, CcmpGroup>> = BTreeMap::new();
+        for (source, target, anchor_name, size_key) in &ccmp_entries {
             let (tag, _) = anchor_to_feature
                 .get(anchor_name)
                 .cloned()
@@ -517,7 +627,7 @@ pub(super) fn build_anchor_gpos(
             let group = tag_groups
                 .entry(tag)
                 .or_default()
-                .entry(anchor_name.clone())
+                .entry((anchor_name.clone(), size_key.clone()))
                 .or_default();
             if !group.sources.contains(source) {
                 group.sources.push(source.clone());
@@ -541,14 +651,21 @@ pub(super) fn build_anchor_gpos(
                 });
 
             let mut lookups: Vec<SubstitutionLookup> = Vec::new();
-            for (anchor_name, CcmpGroup { sources, targets }) in anchor_groups {
+            for ((anchor_name, size_key), CcmpGroup { sources, targets }) in anchor_groups {
                 let minus_name = format!("-{anchor_name}");
+                let marks_of_this_size = |g: &CollectedGlyph| {
+                    g.mark
+                        && g.declared_anchors.iter().any(|p| {
+                            p.position == minus_name
+                                && size_key
+                                    .as_ref()
+                                    .is_none_or(|sizes| sizes.contains(&(p.width(), p.height())))
+                        })
+                };
                 let mark_coverage = CoverageTable::format_1({
                     let mut gids: Vec<GlyphId16> = glyphs
                         .iter()
-                        .filter(|g| {
-                            g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name)
-                        })
+                        .filter(|g| marks_of_this_size(g))
                         .filter_map(|g| name_to_gid.get(&g.name).copied())
                         .collect();
                     gids.sort();
@@ -581,8 +698,35 @@ pub(super) fn build_anchor_gpos(
         }
     }
 
+    // The mark names each base rule keys on, resolved for the tests: a size is
+    // how the rule is built, but what a reader wants to know is which marks
+    // reach it.
     #[cfg(test)]
-    let base_subst_entries = ccmp_entries.clone();
+    let base_subst_entries: Vec<(String, String, String, Vec<String>)> = ccmp_entries
+        .iter()
+        .map(|(source, target, anchor_name, size_key)| {
+            let minus_name = format!("-{anchor_name}");
+            let marks: Vec<String> = glyphs
+                .iter()
+                .filter(|g| {
+                    g.mark
+                        && g.declared_anchors.iter().any(|p| {
+                            p.position == minus_name
+                                && size_key
+                                    .as_ref()
+                                    .is_none_or(|sizes| sizes.contains(&(p.width(), p.height())))
+                        })
+                })
+                .map(|g| g.name.clone())
+                .collect();
+            (
+                source.clone(),
+                target.clone(),
+                anchor_name.clone(),
+                marks,
+            )
+        })
+        .collect();
     #[cfg(test)]
     let mut mark_subst_entries: Vec<(String, String, String, Vec<String>)> = Vec::new();
 

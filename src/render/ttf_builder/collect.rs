@@ -762,7 +762,9 @@ pub(super) fn collect_glyph_data_with_shared(
     }
 
     // Include alternative glyphs needed for anchor-based features:
-    // 1. Base alts: base lacks own "+X" but base:alt has it.
+    // 1. Base alts: base:alt carries a "+X" the base itself does not, or one
+    //    of a different size — a base offering several slot sizes reaches the
+    //    wider ones only through them.
     // 2. Mark alts: mark has "-X" of one size, mark:alt has "-X" of a
     //    different size that matches some base's "+X".
     if !gsub_data.anchor_features.is_empty() {
@@ -784,13 +786,19 @@ pub(super) fn collect_glyph_data_with_shared(
                 .unwrap_or(&[]);
             for anchor_name in &anchor_names {
                 let plus_name = format!("+{anchor_name}");
-                if declared.iter().any(|p| p.position == plus_name) {
-                    continue;
-                }
+                let own = declared.iter().find(|p| p.position == plus_name);
                 for (alt_name, alt_anchors) in alts {
-                    if alt_anchors.iter().any(|p| p.position == plus_name)
-                        && !seen_names.contains(alt_name)
-                    {
+                    // An alternative of the base's own size is the slot the
+                    // base already offers, so nothing would ever substitute
+                    // it in; every other size is a slot of its own.
+                    let Some(alt_plus) = alt_anchors.iter().find(|p| p.position == plus_name)
+                    else {
+                        continue;
+                    };
+                    if own.is_some_and(|own| own.size_matches(alt_plus)) {
+                        continue;
+                    }
+                    if !seen_names.contains(alt_name) {
                         extra_name_set.insert(alt_name.clone());
                     }
                 }
