@@ -1156,4 +1156,83 @@ assert same a b
             result.issues
         );
     }
+    /// A mark of one anchor class standing between a base and a mark of
+    /// another must not hide the second from the first.
+    ///
+    /// The substitution that swaps a base for the alternative carrying a slot
+    /// looks *ahead* for a mark of that slot's class, and looked at whatever
+    /// glyph came next. Hebrew puts the dagesh — which attaches inside the
+    /// letter, by an anchor class of its own — between the letter and its
+    /// vowel, so the vowel was never seen: the base kept its plain form, which
+    /// offers no slot at all, and the vowel fell back to bearing placement a
+    /// whole glyph away. Every class is matched through its own marks now.
+    #[test]
+    fn a_mark_of_another_class_does_not_hide_the_one_a_base_is_looking_for() {
+        let source = |text: &str, expected: &str| {
+            format!(
+                "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph letter 8 4
+................
+................
+................
+................
+anchor +inside 3 1
+
+glyph letter:slot 8 4
+................
+................
+................
+................
+anchor +below 1..7 3
+
+glyph dot 8 4 mark advance 0
+................
+................
+................
+................
+anchor -inside 3 1
+
+glyph bar 8 4 mark advance 0
+................
+................
+................
+................
+anchor -below 1..7 3
+
+map U+05D1 = letter
+map U+05BC = dot
+map U+05B8 = bar
+
+feature ccmp for hebr : anchor inside
+feature ccmp for hebr : anchor below
+
+assert shape {text} : {expected}
+"
+            )
+        };
+
+        let messages = |result: AssertShapeResult| {
+            result
+                .issues
+                .into_iter()
+                .map(|i| i.message)
+                .collect::<Vec<_>>()
+        };
+
+        // Without the other class's mark in the way, the base is substituted.
+        let result = shape_assert(&source("\u{05D1}\u{05B8}", "bar : letter:slot"));
+        assert_eq!(messages(result), Vec::<String>::new());
+
+        // With it, the same has to happen — the dot is skipped, not matched.
+        let result = shape_assert(&source(
+            "\u{05D1}\u{05BC}\u{05B8}",
+            "bar : dot : letter:slot",
+        ));
+        assert_eq!(messages(result), Vec::<String>::new());
+    }
+
 }

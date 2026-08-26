@@ -1422,3 +1422,172 @@ feature ccmp for DFLT : anchor other
         "two declarations of one anchor name are one mark class, not two"
     );
 }
+
+/// A glyph that carries anchors of its own *and* stands in as another glyph's
+/// alternative must keep both sets.
+///
+/// Such a glyph reached the base list twice — once for what it declares, once
+/// for the one class the glyph it substitutes for was missing — and the two
+/// entries were deduplicated by glyph id, throwing one of them away. Hebrew
+/// meets this the moment a letter carries both a below slot and a dagesh slot:
+/// the variant that widens the below slot lost the dagesh's, so the two marks
+/// could never attach at once.
+#[test]
+fn an_alternative_keeps_the_anchors_it_declares_as_well_as_the_one_it_stands_in_for() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph letter 8 4
+................
+................
+................
+................
+anchor +inside 3 1
+
+glyph letter:slot 8 4
+................
+................
+................
+................
+anchor +inside 3 1
+anchor +below 1..7 3
+
+glyph dot 8 4 mark advance 0
+................
+................
+................
+................
+anchor -inside 3 1
+
+glyph bar 8 4 mark advance 0
+................
+................
+................
+................
+anchor -below 1..7 3
+
+map U+0041 = letter
+map U+0301 = dot
+map U+0302 = bar
+
+feature ccmp for DFLT : anchor inside
+feature ccmp for DFLT : anchor below
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect glyph data");
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+    let gpos = anchor_data.gpos.expect("GPOS should exist");
+    let sub = gpos
+        .lookup_list
+        .lookups
+        .iter()
+        .find_map(|l| match l.as_ref() {
+            PositionLookup::MarkToBase(lk) => Some(lk.subtables[0].clone()),
+            _ => None,
+        })
+        .expect("MarkBasePos lookup");
+    let CoverageTable::Format1(base_cov) = &*sub.base_coverage else {
+        panic!("expected a format 1 base coverage");
+    };
+    let alt_gid = name_to_gid["letter:slot"];
+    let idx = base_cov
+        .glyph_array
+        .iter()
+        .position(|&g| g == alt_gid)
+        .expect("the alternative must be a base");
+    let filled = sub.base_array.base_records[idx]
+        .base_anchors
+        .iter()
+        .filter(|a| a.is_some())
+        .count();
+    assert_eq!(
+        filled, 2,
+        "the alternative declares two classes and stands in for one; both must survive"
+    );
+}
+
+/// A glyph nothing maps but a `remap` names still needs its alternatives.
+///
+/// The reachability pass keeps such a glyph as an *extra*, and the pass that
+/// keeps anchor alternatives asked only the glyphs reached directly — so a
+/// ligature output (Hebrew's letter-with-dagesh) got none of the slots its
+/// alternatives carry, and every mark that wanted one fell off it.
+#[test]
+fn a_glyph_only_a_remap_names_still_keeps_its_anchor_alternatives() {
+    let input = "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph letter 8 4
+................
+................
+................
+................
+
+glyph letter-tagged 8 4
+................
+................
+................
+................
+
+glyph letter-tagged:slot 8 4
+................
+................
+................
+................
+anchor +below 1..7 3
+
+glyph tag 8 4 mark advance 0
+................
+................
+................
+................
+
+glyph bar 8 4 mark advance 0
+................
+................
+................
+................
+anchor -below 1..7 3
+
+map U+0041 = letter
+map U+0300 = tag
+map U+0302 = bar
+
+remap tagging : letter tag -> letter-tagged
+feature ccmp for DFLT : anchor below
+feature ccmp for DFLT : tagging
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let docs: Vec<&Document> = vec![&doc];
+    let (meta, scale, glyphs, gsub_data, _) =
+        collect_glyph_data(&docs, false).expect("should collect glyph data");
+    assert!(
+        glyphs.iter().any(|g| g.name == "letter-tagged:slot"),
+        "the alternative of a remap-named glyph has to be built at all"
+    );
+    let name_to_gid: HashMap<String, GlyphId16> = glyphs
+        .iter()
+        .enumerate()
+        .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+        .collect();
+    let anchor_data = build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+    assert!(
+        anchor_data
+            .base_subst_entries
+            .iter()
+            .any(|(source, target, _, _)| source == "letter-tagged"
+                && target == "letter-tagged:slot"),
+        "the ligature output must give way to the alternative carrying the slot"
+    );
+}

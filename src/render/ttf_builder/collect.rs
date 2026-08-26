@@ -768,16 +768,25 @@ pub(super) fn collect_glyph_data_with_shared(
     // 2. Mark alts: mark has "-X" of one size, mark:alt has "-X" of a
     //    different size that matches some base's "+X".
     if !gsub_data.anchor_features.is_empty() {
+        // What the passes above already asked for, frozen: the loops below add
+        // to `extra_name_set` as they go, and an alternative is not itself a
+        // reason to keep another glyph's alternatives.
+        let extras_before: HashSet<String> = extra_name_set.clone();
         let anchor_names: Vec<&str> = gsub_data
             .anchor_features
             .iter()
             .map(|f| f.anchor.as_str())
             .collect();
         let alt_index = build_cached_alternatives(&cache);
+        // A glyph reached only as an *extra* — a `remap` names it and nothing
+        // maps it, which is what a ligature output is — is as real as any
+        // other, and its alternatives carry the slots marks attach by. Asking
+        // `seen_names` alone left every such glyph with none of them.
+        let reachable = |name: &str| seen_names.contains(name) || extras_before.contains(name);
 
         // 1. Base alts
         for (base_name, alts) in &alt_index {
-            if !seen_names.contains(base_name) {
+            if !reachable(base_name) {
                 continue;
             }
             let declared = glyph_bodies_map
@@ -808,7 +817,7 @@ pub(super) fn collect_glyph_data_with_shared(
         // 2. Mark alts: include mark:alt when its "-X" has a different
         //    size from the primary mark's "-X".
         for (mark_name, alts) in &alt_index {
-            if !seen_names.contains(mark_name) {
+            if !reachable(mark_name) {
                 continue;
             }
             let mark_body = match glyph_bodies_map.get(mark_name.as_str()) {

@@ -455,13 +455,34 @@ pub(super) fn build_anchor_gpos(
         let _ = compact_num_classes; // used implicitly via compacted vectors
     }
 
-    // Sort by GID for coverage tables
+    // Sort by GID for coverage tables. A glyph reaches the base (or mark2)
+    // list once per reason it is one — for the classes it declares, and again
+    // for the one class the glyph it stands in as an alternative for was
+    // missing — so the entries of one glyph are *merged* rather than deduped
+    // to the first. Dropping the others cost the glyph every class but one,
+    // which is a letter that can hold a vowel or a dagesh but never both.
+    fn merge_by_gid(entries: &mut Vec<AnchoredGlyph>) {
+        entries.sort_by_key(|entry| entry.gid);
+        let mut merged: Vec<AnchoredGlyph> = Vec::with_capacity(entries.len());
+        for entry in entries.drain(..) {
+            match merged.last_mut() {
+                Some(last) if last.gid == entry.gid => {
+                    for (slot, anchor) in last.anchors.iter_mut().zip(entry.anchors) {
+                        // First one wins per class, which is the glyph's own:
+                        // it is pushed before any alternative entry for it.
+                        *slot = slot.or(anchor);
+                    }
+                }
+                _ => merged.push(entry),
+            }
+        }
+        *entries = merged;
+    }
+
     mark_gids.sort_by_key(|&(gid, _, _, _)| gid);
     mark_gids.dedup_by_key(|entry| entry.0);
-    base_gids.sort_by_key(|entry| entry.gid);
-    base_gids.dedup_by_key(|entry| entry.gid);
-    mark2_gids.sort_by_key(|entry| entry.gid);
-    mark2_gids.dedup_by_key(|entry| entry.gid);
+    merge_by_gid(&mut base_gids);
+    merge_by_gid(&mut mark2_gids);
 
     // Build GPOS lookups
     let mut gpos_lookups: Vec<PositionLookup> = Vec::new();
@@ -619,6 +640,45 @@ pub(super) fn build_anchor_gpos(
         Gdef::default()
     };
 
+    // The mark filtering set of each class: every mark carrying its `-X`,
+    // registered in GDEF MarkGlyphSets. A lookup that names one skips every
+    // mark outside it, which is how a class is matched *through* the marks of
+    // the others — Hebrew puts the dagesh, which attaches inside the letter by
+    // a class of its own, between a letter and its vowel, and a rule looking
+    // for the vowel one glyph along would otherwise find the dagesh and stop.
+    let mut mark_glyph_sets: Vec<CoverageTable> = Vec::new();
+    let mut filtering_set_for: HashMap<&str, u16> = HashMap::new();
+    for anchor_name in &anchor_names {
+        let minus_name = format!("-{anchor_name}");
+        let mut filtering_gids: Vec<GlyphId16> = glyphs
+            .iter()
+            .filter(|g| g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name))
+            .filter_map(|g| name_to_gid.get(&g.name).copied())
+            .collect();
+        filtering_gids.sort();
+        filtering_gids.dedup();
+        if !filtering_gids.is_empty() {
+            filtering_set_for.insert(anchor_name.as_str(), mark_glyph_sets.len() as u16);
+            mark_glyph_sets.push(CoverageTable::format_1(filtering_gids));
+        }
+    }
+
+    /// One chain-context lookup, matched through the marks of its own class.
+    fn chained(
+        sc: SubstitutionChainContext,
+        filtering_set: Option<u16>,
+    ) -> Lookup<SubstitutionChainContext> {
+        match filtering_set {
+            Some(set_idx) => {
+                let mut lookup =
+                    Lookup::new(LookupFlag::USE_MARK_FILTERING_SET, vec![sc]);
+                lookup.mark_filtering_set = Some(set_idx);
+                lookup
+            }
+            None => Lookup::new(LookupFlag::empty(), vec![sc]),
+        }
+    }
+
     // Build ccmp GSUB lookups, grouped by anchor name.
     // Each anchor gets its own chain context + single subst pair so
     // that the lookahead only includes marks carrying that anchor's
@@ -698,9 +758,9 @@ pub(super) fn build_anchor_gpos(
                         lookup_list_index: subst_idx as u16,
                     }],
                 ));
-                lookups.push(SubstitutionLookup::ChainContextual(Lookup::new(
-                    LookupFlag::empty(),
-                    vec![sc],
+                lookups.push(SubstitutionLookup::ChainContextual(chained(
+                    sc,
+                    filtering_set_for.get(anchor_name.as_str()).copied(),
                 )));
             }
 
@@ -747,7 +807,6 @@ pub(super) fn build_anchor_gpos(
     // For each anchor, collect (mark, mark:alt) pairs where the alt has
     // a differently-sized `-X`.  Then generate a chain context with
     // backtrack = bases whose `+X` matches the alt's `-X` size.
-    let mut mark_glyph_sets: Vec<CoverageTable> = Vec::new();
     {
         let mark_alt_index: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = {
             let mut map: HashMap<String, Vec<(String, Vec<GlyphPoint>)>> = HashMap::new();
@@ -773,24 +832,7 @@ pub(super) fn build_anchor_gpos(
             let minus_name = format!("-{anchor_name}");
             let plus_name = format!("+{anchor_name}");
 
-            // Mark filtering set: all marks carrying `-X` for this anchor,
-            // plus their alternatives.  Registered in GDEF MarkGlyphSets
-            // so that USE_MARK_FILTERING_SET on mark-subst lookups causes
-            // marks of OTHER anchor classes to be skipped during backtrack.
-            let mut filtering_gids: Vec<GlyphId16> = glyphs
-                .iter()
-                .filter(|g| g.mark && g.declared_anchors.iter().any(|p| p.position == minus_name))
-                .filter_map(|g| name_to_gid.get(&g.name).copied())
-                .collect();
-            filtering_gids.sort();
-            filtering_gids.dedup();
-            let filtering_set_idx = if !filtering_gids.is_empty() {
-                let idx = mark_glyph_sets.len() as u16;
-                mark_glyph_sets.push(CoverageTable::format_1(filtering_gids));
-                Some(idx)
-            } else {
-                None
-            };
+            let filtering_set_idx = filtering_set_for.get(anchor_name.as_str()).copied();
 
             // Every glyph carrying this anchor's `+X`, found once per anchor
             // rather than per (mark, alternative) pair. The backtrack below
@@ -920,14 +962,10 @@ pub(super) fn build_anchor_gpos(
                             lookup_list_index: subst_idx as u16,
                         }],
                     ));
-                    let chain_lookup = if let Some(set_idx) = filtering_set_idx {
-                        let mut lk = Lookup::new(LookupFlag::USE_MARK_FILTERING_SET, vec![sc]);
-                        lk.mark_filtering_set = Some(set_idx);
-                        lk
-                    } else {
-                        Lookup::new(LookupFlag::empty(), vec![sc])
-                    };
-                    lookups.push(SubstitutionLookup::ChainContextual(chain_lookup));
+                    lookups.push(SubstitutionLookup::ChainContextual(chained(
+                        sc,
+                        filtering_set_idx,
+                    )));
                 }
             }
         }
