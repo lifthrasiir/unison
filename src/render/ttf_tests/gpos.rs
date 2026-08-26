@@ -920,3 +920,98 @@ fn merging_into_an_existing_feature_record_registers_its_new_scripts() {
     sorted.sort();
     assert_eq!(tags, sorted, "script records must stay sorted by tag");
 }
+
+/// A script that already names a feature record of its own must not be given
+/// a second one with the same tag. A shaper stops at the first record whose
+/// tag matches (`hb_ot_layout_language_find_feature` returns on the first
+/// hit), so the record it did not stop at is dead: the anchor substitutions
+/// merged into it never run, every base keeps its plain form, and every mark
+/// falls back to bearing placement.
+///
+/// The shape that produced this: `feature ccmp for hebr : anchor he-below`
+/// beside `feature ccmp for hebr : he-meteg`, where the remap had already
+/// given `hebr` a `ccmp` record and the merge picked the *first* `ccmp` in
+/// the list — DFLT's — and registered that with `hebr` as well.
+#[test]
+fn a_script_that_already_names_the_tag_gets_no_second_feature_record() {
+    use crate::render::ttf_builder::gpos::merge_anchor_feature_lookups;
+
+    // A GSUB as the remap stage leaves it: two 'ccmp' records, DFLT on the
+    // first and 'hebr' on a second of its own.
+    let existing = Gsub::new(
+        ScriptList::new(vec![
+            ScriptRecord::new(
+                Tag::new(b"DFLT"),
+                Script::new(
+                    Some(LangSys {
+                        required_feature_index: 0xFFFF,
+                        feature_indices: vec![0],
+                    }),
+                    vec![],
+                ),
+            ),
+            ScriptRecord::new(
+                Tag::new(b"hebr"),
+                Script::new(
+                    Some(LangSys {
+                        required_feature_index: 0xFFFF,
+                        feature_indices: vec![1],
+                    }),
+                    vec![],
+                ),
+            ),
+        ]),
+        FeatureList::new(vec![
+            FeatureRecord::new(Tag::new(b"ccmp"), Feature::new(None, vec![])),
+            FeatureRecord::new(Tag::new(b"ccmp"), Feature::new(None, vec![])),
+        ]),
+        LookupList::new(vec![]),
+    );
+    let mut gsub = Some(existing);
+
+    let mut sc = SubstitutionChainContext::default();
+    *sc = ChainedSequenceContext::Format3(ChainedSequenceContextFormat3::new(
+        vec![],
+        vec![],
+        vec![],
+        vec![],
+    ));
+    let chain = SubstitutionLookup::ChainContextual(Lookup::new(LookupFlag::empty(), vec![sc]));
+    merge_anchor_feature_lookups(
+        &mut gsub,
+        vec![("ccmp".to_string(), vec!["hebr".to_string()], vec![chain])],
+    );
+
+    let gsub = gsub.unwrap();
+    let hebr = gsub
+        .script_list
+        .script_records
+        .iter()
+        .find(|r| r.script_tag == Tag::new(b"hebr"))
+        .expect("'hebr' must stay registered");
+    let Some(ref ls) = *hebr.script.default_lang_sys else {
+        panic!("'hebr' should carry a default LangSys");
+    };
+
+    let ccmp_indices: Vec<u16> = ls
+        .feature_indices
+        .iter()
+        .copied()
+        .filter(|&i| {
+            gsub.feature_list.feature_records[i as usize].feature_tag == Tag::new(b"ccmp")
+        })
+        .collect();
+    assert_eq!(
+        ccmp_indices.len(),
+        1,
+        "one LangSys must name 'ccmp' once; a shaper reads only the first"
+    );
+
+    // ...and the one it names has to be the one the lookups landed in.
+    let named = &gsub.feature_list.feature_records[ccmp_indices[0] as usize];
+    assert_eq!(
+        named.feature.lookup_list_indices,
+        vec![0u16],
+        "the record 'hebr' names must carry the merged anchor lookups"
+    );
+}

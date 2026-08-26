@@ -349,6 +349,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Why the exact sweep carries no rational arithmetic, and the width budget that bounds it | `detail.rs` (`Frac`, `MAX_SWEEP_COORD`) |
 | The shape palette: rotation orbits, and rotation as separate state | `editor/glyph_widget.rs` |
 | Feature targets, `DFLT`/LangSys fallback | `render/ttf_builder/gsub.rs` |
+| Why one LangSys names a feature tag only once, and what the record it does not name costs | `render/ttf_builder/gpos.rs` (`merge_anchor_feature_lookups`) |
 | A remap group is one lookup: rule order is match priority | `render/ttf_builder/gsub.rs` |
 | Lookup order, `remap group` and its stable toposort | `document/remap.rs` (`remap_group_order`) |
 | `assert shape` and why `@lang` is BCP 47 | `render/assert.rs` |

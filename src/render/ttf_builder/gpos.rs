@@ -800,35 +800,90 @@ pub(super) fn merge_anchor_feature_lookups(
 
         let feat_tag = make_tag(&feature_tag);
 
-        // Merge into an existing feature record with the same tag to avoid
-        // duplicate feature entries (which some shapers ignore), creating one
-        // otherwise.
-        let existing_idx = gsub
-            .feature_list
-            .feature_records
+        // Which record each script should carry these lookups on: the one its
+        // own LangSys already names with this tag, where it names one.
+        //
+        // Merging by tag alone and then registering whatever record that found
+        // is what left a LangSys naming `ccmp` *twice* once a `remap` had
+        // given the script a record of its own — the merge picked the first
+        // `ccmp` in the list, which belonged to another script, and added it
+        // beside the one already there. A shaper stops at the first record
+        // whose tag matches, so the other one is dead: the anchor
+        // substitutions in it never run, every base keeps its plain form, and
+        // every mark falls back to bearing placement. `feature ccmp for hebr :
+        // anchor he-below` beside `feature ccmp for hebr : he-meteg` is the
+        // pair that showed it, and `armn`/`grek` were carrying it too.
+        let script_targets: Vec<(Tag, Option<u16>)> = scripts
             .iter()
-            .position(|fr| fr.feature_tag == feat_tag);
+            .map(|script| {
+                let script_tag = make_tag(script);
+                let named = gsub
+                    .script_list
+                    .script_records
+                    .iter()
+                    .find(|sr| sr.script_tag == script_tag)
+                    .and_then(|sr| {
+                        let lang_sys = (*sr.script.default_lang_sys).as_ref()?;
+                        lang_sys.feature_indices.iter().copied().find(|&i| {
+                            gsub.feature_list
+                                .feature_records
+                                .get(i as usize)
+                                .is_some_and(|fr| fr.feature_tag == feat_tag)
+                        })
+                    });
+                (script_tag, named)
+            })
+            .collect();
 
-        let feat_idx = if let Some(idx) = existing_idx {
-            gsub.feature_list.feature_records[idx]
+        // The scripts that name none share one record: an existing one with
+        // the tag (its other scripts pick the lookups up too, which the
+        // coverage tables make harmless), or a new one. A feature naming no
+        // script still wants a record, so that its lookups are not orphaned.
+        let needs_shared =
+            script_targets.is_empty() || script_targets.iter().any(|(_, idx)| idx.is_none());
+        let shared_idx = needs_shared.then(|| {
+            match gsub
+                .feature_list
+                .feature_records
+                .iter()
+                .position(|fr| fr.feature_tag == feat_tag)
+            {
+                Some(idx) => idx as u16,
+                None => {
+                    gsub.feature_list
+                        .feature_records
+                        .push(FeatureRecord::new(feat_tag, Feature::new(None, vec![])));
+                    (gsub.feature_list.feature_records.len() - 1) as u16
+                }
+            }
+        });
+
+        let mut targets: Vec<u16> = script_targets.iter().filter_map(|(_, idx)| *idx).collect();
+        targets.extend(shared_idx);
+        targets.sort_unstable();
+        targets.dedup();
+        for idx in targets {
+            let indices = &mut gsub.feature_list.feature_records[idx as usize]
                 .feature
-                .lookup_list_indices
-                .extend(chain_indices);
-            idx as u16
-        } else {
-            gsub.feature_list.feature_records.push(FeatureRecord::new(
-                feat_tag,
-                Feature::new(None, chain_indices),
-            ));
-            (gsub.feature_list.feature_records.len() - 1) as u16
-        };
+                .lookup_list_indices;
+            for lookup_idx in &chain_indices {
+                if !indices.contains(lookup_idx) {
+                    indices.push(*lookup_idx);
+                }
+            }
+        }
 
-        // Every script the feature names has to reach that record — also when
+        // Every script the feature names has to reach a record — also when
         // the record already existed: a `remap` with the same tag registers
         // only its own scripts, and the merged lookups would otherwise never
-        // apply in the ones it did not cover.
-        for script in &scripts {
-            let script_tag = make_tag(script);
+        // apply in the ones it did not cover. A script that already named one
+        // is done; registering the shared record beside it is the duplicate.
+        for (script_tag, named) in &script_targets {
+            if named.is_some() {
+                continue;
+            }
+            let script_tag = *script_tag;
+            let Some(feat_idx) = shared_idx else { continue };
 
             let existing = gsub
                 .script_list
