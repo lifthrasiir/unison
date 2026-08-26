@@ -2550,7 +2550,7 @@ map generate ӟ
 map generate ӥ
 glyph uni0457
 ref cy-dotless-i-dotted-lower
-ref dia-below 4 -11
+ref dia-below 8 -9
 map ї = uni0457
 map generate ӧ
 map generate ӫ

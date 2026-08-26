@@ -48,6 +48,12 @@ use crate::ucd::{BlockMap, CharProps, format_block_range};
 pub struct DemoFonts<'a> {
     pub bitmap_woff2: &'a [u8],
     pub vector_woff2: &'a [u8],
+    /// The bitmap build's TTF. Not embedded — the WOFF2 above is — but read for
+    /// its `hmtx`, which is where the zero-advance characters come from. Asking
+    /// the built font is the same rule the editor's placeholders follow: what
+    /// gets a circle is what the font gives no advance, not what Unicode calls
+    /// a mark.
+    pub bitmap_ttf: &'a [u8],
 }
 
 /// A cell the source maps to a glyph, as opposed to one only listed because the
@@ -55,6 +61,10 @@ pub struct DemoFonts<'a> {
 const CELL_DECLARED: u32 = 1;
 /// A cell whose character is `exclude-from-sample`.
 const CELL_EXCLUDED: u32 = 2;
+/// A cell whose character the font gives no advance, so the page draws a dotted
+/// circle for it to sit on. See `demo.css`'s `.dc`, and
+/// [`crate::editor::annotations`] for why the circle is drawn and not typed.
+const CELL_ZERO_ADVANCE: u32 = 4;
 
 #[derive(serde::Serialize)]
 struct DemoMeta {
@@ -114,7 +124,7 @@ struct DemoData {
     name_runs: Vec<(u32, u32, String)>,
 }
 
-fn collect(src: &SampleSource, docs: &[&Document]) -> DemoData {
+fn collect(src: &SampleSource, docs: &[&Document], bitmap_ttf: &[u8]) -> DemoData {
     let meta = crate::meta::FontMeta::collect(docs);
     let faces = crate::faces::FaceSet::collect(docs);
     let face = faces.primary();
@@ -123,6 +133,7 @@ fn collect(src: &SampleSource, docs: &[&Document]) -> DemoData {
     let props: &CharProps = src.char_props();
     let declared = src.cmap();
     let excluded = src.excluded();
+    let zero_advance = zero_advance_codepoints(bitmap_ttf, declared);
 
     // Group the mapped characters by block, exactly as the specimen does: a
     // code point no block covers goes into one section at the end rather than
@@ -167,7 +178,7 @@ fn collect(src: &SampleSource, docs: &[&Document]) -> DemoData {
             start,
             end,
             coverage,
-            runs: runs_of(members, declared, excluded),
+            runs: runs_of(members, declared, excluded, &zero_advance),
         });
     }
     if !no_block.is_empty() {
@@ -178,7 +189,7 @@ fn collect(src: &SampleSource, docs: &[&Document]) -> DemoData {
             start,
             end,
             coverage: None,
-            runs: runs_of(no_block.iter().copied(), declared, excluded),
+            runs: runs_of(no_block.iter().copied(), declared, excluded, &zero_advance),
         });
     }
 
@@ -254,6 +265,7 @@ fn runs_of(
     cps: impl Iterator<Item = u32>,
     declared: &BTreeMap<u32, String>,
     excluded: &std::collections::BTreeSet<u32>,
+    zero_advance: &std::collections::BTreeSet<u32>,
 ) -> Vec<[u32; 3]> {
     let mut runs: Vec<[u32; 3]> = Vec::new();
     for cp in cps {
@@ -264,6 +276,9 @@ fn runs_of(
         if excluded.contains(&cp) {
             flags |= CELL_EXCLUDED;
         }
+        if zero_advance.contains(&cp) {
+            flags |= CELL_ZERO_ADVANCE;
+        }
         match runs.last_mut() {
             Some(run) if run[0] + run[1] == cp && run[2] == flags => run[1] += 1,
             _ => runs.push([cp, 1, flags]),
@@ -272,13 +287,37 @@ fn runs_of(
     runs
 }
 
+/// The mapped code points the font gives no horizontal advance.
+///
+/// Read from the built font rather than derived from the source: it is what the
+/// browser will lay the page out with, so it is what decides whether a cell
+/// needs a circle to hold it open.
+fn zero_advance_codepoints(
+    ttf: &[u8],
+    declared: &BTreeMap<u32, String>,
+) -> std::collections::BTreeSet<u32> {
+    let Ok(face) = rustybuzz::ttf_parser::Face::parse(ttf, 0) else {
+        return Default::default();
+    };
+    declared
+        .keys()
+        .copied()
+        .filter(|&cp| {
+            char::from_u32(cp)
+                .and_then(|c| face.glyph_index(c))
+                .and_then(|gid| face.glyph_hor_advance(gid))
+                == Some(0)
+        })
+        .collect()
+}
+
 pub fn write_demo_html(
     w: &mut dyn Write,
     src: &SampleSource,
     docs: &[&Document],
     fonts: DemoFonts<'_>,
 ) -> io::Result<()> {
-    let data = collect(src, docs);
+    let data = collect(src, docs, fonts.bitmap_ttf);
     let title = format!("{} \u{2014} specimen", data.meta.family);
     // `</` inside the blob would end the script element early whatever it sits
     // in; JSON has no other way to spell a slash, so it is escaped here rather
@@ -333,12 +372,16 @@ mod tests {
     fn runs_merge_consecutive_code_points_with_equal_flags() {
         let declared = cps(&[1, 2, 3, 10]);
         let excluded: std::collections::BTreeSet<u32> = [3].into_iter().collect();
-        let runs = runs_of([0, 1, 2, 3, 4, 10].into_iter(), &declared, &excluded);
+        let zero: std::collections::BTreeSet<u32> = [2].into_iter().collect();
+        let runs = runs_of([0, 1, 2, 3, 4, 10].into_iter(), &declared, &excluded, &zero);
         assert_eq!(
             runs,
             vec![
                 [0, 1, 0],
-                [1, 2, CELL_DECLARED],
+                [1, 1, CELL_DECLARED],
+                // A zero-advance cell breaks the run the way any other flag
+                // does, so the marks of a block cost one run between them.
+                [2, 1, CELL_DECLARED | CELL_ZERO_ADVANCE],
                 [3, 1, CELL_DECLARED | CELL_EXCLUDED],
                 [4, 1, 0],
                 // A gap in the code points breaks the run even though the
@@ -346,6 +389,29 @@ mod tests {
                 [10, 1, CELL_DECLARED],
             ]
         );
+    }
+
+    /// The circle follows the *font*, not the character: what gets one is what
+    /// `hmtx` gives no advance.
+    #[test]
+    fn zero_advance_comes_from_the_built_fonts_own_metrics() {
+        let input = "\
+glyph pix 1 1
+@@
+glyph a 2 2
+ref pix
+glyph mark mark advance 0
+ref pix
+map A = a
+map U+0301 = mark
+";
+        let doc = crate::document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+        let ttf = crate::render::ttf_builder::build_font_from_documents(&[&doc])
+            .expect("font should build");
+        let declared = cps(&[u32::from(b'A'), 0x301]);
+        let zero = zero_advance_codepoints(&ttf, &declared);
+        assert!(!zero.contains(&u32::from(b'A')));
+        assert!(zero.contains(&0x301), "an `advance 0` glyph is one");
     }
 
     #[test]

@@ -896,14 +896,26 @@ pub(super) fn collect_glyph_data_with_shared(
                     .get(cr.component_name.as_str())
                     .unwrap_or(&empty_cached);
                 let comp_glyph_scale = scale / resolved.scale as f32;
+                // The same box every other glyph gets. The parent placing this
+                // one has already subtracted its declared bearing
+                // (`build_composite_refs`), because a component glyph is the
+                // one that carries it; synthesizing the glyph without it put
+                // the component a whole `origin` away from where the line
+                // asked for it.
+                let (advance_width, left_offset, top_offset) = resolve_glyph_metrics(
+                    glyph_meta,
+                    cr.component_name.as_str(),
+                    resolved.width,
+                    comp_glyph_scale,
+                    scale,
+                );
                 let font_contours = scale_glyph_contours(
                     &resolved.contours,
                     comp_glyph_scale,
                     meta.ascent() * resolved.scale as u16,
-                    0,
-                    0,
+                    left_offset,
+                    top_offset,
                 );
-                let advance_width = (resolved.width as f32 * comp_glyph_scale).round() as u16;
                 component_extras.push(CollectedGlyph {
                     name: cr.component_name.clone(),
                     codepoints: Vec::new(),
@@ -914,8 +926,8 @@ pub(super) fn collect_glyph_data_with_shared(
                     mark: false,
                     resolved_anchors: Vec::new(),
                     declared_anchors: Vec::new(),
-                    left_offset: 0,
-                    top_offset: 0,
+                    left_offset,
+                    top_offset,
                 });
             }
         }

@@ -2631,43 +2631,43 @@ map z = z-lower
 map generate Ä
 glyph uni01DE
 ref a-upper-compressed inherit
-ref dia-above:narrow 2 2
-ref mac-above 4 0 inherit
+ref dia-above:narrow 9 0
+ref mac-above 8 -2 inherit
 map Ǟ = uni01DE
 map generate Ë
 map generate Ḧ
 map generate Ï
 glyph uni1E2E
 ref i-upper-compressed inherit
-ref dia-above 4 2
-ref acute-above:wide 3 0 inherit
+ref dia-above 8 0
+ref acute-above:wide 9 -2 inherit
 map Ḯ = uni1E2E
 map generate Ö
 glyph uni022A
 ref o-upper-compressed inherit
-ref dia-above:narrow 2 2
-ref mac-above 4 0 inherit
+ref dia-above:narrow 9 0
+ref mac-above 8 -2 inherit
 map Ȫ = uni022A
 map generate Ü
 glyph uni01D5
 ref u-upper-compressed inherit
-ref dia-above:narrow 2 2
-ref mac-above 4 0 inherit
+ref dia-above:narrow 9 0
+ref mac-above 8 -2 inherit
 map Ǖ = uni01D5
 glyph uni01D7
 ref u-upper-compressed inherit
-ref dia-above:narrow 2 2
-ref acute-above 5 0 inherit
+ref dia-above:narrow 9 0
+ref acute-above 9 -2 inherit
 map Ǘ = uni01D7
 glyph uni01D9
 ref u-upper-compressed inherit
-ref dia-above:narrow 2 2
-ref caron-above 4 0 inherit
+ref dia-above:narrow 9 0
+ref caron-above 8 -2 inherit
 map Ǚ = uni01D9
 glyph uni01DB
 ref u-upper-compressed inherit
-ref dia-above:narrow 2 2
-ref grave-above 4 0 inherit
+ref dia-above:narrow 9 0
+ref grave-above 8 -2 inherit
 map Ǜ = uni01DB
 map generate Ṳ
 map generate Ẅ
@@ -2677,47 +2677,47 @@ map generate Ÿ
 map generate ä
 glyph uni01DF
 ref a-lower:compressed inherit
-ref dia-above:narrow 2 4
-ref mac-above 4 2 inherit
+ref dia-above:narrow 9 2
+ref mac-above 8 0 inherit
 map ǟ = uni01DF
 map generate ë
 glyph uni1E27
 ref h-lower:sm inherit
-ref dia-above:narrow 2 1 inherit
+ref dia-above:narrow 9 -1 inherit
 map ḧ = uni1E27
 map generate ï
 glyph uni1E2F
 ref i-lower:dotless inherit
-ref dia-above 4 4
-ref acute-above:wide 3 2 inherit
+ref dia-above 8 2
+ref acute-above:wide 9 0 inherit
 map ḯ = uni1E2F
 map generate ö
 glyph uni022B
 ref o-lower:compressed inherit
-ref dia-above:narrow 2 4
-ref mac-above 4 2 inherit
+ref dia-above:narrow 9 2
+ref mac-above 8 0 inherit
 map ȫ = uni022B
 map generate ẗ
 map generate ü
 glyph uni01D6
 ref u-lower:compressed inherit
-ref dia-above:narrow 2 4
-ref mac-above 4 2 inherit
+ref dia-above:narrow 9 2
+ref mac-above 8 0 inherit
 map ǖ = uni01D6
 glyph uni01D8
 ref u-lower:compressed inherit
-ref dia-above:narrow 2 4
-ref acute-above 5 2 inherit
+ref dia-above:narrow 9 2
+ref acute-above 9 0 inherit
 map ǘ = uni01D8
 glyph uni01DA
 ref u-lower:compressed inherit
-ref dia-above:narrow 2 4
-ref caron-above 4 2 inherit
+ref dia-above:narrow 9 2
+ref caron-above 8 0 inherit
 map ǚ = uni01DA
 glyph uni01DC
 ref u-lower:compressed inherit
-ref dia-above:narrow 2 4
-ref grave-above 4 2 inherit
+ref dia-above:narrow 9 2
+ref grave-above 8 0 inherit
 map ǜ = uni01DC
 map generate ṳ
 map generate ẅ
@@ -2739,7 +2739,7 @@ map generate Ń
 map generate Ó
 glyph uni1EDA
 ref o-horn-upper inherit
-ref acute-above:wide 2 0 inherit
+ref acute-above:wide 8 -2 inherit
 map Ớ = uni1EDA
 map generate Ǿ
 map generate Ṕ
@@ -2747,13 +2747,13 @@ map generate Ŕ
 map generate Ś
 glyph uni1E64
 ref s-upper-compressed inherit
-ref acute-above 5 2
-ref dot-above 4 0 inherit
+ref acute-above 9 0
+ref dot-above 8 -2 inherit
 map Ṥ = uni1E64
 map generate Ú
 glyph uni1EE8
 ref u-horn-upper inherit
-ref acute-above:wide 2 0 inherit
+ref acute-above:wide 8 -2 inherit
 map Ứ = uni1EE8
 map generate Ẃ
 map generate Ý
@@ -2767,7 +2767,7 @@ map generate ǵ
 map generate í
 glyph uni1E31
 ref k-lower inherit
-ref acute-above 5 2 inherit
+ref acute-above 9 0 inherit
 map ḱ = uni1E31
 map generate ĺ
 map generate ḿ
@@ -2775,24 +2775,24 @@ map generate ń
 map generate ó
 glyph uni1EDB
 ref o-horn-lower inherit
-ref acute-above:wide 2 2 inherit
+ref acute-above:wide 8 0 inherit
 map ớ = uni1EDB
 glyph uni01FF
 ref oe-lower inherit
-ref acute-above 5 2 inherit
+ref acute-above 9 0 inherit
 map ǿ = uni01FF
 map generate ṕ
 map generate ŕ
 map generate ś
 glyph uni1E65
 ref s-lower:compressed inherit
-ref acute-above 5 4
-ref dot-above 4 2 inherit
+ref acute-above 9 2
+ref dot-above 8 0 inherit
 map ṥ = uni1E65
 map generate ú
 glyph uni1EE9
 ref u-horn-lower inherit
-ref acute-above:wide 2 2 inherit
+ref acute-above:wide 8 0 inherit
 map ứ = uni1EE9
 map generate ẃ
 map generate ý
@@ -2815,12 +2815,12 @@ map generate Ǹ
 map generate Ò
 glyph uni1EDC
 ref o-horn-upper inherit
-ref grave-above:wide 1 0 inherit
+ref grave-above:wide 7 -2 inherit
 map Ờ = uni1EDC
 map generate Ù
 glyph uni1EEA
 ref u-horn-upper inherit
-ref grave-above:wide 1 0 inherit
+ref grave-above:wide 7 -2 inherit
 map Ừ = uni1EEA
 map generate Ẁ
 map generate Ỳ
@@ -2831,12 +2831,12 @@ map generate ì
 map generate ò
 glyph uni1EDD
 ref o-horn-lower inherit
-ref grave-above:wide 1 2 inherit
+ref grave-above:wide 7 0 inherit
 map ờ = uni1EDD
 map generate ù
 glyph uni1EEB
 ref u-horn-lower inherit
-ref grave-above:wide 1 2 inherit
+ref grave-above:wide 7 0 inherit
 map ừ = uni1EEB
 map generate ǹ
 map generate ẁ
@@ -2867,13 +2867,13 @@ map generate Ḏ
 map generate Ē
 glyph uni1E14
 ref e-upper-compressed inherit
-ref mac-above 4 2
-ref grave-above 4 0 inherit
+ref mac-above 8 0
+ref grave-above 8 -2 inherit
 map Ḕ = uni1E14
 glyph uni1E16
 ref e-upper-compressed inherit
-ref mac-above 4 2
-ref acute-above 5 0 inherit
+ref mac-above 8 0
+ref acute-above 9 -2 inherit
 map Ḗ = uni1E16
 map generate Ḡ
 map generate Ī
@@ -2883,13 +2883,13 @@ map generate Ṉ
 map generate Ō
 glyph uni1E50
 ref o-upper-compressed inherit
-ref mac-above 4 2
-ref grave-above 4 0 inherit
+ref mac-above 8 0
+ref grave-above 8 -2 inherit
 map Ṑ = uni1E50
 glyph uni1E52
 ref o-upper-compressed inherit
-ref mac-above 4 2
-ref acute-above 5 0 inherit
+ref mac-above 8 0
+ref acute-above 9 -2 inherit
 map Ṓ = uni1E52
 map generate Ṟ
 map generate Ṯ // TODO: too wide
@@ -2897,8 +2897,8 @@ map generate Ṯ // TODO: too wide
 map generate Ū
 glyph uni1E7A
 ref u-upper-compressed inherit
-ref mac-above 4 2
-ref dia-above:narrow 2 0 inherit
+ref mac-above 8 0
+ref dia-above:narrow 9 -2 inherit
 map Ṻ = uni1E7A
 map generate Ȳ
 map generate Ẕ
@@ -2910,13 +2910,13 @@ map generate ḏ
 map generate ē
 glyph uni1E15
 ref e-lower:compressed inherit
-ref mac-above 4 4
-ref grave-above 4 2 inherit
+ref mac-above 8 2
+ref grave-above 8 0 inherit
 map ḕ = uni1E15
 glyph uni1E17
 ref e-lower:compressed inherit
-ref mac-above 4 4
-ref acute-above 5 2 inherit
+ref mac-above 8 2
+ref acute-above 9 0 inherit
 map ḗ = uni1E17
 map generate ḡ
 map generate ẖ
@@ -2928,21 +2928,21 @@ map generate ṉ
 map generate ō
 glyph uni1E51
 ref o-lower:compressed inherit
-ref mac-above 4 4
-ref grave-above 4 2 inherit
+ref mac-above 8 2
+ref grave-above 8 0 inherit
 map ṑ = uni1E51
 glyph uni1E53
 ref o-lower:compressed inherit
-ref mac-above 4 4
-ref acute-above 5 2 inherit
+ref mac-above 8 2
+ref acute-above 9 0 inherit
 map ṓ = uni1E53
 map generate ṟ
 map generate ṯ
 map generate ū
 glyph uni1E7B
 ref u-lower:compressed inherit
-ref mac-above 4 4
-ref dia-above:narrow 2 2 inherit
+ref mac-above 8 2
+ref dia-above:narrow 9 0 inherit
 map ṻ = uni1E7B
 map generate ȳ
 map generate ẕ
@@ -2965,7 +2965,7 @@ map generate Ȩ
 glyph e-upper-with-ced-below-breve-upper
 ref e-upper
 ref ced-below inherit
-ref breve-above 4 0 inherit
+ref breve-above 8 -2 inherit
 map Ḝ = e-upper-with-ced-below-breve-upper
 map generate Ḩ
 map generate Ş = s-upper-with-ced-below
@@ -2978,7 +2978,7 @@ map generate ȩ
 glyph e-lower-with-ced-below-breve-upper
 ref e-lower
 ref ced-below inherit
-ref breve-above 4 2 inherit
+ref breve-above 8 0 inherit
 map ḝ = e-lower-with-ced-below-breve-upper
 map generate ḩ
 map generate ş = s-lower-with-ced-below
@@ -3087,7 +3087,7 @@ assert shape ş @lv : s-lower-with-ced-below
 assert shape ş : s-lower-with-ced-below
 // Romanian must not lose what the default language system carries: this needs
 // `ccmp`, which an explicit language system replaces rather than extends
-assert shape j̈ @ro : j-lower:dotless : dia-above:narrow offset -5 3
+assert shape j̈ @ro : j-lower:dotless : dia-above:narrow offset 2 1
 
 ## with ogonek
 
@@ -3148,8 +3148,8 @@ map generate Ř
 map generate Š
 glyph uni1E66
 ref s-upper-compressed inherit
-ref caron-above 4 2
-ref dot-above 4 0 inherit
+ref caron-above 8 0
+ref dot-above 8 -2 inherit
 map Ṧ = uni1E66
 map generate Ť
 map generate Ǔ
@@ -3173,16 +3173,16 @@ map generate ě
 map generate ǧ
 glyph uni021F
 ref h-lower:sm inherit
-ref caron-above 4 1 inherit
+ref caron-above 8 -1 inherit
 map ȟ = uni021F
 map generate ǐ
 glyph uni01F0
 ref j-lower:dotless inherit
-ref caron-above 4 3 inherit
+ref caron-above 8 1 inherit
 map ǰ = uni01F0
 glyph uni01E9
 ref k-lower inherit
-ref caron-above 4 2 inherit
+ref caron-above 8 0 inherit
 map ǩ = uni01E9
 glyph uni013E
 ref l-lower-shift
@@ -3194,8 +3194,8 @@ map generate ř
 map generate š
 glyph uni1E67
 ref s-lower:compressed inherit
-ref caron-above 4 4
-ref dot-above 4 2 inherit
+ref caron-above 8 2
+ref dot-above 8 0 inherit
 map ṧ = uni1E67
 glyph uni0165
 ref t-lower
@@ -3210,46 +3210,46 @@ map generate ž
 map generate Â
 glyph uni1EA6
 ref a-upper-compressed inherit
-ref circ-above 4 2
-ref grave-above 3 0 inherit
+ref circ-above 8 0
+ref grave-above 7 -2 inherit
 map Ầ = uni1EA6
 glyph uni1EA8
 ref a-upper-compressed inherit
-ref circ-above 4 2
-ref hook-above 5 0 inherit
+ref circ-above 8 0
+ref hook-above 9 -2 inherit
 map Ẩ = uni1EA8
 glyph uni1EAA
 ref a-upper-compressed inherit
-ref circ-above 4 2
-ref tilde-above 4 0 inherit
+ref circ-above 8 0
+ref tilde-above 8 -2 inherit
 map Ẫ = uni1EAA
 glyph uni1EA4
 ref a-upper-compressed inherit
-ref circ-above 4 2
-ref acute-above 6 0 inherit
+ref circ-above 8 0
+ref acute-above 10 -2 inherit
 map Ấ = uni1EA4
 map generate Ĉ
 map generate Ḓ
 map generate Ê
 glyph uni1EC0
 ref e-upper-compressed inherit
-ref circ-above 4 2
-ref grave-above 3 0 inherit
+ref circ-above 8 0
+ref grave-above 7 -2 inherit
 map Ề = uni1EC0
 glyph uni1EC2
 ref e-upper-compressed inherit
-ref circ-above 4 2
-ref hook-above 5 0 inherit
+ref circ-above 8 0
+ref hook-above 9 -2 inherit
 map Ể = uni1EC2
 glyph uni1EC4
 ref e-upper-compressed inherit
-ref circ-above 4 2
-ref tilde-above 4 0 inherit
+ref circ-above 8 0
+ref tilde-above 8 -2 inherit
 map Ễ = uni1EC4
 glyph uni1EBE
 ref e-upper-compressed inherit
-ref circ-above 4 2
-ref acute-above 6 0 inherit
+ref circ-above 8 0
+ref acute-above 10 -2 inherit
 map Ế = uni1EBE
 map generate Ḙ
 map generate Ĝ
@@ -3257,30 +3257,30 @@ map generate Ĥ
 map generate Î
 glyph uni0134
 ref j-upper inherit
-ref circ-above 4 0 inherit
+ref circ-above 8 -2 inherit
 map Ĵ = uni0134
 map generate Ḽ
 map generate Ṋ
 map generate Ô
 glyph uni1ED2
 ref o-upper-compressed inherit
-ref circ-above 4 2
-ref grave-above 3 0 inherit
+ref circ-above 8 0
+ref grave-above 7 -2 inherit
 map Ồ = uni1ED2
 glyph uni1ED4
 ref o-upper-compressed inherit
-ref circ-above 4 2
-ref hook-above 5 0 inherit
+ref circ-above 8 0
+ref hook-above 9 -2 inherit
 map Ổ = uni1ED4
 glyph uni1ED6
 ref o-upper-compressed inherit
-ref circ-above 4 2
-ref tilde-above 4 0 inherit
+ref circ-above 8 0
+ref tilde-above 8 -2 inherit
 map Ỗ = uni1ED6
 glyph uni1ED0
 ref o-upper-compressed inherit
-ref circ-above 4 2
-ref acute-above 6 0 inherit
+ref circ-above 8 0
+ref acute-above 10 -2 inherit
 map Ố = uni1ED0
 map generate Ŝ
 map generate Ṱ
@@ -3293,80 +3293,80 @@ map generate Ẑ
 map generate â
 glyph uni1EA7
 ref a-lower:compressed inherit
-ref circ-above 4 4
-ref grave-above 3 2 inherit
+ref circ-above 8 2
+ref grave-above 7 0 inherit
 map ầ = uni1EA7
 glyph uni1EA9
 ref a-lower:compressed inherit
-ref circ-above 4 4
-ref hook-above 5 2 inherit
+ref circ-above 8 2
+ref hook-above 9 0 inherit
 map ẩ = uni1EA9
 glyph uni1EAB
 ref a-lower:compressed inherit
-ref circ-above 4 4
-ref tilde-above 4 2 inherit
+ref circ-above 8 2
+ref tilde-above 8 0 inherit
 map ẫ = uni1EAB
 glyph uni1EA5
 ref a-lower:compressed inherit
-ref circ-above 4 4
-ref acute-above 6 2 inherit
+ref circ-above 8 2
+ref acute-above 10 0 inherit
 map ấ = uni1EA5
 map generate ĉ
 map generate ḓ
 map generate ê
 glyph uni1EC1
 ref e-lower:compressed inherit
-ref circ-above 4 4
-ref grave-above 3 2 inherit
+ref circ-above 8 2
+ref grave-above 7 0 inherit
 map ề = uni1EC1
 glyph uni1EC3
 ref e-lower:compressed inherit
-ref circ-above 4 4
-ref hook-above 5 2 inherit
+ref circ-above 8 2
+ref hook-above 9 0 inherit
 map ể = uni1EC3
 glyph uni1EC5
 ref e-lower:compressed inherit
-ref circ-above 4 4
-ref tilde-above 4 2 inherit
+ref circ-above 8 2
+ref tilde-above 8 0 inherit
 map ễ = uni1EC5
 glyph uni1EBF
 ref e-lower:compressed inherit
-ref circ-above 4 4
-ref acute-above 6 2 inherit
+ref circ-above 8 2
+ref acute-above 10 0 inherit
 map ế = uni1EBF
 map generate ḙ
 map generate ĝ
 glyph uni0125
 ref h-lower:sm inherit
-ref circ-above 4 1 inherit
+ref circ-above 8 -1 inherit
 map ĥ = uni0125
 map generate î
 glyph uni0135
 ref j-lower:dotless inherit
-ref circ-above 4 3 inherit
+ref circ-above 8 1 inherit
 map ĵ = uni0135
 map generate ḽ
 map generate ṋ
 map generate ô
 glyph uni1ED3
 ref o-lower:compressed inherit
-ref circ-above 4 4
-ref grave-above 3 2 inherit
+ref circ-above 8 2
+ref grave-above 7 0 inherit
 map ồ = uni1ED3
 glyph uni1ED5
 ref o-lower:compressed inherit
-ref circ-above 4 4
-ref hook-above 5 2 inherit
+ref circ-above 8 2
+ref hook-above 9 0 inherit
 map ổ = uni1ED5
 glyph uni1ED7
 ref o-lower:compressed inherit
-ref circ-above 4 4
-ref tilde-above 4 2 inherit
+ref circ-above 8 2
+ref tilde-above 8 0 inherit
 map ỗ = uni1ED7
 glyph uni1ED1
 ref o-lower:compressed inherit
-ref circ-above 4 4
-ref acute-above 6 2 inherit
+ref circ-above 8 2
+ref acute-above 10 0 inherit
 map ố = uni1ED1
 map generate ŝ
 map generate ṱ
@@ -3381,23 +3381,23 @@ map generate ẑ
 map generate Ă
 glyph uni1EB0
 ref a-upper-compressed inherit
-ref breve-above 4 2
-ref grave-above 3 0 inherit
+ref breve-above 8 0
+ref grave-above 7 -2 inherit
 map Ằ = uni1EB0
 glyph uni1EB2
 ref a-upper-compressed inherit
-ref breve-above 4 2
-ref hook-above 5 0 inherit
+ref breve-above 8 0
+ref hook-above 9 -2 inherit
 map Ẳ = uni1EB2
 glyph uni1EB4
 ref a-upper-compressed inherit
-ref breve-above 4 2
-ref tilde-above 4 0 inherit
+ref breve-above 8 0
+ref tilde-above 8 -2 inherit
 map Ẵ = uni1EB4
 glyph uni1EAE
 ref a-upper-compressed inherit
-ref breve-above 4 2
-ref acute-above 6 0 inherit
+ref breve-above 8 0
+ref acute-above 10 -2 inherit
 map Ắ = uni1EAE
 map generate Ĕ
 map generate Ğ
@@ -3409,23 +3409,23 @@ map generate Ŭ
 map generate ă
 glyph uni1EB1
 ref a-lower:compressed inherit
-ref breve-above 4 4
-ref grave-above 3 2 inherit
+ref breve-above 8 2
+ref grave-above 7 0 inherit
 map ằ = uni1EB1
 glyph uni1EB3
 ref a-lower:compressed inherit
-ref breve-above 4 4
-ref hook-above 5 2 inherit
+ref breve-above 8 2
+ref hook-above 9 0 inherit
 map ẳ = uni1EB3
 glyph uni1EB5
 ref a-lower:compressed inherit
-ref breve-above 4 4
-ref tilde-above 4 2 inherit
+ref breve-above 8 2
+ref tilde-above 8 0 inherit
 map ẵ = uni1EB5
 glyph uni1EAF
 ref a-lower:compressed inherit
-ref breve-above 4 4
-ref acute-above 6 2 inherit
+ref breve-above 8 2
+ref acute-above 10 0 inherit
 map ắ = uni1EAF
 map generate ĕ
 map generate ğ
@@ -3455,8 +3455,8 @@ map generate ȗ
 map generate Å
 glyph uni01FA
 ref a-upper-compressed inherit
-ref ring-above 4 2
-ref acute-above 5 0 inherit
+ref ring-above 8 0
+ref acute-above 9 -2 inherit
 map Ǻ = uni01FA
 map generate Ḁ
 map generate Ů
@@ -3464,8 +3464,8 @@ map generate Ů
 map generate å
 glyph uni01FB
 ref a-lower:compressed inherit
-ref ring-above 4 4
-ref acute-above 5 2 inherit
+ref ring-above 8 2
+ref acute-above 9 0 inherit
 map ǻ = uni01FB
 map generate ḁ
 map generate ů
@@ -3483,32 +3483,32 @@ map generate Ñ
 map generate Õ
 glyph uni022C
 ref o-upper-compressed inherit
-ref tilde-above 4 2
-ref mac-above 4 0 inherit
+ref tilde-above 8 0
+ref mac-above 8 -2 inherit
 map Ȭ = uni022C
 glyph uni1E4C
 ref o-upper-compressed inherit
-ref tilde-above 4 2
-ref acute-above 5 0 inherit
+ref tilde-above 8 0
+ref acute-above 9 -2 inherit
 map Ṍ = uni1E4C
 glyph uni1E4E
 ref o-upper-compressed inherit
-ref tilde-above 4 2
-ref dia-above:narrow 2 0 inherit
+ref tilde-above 8 0
+ref dia-above:narrow 9 -2 inherit
 map Ṏ = uni1E4E
 glyph uni1EE0
 ref o-horn-upper inherit
-ref tilde-above:wide 1 0 inherit
+ref tilde-above:wide 7 -2 inherit
 map Ỡ = uni1EE0
 map generate Ũ
 glyph uni1E78
 ref u-upper-compressed inherit
-ref tilde-above 4 2
-ref acute-above 5 0 inherit
+ref tilde-above 8 0
+ref acute-above 9 -2 inherit
 map Ṹ = uni1E78
 glyph uni1EEE
 ref u-horn-upper inherit
-ref tilde-above:wide 1 0 inherit
+ref tilde-above:wide 7 -2 inherit
 map Ữ = uni1EEE
 map generate Ṵ
 map generate Ṽ
@@ -3523,32 +3523,32 @@ map generate ñ
 map generate õ
 glyph uni022D
 ref o-lower:compressed inherit
-ref tilde-above 4 4
-ref mac-above 4 2 inherit
+ref tilde-above 8 2
+ref mac-above 8 0 inherit
 map ȭ = uni022D
 glyph uni1E4D
 ref o-lower:compressed inherit
-ref tilde-above 4 4
-ref acute-above 5 2 inherit
+ref tilde-above 8 2
+ref acute-above 9 0 inherit
 map ṍ = uni1E4D
 glyph uni1E4F
 ref o-lower:compressed inherit
-ref tilde-above 4 4
-ref dia-above:narrow 2 2 inherit
+ref tilde-above 8 2
+ref dia-above:narrow 9 0 inherit
 map ṏ = uni1E4F
 glyph uni1EE1
 ref o-horn-lower inherit
-ref tilde-above:wide 1 2 inherit
+ref tilde-above:wide 7 0 inherit
 map ỡ = uni1EE1
 map generate ũ
 glyph uni1E79
 ref u-lower:compressed inherit
-ref tilde-above 4 4
-ref acute-above 5 2 inherit
+ref tilde-above 8 2
+ref acute-above 9 0 inherit
 map ṹ = uni1E79
 glyph uni1EEF
 ref u-horn-lower inherit
-ref tilde-above:wide 1 2 inherit
+ref tilde-above:wide 7 0 inherit
 map ữ = uni1EEF
 map generate ṵ
 map generate ṽ
@@ -3559,8 +3559,8 @@ map generate ỹ
 map generate Ȧ
 glyph uni01E0
 ref a-upper-compressed inherit
-ref dot-above 5 2
-ref mac-above 4 0 inherit
+ref dot-above 9 0
+ref mac-above 8 -2 inherit
 map Ǡ = uni01E0
 map generate Ạ
 map generate Ậ
@@ -3570,7 +3570,7 @@ map generate Ḅ
 map generate Ċ
 glyph uni1E0A
 ref d-upper inherit
-ref dot-above 4 0 inherit
+ref dot-above 8 -2 inherit
 map Ḋ = uni1E0A
 map generate Ḍ
 map generate Ė
@@ -3596,14 +3596,14 @@ map generate Ṇ
 map generate Ȯ
 glyph uni0230
 ref o-upper-compressed inherit
-ref dot-above 5 2
-ref mac-above 4 0 inherit
+ref dot-above 9 0
+ref mac-above 8 -2 inherit
 map Ȱ = uni0230
 map generate Ọ
 map generate Ộ
 glyph uni1EE2
 ref o-horn-upper inherit
-ref dot-below:wide 3 14 inherit
+ref dot-below:wide 8 2 inherit
 map Ợ = uni1EE2
 map generate Ṗ
 map generate Ṙ
@@ -3623,7 +3623,7 @@ map Ṭ = uni1E6C
 map generate Ụ
 glyph uni1EF0
 ref u-horn-upper inherit
-ref dot-below:wide 3 14 inherit
+ref dot-below:wide 8 2 inherit
 map Ự = uni1EF0
 map generate Ṿ
 map generate Ẇ
@@ -3631,7 +3631,7 @@ map generate Ẉ
 map generate Ẋ
 glyph uni1E8E
 ref y-upper inherit
-ref dot-above:wide 3 1 inherit
+ref dot-above:wide 8 -1 inherit
 map Ẏ = uni1E8E
 map generate Ỵ
 map generate Ż
@@ -3640,21 +3640,21 @@ map generate Ẓ
 map generate ȧ
 glyph uni01E1
 ref a-lower:compressed inherit
-ref dot-above 5 4
-ref mac-above 4 2 inherit
+ref dot-above 9 2
+ref mac-above 8 0 inherit
 map ǡ = uni01E1
 map generate ạ
 map generate ậ
 map generate ặ
 glyph uni1E03
 ref b-lower inherit
-ref dot-above 5 2 inherit
+ref dot-above 9 0 inherit
 map ḃ = uni1E03
 map generate ḅ
 map generate ċ
 glyph uni1E0B
 ref d-lower inherit
-ref dot-above 4 2 inherit
+ref dot-above 8 0 inherit
 map ḋ = uni1E0B
 map generate ḍ
 map generate ė
@@ -3664,7 +3664,7 @@ map generate ḟ
 map generate ġ
 glyph uni1E23
 ref h-lower inherit
-ref dot-above 5 2 inherit
+ref dot-above 9 0 inherit
 map ḣ = uni1E23
 map generate ḥ
 map generate ị
@@ -3682,14 +3682,14 @@ map generate ṇ
 map generate ȯ
 glyph uni0231
 ref o-lower:compressed inherit
-ref dot-above 5 4
-ref mac-above 4 2 inherit
+ref dot-above 9 2
+ref mac-above 8 0 inherit
 map ȱ = uni0231
 map generate ọ
 map generate ộ
 glyph uni1EE3
 ref o-horn-lower inherit
-ref dot-below:wide 3 14 inherit
+ref dot-below:wide 8 2 inherit
 map ợ = uni1EE3
 map generate ṗ
 map generate ṙ
@@ -3700,17 +3700,17 @@ map generate ṣ
 map generate ṩ
 glyph uni1E9B
 ref long-s-lower inherit
-ref dot-above 5 0 inherit
+ref dot-above 9 -2 inherit
 map ẛ = uni1E9B
 glyph uni1E6B
 ref t-lower inherit
-ref dot-above 4 0 inherit
+ref dot-above 8 -2 inherit
 map ṫ = uni1E6B
 map generate ṭ
 map generate ụ
 glyph uni1EF1
 ref u-horn-lower inherit
-ref dot-below:wide 3 14 inherit
+ref dot-below:wide 8 2 inherit
 map ự = uni1EF1
 map generate ṿ
 map generate ẇ
@@ -3718,11 +3718,11 @@ map generate ẉ
 map generate ẋ
 glyph uni1E8F
 ref y-lower inherit
-ref dot-above 4 2 inherit
+ref dot-above 8 0 inherit
 map ẏ = uni1E8F
 glyph uni1EF5
 ref y-lower inherit
-ref dot-below 5 0 inherit
+ref dot-below 9 2 inherit
 map ỵ = uni1EF5
 map generate ż
 map generate ẓ
@@ -3735,12 +3735,12 @@ map generate Ỉ
 map generate Ỏ
 glyph uni1EDE
 ref o-horn-upper inherit
-ref hook-above:wide 2 0 inherit
+ref hook-above:wide 7 -2 inherit
 map Ở = uni1EDE
 map generate Ủ
 glyph uni1EEC
 ref u-horn-upper inherit
-ref hook-above:wide 2 0 inherit
+ref hook-above:wide 7 -2 inherit
 map Ử = uni1EEC
 map generate Ỷ
 
@@ -3748,17 +3748,17 @@ map generate ả
 map generate ẻ
 glyph uni1EC9
 ref i-lower:dotless inherit
-ref hook-above:wide 3 2 inherit
+ref hook-above:wide 8 0 inherit
 map ỉ = uni1EC9
 map generate ỏ
 glyph uni1EDF
 ref o-horn-lower inherit
-ref hook-above:wide 2 2 inherit
+ref hook-above:wide 7 0 inherit
 map ở = uni1EDF
 map generate ủ
 glyph uni1EED
 ref u-horn-lower inherit
-ref hook-above:wide 2 2 inherit
+ref hook-above:wide 7 0 inherit
 map ử = uni1EED
 map generate ỷ
 

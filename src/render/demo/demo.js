@@ -25,6 +25,7 @@
 
   var DECLARED = 1;
   var EXCLUDED = 2;
+  var ZERO_ADVANCE = 4;
   /* Rows per lazily-rendered chunk. */
   var CHUNK = 16;
   /* The height of a collapsed run of excluded rows, in px; also stated in
@@ -34,12 +35,19 @@
      between the em box and the cell, kept in step with `--cell-h`. */
   var CELL_PAD = 22;
 
+  /* What the page opens at, in whole multiples of the pixel grid. */
+  var INITIAL_ZOOM = 2;
+
   var state = {
     mode: "bitmap",
     /* The bitmap face is only crisp at whole multiples of the pixel grid, so
        it is zoomed in steps rather than sized freely. */
-    zoom: 2,
-    size: 48
+    zoom: INITIAL_ZOOM,
+    /* Freely sized, but opening at the same em as the bitmap face does:
+       switching between the two is for comparing them, and a switch that also
+       changed the size would make that a worse comparison. Derived rather than
+       stated, so it stays true for a font whose pixel grid is not this one's. */
+    size: meta.height * INITIAL_ZOOM
   };
 
   function em() {
@@ -140,6 +148,12 @@
     var name = nameOf(cp);
     var title = "U+" + hex(cp, 4) + (name ? " " + name : "") + (declared ? "" : " \u2014 not in the font");
     var glyph = declared && !isControl(cp) ? esc(String.fromCodePoint(cp)) : "";
+    /* A character the font gives no advance draws on nothing and its cell reads
+       as empty. The circle in front of it is the same one the editor puts there
+       (`crate::editor::annotations`), and drawn the same way — as a shape, not
+       by writing U+25CC, so that a fault in the font being shown cannot take
+       the placeholder with it. */
+    if (glyph && (flags & ZERO_ADVANCE) !== 0) glyph = '<span class="dc"></span>' + glyph;
     return (
       '<div class="cell' + (declared ? "" : " missing") + '" title="' + esc(title) + '">' +
       '<span class="g">' + glyph + "</span>" +

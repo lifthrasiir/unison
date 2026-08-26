@@ -260,6 +260,7 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Writing a TTC, and what the faces of one share | `render/ttf_builder/collection.rs` |
 | Why the glyph order is face-independent | `render/ttf_builder/collect.rs`, `build_faces` in `mod.rs` |
 | Why a glyph's GID is its index, and how `.notdef` gets to GID 0 | `render/ttf_builder/mod.rs` (`NOTDEF`), `collect.rs` |
+| A component glyph nothing maps: why the build synthesizes one, and why it carries the same declared box every other glyph gets | `render/ttf_builder/collect.rs` (the component-extras loop, `resolve_glyph_metrics`) |
 | `ulUnicodeRange`/`ulCodePageRange` derivation from the cmap | `render/ttf_builder/os2_ranges.rs` |
 | Name pattern grammar and its per-context parses | `pattern.rs` |
 | `$-N` back-references: naming a pattern's own groups again, and why only a written `(...)` captures | `pattern.rs` (`capture_groups`, `substitute_captures`) |
@@ -315,6 +316,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | What `demo.html` embeds instead of rendered output, and the four ways its specimen differs from the editor's | `render/demo/mod.rs` |
 | Which character names the demo page is told and which it spells for itself | `render/demo/mod.rs` (`collect_names`), `render/demo/demo.js` (`nameOf`) |
 | Why the demo's cells are rendered in lazy chunks, and why a chunk knows its height before its content | `render/demo/demo.js` |
+| The dotted circle in a demo cell, why the built font's `hmtx` decides which cells get one, and why it rides on the cell flags | `render/demo/mod.rs` (`CELL_ZERO_ADVANCE`, `zero_advance_codepoints`), `render/demo/demo.css` (`.dc`) |
+| Why a demo cell is bidi-isolated | `render/demo/demo.css` (`.cell`) |
 | One face's bitmap and vector builds with no cache between them (the demo's pair, as against the editor's) | `render/ttf_builder/mod.rs` (`build_face_ttf_pair`) |
 | Why an IDC line becomes `ref`s at expansion time, and why the parts are sized by what they *declare* | `render/ttf_builder/expand.rs` (`expand_compose_lines`), `ref_composite/mod.rs` (`declared_box`) |
 | Why an anchor error drops the glyph (and so its cmap entry), like a missing ref | `render/glyph_cache.rs` (`resolve_pending`) |

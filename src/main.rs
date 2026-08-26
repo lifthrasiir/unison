@@ -971,6 +971,7 @@ fn main() {
             let fonts = render::demo::DemoFonts {
                 bitmap_woff2: &bitmap_woff2,
                 vector_woff2: &vector_woff2,
+                bitmap_ttf: &bitmap_ttf,
             };
             if let Err(e) =
                 render::demo::write_demo_html(&mut f, sample_source.as_ref().unwrap(), &refs, fonts)

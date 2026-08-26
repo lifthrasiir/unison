@@ -1485,3 +1485,111 @@ map B = inner
 }
 
 
+
+/// A `:variant` no character and no `remap` reaches is still a real glyph when
+/// a composite's anchor alternative picks it: the build has to synthesize it
+/// from the ref alone. Synthesizing it with no bearing was the bug — the parent
+/// subtracts the component's declared bearing from its placement (the component
+/// glyph is supposed to carry it), so a variant that declares `origin` landed a
+/// whole origin away from where its primary would have. Every `ἲ ὶ ί ῒ ΐ ῗ`
+/// went wrong that way, because iota's `+gr-above` is the one two-cell Greek
+/// anchor and so the only one that reaches a `:wide` accent.
+#[test]
+fn a_synthesized_component_glyph_keeps_its_declared_bearing() {
+    let input = "\
+glyph mark0 3 3
+@@@@@@
+@@@@@@
+@@@@@@
+
+glyph mk mark advance 0 origin 6 -2
+ref mark0
+anchor -above 1 1
+
+glyph mk:wide mark advance 0 origin 6 -2
+ref mark0
+anchor -above 0..1 1
+
+glyph base-narrow 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 1 3
+
+glyph base-wide 4 4
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+@@@@@@@@
+anchor +above 0..1 3
+
+glyph combo-narrow
+ref base-narrow
+ref mk
+
+glyph combo-wide
+ref base-wide
+ref mk
+
+map A = combo-narrow
+map B = combo-wide
+map C = mk
+";
+    let doc = document_io::parse_document_from_str(input, "test.unf".into()).unwrap();
+    let (_, _, glyphs, _, _) = collect_glyph_data(&[&doc], false).unwrap();
+
+    let wide = glyphs
+        .iter()
+        .find(|g| g.name == "mk:wide")
+        .expect("the alternative the wide base picked has to be in the font");
+    let mk = glyphs.iter().find(|g| g.name == "mk").unwrap();
+    assert_eq!(
+        (wide.advance_width, wide.left_offset, wide.top_offset),
+        (mk.advance_width, mk.left_offset, mk.top_offset),
+        "the two spellings of one mark declare one box, so they export one",
+    );
+
+    // Both bases hand the mark the same grid cell — `+above 1 3` against
+    // `-above 1 1` and `+above 0..1 3` against `-above 0..1 1` are both an
+    // offset of (0, 2) — so the two composites have to draw the same thing.
+    let flat = |name: &str| {
+        fn walk(
+            glyphs: &[CollectedGlyph],
+            name: &str,
+            dx: i16,
+            dy: i16,
+            out: &mut Vec<Vec<(i16, i16)>>,
+        ) {
+            let Some(g) = glyphs.iter().find(|g| g.name == name) else {
+                return;
+            };
+            if g.composite_refs.is_empty() {
+                for c in &g.contours {
+                    out.push(c.iter().map(|&(x, y)| (x + dx, y + dy)).collect());
+                }
+            }
+            // A composite keeps its own traced contours as the inline
+            // fallback; counting both would draw everything twice.
+            for cr in &g.composite_refs {
+                walk(
+                    glyphs,
+                    &cr.component_name,
+                    dx + cr.x_offset,
+                    dy + cr.y_offset,
+                    out,
+                );
+            }
+        }
+        let mut out = Vec::new();
+        walk(&glyphs, name, 0, 0, &mut out);
+        let mut out: Vec<Vec<(i16, i16)>> = out.iter().map(|c| canonicalize_contour(c)).collect();
+        out.sort();
+        out
+    };
+    assert_eq!(
+        flat("combo-wide"),
+        flat("combo-narrow"),
+        "the alternative must land where the primary would have",
+    );
+}

@@ -18,6 +18,10 @@
   --accent: #7cc7ff;
   --accent-dim: #2b4a63;
   --missing: #2a2f3a;
+  /* The dotted circle standing in for a character with no advance. A sky blue
+     in both schemes: it is not text, and not a warning either. Kept in step
+     with `Palette::zero_advance`. */
+  --zero-advance: #5aafeb;
   --radius: 10px;
   --gutter: 4.5rem;
   --em: 32px;
@@ -38,6 +42,7 @@
     --accent: #0b6bcb;
     --accent-dim: #cfe3f7;
     --missing: #eef0f5;
+    --zero-advance: #2382c8;
   }
 }
 
@@ -187,6 +192,12 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
 
 .cell {
   position: relative;
+  /* A cell holds one character and its hex label, and either may be
+     right-to-left. Isolated so a strong character in one cannot reorder what
+     sits beside it, and so the placeholder circle below always stays in front
+     of the character it stands for. */
+  direction: ltr;
+  unicode-bidi: isolate;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -213,6 +224,33 @@ section.block { width: fit-content; min-width: min(100%, 40rem); margin: 1.75rem
   font-variant-ligatures: none;
   font-kerning: none;
   white-space: pre;
+}
+/* The placeholder for a character the font gives no advance: one cell held
+   open, with a ring of eight dots drawn in it. Sized and proportioned like the
+   editor's (`annotations::paint_dotted_circle`): the ring's radius is 0.30 of
+   the cell and each dot's is 0.055, so the two read as the same mark.
+
+   `1ch` is the advance of `0` in the font being shown, which is that font's own
+   narrow cell — the same width the editor's placeholder takes, without having
+   to be told it. A mask rather than a background image so the color is a token
+   and follows the scheme. The ring is one circle with a round-capped dash
+   pattern of zero-length dashes; eight dots at radius 30 of a 100 box is a
+   period of 2*pi*30/8. The stroke is white rather than black so the ring shows
+   whether the mask is read as alpha or as luminance. */
+.cell .dc {
+  display: inline-block;
+  width: 1ch;
+  height: 1em;
+  /* Top of the line box, not the baseline. An empty inline-block's baseline is
+     its bottom edge, which would hang the whole ring above the baseline and so
+     `descent` higher than the em box the glyph occupies — the editor centers
+     its circle in the row, and this is what makes the two agree. `.g`'s
+     line-height is its own font size, so the line box *is* the em box. */
+  vertical-align: top;
+  background-color: var(--zero-advance);
+  --dc: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="white" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 23.562"/></svg>');
+  -webkit-mask: var(--dc) center / contain no-repeat;
+  mask: var(--dc) center / contain no-repeat;
 }
 .cell .n {
   font: 9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
