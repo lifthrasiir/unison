@@ -701,6 +701,32 @@ anchor -above 1 1
     }
 }
 
+/// `align` is optional and rides on the feature declaration; a class that
+/// states none keeps the default, which is written by leaving it off.
+#[test]
+fn feature_anchor_align_roundtrips() {
+    for (written, expect) in [
+        ("feature ccmp for hebr : anchor he-below align c\n", "c"),
+        ("feature ccmp for hebr : anchor he-below align dr\n", "dr"),
+        ("feature ccmp for hebr : anchor he-below\n", "ul"),
+    ] {
+        let doc = document_io::parse_document_from_str(written, "test.unf".into()).unwrap();
+        let DocumentItem::FeatureAnchor { align, anchor, .. } = &doc.items[0] else {
+            panic!("expected FeatureAnchor, got {:?}", doc.items[0]);
+        };
+        assert_eq!(anchor, "he-below");
+        assert_eq!(
+            align.to_token().unwrap_or_else(|| "ul".to_string()),
+            expect,
+            "for {written:?}"
+        );
+
+        let mut output = Vec::new();
+        document_io::serialize_document(&doc, &mut output).unwrap();
+        assert_eq!(String::from_utf8(output).unwrap(), written);
+    }
+}
+
 #[test]
 fn feature_anchor_roundtrips() {
     let input = "\

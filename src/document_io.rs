@@ -219,8 +219,16 @@
 //!   a script tag (`latn`, `DFLT`) or a script narrowed to one language system,
 //!   `script/LANG` (`latn/ROM`); see `render/ttf_builder/gsub.rs` for why the
 //!   two are written explicitly and how scope fallback works.
-//! - `feature NAME for TARGET... : anchor ANCHOR_NAME` — the anchor-driven
-//!   (mark attachment) variant.
+//! - `feature NAME for TARGET... : anchor ANCHOR_NAME [align XX]` — the
+//!   anchor-driven (mark attachment) variant. `align` says how a *ranged*
+//!   anchor of this class becomes the one point GPOS attaches by: `[u|c|d]`
+//!   for the row axis and `[l|c|r]` for the column axis, a lone `c` for both,
+//!   defaulting to `ul` — the low end of each, which is what a range meant
+//!   before there was anything to state. The class is the only thing that may
+//!   say, because the same reduction has to apply to the `+` side and the `-`
+//!   side for their difference to mean anything; see
+//!   [`crate::document::AnchorAlign`], and `issues::anchors` for the parity a
+//!   centred class is held to.
 //! - `assert shape TEXT [@lang] [+feat|-feat...] [for SLICE...] : GLYPH [advance N] [offset X Y] : GLYPH ...`
 //!   — shaping assertion; `@lang` is a BCP 47 tag, see [`crate::render::assert`].
 //!   `for SLICE...` restricts it to faces including all of them; a combination
@@ -291,7 +299,12 @@
 //!   stack in source order and `negated` subtracts from what is already there,
 //!   so a later ref draws back over an earlier negation.
 //! - `anchor POS COL ROW` — an anchor for auto-ref alignment; supports `+`/`-`
-//!   prefixes and cell ranges.
+//!   prefixes and cell ranges. A range does two jobs: its size says which
+//!   drawing of a mark a base wants (`GlyphPoint::size_matches`), and it
+//!   reduces to a point under its class's `align`. A `+` range is *the cells
+//!   the base hands over*, not the cells it happens to have — a base states
+//!   where it wants marks by moving or narrowing its range, which is why only
+//!   the class carries an `align` and no `anchor` line does.
 //! - `⿰`/`⿱`/`⿲`/`⿳ COMPONENT…` — an IDC line: the glyph's box split
 //!   along one axis, the offsets *derived* from what the components declare.
 //!   Each token is a gap if it reads as a number and a component name

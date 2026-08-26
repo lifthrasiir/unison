@@ -112,11 +112,22 @@ impl DocumentItem {
                     if rest.get(colon_pos + 1).is_some_and(|t| t == "anchor")
                         && colon_pos + 2 < rest.len()
                     {
+                        // `align XX` is optional and only ever follows the
+                        // anchor name; an unreadable one leaves the default
+                        // rather than dropping the whole declaration, and
+                        // `issues::anchors` is what says so.
+                        let align = match &rest[colon_pos + 3..] {
+                            [keyword, token] if keyword == "align" => {
+                                AnchorAlign::from_token(token).unwrap_or_default()
+                            }
+                            _ => AnchorAlign::default(),
+                        };
                         return DocumentItem::FeatureAnchor {
                             slices,
                             name: rest[0].clone(),
                             scripts: rest[2..colon_pos].to_vec(),
                             anchor: rest[colon_pos + 2].clone(),
+                            align,
                             comment,
                         };
                     }
@@ -541,15 +552,21 @@ impl DocumentItem {
                 name,
                 scripts,
                 anchor,
+                align,
                 comment,
             } => {
                 let qscripts: Vec<String> = scripts.iter().map(|s| quote_token(s)).collect();
+                let align = match align.to_token() {
+                    Some(token) => format!(" align {token}"),
+                    None => String::new(),
+                };
                 Some(format!(
-                    "feature {}{} for {} : anchor {}{}",
+                    "feature {}{} for {} : anchor {}{}{}",
                     serialize_slice_prefix(slices),
                     quote_token(name),
                     qscripts.join(" "),
                     quote_token(anchor),
+                    align,
                     serialize_comment_suffix(comment),
                 ))
             }

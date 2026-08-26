@@ -24,16 +24,31 @@ pub(super) struct AnchorGposData {
 /// Converts an anchor point's grid position to font units, applying the
 /// glyph's left/top offsets. Grid rows grow downward while font units grow
 /// upward from the baseline, so the row is flipped against `ascent`.
+///
+/// A *ranged* anchor becomes a point under its class's [`AnchorAlign`], the
+/// same reduction on the `+` side and the `-` side — that is what makes the
+/// difference the shaper computes mean anything, and it is why the alignment
+/// is the class's and not a glyph's. The default reduction takes the low end
+/// of each axis, which is what this did before there was one to state.
 fn anchor_font_units(
     pt: &GlyphPoint,
+    align: AnchorAlign,
     scale: f32,
     ascent: u16,
     left_offset: i16,
     top_offset: i16,
 ) -> (i16, i16) {
-    let x = (pt.col as f32 * scale).round() as i16 + left_offset;
-    let y = ((ascent as f32 - pt.row as f32) * scale).round() as i16 - top_offset;
+    let (col, row) = pt.aligned_point(align);
+    let x = (col * scale).round() as i16 + left_offset;
+    let y = ((ascent as f32 - row) * scale).round() as i16 - top_offset;
     (x, y)
+}
+
+/// The reduction one anchor class states, defaulting for a class no
+/// declaration named — a `-anchor` can carry a name the feature list never
+/// mentions, and the default is what it had before `align` existed.
+fn align_of(aligns: &HashMap<&str, AnchorAlign>, anchor_name: &str) -> AnchorAlign {
+    aligns.get(anchor_name).copied().unwrap_or_default()
 }
 
 /// A base (or mark2) glyph with one attachment anchor per mark class, in font
@@ -73,7 +88,7 @@ pub(super) fn build_anchor_gpos(
     let anchor_names: Vec<String> = gsub_data
         .anchor_features
         .iter()
-        .map(|(_, _, a)| a.clone())
+        .map(|f| f.anchor.clone())
         .collect();
 
     // The name each gid carries, for the entry lists the tests read. Built once
@@ -87,8 +102,8 @@ pub(super) fn build_anchor_gpos(
         .collect();
 
     let mut all_scripts: Vec<String> = Vec::new();
-    for (_, scripts, _) in &gsub_data.anchor_features {
-        for s in scripts {
+    for feature in &gsub_data.anchor_features {
+        for s in &feature.scripts {
             if !all_scripts.contains(s) {
                 all_scripts.push(s.clone());
             }
@@ -134,11 +149,19 @@ pub(super) fn build_anchor_gpos(
 
     // Map anchor_name → (feature_tag, scripts) from the declarations.
     let mut anchor_to_feature: HashMap<String, (String, Vec<String>)> = HashMap::new();
-    for (tag, scripts, anchor_name) in &gsub_data.anchor_features {
+    for feature in &gsub_data.anchor_features {
         anchor_to_feature
-            .entry(anchor_name.clone())
-            .or_insert_with(|| (tag.clone(), scripts.clone()));
+            .entry(feature.anchor.clone())
+            .or_insert_with(|| (feature.tag.clone(), feature.scripts.clone()));
     }
+
+    // The reduction each anchor class applies to a ranged anchor, on both its
+    // `+` and its `-` side.
+    let anchor_align: HashMap<&str, AnchorAlign> = gsub_data
+        .anchor_features
+        .iter()
+        .map(|f| (f.anchor.as_str(), f.align))
+        .collect();
 
     for g in glyphs {
         let Some(&gid) = name_to_gid.get(&g.name) else {
@@ -166,10 +189,11 @@ pub(super) fn build_anchor_gpos(
                     source
                         .iter()
                         .find(|p| p.position == minus_name)
-                        .map(|pt| (anchor_class_map[anchor_name], pt))
+                        .map(|pt| (anchor_class_map[anchor_name], anchor_name.as_str(), pt))
                 });
-                if let Some((class, pt)) = found {
-                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
+                if let Some((class, anchor_name, pt)) = found {
+                    let align = align_of(&anchor_align, anchor_name);
+                    let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
                     mark_gids.push((gid, class, x, y));
                     break;
                 }
@@ -182,7 +206,8 @@ pub(super) fn build_anchor_gpos(
                 let plus_name = format!("+{anchor_name}");
                 if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
+                    let align = align_of(&anchor_align, anchor_name);
+                    let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
                     plus_anchors[class] = Some((x, y));
                     has_any = true;
                 }
@@ -206,7 +231,8 @@ pub(super) fn build_anchor_gpos(
                 let plus_name = format!("+{anchor_name}");
                 if let Some(pt) = g.declared_anchors.iter().find(|p| p.position == plus_name) {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
+                    let align = align_of(&anchor_align, anchor_name);
+                    let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
                     own_plus[class] = Some((x, y));
                     has_own = true;
                 } else if let Some(alts) = alt_index.get(&g.name) {
@@ -217,7 +243,9 @@ pub(super) fn build_anchor_gpos(
                             let alt_g = glyphs.iter().find(|gg| gg.name == *alt_name);
                             let alt_loff = alt_g.map_or(0, |gg| gg.left_offset);
                             let alt_toff = alt_g.map_or(0, |gg| gg.top_offset);
-                            let (x, y) = anchor_font_units(pt, scale, ascent, alt_loff, alt_toff);
+                            let align = align_of(&anchor_align, anchor_name);
+                            let (x, y) =
+                                anchor_font_units(pt, align, scale, ascent, alt_loff, alt_toff);
                             let entry = alt_plus_map
                                 .entry(alt_name.clone())
                                 .or_insert_with(|| vec![None; num_classes as usize]);
@@ -242,14 +270,16 @@ pub(super) fn build_anchor_gpos(
                             g.resolved_anchors.iter().find(|p| p.position == plus_name)
                     {
                         let class = anchor_class_map[anchor_name] as usize;
-                        let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
+                        let align = align_of(&anchor_align, anchor_name);
+                        let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
                         own_plus[class] = Some((x, y));
                         has_own = true;
                     }
                 } else if let Some(pt) = g.resolved_anchors.iter().find(|p| p.position == plus_name)
                 {
                     let class = anchor_class_map[anchor_name] as usize;
-                    let (x, y) = anchor_font_units(pt, scale, ascent, loff, toff);
+                    let align = align_of(&anchor_align, anchor_name);
+                    let (x, y) = anchor_font_units(pt, align, scale, ascent, loff, toff);
                     own_plus[class] = Some((x, y));
                     has_own = true;
                 }
@@ -499,8 +529,8 @@ pub(super) fn build_anchor_gpos(
             let scripts: Vec<String> = gsub_data
                 .anchor_features
                 .iter()
-                .filter(|(t, _, _)| t == tag)
-                .flat_map(|(_, s, _)| s.clone())
+                .filter(|f| &f.tag == tag)
+                .flat_map(|f| f.scripts.clone())
                 .collect::<Vec<_>>()
                 .into_iter()
                 .fold(Vec::new(), |mut acc, s| {
@@ -698,8 +728,8 @@ pub(super) fn build_anchor_gpos(
                     let scripts: Vec<String> = gsub_data
                         .anchor_features
                         .iter()
-                        .filter(|(t, _, _)| *t == tag)
-                        .flat_map(|(_, s, _)| s.clone())
+                        .filter(|f| f.tag == tag)
+                        .flat_map(|f| f.scripts.clone())
                         .fold(Vec::new(), |mut acc, s| {
                             if !acc.contains(&s) {
                                 acc.push(s);

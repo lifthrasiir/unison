@@ -198,3 +198,121 @@ pub(super) fn check_anchor_derivation(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
         );
     }
 }
+
+/// A centred anchor class whose two sides cannot meet on the pixel grid.
+///
+/// Centring reduces each side's range to its middle, so the offset the shaper
+/// computes is half the difference of the two sizes. That lands on a whole
+/// pixel only when the sizes share a parity; a 3-wide mark centred in a 4-wide
+/// slot wants half a pixel, which the bitmap face cannot draw and the vector
+/// face draws off the grid.
+///
+/// Reported per *class*, against the sizes it declares rather than against
+/// every base-and-mark pair: the pairs are the product of two glyph sets and
+/// would bury the one thing worth saying, which is that a size was picked with
+/// the wrong parity. `align c` on one axis only checks that axis.
+pub(super) fn check_centred_anchor_parity(cx: &Cx<'_>, issues: &mut Vec<Issue>) {
+    use crate::document::{Align1, AnchorAlign};
+
+    // The classes that centre, and on which axis.
+    let mut centred: HashMap<&str, AnchorAlign> = HashMap::new();
+    for doc in cx.docs {
+        for item in &doc.items {
+            if let DocumentItem::FeatureAnchor { anchor, align, .. } = item
+                && (align.horizontal == Align1::Center || align.vertical == Align1::Center)
+            {
+                centred.insert(anchor.as_str(), *align);
+            }
+        }
+    }
+    if centred.is_empty() {
+        return;
+    }
+
+    // Per class and side, the sizes declared and one place each was written.
+    // `(anchor, is_plus)` → `(width, height)` → first site.
+    type Site = (PathBuf, usize, usize, String);
+    let mut sizes: HashMap<(&str, bool), HashMap<(u16, u16), Site>> = HashMap::new();
+    for doc in cx.docs {
+        for (item_idx, item) in doc.items.iter().enumerate() {
+            let DocumentItem::Glyph {
+                name: GlyphName(n),
+                body,
+            } = item
+            else {
+                continue;
+            };
+            for pt in &body.points {
+                let Some((sign, name)) = pt.position.split_at_checked(1) else {
+                    continue;
+                };
+                let is_plus = match sign {
+                    "+" => true,
+                    "-" => false,
+                    _ => continue,
+                };
+                if !centred.contains_key(name) {
+                    continue;
+                }
+                let (line, file_line) = doc.item_lines(item_idx);
+                sizes
+                    .entry((centred.get_key_value(name).expect("just checked").0, is_plus))
+                    .or_default()
+                    .entry((pt.width(), pt.height()))
+                    .or_insert((
+                        doc.path.clone(),
+                        line,
+                        file_line,
+                        substitute_name_parts(n, cx.name_parts),
+                    ));
+            }
+        }
+    }
+
+    let mut anchors: Vec<&str> = centred.keys().copied().collect();
+    anchors.sort_unstable();
+    for anchor in anchors {
+        let align = centred[anchor];
+        let (Some(plus), Some(minus)) = (
+            sizes.get(&(anchor, true)).cloned(),
+            sizes.get(&(anchor, false)),
+        ) else {
+            continue;
+        };
+        let mut plus_sizes: Vec<_> = plus.iter().collect();
+        plus_sizes.sort_by_key(|(size, _)| **size);
+        let mut minus_sizes: Vec<_> = minus.iter().collect();
+        minus_sizes.sort_by_key(|(size, _)| **size);
+
+        for (plus_size, _) in &plus_sizes {
+            let (pw, ph) = **plus_size;
+            for (minus_size, site) in &minus_sizes {
+                let (mw, mh) = **minus_size;
+                let (file, line, file_line, mark) = site;
+                let axis = if align.horizontal == Align1::Center && (pw + mw) % 2 == 1 {
+                    Some(("width", pw, mw))
+                } else if align.vertical == Align1::Center && (ph + mh) % 2 == 1 {
+                    Some(("height", ph, mh))
+                } else {
+                    None
+                };
+                let Some((axis, slot, mark_size)) = axis else {
+                    continue;
+                };
+                issues.push(Issue {
+                    severity: Severity::Warning,
+                    glyph: None,
+                    message: format!(
+                        "anchor '{anchor}' is `align {}`, but a {axis}-{mark_size} `-{anchor}` \
+                         (on '{mark}') centred in a {axis}-{slot} `+{anchor}` lands half a pixel \
+                         off; give the two the same parity",
+                        align.to_token().unwrap_or_else(|| "ul".to_string()),
+                    ),
+                    file: file.clone(),
+                    line: *line,
+                    file_line: *file_line,
+                });
+            }
+        }
+    }
+}

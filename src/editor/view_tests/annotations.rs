@@ -184,7 +184,7 @@ fn typing_a_comment_on_a_header_keeps_the_grid() {
 fn a_zero_advance_character_is_given_a_cell_of_its_own() {
     // U+0301 is what the test context's font gives no advance to; the real
     // font's own marks are declared `advance 0` and behave the same.
-    let mut h = EditorHarness::new("// a\u{301}\u{301}b\nglyph x 2 2\n....\n....\n");
+    let h = EditorHarness::new("// a\u{301}\u{301}b\nglyph x 2 2\n....\n....\n");
     assert_view_consistent(&h);
 
     match &h.snap().vlines[0].kind {

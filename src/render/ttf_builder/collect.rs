@@ -769,7 +769,7 @@ pub(super) fn collect_glyph_data_with_shared(
         let anchor_names: Vec<&str> = gsub_data
             .anchor_features
             .iter()
-            .map(|(_, _, a)| a.as_str())
+            .map(|f| f.anchor.as_str())
             .collect();
         let alt_index = build_cached_alternatives(&cache);
 

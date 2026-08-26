@@ -266,12 +266,15 @@ pub enum DocumentItem {
         remap_group: String,
         comment: Option<String>,
     },
-    /// `feature NAME for SCRIPT... : anchor ANCHOR_NAME`
+    /// `feature NAME for SCRIPT... : anchor ANCHOR_NAME [align XX]`
     FeatureAnchor {
         slices: Vec<String>,
         name: String,
         scripts: Vec<String>,
         anchor: String,
+        /// How both sides of this class reduce a ranged anchor to a point.
+        /// The class is the only thing that may say — see [`AnchorAlign`].
+        align: AnchorAlign,
         comment: Option<String>,
     },
     /// `prop block NAME = U+XXXX[..YYYY]` — a named area of the code space the

@@ -1820,3 +1820,66 @@ map h = half
         "while a glyph nothing faulted is still built",
     );
 }
+
+// ------------------------------------------------------------------
+// Centred anchor classes; see `crate::issues::anchors`.
+// ------------------------------------------------------------------
+
+/// Centring reduces both sides of a pairing to their middles, so the offset is
+/// half the difference of the two sizes — a whole pixel only when the sizes
+/// share a parity. The odd case is silent otherwise: the mark lands half a
+/// pixel off, which the bitmap face cannot draw at all.
+#[test]
+fn a_centred_anchor_class_warns_when_the_two_sizes_disagree_in_parity() {
+    let source = |slot: &str| {
+        format!(
+            "\
+feature ccmp for DFLT : anchor slot align c
+
+glyph base 8 1
+................
+anchor +slot {slot} 0
+
+glyph tick 8 1 mark advance 0
+................
+anchor -slot 3..5 0
+"
+        )
+    };
+
+    // 4-wide slot against a 3-wide mark: half a pixel.
+    let issues = issues_for(&source("1..4"));
+    assert!(
+        has(&issues, Severity::Warning, "lands half a pixel off"),
+        "a parity mismatch under `align c` must be reported, got {:?}",
+        issues.iter().map(|i| &i.message).collect::<Vec<_>>()
+    );
+
+    // 7-wide slot against the same 3-wide mark: two whole pixels each side.
+    let issues = issues_for(&source("1..7"));
+    assert!(
+        !has(&issues, Severity::Warning, "lands half a pixel off"),
+        "matching parity must not be reported, got {:?}",
+        issues.iter().map(|i| &i.message).collect::<Vec<_>>()
+    );
+}
+
+/// The default reduction takes the low end of each range, where no parity
+/// question arises — the check must not fire on a class that never centres.
+#[test]
+fn an_uncentred_anchor_class_is_never_held_to_the_parity_rule() {
+    let issues = issues_for(
+        "\
+feature ccmp for DFLT : anchor slot
+
+glyph base 8 1
+................
+anchor +slot 1..4 0
+
+glyph tick 8 1 mark advance 0
+................
+anchor -slot 3..5 0
+",
+    );
+    assert!(!has(&issues, Severity::Warning, "lands half a pixel off"));
+}

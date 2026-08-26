@@ -63,7 +63,7 @@ pub(super) fn collect_gsub_data(
 ) -> GsubData {
     let mut remap_sets: BTreeMap<String, Vec<ExpandedRemap>> = BTreeMap::new();
     let mut features: Vec<(String, Vec<String>, Vec<String>)> = Vec::new();
-    let mut anchor_features: Vec<(String, Vec<String>, String)> = Vec::new();
+    let mut anchor_features: Vec<AnchorFeature> = Vec::new();
 
     for (doc_idx, doc) in docs.iter().enumerate() {
         for (item_idx, item) in doc.items.iter().enumerate() {
@@ -146,9 +146,15 @@ pub(super) fn collect_gsub_data(
                     name,
                     scripts,
                     anchor,
+                    align,
                     ..
                 } => {
-                    anchor_features.push((name.clone(), scripts.clone(), anchor.clone()));
+                    anchor_features.push(AnchorFeature {
+                        tag: name.clone(),
+                        scripts: scripts.clone(),
+                        anchor: anchor.clone(),
+                        align: *align,
+                    });
                 }
                 _ => {}
             }

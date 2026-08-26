@@ -257,6 +257,7 @@ pub fn collect_issues_with(docs: &[&Document], resolution: &Resolution) -> Vec<I
     let mapped_glyphs = maps::check_maps(&cx, &graph, &mut issues);
     unused::check_unused_glyphs(&cx, &graph, mapped_glyphs, &mut issues);
     anchors::check_ambiguous_anchors(&cx, &mut issues);
+    anchors::check_centred_anchor_parity(&cx, &mut issues);
     anchors::check_anchor_derivation(&cx, &mut issues);
     colors::check_colors(&cx, &mut issues);
     patterns::check_props(docs, &mut issues);

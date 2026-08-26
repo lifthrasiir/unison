@@ -287,6 +287,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Saying that each expansion of a pattern block is a glyph of its own | `document_io.rs` (`keep`), `merge.rs` |
 | A `remap` rule that the lookup silently drops, and where that is reported | `render/ttf_builder/gsub.rs` (`shadowed_single_subst_rules`, `build_single_subst_from_pairs`) |
 | Anchor exposure and bearings | `ref_composite/mod.rs` |
+| An anchor's range: the drawing it selects and the point it reduces to, and why only the class states `align` | `document/glyph.rs` (`AnchorAlign`), `render/ttf_builder/gpos.rs` (`anchor_font_units`) |
+| Why a centred anchor class needs its two sizes to share a parity | `issues/anchors.rs` (`check_centred_anchor_parity`) |
 | `⿰⿱⿲⿳`: the split, the gap term, and why the offsets are derived rather than written | `compose.rs` |
 | The `:WxH-l` variant name rule, and the position tie-break between same-sized variants | `compose.rs` (`VariantSpec`, `direction_rank`) |
 | An IDC line written as a pattern, and why its layout is still solved per glyph | `compose.rs`, `document/name_parts.rs` (`expand_glyph_block`) |

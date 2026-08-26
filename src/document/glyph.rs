@@ -95,6 +95,96 @@ impl GlyphRef {
     }
 }
 
+/// One axis of an [`AnchorAlign`]: which end of an anchor's range stands for
+/// the whole of it.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Align1 {
+    /// The low end — the lowest column, or the topmost row (grid rows grow
+    /// downward). Written `l` and `u`, and the default.
+    #[default]
+    Low,
+    /// The middle. Written `c` on either axis.
+    Center,
+    /// The high end. Written `r` and `d`.
+    High,
+}
+
+/// Where a mark sits in a slot wider (or taller) than itself.
+///
+/// An anchor states a *range*, and the range does two jobs: its size says which
+/// drawing of a mark a base wants ([`GlyphPoint::size_matches`]), and it has to
+/// become the one point GPOS attaches by. This is the reduction — the same one
+/// applied to both sides of a pairing, so that the difference the shaper
+/// computes means something. Aligning the low ends puts a 3-wide mark flush
+/// against a 7-wide slot's left edge; centring both puts it in the middle,
+/// whatever the two widths are.
+///
+/// It belongs to the anchor *class* and to nothing smaller. A mark carries one
+/// anchor point in the `MarkArray`, shared with every base of its class, so a
+/// mark reduced by one rule against bases reduced by another produces a
+/// difference of no meaning. A mark that wants a different rule wants a
+/// different anchor name.
+///
+/// The letters are [`crate::compose::Direction`]'s (`l r u d c`); unlike a 1-D
+/// split, an anchor needs both axes, so a token is `[u|c|d][l|c|r]` — or a lone
+/// `c` for both. The default, `ul`, is the low end of each.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct AnchorAlign {
+    pub vertical: Align1,
+    pub horizontal: Align1,
+}
+
+impl AnchorAlign {
+    /// Parses an `align` token. `None` for anything that is not one.
+    pub fn from_token(token: &str) -> Option<Self> {
+        let mut chars = token.chars();
+        let (first, second) = (chars.next()?, chars.next());
+        if chars.next().is_some() {
+            return None;
+        }
+        let vertical = match first {
+            'u' => Align1::Low,
+            'c' => Align1::Center,
+            'd' => Align1::High,
+            _ => return None,
+        };
+        let horizontal = match second {
+            None if first == 'c' => Align1::Center,
+            None => return None,
+            Some('l') => Align1::Low,
+            Some('c') => Align1::Center,
+            Some('r') => Align1::High,
+            Some(_) => return None,
+        };
+        Some(Self {
+            vertical,
+            horizontal,
+        })
+    }
+
+    /// The written form, or `None` for the default (which is written by
+    /// leaving the `align` off).
+    pub fn to_token(self) -> Option<String> {
+        if self == Self::default() {
+            return None;
+        }
+        if self.vertical == Align1::Center && self.horizontal == Align1::Center {
+            return Some("c".to_string());
+        }
+        let v = match self.vertical {
+            Align1::Low => 'u',
+            Align1::Center => 'c',
+            Align1::High => 'd',
+        };
+        let h = match self.horizontal {
+            Align1::Low => 'l',
+            Align1::Center => 'c',
+            Align1::High => 'r',
+        };
+        Some(format!("{v}{h}"))
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GlyphPoint {
     pub position: String,
@@ -124,6 +214,23 @@ impl GlyphPoint {
 
     pub fn size_matches(&self, other: &GlyphPoint) -> bool {
         self.width() == other.width() && self.height() == other.height()
+    }
+
+    /// The `(col, row)` this anchor's range stands for under `align`, in grid
+    /// units. Half-integral where a range of even size is centred, which is
+    /// exact in font units and cancels against the other side of the pairing
+    /// whenever the two ranges are the same size — see [`AnchorAlign`], and
+    /// `issues::anchors` for the parity a centred class is held to.
+    pub fn aligned_point(&self, align: AnchorAlign) -> (f32, f32) {
+        let reduce = |low: i16, high: i16, axis: Align1| match axis {
+            Align1::Low => f32::from(low),
+            Align1::Center => f32::from(low + high) / 2.0,
+            Align1::High => f32::from(high),
+        };
+        (
+            reduce(self.col, self.col_end, align.horizontal),
+            reduce(self.row, self.row_end, align.vertical),
+        )
     }
 
     /// The `anchor` line for this point, comment included. Single implementation

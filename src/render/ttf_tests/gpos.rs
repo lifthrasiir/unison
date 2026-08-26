@@ -1015,3 +1015,100 @@ fn a_script_that_already_names_the_tag_gets_no_second_feature_record() {
         "the record 'hebr' names must carry the merged anchor lookups"
     );
 }
+
+/// `align c` centres a mark in a slot wider than itself, where the default
+/// `ul` puts it flush against the slot's low edge. Both readings come off one
+/// source with only the `align` token differing, so what is pinned is the
+/// difference the reduction makes and nothing else.
+#[test]
+fn a_centred_anchor_class_centres_a_mark_in_a_wider_slot() {
+    /// `(base anchor x, mark anchor x, cell size)` in font units. The offset a
+    /// shaper applies is the difference of the two.
+    fn anchor_xs(align: &str) -> (i16, i16, i16) {
+        // A 7-wide slot on the base against a 3-wide footprint on the mark.
+        // Under `ul` the base's col 1 meets the mark's col 3; under `c` their
+        // middles, 4 and 4, meet.
+        let input = format!(
+            "\
+meta height 4
+meta ascent 3
+meta descent 1
+
+glyph base-letter 8 4
+................
+................
+................
+................
+anchor +slot 1..7 0
+
+glyph tick 3 4 mark
+......
+......
+......
+......
+anchor -slot 3..5 0
+
+map U+0041 = base-letter
+map U+0301 = tick
+
+feature ccmp for DFLT : anchor slot{align}
+"
+        );
+        let doc = document_io::parse_document_from_str(&input, "test.unf".into()).unwrap();
+        let docs: Vec<&Document> = vec![&doc];
+        let (meta, scale, glyphs, gsub_data, _) =
+            collect_glyph_data(&docs, false).expect("should collect glyph data");
+        let name_to_gid: HashMap<String, GlyphId16> = glyphs
+            .iter()
+            .enumerate()
+            .map(|(i, g)| (g.name.clone(), GlyphId16::new((i + 1) as u16)))
+            .collect();
+        let anchor_data =
+            build_anchor_gpos(&glyphs, &gsub_data, &name_to_gid, scale, meta.ascent());
+        let gpos = anchor_data.gpos.expect("GPOS should exist");
+
+        let sub = gpos
+            .lookup_list
+            .lookups
+            .iter()
+            .find_map(|l| match l.as_ref() {
+                PositionLookup::MarkToBase(lk) => Some(lk.subtables[0].clone()),
+                _ => None,
+            })
+            .expect("MarkBasePos lookup");
+        let AnchorTable::Format1(mark_anchor) = &*sub.mark_array.mark_records[0].mark_anchor else {
+            panic!("expected AnchorFormat1 on the mark");
+        };
+        let class = sub.mark_array.mark_records[0].mark_class as usize;
+        let base_anchor = sub.base_array.base_records[0].base_anchors[class]
+            .as_ref()
+            .expect("the base must offer this class an anchor");
+        let AnchorTable::Format1(base_anchor) = base_anchor else {
+            panic!("expected AnchorFormat1 on the base");
+        };
+        (
+            base_anchor.x_coordinate,
+            mark_anchor.x_coordinate,
+            scale as i16,
+        )
+    }
+
+    let (flush_base, flush_mark, cell) = anchor_xs("");
+    let (centred_base, centred_mark, _) = anchor_xs(" align c");
+
+    // Low ends: the base is read at col 1, the mark at col 3.
+    assert_eq!(flush_base, 1 * cell);
+    assert_eq!(flush_mark, 3 * cell);
+    // Middles: 1..7 and 3..5 share the middle 4, so the two coincide and the
+    // mark sits exactly where its own grid drew it.
+    assert_eq!(centred_base, 4 * cell);
+    assert_eq!(centred_mark, 4 * cell);
+
+    let flush_offset = flush_base - flush_mark;
+    let centred_offset = centred_base - centred_mark;
+    assert_eq!(
+        centred_offset - flush_offset,
+        2 * cell,
+        "centring shifts by half the difference of the two sizes"
+    );
+}

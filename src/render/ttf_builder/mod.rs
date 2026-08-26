@@ -214,6 +214,19 @@ fn vs_glyph_name(selector: u32) -> String {
     format!("@vs-{selector:04X}")
 }
 
+/// One `feature TAG for SCRIPT... : anchor NAME [align XX]` declaration.
+///
+/// `align` rides on the declaration and not on either `anchor` line because it
+/// has to be the *same* reduction on both sides of a pairing to mean anything
+/// — see [`crate::document::AnchorAlign`].
+#[derive(Clone)]
+struct AnchorFeature {
+    tag: String,
+    scripts: Vec<String>,
+    anchor: String,
+    align: crate::document::AnchorAlign,
+}
+
 #[derive(Clone)]
 struct GsubData {
     remap_sets: BTreeMap<String, Vec<ExpandedRemap>>,
@@ -222,8 +235,8 @@ struct GsubData {
     groups: crate::document::RemapGroupOrder,
     /// (feature_tag, scripts, remap_set_names)
     features: Vec<(String, Vec<String>, Vec<String>)>,
-    /// Anchor-based feature declarations: (feature_tag, scripts, anchor_name)
-    anchor_features: Vec<(String, Vec<String>, String)>,
+    /// Anchor-based feature declarations.
+    anchor_features: Vec<AnchorFeature>,
     /// Variation sequences this *face* states, for both cmap 14 and the
     /// fallback lookup. Filled from the face-expanded items, not from the raw
     /// documents, so a slice-qualified pair reaches only the faces that include
