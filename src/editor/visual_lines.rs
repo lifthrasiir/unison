@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::document::{
     DocLine, Document, DocumentItem, GlyphBody, GlyphRef, NamePartsMap, is_name_pattern,
 };
-use crate::editor::annotations::{self, InlineAnnotation};
+use crate::editor::annotations::{self, AnnotationKind, InlineAnnotation};
 use crate::editor::colors::Palette;
 use crate::editor::doc_links;
 use crate::editor::ref_composite::{self, GlyphComposite, ResolvedGlyph};
@@ -66,7 +66,13 @@ pub(crate) fn min_grid_rows_for_panel(zoom_level: u32, max_preview_h: u16) -> i1
 struct DisplayUnit {
     ch: char,
     col: usize,
-    is_annotation: bool,
+    kind: AnnotationKind,
+}
+
+impl DisplayUnit {
+    fn is_annotation(&self) -> bool {
+        self.kind != AnnotationKind::Document
+    }
 }
 
 /// The rendered line, character by character. This is `display_string()`
@@ -79,14 +85,14 @@ fn display_units(text: &str, annotations: &[InlineAnnotation]) -> Vec<DisplayUni
         units.push(DisplayUnit {
             ch: c,
             col: i,
-            is_annotation: false,
+            kind: AnnotationKind::Document,
         });
         while let Some(a) = annotations.get(ai) {
             if a.col <= i + 1 {
                 units.extend(a.text.chars().map(|ch| DisplayUnit {
                     ch,
                     col: a.col,
-                    is_annotation: true,
+                    kind: a.kind,
                 }));
                 ai += 1;
             } else {
@@ -107,28 +113,33 @@ fn display_units(text: &str, annotations: &[InlineAnnotation]) -> Vec<DisplayUni
 fn segment_from_units(units: &[DisplayUnit]) -> (String, usize, Vec<InlineAnnotation>) {
     let col_offset = units
         .iter()
-        .find(|u| !u.is_annotation)
+        .find(|u| !u.is_annotation())
         .or_else(|| units.first())
         .map_or(0, |u| u.col);
     let mut text = String::new();
     let mut anns: Vec<InlineAnnotation> = Vec::new();
-    let mut open_ann_col: Option<usize> = None;
+    // An annotation is reassembled character by character, so two of the same
+    // kind at the same column are one annotation again — and two of *different*
+    // kinds are not, or a placeholder's cell would be folded into the text
+    // beside it and painted as a circle over both.
+    let mut open: Option<(usize, AnnotationKind)> = None;
     for u in units {
-        if u.is_annotation {
+        if u.is_annotation() {
             let col = u.col.saturating_sub(col_offset);
             match anns.last_mut() {
-                Some(last) if open_ann_col == Some(col) => last.text.push(u.ch),
+                Some(last) if open == Some((col, u.kind)) => last.text.push(u.ch),
                 _ => {
                     anns.push(InlineAnnotation {
                         col,
                         text: u.ch.to_string(),
+                        kind: u.kind,
                     });
-                    open_ann_col = Some(col);
+                    open = Some((col, u.kind));
                 }
             }
         } else {
             text.push(u.ch);
-            open_ann_col = None;
+            open = None;
         }
     }
     (text, col_offset, anns)
@@ -207,7 +218,7 @@ fn push_wrapped_text_vlines(
     font_id: &egui::FontId,
     heading: Option<HeadingLine>,
 ) {
-    let annotations = annotations::line_annotations(text);
+    let mut annotations = annotations::line_annotations(text);
     // A `// …` comment is a comment wherever the line's own color comes from.
     let comment_col = crate::document_io::split_comment(text)
         .1
@@ -222,6 +233,17 @@ fn push_wrapped_text_vlines(
         }
         _ => font_id,
     };
+    // Placeholders are measured against the font the line is *drawn* in, so
+    // they are added after a heading has picked its own. Merged in column
+    // order, and after any text annotation sharing a column: a placeholder
+    // belongs to the character it precedes, a text annotation to the one it
+    // trails, so the trailing one comes first.
+    let placeholders = annotations::zero_advance_placeholders(text, ctx, font_id);
+    if !placeholders.is_empty() {
+        annotations.extend(placeholders);
+        annotations.sort_by_key(|a| (a.col, a.kind == AnnotationKind::ZeroAdvance));
+    }
+
     let segments = compute_wrap_segments(text, &annotations, wrap_width, ctx, font_id);
     for (seg_text, col_offset, seg_annotations) in segments {
         let seg_len = seg_text.chars().count();

@@ -408,6 +408,8 @@ through `-d data`, plus `Blocks-17.0.0.txt`, which is the one file there compile
 | Who owns a key while an IME is composing (Korean vs Japanese) | `editor/doc_input.rs` (`ImeKeyGuard`) |
 | Which tokens on a line name what | `editor/line_fields.rs` |
 | Inline annotations: one caret step, but ordinary text to the line breaker | `editor/annotations.rs`, `editor/visual_lines.rs` (`compute_wrap_segments`) |
+| The dotted circle before a zero-advance character: why the rule is the advance and not the character, and why the circle is drawn rather than typed | `editor/annotations.rs` (`zero_advance_placeholders`, `paint_dotted_circle`) |
+| Why a placeholder is not part of its own character's prefix, where a text annotation is | `editor/annotations.rs` (`display_prefix`) |
 | The metrics overlay | `editor/grid_render.rs`, `editor/document_view/layout.rs` |
 | The anchor shadow | `editor/anchor_shadow.rs` |
 | The backreference shadow, and why it is a toggle inside pixel selection rather than always on | `editor/backref_shadow.rs`, `editor/mod.rs` (`EditMode::PixelSelect`) |

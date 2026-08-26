@@ -20,6 +20,27 @@
 //! New kinds plug into [`line_annotations`]; everything downstream — width
 //! measurement, painting, hit-testing — is kind-agnostic and lives in
 //! [`AnnotatedText`].
+//!
+//! # Zero-advance placeholders
+//!
+//! One kind is not text at all. The editor lays its lines out with no shaping,
+//! by advance alone, so a glyph the font gives *no* advance — a combining mark
+//! is the usual one — is drawn on top of whatever comes next, and a run of them
+//! all lands in the same place. Two spellings of the same string then look
+//! identical on screen: `font/comb.unf` really does hold `ï`+U+0324 and
+//! `i`+U+0324+U+0308 as separate test cases, and nothing distinguished them.
+//!
+//! So every zero-advance character gets a placeholder inserted *before* it — an
+//! annotation whose text is one space and which is painted as a dotted circle
+//! rather than as text. That buys the mark a cell of its own, which is all the
+//! separation the problem needs.
+//!
+//! The circle is drawn from scratch rather than by writing U+25CC, on purpose:
+//! the font being edited is the one that would draw that character, and a
+//! placeholder that disappears when the source has a fault is a placeholder
+//! that fails exactly when it is needed. The rule is *zero advance* and not
+//! *combining mark* for the same reason — the fault to be seen is the font's,
+//! not Unicode's, so what is drawn follows what the font says.
 
 use crate::document_io::{TokenSpan, tokenize_with_spans};
 use crate::pattern::has_top_level_pipe;
@@ -38,6 +59,59 @@ use crate::pattern::has_top_level_pipe;
 pub(crate) struct InlineAnnotation {
     pub col: usize,
     pub text: String,
+    pub kind: AnnotationKind,
+}
+
+impl InlineAnnotation {
+    pub(crate) fn text(col: usize, text: String) -> Self {
+        Self {
+            col,
+            text,
+            kind: AnnotationKind::Text,
+        }
+    }
+}
+
+/// What a stretch of the rendered line is.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum AnnotationKind {
+    /// The document's own text.
+    Document,
+    /// Display-only text, dimmed against the line.
+    #[default]
+    Text,
+    /// A cell held open in front of a character the font gives no advance,
+    /// painted as a dotted circle. See the module docs.
+    ZeroAdvance,
+}
+
+/// The width a placeholder reserves, as a string: one space, so that every
+/// width measurement, wrap decision and hit test goes through the same font
+/// metric as the rest of the line rather than a number invented here.
+pub(crate) const PLACEHOLDER_TEXT: &str = " ";
+
+/// A placeholder before every character of `line` the font gives no advance.
+///
+/// An annotation at column `i` is drawn between characters `i - 1` and `i`, so
+/// a placeholder for the character at `i` is an annotation at `i` — and the
+/// caret at `i` then sits between the circle and the character it stands for,
+/// which is where it belongs.
+pub(crate) fn zero_advance_placeholders(
+    line: &str,
+    ctx: &egui::Context,
+    font_id: &egui::FontId,
+) -> Vec<InlineAnnotation> {
+    ctx.fonts(|f| {
+        line.chars()
+            .enumerate()
+            .filter(|&(_, c)| f.glyph_width(font_id, c) == 0.0)
+            .map(|(i, _)| InlineAnnotation {
+                col: i,
+                text: PLACEHOLDER_TEXT.to_string(),
+                kind: AnnotationKind::ZeroAdvance,
+            })
+            .collect()
+    })
 }
 
 /// Annotations for one document line, in ascending column order.
@@ -104,25 +178,19 @@ fn map_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotation> 
             // A run of consecutive characters is a range spelled out one
             // alternative at a time, so it is annotated as the range it is.
             if let Some(text) = consecutive_range_annotation(&parts, half) {
-                out.push(InlineAnnotation {
-                    col: leading + char_span.raw_end,
-                    text,
-                });
+                out.push(InlineAnnotation::text(leading + char_span.raw_end, text));
                 continue;
             }
             for (part, end_off) in parts {
                 if let Some(text) = map_codepoint_annotation(part, half) {
-                    out.push(InlineAnnotation {
-                        col: leading + char_span.raw_start + end_off,
+                    out.push(InlineAnnotation::text(
+                        leading + char_span.raw_start + end_off,
                         text,
-                    });
+                    ));
                 }
             }
         } else if let Some(text) = map_codepoint_annotation(value, half) {
-            out.push(InlineAnnotation {
-                col: leading + char_span.raw_end,
-                text,
-            });
+            out.push(InlineAnnotation::text(leading + char_span.raw_end, text));
         }
     }
     out
@@ -213,10 +281,7 @@ fn assert_annotations(rest: &[TokenSpan], leading: usize) -> Vec<InlineAnnotatio
         return Vec::new();
     }
     match codepoint_annotation(text.value.as_str()) {
-        Some(annotation) => vec![InlineAnnotation {
-            col: leading + text.raw_end,
-            text: annotation,
-        }],
+        Some(annotation) => vec![InlineAnnotation::text(leading + text.raw_end, annotation)],
         None => Vec::new(),
     }
 }
@@ -271,9 +336,15 @@ fn split_top_level_pipes_with_ends(s: &str) -> Vec<(&str, usize)> {
 /// One contiguous stretch of the rendered line.
 pub(crate) struct Run {
     pub text: String,
-    pub is_annotation: bool,
+    pub kind: AnnotationKind,
     /// Byte offset of this run within the full display string.
     pub display_start: usize,
+}
+
+impl Run {
+    fn is_annotation(&self) -> bool {
+        self.kind != AnnotationKind::Document
+    }
 }
 
 /// A text line paired with the annotations rendered inside it. All public
@@ -302,28 +373,35 @@ impl<'a> AnnotatedText<'a> {
 
     /// Display text up to document column `col`, including the annotations
     /// that trail characters before `col`.
+    ///
+    /// A placeholder is the exception, and it is what puts the caret on the
+    /// right side of one. A text annotation *trails* the character it
+    /// describes, so it belongs to that character's prefix; a placeholder
+    /// *precedes* the character it stands for, and the two draw as one thing —
+    /// the mark is painted over the circle. Leaving it out of its own
+    /// character's prefix puts the caret before the pair rather than between
+    /// its halves.
     pub(crate) fn display_prefix(&self, col: usize) -> String {
         let mut out = String::new();
         let mut ai = 0usize;
+        let emit_upto = |out: &mut String, ai: &mut usize, before: usize| {
+            while let Some(a) = self.annotations.get(*ai) {
+                if a.col > before || (a.kind == AnnotationKind::ZeroAdvance && a.col == col) {
+                    break;
+                }
+                out.push_str(&a.text);
+                *ai += 1;
+            }
+        };
         // A leading fragment precedes every character here, so it is part of
         // even the empty prefix: column 0 sits after it.
-        while self.annotations.get(ai).is_some_and(|a| a.col == 0) {
-            out.push_str(&self.annotations[ai].text);
-            ai += 1;
-        }
+        emit_upto(&mut out, &mut ai, 0);
         for (i, c) in self.text.chars().enumerate() {
             if i >= col {
                 break;
             }
             out.push(c);
-            while let Some(a) = self.annotations.get(ai) {
-                if a.col <= i + 1 {
-                    out.push_str(&a.text);
-                    ai += 1;
-                } else {
-                    break;
-                }
-            }
+            emit_upto(&mut out, &mut ai, i + 1);
         }
         out
     }
@@ -332,7 +410,7 @@ impl<'a> AnnotatedText<'a> {
         if self.annotations.is_empty() {
             return vec![Run {
                 text: self.text.to_string(),
-                is_annotation: false,
+                kind: AnnotationKind::Document,
                 display_start: 0,
             }];
         }
@@ -340,7 +418,10 @@ impl<'a> AnnotatedText<'a> {
         let mut display_len = 0usize;
         let mut pending = String::new();
         let mut ai = 0usize;
-        let push = |runs: &mut Vec<Run>, display_len: &mut usize, text: String, is_ann: bool| {
+        let push = |runs: &mut Vec<Run>,
+                    display_len: &mut usize,
+                    text: String,
+                    kind: AnnotationKind| {
             if text.is_empty() {
                 return;
             }
@@ -348,7 +429,7 @@ impl<'a> AnnotatedText<'a> {
             *display_len += text.len();
             runs.push(Run {
                 text,
-                is_annotation: is_ann,
+                kind,
                 display_start: start,
             });
         };
@@ -357,7 +438,7 @@ impl<'a> AnnotatedText<'a> {
                 &mut runs,
                 &mut display_len,
                 self.annotations[ai].text.clone(),
-                true,
+                self.annotations[ai].kind,
             );
             ai += 1;
         }
@@ -369,16 +450,21 @@ impl<'a> AnnotatedText<'a> {
                         &mut runs,
                         &mut display_len,
                         std::mem::take(&mut pending),
-                        false,
+                        AnnotationKind::Document,
                     );
-                    push(&mut runs, &mut display_len, a.text.clone(), true);
+                    push(&mut runs, &mut display_len, a.text.clone(), a.kind);
                     ai += 1;
                 } else {
                     break;
                 }
             }
         }
-        push(&mut runs, &mut display_len, pending, false);
+        push(
+            &mut runs,
+            &mut display_len,
+            pending,
+            AnnotationKind::Document,
+        );
         runs
     }
 
@@ -410,6 +496,10 @@ impl<'a> AnnotatedText<'a> {
     /// `comment` is `(document column where the line's `// …` comment starts,
     /// the color to draw it in)`; everything from that column on is painted in
     /// the comment color instead of `color`.
+    ///
+    /// `placeholder` is the color the zero-advance circles are drawn in; they
+    /// are deliberately not the text color, since the point is that they are
+    /// not text.
     pub(crate) fn paint(
         &self,
         painter: &egui::Painter,
@@ -418,6 +508,7 @@ impl<'a> AnnotatedText<'a> {
         pos: egui::Pos2,
         color: egui::Color32,
         comment: Option<(usize, egui::Color32)>,
+        placeholder: egui::Color32,
     ) {
         // Byte offset in the *display* string at which the comment starts.
         let split = comment.map(|(col, c)| (self.display_prefix(col).len(), c));
@@ -434,11 +525,25 @@ impl<'a> AnnotatedText<'a> {
         }
         let display = self.display_string();
         let dim = color.gamma_multiply(ANNOTATION_OPACITY);
+        let row_height = ui.fonts(|f| f.row_height(font_id));
         for run in self.runs() {
-            let base = if run.is_annotation { dim } else { color };
+            if run.kind == AnnotationKind::ZeroAdvance {
+                let x = text_width(ui, font_id, &display[..run.display_start]);
+                let w = text_width(ui, font_id, &run.text);
+                paint_dotted_circle(
+                    painter,
+                    egui::Rect::from_min_size(
+                        egui::pos2(pos.x + x, pos.y),
+                        egui::vec2(w, row_height),
+                    ),
+                    placeholder,
+                );
+                continue;
+            }
+            let base = if run.is_annotation() { dim } else { color };
             let run_end = run.display_start + run.text.len();
             let commented = |c: egui::Color32| {
-                if run.is_annotation {
+                if run.is_annotation() {
                     c.gamma_multiply(ANNOTATION_OPACITY)
                 } else {
                     c
@@ -470,6 +575,34 @@ impl<'a> AnnotatedText<'a> {
                 );
             }
         }
+    }
+}
+
+/// The ring of dots, as a fraction of the cell it is drawn in: how far out the
+/// dots sit, and how big each one is. Sized off the *smaller* of the cell's two
+/// dimensions so a narrow cell shrinks the circle instead of squashing it.
+const CIRCLE_RADIUS: f32 = 0.30;
+const CIRCLE_DOT_RADIUS: f32 = 0.055;
+/// How many dots the ring is made of. U+25CC's own is drawn with a dozen or so;
+/// eight still reads as a dotted ring at the size a line of text gives it, and
+/// keeps the dots apart at the smallest zoom.
+const CIRCLE_DOTS: usize = 8;
+
+/// A dotted circle centred in `cell`, drawn rather than typed. See the module
+/// docs for why this is not the font's own U+25CC.
+fn paint_dotted_circle(painter: &egui::Painter, cell: egui::Rect, color: egui::Color32) {
+    let extent = cell.width().min(cell.height());
+    let radius = extent * CIRCLE_RADIUS;
+    // Half a pixel is the least that survives rasterization as a visible dot.
+    let dot = (extent * CIRCLE_DOT_RADIUS).max(0.5);
+    let centre = cell.center();
+    for i in 0..CIRCLE_DOTS {
+        let angle = std::f32::consts::TAU * i as f32 / CIRCLE_DOTS as f32;
+        painter.circle_filled(
+            centre + radius * egui::vec2(angle.cos(), angle.sin()),
+            dot,
+            color,
+        );
     }
 }
 
@@ -777,7 +910,7 @@ mod tests {
         let runs = at.runs();
         assert_eq!(runs.len(), 3);
         assert_eq!(runs[0].text, "map 가");
-        assert!(runs[1].is_annotation);
+        assert!(runs[1].is_annotation());
         assert_eq!(runs[1].text, " U+AC00");
         assert_eq!(runs[2].text, " = hangul-ga");
         assert_eq!(runs[2].display_start, runs[1].display_start + 7);
@@ -794,3 +927,4 @@ mod tests {
         assert_eq!(at.display_prefix(6), "map 가 U+AC00 ");
     }
 }
+

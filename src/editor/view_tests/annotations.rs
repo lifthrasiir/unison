@@ -171,3 +171,76 @@ fn typing_a_comment_on_a_header_keeps_the_grid() {
         other => panic!("expected a text visual line, got {other:?}"),
     }
 }
+
+/// A character the font gives no advance gets a cell of its own, held open by a
+/// placeholder drawn as a dotted circle.
+///
+/// Without one the mark draws on top of whatever follows and a run of them all
+/// lands in the same place. `font/comb.unf` holds `ï`+U+0324 and
+/// `i`+U+0324+U+0308 as *separate* `assert shape` cases — canonically
+/// equivalent, deliberately spelled differently — and on screen they were the
+/// same line.
+#[test]
+fn a_zero_advance_character_is_given_a_cell_of_its_own() {
+    // U+0301 is what the test context's font gives no advance to; the real
+    // font's own marks are declared `advance 0` and behave the same.
+    let mut h = EditorHarness::new("// a\u{301}\u{301}b\nglyph x 2 2\n....\n....\n");
+    assert_view_consistent(&h);
+
+    match &h.snap().vlines[0].kind {
+        SnapKind::Text { text, display, .. } => {
+            assert_eq!(text, "// a\u{301}\u{301}b", "the document line is unchanged");
+            // One placeholder per mark, each *before* the mark it stands for.
+            assert_eq!(display, "// a \u{301} \u{301}b");
+        }
+        other => panic!("expected a text visual line, got {other:?}"),
+    }
+}
+
+/// The two spellings the placeholder exists to tell apart are told apart: one
+/// mark against two puts a different number of cells on screen.
+#[test]
+fn two_spellings_of_one_string_no_longer_render_alike() {
+    // Measured, not compared as strings: the two lines have always held
+    // different text, and it is the *rendered width* that used to be the same
+    // because a mark with no advance takes no room.
+    let width = |src: &str, cols: usize| {
+        let h = EditorHarness::new(src);
+        h.text_pos(0, cols).x - h.text_pos(0, 0).x
+    };
+    let one = width("// i\u{301}\nglyph x 2 2\n....\n....\n", 5);
+    let two = width("// i\u{301}\u{301}\nglyph x 2 2\n....\n....\n", 6);
+    assert!(
+        two - one > 0.5,
+        "the second mark must take a cell of its own: {one} vs {two}"
+    );
+}
+
+/// The placeholder is not a caret step of its own: the caret at the mark's
+/// column sits between the circle and the mark, so arrowing along the line
+/// still visits one document column at a time.
+#[test]
+fn a_placeholder_costs_no_caret_step() {
+    let mut h = EditorHarness::new("// a\u{301}b\nglyph x 2 2\n....\n....\n");
+    assert_view_consistent(&h);
+    h.click_text(0, 3);
+    assert_eq!(h.state.cursor, Caret::new(0, 3));
+    for col in 4..=6 {
+        h.key(Key::ArrowRight);
+        assert_eq!(h.state.cursor, Caret::new(0, col));
+    }
+    // The mark's own column is a cell wide, where the font gives it nothing:
+    // that width is the placeholder drawn in front of it, which belongs to the
+    // mark's column and not to the base's.
+    let mark_width = h.text_pos(0, 5).x - h.text_pos(0, 4).x;
+    let base_width = h.text_pos(0, 4).x - h.text_pos(0, 3).x;
+    assert!(
+        (mark_width - base_width).abs() < 0.5,
+        "the placeholder is one cell, like the character before it: \
+         base {base_width}, mark {mark_width}"
+    );
+    assert!(
+        mark_width > 0.5,
+        "a zero-advance character must still occupy a cell, got {mark_width}"
+    );
+}

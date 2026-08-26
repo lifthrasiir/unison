@@ -361,6 +361,7 @@ pub(super) fn paint_document_area(
                     egui::pos2(origin.x + LEFT_PAD, origin.y + y),
                     vl.color,
                     vl.comment_col.map(|c| (c, pal.text_comment)),
+                    pal.zero_advance,
                 );
 
                 // Color background for color tokens in color/ref-fill lines

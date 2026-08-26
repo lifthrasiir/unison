@@ -26,6 +26,12 @@ pub struct Palette {
     pub error: Color32,
     pub link: Color32,
 
+    /// The dotted circle standing in front of a character the font gives no
+    /// advance. Deliberately not a text color — it is not text — and a sky blue
+    /// rather than a warning color, since a combining mark is ordinary content
+    /// and only the pile-up is the problem. See `editor::annotations`.
+    pub zero_advance: Color32,
+
     // Selection & cursor
     pub selection: Color32,
     pub cursor_border: Color32,
@@ -82,6 +88,7 @@ impl Palette {
 
             error: Color32::from_rgb(220, 60, 60),
             link: Color32::from_rgb(80, 150, 255),
+            zero_advance: Color32::from_rgb(90, 175, 235),
 
             selection: Color32::from_rgba_unmultiplied(60, 100, 180, 100),
             cursor_border: Color32::from_rgb(80, 140, 220),
@@ -132,6 +139,7 @@ impl Palette {
 
             error: Color32::from_rgb(200, 35, 35),
             link: Color32::from_rgb(25, 90, 210),
+            zero_advance: Color32::from_rgb(35, 130, 200),
 
             selection: Color32::from_rgba_unmultiplied(100, 150, 220, 80),
             cursor_border: grid.cursor_border,
