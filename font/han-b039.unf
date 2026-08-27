@@ -125,7 +125,7 @@ glyph han-21a3c:15x16 15 16 // 𡨼
 // ⿳ han-5b80 han-7acb han-6728 // ⿳宀立木 <- ⿱宀亲
 
 glyph han-21a48:15x16 15 16 // 𡩈
-⿳ -2 han-5b80:15x4 han-76ee:15x7 han-6728:15x7 // ⿳宀目木
+⿳ -1 han-5b80:15x4 -1 han-76ee:15x7 han-6728:15x7 // ⿳宀目木
 
 glyph han-21a49:15x16 15 16 // 𡩉
 ⿳ han-5b80:15x4 -1 han-5fc3:15x5 1 han-65e6:15x7 // ⿳宀心旦

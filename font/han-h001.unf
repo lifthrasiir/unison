@@ -22,6 +22,16 @@ glyph han-31369:15x16 15 16 // 𱍩
 
 # CJK unified ideographs extension H: 乙 (5)
 
+## 5.5
+
+// glyph han-31382:15x16 15 16 // 𱎂
+// ⿺ han-4e5d han-516d // ⿺九六
+
+## 5.6
+
+// glyph han-31385:15x16 15 16 // 𱎅
+// ⿺ han-4e59 han-5404 // ⿺乙各
+
 ## 5.9
 
 // glyph han-3138a:15x16 15 16 // 𱎊
@@ -40,6 +50,11 @@ glyph han-31369:15x16 15 16 // 𱍩
 // ⿱ han-4e8c han-5806 // ⿱二堆
 
 # CJK unified ideographs extension H: 人 (9)
+
+## 9.4
+
+// glyph han-313a3:15x16 15 16 // 𱎣
+// ⿺ han-4ecc han-4eba // ⿺仌人
 
 ## 9.7
 
@@ -111,6 +126,13 @@ glyph han-3142c:15x16 15 16 // 𱐬
 
 // glyph han-31436:15x16 15 16 // 𱐶
 // ⿰ han-529b han-7f67 // ⿰力罧
+
+# CJK unified ideographs extension H: 厂 (27)
+
+## 27.9
+
+// glyph han-3145f:15x16 15 16 // 𱑟
+// ⿸ han-5382 han-67e5 // ⿸厂查
 
 # CJK unified ideographs extension H: 口 (30)
 

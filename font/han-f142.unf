@@ -1,5 +1,10 @@
 # CJK unified ideographs extension F: 虫 (142)
 
+## 142.4
+
+// glyph han-2e4f8:15x16 15 16 // 𮓸
+// ⿺ han-5143 han-866b // ⿺元虫
+
 ## 142.5
 
 glyph han-2e4fd:15x16 15 16 // 𮓽
@@ -216,6 +221,18 @@ glyph han-2e67c:15x16 15 16 // 𮙼
 glyph han-2e6a4:15x16 15 16 // 𮚤
 ⿰ han-8c9d:6x16 han-756a:9x16 // ⿰貝番
 
+# CJK unified ideographs extension F: 走 (156)
+
+## 156.1
+
+// glyph han-2e6b2:15x16 15 16 // 𮚲
+// ⿺ han-8d70 han-4e59 // ⿺走乙
+
+## 156.4
+
+// glyph han-2e6b4:15x16 15 16 // 𮚴
+// ⿺ han-8d70 han-592b // ⿺走夫
+
 # CJK unified ideographs extension F: 足 (157)
 
 ## 157.1
@@ -287,6 +304,9 @@ glyph han-2e6f9:15x16 15 16 // 𮛹
 glyph han-2e703:15x16 15 16 // 𮜃
 ⿰ han-27fb7:5x16 1 han-99ac:9x16 // ⿰𧾷馬
 
+// glyph han-2e707:15x16 15 16 // 𮜇
+// ⿰ han-27fb7 han-5eab // ⿰𧾷庫
+
 // glyph han-2e708:15x16 15 16 // 𮜈
 // ⿱ han-52a0 han-8ddb // ⿱加跛
 
@@ -331,6 +351,11 @@ glyph han-2e74c:15x16 15 16 // 𮝌
 
 // glyph han-2e761:15x16 15 16 // 𮝡
 // ⿲ han-8eca han-8033 han-5fc3 // ⿲車耳心 <- ⿰車恥
+
+## 159.12
+
+// glyph han-2e767:15x16 15 16 // 𮝧
+// ⿰ han-8eca han-958f // ⿰車閏
 
 # CJK unified ideographs extension F: 邑 (163)
 

@@ -169,24 +169,203 @@ glyph han-27e1a:15x16 15 16 // 𧸚
 
 # CJK unified ideographs extension B: 走 (156)
 
+## 156.1
+
+// glyph han-27e87:15x16 15 16 // 𧺇
+// ⿺ han-8d70 han-4e5a // ⿺走乚
+
+## 156.2
+
+// glyph han-27e88:15x16 15 16 // 𧺈
+// ⿺ han-8d70 han-5202 // ⿺走刂
+
+// glyph han-27e8d:15x16 15 16 // 𧺍
+// ⿺ han-8d70 han-516b // ⿺走八
+
+// glyph han-27e8e:15x16 15 16 // 𧺎
+// ⿺ han-8d70 han-4e5d // ⿺走九
+
+## 156.3
+
+// glyph han-27e92:15x16 15 16 // 𧺒
+// ⿺ han-8d70 han-4e0b // ⿺走下
+
+// glyph han-27e94:15x16 15 16 // 𧺔
+// ⿺ han-8d70 han-571f // ⿺走土
+
+// glyph han-27e98:15x16 15 16 // 𧺘
+// ⿺ han-8d70 han-5bf8 // ⿺走寸
+
+// glyph han-27e9a:15x16 15 16 // 𧺚
+// ⿺ han-8d70 han-53e3 // ⿺走口
+
+// glyph han-27e9c:15x16 15 16 // 𧺜
+// ⿺ han-8d70 han-5973 // ⿺走女
+
+## 156.4
+
+// glyph han-27e9d:15x16 15 16 // 𧺝
+// ⿺ han-8d70 han-65e5 // ⿺走日
+
+// glyph han-27ea0:15x16 15 16 // 𧺠
+// ⿺ han-8d70 han-6b62 // ⿺走止
+
+// glyph han-27ea8:15x16 15 16 // 𧺨
+// ⿺ han-8d70 han-5fc3 // ⿺走心
+
+// glyph han-27ea9:15x16 15 16 // 𧺩
+// ⿺ han-8d70 han-706b // ⿺走火
+
+// glyph han-27eae:15x16 15 16 // 𧺮
+// ⿺ han-8d70 han-5206 // ⿺走分
+
+// glyph han-27eb5:15x16 15 16 // 𧺵
+// ⿺ han-8d70 han-6c34 // ⿺走水
+
 ## 156.5
+
+// glyph han-27ebf:15x16 15 16 // 𧺿
+// ⿺ han-8d70 han-4e16 // ⿺走世
+
+// glyph han-27ec0:15x16 15 16 // 𧻀
+// ⿺ han-8d70 han-5388 // ⿺走厈
+
+// glyph han-27ec3:15x16 15 16 // 𧻃
+// ⿺ han-8d70 han-76ee // ⿺走目
 
 // glyph han-27ec5:15x16 15 16 // 𧻅
 // ⿳ han-52a0 han-571f han-9fb0 // ⿳加土龰 <- ⿱加走
 
+// glyph han-27ec9:15x16 15 16 // 𧻉
+// ⿺ han-8d70 han-7531 // ⿺走由
+
+## 156.6
+
+// glyph han-27ed3:15x16 15 16 // 𧻓
+// ⿺ han-8d70 han-5e76 // ⿺走并
+
+// glyph han-27ed9:15x16 15 16 // 𧻙
+// ⿺ han-8d70 han-767e // ⿺走百
+
+// glyph han-27ee3:15x16 15 16 // 𧻣
+// ⿺ han-8d70 han-8089 // ⿺走肉
+
+// glyph han-27ee7:15x16 15 16 // 𧻧
+// ⿺ han-8d70 han-221db // ⿺走𢇛
+
+// glyph han-27ee8:15x16 15 16 // 𧻨
+// ⿺ han-8d70 han-4ea4 // ⿺走交
+
 ## 156.7
+
+// glyph han-27ef0:15x16 15 16 // 𧻰
+// ⿺ han-8d70 han-544a // ⿺走告
+
+// glyph han-27ef4:15x16 15 16 // 𧻴
+// ⿺ han-8d70 han-826f // ⿺走良
+
+// glyph han-27ef7:15x16 15 16 // 𧻷
+// ⿺ han-8d70 han-752b // ⿺走甫
+
+// glyph han-27ef8:15x16 15 16 // 𧻸
+// ⿺ han-8d70 han-6298 // ⿺走折
+
+// glyph han-27efa:15x16 15 16 // 𧻺
+// ⿺ han-8d70 han-72c2 // ⿺走狂
 
 // glyph han-27efb:15x16 15 16 // 𧻻
 // ⿱ han-8db3 han-8d70 // ⿱足走 -- no-inline
 // ⿳ han-8db3 han-571f han-9fb0 // ⿳足土龰
 
+// glyph han-27efc:15x16 15 16 // 𧻼
+// ⿺ han-8d70 han-573c // ⿺走圼
+
+// glyph han-27f00:15x16 15 16 // 𧼀
+// ⿺ han-8d70 han-8c9d // ⿺走貝
+
 // glyph han-27f02:15x16 15 16 // 𧼂
 // ⿰ han-8d70 han-8d70 // ⿰走走
+
+// glyph han-27f03:15x16 15 16 // 𧼃
+// ⿺ han-8d70 han-72c4 // ⿺走狄
+
+// glyph han-27f0a:15x16 15 16 // 𧼊
+// ⿺ han-8d70 han-898b // ⿺走見
 
 ## 156.8
 
 // glyph han-27f16:15x16 15 16 // 𧼖
 // ⿳ han-6797 han-571f han-9fb0 // ⿳林土龰 <- ⿱林走
+
+// glyph han-27f18:15x16 15 16 // 𧼘
+// ⿺ han-8d70 han-5947 // ⿺走奇
+
+// glyph han-27f20:15x16 15 16 // 𧼠
+// ⿺ han-8d70 han-5351 // ⿺走卑
+
+// glyph han-27f24:15x16 15 16 // 𧼤
+// ⿺ han-8d70 han-5230 // ⿺走到
+
+// glyph han-27f26:15x16 15 16 // 𧼦
+// ⿺ han-8d70 han-3519 // ⿺走㔙
+
+## 156.9
+
+// glyph han-27f28:15x16 15 16 // 𧼨
+// ⿺ han-8d70 han-66f7 // ⿺走曷
+
+// glyph han-27f2e:15x16 15 16 // 𧼮
+// ⿺ han-8d70 han-661c // ⿺走昜
+
+// glyph han-27f2f:15x16 15 16 // 𧼯
+// ⿺ han-8d70 han-4fde // ⿺走俞
+
+// glyph han-27f34:15x16 15 16 // 𧼴
+// ⿺ han-8d70 han-8011 // ⿺走耑
+
+// glyph han-27f37:15x16 15 16 // 𧼷
+// ⿺ han-8d70 han-6cc9 // ⿺走泉
+
+// glyph han-27f39:15x16 15 16 // 𧼹
+// ⿺ han-8d70 han-662d // ⿺走昭
+
+// glyph han-27f45:15x16 15 16 // 𧽅
+// ⿺ han-8d70 han-67bc // ⿺走枼
+
+## 156.10
+
+// glyph han-27f4c:15x16 15 16 // 𧽌
+// ⿺ han-8d70 han-9aa8 // ⿺走骨
+
+// glyph han-27f53:15x16 15 16 // 𧽓
+// ⿺ han-8d70 han-6b2f // ⿺走欯
+
+// glyph han-27f59:15x16 15 16 // 𧽙
+// ⿺ han-8d70 han-99ac // ⿺走馬
+
+## 156.11
+
+// glyph han-27f64:15x16 15 16 // 𧽤
+// ⿺ han-8d70 han-7968 // ⿺走票
+
+// glyph han-27f6a:15x16 15 16 // 𧽪
+// ⿺ han-8d70 han-9ce5 // ⿺走鳥
+
+// glyph han-27f6f:15x16 15 16 // 𧽯
+// ⿺ han-8d70 han-65ac // ⿺走斬
+
+## 156.12
+
+// glyph han-27f79:15x16 15 16 // 𧽹
+// ⿺ han-8d70 han-8420 // ⿺走萠
+
+// glyph han-27f86:15x16 15 16 // 𧾆
+// ⿺ han-8d70 han-840c // ⿺走萌
+
+## 156.13
+
+// glyph han-27f95:15x16 15 16 // 𧾕
+// ⿺ han-8d70 han-7762 // ⿺走睢
 
 ## 156.14
 

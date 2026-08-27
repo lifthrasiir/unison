@@ -21,6 +21,11 @@ glyph han-31cee:15x16 15 16 // 𱳮
 // glyph han-31d07:15x16 15 16 // 𱴇
 // ⿰ han-77f3 han-5448 // ⿰石呈
 
+## 112.8
+
+// glyph han-31d17:15x16 15 16 // 𱴗
+// ⿰ han-77f3 han-5e97 // ⿰石店
+
 ## 112.9
 
 // glyph han-31d1b:15x16 15 16 // 𱴛
@@ -111,6 +116,9 @@ glyph han-31d9e:15x16 15 16 // 𱶞
 // ⿱ han-25ad7 han-624d // ⿱𥫗才
 
 ## 118.4
+
+// glyph han-31df0:15x16 15 16 // 𱷰
+// ⿱ han-25ad7 han-5386 // ⿱𥫗历
 
 glyph han-31df3:15x16 15 16 // 𱷳
 ⿱ han-25ad7:15x5 han-65e5:15x11 // ⿱𥫗日
@@ -364,6 +372,9 @@ glyph han-31f2a:15x16 15 16 // 𱼪
 # CJK unified ideographs extension H: 虫 (142)
 
 ## 142.4
+
+// glyph han-31fda:15x16 15 16 // 𱿚
+// ⿰ han-866b han-5386 // ⿰虫历
 
 // glyph han-31fdc:15x16 15 16 // 𱿜
 // ⿰ han-866b han-5fc3 // ⿰虫心

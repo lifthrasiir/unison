@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 网 (122)
 
+## 122.1
+
+// glyph han-2626f:15x16 15 16 // 𦉯
+// ⿵ han-7f51 han-4e00 // ⿵网一
+
 ## 122.2
 
 glyph han-2626c:15x16 15 16 // 𦉬
@@ -209,6 +214,9 @@ glyph han-26355:15x16 15 16 // 𦍕
 
 glyph han-26358:15x16 15 16 // 𦍘
 ⿰ han-7f8a:7x16 han-5143:8x16 // ⿰羊元
+
+// glyph han-26360:15x16 15 16 // 𦍠
+// ⿰ han-7f8a han-5386 // ⿰羊历
 
 glyph han-26364:15x16 15 16 // 𦍤
 ⿰ han-7f8a:7x16 1 han-6708:7x16 // ⿰羊月

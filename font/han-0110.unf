@@ -310,6 +310,9 @@ glyph han-78e6:15x16 15 16 // 磦
 
 ## 112.12
 
+// glyph han-78f5:15x16 15 16 // 磵
+// ⿰ han-77f3 han-9593 // ⿰石間
+
 glyph han-78f7:15x16 15 16 // 磷
 ⿰ han-77f3:5x16 1 han-7ca6:9x16 // ⿰石粦
 
@@ -318,6 +321,9 @@ glyph han-78fb:15x16 15 16 // 磻
 
 glyph han-78fd:15x16 15 16 // 磽
 ⿰ han-77f3:7x16 1 han-582f:7x16 // ⿰石堯
+
+// glyph han-7900:15x16 15 16 // 礀
+// ⿰ han-77f3 han-9592 // ⿰石閒
 
 glyph han-7904:15x16 15 16 // 礄
 ⿰ han-77f3:5x16 1 han-55ac:9x16 // ⿰石喬

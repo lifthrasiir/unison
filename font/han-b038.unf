@@ -1,6 +1,14 @@
 # CJK unified ideographs extension B: 女 (38)
 
+## 38.1
+
+// glyph han-216a6:15x16 15 16 // 𡚦
+// ⿴ han-5973 han-4e36 // ⿴女丶
+
 ## 38.2
+
+// glyph han-216aa:15x16 15 16 // 𡚪
+// ⿺ han-4e5d han-5973 // ⿺九女
 
 // glyph han-216ac:15x16 15 16 // 𡚬
 // ⿱ han-4e8c han-5973 // ⿱二女
@@ -246,6 +254,9 @@ glyph han-21845:15x16 15 16 // 𡡅
 
 glyph han-21852:15x16 15 16 // 𡡒
 ⿲ -2 han-5973:5x16-l han-5176:6x16 han-65a4:6x16 // ⿲女其斤
+
+// glyph han-21883:15x16 15 16 // 𡢃
+// ⿰ han-5973 han-9593 // ⿰女間
 
 // glyph han-21888:15x16 15 16 // 𡢈
 // ⿱ han-6e6f han-5973 // ⿱湯女

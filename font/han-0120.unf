@@ -313,6 +313,9 @@ glyph han-7e57:15x16 15 16 // 繗
 glyph han-7e59:15x16 15 16 // 繙
 ⿰ han-7cf9:5x16 1 han-756a:9x16 // ⿰糹番
 
+// glyph han-7e5d:15x16 15 16 // 繝
+// ⿰ han-7cf9 han-9592 // ⿰糹閒
+
 glyph han-7e5e:15x16 15 16 // 繞
 ⿰ han-7cf9:5x16 1 han-582f:9x16 // ⿰糹堯
 

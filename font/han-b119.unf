@@ -110,6 +110,9 @@ glyph han-25e9d:15x16 15 16 // 𥺝
 // glyph han-25ea5:15x16 15 16 // 𥺥
 // ⿰ han-7c73 han-5b9c // ⿰米宜
 
+// glyph han-25ea6:15x16 15 16 // 𥺦
+// ⿰ han-7c73 han-5e97 // ⿰米店
+
 // glyph han-25eb0:15x16 15 16 // 𥺰
 // ⿰ han-7c73 han-6772 // ⿰米杲
 
@@ -166,6 +169,9 @@ glyph han-25f2d:15x16 15 16 // 𥼭
 
 glyph han-25f31:15x16 15 16 // 𥼱
 ⿰ han-7c73:5x16 1 han-55ac:9x16 // ⿰米喬
+
+// glyph han-25f34:15x16 15 16 // 𥼴
+// ⿰ han-7c73 han-9593 // ⿰米間
 
 ## 119.13
 

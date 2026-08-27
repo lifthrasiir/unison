@@ -68,6 +68,9 @@ glyph han-2ada0:15x16 15 16 // 𪶠
 
 ## 85.10
 
+// glyph han-2adab:15x16 15 16 // 𪶫
+// ⿰ han-6c35 han-354d // ⿰氵㕍
+
 // glyph han-2adaf:15x16 15 16 // 𪶯
 // ⿲ han-6c35 han-6728 han-767e // ⿲氵木百 <- ⿰氵栢
 
@@ -95,6 +98,11 @@ glyph han-2add7:15x16 15 16 // 𪷗
 
 // glyph han-2addc:15x16 15 16 // 𪷜
 // ⿲ han-6c35 han-7cf8 han-7cf8 // ⿲氵糸糸
+
+## 85.14
+
+// glyph han-2aded:15x16 15 16 // 𪷭
+// ⿰ han-6c35 han-95a8 // ⿰氵閨
 
 ## 85.16
 
@@ -168,6 +176,11 @@ glyph han-2ae4a:15x16 15 16 // 𪹊
 glyph han-2ae51:15x16 15 16 // 𪹑
 ⿰ han-53ec:6x16 han-708e:9x16 // ⿰召炎
 
+## 86.10
+
+// glyph han-2ae5c:15x16 15 16 // 𪹜
+// ⿰ han-706b han-5eab // ⿰火庫
+
 ## 86.13
 
 // glyph han-2ae76:15x16 15 16 // 𪹶
@@ -175,6 +188,16 @@ glyph han-2ae51:15x16 15 16 // 𪹑
 
 glyph han-2ae7a:15x16 15 16 // 𪹺
 ⿲ -2 han-706b:5x16-l 1 han-706b:5x16 1 han-9801:5x16 // ⿲火火頁
+
+# CJK unified ideographs extension C: 犬 (94)
+
+## 94.8
+
+// glyph han-2aebe:15x16 15 16 // 𪺾
+// ⿰ han-72ad han-5393 // ⿰犭厓
+
+// glyph han-2aebf:15x16 15 16 // 𪺿
+// ⿰ han-72ad han-9580 // ⿰犭門
 
 # CJK unified ideographs extension C: 玉 (96)
 
@@ -245,6 +268,11 @@ glyph han-2aeee:15x16 15 16 // 𪻮
 // glyph han-2af12:15x16 15 16 // 𪼒
 // ⿰ han-248e9 han-839e // ⿰𤣩莞
 
+## 96.12
+
+// glyph han-2af19:15x16 15 16 // 𪼙
+// ⿰ han-248e9 han-958f // ⿰𤣩閏
+
 # CJK unified ideographs extension C: 田 (102)
 
 ## 102.2
@@ -282,6 +310,13 @@ glyph han-2af54:15x16 15 16 // 𪽔
 
 // glyph han-2af5f:15x16 15 16 // 𪽟
 // ⿱ han-7530 han-9b5a // ⿱田魚
+
+# CJK unified ideographs extension C: 疒 (104)
+
+## 104.7
+
+// glyph han-2af70:15x16 15 16 // 𪽰
+// ⿸ han-7592 han-8db3 // ⿸疒足
 
 # CJK unified ideographs extension C: 白 (106)
 
@@ -351,6 +386,9 @@ glyph han-2afd8:15x16 15 16 // 𪿘
 ⿰ han-77f3:7x16 1 han-53f0:7x16 // ⿰石台
 
 ## 112.6
+
+// glyph han-2afd9:15x16 15 16 // 𪿙
+// ⿰ han-77f3 han-7070 // ⿰石灰
 
 glyph han-2afdb:15x16 15 16 // 𪿛
 ⿰ han-77f3:5x16 1 han-866b:9x16 // ⿰石虫
@@ -453,6 +491,11 @@ glyph han-2b044:15x16 15 16 // 𫁄
 
 // glyph han-2b064:15x16 15 16 // 𫁤
 // ⿲ han-7acb han-5200 han-7acb // ⿲立刀立
+
+## 117.8
+
+// glyph han-2b065:15x16 15 16 // 𫁥
+// ⿰ han-7acb han-5e97 // ⿰立店
 
 ## 117.10
 

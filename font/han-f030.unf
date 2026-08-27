@@ -245,6 +245,9 @@ glyph han-2d38a:15x16 15 16 // 𭎊
 
 ## 32.6
 
+// glyph han-2d391:15x16 15 16 // 𭎑
+// ⿰ han-571f han-7070 // ⿰土灰
+
 // glyph han-2d393:15x16 15 16 // 𭎓
 // ⿰ han-571f han-65e9 // ⿰土早
 
@@ -290,6 +293,11 @@ glyph han-2d3b8:15x16 15 16 // 𭎸
 // glyph han-2d3c9:15x16 15 16 // 𭏉
 // ⿰ han-571f han-7553 // ⿰土畓
 
+## 32.16
+
+// glyph han-2d406:15x16 15 16 // 𭐆
+// ⿺ han-582f han-898b // ⿺堯見
+
 # CJK unified ideographs extension F: 士 (33)
 
 ## 33.5
@@ -333,6 +341,11 @@ glyph han-2d42a:15x16 15 16 // 𭐪
 
 glyph han-2d44d:15x16 15 16 // 𭑍
 ⿳ han-53e3:15x4 1 han-53e3:15x4 han-5927:15x7 // ⿳口口大
+
+## 37.9
+
+// glyph han-2d459:15x16 15 16 // 𭑙
+// ⿱ han-5929 han-9580 // ⿱天門
 
 # CJK unified ideographs extension F: 女 (38)
 

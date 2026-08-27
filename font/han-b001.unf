@@ -67,6 +67,9 @@ glyph han-2006f:15x16 15 16 // 𠁯
 // glyph han-200f2:15x16 15 16 // 𠃲
 // ⿰ han-96b9 han-4e5a // ⿰隹乚
 
+// glyph han-200f3:15x16 15 16 // 𠃳
+// ⿺ han-4e5d han-5415 // ⿺九吕
+
 # CJK unified ideographs extension B: 亅 (6)
 
 ## 6.1
@@ -133,6 +136,9 @@ glyph han-20116-($han-regions):15x16 15 16 // 𠄖
 // ⿳ han-4ea0 han-5415 han-5341 // ⿳亠吕十
 
 ## 8.9
+
+// glyph han-20163:15x16 15 16 // 𠅣
+// ⿺ han-4ea2 han-590b // ⿺亢夋
 
 // glyph han-20164:15x16 15 16 // 𠅤
 // ⿳ han-4ea0 han-7530 han-5fc3 // ⿳亠田心 <- ⿱亠思

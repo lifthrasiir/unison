@@ -8,6 +8,9 @@
 // glyph han-2313c:15x16 15 16 // 𣄼
 // ⿱ han-4e00 han-65e5 // ⿱一日
 
+// glyph han-2313d:15x16 15 16 // 𣄽
+// ⿺ han-4e59 han-65e5 // ⿺乙日
+
 ## 72.2
 
 // glyph han-2313e:15x16 15 16 // 𣄾
@@ -40,6 +43,9 @@ glyph han-23153:15x16 15 16 // 𣅓
 // ⿱ han-65e5 han-5ddd // ⿱日川
 
 ## 72.4
+
+// glyph han-2315b:15x16 15 16 // 𣅛
+// ⿸ han-5382 han-2cf6a // ⿸厂𬽪
 
 // glyph han-23161:15x16 15 16 // 𣅡
 // ⿰ han-65e5 han-592c // ⿰日夬
@@ -99,6 +105,9 @@ glyph han-231a3:15x16 15 16 // 𣆣
 glyph han-231a7:15x16 15 16 // 𣆧
 ⿳ han-65e5:15x5 1 han-5140:15x4 1 han-5140:15x5 // ⿳日兀兀
 
+// glyph han-231ae:15x16 15 16 // 𣆮
+// ⿰ han-65e5 han-5e84 // ⿰日庄
+
 ## 72.7
 
 glyph han-231ba:15x16 15 16 // 𣆺
@@ -121,6 +130,9 @@ glyph han-231d6:15x16 15 16 // 𣇖
 
 // glyph han-231d8:15x16 15 16 // 𣇘
 // ⿱ han-5229 han-65e5 // ⿱利日
+
+// glyph han-231d9:15x16 15 16 // 𣇙
+// ⿺ han-7683 han-65e5 // ⿺皃日
 
 // glyph han-231db:15x16 15 16 // 𣇛
 // ⿳ han-65e5 han-7acb han-5341 // ⿳日立十 <- ⿱日辛
@@ -157,11 +169,20 @@ glyph han-231f3:15x16 15 16 // 𣇳
 glyph han-2320d:15x16 15 16 // 𣈍
 ⿳ han-65e5:15x5 han-5b80:15x4 han-4e14:15x7 // ⿳日宀且
 
+// glyph han-23210:15x16 15 16 // 𣈐
+// ⿰ han-65e5 han-3f75 // ⿰日㽵
+
 glyph han-23212:15x16 15 16 // 𣈒
 ⿰ han-65e5:6x16 han-5176:9x16 // ⿰日其
 
 // glyph han-23213:15x16 15 16 // 𣈓
 // ⿱ han-65e5 han-62ab // ⿱日披
+
+// glyph han-23214:15x16 15 16 // 𣈔
+// ⿱ han-65e5 han-5e97 // ⿱日店
+
+// glyph han-23218:15x16 15 16 // 𣈘
+// ⿰ han-65e5 han-5e97 // ⿰日店
 
 // glyph han-2321b:15x16 15 16 // 𣈛
 // ⿲ han-65e5 han-820c han-5202 // ⿲日舌刂 <- ⿰日刮
@@ -251,6 +272,12 @@ glyph han-232a9:15x16 15 16 // 𣊩
 
 // glyph han-232b5:15x16 15 16 // 𣊵
 // ⿰ han-65e5 han-264d4 // ⿰日𦓔
+
+// glyph han-232ba:15x16 15 16 // 𣊺
+// ⿰ han-65e5 han-9593 // ⿰日間
+
+// glyph han-232c6:15x16 15 16 // 𣋆
+// ⿰ han-65e5 han-958f // ⿰日閏
 
 ## 72.13
 
@@ -345,6 +372,9 @@ glyph han-2337c:15x16 15 16 // 𣍼
 
 // glyph han-2337e:15x16 15 16 // 𣍾
 // ⿰ han-6708 han-96e8 // ⿰月雨
+
+// glyph han-23380:15x16 15 16 // 𣎀
+// ⿰ han-6708 han-5e97 // ⿰月店
 
 // glyph han-26733:15x16 15 16 // 𦜳
 // ⿱ han-6708 han-670b // ⿱月朋

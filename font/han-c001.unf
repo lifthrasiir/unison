@@ -1,5 +1,10 @@
 # CJK unified ideographs extension C: 乙 (5)
 
+## 5.6
+
+// glyph han-2a712:15x16 15 16 // 𪜒
+// ⿺ han-4e59 han-5409 // ⿺乙吉
+
 ## 5.8
 
 // glyph han-2a715:15x16 15 16 // 𪜕
@@ -110,6 +115,31 @@ glyph han-2a7cb:15x16 15 16 // 𪟋
 // glyph han-2a7fb:15x16 15 16 // 𪟻
 // ⿱ han-96d4 han-5341 // ⿱雔十
 
+# CJK unified ideographs extension C: 厂 (27)
+
+## 27.5
+
+// glyph han-2a804:15x16 15 16 // 𪠄
+// ⿸ han-5382 han-7535 // ⿸厂电
+
+## 27.6
+
+// glyph han-2a805:15x16 15 16 // 𪠅
+// ⿸ han-5382 han-5409 // ⿸厂吉
+
+// glyph han-2a806:15x16 15 16 // 𪠆
+// ⿸ han-5382 han-5e76 // ⿸厂并
+
+## 27.7
+
+// glyph han-2a80a:15x16 15 16 // 𪠊
+// ⿸ han-5382 han-65f2 // ⿸厂旲
+
+## 27.11
+
+// glyph han-2a815:15x16 15 16 // 𪠕
+// ⿸ han-5382 han-60df // ⿸厂惟
+
 # CJK unified ideographs extension C: 口 (30)
 
 ## 30.5
@@ -206,6 +236,9 @@ glyph han-2a8be:15x16 15 16 // 𪢾
 
 ## 32.5
 
+// glyph han-2a8c4:15x16 15 16 // 𪣄
+// ⿱ han-571f han-5388 // ⿱土厈
+
 glyph han-2a8c5:15x16 15 16 // 𪣅
 ⿰ han-571f:5x16-l 1 han-4e16:9x16 // ⿰土世
 
@@ -213,6 +246,9 @@ glyph han-2a8c5:15x16 15 16 // 𪣅
 
 glyph han-2a8cc:15x16 15 16 // 𪣌
 ⿰ han-571f:7x16 1 han-8033:7x16 // ⿰土耳
+
+// glyph han-2a8d0:15x16 15 16 // 𪣐
+// ⿰ han-571f han-5e84 // ⿰土庄
 
 ## 32.7
 
@@ -352,6 +388,11 @@ glyph han-2a968:15x16 15 16 // 𪥨
 // glyph han-2a97a:15x16 15 16 // 𪥺
 // ⿳ han-529b han-529f han-5973 // ⿳力功女
 
+## 38.8
+
+// glyph han-2a983:15x16 15 16 // 𪦃
+// ⿰ han-5973 han-5e97 // ⿰女店
+
 ## 38.9
 
 glyph han-2a987:15x16 15 16 // 𪦇
@@ -417,3 +458,10 @@ glyph han-2a9d6:15x16 15 16 // 𪧖
 
 // glyph han-2a9eb:15x16 15 16 // 𪧫
 // ⿳ han-5b80 han-5927 han-99ac // ⿳宀大馬 <- ⿱宀𩡱
+
+# CJK unified ideographs extension C: 寸 (41)
+
+## 41.9
+
+// glyph han-2a9fa:15x16 15 16 // 𪧺
+// ⿺ han-662f han-5bf8 // ⿺是寸

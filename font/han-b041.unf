@@ -5,6 +5,9 @@
 glyph han-21b1f:15x16 15 16 // 𡬟
 ⿰ han-79be:5x16 1 han-5bf8:9x16 // ⿰禾寸
 
+// glyph han-21b23:15x16 15 16 // 𡬣
+// ⿺ han-5144 han-5bf8 // ⿺兄寸
+
 glyph han-21b24:15x16 15 16 // 𡬤
 ⿰ han-7533:7x16 1 han-5bf8:7x16 // ⿰申寸
 
@@ -31,6 +34,28 @@ glyph han-21b3d:15x16 15 16 // 𡬽
 
 glyph han-21b41:15x16 15 16 // 𡭁
 ⿰ han-7fcf:7x16 1 han-5bf8:7x16 // ⿰翏寸
+
+## 41.12
+
+// glyph han-21b44:15x16 15 16 // 𡭄
+// ⿺ han-582f han-5bf8 // ⿺堯寸
+
+# CJK unified ideographs extension B: 尢 (43)
+
+## 43.5
+
+// glyph han-21bdd:15x16 15 16 // 𡯝
+// ⿺ han-5140 han-77f3 // ⿺兀石
+
+## 43.10
+
+// glyph han-21c05:15x16 15 16 // 𡰅
+// ⿺ han-5140 han-9aa8 // ⿺兀骨
+
+## 43.18
+
+// glyph han-21c1e:15x16 15 16 // 𡰞
+// ⿺ han-5140 han-96da // ⿺兀雚
 
 # CJK unified ideographs extension B: 屮 (45)
 

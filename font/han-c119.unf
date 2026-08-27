@@ -28,6 +28,9 @@ glyph han-2b0ba:15x16 15 16 // 𫂺
 
 ## 119.9
 
+// glyph han-2b0c6:15x16 15 16 // 𫃆
+// ⿺ han-662f han-7c73 // ⿺是米
+
 // glyph han-2b0c7:15x16 15 16 // 𫃇
 // ⿰ han-7c73 han-54a0 // ⿰米咠
 
@@ -180,6 +183,9 @@ glyph han-2b19a:15x16 15 16 // 𫆚
 
 // glyph han-2b1f8:15x16 15 16 // 𫇸
 // ⿱ han-8279 han-7af9 // ⿱艹竹
+
+// glyph han-2b1fa:15x16 15 16 // 𫇺
+// ⿱ han-8279 han-5e84 // ⿱艹庄
 
 ## 140.7
 
@@ -360,6 +366,16 @@ glyph han-2b305:15x16 15 16 // 𫌅
 
 # CJK unified ideographs extension C: 見 (147)
 
+## 147.3
+
+// glyph han-2b31c:15x16 15 16 // 𫌜
+// ⿺ han-898b han-5973 // ⿺見女
+
+## 147.5
+
+// glyph han-2b31d:15x16 15 16 // 𫌝
+// ⿺ han-898b han-5144 // ⿺見兄
+
 ## 147.9
 
 // glyph han-2b323:15x16 15 16 // 𫌣
@@ -391,6 +407,11 @@ glyph han-2b33c:15x16 15 16 // 𫌼
 
 // glyph han-2b340:15x16 15 16 // 𫍀
 // ⿰ han-8a01 han-91d1 // ⿰訁金
+
+## 149.11
+
+// glyph han-2b34b:15x16 15 16 // 𫍋
+// ⿰ han-8a01 han-554f // ⿰訁問
 
 # CJK unified ideographs extension C: 讠 (149')
 
@@ -431,6 +452,28 @@ glyph han-2b396:15x16 15 16 // 𫎖
 
 // glyph han-2b398:15x16 15 16 // 𫎘
 // ⿱ han-6298 han-8c9d // ⿱折貝
+
+# CJK unified ideographs extension C: 走 (156)
+
+## 156.4
+
+// glyph han-2b3b1:15x16 15 16 // 𫎱
+// ⿺ han-8d70 han-5386 // ⿺走历
+
+## 156.5
+
+// glyph han-2b3b2:15x16 15 16 // 𫎲
+// ⿺ han-8d70 han-793a // ⿺走示
+
+## 156.6
+
+// glyph han-2b3b4:15x16 15 16 // 𫎴
+// ⿺ han-8d70 han-540c // ⿺走同
+
+## 156.7
+
+// glyph han-2b3b5:15x16 15 16 // 𫎵
+// ⿺ han-8d70 han-514b // ⿺走克
 
 # CJK unified ideographs extension C: 足 (157)
 

@@ -163,6 +163,9 @@ glyph han-8cc6:15x16 15 16 // 賆
 glyph han-8ccb:15x16 15 16 // 賋
 ⿰ han-8c9d:6x16 han-4ea4:9x16 // ⿰貝交
 
+// glyph han-8ccd:15x16 15 16 // 賍
+// ⿰ han-8c9d han-5e84 // ⿰貝庄
+
 ## 154.7
 
 glyph han-8ccf:15x16 15 16 // 賏
@@ -247,6 +250,99 @@ glyph han-8d70:15x16 15 16 // 走
 ..............................
 ..............................
 ref han-9fb0:15x16
+
+## 156.2
+
+// glyph han-8d72:15x16 15 16 // 赲
+// ⿺ han-8d70 han-529b // ⿺走力
+
+// glyph han-9faa:15x16 15 16 // 龪
+// ⿺ han-8d70 han-4eba // ⿺走人
+
+## 156.3
+
+// glyph han-8d76:15x16 15 16 // 赶
+// ⿺ han-8d70 han-5e72 // ⿺走干
+
+// glyph han-8d78:15x16 15 16 // 赸
+// ⿺ han-8d70 han-5c71 // ⿺走山
+
+## 156.4
+
+// glyph han-8d7a:15x16 15 16 // 赺
+// ⿺ han-8d70 han-4eca // ⿺走今
+
+// glyph han-8d7c:15x16 15 16 // 赼
+// ⿺ han-8d70 han-6b20 // ⿺走欠
+
+// glyph han-8d7d:15x16 15 16 // 赽
+// ⿺ han-8d70 han-592c // ⿺走夬
+
+// glyph han-8d7e:15x16 15 16 // 赾
+// ⿺ han-8d70 han-65a4 // ⿺走斤
+
+## 156.5
+
+// glyph han-8d83:15x16 15 16 // 趃
+// ⿺ han-8d70 han-5931 // ⿺走失
+
+// glyph han-8d84:15x16 15 16 // 趄
+// ⿺ han-8d70 han-4e14 // ⿺走且
+
+// glyph han-8d85:15x16 15 16 // 超
+// ⿺ han-8d70 han-53ec // ⿺走召
+
+// glyph han-8d86:15x16 15 16 // 趆
+// ⿺ han-8d70 han-6c10 // ⿺走氐
+
+// glyph han-8d87:15x16 15 16 // 趇
+// ⿺ han-8d70 han-7acb // ⿺走立
+
+// glyph han-8d88:15x16 15 16 // 趈
+// ⿺ han-8d70 han-5360 // ⿺走占
+
+## 156.6
+
+// glyph han-8d8c:15x16 15 16 // 趌
+// ⿺ han-8d70 han-5409 // ⿺走吉
+
+// glyph han-8d8f:15x16 15 16 // 趏
+// ⿺ han-8d70 han-820c // ⿺走舌
+
+// glyph han-8d92:15x16 15 16 // 趒
+// ⿺ han-8d70 han-5146 // ⿺走兆
+
+## 156.7
+
+// glyph han-8d95:15x16 15 16 // 趕
+// ⿺ han-8d70 han-65f1 // ⿺走旱
+
+// glyph han-8d97:15x16 15 16 // 趗
+// ⿺ han-8d70 han-8db3 // ⿺走足
+
+// glyph han-8d99:15x16 15 16 // 趙
+// ⿺ han-8d70 han-8096 // ⿺走肖
+
+## 156.8
+
+// glyph han-8d9b:15x16 15 16 // 趛
+// ⿺ han-8d70 han-91d1 // ⿺走金
+
+// glyph han-8da1:15x16 15 16 // 趡
+// ⿺ han-8d70 han-96b9 // ⿺走隹
+
+## 156.9
+
+// glyph han-8da7:15x16 15 16 // 趧
+// ⿺ han-8d70 han-662f // ⿺走是
+
+## 156.12
+
+// glyph han-8dab:15x16 15 16 // 趫
+// ⿺ han-8d70 han-55ac // ⿺走喬
+
+// glyph han-8dac:15x16 15 16 // 趬
+// ⿺ han-8d70 han-582f // ⿺走堯
 
 # CJK unified ideographs: 足 (157)
 
@@ -462,6 +558,9 @@ glyph han-8e24:15x16 15 16 // 踤
 
 // glyph han-8e26:15x16 15 16 // 踦
 // ⿰ han-27fb7 han-5947 // ⿰𧾷奇
+
+// glyph han-8e2e:15x16 15 16 // 踮
+// ⿰ han-27fb7 han-5e97 // ⿰𧾷店
 
 ## 157.9
 

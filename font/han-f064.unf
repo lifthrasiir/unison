@@ -188,6 +188,11 @@ glyph han-2d9a1:15x16 15 16 // 𭦡
 glyph han-2d9d8:15x16 15 16 // 𭧘
 ⿰ han-65e5:5x16 1 han-9ce5:9x16 // ⿰日鳥
 
+## 72.12
+
+// glyph han-2d9f4:15x16 15 16 // 𭧴
+// ⿰ han-65e5 han-9591 // ⿰日閑
+
 ## 72.13
 
 glyph han-2d9f8:15x16 15 16 // 𭧸

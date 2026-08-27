@@ -182,6 +182,11 @@ glyph han-2c868:15x16 15 16 // 𬡨
 
 # CJK unified ideographs extension E: 見 (147)
 
+## 147.5
+
+// glyph han-2c87d:15x16 15 16 // 𬡽
+// ⿺ han-898b han-4e16 // ⿺見世
+
 ## 147.8
 
 // glyph han-2c880:15x16 15 16 // 𬢀
@@ -265,7 +270,34 @@ glyph han-2c958:15x16 15 16 // 𬥘
 // glyph han-2c95b:15x16 15 16 // 𬥛
 // ⿰ han-8c9d han-5947 // ⿰貝奇
 
+# CJK unified ideographs extension E: 走 (156)
+
+## 156.4
+
+// glyph han-2c988:15x16 15 16 // 𬦈
+// ⿺ han-8d70 han-6708 // ⿺走月
+
+## 156.5
+
+// glyph han-2c989:15x16 15 16 // 𬦉
+// ⿺ han-8d70 han-53e4 // ⿺走古
+
+## 156.8
+
+// glyph han-2c992:15x16 15 16 // 𬦒
+// ⿺ han-8d70 han-670b // ⿺走朋
+
+## 156.9
+
+// glyph han-2c996:15x16 15 16 // 𬦖
+// ⿺ han-8d70 han-8ecd // ⿺走軍
+
 # CJK unified ideographs extension E: 足 (157)
+
+## 157.4
+
+// glyph han-2c9a3:15x16 15 16 // 𬦣
+// ⿰ han-27fb7 han-5386 // ⿰𧾷历
 
 ## 157.5
 

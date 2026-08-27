@@ -99,6 +99,9 @@ glyph han-28312:15x16 15 16 // 𨌒
 glyph han-28318:15x16 15 16 // 𨌘
 ⿰ han-8eca:7x16 1 han-590b:7x16 // ⿰車夋
 
+// glyph han-2831f:15x16 15 16 // 𨌟
+// ⿰ han-8eca han-5e8a // ⿰車床
+
 ## 159.8
 
 glyph han-28325:15x16 15 16 // 𨌥
@@ -168,6 +171,9 @@ glyph han-2839f:15x16 15 16 // 𨎟
 
 // glyph han-283aa:15x16 15 16 // 𨎪
 // ⿰ han-8eca han-264d4 // ⿰車𦓔
+
+// glyph han-283ab:15x16 15 16 // 𨎫
+// ⿰ han-8eca han-9592 // ⿰車閒
 
 glyph han-283ac:15x16 15 16 // 𨎬
 ⿰ han-8eca:7x16 1 han-582f:7x16 // ⿰車堯

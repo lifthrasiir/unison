@@ -1,5 +1,10 @@
 # CJK unified ideographs extension B: 十 (24)
 
+## 24.2
+
+// glyph han-2097c:15x16 15 16 // 𠥼
+// ⿽ han-5341 han-5341 // ⿽十十
+
 ## 24.3
 
 // glyph han-20980:15x16 15 16 // 𠦀
@@ -53,6 +58,92 @@ glyph han-2001d:15x16 15 16 // 𠀝
 
 glyph han-209d7:15x16 15 16 // 𠧗
 ⿱ han-4e0a:15x9 1 han-4e0b:15x6 // ⿱上下
+
+# CJK unified ideographs extension B: 厂 (27)
+
+## 27.4
+
+// glyph han-20a36:15x16 15 16 // 𠨶
+// ⿸ han-5382 han-592b // ⿸厂夫
+
+// glyph han-20a3e:15x16 15 16 // 𠨾
+// ⿸ han-5382 han-624b // ⿸厂手
+
+## 27.6
+
+// glyph han-20a53:15x16 15 16 // 𠩓
+// ⿸ han-5382 han-5146 // ⿸厂兆
+
+// glyph han-20a54:15x16 15 16 // 𠩔
+// ⿸ han-7070 han-4e03 // ⿸灰七
+
+// glyph han-20a55:15x16 15 16 // 𠩕
+// ⿸ han-5382 han-7c73 // ⿸厂米
+
+## 27.7
+
+// glyph han-20a57:15x16 15 16 // 𠩗
+// ⿸ han-5382 han-3cc4 // ⿸厂㳄
+
+glyph han-20a5a:15x16 15 16 // 𠩚
+⿸ han-5382:15x16.11x15 han-9149:9x12 5 3 // ⿸厂酉
+
+glyph han-20a60:15x16 15 16 // 𠩠
+⿸ han-5382:15x16.11x15 han-8c9d:8x13 6 3 // ⿸厂貝
+
+// glyph han-20a61:15x16 15 16 // 𠩡
+// ⿸ han-5382 han-4f2f // ⿸厂伯
+
+// glyph han-20a65:15x16 15 16 // 𠩥
+// ⿸ han-5382 han-5448 // ⿸厂呈
+
+// glyph han-20a66:15x16 15 16 // 𠩦
+// ⿸ han-5382 han-5ffa // ⿸厂忺
+
+## 27.8
+
+// glyph han-20a71:15x16 15 16 // 𠩱
+// ⿸ han-5382 han-6774 // ⿸厂杴
+
+// glyph han-20a72:15x16 15 16 // 𠩲
+// ⿸ han-5382 han-5351 // ⿸厂卑
+
+// glyph han-20a75:15x16 15 16 // 𠩵
+// ⿸ han-5382 han-6797 // ⿸厂林
+
+## 27.9
+
+// glyph han-20a7e:15x16 15 16 // 𠩾
+// ⿸ han-5382 han-79cb // ⿸厂秋
+
+// glyph han-20a81:15x16 15 16 // 𠪁
+// ⿸ han-5382 han-2e0b8 // ⿸厂𮂸
+
+// glyph han-20a84:15x16 15 16 // 𠪄
+// ⿸ han-5382 han-82d7 // ⿸厂苗
+
+// glyph han-20a86:15x16 15 16 // 𠪆
+// ⿸ han-5382 han-5c01 // ⿸厂封
+
+## 27.11
+
+// glyph han-20a97:15x16 15 16 // 𠪗
+// ⿸ han-5382 han-46bf // ⿸厂䚿
+
+## 27.12
+
+// glyph han-20aa2:15x16 15 16 // 𠪢
+// ⿸ han-5382 han-6b3d // ⿸厂欽
+
+## 27.13
+
+// glyph han-20ab8:15x16 15 16 // 𠪸
+// ⿸ han-5382 han-8449 // ⿸厂葉
+
+## 27.15
+
+// glyph han-20abf:15x16 15 16 // 𠪿
+// ⿸ han-5382 han-27363 // ⿸厂𧍣
 
 # CJK unified ideographs extension B: 厶 (28)
 

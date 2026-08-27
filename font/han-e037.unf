@@ -251,6 +251,11 @@ glyph han-2bd2f:15x16 15 16 // 𫴯
 glyph han-2bd72:15x16 15 16 // 𫵲
 ⿱ han-5c71:15x4 1 han-4e01:15x11 // ⿱山丁
 
+## 46.4
+
+// glyph han-2bd77:15x16 15 16 // 𫵷
+// ⿰ han-5c71 han-5386 // ⿰山历
+
 ## 46.6
 
 // glyph han-2bd7b:15x16 15 16 // 𫵻
@@ -298,6 +303,31 @@ glyph han-2bd98:15x16 15 16 // 𫶘
 
 // glyph han-2bda7:15x16 15 16 // 𫶧
 // ⿲ han-4e3f han-4e28 han-4e5a // ⿲丿丨乚
+
+# CJK unified ideographs extension E: 广 (53)
+
+## 53.2
+
+// glyph han-2bde5:15x16 15 16 // 𫷥
+// ⿸ han-5e7f han-4e5d // ⿸广九
+
+## 53.3
+
+glyph han-2bde6:15x16 15 16 // 𫷦
+⿸ han-5e7f:15x16.11x13 han-5bf8:9x12 5 4 // ⿸广寸
+
+## 53.7
+
+// glyph han-2bded:15x16 15 16 // 𫷭
+// ⿸ han-5e7f han-8db3 // ⿸广足
+
+// glyph han-2bdee:15x16 15 16 // 𫷮
+// ⿸ han-5e7f han-9634 // ⿸广阴
+
+## 53.9
+
+// glyph han-2bdf7:15x16 15 16 // 𫷷
+// ⿸ han-5e7f han-94a6 // ⿸广钦
 
 # CJK unified ideographs extension E: 心 (61)
 
@@ -406,6 +436,9 @@ glyph han-2beb6:15x16 15 16 // 𫺶
 // ⿰ han-624b han-5360 // ⿰手占
 
 ## 64.6
+
+// glyph han-2bf22:15x16 15 16 // 𫼢
+// ⿰ han-624c han-3193d // ⿰扌𱤽
 
 glyph han-2bf30:15x16 15 16 // 𫼰
 ⿲ han-624c:3x16 han-5973:5x16 han-53e3:7x16 // ⿲扌女口

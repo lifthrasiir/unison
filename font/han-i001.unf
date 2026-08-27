@@ -12,6 +12,11 @@
 // glyph han-2ebf4:15x16 15 16 // 𮯴
 // ⿰ han-4ebb han-513f // ⿰亻儿
 
+## 9.4
+
+// glyph han-2ebf8:15x16 15 16 // 𮯸
+// ⿰ han-4ebb han-5386 // ⿰亻历
+
 ## 9.8
 
 // glyph han-2ebfd:15x16 15 16 // 𮯽
@@ -126,6 +131,9 @@ glyph han-2eccc:15x16 15 16 // 𮳌
 # CJK unified ideographs extension I: 火 (86)
 
 ## 86.4
+
+// glyph han-2ecde:15x16 15 16 // 𮳞
+// ⿰ han-706b han-5385 // ⿰火厅
 
 glyph han-2ecdf:15x16 15 16 // 𮳟
 ⿰ han-706b:7x16 1 han-6708:7x16 // ⿰火月
@@ -281,6 +289,11 @@ glyph han-2ed92:15x16 15 16 // 𮶒
 // glyph han-2ed9c:15x16 15 16 // 𮶜
 // ⿱ han-8279 han-4e09 // ⿱艹三
 
+## 140.7
+
+// glyph han-2eda2:15x16 15 16 // 𮶢
+// ⿱ han-8279 han-5e8a // ⿱艹床
+
 ## 140.9
 
 // glyph han-2edab:15x16 15 16 // 𮶫
@@ -336,6 +349,9 @@ glyph han-2edca:15x16 15 16 // 𮷊
 # CJK unified ideographs extension I: 邑 (163)
 
 ## 163.4
+
+// glyph han-2ede8:15x16 15 16 // 𮷨
+// ⿰ han-5386 han-961d // ⿰历阝
 
 glyph han-2ede9:15x16 15 16 // 𮷩
 ⿰ han-6708:8x16 2 han-961d:5x16-r // ⿰月阝

@@ -65,6 +65,36 @@ glyph han-2e8ba:15x16 15 16 // 𮢺
 glyph han-2e8f2:15x16 15 16 // 𮣲
 ⿰ han-9485:6x16 han-5de5:9x16 // ⿰钅工
 
+# CJK unified ideographs extension F: 門 (169)
+
+## 169.3
+
+// glyph han-2e907:15x16 15 16 // 𮤇
+// ⿱ han-571f han-9580 // ⿱土門
+
+## 169.4
+
+// glyph han-2e909:15x16 15 16 // 𮤉
+// ⿵ han-9580 han-6b20 // ⿵門欠
+
+## 169.5
+
+// glyph han-2e90b:15x16 15 16 // 𮤋
+// ⿵ han-9580 han-592e // ⿵門央
+
+// glyph han-2e90d:15x16 15 16 // 𮤍
+// ⿵ han-9580 han-53f0 // ⿵門台
+
+## 169.6
+
+// glyph han-2e90f:15x16 15 16 // 𮤏
+// ⿵ han-9580 han-6c5f // ⿵門江
+
+## 169.9
+
+// glyph han-2e919:15x16 15 16 // 𮤙
+// ⿵ han-9580 han-82e6 // ⿵門苦
+
 # CJK unified ideographs extension F: 阜 (170)
 
 ## 170.4
@@ -151,6 +181,9 @@ glyph han-2e98b:15x16 15 16 // 𮦋
 // ⿱ han-96e8 han-8c9d // ⿱雨貝
 
 ## 173.8
+
+// glyph han-2e997:15x16 15 16 // 𮦗
+// ⿱ han-96e8 han-9580 // ⿱雨門
 
 // glyph han-2e99a:15x16 15 16 // 𮦚
 // ⿳ han-96e8 han-5b80 han-7389 // ⿳雨宀玉 <- ⿱雨宝

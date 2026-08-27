@@ -181,11 +181,17 @@ glyph han-25b85:15x16 15 16 // 𥮅
 // glyph han-25bc4:15x16 15 16 // 𥯄
 // ⿱ han-25ad7 han-96b9 // ⿱𥫗隹
 
+// glyph han-25bc5:15x16 15 16 // 𥯅
+// ⿱ han-25ad7 han-5393 // ⿱𥫗厓
+
 // glyph han-25bc9:15x16 15 16 // 𥯉
 // ⿱ han-25ad7 han-59ac // ⿱𥫗妬
 
 // glyph han-25bcb:15x16 15 16 // 𥯋
 // ⿱ han-25ad7 han-660e // ⿱𥫗明
+
+// glyph han-25bce:15x16 15 16 // 𥯎
+// ⿱ han-25ad7 han-5e97 // ⿱𥫗店
 
 ## 118.9
 
@@ -327,6 +333,9 @@ ref han-9aa8:15x12 0 4
 // ⿳ han-25ad7 han-7530 han-5404 // ⿳𥫗田各 <- ⿱𥫗畧
 
 ## 118.12
+
+// glyph han-25cd1:15x16 15 16 // 𥳑
+// ⿱ han-25ad7 han-9592 // ⿱𥫗閒
 
 // glyph han-25cd3:15x16 15 16 // 𥳓
 // ⿱ han-25ad7 han-7a0d // ⿱𥫗稍

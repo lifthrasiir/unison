@@ -43,6 +43,28 @@ glyph han-2aa45:15x16 15 16 // 𪩅
 // glyph han-2aa63:15x16 15 16 // 𪩣
 // ⿱ han-5927 han-5de5 // ⿱大工
 
+# CJK unified ideographs extension C: 广 (53)
+
+## 53.5
+
+// glyph han-2aa8e:15x16 15 16 // 𪪎
+// ⿸ han-5e7f han-6b63 // ⿸广正
+
+## 53.8
+
+// glyph han-2aa99:15x16 15 16 // 𪪙
+// ⿸ han-5e7f han-660a // ⿸广昊
+
+## 53.9
+
+// glyph han-2aa9a:15x16 15 16 // 𪪚
+// ⿸ han-5e7f han-2653b // ⿸广𦔻
+
+## 53.12
+
+// glyph han-2aaa2:15x16 15 16 // 𪪢
+// ⿸ han-5e7f han-9593 // ⿸广間
+
 # CJK unified ideographs extension C: 彐 (58)
 
 ## 58.0
@@ -60,6 +82,9 @@ glyph han-2aade:15x16 15 16 // 𪫞
 
 glyph han-2aadf:15x16 15 16 // 𪫟
 ⿰ han-5fc4:5x16 1 han-6728:9x16 // ⿰忄木
+
+// glyph han-2aae1:15x16 15 16 // 𪫡
+// ⿰ han-5fc4 han-5386 // ⿰忄历
 
 glyph han-2aae3:15x16 15 16 // 𪫣
 ⿰ han-5fc4:5x16 han-6b62:10x16 // ⿰忄止
@@ -222,6 +247,11 @@ glyph han-2ac24:15x16 15 16 // 𪰤
 // glyph han-2ac2c:15x16 15 16 // 𪰬
 // ⿳ han-65e5 han-4e00 han-5229 // ⿳日一利 <- ⿱旦利
 
+## 72.10
+
+// glyph han-2ac3d:15x16 15 16 // 𪰽
+// ⿰ han-65e5 han-5eab // ⿰日庫
+
 ## 72.11
 
 glyph han-2ac42-($han-regions):15x16 15 16 // 𪱂
@@ -283,6 +313,9 @@ glyph han-2ac74:15x16 15 16 // 𪱴
 
 ## 75.6
 
+// glyph han-2ac84:15x16 15 16 // 𪲄
+// ⿰ han-6728 han-7070 // ⿰木灰
+
 // glyph han-2ac88:15x16 15 16 // 𪲈
 // ⿲ han-6728 han-4e28 han-76ee // ⿲木丨目
 
@@ -293,6 +326,9 @@ glyph han-2ac74:15x16 15 16 // 𪱴
 
 glyph han-2ac9a:15x16 15 16 // 𪲚
 ⿲ han-6728:5x16 han-6c35:3x16 han-6708:7x16 // ⿲木氵月
+
+// glyph han-2ac9d:15x16 15 16 // 𪲝
+// ⿰ han-6728 han-5e8a // ⿰木床
 
 ## 75.9
 
@@ -320,6 +356,9 @@ glyph han-2acc5:15x16 15 16 // 𪳅
 
 ## 75.13
 
+// glyph han-2acfd:15x16 15 16 // 𪳽
+// ⿱ han-6797 han-5399 // ⿱林厙
+
 glyph han-2ad01:15x16 15 16 // 𪴁
 ⿲ -2 han-6728:5x16 han-27fb7:5x16 han-5146:7x16 // ⿲木𧾷兆
 
@@ -327,6 +366,13 @@ glyph han-2ad01:15x16 15 16 // 𪴁
 
 // glyph han-2ad0d:15x16 15 16 // 𪴍
 // ⿱ han-7187 han-6728 // ⿱熇木
+
+# CJK unified ideographs extension C: 欠 (76)
+
+## 76.5
+
+// glyph han-2ad2a:15x16 15 16 // 𪴪
+// ⿰ han-5388 han-6b20 // ⿰厈欠
 
 # CJK unified ideographs extension C: 止 (77)
 

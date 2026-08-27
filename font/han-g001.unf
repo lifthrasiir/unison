@@ -40,6 +40,9 @@ glyph han-30041:15x16 15 16 // 𰁁
 
 ## 9.4
 
+// glyph han-30064:15x16 15 16 // 𰁤
+// ⿺ han-5143 han-4eba // ⿺元人
+
 // glyph han-30067:15x16 15 16 // 𰁧
 // ⿲ han-4ebb han-4eba han-4eba // ⿲亻人人 <- ⿰亻从
 
@@ -87,6 +90,13 @@ glyph han-300a9:15x16 15 16 // 𰂩
 
 // glyph han-300ba:15x16 15 16 // 𰂺
 // ⿲ han-4ebb han-5230 han-5409 // ⿲亻到吉 <- ⿰倒吉
+
+# CJK unified ideographs extension G: 儿 (10)
+
+## 10.3
+
+// glyph han-300ca:15x16 15 16 // 𰃊
+// ⿺ han-513f han-4e0a // ⿺儿上
 
 # CJK unified ideographs extension G: 八 (12)
 
@@ -169,6 +179,18 @@ glyph han-3011c:15x16 15 16 // 𰄜
 
 // glyph han-30172:15x16 15 16 // 𰅲
 // ⿱ han-4e16 han-5341 // ⿱世十
+
+# CJK unified ideographs extension G: 厂 (27)
+
+## 27.4
+
+// glyph han-30196:15x16 15 16 // 𰆖
+// ⿸ han-5382 han-5143 // ⿸厂元
+
+## 27.10
+
+// glyph han-301a1:15x16 15 16 // 𰆡
+// ⿸ han-5382 han-3c2a // ⿸厂㰪
 
 # CJK unified ideographs extension G: 口 (30)
 
@@ -291,6 +313,14 @@ glyph han-30249:15x16 15 16 // 𰉉
 // glyph han-302a3:15x16 15 16 // 𰊣
 // ⿱ han-6de1 han-571f // ⿱淡土
 
+// glyph han-302a5:15x16 15 16 // 𰊥
+// ⿰ han-571f han-554f // ⿰土問
+
+## 32.12
+
+// glyph han-302a8:15x16 15 16 // 𰊨
+// ⿰ han-571f han-9591 // ⿰土閑
+
 ## 32.13
 
 // glyph han-302b4:15x16 15 16 // 𰊴
@@ -342,6 +372,11 @@ glyph han-302e3:15x16 15 16 // 𰋣
 
 # CJK unified ideographs extension G: 女 (38)
 
+## 38.1
+
+// glyph han-302f5:15x16 15 16 // 𰋵
+// ⿺ han-5973 han-4e36 // ⿺女丶
+
 ## 38.2
 
 glyph han-302f6:15x16 15 16 // 𰋶
@@ -356,6 +391,11 @@ glyph han-302fa:15x16 15 16 // 𰋺
 
 // glyph han-302ff:15x16 15 16 // 𰋿
 // ⿰ han-5973 han-767e // ⿰女百
+
+## 38.8
+
+// glyph han-3030b:15x16 15 16 // 𰌋
+// ⿰ han-5973 han-9580 // ⿰女門
 
 ## 38.9
 

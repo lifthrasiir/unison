@@ -71,7 +71,7 @@ slice han = han-kr // TODO: should be face-dependent
 
 name-parts $han-regions = g h t j k p v
 
-audit ideal-clearance han-* 0 1
+audit ideal-clearance han-* 0 1 0 2
 audit max-contact-run han-* 2
 
 // han-XXXX[-<region>]:15x16 -> han-XXXX[-<region>]
